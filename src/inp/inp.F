@@ -1,3 +1,4 @@
+C> \defgroup inp Line input
       block data inp_data
 C$Id$
       implicit none
@@ -31,10 +32,16 @@ c
       data include_level /0/
 c
       end
+C> \ingroup inp
+C> @{
+C>
+C> \brief Initialize basic data elements
+c
       subroutine inp_init(ir,iw)
       implicit none
 #include "inpP.fh"
-      integer ir, iw
+      integer ir !< [Input] The standard input unit number
+      integer iw !< [Input] The standard output unit number
       external inp_data  ! For T3D linker
 c     
       iread = ir
@@ -50,6 +57,15 @@ c
       input_line = 0
 c     
       end
+C
+C> \brief Returns the number of fields in a line of input
+C>
+C> For a given line of input this function returns the number of
+C> white-space separated fields on that line. If the number of fields
+C> equals 0 then the end of the input file has been reached.
+C>
+C> \return Return the number of fields in a line of input
+c
       integer function inp_n_field()
       implicit none
 #include "inpP.fh"
@@ -59,6 +75,15 @@ c
       inp_n_field = jump
 c     
       end
+C
+C> \brief Returns the number of fields processed
+C>
+C> This function returns the number of fields of the current input line
+C> processed so far. The return value is in the range from 0 to
+C> inp_n_field().
+C>
+C> \return Return the number of fields processed
+c
       integer function inp_cur_field()
       implicit none
 #include "inpP.fh"
@@ -68,11 +93,18 @@ c
       inp_cur_field = jrec
 c     
       end
+C
+C> \brief Set the number of the field to be read next
+C>
+C> This subroutine moves the read position on the current input line
+C> so that the field with the specified number is read next. Valid
+C> arguments are 1 to inp_n_field().
+c
       subroutine inp_set_field(ivalue)
       implicit none
 #include "errquit.fh"
 #include "inpP.fh"
-      integer ivalue
+      integer ivalue !< [Input] The number of the next field
       integer inp_n_field
       external inp_n_field
 c     
@@ -87,10 +119,22 @@ c
       errmsg = ' '
 c     
       end
+C
+C> \brief Retrieve as much of the current input line as the buffer can
+C> hold
+C>
+C> Simply copy the current input line to the buffer. The Fortran 
+C> standard specifies that as much will be copied as will fit. No 
+C> tests are performed to check whether the data will fit. Also, whether
+C> the data fits does not affect the return value.
+C>
+C> \return Return .true. if there is a current input line, and .false.
+C> otherwise
+c
       logical function inp_line(z)
       implicit none
 #include "inpP.fh"
-      character*(*) z
+      character*(*) z !< [Output] (part of) the current input line
 c     
 c     set the variable z to be as much of the current input line
 c     that it can hold
@@ -107,6 +151,18 @@ c
       endif
 c     
       end
+C
+C> \brief Read a physical line of input straight into buffer
+C>
+C> This routine is intended for programms embedded into NWChem
+C> that need to read from the NWChem input file bypassing any
+C> processing that NWChem does on input data, but while still
+C> maintaining a correct count of the input line number for
+C> error reporting.
+C>
+C> \return Return .true. if there is an input line to be read, and
+C> .false. otherwise.
+
       logical function inp_read_physical_line(buf)
       implicit none
 #include "inpP.fh"
@@ -138,6 +194,17 @@ c
       errmsg  = 'unexpected end of data file'
 c
       end
+C
+C> \brief Read and parse a line of input
+C>
+C> This function reads a line of input and tokenizes it into fields.
+C> The data this produces is stored internally, but it can subsequently
+C> be queried using other routines in this module. This routine also 
+C> deals with special cases such as include files.
+C>
+C> \return Return .true. if another line of input was read successfully,
+C> and .false. otherwise.
+C
       logical function inp_read()
       implicit none
 #include "errquit.fh"
@@ -369,6 +436,12 @@ c
  105  call errquit('inp_read: failed to open include file',0, INPUT_ERR)
 c
       end
+C
+C> \brief Return .true. if the end-of-file was reached
+C>
+C> \return Return .true. if the end-of-file was reached, and .false. 
+C> otherwise
+c
       logical function inp_eof()
       implicit none
 #include "inpP.fh"
@@ -376,6 +449,9 @@ c
       inp_eof = oswit
 c
       end
+c
+C> \brief Clear all error conditions and error messages
+c
       subroutine inp_clear_err()
       implicit none
 #include "inpP.fh"
@@ -386,6 +462,10 @@ c
       errmsg = ' '
 c
       end
+c
+C> \brief Print the current input line and read position if an error
+C> has occurred.
+c
       subroutine inp_errout
       implicit none
 #include "inpP.fh"
@@ -423,6 +503,9 @@ c
       endif
 c     
       end
+c
+C> \brief Write the current input line to standard output
+c
       subroutine inp_outrec
       implicit none
 #include "inpP.fh"
@@ -433,11 +516,20 @@ c
 50    format(1x,i5,': ',a)
 c
       end
+c
+C> \brief Retrieve the next field as a character string
+C>
+C> Retrieves the next token as a text string. Any enclosing quotes are
+C> removed from the field. If the value does not fit the buffer provided
+C> an error condition is raised.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function inp_a(a)
       implicit none
 #include "inpP.fh"
       integer i1, i2, length
-      character*(*) a
+      character*(*) a !< [Output] The text value of the next field
 c     
 c     Return field as character string, minus any enclosing quotes
 c     with an error if it does not fit
@@ -472,12 +564,21 @@ c
          return
       endif
 c     
-      end
+      end 
+c
+C> \brief Retrieve the next field as a character string
+C>
+C> Retrieves the next token as a text string. Any enclosing quotes are
+C> removed from the field. If the value does not fit the buffer provided
+C> the value is silently truncated to as much as will fit.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function inp_a_trunc(a)
       implicit none
 #include "inpP.fh"
       integer i1, i2, length
-      character*(*) a
+      character*(*) a !< [Output] The text value of the next field
 c     
 c     Return field as character string, minus any enclosing quotes
 c     quietly truncating if it does not fit
@@ -505,10 +606,22 @@ c
       return
 c     
       end
+c
+C> \brief Retrieve the floating point value of the next field
+C>
+C> Interpret the next field as a floating point value and assign
+C> its value to the buffer provided. If the next field does not 
+C> represent a valid floating point value an error condition is
+C> raised.
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function inp_f (buf)
       implicit none
 #include "inpP.fh"
-      double precision ten, buf, dtmp
+      double precision buf !< [Output] The floating point value of the
+                           !< next field
+      double precision ten, dtmp
       integer i1, i2, ie2, isign, ie, iexp, ie1, itmp, i, j
       logical orep
       character*1 xchar(17)
@@ -581,10 +694,19 @@ c
       errmsg = 'illegal character reading floating point number'
 c     
       end
+C
+C> \brief Mark an input error at the beginning of the current field
+C>
+C> When an input error is detected we want to generate an error message
+C> that tells the user which field caused a problem. For this purpose
+C> the program needs to be able to specify the field for which an 
+C> error was detected. The routine provides that function, in addition
+C> it allows an error message to be specified as well.
+c
       subroutine inp_mark_err(message)
       implicit none
 #include "inpP.fh"
-      character*(*) message
+      character*(*) message !< [Input] The error message
 c
 c     Mark an input error at the beginning of the current input field
 c
@@ -592,13 +714,24 @@ c
       errmsg  = message
 c
       end
+c
+C> \brief Retrieve the integer of the next field
+C>
+C> Interpret the next field as an integer value and assign
+C> its value to the buffer provided. If the next field does not 
+C> represent a valid integer value an error condition is
+C> raised.
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function inp_i(jbuf)
       implicit none
 #include "inpP.fh"
       character*1 xchar(12)
       integer n, ifact, ist, nstrt, i, j
       character*1 xtemp
-      integer jbuf, jtmp
+      integer jbuf !< [Output] The integer value read
+      integer jtmp
       data xchar /'0','1','2','3','4','5','6','7','8','9'
      1     ,'+','-'/
 c     
@@ -649,10 +782,20 @@ c
       return
 c     
       end
+c
+C> \brief Compare two strings
+C>
+C> This function compares two strings, either case sensitively or
+C> case insensitively. For the two strings to match they have to be
+C> of equal length at least.
+C>
+C> \return Return .true. if the two strings match, and .false. otherwise
+C
       logical function inp_compare(ocase, a, b)
       implicit none
-      logical ocase
-      character*(*) a, b
+      logical ocase   !< [Input] If .true. do case sensitive comparison
+      character*(*) a !< [Input] String A to match B
+      character*(*) b !< [Input] String B to match A
       integer la, lb, i
       character*1 atest, btest
       integer inp_strlen
@@ -679,11 +822,31 @@ c
       endif
 c
       end
+c
+C> \brief Matches a string to the elements of an array of strings
+C>
+C> This function looks for a string in an array of strings. A match
+C> is found if the search string appears once and only once in the 
+C> array. The index in the array where the match was found is retrieved.
+C> If the function fails to find a unique match then
+C>
+C> - ind = -1 if no occurence of string was found in array
+C>
+C> - ind = 0 if multiple occurences of string were found in array
+C>
+C> \return Return .true. if one match was found, and .false. otherwise
+c
       logical function inp_match(nrec, ocase, test, array, ind)
       implicit none
-      integer nrec, ind
-      logical ocase, inp_compare
-      character*(*) test, array(*)
+      integer nrec           !< [Input] The length of the array of
+                             !< strings
+      logical ocase          !< [Input] If .true. do case sensitive
+                             !< comparison
+      logical inp_compare
+      character*(*) test     !< [Input] String to find in array
+      character*(*) array(*) !< [Input] Array of strings to search
+      integer ind            !< [Output] The index of the element of
+                             !< array that matches test
       integer i, j, l, inp_strlen
       external inp_compare, inp_strlen
 c
@@ -710,15 +873,28 @@ c
       enddo
 c     
       end
+C
+C> \brief Checks if string A is contained in string B
+C>
+C> Checks whether string A is contained in string B. If so, then the 
+C> position where A was found in B is retrieved. The strings can be
+C> compared case sensitively or case insensitive. If no matches were
+C> found the position retrieved is -1.
+C>
+C> \return Return .true. if string A is contained in B, and .false.
+C> otherwise
+c
       logical function inp_contains(ocase, a, b,ipos)
 c
 c  check if string a is contained in b. return starting
 c  location of string a in b.
 c
       implicit none
-      logical ocase
-      character*(*) a, b
-      integer la, lb, i, j, ipos
+      logical ocase   !< [Input] If .true. do case sensitive comparison
+      character*(*) a !< [Input] String A to be found in B
+      character*(*) b !< [Input] String B to be searched
+      integer ipos    !< [Output] The position where A was found in B
+      integer la, lb, i, j
       character*1 atest, btest
       integer inp_strlen
       external inp_strlen
@@ -755,6 +931,12 @@ c
       endif
 c
       end
+C
+C> \brief Move the cursor one field back
+C>
+C> Moves the cursor one field back so that a field can be read again
+C> with the next read call.
+c
       subroutine inp_prev_field()
       implicit none
 #include "inp.fh"
@@ -762,10 +944,21 @@ c
       call inp_set_field(max(0,inp_cur_field()-1))
 c
       end
+c
+C> \brief Returns the length of the contents of a string
+C>
+C> In Fortran the length of a string is determined by the amount of 
+C> memory allocated for it. Often one just wants to know how long the
+C> value of the string is without any trailing spaces. Which is what
+C> this function returns.
+C>
+C> \return The length of the value of a string without any trailing 
+C> spaces
+c
       integer function inp_strlen(a)
       implicit none
 #include "inpP.fh"
-      character*(*) a
+      character*(*) a !< [Input] The string
       integer i
       logical ois_ws
       intrinsic len
@@ -779,10 +972,18 @@ c
  10   inp_strlen = i
 c
       end
+c
+C> \brief Convert a string to lower case
+C>
+C> Replaces the contents of a string with the same value but in lower
+C> case characters only.
+c
       subroutine inp_lcase(string)
       implicit none
 #include "errquit.fh"
-      character*(*) string
+      character*(*) string !< [In/Output] On input the string to be 
+                           !< converted, and on output the same string
+                           !< in lower case characters
       intrinsic ichar, len
       integer i, length, uca, ucz, lca, shift, test
 c
@@ -802,11 +1003,20 @@ c
       enddo
 c
       end
+c
+C> \brief Remove any leading spaces from a string
+C>
+C> If a string has any white space characters at the start, remove
+C> those characters and return the string starting with non-white space
+C> characters.
+c
       subroutine inp_adjustl(a)
       implicit none
 #include "errquit.fh"
 #include "inpP.fh"
-      character*(*) a
+      character*(*) a !< [In/Output] On input the string to be adjusted,
+                      !< on output the same string but without any 
+                      !< leading white space characters.
       intrinsic  len
       logical ois_ws
       character*1 xtest
@@ -826,10 +1036,18 @@ c
       enddo
 c
       end
+c
+C> \brief Convert a string to upper case
+C>
+C> Replaces the contents of a string with the same value but in upper
+C> case characters only.
+c
       subroutine inp_ucase(string)
       implicit none
 #include "errquit.fh"
-      character*(*) string
+      character*(*) string !< [In/Output] On input the string to be 
+                           !< converted, and on output the same string
+                           !< in upper case characters
       intrinsic ichar, len
       integer i, length, lca, lcz, uca, shift, test
 c
@@ -849,12 +1067,24 @@ c
       enddo
 c
       end
+c
+C> \brief Check if any of the strings specified match any of the fields
+C> in the input file
+C>
+C> Searches the full input file for the presence of any of the provided
+C> strings. The search stops at the first field to match any of the 
+C> strings. The cursor is moved to just before the matching field.
+C>
+C> \return Return .true. if a string matches a field, and .false. 
+C> otherwise
+c
       logical function inp_search(ocase, z, nz)
       implicit none
 #include "errquit.fh"
-      integer nz
-      character*(*) z(nz)
-      logical ocase
+      integer nz          !< [Input] The length of z
+      character*(*) z(nz) !< [Input] The array of strings
+      logical ocase       !< [Input] If .true. do case sensitive
+                          !< matching
       character*1024 tmp
       integer inp_strlen
       logical inp_read, inp_a, inp_compare
@@ -887,11 +1117,31 @@ c
       inp_search = .false.
 c
       end
+c
+C> \brief Search the input for a string using a fast algorithm
+C>
+C> Searches the input file for a given string. The given string must be
+C> at least 3 characters long. To make the algorithm fast the search is
+C> simplified in a number of ways:
+C>
+C> - All searches are case sensitive
+C>
+C> - Only attempt to match against the beginning of a line
+C>
+C> - Ignore continuation line, comments, quotes, and such like
+C>
+C> On return the cursor is positioned at the beginning of the line
+C> where the match was found. If no match was found the cursor is
+C> positioned at the end of the file.
+C>
+C> \return Return .true. if the string was found in the input, and
+C> .false. otherwise.
+C
       logical function inp_search_fast(z)
       implicit none
 #include "errquit.fh"
 #include "inpP.fh"
-      character*(*) z
+      character*(*) z !< [Input] The string
       integer length
       integer inp_strlen
       logical inp_read, inp_a, inp_compare
@@ -929,6 +1179,13 @@ c
       jrec=0
 c
       end
+c
+C> \brief Push the state for the current input file on stack
+C>
+C> Save the state of the current input file on a stack so that the code
+C> can start reading an include file. Currently the stack can hold
+C> only 3 entries.
+C
       subroutine inp_save_state
 #include "inpP.fh"
 c
@@ -961,6 +1218,13 @@ c
       enddo
 c
       end
+c
+C> \brief Pop the state of an input file from the stack
+C>
+C> Restore the state of an input file from the stack so that the code
+C> can start continue reading a file after finishing with an include 
+C> file.
+C
       subroutine inp_restore_state
 #include "inpP.fh"
 c
@@ -993,13 +1257,21 @@ c
       save_level = save_level - 1
 c
       end
-
+c
+C> \brief Copy as much of the current input line as possible into a
+C> string
+C>
+C> Copies as much of the current input line as will fit into the
+C> string Z. The number of characters copied is returned in LEN, and
+C> the success or failure of this operation is reported in SUCCESS.
+C>
       subroutine inp_cline(z, len, success)
       implicit none
 #include "inpP.fh"
-      character*(*) z
-      logical success
-      integer len, flen
+      character*(*) z !< [Output] The current input line
+      logical success !< [Output] If .true. to copy operation succeeded
+      integer len     !< [Output] The number of characters copied to Z
+      integer flen
 c     
 c     set the variable z to be as much of the current input line
 c     that it can hold
@@ -1017,11 +1289,41 @@ c
       endif
       return
       end
+C
+C> \brief Find the next token on a string
+C>
+C> Returns the number of the start and end character of the
+C> next token in the character string. Tokens are separated
+C> by one of the characters in SEP. Note that all characters
+C> in SEP are used including any trailing blanks.
+C>
+C> Before the first call initialize ISTART to zero, and leave
+C> ISTART and IEND <b>UNCHANGED</b> for subsequent calls.
+C> Repeated calls return the next token and .true., or .false. if
+C> there are no more tokens. The separators may be changed
+C> between calls.
+C>
+C> No internal state is maintained (which is ISTART and IEND
+C> must not be modified between calls) so multiple strings
+C> may be parsed simultaneously.
+C>
+C> E.g., to split LIST = 'robert:rick:jeff' into tokens separated 
+C> by ':'. You execute
+C>
+C>       istart = 0
+C>       do while (inp_strtok(list, ':', istart, iend))
+C>         write(6,*) list(istart:iend)
+C>       enddo
+C>
+C> \return Returns .true. if a next token was found, and .false.
+C> otherwise
+c
       logical function inp_strtok(z, sep, istart, iend)
       implicit none
-      character*(*) z           ! [input] string to parse
-      character*(*) sep         ! [input] token separators
-      integer istart, iend      ! [output] start/end of next token
+      character*(*) z   !< [Input] The string to parse
+      character*(*) sep !< [Input] The token separators
+      integer istart    !< [Output] The start of next token
+      integer iend      !< [Output] The end of next token
 c
 c     Returns the number of the start and end character of the
 c     next token in the character string.  Tokens are separated
@@ -1084,5 +1386,6 @@ c
       inp_strtok = .true.
 c
       end
+C> @}
 
       
