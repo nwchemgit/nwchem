@@ -783,6 +783,108 @@ c
 c     
       end
 c
+C> \brief Retrieve the logical value of the next field
+C>
+C> Interpret the next field as a logical value and assign
+C> its value to the buffer provided. If the next field does not 
+C> represent a valid logical value an error condition is
+C> raised.
+C>
+C> Valid values for .true. are: .True., True, T, Yes, Y, On.
+C>
+C> Valid values for .false. are: .False., False, F, No, N, Off.
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
+      logical function inp_l(lbuf)
+      implicit none
+#include "inpP.fh"
+#include "errquit.fh"
+      integer maxlen
+      parameter (maxlen = 7)
+      character*7 xtoken
+      integer n, ifact, ist, nstrt, i, j
+      logical lbuf !< [Output] The logical value read
+c     
+      if (maxlen.ne.len(xtoken))
+     +  call errquit('inp_l: coding error',0,UERR)
+c
+      inp_l = .false.
+      ierrpos = -1
+      errmsg = ' '
+      if(jrec.ge.jump) then
+         inp_l = .false.
+         ierrpos = -1
+         errmsg = 'at end of line looking for logical'
+         return
+      endif
+      jrec = jrec + 1
+      n    = inumb(jrec)
+      ist  = istrt(jrec)
+      if (n.gt.maxlen) then
+c
+c       the token is longer than the longest valid value of logical
+c       so this cannot match
+c
+        inp_l = .false.
+        jrec = jrec - 1   ! position cursor to reread this token
+        return
+      endif
+      xtoken = ia(ist:ist+n-1)
+      call inp_lcase(xtoken)
+c
+c     Check whether the string represents a valid value of .true.
+c
+      if (xtoken(1:n).eq.'.true.') then
+        inp_l = .true.
+        lbuf  = .true.
+      else if (xtoken(1:n).eq.'true') then
+        inp_l = .true.
+        lbuf  = .true.
+      else if (xtoken(1:n).eq.'t') then
+        inp_l = .true.
+        lbuf  = .true.
+      else if (xtoken(1:n).eq.'yes') then
+        inp_l = .true.
+        lbuf  = .true.
+      else if (xtoken(1:n).eq.'y') then
+        inp_l = .true.
+        lbuf  = .true.
+      else if (xtoken(1:n).eq.'on') then
+        inp_l = .true.
+        lbuf  = .true.
+c
+c     Check whether the string represents a valid value of .false.
+c
+      else if (xtoken(1:n).eq.'.false.') then
+        inp_l = .true.
+        lbuf  = .false.
+      else if (xtoken(1:n).eq.'false') then
+        inp_l = .true.
+        lbuf  = .false.
+      else if (xtoken(1:n).eq.'f') then
+        inp_l = .true.
+        lbuf  = .false.
+      else if (xtoken(1:n).eq.'no') then
+        inp_l = .true.
+        lbuf  = .false.
+      else if (xtoken(1:n).eq.'n') then
+        inp_l = .true.
+        lbuf  = .false.
+      else if (xtoken(1:n).eq.'off') then
+        inp_l = .true.
+        lbuf  = .false.
+c
+c     Else we cannot interpret this field as a logical
+c
+      else
+        inp_l = .false.
+        jrec = jrec-1   ! position cursor to reread this token
+      endif
+      return
+c     
+      end
+c
 C> \brief Compare two strings
 C>
 C> This function compares two strings, either case sensitively or

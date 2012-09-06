@@ -149,6 +149,7 @@ c
 c     ----- cosmo -----
 c
       logical odbug
+      logical ocosmo_got_gasphase
       double precision egas
       double precision esol
       double precision ecosmo
@@ -212,6 +213,7 @@ c
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
+      ocosmo_got_gasphase = .false.
       lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
@@ -1573,9 +1575,10 @@ c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
       if(cosmo_on.and.cosmo_phase.eq.1) then
-         converged =.false.
-         egas      =etnew+enuc
-         cosmo_phase=2
+         converged           = .false.
+         egas                = etnew+enuc
+         cosmo_phase         = 2
+         ocosmo_got_gasphase = .true.
          if(odbug) write(LuOut,*) 
      &     'gas_phase done, do sol-phase now ...'
 c
@@ -1653,9 +1656,14 @@ c
            write(LuOut,*) '                 COSMO solvation results'
            write(LuOut,*) '                 -----------------------'
            write(LuOut,*) ' '
-           write(LuOut,912) egas
-           write(LuOut,913) esol
-           write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
+           if (ocosmo_got_gasphase) then
+             write(LuOut,912) egas
+             write(LuOut,913) esol
+             write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
+           else
+             write(LuOut,915) 
+             write(LuOut,913) esol
+           endif
            call util_flush(LuOut)
          endif
       endif
@@ -1663,6 +1671,7 @@ c
  913  format('                 sol phase energy = ',f20.10)
  914  format(' (electrostatic) solvation energy = ',f20.10,
      $     ' (',f8.2,' kcal/mol)'                       )
+ 915  format('     skipped: no gas phase energy')
  1970 continue
 c
 c     do analysis of MO occupations per irrep

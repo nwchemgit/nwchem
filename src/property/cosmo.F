@@ -31,6 +31,7 @@ c
       double precision dielec, rsolv, rad
       character*255 field
       logical do_cosmo
+      logical do_gasphase
 c
 c     ----- defaults -----
 c
@@ -157,6 +158,20 @@ c
      $        call errquit('cosmo_input: lineq',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:lineq',mt_int,1,lineq))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- do_gasphase
+c
+      else if(inp_compare(.false.,'do_gasphase',field)) then
+         if (.not. inp_l(do_gasphase)) do_gasphase = .true.
+         if (do_gasphase) then
+           if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,1))
+     $        call errquit('cosmo_input: put cosmo_phase failed',
+     $                     911, RTDB_ERR)
+         else
+           if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,2))
+     $        call errquit('cosmo_input: put cosmo_phase failed',
+     $                     911, RTDB_ERR)
+         endif
 c
       endif
 c

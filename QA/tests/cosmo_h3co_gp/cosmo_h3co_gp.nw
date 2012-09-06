@@ -1,0 +1,37 @@
+echo
+
+start h3cona_dat
+
+geometry
+    o      0.00000000     0.00000000     0.27851507
+    c      0.00000000     0.00000000     1.63192657
+    h      0.26167571    -0.97658705     2.06772417
+    h     -0.97658705     0.26167571     2.06772417
+    h      0.71491134     0.71491134     2.06772417
+end
+charge -1
+
+basis 
+  * library 6-31g*
+end
+
+cosmo
+end
+
+dft
+  xc b3lyp
+end
+
+driver
+end
+
+task dft energy
+cosmo
+  do_gasphase off
+end
+task dft optimize
+task dft energy
+cosmo
+  do_gasphase on
+end
+task dft optimize
