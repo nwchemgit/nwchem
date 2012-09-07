@@ -510,7 +510,11 @@ c
      &     call errquit('dft_scf_so:fon nel_fon <0',1, INPUT_ERR)
 c
         avg_fon = nel_fon(ispin)/dble(nmo_fon(ispin))  ! average occupation
-        avg_fon2 = nel_fon(ispin+2)/dble(nmo_fon(ispin+2))  ! average occupation
+        if (nmo_fon(ispin+2).lt.1.or.nel_fon(ispin+2).le.0d0) then
+            avg_fon2 = 0.0d0
+        else
+            avg_fon2 = nel_fon(ispin+2)/dble(nmo_fon(ispin+2))  ! average occupation
+        endif
         nfilled = ncore_fon(ispin)  ! number of filled orbitals for each spin
 c
 c       initialize
