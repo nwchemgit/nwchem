@@ -163,8 +163,8 @@ c
       external dft_rabuck
 c
       integer g_focks(2)
-      double precision nel_fon(2)
-      integer nmo_fon(2), ncore_fon(2)
+      double precision nel_fon(4)
+      integer nmo_fon(4), ncore_fon(2)
       integer g_movad,
      ,     ncanorg,g_gmovecs(2)
       logical gotsmear,quickguess,diisreset
@@ -284,13 +284,13 @@ c     check for FON in rtdb:
      &     'dft_scf: fon stored in RTDB but not .true.', 1,
      &     RTDB_ERR)
 
-      if (.not.rtdb_get(rtdb, 'dft:nmo_fon', mt_int, 2,
+      if (.not.rtdb_get(rtdb, 'dft:nmo_fon', mt_int, 4,
      & nmo_fon)) call errquit('dft_scf: rtdb_get failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_get(rtdb, 'dft:ncore_fon', mt_int, 2,
      & ncore_fon)) call errquit('dft_scf: rtdb_get failed', 2300,
      &       RTDB_ERR)
-      if (.not.rtdb_get(rtdb, 'dft:nel_fon', mt_dbl, 2,
+      if (.not.rtdb_get(rtdb, 'dft:nel_fon', mt_dbl, 4,
      & nel_fon)) call errquit('dft_scfp: rtdb_get failed', 2301,
      &       RTDB_ERR)
       if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1,
