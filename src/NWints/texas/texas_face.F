@@ -986,7 +986,7 @@ c
 c------------------------------------
 c reorder the basis set according to TEXAS needs :
 c
-      call reorder(ncs,inx(inxx),
+      call reordertxs(ncs,inx(inxx),
      *   dbl_mb(iny),dbl_mb(ncshell),dbl_mb(ncfunct),dbl_mb(inuc),
      *                                               dbl_mb(ibas))
 c------------------------------------

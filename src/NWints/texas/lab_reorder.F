@@ -1,4 +1,4 @@
-      subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc,datbas)
+      subroutine reordertxs(ncs,inx,iny,ncshell,ncfunct,datnuc,datbas)
 c $Id$
       implicit none
 #include "global.fh"
