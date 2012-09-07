@@ -788,11 +788,17 @@ C>
 C> Interpret the next field as a logical value and assign
 C> its value to the buffer provided. If the next field does not 
 C> represent a valid logical value an error condition is
-C> raised.
+C> raised. Valid string representations of the logical values
+C> true and false are given in the table below:
 C>
-C> Valid values for .true. are: .True., True, T, Yes, Y, On.
-C>
-C> Valid values for .false. are: .False., False, F, No, N, Off.
+C>    | True   | False   |
+C>    |:------:|:-------:|
+C>    | .true. | .false. |
+C>    | true   | false   |
+C>    | t      | f       |
+C>    | yes    | no      |
+C>    | y      | n       |
+C>    | on     | off     |
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 c
@@ -1412,10 +1418,12 @@ C>
 C> E.g., to split LIST = 'robert:rick:jeff' into tokens separated 
 C> by ':'. You execute
 C>
-C>       istart = 0
-C>       do while (inp_strtok(list, ':', istart, iend))
-C>         write(6,*) list(istart:iend)
-C>       enddo
+C> ~~~~
+C> istart = 0
+C> do while (inp_strtok(list, ':', istart, iend))
+C>    write(6,*) list(istart:iend)
+C> enddo
+C> ~~~~
 C>
 C> \return Returns .true. if a next token was found, and .false.
 C> otherwise
