@@ -1,3 +1,12 @@
+C> \ingroup geom
+C> @{
+C>
+C> \brief Compute the checksum for a geometry instance
+C> 
+C> Computes a checksum for a geometry instance using MD5 technology.
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function geom_checksum(geom, sum)
 *
 * $Id$
@@ -6,8 +15,8 @@
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
-      integer geom
-      character*32 sum
+      integer geom     !< [Input] The geometry handle
+      character*32 sum !< [Output] The checksum
 c
       integer dtob, itob, natom, i
       logical geom_check_handle
@@ -33,3 +42,4 @@ c
       call checksum_final(sum)
 c
       end
+C> @}

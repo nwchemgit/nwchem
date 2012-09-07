@@ -1,3 +1,10 @@
+C> \ingroup basis
+C> @{
+C>
+C> \brief Compute the checksum of a basis set instance
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function bas_checksum(basisin, sum)
       implicit none
 *
@@ -8,8 +15,8 @@
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
-      integer basisin
-      character*32 sum
+      integer basisin  !< [Input] The basis set handle
+      character*32 sum !< [Output] The checksum
 c
       integer dtob, itob, ltob, basis, ntags, i
       logical bas_check_handle
@@ -44,3 +51,4 @@ c
       call checksum_final(sum)
 c
       end
+C> @}
