@@ -51,15 +51,15 @@ c      logical numerical
 c
 c     declarations for fractional occupation 
 c
-      integer nmo_fon  ! number of fractionally occupied orbitals
+      integer nmo_fon,nmo_fon2  ! number of fractionally occupied orbitals
       integer ncore_fon ! number of fully occupied orbitals
-      integer nfilled, ilow, ihigh
-      double precision nel_fon  ! fractional electron number
-      double precision avg_fon  ! fractional occupancy (averaged)
+      integer nfilled, ilow, ihigh, ilow2, ihigh2
+      double precision nel_fon,nel_fon2  ! fractional electron number
+      double precision avg_fon,avg_fon2  ! fractional occupancy (averaged)
       integer nTotOcc           ! nTotOcc: no. of (occupied maybe f.o.) mo's 
       logical fon 
-      integer ntmp_fon(2)
-      double precision rtmp_fon(2), pstrace
+      integer ntmp_fon(4)
+      double precision rtmp_fon(4), pstrace
       double precision scale, ncheck
       integer kfon_occ, lfon_occ
       logical debug_fon, det_eng 
@@ -699,7 +699,7 @@ c       note: *_fon variables are read here not as arrays with
 c       two elements, assuming that the input didn't specify
 c       spects for alpha and beta separately
 
-        if (.not.rtdb_get(rtdb,'dft:nmo_fon',mt_int,2,ntmp_fon)) then
+        if (.not.rtdb_get(rtdb,'dft:nmo_fon',mt_int,4,ntmp_fon)) then
           if (me.eq.0) then
             write(LuOut,*)"Error: fractional occupation 
      &         calculation specified without setting number of orbitals"
@@ -708,8 +708,9 @@ c       spects for alpha and beta separately
      &       RTDB_ERR)
         else
           nmo_fon = ntmp_fon(1)
+          nmo_fon2 = ntmp_fon(3)
         end if
-        if (.not.rtdb_get(rtdb,'dft:nel_fon',mt_dbl,2,rtmp_fon)) then
+        if (.not.rtdb_get(rtdb,'dft:nel_fon',mt_dbl,4,rtmp_fon)) then
           if (me.eq.0) then
             write(LuOut,*)"Error: fractional occupation 
      &         specified without setting number of electrons"  
@@ -718,6 +719,7 @@ c       spects for alpha and beta separately
      &       RTDB_ERR)
         else
           nel_fon = rtmp_fon(1)
+          nel_fon2 = rtmp_fon(3)
         end if
         if (.not.rtdb_get(rtdb,'dft:ncore_fon',mt_int,2,ntmp_fon)) then
           if (me.eq.0) then
@@ -752,8 +754,8 @@ c         with that. later, the fractional occupations
 c         are caluclated explicitly
           anoca = noc(1)
           anocb = noc(2)
-          noc(1)=(noc(1)+noc(2)-nel_fon)/2
-          noc(2)=(noc(1)+noc(2)-nel_fon)/2
+          noc(1)=(noc(1)+noc(2)-nel_fon-nel_fon2)/2
+          noc(2)=(noc(1)+noc(2)-nel_fon-nel_fon2)/2
         endif                   ! fon
 c
          call dft_guessin(movecs_in,ldmix,ncanorg,fon,
@@ -872,7 +874,12 @@ c     applying fractional occupations
      &     1, INPUT_ERR)
 
         avg_fon = nel_fon/dble(nmo_fon)
-        nTotOcc = ncore_fon + nmo_fon 
+        if (nmo_fon2.lt.1.or.nel_fon2.le.0d0) then
+           avg_fon2 = 0.0
+        else
+           avg_fon2 = nel_fon2/dble(nmo_fon2)
+        endif
+        nTotOcc = ncore_fon + nmo_fon + nmo_fon2
 c
 c       initialization
         do i = 1,2*nbf_ao
@@ -932,6 +939,20 @@ c
             ncheck = ncheck + dbl_mb(i-1+k_occ)
           end do
 c
+c         second partially filled outer molecular orbitals
+          do i = nfilled + nmo_fon + 1, nfilled + nmo_fon + nmo_fon2
+            if (i> 2*nbf_ao) call errquit(
+     &       'dft_densm:fon focc index exceeds 2nbf error 2',
+     &       i, INPUT_ERR)
+c
+            if (do_avg_fon) then
+             dbl_mb(i-1+k_occ) = avg_fon2
+            else
+             dbl_mb(i-1+k_occ) = nel_fon2
+            end if  ! do_avg_fon
+            ncheck = ncheck + dbl_mb(i-1+k_occ)
+          end do
+c
         endif ! do_core_fon
 c
           if(abs(ncheck-dble(nTotEl)).gt.1d-3 .and. me.eq.0) then
@@ -948,9 +969,22 @@ c
          else
           ilow = nfilled +1
           ihigh = nfilled + nmo_fon
+          ilow2 = ihigh + 1
+          ihigh2 = ihigh + nmo_fon2   
          end if
 c
+c        partially filled molecular orbitals
          do i = ilow,ihigh
+          if (i> nbf_mo) call errquit(
+     &        'dft_densm:fon g_moso index exceeds nbf_mo',
+     &        i, INPUT_ERR)
+           scale = sqrt(dbl_mb(i-1+k_occ)) ! sqrt(occupation number)
+           call ga_scale_patch(g_moso(1),1,nbf_mo,i,i,scale)
+           call ga_scale_patch(g_moso(2),1,nbf_mo,i,i,scale)
+         end do ! i loop
+c
+c        second partially filled molecular orbitals
+         do i = ilow2,ihigh2
           if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
      &        i, INPUT_ERR)
@@ -980,8 +1014,11 @@ c
          else
           ilow = nfilled + 1
           ihigh = nfilled + nmo_fon
+          ilow2 = ihigh + 1
+          ihigh2 = ihigh + nmo_fon2   
          end if
 c
+c        partially filled molecular orbitals
          do i = ilow,ihigh
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
@@ -989,7 +1026,19 @@ c
            if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
      &        'dft_densm:fon frac occup < 1E-4. Aborting',
      &        i, INPUT_ERR)           
+           scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
+           call ga_scale_patch(g_moso(1),1,nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(2),1,nbf_mo, i, i, scale)
+         end do
 c
+c        second partially filled molecular orbitals
+         do i = ilow2,ihigh2
+           if (i> nbf_mo) call errquit(
+     &        'dft_densm:fon g_moso index exceeds nbf_mo',
+     &        i, INPUT_ERR)
+           if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
+     &        'dft_densm:fon frac occup < 1E-4. Aborting',
+     &        i, INPUT_ERR)           
            scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
            call ga_scale_patch(g_moso(1),1,nbf_mo, i, i, scale)
            call ga_scale_patch(g_moso(2),1,nbf_mo, i, i, scale)
