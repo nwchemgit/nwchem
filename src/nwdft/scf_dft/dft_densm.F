@@ -33,8 +33,8 @@ c
       double precision ssmear       ! smearing sigma
       double precision tdots       ! total energy
       logical search0,fon
-      double precision nel_fon(2)
-      integer ncore_fon(2), nmo_fon(2)
+      double precision nel_fon(4)
+      integer ncore_fon(2), nmo_fon(4)
       integer ilo,ihi,jlo,jhi,numi,numj,icount
 c
       integer i,isp,g_tmp
@@ -469,9 +469,9 @@ c
       integer me
 c
       integer i
-      double precision avg_fon
-      double precision nel_fon(2)
-      integer nmo_fon(2), ncore_fon(2)
+      double precision avg_fon, avg_fon2
+      double precision nel_fon(4)
+      integer nmo_fon(4), ncore_fon(2)
       integer ispin
       double precision ncheck
       logical debug
@@ -504,8 +504,13 @@ c
      &     call errquit('dft_densm:fon nmo_fon <1',1, INPUT_ERR)
         if (nel_fon(ispin).lt.0d0) 
      &     call errquit('dft_scf_so:fon nel_fon <0',1, INPUT_ERR)
+        if (nmo_fon(ispin+2).lt.1) 
+     &     call errquit('dft_densm:fon nmo_fon <1',1, INPUT_ERR)
+        if (nel_fon(ispin+2).lt.0d0) 
+     &     call errquit('dft_scf_so:fon nel_fon <0',1, INPUT_ERR)
 c
         avg_fon = nel_fon(ispin)/dble(nmo_fon(ispin))  ! average occupation
+        avg_fon2 = nel_fon(ispin+2)/dble(nmo_fon(ispin+2))  ! average occupation
         nfilled = ncore_fon(ispin)  ! number of filled orbitals for each spin
 c
 c       initialize
@@ -565,6 +570,20 @@ c         partially filled molecular orbitals
             if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i+nfilled,ispin)
           end do  ! nmo_fon
+c
+c         second partially filled molecular orbitals
+          do i = 1,nmo_fon(ispin+2)
+            if (i+nfilled > nbf) call errquit(
+     &       'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
+            if (do_avg_fon) then
+             focc(i+nfilled+nmo_fon(ispin),ispin) = avg_fon2  ! assign average occupation
+            else
+             focc(i+nfilled+nmo_fon(ispin),ispin) = nel_fon(ispin+2) ! assign given fractional electron
+            end if ! do_avg_fon
+            ncheck = ncheck + focc(i+nfilled+nmo_fon(ispin),ispin)
+            if (me.eq.0 .and. debug)
+     &       write(luout,*) i,ispin,focc(i+nfilled+nmo_fon(ispin),ispin)
+          end do  ! nmo_fon second partial
        end if  ! do_core_fon
       end do                    ! ispin
 c
