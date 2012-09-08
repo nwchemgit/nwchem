@@ -20,8 +20,8 @@
       integer md_data_get_natom, md_data_get_nsteps,mc_data_get_trajnum
       double precision md_data_get_timestep, md_data_get_temp 
 
-      logical grad
-      external grad
+      logical grad, task_energy
+      external grad, task_energy
       integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
       integer step, nsteps 
       double precision dt,ek,temp,E1,Etot 
@@ -181,7 +181,7 @@ C --- calculate forces for predicted coords
 c --- calculate energy for the corrected geometry         
          call md_data_geom_set(rtdb)
 
-         call task_energy(rtdb)
+         status = task_energy(rtdb)
         
          if (.not. rtdb_get(rtdb,theorye,mt_dbl,1,E1))
      &   call errquit('md_driver:  no energy ', 0,

@@ -14,7 +14,8 @@
 #include "util_sgroup.fh"  !for subgroup support
 c#include "subgr.fh"
 
-      logical mc_driver
+      logical mc_driver, task_energy
+      external task_energy
       integer geom
       integer mcstep,natom !number of Monte Carlo step
       integer i_c,i_evec,i_eval,i_in,i_s,i_q,i_t 
@@ -135,7 +136,7 @@ C  ! get ihe energy for the initial point
       int_mb(i_s)=1  ! always the first step is accepted cause it is the irc 
 
 C ---- get the energy of the TST (0th step)
-      call task_energy(rtdb)
+      status = task_energy(rtdb)
       cntnrg=cntnrg+1
 c      write (iw,*) 'cntnrg = ',cntnrg 
       if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E0))
@@ -151,7 +152,7 @@ C      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
 C --- if the previous value is 0, it means the previous step was rejacted
 C --- so E0 is E0, but if it is 1, the previous step was accepted, so E0=E1 
 c      if (int_mb(i_s+step-1).ne.0) then
-c     &   call task_energy(rtdb) 
+c     &   status = task_energy(rtdb) 
       
 c      if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E0))
 c     & call errquit('mc_driver:  no energy ', 0,
@@ -196,7 +197,7 @@ C store the new coords in rtdb
         call ga_sync()
 C call the energy calculation 
 c        write(*,*)'In MC-driver: new geometry :'
-        call task_energy(rtdb)
+        status = task_energy(rtdb)
       cntnrg=cntnrg+1
 c      write (iw,*) 'cntnrg = ',cntnrg
         if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E1))

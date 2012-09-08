@@ -17,8 +17,8 @@
       logical mc_main
       logical md_driver,mc_driver,mc_init
       integer mcsteps
-      logical grad
-      external grad
+      logical grad, task_energy
+      external grad, task_energy
 
       logical status
       integer natom 
@@ -116,11 +116,11 @@ c     &     fprefix, numgroups)
 C-- the stdout is now redirected to other .out output files for each trajectory
 C from here we can start mc_loop 
 c      goto 100
-c      call task_energy(rtdb)
+c      status = task_energy(rtdb)
 c      goto 100 
 
       write(iw,*) 'testing energy calculation\n'
-      call task_energy(rtdb)
+      status = task_energy(rtdb)
 
       write(iw,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
       
