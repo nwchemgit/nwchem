@@ -237,7 +237,9 @@ c
             ihi(3) = nocc(idens)+nvirt(idens)
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
-              write(LuOut,*)__FILE__,": Ta = ",idens,i,dnrm
+              write(LuOut,'(a,": Ta =",i2,i4,f24.8)')
+     +        __FILE__,
+     +        idens,i,dnrm
             endif
           enddo
         enddo
@@ -389,8 +391,9 @@ c
             ihi(3) = nocc(idens)+nvirt(idens)
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
-              write(LuOut,*)__FILE__,": Ta after scaling = ",
-     &                      idens,i,dnrm
+              write(LuOut,'(a,": Ta after scaling =",i2,i4,f24.8)')
+     &        __FILE__,
+     &        idens,i,dnrm
             endif
           enddo
         enddo
@@ -467,8 +470,9 @@ c
             ihi(3) = nvirt(idens)
             call nga_normf_patch(g_wax,ilo,ihi,dnrm)
             if (olprint) then
-              write(LuOut,*)__FILE__,": WAX after fock = ",
-     &                      idens,i,dnrm
+              write(LuOut,'(a,": WAX after fock =",i2,i4,f24.8)')
+     &        __FILE__,
+     &        idens,i,dnrm
             endif
           enddo
         enddo
@@ -484,8 +488,9 @@ c
             ihi(3) = nocc(idens)
             call nga_normf_patch(g_aa,ilo,ihi,dnrm)
             if (olprint) then
-              write(LuOut,*)__FILE__,": AA after fock = ",
-     &                      idens,i,dnrm
+              write(LuOut,'(a,": AA after fock =",i2,i4,f24.8)')
+     &        __FILE__,
+     &        idens,i,dnrm
             endif
           enddo
         enddo
@@ -617,8 +622,9 @@ c
             ihi(3) = nocc(idens)+nvirt(idens)
             call nga_normf_patch(g_sol,ilo,ihi,dnrm)
             if (olprint) then
-              write(LuOut,*)__FILE__,": solution = ",
-     &                      idens,i,dnrm
+              write(LuOut,'(a,": solution =",i2,i4,f24.8)')
+     &        __FILE__,
+     &        idens,i,dnrm
             endif
           enddo
         enddo
