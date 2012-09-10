@@ -32,7 +32,9 @@ static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
 
 /**
 \defgroup rtdb RunTime DataBase
+*/
 
+/**
 \ingroup rtdb 
 @{
 */

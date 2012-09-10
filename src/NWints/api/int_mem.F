@@ -1,6 +1,7 @@
 c $Id$
 *
 C> \defgroup nwint Gaussian Integrals
+c
 C> \ingroup nwint
 C> @{
 c:tex-% This is part of the API Standard Integral routines
