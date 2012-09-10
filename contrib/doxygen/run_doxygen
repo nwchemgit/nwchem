@@ -10,7 +10,7 @@
 function usage()
 {
    echo
-   echo " Usage: $0 [-h] [-g] [-t] [-m] [-u] [-v]"
+   echo " Usage: $0 [-h] [-g] [-t] [-m] [-s] [-u] [-v]"
    echo
    cat <<EOF
  This script runs doxygen building a particular version of the NWChem source
@@ -36,6 +36,11 @@ function usage()
     except that this documentation is formatted as UNIX manpages. This 
     documentation is relatively compact (takes about 10 minutes and generates
     around 200 MB).
+
+ -s Generate the NWChem documentation including the full source code. The
+    source code is formatted in HTML with cross-references between the
+    documentation and source code. This is likely to get big but might be
+    useful in figuring out how Doxygen interprets a piece of source code.
 
  -u Update the Doxygen configurations files to a newer version of Doxygen.
 
@@ -65,6 +70,7 @@ while [ $# -ge 1 ] ; do
     -g) task="graph" ; shift 1 ;;
     -t) task="text" ; shift 1 ;;
     -m) task="man" ; shift 1 ;;
+    -s) task="src" ; shift 1 ;;
     -u) task="update" ; shift 1 ;;
     -v) task="version" ; shift 1 ;;
     *)  task="usage" ; shift 1 ;;
@@ -85,8 +91,13 @@ elif [ "$task" == "man" ] ; then
   date
   doxygen "$path/doxygen-manpage.rc"
   date
+elif [ "$task" == "src" ] ; then
+  date
+  doxygen "$path/doxygen-src.rc"
+  date
 elif [ "$task" == "update" ] ; then
   doxygen -u "$path/doxygen.rc"
+  doxygen -u "$path/doxygen-src.rc"
   doxygen -u "$path/doxygen-text.rc"
   doxygen -u "$path/doxygen-manpage.rc"
 elif [ "$task" == "version" ] ; then
