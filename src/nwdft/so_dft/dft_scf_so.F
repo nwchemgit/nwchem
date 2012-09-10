@@ -53,7 +53,7 @@ c     declarations for fractional occupation
 c
       integer nmo_fon,nmo_fon2  ! number of fractionally occupied orbitals
       integer ncore_fon ! number of fully occupied orbitals
-      integer nfilled, ilow, ihigh, ilow2, ihigh2
+      integer nfilled, ilow, ihigh
       double precision nel_fon,nel_fon2  ! fractional electron number
       double precision avg_fon,avg_fon2  ! fractional occupancy (averaged)
       integer nTotOcc           ! nTotOcc: no. of (occupied maybe f.o.) mo's 
@@ -875,7 +875,7 @@ c     applying fractional occupations
 
         avg_fon = nel_fon/dble(nmo_fon)
         if (nmo_fon2.lt.1.or.nel_fon2.le.0d0) then
-           avg_fon2 = 0.0
+           avg_fon2 = 0.0d0
         else
            avg_fon2 = nel_fon2/dble(nmo_fon2)
         endif
@@ -968,12 +968,9 @@ c
           ihigh = nmo_fon
          else
           ilow = nfilled +1
-          ihigh = nfilled + nmo_fon
-          ilow2 = ihigh + 1
-          ihigh2 = ihigh + nmo_fon2   
+          ihigh = nfilled + nmo_fon + nmo_fon2
          end if
 c
-c        partially filled molecular orbitals
          do i = ilow,ihigh
           if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
@@ -982,17 +979,6 @@ c        partially filled molecular orbitals
            call ga_scale_patch(g_moso(1),1,nbf_mo,i,i,scale)
            call ga_scale_patch(g_moso(2),1,nbf_mo,i,i,scale)
          end do ! i loop
-c
-c        second partially filled molecular orbitals
-         do i = ilow2,ihigh2
-          if (i> nbf_mo) call errquit(
-     &        'dft_densm:fon g_moso index exceeds nbf_mo',
-     &        i, INPUT_ERR)
-           scale = sqrt(dbl_mb(i-1+k_occ)) ! sqrt(occupation number)
-           call ga_scale_patch(g_moso(1),1,nbf_mo,i,i,scale)
-           call ga_scale_patch(g_moso(2),1,nbf_mo,i,i,scale)
-         end do ! i loop
-         if(me.eq.0) write(luout,'(5x,a)')  'FON applied'
       end if ! fon
 c
 c     fractional occupations by orbital
@@ -1013,26 +999,9 @@ c
           ihigh = nmo_fon
          else
           ilow = nfilled + 1
-          ihigh = nfilled + nmo_fon
-          ilow2 = ihigh + 1
-          ihigh2 = ihigh + nmo_fon2   
+          ihigh = nfilled + nmo_fon + nmo_fon2
          end if
-c
-c        partially filled molecular orbitals
          do i = ilow,ihigh
-           if (i> nbf_mo) call errquit(
-     &        'dft_densm:fon g_moso index exceeds nbf_mo',
-     &        i, INPUT_ERR)
-           if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
-     &        'dft_densm:fon frac occup < 1E-4. Aborting',
-     &        i, INPUT_ERR)           
-           scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
-           call ga_scale_patch(g_moso(1),1,nbf_mo, i, i, scale)
-           call ga_scale_patch(g_moso(2),1,nbf_mo, i, i, scale)
-         end do
-c
-c        second partially filled molecular orbitals
-         do i = ilow2,ihigh2
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
      &        i, INPUT_ERR)
@@ -1678,7 +1647,7 @@ c
           ihigh = nmo_fon
          else
           ilow = nfilled + 1
-          ihigh = nfilled + nmo_fon
+          ihigh = nfilled + nmo_fon + nmo_fon2
          end if
          do i = ilow, ihigh
            if (i> nbf_mo) call errquit(
@@ -1708,7 +1677,7 @@ c
           ihigh = nmo_fon
          else
           ilow = nfilled + 1
-          ihigh = nfilled + nmo_fon
+          ihigh = nfilled + nmo_fon + nmo_fon2
          end if
          do i = ilow,ihigh
            if (i> nbf_mo) call errquit(
@@ -2140,11 +2109,11 @@ c
       if (.not.rtdb_get(rtdb,'sodft:ndet',mt_int,1,ndet)) ndet = 0
 c
       if(idet .eq. 0 .and. ndet. gt. 0)then 
-           if(.not.ma_push_get(mt_int,nmo_fon*ndet,'det',kfon_occ,
-     &        lfon_occ))
+           if(.not.ma_push_get(mt_int,(nmo_fon+nmo_fon2)*ndet,'det',
+     &        kfon_occ,lfon_occ))
      &        call errquit('cannot alloctate lfon_occ',0, MA_ERR)
            if (.not.rtdb_get(rtdb,'sodft:occupancy',mt_int,
-     &        nmo_fon*ndet,int_mb(lfon_occ)))
+     &        (nmo_fon+nmo_fon2)*ndet,int_mb(lfon_occ)))
      &        call errquit('no occupancy specified',0, RTDB_ERR)
        endif  ! (idet.eq.0) and (ndet.gt.0)
 c
@@ -2191,7 +2160,8 @@ c     Write determinant configuration
 c
       if(me .eq. 0)then 
          write(Luout,4444)
-     &    (int_mb(lfon_occ+idet*(nmo_fon)+i-1), i=1,nmo_fon)
+     &    (int_mb(lfon_occ+idet*(nmo_fon+nmo_fon2)+i-1), 
+     &    i=1,nmo_fon+nmo_fon2)
       endif
       idet = idet + 1   ! determinant counter
       go to 1000 
