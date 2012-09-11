@@ -4,8 +4,18 @@ c
 C> \ingroup task
 C> @{
 c
-C> \brief the main task driver called when the task keyword appears
-C> in the input file
+C> \brief The main task driver called for any task.
+C>
+C> This routine is called by ALL processes.  Task_input has read the
+C> task directive and put stuff into the database.  Get the
+C> data out and invoke the desired action.
+C>
+C> If the operation is in the list of those supported by generic 
+C> routines (currently energy, gradient, hessian, optimize), then 
+C> the generic routine is called.  Otherwise, a match is attempted 
+C> for a specialized routine.  If no operation is specified 
+C> and no specialized routine located, then it is assumed that
+C> a generic energy calculation is required.
 c
       subroutine task(rtdb)
 c

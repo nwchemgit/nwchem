@@ -1,20 +1,24 @@
 C> \ingroup task
 C> @{
-c
+C>
 C> \brief Reads the task directive from input and stores associated 
 C> parameters on the RTDB
-c
+C>
 C> This routine should be called by the root process only.
 C> The objective of this routine is to parse the task directive and
 C> check for any inconsistencies. The details of the task directive are
-C> stored on the RTDB. The actual task call itself has to be made
-C> elsewhere. In case an inconsistency is found the code will abort with
-C> an error.
-c
+C> stored on the RTDB. 
+C> ~~~~
+C> task [qmmm] <string theory> [<string operation = energy>] [numerical || analytic] 
+C>      [ignore]
+C> ~~~~
+C> The actual task call itself has to be made elsewhere. In case an
+C> inconsistency is found the code will abort with an error.
+C>
       subroutine task_input(rtdb)
-*
-* $Id$
-*
+c
+c $Id$
+c
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"

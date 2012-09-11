@@ -1,6 +1,3 @@
-c
-C> \defgroup task Task Interface
-c
 C> \ingroup task
 C> @{
       logical function task_energy(rtdb)
