@@ -41,6 +41,7 @@ function usage()
     source code is formatted in HTML with cross-references between the
     documentation and source code. This is likely to get big but might be
     useful in figuring out how Doxygen interprets a piece of source code.
+    (This takes about 15 minutes and generates about 1 GB of documentation).
 
  -u Update the Doxygen configurations files to a newer version of Doxygen.
 
@@ -76,24 +77,59 @@ while [ $# -ge 1 ] ; do
     *)  task="usage" ; shift 1 ;;
   esac
 done
+#
+# Now we need to do something about the Doxygen configuration with respect to
+# the locations of the include files. We cannot point to the common include
+# directory as Doxygen will also find the include files in the source code
+# directories. When Doxygen finds the same entities twice it gets confused
+# and rejects all copies. So we need to find the include files in the source
+# code directories, work out the set of unique directories they live in, and
+# insert this into the Doxygen configuration file. After that we can invoke
+# Doxygen itself.
+#
+echo "configuring Doxygen..."
+echo "finding paths for include files..."
+includedirs=`find "${path}/../../src" -name "*.*h" -print `
+touch doxy$$.tmp
+for file in $includedirs ; do
+   echo `dirname $file` >> doxya$$.tmp
+done
+grep -v "src/include" doxya$$.tmp | grep -v "install/include" | grep -v "tools/include" | sort -u > doxyb$$.tmp
+includedirs=`cat doxyb$$.tmp`
+echo "adding the include files paths:"
+cat doxyb$$.tmp
+rm -f doxya$$.tmp doxyb$$.tmp
+#
 if [ "$task" == "help" ] ; then
   usage
   exit 0
 elif [ "$task" == "graph" ] ; then
   date
-  doxygen "$path/doxygen.rc"
+  grep -v "INCLUDE_PATH           =" "$path/doxygen.rc" > "$path/doxygen$$.rc"
+  echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen$$.rc"
+  doxygen "$path/doxygen$$.rc"
+  rm -f "$path/doxygen$$.rc"
   date
 elif [ "$task" == "text" ] ; then
   date
-  doxygen "$path/doxygen-text.rc"
+  grep -v "INCLUDE_PATH           =" "$path/doxygen-text.rc" > "$path/doxygen-text$$.rc"
+  echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen-text$$.rc"
+  doxygen "$path/doxygen-text$$.rc"
+  rm -f "$path/doxygen-text$$.rc"
   date
 elif [ "$task" == "man" ] ; then
   date
-  doxygen "$path/doxygen-manpage.rc"
+  grep -v "INCLUDE_PATH           =" "$path/doxygen-manpage.rc" > "$path/doxygen-manpage$$.rc"
+  echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen-manpage$$.rc"
+  doxygen "$path/doxygen-manpage$$.rc"
+  rm -f "$path/doxygen-manpage$$.rc"
   date
 elif [ "$task" == "src" ] ; then
   date
-  doxygen "$path/doxygen-src.rc"
+  grep -v "INCLUDE_PATH           =" "$path/doxygen-src.rc" > "$path/doxygen-src$$.rc"
+  echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen-src$$.rc"
+  doxygen "$path/doxygen-src$$.rc"
+  rm -f "$path/doxygen-src$$.rc"
   date
 elif [ "$task" == "update" ] ; then
   doxygen -u "$path/doxygen.rc"
