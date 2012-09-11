@@ -48,8 +48,8 @@ c
       double precision smear_sigma
       double precision shift
       double precision tol2e
-      double precision nel_fon(2)
-      integer nmo_fon(2), ncore_fon(2)
+      double precision nel_fon(4)
+      integer nmo_fon(4), ncore_fon(2)
       integer ispin
       logical steric
       logical efield
@@ -93,6 +93,10 @@ c
       nmo_fon(1)=0
       nel_fon(2)=0d0
       nmo_fon(2)=0
+      nel_fon(3)=0d0
+      nmo_fon(3)=0
+      nel_fon(4)=0d0
+      nmo_fon(4)=0
       ncore_fon(1) = 0
       ncore_fon(2) = 0
       owstart(1) = 0
@@ -371,6 +375,11 @@ c
      .           ' fon: required real after Electrons keyword',0,
      &       INPUT_ERR)
             goto 2301
+         else if (inp_compare(.false.,'electrons2', test)) then
+            if(.not.inp_f(nel_fon(ispin+2))) call errquit(
+     .           ' fon: required real after Electrons keyword',0,
+     &       INPUT_ERR)
+            goto 2301
          else if (inp_compare(.false.,'filled', test)) then
             if(.not.inp_i(ncore_fon(ispin))) call errquit(
      .           ' fon: required integer after Filled keyword',0,
@@ -381,15 +390,20 @@ c
      .           ' fon: required integer after Partial keyword',0,
      &       INPUT_ERR)
             goto 2301
+         else if (inp_compare(.false.,'partial2', test)) then
+            if(.not.inp_i(nmo_fon(ispin+2))) call errquit(
+     .           ' fon: required integer after Partial keyword',0,
+     &       INPUT_ERR)
+            goto 2301
          endif
       endif
-      if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 2,
+      if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 4,
      & nmo_fon)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:ncore_fon', mt_int, 2,
      & ncore_fon)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
-      if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_dbl, 2,
+      if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_dbl, 4,
      & nel_fon)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:fon', mt_log, 1,
