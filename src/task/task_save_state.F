@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_save_state(rtdb,suffix)
 *     
 *     $Id$
@@ -492,3 +494,4 @@ c
       task_delete_state = .true.
 c     
       end
+C> @}

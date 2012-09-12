@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_smd_dynamics(rtdb)
       implicit none
       integer rtdb
@@ -66,4 +68,5 @@ c
 
       return
       END
+C> @}
 c $Id$

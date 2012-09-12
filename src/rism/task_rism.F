@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
        function task_rism(rtdb)
        implicit none
 #include "errquit.fh"
@@ -33,6 +35,7 @@ c      ----------------------
        call rism_message("completed task rism")
        return
       end 
+C> @}
 c       
        subroutine rism_wrapper(rtdb)
        implicit none

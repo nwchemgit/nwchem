@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       function task_smd(rtdb)
       implicit none
 #include "inp.fh"
@@ -20,4 +22,5 @@ c
       task_smd = .true.
       return
       END
+C> @}
 c $Id$

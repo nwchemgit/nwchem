@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
 C> Main entry point for fragment calculations
 C> @param[in] rtdb handle
       function task_smd_fragment(rtdb)
@@ -475,5 +477,6 @@ c     -----------------------
      + call smd_coord_write_default()
        return
       END
+C> @}
 
 c $Id$

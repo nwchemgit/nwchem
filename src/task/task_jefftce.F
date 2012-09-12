@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_cholesky(rtdb)
       implicit none
 #include "errquit.fh"
@@ -64,4 +66,5 @@ c
       task_imaginary = status
 c
       end
+C> @}
 c $Id$

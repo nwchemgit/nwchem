@@ -1,6 +1,8 @@
 c
 c     == task raman driver ==
 c
+C> \ingroup task
+C> @{
       logical function task_raman(rtdb)
 C
       implicit none
@@ -266,6 +268,7 @@ c
 c
       return
       end
+C> @}
 c
 c     == perform raman calculation ==
 c

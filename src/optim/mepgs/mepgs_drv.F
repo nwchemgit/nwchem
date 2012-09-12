@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_mepgs(rtdb)
       implicit none
 #include "errquit.fh"
@@ -195,6 +197,7 @@ c
       call ga_sync()
 c
       end
+C> @}
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc
       subroutine mepgs_initialize(rtdb, geom, start)

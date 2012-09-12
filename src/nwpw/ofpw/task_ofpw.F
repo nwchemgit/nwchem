@@ -1,7 +1,8 @@
 *
 * $Id$
 *
-
+C> \ingroup task
+C> @{
       logical function task_ofpw(rtdb)
       implicit none
 #include "errquit.fh"
@@ -113,3 +114,4 @@ c
 
       return
       end
+C> @}

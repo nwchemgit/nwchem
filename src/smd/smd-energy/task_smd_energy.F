@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       function task_smd_energy(rtdb)
       implicit none
       integer rtdb
@@ -59,5 +61,6 @@ c
 
       return
       END
+C> @}
 
 c $Id$

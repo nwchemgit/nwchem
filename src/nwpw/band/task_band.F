@@ -1,7 +1,8 @@
 *
 * $Id$
 *
-
+C> \ingroup task
+C> @{
       logical function task_band(rtdb)
       implicit none
 
@@ -177,3 +178,4 @@ c
 
       return
       end
+C> @}

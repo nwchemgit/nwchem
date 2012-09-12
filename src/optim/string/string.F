@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
 !
 ! Zero temperature string method (ZTS) to compute minimum energy paths (MEPs)
 ! The method works faster if the initial end points are both minima
@@ -163,6 +165,7 @@
       task_string = converged
       return
       end
+C> @}
 
       subroutine zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,

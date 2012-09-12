@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_check_sum(rtdb)
 C$Id$
       implicit none
@@ -7,6 +9,7 @@ c
      &    'ri basis',1.0d-10)
       task_check_sum = .true.
       end
+C> @}
       subroutine do_int_chk_sum(rtdb,geom_name, basis_name,
      &    fit_basis_name, tol2e)
       implicit none

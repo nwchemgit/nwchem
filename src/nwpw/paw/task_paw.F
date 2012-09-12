@@ -1,7 +1,8 @@
 *
 * $Id$
 *
-
+C> \ingroup task
+C> @{
       logical function task_paw(rtdb)
       implicit none
 #include "errquit.fh"
@@ -103,3 +104,4 @@ c
 
       return
       end
+C> @}
