@@ -1,5 +1,15 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief The main driver for geometry optimizations 
+C>
+C> This routine optimizes geometries selecting one of a number of
+C> optimizers. The available optimizers are: Stepper, Driver, LBFGS,
+C> TROPT, and DELOC.
+C>
+C> \return Return .true. if an minimum was successfully found, and
+C> .false. otherwise.
+C>
       logical function task_optimize(rtdb)
 c     $Id$
       implicit none
@@ -10,7 +20,7 @@ c     $Id$
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c     
 c     Optimize a geometry using stepper and the generic 
 c     task energy/gradient interface.  Eventually will need another
@@ -191,6 +201,16 @@ c
 c     
       end
 c
+C>
+C> \brief The main driver for saddle point (transition state)
+C> optimizations 
+C>
+C> This routine optimizes saddle points or transition states. In 
+C> essence it is a modified version of the geometry optimizer. 
+C>
+C> \return Return .true. if a saddle point was successfully found, and
+C> .false. otherwise.
+C>
       logical function task_saddle(rtdb)
 c     $Id$
       implicit none
@@ -201,7 +221,7 @@ c     $Id$
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c     
 c     Evil twin of task_optimize.  Created with cut/paste, global
 c     replace and tweaking of modsad, ts, and omin.
@@ -350,6 +370,11 @@ c
 c     
       end
 c
+C> \brief The main driver to calculate energies and gradients for
+C> geometries on a path (defunct)
+C>
+C> This routine is current defunct.
+C>
       logical function task_lst(rtdb)
 c     $Id$
       implicit none
@@ -360,7 +385,7 @@ c     $Id$
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Calculate energies ( and gradients ) on a -lst- path   
 c
@@ -436,6 +461,12 @@ c$$$      task_lst = status
 c$$$c
       end
 c
+C> \brief Calculates the minimum energy pathway between two equilibrium
+C> configurations
+C>
+C> \return Return .true. if a minimum pathway was found, and .false.
+C> otherwise
+C>
       logical function task_neb(rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -444,7 +475,7 @@ c
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Calculate the minimum energy pathway between to ionic configurations
 c

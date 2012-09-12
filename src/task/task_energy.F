@@ -1,5 +1,19 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief The main driver for single point energy calculations
+C>
+C> Analyse the theory options on the `task <theory> [energy]` line.
+C> Based on the theory found other drivers may be called. If the
+C> energy calculation was successfull, i.e. in most computations the
+C> calculation converged, then we return .true.
+C>
+C> Theories for which special energy drivers are called are: ONIOM,
+C> BSSE, QMMM, and RISM.
+C>
+C> \return Return .true. if the energy was successfully calculated,
+C> and .false. otherwise
+C>
       logical function task_energy(rtdb)
       implicit none
 #include "errquit.fh"
@@ -9,7 +23,7 @@ C> @{
 #include "util.fh"
 #include "global.fh"
 #include "stdio.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Fortran does not like recursive calls, so for ease of coding
 c     ONIOM do ONIOM out here so that it call call task_energy_doit().

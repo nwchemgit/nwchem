@@ -1,5 +1,17 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief The main driver for analytical Hessian calculations
+C>
+C> This routine checks the level of theory requested and if no
+C> analytical Hessians are available it will issue the evaluation of
+C> numerical Hessians. The resulting Hessian is stored on a file,
+C> rather than in the RTDB. The name of the Hessian file is stored
+C> on the RTDB instead of the Hessian itself.
+C>
+C> \return Return .true. if the Hessian was calculated successfully,
+C> and .false. otherwise.
+C>
       logical function task_hessian(rtdb)
 *
 * $Id$
@@ -12,7 +24,7 @@ C> @{
 #include "inp.fh"
 #include "util.fh"
 #include "stdio.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Generic NWChem interface to compute the analytic hessian.  
 c

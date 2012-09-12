@@ -1,11 +1,17 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief The driver for numerical gradient evaluations
+C>
+C> \return Return .true. if the numerical gradient was calculated
+C> successfully, and .false. otherwise.
+C>
       logical function task_num_grad(rtdb)
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 *
 * $Id$
 *
