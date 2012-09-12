@@ -464,6 +464,9 @@ c
 C> \brief Calculates the minimum energy pathway between two equilibrium
 C> configurations
 C>
+C> Calculates the minimum energy pathway connecting two equilibrium
+C> geometries using the Nudged Elastic Band (NEB) method.
+C>
 C> \return Return .true. if a minimum pathway was found, and .false.
 C> otherwise
 C>
