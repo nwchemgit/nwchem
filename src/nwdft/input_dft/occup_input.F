@@ -1,4 +1,4 @@
-c     fractional occupation handler
+c     orbital occupations handler
 c
       subroutine occup_input(rtdb)
 c
@@ -10,6 +10,8 @@ c      1.0 1.0
 c      1.0 1.0
 c      1.0
 c      1.0
+c      or
+c      load file.occup
 c     end
 c
       implicit none
@@ -25,12 +27,18 @@ c
 c
       integer rtdb              ! [input]     
       character*255 field       ! for character input
-      integer ac,noccA,noccB    ! counts no. of centers as input
+      integer offset,nocc1,nocc2    ! counts no. of centers as input
       logical status            ! scratch for return codes
-      integer i,ind_min,ind_max
+      integer i,imin,imaj
       integer nfocc_in(2),nfocc ! input of nfocc
       integer l_occ,k_occ
       integer switch_focc
+c
+      character*255 fileoccup
+      character*32 pname
+      logical lfromfile
+      pname = 'occup_input: '
+      lfromfile = .false.
 c     
 c     read occup from the input deck and persist it in the rtdb
 c     
@@ -40,9 +48,9 @@ c     Check that this is indeed a occupations line
 c     
       call inp_set_field(0)     ! goto start of line
       if (.not. inp_a(field))
-     $ call errquit('occup_input: occup input error', 0, INPUT_ERR)
+     $ call errquit(pname//'occup input error', 0, INPUT_ERR)
       if (.not. inp_compare(.false., 'occup', field))
-     $ call errquit('occup_input: occup input error', 0,INPUT_ERR)   
+     $ call errquit(pname//'occup input error', 0,INPUT_ERR)   
 c
       nfocc_in(1) = 0  ! spin-1
       nfocc_in(2) = 0  ! spin-2
@@ -50,88 +58,164 @@ c
       status = status .and. inp_i(nfocc_in(1))
       status = status .and. inp_i(nfocc_in(2))
 c
-      if (status) then
-        nfocc=nfocc_in(1)+nfocc_in(2) ! total fractional occupation
-        ind_min=2
-        ind_max=1   ! spin-1 is dominant
-        if (nfocc_in(1).lt.nfocc_in(2)) then
-          ind_min=1
-          ind_max=2  ! spin-2 is dominant
-        endif
+      nfocc=nfocc_in(1)+nfocc_in(2) ! total fractional occupation
+      imin=2
+      imaj=1   ! spin-1 is dominant
+      if (nfocc_in(1).lt.nfocc_in(2)) then
+        imin=1
+        imaj=2  ! spin-2 is dominant
+      endif
 c
-c       set the memory based on the number of fractional occupied states
-        if (.not. ma_push_get(mt_dbl,nfocc,'occup', l_occ,k_occ))
-     &    call errquit('occ_input ma_push_get fail k_occ',0,MA_ERR)  
+c     set the memory based on the number of fractional occupied states
+      if (.not. ma_push_get(mt_dbl,nfocc,'occup', l_occ,k_occ))
+     &    call errquit(pname//'ma_push_get fail k_occ',0,MA_ERR)  
 
-c----- Start reading <occ-A> <occ-B> sets
-       noccA=1
-       noccB=1
-       ac = 0
- 20    if (inp_read()) then
+c     read occupations <occ-A> <occ-B> sets
+      nocc1=1
+      nocc2=1
+      offset = 0
+ 20   if (inp_read()) then
         status = inp_a(field)
         if (inp_compare(.false., 'end', field)) then
           goto 30
+        else if (inp_compare(.false., 'load', field)) then
+         if (.not. inp_a(fileoccup)) 
+     &    call errquit(pname//'missing occups file',offset,INPUT_ERR)
+          call occ_from_file(fileoccup,imin,imaj,nfocc,
+     &              nfocc_in,dbl_mb(k_occ))
+          lfromfile = .true.
         else
-          if (noccA .gt. nfocc_in(ind_max)) 
-     &        call errquit('occup_input: too many occupations?', 
-     &            ac, INPUT_ERR)
+         if (nocc1 .gt. nfocc_in(imaj)) 
+     &    call errquit(pname//'too many occupations?',offset,INPUT_ERR)
 c        
-c           input format  <occ-A>  <occ-B> 
-c     
-            call inp_set_field(0)
-            status = .true.
-c ------- Case 1: Reading occ-A occ-B
-          if (noccA .le. nfocc_in(ind_min)) then
-            status = status .and. inp_f(dbl_mb(k_occ+ac))
-            status = status .and. inp_f(dbl_mb(k_occ+ac+1))
-            if (.not. status) call errquit
-     $          ('occup_input: <occ>',ac+1,INPUT_ERR)
-            ac = ac + 2
-            noccA=noccA+1
-            noccB=noccB+1
-          else if (ac/2+1 .gt. nfocc_in(ind_min)) then
-c ------- Case 2: Reading occ-A (unpaired electrons)
-            status = status .and. inp_f(dbl_mb(k_occ+ac))
-            if (.not. status) call errquit
-     $          ('occup_input: <occ>',ac+1,INPUT_ERR)
-            if (ind_max.eq.1) noccA=noccA+1
-            if (ind_max.eq.2) noccB=noccB+1
-            ac = ac + 1
-          endif
+c         input format  <occ-A>  <occ-B> 
+          call inp_set_field(0)
+          status = .true.
+c
+          if (nocc1 .le. nfocc_in(imin)) then
+c
+c           Reading occ-1 occ-2
+            if ((.not.inp_f(dbl_mb(k_occ+offset))) .or. 
+     &               (.not. inp_f(dbl_mb(k_occ+offset+1))))
+     &          call errquit(pname//'<occ>',offset+1,INPUT_ERR)
+            offset = offset + 2
+            nocc1=nocc1+1
+            nocc2=nocc2+1
+          else if (offset/2+1 .gt. nfocc_in(imin)) then
+c
+c           Reading occ-1 (unpaired set)
+            if (.not.inp_f(dbl_mb(k_occ+offset))) 
+     &          call errquit(pname//'<occ>',offset+1,INPUT_ERR)
+            if (imaj.eq.1) nocc1=nocc1+1
+            if (imaj.eq.2) nocc2=nocc2+1
+            offset = offset + 1
+          end if  ! nocc1 check
         end if
         goto 20
        else
-        call errquit('occup_input: premature end of file',0,INPUT_ERR)
+        call errquit(pname//'missing occupations',0,INPUT_ERR) 
        end if
-      else
-       call errquit('occup_input: missing alpha and beta occupations',
-     &         0,INPUT_ERR) 
-      endif  ! status
 c
  30   continue    
 c
-c     consistency check
-      if ((noccA-1 .ne. nfocc_in(1)) .or. (noccB-1.ne.nfocc_in(2))) then
-         write(luout,*) "noccA-1: ",noccA-1
+c     consistency check reading from input file
+      if (.not.lfromfile) then
+        if ((nocc1-1.ne.nfocc_in(1)) .or. (nocc2-1.ne.nfocc_in(2))) then
+         write(luout,*) "nocc1-1: ",nocc1-1
          write(luout,*) "nfocc_in(1): ",nfocc_in(1)
-         write(luout,*) "noccB-1: ",noccB-1
+         write(luout,*) "nocc2-1: ",nocc2-1
          write(luout,*) "nfocc_in(2): ",nfocc_in(2)
-         call errquit('occup_input: occupancy mismatch',0,INPUT_ERR)
-      end if ! consistency check
+         call errquit(pname//'occupancy mismatch',0,INPUT_ERR)
+        end if ! consistency check
+      end if
 c
 c     store in rtdb 
       switch_focc=1 ! 1 means using occup keyword
 c
       if (.not. rtdb_put(rtdb,'focc:occup_switch',mt_int,1,switch_focc))
-     &  call errquit('occup_input: rtdb_put failed', 1201, RTDB_ERR)
+     &  call errquit(pname//'rtdb_put failed', 1201, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'focc:occup',mt_int,2,nfocc_in))
-     &  call errquit('occup_input: rtdb_put failed', 1201, RTDB_ERR)
+     &  call errquit(pname//'rtdb_put failed', 1201, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'focc:occup_list',
      &    mt_dbl,nfocc,dbl_mb(k_occ)))
-     &  call errquit('occup_input: rtdb_put failed', 0, RTDB_ERR)
+     &  call errquit(pname//'rtdb_put failed', 1201, RTDB_ERR)
       if (.not.ma_pop_stack(l_occ)) ! Free memory
-     &      call errquit('occ input: ma_pop_stack failed k_occ',
-     &                    0,MA_ERR)
+     &  call errquit(pname//'ma_pop_stack failed k_occ',0,MA_ERR)
 c
-50    continue
+      end
+c
+c     load occupations from file
+
+      subroutine occ_from_file(fileoccup,imin,imaj,nfocc,nfocc_in,occ)
+
+      implicit none
+c
+#include "errquit.fh"
+#include "stdio.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "nwc_const.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+c
+      character*255 fileoccup
+      integer imin,imaj
+      integer nfocc
+      integer nfocc_in(2)
+      double precision occ(0:nfocc-1)
+c      
+      character*32 pname
+      integer unitno
+c
+      integer i,nocc1,nocc2,offset
+c
+      pname = 'occup_from_file: '
+      unitno = 77
+c
+c     open occupations file
+      open(unitno,file=fileoccup,err=1000)
+      read(unitno,*,err=1001,end=1001)   ! comment line
+c      write(6,*) "opening file"
+c      write(6,*) "imaj: ",imaj
+c      write(6,*) "imin: ",imin
+c      write(6,*) imin,nfocc_in(imin)
+c      write(6,*) imaj,nfocc_in(imaj)
+
+c     read occupations <occ-A> <occ-B> sets
+      nocc1=1
+      nocc2=1
+      offset = 0
+      do i = 1,nfocc_in(imaj)
+       if (nocc1 .le. nfocc_in(imin)) then
+         read(unitno,*,err=1001,end=1001) occ(offset),occ(offset+1)
+c         write(6,*) offset,occ(offset),occ(offset+1)
+         offset = offset+2
+         nocc1=nocc1+1
+         nocc2=nocc2+1
+       else if (offset/2+1 .gt. nfocc_in(imin)) then
+         read(unitno,*,err=1001,end=1001) occ(offset)
+c         write(6,*) offset,occ(offset)
+         if (imaj.eq.1) nocc1=nocc1+1
+         if (imaj.eq.2) nocc2=nocc2+1
+         offset = offset+1
+       end if
+      end do
+c
+c     consistency check
+      if ((nocc1-1.ne.nfocc_in(1)) .or. (nocc2-1.ne.nfocc_in(2))) then
+         write(luout,*) "nocc1-1: ",nocc1-1
+         write(luout,*) "nfocc_in(1): ",nfocc_in(1)
+         write(luout,*) "nocc2-1: ",nocc2-1
+         write(luout,*) "nfocc_in(2): ",nfocc_in(2)
+         call errquit(pname//'occupancy mismatch',0,INPUT_ERR)
+      end if ! consistency check
+c
+      close(unitno,err=1002)
+c
+      return
+c
+ 1000 call errquit(pname//'failed to open file',0,-1)
+ 1001 call errquit(pname//'failed to read file',0,-1)
+ 1002 call errquit(pname//'failed to close file',0,-1)
+c
       end
