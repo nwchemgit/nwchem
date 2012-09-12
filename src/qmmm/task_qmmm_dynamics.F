@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
        function task_qmmm_dynamics(rtdb)
 *
 * $Id$
@@ -9,7 +11,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
       logical  task_qmmm_dynamics
 c
       logical status
@@ -66,6 +68,7 @@ c
 c         
       task_qmmm_dynamics = status
       end
+C> @}
 
        function qmmm_dynamics(rtdb)
 *

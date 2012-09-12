@@ -2,6 +2,8 @@ c
 c $Id$
 c
 c
+C> \ingroup task
+C> @{
       function task_qmmm_energy(rtdb)
       implicit none
 c
@@ -1116,6 +1118,7 @@ c
      $     call errquit('qmmm: failed deleting operation', 0, RTDB_ERR)
 c
       end
+C> @}
 c
       function qmmm_energy(rtdb)
       implicit none
@@ -1265,6 +1268,8 @@ c
 
       end
 
+C> \ingroup task
+C> @{
       function task_qmmm_energy_pes0(irtdb)
 c     $Id$
       implicit none
@@ -1763,5 +1768,6 @@ c       end load restart
 
       return
       end
+C> @}
 
 

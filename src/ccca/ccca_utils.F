@@ -1190,6 +1190,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c    Calculations of the ccCA gradients and energies 
 c
+C> \ingroup task
+C> @{
       logical function task_ccca_energy(rtdb, theory, energy)
       implicit none
 #include "errquit.fh"
@@ -1218,6 +1220,7 @@ c
       task_ccca_energy = .true. 
       return
       end
+C> @}
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     ccCA input block 
 c

@@ -1,7 +1,8 @@
 c
 c $Id$
 c
-c
+C> \ingroup task
+C> @{
       function task_qmmm_pes(irtdb)
 c     $Id$
       implicit none
@@ -418,5 +419,6 @@ c     -----------------------------
 
       return
       end
+C> @}
 
 

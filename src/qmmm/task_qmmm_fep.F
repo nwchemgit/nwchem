@@ -2,6 +2,8 @@ c
 c $Id$
 c
 c
+C> \ingroup task
+C> @{
       function task_qmmm_fep(rtdb)
       implicit none
 c
@@ -442,6 +444,7 @@ c     reset any region constraints
       return
 
       end
+C> @}
 cc
       function qmmm_fep_deriv(rtdb,geom_file,esp_file,filetrj)
       implicit none

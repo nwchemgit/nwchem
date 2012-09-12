@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_pderiv(rtdb)
 *
 * $Id$
@@ -247,6 +249,7 @@ c
       task_pderiv = status.and.task_pderiv
 c
       end
+C> @}
       logical function pderiv_compute_1e1cpe(
      &    geom,basis,nbf,nat,lbuf,lscr,
      &    buf,bufp,bufm,scr,p1c,p1fd,xyz)

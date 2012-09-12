@@ -2,6 +2,8 @@ c
 c $Id$
 c
 c
+C> \ingroup task
+C> @{
       function task_qmmm_gradient(rtdb)
       implicit none
 c
@@ -73,6 +75,7 @@ c
  20   continue
 c
       end
+C> @}
 
       function qmmm_energy_gradient(rtdb,do_grad)
       implicit none

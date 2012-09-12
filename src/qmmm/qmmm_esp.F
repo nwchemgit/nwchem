@@ -1,7 +1,8 @@
 c
 c $Id$
 c
-c
+C> \ingroup task
+C> @{
       function task_qmmm_esp(rtdb)
       implicit none
 #include "errquit.fh"
@@ -236,6 +237,7 @@ c     end of rism hookup
  134  call errquit(pname//'error reading espfile',0, 0)
 
       end
+C> @}
 
       function qmmm_esp_load(rtdb)
 c     reads esp charges from external file located

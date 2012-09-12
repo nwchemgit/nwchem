@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_hondo_deriv_check(rtdb)
       implicit none
 #include "errquit.fh"
@@ -108,6 +110,7 @@ c
       status = status.and.geom_destroy(geom)
       task_hondo_deriv_check = task_hondo_deriv_check.and.status
       end
+C> @}
       logical function raktask27_a(rtdb,
      &    geom, basis, nbf, nat, nshell,
      &    sizeg, sizescr,

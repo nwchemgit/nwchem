@@ -1,7 +1,8 @@
 c
 c $Id$
 c
-c
+C> \ingroup task
+C> @{
       function task_qmmm_property(rtdb)
       implicit none
 c
@@ -48,7 +49,7 @@ c     -------------------------------
       task_qmmm_property = status
       return
       end
-c
+C> @}
 
 
 

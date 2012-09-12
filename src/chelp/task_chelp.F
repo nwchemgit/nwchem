@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       function task_chelp(rtdb)
       implicit none
 #include "errquit.fh"
@@ -13,4 +15,5 @@ c     -----------
     
       return
       end
+C> @}
 c $Id$

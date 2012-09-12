@@ -1,6 +1,8 @@
 c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
+C> \ingroup task
+C> @{
       function task_qmmm_optimize(rtdb)
 c     $Id$
       implicit none
@@ -98,6 +100,7 @@ c
       task_qmmm_optimize = status
 c     
       end
+C> @}
 c
       function qmmm_mixed_optimization(rtdb)
 c     $Id$

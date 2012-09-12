@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_ecp_print_integrals(rtdb)
       implicit none
 #include "errquit.fh"
@@ -76,6 +78,7 @@ c
       task_ecp_print_integrals = task_ecp_print_integrals.and.status
       call int_terminate()
       end
+C> @}
       logical function raktask26_a(rtdb,
      &    geom, basis, nbf, nat, nshell, szb, szs,
      &    zint,buf,scr)

@@ -1,6 +1,8 @@
 *
 * $Id$
 *
+C> \ingroup task
+C> @{
       logical function task_computeSld(rtdb)
       implicit none
 #include "errquit.fh"
@@ -188,6 +190,7 @@ c
      &          ('task_computeSld: ga_destroy of g_V failed',911,
      &       GA_ERR)
       end
+C> @}
       subroutine print_Sld(eigs,eigvec,n,lunit)
       implicit none
       integer n

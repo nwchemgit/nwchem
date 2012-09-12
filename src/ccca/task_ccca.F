@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_ccca(rtdb)
       implicit none
 #include "errquit.fh"
@@ -144,5 +146,6 @@ c     nwchem freezes after ccca: print end of run flag
       endif
       return
       end
+C> @}
 
 c $Id$

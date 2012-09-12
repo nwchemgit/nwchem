@@ -1,7 +1,8 @@
 c
 c $Id$
 c
-c
+C> \ingroup task
+C> @{
       function task_qmmm_generic(rtdb,operation)
       implicit none
 c
@@ -41,6 +42,7 @@ c     local variables
       end if 
       task_qmmm_generic = ostatus
       end
+C> @}
 c
       function qmmm_init(irtdb)
       implicit none

@@ -1,6 +1,8 @@
 c
 c $Id$
 c
+C> \ingroup task
+C> @{
       function task_qmmm_abc(rtdb)
       implicit none
 c
@@ -14,7 +16,7 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
       logical task_qmmm_abc
 c     local variables
       logical ostatus
@@ -189,6 +191,7 @@ c       -------------------------------
       close(fn(2))
       return
       end
+C> @}
 c
       function qmmm_abc_compute(nf,tav,eref,w,fnl,fnh,rtdb)
       implicit none

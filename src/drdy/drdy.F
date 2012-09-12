@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_drdy(rtdb)
       implicit none
 *
@@ -8,6 +10,7 @@
 *
       task_drdy = drdy_nwchem(rtdb)
       end
+C> @}
       logical function drdy_nwchem(rtdb)
 *
 * $Id$

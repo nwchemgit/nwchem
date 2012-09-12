@@ -1,6 +1,8 @@
 *
 * $Id$
 *
+C> \ingroup task
+C> @{
       logical function task_accy(rtdb)
       implicit none
 #include "errquit.fh"
@@ -77,6 +79,7 @@ c
       task_accy = status
 c
       end
+C> @}
       subroutine task_accy_a(rtdb,geom,basis,
      &    lgrad,lscr,llab,nshell,
      &    grad1, grad2, scr, labs)

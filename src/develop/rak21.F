@@ -1,6 +1,8 @@
 *
 * $Id$
 *
+C> \ingroup task
+C> @{
       logical function task_dddd(rtdb)
       implicit none
 #include "errquit.fh"
@@ -114,6 +116,7 @@ c
 10001 format(1x,i3,1x,'<acc1=',1pd12.5,'> <acc2=',1pd12.5,'> ',
      &    '<bexp=',1pd12.5,'> norm:',1pd20.10)
       end
+C> @}
       subroutine dddd_histogram(cnt,n,buf,thresh,bexp,accy,firstpass)
       implicit none
       integer n,cnt
