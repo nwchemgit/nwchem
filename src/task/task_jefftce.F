@@ -1,5 +1,7 @@
-C> \ingroup task
-C> @{
+C Removed task_cholesky and task_imaginary from the TASK API as they
+C are not called anywhere.
+C  \ingroup task
+C  @{
       logical function task_cholesky(rtdb)
       implicit none
 #include "errquit.fh"
@@ -33,7 +35,7 @@ c
       task_cholesky = status
 c
       end
-C> 
+C  
       logical function task_imaginary(rtdb)
       implicit none
 #include "errquit.fh"
@@ -67,5 +69,5 @@ c
       task_imaginary = status
 c
       end
-C> @}
+C  @}
 c $Id$

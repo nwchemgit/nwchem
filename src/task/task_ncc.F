@@ -1,5 +1,7 @@
-C> \ingroup task
-C> @{
+C Taken task_ncc out of the TASK module as it seems not to be used
+C anywhere.
+C  \ingroup task
+C  @{
       logical function task_ncc(rtdb)
       implicit none
 #include "errquit.fh"
@@ -39,5 +41,5 @@ c
 c      print*,'end of task_ncc'
 c
       end
-C> @}
+C  @}
 c $Id$
