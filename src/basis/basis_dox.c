@@ -37,7 +37,7 @@ considerations:
 For reference Cartesian basis functions are defined as
 \f{eqnarray*}{
    \chi_{klm}(\vec{R}_A;\vec{r}_1)
-   &=&N(X_A-x_1)^k(Y_A-y_1)^l(Z_A-z_1)\sum_i c_i e^{-\alpha_i r_{A1}^2}
+   &=&N(X_A-x_1)^k(Y_A-y_1)^l(Z_A-z_1)^m\sum_i c_i e^{-\alpha_i r_{A1}^2}
 \f}
 where \f$ \vec{R}_A \f$ refers to the position of atom \f$ A \f$, and 
 \f$ \vec{r}_1 \f$ refers to the position of electron \f$ 1 \f$. The terms in the
