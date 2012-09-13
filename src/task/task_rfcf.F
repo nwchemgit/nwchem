@@ -1,5 +1,16 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief Generic interface to perform Reactive Flux Correlation Function
+C> (RFCF) calculations
+C>
+C> Reactive flux correlation function calculations are also known as trajectory
+C> recrossing calculations. Basically, the method relies on a dividing surface,
+C> and running a molecular dynamics simulation it counts how often a trajectory
+C> crosses that surface.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+C>
       logical function task_rfcf(rtdb)
 *
 * $Id$
@@ -11,7 +22,7 @@ C> @{
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Generic NWChem interface to perform rfcf (reactive flux correlation function) calculation
 C     also known as trajectory  recrossing calulation

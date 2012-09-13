@@ -1,5 +1,10 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief Generic interface to property calculation capabilities
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function task_property(rtdb)
       implicit none
 #include "errquit.fh"
@@ -8,7 +13,7 @@ C> @{
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
       logical status
       logical property

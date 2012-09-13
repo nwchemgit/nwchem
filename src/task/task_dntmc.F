@@ -1,3 +1,11 @@
+C> \ingroup task
+C> @{
+C>
+C> \brief The driver for Dynamic Nucleation Theory Monte Carlo (DNTMC)
+C>
+C> \return Return .true. if the calculation was successfull and .false. 
+C> otherwise.
+C>
       logical function task_dntmc(rtdb)
 *
 * $Id$
@@ -9,7 +17,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Generic NWChem interface to perform dynamic nuclear theory
 c     Monte Carlo
@@ -86,4 +94,5 @@ c
       task_dntmc = status
 c
       end
+C> @}
 

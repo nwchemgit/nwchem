@@ -8,7 +8,7 @@ C> @{
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
       logical status
       logical property
@@ -33,6 +33,7 @@ c
       task_cholesky = status
 c
       end
+C> 
       logical function task_imaginary(rtdb)
       implicit none
 #include "errquit.fh"

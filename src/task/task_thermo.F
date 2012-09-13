@@ -1,5 +1,10 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief Generic interface to perform free energy simulations
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function task_thermo(rtdb)
 *
 * $Id$
@@ -11,7 +16,7 @@ C> @{
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Generic NWChem interface to perform free energy simulations
 c

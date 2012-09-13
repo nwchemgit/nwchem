@@ -1,3 +1,10 @@
+C> \ingroup task
+C> @{
+C>
+C> \brief Interface to a charge transfer probability
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+C>
       logical function task_et(rtdb)
       implicit none
 #include "errquit.fh"
@@ -55,6 +62,7 @@ c
       task_et = status
 c
       end
+C> @}
 c===========================================================================
       logical function task_et_doit(rtdb,Vba)
       implicit none
@@ -99,4 +107,3 @@ c
 c
       return
       end
-

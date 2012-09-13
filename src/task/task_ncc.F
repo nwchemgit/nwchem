@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_ncc(rtdb)
       implicit none
 #include "errquit.fh"
@@ -37,4 +39,5 @@ c
 c      print*,'end of task_ncc'
 c
       end
+C> @}
 c $Id$

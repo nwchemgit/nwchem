@@ -1,4 +1,16 @@
-c
+C> \ingroup task
+C> @{
+C>
+C> \brief Read the input a the shell task directive
+C>
+C> NWChem has a facility to invoke any system command in a shell. The 
+C> corresponding input is
+C> ~~~~
+C> task shell [(<integer-range processor = 0>|all)] <string command>
+C> ~~~~
+C> This routine reads that input to get the code ready to invoke the shell 
+C> command.
+C>
       subroutine task_shell_input(rtdb)
 c
       implicit none
@@ -9,7 +21,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Read input of the shell task directive
 c
@@ -56,4 +68,5 @@ c
      $     call errquit('task shell: rtdb corrupt',0, RTDB_ERR)
 c
       end
+C> @}
 c $Id$

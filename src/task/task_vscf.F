@@ -3,6 +3,14 @@
 *
 C> \ingroup task
 C> @{
+C>
+C> \brief Generic interface to perform Vibrational SCF (VSCF) calculations
+C>
+C> VSCF calculations explore the anharmonicity of the potential energy
+C> surface using finite displacements along two normal modes simultanously.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+C>
       logical function task_vscf(rtdb)
 c     
 c     Also will be hooked up to analytic methods as they are available.
@@ -25,7 +33,7 @@ c
       logical task_freq
       external task_freq
 c     
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c     
       integer nat, geom, i
       integer ngrid, ncoup, iexc

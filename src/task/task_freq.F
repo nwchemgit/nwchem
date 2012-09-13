@@ -1,5 +1,11 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief Generic interface to a frequency calculation including IR intensities
+C>
+C> \return Return .true. if the calculation was successfull, and .false. 
+C> otherwise.
+C>
       logical function task_freq(rtdb)
 c     
 c     Central difference calculation of the hessian using
@@ -39,7 +45,7 @@ c
       logical task_hessian
       external task_hessian
 c     
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c     
       integer nat, geom
       logical status

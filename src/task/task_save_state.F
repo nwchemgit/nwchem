@@ -1,5 +1,25 @@
 C> \ingroup task
 C> @{
+C>
+C> \brief A generic interface to save restart information
+C>
+C> Each module saves any files/database entries neccessary
+C> to restart the calculation at its current point by appending the
+C> given suffix to any names.
+C>    
+C> The exact (and perhaps only) application of this routine is in
+C> computation of derivatives by finite difference.  The energy/gradient
+C> is computed at a reference geometry (or zero field) and then
+C> the wavefunction is saved by calling this routine.  Subsequent
+C> calculations at displaced geometries (or non-zero fields) call
+C> task_restore_state() in order to use the wavefunction at the
+C> reference geometry as a starting guess for the calculation
+C> at the displaced geometry.  Thus, there is no need to save basis
+C> or geometry (or field) information.  E.g., in the SCF only the
+C> MO vector file is saved.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+C>
       logical function task_save_state(rtdb,suffix)
 *     
 *     $Id$
@@ -10,8 +30,8 @@ C> @{
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-      integer rtdb              ! [input]
-      character*(*) suffix      ! [input]
+      integer rtdb              !< [Input] The RTDB handle
+      character*(*) suffix      !< [Input] The file name suffix
 c     
 c     Each module saves any files/databse entries neccessary
 c     to restart the calculation at its current point by appending the
