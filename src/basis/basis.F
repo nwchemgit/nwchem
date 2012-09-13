@@ -1,4 +1,3 @@
-C> \defgroup bas Gaussian Basis Sets
       logical function bas_version()
 c $Id$
 c
