@@ -1,4 +1,3 @@
-C> \defgroup geom Geometry Objects
 c
 C> \ingroup geom
 C> @{
