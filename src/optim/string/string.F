@@ -183,6 +183,8 @@ C> @}
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "geom.fh"
+#include "util.fh"
+#include "inp.fh"
 
 ! Input parameters that do not get changed
       integer maxit  ! Maximum number of iterations (200?)
@@ -211,14 +213,21 @@ C> @}
 
 ! Local variables
       integer i, j, k, nstep
-      real*8 tmp, tmp2
+      real*8 tmp, tmp2,t
       logical badgeom
       real*8 g1(3),g2(3),g3(3)
       integer iistart, iiend
       real*8 hess, e0, e1, a2, alpha, dsgrad
       logical linopt
-      logical projection1
+      logical projection1,found,status
       integer pathguess
+
+      character     ch_tmp
+      character*255 filename,full_filename,perm_name,movecs_name
+      integer movecslen,permlen
+
+      character*7 bead_index_name
+      external    bead_index_name
 
 ! Setup the problem
 ! "Secret" options with defaults that generally do not need changed
@@ -242,6 +251,12 @@ C> @}
       else  ! This makes no sense
         call errquit('zts_meps: fatal error', 0, 0)
       endif
+
+*     **** set .string_epath filename ****s
+      call util_file_prefix('string_epath',filename)
+      call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
 
 ! Now we do the work
       if (ga_nodeid() .eq. 0) then
@@ -299,9 +314,35 @@ C> @}
      &         (i .eq. nbeads .and. freezeN .and. nstep .ne. 1)) then
               ! Skip the gradient for frozen stuff, unless first step - need E
            else
+
+*            *** copy bead movecs to taskmovecs ***
+             call util_file_prefix('movecs',perm_name)
+             movecs_name = "w"//bead_index_name(i)//perm_name
+             call util_file_name_resolve(perm_name, .false.)
+             call util_file_name_resolve(movecs_name, .false.)
+             permlen = inp_strlen(perm_name)
+             movecslen = inp_strlen(movecs_name)
+             if (ga_nodeid().eq.0) then
+               inquire(file=movecs_name,exist=status)
+               if (status) then
+                  call util_file_copy(movecs_name(1:movecslen),
+     >                                perm_name(1:permlen))
+               end if
+             end if
+
              call ga_sync()
              if ( .not. task_gradient(rtdb))
      &          call errquit('zts_meps: gradient failed',0, 0)
+
+*            *** copy taskmovecs to bead movecs ****
+             if (ga_nodeid().eq.0) then
+                inquire(file=perm_name,exist=status)
+                if (status) then
+                   call util_file_copy(perm_name(1:permlen),
+     >                                 movecs_name(1:movecslen))
+                end if
+             end if
+
              if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,energy(i)))
      &          call errquit('zts_meps: failed getting energy',0,
      &          RTDB_ERR)
@@ -384,9 +425,35 @@ c
              call sym_geom_project(geom, 1.0d-6)
              if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      &         call errquit('zts_meps: store geometry',0,GEOM_ERR)
+
+*            *** copy bead movecs to taskmovecs ***
+             call util_file_prefix('movecs',perm_name)
+             movecs_name = "w"//bead_index_name(i)//perm_name
+             call util_file_name_resolve(perm_name, .false.)
+             call util_file_name_resolve(movecs_name, .false.)
+             permlen = inp_strlen(perm_name)
+             movecslen = inp_strlen(movecs_name)
+             if (ga_nodeid().eq.0) then
+               inquire(file=movecs_name,exist=status)
+               if (status) then
+                  call util_file_copy(movecs_name(1:movecslen),
+     >                                perm_name(1:permlen))
+               end if
+             end if
+
              call ga_sync()
              if ( .not. task_energy(rtdb))
      &          call errquit('zts_meps: energy failed',0, 0)
+
+*            *** copy taskmovecs to bead movecs ****
+             if (ga_nodeid().eq.0) then
+                inquire(file=perm_name,exist=status)
+                if (status) then
+                   call util_file_copy(perm_name(1:permlen),
+     >                                 movecs_name(1:movecslen))
+                end if
+             end if
+
              if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,e1))
      &          call errquit('zts_meps: failed get energy',0,RTDB_ERR)
 c
@@ -483,6 +550,43 @@ c            scale gradient
      &            )'@ ',nstep,tmp,energy(1),
      &                            energy(1+nbeads/2),
      &                            energy(nbeads),tmp2
+
+*           ***************************************
+*           ***** print out .string_epath file ****
+*           ***************************************
+            inquire(file=full_filename,exist=found)
+*           **** FILE already exists - parse to EOF ****
+            if (found) then
+              open(unit=19,file=full_filename,form='formatted',
+     >             status='old')
+              do while(.true.)
+                read(19,*,ERR=30,END=30) ch_tmp
+              end do
+ 30           continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(SOLARIS) || defined(__crayx1) || defined(GCC46)
+              backspace 19
+#endif
+            write(19,*) " "
+*           **** .string_epath FILE does not exist ****
+            else
+              open(unit=19,file=full_filename,form='formatted')
+            end if
+            write(19,*)
+     > "#-------------------------------------------------------"
+            write(19,*)  "# String Path iteration  = ",nstep
+            write(19,*)  "# String Interpolator    = ",interpol
+            write(19,*)  "# nbeads                 = ",nbeads
+            write(19,*)  "# step Size              = ",stepsize
+            write(19,*)  "# convergence            = ",tmp
+            write(19,*)  "# convergence tol (Xrms) = ",tol
+            write(19,*)
+     > "#-------------------------------------------------------"
+            do i=1,nbeads
+               t = (i-1)/dble(nbeads-1)
+               write(19,*) t,energy(i)
+            end do
+            close(19)
+
          endif
          if ( tmp .lt. tol) goto 747
       enddo
@@ -497,7 +601,15 @@ c            scale gradient
          converged = .true.
       endif
 
+
+*     **** write out xyz trajectory ****
+      call util_file_prefix('string_final.xyz',filename)
+      call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
       if (ga_nodeid() .eq. 0) then
+      open(unit=19,file=full_filename,form='formatted')
+
        write(*,*)
        do i = 1, nbeads
          write(*,'(a16,i5,a21,f20.12)') '@ Bead number = ', i ,
@@ -506,7 +618,35 @@ c            scale gradient
      &        call errquit('zts_meps: set geometry',i,GEOM_ERR)
          if ( .not. geom_print_xyz(geom,6))
      &        call errquit('zts_meps: print geometry',i,GEOM_ERR)
+         if ( .not. geom_print_xyz(geom,19))
+     &        call errquit('zts_meps: print geometry',i,GEOM_ERR)
        enddo
+       close(19)
+       end if
+
+
+*     **** write out final path energies ****
+      call util_file_prefix('string_final_epath',filename)
+      call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
+      if (ga_nodeid() .eq. 0) then
+         open(unit=19,file=full_filename,form='formatted')
+         write(19,*)
+     > "#-------------------------------------------------------"
+         write(19,*)  "# String Path iteration  = ",nstep
+         write(19,*)  "# String Interpolator    = ",interpol
+         write(19,*)  "# nbeads                 = ",nbeads
+         write(19,*)  "# step Size              = ",stepsize
+         write(19,*)  "# convergence            = ",tmp
+         write(19,*)  "# convergence tol (Xrms) = ",tol
+         write(19,*)
+     > "#-------------------------------------------------------"
+         do i=1,nbeads
+            t = (i-1)/dble(nbeads-1)
+            write(19,*) t,energy(i)
+         end do
+         close(19)
       endif
 
       if (ga_nodeid() .eq. 0) write(*,*)
