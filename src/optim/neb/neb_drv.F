@@ -460,7 +460,22 @@ c
 
            mark = '@neb'
            if (it .gt. 1) mark = ' '
+
+           write(luout,12)  mark," "
+           write(luout,12)  mark,"NEB Method"
+           write(luout,13)  mark,"algorithm      = ",neb_algorithm
+           write(luout,13)  mark,"maxiter        = ",nebsteps
+           write(luout,13)  mark,"nbeads         = ",nbeads
+           write(luout,14)  mark,"stepsize       = ",time_step
+           write(luout,14)  mark,"kbeads         = ",kbeads
+           write(luout,14)  mark,"Gmax tolerance = ",nebGmax
+           write(luout,14)  mark,"Grms tolerance = ",nebGrms
+           write(luout,14)  mark,"Xmax tolerance = ",nebXmax
+           write(luout,14)  mark,"Xrms tolerance = ",nebXrms
+           write(luout,12)  mark," "
+
            write(luout,10) mark, mark
+     
            mark = '@neb'
            write(luout,11) mark, it, path_energy/path_distance, 
      >       emid,emin,emax,
@@ -476,6 +491,9 @@ c
  11        format(
      >        a4,i5,4f15.6,1p,4f9.5,f9.1,/,
      >        1x,5x,17x,9x,4a9,/)
+ 12        format(a4,1x,a)
+ 13        format(a4,1x,a,i9)
+ 14        format(a4,1x,a,e9.3)
 
          endif
 
