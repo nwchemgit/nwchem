@@ -653,7 +653,12 @@ c
       oprint = (ga_nodeid().eq.0)
 
       value = geom_create(geom,'neb_tmp')
-      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+
+      !*** check for neb_start, otherwise just read geometry ****
+      if (.not.geom_rtdb_load(rtdb,geom,'neb_start')) then
+         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+      end if
+
       value = value.and.geom_ncent(geom,nion)
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('neb_initial_path failed',0,0)
@@ -666,9 +671,17 @@ c
       if (.not.value) call errquit('neb_initial_path failed',1,0)
 
       value = value.and.geom_create(geom,'neb_tmp')
-      value = value.and.geom_rtdb_load(rtdb,geom,'neb_end')
+
+      !*** try neb_end, then endgeom ****
+      if (.not.geom_rtdb_load(rtdb,geom,'neb_end')) then
+         value = value.and.geom_rtdb_load(rtdb,geom,'endgeom')
+      end if
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r2(1)))
-      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+
+      !*** try neb_start, then geometry****
+      if (.not.geom_rtdb_load(rtdb,geom,'neb_start')) then
+         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+      end if
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r1(1)))
       if (.not.value) call errquit('neb_initial_path failed',2,0)
 
@@ -677,7 +690,9 @@ c
 
       if (hasmiddle) then
          if (.not.geom_rtdb_load(rtdb,geom,'neb_middle')) then
-            hasmiddle = .false.
+            if (.not.geom_rtdb_load(rtdb,geom,'midgeom')) then
+               hasmiddle = .false.
+            end if
          else
             if (.not.geom_cart_coords_get(geom,dbl_mb(rmid(1))))
      >      call errquit('neb_initial_path failed',2,0)
@@ -690,12 +705,13 @@ c
          write(luout,'(A,I4)') "    + number images = ",nbeads
          if (hasmiddle) then
             write(luout,'(3A)')    
-     >      "    + neb_start geometry -->",
-     >      " neb_middle geometry -->",
-     >      " neb_end geometry"
+     >      "    + neb_start (geometry) geometry -->",
+     >      " neb_middle (midgeom) geometry -->",
+     >      " neb_end (endgeom) geometry"
          else
             write(luout,'(A)')    
-     >      "    + neb_start geometry --> neb_end geometry"
+     >      "    + neb_start (geometry) geometry -->",
+     >      " neb_end (endgeom) geometry"
          end if
       end if
 
@@ -715,7 +731,8 @@ c
      >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
             if (oprint) then
             write(luout,*) 
-     >      " - Imposing neb_mid geometry onto neb_start geometry"
+     >      " - Imposing neb_mid (midgeom) geometry onto",
+     >      " neb_start (geometry) geometry"
             write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
             write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
             end if
@@ -733,7 +750,8 @@ c
      >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
             if (oprint) then
             write(luout,*) 
-     >      " - Imposing neb_end geometry onto neb_start geometry"
+     >      " - Imposing neb_end (endgeom) geometry",
+     >      " onto neb_start (geometry) geometry"
             write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
             write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
             end if
@@ -1059,7 +1077,9 @@ c     *** choosing Polac-Ribiere coeff ***
       external    bead_index_name
 
       value = geom_create(geom,'neb_tmp')
-      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+      if (.not.geom_rtdb_load(rtdb,geom,'neb_start')) then
+          value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+      end if
       value = value.and.geom_ncent(geom,nion)
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('neb_resize_path failed',0,0)
@@ -1073,7 +1093,9 @@ c     *** choosing Polac-Ribiere coeff ***
       if (.not.value) call errquit('neb_resize_path failed',1,0)
 
       value = value.and.geom_create(geom,'neb_tmp')
-      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+      if (.not.geom_rtdb_load(rtdb,geom,'neb_start')) then
+         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+      end if
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r3(1)))
       if (.not.value) call errquit('neb_resize_path failed',2,0)
 
