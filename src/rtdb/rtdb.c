@@ -31,10 +31,6 @@ static int par_mode[MAX_RTDB] = {INACTIVE,INACTIVE,INACTIVE,INACTIVE,INACTIVE};
 static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
 
 /**
-\defgroup rtdb RunTime DataBase
-*/
-
-/**
 \ingroup rtdb 
 @{
 */
