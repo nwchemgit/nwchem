@@ -18,6 +18,7 @@ c
       character*255 field
       real*8 tol, temp, stepsize
       integer nbeads, maxit, interpol
+      logical frze
 c
 c     ----- read values from input -----
 c
@@ -76,6 +77,20 @@ c
          if (.not. rtdb_put(rtdb,'string:interpol',mt_int,1,
      $        interpol))
      $        call errquit('string_input: rtdb put failed',0, RTDB_ERR)
+
+      else if (inp_compare(.false.,'freeze1', field)) then
+         if (.not. inp_l(frze)) frze = .false.
+         if (frze) then
+           if (.not. rtdb_put(rtdb,'string:freeze1',mt_log,1,frze))
+     $        call errquit('string_input: rtdb put failed',0, RTDB_ERR)
+         end if
+
+      else if (inp_compare(.false.,'freezen', field)) then
+         if (.not. inp_l(frze)) frze = .false.
+         if (frze) then
+           if (.not. rtdb_put(rtdb,'string:freezen',mt_log,1,frze))
+     $        call errquit('string_input: rtdb put failed',0, RTDB_ERR)
+         end if
 c
       else
          call errquit('string_input: unknown directive',0, INPUT_ERR)

@@ -278,7 +278,7 @@ C> @}
           write(*,'(a)')   '@ Last Replica         = moves'
         endif
         write(*,'(a)')
-     &    '@  Step   xrms          E end         '
+     &    '@  Step   xrms          E start       '
      &     //'E middle          E end          E max'
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
