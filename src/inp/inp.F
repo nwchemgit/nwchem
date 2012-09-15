@@ -1,4 +1,3 @@
-C> \defgroup inp Line input
       block data inp_data
 C$Id$
       implicit none
@@ -35,7 +34,17 @@ c
 C> \ingroup inp
 C> @{
 C>
-C> \brief Initialize basic data elements
+C> \brief Initializes free format input routines
+C>
+C> This function initializes free format input routines to take input
+C> from Fortran unit `ir` and send output to fortran unit `iw`. The
+C> input file is processed from the current location.
+C>
+C> Function `inp_init()` should be invoked each time the input file is
+C> repositioned using other than `inp_*()` routines (e.g. by using
+C> rewind). It should also be called when the focus of the input
+C> processing transfers to another file. This happens for example
+C> when the main input file includes another file.
 c
       subroutine inp_init(ir,iw)
       implicit none
@@ -200,7 +209,42 @@ C>
 C> This function reads a line of input and tokenizes it into fields.
 C> The data this produces is stored internally, but it can subsequently
 C> be queried using other routines in this module. This routine also 
-C> deals with special cases such as include files.
+C> deals with special cases such as include files and comment lines.
+C>
+C> The lines from the input are split into white space (blank or
+C> tab) separated fields. White space may be incorporated into a field
+C> by enclosing it in quotes (for example, "new name"). The case of
+C> the input is preserved.
+C>
+C> Blank lines are ignored and text beginning with a pound or hash
+C> symbol (`#`) is treated as a comment. A backslash (`\`) at the end
+C> of a line (followed only by white space) can be used to concatentate
+C> physical input lines into one logical input line.  A semicolon
+C> (`;`) may be used to split a single physical input line into
+C> multiple logical input lines. The special command characters hash
+C> (`#`), semicolon (`;`) and quotation mark (`"`) will be treated
+C> simply as characters only if prefaced by a backslash. (NOTE: This
+C> must be done even when the character appears within a character
+C> string enclosed in quotes.)
+C>
+C>The number of fields read is initially set to 0, there being a total
+C> of `inp_n_field()` fields in the line.
+C>
+C> If a non-blank line is successfully parsed then `.true.` is returned;
+C> otherwise an internal error message is set and `.false.` is returned.
+C> Possible errors include such actions as detection of unexpected EOF
+C> (which can be checked for with `function inp_eof()`), or failure to
+C> parse the line (e.g., a character string without a terminating
+C> quote).
+C>
+C> End of file (EOF) is usually indicated by reaching the actual
+C> end of the physical input file.  Alternatively, the user can specify
+C> the end of file location at any point by inserting a
+C> physical input line that begins with an asterisk (*), or a period,
+C> or the letters EOF (which may be in upper or lower case), and is
+C> followed only by trailing white space.
+C>
+C> The maximum input line width is 1024 characters.
 C>
 C> \return Return .true. if another line of input was read successfully,
 C> and .false. otherwise.
@@ -521,7 +565,8 @@ C> \brief Retrieve the next field as a character string
 C>
 C> Retrieves the next token as a text string. Any enclosing quotes are
 C> removed from the field. If the value does not fit the buffer provided
-C> an error condition is raised.
+C> an error condition is raised. The value of the buffer is changed
+C> only if the function is successfull.
 C>
 C> \return Return .true. if successfull, and .false. otherwise.
 c
@@ -612,7 +657,8 @@ C>
 C> Interpret the next field as a floating point value and assign
 C> its value to the buffer provided. If the next field does not 
 C> represent a valid floating point value an error condition is
-C> raised.
+C> raised. The buffer is not changed unless the function is
+C> successfull.
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 c
@@ -720,7 +766,8 @@ C>
 C> Interpret the next field as an integer value and assign
 C> its value to the buffer provided. If the next field does not 
 C> represent a valid integer value an error condition is
-C> raised.
+C> raised. The buffer is not changed unless the function is
+C> successfull.
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 c
@@ -799,6 +846,9 @@ C>    | t      | f       |
 C>    | yes    | no      |
 C>    | y      | n       |
 C>    | on     | off     |
+C>
+C> The value of the buffer is changed only if the function is
+C> successfull.
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 c
