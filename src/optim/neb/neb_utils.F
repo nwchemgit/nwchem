@@ -639,8 +639,8 @@ c
 
 *     **** local variables ****
       logical value,impose,oprint,hasmiddle
-      integer i,geom,geomlen,movecslen,nion,nfit,i2,i3
-      integer r1(2),r2(2),r3(2),rmid(2),ifit(2),wfit(2)
+      integer i,geom,geomlen,movecslen,nion,nfit,i2,i3,pathguess
+      integer r1(2),r2(2),r3(2),rmid(2),ifit(2),wfit(2),rcoords(2)
       real*8  t,rms1,rms2
       character*255 geom_name,movecs_name
 
@@ -651,6 +651,9 @@ c
       external    bead_index_name
 
       oprint = (ga_nodeid().eq.0)
+
+      if (.not. rtdb_get(rtdb,'neb:pathguess',mt_int,1,pathguess))
+     $      pathguess = 2
 
       value = geom_create(geom,'neb_tmp')
 
@@ -761,13 +764,28 @@ c
          value = value.and.MA_pop_stack(ifit(2))
          if(.not.value) call errquit('neb_initial_path failed',4,MA_ERR)
       end if
+
+
+
+      if(.not.ma_push_get(mt_dbl,3*nion*nbeads,'rcoords',
+     >                    rcoords(2), rcoords(1)))
+     >     call errquit('neb_initialize: memory',3*nion*nbeads,MA_ERR)
+
+
+
       if (hasmiddle) then
         i2 = nbeads/2+1
-        do i=1,i2
-          t = (i-1)/dble(i2-1)
-          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
-          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
-          call daxpy(3*nion,t,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
+        call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(rcoords(1)),1) 
+        call dcopy(3*nion,dbl_mb(rmid(1)),1,
+     >            dbl_mb(rcoords(1)+3*nion*(i2-1)),1) 
+        call dcopy(3*nion,dbl_mb(r2(1)),1,
+     >            dbl_mb(rcoords(1)+3*nion*(nbeads-1)),1) 
+
+        call zts_guess(nion,nbeads,i2,dbl_mb(rcoords(1)),pathguess)
+
+        do i=1,nbeads
+          call dcopy(3*nion,dbl_mb(rcoords(1)+3*nion*(i-1)),1,
+     >                      dbl_mb(r3(1)),1)
 
           geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
           movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
@@ -781,33 +799,63 @@ c
      >                     geom_name(1:geomlen))
         end do
 
-        i3 = nbeads-i2
-        do i=1,i3
-          t = i/dble(i3)
-          call dcopy(3*nion,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
-          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
-          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 
-          geom_name   = 'neb_bead'//bead_index_name(i+i2)//':geom'
-          movecs_name = 'neb_bead'//bead_index_name(i+i2)//'.movecs'
-          geomlen     = inp_strlen(geom_name)
+c        do i=1,i2
+c          t = (i-1)/dble(i2-1)
+c          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
+c          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
+c          call daxpy(3*nion,t,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
+c
+c          geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
+c          movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+c          geomlen     = inp_strlen(geom_name)
+c          movecslen   = inp_strlen(movecs_name)
+c          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
+c          value = value.and.geom_rtdb_store(rtdb,geom,
+c     >                                    geom_name(1:geomlen))
+c          call add_bead_list(bead_list,
+c     >                     movecs_name(1:movecslen),
+c     >                     geom_name(1:geomlen))
+c        end do
+c
+c        i3 = nbeads-i2
+c        do i=1,i3
+c          t = i/dble(i3)
+c          call dcopy(3*nion,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
+c          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
+c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
+c
+c          geom_name   = 'neb_bead'//bead_index_name(i+i2)//':geom'
+c          movecs_name = 'neb_bead'//bead_index_name(i+i2)//'.movecs'
+c          geomlen     = inp_strlen(geom_name)
           movecslen   = inp_strlen(movecs_name)
-          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
-          value = value.and.geom_rtdb_store(rtdb,geom,
-     >                                    geom_name(1:geomlen))
-          call add_bead_list(bead_list,
-     >                     movecs_name(1:movecslen),
-     >                     geom_name(1:geomlen))
-        end do
+c          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
+c          value = value.and.geom_rtdb_store(rtdb,geom,
+c     >                                    geom_name(1:geomlen))
+c          call add_bead_list(bead_list,
+c     >                     movecs_name(1:movecslen),
+c     >                     geom_name(1:geomlen))
+c        end do
 
+*     **** linear interpolation with Robinson Checking ****
       else
+      
+        call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(rcoords(1)),1) 
+        call dcopy(3*nion,dbl_mb(r2(1)),1,
+     >            dbl_mb(rcoords(1)+3*nion*(nbeads-1)),1) 
+
+        call zts_guessall(nion,nbeads,dbl_mb(rcoords(1)),geom)
+
         do i=1,nbeads
-          t = (i-1)/dble(nbeads-1)
+c          t = (i-1)/dble(nbeads-1)
+c
+c          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
+c          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
+c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 
-          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
-          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
-          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
-
+          call dcopy(3*nion,dbl_mb(rcoords(1)+3*nion*(i-1)),1,
+     >                      dbl_mb(r3(1)),1)
+ 
           geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
           movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
           geomlen     = inp_strlen(geom_name)
@@ -822,6 +870,7 @@ c
 
         end do
       end if
+      value = value.and.MA_pop_stack(rcoords(2))
       value = value.and.geom_destroy(geom)
       value = value.and.MA_pop_stack(rmid(2))
       value = value.and.MA_pop_stack(r3(2))
