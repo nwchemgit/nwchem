@@ -504,10 +504,6 @@ c
      &     call errquit('dft_densm:fon nmo_fon <1',1, INPUT_ERR)
         if (nel_fon(ispin).lt.0d0) 
      &     call errquit('dft_scf_so:fon nel_fon <0',1, INPUT_ERR)
-        if (nmo_fon(ispin+2).lt.1) 
-     &     call errquit('dft_densm:fon nmo_fon <1',1, INPUT_ERR)
-        if (nel_fon(ispin+2).lt.0d0) 
-     &     call errquit('dft_scf_so:fon nel_fon <0',1, INPUT_ERR)
 c
         avg_fon = nel_fon(ispin)/dble(nmo_fon(ispin))  ! average occupation
         if (nmo_fon(ispin+2).lt.1.or.nel_fon(ispin+2).le.0d0) then
