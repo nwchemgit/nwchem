@@ -66,6 +66,7 @@ c     integer noc(2)
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
       character*80 scftype
+      integer ifocc
       logical status,frac_occ
       integer me, nproc, max_sh_bf, max_at_bf, nat, max_sh_bfcd,
      $     lforce, nactive, i, nbf_vecs, nsets, ispin, 
@@ -94,6 +95,9 @@ c
       parameter(toll=1.d-9)
       logical  oprint_force_comps
 c     
+      logical has_frac_occ
+      external has_frac_occ
+c
       nproc = ga_nnodes()
       me=ga_nodeid()
       oprint_force_comps = util_print('force components', print_debug)
@@ -128,11 +132,10 @@ c     if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
 c    $     call errquit('dft_gradient: rtdb_get of noc failed', 0,
 c    &       RTDB_ERR)
 c     
-c     check if smearing is on
+c     check if fractional occupation is on
 c
-      if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
-     & frac_occ  )) frac_occ=.false.
-
+      frac_occ = .false.
+      if (has_frac_occ(rtdb)) frac_occ = .true.
 c     
 c     allocate and initialize global and local memory
 c     
@@ -284,7 +287,7 @@ c
 c
       if(frac_occ) then
 c
-c       smearing, therefore check new nocs
+c       fractional occupation, therefore check new nocs
 c
         if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
      &     call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
@@ -295,15 +298,14 @@ c
      &         'frac vecs')
           call ga_zero(g_tmp(ispin))
           ipoint=k_occ+(ispin-1)*nbf_ao-1
-          do i = me+1, nbf_ao, nproc
-            if(dbl_mb(ipoint+i).gt.toll) then
-              call get_col(g_vecs(ispin), nbf_ao, i, DBL_MB(itmpm))
-              call dscal(nbf_ao, dbl_mb(i+ipoint), DBL_MB(itmpm), 1)
-              call put_col(g_tmp(ispin), nbf_ao, i, DBL_MB(itmpm))
-            endif
+c
+          do i = ga_nodeid()+1, nbf_ao, ga_nnodes()
+            call get_col(g_vecs(ispin), nbf_ao, i, DBL_MB(itmpm))
+            call dscal(nbf_ao, dbl_mb(i+ipoint), DBL_MB(itmpm), 1)
+            call put_col(g_tmp(ispin), nbf_ao, i, DBL_MB(itmpm))
           enddo
           do i=1,nbf_ao
-            if(dbl_mb(ipoint+i).gt.toll) noc(ispin)=i
+            if(dbl_mb(ipoint+i).ge.toll) noc(ispin)=i
           enddo
         enddo
         if (.not.ma_pop_stack(ltmpm))
@@ -314,6 +316,7 @@ c
           g_tmp(ispin)=g_vecs(ispin)
         enddo
       endif
+c
       do ispin = 1, ipol
 c     
 c        dens = vecs*vecs
@@ -331,7 +334,7 @@ c
      *          errquit('dftg_force: could not gadestr gtmp',ispin,
      &       GA_ERR)
          endif
-      enddo 
+      enddo   !ispin
 c     
 c     Pre-compute mapping vectors
 c     
@@ -378,7 +381,8 @@ c
          status = ma_free_heap (l_evals(2))
       endif 
       status = ma_free_heap (l_evals(1))
-      IF (CDFIT)then
+c
+      if (CDFIT) then
 c     
 c     determine memory requirements for integral gradients
 c     
@@ -468,7 +472,7 @@ c
             call ga_dadd(one, iga_dens(1), onem, iga_dens(2), 
      &                   iga_dens(1))
          endif 
-      endif
+      endif  ! cdfit
 c     
 c     get exchange-correlation contribution to the gradient
 c     
@@ -519,8 +523,7 @@ c
       if (ga_nodeid() .eq. 0)then
          status = rtdb_parallel (.false.)
          do i = 0, lforce-1
-            dbl_mb(k_force+i) = dbl_mb(k_frc_2el+i) + 
-     $           dbl_mb(k_frc_xc+i) 
+          dbl_mb(k_force+i) = dbl_mb(k_frc_2el+i) + dbl_mb(k_frc_xc+i) 
          enddo
          if (.not. rtdb_put(rtdb, 'dft:cd+xc gradient', mt_dbl,
      $        lforce, dbl_mb(k_force))) call errquit
@@ -651,6 +654,7 @@ c
          enddo
       endif
 c!!! BGJ test !!!
+c
       status = ma_free_heap (l_act)
       status = ma_free_heap (l_frc_xc)
       status = ma_free_heap (l_frc_2el)
@@ -661,6 +665,7 @@ c!!! BGJ test !!!
 c     
       return
       end
+c
       subroutine dftg_fant(geom,natoms,a,d,forces)
 C     Bonacic-Kouteck, V.; Cespiva, L.; Fantucci, P.; Pittner, J.; Kouteck, J. J. 
 C     Chem. Phys. 1994, 98, 490.
