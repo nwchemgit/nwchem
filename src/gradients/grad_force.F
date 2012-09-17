@@ -160,15 +160,19 @@ c
       logical odbug
       logical ocosmo
       logical osome
-
+c
+      integer ifocc
       logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
-
+c
+      logical has_frac_occ
+      external has_frac_occ
+c
       logical lcdft  ! Qin
       integer ipop
-
+c
       nproc = ga_nnodes()
-
+c
       ld_ij2 = 0
       ld_kl2 = 0
       ld_ik2 = 0
@@ -488,11 +492,11 @@ C     occupation numbers
 c     
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
 c     
+c     check if fractional occupation is on
 c
-c     check if smearing is on
+      frac_occ = .false.
+      if (has_frac_occ(rtdb)) frac_occ = .true.
 c
-      if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
-     & frac_occ  )) frac_occ=.false.
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, odft,

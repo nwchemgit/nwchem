@@ -1,6 +1,6 @@
       subroutine grad_dens (geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
-     $     movecs, omp2, odft, pdm2, coeff,lsmear,osep)
+     $     movecs, omp2, odft, pdm2, coeff, lfrac_occ, osep)
 
 c     $Id$
 
@@ -42,23 +42,22 @@ C     local variables
       integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2, i,
      .     g_tmp,g_tmp2, itmpm, ltmpm, nocca,noccb,mxnoc
       double precision zero, one, mone, two, mtwo
-      logical status,lsmear
+      logical status,lfrac_occ
+      double precision toll
 
       parameter ( mtwo = -2.D0 )
       parameter ( mone = -1.D0 )
       parameter ( zero =  0.D0 )
       parameter ( one  =  1.D0 )
       parameter ( two  =  2.D0 )
-
-
+      parameter ( toll =  1.d-9)
+c
 C     get MO vectors from file (taken from Roberts scf_movecs_read)
 
       g_vecs = ga_create_atom_blocked ( geom, basis, 'mo vectors' )
-
       if (.not. movecs_read (movecs, 1, occ, evals, g_vecs)) 
      $     call errquit('grad_dens: could not read mo vectors', 110,
      &       DISK_ERR)
-
       if (scftype .eq. 'UHF') then
          g_vecs2 = ga_create_atom_blocked(geom, basis, 'uhf mo vectors')
          if (.not. movecs_read(movecs, 2, occ(nbf+1), evals(nbf+1),
@@ -66,16 +65,15 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
      $        ('grad_dens: could not read beta UHF MOs',0, DISK_ERR)
       end if
 c
-
       if (scftype .eq. 'RHF') then
 c
 C        energy-weighted density
 c
 C        create eigenvalue diagonal matrix
          nocc = nclosed
-         if(lsmear) then
+         if(lfrac_occ) then
 c
-c           smearing, therefore check new nocs
+c           fractional occupation, therefore check new nocs
 c
             if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &         call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
@@ -84,14 +82,12 @@ c
      &              'frac vecs')
             call ga_zero(g_tmp)
             do i = ga_nodeid()+1, nbf, ga_nnodes()
-              if(occ(i).gt.1.d-9) then
-                call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
-                call dscal(nbf, occ(i)*0.5d0, DBL_MB(itmpm), 1)
-                call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
-             endif
+              call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
+              call dscal(nbf, occ(i)*0.5d0, DBL_MB(itmpm), 1)
+              call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
            enddo
            do i=1,nbf 
-              if(occ(i).gt.1.d-9) nocc=i
+              if(occ(i).ge.toll) nocc=i
            enddo
            if (.not.ma_pop_stack(ltmpm))
      &        call errquit('dftg_force: cannot pop stack',0, MA_ERR)
@@ -152,6 +148,7 @@ c
      $        g_vecs,    1, nocc, 1, nbf,
      $        g_dens(1), 1, nbf, 1, nbf)
          call ga_symmetrize(g_dens(1))
+c
          if ( omp2 ) then
 c
 C           g_dens(1) = D(HF+(2))     for 1-el. contribution
@@ -252,9 +249,9 @@ c
 C        create eigenvalue diagonal matrix
          nocca = nclosed + nopen ! == nalpha
          noccb = nclosed         ! nbeta
-         if(lsmear) then
+         if(lfrac_occ ) then
 c
-c          smearing, therefore check new nocs
+c          fractional occupation, therefore check new nocs
 c
            if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &        call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
@@ -263,24 +260,22 @@ c
      &             'frac vecs')
            call ga_zero(g_tmp)
            do i = ga_nodeid()+1, nbf, ga_nnodes()
-             if(occ(i).gt.1.d-9) then
-               call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
-               call dscal(nbf, occ(i), DBL_MB(itmpm), 1)
-               call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
-             endif
+             call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
+             call dscal(nbf, occ(i), DBL_MB(itmpm), 1)
+             call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
            enddo
            do i=1,nbf 
-             if(occ(i).gt.1.d-9) nocca=i
+             if(occ(i).ge.toll) nocca=i
            enddo
            do i=nbf+1,nbf*2 
-             if(occ(i).gt.1.d-9) noccb=i-nbf
+             if(occ(i).ge.toll) noccb=i-nbf
            enddo
            if (.not.ma_pop_stack(ltmpm))
      &       call errquit('dftg_force: cannot pop stack',0, MA_ERR)
-      
          else
            g_tmp=g_vecs
          endif
+c
          if(nocca.gt.nopen+nclosed) then
            if(.not.ga_destroy ( g_eigen_diag )) call errquit(
      &        'grad_dens: cannot destroy eigendiag',11, GA_ERR)
@@ -315,9 +310,9 @@ C       multiply to weighted density
      $       g_vecs,       1, nocca, 1, nbf,
      $       g_wdens,      1, nbf,  1, nbf )
 
-        if(lsmear) then
+        if(lfrac_occ) then
 c
-c         smearing, therefore check new nocs
+c         fractional occupation, therefore check new nocs
 c
           if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &       call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
@@ -326,11 +321,9 @@ c
      &             'frac vecs')
           call ga_zero(g_tmp2)
           do i = ga_nodeid()+1, nbf, ga_nnodes()
-            if(occ(i).gt.1.d-9) then
               call get_col(g_vecs2, nbf, i, DBL_MB(itmpm))
               call dscal(nbf, occ(i+nbf), DBL_MB(itmpm), 1)
               call put_col(g_tmp2, nbf, i, DBL_MB(itmpm))
-            endif
           enddo
           if (.not.ma_pop_stack(ltmpm))
      &        call errquit('dftg_force: cannot pop stack',0, MA_ERR)
@@ -395,7 +388,7 @@ C       D_up and D_down (or and b)
      $       g_tmp2,      1, nbf,     1, noccb,
      $       g_vecs2,      1, noccb, 1, nbf,
      $       g_vecs,       1, nbf,     1, nbf)
-
+c
         if ( .not. omp2 ) then
 c
 C         D+ and D- (Formalism from Dupuis & King, JCP 68(9), p4000
@@ -496,22 +489,21 @@ c
          call ga_symmetrize(g_dens(1))
 
       end if
-         
 c     
-
       status = ga_destroy ( g_vecs )
-      if(lsmear) then
-      status = ga_destroy ( g_tmp )
-      if ( scftype .eq. 'UHF' ) then
+      if(lfrac_occ) then
+        status = ga_destroy ( g_tmp )
+        if ( scftype .eq. 'UHF' ) then
          status = ga_destroy ( g_tmp2 )
-      end if
+        end if
       endif
       if ( scftype .eq. 'UHF' ) then
          status = ga_destroy ( g_vecs2 )
       end if
-
+c
       return
       end
+c
       subroutine grad_diagb(g_a, evals, nocc)
       implicit none
 #include "global.fh"
