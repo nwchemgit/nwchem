@@ -2,6 +2,16 @@ c $Id$
 *
 C> \ingroup nwint
 C> @{
+C>
+C> \brief Check whether integrals can be done with the sp-rotated axis
+C> code
+C>
+C> This routine returns `.true.` to the calling integral API 
+C> routine if the two electron integrals over `ISH` and `JSH` can be 
+C> computed using the sp-rotated axis code.
+C> 
+C> \return Return .true. if the combination of shells can be handled
+C> by the sp-rotated axis code, and .false. otherwise
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{cando\_sp}
@@ -30,8 +40,9 @@ c
 #include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer basisin   ! [input] basis set handle for identified shells 
-      integer ish, jsh  ! [input] lexical shell index for I and J
+      integer basisin !< [Input] basis set handle for identified shells 
+      integer ish     !< [Input] lexical shell index for I
+      integer jsh     !< [Input] lexical shell index for J
 c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 2e permutations and multiple basis sets.
@@ -95,11 +106,11 @@ c:tex-computed using the McMurchie-Davidson code.
 c:tex-{\it Syntax:}
 C> \brief Checks whether the 1-electron shell pair integrals can be
 C> evaluated using the McMurchie-Davidson code
-c
-C> Considering the specified basis set and the shells ISH and JSH
+C>
+C> Considering the specified basis set and the shells `ISH` and `JSH`
 C> checks whether those integrals can be evaluated using the
 C> McMurchie-Davidson code.
-c
+C>
 C> \return Return .true. if the integrals can be evaluated using the 
 C> McMurchie-Davidson code, and .false. otherwise
 c
@@ -124,9 +135,10 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-      integer basisin  !< [Input] the basis set handle for identified shells 
-      integer ish      !< [Input] the lexical shell index for I
-      integer jsh      !< [Input] the lexical shell index for J
+      integer basisin !< [Input] the basis set handle for identified
+                      !< shells 
+      integer ish     !< [Input] the lexical shell index for I
+      integer jsh     !< [Input] the lexical shell index for J
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 2e permutations and multiple basis sets.
 c::local
@@ -164,6 +176,15 @@ c.... check jsh
 c
       end
 ***********************************************************************
+C> \brief Checks whether the unique shell combination can be handled by
+C> the sp-rotated axis code
+C>
+C> This routine returns `.true.` to the calling integral API 
+C> routine if the two electron integrals over unique shells `ISH`
+C> and `JSH` can be computed using the sp-rotated axis code.
+C>
+C> \return Return `.true.` if the combination of unique shells can be
+C> handled by the sp-rotated axis code, and `.false.` otherwise.
 c:tex-% part of API Internal Routines
 c:tex-\subsection{cando\_sp\_u}
 c:tex-This routine returns ``.true.'' to the calling integral API 
@@ -188,8 +209,9 @@ c
 #include "candoP.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer basisin     ! [input] basis set handle for identified shells 
-      integer ish_u,jsh_u ! [input] unique shell index for I and J
+      integer basisin !< [Input] basis set handle for identified shells 
+      integer ish_u   !< [Input] unique shell index for I
+      integer jsh_u   !< [Input] unique shell index for J
 c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 2e permutations and multiple basis sets.  This routine 
@@ -242,6 +264,15 @@ c.... check jsh_u
 c
       end
 ***********************************************************************
+C> \brief Checks whether the unique shell combination can be handled by
+C> the texas axis code
+C>
+C> This routine returns `.true.` to the calling integral API 
+C> routine if the two electron integrals over unique shells `ISH`
+C> and `JSH` can be computed using the texas axis code.
+C>
+C> \return Return `.true.` if the combination of unique shells can be
+C> handled by the texas axis code, and `.false.` otherwise.
 c:tex-% part of API Internal Routines
 c:tex-\subsection{cando\_txs}
 c:tex-This routine returns ``.true.'' to the calling integral API 
@@ -254,8 +285,9 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 c:tex-\begin{verbatim}
-      integer basisin   ! [input] basis set handle for identified shells 
-      integer ish, jsh  ! [input] lexical shell index for I and J
+      integer basisin !< [Input] basis set handle for identified shells 
+      integer ish     !< [Input] lexical shell index for I
+      integer jsh     !< [Input] lexical shell index for J
 c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. This allows one function 
 c:tex-for all 2e permutations.
@@ -313,6 +345,16 @@ c check for spherical false until spherical debuged in texas
 #endif
       end
 ***********************************************************************
+C> \brief Checks whether the shell combination can be handled by
+C> the McMurchie-Davidson 1-electron integral code
+C>
+C> This routine returns `.true.` to the calling integral API 
+C> routine if the one electron integrals over `ISH` and `JSH` can be 
+C> computed using the McMurchie-Davidson code.
+C>
+C> \return Return `.true.` if the combination of shells can be
+C> handled by the 1-electron McMurchi-Davidson code, and `.false.`
+C> otherwise.
 c:tex-% part of API Internal Routines
 c:tex-\subsection{cando\_nw_\1e}
 c:tex-This routine returns ``.true.'' to the calling integral API 
@@ -339,8 +381,9 @@ c
 #include "bas_ibs_dec.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer basisin  ! [input] basis set handle for identified shells 
-      integer ish,jsh  ! [input] lexical shell index for I and J
+      integer basisin !< [Input] basis set handle for identified shells 
+      integer ish     !< [Input] lexical shell index for I
+      integer jsh     !< [Input] lexical shell index for J
 c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 1e permutations and multiple basis sets.
@@ -376,13 +419,13 @@ c
 ***********************************************************************
 C> \brief Checks whether the 1-electron shell pair integrals can be
 C> evaluated using the HONDO code
-c
-C> Considering the specified basis set and the shells ISH and JSH
+C>
+C> Considering the specified basis set and the shells `ISH` and `JSH`
 C> checks whether those integrals can be evaluated using the HONDO
 C> code.
-c
-C> \return Return .true. if the integrals can be evaluated using the 
-C> HONDO code, and .false. otherwise
+C>
+C> \return Return `.true.` if the integrals can be evaluated using the 
+C> HONDO code, and `.false.` otherwise
 c
       logical function cando_hnd_1e(basisin,ish,jsh)
       implicit none
@@ -401,7 +444,8 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-      integer basisin  !< [Input] the basis set handle for identified shells
+      integer basisin  !< [Input] the basis set handle for identified
+                       !< shells
       integer ish      !< [Input] the lexical shell index for I
       integer jsh      !< [Input] the lexical shell index for J
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function
@@ -454,6 +498,13 @@ c
 c
       end
 ***********************************************************************
+C> \brief Turn the Texas integral code off
+C>
+C> This routine stores any current user setting for the texas 
+C> integral code and then sets the cando_txs flag on the RTDB to
+C> false.  This is for applications that have problems using the
+C> texas integrals.  Right now this is the dft module.  This
+C> routine should be called right before the call to `int_init`.
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_set\_no\_texas}
 c:tex-This routine stores any current user setting for the texas 
@@ -473,7 +524,7 @@ c:tex-\end{verbatim}
 #include "candoP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+      integer rtdb !< [Input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
       logical user_status
@@ -489,6 +540,15 @@ c
       rtdbIused = rtdb
       end
 ***********************************************************************
+C> \brief Turn the Texas integral code on
+C>
+C> This routine resets the current user setting for the texas 
+C> integral code and that was stored by `int_app_set_no_texas` by 
+C> setting the cando_txs flag on the RTDB to the state prior to 
+C> turning texas off.  This is for applications that have problems 
+C> using the texas integrals.  Right now this is the dft module.  
+C> This routine should be called right after the call to 
+C> `int_terminate`.
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_unset\_no\_texas}
 c:tex-This routine resets the current user setting for the texas 
@@ -510,7 +570,7 @@ c:tex-\end{verbatim}
 #include "candoP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+      integer rtdb !< [Input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
       if (app_stored_txs) then
@@ -553,6 +613,13 @@ c
 *_old_code:c
 *_old_code:      end
 ***********************************************************************
+C> \brief Turns the SP-rotated axis integral code off
+C>
+C> This routine stores any current user setting for the spint 
+C> integral code and then sets the cando_sp flag on the RTDB to
+C> false.  This is for applications that have problems using the
+C> sp integrals.  This routine should be called right before the 
+C> call to `int_init`.
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_set\_no\_spint}
 c:tex-This routine stores any current user setting for the spint 
@@ -572,7 +639,7 @@ c:tex-\end{verbatim}
 #include "candoP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+      integer rtdb !< [Input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
       logical user_status
@@ -588,6 +655,15 @@ c
       rtdbIused = rtdb
       end
 ***********************************************************************
+C> \brief Turns the SP-rotated axis integral code on
+C>
+C> This routine resets the current user setting for the sp
+C> integral code and that was stored by int_app_set_no_spint by 
+C> setting the cando_sp flag on the RTDB to the state prior to 
+C> turning sp integrals off.  This is for applications that have 
+C> problems using the sp integrals.  
+C> This routine should be called right after the call to 
+C> `int_terminate`.
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_unset\_no\_spint}
 c:tex-This routine resets the current user setting for the sp
@@ -609,7 +685,7 @@ c:tex-\end{verbatim}
 #include "candoP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+      integer rtdb !< [Input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
       if (app_stored_spint) then
@@ -624,6 +700,13 @@ c
       endif
       end
 ***********************************************************************
+C> \brief Turn the Hondo integral code off
+C>
+C> This routine stores any current user setting for the hondo
+C> integral code and then sets the cando_hnd flag on the RTDB to
+C> false.  This is for applications that have problems using the
+C> hondo integrals.  This routine should be called right before the
+C> call to `int_init`.
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_set\_no\_hnd}
 c:tex-This routine stores any current user setting for the hondo
@@ -643,7 +726,7 @@ c:tex-\end{verbatim}
 #include "candoP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+      integer rtdb !< [Input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
       logical user_status
@@ -659,6 +742,15 @@ c
       rtdbIused = rtdb
       end
 ***********************************************************************
+C> \brief Turn the Hondo integral code on
+C>
+C> This routine resets the current user setting for the hondo
+C> integral code that was stored by `int_app_set_no_hnd` by
+C> setting the cando_hnd flag on the RTDB to the state prior to
+C> turning hondo integrals off.  This is for applications that have
+C> problems using the hondo integrals.
+C> This routine should be called right after the call to
+C> `int_terminate`.
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_unset\_no\_hnd}
 c:tex-This routine resets the current user setting for the hondo
@@ -680,7 +772,7 @@ c:tex-\end{verbatim}
 #include "candoP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+      integer rtdb !< [Input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
       if (app_stored_hnd) then
@@ -695,6 +787,15 @@ c
       endif
       end
 ***********************************************************************
+C> \brief Check whether the Hondo code can calculate 1-electron 
+C> second derivative integrals for the given shells
+C>
+C> This routine returns ``.true.'' to the calling integral API routine
+C> if the second derivatives of the one electron integrals over `ISH`
+C> and `JSH` can be computed using the HONDO code.
+C>
+C> \return Return `.true.` if the Hondo code can calculate the
+C> integrals, and `.false.` otherwise
 c:tex-% part of API Internal Routines
 c:tex-\subsection{cando\_hnd_\1edd}
 c:tex-This routine returns ``.true.'' to the calling integral API
@@ -722,8 +823,9 @@ c
 #include "bas_ibs_dec.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer basisin  ! [input] basis set handle for identified shells
-      integer ish,jsh  ! [input] lexical shell index for I and J
+      integer basisin !< [Input] basis set handle for identified shells
+      integer ish     !< [Input] lexical shell index for I
+      integer jsh     !< [Input] lexical shell index for J
 c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function
 c:tex-for all 1e permutations and multiple basis sets.
