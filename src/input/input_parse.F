@@ -103,6 +103,8 @@ c
                call driver_input(rtdb)
             else if (inp_compare(.false.,test,'string')) then
                call string_input(rtdb)
+            else if (inp_compare(.false.,test,'zts')) then
+               call string_input(rtdb)
             else if (inp_compare(.false.,test,'qcharge')) then
                call input_qcharge(rtdb)
             else if (inp_compare(.false.,test,'charge')) then
