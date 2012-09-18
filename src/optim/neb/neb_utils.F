@@ -554,7 +554,7 @@
       external    bead_index_name
 
 
-      geom_name   = 'neb_bead'//bead_index_name(1)//':geom'
+      geom_name   = 'bead'//bead_index_name(1)//':geom'
       geomlen     = inp_strlen(geom_name)
 
       value = geom_create(geom,'neb_tmp')
@@ -787,8 +787,8 @@ c
           call dcopy(3*nion,dbl_mb(rcoords(1)+3*nion*(i-1)),1,
      >                      dbl_mb(r3(1)),1)
 
-          geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
-          movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+          geom_name   = 'bead'//bead_index_name(i)//':geom'
+          movecs_name = 'bead'//bead_index_name(i)//'.movecs'
           geomlen     = inp_strlen(geom_name)
           movecslen   = inp_strlen(movecs_name)
           value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
@@ -806,8 +806,8 @@ c          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
 c          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
 c          call daxpy(3*nion,t,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
 c
-c          geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
-c          movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+c          geom_name   = 'bead'//bead_index_name(i)//':geom'
+c          movecs_name = 'bead'//bead_index_name(i)//'.movecs'
 c          geomlen     = inp_strlen(geom_name)
 c          movecslen   = inp_strlen(movecs_name)
 c          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
@@ -825,8 +825,8 @@ c          call dcopy(3*nion,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
 c          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
 c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 c
-c          geom_name   = 'neb_bead'//bead_index_name(i+i2)//':geom'
-c          movecs_name = 'neb_bead'//bead_index_name(i+i2)//'.movecs'
+c          geom_name   = 'bead'//bead_index_name(i+i2)//':geom'
+c          movecs_name = 'bead'//bead_index_name(i+i2)//'.movecs'
 c          geomlen     = inp_strlen(geom_name)
           movecslen   = inp_strlen(movecs_name)
 c          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
@@ -856,8 +856,8 @@ c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
           call dcopy(3*nion,dbl_mb(rcoords(1)+3*nion*(i-1)),1,
      >                      dbl_mb(r3(1)),1)
  
-          geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
-          movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+          geom_name   = 'bead'//bead_index_name(i)//':geom'
+          movecs_name = 'bead'//bead_index_name(i)//'.movecs'
           geomlen     = inp_strlen(geom_name)
           movecslen   = inp_strlen(movecs_name)
           value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
@@ -908,8 +908,8 @@ c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
       external    bead_index_name
 
       do i=1,nbeads
-        geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
-        movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+        geom_name   = 'bead'//bead_index_name(i)//':geom'
+        movecs_name = 'bead'//bead_index_name(i)//'.movecs'
         geomlen     = inp_strlen(geom_name)
         movecslen   = inp_strlen(movecs_name)
 
@@ -1178,8 +1178,8 @@ c     *** choosing Polac-Ribiere coeff ***
         call dscal(3*nion,(1.0d0-t3),dbl_mb(r3(1)),1)
         call daxpy(3*nion,t3,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 
-        geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
-        movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+        geom_name   = 'bead'//bead_index_name(i)//':geom'
+        movecs_name = 'bead'//bead_index_name(i)//'.movecs'
         geomlen     = inp_strlen(geom_name)
         movecslen   = inp_strlen(movecs_name)
         value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))

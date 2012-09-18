@@ -106,9 +106,9 @@ c
 
 *  RRR only initialize if this is a new neb chain!
 *     **** initialize neb list ****
-      bead_list = 'neb_list'
+      bead_list = 'bead_list'
       newchain = .false.
-      if (.not.rtdb_get(rtdb,'neb:nebnew',mt_log,1,newchain))
+      if (.not.rtdb_get(rtdb,'bead_list:new',mt_log,1,newchain))
      >  newchain = .true.
 
       if(newchain) then
@@ -564,8 +564,8 @@ c
       value = value.and.MA_free_heap(e1(2))      
       if (.not.value) call errquit('neb failed',4,0)
 
-      if (.not.rtdb_put(rtdb,'neb:nebnew',mt_log,1,.false.))
-     > call errquit('setting neb:nebnew failed',4,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))
+     > call errquit('setting bead_list:new failed',4,RTDB_ERR)
 
       call ga_sync()
       neb = .true. 
