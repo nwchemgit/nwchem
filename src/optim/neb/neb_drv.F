@@ -298,7 +298,7 @@ c
              if (oprint) write(*,*) "neb: <g|s>=",sum
              if (oprint) write(*,*) "neb: <s|s>=",sum2
              if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
-     >                         .or.(sum2.gt.1.0d0)) then
+     >                         .or.(sum2.gt.10.0d0)) then
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
                 if (oprint) write(*,*) "neb: s=g"
              end if
