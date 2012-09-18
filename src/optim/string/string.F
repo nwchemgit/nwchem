@@ -58,8 +58,18 @@ C> @{
 
 ! Local variables
       integer maxit,nbeads,natoms,middle,geom,geom2,size,i,interpol
-      real*8 tol,stepsize
-      logical converged, freeze1, freezeN
+      real*8 tol,stepsize,t,t1,t2,t3
+      logical converged, freeze1, freezeN, newchain
+      character*255 geom_name
+      integer geom_len,nbeads_exist
+      integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2
+
+*     **** external functions ****
+      integer     inp_strlen
+      character*7 bead_index_name
+      external    inp_strlen
+      external    bead_index_name
+
 
 ! Set convergence criteria
       if (.not. rtdb_get(rtdb,'string:tol',mt_dbl,1,tol))
@@ -109,31 +119,116 @@ C> @{
       if(.not.ma_push_get(mt_dbl,size,'coords',l_coords, k_coords))
      $     call errquit('task_string: memory', size, MA_ERR)
 
-! Set the coordinates of geometry 1
-      if (.not. geom_cart_coords_get(geom, dbl_mb(k_coords)))
+! Warning: No way to read in all nbead geomtries
+
+      newchain = .false.
+      if (.not.rtdb_get(rtdb,'string:stringnew',mt_log,1,newchain))
+     >  newchain = .true.
+
+*     **** initialize bead list ****
+      if (newchain) then
+
+!        *** Get the coordinates of geometry 1 ***
+         if (.not. geom_cart_coords_get(geom, dbl_mb(k_coords)))
      $        call errquit('task_string: geom?',0, GEOM_ERR)
 
-! Set the coordinates of last geometry
-      size = k_coords + (nbeads-1)*3*natoms
-      if (.not. geom_create(geom2, 'geom2'))
-     &   call errquit('task_string: geom_create?', 921, GEOM_ERR)
-      if (.not. geom_rtdb_load(rtdb, geom2, 'endgeom'))
-     &   call errquit('task_string: no endgeom ', geom2, RTDB_ERR)
-      if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
-     $        call errquit('task_string: geom?',0, GEOM_ERR)
+!        *** Get the coordinates of last geometry ***
+         size = k_coords + (nbeads-1)*3*natoms
+         if (.not. geom_create(geom2, 'geom2'))
+     &      call errquit('task_string: geom_create?', 921, GEOM_ERR)
+         if (.not. geom_rtdb_load(rtdb, geom2, 'endgeom'))
+     &      call errquit('task_string: no endgeom ', geom2, RTDB_ERR)
+         if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
+     $           call errquit('task_string: geom?',0, GEOM_ERR)
 
-! Middle geometry -- if it exists
-      if (.not. geom_rtdb_load(rtdb, geom2, 'midgeom')) then
-         middle = 0
+!        *** Middle geometry -- if it exists ***
+         if (.not. geom_rtdb_load(rtdb, geom2, 'midgeom')) then
+            middle = 0
+         else
+           middle = (nbeads/2)+1
+           size = k_coords + (middle-1)*3*natoms
+           if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
+     $           call errquit('task_string: geom?',0, GEOM_ERR)
+         endif
+
+         if (.not. geom_destroy(geom2))
+     &      call errquit('task_string: geom_destroy?', geom2, GEOM_ERR)
+
+*     **** restart - read in old bead list ****
       else
-        middle = (nbeads/2)+1
-        size = k_coords + (middle-1)*3*natoms
-        if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
-     $        call errquit('task_string: geom?',0, GEOM_ERR)
-      endif
+         middle = -1
+         if (.not.rtdb_get(rtdb,'string:nbeads_exist',
+     >                     mt_int,1,nbeads_exist))
+     >     call errquit('getting string:nbeads_exist failed',4,RTDB_ERR)
 
-      if (.not. geom_destroy(geom2))
-     &   call errquit('task_string: geom_destroy?', geom2, GEOM_ERR)
+         write(*,*) "nbeads,nbeads_exist=",nbeads,nbeads_exist
+
+         if (.not. geom_create(geom2, 'geom2'))
+     &      call errquit('task_string: geom_create?', 921, GEOM_ERR)
+
+*        **** resize the bead list ****
+         if (nbeads_exist.ne.nbeads) then
+
+            if(.not.ma_push_get(mt_dbl,size,'old_coords',
+     >          lold_coords, kold_coords))
+     >          call errquit('task_string: memory', size, MA_ERR)
+
+            do i=1,nbeads_exist
+               size = kold_coords + (i-1)*3*natoms
+               geom_name   = 'bead'//bead_index_name(i)//':geom'
+               geom_len = inp_strlen(geom_name)
+               if (.not.geom_rtdb_load(rtdb,geom2,
+     >             geom_name(1:geom_len)))
+     >            call errquit('task_string: geom2?',0, GEOM_ERR)
+               if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
+     >            call errquit('task_string: geom2?',0, GEOM_ERR)
+            end do
+            do i=1,nbeads
+              t = (i-1)/dble(nbeads-1)
+
+              j1 = t*(nbeads_exist-1) + 1
+              j2 = j1+1
+              t1 = (j1-1)/dble(nbeads_exist-1)
+              t2 = (j2-1)/dble(nbeads_exist-1)
+              t3 = (t-t1)/(t2-t1)
+
+              if (j2.gt.nbeads_exist) then
+                 t3 = 0.0d0
+                 j2=nbeads_exist
+              end if
+
+              shift  = (i-1)*3*natoms
+              shift1 = (j1-1)*3*natoms
+              shift2 = (j2-1)*3*natoms
+
+              call dcopy(3*natoms,dbl_mb(kold_coords+shift1),1,
+     >                   dbl_mb(k_coords+shift),1)
+              call dscal(3*natoms,(1.0d0-t3),dbl_mb(k_coords+shift),1)
+              call daxpy(3*natoms,t3,dbl_mb(kold_coords+shift2),1,
+     >                   dbl_mb(k_coords+shift),1)
+           end do
+            if (.not.MA_pop_stack(lold_coords))
+     >          call errquit('task_string: memory', size, MA_ERR)
+
+*        **** read in the bead list ****
+         else
+            do i=1,nbeads_exist
+               size = k_coords + (i-1)*3*natoms
+               geom_name   = 'bead'//bead_index_name(i)//':geom'
+               geom_len = inp_strlen(geom_name)
+               write(*,*) "loading geom2=",geom_name(1:geom_len)
+               if (.not.geom_rtdb_load(rtdb,geom2,
+     >             geom_name(1:geom_len)))
+     >            call errquit('task_string: geom2?',0, GEOM_ERR)
+               if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
+     >            call errquit('task_string: geom2?',0, GEOM_ERR)
+            end do
+         end if
+
+         if (.not. geom_destroy(geom2))
+     &      call errquit('task_string: geom2_destroy?',geom2,GEOM_ERR)
+
+      end if
 
 ! Do we freeze bead 1 or N?
       if (.not. rtdb_get(rtdb, 'string:freeze1', mt_log,1,freeze1))
@@ -141,7 +236,6 @@ C> @{
       if (.not. rtdb_get(rtdb, 'string:freezen', mt_log,1,freezeN))
      &        freezeN = .false.
 
-! Warning: No way to read in all nbead geomtries
 
 ! Call the code
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.true.))
@@ -154,6 +248,26 @@ C> @{
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.false.))
      $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
+
+
+!     *** Set the coordinates of beads to new geometry objects ***
+      if (.not.rtdb_put(rtdb,'string:nbeads_exist',mt_int,1,nbeads))
+     >   call errquit('setting string:nbeads_exist failed',4,RTDB_ERR)
+
+      do i=1,nbeads
+         size = k_coords + (i-1)*3*natoms
+         geom_name   = 'bead'//bead_index_name(i)//':geom'
+         geom_len = inp_strlen(geom_name)
+         if (.not. geom_cart_coords_set(geom, dbl_mb(size)))
+     $      call errquit('task_string: geom?',0, GEOM_ERR)
+         if (.not.geom_rtdb_store(rtdb,geom,geom_name(1:geom_len)))
+     $      call errquit('task_string: geom?',0, GEOM_ERR)
+      end do
+
+      if (.not.rtdb_put(rtdb,'string:stringnew',mt_log,1,.false.))
+     > call errquit('setting string:stringnew failed',4,RTDB_ERR)
+
+
 ! Return memory - Being lazy, just pop is all in one fell swoop
       if(.not. ma_chop_stack(l_dg))
      &   call errquit('task_string: ma?',99,MA_ERR)
