@@ -158,10 +158,10 @@ c
 c
       if (fon.or.(ifocc.eq.1).or.frac_occ) has_frac_occ = .true.
 c
-      write(luout,*) "fon: ",fon
-      write(luout,*) "ifocc: ",ifocc
-      write(luout,*) "frac_occ: ",frac_occ
-      write(luout,*) "has_frac_occ: ",has_frac_occ
-
+c     write(luout,*) "fon: ",fon
+c     write(luout,*) "ifocc: ",ifocc
+c     write(luout,*) "frac_occ: ",frac_occ
+c     write(luout,*) "has_frac_occ: ",has_frac_occ
+c
       return
       end
