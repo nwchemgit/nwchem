@@ -122,7 +122,7 @@ C> @{
 ! Warning: No way to read in all nbead geomtries
 
       newchain = .false.
-      if (.not.rtdb_get(rtdb,'string:stringnew',mt_log,1,newchain))
+      if (.not.rtdb_get(rtdb,'bead_list:new',mt_log,1,newchain))
      >  newchain = .true.
 
 *     **** initialize bead list ****
@@ -157,7 +157,8 @@ C> @{
 *     **** restart - read in old bead list ****
       else
          middle = -1
-         if (.not.rtdb_get(rtdb,'string:nbeads_exist',
+
+         if (.not.rtdb_get(rtdb,'bead_list:size',
      >                     mt_int,1,nbeads_exist))
      >     call errquit('getting string:nbeads_exist failed',4,RTDB_ERR)
 
@@ -251,8 +252,8 @@ C> @{
 
 
 !     *** Set the coordinates of beads to new geometry objects ***
-      if (.not.rtdb_put(rtdb,'string:nbeads_exist',mt_int,1,nbeads))
-     >   call errquit('setting string:nbeads_exist failed',4,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'bead_list:size',mt_int,1,nbeads))
+     >   call errquit('setting bead_list:size failed',4,RTDB_ERR)
 
       do i=1,nbeads
          size = k_coords + (i-1)*3*natoms
@@ -264,8 +265,8 @@ C> @{
      $      call errquit('task_string: geom?',0, GEOM_ERR)
       end do
 
-      if (.not.rtdb_put(rtdb,'string:stringnew',mt_log,1,.false.))
-     > call errquit('setting string:stringnew failed',4,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))
+     > call errquit('setting bead_list:new failed',4,RTDB_ERR)
 
 
 ! Return memory - Being lazy, just pop is all in one fell swoop
@@ -431,7 +432,7 @@ C> @}
 
 *            *** copy bead movecs to taskmovecs ***
              call util_file_prefix('movecs',perm_name)
-             movecs_name = "w"//bead_index_name(i)//perm_name
+             movecs_name = 'bead'//bead_index_name(i)//'.movecs'
              call util_file_name_resolve(perm_name, .false.)
              call util_file_name_resolve(movecs_name, .false.)
              permlen = inp_strlen(perm_name)
@@ -542,7 +543,7 @@ c
 
 *            *** copy bead movecs to taskmovecs ***
              call util_file_prefix('movecs',perm_name)
-             movecs_name = "w"//bead_index_name(i)//perm_name
+             movecs_name = 'bead'//bead_index_name(i)//'.movecs'
              call util_file_name_resolve(perm_name, .false.)
              call util_file_name_resolve(movecs_name, .false.)
              permlen = inp_strlen(perm_name)
