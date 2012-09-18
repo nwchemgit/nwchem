@@ -375,25 +375,27 @@ C> @}
 
 ! Now we do the work
       if (ga_nodeid() .eq. 0) then
-        write(*,'(a)')'@ String method.'
-        write(*,'(a,f9.5)')'@ Temperature          = ', 0.0d0
-        write(*,'(a,f9.5)')'@ Covergence Tolerance = ', tol
-        write(*,'(a,f9.5)')'@ Step Size            = ', stepsize
-        write(*,'(a,i9)')  '@ Maximum Time Steps   = ', maxit
-        write(*,'(a,i9)')  '@ Number of replicas   = ', nbeads
-        write(*,'(a,i9)')  '@ String Interpolator  = ', interpol
+        write(*,'(a)')'@zts'
+        write(*,'(a)')'@zts String method.'
+        write(*,'(a,f9.5)')'@zts Temperature          = ', 0.0d0
+        write(*,'(a,f9.5)')'@zts Covergence Tolerance = ', tol
+        write(*,'(a,f9.5)')'@zts Step Size            = ', stepsize
+        write(*,'(a,i9)')  '@zts Maximum Time Steps   = ', maxit
+        write(*,'(a,i9)')  '@zts Number of replicas   = ', nbeads
+        write(*,'(a,i9)')  '@zts String Interpolator  = ', interpol
         if (freeze1) then
-          write(*,'(a)')   '@ First Replica        = frozen'
+          write(*,'(a)')   '@zts First Replica        = frozen'
         else
-          write(*,'(a)')   '@ First Replica        = moves'
+          write(*,'(a)')   '@zts First Replica        = moves'
         endif
         if (freezeN) then
-          write(*,'(a)')   '@ Last Replica         = frozen'
+          write(*,'(a)')   '@zts Last Replica         = frozen'
         else
-          write(*,'(a)')   '@ Last Replica         = moves'
+          write(*,'(a)')   '@zts Last Replica         = moves'
         endif
+        write(*,'(a)')'@zts'
         write(*,'(a)')
-     &    '@  Step   xrms          E start       '
+     &    '@zts  Step   xrms          E start       '
      &     //'E middle          E end          E max'
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
@@ -661,8 +663,8 @@ c            scale gradient
            do i = 2, nbeads
              if (energy(i) .gt. tmp2) tmp2=energy(i)
            enddo
-           write(*,'(a2,i5,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7)'
-     &            )'@ ',nstep,tmp,energy(1),
+           write(*,'(a5,i5,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7)'
+     &            )'@zts ',nstep,tmp,energy(1),
      &                            energy(1+nbeads/2),
      &                            energy(nbeads),tmp2
 
@@ -708,11 +710,11 @@ c            scale gradient
  747  continue
       if (nstep .ge. maxit) then
          if (ga_nodeid() .eq. 0)
-     &   write(*,'(a)') '@ The string calculation failed to converge'
+     &   write(*,'(a)') '@zts The string calculation failed to converge'
          converged = .false.
       else
          if(ga_nodeid() .eq. 0)
-     &   write(*,'(a)') '@ The string calculation converged'
+     &   write(*,'(a)') '@zts The string calculation converged'
          converged = .true.
       endif
 
@@ -727,7 +729,7 @@ c            scale gradient
 
        write(*,*)
        do i = 1, nbeads
-         write(*,'(a16,i5,a21,f20.12)') '@ Bead number = ', i ,
+         write(*,'(a16,i5,a21,f20.12)') '@zts Bead number = ', i ,
      &       ' Potential Energy = ', energy(i)
          if ( .not. geom_cart_coords_set( geom, coords(1,1,i) ) )
      &        call errquit('zts_meps: set geometry',i,GEOM_ERR)
