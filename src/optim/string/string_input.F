@@ -80,17 +80,13 @@ c
 
       else if (inp_compare(.false.,'freeze1', field)) then
          if (.not. inp_l(frze)) frze = .false.
-         if (frze) then
-           if (.not. rtdb_put(rtdb,'string:freeze1',mt_log,1,frze))
-     $        call errquit('string_input: rtdb put failed',0, RTDB_ERR)
-         end if
+         if (.not. rtdb_put(rtdb,'string:freeze1',mt_log,1,frze))
+     $      call errquit('string_input: rtdb put failed',0, RTDB_ERR)
 
       else if (inp_compare(.false.,'freezen', field)) then
          if (.not. inp_l(frze)) frze = .false.
-         if (frze) then
-           if (.not. rtdb_put(rtdb,'string:freezen',mt_log,1,frze))
-     $        call errquit('string_input: rtdb put failed',0, RTDB_ERR)
-         end if
+         if (.not. rtdb_put(rtdb,'string:freezen',mt_log,1,frze))
+     $      call errquit('string_input: rtdb put failed',0, RTDB_ERR)
 c
       else
          call errquit('string_input: unknown directive',0, INPUT_ERR)
