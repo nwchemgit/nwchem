@@ -36,7 +36,7 @@ c
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin
-      real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,t
+      real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t
 
 *     **** external functions ****
       logical task_gradient
@@ -293,9 +293,12 @@ c
      >                          dbl_mb(gs(1)),
      >                          dbl_mb(s(1)))
              end if
-             sum = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+             sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+             sum2 = ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1)
              if (oprint) write(*,*) "neb: <g|s>=",sum
-             if ((sum.le.0.0d0).or.(sum.gt.1.0d0)) then
+             if (oprint) write(*,*) "neb: <s|s>=",sum2
+             if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
+     >                         .or.(sum2.gt.1.0d0)) then
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
                 if (oprint) write(*,*) "neb: s=g"
              end if
