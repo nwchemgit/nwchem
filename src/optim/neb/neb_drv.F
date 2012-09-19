@@ -302,8 +302,8 @@ c
      >                          dbl_mb(gs(1)),
      >                          dbl_mb(s(1)))
              end if
-             sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
-             sum2 = ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1)
+             sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)/dble(nbeads)
+             sum2 = ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1) /dble(nbeads)
              if (oprint) write(*,*) "neb: <g|s>=",sum
              if (oprint) write(*,*) "neb: <s|s>=",sum2
              if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
