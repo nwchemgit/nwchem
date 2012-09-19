@@ -27,7 +27,7 @@ c
       character*50 bead_list,filename
       character*80 title,neb_movecs
       character*30 tmp
-      character*255 full_filename
+      character*255 full_filename,full_filename2,filename2
       character ch_tmp
       integer ii,shift,print_shift,print_count
       integer i,it,nbeads,nion,nionall,ng,m,nebsteps,neb_algorithm
@@ -450,14 +450,14 @@ c
             if (mod(print_count,print_shift).eq.0) then
                call util_file_prefix(
      >                  'nebpath'//bead_index_name(print_count)//'.xyz',
-     >                  filename)
-               call util_file_name_noprefix(filename,.false.,
+     >                  filename2)
+               call util_file_name_noprefix(filename2,.false.,
      >                             .false.,
-     >                             full_filename)
+     >                             full_filename2)
                 if (oprint) 
-     >            open(unit=20,file=full_filename,form='formatted')
-                call create_xyz_file_bead_list(20,bead_list,.false.)
-                if (oprint) close(20)
+     >            open(unit=23,file=full_filename2,form='formatted')
+                call create_xyz_file_bead_list(23,bead_list,.false.)
+                if (oprint) close(23)
             end if
          end if
          if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))
