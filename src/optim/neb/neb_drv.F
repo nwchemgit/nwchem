@@ -455,9 +455,9 @@ c
      >                             .false.,
      >                             full_filename)
                 if (oprint) 
-     >            open(unit=19,file=full_filename,form='formatted')
-                call create_xyz_file_bead_list(19,bead_list,.false.)
-                if (oprint) close(19)
+     >            open(unit=20,file=full_filename,form='formatted')
+                call create_xyz_file_bead_list(20,bead_list,.false.)
+                if (oprint) close(20)
             end if
          end if
          if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))
