@@ -261,6 +261,19 @@ c     ----------------------------
       goto 100
 
 c
+c    print_shift
+c     ----------------------------
+      else if (inp_compare(.false.,'print_shift', test)) then
+       if(.not. inp_i(ind))
+     &    call errquit('neb_input: print_shift',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:print_shift',mt_int,1,ind))
+     $     call errquit('neb_input: rtdb put failed',27,
+     &     RTDB_ERR)
+
+      goto 100
+
+c
 c     end of input block
 c     -------------------
       else if (inp_compare(.false.,'end', test)) then

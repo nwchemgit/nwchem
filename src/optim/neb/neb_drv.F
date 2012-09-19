@@ -29,7 +29,7 @@ c
       character*30 tmp
       character*255 full_filename
       character ch_tmp
-      integer ii,shift
+      integer ii,shift,print_shift,print_count
       integer i,it,nbeads,nion,nionall,ng,m,nebsteps,neb_algorithm
       integer nbeads1,nbeads2
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
@@ -45,6 +45,9 @@ c
       real*8   energy_bead_list
       external size_bead_list,nion_bead_list
       external energy_bead_list
+      character*7 bead_index_name
+      external    bead_index_name
+
 
       oprint = ga_nodeid() .eq. 0
 
@@ -92,6 +95,9 @@ c
      >  neb_algorithm = 0
       if (.not.rtdb_get(rtdb,'neb:m',mt_int,1,m))  m = 3
 
+      if (.not.rtdb_get(rtdb,'neb:print_shift',mt_int,1,print_shift))
+     >   print_shift = 0
+
 *     **** neb_epath filename ****
       call util_file_prefix('neb_epath',filename)
       call util_file_name_noprefix(filename,.false.,
@@ -114,6 +120,7 @@ c
       if(newchain) then
         if (oprint) write(*,*)'NEW NEB CHAIN, INITIALIZING'
         call neb_initialize(rtdb,bead_list)
+        print_count = 0
       else
          if (oprint) write(*,*)'EXISTING NEB CHAIN? RESTARTING'
          call set_rtdb_bead_list(rtdb)
@@ -124,6 +131,8 @@ c
             if (oprint) write(*,*) 'RESIZING NEB CHAIN'
             call neb_resize_path(rtdb,bead_list,nbeads1,nbeads2)
          end if
+         if (.not.rtdb_get(rtdb,'neb:print_count',mt_int,1,print_count))
+     >      print_count = 0
       end if
       newchain = .false.
 
@@ -434,6 +443,25 @@ c
             write(luout,*)
          end if
          call create_xyz_file_bead_list(luout,bead_list,.true.)
+
+*        **** write out current xyz file ***
+         print_count = print_count + 1
+         if (print_shift.gt.0) then
+            if (mod(print_count,print_shift).eq.0) then
+               call util_file_prefix(
+     >                  'nebpath'//bead_index_name(print_count)//'.xyz',
+     >                  filename)
+               call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
+                if (oprint) 
+     >            open(unit=19,file=full_filename,form='formatted')
+                call create_xyz_file_bead_list(19,bead_list,.false.)
+                if (oprint) close(19)
+            end if
+         end if
+         if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))
+     >      call errquit('setting neb:print_count failed',4,RTDB_ERR)
 
          path_energy0 = path_energy
          call neb_path_energy(bead_list,
