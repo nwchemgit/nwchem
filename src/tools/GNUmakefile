@@ -298,7 +298,7 @@ ifeq ($(ARMCI_NETWORK),MPI-MT)
 endif # MPI-MT
 
 # ARMCI over MPI without data server
-ifeq ($(ARMCI_NETWORK),MPI_TS) 
+ifeq ($(ARMCI_NETWORK),$(findstring $(ARMCI_NETWORK),MPI_TS MPI-TS))
     ifneq ($(EXP_GA),)
         MAYBE_ARMCI = --with-mpi-ts
     else
