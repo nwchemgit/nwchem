@@ -327,7 +327,7 @@ C> @}
       real*8 wrk(3,natoms,nbeads)
 
 ! Local variables
-      integer i, j, k, nstep
+      integer i, j, k, nstep,print_shift,print_count
       real*8 tmp, tmp2,t
       logical badgeom
       real*8 g1(3),g2(3),g3(3)
@@ -339,6 +339,7 @@ C> @}
 
       character     ch_tmp
       character*255 filename,full_filename,perm_name,movecs_name
+      character*255 filename2,full_filename2
       integer movecslen,permlen
 
       character*7 bead_index_name
@@ -353,16 +354,25 @@ C> @}
       if (.not. rtdb_get(rtdb,'string:pathguess',mt_int,1,pathguess))
      $      pathguess = 2
 
+      if (.not.rtdb_get(rtdb,'string:print_shift',mt_int,1,print_shift))
+     >   print_shift = 0
+
+
       do i = 1, nbeads
         dg(i) = dble(i-1)/dble(nbeads-1)
       enddo
       
       if (middle .eq. 0) then  ! Flexible linear interpolation to get TS
+        print_count = 0
         call zts_guessall(natoms,nbeads,coords,geom)
       else if (middle .gt. 1 .and. middle .lt. nbeads) then ! TS guess
+        print_count = 0
         call zts_guess(natoms,nbeads,middle,coords,pathguess)
       else if (middle .eq. -1) then  ! We know exactly what we are doing
         ! Do nothing.  All coordinates were setup on entry.
+         if (.not.rtdb_get(rtdb,'string:print_count',
+     >                     mt_int,1,print_count))
+     >      print_count = 0
       else  ! This makes no sense
         call errquit('zts_meps: fatal error', 0, 0)
       endif
@@ -705,6 +715,32 @@ c            scale gradient
             close(19)
 
          endif
+         print_count = print_count + 1
+         if (print_shift.gt.0) then
+            if (mod(print_count,print_shift).eq.0) then
+               call util_file_prefix(
+     >            'stringpath'//bead_index_name(print_count)//'.xyz',
+     >            filename2)
+               call util_file_name_noprefix(filename2,.false.,
+     >                             .false.,
+     >                             full_filename2)
+
+               if (ga_nodeid() .eq. 0) then
+                   open(unit=23,file=full_filename2,form='formatted')
+                   do i=1,nbeads
+                      if (.not.geom_cart_coords_set(geom,coords(1,1,i)))
+     >                 call errquit('zts_meps:set geometry',i,GEOM_ERR)
+                      if (.not.geom_print_xyz(geom,23))
+     >                call errquit('zts_meps:print geometry',i,GEOM_ERR)
+                   end do
+                   close(23)
+               end if
+            end if
+         end if
+         if (.not.rtdb_put(rtdb,'string:print_count',
+     >                     mt_int,1,print_count))
+     >      call errquit('setting print:print_count failed',4,RTDB_ERR)
+
          if ( tmp .lt. tol) goto 747
       enddo
  747  continue
