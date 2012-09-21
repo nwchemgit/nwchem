@@ -97,6 +97,14 @@ c
      >     call errquit('string_input: rtdb put failed',27,
      >     RTDB_ERR)
 
+      else if (inp_compare(.false.,'nhist', field)) then
+         if(.not. inp_i(ind))
+     >    call errquit('string_input: nhist',911,
+     >    INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'string:m',mt_int,1,ind))
+     >     call errquit('string_input: rtdb put failed',27,
+     >     RTDB_ERR)
+
 c
       else
          call errquit('string_input: unknown directive',0, INPUT_ERR)

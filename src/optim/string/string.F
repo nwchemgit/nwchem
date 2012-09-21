@@ -55,6 +55,7 @@ C> @{
       integer l_dg, k_dg,l_energy, k_energy, l_dcoords, k_dcoords
       integer l_dVdx, k_dVdx,l_coords_old, k_coords_old
       integer l_wrk, k_wrk,l_coords, k_coords
+      integer l_tmp_list, k_tmp_list
 
 ! Local variables
       integer maxit,nbeads,natoms,middle,geom,geom2,size,i,interpol
@@ -62,7 +63,7 @@ C> @{
       logical converged, freeze1, freezeN, newchain
       character*255 geom_name
       integer geom_len,nbeads_exist
-      integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2
+      integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2,m
 
 *     **** external functions ****
       integer     inp_strlen
@@ -91,6 +92,9 @@ C> @{
       if (.not. rtdb_get(rtdb,'string:interpol',mt_int,1,interpol))
      $      interpol = 1
 
+! nhist=m
+      if (.not. rtdb_get(rtdb,'string:m',mt_int,1,m)) m = 3
+
 ! The general geometry structure
       if (.not. geom_create(geom, 'geometry'))
      &   call errquit('task_string: geom_create?', 911, GEOM_ERR)
@@ -117,6 +121,10 @@ C> @{
       if(.not.ma_push_get(mt_dbl,size,'wrk',l_wrk, k_wrk))
      $     call errquit('task_string: memory', size, MA_ERR)
       if(.not.ma_push_get(mt_dbl,size,'coords',l_coords, k_coords))
+     $     call errquit('task_string: memory', size, MA_ERR)
+      size = 3*natoms*nbeads*(2*m+1)
+      if(.not.ma_push_get(mt_dbl,size,'tmp_list',
+     $                    l_tmp_list, k_tmp_list))
      $     call errquit('task_string: memory', size, MA_ERR)
 
 ! Warning: No way to read in all nbead geomtries
@@ -245,7 +253,11 @@ C> @{
       call zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    dbl_mb(k_coords),geom,rtdb,dbl_mb(k_dg),dbl_mb(k_energy),
      &    dbl_mb(k_dVdx),dbl_mb(k_dcoords),dbl_mb(k_coords_old),
-     &    dbl_mb(k_wrk),interpol,freeze1,freezeN,converged)
+     &    dbl_mb(k_wrk),
+     &    m, dbl_mb(k_tmp_list),
+     &       dbl_mb(k_tmp_list+3*natoms*nbeads*m),
+     &       dbl_mb(k_tmp_list+3*natoms*nbeads*2*m),
+     &    interpol,freeze1,freezeN,converged)
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.false.))
      $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
@@ -284,6 +296,7 @@ C> @}
 
       subroutine zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,
+     &    m,coords_list,dVdx_list,HdVdx,
      &    interpol,freeze1,freezeN,converged)
       implicit none
       
@@ -326,13 +339,18 @@ C> @}
       real*8 coords_old(3,natoms,nbeads)
       real*8 wrk(3,natoms,nbeads)
 
+      integer m
+      real*8 coords_list(*)
+      real*8 dVdx_list(*)
+      real*8 HdVdx(3,natoms,nbeads)
+
 ! Local variables
-      integer i, j, k, nstep,print_shift,print_count
+      integer i, j, k, nstep,print_shift,print_count,ii,ng,shift
       real*8 tmp, tmp2,t
-      logical badgeom
+      logical badgeom,oprint
       real*8 g1(3),g2(3),g3(3)
       integer iistart, iiend
-      real*8 hess, e0, e1, a2, alpha, dsgrad
+      real*8 hess, e0, e1, a2, alpha, dsgrad,sum,sum2
       logical linopt
       logical projection1,found,status
       integer pathguess
@@ -348,7 +366,7 @@ C> @}
 ! Setup the problem
 ! "Secret" options with defaults that generally do not need changed
       if (.not. rtdb_get(rtdb, 'string:linopt', mt_log,1,linopt))
-     &        linopt = .true.
+     &        linopt = .false.
       if (.not.rtdb_get(rtdb,'string:projection1',mt_log,1,projection1))
      &        projection1 = .false.
       if (.not. rtdb_get(rtdb,'string:pathguess',mt_int,1,pathguess))
@@ -357,6 +375,8 @@ C> @}
       if (.not.rtdb_get(rtdb,'string:print_shift',mt_int,1,print_shift))
      >   print_shift = 0
 
+      ng = 3*natoms*nbeads
+      oprint = (ga_nodeid() .eq. 0)
 
       do i = 1, nbeads
         dg(i) = dble(i-1)/dble(nbeads-1)
@@ -410,10 +430,12 @@ C> @}
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
          do i = 1, nbeads
-           energy(i) = 0
+           energy(i) = 0.0d0
          enddo
       endif
       do nstep = 1, maxit
+         if (oprint) write(*,*) "string: iteration #",nstep
+
 !        Look for atoms that are too close
          do i = 1, nbeads
           call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
@@ -457,6 +479,7 @@ C> @}
                end if
              end if
 
+             if (oprint) write(*,*) "string: running bead ",i
              call ga_sync()
              if ( .not. task_gradient(rtdb))
      &          call errquit('zts_meps: gradient failed',0, 0)
@@ -476,6 +499,8 @@ C> @}
              if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, 3*natoms,
      &           dVdx(1,1,i))) call errquit(
      &           'zts_meps: failed getting gradient',0,RTDB_ERR)
+             if (oprint) 
+     >        write(*,*) "string: finished bead ",i," energy=",energy(i)
            endif
          enddo
          if (freeze1) then
@@ -517,6 +542,43 @@ C> @}
              enddo
            enddo
          endif
+
+         ! lmbfgs update
+         if (nstep.le.m) then
+             shift = (nstep-1)*ng+1
+             call dcopy(ng,coords,1,coords_list(shift),1)
+             call dcopy(ng,dVdx,1,dVdx_list(shift),1)
+             call neb_lmbfgs(ng,nstep,
+     >                       coords_list,
+     >                       dVdx_list,
+     >                       HdVdx)
+          else
+             do ii=1,m-1
+                shift = (ii-1)*ng+1
+                call dcopy(ng,coords_list(shift+ng),1,
+     >                        coords_list(shift),   1)
+                call dcopy(ng,dVdx_list(shift+ng),1,
+     >                        dVdx_list(shift),   1)
+              end do
+             shift = (m-1)*ng+1
+             call dcopy(ng,coords,1,coords_list(shift),1)
+             call dcopy(ng,dVdx,1,dVdx_list(shift),1)
+             call neb_lmbfgs(ng,m,
+     >                       coords_list,
+     >                       dVdx_list,
+     >                       HdVdx)
+          end if
+          sum  = ddot(ng,dVdx,1,HdVdx,1) /dble(nbeads)
+          sum2 = ddot(ng,HdVdx,1,HdVdx,1)/dble(nbeads)
+          if (oprint) write(*,*) "string: <g|s>=",sum
+          if (oprint) write(*,*) "string: <s|s>=",sum2
+          if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
+     >                      .or.(sum2.gt.10.0d0)) then
+             call dcopy(ng,dVdx,1,HdVdx,1)
+             if (oprint) write(*,*) "string: s=g"
+          end if
+
+
          ! Linear extrapolation - based upon linopt=1 in driver
          if (linopt) then
            if (freeze1) then
@@ -534,7 +596,7 @@ C> @}
              dsgrad = 0.0d0
              do j = 1, natoms
                do k = 1, 3
-                  dsgrad = dVdx(k,j,i)**2
+                  dsgrad = HdVdx(k,j,i)**2
                enddo
              enddo
              dsgrad=-stepsize*dsgrad ! ds*g (with ds=-stepsize*g)
@@ -544,7 +606,7 @@ c     Compute energy at alpha*ds
 c
              do j = 1, natoms
                do k = 1, 3
-                 wrk(k,j,1)=coords(k,j,i)-alpha*stepsize*dVdx(k,j,i) ! Force=-Gradient
+                 wrk(k,j,1)=coords(k,j,i)-alpha*stepsize*HdVdx(k,j,i) ! Force=-Gradient
                enddo
              enddo
              if ( .not. geom_cart_coords_set( geom, wrk) )
@@ -608,16 +670,18 @@ c            scale gradient
              alpha = a2
              do j = 1, natoms
                do k = 1, 3
-                 dVdx(k,j,i) = dVdx(k,j,i) * alpha
+                 HdVdx(k,j,i) = HdVdx(k,j,i) * alpha
                enddo
              enddo 
            enddo
          endif
-         ! Take a step (evolve it in "time").  Warning: Very simple minded
+
+
+         ! Take a step (evolve it in "time").  Warning: still testing!!
          do i = 1, nbeads
            do j = 1, natoms
              do k = 1, 3
-               coords(k,j,i) = coords(k,j,i) - stepsize*dVdx(k,j,i) ! Force=-Gradient
+               coords(k,j,i) = coords(k,j,i) - stepsize*HdVdx(k,j,i) ! Force=-Gradient
              enddo
            enddo
          enddo
@@ -708,9 +772,11 @@ c            scale gradient
             write(19,*)  "# convergence tol (Xrms) = ",tol
             write(19,*)
      > "#-------------------------------------------------------"
+            write(*,*) "string: Path Energy #",nstep
             do i=1,nbeads
                t = (i-1)/dble(nbeads-1)
                write(19,*) t,energy(i)
+               write(*,*) "string: ",i,energy(i)
             end do
             close(19)
 
