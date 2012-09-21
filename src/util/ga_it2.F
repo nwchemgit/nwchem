@@ -1,8 +1,36 @@
 c $Id$
+C> \file ga_it2.F
+C> \defgroup kain Krylov subspace Accelerated Inexact Newton method (KAIN)
+C> \brief Implementation of Krylov-subspace nonlinear equation solver
+C>
+C> This files provides an implementation of the KAIN method to solve
+C> linear and nonlinear systems of equations [1]. The solvers 
+C> `ga_kain` and `ga_lkain` are general purpose routines. They require
+C> a routine to calculate a matrix-vector product and a routine
+C> to apply a preconditioner as arguments.
+C>
+C> [1] R.J. Harrison,
+C>     <i>"Krylov Subspace Accelerated Inexact Newton Method for Linear
+C>     and Nonlinear Systems",</i>
+C>     Journal of Computational Chemistry (2004) <b>25</b>, pp 328-334,
+C>     DOI: <a href="http://dx.doi.org/10.1002/jcc.10108">10.1002/jcc.10108</a>
+C>
+c
+C> \ingroup kain
+C> @{
+C>
+C> \brief A trivial matrix-vector product routine
+C>
+C> This routine is simply there to test the code for system solvers.
+C> The matrix-vector product it calculates is simply a product involving
+C> an explicitly stored matrix. This matrix is passed through a common
+C> block.
+C>
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
-      double precision acc
-      integer g_x, g_Ax
+      double precision acc !< [Input] Accuracy (not used here)
+      integer g_x  !< [Input] Global array with vector
+      integer g_Ax !< [Output] Global array with matrix-vector product
 c
       integer g_a, g_b
       common /testme/ g_A, g_B
@@ -13,6 +41,15 @@ c
       call ga_dgemm('n', 'n', n, nvec, n, 1.0d0, g_A, g_x, 0.0d0, g_Ax)
 c
       end
+C>
+C> \brief A trivial non-linear matrix-vector product routine
+C>
+C> This routine is simply there to test the code for system solvers.
+C> The matrix-vector product it calculates is simply a product involving
+C> an explicitly stored matrix and it adds another vector to achieve
+C> something non-linear. The additional matrix and vector are passed
+C> through a common block.
+C>
       subroutine test_nlproduct(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -28,6 +65,16 @@ c
       call ga_add(1.0d0, g_AX, -1.0d0, g_B, g_AX)
 c
       end
+C>
+C> \brief A trivial preconditioner
+C>
+C> This routine is simply there to test the code for system solvers.
+C> It simply scales the elements of a vector by
+C> \f{eqnarray*}{
+      x_i = \frac{x_i}{i - \epsilon}
+C> \f}
+C> where \f$ \epsilon \f$ is the shift.
+C>
       subroutine test_precond(g_x,shift)
       implicit none
 #include "global.fh"
@@ -736,3 +783,4 @@ c
       call ga_sync()
 c     
       end
+C> @}
