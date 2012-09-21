@@ -1,13 +1,11 @@
 c
 c     Calculates dipole spectrum between occupied orbitals
 c     specified by the vspec keyword and all virtuals
-c     BVK & NG - 2012
-c
 c
 c     Calculates dipole integrals once
 c
       subroutine dft_vspec_so(rtdb, ao_bas_han,filename,nbf_ao,nbf_mo,
-     &  nocc,g_moso,k_eval,owstart,owend)
+     &  nocc,ntotel,g_moso,k_eval,owstart,owend)
 c
       implicit none
 c
@@ -54,6 +52,7 @@ c
       double precision tmpy1, tmpy2, tmpy12
       double precision tmpz1, tmpz2, tmpz12
       double precision fosc, exen
+      integer ntotel
 c
       double precision scal 
       parameter (two=2.d0,three=3.d0)
@@ -84,7 +83,7 @@ c
 c
 c     Determine size of spectrum
 c
-      nelec = nocc(1)+nocc(2)
+      nelec = ntotel  ! total number of electrons without fractional occs
       nvirt = nbf_mo-nelec
       nexcite = (owend-owstart+1)*nvirt
 c

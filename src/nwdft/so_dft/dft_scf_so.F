@@ -2311,7 +2311,7 @@ c
       if (lvspec) then
        call util_file_name('vspec',.false.,.false.,vspecfilename)
        call dft_vspec_so(rtdb,ao_bas_han,vspecfilename,nbf_ao,nbf_mo, 
-     &    noc,g_moso, k_eval, owstart, owend)
+     &    noc, nTotEl, g_moso, k_eval, owstart, owend)
       endif
 c     
 c     print stolen for uhf.F
