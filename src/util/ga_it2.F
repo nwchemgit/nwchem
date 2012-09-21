@@ -71,7 +71,7 @@ C>
 C> This routine is simply there to test the code for system solvers.
 C> It simply scales the elements of a vector by
 C> \f{eqnarray*}{
-      x_i = \frac{x_i}{i - \epsilon}
+C>    x_i = \frac{x_i}{i - \epsilon}
 C> \f}
 C> where \f$ \epsilon \f$ is the shift.
 C>
@@ -97,6 +97,14 @@ c
       call ga_sync()
 c
       end
+C>
+C> \brief test driver for ga_lkain
+C>
+C> This routine drives a standard test of the ga_lkain 
+C> and the ga_kain solver.
+C> Because the test is fixed the subroutine takes no inputs
+C> and it prints a summary on standard output. 
+C>
       subroutine ga_lkain_test()
       implicit none
 #include "errquit.fh"
@@ -171,6 +179,69 @@ c
       call errquit('done',0, MEM_ERR)
 c
       end
+C>
+C> \brief The Linear System Solver
+C>
+C> The routine solves a linear system of equations using a Krylov
+C> subspace method. The Right-Hand Side (RHS) matrix and the solution
+C> matrix store the data pertaining to a single linear system in 
+C> columns. Using multiple columns the solver can solve multiple
+C> equations simultaneously. Internally one Krylov subspace is used
+C> for all systems of equations, and subspace vectors contribute to
+C> the solutions of all equations.
+C>
+C> An special argument `odiff` is provided that allows one to use a
+C> difference strategy for the required matrix-vector products. I.e.
+C> rather than computing 
+C> \f{eqnarray*}{
+C>     y &=& Ax_i
+C> \f}
+C> each iteration one uses a formulation that requires
+C> \f{eqnarray*}{
+C>     y' &=& A(x_i-x_{i-1})
+C> \f}
+C> As \f$ x \f$ converges \f$ x_i - x_{i-1} \f$ approaches \f$ 0 \f$.
+C> This may be exploited in the matrix-vector product to achieve 
+C> considerable savings.
+C>
+C> Furthermore the routine takes two subroutines as arguments. One 
+C> provides the matrix-vector product and has the interface
+C> ~~~~
+C> subroutine product(acc,g_x,g_Ax)
+C> ~~~~
+C> where
+C>
+C> - acc: the accuracy required for the matrix-vector elements
+C>
+C> - g_x: is a global array containing the input vectors in columns
+C> 
+C> - g_Ax: is a global array that will contain the matrix-vector product
+C>   results in columns
+C>
+C> Note that `ga_lkain` may pass global arrays with a different number
+C> of vectors than the number of linear systems being solved. Hence
+C> the product routine should check the actual dimension of g_x and
+C> g_Ax.
+C>
+C> The second subroutine provides a preconditioner and has the 
+C> interface
+C> ~~~~
+C> subroutine precond(g_x,shift)
+C> ~~~~
+C> where 
+C> 
+C> - g_x: is a global array holding a set of vectors that will have
+C>   the preconditioner applied to them 
+C>
+C> - shift: is a shift to ensure the preconditioner is non-singular
+C>
+C> Note that the number of vectors may also here be different from the
+C> number of linear systems being solved. Hence the dimension of g_x
+C> should be tested. Finally, the shift is not used in this linear
+C> system solver. The argument is provided to ensure that the same
+C> preconditioner can be used in eigenvalue solvers where the shift is
+C> used.
+C> 
       subroutine ga_lkain(rtdb,g_x, g_b, product, precond, 
      $     tol, mmaxsub, maxiter, odiff, oprint)
       implicit none
@@ -180,18 +251,18 @@ c
 #include "util.fh"
 #include "rtdb.fh"
 c
-      integer g_x               ! [input/output] Initial guess/solution
-      integer g_b               ! [input] Right-hand side vectors
-      external product          ! [input] product routine
-      external precond          ! [input] preconditioner routine
-      double precision tol      ! [input] convergence threshold
-      integer mmaxsub           ! [input] maximum subspace dimension
-      integer maxiter           ! [input] maximum no. of iterations
-      logical odiff             ! [input] use differences in product
-      logical oprint            ! [input] print flag
-      integer rtdb
+      integer g_x          !< [Input/Output] Initial guess/solution
+      integer g_b          !< [Input] Right-hand side vectors
+      external product     !< [Input] product routine
+      external precond     !< [Input] preconditioner routine
+      double precision tol !< [Input] convergence threshold
+      integer mmaxsub      !< [Input] maximum subspace dimension
+      integer maxiter      !< [Input] maximum no. of iterations
+      logical odiff        !< [Input] use differences in product
+      logical oprint       !< [Input] print flag
+      integer rtdb         !< [Input] the RTDB handle
 c
-c     Solves the linear equations A(X)=0 for multiple vectors.
+c     Solves the linear equations A(X)-B=0 for multiple vectors.
 c
 c     call product(acc,g_x, g_Ax)
 c     . acc is the accuracy trequired for each element of the product
@@ -430,6 +501,55 @@ c
      &       CALC_ERR)
 c
       end
+C>
+C> \brief The Non-Linear System Solver
+C>
+C> The routine solves a non-linear system of equations using a Krylov
+C> subspace method. The Right-Hand Side (RHS) matrix and the solution
+C> matrix store the data pertaining to a single linear system in 
+C> columns. Using multiple columns the solver can solve multiple
+C> equations simultaneously. Internally one Krylov subspace is used
+C> for all systems of equations, and subspace vectors contribute to
+C> the solutions of all equations.
+C>
+C> Furthermore the routine takes two subroutines as arguments. One 
+C> provides the matrix-vector product and has the interface
+C> ~~~~
+C> subroutine product(acc,g_x,g_Ax)
+C> ~~~~
+C> where
+C>
+C> - acc: the accuracy required for the matrix-vector elements
+C>
+C> - g_x: is a global array containing the input vectors in columns
+C> 
+C> - g_Ax: is a global array that will contain the matrix-vector product
+C>   results in columns
+C>
+C> Note that `ga_lkain` may pass global arrays with a different number
+C> of vectors than the number of linear systems being solved. Hence
+C> the product routine should check the actual dimension of g_x and
+C> g_Ax.
+C>
+C> The second subroutine provides a preconditioner and has the 
+C> interface
+C> ~~~~
+C> subroutine precond(g_x,shift)
+C> ~~~~
+C> where 
+C> 
+C> - g_x: is a global array holding a set of vectors that will have
+C>   the preconditioner applied to them 
+C>
+C> - shift: is a shift to ensure the preconditioner is non-singular
+C>
+C> Note that the number of vectors may also here be different from the
+C> number of linear systems being solved. Hence the dimension of g_x
+C> should be tested. Finally, the shift is not used in this linear
+C> system solver. The argument is provided to ensure that the same
+C> preconditioner can be used in eigenvalue solvers where the shift is
+C> used.
+C> 
       subroutine ga_kain(
      $     g_x, 
      $     product, precond, 
@@ -444,14 +564,15 @@ c
 #include "tcgmsg.fh"
 #include "util.fh"
 c
-      integer g_x               ! [input/output] Initial guess/solution
-      external product          ! [input] product routine
-      external precond          ! [input] preconditioner routine
-      double precision tol      ! [input] convergence threshold
-      double precision trustmin, trustmax ! [input] range to constrain trust radius
-      integer maxsub           ! [input] maximum subspace dimension
-      integer maxiter           ! [input] maximum no. of iterations
-      logical oprint            ! [input] print flag
+      integer g_x               !< [Input/Output] Initial guess/solution
+      external product          !< [Input] product routine
+      external precond          !< [Input] preconditioner routine
+      double precision tol      !< [Input] convergence threshold
+      double precision trustmin !< [Input] range to constrain trust radius
+      double precision trustmax !< [Input] range to constrain trust radius
+      integer maxsub            !< [Input] maximum subspace dimension
+      integer maxiter           !< [Input] maximum no. of iterations
+      logical oprint            !< [Input] print flag
 c
 c     Solves the non-linear equations f(X)=0 for multiple vectors.
 c
@@ -652,14 +773,39 @@ c
      &       CALC_ERR)
 c
       end
+C>
+C> \brief A direct linear system solver
+C>
+C> Solve for X from the linear equations
+C> \f{eqnarray*}{
+C>    A*X &=& B
+C> \f}
+C> or more explicitly
+C> \f{eqnarray*}{
+C>    A(m,n)*X(n,nvec) = B(m,nvec)
+C> \f}
+C> Where \f$ A \f$ is a general real matrix (not necessarily square, or
+C> symmetric, or full rank) and \f$ X \f$ and \f$ B \f$ are matrices with one or more
+C> columns representing the solutions and right hand sides.  Singular
+C> values of \f$ A \f$ less than \f$ tol\f$  are neglected. \f$ X \f$ is returned.
+C>
+C> If the SVD of \f$ A \f$ is \f$ U*values*VT \f$, then the solution
+C> is of the form
+C> \f{eqnarray*}{
+C>    V*(1/values)*UT*B
+C> \f}
+C> where the reciprocal of `values` less than `tol` are neglected.
+C     
       subroutine ga_svd_solve_seq(g_a, g_b, g_x, tol)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
-      integer g_a, g_b, g_x
-      double precision tol
+      integer g_a !< [Input] the matrix stored explicitly
+      integer g_b !< [Input] the right-hand-sides
+      integer g_x !< [Input/Output] the guess/solution
+      double precision tol !< [Input] the tolerance
 c
 c     Solve for X from the linear equations
 c
@@ -728,6 +874,9 @@ c
      &       GA_ERR)
 c
       end
+C>
+C> \brief Perform SVD on rectangular matrix
+C>
       subroutine ga_svd_seq(g_a, g_u, g_vt, values)
       implicit none
 #include "errquit.fh"
