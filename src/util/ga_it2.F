@@ -183,7 +183,12 @@ C>
 C> \brief The Linear System Solver
 C>
 C> The routine solves a linear system of equations using a Krylov
-C> subspace method. The Right-Hand Side (RHS) matrix and the solution
+C> subspace method:
+C> \f{eqnarray*}{
+C>   F(x) &=& b \\\\
+C>   F(x) &=& Ax
+C> \f}
+C> The Right-Hand Side (RHS) matrix and the solution
 C> matrix store the data pertaining to a single linear system in 
 C> columns. Using multiple columns the solver can solve multiple
 C> equations simultaneously. Internally one Krylov subspace is used
@@ -209,6 +214,10 @@ C> provides the matrix-vector product and has the interface
 C> ~~~~
 C> subroutine product(acc,g_x,g_Ax)
 C> ~~~~
+C> which evaluates
+C> \f{eqnarray*}{
+C>   g_{Ax} &=& A g_x
+C> \f}
 C> where
 C>
 C> - acc: the accuracy required for the matrix-vector elements
@@ -505,7 +514,14 @@ C>
 C> \brief The Non-Linear System Solver
 C>
 C> The routine solves a non-linear system of equations using a Krylov
-C> subspace method. The Right-Hand Side (RHS) matrix and the solution
+C> subspace method.
+C> \f{eqnarray*}{
+C>   F(x) &=& 0 
+C> \f}
+C> For linear systems the vector function in the above equation would
+C> be \f$ F(x) = Ax - b \f$ but this routine also allows for non-linear
+C> vector functions.
+C> The Right-Hand Side (RHS) matrix and the solution
 C> matrix store the data pertaining to a single linear system in 
 C> columns. Using multiple columns the solver can solve multiple
 C> equations simultaneously. Internally one Krylov subspace is used
@@ -513,9 +529,9 @@ C> for all systems of equations, and subspace vectors contribute to
 C> the solutions of all equations.
 C>
 C> Furthermore the routine takes two subroutines as arguments. One 
-C> provides the matrix-vector product and has the interface
+C> provides the vector residual and has the interface
 C> ~~~~
-C> subroutine product(acc,g_x,g_Ax)
+C> subroutine residual(acc,g_x,g_Ax)
 C> ~~~~
 C> where
 C>
@@ -523,7 +539,7 @@ C> - acc: the accuracy required for the matrix-vector elements
 C>
 C> - g_x: is a global array containing the input vectors in columns
 C> 
-C> - g_Ax: is a global array that will contain the matrix-vector product
+C> - g_Ax: is a global array that will contain the residual-vector
 C>   results in columns
 C>
 C> Note that `ga_lkain` may pass global arrays with a different number
@@ -552,7 +568,7 @@ C> used.
 C> 
       subroutine ga_kain(
      $     g_x, 
-     $     product, precond, 
+     $     residual, precond, 
      $     tol, 
      $     trustmin, trustmax, 
      $     maxsub, maxiter, 
@@ -565,7 +581,7 @@ C>
 #include "util.fh"
 c
       integer g_x               !< [Input/Output] Initial guess/solution
-      external product          !< [Input] product routine
+      external residual         !< [Input] residual routine
       external precond          !< [Input] preconditioner routine
       double precision tol      !< [Input] convergence threshold
       double precision trustmin !< [Input] range to constrain trust radius
@@ -576,10 +592,10 @@ c
 c
 c     Solves the non-linear equations f(X)=0 for multiple vectors.
 c
-c     call product(acc, g_x, g_Ax)
-c     . acc is the accuracy trequired for each element of the product
+c     call residual(acc, g_x, g_Ax)
+c     . acc is the accuracy trequired for each element of the residual
 c     . g_x contains the vectors and g_Ax should be filled
-c     .     with the product vectors.  The no. of vectors (columns) in
+c     .     with the residual vectors.  The no. of vectors (columns) in
 c     . g_x might differ from the no. of vectors input to ga_kain().
 c
 c     call precond(g_x,shift)
@@ -643,7 +659,7 @@ c
       converged = .false.
       do iter = 1, maxiter
          call ga_zero(g_Ax)
-         call product(acc, g_x, g_Ax)
+         call residual(acc, g_x, g_Ax)
          call ga_maxelt(g_Ax, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
             write(6,3) iter, nsub+1, rmax, util_wallsec()
