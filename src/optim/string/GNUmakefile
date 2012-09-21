@@ -8,7 +8,7 @@ LIBRARY=liboptim.a
 
 HEADERS=
 
-USES_BLAS= 
+USES_BLAS= string.F
 
 include ../../config/makefile.h
 
