@@ -328,7 +328,7 @@ C-------------------------local variables--------------------------
       integer nefcl       ! the number of COSMO charge for a given atom
       integer iefc        ! counter over COSMO charges
 
-      double precision dE, qfac, fact, dx, dy, dz
+      double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen
 
       logical status, pointforce
@@ -566,9 +566,14 @@ c
      $           - coords(2,ich2,cosmo_geom_efc)
               dz = coords(3,ich1,cosmo_geom_efc)
      $           - coords(3,ich2,cosmo_geom_efc)
-              fact = -invscreen*charge(ich1,cosmo_geom_efc)
-     $             * charge(ich2,cosmo_geom_efc) / 
-     $               sqrt(dx*dx+dy*dy+dz*dz)**3
+              rr = sqrt(dx*dx+dy*dy+dz*dz)
+              if (rr.lt.1.0d-10) then
+                fact = 0.0d0
+              else
+                fact = -invscreen*charge(ich1,cosmo_geom_efc)
+     $               * charge(ich2,cosmo_geom_efc) / 
+     $                 rr**3
+              endif
               dE = dx * fact
               frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
      $        = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
