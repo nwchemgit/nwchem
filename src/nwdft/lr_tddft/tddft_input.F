@@ -89,16 +89,28 @@ c
 c     OWIN
 c
       lowin = .false.
+      owend(1) = 0
+      owend(2) = 0
       owstart(1) = 0
       owstart(2) = 0
-      owend(1) = -1 ! -1 is flag for it not being set
-      owend(2) = -1 ! -1 is flag for it not being set
-      if (.not.rtdb_put(rtdb,'tddft:lowin',mt_log,1,lowin))
+      if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lowin))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
+     &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c     EWIN
+c
+      lewin = .false.
+      ewinh = 0.d0
+      ewinl = 0.d0
+      if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lewin))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owstart))
-     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'tddft:ewinh',mt_dbl,1,ewinh))
+     &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'tddft:ewinl',mt_dbl,1,ewinl))
+     &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
 c     DIFF_MAX (largest eigenvalue difference) : For solver
 c
@@ -232,9 +244,11 @@ c     ECUT (energy cutoff for occupied states)
 c
       else if (inp_compare(.false.,test,'ecut')) then
         lecut = .true.
-        if (lowin) then
+        lewin = .false.
+        lowin = .false.
+        if (lowin .or. lewin) then
           write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
-     &      'orbital window simultaneously.'
+     &      'orbital window or energy window simultaneously.'
           call errquit('tddft_input: orbital window error',0,INPUT_ERR)
         endif
         if (.not.inp_f(ecut)) then
@@ -255,6 +269,11 @@ c
         lewin = .true.
         lecut = .false.
         lowin = .false.
+        if (lecut .or. lowin) then
+          write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
+     &      'orbital or energy cutoff simultaneously.'
+          call errquit('tddft_input: orbital window error',0,INPUT_ERR)
+        endif
         if (.not.inp_f(ewinl)) lewin = .false.
         if (.not.inp_f(ewinh)) lewin = .false.
         if (.not.rtdb_put(rtdb,'tddft:ewinl',mt_dbl,1,ewinl))
@@ -283,9 +302,11 @@ c     ALPHA: alpha orbital window
 c
       else if (inp_compare(.false.,test,'alpha')) then
         lowin = .true.
-        if (lecut) then
+        lewin = .false.
+        lecut = .false.
+        if (lecut .or. lewin) then
           write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
-     &      'orbital window simultaneously.'
+     &      'orbital or energy window simultaneously.'
           call errquit('tddft_input: orbital window error',0,INPUT_ERR)
         endif
         if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart))
@@ -308,9 +329,11 @@ c     BETA: beta orbital window
 c
       else if (inp_compare(.false.,test,'beta')) then
         lowin = .true.
-        if (lecut) then
+        lewin = .false.
+        lecut = .false.
+        if (lecut .or. lewin) then
           write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
-     &      'orbital window simultaneously.'
+     &      'orbital or energy window simultaneously.'
           call errquit('tddft_input: orbital window error',0,INPUT_ERR)
         endif
         if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart))

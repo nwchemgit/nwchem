@@ -322,8 +322,8 @@ c
        endif
        if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend)) then
         lowin = .false.
-        owend(1) = nocc(1)
-        owend(2) = nocc(2)
+        owend(1) = 0
+        owend(2) = 0
        endif
 c      
 c      switch order if lower is greater
@@ -340,7 +340,6 @@ c        store the changes
         end if ! comparison check
        end do ! itmp
       end if !lowin check
-c
 c
 c ----------------------
 c 2-e integral tolerance

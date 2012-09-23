@@ -82,8 +82,9 @@ C     logical vector_exists
 c
       integer necut,newin
       double precision ecut,evl_diff,ewinl,ewinh
-      logical lecut,evl_lower,lewin, evl_ewin
-      logical lowin, in_win
+      logical lecut, is_lower
+      logical lowin, in_owin
+      logical lewin, in_ewin
       integer owstart(2), owend(2), nowin
       double precision au2ev   ! Conversion factor from a.u. to eV
       parameter (au2ev=27.2113961d0)
@@ -208,12 +209,12 @@ c
 C90000 if (nodezero.and.util_print('initial guess',print_default)
 C     1  .and.(vector.ne.'')) write(LuOut,1000) 
 C 1000 format(/,2x,'Unable to retrieve initial guess from a file')
-      if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
-     1  'eigenvalue differences',l_ediff,k_ediff)) call errquit
-     2  ('tddft_iguess: failed to allocate ediff',0, MA_ERR)
 c Consider nroots+20 smallest eigenvalue differences
 c Extra 20 are there in case the nroots-th vector is degenarate
 c In case of degenaracy, we must increase nroots
+      if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
+     1  'eigenvalue differences',l_ediff,k_ediff)) call errquit
+     2  ('tddft_iguess: failed to allocate ediff',0, MA_ERR)
       if (.not.ma_push_get(mt_int,nroots+buf,'occupied index',
      1  l_sorto,k_sorto)) call errquit
      2  ('tddft_iguess: failed to allocate sorto',0, MA_ERR)
@@ -239,6 +240,24 @@ c ----------------------------------
 c Compute orbital energy differences
 c ----------------------------------
 c
+c      if (ga_nodeid().eq.0) then
+c          write(6,*) "lecut: ",lecut
+c          write(6,*) "lewin: ",lewin
+c          write(6,*) "lowin: ",lowin
+c          write(6,*) "nov(1)+nov(2):",nov(1)+nov(2)
+c      end if
+c
+c     initialise
+      l=0
+      do i=1,ipol
+        do j=nfc(i)+1,nocc(i)
+          do k=nocc(i)+1,nmo(i)-nfv(i)
+             l=l+1   
+             dbl_mb(k_ediff+l-1)=0.d0
+          end do
+        end do
+      end do
+c
       l=0
       necut = 0
       nowin = 0
@@ -246,29 +265,29 @@ c
       do i=1,ipol
         do j=nfc(i)+1,nocc(i)
           do k=nocc(i)+1,nmo(i)-nfv(i)
+           if (lecut) then
+              is_lower = (evl(j,i).le.ecut)
+              if (.not. is_lower) goto 100
+              necut=necut+1
+              l=necut
+           else if (lowin) then
+              in_owin = ((j.ge.owstart(i)).and.(j.le.owend(i))) 
+              if (.not. in_owin) goto 100
+              nowin=nowin+1
+              l=nowin
+           else if (lewin) then
+              in_ewin = ((evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl)) 
+              if (.not. in_ewin) goto 100
+              newin=newin+1
+              l=newin
+           else
+              l=l+1
+           endif  ! lecut,lowin,lewin
+c
             evl_diff = evl(k,i)-evl(j,i)
-            if (lecut) then
-              if (evl(j,i).le.ecut) then
-                necut=necut+1
-                l=necut
-                dbl_mb(k_ediff+l-1)=evl_diff
-              end if
-            else if (lowin) then
-              if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
-                nowin = nowin+1
-                l = nowin
-                dbl_mb(k_ediff+l-1)=evl_diff
-              end if
-            else if (lewin) then
-              if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
-                newin=newin+1
-                l=newin
-                dbl_mb(k_ediff+l-1)=evl_diff
-              end if
-            else
-               l=l+1
-               dbl_mb(k_ediff+l-1)=evl_diff
-            endif  ! lecut,lowin,lewin
+            dbl_mb(k_ediff+l-1)=evl_diff
+
+ 100       continue
           enddo
         enddo
       enddo
@@ -321,37 +340,30 @@ c
         do i=1,ipol
          do j=nfc(i)+1,nocc(i)
           do k=nocc(i)+1,nmo(i)-nfv(i)
+             if (lecut) then
+              is_lower = (evl(j,i).le.ecut)
+              if (.not. is_lower) goto 200
+              necut=necut+1
+              l=necut
+             else if (lowin) then
+              in_owin = ((j.ge.owstart(i)).and.(j.le.owend(i))) 
+              if (.not. in_owin) goto 200
+              nowin=nowin+1
+              l=nowin
+             else if (lewin) then
+              in_ewin = ((evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl)) 
+              if (.not. in_ewin) goto 200
+              newin=newin+1
+              l=newin
+             else
+              l=l+1
+             endif  ! lecout,lowin,lewin
+c
              jsym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
              jsym=ieor(jsym-1,int_mb(k_irs(i)+k-1)-1)+1
              call sym_irrepname(geom,jsym,oname)
-             if (lecut) then
-               evl_lower = .false.
-               if (evl(j,i).le.ecut) then
-                 evl_lower = .true.
-                 necut=necut+1
-                 l=necut
-               endif
-             else if (lowin) then
-               in_win = .false.
-               if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
-                 in_win = .true.
-                 nowin=nowin+1
-                 l=nowin
-               endif
-             else if (lewin) then
-               evl_ewin = .false.
-               if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
-                 evl_ewin = .true.
-                 newin=newin+1
-                 l=newin
-               endif
-             else
-               l=l+1
-             endif
 c
-             if (((.not.lecut).and.(.not.lowin).and.(.not.lewin))
-     1         .or.evl_lower.or.in_win.or. evl_ewin) then
-               if (((.not.symmetry).or.(targetsym.eq.oname))
+             if (((.not.symmetry).or.(targetsym.eq.oname))
      1             .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
                    int_mb(k_sorto+m-1)=j
                    int_mb(k_sortv+m-1)=k
@@ -360,9 +372,9 @@ c
                    int_mb(k_irrep+m-1)=jsym
                    swap=dbl_mb(k_ediff+l-1)
                    found=.true.
-               endif
              endif
 c
+ 200       continue
           enddo
          enddo
         enddo
@@ -397,6 +409,7 @@ c
  9010 format('  No. Spin  Occ  Vir  Irrep   E(Vir)    E(Occ)   E(Diff)')
  9020 format('--------------------------------------------------------')
  9030 format(4i5,1x,a4,1x,3f10.3)
+c
 c 9030 format(4i5,1x,a4,1x,2f10.5,f18.2)
 c
 c --------------------------------------------------------
