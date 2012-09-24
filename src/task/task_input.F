@@ -185,6 +185,9 @@ c            oembed = .true.
      >                        'wannier')) then
             operation='wannier'
          else if (inp_compare(.false.,test,
+     >                        'pspw_et')) then
+            operation='pspw_et'
+         else if (inp_compare(.false.,test,
      >                        'expand_cell')) then
             operation='expand_cell'
          else if (inp_compare(.false.,test,
