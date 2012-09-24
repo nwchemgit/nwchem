@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 99)
+      parameter (num_dirs = 100)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -113,6 +113,7 @@ c
      >            'parallel_io',
      >            'efield_grad',
      >            'uterm',
+     >            'et',
      >            'end'/
 
       double precision kb
@@ -172,7 +173,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,6900,7000,4250,7100,
+     >       6700,6800,6900,7000,4250,7100,7200,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1440,6 +1441,22 @@ c
 
       end if
 
+      goto 10
+c
+c  et movecs_a movecs b
+c
+ 7200 if (inp_a(zone_name)) then
+      if (inp_a(cell_name)) then
+         ind = index(zone_name,' ') - 1
+         value = rtdb_cput(rtdb,'pspw:et:movecs_a',
+     >                       1,zone_name(1:ind))
+         ind = index(cell_name,' ') - 1
+         value = value.and.rtdb_cput(rtdb,'pspw:et:movecs_b',
+     >                       1,cell_name(1:ind))
+         if (.not.value)
+     >    call errquit('nwpw_input: writing ', 7200, RTDB_ERR)
+      end if
+      end if
       goto 10
 
 
