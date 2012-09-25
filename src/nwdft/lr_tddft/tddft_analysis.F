@@ -157,20 +157,23 @@ c     are hardwired here:
       logical debug, fakegiao, lquad, status
       logical grid_clinit, xc_gotxc
       external grid_clinit, xc_gotxc
-
-c     jochen:
+c
       double precision zero, one, two, three, half, third
       parameter (zero = 0d0, one=1d0, two=2d0, three=3d0,
      &   half=one/two,
      &   third=one/three)
-c     /jochen
-
+c
+      logical do_s2
+c
 C     character*80 vector
 C     logical vector_exists,fileerror
 c     ==================================================================
 
       debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
       fakegiao = .false. ! used for some testing
+      do_s2 = .true.  ! calculate s2 by default
+      if (.not.rtdb_get(rtdb,'tddft:do_s2',mt_log,1,do_s2)) 
+     &        do_s2=.true.
 c
 c     Preliminaries
       nodezero=(ga_nodeid().eq.0)
@@ -700,6 +703,8 @@ c --------------------------------
 c Compute <S**2> expectation value
 c --------------------------------
 c
+       if (.not. do_s2) goto 1111
+c
         if (ipol.eq.2) then
           s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
 c
@@ -820,6 +825,8 @@ c same beta excitation bra
      1      .and.(nfc(1).eq.nfc(2)))
      2      write(LuOut,9180) s2
         endif
+c
+ 1111   continue ! skip over s2 calculation, if set
 c
 c --------------------------------------------------
 c Compute transition moments and oscillator strength
