@@ -2173,18 +2173,52 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
 #for BGQ
    ifeq ($(TARGET),BGQ)
-    DEFINES   += -DPAMI -DBGQ 
-    FC         = mpixlf77_r
-    CC         = mpicc
-    AR         = powerpc64-bgq-linux-ar
-    AS         = powerpc64-bgq-linux-as
-    RANLIB     = powerpc64-bgq-linux-ranlib
-    DEFINES   += -DXLFLINUX
-    FOPTIONS   = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=65536
-    FOPTIONS  += -O3 -qstrict -qthreaded -qnosave -qalign=4k -qintsize=8 
-    FOPTIMIZE += -O3 -qnoipa -qhot -qintsize=8 -qsimd=auto -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
-    XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+    DEFINES += -DPAMI -DBGQ 
+    AR       = powerpc64-bgq-linux-ar
+    AS       = powerpc64-bgq-linux-as
+    RANLIB   = powerpc64-bgq-linux-ranlib
+
+    #FC = mpif77
+    #CC = mpicc
+    ifeq ($(FC),mpif77)
+        DEFINES   += -DGFORTRAN -DGCC4
+
+        FOPTIONS  += -g -funderscoring
+        FOPTIMIZE += -O3 -ffast-math -Wuninitialized 
+
+        # EXT_INT means 64-bit integers are used
+        DEFINES   += -DEXT_INT 
+        FOPTIONS  += -fdefault-integer-8
+
+        # linking ESSL is painful with gfortran
+        CORE_LIBS +=  -llapack  -lblas 
+    endif
+
+    FC = mpixlf77_r
+    CC = mpixlc_r
+    ifeq ($(FC),mpixlf77_r)
+        DEFINES   += -DXLFLINUX
+        XLF11      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+
+        # EXT_INT means 64-bit integers are used
+        DEFINES   += -DEXT_INT 
+        FOPTIONS  += -qintsize=8 
+
+        FOPTIONS  += -qEXTNAME -qxlf77=leadzero
+        FOPTIONS  += -g -O3 -qstrict -qthreaded -qnosave
+        FOPTIMIZE += -g -O3 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
+
+        # ESSL dependencies should be provided by XLF linker
+        CORE_LIBS +=  -llapack $(BLASOPT) -lblas
+    endif
+
+   endif # end BGQ
+
+   ifeq ($(_USE_SCALAPACK),y)
+      DEFINES += -DSCALAPACK
    endif
+
+   CORE_LIBS +=  -ltcgmsg-mpi -lpeigs -ltcgmsg-mpi -lpeigs
 
 endif
 
