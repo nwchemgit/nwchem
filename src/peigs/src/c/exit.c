@@ -161,7 +161,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
   
   if ( *n < 0 ) {
     *n = -51;
-    fprintf(stderr, " %s  My node id = %d info = %d \n", array, me, *n);
+    fprintf(stderr, " %s  My node id = %d info = %d (g_exit_) \n", array, me, *n);
     /*
       xerbl2_ ( );
       */
