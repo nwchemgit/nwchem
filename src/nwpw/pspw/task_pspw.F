@@ -41,7 +41,7 @@ c
      >            'Born-Oppenheimer',
      >            'rdf',
      >            'lcao',
-     >            'et'/
+     >            'pspw_et'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
