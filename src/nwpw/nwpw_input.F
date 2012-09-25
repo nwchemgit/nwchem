@@ -1446,17 +1446,18 @@ c
 c  et movecs_a movecs b
 c
  7200 if (inp_a(zone_name)) then
-      if (inp_a(cell_name)) then
          ind = index(zone_name,' ') - 1
-         value = rtdb_cput(rtdb,'pspw:et:movecs_a',
-     >                       1,zone_name(1:ind))
-         ind = index(cell_name,' ') - 1
-         value = value.and.rtdb_cput(rtdb,'pspw:et:movecs_b',
-     >                       1,cell_name(1:ind))
+         value = rtdb_cput(rtdb,'pspw:et:movecs_a',1,zone_name(1:ind))
          if (.not.value)
-     >    call errquit('nwpw_input: writing ', 7200, RTDB_ERR)
-      end if
-      end if
+     >    call errquit('nwpw_input: writing ',7200,RTDB_ERR)
+      end if 
+      if (inp_a(zone_name)) then
+         ind = index(zone_name,' ') - 1
+         value = rtdb_cput(rtdb,'pspw:et:movecs_b',1,zone_name(1:ind))
+         if (.not.value)
+     >    call errquit('nwpw_input: writing ',7200,RTDB_ERR)
+      end if 
+
       goto 10
 
 
