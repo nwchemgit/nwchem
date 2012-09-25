@@ -28,7 +28,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
-      integer npack1
+      integer npack1,npack0
 
 *     **** electronic variables ****
       real*8 icharge
@@ -45,19 +45,20 @@
       integer psi1(2),psi2(2)
       integer occ1(2),occ2(2)
       integer dn(2)
-      integer Hpsi(2),psir(2)
+      integer Hpsi1(2),psi1r(2)
+      integer Hpsi2(2),psi2r(2)
+      integer vl(2),vlr_l(2),v_field(2),r_grid(2)
     
 
 *     ***** energy variables ****
       real*8  E(40)
-
-*     real*8  eig(2*nemax)
-*     real*8  hml(2*nemax*nemax)
-*     real*8  lmd(2*nemax*nemax)
-      integer eig(2),hml1(2),hml2(2),overlap(2)
+      integer eig(2),hml1(2),hml2(2),overlap(2),itmp(2)
+      integer overlap_aa(2),overlap_bb(2),overlap_ab(2)
+      integer ioverlap_aa(2),ioverlap_bb(2),ioverlap_ab(2)
+      integer hml_aa(2),hml_bb(2),hml_ab(2)
 
 *     **** psi smearing block ****
-      logical fractional
+      logical fractional,field_exist
       integer smearoccupation,smeartype
       real*8 smearfermi(2),smearcorrection,smearkT
 
@@ -66,6 +67,7 @@
       integer ierr
 
 *     **** local variables ****
+      real*8 Saa,Sbb,Sab,H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
@@ -149,8 +151,8 @@
       external Dneall_m_value
       character*9 ion_amm
       external    ion_amm
-      logical  psp_U_psputerm,meta_found
-      external psp_U_psputerm,meta_found
+      logical  pspw_charge_found
+      external pspw_charge_found
 
 
 *                            |************|
@@ -222,13 +224,12 @@
       call G_init()
       call mask_init()
       call Pack_Init()
-      call Pack_npack(1,npack1)      
+      call Pack_npack(1,npack1)
+      call Pack_npack(0,npack0)
 
       call D3dB_pfft_init()
       call ga_sync()
 
-
- 
 *     **** read ions ****
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
@@ -247,13 +248,41 @@
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
 
-*     **** generate initial wavefunction if it does not exist ****
-      if (.not.control_check_charge_multiplicity()) then
-        call psi_new()
+      if (.not.rtdb_cget(rtdb,'pspw:et:movecs_a',1,filename1))
+     >   call util_file_prefix('movecs',filename1)
+      if (.not.rtdb_cget(rtdb,'pspw:et:movecs_b',1,filename2))
+     >   call util_file_prefix('movecs',filename2)
+
+
+      call psi_get_header_filename(filename1,
+     >                             hversion,hnfft,hunita,ispin,ne)
+
+      if (taskid.eq.MASTER) then
+         write(*,*) "filename1=",filename1
+         write(*,*) "hversion =",hversion
+         write(*,*) "hnfft    =",hnfft
+         write(*,*) "hunita   =",hunita
+         write(*,*) "ispin    =",ispin
+         write(*,*) "ne       =",ne
+         write(*,*) 
       end if
+      call psi_get_header_filename(filename2,
+     >                             hversion,hnfft,hunita,hispin,hne)
+      if (taskid.eq.MASTER) then
+         write(*,*) "filename2=",filename2
+         write(*,*) "hversion =",hversion
+         write(*,*) "hnfft    =",hnfft
+         write(*,*) "hunita   =",hunita
+         write(*,*) "ispin    =",hispin
+         write(*,*) "ne       =",hne
+         write(*,*) 
+      end if
+      
+
+   
 
 *     ***** allocate psi2,and psi1 wavefunctions ****
-      call psi_get_ne_occupation(ispin,ne,smearoccupation)
+      smearoccupation=0
       if (smearoccupation.gt.0) then
          fractional = .true.
       else
@@ -288,59 +317,61 @@
       n2(2) = ne(1)+ne(2)
       nemax = ne(1)+ne(2)
 
-*     **** Ortho Check ****
-      call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
-     >                        dcpl_mb(psi2(1)),
-     >                        dcpl_mb(psi2(1)),
-     >                        sum2)
-      call D1dB_SumAll(sum2)
 
-      sum1 = dble(ne(1) + ne(2))
-      if (dabs(sum2-sum1).gt.1.0d-10) then
-         if (taskid.eq.MASTER)
-     >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
-c         call Dneall_f_ortho(0,dcpl_mb(psi2(1)),npack1)
-         call Dneall_f_GramSchmidt(0,dcpl_mb(psi2(1)),npack1)
-c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
-c         if (ispin.gt.1) then
-c           call Grsm_g_MakeOrtho(npack1,ne(2),
-c     >                           dcpl_mb(psi2(1) + ne(1)*npack1))
-c         end if
-      end if
 
 *     **** allocate other variables *****
+      field_exist = pspw_charge_found()
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.Dneall_m_allocate(0,hml1)
       value = value.and.Dneall_m_allocate(0,hml2)
+      value = value.and.Dneall_m_allocate(0,itmp)
       value = value.and.Dneall_m_allocate(0,overlap)
+      value = value.and.Dneall_m_allocate(0,overlap_aa)
+      value = value.and.Dneall_m_allocate(0,overlap_bb)
+      value = value.and.Dneall_m_allocate(0,overlap_ab)
+      value = value.and.Dneall_m_allocate(0,ioverlap_aa)
+      value = value.and.Dneall_m_allocate(0,ioverlap_bb)
+      value = value.and.Dneall_m_allocate(0,ioverlap_ab)
+      value = value.and.Dneall_m_allocate(0,hml_aa)
+      value = value.and.Dneall_m_allocate(0,hml_bb)
+      value = value.and.Dneall_m_allocate(0,hml_ab)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(4*nfft3d),
-     >                     'dn',dn(2),dn(1))
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >                     'Hpsi1',Hpsi1(2),Hpsi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-     >                     'Hpsi',Hpsi(2),Hpsi(1))
+     >                     'Hpsi2',Hpsi2(2),Hpsi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
-     >                     'psir',psir(2),psir(1))
+     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >                     'psi1r',psi1r(2),psi1r(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >                     'psi2r',psi2r(2),psi2r(1))
+
+
+      if (control_version().eq.4) then
+       value = value.and.
+     >        MA_alloc_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+      end if
+
+      if ((field_exist).or.(control_version().eq.4)) then
+       value = value.and.
+     >    MA_alloc_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
+      end if
+      value = value.and.
+     >  MA_alloc_get(mt_dbl,(n2ft3d),'v_field',v_field(2),v_field(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,(npack0),'vloc',vl(2),vl(1))
 
       if (.not. value) 
      >   call errquit('pspw_et:out of heap memory',0,MA_ERR)
 
 
-*     **** initialize SIC and HFX  ****
-      call pspw_init_HFX(rtdb,ispin,ne)
-
-*     **** initialize DFT+U ****
-      call psp_U_init()
-
 
 *     **** initialize QM/MM ****
-      call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
 
-*     **** initialize frac_occ data structure ****
-c      call frac_occ_init(rtdb,ispin,ne)
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -369,54 +400,12 @@ c      call frac_occ_init(rtdb,ispin,ne)
 
 
          write(luout,1115)
-         IF(control_move()) THEN
-           write(luout,1120) 'yes'
-         ELSE
-           write(luout,1120) 'no'
-         ENDIF
          write(luout,1121) control_boundry(),control_version()
          if (ispin.eq.1) write(luout,1130) 'restricted'
          if (ispin.eq.2) write(luout,1130) 'unrestricted'
-         IF (control_gga().eq.-1) THEN
-            write(luout,1131) 'off'
-         ELSE IF (control_gga().eq.0) THEN
-            write(luout,1131) 'LDA (Vosko et al) parameterization'
-         ELSE IF (control_gga().eq.10) THEN
-            write(luout,1131) 
-     >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.11) THEN
-            write(luout,1131) 
-     >      'BLYP (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.12) THEN
-            write(luout,1131) 
-     >      'revPBE (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.13) THEN
-            write(luout,1131) 
-     >      'PBEsol (White and Bird) parameterization'
 
-
-         ELSE IF (control_gga().eq.110) THEN
-            write(luout,1131) 
-     >      'PBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.112) THEN
-            write(luout,1131) 
-     >      'revPBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.113) THEN
-            write(luout,1131) 
-     >      'BNL (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.114) THEN
-            write(luout,1131) 
-     >      'HSE (White and Bird) parameterization'
-
-         ELSE IF (control_gga().eq.200) THEN
-            write(luout,1131) 'Hartree-Fock'
-         ELSE
-            write(luout,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0, INPUT_ERR)
-         END IF
          if (fractional) write(luout,1132)
-         call pspw_print_SIC(luout)
-         call pspw_print_HFX(luout)
+
          write(luout,1140)
          do ia = 1,ion_nkatm()
            write(luout,1150) ia,ion_atom(ia),
@@ -506,15 +495,10 @@ c      call frac_occ_init(rtdb,ispin,ne)
          write(luout,1260) ewald_rcut(),ewald_ncut()
          write(luout,1261) ewald_mandelung()
          end if
-         write(luout,1270)
-         if (.not.control_translation()) write(luout,1271)
-         if (.not.control_rotation())    write(luout,1272)
-         write(luout,1280) control_time_step(),control_fake_mass()
-         write(luout,1290) control_tole(),control_tolc(),control_tolr()
-        write(luout,1281) control_it_in()*control_it_out(),
-     >                 control_it_in(),control_it_out()
+
          write(luout,1300)
-         write(luout,1305)
+         write(luout,1800) filename1
+         write(luout,1801) filename2
          call util_flush(luout)
       end if
 
@@ -523,12 +507,176 @@ c      call frac_occ_init(rtdb,ispin,ne)
 *                |***************************|
 
       if (taskid.eq.MASTER) call current_second(cpu2)
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(2)
+
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),
+     >                               dcpl_mb(psi1(1)),npack1,
+     >                               dbl_mb(overlap_aa(1)))
+      call Dneall_m_diagonalize(0,dbl_mb(overlap_aa(1)),
+     >                            dbl_mb(eig(1)),.false.)
+      Saa = 1.0d0
+      do n=1,nemax
+         Saa = Saa*dbl_mb(eig(1)+n-1)
+      end do
+      do n=1,nemax
+         dbl_mb(eig(1)+n-1) = 1.0d0/dbl_mb(eig(1)+n-1)
+      end do
+      call Dneall_m_setdiag(0,dbl_mb(ioverlap_aa(1)),dbl_mb(eig(1)))
+      call Dneall_mmm_Multiply3(0,dbl_mb(ioverlap_aa(1)),
+     >                            dbl_mb(overlap_aa(1)),
+     >                            dbl_mb(itmp(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(overlap_aa(1)),
+     >                           dbl_mb(itmp(1)),1.0d0,
+     >                           dbl_mb(ioverlap_aa(1)),0.0d0)
+
+
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi2(1)),
+     >                               dcpl_mb(psi2(1)),npack1,
+     >                               dbl_mb(overlap_bb(1)))
+      call Dneall_m_diagonalize(0,dbl_mb(overlap_bb(1)),
+     >                            dbl_mb(eig(1)),.false.)
+      Sbb = 1.0d0
+      do n=1,nemax
+         Sbb = Sbb*dbl_mb(eig(1)+n-1)
+      end do
+      do n=1,nemax
+         dbl_mb(eig(1)+n-1) = 1.0d0/dbl_mb(eig(1)+n-1)
+      end do
+      call Dneall_m_setdiag(0,dbl_mb(ioverlap_bb(1)),dbl_mb(eig(1)))
+      call Dneall_mmm_Multiply3(0,dbl_mb(ioverlap_bb(1)),
+     >                            dbl_mb(overlap_bb(1)),
+     >                            dbl_mb(itmp(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(overlap_bb(1)),
+     >                           dbl_mb(itmp(1)),1.0d0,
+     >                           dbl_mb(ioverlap_bb(1)),0.0d0)
+
+
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),
+     >                               dcpl_mb(psi2(1)),npack1,
+     >                               dbl_mb(overlap_ab(1)))
+      call Dneall_m_diagonalize(0,dbl_mb(overlap_ab(1)),
+     >                            dbl_mb(eig(1)),.false.)
+      Sab = 1.0d0
+      do n=1,nemax
+         Sab = Sab*dbl_mb(eig(1)+n-1)
+      end do
+      do n=1,nemax
+         dbl_mb(eig(1)+n-1) = 1.0d0/dbl_mb(eig(1)+n-1)
+      end do
+      call Dneall_m_setdiag(0,dbl_mb(ioverlap_ab(1)),dbl_mb(eig(1)))
+      call Dneall_mmm_Multiply3(0,dbl_mb(ioverlap_ab(1)),
+     >                            dbl_mb(overlap_ab(1)),
+     >                            dbl_mb(itmp(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(overlap_ab(1)),
+     >                           dbl_mb(itmp(1)),1.0d0,
+     >                           dbl_mb(ioverlap_ab(1)),0.0d0)
+
+
+      if ((control_version().eq.4).or.(field_exist))
+     >   call lattice_r_grid(dbl_mb(r_grid(1)))
+
+*     **** generate local pseudopotential  ****
+*     **** and also get force if move true ****
+      call v_local(dcpl_mb(vl(1)),.false.,en,dipole)
+
+*     *** long-range psp for charge systems ***
+      if (control_version().eq.4) then
+         call v_lr_local(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
+      end if
+
+*     ***** generate other real-space fields ****
+      if (field_exist) then
+         call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+
+*        **** generate charge potential ****
+         if (pspw_charge_found()) then
+            call pspw_charge_Generate_V(n2ft3d,
+     >                                  dbl_mb(r_grid(1)),
+     >                                  dbl_mb(v_field(1)))
+           end if
+      end if
+
+
+      do n=1,nemaxq
+         call Pack_c_Copy(1,dcpl_mb(psi1(1)+(n-1)*npack1),
+     >                      dbl_mb(psi1r(1)+(n-1)*n2ft3d))
+      end do
+      call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi1r(1)))
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi1r(1)))  !*** probably not neeeded!
+
+      do n=1,nemaxq
+         call Pack_c_Copy(1,dcpl_mb(psi2(1)+(n-1)*npack1),
+     >                      dbl_mb(psi2r(1)+(n-1)*n2ft3d))
+      end do
+      call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi2r(1)))
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi2r(1)))  !*** probably not neeeded!
+
+*       **** get Hpsi1,Hpsi2 ****
+      if (control_version().eq.3) then
+         call psi_H1(ispin,neq,dcpl_mb(psi1(1)),dbl_mb(psi1r(1)),
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsi1(1)))
+         call psi_H1(ispin,neq,dcpl_mb(psi2(1)),dbl_mb(psi2r(1)),
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsi2(1)))
+      end if
+
+      if (control_version().eq.4) then
+         call psi_H1v4(ispin,neq,dcpl_mb(psi1(1)),dbl_mb(psi1r(1)),
+     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsi1(1)))
+         call psi_H1v4(ispin,neq,dcpl_mb(psi2(1)),dbl_mb(psi2r(1)),
+     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsi2(1)))
+      end if
+
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),dcpl_mb(Hpsi1(1)),
+     >                               npack1,dbl_mb(hml_aa(1)))
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi2(1)),dcpl_mb(Hpsi2(1)),
+     >                               npack1,dbl_mb(hml_bb(1)))
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),dcpl_mb(Hpsi2(1)),
+     >                               npack1,dbl_mb(hml_ab(1)))
+      call Dneall_m_scal(0,(-1.0d0),dbl_mb(hml_aa(1)))
+      call Dneall_m_scal(0,(-1.0d0),dbl_mb(hml_bb(1)))
+      call Dneall_m_scal(0,(-1.0d0),dbl_mb(hml_ab(1)))
+
+
+*     **** one-electron part ****
+      H1aa = 0.0d0
+      H1bb = 0.0d0
+      H1ab = 0.0d0
+      do ms=1,ispin
+         do j=1,ne(ms)
+         do i=1,ne(ms)
+            indx = (i-1)+(j-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+            H1aa = H1aa + dbl_mb(hml_aa(1)+indx)
+     >                   *dbl_mb(ioverlap_aa(1)+indx)*Saa
+            H1bb = H1bb + dbl_mb(hml_bb(1)+indx)
+     >                   *dbl_mb(ioverlap_bb(1)+indx)*Sbb
+            H1ab = H1ab + dbl_mb(hml_ab(1)+indx)
+     >                   *dbl_mb(ioverlap_ab(1)+indx)*Sab
+         end do
+         end do
+      end do
+
+
+*     **** two-electron part ****
+      H2aa = 0.0d0
+      H2bb = 0.0d0
+      H2ab = 0.0d0
+
+      Haa = H1aa+H2aa
+      Hbb = H1bb+H2bb
+      Hab = H1ab+H2ab
+
+      Vab = (Hab-Sab*(Haa+Hbb)/2.0d0)/(1.0d0-Sab*Sab);
+
       
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
-   2  continue
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
       if (taskid.eq.MASTER) call current_second(cpu3)
 
 
@@ -602,80 +750,31 @@ c      call frac_occ_init(rtdb,ispin,ne)
       if (taskid.eq.MASTER) then
          write(luout,1300)
          write(luout,1410)
-         write(luout,1420)
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
-           write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           else if (ion_q_zFixIon(I)) then
-           write(6,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0
-           else
-           write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           end if
-         end do
-         write(luout,1200) cx,cy,cz
-         write(luout,1210) gx,gy,gz
-
 
          write(luout,*)
-         write(luout,1320) en(1),en(ispin),' (real space)'
 
-         write(luout,1430) E(1),E(1)/ion_nion()
-         if (pspw_qmmm_found()) then
-            write(luout,1431) 
-            write(luout,1432) 
-            write(luout,1433) (E(1)-E(11)),
-     >                    (E(1)-E(11))/ion_nion()
-         end if
-         write(luout,1440) E(2),E(2)/n2(ispin)
-         write(luout,1450) E(3),E(3)/n2(ispin)
-         write(luout,1460) E(4),E(4)/n2(ispin)
-         if (pspw_SIC()) then
-           write(luout,1455) E(16),E(16)/n2(ispin)
-           write(luout,1456) E(17),E(17)/n2(ispin)
-         end if
-         if (pspw_HFX()) then
-           write(luout,1457) E(20),E(20)/n2(ispin)
-         end if
-         if (psp_U_psputerm()) then
-           write(luout,1458) E(29),E(29)/n2(ispin)
-         end if
-         if (meta_found()) then
-           write(luout,1459) E(31),E(31)/ion_nion()
-         end if
+         write(luout,1810)
+         write(luout,1811) Saa
+         write(luout,1812) Sbb
+         write(luout,1813) Sab
 
+         write(luout,1820)
+         write(luout,1821) H1aa
+         write(luout,1822) H1bb
+         write(luout,1823) H1ab
 
-         write(luout,1470) E(5),E(5)/ion_nion()
-         write(luout,1480) E(6),E(6)/n2(ispin)
-         write(luout,1490) E(7),E(7)/n2(ispin)
-         write(luout,1495) E(8),E(8)/n2(ispin)
-         write(luout,1496) E(9),E(9)/n2(ispin)
-         write(luout,1497) E(10),E(10)/n2(ispin)
-         if (pspw_SIC().and.pspw_SIC_relaxed())  then
-           write(luout,1499) E(18),E(18)/n2(ispin)
-           write(luout,1501) E(19),E(19)/n2(ispin)
-         end if
-         if (pspw_HFX().and.pspw_HFX_relaxed())  then
-           write(luout,1502) E(21),E(21)/n2(ispin)
-         end if
-         if (psp_U_psputerm()) then
-           write(luout,1503) E(30),E(30)/n2(ispin)
-         end if
-         if (meta_found()) then
-           write(luout,1504) E(32),E(32)/n2(ispin)
-         end if
-         virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(luout,1498) virial
- 
-      if (pspw_qmmm_found()) then
-            write(luout,1700)
-            write(luout,1701)
-            write(luout,1702) E(11)
-            write(luout,1703) E(12)
-            write(luout,1704) E(13)
-        end if
+         write(luout,1830)
+         write(luout,1831) H2aa
+         write(luout,1832) H2bb
+         write(luout,1833) H2ab
+
+         write(luout,1840)
+         write(luout,1841) Haa
+         write(luout,1842) Hbb
+         write(luout,1843) Hab
+
+         write(luout,1850) 
+         write(luout,1851) Vab
 
 
 *        **** write out diagonal <psi1|H|psi2> matrix ****
@@ -711,26 +810,38 @@ c      call frac_occ_init(rtdb,ispin,ne)
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
-      call psp_U_end()
-      call pspw_end_SIC()
-      call pspw_end_HFX()
-      call pspw_end_APC()
       call pspw_qmmm_end()
-      call meta_finalize(rtdb)
-c      call frac_occ_end()
 
-      value = MA_free_heap(psir(2))
-      value = MA_free_heap(Hpsi(2))
-      value = MA_free_heap(dn(2))
-      value = MA_free_heap(eig(2))
-      value = Dneall_m_free(hml1)
-      value = Dneall_m_free(hml2)
-      value = Dneall_m_free(overlap)
-      value = MA_free_heap(psi1(2))
-      value = MA_free_heap(psi2(2))
+      value = .true.
+      if ((field_exist).or.(control_version().eq.4))
+     >   value = value.and.MA_free_heap(r_grid(2))
+      value = value.and.MA_free_heap(v_field(2))
+      if (control_version().eq.4)
+     >   value = value.and.MA_free_heap(vlr_l(2))
+      value = value.and.MA_free_heap(vl(2))
+      value = value.and.MA_free_heap(psi1r(2))
+      value = value.and.MA_free_heap(psi2r(2))
+      value = value.and.MA_free_heap(Hpsi1(2))
+      value = value.and.MA_free_heap(Hpsi2(2))
+      value = value.and.MA_free_heap(eig(2))
+      value = value.and.Dneall_m_free(hml1)
+      value = value.and.Dneall_m_free(hml2)
+      value = value.and.Dneall_m_free(overlap)
+      value = value.and.Dneall_m_free(itmp)
+      value = value.and.Dneall_m_free(overlap_aa)
+      value = value.and.Dneall_m_free(overlap_bb)
+      value = value.and.Dneall_m_free(overlap_ab)
+      value = value.and.Dneall_m_free(ioverlap_aa)
+      value = value.and.Dneall_m_free(ioverlap_bb)
+      value = value.and.Dneall_m_free(ioverlap_ab)
+      value = value.and.Dneall_m_free(hml_aa)
+      value = value.and.Dneall_m_free(hml_bb)
+      value = value.and.Dneall_m_free(hml_ab)
+      value = value.and.MA_free_heap(psi1(2))
+      value = value.and.MA_free_heap(psi2(2))
       if (fractional) then
-         value = MA_free_heap(occ1(2))
-         value = MA_free_heap(occ2(2))
+         value = value.and.MA_free_heap(occ1(2))
+         value = value.and.MA_free_heap(occ2(2))
       end if
       call D3dB_pfft_end()
       call D3dB_end(1)
@@ -806,7 +917,7 @@ c      call frac_occ_end()
  1159 FORMAT(/' total charge=',F8.3)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I5))
- 1180 FORMAT(/' initial position of ions:')
+ 1180 FORMAT(/' position of ions:')
  1190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed ',A)
@@ -905,6 +1016,48 @@ c      call frac_occ_end()
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+                        
+ 1800 format( ' Reactant  psi filename: ',A)
+ 1801 format( ' Product   psi filename: ',A)
+ 1810 format(/' Electron Overlaps:')
+ 1811 format( '    Reactants/Reactant overlap          S(RR) : ',E19.10)
+ 1812 format( '    Reactants/Reactant overlap          S(PP) : ',E19.10)
+ 1813 format( '    Reactants/Products overlap          S(RP) : ',E19.10)
+ 1820 format(/' One-electron reactants/product interation energies:')
+ 1821 format( '    Electron energy of reactant         H1(RR): ',E19.10)
+ 1822 format( '    Electron energy of product          H1(PP): ',E19.10)
+ 1823 format( '    Electron energy of reactant/product H1(RP): ',E19.10)
+ 1830 format(/' Two-electron reactants/product interation energies:')
+ 1831 format( '    Electron energy of reactant         H2(RR): ',E19.10)
+ 1832 format( '    Electron energy of product          H2(PP): ',E19.10)
+ 1833 format( '    Electron energy of reactant/product H2(RP): ',E19.10)
+ 1840 format(/' Total reactants/product interation energies:')
+ 1841 format( '    Electron energy of reactant         H(RR) : ',E19.10)
+ 1842 format( '    Electron energy of product          H(PP) : ',E19.10)
+ 1843 format( '    Electron energy of reactant/product H(RP) : ',E19.10)
+ 1850 format(/' Electron Transfer Coupling:')
+ 1851 format( '    reactant/product coupling energy    V(RP) : ',E19.10)
+
+
+!Electronic energy of reactants     H(RR)      -5.3402392824
+!Electronic energy of products      H(PP)      -5.3402392824
+!
+!Reactants/Products overlap         S(RP)      -0.0006033839
+!
+!Reactants/Products interaction energy:
+!-------------------------------------
+!One-electron contribution         H1(RP)       0.0040314092
+!
+!Beginning calculation of 2e contribution
+!Two-electron integral screening (tol2e) : 6.03E-11
+!
+!Two-electron contribution         H2(RP)      -0.0007837138
+!Total interaction energy           H(RP)       0.0032476955
+!
+!Electron Transfer Coupling Energy |V(RP)|      0.0000254810
+!                                                      5.592 cm-1
+!                                                   0.000693 eV
+!                                                      0.016 kcal/mol
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
