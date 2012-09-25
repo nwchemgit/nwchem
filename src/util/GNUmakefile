@@ -65,7 +65,7 @@ ifeq ($(TARGET),MACX)
   EXTRA_OBJ += macx_trapfpe.o
 endif
 
-ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP LINUX CYGWIN CYGNUS INTERIX))
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGNUS INTERIX))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  
   ifeq ($(LINUXCPU),x86)
     ifneq ($(TARGET),INTERIX)
@@ -214,11 +214,9 @@ endif
 ifeq ($(TARGET),LINUX64)
 DEFINES += -DNEED_LOC
 endif
-ifeq ($(TARGET),BGL)
-DEFINES += -DNEED_LOC 
-endif
-ifeq ($(TARGET),BGP)
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 DEFINES += -DNEED_LOC
+LIB_DEFINES += -DNO_UTIL_TESTS
 endif
 
 ifeq ($(TARGET),SGI)
