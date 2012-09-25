@@ -3806,6 +3806,78 @@ c     ****************************************
       return
       end
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_setdiag              *
+c     *                                      *
+c     ****************************************
+      subroutine Dneall_m_setdiag(mb,A,alpha)
+      implicit none
+      integer mb
+      real*8 A(*)
+      real*8 alpha(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k
+      integer indx2,shift1
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+             shift1 = 1 + (ms-1)*ne(1)
+             shift2 = 1 + (ms-1)*ishift2
+             call DMatrix_setdiag(ne(ms),ne(ms),alpha(shift1),
+     >                A(shift2),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j)
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift1 = (ms-1)*ne(1)
+           shift2 = 1 + (ms-1)*ishift2
+           call dcopy(ne(ms)*ne(ms),0.0d0,0,A(shift2),1)
+           indx2 = shift2
+           do k=1,ne(ms)
+              A(indx2) = alpha(k+shift1)
+              indx2    = indx2 + (1+ne(ms))
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      return
+      end
+
+
+
+
+
 
 c     ****************************************
 c     *                                      *
