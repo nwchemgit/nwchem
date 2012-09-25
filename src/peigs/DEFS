@@ -61,7 +61,6 @@ peigs_EXAMPLE_LIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) $(CORE_LIBS) $(EXTRA_LIBS) 
 #
 # generic definitions from nwchem makefile.h
 #
-
 peigs_AR = $(AR) $(ARFLAGS)
 peigs_RANLIB = $(RANLIB)
 peigs_FC = $(FC) $(FOPTIONS) $(FOPTIMIZE) -I$(peigs_HDIR)
@@ -670,7 +669,7 @@ peigs_CPU = VPP
 endif
 
 ifeq ($(peigs_TARGET),BGL)
-#bluegene
+#Blue Gene/L
      peigs_COMM =TCGMSG
      peigs_CPU = RS6000
      peigs_CODEOBJ=DBLE
@@ -683,33 +682,42 @@ ifeq ($(peigs_TARGET),BGL)
 endif
 
 ifeq ($(peigs_TARGET),BGP)
-#bluegene/p
-     peigs_AR     = powerpc-bgp-linux-ar -r
-     peigs_RANLIB = powerpc-bgp-linux-ranlib
+#Blue Gene/P
+     peigs_COMM =TCGMSG
+     peigs_CPU = RS6000
+     peigs_CODEOBJ=DBLE
+     peigs_CC += -DSTD_INT -DSTD_DBL -g -O3 -qstrict -qarch=450d -qtune=450
+     peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+     peigs_CPP += -DDCMF -DMPI -DBGP -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
+     peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+     peigs_BLASLIB   = -lesslbg
+     peigs_LAPACKLIB = -llapack -lesslbg
+     #peigs_AR = powerpc-bgp-linux-ar -r
+     #peigs_RANLIB = powerpc-bgp-linux-ranlib
+endif
+
+
+ifeq ($(peigs_TARGET),BGQ)
+#Blue Gene/Q
      peigs_COMM =TCGMSG
      peigs_CPU = RS6000
      peigs_CODEOBJ=DBLE
      peigs_CC += -DSTD_INT -DSTD_DBL -g -O2
-     peigs_FC += -WF,-Iinclude,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
-     peigs_CPP += -DDCMF -DBGP -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
-     peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-     peigs_BLASLIB   = -lesslbg
+     # GNU
+     #peigs_FC += -fdefault-integer-8 -g -O2 -funderscoring
+     #peigs_FC += -Iinclude -DTCGMSG -DSTD_DBL -DSTD_INT -DRS6000 -D$(peigs_COMM)
+     #peigs_BLASLIB   = -lblas 
+     #peigs_LAPACKLIB = -llapack 
+     # XL
+     peigs_FC += -qintsize=8 -g -O2 -qEXTNAME
+     peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+     peigs_BLASLIB   = -lblas -lesslbg
      peigs_LAPACKLIB = -llapack -lesslbg
-endif
-
-ifeq ($(peigs_TARGET),BGQ)
-#bluegene/q
-     peigs_AR        = powerpc64-bgq-linux-ar -r
-     peigs_RANLIB    = powerpc64-bgq-linux-ranlib
-     peigs_COMM      = TCGMSG
-     peigs_CPU       = RS6000
-     peigs_CODEOBJ   = DBLE
-     peigs_CC       += -DSTD_INT -DSTD_DBL -g -O2
-     peigs_FC       += -WF,-Iinclude,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM) -qintsize=8
-     peigs_CPP      += -DPAMI -DBGQ -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
-     peigs_COMMLIB   = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-     peigs_BLASLIB   = -lblas   #-lesslsmpbg
-     peigs_LAPACKLIB = -llapack #-lesslsmpbg
+     #
+     peigs_CPP += -DMPI -DBGQ -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
+     peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+     peigs_AR = powerpc64-bgq-linux-ar -r
+     peigs_RANLIB = powerpc64-bgq-linux-ranlib
 endif
 
 
