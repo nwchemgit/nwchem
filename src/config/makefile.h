@@ -2174,6 +2174,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 #for BGQ
    ifeq ($(TARGET),BGQ)
     DEFINES += -DPAMI -DBGQ 
+    DEFINES += -DEAFHACK -DNOFSCHECK
     AR       = powerpc64-bgq-linux-ar
     AS       = powerpc64-bgq-linux-as
     RANLIB   = powerpc64-bgq-linux-ranlib
@@ -2188,7 +2189,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
         # EXT_INT means 64-bit integers are used
         DEFINES   += -DEXT_INT 
+ifndef USE_I4FLAGS
         FOPTIONS  += -fdefault-integer-8
+endif
 
         # linking ESSL is painful with gfortran
         CORE_LIBS +=  -llapack  -lblas 
@@ -2202,7 +2205,11 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
         # EXT_INT means 64-bit integers are used
         DEFINES   += -DEXT_INT 
+ifdef USE_I4FLAGS
+        FOPTIONS  += -qintsize=4
+else
         FOPTIONS  += -qintsize=8 
+endif
 
         FOPTIONS  += -qEXTNAME -qxlf77=leadzero
         FOPTIONS  += -g -O3 -qstrict -qthreaded -qnosave
