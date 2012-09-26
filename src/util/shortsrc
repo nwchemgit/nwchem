@@ -1,0 +1,17 @@
+#!/bin/bash
+mv util_version.F bigv.F
+cat > util_version.F<<EOF 
+      subroutine util_version()
+      return
+      end
+EOF
+cat > util_nwchem_version.F<<EOF
+      subroutine util_nwchem_version()
+      return
+      end
+EOF
+cat > util_ga_version.F<<EOF 
+      subroutine util_ga_version()
+      return
+      end
+EOF

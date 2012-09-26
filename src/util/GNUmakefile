@@ -273,7 +273,7 @@ smallversion:	../config/nwchem_config.h
 		awk -f ids.awk > util_version.F
 	smallversion.pl
 shortversion:	../config/nwchem_config.h
-	-$(RM) util_version.F
+	./shortsrc
 
 speechserver:	speechserver.c udp.c
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
