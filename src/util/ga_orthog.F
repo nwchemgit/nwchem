@@ -10,7 +10,8 @@ C$Id$
 c
       integer ulo, uhi, type, ni, nu, uchunk, ld
       integer l_tmp, l_s, l_over, l_w
-      MAPOINTER k_tmp, k_s, k_over, k_w
+c     MAPOINTER k_tmp, k_s, k_over, k_w ! sign of things to come...
+      integer k_tmp, k_s, k_over, k_w
 c     
 c     Redistribute the input matrix ... block the leading
 c     dimension, leave second dimension undistributed
