@@ -88,6 +88,9 @@ c
 c
       if (.not. oinitialized) call errquit
      &     ('scf_v_g: not initialized?', 0, UNKNOWN_ERR)
+      if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
+     .     quickguess=.false.
+      if(quickguess) goto 3212
 c
       if(.not.rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)) then
         if (owritefile) then
@@ -178,8 +181,6 @@ c
          if (movecs_in .eq. 'atomic') then
             call guess_dens(rtdb, geom, basis, g_dens(1))
          endif
-         if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
-     .        quickguess=.false.
          if (quickguess) return
 c
 c     Since the caching of integrals may be turned on automagically
