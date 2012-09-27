@@ -1701,6 +1701,72 @@ c     ****************************************
       end
 
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_SVD                 *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_m_SVD(mb,A,U,S,V)
+      implicit none
+      integer    mb
+      real*8 A(*),U(*)
+      real*8 S(*),V(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,tmp2(2)
+      integer nj
+      real*8 sum
+
+*     ***** external functions ****
+      real*8   ddot
+      external ddot
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         nj  = ne(1)+ne(2)
+      else
+         ms1 = mb
+         ms2 = mb
+         nj  = ne(mb)
+      end if
+
+*     **** generate V and Sigma^2 ****
+      call Dneall_mmm_Multiply2(mb,A,A,V)
+      call Dneall_m_diagonalize(mb,V,S,.false.)
+
+*     **** generate U*Sigma ****
+      call Dneall_mmm_Multiply(mb,A,V,1.0d0,U,0.0d0)
+
+*     **** normalize U*sigma ****
+      do ms=1,ispin
+         shift = 1+(ms-1)*ne(1)*ne(1)
+         do n=1,ne(ms)
+            sum = ddot(ne(ms),U(shift),1,U(shift),1)
+            sum = 1.0d0/dsqrt(sum)
+            call dscal(ne(ms),sum,U(shift),1)
+            shift = shift + ne(ms)
+         end do
+      end do
+
+*     **** calculated sqrt(S^2) ****
+      do n=1,nj
+         if (S(n).lt.0.0d0) S(n) = dabs(S(n))
+         S(n) = dsqrt(S(n))
+      end do
+
+      return
+      end
+
+
+
+
+
 
 
 c     ****************************************
@@ -1782,7 +1848,7 @@ c     ****************************************
       end
 
 c     ****************************************
-c     *                                      *
+c     *                                     *
 c     *        Dneall_f_ortho               *
 c     *                                      *
 c     ****************************************
@@ -2443,7 +2509,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_mmm_Multiply          *
+c     *        Dneall_mmm_Multiply           *
 c     *                                      *
 c     ****************************************
 
@@ -6672,6 +6738,42 @@ c     ****************************************
       call dcopy(2*nn,M1,1,M2,1)
       return
       end
+
+
+c     ****************************************
+c     *                                      *
+c     *           Dneall_mm_copy             *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_mm_copy(mb,M1,M2)
+      implicit none
+      integer mb
+      real*8 M1(*),M2(*)
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer nn
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
+         else
+            nn = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            nn = ne(mb)*ne(mb)
+         end if
+      end if
+
+      call dcopy(nn,M1,1,M2,1)
+      return
+      end
+
 
 
 c     ****************************************
