@@ -44,17 +44,16 @@
 *     complex*16 psir(nfft3d,nemax)
       integer psi1(2),psi2(2)
       integer occ1(2),occ2(2)
-      integer dn(2)
+      integer rhoii(2),rhojj(2),rhoij(2)
       integer Hpsi1(2),psi1r(2)
       integer Hpsi2(2),psi2r(2)
-      integer vl(2),vlr_l(2),v_field(2),r_grid(2)
+      integer vl(2),vlr_l(2),v_field(2),r_grid(2),vc(2)
     
 
 *     ***** energy variables ****
       real*8  E(40)
       integer eig(2),hml1(2),hml2(2),overlap(2),itmp(2)
-      integer overlap_aa(2),overlap_bb(2),overlap_ab(2)
-      integer ioverlap_aa(2),ioverlap_bb(2),ioverlap_ab(2)
+      integer U_ab(2),V_ab(2),overlap_ab(2)
       integer hml_aa(2),hml_bb(2),hml_ab(2)
 
 *     **** psi smearing block ****
@@ -70,11 +69,11 @@
       real*8 Saa,Sbb,Sab,H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
-      real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
+      real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
       real*8  EV,pi
       integer i,j,k,ia,n,nn
       integer ii,jj,indx,indx1
-      real*8 w,sumall,virial
+      real*8 w,sumall,virial,scal2
       integer nfft3
       parameter (nfft3=32)
       character*255 full_filename
@@ -147,8 +146,8 @@
       logical  Dneall_m_allocate,Dneall_m_free,control_parallel_io
       external Dneall_m_allocate,Dneall_m_free,control_parallel_io
 
-      real*8   Dneall_m_value
-      external Dneall_m_value
+      real*8   Dneall_m_value,ewald_e,ion_ion_e
+      external Dneall_m_value,ewald_e,ion_ion_e
       character*9 ion_amm
       external    ion_amm
       logical  pspw_charge_found
@@ -243,7 +242,10 @@
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()
-      if (control_version().eq.3) call coulomb_init()
+      if (control_version().eq.3) then
+         call coulomb_init()
+         call coulomb_screened_init(0,8.0d0,8.0d0)
+      end if
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
@@ -318,7 +320,6 @@
       nemax = ne(1)+ne(2)
 
 
-
 *     **** allocate other variables *****
       field_exist = pspw_charge_found()
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
@@ -326,12 +327,8 @@
       value = value.and.Dneall_m_allocate(0,hml2)
       value = value.and.Dneall_m_allocate(0,itmp)
       value = value.and.Dneall_m_allocate(0,overlap)
-      value = value.and.Dneall_m_allocate(0,overlap_aa)
-      value = value.and.Dneall_m_allocate(0,overlap_bb)
-      value = value.and.Dneall_m_allocate(0,overlap_ab)
-      value = value.and.Dneall_m_allocate(0,ioverlap_aa)
-      value = value.and.Dneall_m_allocate(0,ioverlap_bb)
-      value = value.and.Dneall_m_allocate(0,ioverlap_ab)
+      value = value.and.Dneall_m_allocate(0,U_ab)
+      value = value.and.Dneall_m_allocate(0,V_ab)
       value = value.and.Dneall_m_allocate(0,hml_aa)
       value = value.and.Dneall_m_allocate(0,hml_bb)
       value = value.and.Dneall_m_allocate(0,hml_ab)
@@ -348,11 +345,19 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi2r',psi2r(2),psi2r(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d,'rhoii',rhoii(2),rhoii(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d,'rhojj',rhojj(2),rhojj(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d,'rhoij',rhoij(2),rhoij(1))
 
 
       if (control_version().eq.4) then
        value = value.and.
      >        MA_alloc_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+       value = value.and.
+     >        MA_alloc_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
       end if
 
       if ((field_exist).or.(control_version().eq.4)) then
@@ -508,67 +513,36 @@
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
-      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),
-     >                               dcpl_mb(psi1(1)),npack1,
-     >                               dbl_mb(overlap_aa(1)))
-      call Dneall_m_diagonalize(0,dbl_mb(overlap_aa(1)),
-     >                            dbl_mb(eig(1)),.false.)
       Saa = 1.0d0
-      do n=1,nemax
-         Saa = Saa*dbl_mb(eig(1)+n-1)
-      end do
-      do n=1,nemax
-         dbl_mb(eig(1)+n-1) = 1.0d0/dbl_mb(eig(1)+n-1)
-      end do
-      call Dneall_m_setdiag(0,dbl_mb(ioverlap_aa(1)),dbl_mb(eig(1)))
-      call Dneall_mmm_Multiply3(0,dbl_mb(ioverlap_aa(1)),
-     >                            dbl_mb(overlap_aa(1)),
-     >                            dbl_mb(itmp(1)))
-      call Dneall_mmm_Multiply(0,dbl_mb(overlap_aa(1)),
-     >                           dbl_mb(itmp(1)),1.0d0,
-     >                           dbl_mb(ioverlap_aa(1)),0.0d0)
-
-
-      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi2(1)),
-     >                               dcpl_mb(psi2(1)),npack1,
-     >                               dbl_mb(overlap_bb(1)))
-      call Dneall_m_diagonalize(0,dbl_mb(overlap_bb(1)),
-     >                            dbl_mb(eig(1)),.false.)
       Sbb = 1.0d0
-      do n=1,nemax
-         Sbb = Sbb*dbl_mb(eig(1)+n-1)
-      end do
-      do n=1,nemax
-         dbl_mb(eig(1)+n-1) = 1.0d0/dbl_mb(eig(1)+n-1)
-      end do
-      call Dneall_m_setdiag(0,dbl_mb(ioverlap_bb(1)),dbl_mb(eig(1)))
-      call Dneall_mmm_Multiply3(0,dbl_mb(ioverlap_bb(1)),
-     >                            dbl_mb(overlap_bb(1)),
-     >                            dbl_mb(itmp(1)))
-      call Dneall_mmm_Multiply(0,dbl_mb(overlap_bb(1)),
-     >                           dbl_mb(itmp(1)),1.0d0,
-     >                           dbl_mb(ioverlap_bb(1)),0.0d0)
+      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
+     >                           dcpl_mb(psi2(1)),npack1,
+     >                           dbl_mb(itmp(1)))
+      call Dneall_m_SVD(0,dbl_mb(itmp(1)),dbl_mb(U_ab(1)),
+     >                    dbl_mb(eig(1)), dbl_mb(V_ab(1)))
 
+      write(*,*) "V_ab=",dbl_mb(V_ab(1))
+      write(*,*) "U_ab=",dbl_mb(U_ab(1))
 
-      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),
-     >                               dcpl_mb(psi2(1)),npack1,
-     >                               dbl_mb(overlap_ab(1)))
-      call Dneall_m_diagonalize(0,dbl_mb(overlap_ab(1)),
-     >                            dbl_mb(eig(1)),.false.)
+c      do n=1,nemaxq
+c         call Pack_c_Copy(1,dcpl_mb(psi1(1) +(n-1)*npack1),
+c     >                      dcpl_mb(Hpsi1(1)+(n-1)*npack1))
+c         call Pack_c_Copy(1,dcpl_mb(psi2(1) +(n-1)*npack1),
+c     >                      dcpl_mb(Hpsi2(1)+(n-1)*npack1))
+c      end do
+c      call Dneall_fmf_Multiply(0,dcpl_mb(Hpsi1(1)),npack1,
+c     >                            dbl_mb(V_ab(1)),  1.0d0,
+c     >                            dcpl_mb(psi1(1)),0.0d0)
+c      call Dneall_fmf_Multiply(0,dcpl_mb(Hpsi2(1)),npack1,
+c     >                            dbl_mb(U_ab(1)),  1.0d0,
+c     >                            dcpl_mb(psi2(1)),0.0d0)
+
       Sab = 1.0d0
       do n=1,nemax
          Sab = Sab*dbl_mb(eig(1)+n-1)
       end do
-      do n=1,nemax
-         dbl_mb(eig(1)+n-1) = 1.0d0/dbl_mb(eig(1)+n-1)
-      end do
-      call Dneall_m_setdiag(0,dbl_mb(ioverlap_ab(1)),dbl_mb(eig(1)))
-      call Dneall_mmm_Multiply3(0,dbl_mb(ioverlap_ab(1)),
-     >                            dbl_mb(overlap_ab(1)),
-     >                            dbl_mb(itmp(1)))
-      call Dneall_mmm_Multiply(0,dbl_mb(overlap_ab(1)),
-     >                           dbl_mb(itmp(1)),1.0d0,
-     >                           dbl_mb(ioverlap_ab(1)),0.0d0)
+      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsi1(1)),1)
+      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsi2(1)),1)
 
 
       if ((control_version().eq.4).or.(field_exist))
@@ -633,40 +607,116 @@
      >             dcpl_mb(Hpsi2(1)))
       end if
 
-      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),dcpl_mb(Hpsi1(1)),
-     >                               npack1,dbl_mb(hml_aa(1)))
-      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi2(1)),dcpl_mb(Hpsi2(1)),
-     >                               npack1,dbl_mb(hml_bb(1)))
-      call Dneall_ffm_sym_Multiply(0,dcpl_mb(psi1(1)),dcpl_mb(Hpsi2(1)),
-     >                               npack1,dbl_mb(hml_ab(1)))
-      call Dneall_m_scal(0,(-1.0d0),dbl_mb(hml_aa(1)))
-      call Dneall_m_scal(0,(-1.0d0),dbl_mb(hml_bb(1)))
-      call Dneall_m_scal(0,(-1.0d0),dbl_mb(hml_ab(1)))
-
-
 *     **** one-electron part ****
       H1aa = 0.0d0
       H1bb = 0.0d0
       H1ab = 0.0d0
       do ms=1,ispin
-         do j=1,ne(ms)
-         do i=1,ne(ms)
-            indx = (i-1)+(j-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-            H1aa = H1aa + dbl_mb(hml_aa(1)+indx)
-     >                   *dbl_mb(ioverlap_aa(1)+indx)*Saa
-            H1bb = H1bb + dbl_mb(hml_bb(1)+indx)
-     >                   *dbl_mb(ioverlap_bb(1)+indx)*Sbb
-            H1ab = H1ab + dbl_mb(hml_ab(1)+indx)
-     >                   *dbl_mb(ioverlap_ab(1)+indx)*Sab
-         end do
+         do i=n1(ms),n2(ms)
+            call Pack_cc_dot(1,dcpl_mb(psi1(1) +(i-1)*npack1),
+     >                         dcpl_mb(Hpsi1(1)+(i-1)*npack1),sum1)
+            H1aa = H1aa - sum1
+           
+            call Pack_cc_dot(1,dcpl_mb(psi2(1) +(i-1)*npack1),
+     >                         dcpl_mb(Hpsi2(1)+(i-1)*npack1),sum1)
+            H1bb = H1bb - sum1
+
+            call Pack_cc_dot(1,dcpl_mb(psi2(1) +(i-1)*npack1),
+     >                         dcpl_mb(Hpsi1(1)+(i-1)*npack1),sum1)
+            sum2 = 1.0d0
+            do j=n1(ms),n2(ms)
+               if (j.ne.i) sum2 = sum2*dbl_mb(eig(1)+j-1)
+            end do
+            H1ab = H1ab - sum1*sum2
          end do
       end do
 
 
+*     **** ion-ion part ****
+      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+
+
+
 *     **** two-electron part ****
+      scal2 = 1.0d0/lattice_omega()
       H2aa = 0.0d0
       H2bb = 0.0d0
       H2ab = 0.0d0
+      do ms=1,ispin
+         do i=n1(ms),n2(ms)-1
+            do j=i+1,n2(ms)
+               
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoii(1)),1)
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhojj(1)),1)
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoij(1)),1)
+               do k=1,n2ft3d
+                  dbl_mb(rhoii(1)+k-1) = dbl_mb(rhoii(1)+k-1)
+     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
+                  dbl_mb(rhojj(1)+k-1) = dbl_mb(rhojj(1)+k-1)
+     >                         + scal2*dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
+                  dbl_mb(rhoij(1)+k-1) = dbl_mb(rhojj(1)+k-1)
+     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
+               end do
+               if (control_version().eq.4) then
+                 call coulomb2_v(dbl_mb(rhojj(1)),dbl_mb(vc(1)))
+                 call D3dB_rr_dot(1,dbl_mb(rhoii(1)),dbl_mb(vc(1)),sum1)
+                 call coulomb2_v(dbl_mb(rhoij(1)),dbl_mb(vc(1)))
+                 call D3dB_rr_dot(1,dbl_mb(rhoij(1)),dbl_mb(vc(1)),sum2)
+                 H2aa = H2aa + sum1 - sum2
+               end if
+
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoii(1)),1)
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhojj(1)),1)
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoij(1)),1)
+               do k=1,n2ft3d
+                  dbl_mb(rhoii(1)+k-1) = dbl_mb(rhoii(1)+k-1)
+     >                         + scal2*dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
+                  dbl_mb(rhojj(1)+k-1) = dbl_mb(rhojj(1)+k-1)
+     >                         + scal2*dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
+                  dbl_mb(rhoij(1)+k-1) = dbl_mb(rhojj(1)+k-1)
+     >                         + scal2*dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
+               end do
+               if (control_version().eq.4) then
+                 call coulomb2_v(dbl_mb(rhojj(1)),dbl_mb(vc(1)))
+                 call D3dB_rr_dot(1,dbl_mb(rhoii(1)),dbl_mb(vc(1)),sum1)
+                 call coulomb2_v(dbl_mb(rhoij(1)),dbl_mb(vc(1)))
+                 call D3dB_rr_dot(1,dbl_mb(rhoij(1)),dbl_mb(vc(1)),sum2)
+                 H2bb = H2bb + sum1 - sum2
+               end if
+
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoii(1)),1)
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhojj(1)),1)
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoij(1)),1)
+               do k=1,n2ft3d
+                  dbl_mb(rhoii(1)+k-1) = dbl_mb(rhoii(1)+k-1)
+     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
+                  dbl_mb(rhojj(1)+k-1) = dbl_mb(rhojj(1)+k-1)
+     >                         + scal2*dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
+                  dbl_mb(rhoij(1)+k-1) = dbl_mb(rhojj(1)+k-1)
+     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
+     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
+               end do
+               if (control_version().eq.4) then
+                 call coulomb2_v(dbl_mb(rhojj(1)),dbl_mb(vc(1)))
+                 call D3dB_rr_dot(1,dbl_mb(rhoii(1)),dbl_mb(vc(1)),sum1)
+                 call coulomb2_v(dbl_mb(rhoij(1)),dbl_mb(vc(1)))
+                 call D3dB_rr_dot(1,dbl_mb(rhoij(1)),dbl_mb(vc(1)),sum2)
+                 H2ab = H2ab + sum1 - sum2
+               end if
+
+            end do
+         end do
+      end do
+ 
 
       Haa = H1aa+H2aa
       Hbb = H1bb+H2bb
@@ -679,65 +729,6 @@
 
       if (taskid.eq.MASTER) call current_second(cpu3)
 
-
-
-*         |****************************************|
-*********** produce CHECK file and diagonalize hml *****************
-*         |****************************************|
-
-*     **** produce CHECK FILE ****
-      if (taskid.eq.MASTER) then
-         call util_file_name('CHECK',.true.,
-     >                               .false.,
-     >                        full_filename)
-         open(unit=17,file=full_filename,form='formatted')
-      end if
-
-*     **** check total number of electrons ****
-      do ms =1,ispin
-         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = sumall*lattice_omega()
-     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
-      end do
-      if (taskid.eq.MASTER) then
-         write(17,1320) (en(ms),ms=1,ispin)
-      end if
-
-*     **** comparison between hamiltonian an lambda matrix ****
-      if (taskid.eq.MASTER) write(17,1330)
-      do ms=1,ispin
-         do j=1,ne(ms)
-         do i=1,ne(ms)
-            w      = Dneall_m_value(0,ms,i,j,dbl_mb(hml1(1)))
-            virial = Dneall_m_value(0,ms,i,j,dbl_mb(hml2(1)))
-
-            if (taskid.eq.MASTER)
-     >      write(17,1340) ms,i,j,w,virial,w-virial
-         end do
-         end do
-      end do
-
-
-*     **** check orthonormality ****
-      if (taskid.eq.MASTER) then
-         write(17,1350)
-      end if
-      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
-     >                           dcpl_mb(psi2(1)),npack1,
-     >                           dbl_mb(overlap(1)))
-      do ms=1,ispin
-         do j=1,ne(ms)
-         do i=j,ne(ms)
-            w  = Dneall_m_value(0,ms,i,j,dbl_mb(overlap(1)))
-            if (taskid.eq.MASTER) write(17,1360) ms,i,j,w
-         end do
-         end do
-      end do
-
-*     **** close check file ****
-      if (taskid.eq.MASTER) then
-         close(17)
-      end if
 
 
 
@@ -762,6 +753,7 @@
          write(luout,1821) H1aa
          write(luout,1822) H1bb
          write(luout,1823) H1ab
+         write(luout,1824) Eion
 
          write(luout,1830)
          write(luout,1831) H2aa
@@ -801,7 +793,10 @@
 *     **** deallocate heap memory ****
       if (control_version().eq.3) call ewald_end()
       call strfac_end()
-      if (control_version().eq.3) call coulomb_end()
+      if (control_version().eq.3) then
+         call coulomb_end()
+         call coulomb_screened_end()
+      end if
       if (control_version().eq.4) call coulomb2_end()
       call ke_end()
       call mask_end()
@@ -828,12 +823,8 @@
       value = value.and.Dneall_m_free(hml2)
       value = value.and.Dneall_m_free(overlap)
       value = value.and.Dneall_m_free(itmp)
-      value = value.and.Dneall_m_free(overlap_aa)
-      value = value.and.Dneall_m_free(overlap_bb)
-      value = value.and.Dneall_m_free(overlap_ab)
-      value = value.and.Dneall_m_free(ioverlap_aa)
-      value = value.and.Dneall_m_free(ioverlap_bb)
-      value = value.and.Dneall_m_free(ioverlap_ab)
+      value = value.and.Dneall_m_free(U_ab)
+      value = value.and.Dneall_m_free(V_ab)
       value = value.and.Dneall_m_free(hml_aa)
       value = value.and.Dneall_m_free(hml_bb)
       value = value.and.Dneall_m_free(hml_ab)
@@ -1027,6 +1018,7 @@
  1821 format( '    Electron energy of reactant         H1(RR): ',E19.10)
  1822 format( '    Electron energy of product          H1(PP): ',E19.10)
  1823 format( '    Electron energy of reactant/product H1(RP): ',E19.10)
+ 1824 format( '    Ion-Ion energy                      Eion  : ',E19.10)
  1830 format(/' Two-electron reactants/product interation energies:')
  1831 format( '    Electron energy of reactant         H2(RR): ',E19.10)
  1832 format( '    Electron energy of product          H2(PP): ',E19.10)
