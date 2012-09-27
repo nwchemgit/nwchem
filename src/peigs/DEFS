@@ -702,7 +702,7 @@ ifeq ($(peigs_TARGET),BGQ)
      peigs_COMM =TCGMSG
      peigs_CPU = RS6000
      peigs_CODEOBJ=DBLE
-     peigs_CC += -DSTD_INT -DSTD_DBL -g -O2
+     peigs_CC +=  -DSTD_DBL -g -O2
      # GNU
      #peigs_FC += -fdefault-integer-8 -g -O2 -funderscoring
      #peigs_FC += -Iinclude -DTCGMSG -DSTD_DBL -DSTD_INT -DRS6000 -D$(peigs_COMM)
@@ -710,11 +710,19 @@ ifeq ($(peigs_TARGET),BGQ)
      #peigs_LAPACKLIB = -llapack 
      # XL
      peigs_FC += -qintsize=8 -g -O2 -qEXTNAME
-     peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+     ifdef USE_INTEGER4
+      peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+     else
+      peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DRS6000,-D$(peigs_COMM)
+     endif
      peigs_BLASLIB   = -lblas -lesslbg
      peigs_LAPACKLIB = -llapack -lesslbg
      #
-     peigs_CPP += -DMPI -DBGQ -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
+     peigs_CPP += -DMPI -DBGQ -DRS6000  -DSTD_DBL -I$(peigs_HDIR) -P
+     ifdef USE_INTEGER4
+      peigs_CPP += -DSTD_INT
+      peigs_CC  += -DSTD_INT
+     endif
      peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
      peigs_AR = powerpc64-bgq-linux-ar -r
      peigs_RANLIB = powerpc64-bgq-linux-ranlib
