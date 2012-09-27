@@ -1,6 +1,6 @@
       subroutine ga_get2eri(basis, g_2ceri,oskel,maxg_in,mscratch_in, 
      &            int_call)
-c
+c$Id$
       implicit none
 #include "errquit.fh"
       integer basis
@@ -29,39 +29,21 @@ c
       integer i0,i1,j0,j1,ilo,ihi
       integer iat1,iat2,jat1,jat2
       integer adrc,ldc,j,g_2
+      logical util_ga2atoms
       integer ga_create_atom_blocked
-      external ga_create_atom_blocked
+      external ga_create_atom_blocked,util_ga2atoms
       external int_call
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('int_1e_cache_ga: basis corrupt?', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms))
      &     call errquit('ga_g2eri: geom_ncent failed',73, GEOM_ERR)
       g_2 = ga_create_atom_blocked(geom, basis,'g2g2')
+
+      if (util_ga2atoms(g_2, natoms, basis,
+     A     iat1,iat2,jat1,jat2)) then
+
       call ga_distribution(g_2,
      .     ga_nodeid(), i0, i1, j0, j1)
-      if (i0.gt.0 .and. i0.le.i1) then
-c
-c     get atoms list
-c
-         iat1=-99
-         iat2=-99
-         jat1=-99
-         jat2=-99
-         do iat=1,natoms
-            if (.not. bas_ce2bfr(basis, iat, ilo, ihi)) call errquit
-     $           ('ga_get2eri bas_ce2bfr ?', 0, BASIS_ERR)
-            if(ilo.eq.i0) iat1=iat
-            if(ilo.eq.j0) jat1=iat
-            if(ihi.eq.i1) iat2=iat
-            if(ihi.eq.j1) jat2=iat
-         enddo
-         if(iat1.eq.-99.or.iat2.eq.-99.or.
-     .        jat1.eq.-99.or.jat2.eq.-99) then
-            write(6,*) ' distr ',i0,i1,j0,j1
-            write(6,*) ' iats ',iat1,iat2,jat1,jat2
-            call errquit
-     A           ('gaget2eri: iat not found ',0,0)
-         endif
       call ga_access(g_2, i0, i1, j0, j1, adrc, ldc)
 c     
 c     Compute the matrix of 2-ctr ERIs.
@@ -232,3 +214,46 @@ c
       return
       end
 c $Id$
+      logical function util_ga2atoms(g_a, natoms, basis,
+     A     iat1,iat2,jat1,jat2)
+      implicit none
+#include "global.fh"
+#include "errquit.fh"
+#include "bas.fh"
+      integer g_a,natoms, basis ![in]
+      integer iat1,iat2,jat1,jat2 ![out]
+c
+      integer i0,i1, j0, j1,iat,ilo,ihi
+c
+      call ga_distribution(g_a,
+     .     ga_nodeid(), i0, i1, j0, j1)
+      if (i0.gt.0 .and. i0.le.i1) then
+c
+c     get atoms list
+c
+         iat1=-99
+         iat2=-99
+         jat1=-99
+         jat2=-99
+         do iat=1,natoms
+            if (.not. bas_ce2bfr(basis, iat, ilo, ihi)) call errquit
+     $           ('ga_get2eri bas_ce2bfr ?', 0, BASIS_ERR)
+            if(ilo.eq.i0) iat1=iat
+            if(ilo.eq.j0) jat1=iat
+            if(ihi.eq.i1) iat2=iat
+            if(ihi.eq.j1) jat2=iat
+         enddo
+         if(iat1.eq.-99.or.iat2.eq.-99.or.
+     .        jat1.eq.-99.or.jat2.eq.-99) then
+            write(6,*) ' distr ',i0,i1,j0,j1
+            write(6,*) ' iats ',iat1,iat2,jat1,jat2
+            call errquit
+     A           ('gaget2eri: iat not found ',0,0)
+         endif
+         util_ga2atoms=.true.
+      else
+         util_ga2atoms=.false.
+      endif
+      
+      return
+      end
