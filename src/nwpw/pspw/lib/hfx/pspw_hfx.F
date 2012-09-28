@@ -781,6 +781,7 @@ c***************** sub/replicated routines *****************************
 *       ***** screened coulomb solver ****
         if (solver_type.eq.1) then
         do ms=1,ispin0
+           if (norbs(ms).eq.0) go to 898
            call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
            NN = norbs(ms)*(norbs(ms)+1)/2
            i1 = 1
@@ -913,6 +914,8 @@ c     >                                 Hpsi_r(index2))
            end do !**** while ****
            !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
            call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+
+  898      continue
        end do !**** ms *****
 
 *       ***** free-space coulomb solver ****
