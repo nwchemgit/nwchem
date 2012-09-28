@@ -42,19 +42,18 @@
 *     real*8     dn(n2ft3d,2)
 *     complex*16 Hpsi(nfft3d,nemax)
 *     complex*16 psir(nfft3d,nemax)
-      integer psi1(2),psi2(2)
+      integer psi1(2),psi2(2),psi1f(2),psi2f(2)
       integer occ1(2),occ2(2)
-      integer rhoii(2),rhojj(2),rhoij(2)
-      integer Hpsi1(2),psi1r(2)
-      integer Hpsi2(2),psi2r(2)
+      integer rhoii(2),rhojj(2),rhoij(2),dn(2)
+      integer psi1r(2)
+      integer psi2r(2)
       integer vl(2),vlr_l(2),v_field(2),r_grid(2),vc(2)
     
 
 *     ***** energy variables ****
       real*8  E(40)
-      integer eig(2),hml1(2),hml2(2),overlap(2),itmp(2)
+      integer eig(2),overlap(2),itmp(2)
       integer U_ab(2),V_ab(2),overlap_ab(2)
-      integer hml_aa(2),hml_bb(2),hml_ab(2)
 
 *     **** psi smearing block ****
       logical fractional,field_exist
@@ -248,7 +247,11 @@
       end if
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init()
+      call phafac()
+      if (control_version().eq.3) then
+         call ewald_init()
+         call ewald_phafac()
+      end if
 
       if (.not.rtdb_cget(rtdb,'pspw:et:movecs_a',1,filename1))
      >   call util_file_prefix('movecs',filename1)
@@ -300,6 +303,12 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >                     'psi1f',psi1f(2),psi1f(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >                     'psi2f',psi2f(2),psi2f(1))
       if (fractional) then
          value = value.and.
      >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
@@ -323,22 +332,11 @@
 *     **** allocate other variables *****
       field_exist = pspw_charge_found()
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
-      value = value.and.Dneall_m_allocate(0,hml1)
-      value = value.and.Dneall_m_allocate(0,hml2)
       value = value.and.Dneall_m_allocate(0,itmp)
       value = value.and.Dneall_m_allocate(0,overlap)
       value = value.and.Dneall_m_allocate(0,U_ab)
       value = value.and.Dneall_m_allocate(0,V_ab)
-      value = value.and.Dneall_m_allocate(0,hml_aa)
-      value = value.and.Dneall_m_allocate(0,hml_bb)
-      value = value.and.Dneall_m_allocate(0,hml_ab)
 
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-     >                     'Hpsi1',Hpsi1(2),Hpsi1(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-     >                     'Hpsi2',Hpsi2(2),Hpsi2(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi1r',psi1r(2),psi1r(1))
@@ -355,19 +353,8 @@
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_alloc_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
-       value = value.and.
      >        MA_alloc_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
       end if
-
-      if ((field_exist).or.(control_version().eq.4)) then
-       value = value.and.
-     >    MA_alloc_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
-      end if
-      value = value.and.
-     >  MA_alloc_get(mt_dbl,(n2ft3d),'v_field',v_field(2),v_field(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,(npack0),'vloc',vl(2),vl(1))
 
       if (.not. value) 
      >   call errquit('pspw_et:out of heap memory',0,MA_ERR)
@@ -387,6 +374,8 @@
 *                |**************************|
 
       if (taskid.eq.MASTER) then
+         write(luout,1800) filename1
+         write(luout,1801) filename2
          write(luout,1111) np
          write(luout,1117) np_i,np_j
          if (mapping.eq.1) write(luout,1112)
@@ -502,8 +491,6 @@
          end if
 
          write(luout,1300)
-         write(luout,1800) filename1
-         write(luout,1801) filename2
          call util_flush(luout)
       end if
 
@@ -520,122 +507,22 @@
      >                           dbl_mb(itmp(1)))
       call Dneall_m_SVD(0,dbl_mb(itmp(1)),dbl_mb(U_ab(1)),
      >                    dbl_mb(eig(1)), dbl_mb(V_ab(1)))
-
-      write(*,*) "V_ab=",dbl_mb(V_ab(1))
-      write(*,*) "U_ab=",dbl_mb(U_ab(1))
-
-c      do n=1,nemaxq
-c         call Pack_c_Copy(1,dcpl_mb(psi1(1) +(n-1)*npack1),
-c     >                      dcpl_mb(Hpsi1(1)+(n-1)*npack1))
-c         call Pack_c_Copy(1,dcpl_mb(psi2(1) +(n-1)*npack1),
-c     >                      dcpl_mb(Hpsi2(1)+(n-1)*npack1))
-c      end do
-c      call Dneall_fmf_Multiply(0,dcpl_mb(Hpsi1(1)),npack1,
-c     >                            dbl_mb(V_ab(1)),  1.0d0,
-c     >                            dcpl_mb(psi1(1)),0.0d0)
-c      call Dneall_fmf_Multiply(0,dcpl_mb(Hpsi2(1)),npack1,
-c     >                            dbl_mb(U_ab(1)),  1.0d0,
-c     >                            dcpl_mb(psi2(1)),0.0d0)
-
       Sab = 1.0d0
       do n=1,nemax
          Sab = Sab*dbl_mb(eig(1)+n-1)
       end do
-      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsi1(1)),1)
-      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsi2(1)),1)
 
-
-      if ((control_version().eq.4).or.(field_exist))
-     >   call lattice_r_grid(dbl_mb(r_grid(1)))
-
-*     **** generate local pseudopotential  ****
-*     **** and also get force if move true ****
-      call v_local(dcpl_mb(vl(1)),.false.,en,dipole)
-
-*     *** long-range psp for charge systems ***
-      if (control_version().eq.4) then
-         call v_lr_local(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
-      end if
-
-*     ***** generate other real-space fields ****
-      if (field_exist) then
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
-
-*        **** generate charge potential ****
-         if (pspw_charge_found()) then
-            call pspw_charge_Generate_V(n2ft3d,
-     >                                  dbl_mb(r_grid(1)),
-     >                                  dbl_mb(v_field(1)))
-           end if
-      end if
-
-
-      do n=1,nemaxq
-         call Pack_c_Copy(1,dcpl_mb(psi1(1)+(n-1)*npack1),
-     >                      dbl_mb(psi1r(1)+(n-1)*n2ft3d))
-      end do
-      call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi1r(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi1r(1)))  !*** probably not neeeded!
-
-      do n=1,nemaxq
-         call Pack_c_Copy(1,dcpl_mb(psi2(1)+(n-1)*npack1),
-     >                      dbl_mb(psi2r(1)+(n-1)*n2ft3d))
-      end do
-      call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi2r(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi2r(1)))  !*** probably not neeeded!
-
-*       **** get Hpsi1,Hpsi2 ****
-      if (control_version().eq.3) then
-         call psi_H1(ispin,neq,dcpl_mb(psi1(1)),dbl_mb(psi1r(1)),
-     >             dcpl_mb(vl(1)),
-     >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsi1(1)))
-         call psi_H1(ispin,neq,dcpl_mb(psi2(1)),dbl_mb(psi2r(1)),
-     >             dcpl_mb(vl(1)),
-     >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsi2(1)))
-      end if
-
-      if (control_version().eq.4) then
-         call psi_H1v4(ispin,neq,dcpl_mb(psi1(1)),dbl_mb(psi1r(1)),
-     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
-     >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsi1(1)))
-         call psi_H1v4(ispin,neq,dcpl_mb(psi2(1)),dbl_mb(psi2r(1)),
-     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
-     >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsi2(1)))
-      end if
 
 *     **** one-electron part ****
-      H1aa = 0.0d0
-      H1bb = 0.0d0
-      H1ab = 0.0d0
-      do ms=1,ispin
-         do i=n1(ms),n2(ms)
-            call Pack_cc_dot(1,dcpl_mb(psi1(1) +(i-1)*npack1),
-     >                         dcpl_mb(Hpsi1(1)+(i-1)*npack1),sum1)
-            H1aa = H1aa - sum1
-           
-            call Pack_cc_dot(1,dcpl_mb(psi2(1) +(i-1)*npack1),
-     >                         dcpl_mb(Hpsi2(1)+(i-1)*npack1),sum1)
-            H1bb = H1bb - sum1
-
-            call Pack_cc_dot(1,dcpl_mb(psi2(1) +(i-1)*npack1),
-     >                         dcpl_mb(Hpsi1(1)+(i-1)*npack1),sum1)
-            sum2 = 1.0d0
-            do j=n1(ms),n2(ms)
-               if (j.ne.i) sum2 = sum2*dbl_mb(eig(1)+j-1)
-            end do
-            H1ab = H1ab - sum1*sum2
-         end do
-      end do
+      call pspw_et_sub1(ispin,ne,neq,n2ft3d,npack1,dbl_mb(eig(1)),
+     >                  dcpl_mb(psi1(1)),dbl_mb(psi1r(1)),
+     >                  dcpl_mb(psi2(1)),dbl_mb(psi2r(1)),
+     >                  H1aa,H1bb,H1ab)
 
 
 *     **** ion-ion part ****
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
-
 
 
 *     **** two-electron part ****
@@ -718,9 +605,9 @@ c     >                            dcpl_mb(psi2(1)),0.0d0)
       end do
  
 
-      Haa = H1aa+H2aa
-      Hbb = H1bb+H2bb
-      Hab = H1ab+H2ab
+      Haa = H1aa + H2aa + Eion
+      Hbb = H1bb + H2bb + Eion
+      Hab = H1ab + H2ab + Sab*Eion
 
       Vab = (Hab-Sab*(Haa+Hbb)/2.0d0)/(1.0d0-Sab*Sab);
 
@@ -770,17 +657,17 @@ c     >                            dcpl_mb(psi2(1)),0.0d0)
 
 
 *        **** write out diagonal <psi1|H|psi2> matrix ****
-          n = ne(1)
-          nn = n*n
-          do ms=1,ispin
-             if (ms.eq.1) write(luout,1331)
-             if (ms.eq.2) write(luout,1332)
-             !*** call Gainsville matrix output ***
-             call output(dbl_mb(hml1(1)+(ms-1)*nn),
-     >                    1,ne(ms),1,ne(ms),
-     >                    n,n,1)
-
-           end do
+c          n = ne(1)
+c          nn = n*n
+c          do ms=1,ispin
+c             if (ms.eq.1) write(luout,1331)
+c             if (ms.eq.2) write(luout,1332)
+c             !*** call Gainsville matrix output ***
+c             call output(dbl_mb(hml1(1)+(ms-1)*nn),
+c     >                    1,ne(ms),1,ne(ms),
+c     >                    n,n,1)
+c
+c           end do
 
       end if
 
@@ -808,26 +695,13 @@ c     >                            dcpl_mb(psi2(1)),0.0d0)
       call pspw_qmmm_end()
 
       value = .true.
-      if ((field_exist).or.(control_version().eq.4))
-     >   value = value.and.MA_free_heap(r_grid(2))
-      value = value.and.MA_free_heap(v_field(2))
-      if (control_version().eq.4)
-     >   value = value.and.MA_free_heap(vlr_l(2))
-      value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(psi1r(2))
       value = value.and.MA_free_heap(psi2r(2))
-      value = value.and.MA_free_heap(Hpsi1(2))
-      value = value.and.MA_free_heap(Hpsi2(2))
       value = value.and.MA_free_heap(eig(2))
-      value = value.and.Dneall_m_free(hml1)
-      value = value.and.Dneall_m_free(hml2)
       value = value.and.Dneall_m_free(overlap)
       value = value.and.Dneall_m_free(itmp)
       value = value.and.Dneall_m_free(U_ab)
       value = value.and.Dneall_m_free(V_ab)
-      value = value.and.Dneall_m_free(hml_aa)
-      value = value.and.Dneall_m_free(hml_bb)
-      value = value.and.Dneall_m_free(hml_ab)
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(psi2(2))
       if (fractional) then
@@ -1060,3 +934,323 @@ c     >                            dcpl_mb(psi2(1)),0.0d0)
       pspw_et = value
       return
       END
+
+
+      subroutine pspw_et_sub1(ispin,ne,neq,n2ft3d,npack1,Sigma,
+     >                        psia,psira,
+     >                        psib,psirb,
+     >                        H1aa,H1bb,H1ab)
+      implicit none
+      integer ispin,ne(2),neq(2),n2ft3d,npack1
+      real*8     Sigma(*)
+      complex*16 psia(npack1,*)
+      real*8     psira(n2ft3d,*)
+      complex*16 psib(npack1,*)
+      real*8     psirb(n2ft3d,*)
+      real*8     H1aa,H1bb,H1ab
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid_j
+      logical value,aperiodic,field_exist
+      integer pj,q,n,m,ms,nfft3d,nemaxq,npack0,n1(2),n2(2)
+      integer Hpsia(2),Hpsib(2),vlr_l(2),r_grid(2),v_field(2),vl(2)
+      real*8 tmp1(2),tmp2(2),sum1,sum2
+      
+*     **** external functions ****
+      logical  pspw_charge_found
+      external pspw_charge_found
+      integer  control_version
+      external control_version
+
+      aperiodic   = (control_version().eq.4)
+      field_exist = pspw_charge_found()
+      nemaxq = neq(1)+neq(2)
+
+      call Parallel2d_taskid_j(taskid_j)
+      call Pack_npack(0,npack0)
+      call D3dB_nfft3d(1,nfft3d)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_dcpl,(nemaxq*npack1),
+     >                    'Hpsia',Hpsia(2),Hpsia(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nemaxq*npack1),
+     >                    'Hpsib',Hpsib(2),Hpsib(1))
+      if (aperiodic) then
+       value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+      end if
+      if (field_exist.or.aperiodic) then
+         value = value.and.
+     >            MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >                        r_grid(2),r_grid(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,(n2ft3d),'v_field',
+     >                       v_field(2),v_field(1))
+      end if
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(npack0),'vloc',vl(2),vl(1))
+      if (.not. value)
+     >   call errquit('pspw_et_sub1:out of stack',0,MA_ERR)
+
+
+*     **** generate r_grid ****
+      if (aperiodic.or.field_exist)
+     >   call lattice_r_grid(dbl_mb(r_grid(1)))
+
+*     **** generate local pseudopotential  ****
+      call v_local(dcpl_mb(vl(1)),.false.,tmp1,tmp2)
+
+*     *** long-range psp for charge systems ***
+      if (control_version().eq.4) then
+         call v_lr_local(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
+      end if
+
+*     ***** generate other real-space fields ****
+      if (field_exist) then
+         call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+         call pspw_charge_Generate_V(n2ft3d,
+     >                               dbl_mb(r_grid(1)),
+     >                               dbl_mb(v_field(1)))
+      end if
+
+
+      
+      call dcopy(nemaxq*n2ft3d,0.0d0,0,psira,1)
+      call dcopy(nemaxq*n2ft3d,0.0d0,0,psirb,1)
+      do n=1,nemaxq
+         call Pack_c_Copy(1,psia(1,n),psira(1,n))
+         call Pack_c_Copy(1,psib(1,n),psirb(1,n))
+      end do
+      call Grsm_gh_fftb(nfft3d,nemaxq,psira)
+      call Grsm_gh_fftb(nfft3d,nemaxq,psirb)
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,psira)
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,psirb)
+
+
+*       **** get Hpsi1,Hpsi2 ****
+      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsia(1)),1)
+      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsib(1)),1)
+      if (aperiodic) then
+         call psi_H1v4(ispin,neq,psia,psira,
+     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsia(1)))
+         call psi_H1v4(ispin,neq,psib,psirb,
+     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsib(1)))
+      else
+         call psi_H1(ispin,neq,psia,psira,
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsia(1)))
+         call psi_H1(ispin,neq,psib,psirb,
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(Hpsib(1)))
+      end if
+
+*     **** one-electron part ****
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1)+1
+      n2(2) = ne(1)+ne(2)
+      H1aa = 0.0d0
+      H1bb = 0.0d0
+      H1ab = 0.0d0
+      do ms=1,ispin
+         if (ne(ms).gt.0) then
+            do n=n1(ms),n2(ms)
+               call Dneall_ntoqp(n,q,pj)
+               if (pj.eq.taskid_j) then
+                  call Pack_cc_idot(1,psia(1,q),
+     >                              dcpl_mb(Hpsia(1)+(q-1)*npack1),sum1)
+                  H1aa = H1aa - sum1
+
+                  call Pack_cc_idot(1,psib(1,q),
+     >                              dcpl_mb(Hpsib(1)+(q-1)*npack1),sum1)
+                  H1bb = H1bb - sum1
+
+                  call Pack_cc_idot(1,psib(1,q),
+     >                              dcpl_mb(Hpsia(1)+(q-1)*npack1),sum1)
+                  sum2 = 1.0d0
+                  do m=n1(ms),n2(ms)
+                     if (n.ne.m) sum2 = sum2*Sigma(m)
+                  end do
+                  H1ab = H1ab - sum1*sum2
+               end if
+            end do
+         end if
+      end do
+      call Parallel_SumAll(H1aa)
+      call Parallel_SumAll(H1bb)
+      call Parallel_SumAll(H1ab)
+      if (ispin.eq.1) then
+         H1aa = H1aa + H1aa
+         H1bb = H1bb + H1bb
+         H1ab = H1ab + H1ab
+      end if
+
+
+*     **** deallocate memory ****
+      value = MA_pop_stack(vl(2))
+      if (field_exist.or.aperiodic) then
+         value = value.and.MA_pop_stack(v_field(2))
+         value = value.and.MA_pop_stack(r_grid(2))
+      end if
+      if (aperiodic) then
+         value = value.and.MA_pop_stack(vlr_l(2))
+      end if
+      value = value.and.MA_pop_stack(Hpsib(2))
+      value = value.and.MA_pop_stack(Hpsia(2))
+      if (.not.value)
+     >   call errquit('pspw_et_sub1:pop stack',0,MA_ERR)
+ 
+      return
+      end
+
+      subroutine pspw_et_sub2(ispin,ne,neq,n2ft3d,Sigma,
+     >                        psira,
+     >                        psirb,
+     >                        H2aa,H2bb,H2ab)
+      implicit none
+      integer ispin,ne(2),neq(2),n2ft3d
+      real*8  Sigma(*)
+      real*8  psira(n2ft3d,*)
+      real*8  psirb(n2ft3d,*)
+      real*8  H2aa,H2bb,H2ab
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     ***** local variables ****
+      logical value,aperiodic
+      integer ms,n,n1(2),n2(2),nx,ny,nz,k,nfft3d
+      integer dnaa(2),dnbb(2),dnab(2),rhoaa(2),rhobb(2),rhoab(2)
+      integer dng(2),vc(2)
+      real*8  scal1,scal2,ehartr,dv
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+      real*8   lattice_omega,coulomb_e
+      external lattice_omega,coulomb_e
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1)+1
+      n2(2) = ne(1)+ne(2)
+      H2aa = 0.0d0
+      H2bb = 0.0d0
+      H2ab = 0.0d0
+ 
+      call D3dB_nfft3d(1,nfft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1*lattice_omega()
+
+      aperiodic = (control_version().eq.4)
+
+*     **** allocate memory ****
+      value =  MA_push_get(mt_dbl,ispin*n2ft3d,'dnaa',dnaa(2),dnaa(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,ispin*n2ft3d,'dnbb',dnbb(2),dnbb(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,ispin*n2ft3d,'dnab',dnab(2),dnab(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,n2ft3d,'rhoaa',rhoaa(2),rhoaa(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,n2ft3d,'rhobb',rhobb(2),rhobb(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,n2ft3d,'rhoab',rhoab(2),rhoab(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,n2ft3d,'vc',vc(2),vc(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'dng',dng(2),dng(1))
+      if (.not.value)
+     >   call errquit('pspw_et_sub2:push stack',0,MA_ERR)
+
+      call dcopy(ispin*n2ft3d,0.0d0,0,dbl_mb(dnaa(1)),1)
+      call dcopy(ispin*n2ft3d,0.0d0,0,dbl_mb(dnbb(1)),1)
+      call dcopy(ispin*n2ft3d,0.0d0,0,dbl_mb(dnab(1)),1)
+      do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            do k=1,n2ft3d
+               dbl_mb(dnaa(1)+k-1+(ms-1)*n2ft3d)  
+     >          = dbl_mb(dnaa(1)+k-1+(ms-1)*n2ft3d) 
+     >          + scal2*psira(k,n)**2
+
+               dbl_mb(dnbb(1)+k-1+(ms-1)*n2ft3d)  
+     >          = dbl_mb(dnbb(1)+k-1+(ms-1)*n2ft3d) 
+     >          + scal2*psirb(k,n)**2
+
+               dbl_mb(dnab(1)+k-1+(ms-1)*n2ft3d)  
+     >          = dbl_mb(dnab(1)+k-1+(ms-1)*n2ft3d) 
+     >          + scal2*psira(k,n)*psirb(k,n)
+            end do
+         end do
+      end do
+      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(dnaa(1)))
+      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(dnbb(1)))
+      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(dnab(1)))
+      call D3dB_rr_Sum(1,dbl_mb(dnaa(1)),
+     >                   dbl_mb(dnaa(1)+(ms-1)*n2ft3d),
+     >                   dbl_mb(rhoaa(1)))
+      call D3dB_rr_Sum(1,dbl_mb(dnbb(1)),
+     >                   dbl_mb(dnbb(1)+(ms-1)*n2ft3d),
+     >                   dbl_mb(rhobb(1)))
+      call D3dB_rr_Sum(1,dbl_mb(dnab(1)),
+     >                   dbl_mb(dnab(1)+(ms-1)*n2ft3d),
+     >                   dbl_mb(rhoab(1)))
+
+*     **** calculate coulomb ****
+      if (aperiodic) then
+         call coulomb2_v(dbl_mb(rhoaa(1)),dbl_mb(vc(1)))
+         call D3dB_rr_dot(1,dbl_mb(rhoaa(1)),dbl_mb(vc(1)),ehartr)
+         H2aa = 0.5d0*ehartr*dv
+
+         call coulomb2_v(dbl_mb(rhobb(1)),dbl_mb(vc(1)))
+         call D3dB_rr_dot(1,dbl_mb(rhobb(1)),dbl_mb(vc(1)),ehartr)
+         H2bb = 0.5d0*ehartr*dv
+
+         call coulomb2_v(dbl_mb(rhoab(1)),dbl_mb(vc(1)))
+         call D3dB_rr_dot(1,dbl_mb(rhoab(1)),dbl_mb(vc(1)),ehartr)
+         H2ab = 0.5d0*ehartr*dv
+      else
+         call D3dB_r_SMul(1,scal1,dbl_mb(rhoaa(1)),dcpl_mb(dng(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
+         call Pack_c_pack(0,dcpl_mb(dng(1)))
+         H2aa = coulomb_e(dcpl_mb(dng(1)))
+
+         call D3dB_r_SMul(1,scal1,dbl_mb(rhobb(1)),dcpl_mb(dng(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
+         call Pack_c_pack(0,dcpl_mb(dng(1)))
+         H2bb = coulomb_e(dcpl_mb(dng(1)))
+
+         call D3dB_r_SMul(1,scal1,dbl_mb(rhoab(1)),dcpl_mb(dng(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
+         call Pack_c_pack(0,dcpl_mb(dng(1)))
+         H2ab = coulomb_e(dcpl_mb(dng(1)))
+      end if
+     
+
+*     **** deallocate memory ****
+      value = value.and.MA_pop_stack(dng(2))
+      value = value.and.MA_pop_stack(vc(2))
+      value = value.and.MA_pop_stack(rhoab(2))
+      value = value.and.MA_pop_stack(rhobb(2))
+      value = value.and.MA_pop_stack(rhoaa(2))
+      value = value.and.MA_pop_stack(dnab(2))
+      value = value.and.MA_pop_stack(dnbb(2))
+      value = value.and.MA_pop_stack(dnaa(2))
+      if (.not.value)
+     >   call errquit('pspw_et_sub2:pop stack',0,MA_ERR)
+      return
+      end
