@@ -24,7 +24,8 @@ c        [TARGET <integer target default 1>]
 c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [ALGORITHM <integer algorithm default 1>]
-c        [VECTOR <character vector default jobname'.tddft']
+c        [CIVECS <default '*.civecs']
+c        [TRANSDEN <default '*.tdens']
 c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
 c        [CDSPECTRUM <not default: compute rotatory strengths>]
@@ -42,11 +43,12 @@ c
       character*20 test
       integer nroots,maxvecs,maxiter,target,algorithm
       character*4 targetsym
-C     character*80 vector
+      character*80 civecs
+      character*80 transden
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry, cdspectrum, velocity, lgiao, gmhcoupling
+      logical tda,symmetry, cdspectrum, velocity, lgiao, gmh
       double precision thresh
       double precision ecut
       logical lecut
@@ -56,6 +58,8 @@ C     character*80 vector
       integer owstart(2)
       integer owend(2)
       double precision diff_max
+      logical lcivecs
+      logical ltransden
 c
 c ------------------
 c Set default values
@@ -173,11 +177,17 @@ c
       if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
-c     VECTOR (filename for solution vectors)
+c     CIVECS (filename for solution vectors)
 c
-C     call util_file_name('tddft',.false.,.false.,vector)
-C     if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
-C    1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+      call util_file_name('civecs',.false.,.false.,civecs)
+      if (.not.rtdb_cput(rtdb,'tddft:civecs',1,civecs))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c
+c     TRANSDEN
+c
+      call util_file_name('tdens',.false.,.false.,transden)
+      if (.not.rtdb_cput(rtdb,'tddft:transden',1,transden))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     CDSPECTRUM
 c
@@ -194,8 +204,8 @@ c
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ
 c
-      gmhcoupling = .false.
-      if (.not.rtdb_put(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
+      gmh = .false.
+      if (.not.rtdb_put(rtdb,'tddft:gmh',mt_log,1,gmh))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c ----------
@@ -493,22 +503,41 @@ c
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ COUPLING
 c
-      else if (inp_compare(.false.,test,'gmhcoupling')) then
-       gmhcoupling=.true.
-       if (.not.rtdb_put(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
+      else if (inp_compare(.false.,test,'gmh')) then
+       gmh=.true.
+       if (.not.rtdb_put(rtdb,'tddft:gmh',mt_log,1,gmh))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
-c     VECTOR (filename for solution vectors)
+c     CIVECS (filename for solution vectors)
 c
-C     else if (inp_compare(.false.,test,'vector')) then
-C       if (.not.inp_a(vector)) then
-C         write(LuOut,*) 'tddft_input: filename not found; ',
-C    1      'default name will be used'
-C         call util_file_name('tddft',.false.,.false.,vector)
-C       endif
-C       if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
-C    1    call errquit('tddft_input: failed writing to rtdb',0)
+      lcivecs = .false.   
+      else if (inp_compare(.false.,test,'civecs')) then
+       lcivecs = .true.
+       if (.not.inp_a(civecs)) then
+         write(LuOut,*) 'tddft_input: filename not found; ',
+     1      'default name will be used'
+         call util_file_name('civecs',.false.,.false.,civecs)
+       endif
+       if (.not.rtdb_cput(rtdb,'tddft:civecs',1,civecs))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'tddft:lcivecs',mt_log,1,lcivecs))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c     TRANSDEN (filename for transition density)
+c
+      ltransden = .false.   
+      else if (inp_compare(.false.,test,'transden')) then
+       ltransden = .true.
+       if (.not.inp_a(transden)) then
+         write(LuOut,*) 'tddft_input: filename not found; ',
+     1      'default name will be used'
+         call util_file_name('tdens',.false.,.false.,transden)
+       endif
+       if (.not.rtdb_cput(rtdb,'tddft:transden',1,transden))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'tddft:ltransden',mt_log,1,ltransden))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
 c     PRINT
 c

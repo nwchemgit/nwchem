@@ -92,18 +92,21 @@ c
       integer mult             ! Ground state spin multiplicity
       integer algorithm        ! Algorithm
 c
-      logical gmhcoupling      ! Generalized Mulliken-Hush coupling
+      logical gmh              ! Generalized Mulliken-Hush coupling
       integer g_ovlp           ! GA handle for AO overlap matrix
       integer g_smat           ! GA handle for AO overlap matrix
       integer g_corr           ! GA handle for alpha-beta MO correlation matrix
       integer g_work
-      integer g_tmomd(2)       ! Transition density matrix
 c
       integer g_x1(2)          ! GA handle for X matrix of 1 root
       integer g_y1(2)          ! GA handle for Y matrix of 1 root
       integer g_t(2)           ! GA handle for T matrix of 1 root
-      integer g_exdao(2)       ! GA handle for excited state density 1 root in AO
-      integer g_gsdao(2)       ! GA handle for the ground state density in AO
+c
+      integer g_gd(2)          ! GA handle for the ground state density in AO
+      integer g_ed(2)          ! GA handle for excited state density 1 root in AO
+      integer g_td(2)          ! GA handle for transition density 1 root in AO
+      integer g_tdtot(2)       ! GA handle for total transition density 1 root in AO
+c
       integer g_tt             ! GA handle for scratch matrix of 1 root
 c
       double precision nelec
@@ -165,8 +168,15 @@ c
 c
       logical do_s2
 c
-C     character*80 vector
-C     logical vector_exists,fileerror
+      logical ltransden
+      logical lcivecs
+      character*80 civecs
+      logical civecs_exists,fileerror
+c
+      character*80 transden 
+      logical dmat_to_file
+      external dmat_to_file
+c
 c     ==================================================================
 
       debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
@@ -202,37 +212,45 @@ c     calculate Buckingham-Dunn rotatory strength tensor?
      $  lquad=.false.
 c
 c     Generalized Mulliken-Hush 
-      if (.not.rtdb_get(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
-     $  gmhcoupling=.false.
+      if (.not.rtdb_get(rtdb,'tddft:gmh',mt_log,1,gmh))
+     $  gmh=.false.
+c
+c     CI Vectors file 
+      lcivecs = .false.
+      if (.not.rtdb_get(rtdb,'tddft:lcivecs',mt_log,1,lcivecs))
+     $  lcivecs = .false.
+c
+c     Transden file 
+      ltransden = .false.
+      if (.not.rtdb_get(rtdb,'tddft:ltransden',mt_log,1,ltransden))
+     $  ltransden = .false.
 c
 c     Temp array
       if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_temp',
      $       nbf_ao, 0, g_temp)) call errquit(pname//'g_temp',0, GA_ERR)
       call ga_zero(g_temp)
 c
-      if (gmhcoupling .or. (cdspectrum.and.lgiao)) then
-        
-        if (gmhcoupling) then
-          do icomp = 1,3
-            gsmom(icomp)=0.d0
-            exmom(icomp)=0.d0
-          enddo
-        end if                  ! gmhcoupling 
-        
-c       Calculate the overlap: S matrix
-        if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
+c     Initialize for GMH coupling
+      if (gmh) then
+        do icomp = 1,3
+          gsmom(icomp)=0.d0
+          exmom(icomp)=0.d0
+        enddo
+      end if  ! gmh  
+c        
+      if (cdspectrum .or. gmh) then         
+c        
+c        Calculate the overlap: S matrix
+         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
      &     -1, -1, g_smat))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
-        call ga_zero(g_smat)
-        call int_1e_ga(ao_bas_han, ao_bas_han, g_smat, 'overlap', oskel)
-        if (oskel)call sym_symmetrize(geom, ao_bas_han, .false., g_smat)
-      endif  ! gmhcoupling or lgiao
-c
-      if (cdspectrum .or. gmhcoupling) then         
-        
-c     We will create arrays for some dipole matrix elements here.
-c     adapted from dft_main0d.F
-c     == Create and get the dipole matrix element ga: g_dipole ==
+         call ga_zero(g_smat)
+         call int_1e_ga(ao_bas_han, ao_bas_han,g_smat,'overlap',oskel)
+         if (oskel)call sym_symmetrize(geom, ao_bas_han,.false.,g_smat)
+c        
+c        We will create arrays for some dipole matrix elements here.
+c        adapted from dft_main0d.F
+c        == Create and get the dipole matrix element ga: g_dipole ==
          do icomp = 1,3
             if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipole',
      $       nbf_ao, 0, g_dipole(icomp)))
@@ -240,7 +258,7 @@ c     == Create and get the dipole matrix element ga: g_dipole ==
             call ga_zero(g_dipole(icomp))
          end do ! icomp
 c     
-c     == Compute the dipole integrals for the 3 components ==
+c        == Compute the dipole integrals for the 3 components ==
          call int_dip_ga(ao_bas_han, ao_bas_han,
      $        g_dipole(1), g_dipole(2), g_dipole(3))
 
@@ -261,8 +279,7 @@ c        magnetic dipole moment integrals (r x nabla), times 0.5:
          call ga_scale (g_dipmag, 0.5d0)
 
       endif ! cdspectrum or ghmcoupling
-
-
+c
 c     if we do have GIAOs then the procedure is a bit more
 c     involved
       
@@ -274,20 +291,17 @@ c     involved
         ahi(1) = nbf_ao
         ahi(2) = nbf_ao
         ahi(3) = 3         
-
+c
         if (.not.nga_create(MT_DBL,3,ahi,'vecB1',alo,g_vecB1))
-     &     call 
-     &     errquit('tddft_ana: nga_create failed vecB1',0,GA_ERR)
+     &    call errquit('tddft_ana: nga_create failed vecB1',0,GA_ERR)
         call ga_zero(g_vecB1)
-        
+c        
         if (.not.nga_create(MT_DBL,2,ahi,'vecT',alo,g_vecT))
-     &     call 
-     &     errquit('tddft_ana: nga_create failed vecT',0,GA_ERR)
+     &     call errquit('tddft_ana: nga_create failed vecT',0,GA_ERR)
         call ga_zero(g_vecT)
-        
+c        
         if (.not.nga_create(MT_DBL,3,ahi,'sket1',alo,g_sket1))
-     &     call 
-     &     errquit('tddft_ana: nga_create failed g_sket1',0,GA_ERR)
+     &     call errquit('tddft_ana: nga_create failed g_sket1',0,GA_ERR)
         call ga_zero(g_sket1)
 
 c       jochen: tested this first with FIAOs which also worked fine
@@ -373,7 +387,7 @@ c     --------------------------------------------
 c     Create X, Y and T matrices for a single root
 c     --------------------------------------------
 c
-      if (gmhcoupling) then
+      if (gmh) then
        do i=1,ipol
         if (.not.ga_create(mt_dbl,nmo(i)-nocc(i)-nfv(i),nocc(i)-nfc(i),
      &           'X1 matrix',-1,-1,g_x1(i))) call errquit
@@ -389,14 +403,14 @@ c
      &    ('tddft_analysis: failed to create g_t',0, GA_ERR)
 c
         if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
-     &           'Tao matrix',-1,-1,g_exdao(i))) call errquit
-     &    ('tddft_analysis: failed to create g_exdao',0, GA_ERR)
+     &           'Excited state matrix',-1,-1,g_ed(i))) call errquit
+     &    ('tddft_analysis: failed to create g_ex',0, GA_ERR)
 c
         if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
-     &           'Tao matrix',-1,-1,g_gsdao(i))) call errquit
-     &    ('tddft_analysis: failed to create g_gsdao',0, GA_ERR)
+     &           'Ground state matrix',-1,-1,g_gd(i))) call errquit
+     &    ('tddft_analysis: failed to create g_gd',0, GA_ERR)
        enddo
-      endif  ! gmhcoupling
+      endif  ! gmh
 c
 c ----------------------------------
 c Get alpha-beta orbital correlation
@@ -438,38 +452,26 @@ c --------------------
 c Solution vector file
 c --------------------
 c
-C     if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector))
-C    1  call errquit('tddft_analysis: failed to read vector',0)
-C     inquire(file=vector,exist=vector_exists)
-C     fileerror=.false.
-C     if (vector_exists) then
-C       if (nodezero)
-C    1    open(unit=69,file=vector,form='formatted',status='old',
-C    2    err=90000,access='sequential')
-C         goto 90010
-C     else
-C       if (nodezero)
-C    1    open(unit=69,file=vector,form='formatted',status='new',
-C    2    err=90000,access='sequential')
-C         goto 90010
-C     endif
-C0000 fileerror=.true.
-C0010 continue
-C     if (fileerror) then
-C       if (nodezero.and.util_print('CI vector',print_default))
-C    1    write(LuOut,2000)
-C     else
-C       if (nodezero.and.util_print('CI vector',print_default)) then
-C         write(LuOut,2010) vector
-C         rewind(69)
-C         write(69,*) tda
-C         write(69,*) ipol
-C         write(69,*) nroots
-C         write(69,*) nov(1),nov(2)
-C       endif
-C     endif
-C2000 format(/,2x,'No CI vector file is created')
-C2010 format(/,2x,'CI vectors are stored in ',a20)
+       if (.not.rtdb_cget(rtdb,'tddft:civecs',1,civecs))
+     1  call errquit('tddft_analysis: failed to read vector',0)
+c
+       if (nodezero.and.lcivecs) then
+         call util_file_name_resolve(civecs, .false.)
+         open(unit=69,file=civecs,form='formatted',status='unknown')
+         write(LuOut,2010) civecs
+         rewind(69)
+         write(69,*) tda
+         write(69,*) ipol
+         write(69,*) nroots
+         write(69,*) nocc(1),nocc(2)
+         write(69,*) nmo(1),nmo(2)
+         write(69,*) nfc(1),nfc(2)
+         write(69,*) nfv(1),nfv(2)
+         write(69,*) nov(1),nov(2)
+       endif ! nodezero
+c
+ 2000 format(/,2x,'No CI vector file is created')
+ 2010 format(/,2x,'CI vectors are stored in ',a20)
 c
 c ------------
 c Tamm-Dancoff
@@ -494,12 +496,15 @@ c
      2                                  g_x(i),1,nov(i),n,n)
               endif 
             enddo
-C           if ((.not.fileerror).and.nodezero) then
-C             do m=1,nov(i)
-C               call ga_get(g_x(i),m,m,n,n,r,1)
-C               write(69,*) r
-C             enddo
-C           endif
+c
+c           Write out solution vectors: X
+c
+            if (nodezero.and.lcivecs) then
+             do m=1,nov(i)
+               call ga_get(g_x(i),m,m,n,n,r,1)
+               write(69,*) r
+             enddo
+            endif  ! nodezero and lcivecs
           enddo
         enddo
 c
@@ -507,7 +512,8 @@ c --------------------
 c Full linear response
 c --------------------
 c
-      else
+      else  ! full tddft
+c
         do i=1,ipol
           call ga_zero(g_x(i))
           call ga_zero(g_y(i))
@@ -536,23 +542,27 @@ c
           enddo
           call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
           call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
-C         if ((.not.fileerror).and.nodezero) then
-C           do n=1,nroots
-C             do m=1,nov(i)
-C               call ga_get(g_x(i),m,m,n,n,r,1)
-C               write(69,*) r
-C             enddo
-C           enddo
-C           do n=1,nroots
-C             do m=1,nov(i)
-C               call ga_get(g_y(i),m,m,n,n,r,1)
-C               write(69,*) r
-C             enddo
-C           enddo
-C         endif
-        enddo
-      endif
-C     if (.not.fileerror) close(unit=69,status='keep')
+c
+c        Write out solution vectors: X and Y
+c
+         if (nodezero.and.lcivecs) then
+           do n=1,nroots
+             do m=1,nov(i)
+               call ga_get(g_x(i),m,m,n,n,r,1)
+               write(69,*) r
+             enddo
+           enddo
+           do n=1,nroots
+             do m=1,nov(i)
+               call ga_get(g_y(i),m,m,n,n,r,1)
+               write(69,*) r
+             enddo
+           enddo
+         endif  ! nodezero or lcivecs
+        enddo ! ipol
+      endif ! tda
+c
+      if (nodezero.and.lcivecs) close(unit=69,status='keep')
 c
 c ---------
 c All roots
@@ -560,9 +570,12 @@ c ---------
 c
       do i=1,ipol
        if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Transition density',
-     1    -1,-1,g_tmomd(i))) call errquit
-     2    ('tddft_analysis: failed to create g_tmomd',0, GA_ERR)
-      enddo
+     1    -1,-1,g_td(i))) call errquit
+     2    ('tddft_analysis: failed to create g_td',0, GA_ERR)
+       if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Tot Transition density',
+     1    -1,-1,g_tdtot(i))) call errquit
+     2    ('tddft_analysis: failed to create g_tdtot',0, GA_ERR)
+      enddo  ! ipol
 c
 c ------------
 c Ground state
@@ -605,38 +618,47 @@ c ... frozen cores are irrelevant
         nb=dfloat(nocc(2)-nfc(2))
       endif
 c
-      if (gmhcoupling) then
+c
+c     Print total ground state density (consolidated alpha + beta)
+c
+c      call util_file_name('gdens',.false.,.false.,filedens)
+c      call util_file_name_resolve(filedens, .false.)
+c      if (.not. dmat_to_file(g_dens(1),filedens))
+c     &   call errquit('tddft_analysis: dmat_to_file error',0,
+c     &              UNKNOWN_ERR)
+
+
+      if (gmh) then
 c     Calculate ground state dipole
       if (ipol.eq.1) then  ! closed shell
          call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 2.d0, g_movecs(1),
-     &       g_movecs(1), 0.d0, g_gsdao(1))
+     &       g_movecs(1), 0.d0, g_gd(1))
          do icomp = 1,3
            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_gsdao(1), g_dipole(icomp), 0.d0, g_temp)
+     &               g_gd(1), g_dipole(icomp), 0.d0, g_temp)
                 gsmom(icomp) = gsmom(icomp) - ga_trace_diag(g_temp) 
          enddo
       else  ! open shell
         call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 1.d0, g_movecs(1),
-     &       g_movecs(1), 0.d0, g_gsdao(1))
+     &       g_movecs(1), 0.d0, g_gd(1))
         call ga_dgemm('n','t',nbf_ao,nmo(2),nocc(2), 1.d0, g_movecs(2),
-     &       g_movecs(2), 0.d0, g_gsdao(2))
+     &       g_movecs(2), 0.d0, g_gd(2))
          do icomp = 1,3
            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_gsdao(1), g_dipole(icomp), 0.d0, g_temp)
+     &               g_gd(1), g_dipole(icomp), 0.d0, g_temp)
                 gsmom(icomp) = gsmom(icomp)
      $               - ga_trace_diag(g_temp) 
            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_gsdao(2), g_dipole(icomp), 0.d0, g_temp)
+     &               g_gd(2), g_dipole(icomp), 0.d0, g_temp)
                 gsmom(icomp) = gsmom(icomp) - ga_trace_diag(g_temp) 
          enddo
       endif
-      endif  ! gmhcoupling
+      endif  ! gmh
 c
 c --------------
 c Excited states
 c --------------
 c
-
       if (cdspectrum .and. lgiao) then
         n = max(nmo(1),nmo(2))
         if (.not.ga_create(mt_dbl,n,n,'work',-1,-1,g_work)) call
@@ -646,14 +668,20 @@ c
 
       if (nodezero.and.util_print('excited state',print_default))
      1  write(LuOut,*)
+c
 c m is a counter of excited states in a certain irrep 
 c for the purpose of finding the target root
+c outer loop over roots
       m=0
       do n=1,nroots
+c
         do i=1,ipol
           call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_x(i)),1)
           if (.not.tda)
-     1      call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_y(i)),1)
+     1    call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_y(i)),1)
+c
+          call ga_zero(g_td(i))  ! zero out transition density matrices
+          call ga_zero(g_tdtot(i)) ! zero out total transition density matrices
         enddo
 c
 c --------------------------------------
@@ -1053,24 +1081,28 @@ c       ------------------------------------------------
            bhi(2) = nbf_ao
         end if ! cdpectrum .or. velocity
 c
-c ... jochen - comment: the following code 
-c     calculates X(omega) in the AO basis, then contracts with multipole
-c     integrals:
+c       calculates the X component of the transition density matrix
 c
         call tddft_transfm(n,g_x,g_movecs,nbf_ao,
-     1    nocc,nmo,nfc,nfv,ipol,g_tmomd,1)  ! transition density
+     1    nocc,nmo,nfc,nfv,ipol,g_td,1)  ! x-transition density
+c
+c       copy x-component into total array
+c       g_td has x component here
+        do i = 1,ipol
+          call ga_copy(g_td(i),g_tdtot(i))
+        end do
 c
         do i=1,ipol
 c
           if (cdspectrum) then
-
+c
 c     The following is adapted from rttdf_utils.F:
 c     recompute the electric transition dipoles (mainly to
 c     debug the code) and also compute the magnetic transition dip.
-
+c
              do icomp = 1,3
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_tmomd(i), g_dipole(icomp), 0.d0, g_temp)
+     &               g_td(i), g_dipole(icomp), 0.d0, g_temp)
                 el_transdip(icomp) = el_transdip(icomp)
      $               - ga_trace_diag(g_temp) 
 
@@ -1079,7 +1111,7 @@ c     debug the code) and also compute the magnetic transition dip.
                 
               call nga_copy_patch('n',g_dipmag,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
+     &               g_td(i), g_tmpdip, 0.d0, g_temp)
                 mag_transdip(icomp) = mag_transdip(icomp)  +
      $               ga_trace_diag(g_temp)
                 
@@ -1094,7 +1126,7 @@ c     debug the code) and also compute the magnetic transition dip.
      
               call nga_copy_patch('n',g_dipvel,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
+     &               g_td(i), g_tmpdip, 0.d0, g_temp)
                 vel_transdip(icomp) = vel_transdip(icomp)  +
      $               ga_trace_diag(g_temp) / apbval(n)
              end do             ! icomp
@@ -1108,18 +1140,23 @@ c         because of the higher multipoles.
 c         -------------------------------------4---------
 c
           call multipole_density(ao_bas_han,cntr,3,
-     1      g_tmomd(i),tmom,20)  ! transition moments
+     1      g_td(i),tmom,20)  ! transition moments
 c
         enddo ! ipol
 
         if (.not.tda) then ! we have a also matrix Y to consider
-
-c ... jochen - comment: repeat the preceeding step with Y:
-c     calculate Y(omega) in AO basis, then contract with multipole
-c     integrals, and add results to the transition moments
-
+c
+c         calculates the Y component of the transition density matrix
+c
           call tddft_transfm(n,g_y,g_movecs,nbf_ao,
-     1      nocc,nmo,nfc,nfv,ipol,g_tmomd,1)  ! transiton density
+     1      nocc,nmo,nfc,nfv,ipol,g_td,1)  ! transition density
+c
+c         accumulate the y component of the transition density matrix
+c         g_tdtot = total transition density
+c         g_td = y component here
+          do i = 1,ipol
+           call ga_add(1.d0,g_tdtot(i),1.d0,g_td(i),g_tdtot(i))
+          end do
 c
           do i=1,ipol
 
@@ -1129,7 +1166,7 @@ c     jochen:
              do icomp = 1,3
 
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_tmomd(i), g_dipole(icomp), 0.d0, g_temp)
+     &               g_td(i), g_dipole(icomp), 0.d0, g_temp)
                 el_transdip(icomp) = el_transdip(icomp)
      $               - ga_trace_diag(g_temp) 
 
@@ -1138,7 +1175,7 @@ c     jochen:
      
               call nga_copy_patch('n',g_dipmag,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
+     &               g_td(i), g_tmpdip, 0.d0, g_temp)
                 mag_transdip(icomp) = mag_transdip(icomp)  -
      $               ga_trace_diag(g_temp)
                 
@@ -1153,19 +1190,33 @@ c     jochen:
      
               call nga_copy_patch('n',g_dipvel,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
+     &               g_td(i), g_tmpdip, 0.d0, g_temp)
                 vel_transdip(icomp) = vel_transdip(icomp)  -
      $               ga_trace_diag(g_temp) / apbval(n)
              end do             ! icomp
           end if                ! velocity
 c
             call multipole_density(ao_bas_han,cntr,3,
-     1        g_tmomd(i),tmom,20)   ! transition moments
+     1        g_td(i),tmom,20)   ! transition moments
 c
          enddo ! ipol
 
         endif ! .not.tda 
-
+c
+c       write out the transition density matrix
+c
+        if (ltransden) then
+          call util_file_name('tdens',.false.,.false.,transden)
+          call createuniquefilename(transden,n)  ! n is the roots index
+          call util_file_name_resolve(transden, .false.)
+          if (ipol.gt.1) 
+     &     call ga_add(1.d0,g_tdtot(1),1.d0,g_tdtot(2),   ! consolidate the components
+     &             g_tdtot(1))
+          if (.not. dmat_to_file(g_tdtot(1), transden))
+     &       call errquit('tddft_analysis: dmat_to_file error',0,
+     &              UNKNOWN_ERR)
+        end if  ! ltransden
+c
         if (ipol.eq.1) then
           do i=1,20
             tmom(i)=tmom(i)*dsqrt(2.0d0)
@@ -1356,7 +1407,7 @@ c
         endif
         if (nodezero) call util_flush(LuOut)
 c
-        if (gmhcoupling) then
+        if (gmh) then
 c
 c       Analyse the transition density
         do i=1,ipol
@@ -1416,7 +1467,7 @@ c       Compute the excited state density in the AO basis
           call ga_matmul_patch('n','n',1.0d0,0.0d0,
      &         g_movecs(i),1,nbf_ao,1,nmo(i),
      &         g_tt,1,nmo(i),1,nbf_ao,
-     &         g_exdao(i),1,nbf_ao,1,nbf_ao)
+     &         g_ed(i),1,nbf_ao,1,nbf_ao)
         enddo
 c
 c       Excited state dipole   
@@ -1424,18 +1475,18 @@ c       Excited state dipole
          do icomp = 1,3
            call ga_zero(g_temp)
            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_exdao(1), g_dipole(icomp), 0.d0, g_temp)
+     &               g_ed(1), g_dipole(icomp), 0.d0, g_temp)
            exmom(icomp) = exmom(icomp) - ga_trace_diag(g_temp)
          enddo
         else  ! open shell
          do icomp = 1,3
            call ga_zero(g_temp)
            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_exdao(1), g_dipole(icomp), 0.d0, g_temp)
+     &               g_ed(1), g_dipole(icomp), 0.d0, g_temp)
            exmom(icomp) = exmom(icomp) - ga_trace_diag(g_temp)
            call ga_zero(g_temp)
            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &               g_exdao(2), g_dipole(icomp), 0.d0, g_temp)
+     &               g_ed(2), g_dipole(icomp), 0.d0, g_temp)
            exmom(icomp) = exmom(icomp) - ga_trace_diag(g_temp)
          enddo
         endif
@@ -1459,29 +1510,30 @@ c
          endif
 #if 0
 c
-c           Calculate GMHCoupling Hab = mij*Eij/dsqrt((deltamu)**2 + 4*mij*mij)
-             mij = dsqrt(tmom(2)**2+tmom(3)**2+tmom(4)**2)
-             deltaEij = apbval(n)
-             if (dabs(mij).le.mijtol) mij = 0.d0
-             mijdeltaEij = mij*deltaEij
-             deltamuij2 = (gsmom(2)-exmom(2))**2 
-     &                    + (gsmom(3)-exmom(3))**2
-     &                    + (gsmom(4)-exmom(4))**2
-             hab = mijdeltaEij/dsqrt(deltamuij2 + 4.d0*mij*mij)
-             if (ga_nodeid().eq.0) then
+c        Calculate GMHCoupling Hab = mij*Eij/dsqrt((deltamu)**2 + 4*mij*mij)
+         mij = dsqrt(tmom(2)**2+tmom(3)**2+tmom(4)**2)
+         deltaEij = apbval(n)
+         if (dabs(mij).le.mijtol) mij = 0.d0
+         mijdeltaEij = mij*deltaEij
+         deltamuij2 = (gsmom(2)-exmom(2))**2 
+     &              + (gsmom(3)-exmom(3))**2
+     &              + (gsmom(4)-exmom(4))**2
+         hab = mijdeltaEij/dsqrt(deltamuij2 + 4.d0*mij*mij)
+         if (ga_nodeid().eq.0) then
                 write (LuOut,*) 
                 write (LuOut,9252) dabs(hab)
                 write (LuOut,*) 
-             endif
+         endif
 #endif
-
+c
 c       Clean scratch space
         if (.not.ga_destroy(g_tt)) call errquit
      &    ('tddft_analysis: failed to destroy g_tt',0, GA_ERR)
         if (nodezero) call util_flush(LuOut)
 c
-        endif  ! gmhcoupling
-      enddo   ! loop over roots
+        endif  ! gmh
+c
+      enddo   ! outer loop over roots
 c
       if (m.lt.target) 
      1  call errquit('tddft_analysis: target root not found',m,
@@ -1490,7 +1542,7 @@ c
      1  util_print('excited state',print_default)) write(LuOut,*)
 
 c       jochen:
-      if (cdspectrum .or. gmhcoupling) then
+      if (cdspectrum .or. gmh) then
 c       Clean up arrays used for CD spectra
         do icomp = 1,3
           if (.not. ga_destroy(g_dipole(icomp))) call errquit
@@ -1617,8 +1669,8 @@ c
         endif
       enddo
 c
-      if (gmhcoupling) then
-      do i=1,ipol
+      if (gmh) then
+       do i=1,ipol
         if (.not.ga_destroy(g_x1(i))) call errquit
      &    ('tddft_analysis: failed to create g_x1',0, GA_ERR)
         if (.not.tda) then
@@ -1627,12 +1679,12 @@ c
         endif
         if (.not.ga_destroy(g_t(i))) call errquit
      &    ('tddft_analysis: failed to create g_t',0, GA_ERR)
-        if (.not.ga_destroy(g_exdao(i))) call errquit
-     &    ('tddft_analysis: failed to create g_exdao',0, GA_ERR)
-        if (.not.ga_destroy(g_gsdao(i))) call errquit
-     &    ('tddft_analysis: failed to create g_gsdao',0, GA_ERR)
-      enddo
-      endif
+        if (.not.ga_destroy(g_ed(i))) call errquit
+     &    ('tddft_analysis: failed to create g_ex',0, GA_ERR)
+        if (.not.ga_destroy(g_gd(i))) call errquit
+     &    ('tddft_analysis: failed to create g_gd',0, GA_ERR)
+       enddo
+      end if ! gmh
 c
       if (cdspectrum.and.lgiao) then
         if (.not.ga_destroy(g_smat)) call errquit
@@ -1640,8 +1692,10 @@ c
       end if
 c
       do i=1,ipol
-        if (.not.ga_destroy(g_tmomd(i))) call errquit
-     2    ('tddft_analysis: failed to destroy g_tmomd',0, GA_ERR)
+        if (.not.ga_destroy(g_td(i))) call errquit
+     2    ('tddft_analysis: failed to destroy g_td',0, GA_ERR)
+        if (.not.ga_destroy(g_tdtot(i))) call errquit
+     2    ('tddft_analysis: failed to destroy g_tdtot',0, GA_ERR)
       enddo
 c
       return
