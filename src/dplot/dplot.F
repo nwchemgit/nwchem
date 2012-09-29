@@ -26,6 +26,10 @@
       logical ao_rdm_read
       External movecs_read_header, movecs_read, Int_Normalize
       external ao_rdm_read
+c
+      logical get_transden
+      external get_transden
+c
       Character*80 File_Vec,File_Vec2
       Character*80 File_Mat1,File_Mat2
       character*20 scftype, scftype2
@@ -33,6 +37,11 @@
       Integer nBF,nBF2,nSet,nSet2,iSet,nSetTri,
      &        nMO(2),nMO2(2)
       Integer g_Vec(2),g_Dns(2),g_Dns2(2)
+c
+      Character*80 File_civecs
+      Integer g_x(2),g_y(2)
+      integer iroot
+c
 *---- Local variables
       Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit,iOff
       Integer nGrid,k_Grid,l_Grid,nPoint,nAtom,iAtom,Atom_Off
@@ -84,6 +93,15 @@ c
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec2',1,File_Vec2))
      1   call errquit('DPlot: rtdb_get failed - File_Vec2',0,
      1        RTDB_ERR)
+c
+c --  Read civecs file
+      If (.not.rtdb_cget(rtdb,'dplot:File_civecs',1,File_civecs))
+     1   call errquit('DPlot: rtdb_get failed - File_civecs',0,
+     1        RTDB_ERR)
+c
+c --  Read iroot
+      If (.not.rtdb_get(rtdb,'dplot:iroot',mt_int,1,iroot))
+     &   Call ErrQuit('DPlot: rtdb_get failed - iroot',0, RTDB_ERR)
 c
 c --  Read file names of one particle reduced density matrices
       If (.not.rtdb_cget(rtdb,'dplot:File_Mat1',1,File_Mat1))
@@ -204,6 +222,11 @@ c
          Write(LuOut,*)' 2-nd set of MOs      : ',File_Vec2(1:Lth_Vec)
       End If
 c
+c --  print out civecs filename 
+      Lth_Vec = Inp_StrLen(File_civecs)
+      If (iProc.eq.0 .and. File_civecs .ne. ' ') 
+     &   Write(LuOut,*)' CIVECS file     : ',File_civecs(1:Lth_Vec)
+c
 c --  Print out the filenames of one particle reduced density matrices
       Lth_Vec = Inp_StrLen(File_Mat1)
       if (iproc.eq.0 .and. File_Mat1 .ne. ' ') Then
@@ -231,12 +254,15 @@ c --  print out type of picture and output file format
       If (iProc.eq.0) Then
          If (What.eq.'DENSITY') Then
             Write(LuOut,*)' Type of picture      : CHARGE DENSITY'
+         Else If (What.eq.'TRANSDEN') Then
+            Write(LuOut,*)' Type of picture      : TRANSITION DENSITY'
          Else If (What.eq.'VIEW') Then
             Write(LuOut,*)' Type of picture      : ORBITAL VIEW'
          Else If (What.eq.'CHARGES') Then
             Write(LuOut,*)' Type of picture      : POTENTIAL'
          End If
       End If
+c
       if(lgaussian) then
          Write(LuOut,*)' Format used          : Gaussian9x Cube'
       else
@@ -398,6 +424,7 @@ c --  Set up the grid
       End If
 *
 *---- Read the info from the first MO file
+      call util_file_name_resolve(File_Vec,.false.)
       If (.not.movecs_read_header(File_Vec,Title_Vec,Basis_Name, 
      &     scftype, nBF,nSet,nMO,2))
      &   Call ErrQuit('DPlot: movecs_read_header failed',1,0)
@@ -427,27 +454,57 @@ c --  Set up the grid
              g_Dns(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dns2')
          endif
       End If
-*
+c
       If (What.ne.'VIEW') Then
          if (nOrb.eq.999999 .and. File_Mat1.ne.' ') then
-*------     For TCE case, the density is read from a file ----------
             call ga_zero(g_dns(1))
+c           Read first density matrix from file
+            call util_file_name_resolve(File_Mat1, .false.)
             if (.not.ao_rdm_read(File_Mat1,ao_bas_han,g_Dns(1)))
      1         call errquit('DPlot: ao_rdm_read failed ',0,0)
-c           Compute the difference
+c
+c           Read second density matrix from file
             if (File_Mat2.ne.' ') then
                If (iProc.eq.0) Write(LuOut,*)' The density is',
      1                         ' computed as Rho = Rho(1) - Rho(2)'
                g_Dns2(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 
      1                         'Dn1')
                call ga_zero(g_Dns2(1))
+               call util_file_name_resolve(File_Mat2, .false.)
                if(.not.ao_rdm_read(File_Mat2,ao_bas_han,g_Dns2(1)))
      1         call errquit('DPlot: ao_rdm_read failed',1,0)
 c
+c              Compute the difference between the density matrices
                call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
                if (.not. ga_destroy(g_Dns2(1))) call errquit
      &            ('dplot: could not destroy g_Dns2(1)', 0,0)
             endif
+c
+         else if (File_civecs.ne.' ') then
+c
+          LResult = MA_Push_Get(MT_Dbl,nBF,'Ene',l_Ene,k_Ene)
+          Call ErrMem(LResult,'DPlot: Failed to allocate orb. en.',0)
+          LResult = MA_Push_Get(MT_Dbl,nBF,'Occ',l_Occ,k_Occ)
+          Call ErrMem(LResult,'DPlot: Failed to allocate occ. num.',0)
+          Do iSet = 1, nSet
+            call util_file_name_resolve(File_Vec,.false.)
+            If (.not.movecs_read(File_Vec,iSet,Dbl_mb(k_Occ),
+     &       Dbl_mb(k_Ene),g_Vec(iSet)))
+     &       Call ErrQuit('DPlot: movecs_read failed',0,0)
+          End Do
+          LResult = MA_Pop_Stack(l_Occ)
+          Call ErrMem(LResult,'DPlot: Failed to deallocate occ. num.',0)
+          LResult = MA_Pop_Stack(l_Ene)
+          Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
+c
+c        Construct the transition density
+         call util_file_name_resolve(File_civecs,.false.)
+         if (ga_nodeid().eq.0) then
+            write(6,*) "file_civecs:",file_civecs
+            write(6,*) "iroot:",iroot
+         end if ! ga_nodeid()
+         if (.not.get_transden(iroot,nset,File_civecs,ao_bas_han,g_Vec,
+     &    g_Dns)) call errquit('DPlot: get_transden failed ',0,0)
          else
 *------- Get the density matrix for the first orbital file
            Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
@@ -456,6 +513,7 @@ c          Calculate the difference
            if (File_Vec2.ne.' ') then
               If (iProc.eq.0) Write(LuOut,*)' The density is',
      1                   ' computed as Rho = Rho(1) - Rho(2)'
+              call util_file_name_resolve(File_Vec2,.false.)
               If (.not.movecs_read_header(File_Vec2,Title_Vec2,
      1           Basis_Name2,scftype2, nBF2,nSet2,nMO2,2))
      &        Call ErrQuit('DPlot: movecs_read_header failed',2,0)
@@ -490,6 +548,7 @@ c          Calculate the difference
          LResult = MA_Push_Get(MT_Dbl,nBF,'Occ',l_Occ,k_Occ)
          Call ErrMem(LResult,'DPlot: Failed to allocate occ. num.',0)
          Do iSet = 1, nSet
+            call util_file_name_resolve(File_Vec,.false.)
             If (.not.movecs_read(File_Vec,iSet,Dbl_mb(k_Occ),
      &         Dbl_mb(k_Ene),g_Vec(iSet)))
      &         Call ErrQuit('DPlot: movecs_read failed',0,0)
@@ -499,48 +558,6 @@ c          Calculate the difference
          LResult = MA_Pop_Stack(l_Ene)
          Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
       End If
-*
-*---- Compute the density matrix difference (if necessary). The check
-*---- for the conflict with the VIEW option has been done before.
-c      if (File_Mat1.ne.' '.and. File_Mat2.ne.' ') Then
-c         g_Dns2(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn1')
-c         call ga_zero(g_Dns2(1))
-c         if(.not.ao_rdm_read(File_Mat2,ao_bas_han,g_Dns2(1)))
-c     1   call errquit('DPlot: ao_rdm_read failed',1,0)
-cc
-c         call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
-c         if (.not. ga_destroy(g_Dns2(1))) call errquit
-c     &      ('dplot: could not destroy g_Dns(1)', 0,0)
-cc
-c      else If (File_Vec.ne.' '.and.File_Vec2.ne.' ') Then
-c*------- Read the info from the second orbital file
-c         print *,'***********************************'
-c         print *,'File_Vec and File_Vec2 combination!'
-c         print *,'***********************************'
-c         If (.not.movecs_read_header(File_Vec2,Title_Vec2,Basis_Name2, 
-c     &        scftype2, nBF2,nSet2,nMO2,2))
-c     &      Call ErrQuit('DPlot: movecs_read_header failed',2,0)
-c*------- Check, if the the orbital files match
-c         If (nBF2.ne.nBF . or . nSet2.ne.nSet)
-c     &      Call ErrQuit('DPlot: Orbital files do not match',0,0)
-c*------- Create global array for density matrix
-c         g_Dns2(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn1')
-c         If (nSet.eq.2)then
-c            g_Dns2(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn2')
-c         endif
-c*------- Get the density matrix for the second orbital file
-c         Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns2,
-c     &                 Spin,File_Vec2,nOrb,k_Orb,iProc)
-c*------- Form the final density
-c         Call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
-*------- Deallocate memory
-c         If (nSet.eq.2)then
-c            if (.not. ga_destroy(g_Dns2(2))) call errquit
-c     &         ('dplot: could not destroy g_Dns(2)', 0,0)
-c         endif
-c         if (.not. ga_destroy(g_Dns2(1))) call errquit
-c     &      ('dplot: could not destroy g_Dns(1)', 0,0)
-c      End If
 *
 *---- Get the values of the density at the grid points
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)

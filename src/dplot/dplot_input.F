@@ -14,12 +14,12 @@
       Integer rtdb
       Integer ind,indUnits,indWhat,indSpin,indWhere,i,j
       Integer Lth,Lth_Tit
-      Integer No_Of_Spacings(3),ValueI
+      Integer No_Of_Spacings(3),ValueI,iroot
       Integer nOrb,iOrb,k_Orb,l_Orb
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 13)
+      Parameter (Num_Dirs  = 15)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -36,13 +36,15 @@
 !      character*30 tag
       Character*80  File_Vec,File_Vec2,File_Out
       Character*80  File_Mat1,File_Mat2
+      Character*80  File_civecs
       logical lgaussian,dodos
 *
-      Data Dirs / 'LimitXYZ','Vectors',
+      Data Dirs / 'LimitXYZ','Vectors','civecs','root',
      .            'densmat','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','print',
      A     'dos',
      .     'End' /
+c
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
       Data Allowed_Spin  / 'total','spindens','alpha','beta' /
@@ -70,6 +72,7 @@ c
       
       File_Vec = ' '
       File_Vec2 = ' '
+      File_civecs = ' '
       File_Mat1 = ' '
       File_Mat2 = ' '
       File_Out  = 'dplot'
@@ -96,9 +99,8 @@ c
       If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
      &   Call ErrQuit('DPlot_Input: unknown directive',0,
      &       INPUT_ERR)
-      GoTo (100, 200, 250, 300, 400, 500, 600, 700, 800, 900, 964, 
-     .     1997,
-     .     9999) ind
+      GoTo (100, 200, 225, 230, 250, 300, 400, 500, 600, 700, 800, 
+     &     900, 964, 1997, 9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind,
      &       INPUT_ERR)
 *
@@ -142,6 +144,25 @@ c
          Lth = Inp_StrLen(test)
          File_Vec2(1:Lth) = test(1:Lth)
       End If
+      GoTo 10
+*
+*---- Read the information about the source of the civecs
+  225 Continue
+      If (.not.inp_a(File_civecs))
+     &   Call ErrQuit('DPlot_Input: civecs <file> ',0,
+     &       INPUT_ERR)
+      If (inp_a(test)) Then
+         Lth = Inp_StrLen(test)
+         File_civecs(1:Lth) = test(1:Lth)
+      End If
+      GoTo 10
+*
+*---- Read the information about the number of root
+  230 Continue
+      iroot = 0
+      If (.not. inp_i(iroot))
+     &  Call ErrQuit('DPlot_Input: failed to read iroot',0,
+     &     INPUT_ERR)
       GoTo 10
 *
 *---- Read the information about the source of the one particle reduced density matrices
@@ -261,6 +282,14 @@ c      write(0,*) ' vec1 and 2',File_vec,File_vec2
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec2',1,File_Vec2))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0,
      &       RTDB_ERR)
+*---- Write the name of the civecs file to rtdb
+      If (.not.rtdb_cput(rtdb,'dplot:File_civecs',1,File_civecs))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_civecs',0,
+     &       RTDB_ERR)
+*---- Write the root information into the rtdb
+      If (.not.rtdb_put(rtdb,'dplot:iroot',mt_int,1,iroot))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - iroot',0,
+     &       RTDB_ERR)
 c---- Write the names of the density matrix files to rtdb
       if (.not.rtdb_cput(rtdb,'dplot:File_Mat1',1,File_Mat1))
      1   call errquit('Dplot_Input: rtdb_cput failed - File_Mat1',0,
@@ -309,4 +338,3 @@ c---- Write the names of the density matrix files to rtdb
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - dodos',0,
      &       RTDB_ERR)
       End
-
