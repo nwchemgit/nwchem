@@ -37,42 +37,31 @@
       real*8  en(2)
       real*8  dipole(3)
 
-*     complex*16 psi1(nfft3d,nemax)
-*     complex*16 psi2(nfft3d,nemax)
-*     real*8     dn(n2ft3d,2)
-*     complex*16 Hpsi(nfft3d,nemax)
-*     complex*16 psir(nfft3d,nemax)
-      integer psi1(2),psi2(2),psi1f(2),psi2f(2)
-      integer occ1(2),occ2(2)
-      integer rhoii(2),rhojj(2),rhoij(2),dn(2)
-      integer psi1r(2)
-      integer psi2r(2)
-      integer vl(2),vlr_l(2),v_field(2),r_grid(2),vc(2)
+      integer psi1(2), psi2(2), psi1_r(2), psi2_r(2)
+      integer psi1f(2),psi2f(2),psi1f_r(2),psi2f_r(2)
+      integer rho(2),vc(2)
     
 
 *     ***** energy variables ****
       real*8  E(40)
-      integer eig(2),overlap(2),itmp(2)
-      integer U_ab(2),V_ab(2),overlap_ab(2)
+      integer Sigma_ab(2),itmp(2)
+      integer U_ab(2),V_ab(2)
 
-*     **** psi smearing block ****
-      logical fractional,field_exist
-      integer smearoccupation,smeartype
-      real*8 smearfermi(2),smearcorrection,smearkT
+      logical field_exist
 
 
 *     **** error variables ****
       integer ierr
 
 *     **** local variables ****
-      real*8 Saa,Sbb,Sab,H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab
+      real*8 H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab,Sab,S12(2)
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
       real*8  EV,pi
-      integer i,j,k,ia,n,nn
+      integer i,j,k,ia,n,nn,q,nx,ny,nz
       integer ii,jj,indx,indx1
-      real*8 w,sumall,virial,scal2
+      real*8 w,sumall,virial,scal1,scal2,ehartr,ehfx,phfx,dv
       integer nfft3
       parameter (nfft3=32)
       character*255 full_filename
@@ -145,8 +134,8 @@
       logical  Dneall_m_allocate,Dneall_m_free,control_parallel_io
       external Dneall_m_allocate,Dneall_m_free,control_parallel_io
 
-      real*8   Dneall_m_value,ewald_e,ion_ion_e
-      external Dneall_m_value,ewald_e,ion_ion_e
+      real*8   Dneall_m_value,ewald_e,ion_ion_e,coulomb_e
+      external Dneall_m_value,ewald_e,ion_ion_e,coulomb_e
       character*9 ion_amm
       external    ion_amm
       logical  pspw_charge_found
@@ -241,10 +230,7 @@
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()
-      if (control_version().eq.3) then
-         call coulomb_init()
-         call coulomb_screened_init(0,8.0d0,8.0d0)
-      end if
+      if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       call phafac()
@@ -261,38 +247,11 @@
 
       call psi_get_header_filename(filename1,
      >                             hversion,hnfft,hunita,ispin,ne)
-
-      if (taskid.eq.MASTER) then
-         write(*,*) "filename1=",filename1
-         write(*,*) "hversion =",hversion
-         write(*,*) "hnfft    =",hnfft
-         write(*,*) "hunita   =",hunita
-         write(*,*) "ispin    =",ispin
-         write(*,*) "ne       =",ne
-         write(*,*) 
-      end if
       call psi_get_header_filename(filename2,
      >                             hversion,hnfft,hunita,hispin,hne)
-      if (taskid.eq.MASTER) then
-         write(*,*) "filename2=",filename2
-         write(*,*) "hversion =",hversion
-         write(*,*) "hnfft    =",hnfft
-         write(*,*) "hunita   =",hunita
-         write(*,*) "ispin    =",hispin
-         write(*,*) "ne       =",hne
-         write(*,*) 
-      end if
       
 
-   
-
 *     ***** allocate psi2,and psi1 wavefunctions ****
-      smearoccupation=0
-      if (smearoccupation.gt.0) then
-         fractional = .true.
-      else
-         fractional = .false.
-      end if
       mapping1d = control_mapping1d()
       call Dne_init(ispin,ne,mapping1d)
       call Dneall_neq(neq)
@@ -309,12 +268,6 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2f',psi2f(2),psi2f(1))
-      if (fractional) then
-         value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
-         value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
-      end if
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
@@ -331,39 +284,40 @@
 
 *     **** allocate other variables *****
       field_exist = pspw_charge_found()
-      value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+      value = MA_alloc_get(mt_dbl,(2*nemax),'Sigma_ab',
+     >                     Sigma_ab(2),Sigma_ab(1))
       value = value.and.Dneall_m_allocate(0,itmp)
-      value = value.and.Dneall_m_allocate(0,overlap)
       value = value.and.Dneall_m_allocate(0,U_ab)
       value = value.and.Dneall_m_allocate(0,V_ab)
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
-     >                     'psi1r',psi1r(2),psi1r(1))
+     >                     'psi1_r',psi1_r(2),psi1_r(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
-     >                     'psi2r',psi2r(2),psi2r(1))
+     >                     'psi2_r',psi2_r(2),psi2_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'rhoii',rhoii(2),rhoii(1))
+     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >                     'psi1f_r',psi1f_r(2),psi1f_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'rhojj',rhojj(2),rhojj(1))
+     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >                     'psi2f_r',psi2f_r(2),psi2f_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'rhoij',rhoij(2),rhoij(1))
-
-
-      if (control_version().eq.4) then
-       value = value.and.
-     >        MA_alloc_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
-      end if
-
+     >        MA_alloc_get(mt_dbl,n2ft3d,'rho',rho(2),rho(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d,'vcdkfj',vc(2),vc(1))
       if (.not. value) 
      >   call errquit('pspw_et:out of heap memory',0,MA_ERR)
 
-
+*     **** initialize SIC and HFX  ****
+      if (.not.rtdb_put(rtdb,'pspw:HFX_relax',mt_log,1,.false.))
+     >   call errquit('setting pspw:HFX_relax',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.))
+     >   call errquit('setting pspw:HFX',0,RTDB_ERR)
+      call pspw_init_HFX(rtdb,ispin,ne)
 
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
-
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -398,7 +352,7 @@
          if (ispin.eq.1) write(luout,1130) 'restricted'
          if (ispin.eq.2) write(luout,1130) 'unrestricted'
 
-         if (fractional) write(luout,1132)
+         call pspw_print_HFX(luout)
 
          write(luout,1140)
          do ia = 1,ion_nkatm()
@@ -416,17 +370,6 @@
          icharge = -(ne(1)+ne(ispin))
          en(1)     = ne(1)
          en(ispin) = ne(ispin)
-         if (fractional) then
-            icharge = 0.0d0
-            do ms=1,ispin
-            en(ms) =0.0
-            do i=n1(ms),n2(ms)
-              icharge = icharge - (3-ispin)*dbl_mb(occ1(1)+i-1)
-              en(ms) = en(ms) + dbl_mb(occ1(1)+i-1)
-            end do
-            end do
-         end if
-            
          do ia=1,ion_nkatm()
            icharge = icharge + ion_natm(ia)*psp_zv(ia)
          end do
@@ -450,17 +393,10 @@
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
 
-
-         if (fractional) then
-           write(luout,1219) en(1),en(ispin),' (   fractional)'
-           write(luout,1221) ne(1),neq(1),
+         write(luout,1220) ne(1),neq(1),
      >                   ne(ispin),neq(ispin),' (fourier space)'
-         else
-           write(luout,1220) ne(1),neq(1),
+         write(luout,1221) ne(1),neq(1),
      >                   ne(ispin),neq(ispin),' (fourier space)'
-           write(luout,1221) ne(1),neq(1),
-     >                   ne(ispin),neq(ispin),' (fourier space)'
-         end if
          write(luout,1230)
          write(luout,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
@@ -500,25 +436,61 @@
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
-      Saa = 1.0d0
-      Sbb = 1.0d0
+
+*     **** calculate SVD of <psi1(ms)|psi2(ms)> ****
       call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
      >                           dcpl_mb(psi2(1)),npack1,
      >                           dbl_mb(itmp(1)))
       call Dneall_m_SVD(0,dbl_mb(itmp(1)),dbl_mb(U_ab(1)),
-     >                    dbl_mb(eig(1)), dbl_mb(V_ab(1)))
-      Sab = 1.0d0
-      do n=1,nemax
-         Sab = Sab*dbl_mb(eig(1)+n-1)
+     >                    dbl_mb(Sigma_ab(1)), dbl_mb(V_ab(1)))
+
+*     **** calculate S12(ms) and Sab ****
+      do ms=1,ispin
+         S12(ms) = 1.0d0
+         do n=n1(ms),n2(ms)
+            S12(ms) = S12(ms)*dbl_mb(Sigma_ab(1)+n-1)
+         end do
+      end do
+      Sab = S12(1)*S12(ispin)
+
+*     **** rotate psi1f=psi1*V_ab and psi2f = psi2*U_ab ****
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                         dbl_mb(V_ab(1)),1.0d0,
+     >                         dcpl_mb(psi1f(1)),0.0d0)
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+     >                         dbl_mb(U_ab(1)),1.0d0,
+     >                         dcpl_mb(psi2f(1)),0.0d0)
+ 
+*     **** scale rotated psi1f and psi2f by 1/Sigma(n) ****
+      do q=1,neq(1)+neq(2)
+         call Dneall_qton(q,n)
+         w = dsqrt(1.0d0/dbl_mb(Sigma_ab(1)+n-1))
+         call Pack_c_SMul1(1,w,dcpl_mb(psi1f(1)+(q-1)*npack1))
+         call Pack_c_SMul1(1,w,dcpl_mb(psi2f(1)+(q-1)*npack1))
       end do
 
+*     **** put psi1, psi2, psi1f, and psi2f into realspace ****
+      call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,dcpl_mb(psi1(1)),
+     >                      dbl_mb(psi1_r(1)))
+      call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,dcpl_mb(psi2(1)),
+     >                      dbl_mb(psi2_r(1)))
+      call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,dcpl_mb(psi1f(1)),
+     >                      dbl_mb(psi1f_r(1)))
+      call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,dcpl_mb(psi2f(1)),
+     >                      dbl_mb(psi2f_r(1)))
 
-*     **** one-electron part ****
-      call pspw_et_sub1(ispin,ne,neq,n2ft3d,npack1,dbl_mb(eig(1)),
-     >                  dcpl_mb(psi1(1)),dbl_mb(psi1r(1)),
-     >                  dcpl_mb(psi2(1)),dbl_mb(psi2r(1)),
-     >                  H1aa,H1bb,H1ab)
 
+*     **** one-electron parts ****
+      call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+     >            dcpl_mb(psi1(1)),dcpl_mb(psi1(1)),dbl_mb(psi1_r(1)),
+     >            H1aa)
+      call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+     >            dcpl_mb(psi2(1)),dcpl_mb(psi2(1)),dbl_mb(psi2_r(1)),
+     >            H1bb)
+      call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+     >         dcpl_mb(psi1f(1)),dcpl_mb(psi2f(1)),dbl_mb(psi2f_r(1)),
+     >         H1ab)
+      H1ab = H1ab * Sab
 
 *     **** ion-ion part ****
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
@@ -526,84 +498,74 @@
 
 
 *     **** two-electron part ****
-      scal2 = 1.0d0/lattice_omega()
       H2aa = 0.0d0
       H2bb = 0.0d0
       H2ab = 0.0d0
-      do ms=1,ispin
-         do i=n1(ms),n2(ms)-1
-            do j=i+1,n2(ms)
-               
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoii(1)),1)
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhojj(1)),1)
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoij(1)),1)
-               do k=1,n2ft3d
-                  dbl_mb(rhoii(1)+k-1) = dbl_mb(rhoii(1)+k-1)
-     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
-                  dbl_mb(rhojj(1)+k-1) = dbl_mb(rhojj(1)+k-1)
-     >                         + scal2*dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
-                  dbl_mb(rhoij(1)+k-1) = dbl_mb(rhojj(1)+k-1)
-     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
-               end do
-               if (control_version().eq.4) then
-                 call coulomb2_v(dbl_mb(rhojj(1)),dbl_mb(vc(1)))
-                 call D3dB_rr_dot(1,dbl_mb(rhoii(1)),dbl_mb(vc(1)),sum1)
-                 call coulomb2_v(dbl_mb(rhoij(1)),dbl_mb(vc(1)))
-                 call D3dB_rr_dot(1,dbl_mb(rhoij(1)),dbl_mb(vc(1)),sum2)
-                 H2aa = H2aa + sum1 - sum2
-               end if
 
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoii(1)),1)
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhojj(1)),1)
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoij(1)),1)
-               do k=1,n2ft3d
-                  dbl_mb(rhoii(1)+k-1) = dbl_mb(rhoii(1)+k-1)
-     >                         + scal2*dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
-                  dbl_mb(rhojj(1)+k-1) = dbl_mb(rhojj(1)+k-1)
-     >                         + scal2*dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
-                  dbl_mb(rhoij(1)+k-1) = dbl_mb(rhojj(1)+k-1)
-     >                         + scal2*dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
-               end do
-               if (control_version().eq.4) then
-                 call coulomb2_v(dbl_mb(rhojj(1)),dbl_mb(vc(1)))
-                 call D3dB_rr_dot(1,dbl_mb(rhoii(1)),dbl_mb(vc(1)),sum1)
-                 call coulomb2_v(dbl_mb(rhoij(1)),dbl_mb(vc(1)))
-                 call D3dB_rr_dot(1,dbl_mb(rhoij(1)),dbl_mb(vc(1)),sum2)
-                 H2bb = H2bb + sum1 - sum2
-               end if
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1*lattice_omega()
 
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoii(1)),1)
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhojj(1)),1)
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoij(1)),1)
-               do k=1,n2ft3d
-                  dbl_mb(rhoii(1)+k-1) = dbl_mb(rhoii(1)+k-1)
-     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi2r(1)+(i-1)*n2ft3d+k-1)
-                  dbl_mb(rhojj(1)+k-1) = dbl_mb(rhojj(1)+k-1)
-     >                         + scal2*dbl_mb(psi1r(1)+(j-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
-                  dbl_mb(rhoij(1)+k-1) = dbl_mb(rhojj(1)+k-1)
-     >                         + scal2*dbl_mb(psi1r(1)+(i-1)*n2ft3d+k-1)
-     >                                *dbl_mb(psi2r(1)+(j-1)*n2ft3d+k-1)
-               end do
-               if (control_version().eq.4) then
-                 call coulomb2_v(dbl_mb(rhojj(1)),dbl_mb(vc(1)))
-                 call D3dB_rr_dot(1,dbl_mb(rhoii(1)),dbl_mb(vc(1)),sum1)
-                 call coulomb2_v(dbl_mb(rhoij(1)),dbl_mb(vc(1)))
-                 call D3dB_rr_dot(1,dbl_mb(rhoij(1)),dbl_mb(vc(1)),sum2)
-                 H2ab = H2ab + sum1 - sum2
-               end if
+*     **** coulomb part ****
 
-            end do
-         end do
-      end do
- 
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,
+     >                     dbl_mb(psi1_r(1)),dbl_mb(rho(1)))
+      if (control_version().eq.4) then
+         call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+         H2aa = 0.5d0*ehartr*dv
+      else
+         call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+         call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+         call Pack_c_pack(0,dbl_mb(rho(1)))
+         H2aa = coulomb_e(dbl_mb(rho(1)))
+      end if
+
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,
+     >                     dbl_mb(psi2_r(1)),dbl_mb(rho(1)))
+      if (control_version().eq.4) then
+         call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+         H2bb = 0.5d0*ehartr*dv
+      else
+         call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+         call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+         call Pack_c_pack(0,dbl_mb(rho(1)))
+         H2bb = coulomb_e(dbl_mb(rho(1)))
+      end if
+
+      call pspw_et_gen_rho12(ispin,neq,n2ft3d,
+     >                     dbl_mb(psi1f_r(1)),
+     >                     dbl_mb(psi2f_r(1)),
+     >                     dbl_mb(rho(1)))
+      if (control_version().eq.4) then
+         call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+         H2ab = 0.5d0*ehartr*dv*Sab
+      else
+         call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+         call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+         call Pack_c_pack(0,dbl_mb(rho(1)))
+         H2ab = coulomb_e(dbl_mb(rho(1)))*Sab
+      end if
+
+
+*     **** exchange part ****
+      call pspw_energy_HFX(ispin,dbl_mb(psi1_r(1)),ehfx,phfx)
+      H2aa = H2aa + ehfx
+
+      call pspw_energy_HFX(ispin,dbl_mb(psi2_r(1)),ehfx,phfx)
+      H2bb = H2bb + ehfx
+
+      call pspw_energy_HFX2(ispin,
+     >                      dbl_mb(psi1f_r(1)),
+     >                      dbl_mb(psi2f_r(1)),
+     >                      ehfx,phfx)
+      H2ab = H2ab + ehfx*Sab
+
 
       Haa = H1aa + H2aa + Eion
       Hbb = H1bb + H2bb + Eion
@@ -632,8 +594,8 @@
          write(luout,*)
 
          write(luout,1810)
-         write(luout,1811) Saa
-         write(luout,1812) Sbb
+c         write(luout,1811) Saa
+c         write(luout,1812) Sbb
          write(luout,1813) Sab
 
          write(luout,1820)
@@ -653,7 +615,9 @@
          write(luout,1843) Hab
 
          write(luout,1850) 
-         write(luout,1851) Vab
+         write(luout,1851) dabs(Vab),dabs(Vab)*219474.63d0,
+     >                     dabs(Vab)*27.2116d0,
+     >                     dabs(Vab)*27.2116d0*23.06d0
 
 
 *        **** write out diagonal <psi1|H|psi2> matrix ****
@@ -680,10 +644,7 @@ c           end do
 *     **** deallocate heap memory ****
       if (control_version().eq.3) call ewald_end()
       call strfac_end()
-      if (control_version().eq.3) then
-         call coulomb_end()
-         call coulomb_screened_end()
-      end if
+      if (control_version().eq.3) call coulomb_end()
       if (control_version().eq.4) call coulomb2_end()
       call ke_end()
       call mask_end()
@@ -691,23 +652,24 @@ c           end do
       call G_end()
       call ion_end()
       call psp_end()
+      call pspw_end_HFX()
       call ion_end_FixIon()
       call pspw_qmmm_end()
 
-      value = .true.
-      value = value.and.MA_free_heap(psi1r(2))
-      value = value.and.MA_free_heap(psi2r(2))
-      value = value.and.MA_free_heap(eig(2))
-      value = value.and.Dneall_m_free(overlap)
-      value = value.and.Dneall_m_free(itmp)
+      value =           Dneall_m_free(itmp)
       value = value.and.Dneall_m_free(U_ab)
       value = value.and.Dneall_m_free(V_ab)
+      value = value.and.MA_free_heap(Sigma_ab(2))
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(psi2(2))
-      if (fractional) then
-         value = value.and.MA_free_heap(occ1(2))
-         value = value.and.MA_free_heap(occ2(2))
-      end if
+      value = value.and.MA_free_heap(psi1f(2))
+      value = value.and.MA_free_heap(psi2f(2))
+      value = value.and.MA_free_heap(psi1_r(2))
+      value = value.and.MA_free_heap(psi2_r(2))
+      value = value.and.MA_free_heap(psi1f_r(2))
+      value = value.and.MA_free_heap(psi2f_r(2))
+      value = value.and.MA_free_heap(rho(2))
+      value = value.and.MA_free_heap(vc(2))
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
@@ -746,7 +708,7 @@ c           end do
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*        Electron-Tranfer Calculation (ET)         *')
+ 1020 FORMAT(10X,'*        Electron-Transfer Calculation (ET)        *')
  1030 FORMAT(10X,'*     [     Algorithm of Farazdel et al.   ]       *')
  1035 FORMAT(10x,'*     [ NorthWest Chemistry implementation ]       *')
  1040 FORMAT(10X,'*            version #1.00   09/23/2012            *')
@@ -902,7 +864,10 @@ c           end do
  1842 format( '    Electron energy of product          H(PP) : ',E19.10)
  1843 format( '    Electron energy of reactant/product H(RP) : ',E19.10)
  1850 format(/' Electron Transfer Coupling:')
- 1851 format( '    reactant/product coupling energy    V(RP) : ',E19.10)
+ 1851 format( '    reactant/product coupling energy  |V(RP)| : ',E19.10,
+     >        /,48x,F19.3, ' cm-1',
+     >        /,48x,F19.3, ' eV',
+     >        /,48x,F19.3, ' kcal/mol')
 
 
 !Electronic energy of reactants     H(RR)      -5.3402392824
@@ -935,28 +900,127 @@ c           end do
       return
       END
 
-
-      subroutine pspw_et_sub1(ispin,ne,neq,n2ft3d,npack1,Sigma,
-     >                        psia,psira,
-     >                        psib,psirb,
-     >                        H1aa,H1bb,H1ab)
+*     ****************************************************
+*     *                                                  *
+*     *               pspw_et_gen_psir                   *
+*     *                                                  *
+*     ****************************************************
+      subroutine pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,psi,psir)
       implicit none
-      integer ispin,ne(2),neq(2),n2ft3d,npack1
-      real*8     Sigma(*)
-      complex*16 psia(npack1,*)
-      real*8     psira(n2ft3d,*)
-      complex*16 psib(npack1,*)
-      real*8     psirb(n2ft3d,*)
-      real*8     H1aa,H1bb,H1ab
+      integer ispin,neq(2),npack1,n2ft3d
+      complex*16 psi(npack1,*)
+      real*8     psir(n2ft3d,*)
+
+*     **** local variables ****
+      integer n,nemaxq,nfft3d
+
+      nemaxq = neq(1)+neq(2)
+      call D3dB_nfft3d(1,nfft3d)
+
+      call dcopy(nemaxq*n2ft3d,0.0d0,0,psir,1)
+      do n=1,nemaxq
+         call Pack_c_Copy(1,psi(1,n),psir(1,n))
+      end do
+      call Grsm_gh_fftb(nfft3d,nemaxq,psir)
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,psir)
+
+      return
+      end
+
+*     ****************************************************
+*     *                                                  *
+*     *               pspw_et_gen_rho                    *
+*     *                                                  *
+*     ****************************************************
+      subroutine pspw_et_gen_rho(ispin,neq,n2ft3d,psi_r,rho)
+      implicit none
+      integer ispin,neq(2),n2ft3d
+      real*8  psi_r(n2ft3d,*)
+      real*8  rho(*)
+
+*     **** local variables ****
+      integer i,n,nemaxq
+      real*8  scal2
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      nemaxq = neq(1)+neq(2)
+      scal2 = 1.0d0/lattice_omega()
+
+      call dcopy(n2ft3d,0.0d0,0,rho,1)
+      do n=1,nemaxq
+         do i=1,n2ft3d
+            rho(i) = rho(i) + scal2*(psi_r(i,n)**2)
+         end do
+      end do
+      call D3dB_r_Zero_Ends(1,rho)
+      call D1dB_Vector_SumAll(n2ft3d,rho)
+      if (ispin.eq.1) call dscal(n2ft3d,2.0d0,rho,1)
+
+      return
+      end
+
+*     ****************************************************
+*     *                                                  *
+*     *               pspw_et_gen_rho12                  *
+*     *                                                  *
+*     ****************************************************
+      subroutine pspw_et_gen_rho12(ispin,neq,n2ft3d,psi1_r,psi2_r,rho)
+      implicit none
+      integer ispin,neq(2),n2ft3d
+      real*8  psi1_r(n2ft3d,*)
+      real*8  psi2_r(n2ft3d,*)
+      real*8  rho(*)
+
+*     **** local variables ****
+      integer i,n,nemaxq
+      real*8  scal2
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      nemaxq = neq(1)+neq(2)
+      scal2 = 1.0d0/lattice_omega()
+
+      call dcopy(n2ft3d,0.0d0,0,rho,1)
+      do n=1,nemaxq
+         do i=1,n2ft3d
+            rho(i) = rho(i) + scal2*(psi1_r(i,n)*psi2_r(i,n))
+         end do
+      end do
+      call D3dB_r_Zero_Ends(1,rho)
+      call D1dB_Vector_SumAll(n2ft3d,rho)
+      if (ispin.eq.1) call dscal(n2ft3d,2.0d0,rho,1)
+
+      return
+      end
+
+
+*     ****************************************************
+*     *                                                  *
+*     *               pspw_et_H1                         *
+*     *                                                  *
+*     ****************************************************
+      subroutine pspw_et_H1(ispin,neq,npack1,n2ft3d,
+     >                        psi1,psi2,psi2_r,
+     >                        H1)
+      implicit none
+      integer ispin,neq(2),npack1,n2ft3d
+      complex*16 psi1(npack1,*)
+      complex*16 psi2(npack1,*)
+      real*8     psi2_r(n2ft3d,*)
+      real*8     H1
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer taskid_j
       logical value,aperiodic,field_exist
-      integer pj,q,n,m,ms,nfft3d,nemaxq,npack0,n1(2),n2(2)
-      integer Hpsia(2),Hpsib(2),vlr_l(2),r_grid(2),v_field(2),vl(2)
+      integer q,n,m,ms,nfft3d,nemaxq,npack0,n1q(2),n2q(2)
+      integer Hpsi2(2),vlr_l(2),r_grid(2),v_field(2),vl(2)
       real*8 tmp1(2),tmp2(2),sum1,sum2
       
 *     **** external functions ****
@@ -969,16 +1033,12 @@ c           end do
       field_exist = pspw_charge_found()
       nemaxq = neq(1)+neq(2)
 
-      call Parallel2d_taskid_j(taskid_j)
       call Pack_npack(0,npack0)
       call D3dB_nfft3d(1,nfft3d)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_dcpl,(nemaxq*npack1),
-     >                    'Hpsia',Hpsia(2),Hpsia(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(nemaxq*npack1),
-     >                    'Hpsib',Hpsib(2),Hpsib(1))
+     >                    'Hpsi2',Hpsi2(2),Hpsi2(1))
       if (aperiodic) then
        value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
@@ -1017,83 +1077,38 @@ c           end do
      >                               dbl_mb(v_field(1)))
       end if
 
-
       
-      call dcopy(nemaxq*n2ft3d,0.0d0,0,psira,1)
-      call dcopy(nemaxq*n2ft3d,0.0d0,0,psirb,1)
-      do n=1,nemaxq
-         call Pack_c_Copy(1,psia(1,n),psira(1,n))
-         call Pack_c_Copy(1,psib(1,n),psirb(1,n))
-      end do
-      call Grsm_gh_fftb(nfft3d,nemaxq,psira)
-      call Grsm_gh_fftb(nfft3d,nemaxq,psirb)
-      call Grsm_h_Zero_Ends(nfft3d,nemaxq,psira)
-      call Grsm_h_Zero_Ends(nfft3d,nemaxq,psirb)
-
-
-*       **** get Hpsi1,Hpsi2 ****
-      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsia(1)),1)
-      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsib(1)),1)
+*     **** get Hpsi2 ****
+      call dcopy(2*nemaxq*npack1,0.0d0,0,dcpl_mb(Hpsi2(1)),1)
       if (aperiodic) then
-         call psi_H1v4(ispin,neq,psia,psira,
+         call psi_H1v4(ispin,neq,psi2,psi2_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
      >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsia(1)))
-         call psi_H1v4(ispin,neq,psib,psirb,
-     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
-     >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsib(1)))
+     >             dcpl_mb(Hpsi2(1)))
       else
-         call psi_H1(ispin,neq,psia,psira,
+         call psi_H1(ispin,neq,psi2,psi2_r,
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsia(1)))
-         call psi_H1(ispin,neq,psib,psirb,
-     >             dcpl_mb(vl(1)),
-     >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(Hpsib(1)))
+     >             dcpl_mb(Hpsi2(1)))
       end if
 
 *     **** one-electron part ****
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1)+1
-      n2(2) = ne(1)+ne(2)
-      H1aa = 0.0d0
-      H1bb = 0.0d0
-      H1ab = 0.0d0
+      n1q(1) = 1
+      n2q(1) = neq(1)
+      n1q(2) = neq(1)+1
+      n2q(2) = neq(1)+neq(2)
+      H1=0.0d0
       do ms=1,ispin
-         if (ne(ms).gt.0) then
-            do n=n1(ms),n2(ms)
-               call Dneall_ntoqp(n,q,pj)
-               if (pj.eq.taskid_j) then
-                  call Pack_cc_idot(1,psia(1,q),
-     >                              dcpl_mb(Hpsia(1)+(q-1)*npack1),sum1)
-                  H1aa = H1aa - sum1
-
-                  call Pack_cc_idot(1,psib(1,q),
-     >                              dcpl_mb(Hpsib(1)+(q-1)*npack1),sum1)
-                  H1bb = H1bb - sum1
-
-                  call Pack_cc_idot(1,psib(1,q),
-     >                              dcpl_mb(Hpsia(1)+(q-1)*npack1),sum1)
-                  sum2 = 1.0d0
-                  do m=n1(ms),n2(ms)
-                     if (n.ne.m) sum2 = sum2*Sigma(m)
-                  end do
-                  H1ab = H1ab - sum1*sum2
-               end if
+         if (neq(ms).gt.0) then
+            do q=n1q(ms),n2q(ms)
+               call Pack_cc_idot(1,psi1(1,q),
+     >                           dcpl_mb(Hpsi2(1)+(q-1)*npack1),sum1)
+               H1 = H1 - sum1
             end do
          end if
       end do
-      call Parallel_SumAll(H1aa)
-      call Parallel_SumAll(H1bb)
-      call Parallel_SumAll(H1ab)
-      if (ispin.eq.1) then
-         H1aa = H1aa + H1aa
-         H1bb = H1bb + H1bb
-         H1ab = H1ab + H1ab
-      end if
+      call Parallel_SumAll(H1)
+      if (ispin.eq.1) H1 = H1 + H1
 
 
 *     **** deallocate memory ****
@@ -1105,152 +1120,10 @@ c           end do
       if (aperiodic) then
          value = value.and.MA_pop_stack(vlr_l(2))
       end if
-      value = value.and.MA_pop_stack(Hpsib(2))
-      value = value.and.MA_pop_stack(Hpsia(2))
+      value = value.and.MA_pop_stack(Hpsi2(2))
       if (.not.value)
-     >   call errquit('pspw_et_sub1:pop stack',0,MA_ERR)
+     >   call errquit('pspw_et_H1:pop stack',0,MA_ERR)
  
       return
       end
 
-      subroutine pspw_et_sub2(ispin,ne,neq,n2ft3d,Sigma,
-     >                        psira,
-     >                        psirb,
-     >                        H2aa,H2bb,H2ab)
-      implicit none
-      integer ispin,ne(2),neq(2),n2ft3d
-      real*8  Sigma(*)
-      real*8  psira(n2ft3d,*)
-      real*8  psirb(n2ft3d,*)
-      real*8  H2aa,H2bb,H2ab
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-*     ***** local variables ****
-      logical value,aperiodic
-      integer ms,n,n1(2),n2(2),nx,ny,nz,k,nfft3d
-      integer dnaa(2),dnbb(2),dnab(2),rhoaa(2),rhobb(2),rhoab(2)
-      integer dng(2),vc(2)
-      real*8  scal1,scal2,ehartr,dv
-
-*     **** external functions ****
-      integer  control_version
-      external control_version
-      real*8   lattice_omega,coulomb_e
-      external lattice_omega,coulomb_e
-
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1)+1
-      n2(2) = ne(1)+ne(2)
-      H2aa = 0.0d0
-      H2bb = 0.0d0
-      H2ab = 0.0d0
- 
-      call D3dB_nfft3d(1,nfft3d)
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
-      scal1 = 1.0d0/dble(nx*ny*nz)
-      scal2 = 1.0d0/lattice_omega()
-      dv = scal1*lattice_omega()
-
-      aperiodic = (control_version().eq.4)
-
-*     **** allocate memory ****
-      value =  MA_push_get(mt_dbl,ispin*n2ft3d,'dnaa',dnaa(2),dnaa(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,ispin*n2ft3d,'dnbb',dnbb(2),dnbb(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,ispin*n2ft3d,'dnab',dnab(2),dnab(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'rhoaa',rhoaa(2),rhoaa(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'rhobb',rhobb(2),rhobb(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'rhoab',rhoab(2),rhoab(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'vc',vc(2),vc(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'dng',dng(2),dng(1))
-      if (.not.value)
-     >   call errquit('pspw_et_sub2:push stack',0,MA_ERR)
-
-      call dcopy(ispin*n2ft3d,0.0d0,0,dbl_mb(dnaa(1)),1)
-      call dcopy(ispin*n2ft3d,0.0d0,0,dbl_mb(dnbb(1)),1)
-      call dcopy(ispin*n2ft3d,0.0d0,0,dbl_mb(dnab(1)),1)
-      do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            do k=1,n2ft3d
-               dbl_mb(dnaa(1)+k-1+(ms-1)*n2ft3d)  
-     >          = dbl_mb(dnaa(1)+k-1+(ms-1)*n2ft3d) 
-     >          + scal2*psira(k,n)**2
-
-               dbl_mb(dnbb(1)+k-1+(ms-1)*n2ft3d)  
-     >          = dbl_mb(dnbb(1)+k-1+(ms-1)*n2ft3d) 
-     >          + scal2*psirb(k,n)**2
-
-               dbl_mb(dnab(1)+k-1+(ms-1)*n2ft3d)  
-     >          = dbl_mb(dnab(1)+k-1+(ms-1)*n2ft3d) 
-     >          + scal2*psira(k,n)*psirb(k,n)
-            end do
-         end do
-      end do
-      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(dnaa(1)))
-      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(dnbb(1)))
-      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(dnab(1)))
-      call D3dB_rr_Sum(1,dbl_mb(dnaa(1)),
-     >                   dbl_mb(dnaa(1)+(ms-1)*n2ft3d),
-     >                   dbl_mb(rhoaa(1)))
-      call D3dB_rr_Sum(1,dbl_mb(dnbb(1)),
-     >                   dbl_mb(dnbb(1)+(ms-1)*n2ft3d),
-     >                   dbl_mb(rhobb(1)))
-      call D3dB_rr_Sum(1,dbl_mb(dnab(1)),
-     >                   dbl_mb(dnab(1)+(ms-1)*n2ft3d),
-     >                   dbl_mb(rhoab(1)))
-
-*     **** calculate coulomb ****
-      if (aperiodic) then
-         call coulomb2_v(dbl_mb(rhoaa(1)),dbl_mb(vc(1)))
-         call D3dB_rr_dot(1,dbl_mb(rhoaa(1)),dbl_mb(vc(1)),ehartr)
-         H2aa = 0.5d0*ehartr*dv
-
-         call coulomb2_v(dbl_mb(rhobb(1)),dbl_mb(vc(1)))
-         call D3dB_rr_dot(1,dbl_mb(rhobb(1)),dbl_mb(vc(1)),ehartr)
-         H2bb = 0.5d0*ehartr*dv
-
-         call coulomb2_v(dbl_mb(rhoab(1)),dbl_mb(vc(1)))
-         call D3dB_rr_dot(1,dbl_mb(rhoab(1)),dbl_mb(vc(1)),ehartr)
-         H2ab = 0.5d0*ehartr*dv
-      else
-         call D3dB_r_SMul(1,scal1,dbl_mb(rhoaa(1)),dcpl_mb(dng(1)))
-         call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
-         call Pack_c_pack(0,dcpl_mb(dng(1)))
-         H2aa = coulomb_e(dcpl_mb(dng(1)))
-
-         call D3dB_r_SMul(1,scal1,dbl_mb(rhobb(1)),dcpl_mb(dng(1)))
-         call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
-         call Pack_c_pack(0,dcpl_mb(dng(1)))
-         H2bb = coulomb_e(dcpl_mb(dng(1)))
-
-         call D3dB_r_SMul(1,scal1,dbl_mb(rhoab(1)),dcpl_mb(dng(1)))
-         call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
-         call Pack_c_pack(0,dcpl_mb(dng(1)))
-         H2ab = coulomb_e(dcpl_mb(dng(1)))
-      end if
-     
-
-*     **** deallocate memory ****
-      value = value.and.MA_pop_stack(dng(2))
-      value = value.and.MA_pop_stack(vc(2))
-      value = value.and.MA_pop_stack(rhoab(2))
-      value = value.and.MA_pop_stack(rhobb(2))
-      value = value.and.MA_pop_stack(rhoaa(2))
-      value = value.and.MA_pop_stack(dnab(2))
-      value = value.and.MA_pop_stack(dnbb(2))
-      value = value.and.MA_pop_stack(dnaa(2))
-      if (.not.value)
-     >   call errquit('pspw_et_sub2:pop stack',0,MA_ERR)
-      return
-      end
