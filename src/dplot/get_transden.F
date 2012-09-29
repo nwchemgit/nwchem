@@ -151,10 +151,6 @@ c
            ok = 1
          end if  ! nodezero
 c
- 1000 call errquit(pname//'failed to open file',0,-1)
- 1001 call errquit(pname//'failed to read file',0,-1)
- 1002 call errquit(pname//'failed to close file',0,-1)
-c
          call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
          call ga_sync()
 c
@@ -192,4 +188,9 @@ c        consolidate the X and Y components
          enddo ! ipol
 c
       return
+c
+ 1000 call errquit(pname//'failed to open file',0,-1)
+ 1001 call errquit(pname//'failed to read file',0,-1)
+ 1002 call errquit(pname//'failed to close file',0,-1)
+c
       end
