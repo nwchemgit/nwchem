@@ -14,7 +14,9 @@
 	movecs_log.o \
 	nbf_to_mbf.o \
 	dft_frozemb.o \
-	sca_lab_mat.o dft_utilmap.o
+	sca_lab_mat.o \
+	dft_utilmap.o \
+	dft_genutils.o
 
 
      LIBRARY = libnwdft.a
