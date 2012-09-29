@@ -511,7 +511,7 @@ c
 c
 c     CIVECS (filename for solution vectors)
 c
-      lcivecs = .false.   
+      lcivecs = .true.  ! default   
       else if (inp_compare(.false.,test,'civecs')) then
        lcivecs = .true.
        if (.not.inp_a(civecs)) then

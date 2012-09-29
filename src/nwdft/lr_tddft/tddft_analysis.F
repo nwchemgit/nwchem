@@ -216,9 +216,9 @@ c     Generalized Mulliken-Hush
      $  gmh=.false.
 c
 c     CI Vectors file 
-      lcivecs = .false.
+      lcivecs = .true.  ! default
       if (.not.rtdb_get(rtdb,'tddft:lcivecs',mt_log,1,lcivecs))
-     $  lcivecs = .false.
+     $  lcivecs = .true.
 c
 c     Transden file 
       ltransden = .false.
