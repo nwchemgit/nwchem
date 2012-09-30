@@ -30,7 +30,7 @@ c
       character*255 full_filename,full_filename2,filename2
       character ch_tmp
       integer ii,shift,print_shift,print_count
-      integer i,it,nbeads,nion,nionall,ng,m,nebsteps,neb_algorithm
+      integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm
       integer nbeads1,nbeads2
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
       integer mass(2),dti(2),cs(2),gs(2)
@@ -156,7 +156,7 @@ c
          
          write(luout,*)
          write(luout,1) nebgmax,nebgrms,nebxmax,nebxrms,
-     >                  time_step,trust,nebsteps,nbeads,m,kbeads,
+     >                  time_step,trust,nebsteps,nbeads,m,nion,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
          if (ostress) 
@@ -174,6 +174,7 @@ c
      >        ' maximum number of steps         (maxiter) = ', i4,/,
      >        ' number of images in path         (nbeads) = ', i4,/,
      >        ' number of histories               (nhist) = ', i4,/,
+     >        ' number of atoms                           = ', i4,/,
      >        ' NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
      >        ' NEB algorithm                 (algorithm) = ', i4,
      >                                                   1x,'(',a30,')'/,
@@ -425,6 +426,7 @@ c
             write(19,*)  "# algorithm          = ",neb_algorithm
             write(19,*)  "# nbeads             = ",nbeads
             write(19,*)  "# nhist              = ",m
+            write(19,*)  "# natoms             = ",nion
             write(19,*)  "# kbeads             = ",kbeads
             write(19,*)  "# stepsize           = ",time_step
             write(19,*)  "# trust              = ",trust
@@ -517,6 +519,7 @@ c
            write(luout,13)  mark,"maxiter        = ",nebsteps
            write(luout,13)  mark,"nbeads         = ",nbeads
            write(luout,13)  mark,"nhist          = ",m
+           write(luout,13)  mark,"natoms         = ",nion
            write(luout,14)  mark,"stepsize       = ",time_step
            write(luout,14)  mark,"trust          = ",trust
            write(luout,14)  mark,"kbeads         = ",kbeads
@@ -571,6 +574,7 @@ c
          write(19,*)  "# algorithm     = ",neb_algorithm
          write(19,*)  "# nbeads        = ",nbeads
          write(19,*)  "# nhist         = ",m
+         write(19,*)  "# natoms        = ",nion
          write(19,*)  "# kbeads        = ",kbeads
          write(19,*)  "# stepsize      = ",time_step
          write(19,*)  "# trust         = ",trust
