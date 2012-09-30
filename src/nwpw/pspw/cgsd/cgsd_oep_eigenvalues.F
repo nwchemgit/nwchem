@@ -73,7 +73,7 @@ c#include "rtdb.fh"
         !**** write out KS virtual eigenvalues ****
         write(*,1500)
         NN=psi_ne_excited(1)-psi_ne_excited(2)
-        EV=27.2116
+        EV=27.2116d0
         do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
           write(*,1510) psi_virtual(1,I),
      >                  psi_virtual(1,I)*EV
