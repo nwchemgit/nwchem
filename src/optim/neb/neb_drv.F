@@ -80,7 +80,7 @@ c
      >   nebxrms = 0.00120d0
 
       if (.not.rtdb_get(rtdb,'neb:stepsize',mt_dbl,1,time_step))
-     >  time_step = 10.0d0
+     >  time_step = 1.0d0
       if (.not.rtdb_get(rtdb,'neb:trust',mt_dbl,1,trust))
      >  trust = 0.5d0
       if (.not.rtdb_get(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
@@ -95,7 +95,7 @@ c
 *     *** neb_algorithm ***
       if (.not.rtdb_get(rtdb,'neb:algorithm',mt_int,1,neb_algorithm))
      >  neb_algorithm = 0
-      if (.not.rtdb_get(rtdb,'neb:m',mt_int,1,m))  m = 3
+      if (.not.rtdb_get(rtdb,'neb:m',mt_int,1,m))  m = 5
 
       if (.not.rtdb_get(rtdb,'neb:print_shift',mt_int,1,print_shift))
      >   print_shift = 0
