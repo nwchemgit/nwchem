@@ -1,6 +1,6 @@
 c
 c        construct the transition density
-         logical function get_transden(iroot,ipol,filename,basis,
+         logical function get_transden(spin,iroot,ipol,filename,basis,
      &        g_movecs, g_dens)
 c
          implicit none
@@ -17,6 +17,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 c
+         character*8 spin
          integer iroot
          integer ipol
          character*80 filename
@@ -172,9 +173,21 @@ c            accumulate the Y component of the transition density matrix
              end do
          end if  ! tda
 c
+c        calculate total, spin density or individual components
+         If (ipol.eq.2) Then
+            If (Spin.eq.'TOTAL') Then
+              Call GA_dAdd(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
+            Else If (Spin.eq.'SPINDENS') Then
+              Call GA_dAdd(1.d0,g_dens(1),-1.d0,g_dens(2),g_dens(1))
+            Else If (Spin.eq.'ALPHA') Then
+            Else If (Spin.eq.'BETA') Then
+               Call GA_Copy(g_dens(2),g_dens(1))
+            End If
+         End If ! ipol check
+c
 c        consolidate the X and Y components
-         if (ipol.gt.1)
-     &        call ga_add(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
+c         if (ipol.gt.1)
+c     &        call ga_add(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
 
          do i=1,ipol
             if (.not.ga_destroy(g_x(i))) call errquit

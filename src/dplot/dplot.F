@@ -497,14 +497,10 @@ c
           LResult = MA_Pop_Stack(l_Ene)
           Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
 c
-c        Construct the transition density
-         call util_file_name_resolve(File_civecs,.false.)
-         if (ga_nodeid().eq.0) then
-            write(6,*) "file_civecs:",file_civecs
-            write(6,*) "iroot:",iroot
-         end if ! ga_nodeid()
-         if (.not.get_transden(iroot,nset,File_civecs,ao_bas_han,g_Vec,
-     &    g_Dns)) call errquit('DPlot: get_transden failed ',0,0)
+c         Construct the transition density
+          call util_file_name_resolve(File_civecs,.false.)
+          if (.not.get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
+     &      g_Vec,g_Dns))call errquit('DPlot: get_transden failed ',0,0)
          else
 *------- Get the density matrix for the first orbital file
            Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,

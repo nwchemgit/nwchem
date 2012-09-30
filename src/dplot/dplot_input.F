@@ -152,8 +152,8 @@ c
      &   Call ErrQuit('DPlot_Input: civecs <file> ',0,
      &       INPUT_ERR)
       If (inp_a(test)) Then
-         Lth = Inp_StrLen(test)
-         File_civecs(1:Lth) = test(1:Lth)
+       Lth = Inp_StrLen(test)
+       File_civecs(1:Lth) = test(1:Lth)
       End If
       GoTo 10
 *
