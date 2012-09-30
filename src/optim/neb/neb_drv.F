@@ -423,7 +423,10 @@ c
             write(19,*)  "# NEB Path iteration = ",it
             write(19,*)  "# algorithm          = ",neb_algorithm
             write(19,*)  "# nbeads             = ",nbeads
+            write(19,*)  "# nhist              = ",m
             write(19,*)  "# kbeads             = ",kbeads
+            write(19,*)  "# stepsize           = ",time_step
+            write(19,*)  "# trust              = ",trust
             write(19,*)  "# path energy        = ",path_energy
             write(19,*)  "# path distance      = ",path_distance
             write(19,*)  "# dE                 = ",dE
@@ -566,7 +569,10 @@ c
          write(19,*)  "# NEB Path"
          write(19,*)  "# algorithm     = ",neb_algorithm
          write(19,*)  "# nbeads        = ",nbeads
+         write(19,*)  "# nhist         = ",m
          write(19,*)  "# kbeads        = ",kbeads
+         write(19,*)  "# stepsize      = ",time_step
+         write(19,*)  "# trust         = ",trust
          write(19,*)  "# path energy   = ",path_energy
          write(19,*)  "# path distance = ",path_distance
          write(19,*)  "# dE            = ",dE
