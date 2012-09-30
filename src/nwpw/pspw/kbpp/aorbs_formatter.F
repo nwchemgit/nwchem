@@ -2,11 +2,11 @@ c
 c $Id$
 c
 
-*     ***************************************
+*     ***********************************
 *     *					*
 *     *		aorbs_formatter_auto	*
 *     *	  				*
-*     ***************************************
+*     ***********************************
       subroutine aorbs_formatter_auto(atom,rcut,lmbda)
       implicit none
       character*4  atom

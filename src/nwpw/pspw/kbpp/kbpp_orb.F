@@ -84,6 +84,7 @@ c      call Parallel_Init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
+
       read(11,'(A2)') atom
       read(11,*) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*) (rc(i),i=0,lmax0)
