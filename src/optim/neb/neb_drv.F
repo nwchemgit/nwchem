@@ -35,8 +35,8 @@ c
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
-      real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin
-      real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t
+      real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
+      real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t,alpha
 
 *     **** external functions ****
       logical task_gradient
@@ -81,6 +81,8 @@ c
 
       if (.not.rtdb_get(rtdb,'neb:stepsize',mt_dbl,1,time_step))
      >  time_step = 10.0d0
+      if (.not.rtdb_get(rtdb,'neb:trust',mt_dbl,1,trust))
+     >  trust = 0.5d0
       if (.not.rtdb_get(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
      >  kbeads = 0.1d0
       if (.not.rtdb_get(rtdb,'neb:steps',mt_int,1,nebsteps))      
@@ -303,17 +305,24 @@ c
      >                          dbl_mb(s(1)))
              end if
              sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)/dble(nbeads)
-             sum2 = ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1) /dble(nbeads)
-             if (oprint) write(*,*) "neb: <g|s>=",sum
-             if (oprint) write(*,*) "neb: <s|s>=",sum2
-             if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
-     >                         .or.(sum2.gt.10.0d0)) then
+             if (oprint) write(*,*) "neb: <g|s>/nbeads=",sum
+             if (sum.le.0.0d0)  then
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
                 if (oprint) write(*,*) "neb: s=g"
              end if
 
+             sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
+     >              /dble(nbeads)
+             if (oprint) write(*,*) "neb: |<s|s>|/nbeads=",sum2
+             if ((time_step*sum2).gt.trust) then
+                alpha = trust/sum2
+                if(oprint) write(*,*) "neb: reducing timestep to ",alpha
+             else
+                alpha = time_step
+             end if
+
              call neb_move(ng,
-     >                     (-time_step),
+     >                     (-alpha),
      >                     dbl_mb(c0(1)),
      >                     dbl_mb(c1(1)),
      >                     dbl_mb(s(1)))

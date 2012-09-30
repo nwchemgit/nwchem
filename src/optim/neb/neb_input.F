@@ -78,6 +78,19 @@ c     ----------------------------
       goto 100
 
 c
+c     trust
+c     ----------------------------
+      else if (inp_compare(.false.,'trust', test)) then
+       if(.not. inp_f(timestep))
+     &    call errquit('neb_input: trust',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:trust',mt_dbl,1,timestep))
+     $     call errquit('neb_input: rtdb put failed',3,
+     &     RTDB_ERR)
+
+      goto 100
+
+c
 c     maxiter
 c     ----------------------------
       else if (inp_compare(.false.,'maxiter', test)) then
