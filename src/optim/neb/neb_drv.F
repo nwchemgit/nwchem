@@ -512,7 +512,9 @@ c
            write(luout,13)  mark,"algorithm      = ",neb_algorithm
            write(luout,13)  mark,"maxiter        = ",nebsteps
            write(luout,13)  mark,"nbeads         = ",nbeads
+           write(luout,13)  mark,"nhist          = ",m
            write(luout,14)  mark,"stepsize       = ",time_step
+           write(luout,14)  mark,"trust          = ",trust
            write(luout,14)  mark,"kbeads         = ",kbeads
            write(luout,14)  mark,"Gmax tolerance = ",nebGmax
            write(luout,14)  mark,"Grms tolerance = ",nebGrms
