@@ -82,7 +82,7 @@ c
       if (.not.rtdb_get(rtdb,'neb:stepsize',mt_dbl,1,time_step))
      >  time_step = 1.0d0
       if (.not.rtdb_get(rtdb,'neb:trust',mt_dbl,1,trust))
-     >  trust = 0.5d0
+     >  trust = 0.1d0
       if (.not.rtdb_get(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
      >  kbeads = 0.1d0
       if (.not.rtdb_get(rtdb,'neb:steps',mt_int,1,nebsteps))      
