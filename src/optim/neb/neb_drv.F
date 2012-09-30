@@ -156,7 +156,7 @@ c
          
          write(luout,*)
          write(luout,1) nebgmax,nebgrms,nebxmax,nebxrms,
-     >                  time_step,nebsteps,nbeads,m,kbeads,
+     >                  time_step,trust,nebsteps,nbeads,m,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
          if (ostress) 
@@ -170,6 +170,7 @@ c
      >        ' rms cartesian step threshold       (xrms) = ', f10.6,/,
      >        0p,/,
      >        ' step size                      (stepsize) = ', f10.6,/,
+     >        ' fixed trust radius                (trust) = ', f10.6,/,
      >        ' maximum number of steps         (maxiter) = ', i4,/,
      >        ' number of images in path         (nbeads) = ', i4,/,
      >        ' number of histories               (nhist) = ', i4,/,
@@ -310,7 +311,6 @@ c
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
                 if (oprint) write(*,*) "neb: s=g"
              end if
-
              sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
      >              /dble(nbeads)
              if (oprint) write(*,*) "neb: |<s|s>|/nbeads=",sum2
