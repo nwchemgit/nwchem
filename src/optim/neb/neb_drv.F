@@ -305,15 +305,15 @@ c
      >                          dbl_mb(gs(1)),
      >                          dbl_mb(s(1)))
              end if
-             sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)/dble(nbeads)
-             if (oprint) write(*,*) "neb: <g|s>/nbeads=",sum
+             sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)/dble(ng)
+             if (oprint) write(*,*) "neb: <g|s>/ng=",sum
              if (sum.le.0.0d0)  then
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
                 if (oprint) write(*,*) "neb: s=g"
              end if
              sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
-     >              /dble(nbeads)
-             if (oprint) write(*,*) "neb: |<s|s>|/nbeads=",sum2
+     >              /dble(ng)
+             if (oprint) write(*,*) "neb: |<s|s>|/ng,trust=",sum2,trust
              if ((time_step*sum2).gt.trust) then
                 alpha = trust/sum2
                 if(oprint) write(*,*) "neb: reducing timestep to ",alpha
