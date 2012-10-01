@@ -43,9 +43,6 @@ c
 c
          integer inntsize,ddblsize,logisize,ok
 c
-c         logical bas_numbf
-c         external bas_numbf
-c
          character*32 pname
          pname = 'get_transden: '
 c
