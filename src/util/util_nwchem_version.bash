@@ -5,7 +5,7 @@
 # to query this information.
 #
 # We need 2 things for this operation to complete successfully:
-# 1. svnversion needs to be available on this machine
+# 1. svn needs to be available on this machine
 # 2. the .svn directories need to be present in this source code
 # If both these requirements are satisfied we will always overwrite
 # the revision information with a current version.
@@ -29,13 +29,14 @@ else
    path="`which \"$0\"`"
    path="`dirname \"$path\"`"
 fi
-my_svnversion=`which svnversion`
+my_svnversion=`which svn`
 cd "$path"
 if [ -f "${my_svnversion}" ] ; then
   # svnversion exists, but does .svn?
   if [ -d ../../.svn ] ; then
     # .svn exists too
-    revision=`${my_svnversion} ../..`
+    revision=`${my_svnversion} info ../.. | grep Revision:`
+    revision=`echo ${revision} | sed 's/Revision: //'`
     echo "      subroutine util_nwchem_version(nwrev)" > util_nwchem_version.F
     echo "      implicit none" >> util_nwchem_version.F
     echo "      character*(*) nwrev" >> util_nwchem_version.F
