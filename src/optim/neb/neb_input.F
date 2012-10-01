@@ -8,21 +8,29 @@ c $Id$
 
       subroutine neb_input(rtdb)
       implicit none
+      integer rtdb
+
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-c     
+
+*     ***** local variables ****
       logical impose
-      integer rtdb,ind
+      integer ind,i
       character*255 test,test2
       integer nbeads
       double precision timestep,kbeads
+      character*255 geom_name
 
 *     **** external functions ****
-      logical  neb_parse_boolean
-      external neb_parse_boolean
+      logical  neb_parse_boolean,neb_setgeom_xyzfilename
+      external neb_parse_boolean,neb_setgeom_xyzfilename
+      integer  neb_nbeads_xyzfilename
+      external neb_nbeads_xyzfilename
+      character*7 bead_index_name
+      external    bead_index_name
 
 c
  100  if (.not. inp_read()) call errquit('neb_input: inp_read failed',0,
@@ -265,10 +273,23 @@ c    xyz_path
 c     ----------------------------
       else if (inp_compare(.false.,'xyz_path', test)) then
          if(inp_a(test2)) then
-            ind = index(test2,' ') -1
-            if (.not. rtdb_cput(rtdb,'neb:xyz_path',1,test2(1:ind)))
-     >         call errquit('neb_input: rtdb put failed',26,
-     >         RTDB_ERR)
+
+            nbeads = neb_nbeads_xyzfilename(test2)
+            if (.not. rtdb_put(rtdb,'neb:nbeads',mt_int,1,nbeads))
+     >        call errquit('neb_input: rtdb put failed',5,
+     >        RTDB_ERR)
+
+            do i=1,nbeads
+               geom_name = 'bead'//bead_index_name(i)//':geom'
+               if (.not.neb_setgeom_xyzfilename(rtdb,test2,i,geom_name))
+     >           call errquit('neb_input: rtdb put failed',6,
+     >           RTDB_ERR)
+            end do
+
+            if (.not. rtdb_put(rtdb,'neb:custom_path',mt_log,1,.true.))
+     >        call errquit('neb_input: rtdb put failed',5,
+     >        RTDB_ERR)
+
          end if
       
       goto 100
@@ -330,4 +351,241 @@ c
       neb_parse_boolean = value
       return
       end 
+
+
+
+*     ************************************************
+*     *                                              *
+*     *            neb_setgeom_xyzfilename           *
+*     *                                              *
+*     ************************************************
+      logical function neb_setgeom_xyzfilename(irtdb,in_xyz,nf,geomname)
+      implicit none
+      integer irtdb
+      character*(*) in_xyz
+      integer nf
+      character*(*) geomname
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "inp.fh"
+#include "stdio.fh"
+#include "util.fh"
+
+c     local variables
+      integer ns
+      integer i,j
+      integer k
+      logical otitle
+      integer i_t,h_t
+      integer i_m,h_m
+      integer i_q,h_q
+      integer i_ctmp,h_ctmp
+      integer atn
+      character*32 pname
+      character*72 title
+      character*16 tag
+      character*16 buf
+      character*255 filename
+      character*255 xyzfile
+      character*255 trjfile
+      character*255 message
+
+      integer fn_xyz,fn_trj
+      logical end_of_file
+      integer geom              ! handle for geometry
+      real*8 cau2ang
+
+      logical geom_create,geom_print
+      external geom_create,geom_print
+      logical geom_tag_to_element
+      external geom_tag_to_element
+      logical geom_cart_set,geom_masses_set
+      external geom_cart_set,geom_masses_set
+      logical geom_tag_to_default_mass
+      external geom_tag_to_default_mass
+      logical geom_rtdb_store,geom_destroy
+      external geom_rtdb_store,geom_destroy
+ 
+
+      cau2ang = 0.529177d0
+      pname = "neb_setgeom_xyz"
+      neb_setgeom_xyzfilename = .false.
+c
+c     we assume that xyz file has a title
+c     -----------------------------------
+      otitle = .true.
+c
+c      if(.not.util_xyz_nframes(in_xyz,fn_xyz))
+c     >       call errquit("cannot get number of frames",0,0)
+c      write(*,*) "number of frames ", fn_xyz
+
+      xyzfile = in_xyz(1:inp_strlen(in_xyz))
+      call util_file_name_resolve(xyzfile, .false.)
+c
+      filename = xyzfile(1:inp_strlen(xyzfile))
+
+c
+c     prepare files for reading/writing
+c     ---------------------------------
+      if(.not.util_get_io_unit(fn_xyz)) 
+     >       call errquit("cannot get file number",0,0)
+      filename = xyzfile
+      open(fn_xyz,file=filename,form='formatted',status='old',
+     $          err=133)
+c
+c
+c     seek frame
+c     ----------
+      if (nf.gt.1) then
+      if(.not.util_xyz_seek(fn_xyz,nf))
+     >       call errquit("cannot get frame",0,0)
+      end if
+
+c
+c     get number of atoms
+c     ------------------
+      message = " number of atoms "
+      read(fn_xyz,*,err=134) ns
+c
+c     temporary stack memory
+c     ----------------------
+      if(.not.ma_push_get(mt_byte,16*ns,'t',h_t,i_t))
+     + call errquit(pname//'Failed to allocate memory for t',ns,
+     &       MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,3*ns,'ctmp',h_ctmp,i_ctmp))
+     + call errquit( pname//'Failed to allocate memory for ctmp',
+     + 3*ns, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,ns,'q',h_q,i_q))
+     + call errquit(pname//'Failed to allocate memory for q',ns,
+     &       MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,ns,'m',h_m,i_m))
+     + call errquit('qmmm: Failed to allocate memory for m',ns,
+     &       MA_ERR)
+
+
+c     read the coords 
+c     --------------------------------
+      message = " title field"
+      if(otitle) 
+     +  read(fn_xyz,*,err=134,end=135) title
+
+      do i=1,ns
+        tag = " "
+        read(fn_xyz,*,err=134,end=135) tag,
+     +        (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3)
+        do j=1,16
+            byte_mb(i_t+16*(i-1)+j-1)=tag(j:j)
+        end do
+
+        if (.not.
+     &      geom_tag_to_default_mass(tag,dbl_mb(i_m+i-1)))
+     &      call errquit(pname//'default mass failed',
+     &      911, INPUT_ERR)
+
+        if (.not.
+     &      geom_tag_to_element(tag,buf,buf,atn))
+     &      call errquit(pname//'default atn failed',
+     &      911, INPUT_ERR)
+
+        dbl_mb(i_q+i-1)=atn
+      end do
+      call dscal(3*ns,1.0d0/cau2ang,dbl_mb(i_ctmp),1)
+
+
+
+      if (.not. geom_create(geom, geomname)) call errquit
+     $     (pname//'geom_create failed !', 0, GEOM_ERR)
+c
+      if(.not.geom_cart_set(geom,ns,byte_mb(i_t),
+     + dbl_mb(i_ctmp),dbl_mb(i_q)))
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+c
+      if(.not.geom_masses_set(geom,ns,dbl_mb(i_m)))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      call geom_compute_values(geom)
+c
+      if(.not.geom_print(geom))
+     +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
+c
+      if(.not.geom_rtdb_store(irtdb,geom,geomname))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(geom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+c
+      if(.not.ma_pop_stack(h_m))
+     & call errquit(pname//' 
+     >              Failed to deallocate stack c_tmp',ns,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_q))
+     & call errquit(pname//' 
+     >              Failed to deallocate stack c_tmp',ns,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_ctmp))
+     & call errquit(pname//' 
+     >              Failed to deallocate stack c_tmp',ns,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_t))
+     & call errquit(pname//'
+     >              Failed to deallocate stack i_itmp',ns,
+     &       MA_ERR)
+
+      close(fn_xyz)
+      neb_setgeom_xyzfilename = .true.
+      return
+
+ 133  call errquit(pname//'error opening/closing '//filename,0, 0)
+ 134  call errquit(pname//'error reading xyz file'//message,0, 0)
+ 135  call errquit(pname//'error end of file at'//message,0, 0)
+
+      end
+
+*     ************************************************
+*     *                                              *
+*     *            neb_nbeads_xyzfilename            *
+*     *                                              *
+*     ************************************************
+      integer function neb_nbeads_xyzfilename(xyzfilename)
+      implicit none
+      character*(*) xyzfilename
+
+#include "inp.fh"
+#include "msgtypesf.h"
+#include "errquit.fh"
+
+      integer ii,nion,nbeads
+      character ch_tmp
+      character*255 filename
+
+      filename = xyzfilename(1:inp_strlen(xyzfilename))
+      call util_file_name_resolve(filename, .false.)
+c
+
+      open(unit=18,file=filename(1:inp_strlen(filename)),
+     >     form='formatted',status='old')
+      nbeads = 0
+      do while(.true.)
+         read(18,*,ERR=30,END=30) nion
+         read(18,*,ERR=30,END=30) ch_tmp
+         do ii=1,nion
+            read(18,*,ERR=30,END=30) ch_tmp
+         end do
+         nbeads = nbeads + 1
+      end do
+  30  continue
+      close(18)
+
+      neb_nbeads_xyzfilename = nbeads
+      return
+      end
 
