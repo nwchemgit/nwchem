@@ -38,8 +38,8 @@ c
 c
          logical nodezero
 c
-         integer g_x(2),g_y(2)
-         integer g_temp(2)
+         integer g_x(2),g_y(2)  ! X and Y solution vectors (civecs)
+         integer g_temp(2) ! scratch space
 c
          integer inntsize,ddblsize,logisize,ok
 c
@@ -182,10 +182,6 @@ c        calculate total, spin density or individual components
             End If
          End If ! ipol check
 c
-c        consolidate the X and Y components
-c         if (ipol.gt.1)
-c     &        call ga_add(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
-
          do i=1,ipol
             if (.not.ga_destroy(g_x(i))) call errquit
      2       (pname//'failed to destroy g_x',0, GA_ERR)
