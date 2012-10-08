@@ -90,6 +90,12 @@
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
 
+      else if (inp_compare(.false.,exchange_correlation,'blyp0')) then
+        gga = 111
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+
       else if (inp_compare(.false.,exchange_correlation,'revpbe0')) then
         gga = 112
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
