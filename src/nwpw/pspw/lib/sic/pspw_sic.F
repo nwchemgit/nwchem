@@ -384,17 +384,10 @@ c              end do
 
 
 *          **** generate exchange-correlation potential ****
-           if (gga.eq.0) then
-             call vxc(n2ft3d,2,dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(tmp1(1)))
-           else
-             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
-     >                    1.0d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-           end if
+           call v_bwexc_all_tmp1(gga,n2ft3d,2,dbl_mb(dn(1)),
+     >                           dbl_mb(xcp(1)),
+     >                           dbl_mb(xce(1)),
+     >                           dbl_mb(tmp1(1)))
 
 *          **** apply the xc_parameter ****
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
@@ -568,17 +561,10 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
 
 
 *          **** generate exchange-correlation potential ****
-           if (gga.eq.0) then
-             call vxc(n2ft3d,2,dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(tmp1(1)))
-           else
-             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
-     >                    1.0d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-           end if
+           call v_bwexc_all_tmp1(gga,n2ft3d,2,dbl_mb(dn(1)),
+     >                  dbl_mb(xcp(1)),
+     >                  dbl_mb(xce(1)),
+     >                  dbl_mb(tmp1(1)))
 
 *          **** apply the xc_parameter ****
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
@@ -767,18 +753,11 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
 
 
 *          **** generate exchange-correlation potential ****
-           if (gga.eq.0) then
-             call vxc(n2ft3d,2,
-     >                      dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(tmp1(1)))
-           else
-             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
-     >                    1.0d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-           end if
+           call v_bwexc_all_tmp1(gga,n2ft3d,2,dbl_mb(dn(1)),
+     >                           dbl_mb(xcp(1)),
+     >                           dbl_mb(xce(1)),
+     >                           dbl_mb(tmp1(1)))
+
 
 *          **** apply the xc_parameter ****
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
@@ -1063,17 +1042,10 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
 
 
 *          **** generate exchange-correlation potential ****
-           if (gga.eq.0) then
-             call vxc(n2ft3d,2,dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(tmp1(1)))
-           else
-             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
-     >                    1.0d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-           end if
+           call v_bwexc_all_tmp1(gga,n2ft3d,2,dbl_mb(dn(1)),
+     >                           dbl_mb(xcp(1)),
+     >                           dbl_mb(xce(1)),
+     >                           dbl_mb(tmp1(1)))
 
 
 *          **** get exchange-correlation energy ****

@@ -41,6 +41,8 @@
 *     **** hybrid gga's ****
       else if (gga.eq.110) then
          call v_bwexc(10,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
+      else if (gga.eq.111) then
+         call v_bwexc(11,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
       else if (gga.eq.112) then
          call v_bwexc(12,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
       else if (gga.eq.114) then
@@ -83,6 +85,8 @@
 *     **** hybrid gga's ****
       else if (gga.eq.110) then
          call v_bwexc(10,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
+      else if (gga.eq.111) then
+         call v_bwexc(11,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
       else if (gga.eq.112) then
          call v_bwexc(12,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
       else if (gga.eq.114) then
@@ -94,3 +98,60 @@
       return
       end
 
+*    ************************************
+*    *                                  *
+*    *          v_bwexc_print           *
+*    *                                  *
+*    ************************************
+      subroutine v_bwexc_print(luout,gga)
+      implicit none
+      integer luout,gga
+
+#include "errquit.fh"
+
+      IF (gga.eq.-1) THEN
+         write(luout,1131) 'off'
+      ELSE IF (gga.eq.0) THEN
+         write(luout,1131) 'LDA (Vosko et al) parameterization'
+      ELSE IF (gga.eq.10) THEN
+         write(luout,1131)
+     >   'PBE96 (White and Bird) parameterization'
+      ELSE IF (gga.eq.11) THEN
+         write(luout,1131)
+     >   'BLYP (White and Bird) parameterization'
+      ELSE IF (gga.eq.12) THEN
+         write(luout,1131)
+     >   'revPBE (White and Bird) parameterization'
+      ELSE IF (gga.eq.13) THEN
+         write(luout,1131)
+     >   'PBEsol (White and Bird) parameterization'
+
+      ELSE IF (gga.eq.110) THEN
+         write(luout,1131)
+     >   'PBE0 (White and Bird) parameterization'
+      ELSE IF (gga.eq.111) THEN
+         write(luout,1131)
+     >   'BLYP0 (White and Bird) parameterization'
+      ELSE IF (gga.eq.112) THEN
+         write(luout,1131)
+     >   'revPBE0 (White and Bird) parameterization'
+      ELSE IF (gga.eq.113) THEN
+         write(luout,1131)
+     >   'BNL (White and Bird) parameterization'
+      ELSE IF (gga.eq.114) THEN
+         write(luout,1131)
+     >   'HSE (White and Bird) parameterization'
+      ELSE IF (gga.eq.115) THEN
+         write(luout,1131)
+     >   'B3LYP (White and Bird) parameterization'
+
+      ELSE IF (gga.eq.200) THEN
+         write(luout,1131) 'Hartree-Fock'
+      ELSE
+         write(luout,1131) 'unknown parameterization'
+         call errquit('bad exchange_correlation',0, INPUT_ERR)
+      END IF
+
+      return
+ 1131 FORMAT(5X,' exchange-correlation = ',A)
+      end

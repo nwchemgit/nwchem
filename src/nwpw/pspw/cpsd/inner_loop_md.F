@@ -358,37 +358,11 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (gga.eq.0) then
-          call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)),
-     >                      dcpl_mb(tmp1(1)))
-        else if ((gga.ge.10).and.(gga.lt.100)) then
-          call v_bwexc(gga,n2ft3d,ispin,dbl_mb(dnall(1)),
-     >                      1.0d0,1.0d0,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
-        else if (gga.eq.110) then
-          call v_bwexc(10,n2ft3d,ispin,dbl_mb(dnall(1)),
-     >                      0.75d0,1.0d0,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
-        else if (gga.eq.112) then
-          call v_bwexc(12,n2ft3d,ispin,dbl_mb(dnall(1)),
-     >                      0.75d0,1.0d0,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
-        else if (gga.eq.114) then
-          call v_bwexc(14,n2ft3d,ispin,dbl_mb(dnall(1)),
-     >                      1.00d0,1.0d0,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
-        else if (gga.eq.115) then
-          call v_bwexc(15,n2ft3d,ispin,dbl_mb(dnall(1)),
-     >                      0.90d0,1.0d0,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
-        end if
+        call v_bwexc_all_tmp1(gga,n2ft3d,ispin,
+     >                        dbl_mb(dnall(1)),
+     >                        dbl_mb(xcp(1)),
+     >                        dbl_mb(xce(1)),
+     >                        dcpl_mb(tmp1(1)))
 
      
 *       **********************************************

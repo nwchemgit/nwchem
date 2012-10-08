@@ -2173,54 +2173,10 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       end if
 
 
-
-      if (gga.eq.0) then
-         value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
-         if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
-        call vxc(n2ft3d,ispin,dnall,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)),
-     >                    dbl_mb(tmp1(1)))
-        value = MA_pop_stack(tmp1(2)) 
-        if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: error popping stack memory',0,
-     &       MA_ERR)
-
-      else if ((gga.ge.10).and.(gga.lt.100)) then
-        call v_bwexc(gga,n2ft3d,ispin,dnall,
-     >                    1.0d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-      else if (gga.eq.110) then
-        call v_bwexc(10,n2ft3d,ispin,dnall,
-     >                    0.75d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-      else if (gga.eq.112) then
-        call v_bwexc(12,n2ft3d,ispin,dnall,
-     >                    0.75d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-      else if (gga.eq.113) then
-        gmma = control_attenuation()
-        call v_bwexc(11,n2ft3d,ispin,dnall,
-     >                    0.0d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-        call bnl2007_x(n2ft3d,ispin,dnall,0.9d0,gmma,
+*    **** xc potential ****
+      call v_bwexc_all(gga,n2ft3d,ispin,dnall,
      >                 dbl_mb(xcp(1)),dbl_mb(xce(1)))
-      else if (gga.eq.114) then
-        call v_bwexc(14,n2ft3d,ispin,dnall,
-     >                    1.00d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-      else if (gga.eq.115) then
-        call v_bwexc(15,n2ft3d,ispin,dnall,
-     >                    0.80d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
-      end if
+
 
       return
       end

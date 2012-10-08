@@ -461,7 +461,7 @@
      >                         dbl_mb(U_ab(1)),1.0d0,
      >                         dcpl_mb(psi2f(1)),0.0d0)
  
-*     **** scale rotated psi1f and psi2f by 1/Sigma(n) ****
+*     **** scale rotated psi1f and psi2f by sqrt(1/Sigma(n)) ****
       do q=1,neq(1)+neq(2)
          call Dneall_qton(q,n)
          w = dsqrt(1.0d0/dbl_mb(Sigma_ab(1)+n-1))
