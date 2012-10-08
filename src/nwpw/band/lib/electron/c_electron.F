@@ -1576,6 +1576,12 @@ c      end do
      >                    1.00d0,1.0d0,
      >                    dbl_mb(txcp(1)),
      >                    dbl_mb(txce(1)))
+         else if (gga.eq.115) then
+           call v_bwexc(15,n2ft3d,ispin,
+     >                    dbl_mb(trho(1)),
+     >                    0.80d0,1.0d0,
+     >                    dbl_mb(txcp(1)),
+     >                    dbl_mb(txce(1)))
          end if
 
 
