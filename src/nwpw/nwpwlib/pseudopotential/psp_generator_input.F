@@ -651,7 +651,7 @@ c        *** PBE96 ***
            close(unit=99)
 
 c        *** BLYP ***
-         else if (control_gga().eq.11) then
+         else if ((control_gga().eq.11).or.(control_gga().eq.115)) then
            if (hprint) write(*,*) "+ generated using BLYP"
            open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
            do while(.true.)
