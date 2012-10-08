@@ -17,16 +17,18 @@
 *   gga = 12 revpbe
 *   gga = 13 pbesol
 *   gga = 14 hser remainder   (-0.25*Ex(w,pbe,sr) + Ex(pbe) + Ec(pbe))
-*   gga = 14-99 (reserved for other gga's)
+*   gga = 15 b3lypr remainder   
+*   gga = 16-99 (reserved for other gga's)
 *
 *   **** hybrids ****
 *   gga = 100-109 (reserved for lda hybrids)
 *   gga = 110  pbe0
-*   gga = 111  b3lyp
+*   gga = 111  ?????
 *   gga = 112  revpbe0
 *   gga = 113  bnl
 *   gga = 114  hse
-*   gga = 115-199 (reserved for hybrids)
+*   gga = 115  b3lyp
+*   gga = 116-199 (reserved for hybrids)
 *   gga = 200 hartree-fock
 *
 *
@@ -63,7 +65,9 @@
       else if (inp_compare(.false.,exchange_correlation,'pbesol')) then
         gga = 13
       else if (inp_compare(.false.,exchange_correlation,'hser')) then
-        gga = 13
+        gga = 14
+      else if (inp_compare(.false.,exchange_correlation,'b3lypr')) then
+        gga = 15
 
 
 
@@ -119,6 +123,11 @@
         value = value.and.
      >          rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,4)
 
+      else if (inp_compare(.false.,exchange_correlation,'b3lyp')) then
+        gga = 115
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.20d0)
 
 *     **** SIC hybrids ****
       else if (inp_compare(.false.,exchange_correlation,'lda-sic')) then
