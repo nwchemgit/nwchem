@@ -1531,7 +1531,7 @@ c      end do
         value = MA_pop_stack(tmp1(2)) 
         if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: error popping stack memory',0,
-     &       MA_ERR)
+     >       MA_ERR)
 
 
       !*** this code needs to be optimized!!! ****
@@ -1551,39 +1551,10 @@ c      end do
      >                             dbl_mb(trho(1)+(ms-1)*n2ft3d))
          end do
 
-         if ((gga.ge.10).and.(gga.lt.100)) then
-
-            call v_bwexc(gga,n2ft3d,ispin,
+         call v_bwexc_all(gga,n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
-     >                    1.0d0,1.0d0,
      >                    dbl_mb(txcp(1)),
      >                    dbl_mb(txce(1)))
-         else if (gga.eq.110) then
-           call v_bwexc(10,n2ft3d,ispin,
-     >                    dbl_mb(trho(1)),
-     >                    0.75d0,1.0d0,
-     >                    dbl_mb(txcp(1)),
-     >                    dbl_mb(txce(1)))
-         else if (gga.eq.112) then
-           call v_bwexc(12,n2ft3d,ispin,
-     >                    dbl_mb(trho(1)),
-     >                    0.75d0,1.0d0,
-     >                    dbl_mb(txcp(1)),
-     >                    dbl_mb(txce(1)))
-         else if (gga.eq.114) then
-           call v_bwexc(14,n2ft3d,ispin,
-     >                    dbl_mb(trho(1)),
-     >                    1.00d0,1.0d0,
-     >                    dbl_mb(txcp(1)),
-     >                    dbl_mb(txce(1)))
-         else if (gga.eq.115) then
-           call v_bwexc(15,n2ft3d,ispin,
-     >                    dbl_mb(trho(1)),
-     >                    0.80d0,1.0d0,
-     >                    dbl_mb(txcp(1)),
-     >                    dbl_mb(txce(1)))
-         end if
-
 
          do ms=1,ispin
            call D3dB_C3dB_r_Copy(1,dbl_mb(txcp(1)+(ms-1)*n2ft3d),

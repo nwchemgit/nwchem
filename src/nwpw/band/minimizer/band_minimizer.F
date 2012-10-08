@@ -343,43 +343,9 @@ c      external      cpsp_comment
          else
            write(luout,1130) "spin orbit"
          end if
-         
-         IF (control_gga().eq.0) THEN
-            write(luout,1131) 'Vosko et al parameterization'
-         ELSE IF (control_gga().eq.10) THEN
-            write(luout,1131)
-     >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.11) THEN
-            write(luout,1131)
-     >      'BLYP (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.12) THEN
-            write(luout,1131)
-     >      'revPBE (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.13) THEN
-            write(luout,1131)
-     >      'PBEsol (White and Bird) parameterization'
 
-         ELSE IF (control_gga().eq.110) THEN
-            write(luout,1131) 
-     >      'PBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.112) THEN
-            write(luout,1131)
-     >      'revPBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.113) THEN
-            write(luout,1131) 
-     >      'BNL (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.114) THEN
-            write(luout,1131) 
-     >      'HSE (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.115) THEN
-            write(luout,1131) 
-     >      'B3LYP (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.200) THEN
-            write(luout,1131) 'Hartree-Fock'
-         ELSE
-            write(luout,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0, INPUT_ERR)
-         END IF
+         call v_bwexc_print(luout,control_gga())
+         
          call band_print_HFX(luout)
          write(luout,1140)
          do ia = 1,ion_nkatm()
