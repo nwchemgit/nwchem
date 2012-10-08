@@ -2215,6 +2215,11 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >                    1.00d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
+      else if (gga.eq.115) then
+        call v_bwexc(15,n2ft3d,ispin,dnall,
+     >                    0.80d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
       end if
 
       return
