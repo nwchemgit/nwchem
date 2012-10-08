@@ -383,6 +383,11 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >                      1.00d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
+        else if (gga.eq.115) then
+          call v_bwexc(15,n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      0.90d0,1.0d0,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
         end if
 
      
