@@ -165,6 +165,14 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
      >                              xce,
      >                              dbl_mb(fn(1)),
      >                              dbl_mb(fdn(1)))
+         else if (gga.eq.15) then
+         call gen_B3LYP_BW_restricted(n2ft3d,
+     >                              dbl_mb(rho(1)),
+     >                              dbl_mb(agr(1)),
+     >                              x_parameter,c_parameter,
+     >                              xce,
+     >                              dbl_mb(fn(1)),
+     >                              dbl_mb(fdn(1)))
          else
           call errquit('bad gga',0,0)
          end if
@@ -464,6 +472,13 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
      >                                  dbl_mb(fdn(1)))
          else if (gga.eq.14) then
          call gen_HSE_BW_unrestricted(n2ft3d,dn,
+     >                                dbl_mb(agr(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)))
+         else if (gga.eq.15) then
+         call gen_B3LYP_BW_unrestricted(n2ft3d,dn,
      >                                dbl_mb(agr(1)),
      >                                x_parameter,c_parameter,
      >                                xce,

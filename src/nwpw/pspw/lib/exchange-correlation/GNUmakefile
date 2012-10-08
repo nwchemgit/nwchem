@@ -10,6 +10,7 @@
             	pbesol.o \
             	revpbe.o \
             	blyp.o \
+            	b3lyp.o \
 		bnl2007_x.o\
 		hsepbe.o
 
