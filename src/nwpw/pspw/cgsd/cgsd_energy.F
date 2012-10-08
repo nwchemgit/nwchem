@@ -1182,6 +1182,27 @@ c      write(*,*) "nolocal p=",p1
        end do
       end if
 
+      if (gga.eq.114) then
+       call v_bwexc_euv(14,2*nfft3d,ispin,rhoall,
+     >                  1.00d0,1.0d0,xcstress)
+       do v=1,3
+       do u=1,3
+          tstress(u,v) = tstress(u,v) + xcstress(u,v)
+       end do
+       end do
+      end if
+
+
+      if (gga.eq.115) then
+       call v_bwexc_euv(15,2*nfft3d,ispin,rhoall,
+     >                  0.80d0,1.0d0,xcstress)
+       do v=1,3
+       do u=1,3
+          tstress(u,v) = tstress(u,v) + xcstress(u,v)
+       end do
+       end do
+      end if
+
 
       call dcopy(9,tstress,1,xcstress,1)
 c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
