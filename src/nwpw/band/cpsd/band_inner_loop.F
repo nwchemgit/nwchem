@@ -340,6 +340,14 @@ c        !*** this code needs to be optimized!!! ****
      >                       1.0d0,1.0d0,
      >                       dbl_mb(txcp(1)),
      >                       dbl_mb(txce(1)))
+
+            else if (gga.eq.115) then
+              call v_bwexc(15,n2ft3d,ispin,
+     >                       dbl_mb(trho(1)),
+     >                       0.8d0,1.0d0,
+     >                       dbl_mb(txcp(1)),
+     >                       dbl_mb(txce(1)))
+
             end if
 
             do ms=1,ispin

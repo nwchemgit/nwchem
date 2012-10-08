@@ -521,6 +521,9 @@ c      call pspw_qmmm_init(rtdb)
          ELSE IF (control_gga().eq.114) THEN
             write(luout,1131) 
      >      'HSE (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.115) THEN
+            write(luout,1131) 
+     >      'B3LYP (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
             write(luout,1131) 'Hartree-Fock'
