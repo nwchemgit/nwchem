@@ -135,6 +135,9 @@ c
           odft = .true.
         else if (scftype.eq.'ROHF')  then
           odft = .true.
+       elseif (scftype.eq.'RHF'.and.mult.ne.1)  then
+          odft= .true.
+          scftype='UHF'
         endif
 c
       endif
