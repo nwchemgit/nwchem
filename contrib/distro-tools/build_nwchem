@@ -1204,6 +1204,26 @@ export MPI_INCLUDE
 export MPI_LIB
 export LIBMPI
 #
+# If USE_MPI is not set at this stage do one more test to see if we have MPI.
+# If we have MPI set USE_MPI to "y" otherwise leave USE_MPI as is.
+# This is a catch all approach needed in case USE_MPI was not set but e.g.
+# ARMCI_NETWORK is. In that case ARMCI_NETWORK is not going to be detected and
+# associated USE_MPI initialization will not happen either. Therefore we need
+# to test USE_MPI separately (as opposed to conditionally on other settings).
+#
+if [ ${#USE_MPI} -eq 0 ] ; then
+  echo "#include <mpi.h>" > /tmp/$$.c
+  echo "int main(int argc, char *argv[]){" >> /tmp/$$.c
+  echo "   MPI_Init(&argc,&argv);" >> /tmp/$$.c
+  echo "   MPI_Finalize();" >> /tmp/$$.c
+  echo "}" >> /tmp/$$.c
+  mpicc -o /tmp/$$.x /tmp/$$.c
+  if [ $? -eq 0 ] ; then
+    export USE_MPI=y
+  fi
+  rm -f /tmp/$$.x /tmp/$$.c
+fi
+#
 # Work out whether this is a 32- or 64-bit platform
 # We need a C-compiler to do this, hence the compiler detection comes before
 # this step. To detect the linear algebra routines we need to have worked out
