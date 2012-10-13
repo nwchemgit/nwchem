@@ -1647,3 +1647,325 @@ c
       end
 
 
+
+
+*     ********************************
+*     *                              *
+*     *      neb_linesearch_init     *
+*     *                              *
+*     ********************************
+      subroutine neb_linesearch_init()
+      implicit none
+
+*     **** neblinesearch_counter common block ****
+      integer counter
+      common / neblinesearch_counter / counter
+
+      counter = 0
+
+      return
+      end
+
+*     ********************************
+*     *                              *
+*     *      neb_linesearch_count    *
+*     *                              *
+*     ********************************
+      integer function neb_linesearch_count()
+      implicit none
+
+*     **** neblinesearch_counter common block ****
+      integer counter
+      common / neblinesearch_counter / counter
+ 
+      neb_linesearch_count = counter
+      return
+      end
+
+*     ********************************
+*     *                              *
+*     *         neb_linesearch	     *
+*     *                              *
+*     ********************************
+
+      real*8 function neb_linesearch(t0,f0,deltat,FUNC1,
+     >                           tolerance,tmin,deltaE,
+     >                           stoptype)
+      implicit none
+      real*8 t0,f0
+      real*8 deltat
+      real*8   FUNC1
+      external FUNC1
+      real*8   tolerance
+      real*8   tmin
+      real*8   deltaE
+      integer  stoptype
+
+
+*     **** local variables ****
+      integer maxiter,iteration
+      parameter (maxiter=8)
+      logical secant,notfinished
+      integer indx(3)
+      real*8  t(3)
+      real*8  f(3)
+      real*8  t_last, f_last
+      real*8  t_first,f_first
+      real*8 up,down,fmin,deltaf
+
+*     **** neblinesearch_counter common block ****
+      integer counter
+      common / neblinesearch_counter / counter
+   
+      counter = counter + 1
+
+      secant = .true.
+
+      t(1) = t0
+c     f(1)  =  FUNC1(t(1))
+      f(1)  = f0
+      t_last = t(1)
+      f_last = f(1)
+      t_first = t(1)
+      f_first = f(1)
+
+      f(2)  =  FUNC1(t(1)+deltat,0)
+      
+      iteration = 1
+*     **** make sure that f2 < f1 ******
+      do while ((f(2).gt.f(1)).and.(iteration.le.maxiter))
+        deltat = 0.5d0*deltat
+        f(2)  =  FUNC1(t(1)+deltat,0)
+        iteration = iteration + 1
+      end do
+      t(2) = t(1) + deltat
+      t_last = t(2)
+      f_last = f(2)
+
+*     **** use secant method to generate f(3) *****
+      deltat = -f(1)*(t(2)-t(1))/(f(2)-f(1))
+      t(3)   = t(1) + deltat
+      f(3)   =  FUNC1(t(3),0)
+      iteration = iteration + 1
+      t_last = t(3)
+      f_last = f(3)
+
+*     **** sort the function values ****
+      call neb_Order_Values(3,f,indx)
+
+      deltaf = f(indx(2)) - f(indx(1))
+
+      if (stoptype.eq.1) then
+        notfinished = (dabs(deltaf).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
+      else
+        notfinished = (dabs(f(indx(1))/f_first).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
+      end if
+
+      do while (notfinished) 
+      
+
+*       **** use secant interpolation to generate tmin ***
+        if (secant) then
+
+          deltat = -f(indx(1))
+     >           *(t(indx(2))-t(indx(1)))
+     >           /(f(indx(2))-f(indx(1)))
+          tmin = t(indx(1)) + deltat
+          fmin  =  FUNC1(tmin,0)
+          iteration = iteration + 1
+          t_last = tmin
+          f_last = fmin
+
+*         **** finish using secant method ****
+          if (fmin.ge.f(indx(1))) then
+            secant = .false.
+            if (fmin.lt.f(indx(3))) then
+              t(indx(3))  = tmin
+              f(indx(3))  = fmin
+              call neb_Order_Values(3,f,indx)
+            end if
+          end if
+
+
+        end if 
+
+*       **** use quadradic interpolation to generate tmin ***
+        if (.not.secant) then
+          up  = (t(2)*t(2) - t(3)*t(3))*f(1)
+     >        + (t(3)*t(3) - t(1)*t(1))*f(2)
+     >        + (t(1)*t(1) - t(2)*t(2))*f(3)
+          down = (t(2) - t(3))*f(1)
+     >         + (t(3) - t(1))*f(2)
+     >         + (t(1) - t(2))*f(3)
+
+*         **** check added by E.Apra ****
+          if(abs(down).gt.tolerance**2) then
+             tmin = 0.5d0*up/down
+             fmin  =  FUNC1(tmin,0)
+             iteration = iteration + 1
+             t_last = tmin
+             f_last = fmin
+
+*         **** parabola fit failed - exit loop ****
+          else
+             tmin=t(indx(3))
+             fmin=f(indx(3))+tolerance
+             iteration = maxiter+1
+          endif
+
+        end if
+
+
+*       **** tolerance check and replacement ****
+        if (fmin.lt.f(indx(3))) then
+           t(indx(3))  = tmin
+           f(indx(3))  = fmin
+           call neb_Order_Values(3,f,indx)
+           deltaf = f(indx(2)) - f(indx(1))
+        else
+           deltaf=0.0d0
+        end if
+
+        if (stoptype.eq.1) then
+          notfinished = (dabs(deltaf).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
+        else
+          notfinished = (dabs(f(indx(1))/f_first).gt.tolerance)
+     >                .and.(iteration.le.maxiter)
+        end if
+           
+      end do
+
+*     **** make sure that tmin is last functions call *****
+      tmin = t(indx(1))
+      fmin = f(indx(1))
+      if (tmin.ne.t_last) f_last = FUNC1(tmin,1)
+
+      deltaE = (fmin-f_first)
+  
+      neb_linesearch = fmin
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *     neb_Order_Values      *
+*     *                           *
+*     *****************************
+*
+*   this subroutine makes f(indx(1)) < f(indx(2)) < f(indx(3)) < ....
+*   via a bubble sort
+*   
+*   Entry - n,f
+*   Exit - returns indx
+*
+
+      subroutine neb_Order_Values(n,f,indx)
+      implicit none
+      integer n
+      real*8 f(*)
+      integer indx(*)
+
+*     ****** local variables *****
+      integer i,j,idum
+
+      do i=1,n
+         indx(i) = i
+      end do
+      do i=1,n-1
+        do j=i+1,n
+           if (f(indx(j)).lt.f(indx(i))) then
+              idum    = indx(i)
+              indx(i) = indx(j)
+              indx(j) = idum
+           end if
+         end do
+       end do
+            
+      return 
+      end
+
+
+c*     *****************************
+c*     *                           *
+c*     *     neb_linesearch_start  *
+c*     *                           *
+c*     *****************************
+c      subroutine neb_linesearch_start(bead_list,ng,c0_in,s_in,
+c     >                                m_in,cs_in,gs_in)
+c      implicit none
+c      character*(*) bead_list
+c      integer ng_in,m_in
+c      real*8 c0_in(*)
+c      real*8 s_in(*)
+c      real*8 cs_in(*)
+c      real*8 gs_in(*)
+c      
+c
+c      m = m_in + 1
+c
+c      value  = MA_push_get(mt_dbl,(m_in)*ng,'cs',cs(2),cs(1))
+c      value  = value.and.MA_push_get(mt_dbl,(m_in)*ng,'gs',gs(2),gs(1))
+c      value  = value.and.MA_push_get(mt_dbl,ng,'c1',c1(2),c1(1))
+c      value  = value.and.MA_push_get(mt_dbl,ng,'c0',c0(2),c0(1))
+c      value  = value.and.MA_push_get(mt_dbl,ng,'s',s(2),s(1))
+c      value  = value.and.MA_push_get(mt_dbl,ng,'g1',g1(2),g1(1))
+c      value  = value.and.MA_push_get(mt_dbl,ng,'t1',t1(2),t1(1))
+c      if (.not.value)
+c     >   call errquit('neb failed - increase stack memory',1,0)
+c
+c      return
+c      end
+c
+c*     *****************************
+c*     *                           *
+c*     *     neb_linesearch_end    *
+c*     *                           *
+c*     *****************************
+c      subroutine neb_linesearch_end()
+c      return
+c      end
+c
+c*     *****************************
+c*     *                           *
+c*     *     neb_line_energy	  *
+c*     *                           *
+c*     *****************************
+c      real*8 function neb_line_energy(t,opt)
+c      real*8 t,ee
+c
+c*     **** external functions ****
+c      real*8   ddot
+c      external ddot
+c
+c       ee = 0.0d0
+c       call neb_move(ng,
+c     >               (-t),
+c     >               dbl_mb(c0(1)),
+c     >               dbl_mb(c1(1)),
+c     >               dbl_mb(s(1)))
+c
+c       if (opt.eq.0) then
+c           call neb_coords_set(bead_list,dbl_mb(c1(1)))
+c           call runmid_bead_list(bead_list,task_gradient)
+c           call neb_gradient_get(bead_list,kbeads,
+c     >                          dbl_mb(c1(1)),
+c     >                          dbl_mb(e1(1)),
+c     >                          dbl_mb(t1(1)),
+c     >                          dbl_mb(g1(1)))
+c           shift = (m-1)*ng
+c           call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(cs(1)+shift),1)
+c           call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(gs(1)+shift),1)
+c           call neb_lmbfgs(ng,m,
+c     >                     dbl_mb(cs(1)),
+c     >                     dbl_mb(gs(1)),
+c     >                     dbl_mb(s(1)))
+c           ee = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(s(1)),1)
+c      end if
+c
+c
+c      neb_line_energy = ee
+c      return
+c      end
