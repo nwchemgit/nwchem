@@ -74,7 +74,7 @@ EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans tce vscf 
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver vib mcscf property selci dplot \
+          optim stepper driver vib qmd mcscf property selci dplot \
            mp2_grad esp etrans vscf 
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
@@ -281,7 +281,7 @@ STUBROUTINES := $(patsubst transport,transport player transp_input,$(STUBROUTINE
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_gradient tce_input tce_prop_start tce_property tce_cholesky tce_imaginary,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst argos,argos argos_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces qmd_driver qmd_input task_qmd qmd_main,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rism,task_rism rism_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep task_qmmm_abc qmmm_print_energy1 qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient task_qmmm_optimize task_qmmm_dynamics task_qmmm_esp task_qmmm_pes task_qmmm_thermo qmmm_bq_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input player,$(STUBROUTINES) )
