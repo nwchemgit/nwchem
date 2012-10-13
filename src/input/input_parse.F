@@ -111,6 +111,8 @@ c
                call input_charge(rtdb)
             else if (inp_compare(.false.,test,'dft')) then
                call dft_input(rtdb)
+            else if (inp_compare(.false.,test,'qmd')) then
+               call qmd_input(rtdb)
             else if (inp_compare(.false.,test,'occup')) then
                call occup_input(rtdb)
             else if (inp_compare(.false.,test,'prepare')) then
