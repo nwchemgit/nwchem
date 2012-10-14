@@ -3,6 +3,32 @@
 #include "cint1cache.fh"
       data ocache /.false./
       end
+c
+C> \brief Compute 1-electron integrals and add them to a global array
+C>
+C> This routine computes 1-electron integrals of the specified kind and
+C> adds them to a global array. The routine always computes a
+C> rectangular matrix. It is even capable of using two different 
+C> basis sets. Different kinds of integrals can be computed, they are:
+C>
+C> * "kinetic": the kinetic energy integrals
+C>
+C> * "potential": the nuclear attraction
+C>
+C> * "overlap": the overlap integrals
+C>
+C> * "pvp": ???
+C>
+C> * "so": spin-orbit integrals
+C>
+C> * "cos_chg_pot": the integrals with the COSMO charges
+C>
+C> * "bq_pot": the integrals with BQ-charges
+C>
+C> The routine can exploit symmetry. If oskel is true then the 
+C> "petite-list" symmetry will be used, although this requires both
+C> basis sets to be the same.
+C
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
 C$Id$
       implicit none
@@ -28,10 +54,11 @@ c     built ... requires that ibas = jbas.
 c     
 c     arguments
 c     
-      integer ibas, jbas        ! [input] bra and ket basis sets
-      integer g(*)              ! [output] GA handle to array 
-      character*(*) integ_type  ! [input] Name of integrals to compute
-      logical oskel             ! [input] If true generate symmetry unique list
+      integer ibas, jbas       !< [Input] bra basis sets
+      integer ibas, jbas       !< [Input] ket basis sets
+      integer g(*)             !< [Output] GA handle to array 
+      character*(*) integ_type !< [Input] Name of integrals to compute
+      logical oskel            !< [Input] If true generate symmetry unique list
 c
 c     local variables
 c
