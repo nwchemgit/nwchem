@@ -54,8 +54,8 @@ c     built ... requires that ibas = jbas.
 c     
 c     arguments
 c     
-      integer ibas, jbas       !< [Input] bra basis sets
-      integer ibas, jbas       !< [Input] ket basis sets
+      integer ibas             !< [Input] bra basis sets
+      integer jbas             !< [Input] ket basis sets
       integer g(*)             !< [Output] GA handle to array 
       character*(*) integ_type !< [Input] Name of integrals to compute
       logical oskel            !< [Input] If true generate symmetry unique list
