@@ -451,6 +451,11 @@ c
       end if
 
 *     *** run gradient task ***
+      if(.not.rtdb_put(bead_rtdb,"scf:converged",mt_log,1,.false.))
+     >  call errquit('scf:converged put',0,0)
+      if(.not.rtdb_put(bead_rtdb,"dft:converged",mt_log,1,.false.))
+     >  call errquit('dft:converged put',0,0)
+
       if(.not.rtdb_put(bead_rtdb,"neb:ibead",mt_int,1,i))
      >  call errquit('neb:ibead put',0,0)
       if(ga_nodeid().eq.0) write(*,*) "neb: running bead ",i

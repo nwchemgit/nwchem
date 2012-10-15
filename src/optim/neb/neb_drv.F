@@ -21,7 +21,7 @@
 c     
 *     **** local variables ****     
       logical value,newchain,svalue,verlet,oprint,done,converged,found
-      logical ostress
+      logical ostress,finishedstep,converged1
       character*9 cvg1,cvg2,cvg3,cvg4
       character*4    mark
       character*50 bead_list,filename
@@ -29,7 +29,7 @@ c
       character*30 tmp
       character*255 full_filename,full_filename2,filename2
       character ch_tmp
-      integer ii,shift,print_shift,print_count
+      integer ii,shift,print_shift,print_count,jj,manyjj,itm,goodjj
       integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm
       integer nbeads1,nbeads2
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
@@ -37,6 +37,8 @@ c
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
       real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t,alpha
+      real*8  alphamin,deltaE,sum0,sum0_old,time_step0
+      real*8  emid0,emin0,emax0
 
 *     **** external functions ****
       logical task_gradient
@@ -75,9 +77,9 @@ c
       if (.not. rtdb_get(rtdb,'neb:grms',mt_dbl,1,nebgrms))
      >   nebgrms = 0.00030d0
       if (.not. rtdb_get(rtdb,'neb:xmax',mt_dbl,1,nebxmax))
-     >   nebxmax = 0.00180d0
+     >   nebxmax = 0.000180d0
       if (.not. rtdb_get(rtdb,'neb:xrms',mt_dbl,1,nebxrms))
-     >   nebxrms = 0.00120d0
+     >   nebxrms = 0.000120d0
 
       if (.not.rtdb_get(rtdb,'neb:stepsize',mt_dbl,1,time_step))
      >  time_step = 1.0d0
@@ -234,20 +236,32 @@ c
 
 *     **** initial step ****
       if (oprint) write(luout,*) "neb: Calculating Initial Path Energy"
+      call neb_coords_get(bead_list,dbl_mb(c1(1)))
       call runall_bead_list(bead_list,task_gradient)
       call neb_energies_get(bead_list,dbl_mb(e1(1)))
-      call neb_coords_get(bead_list,dbl_mb(c1(1)))
+      call dcopy(ng,0.0d0,0,dbl_mb(t1(1)),1)
+      call dcopy(ng,0.0d0,0,dbl_mb(g1(1)),1)
       call neb_gradient_get(bead_list,kbeads,
      >                      dbl_mb(c1(1)),
      >                      dbl_mb(e1(1)),
      >                      dbl_mb(t1(1)),
      >                      dbl_mb(g1(1))) 
+      sum0 = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
+      sum0_old = sum0
+      manyjj = 0
+      goodjj = 0
+      time_step0 = time_step
+
+      do i=1,ng
+       write(*,*) "i,c1(i)=",i,dbl_mb(c1(1)+i-1)
+      end do
 
       call neb_path_energy(bead_list,
      >                     path_distance,
      >                     path_energy) 
 
       if (oprint) then
+         write(luout,*) "neb: sum0=",sum0,ng
          write(luout,*)
          write(luout,*) "neb: Initial Path Energy    "
          write(luout,*) "neb: -----------------------"
@@ -264,11 +278,13 @@ c
 
       call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(s(1)),1)
 
-      it = 0
+      it  = 0
+      itm = 0
       done = .false.
       do while (.not.done)
-         it = it + 1
-         if (oprint) write(luout,*) 'neb: iteration #',it
+         it  = it + 1
+         itm = itm + 1
+         if (oprint) write(luout,*) 'neb: iteration #',it,itm
 
 *        *** save old forces  and coordinates ***
          call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
@@ -281,14 +297,18 @@ c
           if (neb_algorithm.eq.0) then
              if (oprint) write(luout,*)'neb: using fixed point'
 
-             if (it.le.m) then
-                shift = (it-1)*ng
+             if (itm.le.m) then
+                shift = (itm-1)*ng
                 call dcopy(ng,dbl_mb(c0(1)),1,dbl_mb(cs(1)+shift),1)
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(gs(1)+shift),1)
-                call neb_lmbfgs(ng,it,
-     >                          dbl_mb(cs(1)),
-     >                          dbl_mb(gs(1)),
-     >                          dbl_mb(s(1)))
+                if (itm.gt.1) then
+                   call neb_lmbfgs(ng,itm,
+     >                             dbl_mb(cs(1)),
+     >                             dbl_mb(gs(1)),
+     >                             dbl_mb(s(1)))
+                else
+                   call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+                end if
              else
                 do ii=1,m-1
                    shift = (ii-1)*ng
@@ -306,38 +326,76 @@ c
      >                          dbl_mb(gs(1)),
      >                          dbl_mb(s(1)))
              end if
-             sum  = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)/dble(nbeads)
-             if (oprint) write(*,*) "neb: <g|s>/nbeads=",sum
-             if (sum.le.0.0d0)  then
+c             call neb_project_gradient(nion,nbeads,
+c     >                                dbl_mb(t1(1)),
+c     >                                dbl_mb(s(1)))
+
+             finishedstep = .false.
+             alpha = time_step
+             jj = 0
+             do while ((.not.finishedstep).and.(jj.lt.9))
+             jj = jj + 1
+             sum = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+
+             if ((sum.le.0.0d0).or.(sum0.gt.sum0_old))  then
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
-                if (oprint) write(*,*) "neb: s=g"
+                itm = 0
+                if (oprint) write(*,*) "neb: s=g and itm reset to 0"
              end if
+
              sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
      >              /dble(nbeads)
              if (oprint) 
-     >          write(*,*) "neb: |<s|s>|/nbeads,trust=",sum2,trust
-             if ((time_step*sum2).gt.trust) then
-                alpha = trust/sum2
-                if(oprint) write(*,*) "neb: reducing timestep to ",alpha
-             else
-                alpha = time_step
-             end if
+     >          write(*,*) "neb: |<s|s>|,<g|s>=",sum2,sum
 
              call neb_move(ng,
      >                     (-alpha),
      >                     dbl_mb(c0(1)),
      >                     dbl_mb(c1(1)),
      >                     dbl_mb(s(1)))
-
               call neb_coords_set(bead_list,dbl_mb(c1(1)))
+
               if (oprint) write(luout,*) "neb: running internal beads"
               call runmid_bead_list(bead_list,task_gradient)
+
               call neb_energies_get(bead_list,dbl_mb(e1(1)))
               call neb_gradient_get(bead_list,kbeads,
      >                             dbl_mb(c1(1)),
      >                             dbl_mb(e1(1)),
      >                             dbl_mb(t1(1)),
      >                             dbl_mb(g1(1)))
+               sum0     = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
+
+               finishedstep = (sum0.le.sum0_old)
+               if (.not.finishedstep) then
+                   alpha = 0.50d0*alpha
+                   manyjj = manyjj+1
+                   goodjj = 0
+                   if (manyjj.gt.2) then
+                      time_step = 0.5d0*time_step
+                      manyjj = 0
+                      if (oprint) 
+     >                   write(*,*) "neb: reducing timestep=",time_step
+                   end if
+               end if
+               if (finishedstep.and.(jj.eq.1)) then
+                  goodjj = goodjj + 1
+                  if (goodjj.gt.10) then
+                     time_step = 2.0d0*time_step
+                     if (time_step.gt.time_step0) time_step = time_step0
+                     goodjj = 0
+                  end if
+               end if
+
+               if(oprint) 
+     >             write(*,*) "neb: sum0,sum0_old=",
+     >                        sum0,sum0_old,jj,finishedstep,alpha
+
+c               if (finishedstep) sum0_old = sum0
+
+             end do
+             sum0_old = sum0
+
 
 *         ***** Verlet iteration ****
           else if (neb_algorithm.eq.1) then
@@ -478,15 +536,19 @@ c
          if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))
      >      call errquit('setting neb:print_count failed',4,RTDB_ERR)
 
-         path_energy0 = path_energy
+         emid0 = path_energy/path_distance
          call neb_path_energy(bead_list,
      >                        path_distance,
      >                        path_energy) 
-         dE = path_energy - path_energy0
+         dE = dabs((path_energy/path_distance) - emid0)
          call neb_calc_convergence(ng,dbl_mb(g1(1)),
      >                                dbl_mb(c0(1)),
      >                                dbl_mb(c1(1)),
      >                                Gmax,Grms,Xmax,Xrms)
+
+         emid0 = emid
+         emin0 = emin
+         emax0 = emax
 
          emin = +99.0d99
          emax = -99.0d99
@@ -499,6 +561,10 @@ c
          i = nbeads/2
          if (i.lt.1) i = 1
          emid = dbl_mb(e1(1)+i-1)
+
+         dE = dE + dabs(emid-emid0)
+         dE = dE + dabs(emin-emin0)
+         dE = dE + dabs(emax-emax0)
 
          if (oprint) then
            cvg1 = ' '
@@ -552,13 +618,27 @@ c
 
          endif
 
-        converged =               (Gmax.le.nebgmax)
-        converged = converged.and.(Grms.le.nebgrms)
+        converged1 = (Gmax.le.nebgmax)
+        converged =               (Grms.le.nebgrms)
         converged = converged.and.(Xmax.le.nebxmax)
         converged = converged.and.(Xrms.le.nebxrms)
+        if (dE.gt.1.0d-6) converged = converged.and.converged1
+
         done = converged.or.(it.ge.nebsteps)
   
       end do
+      if (oprint) then
+         if (converged) then
+            write(luout,'(a)') "@neb  NEB calculation converged"
+            if (.not.converged1) 
+     >         write(luout,'(2a)') 
+     >           "@neb  However NEB Gmax not converged",
+     >           "...Try increasing the number of beads."
+         else
+            write(luout,'(a)') "@neb   NEB calculation not converged"
+         end if
+          
+      end if
 
 
 *     **** write out final path energies ****

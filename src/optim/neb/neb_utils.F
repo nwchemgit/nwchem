@@ -117,6 +117,57 @@
       return
       end
 
+      subroutine neb_gradient_get0(bead_list,g)
+      implicit none
+      character*(*) bead_list
+      real*8 g(*)
+
+*     **** local variables ****
+      integer i,index,nbeads,nion
+
+*     **** external functions ****
+      integer  size_bead_list,nion_bead_list
+      external size_bead_list,nion_bead_list
+
+
+      nbeads = size_bead_list(bead_list)
+      nion   = nion_bead_list(bead_list,1)
+
+      call dcopy(nbeads*3*nion,0.0d0,0,g,1)
+      do i=2,(nbeads-1)
+         index = (i-1)*3*nion + 1
+         call gradient_get_bead_list(bead_list,i,g(index))
+      end do
+      return
+      end
+
+
+      subroutine neb_project_gradient(nion,nbeads,t,g)
+      implicit none
+      integer nion,nbeads
+      real*8 t(*),g(*)
+
+*     **** local variables ****
+      integer i,index
+      real*8 norm
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+
+      do i=2,(nbeads-1)
+         index = (i-1)*3*nion+1
+         norm = ddot(3*nion,t(index),1,g(index),1)
+         call daxpy(3*nion,(-norm),
+     >              t(index),1,
+     >              g(index),1)
+      end do
+
+      return
+      end
+     
+  
+
 *     ***********************************************
 *     *                                             *
 *     *             neb_add_spring_gradient         *
@@ -205,13 +256,16 @@
      >               c(index),1,
      >               t(rp),   1)
 
-         if      ((e(i+1).gt.e(i)).and.(e(i).gt.e(i-1))) then
+         if   ( ((e(i+1)-e(i)).gt.1.0e-2).and.
+     >          ((e(i)-e(i-1)).gt.1.0d-2) ) then
             call dcopy(3*nion,t(rp),1,t(index),1)
-         else if ((e(i-1).gt.e(i)).and.(e(i).gt.e(i+1))) then
+         else if ( ((e(i-1)-e(i)).gt.1.0d-2) .and.
+     >             ((e(i)-e(i+1)).gt.1.0d-2) ) then
             call dcopy(3*nion,t(rm),1,t(index),1)
          else
             
-             if (dabs(e(i+1)-e(i)).gt.dabs(e(i-1)-e(i))) then
+             if ( (dabs(e(i+1)-e(i))-dabs(e(i-1)-e(i)))
+     >           .gt.1.0d-3) then
                dVmax = dabs(e(i+1)-e(i))
                dVmin = dabs(e(i-1)-e(i))
              else
@@ -219,7 +273,7 @@
                dVmin = dabs(e(i+1)-e(i))
              end if
 
-             if (e(i+1).gt.e(i-1)) then
+             if ((e(i+1)-e(i-1)).gt.1.0d-2) then
                call dscal(3*nion,dVmax,t(rp),1)
                call dscal(3*nion,dVmin,t(rm),1)
              else
@@ -1008,14 +1062,25 @@ c     *** choosing Polac-Ribiere coeff ***
       double precision c1(*)
       double precision Gmax,Grms,Xmax,Xrms
 
+#include "global.fh"
+
       !***** local variables ****
-      integer ii
+      logical oprint
+      integer ii,imax
       double precision dx
 
+
+      oprint = ga_nodeid() .eq. 0
+
       Gmax = 0.0
+      imax = 0
       do ii=1,ng
-        if (dabs(g1(ii)).gt.Gmax) Gmax = dabs(g1(ii))
+        if (dabs(g1(ii)).gt.Gmax) then
+            Gmax = dabs(g1(ii))
+            imax = ii
+        end if
       end do
+      if (oprint) write(*,*) "neb: imax,Gmax=",imax,Gmax
 
       Grms = 0.0
       do ii=1,ng
@@ -1688,14 +1753,14 @@ c
 *     *                              *
 *     ********************************
 
-      real*8 function neb_linesearch(t0,f0,deltat,FUNC1,
+      real*8 function neb_linesearch(bead_list,kbeads,t0,f0,deltat,
      >                           tolerance,tmin,deltaE,
      >                           stoptype)
       implicit none
+      character*(*) bead_list
+      real*8 kbeads
       real*8 t0,f0
       real*8 deltat
-      real*8   FUNC1
-      external FUNC1
       real*8   tolerance
       real*8   tmin
       real*8   deltaE
@@ -1716,44 +1781,57 @@ c
 *     **** neblinesearch_counter common block ****
       integer counter
       common / neblinesearch_counter / counter
+
+*     **** external functions ****
+      real*8   neb_line_energy
+      external neb_line_energy
    
       counter = counter + 1
 
       secant = .true.
 
       t(1) = t0
-c     f(1)  =  FUNC1(t(1))
       f(1)  = f0
       t_last = t(1)
       f_last = f(1)
       t_first = t(1)
       f_first = f(1)
 
-      f(2)  =  FUNC1(t(1)+deltat,0)
+      write(*,*) "neb: 1 neb_lineenergy,t1,deltat=",t(1),deltat
+      f(2)  =  neb_line_energy(bead_list,kbeads,t(1)+deltat,0)
+      write(*,*) "neb: f1,f2=",f(1),f(2)
       
       iteration = 1
 *     **** make sure that f2 < f1 ******
       do while ((f(2).gt.f(1)).and.(iteration.le.maxiter))
         deltat = 0.5d0*deltat
-        f(2)  =  FUNC1(t(1)+deltat,0)
+        f(2)  =  neb_line_energy(bead_list,kbeads,t(1)+deltat,0)
         iteration = iteration + 1
       end do
       t(2) = t(1) + deltat
       t_last = t(2)
       f_last = f(2)
 
+      write(*,*) "neb:gera t1,t2=",t(1),t(2)
+      write(*,*) "neb:geraaf1,f2=",f(1),f(2)
+
 *     **** use secant method to generate f(3) *****
       deltat = -f(1)*(t(2)-t(1))/(f(2)-f(1))
       t(3)   = t(1) + deltat
-      f(3)   =  FUNC1(t(3),0)
+      write(*,*) "neb:gerb t3,deltat=",t(3),deltat
+      f(3)   =  neb_line_energy(bead_list,kbeads,t(3),0)
       iteration = iteration + 1
       t_last = t(3)
       f_last = f(3)
+      write(*,*) "neb:gerb t3,f3=",t(3),f(3)
 
 *     **** sort the function values ****
       call neb_Order_Values(3,f,indx)
 
       deltaf = f(indx(2)) - f(indx(1))
+
+      write(*,*) "neb:deltaf=",deltaf
+      call util_flush(6)
 
       if (stoptype.eq.1) then
         notfinished = (dabs(deltaf).gt.tolerance)
@@ -1763,17 +1841,26 @@ c     f(1)  =  FUNC1(t(1))
      >                .and.(iteration.le.maxiter)
       end if
 
+      write(*,*) "neb: nofinished=",notfinished,secant
+      write(*,*) "neb: fs=",f(indx(1)),f(indx(2)),f(indx(3))
+      write(*,*) "neb: ts=",t(indx(1)),t(indx(2)),t(indx(3))
+      call util_flush(6)
+
       do while (notfinished) 
       
 
 *       **** use secant interpolation to generate tmin ***
         if (secant) then
 
+          write(*,*) "neb: deltat in=",deltat
+          call util_flush(6)
           deltat = -f(indx(1))
      >           *(t(indx(2))-t(indx(1)))
      >           /(f(indx(2))-f(indx(1)))
           tmin = t(indx(1)) + deltat
-          fmin  =  FUNC1(tmin,0)
+          write(*,*) "neb: deltat,tmin=",deltat,tmin
+          call util_flush(6)
+          fmin  =  neb_line_energy(bead_list,kbeads,tmin,0)
           iteration = iteration + 1
           t_last = tmin
           f_last = fmin
@@ -1803,7 +1890,7 @@ c     f(1)  =  FUNC1(t(1))
 *         **** check added by E.Apra ****
           if(abs(down).gt.tolerance**2) then
              tmin = 0.5d0*up/down
-             fmin  =  FUNC1(tmin,0)
+             fmin  =  neb_line_energy(bead_list,kbeads,tmin,0)
              iteration = iteration + 1
              t_last = tmin
              f_last = fmin
@@ -1841,8 +1928,10 @@ c     f(1)  =  FUNC1(t(1))
 *     **** make sure that tmin is last functions call *****
       tmin = t(indx(1))
       fmin = f(indx(1))
-      if (tmin.ne.t_last) f_last = FUNC1(tmin,1)
+      if (tmin.ne.t_last) 
+     >   f_last = neb_line_energy(bead_list,kbeads,tmin,0)
 
+      write(*,*) "neb: at end",f_last,fmin
       deltaE = (fmin-f_first)
   
       neb_linesearch = fmin
@@ -1888,84 +1977,147 @@ c     f(1)  =  FUNC1(t(1))
       end
 
 
-c*     *****************************
-c*     *                           *
-c*     *     neb_linesearch_start  *
-c*     *                           *
-c*     *****************************
-c      subroutine neb_linesearch_start(bead_list,ng,c0_in,s_in,
-c     >                                m_in,cs_in,gs_in)
-c      implicit none
-c      character*(*) bead_list
-c      integer ng_in,m_in
-c      real*8 c0_in(*)
-c      real*8 s_in(*)
-c      real*8 cs_in(*)
-c      real*8 gs_in(*)
-c      
-c
-c      m = m_in + 1
-c
-c      value  = MA_push_get(mt_dbl,(m_in)*ng,'cs',cs(2),cs(1))
-c      value  = value.and.MA_push_get(mt_dbl,(m_in)*ng,'gs',gs(2),gs(1))
-c      value  = value.and.MA_push_get(mt_dbl,ng,'c1',c1(2),c1(1))
-c      value  = value.and.MA_push_get(mt_dbl,ng,'c0',c0(2),c0(1))
-c      value  = value.and.MA_push_get(mt_dbl,ng,'s',s(2),s(1))
-c      value  = value.and.MA_push_get(mt_dbl,ng,'g1',g1(2),g1(1))
-c      value  = value.and.MA_push_get(mt_dbl,ng,'t1',t1(2),t1(1))
-c      if (.not.value)
-c     >   call errquit('neb failed - increase stack memory',1,0)
-c
-c      return
-c      end
-c
-c*     *****************************
-c*     *                           *
-c*     *     neb_linesearch_end    *
-c*     *                           *
-c*     *****************************
-c      subroutine neb_linesearch_end()
-c      return
-c      end
-c
-c*     *****************************
-c*     *                           *
-c*     *     neb_line_energy	  *
-c*     *                           *
-c*     *****************************
-c      real*8 function neb_line_energy(t,opt)
-c      real*8 t,ee
-c
-c*     **** external functions ****
-c      real*8   ddot
-c      external ddot
-c
-c       ee = 0.0d0
-c       call neb_move(ng,
-c     >               (-t),
-c     >               dbl_mb(c0(1)),
-c     >               dbl_mb(c1(1)),
-c     >               dbl_mb(s(1)))
-c
-c       if (opt.eq.0) then
-c           call neb_coords_set(bead_list,dbl_mb(c1(1)))
-c           call runmid_bead_list(bead_list,task_gradient)
-c           call neb_gradient_get(bead_list,kbeads,
-c     >                          dbl_mb(c1(1)),
-c     >                          dbl_mb(e1(1)),
-c     >                          dbl_mb(t1(1)),
-c     >                          dbl_mb(g1(1)))
-c           shift = (m-1)*ng
-c           call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(cs(1)+shift),1)
-c           call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(gs(1)+shift),1)
-c           call neb_lmbfgs(ng,m,
-c     >                     dbl_mb(cs(1)),
-c     >                     dbl_mb(gs(1)),
-c     >                     dbl_mb(s(1)))
-c           ee = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(s(1)),1)
-c      end if
-c
-c
-c      neb_line_energy = ee
-c      return
-c      end
+*     *****************************
+*     *                           *
+*     *     neb_linesearch_start  *
+*     *                           *
+*     *****************************
+      subroutine neb_linesearch_start(ng_in,c0_in,s_in,
+     >                                m_in,cs_in,gs_in,
+     >                                nbeads)
+      implicit none
+      integer ng_in,m_in
+      real*8 c0_in(*)
+      real*8 s_in(*)
+      real*8 cs_in(*)
+      real*8 gs_in(*)
+      integer nbeads
+      
+#include "mafdecls.fh"
+
+*     *** neb_linesearch ***
+      integer cs(2),gs(2),c1(2),c0(2),s(2),g1(2),t1(2),e1(2),m,ng
+      common / neblinesearch / cs,gs,c1,c0,s,g1,t1,e1,m,ng
+
+*     **** local variables ****
+      logical value
+
+      m = m_in + 1
+      ng = ng_in
+
+      value  = MA_push_get(mt_dbl,m*ng,'lcs',cs(2),cs(1))
+      value  = value.and.MA_push_get(mt_dbl,m*ng,'lgs',gs(2),gs(1))
+      value  = value.and.MA_push_get(mt_dbl,ng,'lc1',c1(2),c1(1))
+      value  = value.and.MA_push_get(mt_dbl,ng,'lc0',c0(2),c0(1))
+      value  = value.and.MA_push_get(mt_dbl,ng,'ls',s(2),s(1))
+      value  = value.and.MA_push_get(mt_dbl,ng,'lg1',g1(2),g1(1))
+      value  = value.and.MA_push_get(mt_dbl,ng,'lt1',t1(2),t1(1))
+      value  = value.and.MA_push_get(mt_dbl,nbeads,'le1',e1(2),e1(1))
+      if (.not.value)
+     >   call errquit('neb_linesearch_start:increase stack memory',1,0)
+
+      call dcopy(m_in*ng,cs_in,1,dbl_mb(cs(1)),1)
+      call dcopy(m_in*ng,gs_in,1,dbl_mb(gs(1)),1)
+      call dcopy(ng,c0_in,1,dbl_mb(c0(1)),1)
+      call dcopy(ng,s_in,1,dbl_mb(s(1)),1)
+
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *     neb_linesearch_end    *
+*     *                           *
+*     *****************************
+      subroutine neb_linesearch_end()
+      implicit none
+
+#include "mafdecls.fh"
+
+*     *** neb_linesearch ***
+      integer cs(2),gs(2),c1(2),c0(2),s(2),g1(2),t1(2),e1(2),m,ng
+      common / neblinesearch / cs,gs,c1,c0,s,g1,t1,e1,m,ng
+
+*     **** local variables ****
+      logical value
+
+      value =           MA_pop_stack(e1(2))
+      value = value.and.MA_pop_stack(t1(2))
+      value = value.and.MA_pop_stack(g1(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(c0(2))
+      value = value.and.MA_pop_stack(c1(2))
+      value = value.and.MA_pop_stack(gs(2))
+      value = value.and.MA_pop_stack(cs(2))
+      if (.not.value)
+     >   call errquit('neb_linesearch_end: popping stack',1,0)
+  
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *     neb_line_energy	  *
+*     *                           *
+*     *****************************
+      real*8 function neb_line_energy(bead_list,kbeads,alpha,opt)
+      implicit none
+      character*(*) bead_list
+      real*8 kbeads,alpha
+      integer opt
+
+#include "mafdecls.fh"
+
+*     *** neb_linesearch ***
+      integer cs(2),gs(2),c1(2),c0(2),s(2),g1(2),t1(2),e1(2),m,ng
+      common / neblinesearch / cs,gs,c1,c0,s,g1,t1,e1,m,ng
+
+*     **** local variables ****
+      integer shift
+      real*8  ee
+
+*     **** external functions ****
+      logical  task_gradient
+      external task_gradient
+      real*8   ddot
+      external ddot
+
+       ee = 0.0d0
+       write(*,*) "neb: alpha,opt=",alpha,opt
+       call util_flush(6)
+       call neb_move(ng,
+     >               (-alpha),
+     >               dbl_mb(c0(1)),
+     >               dbl_mb(c1(1)),
+     >               dbl_mb(s(1)))
+
+       if (opt.eq.0) then
+           call neb_coords_set(bead_list,dbl_mb(c1(1)))
+           call runmid_bead_list(bead_list,task_gradient)
+           write(*,*) "neb:hera"
+           call neb_energies_get(bead_list,dbl_mb(e1(1)))
+           write(*,*) "neb:herb"
+           call neb_gradient_get(bead_list,kbeads,
+     >                          dbl_mb(c1(1)),
+     >                          dbl_mb(e1(1)),
+     >                          dbl_mb(t1(1)),
+     >                          dbl_mb(g1(1)))
+           write(*,*) "neb:herc"
+           shift = (m-1)*ng
+           call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(cs(1)+shift),1)
+           call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(gs(1)+shift),1)
+           write(*,*) "neb:herd"
+           call neb_lmbfgs(ng,m,
+     >                     dbl_mb(cs(1)),
+     >                     dbl_mb(gs(1)),
+     >                     dbl_mb(s(1)))
+           write(*,*) "neb:here"
+           ee = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(s(1)),1)
+           write(*,*) "neb:herf=",ee
+           call util_flush(6)
+      end if
+
+
+      neb_line_energy = ee
+      return
+      end
