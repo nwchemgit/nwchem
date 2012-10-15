@@ -1,3 +1,5 @@
+c $Id$
+
 C> \ingroup task
 C> @{
 !
@@ -294,6 +296,11 @@ C> @{
       end
 C> @}
 
+*     ****************************************************
+*     *                                                  *
+*     *                 zts_meps                         *
+*     *                                                  *
+*     ****************************************************
       subroutine zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,
      &    m,coords_list,dVdx_list,HdVdx,
@@ -345,7 +352,7 @@ C> @}
       real*8 HdVdx(3,natoms,nbeads)
 
 ! Local variables
-      integer i, j, k, nstep,print_shift,print_count,ii,ng,shift
+      integer i, j, k, nstep,print_shift,print_count,ii,ng,shift,itm
       real*8 tmp, tmp2,t
       logical badgeom,oprint
       real*8 g1(3),g2(3),g3(3)
@@ -412,6 +419,7 @@ C> @}
         write(*,'(a,f9.5)')'@zts Step Size            = ', stepsize
         write(*,'(a,i9)')  '@zts Maximum Time Steps   = ', maxit
         write(*,'(a,i9)')  '@zts Number of replicas   = ', nbeads
+        write(*,'(a,i9)')  '@zts Number of histories  = ', m
         write(*,'(a,i9)')  '@zts String Interpolator  = ', interpol
         if (freeze1) then
           write(*,'(a)')   '@zts First Replica        = frozen'
@@ -433,17 +441,25 @@ C> @}
            energy(i) = 0.0d0
          enddo
       endif
+
+!     *** Look for atoms that are too close***
+      do i = 1, nbeads
+         call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
+      end do
+!     ***  Project out net motion ***
+      do i = 2, nbeads
+        call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
+      end do
+
+
+      itm = 0
       do nstep = 1, maxit
          if (oprint) write(*,*) "string: iteration #",nstep
+         itm = itm+1
 
-!        Look for atoms that are too close
-         do i = 1, nbeads
-          call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
-         enddo
-!        Project out net motion
-         do i = 2, nbeads
-          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
-         enddo
+         call dcopy(3*natoms*nbeads,coords,1,coords_old,1)
+
+
          ! Save old coordinates to check convergence
          do i = 1, nbeads
            do j = 1, natoms
@@ -452,71 +468,14 @@ C> @}
              enddo
            enddo
          enddo
-         ! Calculated the energy and forces for each bead
-         do i = 1, nbeads
-           if ( .not. geom_cart_coords_set( geom, coords(1,1,i) ) )
-     &        call errquit('zts_meps: set geometry',0,GEOM_ERR)
-           call sym_geom_project(geom, 1.0d-6)
-           if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &       call errquit('zts_meps: store geometry',0,GEOM_ERR)
-           if ((i .eq. 1 .and. freeze1 .and. nstep .ne. 1) .or. 
-     &         (i .eq. nbeads .and. freezeN .and. nstep .ne. 1)) then
-              ! Skip the gradient for frozen stuff, unless first step - need E
-           else
 
-*            *** copy bead movecs to taskmovecs ***
-             call util_file_prefix('movecs',perm_name)
-             movecs_name = 'bead'//bead_index_name(i)//'.movecs'
-             call util_file_name_resolve(perm_name, .false.)
-             call util_file_name_resolve(movecs_name, .false.)
-             permlen = inp_strlen(perm_name)
-             movecslen = inp_strlen(movecs_name)
-             if (ga_nodeid().eq.0) then
-               inquire(file=movecs_name,exist=status)
-               if (status) then
-                  call util_file_copy(movecs_name(1:movecslen),
-     >                                perm_name(1:permlen))
-               end if
-             end if
 
-             if (oprint) write(*,*) "string: running bead ",i
-             call ga_sync()
-             if ( .not. task_gradient(rtdb))
-     &          call errquit('zts_meps: gradient failed',0, 0)
 
-*            *** copy taskmovecs to bead movecs ****
-             if (ga_nodeid().eq.0) then
-                inquire(file=perm_name,exist=status)
-                if (status) then
-                   call util_file_copy(perm_name(1:permlen),
-     >                                 movecs_name(1:movecslen))
-                end if
-             end if
+         !*** Calculate the energy and forces for each bead ***
+         call zts_runall(rtdb,geom,natoms,nbeads,nstep,
+     >                      freeze1,freezeN,
+     >                      coords,energy,dVdx)
 
-             if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,energy(i)))
-     &          call errquit('zts_meps: failed getting energy',0,
-     &          RTDB_ERR)
-             if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, 3*natoms,
-     &           dVdx(1,1,i))) call errquit(
-     &           'zts_meps: failed getting gradient',0,RTDB_ERR)
-             if (oprint) 
-     >        write(*,*) "string: finished bead ",i," energy=",energy(i)
-           endif
-         enddo
-         if (freeze1) then
-           do j = 1, natoms
-             do k = 1, 3
-               dVdx(k,j,1) = 0.0d0
-             enddo
-           enddo
-         endif
-         if (freezeN) then 
-           do j = 1, natoms
-             do k = 1, 3
-               dVdx(k,j,nbeads) = 0.0d0 
-             enddo
-           enddo
-         endif
          ! Projection of gradient onto perpedicular to path?
          if (projection1) then
            do i = 2, nbeads - 1
@@ -544,11 +503,11 @@ C> @}
          endif
 
          ! lmbfgs update
-         if (nstep.le.m) then
-             shift = (nstep-1)*ng+1
+         if (itm.le.m) then
+             shift = (itm-1)*ng+1
              call dcopy(ng,coords,1,coords_list(shift),1)
              call dcopy(ng,dVdx,1,dVdx_list(shift),1)
-             call neb_lmbfgs(ng,nstep,
+             call neb_lmbfgs(ng,itm,
      >                       coords_list,
      >                       dVdx_list,
      >                       HdVdx)
@@ -575,106 +534,14 @@ C> @}
           if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
      >                      .or.(sum2.gt.10.0d0)) then
              call dcopy(ng,dVdx,1,HdVdx,1)
+             itm = 0
              if (oprint) write(*,*) "string: s=g"
           end if
 
 
-         ! Linear extrapolation - based upon linopt=1 in driver
-         if (linopt) then
-           if (freeze1) then
-              iistart = 2
-           else
-              iistart = 1
-           endif
-           if (freezeN) then
-              iiend   = nbeads-1
-           else
-              iiend   = nbeads
-           endif
-           do i = iistart,iiend
-             alpha = 1.0d0
-             dsgrad = 0.0d0
-             do j = 1, natoms
-               do k = 1, 3
-                  dsgrad = HdVdx(k,j,i)**2
-               enddo
-             enddo
-             dsgrad=-stepsize*dsgrad ! ds*g (with ds=-stepsize*g)
-             e0 = energy(i)
-c
-c     Compute energy at alpha*ds
-c
-             do j = 1, natoms
-               do k = 1, 3
-                 wrk(k,j,1)=coords(k,j,i)-alpha*stepsize*HdVdx(k,j,i) ! Force=-Gradient
-               enddo
-             enddo
-             if ( .not. geom_cart_coords_set( geom, wrk) )
-     &          call errquit('zts_meps: set geometry',0,GEOM_ERR)
-             call sym_geom_project(geom, 1.0d-6)
-             if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &         call errquit('zts_meps: store geometry',0,GEOM_ERR)
+c          call string_move(alpha,interpol,geom,natoms,nbeads,
+c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
 
-*            *** copy bead movecs to taskmovecs ***
-             call util_file_prefix('movecs',perm_name)
-             movecs_name = 'bead'//bead_index_name(i)//'.movecs'
-             call util_file_name_resolve(perm_name, .false.)
-             call util_file_name_resolve(movecs_name, .false.)
-             permlen = inp_strlen(perm_name)
-             movecslen = inp_strlen(movecs_name)
-             if (ga_nodeid().eq.0) then
-               inquire(file=movecs_name,exist=status)
-               if (status) then
-                  call util_file_copy(movecs_name(1:movecslen),
-     >                                perm_name(1:permlen))
-               end if
-             end if
-
-             call ga_sync()
-             if ( .not. task_energy(rtdb))
-     &          call errquit('zts_meps: energy failed',0, 0)
-
-*            *** copy taskmovecs to bead movecs ****
-             if (ga_nodeid().eq.0) then
-                inquire(file=perm_name,exist=status)
-                if (status) then
-                   call util_file_copy(perm_name(1:permlen),
-     >                                 movecs_name(1:movecslen))
-                end if
-             end if
-
-             if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,e1))
-     &          call errquit('zts_meps: failed get energy',0,RTDB_ERR)
-c
-c            Fit to a parabola as a function of alpha
-c
-             hess = (e1-e0-alpha*dsgrad)/alpha**2
-c
-             if (abs(e1-e0) .lt. 1.0d-7) then
-                a2 = alpha ! If no big deal, be conservative
-             else if (hess .gt. 0d0) then
-c
-c            Positive curvature.
-c
-                a2 = -dsgrad/(2d0*hess)  ! a2 will be positive
-                if (a2 .gt. 4.0d0*alpha) then
-                   a2 = 4.0d0*alpha! Limit
-                endif
-             else
-c
-c            Negative curvature and downhill
-c
-                 a2 = 4.0d0*alpha
-             endif
-c            scale gradient
-             alpha = a2
-             do j = 1, natoms
-               do k = 1, 3
-                 HdVdx(k,j,i) = HdVdx(k,j,i) * alpha
-               enddo
-             enddo 
-           enddo
-         endif
 
 
          ! Take a step (evolve it in "time").  Warning: still testing!!
@@ -685,6 +552,7 @@ c            scale gradient
              enddo
            enddo
          enddo
+
 !        Project out net motion - Can rotate/translater frozen N bead
          do i = 2, nbeads
           call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
@@ -709,6 +577,7 @@ c            scale gradient
          if (dcoords(nbeads) .le. dcoords(nbeads-1)) then  ! paranoid
           dcoords(nbeads-1) = (dcoords(nbeads-2)+dcoords(nbeads))/2.0d0
          endif
+
          ! We now interpolate new points along the string
          ! This adds more points near regions of big dcoords
          ! This really a normalized arc length on a spline
@@ -721,6 +590,7 @@ c            scale gradient
          else
            call errquit('zts_meps: fatal error', 0, 0)
          end if
+
 !        Project out net motion - Can rotate/translater frozen N bead
          do i = 2, nbeads
           call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
@@ -1013,6 +883,11 @@ c            scale gradient
       return
       end
 
+*     ****************************************
+*     *                                      *
+*     *           zts_min_motion             *
+*     *                                      *
+*     ****************************************
       subroutine zts_min_motion(natoms,new ,old, geom)
       implicit none
 #include "errquit.fh"
@@ -1599,4 +1474,222 @@ c            scale gradient
 
         return
         end
-c $Id$
+
+
+
+*     ****************************************
+*     *                                      *
+*     *             zts_runall               *
+*     *                                      *
+*     ****************************************
+      subroutine zts_runall(rtdb,geom,natoms,nbeads,nstep,
+     >                      freeze1,freezeN,
+     >                      coords,energy,dVdx)
+      implicit none
+      integer rtdb,geom
+      integer natoms,nbeads,nstep
+      logical freeze1,freezeN
+      real*8 coords(3,natoms,nbeads)
+      real*8 energy(nbeads)
+      real*8 dVdx(3,natoms,nbeads)
+
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "util.fh"
+#include "inp.fh"
+
+*     **** local variables ****
+      logical skip1,skip2,status,oprint
+      integer i,j,k
+      integer permlen,movecslen
+      character*255 movecs_name,perm_name
+
+*     **** external functions ****
+      logical  task_gradient
+      external task_gradient
+      character*7 bead_index_name
+      external    bead_index_name
+
+      oprint = (ga_nodeid().eq.0)
+
+      !*** Calculate the energy and forces for each bead ***
+      do i=1,nbeads
+
+         if ( .not. geom_cart_coords_set( geom, coords(1,1,i) ) )
+     >      call errquit('zts_meps: set geometry',0,GEOM_ERR)
+         call sym_geom_project(geom, 1.0d-6)
+
+         if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
+     >     call errquit('zts_meps: store geometry',0,GEOM_ERR)
+
+         !*** Skip the gradient for frozen stuff, unless first step - need E ***
+         skip1 = freeze1.and.(i.eq.1).and.(nstep.gt.1)
+         skip2 = freezeN.and.(i.eq.nbeads).and.(nstep.gt.1)
+         if (.not.(skip1.or.skip2)) then
+
+*           *** copy bead movecs to taskmovecs ***
+            call util_file_prefix('movecs',perm_name)
+            movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+            call util_file_name_resolve(perm_name, .false.)
+            call util_file_name_resolve(movecs_name, .false.)
+            permlen = inp_strlen(perm_name)
+            movecslen = inp_strlen(movecs_name)
+            if (ga_nodeid().eq.0) then
+              inquire(file=movecs_name,exist=status)
+              if (status) then
+                 call util_file_copy(movecs_name(1:movecslen),
+     >                               perm_name(1:permlen))
+              end if
+            end if
+
+*           *** run gradient task ***
+            if(.not.rtdb_put(rtdb,"scf:converged",mt_log,1,.false.))
+     >        call errquit('scf:converged put',0,0)
+            if(.not.rtdb_put(rtdb,"dft:converged",mt_log,1,.false.))
+     >        call errquit('dft:converged put',0,0)
+
+            if (oprint) write(*,*) "string: running bead ",i
+            call ga_sync()
+            if ( .not. task_gradient(rtdb))
+     >         call errquit('zts_meps: gradient failed',0, 0)
+
+
+*           *** copy taskmovecs to bead movecs ****
+            if (ga_nodeid().eq.0) then
+               inquire(file=perm_name,exist=status)
+               if (status) then
+                  call util_file_copy(perm_name(1:permlen),
+     >                                movecs_name(1:movecslen))
+               end if
+            end if
+
+            if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,energy(i)))
+     &         call errquit('zts_meps: failed getting energy',0,
+     &         RTDB_ERR)
+            if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, 3*natoms,
+     &          dVdx(1,1,i))) call errquit(
+     &          'zts_meps: failed getting gradient',0,RTDB_ERR)
+            if (oprint) 
+     >        write(*,*) "string: finished bead ",i," energy=",energy(i)
+         end if
+      end do
+
+      if (freeze1) then
+        do j = 1, natoms
+          do k = 1, 3
+            dVdx(k,j,1) = 0.0d0
+          end do
+        end do
+      end if
+
+      if (freezeN) then
+        do j = 1, natoms
+          do k = 1, 3
+            dVdx(k,j,nbeads) = 0.0d0
+          end do
+        end do
+      end if
+
+      return
+      end
+
+
+*     ************************************************
+*     *                                              *
+*     *               string_move                    *
+*     *                                              *
+*     ************************************************
+      subroutine string_move(alpha,interpol,geom,natoms,nbeads,
+     >                       dg,wrk,dcoords,coords1,HdVdx,coords2)
+      implicit none
+      real*8 alpha
+      integer interpol,geom
+      integer natoms,nbeads
+      real*8 dg(*),wrk(*)
+      real*8 dcoords(nbeads)
+      real*8 coords1(3,natoms,nbeads)
+      real*8 HdVdx(3,natoms,nbeads)
+      real*8 coords2(3,natoms,nbeads)
+
+*     **** local variables ****
+      integer i,j,k
+      logical badgeom
+
+*     **** external functions ****
+      real*8   zts_distance
+      external zts_distance
+
+      do i=1,nbeads
+        do j=1,natoms
+          do k=1,3
+            coords2(k,j,i) = coords1(k,j,i) - alpha*HdVdx(k,j,i)
+          end do
+        end do
+      end do
+
+!     *** Project out net motion - Can rotate/translater frozen N bead ***
+      do i = 2, nbeads
+         call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+     >                        geom)
+      end do
+
+      !*** reparameterize - This is where the magic happens ****
+      dcoords(1) = 0.0d0
+      do i=2,nbeads
+        dcoords(i) = 
+     &     zts_distance(natoms,coords2(1,1,i),coords2(1,1,i-1))
+      end do
+      do i=2,nbeads
+        dcoords(i) = dcoords(i) + dcoords(i-1) ! Now relative to bead 1
+      end  do
+      do i=1,nbeads
+        dcoords(i) = dcoords(i)/dcoords(nbeads) ! Runs from zero to one
+      end do
+      do i=2,nbeads-1
+        if (dcoords(i).le.dcoords(i-1)) then  ! paranoid
+            dcoords(i) = (99.0d0*dcoords(i-1)+dcoords(i+1))/100.0d0
+        end if
+      end do
+      if (dcoords(nbeads) .le. dcoords(nbeads-1)) then  ! paranoid
+        dcoords(nbeads-1) = (dcoords(nbeads-2)+dcoords(nbeads))/2.0d0
+      end if
+
+      ! We now interpolate new points along the string
+      ! This adds more points near regions of big dcoords
+      ! This really a normalized arc length on a spline
+      if (interpol .eq. 1) then
+        call zts_linear_fit(natoms*3,nbeads,coords2,dcoords,wrk)
+      else if (interpol .eq. 2) then
+        call zts_spline_fit(natoms*3,nbeads,coords2,dcoords,dg)
+      else if (interpol .eq. 3) then
+        call zts_akima_fit(natoms*3,nbeads,coords2,dcoords,dg)
+      else
+         call errquit('zts_meps: fatal error',0,0)
+      end if
+
+!     Project out net motion - Can rotate/translater frozen N bead
+      do i=2,nbeads
+        call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+     >                      geom)
+      end do
+
+!     Look for atoms that are too close
+      do i=1,nbeads
+        call zts_Robinson(natoms,geom,coords2(1,1,i),badgeom)
+      end do
+
+!      Project out net motion
+      do i=2,nbeads
+        call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+     >                      geom)
+      end do
+
+      return 
+      end
+
+      
+
+
