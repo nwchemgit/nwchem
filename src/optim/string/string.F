@@ -357,7 +357,7 @@ C> @}
       logical badgeom,oprint
       real*8 g1(3),g2(3),g3(3)
       integer iistart, iiend
-      real*8 hess, e0, e1, a2, dsgrad,sum,sum2
+      real*8 hess, e0, e1, a2, dsgrad,sum,sum2,e3
       logical linopt
       logical projection1,found,status,finishedstep
       integer pathguess,manyjj,goodjj,jj
@@ -436,7 +436,7 @@ C> @}
         write(*,'(a)')'@zts'
         write(*,'(a)')
      &    '@zts  Step     xrms     xmax        E start       '
-     &     //'E middle          E end          E max'
+     &     //'E middle          E end          E max      E average'
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
          do i = 1, nbeads
@@ -462,7 +462,7 @@ C> @}
       manyjj = 0
       goodjj = 0
       stepsize0 = stepsize
-      stepsizem = stepsize/64.0d0
+      stepsizem = stepsize/16.0d0
 
       itm = 0
       do nstep = 1, maxit
@@ -500,8 +500,7 @@ C> @}
           sum2 = ddot(ng,HdVdx,1,HdVdx,1)/dble(nbeads)
           if (oprint) write(*,*) "string: <g|s>=",sum
           if (oprint) write(*,*) "string: <s|s>=",sum2
-          if ((sum.le.0.0d0).or.(sum .gt.1.0d0)
-     >                      .or.(sum2.gt.10.0d0)) then
+          if((sum.le.0.0d0).or.(sum .gt.1.0d0).or.(sum2.gt.10.0d0)) then
              call dcopy(ng,dVdx,1,HdVdx,1)
              itm = 0
              if (oprint) write(*,*) "string: s=g"
@@ -527,7 +526,8 @@ C> @}
      >                      coords,energy,dVdx)
              sum0 = ddot(ng,dVdx,1,dVdx,1)
 
-             finishedstep = (sum0.le.sum0_old)
+             finishedstep = (sum0.le.sum0_old).or.
+     >                      (stepsize.le.stepsizem)
              if (.not.finishedstep) then
                 alpha = 0.5d0*alpha
                 manyjj = manyjj + 1
@@ -540,7 +540,7 @@ C> @}
      >                write(*,*) "string: reducing stepsize=",stepsize
                 end if
              end if
-             if (finishedstep.and.(jj.eq.1)) then
+             if ((sum0.le.sum0_old).and.(jj.eq.1)) then
                 goodjj = goodjj + 1
                 if (goodjj.gt.10) then
                    stepsize = 2.0d0*stepsize
@@ -550,62 +550,11 @@ C> @}
              end if
              if (oprint)
      >          write(*,*) "string: sum0,sum0_old=",
-     >                     sum0,sum0_old,jj,finishedstep,alpha
+     >                     sum0,sum0_old,jj,finishedstep,alpha,itm
 
           end do
           sum0_old = sum0
 
-c         ! Take a step (evolve it in "time").  Warning: still testing!!
-c         do i = 1, nbeads
-c           do j = 1, natoms
-c             do k = 1, 3
-c               coords(k,j,i) = coords_old(k,j,i) - stepsize*HdVdx(k,j,i) ! Force=-Gradient
-c             enddo
-c           enddo
-c         enddo
-c
-c!        Project out net motion - Can rotate/translater frozen N bead
-c         do i = 2, nbeads
-c          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
-c         enddo
-c         !reparameterize - This is where the magic happens
-c         dcoords(1) = 0.0d0
-c         do i = 2, nbeads
-c           dcoords(i) = 
-c     &      zts_distance(natoms,coords(1,1,i),coords(1,1,i-1))
-c         enddo
-c         do i = 2, nbeads
-c           dcoords(i) = dcoords(i) + dcoords(i-1) ! Now relative to bead 1
-c         enddo
-c         do i = 1, nbeads
-c           dcoords(i) = dcoords(i)/dcoords(nbeads) ! Runs from zero to one
-c         enddo
-c         do i = 2, nbeads-1
-c           if (dcoords(i) .le. dcoords(i-1)) then  ! paranoid
-c             dcoords(i) = (99.0d0*dcoords(i-1)+dcoords(i+1))/100.0d0
-c           endif
-c         enddo
-c         if (dcoords(nbeads) .le. dcoords(nbeads-1)) then  ! paranoid
-c          dcoords(nbeads-1) = (dcoords(nbeads-2)+dcoords(nbeads))/2.0d0
-c         endif
-c
-c         ! We now interpolate new points along the string
-c         ! This adds more points near regions of big dcoords
-c         ! This really a normalized arc length on a spline
-c         if (interpol .eq. 1) then
-c           call zts_linear_fit(natoms*3,nbeads,coords,dcoords,wrk)
-c         else if (interpol .eq. 2) then
-c           call zts_spline_fit(natoms*3,nbeads,coords,dcoords,dg)
-c         else if (interpol .eq. 3) then
-c           call zts_akima_fit(natoms*3,nbeads,coords,dcoords,dg)
-c         else
-c           call errquit('zts_meps: fatal error', 0, 0)
-c         end if
-c
-c!        Project out net motion - Can rotate/translater frozen N bead
-c         do i = 2, nbeads
-c          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
-c         enddo
 
          !**** Check convergence ****
          xrms = 0.0d0
@@ -620,13 +569,19 @@ c         enddo
          if (ga_nodeid() .eq. 0) then
            tmp2 = energy(1)
            do i = 2, nbeads
-             if (energy(i) .gt. tmp2) tmp2=energy(i)
+             if (energy(i).gt.tmp2) tmp2=energy(i)
            enddo
+           e3 = 0.0d0
+           do i=1,nbeads
+              e3 = e3 + energy(i)
+           end do
+           e3 = e3/dble(nbeads)
            write(*,
-     &     '(a5,i5,1x,f8.6,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7)'
+     &     '(a5,i5,1x,f8.6,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7,
+     &       1x,F14.7)'
      &            )'@zts ',nstep,xrms,xmax,energy(1),
      &                            energy(1+nbeads/2),
-     &                            energy(nbeads),tmp2
+     &                            energy(nbeads),tmp2,e3
 
 
 *           ***************************************
@@ -1536,6 +1491,7 @@ c         enddo
       oprint = (ga_nodeid().eq.0)
 
       !*** Calculate the energy and forces for each bead ***
+      call dcopy(3*natoms*nbeads,0.0d0,0,dVdx,1)
       do i=1,nbeads
 
          if ( .not. geom_cart_coords_set( geom, coords(1,1,i) ) )
@@ -1722,17 +1678,16 @@ c         enddo
      >                      geom)
       end do
 
-!     Look for atoms that are too close
-      do i=1,nbeads
-        call zts_Robinson(natoms,geom,coords2(1,1,i),badgeom)
-      end do
-
-!      Project out net motion
-      do i=2,nbeads
-        call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
-     >                      geom)
-      end do
-
+c!     Look for atoms that are too close
+c      do i=1,nbeads
+c        call zts_Robinson(natoms,geom,coords2(1,1,i),badgeom)
+c      end do
+c
+c!      Project out net motion
+c      do i=2,nbeads
+c        call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+c     >                      geom)
+c      end do
       return 
       end
 
