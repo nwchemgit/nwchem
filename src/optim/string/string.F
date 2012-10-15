@@ -362,6 +362,7 @@ C> @}
       logical projection1,found,status,finishedstep
       integer pathguess,manyjj,goodjj,jj
       real*8  sum0,sum0_old,alpha,stepsize0
+      real*8  xmax,xrms
 
       character     ch_tmp
       character*255 filename,full_filename,perm_name,movecs_name
@@ -434,7 +435,7 @@ C> @}
         endif
         write(*,'(a)')'@zts'
         write(*,'(a)')
-     &    '@zts  Step   xrms          E start       '
+     &    '@zts  Step     xrms     xmax        E start       '
      &     //'E middle          E end          E max'
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
@@ -605,19 +606,23 @@ c          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
 c         enddo
 
          !**** Check convergence ****
-         tmp = 0.0d0
+         xrms = 0.0d0
+         xmax = 0.0d0
          do i = 1, nbeads
-           tmp = tmp +
-     &      zts_distance(natoms,coords(1,1,i),coords_old(1,1,i))
+           tmp = zts_distance(natoms,coords(1,1,i),coords_old(1,1,i))
+           xrms = xrms + tmp
+           if (tmp.gt.xmax) xmax = tmp
          enddo
-         tmp = tmp/dble(nbeads*natoms)
+         xrms = xrms/dble(nbeads*natoms)
+
          if (ga_nodeid() .eq. 0) then
            tmp2 = energy(1)
            do i = 2, nbeads
              if (energy(i) .gt. tmp2) tmp2=energy(i)
            enddo
-           write(*,'(a5,i5,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7)'
-     &            )'@zts ',nstep,tmp,energy(1),
+           write(*,
+     &     '(a5,i5,1x,f8.6,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7)'
+     &            )'@zts ',nstep,xrms,xmax,energy(1),
      &                            energy(1+nbeads/2),
      &                            energy(nbeads),tmp2
 
@@ -648,8 +653,8 @@ c         enddo
             write(19,*)  "# String Interpolator    = ",interpol
             write(19,*)  "# nbeads                 = ",nbeads
             write(19,*)  "# step Size              = ",stepsize
-            write(19,*)  "# convergence            = ",tmp
-            write(19,*)  "# convergence tol (Xrms) = ",tol
+            write(19,*)  "# convergence            = ",xrms,xmax
+            write(19,*)  "# convergence tol (Xrms,Xmax)=",tol,tol
             write(19,*)
      > "#-------------------------------------------------------"
             write(*,*) "string: Path Energy #",nstep
@@ -687,7 +692,7 @@ c         enddo
      >                     mt_int,1,print_count))
      >      call errquit('setting print:print_count failed',4,RTDB_ERR)
 
-         if ( tmp .lt. tol) goto 747
+         if ((xrms.lt.tol).and.(xmax.lt.tol)) goto 747
       end do
 
 
