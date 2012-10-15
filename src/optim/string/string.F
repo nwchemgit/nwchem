@@ -361,7 +361,7 @@ C> @}
       logical linopt
       logical projection1,found,status,finishedstep
       integer pathguess,manyjj,goodjj,jj
-      real*8  sum0,sum0_old,alpha,stepsize0
+      real*8  sum0,sum0_old,alpha,stepsize0,stepsizem
       real*8  xmax,xrms
 
       character     ch_tmp
@@ -462,6 +462,7 @@ C> @}
       manyjj = 0
       goodjj = 0
       stepsize0 = stepsize
+      stepsizem = stepsize/128.0d0
 
       itm = 0
       do nstep = 1, maxit
@@ -533,6 +534,7 @@ C> @}
                 goodjj = 0
                 if (manyjj.gt.2) then
                    stepsize = 0.5d0*stepsize
+                   if (stepsize.lt.stepsizem) stepsize = stepsizem
                    manyjj = 0
                    if (oprint) 
      >                write(*,*) "string: reducing stepsize=",stepsize
