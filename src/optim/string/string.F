@@ -357,10 +357,11 @@ C> @}
       logical badgeom,oprint
       real*8 g1(3),g2(3),g3(3)
       integer iistart, iiend
-      real*8 hess, e0, e1, a2, alpha, dsgrad,sum,sum2
+      real*8 hess, e0, e1, a2, dsgrad,sum,sum2
       logical linopt
-      logical projection1,found,status
-      integer pathguess
+      logical projection1,found,status,finishedstep
+      integer pathguess,manyjj,goodjj,jj
+      real*8  sum0,sum0_old,alpha,stepsize0
 
       character     ch_tmp
       character*255 filename,full_filename,perm_name,movecs_name
@@ -451,6 +452,15 @@ C> @}
         call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
       end do
 
+      !*** Calculate the energy and forces for each bead ***
+      call zts_runall(rtdb,geom,natoms,nbeads,0,
+     >                      freeze1,freezeN,projection1,
+     >                      coords,energy,dVdx)
+      sum0 = ddot(ng,dVdx,1,dVdx,1)
+      sum0_old = sum0
+      manyjj = 0
+      goodjj = 0
+      stepsize0 = stepsize
 
       itm = 0
       do nstep = 1, maxit
@@ -459,53 +469,10 @@ C> @}
 
          call dcopy(3*natoms*nbeads,coords,1,coords_old,1)
 
-
-         ! Save old coordinates to check convergence
-         do i = 1, nbeads
-           do j = 1, natoms
-             do k = 1, 3
-               coords_old(k,j,i) = coords(k,j,i)
-             enddo
-           enddo
-         enddo
-
-
-
-         !*** Calculate the energy and forces for each bead ***
-         call zts_runall(rtdb,geom,natoms,nbeads,nstep,
-     >                      freeze1,freezeN,
-     >                      coords,energy,dVdx)
-
-         ! Projection of gradient onto perpedicular to path?
-         if (projection1) then
-           do i = 2, nbeads - 1
-             do j = 1, natoms
-               do k = 1, 3
-                 g1(k) = coords(k,j,i) - coords(k,j,i+1)
-                 g2(k) = coords(k,j,i) - coords(k,j,i-1)
-               enddo
-               call cross_product(g1,g2,g3) ! Vector perpendicular to plane
-               tmp = 0.0d0
-               do k = 1, 3
-                 tmp = tmp + g3(k)**2
-               enddo
-               if (tmp .gt. 1.0d-16) then
-                 tmp = 1.0d0/sqrt(tmp)
-                 do k = 1, 3
-                   g3(k) = g3(k)*tmp ! Normalize
-                 enddo
-                 ! Projection
-                 call cross_product(dVdx(1,j,i),g3,g2)
-                 call cross_product(g3,g2,dVdx(1,j,i))
-               endif
-             enddo
-           enddo
-         endif
-
-         ! lmbfgs update
+         !**** lmbfgs update ****
          if (itm.le.m) then
              shift = (itm-1)*ng+1
-             call dcopy(ng,coords,1,coords_list(shift),1)
+             call dcopy(ng,coords_old,1,coords_list(shift),1)
              call dcopy(ng,dVdx,1,dVdx_list(shift),1)
              call neb_lmbfgs(ng,itm,
      >                       coords_list,
@@ -520,7 +487,7 @@ C> @}
      >                        dVdx_list(shift),   1)
               end do
              shift = (m-1)*ng+1
-             call dcopy(ng,coords,1,coords_list(shift),1)
+             call dcopy(ng,coords_old,1,coords_list(shift),1)
              call dcopy(ng,dVdx,1,dVdx_list(shift),1)
              call neb_lmbfgs(ng,m,
      >                       coords_list,
@@ -538,64 +505,106 @@ C> @}
              if (oprint) write(*,*) "string: s=g"
           end if
 
+          finishedstep = .false.
+          alpha = stepsize
+          jj = 0
+          do while ((.not.finishedstep).and.(jj.lt.2))
+             jj = jj + 1
 
-c          call string_move(alpha,interpol,geom,natoms,nbeads,
-c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
+             sum  = ddot(ng,dVdx,1,HdVdx,1) 
+             if ((sum.le.0).or.(sum0.gt.sum0_old)) then
+                call dcopy(ng,dVdx,1,HdVdx,1)
+                itm = 0
+                if (oprint) write(*,*) "string: s=g and itm reset to 0"
+             end if
+             call string_move(alpha,interpol,geom,natoms,nbeads,
+     >                      dg,wrk,dcoords,coords_old,HdVdx,coords)
 
+             call zts_runall(rtdb,geom,natoms,nbeads,nstep,
+     >                      freeze1,freezeN,projection1,
+     >                      coords,energy,dVdx)
+             sum0 = ddot(ng,dVdx,1,dVdx,1)
 
+             finishedstep = (sum0.le.sum0_old)
+             if (.not.finishedstep) then
+                alpha = 0.5d0*alpha
+                manyjj = manyjj + 1
+                goodjj = 0
+                if (manyjj.gt.2) then
+                   stepsize = 0.5d0*stepsize
+                   manyjj = 0
+                   if (oprint) 
+     >                write(*,*) "string: reducing stepsize=",stepsize
+                end if
+             end if
+             if (finishedstep.and.(jj.eq.1)) then
+                goodjj = goodjj + 1
+                if (goodjj.gt.10) then
+                   stepsize = 2.0d0*stepsize
+                   if (stepsize.gt.stepsize0) stepsize = stepsize0
+                   goodjj = 0
+                end if
+             end if
+             if (oprint)
+     >          write(*,*) "string: sum0,sum0_old=",
+     >                     sum0,sum0_old,jj,finishedstep,alpha
 
-         ! Take a step (evolve it in "time").  Warning: still testing!!
-         do i = 1, nbeads
-           do j = 1, natoms
-             do k = 1, 3
-               coords(k,j,i) = coords(k,j,i) - stepsize*HdVdx(k,j,i) ! Force=-Gradient
-             enddo
-           enddo
-         enddo
+          end do
+          sum0_old = sum0
 
-!        Project out net motion - Can rotate/translater frozen N bead
-         do i = 2, nbeads
-          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
-         enddo
-         !reparameterize - This is where the magic happens
-         dcoords(1) = 0.0d0
-         do i = 2, nbeads
-           dcoords(i) = 
-     &      zts_distance(natoms,coords(1,1,i),coords(1,1,i-1))
-         enddo
-         do i = 2, nbeads
-           dcoords(i) = dcoords(i) + dcoords(i-1) ! Now relative to bead 1
-         enddo
-         do i = 1, nbeads
-           dcoords(i) = dcoords(i)/dcoords(nbeads) ! Runs from zero to one
-         enddo
-         do i = 2, nbeads-1
-           if (dcoords(i) .le. dcoords(i-1)) then  ! paranoid
-             dcoords(i) = (99.0d0*dcoords(i-1)+dcoords(i+1))/100.0d0
-           endif
-         enddo
-         if (dcoords(nbeads) .le. dcoords(nbeads-1)) then  ! paranoid
-          dcoords(nbeads-1) = (dcoords(nbeads-2)+dcoords(nbeads))/2.0d0
-         endif
+c         ! Take a step (evolve it in "time").  Warning: still testing!!
+c         do i = 1, nbeads
+c           do j = 1, natoms
+c             do k = 1, 3
+c               coords(k,j,i) = coords_old(k,j,i) - stepsize*HdVdx(k,j,i) ! Force=-Gradient
+c             enddo
+c           enddo
+c         enddo
+c
+c!        Project out net motion - Can rotate/translater frozen N bead
+c         do i = 2, nbeads
+c          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
+c         enddo
+c         !reparameterize - This is where the magic happens
+c         dcoords(1) = 0.0d0
+c         do i = 2, nbeads
+c           dcoords(i) = 
+c     &      zts_distance(natoms,coords(1,1,i),coords(1,1,i-1))
+c         enddo
+c         do i = 2, nbeads
+c           dcoords(i) = dcoords(i) + dcoords(i-1) ! Now relative to bead 1
+c         enddo
+c         do i = 1, nbeads
+c           dcoords(i) = dcoords(i)/dcoords(nbeads) ! Runs from zero to one
+c         enddo
+c         do i = 2, nbeads-1
+c           if (dcoords(i) .le. dcoords(i-1)) then  ! paranoid
+c             dcoords(i) = (99.0d0*dcoords(i-1)+dcoords(i+1))/100.0d0
+c           endif
+c         enddo
+c         if (dcoords(nbeads) .le. dcoords(nbeads-1)) then  ! paranoid
+c          dcoords(nbeads-1) = (dcoords(nbeads-2)+dcoords(nbeads))/2.0d0
+c         endif
+c
+c         ! We now interpolate new points along the string
+c         ! This adds more points near regions of big dcoords
+c         ! This really a normalized arc length on a spline
+c         if (interpol .eq. 1) then
+c           call zts_linear_fit(natoms*3,nbeads,coords,dcoords,wrk)
+c         else if (interpol .eq. 2) then
+c           call zts_spline_fit(natoms*3,nbeads,coords,dcoords,dg)
+c         else if (interpol .eq. 3) then
+c           call zts_akima_fit(natoms*3,nbeads,coords,dcoords,dg)
+c         else
+c           call errquit('zts_meps: fatal error', 0, 0)
+c         end if
+c
+c!        Project out net motion - Can rotate/translater frozen N bead
+c         do i = 2, nbeads
+c          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
+c         enddo
 
-         ! We now interpolate new points along the string
-         ! This adds more points near regions of big dcoords
-         ! This really a normalized arc length on a spline
-         if (interpol .eq. 1) then
-           call zts_linear_fit(natoms*3,nbeads,coords,dcoords,wrk)
-         else if (interpol .eq. 2) then
-           call zts_spline_fit(natoms*3,nbeads,coords,dcoords,dg)
-         else if (interpol .eq. 3) then
-           call zts_akima_fit(natoms*3,nbeads,coords,dcoords,dg)
-         else
-           call errquit('zts_meps: fatal error', 0, 0)
-         end if
-
-!        Project out net motion - Can rotate/translater frozen N bead
-         do i = 2, nbeads
-          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
-         enddo
-         ! Check convergence
+         !**** Check convergence ****
          tmp = 0.0d0
          do i = 1, nbeads
            tmp = tmp +
@@ -611,6 +620,7 @@ c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
      &            )'@zts ',nstep,tmp,energy(1),
      &                            energy(1+nbeads/2),
      &                            energy(nbeads),tmp2
+
 
 *           ***************************************
 *           ***** print out .string_epath file ****
@@ -678,14 +688,16 @@ c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
      >      call errquit('setting print:print_count failed',4,RTDB_ERR)
 
          if ( tmp .lt. tol) goto 747
-      enddo
+      end do
+
+
  747  continue
       if (nstep .ge. maxit) then
-         if (ga_nodeid() .eq. 0)
-     &   write(*,'(a)') '@zts The string calculation failed to converge'
+         if (oprint) 
+     >   write(*,'(a)') '@zts The string calculation failed to converge'
          converged = .false.
       else
-         if(ga_nodeid() .eq. 0)
+         if (oprint)
      &   write(*,'(a)') '@zts The string calculation converged'
          converged = .true.
       endif
@@ -1483,12 +1495,12 @@ c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
 *     *                                      *
 *     ****************************************
       subroutine zts_runall(rtdb,geom,natoms,nbeads,nstep,
-     >                      freeze1,freezeN,
+     >                      freeze1,freezeN,projection1,
      >                      coords,energy,dVdx)
       implicit none
       integer rtdb,geom
       integer natoms,nbeads,nstep
-      logical freeze1,freezeN
+      logical freeze1,freezeN,projection1
       real*8 coords(3,natoms,nbeads)
       real*8 energy(nbeads)
       real*8 dVdx(3,natoms,nbeads)
@@ -1506,6 +1518,7 @@ c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
       integer i,j,k
       integer permlen,movecslen
       character*255 movecs_name,perm_name
+      real*8 g1(3),g2(3),g3(3),tmp
 
 *     **** external functions ****
       logical  task_gradient
@@ -1526,8 +1539,8 @@ c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
      >     call errquit('zts_meps: store geometry',0,GEOM_ERR)
 
          !*** Skip the gradient for frozen stuff, unless first step - need E ***
-         skip1 = freeze1.and.(i.eq.1).and.(nstep.gt.1)
-         skip2 = freezeN.and.(i.eq.nbeads).and.(nstep.gt.1)
+         skip1 = freeze1.and.(i.eq.1).and.(nstep.gt.0)
+         skip2 = freezeN.and.(i.eq.nbeads).and.(nstep.gt.0)
          if (.not.(skip1.or.skip2)) then
 
 *           *** copy bead movecs to taskmovecs ***
@@ -1592,6 +1605,32 @@ c     >                      dg,wrk,dcoords,coords1,HdVdx,coords2)
           end do
         end do
       end if
+
+      !**** Projection of gradient onto perpedicular to path? ****
+      if (projection1) then
+        do i = 2,nbeads - 1
+          do j = 1,natoms
+            do k = 1, 3
+              g1(k) = coords(k,j,i) - coords(k,j,i+1)
+              g2(k) = coords(k,j,i) - coords(k,j,i-1)
+            enddo
+            call cross_product(g1,g2,g3) ! Vector perpendicular to plane
+            tmp = 0.0d0
+            do k = 1, 3
+              tmp = tmp + g3(k)**2
+            enddo
+            if (tmp.gt.1.0d-16) then
+              tmp = 1.0d0/dsqrt(tmp)
+              do k = 1, 3
+                g3(k) = g3(k)*tmp ! Normalize
+              end do
+              ! Projection
+              call cross_product(dVdx(1,j,i),g3,g2)
+              call cross_product(g3,g2,dVdx(1,j,i))
+            endif
+          enddo
+        enddo
+      endif
 
       return
       end
