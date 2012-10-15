@@ -462,7 +462,7 @@ C> @}
       manyjj = 0
       goodjj = 0
       stepsize0 = stepsize
-      stepsizem = stepsize/128.0d0
+      stepsizem = stepsize/64.0d0
 
       itm = 0
       do nstep = 1, maxit
