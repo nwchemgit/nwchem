@@ -343,6 +343,16 @@ c     All of these call int_1estv.
 c
 c----------------------------------------------------------------------
 *
+C> \ingroup nwint
+C> @{
+C> \brief Compute the overlap integrals
+C>
+C> Compute the overlap integrals between two shells. These integrals
+C> are defined as:
+C> \f{eqnarray*}{
+C> S & = & ({\mu}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eov}
 c:tex-This routine computes the 1 electron overlap integrals ($S$):
@@ -359,14 +369,14 @@ c:tex-\end{verbatim}
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lov                ! [input] length of Ov buffer
-      double precision Ov(lov)   ! [output] overlap integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lov                !< [Input] length of Ov buffer
+      double precision Ov(lov)   !< [Output] overlap integrals
 c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lov,Ov,scr,scr,
@@ -376,6 +386,14 @@ c          doS    doT     doV
       end
 c----------------------------------------------------------------------
 *
+C> \brief Calculates the 1-electron kinetic energy integrals
+C>
+C> This routine calculates the 1-electron kinetic energy integrals 
+C> between a pair of specified shells. The integrals are defined as:
+C> \f{eqnarray*}{
+C> T & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eke}
 c:tex-This routine computes the 1 electron kinetic energy integrals, ($T$).:
@@ -392,14 +410,14 @@ c:tex-\end{verbatim}
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lke                ! [input] length of Ke buffer
-      double precision Ke(lke)   ! [output] kinetic energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lke                !< [Input] length of Ke buffer
+      double precision Ke(lke)   !< [Output] kinetic energy integrals
 c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lke,scr,Ke,scr,
@@ -409,6 +427,18 @@ c          doS     doT    doV
       end
 c----------------------------------------------------------------------
 *
+C> \brief Computes the nuclear attraction integrals
+C>
+C> This routine calculates the 1-electron nuclear attraction integrals
+C> for a pair of shells. If any ECPs are present then the ECP terms 
+C> are directly summed into these integrals.
+C>
+C> The integrals are defined as:
+C> \f{eqnarray*}{
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+C> {-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1epe}
 c:tex-This routine computes the 1 electron potential integrals, ($V$):
@@ -428,14 +458,14 @@ c:tex-\end{verbatim}
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lpe                ! [input] length of Pe buffer
-      double precision Pe(lpe)   ! [output] kinetic energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lpe                !< [Input] length of Pe buffer
+      double precision Pe(lpe)   !< [Output] kinetic energy integrals
 c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lpe,scr,scr,Pe,
@@ -443,6 +473,7 @@ c
 c          doS     doT     doV
       return
       end
+C> @}
 c----------------------------------------------------------------------
 *
 c:tex-% this is part of the API Standard Integral routines.
