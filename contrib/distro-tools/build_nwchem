@@ -120,11 +120,16 @@ function usage()
  \$Id$
 EOF
 }
+# Compiler flags to try. First we try -q64 for 64 bit capabilities on IBM 
+# machines. If that fails we try the empty flag. On IBM that will default to
+# generate 32 bit executables, on other platforms we typically get what the
+# hardware is capable of.
 declare -a LIST_COMPFLAGS
-declare -a LIST_LINLIBS
-LIST_COMPFLAGS=( ' ' '-q64' )
-LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto2' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
+LIST_COMPFLAGS=( '-q64' ' ' )
 export LIST_COMPFLAGS
+#
+declare -a LIST_LINLIBS
+LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto2' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
 export LIST_LINLIBS
 function get_mpi_include ()
 {
@@ -1121,8 +1126,21 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   echo "   result = result || MPI_Finalize();"                        >> ./mpi_threads$$.c
   echo "   return result;"                                            >> ./mpi_threads$$.c
   echo "}"                                                            >> ./mpi_threads$$.c
-  mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
+  # On some systems there is no mpicc to compile an MPI code, so we need to
+  # try some more options.
+  which mpicc
   result=$?
+  if [ ${result} -eq 0 ] ; then
+    mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
+    result=$?
+  else
+    which mpxlc_r
+    result=$?
+    if [ ${result} -eq 0 ] ; then
+      mpxlc_r -o ./mpi_threads$$.x ./mpi_threads$$.c
+      result=$?
+    fi
+  fi
   if [ ${result} -ne 0 ] ; then
     # Compiling with multi-threaded support did not work, so no hope here
     export ARMCI_NETWORK=SOCKETS
@@ -1310,14 +1328,21 @@ if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
   fi
   if [ ${NWCHEM_PTR_SIZE} -eq 4 ] ; then
     export NWCHEM_TARGET=${NWCHEM_OS}
-    if [ ${NWCHEM_OS} == "IBM" ] ; then
-      export OBJECT_MODE=32
-    fi
   else
     export NWCHEM_TARGET=${NWCHEM_OS}64
-    if [ ${NWCHEM_OS} == "IBM" ] ; then
-      export OBJECT_MODE=64
-    fi
+  fi
+fi
+if [ ${#OBJECT_MODE} -eq 0 ] ; then
+  # On IBM machines we need to set what kind of executable we want, 
+  # 32 or 64 bit. The default is typically 32 bit.
+  if   [ "x${NWCHEM_TARGET}" == "xIBM" ] ; then
+    export OBJECT_MODE=32
+  elif [ "x${NWCHEM_TARGET}" == "xIBM64" ] ; then
+    export OBJECT_MODE=64
+  elif [ "x${NWCHEM_TARGET}" == "xLAPI" ] ; then
+    export OBJECT_MODE=32
+  elif [ "x${NWCHEM_TARGET}" == "xLAPI64" ] ; then
+    export OBJECT_MODE=64
   fi
 fi
 #
@@ -1494,6 +1519,9 @@ fi
 echo "NWCHEM_TOP     =" ${NWCHEM_TOP}
 echo "NWCHEM_TARGET  =" ${NWCHEM_TARGET}
 echo "NWCHEM_MODULES =" ${NWCHEM_MODULES}
+if [ ${#OBJECT_MODE} -ne 0 ] ; then
+  echo "OBJECT_MODE    =" ${OBJECT_MODE}
+fi
 echo "USE_MPI        =" ${USE_MPI}
 if [ ${#USE_MPIF} -ne 0 ] ; then
   echo "USE_MPIF       =" ${USE_MPIF}
