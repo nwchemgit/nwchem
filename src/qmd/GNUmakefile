@@ -2,7 +2,7 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE =  qmd_input.o task_qmd.o
+ OBJ_OPTIMIZE =  qmd_driver.o qmd_main.o qmd_input.o qmd_start.o task_qmd.o
 
 LIBRARY=libqmd.a
 
