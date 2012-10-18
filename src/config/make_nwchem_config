@@ -75,7 +75,7 @@ EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans tce vscf 
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property selci dplot \
-           mp2_grad esp etrans vscf 
+           mp2_grad esp etrans vscf nwmd
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
