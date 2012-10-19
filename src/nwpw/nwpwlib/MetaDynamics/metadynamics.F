@@ -1735,6 +1735,7 @@ c               close(53)
                   ww = fr*gr + fp*gp
                end if
 
+               if (ww.gt.0.0d0) ww = 0.0d0
                dbl_mb(ymeta(1)+i-1) = dbl_mb(ymeta(1)+i-1) - ww
 
                j(1) = j(1) + 1
