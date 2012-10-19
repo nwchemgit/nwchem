@@ -20,7 +20,7 @@ c     **********************************************
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0
-      real*8 boundary(2),temp,fac
+      real*8 boundary(2),temp,fac,sn2(12)
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
       character*4 celement1,celement2
@@ -73,6 +73,12 @@ c     **********************************************
             boundary(1) = 0.0d0
             boundary(2) = 0.0d0
          end if
+
+         rtdb_name = 'metadynamics_sn2-surface'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,12,sn2)) then
+            call dcopy(12,0.0d0,0,sn2,1)
+         end if
+         write(*,*) "sn2=",sn2
 
          value = .true.
          if (nmeta.gt.0) then
@@ -223,6 +229,11 @@ c     **********************************************
      >                 "  ... setting boundary, w,sigma=",
      >                 boundary(1),boundary(2)
                call meta_setboundary(boundary(1),boundary(2))
+            end if
+            if (dabs(sn2(1)).gt.0.0d0) then
+               if (taskid.eq.MASTER)
+     >            write(*,'(A)') "  ... setting sn2 surface"
+               call meta_setsn2surface(sn2)
             end if
          else
             if (taskid.eq.MASTER) 
@@ -506,7 +517,7 @@ c     **********************************************
       integer i,j,ntype,n1,n2
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f
-      real*8 nx,ny,nz
+      real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2
 
 *     **** external functions ****
       real*8   ion_rion,psp_ld_trace
@@ -558,6 +569,41 @@ c     **** bond angle ***
          f = theta
 
 c     **** bond dihedral ****
+      else if (ntype.eq.3) then
+         x1 = ion_rion(1,indx(2))
+         y1 = ion_rion(2,indx(2))
+         z1 = ion_rion(3,indx(2))
+         x2 = ion_rion(1,indx(3))
+         y2 = ion_rion(2,indx(3))
+         z2 = ion_rion(3,indx(3))
+         x3 = ion_rion(1,indx(4))
+         y3 = ion_rion(2,indx(4))
+         z3 = ion_rion(3,indx(4))
+         x4 = ion_rion(1,indx(5))
+         y4 = ion_rion(2,indx(5))
+         z4 = ion_rion(3,indx(5))
+         dx1 = x2-x1
+         dy1 = y2-y1
+         dz1 = z2-z1
+         call lattice_min_difference(dx1,dy1,dz1)
+         dx2 = x3-x2
+         dy2 = y3-y2
+         dz2 = z3-z2
+         call lattice_min_difference(dx2,dy2,dz2)
+         dx3 = x4-x3
+         dy3 = y4-y3
+         dz3 = z4-z3
+         call lattice_min_difference(dx3,dy3,dz3)
+
+         dy = dx1*(dy2*dz3-dy3*dz2) 
+     >      + dy1*(dz2*dx3-dz3*dx2) 
+     >      + dz1*(dx2*dy3-dx3*dy2)
+         dy = dy*dsqrt(dx2**2 + dy2**2 + dz2**2)
+
+         dx = (dy2*dz3 - dy3*dz2)*(dy1*dz2 - dy2*dz1)
+     >      + (dz2*dx3 - dz3*dx2)*(dz1*dx2 - dz2*dx1)
+     >      + (dx2*dy3 - dx3*dy2)*(dx1*dy2 - dx2*dy1)
+         f = datan2(dy,dx)
 
 c     **** coordination number ****
       else if (ntype.eq.4) then
@@ -674,6 +720,7 @@ c     **********************************************
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz
+      real*8 x4,y4,z4,dx2,dy2,dz2,r2
 
 *     **** external functions ****
       real*8   ion_rion
@@ -762,6 +809,63 @@ c     **** bond angle ***
          end if
 
 c     **** bond dihedral ****
+      else if (ntype.eq.3) then
+         x1 = ion_rion(1,indx(2))
+         y1 = ion_rion(2,indx(2))
+         z1 = ion_rion(3,indx(2))
+         x2 = ion_rion(1,indx(3))
+         y2 = ion_rion(2,indx(3))
+         z2 = ion_rion(3,indx(3))
+         x3 = ion_rion(1,indx(4))
+         y3 = ion_rion(2,indx(4))
+         z3 = ion_rion(3,indx(4))
+         x4 = ion_rion(1,indx(5))
+         y4 = ion_rion(2,indx(5))
+         z4 = ion_rion(3,indx(5))
+         dx1 = x2-x1
+         dy1 = y2-y1
+         dz1 = z2-z1
+         call lattice_min_difference(dx1,dy1,dz1)
+         dx2 = x3-x2
+         dy2 = y3-y2
+         dz2 = z3-z2
+         call lattice_min_difference(dx2,dy2,dz2)
+         dx3 = x4-x3
+         dy3 = y4-y3
+         dz3 = z4-z3
+         call lattice_min_difference(dx3,dy3,dz3)
+
+         dy = dx1*(dy2*dz3-dy3*dz2)
+     >      + dy1*(dz2*dx3-dz3*dx2)
+     >      + dz1*(dx2*dy3-dx3*dy2)
+         dy = dy*dsqrt(dx2**2 + dy2**2 + dz2**2)
+
+         dx = (dy2*dz3 - dy3*dz2)*(dy1*dz2 - dy2*dz1)
+     >      + (dz2*dx3 - dz3*dx2)*(dz1*dx2 - dz2*dx1)
+     >      + (dx2*dy3 - dx3*dy2)*(dx1*dy2 - dx2*dy1)
+         r2 = datan2(dy,dx)
+         vx1 = -dy/(dx**2 + dy**2)
+         vy1 =  dx/(dx**2 + dy**2)
+
+c          dphi/dx  (dx/db1 db1/dr1 + dx/db2 db2/dr1 + dx/db3 db3/dr1)
+c          dphi/dy  (dy/db1 db1/dr1 + dy/db2 db2/dr1 + dy/db3 db3/dr1)
+
+            fmeta(1,indx(2)) = fmeta(1,indx(2)) 
+            fmeta(2,indx(2)) = fmeta(2,indx(2)) 
+            fmeta(3,indx(2)) = fmeta(3,indx(2)) 
+
+            fmeta(1,indx(3)) = fmeta(1,indx(3)) 
+            fmeta(2,indx(3)) = fmeta(2,indx(3)) 
+            fmeta(3,indx(3)) = fmeta(3,indx(3)) 
+
+            fmeta(1,indx(4)) = fmeta(1,indx(4)) 
+            fmeta(2,indx(4)) = fmeta(2,indx(4)) 
+            fmeta(3,indx(4)) = fmeta(3,indx(4)) 
+
+            fmeta(1,indx(5)) = fmeta(1,indx(5)) 
+            fmeta(2,indx(5)) = fmeta(2,indx(5)) 
+            fmeta(3,indx(5)) = fmeta(3,indx(5)) 
+
 
 
 c     **** coordination number ***
@@ -1538,6 +1642,112 @@ c               close(53)
       end if
   111 format(99e14.6)
 
+      return
+      end
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *              meta_setsn2surface             *
+*     *                                             *
+*     ***********************************************
+      subroutine meta_setsn2surface(sn2)
+      implicit none
+      real*8 sn2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "metadynamics.fh"
+
+*     **** local variables ****
+      logical sn2found,blaisbunker
+      integer d1,d2,i,j(10),d
+      real*8  xp,xr,ww
+      real*8 er,ep,erp,betar,betap,betarp,xr0,xp0,xrp0
+      real*8 wr,ar,br,wp,ap,bp,fr,fp,frp,gr,gp
+
+      sn2found = dabs(sn2(1)).gt.1.0d-9
+      if (sn2found) then
+
+      blaisbunker = (sn2(1).lt.0.0d0)
+    
+      if (blaisbunker) then
+      er  = sn2(2)
+      ep  = sn2(3)
+      erp = sn2(4)
+      betar  = sn2(5)
+      betap  = sn2(6)
+      betarp = sn2(7)
+      xr0  = sn2(8)
+      xp0  = sn2(9)
+      xrp0 = sn2(9)
+      ap = sn2(10)
+      bp = sn2(11)
+
+      else
+      xr0 = sn2(2)
+      wr  = sn2(3)
+      ar  = sn2(4)
+      br  = sn2(5)
+
+      xp0 = sn2(6)
+      wp  = sn2(7)
+      ap  = sn2(8)
+      bp  = sn2(9)
+
+      er  = sn2(10)
+      ep  = sn2(11)
+      erp = sn2(12)
+      end if
+
+      if (metafound) then
+         if (nmeta.gt.0) then
+            do d=1,nmeta
+               j(d) = 0
+            end do
+            do i=1,nxmeta_all
+               ww = 0.0d0
+               d1 = 1
+               d2 = 2
+               xr = dbl_mb(ameta(1)+d1-1) 
+     >           + j(d1)*(dbl_mb(bmeta(1)+d1-1)-dbl_mb(ameta(1)+d1-1))
+     >                 /dble(int_mb(nxmeta(1)+d1-1)-1)
+               xp = dbl_mb(ameta(1)+d2-1) 
+     >           + j(d2)*(dbl_mb(bmeta(1)+d2-1)-dbl_mb(ameta(1)+d2-1))
+     >                 /dble(int_mb(nxmeta(1)+d2-1)-1)
+
+               if (blaisbunker) then
+                  fr = er - er*(1.0d0-dexp(-betar*(xr-xr0)))**2
+                  fp = ep - ep*(1.0d0-dexp(-betap*(xp-xp0)))**2
+     >               + (1.0d0-dtanh(ap*xr+bp))
+     >                *(ep - ep*dexp(-betap*(xp-xp0)))
+                  frp = erp - erp*(1.0d0-dexp(-betarp*(xr+xp-xrp0)))**2
+                  ww = fr+fp+frp
+               else
+                  fr = er + (erp-er)*(1.0d0+dtanh( (xp0-xp)/ar))
+                  gr = dexp(-((xr-xr0)/wr)**2)
+     >                *(0.5d0+0.5d0*dtanh((xp-xp0)/br))
+
+                  fp = ep + (erp-ep)*(1.0d0+dtanh( (xr0-xr)/ap))
+                  gp = dexp(-((xp-xp0)/wp)**2)
+     >                 *(0.5d0+0.5d0*dtanh((xr-xr0)/bp))
+                  ww = fr*gr + fp*gp
+               end if
+
+               dbl_mb(ymeta(1)+i-1) = dbl_mb(ymeta(1)+i-1) - ww
+
+               j(1) = j(1) + 1
+               do d=1,nmeta-1
+                  if (j(d).ge.int_mb(nxmeta(1)+d-1)) then
+                     j(d) = 0
+                     j(d+1) = j(d+1)+1
+                  end if
+               end do
+            end do
+         end if
+      end if
+      end if
       return
       end
 

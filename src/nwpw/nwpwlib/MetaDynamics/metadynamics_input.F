@@ -20,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 16)
       character*18 dirs(num_dirs)
       data dirs / 'update',
      >            'print_shift',
@@ -36,6 +36,7 @@ c
      >            'boundary',
      >            'potential_filename',
      >            'ld_trace',
+     >            'sn2-surface',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -137,12 +138,13 @@ c
       if (.not. inp_a(test))
      >  call errquit(
      >  'metadynamics_input: failed to read keyword',0,INPUT_ERR)
+
       if (.not. inp_match(num_dirs,.false.,test,dirs,ind))
      >  call errquit(
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 150, 200, 300, 400, 500, 600, 701,702,703, 800,900,
-     >      1000,1100,
+     >      1000,1100,1200,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -421,8 +423,8 @@ c
 c
 c range
 c
- 430  if (.not.inp_f(sdist(3))) sdist(3)=-999.0d0
-      if (.not.inp_f(sdist(4))) sdist(4)=-999.0d0
+ 430  if (.not.inp_f(sdist(3))) sdist(3)=-4.0d0*datan(1.0d0)
+      if (.not.inp_f(sdist(4))) sdist(4)= 4.0d0*datan(1.0d0)
       goto 401
 c
 c nrange, default = 501
@@ -448,7 +450,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(5)
       dbl_mb(ameta(1)+nmeta)  = sdist(3)
       dbl_mb(bmeta(1)+nmeta)  = sdist(4)
-      int_mb(pmeta(1)+nmeta)  = 0
+      int_mb(pmeta(1)+nmeta)  = 1
 
       nmeta = nmeta + 1
 
@@ -1140,7 +1142,30 @@ c
 
       goto 10
 
+c
+c  sn2-surface type dr wr ar br dp wp ap bp er ep erp
+c
+ 1200 if (inp_f(sdist(1)).and.
+     >    inp_f(sdist(2)).and.
+     >    inp_f(sdist(3)).and.
+     >    inp_f(sdist(4)).and.
+     >    inp_f(sdist(5)).and.
+     >    inp_f(sdist(6)).and.
+     >    inp_f(sdist(7)).and.
+     >    inp_f(sdist(8)).and.
+     >    inp_f(sdist(9)).and.
+     >    inp_f(sdist(10)).and.
+     >    inp_f(sdist(11)).and.
+     >    inp_f(sdist(12)) ) then
 
+      rtdb_name = 'metadynamics_sn2-surface'
+      if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,12,sdist))
+     >   call errquit('metadynamics_input:failed writing sn2-surface',
+     >                 0,RTDB_ERR)
+     
+      end if
+
+      goto 10
 
 
  9999 continue
