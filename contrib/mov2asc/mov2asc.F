@@ -88,12 +88,13 @@ C
 C Record on convergence and scftype
 C
       read(binlu,err=1001) basissum, geomsum, bqsum, scftype20, date
-      goto 1002
+      goto 1003
  1001 continue
-      rewind(binlu)
-      read(binlu) basissum, geomsum, scftype20, date
-      bqsum = ' '
+      rewind(binlu,err=1002)
  1002 continue
+      bqsum = ' '
+      read(binlu,err=1003) basissum, geomsum, scftype20, date
+ 1003 continue
       write(asclu,'(a32)') basissum
       write(asclu,'(a32)') geomsum
       write(asclu,'(a32)') bqsum
