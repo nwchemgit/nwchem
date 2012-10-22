@@ -8,7 +8,24 @@ c
       data bq_ncent /max_bq*0/
 
       end
-
+C>
+C> \defgroup bq Point charges
+C>
+C> The Bq module plays a role that is similar to the role of the
+C> geometry. I.e. it deals with centers distributed in space where
+C> the centers may have some properties. 
+C>
+C> Because Bq centers are often used to generate embedding potentials
+C> in QM/MM calculations Bq instances have to be able to contain
+C> thousands of centers. The geometry instance typically contain only
+C> atoms and hence are restricted in the number of centers they can
+C> contain.
+C
+C> \ingroup bq
+C> @{
+C>
+C> \brief Create a Bq instance
+C>
       function bq_create(namespace,handle)
       implicit none
 #include "mafdecls.fh"
@@ -138,17 +155,25 @@ c      local variables
        
        return
        end
-
+C>
+C> \brief Set the coordinates and charges for a Bq instance
+C>
+C> Allocates memory and associates it with the Bq instance and 
+C> initializes that memory with the charges and coordinates provided.
+C> The Bq instance assumes responsibility for the memory. I.e.
+C> the memory will be deallocated when the Bq instance is eventually
+C> destroyed.
+C>
       function bq_set(handle,n,q,c)
       implicit none
 #include "mafdecls.fh"
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer handle
-       integer n
-       double precision q(n)
-       double precision c(3*n)
+       integer handle !< [Input] The Bq instance handle
+       integer n      !< [Input] The number of centers
+       double precision q(n)   !< [Input] The charges
+       double precision c(3*n) !< [Input] The coordinates
        logical bq_set
 c      local variables
        integer i
@@ -191,15 +216,17 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Allocate and initialize space for a Bq instance
+C>
       function bq_alloc(handle,n)
       implicit none
 #include "mafdecls.fh"
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer handle
-       integer n
+       integer handle !< [Input] The Bq instance handle
+       integer n      !< [Input] The number of centers
        logical bq_alloc
 c      local variables
        integer i
@@ -242,16 +269,29 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Associate memory handles with a Bq instance
+C>
+C> This function associates chunks of memory containing the charges
+C> and the coordinates with a Bq instance. The memory is supposed to
+C> be allocated on the heap in the calling routine. The memory remains
+C> the responsibility of the application. I.e. if the Bq instance is
+C> destroyed the memory chunks will not be deallocated. 
+C> To set the memory chunks and transfer the associated responsibility
+C> to the Bq instance use bq_pset_mem instead.
+C>
+C> \return Returns .true. if successfull and .false. otherwise.
+C>
       function bq_pset(handle,n,h_q,h_c)
       implicit none
 #include "mafdecls.fh"
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer handle
-       integer n
-       integer h_q,h_c
+       integer handle !< [Input] The Bq instance handle
+       integer n      !< [Input] The number of centers
+       integer h_q    !< [Input] The memory handle for the charges
+       integer h_c    !< [Input] The memory handle for the coordinates
        logical bq_pset
 c      local variables
        character*(32) pname
@@ -272,16 +312,30 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Transfer memory handles and associated responsibility to a Bq
+C> instance
+C>
+C> This function associates chunks of memory containing the charges
+C> and the coordinates with a Bq instance, and transfers the 
+C> responsibility for managing this memory as well.
+C> The memory is supposed to be allocated on the heap in the calling
+C> routine.
+C> To set the memory chunks and not transfer the associated
+C> responsibility to the Bq instance use bq_pset instead.
+C>
+C> \return Returns .true. if successfull and .false. otherwise.
+C>
       function bq_pset_mem(handle,n,h_q,h_c)
       implicit none
 #include "mafdecls.fh"
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer handle
-       integer n
-       integer h_q,h_c
+       integer handle !< [Input] The Bq instance handle
+       integer n      !< [Input] The number of centers
+       integer h_q    !< [Input] The memory handle for the charges
+       integer h_c    !< [Input] The memory handle for the coordinates
        logical bq_pset_mem
 c      local variables
        character*(32) pname
@@ -357,7 +411,9 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Get the number of centers of a Bq instance
+C>
       function bq_ncenter(handle,n)
       implicit none
 #include "mafdecls.fh"
@@ -502,7 +558,13 @@ c
 
        return
        end
-
+C>
+C> \brief Destroy a Bq instance
+C>
+C> Destroys a Bq instance. Whether the memory for the coordinates
+C> and the charges is deallocated depends on how this memory was
+C> associated with the Bq instance.
+C>
       function bq_destroy(handle)
       implicit none
 #include "mafdecls.fh"
@@ -552,7 +614,9 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Destroy all Bq instances
+C>
       function bq_destroy_all()
       implicit none
 #include "mafdecls.fh"
@@ -578,16 +642,19 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Retrieve the memory index for the coordinates of a Bq instance
+C>
       function bq_index_coord(handle,i_c)
       implicit none
 #include "mafdecls.fh"
 #include "bq_data.fh"
 #include "errquit.fh"
-       integer handle
+       integer handle !< [Input] The Bq instance handle
        logical bq_index_coord
 c      local variables
-       integer h_c,i_c
+       integer h_c
+       integer i_c !< [Output] The coordinates memory index
        character*(32) pname
 
        pname = "bq_index_coord"
@@ -607,16 +674,19 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Retrieve the memory index for the charges of a Bq instance
+C>
       function bq_index_charge(handle,i_q)
       implicit none
 #include "mafdecls.fh"
 #include "bq_data.fh"
 #include "errquit.fh"
-       integer handle
+       integer handle !< [Input] The Bq instance handle
        logical bq_index_charge
 c      local variables
-       integer h_q,i_q
+       integer h_q
+       integer i_q !< [Output] The charges memory index
        character*(32) pname
 
        pname = "bq_index_charge"
@@ -806,4 +876,4 @@ c      local variables
 
        return
        end
-
+C> @}
