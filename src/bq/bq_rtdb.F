@@ -44,14 +44,19 @@ c
       tag="bq:"//namespace(1:n)//":charge"
 
       end
-
+C>
+C> \ingroup bq
+C> @{
+C>
+C> \brief Store a Bq instance on the runtime database
+C>
       function bq_rtdb_store(irtdb,handle)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer irtdb
-       integer handle
+       integer irtdb  !< [Input] The RTDB handle
+       integer handle !< [Input] The Bq instance handle
        logical bq_rtdb_store
 c      local variables
        integer ncent
@@ -114,14 +119,16 @@ c      local variables
 
        return
        end
-
+C>
+C> \brief Delete a Bq instance from the runtime database
+C>
       subroutine bq_rtdb_delete(irtdb,namespace)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer irtdb
-       character*(*) namespace
+       integer irtdb           !< [Input] The RTDB handle
+       character*(*) namespace !< [Input] The Bq instance name
 c      local variables
        character*(32) pname
        character*(255) tag
@@ -146,14 +153,16 @@ c      local variables
  
        return
        end
-
+C>
+C> \brief Load a Bq instance from the runtime database
+C>
       function bq_rtdb_load(irtdb,handle)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       integer irtdb
-       integer handle
+       integer irtdb  !< [Input] The RTDB handle
+       integer handle !< [Input] The Bq instance handle
        logical bq_rtdb_load
 c      local variables
        integer ncent
@@ -204,7 +213,7 @@ c      local variables
        call bq_tag_coord(namespace,tag)
        if(.not. rtdb_ma_get(irtdb,tag,ma_type,n,h_c))
      &      call errquit(
-     &      pname//' uuunable to get coord',
+     &      pname//' unable to get coord',
      &      0, RTDB_ERR)
 
 
@@ -222,4 +231,4 @@ c      local variables
        
        return
        end
-
+C> @}
