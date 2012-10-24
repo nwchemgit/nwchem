@@ -22,6 +22,7 @@ c
       logical     out 
       integer     iopt
       integer     i,ipol
+      character*3 scftype
 c
       integer
      &     nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
@@ -41,6 +42,10 @@ c
       some  =some.or.out
       some  =some.and.ga_nodeid().eq.0
 c
+c     Determine scftype
+      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) 
+     &     scftype = "RHF"
+c 
       status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)            !done
       status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)        !done
       status=rtdb_get(rtdb,'prop:octupole',MT_INT,1,nootp)          !done
@@ -143,17 +148,17 @@ c
 c
 c     ----- atomic spin density -----
 c
-      if(nospin.eq.0 .and. (.not.do_zora))
-     &  call hnd_spind(rtdb,basis,geom)
-c
-      if((nospin.eq.0) .and. (do_zora)) then
-        if (ga_nodeid().eq.0) then
-         write(LuOut,*)
-         call util_print_centered(LuOut,
-     $   'ZORA NMR Hyperfine', 23, .true.)
-         write(LuOut,*)
-        endif
-        call hnd_hyperfine_ZORA(rtdb,basis,geom)
+      if(nospin.eq.0.and. (scftype.eq.'UHF')) then  ! only perform for open-shell
+       if (.not.do_zora) then
+          call hnd_spind(rtdb,basis,geom) ! non-relativistic
+       else
+       if (ga_nodeid().eq.0) then
+        write(LuOut,*)
+        call util_print_centered(LuOut,'ZORA NMR Hyperfine', 23, .true.)
+        write(LuOut,*)
+       endif
+       call hnd_hyperfine_ZORA(rtdb,basis,geom)
+       end if
       end if
 c
 c     ----- electrostatic potential -----
@@ -169,12 +174,12 @@ c
       if(noelfg.eq.0) call hnd_efgmap(rtdb,basis,geom)
 c
 c     ----- electric field gradient with ZORA 4 ----- FA-11-24-09
+c     ----- perform if zora is active -----
 c
-      if(noelfgZ4.eq.0) then 
+      if (do_zora. and. (noelfgZ4.eq.0)) then
         if (ga_nodeid().eq.0) then
          write(LuOut,*)
-         call util_print_centered(LuOut,
-     $   'ZORA EFG-Z4', 23, .true.)
+         call util_print_centered(LuOut,'ZORA EFG-Z4', 23, .true.)
          write(LuOut,*)
         endif
         call hnd_efgmap(rtdb,basis,geom)
@@ -186,43 +191,27 @@ c
       if(noden.eq.0) call hnd_eldmap(rtdb,basis,geom)
 c
 c     ----- giao -nmr- chemical shifts -----
-      if(nogiao.eq.0 .and. (.not.do_zora)) then
-        call hnd_giaox(rtdb,basis,geom)
-        goto 111
-c Note.- hnd_giaox_ZORA() is not working yet for NonRel DFT
-c       it gives different results than hnd_giaox() FA-04-06-11
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " ++ NONREL NMR Shieldings  hnd_giao_ZORA ++ START"
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++++"
-        endif
-       call hnd_giaox_ZORA(rtdb,basis,geom)
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " ++ NONREL NMR Shieldings  hnd_giao_ZORA ++ END"
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++"
-        endif
- 111    continue
-      endif
- 
-      if((nogiao.eq.0) .and. (do_zora)) then
+      if(nogiao.eq.0) then
+       if (.not.do_zora) then
+           call hnd_giaox(rtdb,basis,geom) ! non-relativistic
+       else
+         if (ga_nodeid().eq.0) then
+           write(LuOut,*)
+           call util_print_centered(LuOut,'Scalar ZORA NMR Shielding', 
+     &                   23, .true.)
+           write(LuOut,*)
+         end if
+         call hnd_giaox_ZORA(rtdb,basis,geom) ! with zora
+       end if  ! do_zora
+      end if ! nogiao
+c 
+      if(nogshift.eq.0 .and. do_zora) then
         if (ga_nodeid().eq.0) then
          write(LuOut,*)
-         call util_print_centered(LuOut,
-     $   'Scalar ZORA NMR Shielding', 23, .true.)
+         call util_print_centered(LuOut,'ZORA g-Shift', 23, .true.)
          write(LuOut,*)
         endif
-        call hnd_giaox_ZORA(rtdb,basis,geom)
-      end if
-c
-      if(nogshift.eq.0) then
-        if (ga_nodeid().eq.0) then
-         write(LuOut,*)
-         call util_print_centered(LuOut,
-     $   'ZORA g-Shift', 23, .true.)
-         write(LuOut,*)
-        endif
-        call hnd_gshift_ZORA(rtdb,basis,geom)
+        call hnd_gshift_ZORA(rtdb,basis,geom)  ! zora g-shift
       end if
 c
 c     === deallocate used ga's ===
