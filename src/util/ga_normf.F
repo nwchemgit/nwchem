@@ -232,3 +232,96 @@ c
 c
        Return
        end
+c
+c-----------------------------------------------------------------------
+c
+       double precision function dNormF_patch(d_a, ndim, ilo, ihi, ld)
+C$Id$
+c
+c      This function calculates the Frobenius norm of an array patch
+c      with up to 7 dimensions.
+c
+       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+       double precision d_a(*)
+       integer ndim
+       integer ilo(ndim), ihi(ndim), ld(ndim)
+       double precision value
+       integer jlo(ga_max_dim), jhi(ga_max_dim), jdim(ga_max_dim)
+       integer jld(ga_max_dim), nelm, i
+       integer inc(ga_max_dim)
+       integer ind,ind1,ind2,ind3,ind4,ind5,ind6,ind7
+       integer i7,i6,i5,i4,i3,i2,i1
+c
+c      Each process first determines max of data local to it
+c
+       if (ga_max_dim.ne.7)
+     +   call errquit("dnormf: ga_max_dim is not 7",0,UERR)
+       if (ndim.gt.ga_max_dim)
+     +   call errquit("dnormf: ndim too large",ndim,UERR)
+c
+       value = 0.d0
+       do i = ndim+1, ga_max_dim
+         jlo(i) = 1
+         jhi(i) = 1
+         jld(i) = 1
+       enddo
+c
+c      Complete the data on which patch we are interested in.
+c
+       do i = 1, ndim
+         jlo(i) = ilo(i)
+         jhi(i) = ihi(i)
+         jld(i) = ld(i)
+       enddo
+c
+c      Calculate the number of elements of patch that are local to this
+c      processor.
+c
+       nelm = 1
+       do i = 1, ga_max_dim
+         jdim(i) = max(0, jhi(i) - jlo(i) + 1)
+         nelm = nelm * jdim(i)
+       enddo
+       if (nelm.gt.0) then
+          do i = 2, ga_max_dim
+            jld(i) = jld(i)*jld(i-1)
+          enddo
+          inc(1) = 1
+          do i = 2, ga_max_dim
+            inc(i) = jld(i-1)
+          enddo
+          ind = 1
+          do i7 = 1, jdim(7)
+            ind7 = ind+inc(7)*(i7-1)
+            do i6 = 1, jdim(6)
+              ind6 = ind7+inc(6)*(i6-1)
+              do i5 = 1, jdim(5)
+                ind5 = ind6+inc(5)*(i5-1)
+                do i4 = 1, jdim(4)
+                  ind4 = ind5+inc(4)*(i4-1)
+                  do i3 = 1, jdim(3)
+                    ind3 = ind4+inc(3)*(i3-1)
+                    do i2 = 1, jdim(2)
+                      ind2 = ind3+inc(2)*(i2-1)
+                      do i1 = 1, jdim(1)
+                        ind1 = ind2+inc(1)*(i1-1)
+                        value = value + d_a(ind1)*d_a(ind1)
+                      enddo ! i1
+                    enddo ! i2
+                  enddo ! i3
+                enddo ! i4
+              enddo ! i5
+            enddo ! i6
+          enddo ! i7
+       endif
+c
+c      Compute the final answer
+c
+       dnormf_patch = Sqrt( Value )
+c
+       Return
+       end
