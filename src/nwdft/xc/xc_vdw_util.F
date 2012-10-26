@@ -260,8 +260,7 @@ c PBE
         else if(xfac(7).eq.1.0d0.and.cfac(12).eq.1.0d0) then
          scales6 = 0.70d0
 c BP86
-         else if(xfac(3).eq.1.0d0.and.xfac(2).eq.1.0d0.and.
-     &              cfac(1).eq.1.0d0.and.cfac(4).eq.1.d0) then
+         else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
          scales6 = 1.30d0
 c default
         else 
@@ -296,8 +295,7 @@ c SSB-D
         else if (xccomb(46)) then
            scales6 = 0.847455d0
 c BP86
-        else if(xfac(3).eq.1.0d0.and.xfac(2).eq.1.0d0.and.
-     &          cfac(1).eq.1.0d0.and.cfac(4).eq.1.d0) then
+        else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
           scales6 = 1.05d0
 c B2-PLYP
         else if(xccomb(2).and.xfac(1).eq.0.53d0.and.
