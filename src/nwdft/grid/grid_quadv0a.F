@@ -120,7 +120,7 @@ c
          call grid_file_read(n_per_rec, nqpts, ictr_buf, 
      &        rad,rqbuf,nsubb)
          if(nqpts.gt.buffer_size) call
-     '        errquit(' buffersize exceed by qpts ',nqpts, DISK_ERR)
+     &        errquit(' buffersize exceed by qpts ',nqpts, DISK_ERR)
         if(nqpts.eq.0) goto 200
         istep=0
 
