@@ -171,8 +171,6 @@ c
       logical ltransden
       logical lcivecs
       character*80 civecs
-      logical civecs_exists,fileerror
-c
       character*80 transden 
       logical dmat_to_file
       external dmat_to_file
@@ -218,10 +216,10 @@ c
 c     CI Vectors file 
       lcivecs = .false.  ! default
       if (.not.rtdb_get(rtdb,'tddft:lcivecs',mt_log,1,lcivecs))
-     $  lcivecs = .true.
+     $  lcivecs = .false.
 c
 c     Transden file 
-      ltransden = .false.
+      ltransden = .false. ! default
       if (.not.rtdb_get(rtdb,'tddft:ltransden',mt_log,1,ltransden))
      $  ltransden = .false.
 c
@@ -562,7 +560,7 @@ c
         enddo ! ipol
       endif ! tda
 c
-      if (nodezero.and.lcivecs) close(unit=69,status='keep')
+      if (nodezero.and.lcivecs) close(unit=69)
 c
 c ---------
 c All roots
