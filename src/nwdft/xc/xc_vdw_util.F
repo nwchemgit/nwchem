@@ -330,8 +330,7 @@ c BLYP
            scalesr6 = 1.094d0
            scales8  = 1.682d0
 c BP86 
-        else if(xfac(3).eq.1.0d0.and.xfac(2).eq.1.0d0.and.
-     &          cfac(1).eq.1.0d0.and.cfac(4).eq.1.d0) then
+        else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
            scalesr6 = 1.139d0
            scales8  = 1.683d0
 c B97-D
