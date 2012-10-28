@@ -27,9 +27,6 @@
       External movecs_read_header, movecs_read, Int_Normalize
       external ao_rdm_read
 c
-      logical get_transden
-      external get_transden
-c
       Character*80 File_Vec,File_Vec2
       Character*80 File_Mat1,File_Mat2
       character*20 scftype, scftype2
@@ -264,9 +261,11 @@ c --  print out type of picture and output file format
       End If
 c
       if(lgaussian) then
-         Write(LuOut,*)' Format used          : Gaussian9x Cube'
+       if (iProc.eq.0)
+     &      Write(LuOut,*)' Format used          : Gaussian9x Cube'
       else
-         Write(LuOut,*)' Format used          : InsightII'
+       if (iProc.eq.0)
+     &      Write(LuOut,*)' Format used          : InsightII'
       endif
 c
 c --  Set up the right combination of Spin and What 
@@ -499,8 +498,8 @@ c
 c
 c         Construct the transition density
           call util_file_name_resolve(File_civecs,.false.)
-          if (.not.get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
-     &      g_Vec,g_Dns))call errquit('DPlot: get_transden failed ',0,0)
+          call get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
+     &      g_Vec,g_Dns)
          else
 *------- Get the density matrix for the first orbital file
            Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,

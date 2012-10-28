@@ -1,6 +1,6 @@
 c
 c        construct the transition density
-         logical function get_transden(spin,iroot,ipol,filename,basis,
+         subroutine get_transden(spin,iroot,ipol,filename,basis,
      &        g_movecs, g_dens)
 c
          implicit none
