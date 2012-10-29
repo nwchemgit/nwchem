@@ -1,32 +1,94 @@
-      subroutine  csscal(n,sa,cx,incx)
+*> \brief \b CSSCAL
 *
-* $Id$
+*  =========== DOCUMENTATION ===========
 *
-c
-c     scales a complex vector by a real constant.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-      complex cx(*)
-      real sa
-      integer i,incx,n,nincx
-c
-      if( n.le.0 .or. incx.le.0 )return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      nincx = n*incx
-      do 10 i = 1,nincx,incx
-        cx(i) = cmplx(sa*real(cx(i)),sa*aimag(cx(i)))
-   10 continue
-      return
-c
-c        code for increment equal to 1
-c
-   20 do 30 i = 1,n
-        cx(i) = cmplx(sa*real(cx(i)),sa*aimag(cx(i)))
-   30 continue
-      return
-      end
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE CSSCAL(N,SA,CX,INCX)
+* 
+*       .. Scalar Arguments ..
+*       REAL SA
+*       INTEGER INCX,N
+*       ..
+*       .. Array Arguments ..
+*       COMPLEX CX(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    CSSCAL scales a complex vector by a real constant.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup complex_blas_level1
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      SUBROUTINE CSSCAL(N,SA,CX,INCX)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      REAL SA
+      INTEGER INCX,N
+*     ..
+*     .. Array Arguments ..
+      COMPLEX CX(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      INTEGER I,NINCX
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC AIMAG,CMPLX,REAL
+*     ..
+      IF (N.LE.0 .OR. INCX.LE.0) RETURN
+      IF (INCX.EQ.1) THEN
+*
+*        code for increment equal to 1
+*
+         DO I = 1,N
+            CX(I) = CMPLX(SA*REAL(CX(I)),SA*AIMAG(CX(I)))
+         END DO
+      ELSE
+*
+*        code for increment not equal to 1
+*
+         NINCX = N*INCX
+         DO I = 1,NINCX,INCX
+            CX(I) = CMPLX(SA*REAL(CX(I)),SA*AIMAG(CX(I)))
+         END DO
+      END IF
+      RETURN
+      END

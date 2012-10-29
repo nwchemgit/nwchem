@@ -1,10 +1,121 @@
-* $Id$
+*> \brief \b SLASQ2 computes all the eigenvalues of the symmetric positive definite tridiagonal matrix associated with the qd Array Z to high relative accuracy. Used by sbdsqr and sstegr.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SLASQ2 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/slasq2.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/slasq2.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/slasq2.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SLASQ2( N, Z, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            INFO, N
+*       ..
+*       .. Array Arguments ..
+*       REAL               Z( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SLASQ2 computes all the eigenvalues of the symmetric positive 
+*> definite tridiagonal matrix associated with the qd array Z to high
+*> relative accuracy are computed to high relative accuracy, in the
+*> absence of denormalization, underflow and overflow.
+*>
+*> To see the relation of Z to the tridiagonal matrix, let L be a
+*> unit lower bidiagonal matrix with subdiagonals Z(2,4,6,,..) and
+*> let U be an upper bidiagonal matrix with 1's above and diagonal
+*> Z(1,3,5,,..). The tridiagonal is L*U or, if you prefer, the
+*> symmetric tridiagonal to which it is similar.
+*>
+*> Note : SLASQ2 defines a logical variable, IEEE, which is true
+*> on machines which follow ieee-754 floating-point standard in their
+*> handling of infinities and NaNs, and false otherwise. This variable
+*> is passed to SLASQ3.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>        The number of rows and columns in the matrix. N >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] Z
+*> \verbatim
+*>          Z is REAL array, dimension ( 4*N )
+*>        On entry Z holds the qd array. On exit, entries 1 to N hold
+*>        the eigenvalues in decreasing order, Z( 2*N+1 ) holds the
+*>        trace, and Z( 2*N+2 ) holds the sum of the eigenvalues. If
+*>        N > 2, then Z( 2*N+3 ) holds the iteration count, Z( 2*N+4 )
+*>        holds NDIVS/NIN^2, and Z( 2*N+5 ) holds the percentage of
+*>        shifts that failed.
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>        = 0: successful exit
+*>        < 0: if the i-th argument is a scalar and had an illegal
+*>             value, then INFO = -i, if the i-th argument is an
+*>             array and the j-entry had an illegal value, then
+*>             INFO = -(i*100+j)
+*>        > 0: the algorithm failed
+*>              = 1, a split was marked by a positive value in E
+*>              = 2, current block of Z not diagonalized after 100*N
+*>                   iterations (in inner while loop).  On exit Z holds
+*>                   a qd array with the same eigenvalues as the given Z.
+*>              = 3, termination criterion of outer while loop not met 
+*>                   (program created more than N unreduced blocks)
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>  Local Variables: I0:N0 defines a current unreduced segment of Z.
+*>  The shifts are accumulated in SIGMA. Iteration count is in ITER.
+*>  Ping-pong is controlled by PP (alternates between 0 and 1).
+*> \endverbatim
+*>
+*  =====================================================================
       SUBROUTINE SLASQ2( N, Z, INFO )
 *
-*  -- LAPACK routine (instrumented to count ops, version 3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1999 
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N
@@ -12,64 +123,6 @@
 *     .. Array Arguments ..
       REAL               Z( * )
 *     ..
-*     .. Common block to return operation count ..
-      COMMON             / LATIME / OPS, ITCNT
-*     ..
-*     .. Scalars in Common ..
-      REAL               ITCNT, OPS
-*     ..
-*
-*  Purpose
-*  =======
-*
-*  SLASQ2 computes all the eigenvalues of the symmetric positive 
-*  definite tridiagonal matrix associated with the qd array Z to high
-*  relative accuracy are computed to high relative accuracy, in the
-*  absence of denormalization, underflow and overflow.
-*
-*  To see the relation of Z to the tridiagonal matrix, let L be a
-*  unit lower bidiagonal matrix with subdiagonals Z(2,4,6,,..) and
-*  let U be an upper bidiagonal matrix with 1's above and diagonal
-*  Z(1,3,5,,..). The tridiagonal is L*U or, if you prefer, the
-*  symmetric tridiagonal to which it is similar.
-*
-*  Note : SLASQ2 defines a logical variable, IEEE, which is true
-*  on machines which follow ieee-754 floating-point standard in their
-*  handling of infinities and NaNs, and false otherwise. This variable
-*  is passed to SLASQ3.
-*
-*  Arguments
-*  =========
-*
-*  N     (input) INTEGER
-*        The number of rows and columns in the matrix. N >= 0.
-*
-*  Z     (workspace) REAL array, dimension ( 4*N )
-*        On entry Z holds the qd array. On exit, entries 1 to N hold
-*        the eigenvalues in decreasing order, Z( 2*N+1 ) holds the
-*        trace, and Z( 2*N+2 ) holds the sum of the eigenvalues. If
-*        N > 2, then Z( 2*N+3 ) holds the iteration count, Z( 2*N+4 )
-*        holds NDIVS/NIN^2, and Z( 2*N+5 ) holds the percentage of
-*        shifts that failed.
-*
-*  INFO  (output) INTEGER
-*        = 0: successful exit
-*        < 0: if the i-th argument is a scalar and had an illegal
-*             value, then INFO = -i, if the i-th argument is an
-*             array and the j-entry had an illegal value, then
-*             INFO = -(i*100+j)
-*        > 0: the algorithm failed
-*              = 1, a split was marked by a positive value in E
-*              = 2, current block of Z not diagonalized after 30*N
-*                   iterations (in inner while loop)
-*              = 3, termination criterion of outer while loop not met 
-*                   (program created more than N unreduced blocks)
-*
-*  Further Details
-*  ===============
-*  Local Variables: I0:N0 defines a current unreduced segment of Z.
-*  The shifts are accumulated in SIGMA. Iteration count is in ITER.
-*  Ping-pong is controlled by PP (alternates between 0 and 1).
 *
 *  =====================================================================
 *
@@ -82,11 +135,13 @@
 *     ..
 *     .. Local Scalars ..
       LOGICAL            IEEE
-      INTEGER            I0, I4, IINFO, IPN4, ITER, IWHILA, IWHILB, K, 
-     $                   N0, NBIG, NDIV, NFAIL, PP, SPLT
-      REAL               D, DESIG, DMIN, E, EMAX, EMIN, EPS, OLDEMN, 
-     $                   QMAX, QMIN, S, SAFMIN, SIGMA, T, TEMP, TOL, 
-     $                   TOL2, TRACE, ZMAX
+      INTEGER            I0, I4, IINFO, IPN4, ITER, IWHILA, IWHILB, K,
+     $                   KMIN, N0, NBIG, NDIV, NFAIL, PP, SPLT, TTYPE,
+     $                   I1, N1
+      REAL               D, DEE, DEEMIN, DESIG, DMIN, DMIN1, DMIN2, DN,
+     $                   DN1, DN2, E, EMAX, EMIN, EPS, G, OLDEMN, QMAX,
+     $                   QMIN, S, SAFMIN, SIGMA, T, TAU, TEMP, TOL,
+     $                   TOL2, TRACE, ZMAX, TEMPE, TEMPQ
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           SLASQ3, SLASRT, XERBLA
@@ -97,14 +152,13 @@
       EXTERNAL           ILAENV, SLAMCH
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          MAX, MIN, REAL, SQRT
+      INTRINSIC          ABS, MAX, MIN, REAL, SQRT
 *     ..
 *     .. Executable Statements ..
 *      
 *     Test the input arguments.
 *     (in case SLASQ2 is not called by SLASQ1)
 *
-      OPS = OPS + REAL( 2 )
       INFO = 0
       EPS = SLAMCH( 'Precision' )
       SAFMIN = SLAMCH( 'Safe minimum' )
@@ -139,10 +193,8 @@
             Z( 3 ) = Z( 1 )
             Z( 1 ) = D
          END IF
-         OPS = OPS + REAL( 4 )
          Z( 5 ) = Z( 1 ) + Z( 2 ) + Z( 3 )
          IF( Z( 2 ).GT.Z( 3 )*TOL2 ) THEN
-            OPS = OPS + REAL( 16 )
             T = HALF*( ( Z( 1 )-Z( 3 ) )+Z( 2 ) ) 
             S = Z( 3 )*( Z( 2 ) / T )
             IF( S.LE.T ) THEN
@@ -168,7 +220,6 @@
       D = ZERO
       E = ZERO
 *
-      OPS = OPS + REAL( 2*N )
       DO 10 K = 1, 2*( N-1 ), 2
          IF( Z( K ).LT.ZERO ) THEN
             INFO = -( 200+K )
@@ -216,8 +267,13 @@
 *         
 *     Check whether the machine is IEEE conformable.
 *         
-      IEEE = ILAENV( 10, 'SLASQ2', 'N', 1, 2, 3, 4 ).EQ.1 .AND.
-     $       ILAENV( 11, 'SLASQ2', 'N', 1, 2, 3, 4 ).EQ.1      
+*     IEEE = ILAENV( 10, 'SLASQ2', 'N', 1, 2, 3, 4 ).EQ.1 .AND.
+*    $       ILAENV( 11, 'SLASQ2', 'N', 1, 2, 3, 4 ).EQ.1      
+*
+*     [11/15/2008] The case IEEE=.TRUE. has a problem in single precision with
+*     some the test matrices of type 16. The double precision code is fine.
+*
+      IEEE = .FALSE.
 *         
 *     Rearrange data for locality: Z=(q1,qq1,e1,ee1,q2,qq2,e2,ee2,...).
 *
@@ -233,7 +289,6 @@
 *
 *     Reverse the qd-array, if warranted.
 *
-      OPS = OPS + REAL( 1 )
       IF( CBIAS*Z( 4*I0-3 ).LT.Z( 4*N0-3 ) ) THEN
          IPN4 = 4*( I0+N0 )
          DO 40 I4 = 4*I0, 2*( I0+N0-1 ), 4
@@ -252,21 +307,18 @@
 *
       DO 80 K = 1, 2
 *
-         OPS = OPS + REAL( N0-I0 )
          D = Z( 4*N0+PP-3 )
          DO 50 I4 = 4*( N0-1 ) + PP, 4*I0 + PP, -4
             IF( Z( I4-1 ).LE.TOL2*D ) THEN
                Z( I4-1 ) = -ZERO
                D = Z( I4-3 )
             ELSE
-               OPS = OPS + REAL( 3 )
                D = Z( I4-3 )*( D / ( D+Z( I4-1 ) ) )
             END IF
    50    CONTINUE
 *
 *        dqd maps Z to ZZ plus Li's test.
 *
-         OPS = OPS + REAL( N0-I0 )
          EMIN = Z( 4*I0+PP+1 )
          D = Z( 4*I0+PP-3 )
          DO 60 I4 = 4*I0 + PP, 4*( N0-1 ) + PP, 4
@@ -278,12 +330,10 @@
                D = Z( I4+1 )
             ELSE IF( SAFMIN*Z( I4+1 ).LT.Z( I4-2*PP-2 ) .AND.
      $               SAFMIN*Z( I4-2*PP-2 ).LT.Z( I4+1 ) ) THEN
-               OPS = OPS + REAL( 5 )
                TEMP = Z( I4+1 ) / Z( I4-2*PP-2 )
                Z( I4-2*PP ) = Z( I4-1 )*TEMP
                D = D*TEMP
             ELSE
-               OPS = OPS + REAL( 5 )
                Z( I4-2*PP ) = Z( I4+1 )*( Z( I4-1 ) / Z( I4-2*PP-2 ) )
                D = Z( I4+1 )*( D / Z( I4-2*PP-2 ) )
             END IF
@@ -303,13 +353,24 @@
          PP = 1 - PP
    80 CONTINUE
 *
+*     Initialise variables to pass to SLASQ3.
+*
+      TTYPE = 0
+      DMIN1 = ZERO
+      DMIN2 = ZERO
+      DN    = ZERO
+      DN1   = ZERO
+      DN2   = ZERO
+      G     = ZERO
+      TAU   = ZERO
+*
       ITER = 2
       NFAIL = 0
       NDIV = 2*( N0-I0 )
 *
-      DO 140 IWHILA = 1, N + 1
+      DO 160 IWHILA = 1, N + 1
          IF( N0.LT.1 ) 
-     $      GO TO 150
+     $      GO TO 170
 *
 *        While array unfinished do 
 *
@@ -341,7 +402,6 @@
          DO 90 I4 = 4*N0, 8, -4
             IF( Z( I4-5 ).LE.ZERO )
      $         GO TO 100
-            OPS = OPS + REAL( 2 )
             IF( QMIN.GE.FOUR*EMAX ) THEN
                QMIN = MIN( QMIN, Z( I4-3 ) )
                EMAX = MAX( EMAX, Z( I4-5 ) )
@@ -353,44 +413,73 @@
 *
   100    CONTINUE
          I0 = I4 / 4
+         PP = 0
 *
-*        Store EMIN for passing to SLASQ3.
-*
-         Z( 4*N0-1 ) = EMIN
+         IF( N0-I0.GT.1 ) THEN
+            DEE = Z( 4*I0-3 )
+            DEEMIN = DEE
+            KMIN = I0
+            DO 110 I4 = 4*I0+1, 4*N0-3, 4
+               DEE = Z( I4 )*( DEE /( DEE+Z( I4-2 ) ) )
+               IF( DEE.LE.DEEMIN ) THEN
+                  DEEMIN = DEE
+                  KMIN = ( I4+3 )/4
+               END IF
+  110       CONTINUE
+            IF( (KMIN-I0)*2.LT.N0-KMIN .AND. 
+     $         DEEMIN.LE.HALF*Z(4*N0-3) ) THEN
+               IPN4 = 4*( I0+N0 )
+               PP = 2
+               DO 120 I4 = 4*I0, 2*( I0+N0-1 ), 4
+                  TEMP = Z( I4-3 )
+                  Z( I4-3 ) = Z( IPN4-I4-3 )
+                  Z( IPN4-I4-3 ) = TEMP
+                  TEMP = Z( I4-2 )
+                  Z( I4-2 ) = Z( IPN4-I4-2 )
+                  Z( IPN4-I4-2 ) = TEMP
+                  TEMP = Z( I4-1 )
+                  Z( I4-1 ) = Z( IPN4-I4-5 )
+                  Z( IPN4-I4-5 ) = TEMP
+                  TEMP = Z( I4 )
+                  Z( I4 ) = Z( IPN4-I4-4 )
+                  Z( IPN4-I4-4 ) = TEMP
+  120          CONTINUE
+            END IF
+         END IF
 *
 *        Put -(initial shift) into DMIN.
 *
-         OPS = OPS + REAL( 5 )
          DMIN = -MAX( ZERO, QMIN-TWO*SQRT( QMIN )*SQRT( EMAX ) )
 *
-*        Now I0:N0 is unreduced. PP = 0 for ping, PP = 1 for pong.
+*        Now I0:N0 is unreduced. 
+*        PP = 0 for ping, PP = 1 for pong.
+*        PP = 2 indicates that flipping was applied to the Z array and
+*               and that the tests for deflation upon entry in SLASQ3 
+*               should not be performed.
 *
-         PP = 0 
-*
-         NBIG = 30*( N0-I0+1 )
-         DO 120 IWHILB = 1, NBIG
+         NBIG = 100*( N0-I0+1 )
+         DO 140 IWHILB = 1, NBIG
             IF( I0.GT.N0 ) 
-     $         GO TO 130
+     $         GO TO 150
 *
 *           While submatrix unfinished take a good dqds step.
 *
             CALL SLASQ3( I0, N0, Z, PP, DMIN, SIGMA, DESIG, QMAX, NFAIL,
-     $                   ITER, NDIV, IEEE )
+     $                   ITER, NDIV, IEEE, TTYPE, DMIN1, DMIN2, DN, DN1,
+     $                   DN2, G, TAU )
 *
-	    PP = 1 - PP
+            PP = 1 - PP
 *
 *           When EMIN is very small check for splits.
 *
             IF( PP.EQ.0 .AND. N0-I0.GE.3 ) THEN
-               OPS = OPS + REAL( 2 )
                IF( Z( 4*N0 ).LE.TOL2*QMAX .OR.
      $             Z( 4*N0-1 ).LE.TOL2*SIGMA ) THEN
                   SPLT = I0 - 1
                   QMAX = Z( 4*I0-3 )
                   EMIN = Z( 4*I0-1 )
                   OLDEMN = Z( 4*I0 )
-                  DO 110 I4 = 4*I0, 4*( N0-3 ), 4
-                     OPS = OPS + REAL( 1 )
+                  DO 130 I4 = 4*I0, 4*( N0-3 ), 4
                      IF( Z( I4 ).LE.TOL2*Z( I4-3 ) .OR.
      $                   Z( I4-1 ).LE.TOL2*SIGMA ) THEN
                         Z( I4-1 ) = -SIGMA
@@ -403,45 +492,88 @@
                         EMIN = MIN( EMIN, Z( I4-1 ) )
                         OLDEMN = MIN( OLDEMN, Z( I4 ) )
                      END IF
-  110             CONTINUE
+  130             CONTINUE
                   Z( 4*N0-1 ) = EMIN
                   Z( 4*N0 ) = OLDEMN
                   I0 = SPLT + 1
                END IF
             END IF
 *
-  120    CONTINUE
+  140    CONTINUE
 *
          INFO = 2
+*       
+*        Maximum number of iterations exceeded, restore the shift 
+*        SIGMA and place the new d's and e's in a qd array.
+*        This might need to be done for several blocks
+*
+         I1 = I0
+         N1 = N0
+ 145     CONTINUE
+         TEMPQ = Z( 4*I0-3 )
+         Z( 4*I0-3 ) = Z( 4*I0-3 ) + SIGMA
+         DO K = I0+1, N0
+            TEMPE = Z( 4*K-5 )
+            Z( 4*K-5 ) = Z( 4*K-5 ) * (TEMPQ / Z( 4*K-7 ))
+            TEMPQ = Z( 4*K-3 )
+            Z( 4*K-3 ) = Z( 4*K-3 ) + SIGMA + TEMPE - Z( 4*K-5 )
+         END DO
+*
+*        Prepare to do this on the previous block if there is one
+*
+         IF( I1.GT.1 ) THEN
+            N1 = I1-1
+            DO WHILE( ( I1.GE.2 ) .AND. ( Z(4*I1-5).GE.ZERO ) )
+               I1 = I1 - 1
+            END DO
+            IF( I1.GE.1 ) THEN
+               SIGMA = -Z(4*N1-1)
+               GO TO 145
+            END IF
+         END IF
+
+         DO K = 1, N
+            Z( 2*K-1 ) = Z( 4*K-3 )
+*
+*        Only the block 1..N0 is unfinished.  The rest of the e's
+*        must be essentially zero, although sometimes other data
+*        has been stored in them.
+*
+            IF( K.LT.N0 ) THEN
+               Z( 2*K ) = Z( 4*K-1 )
+            ELSE
+               Z( 2*K ) = 0
+            END IF
+         END DO
          RETURN
 *
 *        end IWHILB
 *
-  130    CONTINUE
+  150    CONTINUE
 *
-  140 CONTINUE
+  160 CONTINUE
 *
       INFO = 3
       RETURN
 *
 *     end IWHILA   
 *
-  150 CONTINUE
+  170 CONTINUE
 *      
 *     Move q's to the front.
 *      
-      DO 160 K = 2, N
+      DO 180 K = 2, N
          Z( K ) = Z( 4*K-3 )
-  160 CONTINUE
+  180 CONTINUE
 *      
 *     Sort and compute sum of eigenvalues.
 *
       CALL SLASRT( 'D', N, Z, IINFO )
 *
       E = ZERO
-      DO 170 K = N, 1, -1
+      DO 190 K = N, 1, -1
          E = E + Z( K )
-  170 CONTINUE
+  190 CONTINUE
 *
 *     Store trace, sum(eigenvalues) and information on performance.
 *

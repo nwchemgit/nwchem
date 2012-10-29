@@ -1,9 +1,83 @@
+*> \brief \b ZLACGV conjugates a complex vector.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download ZLACGV + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zlacgv.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/zlacgv.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zlacgv.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE ZLACGV( N, X, INCX )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            INCX, N
+*       ..
+*       .. Array Arguments ..
+*       COMPLEX*16         X( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> ZLACGV conjugates a complex vector of length N.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The length of the vector X.  N >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] X
+*> \verbatim
+*>          X is COMPLEX*16 array, dimension
+*>                         (1+(N-1)*abs(INCX))
+*>          On entry, the vector of length N to be conjugated.
+*>          On exit, X is overwritten with conjg(X).
+*> \endverbatim
+*>
+*> \param[in] INCX
+*> \verbatim
+*>          INCX is INTEGER
+*>          The spacing between successive elements of X.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup complex16OTHERauxiliary
+*
+*  =====================================================================
       SUBROUTINE ZLACGV( N, X, INCX )
 *
-*  -- LAPACK auxiliary routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1992
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, N
@@ -11,28 +85,6 @@
 *     .. Array Arguments ..
       COMPLEX*16         X( * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  ZLACGV conjugates a complex vector of length N.
-*
-*  Arguments
-*  =========
-*
-*  N       (input) INTEGER
-*          The length of the vector X.  N >= 0.
-*
-*  X       (input/output) COMPLEX*16 array, dimension
-*                         (1+(N-1)*abs(INCX))
-*          On entry, the vector of length N to be conjugated.
-*          On exit, X is overwritten with conjg(X).
-*
-*  INCX    (input) INTEGER
-*          The spacing between successive elements of X.
 *
 * =====================================================================
 *

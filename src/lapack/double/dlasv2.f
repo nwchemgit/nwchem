@@ -1,79 +1,151 @@
+*> \brief \b DLASV2 computes the singular value decomposition of a 2-by-2 triangular matrix.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DLASV2 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlasv2.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dlasv2.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlasv2.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DLASV2( F, G, H, SSMIN, SSMAX, SNR, CSR, SNL, CSL )
+* 
+*       .. Scalar Arguments ..
+*       DOUBLE PRECISION   CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DLASV2 computes the singular value decomposition of a 2-by-2
+*> triangular matrix
+*>    [  F   G  ]
+*>    [  0   H  ].
+*> On return, abs(SSMAX) is the larger singular value, abs(SSMIN) is the
+*> smaller singular value, and (CSL,SNL) and (CSR,SNR) are the left and
+*> right singular vectors for abs(SSMAX), giving the decomposition
+*>
+*>    [ CSL  SNL ] [  F   G  ] [ CSR -SNR ]  =  [ SSMAX   0   ]
+*>    [-SNL  CSL ] [  0   H  ] [ SNR  CSR ]     [  0    SSMIN ].
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] F
+*> \verbatim
+*>          F is DOUBLE PRECISION
+*>          The (1,1) element of the 2-by-2 matrix.
+*> \endverbatim
+*>
+*> \param[in] G
+*> \verbatim
+*>          G is DOUBLE PRECISION
+*>          The (1,2) element of the 2-by-2 matrix.
+*> \endverbatim
+*>
+*> \param[in] H
+*> \verbatim
+*>          H is DOUBLE PRECISION
+*>          The (2,2) element of the 2-by-2 matrix.
+*> \endverbatim
+*>
+*> \param[out] SSMIN
+*> \verbatim
+*>          SSMIN is DOUBLE PRECISION
+*>          abs(SSMIN) is the smaller singular value.
+*> \endverbatim
+*>
+*> \param[out] SSMAX
+*> \verbatim
+*>          SSMAX is DOUBLE PRECISION
+*>          abs(SSMAX) is the larger singular value.
+*> \endverbatim
+*>
+*> \param[out] SNL
+*> \verbatim
+*>          SNL is DOUBLE PRECISION
+*> \endverbatim
+*>
+*> \param[out] CSL
+*> \verbatim
+*>          CSL is DOUBLE PRECISION
+*>          The vector (CSL, SNL) is a unit left singular vector for the
+*>          singular value abs(SSMAX).
+*> \endverbatim
+*>
+*> \param[out] SNR
+*> \verbatim
+*>          SNR is DOUBLE PRECISION
+*> \endverbatim
+*>
+*> \param[out] CSR
+*> \verbatim
+*>          CSR is DOUBLE PRECISION
+*>          The vector (CSR, SNR) is a unit right singular vector for the
+*>          singular value abs(SSMAX).
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERauxiliary
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>  Any input parameter may be aliased with any output parameter.
+*>
+*>  Barring over/underflow and assuming a guard digit in subtraction, all
+*>  output quantities are correct to within a few units in the last
+*>  place (ulps).
+*>
+*>  In IEEE arithmetic, the code works correctly if one matrix element is
+*>  infinite.
+*>
+*>  Overflow will not occur unless the largest singular value itself
+*>  overflows or is within a few ulps of overflow. (On machines with
+*>  partial overflow, like the Cray, overflow may occur if the largest
+*>  singular value is within a factor of 2 of overflow.)
+*>
+*>  Underflow is harmless if underflow is gradual. Otherwise, results
+*>  may correspond to a matrix modified by perturbations of size near
+*>  the underflow threshold.
+*> \endverbatim
+*>
+*  =====================================================================
       SUBROUTINE DLASV2( F, G, H, SSMIN, SSMAX, SNR, CSR, SNL, CSL )
 *
-*  -- LAPACK auxiliary routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1992
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  DLASV2 computes the singular value decomposition of a 2-by-2
-*  triangular matrix
-*     [  F   G  ]
-*     [  0   H  ].
-*  On return, abs(SSMAX) is the larger singular value, abs(SSMIN) is the
-*  smaller singular value, and (CSL,SNL) and (CSR,SNR) are the left and
-*  right singular vectors for abs(SSMAX), giving the decomposition
-*
-*     [ CSL  SNL ] [  F   G  ] [ CSR -SNR ]  =  [ SSMAX   0   ]
-*     [-SNL  CSL ] [  0   H  ] [ SNR  CSR ]     [  0    SSMIN ].
-*
-*  Arguments
-*  =========
-*
-*  F       (input) DOUBLE PRECISION
-*          The (1,1) element of the 2-by-2 matrix.
-*
-*  G       (input) DOUBLE PRECISION
-*          The (1,2) element of the 2-by-2 matrix.
-*
-*  H       (input) DOUBLE PRECISION
-*          The (2,2) element of the 2-by-2 matrix.
-*
-*  SSMIN   (output) DOUBLE PRECISION
-*          abs(SSMIN) is the smaller singular value.
-*
-*  SSMAX   (output) DOUBLE PRECISION
-*          abs(SSMAX) is the larger singular value.
-*
-*  SNL     (output) DOUBLE PRECISION
-*  CSL     (output) DOUBLE PRECISION
-*          The vector (CSL, SNL) is a unit left singular vector for the
-*          singular value abs(SSMAX).
-*
-*  SNR     (output) DOUBLE PRECISION
-*  CSR     (output) DOUBLE PRECISION
-*          The vector (CSR, SNR) is a unit right singular vector for the
-*          singular value abs(SSMAX).
-*
-*  Further Details
-*  ===============
-*
-*  Any input parameter may be aliased with any output parameter.
-*
-*  Barring over/underflow and assuming a guard digit in subtraction, all
-*  output quantities are correct to within a few units in the last
-*  place (ulps).
-*
-*  In IEEE arithmetic, the code works correctly if one matrix element is
-*  infinite.
-*
-*  Overflow will not occur unless the largest singular value itself
-*  overflows or is within a few ulps of overflow. (On machines with
-*  partial overflow, like the Cray, overflow may occur if the largest
-*  singular value is within a factor of 2 of overflow.)
-*
-*  Underflow is harmless if underflow is gradual. Otherwise, results
-*  may correspond to a matrix modified by perturbations of size near
-*  the underflow threshold.
 *
 * =====================================================================
 *

@@ -1,10 +1,175 @@
+*> \brief \b SLAEDA used by sstedc. Computes the Z vector determining the rank-one modification of the diagonal matrix. Used when the original matrix is dense.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SLAEDA + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/slaeda.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/slaeda.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/slaeda.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SLAEDA( N, TLVLS, CURLVL, CURPBM, PRMPTR, PERM, GIVPTR,
+*                          GIVCOL, GIVNUM, Q, QPTR, Z, ZTEMP, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            CURLVL, CURPBM, INFO, N, TLVLS
+*       ..
+*       .. Array Arguments ..
+*       INTEGER            GIVCOL( 2, * ), GIVPTR( * ), PERM( * ),
+*      $                   PRMPTR( * ), QPTR( * )
+*       REAL               GIVNUM( 2, * ), Q( * ), Z( * ), ZTEMP( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SLAEDA computes the Z vector corresponding to the merge step in the
+*> CURLVLth step of the merge process with TLVLS steps for the CURPBMth
+*> problem.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>         The dimension of the symmetric tridiagonal matrix.  N >= 0.
+*> \endverbatim
+*>
+*> \param[in] TLVLS
+*> \verbatim
+*>          TLVLS is INTEGER
+*>         The total number of merging levels in the overall divide and
+*>         conquer tree.
+*> \endverbatim
+*>
+*> \param[in] CURLVL
+*> \verbatim
+*>          CURLVL is INTEGER
+*>         The current level in the overall merge routine,
+*>         0 <= curlvl <= tlvls.
+*> \endverbatim
+*>
+*> \param[in] CURPBM
+*> \verbatim
+*>          CURPBM is INTEGER
+*>         The current problem in the current level in the overall
+*>         merge routine (counting from upper left to lower right).
+*> \endverbatim
+*>
+*> \param[in] PRMPTR
+*> \verbatim
+*>          PRMPTR is INTEGER array, dimension (N lg N)
+*>         Contains a list of pointers which indicate where in PERM a
+*>         level's permutation is stored.  PRMPTR(i+1) - PRMPTR(i)
+*>         indicates the size of the permutation and incidentally the
+*>         size of the full, non-deflated problem.
+*> \endverbatim
+*>
+*> \param[in] PERM
+*> \verbatim
+*>          PERM is INTEGER array, dimension (N lg N)
+*>         Contains the permutations (from deflation and sorting) to be
+*>         applied to each eigenblock.
+*> \endverbatim
+*>
+*> \param[in] GIVPTR
+*> \verbatim
+*>          GIVPTR is INTEGER array, dimension (N lg N)
+*>         Contains a list of pointers which indicate where in GIVCOL a
+*>         level's Givens rotations are stored.  GIVPTR(i+1) - GIVPTR(i)
+*>         indicates the number of Givens rotations.
+*> \endverbatim
+*>
+*> \param[in] GIVCOL
+*> \verbatim
+*>          GIVCOL is INTEGER array, dimension (2, N lg N)
+*>         Each pair of numbers indicates a pair of columns to take place
+*>         in a Givens rotation.
+*> \endverbatim
+*>
+*> \param[in] GIVNUM
+*> \verbatim
+*>          GIVNUM is REAL array, dimension (2, N lg N)
+*>         Each number indicates the S value to be used in the
+*>         corresponding Givens rotation.
+*> \endverbatim
+*>
+*> \param[in] Q
+*> \verbatim
+*>          Q is REAL array, dimension (N**2)
+*>         Contains the square eigenblocks from previous levels, the
+*>         starting positions for blocks are given by QPTR.
+*> \endverbatim
+*>
+*> \param[in] QPTR
+*> \verbatim
+*>          QPTR is INTEGER array, dimension (N+2)
+*>         Contains a list of pointers which indicate where in Q an
+*>         eigenblock is stored.  SQRT( QPTR(i+1) - QPTR(i) ) indicates
+*>         the size of the block.
+*> \endverbatim
+*>
+*> \param[out] Z
+*> \verbatim
+*>          Z is REAL array, dimension (N)
+*>         On output this vector contains the updating vector (the last
+*>         row of the first sub-eigenvector matrix and the first row of
+*>         the second sub-eigenvector matrix).
+*> \endverbatim
+*>
+*> \param[out] ZTEMP
+*> \verbatim
+*>          ZTEMP is REAL array, dimension (N)
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit.
+*>          < 0:  if INFO = -i, the i-th argument had an illegal value.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*> \par Contributors:
+*  ==================
+*>
+*> Jeff Rutter, Computer Science Division, University of California
+*> at Berkeley, USA
+*
+*  =====================================================================
       SUBROUTINE SLAEDA( N, TLVLS, CURLVL, CURPBM, PRMPTR, PERM, GIVPTR,
      $                   GIVCOL, GIVNUM, Q, QPTR, Z, ZTEMP, INFO )
 *
-*  -- LAPACK routine (version 3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            CURLVL, CURPBM, INFO, N, TLVLS
@@ -14,81 +179,6 @@
      $                   PRMPTR( * ), QPTR( * )
       REAL               GIVNUM( 2, * ), Q( * ), Z( * ), ZTEMP( * )
 *     ..
-*
-*  Purpose
-*  =======
-*
-*  SLAEDA computes the Z vector corresponding to the merge step in the
-*  CURLVLth step of the merge process with TLVLS steps for the CURPBMth
-*  problem.
-*
-*  Arguments
-*  =========
-*
-*  N      (input) INTEGER
-*         The dimension of the symmetric tridiagonal matrix.  N >= 0.
-*
-*  TLVLS  (input) INTEGER
-*         The total number of merging levels in the overall divide and
-*         conquer tree.
-*
-*  CURLVL (input) INTEGER
-*         The current level in the overall merge routine,
-*         0 <= curlvl <= tlvls.
-*
-*  CURPBM (input) INTEGER
-*         The current problem in the current level in the overall
-*         merge routine (counting from upper left to lower right).
-*
-*  PRMPTR (input) INTEGER array, dimension (N lg N)
-*         Contains a list of pointers which indicate where in PERM a
-*         level's permutation is stored.  PRMPTR(i+1) - PRMPTR(i)
-*         indicates the size of the permutation and incidentally the
-*         size of the full, non-deflated problem.
-*
-*  PERM   (input) INTEGER array, dimension (N lg N)
-*         Contains the permutations (from deflation and sorting) to be
-*         applied to each eigenblock.
-*
-*  GIVPTR (input) INTEGER array, dimension (N lg N)
-*         Contains a list of pointers which indicate where in GIVCOL a
-*         level's Givens rotations are stored.  GIVPTR(i+1) - GIVPTR(i)
-*         indicates the number of Givens rotations.
-*
-*  GIVCOL (input) INTEGER array, dimension (2, N lg N)
-*         Each pair of numbers indicates a pair of columns to take place
-*         in a Givens rotation.
-*
-*  GIVNUM (input) REAL array, dimension (2, N lg N)
-*         Each number indicates the S value to be used in the
-*         corresponding Givens rotation.
-*
-*  Q      (input) REAL array, dimension (N**2)
-*         Contains the square eigenblocks from previous levels, the
-*         starting positions for blocks are given by QPTR.
-*
-*  QPTR   (input) INTEGER array, dimension (N+2)
-*         Contains a list of pointers which indicate where in Q an
-*         eigenblock is stored.  SQRT( QPTR(i+1) - QPTR(i) ) indicates
-*         the size of the block.
-*
-*  Z      (output) REAL array, dimension (N)
-*         On output this vector contains the updating vector (the last
-*         row of the first sub-eigenvector matrix and the first row of
-*         the second sub-eigenvector matrix).
-*
-*  ZTEMP  (workspace) REAL array, dimension (N)
-*
-*  INFO   (output) INTEGER
-*          = 0:  successful exit.
-*          < 0:  if INFO = -i, the i-th argument had an illegal value.
-*
-*  Further Details
-*  ===============
-*
-*  Based on contributions by
-*     Jeff Rutter, Computer Science Division, University of California
-*     at Berkeley, USA
 *
 *  =====================================================================
 *
@@ -154,7 +244,7 @@
          Z( K ) = ZERO
    20 CONTINUE
 *
-*     Loop thru remaining levels 1 -> CURLVL applying the Givens
+*     Loop through remaining levels 1 -> CURLVL applying the Givens
 *     rotations and permutation and then multiplying the center matrices
 *     against the current Z.
 *
@@ -216,4 +306,3 @@
 *     End of SLAEDA
 *
       END
-c $Id$

@@ -1,46 +1,110 @@
-      subroutine sscal(n,sa,sx,incx)
+*> \brief \b SSCAL
 *
-* $Id$
+*  =========== DOCUMENTATION ===========
 *
-c
-c     scales a vector by a constant.
-c     uses unrolled loops for increment equal to 1.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-      real sa,sx(*)
-      integer i,incx,m,mp1,n,nincx
-c
-      if( n.le.0 .or. incx.le.0 )return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      nincx = n*incx
-      do 10 i = 1,nincx,incx
-        sx(i) = sa*sx(i)
-   10 continue
-      return
-c
-c        code for increment equal to 1
-c
-c
-c        clean-up loop
-c
-   20 m = mod(n,5)
-      if( m .eq. 0 ) go to 40
-      do 30 i = 1,m
-        sx(i) = sa*sx(i)
-   30 continue
-      if( n .lt. 5 ) return
-   40 mp1 = m + 1
-      do 50 i = mp1,n,5
-        sx(i) = sa*sx(i)
-        sx(i + 1) = sa*sx(i + 1)
-        sx(i + 2) = sa*sx(i + 2)
-        sx(i + 3) = sa*sx(i + 3)
-        sx(i + 4) = sa*sx(i + 4)
-   50 continue
-      return
-      end
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SSCAL(N,SA,SX,INCX)
+* 
+*       .. Scalar Arguments ..
+*       REAL SA
+*       INTEGER INCX,N
+*       ..
+*       .. Array Arguments ..
+*       REAL SX(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    scales a vector by a constant.
+*>    uses unrolled loops for increment equal to 1.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup single_blas_level1
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      SUBROUTINE SSCAL(N,SA,SX,INCX)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      REAL SA
+      INTEGER INCX,N
+*     ..
+*     .. Array Arguments ..
+      REAL SX(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      INTEGER I,M,MP1,NINCX
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC MOD
+*     ..
+      IF (N.LE.0 .OR. INCX.LE.0) RETURN
+      IF (INCX.EQ.1) THEN
+*
+*        code for increment equal to 1
+*
+*
+*        clean-up loop
+*
+         M = MOD(N,5)
+         IF (M.NE.0) THEN
+            DO I = 1,M
+               SX(I) = SA*SX(I)
+            END DO
+            IF (N.LT.5) RETURN
+         END IF
+         MP1 = M + 1
+         DO I = MP1,N,5
+            SX(I) = SA*SX(I)
+            SX(I+1) = SA*SX(I+1)
+            SX(I+2) = SA*SX(I+2)
+            SX(I+3) = SA*SX(I+3)
+            SX(I+4) = SA*SX(I+4)
+         END DO
+      ELSE
+*
+*        code for increment not equal to 1
+*
+         NINCX = N*INCX
+         DO I = 1,NINCX,INCX
+            SX(I) = SA*SX(I)
+         END DO
+      END IF
+      RETURN
+      END

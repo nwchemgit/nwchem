@@ -1,74 +1,168 @@
-* $Id$
-      SUBROUTINE DLASQ4( I0, N0, Z, PP, N0IN, DMIN, DMIN1, DMIN2, DN,
-     $                   DN1, DN2, TAU, TTYPE )
+*> \brief \b DLASQ4 computes an approximation to the smallest eigenvalue using values of d from the previous transform. Used by sbdsqr.
 *
-*  -- LAPACK auxiliary routine (instrumented to count ops, version 3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     May 17, 2000
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DLASQ4 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlasq4.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dlasq4.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlasq4.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DLASQ4( I0, N0, Z, PP, N0IN, DMIN, DMIN1, DMIN2, DN,
+*                          DN1, DN2, TAU, TTYPE, G )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            I0, N0, N0IN, PP, TTYPE
+*       DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DN1, DN2, G, TAU
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION   Z( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DLASQ4 computes an approximation TAU to the smallest eigenvalue
+*> using values of d from the previous transform.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] I0
+*> \verbatim
+*>          I0 is INTEGER
+*>        First index.
+*> \endverbatim
+*>
+*> \param[in] N0
+*> \verbatim
+*>          N0 is INTEGER
+*>        Last index.
+*> \endverbatim
+*>
+*> \param[in] Z
+*> \verbatim
+*>          Z is DOUBLE PRECISION array, dimension ( 4*N )
+*>        Z holds the qd array.
+*> \endverbatim
+*>
+*> \param[in] PP
+*> \verbatim
+*>          PP is INTEGER
+*>        PP=0 for ping, PP=1 for pong.
+*> \endverbatim
+*>
+*> \param[in] N0IN
+*> \verbatim
+*>          N0IN is INTEGER
+*>        The value of N0 at start of EIGTEST.
+*> \endverbatim
+*>
+*> \param[in] DMIN
+*> \verbatim
+*>          DMIN is DOUBLE PRECISION
+*>        Minimum value of d.
+*> \endverbatim
+*>
+*> \param[in] DMIN1
+*> \verbatim
+*>          DMIN1 is DOUBLE PRECISION
+*>        Minimum value of d, excluding D( N0 ).
+*> \endverbatim
+*>
+*> \param[in] DMIN2
+*> \verbatim
+*>          DMIN2 is DOUBLE PRECISION
+*>        Minimum value of d, excluding D( N0 ) and D( N0-1 ).
+*> \endverbatim
+*>
+*> \param[in] DN
+*> \verbatim
+*>          DN is DOUBLE PRECISION
+*>        d(N)
+*> \endverbatim
+*>
+*> \param[in] DN1
+*> \verbatim
+*>          DN1 is DOUBLE PRECISION
+*>        d(N-1)
+*> \endverbatim
+*>
+*> \param[in] DN2
+*> \verbatim
+*>          DN2 is DOUBLE PRECISION
+*>        d(N-2)
+*> \endverbatim
+*>
+*> \param[out] TAU
+*> \verbatim
+*>          TAU is DOUBLE PRECISION
+*>        This is the shift.
+*> \endverbatim
+*>
+*> \param[out] TTYPE
+*> \verbatim
+*>          TTYPE is INTEGER
+*>        Shift type.
+*> \endverbatim
+*>
+*> \param[in,out] G
+*> \verbatim
+*>          G is REAL
+*>        G is passed as an argument in order to save its value between
+*>        calls to DLASQ4.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>  CNST1 = 9/16
+*> \endverbatim
+*>
+*  =====================================================================
+      SUBROUTINE DLASQ4( I0, N0, Z, PP, N0IN, DMIN, DMIN1, DMIN2, DN,
+     $                   DN1, DN2, TAU, TTYPE, G )
+*
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            I0, N0, N0IN, PP, TTYPE
-      DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DN1, DN2, TAU
+      DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DN1, DN2, G, TAU
 *     ..
 *     .. Array Arguments ..
       DOUBLE PRECISION   Z( * )
 *     ..
-*     .. Common block to return operation count ..
-      COMMON             / LATIME / OPS, ITCNT
-*     ..
-*     .. Scalars in Common ..
-      DOUBLE PRECISION   ITCNT, OPS
-*     ..
-*
-*  Purpose
-*  =======
-*
-*  DLASQ4 computes an approximation TAU to the smallest eigenvalue
-*  using values of d from the previous transform.
-*
-*  I0    (input) INTEGER
-*        First index.
-*
-*  N0    (input) INTEGER
-*        Last index.
-*
-*  Z     (input) DOUBLE PRECISION array, dimension ( 4*N )
-*        Z holds the qd array.
-*
-*  PP    (input) INTEGER
-*        PP=0 for ping, PP=1 for pong.
-*
-*  NOIN  (input) INTEGER
-*        The value of N0 at start of EIGTEST.
-*
-*  DMIN  (input) DOUBLE PRECISION
-*        Minimum value of d.
-*
-*  DMIN1 (input) DOUBLE PRECISION
-*        Minimum value of d, excluding D( N0 ).
-*
-*  DMIN2 (input) DOUBLE PRECISION
-*        Minimum value of d, excluding D( N0 ) and D( N0-1 ).
-*
-*  DN    (input) DOUBLE PRECISION
-*        d(N)
-*
-*  DN1   (input) DOUBLE PRECISION
-*        d(N-1)
-*
-*  DN2   (input) DOUBLE PRECISION
-*        d(N-2)
-*
-*  TAU   (output) DOUBLE PRECISION
-*        This is the shift.
-*
-*  TTYPE (output) INTEGER
-*        Shift type.
-*
-*  Further Details
-*  ===============
-*  CNST1 = 9/16
 *
 *  =====================================================================
 *
@@ -83,16 +177,10 @@
 *     ..
 *     .. Local Scalars ..
       INTEGER            I4, NN, NP
-      DOUBLE PRECISION   A2, B1, B2, G, GAM, GAP1, GAP2, S
+      DOUBLE PRECISION   A2, B1, B2, GAM, GAP1, GAP2, S
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          DBLE, MAX, MIN, SQRT
-*     ..
-*     .. Save statement ..
-      SAVE               G
-*     ..
-*     .. Data statement ..
-      DATA               G / ZERO /
+      INTRINSIC          MAX, MIN, SQRT
 *     ..
 *     .. Executable Statements ..
 *
@@ -104,7 +192,7 @@
          TTYPE = -1
          RETURN
       END IF
-*
+*       
       NN = 4*N0 + PP
       IF( N0IN.EQ.N0 ) THEN
 *
@@ -112,7 +200,6 @@
 *
          IF( DMIN.EQ.DN .OR. DMIN.EQ.DN1 ) THEN
 *
-            OPS = OPS + DBLE( 7 )
             B1 = SQRT( Z( NN-3 ) )*SQRT( Z( NN-5 ) )
             B2 = SQRT( Z( NN-7 ) )*SQRT( Z( NN-9 ) )
             A2 = Z( NN-7 ) + Z( NN-5 )
@@ -120,21 +207,16 @@
 *           Cases 2 and 3.
 *
             IF( DMIN.EQ.DN .AND. DMIN1.EQ.DN1 ) THEN
-               OPS = OPS + DBLE( 3 )
                GAP2 = DMIN2 - A2 - DMIN2*QURTR
                IF( GAP2.GT.ZERO .AND. GAP2.GT.B2 ) THEN
-                  OPS = OPS + DBLE( 4 )
                   GAP1 = A2 - DN - ( B2 / GAP2 )*B2
                ELSE
-                  OPS = OPS + DBLE( 3 )
                   GAP1 = A2 - DN - ( B1+B2 )
                END IF
                IF( GAP1.GT.ZERO .AND. GAP1.GT.B1 ) THEN
-                  OPS = OPS + DBLE( 4 )
                   S = MAX( DN-( B1 / GAP1 )*B1, HALF*DMIN )
                   TTYPE = -2
                ELSE
-                  OPS = OPS + DBLE( 2 )
                   S = ZERO
                   IF( DN.GT.B1 )
      $               S = DN - B1
@@ -148,10 +230,8 @@
 *              Case 4.
 *
                TTYPE = -4
-               OPS = OPS + DBLE( 1 )
                S = QURTR*DMIN
                IF( DMIN.EQ.DN ) THEN
-                  OPS = OPS + DBLE( 1 )
                   GAM = DN
                   A2 = ZERO
                   IF( Z( NN-5 ) .GT. Z( NN-7 ) )
@@ -159,7 +239,6 @@
                   B2 = Z( NN-5 ) / Z( NN-7 )
                   NP = NN - 9
                ELSE
-                  OPS = OPS + DBLE( 2 )
                   NP = NN - 2*PP
                   B2 = Z( NP-2 )
                   GAM = DN1
@@ -176,7 +255,6 @@
 *
                A2 = A2 + B2
                DO 10 I4 = NP, 4*I0 - 1 + PP, -4
-                  OPS = OPS + DBLE( 5 )
                   IF( B2.EQ.ZERO )
      $               GO TO 20
                   B1 = B2
@@ -184,16 +262,14 @@
      $               RETURN
                   B2 = B2*( Z( I4 ) / Z( I4-2 ) )
                   A2 = A2 + B2
-                  IF( HUNDRD*MAX( B2, B1 ).LT.A2 .OR. CNST1.LT.A2 )
+                  IF( HUNDRD*MAX( B2, B1 ).LT.A2 .OR. CNST1.LT.A2 ) 
      $               GO TO 20
    10          CONTINUE
    20          CONTINUE
-               OPS = OPS + DBLE( 1 )
                A2 = CNST3*A2
 *
 *              Rayleigh quotient residual bound.
 *
-               OPS = OPS + DBLE( 5 )
                IF( A2.LT.CNST1 )
      $            S = GAM*( ONE-SQRT( A2 ) ) / ( ONE+A2 )
             END IF
@@ -202,12 +278,10 @@
 *           Case 5.
 *
             TTYPE = -5
-            OPS = OPS + DBLE( 1 )
             S = QURTR*DMIN
 *
 *           Compute contribution to norm squared from I > NN-2.
 *
-            OPS = OPS + DBLE( 4 )
             NP = NN - 2*PP
             B1 = Z( NP-2 )
             B2 = Z( NP-6 )
@@ -219,11 +293,9 @@
 *           Approximate contribution to norm squared from I < NN-2.
 *
             IF( N0-I0.GT.2 ) THEN
-               OPS = OPS + DBLE( 3 )
                B2 = Z( NN-13 ) / Z( NN-15 )
                A2 = A2 + B2
                DO 30 I4 = NN - 17, 4*I0 - 1 + PP, -4
-                  OPS = OPS + DBLE( 5 )
                   IF( B2.EQ.ZERO )
      $               GO TO 40
                   B1 = B2
@@ -231,14 +303,13 @@
      $               RETURN
                   B2 = B2*( Z( I4 ) / Z( I4-2 ) )
                   A2 = A2 + B2
-                  IF( HUNDRD*MAX( B2, B1 ).LT.A2 .OR. CNST1.LT.A2 )
+                  IF( HUNDRD*MAX( B2, B1 ).LT.A2 .OR. CNST1.LT.A2 ) 
      $               GO TO 40
    30          CONTINUE
    40          CONTINUE
                A2 = CNST3*A2
             END IF
 *
-            OPS = OPS + DBLE( 5 )
             IF( A2.LT.CNST1 )
      $         S = GAM*( ONE-SQRT( A2 ) ) / ( ONE+A2 )
          ELSE
@@ -246,15 +317,12 @@
 *           Case 6, no information to guide us.
 *
             IF( TTYPE.EQ.-6 ) THEN
-               OPS = OPS + DBLE( 3 )
                G = G + THIRD*( ONE-G )
             ELSE IF( TTYPE.EQ.-18 ) THEN
-               OPS = OPS + DBLE( 1 )
                G = QURTR*THIRD
             ELSE
                G = QURTR
             END IF
-            OPS = OPS + DBLE( 1 )
             S = G*DMIN
             TTYPE = -6
          END IF
@@ -263,12 +331,11 @@
 *
 *        One eigenvalue just deflated. Use DMIN1, DN1 for DMIN and DN.
 *
-         IF( DMIN1.EQ.DN1 .AND. DMIN2.EQ.DN2 ) THEN
+         IF( DMIN1.EQ.DN1 .AND. DMIN2.EQ.DN2 ) THEN 
 *
 *           Cases 7 and 8.
 *
             TTYPE = -7
-            OPS = OPS + DBLE( 2 )
             S = THIRD*DMIN1
             IF( Z( NN-5 ).GT.Z( NN-7 ) )
      $         RETURN
@@ -277,25 +344,21 @@
             IF( B2.EQ.ZERO )
      $         GO TO 60
             DO 50 I4 = 4*N0 - 9 + PP, 4*I0 - 1 + PP, -4
-               OPS = OPS + DBLE( 4 )
                A2 = B1
                IF( Z( I4 ).GT.Z( I4-2 ) )
      $            RETURN
                B1 = B1*( Z( I4 ) / Z( I4-2 ) )
                B2 = B2 + B1
-               IF( HUNDRD*MAX( B1, A2 ).LT.B2 )
+               IF( HUNDRD*MAX( B1, A2 ).LT.B2 ) 
      $            GO TO 60
    50       CONTINUE
    60       CONTINUE
-            OPS = OPS + DBLE( 8 )
             B2 = SQRT( CNST3*B2 )
             A2 = DMIN1 / ( ONE+B2**2 )
             GAP2 = HALF*DMIN2 - A2
             IF( GAP2.GT.ZERO .AND. GAP2.GT.B2*A2 ) THEN
-               OPS = OPS + DBLE( 7 )
                S = MAX( S, A2*( ONE-CNST2*A2*( B2 / GAP2 )*B2 ) )
-            ELSE
-               OPS = OPS + DBLE( 4 )
+            ELSE 
                S = MAX( S, A2*( ONE-CNST2*B2 ) )
                TTYPE = -8
             END IF
@@ -303,7 +366,6 @@
 *
 *           Case 9.
 *
-            OPS = OPS + DBLE( 2 )
             S = QURTR*DMIN1
             IF( DMIN1.EQ.DN1 )
      $         S = HALF*DMIN1
@@ -316,10 +378,8 @@
 *
 *        Cases 10 and 11.
 *
-         OPS = OPS + DBLE( 1 )
-         IF( DMIN2.EQ.DN2 .AND. TWO*Z( NN-5 ).LT.Z( NN-7 ) ) THEN
+         IF( DMIN2.EQ.DN2 .AND. TWO*Z( NN-5 ).LT.Z( NN-7 ) ) THEN 
             TTYPE = -10
-            OPS = OPS + DBLE( 1 )
             S = THIRD*DMIN2
             IF( Z( NN-5 ).GT.Z( NN-7 ) )
      $         RETURN
@@ -328,7 +388,6 @@
             IF( B2.EQ.ZERO )
      $         GO TO 80
             DO 70 I4 = 4*N0 - 9 + PP, 4*I0 - 1 + PP, -4
-               OPS = OPS + DBLE( 4 )
                IF( Z( I4 ).GT.Z( I4-2 ) )
      $            RETURN
                B1 = B1*( Z( I4 ) / Z( I4-2 ) )
@@ -337,20 +396,16 @@
      $            GO TO 80
    70       CONTINUE
    80       CONTINUE
-            OPS = OPS + DBLE( 12 )
             B2 = SQRT( CNST3*B2 )
             A2 = DMIN2 / ( ONE+B2**2 )
             GAP2 = Z( NN-7 ) + Z( NN-9 ) -
      $             SQRT( Z( NN-11 ) )*SQRT( Z( NN-9 ) ) - A2
             IF( GAP2.GT.ZERO .AND. GAP2.GT.B2*A2 ) THEN
-               OPS = OPS + DBLE( 7 )
                S = MAX( S, A2*( ONE-CNST2*A2*( B2 / GAP2 )*B2 ) )
-            ELSE
-               OPS = OPS + DBLE( 4 )
+            ELSE 
                S = MAX( S, A2*( ONE-CNST2*B2 ) )
             END IF
          ELSE
-            OPS = OPS + DBLE( 1 )
             S = QURTR*DMIN2
             TTYPE = -11
          END IF
@@ -358,7 +413,7 @@
 *
 *        Case 12, more than two eigenvalues deflated. No information.
 *
-         S = ZERO
+         S = ZERO 
          TTYPE = -12
       END IF
 *

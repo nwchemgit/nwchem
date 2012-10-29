@@ -1,46 +1,110 @@
-      subroutine  dscal(n,da,dx,incx)
+*> \brief \b DSCAL
 *
-* $Id$
+*  =========== DOCUMENTATION ===========
 *
-c
-c     scales a vector by a constant.
-c     uses unrolled loops for increment equal to one.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-      double precision da,dx(*)
-      integer i,incx,m,mp1,n,nincx
-c
-      if( n.le.0 .or. incx.le.0 )return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      nincx = n*incx
-      do 10 i = 1,nincx,incx
-        dx(i) = da*dx(i)
-   10 continue
-      return
-c
-c        code for increment equal to 1
-c
-c
-c        clean-up loop
-c
-   20 m = mod(n,5)
-      if( m .eq. 0 ) go to 40
-      do 30 i = 1,m
-        dx(i) = da*dx(i)
-   30 continue
-      if( n .lt. 5 ) return
-   40 mp1 = m + 1
-      do 50 i = mp1,n,5
-        dx(i) = da*dx(i)
-        dx(i + 1) = da*dx(i + 1)
-        dx(i + 2) = da*dx(i + 2)
-        dx(i + 3) = da*dx(i + 3)
-        dx(i + 4) = da*dx(i + 4)
-   50 continue
-      return
-      end
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DSCAL(N,DA,DX,INCX)
+* 
+*       .. Scalar Arguments ..
+*       DOUBLE PRECISION DA
+*       INTEGER INCX,N
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION DX(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    DSCAL scales a vector by a constant.
+*>    uses unrolled loops for increment equal to one.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup double_blas_level1
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      SUBROUTINE DSCAL(N,DA,DX,INCX)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      DOUBLE PRECISION DA
+      INTEGER INCX,N
+*     ..
+*     .. Array Arguments ..
+      DOUBLE PRECISION DX(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      INTEGER I,M,MP1,NINCX
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC MOD
+*     ..
+      IF (N.LE.0 .OR. INCX.LE.0) RETURN
+      IF (INCX.EQ.1) THEN
+*
+*        code for increment equal to 1
+*
+*
+*        clean-up loop
+*
+         M = MOD(N,5)
+         IF (M.NE.0) THEN
+            DO I = 1,M
+               DX(I) = DA*DX(I)
+            END DO
+            IF (N.LT.5) RETURN
+         END IF
+         MP1 = M + 1
+         DO I = MP1,N,5
+            DX(I) = DA*DX(I)
+            DX(I+1) = DA*DX(I+1)
+            DX(I+2) = DA*DX(I+2)
+            DX(I+3) = DA*DX(I+3)
+            DX(I+4) = DA*DX(I+4)
+         END DO
+      ELSE
+*
+*        code for increment not equal to 1
+*
+         NINCX = N*INCX
+         DO I = 1,NINCX,INCX
+            DX(I) = DA*DX(I)
+         END DO
+      END IF
+      RETURN
+      END

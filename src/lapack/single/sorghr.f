@@ -1,10 +1,135 @@
-      SUBROUTINE SORGHR( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
-C$Id$
+*> \brief \b SORGHR
 *
-*  -- LAPACK routine (version 3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     June 30, 1999
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SORGHR + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/sorghr.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/sorghr.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/sorghr.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SORGHR( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            IHI, ILO, INFO, LDA, LWORK, N
+*       ..
+*       .. Array Arguments ..
+*       REAL               A( LDA, * ), TAU( * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SORGHR generates a real orthogonal matrix Q which is defined as the
+*> product of IHI-ILO elementary reflectors of order N, as returned by
+*> SGEHRD:
+*>
+*> Q = H(ilo) H(ilo+1) . . . H(ihi-1).
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The order of the matrix Q. N >= 0.
+*> \endverbatim
+*>
+*> \param[in] ILO
+*> \verbatim
+*>          ILO is INTEGER
+*> \endverbatim
+*>
+*> \param[in] IHI
+*> \verbatim
+*>          IHI is INTEGER
+*>
+*>          ILO and IHI must have the same values as in the previous call
+*>          of SGEHRD. Q is equal to the unit matrix except in the
+*>          submatrix Q(ilo+1:ihi,ilo+1:ihi).
+*>          1 <= ILO <= IHI <= N, if N > 0; ILO=1 and IHI=0, if N=0.
+*> \endverbatim
+*>
+*> \param[in,out] A
+*> \verbatim
+*>          A is REAL array, dimension (LDA,N)
+*>          On entry, the vectors which define the elementary reflectors,
+*>          as returned by SGEHRD.
+*>          On exit, the N-by-N orthogonal matrix Q.
+*> \endverbatim
+*>
+*> \param[in] LDA
+*> \verbatim
+*>          LDA is INTEGER
+*>          The leading dimension of the array A. LDA >= max(1,N).
+*> \endverbatim
+*>
+*> \param[in] TAU
+*> \verbatim
+*>          TAU is REAL array, dimension (N-1)
+*>          TAU(i) must contain the scalar factor of the elementary
+*>          reflector H(i), as returned by SGEHRD.
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is REAL array, dimension (MAX(1,LWORK))
+*>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
+*> \endverbatim
+*>
+*> \param[in] LWORK
+*> \verbatim
+*>          LWORK is INTEGER
+*>          The dimension of the array WORK. LWORK >= IHI-ILO.
+*>          For optimum performance LWORK >= (IHI-ILO)*NB, where NB is
+*>          the optimal blocksize.
+*>
+*>          If LWORK = -1, then a workspace query is assumed; the routine
+*>          only calculates the optimal size of the WORK array, returns
+*>          this value as the first entry of the WORK array, and no error
+*>          message related to LWORK is issued by XERBLA.
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit
+*>          < 0:  if INFO = -i, the i-th argument had an illegal value
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup realOTHERcomputational
+*
+*  =====================================================================
+      SUBROUTINE SORGHR( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
+*
+*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
 *
 *     .. Scalar Arguments ..
       INTEGER            IHI, ILO, INFO, LDA, LWORK, N
@@ -12,57 +137,6 @@ C$Id$
 *     .. Array Arguments ..
       REAL               A( LDA, * ), TAU( * ), WORK( * )
 *     ..
-*
-*  Purpose
-*  =======
-*
-*  SORGHR generates a real orthogonal matrix Q which is defined as the
-*  product of IHI-ILO elementary reflectors of order N, as returned by
-*  SGEHRD:
-*
-*  Q = H(ilo) H(ilo+1) . . . H(ihi-1).
-*
-*  Arguments
-*  =========
-*
-*  N       (input) INTEGER
-*          The order of the matrix Q. N >= 0.
-*
-*  ILO     (input) INTEGER
-*  IHI     (input) INTEGER
-*          ILO and IHI must have the same values as in the previous call
-*          of SGEHRD. Q is equal to the unit matrix except in the
-*          submatrix Q(ilo+1:ihi,ilo+1:ihi).
-*          1 <= ILO <= IHI <= N, if N > 0; ILO=1 and IHI=0, if N=0.
-*
-*  A       (input/output) REAL array, dimension (LDA,N)
-*          On entry, the vectors which define the elementary reflectors,
-*          as returned by SGEHRD.
-*          On exit, the N-by-N orthogonal matrix Q.
-*
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A. LDA >= max(1,N).
-*
-*  TAU     (input) REAL array, dimension (N-1)
-*          TAU(i) must contain the scalar factor of the elementary
-*          reflector H(i), as returned by SGEHRD.
-*
-*  WORK    (workspace/output) REAL array, dimension (LWORK)
-*          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
-*
-*  LWORK   (input) INTEGER
-*          The dimension of the array WORK. LWORK >= IHI-ILO.
-*          For optimum performance LWORK >= (IHI-ILO)*NB, where NB is
-*          the optimal blocksize.
-*
-*          If LWORK = -1, then a workspace query is assumed; the routine
-*          only calculates the optimal size of the WORK array, returns
-*          this value as the first entry of the WORK array, and no error
-*          message related to LWORK is issued by XERBLA.
-*
-*  INFO    (output) INTEGER
-*          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value
 *
 *  =====================================================================
 *
@@ -82,7 +156,7 @@ C$Id$
       EXTERNAL           ILAENV 
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          MAX
+      INTRINSIC          MAX, MIN
 *     ..
 *     .. Executable Statements ..
 *

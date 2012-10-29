@@ -1,9 +1,154 @@
+*> \brief \b DLAED4 used by sstedc. Finds a single root of the secular equation.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DLAED4 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlaed4.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dlaed4.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlaed4.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DLAED4( N, I, D, Z, DELTA, RHO, DLAM, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            I, INFO, N
+*       DOUBLE PRECISION   DLAM, RHO
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION   D( * ), DELTA( * ), Z( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> This subroutine computes the I-th updated eigenvalue of a symmetric
+*> rank-one modification to a diagonal matrix whose elements are
+*> given in the array d, and that
+*>
+*>            D(i) < D(j)  for  i < j
+*>
+*> and that RHO > 0.  This is arranged by the calling routine, and is
+*> no loss in generality.  The rank-one modified system is thus
+*>
+*>            diag( D )  +  RHO * Z * Z_transpose.
+*>
+*> where we assume the Euclidean norm of Z is 1.
+*>
+*> The method consists of approximating the rational functions in the
+*> secular equation by simpler interpolating rational functions.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>         The length of all arrays.
+*> \endverbatim
+*>
+*> \param[in] I
+*> \verbatim
+*>          I is INTEGER
+*>         The index of the eigenvalue to be computed.  1 <= I <= N.
+*> \endverbatim
+*>
+*> \param[in] D
+*> \verbatim
+*>          D is DOUBLE PRECISION array, dimension (N)
+*>         The original eigenvalues.  It is assumed that they are in
+*>         order, D(I) < D(J)  for I < J.
+*> \endverbatim
+*>
+*> \param[in] Z
+*> \verbatim
+*>          Z is DOUBLE PRECISION array, dimension (N)
+*>         The components of the updating vector.
+*> \endverbatim
+*>
+*> \param[out] DELTA
+*> \verbatim
+*>          DELTA is DOUBLE PRECISION array, dimension (N)
+*>         If N .GT. 2, DELTA contains (D(j) - lambda_I) in its  j-th
+*>         component.  If N = 1, then DELTA(1) = 1. If N = 2, see DLAED5
+*>         for detail. The vector DELTA contains the information necessary
+*>         to construct the eigenvectors by DLAED3 and DLAED9.
+*> \endverbatim
+*>
+*> \param[in] RHO
+*> \verbatim
+*>          RHO is DOUBLE PRECISION
+*>         The scalar in the symmetric updating formula.
+*> \endverbatim
+*>
+*> \param[out] DLAM
+*> \verbatim
+*>          DLAM is DOUBLE PRECISION
+*>         The computed lambda_I, the I-th updated eigenvalue.
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>         = 0:  successful exit
+*>         > 0:  if INFO = 1, the updating process failed.
+*> \endverbatim
+*
+*> \par Internal Parameters:
+*  =========================
+*>
+*> \verbatim
+*>  Logical variable ORGATI (origin-at-i?) is used for distinguishing
+*>  whether D(i) or D(i+1) is treated as the origin.
+*>
+*>            ORGATI = .true.    origin at i
+*>            ORGATI = .false.   origin at i+1
+*>
+*>   Logical variable SWTCH3 (switch-for-3-poles?) is for noting
+*>   if we are working with THREE poles!
+*>
+*>   MAXIT is the maximum number of iterations allowed for each
+*>   eigenvalue.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*> \par Contributors:
+*  ==================
+*>
+*>     Ren-Cang Li, Computer Science Division, University of California
+*>     at Berkeley, USA
+*>
+*  =====================================================================
       SUBROUTINE DLAED4( N, I, D, Z, DELTA, RHO, DLAM, INFO )
 *
-*  -- LAPACK routine (version 3.0) --
-*     Univ. of Tennessee, Oak Ridge National Lab, Argonne National Lab,
-*     Courant Institute, NAG Ltd., and Rice University
-*     December 23, 1999
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            I, INFO, N
@@ -12,79 +157,6 @@
 *     .. Array Arguments ..
       DOUBLE PRECISION   D( * ), DELTA( * ), Z( * )
 *     ..
-*
-*  Purpose
-*  =======
-*
-*  This subroutine computes the I-th updated eigenvalue of a symmetric
-*  rank-one modification to a diagonal matrix whose elements are
-*  given in the array d, and that
-*
-*             D(i) < D(j)  for  i < j
-*
-*  and that RHO > 0.  This is arranged by the calling routine, and is
-*  no loss in generality.  The rank-one modified system is thus
-*
-*             diag( D )  +  RHO *  Z * Z_transpose.
-*
-*  where we assume the Euclidean norm of Z is 1.
-*
-*  The method consists of approximating the rational functions in the
-*  secular equation by simpler interpolating rational functions.
-*
-*  Arguments
-*  =========
-*
-*  N      (input) INTEGER
-*         The length of all arrays.
-*
-*  I      (input) INTEGER
-*         The index of the eigenvalue to be computed.  1 <= I <= N.
-*
-*  D      (input) DOUBLE PRECISION array, dimension (N)
-*         The original eigenvalues.  It is assumed that they are in
-*         order, D(I) < D(J)  for I < J.
-*
-*  Z      (input) DOUBLE PRECISION array, dimension (N)
-*         The components of the updating vector.
-*
-*  DELTA  (output) DOUBLE PRECISION array, dimension (N)
-*         If N .ne. 1, DELTA contains (D(j) - lambda_I) in its  j-th
-*         component.  If N = 1, then DELTA(1) = 1.  The vector DELTA
-*         contains the information necessary to construct the
-*         eigenvectors.
-*
-*  RHO    (input) DOUBLE PRECISION
-*         The scalar in the symmetric updating formula.
-*
-*  DLAM   (output) DOUBLE PRECISION
-*         The computed lambda_I, the I-th updated eigenvalue.
-*
-*  INFO   (output) INTEGER
-*         = 0:  successful exit
-*         > 0:  if INFO = 1, the updating process failed.
-*
-*  Internal Parameters
-*  ===================
-*
-*  Logical variable ORGATI (origin-at-i?) is used for distinguishing
-*  whether D(i) or D(i+1) is treated as the origin.
-*
-*            ORGATI = .true.    origin at i
-*            ORGATI = .false.   origin at i+1
-*
-*   Logical variable SWTCH3 (switch-for-3-poles?) is for noting
-*   if we are working with THREE poles!
-*
-*   MAXIT is the maximum number of iterations allowed for each
-*   eigenvalue.
-*
-*  Further Details
-*  ===============
-*
-*  Based on contributions by
-*     Ren-Cang Li, Computer Science Division, University of California
-*     at Berkeley, USA
 *
 *  =====================================================================
 *
@@ -619,7 +691,6 @@
 *
          PREW = W
 *
-  170    CONTINUE
          DO 180 J = 1, N
             DELTA( J ) = DELTA( J ) - ETA
   180    CONTINUE
@@ -844,4 +915,3 @@
 *     End of DLAED4
 *
       END
-c $Id$

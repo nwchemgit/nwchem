@@ -1,9 +1,122 @@
+*> \brief \b SORGL2
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SORGL2 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/sorgl2.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/sorgl2.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/sorgl2.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SORGL2( M, N, K, A, LDA, TAU, WORK, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            INFO, K, LDA, M, N
+*       ..
+*       .. Array Arguments ..
+*       REAL               A( LDA, * ), TAU( * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SORGL2 generates an m by n real matrix Q with orthonormal rows,
+*> which is defined as the first m rows of a product of k elementary
+*> reflectors of order n
+*>
+*>       Q  =  H(k) . . . H(2) H(1)
+*>
+*> as returned by SGELQF.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] M
+*> \verbatim
+*>          M is INTEGER
+*>          The number of rows of the matrix Q. M >= 0.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The number of columns of the matrix Q. N >= M.
+*> \endverbatim
+*>
+*> \param[in] K
+*> \verbatim
+*>          K is INTEGER
+*>          The number of elementary reflectors whose product defines the
+*>          matrix Q. M >= K >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] A
+*> \verbatim
+*>          A is REAL array, dimension (LDA,N)
+*>          On entry, the i-th row must contain the vector which defines
+*>          the elementary reflector H(i), for i = 1,2,...,k, as returned
+*>          by SGELQF in the first k rows of its array argument A.
+*>          On exit, the m-by-n matrix Q.
+*> \endverbatim
+*>
+*> \param[in] LDA
+*> \verbatim
+*>          LDA is INTEGER
+*>          The first dimension of the array A. LDA >= max(1,M).
+*> \endverbatim
+*>
+*> \param[in] TAU
+*> \verbatim
+*>          TAU is REAL array, dimension (K)
+*>          TAU(i) must contain the scalar factor of the elementary
+*>          reflector H(i), as returned by SGELQF.
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is REAL array, dimension (M)
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0: successful exit
+*>          < 0: if INFO = -i, the i-th argument has an illegal value
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup realOTHERcomputational
+*
+*  =====================================================================
       SUBROUTINE SORGL2( M, N, K, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     February 29, 1992
+*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, K, LDA, M, N
@@ -11,52 +124,6 @@
 *     .. Array Arguments ..
       REAL               A( LDA, * ), TAU( * ), WORK( * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  SORGL2 generates an m by n real matrix Q with orthonormal rows,
-*  which is defined as the first m rows of a product of k elementary
-*  reflectors of order n
-*
-*        Q  =  H(k) . . . H(2) H(1)
-*
-*  as returned by SGELQF.
-*
-*  Arguments
-*  =========
-*
-*  M       (input) INTEGER
-*          The number of rows of the matrix Q. M >= 0.
-*
-*  N       (input) INTEGER
-*          The number of columns of the matrix Q. N >= M.
-*
-*  K       (input) INTEGER
-*          The number of elementary reflectors whose product defines the
-*          matrix Q. M >= K >= 0.
-*
-*  A       (input/output) REAL array, dimension (LDA,N)
-*          On entry, the i-th row must contain the vector which defines
-*          the elementary reflector H(i), for i = 1,2,...,k, as returned
-*          by SGELQF in the first k rows of its array argument A.
-*          On exit, the m-by-n matrix Q.
-*
-*  LDA     (input) INTEGER
-*          The first dimension of the array A. LDA >= max(1,M).
-*
-*  TAU     (input) REAL array, dimension (K)
-*          TAU(i) must contain the scalar factor of the elementary
-*          reflector H(i), as returned by SGELQF.
-*
-*  WORK    (workspace) REAL array, dimension (M)
-*
-*  INFO    (output) INTEGER
-*          = 0: successful exit
-*          < 0: if INFO = -i, the i-th argument has an illegal value
 *
 *  =====================================================================
 *
@@ -124,7 +191,7 @@ c
          END IF
          A( I, I ) = ONE - TAU( I )
 *
-*        Set A(1:i-1,i) to zero
+*        Set A(i,1:i-1) to zero
 *
          DO 30 L = 1, I - 1
             A( I, L ) = ZERO

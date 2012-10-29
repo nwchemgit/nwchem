@@ -1,9 +1,111 @@
+*> \brief \b DLAUUM computes the product UUH or LHL, where U and L are upper or lower triangular matrices (blocked algorithm).
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DLAUUM + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlauum.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dlauum.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlauum.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DLAUUM( UPLO, N, A, LDA, INFO )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          UPLO
+*       INTEGER            INFO, LDA, N
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION   A( LDA, * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DLAUUM computes the product U * U**T or L**T * L, where the triangular
+*> factor U or L is stored in the upper or lower triangular part of
+*> the array A.
+*>
+*> If UPLO = 'U' or 'u' then the upper triangle of the result is stored,
+*> overwriting the factor U in A.
+*> If UPLO = 'L' or 'l' then the lower triangle of the result is stored,
+*> overwriting the factor L in A.
+*>
+*> This is the blocked form of the algorithm, calling Level 3 BLAS.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] UPLO
+*> \verbatim
+*>          UPLO is CHARACTER*1
+*>          Specifies whether the triangular factor stored in the array A
+*>          is upper or lower triangular:
+*>          = 'U':  Upper triangular
+*>          = 'L':  Lower triangular
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The order of the triangular factor U or L.  N >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] A
+*> \verbatim
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
+*>          On entry, the triangular factor U or L.
+*>          On exit, if UPLO = 'U', the upper triangle of A is
+*>          overwritten with the upper triangle of the product U * U**T;
+*>          if UPLO = 'L', the lower triangle of A is overwritten with
+*>          the lower triangle of the product L**T * L.
+*> \endverbatim
+*>
+*> \param[in] LDA
+*> \verbatim
+*>          LDA is INTEGER
+*>          The leading dimension of the array A.  LDA >= max(1,N).
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0: successful exit
+*>          < 0: if INFO = -k, the k-th argument had an illegal value
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup doubleOTHERauxiliary
+*
+*  =====================================================================
       SUBROUTINE DLAUUM( UPLO, N, A, LDA, INFO )
 *
-*  -- LAPACK auxiliary routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     February 29, 1992
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
@@ -12,49 +114,6 @@
 *     .. Array Arguments ..
       DOUBLE PRECISION   A( LDA, * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  DLAUUM computes the product U * U' or L' * L, where the triangular
-*  factor U or L is stored in the upper or lower triangular part of
-*  the array A.
-*
-*  If UPLO = 'U' or 'u' then the upper triangle of the result is stored,
-*  overwriting the factor U in A.
-*  If UPLO = 'L' or 'l' then the lower triangle of the result is stored,
-*  overwriting the factor L in A.
-*
-*  This is the blocked form of the algorithm, calling Level 3 BLAS.
-*
-*  Arguments
-*  =========
-*
-*  UPLO    (input) CHARACTER*1
-*          Specifies whether the triangular factor stored in the array A
-*          is upper or lower triangular:
-*          = 'U':  Upper triangular
-*          = 'L':  Lower triangular
-*
-*  N       (input) INTEGER
-*          The order of the triangular factor U or L.  N >= 0.
-*
-*  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
-*          On entry, the triangular factor U or L.
-*          On exit, if UPLO = 'U', the upper triangle of A is
-*          overwritten with the upper triangle of the product U * U';
-*          if UPLO = 'L', the lower triangle of A is overwritten with
-*          the lower triangle of the product L' * L.
-*
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,N).
-*
-*  INFO    (output) INTEGER
-*          = 0: successful exit
-*          < 0: if INFO = -k, the k-th argument had an illegal value
 *
 *  =====================================================================
 *
@@ -115,7 +174,7 @@ c
 *
          IF( UPPER ) THEN
 *
-*           Compute the product U * U'.
+*           Compute the product U * U**T.
 *
             DO 10 I = 1, N, NB
                IB = MIN( NB, N-I+1 )
@@ -134,7 +193,7 @@ c
    10       CONTINUE
          ELSE
 *
-*           Compute the product L' * L.
+*           Compute the product L**T * L.
 *
             DO 20 I = 1, N, NB
                IB = MIN( NB, N-I+1 )

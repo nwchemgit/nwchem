@@ -52,6 +52,7 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 dtrsm.o      dtrsv.o      dznrm2.o     idamax.o       \
 		izamax.o \
                 lsame.o      zaxpy.o      dcabs1.o     zcopy.o        \
+                zdrot.o \
                 zdotc.o      zdscal.o     zgemm.o      zgemv.o        \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
@@ -66,7 +67,8 @@ OBJ_OPTIMIZE +=sasum.o      saxpy.o      scopy.o      sdot.o         \
                 sswap.o      ssymm.o      ssymv.o      ssyr2.o        \
                 ssyr2k.o     ssyrk.o      strmm.o      strmv.o        \
                 strsm.o      strsv.o      scnrm2.o     isamax.o       \
-                caxpy.o      ccopy.o        \
+                scabs1.o \
+                caxpy.o      ccopy.o      csrot.o      icamax.o  \
                 cdotc.o      csscal.o     cgemm.o      cgemv.o        \
                 cgerc.o      chemm.o      chemv.o      cher2.o        \
                 cher2k.o     cherk.o      cscal.o      cswap.o        \

@@ -1,9 +1,136 @@
+*> \brief \b SSYGST
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SSYGST + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/ssygst.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/ssygst.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/ssygst.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SSYGST( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          UPLO
+*       INTEGER            INFO, ITYPE, LDA, LDB, N
+*       ..
+*       .. Array Arguments ..
+*       REAL               A( LDA, * ), B( LDB, * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SSYGST reduces a real symmetric-definite generalized eigenproblem
+*> to standard form.
+*>
+*> If ITYPE = 1, the problem is A*x = lambda*B*x,
+*> and A is overwritten by inv(U**T)*A*inv(U) or inv(L)*A*inv(L**T)
+*>
+*> If ITYPE = 2 or 3, the problem is A*B*x = lambda*x or
+*> B*A*x = lambda*x, and A is overwritten by U*A*U**T or L**T*A*L.
+*>
+*> B must have been previously factorized as U**T*U or L*L**T by SPOTRF.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] ITYPE
+*> \verbatim
+*>          ITYPE is INTEGER
+*>          = 1: compute inv(U**T)*A*inv(U) or inv(L)*A*inv(L**T);
+*>          = 2 or 3: compute U*A*U**T or L**T*A*L.
+*> \endverbatim
+*>
+*> \param[in] UPLO
+*> \verbatim
+*>          UPLO is CHARACTER*1
+*>          = 'U':  Upper triangle of A is stored and B is factored as
+*>                  U**T*U;
+*>          = 'L':  Lower triangle of A is stored and B is factored as
+*>                  L*L**T.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The order of the matrices A and B.  N >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] A
+*> \verbatim
+*>          A is REAL array, dimension (LDA,N)
+*>          On entry, the symmetric matrix A.  If UPLO = 'U', the leading
+*>          N-by-N upper triangular part of A contains the upper
+*>          triangular part of the matrix A, and the strictly lower
+*>          triangular part of A is not referenced.  If UPLO = 'L', the
+*>          leading N-by-N lower triangular part of A contains the lower
+*>          triangular part of the matrix A, and the strictly upper
+*>          triangular part of A is not referenced.
+*>
+*>          On exit, if INFO = 0, the transformed matrix, stored in the
+*>          same format as A.
+*> \endverbatim
+*>
+*> \param[in] LDA
+*> \verbatim
+*>          LDA is INTEGER
+*>          The leading dimension of the array A.  LDA >= max(1,N).
+*> \endverbatim
+*>
+*> \param[in] B
+*> \verbatim
+*>          B is REAL array, dimension (LDB,N)
+*>          The triangular factor from the Cholesky factorization of B,
+*>          as returned by SPOTRF.
+*> \endverbatim
+*>
+*> \param[in] LDB
+*> \verbatim
+*>          LDB is INTEGER
+*>          The leading dimension of the array B.  LDB >= max(1,N).
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit
+*>          < 0:  if INFO = -i, the i-th argument had an illegal value
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup realSYcomputational
+*
+*  =====================================================================
       SUBROUTINE SSYGST( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
 *
-*  -- LAPACK routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
@@ -12,65 +139,6 @@
 *     .. Array Arguments ..
       REAL               A( LDA, * ), B( LDB, * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  SSYGST reduces a real symmetric-definite generalized eigenproblem
-*  to standard form.
-*
-*  If ITYPE = 1, the problem is A*x = lambda*B*x,
-*  and A is overwritten by inv(U**T)*A*inv(U) or inv(L)*A*inv(L**T)
-*
-*  If ITYPE = 2 or 3, the problem is A*B*x = lambda*x or
-*  B*A*x = lambda*x, and A is overwritten by U*A*U**T or L**T*A*L.
-*
-*  B must have been previously factorized as U**T*U or L*L**T by SPOTRF.
-*
-*  Arguments
-*  =========
-*
-*  ITYPE   (input) INTEGER
-*          = 1: compute inv(U**T)*A*inv(U) or inv(L)*A*inv(L**T);
-*          = 2 or 3: compute U*A*U**T or L**T*A*L.
-*
-*  UPLO    (input) CHARACTER
-*          = 'U':  Upper triangle of A is stored and B is factored as
-*                  U**T*U;
-*          = 'L':  Lower triangle of A is stored and B is factored as
-*                  L*L**T.
-*
-*  N       (input) INTEGER
-*          The order of the matrices A and B.  N >= 0.
-*
-*  A       (input/output) REAL array, dimension (LDA,N)
-*          On entry, the symmetric matrix A.  If UPLO = 'U', the leading
-*          N-by-N upper triangular part of A contains the upper
-*          triangular part of the matrix A, and the strictly lower
-*          triangular part of A is not referenced.  If UPLO = 'L', the
-*          leading N-by-N lower triangular part of A contains the lower
-*          triangular part of the matrix A, and the strictly upper
-*          triangular part of A is not referenced.
-*
-*          On exit, if INFO = 0, the transformed matrix, stored in the
-*          same format as A.
-*
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,N).
-*
-*  B       (input) REAL array, dimension (LDB,N)
-*          The triangular factor from the Cholesky factorization of B,
-*          as returned by SPOTRF.
-*
-*  LDB     (input) INTEGER
-*          The leading dimension of the array B.  LDB >= max(1,N).
-*
-*  INFO    (output) INTEGER
-*          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value
 *
 *  =====================================================================
 *
@@ -136,7 +204,7 @@ c
          IF( ITYPE.EQ.1 ) THEN
             IF( UPPER ) THEN
 *
-*              Compute inv(U')*A*inv(U)
+*              Compute inv(U**T)*A*inv(U)
 *
                DO 10 K = 1, N, NB
                   KB = MIN( N-K+1, NB )
@@ -166,7 +234,7 @@ c
    10          CONTINUE
             ELSE
 *
-*              Compute inv(L)*A*inv(L')
+*              Compute inv(L)*A*inv(L**T)
 *
                DO 20 K = 1, N, NB
                   KB = MIN( N-K+1, NB )
@@ -198,7 +266,7 @@ c
          ELSE
             IF( UPPER ) THEN
 *
-*              Compute U*A*U'
+*              Compute U*A*U**T
 *
                DO 30 K = 1, N, NB
                   KB = MIN( N-K+1, NB )
@@ -222,7 +290,7 @@ c
    30          CONTINUE
             ELSE
 *
-*              Compute L'*A*L
+*              Compute L**T*A*L
 *
                DO 40 K = 1, N, NB
                   KB = MIN( N-K+1, NB )

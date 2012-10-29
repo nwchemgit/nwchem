@@ -1,41 +1,103 @@
+*> \brief \b SLADIV performs complex division in real arithmetic, avoiding unnecessary overflow.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SLADIV + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/sladiv.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/sladiv.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/sladiv.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SLADIV( A, B, C, D, P, Q )
+* 
+*       .. Scalar Arguments ..
+*       REAL               A, B, C, D, P, Q
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SLADIV performs complex division in  real arithmetic
+*>
+*>                       a + i*b
+*>            p + i*q = ---------
+*>                       c + i*d
+*>
+*> The algorithm is due to Robert L. Smith and can be found
+*> in D. Knuth, The art of Computer Programming, Vol.2, p.195
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] A
+*> \verbatim
+*>          A is REAL
+*> \endverbatim
+*>
+*> \param[in] B
+*> \verbatim
+*>          B is REAL
+*> \endverbatim
+*>
+*> \param[in] C
+*> \verbatim
+*>          C is REAL
+*> \endverbatim
+*>
+*> \param[in] D
+*> \verbatim
+*>          D is REAL
+*>          The scalars a, b, c, and d in the above expression.
+*> \endverbatim
+*>
+*> \param[out] P
+*> \verbatim
+*>          P is REAL
+*> \endverbatim
+*>
+*> \param[out] Q
+*> \verbatim
+*>          Q is REAL
+*>          The scalars p and q in the above expression.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERauxiliary
+*
+*  =====================================================================
       SUBROUTINE SLADIV( A, B, C, D, P, Q )
 *
-*  -- LAPACK auxiliary routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1992
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       REAL               A, B, C, D, P, Q
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  SLADIV performs complex division in  real arithmetic
-*
-*                        a + i*b
-*             p + i*q = ---------
-*                        c + i*d
-*
-*  The algorithm is due to Robert L. Smith and can be found
-*  in D. Knuth, The art of Computer Programming, Vol.2, p.195
-*
-*  Arguments
-*  =========
-*
-*  A       (input) REAL
-*  B       (input) REAL
-*  C       (input) REAL
-*  D       (input) REAL
-*          The scalars a, b, c, and d in the above expression.
-*
-*  P       (output) REAL
-*  Q       (output) REAL
-*          The scalars p and q in the above expression.
 *
 *  =====================================================================
 *

@@ -1,11 +1,252 @@
+*> \brief \b DLAED8 used by sstedc. Merges eigenvalues and deflates secular equation. Used when the original matrix is dense.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DLAED8 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlaed8.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dlaed8.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlaed8.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DLAED8( ICOMPQ, K, N, QSIZ, D, Q, LDQ, INDXQ, RHO,
+*                          CUTPNT, Z, DLAMDA, Q2, LDQ2, W, PERM, GIVPTR,
+*                          GIVCOL, GIVNUM, INDXP, INDX, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            CUTPNT, GIVPTR, ICOMPQ, INFO, K, LDQ, LDQ2, N,
+*      $                   QSIZ
+*       DOUBLE PRECISION   RHO
+*       ..
+*       .. Array Arguments ..
+*       INTEGER            GIVCOL( 2, * ), INDX( * ), INDXP( * ),
+*      $                   INDXQ( * ), PERM( * )
+*       DOUBLE PRECISION   D( * ), DLAMDA( * ), GIVNUM( 2, * ),
+*      $                   Q( LDQ, * ), Q2( LDQ2, * ), W( * ), Z( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DLAED8 merges the two sets of eigenvalues together into a single
+*> sorted set.  Then it tries to deflate the size of the problem.
+*> There are two ways in which deflation can occur:  when two or more
+*> eigenvalues are close together or if there is a tiny element in the
+*> Z vector.  For each such occurrence the order of the related secular
+*> equation problem is reduced by one.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] ICOMPQ
+*> \verbatim
+*>          ICOMPQ is INTEGER
+*>          = 0:  Compute eigenvalues only.
+*>          = 1:  Compute eigenvectors of original dense symmetric matrix
+*>                also.  On entry, Q contains the orthogonal matrix used
+*>                to reduce the original matrix to tridiagonal form.
+*> \endverbatim
+*>
+*> \param[out] K
+*> \verbatim
+*>          K is INTEGER
+*>         The number of non-deflated eigenvalues, and the order of the
+*>         related secular equation.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>         The dimension of the symmetric tridiagonal matrix.  N >= 0.
+*> \endverbatim
+*>
+*> \param[in] QSIZ
+*> \verbatim
+*>          QSIZ is INTEGER
+*>         The dimension of the orthogonal matrix used to reduce
+*>         the full matrix to tridiagonal form.  QSIZ >= N if ICOMPQ = 1.
+*> \endverbatim
+*>
+*> \param[in,out] D
+*> \verbatim
+*>          D is DOUBLE PRECISION array, dimension (N)
+*>         On entry, the eigenvalues of the two submatrices to be
+*>         combined.  On exit, the trailing (N-K) updated eigenvalues
+*>         (those which were deflated) sorted into increasing order.
+*> \endverbatim
+*>
+*> \param[in,out] Q
+*> \verbatim
+*>          Q is DOUBLE PRECISION array, dimension (LDQ,N)
+*>         If ICOMPQ = 0, Q is not referenced.  Otherwise,
+*>         on entry, Q contains the eigenvectors of the partially solved
+*>         system which has been previously updated in matrix
+*>         multiplies with other partially solved eigensystems.
+*>         On exit, Q contains the trailing (N-K) updated eigenvectors
+*>         (those which were deflated) in its last N-K columns.
+*> \endverbatim
+*>
+*> \param[in] LDQ
+*> \verbatim
+*>          LDQ is INTEGER
+*>         The leading dimension of the array Q.  LDQ >= max(1,N).
+*> \endverbatim
+*>
+*> \param[in] INDXQ
+*> \verbatim
+*>          INDXQ is INTEGER array, dimension (N)
+*>         The permutation which separately sorts the two sub-problems
+*>         in D into ascending order.  Note that elements in the second
+*>         half of this permutation must first have CUTPNT added to
+*>         their values in order to be accurate.
+*> \endverbatim
+*>
+*> \param[in,out] RHO
+*> \verbatim
+*>          RHO is DOUBLE PRECISION
+*>         On entry, the off-diagonal element associated with the rank-1
+*>         cut which originally split the two submatrices which are now
+*>         being recombined.
+*>         On exit, RHO has been modified to the value required by
+*>         DLAED3.
+*> \endverbatim
+*>
+*> \param[in] CUTPNT
+*> \verbatim
+*>          CUTPNT is INTEGER
+*>         The location of the last eigenvalue in the leading
+*>         sub-matrix.  min(1,N) <= CUTPNT <= N.
+*> \endverbatim
+*>
+*> \param[in] Z
+*> \verbatim
+*>          Z is DOUBLE PRECISION array, dimension (N)
+*>         On entry, Z contains the updating vector (the last row of
+*>         the first sub-eigenvector matrix and the first row of the
+*>         second sub-eigenvector matrix).
+*>         On exit, the contents of Z are destroyed by the updating
+*>         process.
+*> \endverbatim
+*>
+*> \param[out] DLAMDA
+*> \verbatim
+*>          DLAMDA is DOUBLE PRECISION array, dimension (N)
+*>         A copy of the first K eigenvalues which will be used by
+*>         DLAED3 to form the secular equation.
+*> \endverbatim
+*>
+*> \param[out] Q2
+*> \verbatim
+*>          Q2 is DOUBLE PRECISION array, dimension (LDQ2,N)
+*>         If ICOMPQ = 0, Q2 is not referenced.  Otherwise,
+*>         a copy of the first K eigenvectors which will be used by
+*>         DLAED7 in a matrix multiply (DGEMM) to update the new
+*>         eigenvectors.
+*> \endverbatim
+*>
+*> \param[in] LDQ2
+*> \verbatim
+*>          LDQ2 is INTEGER
+*>         The leading dimension of the array Q2.  LDQ2 >= max(1,N).
+*> \endverbatim
+*>
+*> \param[out] W
+*> \verbatim
+*>          W is DOUBLE PRECISION array, dimension (N)
+*>         The first k values of the final deflation-altered z-vector and
+*>         will be passed to DLAED3.
+*> \endverbatim
+*>
+*> \param[out] PERM
+*> \verbatim
+*>          PERM is INTEGER array, dimension (N)
+*>         The permutations (from deflation and sorting) to be applied
+*>         to each eigenblock.
+*> \endverbatim
+*>
+*> \param[out] GIVPTR
+*> \verbatim
+*>          GIVPTR is INTEGER
+*>         The number of Givens rotations which took place in this
+*>         subproblem.
+*> \endverbatim
+*>
+*> \param[out] GIVCOL
+*> \verbatim
+*>          GIVCOL is INTEGER array, dimension (2, N)
+*>         Each pair of numbers indicates a pair of columns to take place
+*>         in a Givens rotation.
+*> \endverbatim
+*>
+*> \param[out] GIVNUM
+*> \verbatim
+*>          GIVNUM is DOUBLE PRECISION array, dimension (2, N)
+*>         Each number indicates the S value to be used in the
+*>         corresponding Givens rotation.
+*> \endverbatim
+*>
+*> \param[out] INDXP
+*> \verbatim
+*>          INDXP is INTEGER array, dimension (N)
+*>         The permutation used to place deflated values of D at the end
+*>         of the array.  INDXP(1:K) points to the nondeflated D-values
+*>         and INDXP(K+1:N) points to the deflated eigenvalues.
+*> \endverbatim
+*>
+*> \param[out] INDX
+*> \verbatim
+*>          INDX is INTEGER array, dimension (N)
+*>         The permutation used to sort the contents of D into ascending
+*>         order.
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit.
+*>          < 0:  if INFO = -i, the i-th argument had an illegal value.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*> \par Contributors:
+*  ==================
+*>
+*> Jeff Rutter, Computer Science Division, University of California
+*> at Berkeley, USA
+*
+*  =====================================================================
       SUBROUTINE DLAED8( ICOMPQ, K, N, QSIZ, D, Q, LDQ, INDXQ, RHO,
      $                   CUTPNT, Z, DLAMDA, Q2, LDQ2, W, PERM, GIVPTR,
      $                   GIVCOL, GIVNUM, INDXP, INDX, INFO )
 *
-*  -- LAPACK routine (version 3.0) --
-*     Univ. of Tennessee, Oak Ridge National Lab, Argonne National Lab,
-*     Courant Institute, NAG Ltd., and Rice University
-*     September 30, 1994
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            CUTPNT, GIVPTR, ICOMPQ, INFO, K, LDQ, LDQ2, N,
@@ -18,129 +259,6 @@
       DOUBLE PRECISION   D( * ), DLAMDA( * ), GIVNUM( 2, * ),
      $                   Q( LDQ, * ), Q2( LDQ2, * ), W( * ), Z( * )
 *     ..
-*
-*  Purpose
-*  =======
-*
-*  DLAED8 merges the two sets of eigenvalues together into a single
-*  sorted set.  Then it tries to deflate the size of the problem.
-*  There are two ways in which deflation can occur:  when two or more
-*  eigenvalues are close together or if there is a tiny element in the
-*  Z vector.  For each such occurrence the order of the related secular
-*  equation problem is reduced by one.
-*
-*  Arguments
-*  =========
-*
-*  ICOMPQ  (input) INTEGER
-*          = 0:  Compute eigenvalues only.
-*          = 1:  Compute eigenvectors of original dense symmetric matrix
-*                also.  On entry, Q contains the orthogonal matrix used
-*                to reduce the original matrix to tridiagonal form.
-*
-*  K      (output) INTEGER
-*         The number of non-deflated eigenvalues, and the order of the
-*         related secular equation.
-*
-*  N      (input) INTEGER
-*         The dimension of the symmetric tridiagonal matrix.  N >= 0.
-*
-*  QSIZ   (input) INTEGER
-*         The dimension of the orthogonal matrix used to reduce
-*         the full matrix to tridiagonal form.  QSIZ >= N if ICOMPQ = 1.
-*
-*  D      (input/output) DOUBLE PRECISION array, dimension (N)
-*         On entry, the eigenvalues of the two submatrices to be
-*         combined.  On exit, the trailing (N-K) updated eigenvalues
-*         (those which were deflated) sorted into increasing order.
-*
-*  Q      (input/output) DOUBLE PRECISION array, dimension (LDQ,N)
-*         If ICOMPQ = 0, Q is not referenced.  Otherwise,
-*         on entry, Q contains the eigenvectors of the partially solved
-*         system which has been previously updated in matrix
-*         multiplies with other partially solved eigensystems.
-*         On exit, Q contains the trailing (N-K) updated eigenvectors
-*         (those which were deflated) in its last N-K columns.
-*
-*  LDQ    (input) INTEGER
-*         The leading dimension of the array Q.  LDQ >= max(1,N).
-*
-*  INDXQ  (input) INTEGER array, dimension (N)
-*         The permutation which separately sorts the two sub-problems
-*         in D into ascending order.  Note that elements in the second
-*         half of this permutation must first have CUTPNT added to
-*         their values in order to be accurate.
-*
-*  RHO    (input/output) DOUBLE PRECISION
-*         On entry, the off-diagonal element associated with the rank-1
-*         cut which originally split the two submatrices which are now
-*         being recombined.
-*         On exit, RHO has been modified to the value required by
-*         DLAED3.
-*
-*  CUTPNT (input) INTEGER
-*         The location of the last eigenvalue in the leading
-*         sub-matrix.  min(1,N) <= CUTPNT <= N.
-*
-*  Z      (input) DOUBLE PRECISION array, dimension (N)
-*         On entry, Z contains the updating vector (the last row of
-*         the first sub-eigenvector matrix and the first row of the
-*         second sub-eigenvector matrix).
-*         On exit, the contents of Z are destroyed by the updating
-*         process.
-*
-*  DLAMDA (output) DOUBLE PRECISION array, dimension (N)
-*         A copy of the first K eigenvalues which will be used by
-*         DLAED3 to form the secular equation.
-*
-*  Q2     (output) DOUBLE PRECISION array, dimension (LDQ2,N)
-*         If ICOMPQ = 0, Q2 is not referenced.  Otherwise,
-*         a copy of the first K eigenvectors which will be used by
-*         DLAED7 in a matrix multiply (DGEMM) to update the new
-*         eigenvectors.
-*
-*  LDQ2   (input) INTEGER
-*         The leading dimension of the array Q2.  LDQ2 >= max(1,N).
-*
-*  W      (output) DOUBLE PRECISION array, dimension (N)
-*         The first k values of the final deflation-altered z-vector and
-*         will be passed to DLAED3.
-*
-*  PERM   (output) INTEGER array, dimension (N)
-*         The permutations (from deflation and sorting) to be applied
-*         to each eigenblock.
-*
-*  GIVPTR (output) INTEGER
-*         The number of Givens rotations which took place in this
-*         subproblem.
-*
-*  GIVCOL (output) INTEGER array, dimension (2, N)
-*         Each pair of numbers indicates a pair of columns to take place
-*         in a Givens rotation.
-*
-*  GIVNUM (output) DOUBLE PRECISION array, dimension (2, N)
-*         Each number indicates the S value to be used in the
-*         corresponding Givens rotation.
-*
-*  INDXP  (workspace) INTEGER array, dimension (N)
-*         The permutation used to place deflated values of D at the end
-*         of the array.  INDXP(1:K) points to the nondeflated D-values
-*         and INDXP(K+1:N) points to the deflated eigenvalues.
-*
-*  INDX   (workspace) INTEGER array, dimension (N)
-*         The permutation used to sort the contents of D into ascending
-*         order.
-*
-*  INFO   (output) INTEGER
-*          = 0:  successful exit.
-*          < 0:  if INFO = -i, the i-th argument had an illegal value.
-*
-*  Further Details
-*  ===============
-*
-*  Based on contributions by
-*     Jeff Rutter, Computer Science Division, University of California
-*     at Berkeley, USA
 *
 *  =====================================================================
 *
@@ -188,6 +306,13 @@
          CALL XERBLA( 'DLAED8', -INFO )
          RETURN
       END IF
+*
+*     Need to initialize GIVPTR to O here in case of quick exit
+*     to prevent an unspecified code behavior (usually sigfault) 
+*     when IWORK array on entry to *stedc is not zeroed 
+*     (or at least some IWORK entries which used in *laed7 for GIVPTR).
+*
+      GIVPTR = 0
 *
 *     Quick return if possible
 *
@@ -263,7 +388,6 @@
 *     components of Z are zero in this new basis.
 *
       K = 0
-      GIVPTR = 0
       K2 = N + 1
       DO 70 J = 1, N
          IF( RHO*ABS( Z( J ) ).LE.TOL ) THEN
@@ -398,4 +522,3 @@
 *     End of DLAED8
 *
       END
-c $Id$

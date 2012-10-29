@@ -1,52 +1,117 @@
-      double precision function ddot(n,dx,incx,dy,incy)
+*> \brief \b DDOT
 *
-* $Id$
+*  =========== DOCUMENTATION ===========
 *
-c
-c     forms the dot product of two vectors.
-c     uses unrolled loops for increments equal to one.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-      double precision dx(*),dy(*),dtemp
-      integer i,incx,incy,ix,iy,m,mp1,n
-c
-      ddot = 0.0d0
-      dtemp = 0.0d0
-      if(n.le.0)return
-      if(incx.eq.1.and.incy.eq.1)go to 20
-c
-c        code for unequal increments or equal increments
-c          not equal to 1
-c
-      ix = 1
-      iy = 1
-      if(incx.lt.0)ix = (-n+1)*incx + 1
-      if(incy.lt.0)iy = (-n+1)*incy + 1
-      do 10 i = 1,n
-        dtemp = dtemp + dx(ix)*dy(iy)
-        ix = ix + incx
-        iy = iy + incy
-   10 continue
-      ddot = dtemp
-      return
-c
-c        code for both increments equal to 1
-c
-c
-c        clean-up loop
-c
-   20 m = mod(n,5)
-      if( m .eq. 0 ) go to 40
-      do 30 i = 1,m
-        dtemp = dtemp + dx(i)*dy(i)
-   30 continue
-      if( n .lt. 5 ) go to 60
-   40 mp1 = m + 1
-      do 50 i = mp1,n,5
-        dtemp = dtemp + dx(i)*dy(i) + dx(i + 1)*dy(i + 1) +
-     *   dx(i + 2)*dy(i + 2) + dx(i + 3)*dy(i + 3) + dx(i + 4)*dy(i + 4)
-   50 continue
-   60 ddot = dtemp
-      return
-      end
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       DOUBLE PRECISION FUNCTION DDOT(N,DX,INCX,DY,INCY)
+* 
+*       .. Scalar Arguments ..
+*       INTEGER INCX,INCY,N
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION DX(*),DY(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    DDOT forms the dot product of two vectors.
+*>    uses unrolled loops for increments equal to one.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup double_blas_level1
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      DOUBLE PRECISION FUNCTION DDOT(N,DX,INCX,DY,INCY)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      INTEGER INCX,INCY,N
+*     ..
+*     .. Array Arguments ..
+      DOUBLE PRECISION DX(*),DY(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      DOUBLE PRECISION DTEMP
+      INTEGER I,IX,IY,M,MP1
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC MOD
+*     ..
+      DDOT = 0.0d0
+      DTEMP = 0.0d0
+      IF (N.LE.0) RETURN
+      IF (INCX.EQ.1 .AND. INCY.EQ.1) THEN
+*
+*        code for both increments equal to 1
+*
+*
+*        clean-up loop
+*
+         M = MOD(N,5)
+         IF (M.NE.0) THEN
+            DO I = 1,M
+               DTEMP = DTEMP + DX(I)*DY(I)
+            END DO
+            IF (N.LT.5) THEN
+               DDOT=DTEMP
+            RETURN
+            END IF
+         END IF
+         MP1 = M + 1
+         DO I = MP1,N,5
+          DTEMP = DTEMP + DX(I)*DY(I) + DX(I+1)*DY(I+1) +
+     $            DX(I+2)*DY(I+2) + DX(I+3)*DY(I+3) + DX(I+4)*DY(I+4)
+         END DO
+      ELSE
+*
+*        code for unequal increments or equal increments
+*          not equal to 1
+*
+         IX = 1
+         IY = 1
+         IF (INCX.LT.0) IX = (-N+1)*INCX + 1
+         IF (INCY.LT.0) IY = (-N+1)*INCY + 1
+         DO I = 1,N
+            DTEMP = DTEMP + DX(IX)*DY(IY)
+            IX = IX + INCX
+            IY = IY + INCY
+         END DO
+      END IF
+      DDOT = DTEMP
+      RETURN
+      END

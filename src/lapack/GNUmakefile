@@ -24,42 +24,49 @@ error:
 endif
 
 ifeq ($(PRECISION),double)
-OBJ_DLAMCH = dlamch.o
+OBJ_DLAMCH = dlamch.o dlaisnan.o 
 OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dgelqf.o      dgeqr2.o      dgeqrf.o       dgesv.o      \
                dgesvd.o      dgetf2.o      dgetrf.o       dgetrs.o     \
+               disnan.o dlahr2.o dlaqr0.o \
                dlabrd.o      dlacon.o      dlacpy.o       dladiv.o     \
-               dlae2.o       dlaev2.o      dlagtf.o       dlagts.o     \
+               dlae2.o       dlaev2.o  dlaexc.o    dlagtf.o       dlagts.o     \
 		dgels.o       dlange.o      dlansp.o       dtrti2.o     \
                dlanst.o      dlansy.o      dlapy2.o       dlapy3.o     \
                dlarf.o       dlarfb.o      dlarfg.o       dlarft.o     \
-               dlarnv.o      dlartg.o      dlaruv.o       dlas2.o      \
+               dlarnv.o      dlartg.o      dlaruv.o       dlas2.o  dlasy2.o    \
+               dlacn2.o dlaqr1.o dlaqr2.o dlaqr3.o dlaqr4.o dlaqr5.o  \
                dlascl.o      dlaset.o      dlasr.o        dlasrt.o     \
                dlassq.o      dlasv2.o      dlaswp.o       dlatrd.o     \
                dlauu2.o      dlauum.o      dorg2l.o       dorg2r.o     \
+               dormhr.o  \
                dorgbr.o      dorgl2.o      dorglq.o       dorgql.o     \
                dorgqr.o      dorgtr.o      dorm2r.o       dormbr.o     \
                dorml2.o      dormlq.o      dormqr.o       dpotf2.o     \
                dpotrf.o      dpotri.o      dspcon.o       dsprfs.o     \
                dspsvx.o      dsptrf.o      dsptrs.o       dsteqr.o     \
                dsterf.o      dsyev.o       dsygs2.o       dsygst.o     \
-               dsygv.o       dsytd2.o      dsytrd.o       dtrtri.o     \
+               dsygv.o       dsytd2.o      dsytrd.o       dtrexc.o dtrtri.o     \
                dlasq1.o      dlasq2.o      dlasq3.o       dlasq5.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
                dpotrs.o      dlaebz.o      dstedc.o       \
                dlaed0.o dlaed1.o dlaed2.o dlaed3.o dlaed4.o dlaed5.o dlaed6.o dlaed7.o dlaed8.o dlaed9.o \
                dlamrg.o      dlaeda.o \
-               ilaenv.o ieeeck.o      lsamen.o                                  \
+               ilaenv.o ieeeck.o      lsamen.o  iladlr.o iladlc.o ilazlc.o ilazlr.o iparmq.o \
+	       zbdsqr.o  zgebd2.o zgebrd.o zgelq2.o zgelqf.o zgeqr2.o \
+               zgeqrf.o zgesvd.o \
                zheev.o       zhegs2.o      zhegst.o       zhegv.o      \
                zhetd2.o      zhetrd.o      zlacgv.o       zladiv.o     \
                zlanhe.o      zlarf.o       zlarfb.o       zlarfg.o     \
+               zlabrd.o \
                zlarft.o      zlascl.o      zlaset.o       zlasr.o      \
                zlassq.o      zlatrd.o      zpotf2.o       zpotrf.o     \
                zsteqr.o      zung2l.o      zung2r.o       zungql.o     \
                zspcon.o      zspmv.o       zspr.o         zsprfs.o     \
                zspsvx.o      zsptrf.o      zsptrs.o            \
-               zlacon.o      zlacpy.o      zlansp.o \
-               zungqr.o      zungtr.o \
+               zlacon.o      zlacpy.o      zlansp.o  zungbr.o zungl2.o zunglq.o \
+               zungqr.o      zungtr.o zunm2r.o zunmbr.o zunml2.o zunmlq.o \
+               zunmqr.o \
                zlarfx.o zunghr.o zlatrs.o zgebak.o zgebal.o zgeev.o \
                zgehd2.o zgehrd.o zgesv.o zgetf2.o zgetrf.o zgetrs.o \
                zhseqr.o zlahqr.o zlahrd.o zlange.o zlanhs.o dlabad.o \
@@ -75,6 +82,9 @@ else
 OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                sgelqf.o      sgeqr2.o      sgeqrf.o       sgesv.o      \
                sgesvd.o      sgetf2.o      sgetrf.o       sgetrs.o     \
+               sisnan.o      slahr2.o      slaqr0.o       slaqr1.o     \
+               slaqr2.o      slaqr3.o      slaqr4.o       slaqr5.o     \
+               slasy2.o      \
                slabrd.o      slacon.o      slacpy.o       sladiv.o     \
                slae2.o       slaev2.o      slagtf.o       slagts.o     \
                slamch.o      slange.o      slansp.o       strti2.o     \
@@ -86,6 +96,7 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                slauu2.o      slauum.o      sorg2l.o       sorg2r.o     \
                sorgbr.o      sorgl2.o      sorglq.o       sorgql.o     \
                sorgqr.o      sorgtr.o      sorm2r.o       sormbr.o     \
+               sormhr.o      \
                sorml2.o      sormlq.o      sormqr.o       spotf2.o     \
                spotrf.o      spotri.o      sspcon.o       ssprfs.o     \
                sspsvx.o      ssptrf.o      ssptrs.o       ssteqr.o     \
@@ -95,7 +106,9 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                slasq4.o      slasq6.o      sposv.o        strtrs.o\
                spotrs.o      slaebz.o      sstedc.o       \
                slaed0.o slaed1.o slaed2.o slaed3.o slaed4.o slaed5.o slaed6.o slaed7.o slaed8.o slaed9.o \
-               slamrg.o      slaeda.o \
+               slamrg.o      slaeda.o      strexc.o       slabrd.o     \
+               slaexc.o      ilaslr.o      ilaslc.o       ilaclc.o     \
+               ilaclr.o      iparmq.o \
                ilaenv.o    ieeeck.o   lsamen.o                                  \
                cheev.o       chegs2.o      chegst.o       chegv.o      \
                chetd2.o      chetrd.o      clacgv.o       cladiv.o     \
@@ -103,7 +116,8 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                clarft.o      clascl.o      claset.o       clasr.o      \
                classq.o      clatrd.o      cpotf2.o       cpotrf.o     \
                csteqr.o      cung2l.o      cung2r.o       cungql.o     \
-               cungqr.o      cungtr.o \
+               cungqr.o      cungtr.o      cungbr.o       cunm2r.o     \
+               cunmbr.o      cunml2.o      cunmlq.o \
                cgehd2.o cgehrd.o clahrd.o cgebak.o cgebal.o cgeev.o \
                chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
                clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \

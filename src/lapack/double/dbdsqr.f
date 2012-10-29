@@ -1,10 +1,239 @@
+*> \brief \b DBDSQR
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DBDSQR + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dbdsqr.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dbdsqr.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dbdsqr.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DBDSQR( UPLO, N, NCVT, NRU, NCC, D, E, VT, LDVT, U,
+*                          LDU, C, LDC, WORK, INFO )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          UPLO
+*       INTEGER            INFO, LDC, LDU, LDVT, N, NCC, NCVT, NRU
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION   C( LDC, * ), D( * ), E( * ), U( LDU, * ),
+*      $                   VT( LDVT, * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DBDSQR computes the singular values and, optionally, the right and/or
+*> left singular vectors from the singular value decomposition (SVD) of
+*> a real N-by-N (upper or lower) bidiagonal matrix B using the implicit
+*> zero-shift QR algorithm.  The SVD of B has the form
+*> 
+*>    B = Q * S * P**T
+*> 
+*> where S is the diagonal matrix of singular values, Q is an orthogonal
+*> matrix of left singular vectors, and P is an orthogonal matrix of
+*> right singular vectors.  If left singular vectors are requested, this
+*> subroutine actually returns U*Q instead of Q, and, if right singular
+*> vectors are requested, this subroutine returns P**T*VT instead of
+*> P**T, for given real input matrices U and VT.  When U and VT are the
+*> orthogonal matrices that reduce a general matrix A to bidiagonal
+*> form:  A = U*B*VT, as computed by DGEBRD, then
+*>
+*>    A = (U*Q) * S * (P**T*VT)
+*>
+*> is the SVD of A.  Optionally, the subroutine may also compute Q**T*C
+*> for a given real input matrix C.
+*>
+*> See "Computing  Small Singular Values of Bidiagonal Matrices With
+*> Guaranteed High Relative Accuracy," by J. Demmel and W. Kahan,
+*> LAPACK Working Note #3 (or SIAM J. Sci. Statist. Comput. vol. 11,
+*> no. 5, pp. 873-912, Sept 1990) and
+*> "Accurate singular values and differential qd algorithms," by
+*> B. Parlett and V. Fernando, Technical Report CPAM-554, Mathematics
+*> Department, University of California at Berkeley, July 1992
+*> for a detailed description of the algorithm.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] UPLO
+*> \verbatim
+*>          UPLO is CHARACTER*1
+*>          = 'U':  B is upper bidiagonal;
+*>          = 'L':  B is lower bidiagonal.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The order of the matrix B.  N >= 0.
+*> \endverbatim
+*>
+*> \param[in] NCVT
+*> \verbatim
+*>          NCVT is INTEGER
+*>          The number of columns of the matrix VT. NCVT >= 0.
+*> \endverbatim
+*>
+*> \param[in] NRU
+*> \verbatim
+*>          NRU is INTEGER
+*>          The number of rows of the matrix U. NRU >= 0.
+*> \endverbatim
+*>
+*> \param[in] NCC
+*> \verbatim
+*>          NCC is INTEGER
+*>          The number of columns of the matrix C. NCC >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] D
+*> \verbatim
+*>          D is DOUBLE PRECISION array, dimension (N)
+*>          On entry, the n diagonal elements of the bidiagonal matrix B.
+*>          On exit, if INFO=0, the singular values of B in decreasing
+*>          order.
+*> \endverbatim
+*>
+*> \param[in,out] E
+*> \verbatim
+*>          E is DOUBLE PRECISION array, dimension (N-1)
+*>          On entry, the N-1 offdiagonal elements of the bidiagonal
+*>          matrix B. 
+*>          On exit, if INFO = 0, E is destroyed; if INFO > 0, D and E
+*>          will contain the diagonal and superdiagonal elements of a
+*>          bidiagonal matrix orthogonally equivalent to the one given
+*>          as input.
+*> \endverbatim
+*>
+*> \param[in,out] VT
+*> \verbatim
+*>          VT is DOUBLE PRECISION array, dimension (LDVT, NCVT)
+*>          On entry, an N-by-NCVT matrix VT.
+*>          On exit, VT is overwritten by P**T * VT.
+*>          Not referenced if NCVT = 0.
+*> \endverbatim
+*>
+*> \param[in] LDVT
+*> \verbatim
+*>          LDVT is INTEGER
+*>          The leading dimension of the array VT.
+*>          LDVT >= max(1,N) if NCVT > 0; LDVT >= 1 if NCVT = 0.
+*> \endverbatim
+*>
+*> \param[in,out] U
+*> \verbatim
+*>          U is DOUBLE PRECISION array, dimension (LDU, N)
+*>          On entry, an NRU-by-N matrix U.
+*>          On exit, U is overwritten by U * Q.
+*>          Not referenced if NRU = 0.
+*> \endverbatim
+*>
+*> \param[in] LDU
+*> \verbatim
+*>          LDU is INTEGER
+*>          The leading dimension of the array U.  LDU >= max(1,NRU).
+*> \endverbatim
+*>
+*> \param[in,out] C
+*> \verbatim
+*>          C is DOUBLE PRECISION array, dimension (LDC, NCC)
+*>          On entry, an N-by-NCC matrix C.
+*>          On exit, C is overwritten by Q**T * C.
+*>          Not referenced if NCC = 0.
+*> \endverbatim
+*>
+*> \param[in] LDC
+*> \verbatim
+*>          LDC is INTEGER
+*>          The leading dimension of the array C.
+*>          LDC >= max(1,N) if NCC > 0; LDC >=1 if NCC = 0.
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is DOUBLE PRECISION array, dimension (4*N)
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit
+*>          < 0:  If INFO = -i, the i-th argument had an illegal value
+*>          > 0:
+*>             if NCVT = NRU = NCC = 0,
+*>                = 1, a split was marked by a positive value in E
+*>                = 2, current block of Z not diagonalized after 30*N
+*>                     iterations (in inner while loop)
+*>                = 3, termination criterion of outer while loop not met 
+*>                     (program created more than N unreduced blocks)
+*>             else NCVT = NRU = NCC = 0,
+*>                   the algorithm did not converge; D and E contain the
+*>                   elements of a bidiagonal matrix which is orthogonally
+*>                   similar to the input matrix B;  if INFO = i, i
+*>                   elements of E have not converged to zero.
+*> \endverbatim
+*
+*> \par Internal Parameters:
+*  =========================
+*>
+*> \verbatim
+*>  TOLMUL  DOUBLE PRECISION, default = max(10,min(100,EPS**(-1/8)))
+*>          TOLMUL controls the convergence criterion of the QR loop.
+*>          If it is positive, TOLMUL*EPS is the desired relative
+*>             precision in the computed singular values.
+*>          If it is negative, abs(TOLMUL*EPS*sigma_max) is the
+*>             desired absolute accuracy in the computed singular
+*>             values (corresponds to relative accuracy
+*>             abs(TOLMUL*EPS) in the largest singular value.
+*>          abs(TOLMUL) should be between 1 and 1/EPS, and preferably
+*>             between 10 (for fast convergence) and .1/EPS
+*>             (for there to be some accuracy in the results).
+*>          Default is to lose at either one eighth or 2 of the
+*>             available decimal digits in each computed singular value
+*>             (whichever is smaller).
+*>
+*>  MAXITR  INTEGER, default = 6
+*>          MAXITR controls the maximum number of passes of the
+*>          algorithm through its inner loop. The algorithms stops
+*>          (and so fails to converge) if the number of passes
+*>          through the inner loop exceeds MAXITR*N**2.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup auxOTHERcomputational
+*
+*  =====================================================================
       SUBROUTINE DBDSQR( UPLO, N, NCVT, NRU, NCC, D, E, VT, LDVT, U,
      $                   LDU, C, LDC, WORK, INFO )
 *
-*  -- LAPACK routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
@@ -14,125 +243,6 @@
       DOUBLE PRECISION   C( LDC, * ), D( * ), E( * ), U( LDU, * ),
      $                   VT( LDVT, * ), WORK( * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  DBDSQR computes the singular value decomposition (SVD) of a real
-*  N-by-N (upper or lower) bidiagonal matrix B:  B = Q * S * P' (P'
-*  denotes the transpose of P), where S is a diagonal matrix with
-*  non-negative diagonal elements (the singular values of B), and Q
-*  and P are orthogonal matrices.
-*
-*  The routine computes S, and optionally computes U * Q, P' * VT,
-*  or Q' * C, for given real input matrices U, VT, and C.
-*
-*  See "Computing  Small Singular Values of Bidiagonal Matrices With
-*  Guaranteed High Relative Accuracy," by J. Demmel and W. Kahan,
-*  LAPACK Working Note #3 (or SIAM J. Sci. Statist. Comput. vol. 11,
-*  no. 5, pp. 873-912, Sept 1990) and
-*  "Accurate singular values and differential qd algorithms," by
-*  B. Parlett and V. Fernando, Technical Report CPAM-554, Mathematics
-*  Department, University of California at Berkeley, July 1992
-*  for a detailed description of the algorithm.
-*
-*  Arguments
-*  =========
-*
-*  UPLO    (input) CHARACTER*1
-*          = 'U':  B is upper bidiagonal;
-*          = 'L':  B is lower bidiagonal.
-*
-*  N       (input) INTEGER
-*          The order of the matrix B.  N >= 0.
-*
-*  NCVT    (input) INTEGER
-*          The number of columns of the matrix VT. NCVT >= 0.
-*
-*  NRU     (input) INTEGER
-*          The number of rows of the matrix U. NRU >= 0.
-*
-*  NCC     (input) INTEGER
-*          The number of columns of the matrix C. NCC >= 0.
-*
-*  D       (input/output) DOUBLE PRECISION array, dimension (N)
-*          On entry, the n diagonal elements of the bidiagonal matrix B.
-*          On exit, if INFO=0, the singular values of B in decreasing
-*          order.
-*
-*  E       (input/output) DOUBLE PRECISION array, dimension (N)
-*          On entry, the elements of E contain the
-*          offdiagonal elements of the bidiagonal matrix whose SVD
-*          is desired. On normal exit (INFO = 0), E is destroyed.
-*          If the algorithm does not converge (INFO > 0), D and E
-*          will contain the diagonal and superdiagonal elements of a
-*          bidiagonal matrix orthogonally equivalent to the one given
-*          as input. E(N) is used for workspace.
-*
-*  VT      (input/output) DOUBLE PRECISION array, dimension (LDVT, NCVT)
-*          On entry, an N-by-NCVT matrix VT.
-*          On exit, VT is overwritten by P' * VT.
-*          VT is not referenced if NCVT = 0.
-*
-*  LDVT    (input) INTEGER
-*          The leading dimension of the array VT.
-*          LDVT >= max(1,N) if NCVT > 0; LDVT >= 1 if NCVT = 0.
-*
-*  U       (input/output) DOUBLE PRECISION array, dimension (LDU, N)
-*          On entry, an NRU-by-N matrix U.
-*          On exit, U is overwritten by U * Q.
-*          U is not referenced if NRU = 0.
-*
-*  LDU     (input) INTEGER
-*          The leading dimension of the array U.  LDU >= max(1,NRU).
-*
-*  C       (input/output) DOUBLE PRECISION array, dimension (LDC, NCC)
-*          On entry, an N-by-NCC matrix C.
-*          On exit, C is overwritten by Q' * C.
-*          C is not referenced if NCC = 0.
-*
-*  LDC     (input) INTEGER
-*          The leading dimension of the array C.
-*          LDC >= max(1,N) if NCC > 0; LDC >=1 if NCC = 0.
-*
-*  WORK    (workspace) DOUBLE PRECISION array, dimension
-*            2*N  if only singular values wanted (NCVT = NRU = NCC = 0)
-*            max( 1, 4*N-4 ) otherwise
-*
-*  INFO    (output) INTEGER
-*          = 0:  successful exit
-*          < 0:  If INFO = -i, the i-th argument had an illegal value
-*          > 0:  the algorithm did not converge; D and E contain the
-*                elements of a bidiagonal matrix which is orthogonally
-*                similar to the input matrix B;  if INFO = i, i
-*                elements of E have not converged to zero.
-*
-*  Internal Parameters
-*  ===================
-*
-*  TOLMUL  DOUBLE PRECISION, default = max(10,min(100,EPS**(-1/8)))
-*          TOLMUL controls the convergence criterion of the QR loop.
-*          If it is positive, TOLMUL*EPS is the desired relative
-*             precision in the computed singular values.
-*          If it is negative, abs(TOLMUL*EPS*sigma_max) is the
-*             desired absolute accuracy in the computed singular
-*             values (corresponds to relative accuracy
-*             abs(TOLMUL*EPS) in the largest singular value.
-*          abs(TOLMUL) should be between 1 and 1/EPS, and preferably
-*             between 10 (for fast convergence) and .1/EPS
-*             (for there to be some accuracy in the results).
-*          Default is to lose at either one eighth or 2 of the
-*             available decimal digits in each computed singular value
-*             (whichever is smaller).
-*
-*  MAXITR  INTEGER, default = 6
-*          MAXITR controls the maximum number of passes of the
-*          algorithm through its inner loop. The algorithms stops
-*          (and so fails to converge) if the number of passes
-*          through the inner loop exceeds MAXITR*N**2.
 *
 *  =====================================================================
 *
@@ -155,12 +265,12 @@ c
       PARAMETER          ( MAXITR = 6 )
 *     ..
 *     .. Local Scalars ..
-      LOGICAL            ROTATE
-      INTEGER            I, IDIR, IROT, ISUB, ITER, IUPLO, J, LL, LLL,
-     $                   M, MAXIT, NM1, NM12, NM13, OLDLL, OLDM
+      LOGICAL            LOWER, ROTATE
+      INTEGER            I, IDIR, ISUB, ITER, J, LL, LLL, M, MAXIT, NM1,
+     $                   NM12, NM13, OLDLL, OLDM
       DOUBLE PRECISION   ABSE, ABSS, COSL, COSR, CS, EPS, F, G, H, MU,
      $                   OLDCS, OLDSN, R, SHIFT, SIGMN, SIGMX, SINL,
-     $                   SINR, SLL, SMAX, SMIN, SMINL, SMINLO, SMINOA,
+     $                   SINR, SLL, SMAX, SMIN, SMINL, SMINOA,
      $                   SN, THRESH, TOL, TOLMUL, UNFL
 *     ..
 *     .. External Functions ..
@@ -180,12 +290,8 @@ c
 *     Test the input parameters.
 *
       INFO = 0
-      IUPLO = 0
-      IF( LSAME( UPLO, 'U' ) )
-     $   IUPLO = 1
-      IF( LSAME( UPLO, 'L' ) )
-     $   IUPLO = 2
-      IF( IUPLO.EQ.0 ) THEN
+      LOWER = LSAME( UPLO, 'L' )
+      IF( .NOT.LSAME( UPLO, 'U' ) .AND. .NOT.LOWER ) THEN
          INFO = -1
       ELSE IF( N.LT.0 ) THEN
          INFO = -2
@@ -211,7 +317,7 @@ c
       IF( N.EQ.0 )
      $   RETURN
       IF( N.EQ.1 )
-     $   GO TO 150
+     $   GO TO 160
 *
 *     ROTATE is true if any singular vectors desired, false otherwise
 *
@@ -221,12 +327,17 @@ c
 *
       IF( .NOT.ROTATE ) THEN
          CALL DLASQ1( N, D, E, WORK, INFO )
-         RETURN
+*
+*     If INFO equals 2, dqds didn't finish, try to finish
+*         
+         IF( INFO .NE. 2 ) RETURN
+         INFO = 0
       END IF
 *
       NM1 = N - 1
       NM12 = NM1 + NM1
       NM13 = NM12 + NM1
+      IDIR = 0
 *
 *     Get machine constants
 *
@@ -236,7 +347,7 @@ c
 *     If matrix lower bidiagonal, rotate to be upper bidiagonal
 *     by applying Givens rotations on the left
 *
-      IF( IUPLO.EQ.2 ) THEN
+      IF( LOWER ) THEN
          DO 10 I = 1, N - 1
             CALL DLARTG( D( I ), E( I ), CS, SN, R )
             D( I ) = R
@@ -265,10 +376,13 @@ c
 *
 *     Compute approximate maximum, minimum singular values
 *
-      SMAX = ABS( D( N ) )
-      DO 20 I = 1, N - 1
-         SMAX = MAX( SMAX, ABS( D( I ) ), ABS( E( I ) ) )
+      SMAX = ZERO
+      DO 20 I = 1, N
+         SMAX = MAX( SMAX, ABS( D( I ) ) )
    20 CONTINUE
+      DO 30 I = 1, N - 1
+         SMAX = MAX( SMAX, ABS( E( I ) ) )
+   30 CONTINUE
       SMINL = ZERO
       IF( TOL.GE.ZERO ) THEN
 *
@@ -276,15 +390,15 @@ c
 *
          SMINOA = ABS( D( 1 ) )
          IF( SMINOA.EQ.ZERO )
-     $      GO TO 40
+     $      GO TO 50
          MU = SMINOA
-         DO 30 I = 2, N
+         DO 40 I = 2, N
             MU = ABS( D( I ) )*( MU / ( MU+ABS( E( I-1 ) ) ) )
             SMINOA = MIN( SMINOA, MU )
             IF( SMINOA.EQ.ZERO )
-     $         GO TO 40
-   30    CONTINUE
+     $         GO TO 50
    40    CONTINUE
+   50    CONTINUE
          SMINOA = SMINOA / SQRT( DBLE( N ) )
          THRESH = MAX( TOL*SMINOA, MAXITR*N*N*UNFL )
       ELSE
@@ -309,14 +423,14 @@ c
 *
 *     Begin main iteration loop
 *
-   50 CONTINUE
+   60 CONTINUE
 *
 *     Check for convergence or exceeding iteration count
 *
       IF( M.LE.1 )
-     $   GO TO 150
+     $   GO TO 160
       IF( ITER.GT.MAXIT )
-     $   GO TO 190
+     $   GO TO 200
 *
 *     Find diagonal block of matrix to work on
 *
@@ -324,22 +438,20 @@ c
      $   D( M ) = ZERO
       SMAX = ABS( D( M ) )
       SMIN = SMAX
-*  The following line is to get rid of compiler warnings.
-      LL = 0
-      DO 60 LLL = 1, M
+      DO 70 LLL = 1, M - 1
          LL = M - LLL
-         IF( LL.EQ.0 )
-     $      GO TO 80
          ABSS = ABS( D( LL ) )
          ABSE = ABS( E( LL ) )
          IF( TOL.LT.ZERO .AND. ABSS.LE.THRESH )
      $      D( LL ) = ZERO
          IF( ABSE.LE.THRESH )
-     $      GO TO 70
+     $      GO TO 80
          SMIN = MIN( SMIN, ABSS )
          SMAX = MAX( SMAX, ABSS, ABSE )
-   60 CONTINUE
    70 CONTINUE
+      LL = 0
+      GO TO 90
+   80 CONTINUE
       E( LL ) = ZERO
 *
 *     Matrix splits since E(LL) = 0
@@ -349,9 +461,9 @@ c
 *        Convergence of bottom singular value, return to top of loop
 *
          M = M - 1
-         GO TO 50
+         GO TO 60
       END IF
-   80 CONTINUE
+   90 CONTINUE
       LL = LL + 1
 *
 *     E(LL) through E(M-1) are nonzero, E(LL-1) is zero
@@ -377,14 +489,12 @@ c
      $      CALL DROT( NCC, C( M-1, 1 ), LDC, C( M, 1 ), LDC, COSL,
      $                 SINL )
          M = M - 2
-         GO TO 50
+         GO TO 60
       END IF
 *
 *     If working on new submatrix, choose shift direction
 *     (from larger end diagonal element towards smaller)
-*     The following line is to take care of compiler warnings.
 *
-      IDIR = 2
       IF( LL.GT.OLDM .OR. M.LT.OLDLL ) THEN
          IF( ABS( D( LL ) ).GE.ABS( D( M ) ) ) THEN
 *
@@ -409,7 +519,7 @@ c
          IF( ABS( E( M-1 ) ).LE.ABS( TOL )*ABS( D( M ) ) .OR.
      $       ( TOL.LT.ZERO .AND. ABS( E( M-1 ) ).LE.THRESH ) ) THEN
             E( M-1 ) = ZERO
-            GO TO 50
+            GO TO 60
          END IF
 *
          IF( TOL.GE.ZERO ) THEN
@@ -419,15 +529,14 @@ c
 *
             MU = ABS( D( LL ) )
             SMINL = MU
-            DO 90 LLL = LL, M - 1
+            DO 100 LLL = LL, M - 1
                IF( ABS( E( LLL ) ).LE.TOL*MU ) THEN
                   E( LLL ) = ZERO
-                  GO TO 50
+                  GO TO 60
                END IF
-               SMINLO = SMINL
                MU = ABS( D( LLL+1 ) )*( MU / ( MU+ABS( E( LLL ) ) ) )
                SMINL = MIN( SMINL, MU )
-   90       CONTINUE
+  100       CONTINUE
          END IF
 *
       ELSE
@@ -438,7 +547,7 @@ c
          IF( ABS( E( LL ) ).LE.ABS( TOL )*ABS( D( LL ) ) .OR.
      $       ( TOL.LT.ZERO .AND. ABS( E( LL ) ).LE.THRESH ) ) THEN
             E( LL ) = ZERO
-            GO TO 50
+            GO TO 60
          END IF
 *
          IF( TOL.GE.ZERO ) THEN
@@ -448,15 +557,14 @@ c
 *
             MU = ABS( D( M ) )
             SMINL = MU
-            DO 100 LLL = M - 1, LL, -1
+            DO 110 LLL = M - 1, LL, -1
                IF( ABS( E( LLL ) ).LE.TOL*MU ) THEN
                   E( LLL ) = ZERO
-                  GO TO 50
+                  GO TO 60
                END IF
-               SMINLO = SMINL
                MU = ABS( D( LLL ) )*( MU / ( MU+ABS( E( LLL ) ) ) )
                SMINL = MIN( SMINL, MU )
-  100       CONTINUE
+  110       CONTINUE
          END IF
       END IF
       OLDLL = LL
@@ -505,23 +613,16 @@ c
 *
             CS = ONE
             OLDCS = ONE
-            CALL DLARTG( D( LL )*CS, E( LL ), CS, SN, R )
-            CALL DLARTG( OLDCS*R, D( LL+1 )*SN, OLDCS, OLDSN, D( LL ) )
-            WORK( 1 ) = CS
-            WORK( 1+NM1 ) = SN
-            WORK( 1+NM12 ) = OLDCS
-            WORK( 1+NM13 ) = OLDSN
-            IROT = 1
-            DO 110 I = LL + 1, M - 1
+            DO 120 I = LL, M - 1
                CALL DLARTG( D( I )*CS, E( I ), CS, SN, R )
-               E( I-1 ) = OLDSN*R
+               IF( I.GT.LL )
+     $            E( I-1 ) = OLDSN*R
                CALL DLARTG( OLDCS*R, D( I+1 )*SN, OLDCS, OLDSN, D( I ) )
-               IROT = IROT + 1
-               WORK( IROT ) = CS
-               WORK( IROT+NM1 ) = SN
-               WORK( IROT+NM12 ) = OLDCS
-               WORK( IROT+NM13 ) = OLDSN
-  110       CONTINUE
+               WORK( I-LL+1 ) = CS
+               WORK( I-LL+1+NM1 ) = SN
+               WORK( I-LL+1+NM12 ) = OLDCS
+               WORK( I-LL+1+NM13 ) = OLDSN
+  120       CONTINUE
             H = D( M )*CS
             D( M ) = H*OLDCS
             E( M-1 ) = H*OLDSN
@@ -550,23 +651,16 @@ c
 *
             CS = ONE
             OLDCS = ONE
-            CALL DLARTG( D( M )*CS, E( M-1 ), CS, SN, R )
-            CALL DLARTG( OLDCS*R, D( M-1 )*SN, OLDCS, OLDSN, D( M ) )
-            WORK( M-LL ) = CS
-            WORK( M-LL+NM1 ) = -SN
-            WORK( M-LL+NM12 ) = OLDCS
-            WORK( M-LL+NM13 ) = -OLDSN
-            IROT = M - LL
-            DO 120 I = M - 1, LL + 1, -1
+            DO 130 I = M, LL + 1, -1
                CALL DLARTG( D( I )*CS, E( I-1 ), CS, SN, R )
-               E( I ) = OLDSN*R
+               IF( I.LT.M )
+     $            E( I ) = OLDSN*R
                CALL DLARTG( OLDCS*R, D( I-1 )*SN, OLDCS, OLDSN, D( I ) )
-               IROT = IROT - 1
-               WORK( IROT ) = CS
-               WORK( IROT+NM1 ) = -SN
-               WORK( IROT+NM12 ) = OLDCS
-               WORK( IROT+NM13 ) = -OLDSN
-  120       CONTINUE
+               WORK( I-LL ) = CS
+               WORK( I-LL+NM1 ) = -SN
+               WORK( I-LL+NM12 ) = OLDCS
+               WORK( I-LL+NM13 ) = -OLDSN
+  130       CONTINUE
             H = D( LL )*CS
             D( LL ) = H*OLDCS
             E( LL ) = H*OLDSN
@@ -600,25 +694,10 @@ c
             F = ( ABS( D( LL ) )-SHIFT )*
      $          ( SIGN( ONE, D( LL ) )+SHIFT / D( LL ) )
             G = E( LL )
-            CALL DLARTG( F, G, COSR, SINR, R )
-            F = COSR*D( LL ) + SINR*E( LL )
-            E( LL ) = COSR*E( LL ) - SINR*D( LL )
-            G = SINR*D( LL+1 )
-            D( LL+1 ) = COSR*D( LL+1 )
-            CALL DLARTG( F, G, COSL, SINL, R )
-            D( LL ) = R
-            F = COSL*E( LL ) + SINL*D( LL+1 )
-            D( LL+1 ) = COSL*D( LL+1 ) - SINL*E( LL )
-            G = SINL*E( LL+1 )
-            E( LL+1 ) = COSL*E( LL+1 )
-            WORK( 1 ) = COSR
-            WORK( 1+NM1 ) = SINR
-            WORK( 1+NM12 ) = COSL
-            WORK( 1+NM13 ) = SINL
-            IROT = 1
-            DO 130 I = LL + 1, M - 2
+            DO 140 I = LL, M - 1
                CALL DLARTG( F, G, COSR, SINR, R )
-               E( I-1 ) = R
+               IF( I.GT.LL )
+     $            E( I-1 ) = R
                F = COSR*D( I ) + SINR*E( I )
                E( I ) = COSR*E( I ) - SINR*D( I )
                G = SINR*D( I+1 )
@@ -627,29 +706,15 @@ c
                D( I ) = R
                F = COSL*E( I ) + SINL*D( I+1 )
                D( I+1 ) = COSL*D( I+1 ) - SINL*E( I )
-               G = SINL*E( I+1 )
-               E( I+1 ) = COSL*E( I+1 )
-               IROT = IROT + 1
-               WORK( IROT ) = COSR
-               WORK( IROT+NM1 ) = SINR
-               WORK( IROT+NM12 ) = COSL
-               WORK( IROT+NM13 ) = SINL
-  130       CONTINUE
-            CALL DLARTG( F, G, COSR, SINR, R )
-            E( M-2 ) = R
-            F = COSR*D( M-1 ) + SINR*E( M-1 )
-            E( M-1 ) = COSR*E( M-1 ) - SINR*D( M-1 )
-            G = SINR*D( M )
-            D( M ) = COSR*D( M )
-            CALL DLARTG( F, G, COSL, SINL, R )
-            D( M-1 ) = R
-            F = COSL*E( M-1 ) + SINL*D( M )
-            D( M ) = COSL*D( M ) - SINL*E( M-1 )
-            IROT = IROT + 1
-            WORK( IROT ) = COSR
-            WORK( IROT+NM1 ) = SINR
-            WORK( IROT+NM12 ) = COSL
-            WORK( IROT+NM13 ) = SINL
+               IF( I.LT.M-1 ) THEN
+                  G = SINL*E( I+1 )
+                  E( I+1 ) = COSL*E( I+1 )
+               END IF
+               WORK( I-LL+1 ) = COSR
+               WORK( I-LL+1+NM1 ) = SINR
+               WORK( I-LL+1+NM12 ) = COSL
+               WORK( I-LL+1+NM13 ) = SINL
+  140       CONTINUE
             E( M-1 ) = F
 *
 *           Update singular vectors
@@ -677,25 +742,10 @@ c
             F = ( ABS( D( M ) )-SHIFT )*( SIGN( ONE, D( M ) )+SHIFT /
      $          D( M ) )
             G = E( M-1 )
-            CALL DLARTG( F, G, COSR, SINR, R )
-            F = COSR*D( M ) + SINR*E( M-1 )
-            E( M-1 ) = COSR*E( M-1 ) - SINR*D( M )
-            G = SINR*D( M-1 )
-            D( M-1 ) = COSR*D( M-1 )
-            CALL DLARTG( F, G, COSL, SINL, R )
-            D( M ) = R
-            F = COSL*E( M-1 ) + SINL*D( M-1 )
-            D( M-1 ) = COSL*D( M-1 ) - SINL*E( M-1 )
-            G = SINL*E( M-2 )
-            E( M-2 ) = COSL*E( M-2 )
-            WORK( M-LL ) = COSR
-            WORK( M-LL+NM1 ) = -SINR
-            WORK( M-LL+NM12 ) = COSL
-            WORK( M-LL+NM13 ) = -SINL
-            IROT = M - LL
-            DO 140 I = M - 1, LL + 2, -1
+            DO 150 I = M, LL + 1, -1
                CALL DLARTG( F, G, COSR, SINR, R )
-               E( I ) = R
+               IF( I.LT.M )
+     $            E( I ) = R
                F = COSR*D( I ) + SINR*E( I-1 )
                E( I-1 ) = COSR*E( I-1 ) - SINR*D( I )
                G = SINR*D( I-1 )
@@ -704,29 +754,15 @@ c
                D( I ) = R
                F = COSL*E( I-1 ) + SINL*D( I-1 )
                D( I-1 ) = COSL*D( I-1 ) - SINL*E( I-1 )
-               G = SINL*E( I-2 )
-               E( I-2 ) = COSL*E( I-2 )
-               IROT = IROT - 1
-               WORK( IROT ) = COSR
-               WORK( IROT+NM1 ) = -SINR
-               WORK( IROT+NM12 ) = COSL
-               WORK( IROT+NM13 ) = -SINL
-  140       CONTINUE
-            CALL DLARTG( F, G, COSR, SINR, R )
-            E( LL+1 ) = R
-            F = COSR*D( LL+1 ) + SINR*E( LL )
-            E( LL ) = COSR*E( LL ) - SINR*D( LL+1 )
-            G = SINR*D( LL )
-            D( LL ) = COSR*D( LL )
-            CALL DLARTG( F, G, COSL, SINL, R )
-            D( LL+1 ) = R
-            F = COSL*E( LL ) + SINL*D( LL )
-            D( LL ) = COSL*D( LL ) - SINL*E( LL )
-            IROT = IROT - 1
-            WORK( IROT ) = COSR
-            WORK( IROT+NM1 ) = -SINR
-            WORK( IROT+NM12 ) = COSL
-            WORK( IROT+NM13 ) = -SINL
+               IF( I.GT.LL+1 ) THEN
+                  G = SINL*E( I-2 )
+                  E( I-2 ) = COSL*E( I-2 )
+               END IF
+               WORK( I-LL ) = COSR
+               WORK( I-LL+NM1 ) = -SINR
+               WORK( I-LL+NM12 ) = COSL
+               WORK( I-LL+NM13 ) = -SINL
+  150       CONTINUE
             E( LL ) = F
 *
 *           Test convergence
@@ -750,12 +786,12 @@ c
 *
 *     QR iteration finished, go back and check convergence
 *
-      GO TO 50
+      GO TO 60
 *
 *     All singular values converged, so make them positive
 *
-  150 CONTINUE
-      DO 160 I = 1, N
+  160 CONTINUE
+      DO 170 I = 1, N
          IF( D( I ).LT.ZERO ) THEN
             D( I ) = -D( I )
 *
@@ -764,23 +800,23 @@ c
             IF( NCVT.GT.0 )
      $         CALL DSCAL( NCVT, NEGONE, VT( I, 1 ), LDVT )
          END IF
-  160 CONTINUE
+  170 CONTINUE
 *
 *     Sort the singular values into decreasing order (insertion sort on
 *     singular values, but only one transposition per singular vector)
 *
-      DO 180 I = 1, N - 1
+      DO 190 I = 1, N - 1
 *
 *        Scan for smallest D(I)
 *
          ISUB = 1
          SMIN = D( 1 )
-         DO 170 J = 2, N + 1 - I
+         DO 180 J = 2, N + 1 - I
             IF( D( J ).LE.SMIN ) THEN
                ISUB = J
                SMIN = D( J )
             END IF
-  170    CONTINUE
+  180    CONTINUE
          IF( ISUB.NE.N+1-I ) THEN
 *
 *           Swap singular values and vectors
@@ -795,18 +831,18 @@ c
             IF( NCC.GT.0 )
      $         CALL DSWAP( NCC, C( ISUB, 1 ), LDC, C( N+1-I, 1 ), LDC )
          END IF
-  180 CONTINUE
-      GO TO 210
+  190 CONTINUE
+      GO TO 220
 *
 *     Maximum number of iterations exceeded, failure to converge
 *
-  190 CONTINUE
+  200 CONTINUE
       INFO = 0
-      DO 200 I = 1, N - 1
+      DO 210 I = 1, N - 1
          IF( E( I ).NE.ZERO )
      $      INFO = INFO + 1
-  200 CONTINUE
   210 CONTINUE
+  220 CONTINUE
       RETURN
 *
 *     End of DBDSQR

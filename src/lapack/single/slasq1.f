@@ -1,10 +1,117 @@
-* $Id$
+*> \brief \b SLASQ1 computes the singular values of a real square bidiagonal matrix. Used by sbdsqr.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SLASQ1 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/slasq1.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/slasq1.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/slasq1.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SLASQ1( N, D, E, WORK, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            INFO, N
+*       ..
+*       .. Array Arguments ..
+*       REAL               D( * ), E( * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SLASQ1 computes the singular values of a real N-by-N bidiagonal
+*> matrix with diagonal D and off-diagonal E. The singular values
+*> are computed to high relative accuracy, in the absence of
+*> denormalization, underflow and overflow. The algorithm was first
+*> presented in
+*>
+*> "Accurate singular values and differential qd algorithms" by K. V.
+*> Fernando and B. N. Parlett, Numer. Math., Vol-67, No. 2, pp. 191-230,
+*> 1994,
+*>
+*> and the present implementation is described in "An implementation of
+*> the dqds Algorithm (Positive Case)", LAPACK Working Note.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>        The number of rows and columns in the matrix. N >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] D
+*> \verbatim
+*>          D is REAL array, dimension (N)
+*>        On entry, D contains the diagonal elements of the
+*>        bidiagonal matrix whose SVD is desired. On normal exit,
+*>        D contains the singular values in decreasing order.
+*> \endverbatim
+*>
+*> \param[in,out] E
+*> \verbatim
+*>          E is REAL array, dimension (N)
+*>        On entry, elements E(1:N-1) contain the off-diagonal elements
+*>        of the bidiagonal matrix whose SVD is desired.
+*>        On exit, E is overwritten.
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is REAL array, dimension (4*N)
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>        = 0: successful exit
+*>        < 0: if INFO = -i, the i-th argument had an illegal value
+*>        > 0: the algorithm failed
+*>             = 1, a split was marked by a positive value in E
+*>             = 2, current block of Z not diagonalized after 100*N
+*>                  iterations (in inner while loop)  On exit D and E
+*>                  represent a matrix with the same singular values
+*>                  which the calling subroutine could use to finish the
+*>                  computation, or even feed back into SLASQ1
+*>             = 3, termination criterion of outer while loop not met 
+*>                  (program created more than N unreduced blocks)
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*  =====================================================================
       SUBROUTINE SLASQ1( N, D, E, WORK, INFO )
 *
-*  -- LAPACK routine (instrumented to count ops, version 3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1999 
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N
@@ -12,56 +119,6 @@
 *     .. Array Arguments ..
       REAL               D( * ), E( * ), WORK( * )
 *     ..
-*     .. Common block to return operation count ..
-      COMMON             / LATIME / OPS, ITCNT
-*     ..
-*     .. Scalars in Common ..
-      REAL               ITCNT, OPS
-*     ..
-*
-*  Purpose
-*  =======
-*
-*  SLASQ1 computes the singular values of a real N-by-N bidiagonal
-*  matrix with diagonal D and off-diagonal E. The singular values
-*  are computed to high relative accuracy, in the absence of
-*  denormalization, underflow and overflow. The algorithm was first
-*  presented in
-*
-*  "Accurate singular values and differential qd algorithms" by K. V.
-*  Fernando and B. N. Parlett, Numer. Math., Vol-67, No. 2, pp. 191-230,
-*  1994,
-*
-*  and the present implementation is described in "An implementation of
-*  the dqds Algorithm (Positive Case)", LAPACK Working Note.
-*
-*  Arguments
-*  =========
-*
-*  N     (input) INTEGER
-*        The number of rows and columns in the matrix. N >= 0.
-*
-*  D     (input/output) REAL array, dimension (N)
-*        On entry, D contains the diagonal elements of the
-*        bidiagonal matrix whose SVD is desired. On normal exit,
-*        D contains the singular values in decreasing order.
-*
-*  E     (input/output) REAL array, dimension (N)
-*        On entry, elements E(1:N-1) contain the off-diagonal elements
-*        of the bidiagonal matrix whose SVD is desired.
-*        On exit, E is overwritten.
-*
-*  WORK  (workspace) REAL array, dimension (4*N)
-*
-*  INFO  (output) INTEGER
-*        = 0: successful exit
-*        < 0: if INFO = -i, the i-th argument had an illegal value
-*        > 0: the algorithm failed
-*             = 1, a split was marked by a positive value in E
-*             = 2, current block of Z not diagonalized after 30*N
-*                  iterations (in inner while loop)
-*             = 3, termination criterion of outer while loop not met 
-*                  (program created more than N unreduced blocks)
 *
 *  =====================================================================
 *
@@ -74,14 +131,14 @@
       REAL               EPS, SCALE, SAFMIN, SIGMN, SIGMX
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           SLAS2, SLASQ2, SLASRT, XERBLA
+      EXTERNAL           SCOPY, SLAS2, SLASCL, SLASQ2, SLASRT, XERBLA
 *     ..
 *     .. External Functions ..
       REAL               SLAMCH
       EXTERNAL           SLAMCH
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          ABS, MAX, REAL, SQRT
+      INTRINSIC          ABS, MAX, SQRT
 *     ..
 *     .. Executable Statements ..
 *
@@ -125,7 +182,6 @@
 *     Copy D and E into WORK (in the Z format) and scale (squaring the
 *     input data makes scaling by a power of the radix pointless).
 *
-      OPS = OPS + REAL( 1 + 2*N )
       EPS = SLAMCH( 'Precision' )
       SAFMIN = SLAMCH( 'Safe minimum' )
       SCALE = SQRT( EPS / SAFMIN )
@@ -136,7 +192,6 @@
 *         
 *     Compute the q's and e's.
 *
-      OPS = OPS + REAL( 2*N-1 )
       DO 30 I = 1, 2*N - 1
          WORK( I ) = WORK( I )**2
    30 CONTINUE
@@ -145,11 +200,21 @@
       CALL SLASQ2( N, WORK, INFO )
 *
       IF( INFO.EQ.0 ) THEN
-         OPS = OPS + REAL( 2*N )
          DO 40 I = 1, N
             D( I ) = SQRT( WORK( I ) )
    40    CONTINUE
          CALL SLASCL( 'G', 0, 0, SCALE, SIGMX, N, 1, D, N, IINFO )
+      ELSE IF( INFO.EQ.2 ) THEN
+*
+*     Maximum number of iterations exceeded.  Move data from WORK
+*     into D and E so the calling subroutine can try to finish
+*
+         DO I = 1, N
+            D( I ) = SQRT( WORK( 2*I-1 ) )
+            E( I ) = SQRT( WORK( 2*I ) )
+         END DO
+         CALL SLASCL( 'G', 0, 0, SCALE, SIGMX, N, 1, D, N, IINFO )
+         CALL SLASCL( 'G', 0, 0, SCALE, SIGMX, N, 1, E, N, IINFO )
       END IF
 *
       RETURN

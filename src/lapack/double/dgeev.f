@@ -1,11 +1,198 @@
+*> \brief <b> DGEEV computes the eigenvalues and, optionally, the left and/or right eigenvectors for GE matrices</b>
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DGEEV + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dgeev.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dgeev.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dgeev.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DGEEV( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
+*                         LDVR, WORK, LWORK, INFO )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          JOBVL, JOBVR
+*       INTEGER            INFO, LDA, LDVL, LDVR, LWORK, N
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION   A( LDA, * ), VL( LDVL, * ), VR( LDVR, * ),
+*      $                   WI( * ), WORK( * ), WR( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DGEEV computes for an N-by-N real nonsymmetric matrix A, the
+*> eigenvalues and, optionally, the left and/or right eigenvectors.
+*>
+*> The right eigenvector v(j) of A satisfies
+*>                  A * v(j) = lambda(j) * v(j)
+*> where lambda(j) is its eigenvalue.
+*> The left eigenvector u(j) of A satisfies
+*>               u(j)**H * A = lambda(j) * u(j)**H
+*> where u(j)**H denotes the conjugate-transpose of u(j).
+*>
+*> The computed eigenvectors are normalized to have Euclidean norm
+*> equal to 1 and largest component real.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] JOBVL
+*> \verbatim
+*>          JOBVL is CHARACTER*1
+*>          = 'N': left eigenvectors of A are not computed;
+*>          = 'V': left eigenvectors of A are computed.
+*> \endverbatim
+*>
+*> \param[in] JOBVR
+*> \verbatim
+*>          JOBVR is CHARACTER*1
+*>          = 'N': right eigenvectors of A are not computed;
+*>          = 'V': right eigenvectors of A are computed.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The order of the matrix A. N >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] A
+*> \verbatim
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
+*>          On entry, the N-by-N matrix A.
+*>          On exit, A has been overwritten.
+*> \endverbatim
+*>
+*> \param[in] LDA
+*> \verbatim
+*>          LDA is INTEGER
+*>          The leading dimension of the array A.  LDA >= max(1,N).
+*> \endverbatim
+*>
+*> \param[out] WR
+*> \verbatim
+*>          WR is DOUBLE PRECISION array, dimension (N)
+*> \endverbatim
+*>
+*> \param[out] WI
+*> \verbatim
+*>          WI is DOUBLE PRECISION array, dimension (N)
+*>          WR and WI contain the real and imaginary parts,
+*>          respectively, of the computed eigenvalues.  Complex
+*>          conjugate pairs of eigenvalues appear consecutively
+*>          with the eigenvalue having the positive imaginary part
+*>          first.
+*> \endverbatim
+*>
+*> \param[out] VL
+*> \verbatim
+*>          VL is DOUBLE PRECISION array, dimension (LDVL,N)
+*>          If JOBVL = 'V', the left eigenvectors u(j) are stored one
+*>          after another in the columns of VL, in the same order
+*>          as their eigenvalues.
+*>          If JOBVL = 'N', VL is not referenced.
+*>          If the j-th eigenvalue is real, then u(j) = VL(:,j),
+*>          the j-th column of VL.
+*>          If the j-th and (j+1)-st eigenvalues form a complex
+*>          conjugate pair, then u(j) = VL(:,j) + i*VL(:,j+1) and
+*>          u(j+1) = VL(:,j) - i*VL(:,j+1).
+*> \endverbatim
+*>
+*> \param[in] LDVL
+*> \verbatim
+*>          LDVL is INTEGER
+*>          The leading dimension of the array VL.  LDVL >= 1; if
+*>          JOBVL = 'V', LDVL >= N.
+*> \endverbatim
+*>
+*> \param[out] VR
+*> \verbatim
+*>          VR is DOUBLE PRECISION array, dimension (LDVR,N)
+*>          If JOBVR = 'V', the right eigenvectors v(j) are stored one
+*>          after another in the columns of VR, in the same order
+*>          as their eigenvalues.
+*>          If JOBVR = 'N', VR is not referenced.
+*>          If the j-th eigenvalue is real, then v(j) = VR(:,j),
+*>          the j-th column of VR.
+*>          If the j-th and (j+1)-st eigenvalues form a complex
+*>          conjugate pair, then v(j) = VR(:,j) + i*VR(:,j+1) and
+*>          v(j+1) = VR(:,j) - i*VR(:,j+1).
+*> \endverbatim
+*>
+*> \param[in] LDVR
+*> \verbatim
+*>          LDVR is INTEGER
+*>          The leading dimension of the array VR.  LDVR >= 1; if
+*>          JOBVR = 'V', LDVR >= N.
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
+*>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
+*> \endverbatim
+*>
+*> \param[in] LWORK
+*> \verbatim
+*>          LWORK is INTEGER
+*>          The dimension of the array WORK.  LWORK >= max(1,3*N), and
+*>          if JOBVL = 'V' or JOBVR = 'V', LWORK >= 4*N.  For good
+*>          performance, LWORK must generally be larger.
+*>
+*>          If LWORK = -1, then a workspace query is assumed; the routine
+*>          only calculates the optimal size of the WORK array, returns
+*>          this value as the first entry of the WORK array, and no error
+*>          message related to LWORK is issued by XERBLA.
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit
+*>          < 0:  if INFO = -i, the i-th argument had an illegal value.
+*>          > 0:  if INFO = i, the QR algorithm failed to compute all the
+*>                eigenvalues, and no eigenvectors have been computed;
+*>                elements i+1:N of WR and WI contain eigenvalues which
+*>                have converged.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup doubleGEeigen
+*
+*  =====================================================================
       SUBROUTINE DGEEV( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
-c $Id$
 *
-*  -- LAPACK driver routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  -- LAPACK driver routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBVL, JOBVR
@@ -16,97 +203,6 @@ c $Id$
      $                   WI( * ), WORK( * ), WR( * )
 *     ..
 *
-*  Purpose
-*  =======
-*
-*  DGEEV computes for an N-by-N real nonsymmetric matrix A, the
-*  eigenvalues and, optionally, the left and/or right eigenvectors.
-*
-*  The right eigenvector v(j) of A satisfies
-*                   A * v(j) = lambda(j) * v(j)
-*  where lambda(j) is its eigenvalue.
-*  The left eigenvector u(j) of A satisfies
-*                u(j)**H * A = lambda(j) * u(j)**H
-*  where u(j)**H denotes the conjugate transpose of u(j).
-*
-*  The computed eigenvectors are normalized to have Euclidean norm
-*  equal to 1 and largest component real.
-*
-*  Arguments
-*  =========
-*
-*  JOBVL   (input) CHARACTER*1
-*          = 'N': left eigenvectors of A are not computed;
-*          = 'V': left eigenvectors of A are computed.
-*
-*  JOBVR   (input) CHARACTER*1
-*          = 'N': right eigenvectors of A are not computed;
-*          = 'V': right eigenvectors of A are computed.
-*
-*  N       (input) INTEGER
-*          The order of the matrix A. N >= 0.
-*
-*  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
-*          On entry, the N-by-N matrix A.
-*          On exit, A has been overwritten.
-*
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,N).
-*
-*  WR      (output) DOUBLE PRECISION array, dimension (N)
-*  WI      (output) DOUBLE PRECISION array, dimension (N)
-*          WR and WI contain the real and imaginary parts,
-*          respectively, of the computed eigenvalues.  Complex
-*          conjugate pairs of eigenvalues appear consecutively
-*          with the eigenvalue having the positive imaginary part
-*          first.
-*
-*  VL      (output) DOUBLE PRECISION array, dimension (LDVL,N)
-*          If JOBVL = 'V', the left eigenvectors u(j) are stored one
-*          after another in the columns of VL, in the same order
-*          as their eigenvalues.
-*          If JOBVL = 'N', VL is not referenced.
-*          If the j-th eigenvalue is real, then u(j) = VL(:,j),
-*          the j-th column of VL.
-*          If the j-th and (j+1)-st eigenvalues form a complex
-*          conjugate pair, then u(j) = VL(:,j) + i*VL(:,j+1) and
-*          u(j+1) = VL(:,j) - i*VL(:,j+1).
-*
-*  LDVL    (input) INTEGER
-*          The leading dimension of the array VL.  LDVL >= 1; if
-*          JOBVL = 'V', LDVL >= N.
-*
-*  VR      (output) DOUBLE PRECISION array, dimension (LDVR,N)
-*          If JOBVR = 'V', the right eigenvectors v(j) are stored one
-*          after another in the columns of VR, in the same order
-*          as their eigenvalues.
-*          If JOBVR = 'N', VR is not referenced.
-*          If the j-th eigenvalue is real, then v(j) = VR(:,j),
-*          the j-th column of VR.
-*          If the j-th and (j+1)-st eigenvalues form a complex
-*          conjugate pair, then v(j) = VR(:,j) + i*VR(:,j+1) and
-*          v(j+1) = VR(:,j) - i*VR(:,j+1).
-*
-*  LDVR    (input) INTEGER
-*          The leading dimension of the array VR.  LDVR >= 1; if
-*          JOBVR = 'V', LDVR >= N.
-*
-*  WORK    (workspace/output) DOUBLE PRECISION array, dimension (LWORK)
-*          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
-*
-*  LWORK   (input) INTEGER
-*          The dimension of the array WORK.  LWORK >= max(1,3*N), and
-*          if JOBVL = 'V' or JOBVR = 'V', LWORK >= 4*N.  For good
-*          performance, LWORK must generally be larger.
-*
-*  INFO    (output) INTEGER
-*          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value.
-*          > 0:  if INFO = i, the QR algorithm failed to compute all the
-*                eigenvalues, and no eigenvectors have been computed;
-*                elements i+1:N of WR and WI contain eigenvalues which
-*                have converged.
-*
 *  =====================================================================
 *
 *     .. Parameters ..
@@ -114,10 +210,10 @@ c $Id$
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     ..
 *     .. Local Scalars ..
-      LOGICAL            SCALEA, WANTVL, WANTVR
+      LOGICAL            LQUERY, SCALEA, WANTVL, WANTVR
       CHARACTER          SIDE
       INTEGER            HSWORK, I, IBAL, IERR, IHI, ILO, ITAU, IWRK, K,
-     $                   MAXB, MAXWRK, MINWRK, NOUT
+     $                   MAXWRK, MINWRK, NOUT
       DOUBLE PRECISION   ANRM, BIGNUM, CS, CSCALE, EPS, R, SCL, SMLNUM,
      $                   SN
 *     ..
@@ -138,13 +234,14 @@ c $Id$
      $                   DNRM2
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          MAX, MIN, SQRT
+      INTRINSIC          MAX, SQRT
 *     ..
 *     .. Executable Statements ..
 *
 *     Test the input arguments
 *
       INFO = 0
+      LQUERY = ( LWORK.EQ.-1 )
       WANTVL = LSAME( JOBVL, 'V' )
       WANTVR = LSAME( JOBVR, 'V' )
       IF( ( .NOT.WANTVL ) .AND. ( .NOT.LSAME( JOBVL, 'N' ) ) ) THEN
@@ -171,34 +268,50 @@ c $Id$
 *       calculated below. HSWORK is computed assuming ILO=1 and IHI=N,
 *       the worst case.)
 *
-      MINWRK = 1
-      IF( INFO.EQ.0 .AND. LWORK.GE.1 ) THEN
-         MAXWRK = 2*N + N*ILAENV( 1, 'DGEHRD', ' ', N, 1, N, 0 )
-         IF( ( .NOT.WANTVL ) .AND. ( .NOT.WANTVR ) ) THEN
-            MINWRK = MAX( 1, 3*N )
-            MAXB = MAX( ILAENV( 8, 'DHSEQR', 'EN', N, 1, N, -1 ), 2 )
-            K = MIN( MAXB, N, MAX( 2, ILAENV( 4, 'DHSEQR', 'EN', N, 1,
-     $          N, -1 ) ) )
-            HSWORK = MAX( K*( K+2 ), 2*N )
-            MAXWRK = MAX( MAXWRK, N+1, N+HSWORK )
+      IF( INFO.EQ.0 ) THEN
+         IF( N.EQ.0 ) THEN
+            MINWRK = 1
+            MAXWRK = 1
          ELSE
-            MINWRK = MAX( 1, 4*N )
-            MAXWRK = MAX( MAXWRK, 2*N+( N-1 )*
-     $               ILAENV( 1, 'DORGHR', ' ', N, 1, N, -1 ) )
-            MAXB = MAX( ILAENV( 8, 'DHSEQR', 'SV', N, 1, N, -1 ), 2 )
-            K = MIN( MAXB, N, MAX( 2, ILAENV( 4, 'DHSEQR', 'SV', N, 1,
-     $          N, -1 ) ) )
-            HSWORK = MAX( K*( K+2 ), 2*N )
-            MAXWRK = MAX( MAXWRK, N+1, N+HSWORK )
-            MAXWRK = MAX( MAXWRK, 4*N )
+            MAXWRK = 2*N + N*ILAENV( 1, 'DGEHRD', ' ', N, 1, N, 0 )
+            IF( WANTVL ) THEN
+               MINWRK = 4*N
+               MAXWRK = MAX( MAXWRK, 2*N + ( N - 1 )*ILAENV( 1,
+     $                       'DORGHR', ' ', N, 1, N, -1 ) )
+               CALL DHSEQR( 'S', 'V', N, 1, N, A, LDA, WR, WI, VL, LDVL,
+     $                WORK, -1, INFO )
+               HSWORK = WORK( 1 )
+               MAXWRK = MAX( MAXWRK, N + 1, N + HSWORK )
+               MAXWRK = MAX( MAXWRK, 4*N )
+            ELSE IF( WANTVR ) THEN
+               MINWRK = 4*N
+               MAXWRK = MAX( MAXWRK, 2*N + ( N - 1 )*ILAENV( 1,
+     $                       'DORGHR', ' ', N, 1, N, -1 ) )
+               CALL DHSEQR( 'S', 'V', N, 1, N, A, LDA, WR, WI, VR, LDVR,
+     $                WORK, -1, INFO )
+               HSWORK = WORK( 1 )
+               MAXWRK = MAX( MAXWRK, N + 1, N + HSWORK )
+               MAXWRK = MAX( MAXWRK, 4*N )
+            ELSE 
+               MINWRK = 3*N
+               CALL DHSEQR( 'E', 'N', N, 1, N, A, LDA, WR, WI, VR, LDVR,
+     $                WORK, -1, INFO )
+               HSWORK = WORK( 1 )
+               MAXWRK = MAX( MAXWRK, N + 1, N + HSWORK )
+            END IF
+            MAXWRK = MAX( MAXWRK, MINWRK )
          END IF
          WORK( 1 ) = MAXWRK
+*
+         IF( LWORK.LT.MINWRK .AND. .NOT.LQUERY ) THEN
+            INFO = -13
+         END IF
       END IF
-      IF( LWORK.LT.MINWRK ) THEN
-         INFO = -13
-      END IF
+*
       IF( INFO.NE.0 ) THEN
          CALL XERBLA( 'DGEEV ', -INFO )
+         RETURN
+      ELSE IF( LQUERY ) THEN
          RETURN
       END IF
 *

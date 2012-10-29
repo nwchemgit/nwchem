@@ -1,10 +1,129 @@
-      SUBROUTINE DLARFX( SIDE, M, N, V, TAU, C, LDC, WORK )
-c $Id$
+*> \brief \b DLARFX applies an elementary reflector to a general rectangular matrix, with loop unrolling when the reflector has order ≤ 10.
 *
-*  -- LAPACK auxiliary routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     February 29, 1992
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download DLARFX + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dlarfx.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dlarfx.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dlarfx.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE DLARFX( SIDE, M, N, V, TAU, C, LDC, WORK )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          SIDE
+*       INTEGER            LDC, M, N
+*       DOUBLE PRECISION   TAU
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION   C( LDC, * ), V( * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> DLARFX applies a real elementary reflector H to a real m by n
+*> matrix C, from either the left or the right. H is represented in the
+*> form
+*>
+*>       H = I - tau * v * v**T
+*>
+*> where tau is a real scalar and v is a real vector.
+*>
+*> If tau = 0, then H is taken to be the unit matrix
+*>
+*> This version uses inline code if H has order < 11.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] SIDE
+*> \verbatim
+*>          SIDE is CHARACTER*1
+*>          = 'L': form  H * C
+*>          = 'R': form  C * H
+*> \endverbatim
+*>
+*> \param[in] M
+*> \verbatim
+*>          M is INTEGER
+*>          The number of rows of the matrix C.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The number of columns of the matrix C.
+*> \endverbatim
+*>
+*> \param[in] V
+*> \verbatim
+*>          V is DOUBLE PRECISION array, dimension (M) if SIDE = 'L'
+*>                                     or (N) if SIDE = 'R'
+*>          The vector v in the representation of H.
+*> \endverbatim
+*>
+*> \param[in] TAU
+*> \verbatim
+*>          TAU is DOUBLE PRECISION
+*>          The value tau in the representation of H.
+*> \endverbatim
+*>
+*> \param[in,out] C
+*> \verbatim
+*>          C is DOUBLE PRECISION array, dimension (LDC,N)
+*>          On entry, the m by n matrix C.
+*>          On exit, C is overwritten by the matrix H * C if SIDE = 'L',
+*>          or C * H if SIDE = 'R'.
+*> \endverbatim
+*>
+*> \param[in] LDC
+*> \verbatim
+*>          LDC is INTEGER
+*>          The leading dimension of the array C. LDA >= (1,M).
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is DOUBLE PRECISION array, dimension
+*>                      (N) if SIDE = 'L'
+*>                      or (M) if SIDE = 'R'
+*>          WORK is not referenced if H has order < 11.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup doubleOTHERauxiliary
+*
+*  =====================================================================
+      SUBROUTINE DLARFX( SIDE, M, N, V, TAU, C, LDC, WORK )
+*
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       CHARACTER          SIDE
@@ -14,54 +133,6 @@ c $Id$
 *     .. Array Arguments ..
       DOUBLE PRECISION   C( LDC, * ), V( * ), WORK( * )
 *     ..
-*
-*  Purpose
-*  =======
-*
-*  DLARFX applies a real elementary reflector H to a real m by n
-*  matrix C, from either the left or the right. H is represented in the
-*  form
-*
-*        H = I - tau * v * v'
-*
-*  where tau is a real scalar and v is a real vector.
-*
-*  If tau = 0, then H is taken to be the unit matrix
-*
-*  This version uses inline code if H has order < 11.
-*
-*  Arguments
-*  =========
-*
-*  SIDE    (input) CHARACTER*1
-*          = 'L': form  H * C
-*          = 'R': form  C * H
-*
-*  M       (input) INTEGER
-*          The number of rows of the matrix C.
-*
-*  N       (input) INTEGER
-*          The number of columns of the matrix C.
-*
-*  V       (input) DOUBLE PRECISION array, dimension (M) if SIDE = 'L'
-*                                     or (N) if SIDE = 'R'
-*          The vector v in the representation of H.
-*
-*  TAU     (input) DOUBLE PRECISION
-*          The value tau in the representation of H.
-*
-*  C       (input/output) DOUBLE PRECISION array, dimension (LDC,N)
-*          On entry, the m by n matrix C.
-*          On exit, C is overwritten by the matrix H * C if SIDE = 'L',
-*          or C * H if SIDE = 'R'.
-*
-*  LDC     (input) INTEGER
-*          The leading dimension of the array C. LDA >= (1,M).
-*
-*  WORK    (workspace) DOUBLE PRECISION array, dimension
-*                      (N) if SIDE = 'L'
-*                      or (M) if SIDE = 'R'
-*          WORK is not referenced if H has order < 11.
 *
 *  =====================================================================
 *
@@ -79,7 +150,7 @@ c $Id$
       EXTERNAL           LSAME
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DGEMV, DGER
+      EXTERNAL           DLARF
 *     ..
 *     .. Executable Statements ..
 *
@@ -94,14 +165,7 @@ c $Id$
 *
 *        Code for general M
 *
-*        w := C'*v
-*
-         CALL DGEMV( 'Transpose', M, N, ONE, C, LDC, V, 1, ZERO, WORK,
-     $               1 )
-*
-*        C := C - tau * v * w'
-*
-         CALL DGER( M, N, -TAU, V, 1, WORK, 1, C, LDC )
+         CALL DLARF( SIDE, M, N, V, 1, TAU, C, LDC, WORK )
          GO TO 410
    10    CONTINUE
 *
@@ -367,14 +431,7 @@ c $Id$
 *
 *        Code for general N
 *
-*        w := C * v
-*
-         CALL DGEMV( 'No transpose', M, N, ONE, C, LDC, V, 1, ZERO,
-     $               WORK, 1 )
-*
-*        C := C - tau * w * v'
-*
-         CALL DGER( M, N, -TAU, WORK, 1, V, 1, C, LDC )
+         CALL DLARF( SIDE, M, N, V, 1, TAU, C, LDC, WORK )
          GO TO 410
   210    CONTINUE
 *

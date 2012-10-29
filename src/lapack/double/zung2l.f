@@ -1,9 +1,123 @@
+*> \brief \b ZUNG2L generates all or part of the unitary matrix Q from a QL factorization determined by cgeqlf (unblocked algorithm).
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download ZUNG2L + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/zung2l.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/zung2l.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/zung2l.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE ZUNG2L( M, N, K, A, LDA, TAU, WORK, INFO )
+* 
+*       .. Scalar Arguments ..
+*       INTEGER            INFO, K, LDA, M, N
+*       ..
+*       .. Array Arguments ..
+*       COMPLEX*16         A( LDA, * ), TAU( * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> ZUNG2L generates an m by n complex matrix Q with orthonormal columns,
+*> which is defined as the last n columns of a product of k elementary
+*> reflectors of order m
+*>
+*>       Q  =  H(k) . . . H(2) H(1)
+*>
+*> as returned by ZGEQLF.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] M
+*> \verbatim
+*>          M is INTEGER
+*>          The number of rows of the matrix Q. M >= 0.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The number of columns of the matrix Q. M >= N >= 0.
+*> \endverbatim
+*>
+*> \param[in] K
+*> \verbatim
+*>          K is INTEGER
+*>          The number of elementary reflectors whose product defines the
+*>          matrix Q. N >= K >= 0.
+*> \endverbatim
+*>
+*> \param[in,out] A
+*> \verbatim
+*>          A is COMPLEX*16 array, dimension (LDA,N)
+*>          On entry, the (n-k+i)-th column must contain the vector which
+*>          defines the elementary reflector H(i), for i = 1,2,...,k, as
+*>          returned by ZGEQLF in the last k columns of its array
+*>          argument A.
+*>          On exit, the m-by-n matrix Q.
+*> \endverbatim
+*>
+*> \param[in] LDA
+*> \verbatim
+*>          LDA is INTEGER
+*>          The first dimension of the array A. LDA >= max(1,M).
+*> \endverbatim
+*>
+*> \param[in] TAU
+*> \verbatim
+*>          TAU is COMPLEX*16 array, dimension (K)
+*>          TAU(i) must contain the scalar factor of the elementary
+*>          reflector H(i), as returned by ZGEQLF.
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is COMPLEX*16 array, dimension (N)
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0: successful exit
+*>          < 0: if INFO = -i, the i-th argument has an illegal value
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup complex16OTHERcomputational
+*
+*  =====================================================================
       SUBROUTINE ZUNG2L( M, N, K, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, K, LDA, M, N
@@ -11,53 +125,6 @@
 *     .. Array Arguments ..
       COMPLEX*16         A( LDA, * ), TAU( * ), WORK( * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  ZUNG2L generates an m by n complex matrix Q with orthonormal columns,
-*  which is defined as the last n columns of a product of k elementary
-*  reflectors of order m
-*
-*        Q  =  H(k) . . . H(2) H(1)
-*
-*  as returned by ZGEQLF.
-*
-*  Arguments
-*  =========
-*
-*  M       (input) INTEGER
-*          The number of rows of the matrix Q. M >= 0.
-*
-*  N       (input) INTEGER
-*          The number of columns of the matrix Q. M >= N >= 0.
-*
-*  K       (input) INTEGER
-*          The number of elementary reflectors whose product defines the
-*          matrix Q. N >= K >= 0.
-*
-*  A       (input/output) COMPLEX*16 array, dimension (LDA,N)
-*          On entry, the (n-k+i)-th column must contain the vector which
-*          defines the elementary reflector H(i), for i = 1,2,...,k, as
-*          returned by ZGEQLF in the last k columns of its array
-*          argument A.
-*          On exit, the m-by-n matrix Q.
-*
-*  LDA     (input) INTEGER
-*          The first dimension of the array A. LDA >= max(1,M).
-*
-*  TAU     (input) COMPLEX*16 array, dimension (K)
-*          TAU(i) must contain the scalar factor of the elementary
-*          reflector H(i), as returned by ZGEQLF.
-*
-*  WORK    (workspace) COMPLEX*16 array, dimension (N)
-*
-*  INFO    (output) INTEGER
-*          = 0: successful exit
-*          < 0: if INFO = -i, the i-th argument has an illegal value
 *
 *  =====================================================================
 *

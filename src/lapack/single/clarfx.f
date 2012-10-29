@@ -1,10 +1,128 @@
-      SUBROUTINE CLARFX( SIDE, M, N, V, TAU, C, LDC, WORK )
-C$Id$                          
+*> \brief \b CLARFX applies an elementary reflector to a general rectangular matrix, with loop unrolling when the reflector has order ≤ 10.
 *
-*  -- LAPACK auxiliary routine (version 3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download CLARFX + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/clarfx.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/clarfx.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/clarfx.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE CLARFX( SIDE, M, N, V, TAU, C, LDC, WORK )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          SIDE
+*       INTEGER            LDC, M, N
+*       COMPLEX            TAU
+*       ..
+*       .. Array Arguments ..
+*       COMPLEX            C( LDC, * ), V( * ), WORK( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> CLARFX applies a complex elementary reflector H to a complex m by n
+*> matrix C, from either the left or the right. H is represented in the
+*> form
+*>
+*>       H = I - tau * v * v**H
+*>
+*> where tau is a complex scalar and v is a complex vector.
+*>
+*> If tau = 0, then H is taken to be the unit matrix
+*>
+*> This version uses inline code if H has order < 11.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] SIDE
+*> \verbatim
+*>          SIDE is CHARACTER*1
+*>          = 'L': form  H * C
+*>          = 'R': form  C * H
+*> \endverbatim
+*>
+*> \param[in] M
+*> \verbatim
+*>          M is INTEGER
+*>          The number of rows of the matrix C.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The number of columns of the matrix C.
+*> \endverbatim
+*>
+*> \param[in] V
+*> \verbatim
+*>          V is COMPLEX array, dimension (M) if SIDE = 'L'
+*>                                        or (N) if SIDE = 'R'
+*>          The vector v in the representation of H.
+*> \endverbatim
+*>
+*> \param[in] TAU
+*> \verbatim
+*>          TAU is COMPLEX
+*>          The value tau in the representation of H.
+*> \endverbatim
+*>
+*> \param[in,out] C
+*> \verbatim
+*>          C is COMPLEX array, dimension (LDC,N)
+*>          On entry, the m by n matrix C.
+*>          On exit, C is overwritten by the matrix H * C if SIDE = 'L',
+*>          or C * H if SIDE = 'R'.
+*> \endverbatim
+*>
+*> \param[in] LDC
+*> \verbatim
+*>          LDC is INTEGER
+*>          The leading dimension of the array C. LDA >= max(1,M).
+*> \endverbatim
+*>
+*> \param[out] WORK
+*> \verbatim
+*>          WORK is COMPLEX array, dimension (N) if SIDE = 'L'
+*>                                            or (M) if SIDE = 'R'
+*>          WORK is not referenced if H has order < 11.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup complexOTHERauxiliary
+*
+*  =====================================================================
+      SUBROUTINE CLARFX( SIDE, M, N, V, TAU, C, LDC, WORK )
+*
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       CHARACTER          SIDE
@@ -14,53 +132,6 @@ C$Id$
 *     .. Array Arguments ..
       COMPLEX            C( LDC, * ), V( * ), WORK( * )
 *     ..
-*
-*  Purpose
-*  =======
-*
-*  CLARFX applies a complex elementary reflector H to a complex m by n
-*  matrix C, from either the left or the right. H is represented in the
-*  form
-*
-*        H = I - tau * v * v'
-*
-*  where tau is a complex scalar and v is a complex vector.
-*
-*  If tau = 0, then H is taken to be the unit matrix
-*
-*  This version uses inline code if H has order < 11.
-*
-*  Arguments
-*  =========
-*
-*  SIDE    (input) CHARACTER*1
-*          = 'L': form  H * C
-*          = 'R': form  C * H
-*
-*  M       (input) INTEGER
-*          The number of rows of the matrix C.
-*
-*  N       (input) INTEGER
-*          The number of columns of the matrix C.
-*
-*  V       (input) COMPLEX array, dimension (M) if SIDE = 'L'
-*                                        or (N) if SIDE = 'R'
-*          The vector v in the representation of H.
-*
-*  TAU     (input) COMPLEX
-*          The value tau in the representation of H.
-*
-*  C       (input/output) COMPLEX array, dimension (LDC,N)
-*          On entry, the m by n matrix C.
-*          On exit, C is overwritten by the matrix H * C if SIDE = 'L',
-*          or C * H if SIDE = 'R'.
-*
-*  LDC     (input) INTEGER
-*          The leading dimension of the array C. LDA >= max(1,M).
-*
-*  WORK    (workspace) COMPLEX array, dimension (N) if SIDE = 'L'
-*                                            or (M) if SIDE = 'R'
-*          WORK is not referenced if H has order < 11.
 *
 *  =====================================================================
 *
@@ -79,7 +150,7 @@ C$Id$
       EXTERNAL           LSAME
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           CGEMV, CGERC
+      EXTERNAL           CLARF
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          CONJG
@@ -97,14 +168,7 @@ C$Id$
 *
 *        Code for general M
 *
-*        w := C'*v
-*
-         CALL CGEMV( 'Conjugate transpose', M, N, ONE, C, LDC, V, 1,
-     $               ZERO, WORK, 1 )
-*
-*        C := C - tau * v * w'
-*
-         CALL CGERC( M, N, -TAU, V, 1, WORK, 1, C, LDC )
+         CALL CLARF( SIDE, M, N, V, 1, TAU, C, LDC, WORK )
          GO TO 410
    10    CONTINUE
 *
@@ -370,14 +434,7 @@ C$Id$
 *
 *        Code for general N
 *
-*        w := C * v
-*
-         CALL CGEMV( 'No transpose', M, N, ONE, C, LDC, V, 1, ZERO,
-     $               WORK, 1 )
-*
-*        C := C - tau * w * v'
-*
-         CALL CGERC( M, N, -TAU, WORK, 1, V, 1, C, LDC )
+         CALL CLARF( SIDE, M, N, V, 1, TAU, C, LDC, WORK )
          GO TO 410
   210    CONTINUE
 *

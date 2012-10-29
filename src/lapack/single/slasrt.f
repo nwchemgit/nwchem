@@ -1,9 +1,97 @@
+*> \brief \b SLASRT sorts numbers in increasing or decreasing order.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SLASRT + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/slasrt.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/slasrt.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/slasrt.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SLASRT( ID, N, D, INFO )
+* 
+*       .. Scalar Arguments ..
+*       CHARACTER          ID
+*       INTEGER            INFO, N
+*       ..
+*       .. Array Arguments ..
+*       REAL               D( * )
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> Sort the numbers in D in increasing order (if ID = 'I') or
+*> in decreasing order (if ID = 'D' ).
+*>
+*> Use Quick Sort, reverting to Insertion sort on arrays of
+*> size <= 20. Dimension of STACK limits N to about 2**32.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] ID
+*> \verbatim
+*>          ID is CHARACTER*1
+*>          = 'I': sort D in increasing order;
+*>          = 'D': sort D in decreasing order.
+*> \endverbatim
+*>
+*> \param[in] N
+*> \verbatim
+*>          N is INTEGER
+*>          The length of the array D.
+*> \endverbatim
+*>
+*> \param[in,out] D
+*> \verbatim
+*>          D is REAL array, dimension (N)
+*>          On entry, the array to be sorted.
+*>          On exit, D has been sorted into increasing order
+*>          (D(1) <= ... <= D(N) ) or into decreasing order
+*>          (D(1) >= ... >= D(N) ), depending on ID.
+*> \endverbatim
+*>
+*> \param[out] INFO
+*> \verbatim
+*>          INFO is INTEGER
+*>          = 0:  successful exit
+*>          < 0:  if INFO = -i, the i-th argument had an illegal value
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERcomputational
+*
+*  =====================================================================
       SUBROUTINE SLASRT( ID, N, D, INFO )
 *
-*  -- LAPACK routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     September 30, 1994
+*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       CHARACTER          ID
@@ -12,38 +100,6 @@
 *     .. Array Arguments ..
       REAL               D( * )
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  Sort the numbers in D in increasing order (if ID = 'I') or
-*  in decreasing order (if ID = 'D' ).
-*
-*  Use Quick Sort, reverting to Insertion sort on arrays of
-*  size <= 20. Dimension of STACK limits N to about 2**32.
-*
-*  Arguments
-*  =========
-*
-*  ID      (input) CHARACTER*1
-*          = 'I': sort D in increasing order;
-*          = 'D': sort D in decreasing order.
-*
-*  N       (input) INTEGER
-*          The length of the array D.
-*
-*  D       (input/output) REAL array, dimension (N)
-*          On entry, the array to be sorted.
-*          On exit, D has been sorted into increasing order
-*          (D(1) <= ... <= D(N) ) or into decreasing order
-*          (D(1) >= ... >= D(N) ), depending on ID.
-*
-*  INFO    (output) INTEGER
-*          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value
 *
 *  =====================================================================
 *

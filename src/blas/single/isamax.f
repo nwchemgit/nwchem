@@ -1,42 +1,106 @@
-      integer function isamax(n,sx,incx)
+*> \brief \b ISAMAX
 *
-* $Id$
+*  =========== DOCUMENTATION ===========
 *
-c
-c     finds the index of element having max. absolute value.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-      real sx(*),smax
-      integer i,incx,ix,n
-c
-      isamax = 0
-      if( n.lt.1 .or. incx.le.0 ) return
-      isamax = 1
-      if(n.eq.1)return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      ix = 1
-      smax = abs(sx(1))
-      ix = ix + incx
-      do 10 i = 2,n
-         if(abs(sx(ix)).le.smax) go to 5
-         isamax = i
-         smax = abs(sx(ix))
-    5    ix = ix + incx
-   10 continue
-      return
-c
-c        code for increment equal to 1
-c
-   20 smax = abs(sx(1))
-      do 30 i = 2,n
-         if(abs(sx(i)).le.smax) go to 30
-         isamax = i
-         smax = abs(sx(i))
-   30 continue
-      return
-      end
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       INTEGER FUNCTION ISAMAX(N,SX,INCX)
+* 
+*       .. Scalar Arguments ..
+*       INTEGER INCX,N
+*       ..
+*       .. Array Arguments ..
+*       REAL SX(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    ISAMAX finds the index of element having max. absolute value.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup aux_blas
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      INTEGER FUNCTION ISAMAX(N,SX,INCX)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      INTEGER INCX,N
+*     ..
+*     .. Array Arguments ..
+      REAL SX(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      REAL SMAX
+      INTEGER I,IX
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC ABS
+*     ..
+      ISAMAX = 0
+      IF (N.LT.1 .OR. INCX.LE.0) RETURN
+      ISAMAX = 1
+      IF (N.EQ.1) RETURN
+      IF (INCX.EQ.1) THEN
+*
+*        code for increment equal to 1
+*
+         SMAX = ABS(SX(1))
+         DO I = 2,N
+            IF (ABS(SX(I)).GT.SMAX) THEN
+               ISAMAX = I
+               SMAX = ABS(SX(I))
+            END IF
+         END DO
+      ELSE
+*
+*        code for increment not equal to 1
+*
+         IX = 1
+         SMAX = ABS(SX(1))
+         IX = IX + INCX
+         DO I = 2,N
+            IF (ABS(SX(IX)).GT.SMAX) THEN
+               ISAMAX = I
+               SMAX = ABS(SX(IX))
+            END IF
+            IX = IX + INCX
+         END DO
+      END IF
+      RETURN
+      END

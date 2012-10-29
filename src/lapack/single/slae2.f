@@ -1,57 +1,115 @@
+*> \brief \b SLAE2 computes the eigenvalues of a 2-by-2 symmetric matrix.
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*> \htmlonly
+*> Download SLAE2 + dependencies 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/slae2.f"> 
+*> [TGZ]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/slae2.f"> 
+*> [ZIP]</a> 
+*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/slae2.f"> 
+*> [TXT]</a>
+*> \endhtmlonly 
+*
+*  Definition:
+*  ===========
+*
+*       SUBROUTINE SLAE2( A, B, C, RT1, RT2 )
+* 
+*       .. Scalar Arguments ..
+*       REAL               A, B, C, RT1, RT2
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*> SLAE2  computes the eigenvalues of a 2-by-2 symmetric matrix
+*>    [  A   B  ]
+*>    [  B   C  ].
+*> On return, RT1 is the eigenvalue of larger absolute value, and RT2
+*> is the eigenvalue of smaller absolute value.
+*> \endverbatim
+*
+*  Arguments:
+*  ==========
+*
+*> \param[in] A
+*> \verbatim
+*>          A is REAL
+*>          The (1,1) element of the 2-by-2 matrix.
+*> \endverbatim
+*>
+*> \param[in] B
+*> \verbatim
+*>          B is REAL
+*>          The (1,2) and (2,1) elements of the 2-by-2 matrix.
+*> \endverbatim
+*>
+*> \param[in] C
+*> \verbatim
+*>          C is REAL
+*>          The (2,2) element of the 2-by-2 matrix.
+*> \endverbatim
+*>
+*> \param[out] RT1
+*> \verbatim
+*>          RT1 is REAL
+*>          The eigenvalue of larger absolute value.
+*> \endverbatim
+*>
+*> \param[out] RT2
+*> \verbatim
+*>          RT2 is REAL
+*>          The eigenvalue of smaller absolute value.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date September 2012
+*
+*> \ingroup auxOTHERauxiliary
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>  RT1 is accurate to a few ulps barring over/underflow.
+*>
+*>  RT2 may be inaccurate if there is massive cancellation in the
+*>  determinant A*C-B*B; higher precision or correctly rounded or
+*>  correctly truncated arithmetic would be needed to compute RT2
+*>  accurately in all cases.
+*>
+*>  Overflow is possible only if RT1 is within a factor of 5 of overflow.
+*>  Underflow is harmless if the input data is 0 or exceeds
+*>     underflow_threshold / macheps.
+*> \endverbatim
+*>
+*  =====================================================================
       SUBROUTINE SLAE2( A, B, C, RT1, RT2 )
 *
-*  -- LAPACK auxiliary routine (version 2.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
-*     Courant Institute, Argonne National Lab, and Rice University
-*     October 31, 1992
+*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     September 2012
 *
 *     .. Scalar Arguments ..
       REAL               A, B, C, RT1, RT2
 *     ..
-*
-c
-* $Id$
-c
-*  Purpose
-*  =======
-*
-*  SLAE2  computes the eigenvalues of a 2-by-2 symmetric matrix
-*     [  A   B  ]
-*     [  B   C  ].
-*  On return, RT1 is the eigenvalue of larger absolute value, and RT2
-*  is the eigenvalue of smaller absolute value.
-*
-*  Arguments
-*  =========
-*
-*  A       (input) REAL
-*          The (1,1) element of the 2-by-2 matrix.
-*
-*  B       (input) REAL
-*          The (1,2) and (2,1) elements of the 2-by-2 matrix.
-*
-*  C       (input) REAL
-*          The (2,2) element of the 2-by-2 matrix.
-*
-*  RT1     (output) REAL
-*          The eigenvalue of larger absolute value.
-*
-*  RT2     (output) REAL
-*          The eigenvalue of smaller absolute value.
-*
-*  Further Details
-*  ===============
-*
-*  RT1 is accurate to a few ulps barring over/underflow.
-*
-*  RT2 may be inaccurate if there is massive cancellation in the
-*  determinant A*C-B*B; higher precision or correctly rounded or
-*  correctly truncated arithmetic would be needed to compute RT2
-*  accurately in all cases.
-*
-*  Overflow is possible only if RT1 is within a factor of 5 of overflow.
-*  Underflow is harmless if the input data is 0 or exceeds
-*     underflow_threshold / macheps.
 *
 * =====================================================================
 *

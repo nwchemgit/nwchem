@@ -1,46 +1,111 @@
-      double precision function dasum(n,dx,incx)
+*> \brief \b DASUM
 *
-* $Id$
+*  =========== DOCUMENTATION ===========
 *
-c
-c     takes the sum of the absolute values.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-      double precision dx(*),dtemp
-      integer i,incx,m,mp1,n,nincx
-c
-      dasum = 0.0d0
-      dtemp = 0.0d0
-      if( n.le.0 .or. incx.le.0 )return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      nincx = n*incx
-      do 10 i = 1,nincx,incx
-        dtemp = dtemp + dabs(dx(i))
-   10 continue
-      dasum = dtemp
-      return
-c
-c        code for increment equal to 1
-c
-c
-c        clean-up loop
-c
-   20 m = mod(n,6)
-      if( m .eq. 0 ) go to 40
-      do 30 i = 1,m
-        dtemp = dtemp + dabs(dx(i))
-   30 continue
-      if( n .lt. 6 ) go to 60
-   40 mp1 = m + 1
-      do 50 i = mp1,n,6
-        dtemp = dtemp + dabs(dx(i)) + dabs(dx(i + 1)) + dabs(dx(i + 2))
-     *  + dabs(dx(i + 3)) + dabs(dx(i + 4)) + dabs(dx(i + 5))
-   50 continue
-   60 dasum = dtemp
-      return
-      end
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       DOUBLE PRECISION FUNCTION DASUM(N,DX,INCX)
+* 
+*       .. Scalar Arguments ..
+*       INTEGER INCX,N
+*       ..
+*       .. Array Arguments ..
+*       DOUBLE PRECISION DX(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    DASUM takes the sum of the absolute values.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup double_blas_level1
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      DOUBLE PRECISION FUNCTION DASUM(N,DX,INCX)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      INTEGER INCX,N
+*     ..
+*     .. Array Arguments ..
+      DOUBLE PRECISION DX(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      DOUBLE PRECISION DTEMP
+      INTEGER I,M,MP1,NINCX
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC DABS,MOD
+*     ..
+      DASUM = 0.0d0
+      DTEMP = 0.0d0
+      IF (N.LE.0 .OR. INCX.LE.0) RETURN
+      IF (INCX.EQ.1) THEN
+*        code for increment equal to 1
+*
+*
+*        clean-up loop
+*
+         M = MOD(N,6)
+         IF (M.NE.0) THEN
+            DO I = 1,M
+               DTEMP = DTEMP + DABS(DX(I))
+            END DO
+            IF (N.LT.6) THEN
+               DASUM = DTEMP
+               RETURN
+            END IF
+         END IF
+         MP1 = M + 1
+         DO I = MP1,N,6
+            DTEMP = DTEMP + DABS(DX(I)) + DABS(DX(I+1)) +
+     $              DABS(DX(I+2)) + DABS(DX(I+3)) +
+     $              DABS(DX(I+4)) + DABS(DX(I+5))
+         END DO
+      ELSE
+*
+*        code for increment not equal to 1
+*
+         NINCX = N*INCX
+         DO I = 1,NINCX,INCX
+            DTEMP = DTEMP + DABS(DX(I))
+         END DO
+      END IF
+      DASUM = DTEMP
+      RETURN
+      END

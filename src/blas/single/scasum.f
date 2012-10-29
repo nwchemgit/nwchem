@@ -1,35 +1,97 @@
-      real function scasum(n,cx,incx)
-c
-c     takes the sum of the absolute values of a complex vector and
-c     returns a single precision result.
-c     jack dongarra, linpack, 3/11/78.
-c     modified 3/93 to return if incx .le. 0.
-c     modified 12/3/93, array(1) declarations changed to array(*)
-c
-C     $Id$                       
-      complex cx(*)
-      real stemp
-      integer i,incx,n,nincx
-c
-      scasum = 0.0e0
-      stemp = 0.0e0
-      if( n.le.0 .or. incx.le.0 )return
-      if(incx.eq.1)go to 20
-c
-c        code for increment not equal to 1
-c
-      nincx = n*incx
-      do 10 i = 1,nincx,incx
-        stemp = stemp + abs(real(cx(i))) + abs(aimag(cx(i)))
-   10 continue
-      scasum = stemp
-      return
-c
-c        code for increment equal to 1
-c
-   20 do 30 i = 1,n
-        stemp = stemp + abs(real(cx(i))) + abs(aimag(cx(i)))
-   30 continue
-      scasum = stemp
-      return
-      end
+*> \brief \b SCASUM
+*
+*  =========== DOCUMENTATION ===========
+*
+* Online html documentation available at 
+*            http://www.netlib.org/lapack/explore-html/ 
+*
+*  Definition:
+*  ===========
+*
+*       REAL FUNCTION SCASUM(N,CX,INCX)
+* 
+*       .. Scalar Arguments ..
+*       INTEGER INCX,N
+*       ..
+*       .. Array Arguments ..
+*       COMPLEX CX(*)
+*       ..
+*  
+*
+*> \par Purpose:
+*  =============
+*>
+*> \verbatim
+*>
+*>    SCASUM takes the sum of the absolute values of a complex vector and
+*>    returns a single precision result.
+*> \endverbatim
+*
+*  Authors:
+*  ========
+*
+*> \author Univ. of Tennessee 
+*> \author Univ. of California Berkeley 
+*> \author Univ. of Colorado Denver 
+*> \author NAG Ltd. 
+*
+*> \date November 2011
+*
+*> \ingroup single_blas_level1
+*
+*> \par Further Details:
+*  =====================
+*>
+*> \verbatim
+*>
+*>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
+*>     modified 12/3/93, array(1) declarations changed to array(*)
+*> \endverbatim
+*>
+*  =====================================================================
+      REAL FUNCTION SCASUM(N,CX,INCX)
+*
+*  -- Reference BLAS level1 routine (version 3.4.0) --
+*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
+*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*     November 2011
+*
+*     .. Scalar Arguments ..
+      INTEGER INCX,N
+*     ..
+*     .. Array Arguments ..
+      COMPLEX CX(*)
+*     ..
+*
+*  =====================================================================
+*
+*     .. Local Scalars ..
+      REAL STEMP
+      INTEGER I,NINCX
+*     ..
+*     .. Intrinsic Functions ..
+      INTRINSIC ABS,AIMAG,REAL
+*     ..
+      SCASUM = 0.0e0
+      STEMP = 0.0e0
+      IF (N.LE.0 .OR. INCX.LE.0) RETURN
+      IF (INCX.EQ.1) THEN
+*
+*        code for increment equal to 1
+*
+         DO I = 1,N
+            STEMP = STEMP + ABS(REAL(CX(I))) + ABS(AIMAG(CX(I)))
+         END DO
+      ELSE
+*
+*        code for increment not equal to 1
+*
+         NINCX = N*INCX
+         DO I = 1,NINCX,INCX
+            STEMP = STEMP + ABS(REAL(CX(I))) + ABS(AIMAG(CX(I)))
+         END DO
+      END IF
+      SCASUM = STEMP
+      RETURN
+      END
