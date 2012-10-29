@@ -117,7 +117,7 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                classq.o      clatrd.o      cpotf2.o       cpotrf.o     \
                csteqr.o      cung2l.o      cung2r.o       cungql.o     \
                cungqr.o      cungtr.o      cungbr.o       cunm2r.o     \
-               cunmbr.o      cunml2.o      cunmlq.o \
+               cunmbr.o      cunml2.o      cunmlq.o       cungl2.o     \
                cgehd2.o cgehrd.o clahrd.o cgebak.o cgebal.o cgeev.o \
                chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
                clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \
