@@ -28,17 +28,26 @@ C> block.
 C>
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
+#include "errquit.fh"
       double precision acc !< [Input] Accuracy (not used here)
       integer g_x  !< [Input] Global array with vector
       integer g_Ax !< [Output] Global array with matrix-vector product
 c
       integer g_a, g_b
       common /testme/ g_A, g_B
-      integer n, nvec, type
+      integer n, nvec, typex, typeax
+      double complex one, zero
 c
-      call ga_inquire(g_x, type, n, nvec)
+      one  = cmplx(1.0d0,0.0d0)
+      zero = cmplx(0.0d0,0.0d0)
+c
+      call ga_inquire(g_Ax, typeax, n, nvec)
+      call ga_inquire(g_x, typex, n, nvec)
+      if (typex.ne.typeax)
+     $  call errquit("test_product: g_x not same type as g_Ax",
+     $               typex,UERR)
       call ga_zero(g_Ax)
-      call ga_dgemm('n', 'n', n, nvec, n, 1.0d0, g_A, g_x, 0.0d0, g_Ax)
+      call ga_dgemm('n', 'n', n, nvec, n, one, g_A, g_x, zero, g_Ax)
 c
       end
 C>
@@ -52,17 +61,31 @@ C> through a common block.
 C>
       subroutine test_nlproduct(acc,g_x, g_Ax)
       implicit none
+#include "errquit.fh"
       double precision acc
       integer g_x, g_Ax
 c
       integer g_a, g_b
       common /testme/ g_A, g_B
-      integer n, nvec, type
+      integer n, nvec, typex, typeax, typeb
+      double complex mone, one, zero
 c
-      call ga_inquire(g_x, type, n, nvec)
+      mone = cmplx(-1.0d0,0.0d0)
+      one  = cmplx(1.0d0,0.0d0)
+      zero = cmplx(0.0d0,0.0d0)
+c
+      call ga_inquire(g_b, typeb, n, nvec)
+      call ga_inquire(g_Ax, typeax, n, nvec)
+      call ga_inquire(g_x, typex, n, nvec)
+      if (typex.ne.typeax)
+     $  call errquit("test_nlproduct: g_x not same type as g_Ax",
+     $               typex,UERR)
+      if (typex.ne.typeb)
+     $  call errquit("test_nlproduct: g_x not same type as g_b",
+     $               typex,UERR)
       call ga_zero(g_Ax)
-      call ga_dgemm('n', 'n', n, nvec, n, 1.0d0, g_A, g_x, 0.0d0, g_Ax)
-      call ga_add(1.0d0, g_AX, -1.0d0, g_B, g_AX)
+      call ga_dgemm('n', 'n', n, nvec, n, one, g_A, g_x, zero, g_Ax)
+      call ga_add(one, g_AX, mone, g_B, g_AX)
 c
       end
 C>
@@ -77,22 +100,37 @@ C> where \f$ \epsilon \f$ is the shift.
 C>
       subroutine test_precond(g_x,shift)
       implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
       integer g_x
       double precision shift
       integer n, nvec, type
       integer i, ivec
       double precision x
+      double complex zx
 c
       call ga_inquire(g_x, type, n, nvec)
       if (ga_nodeid() .eq. 0) then
-         do ivec = 1, nvec
-            do i = 1, n
-               call ga_get(g_x, i, i, ivec, ivec, x, 1)
-               x = x / (dble(i) - shift)
-               call ga_put(g_x, i, i, ivec, ivec, x, 1)
+         if (type.eq.MT_DBL) then
+            do ivec = 1, nvec
+               do i = 1, n
+                  call ga_get(g_x, i, i, ivec, ivec, x, 1)
+                  x = x / (dble(i) - shift)
+                  call ga_put(g_x, i, i, ivec, ivec, x, 1)
+               end do
             end do
-         end do
+         else if (type.eq.MT_DCPL) then
+            do ivec = 1, nvec
+               do i = 1, n
+                  call ga_get(g_x, i, i, ivec, ivec, zx, 1)
+                  zx = zx / (dble(i) - shift)
+                  call ga_put(g_x, i, i, ivec, ivec, zx, 1)
+               end do
+            end do
+         else
+            call errquit('test_precond: illegal type',type,UERR)
+         endif
       end if
       call ga_sync()
 c
@@ -111,14 +149,20 @@ C>
 #include "mafdecls.fh"
 #include "global.fh"
       integer n, nvec, maxsub, maxiter
-      parameter (n=300, nvec=1)
+c     parameter (n=300, nvec=1)
+      parameter (n=10, nvec=1)
+      double complex angle
       integer g_x
-      external test_precond, test_product, test_nlproduct
+      double precision util_random
+      external test_precond, test_product, test_nlproduct, util_random
 c
+      integer g_tx, g_ta, g_tb
       integer g_a, g_b
       common /testme/ g_a, g_b
 c
       integer i
+      logical  ga_copy_dz
+      external ga_copy_dz
 ****      integer info
 ****      double precision a(n,n), b(n), w(n)
 c
@@ -127,9 +171,9 @@ c
 c
       if (.not. ga_create(MT_DBL, n, nvec, 'testx', 0, 0, g_x))
      $     call errquit('test kain', 1, GA_ERR)
-      if (.not. ga_create(MT_DBL, n, nvec, 'testx', 0, 0, g_b))
+      if (.not. ga_create(MT_DBL, n, nvec, 'testb', 0, 0, g_b))
      $     call errquit('test kain', 2, GA_ERR)
-      if (.not. ga_create(MT_DBL, n, n, 'testx', 0, 0, g_A))
+      if (.not. ga_create(MT_DBL, n, n, 'testA', 0, 0, g_A))
      $     call errquit('test kain', 3, GA_ERR)
 c
       call ga_ran_fill(g_A, 1, n, 1, n)
@@ -143,6 +187,10 @@ c
 c
       call ga_copy(g_b, g_x)
       call test_precond(g_x,0.0d0)
+      call util_flush(6)
+      call ga_print(g_b)
+      call ga_print(g_x)
+      call util_flush(6)
 c
 ****      call ga_get(g_a, 1, n, 1, n, a, n)
 ****      call ga_get(g_b, 1, n, 1, nvec, b, n)
@@ -153,6 +201,9 @@ c
 C     This should have something other than zero
       call ga_lkain(0,g_x, g_b,test_product,test_precond,1d-6,maxsub,
      $     maxiter,.true.,.true.)
+      call util_flush(6)
+      call ga_print(g_x)
+      call util_flush(6)
       call ga_summarize(0)
       call ma_summarize_allocated_blocks()
 c
@@ -174,9 +225,105 @@ c
      $     maxsub, maxiter, 
      $     .true.)
 c
+      call util_flush(6)
+      call ga_print(g_x)
+      call util_flush(6)
+      call ga_summarize(0)
+      call ma_summarize_allocated_blocks()
+c
+c     Same but now COMPLEX
+c
+      g_tx = g_x
+      g_tb = g_b
+      g_tA = g_A
+      maxsub = 4*nvec
+      maxiter = 100
+      if (.not. ga_create(MT_DCPL, n, nvec, 'testx', 0, 0, g_x))
+     $     call errquit('test kain', 1, GA_ERR)
+      if (.not. ga_create(MT_DCPL, n, nvec, 'testb', 0, 0, g_b))
+     $     call errquit('test kain', 2, GA_ERR)
+      if (.not. ga_create(MT_DCPL, n, n, 'testA', 0, 0, g_A))
+     $     call errquit('test kain', 3, GA_ERR)
+c
+c     call ga_ran_fill(g_A, 1, n, 1, n)
+c     call ga_ran_fill(g_b, 1, n, 1, nvec)
+c     if (ga_nodeid() .eq. 0) then
+c        do i = 1, n
+c           call ga_put(g_a, i, i, i, i, 0.5*cmplx(dble(i)), 1)
+c        end do
+c     end if
+      if (.not. ga_copy_dz(g_tb,g_b)) 
+     +  call errquit('test kain: copy g_b failed',0,GA_ERR)
+      if (.not. ga_copy_dz(g_tA,g_A))
+     +  call errquit('test kain: copy g_A failed',0,GA_ERR)
+      call ga_sync()
+      angle = cmplx(1.0d0,util_random(0))
+      angle = angle/abs(angle)
+      call ga_scale(g_b,angle)
+      angle = cmplx(1.0d0,util_random(0))
+      angle = angle/abs(angle)
+      call ga_scale(g_A,angle)
+c
+      if (.not. ga_destroy(g_tx))
+     $     call errquit('test kain', 1, GA_ERR)
+      if (.not. ga_destroy(g_tb))
+     $     call errquit('test kain', 2, GA_ERR)
+      if (.not. ga_destroy(g_tA))
+     $     call errquit('test kain', 3, GA_ERR)
+c
+      call ga_copy(g_b, g_x)
+      call test_precond(g_x,0.0d0)
+      call util_flush(6)
+      call ga_print(g_b)
+      call ga_print(g_x)
+      call util_flush(6)
+c
+****      call ga_get(g_a, 1, n, 1, n, a, n)
+****      call ga_get(g_b, 1, n, 1, nvec, b, n)
+****      call dgesv(n, nvec, a, n, w, b, n, info)
+****      write(6,*) ' info ', info
+****      call ga_put(g_x, 1, n, 1, nvec, b, n)
+c
+C     This should have something other than zero
+      call ga_lkain(0,g_x, g_b,test_product,test_precond,1d-6,maxsub,
+     $     maxiter,.true.,.true.)
+      call util_flush(6)
+      call ga_print(g_x)
+      call util_flush(6)
+      call ga_summarize(0)
+      call ma_summarize_allocated_blocks()
+c
+      write(6,*)
+      write(6,*)
+      write(6,*)
+      write(6,*) ' DOING NON LINEAR '
+      write(6,*)
+      write(6,*)
+      write(6,*)
+      call ga_copy(g_b, g_x)
+      call test_precond(g_x,0.0d0)
+      maxsub = 10
+c
+      call ga_kain(g_x, 
+     $     test_nlproduct, test_precond, 
+     $     1d-6, 
+     $     10.0d0, 10.0d0,
+     $     maxsub, maxiter, 
+     $     .true.)
+c
+      call util_flush(6)
+      call ga_print(g_x)
+      call util_flush(6)
       call ga_summarize(0)
       call ma_summarize_allocated_blocks()
       call errquit('done',0, MEM_ERR)
+c
+      if (.not. ga_destroy(g_x))
+     $     call errquit('test kain', 1, GA_ERR)
+      if (.not. ga_destroy(g_b))
+     $     call errquit('test kain', 2, GA_ERR)
+      if (.not. ga_destroy(g_A))
+     $     call errquit('test kain', 3, GA_ERR)
 c
       end
 C>
@@ -292,16 +439,26 @@ c
 c     Needs to be extended to store the sub-space vectors out-of-core
 c     at least while the product() routine is being executed.
 c
-      integer iter, n, nvec, nsub, isub, type, maxsub
+      integer dimi, dimj
+      integer iter, n, nvec, nsub, isub, typex, typeb, maxsub
       integer g_y, g_Ay, g_Ax, g_r, g_a, g_bb, g_c, g_xold, g_Axold
       double precision rmax, acc, ga_svd_tol
+      double complex zero, one, mone
       logical converged
       logical odebug
+c
+      zero = cmplx(0.0d0,0.0d0)
+      one  = cmplx(1.0d0,0.0d0)
+      mone = cmplx(-1.0d0,0.0d0)
 c
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
       if (.not.rtdb_get(rtdb,'cphf:acc',mt_dbl,1,acc)) acc=0.01d0*tol
-      call ga_inquire(g_x, type, n, nvec)
+      call ga_inquire(g_b, typeb, dimi, dimj)
+      call ga_inquire(g_x, typex, n, nvec)
+      if (typeb.ne.typex) 
+     $  call errquit("ga_lkain: solution and right-hand-side vectors not
+     $ of same type",0,UERR)
       maxsub = mmaxsub          ! So don't modify input scalar arg
       if (maxsub .lt. 3*nvec) maxsub = 3*nvec
       maxsub = (maxsub/nvec)*nvec
@@ -329,28 +486,28 @@ c
          call util_flush(6)
       end if
 c
-      if (.not. ga_create(MT_DBL, n, maxsub, 'lkain: Y', 
+      if (.not. ga_create(typex, n, maxsub, 'lkain: Y', 
      $     0, 0, g_y))
      $     call errquit('lkain: failed allocating subspace', maxsub,
      &       GA_ERR)
-      if (.not. ga_create(MT_DBL, n, maxsub, 'lkain: Ay', 
+      if (.not. ga_create(typex, n, maxsub, 'lkain: Ay', 
      $     0, 0, g_Ay))
      $     call errquit('lkain: failed allocating subspace2', maxsub,
      &       GA_ERR)
-      if (.not. ga_create(MT_DBL, n, nvec, 'lkain: Ax',
+      if (.not. ga_create(typex, n, nvec, 'lkain: Ax',
      $     0, 0, g_Ax))
      $     call errquit('lkain: failed allocating subspace3', nvec,
      &       GA_ERR)
-      if (.not. ga_create(MT_DBL, n, nvec, 'lkain: r',
+      if (.not. ga_create(typex, n, nvec, 'lkain: r',
      $     0, 0, g_r))
      $     call errquit('lkain: failed allocating subspace4', nvec,
      &       GA_ERR)
       if (odiff) then
-         if (.not. ga_create(MT_DBL, n, nvec, 'lkain: xold',
+         if (.not. ga_create(typex, n, nvec, 'lkain: xold',
      $        0, 0, g_xold))
      $        call errquit('lkain: failed allocating subspace5', nvec,
      &       GA_ERR)
-         if (.not. ga_create(MT_DBL, n, nvec, 'lkain: xold',
+         if (.not. ga_create(typex, n, nvec, 'lkain: Axold',
      $        0, 0, g_Axold))
      $        call errquit('lkain: failed allocating subspace6', nvec,
      &       GA_ERR)
@@ -374,18 +531,18 @@ c
       converged = .false.
       do iter = 1, maxiter
          if (odiff) then
-            call ga_add(1.0d0, g_x, -1.0d0, g_xold,  g_x)
+            call ga_add(one, g_x, mone, g_xold,  g_x)
          end if
          call product(acc,g_x, g_Ax)
          if (odiff) then
-            call ga_add(1.0d0, g_Ax, 1.0d0, g_Axold, g_Ax)
-            call ga_add(1.0d0, g_x,  1.0d0, g_xold,  g_x)
+            call ga_add(one, g_Ax, one, g_Axold, g_Ax)
+            call ga_add(one, g_x,  one, g_xold,  g_x)
             call ga_copy(g_x, g_xold)
             call ga_copy(g_Ax, g_Axold)
          end if
          call ga_zero(g_r)
          call ga_sync()
-         call ga_add(1.0d0, g_b, -1.0d0, g_Ax, g_r) ! The residual
+         call ga_add(one, g_b, mone, g_Ax, g_r) ! The residual
          call ga_sync()
          call ga_maxelt(g_r, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
@@ -414,22 +571,26 @@ c
 c     Form and solve the subspace equations using SVD in order
 c     to manage near linear dependence in the subspace.
 c     
-         if (.not. ga_create(MT_DBL, nsub, nsub, 'lkain: A', 0, 0, g_a))
+         if (.not. ga_create(typex, nsub, nsub, 'lkain: A', 0, 0, g_a))
      $        call errquit('lkain: allocating g_a?', nsub, GA_ERR)
-         if (.not. ga_create(MT_DBL, nsub, nvec, 'lkain: B', 0, 0,g_bb))
+         if (.not. ga_create(typex, nsub, nvec, 'lkain: B', 0, 0,g_bb))
      $        call errquit('lkain: allocating g_bb?', nsub, GA_ERR)
-         if (.not. ga_create(MT_DBL, nsub, nvec, 'lkain: C', 0, 0, g_c))
+         if (.not. ga_create(typex, nsub, nvec, 'lkain: C', 0, 0, g_c))
      $        call errquit('lkain: allocating g_c?', nsub, GA_ERR)
          call ga_zero(g_a)
          call ga_zero(g_bb)
          call ga_zero(g_c)
          call ga_sync()
-         call ga_dgemm('t','n',nsub,nsub,n,1.0d0,g_y,g_Ay,0.0d0,g_a)
+         call ga_dgemm('c','n',nsub,nsub,n,one,g_y,g_Ay,zero,g_a)
          call ga_sync()
-         call ga_dgemm('t','n',nsub,nvec,n,1.0d0,g_y,g_r,0.0d0,g_bb)
+         call ga_dgemm('c','n',nsub,nvec,n,one,g_y,g_r,zero,g_bb)
          call ga_sync()
-         if (odebug) call ga_print(g_a)
-         if (odebug) call ga_print(g_c)
+         if (odebug) then
+           call util_flush(6)
+           call ga_print(g_a)
+           call ga_print(g_bb)
+           call util_flush(6)
+         endif
 c
 c     The threshold used here should reflect the accuracy in the
 c     products.  If very accurate products are used, then there is big
@@ -440,26 +601,34 @@ c     advantage and in the precence of real noise in the products
 c     screening with a realistic threshold is important.
 c
          call ga_svd_solve_seq(g_a,g_bb,g_c,ga_svd_tol)
-         if (odebug) call ga_print(g_c)
+         if (odebug) then
+           call util_flush(6)
+           call ga_print(g_c)
+           call util_flush(6)
+         endif
 c
 c     Form and add the correction, in parts, onto the solution
 c
          call ga_sync()
-         call ga_dgemm('n','n',n,nvec,nsub,-1.0d0,g_Ay,g_c,1.0d0,g_r)
+         call ga_dgemm('n','n',n,nvec,nsub,mone,g_Ay,g_c,one,g_r)
          if (odebug) then
+            call util_flush(6)
             write(6,*) ' The update in the complement '
+            call util_flush(6)
             call ga_print(g_r)
          end if
          call ga_sync()
-         call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
+         call ga_add(one, g_r, one, g_x, g_x)
          call ga_sync()
-         call ga_dgemm('n','n',n,nvec,nsub,1.0d0,g_y,g_c,0.0d0,g_r)
+         call ga_dgemm('n','n',n,nvec,nsub,one,g_y,g_c,zero,g_r)
          if (odebug) then
+            call util_flush(6)
             write(6,*) ' The update in the subspace '
+            call util_flush(6)
             call ga_print(g_r)
          end if
          call ga_sync()
-         call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
+         call ga_add(one, g_r, one, g_x, g_x)
          call ga_sync()
 c
          if (.not. ga_destroy(g_a)) call errquit('lkain: a',0, GA_ERR)
@@ -607,13 +776,20 @@ c     solution.
 c
       integer maxmaxsub
       parameter (maxmaxsub = 20)
-      integer iter, n, nvec, nsub, isub, jsub, type
+      integer iter, n, nvec, nsub, isub, jsub, typex
       integer g_y, g_Ay, g_Ax, g_delta, g_a, g_b, g_c
       double precision rmax, acc, trust
       double precision a(maxmaxsub,maxmaxsub), b(maxmaxsub), 
-     $     c(maxmaxsub), csum
+     $                 c(maxmaxsub), csum
+      double complex za(maxmaxsub,maxmaxsub), zb(maxmaxsub), 
+     $               zc(maxmaxsub), zcsum
+      double complex zero, one, mone
       logical converged
       logical odebug
+c
+      zero = cmplx(0.0d0,0.0d0)
+      one  = cmplx(1.0d0,0.0d0)
+      mone = cmplx(-1.0d0,0.0d0)
 c
       trust = trustmin
       acc = 0.01d0*tol
@@ -621,7 +797,7 @@ c
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
 c
-      call ga_inquire(g_x, type, n, nvec)
+      call ga_inquire(g_x, typex, n, nvec)
       if (nvec .ne. 1) call errquit('kain: nvec?', nvec, GA_ERR)
 c
       if (oprint .and. ga_nodeid().eq.0) then
@@ -635,15 +811,15 @@ c
          call util_flush(6)
       end if
 c
-      if (.not. ga_create(MT_DBL, n, maxsub, 'kain: Y', 
+      if (.not. ga_create(typex, n, maxsub, 'kain: Y', 
      $     0, 0, g_y))
      $     call errquit('kain: failed allocating subspace', maxsub,
      &       GA_ERR)
-      if (.not. ga_create(MT_DBL, n, maxsub, 'kain: Ay', 
+      if (.not. ga_create(typex, n, maxsub, 'kain: Ay', 
      $     0, 0, g_Ay))
      $     call errquit('kain: failed allocating subspace2', maxsub,
      &       GA_ERR)
-      if (.not. ga_create(MT_DBL, n, 1, 'kain: Ax',
+      if (.not. ga_create(typex, n, 1, 'kain: Ax',
      $     0, 0, g_Ax))
      $     call errquit('kain: failed allocating subspace3', 1, GA_ERR)
       call ga_zero(g_y)
@@ -684,46 +860,80 @@ c
 c     Not converged ... make the update
 c
          g_delta = g_Ax         ! A reminder that these two are aliased
-         call ga_scale(g_delta, -1.0d0)
+         call ga_scale(g_delta, mone)
 c
          if (iter .gt. 1) then
 c
 c     Form the reduced space matrix and RHS
 c
-            call ga_local_mdot(n, nsub, nsub, a, maxmaxsub, g_y, g_Ay)
-            do isub = 1, nsub-1
-               b(isub) = -(a(isub,nsub) - a(nsub,nsub))
-            end do
-            do isub = 1, nsub-1
-               do jsub = 1, nsub-1
-                  a(isub,jsub) = a(isub,jsub)
-     $                 - a(nsub,jsub) - a(isub,nsub) + a(nsub,nsub)
-               end do
-            end do
+           if (typex.eq.MT_DBL) then
+             call ga_local_mdot(n,nsub,nsub,a,maxmaxsub,g_y,g_Ay)
+             do isub = 1, nsub-1
+                b(isub) = -(a(isub,nsub) - a(nsub,nsub))
+             end do
+             do isub = 1, nsub-1
+                do jsub = 1, nsub-1
+                   a(isub,jsub) = a(isub,jsub)
+     $                  - a(nsub,jsub) - a(isub,nsub) + a(nsub,nsub)
+                end do
+             end do
+           else if (typex.eq.MT_DCPL) then
+             call ga_local_zmdot(n,nsub,nsub,za,maxmaxsub,g_y,g_Ay)
+             do isub = 1, nsub-1
+                zb(isub) = -(za(isub,nsub) - za(nsub,nsub))
+             end do
+             do isub = 1, nsub-1
+                do jsub = 1, nsub-1
+                   za(isub,jsub) = za(isub,jsub)
+     $                  - za(nsub,jsub) - za(isub,nsub) + za(nsub,nsub)
+                end do
+             end do
+           else
+             call errquit("ga_kain: illegal type",typex,UERR)
+           endif
 c
 c     Solve the subspace equations (lazily using existing GA routine)
 c     
-            if (.not. ga_create(MT_DBL,nsub-1,nsub-1,'kain: A',
+            if (.not. ga_create(typex,nsub-1,nsub-1,'kain: A',
      $           nsub-1,nsub-1,g_a))
      $           call errquit('kain: allocating g_a?', nsub, GA_ERR)
-            if (.not. ga_create(MT_DBL,nsub-1,1,'kain: B',nsub-1,1,g_b))
+            if (.not. ga_create(typex,nsub-1,1,'kain: B',nsub-1,1,g_b))
      $           call errquit('kain: allocating g_bb?', nsub, GA_ERR)
-            if (.not. ga_create(MT_DBL,nsub-1,1,'kain: C',nsub-1,1,g_c))
+            if (.not. ga_create(typex,nsub-1,1,'kain: C',nsub-1,1,g_c))
      $           call errquit('kain: allocating g_c?', nsub, GA_ERR)
             if (ga_nodeid() .eq. 0) then
-               call ga_put(g_a, 1, nsub-1, 1, nsub-1, a, maxmaxsub)
-               call ga_put(g_b, 1, nsub-1, 1, 1, b, 1)
+              if (typex.eq.MT_DBL) then
+                call ga_put(g_a, 1, nsub-1, 1, nsub-1, a, maxmaxsub)
+                call ga_put(g_b, 1, nsub-1, 1, 1, b, 1)
+              else if (typex.eq.MT_DCPL) then
+                call ga_put(g_a, 1, nsub-1, 1, nsub-1, za, maxmaxsub)
+                call ga_put(g_b, 1, nsub-1, 1, 1, zb, 1)
+              else
+                call errquit("ga_kain: illegal type",typex,UERR)
+              endif
             end if
             call ga_sync
 c
             call ga_svd_solve_seq(g_a,g_b,g_c,1d-14)
 c
-            if (odebug) call ga_print(g_c)
-            if (ga_nodeid() .eq. 0) 
+            if (odebug) then
+              call util_flush(6)
+              call ga_print(g_c)
+              call util_flush(6)
+            endif
+            if (typex.eq.MT_DBL) then
+              if (ga_nodeid() .eq. 0)
      $           call ga_get(g_c, 1, nsub-1, 1, 1, c, 1)
-            call ga_brdcst(1, c, mdtob(nsub-1), 0)
-            write(6,*) ' KAIN SUBSPACE COEFFS'
-            call output(c, 1, nsub-1, 1, 1, nsub-1, 1, 1)
+              call ga_brdcst(1, c, mdtob(nsub-1), 0)
+              write(6,*) ' KAIN SUBSPACE COEFFS'
+              call output(c, 1, nsub-1, 1, 1, nsub-1, 1, 1)
+            else if (typex.eq.MT_DCPL) then
+              if (ga_nodeid() .eq. 0)
+     $           call ga_get(g_c, 1, nsub-1, 1, 1, zc, 1)
+              call ga_brdcst(1, zc, 2*mdtob(nsub-1), 0)
+              write(6,*) ' KAIN SUBSPACE COEFFS'
+              call zoutput(zc, 1, nsub-1, 1, 1, nsub-1, 1, 1)
+            endif
             call ga_sync
             if (.not. ga_destroy(g_a)) call errquit('kain: a',0, GA_ERR)
             if (.not. ga_destroy(g_b)) call errquit('kain: b',0, GA_ERR)
@@ -731,18 +941,33 @@ c
 c     
 c     Form the correction
 c     
-            csum = 0.0d0
-            do isub = 1, nsub-1
-               csum = csum + c(isub)
-               call ga_add_patch( c(isub),  g_y, 1, n, isub, isub, 
-     $              1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
-               call ga_add_patch(-c(isub), g_Ay, 1, n, isub, isub, 
-     $              1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
-            end do
-            call ga_add_patch(-csum,  g_y, 1, n, nsub, nsub, 
-     $           1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
-            call ga_add_patch( csum,  g_Ay, 1, n, nsub, nsub, 
-     $           1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+            if (typex.eq.MT_DBL) then
+              csum = 0.0d0
+              do isub = 1, nsub-1
+                 csum = csum + c(isub)
+                 call ga_add_patch( c(isub),  g_y, 1, n, isub, isub, 
+     $                one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+                 call ga_add_patch(-c(isub), g_Ay, 1, n, isub, isub, 
+     $                one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+              end do
+              call ga_add_patch(-csum,  g_y, 1, n, nsub, nsub, 
+     $             one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+              call ga_add_patch( csum,  g_Ay, 1, n, nsub, nsub, 
+     $             one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+            else if (typex.eq.MT_DCPL) then
+              zcsum = 0.0d0
+              do isub = 1, nsub-1
+                 zcsum = zcsum + zc(isub)
+                 call ga_add_patch( zc(isub),  g_y, 1, n, isub, isub, 
+     $                one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+                 call ga_add_patch(-zc(isub), g_Ay, 1, n, isub, isub, 
+     $                one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+              end do
+              call ga_add_patch(-zcsum,  g_y, 1, n, nsub, nsub, 
+     $             one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+              call ga_add_patch( zcsum,  g_Ay, 1, n, nsub, nsub, 
+     $             one, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+            endif
          endif
 c
 c     Step restriction
@@ -753,7 +978,7 @@ c
             call ga_scale(g_delta, trust/rmax)
          end if
 c
-         call ga_add(1.0d0, g_delta, 1.0d0, g_x, g_x)
+         call ga_add(one, g_delta, one, g_x, g_x)
 c     
 c     Reduce the subspace as necessary (note g_delta=g_Ax destroyed)
 c     
@@ -842,10 +1067,14 @@ c
 c     where the reciprocal of values less than tol are neglected.
 c     
       integer m,n,nn,type,nvec,nsing,l_val, k_val,g_u,g_vt,i,g_tmp
+      double complex one, zero
       logical oprint
 c
       oprint = util_print('debug svdsolve', print_high) .and.
      $     ga_nodeid().eq.0
+c
+      one  = cmplx(1.0d0,0.0d0)
+      zero = cmplx(0.0d0,0.0d0)
 c
       call ga_inquire(g_a, type, m, n)
       call ga_inquire(g_b, type, nn, nvec)
@@ -854,31 +1083,31 @@ c
       nsing = min(m,n)
       if (.not. ma_push_get(MT_DBL, nsing, 'gasvdsol', l_val, k_val))
      $     call errquit('gasvdsol: val',nsing, MA_ERR)
-      if (.not. ga_create(MT_DBL,m,nsing,'gasvd',0,0,g_u))
+      if (.not. ga_create(type,m,nsing,'gasvd',0,0,g_u))
      $     call errquit('gasvdsol: u',m*nsing, GA_ERR)
-      if (.not. ga_create(MT_DBL,nsing,n,'gasvd',0,0,g_vt))
+      if (.not. ga_create(type,nsing,n,'gasvd',0,0,g_vt))
      $     call errquit('gasvdsol: u',nsing*n, GA_ERR)
-      if (.not. ga_create(MT_DBL,nsing,nvec,'gasvd',0,0,g_tmp))
+      if (.not. ga_create(type,nsing,nvec,'gasvd',0,0,g_tmp))
      $     call errquit('gasvdsol: tmp',nsing*nvec, GA_ERR)
       call ga_zero(g_tmp)
 c
       call ga_svd_seq(g_a, g_u,g_vt,dbl_mb(k_val))
 c
       do i = 0, nsing-1
-         if (dbl_mb(k_val+i) .lt. tol) then
-            if (ga_nodeid() .eq. 0 .and. oprint) then
-              write(6,*) ' neglecting ', i+1, dbl_mb(k_val+i)
-            endif
-            dbl_mb(k_val+i) = 0.0d0
-         else
-            dbl_mb(k_val+i) = 1.0d0/dbl_mb(k_val+i)
-         end if
+        if (dbl_mb(k_val+i) .lt. tol) then
+          if (ga_nodeid() .eq. 0 .and. oprint) then
+            write(6,*) ' neglecting ', i+1, dbl_mb(k_val+i)
+          endif
+          dbl_mb(k_val+i) = 0.0d0
+        else
+          dbl_mb(k_val+i) = 1.0d0/dbl_mb(k_val+i)
+        end if
       end do
 c
-      call ga_dgemm('t','n',nsing,nvec,m,1.0d0,g_u,g_b,0.0d0,g_tmp)
+      call ga_dgemm('c','n',nsing,nvec,m,one,g_u,g_b,zero,g_tmp)
       call ga_scale_lh(g_tmp,dbl_mb(k_val))
       call ga_zero(g_x)
-      call ga_dgemm('t','n',n,nvec,nsing,1.0d0,g_vt,g_tmp,0.0d0,g_x)
+      call ga_dgemm('c','n',n,nvec,nsing,one,g_vt,g_tmp,zero,g_x)
 c
       if (.not. ga_destroy(g_tmp)) call errquit('gasvdsol: des',1,
      &       GA_ERR)
@@ -916,29 +1145,55 @@ c     V and AAT to get U --- both have values**2 as eigenvalues.
 c
       integer n, m, type, l_a, k_a, l_u, k_u, l_vt, k_vt, 
      $     l_work, k_work, lwork, info, nsing
+      integer l_rwork, k_rwork
 c     
       call ga_inquire(g_a, type, m, n)
       nsing = min(m,n)
       if (ga_nodeid() .eq. 0) then
          lwork = 10*max(m,n)
-         if (.not. ma_push_get(MT_DBL, m*n, 'gasvd', l_a, k_a))
+         if (.not. ma_push_get(type, m*n, 'gasvd', l_a, k_a))
      $        call errquit('gasvd: a',m*n, MA_ERR)
-         if (.not. ma_push_get(MT_DBL, m*nsing, 'gasvd', l_u, k_u))
+         if (.not. ma_push_get(type, m*nsing, 'gasvd', l_u, k_u))
      $        call errquit('gasvd: u',m*nsing, MA_ERR)
-         if (.not. ma_push_get(MT_DBL, nsing*n, 'gasvd', l_vt, k_vt))
+         if (.not. ma_push_get(type, nsing*n, 'gasvd', l_vt, k_vt))
      $        call errquit('gasvd: vt',nsing*n, MA_ERR)
-         if (.not. ma_push_get(MT_DBL, lwork, 'gasvd', l_work, k_work))
+         if (.not. ma_push_get(type, lwork, 'gasvd', l_work, k_work))
      $        call errquit('gasvd: work',lwork, MA_ERR)
+         if (type.eq.MT_DCPL) then
+            if (.not. ma_push_get(MT_DBL, lwork, 'gasvd',
+     $                            l_rwork, k_rwork))
+     $           call errquit('gasvd: work',lwork, MA_ERR)
+         endif
 c
-         call ga_get(g_a, 1, m, 1, n, dbl_mb(k_a), m)
+         if (type.eq.MT_DBL) then
 c
-         call dgesvd('s','s',m,n,dbl_mb(k_a),m,values,
-     $        dbl_mb(k_u),m,dbl_mb(k_vt),nsing,
-     $        dbl_mb(k_work),lwork,info)
-         if (info .ne. 0) call errquit('gasvd: failed', info, MEM_ERR)
+           call ga_get(g_a, 1, m, 1, n, dbl_mb(k_a), m)
 c
-         call ga_put(g_u,  1, n,     1, nsing, dbl_mb(k_u),  n)
-         call ga_put(g_vt, 1, nsing, 1, m,     dbl_mb(k_vt), n)
+           call dgesvd('s','s',m,n,dbl_mb(k_a),m,values,
+     $          dbl_mb(k_u),m,dbl_mb(k_vt),nsing,
+     $          dbl_mb(k_work),lwork,info)
+           if (info .ne. 0) call errquit('gasvd:d: failed',info,MEM_ERR)
+c
+           call ga_put(g_u,  1, n,     1, nsing, dbl_mb(k_u),  n)
+           call ga_put(g_vt, 1, nsing, 1, m,     dbl_mb(k_vt), n)
+c
+         else if (type.eq.MT_DCPL) then
+c
+           call ga_get(g_a, 1, m, 1, n, dcpl_mb(k_a), m)
+c
+           call zgesvd('s','s',m,n,dcpl_mb(k_a),m,values,
+     $          dcpl_mb(k_u),m,dcpl_mb(k_vt),nsing,
+     $          dcpl_mb(k_work),lwork,dbl_mb(k_rwork),info)
+           if (info .ne. 0) call errquit('gasvd:z: failed',info,MEM_ERR)
+c
+           call ga_put(g_u,  1, n,     1, nsing, dcpl_mb(k_u),  n)
+           call ga_put(g_vt, 1, nsing, 1, m,     dcpl_mb(k_vt), n)
+c
+         else
+c
+           call errquit('gasvd: illegal data type',type,UERR)
+c
+         endif
 c
          if (.not. ma_chop_stack(l_a)) call errquit('gasvd ma',0,
      &       MA_ERR)

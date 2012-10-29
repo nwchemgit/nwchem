@@ -137,7 +137,7 @@ endif
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o \
                  util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
                  ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
-                 util_sgroup.o
+                 util_sgroup.o ga_copy_dz.o
 
   SUBDIRS = md5
 
@@ -177,6 +177,7 @@ endif
               util_file_copy.o \
               util_debug.o \
               util_erf.o  \
+              util_cflush.o  \
               util_length_scale.o  \
               ga_it2.o \
               ma_print.o freeze_input.o ga_extra.o \

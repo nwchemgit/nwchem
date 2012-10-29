@@ -20,13 +20,17 @@ c
       integer ma_type, dim1, dim2, n
       integer i, j, ilo, ihi, jlo, jhi
       double precision number
+      double complex znumber
 c
       call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
-      if (ma_type.ne.mt_dbl) then
-         write(0,*) ' ma_type ',ma_type,' mt_dbl ',mt_dbl
+      if (ma_type.eq.mt_dbl) then
+      else if (ma_type.eq.mt_dcpl) then
+      else
+        write(0,*) ' ma_type ',ma_type,' mt_dbl  ',mt_dbl
+        write(0,*) ' ma_type ',ma_type,' mt_dcpl ',mt_dcpl
         call errquit
-     $     ('ga_trace_diagonal: array is not real', g_a,0)
+     $     ('ga_trace_diagonal: array is not real nor complex ', g_a,0)
       endif
       n = dim1
 c
@@ -34,13 +38,23 @@ c     Extract and sum the diags local to each process
 c
       call ga_distribution(g_a, ga_nodeid(), ilo, ihi, jlo, jhi)
       if (ilo.gt.0 .and. jlo.gt.0) then
-         do i = ilo,ihi
-            do j = jlo,jhi
-               call ga_get(g_a, i, i, j, j, number, 1)
-               number = number*vector(i)
-               call ga_put(g_a,i, i, j, j, number, 1)
+         if (ma_type.eq.MT_DBL) then
+            do i = ilo,ihi
+               do j = jlo,jhi
+                  call ga_get(g_a, i, i, j, j, number, 1)
+                  number = number*vector(i)
+                  call ga_put(g_a,i, i, j, j, number, 1)
+               enddo
             enddo
-         enddo
+         else if (ma_type.eq.MT_DCPL) then
+            do i = ilo,ihi
+               do j = jlo,jhi
+                  call ga_get(g_a, i, i, j, j, znumber, 1)
+                  znumber = znumber*vector(i)
+                  call ga_put(g_a,i, i, j, j, znumber, 1)
+               enddo
+            enddo
+         endif
       endif
 c
       call ga_sync()

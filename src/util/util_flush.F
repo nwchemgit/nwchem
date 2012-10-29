@@ -31,5 +31,6 @@ c
 #if defined(IPSC) || defined(DELTA)
       call forflush(unit)
 #endif
+      call util_cflush()
 c
       end
