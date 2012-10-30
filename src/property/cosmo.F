@@ -211,6 +211,7 @@ c
 #include "global.fh"
 #include "prop.fh"
 #include "geom.fh"
+#include "bq.fh"
 #include "bas.fh"
 #include "msgids.fh"
 c
@@ -385,10 +386,19 @@ c     end processing cosmo map
 c     --------------------------
 
 c
-c     Create a geometry for the COSMO efc charges, to be used later on
+c     Create a Bq instance for the COSMO efc charges, to be used later
+c     on
 c
-      if (.not. geom_create(cosmo_geom_efc, 'cosmo efc geom'))
-     $     call errquit('cosmo_initialize: geom_create failed', 0,
+      if (.not. bq_create('cosmo efc bq', cosmo_bq_efc))
+     $     call errquit('cosmo_initialize: bq_create failed', 0,
+     &       GEOM_ERR)
+c
+c     The next Bq instance is abused to hold a zero array, this
+c     array is needed in int_1eefc to keep the ECP contributions
+c     coming out right.
+c
+      if (.not. bq_create('cosmo invnuc bq', cosmo_bq_invnuc))
+     $     call errquit('cosmo_initialize: bq_create failed', 0,
      &       GEOM_ERR)
 c
 c     Try and load the COSMO charges. 
@@ -400,7 +410,7 @@ c        is not called and the 'cosmo efc geom' geometry is not
 c        initialized. This leads to a catastrophic overwrite of the
 c        COSMO geometry. So having it loaded is the best next thing.
 c
-      if (.not. geom_rtdb_load(rtdb,cosmo_geom_efc,'cosmo efc geom'))
+      if (.not. bq_rtdb_load(rtdb,cosmo_bq_efc))
      $then
 c       Hope for the best
       endif
@@ -560,6 +570,19 @@ c
       if(.not.ma_pop_stack(l_rad)) call
      & errquit('cosmo_initialize,ma_pop_stack l_rad failed',911,MA_ERR)
 c
+c     Create invnuc array and zero it
+c
+      if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
+     $   call errquit('cosmo_initialize: rtdb get failed for nefc',911,
+     &       rtdb_err)
+      if (.not.bq_alloc(cosmo_bq_invnuc,nefc))
+     &  call errquit("cosmo_initialize: could not allocate invnuc",
+     &               nefc,MA_ERR)
+      if (.not.bq_index_charge(cosmo_bq_invnuc,invnuc))
+     &  call errquit("cosmo_initialize: could not get index",
+     &               cosmo_bq_invnuc,UERR)
+      call dfill(nefc,0.0d0,dbl_mb(invnuc),1)
+c
 c     Wipe the raw COSMO charges as we potentially have changed the
 c     number of charges, the atoms they are associated with, etc.
 c
@@ -599,15 +622,15 @@ c
 #include "errquit.fh"
 #include "prop.fh"
 #include "geom.fh"
+#include "bq.fh"
+#include "global.fh"
+#include "stdio.fh"
       integer rtdb !< [Input] the RTDB handle
 c
-      if (.not. geom_rtdb_store(rtdb,cosmo_geom_efc,
-     &                          'cosmo efc geom')) then
-         call errquit("cosmo_tidy: could not store COSMO geometry",
-     &                0, GEOM_ERR)
-      endif
-      if (.not. geom_destroy(cosmo_geom_efc)) call errquit
-     $     ('cosmo_tidy: geom destroy failed', 0, GEOM_ERR)
+      if (.not. bq_destroy(cosmo_bq_efc)) call errquit
+     $     ('cosmo_tidy: bq destroy failed', 0, GEOM_ERR)
+      if (.not. bq_destroy(cosmo_bq_invnuc)) call errquit
+     $     ('cosmo_tidy: bq destroy failed', 0, GEOM_ERR)
       return
       end
 c
@@ -831,6 +854,8 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "bq.fh"
+#include "prop.fh"
 c
       integer rtdb
 c
@@ -2085,6 +2110,7 @@ c
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "geom.fh"
+#include "bq.fh"
 #include "stdio.fh"
 #include "prop.fh"
 #include "util.fh"
@@ -2303,7 +2329,13 @@ c
                   yi=efcc(2,ief)
                   zi=efcc(3,ief)
                   dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                  x(ief+nefc*(jef-1)+i30-1)=one/dij
+                  if (dij.lt.1.0d-10) then
+c                   treat this as a self interaction
+                    aij=adiag/sqrt(0.5d0*(efcs(ief)+efcs(jef)))
+                    x(ief+nefc*(jef-1)+i30-1)=aij
+                  else
+                    x(ief+nefc*(jef-1)+i30-1)=one/dij
+                  endif
                endif
             enddo
          enddo
@@ -2484,7 +2516,12 @@ c
                aij=adiag/sqrt(efcs(ief))
             else
                dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               aij=one/dij
+               if (dij.lt.1.0d-10) then
+c                treat this as a self interaction
+                 aij=adiag/sqrt(0.5d0*(efcs(ief)+efcs(jef)))
+               else
+                 aij=one/dij
+               endif
             endif
             efcefc=efcefc+qi*aij*qj
          enddo
@@ -2552,9 +2589,14 @@ c
       if(out) then
          write(luout,*) 'in -hnd_coschg ... for -efc- geom = ',geom
       endif
-      status=geom_efc_cart_set(cosmo_geom_efc,nefc,efcc,efcz)
+      status=bq_set(cosmo_bq_efc,nefc,efcz,efcc)
       if (.not.status) then
-         call errquit('hnd_coschg: geom_efc_cart_set failed !', 0,
+         call errquit('hnd_coschg: bq_set failed !', 0,
+     &       geom_err)
+      endif
+      status=bq_rtdb_store(rtdb,cosmo_bq_efc)
+      if (.not.status) then
+         call errquit('hnd_coschg: bq_rtdb_store failed !', 0,
      &       geom_err)
       endif
      
@@ -2625,10 +2667,11 @@ c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
 c
-      b(i,j)=one/sqrt((efcc(1,i)-efcc(1,j))**2+
-     1                (efcc(2,i)-efcc(2,j))**2+
-     2                (efcc(3,i)-efcc(3,j))**2)
-      d(i  )=adiag/sqrt(efcs(i))
+      r (i,j)=sqrt((efcc(1,i)-efcc(1,j))**2+
+     1             (efcc(2,i)-efcc(2,j))**2+
+     2             (efcc(3,i)-efcc(3,j))**2)
+      d (i  )=adiag/sqrt(efcs(i))
+      d2(i,j)=adiag/sqrt(0.5d0*(efcs(i)+efcs(j)))
 c
       call dfill(n,0.0d0,ax,1)
       do i=ga_nodeid()+1,n,ga_nnodes()
@@ -2637,7 +2680,13 @@ c
             if(j.eq.i) then
                aij=d(i)
             else
-               aij=b(i,j)
+               bij=r(i,j)
+               if (bij.lt.1.0d-10) then
+c                treat this as a self interaction
+                 aij=d2(i,j)
+               else
+                 aij=one/bij
+               endif
             endif
              xj=x(j)
             dum=dum+aij*xj
@@ -2660,10 +2709,11 @@ c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
 c
-      b(i,j)=one/sqrt((efcc(1,i)-efcc(1,j))**2+
-     1                (efcc(2,i)-efcc(2,j))**2+
-     2                (efcc(3,i)-efcc(3,j))**2)
-      d(i  )=adiag/sqrt(efcs(i))
+      r (i,j)=sqrt((efcc(1,i)-efcc(1,j))**2+
+     1             (efcc(2,i)-efcc(2,j))**2+
+     2             (efcc(3,i)-efcc(3,j))**2)
+      d (i  )=adiag/sqrt(efcs(i))
+      d2(i,j)=adiag/sqrt(0.5d0*(efcs(i)+efcs(j)))
 c
       call dfill(n,0.0d0,xa,1)
       do i=ga_nodeid()+1,n,ga_nnodes()
@@ -2672,9 +2722,15 @@ c
             if(j.eq.i) then
                aij=d(i)
             else
-               aij=b(i,j)
+               bij=r(i,j)
+               if (bij.lt.1.0d-10) then
+c                treat this as a self interaction
+                 aij=d2(i,j)
+               else
+                 aij=one/bij
+               endif
             endif
-             xj=x(j)
+            xj=x(j)
             dum=dum+aij*xj
          enddo
          xa(i)=dum

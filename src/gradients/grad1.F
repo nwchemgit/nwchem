@@ -279,6 +279,7 @@ c     1. All regular QM derivatives
 #include "global.fh"
 #include "geomP.fh"
 #include "geom.fh"
+#include "bq.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "sym.fh"
@@ -327,6 +328,8 @@ C-------------------------local variables--------------------------
       integer k_efciat    ! the index of the COSMO charge-atom map
       integer nefcl       ! the number of COSMO charge for a given atom
       integer iefc        ! counter over COSMO charges
+      integer iefc_c      ! memory index for COSMO charge coordinates
+      integer iefc_q      ! memory index for COSMO charges
 
       double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen
@@ -349,16 +352,22 @@ c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
       pointforce = geom_include_bqbq(geom)
-      if (.not.geom_create(cosmo_geom_efc,'cosmo efc geom'))
-     $   call errquit("grad_hnd_cos: geom_create on cosmo failed",
+      if (.not.bq_create('cosmo efc bq',cosmo_bq_efc))
+     $   call errquit("grad_hnd_cos: bq_create on cosmo failed",
      $                0,GEOM_ERR)
-      if (.not.geom_rtdb_load(rtdb,cosmo_geom_efc,
-     $                        'cosmo efc geom'))
-     $   call errquit("grad_hnd_cos: geom_rtdb_load on cosmo failed",
-     $                0,RTDB_ERR)
-      if (.not.geom_ncent(cosmo_geom_efc,nefc))
-     $  call errquit("grad_hnd_cos: could not establish number of "//
-     $               "COSMO charges",cosmo_geom_efc,GEOM_ERR)
+      if (.not.bq_rtdb_load(rtdb,cosmo_bq_efc))
+     $   call errquit('grad_hnd_cos: rtdb load failed for Bq',916,
+     $                rtdb_err)
+      if (.not.bq_ncenter(cosmo_bq_efc,nefc))
+     $   call errquit('grad_hnd_cos: could not retrieve nefc',917,
+     $                GEOM_ERR)
+      if (.not.bq_index_coord(cosmo_bq_efc,iefc_c))
+     $   call errquit('grad_hnd_cos: could not get coordinate index Bq',
+     $                cosmo_bq_efc,MA_ERR)
+      if (.not.bq_index_charge(cosmo_bq_efc,iefc_q))
+     $   call errquit('grad_hnd_cos: could not get charge index Bq',
+     $                cosmo_bq_efc,MA_ERR)
+c
       if (.not.ma_push_get(MT_INT,nefc,"efciat",l_efciat,k_efciat))
      $  call errquit("grad_hnd_cos: could not allocate efciat",
      $               ma_sizeof(MT_BYTE,nefc,MT_INT),MA_ERR)
@@ -366,7 +375,7 @@ c
      $                 int_mb(k_efciat)))
      $   call errquit('grad_hnd_cos: rtdb get failed for iatefc',915,
      $                rtdb_err)
-
+c
       call hf_print_set(1)
 
       ijatom = -1
@@ -456,8 +465,8 @@ C                 1el. -cosmo- derivatives
 c                 Currently calculated on for every COSMO charge
 c                 separately.
                   call intd_1epot_cosmo(basis,ish1,basis,ish2,lscr,scr,
-     &                 lbuf,H,coords(1,iefc,cosmo_geom_efc),
-     &                 charge(iefc,cosmo_geom_efc),1)
+     &                 lbuf,H,dbl_mb(iefc_c+3*(iefc-1)),
+     &                 dbl_mb(iefc_q+iefc-1),1)
 
 C     D x H
 c
@@ -498,7 +507,8 @@ c
      &              = frc_cos_elq(icart,iat2) - dE
                   enddo
 c
-c                 Do center C, i.e. the Cosmo charge
+c                 Do center C, i.e. the Cosmo charge (associated with
+c                 the atom stored in int_mb(k_efciat))
 c
                   do icart = 1, 3
                     dE = 0.D0
@@ -534,10 +544,10 @@ c       Do the Nuclear - Cosmo charge part
 c
         do iat1 = 1, nat
           do ich1 = 1, nefc
-            dx = coords(1,iat1,geom) - coords(1,ich1,cosmo_geom_efc)
-            dy = coords(2,iat1,geom) - coords(2,ich1,cosmo_geom_efc)
-            dz = coords(3,iat1,geom) - coords(3,ich1,cosmo_geom_efc)
-            fact = -charge(iat1,geom)*charge(ich1,cosmo_geom_efc) / 
+            dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
+            dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
+            dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
+            fact = -charge(iat1,geom)*dbl_mb(iefc_q+ich1-1) / 
      $             sqrt(dx*dx+dy*dy+dz*dz)**3
             dE = dx * fact
             frc_cos_nucq(1,iat1) = frc_cos_nucq(1,iat1) + dE
@@ -560,18 +570,18 @@ c
         do ich1 = 1, nefc
           do ich2 = 1, ich1-1
             if (ich1.ne.ich2) then
-              dx = coords(1,ich1,cosmo_geom_efc)
-     $           - coords(1,ich2,cosmo_geom_efc)
-              dy = coords(2,ich1,cosmo_geom_efc)
-     $           - coords(2,ich2,cosmo_geom_efc)
-              dz = coords(3,ich1,cosmo_geom_efc)
-     $           - coords(3,ich2,cosmo_geom_efc)
+              dx = dbl_mb(0+3*(ich1-1)+iefc_c)
+     $           - dbl_mb(0+3*(ich2-1)+iefc_c)
+              dy = dbl_mb(1+3*(ich1-1)+iefc_c)
+     $           - dbl_mb(1+3*(ich2-1)+iefc_c)
+              dz = dbl_mb(2+3*(ich1-1)+iefc_c)
+     $           - dbl_mb(2+3*(ich2-1)+iefc_c)
               rr = sqrt(dx*dx+dy*dy+dz*dz)
               if (rr.lt.1.0d-10) then
                 fact = 0.0d0
               else
-                fact = -invscreen*charge(ich1,cosmo_geom_efc)
-     $               * charge(ich2,cosmo_geom_efc) / 
+                fact = -invscreen*dbl_mb(iefc_q+ich1-1)
+     $               * dbl_mb(iefc_q+ich2-1) / 
      $                 rr**3
               endif
               dE = dx * fact
@@ -597,8 +607,8 @@ c
       if (.not.ma_pop_stack(l_efciat))
      $   call errquit("grad_hnd_cos: could not deallocate l_efciat",
      $                0,MA_ERR)
-      if (.not.geom_destroy(cosmo_geom_efc))
-     $   call errquit("grad_hnd_cos: geom_destroy on cosmo failed",
+      if (.not.bq_destroy(cosmo_bq_efc))
+     $   call errquit("grad_hnd_cos: bq_destroy on cosmo failed",
      $                0,GEOM_ERR)
 
       return

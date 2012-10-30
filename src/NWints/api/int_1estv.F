@@ -595,6 +595,7 @@ c----------------------------------------------------------------------
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geom.fh"
+#include "bq.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
@@ -646,6 +647,8 @@ c::local
       integer lbas, sbas, abas, isbas, jsbas
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_icfpS
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_icfpS
+      integer iefc_c, iefc_q, nefc
+      integer k_efc_inv
 c
       logical any_spherical
       integer i_nbf_x, j_nbf_x
@@ -767,7 +770,19 @@ c
          call errquit('int_1eefc: i_geom and j_geom must be the same',0,
      &         INT_ERR)
       endif
-
+c
+      if (.not.bq_ncenter(cosmo_bq_efc,nefc))
+     +  call errquit("int_1eefc: bq_ncenter failed",nefc,uerr)
+      if (.not.bq_index_coord(cosmo_bq_efc,iefc_c))
+     +  call errquit("int_1eefc: bq_index_coord failed",iefc_c,uerr)
+      if (.not.bq_index_charge(cosmo_bq_efc,iefc_q))
+     +  call errquit("int_1eefc: bq_index_charge failed",iefc_q,uerr)
+c
+c     Pick up the array we created and zeroed in cosmo_initialize
+c
+      if (.not.bq_index_charge(cosmo_bq_invnuc,k_efc_inv))
+     +  call errquit("int_1eefc: bq_index_charge failed",iefc_q,uerr)
+c
       ohnd_ok = cando_hnd_1e(i_basis,ish,0)
      &    .and. cando_hnd_1e(j_basis,jsh,0)
      &    .and. (.not.geom_any_finuc (i_geom))
@@ -786,8 +801,8 @@ c
      &      dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfpS,jsbas)),j_prim,j_gen,Lj,
-     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
+     &      dbl_mb(iefc_c),dbl_mb(iefc_q),
+     &      dbl_mb(k_efc_inv),nefc,
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
       else if (ohnd_ok) then
@@ -798,8 +813,7 @@ c
      &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)),
      &      j_prim, j_gen, Lj,
-     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &      ncenter(cosmo_geom_efc),
+     &      dbl_mb(iefc_c),dbl_mb(iefc_q),nefc,
      &      S,T,V,lstv,doS,doT,doV,scr,lscr)
 c
       elseif (onw1e_ok) then
@@ -810,8 +824,8 @@ c
      &        coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &        dbl_mb(mb_exndcf(j_icfp,jbas)),
      &        j_prim, j_gen, Lj, j_cent,
-     &        coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &        geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
+     &        dbl_mb(iefc_c),dbl_mb(iefc_q),
+     &        dbl_mb(k_efc_inv),nefc,
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &        scr,lscr,'int_1eefc')
       elseif (onw_ok) then
@@ -820,8 +834,8 @@ c
      &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
      &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
-     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
+     &      dbl_mb(iefc_c),dbl_mb(iefc_q),
+     &      dbl_mb(k_efc_inv),nefc,
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &      scr,lscr)
       else

@@ -5,7 +5,16 @@ c
 c     Include file that contains information used by the property routines
 c     when connecting to other parts of the code
 c
-      integer cosmo_geom_efc
+C     Due to the number of COSMO charges that may be generated the
+C     use of a geometry instance to hold the charges is deprecated. 
+C     It is much more sensible to replace this geometry instance with a
+C     Bq instance which is "unlimited" in size. The Bq instances, however,
+C     have no mechanism to store the invnuc quantities that we need for
+C     the 1-electron integrals in the presence of ECPs. So we abuse another
+C     Bq instance to store that stuff.
+c
+      integer cosmo_bq_invnuc
+      integer cosmo_bq_efc
       character*3 use_theory
-      common /cosmo_prop/cosmo_geom_efc
+      common /cosmo_prop/cosmo_bq_efc,cosmo_bq_invnuc
       common /prop_theory/use_theory
