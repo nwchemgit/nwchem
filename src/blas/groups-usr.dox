@@ -17,8 +17,8 @@
  * @defgroup PO  Positive Definite Matrix
  *   @ingroup lapack
  *   This is the group of Positive Definite routines
- * @defgroup GT  General tridiagonal Matrix
- *   @ingroup lapack
+ * AT defgroup GT  General tridiagonal Matrix
+ *   AT ingroup lapack
  *   This is the group of General tridiagonal routines
  * @defgroup PT  Positive Definite tridiagonal Matrix
  *   @ingroup lapack
@@ -32,17 +32,17 @@
  * @defgroup solveGE  Linear Solve
  *   @ingroup GE
  *   This is the group of Linear Solve Driver routines
- * @defgroup solveGB  Linear Solve
- *   @ingroup GB
+ * AT defgroup solveGB  Linear Solve
+ *   AT ingroup GB
  *   This is the group of Linear Solve Driver routines
- * @defgroup solveSY  Linear Solve
- *   @ingroup SY
+ * AT defgroup solveSY  Linear Solve
+ *   AT ingroup SY
  *   This is the group of Linear Solve Driver routines
  * @defgroup solvePO  Linear Solve
  *   @ingroup PO
  *   This is the group of Linear Solve Driver routines
- * @defgroup solveGT  Linear Solve
- *   @ingroup GT
+ * AT defgroup solveGT  Linear Solve
+ *   AT ingroup GT
  *   This is the group of Linear Solve Driver routines
  * @defgroup solvePT  Linear Solve
  *   @ingroup PT
@@ -68,8 +68,8 @@
  * @defgroup computationalPO  Computational routines
  *   @ingroup PO
  *   This is the group of Computational routines
- * @defgroup computationalGT  Computational routines
- *   @ingroup GT
+ * AT defgroup computationalGT  Computational routines
+ *   AT ingroup GT
  *   This is the group of Computational routines
  * @defgroup computationalPT  Computational routines
  *   @ingroup PT
@@ -77,17 +77,17 @@
  * @defgroup auxiliaryGE  Auxiliary routines
  *   @ingroup GE
  *   This is the group of Auxiliary routines
- * @defgroup auxiliaryGB  Auxiliary routines
- *   @ingroup GB
+ * AT defgroup auxiliaryGB  Auxiliary routines
+ *   AT ingroup GB
  *   This is the group of Auxiliary routines
  * @defgroup auxiliarySY  Auxiliary routines
  *   @ingroup SY
  *   This is the group of Auxiliary routines
- * @defgroup auxiliaryPO  Auxiliary routines
- *   @ingroup PO
+ * AT defgroup auxiliaryPO  Auxiliary routines
+ *   AT ingroup PO
  *   This is the group of Auxiliary routines
- * @defgroup auxiliaryGT  Auxiliary routines
- *   @ingroup GT
+ * AT defgroup auxiliaryGT  Auxiliary routines
+ *   AT ingroup GT
  *   This is the group of Auxiliary routines
  * @defgroup auxiliaryPT  Auxiliary routines
  *   @ingroup PT
@@ -101,14 +101,14 @@
  * @defgroup doublePOsolve double
  *   @ingroup solvePO 
  *   This is the group of double solve driver functions for PO matrices
- * @defgroup doubleSYsolve double
- *   @ingroup solveSY
+ * AT defgroup doubleSYsolve double
+ *   AT ingroup solveSY
  *   This is the group of double solve driver functions for SY matrices
- * @defgroup doubleGBsolve double
- *   @ingroup solveGB
+ * AT defgroup doubleGBsolve double
+ *   AT ingroup solveGB
  *   This is the group of double solve driver functions for GB matrices
- * @defgroup doubleGTsolve double
- *   @ingroup solveGT
+ * AT defgroup doubleGTsolve double
+ *   AT ingroup solveGT
  *   This is the group of double solve driver functions for GT matrices
  * @defgroup doublePTsolve double
  *   @ingroup solvePT
@@ -134,8 +134,8 @@
  * @defgroup doubleGBcomputational double
  *   @ingroup computationalGB
  *   This is the group of double computational functions for GB matrices
- * @defgroup doubleGTcomputational double
- *   @ingroup computationalGT
+ * AT defgroup doubleGTcomputational double
+ *   AT ingroup computationalGT
  *   This is the group of double computational functions for GT matrices
  * @defgroup doublePTcomputational double
  *   @ingroup computationalPT
@@ -143,20 +143,20 @@
  * @defgroup doubleGEauxiliary double
  *   @ingroup auxiliaryGE 
  *   This is the group of double auxiliary functions for GE matrices
- * @defgroup doublePOauxiliary double
- *   @ingroup auxiliaryPO 
+ * AT defgroup doublePOauxiliary double
+ *   AT ingroup auxiliaryPO 
  *   This is the group of double auxiliary functions for PO matrices
  * @defgroup doubleSYauxiliary double
  *   @ingroup auxiliarySY
  *   This is the group of double auxiliary functions for SY matrices
- * @defgroup doubleGBauxiliary double
- *   @ingroup auxiliaryGB 
+ * AT defgroup doubleGBauxiliary double
+ *   AT ingroup auxiliaryGB 
  *   This is the group of double auxiliary functions for GB matrices
  * @defgroup doublePTauxiliary double
  *   @ingroup auxiliaryPT 
  *   This is the group of double auxiliary functions for PT matrices
- * @defgroup doubleGTauxiliary double
- *   @ingroup auxiliaryGT 
+ * AT defgroup doubleGTauxiliary double
+ *   AT ingroup auxiliaryGT 
  *   This is the group of double auxiliary functions for GT matrices
  *
  ****
@@ -167,14 +167,14 @@
  * @defgroup realPOsolve real
  *   @ingroup solvePO 
  *   This is the group of real solve driver functions for PO matrices
- * @defgroup realSYsolve real
- *   @ingroup solveSY
+ * AT defgroup realSYsolve real
+ *   AT ingroup solveSY
  *   This is the group of real solve driver functions for SY matrices
- * @defgroup realGBsolve real
- *   @ingroup solveGB
+ * AT defgroup realGBsolve real
+ *   AT ingroup solveGB
  *   This is the group of real solve driver functions for GB matrices
- * @defgroup realGTsolve real
- *   @ingroup solveGT
+ * AT defgroup realGTsolve real
+ *   AT ingroup solveGT
  *   This is the group of real solve driver functions for GT matrices
  * @defgroup realPTsolve real
  *   @ingroup solvePT
@@ -203,23 +203,23 @@
  * @defgroup realPTcomputational real
  *   @ingroup computationalPT
  *   This is the group of real computational functions for PT matrices
- * @defgroup realGTcomputational real
- *   @ingroup computationalGT
+ * AT defgroup realGTcomputational real
+ *   AT ingroup computationalGT
  *   This is the group of real computational functions for GT matrices
  * @defgroup realGEauxiliary real
  *   @ingroup auxiliaryGE 
  *   This is the group of real auxiliary functions for GE matrices
- * @defgroup realPOauxiliary real
- *   @ingroup auxiliaryPO 
+ * AT defgroup realPOauxiliary real
+ *   AT ingroup auxiliaryPO 
  *   This is the group of real auxiliary functions for PO matrices
  * @defgroup realSYauxiliary real
  *   @ingroup auxiliarySY
  *   This is the group of real auxiliary functions for SY matrices
- * @defgroup realGBauxiliary real
- *   @ingroup auxiliaryGB 
+ * AT defgroup realGBauxiliary real
+ *   AT ingroup auxiliaryGB 
  *   This is the group of real auxiliary functions for GB matrices
- * @defgroup realGTauxiliary real
- *   @ingroup auxiliaryGT
+ * AT defgroup realGTauxiliary real
+ *   AT ingroup auxiliaryGT
  *   This is the group of real auxiliary functions for GT matrices
  * @defgroup realPTauxiliary real
  *   @ingroup auxiliaryPT
@@ -233,14 +233,14 @@
  * @defgroup complexPOsolve complex
  *   @ingroup solvePO 
  *   This is the group of complex solve driver functions for PO matrices
- * @defgroup complexSYsolve complex
- *   @ingroup solveSY
+ * AT defgroup complexSYsolve complex
+ *   AT ingroup solveSY
  *   This is the group of complex solve driver functions for SY matrices
- * @defgroup complexGBsolve complex
- *   @ingroup solveGB
+ * AT defgroup complexGBsolve complex
+ *   AT ingroup solveGB
  *   This is the group of complex solve driver functions for GB matrices
- * @defgroup complexGTsolve complex
- *   @ingroup solveGT
+ * AT defgroup complexGTsolve complex
+ *   AT ingroup solveGT
  *   This is the group of complex solve driver functions for GT matrices
  * @defgroup complexPTsolve complex
  *   @ingroup solvePT
@@ -266,8 +266,8 @@
  * @defgroup complexGBcomputational complex
  *   @ingroup computationalGB
  *   This is the group of complex computational functions for GB matrices
- * @defgroup complexGTcomputational complex
- *   @ingroup computationalGT
+ * AT defgroup complexGTcomputational complex
+ *   AT ingroup computationalGT
  *   This is the group of complex computational functions for GT matrices
  * @defgroup complexPTcomputational complex
  *   @ingroup computationalPT
@@ -275,14 +275,14 @@
  * @defgroup complexGEauxiliary complex
  *   @ingroup auxiliaryGE 
  *   This is the group of complex auxiliary functions for GE matrices
- * @defgroup complexPOauxiliary complex
- *   @ingroup auxiliaryPO 
+ * AT defgroup complexPOauxiliary complex
+ *   AT ingroup auxiliaryPO 
  *   This is the group of complex auxiliary functions for PO matrices
  * @defgroup complexSYauxiliary complex
  *   @ingroup auxiliarySY
  *   This is the group of complex auxiliary functions for SY matrices
- * @defgroup complexGBauxiliary complex
- *   @ingroup auxiliaryGB 
+ * AT defgroup complexGBauxiliary complex
+ *   AT ingroup auxiliaryGB 
  *   This is the group of complex auxiliary functions for GB matrices
  *
  ****
@@ -293,14 +293,14 @@
  * @defgroup complex16POsolve complex16
  *   @ingroup solvePO 
  *   This is the group of complex16 solve driver functions for PO matrices
- * @defgroup complex16SYsolve complex16
- *   @ingroup solveSY
+ * AT defgroup complex16SYsolve complex16
+ *   AT ingroup solveSY
  *   This is the group of complex16 solve driver functions for SY matrices
- * @defgroup complex16GBsolve complex16
- *   @ingroup solveGB
+ * AT defgroup complex16GBsolve complex16
+ *   AT ingroup solveGB
  *   This is the group of complex16 solve driver functions for GB matrices
- * @defgroup complex16GTsolve complex16
- *   @ingroup solveGT
+ * AT defgroup complex16GTsolve complex16
+ *   AT ingroup solveGT
  *   This is the group of complex16 solve driver functions for GT matrices
  * @defgroup complex16PTsolve complex16
  *   @ingroup solvePT
@@ -326,8 +326,8 @@
  * @defgroup complex16GBcomputational complex16
  *   @ingroup computationalGB
  *   This is the group of complex16 computational functions for GB matrices
- * @defgroup complex16GTcomputational complex16
- *   @ingroup computationalGT
+ * AT defgroup complex16GTcomputational complex16
+ *   AT ingroup computationalGT
  *   This is the group of complex16 computational functions for GT matrices
  * @defgroup complex16PTcomputational complex16
  *   @ingroup computationalPT
@@ -335,91 +335,91 @@
  * @defgroup complex16GEauxiliary complex16
  *   @ingroup auxiliaryGE 
  *   This is the group of complex16 auxiliary functions for GE matrices
- * @defgroup complex16POauxiliary complex16
- *   @ingroup auxiliaryPO 
+ * AT defgroup complex16POauxiliary complex16
+ *   AT ingroup auxiliaryPO 
  *   This is the group of complex16 auxiliary functions for PO matrices
  * @defgroup complex16SYauxiliary complex16
  *   @ingroup auxiliarySY
  *   This is the group of complex16 auxiliary functions for SY matrices
- * @defgroup complex16GBauxiliary complex16
- *   @ingroup auxiliaryGB 
+ * AT defgroup complex16GBauxiliary complex16
+ *   AT ingroup auxiliaryGB 
  *   This is the group of complex16 auxiliary functions for GB matrices
  *
  ****
  *
- * @defgroup testing LAPACK Testing
+ * AT defgroup testing LAPACK Testing
  *   This is the group of LAPACK TESTING routines.
  *
- * @defgroup matgen Matrix Generation
- *   @ingroup testing 
+ * AT defgroup matgen Matrix Generation
+ *   AT ingroup testing 
  *   This is the group of LAPACK TESTING MATGEN routines.
  *
- * @defgroup lin Linear Solve
- *   @ingroup testing 
+ * AT defgroup lin Linear Solve
+ *   AT ingroup testing 
  *   This is the group of LAPACK TESTING LIN routines.
  *
- * @defgroup eig Eigenvalue and Singular value
- *   @ingroup testing 
+ * AT defgroup eig Eigenvalue and Singular value
+ *   AT ingroup testing 
  *   This is the group of LAPACK TESTING EIG routines.
  *
- * @defgroup real_matgen real
- *   @ingroup matgen 
+ * AT defgroup real_matgen real
+ *   AT ingroup matgen 
  *   This is the group of real LAPACK TESTING MATGEN routines.
  *
- * @defgroup double_matgen double
- *   @ingroup matgen 
+ * AT defgroup double_matgen double
+ *   AT ingroup matgen 
  *   This is the group of double LAPACK TESTING MATGEN routines.
  *
- * @defgroup complex_matgen complex
- *   @ingroup matgen 
+ * AT defgroup complex_matgen complex
+ *   AT ingroup matgen 
  *   This is the group of complex LAPACK TESTING MATGEN routines.
  *
- * @defgroup complex16_matgen complex16
- *   @ingroup matgen 
+ * AT defgroup complex16_matgen complex16
+ *   AT ingroup matgen 
  *   This is the group of complex16 LAPACK TESTING MATGEN routines.
  *
- * @defgroup aux_matgen aux
- *   @ingroup matgen 
+ * AT defgroup aux_matgen aux
+ *   AT ingroup matgen 
  *   This is the group of auxiliary LAPACK TESTING MATGEN routines.
  *
- * @defgroup single_lin real
- *   @ingroup lin 
+ * AT defgroup single_lin real
+ *   AT ingroup lin 
  *   This is the group of real LAPACK TESTING LIN routines.
  *
- * @defgroup double_lin double
- *   @ingroup lin 
+ * AT defgroup double_lin double
+ *   AT ingroup lin 
  *   This is the group of double LAPACK TESTING LIN routines.
  *
- * @defgroup complex_lin complex
- *   @ingroup lin 
+ * AT defgroup complex_lin complex
+ *   AT ingroup lin 
  *   This is the group of complex LAPACK TESTING LIN routines.
  *
- * @defgroup complex16_lin complex16
- *   @ingroup lin 
+ * AT defgroup complex16_lin complex16
+ *   AT ingroup lin 
  *   This is the group of complex16 LAPACK TESTING LIN routines.
  *
- * @defgroup aux_lin aux
- *   @ingroup lin 
+ * AT defgroup aux_lin aux
+ *   AT ingroup lin 
  *   This is the group of auxiliary LAPACK TESTING LIN routines.
  *
- * @defgroup single_eig real
- *   @ingroup eig 
+ * AT defgroup single_eig real
+ *   AT ingroup eig 
  *   This is the group of real LAPACK TESTING EIG routines.
  *
- * @defgroup double_eig double
- *   @ingroup eig 
+ * AT defgroup double_eig double
+ *   AT ingroup eig 
  *   This is the group of double LAPACK TESTING EIG routines.
  *
- * @defgroup complex_eig complex
- *   @ingroup eig 
+ * AT defgroup complex_eig complex
+ *   AT ingroup eig 
  *   This is the group of complex LAPACK TESTING EIG routines.
  *
- * @defgroup complex16_eig complex16
- *   @ingroup eig 
+ * AT defgroup complex16_eig complex16
+ *   AT ingroup eig 
  *   This is the group of complex16 LAPACK TESTING EIG routines.
  *
- * @defgroup aux_eig aux
- *   @ingroup eig 
+ * AT defgroup aux_eig aux
+ *   AT ingroup eig 
  *   This is the group of auxiliary LAPACK TESTING EIG routines.
  *
  ****
@@ -435,8 +435,8 @@
  * @defgroup level3 Level3
  *   @ingroup blas
  *   This is the group of LEVEL 3 BLAS routines.
- * @defgroup blastesting Testing
- *   @ingroup blas
+ * AT defgroup blastesting Testing
+ *   AT ingroup blas
  *   This is the group of BLAS TESTING routines.
  *
  * @defgroup single_blas_level1 real
@@ -478,17 +478,17 @@
  *   @ingroup level3 
  *   This is the group of complex16 LEVEL 3 BLAS routines.
  *
- * @defgroup single_blas_testing real
- *   @ingroup blastesting
+ * AT defgroup single_blas_testing real
+ *   AT ingroup blastesting
  *   This is the group of real BLAS TESTING routines.
- * @defgroup double_blas_testing double
- *   @ingroup blastesting 
+ * AT defgroup double_blas_testing double
+ *   AT ingroup blastesting 
  *   This is the group of double BLAS TESTING routines.
- * @defgroup complex_blas_testing complex
- *   @ingroup blastesting 
+ * AT defgroup complex_blas_testing complex
+ *   AT ingroup blastesting 
  *   This is the group of complex BLAS TESTING routines.
- * @defgroup complex16_blas_testing complex16
- *   @ingroup blastesting 
+ * AT defgroup complex16_blas_testing complex16
+ *   AT ingroup blastesting 
  *   This is the group of complex16 BLAS TESTING routines.
  *
 **/
