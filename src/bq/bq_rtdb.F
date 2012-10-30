@@ -156,6 +156,13 @@ c      local variables
 C>
 C> \brief Load a Bq instance from the runtime database
 C>
+C> Attempts to load a Bq instance from the runtime database.
+C> If the Bq instance on the RTDB is incomplete this function
+C> will abort with an error message and not return.
+C>
+C> \return Returns .true. if the Bq instance was loaded successfully,
+C> and .false. if it was not found.
+C>
       function bq_rtdb_load(irtdb,handle)
       implicit none
 #include "mafdecls.fh"
@@ -205,16 +212,18 @@ c      local variables
      &       call errquit('bq_namespace failed',0,0)
 
        call bq_tag_ncent(namespace,tag)
-       if(.not. rtdb_get(irtdb,tag,mt_int,1,ncent)) 
-     &      call errquit(
-     &      pname//' unable to get ncenter',
-     &      0, RTDB_ERR)
+       if(.not. rtdb_get(irtdb,tag,mt_int,1,ncent)) then
+         bq_rtdb_load = .false.
+         return
+       end if
 
        call bq_tag_coord(namespace,tag)
        if(.not. rtdb_ma_get(irtdb,tag,ma_type,n,h_c))
      &      call errquit(
      &      pname//' unable to get coord',
      &      0, RTDB_ERR)
+       if(ma_type.ne.MT_DBL) call errquit(
+     &      pname//' illegal type for coord',ma_type,MA_ERR)
 
 
        call bq_tag_charge(namespace,tag)
@@ -222,12 +231,13 @@ c      local variables
      &      call errquit(
      &      pname//' unable to get charge',
      &      0, RTDB_ERR)
+       if(ma_type.ne.MT_DBL) call errquit(
+     &      pname//' illegal type for charge',ma_type,MA_ERR)
 
        if(.not. bq_pset_mem(handle,ncent,h_q,h_c))
      &      call errquit(
      &      pname//' unable to pset bq',
      &      0, 0)
-
        
        return
        end

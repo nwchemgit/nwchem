@@ -1,5 +1,16 @@
 c $Id$
-
+C> \ingroup bq
+C> @{
+C>
+C> \brief Initialize the Bq instances
+C>
+C> Initialize the Bq instances with data from the RTDB. 
+C> The routine looks for the "bq" tag on the RTDB and loads
+C> the corresponding string as the name of a Bq instance. 
+C> Subsequently a Bq instance is created, the data of the
+C> named instance loaded and the instance activated for
+C> embedding calculations.
+C>
       function bq_init(rtdb)
       implicit none
 #include "rtdb.fh"
@@ -7,7 +18,7 @@ c $Id$
 #include "errquit.fh"
 #include "global.fh"
 
-      integer rtdb
+      integer rtdb    !< [Input] The RTDB handle
       logical bq_init
 c
       integer handle
@@ -43,7 +54,9 @@ c
 
 
       end
-
+C>
+C> \brief Clean up all Bq instances
+C>
       function bq_end()
       implicit none
 #include "rtdb.fh"
@@ -57,7 +70,12 @@ c      write(*,*) "in "//pname
       bq_end = bq_destroy_all()
 
       end
-
+C>
+C> \brief Calculate the nuclear the interaction between the Bq and
+C> the nuclear charges
+C>
+C> \return Return .true. if successfull and .false. otherwise.
+C>
       function bq_nuc_energy(rtdb,ebq)
       implicit none
 #include "rtdb.fh"
@@ -68,8 +86,8 @@ c      write(*,*) "in "//pname
 #include "bq_params.fh"
 #include "stdio.fh"
 c
-      integer rtdb
-      double precision ebq
+      integer rtdb         !< [Input] The RTDB handle
+      double precision ebq !< [Output] The nuclear-bq interaction energy
       logical bq_nuc_energy
 c
       character*32 pname
@@ -178,7 +196,12 @@ c
      + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 
       end 
-
+C>
+C> \brief Adds the Bq-nuclear interaction energy to the energy argument
+C> passed
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+C>
       function bq_add_nuc_rep_energy(geom,e)
       implicit none
 #include "rtdb.fh"
@@ -189,8 +212,9 @@ c
 #include "bq_params.fh"
 #include "stdio.fh"
 c
-      integer geom
-      double precision e
+      integer geom       !< [Input] The geometry handle for the nuclear
+                         !< coordinates
+      double precision e !< [In/Output] The energy
       logical bq_add_nuc_rep_energy
 c
       character*32 pname
@@ -304,3 +328,4 @@ c
 
 
       end 
+C> @}

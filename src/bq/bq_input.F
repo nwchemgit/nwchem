@@ -1,5 +1,12 @@
 c $Id$
-
+C> \ingroup bq
+C> @{
+C>
+C> \brief Read Bq instances from the input file
+C>
+C> This routine reads Bq instances from the input file
+C> and stores the data on the RTDB.
+C>
       subroutine bq_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -12,7 +19,7 @@ c $Id$
 #include "bq.fh"
 #include "stdio.fh"
 c     
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 c
       logical hprint
       integer print_level
@@ -182,6 +189,7 @@ c     -----------------------------------
      >        RTDB_ERR)
 911   call errquit(message,0,-1)
       end
+C> @}
 
       subroutine bq_input_load(aunit,nmax,n,q,c)
       implicit none

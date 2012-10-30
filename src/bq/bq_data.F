@@ -5,7 +5,7 @@ c $Id$
 c     
       data bq_active /max_bq*.false./
       data bq_mem /max_bq*.false./
-      data bq_ncent /max_bq*0/
+      data bq_ncent /max_bq*-1/
 
       end
 C>
@@ -32,17 +32,18 @@ C>
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
-       character*(*) namespace
+       character*(*) namespace !< [Input] The Bq instance name
        logical bq_create
 c      local variables
        integer i
-       integer handle
+       integer handle !< [Output] The Bq instance handle
 
        bq_create = .false.
        do i=1,max_bq
-        if(bq_ncent(i).eq.0) then
+        if(bq_ncent(i).eq.-1) then
           bq_create = .true.
           bq_name(i) = namespace
+          bq_ncent(i) = 0
           handle = i
           return
         end if
@@ -63,9 +64,12 @@ c      local variables
        integer i
        integer handle
 
+       logical bq_check_handle
+       external bq_check_handle
+
        bq_get_handle = .false.
        do i=1,max_bq
-        if(bq_name(i).eq.namespace) then
+        if(bq_name(i).eq.namespace.and.bq_check_handle(i)) then
           bq_get_handle = .true.
           handle = i
           return
@@ -86,8 +90,11 @@ c      local variables
 c      local variables
        integer i
 
+       logical bq_check_handle
+       external bq_check_handle
+
        bq_activate = .true.
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_activate = .false.
          write(*,*) "bq handle is out of bounds"
          return
@@ -117,8 +124,11 @@ c      local variables
        logical bq_deactivate
 c      local variables
 
+       logical bq_check_handle
+       external bq_check_handle
+
        bq_deactivate = .true.
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_deactivate = .false.
          return
        end if
@@ -142,6 +152,9 @@ c      local variables
        logical bq_get_active
 c      local variables
        integer i
+
+       logical bq_check_handle
+       external bq_check_handle
 
        do i=1,max_bq
         if(bq_active(i)) then
@@ -181,24 +194,66 @@ c      local variables
        integer h_q,i_q
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_set"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_set = .false.
          return
        else
          bq_set = .true.
        end if
+c
+c      If there is
+c        - already memory associated with this Bq instance
+c        - but it is not enough to hold the new data and
+c        - the Bq instance is responsible for this memory 
+c      then 
+c        free the memory before allocating new memory to avoid
+c        memory leaks
+c
+       if (bq_ncent(handle).ne.0.and.bq_ncent(handle).lt.n) then
+         h_c = bq_coord(handle)
+         h_q = bq_charge(handle)
+         if (bq_mem(handle)) then
+           if (.not.ma_free_heap(h_c))
+     &       call errquit(pname//' unable to free heap space',
+     &                    h_c,MA_ERR)
+           if (.not.ma_free_heap(h_q))
+     &       call errquit(pname//' unable to free heap space',
+     &                    h_q,MA_ERR)
+         endif
+         bq_ncent(handle) = 0
+       endif
+c
+c      If this Bq instance has no memory then
+c        allocate some
+c      else
+c        look up the offsets
+c
+       if (bq_ncent(handle).eq.0) then
+         if(.not.ma_alloc_get(MT_DBL, 3*n, 'bqdata c',
+     &        h_c, i_c) ) call errquit(
+     &        pname//' unable to allocate heap space',
+     &        3*n, MA_ERR)
 
-       if(.not.ma_alloc_get(MT_DBL, 3*n, 'bqdata c',
-     &      h_c, i_c) ) call errquit(
-     &      pname//' unable to allocate heap space',
-     &      3*n, MA_ERR)
+         if(.not.ma_alloc_get(MT_DBL, n, 'bqdata q',
+     &        h_q, i_q) ) call errquit(
+     &        pname//' unable to allocate heap space',
+     &        n, MA_ERR)
+       else
+         h_c = bq_coord(handle)
+         h_q = bq_charge(handle)
+         if(.not.ma_get_index( h_c, i_c) ) call errquit( 
+     &        pname//' unable to locate coord handle', 
+     &        0, MA_ERR)
 
-       if(.not.ma_alloc_get(MT_DBL, n, 'bqdata q',
-     &      h_q, i_q) ) call errquit(
-     &      pname//' unable to allocate heap space',
-     &      n, MA_ERR)
+         if(.not.ma_get_index( h_q, i_q) ) call errquit(
+     &        pname//' unable to locate charge handle',
+     &        0, MA_ERR)
+       endif
 
       
        do i=1,n
@@ -219,6 +274,13 @@ c      local variables
 C>
 C> \brief Allocate and initialize space for a Bq instance
 C>
+C> This routine always allocates and initializes memory for this Bq
+C> instance. If this instance already has memory associated with it
+C> and if this memory is the responsibility of the Bq instance it will
+C> deallocated.
+C>
+C> \return Return .true. if successful and .false. otherwise.
+C>
       function bq_alloc(handle,n)
       implicit none
 #include "mafdecls.fh"
@@ -234,14 +296,29 @@ c      local variables
        integer h_q,i_q
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_alloc"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_alloc = .false.
          return
        else
          bq_alloc = .true.
        end if
+
+       if(bq_ncent(handle).ne.0.and.bq_mem(handle)) then
+         h_c = bq_coord(handle)
+         h_q = bq_charge(handle)
+         if (.not.ma_free_heap(h_c))
+     &     call errquit(pname//' unable to free heap space',
+     &                  h_c,MA_ERR)
+         if (.not.ma_free_heap(h_q))
+     &     call errquit(pname//' unable to free heap space',
+     &                  h_q,MA_ERR)
+         bq_ncent(handle) = 0
+       endif
 
        if(.not.ma_alloc_get(MT_DBL, 3*n, 'bqdata c',
      &      h_c, i_c) ) call errquit(
@@ -280,6 +357,10 @@ C> destroyed the memory chunks will not be deallocated.
 C> To set the memory chunks and transfer the associated responsibility
 C> to the Bq instance use bq_pset_mem instead.
 C>
+C> Any memory that was associated with this Bq instance and was the
+C> responsibility of the Bq instance will be deallocated before the
+C> new memory gets associated.
+C>
 C> \return Returns .true. if successfull and .false. otherwise.
 C>
       function bq_pset(handle,n,h_q,h_c)
@@ -296,14 +377,29 @@ C>
 c      local variables
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_pset"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_pset = .false.
          return
        else
          bq_pset = .true.
        end if
+
+       if(bq_ncent(handle).ne.0.and.bq_mem(handle)) then
+         h_c = bq_coord(handle)
+         h_q = bq_charge(handle)
+         if (.not.ma_free_heap(h_c))
+     &     call errquit(pname//' unable to free heap space',
+     &                  h_c,MA_ERR)
+         if (.not.ma_free_heap(h_q))
+     &     call errquit(pname//' unable to free heap space',
+     &                  h_q,MA_ERR)
+         bq_ncent(handle) = 0
+       endif
 
        bq_ncent(handle)  = n
        bq_charge(handle) = h_q
@@ -324,6 +420,10 @@ C> routine.
 C> To set the memory chunks and not transfer the associated
 C> responsibility to the Bq instance use bq_pset instead.
 C>
+C> Any memory that was associated with this Bq instance and was the
+C> responsibility of the Bq instance will be deallocated before the
+C> new memory gets associated.
+C>
 C> \return Returns .true. if successfull and .false. otherwise.
 C>
       function bq_pset_mem(handle,n,h_q,h_c)
@@ -340,14 +440,29 @@ C>
 c      local variables
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_pset_mem"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_pset_mem = .false.
          return
        else
          bq_pset_mem = .true.
        end if
+
+       if(bq_ncent(handle).ne.0.and.bq_mem(handle)) then
+         h_c = bq_coord(handle)
+         h_q = bq_charge(handle)
+         if (.not.ma_free_heap(h_c))
+     &     call errquit(pname//' unable to free heap space',
+     &                  h_c,MA_ERR)
+         if (.not.ma_free_heap(h_q))
+     &     call errquit(pname//' unable to free heap space',
+     &                  h_q,MA_ERR)
+         bq_ncent(handle) = 0
+       endif
 
        bq_ncent(handle)  = n
        bq_charge(handle) = h_q
@@ -374,9 +489,12 @@ c      local variables
        integer h_q,i_q
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_get"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_get = .false.
          return
        else
@@ -426,9 +544,12 @@ C>
 c      local variables
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_ncenter"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_ncenter = .false.
          return
        else
@@ -452,9 +573,12 @@ c      local variables
 c      local variables
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_namespace"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_namespace = .false.
          return
        else
@@ -476,7 +600,9 @@ c      local variables
        logical bq_check_handle
 c      local variables
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(handle .lt.1 .or. handle .gt. max_bq) then
+         bq_check_handle = .false.
+       else if (bq_ncent(handle).eq.-1) then
          bq_check_handle = .false.
        else
          bq_check_handle = .true.
@@ -504,12 +630,15 @@ c      local variables
        logical status,oprint
        double precision bq_charge_total
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_print_info"
 
        call util_print_get_level(printlevel)
        oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
            call errquit(
      &      pname//' unable to locate handle ',
      &      0,0)
@@ -578,11 +707,14 @@ c      local variables
        integer h_q
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_destroy"
 
        bq_destroy = .true.
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_destroy = .false.
          return
        else
@@ -592,8 +724,12 @@ c      local variables
        bq_name(handle)=" "
        bq_active(handle)=.false.
 
-       if(bq_ncent(handle).eq.0) return
-       bq_ncent(handle) = 0 
+       if(bq_ncent(handle).eq.0) then
+         bq_ncent(handle) = -1
+         return
+       else
+         bq_ncent(handle) = -1
+       endif
 
        if(.not.bq_mem(handle)) return
        bq_mem(handle) = .false.
@@ -631,12 +767,17 @@ c      local variables
        logical bq_destroy
        external bq_destroy
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_destroy_all"
 
        bq_destroy_all = .false.
 
        do handle=1,max_bq
-         if(.not.bq_destroy(handle)) return
+         if(bq_check_handle(handle)) then
+           if(.not.bq_destroy(handle)) return
+         endif
        end do
        bq_destroy_all = .true.
 
@@ -657,9 +798,12 @@ c      local variables
        integer i_c !< [Output] The coordinates memory index
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_index_coord"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_index_coord = .false.
          return
        else
@@ -689,9 +833,12 @@ c      local variables
        integer i_q !< [Output] The charges memory index
        character*(32) pname
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_index_charge"
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
          bq_index_charge = .false.
          return
        else
@@ -721,6 +868,9 @@ c
 c      local variables
        integer i
 
+       logical bq_check_handle
+       external bq_check_handle
+
        ostatus = .false.
 
        if(.not.bq_on()) return
@@ -738,6 +888,9 @@ c      local variables
        logical bq_on
 c      local variables
        integer i
+
+       logical bq_check_handle
+       external bq_check_handle
 
        bq_on = .false.
 
@@ -770,12 +923,15 @@ c      local variables
        character*(32) pname
        logical status,oprint
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_print_info"
 
        call util_print_get_level(printlevel)
        oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
            call errquit(
      &      pname//' unable to locate handle ',
      &      0,0)
@@ -833,12 +989,15 @@ c      local variables
        character*(32) pname
        logical status,oprint
 
+       logical bq_check_handle
+       external bq_check_handle
+
        pname = "bq_print_info"
 
        call util_print_get_level(printlevel)
        oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
 
-       if(handle .lt.0 .or. handle .gt. max_bq) then
+       if(.not.bq_check_handle(handle)) then
            call errquit(
      &      pname//' unable to locate handle ',
      &      0,0)
