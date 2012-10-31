@@ -35,18 +35,26 @@ c
      >   doit = .false.
 
       if (oprint) then
+         write(luout,*) 
+         write(luout,*) "================================"
+         write(luout,*) "==== CPMD Property Analysis ===="
+         write(luout,*) "================================"
          if (doit) then
+            write(luout,*) 
             write(luout,*) "CPMD property analysis is on. ",
      >         "To turn analysis off set cpmd_properties, i.e."
-            write(luout,*) "    nwpw"
-            write(luout,*) "       cpmd_properties off"
-            write(luout,*) "    end"
+            write(luout,*) "nwpw"
+            write(luout,*) "   cpmd_properties off"
+            write(luout,*) "end"
+            write(luout,*)
          else
+            write(luout,*)
             write(luout,*) "CPMD property analysis is off. ",
      >         "To turn analysis on set cpmd_properties, i.e."
-            write(luout,*) "    nwpw"
-            write(luout,*) "       cpmd_properties on"
-            write(luout,*) "    end"
+            write(luout,*) "nwpw"
+            write(luout,*) "   cpmd_properties on"
+            write(luout,*) "end"
+            write(luout,*)
          end if
       end if
 
