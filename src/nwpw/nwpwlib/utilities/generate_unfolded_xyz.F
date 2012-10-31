@@ -46,14 +46,19 @@ c     *** parameters ***
 *     ***************************************
       if (taskid.eq.MASTER) then
 
-      write(luout,*)
-      write(luout,*) 
-     =  '===== Generating unfolded xyz trajectory ===='
-      write(luout,*) 
-      write(luout,*) "xyzfilename=",xyzfilename
-
 *     *** get the number of frames from MOTION ***
       call MOTION_nframes(motionfilename,nframes,natoms,volume,unita)
+
+      write(luout,*)
+      write(luout,*) 
+     =  '===== Generating unfolded xyz trajectory from MOTION file ===='
+      write(luout,*) 
+      write(luout,*) "nframes = ",nframes
+      write(luout,*) "natoms  = ",natoms
+      write(luout,*) 
+      write(luout,*) "MOTION filename      : ",motionfilename
+      write(luout,*) "unfolded xyz filename: ",xyzfilename
+
 
       open(unit=18,file=xyzfilename,form='formatted')
       open(unit=19,file=motionfilename,form='formatted')
