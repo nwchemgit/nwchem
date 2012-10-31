@@ -12,16 +12,45 @@ c
       integer rtdb
 
 #include "rtdb.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical value
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value,doit,oprint
       character*80 filename
       character*255 full_filename,full_filename2
 
 *     **** external functions ****
       logical  control_Fei
       external control_Fei
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+
+      if (.not.rtdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,doit))
+     >   doit = .false.
+
+      if (oprint) then
+         if (doit) then
+            write(luout,*) "CPMD property analysis is on. ",
+     >         "To turn analysis off set cpmd_properties, i.e."
+            write(luout,*) "    nwpw"
+            write(luout,*) "       cpmd_properties off"
+            write(luout,*) "    end"
+         else
+            write(luout,*) "CPMD property analysis is off. ",
+     >         "To turn analysis on set cpmd_properties, i.e."
+            write(luout,*) "    nwpw"
+            write(luout,*) "       cpmd_properties on"
+            write(luout,*) "    end"
+         end if
+      end if
+
+      if (doit) then
 
       if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
      >    call util_file_prefix('ion_motion',filename)
@@ -45,6 +74,8 @@ c
       if (control_Fei()) then
          call shake_analysis(rtdb)
          call FixIon_analysis(rtdb)
+      end if
+
       end if
 
       return
