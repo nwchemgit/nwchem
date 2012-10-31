@@ -2,12 +2,13 @@
 * $Id: nwpw_unfold.f 19707 2010-10-29 17:59:36Z d3y133 $
 *
 
-      subroutine nwpw_unfold(ni,r1,r2)
+      subroutine nwpw_unfold(ni,unita,r1,r2)
 *     ======================================================= 
 *	This routine unfolds r2
 *     ======================================================= 
       implicit none
       integer ni
+      real*8  unita(3,3)
       real*8  r1(3,*)
       real*8  r2(3,*)
 
@@ -16,14 +17,11 @@
       real*8  a(3,3),b(3,3),volume
       integer i,j
 
-*      **** external functions ****
-       real*8   lattice_unita
-       external lattice_unita
 
 *     ***** Determine the unit lattice vectors and distances ******
       do j=1,3
       do i=1,3
-        a(i,j) = lattice_unita(i,j)
+        a(i,j) = unita(i,j)
       end do
       end do
 
@@ -76,9 +74,9 @@
 
    23   IF ((f2(1)-f1(1)) .GT. (0.5d0)) THEN
 *          WRITE (*,*) 'a1>', I, R2A1, DA(1)/2.0d0
-           r2(1,i) = r2(1,i) - lattice_unita(1,1)
-           r2(2,i) = r2(2,i) - lattice_unita(2,1)
-           r2(3,i) = r2(3,i) - lattice_unita(3,1)
+           r2(1,i) = r2(1,i) - unita(1,1)
+           r2(2,i) = r2(2,i) - unita(2,1)
+           r2(3,i) = r2(3,i) - unita(3,1)
 
             f2(1) =  b(1,1) * r2(1,i)
      >            +  b(2,1) * r2(2,i)
@@ -88,9 +86,9 @@
 	   
    24   IF ((f2(1)-f1(1)) .LE. (-0.5d0)) THEN
 *          WRITE (*,*) 'a1<', I, R2A1, DA(1)/2.0d0
-           r2(1,i) = r2(1,i) + lattice_unita(1,1)
-           r2(2,i) = r2(2,i) + lattice_unita(2,1)
-           r2(3,i) = r2(3,i) + lattice_unita(3,1)
+           r2(1,i) = r2(1,i) + unita(1,1)
+           r2(2,i) = r2(2,i) + unita(2,1)
+           r2(3,i) = r2(3,i) + unita(3,1)
 
             f2(1) =  b(1,1) * r2(1,i)
      >            +  b(2,1) * r2(2,i)
@@ -100,9 +98,9 @@
 
    25   IF ((f2(2)-f1(2)) .GT. (0.5d0)) THEN
 *          WRITE (*,*) 'a2>', I, R2A2, DA(2)/2.0d0
-           r2(1,i) = r2(1,i) - lattice_unita(1,2)
-           r2(2,i) = r2(2,i) - lattice_unita(2,2)
-           r2(3,i) = r2(3,i) - lattice_unita(3,2)
+           r2(1,i) = r2(1,i) - unita(1,2)
+           r2(2,i) = r2(2,i) - unita(2,2)
+           r2(3,i) = r2(3,i) - unita(3,2)
 
             f2(2) =  b(1,2) * r2(1,i)
      >            +  b(2,2) * r2(2,i)
@@ -112,9 +110,9 @@
 	   
    26   IF ((f2(2)-f1(2)) .LE. (-0.5d0)) THEN
 *          WRITE (*,*) 'a2<', I, R2A2, DA(2)/2.0d0
-           r2(1,i) = r2(1,i) + lattice_unita(1,2)
-           r2(2,i) = r2(2,i) + lattice_unita(2,2)
-           r2(3,i) = r2(3,i) + lattice_unita(3,2)
+           r2(1,i) = r2(1,i) + unita(1,2)
+           r2(2,i) = r2(2,i) + unita(2,2)
+           r2(3,i) = r2(3,i) + unita(3,2)
 
             f2(2) =  b(1,2) * r2(1,i)
      >            +  b(2,2) * r2(2,i)
@@ -125,9 +123,9 @@
 
    27   IF ((f2(3)-f1(3)) .GT. (0.5d0)) THEN
 *         WRITE (*,*) 'a3>', i, R2A3, DA(3)/2.0d0
-          r2(1,i) = r2(1,i) - lattice_unita(1,3)
-          r2(2,i) = r2(2,i) - lattice_unita(2,3)
-          r2(3,i) = r2(3,i) - lattice_unita(3,3)
+          r2(1,i) = r2(1,i) - unita(1,3)
+          r2(2,i) = r2(2,i) - unita(2,3)
+          r2(3,i) = r2(3,i) - unita(3,3)
 
           f2(3) =  b(1,3) * r2(1,i)
      >          +  b(2,3) * r2(2,i)
@@ -137,9 +135,9 @@
 	   
    28   IF ((f2(3)-f1(3)) .LE. (-0.5d0)) THEN
 *         WRITE (*,*) 'a3<', I, R2A3, DA(3)/2.0d0
-          r2(1,i) = r2(1,i) + lattice_unita(1,3)
-          r2(2,i) = r2(2,i) + lattice_unita(2,3)
-          r2(3,i) = r2(3,i) + lattice_unita(3,3)
+          r2(1,i) = r2(1,i) + unita(1,3)
+          r2(2,i) = r2(2,i) + unita(2,3)
+          r2(3,i) = r2(3,i) + unita(3,3)
 
           f2(3) =  b(1,3) * r2(1,i)
      >          +  b(2,3) * r2(2,i)
