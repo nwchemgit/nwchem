@@ -49,6 +49,7 @@ c     *** parameters ***
       write(luout,*)
       write(luout,*) 
      =  '===== Generating unfolded xyz trajectory ===='
+      write(luout,*) 
       write(luout,*) "xyzfilename=",xyzfilename
 
 *     *** get the number of frames from MOTION ***
@@ -78,8 +79,8 @@ c     *** parameters ***
             tag2(1:1) = ''
             tag2(2:2) = ''
             read(19,*) iii,tag2,tag4,x,y,z,v1,v2,v3
-            byte_mb(tags(1)+2*i)   = tag2(1:1)
-            byte_mb(tags(1)+2*i+1) = tag2(2:2)
+            byte_mb(tags(1)+2*(i-1))   = tag2(1:1)
+            byte_mb(tags(1)+2*(i-1)+1) = tag2(2:2)
             dbl_mb(rion2(1)+3*(i-1))   = x
             dbl_mb(rion2(1)+3*(i-1)+1) = y
             dbl_mb(rion2(1)+3*(i-1)+2) = z          
@@ -92,8 +93,8 @@ c     *** parameters ***
 
          write(18,110) natoms1
          do i=1,natoms1
-            tag2(1:1) = byte_mb(tags(1)+2*i)
-            tag2(2:2) = byte_mb(tags(1)+2*i+1)
+            tag2(1:1) = byte_mb(tags(1)+2*(i-1))
+            tag2(2:2) = byte_mb(tags(1)+2*(i-1)+1)
             write(18,111) tag2,
      >                    dbl_mb(rion2(1)+3*(i-1))  *AACONV,
      >                    dbl_mb(rion2(1)+3*(i-1)+1)*AACONV,
