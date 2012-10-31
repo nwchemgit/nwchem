@@ -94,7 +94,8 @@ c     *** parameters ***
             dbl_mb(vion2(1)+3*(i-1)+2) = v3          
          end do
          if (t.gt.1) 
-     >      call nwpw_unfold(natoms1,dbl_mb(rion1(1)),dbl_mb(rion2(1)))
+     >      call nwpw_unfold(natoms1,unita,
+     >                       dbl_mb(rion1(1)),dbl_mb(rion2(1)))
 
          write(18,110) natoms1
          do i=1,natoms1
