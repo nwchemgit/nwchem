@@ -38,13 +38,14 @@ c     Local declarations
 c
       integer gen_l
       integer MXprim,MXang,MXcont
-      integer izprim,iccoef
+      integer izprim,iccoef,iccoef1
       integer max_elem_ang_scr,max_der_component,max_ang_for_der
       integer iang,id1ang,id2ang,id3ang,il2k,idrd,irad,itop
       integer iscr,lscr
       integer ictr,icset,ichi
-      integer ifirst,ilast,ltype,nprimo,ncontr,nshbf
+      integer ifirst,ilast,ltype,nprimo,ncontr,nshbf(2)
       integer l,nang,iang_beg,iang_end
+      integer icontr,l0(2)
       logical spherical,LResult
 #define Ax 2
 #define Ay 3
@@ -208,6 +209,7 @@ c
      &        dbl_mb(id3ang), qxyz, ccoord(1,ictr), nq, dbl_mb(il2k),
      &        max(bas_cent_info(1,ictr),max_ang_for_der), maxder, gen_l,
      &        spherical)
+            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 c
 c     Loop over all contraction sets on this center
 c
@@ -230,17 +232,27 @@ c
 c
 c     Number of basis functions counting all contractions
 c
-            nshbf = ilast-ifirst+1
+            nshbf(1) = ilast-ifirst+1
 c
 c     Angular momentum
 c
             if (ltype .lt. 0) then
-               call errquit(
-     &              'xc_eval_basis: sp-type orbital not coded',1,
-     &              CAPMIS_ERR)
+               l0(1)=0
+               l0(2)=1
+               nshbf(1)=1
+               nshbf(2)=3
             else
-               l = ltype
+               l0(1) = ltype
+cold               l = ltype
             endif
+c
+c     Get exponents and contraction coefficients for this contraction set
+c
+c!!! These calls could be causing too much overhead - check
+            LResult = bas_get_exponent(basis_hand,icset,dbl_mb(izprim))
+            LResult = bas_get_coeff(basis_hand,icset,dbl_mb(iccoef))
+            do icontr=1,ncontr
+               l = l0(icontr)
 c
 c     Cartesian/spherical harmonic
 c
@@ -254,43 +266,32 @@ c
                iang_beg = iang_end - nang + 1
             endif
 c
-c     Number of contractions
-c
-            if (ncontr.ne.1) then
-               call errquit(
-     &              'xc_eval_basis: general contraction not ready',1,
-     &              UNKNOWN_ERR)
-            endif
-c
-c     Get exponents and contraction coefficients for this contraction set
-c
-c!!! These calls could be causing too much overhead - check
-            LResult = bas_get_exponent(basis_hand,icset,dbl_mb(izprim))
-            LResult = bas_get_coeff(basis_hand,icset,dbl_mb(iccoef))
-c
 c     Evaluate the radial components of the contracted Gaussian functions
 c
+            iccoef1=iccoef+(icontr-1)*nprimo
             if(maxder.eq.0) then
                call eval_radial0(dbl_mb(irad), rq(1,ictr), nq, 
-     &              dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
+     &              dbl_mb(izprim), dbl_mb(iccoef1), nprimo, ncontr)
             else
                call eval_radial(dbl_mb(irad), rq(1,ictr), nq, maxder,
-     &              dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
+     &              dbl_mb(izprim), dbl_mb(iccoef1), nprimo, ncontr)
             endif
+            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 c
 c     Compute and store the derivatives of the radial function
 c
             call eval_der_radial(dbl_mb(idrd), dbl_mb(irad),
      &           dbl_mb(iang), nq, maxder, max_der_component)
+            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 
 c     Evaluate basis functions and begin evaluation of basis function
 c     derivative by multiplying angular function by the radial function
 c     and its derivatives
-
             call eval_ang_x_drad(chi(1,ichi), d1chi(1,1,ichi),
      &           d2chi(1,1,ichi), d3chi(1,1,ichi), dbl_mb(idrd),
      &           dbl_mb(iang), nq, iang_beg, iang_end,
      &           max_der_component)
+            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 c
 c     Finish off with terms involving angular function derivatives
 c
@@ -300,12 +301,14 @@ c
      &              dbl_mb(iang), dbl_mb(id1ang), dbl_mb(id2ang),
      &              dbl_mb(id3ang), nq, iang_beg, iang_end,
      &              max_der_component, gen_l)
+            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
             endif
 c
 c     Advance offset into chi arrays by number of basis functions
 c     just processed
 c
-            ichi = ichi + nshbf
+            ichi = ichi + nshbf(icontr)
+            enddo
 c
  200     continue
  100  continue
@@ -872,6 +875,7 @@ c
      &     nq, iabeg, iaend, max_der_component)
 c
       implicit none
+#include "mafdecls.fh"
       integer nq, iabeg, iaend, max_der_component
       double precision chi(nq,iabeg:iaend),
      &     d1chi(nq,dx:dz,iabeg:iaend), d2chi(nq,dxx:dzz,iabeg:iaend),
@@ -1100,6 +1104,7 @@ c     Do the bulk
                   chi(n,iang  ) = ang(n,iang  )*drad(dzero,n)
                   chi(n,iang+1) = ang(n,iang+1)*drad(dzero,n)
                   chi(n,iang+2) = ang(n,iang+2)*drad(dzero,n)
+cbadhere
                enddo
             elseif (max_der_component .eq. dz) then
                do n = 1, nq

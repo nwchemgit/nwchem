@@ -367,6 +367,7 @@ c
       integer n,ic1,ic2,m,ibfhi,ibflo
       double precision alpha,logeps
       double precision gaussian_range,r2,r_arg
+      integer icontr,l0(2),l_in
       logical veryfar
       gaussian_range(n,logeps,alpha) = 
      $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
@@ -418,9 +419,16 @@ c
 c         
 c       get info about current contraction set
 c       
-          if (.not. bas_continfo(basis_hand, icset,  l ,nprim,
+          if (.not. bas_continfo(basis_hand, icset,  l_in ,nprim,
      &         ncontr, isphere))
      &         call errquit('Exiting in grid_nbfm.',5, BASIS_ERR)
+cfix for sps
+          if(ncontr.eq.2) then
+             l0(1)=0
+             l0(2)=1
+          else
+             l0(1)=l_in
+          endif
 c         
 c       
 c       get exponents and contraction coefficients for this contraction set
@@ -435,18 +443,21 @@ c
         do iprimo = 1,nprim
           zmin = min(zprim(iprimo),zmin)
         enddo
+        do icontr=1,ncontr
+           l=l0(icontr)
 c       
 c       Only include those basis functions that are "non-zero" for at least 
 c       one  point in the sampling set.
 c       
-        nshbf=ncontr*(((l+1)*(l+2))/2)
+        nshbf=(((l+1)*(l+2))/2)
         if(isphere.eq.1) then
-           nshbf=ncontr*(2*l+1)
+           nshbf=(2*l+1)
         endif
 c
 c     pre-screening for worst case (max radius)
 c
-              if (r_q0.lt.gaussian_range(l,acc_loc,zmin)) then
+        if (r_q0.lt.gaussian_range(l0(ncontr),acc_loc,zmin)) then
+cold        if (r_q0.lt.gaussian_range(l,acc_loc,zmin)) then
                  do m=1,nshbf
                     ibf(n1+m ) = npt+m
                  enddo
@@ -454,8 +465,8 @@ c
                  if (iniz(ictr).eq.0) iniz(ictr)=n1+1
                  n1=n1+nshbf
               endif
-
         npt=npt+nshbf
+      enddo
       enddo
 c           
         ifin(ictr)= n1
@@ -512,8 +523,12 @@ c
      &       BASIS_ERR)
 c
             if (l.lt.0) then
+#if 0
                call errquit('L code < 0 in xc_make_basis_info',1,
      &       BASIS_ERR)
+#else
+               l=-1
+#endif
             endif
 c
             bas_cent_info(1,ictr) = max(bas_cent_info(1,ictr),l)

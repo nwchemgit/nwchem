@@ -224,8 +224,12 @@ c           angular momentum
 c         
             l = 0
             if (itype .lt. 0)then
+#if 0
                call errquit('mbf_ao_max: sp-type orbital not coded', 5,
      &       BASIS_ERR)
+#else
+               l=1
+#endif
             else 
                l = itype
             endif 
