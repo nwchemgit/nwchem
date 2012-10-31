@@ -126,6 +126,7 @@ PSPW
       wavefunction_cutoff: 21.0d0
       Mulliken
    END 
+   cpmd_properties
 END
 task pspw steepest_descent
 
