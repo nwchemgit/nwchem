@@ -1,8 +1,8 @@
 *
-* $Id: incell1.f 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id: nwpw_unfold.f 19707 2010-10-29 17:59:36Z d3y133 $
 *
 
-      subroutine infold(ni,r1,r2)
+      subroutine nwpw_unfold(ni,r1,r2)
 *     ======================================================= 
 *	This routine unfolds r2
 *     ======================================================= 
