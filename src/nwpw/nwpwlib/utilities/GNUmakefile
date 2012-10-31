@@ -17,6 +17,7 @@
 		pair_dist2.o \
 		pair_distab.o \
 		auto_corr.o \
+		generate_unfolded_xyz.o \
 		matrix.o simp.o \
 		is_sORd.o \
 		psi_filefind.o \
@@ -41,7 +42,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F generate_unfolded_xyz.F
 
   LIB_DEFINES = 
 
