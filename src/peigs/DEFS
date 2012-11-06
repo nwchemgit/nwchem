@@ -459,7 +459,7 @@ ifeq ($(peigs_TARGET),LAPI64)
 	peigs_CPU = RS600064
 	peigs_COMM =TCGMSG
 	peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline \
-	-WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
+	-Iinclude -DIBM -DSTD_DBL -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) \
 	-qfloat=rsqrt:fltint -qinline
 	peigs_CPP +=   -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
 	ifdef USE_INTEGER4
