@@ -906,9 +906,10 @@ RSQRT=y
     XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -n 1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
   ifdef XLF8
     FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
-    FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
+#old    FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
+    FOPTIMIZE = -O3   -qarch=auto -qtune=auto
 #adding -qstrict to fix linking problem for v10.1
-    FOPTIMIZE  += -qstrict -qipa -qhot -qlargepage -qessl 
+    FOPTIMIZE  += -qstrict# -qipa -qhot -qlargepage -qessl 
     FOPTIONS += -blpdata  
     FOPTIMIZE  += -qfloat=rsqrt:fltint
     FVECTORIZE  += -qfloat=rsqrt:fltint
