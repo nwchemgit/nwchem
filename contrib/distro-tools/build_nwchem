@@ -1356,11 +1356,17 @@ if [ ${#BLASOPT} -ne 0 ] ; then
   result=$?
   if [ ${result} -eq 0 ] ; then
     export BLAS_LIB="${BLASOPT}"
+  else 
+    # BLASOPT set but no BLAS available so use internal BLAS library
+    export BLAS_LIB=" "
   fi
   DUMMY=`get_lapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export LAPACK_LIB="${BLASOPT}"
+  else 
+    # BLASOPT set but no LAPACK available so use internal LAPACK library
+    export LAPACK_LIB=" "
   fi
   if [ ${#MPI_LIB} -ne 0 ] ; then
     # Only set MPI_LIB_TMP if MPI_LIB is non-empty
@@ -1370,6 +1376,9 @@ if [ ${#BLASOPT} -ne 0 ] ; then
   result=$?
   if [ ${result} -eq 0 ] ; then
     export SCALAPACK_LIB="${BLASOPT}"
+  else
+    # BLASOPT set but no ScaLAPACK available so suppress ScaLAPACK library
+    export SCALAPACK_LIB=" "
   fi
 fi
 #
