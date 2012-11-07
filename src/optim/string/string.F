@@ -1549,7 +1549,7 @@ C> @}
      &          dVdx(1,1,i))) call errquit(
      &          'zts_meps: failed getting gradient',0,RTDB_ERR)
             if (oprint) 
-     >        write(*,'(A,I3,F18.6)') 
+     >        write(*,'(A,I3,A,F18.6)') 
      >        "string: finished bead ",i," energy=",energy(i)
          end if
       end do
