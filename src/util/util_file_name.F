@@ -108,7 +108,8 @@ c
 c
       call util_directory_name(dir, oscratch, me)
 c
-*      write(LuOut,*) ' dir = |', dir,'|'
+*     write(LuOut,*) 'a stub= |',stub(1:inp_strlen(stub)),'|'
+*     write(LuOut,*) 'a dir = |', dir(1:inp_strlen(dir)),'|'
 c
       call util_file_prefix(stub, tmp)
       ltmp = inp_strlen(tmp)
@@ -853,6 +854,7 @@ c
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
       character*(*) filename    ! [input/output] 
       logical oscratch          ! [input] 
 c
@@ -870,6 +872,10 @@ c
       if ((filename(1:1).ne.'/')  .and. (filename(1:2).ne.'./')
      $     .and. (filename(1:3).ne.'../')) then
          call util_directory_name(dir, oscratch, ga_nodeid())
+c
+*        write(LuOut,*) 'b fnm = |',filename(1:inp_strlen(filename)),'|'
+*        write(LuOut,*) 'b dir = |',dir(1:inp_strlen(dir)),'|'
+c
          dlen = inp_strlen(dir)
          if (dlen .gt. 0) then
             flen = inp_strlen(filename)
@@ -936,7 +942,8 @@ c
 c
       call util_directory_name(dir, oscratch, me)
 c
-*      write(LuOut,*) ' dir = |', dir,'|'
+*     write(LuOut,*) 'c stub= |',stub(1:inp_strlen(stub)),'|'
+*     write(LuOut,*) 'c dir = |', dir(1:inp_strlen(dir)),'|'
 c
 
       tmp   = stub
@@ -1008,6 +1015,10 @@ c
       me = ga_nodeid()
 c
       call util_directory_name(dir, oscratch, me)
+c
+*     write(LuOut,*) 'd fnm = |',filename(1:inp_strlen(filename)),'|'
+*     write(LuOut,*) 'd dir = |', dir(1:inp_strlen(dir)),'|'
+c
       tmp   = filename
       ltmp  = inp_strlen(tmp)
       ldir  = inp_strlen(dir)
