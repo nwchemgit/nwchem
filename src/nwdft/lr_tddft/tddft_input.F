@@ -35,6 +35,7 @@ c     END
 c     
       implicit none
 #include "errquit.fh"
+#include "util.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -43,8 +44,8 @@ c
       character*20 test
       integer nroots,maxvecs,maxiter,target,algorithm
       character*4 targetsym
-      character*80 civecs
-      character*80 transden
+      character*(nw_max_path_len) civecs
+      character*(nw_max_path_len) transden
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet

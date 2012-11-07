@@ -170,8 +170,8 @@ c
 c
       logical ltransden
       logical lcivecs
-      character*80 civecs
-      character*80 transden 
+      character*(nw_max_path_len) civecs
+      character*(nw_max_path_len) transden 
       logical dmat_to_file
       external dmat_to_file
 c
