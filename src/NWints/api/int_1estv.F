@@ -1,5 +1,38 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C> \brief Compute any 1-electron integrals
+C>
+C> This is an internal routine that most of the external 1-electron
+C> routines call.  This is the actual workhorse routine.
+C> This routine computes the 1 electron integrals \f$S\f$, \f$T\f$, and \f$V\f$:
+C> \f{eqnarray*}{
+C> S & = & ({\mu}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> T & = & ({\mu}|-\frac{1}{2}\nabla^{2}|{\nu}) \\\\
+C>   & = & -\frac{1}{2}\int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\nabla^{2}(r_{1})\\
+C>         g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+C> {-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+C> \f}
+C> 
+C> If an ECP is defined then the ECP integral contributions are summed
+C> directly into the V integrals.
+C> 
+C> If a relativistic basis is defined then the 1-electron integrals
+C> for the case where both shells are relativistic are modified to
+C> \f{eqnarray*}{
+C> S & = & ({\mu^L}|{\nu^L})
+C>       - ({\mu^S}|\frac{\alpha^2}{4}{\nabla^{2}}|{\nu^S}) \\\\
+C> T & = & -\frac{1}{2} ({\mu^L}|{\nabla^{2}}|{\nu^S})
+C>       -  \frac{1}{2} ({\mu^S}|{\nabla^{2}}|{\nu^L})
+C>       +  \frac{1}{2} ({\mu^S}|{\nabla^{2}}|{\nu^S}) \\\\
+C> V & = & ({\mu^L}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu^L})
+C>     - \frac{\alpha^2}{4} ({\mu^S}|\nabla\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}\cdot\nabla|{\nu^S}) \\\\
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
 c:tex-This is an internal routine that most of the external 1 electron
@@ -68,19 +101,19 @@ c::functions
       external cando_nw
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      integer lstv               ! [input] length of integral buffer
-      double precision scr(lscr) ! [scratch] scratch array
-      double precision S(lstv)   ! [output] overlap integrals
-      double precision T(lstv)   ! [output] kinetic energy integrals
-      double precision V(lstv)   ! [output] potential energy integrals
-      logical doS                ! [input] flag for overlap integrals
-      logical doT                ! [input] flag for kinetic energy integrals
-      logical doV                ! [input] flag for potential energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      integer lstv               !< [Input] length of integral buffer
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision S(lstv)   !< [Output] overlap integrals
+      double precision T(lstv)   !< [Output] kinetic energy integrals
+      double precision V(lstv)   !< [Output] potential energy integrals
+      logical doS                !< [Input] flag for overlap integrals
+      logical doT                !< [Input] flag for kinetic energy integrals
+      logical doV                !< [Input] flag for potential energy integrals
 c:tex-\end{verbatim}
 c::local
       logical ohnd_ok, onw_ok, onw1e_ok
@@ -336,6 +369,7 @@ c
       return
 c
       end
+C> @}
 c----------------------------------------------------------------------
 c
 c     Wrapper routines to compute different classes of integrals. 
@@ -476,6 +510,27 @@ c          doS     doT     doV
 C> @}
 c----------------------------------------------------------------------
 *
+C> \ingroup nwint
+C> @{
+C> \brief Compute the 1-electron Hamiltonian
+C>
+C> This routine computes the 1 electron hamiltonian \f$H1\f$.
+C> \f{eqnarray*}{
+C> H1 & = & T + V      \\\\
+C> T  & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\\\
+C>    & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}
+C> \nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> V  & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\\\
+C>    & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+C> {-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C> 
+C> If an ECP is defined then the ECP integral contributions are summed
+C> directly into the \f$H1\f$ integrals.
+C> 
+C> If a relativistic basis is defined then the one-electron integrals for
+C> the case where both shells are relativistic are the modified integrals.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eh1}
 c:tex-This routine computes the 1 electron hamiltonian, ($H1$).
@@ -507,14 +562,14 @@ c::functions
       external cando_hnd_1e
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lh1                ! [input] length of H1 buffer.
-      double precision H1(lh1)   ! [output] one electron
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lh1                !< [Input] length of H1 buffer.
+      double precision H1(lh1)   !< [Output] one electron
 c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr-lh1,scr(lh1+1),lh1,
@@ -527,6 +582,19 @@ c                     doS     doT    doV
       end
 c----------------------------------------------------------------------
 *
+C> \brief Compute all 1-electron integrals
+C>
+C> This routine computes the 1 electron integrals \f$S\f$, \f$T\f$, and \f$V\f$:
+C> \f{eqnarray*}{
+C> S & = & ({\mu}|{\nu}) \\\\
+C>   & = & \int_{{-}\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> T & = & ({\mu}|-\frac{1}{2}{\nabla^{2}}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}{\nabla^{2}}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-Z_{\alpha}}
+C> {|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C>
 c:tex-
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eall}
@@ -550,16 +618,16 @@ c:tex-\end{verbatim}
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lstv               ! [input] length of one electron buffers
-      double precision T(lstv)   ! [output] kinetic integral buffer
-      double precision V(lstv)   ! [output] potential integral buffer
-      double precision S(lstv)   ! [output] overlap integral buffer
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lstv               !< [Input] length of one electron buffers
+      double precision T(lstv)   !< [Output] kinetic integral buffer
+      double precision V(lstv)   !< [Output] potential integral buffer
+      double precision S(lstv)   !< [Output] overlap integral buffer
 c:tex-\end{verbatim}
 c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr,scr,lstv,S,T,V,
@@ -568,24 +636,48 @@ c          doS    doT    doV
       return
       end
 c----------------------------------------------------------------------
-      subroutine int_1epot(i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
+C> \brief Compute the 1-electron COSMO embedding potential 
+C>
+C> This routine computes the 1 electron integrals \f$V\f$:
+C> \f{eqnarray*}{
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-q_{\alpha}}{|r_{1}-r_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-q_{\alpha}}
+C> {|r_{1}-r_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C> where \f$ q_\alpha \f$ is a point charge situated at position \f$ r_\alpha \f$.
+C> The COSMO embedding point charges are accessed in int_1eefc.
+C>
+      subroutine int_1epot(i_basis,ish,j_basis,jsh,lscr,scr,lve,Ve)
 #include "util.fh"
 c
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lpe                ! [input] length of Pe buffer
-      double precision Pe(lpe)   ! [output] kinetic energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lve                !< [Input] length of Ve buffer
+      double precision Ve(lve)   !< [Output] potential energy integrals
 c
-      call int_1eefc(i_basis,ish,j_basis,jsh,lscr,scr,lpe,scr,scr,Pe,
+      call int_1eefc(i_basis,ish,j_basis,jsh,lscr,scr,lve,scr,scr,Ve,
      &    .false.,.false.,.true.)
 c          doS     doT     doV
       return
       end
 c----------------------------------------------------------------------
+C> \brief Compute the 1-electron integrals but the potential is due to
+C> COSMO embedding charges
+C>
+C> This routine computes the 1 electron integrals \f$V\f$:
+C> \f{eqnarray*}{
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-q_{\alpha}}{|r_{1}-r_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-q_{\alpha}}
+C> {|r_{1}-r_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C> where \f$ q_\alpha \f$ is a point charge situated at position \f$ r_\alpha \f$.
+C> The location of the COSMO embedding point charges is specified in the common
+C> block include from prop.fh.
+C>
       subroutine int_1eefc(i_basis,ish,j_basis,jsh,lscr,scr,lstv,S,T,V,
      &    doS,doT,doV)
       implicit none
@@ -626,19 +718,19 @@ c::functions
       external cando_nw
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      integer lstv               ! [input] length of integral buffer
-      double precision scr(lscr) ! [scratch] scratch array
-      double precision S(lstv)   ! [output] overlap integrals
-      double precision T(lstv)   ! [output] kinetic energy integrals
-      double precision V(lstv)   ! [output] potential energy integrals
-      logical doS                ! [input] flag for overlap integrals
-      logical doT                ! [input] flag for kinetic energy integrals
-      logical doV                ! [input] flag for potential energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      integer lstv               !< [Input] length of integral buffer
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision S(lstv)   !< [Output] overlap integrals
+      double precision T(lstv)   !< [Output] kinetic energy integrals
+      double precision V(lstv)   !< [Output] potential energy integrals
+      logical doS                !< [Input] flag for overlap integrals
+      logical doT                !< [Input] flag for kinetic energy integrals
+      logical doV                !< [Input] flag for potential energy integrals
 c:tex-\end{verbatim}
 c::local
       logical ohnd_ok, onw_ok, onw1e_ok
@@ -919,17 +1011,28 @@ c
       end
 
 c----------------------------------------------------------------------
+C> \brief Compute the 1-electron Bq embedding potential 
+C>
+C> This routine computes the 1 electron integrals \f$V\f$:
+C> \f{eqnarray*}{
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-q_{\alpha}}{|r_{1}-r_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-q_{\alpha}}
+C> {|r_{1}-r_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C> where \f$ q_\alpha \f$ is a point charge situated at position \f$ r_\alpha \f$.
+C> The Bq embedding point charges are accessed in int_1eefc1.
+C>
       subroutine int_1epot1(i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
 #include "util.fh"
 c
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lpe                ! [input] length of Pe buffer
-      double precision Pe(lpe)   ! [output] kinetic energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lpe                !< [Input] length of Pe buffer
+      double precision Pe(lpe)   !< [Output] potential energy integrals
 c
       call int_1eefc1(i_basis,ish,j_basis,jsh,lscr,scr,lpe,scr,scr,Pe,
      &    .false.,.false.,.true.)
@@ -937,6 +1040,19 @@ c          doS     doT     doV
       return
       end
 c----------------------------------------------------------------------
+C> \brief Compute the 1-electron integrals but the potential is due to
+C> Bq embedding charges
+C>
+C> This routine computes the 1 electron integrals \f$V\f$:
+C> \f{eqnarray*}{
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-q_{\alpha}}{|r_{1}-r_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-q_{\alpha}}
+C> {|r_{1}-r_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C> where \f$ q_\alpha \f$ is a point charge situated at position \f$ r_\alpha \f$.
+C> The location of the Bq embedding point charges is specified in a 
+C> Bq instance that has been activated elsewhere.
+C>
       subroutine int_1eefc1(i_basis,ish,j_basis,jsh,lscr,scr,lstv,S,T,V,
      &    doS,doT,doV)
       implicit none
@@ -976,19 +1092,19 @@ c::functions
       external cando_nw
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      integer lstv               ! [input] length of integral buffer
-      double precision scr(lscr) ! [scratch] scratch array
-      double precision S(lstv)   ! [output] overlap integrals
-      double precision T(lstv)   ! [output] kinetic energy integrals
-      double precision V(lstv)   ! [output] potential energy integrals
-      logical doS                ! [input] flag for overlap integrals
-      logical doT                ! [input] flag for kinetic energy integrals
-      logical doV                ! [input] flag for potential energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      integer lstv               !< [Input] length of integral buffer
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision S(lstv)   !< [Output] overlap integrals
+      double precision T(lstv)   !< [Output] kinetic energy integrals
+      double precision V(lstv)   !< [Output] potential energy integrals
+      logical doS                !< [Input] flag for overlap integrals
+      logical doT                !< [Input] flag for kinetic energy integrals
+      logical doV                !< [Input] flag for potential energy integrals
 c:tex-\end{verbatim}
 c::local
       logical ohnd_ok, onw_ok, onw1e_ok
@@ -1279,4 +1395,4 @@ c
       return
 c
       end
-
+C> @}
