@@ -2,7 +2,8 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE =  qmd_driver.o qmd_main.o qmd_input.o qmd_start.o task_qmd.o qmd_verlet.o qmd_kinetic.o qmd_thermostat.o
+OBJ_OPTIMIZE =  qmd_driver.o qmd_main.o qmd_input.o qmd_start.o task_qmd.o qmd_verlet.o \
+qmd_kinetic.o qmd_thermostat.o qmd_step.o
 
 LIBRARY=libqmd.a
 
@@ -11,7 +12,6 @@ HEADERS=
 USES_BLAS=
 
 include ../config/makefile.h
-
 include ../config/makelib.h
 
 showobj:

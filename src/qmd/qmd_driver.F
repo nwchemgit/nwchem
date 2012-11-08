@@ -144,20 +144,13 @@ c     nuclear molecular dynamics loop
       ndof = 3*nat - 6.d0  ! 3N-6  need to determine this...
       do isteps = 1,nsteps
 c
-        if (integrator.eq.'velocity_verlet') then
-c         calculate velocity verlet md step
-          call qmd_verlet(rtdb,nat,dt,dbl_mb(k_m),dbl_mb(k_r),
-     &          dbl_mb(k_v),dbl_mb(k_g),esys) 
-        else 
-          call errquit(pname//'unknown integrator',0,CALC_ERR)
-        end if
+        call qmd_step(rtdb,integrator,nat,dt,dbl_mb(k_m),dbl_mb(k_r),
+     &          dbl_mb(k_v),dbl_mb(k_g),esys)   ! nuclear md step
 c
-c       calculate the instantaneous kinetic energy
-        call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
+        call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin) ! instantaneous kinetic energy
 c
-c       thermostat the instantaneous velocity
         call qmd_thermostat(thermostat,dt,tau,targ_temp,nat,ndof,
-     &      dbl_mb(k_m),dbl_mb(k_v),ekin,final_temp)
+     &      dbl_mb(k_m),dbl_mb(k_v),ekin,final_temp)  ! apply the thermostat
  
         if (ga_nodeid().eq.0) write(luout,*) "ekin: ",ekin
         if (ga_nodeid().eq.0) write(luout,*) "esys: ",esys
@@ -165,13 +158,11 @@ c       thermostat the instantaneous velocity
         if (ga_nodeid().eq.0) write(luout,*) "targ_temp: ",targ_temp
         if (ga_nodeid().eq.0) write(luout,*) "final_temp: ",final_temp
 c
-c       update the geometry with new coordinates and velocities
         if (.not.geom_coords_vels_set(geom,dbl_mb(k_r),dbl_mb(k_v)))
-     $   call errquit(pname//'geom_coords_vels_set',0,GEOM_ERR)
+     $   call errquit(pname//'geom_coords_vels_set',0,GEOM_ERR)  ! update geom
 c
-c       store updated geometry
         if(.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     &   call errquit(pname//'geom_rtdb_store',0,GEOM_ERR)
+     &   call errquit(pname//'geom_rtdb_store',0,GEOM_ERR) ! store updated geom
 c
       end do  ! isteps
 c
