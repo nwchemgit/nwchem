@@ -144,16 +144,20 @@ c     nuclear molecular dynamics loop
       ndof = 3*nat - 6.d0  ! 3N-6  need to determine this...
       do isteps = 1,nsteps
 c
-c       calculate velocity verlet step
-        call qmd_verlet(rtdb,nat,dt,dbl_mb(k_m),dbl_mb(k_r),
-     &             dbl_mb(k_v),dbl_mb(k_g),esys) 
+        if (integrator.eq.'velocity_verlet') then
+c         calculate velocity verlet md step
+          call qmd_verlet(rtdb,nat,dt,dbl_mb(k_m),dbl_mb(k_r),
+     &          dbl_mb(k_v),dbl_mb(k_g),esys) 
+        else 
+          call errquit(pname//'unknown integrator',0,CALC_ERR)
+        end if
 c
 c       calculate the instantaneous kinetic energy
         call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
 c
 c       thermostat the instantaneous velocity
-        call qmd_thermostat(dt,tau,targ_temp,nat,ndof,dbl_mb(k_m),
-     &         dbl_mb(k_v),ekin,final_temp)
+        call qmd_thermostat(thermostat,dt,tau,targ_temp,nat,ndof,
+     &      dbl_mb(k_m),dbl_mb(k_v),ekin,final_temp)
  
         if (ga_nodeid().eq.0) write(luout,*) "ekin: ",ekin
         if (ga_nodeid().eq.0) write(luout,*) "esys: ",esys
