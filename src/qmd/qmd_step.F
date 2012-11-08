@@ -28,6 +28,7 @@ c
       double precision etot,esys,ekin
 c
       character*30 pname
+      pname='qmd_step: '
 c
 c     choose the integrator
       if (integrator.eq.'velocity_verlet') then

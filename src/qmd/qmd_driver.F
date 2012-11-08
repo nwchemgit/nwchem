@@ -30,15 +30,14 @@ c
       integer nat                   ! number of atoms
       integer ndof                  ! number of degrees of freedom
       integer isteps                ! nuclear md step
-      double precision dt
-      integer nsteps
-      double precision dt_elec
-      integer nsteps_elec
-      character*20 test
-      character*20 thermostat
-      double precision tau
-      character*20 integrator
-      character*20 integrator_elec
+      integer nsteps                ! total number of nuclear md steps
+      double precision dt           ! nuclear md time step
+      double precision dt_elec      ! electronic time step
+      integer nsteps_elec           ! total number of electronic steps
+      character*20 thermostat       ! thermostat name
+      double precision tau          ! Berendsen tau parameter
+      character*20 integrator       ! nuclear md integrator
+      character*20 integrator_elec  ! electronic dynamics integrator
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
       double precision targ_temp    ! target temperature
@@ -128,7 +127,7 @@ c
 c     get the masses, initial coordinates and velocities
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
      $   call errquit(pname//'geom_masses_get',geom,GEOM_ERR)
-      if (.not.geom_coords_vels_get(geom,dbl_mb(k_r),dbl_mb(k_v))) ! coords and vels
+      if (.not.geom_coords_vels_get(geom,dbl_mb(k_r),dbl_mb(k_v)))
      $   call errquit(pname//'geom_coords_vels_get',0,GEOM_ERR)
 c
 c     perform energy gradient calculation on initial coordinates

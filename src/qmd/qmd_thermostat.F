@@ -7,8 +7,9 @@ c
       implicit none
 c
 #include "errquit.fh"
-#include "global.fh"
+#include "mafdecls.fh"
 #include "stdio.fh"
+#include "global.fh"
 c
       character*20 thermostat
       double precision dt, tau, targ_temp
@@ -24,6 +25,9 @@ c
       double precision inst_temp,ratio_temp
       double precision velscale
 c
+      character*30 pname
+      pname='qmd_thermostat: '
+c
 c     preliminaries
       kb    = 0.316682942d-05   ! Boltzmann constant in atomic units
       kbinv = 3.157732432d05    ! Inverse Boltzmann constant
@@ -31,21 +35,13 @@ c
 c     instantaneous temperature
       inst_temp = 2.0d0*ekin/kb/dble(ndof)
 c
-      if (ga_nodeid().eq.0) 
-     &    write(luout,*) "xxx thermostat: ",thermostat
-c
       if (thermostat.eq.'berendsen') then
-c       calculate velocity scaling factor: Berendsen scaling
-        ratio_temp = targ_temp/inst_temp
-        velscale = dsqrt(1.d0 + (dt/tau)*(ratio_temp - 1.d0))
-        do i = 1,nat
-          do j = 1,3
-            v(j,i) = velscale*v(j,i)
-          end do
-        end do
+        call qmd_berendsen(dt,tau,inst_temp,targ_temp,nat,v)
+      else if (thermostat.eq.'nose-hoover') then
+c       call qmd_nosehoover(dt,tau,targ_temp,nat,v)
       else
-              
-      end if
+        call errquit(pname//'unknown thermostat',0,CALC_ERR)
+      end if ! choice of thermostat
 c
 c     calculate the kinetic energy
       call qmd_kinetic(nat,mass,v,ekin)
