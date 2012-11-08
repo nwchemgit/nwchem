@@ -74,7 +74,7 @@ c     *** parameters ***
      >    call errquit(
      >         'generate_unfolded_xyz: out of stack memory',0, MA_ERR)
       
-      call dcopy(3*natoms1,0.0d0,0,dbl_mb(rion1(1)),1)
+      call dcopy(3*natoms,0.0d0,0,dbl_mb(rion1(1)),1)
     
       do t=1,nframes
         
