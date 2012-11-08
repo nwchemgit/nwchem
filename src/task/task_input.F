@@ -86,6 +86,8 @@ c
             operation = 'hessian'
          else if (inp_compare(.false.,test,'dynamics')) then
             operation = 'dynamics'
+         else if (inp_compare(.false.,test,'qmd')) then
+            operation = 'qmd'
          else if (inp_compare(.false.,test,'rfcf')) then
             operation = 'rfcf'
          else if (inp_compare(.false.,test,'thermodynamics')) then
@@ -285,6 +287,7 @@ c
      >      operation.ne.'gradient' .and.
      >      operation.ne.'property' .and.
      >      operation.ne.'dynamics' .and.
+     >      operation.ne.'qmd' .and.
      >      operation.ne.'rfcf' .and.
      >      operation.ne.'abc' .and.
      >      operation.ne.'et' ) call errquit

@@ -62,6 +62,7 @@ c
       logical task_mepgs, task_string
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics, task_rfcf
+      logical task_qmd
       logical orism
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
       logical osmd, ofragment
@@ -99,6 +100,7 @@ c
       external task_mepgs, task_string
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics, task_rfcf
+      external task_qmd
       external task_version, task_python, task_thermo,task_nbo
       external kgdtest, task_vscf
       external task_raman 
@@ -400,6 +402,8 @@ c        end if
          else
            status = task_dynamics(rtdb)
          endif
+      else if (inp_compare(.false.,'qmd',operation)) then
+           status = task_qmd(rtdb)
       else if (inp_compare(.false.,'rfcf',operation)) then
            status = task_rfcf(rtdb)
       else if(inp_compare(.false.,'fep',operation)) then

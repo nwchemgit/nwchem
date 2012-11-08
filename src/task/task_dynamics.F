@@ -39,9 +39,6 @@ c
       logical task_smd_dynamics
       external task_smd_dynamics
 c
-      logical task_qmd
-      external task_qmd
-c
       logical  md_driver
       external md_driver
 c
@@ -51,7 +48,6 @@ c
       logical status
       double precision cpu,wall
 c
-      logical lqmtheory
       character*32 theory
 c
       call ecce_print_module_entry('task dynamics')
@@ -65,11 +61,6 @@ c     Right now only have a QM component
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
-c
-c     check if quantum theory
-      lqmtheory = .false.  ! will include others
-      lqmtheory = (theory.eq.'dft'.or. theory.eq.'scf' .or. 
-     &     theory.eq.'mp2')
 c
 c     Set output parameters as if failed
 c
@@ -86,8 +77,6 @@ c         write(*,*) "smd dynamics is disabled for now"
 c      else if(theory.eq.'leps') then
 c        status = task_freq(rtdb)
 c        status = mc_main(rtdb,leps_gradient,theory)
-      elseif (lqmtheory) then
-        status=task_qmd(rtdb)
       elseif(theory.eq.'argos') then
         status=argos(rtdb)
       else
