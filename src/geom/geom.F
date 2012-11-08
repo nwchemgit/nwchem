@@ -2028,6 +2028,78 @@ c
 c
       end
 c
+C> \brief Extracts the coordinates and velocities of all centers in a geometry
+c
+C> Extracts the coordinates and velocities of all centers in a geometry assuming
+C> that the caller has made sure the buffer is big enough. If the
+C> buffer is too small the results are undefined.
+c
+C> \return Returns .true. if the function was successfull,
+C> and .false. otherwise.
+      logical function geom_coords_vels_get(geom, c, v)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom            !< [Input] the geometry handle
+      double precision c(3,*) !< [Output] cartesian coordinates
+      double precision v(3,*) !< [Output] velocities
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i, ncent
+c
+      geom_coords_vels_get =
+     $     geom_check_handle(geom, 'geom_coords_vels_get')
+      if (.not. geom_coords_vels_get) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         c(1,i) = coords(1,i,geom)
+         c(2,i) = coords(2,i,geom)
+         c(3,i) = coords(3,i,geom)
+         v(1,i) = velocities(1,i,geom)
+         v(2,i) = velocities(2,i,geom)
+         v(3,i) = velocities(3,i,geom)
+      end do
+c
+      end
+c
+C> \brief Defines the coordinates and velocities of all centers in a geometry
+c
+C> Defines the coordinates and velocities of all centers in a geometry assuming
+C> that the caller has previously defined how many centers there
+C> are (see e.g. geom_ncent_set).
+c
+C> \return Returns .true. if the function was successfull,
+C> and .false. otherwise.
+      logical function geom_coords_vels_set(geom, c, v)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom             !< [Input] the geometry handle
+      double precision c(3, *) !< [Input] coordinates
+      double precision v(3, *) !< [Input] velocities
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i, ncent
+c
+      geom_coords_vels_set =
+     $     geom_check_handle(geom, 'geom_coords_vels_set')
+      if (.not. geom_coords_vels_set) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         coords(1,i,geom) = c(1,i)
+         coords(2,i,geom) = c(2,i)
+         coords(3,i,geom) = c(3,i)
+         velocities(1,i,geom) = c(1,i)
+         velocities(2,i,geom) = c(2,i)
+         velocities(3,i,geom) = c(3,i)
+      end do
+c
+      end
+c
 C> \brief Look up data of a specific atom
 c
 C> Extracts the data, such as the tag, coordinates and charge, of a

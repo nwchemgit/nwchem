@@ -12,6 +12,8 @@ C$Id$
       logical geom_cart_get
       logical geom_cart_coords_set
       logical geom_cart_coords_get
+      logical geom_coords_vels_set
+      logical geom_coords_vels_get
       logical geom_vel_set
       logical geom_vel_get
       logical geom_cent_get
@@ -116,6 +118,8 @@ c
       external geom_cart_get
       external geom_cart_coords_set
       external geom_cart_coords_get
+      external geom_coords_vels_set
+      external geom_coords_vels_get
       external geom_vel_set
       external geom_vel_get
       external geom_cent_get
