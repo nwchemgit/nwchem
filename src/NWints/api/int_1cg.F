@@ -1,6 +1,16 @@
 c $Id$
 *
 **********************************************************************
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Integrate Gaussians over all space
+C>
+C> This routine computes the integral of the one center gaussian.
+C> \f{eqnarray*}{
+C> ({\mu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})dr_{1}
+C> \f}
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_1cg}
 c:tex-This routine computes the integral of the one center gaussian.
@@ -38,12 +48,12 @@ c::functions
       external cando_nw
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle
-      integer ish     ! [input] lexical shell/contraction index
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr)  ! [scratch] scratch space 
-      integer l1g     ! [input] length of integral buffer array
-      double precision G1e(l1g)   ! [output] one center gaussian integrals
+      integer i_basis !< [Input] basis set handle
+      integer ish     !< [Input] lexical shell/contraction index
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr)  !< [Scratch] scratch space 
+      integer l1g     !< [Input] length of integral buffer array
+      double precision G1e(l1g)   !< [Output] one center gaussian integrals
 c:tex-\end{verbatim}
 c::local
       logical any_spherical
@@ -130,3 +140,4 @@ c
      &    .false.)
 c
       end
+C> @}
