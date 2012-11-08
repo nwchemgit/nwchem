@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 18)
+      parameter (num_dirs = 19)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -32,6 +32,7 @@ c
      >            'pair_ion_ion_parameters',
      >            'buckingham_ion_ion_parameters',
      >            'bmh_ion_ion_parameters',
+     >            'dbmh_ion_ion_parameters',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -111,7 +112,7 @@ c
 
 
       goto ( 100,100,200,300,400,500,600,700,800,900,1000,1100,1200,
-     >       150,160,170,180,
+     >       150,160,170,180,190,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -389,6 +390,69 @@ c
      >  0,INPUT_ERR)
 
       goto 10
+c
+c  BMH Ion-Ion parameters -
+c
+ 190  element  = '    '
+      element2 = '    '
+      value =           inp_a(element)
+      value = value.and.inp_a(element2)
+      value = value.and.inp_f(se(1))
+      value = value.and.inp_f(se(2))
+      value = value.and.inp_f(se(3))
+      value = value.and.inp_f(se(4))
+      value = value.and.inp_f(se(5))
+      value = value.and.inp_f(se(6))
+      ni = 7
+      if (.not. value)
+     >  call errquit(
+     >  'pspw_qmmm_input:failed reading dbmh_ion_ion_parameters:',
+     >  0,INPUT_ERR)
+
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element
+     >             //element2
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,6,se)
+
+
+      if (element.ne.element2) then
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element2
+     >             //element
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element2
+     >             //element
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element2
+     >             //element
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,6,se)
+      end if
+
+      if (.not. value)
+     >  call errquit(
+     >  'pspw_qmmm_input:failed reading BMH ion-ion parameters:',
+     >  0,INPUT_ERR)
+
+      goto 10
+
 
 
 c

@@ -249,6 +249,25 @@ c
      >                    dbl_mb(param_all(1)+6*(nn+k-1)+1),
      >                    ' re:',  
      >                    dbl_mb(param_all(1)+6*(nn+k-1)+2)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.7) then
+                write(luout,'(4x,A,A,A,
+     >                        /48x,A5,E14.6,A5,E14.6,A5,E14.6,A5,E14.6,
+     >                        /48x,A5,E14.6,A5,E14.6)')
+     >                    '- Potential=A*exp(-rij/rho)',
+     >                    '-fdamp(6,Cd;rij)*C/rij**6',
+     >                    '-fdamp(8,Dd;rij)*D/rij**8,',
+     >                    ' A:',  
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)),
+     >                    ' rho:',  
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+1),
+     >                    ' C:',  
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+2),
+     >                    ' D:',  
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+3),
+     >                    ' Cd:',  
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+4),
+     >                    ' Dd:',  
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+5)
                      end if
                   end do
                endif
@@ -994,7 +1013,7 @@ c     *********************************************
      >                                  nshl3d,rcell,lmbda)
       implicit none
       integer n,t(*)
-      real*8 p(4,*)
+      real*8 p(6,*)
       real*8 r1(3),f1(3)
       real*8 r2(3),f2(3)
       integer nshl3d
@@ -1006,6 +1025,10 @@ c     *********************************************
       real*8  dx,dy,dz
       real*8  x,y,z,r
       real*8  dVPair,u,u6,u12
+
+*     **** external functions ****
+      real*8   pspw_VPair_fdamp,pspw_Vpair_dfdamp
+      external pspw_VPair_fdamp,pspw_Vpair_dfdamp
 
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
@@ -1033,6 +1056,12 @@ c     *********************************************
             else if (t(k).eq.6) then
                dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
      >                       *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
+            else if (t(k).eq.7) then
+               dVpair = -p(1,k)/p(2,k)*dexp(-r/p(2,k)) 
+     >         + 6.0d0*p(3,k)/r**7 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
+     >         + 8.0d0*p(4,k)/r**9 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+     >         - p(3,k)/r**6 * pspw_VPair_dfdamp(6,p(5,k),1.0d0,r)
+     >         - p(4,k)/r**8 * pspw_VPair_dfdamp(8,p(6,k),1.0d0,r)
             else
                dVPair = 0.0d0
             endif
@@ -1060,7 +1089,7 @@ c     *********************************************
      >                                       nshl3d,rcell)
       implicit none
       integer n,t(*)
-      real*8  p(4,*)
+      real*8  p(6,*)
       real*8 r1(3),f1(3)
       real*8 r2(3),f2(3)
       integer nshl3d
@@ -1071,6 +1100,10 @@ c     *********************************************
       real*8  dx,dy,dz
       real*8  x,y,z,r
       real*8  dVPair,u,u6,u12
+
+*     **** external functions ****
+      real*8   pspw_VPair_fdamp,pspw_Vpair_dfdamp
+      external pspw_VPair_fdamp,pspw_Vpair_dfdamp
 
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
@@ -1098,6 +1131,12 @@ c     *********************************************
             else if (t(k).eq.6) then
                dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
      >                       *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
+            else if (t(k).eq.7) then
+               dVpair = -p(1,k)/p(2,k)*dexp(-r/p(2,k)) 
+     >         + 6.0d0*p(3,k)/r**7 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
+     >         + 8.0d0*p(4,k)/r**9 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+     >         - p(3,k)/r**6 * pspw_VPair_dfdamp(6,p(5,k),1.0d0,r)
+     >         - p(4,k)/r**8 * pspw_VPair_dfdamp(8,p(6,k),1.0d0,r)
             else
                dVPair = 0.0d0
             endif
@@ -1122,7 +1161,7 @@ c     *********************************************
       subroutine pspw_VPair_fion_onecell(n,t,p,r1,f1,r2,f2)
       implicit none
       integer n,t(*)
-      real*8 p(4,*)
+      real*8 p(6,*)
       real*8 r1(3),f1(3)
       real*8 r2(3),f2(3)
 
@@ -1130,6 +1169,10 @@ c     *********************************************
       integer k
       real*8  x,y,z,r
       real*8  dVPair,u,u6,u12
+
+*     **** external functions ****
+      real*8   pspw_VPair_fdamp,pspw_Vpair_dfdamp
+      external pspw_VPair_fdamp,pspw_Vpair_dfdamp
 
       x = r1(1) - r2(1)
       y = r1(2) - r2(2)
@@ -1153,6 +1196,12 @@ c     *********************************************
          else if (t(k).eq.6) then
             dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
      >                    *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
+         else if (t(k).eq.7) then
+            dVpair = -p(1,k)/p(2,k)*dexp(-r/p(2,k)) 
+     >      + 6.0d0*p(3,k)/r**7 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
+     >      + 8.0d0*p(4,k)/r**9 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+     >      - p(3,k)/r**6 * pspw_VPair_dfdamp(6,p(5,k),1.0d0,r)
+     >      - p(4,k)/r**8 * pspw_VPair_dfdamp(8,p(6,k),1.0d0,r)
          else
             dVpair = 0.0d0
          endif
