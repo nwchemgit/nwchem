@@ -2944,7 +2944,8 @@ c
      $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
      $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
      $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt'/
+     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
+     $     'Rg', 'Cn'/
       data elements/
      $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
      $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
@@ -2968,7 +2969,8 @@ c
      $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
      $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
      $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
-     $     'Seaborgium','Bohrium','Hassium','Meitnerium'/
+     $     'Seaborgium','Bohrium','Hassium','Meitnerium',
+     $     'Darmstadtium', 'Roentgenium', 'Copernicium'/
       data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
       data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 

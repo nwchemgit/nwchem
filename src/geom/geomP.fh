@@ -114,7 +114,7 @@ c
       parameter (max_sym_ops   = 192)
       parameter (max_geom      = nw_max_geoms)
       parameter (max_geom_rtdb = 500)
-      parameter (nelements     = 109)
+      parameter (nelements     = 112)
       parameter (max_cent      = nw_max_atom)
       parameter (max_nzvar     = 6*max_cent)
       parameter (max_izmat     = 4*max_nzvar)
