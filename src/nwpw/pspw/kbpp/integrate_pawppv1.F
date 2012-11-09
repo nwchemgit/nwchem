@@ -86,9 +86,11 @@
 
 *     **** external functions ****
       real*8   control_ecut,control_wcut,util_erf
-      real*8   nwpw_splint,log_integrate_def,log_multipole_energy
+      real*8   nwpw_splint,log_integrate_def,log_integrate_def0
+      real*8   log_multipole_energy
       external control_ecut,control_wcut,util_erf
-      external nwpw_splint,log_integrate_def,log_multipole_energy
+      external nwpw_splint,log_integrate_def,log_integrate_def0
+      external log_multipole_energy
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -172,12 +174,13 @@ c      P3=dsqrt(105.0d0*forpi)
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,nrho
-           !xerf = rho(k)/rlocal
-           !yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
-           !f(k) = phi_ps(k,i)*phi_ps(k,i)*(yerf - v_ps(k))
-           f1(k) = phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
+           xerf = rho(k)/rlocal
+           yerf = util_erf(xerf)
+           !f1(k) = phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
+           f1(k) = (phi_ae(k,i)*phi_ae(k,i) 
+     >            - phi_ps(k,i)*phi_ps(k,i))*(rho(k)*v_ps(k)-zv*yerf)
          end do
-         d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
+         d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
          Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
 
          do j=1,i-1
@@ -185,12 +188,13 @@ c      P3=dsqrt(105.0d0*forpi)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
-                !xerf = rho(k)/rlocal
-                !yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
-                !f(k) = phi_ps(k,i)*phi_ps(k,j)*(yerf - v_ps(k))
-                f1(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
+                xerf = rho(k)/rlocal
+                yerf = util_erf(xerf)
+                !f1(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
+                f1(k) = (phi_ae(k,i)*phi_ae(k,j) 
+     >               - phi_ps(k,i)*phi_ps(k,j))*(rho(k)*v_ps(k)-zv*yerf)
               end do
-              d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
+              d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
               Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
             end if
@@ -261,6 +265,40 @@ c     >                                    f2,2,f4,log_amesh)
             end do
          end do
       end if
+
+*     **** add Vsrloc to vcore - 5 ***
+      do i=1,nbasis
+         la = l_ps(i)
+         na = n_ps(i) - la
+         power_f = 2*la + 2
+         do k=1,icut
+            xerf = rho(k)/rlocal
+            yerf = util_erf(xerf)
+            f1(k) = (phi_ae(k,i)*phi_ae(k,i))
+     >              *(-zv + zv*yerf - rho(k)*v_ps(k))
+         end do
+         d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
+         Gijl(na,na,la,5) = Gijl(na,na,la,5) + d
+
+         do j=1,i-1
+            lb = l_ps(j)
+            nb = n_ps(j) - lb
+            if (la.eq.lb) then
+               do k=1,icut
+                  xerf = rho(k)/rlocal
+                  yerf = util_erf(xerf)
+                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))
+     >                   *(-zv + zv*yerf- rho(k)*v_ps(k))
+               end do
+               d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
+               Gijl(na,nb,la,5) = Gijl(na,nb,la,5) + d
+               Gijl(nb,na,la,5) = Gijl(nb,na,la,5) + d
+            end if
+         end do
+      end do
+
+
+
 
       l = nmax*nmax*(lmax+1)
       call dcopy(l,      Gijl(1,1,0,3),1,Gijl(1,1,0,1),1)  !** kinetic **
