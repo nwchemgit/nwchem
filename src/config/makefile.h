@@ -1622,12 +1622,35 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@exit 1
    endif
       _FC=noifc
+      ifeq ($(FC),ftn)
+        _FC=pgf90
+        _CC=pgcc
+      endif
+      ifeq ($(CC),pgcc)
+        _CC=pgcc
+      endif
+      ifeq ($(FC),pgf90)
+        _FC=pgf90
+      endif
+      ifeq ($(FC),pgf77)
+        _FC=pgf90
+      endif
+      ifeq ($(FC),ifc)
+       _FC=ifc
+      endif
+      ifeq ($(FC),ifort)
+       _FC=ifc
+      endif
+      ifeq ($(FC),gfortran)
+       _FC=gfortran
+       DEFINES  += -DGFORTRAN
+      endif
        ifdef USE_I4FLAGS
-           ifneq ($(FC),gfortran)
+           ifneq ($(_FC),gfortran)
              FOPTIONS += -i4 
            endif
        else
-         ifeq ($(FC),gfortran)
+         ifeq ($(_FC),gfortran)
            FOPTIONS += -fdefault-integer-8
          else
            FOPTIONS += -i8
@@ -1766,30 +1789,6 @@ endif
 	@echo 
 	@exit 1
       endif
-      ifeq ($(FC),ftn)
-        _FC=pgf90
-        _CC=pgcc
-      endif
-      ifeq ($(CC),pgcc)
-        _CC=pgcc
-      endif
-      ifeq ($(FC),pgf90)
-        _FC=pgf90
-      endif
-      ifeq ($(FC),pgf77)
-        _FC=pgf90
-      endif
-      ifeq ($(FC),ifc)
-       _FC=ifc
-      endif
-      ifeq ($(FC),ifort)
-       _FC=ifc
-      endif
-      ifeq ($(FC),gfortran)
-       _FC=gfortran
-       DEFINES  += -DGFORTRAN
-      endif
-
 ifeq ($(_FC),noifc)
 ifndef USE_RISKYFC
 error2:
@@ -1901,7 +1900,7 @@ endif
           LDOPTIONS += -pg
           LDFLAGS += -pg
         endif
-        LINK.f = gfortran  $(LDFLAGS) 
+	    LINK.f = $(FC)  $(LDFLAGS) 
         FOPTIONS   += -Wextra -Wuninitialized #-Wunused
         FOPTIMIZE   = -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
