@@ -27,7 +27,7 @@ c     $Id$
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(31),scal,sumall
+      real*8  E(50),scal,sumall
       integer rtdb,tmp1(2),nx,ny,nz,n2ft3d
 
 
@@ -441,7 +441,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
  1682 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
- 1683 FORMAT( ' core-valence        :',E19.10,' (',E15.5,'/ion)')
+ 1683 FORMAT( ' core+srloc-(valence):',E19.10,' (',E15.5,'/ion)')
  1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
