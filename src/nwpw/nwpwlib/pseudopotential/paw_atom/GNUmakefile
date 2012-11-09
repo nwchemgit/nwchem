@@ -8,6 +8,7 @@
 		paw_basis.o \
 		paw_scattering.o \
 		paw_schrodin.o \
+		paw_pauli.o \
 		paw_orbitals.o \
 		paw_kinetic_energy.o \
 		paw_potential.o \
