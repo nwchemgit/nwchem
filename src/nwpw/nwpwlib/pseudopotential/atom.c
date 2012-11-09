@@ -378,24 +378,24 @@ solve_Atom ()
 	 /**********************************************************/
 	  if (Solver_Type == Schrodinger)
 	    {
-	      R_Schrodinger (n[i], l[i], Vall,
-			     &turning_point[i], &Etmp, r_psi[i],
-			     r_psi_prime[i]);
+	      R_Schrodinger(n[i], l[i], Vall,
+		            &turning_point[i], &Etmp, r_psi[i],
+		            r_psi_prime[i]);
 	    }
 	  else if (Solver_Type == Pauli)
 	    {
-	      R_Pauli (n[i], l[i], Zion, Vall,
-		       &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
+	      R_Pauli(n[i], l[i], Zion, Vall,
+		      &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
 	    }
 	  else if (Solver_Type == Dirac)
 	    {
-	      R_Dirac (n[i], l[i], s2[i], Zion, Vall,
-		       &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
+	      R_Dirac(n[i], l[i], s2[i], Zion, Vall,
+		      &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
 	    }
 	  else if (Solver_Type == ZORA)
 	    {
-	      R_ZORA (n[i], l[i], s2[i], Zion, Vall,
-		       &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
+	      R_ZORA(n[i], l[i], s2[i], Zion, Vall,
+		      &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
 	    }
 	 /**********************************************************/
 
@@ -418,18 +418,18 @@ solve_Atom ()
       /***************************************/
       /* get the hartree potential an energy */
       /***************************************/
-      P_Hartree = R_Hartree_DFT (rho, echarge, Vh);
+      P_Hartree = R_Hartree_DFT(rho, echarge, Vh);
       E_Hartree = 0.5 * P_Hartree;
 
       /*****************************************/
       /* get the exchange potential and energy */
       /*****************************************/
-      R_Exchange_DFT (rho, Vx, &E_exchange, &P_exchange);
+      R_Exchange_DFT(rho, Vx, &E_exchange, &P_exchange);
 
       /********************************************/
       /* get the correlation potential and energy */
       /********************************************/
-      R_Correlation_DFT (rho, Vc, &E_correlation, &P_correlation);
+      R_Correlation_DFT(rho, Vc, &E_correlation, &P_correlation);
 
 
       /**********************************************************/
