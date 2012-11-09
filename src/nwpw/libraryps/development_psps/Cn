@@ -1,20 +1,16 @@
 #
-# $Id: Nd 19707 2010-10-29 17:59:36Z d3y133 $
+# $Id: Cn 19707 2010-10-29 17:59:36Z d3y133 $
 #
-Comment: Nd pseudopotential parameters
+Comment: Cn pseudopotential parameters
 Comment: Relativistic TM, quadratic semicore
 
 [lmax] 3
 [locp] 0
 [rlocal] 1.0
 
-[lmax] 3
-[locp] 0
-[rlocal] 1.0
-
 <atom>
- Nd
-  60.00  144.242   9 4
+ Cn
+ 112.00  285.170  14 3
    1   0    2.00
    2   0    2.00
    2   1    6.00
@@ -24,22 +20,24 @@ Comment: Relativistic TM, quadratic semicore
    4   0    2.00
    4   1    6.00
    4   2   10.00
+   4   3   14.00
    5   0    2.00
    5   1    6.00
-   5   2    0.00
-   4   3    4.00
+   5   2   10.00
+   5   3   14.00
    6   0    2.00
+   6   1    6.00
+   6   2   10.00
+   7   0    2.00
 <end>
 <solver> pauli                         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut>
-0       1.566000
-1       1.791000
-2       2.494000
-3       1.061000
+0       1.115000
+1       1.356000
+2       1.873000
 <end>
 <kb_expansion>
 0 2
-3 2
 <end>
 
