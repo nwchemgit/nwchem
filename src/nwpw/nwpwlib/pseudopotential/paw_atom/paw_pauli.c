@@ -116,6 +116,7 @@ uprime[];
     iteration = 0;
     while (iteration < Max_Iterations)
     {
+
         ++iteration;
         /* define f_upp */
         for (i=0; i<Ngrid; ++i)
@@ -126,14 +127,6 @@ uprime[];
         }
         /* define dV/dr */
         paw_Derivative_LogGrid(v,dv);
-        /*
-        dv[0] = Derivative5_1(0,v)/(log_amesh*r[0]);
-        dv[1] = Derivative5_2(1,v)/(log_amesh*r[1]);
-        for (i=2; i<Ngrid-2; ++i)
-           dv[i] = Derivative5_3(i,v)/(log_amesh*r[i]);
-        dv[Ngrid-2] = Derivative5_4(Ngrid-2,v)/(log_amesh*r[Ngrid-2]);
-        dv[Ngrid-1] = Derivative5_5(Ngrid-1,v)/(log_amesh*r[Ngrid-1]);
-        */
 
 
 
@@ -268,7 +261,6 @@ uprime[];
 
 
 
-
             sum = 1.0/sqrt(sum);
             uout  = sum*uout;
             upout = sum*upout;
@@ -313,7 +305,8 @@ uprime[];
         } /* nodes ok */
     } /* while */
 
-    printf("Error paw_R_Pauli: More than %d iterations\n",Max_Iterations);
+    printf("Error paw_R_Pauli: More than %d iterations. ",Max_Iterations);
+    printf("n=%d, l=%d, Eig=%le\n",n,l,E);
     *Eig = E;
 
     /* deallocate memory */

@@ -5,6 +5,12 @@
 */
 
 
+/* Solver type: Solve_Type */
+#define Schrodinger     -8001
+#define Pauli           -8002
+#define Dirac           -8003
+#define ZORA            -8004
+
 
 extern void   paw_init_orbitals_from_file(FILE *fp);
 

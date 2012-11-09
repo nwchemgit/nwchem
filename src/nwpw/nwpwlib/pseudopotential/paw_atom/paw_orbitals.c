@@ -18,6 +18,7 @@
 #include   "paw_orbitals.h"
 #include   "paw_loggrid.h"
 #include   "paw_schrodin.h"
+#include   "paw_pauli.h"
 #include   "paw_potential.h"
 #include   "paw_my_constants.h"
 #include   "paw_dirac_exchange.h"
@@ -47,6 +48,8 @@ static  double    **psi_prime;
 static  double    *psi_tmp;
 static  double    *rho;
 
+static int Solver_Type = Pauli;
+
 
 
 /****************************************
@@ -61,6 +64,7 @@ void paw_init_orbitals_from_file(FILE *fp)
 {
     int     i;
     char   input[20];
+    char *w;
 
     rewind(fp);
 
@@ -118,6 +122,21 @@ void paw_init_orbitals_from_file(FILE *fp)
     for (i=Nbound; i<= Nbound+Nscat-1; i++)
         orb_type[i] = scattering;
 
+    rewind(fp);
+    if (paw_find_word("<solver>",fp) == 0)
+    {
+      w = paw_get_word(fp);
+      if (strcmp ("schrodinger", w) == 0)
+        Solver_Type = Schrodinger;
+      if (strcmp ("pauli", w) == 0)
+        Solver_Type = Pauli;
+      if (strcmp ("dirac", w) == 0)
+        Solver_Type = Dirac;
+      if (strcmp ("zora", w) == 0)
+        Solver_Type = ZORA;
+    }
+    else
+        Solver_Type = Pauli;
 }
 
 
@@ -215,8 +234,16 @@ void   paw_solve_occupied_orbitals()
 
             Etmp = eigenvalue[i];
 
-            paw_R_Schrodinger(n[i],l[i],Vi,
-                              &Etmp,psi[i],psi_prime[i]);
+            if (Solver_Type==Schrodinger)
+            {
+               paw_R_Schrodinger(n[i],l[i],Vi,
+                                 &Etmp,psi[i],psi_prime[i]);
+            }
+            else
+            {
+               paw_R_Pauli(n[i],l[i],Zion,Vi,
+                           &Etmp,psi[i],psi_prime[i]);
+            }
 
             if (fabs(eigenvalue[i] - Etmp) >1.0e-10)
                 converged = False;
@@ -253,6 +280,7 @@ void   paw_solve_occupied_orbitals()
         /*get new potential*/
         paw_set_kohn_sham_potential(rho);
         Vo = paw_get_kohn_sham_potential();
+
 
         /*****************************************/
         /* Generate the next iteration potential */
@@ -331,10 +359,12 @@ void paw_solve_unoccupied_orbitals()
     double sum;
     double *V;
     double *rgrid;
+    double Zion;
 
 
     Ngrid = paw_N_LogGrid();
     rgrid = paw_r_LogGrid();
+    Zion = paw_get_ion_charge();
 
     /*check if the occupied orbitals are done*/
     if (!(occupied_orbitals_done))
@@ -358,8 +388,16 @@ void paw_solve_unoccupied_orbitals()
         }
         else
         {
-            status = paw_R_Schrodinger(n[i],l[i],V,
-                                       &eigenvalue[i],psi[i],psi_prime[i]);
+            if (Solver_Type==Schrodinger)
+            {
+               status = paw_R_Schrodinger(n[i],l[i],V,
+                                          &eigenvalue[i],psi[i],psi_prime[i]);
+            }
+            else
+            {
+               status = paw_R_Pauli(n[i],l[i],Zion,V,
+                                          &eigenvalue[i],psi[i],psi_prime[i]);
+            }
 
         }
 
@@ -414,9 +452,11 @@ void paw_solve_scattering_orbitals()
     double *V;
     double *rgrid;
     double r_sphere;
+    double Zion;
 
     Ngrid = paw_N_LogGrid();
     rgrid = paw_r_LogGrid();
+    Zion = paw_get_ion_charge();
 
     /*normalization sphere radius*/
     r_sphere = 2.0;
@@ -439,14 +479,14 @@ void paw_solve_scattering_orbitals()
         /*set the end point*/
         i_match = Ngrid-1;
 
-        paw_R_Schrodinger_Fixed_E(
-            l[i],
-            V,
-            i_match,
-            eigenvalue[i],
-            psi[i],
-            psi_prime[i]
-        );
+        if (Solver_Type==Schrodinger)
+        {
+           paw_R_Schrodinger_Fixed_E(l[i],V,i_match,eigenvalue[i],psi[i],psi_prime[i]);
+        }
+        else
+        {
+           paw_R_Pauli_Fixed_E(n[i],l[i],Zion,V,i_match,eigenvalue[i],psi[i],psi_prime[i]);
+        }
 
         for (j=0;j<i-1;j++)
         {
@@ -547,6 +587,11 @@ int paw_bound_state_test(int l, double *v)
 void paw_print_orbital_information(FILE *fp)
 {
     int i;
+
+    if (Solver_Type==Schrodinger)
+       fprintf(fp,"solver type : Schrodinger\n\n");
+    else
+       fprintf(fp,"solver type : Pauli\n\n");
     fprintf(fp,"\n************ ORBITALS ********\n");
     fprintf(fp,"number of valence    orbitals : %d\n",Nvalence);
     fprintf(fp,"number of virtual    orbitals : %d\n",Nvirt);

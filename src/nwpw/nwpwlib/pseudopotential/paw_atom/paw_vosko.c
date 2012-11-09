@@ -100,6 +100,7 @@ double* paw_get_corr_pot_LDA()
  Author     		  : Eric Bylaska & Marat Valiev
  Date & Time		  : 1/8/99 1:19:44 PM
 ****************************************/
+#define small_number    1.0e-80
 void paw_generate_corr_pot_LDA(double *rho)
 {
     int	i;
@@ -118,7 +119,7 @@ void paw_generate_corr_pot_LDA(double *rho)
 
     for (i=0; i<= Ngrid-1; i++)
     {
-        n     = rho[i]/(4.0*PI);
+        n     = rho[i]/(4.0*PI) + small_number;
         rs    = rs_scale/pow(n,onethird);
 
         x     = sqrt(rs);
@@ -168,7 +169,7 @@ double paw_get_correlation_energy_LDA(double *rho)
 
     for (i=0; i<= Ngrid-1; i++)
     {
-        n     = rho[i]/(4.0*PI);
+        n     = rho[i]/(4.0*PI) + small_number;
         rs    = rs_scale/pow(n,onethird);
 
         x     = sqrt(rs);
