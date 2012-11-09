@@ -1,5 +1,14 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C> \brief Calculates 3-center overlap integrals
+C>
+C> This routine computes the 3 center overlap integral:
+C> \f{eqnarray*}{
+C> ({\mu}{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})g_{\lambda}(X_{\lambda},r_{1})dr_{1}
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1e3ov}
 c:tex-This routine computes the 3 center overlap integral:
@@ -32,16 +41,16 @@ c::functions
       external int_chk_sh, int_chk_init
 c::passed
 c:tex-\begin{verbatim} 
-      integer i_basis            ! [input] basis set handle for ish
-      integer ish                ! [input] i shell/contraction
-      integer j_basis            ! [input] basis set handle for jsh
-      integer jsh                ! [input] j shell/contraction
-      integer k_basis            ! [input] basis set handle for ksh
-      integer ksh                ! [input] k shell/contraction
-      integer lscr               ! [input] length of scratch v
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lov3               ! [input] length of 3c overlap buffer
-      double precision OV3(lov3) ! [output] 3c overlap integrals
+      integer i_basis            !< [Input] basis set handle for ish
+      integer ish                !< [Input] i shell/contraction
+      integer j_basis            !< [Input] basis set handle for jsh
+      integer jsh                !< [Input] j shell/contraction
+      integer k_basis            !< [Input] basis set handle for ksh
+      integer ksh                !< [Input] k shell/contraction
+      integer lscr               !< [Input] length of scratch v
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lov3               !< [Input] length of 3c overlap buffer
+      double precision OV3(lov3) !< [Output] 3c overlap integrals
 c:tex-\end{verbatim} 
 c::local
       logical shells_ok
@@ -165,3 +174,4 @@ c
      &    .false.)
 c
       end
+C> @}
