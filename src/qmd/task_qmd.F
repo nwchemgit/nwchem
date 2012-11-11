@@ -1,7 +1,7 @@
 c
 c     task quantum molecular dynamics
 c
-      function task_qmd(rtdb)
+      logical function task_qmd(rtdb)
 c
       implicit none
 c
@@ -15,8 +15,6 @@ c
 #include "stdio.fh"
 c
       integer rtdb
-c
-      logical  task_qmd
 c
       logical status
       double precision cpu,wall

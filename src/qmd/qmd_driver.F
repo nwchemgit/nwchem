@@ -16,8 +16,6 @@ c
 c
       integer rtdb
 c
-      logical  qmd_driver
-c
       integer geom                  ! geometry object
       integer l_r, k_r              ! coordinates
       double precision r(3)
