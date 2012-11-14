@@ -18,13 +18,13 @@ c     nose-hoover thermostat parameters
       integer maxchain
       parameter (maxchain = 2)
       logical do_nosehoover
-      double precision rnh(maxchain)    ! positions of chained Nose-Hoover thermostats
-      double precision vnh(maxchain)    ! velocities of chained Nose-Hoover thermostats
-      double precision mnh(maxchain)    ! masses of chained Nose-Hoover thermostats
-      double precision gnh(maxchain)    ! couplings between thermostats
+      double precision r_nh(maxchain)    ! chain positions
+      double precision v_nh(maxchain)    ! chain velocities
+      double precision m_nh(maxchain)    ! chain masses
+      double precision g_nh(maxchain)    ! bath couplings
 c
       common/qmd_thermostat/do_berendsen,tau,
-     &                      do_nosehoover,gnh,vnh,rnh,mnh
+     &                      do_nosehoover,r_nh,v_nh,m_nh,g_nh
 c
 c     temperature
       double precision targ_temp

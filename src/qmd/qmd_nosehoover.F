@@ -30,27 +30,30 @@ c     preliminaries
       dt4 = 0.25d0*dt
       dt8 = 0.125d0*dt
 c
-c     nose-hoover chain
-      gnh(2) = (mnh(1)*vnh(1)*vnh(1)-kb*targ_temp)/mnh(2)
-      vnh(2) = vnh(2) + gnh(2)*dt4
-      vnh(1) = vnh(1) * dexp(-vnh(2)*dt8)
-      gnh(1) = (2.0d0*ekin-ndof*1.d0*kb*targ_temp)/mnh(1)
-      vnh(1) = vnh(1) + gnh(1)*dt4
-      vnh(1) = vnh(1) * dexp(-vnh(2)*dt8)
-      rnh(1) = rnh(1) + vnh(1)*dt2
-      rnh(2) = rnh(2) + vnh(2)*dt2
-      scalefac = dexp(-vnh(1)*dt2)
+c     nose-hoover chain: 2 chains
+      g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kb*targ_temp)/m_nh(2)
+      v_nh(2) = v_nh(2) + g_nh(2)*dt4
+      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+c
+      g_nh(1) = (2.0d0*ekin - ndof*kb*targ_temp)/m_nh(1)
+      v_nh(1) = v_nh(1) + g_nh(1)*dt4
+      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+c
+      r_nh(1) = r_nh(1) + v_nh(1)*dt2
+      r_nh(2) = r_nh(2) + v_nh(2)*dt2
+c
+      scalefac = dexp(-v_nh(1)*dt2)
 c
 c     scale kinetic energy
       ekin = ekin*scalefac*scalefac
 c
-c     nose-hoover chain
-      vnh(1) = vnh(1) * dexp(-vnh(2)*dt8)
-      gnh(1) = (2.0d0*ekin-ndof*1.d0*kb*targ_temp)/mnh(1)
-      vnh(1) = vnh(1) + gnh(1)*dt4
-      vnh(1) = vnh(1) * dexp(-vnh(2)*dt8)
-      gnh(2) = (mnh(1)*vnh(1)*vnh(1)-kb*targ_temp)/mnh(2)
-      vnh(2) = vnh(2) + gnh(2)*dt4
+c     nose-hoover chain: 2 chains
+      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+      g_nh(1) = (2.0d0*ekin -ndof*kb*targ_temp)/m_nh(1)
+      v_nh(1) = v_nh(1) + g_nh(1)*dt4
+      v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
+      g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kb*targ_temp)/m_nh(2)
+      v_nh(2) = v_nh(2) + g_nh(2)*dt4
 c
 c     scale velocity
       do i = 1,nat

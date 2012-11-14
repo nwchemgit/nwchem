@@ -51,8 +51,8 @@ c
       status = .true.
       pname = "qmd_driver: "
 c
-c     Boltzmann constant in atomic units
-      kb  = 0.316682942d-05
+c     boltzmann constant in atomic units
+      kb=3.16679d-6
 c
 c     total nuclear steps
       if (.not.rtdb_get(rtdb,'qmd:nsteps',mt_int,1,nsteps))
@@ -95,10 +95,10 @@ c     thermostat
       else if (thermostat.eq.'nosehoover') then
          do_nosehoover = .true.
          do ichain = 1,maxchain
-            rnh(ichain) = 0.d0    ! position of chains
-            vnh(ichain) = 0.d0    ! velocity of chains
-            mnh(ichain) = nh_mass ! mass of chains
-            gnh(ichain) = 0.d0    ! bath coupling
+            r_nh(ichain) = 0.d0    ! position of chains
+            v_nh(ichain) = 0.d0    ! velocity of chains
+            m_nh(ichain) = nh_mass ! mass of chains
+            g_nh(ichain) = 0.d0    ! bath coupling
          end do
       end if
 c
