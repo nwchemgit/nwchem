@@ -760,7 +760,7 @@ c    =1/2 for Vnucl (in gridNuclearPotential)
       double precision atmass,zetanuc
       double precision gammap,gammaq,rtemp,a_coeff
 c
-      external gratio,  ! defined in Incomplete_Gamma_TOMS_654.F
+      external dgratio,  ! defined in Incomplete_Gamma_TOMS_654.F
      &         get_znuc
 c
       call get_znuc(atmass,zetanuc)
@@ -771,7 +771,7 @@ c
          ac_prod=ac_prod+rxyz(i)*rxyz(i)
         enddo
         rtemp = zetanuc*ac_prod  ! dist*dist
-        call gratio(a_coeff,rtemp,gammap,gammaq,0)
+        call dgratio(a_coeff,rtemp,gammap,gammaq,0)
         amat_Pnucl(igrid) = gammap  ! P(3/2,\tilde{r}_N^2)
       end do ! igrid
 c
@@ -827,7 +827,7 @@ c ---------- Defining values at hand to check --------- ENd
          ac_prod=ac_prod+rxyz(i)*rxyz(i)
         enddo
         rtemp = zetanuc_slc*ac_prod  ! dist*dist
-        call gratio(a_coeff,rtemp,gammap,gammaq,0)
+        call dgratio(a_coeff,rtemp,gammap,gammaq,0)
         Pnucl = dble(gammap)  ! P(3/2,\tilde{r}_N^2)
        return
        end
@@ -837,7 +837,7 @@ c     Purpose: Evaluation of zetanuc
 c              to be used in evaluation of Incomplete
 c              Gamma Function [gratio(...)]
 c              rtemp = zetanuc*ac_prod  ! dist*dist
-c              call gratio(threehalf,rtemp,gammap,gammaq,0)
+c              call dgratio(threehalf,rtemp,gammap,gammaq,0)
 c
        subroutine get_znuc(atmass, zetanuc)
 c
@@ -865,7 +865,7 @@ c     Purpose: Evaluation of zetanuc arr
 c              to be used in evaluation of Incomplete
 c              Gamma Function [gratio(...)]
 c              rtemp = zetanuc*ac_prod  ! dist*dist
-c              call gratio(threehalf,rtemp,gammap,gammaq,0)
+c              call dgratio(threehalf,rtemp,gammap,gammaq,0)
 c              This routine is used in gridNuclearPotential()
 c
        subroutine get_zetanuc_arr(geom, natoms, zetanuc_arr) 

@@ -19,31 +19,32 @@ C     THE LAST FUNCTION IN THIS PACKAGE, SPMPAR, MUST BE DEFINED
 C     FOR THE PARTICULAR COMPUTER BEING USED. FOR DETAILS SEE THE
 C     IN-LINE DOCUMENTATION OF SPMPAR.
 C ----------------------------------------------------------------------
-      SUBROUTINE TEST()
-      implicit none
-      integer I,L
-      real A,X0,X,P,Q,XN,D,IERR
-      WRITE (6,1)
-    1 FORMAT(11H1   A     X,10X,1HP,15X,1HQ,15X,2HXN,13X,
-     *       10HD     IERR)
-    2 FORMAT(2F6.2,3E16.6,E12.2,I5)
-    3 FORMAT(1H0)
+c      SUBROUTINE TEST()
+c      implicit none
+c      integer I,L
+c      real A,X0,X,P,Q,XN,D,IERR
+c      WRITE (6,1)
+c    1 FORMAT(11H1   A     X,10X,1HP,15X,1HQ,15X,2HXN,13X,
+c     *       10HD     IERR)
+c    2 FORMAT(2F6.2,3E16.6,E12.2,I5)
+c    3 FORMAT(1H0)
 C
-      A = 0.1
-      X0 = 0.0
-      DO 20 L = 1,10
-      WRITE (6,3)
-      X = 0.1
-         DO 10 I = 1,10
-         CALL GRATIO (A,X,P,Q,0)
-         CALL GAMINV (A,XN,X0,P,Q,IERR)
-         D = ABS((X - XN)/X)
-         WRITE (6,2) A,X,P,Q,XN,D,IERR
-   10    X = X + 0.1
-   20 A = A + 0.1
- 
-      STOP
-      END
+c      A = 0.1
+c      X0 = 0.0
+c      DO 20 L = 1,10
+c      WRITE (6,3)
+c      X = 0.1
+c         DO 10 I = 1,10
+c         CALL DGRATIO (A,X,P,Q,0)
+c         CALL GAMINV (A,XN,X0,P,Q,IERR)
+c         D = ABS((X - XN)/X)
+c         WRITE (6,2) A,X,P,Q,XN,D,IERR
+c   10    X = X + 0.1
+c   20 A = A + 0.1
+c 
+c      STOP
+c      END
+c
       SUBROUTINE DGRATIO(A,X,ANS,QANS,IND)
 C     ALGORITHM 654, COLLECTED ALGORITHMS FROM ACM.
 C     THIS WORK PUBLISHED IN TRANSACTIONS ON MATHEMATICAL SOFTWARE,

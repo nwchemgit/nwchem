@@ -143,7 +143,7 @@ c Date  : 04-20-11
       double precision a_coeff,rtemp,gammap,gammaq
       integer closegridpts(*)
 c
-      external gratio,  ! Evaluates Incomplete Gamma Function P(a,x)
+      external dgratio,  ! Evaluates Incomplete Gamma Function P(a,x)
      &         get_zetanuc_arr
 c
       call get_zetanuc_arr(geom,natoms,zetanuc_arr) ! zetanuc_arr(i) i=1,natoms
@@ -161,7 +161,7 @@ c     == distance from the grid points to the atom centers ==
         rz = nucCoords(3) - qxyz(3,igrid)
         dist = dsqrt(rx*rx + ry*ry + rz*rz)
         rtemp = real(zetanuc_arr(iatom)*dist*dist)
-        call gratio(a_coeff,rtemp,gammap,gammaq,0)! Evaluate P(1/2,zetanuc r_L^2)
+        call dgratio(a_coeff,rtemp,gammap,gammaq,0)! Evaluate P(1/2,zetanuc r_L^2)
         if (dist.gt.zoracutoff) then ! == check cutoff ==          
            amat_nucl(igrid) = amat_nucl(igrid) - 
      &                        nucCharge/dist*gammap
