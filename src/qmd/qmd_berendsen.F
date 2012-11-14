@@ -10,7 +10,7 @@ c
 #include "stdio.fh"
 #include "global.fh"
 c
-#include "qmd_params.fh"
+#include "qmd_common.fh"
 c
       integer nat
       double precision dt

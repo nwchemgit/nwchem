@@ -14,7 +14,7 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 c
-#include "qmd_params.fh"
+#include "qmd_common.fh"
 c
       integer rtdb
 c
