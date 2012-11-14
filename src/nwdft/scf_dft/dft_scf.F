@@ -1323,8 +1323,8 @@ c
       if(gotsmear(ssmear).and.mod(iter,ndisrst).eq.0) then
          if(iter.gt.1.and.diising) diisreset=.true.
       endif
-      if(diisreset) then
-         if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
+      if(diisreset.or.iswitc.eq.1) then
+         if(me.eq.0) write(LuOut,*) ' Resetting Diis'
          call diis_driver(toll_s, derr,  ipol, icall, nfock, 
      &        nbf_ao, geom, ao_bas_han, g_focks, 
      &        g_dens, g_tmp, g_svecs, svals, 

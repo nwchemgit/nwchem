@@ -19,7 +19,7 @@ c     convergence declarations
 c
 c     early convergence tolerances
 c
-      parameter(itol_min = 6.4, iAOacc_min = 12, tol_rho_min = 1.d-7)
+      parameter(itol_min = 7, iAOacc_min = 12, tol_rho_min = 1.d-7)
       common /dft_conv/delta,tol_rho_max, rlshift_input, rlshift_def,
      .      ecoul, ecore, homo, lumo, homo_lumo_gap,ssmear,rho_n,exc,
 c     integer
