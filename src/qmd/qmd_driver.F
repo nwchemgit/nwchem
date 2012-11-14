@@ -39,6 +39,7 @@ c
       character*32 integrator_elec  ! electronic dynamics integrator
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
+      double precision nh_mass
 c
       logical status
 c
@@ -49,6 +50,9 @@ c
 c
       status = .true.
       pname = "qmd_driver: "
+c
+c     Boltzmann constant in atomic units
+      kb  = 0.316682942d-05
 c
 c     total nuclear steps
       if (.not.rtdb_get(rtdb,'qmd:nsteps',mt_int,1,nsteps))
@@ -75,21 +79,26 @@ c     target temperature
      & call errquit(pname//'failed to read targ_temp',0,RTDB_ERR)
       if (ga_nodeid().eq.0) write(luout,*) "targ_temp: ",targ_temp
 c
+c     nose-hoover mass parameter
+      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,1,nh_mass))
+     & call errquit(pname//'failed to read nh_mass',0,RTDB_ERR)
+      if (ga_nodeid().eq.0) write(luout,*) "nh_mass: ",nh_mass
+c
 c     thermostat
+      do_berendsen = .false.
+      do_nosehoover = .false.
       if (.not. rtdb_cget(rtdb,'qmd:thermostat',1,thermostat))
      $ call errquit(pname//'failed to read thermostat',0,RTDB_ERR)
       if (ga_nodeid().eq.0) write(luout,*) "thermostat: ",thermostat
       if (thermostat.eq.'berendsen') then
          do_berendsen = .true.
-         do_nosehoover = .false.
       else if (thermostat.eq.'nosehoover') then
-         do_berendsen = .false.
          do_nosehoover = .true.
          do ichain = 1,maxchain
-            rnh(ichain) = 0.d0
-            vnh(ichain) = 0.d0
-            mnh(ichain) = 0.d0
-            gnh(ichain) = 0.d0
+            rnh(ichain) = 0.d0    ! position of chains
+            vnh(ichain) = 0.d0    ! velocity of chains
+            mnh(ichain) = nh_mass ! mass of chains
+            gnh(ichain) = 0.d0    ! bath coupling
          end do
       end if
 c
