@@ -1,9 +1,8 @@
 #
 # $Id$
 #
-
-OBJ_OPTIMIZE =  qmd_driver.o qmd_main.o qmd_input.o qmd_start.o task_qmd.o qmd_verlet.o \
-qmd_kinetic.o qmd_thermostat.o qmd_step.o qmd_berendsen.o
+OBJ_OPTIMIZE =  qmd_driver.o qmd_main.o qmd_input.o qmd_start.o task_qmd.o qmd_nucl_step.o \
+qmd_verlet.o qmd_kinetic.o qmd_berendsen.o qmd_nosehoover.o
 
 LIBRARY=libqmd.a
 

@@ -1,0 +1,35 @@
+c
+c     common parameters
+c
+c     constants
+      double precision kb
+      common/qmd_consts/kb
+c
+c     berendsen thermostat
+      logical do_berendsen
+      double precision tau
+c
+c     nose-hoover thermostat parameters
+      integer maxchain
+      parameter (maxchain = 2)
+      logical do_nosehoover
+      double precision rnh(maxchain)    ! positions of chained Nose-Hoover thermostats
+      double precision vnh(maxchain)    ! velocities of chained Nose-Hoover thermostats
+      double precision mnh(maxchain)    ! masses of chained Nose-Hoover thermostats
+      double precision gnh(maxchain)    ! couplings between thermostats
+c
+      common/qmd_thermostat/do_berendsen,tau,
+     &                      do_nosehoover,gnh,vnh,rnh,mnh
+c
+c     temperature
+      double precision targ_temp
+      double precision final_temp 
+      common/qmd_temps/targ_temp,final_temp
+c
+c     integrators
+      logical do_vv                      ! velocity verlet
+      common/qmd_integrators/do_vv
+c
+c     nuclear-md constraints
+      integer ndof
+      common/qmd_constr/ndof

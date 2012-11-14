@@ -1,7 +1,7 @@
 c
 c     nuclear md step
 c
-      subroutine qmd_step(rtdb,integrator,nat,dt,m,r,v,g,esys)
+      subroutine qmd_nucl_step(rtdb,nat,dt,m,r,v,g,esys,ekin)
 c
       implicit none
 c
@@ -11,28 +11,24 @@ c
 #include "stdio.fh"
 #include "global.fh"
 c
-      integer rtdb               ! rtdb
-      character*20 integrator
-      integer nat                ! number of atoms
+#include "qmd_params.fh"
 c
+      integer rtdb               ! rtdb
+      integer nat                ! number of atoms
       double precision dt        ! step size
       double precision m(nat)    ! mass
       double precision r(3,nat)  ! coordinates
       double precision v(3,nat)  ! velocities
       double precision g(3,nat)  ! gradients
-      double precision a(3,nat)  ! acceleration
-c
-      integer i,j
-      double precision dt2
-c
-      double precision etot,esys,ekin
+      double precision esys      ! system energy
+      double precision ekin      ! kinetic energy
 c
       character*30 pname
-      pname='qmd_step: '
+      pname='qmd_nucl_step: '
 c
 c     choose the integrator
-      if (integrator.eq.'velocity_verlet') then
-         call qmd_verlet(rtdb,nat,dt,m,r,v,g,esys)
+      if (do_vv) then
+         call qmd_verlet(rtdb,nat,dt,m,r,v,g,esys,ekin)
       else 
          call errquit(pname//'unknown integrator',0,CALC_ERR)
       end if

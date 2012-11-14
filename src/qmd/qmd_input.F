@@ -18,6 +18,7 @@ c
 #include "stdio.fh"
 #include "case.fh"
 c
+#include "qmd_params.fh"
 c
       integer rtdb
 c
@@ -25,12 +26,10 @@ c
       integer nsteps
       double precision dt_elec
       integer nsteps_elec
-      double precision targ_temp
-      character*20 test
-      character*20 thermostat
-      double precision tau
-      character*20 integrator
-      character*20 integrator_elec
+      character*32 test
+      character*32 thermostat
+      character*32 integrator
+      character*32 integrator_elec
 c
       character*30 pname
 c
@@ -39,6 +38,9 @@ c
 c     ------------------
 c     Set default values
 c     ------------------
+c
+c     Boltzmann constant in atomic units
+      kb  = 0.316682942d-05
 c
 c     Nuclear MD time step: dt
 c
@@ -73,6 +75,8 @@ c
 c     Nuclear thermostat
 c
       thermostat='berendsen'
+      do_berendsen = .true.
+      do_nosehoover = .false.
       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      & call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
@@ -85,6 +89,7 @@ c
 c     Nuclear MD integrator
 c
       integrator='velocity_verlet'
+      do_vv = .true.
       if (.not.rtdb_cput(rtdb,'qmd:integrator',1,integrator))
      & call errquit(pname//'failed to write nuclear integrator',0,
      &     RTDB_ERR)
@@ -152,7 +157,8 @@ c
           targ_temp = 300.d0  ! Kelvin
        endif
        if (.not.rtdb_put(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
-     &  call errquit(pname//'failed to write targ_temp',0,RTDB_ERR)
+     &  call errquit(pname//'failed to write targ_temp',0,
+     &     RTDB_ERR)
 c
 c     Nuclear thermostat
 c
@@ -162,6 +168,14 @@ c
      1      'default berendsen thermostat will be used'
           thermostat='berendsen'
        endif
+       if (thermostat.eq.'berendsen') then
+             do_berendsen = .true.
+             do_nosehoover = .false.
+       else if (thermostat.eq.'nosehoover') then
+             do_berendsen = .false.
+             do_nosehoover = .true.
+       end if
+c
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
@@ -183,6 +197,7 @@ c
           write(LuOut,*) 'nuclear integrator not found; ',
      1      'default velocity verlet will be used'
           integrator='velocity_verlet'
+          do_vv = .true.
        endif
        if (.not.rtdb_cput(rtdb,'qmd:integrator',1,integrator))
      1  call errquit(pname//'failed to write integrator',0,RTDB_ERR)
@@ -204,6 +219,8 @@ c
 c ------
 c Return
 c ------
+c
+      call ga_sync()
 c
  20   return
       end
