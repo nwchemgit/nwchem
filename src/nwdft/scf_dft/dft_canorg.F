@@ -257,7 +257,8 @@ c
       double precision ss
       gotsmear(ss)=abs(ss).gt.1d-9
 c
-      if (abs(delta).lt.1.d-3)then
+      delta = -etold+etnew
+      if (abs(delta).lt.5d-3)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
 c        (note, may also require re-initializing DIIS)

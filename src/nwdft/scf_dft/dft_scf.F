@@ -253,7 +253,7 @@ c
 c     check if smearing is on
 c
       ssmear=0.d0
-      delta=0d0
+      delta=1d99
       derr(1)=1d99
       derr(2)=1d99
       n_rabuck=0
@@ -781,14 +781,17 @@ c
       endif
       iswitc = 0
       if (ltight)then
-         itol2e = itol_max
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = 1
       else
-         itol2e = min(itol_min,itol_max)
-         iAOacc = min(iAOacc_min,iAOacc_max)
+         iAOacc = iAOacc_min
          tol_rho = max(tol_rho_min,tol_rho_max)
+      endif
+      if (ltight.or.(.not.direct))then
+         itol2e = itol_max
+      else
+         itol2e = min(itol_min,itol_max)
       endif
 c     
       tol2e = 10.d0**(-itol_max)
