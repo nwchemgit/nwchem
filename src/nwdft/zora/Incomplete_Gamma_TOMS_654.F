@@ -83,6 +83,8 @@ C     --------------------
      &R,RT2PIN,RTA,RTPI,RTX,QANS,S,SUM,T,T1,THIRD,TOL,TWOA,U,W,X,X0,Y,Z
       REAL*8 ACC0(3),BIG(3),E00(3),X00(3),WK(20)
       REAL*8 D0(13),D1(12),D2(10),D3(8),D4(6),D5(4),D6(2)
+      double precision derf
+      external derf
       REAL SPMPAR
       REAL*8 DERFC1,DGAM1,DGAMMA,DREXP,DRLOG
 C     --------------------
