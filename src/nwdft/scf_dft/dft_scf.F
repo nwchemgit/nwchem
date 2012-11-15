@@ -1331,6 +1331,7 @@ c
      &        diising, nodiis,int_mb(k_gdiis),
      ,        lkeeps,g_s12m,g_s12p,.true.,
      $           nconstr,multipliers0,dbl_mb(k_mdiis))
+         diisreset=.false.
       endif
 
          etnew=etnew+tdots

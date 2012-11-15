@@ -267,6 +267,8 @@ c
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = iswitc+1
+      else
+         iswitc=0
       endif
 c     
       iter = iter + 1
