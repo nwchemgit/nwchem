@@ -2384,10 +2384,6 @@ c
             nlxfac(37) = .true.
             call inp_prev_field()
          endif
-c     add HF Exchange bit
-         xfac(1) = 0.54d0
-         lxfac(1) = .true.
-         nlxfac(1) = .true.
       else
 c
 c        assume total wanted
@@ -2398,6 +2394,10 @@ c
       if (.not. inp_f(xfac(37))) then
          xfac(37) = 1.0d0
       endif
+cadded HF X bit
+         xfac(1) = 0.54d0*xfac(37)
+         lxfac(1) = .true.
+         nlxfac(1) = .true.
        goto 10
 c
 c M06-2X correlation part
@@ -2492,6 +2492,10 @@ c
       if (.not. inp_f(xfac(48))) then
          xfac(48) = 1.0d0
       endif
+cadded HF X bit
+        xfac(1) = 0.5223d0*xfac(48)
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
        goto 10
 c
 c M08-HX correlation part
@@ -2586,6 +2590,10 @@ c
       if (.not. inp_f(xfac(49))) then
          xfac(49) = 1.0d0
       endif
+cadded HF X bit
+        xfac(1) = 0.5679d0*xfac(49)
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
        goto 10
 c
 c M08-SO correlation part
@@ -2691,6 +2699,10 @@ c
       if (.not. inp_f(xfac(50))) then
          xfac(50) = 1.0d0
       endif
+cadded HF X bit
+        xfac(1) = 1d0*xfac(50)
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
 c    
       goto 10
 c
@@ -3061,6 +3073,10 @@ c
       if (.not. inp_f(xfac(54))) then
          xfac(54) = 1.0d0
       endif
+cadded HF X bit
+        xfac(1) = 0.4015d0*xfac(54)
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
        goto 10
 c
 c SOGGA11-X correlation part
