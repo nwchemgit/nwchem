@@ -7,6 +7,16 @@
 *     *            log_integrate_def                 *
 *     *                                              *
 *     ************************************************
+*
+*    Computes the following integral
+*
+*
+*         /                        /
+*         | f(r) r**power_r dr =   | f(i) * r(i)**(power_r+1) * log(a) di
+*         /                        /
+*
+*    where r(i) = r0*a**i   and f(r-->0) = r**power_f
+*
       real*8 function log_integrate_def(power_f,
      >                           f,
      >                           power_r,
@@ -71,6 +81,16 @@ c      external dsum
 *     *            log_integrate_def0                *
 *     *                                              *
 *     ************************************************
+*
+*    Computes the following integral
+*
+*
+*         /               /
+*         | f(r)/r dr =   | f(i) * log(a) di
+*         /               /
+*
+*    where r(i) = r0*a**i   and f(r-->0) = r**power_f
+*
       real*8 function log_integrate_def0(power_f,
      >                           f,
      >                           r,
