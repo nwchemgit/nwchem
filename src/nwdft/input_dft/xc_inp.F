@@ -2384,6 +2384,10 @@ c
             nlxfac(37) = .true.
             call inp_prev_field()
          endif
+c     add HF Exchange bit
+         xfac(1) = 0.54d0
+         lxfac(1) = .true.
+         nlxfac(1) = .true.
       else
 c
 c        assume total wanted

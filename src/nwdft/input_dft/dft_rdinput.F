@@ -534,6 +534,8 @@ c
       cname(26)='         HCTH407+ Correlation Functional'
       cname(27)='   TPSS03 metaGGA Correlation Functional'
       cname(28)='      Becke 1997-3 Correlation Potential'
+      cname(29)='             VS98 Correlation Functional'
+      cname(30)='             M06-L Correlation Potential'
       cname(31)='               B95 Correlation Potential'
       cname(32)='            PW6B95 Correlation Potential'
       cname(33)='             PWB6K Correlation Potential'
