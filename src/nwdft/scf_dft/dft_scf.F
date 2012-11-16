@@ -675,6 +675,8 @@ c     == better have static ldb at high node counts ==
       if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
      .     quickguess=.false.
       if(quickguess.and.movecs_in.eq.'atomic') then
+        if(.not.rtdb_put(rtdb,'quickguess',mt_log,1,.false.)) 
+     .       call errquit(' dftscf: rtbd_put failed ',0,RTDB_ERR)
         if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
      $       call errquit('dft_scf: DFT MO vectors not defined',0,
      &                     RTDB_ERR)
