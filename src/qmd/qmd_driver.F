@@ -19,6 +19,7 @@ c
       integer rtdb
 c
       integer geom                  ! geometry object
+c
       integer l_r, k_r              ! coordinates
       double precision r(3)
 c
@@ -27,19 +28,13 @@ c
 c
       integer l_g, k_g              ! gradients
       integer l_m, k_m              ! masses
+c
       integer nat                   ! number of atoms
-      integer ichain                ! nuclear md step
-      integer isteps                ! nuclear md step
-      integer nsteps                ! total number of nuclear md steps
-      double precision dt           ! nuclear md time step
-      double precision dt_elec      ! electronic time step
-      integer nsteps_elec           ! total number of electronic steps
-      character*32 thermostat       ! thermostat name
-      character*32 integrator       ! nuclear md integrator
-      character*32 integrator_elec  ! electronic dynamics integrator
+      integer nsteps_nucl           ! total nuclear steps
+      integer isteps_nucl           ! nuclear md step
+      double precision dt_nucl      ! nuclear md time step
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
-      double precision nh_mass
 c
       logical status
 c
@@ -51,67 +46,8 @@ c
       status = .true.
       pname = "qmd_driver: "
 c
-c     boltzmann constant in atomic units
-      kb=3.16679d-6
-c
-c     total nuclear steps
-      if (.not.rtdb_get(rtdb,'qmd:nsteps',mt_int,1,nsteps))
-     & call errquit(pname//'failed to read nsteps',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nsteps: ",nsteps
-c
-c     nuclear time step
-      if (.not.rtdb_get(rtdb,'qmd:dt',mt_dbl,1,dt))
-     & call errquit(pname//'failed to read dt',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "dt: ",dt
-c
-c     total electronic steps
-      if(.not.rtdb_get(rtdb,'qmd:nsteps_elec',mt_int,1,nsteps_elec))
-     & call errquit(pname//'failed to read nsteps_elec',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nsteps_elec: ",nsteps_elec
-c
-c     electronic time step
-      if (.not.rtdb_get(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
-     & call errquit(pname//'failed to read dt_elec',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "dt_elec: ",dt_elec
-c
-c     target temperature
-      if (.not.rtdb_get(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
-     & call errquit(pname//'failed to read targ_temp',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "targ_temp: ",targ_temp
-c
-c     nose-hoover mass parameter
-      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,1,nh_mass))
-     & call errquit(pname//'failed to read nh_mass',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nh_mass: ",nh_mass
-c
-c     thermostat
-      do_berendsen = .false.
-      do_nosehoover = .false.
-      if (.not. rtdb_cget(rtdb,'qmd:thermostat',1,thermostat))
-     $ call errquit(pname//'failed to read thermostat',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "thermostat: ",thermostat
-      if (thermostat.eq.'berendsen') then
-         do_berendsen = .true.
-      else if (thermostat.eq.'nosehoover') then
-         do_nosehoover = .true.
-         do ichain = 1,maxchain
-            r_nh(ichain) = 0.d0    ! position of chains
-            v_nh(ichain) = 0.d0    ! velocity of chains
-            m_nh(ichain) = nh_mass ! mass of chains
-            g_nh(ichain) = 0.d0    ! bath coupling
-         end do
-      end if
-c
-c     nuclear md integrator
-      if (.not. rtdb_cget(rtdb,'qmd:integrator',1,integrator))
-     $ call errquit(pname//'failed to read integrator',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "integrator: ",integrator
-      if (integrator.eq.'velocity_verlet') do_vv = .true.
-c
-c     berendsen tau parameter
-      if (.not.rtdb_get(rtdb,'qmd:tau',mt_dbl,1,tau))
-     & call errquit(pname//'failed to read tau',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "tau: ",tau
+c     initialize parameters
+      call qmd_init(rtdb,nsteps_nucl,dt_nucl)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -153,9 +89,9 @@ c     perform energy gradient calculation on initial coordinates
 c
 c     nuclear molecular dynamics loop
       ndof = 3*nat - 6.d0  ! 3N-6  need to determine this...
-      do isteps = 1,nsteps
+      do isteps_nucl = 1,nsteps_nucl
 c
-        call qmd_nucl_step(rtdb,nat,dt,dbl_mb(k_m),
+        call qmd_nucl_step(rtdb,geom,nat,dt_nucl,dbl_mb(k_m),
      &     dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_g),esys,ekin)   ! nuclear md step
 c
         if (ga_nodeid().eq.0) write(luout,*) "ekin: ",ekin
@@ -164,13 +100,7 @@ c
         if (ga_nodeid().eq.0) write(luout,*) "targ_temp: ",targ_temp
         if (ga_nodeid().eq.0) write(luout,*) "final_temp: ",final_temp
 c
-        if (.not.geom_coords_vels_set(geom,dbl_mb(k_r),dbl_mb(k_v)))
-     $   call errquit(pname//'geom_coords_vels_set',0,GEOM_ERR)  ! update geom
-c
-        if(.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     &   call errquit(pname//'geom_rtdb_store',0,GEOM_ERR) ! store updated geom
-c
-      end do  ! isteps
+      end do  ! isteps_nucl
 c
 c     clear memory
       if(.not.ma_pop_stack(l_g))

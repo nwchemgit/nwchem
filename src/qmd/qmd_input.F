@@ -20,8 +20,8 @@ c
 c
       integer rtdb
 c
-      double precision dt
-      integer nsteps
+      double precision dt_nucl
+      integer nsteps_nucl
       double precision dt_elec
       integer nsteps_elec
       double precision targ_temp
@@ -29,7 +29,7 @@ c
       double precision nh_mass
       character*32 test
       character*32 thermostat
-      character*32 integrator
+      character*32 integrator_nucl
       character*32 integrator_elec
 c
       character*30 pname
@@ -40,15 +40,15 @@ c     ------------------
 c     Set default values
 c     ------------------
 c
-c     Nuclear MD time step: dt
-      dt = 0.01d0
-      if (.not.rtdb_put(rtdb,'qmd:dt',mt_dbl,1,dt))
-     & call errquit(pname//'failed to write dt',0,RTDB_ERR)
+c     Nuclear MD time step: dt_nucl
+      dt_nucl = 5.d0
+      if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
+     & call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
 c
-c     Total number of nuclear time steps: nsteps
-      nsteps = 1000
-      if (.not.rtdb_put(rtdb,'qmd:nsteps',mt_int,1,nsteps))
-     & call errquit(pname//'failed to write nsteps',0,RTDB_ERR)
+c     Total number of nuclear time steps: nsteps_nucl
+      nsteps_nucl = 1000
+      if (.not.rtdb_put(rtdb,'qmd:nsteps_nucl',mt_int,1,nsteps_nucl))
+     & call errquit(pname//'failed to write nsteps_nucl',0,RTDB_ERR)
 c
 c     Electronic dynamics time step: dt_elec
       dt_elec = 0.01d0
@@ -71,7 +71,7 @@ c     Nuclear thermostat
      & call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
 c     Berendsen tau parameter
-      tau=0.1d0
+      tau=10.d0
       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
@@ -81,8 +81,8 @@ c     Nose-Hoover mass parameter
      & call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
-      integrator='velocity_verlet'
-      if (.not.rtdb_cput(rtdb,'qmd:integrator',1,integrator))
+      integrator_nucl='velocity_verlet'
+      if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,integrator_nucl))
      & call errquit(pname//'failed to write nuclear integrator',0,
      &     RTDB_ERR)
 c
@@ -95,25 +95,25 @@ c
       if (.not. inp_a(test)) 
      1  call errquit(pname//'failed reading keyword',0,INPUT_ERR)
 c
-c     Nuclear MD time step: dt
-      if (inp_compare(.false.,test,'dt')) then
-       if (.not.inp_f(dt)) then
-          write(luout,*) 'dt: value not found; ',
-     1      'default value of 0.01d0 will be used'
-          dt = 0.01d0
+c     Nuclear MD time step: dt_nucl
+      if (inp_compare(.false.,test,'dt_nucl')) then
+       if (.not.inp_f(dt_nucl)) then
+          write(luout,*) 'dt_nucl: value not found; ',
+     1      'default value of 5.d0 will be used'
+          dt_nucl = 5.d0
        endif
-       if (.not.rtdb_put(rtdb,'qmd:dt',mt_dbl,1,dt))
-     &  call errquit(pname//'failed to write dt',0,RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
+     &  call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
 c
-c     Total number of nuclear time steps: nsteps
-      else if (inp_compare(.false.,test,'nsteps')) then
-       if (.not.inp_i(nsteps)) then
-          write(luOut,*) 'nsteps: value not found; ',
+c     Total number of nuclear time steps: nsteps_nucl
+      else if (inp_compare(.false.,test,'nsteps_nucl')) then
+       if (.not.inp_i(nsteps_nucl)) then
+          write(luOut,*) 'nsteps_nucl: value not found; ',
      1      'default value of 1000 will be used'
-          nsteps = 1000
+          nsteps_nucl = 1000
        endif
-       if (.not.rtdb_put(rtdb,'qmd:nsteps',mt_int,1,nsteps))
-     &  call errquit(pname//'failed to write nsteps',0,RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'qmd:nsteps_nucl',mt_int,1,nsteps_nucl))
+     &  call errquit(pname//'failed to write nsteps_nucl',0,RTDB_ERR)
 c
 c     Electronic dynamics time step: dt_elec
       else if (inp_compare(.false.,test,'dt_elec')) then
@@ -147,14 +147,15 @@ c     Target nuclear MD temperature: targ_temp (Kelvin)
      &  call errquit(pname//'failed to write targ_temp',0,
      &     RTDB_ERR)
 c
-c     Nuclear thermostat
-      else if (inp_compare(.false.,test,'thermostat')) then
-       if (.not.inp_a(thermostat)) then
-          write(LuOut,*) 'thermostat not found; ',
-     1      'default berendsen thermostat will be used'
-          thermostat='berendsen'
-       endif
+c     Nuclear thermostat: Nose-Hoover
+      else if (inp_compare(.false.,test,'nosehoover')) then
+          thermostat='nosehoover'
+       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
+     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
+c     Nuclear thermostat: Berendsen
+      else if (inp_compare(.false.,test,'berendsen')) then
+          thermostat='berendsen'
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
@@ -162,8 +163,8 @@ c     Berendsen tau parameter
       else if (inp_compare(.false.,test,'tau')) then
        if (.not.inp_f(tau)) then
           write(luOut,*) 'tau: value not found; ',
-     1      'default value of 0.1d0 will be used'
-          tau = 0.1d0
+     1      'default value of 10.d0 will be used'
+          tau = 10.d0
        endif
        if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
@@ -179,13 +180,9 @@ c     Nose-Hoover mass parameter
      &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
-      else if (inp_compare(.false.,test,'integrator')) then
-       if (.not.inp_a(integrator)) then
-          write(LuOut,*) 'nuclear integrator not found; ',
-     1      'default velocity verlet will be used'
-          integrator='velocity_verlet'
-       endif
-       if (.not.rtdb_cput(rtdb,'qmd:integrator',1,integrator))
+      else if (inp_compare(.false.,test,'velocity_verlet')) then
+          integrator_nucl='velocity_verlet'
+      if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,integrator_nucl))
      1  call errquit(pname//'failed to write integrator',0,RTDB_ERR)
 c
 c     Print
@@ -195,6 +192,7 @@ c
 c     END
       else if (inp_compare(.false.,test,'end')) then
         goto 20
+c
       else
         call errquit(pname//'unknown directive',0, INPUT_ERR)
       endif

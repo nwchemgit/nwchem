@@ -30,11 +30,14 @@ c     instantaneous temperature
 c
 c     velocity scaling factor: Berendsen scaling
       ratio_temp = targ_temp/inst_temp
-      scalefac = dsqrt(1.d0 + (dt/tau)*(ratio_temp - 1.d0))
+      scalefac = dsqrt(1.d0 + (dt/tau)*(ratio_temp-1.d0))
+
+      write(luout,*) "scalefac: ",scalefac
+
       do i = 1,nat
-        do j = 1,3
-          v(j,i) = scalefac*v(j,i)
-        end do
+        v(1,i) = scalefac*v(1,i)
+        v(2,i) = scalefac*v(2,i)
+        v(3,i) = scalefac*v(3,i)
       end do
 c
       return

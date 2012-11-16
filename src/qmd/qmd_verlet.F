@@ -1,7 +1,7 @@
 c
 c     velocity verlet md step
 c
-      subroutine qmd_verlet(rtdb,nat,dt,m,r,v,g,esys,ekin)
+      subroutine qmd_verlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
 c
       implicit none
 c
@@ -10,10 +10,12 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "geom.fh"
 c
 #include "qmd_common.fh"
 c
       integer rtdb               ! rtdb
+      integer geom               ! geom
       integer nat                ! number of atoms
       double precision dt        ! step size
       double precision m(nat)    ! mass
@@ -21,7 +23,7 @@ c
       double precision v(3,nat)  ! velocities
       double precision g(3,nat)  ! gradients
       double precision esys      ! system energy
-      double precision ekin
+      double precision ekin      ! kinetic energy
 c
       double precision a(3,nat)  ! acceleration
       integer i,j
@@ -36,19 +38,22 @@ c     preliminaries
       dtsq = dt*dt
       dtsq2 = 0.5d0*dtsq
       dt2 = 0.5d0*dt
+
+      write(luout,*) "dtsq: ", dtsq
+      write(luout,*) "dtsq2: ", dtsq2
+      write(luout,*) "dt2: ", dt2
 c
 c     instantaneous kinetic energy
       call qmd_kinetic(nat,m,v,ekin)
 c
-c     apply the nose-hoover thermostat
-      if (do_nosehoover) 
-     &   call qmd_nosehoover(nat,dt,v,ekin)
+c     apply the nose-hoover thermostat at half step
+      if (do_nosehoover) call qmd_nosehoover(nat,dt,v,ekin)
 c
-c     acceleration for the first step
+c     acceleration for the first step (a = F/m)
       do i=1,nat
-        do j=1,3
-           a(j,i) = -g(j,i)/m(i)  ! a = F/m
-        end do
+        a(1,i) = -g(1,i)/m(i)
+        a(2,i) = -g(2,i)/m(i)
+        a(3,i) = -g(3,i)/m(i)
       end do
 c
 c     update atom positions and velocities at dt/2
@@ -58,10 +63,18 @@ c       coordinates
         r(2,i) = r(2,i) + v(2,i)*dt + a(2,i)*dtsq2
         r(3,i) = r(3,i) + v(3,i)*dt + a(3,i)*dtsq2
 c       velocities
-        do j = 1,3
-          v(j,i) = v(j,i) + a(j,i)*dt2
-        end do
+        v(1,i) = v(1,i) + a(1,i)*dt2
+        v(2,i) = v(2,i) + a(2,i)*dt2
+        v(3,i) = v(3,i) + a(3,i)*dt2
       end do
+c
+c     update geometry
+      if (.not.geom_coords_vels_set(geom,r,v))
+     $   call errquit(pname//'geom_coords_vels_set',0,GEOM_ERR)
+c
+c     store updated geometry
+      if(.not.geom_rtdb_store(rtdb,geom,'geometry'))
+     &   call errquit(pname//'geom_rtdb_store',0,GEOM_ERR)
 c
 c     energy gradient calculation
       esys = 0.d0
@@ -74,10 +87,14 @@ c     energy gradient calculation
 c
 c     acceleration and velocities at dt
       do i=1,nat
-        do j=1,3
-           a(j,i) = -g(j,i)/m(i)  ! a = F/m
-           v(j,i) = v(j,i) + a(j,i)*dt2
-        end do
+        a(1,i) = -g(1,i)/m(i)
+        v(1,i) = v(1,i) + a(1,i)*dt2
+c
+        a(2,i) = -g(2,i)/m(i)
+        v(2,i) = v(2,i) + a(2,i)*dt2
+c
+        a(3,i) = -g(3,i)/m(i)
+        v(3,i) = v(3,i) + a(3,i)*dt2
       end do
 c
 c     instantaneous kinetic energy

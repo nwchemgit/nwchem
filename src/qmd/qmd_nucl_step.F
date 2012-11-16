@@ -1,7 +1,7 @@
 c
 c     nuclear md step
 c
-      subroutine qmd_nucl_step(rtdb,nat,dt,m,r,v,g,esys,ekin)
+      subroutine qmd_nucl_step(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
 c
       implicit none
 c
@@ -10,10 +10,12 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "geom.fh"
 c
 #include "qmd_common.fh"
 c
       integer rtdb               ! rtdb
+      integer geom               ! geom
       integer nat                ! number of atoms
       double precision dt        ! step size
       double precision m(nat)    ! mass
@@ -28,9 +30,9 @@ c
 c
 c     choose the integrator
       if (do_vv) then
-         call qmd_verlet(rtdb,nat,dt,m,r,v,g,esys,ekin)
+        call qmd_verlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
       else 
-         call errquit(pname//'unknown integrator',0,CALC_ERR)
+        call errquit(pname//'unknown integrator',0,CALC_ERR)
       end if
 c
       return
