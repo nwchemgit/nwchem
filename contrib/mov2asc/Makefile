@@ -41,8 +41,13 @@ else
 endif
 LDFLAGS = -L../../src/tools/install/lib -lga -larmci	# Needs MA library
 ifeq ($(USE_MPI),y)
-LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
-LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB} ${LIBMPI})
+  LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
+  ifneq ($(MPI_LIB),)
+    LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB})
+  endif
+  ifneq ($(LIBMPI),)
+    LDFLAGS += ${LIBMPI})
+  endif
 endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 LDFLAGS += $(COMM_LIBS)
