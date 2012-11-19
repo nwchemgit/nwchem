@@ -1,7 +1,7 @@
 c
 c     velocity verlet md step
 c
-      subroutine qmd_verlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
+      subroutine qmd_veloverlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
 c
       implicit none
 c
@@ -35,19 +35,17 @@ c
       external task_gradient
 c
 c     preliminaries
+      pname = "qmd_veloverlet: "
       dtsq = dt*dt
       dtsq2 = 0.5d0*dtsq
       dt2 = 0.5d0*dt
-
-      write(luout,*) "dtsq: ", dtsq
-      write(luout,*) "dtsq2: ", dtsq2
-      write(luout,*) "dt2: ", dt2
 c
 c     instantaneous kinetic energy
       call qmd_kinetic(nat,m,v,ekin)
 c
 c     apply the nose-hoover thermostat at half step
-      if (do_nosehoover) call qmd_nosehoover(nat,dt,v,ekin)
+      if (do_nosehoover.and.ekin.gt.0.d0) 
+     &    call qmd_nosehoover(nat,dt,v,ekin)
 c
 c     acceleration for the first step (a = F/m)
       do i=1,nat
@@ -56,7 +54,7 @@ c     acceleration for the first step (a = F/m)
         a(3,i) = -g(3,i)/m(i)
       end do
 c
-c     update atom positions and velocities at dt/2
+c     update positions (r) and velocities (v) at dt/2
       do i = 1,nat
 c       coordinates
         r(1,i) = r(1,i) + v(1,i)*dt + a(1,i)*dtsq2
@@ -85,7 +83,7 @@ c     energy gradient calculation
       if(.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,esys))
      &   call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
 c
-c     acceleration and velocities at dt
+c     acceleration (a) and velocities (v) at dt
       do i=1,nat
         a(1,i) = -g(1,i)/m(i)
         v(1,i) = v(1,i) + a(1,i)*dt2
@@ -97,17 +95,18 @@ c
         v(3,i) = v(3,i) + a(3,i)*dt2
       end do
 c
+c     apply the thermostat
+      if (ekin.le.0.d0) return
+      if (do_nosehoover) then
+         call qmd_nosehoover(nat,dt,v,ekin)
+      else if (do_berendsen) then
+         call qmd_berendsen(nat,dt,v,ekin)
+      else
+         call errquit(pname//'unknown thermostat',0,RTDB_ERR)
+      end if
+c
 c     instantaneous kinetic energy
       call qmd_kinetic(nat,m,v,ekin)
-c
-c     apply the thermostat
-      if (do_nosehoover) then
-       call qmd_nosehoover(nat,dt,v,ekin)
-      else if (do_berendsen) then
-       call qmd_berendsen(nat,dt,v,ekin)
-      else
-       call errquit(pname//'unknown thermostat',0,RTDB_ERR)
-      end if
 c
 c     instantaneous temperature
       final_temp = 2.0d0*ekin/kb/(1.d0*ndof)

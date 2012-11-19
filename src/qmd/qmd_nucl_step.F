@@ -30,7 +30,7 @@ c
 c
 c     choose the integrator
       if (do_vv) then
-        call qmd_verlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
+        call qmd_veloverlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
       else 
         call errquit(pname//'unknown integrator',0,CALC_ERR)
       end if

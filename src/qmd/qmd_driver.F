@@ -62,6 +62,10 @@ c     get number of atoms
      $   call errquit(pname//'geom_ncent',geom, GEOM_ERR)
       if (nat.eq.0) return
 c
+c     get the number of degrees of freedom
+c     3N-6 in general but need to determine this if constraints are present
+      ndof = 3*nat   ! 3N-6 (general) or 3N-5 (linear)
+c
 c     local memory 
       if(.not.ma_push_get(mt_dbl,nat,'mass',l_m,k_m))  ! mass
      $   call errquit(pname//'ma_push_get mass', nat,MA_ERR)
@@ -88,17 +92,22 @@ c     perform energy gradient calculation on initial coordinates
      &   call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
 c
 c     nuclear molecular dynamics loop
-      ndof = 3*nat - 6.d0  ! 3N-6  need to determine this...
       do isteps_nucl = 1,nsteps_nucl
 c
         call qmd_nucl_step(rtdb,geom,nat,dt_nucl,dbl_mb(k_m),
      &     dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_g),esys,ekin)   ! nuclear md step
 c
-        if (ga_nodeid().eq.0) write(luout,*) "ekin: ",ekin
-        if (ga_nodeid().eq.0) write(luout,*) "esys: ",esys
-        if (ga_nodeid().eq.0) write(luout,*) "etotal: ",ekin+esys
-        if (ga_nodeid().eq.0) write(luout,*) "targ_temp: ",targ_temp
-        if (ga_nodeid().eq.0) write(luout,*) "final_temp: ",final_temp
+c     print md information
+        if (ga_nodeid().eq.0) then
+           call util_print_centered(LuOut,'QMD Information',20,.true.)
+           write(luout,*) "isteps_nucl: ",isteps_nucl
+           write(luout,*) "Time elapsed: ",(isteps_nucl-1)*dt_nucl*0.02419d0
+           write(luout,*) "ekin: ",ekin
+           write(luout,*) "esys: ",esys
+           write(luout,*) "etotal: ",ekin+esys
+           write(luout,*) "targ_temp: ",targ_temp
+           write(luout,*) "final_temp: ",final_temp
+        endif
 c
       end do  ! isteps_nucl
 c

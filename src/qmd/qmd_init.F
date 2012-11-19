@@ -39,13 +39,20 @@ c     print header
        write(LuOut,*)
       endif
 c
+c     print general information
+      if (ga_nodeid().eq.0) then
+       call util_print_centered(LuOut,'General Information',20,.true.)
+       write(LuOut,*)
+       write(LuOut,*)
+      endif
+c
 c     boltzmann constant in atomic units
       kb=3.16679d-6
 c
 c     total nuclear steps
       if (.not.rtdb_get(rtdb,'qmd:nsteps_nucl',mt_int,1,nsteps_nucl))
      & call errquit(pname//'failed to read nsteps_nucl',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nsteps: ",nsteps_nucl
+      if (ga_nodeid().eq.0) write(luout,*) "nsteps_nucl: ",nsteps_nucl
 c
 c     nuclear time step
       if (.not.rtdb_get(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
@@ -65,7 +72,8 @@ c
 c     target temperature
       if (.not.rtdb_get(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
      & call errquit(pname//'failed to read targ_temp',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "targ_temp: ",targ_temp
+      if (ga_nodeid().eq.0) 
+     &        write(luout,*) "target temperature: ",targ_temp
 c
 c     nose-hoover mass parameter
       if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,1,nh_mass))
@@ -80,7 +88,7 @@ c     thermostat
       if (ga_nodeid().eq.0) write(luout,*) "thermostat: ",thermostat
       if (thermostat.eq.'berendsen') then
          do_berendsen = .true.
-      else if (thermostat.eq.'nosehoover') then
+      else if (thermostat.eq.'nose-hoover') then
          do_nosehoover = .true.
          do ichain = 1,maxchain
             r_nh(ichain) = 0.d0    ! position of chains
@@ -88,6 +96,12 @@ c     thermostat
             m_nh(ichain) = nh_mass ! mass of chains
             g_nh(ichain) = 0.d0    ! bath coupling
          end do
+      else
+         if (ga_nodeid().eq.0) 
+     &        write(luout,*) "unknown thermostat"
+         if (ga_nodeid().eq.0) 
+     &        write(luout,*) "using default: berendsen thermostat"
+         do_berendsen = .true.
       end if
 c
 c     nuclear md integrator
@@ -95,7 +109,7 @@ c     nuclear md integrator
      $ call errquit(pname//'failed to read integrator',0,RTDB_ERR)
       if (ga_nodeid().eq.0) 
      & write(luout,*) "integrator_nucl: ",integrator_nucl
-      if (integrator_nucl.eq.'velocity_verlet') do_vv = .true.
+      if (integrator_nucl.eq.'velocity-verlet') do_vv = .true.
 c
 c     berendsen tau parameter
       if (.not.rtdb_get(rtdb,'qmd:tau',mt_dbl,1,tau))
@@ -104,20 +118,14 @@ c     berendsen tau parameter
 c
 c     check dt_nucl against the berendsen tau
       if (do_berendsen.and.(dt_nucl.ge.tau)) then
-        dt_nucl = 0.75d0*tau
+        dt_nucl = 0.75d0*tau 
         if (ga_nodeid().eq.0) then
          write(luout,*) "dt_nucl has to be lesser than tau"
          write(luout,*) "adjusting dt_nucl to accomodate"
         end if
       end if
 c
-c     print general information
-      if (ga_nodeid().eq.0) then
-       call util_print_centered(LuOut,'General Information',20,.true.)
-       write(LuOut,*)
-       write(LuOut,*)
-      endif
       if (ga_nodeid().eq.0) call util_flush(LuOut)
-c
+
       return
       end

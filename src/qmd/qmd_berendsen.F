@@ -31,9 +31,7 @@ c
 c     velocity scaling factor: Berendsen scaling
       ratio_temp = targ_temp/inst_temp
       scalefac = dsqrt(1.d0 + (dt/tau)*(ratio_temp-1.d0))
-
-      write(luout,*) "scalefac: ",scalefac
-
+c
       do i = 1,nat
         v(1,i) = scalefac*v(1,i)
         v(2,i) = scalefac*v(2,i)

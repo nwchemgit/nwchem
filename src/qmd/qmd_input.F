@@ -81,7 +81,7 @@ c     Nose-Hoover mass parameter
      & call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
-      integrator_nucl='velocity_verlet'
+      integrator_nucl='velocity-verlet'
       if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,integrator_nucl))
      & call errquit(pname//'failed to write nuclear integrator',0,
      &     RTDB_ERR)
@@ -148,8 +148,8 @@ c     Target nuclear MD temperature: targ_temp (Kelvin)
      &     RTDB_ERR)
 c
 c     Nuclear thermostat: Nose-Hoover
-      else if (inp_compare(.false.,test,'nosehoover')) then
-          thermostat='nosehoover'
+      else if (inp_compare(.false.,test,'nose-hoover')) then
+          thermostat='nose-hoover'
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
@@ -180,8 +180,8 @@ c     Nose-Hoover mass parameter
      &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
-      else if (inp_compare(.false.,test,'velocity_verlet')) then
-          integrator_nucl='velocity_verlet'
+      else if (inp_compare(.false.,test,'velocity-verlet')) then
+          integrator_nucl='velocity-verlet'
       if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,integrator_nucl))
      1  call errquit(pname//'failed to write integrator',0,RTDB_ERR)
 c
