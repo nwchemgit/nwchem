@@ -2,6 +2,7 @@
  $Id$
 */
 #include <stdio.h>
+#include <stdlib.h>
 #include "typesf2c.h"
 
 #if defined(USE_FCD)
@@ -41,11 +42,17 @@ Integer FATR util_batch_job_time_remaining_(void)
   
 }
 #elif defined(SLURM)
+#include <slurm/slurm.h>
 Integer FATR util_batch_job_time_remaining_(void)
 {
-  Integer wallspent,uval;
-  uval = getenv("SLURM_JOBIB");
-  wallspent = (Integer) slurm_get_rem_time(uval);
+  Integer wallspent=0;
+  uint32_t uval;
+  char *cval;
+  cval = getenv("SLURM_JOBID");
+  if(cval != NULL){
+    sscanf(cval,"%d",&uval);
+    wallspent = (Integer) slurm_get_rem_time(uval);
+  }
   return ((Integer) wallspent);
 }
 #else
