@@ -7,8 +7,8 @@ c
       common/qmd_int/lgeom,igeom,jdebug
 c
 c     constants
-      double precision kb
-      common/qmd_consts/kb
+      double precision kb,au2fs
+      common/qmd_consts/kb,au2fs
 c
 c     berendsen thermostat
       logical do_berendsen

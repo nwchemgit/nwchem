@@ -47,28 +47,24 @@ c     apply the nose-hoover thermostat at half step
       if (do_nosehoover.and.ekin.gt.0.d0) 
      &    call qmd_nosehoover(nat,dt,v,ekin)
 c
-c     acceleration for the first step (a = F/m)
-      do i=1,nat
-        a(1,i) = -g(1,i)/m(i)
-        a(2,i) = -g(2,i)/m(i)
-        a(3,i) = -g(3,i)/m(i)
-      end do
-c
-c     update positions (r) and velocities (v) at dt/2
+c     calculate acceleration, update positions (r) and velocities (v) at dt/2
       do i = 1,nat
-c       coordinates
+        a(1,i) = -g(1,i)/m(i)
         r(1,i) = r(1,i) + v(1,i)*dt + a(1,i)*dtsq2
-        r(2,i) = r(2,i) + v(2,i)*dt + a(2,i)*dtsq2
-        r(3,i) = r(3,i) + v(3,i)*dt + a(3,i)*dtsq2
-c       velocities
         v(1,i) = v(1,i) + a(1,i)*dt2
+c
+        a(2,i) = -g(2,i)/m(i)
+        r(2,i) = r(2,i) + v(2,i)*dt + a(2,i)*dtsq2
         v(2,i) = v(2,i) + a(2,i)*dt2
+c
+        a(3,i) = -g(3,i)/m(i)
+        r(3,i) = r(3,i) + v(3,i)*dt + a(3,i)*dtsq2
         v(3,i) = v(3,i) + a(3,i)*dt2
       end do
 c
-c     update geometry
-      if (.not.geom_coords_vels_set(geom,r,v))
-     $   call errquit(pname//'geom_coords_vels_set',0,GEOM_ERR)
+c     update geom with coords for energy-gradient calculation
+      if (.not.geom_cart_coords_set(geom,r))
+     $   call errquit(pname//'geom_cart_coords_set',0,GEOM_ERR)
 c
 c     store updated geometry
       if(.not.geom_rtdb_store(rtdb,geom,'geometry'))
@@ -97,6 +93,7 @@ c
 c
 c     apply the thermostat
       if (ekin.le.0.d0) return
+c
       if (do_nosehoover) then
          call qmd_nosehoover(nat,dt,v,ekin)
       else if (do_berendsen) then
@@ -110,6 +107,10 @@ c     instantaneous kinetic energy
 c
 c     instantaneous temperature
       final_temp = 2.0d0*ekin/kb/(1.d0*ndof)
+c
+c     update geom with "thermostated" velocity
+      if (.not.geom_vel_set(geom,v))
+     $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
       return
       end

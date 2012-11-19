@@ -1,5 +1,5 @@
 c
-      subroutine qmd_init(rtdb,nsteps_nucl,dt_nucl)
+      subroutine qmd_init(rtdb,nstep_nucl,dt_nucl)
 c
       implicit none
 c
@@ -18,15 +18,15 @@ c
 c
       integer rtdb                  ! Runtime database handle
       integer ao_bas_han            ! AO basis set handle
-      integer nsteps_nucl           ! nuclear steps
-      integer nsteps_elec           ! total electronic steps
+      integer nstep_nucl            ! nuclear steps
+      integer nstep_elec            ! total electronic steps
       double precision dt_nucl      ! nuclear md time step
       double precision dt_elec      ! electronic time step
       character*32 thermostat       ! thermostat name
       character*32 integrator_nucl  ! nuclear md integrator
       character*32 integrator_elec  ! electronic dynamics integrator
       integer ichain
-      double precision nh_mass      ! nose-hoover mass
+      double precision nh_mass(2)   ! nose-hoover mass
 c
       character*32 pname
 c
@@ -34,6 +34,8 @@ c
 c
 c     print header
       if (ga_nodeid().eq.0) then
+       write(LuOut,*)
+       write(LuOut,*)
        call util_print_centered(LuOut,'NWChem QMD Module',40,.true.)
        write(LuOut,*)
        write(LuOut,*)
@@ -41,7 +43,10 @@ c     print header
 c
 c     print general information
       if (ga_nodeid().eq.0) then
-       call util_print_centered(LuOut,'General Information',20,.true.)
+       write(LuOut,*)
+       write(LuOut,*)
+       call util_print_centered
+     &  (LuOut,'QMD General Information',20,.true.)
        write(LuOut,*)
        write(LuOut,*)
       endif
@@ -49,10 +54,13 @@ c
 c     boltzmann constant in atomic units
       kb=3.16679d-6
 c
+c     convert time in au to femtoseconds
+      au2fs=0.02419d0
+c
 c     total nuclear steps
-      if (.not.rtdb_get(rtdb,'qmd:nsteps_nucl',mt_int,1,nsteps_nucl))
-     & call errquit(pname//'failed to read nsteps_nucl',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nsteps_nucl: ",nsteps_nucl
+      if (.not.rtdb_get(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
+     & call errquit(pname//'failed to read nstep_nucl',0,RTDB_ERR)
+      if (ga_nodeid().eq.0) write(luout,*) "nstep_nucl: ",nstep_nucl
 c
 c     nuclear time step
       if (.not.rtdb_get(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
@@ -60,9 +68,9 @@ c     nuclear time step
       if (ga_nodeid().eq.0) write(luout,*) "dt_nucl: ",dt_nucl
 c
 c     total electronic steps
-      if(.not.rtdb_get(rtdb,'qmd:nsteps_elec',mt_int,1,nsteps_elec))
-     & call errquit(pname//'failed to read nsteps_elec',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nsteps_elec: ",nsteps_elec
+      if(.not.rtdb_get(rtdb,'qmd:nstep_elec',mt_int,1,nstep_elec))
+     & call errquit(pname//'failed to read nstep_elec',0,RTDB_ERR)
+      if (ga_nodeid().eq.0) write(luout,*) "nstep_elec: ",nstep_elec
 c
 c     electronic time step
       if (.not.rtdb_get(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
@@ -76,9 +84,12 @@ c     target temperature
      &        write(luout,*) "target temperature: ",targ_temp
 c
 c     nose-hoover mass parameter
-      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,1,nh_mass))
+      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
      & call errquit(pname//'failed to read nh_mass',0,RTDB_ERR)
-      if (ga_nodeid().eq.0) write(luout,*) "nh_mass: ",nh_mass
+      if (ga_nodeid().eq.0) 
+     &     write(luout,*) "nh_mass(1): ",nh_mass(1)
+      if (ga_nodeid().eq.0) 
+     &     write(luout,*) "nh_mass(2): ",nh_mass(2)
 c
 c     thermostat
       do_berendsen = .false.
@@ -91,10 +102,10 @@ c     thermostat
       else if (thermostat.eq.'nose-hoover') then
          do_nosehoover = .true.
          do ichain = 1,maxchain
-            r_nh(ichain) = 0.d0    ! position of chains
-            v_nh(ichain) = 0.d0    ! velocity of chains
-            m_nh(ichain) = nh_mass ! mass of chains
-            g_nh(ichain) = 0.d0    ! bath coupling
+            r_nh(ichain) = 0.d0            ! position of chains
+            v_nh(ichain) = 0.d0            ! velocity of chains
+            m_nh(ichain) = nh_mass(ichain) ! mass of chains
+            g_nh(ichain) = 0.d0            ! bath coupling
          end do
       else
          if (ga_nodeid().eq.0) 

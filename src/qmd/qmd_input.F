@@ -21,12 +21,12 @@ c
       integer rtdb
 c
       double precision dt_nucl
-      integer nsteps_nucl
+      integer nstep_nucl
       double precision dt_elec
-      integer nsteps_elec
+      integer nstep_elec
       double precision targ_temp
       double precision tau
-      double precision nh_mass
+      double precision nh_mass(2)
       character*32 test
       character*32 thermostat
       character*32 integrator_nucl
@@ -45,20 +45,20 @@ c     Nuclear MD time step: dt_nucl
       if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
      & call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
 c
-c     Total number of nuclear time steps: nsteps_nucl
-      nsteps_nucl = 1000
-      if (.not.rtdb_put(rtdb,'qmd:nsteps_nucl',mt_int,1,nsteps_nucl))
-     & call errquit(pname//'failed to write nsteps_nucl',0,RTDB_ERR)
+c     Total number of nuclear time steps: nstep_nucl
+      nstep_nucl = 1000
+      if (.not.rtdb_put(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
+     & call errquit(pname//'failed to write nstep_nucl',0,RTDB_ERR)
 c
 c     Electronic dynamics time step: dt_elec
       dt_elec = 0.01d0
       if (.not.rtdb_put(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
      & call errquit(pname//'failed to write dt_elec',0,RTDB_ERR)
 c
-c     Total number of electronic time steps: nsteps_elec
-      nsteps_elec = 100
-      if (.not.rtdb_put(rtdb,'qmd:nsteps_elec',mt_int,1,nsteps_elec))
-     & call errquit(pname//'failed to write nsteps_elec',0,RTDB_ERR)
+c     Total number of electronic time steps: nstep_elec
+      nstep_elec = 100
+      if (.not.rtdb_put(rtdb,'qmd:nstep_elec',mt_int,1,nstep_elec))
+     & call errquit(pname//'failed to write nstep_elec',0,RTDB_ERR)
 c
 c     Target nuclear MD temperature: targ_temp (Kelvin)
       targ_temp = 300.d0  ! Kelvin
@@ -76,9 +76,10 @@ c     Berendsen tau parameter
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
 c     Nose-Hoover mass parameter
-      nh_mass=0.1d0
-      if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,1,nh_mass))
-     & call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
+      nh_mass(1)=0.1d0
+      nh_mass(2)=0.1d0
+      if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
+     &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
       integrator_nucl='velocity-verlet'
@@ -105,15 +106,15 @@ c     Nuclear MD time step: dt_nucl
        if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
      &  call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
 c
-c     Total number of nuclear time steps: nsteps_nucl
-      else if (inp_compare(.false.,test,'nsteps_nucl')) then
-       if (.not.inp_i(nsteps_nucl)) then
-          write(luOut,*) 'nsteps_nucl: value not found; ',
+c     Total number of nuclear time steps: nstep_nucl
+      else if (inp_compare(.false.,test,'nstep_nucl')) then
+       if (.not.inp_i(nstep_nucl)) then
+          write(luOut,*) 'nstep_nucl: value not found; ',
      1      'default value of 1000 will be used'
-          nsteps_nucl = 1000
+          nstep_nucl = 1000
        endif
-       if (.not.rtdb_put(rtdb,'qmd:nsteps_nucl',mt_int,1,nsteps_nucl))
-     &  call errquit(pname//'failed to write nsteps_nucl',0,RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
+     &  call errquit(pname//'failed to write nstep_nucl',0,RTDB_ERR)
 c
 c     Electronic dynamics time step: dt_elec
       else if (inp_compare(.false.,test,'dt_elec')) then
@@ -125,15 +126,15 @@ c     Electronic dynamics time step: dt_elec
        if (.not.rtdb_put(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
      &  call errquit(pname//'failed to write dt_elec',0,RTDB_ERR)
 c
-c     Total number of electronic time steps: nsteps_elec
-      else if (inp_compare(.false.,test,'nsteps_elec')) then
-       if (.not.inp_i(nsteps_elec)) then
-          write(luOut,*) 'nsteps_elec: value not found; ',
+c     Total number of electronic time steps: nstep_elec
+      else if (inp_compare(.false.,test,'nstep_elec')) then
+       if (.not.inp_i(nstep_elec)) then
+          write(luOut,*) 'nstep_elec: value not found; ',
      1      'default value of 100 will be used'
-          nsteps_elec = 100
+          nstep_elec = 100
        endif
-       if (.not.rtdb_put(rtdb,'qmd:nsteps_elec',mt_int,1,nsteps_elec))
-     &  call errquit(pname//'failed to write nsteps_elec',0,
+       if (.not.rtdb_put(rtdb,'qmd:nstep_elec',mt_int,1,nstep_elec))
+     &  call errquit(pname//'failed to write nstep_elec',0,
      &     RTDB_ERR)
 c
 c     Target nuclear MD temperature: targ_temp (Kelvin)
@@ -152,32 +153,19 @@ c     Nuclear thermostat: Nose-Hoover
           thermostat='nose-hoover'
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
+       if (.not.inp_f(nh_mass(1))) nh_mass(1) = 0.1d0
+       if (.not.inp_f(nh_mass(2))) nh_mass(2) = 0.1d0
+       if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
+     &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear thermostat: Berendsen
       else if (inp_compare(.false.,test,'berendsen')) then
           thermostat='berendsen'
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-c
-c     Berendsen tau parameter 
-      else if (inp_compare(.false.,test,'tau')) then
-       if (.not.inp_f(tau)) then
-          write(luOut,*) 'tau: value not found; ',
-     1      'default value of 10.d0 will be used'
-          tau = 10.d0
-       endif
+       if (.not.inp_f(tau)) tau = 10.d0
        if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
-c
-c     Nose-Hoover mass parameter
-      else if (inp_compare(.false.,test,'nh_mass')) then
-       if (.not.inp_f(nh_mass)) then
-          write(luOut,*) 'nh_mass: value not found; ',
-     1      'default value of 0.1d0 will be used'
-          nh_mass = 0.1d0
-       endif
-       if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,1,nh_mass))
-     &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
       else if (inp_compare(.false.,test,'velocity-verlet')) then

@@ -30,8 +30,8 @@ c
       integer l_m, k_m              ! masses
 c
       integer nat                   ! number of atoms
-      integer nsteps_nucl           ! total nuclear steps
-      integer isteps_nucl           ! nuclear md step
+      integer nstep_nucl           ! total nuclear steps
+      integer istep_nucl           ! nuclear md step
       double precision dt_nucl      ! nuclear md time step
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
@@ -47,7 +47,7 @@ c
       pname = "qmd_driver: "
 c
 c     initialize parameters
-      call qmd_init(rtdb,nsteps_nucl,dt_nucl)
+      call qmd_init(rtdb,nstep_nucl,dt_nucl)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -66,24 +66,34 @@ c     get the number of degrees of freedom
 c     3N-6 in general but need to determine this if constraints are present
       ndof = 3*nat   ! 3N-6 (general) or 3N-5 (linear)
 c
-c     local memory 
+c     local memory and initialization
       if(.not.ma_push_get(mt_dbl,nat,'mass',l_m,k_m))  ! mass
      $   call errquit(pname//'ma_push_get mass', nat,MA_ERR)
+      call dfill(nat, 0.0d0, dbl_mb(k_m), 1)
+c
       if(.not.ma_push_get(mt_dbl,3*nat,'coords',l_r,k_r)) ! coords
      $   call errquit(pname//'ma_push_get coords', 3*nat,MA_ERR)
+      call dfill(3*nat, 0.0d0, dbl_mb(k_r), 1)
+c
       if(.not.ma_push_get(mt_dbl,3*nat,'vels',l_v,k_v))  ! vels
      $   call errquit(pname//'ma_push_get vels', 3*nat,MA_ERR)
+      call dfill(3*nat, 0.0d0, dbl_mb(k_v), 1)
+      if (.not.geom_vel_set(geom,dbl_mb(k_v))) ! init vels
+     $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
+c
       if(.not.ma_push_get(mt_dbl,3*nat,'grads',l_g,k_g))  ! grads
      $   call errquit(pname//'ma_push_get grads',3*nat,MA_ERR)
+      call dfill(3*nat, 0.0d0, dbl_mb(k_g), 1)
 c
-c     get the masses, initial coordinates and velocities
+c     get the masses, initial coordinates
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
      $   call errquit(pname//'geom_masses_get',geom,GEOM_ERR)
-      if (.not.geom_coords_vels_get(geom,dbl_mb(k_r),dbl_mb(k_v)))
-     $   call errquit(pname//'geom_coords_vels_get',0,GEOM_ERR)
+      if (.not.geom_cart_coords_get(geom,dbl_mb(k_r)))
+     $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
 c     perform energy gradient calculation on initial coordinates
       esys = 0.d0
+      ekin = 0.d0
       if (.not. task_gradient(rtdb))
      &   call errquit(pname//'task_gradient',0,CALC_ERR)
       if(.not.rtdb_get(rtdb,'task:gradient',mt_dbl,3*nat,dbl_mb(k_g)))
@@ -92,33 +102,34 @@ c     perform energy gradient calculation on initial coordinates
      &   call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
 c
 c     nuclear molecular dynamics loop
-      do isteps_nucl = 1,nsteps_nucl
+      do istep_nucl = 1,nstep_nucl
 c
-        call qmd_nucl_step(rtdb,geom,nat,dt_nucl,dbl_mb(k_m),
-     &     dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_g),esys,ekin)   ! nuclear md step
+c       take a nuclear md step
+        call qmd_nucl_step(rtdb,geom,nat,istep_nucl,dt_nucl,
+     &    dbl_mb(k_m),dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_g),esys,ekin)
 c
-c     print md information
+c       print md run information
         if (ga_nodeid().eq.0) then
-           call util_print_centered(LuOut,'QMD Information',20,.true.)
-           write(luout,*) "isteps_nucl: ",isteps_nucl
-           write(luout,*) "Time elapsed: ",(isteps_nucl-1)*dt_nucl*0.02419d0
-           write(luout,*) "ekin: ",ekin
-           write(luout,*) "esys: ",esys
-           write(luout,*) "etotal: ",ekin+esys
-           write(luout,*) "targ_temp: ",targ_temp
-           write(luout,*) "final_temp: ",final_temp
+         call util_print_centered(LuOut,'QMD Run Information',20,.true.)
+         write(luout,*) "istep_nucl: ",istep_nucl
+         write(luout,*) "Time elapsed: ",(istep_nucl-1)*dt_nucl*au2fs
+         write(luout,*) "ekin: ",ekin
+         write(luout,*) "esys: ",esys
+         write(luout,*) "etotal: ",ekin+esys
+         write(luout,*) "targ_temp: ",targ_temp
+         write(luout,*) "final_temp: ",final_temp
         endif
 c
-      end do  ! isteps_nucl
+      end do  ! istep_nucl
 c
 c     clear memory
-      if(.not.ma_pop_stack(l_g))
+      if(.not.ma_pop_stack(l_g))  ! gradient
      + call errquit(pname//'ma_pop_stack g',0,MA_ERR)
-      if(.not.ma_pop_stack(l_v))
+      if(.not.ma_pop_stack(l_v))  ! velocity
      + call errquit(pname//'ma_pop_stack v',0,MA_ERR)
-      if(.not.ma_pop_stack(l_r))
+      if(.not.ma_pop_stack(l_r))  ! positions
      + call errquit(pname//'ma_pop_stack r',0,MA_ERR)
-      if(.not.ma_pop_stack(l_m))
+      if(.not.ma_pop_stack(l_m))  ! masses
      + call errquit(pname//'ma_pop_stack m',0,MA_ERR)
       if(.not.ma_verify_allocator_stuff())
      + call errquit(pname//'ma_verify_allocator_stuff',0,MA_ERR)
