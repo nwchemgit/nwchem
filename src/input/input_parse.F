@@ -315,9 +315,10 @@ c               call rt_tddft_input(rtdb)
      1         call errquit('input_parse: failed writing to rtdb',0,
      &       RTDB_ERR)
                call tce_input(rtdb)
-ckbn mrcc-r-1
-            else if (inp_compare(.false.,test,'mrccdata')) then
-               call tce_mrcc_input(rtdb)
+
+ckbn mrcc-r-1 -3
+c            else if (inp_compare(.false.,test,'mrccdata')) then
+c               call tce_mrcc_input(rtdb)
 
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
