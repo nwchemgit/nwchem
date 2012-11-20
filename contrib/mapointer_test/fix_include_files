@@ -36,6 +36,7 @@ if [ ${#DEV_GA} -ne 0 ] ; then
   export GLOBAL=../../src/tools/ga-dev/global/src/global.fh.in
 elif [ ${#OLD_GA} -ne 0 ] ; then
   export MAFDECLS=../../src/tools/ga-4-3/ma/mafdecls.fh
+  export MAFDECLS2=../../src/tools/include/mafdecls.fh
   export GLOBAL=../../src/tools/ga-4-3/global/src/global.fh
 elif [ ${#EXP_GA} -ne 0 ] ; then
   export MAFDECLS=../../src/tools/ga-exp1/ma/mafdecls.fh.in
@@ -53,6 +54,7 @@ if [ ${status} -ne 0 ] ; then
   grep -i -v ma_alloc_get ${MAFDECLS} | grep -i -v ma_get_index | grep -i -v ma_push_get > /tmp/mafdecls.$$
   if [ ${#OLD_GA} -ne 0 ] ; then
     echo "#define MAPOINTER Integer" >> /tmp/mafdecls.$$
+    echo "#define MA_ACCESS_INDEX_TYPE Integer" >> /tmp/mafdecls.$$
   fi
   cat << EOF >> /tmp/mafdecls.$$
       interface
@@ -73,6 +75,12 @@ if [ ${status} -ne 0 ] ; then
       end interface
 EOF
   mv /tmp/mafdecls.$$ ${MAFDECLS}
+  if [ ${#OLD_GA} -ne 0 ] ; then
+    # With OLD_GA there are multiple versions mafdecls in multiple places
+    # so rather than figuring out what gets used when and how we just clobber
+    # all versions of the include file that we know of.
+    cp ${MAFDECLS} ${MAFDECLS2}
+  fi
 fi
 #
 # Do the GA include file
