@@ -29,7 +29,10 @@ c
       integer l_g, k_g              ! gradients
       integer l_m, k_m              ! masses
 c
+      integer l_act, k_act          ! active atoms
+c
       integer nat                   ! number of atoms
+      integer nactive               ! number of active atoms
       integer nstep_nucl           ! total nuclear steps
       integer istep_nucl           ! nuclear md step
       double precision dt_nucl      ! nuclear md time step
@@ -62,10 +65,6 @@ c     get number of atoms
      $   call errquit(pname//'geom_ncent',geom, GEOM_ERR)
       if (nat.eq.0) return
 c
-c     get the number of degrees of freedom
-c     3N-6 in general but need to determine this if constraints are present
-      ndof = 3*nat   ! 3N-6 (general) or 3N-5 (linear)
-c
 c     local memory and initialization
       if(.not.ma_push_get(mt_dbl,nat,'mass',l_m,k_m))  ! mass
      $   call errquit(pname//'ma_push_get mass', nat,MA_ERR)
@@ -84,6 +83,12 @@ c
       if(.not.ma_push_get(mt_dbl,3*nat,'grads',l_g,k_g))  ! grads
      $   call errquit(pname//'ma_push_get grads',3*nat,MA_ERR)
       call dfill(3*nat, 0.0d0, dbl_mb(k_g), 1)
+c
+c     get the active atoms (also need a check for linearity)
+      if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act))
+     $   call errquit(pname//'grad_active_atoms',nat,MA_ERR)
+      call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
+      ndof = 3*nactive   ! 3N-6 (general) or 3N-5 (linear)
 c
 c     get the masses, initial coordinates
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses

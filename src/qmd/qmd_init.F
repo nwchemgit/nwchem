@@ -46,7 +46,7 @@ c     print general information
        write(LuOut,*)
        write(LuOut,*)
        call util_print_centered
-     &  (LuOut,'QMD General Information',20,.true.)
+     &  (LuOut,'QMD General Information',40,.true.)
        write(LuOut,*)
        write(LuOut,*)
       endif
@@ -137,6 +137,6 @@ c     check dt_nucl against the berendsen tau
       end if
 c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
-
+c
       return
       end
