@@ -128,6 +128,9 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DBYTE_SHORT_PACKING \
                  -Wp,-DINTEGER_1=byte
 endif
+ifneq ($(OLD_GA),)
+  EXTRA_OBJ += ga_zgop.o
+endif
 
        BLAS = dfill.o ifill.o  mabyte_fill.o 
 
