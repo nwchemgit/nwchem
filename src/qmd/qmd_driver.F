@@ -38,16 +38,26 @@ c
       double precision dt_nucl      ! nuclear md time step
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
+      double precision etotal       ! total energy: esys + ekin
 c
       logical status
 c
       character*32 pname
+      integer xyzfileunit
+      character*255 xyzfilename
 c
       logical task_gradient
       external task_gradient
 c
       status = .true.
       pname = "qmd_driver: "
+c
+c     get xyzfileunit
+      if(.not.util_get_io_unit(xyzfileunit))
+     &   call errquit("cannot get file unit",0,0)
+c
+c     get xyzfilename
+      call util_file_name('xyz',.false.,.false.,xyzfilename)
 c
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl)
@@ -99,6 +109,7 @@ c
 c     perform energy gradient calculation on initial coordinates
       esys = 0.d0
       ekin = 0.d0
+      etotal = 0.d0
       if (.not. task_gradient(rtdb))
      &   call errquit(pname//'task_gradient',0,CALC_ERR)
       if(.not.rtdb_get(rtdb,'task:gradient',mt_dbl,3*nat,dbl_mb(k_g)))
@@ -112,9 +123,12 @@ c
 c       take a nuclear md step
         call qmd_nucl_step(rtdb,geom,nat,istep_nucl,dt_nucl,
      &    dbl_mb(k_m),dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_g),esys,ekin)
+        etotal = ekin + esys
 c
 c       print md run information
         if (ga_nodeid().eq.0) then
+         write(luout,*)
+         write(luout,*)
          call util_print_centered(LuOut,'QMD Run Information',20,.true.)
          write(luout,*) "istep_nucl: ",istep_nucl
          write(luout,*) "Time elapsed: ",(istep_nucl-1)*dt_nucl*au2fs
@@ -123,7 +137,14 @@ c       print md run information
          write(luout,*) "etotal: ",ekin+esys
          write(luout,*) "targ_temp: ",targ_temp
          write(luout,*) "final_temp: ",final_temp
+         write(luout,*)
+         write(luout,*)
         endif
+c
+c       write trajectory
+        if (ga_nodeid().eq.0)
+     &   call qmd_write_traj(xyzfilename,xyzfileunit,.true.,nat,
+     &    istep_nucl,etotal,geom)
 c
       end do  ! istep_nucl
 c

@@ -70,7 +70,7 @@ c     store updated geometry
       if(.not.geom_rtdb_store(rtdb,geom,'geometry'))
      &   call errquit(pname//'geom_rtdb_store',0,GEOM_ERR)
 c
-c     energy gradient calculation
+c     energy/gradient calculation
       esys = 0.d0
       if (.not. task_gradient(rtdb))
      &   call errquit(pname//'task_gradient',0,CALC_ERR)
