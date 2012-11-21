@@ -79,7 +79,11 @@ EOF
     # With OLD_GA there are multiple versions mafdecls in multiple places
     # so rather than figuring out what gets used when and how we just clobber
     # all versions of the include file that we know of.
-    cp ${MAFDECLS} ${MAFDECLS2}
+    if [ -f ${MAFDECLS2} ] ; then
+      cp ${MAFDECLS} ${MAFDECLS2}
+    # else
+    #   The file does not exist so we cannot clobber it.
+    fi
   fi
 fi
 #
