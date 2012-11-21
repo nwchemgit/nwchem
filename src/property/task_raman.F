@@ -336,21 +336,24 @@ c
       begin = 2
       start = 1
       call dfill(rmmodes*4,0.0D+00,rminfo,1)  ! initialize rminfo
-       if (last .eq. 10000) then  ! if last is default set to the number of normal modes
-         last = first + rmmodes - 1 
-       endif
+      if (last .eq. 10000) then  ! if last is default set to the number of normal modes
+        last = first + rmmodes - 1 
+      endif
       if (.not. rtdb_get(rtdb, 'raman:rminfo ', mt_dbl,
-     &    rmmodes*4, rminfo))
-     & write(6,*)pname//"no rminfo found"
-c     &   call errquit('aoresponse:failed to get rminfo', 0, RTDB_ERR)
-       do i = 1,rmmodes
+     &    rmmodes*4, rminfo)) then
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*)pname//"no rminfo found"
+c         call errquit('aoresponse:failed to get rminfo', 0, RTDB_ERR)
+        endif
+      endif
+      do i = 1,rmmodes
          if (rminfo(i,1) .le. low ) then
              goto 100
          endif
-       enddo
-       begin = i
- 100   continue
-        begin = first + begin - 2
+      enddo
+      begin = i
+ 100  continue
+      begin = first + begin - 2
       if (debug) then
               write(6,*)"rmmodes", rmmodes 
               write(6,*)"f l b", first, last, begin
@@ -425,7 +428,7 @@ c      --- save response data from aoresponse
          call raman_save(rtdb, iii, junk3, junk4 )
         enddo ! iii
 c
-c ------------------------do finite defernced for mode ii----------------------
+c ------------------------do finite differenced for mode ii--------------------
 c
          call fd_raman(rtdb, ii, rmmodes, nat, nc, junk3, junk4,
      &           step_size, rminfo, eigenvecs, mass)
