@@ -46,7 +46,7 @@ ifeq ($(USE_MPI),y)
     LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB})
   endif
   ifneq ($(LIBMPI),)
-    LDFLAGS += ${LIBMPI})
+    LDFLAGS += ${LIBMPI}
   endif
 endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
