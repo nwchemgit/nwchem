@@ -1,5 +1,13 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Computes the 1-electron double derivative potential energy integrals
+C>
+C> Computes the 1-electron double derivative potential energy integrals of
+C> the form \f$pxVp\f$.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1epxvpe}
 c:tex-This routine computes the 1 electron double derivative potential energy integrals pxVp.
@@ -38,14 +46,14 @@ c::functions
       external cando_nw
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr)     ! [scratch] scratch array
-      integer lpvpe                  ! [input] length of pvpe buffer
-      double precision pvpe(lpvpe,3) ! [output] pxVp integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr)     !< [Scratch] scratch array
+      integer lpvpe                  !< [Input] length of pvpe buffer
+      double precision pvpe(lpvpe,3) !< [Output] pxVp integrals
 c:tex-\end{verbatim}
 c::local
       logical shells_ok
@@ -178,3 +186,4 @@ c
       endif
 c
       end
+C> @}
