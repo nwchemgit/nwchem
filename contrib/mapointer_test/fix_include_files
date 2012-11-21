@@ -36,7 +36,8 @@ if [ ${#DEV_GA} -ne 0 ] ; then
   export GLOBAL=../../src/tools/ga-dev/global/src/global.fh.in
 elif [ ${#OLD_GA} -ne 0 ] ; then
   export MAFDECLS=../../src/tools/ga-4-3/ma/mafdecls.fh
-  export MAFDECLS2=../../src/tools/include/mafdecls.fh
+  export MAFDECLS2=../../src/tools/ma/mafdecls.fh
+  export MAFDECLS3=../../src/tools/include/mafdecls.fh
   export GLOBAL=../../src/tools/ga-4-3/global/src/global.fh
 elif [ ${#EXP_GA} -ne 0 ] ; then
   export MAFDECLS=../../src/tools/ga-exp1/ma/mafdecls.fh.in
@@ -84,6 +85,11 @@ EOF
     # else
     #   The file does not exist so we cannot clobber it.
     fi
+    if [ -f ${MAFDECLS3} ] ; then
+      cp ${MAFDECLS} ${MAFDECLS3}
+    # else
+    #   The file does not exist so we cannot clobber it.
+    fi
   fi
 fi
 #
@@ -92,6 +98,9 @@ fi
 grep interface ${GLOBAL}
 status=$?
 if [ ${status} -ne 0 ] ; then
+  if [ ${#OLD_GA} -ne 0 ] ; then
+    echo "#define GA_ACCESS_INDEX_TYPE Integer" >> ${GLOBAL}
+  fi
   cat << EOF >> ${GLOBAL}
       interface
         subroutine GA_access(g_a,ilo,ihi,jlo,jhi,index,ld)
