@@ -17,6 +17,13 @@ ifeq ($(TARGET),KSR)
        PRECISION = single
 endif
 
+ifeq ($(USE_PRECISION),single)
+       PRECISION = single
+endif
+ifeq ($(USE_PRECISION),double)
+       PRECISION = double
+endif
+
 ifndef PRECISION
 error:
 	@echo Lapack makefile does not have PRECISION defined
@@ -84,10 +91,11 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                sgesvd.o      sgetf2.o      sgetrf.o       sgetrs.o     \
                sisnan.o      slahr2.o      slaqr0.o       slaqr1.o     \
                slaqr2.o      slaqr3.o      slaqr4.o       slaqr5.o     \
-               slasy2.o      \
+               slasy2.o      sgehd2.o \
                slabrd.o      slacon.o      slacpy.o       sladiv.o     \
                slae2.o       slaev2.o      slagtf.o       slagts.o     \
                slamch.o      slange.o      slansp.o       strti2.o     \
+               slanv2.o      slahqr.o      slacn2.o       slarfx.o     \
                slanst.o      slansy.o      slapy2.o       slapy3.o     \
                slarf.o       slarfb.o      slarfg.o       slarft.o     \
                slarnv.o      slartg.o      slaruv.o       slas2.o      \
@@ -96,7 +104,7 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                slauu2.o      slauum.o      sorg2l.o       sorg2r.o     \
                sorgbr.o      sorgl2.o      sorglq.o       sorgql.o     \
                sorgqr.o      sorgtr.o      sorm2r.o       sormbr.o     \
-               sormhr.o      \
+               sormhr.o      sgeev.o       slaisnan.o     slaln2.o     \
                sorml2.o      sormlq.o      sormqr.o       spotf2.o     \
                spotrf.o      spotri.o      sspcon.o       ssprfs.o     \
                sspsvx.o      ssptrf.o      ssptrs.o       ssteqr.o     \
