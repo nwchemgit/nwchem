@@ -1103,74 +1103,78 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
     export IB_LIB_NAME="-libverbs"
   fi
 fi
-if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
-  echo "#include \"stdio.h\""                                         >  ./mpi_threads$$.c
-  echo "#include \"mpi.h\""                                           >> ./mpi_threads$$.c
-  echo "int main(int argc, char **argv)"                              >> ./mpi_threads$$.c
-  echo "{"                                                            >> ./mpi_threads$$.c
-  echo "   int required = MPI_THREAD_MULTIPLE;"                       >> ./mpi_threads$$.c
-  echo "   int provided;"                                             >> ./mpi_threads$$.c
-  echo "   int result;"                                               >> ./mpi_threads$$.c
-  echo "   result = MPI_Init_thread(&argc,&argv,required,&provided);" >> ./mpi_threads$$.c
-  echo "   if (provided == MPI_THREAD_MULTIPLE) {"                    >> ./mpi_threads$$.c
-  echo "     printf(\"multithreaded\n\");"                            >> ./mpi_threads$$.c
-  echo "   } else if (provided == MPI_THREAD_SERIALIZED) {"           >> ./mpi_threads$$.c
-  echo "     printf(\"serialthreaded\n\");"                           >> ./mpi_threads$$.c
-  echo "   } else if (provided == MPI_THREAD_FUNNELED) {"             >> ./mpi_threads$$.c
-  echo "     printf(\"funnelthreaded\n\");"                           >> ./mpi_threads$$.c
-  echo "   } else if (provided == MPI_THREAD_SINGLE) {"               >> ./mpi_threads$$.c
-  echo "     printf(\"singlethreaded\n\");"                           >> ./mpi_threads$$.c
-  echo "   } else {"                                                  >> ./mpi_threads$$.c
-  echo "     result = 1;"                                             >> ./mpi_threads$$.c
-  echo "   }"                                                         >> ./mpi_threads$$.c
-  echo "   result = result || MPI_Finalize();"                        >> ./mpi_threads$$.c
-  echo "   return result;"                                            >> ./mpi_threads$$.c
-  echo "}"                                                            >> ./mpi_threads$$.c
-  # On some systems there is no mpicc to compile an MPI code, so we need to
-  # try some more options.
-  which mpicc
-  result=$?
-  if [ ${result} -eq 0 ] ; then
-    mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
-    result=$?
-  else
-    which mpxlc_r
+if [ ${#OLD_GA} -eq 0 ] ; then
+  if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+    echo "#include \"stdio.h\""                                         >  ./mpi_threads$$.c
+    echo "#include \"mpi.h\""                                           >> ./mpi_threads$$.c
+    echo "int main(int argc, char **argv)"                              >> ./mpi_threads$$.c
+    echo "{"                                                            >> ./mpi_threads$$.c
+    echo "   int required = MPI_THREAD_MULTIPLE;"                       >> ./mpi_threads$$.c
+    echo "   int provided;"                                             >> ./mpi_threads$$.c
+    echo "   int result;"                                               >> ./mpi_threads$$.c
+    echo "   result = MPI_Init_thread(&argc,&argv,required,&provided);" >> ./mpi_threads$$.c
+    echo "   if (provided == MPI_THREAD_MULTIPLE) {"                    >> ./mpi_threads$$.c
+    echo "     printf(\"multithreaded\n\");"                            >> ./mpi_threads$$.c
+    echo "   } else if (provided == MPI_THREAD_SERIALIZED) {"           >> ./mpi_threads$$.c
+    echo "     printf(\"serialthreaded\n\");"                           >> ./mpi_threads$$.c
+    echo "   } else if (provided == MPI_THREAD_FUNNELED) {"             >> ./mpi_threads$$.c
+    echo "     printf(\"funnelthreaded\n\");"                           >> ./mpi_threads$$.c
+    echo "   } else if (provided == MPI_THREAD_SINGLE) {"               >> ./mpi_threads$$.c
+    echo "     printf(\"singlethreaded\n\");"                           >> ./mpi_threads$$.c
+    echo "   } else {"                                                  >> ./mpi_threads$$.c
+    echo "     result = 1;"                                             >> ./mpi_threads$$.c
+    echo "   }"                                                         >> ./mpi_threads$$.c
+    echo "   result = result || MPI_Finalize();"                        >> ./mpi_threads$$.c
+    echo "   return result;"                                            >> ./mpi_threads$$.c
+    echo "}"                                                            >> ./mpi_threads$$.c
+    # On some systems there is no mpicc to compile an MPI code, so we need to
+    # try some more options.
+    which mpicc
     result=$?
     if [ ${result} -eq 0 ] ; then
-      mpxlc_r -o ./mpi_threads$$.x ./mpi_threads$$.c
+      mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
       result=$?
-    fi
-  fi
-  if [ ${result} -ne 0 ] ; then
-    # Compiling with multi-threaded support did not work, so no hope here
-    export ARMCI_NETWORK=SOCKETS
-  else
-    if [ ${#USE_MPI} -eq 0 ] ; then
-      export USE_MPI=y
-    fi
-    output=`./mpi_threads$$.x`
-    result=$?
-    if [ ${result} -ne 0 ] ; then
-      # Testing multi-threaded support did not work, so we have only two options
-      # If the experimental GA branch is being used we can use the MPI 
-      # two-sided interface at this point, otherwise our only option might be
-      # to hope for the best (essentially assuming that the sysops did not let
-      # us run the mpi_threads tests which might happen on a computer service).
-      if [ "x${EXP_GA}" != "x" ] ; then
-        # use two-sided over MPI
-        export ARMCI_NETWORK="MPI_TS"
-      else
-        # hope and pray...
-        export ARMCI_NETWORK="MPI-MT"
-      fi
     else
-      if [ "${output}" == "multithreaded" ] ; then
-        # We have confirmed multi-threaded support!
-        export ARMCI_NETWORK="MPI-MT"
+      which mpxlc_r
+      result=$?
+      if [ ${result} -eq 0 ] ; then
+        mpxlc_r -o ./mpi_threads$$.x ./mpi_threads$$.c
+        result=$?
       fi
     fi
+    if [ ${result} -ne 0 ] ; then
+      # Compiling with multi-threaded support did not work, so no hope here
+      export ARMCI_NETWORK=SOCKETS
+    else
+      if [ ${#USE_MPI} -eq 0 ] ; then
+        export USE_MPI=y
+      fi
+      output=`./mpi_threads$$.x`
+      result=$?
+      if [ ${result} -ne 0 ] ; then
+        # Testing multi-threaded support did not work, so we have only two options
+        # If the experimental GA branch is being used we can use the MPI 
+        # two-sided interface at this point, otherwise our only option might be
+        # to hope for the best (essentially assuming that the sysops did not let
+        # us run the mpi_threads tests which might happen on a computer service).
+        if [ "x${EXP_GA}" != "x" ] ; then
+          # use two-sided over MPI
+          export ARMCI_NETWORK="MPI_TS"
+        else
+          # hope and pray...
+          export ARMCI_NETWORK="MPI-MT"
+        fi
+      else
+        if [ "${output}" == "multithreaded" ] ; then
+          # We have confirmed multi-threaded support!
+          export ARMCI_NETWORK="MPI-MT"
+        fi
+      fi
+    fi
+    rm -f ./mpi_threads$$.x ./mpi_threads$$.c
   fi
-  rm -f ./mpi_threads$$.x ./mpi_threads$$.c
+# else
+#   OLD_GA is set but GA-4-3 does not implement MPI-MT or MPI_TS
 fi
 #
 # Below we have to realize that EXPORT is a command. Hence if we use
@@ -1601,175 +1605,178 @@ if [ "`basename ${MPI_CXX}`" != "${MPI_CXX}" ] ; then
 fi
 
 if [ ${#OLD_GA} -ne 0 ] ; then
-  echo "ERROR: OLD_GA is set but this script only works with GA-5-1 or later: aborting..." > /dev/stderr
-  exit 1
+  cd contrib/mapointer_test
+  ./fix_include_files
+  cd ../..
 fi
 cd $NWCHEM_TOP/src
 echo "=== configure GA ==="
-if [ "x${option}" != "xrealclean" ]; then
-  make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" configure_ga
-  #
-  # Extract information about BLAS libraries from the GA config.status file
-  #
-  have_blas_false=`get_config_value "HAVE_BLAS_FALSE"`
-  have_blas_true=`get_config_value "HAVE_BLAS_TRUE"`
-  if [ "x${have_blas_true}" == "x" ] ; then
-    if [ "x${have_blas_false}" == "x#" ] ; then
-      # The GA found some BLAS library, set GA_BLAS accordingly
-      GA_BLAS=`get_config_value "BLAS_LDFLAGS"`
-      GA_BLAS="${GA_BLAS} `get_config_value \"BLAS_LIBS\"`"
-      GA_BLAS_SIZE=`get_config_value "BLAS_SIZE"`
-      export GA_BLAS
-      if [ ${#BLAS_SIZE} -ne 0 ] ; then
-        if [ "${BLAS_SIZE}" != "${GA_BLAS_SIZE}" ] ; then
-          echo "Warning: BLAS_SIZE and GA_BLAS_SIZE do not match " ${BLAS_SIZE} ${GA_BLAS_SIZE}
-          export GA_BLAS_SIZE=${BLAS_SIZE}
+if [ ${#OLD_GA} -eq 0 ] ; then
+  if [ "x${option}" != "xrealclean" ]; then
+    make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" configure_ga
+    #
+    # Extract information about BLAS libraries from the GA config.status file
+    #
+    have_blas_false=`get_config_value "HAVE_BLAS_FALSE"`
+    have_blas_true=`get_config_value "HAVE_BLAS_TRUE"`
+    if [ "x${have_blas_true}" == "x" ] ; then
+      if [ "x${have_blas_false}" == "x#" ] ; then
+        # The GA found some BLAS library, set GA_BLAS accordingly
+        GA_BLAS=`get_config_value "BLAS_LDFLAGS"`
+        GA_BLAS="${GA_BLAS} `get_config_value \"BLAS_LIBS\"`"
+        GA_BLAS_SIZE=`get_config_value "BLAS_SIZE"`
+        export GA_BLAS
+        if [ ${#BLAS_SIZE} -ne 0 ] ; then
+          if [ "${BLAS_SIZE}" != "${GA_BLAS_SIZE}" ] ; then
+            echo "Warning: BLAS_SIZE and GA_BLAS_SIZE do not match " ${BLAS_SIZE} ${GA_BLAS_SIZE}
+            export GA_BLAS_SIZE=${BLAS_SIZE}
+          fi
         fi
-      fi
-      if [ "${GA_BLAS_SIZE}" == "4" ] ; then
-        export USE_64TO32=y
+        if [ "${GA_BLAS_SIZE}" == "4" ] ; then
+          export USE_64TO32=y
+        else
+          unset USE_64TO32
+        fi
+        echo "Found BLAS " ${GA_BLAS}
+        echo "Found BLAS type: integer*"${GA_BLAS_SIZE}
       else
-        unset USE_64TO32
+        # Confused
+        echo "ERROR: A: inconsistent data on presence of BLAS library"
+        echo "have_blas_true  = " ${have_blas_true}
+        echo "have_blas_false = " ${have_blas_false}
+        exit 1
       fi
-      echo "Found BLAS " ${GA_BLAS}
-      echo "Found BLAS type: integer*"${GA_BLAS_SIZE}
+    elif [ "x${have_blas_true}" == "x#" ] ; then
+      if [ "x${have_blas_false}" == "x" ] ; then
+        # The GA found no BLAS library, unset GA_BLAS to maintain consistency
+        unset GA_BLAS
+        echo "Found no BLAS "
+      else
+        # Confused
+        echo "ERROR: B: inconsistent data on presence of BLAS library"
+        echo "have_blas_true  = " ${have_blas_true}
+        echo "have_blas_false = " ${have_blas_false}
+        exit 1
+      fi
     else
-      # Confused
-      echo "ERROR: A: inconsistent data on presence of BLAS library"
+      echo "ERROR: C: invalid settings" 
       echo "have_blas_true  = " ${have_blas_true}
       echo "have_blas_false = " ${have_blas_false}
       exit 1
     fi
-  elif [ "x${have_blas_true}" == "x#" ] ; then
-    if [ "x${have_blas_false}" == "x" ] ; then
-      # The GA found no BLAS library, unset GA_BLAS to maintain consistency
-      unset GA_BLAS
-      echo "Found no BLAS "
-    else
-      # Confused
-      echo "ERROR: B: inconsistent data on presence of BLAS library"
-      echo "have_blas_true  = " ${have_blas_true}
-      echo "have_blas_false = " ${have_blas_false}
-      exit 1
-    fi
-  else
-    echo "ERROR: C: invalid settings" 
-    echo "have_blas_true  = " ${have_blas_true}
-    echo "have_blas_false = " ${have_blas_false}
-    exit 1
-  fi
-  #
-  # Extract information about LAPACK libraries from the GA config.status file
-  #
-  have_lapack_false=`get_config_value "HAVE_LAPACK_FALSE"`
-  have_lapack_true=`get_config_value "HAVE_LAPACK_TRUE"`
-  if [ "x${have_lapack_true}" == "x" ] ; then
-    if [ "x${have_lapack_false}" == "x#" ] ; then
-      # The GA found some LAPACK library, set GA_LAPACK accordingly
-      GA_LAPACK=`get_config_value "LAPACK_LDFLAGS"`
-      GA_LAPACK="${GA_LAPACK} `get_config_value \"LAPACK_LIBS\"`"
-      GA_LAPACK_SIZE=`get_config_value "LAPACK_SIZE"`
-      export GA_LAPACK
-      if [ ${#LAPACK_SIZE} -ne 0 ] ; then
-        if [ "${LAPACK_SIZE}" != "${GA_LAPACK_SIZE}" ] ; then
-          echo "Warning: LAPACK_SIZE and GA_LAPACK_SIZE do not match " ${LAPACK_SIZE} ${GA_LAPACK_SIZE}
-          export GA_LAPACK_SIZE=${LAPACK_SIZE}
+    #
+    # Extract information about LAPACK libraries from the GA config.status file
+    #
+    have_lapack_false=`get_config_value "HAVE_LAPACK_FALSE"`
+    have_lapack_true=`get_config_value "HAVE_LAPACK_TRUE"`
+    if [ "x${have_lapack_true}" == "x" ] ; then
+      if [ "x${have_lapack_false}" == "x#" ] ; then
+        # The GA found some LAPACK library, set GA_LAPACK accordingly
+        GA_LAPACK=`get_config_value "LAPACK_LDFLAGS"`
+        GA_LAPACK="${GA_LAPACK} `get_config_value \"LAPACK_LIBS\"`"
+        GA_LAPACK_SIZE=`get_config_value "LAPACK_SIZE"`
+        export GA_LAPACK
+        if [ ${#LAPACK_SIZE} -ne 0 ] ; then
+          if [ "${LAPACK_SIZE}" != "${GA_LAPACK_SIZE}" ] ; then
+            echo "Warning: LAPACK_SIZE and GA_LAPACK_SIZE do not match " ${LAPACK_SIZE} ${GA_LAPACK_SIZE}
+            export GA_LAPACK_SIZE=${LAPACK_SIZE}
+          fi
         fi
-      fi
-      if [ "${GA_LAPACK_SIZE}" == "4" ] ; then
-        export USE_64TO32=y
+        if [ "${GA_LAPACK_SIZE}" == "4" ] ; then
+          export USE_64TO32=y
+        else
+          unset USE_64TO32
+        fi
+        echo "Found LAPACK " ${GA_LAPACK}
+        echo "Found LAPACK type: integer*"${GA_LAPACK_SIZE}
       else
-        unset USE_64TO32
+        # Confused
+        echo "ERROR: A: inconsistent data on presence of LAPACK library"
+        echo "have_lapack_true  = " ${have_lapack_true}
+        echo "have_lapack_false = " ${have_lapack_false}
+        exit 1
       fi
-      echo "Found LAPACK " ${GA_LAPACK}
-      echo "Found LAPACK type: integer*"${GA_LAPACK_SIZE}
+    elif [ "x${have_lapack_true}" == "x#" ] ; then
+      if [ "x${have_lapack_false}" == "x" ] ; then
+        # The GA found no LAPACK library, unset GA_LAPACK to maintain consistency
+        unset GA_LAPACK
+        echo "Found no LAPACK "
+      else
+        # Confused
+        echo "ERROR: B: inconsistent data on presence of LAPACK library"
+        echo "have_lapack_true  = " ${have_lapack_true}
+        echo "have_lapack_false = " ${have_lapack_false}
+        exit 1
+      fi
     else
-      # Confused
-      echo "ERROR: A: inconsistent data on presence of LAPACK library"
+      echo "ERROR: C: invalid settings" 
       echo "have_lapack_true  = " ${have_lapack_true}
       echo "have_lapack_false = " ${have_lapack_false}
       exit 1
     fi
-  elif [ "x${have_lapack_true}" == "x#" ] ; then
-    if [ "x${have_lapack_false}" == "x" ] ; then
-      # The GA found no LAPACK library, unset GA_LAPACK to maintain consistency
-      unset GA_LAPACK
-      echo "Found no LAPACK "
-    else
-      # Confused
-      echo "ERROR: B: inconsistent data on presence of LAPACK library"
-      echo "have_lapack_true  = " ${have_lapack_true}
-      echo "have_lapack_false = " ${have_lapack_false}
-      exit 1
-    fi
-  else
-    echo "ERROR: C: invalid settings" 
-    echo "have_lapack_true  = " ${have_lapack_true}
-    echo "have_lapack_false = " ${have_lapack_false}
-    exit 1
-  fi
-  #
-  # Extract information about SCALAPACK libraries from the GA config.status file
-  #
-  have_scalapack_false=`get_config_value "HAVE_SCALAPACK_FALSE"`
-  have_scalapack_true=`get_config_value "HAVE_SCALAPACK_TRUE"`
-  if [ "x${have_scalapack_true}" == "x" ] ; then
-    if [ "x${have_scalapack_false}" == "x#" ] ; then
-      # The GA found some SCALAPACK library, set GA_SCALAPACK accordingly
-      GA_SCALAPACK=`get_config_value "SCALAPACK_LDFLAGS"`
-      GA_SCALAPACK="${GA_SCALAPACK} `get_config_value \"SCALAPACK_LIBS\"`"
-      GA_SCALAPACK_SIZE=`get_config_value "SCALAPACK_SIZE"`
-      export GA_SCALAPACK
-      if [ ${#SCALAPACK_SIZE} -ne 0 ] ; then
-        if [ "${SCALAPACK_SIZE}" != "${GA_SCALAPACK_SIZE}" ] ; then
-          echo "Warning: SCALAPACK_SIZE and GA_SCALAPACK_SIZE do not match " ${SCALAPACK_SIZE} ${GA_SCALAPACK_SIZE}
-          export GA_SCALAPACK_SIZE=${SCALAPACK_SIZE}
+    #
+    # Extract information about SCALAPACK libraries from the GA config.status file
+    #
+    have_scalapack_false=`get_config_value "HAVE_SCALAPACK_FALSE"`
+    have_scalapack_true=`get_config_value "HAVE_SCALAPACK_TRUE"`
+    if [ "x${have_scalapack_true}" == "x" ] ; then
+      if [ "x${have_scalapack_false}" == "x#" ] ; then
+        # The GA found some SCALAPACK library, set GA_SCALAPACK accordingly
+        GA_SCALAPACK=`get_config_value "SCALAPACK_LDFLAGS"`
+        GA_SCALAPACK="${GA_SCALAPACK} `get_config_value \"SCALAPACK_LIBS\"`"
+        GA_SCALAPACK_SIZE=`get_config_value "SCALAPACK_SIZE"`
+        export GA_SCALAPACK
+        if [ ${#SCALAPACK_SIZE} -ne 0 ] ; then
+          if [ "${SCALAPACK_SIZE}" != "${GA_SCALAPACK_SIZE}" ] ; then
+            echo "Warning: SCALAPACK_SIZE and GA_SCALAPACK_SIZE do not match " ${SCALAPACK_SIZE} ${GA_SCALAPACK_SIZE}
+            export GA_SCALAPACK_SIZE=${SCALAPACK_SIZE}
+          fi
         fi
-      fi
-      if [ "${GA_SCALAPACK_SIZE}" == "4" ] ; then
-        export USE_64TO32=y
+        if [ "${GA_SCALAPACK_SIZE}" == "4" ] ; then
+          export USE_64TO32=y
+        else
+          unset USE_64TO32
+        fi
+        echo "Found SCALAPACK " ${GA_SCALAPACK}
+        echo "Found SCALAPACK type: integer*"${GA_SCALAPACK_SIZE}
       else
-        unset USE_64TO32
+        # Confused
+        echo "ERROR: A: inconsistent data on presence of SCALAPACK library"
+        echo "have_scalapack_true  = " ${have_scalapack_true}
+        echo "have_scalapack_false = " ${have_scalapack_false}
+        exit 1
       fi
-      echo "Found SCALAPACK " ${GA_SCALAPACK}
-      echo "Found SCALAPACK type: integer*"${GA_SCALAPACK_SIZE}
+    elif [ "x${have_scalapack_true}" == "x#" ] ; then
+      if [ "x${have_scalapack_false}" == "x" ] ; then
+        # The GA found no SCALAPACK library, unset GA_SCALAPACK to maintain consistency
+        unset GA_SCALAPACK
+        echo "Found no SCALAPACK "
+      else
+        # Confused
+        echo "ERROR: B: inconsistent data on presence of SCALAPACK library"
+        echo "have_scalapack_true  = " ${have_scalapack_true}
+        echo "have_scalapack_false = " ${have_scalapack_false}
+        exit 1
+      fi
     else
-      # Confused
-      echo "ERROR: A: inconsistent data on presence of SCALAPACK library"
+      echo "ERROR: C: invalid settings" 
       echo "have_scalapack_true  = " ${have_scalapack_true}
       echo "have_scalapack_false = " ${have_scalapack_false}
       exit 1
     fi
-  elif [ "x${have_scalapack_true}" == "x#" ] ; then
-    if [ "x${have_scalapack_false}" == "x" ] ; then
-      # The GA found no SCALAPACK library, unset GA_SCALAPACK to maintain consistency
-      unset GA_SCALAPACK
-      echo "Found no SCALAPACK "
-    else
-      # Confused
-      echo "ERROR: B: inconsistent data on presence of SCALAPACK library"
-      echo "have_scalapack_true  = " ${have_scalapack_true}
-      echo "have_scalapack_false = " ${have_scalapack_false}
-      exit 1
+  fi
+  if [ ${#BLASOPT} -eq 0 ] ; then
+    if [ ${#GA_SCALAPACK} -ne 0 ] ; then
+      export BLASOPT="${GA_SCALAPACK}"
     fi
-  else
-    echo "ERROR: C: invalid settings" 
-    echo "have_scalapack_true  = " ${have_scalapack_true}
-    echo "have_scalapack_false = " ${have_scalapack_false}
-    exit 1
+    if [ ${#GA_LAPACK} -ne 0 ] ; then
+      export BLASOPT="${BLASOPT} ${GA_LAPACK}"
+    fi
+    if [ ${#GA_BLAS} -ne 0 ] ; then
+      export BLASOPT="${BLASOPT} ${GA_BLAS}"
+    fi
+    echo "BLASOPT from GA = " ${BLASOPT}
   fi
-fi
-if [ ${#BLASOPT} -eq 0 ] ; then
-  if [ ${#GA_SCALAPACK} -ne 0 ] ; then
-    export BLASOPT="${GA_SCALAPACK}"
-  fi
-  if [ ${#GA_LAPACK} -ne 0 ] ; then
-    export BLASOPT="${BLASOPT} ${GA_LAPACK}"
-  fi
-  if [ ${#GA_BLAS} -ne 0 ] ; then
-    export BLASOPT="${BLASOPT} ${GA_BLAS}"
-  fi
-  echo "BLASOPT from GA = " ${BLASOPT}
 fi
 echo "=== before    NWChem ==="
 echo "BLASOPT =" ${BLASOPT}
