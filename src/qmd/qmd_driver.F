@@ -134,7 +134,7 @@ c       print md run information
          write(luout,*) "Time elapsed: ",(istep_nucl-1)*dt_nucl*au2fs
          write(luout,*) "ekin: ",ekin
          write(luout,*) "esys: ",esys
-         write(luout,*) "etotal: ",ekin+esys
+         write(luout,*) "etotal: ",etotal
          write(luout,*) "targ_temp: ",targ_temp
          write(luout,*) "final_temp: ",final_temp
          write(luout,*)
