@@ -1,5 +1,23 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute one of various 1-electron entities
+C>
+C> This subroutine computes one of a variety of 1-electron quantities.
+C> The following quantities can be provided:
+C>
+C> - nder=-2; compute the 1-electron wavefunction for shell ish
+C>
+C> - nder=-1; compute the 1-electron density
+C>
+C> - nder=0; compute the electrostatic potential
+C>
+C> - nder=1; compute the electric field
+C>
+C> - nder=2; compute the electric field gradient
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eelec}
 c:tex-This routine computes the 1 electron electronic wave function (nder=-2) for shell ish, 
@@ -36,17 +54,17 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr)   ! [scratch] scratch array
-      integer lelec                ! [input] length of elec buffer
-      double precision elec(lelec) ! [output] elec integrals
-      integer nder    ! [input] nder of integral
-      double precision xyzpt(3,*) ! [input] points where integral is calculated
-      integer npts    ! [input] number of points where integral is calculated
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr)   !< [Scratch] scratch array
+      integer lelec                !< [Input] length of elec buffer
+      double precision elec(lelec) !< [Output] elec integrals
+      integer nder    !< [Input] nder of integral
+      double precision xyzpt(3,*) !< [Input] points where integral is calculated
+      integer npts    !< [Input] number of points where integral is calculated
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -166,3 +184,4 @@ c     We now have the integrals in array (nsph_ints,npts,(max(3*nder,1)))
 c
       return
       end
+C> @}
