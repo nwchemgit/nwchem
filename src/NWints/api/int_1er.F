@@ -1,3 +1,18 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Computes the electrostatic potential at a point due to a charge
+C> distribution
+C>
+C> Computes the electrostatic potential at a set of points due to the charge
+C> distribution given by pairs of basis functions. In other words, compute the
+C> integrals
+C> \f{eqnarray*}{
+C>    P_e(i,\mu,\nu) &=& \int \frac{\chi_\mu(r')\chi_\nu(r')q_i}{|r_i-r'|}dr'
+C> \f}
+C> where \f$ \chi(r) \f$ is a Gaussian basis function, the \f$ r_i \f$ are
+C> the point positions of charges \f$ q_i \f$.
+C>
       subroutine int_1er(r,npt,charg,
      &     i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
 c $Id$
@@ -29,8 +44,17 @@ c::functions
       external cando_sp
       external cando_nw
 c::passed
-      integer i_basis, j_basis, ish, jsh, lscr, lpe,npt
-      double precision scr(lscr), Pe(npt,lpe),r(3,npt),charg(npt)
+      integer i_basis !< [Input] the basis set handle for ish
+      integer ish     !< [Input] the i-th shell/contraction
+      integer j_basis !< [Input] the basis set handle for jsh
+      integer jsh     !< [Input] the j-th shell/contraction
+      integer lscr    !< [Input] the length of the scratch space
+      integer lpe     !< [Input] the number of charge distributions
+      integer npt     !< [Input] the number of points
+      double precision scr(lscr)   !< [Scratch] the scratch space
+      double precision Pe(npt,lpe) !< [Output] the integrals
+      double precision r(3,npt)    !< [Input] the center positions
+      double precision charg(npt)  !< [Input] the center charges
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont
@@ -97,3 +121,4 @@ c.............. dryrun
      &         .false.,scr,lscr)
 c
       end
+C> @}
