@@ -1,7 +1,7 @@
 c
 c     write trajectory: xyz file in angstroms
 c
-      subroutine qmd_write_traj(xyzfilename,xyzfileunit,
+      subroutine qmd_write_trj(xyzfilename,xyzfileunit,
      &           mode_append,nat,iframe,etotal,geom)
 c
       implicit none
@@ -25,7 +25,7 @@ c
 c
       character*32 pname
 c
-      pname = "qmd_trajectory: "
+      pname = "qmd_write_traj: "
 c
 c     open file
       if (mode_append) then
@@ -45,7 +45,7 @@ c
 c
       if (xyzfileunit.ne.0) close(unit=xyzfileunit)
 c
-  110 format(I5/)
+  110 format(I5)
   111 format(I5,f22.12)
 c
       return

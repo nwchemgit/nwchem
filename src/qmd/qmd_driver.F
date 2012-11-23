@@ -45,6 +45,8 @@ c
       character*32 pname
       integer xyzfileunit
       character*255 xyzfilename
+      integer rstfileunit
+      character*255 rstfilename
 c
       logical task_gradient
       external task_gradient
@@ -58,6 +60,13 @@ c     get xyzfileunit
 c
 c     get xyzfilename
       call util_file_name('xyz',.false.,.false.,xyzfilename)
+c
+c     get rstfileunit
+      if(.not.util_get_io_unit(rstfileunit))
+     &   call errquit("cannot get file unit",0,0)
+c
+c     get rstfilename
+      call util_file_name('qmdrst',.false.,.false.,rstfilename)
 c
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl)
@@ -95,10 +104,15 @@ c
       call dfill(3*nat, 0.0d0, dbl_mb(k_g), 1)
 c
 c     get the active atoms (also need a check for linearity)
-      if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act))
+      if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act)) ! active
      $   call errquit(pname//'grad_active_atoms',nat,MA_ERR)
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
-      ndof = 3*nactive   ! 3N-6 (general) or 3N-5 (linear)
+c      if (do_linear) then    ! check for linear flag
+c        ndof = 3*nactive-5   ! 3N-5 (linear)
+c      else
+c        ndof = 3*nactive-6   ! 3N-6 (general)
+c      end if
+      ndof = 3*nactive
 c
 c     get the masses, initial coordinates
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
@@ -138,17 +152,25 @@ c       print md run information
          write(luout,*) "targ_temp: ",targ_temp
          write(luout,*) "final_temp: ",final_temp
          write(luout,*)
-         write(luout,*)
         endif
 c
 c       write trajectory
-        if (ga_nodeid().eq.0)
-     &   call qmd_write_traj(xyzfilename,xyzfileunit,.true.,nat,
-     &    istep_nucl,etotal,geom)
+        if (ga_nodeid().eq.0) then
+           call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
+     &          istep_nucl-1,etotal,geom)
+        end if
 c
       end do  ! istep_nucl
 c
+c     write restart information
+      if (ga_nodeid().eq.0) then
+         call qmd_write_rst(rstfilename,rstfileunit,
+     &             nat,istep_nucl,esys,ekin,geom)
+      end if
+c
 c     clear memory
+      if(.not.ma_pop_stack(l_act))  ! gradient
+     + call errquit(pname//'ma_pop_stack act',0,MA_ERR)
       if(.not.ma_pop_stack(l_g))  ! gradient
      + call errquit(pname//'ma_pop_stack g',0,MA_ERR)
       if(.not.ma_pop_stack(l_v))  ! velocity

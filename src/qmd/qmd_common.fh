@@ -36,5 +36,6 @@ c     integrators
       common/qmd_integrators/do_vv
 c
 c     nuclear-md constraints
+      logical do_linear
       integer ndof
-      common/qmd_constr/ndof
+      common/qmd_constr/do_linear,ndof

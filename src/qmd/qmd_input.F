@@ -31,6 +31,7 @@ c
       character*32 thermostat
       character*32 integrator_nucl
       character*32 integrator_elec
+      logical do_linear
 c
       character*30 pname
 c
@@ -86,6 +87,11 @@ c     Nuclear MD integrator
       if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,integrator_nucl))
      & call errquit(pname//'failed to write nuclear integrator',0,
      &     RTDB_ERR)
+c
+c     Is linear molecule ?
+      do_linear=.false.
+      if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
+     & call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
 c
 c     ----------
 c     Read input
@@ -172,6 +178,12 @@ c     Nuclear MD integrator
           integrator_nucl='velocity-verlet'
       if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,integrator_nucl))
      1  call errquit(pname//'failed to write integrator',0,RTDB_ERR)
+c
+c     Is linear molecule ?
+      else if (inp_compare(.false.,test,'linear')) then
+          do_linear=.true.
+      if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
+     &  call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then

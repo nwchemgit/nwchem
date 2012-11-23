@@ -57,5 +57,13 @@ c     choose the integrator
         call errquit(pname//'unknown integrator',0,CALC_ERR)
       end if
 c
+c     persist updated coordinates in geom
+      if (.not.geom_cart_coords_set(geom,r))
+     $   call errquit(pname//'geom_cart_coords_set',0,GEOM_ERR)
+c
+c     persist updated velocity in geom
+      if (.not.geom_vel_set(geom,v))
+     $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
+c
       return
       end

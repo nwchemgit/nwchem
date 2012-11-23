@@ -108,9 +108,5 @@ c
 c     instantaneous temperature
       final_temp = 2.0d0*ekin/kb/(1.d0*ndof)
 c
-c     update geom with "thermostated" velocity
-      if (.not.geom_vel_set(geom,v))
-     $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
-c
       return
       end

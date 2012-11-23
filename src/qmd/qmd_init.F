@@ -136,6 +136,10 @@ c     check dt_nucl against the berendsen tau
         end if
       end if
 c
+c     is linear molecule ?
+      if (.not.rtdb_get(rtdb,'qmd:linear',mt_log,1,do_linear))
+     &     do_linear = .false.
+c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
       return
