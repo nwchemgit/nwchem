@@ -48,6 +48,14 @@ function usage()
  -v Print the version information from the configuration files, Doxygen,
     and the GraphViz dot program.
 
+ -j Enable MathJax to display equations. MathJax is a JavaScript display engine
+    that displays equations in your browser without needing any readers or
+    plugins. Because it processes equations in your browser the speed will 
+    depend on your machine performance and your browser. For example Internet
+    Explorer 8 took minutes to process a page and was unusably slow afterwards,
+    whereas Firefox 16 processed the same page in seconds and displayed without
+    noticable degradation.
+
 EOF
 }
 if [ -f "$0" ] ; then
@@ -74,6 +82,7 @@ while [ $# -ge 1 ] ; do
     -s) task="src" ; shift 1 ;;
     -u) task="update" ; shift 1 ;;
     -v) task="version" ; shift 1 ;;
+    -j) mjax="yes" ; shift 1 ;;
     *)  task="usage" ; shift 1 ;;
   esac
 done
@@ -107,6 +116,9 @@ elif [ "$task" == "graph" ] ; then
   date
   grep -v "INCLUDE_PATH           =" "$path/doxygen.rc" > "$path/doxygen$$.rc"
   echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen$$.rc"
+  if [ ${#mjax} -ne 0 ] ; then
+    echo "USE_MATHJAX            = YES"  >> "$path/doxygen$$.rc"
+  fi
   doxygen "$path/doxygen$$.rc"
   rm -f "$path/doxygen$$.rc"
   date
@@ -114,6 +126,9 @@ elif [ "$task" == "text" ] ; then
   date
   grep -v "INCLUDE_PATH           =" "$path/doxygen-text.rc" > "$path/doxygen-text$$.rc"
   echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen-text$$.rc"
+  if [ ${#mjax} -ne 0 ] ; then
+    echo "USE_MATHJAX            = YES"  >> "$path/doxygen-text$$.rc"
+  fi
   doxygen "$path/doxygen-text$$.rc"
   rm -f "$path/doxygen-text$$.rc"
   date
@@ -128,6 +143,9 @@ elif [ "$task" == "src" ] ; then
   date
   grep -v "INCLUDE_PATH           =" "$path/doxygen-src.rc" > "$path/doxygen-src$$.rc"
   echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen-src$$.rc"
+  if [ ${#mjax} -ne 0 ] ; then
+    echo "USE_MATHJAX            = YES"  >> "$path/doxygen-src$$.rc"
+  fi
   doxygen "$path/doxygen-src$$.rc"
   rm -f "$path/doxygen-src$$.rc"
   date
