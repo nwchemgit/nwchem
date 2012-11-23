@@ -1,5 +1,16 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Computes 3 center 2-electron integrals
+C>
+C> Computes 3 center 2-electron integrals of the following kind:
+C> \f{eqnarray*}{
+C> ({\mu}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}
+C> g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
 c:tex-this routine computes the 3 center 2 electron integrals: 
@@ -55,15 +66,15 @@ c::functions
       external int_nint_cart
 c:: passed
 c:tex-\begin{verbatim}
-      integer brain ! [input] bra basis set handle
-      integer ish   ! [input] shell/contraction index
-      integer ketin ! [input] ket basis set handle
-      integer jsh   ! [input] shell/contraction index
-      integer ksh   ! [input] shell/contraction index
-      integer lscr  ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] array
-      integer leri  ! [input] length of integral array
-      double precision eri(leri) ! [output] 2e3c integrals
+      integer brain !< [Input] bra basis set handle
+      integer ish   !< [Input] shell/contraction index
+      integer ketin !< [Input] ket basis set handle
+      integer jsh   !< [Input] shell/contraction index
+      integer ksh   !< [Input] shell/contraction index
+      integer lscr  !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] array
+      integer leri  !< [Input] length of integral array
+      double precision eri(leri) !< [Output] 2e3c integrals
 c:tex-\end{verbatim}
 c:: local
       logical shells_ok
@@ -316,3 +327,4 @@ c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
         call errquit('int_2e3c: fatal error ',0, INT_ERR)
       endif
       end
+C> @}
