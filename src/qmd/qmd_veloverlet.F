@@ -1,5 +1,5 @@
 c
-c     velocity verlet md step
+c     velocity verlet md step with thermostat
 c
       subroutine qmd_veloverlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
 c

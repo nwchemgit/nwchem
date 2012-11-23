@@ -1,0 +1,12 @@
+Experimental Quantum MD module. Not ready for production runs yet.
+
+== TODO Items ==
+
+* Applying constraints (Rattle, Shake)
+* Use restart information
+* Langevin/Stochastic dynamics
+* Simulated annealing
+* CPMD style dynamics
+* Confining potentials for droplet simulations
+* Clean up output, trajectory print intervals
+* Test cases
