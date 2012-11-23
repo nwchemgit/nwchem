@@ -157,7 +157,7 @@ c
 c       write trajectory
         if (ga_nodeid().eq.0) then
            call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
-     &          istep_nucl-1,etotal,geom)
+     &          istep_nucl,etotal,geom)
         end if
 c
       end do  ! istep_nucl
@@ -165,11 +165,11 @@ c
 c     write restart information
       if (ga_nodeid().eq.0) then
          call qmd_write_rst(rstfilename,rstfileunit,
-     &             nat,istep_nucl,esys,ekin,geom)
+     &             nat,istep_nucl-1,esys,ekin,geom)
       end if
 c
 c     clear memory
-      if(.not.ma_pop_stack(l_act))  ! gradient
+      if(.not.ma_pop_stack(l_act))! active
      + call errquit(pname//'ma_pop_stack act',0,MA_ERR)
       if(.not.ma_pop_stack(l_g))  ! gradient
      + call errquit(pname//'ma_pop_stack g',0,MA_ERR)
