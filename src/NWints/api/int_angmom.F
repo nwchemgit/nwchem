@@ -1,5 +1,21 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Computes the angular momentum integrals
+C>
+C> Computes the angular momentum integrals. The integrals are stored
+C> in the order:
+C>
+C> - h11(*,1) = \f$ \int g_i(r) \left(y\frac{\partial}{\partial z} - z\frac{\partial}{\partial y}\right) g_j(r) dr \f$
+C>
+C> - h11(*,2) = \f$ \int g_i(r) \left(z\frac{\partial}{\partial x} - x\frac{\partial}{\partial z}\right) g_j(r) dr \f$
+C>
+C> - h11(*,3) = \f$ \int g_i(r) \left(x\frac{\partial}{\partial y} - y\frac{\partial}{\partial x}\right) g_j(r) dr \f$
+C>
+C> where the "*" represents any basis function pairs.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_angmom}
 c:tex-This routine computes the angular momentum integrals
@@ -32,14 +48,14 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lh11               ! [input] length of h11 buffer
-      double precision h11(lh11) ! [output] h11 integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lh11               !< [Input] length of h11 buffer
+      double precision h11(lh11) !< [Output] h11 integrals
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -146,3 +162,4 @@ c     We now have the integrals in array (nsph_ints,3)
 c
       return
       end
+C> @}
