@@ -1,5 +1,16 @@
 C $Id$
 *
+C> \ingroup nwint
+C> @{
+C> 
+C> \brief Activates the standard integral accuracy settings
+C>
+C> Different levels of integral accuracy are set up in 
+C> `int_init`. This routine activates the accuracy settings for
+C> "standard integral accuracy". The specifics of the integral
+C> accuracy are picked up from a common block and then transferred
+C> to the internals of the various integral packages.
+C>
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_std}
 c:tex-This routine sets the integral threshold for radial cutoffs in all 
@@ -23,6 +34,15 @@ c
       call hnd_set_acc(val_int_acc)
       end
 c......................................................................
+C> 
+C> \brief Activates the high integral accuracy settings
+C>
+C> Different levels of integral accuracy are set up in 
+C> `int_init`. This routine activates the accuracy settings for
+C> "high integral accuracy". The specifics of the integral
+C> accuracy are picked up from a common block and then transferred
+C> to the internals of the various integral packages.
+C>
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_high}
 c:tex-This routine sets the integral threshold to ``high'' accuracy 
@@ -49,6 +69,12 @@ c:tex-
       call hnd_set_acc(val_int_acc)
       end
 c......................................................................
+C>
+C> \brief Retrieve the current integral accuracy setting
+C>
+C> Retrieves the currently active integral accuracy setting and 
+C> returns that value.
+C>
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_get}
 c:tex-This routine returns the current integral threshold 
@@ -62,11 +88,17 @@ c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c:tex-\begin{verbatim}
-      double precision retval ! [output] current threshold
+      double precision retval !< [Output] current threshold
 c:tex-\end{verbatim}
       retval = val_int_acc
       end
 c......................................................................
+C>
+C> \brief Sets the current integral accuracy setting
+C>
+C> Sets the currently active integral accuracy setting to the value 
+C> specified by the argument.
+C>
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_set}
 c:tex-This routine sets the current integral threshold 
@@ -80,10 +112,11 @@ c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c:tex-\begin{verbatim}
-      double precision setval ! [input] new threshold
+      double precision setval !< [Input] new threshold
 c:tex-\end{verbatim}
       val_int_acc = setval
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
       call hnd_set_acc(val_int_acc)
       end
+C> @}
