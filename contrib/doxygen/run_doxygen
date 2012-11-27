@@ -10,7 +10,7 @@
 function usage()
 {
    echo
-   echo " Usage: $0 [-h] [-g] [-t] [-m] [-s] [-u] [-v]"
+   echo " Usage: $0 [-h] [-g] [-t] [-m] [-s] [-u] [-v] [-j]"
    echo
    cat <<EOF
  This script runs doxygen building a particular version of the NWChem source
@@ -69,7 +69,7 @@ else
    path="`dirname \"$path\"`"
 fi
 task="text"
-if [ $# -gt 1 ] ; then
+if [ $# -gt 2 ] ; then
   usage
   exit 1
 fi
