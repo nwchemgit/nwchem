@@ -1,5 +1,29 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Computes the derivative integrals of a block of shell quartets
+C> with respect to the nuclear positions
+C>
+C> Compute the derivative integrals of a block of shell quartets. Only
+C> the non-zero integrals and the corresponding labels are returned. This
+C> routine cannot be called without a preceding call to `intbd_init4c` with
+C> the same block information.
+C>
+C> the integrals evaluated are defined as
+C> \f{eqnarray*}{
+C> ({\mu}{\rho}|{\nu}{\lambda}) &=& \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2} \\\\
+C> eri(1:3,*) &=& \frac{\partial ({\mu}{\rho}|{\nu}{\lambda})}{\partial X_\mu^{x,y,z}} \\\\
+C> eri(4:6,*) &=& \frac{\partial ({\mu}{\rho}|{\nu}{\lambda})}{\partial X_\rho^{x,y,z}} \\\\
+C> eri(7:9,*) &=& \frac{\partial ({\mu}{\rho}|{\nu}{\lambda})}{\partial X_\nu^{x,y,z}} \\\\
+C> eri(10:12,*) &=& \frac{\partial ({\mu}{\rho}|{\nu}{\lambda})}{\partial X_\lambda^{x,y,z}}
+C> \f}
+C>
+C> \return Returns .true. if not all integrals fitted in the buffer
+C> provided and an additional call to `intbd_2e4c` is required, and
+C> returns .false. if all integrals were retrieved.
+C>
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
      &     ilab, jlab, klab, llab, eri,
@@ -16,27 +40,27 @@ c::functions
       external intbd_nw_2e4c
 c::passed
 c:tex-\begin{verbatim}
-      integer brain             ! [input]  basis set handle for bra 
-      integer ketin             ! [input]  basis set handle for ket 
-      integer num_q             ! [input]  number of quartets input
-      integer icl(num_q)        ! [input]  i-contraction quartet labels
-      integer jcl(num_q)        ! [input]  j-contraction quartet labels
-      integer kcl(num_q)        ! [input]  k-contraction quartet labels
-      integer lcl(num_q)        ! [input]  l-contraction quartet labels
-      logical use_q4            ! [input]  logical for use of q4
-      double precision q4(num_q) ! [input] symmetry prefactors for ints
+      integer brain              !< [Input]  basis set handle for bra 
+      integer ketin              !< [Input]  basis set handle for ket 
+      integer num_q              !< [Input]  number of quartets input
+      integer icl(num_q)         !< [Input]  i-contraction quartet labels
+      integer jcl(num_q)         !< [Input]  j-contraction quartet labels
+      integer kcl(num_q)         !< [Input]  k-contraction quartet labels
+      integer lcl(num_q)         !< [Input]  l-contraction quartet labels
+      logical use_q4             !< [Input]  logical for use of q4
+      double precision q4(num_q) !< [Input] symmetry prefactors for ints
 *     
-      integer l_erilab          ! [input]  length of eri and label arrays
-      integer ilab(l_erilab)    ! [output] integral labels for ``i'' 
-      integer jlab(l_erilab)    ! [output] integral labels for ``j'' 
-      integer klab(l_erilab)    ! [output] integral labels for ``k'' 
-      integer llab(l_erilab)    ! [output] integral labels for ``l'' 
-      integer nint              ! [output] number of integrals returned
-      double precision eri(12,l_erilab) ! [output] integral values
-      integer lscr              ! [input] length of scratch array
-      double precision scr(lscr) ! [input] scratch array
-      double precision zerotol  ! [input] zero integral threshold
-      logical canonicalize      ! [input] Canonicalize integral labels?
+      integer l_erilab           !< [Input]  length of eri and label arrays
+      integer ilab(l_erilab)     !< [Output] integral labels for ``i'' 
+      integer jlab(l_erilab)     !< [Output] integral labels for ``j'' 
+      integer klab(l_erilab)     !< [Output] integral labels for ``k'' 
+      integer llab(l_erilab)     !< [Output] integral labels for ``l'' 
+      integer nint               !< [Output] number of integrals returned
+      double precision eri(12,l_erilab) !< [output] integral values
+      integer lscr               !< [Input] length of scratch array
+      double precision scr(lscr) !< [Input] scratch array
+      double precision zerotol   !< [Input] zero integral threshold
+      logical canonicalize       !< [Input] Canonicalize integral labels?
 c:tex-\end{verbatim}
       
 c::local
@@ -67,6 +91,16 @@ c
       endif
 c
       end
+C>
+C> \brief Compute the derivative integrals of a block of shell quartets
+C> using the NWChem McMurchie-Davidson code.
+C>
+C> Compute and return the non-zero derivative integrals and corresponding labels
+C> based on the input of a group of shell quartets (a block). This 
+C> routine explicitly uses the McMurchie-Davidson code, it should \b NEVER
+C> be called directly by an application module! Please call `intbd_2e4c`
+C> instead.
+C>
       logical function intbd_nw_2e4c(
      &    brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, q4, use_q4, zerotol, canonicalize,
@@ -84,27 +118,27 @@ c::functions
       external int_nint_cart
 c::   passed
 c:tex-\begin{verbatim}
-      integer brain             ! [input]  basis set handle for bra 
-      integer ketin             ! [input]  basis set handle for ket 
-      integer num_q             ! [input]  number of quartets input
-      integer icl(num_q)        ! [input]  i-contraction quartet labels
-      integer jcl(num_q)        ! [input]  j-contraction quartet labels
-      integer kcl(num_q)        ! [input]  k-contraction quartet labels
-      integer lcl(num_q)        ! [input]  l-contraction quartet labels
-      logical use_q4            ! [input]  logical for use of q4
-      double precision q4(num_q) ! [input] symmetry prefactors for ints
+      integer brain              !< [Input]  basis set handle for bra 
+      integer ketin              !< [Input]  basis set handle for ket 
+      integer num_q              !< [Input]  number of quartets input
+      integer icl(num_q)         !< [Input]  i-contraction quartet labels
+      integer jcl(num_q)         !< [Input]  j-contraction quartet labels
+      integer kcl(num_q)         !< [Input]  k-contraction quartet labels
+      integer lcl(num_q)         !< [Input]  l-contraction quartet labels
+      logical use_q4             !< [Input]  logical for use of q4
+      double precision q4(num_q) !< [Input] symmetry prefactors for ints
 *     
-      integer l_erilab          ! [input]  length of eri and label arrays
-      integer ilab(l_erilab)    ! [output] integral labels for ``i'' 
-      integer jlab(l_erilab)    ! [output] integral labels for ``j'' 
-      integer klab(l_erilab)    ! [output] integral labels for ``k'' 
-      integer llab(l_erilab)    ! [output] integral labels for ``l'' 
-      integer nint              ! [output] number of integrals returned
-      double precision eri(12,l_erilab) ! [output] integral values
-      integer lscr              ! [input] length of scratch array
-      double precision scr(lscr) ! [input] scratch array
-      double precision zerotol  ! [input] zero integral threshold
-      logical canonicalize      ! [input] Canonicalize integral labels?
+      integer l_erilab           !< [Input]  length of eri and label arrays
+      integer ilab(l_erilab)     !< [Output] integral labels for ``i'' 
+      integer jlab(l_erilab)     !< [Output] integral labels for ``j'' 
+      integer klab(l_erilab)     !< [Output] integral labels for ``k'' 
+      integer llab(l_erilab)     !< [Output] integral labels for ``l'' 
+      integer nint               !< [Output] number of integrals returned
+      double precision eri(12,l_erilab) !< [Output] integral values
+      integer lscr               !< [Input] length of scratch array
+      double precision scr(lscr) !< [Input] scratch array
+      double precision zerotol   !< [Input] zero integral threshold
+      logical canonicalize       !< [Input] Canonicalize integral labels?
 c:tex-\end{verbatim}
 *
 c:local
@@ -287,3 +321,4 @@ c::local
       enddo
 *
       end
+C> @}
