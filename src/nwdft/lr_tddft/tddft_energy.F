@@ -269,13 +269,16 @@ c
           if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.false.))
      1      call errquit('tddft_energy: failed to set triplet',0,
      &       RTDB_ERR)
+c
+c         tddft_analysis is called at the end of tddft_davidson
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
      3      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      4      tda,oskel,.true.,.false.,tol2e,xfac(1),lhashf,thresh,
      5      maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
-        endif
+c
+        endif  ! singlet
 c
 c -------------------
 c Restricted triplets
@@ -303,13 +306,16 @@ c
           if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.true.))
      1      call errquit('tddft_energy: failed to set triplet',0,
      &       RTDB_ERR)
+c
+c         tddft_analysis is called at the end of tddft_davidson
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
      3      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      4      tda,oskel,.false.,.true.,tol2e,xfac(1),lhashf,thresh,
      5      maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
-        endif
+c
+        endif ! triplet
 c
 c ------------
 c Unrestricted

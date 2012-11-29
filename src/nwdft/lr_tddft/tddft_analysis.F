@@ -36,6 +36,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "dra.fh"
+#include "inp.fh"
 c
       double precision thresh  ! Threshold for printing
       parameter (thresh=5.0d-2)
@@ -170,8 +171,9 @@ c
 c
       logical ltransden
       logical lcivecs
-      character*(nw_max_path_len) civecs
-      character*(nw_max_path_len) transden 
+      integer len_fn_civecs
+      character*(nw_max_path_len) fn_civecs
+      character*(nw_max_path_len) fn_transden 
       logical dmat_to_file
       external dmat_to_file
 c
@@ -356,7 +358,14 @@ c
       do i=1,ipol
         nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
-      if (ipol.eq.1) nov(2)=0
+      if (ipol.eq.1) then
+         nov(2)=0
+         nocc(2) = 0
+         nmo(2) = 0
+         nfc(2) = 0
+         nfv(2) = 0
+         nov(2) = 0
+      end if
 c
 c -------------------------------------
 c Recover X and Y vectors from Z vector
@@ -450,26 +459,37 @@ c --------------------
 c Solution vector file
 c --------------------
 c
-       if (.not.rtdb_cget(rtdb,'tddft:civecs',1,civecs))
+       if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
      1  call errquit('tddft_analysis: failed to read vector',0)
 c
+       len_fn_civecs = inp_strlen(fn_civecs)
+       if (singlet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_singlet"
+       if (triplet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_triplet"
+c
        if (nodezero.and.lcivecs) then
-         call util_file_name_resolve(civecs, .false.)
-         open(unit=69,file=civecs,form='formatted',status='unknown')
-         write(LuOut,2010) civecs
+         write(luout,*) "fn_civecs: ",fn_civecs
+         call util_file_name_resolve(fn_civecs, .false.)
+         open(unit=69,file=fn_civecs,form='formatted',status='unknown')
+         write(LuOut,2010) fn_civecs
          rewind(69)
          write(69,*) tda
          write(69,*) ipol
          write(69,*) nroots
+         if (ipol.eq.1) nocc(2) = 0
          write(69,*) nocc(1),nocc(2)
+         if (ipol.eq.1) nmo(2) = 0
          write(69,*) nmo(1),nmo(2)
+         if (ipol.eq.1) nfc(2) = 0
          write(69,*) nfc(1),nfc(2)
+         if (ipol.eq.1) nfv(2) = 0
          write(69,*) nfv(1),nfv(2)
+         if (ipol.eq.1) nov(2) = 0
          write(69,*) nov(1),nov(2)
+         write(69,*)
        endif ! nodezero
 c
  2000 format(/,2x,'No CI vector file is created')
- 2010 format(/,2x,'CI vectors are stored in ',a20)
+ 2010 format(/,2x,'CI vectors are stored in ',a32)
 c
 c ------------
 c Tamm-Dancoff
@@ -493,18 +513,23 @@ c
      1                            1.0d0,g_x(i),1,nov(i),n,n,
      2                                  g_x(i),1,nov(i),n,n)
               endif 
-            enddo
+            enddo  ! ntrials
+          enddo ! nroots
+        enddo  ! ipol
 c
-c           Write out solution vectors: X
+c       Write out solution vectors: X (Y=0 in TDA)
 c
-            if (nodezero.and.lcivecs) then
+        if (nodezero.and.lcivecs) then
+         do n=1,nroots
+           write(69,*)apbval(n)  ! energy of the root
+           do i=1,ipol
              do m=1,nov(i)
                call ga_get(g_x(i),m,m,n,n,r,1)
                write(69,*) r
-             enddo
-            endif  ! nodezero and lcivecs
-          enddo
-        enddo
+             enddo ! nov
+           enddo ! ipol
+         enddo  ! nroots
+        endif  ! nodezero and lcivecs
 c
 c --------------------
 c Full linear response
@@ -537,27 +562,38 @@ c
      2                                  g_y(i),1,nov(i),n,n)
               endif
             enddo
-          enddo
-          call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
-          call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
-c
-c        Write out solution vectors: X and Y
-c
-         if (nodezero.and.lcivecs) then
-           do n=1,nroots
-             do m=1,nov(i)
-               call ga_get(g_x(i),m,m,n,n,r,1)
-               write(69,*) r
-             enddo
-           enddo
-           do n=1,nroots
-             do m=1,nov(i)
-               call ga_get(g_y(i),m,m,n,n,r,1)
-               write(69,*) r
-             enddo
-           enddo
-         endif  ! nodezero or lcivecs
+          enddo ! nroots
         enddo ! ipol
+c
+c       g_x = X+Y and g_y = X-Y
+c       Write out vectors: X+Y and X-Y
+c
+        if (nodezero.and.lcivecs) then
+           do n=1,nroots
+             write(69,*)apbval(n) ! energy of the root
+             do i=1,ipol
+               do m=1,nov(i)
+                 call ga_get(g_x(i),m,m,n,n,r,1) ! X vectors
+                 write(69,*) r
+               enddo ! nov
+             enddo ! ipol
+c
+             do i=1,ipol
+               do m=1,nov(i)
+                 call ga_get(g_y(i),m,m,n,n,r,1) ! Y vectors
+                 write(69,*) r
+               enddo ! nov
+             enddo ! ipol
+           enddo ! nroots
+        endif  ! nodezero or lcivecs
+c
+c       Separate out the X and Y solution vectors
+c
+        do i=1,ipol
+           call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
+           call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
+        enddo
+c
       endif ! tda
 c
       if (nodezero.and.lcivecs) close(unit=69)
@@ -1204,13 +1240,13 @@ c
 c       write out the transition density matrix
 c
         if (ltransden) then
-          call util_file_name('tdens',.false.,.false.,transden)
-          call createuniquefilename(transden,n)  ! n is the roots index
-          call util_file_name_resolve(transden, .false.)
+          call util_file_name('tdens',.false.,.false.,fn_transden)
+          call createuniquefilename(fn_transden,n)  ! n is the roots index
+          call util_file_name_resolve(fn_transden, .false.)
           if (ipol.gt.1) 
      &     call ga_add(1.d0,g_tdtot(1),1.d0,g_tdtot(2),   ! consolidate the components
      &             g_tdtot(1))
-          if (.not. dmat_to_file(g_tdtot(1), transden))
+          if (.not. dmat_to_file(g_tdtot(1), fn_transden))
      &       call errquit('tddft_analysis: dmat_to_file error',0,
      &              UNKNOWN_ERR)
         end if  ! ltransden

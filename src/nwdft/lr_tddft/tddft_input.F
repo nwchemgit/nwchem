@@ -44,8 +44,8 @@ c
       character*20 test
       integer nroots,maxvecs,maxiter,target,algorithm
       character*4 targetsym
-      character*(nw_max_path_len) civecs
-      character*(nw_max_path_len) transden
+      character*(nw_max_path_len) fn_civecs
+      character*(nw_max_path_len) fn_transden
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
@@ -180,14 +180,14 @@ c
 c
 c     CIVECS (filename for solution vectors)
 c
-      call util_file_name('civecs',.false.,.false.,civecs)
-      if (.not.rtdb_cput(rtdb,'tddft:civecs',1,civecs))
+      call util_file_name('civecs',.false.,.false.,fn_civecs)
+      if (.not.rtdb_cput(rtdb,'tddft:civecs',1,fn_civecs))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     TRANSDEN
 c
-      call util_file_name('tdens',.false.,.false.,transden)
-      if (.not.rtdb_cput(rtdb,'tddft:transden',1,transden))
+      call util_file_name('tdens',.false.,.false.,fn_transden)
+      if (.not.rtdb_cput(rtdb,'tddft:transden',1,fn_transden))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     CDSPECTRUM
@@ -226,6 +226,14 @@ c
 c     CIS (Tamm-Dancoff approximation)
 c
       else if (inp_compare(.false.,test,'cis')) then
+        tda=.true.
+        if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     TDA (Tamm-Dancoff approximation)
+c
+      else if (inp_compare(.false.,test,'tda')) then
         tda=.true.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
      1    call errquit('tddft_input: failed writing to rtdb',0,
@@ -515,12 +523,12 @@ c
       lcivecs = .false.  ! default   
       else if (inp_compare(.false.,test,'civecs')) then
        lcivecs = .true.
-       if (.not.inp_a(civecs)) then
+       if (.not.inp_a(fn_civecs)) then
          write(LuOut,*) 'tddft_input: filename not found; ',
      1      'default name will be used'
-         call util_file_name('civecs',.false.,.false.,civecs)
+         call util_file_name('civecs',.false.,.false.,fn_civecs)
        endif
-       if (.not.rtdb_cput(rtdb,'tddft:civecs',1,civecs))
+       if (.not.rtdb_cput(rtdb,'tddft:civecs',1,fn_civecs))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
        if (.not.rtdb_put(rtdb,'tddft:lcivecs',mt_log,1,lcivecs))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
@@ -530,12 +538,12 @@ c
       ltransden = .false.   
       else if (inp_compare(.false.,test,'transden')) then
        ltransden = .true.
-       if (.not.inp_a(transden)) then
+       if (.not.inp_a(fn_transden)) then
          write(LuOut,*) 'tddft_input: filename not found; ',
      1      'default name will be used'
-         call util_file_name('tdens',.false.,.false.,transden)
+         call util_file_name('tdens',.false.,.false.,fn_transden)
        endif
-       if (.not.rtdb_cput(rtdb,'tddft:transden',1,transden))
+       if (.not.rtdb_cput(rtdb,'tddft:transden',1,fn_transden))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
        if (.not.rtdb_put(rtdb,'tddft:ltransden',mt_log,1,ltransden))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
