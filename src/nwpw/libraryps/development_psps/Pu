@@ -35,7 +35,7 @@ Comment: Relativistic TM, quadratic semicore
 <rcut>
 0       1.540000
 1       1.852000
-2       1.768000
+2       2.768000
 3       1.391000
 <end>
 <kb_expansion>
