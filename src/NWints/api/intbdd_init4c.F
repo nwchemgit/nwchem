@@ -1,5 +1,24 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Initialize the blocking 2nd derivative integral API based on the input
+C> of a group of shell quartets (a block)
+C>
+C> Initialize the blocking 2nd derivative integral API based on the input
+C> of a group of shell quartets (a block). This routine must be called
+C> before attempting to calculate the integrals of the block.
+C>
+C> The shell quartet information may be reordered
+C> since this routine pulls out blocks that consist of only \f$s\f$, \f$p\f$, 
+C> and \f$sp\f$ functions.  These blocks are computed using the \f$sp\f$ rotated
+C> axis code since it is faster than even the Texas integral code.
+C>
+C> \return Returns .true. if the initialization was successfull and the 2nd
+C> derivative integrals are ready to be calculated by `intbdd_2e4c`, and .false.
+C> otherwise (i.e. a problem was detected).
+C>
 c:tex-\subsection{intbdd\_init4c}
 c:tex-This logical function sets up the blocking integral second derivative 
 c:tex-API based on the input of a group of shell quartets (a block).  
@@ -88,3 +107,4 @@ c
         endif
       enddo
       end
+C> @}

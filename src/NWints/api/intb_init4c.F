@@ -1,5 +1,41 @@
 c $Id$  
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Initialize the blocking integral API based on the input
+C> of a group of shell quartets (a block)
+C>
+C> Initialize the blocking integral API based on the input
+C> of a group of shell quartets (a block). This routine must be called
+C> before attempting to calculate the integrals of the block.
+C>
+C> The shell quartet information may be reordered
+C> since this routine pulls out blocks that consist of only \f$s\f$, \f$p\f$, 
+C> and \f$sp\f$ functions.  These blocks are computed using the \f$sp\f$ rotated
+C> axis code since it is faster than even the Texas integral code.
+C>
+C> \return Returns .true. if the initialization was successfull and the
+C> integrals are ready to be calculated by `intb_2e4c`, and .false.
+C> otherwise (i.e. a problem was detected).
+C>
+C> The following code excerpt describes the proper use of the blocking
+C> API routines:
+C> 
+C> * begin atom/shell loops
+C> 
+C> \code
+C>       call collect_group_of_shells()
+C>       okay = intb_init4c($\cdots$) ! with group of shells info     
+C>       if (.not.okay) stop ' error setting up blocking interface '
+C> 00001 continue
+C>       more = intb_2e4c($\cdots$) ! with group of shells info
+C>       call use_integrals_in_some_way()
+C>       if (more) goto 00001
+C> \endcode
+C> 
+C> * end atom/shell loops
+C> 
 c:tex-\subsection{intb\_init4c}
 c:tex-This logical function sets up the blocking integral API based on the
 c:tex-input of a group of shell quartets (a block).  
@@ -46,20 +82,20 @@ c blocking initialization routine for 2 electron 4 center integrals
 c
 *
 c:tex-\begin{verbatim}
-      integer brain      ! [input] basis set handle for bra basis
-      integer ketin      ! [input] basis set handle for ket basis
-      integer num_q      ! [input] number of quartets
-      integer icl(num_q) ! [input] i-contraction labels for quartets
-      integer jcl(num_q) ! [input] j-contraction labels for quartets
-      integer kcl(num_q) ! [input] k-contraction labels for quartets
-      integer lcl(num_q) ! [input] l-contraction labels for quartets
-      double precision q4(num_q) ! [input] scaling factors
-      logical use_q4            ! [input] true if scaling
-      integer l_erilab   ! [input] size of eri and label arrays that 
-*................................. will be used in intb_2e4c.F
-      integer lscr       ! [input] length of scratch array
-      double precision scr(lscr)  ! [input] scratch array
-      double precision block_eff  ! [output] blocking efficiency 
+      integer brain      !< [Input] basis set handle for bra basis
+      integer ketin      !< [Input] basis set handle for ket basis
+      integer num_q      !< [Input] number of quartets
+      integer icl(num_q) !< [Input] i-contraction labels for quartets
+      integer jcl(num_q) !< [Input] j-contraction labels for quartets
+      integer kcl(num_q) !< [Input] k-contraction labels for quartets
+      integer lcl(num_q) !< [Input] l-contraction labels for quartets
+      double precision q4(num_q) !< [Input] scaling factors
+      logical use_q4            !< [Input] true if scaling
+      integer l_erilab   !< [Input] size of eri and label arrays that 
+                         !< will be used in `intb_2e4c`
+      integer lscr       !< [Input] length of scratch array
+      double precision scr(lscr)  !< [Input] scratch array
+      double precision block_eff  !< [Output] blocking efficiency 
 c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "candoP.fh"
@@ -187,3 +223,4 @@ c
         endif
       enddo
       end
+C> @}
