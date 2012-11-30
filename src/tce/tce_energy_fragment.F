@@ -47,6 +47,14 @@ c
       external dft_energy
       logical semi_dir_mp2
       external semi_dir_mp2
+
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+      logical tce_mrcc_energy
+      external tce_mrcc_energy
+      integer imrcc
+#endif
+
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.rtdb_get(rtdb,'fragment:dipole',mt_log,1,dipole))
@@ -63,11 +71,29 @@ c
      1  radius = 1.0d99
       if (.not.rtdb_get(rtdb,'fragment:damping',mt_dbl,1,damping))
      1  damping = 1.0d0
+
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+      if (.not.rtdb_get(rtdb,'tce:mrcc',mt_int,1,imrcc))
+     1  imrcc = 0
+#endif
+
       if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
      1  call errquit('tce_energy_fragment',0,RTDB_ERR)
       if (fragment.eq.-1) then
-        tce_energy_fragment = tce_energy(rtdb,.true.)
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+        if (imrcc.eq.0) then
+#endif
+          tce_energy_fragment = tce_energy(rtdb,.true.)
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+        else
+          tce_energy_fragment = tce_mrcc_energy(rtdb,.true.)
+        endif
+#endif
         return
+        write(*,*) "I am here2"
       else
         tce_energy_fragment = .false.
         call geom_fragment(rtdb,nfrags)
