@@ -10,7 +10,7 @@ C> integral \f$ (ij|kl) \f$ such that on output:
 C> \f{eqnarray*}{
 C>   i &\geq& j \\\\
 C>   k &\geq& l \\\\
-C>   ij = i(i+1)/2+j &\geq& kl = k(k+1)/2+l 
+C>   ij = i(i-1)/2+j &\geq& kl = k(k-1)/2+l 
 C> \f}
 C>
 c:tex-% part of the internal API routines
