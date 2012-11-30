@@ -1,5 +1,18 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Canonicalizes the integral labels
+C>
+C> This routine canonicalizes the integral labels of a 2-electron
+C> integral \f$ (ij|kl) \f$ such that on output:
+C> \f{eqnarray*}{
+C>   i &\geq& j \\\\
+C>   k &\geq& l \\\\
+C>   ij = i(i+1)/2+j &\geq& kl = k(k+1)/2+l 
+C> \f}
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_canon}
 c:tex-This routine canonicalizes integral lables such that:
@@ -11,8 +24,14 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 c:tex-\begin{verbatim}
-      integer i,j,k,l      ! [input] labels
-      integer ii,jj,kk,ll  ! [output] canonical labels
+      integer i   !< [Input] i-label
+      integer j   !< [Input] j-label
+      integer k   !< [Input] k-label
+      integer l   !< [Input] l-label
+      integer ii  !< [Output] canonical i-label
+      integer jj  !< [Output] canonical j-label
+      integer kk  !< [Output] canonical k-label
+      integer ll  !< [Output] canonical l-label
 c:tex-\end{verbatim}
       integer iii,jjj
 #if defined(DEBUG)
@@ -68,3 +87,4 @@ c
 #endif
 c
       end
+C> @}
