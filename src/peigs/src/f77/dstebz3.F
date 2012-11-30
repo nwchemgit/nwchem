@@ -347,6 +347,7 @@ c      ULP = dlamch( 'P' )
          GL = D( 1 )
          TMP1 = ZERO
 *
+cDEC$ NOVECTOR
          DO 20 J = 1, N - 1
             TMP2 = SQRT( WORK( J ) )
             GU = MAX( GU, D( J )+TMP1+TMP2 )
@@ -474,6 +475,7 @@ c      ULP = dlamch( 'P' )
             GL = D( IBEGIN )
             TMP1 = ZERO
 *
+cDEC$ NOVECTOR
             DO 40 J = IBEGIN, IEND - 1
                TMP2 = ABS( E( J ) )
                GU = MAX( GU, D( J )+TMP1+TMP2 )
