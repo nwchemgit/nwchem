@@ -1,5 +1,7 @@
 
-OBJ_OPTIMIZE = tce_mrcc_input.o
+OBJ = tce_mrcc_input.o
+
+OBJ_OPTIMIZE = tce_mrcc_energy.o
 
 LIB_INCLUDES = -I../include -I./include
 
@@ -12,6 +14,11 @@ LIB_DEFINES =
 #              -DDEBUG_PRINT
 
 HEADERS = 
+
+ifdef MRCC_METHODS
+#ckbn mrcc-r-1 -3
+      LIB_DEFINES += -DMRCC_METHODS
+endif
 
 include ../../config/makefile.h
 include ../../config/makelib.h
