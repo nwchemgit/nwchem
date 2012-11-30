@@ -78,8 +78,8 @@ c
        double precision orbdegenenergy
        logical forcedegen
 
-       logical read_int, write_int
-       integer rec_mem                         ! restart record size in MB
+ckbn mrcc-r-1 CC       logical read_int, write_int
+ckbn mrcc-r-1 CC       integer rec_mem                         ! restart record size in MB
 
        integer iphnum
        integer invhnum
@@ -154,7 +154,8 @@ c      double precision dvalue
      +     lconverged,moindexes(maxorb,2,maxref),
      +     d_v2orbm(maxref),moblocks(maxorb,2,maxref),
      +     orbinblck(maxorb,2,maxref),offsetinblck(maxorb,2,maxref),
-     +     d_c1m(maxref),rec_mem,l_sqc,k_sqc,
+ckbn mrcc-r-1 CC     +     d_c1m(maxref),rec_mem,l_sqc,k_sqc,
+     +     d_c1m(maxref),l_sqc,k_sqc,
      +     mkroot,ihefferank0(maxref,maxref),
      +     mutualoper0(2*maxexcit,maxref,maxref),
      +     iphnum(maxorb,maxref,2),invhnum(maxorb,maxref,2),
@@ -186,7 +187,8 @@ c      double precision dvalue
 
        common/tcemrccint2/ idiis
 
-       common/tcemrcclogical/ read_int, write_int,forcedegen
+ckbn mrcc-r-1 CC       common/tcemrcclogical/ read_int, write_int,forcedegen
+       common/tcemrcclogical/ forcedegen
 
        common/tcemrccdouble/ duhfens(maxref),epsilon,
      +     mrccshift,drootmuc(maxref),orbdegenenergy(maxref,maxorb),
