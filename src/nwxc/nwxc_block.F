@@ -15,6 +15,7 @@ C>
       data nwxc_depends_on_gamma / .false. /
       data nwxc_depends_on_tau   / .false. /
       data nwxc_num_f     / 0 /
+      data nwxc_usr_num   / 0 /
       data nwxc_wght_hf   / 0.0d0 /
       data nwxc_wght_mp2  / 0.0d0 /
       data nwxc_cam_alpha / 0.0d0 /
@@ -36,6 +37,7 @@ C>
       nwxc_depends_on_gamma = .false.
       nwxc_depends_on_tau   = .false.
       nwxc_num_f     = 0 
+      nwxc_usr_num   = 0 
       nwxc_wght_hf   = 0.0d0 
       nwxc_wght_mp2  = 0.0d0
       nwxc_cam_alpha = 0.0d0

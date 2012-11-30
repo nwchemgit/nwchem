@@ -12,11 +12,14 @@ C  Specific functionals are identified by integer parameters. These
 C  parameters are fixed at compile time. The functionals should always
 C  be referred to by their identifier and never by their value.
 C 
-      integer NWXC_SLATER          !< The Slater exchange functional
-      parameter (NWXC_SLATER = 1)
-c
       integer NWXC_HFXC            !< The Hartree-Fock exchange
-      parameter (NWXC_HFXC = NWXC_SLATER + 1)
+      parameter (NWXC_HFXC = 1)
+c
+      integer NWXC_MP2C            !< The MP2 correlation
+      parameter (NWXC_MP2C = NWXC_HFXC + 1)
+c
+      integer NWXC_SLATER          !< The Slater exchange functional
+      parameter (NWXC_SLATER = NWXC_MP2C + 1)
 C  
 C  Internally the functional specification will be stored using 
 C  a collection of datastructures. For specific terms that the library
@@ -55,10 +58,31 @@ C
       double precision nwxc_cam_beta          !< The CAM beta
       double precision nwxc_cam_gamma         !< The CAM gamma
       double precision nwxc_wghts(NWXC_MAX_F) !< The functional weights
+C
+C Users can specify functionals by listing individual terms or they
+C may use higher level aliases, e.g. B3LYP. B3LYP would be evaluated
+C by the library by summing the following contributions:
+C - 0.19 vwn_1_rpa
+C - 0.81 lyp
+C - 0.80 slater
+C - 0.72 becke88 (including the nonlocal part)
+C (The Hartree-Fock exchange term is not evaluated by the library but
+C by the application code). However a user who specified B3LYP might
+C get confused if we print the list of the above 4 terms in the output.
+C So to be able to echo the input in terms that the user will recognize
+C we need to keep the functional as specified by the user in addition
+C to the functional as it will be evaluated. The nwxc_usr_* variables
+C keep track of the functional definition as specified on the input.
+C
+      integer nwxc_usr_num
+      integer nwxc_usr_ids(NWXC_MAX_F)
+      double precision nwxc_usr_wghts(NWXC_MAX_F)
+c
       common /nwxc_func_spec/
      +       nwxc_cam_alpha,nwxc_cam_beta,nwxc_cam_gamma,
-     +       nwxc_wght_hf,nwxc_wght_mp2,
-     +       nwxc_wghts,nwxc_ids,nwxc_num_f,
+     +       nwxc_wght_hf,nwxc_wght_mp2,nwxc_usr_wghts,
+     +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
+     +       nwxc_usr_ids,
      +       nwxc_depends_on_rho,nwxc_depends_on_gamma,
      +       nwxc_depends_on_tau
 C  @}
