@@ -1158,6 +1158,14 @@ c ccsd_act/eomccsd_act
      2      (module.ne.'umbpt4'))
      3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
      4    UNKNOWN_ERR)
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+      else if (model.eq.'bwccsd') then
+        ctype=
+     1    'State Specific Multireference Brillouin-Wigner CCSD theory'
+      else if (model.eq.'mkccsd_ext') then
+        ctype='State Specific Multireference Mukherjee''s CCSD theory'
+#endif
       else
         call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       endif
