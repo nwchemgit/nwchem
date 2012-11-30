@@ -316,9 +316,12 @@ c               call rt_tddft_input(rtdb)
      &       RTDB_ERR)
                call tce_input(rtdb)
 
+#ifdef MRCC_METHODS
+#warning "MRCC methods are currently under development"
 ckbn mrcc-r-1 -3
-c            else if (inp_compare(.false.,test,'mrccdata')) then
-c               call tce_mrcc_input(rtdb)
+            else if (inp_compare(.false.,test,'mrccdata')) then
+               call tce_mrcc_input(rtdb)
+#endif
 
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
