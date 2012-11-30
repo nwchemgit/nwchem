@@ -1,0 +1,20 @@
+C> \ingroup nwxc
+C> @{
+C>
+C> \file nwxc.fh
+C> \brief Public data and function interfaces for the DFT functional library
+C>
+      logical nwxc_has_hfx  !< Does this functional have Hartree-Fock exchange?
+      logical nwxc_has_mp2c !< Does this functional have MP2? I.e. is it a
+                            !< double hybrid?
+      logical nwxc_has_cam  !< Does this functional have Coulomb Attenuated 
+                            !< terms?
+      logical nwxc_has_disp !< Does this functional have dispersion corrections?
+      logical nwxc_is_lda   !< Is this functional an LDA functional?
+      logical nwxc_is_gga   !< Is this functional an GGA functional?
+      logical nwxc_is_mgga  !< Is this functional a meta-GGA functional?
+      logical nwxc_has_xc   !< Does this functional have exchange-correlation?
+C>
+      double precision nwxc_wght_hfx  !< The Hartree-Fock exchange weight
+      double precision nwxc_wght_mp2c !< The MP2 correlation weight
+C> @}

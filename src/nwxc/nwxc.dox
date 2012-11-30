@@ -1,0 +1,19 @@
+/**
+
+@defgroup nwxc Density Functional Library
+
+\brief The Shared Density Functional Library
+
+This library contains a unified and shared implementation of the
+density functionals in NWChem. Density functionals play a central role
+in DFT calculations. Independent of the particular type of code
+they take the density or properties of the density (e.g. the norm of 
+the gradient or the kinetic energy density) expressed on a grid. 
+Based on these quantities an energy contribution and potentially a 
+number of partial derivatives are evaluated at each grid point. 
+
+Because this functionality is really generic it makes sense to 
+encapsulate this in a library of its own. This library can subsequently
+be used in all relevant DFT modules.
+
+*/

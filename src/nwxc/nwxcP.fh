@@ -1,0 +1,64 @@
+C  \ingroup nwxc
+C  @{
+C 
+C  \brief Private data for the DFT functional library.
+C 
+C  This file contains private data for the DFT functional library.
+C  The data items in question are data structures specifying the 
+C  currently active density functional, as well as identifiers for
+C  specific functionals.
+C 
+C  Specific functionals are identified by integer parameters. These
+C  parameters are fixed at compile time. The functionals should always
+C  be referred to by their identifier and never by their value.
+C 
+      integer NWXC_SLATER          !< The Slater exchange functional
+      parameter (NWXC_SLATER = 1)
+c
+      integer NWXC_HFXC            !< The Hartree-Fock exchange
+      parameter (NWXC_HFXC = NWXC_SLATER + 1)
+C  
+C  Internally the functional specification will be stored using 
+C  a collection of datastructures. For specific terms that the library
+C  cannot evaluate, e.g. Hartree-Fock exchange or MP2, we store the
+C  corresponding weight in a separate variable.
+C 
+C  The terms that the library does evaluate are kept in a list. The list
+C  consists of an array of identifiers and a list of weights. In 
+C  addition the length of the list is kept. This allows the functional
+C  evaluation to be performed by simply looping over all the specified
+C  terms.
+C 
+C  Note that the Coulomb operator for the Coulomb Attenuated functionals
+C  is written as
+C  \f{eqnarray*}{
+C    \frac{1}{r_{12}} = \frac{1-[\alpha+\beta\mathrm{erf}(\gamma r_{12})]}{r_{12}}
+C                     + \frac{\alpha+\beta\mathrm{erf}(\gamma r_{12})}{r_{12}}
+C  \f}
+C 
+      logical nwxc_depends_on_rho   !< Does the functional depend on the
+                                    !< density?
+      logical nwxc_depends_on_gamma !< Does the functional depend on the
+                                    !< density gradient?
+      logical nwxc_depends_on_tau   !< Does the functional depend on the
+                                    !< kinetic energy density?
+      integer NWXC_MAX_F !< The maximum number of terms in a functional
+      parameter (NWXC_MAX_F = 50)
+      integer          nwxc_num_f             !< The actual number of
+                                              !< functional terms
+      integer          nwxc_ids(NWXC_MAX_F)   !< The functional
+                                              !< identifiers
+      double precision nwxc_wght_hf           !< The Hartree-Fock
+                                              !< exchange weight
+      double precision nwxc_wght_mp2          !< The MP2 weight
+      double precision nwxc_cam_alpha         !< The CAM alpha
+      double precision nwxc_cam_beta          !< The CAM beta
+      double precision nwxc_cam_gamma         !< The CAM gamma
+      double precision nwxc_wghts(NWXC_MAX_F) !< The functional weights
+      common /nwxc_func_spec/
+     +       nwxc_cam_alpha,nwxc_cam_beta,nwxc_cam_gamma,
+     +       nwxc_wght_hf,nwxc_wght_mp2,
+     +       nwxc_wghts,nwxc_ids,nwxc_num_f,
+     +       nwxc_depends_on_rho,nwxc_depends_on_gamma,
+     +       nwxc_depends_on_tau
+C  @}
