@@ -20,6 +20,12 @@ ifdef CCSDTQ
       LIB_DEFINES += -DCCSDTQ
 endif
 
+ifdef MRCC_METHODS
+#ckbn mrcc-r-1 -3
+      SUBDIRS += mrcc
+      LIB_DEFINES += -DMRCC_METHODS
+endif
+
 OBJ = tce_input.o tce_init.o tce_energy.o tce_energy_fragment.o
 
 OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
