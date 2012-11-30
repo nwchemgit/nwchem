@@ -54,4 +54,9 @@ endif
 
 # END_WIN32_IGNORE
 
+ifdef MRCC_METHODS
+#ckbn mrcc-r-1 -3
+      LIB_DEFINES += -DMRCC_METHODS
+endif
+
 include ../config/makelib.h
