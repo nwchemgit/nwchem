@@ -461,6 +461,7 @@ c        endif
 c     endif
 Cfah big thanks to NCH: cadpac requires df/(za * dza), NOT 
 Cfah                                    df/dza 
+cDEC$ NOVECTOR
       DO n = 0, max_pow_u 
         hE_x = hE_x + F_xc (n*3 + 1) 
         hE_c = hE_c + F_xc (n*3 + 2) + F_xc (n*3 + 3)
