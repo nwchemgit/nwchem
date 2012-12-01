@@ -2283,12 +2283,12 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 
       real*8 function electron_psi_vl_ave(psi1,dn)
       implicit none
-#include "errquit.fh"
       complex*16 psi1(*)
       real*8     dn(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
@@ -2326,13 +2326,21 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1/scal2
 
+      elocal = 0.0d0
+
+*     **** paw ncmp*Vlocal energy ****
+      if (paw_exist) then
+          call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(tmp1(1)))
+          call Pack_cc_dot(1,dbl_mb(tmp1(1)),dcpl_mb(vl(1)),elocal)
+      end if
+      write(*,*) "ncmp*Vlocal=",elocal
+
 
 *     **** average Kohn-Sham v_local energy ****
-       call Pack_c_Copy(0,dcpl_mb(vl(1)),dbl_mb(tmp1(1)))
+      call Pack_c_Copy(0,dcpl_mb(vl(1)),dbl_mb(tmp1(1)))
       call Pack_c_unpack(0,dbl_mb(tmp1(1)))
       !call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
       call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
-      elocal = 0.0d0
       do ms=1,ispin
          do n=n1(ms),n2(ms)
             call D3dB_rr_Mul(1,
