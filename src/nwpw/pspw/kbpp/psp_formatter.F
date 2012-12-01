@@ -207,7 +207,7 @@ c
          value = kbppv3e(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
-      else if (psp_type.eq.4) then
+      else if ((psp_type.eq.4).or.(psp_type.eq.6)) then
          value = pawppv1(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)

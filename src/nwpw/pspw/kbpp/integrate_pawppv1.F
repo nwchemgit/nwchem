@@ -168,17 +168,23 @@ c      P3=dsqrt(105.0d0*forpi)
       end do
 
 
-*     **** add pseudo  - 4 ***
+*     **** nloc*Vloc -- add pseudo  - 4 ***
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,nrho
+           f1(k) = (phi_ae(k,i)*phi_ae(k,i) 
+     >            - phi_ps(k,i)*phi_ps(k,i))*(v_ps(k))
+         end do
+         d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
+         Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
+
+         do k=1,nrho
            xerf = rho(k)/rlocal
            yerf = util_erf(xerf)
-           !f1(k) = phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
            f1(k) = (phi_ae(k,i)*phi_ae(k,i) 
-     >            - phi_ps(k,i)*phi_ps(k,i))*(rho(k)*v_ps(k)-zv*yerf)
+     >            - phi_ps(k,i)*phi_ps(k,i))*(-zv*yerf)
          end do
          d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
          Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
@@ -188,15 +194,86 @@ c      P3=dsqrt(105.0d0*forpi)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
-                xerf = rho(k)/rlocal
-                yerf = util_erf(xerf)
                 !f1(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
                 f1(k) = (phi_ae(k,i)*phi_ae(k,j) 
-     >               - phi_ps(k,i)*phi_ps(k,j))*(rho(k)*v_ps(k)-zv*yerf)
+     >               - phi_ps(k,i)*phi_ps(k,j))*(v_ps(k))
+              end do
+              d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
+              Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
+              Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
+
+              do k=1,nrho
+                xerf = rho(k)/rlocal
+                yerf = util_erf(xerf)
+                f1(k) = (phi_ae(k,i)*phi_ae(k,j) 
+     >                 - phi_ps(k,i)*phi_ps(k,j))*(-zv*yerf)
               end do
               d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
               Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
+
+            end if
+         end do
+      end do
+
+*     **** -ncmp*Vloc -- add pseudo  - 4 ***
+      call nwpw_compcharge_gen_rgaussian(0,sigma,nrho,rho,f1)
+      do k=1,nrho
+        f2(k) = f1(k)*(v_ps(k)*rho(k)**2)
+      end do
+      d = log_integrate_def(2,f2,0,rho,log_amesh,nrho)
+
+      do k=1,nrho
+        xerf = rho(k)/rlocal
+        yerf = util_erf(xerf)
+        f2(k) = f1(k)*(-zv*yerf*rho(k))
+      end do
+      d = d + log_integrate_def(1,f2,0,rho,log_amesh,nrho)
+
+      do i=1,nbasis
+         la = l_ps(i)
+         na = n_ps(i) - la
+         Gijl(na,na,la,4) = Gijl(na,na,la,4) - d*Gijl(na,na,la,2)
+
+         do j=1,i-1
+            lb = l_ps(j)
+            nb = n_ps(j) - lb
+            if (la.eq.lb) then
+              Gijl(na,nb,la,4) = Gijl(na,nb,la,4) - d*Gijl(na,nb,la,2)
+              Gijl(nb,na,la,4) = Gijl(nb,na,la,4) - d*Gijl(nb,na,la,2)
+            end if
+         end do
+      end do
+
+
+
+*     **** add nv*Vsrloc to pseudo - 4 ***
+      do i=1,nbasis
+         la = l_ps(i)
+         na = n_ps(i) - la
+         power_f = 2*la + 2
+         do k=1,icut
+            xerf = rho(k)/rlocal
+            yerf = util_erf(xerf)
+            f1(k) = (phi_ae(k,i)*phi_ae(k,i))
+     >              *(-zv + zv*yerf - rho(k)*v_ps(k))
+         end do
+         d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
+         Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
+
+         do j=1,i-1
+            lb = l_ps(j)
+            nb = n_ps(j) - lb
+            if (la.eq.lb) then
+               do k=1,icut
+                  xerf = rho(k)/rlocal
+                  yerf = util_erf(xerf)
+                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))
+     >                   *(-zv + zv*yerf- rho(k)*v_ps(k))
+               end do
+               d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
+               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
+               Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
             end if
          end do
       end do
@@ -266,36 +343,6 @@ c     >                                    f2,2,f4,log_amesh)
          end do
       end if
 
-*     **** add Vsrloc to vcore - 5 ***
-      do i=1,nbasis
-         la = l_ps(i)
-         na = n_ps(i) - la
-         power_f = 2*la + 2
-         do k=1,icut
-            xerf = rho(k)/rlocal
-            yerf = util_erf(xerf)
-            f1(k) = (phi_ae(k,i)*phi_ae(k,i))
-     >              *(-zv + zv*yerf - rho(k)*v_ps(k))
-         end do
-         d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
-         Gijl(na,na,la,5) = Gijl(na,na,la,5) + d
-
-         do j=1,i-1
-            lb = l_ps(j)
-            nb = n_ps(j) - lb
-            if (la.eq.lb) then
-               do k=1,icut
-                  xerf = rho(k)/rlocal
-                  yerf = util_erf(xerf)
-                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))
-     >                   *(-zv + zv*yerf- rho(k)*v_ps(k))
-               end do
-               d = log_integrate_def0(power_f,f1,rho,log_amesh,nrho)
-               Gijl(na,nb,la,5) = Gijl(na,nb,la,5) + d
-               Gijl(nb,na,la,5) = Gijl(nb,na,la,5) + d
-            end if
-         end do
-      end do
 
 
 
