@@ -24,6 +24,7 @@ c Note: Velocity gauge and GIAO has NOT yet been tested with the TDA,
 c       only with full TDDFT / RPA (status: 01/2011)
 c
       implicit none
+c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1240,15 +1241,13 @@ c
 c       write out the transition density matrix
 c
         if (ltransden) then
-          call util_file_name('tdens',.false.,.false.,fn_transden)
-          call createuniquefilename(fn_transden,n)  ! n is the roots index
-          call util_file_name_resolve(fn_transden, .false.)
-          if (ipol.gt.1) 
-     &     call ga_add(1.d0,g_tdtot(1),1.d0,g_tdtot(2),   ! consolidate the components
-     &             g_tdtot(1))
-          if (.not. dmat_to_file(g_tdtot(1), fn_transden))
-     &       call errquit('tddft_analysis: dmat_to_file error',0,
-     &              UNKNOWN_ERR)
+         call util_file_name('tdens',.false.,.false.,fn_transden)
+         call createuniquefilename(fn_transden,n)  ! n is the roots index
+         call util_file_name_resolve(fn_transden,.false.)
+         if (ipol.gt.1) 
+     &    call ga_add(1.d0,g_tdtot(1),1.d0,g_tdtot(2),g_tdtot(1)) ! consolidate
+         if (.not. dmat_to_file(g_tdtot(1),fn_transden))
+     &    call errquit('tddft_analysis: dmat_to_file error',0,CALC_ERR)
         end if  ! ltransden
 c
         if (ipol.eq.1) then
@@ -1291,7 +1290,6 @@ c
      1                        tmom(5),tmom(6),tmom(7),
      2                        tmom(8),tmom(9),tmom(10),
      2                        osc_str
-c            write(222,*)apbval(n)*au2ev,osc_str
 c
             if (cdspectrum) then
               write (LuOut,*)
