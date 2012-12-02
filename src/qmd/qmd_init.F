@@ -32,24 +32,21 @@ c
 c
       pname = "qmd_init: "
 c
-c     print header
+c     print header and general information
       if (ga_nodeid().eq.0) then
        write(LuOut,*)
        write(LuOut,*)
        call util_print_centered(LuOut,'NWChem QMD Module',40,.true.)
        write(LuOut,*)
        write(LuOut,*)
-      endif
 c
-c     print general information
-      if (ga_nodeid().eq.0) then
        write(LuOut,*)
        write(LuOut,*)
        call util_print_centered
      &  (LuOut,'QMD General Information',40,.true.)
        write(LuOut,*)
        write(LuOut,*)
-      endif
+      endif ! ga_nodeid
 c
 c     boltzmann constant in atomic units
       kb=3.16679d-6
