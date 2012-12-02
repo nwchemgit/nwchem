@@ -38,7 +38,8 @@ c
 c
          logical nodezero
 c
-         integer g_x(2),g_y(2)  ! X and Y solution vectors (civecs)
+c        CI vectors are written out as X+Y and X-Y
+         integer g_x(2),g_y(2) 
          integer g_temp(2) ! scratch space
 c
          integer inntsize,ddblsize,logisize,ok
@@ -72,6 +73,7 @@ c        Read header information from civecs file
             read(69,*,err=1001) nfc(1),nfc(2)
             read(69,*,err=1001) nfv(1),nfv(2)
             read(69,*,err=1001) nov(1),nov(2)
+            read(69,*,err=1001)
 c
             do i=1,ipol
              nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
@@ -125,8 +127,10 @@ c        Read remainder of the civecs file
             read(69,*,err=1001) nfc(1),nfc(2)
             read(69,*,err=1001) nfv(1),nfv(2)
             read(69,*,err=1001) nov(1),nov(2)
+            read(69,*,err=1001)
 c
             do n = 1,nroots
+              read(69,*) r  ! energy of root
               do i=1,ipol
                if (tda) then
                  do m=1,nov(i)
@@ -147,6 +151,16 @@ c
             end do ! nroots
            close(unit=69,status='keep',err=1002) ! file
            ok = 1
+c
+c          Separate out X and Y vectors if the calculations are not TDA
+c          Nothing needs to be done for TDA as Y is zero
+           if (.not.tda) then
+             do i=1,ipol
+              call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
+              call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
+             enddo
+           end if
+c
          end if  ! nodezero
 c
          call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
