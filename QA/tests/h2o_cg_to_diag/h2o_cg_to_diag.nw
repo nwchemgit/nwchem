@@ -23,7 +23,7 @@ task dft ignore
 
 dft
   nocgmin
-  iterations 5
+  iterations 8
   convergence nr 0.0
 end
 
