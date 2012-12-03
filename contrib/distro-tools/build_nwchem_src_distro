@@ -1,5 +1,5 @@
 #!/bin/bash
-release=nwchem-6.1
+release=nwchem-6.1.1
 if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
   echo "Usage: $0 source-directory [distribution-directory]"
   echo ""
@@ -80,6 +80,7 @@ echo -n "Cleaning up any build/testing garbage... "
 # Next line is to deal with the diana module...
 svn revert ${target}/src/config/make_nwchem_config
 pushd ${target}/src
+export USE_RISKYFC=yes
 make -j 1 realclean                                         2>&1 > /dev/null
 popd
 if [ -d ${target}/lib ] ; then
