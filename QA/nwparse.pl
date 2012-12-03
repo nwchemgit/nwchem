@@ -364,21 +364,23 @@ foreach $filename (@FILES_TO_PARSE) {
                     if (! $quiet ) {
 		        printf "%s ", @line_tokens[0];
 		        for($itok = 1;$itok < $num_line_tokens; $itok++){
-                            if (abs(@line_tokens[$itok]) < 0.0005) {
-		              printf "%.3f ", abs(@line_tokens[$itok]);
-                            } else {
-		              printf "%.3f ", @line_tokens[$itok];
-                            }
+#                            if (abs(@line_tokens[$itok]) < 0.0005) {
+#		              printf "%.3f ", abs(@line_tokens[$itok]);
+#                            } else {
+#old		              printf "%.3f ", @line_tokens[$itok];
+		              printf "%.3f ", set_to_digits(@line_tokens[$itok],3);
+#                            }
 		        }
 		        printf "\n";
 		    }
 		    printf FILE_OUTPUT "%s ", @line_tokens[0];
 		    for($itok = 1;$itok < $num_line_tokens; $itok++){
-                        if (abs(@line_tokens[$itok]) < 0.0005) {
-		          printf FILE_OUTPUT "%.3f ", abs(@line_tokens[$itok]);
-                        } else {
-		          printf FILE_OUTPUT "%.3f ", @line_tokens[$itok];
-                        }
+#                        if (abs(@line_tokens[$itok]) < 0.0005) {
+#		          printf FILE_OUTPUT "%.3f ", abs(@line_tokens[$itok]);
+#                        } else {
+		              printf FILE_OUTPUT  "%.3f ", set_to_digits(@line_tokens[$itok],3);
+#old		          printf FILE_OUTPUT "%.3f ", @line_tokens[$itok];
+#                        }
 		    }
 		    printf FILE_OUTPUT "\n";
 		}
