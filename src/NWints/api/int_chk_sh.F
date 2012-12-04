@@ -1,5 +1,30 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Check to see if a given shell is valid
+C>
+C> \return Return .true. if the shell is valid, and .false. otherwise
+C>
+C> This function checks to see that the given shell is valid
+C> This subroutine call can be replaced by a statement 
+C> function sequence:
+C> \code
+C> #include "basP.fh"
+C> #include "geobasmapP.fh"
+C>       logical inline_chk_sh
+C>       inline_chk_sh(bra,ish) =
+C>      $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
+C> \endcode
+C> Where bra is the lexical basis index (not the handle).
+C> or you could use the following with the handle.
+C> \code
+C>       inline_chk_sh(bra,ish) =
+C>      $     ((ish.gt.0) .and. 
+C>      $(ish.le.ncont_tot_gb(bra+Basis_Handle_Offset)))
+C> \endcode
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_chk\_sh}
 c:tex-This function checks to see that the given shell is valid
@@ -14,7 +39,7 @@ c:tex-      inline_chk_sh(bra,ish) =
 c:tex-     $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
 c:tex-\end{verbatim}
 c:tex-Where bra is the lexical basis index (not the handle).
-c:tex-or you could use the following with the handle.
+c:tex-Or you could use the following with the handle:
 c:tex-\begin{verbatim}
 c:tex-      inline_chk_sh(bra,ish) =
 c:tex-     $     ((ish.gt.0) .and. 
@@ -33,8 +58,8 @@ c:tex-\end{verbatim}
 #include "stdio.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer basisin ! [input] basis set handle
-      integer shell ! [input] lexical shell index
+      integer basisin !< [Input] basis set handle
+      integer shell   !< [Input] lexical shell index
 c:tex-\end{verbatim}
 c::local
       integer basis
@@ -54,4 +79,4 @@ c
         write(luout,*)' input shell is: ',shell
       endif
       end
-
+C> @}
