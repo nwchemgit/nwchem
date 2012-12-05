@@ -2333,7 +2333,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
           call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(tmp1(1)))
           call Pack_cc_dot(1,dbl_mb(tmp1(1)),dcpl_mb(vl(1)),elocal)
       end if
-      write(*,*) "ncmp*Vlocal=",elocal
 
 
 *     **** average Kohn-Sham v_local energy ****
