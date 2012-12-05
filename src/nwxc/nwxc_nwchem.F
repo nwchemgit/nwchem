@@ -1,0 +1,301 @@
+C> \ingroup nwxc
+C> @{
+C>
+C> \file nwxc_nwchem.F
+C> Routines for the integration of the NWXC library into NWChem
+C>
+C> The library is designed to rely on as few NWChem specific things 
+C> as possible. Nevertheless to make it work with NWChem we need
+C> routines to handle 
+C>
+C> - the input, 
+C>
+C> - printing output,
+C>
+C> - storing the functional on the RTDB
+C>
+C> - retrieving the functional from the RTDB
+C>
+C> This file contains these integration routines.
+C>
+C> @}
+C
+C> \ingroup nwxc
+C> @{
+C>
+C> \brief Parse the input of the functional
+C>
+C> Read the keywords specifying the density functional and set the
+C> appropriate items in the code.
+C>
+C> \return Return .true. if the functional was successfully parsed,
+C> and .false. otherwise.
+C>
+      logical function nwxc_input()
+      implicit none
+#include "inp.fh"
+      logical       stat    !< The overall status
+      character*255 test    !< Functional tag
+      double precision wght !< Functional weight
+      integer len           !< Length of functional name
+c
+c     Functions
+c
+      logical  nwxc_add_df
+      external nwxc_add_df
+c
+      call nwxc_init()
+      stat = .true.
+      do while (inp_a(test))
+        if (.not.inp_f(wght)) then
+          wght = 1.0d0
+          call inp_prev_field()
+        endif
+        len = inp_strlen(test)
+        stat = stat .and. nwxc_add_df(test(1:len),wght)
+      enddo
+      nwxc_input = stat
+      return
+      end
+C>
+C> \brief Print the current density functional
+C>
+C> Extract various components of the current functional and write them
+C> to the NWChem output file. The functional is printed as specified
+C> on the user list, so as to match the user input as closely as 
+C> possible.
+C>
+      subroutine nwxc_output()
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+#include "global.fh"
+#include "errquit.fh"
+#include "nwxcP.fh"
+c
+      double precision wght !< The functional weight
+      character*255 term    !< The functional term details
+      integer iterm         !< The functional identifier
+      integer ientry        !< Counter
+c
+c     Functions
+c
+      logical  nwxc_has_hfx, nwxc_has_mp2c, nwxc_has_cam, nwxc_has_disp
+      external nwxc_has_hfx, nwxc_has_mp2c, nwxc_has_cam, nwxc_has_disp
+c
+      logical  nwxc_get_df, nwxc_get_info
+      external nwxc_get_df, nwxc_get_info
+c
+      double precision nwxc_wght_mp2c, nwxc_wght_hfx
+      external         nwxc_wght_mp2c, nwxc_wght_hfx
+
+c
+      if (ga_nodeid().eq.0) then
+        write(luout,*)" =================================="
+        write(luout,*)" === Current Density Functional ==="
+        write(luout,*)" =================================="
+        write(luout,*)
+        if (nwxc_has_hfx()) then
+          wght = nwxc_wght_hfx()
+          if (.not.nwxc_get_info(NWXC_HFXC,term)) then
+            call errquit("illegal functional",NWXC_HFXC,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        endif
+        if (nwxc_has_mp2c()) then
+          wght = nwxc_wght_mp2c()
+          if (.not.nwxc_get_info(NWXC_MP2C,term)) then
+            call errquit("illegal functional",NWXC_MP2C,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        endif
+        ientry = 1
+        do while (nwxc_get_df(ientry,iterm,wght))
+          if (.not.nwxc_get_info(iterm,term)) then
+            call errquit("illegal functional",iterm,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        enddo
+        if (nwxc_has_cam()) then
+          call errquit("must think about CAM",0,UERR)
+        endif
+        if (nwxc_has_disp()) then
+          call errquit("must think about DISP",0,UERR)
+        endif
+      endif
+c
+ 1000 format(1x,f12.6,"  ",a)
+      end
+C>
+C> \brief Store the density functional on the RTDB
+C>
+C> Store the current settings of the density functional on the RTDB
+C> under a specific name. The companion routine `nwxc_rtdb_load`
+C> may be used to retrieve the data from the RTDB.
+C> We integrate the variable names in the RTDB keys to eliminate any
+C> source of ambiguity for what the data elements are.
+C>
+C> This routine is for convenience reasons implemented as what would
+C> be a "friend" in C++. Otherwise a zoo of additional routines would 
+C> need to query and set all sorts of variables.
+C>
+C> \return Return .true. if the data was successfully stored, and
+C> .false. otherwise.
+C> 
+      logical function nwxc_rtdb_store(rtdb,name)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "nwxcP.fh"
+#include "inp.fh"
+      integer rtdb       !< [Input] The RTDB handle
+      character*(*) name !< [Input] The name under which the current
+                         !< functional will be stored
+c
+      character*256 rtdb_key !< Key to access data on the RTDB
+      integer lenname        !< Length of the functional name
+      logical status         !< Status of the store operation
+c
+      lenname = inp_strlen(name)
+      status = .true.
+      rtdb_key = "dft:xc:"//name(1:lenname)//":nwxc_num_f"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,nwxc_num_f)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_num"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,nwxc_usr_num)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_alpha"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_alpha)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_beta"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_beta)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_gamma"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_gamma)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_hf"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_wght_hf)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_mp2"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_wght_mp2)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_wghts"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,
+     +                           nwxc_usr_num,nwxc_usr_wghts)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wghts"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,
+     +                           nwxc_num_f,nwxc_wghts)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_ids"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,
+     +                           nwxc_num_f,nwxc_ids)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_ids"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,
+     +                           nwxc_usr_num,nwxc_usr_ids)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_rho"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_LOG,1,
+     +                           nwxc_depends_on_rho)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_gamma"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_LOG,1,
+     +                           nwxc_depends_on_gamma)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_tau"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_LOG,1,
+     +                           nwxc_depends_on_tau)
+      nwxc_rtdb_store = status
+c
+      return
+      end
+C>
+C> \brief Load the density functional from the RTDB
+C>
+C> Load the current settings of the density functional stored with
+C> a particular name from the RTDB. The companion routine
+C> `nwxc_rtdb_store` may be used to store the data on the RTDB.
+C> We integrate the variable names in the RTDB keys to eliminate any
+C> source of ambiguity for what the data elements are.
+C>
+C> This routine is for convenience reasons implemented as what would
+C> be a "friend" in C++. Otherwise a zoo of additional routines would 
+C> need to query and set all sorts of variables.
+C>
+C> \return Return .true. if the data was successfully loaded, and
+C> .false. if no functional with the specified name was found, abort 
+C> if only partial information on a particular functional is found.
+C> 
+      logical function nwxc_rtdb_load(rtdb,name)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "nwxcP.fh"
+      integer rtdb       !< [Input] The RTDB handle
+      character*(*) name !< [Input] The name under which the functional
+                         !< is stored
+c
+      character*256 rtdb_key !< Key to access data on the RTDB
+      integer lenname        !< Length of the functional name
+      logical status         !< Status of the store operation
+c
+      lenname = inp_strlen(name)
+      status = .true.
+      rtdb_key = "dft:xc:"//name(1:lenname)//":nwxc_num_f"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_num_f)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_num"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_usr_num)
+c
+      nwxc_rtdb_load = status
+      if (.not. status) then
+c
+c       The specified functional was not found so return .false.
+c
+        return
+      endif
+c
+      if (nwxc_num_f.gt.NWXC_MAX_F.or.nwxc_usr_num.gt.NWXC_MAX_F) then
+c
+c       The RTDB was created by a code with different dimensions. Hence
+c       the RTDB is incompatible with this code. So, produce an error
+c       message and bomb out before something really bad happens...
+c
+        call errquit("RTDB is incompatible with this version",0,UERR)
+      endif
+c
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_alpha"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_alpha)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_beta"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_beta)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_gamma"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_gamma)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_hf"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_wght_hf)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_mp2"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_wght_mp2)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_wghts"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,
+     +                           nwxc_usr_num,nwxc_usr_wghts)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wghts"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,
+     +                           nwxc_num_f,nwxc_wghts)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_ids"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,
+     +                           nwxc_num_f,nwxc_ids)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_ids"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,
+     +                           nwxc_usr_num,nwxc_usr_ids)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_rho"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_LOG,1,
+     +                           nwxc_depends_on_rho)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_gamma"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_LOG,1,
+     +                           nwxc_depends_on_gamma)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_tau"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_LOG,1,
+     +                           nwxc_depends_on_tau)
+c
+      nwxc_rtdb_load = status
+      if (.not.status) then
+c
+c       We found nwxc_num_f and nwxc_usr_num so the functional must have
+c       existed but some of the other components were not found. So
+c       the functional data on the RTDB is corrupt and we would better
+c       terminate the program here.
+c
+        call errquit("Functional data on the RTDB corrupt",0,UERR)
+      endif
+c
+      return
+      end
+C> @}
