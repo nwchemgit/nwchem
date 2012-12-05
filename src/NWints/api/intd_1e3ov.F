@@ -1,5 +1,16 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the 3 center overlap integral derivatives
+C>
+C> Compute the 3 center overlap integral derivatives as defined by
+C> \f{eqnarray*}{
+C>   \frac{\partial}{\partial q}({\mu}{\nu}{\lamda}) &=& \int_{-\infty}^{\infty}
+C>   g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1})g_{\lamda}(X-R,r_{1})dr_{1}
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1e3ov}
 c:tex-This routine computes the 3 center overlap integral derivatives:
@@ -31,19 +42,19 @@ c::functions
       external int_chk_sh, int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis            ! [input] basis set handle for ish
-      integer ish                ! [input] i shell/contraction
-      integer j_basis            ! [input] basis set handle for jsh
-      integer jsh                ! [input] j shell/contraction
-      integer k_basis            ! [input] basis set handle for ksh
-      integer ksh                ! [input] k shell/contraction
-      integer lscr               ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer ldov3              ! [input] length of 3c overlap integrals array
-      double precision dOV3(*)   ! [output] 3c overlap integrals
-      integer idatom(3) ! [output] array identifying centers for derivatives
-c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
-c                       !       the second nint*3 derivatives go to center idatom(2)
+      integer i_basis            !< [Input] basis set handle for ish
+      integer ish                !< [Input] i shell/contraction
+      integer j_basis            !< [Input] basis set handle for jsh
+      integer jsh                !< [Input] j shell/contraction
+      integer k_basis            !< [Input] basis set handle for ksh
+      integer ksh                !< [Input] k shell/contraction
+      integer lscr               !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer ldov3              !< [Input] length of 3c overlap integrals array
+      double precision dOV3(*)   !< [Output] 3c overlap integrals
+      integer idatom(3) !< [Output] array identifying centers for derivatives
+c                       !< e.g., the first nint*3  derivatives go to center idatom(1)
+c                       !<       the second nint*3 derivatives go to center idatom(2)
 c:tex-\end{verbatim}
 c
 c Order is...   nint*3*3 (3=> xyz, 3=atoms)
@@ -273,3 +284,4 @@ c
         stop 'intd_1e3ov: how did I get here'
       endif
       end
+C> @}
