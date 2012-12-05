@@ -7,9 +7,22 @@ C> \brief Compute the 3 center overlap integral derivatives
 C>
 C> Compute the 3 center overlap integral derivatives as defined by
 C> \f{eqnarray*}{
-C>   \frac{\partial}{\partial q}({\mu}{\nu}{\lamda}) &=& \int_{-\infty}^{\infty}
-C>   g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1})g_{\lamda}(X-R,r_{1})dr_{1}
+C>   \frac{\partial}{\partial X_x}({\mu}{\nu}{\lambda}) &=& \int_{-\infty}^{\infty}
+C>   \frac{\partial g_{\mu}(X_\mu,r_{1})g_{\nu}(X_\nu,r_{1})g_{\lambda}(X_\lambda,r_{1})}{\partial X_x}dr_{1}
 C> \f}
+C> Where \f$X_x\f$ refers to a nuclear coordinate that can be any of 
+C> \f$X_\mu\f$, \f$X_\nu\f$ or \f$X_\lambda\f$.
+C>
+C> The integral derivatives are returned in `dOV3`. The order in which the
+C> integrals are stored is equivalent to the array being dimensioned as:
+C> `dOV3(nint,ncoord,natom)` where `ncoord` is equal to 3 for the Cartesian
+C> coordinates, and `natom` is equal to 3 for the atoms on which the Gaussians
+C> are centered. The lexical indeces of the atoms are returned in `idatom`.
+C> This relationship can be stated as: the integrals `dOV3(*,*,i)` belong to
+C> atom `idatom(i)`.
+C>
+C> Finally, if any of the entries in `idatom` equals 0 then the data in `dOV3`
+C> is invalid.
 C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1e3ov}
@@ -53,8 +66,8 @@ c:tex-\begin{verbatim}
       integer ldov3              !< [Input] length of 3c overlap integrals array
       double precision dOV3(*)   !< [Output] 3c overlap integrals
       integer idatom(3) !< [Output] array identifying centers for derivatives
-c                       !< e.g., the first nint*3  derivatives go to center idatom(1)
-c                       !<       the second nint*3 derivatives go to center idatom(2)
+c                       !  e.g., the first nint*3  derivatives go to center idatom(1)
+c                       !        the second nint*3 derivatives go to center idatom(2)
 c:tex-\end{verbatim}
 c
 c Order is...   nint*3*3 (3=> xyz, 3=atoms)
