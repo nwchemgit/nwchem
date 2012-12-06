@@ -1,6 +1,14 @@
 C> \ingroup nwxc
 C> @{
 C>
+C> \file nwxc_add.F
+C> Routines to add new terms to the functional
+C>
+C> @}
+C
+C> \ingroup nwxc_priv
+C> @{
+C>
 C> \brief Add a functional term to the evaluation list
 C>
 C> This function is for internal use of the library.
@@ -119,6 +127,11 @@ c
       return
       end
 C>
+C> @}
+C
+C> \ingroup nwxc_api
+C> @{
+C>
 C> \brief Add a functional by name to the current functional definition
 C>
 C> This function adds a named functional to the current functional
@@ -129,6 +142,7 @@ C> \return Returns .true. if successfull, and .false. otherwise.
 C>
       logical function nwxc_add_df(dfname,dfweight)
       implicit none
+#include "nwxcP.fh"
       character*(*)    dfname   !< [Input] The name of the functional
       double precision dfweight !< [Input] The weight of the functional
 c
@@ -137,13 +151,13 @@ c
 c
       nwxc_add_df = .false.
 c
-      if (name.eq."hfex") then
-        nwxc_wght_hf = nwxc_wght_hf + weight
+      if (dfname.eq."hfex") then
+        nwxc_wght_hf = nwxc_wght_hf + dfweight
         nwxc_add_df = nwxc_usr_add_func(NWXC_HFXC,dfweight)
-      else if (name.eq."mp2") then
-        nwxc_wght_mp2 = nwxc_wght_mp2 + weight
+      else if (dfname.eq."mp2") then
+        nwxc_wght_mp2 = nwxc_wght_mp2 + dfweight
         nwxc_add_df = nwxc_usr_add_func(NWXC_MP2C,dfweight)
-      else if (name.eq."slater") then
+      else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXC_SLATER,dfweight)
       else
 c       Oh dear, the functional was not recognized

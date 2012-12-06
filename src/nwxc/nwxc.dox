@@ -16,4 +16,10 @@ Because this functionality is really generic it makes sense to
 encapsulate this in a library of its own. This library can subsequently
 be used in all relevant DFT modules.
 
+@defgroup nwxc_api API
+   @ingroup nwxc
+   Routines that external code may call
+@defgroup nwxc_priv Private routines
+   @ingroup nwxc
+   Routines that are private to the library
 */

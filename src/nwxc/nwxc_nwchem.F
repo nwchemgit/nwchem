@@ -1,4 +1,4 @@
-C> \ingroup nwxc
+C> \ingroup nwxc_api
 C> @{
 C>
 C> \file nwxc_nwchem.F
@@ -19,8 +19,8 @@ C>
 C> This file contains these integration routines.
 C>
 C> @}
-C
-C> \ingroup nwxc
+C=======================================================================
+C> \ingroup nwxc_api
 C> @{
 C>
 C> \brief Parse the input of the functional

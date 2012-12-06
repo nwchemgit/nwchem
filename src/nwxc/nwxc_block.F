@@ -1,6 +1,14 @@
 C> \ingroup nwxc
 C> @{
 C>
+C> \file nwxc_block.F
+C> Functional initialization
+C>
+C> @}
+C>
+C> \ingroup nwxc_priv
+C> @{
+C>
 C> \brief One time initialization of the density functional library
 C> data structures
 C>
@@ -22,6 +30,9 @@ C>
       data nwxc_cam_beta  / 0.0d0 /
       data nwxc_cam_gamma / 0.0d0 /
       end
+C> @}
+C> \ingroup nwxc_api
+C> @{
 C>
 C> \brief Initialize the density functional library data structures
 C>
