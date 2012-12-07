@@ -1,3 +1,26 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the 1-electron derivative integrals
+C>
+C> This routine compute the 1-electron derivative integrals. The routine
+C> computes the nuclear attraction integral derivatives
+C> \f{eqnarray*}{
+C>   \sum_A\frac{\partial (\mu|Z_AR_A^{-1}|\nu)}{\partial R_x} &=&
+C>      \sum_A\int \frac{\partial [g_\mu(X_\mu,r_1)Z_AR^{-1}_{A1}g_\nu(X_\nu,r_1)]}
+C>                      {\partial X_x}dr_1
+C> \f}
+C> It also adds the kinetic energy integral derivatives
+C> \f{eqnarray*}{
+C>   -\frac{1}{2}\frac{\partial (\mu|\nabla_1^2|\nu)}{\partial R_x} &=&
+C>   -\frac{1}{2}\int \frac{\partial [g_\mu(X_\mu,r_1)\nabla_1^2g_\nu(X_\nu,r_1)]}
+C>                         {\partial X_x}dr_1
+C> \f}
+C> The results are stored in `H1a` as if that variable was declared as
+C> `H1a(nint,ncoord,natom)` where `nint` is the number of integrals for a given
+C> pair of shells, `ncoord` is the number of Cartesian coordinates, and `natom`
+C> is the number of atoms.
+C>
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
 C $Id$
@@ -58,15 +81,15 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] ``i'' contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] ``j'' contraction index
-      integer lscr      ! [input] length of scratch space
-      integer lH1a      ! [input] number of h1 integral derivatives in shells ish and jsh
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] ``i'' contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] ``j'' contraction index
+      integer lscr      !< [Input] length of scratch space
+      integer lH1a      !< [Input] number of h1 integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      double precision scr(lscr) ! [input] scratch array
-      double precision H1a(*)    ! [output] derivative integrals
+      double precision scr(lscr) !< [Input] scratch array
+      double precision H1a(*)    !< [Output] derivative integrals
 c
 c::local
       integer nint, offset, scrsize, nat
@@ -420,4 +443,4 @@ c
 c
 
       end
-      
+C> @}
