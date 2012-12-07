@@ -1,3 +1,14 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the kinetic energy integral derivatives
+C>
+C> Compute the kinetic energy integral derivatives defined as
+C> \f{eqnarray*}{
+C>   \frac{\partial (\mu|\nabla^2|\nu)}{\partial X_x} 
+C>     &=& \int \frac{\partial [g_\mu(X_\mu,r_1)\nabla_1^2g_\nu(X_\nu,r_1)]}{\partial X_x}dr_1
+C> \f}
+C> 
       subroutine intd_1eke(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lTa,Ta,idatom)
 c $Id$
@@ -11,14 +22,14 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] "i" contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] "j" contraction index
-      integer lscr      ! [input] length of scratch space "scr"
-      integer lTa       ! [input] number of kinetic integral derivatives in shells ish and jsh
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] "i" contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] "j" contraction index
+      integer lscr      !< [Input] length of scratch space "scr"
+      integer lTa       !< [Input] number of kinetic integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      integer idatom(*) ! [output] array identifying centers for derivatives
+      integer idatom(*) !< [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
 c
@@ -48,8 +59,8 @@ c                                          \
 c                       nint,d <ij>         |
 c                            -------------- |
 c                            d[idatom(2),z]/
-      double precision scr(lscr)
-      double precision Ta(lTa)
+      double precision scr(lscr) !< [Scratch] work space
+      double precision Ta(lTa) !< [Output] The integral derivatives
 *
       integer nint
 *
@@ -385,3 +396,4 @@ c
       endif
 c
       end
+C> @}
