@@ -23,7 +23,8 @@ c!!! BGJ
 c!!! BGJ
       integer rtdb              ! [input] database handle
       double precision eone,etwo,enrep,energy
-      integer g_grad, g_work
+      integer g_grad, g_work,
+     &        g_work_im,g_grad_im ! dummy
       integer max_precond_iter,max_precond_sub
       double precision precond_acc
       integer precond_iter
@@ -32,8 +33,11 @@ c!!! BGJ
       logical oprint_solve
 c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
+      logical use_my_guess
+      integer m1,m2,shift,nvec1
       external rohf_hessv_precond,rohf_hessv, rohf_hessv2
-      external uhf_precond,uhf_hessv, uhf_hessv2
+      external uhf_precond,uhf_hessv, uhf_hessv2,
+     &         prepare_guess
       logical oprint, oprint_conv, ocosmo
 c     
       character*255 rhs_title
@@ -42,7 +46,7 @@ c
       logical file_write_ga,file_read_ga, file_read_ga_info
       external file_write_ga,file_read_ga, file_read_ga_info
       integer vlen, nvirt, nmos(2), nbf_vecs, nsets
-      integer bases(2), nbases, nvec, ncol
+      integer bases(2), nbases, nvec, ncol,ndata
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
       double precision residual
@@ -101,7 +105,7 @@ c
       call int_1e_cache_ga(basis,oskel)
 c
 c     Get the MO vectors
-c
+
       if(.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
      $     scftype_vecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('cphf: problem with movecs_read_header',1,
@@ -109,7 +113,7 @@ c
       if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0,
      &       UNKNOWN_ERR)
       nmo = nmos(1)
-c
+
       if (nmo .ne. nbf) then
          if (.not. ga_destroy(g_movecs(1))) call errquit('cphf: ga',1,
      &       GA_ERR)
@@ -128,7 +132,7 @@ c
       endif
 c         
       call scf_movecs_read
-c
+
       if (scftype.eq.'UHF') then 
          vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
       else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
@@ -137,7 +141,7 @@ c
       else
          call errquit('cphf: unknown SCF type',0, INPUT_ERR)
       endif
-c
+
       lshift=0.0d0
       if (.not. rtdb_get(rtdb, 'cphf:lshift', mt_dbl, 1,
      $     lshift)) lshift=0.0
@@ -147,18 +151,33 @@ c         I changed that so that we can set this by input
      $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
      $     maxiter)) maxiter = 50
-c
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
-      if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec))
+
+      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)        
+      if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec1))
      $     call errquit('cphf_solve: reading rhs info failed?',0,
      &       UNKNOWN_ERR)
       if (vlen .ne. ncol) 
      $     call errquit('cphf_solve: vlen != ncol', ncol,
      &       UNKNOWN_ERR)
-      if(.not.ga_create(mt_dbl,vlen,nvec,'cphf_solve: rhs',
-     $     0,nvec,g_grad))
-     $     call errquit('cphf_solve: ga_cre grad',vlen, GA_ERR)
-c
+
+      if (.not. rtdb_get(rtdb, 'cphf2-aores:ndata',mt_int,1, 
+     $     ndata)) ndata=1
+c      if (ga_nodeid().eq.0) then
+c       write(*,10) ndata
+c  10   format('Check ndata=',i3)
+c      endif
+      if (ndata.eq.2) then
+       nvec=nvec1/2 ! real nvec=3
+       if(.not.ga_create(mt_dbl,vlen,nvec1,'cphf_solve: rhs',
+     $      0,nvec1,g_grad))
+     $      call errquit('cphf_solve: ga_cre grad',vlen, GA_ERR)
+      else
+       nvec=nvec1
+       if(.not.ga_create(mt_dbl,vlen,nvec,'cphf_solve: rhs',
+     $      0,nvec,g_grad))
+     $      call errquit('cphf_solve: ga_cre grad',vlen, GA_ERR)
+      endif
+
       max_precond_sub = 10*nvec
       if (.not. rtdb_get(rtdb, 'cphf:maxsub', mt_int, 1,
      $     max_precond_sub)) max_precond_sub = 10*nvec
@@ -187,11 +206,10 @@ c
       endif
 c
 *ga:1:0
-c
       if(.not.file_read_ga(cphf_rhs, g_grad))
      $     call errquit('cphf_solve: could not read cphf_rhs',1,
      &       UNKNOWN_ERR)
-c
+
 *ga:1:0
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: grad',
      $     0,0,g_work))call errquit('cphf_solve: ga_cre grad',0, GA_ERR)
@@ -242,9 +260,10 @@ c     == check the residual ==
          call errquit('cphf_solve2:SCF residual greater than 1d-2',
      &              0,UNKNOWN_ERR)
       endif
-c
+
       if (.not. ga_destroy(g_work)) call errquit('cphf_solve:ga?',0,
      &       GA_ERR)
+
       if(.not.ga_create(mt_dbl,vlen,nvec,'cphf_solve: work',
      $     0, 0, g_work))call errquit('cphf_solve: ga_cre work',0,
      &       GA_ERR)
@@ -260,54 +279,51 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0,
      &       RTDB_ERR)
 c !!! BGJ
+c 000000000000000 prepare guess 000000000000 START
+         if (.not. rtdb_get(rtdb, 'cphf2-aores:guess', 
+     &      mt_log,1,use_my_guess)) use_my_guess = .false.
+      call prepare_guess(
+     &               g_work,      ! out: RE guess
+     &               g_work_im,   ! out: dummy
+     &               g_grad,      ! in : RE (g_b,g_z)
+     &               g_grad_im,   ! in : dummy
+     &               vlen,        ! in : nrows guess
+     &               nvec,        ! in : ncols guess
+     &               1,           ! in : nr. components
+     &               .false.,     ! in : lifetime= T complex   = F real
+     &               use_my_guess,! in : = T guess-file =F guess=(energy-scaling)*g_b 
+     &               rtdb)        ! in : rtdb handle
+c Note.- en-scl*g_b is unpropertly called "preconditioning"
+c 000000000000000 prepare guess 000000000000 END
       if (scftype .eq. 'UHF') then
 c
 c        For property related CPHF. NMR has imaginary perturbation
 c        which makes matrices skew symmetric. Setting noskew to .false.
 c        enforces that.
-c
          if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1, 
      $        noskew_uhf)) noskew_uhf = .true.
-c
-c        if (nvec .ne. 1) call errquit('not yet',nvec)
-         call ga_zero(g_work)   ! Essential to get default initial guess
-c         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
-c     $        max_precond_sub, precond_tol, 
-c     $        uhf_precond, uhf_hessv, .false., oprint_solve, 
-c     $        g_grad, g_work, precond_acc, precond_iter))
-c     $        call errquit('cphf did not converge',precond_iter)
-         call ga_copy(g_grad, g_work)
-         call uhf_precond(g_work,0.0d0)
-c
+         if (.not.(use_my_guess)) then ! doing default guess
+          call uhf_precond(g_work,0.0d0)
+         endif 
 c        Call the solver
          call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
      &        oprint_solve)
-c
-c
          noskew_uhf = .true.
       else 
-c$$$         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
-c$$$     $        max_precond_sub, precond_tol, 
-c$$$     $        rohf_hessv_precond, rohf_hessv, .false., oprint_solve, 
-c$$$     $        g_grad, g_work, precond_acc,precond_iter))
-c$$$     $        call errquit('cphf did not converge', precond_iter)
-c
 c        For property related CPHF. NMR has imaginary perturbation
 c        which makes matrices skew symmetric. Setting noskew to .false.
 c        enforces that.
-c
          if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1, 
      $        noskew)) noskew = .true.
-         call ga_copy(g_grad, g_work)
-         call rohf_hessv_precond(g_work,0.0d0)
-c
+         if (.not.(use_my_guess)) then ! doing default guess
+          call rohf_hessv_precond(g_work,0.0d0)
+         endif
 c        Call the solver
          call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
      &        oprint_solve)
-c
          noskew = .true.
       endif
 c !!! BGJ
@@ -340,16 +356,29 @@ c$$$  911        format(//,15x,40('-'),
 c$$$  $           /,15x,'UHF Polarizability is:',f16.6,
 c$$$  $           /,15x,40('-'),/)
 c$$$  endif
-c
-      call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
-      if(.not.file_write_ga(cphf_sol,g_work))
+       if (ndata.eq.2) then
+c == copy solution (g_work) --> g_grad 2nd subspace===START
+          shift=3 ! skip first subspace that corresponds to g_b
+          m1=shift+1
+          m2=shift+nvec
+          call ga_copy_patch('n',g_work,1,vlen,1 ,nvec,
+     &                           g_grad,1,vlen,m1,m2)
+c == copy solution (g_work) --> g_grad 2nd subspace===END
+        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+        if(.not.file_write_ga(cphf_sol,g_grad))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)
+       else
+        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+        if(.not.file_write_ga(cphf_sol,g_work))
+     $     call errquit('cphf_solve: could not write cphf_sol',1,
+     &       UNKNOWN_ERR)
+       endif
       if(.not.ga_destroy(g_work))call errquit(
      $     'cphf_solve: could not destroy work array',1, GA_ERR)
       if(.not.ga_destroy(g_grad))call errquit(
      $     'cphf_solve: could not destroy gradient handle',1, GA_ERR)
-c
+
       call int_1e_uncache_ga()
       call schwarz_tidy()
       call int_terminate()
@@ -359,11 +388,6 @@ c
          call rohf_tidy
       endif
       call scf_tidy(rtdb)
-c
+
       return
-c
-c     if (.not. cphf_poliz(rtdb))     ! Never executed.
-c    $     call errquit(' cphf: not possible!',0)
-c
       end
-c
