@@ -50,6 +50,7 @@ c
       integer hfineatoms
       integer efgz4atoms ! Added by FA
       integer center
+      integer cphf3write,checkorth
       integer l_atefg,k_atefg,
      &        l_atshi,k_atshi,
      &        l_athyp,k_athyp, 
@@ -128,6 +129,8 @@ c ... jochen:
       aor_quad          = 1
       aor_analyze       = 1
       nfreq             = 0
+      cphf3write        = 0 ! FA
+      checkorth         = 0 ! FA
 c     
 c     read inputs; store in rtdb
 c     
@@ -277,6 +280,13 @@ c  ... jochen: parse input for response/aoresponse key
            call errquit('Response: error reading damping constant',
      &        0, INPUT_ERR)
          endif
+c cphf3write=1 ==> write (z1,Az1) to file
+c z1 , history matrix of solutions 
+c Az1, history matrix of products Az1       
+        status=inp_i(cphf3write)
+c        write(*,*) 'Reading cphf3write=',cphf3write
+        status=inp_i(checkorth)
+c        write(*,*) 'Reading checkorth=',checkorth
       elseif ( inp_compare(.false., 'convergence', test)) then
          aor_conv = 0
          if (.not.inp_f(convergence)) then

@@ -1,7 +1,6 @@
       subroutine hnd_giaox_zora(rtdb,basis,geom)
 c $Id$
       implicit none
-c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -15,9 +14,6 @@ c
 #include "bgj.fh"
 #include "case.fh"
 #include "zora.fh"  
-#include "util.fh"
-#include "inp.fh"
-c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
@@ -29,6 +25,9 @@ c
       integer l_dia, k_dia, l_para, k_para
       integer l_xyz, k_xyz, l_zan, k_zan
       integer l_AtNr, k_AtNr,type_NMR
+      integer l_fukui,k_fukui ! to include Fukui term
+                              ! allows dia,para tensors 
+                              ! to be origin invariant separately
       integer g_dens(3), g_s10, g_h01, g_h11,
      &        g_d1, g_rhs, g_rhs0,g_fock, g_u
       integer g_fock_Coul,g_fock_Exch,
@@ -90,6 +89,7 @@ c ----- Definitions for NLMO analysis ---- END
       logical skip_cphf_ev_shield
 c Note.- switch_nmrcs_analysis=.true. has to go together with
 c        switch_skip_cphf=.true.
+c -----------------------------------
 c      switch_skip_cphf=.true. ! For skipping cphf or cpks
       switch_skip_cphf=.false. ! For NOT skipping cphf or cpks
       switch_nmrcs_analysis=.false. ! For default mode NO nmrcs analysis
@@ -231,11 +231,11 @@ c    & write(*,*) 'npol=',npol
        write(*,10) nocc(1),nocc(2),
      &             nopen(1),nopen(2),
      &             nclosed(1),nclosed(2),
-     &             nvirt(1),nvirt(2),scftyp
+     &             nvirt(1),nvirt(2),scftyp,nmo
  10    format('nocc =(',i3,',',i3,') ',
      &        'nopen=(',i3,',',i3,') ',
      &        'nclos=(',i3,',',i3,') ',
-     &        'nvirt=(',i3,',',i3,') scftyp=',a,')')
+     &        'nvirt=(',i3,',',i3,') scftyp=',a,', nmo=',i3)
       endif
 c ------ Store nopen in rtdb so that CPHF routine is happy ---- START
 c WARNING: For restricted calc nocc(1)=9 nocc(2)=0 <=== PROBLEM
@@ -292,10 +292,10 @@ c ----- TEST: for testing Coulomb and Exchange contrib --- END
       write(*,*) 'after-creating g_rhs ...'
       write(*,102) npol,nocc(1),nocc(2),
      &            nclosed(1),nclosed(2),
-     &            nvirt(1),nvirt(2),scftyp
+     &            nvirt(1),nvirt(2),scftyp,ntot
  102   format('BEF pre-fock::npol=',i3,' nocc=(',i3,',',i3,') ',
      &       'nclos=(',i3,',',i3,') ',
-     &       'nvirt=(',i3,',',i3,') scftyp=',a,')')
+     &       'nvirt=(',i3,',',i3,') scftyp=',a,' ntot=',i3)
       endif
 
       if (switch_nmrcs_analysis) then
@@ -355,6 +355,7 @@ c     Build "first order fock matrix"
 c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 c
+c ++++ WARNING: skipping cam definitions for the moment ---- START
       if (.not.cam_exch) then
          call shell_fock_build(geom, basis,0,3*npol*2,
      $                         jfac,kfac,tol2e,
@@ -368,6 +369,7 @@ c
      &                              g_fock,! output
      &                              .false.)
       end if
+c ++++ WARNING: skipping cam definitions for the moment ---- END
  180  continue
  
 c      write(*,104) npol,nocc(1),nocc(2),
@@ -644,13 +646,19 @@ c ------- Store g_rhs without Coulomb and Exchange ---- END
      &                    g_rhs_1e,
      &                    g_rhs_eSji,
      &                    dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                    nocc,nvirt,nmo,nbf,npol)
+     &                    nocc,
+     &                    nvirt,
+     &                    nbf,  ! FA-04-28-12: replacing nmo by nbf
+     &                    npol)
       else
        if (ga_nodeid().eq.0)
      &   write(*,*) 'WARNING : Using skip_cphf ...'
             call skip_cphf(g_rhs,          ! IN/OUT
      &                     dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                     nocc,nvirt,nmo,nbf,npol)
+     &                     nocc,
+     &                     nvirt,
+     &                     nbf,  ! FA-04-28-12: replacing nmo by nbf
+     &                     npol)
        endif
       endif
 
@@ -840,6 +848,11 @@ c ------- TEST: get_par() get_dia()------ START
      &          l_pararr,k_pararr)) 
      &    call errquit('hnd_giaox_zora: ma_push_get failed k_pararr',
      &          0,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,
+     &          3*3*nat_slc,'sh fukui',
+     &          l_fukui,k_fukui)) 
+     &    call errquit('hnd_giaox_zora: ma_push_get failed l_fukui',
+     &          0,MA_ERR)
       call ga_sync()
       if (switch_nmrcs_analysis) then 
        call get_par_JK(
@@ -877,16 +890,27 @@ c ------- TEST: get_par() get_dia()------ START
      &   dbl_mb(k_pararr),! OUT : par tensor gauge,OO,OV
      &   g_d1_oo,         ! IN  : Perturbed density matrix (OO part)
      &   g_d1_ov,         ! IN  : Perturbed density matrix (OV part) 
+     &   g_dens,          ! IN  : e-density
+     &   npol,            ! IN  : nr. polarizations
+     &   dbl_mb(k_fukui), ! OUT : Fukui term
      &   basis,           ! IN  : basis handle
      &   nbf,             ! IN  : nr. basis functions
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
      &   nat_slc,         ! IN  : nr. atoms
+     &   geom,
      &   rtdb)
       endif
 
-      call get_dia(dbl_mb(k_dia),ga_dia,basis,
-     &             g_dens,nbf,npol,
-     &             dbl_mb(k_xyz),nat_slc,rtdb)
+      call get_dia(dbl_mb(k_dia),   ! OUT: dia tensor
+     &             ga_dia,          ! IN : ga dia tensor   
+     &             basis,           ! IN : basis handle
+     &             g_dens,          ! IN : e-density
+     &             nbf,             ! IN : nr. basis functions
+     &             npol,            ! IN : nr. polarizations
+     &             dbl_mb(k_fukui), ! IN : Fukui term
+     &             dbl_mb(k_xyz),   ! IN : nuclear positions
+     &             nat_slc,         ! IN : selected atoms
+     &             rtdb)            ! IN : rtdb handle
 c ------- TEST: get_par() get_dia()------ END
 c +++++++++ print-total-pardia-transferred +++ START
        if (ga_nodeid().eq.0) then
@@ -932,6 +956,8 @@ c +++++++++ print-total-pardia-transferred +++ START
        enddo ! end-loop-iatom
        endif ! end-if-ga_nodeid-eq-0
 c +++++++++ print-total-dia-transferred +++ END
+      if (.not.ma_pop_stack(l_fukui)) call
+     &    errquit('hnd_giaox: ma_pop_stack failed k_fukui',0,MA_ERR)
       if (.not.ma_pop_stack(l_pararr)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_para',0,MA_ERR)
        do ispin=1,ndens
@@ -945,7 +971,8 @@ c --------- allocating array for NLMO analysis --------------- START
       status=rtdb_get(rtdb,'prop:shldfile',mt_int,1,shldfile) ! for NLMO analysis
       if (shldfile.eq.1) then
        if (.not. ma_alloc_get(mt_dbl,nat_slc*9,'tvec',l_tvec,k_tvec)) 
-     &  call errquit('hnd_giaox_zora: ma_push_get failed tvec',0,MA_ERR)   
+     &    call
+     &    errquit('hnd_giaox_zora: ma_push_get failed tvec',0,MA_ERR)   
       endif ! end-if-shldfile
 c --------- allocating array for NLMO analysis --------------- END
 c
@@ -955,15 +982,12 @@ c     Print out tensor information, and write to Ecce file if necessary
       acc_vec=0 ! For NMLO analysis
       call ecce_print_module_entry('nmr')
       do iatom = 1, nat_slc
-        ioff = (iatom-1)*9
-        if (.not. geom_cent_get(geom, int_mb(k_AtNr+iatom-1), tag, 
-     &    dbl_mb(k_xyz), dbl_mb(k_zan))) call 
-     &    errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
-        if (.not. geom_tag_to_element(tag, symbol, element, atn)) then
-         if (.not. inp_compare(0,tag(1:2),'bq')) 
-     &    call errquit('hnd_giaox_zora: geom_tag_to_element failed',
-     & 0,GEOM_ERR)
-        end if  ! tag check
+         ioff = (iatom-1)*9
+         if (.not. geom_cent_get(geom, int_mb(k_AtNr+iatom-1), tag, 
+     &       dbl_mb(k_xyz), dbl_mb(k_zan))) call 
+     &       errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
+         if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
+     &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
 c
 c      Print tensor pieces and sum for total shielding tensor
          if (ga_nodeid().eq.0) then
@@ -1116,19 +1140,22 @@ c     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
      &                   par_arr,   ! OUT : par tensor gauge,OO,OV
      &                   g_d1_oo,   ! IN  : Perturbed density matrix (OO part)
      &                   g_d1_ov,   ! IN  : Perturbed density matrix (OV part) 
+     &                   g_dens,    ! IN  : e-density
+     &                   npol,      ! IN  : nr. polarizations
+     &                   Fukui,     ! OUT : Fukui term
      &                   basis,     ! IN  : basis handle
      &                   nbf,       ! IN  : nr. basis functions
      &                   pos,       ! IN  : Nuclear positions (x,y,z)
      &                   natoms,    ! IN  : nr. atoms
+     &                   geom,
      &                   rtdb)
 c Purpose : Assemble NMR Chemical Shielding: paramagnetic tensor
 c Author  : Fredy Aquino
-c Date    : 03-03-11
+c Date    : 03-03-11, 11-23-12 (adding Fukui term)
 c Note.- Adaptation of hnd_giaox.F to hold 
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
       implicit none
-c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1139,15 +1166,20 @@ c
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"  
-c
+#include "zora.fh"  ! for num NMRCS-Z4
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
-      integer rtdb
+      integer rtdb,geom
       integer basis
-      integer alo(3), ahi(3), blo(3), bhi(3)
-      integer ld(2),cbuf,cbuf1,cbuf2
       integer nbf,natoms
+      integer g_dens(3)          ! IN : electronic density
+      double precision Fukui(3,3,natoms) ! used in analyt shield
+      integer npol  ! OUT: Used only in analytical shieldings
+      integer alo(3), ahi(3), blo(3), bhi(3),
+     &        dlo(3), dhi(3)
+      integer ld(2),cbuf,cbuf1,cbuf2
+      integer i,dims(3),chunk(3),
+     &        g_R(3),ispin,a,b
       double precision pos(3*natoms),val
       integer iatom,ix,iy,ixy,ind
       double precision val_oo,val_ov
@@ -1156,12 +1188,22 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer g_d1_oo,g_d1_ov ! input: Perturbed density matrics OO and OV
                               ! OO, due to occupied-occupied MOs
                               ! OV, due to occupied-viritual MOs
-      integer ga_para1
+      integer ga_para1,g_t1,g_t2,g_t3
       integer debug_get_par
       double precision par(*)
       logical oskel
       double precision ppm,par_arr(*)
+      integer ind_tmn(2,3)
+      data ind_tmn / 2, 3,  ! tmn=123
+     &               3, 1,  ! tmn=231
+     &               1, 2 / ! tmn=312
+      external get_chi_centers_ga
       data ppm     /26.62566914d+00/ 
+
+c Warning: If I activate debugging (=1)
+c          I could get trouble in final outputs
+c          the content is affected if I attempt
+c          to print out variables. (FA-11-24-11)
 
       debug_get_par=0
 
@@ -1244,6 +1286,27 @@ c ----- store in par_arr ------- END
         enddo ! end-loop-iy
        enddo ! end-loop-iatom
       else ! Nonrel calc
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &     'gd2p1: g_t1',0,0,g_t1))
+     $ call errquit('get_par: g_t1',0,GA_ERR)
+       call ga_zero(g_t1)
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &     'gd2p1: g_t2',0,0,g_t2))
+     $ call errquit('get_par: g_t2',0,GA_ERR)
+       call ga_zero(g_t2)
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &     'gd2p1: g_t3',0,0,g_t3))
+     $ call errquit('get_par: g_t3',0,GA_ERR)
+       call ga_zero(g_t3)
+c -------- get R_nu ------------- START
+       dims(1) =nbf
+       chunk(1)=nbf 
+       do i=1,3
+        if (.not. nga_create(mt_dbl,1,dims,"Array R",chunk,g_R(i)))
+     $    call errquit('get_par: g_R', 0,GA_ERR)
+       enddo
+       call get_chi_centers_ga(g_R,basis,nbf,geom,natoms)
+c -------- get R_nu ------------- END
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> nonrel'
 c ----- Calculate g_h01 --------- START
@@ -1276,6 +1339,10 @@ c ----- Calculate g_h01 --------- END
        bhi(2) = nbf
        blo(3) = 0
        bhi(3) = 0
+       dlo(1) = 1
+       dhi(1) = nbf
+       dlo(2) = 1
+       dhi(2) = nbf
        ind=0
        do iatom = 1, natoms
         do iy = 1, 3
@@ -1289,13 +1356,42 @@ c ----- Calculate g_h01 --------- END
           val_ov = nga_ddot_patch(g_d1_ov ,'n',alo,ahi,
      &                               g_h01,'n',blo,bhi)        
           cbuf=9*(iatom-1)+3*(ix-1)+iy ! transpose
+c ----- Calc. Fukui term ------- START
+          a=ind_tmn(1,ix)
+          b=ind_tmn(2,ix)
+          call nga_copy_patch('n',g_h01,blo,bhi,
+     &                            g_t1 ,dlo,dhi)
+          call ga_scale_cols(g_t1,g_R(b))          ! R_{nu,b} g_N
+          call ga_scale_rows(g_t1,g_R(a))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t1
+          call nga_copy_patch('n',g_h01,blo,bhi,
+     &                            g_t2 ,dlo,dhi)
+          call ga_scale_cols(g_t2,g_R(a))          ! R_{nu,b} g_N
+          call ga_scale_rows(g_t2,g_R(b))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t2
+          call ga_add(1.0d0,g_t1,-1.0d0,g_t2,g_t3) ! g_t3=-4c^2 <chi_mu|i/(2c)(R_mu x R_nu)_k h_t^{01}|chi_nu>
+          val=0.0d0
+          do ispin=1,npol
+           val=val+nga_ddot_patch(g_dens(ispin),'n',dlo,dhi,
+     &                                     g_t3,'n',dlo,dhi)         
+          enddo ! end-loop-ispin
+          Fukui(ix,iy,iatom)=val*ppm
+
+c WARNING: If I attempt to print lines below the values for dia
+c          are affected somehow.  This is a weird problem
+c          Otherwise, everything is fine.
+c         if (ga_nodeid().eq.0) then
+c          write(*,1) ix,iy,iatom,Fukui(ix,iy,iatom)
+c 1        format('Fukui(',i4,',',i4,',',i4,')=',f15.8)
+c         endif
+
+c ----- Calc. Fukui term ------- END
 c ----- store in par_arr ------- START
-          par_arr(ind+1)=0.0d0
+          par_arr(ind+1)=Fukui(ix,iy,iatom)
           par_arr(ind+2)=val_oo*ppm
           par_arr(ind+3)=val_ov*ppm
-          par_arr(ind+4)=val_oo*ppm+
+          par_arr(ind+4)=par_arr(ind+1)+ 
+     &                   val_oo*ppm+
      &                   val_ov*ppm
-          goto 143
+
           if (debug_get_par.eq.1) then
                if (ga_nodeid().eq.0) then
                 write(*,12) iatom,iy,ix,
@@ -1303,6 +1399,7 @@ c ----- store in par_arr ------- START
      &                      ahi(1),ahi(2),ahi(3),
      &                      blo(1),blo(2),blo(3),
      &                      bhi(1),bhi(2),bhi(3),
+     &                      par_arr(ind+1),
      &                      par_arr(ind+2),par_arr(ind+3),
      &                      par_arr(ind+4)
  12             format('(iatom,iy,ix)=(',i3,',',i3,',',i3,') ',
@@ -1310,18 +1407,29 @@ c ----- store in par_arr ------- START
      &                  'ahi=(',i3,',',i3,',',i3,') ',
      &                  'blo=(',i3,',',i3,',',i3,') ',
      &                  'bhi=(',i3,',',i3,',',i3,') ',
-     &                  'para=(',f15.8,',',f15.8,',',f15.8,')')
+     &                  'para=(',f15.8,',',f15.8,',',
+     &                   f15.8,',',f15.8,')')
                endif
           endif
- 143    continue
 c ----- store in par_arr ------- END  
-          par(cbuf)=val_oo*ppm+val_ov*ppm 
+          par(cbuf)=par_arr(ind+1)+
+     &              val_oo*ppm+val_ov*ppm
           ind=ind+4
          enddo ! end-loop-ix
         enddo ! end-loop-iy
        enddo ! end-loop-iatom
         if (.not.ga_destroy(g_h01)) call 
      &    errquit('get_par: ga_destroy failed g_h01',0,GA_ERR)
+        if (.not.ga_destroy(g_t1)) call 
+     &    errquit('get_par: ga_destroy failed g_t1',0,GA_ERR)
+        if (.not.ga_destroy(g_t2)) call 
+     &    errquit('get_par: ga_destroy failed g_t2',0,GA_ERR)
+        if (.not.ga_destroy(g_t3)) call 
+     &    errquit('get_par: ga_destroy failed g_t3',0,GA_ERR)
+        do i=1,3
+          if (.not.ga_destroy(g_R(i))) call 
+     &    errquit('get_par: ga_destroy failed g_R',0,GA_ERR)
+        enddo
       endif
 c -------- symmetrize total par ------------ START
        do iatom = 1, natoms
@@ -1353,19 +1461,22 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      &                   g_d1_ov_noJK,! IN  : Perturbed density matrix (OV part-all -(Coul,Exch)) 
      &                   g_d1_ov_1e,  ! IN  : Perturbed density matrix (OV part-1e   contrib)
      &                   g_d1_ov_eSji,! IN  : Perturbed density matrix (OV part-eSji contrib)
+     &                   g_dens,      ! IN  : e-density
+     &                   npol,        ! IN  : nr. polarizations
+     &                   Fukui,       ! OUT : Fukui term
      &                   basis,       ! IN  : basis handle
      &                   nbf,         ! IN  : nr. basis functions
      &                   pos,         ! IN  : Nuclear positions (x,y,z)
      &                   natoms,      ! IN  : nr. atoms
+     &                   geom,
      &                   rtdb)
 c Purpose : Assemble NMR Chemical Shielding: paramagnetic tensor
 c Author  : Fredy Aquino
-c Date    : 03-03-11
+c Date    : 03-03-11, 11-23-12 (adding Fukui term)
 c Note.- Adaptation of hnd_giaox.F to hold 
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
       implicit none
-c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1376,13 +1487,18 @@ c
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"
-c
-      integer rtdb
+#include "zora.fh"  ! for num NMRCS-Z4
+      integer rtdb,geom
       integer basis
-      integer alo(3), ahi(3), blo(3), bhi(3)
+      integer alo(3), ahi(3), blo(3), bhi(3),
+     &        dlo(3),dhi(3)
       integer ld(2),cbuf,cbuf1,cbuf2
       integer nbf,natoms
+      integer g_dens(3)          ! IN : electronic density
+      double precision Fukui(3,3,natoms) ! used in analyt shield
+      integer npol  ! OUT: Used only in analytical shieldings
+      integer i,dims(3),chunk(3),
+     &        g_R(3),ispin,a,b
       double precision pos(3*natoms),val
       integer iatom,ix,iy,ixy,ind
       double precision val_oo,val_ov
@@ -1396,14 +1512,19 @@ c
                               ! OV, due to occupied-viritual MOs
       integer g_d1_ov_Coul,g_d1_ov_Exch,g_d1_ov_noJK,
      &        g_d1_ov_1e,g_d1_ov_eSji
-      integer ga_para1
+      integer ga_para1,g_t1,g_t2,g_t3
       integer debug_get_par
       double precision par(*)
       logical oskel
+      integer ind_tmn(2,3)
+      data ind_tmn / 2, 3,  ! tmn=123
+     &               3, 1,  ! tmn=231
+     &               1, 2 / ! tmn=312
+      external get_chi_centers_ga
       double precision ppm
       data ppm     /26.62566914d+00/ 
 
-      debug_get_par=1
+      debug_get_par=0
 
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
@@ -1481,6 +1602,27 @@ c ----- store in par_arr ------- END
         enddo ! end-loop-iy
        enddo ! end-loop-iatom
       else ! Nonrel calc
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &     'gd2p1: g_t1',0,0,g_t1))
+     $ call errquit('get_par: g_t1',0,GA_ERR)
+       call ga_zero(g_t1)
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &     'gd2p1: g_t2',0,0,g_t2))
+     $ call errquit('get_par: g_t2',0,GA_ERR)
+       call ga_zero(g_t2)
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &     'gd2p1: g_t3',0,0,g_t3))
+     $ call errquit('get_par: g_t3',0,GA_ERR)
+       call ga_zero(g_t3)
+c -------- get R_nu ------------- START
+       dims(1) =nbf
+       chunk(1)=nbf 
+       do i=1,3
+        if (.not. nga_create(mt_dbl,1,dims,"Array R",chunk,g_R(i)))
+     $    call errquit('get_par: g_R', 0,GA_ERR)
+       enddo
+       call get_chi_centers_ga(g_R,basis,nbf,geom,natoms)
+c -------- get R_nu ------------- END
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> nonrel'
 c ----- Calculate g_h01 --------- START
@@ -1526,13 +1668,34 @@ c ----- Calculate g_h01 --------- END
           val_ov = nga_ddot_patch(g_d1_ov ,'n',alo,ahi,
      &                               g_h01,'n',blo,bhi)        
           cbuf=9*(iatom-1)+3*(ix-1)+iy ! transpose
+c ----- Calc. Fukui term ------- START
+         a=ind_tmn(1,ix)
+         b=ind_tmn(2,ix)
+         call nga_copy_patch('n',g_h01,blo,bhi,
+     &                           g_t1 ,dlo,dhi)
+         call ga_scale_cols(g_t1,g_R(b))          ! R_{nu,b} g_N
+         call ga_scale_rows(g_t1,g_R(a))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t1
+         call nga_copy_patch('n',g_h01,blo,bhi,
+     &                           g_t2 ,dlo,dhi)
+         call ga_scale_cols(g_t2,g_R(a))          ! R_{nu,b} g_N
+         call ga_scale_rows(g_t2,g_R(b))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t2
+         call ga_add(1.0d0,g_t1,-1.0d0,g_t2,g_t3) ! g_t3=-4c^2 <chi_mu|i/(2c)(R_mu x R_nu)_k h_t^{01}|chi_nu>
+         val=0.0d0
+         do ispin=1,npol
+          val=val+nga_ddot_patch(g_dens(ispin),'n',dlo,dhi,
+     &                                    g_t3,'n',dlo,dhi)         
+         enddo ! end-loop-ispin
+         Fukui(ix,iy,iatom)=val*ppm
+         write(*,1) ix,iy,iatom,Fukui(ix,iy,iatom)
+ 1       format('Fukui(',i4,',',i4,',',i4,')=',f15.8)
+c ----- Calc. Fukui term ------- END
 c ----- store in par_arr ------- START
-          par_arr(ind+1)=0.0d0
+          par_arr(ind+1)=Fukui(ix,iy,iatom)
           par_arr(ind+2)=val_oo*ppm
           par_arr(ind+3)=val_ov*ppm
-          par_arr(ind+4)=val_oo*ppm+
+          par_arr(ind+4)=par_arr(ind+1)+
+     &                   val_oo*ppm+
      &                   val_ov*ppm
-          goto 143
           if (debug_get_par.eq.1) then
                if (ga_nodeid().eq.0) then
                 write(*,12) iatom,iy,ix,
@@ -1540,26 +1703,37 @@ c ----- store in par_arr ------- START
      &                      ahi(1),ahi(2),ahi(3),
      &                      blo(1),blo(2),blo(3),
      &                      bhi(1),bhi(2),bhi(3),
-     &                      par_arr(ind+2),
-     &                      par_arr(ind+3),
+     &                      par_arr(ind+1),
+     &                      par_arr(ind+2),par_arr(ind+3),
      &                      par_arr(ind+4)
  12             format('(iatom,iy,ix)=(',i3,',',i3,',',i3,') ',
      &                  'alo=(',i3,',',i3,',',i3,') ',
      &                  'ahi=(',i3,',',i3,',',i3,') ',
      &                  'blo=(',i3,',',i3,',',i3,') ',
      &                  'bhi=(',i3,',',i3,',',i3,') ',
-     &                  'para=(',f15.8,',',f15.8,',',f15.8,')')
+     &                  'para=(',f15.8,',',f15.8,',',
+     &                   f15.8,',',f15.8,')')
                endif
           endif
- 143    continue
 c ----- store in par_arr ------- END  
-          par(cbuf)=val_oo*ppm+val_ov*ppm 
+          par(cbuf)=par_arr(ind+1)+
+     &              val_oo*ppm+val_ov*ppm
           ind=ind+4
          enddo ! end-loop-ix
         enddo ! end-loop-iy
        enddo ! end-loop-iatom
         if (.not.ga_destroy(g_h01)) call 
      &    errquit('get_par: ga_destroy failed g_h01',0,GA_ERR)
+        if (.not.ga_destroy(g_t1)) call 
+     &    errquit('get_par: ga_destroy failed g_t1',0,GA_ERR)
+        if (.not.ga_destroy(g_t2)) call 
+     &    errquit('get_par: ga_destroy failed g_t2',0,GA_ERR)
+        if (.not.ga_destroy(g_t3)) call 
+     &    errquit('get_par: ga_destroy failed g_t3',0,GA_ERR)
+        do i=1,3
+          if (.not.ga_destroy(g_R(i))) call 
+     &    errquit('get_par: ga_destroy failed g_R',0,GA_ERR)
+        enddo
       endif
 c -------- symmetrize total par ------------ START
        do iatom = 1, natoms
@@ -1585,18 +1759,18 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      &                   g_dens, ! IN  : e-density
      &                   nbf,    ! IN  : nr. basis functions
      &                   npol,   ! IN  : nr. of polarizations
+     &                   Fukui,  ! IN  : Fukui term
      &                   pos,    ! IN  : Nuclear positions (x,y,z)
      &                   natoms, ! IN  : nr. atoms
      &                   rtdb)
 
 c Purpose : Assemble NMR Chemical Shielding: diamagnetic tensor
 c Author  : Fredy Aquino
-c Date    : 03-03-11
+c Date    : 03-03-11, 11-23-12 (adding Fukui term)
 c Note.- Adaptation of hnd_giaox.F to hold 
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
       implicit none
-c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1607,8 +1781,7 @@ c
 #include "prop.fh"
 #include "bgj.fh"
 #include "stdio.fh"
-#include "zora.fh"
-c
+#include "zora.fh"  ! for num NMRCS-Z4
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer rtdb
@@ -1616,9 +1789,11 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer g_dens(3) ! IN: electronic density
       integer ga_dia
       integer alo(3), ahi(3), blo(3), bhi(3)
-      integer ld(2),cbuf 
+      integer ld(2),cbuf,
+     &        ix1,iy1
       integer nbf,natoms,npol,ispin
-      double precision pos(3*natoms)
+      double precision ac,pos(3*natoms)
+      double precision Fukui(3,3,natoms) ! used in analyt shield
       integer iatom,ix,iy,ixy,ind1,ind2
       integer g_h11 ! local ga
       double precision dia(*)
@@ -1663,17 +1838,35 @@ c ---- STORE: ga_dia --> dbl_mb(k_dia)
        ahi(2) = nbf
        ixy = 0
        do iatom = 1, natoms
+         ix1=1
+         iy1=1
          do ix = 1, 9
+            if (ix1.gt.3) then
+             ix1=1
+             iy1=iy1+1
+            endif
             ixy = ixy + 1
             alo(3) = ixy
             ahi(3) = ixy
             do ispin=1,npol
              val=nga_ddot_patch(g_dens(ispin),'n',blo,bhi,
      &                                  g_h11,'n',alo,ahi)
-             dia(ixy)=dia(ixy) + val * ppm 
+             dia(ixy)=dia(ixy) + val * ppm            
             enddo ! end-loop-ispin
-         enddo
-       enddo
+            dia(ixy)=dia(ixy)-Fukui(ix1,iy1,iatom)
+c Note.- Printing lines below does not affect output
+c        It is ok to print it out but I will comment to
+c        reduce printouts.
+
+             if (ga_nodeid().eq.0) then
+              write(*,1) ix1,iy1,iatom,Fukui(ix1,iy1,iatom)
+  1           format('Fukui(ix1,iy1,iatom)(',i4,',',i4,',',i4,')=',
+     &               f15.8)
+             endif
+
+            ix1=ix1+1
+         enddo ! end-loop-ix
+       enddo ! end-loop-atoms
 c       
 c     s(dia)xy  = s(dia)xy + Sum(n,l) D0(n,l) * H11(dia)xy(n,l)
 
@@ -1686,15 +1879,35 @@ c     s(dia)xy  = s(dia)xy + Sum(n,l) D0(n,l) * H11(dia)xy(n,l)
        ahi(2) = nbf
        ixy=0
        do iatom = 1, natoms
+         ix1=1
+         iy1=1
          do ix = 1, 9
+            if (ix1.gt.3) then
+             ix1=1
+             iy1=iy1+1
+            endif
             ixy = ixy + 1
             alo(3) = ixy
             ahi(3) = ixy
+            ac=0.0d0
             do ispin=1,npol
              val=nga_ddot_patch(g_dens(ispin),'n',blo,bhi,
      &                                  g_h11,'n',alo,ahi)
-             dia(ixy)=dia(ixy) + val * ppm 
+             ac=ac + val * ppm 
             enddo ! end-loop-ispin
+            dia(ixy)=dia(ixy)+ac 
+c
+c WARNING: If I try to print ac, uncommenting lines below
+c          the dia(ixy) values are affected somehow. (FA-11-24-12)
+c          This is a weird problem, otherwise everything comes
+c          fine.
+c             if (ga_nodeid().eq.0) then
+c              write(*,2) ix1,iy1,iatom,ac
+c 2            format('h11-dia(',i4,',',i4,',',i4,')=',
+c     &               f15.8)
+c             endif
+
+            ix1=ix1+1
          enddo
        enddo
        if (.not.ga_destroy(g_h11)) call 
@@ -1728,7 +1941,6 @@ c -------------- for shieldings NMLO analysis ----------------- START
      &             nmo)     ! in: nr. MO
 
       implicit none
-c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "global.fh" 
@@ -1740,7 +1952,6 @@ c
 #include "cosmo.fh"
 #include "msgids.fh" 
 #include "zora.fh"   
-c
 c FA: Revised on 06-22-11
 c ------Main outputs -------- START
       integer g_munu_rot,         ! hyp-FCSD  dia  part

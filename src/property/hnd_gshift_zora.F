@@ -89,6 +89,7 @@ c      switch_skip_cphf=.true. ! For skipping cphf or cpks
 c      switch_gshift_analysis=.true.  ! For analysis of gshift tensor
 
       debug_gshift=0 ! =1 for debugging print outs of matrices
+
       npol=2 ! gshift works ONLY for npol=2
       if (ga_nodeid().eq.0) then
         write(LuOut,*)
@@ -259,8 +260,8 @@ c      coeffpol=4.0d0/(noc(1)-noc(2))
      &        '-> closed shell system not allowed!')
        stop
       endif 
-c     if (ga_nodeid().eq.0) 
-c    &  write(*,*) 'coeffpol=',coeffpol
+      if (ga_nodeid().eq.0) 
+     &  write(*,*) 'coeffpol=',coeffpol
 
 c ------ Store nopen in rtdb so that CPHF routine is happy ---- START
           if (.not. rtdb_put(rtdb, 'scf:nopen', 
@@ -286,19 +287,19 @@ c     Create CPHF array of proper dimension : (nocc*nvirt,3)
 
 c ----- TEST: for testing Coulomb and Exchange contrib --- START
       if (switch_gshift_analysis) then
-       if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs_Coul))
+       if(.not.ga_create(MT_DBL,ntot,3,'rhs_Coul',-1,-1,g_rhs_Coul))
      &   call errquit('hnd_gshift: ga_create failed g_rhsJ',0,GA_ERR)
        call ga_zero(g_rhs_Coul)
-       if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs_Exch))
+       if(.not.ga_create(MT_DBL,ntot,3,'rhs_Exch',-1,-1,g_rhs_Exch))
      &   call errquit('hnd_gshift: ga_create failed g_rhsK',0,GA_ERR)
        call ga_zero(g_rhs_Exch)
-       if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs_noJK))
+       if(.not.ga_create(MT_DBL,ntot,3,'rhs_noJK',-1,-1,g_rhs_noJK))
      &   call errquit('hnd_gshift: ga_create failed g_rhsnJK',0,GA_ERR)
        call ga_zero(g_rhs_noJK)
-       if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs_eSji))
+       if(.not.ga_create(MT_DBL,ntot,3,'rhs_eSji',-1,-1,g_rhs_eSji))
      &   call errquit('hnd_gshift: ga_create failed g_rhseSji',0,GA_ERR)
        call ga_zero(g_rhs_eSji)
-       if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs_1e))
+       if(.not.ga_create(MT_DBL,ntot,3,'rhs_1e',-1,-1,g_rhs_1e))
      &   call errquit('hnd_gshift: ga_create failed g_rhs1e',0,GA_ERR)
        call ga_zero(g_rhs_1e)
       endif
@@ -492,11 +493,11 @@ c     Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in AO basis
       call ga_zero(g_fock)
 c -- TEST: create g_fock_Coul,g_fock_Exch ----------- START
       if (switch_gshift_analysis) then
-       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix g_fock_Coul',
      &    alo,g_fock_Coul)) call 
      &    errquit('hnd_gshift: nga_create failed g_fockJ',0,GA_ERR)
        call ga_zero(g_fock_Coul)
-       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix g_fock_Exch',
      &    alo,g_fock_Exch)) call 
      &    errquit('hnd_gshift: nga_create failed g_fockX',0,GA_ERR)
        call ga_zero(g_fock_Exch)
@@ -594,11 +595,11 @@ c ------ definitions for g_rhs -------- END
         ahi(3) = shift+3
         if      (npol.eq.1) then
          call nga_scale_patch(g_rhs_noJK,blo,bhi,-4.0d0)
-         call nga_scale_patch(g_rhs_1e,blo,bhi,-4.0d0)
+         call nga_scale_patch(g_rhs_1e  ,blo,bhi,-4.0d0)
          call nga_scale_patch(g_rhs_eSji,blo,bhi,-4.0d0)
         else if (npol.eq.2) then
          call nga_scale_patch(g_rhs_noJK,blo,bhi,-2.0d0)
-         call nga_scale_patch(g_rhs_1e,blo,bhi,-2.0d0)
+         call nga_scale_patch(g_rhs_1e  ,blo,bhi,-2.0d0)
          call nga_scale_patch(g_rhs_eSji,blo,bhi,-2.0d0)
         endif
        enddo ! end-loop-ispin
@@ -612,9 +613,15 @@ c ------- Store g_rhs without Coulomb and Exchange ---- END
        call add_fock1(g_rhs_Coul, ! out: accumulated rhs expression
      &                g_fock_Coul,! in 
      &                nmo,npol,nocc,nvirt) 
+        if (.not.ga_destroy(g_fock_Coul)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_fock_Coul',
+     &           0,GA_ERR)
        call add_fock1(g_rhs_Exch, ! out: accumulated rhs expression
      &                g_fock_Exch,! in 
      &                nmo,npol,nocc,nvirt) 
+        if (.not.ga_destroy(g_fock_Exch)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_fock_Exch',
+     &           0,GA_ERR)
       endif
       if (debug_gshift.eq.1) then
        if (ga_nodeid().eq.0) then
@@ -641,13 +648,19 @@ c ----> SKIPPING CPHF ------------------ START
      &                    g_rhs_1e,
      &                    g_rhs_eSji,
      &                    dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                    nocc,nvirt,nmo,nbf,npol)
+     &                    nocc,
+     &                    nvirt,
+     &                    nbf,  ! FA-04-28-12: replacing nmo by nbf
+     &                    npol)
        else
          if (ga_nodeid().eq.0)
      &     write(*,*) 'WARNING : Using skip_cphf ...'
            call skip_cphf(g_rhs,          ! IN/OUT
      &                    dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                    nocc,nvirt,nmo,nbf,npol)
+     &                    nocc,
+     &                    nvirt,
+     &                    nbf,  ! FA-04-28-12: replacing nmo by nbf
+     &                    npol)
        endif
       endif ! END-skip-cphf
 c ----> SKIPPING CPHF ------------------ END
@@ -816,6 +829,21 @@ c      endif
      &          lbl_nlmogshift, ! in: for g-shift NLMO analysis
      &          lbl_nlmoshield, ! in: for shield  NLMO analysis
      &          rtdb) 
+        if (.not.ga_destroy(g_rhs_Coul)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_rhs_Coul',
+     &           0,GA_ERR)
+        if (.not.ga_destroy(g_rhs_Exch)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_rhs_Exch',
+     &           0,GA_ERR)
+        if (.not.ga_destroy(g_rhs_noJK)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_rhs_noJK',
+     &           0,GA_ERR)
+        if (.not.ga_destroy(g_rhs_1e)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_rhs_1e',
+     &           0,GA_ERR)
+        if (.not.ga_destroy(g_rhs_eSji)) call 
+     &  errquit('hnd_gshift_zora: ga_destroy failed g_rhs_eSji',
+     &           0,GA_ERR)
        else
 c      call get_P10( g_d1, ! out: Perturbed density matrix
 c     &             g_rhs, ! in: accumulated rhs expression
@@ -1216,8 +1244,7 @@ c
      &                     eval,  ! IN: energy eigenvalues
      &                     nocc,  ! IN: nr. occupied MOs
      &                     nvirt, ! IN: nr. virtual  MOs
-     &                     nmo,   ! IN: nr. MOs
-     &                     nbf,   ! number of basis functions
+     &                     nbf,   ! IN: nr. basis functions
      &                     npol)  ! IN: nr. polarizations  
 c     Purpose : Avoid usage of cphf() routine in
 c               the case of BP functionals.
@@ -1227,6 +1254,7 @@ c               of density matrix (P^{10})
 c               done by routine get_P10_1()
 c     Author : Fredy W. Aquino
 c     Date   : 02-22-11
+c     Update-04-28-12: Replacing nmo by nbf
 c -------- Calculation g_rhs/(ej-ei) ----- START
       implicit none
 #include "errquit.fh"
@@ -1237,8 +1265,8 @@ c -------- Calculation g_rhs/(ej-ei) ----- START
       integer g_rhs
       integer disp,disp1,iocc,ivirt,ind
       integer ispin,alo(3),ahi(3) 
-      integer nmo,npol,nocc(2),nvirt(2),nbf
-      double precision eval(nmo*npol),tosclji,coeff
+      integer nbf,npol,nocc(2),nvirt(2)
+      double precision eval(nbf*npol),tosclji,coeff
 
       if (npol.eq.1) then
         coeff=0.25d0
@@ -1256,13 +1284,13 @@ c     &  write(*,*) '---- BEF scaling g_rhs -------- END'
 
        if (ga_nodeid().eq.0) then
         write(*,97) npol,nocc(1),nocc(2),
-     &              nvirt(1),nvirt(2),nmo    
- 97     format('(npol,nocc,nvirt,nmo)=[',i5,',(',
+     &              nvirt(1),nvirt(2),nbf    
+ 97     format('(npol,nocc,nvirt,nbf)=[',i5,',(',
      &          i8,',',i8,'),(',i8,',',i8,'),',
      &          i8,']')               
        endif
        do ispin=1,npol 
-         disp=nbf*(ispin-1)
+         disp=nbf*(ispin-1) 
          disp1=nocc(1)*nvirt(1)*(ispin-1)
          do ivirt = 1, nvirt(ispin)
           do iocc = 1, nocc(ispin)
@@ -1303,8 +1331,7 @@ c ------ For testing Coulomb,Exchange contrib ----- START
      &                     eval,  ! IN: energy eigenvalues
      &                     nocc,  ! IN: nr. occupied MOs
      &                     nvirt, ! IN: nr. virtual  MOs
-     &                     nmo,   ! IN: nr. MOs
-     &                     nbf,   ! number of basis functions
+     &                     nbf,   ! IN: nr. basis functions
      &                     npol)  ! IN: nr. polarizations  
 c     Purpose : Avoid usage of cphf() routine in
 c               the case of BP functionals.
@@ -1325,8 +1352,8 @@ c -------- Calculation g_rhs/(ej-ei) ----- START
      &        g_rhs_1e,g_rhs_eSji
       integer disp,disp1,iocc,ivirt,ind
       integer ispin,alo(3),ahi(3) 
-      integer nmo,npol,nocc(2),nvirt(2),nbf
-      double precision eval(nmo*npol),tosclji,coeff
+      integer nbf,npol,nocc(2),nvirt(2)
+      double precision eval(nbf*npol),tosclji,coeff
       logical debug_skip
 
       debug_skip= .false. ! =1 for debugging 
@@ -1347,8 +1374,8 @@ c     &  write(*,*) '---- BEF scaling g_rhs -------- END'
 
        if (ga_nodeid().eq.0) then
         write(*,97) npol,nocc(1),nocc(2),
-     &              nvirt(1),nvirt(2),nmo    
- 97     format('(npol,nocc,nvirt,nmo)=[',i5,',(',
+     &              nvirt(1),nvirt(2),nbf    
+ 97     format('(npol,nocc,nvirt,nbf)=[',i5,',(',
      &          i8,',',i8,'),(',i8,',',i8,'),',
      &          i8,']')               
        endif
@@ -1456,7 +1483,7 @@ c ------------ creating ga arrays ---------- START
       do ispin=1,npol
         ntot=ntot+nocc(ispin)*nocc(ispin)
       enddo
-      if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs0))
+      if(.not.ga_create(MT_DBL,ntot,3,'rhs0',-1,-1,g_rhs0))
      &   call errquit('get_prelim_fock: ga_create failed g_rhs0',
      &                 0,GA_ERR)
       call ga_zero(g_rhs0)
@@ -1523,14 +1550,18 @@ c ------------ creating ga arrays ---------- END
 
       call giao_aotomo(g_s10,vectors,nocc,nvirt,npol,3,nbf)
       if (debug_prelim.eq.1) then
-       if (ga_nodeid().eq.0) 
-     &  write(*,*) ' ----------- g_d2------------ START'
         do ispin=1,npol
+          if (ga_nodeid().eq.0) 
+     &     write(*,*) '-------- MO vect(',ispin,')----START'
          call ga_print(vectors(ispin))
+          if (ga_nodeid().eq.0) 
+     &     write(*,*) '-------- MO vect(',ispin,')----END'
         enddo
+       if (ga_nodeid().eq.0) 
+     &  write(*,*) ' ----gprelim: ---- MO:g_s10 ---- START'
        call ga_print(g_s10)
        if (ga_nodeid().eq.0) 
-     &  write(*,*) ' ---gprelim: ---- MO:g_s10 ----END'
+     &  write(*,*) ' ----gprelim: ---- MO:g_s10 ---- END'
       endif
 
       do ispin=1,npol ! ++++++  START-loop-ispin
@@ -1548,17 +1579,18 @@ c ------------ creating ga arrays ---------- END
        disp=3*(ispin-1)
 c     COPY : g_s10 -> g_s10_1 ---------- START
        blo(1) = 1
-       bhi(1) = nbf ! nmo-fixing4lineardependency
+       bhi(1) = nmo
        blo(2) = 1
-       bhi(2) = nbf ! nmo-fixing4lineardependency
+       bhi(2) = nmo
        blo(3) = 1
        bhi(3) = 3
        alo(1) = 1
-       ahi(1) = nbf ! nmo-fixing4lineardependency
+       ahi(1) = nmo
        alo(2) = 1
-       ahi(2) = nbf ! nmo-fixing4lineardependency
+       ahi(2) = nmo
        alo(3) = disp+1
        ahi(3) = disp+3   
+       call ga_zero(g_s10_1) ! FA-04-28-12-added
        call nga_copy_patch('n',g_s10,alo,ahi,
      &                       g_s10_1,blo,bhi) 
 c     COPY : g_s10 -> g_s10_1 ---------- END    
@@ -1580,16 +1612,18 @@ c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues
        ahi(1) = nmo
        alo(3) = 1
        ahi(3) = 3
-       disp=nbf*(ispin-1)
-c
+       disp=nbf*(ispin-1)  ! FA-04-28-12-energy-fix
+
        if (debug_prelim.eq.1) then
+         write(*,*) 'get_prelim_fock: nmo=',nmo,
+     &              ' nbf=',nbf
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----START'
          call ga_print(g_s10_1)
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----END'    
        endif
-c
+
         do iocc = 1, nocc(ispin)
          alo(2) = iocc
          ahi(2) = iocc
@@ -1632,10 +1666,10 @@ c     alo(1) and ahi(1) the same as before
      &                           g_rhs,blo,bhi)
       if (debug_prelim.eq.1) then
         if (ga_nodeid().eq.0) 
-     &   write(*,*) ' ---gprelim: ---- g_rhs ----START'
+     &   write(*,*) ' ---gprelim: ---- g_rhs(',ispin,') ----START'
         call ga_print(g_rhs)
         if (ga_nodeid().eq.0) 
-     &   write(*,*) ' ---gprelim: ---- g_rhs ----END'    
+     &   write(*,*) ' ---gprelim: ---- g_rhs(',ispin,') ----END'    
       endif
 c
 c     Construct occ-occ part of the three U matrices
@@ -1650,6 +1684,13 @@ c     alo(2) and ahi(2) will stay as 1 and nclosed(1) for a while
        call nga_scale_patch(g_s10_1,alo,ahi,-0.5d0)
        call nga_copy_patch('n',g_s10_1,alo,ahi,
      &                             g_u,alo,ahi)
+      if (debug_prelim.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u(',ispin,') ----START'
+        call ga_print(g_u)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u(',ispin,') ----END'    
+      endif
 c
 c     We also need the occupied-occupied contribution of g_u contributing
 c     to the first order density matrix. As this block does not change 
@@ -1682,8 +1723,15 @@ c     Create "perturbed density matrix" for closed-closed g_u block
      &                    vectors(ispin),blo,bhi,  
      &                               g_u,alo,ahi,
      &                           g_s10_1,dlo,dhi)  
-        ahi(2) = nbf
+      if (debug_prelim.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u-1(',ispin,',',xyz,') ----START'
+        call ga_print(g_s10_1)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u-1(',ispin,',',xyz,') ----END'    
+      endif
         ahi(1) = nocc(ispin)
+        ahi(2) = nbf
         bhi(2) = nocc(ispin)
 c     Minus sign as we subtract it from the RHS as we do not include 
 c     it in the LHS
@@ -1694,6 +1742,13 @@ c     it in the LHS
      &                        vectors(ispin),blo,bhi,
      &                               g_s10_1,alo,ahi,
      &                                  g_d1,clo,chi)  
+      if (debug_prelim.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_d1(',ispin,',',xyz,') ----START'
+        call ga_print(g_d1)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_d1(',ispin,',',xyz,') ----END'    
+      endif
        enddo ! end-loop-xyz
 c ------------ back-up g_u --> g_rhs0 ---- START
        alo(1) = 1
@@ -1868,8 +1923,8 @@ c 18     format('------g_fck(',i3,')--------- END')
        chi(3) = nocc(ispin)
        do xyz = 1,3 ! = x,y,z
          blo(1) = nocc(ispin)+1
-         blo(2) = 1
          bhi(1) = nmo
+         blo(2) = 1
          bhi(2) = nbf
          alo(3) = xyz
          ahi(3) = xyz
@@ -2030,8 +2085,8 @@ c ----------- Create scratch ga-arrays ------- START
 
       if (.not.(do_zora)) then ! do: HF or DFT (norel calc.)
 
-        if (ga_nodeid().eq.0)
-     &   write(*,*) 'enter-NonRel-addH10'
+c       if (ga_nodeid().eq.0)
+c    &   write(*,*) 'enter-NonRel-addH10'
 
         call int_giao_1ega(basis,basis,g_s10_1,
      &                     'l10' ,pos(1),natoms,oskel)
@@ -2317,8 +2372,8 @@ c     D1 = 2[(C1*C0+) - (C0*C1+)]
        clo(2) = 1
        chi(2) = nbf
        dlo(1) = 1
-       dlo(2) = 1
        dhi(1) = nbf
+       dlo(2) = 1
        dhi(2) = nocc(ispin)
 
 c --------- zora scaling of MO vectors(1) ----- START
@@ -2329,6 +2384,14 @@ c Note.- g_CiFull is defined in dft_zora_scale() (source dft_zora_utils.F)
        call ga_copy(vectors(ispin),vectors_scl(ispin))
        if (do_zora .and. .not.(do_NonRel) .and.
      &     .not.(not_zora_scale)) then
+
+c       if (ga_nodeid().eq.0) write(*,*) 'FA-enter-scaling'
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '---g_CiFull(',ispin,')------ START'
+c       call ga_print(g_CiFull(ispin))
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '---g_CiFull(',ispin,')------ END'
+
         call ga_scale_cols(vectors_scl(ispin),g_CiFull(ispin))
        endif
 c --------- zora scaling of MO vectors(1) ----- END
@@ -3895,6 +3958,14 @@ c Note.- g_CiFull is defined in dft_zora_scale() (source dft_zora_utils.F)
        call ga_copy(vectors(ispin),vectors_scl(ispin))
        if (do_zora .and. .not.(do_NonRel) .and.
      &     .not.(not_zora_scale)) then
+
+c       if (ga_nodeid().eq.0) write(*,*) 'FA-enter-scaling'
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '---g_CiFull(',ispin,')------ START'
+c       call ga_print(g_CiFull(ispin))
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '---g_CiFull(',ispin,')------ END'
+
         call ga_scale_cols(vectors_scl(ispin),g_CiFull(ispin))
        endif
 c --------- zora scaling of MO vectors(1) ----- END
@@ -4351,7 +4422,8 @@ c Debugging routines ----------------------------------------START
       integer basis ! basis handle
       integer vectors(npol)
       logical oskel
-      external int_giao_1ega,giao_aotomo
+      external int_giao_1ega,
+     &         giao_aotomo
       integer debug_prelim
       integer ndens
 
@@ -4364,7 +4436,8 @@ c ------------ creating ga arrays ---------- START
         ntot=ntot+nocc(ispin)*nocc(ispin)
       enddo
 
-      if(.not.ga_create(MT_DBL,ntot,3,'RHS',-1,-1,g_rhs0))
+      if(.not.ga_create(MT_DBL,ntot,3,'prelim_fock_debug g_rhs0',
+     &                  -1,-1,g_rhs0))
      &   call errquit('get_prelim_fock: ga_create failed g_rhs0',
      &                 0,GA_ERR)
       call ga_zero(g_rhs0)
@@ -4374,7 +4447,7 @@ c ------------ creating ga arrays ---------- START
       chi(1) = 1  
       chi(2) = -1 
       chi(3) = -1
-      if (.not.nga_create(MT_DBL,3,clo,'D10 matrix',
+      if (.not.nga_create(MT_DBL,3,clo,'prelim_fock_debug g_d1',
      &                    chi,g_d1)) 
      &  call errquit('gprelim_fock: nga_create failed g_d1',
      &                0,GA_ERR)
@@ -4397,14 +4470,10 @@ c     Get S10 in GA and transform to MO set (virt,occ)
      &                    alo,g_s10)) 
      &  call errquit('gprelim_fock: nga_create failed g_s10',
      &               0,GA_ERR)
-       call ga_zero(g_s10)
-
 c ------------ creating ga arrays ---------- END
-c       call int_giao_1ega(basis,basis,g_s10_1,'s10',
-c     &                    pos(1),natoms,oskel)    
+       call ga_zero(g_s10)
        call int_giao_1ega(basis,basis,g_s10_1,'s10',
      &                    pos,natoms,oskel)   
-
       if (debug_prelim.eq.1) then
        if (ga_nodeid().eq.0) 
      &  write(*,*) ' ---gprelim: ---- g_s10_1 ----START'
@@ -4438,7 +4507,7 @@ c     &                    pos(1),natoms,oskel)
        if (ga_nodeid().eq.0) 
      &  write(*,*) ' ---gprelim: ---- g_s10 ----END'
       endif
-
+c Note.- Output g_s10 is (nmo,nmo) not (nbf,nbf) matrix
       call giao_aotomo(g_s10,vectors,nocc,nvirt,npol,3,nbf)
 
       if (debug_prelim.eq.1) then
@@ -4471,17 +4540,18 @@ c     &                    pos(1),natoms,oskel)
        disp=3*(ispin-1)
 c     COPY : g_s10 -> g_s10_1 ---------- START
        blo(1) = 1
-       bhi(1) = nbf ! nmo-fixing4lineardependency
+       bhi(1) = nmo
        blo(2) = 1
-       bhi(2) = nbf ! nmo-fixing4lineardependency
+       bhi(2) = nmo
        blo(3) = 1
        bhi(3) = 3
        alo(1) = 1
-       ahi(1) = nbf ! nmo-fixing4lineardependency
+       ahi(1) = nmo
        alo(2) = 1
-       ahi(2) = nbf ! nmo-fixing4lineardependency
+       ahi(2) = nmo
        alo(3) = disp+1
-       ahi(3) = disp+3   
+       ahi(3) = disp+3  
+       call ga_zero(g_s10_1) ! FA-04-28-12-added
        call nga_copy_patch('n',g_s10,alo,ahi,
      &                       g_s10_1,blo,bhi) 
 c     COPY : g_s10 -> g_s10_1 ---------- END    
@@ -4503,9 +4573,8 @@ c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues
        ahi(1) = nmo
        alo(3) = 1
        ahi(3) = 3
-c
-       disp=nbf*(ispin-1)
-c
+       disp=nbf*(ispin-1)  ! FA-04-28-12-energy-fix
+
        if (debug_prelim.eq.1) then
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----START'
@@ -4513,7 +4582,7 @@ c
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----END'    
        endif
-c
+
         do iocc = 1, nocc(ispin)
          alo(2) = iocc
          ahi(2) = iocc
@@ -4521,8 +4590,8 @@ c
 
           if (debug_prelim.eq.1) then
            if (ga_nodeid().eq.0) then
-            write(*,1) iocc,toscl
- 1          format('E2scl(',i5,')=',f15.8) 
+            write(*,1) ispin,iocc,toscl
+ 1          format('E2scl(',i4,',',i5,')=',f15.8) 
            endif
           endif
 
@@ -4530,10 +4599,10 @@ c
         enddo ! end-loop-iocc
       if (debug_prelim.eq.1) then
         if (ga_nodeid().eq.0) 
-     &   write(*,*) ' ---gprelim: ---- AFT-scl:g_s10_1 ----START'
+     &   write(*,*) ' ---gprelim: - AFT-scl:g_s10_1(',ispin,') --START'
         call ga_print(g_s10_1)
         if (ga_nodeid().eq.0) 
-     &   write(*,*) ' ---gprelim: ---- AFT-scl:g_s10_1 ----END'    
+     &   write(*,*) ' ---gprelim: - AFT-scl:g_s10_1(',ispin,') --END'    
       endif
 
 c     Copy to g_rhs 
@@ -4560,10 +4629,10 @@ c ----- output: g_rhs_eSji --- START
 c ----- output: g_rhs_eSji --- END
       if (debug_prelim.eq.1) then
         if (ga_nodeid().eq.0) 
-     &   write(*,*) ' ---gprelim: ---- g_rhs ----START'
+     &   write(*,*) ' ---gprelim: ---- g_rhs(',ispin,') ----START'
         call ga_print(g_rhs)
         if (ga_nodeid().eq.0) 
-     &   write(*,*) ' ---gprelim: ---- g_rhs ----END'    
+     &   write(*,*) ' ---gprelim: ---- g_rhs(',ispin,') ----END'    
       endif
 c
 c     Construct occ-occ part of the three U matrices
@@ -4578,6 +4647,20 @@ c     alo(2) and ahi(2) will stay as 1 and nclosed(1) for a while
        call nga_scale_patch(g_s10_1,alo,ahi,-0.5d0)
        call nga_copy_patch('n',g_s10_1,alo,ahi,
      &                             g_u,alo,ahi)
+c         write(*,13) ispin,xyz,nmo,nbf,
+c     &              alo(1),ahi(1),alo(2),ahi(2),
+c     &              alo(3),ahi(3)
+c 13      format('prelim-x: (ispin,xyz,nmo,nbf)=(',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'alo-ahi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,')')
+      if (debug_prelim.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u(',ispin,') ----START'
+        call ga_print(g_u)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u(',ispin,') ----END'    
+      endif
 c
 c     We also need the occupied-occupied contribution of g_u contributing
 c     to the first order density matrix. As this block does not change 
@@ -4587,15 +4670,15 @@ c     RHS. We will reuse g_s10 as scratch space.
         alo(1) = 1
         alo(2) = 1
         blo(1) = 1
-        blo(2) = 1
         bhi(1) = nbf
+        blo(2) = 1
         clo(2) = 1
-        clo(3) = 1
         chi(2) = nbf
+        clo(3) = 1
         chi(3) = nbf
         dlo(1) = 1
-        dlo(2) = 1
         dhi(1) = nbf
+        dlo(2) = 1
         dhi(2) = nocc(ispin)
 c     Create "perturbed density matrix" for closed-closed g_u block
        do xyz = 1,3 ! = x,y,z
@@ -4606,22 +4689,71 @@ c     Create "perturbed density matrix" for closed-closed g_u block
         ahi(1) = nmo
         ahi(2) = nocc(ispin)
         bhi(2) = nmo 
+
+c         write(*,3) ispin,xyz,nmo,nbf,
+c     &              blo(1),bhi(1),blo(2),bhi(2),
+c     &              blo(3),bhi(3),
+c     &              alo(1),ahi(1),alo(2),ahi(2),
+c     &              alo(3),ahi(3),
+c     &              dlo(1),dhi(1),dlo(2),dhi(2),
+c     &              dlo(3),dhi(3)
+c 3      format('prelim-1: (ispin,xyz,nmo,nbf)=(',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'blo-bhi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'alo-ahi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'dlo-dhi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,')')
+
         call nga_matmul_patch('n','n',1.0d0,0.0d0,
      &                    vectors(ispin),blo,bhi,  
      &                               g_u,alo,ahi,
      &                           g_s10_1,dlo,dhi)  
-        ahi(2) = nbf
+      if (debug_prelim.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u-1(',ispin,',',xyz,') ----START'
+        call ga_print(g_s10_1)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_u-1(',ispin,',',xyz,') ----END'    
+      endif
         ahi(1) = nocc(ispin)
+        ahi(2) = nbf
         bhi(2) = nocc(ispin)
 c     Minus sign as we subtract it from the RHS as we do not include 
 c     it in the LHS
         disp=3*(ispin-1)
         clo(1) = disp+xyz
         chi(1) = disp+xyz
+
+c         write(*,4) ispin,xyz,nmo,nbf,
+c     &              blo(1),bhi(1),blo(2),bhi(2),
+c     &              blo(3),bhi(3),
+c     &              alo(1),ahi(1),alo(2),ahi(2),
+c     &              alo(3),ahi(3),
+c     &              clo(1),chi(1),clo(2),chi(2),
+c     &              clo(3),chi(3)
+c 4      format('prelim-2: (ispin,xyz,nmo,nbf)=(',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'blo-bhi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'alo-ahi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,') ',
+c     &          'clo-chi=(',i3,',',i3,',',
+c     &          i3,',',i3,',',i3,',',i3,')')
+
+
         call nga_matmul_patch('n','t',-1.0d0,0.0d0,
      &                        vectors(ispin),blo,bhi,
      &                               g_s10_1,alo,ahi,
      &                                  g_d1,clo,chi)  
+      if (debug_prelim.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_d1(',ispin,',',xyz,') ----START'
+        call ga_print(g_d1)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) ' ---gprelim: -- g_d1(',ispin,',',xyz,') ----END'    
+      endif
        enddo ! end-loop-xyz
 c ------------ back-up g_u --> g_rhs0 ---- START
        alo(1) = 1
@@ -4637,8 +4769,8 @@ c ------------ back-up g_u --> g_rhs0 ---- START
        bhi(2) = 3
        call nga_copy_patch('n',g_u   ,alo,ahi,
      &                         g_rhs0,blo,bhi) ! copy to g_rhs0
-c ------------ back-up g_u --> g_rhs0 ---- END
-c ----- Remove scratch ga arrays ------
+c ---- back-up g_u --> g_rhs0 ---- END
+c ---- Remove scratch ga arrays ------
        if (.not.ga_destroy(g_u)) call 
      &     errquit('gprelim_fock: ga_destroy failed g_u',0,GA_ERR)
       enddo ! end-loop-ispin
@@ -4651,7 +4783,7 @@ c -------- Creating g_d2 ---------------START
       chi(1) =  1  
       chi(2) = -1 
       chi(3) = -1
-      if (.not.nga_create(MT_DBL,3,clo,'D10 matrix',
+      if (.not.nga_create(MT_DBL,3,clo,'prelim_fock_debug g_d2',
      &                    chi,g_d2)) 
      &  call errquit('gprelim_fock: nga_create failed g_d2',
      &                0,GA_ERR)
@@ -4743,7 +4875,8 @@ c ========================================
       logical oskel
       integer NoKinetic
       common /skipKinetic/NoKinetic ! goes to int_giao_1ega()
-      external int_giao_1ega,giao_aotomo
+      external int_giao_1ega,
+     &         giao_aotomo
 c     bq charges
       integer nbq,nextbq,ncosbq,
      &        l_xyz,k_xyz ! dummy variables
@@ -4827,6 +4960,7 @@ c     Copy: g_s10_1 --> g_s10
      &                           g_s10,alo,ahi) 
       enddo ! end-loop-ispin
       call giao_aotomo(g_s10,vectors,nocc,nvirt,npol,3,nbf)
+
       do ispin=1,npol
        shift=3*(ispin-1)
        alo(1) = nocc(ispin)+1
@@ -5248,21 +5382,24 @@ c                                  = P^(1,0)_A -  P^(1,0)_B
        ahi(1) = nbf
        ahi(2) = nbf
        ahi(3) = 3
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1_oo)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_d1_oo',
+     &                     alo,g_d1_oo)) call 
      &     errquit('g_d1_oo: nga_create failed g_d1_oo',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_p1_oo)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_p1_oo',
+     &                     alo,g_p1_oo)) call 
      &     errquit('g_p1_oo: nga_create failed g_p1_oo',0,GA_ERR)
        call ga_zero(g_p1_oo)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1_ov)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_d1_ov',
+     &                     alo,g_d1_ov)) call 
      &     errquit('g_d1_ov: nga_create failed g_d1_ov',0,GA_ERR)
 
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_d1_ov_Coul',
      &     alo,g_d1_ov_Coul)) call 
      &     errquit('g_d1_ovJ: nga_create failed g_d1_ovJ',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_d1_ovJ',
      &     alo,g_d1_ov_Exch)) call 
      &     errquit('g_d1_ovK: nga_create failed g_d1_ovK',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_d1_ovnoJK',
      &     alo,g_d1_ov_noJK)) call 
      &     errquit('g_d1_ovnJK: nga_create failed g_d1_ovnJK',
      &     0,GA_ERR)
@@ -5297,15 +5434,16 @@ c                                  = P^(1,0)_A -  P^(1,0)_B
      &     errquit('g_p1_ov1e: nga_create failed g_p1_ov1e',
      &     0,GA_ERR)
        call ga_zero(g_p1_ov_1e)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'P10_JK_AorB g_p1_ov_eSji',
      &     alo,g_p1_ov_eSji)) call 
      &     errquit('g_p1_oveSji: nga_create failed g_p1_oveSji',
      &     0,GA_ERR)
        call ga_zero(g_p1_ov_eSji)
 c ------ For debugging ---- START
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_p1)) call 
-     &     errquit('g_p1: nga_create failed g_p1',0,GA_ERR)
-       call ga_zero(g_p1)
+c       if (.not.nga_create(MT_DBL,3,ahi,
+c     &          'P10_JK_AorB g_p1',alo,g_p1)) call 
+c     &     errquit('g_p1: nga_create failed g_p1',0,GA_ERR)
+c       call ga_zero(g_p1)
 c ------ For debugging ---- END
 
 c      do ispin=1,npol
@@ -5728,14 +5866,15 @@ c      enddo ! end-loop-ispin
         call ga_print(g_p1_ov)
         if (ga_nodeid().eq.0) 
      &    write(*,*) '------g_p1-2---------- END'
-       if (ga_nodeid().eq.0) 
-     &    write(*,*) '------g_p1-tot---------- START'
-        call ga_add(1.0d0,g_p1_oo,1.0d0,g_p1_ov,g_p1)
-        call ga_print(g_p1)
-       if (ga_nodeid().eq.0) 
-     &    write(*,*) '------g_p1-tot---------- END'
+c       if (ga_nodeid().eq.0) 
+c     &    write(*,*) '------g_p1-tot---------- START'
+c        call ga_add(1.0d0,g_p1_oo,1.0d0,g_p1_ov,g_p1)
+c        call ga_print(g_p1)
+c       if (ga_nodeid().eq.0) 
+c     &    write(*,*) '------g_p1-tot---------- END'
        endif
-
+c       if (.not.ga_destroy(g_p1)) call 
+c     &    errquit('get_p1: ga_destroy failed g_d1_oo',0,GA_ERR)   
        if (.not.ga_destroy(g_d1_oo)) call 
      &    errquit('get_d1: ga_destroy failed g_d1_oo',0,GA_ERR)   
        if (.not.ga_destroy(g_d1_ov)) call 
@@ -6230,5 +6369,3 @@ c           The only difference is that here natoms=1
       return
       end
 c -------------- for g-shift NMLO analysis ----------------- END
-c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c $Id$

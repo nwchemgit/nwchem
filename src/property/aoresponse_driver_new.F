@@ -1,4 +1,4 @@
-      subroutine aoresponse_driver_new (rtdb, basis, geom)
+      subroutine aoresponse_driver_new(rtdb, basis, geom)
 
 c     $Id$
 
@@ -38,9 +38,14 @@ c     available in NWChem (July 2006, update Jan 2011)
 c     but we now have GIAOs here for optical rotation
 
 c     ==================================================================
+c
+c  Written by J. Autschbach, SUNY Buffalo
+c  Extension to spin-unrestricted case 
+c          by F. Aquino,     Northwestern University 
+c          03-15-12
+c --> Experimental (not published yet)
 
       implicit none
-
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -53,8 +58,6 @@ c     ==================================================================
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
-
-
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
@@ -75,52 +78,45 @@ c
       character*16 tag
       character*32 element
       character*256 cphf_rhs, cphf_sol
+      character*14 lbl_cphfaoresp1 ! for labeling cphf file
       character*2 symbol
-c
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
-c
       logical     oskel, status
       data tol2e   /1.0d-10/
-
       integer nfreq, l_fr, k_fr, l_deps, k_deps
       data nfreq/0/  ! number of frequencies, static if zero
       integer response_order, this_resporder, this_freq
       data response_order/1/ ! 1 for linear, 2 for quadratic, etc
-
       integer ipm, ncomp
       double precision omega
-
       double precision dummy(3)
       double precision origin(3)
       data origin/0d0,0d0,0d0/
-
       double precision betare(3,3), betaim(3,3)
       double precision alfare(3,3), alfaim(3,3)
-
+      double precision alfare2(3,3), alfaim2(3,3)
 c     GA handles for one-electron integrals and temp arrays
       integer g_dipel, g_smat0, g_temp, g_dipmag, g_smat1,
-     &   g_sket1, g_quadel
-
+     &        g_sket1, g_quadel
 c     GA handles for perturbed MO vectors:
-      integer g_vecB1(2), g_vecF1(2), g_vecF1_im(2),
-     &   g_vecF1_zero, g_dummy(2)
-
+      integer g_vecB1(2), 
+     &        g_vecF1(2,2),g_vecF1_im(2,2),
+     &        g_vecF1_zero(2,2),g_dummy(2,2),
+     &        g_vecF1_zero_im(2,2)
       integer idir, ipert ! field directions
       integer ntmp
-
       double precision sum, sumim, zero, one, two, half, tenm8
-      parameter (zero = 0d0, one = 1d0, two = 2d0, half=one/two, tenm8
-     &   =1d-8)
+      parameter (zero = 0d0, one = 1d0, 
+     &           two  = 2d0, half=one/two, tenm8 =1d-8)
       double precision gamwidth
       double precision ga_trace_diag
       external ga_trace_diag
-
-      logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime,
-     $        lbeta, lquad, lanalyze
+      logical lgiao, lvelocity, 
+     &        lmagpert, lstatic, lifetime,lifetime1,
+     $        lbeta, lquad, lanalyze,
+     &        debug
       logical oprint
-
-      double precision alfare2(3,3), alfaim2(3,3)
       double precision auXnm   ! Conversion factor from a.u. to nm
       parameter (auXnm=45.563353d0)
       double precision alphaiso     ! Isotropic dipole polarizability
@@ -131,43 +127,49 @@ c     GA handles for perturbed MO vectors:
       double precision awork(9)     ! dgeev workspace
       double precision alpha_rtdb(12) ! omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani
       integer aeiginfo              ! dgeev information
-
+c ------- Added for unrestricted calc ----- START
+      integer ndir,    ! nr directions (x,y,z)
+     &        ntot,    ! sum_{i=1,npol} nocc(i)*nvirt(i)
+     &        ispin,
+     &        nocc(2), ! store nr occupations 
+     &        npol     ! nr of polarizations =1 (  restricted)                   
+                       !                     =2 (unrestricted) calc  
+      external get_nocc,get_allAOints  
+c ------- Added for unrestricted calc ----- END
+      ndir=3 ! nr directions (x,y,z)
 c     ==================================================================
 
       debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
 
+c      debug=.true. ! FA-debugging
+
       if (debug) write(luout,*) 'hello from aoresponse_driver_new'
 
       oprint = util_print('information', print_low)
-      oprint = oprint .and. (ga_nodeid().eq.0)
-      
+      oprint = oprint .and. (ga_nodeid().eq.0)    
 c     ----------------------
 c     start-up: print header
-c     ----------------------
-      
+c     ----------------------    
       if (oprint) then
         write (LuOut,*) 'Entering AOResponse driver routine'
-      endif
-      
+      endif     
       if (oprint) then
         write (luout,9000)
         write (luout,9010) 
-      end if
-      
+      end if  
 c     -------------------------------------------
 c     set defaults for options and read from RTDB
 c     -------------------------------------------
-
-      lgiao = .false. 
-      lmagpert = .false.
+      lgiao     = .false. 
+      lmagpert  = .false.
       lvelocity = .false.
-      lifetime = .false.
-      lbeta = .false.
-      lquad = .false.
-      lanalyze = .false.
-      gamwidth = 0d0
-      
+      lifetime  = .false.
+      lbeta     = .false.
+      lquad     = .false.
+      lanalyze  = .false.
+      gamwidth  = 0d0      
       ntmp = 1
+
       if (.not.rtdb_get(rtdb, 'aoresponse:velocity', mt_int, 1,ntmp)) 
      &   call errquit('aor_driver: velocity failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lvelocity = .true.
@@ -207,6 +209,15 @@ c     -------------------------------------------
      &     mt_dbl, 1,gamwidth)) 
      &     call errquit('aor_driver: gamwidth failed ',0, RTDB_ERR)
       endif        
+
+c      if (ga_nodeid().eq.0) then
+c       write(*,1) lvelocity,lmagpert,lgiao,lbeta,
+c     &            lquad,lifetime,lanalyze,lstatic,gamwidth
+c 1     format('INPUT-0: (lvelocity,lmagpert,lgiao,lbeta,',
+c     &         'lquad,lifetime,lanalyze,lstatic,gamwidth)=(',L1,',',
+c     &          L1,',',L1,',',L1,',',L1,',',
+c     &          L1,',',L1,',',L1,',',f15.8,')')
+c      endif
       
 c     note: if lgiao.eq.true. we assume that the user is
 c     interested to get origin independent optical rotation which
@@ -217,30 +228,31 @@ c     in that case the perturbing operator is imaginary no matter if
 c     we use the electric or the magnetic field because it's either
 c     i nabla or i/2 (r x nabla)
 
-      if (lvelocity .and. lgiao) then
-        if (oprint) then
-          write (LuOut,*) 
-     &       '*** WARNING: Velocity and GIAO requested => GIAO disabled'
-        endif
-        lgiao = .false.
-      endif
+c      if (lvelocity .and. lgiao) then
+c        if (oprint) then
+c          write (LuOut,*) 
+c     &       '*** WARNING: Velocity and GIAO requested => GIAO disabled'
+c        endif
+c        lgiao = .false.
+c      endif
+
       if (lgiao .and. .not.lbeta) lmagpert = .true.
       
 c     also check if lvelocity and lbeta are both true. velocity trumps
       
-      if (lvelocity .and. lbeta) then
-        if (oprint) then
-          write (LuOut,*) 
-     &     '*** WARNING: Velocity and ORBETA requested => BETA disabled'
-        endif
-        lbeta = .false.
-      endif
+c      if (lvelocity .and. lbeta) then
+c        if (oprint) then
+c          write (LuOut,*) 
+c     &     '*** WARNING: Velocity and ORBETA requested => BETA disabled'
+c        endif
+c        lbeta = .false.
+c      endif
       
 c     for the time being, if we have GIAOs set, the code
 c     must go through the "beta" static B-field routine
 
       if (lgiao) then 
-        lbeta = .true.
+        lbeta    = .true.
         lmagpert = .false.
         if (oprint) then
           write (LuOut,*) 
@@ -265,14 +277,23 @@ c     need to eliminate; this is an unsolved issue anyway (CPHF is not
 c     cleanly implemented for complex vectors).
 c$$$
 c$$$
-c$$$ if (lbeta .and. lifetime) then
-c$$$ if (oprint) then
-c$$$ write (LuOut,*)
-c$$$ & '*** WARNING: LIFETIME: ORBETA or GIAO disabled ***'
-c$$$ lbeta = .false.
-c$$$ lgiao = .false.
-c$$$ endif
-c$$$ end if
+c      if (lbeta .and. lifetime) then
+c       if (oprint) then
+c         write (LuOut,*)
+c     &    '*** WARNING: LIFETIME: ORBETA or GIAO disabled ***'
+c        lbeta = .false.
+c        lgiao = .false.
+c       endif
+c      end if
+
+c     if (ga_nodeid().eq.0) then
+c      write(*,2) lvelocity,lmagpert,lgiao,lbeta,
+c    &            lquad,lifetime,lanalyze,lstatic,gamwidth
+c2     format('INPUT-2: (lvelocity,lmagpert,lgiao,lbeta,',
+c    &         'lquad,lifetime,lanalyze,lstatic,gamwidth)=(',L1,',',
+c    &          L1,',',L1,',',L1,',',L1,',',
+c    &          L1,',',L1,',',L1,',',f15.8,')')
+c     endif
 
 c     -----------------------
 c     general initializations (some of it adapted from hnd_giaox.F)
@@ -282,19 +303,10 @@ c     Current CPHF does not handle symmetry
 c     Making C1 geometry and store it on rtdb (oskel = .false.)
      
       oskel = .false.  ! temporarily set to true to enable sym.
-
 c     If DFT get part of the exact exchange defined
-
       xfac = 1.0d0
       if (use_theory.eq.'dft') xfac = bgj_kfac()
 c
-c     Integral initialization
-c
-      call int_init(rtdb,1,basis)
-      call schwarz_init(geom,basis)
-      call hnd_giao_init(basis,1)
-      call scf_get_fock_param(rtdb,tol2e)
-
 c     read number of frequencies from run-time database
 
       status = rtdb_parallel(.true.)
@@ -345,13 +357,76 @@ c     exit if response order is larger than one (TEMPORARY)
 
 c     force nfreq = 1 if response order equals 1 (no freq. input)
       if (response_order.eq.1 .and. nfreq.ne.1) nfreq = 1
+c =========== Read (g_vectors,k_occ,k_eval,nclosed,nopen === START
+c     -------------------------------------------------------
+c     assemble some data neded for response calculation:
+c     MO coeffs, orbital energies, density matrix, occupation
+c     numbers, basis set info, matrix elements, etc.
+c     -------------------------------------------------------
+      if (.not. bas_numbf(basis,nbf)) call
+     &   errquit('aor_driver: could not get nbf',0, BASIS_ERR)
+c     allocate dbl_mb(k_occ) = fractional occupation numbers:
+      if (.not. ma_push_get(mt_dbl,2*nbf,'occ num',l_occ,k_occ)) call
+     &    errquit('aor_driver: ma_push_get failed k_occ',0,MA_ERR)
+c     allocate dbl_mb(leval) = orbital energies:
+      if (.not. ma_push_get(mt_dbl,2*nbf,'eigenval',l_eval,k_eval)) call
+     &    errquit('aor_driver: ma_push_get failed k_eval',0,MA_ERR)
+c     the following call is somewhat equivalent to the ADF aoresponse
+c     call to fcprep:
 
+      call hnd_prp_vec_read(rtdb,geom,basis,     ! in : handles
+     &                      nbf,                 ! out: nr basis functions
+     &                      nclosed,nopen,nvirt, ! out: occupation numbers
+     &                      scftyp,              ! out: type calc
+     &                      g_vectors,           ! out: MO vectors
+     &                      dbl_mb(k_occ),       ! out: occupations
+     &                      dbl_mb(k_eval),      ! out: DFT energies
+     &                      nmo)                 ! out: nr MOs
+
+      call get_nocc(rtdb,   ! in : rtdb handle
+     &              nocc,   ! out: nr occupations
+     &              npol,   ! out: nr of polarization
+     &              nclosed,! in : nr closed shells
+     &              nopen,  ! in : nr open shells
+     &              nvirt,  ! in : nr virtual MOs
+     &              scftyp, ! in : string = UHF or RHF
+     &              ntot)   ! out: sum_{i,npol} nocc(i)*nvirt(i)
+
+c     if (ga_nodeid().eq.0) then
+c       write(*,10) nocc(1)   ,nocc(2),
+c    &              nopen(1)  ,nopen(2),
+c    &              nclosed(1),nclosed(2),
+c    &              nvirt(1)  ,nvirt(2),scftyp,ntot
+c10    format('ao-driver:nocc =(',i5,',',i5,') ',
+c    &        'nopen=(',i5,',',i5,') ',
+c    &        'nclos=(',i5,',',i5,') ',
+c    &        'nvirt=(',i5,',',i5,') ',
+c    &        'scftyp=',a,' ntot=',i5)
+c     endif
+c     perform some sanity checks with the orbital occupations:      
+c     in this case, nclosed and nvirt should add up to nmo
+      do ispin=1,npol
+      if ((nocc(ispin)+nvirt(ispin)).ne.nmo) call
+     &   errquit('aor_driver: wrong no. of orbitals',0, CALC_ERR)
+      enddo ! end-loop-ispin
+      if (oprint .and. debug)
+     &   write (luout,*) 'aor driver: nclosed,nopen,nvirt',nclosed(1),
+     &   nopen(1), nvirt(1)
+c =========== Read (g_vectors,k_occ,k_eval,nclosed,nopen === END
+c     Get Unperturbed Density Matrix pointer. The following call also 
+c     contains a call to hnd_prp_vec_read inside hnd_prp_get_dens:
+c$$$      if (.not.lbeta .or. debug) then
+c$$$        call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
+c$$$     &     nclosed,nopen,nvirt)
+c$$$      end if     
+c       Note: ndens = 1 means closed shell
+c             ndens = 3 open shell, then g_dens has 3 components
+c                       with 1=alpha, 2=beta, 3=total
 c     -------------------------------------------------------
 c     if we have lbeta and lgiao set, calculate the magnetic
 c     field perturbed MO vectors upfront and store in g_vecB1
 c     We also compute required GIAO AO matrices used later
 c     -------------------------------------------------------
-
       if (lbeta) then
 
         if (oprint) write (luout,*) 'Computing some B-field data ...'
@@ -359,17 +434,21 @@ c       retrieve nbf = number of basis functions:
         if (.not. bas_numbf(basis,nbf)) call
      &     errquit('aor_driver: could not get nbf',0, BASIS_ERR)
 
-        alo(1) = nbf
-        alo(2) = -1
-        alo(3) = -1
-        ahi(1) = nbf
-        ahi(2) = nbf
-        ahi(3) = 3
-        if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',alo,g_vecB1(1) ))
+        do ispin=1,npol
+
+         alo(1) = nbf
+         alo(2) = -1
+         alo(3) = -1
+         ahi(1) = nbf
+         ahi(2) = nbf
+         ahi(3) = ndir
+         if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',
+     &                      alo,g_vecB1(ispin)))
      &     call 
      &     errquit('aor_driver: nga_create failed vecB1',0,GA_ERR)
-        call ga_zero(g_vecB1(1) )
+         call ga_zero(g_vecB1(ispin) )
 
+        enddo ! end-loop-ispin
         if (lgiao) then
 c         also compute
 c         first-order S-ket matrix (right-hand side S-derivative)
@@ -377,30 +456,32 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       call 
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
-          call giao_b1_movecs(rtdb,basis,geom, g_vecB1(1), g_sket1)
-          call ga_scale(g_vecB1,0.5d0)
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. giao_b1_movecs ...'
+          call giao_b1_movecs(rtdb,basis,geom,g_vecB1,g_sket1)
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
+          do ispin=1,npol
+           call ga_scale(g_vecB1(ispin),0.5d0)
+          enddo ! end-loop-ispin
+c Note.- The use of g_sket1 is uncertain
+c        It needs to be destroyed
           call ga_scale(g_sket1,0.5d0)
         else
-          call fiao_b1_movecs(rtdb,basis,geom, g_vecB1(1))
-        end if
-        if (oprint) write (luout,*) '... done. Reinitializing integrals'
-
-c       the [gf]iao_b1_movecs routines terminate the integrals.
-c       need to re-initialize:
-
-        call int_init(rtdb,1,basis)
-        call schwarz_init(geom,basis)
-        call hnd_giao_init(basis,1)
-        call scf_get_fock_param(rtdb,tol2e)
-
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
+          call fiao_b1_movecs(rtdb,basis,geom,g_vecB1)
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT. fiao_b1_movecs ...'
+        endif ! end-if-lgiao
+c        if (oprint) write (luout,*) '... done. Reinitializing integrals'
       end if ! lbeta 
-
 c     ---------------------------------------------------------
 c     write to output a summary of what we are going to do next.
 c     this summary is probably going to be most useful for
 c     linear response, not for higher orders to be implemented
 c     ---------------------------------------------------------
-
       if (oprint) write (luout,8888)
  8888 format(
      1 /,10x,47(1h-),/,
@@ -450,58 +531,7 @@ c     ---------------------------------------------------------
         endif
         write (luout,*)
       endif                     ! oprint
-
-c     -------------------------------------------------------
-c     assemble some data neded for response calculation:
-c     MO coeffs, orbital energies, density matrix, occupation
-c     numbers, basis set info, matrix elements, etc.
-c     -------------------------------------------------------
-
-      if (.not. bas_numbf(basis,nbf)) call
-     &   errquit('aor_driver: could not get nbf',0, BASIS_ERR)
-c     allocate dbl_mb(k_occ) = fractional occupation numbers:
-      if (.not. ma_push_get(mt_dbl,2*nbf,'occ num',l_occ,k_occ)) call
-     &    errquit('aor_driver: ma_push_get failed k_occ',0,MA_ERR)
-c     allocate dbl_mb(leval) = orbital energies:
-      if (.not. ma_push_get(mt_dbl,2*nbf,'eigenval',l_eval,k_eval)) call
-     &    errquit('aor_driver: ma_push_get failed k_eval',0,MA_ERR)
-
-c     the following call is somewhat equivalent to the ADF aoresponse
-c     call to fcprep:
-      call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
-     &                      nvirt,scftyp,g_vectors,dbl_mb(k_occ),
-     &                      dbl_mb(k_eval),nmo)
-
-c     Get Unperturbed Density Matrix pointer. The following call also 
-c     contains a call to hnd_prp_vec_read inside hnd_prp_get_dens:
-c$$$      if (.not.lbeta .or. debug) then
-c$$$        call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
-c$$$     &     nclosed,nopen,nvirt)
-c$$$      end if
-
-      if (oprint .and. debug)
-     &   write (luout,*) 'aor driver: nclosed,nopen,nvirt',nclosed(1),
-     &   nopen(1), nvirt(1)
-      
-c     Exit gracefully if we have an open-shell system:
-      if (scftyp.eq.'UHF') then
-        if (oprint) write(luout,9020)
-        goto 7000
-c       Note: ndens = 1 means closed shell
-c             ndens = 3 open shell, then g_dens has 3 components
-c                       with 1=alpha, 2=beta, 3=total
-      endif
-      
-c     perform some sanity checks with the orbital occupations:
-      
-c     for RHF system there should be no open shell orbitals
-      if (nopen(1).ne.0) call
-     &   errquit('aor_driver: nopen.ne.0',0, CALC_ERR)
-c     in this case, nclosed and nvirt should add up to nmo
-      if ((nclosed(1)+nvirt(1)).ne.nmo) call
-     &   errquit('aor_driver: wrong no. of orbitals',0, CALC_ERR)
-
-
+     
 c     ---------------------------------------------
 c     Calculate external field perturbed MO vectors
 c     (default: electric, unless lmagpert is set):
@@ -513,161 +543,119 @@ c     ---------------------------------------------
 c     IMPORTANT: the arrays for g_vecF1* are allocated in 
 c     fiao_f1_movecs but deallocated here.
 c     lmagpert is not yet considered !
-
 c     determine frequency and number of components
 
       omega = dbl_mb(k_fr + this_resporder -1 )
       lstatic = (abs(omega).lt.tenm8) ! static response or not
-      ncomp = 2                 ! no. of Fourier components to treat
+      ncomp = 2                       ! no. of Fourier components to treat
       if (lstatic) ncomp = 1 
+      
+c      if (ga_nodeid().eq.0) then
+c       write(*,100) lstatic,omega,ncomp
+c 100   format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
+c      endif
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. fiao_f1_movecs-1 ...'
 
-      call fiao_f1_movecs(rtdb,basis,geom, omega, lstatic, ncomp,
-     &   lvelocity, lifetime, gamwidth,
-     &   g_vecF1, g_vecF1_im)
+      call fiao_f1_movecs(
+     &      rtdb,basis,geom,    ! in : handles
+     &      omega,              ! in :
+     &      lstatic,            ! in : logical vars
+     &      ncomp,              ! in :  
+     &      lvelocity,          ! in : logical vars
+     &      lifetime,           ! in : logical vars
+     &      gamwidth,           ! in :
+     &      g_vecF1,            ! out:
+     &      g_vecF1_im,         ! out:
+     &      1)                  ! in : index for cphf_file
 
-c       the fiao_e1_movecs routine terminates the integrals.
-c       need to re-initialize:
-
-      call int_init(rtdb,1,basis)
-      call schwarz_init(geom,basis)
-      call hnd_giao_init(basis,1)
-      call scf_get_fock_param(rtdb,tol2e)
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT. fiao_f1_movecs-1 ...'
 
 c     repeat this for zero frequency if we use the modified
 c     velocity gauge:
-
+c WARNING : skip lvelocity-zero ------ START     
+c        if (ga_nodeid().eq.0)
+c     &    write(*,*) 'FA-skip-fiao_f1_movecs-zero'
+c        goto 107
+c WARNING : skip lvelocity-zero ------ START
       if (lvelocity) then
-        call fiao_f1_movecs(rtdb,basis,geom, 0d0, .true., 1,
-     &     lvelocity, .false., 0d0,
-     &     g_vecF1_zero, g_dummy)
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. fiao_f1_movecs-2 ...'
+        lifetime1=.true.
 
-        call int_init(rtdb,1,basis)
-        call schwarz_init(geom,basis)
-        call hnd_giao_init(basis,1)
-        call scf_get_fock_param(rtdb,tol2e)
+        call fiao_f1_movecs(
+     &      rtdb,basis,geom, ! in : handles
+     &      0d0,             ! in :
+     &      .true.,          ! in : logical vars
+     &      1,               ! in :  
+     &      lvelocity,       ! in : logical vars
+     &      lifetime1,       ! in : logical vars
+     &      gamwidth,        ! in :
+     &      g_vecF1_zero,    ! out:
+     &      g_vecF1_zero_im, ! out:
+     &      2) ! in
 
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT. fiao_f1_movecs-2 ...'
 c       we can subtract the static response right in the perturbed
 c       MO vectors and deallocate g_vecF1_zero to free up some
 c       memory
+        do ispin=1,npol
+         do ipm = 1,ncomp
 
-        do ipm = 1,ncomp
-          call ga_add(1d0, g_vecF1(ipm), -1d0,  g_vecF1_zero,
-     &       g_vecF1(ipm))
-        end do        
+          call ga_add(1d0, g_vecF1(ispin,ipm),
+     &               -1d0, g_vecF1_zero(ispin,1),
+     &                     g_vecF1(ispin,ipm))
 
-        if (.not.ga_destroy(g_vecF1_zero )) call 
-     &     errquit('aor_driver: ga_destroy failed g_vecF1zero',0,GA_ERR)
-        
-      end if                    ! lvelocity
+c ========= FA-Added-03-13-12 ========= START
+          if (lifetime) then
 
-      
-c     --------------------------------------------
-c     Respolse equations solved. Now proceed to the
-c     computations of the response tensors. To begin,
-c     calculate required one-electron integrals in AO basis.
-c     There is some redundancy the the AO matrix calculations
-c     that we might get rid of later (e.g. dipole integrals 
-c     are also used in fiao_e1_movecs). 
-c     --------------------------------------------
+          call ga_add(1d0, g_vecF1_im(ispin,ipm),
+     &               -1d0, g_vecF1_zero_im(ispin,1),
+     &                     g_vecF1_im(ispin,ipm))
 
-      alo(1) = nbf
-      alo(2) = -1
-      alo(3) = -1
-      ahi(1) = nbf
-      ahi(2) = nbf
-      ahi(3) = 3
-
-c     electron dipole moment integrals:
-      if (.not.nga_create(MT_DBL,3,ahi,'e-dipole',alo,g_dipel)) call 
-     &    errquit('aor_driver: nga_create failed g_dipel',0,GA_ERR)
-      call ga_zero(g_dipel)
-
-c     note: origin has been set to (0,0,0) for multipole integs.
-      if (lvelocity) then
-        call int_giao_1ega(basis,basis,g_dipel,'velocity',origin,1,
-     &     oskel)
-c       invert sign of velocity integrals for compatibility 
-c       w/ dipole-length optical rotation
-        call ga_scale (g_dipel, -1d0) 
-      else
-        call int_mpole_1ega(basis,basis,g_dipel,'dipole',origin,
-     &     oskel)
-      endif
-
-c     magnetic dipole moment integrals (r x nabla), times 0.5:
-      
-      if (.not.lbeta) then
-        if (.not.nga_create(MT_DBL,3,ahi,'mag-dipole',alo,g_dipmag))
-     &     call errquit
-     &     ('aor_driver: nga_create failed g_dipmag',0,GA_ERR)
-        call ga_zero(g_dipmag)
-        
-        if (.not.lgiao) then
-          call int_giao_1ega(basis,basis,g_dipmag,'angmom',origin,1,
-     &       oskel)
-          call ga_scale (g_dipmag, 0.5d0)
-        end if
-      end if
-
-c     zeroth-order basis-overlap integrals:
-      if (.not.nga_create(MT_DBL,2,ahi,'smat0',alo,g_smat0)) call 
-     &    errquit('aor_driver: nga_create failed g_smat0',0,GA_ERR)
-      call ga_zero(g_smat0)
-      call int_1e_ga(basis,basis,g_smat0,'overlap',oskel)
-
-      if (lgiao .and. .not.lbeta) then
-
-c       -----------------------------------------------------
-c       compute additional GIAO integrals if needed.
-c       if lbeta is set we have already computed what we need
-c       -----------------------------------------------------
-        
-c       magnetic-field perturbed overlap integrals, first order
-        if (.not.nga_create(MT_DBL,3,ahi,'smat1 matrix',alo,g_smat1))
-     &     call 
-     &     errquit('aor_driver: nga_create failed g_smat1',0,GA_ERR)
-        call ga_zero(g_smat1)
-        call int_giao_1ega(basis,basis,g_smat1,'s10',origin,
-     &     1,oskel)
-        
-c       first-order S-ket matrix (right-hand side S-derivative)
-        if (.not.nga_create(MT_DBL,3,ahi,'s-ket1 matrix',alo,g_sket1))
-     &     call 
-     &     errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
-        call ga_zero(g_sket1)
-        call int_giao_1ega(basis,basis,g_sket1,'srxRb',origin,
-     &     1,oskel)
-        
-c       magnetic-field derivatives of <mu | h | nu> in GIAO basis,
-c       use g_dipmag array for that. h is the one-electron part of
-c       the Fock-operator
-c       
-
-          call ga_zero(g_dipmag)
-          call int_giao_1ega(basis,basis,g_dipmag,'l10',dummy,
-     &       sh_atom,oskel)
-          call int_giao_1ega(basis,basis,g_dipmag,'tv10',dummy,
-     &       sh_atom,oskel)    
+          endif ! end-if-lifetime
+c ========= FA-Added-03-13-12 ========= START
+         enddo ! end-loop-ncomp    
  
+          if (.not.ga_destroy(g_vecF1_zero(ispin,1))) call 
+     &        errquit('aor_driver: ga_destroy failed g_vecF1zero',
+     &                0,GA_ERR) 
+          if (lifetime1) then
+           if (.not.ga_destroy(g_vecF1_zero_im(ispin,1))) call 
+     &        errquit('aor_driver: ga_destroy failed g_vecF1zero',
+     &                0,GA_ERR) 
+          endif ! end-if-lifetime
+        enddo ! end-loop-ispin    
+      endif                    ! lvelocity  
+ 
+ 107  continue
 
-      endif                     ! lgiao     
+c      if (ga_nodeid().eq.0)
+c     & write(*,*) 'FA-BEF get_allAOints'
+c     --------------------------------------------
+c     Response equations solved. Now proceed to the
+c     computations of the response tensors
 
-c     electron quadrupole moment integrals
-      if (lquad) then
-        alo(1) = nbf
-        alo(2) = -1
-        alo(3) = -1
-        ahi(1) = nbf
-        ahi(2) = nbf
-        ahi(3) = 6 
-        if (.not.nga_create(MT_DBL,3,ahi,'e-quad',alo,g_quadel)) call 
-     &     errquit('aor_driver: nga_create failed g_quadel',0,GA_ERR)
-        call ga_zero(g_quadel)
-        call int_mpole_1ega(basis,basis,g_quadel,'quadrupole',origin,
-     &     oskel)
-      end if
+      call get_allAOints(
+     &        g_dipel,  ! out: electron dipole moment AO  integral
+     &        g_dipmag, ! out: magnetic dipole moment AO  integral
+     &        g_smat0,  ! out: zeroth-order basis overlap integral
+     &        g_smat1,  ! out: 1st-order B-field perturb  integral
+     &        g_sket1,  ! out: 1st-order S-ket matrix
+     &        g_quadel, ! out: e-quadrupole    moment AO  integral  
+     &        rtdb,     ! in : rtdb  handle
+     &        basis,    ! in : basis handle
+     &        geom,     ! in : geom  handle
+     &        lvelocity,! in : velocity flag
+     &        lbeta,    ! in : beta     flag
+     &        lgiao,    ! in : giao     flag
+     &        lquad,    ! in : quad     flag
+     &        nbf)      ! in : nr. basis functions             
 
-
+c      if (ga_nodeid().eq.0)
+c     & write(*,*) 'FA-AFT get_allAOints' 
 c     ------------------------------------------------
 c     All necessary input data has now been assembled.
 c     Allocate memory for temporary arrays and
@@ -695,8 +683,7 @@ c     number of closed shell MOs  :   nclosed(2) = occ MOs
 c     number of open shell MOs    :   nopen(2) should be zero
 c     number of empty MOs         :   nvir(2) = virt MOs
 
-
-      do idir = 1,3
+      do idir = 1,ndir ! (x,y,z)
         do ipert = 1,3
           alfare(idir,ipert) = zero ! polarizability
           alfaim(idir,ipert) = zero
@@ -704,18 +691,47 @@ c     number of empty MOs         :   nvir(2) = virt MOs
           betaim(idir,ipert) = zero
         enddo
       enddo
-      
+
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) 'aoresp-driv-nw: lbeta=',lbeta
+
       if (.not.lbeta) then
 c     default call: compute dynamic polarizability and
 c     optical rotation G' tensor
          if (debug) write (luout,*) 'calling aor_r1_tensor'
-         call aor_r1_tensor(rtdb, basis, geom, omega, lstatic, ncomp,
-     &      g_smat0, g_dipmag, g_dipel, g_quadel, g_vectors ,
-     &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao, lquad,
-     &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im
-     &      ,  alfare ,alfaim, betare, betaim)         
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. aor_r1_tensor ...'
+
+         call aor_r1_tensor(
+     &      rtdb,basis,geom,    ! in : handles
+     &      omega,              ! in :
+     &      lstatic,            ! in :
+     &      ncomp,              ! in :  
+     &      g_smat0,            ! in :
+     &      g_dipmag,           ! in : magn -dipole mom AO
+     &      g_dipel,            ! in : elect-dipole mom AO
+     &      g_quadel,           ! in : quadrupole   AO
+     &      g_vectors,          ! in : MOs
+     &      dbl_mb(k_occ),      ! in : set of occupations
+     &      nbf, nmo,           ! in : nr. basis, nr. MOs
+     &      npol,               ! in : nr. polarizations
+     &      nocc, nvirt,        ! in : nocc,nvirt
+     &      lgiao, lquad,       ! in : logical vars
+     &      lvelocity,          ! in : logical vars
+     &      lifetime,           ! in : logical vars
+     &      lmagpert,           ! in : logical vars
+     &      g_vecF1,g_vecF1_im, ! in : 
+     &      alfare,alfaim,      ! out: electric-electric response matrices
+     &      betare,betaim)      ! out: electric-magnetic response matrices     
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT. aor_r1_tensor ...'  
          if (debug) write (luout,*) 'exiting aor_r1_tensor'
-         
+
+c      if (ga_nodeid().eq.0)
+c     &  write(*,*) 'STOP-test-urest'
+c      stop
+    
       else ! lbeta?
 
 c       alternate call: compute directly optical rotation beta tensor
@@ -723,12 +739,40 @@ c       using frequency-dependent generalization of Amos' formula, along
 c       with the polarizability
         
          if (debug) write (luout,*) 'calling aor1_beta'
-         call aor_r1_beta(rtdb, basis, geom, omega, lstatic, ncomp,
-     &      g_smat0, g_sket1, g_vecB1(1), g_dipel, g_quadel , g_vectors
-     &      , dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao , lquad,
-     &      lanalyze, lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im
-     &      ,  alfare, alfaim, betare, betaim)         
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. aor_r1_beta ...'
+
+         call aor_r1_beta(
+     &      rtdb,basis,geom,    ! in : handles
+     &      omega,              ! in :
+     &      lstatic,            ! in :
+     &      ncomp,              ! in :  
+     &      g_smat0,            ! in :
+     &      g_sket1,            ! in :
+     &      g_vecB1,            ! in : magn -dipole mom AO
+     &      g_dipel,            ! in : elect-dipole mom AO
+     &      g_quadel,           ! in : quadrupole   AO
+     &      g_vectors,          ! in : MOs
+     &      dbl_mb(k_occ),      ! in : set of occupations
+     &      nbf, nmo,           ! in : nr. basis, nr. MOs
+     &      npol,               ! in : nr. polarizations
+     &      nocc,nvirt,         ! in : nocc,nvirt
+     &      lgiao, lquad,       ! in : logical vars
+     &      lanalyze,           ! in : logical vars
+     &      lvelocity,          ! in : logical vars
+     &      lifetime,           ! in : logical vars
+     &      lmagpert,           ! in : logical vars
+     &      g_vecF1,g_vecF1_im, ! in : 
+     &      alfare,alfaim,      ! out: electric-electric response matrices
+     &      betare,betaim)      ! out: electric-magnetic response matrices   
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT. aor_r1_beta ...'      
          if (debug) write (luout,*) 'exiting aor_r1_beta'
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'STOP test uhf-2'
+c          stop
 
 c        if an analysis is requested we need to repeat
 c        the computation for the XX, YY, ZZ elements and break down
@@ -736,13 +780,45 @@ c        into contributions per MO
 
          if (lanalyze) then            
            if (debug) write (luout,*) 'calling aor1_beta_anl'
-           call aor_r1_beta_anl(rtdb, basis, geom, omega, lstatic, ncomp
-     &        ,g_smat0, g_sket1, g_vecB1(1), g_dipel, g_quadel
-     &        ,g_vectors , dbl_mb(k_occ), dbl_mb(k_eval), nbf, nmo,
-     &        nclosed, nvirt, lgiao, lquad, lanalyze, lvelocity,
-     &        lifetime, lmagpert, g_vecF1,g_vecF1_im)    
-         end if! lanalyze
 
+         if (ga_nodeid().eq.0) then
+          write(*,101) lvelocity,lmagpert,lgiao,lbeta,
+     &                 lquad,lifetime,lanalyze,lstatic,gamwidth
+ 101      format('INPUT-3: (lvelocity,lmagpert,lgiao,lbeta,',
+     &         'lquad,lifetime,lanalyze,lstatic,gamwidth)=(',L1,',',
+     &          L1,',',L1,',',L1,',',L1,',',
+     &          L1,',',L1,',',L1,',',f15.8,')')
+         endif
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'BEF. aor_r1_beta_anl ...'
+
+           call aor_r1_beta_anl(
+     &      rtdb,basis,geom,    ! in : handles
+     &      omega,              ! in :
+     &      lstatic,            ! in :
+     &      ncomp,              ! in :  
+     &      g_smat0,            ! in :
+     &      g_sket1,            ! in :
+     &      g_vecB1,            ! in : magn -dipole mom AO
+     &      g_dipel,            ! in : elect-dipole mom AO
+     &      g_quadel,           ! in : quadrupole   AO
+     &      g_vectors,          ! in : MOs
+     &      dbl_mb(k_occ),      ! in : set of occupations
+     &      dbl_mb(k_eval),     ! in : set of energy values
+     &      nbf, nmo,           ! in : nr basis, nr MOs
+     &      npol,               ! in : nr. polarizations
+     &      nocc,nvirt,         ! in : nocc,nvirt
+     &      lgiao, lquad,       ! in : logical vars
+     &      lanalyze,           ! in : logical vars
+     &      lvelocity,          ! in : logical vars
+     &      lifetime,           ! in : logical vars
+     &      lmagpert,           ! in : logical vars
+     &      g_vecF1,g_vecF1_im) ! out: 
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'AFT. aor_r1_beta_anl ...'
+         end if! lanalyze
       end if ! lbeta
 
 c     ------------
@@ -761,9 +837,7 @@ c     ------------
         endif
         call output(alfare,1,3,1,3,3,3,1)
       endif
-c
-c
-c
+
           do idir = 1,3
             do ipert = 1,3
               alfare2(idir,ipert) = alfare(idir,ipert)
@@ -773,13 +847,13 @@ c
 c
 c         diagonalize
           call hnd_diag(alfare2,alphaevr,3,.false.,.false.) ! replaces dgeev call
-c
+
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
-c
+
           if (oprint) write(LuOut,9434) "DFT Linear Response",
      1        dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
      2        alfare(1,1),alfare(1,2),alfare(1,3),
@@ -790,7 +864,7 @@ c
           call util_flush(LuOut)
 c
 c        alpha_rtdb = [omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani]
-c
+
           alpha_rtdb(1)  = dbl_mb(k_fr)
           alpha_rtdb(2)  = alfare(1,1)
           alpha_rtdb(3)  = alfare(1,2)
@@ -805,7 +879,7 @@ c
           alpha_rtdb(12) = alphaani
 c
 c         Write polarizability information to the RTDB
-c
+
           if (.not. rtdb_put(rtdb, 'aoresponse:alpha', mt_dbl,12,
      1                       alpha_rtdb))
      2       call errquit('aoresponse_driver: rtdb_put failed',12,
@@ -897,7 +971,6 @@ c         chiral response tensor. use array axs and eig for temp space
       endif ! oprint
 c
 c     == Raman bits ==
-c
       if (.not. rtdb_put(rtdb, 'raman:alfare ', mt_dbl, 9, alfare))   ! real alpha
      &  call errquit('aoresponse:failed to write alfare', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'raman:alfaim ', mt_dbl, 9, alfaim))   ! imag alpha
@@ -910,9 +983,10 @@ c     ----------------------------------------
  7000 continue ! jump here in case of abnormal termination
 
 c     deallocate global arrays
-
-      if (.not.ga_destroy(g_vectors)) call 
+      do ispin=1,npol
+      if (.not.ga_destroy(g_vectors(ispin))) call 
      &    errquit('aor_driver: ga_destroy failed g_vectors',0,GA_ERR)
+      enddo 
 c$$$      if (.not.lbeta .or. debug) then
 c$$$        do i=1,ndens
 c$$$          if (.not.ga_destroy(g_dens(i))) call 
@@ -921,16 +995,16 @@ c$$$        enddo
 c$$$      end if
       if (.not.ga_destroy(g_dipel)) call 
      &    errquit('aor_driver: ga_destroy failed g_dipel',0,GA_ERR)
-
-      do ipm = 1,ncomp
-        if (.not.ga_destroy(g_vecF1(ipm) )) call 
+      do ispin=1,npol
+       do ipm = 1,ncomp
+        if (.not.ga_destroy(g_vecF1(ispin,ipm) )) call 
      &     errquit('aor_driver: ga_destroy failed g_vecF1',0,GA_ERR)
         if (lifetime) then
-          if (.not.ga_destroy(g_vecF1_im(ipm) )) call 
+          if (.not.ga_destroy(g_vecF1_im(ispin,ipm) )) call 
      &       errquit('aor_driver: ga_destroy failed g_vecF1',0,GA_ERR)
         end if
-      end do
-
+       enddo ! end-loop-ipm
+      enddo ! end-loop-ispin
       if (.not.lbeta) then
         if (.not.ga_destroy(g_dipmag)) call 
      &     errquit('aor_driver: ga_destroy failed g_dipmag',0,GA_ERR)
@@ -950,8 +1024,10 @@ c$$$      end if
       endif
 
       if (lbeta) then
-        if (.not.ga_destroy(g_vecB1(1))) call 
+       do ispin=1,npol
+        if (.not.ga_destroy(g_vecB1(ispin))) call 
      &     errquit('aor_driver: ga_destroy failed g_vecB1',0,GA_ERR)
+       enddo ! end-loop-ispin
       end if
 
       if (lquad) then
@@ -960,8 +1036,6 @@ c$$$      end if
       end if
 
       call ga_sync()
-
-
 c     ------------------------------------------------------------
 c     deallocate all MA arrays allocated up to and including the
 c     frequencies list which was the first array that we allocated
@@ -969,9 +1043,6 @@ c     ------------------------------------------------------------
 
       if (.not.ma_chop_stack(l_fr)) call
      &   errquit('aor_driver: ma_chop_stack failed k_fr',l_fr,MA_ERR)
-
-      call schwarz_tidy()
-      call int_terminate()
       
       if (oprint) then
         write (LuOut,*) 'Exiting AOResponse driver routine'
@@ -991,7 +1062,11 @@ c     ==================================================================
      &       ' J. Chem. Phys. 122 (2005), 074105'/
      &       ' Comp. Lett. 3 (2007), 131-150 (contact JA for a copy)'/
      &       ' Please cite this work in publications based on results'/
-     &       ' obtained with this code. Thank you!'/)
+     &       ' obtained with this code. Thank you!'/
+     &       ' For updated response module please acknowledge:'/
+     &       ' F. Aquino, Northwestern University, Schatz Rsrch Group'/
+     &       ' (version June 9th,2012)'/
+     &       ' ++++++++++++++++++++++++++++++++++++++++++++++++++++++')
  9020 format(/,10x,'Open shell calculations not yet implemented',
      &      ' for the Response module. Exiting')
  9434 format(/,1x,A,' polarizability / au ',/

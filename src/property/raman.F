@@ -2,10 +2,14 @@ c
 c ---------------------------------------------------------------------
 c computes the xyz coords along the imode normal mode
 c ---------------------------------------------------------------------
+
+      subroutine raman_modestep(rtdb,nat3,natom,geom,
+     &                          rmmodes,imode,iii,first,
+     &                          eigenvecs,eigenvals,
+     &                          ncoords,rminfo,step_size)
 c
-      subroutine raman_modestep(rtdb,nat3,natom,geom,rmmodes,imode,
-     &    iii,first,eigenvecs,eigenvals,ncoords,rminfo,step_size)
-c
+c Author: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
+
       implicit none
 c
 #include "errquit.fh"
@@ -17,7 +21,7 @@ c
 #include "inp.fh"
 #include "global.fh"
 #include "bas.fh"
-c
+
       integer iii ! step number which determines sign 
       integer imode ! mode cordinates are dipsplaced along
       integer iatom, ixyz, ivec ! counting index
@@ -28,7 +32,7 @@ c
       integer first   ! first mode to consider in aoresponse (default =7 ramana =1 hyperraman)
       integer tmpmode ! set to fill rminfo from 1 ( not 7 for raman calc)
       integer rmmodes ! # of raman active modes
-c
+
       double precision rminfo(rmmodes,4) ! data for raman spec
       double precision step_size ! multiplictive factor for step along normal mode
       double precision sign,bohr2ang ! sign of the step , unit conversion
@@ -40,22 +44,27 @@ c
       parameter (bohr2ang=0.52917724924D+00) ! CONVERSION OF BOHR to ANGSTROMS
 c -------------determine sign of the step---------------------------------
       if (iii.eq.1) then
-        sign = 1.0D+00
+        sign =  1.0D+00
       else
         sign = -1.0D+00
       endif
 c  --- save imode values in rminfo  ---
       tmpmode=imode-first+1
       rminfo(tmpmode,1) = eigenvals(imode)
+c ======= FA-check rminfo(x,1) ======== START
+c      write(*,1) imode,iii,first,tmpmode,rminfo(tmpmode,1)
+c 1    format('FA-check-rminfo:(imode,iii,first,tmpmode,rminfo)=(',
+c     &       i4,',',i4,',',i4,',',i4,',',f15.8,')')
+c ======= FA-check rminfo(x,1) ======== END   
 c --------------------------------------------------------------------
         ivec = 1
         do iatom = 1,natom
           do ixyz = 1,3
-      steps(ixyz,iatom)=sign*step_size*eigenvecs(ivec,imode)
+            steps(ixyz,iatom)=sign*step_size*eigenvecs(ivec,imode)
             ivec = ivec + 1
           enddo ! ixyz
         enddo ! iatom
-c
+
       call daxpy(nat3,1.0d00,steps,1,ncoords,1) ! mult coords 
       if (.not. geom_cart_coords_set(geom,ncoords))
      $     call errquit('raman_modestep: bad geom',0, GEOM_ERR)
@@ -66,12 +75,24 @@ c
 c --------------------------------------------------------------------
 c    Finite differencing for Raman Scattering Calculations
 c --------------------------------------------------------------------
+      subroutine fd_raman(rtdb,
+     &                    imode,    ! in : i-th mode 
+     &                    rmmodes,  ! in : nr. Raman modes
+     &                    natom,    ! in : nr. atoms 
+     &                    nat3,     ! in : = nat*3
+     &                    alfarex2, ! in : (+/-) polarization tensor RE (6,3)
+     &                    alfarimx2,! in : (+/-) polarization tensor IM (6,3)
+     &                    step_size,! in : step of finite differencing
+     &                    rminfo,   ! in : Raman data
+     &                    eigenvecs,! in : normal modes eigenvectors (nat3,nat3)
+     &                    mass)     ! in : mass
 c
-      subroutine fd_raman(rtdb,imode,rmmodes,natom,nat3,alfarex2,
-     &           alfarimx2,step_size,rminfo,eigenvecs,mass)
-c
+c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
+c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
+c --> Experimental (not published yet)
+
       implicit none
-c
+
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -90,6 +111,7 @@ c
 c
       double precision rminfo(rmmodes,4) ! raman data
       double precision step_size,stepsize ! [input] step of finite differencing
+      double precision scl
 c      double precision laser(nfreq) ! [input] frequency used in AORESPONSE 
       double precision eigenvecs(nat3,nat3) ! [input](xyz&atom,mode)
       double precision tmode(3,natom) ! [input](atom#,xyz)
@@ -98,6 +120,7 @@ c      double precision laser(nfreq) ! [input] frequency used in AORESPONSE
       double precision fdipol(3,3), fdrpol(3,3) ! finite difference 
       double precision alfarex2(6,3), alfarimx2(6,3) ! AORESPONSE date for plus and minus step
       double precision ar2, ai2, gr2, gi2 ! alpha and g for imode
+      double precision axx,axy,axz,ayy,ayz,azz
       double precision zero, one, two, three, six, seven,
      &                  fourty_five, bohr2ang
       parameter (zero=0.0D+00, one=1.0D+00, two=2.0D+00, three=3.0D+00,
@@ -107,7 +130,7 @@ c
       debug =  ( .false. .and. ga_nodeid().eq.0 )
 c --------------------------------------------------------------------  
       call dfill(9,0.0D+00,fdrpol,1)  ! real fdipole polariability for 
-      call dfill(9,0.0D+00,fdipol,1) ! imaginary fdipole polariability for
+      call dfill(9,0.0D+00,fdipol,1)  ! imaginary fdipole polariability for
       call dfill(3*natom,0.0D+00,tmode,1) ! 
 c zero
       stepsize = zero
@@ -130,8 +153,9 @@ c -----------mass weight the normal coordinates--------------------------------
       end do
 c ---calculate the norm of the qmass---
       do i=1,natom
-         norm = norm + tmode(1,i)*tmode(1,i) + 
-     *    tmode(2,i)*tmode(2,i) + tmode(3,i)*tmode(3,i)
+         norm = norm + tmode(1,i)**2 +
+     &                 tmode(2,i)**2 +
+     &                 tmode(3,i)**2
       end do
       norm = sqrt(norm)
 c --- normalize ---
@@ -149,8 +173,9 @@ c
 c
       norm = zero
       do i=1,natom
-         norm = norm + tmode(1,i)*tmode(1,i) + tmode(2,i)*tmode(2,i)
-     *          + tmode(3,i)*tmode(3,i)
+         norm = norm + tmode(1,i)**2 +
+     &                 tmode(2,i)**2 +
+     &                 tmode(3,i)**2
       end do
 c --- calculate stepsize --- 
       stepsize = step_size/sqrt(norm)
@@ -161,36 +186,40 @@ c --------------------------------------------------------------------
       i=1
       DO ii=1,3
        DO jj=1,3
-c       difference polaraizability (real)
-      fdrpol(ii,jj)     = alfarex2(ii,jj) - alfarex2(ii+3,jj)
-c        difference polaraizability (imaginary)
-      fdipol(ii,jj)     = alfarimx2(ii,jj) - alfarimx2(ii+3,jj)
-c        convert units
-       fdrpol(ii,jj) = ( fdrpol(ii,jj)*(bohr2ang**2) )/(two*stepsize)
-       fdipol(ii,jj) = ( fdipol(ii,jj)*(bohr2ang**2) )/(two*stepsize)
-       enddo
-      enddo
+c       difference polarizability (real)
+        fdrpol(ii,jj) = alfarex2(ii,jj) - alfarex2(ii+3,jj)
+c       difference polarizability (imaginary)
+        fdipol(ii,jj) = alfarimx2(ii,jj) - alfarimx2(ii+3,jj)
+c       convert units
+        scl=bohr2ang**2/(two*stepsize)
+        fdrpol(ii,jj)=fdrpol(ii,jj)*scl
+        fdipol(ii,jj)=fdipol(ii,jj)*scl
+c        fdrpol(ii,jj)=(fdrpol(ii,jj)*(bohr2ang**2))/(two*stepsize)
+c        fdipol(ii,jj)=(fdipol(ii,jj)*(bohr2ang**2))/(two*stepsize)
+       enddo ! end-loop-jj
+      enddo ! end-loop-ii
 c ----------calculate a and g for real and impaginary--------
-      ar2 = ( ( (fdrpol(i,j)+fdrpol(i+1,j+1)+fdrpol(i+2,j+2))/three) 
-     *       *( (fdrpol(i,j)+fdrpol(i+1,j+1)+fdrpol(i+2,j+2))/three) ) 
-c
-      gr2 = ( ( ((fdrpol(i,j)    - fdrpol(i+1,j+1))**2)
-     *      +  ((fdrpol(i+1,j+1) - fdrpol(i+2,j+2))**2) 
-     *      +  ((fdrpol(i+2,j+2) - fdrpol(i,j    ))**2) )
-     *      + ( six*((fdrpol(i,j+1)   * fdrpol(i,j+1))
-     *      +        (fdrpol(i+2,j)   * fdrpol(i+2,j))
-     *      +        (fdrpol(i+1,j+2) * fdrpol(i+1,j+2))) )  )/two
-c imaginary
-      ai2 = ( ( (fdipol(i,j)+fdipol(i+1,j+1)+fdipol(i+2,j+2))/three)   
-     *       *( (fdipol(i,j)+fdipol(i+1,j+1)+fdipol(i+2,j+2))/three) ) 
-c
-      gi2 = (  ( ((fdipol(i,j)     - fdipol(i+1,j+1))**2)
-     *      +    ((fdipol(i+1,j+1) - fdipol(i+2,j+2))**2)
-     *      +    ((fdipol(i+2,j+2) - fdipol(i,j    ))**2) )
-     *      + ( six*((fdipol(i,j+1)   * fdipol(i,j+1))
-     *      +        (fdipol(i+2,j)   * fdipol(i+2,j))
-     *      +        (fdipol(i+1,j+2) * fdipol(i+1,j+2))) )  )/two
-c --------------------------------------------------------------------
+      axx=fdrpol(1,1)
+      axy=fdrpol(1,2)
+      axz=fdrpol(1,3)
+      ayy=fdrpol(2,2)
+      ayz=fdrpol(2,3)
+      azz=fdrpol(3,3)
+c ----Calculation of RE (iso,aniso)tropic^2   
+      ar2=((axx+ayy+azz)/three)**2
+      gr2= ((axx-ayy)**2+(ayy-azz)**2+(azz-axx)**2+
+     *      six*(axy**2+axz**2+ayz**2))/two
+      axx=fdipol(1,1)
+      axy=fdipol(1,2)
+      axz=fdipol(1,3)
+      ayy=fdipol(2,2)
+      ayz=fdipol(2,3)
+      azz=fdipol(3,3)
+c ----Calculation of RE (iso,aniso)tropic^2    
+      ai2=((axx+ayy+azz)/three)**2
+      gi2= ((axx-ayy)**2+(ayy-azz)**2+(azz-axx)**2+
+     *      six*(axy**2+axz**2+ayz**2))/two
+
       if (debug) then
           write(luout,*) 'alfarimx2'
           call output(alfarimx2,1,6,1,3,6,3,1)
@@ -206,10 +235,17 @@ c --------------------------------------------------------------------
           write(luout,*) 'gi2=',gi2
           write(luout,*) 'stepsize=',stepsize
       endif !  for DEBUG
-      rminfo(m,2) = fourty_five*ar2 + seven*gr2 ! real component  
-      rminfo(m,3) = fourty_five*ai2 + seven*gi2 ! imaginary component
-      rminfo(m,4) = fourty_five*ar2 + seven*gr2 + fourty_five*ai2 +
-     &               seven*gi2 ! total fdipole_polarizability_derivative
+
+c ---- Calculation of fdipole polarizability --- START
+      rminfo(m,2) = fourty_five*ar2 + seven*gr2 ! RE component  
+      rminfo(m,3) = fourty_five*ai2 + seven*gi2 ! IM component
+      rminfo(m,4) = rminfo(m,2) + rminfo(m,3)   ! TOTAL = RE + IM
+
+c      rminfo(m,4) = fourty_five*ar2 + seven*gr2 + fourty_five*ai2 +
+c     &               seven*gi2 ! total fdipole_polarizability_derivative
+
+c ---- Calculation of total fdipole polarizability --- END
+
 c------------ print result from finite difference ---------------------
       if (ga_nodeid().eq.0) write(luout,9001) rminfo(m,1),rminfo(m,2)
       if (ga_nodeid().eq.0) write(luout,9002) rminfo(m,1),rminfo(m,3)
@@ -219,9 +255,12 @@ c --------------- save the rminfo for restart -------------------------
      &    rmmodes*4, rminfo))
      &  call errquit('FD_raman:failed to write rminfo', 0, RTDB_ERR)
 c --------------------------------------------------------------------
- 9001 FORMAT(/1X,F7.2,2X,'REAL     ',2X,F24.6/)
- 9002 FORMAT(/1X,F7.2,2X,'IMAGINARY',2X,F24.6/)
- 9003 FORMAT(/1X,F7.2,2X,'TOTAL    ',2X,F24.6/)
+ 9001 FORMAT(/1X,F7.2,2X,'REAL     ',2X,F24.6)
+ 9002 FORMAT( 1X,F7.2,2X,'IMAGINARY',2X,F24.6)
+ 9003 FORMAT( 1X,F7.2,2X,'TOTAL    ',2X,F24.6/)
+c 9001 FORMAT(/1X,F7.2,2X,'REAL     ',2X,F24.6/)
+c 9002 FORMAT(/1X,F7.2,2X,'IMAGINARY',2X,F24.6/)
+c 9003 FORMAT(/1X,F7.2,2X,'TOTAL    ',2X,F24.6/)
       return
       end 
 c
@@ -229,49 +268,76 @@ c --------------------------------------------------------------------
 c   calculate absolute differential raman scattering cross section.
 c   Producing a raman scattering output file 
 c --------------------------------------------------------------------
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c +++++++++++++ FA-07-17-12: raman_scattering_FA +++++++++++++++++ START
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine raman_scattering(
+     &               rtdb,
+     &               mode_ini,
+     &               mode_end,
+     &               rmmodes,
+     &               nfreq,
+     &               plot,
+     &               line,
+     &               width,
+     &               laser,
+     &               rminfo)
 c
-      subroutine raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
-     &                            line,width,laser,rminfo)
+c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
+c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
 c
+c Note.- Improved raman_scattering routine.
+c        Allows computation of raman spectra 
+c        when we have missing calculations.
+c        For example: mode_ini=10 mode_end=20
+c        If rminfo(15,1)=0.0 (means missing 15 raman mode)
+c        It will ignore raman mode 15 values otherwise
+c        we will get NaN everywhere (FA-08-09-12)
+c --> Experimental (not published yet)
+
       implicit none
-c
+
 #include "global.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "inp.fh"
-c
+
       character*16 plot, line
-c
+
       integer rmmodes ! number or raman active modes
       integer rtdb    ! [input] rtdb handle
       integer nfreq   ! [input] number of excitation freqencies
-      integer i,j   ! counting indexes 
-      integer numpts ! number of points in plot
-      integer last  ! [input] last mode to calculate for aoresponse
-      integer begin ! first=begin if not restarting, else modified
-      integer start ! [input] first mode to use in calculation of plot
-c
+      integer i,j     ! counting indexes 
+      integer numpts  ! number of points in plot
+      integer last    ! [input] last mode to calculate for aoresponse
+      integer mode_ini, ! [input] window of modes to sample
+     &        mode_end
+      integer begin   ! first=begin if not restarting, else modified
+      integer start   ! [input] first mode to use in calculation of plot
       integer ifreq
       Double precision laser(nfreq) ! [input] laser used in AORESPONSE calculation
-      Double precision width ! [input] line width
+      Double precision width        ! [input] line width
       Double precision rminfo(rmmodes,4) ! raman data
 c      Double precision freq(rmmodes) ! [input] number of excitation frequencies used in AORESPONSE
       Double precision tempfc, frq4th 
       Double precision crs_real(rmmodes) ! real differential cross section
       Double precision  crs_imag(rmmodes) ! imaginary differential cross section
       Double precision crs_tot(rmmodes) ! total differential cross section
+      integer rmodelist(rmmodes), ! list of acceptable modes
+     &        nrmodelist,acc,     ! list of acceptable modes
+     &        i1,j1               ! list of acceptable modes
       Double precision frq, frqmin, frqmax, dfrq ! current, minimum, maximum and step of frequency
       Double precision afac, bfac, factor ! lineshape factors.
       Double precision conv_tot, conv_real, conv_imag !
       Double precision lambda ! exciation inverse wavenumber (1/cm)
       Double precision widthfac, pi, planck, boltz, speed, epsilon0 
       Double precision avogadro, nm2icm, temp, scale, amu,au2nm
-      Double precision exparg, conver, zero, two, one, forty_five
-c
+      Double precision exparg, conver, zero, two, one, forty_five,
+     &                 threshold
       character*255 filename
       integer unitno
       parameter (unitno = 77)
-c
+
       parameter (widthfac = 2.35482D+00)
       parameter (zero = 0.0D+00, one = 1.0D+00, 
      *           two = 2.0D+00, forty_five = 45.0D+00)
@@ -289,7 +355,7 @@ c
       parameter (exparg  = (planck*speed*100.0D+00)/boltz )
       parameter (conver  = ( (two*planck*pi*pi)/speed*1.0D-40)/amu ) ! conver = 2*planck_h*pi^2/c * 10^40/atomic_mass_unit               
       parameter (numpts  = 1000)
-c
+
       logical debug
       debug      = .false. ! produce debug output
 c
@@ -306,7 +372,18 @@ c   polarizability volumes in [Angstrom^4/amu].
 c   conversion factor: (4*pi*epsilon0)^2*10^-40{Angstrom^4/m^4}
 c                      /atomic_mass_unit{amu/kg}
 c --------------------------------------------------------------------
-c
+c ++++ Generate a list of acceptable modes +++++ START
+c Note.- if rminfo(i,1)=0 --> not acceptable, removed from list
+        acc=1
+        threshold=1e-3
+        do i=mode_ini,mode_end
+         if (rminfo(i,1).gt.threshold) then
+          rmodelist(acc)=i
+          acc=acc+1
+         endif
+        enddo ! end-loop-i
+        nrmodelist=acc-1
+c ++++ Generate a list of acceptable modes +++++ END
       if (debug) then
           write(6,*) "rmmodes",rmmodes
           do ifreq = 1,nfreq
@@ -317,7 +394,7 @@ c
       endif
 c
 c     --- write raman scattering data to file ---
-c
+
       call util_file_name(plot,.false.,.false.,filename)
       open(unitno, status='unknown', form='formatted',file=filename)
 
@@ -328,29 +405,36 @@ c
       write(unitno,9004) line 
       write(unitno,9005) width
       write(unitno,9010) rmmodes
-c
+
+c      write(*,10) mode_ini,mode_end,rmmodes
+c 10   format('(mode_ini,mode_end,rmmodes)=(',
+c     &       i4,',',i4,',',i4,')')
+
       if (plot =='normal') then
          write(unitno,9011)
-         do i=1,rmmodes             
+         do i1=1,nrmodelist   
+            i=rmodelist(i1)          
             write(unitno,9012) i, rminfo(i,1), rminfo(i,4)
          end do
             write(unitno,9006)
       else if (plot =='resonance') then
          write(unitno,9013)
-         do i=1,rmmodes
+         do i1=1,nrmodelist 
+            i=rmodelist(i1)
             write(unitno,9014) i, rminfo(i,1), rminfo(i,4), 
-     &                        rminfo(i,2), rminfo(i,3)
+     &                            rminfo(i,2), rminfo(i,3)
          end do
             write(unitno,9006)
       end if ! normal
 c
 c ----------convert laser from au. -> nm -> 1/cm ----------------------------
-c
+
         lambda = nm2icm/(au2nm/laser(1))
 c
 c ------------Calculate differential cross section-----------------------
-c
-      do i=start,rmmodes
+
+      do i1=1,nrmodelist 
+         i=rmodelist(i1)
          crs_real(i) = zero
          crs_imag(i) = zero
          crs_tot(i)  = zero
@@ -358,6 +442,14 @@ c
          frq4th = (lambda-rminfo(i,1))**4
          crs_tot(i) = tempfc*frq4th*conver*rminfo(i,4)/
      *                     (forty_five*rminfo(i,1))
+c xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx check-start
+c         if (ga_nodeid().eq.0) then
+c           write(*,117) i,crs_tot(i),
+c     &                  rminfo(i,1),rminfo(i,4)
+c 117       format('(i,crs_tot,rminfo1,rminfo4)=(',i4,',',
+c     &             f15.8,',',f15.8,',',f15.8,')')
+c         endif
+c xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx check-end
          if (plot == 'resonance') then
             crs_real(i) = tempfc*frq4th*conver*rminfo(i,2)/
      *                     (forty_five*rminfo(i,1))
@@ -365,13 +457,13 @@ c
      *                     (forty_five*rminfo(i,1))
          end if
       enddo ! rmmodes
-c
-         frqmin = rminfo(1,1) - 60.0D+00  ! determine plot minimum
-         frqmax = rminfo(rmmodes,1) + 60.0D+00 ! determine plot maximum
+
+         frqmin = rminfo(mode_ini,1) - 60.0D+00 ! determine plot minimum
+         frqmax = rminfo(mode_end,1) + 60.0D+00 ! determine plot maximum
          dfrq   = ((frqmax-frqmin)) / (numpts-1) !energy steps determined by numpts
 c
 c ------calculate lineshape factors for the plot-----------------------
-c
+
       if (line == 'lorentzian') then
          afac = width/(two*pi)
          bfac = width/two
@@ -384,13 +476,14 @@ c
       end if
 c
 c ----------- make the plot---------------------------------------
-c
+
       do i=1,numpts ! loop over number of points
          conv_tot = zero
          conv_real = zero
          conv_imag = zero
          frq = frqmin + i*dfrq
-         do j=start,rmmodes ! loop over number of raman active modes
+         do j1=1,nrmodelist  ! loop over number of selected raman active modes
+           j=rmodelist(j1)
             if (line == 'lorentzian') then  
              factor = scale*afac/((frq-rminfo(j,1))**2 + bfac**2)
             else if (line == 'gaussian') then  
@@ -401,17 +494,16 @@ c
                conv_real = conv_real + factor*crs_real(j)
                conv_imag = conv_imag + factor*crs_imag(j)
             end if
-         end do  ! end loop over rmmodes 
-c
+         enddo  ! end-loop-j1 (over slctd rmmodes )
+
          if (plot == 'normal' ) then
             write (unitno,9017) frq, conv_tot
          else if (plot =='resonance') then
             write(unitno,9018) frq, conv_tot, conv_real, conv_imag
          endif  ! plot
       end do ! end loop over numpts
-c
       close(unitno) 
-c
+
       write(luout,22) filename(1:inp_strlen(filename))
  22   format(/' Raman scattering data written to ',a/)
       call util_flush(luout)
@@ -433,13 +525,16 @@ c --------------------------------------------------------------------
  9016 FORMAT(1X,F10.2,3E12.4)
  9017 FORMAT(1X,F8.2,G14.4)
  9018 FORMAT(1X,F8.2,3G14.4)
-c
+
       return
       end  
-c ----------------end raman_scattering---------------------------------------
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c +++++++++++++ FA-08-09-12: raman_scattering_FA +++++++++++++++++ END
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine raman_save(rtdb,ii,junk3,junk4)
 c
-      subroutine raman_save(rtdb,ii,temp3,temp4)
-c
+c Author: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
+
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -453,39 +548,32 @@ c
       integer i,j,n,ii ! counting indexes
       integer rtdb     ! [input] rtdb handle
       double precision alfare(3,3),alfaim(3,3) ! [aoresponse] real and imaginary polarizanbility
-      double precision temp3(6,3),temp4(6,3) ! temp. arrays for FD of polarizanbility
+      double precision junk3(6,3),junk4(6,3) ! temp. arrays for FD of polarizanbility
       logical debug
       logical status
-      logical lalfare,lalfaim
 c
       debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
       status = rtdb_parallel(.true.)
 c  -------------get raman ploarizability from rtdb ----------------------------
-        lalfare = .true.
-        if (.not. rtdb_get(rtdb, 'raman:alfare ', mt_dbl, 9, alfare)) 
-     &   lalfare = .false.
-
-        lalfaim = .true.
+        if (.not. rtdb_get(rtdb, 'raman:alfare ', mt_dbl, 9, alfare))
+     &   call errquit('raman_save:failed to get alfare', 1, RTDB_ERR)
         if (.not. rtdb_get(rtdb, 'raman:alfaim ', mt_dbl, 9, alfaim)) 
-     &   lalfaim = .false.
-c
+     &   call errquit('raman_save:failed to get alfaim', 2, RTDB_ERR)
+
       n=(ii-1)*3
       DO i=1,3
          n=n+1
         DO j=1,3
-          temp3(n,j)= 0.d0
-          if (lalfare) temp3(n,j)= alfare(i,j) ! add AORESPONSE real data to array for finite_differencing
-          temp4(n,j)= 0.d0
-          if (lalfaim) temp4(n,j)= alfaim(i,j) ! add AORESPONSE imag data to array for finite_differencing
+          junk3(n,j)= alfare(i,j) ! add AORESPONSE real data to array for finite_differencing
+          junk4(n,j)= alfaim(i,j) ! add AORESPONSE imaginary data to array for finite_differencing
         enddo ! j loop
        enddo ! i loop
-
 c  -------------delete raman ploarizability from rtdb ----------------------------
       IF (debug) THEN
-          write(luout,*) 'temp3'
-          call output(temp3,1,6,1,3,6,3,1)
-          write(luout,*) 'temp4'
-          call output(temp4,1,6,1,3,6,3,1)
+          write(luout,*) 'junk3'
+          call output(junk3,1,6,1,3,6,3,1)
+          write(luout,*) 'junk4'
+          call output(junk4,1,6,1,3,6,3,1)
           write(luout,*) 'alfare'
           call output(alfare,1,3,1,3,3,3,1)
           write(luout,*) 'alfaim'
@@ -494,5 +582,618 @@ c  -------------delete raman ploarizability from rtdb --------------------------
 c
       return
       end
+
+      subroutine raman_save1(
+     &             alfare,      ! in: RE alpha, polarization
+     &             alfaim,      ! in: IM alpha, polarization
+     &             modenr,      ! in: mode nr
+     &             modetot,     ! in: total raman modes
+     &             ii,          ! in: step index, = 1,2 for steps=2
+     &             ramanpolfile,! in: filename to store polariz tensor
+     &             junk3,       ! ou: two sets of polarization stored RE
+     &             junk4)       ! ou: two sets of polarization stored IM
+c
+c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
+c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
+c Note.- Modified from raman_save()
+c --> Experimental (not published yet)
+
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "nwc_const.fh" 
+#include "inp.fh"
+#include "global.fh"
+
+      integer i,j,n,ii ! counting indexes
+      integer modenr
+      integer modetot
+      double precision alfare(3,3),! real      polarizability tensor
+     &                 alfaim(3,3) ! imaginary polarizability tensor
+      double precision junk3(6,3), ! real  2-sets polariz. tensor
+     &                 junk4(6,3)  ! imag  2-sets polariz. tensor
+      logical debug
+      logical status,status1
+      character*255 ramanpolfile
+      logical ramanpol_write,ramanpol_read
+      external ramanpol_write,ramanpol_read
+
+      debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
+      n=(ii-1)*3
+      DO i=1,3
+         n=n+1
+        DO j=1,3
+          junk3(n,j)= alfare(i,j) ! add AORESPONSE real data to array for finite_differencing
+          junk4(n,j)= alfaim(i,j) ! add AORESPONSE imaginary data to array for finite_differencing
+        enddo ! j loop
+       enddo ! i loop
+         status1=ramanpol_write(
+     &           ramanpolfile,! in: filename
+     &           modenr,      ! in: mode-nr
+     &           modetot,     ! in: total modes
+     &           ii,          ! in: mode counter
+     &           alfare,      ! in: RE of alpha (polarization)
+     &           alfaim)      ! in: IM of alpha (polarization)
+c  -------------delete raman polarizability from rtdb ----------------------------
+      IF (debug) THEN
+          write(luout,*) 'junk3'
+          call output(junk3,1,6,1,3,6,3,1)
+          write(luout,*) 'junk4'
+          call output(junk4,1,6,1,3,6,3,1)
+          write(luout,*) 'alfare'
+          call output(alfare,1,3,1,3,3,3,1)
+          write(luout,*) 'alfaim'
+          call output(alfaim,1,3,1,3,3,3,1)
+      ENDIF !  for DEBUG
+
+      return
+      end
 c ----------------end raman_save------------------------------------------------
 c $Id$
+c ========================
+c FA's raman io routines =
+c ========================
+c =========== READ/WRITE Raman data ============= START
+c===== READ/WRITE polarization tensor ===== START
+      logical function ramanpol_write(
+     &           filename,   ! in: filename
+     &           modenr,     ! in: mode-nr
+     &           modetot,    ! in: total modes
+     &           stepnr,     ! in: mode counter
+     &           alfare,     ! in: RE of alpha (polarization)
+     &           alfaim)     ! in: IM of alpha (polarization)
+c
+c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
+c --> Experimental (not published yet)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename      ! [input] File to write to
+      integer modenr,modetot,stepnr
+      double precision alfare(3,3),
+     &                 alfaim(3,3)
+      integer unitno
+      parameter (unitno = 77)
+      integer ok,i,j
+      integer inntsize
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid().eq.0) then ! ====== node 0 == START
+c     Open the file
+        open(unitno, status='unknown', form='unformatted',
+     $      file=filename, err=1000,position='append')
+c     Write out the number of sets and basis functions
+        write(unitno, err=1001) modenr
+        write(unitno, err=1001) modetot
+        write(unitno, err=1001) stepnr
+        do i=1,3
+         do j=1,3
+          write(unitno, err=1001) alfare(i,j)
+         enddo ! end-loop-j
+        enddo ! end-loop-i
+        do i=1,3
+         do j=1,3
+          write(unitno, err=1001) alfaim(i,j)
+         enddo ! end-loop-j
+        enddo ! end-loop-i
+c     Close the file
+       close(unitno,err=1002)
+       ok = 1
+      end if ! ========================== node 0 == END
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      ramanpol_write = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'ramanpol_write: failed to open ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'ramanpol_write: failed to write ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'ramanpol_write: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+
+      logical function ramanpol_read(
+     &           filename,   ! in: filename
+     &           modenr,     ! in: mode-nr
+     &           modetot,    ! in: total modes
+     &           stepnr,     ! in: mode counter
+     &           alfare,     ! ou: RE of alpha (polarization)
+     &           alfaim)     ! ou: IM of alpha (polarization)
+c
+c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
+c --> Experimental (not published yet)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename      ! [input] File to write to
+      integer modenr,modetot,stepnr
+      integer modenr_read,
+     &        modetot_read,
+     &        stepnr_read
+      double precision alfare(3,3),
+     &                 alfaim(3,3)
+      integer unitno
+      parameter (unitno = 77)
+      integer ok,i,j
+      integer inntsize
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid().eq.0) then ! ====== node 0 == START
+c     Open the file
+       open(unitno, status='old', form='unformatted', file=filename,
+     $        err=1000)
+c     Read out the number of sets and basis functions
+      read(unitno, err=1001, end=1001) modenr_read
+      read(unitno, err=1001, end=1001) modetot_read
+      read(unitno, err=1001, end=1001) stepnr_read
+      if ((modenr .ne. modenr_read).and.
+     &    (modetot.ne. modetot_read).and.
+     &    (stepnr .ne. stepnr_read)) then
+       call errquit('ramanpol_read: data not consistent',0,0)
+      endif 
+        do i=1,3
+         do j=1,3
+          read(unitno, err=1001, end=1001) alfare(i,j)
+         enddo ! end-loop-j
+        enddo ! end-loop-i
+        do i=1,3
+         do j=1,3
+          read(unitno, err=1001, end=1001) alfaim(i,j)
+         enddo ! end-loop-j
+        enddo ! end-loop-i
+c     Close the file
+       close(unitno,err=1002)
+       ok = 1
+      end if ! ========================== node 0 == END
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      ramanpol_read = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'ramanpol_read: failed to open ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'ramanpol_read: failed to read ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'ramanpol_read: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+c===== READ/WRITE polarization tensor ===== END
+
+      logical function raman_write(
+     &           filename,   ! in: filename
+     &           modenr,     ! in: mode-nr
+     &           modecounter,! in: mode counter
+     &           modetot,    ! in: total modes
+     &           rminfo)     ! in: raman info to store
+c
+c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
+c --> Experimental (not published yet)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename      ! [input] File to write to
+      character*255 filename_mini ! only to store nblocks
+      integer modenr,modetot,modecounter
+      double precision rminfo(modetot,4)
+      integer unitno
+      parameter (unitno = 77)
+      integer ok,i,j
+      integer inntsize
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid().eq.0) then ! ====== node 0 == START
+      write(filename_mini,30) trim(filename),'_nblock'
+ 30   format(a,4a)
+      write(*,*) 'Writing mini:',filename_mini
+      write(*,2) modecounter
+ 2    format('Writing modecounter=',i5)
+       open(unitno, status='unknown', form='unformatted',
+     $      file=filename_mini, err=1000)
+       write(unitno, err=1001) modecounter
+       close(unitno,err=1002)  
+c     Open the file
+        open(unitno, status='unknown', form='unformatted',
+     $      file=filename, err=1000,position='append')
+c     Write out the number of sets and basis functions
+        write(unitno, err=1001) modenr
+        write(unitno, err=1001) modetot
+        do i=1,4
+         write(unitno, err=1001) rminfo(modenr,i)
+        enddo ! end-loop-i
+c     Close the file
+       close(unitno,err=1002)
+       ok = 1
+      end if ! ========================== node 0 == END
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      raman_write = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'raman_write: failed to open ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'raman_write: failed to write ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'raman_write: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+
+      logical function raman_read(
+     &           filename, ! in: filename
+     &           modetot,  ! in: total modes
+     &           rminfo)   ! in: raman info to store
+c
+c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
+c --> Experimental (not published yet)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename      ! [input] File to write to
+      character*255 filename_mini ! only to store nblocks
+      integer modenr,modetot
+      double precision rminfo(modetot,4)
+      integer unitno
+      parameter (unitno = 77)
+      integer ok,i,j,nblocks
+      integer inntsize
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid().eq.0) then ! ====== node 0 == START
+c     Open mini-file to read nr of blocks
+      write(filename_mini,30) trim(filename),'_nblock'
+ 30   format(a,4a)
+      write(*,*) 'Reading mini:',filename_mini
+       open(unitno, status='unknown', form='unformatted',
+     $      file=filename_mini, err=1000)
+       read(unitno, err=1001, end=1001) nblocks
+       close(unitno,err=1002)  
+c     Open the file
+       open(unitno, status='old', form='unformatted', file=filename,
+     $        err=1000)
+c     Read out the number of sets and basis functions
+      write(*,*) 'Reading nblocks=',nblocks
+      do j=1,nblocks
+        read(unitno, err=1001, end=1001) modenr
+        read(unitno, err=1001, end=1001) modetot
+        do i=1,4
+         read(unitno, err=1001, end=1001) rminfo(modenr,i)
+        enddo ! end-loop-i
+      enddo ! end-loop-j
+c     Close the file
+       close(unitno,err=1002)
+       ok = 1
+      end if ! ========================== node 0 == END
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      raman_read = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'raman_read: failed to open ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'raman_read: failed to read ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'raman_read: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+
+      logical function raman_read_list(
+     &           modetot,        ! in : total nr of modes
+     &           mode_ini,       ! in : starting normal mode
+     &           mode_end,       ! in : ending   normal mode
+     &           rminfo,         ! in:  raman info updated
+     &           nmodes_missing, ! out: nr of modes missing
+     &           modes_missing)  ! out: list of missing modes
+c
+c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
+c --> Experimental (not published yet)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) lbl_raman
+      parameter(lbl_raman='raman')
+      character*255 fname_list
+      character*255 fname_blk
+      character*255 fname
+      character*255 fname_raman
+      integer nx,ccfile,i1
+      character*255 filename_mini ! only to store nblocks
+      integer modenr,modetot,mode_ini,mode_end
+      integer nmodes_missing,cc,
+     &        modes_missing(modetot),
+     &        check_list(modetot) ! put 1 if read 
+      double precision rminfo(modetot,4)
+      integer unitno,unitno1
+      parameter (unitno=77,unitno1=78)
+      integer ok,i,j,nblocks
+      integer inntsize
+      integer l_scr,k_scr,
+     &        l_iscr,k_iscr
+
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid().eq.0) then ! ====== node 0 == START
+c ======== Determine lists of files to read ======== START
+        do i=1,modetot
+         check_list(i)=0
+        enddo ! end-loop-i
+        call util_file_name(lbl_raman,
+     &                     .false.,.false.,fname_raman)
+        write(*,*) 'Searching for fname_raman=',fname_raman
+c WARNING: This works only on UNIX systems
+        call system('ls -1 -p '//trim(fname_raman)
+     &              //'_[0-9]*nblock > list_raman_files.txt')     
+        call system('ls -1 -p '//trim(fname_raman)
+     &              //'_[!0-9]*nblock >> list_raman_files.txt')     
+c Note.- Listing XX_[0-9]*nblock  first
+c        Listing XX_[!0-9]*nblock below
+c        This is to update rminfo correctly
+        fname_list='list_raman_files.txt'
+        write(*,*) 'Reading fname_list=',fname_list
+        open(unitno, status='old',
+     $       file=fname_list, err=9001)
+        ccfile=1
+        do while (.true.) ! 0000000000000000000 do-while 00000 START
+         read(unitno,'(a)',err=9001,end=9001) fname_blk
+c - Extract fname data from fname_blk
+         nx=inp_strlen('_nblock')
+         write(fname,'(a)') trim(fname_blk(1:inp_strlen(fname_blk)-nx))
+         write(*,4) nx,fname,fname_blk
+ 4       format('(nx,fname,fname_blk)=(',i3,',',a,',',a,')')
+c ++++++++++++++++++++++++++++++++++++++++
+c -------- Read (fname,fname_blk) ---START
+c ++++++++++++++++++++++++++++++++++++++++
+c     Open mini-file to read nr of blocks
+        write(filename_mini,30) trim(fname),'_nblock'
+ 30     format(a,4a)
+        write(*,*) 'Reading mini:',filename_mini
+        open(unitno1, status='unknown', form='unformatted',
+     $      file=filename_mini, err=1000)
+        read(unitno1, err=1001, end=1001) nblocks
+        close(unitno1,err=1002)  
+c     Open the file
+        open(unitno1, status='old', form='unformatted', file=fname,
+     $        err=1000)
+c     Read out the number of sets and basis functions
+          write(*,*) 'Reading nblocks=',nblocks
+          do j=1,nblocks
+           read(unitno1, err=1001, end=1001) modenr
+           read(unitno1, err=1001, end=1001) modetot
+           check_list(modenr)=1 ! put 1 if read successfully
+           do i=1,4
+           read(unitno1, err=1001, end=1001) rminfo(modenr,i)
+           enddo ! end-loop-i
+          enddo ! end-loop-j
+c     Close the file
+         close(unitno1,err=1002)
+          write(*,45) ccfile
+ 45       format('-------rminfo(',i3,')-------- START')
+          do i1=1,modetot
+           write(*,44) i1,
+     &                 rminfo(i1,1),rminfo(i1,2), 
+     &                 rminfo(i1,3),rminfo(i1,4)
+ 44        format('rminfo(',i4,',',
+     &            f15.8,',',f15.8,',',f15.8,',',f15.8,')')          
+          enddo ! end-loop-i1
+          write(*,46) ccfile
+ 46       format('-------rminfo(',i3,')-------- END')
+c ++++++++++++++++++++++++++++++++++++++++
+c -------- Read (fname,fname_blk) ---END
+c ++++++++++++++++++++++++++++++++++++++++
+         ccfile=ccfile+1
+        enddo ! 0000000000000000000 do-while 00000 END
+        close(unitno)
+ 9001   continue
+        cc=1
+        do i=mode_ini,mode_end  
+         if (check_list(i).eq.0) then
+          modes_missing(cc)=i
+          cc=cc+1
+         endif
+        enddo ! end-loop-i
+        nmodes_missing=cc-1
+c ======== Determine lists of files to read ======== END
+       ok = 1
+      end if ! ========================== node 0 == END
+c ==============================================================================      
+c ==> I need to propagate (rminfo,nmodes_missing,modes_missing) variables =START
+c ==============================================================================
+        if (.not. ma_push_get(mt_dbl,modetot*4,'scr',
+     &        l_scr,k_scr))
+     &        call errquit('error alloc MA scr',0,MA_ERR)
+        if (.not. ma_push_get(mt_int,modetot,'iscr',
+     &        l_iscr,k_iscr))
+     &        call errquit('error alloc MA iscr',0,MA_ERR)
+        if (ga_nodeid().eq.0) then
+         cc=1
+         do i=1,modetot
+          do j=1,4
+           dbl_mb(k_scr+cc-1)=rminfo(i,j)
+           cc=cc+1
+          enddo ! end-loop-j
+         enddo ! end-loop-i
+        endif 
+        call ga_brdcst(msg_frq,dbl_mb(k_scr),
+     &                 modetot*4*ma_sizeof(mt_dbl,1,mt_byte),0)
+         cc=1
+         do i=1,modetot
+          do j=1,4
+           rminfo(i,j)=dbl_mb(k_scr+cc-1)
+           cc=cc+1
+          enddo ! end-loop-j
+         enddo ! end-loop-i
+
+        if (ga_nodeid().eq.0) then
+         int_mb(k_iscr)=nmodes_missing
+         cc=2
+         do i=1,nmodes_missing
+           int_mb(k_iscr+cc-1)=modes_missing(i)
+           cc=cc+1
+         enddo ! end-loop-i
+        endif 
+        call ga_brdcst(msg_frq,int_mb(k_iscr),
+     &                 modetot*ma_sizeof(mt_int,1,mt_byte),0)
+        nmodes_missing=int_mb(k_iscr)
+         cc=2
+         write(*,*) 'nmodes_missing=',nmodes_missing
+         do i=1,nmodes_missing
+           modes_missing(i)=int_mb(k_iscr+cc-1)
+           cc=cc+1
+         enddo ! end-loop-i  
+        if (.not. ma_pop_stack(l_iscr))
+     &   call errquit('error deloc MA iscr',0, MA_ERR)            
+        if (.not. ma_pop_stack(l_scr))
+     &   call errquit('error deloc MA scr',0, MA_ERR)      
+c ==============================================================================      
+c ==> I need to propagate (rminfo,nmodes_missing,modes_missing) variables == END
+c ==============================================================================
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      raman_read_list = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'raman_read_list: failed to open ',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'raman_read_list: failed to read ',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'raman_read_list: failed to close',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end    
+c =========== READ/WRITE Raman data ============= END

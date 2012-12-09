@@ -100,6 +100,11 @@ c     assign + and - components for indexing amat:
         ip = 1
         im = 2
       endif
+
+      if (ga_nodeid().eq.0) then
+       write(*,1) ip,im,lstatic
+ 1     format('(ip,im,lstatic)=(',i3,',',i3,',',L1,')')
+      endif
         
       do ipm = 1,ncomp
         call ga_zero(g_pmats(ipm))
@@ -166,15 +171,33 @@ c     calculate C(-,dagger)
       if (imag) two = -2d0
 
       if (.not.haveocc) then
-      call ga_matmul_patch('n','n', two,0d0,
-     &   g_vectors,1,naos,nocc+1,nmo,
-     &   g_amat(im),1,nvir,1,nocc,
-     &   g_eig1,1,naos,1,nocc)
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-enter-no-haveocc...'
+       call ga_matmul_patch('n','n', two,0d0,
+     &   g_vectors ,1,naos,nocc+1,nmo,
+     &   g_amat(im),1,nvir,1     ,nocc,
+     &   g_eig1    ,1,naos,1     ,nocc)
+
+c         if (ga_nodeid().eq.0)
+c     &    write(*,*) '-----g_eig1-nohaveocc---- START'
+c          call ga_print(g_eig1)
+c         if (ga_nodeid().eq.0)
+c     &    write(*,*) '-----g_eig1-nohaveocc---- END'
+
       else
-      call ga_matmul_patch('n','n', two,0d0,
-     &   g_vectors,1,naos,1,nmo,
-     &   g_amat(im),1,nmo,1,nocc,
-     &   g_eig1,1,naos,1,nocc)
+c         if (ga_nodeid().eq.0)
+c     &    write(*,*) 'FA-enter-yes-haveocc...'
+
+       call ga_matmul_patch('n','n', two,0d0,
+     &   g_vectors ,1,naos,1,nmo,
+     &   g_amat(im),1,nmo ,1,nocc,
+     &   g_eig1    ,1,naos,1,nocc)
+
+c         if (ga_nodeid().eq.0)
+c     &    write(*,*) '-----g_eig1-yeshaveocc---- START'
+c         call ga_print(g_eig1)
+c         if (ga_nodeid().eq.0)
+c     &    write(*,*) '-----g_eig1-yeshaveocc---- END'
       endif ! .not.haveocc
       call ga_sync()
 
@@ -199,15 +222,37 @@ c     -----------------------------
 c     calculate C(+)
       two = 2.0d0
       if (.not.haveocc) then
-      call ga_matmul_patch('n','n', two,0d0,
-     &   g_vectors,1,naos,nocc+1,nmo,
-     &   g_amat(ip),1,nvir,1,nocc,
-     &   g_eig1,1,naos,1,nocc)
+
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-enter-no-haveocc-2...'
+
+       call ga_matmul_patch('n','n', two,0d0,
+     &   g_vectors ,1,naos,nocc+1,nmo,
+     &   g_amat(ip),1,nvir,1     ,nocc,
+     &   g_eig1    ,1,naos,1     ,nocc)
+
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '-----g_eig1-nohaveocc-2-- START'
+c       call ga_print(g_eig1)
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '-----g_eig1-nohaveocc-2-- END'
+
       else
-      call ga_matmul_patch('n','n', two,0d0,
-     &   g_vectors,1,naos,1,nmo,
-     &   g_amat(ip),1,nmo,1,nocc,
-     &   g_eig1,1,naos,1,nocc)
+
+c         if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-enter-yes-haveocc-2...'
+
+       call ga_matmul_patch('n','n', two,0d0,
+     &   g_vectors ,1,naos,1,nmo,
+     &   g_amat(ip),1,nmo ,1,nocc,
+     &   g_eig1    ,1,naos,1,nocc)
+
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '-----g_eig1-yeshaveocc-2---- START'
+c        call ga_print(g_eig1)
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '-----g_eig1-yeshaveocc-2---- END'
+
       endif
       call ga_sync()
 
@@ -215,15 +260,33 @@ c     calculate C(+)
       
 c     calculate C(+)C(0,dagger), store in g_work
       call ga_matmul_patch('n','t', 1d0,0d0,
-     &   g_eig1,1,naos,1,nocc,
+     &   g_eig1   ,1,naos,1,nocc,
      &   g_vectors,1,nocc,1,naos,
-     &   g_work,1,naos,1,naos)
+     &   g_work   ,1,naos,1,naos)
       call ga_sync()
 
       if (debug) write (6,*) '4'
 
 c     add the two terms together and transpose the density matrix
+c             if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- CC1^t-------- START'
+c             call ga_print(g_ptmp)
+c            if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- CC1^t--------- END'           
+c             if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- C1C^t-------- START'
+c             call ga_print(g_work)
+c            if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- C1C^t--------- END'           
+
       call ga_add(1d0,g_ptmp,1d0,g_work,g_work)
+
+c             if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- g_pmats-0-------- START'
+c             call ga_print(g_work)
+c            if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- g_pmats-0-------- END'           
+
       call ga_sync()
       call ga_transpose(g_work, g_ptmp)
       call ga_sync()
@@ -242,14 +305,25 @@ c     if requested on input:
         call ga_copy(g_ptmp, g_pmats(1))
         call ga_sync()
       endif
+c             if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- g_pmats-------- START'
+c             call ga_print(g_pmats(1))
+c            if (ga_nodeid().eq.0)
+c     &       write(*,*) '---- g_pmats-------- END'           
 
       if (debug) write (6,*) '4a'
 
       if (lstatic .or. ncomp.eq.1) then
 c       skip calculation of component 2 of the density matrix
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-Skipping calc of 2nd component'
+
         goto 7000
-      endif        
+      endif  
       
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-Doing calc of 2nd component'     
+ 
 c     -----------------------------------------
 c     Next step: assemble P(-). Same as before,
 c     but +/- interchanged in amat:
@@ -299,14 +373,14 @@ c     calculate C(-)
       two = 2d0
       if (.not.haveocc) then
       call ga_matmul_patch('n','n', two,0d0,
-     &   g_vectors,1,naos,nocc+1,nmo,
-     &   g_amat(im),1,nvir,1,nocc,
-     &   g_eig1,1,naos,1,nocc)
+     &   g_vectors ,1,naos,nocc+1,nmo,
+     &   g_amat(im),1,nvir,1     ,nocc,
+     &   g_eig1    ,1,naos,1     ,nocc)
       else
       call ga_matmul_patch('n','n', two,0d0,
-     &   g_vectors,1,naos,1,nmo,
-     &   g_amat(im),1,nmo,1,nocc,
-     &   g_eig1,1,naos,1,nocc)
+     &   g_vectors ,1,naos,1,nmo,
+     &   g_amat(im),1,nmo ,1,nocc,
+     &   g_eig1    ,1,naos,1,nocc)
       endif
       call ga_sync()
 
@@ -314,9 +388,9 @@ c     calculate C(-)
 
 c     calculate C(-)C(0,dagger), store in g_work
       call ga_matmul_patch('n','t', 1d0,0d0,
-     &   g_eig1,1,naos,1,nocc,
+     &   g_eig1   ,1,naos,1,nocc,
      &   g_vectors,1,nocc,1,naos,
-     &   g_work,1,naos,1,naos)
+     &   g_work   ,1,naos,1,naos)
       call ga_sync()
 
       if (debug) write (6,*) '8'
@@ -371,4 +445,3 @@ c     ==================================================================
       
       return
       end
-      
