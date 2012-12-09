@@ -52,11 +52,18 @@
          aor_r1_beta_anl.o \
          giao_b1_movecs.o \
          fiao_b1_movecs.o \
+	 get_vecB1.o \
+	 get_vecF1.o \
+	 get_allAOints.o \
          aoresponse_giao_rhs.o \
+	 get_alfaorbeta_reim.o \
          CalcPerturbedTDPmat1.o \
+         CalcPerturbedTDPmat1_opt.o \
          localization_driver.o \
          hnd_vec_write.o \
          ao_1prdm_read.o \
+      	 giao_b1_movecs_tools.o \
+         aor_r1_beta_anl_tools.o\
 	 task_raman.o \
 	 raman_input.o \
 	 raman.o \
