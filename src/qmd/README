@@ -7,6 +7,7 @@ Experimental Quantum MD module. Not ready for production runs yet.
 * Langevin/Stochastic dynamics
 * Simulated annealing
 * CPMD style dynamics
+* Metadynamics
 * Confining potentials for droplet simulations
 * Clean up output, trajectory print intervals
 * Test cases
