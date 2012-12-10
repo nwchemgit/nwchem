@@ -1,3 +1,19 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the overlap integral derivatives
+C>
+C> Compute the overlap integral derivatives defined as
+C> \f{eqnarray*}{
+C>   \frac{\partial (\mu|\nu)}{\partial X_x} 
+C>     &=& \int \frac{\partial [g_\mu(X_\mu,r_1)g_\nu(X_\nu,r_1)]}{\partial X_x}dr_1
+C> \f}
+C> On output the overlap integral derivatives are stored as if the array
+C> is dimensioned as `Ova(nint,ncoord,natom)`, where `nint` is the number 
+C> of integrals, `ncoord` are the Cartesian coordinates x, y and z, and
+C> is 2 for the number of expansion centers on which the basis functions are
+C> positioned.
+C>
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
 c $Id$
@@ -8,14 +24,14 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] "i" contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] "j" contraction index
-      integer lscr      ! [input] length of scratch space "scr"
-      integer lOva      ! [input] number of overlap integral derivatives in shells ish and jsh
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] "i" contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] "j" contraction index
+      integer lscr      !< [Input] length of scratch space "scr"
+      integer lOva      !< [Input] number of overlap integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      integer idatom(*) ! [output] array identifying centers for derivatives
+      integer idatom(*) !< [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
 c
@@ -45,8 +61,8 @@ c                                          \
 c                       nint,d <ij>         |
 c                            -------------- |
 c                            d[idatom(2),z]/
-      double precision scr(lscr)
-      double precision Ova(lOva)
+      double precision scr(lscr) !< [Scratch] Work space
+      double precision Ova(lOva) !< [Output] The overlap integral derivatives
 *
       integer nint
 *
@@ -383,3 +399,4 @@ c
       endif
 c
       end
+C> @}
