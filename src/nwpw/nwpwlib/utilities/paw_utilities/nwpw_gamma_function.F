@@ -1,201 +1,299 @@
-c $Id$
-
-!  *************************************************************************
-!  
-!        This is a  modified version of Log(Gamma) function
-!        program from Num. Rec.
-!       Serves as backup if intrinic Gamma function
-!       is not available
-!  ************************************************************************
- 
-      DOUBLE PRECISION FUNCTION nwpw_LN_GAMMA (XX)
+*     ******************************************************
+*     *                                                    *
+*     *             nwpw_SpecialKummer                     *
+*     *                                                    *
+*     ******************************************************
+*
+*     Calculates a special case of the Kummer confluent hypergeometric 
+*     function, M(n+1/2,l+3/2,z) for z .LE. 0
+*
+*     This function was created by  Marat Valiev, and  modified by Eric Bylaska.
+*     See Abramowitz and Stegun for the formulas used in this function.
+*
+      real*8 function nwpw_SpecialKummer(n,l,z)
       implicit none
-      DOUBLE PRECISION XX
-      INTEGER J
-      DOUBLE PRECISION SER
-      DOUBLE PRECISION STP
-      DOUBLE PRECISION TMP
-      DOUBLE PRECISION X
+      integer n,l
+      real*8  z
+ 
+*     *** local variables ***
+      real*8 eps
+      parameter (eps=1.0d-16)
+
+      integer i
+      real*8 a,b,m1,m3,s
+
+*     **** external functions ****
+      real*8   nwpw_gamma,nwpw_gammp
+      external nwpw_gamma,nwpw_gammp
+ 
+      nwpw_SpecialKummer = 0.0d0
+
+*    *** cannot handle positive z ***
+      if (z.gt.0.0d0) then
+         call errquit('nwpw_SpecialKummer:invalid parameter, z>0',0,1)
+      end if
+ 
+ 
+*    *** solution for z==0 ***
+      if (z.eq.0.0d0) then
+         nwpw_SpecialKummer = 1.0d0
+         return 
+      end if
+ 
+*     ***** M(a,a+1,z) = a * (-z)**(-a) * igamma(a,-z) = a * (-z)**(-a) * P(a,-z) *Gamma(a)  where z is real and a = (n+0.5)  ****
+      if (n.eq.l) then
+         nwpw_SpecialKummer = nwpw_gammp(n+0.5d0,(-z))
+     >                       *(n+0.5d0) 
+     >                       *((-z)**((-n)- 0.5d0))
+     >                       *nwpw_gamma(n+0.5d0)
+         return 
+ 
+*     ***** M(a,a,z) = exp(z)  where a = (n+0.5)  ****
+      else if (n.eq.(l+1)) then
+         nwpw_SpecialKummer = dexp(z)
+         return 
+      end if
+ 
+!     *** do inifinite series for small z
+      if (dabs(z).le.1.0d0) then
+ 
+         nwpw_SpecialKummer = 1.0d0
+         s = 1.0d0
+         a = n + 0.5d0
+         b = l + 1.5d0
+         do i=1,10000
+            s = s*(a+i-1)*z/((b+i-1)*i)
+            nwpw_SpecialKummer = nwpw_SpecialKummer + s
+            if (dabs(s).lt.eps) return 
+         end do
+         call errquit("nwpw_SpecialKummer:cannot converge",0,1)
+         return 
+      end if
+ 
+      if (n.lt.l) then
+ 
+      !*** starting point n=l or b=a+1***
+         a = n + 0.5d0
+         b = n + 1.5d0
+ 
+      !*** m1 = M(a,b-1) ***
+      !*** m2 = M(a,b,z) ***
+         m1 = dexp(z)
+         nwpw_SpecialKummer = nwpw_gammp(a,(-z))*a/(-z)**a*nwpw_gamma(a)
+ 
+      !**********************************************
+      ! using recursion formula
+      ! z(a-b)M(a,b+1,z)=b(b-1)M(a,b-1,z)+b(1-b-z)M(a,b,z)
+      ! obtain M(1/2,3/2+l  ,z) --> m2
+      !        M(1/2,3/2+l-1,z) --> m2
+      !**********************************************
+         do i=1,l-n
+            m3=(b*(b-1.0d0)*m1+b*(1.0d0-b-z)*nwpw_SpecialKummer)
+     >         /(z*(a-b))
+            b = b + 1
+            m1 = nwpw_SpecialKummer
+            nwpw_SpecialKummer = m3
+         end do
+ 
+      else if (n.gt.(l+1)) then
+ 
+      !*** starting point n=l+1 or b=a ***
+         a = l + 1.5d0
+         b = l + 1.5d0
+ 
+      !*** m1 = M(a-1,b) ***
+      !*** m2 = M(a,a,z) ***
+         m1 = nwpw_gammp(a-1.0d0,(-z))*(a-1.0d0)/(-z)**(a-1.0d0)*
+     >      nwpw_gamma(a-1.0d0)
+         nwpw_SpecialKummer = dexp(z)
+ 
+      !**********************************************
+      ! using recursion formula
+      ! aM(a+1,b,z)=(b-a)M(a-1,b,z)+(2a-b+z)M(a,b,z)
+      ! obtain M(n+1/2-1,3/2,z)   --> m1
+      !        M(n+1/2  ,3/2,z)   --> m2
+      !**********************************************
+         do i=1,n-l-1
+            m3 = ((b-a)*m1+(2*a-b+z)*nwpw_SpecialKummer)/a
+            m1 = nwpw_SpecialKummer
+            nwpw_SpecialKummer = m3
+            a = a + 1
+         end do
+      end if
+ 
+      return
+      end 
+ 
+*     ***************************************   
+*     *                                     *
+*     *          nwpw_ln_gamma              *
+*     *                                     *
+*     ***************************************   
+
+*        This function computes the Log(Gamma) function
+*       Serves as backup if intrinic Gamma function is not available
+ 
+      real*8 function nwpw_ln_gamma(XX)
+      implicit none
+      real*8 XX
+      integer J
+      real*8 SER
+      real*8 STP
+      real*8 TMP
+      real*8 X
       DOUBLE PRECISION Y, COF(6)
       SAVE STP, COF
-      DATA COF, STP/ 76.18009172947146D0, -86.50532032941677D0, 
-     1   24.01409824083091D0, -1.231739572450155D0, 
-     2   0.1208650973866179D-2, -.5395239384953D-5, 2.5066282746310005D0
+      DATA COF, STP/ 76.18009172947146d0, -86.50532032941677d0, 
+     1   24.01409824083091d0, -1.231739572450155d0, 
+     2   0.1208650973866179d-2, -.5395239384953d-5, 2.5066282746310005d0
      3   / 
       X = XX
       Y = X
-      TMP = X + 5.5D0
-      TMP = (X + 0.5D0)*DLOG(TMP) - TMP
-      SER = 1.000000000190015D0
+      TMP = X + 5.5d0
+      TMP = (X + 0.5d0)*dlog(TMP) - TMP
+      SER = 1.000000000190015d0
       DO J = 1, 6
-         Y = Y + 1.0D0
+         Y = Y + 1.0d0
          SER = SER + COF(J)/Y
       END DO
+      nwpw_ln_gamma = TMP + dlog(STP*SER/X)
+      return 
+      end 
  
-      nwpw_LN_GAMMA = TMP + DLOG(STP*SER/X)
- 
-      RETURN 
-      END 
- 
-!  *************************************************
-!  
-!     Name    :
-!  
-!  
-!     Purpose :
-!  
-!  
-!     Created :
-!  
-!  *************************************************
-      DOUBLE PRECISION FUNCTION nwpw_GAMMA(X)
+*     **********************************************
+*     *                                            *
+*     *            nwpw_gamma                      *
+*     *                                            *
+*     **********************************************
+*
+*     This function computes the Gamma function
+*
+      real*8 function nwpw_gamma(X)
       implicit none
-      DOUBLE PRECISION X
+      real*8 X
  
-      DOUBLE PRECISION XX
-      DOUBLE PRECISION nwpw_LN_GAMMA
+      real*8 XX
+      real*8 nwpw_ln_gamma
+      external nwpw_ln_gamma
  
       XX = X
-      nwpw_GAMMA = DEXP(nwpw_LN_GAMMA(XX))
- 
+      nwpw_gamma = dexp(nwpw_ln_gamma(XX))
       return
-      END 
+      end 
  
- 
- 
-!  *************************************************
-!  
-!     Name    :
-!  
-!  
-!     Purpose :
-!  
-!  
-!     Created :
-!  
-!  *************************************************
-      DOUBLE PRECISION FUNCTION nwpw_GAMMP (A, X)
+*     **********************************************
+*     *                                            *
+*     *           nwpw_gammp                       *
+*     *                                            *
+*     **********************************************
+*
+*     This function computes the incomplete gamma function P(a,x) = igamma(a,x)/Gamma(a)
+*  
+*                             /x
+*       P(a,x) = 1/Gamma(a) * | exp(-t) * t**(a-1) dt
+*                             /0
+*
+      real*8 function nwpw_gammp(A, X)
       implicit none
-      DOUBLE PRECISION A, X
+      real*8 a,x
+      real*8 gammcf,gamser,gln
  
-      DOUBLE PRECISION GAMMCF, GAMSER, GLN
- 
-      IF (X .LT. A+1.0D0) THEN
- 
-         CALL nwpw_GSER(GAMSER, A, X, GLN)
-         nwpw_GAMMP = GAMSER
- 
-      ELSE
- 
-         CALL nwpw_GCF(GAMMCF, A, X, GLN)
-         nwpw_GAMMP = 1.0D0 - GAMMCF
- 
-      ENDIF
- 
+      if (x.lt. (a+1.0d0)) then
+         call nwpw_gser(gamser, a, x, gln)
+         nwpw_gammp = gamser
+      else
+         call nwpw_gcf(gammcf,a,x,gln)
+         nwpw_gammp = 1.0d0 - gammcf
+      end if
       return
-      END 
+      end 
  
-!  *************************************************
-!  
-!     Name    :
-!  
-!  
-!     Purpose :
-!  
-!  
-!     Created :
-!  
-!  *************************************************
-      SUBROUTINE nwpw_GCF(GAMMCF, A, X, GLN)
+*     **********************************************
+*     *                                            *
+*     *               nwpw_gcf                     *
+*     *                                            *
+*     **********************************************
+      subroutine nwpw_gcf(GAMMCF, A, X, GLN)
       implicit none
-      INTEGER ITMAX
-      DOUBLE PRECISION A, GAMMCF, GLN, X, EPS, FPMIN
-      PARAMETER (ITMAX = 100, EPS = 3.D-16, FPMIN = 1.D-30)
-      DOUBLE PRECISION AN, B, C, D, DEL, H
-      INTEGER I
+      integer ITMAX
+      real*8 A,GAMMCF,GLN,X,EPS,FPMIN
+      parameter (ITMAX = 100, EPS = 3.0d-16, FPMIN = 1.0d-30)
+      real*8 AN,B,C,D,DEL,H
+      integer I
 
-      DOUBLE PRECISION nwpw_LN_GAMMA
-      EXTERNAL         nwpw_LN_GAMMA
+      real*8   nwpw_ln_gamma
+      external nwpw_ln_gamma
  
-      GLN = nwpw_LN_GAMMA(A)
-      B = X + 1.0D0 - A
-      C = 1.0D0/1.D-30
-      D = 1.0D0/B
+      GLN = nwpw_ln_gamma(A)
+      B = X + 1.0d0 - A
+      C = 1.0d0/1.0d-30
+      D = 1.0d0/B
       H = D
       DO I = 1, 100
          AN = -I*(I - A)
-         B = B + 2.0D0
+         B = B + 2.0d0
          D = AN*D + B
-         IF (DABS(D) .LT. 1.D-30) D = 1.D-30
+         IF (dabs(D) .LT. 1.0d-30) D = 1.0d-30
          C = B + AN/C
-         IF (DABS(C) .LT. 1.D-30) C = 1.D-30
-         D = 1.0D0/D
+         IF (dabs(C) .LT. 1.0d-30) C = 1.0d-30
+         D = 1.0d0/D
          DEL = D*C
          H = H*DEL
-         IF (DABS(DEL - 1.0D0) .LT. 3.D-16) GO TO 1
+         IF (dabs(DEL-1.0d0) .LT. 3.0d-16) GO TO 1
       END DO
-      PAUSE 'a too large, ITMAX too small in gcf'
-    1 CONTINUE
-      GAMMCF = DEXP((-X) + A*DLOG(X) - GLN)*H
- 
+      call errquit('a too large, ITMAX too small in nwpw_gcf',0,0)
+
+    1 continue
+      GAMMCF = dexp((-X) + A*dlog(X) - GLN)*H
       return
-      END 
+      end 
  
-!  *************************************************
-!  
-!     Name    :
-!  
-!  
-!     Purpose :
-!  
-!  
-!     Created :
-!  
-!  *************************************************
-      SUBROUTINE nwpw_GSER(GAMSER, A, X, GLN)
+*     **********************************************
+*     *                                            *
+*     *             nwpw_gser                      *
+*     *                                            *
+*     **********************************************
+      subroutine nwpw_gser(GAMSER, A, X, GLN)
       implicit none
-      DOUBLE PRECISION A, X
-      DOUBLE PRECISION GAMSER, GLN
+      real*8 A,X
+      real*8 GAMSER,GLN
  
 !    *** local variables ***
-      INTEGER ITMAX
-      PARAMETER (ITMAX = 100)
-      DOUBLE PRECISION EPS
-      PARAMETER (EPS = 3.0D-16)
-      INTEGER N
-      DOUBLE PRECISION AP, DEL, SUM
+      integer ITMAX
+      parameter (ITMAX = 100)
+      real*8 EPS
+      parameter (EPS = 3.0d-16)
+      integer N
+      real*8 AP,DEL,SUM
 
-      DOUBLE PRECISION nwpw_LN_GAMMA
-      EXTERNAL         nwpw_LN_GAMMA
+      real*8   nwpw_ln_gamma
+      external nwpw_ln_gamma
  
+      GLN = nwpw_ln_gamma(A)
  
-      GLN = nwpw_LN_GAMMA(A)
- 
-      IF (X .LE. 0.0D0) THEN
-      IF(X.lt.0.0d0) CALL errquit("x < 0 in nwpw_GSER",0,1)
-         GAMSER = 0.0D0
-         RETURN 
-      ENDIF
+      if (X .le. 0.0d0) then
+         if (X.lt.0.0d0) call errquit("x < 0 in nwpw_gser",0,1)
+         GAMSER = 0.0d0
+         return
+      end if
  
       AP = A
-      SUM = 1.0D0/A
+      SUM = 1.0d0/A
       DEL = SUM
-      DO N = 1, 100
-         AP = AP + 1.0D0
+      do N = 1, 100
+         AP = AP + 1.0d0
          DEL = DEL*X/AP
          SUM = SUM + DEL
-         IF (DABS(DEL) .LT. DABS(SUM)*3.0D-16) GO TO 1
+         if (dabs(DEL) .lt. dabs(SUM)*3.0d-16) GO TO 1
  
-      END DO
+      end do
  
-      CALL errquit
-     >     ("a too large,ITMAX too small in nwpw_GSER",0,1)
+      call errquit
+     >     ("a too large,ITMAX too small in nwpw_gser",0,1)
  
-    1 CONTINUE
-      GAMSER = SUM*DEXP((-X) + A*DLOG(X) - GLN)
+    1 continue
+      GAMSER = SUM*dexp((-X) + A*dlog(X) - GLN)
  
       return 
-      END 
- 
- 
+      end 
  
