@@ -1,3 +1,25 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the electron - nuclear/Bq integral derivatives
+C>
+C> Compute derivatives of the integrals
+C> \f{eqnarray*}{
+C>    \sum_C(\mu|r_C1^{-1}|\rho) = \sum_C\int_{-\infty}^{\infty}
+C>    \chi_\mu(R_A;r_1)\chi_\rho(R_B;r_1)|r_1-R_C|^{-1}q_C dr
+C> \f}
+C> These integrals are differentiated with respect to the position of 
+C> centers \f$ C \f$. These centers may include both atoms and point charges,
+C> i.e. Bq centers.
+C>
+C> The positions of the centers \f$ C \f$ are picked up from the current
+C> geometry and Bq data structure.
+C>
+C> On output the integral derivatives are stored as if the buffer was allocated
+C> as `H1a(nint,ncoord,ncenter)` where `nint` is the number of integrals in 
+C> the shell pair, `ncoord` is the number of Cartesian coordinates, and 
+C> `ncenter` is the number of centers.
+C>
       subroutine intd_1epot(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
 C $Id$
@@ -58,15 +80,15 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] ``i'' contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] ``j'' contraction index
-      integer lscr      ! [input] length of scratch space
-      integer lH1a      ! [input] number of h1 integral derivatives in shells ish and jsh
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] ``i'' contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] ``j'' contraction index
+      integer lscr      !< [Input] length of scratch space
+      integer lH1a      !< [Input] number of h1 integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      double precision scr(lscr) ! [input] scratch array
-      double precision H1a(*)    ! [output] derivative integrals
+      double precision scr(lscr) !< [Input] scratch array
+      double precision H1a(*)    !< [Output] derivative integrals
 c
 c::local
       integer nint, offset, scrsize, nat
@@ -113,16 +135,16 @@ c::functions
       external cando_hnd_1e
       external cando_nw
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] ``i'' contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] ``j'' contraction index
-      integer lscr      ! [input] length of scratch space 
-      integer nint      ! [input] number of integrals in shells ish and jsh
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] ``i'' contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] ``j'' contraction index
+      integer lscr      !< [Input] length of scratch space 
+      integer nint      !< [Input] number of integrals in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      double precision scr(lscr) ! [input] scratch array
-      double precision H1a(nint,3,*)    ! [output] derivative integrals (nint,3,n_atoms)
-      double precision Ta(nint,3,2)     ! [scratch] space for kinetic integrals
+      double precision scr(lscr) !< [Input] scratch array
+      double precision H1a(nint,3,*) !< [Output] derivative integrals (nint,3,n_atoms)
+      double precision Ta(nint,3,2)  !< [Scratch] space for kinetic integrals
 c::local
       logical doT
       integer ucont,uconts
@@ -469,4 +491,4 @@ c
 c
 
       end
-      
+C> @}

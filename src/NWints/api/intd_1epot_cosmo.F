@@ -1,5 +1,8 @@
+C> \ingroup nwint
+C> @{
+C>
 C> \brief Computes the electron - COSMO charge interactions
-c
+C>
 C> Compute derivatives of the integrals
 C> \f{eqnarray*}{
 C>    (\mu\rho|q) = \int_{-\infty}^{\infty}
@@ -542,3 +545,4 @@ c
 c
 
       end
+C> @}
