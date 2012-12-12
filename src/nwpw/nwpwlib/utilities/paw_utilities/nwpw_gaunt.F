@@ -457,6 +457,7 @@ c         end if
       cos_theta = z/r
       phi = datan2(y,x)
       
+      mod_m = abs(m)
       if (m.lt.0) then
          tmp2 = dsin(mod_m*phi)
       else if (m.gt.0) then
@@ -468,6 +469,61 @@ c         end if
       Tesseral3_lm = rtheta_lm(l,m,cos_theta)*tmp2
       return
       end
+
+
+
+*     **************************************
+*     *                                    *
+*     *           dTesseral3_lm            *
+*     *                                    *
+*     **************************************
+*
+*  Calculates the derivative of tesseral harmonic for x,y,z wrt to x,y,z,such that
+*
+*                                               {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                               {sin(|m|*phi)   m<0
+*
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine dTesseral3_lm(l,m,x,y,z,dTx,dTy,dTz)
+      implicit none
+      integer l,m
+      real*8 x,y,z
+      real*8 dTx,dTy,dTz
+
+*     **** local variables ****
+      integer mod_m
+      real*8 phi,cos_theta,tmp2,r
+
+*     **** external functions
+      real*8   rtheta_lm
+      external rtheta_lm
+
+      r = sqrt(x*x + y*y + z*z)
+      cos_theta = z/r
+      phi = datan2(y,x)
+c      c_x = -x*z/r**3
+c      c_y = -y*z/r**3
+c      c_z = 1.0d0/r - z*z/r**3
+
+      mod_m = abs(m)
+      if (m.lt.0) then
+         tmp2 = dsin(mod_m*phi)
+c         tmp_phi = mod_m*dcos(mod_m*phi)
+      else if (m.gt.0) then
+         tmp2 = dcos(mod_m*phi)
+c         tmp_phi = -mod_m*dsin(mod_m*phi)
+      else
+         tmp2 = 1.0d0
+c         tmp_phi = 0.0d0
+      end if
+
+      return
+      end
+
+
+
 
 
 c!  *************************************************
