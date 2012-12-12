@@ -10,7 +10,8 @@
 		nwpw_gga.o\
 		nwpw_hartree.o\
 		nwpw_SpecialKummer.o \
-		nwpw_GausBessel.o 
+		nwpw_GausBessel.o \
+		nwpw_WGaussian.o
 
 	  OBJ = 
 

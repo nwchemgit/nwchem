@@ -14,7 +14,8 @@ c
 *    GausBessel(n,l,alpha,R)  =   | k**n exp(-alpha**2 * k**2) j_l(R*k) dk
 *                                 /0
 *
-*     This function uses the SpecialKummer function.
+*     This function uses the SpecialKummer function. Note it is assumed that
+*     (n+l) is an even integer.
 *
       real*8 function nwpw_GausBessel(n,l,alpha,R)
       implicit none
@@ -30,6 +31,10 @@ c
       external nwpw_doublefactorial
       real*8   nwpw_SpecialKummer
       external nwpw_SpecialKummer
+
+      if (mod(n+l,2).eq.1) then
+         call errquit("nwpw_GaussBessel: n+l is not even",0,0)
+      end if
 
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(n+l-1))
@@ -55,7 +60,8 @@ c
 *   dGausBessel(n,l,alpha,R)  = (d/dR)  | k**n exp(-alpha**2 * k**2) j_l(R*k) dk
 *                                       /0
 *
-*     This function uses the SpecialKummer function.
+*     This function uses the SpecialKummer function. Note it is assumed that
+*     (n+l) is an even integer.
 *
       real*8 function nwpw_dGausBessel(n,l,alpha,R)
       implicit none
@@ -71,6 +77,10 @@ c
       external nwpw_doublefactorial
       real*8   nwpw_SpecialKummer
       external nwpw_SpecialKummer
+
+      if (mod(n+l,2).eq.1) then
+         call errquit("nwpw_GaussBessel: n+l is not even",0,0)
+      end if
 
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(n+l-1))
