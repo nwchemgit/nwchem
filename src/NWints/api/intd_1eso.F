@@ -1,5 +1,10 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Calculate derivative 1-electron spin-orbit potential integrals
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1eso}
 c:tex-This routine computes the derivative 1 electron spin orbit 
@@ -36,15 +41,15 @@ c::functions
       external cando_nw
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lso                ! [input] length of SO buffer
-      double precision SO(lso)   ! [output] spin orbit potential 
-c . . . . . . . . . . . . . . . .!             integral buffer
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lso                !< [Input] length of SO buffer
+      double precision SO(lso)   !< [Output] spin orbit potential 
+                                 !< integral buffer
 c:tex-\end{verbatim}
 c::local
       logical shells_ok
@@ -145,3 +150,4 @@ c
      &    3*3*nat,.false.)
 c
       end
+C> @}

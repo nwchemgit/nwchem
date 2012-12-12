@@ -81,9 +81,9 @@ c::functions
       external int_nint_cart
 c::passed
       integer i_basis   !< [Input] ish basis set handle
-      integer ish       !< [Input] ``i'' contraction index
+      integer ish       !< [Input] `i` contraction index
       integer j_basis   !< [Input] jsh basis set handle
-      integer jsh       !< [Input] ``j'' contraction index
+      integer jsh       !< [Input] `j` contraction index
       integer lscr      !< [Input] length of scratch space
       integer lH1a      !< [Input] number of h1 integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
@@ -136,9 +136,9 @@ c::functions
       external cando_nw
 c::passed
       integer i_basis   !< [Input] ish basis set handle
-      integer ish       !< [Input] ``i'' contraction index
+      integer ish       !< [Input] `i` contraction index
       integer j_basis   !< [Input] jsh basis set handle
-      integer jsh       !< [Input] ``j'' contraction index
+      integer jsh       !< [Input] `j` contraction index
       integer lscr      !< [Input] length of scratch space 
       integer nint      !< [Input] number of integrals in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
