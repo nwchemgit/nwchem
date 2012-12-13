@@ -37,3 +37,7 @@ c      integer sigma(2)
      >                  nion,nkatm,mult_l_max,lm_size_max,npack0,nfft3d,
      >                  isgamma
 
+
+*     ******* Two-Electron Gaussian integral block **********
+      integer e_gauss(2),f_gauss(2),indx_gauss(2),ngauss
+      common / nwpw_gaussian_block / e_gauss,f_gauss,indx_gauss,ngauss
