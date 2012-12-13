@@ -1,3 +1,19 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the 4-center 2-electron integral derivatives
+C>
+C> Compute the 4-center 2-electron integral derivatives as given by
+C> \f{eqnarray*}{
+C> \frac{\partial({\mu}{\rho}|{\nu}{\lambda})}{\partial X_x} = \int_{-\infty}^{\infty} \frac{\partial g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})}{\partial X_x}dr_{1}dr_{2}
+C> \f}
+C> The integral derivatives are stored in an order that is consistent with
+C> the declaration `ERI(nint,ncoord,natom)`, where `nint` is the number of
+C> integrals in the shell pair, `ncoord` is the number of Cartesian coordinates
+C> and `natom` equals 4 for the 4 basis set expansion centers. The actual
+C> lexical indeces of the atoms on which the shells `ish`, `jsh`, `ksh` and
+C> `lsh` are centered are returned in `idatom`.
+C>
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
 c $Id$
@@ -34,18 +50,18 @@ c
       external cando_txs
 ckw
 c::passed
-      integer brain ! [input] basis set handle for bra basis
-      integer ish   ! [input] lexical contraction index 
-      integer jsh   ! [input] lexical contraction index 
-      integer ketin ! [input] basis set handle for ket basis
-      integer ksh   ! [input] lexical contraction index 
-      integer lsh   ! [input] lexical contraction index 
-      integer lscr  ! [input] length of scratch array
-      integer leri  ! [input] length of eri array
-      double precision scr(lscr) ! [scratch] scratch array for integral code.
-      double precision eri(leri) ! [output]  array for two electron integral derivatives.
+      integer brain !< [Input] basis set handle for bra basis
+      integer ish   !< [Input] lexical contraction index 
+      integer jsh   !< [Input] lexical contraction index 
+      integer ketin !< [Input] basis set handle for ket basis
+      integer ksh   !< [Input] lexical contraction index 
+      integer lsh   !< [Input] lexical contraction index 
+      integer lscr  !< [Input] length of scratch array
+      integer leri  !< [Input] length of eri array
+      double precision scr(lscr) !< [Scratch] scratch array for integral code.
+      double precision eri(leri) !< [Output]  array for two electron integral derivatives.
 c NOTE: length of idatom is always 4 because there can be at most 4 centers involved
-      integer idatom(4)          ! [output]  array identifying centers for derivatives
+      integer idatom(4)          !< [Output]  array identifying centers for derivatives
 c
 c                       ! e.g., the first  nint*3 derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
@@ -352,6 +368,9 @@ c
       endif
 c
       end
+C>
+C> \brief Based on translational invariance combine integral derivatives
+C>
       subroutine intd_sum(eri,nint_ck,idatom,iatom,jatom,katom,latom)
       implicit none
 c
@@ -374,6 +393,9 @@ c
 00100 continue
 c
       end
+C>
+C> \brief Work out aspects of the translational invariance
+C>
       subroutine intd_logic_atom(idat,iat,jat,kat,lat)
       implicit none
       integer iat,jat,kat,lat
@@ -408,6 +430,10 @@ c
         endif
       endif
       end
+C>
+C> \brief Transform 4-center 2-electron integral derivatives from 
+C> Cartesian to spherical harmonic basis functions
+C>
       subroutine intd_2ec2s(eri,nint_ck,scr,lscr,
      &    it,jt,kt,lt,igin,jgin,kgin,lgin,
      &    bra_sph,ket_sph,idatom)
@@ -558,6 +584,9 @@ c** scalar  (in place)
 #endif
       end
 c=====================================================
+C>
+C> \brief Reorder integrals derivatives from Texas to NWChem ordering
+C>
       subroutine intd_texas_grad_switch(nint_ck,eri,scr)
       implicit none
       integer nint_ck
@@ -597,3 +626,4 @@ c
       enddo
       end
 c=====================================================
+C> @}
