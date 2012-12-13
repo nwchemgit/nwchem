@@ -697,6 +697,77 @@ c!  *************************************************
       end 
 
 
+c!  *************************************************
+c! 
+c!     Name    : drtheta_cos_theta_lm
+c! 
+c! 
+c!     Purpose : calculates drtheta_cos_theta_lm for a scalar cos_theta
+c!               such that
+c!                                                                             {cos(|m|*phi)   m>0
+c!         dT_lm(cos_theta,phi)/d_cos_theta  = drtheta_cos_theta_lm(cos_theta)*{1              m==0
+c!                                                                             {sin(|m|*phi)   m<0
+c! 
+c! 
+c!  *************************************************
+      double precision function drtheta_cos_theta_lm(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,twopi,fourpi,f,sin_theta
+
+      !*** external functions ***
+      double precision rlegendre_lm
+      external         rlegendre_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+      sin_theta = dsqrt(1.0d0-cos_theta*cos_theta)
+
+      mod_m = abs(m)
+      if (mod_m.gt.l)
+     >write(*,*) 'parameter out of order in function rtheta_lm'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+      if (sin_theta.le.1.0d-9) then
+         f = 0.0d0
+c         if (mod_m.eq.1) then
+c            if (mod(l,2).eq.0) then
+c               f = 0.5d0*coeff*l*(l+1)
+c            else
+c               f = cos_theta*0.5d0*coeff*l*(l+1)
+c            end if
+c         else
+c            f = 0.0d0
+c         end if
+      else
+         if (mod_m.lt.l) then
+            f = -coeff*(mod_m*(cos_theta/sin_theta**2)
+     >                      *rlegendre_lm(l,mod_m,cos_theta)
+     >                - rlegendre_lm(l,mod_m+1,cos_theta))
+         else
+            f = -coeff*(mod_m*(cos_theta/sin_theta**2)
+     >                      *rlegendre_lm(l,mod_m,cos_theta))
+         end if
+      end if
+      drtheta_cos_theta_lm = f
+      return
+      end
+
+
+
 
 c!  *************************************************
 c!  
