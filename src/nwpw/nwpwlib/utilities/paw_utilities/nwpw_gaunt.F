@@ -506,7 +506,6 @@ c         end if
 
       mod_m = abs(m)
 
-      f1 = drtheta_lm(l,m,cos_theta)
       if (m.lt.0) then
          tmp2 = dsin(mod_m*phi)
          f2   = mod_m *dcos(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
@@ -517,6 +516,7 @@ c         end if
          tmp2 = 1.0d0
          f2   = 0.0d0
       end if
+      f1 = drtheta_lm(l,m,cos_theta)*tmp2
 
       dTx = f1*cos_theta*cos(phi) - f2*sin(phi)
       dTy = f1*cos_theta*sin(phi) + f2*cos(phi)
@@ -525,6 +525,56 @@ c         end if
       return
       end
 
+
+
+
+*     **************************************
+*     *                                    *
+*     *           dTesseral_lm             *
+*     *                                    *
+*     **************************************
+*
+*  Calculates the derivative of tesseral harmonic for x,y,z wrt to x,y,z,such that
+*
+*                                               {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                               {sin(|m|*phi)   m<0
+*
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine dTesseral_lm(l,m,cos_theta,phi,dTx,dTy,dTz)
+      implicit none
+      integer l,m
+      real*8 cos_theta,phi
+      real*8 dTx,dTy,dTz
+
+*     **** local variables ****
+      integer mod_m
+      real*8 tmp2,r,f1,f2
+
+*     **** external functions
+      real*8   rtheta_lm_div,drtheta_lm
+      external rtheta_lm_div,drtheta_lm
+
+      mod_m = abs(m)
+      if (m.lt.0) then
+         tmp2 = dsin(mod_m*phi)
+         f2   = mod_m *dcos(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
+      else if (m.gt.0) then
+         tmp2 = dcos(mod_m*phi)
+         f2   = -mod_m*dsin(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
+      else
+         tmp2 = 1.0d0
+         f2   = 0.0d0
+      end if
+      f1 = drtheta_lm(l,m,cos_theta)*tmp2
+
+      dTx = f1*cos_theta*cos(phi) - f2*sin(phi)
+      dTy = f1*cos_theta*sin(phi) + f2*cos(phi)
+      dTz = -f1*dsqrt(1.0d0-cos_theta**2)
+
+      return
+      end
 
 
 
