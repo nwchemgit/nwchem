@@ -494,30 +494,33 @@ c         end if
 
 *     **** local variables ****
       integer mod_m
-      real*8 phi,cos_theta,tmp2,r
+      real*8 phi,cos_theta,tmp2,r,f1,f2
 
 *     **** external functions
-      real*8   rtheta_lm
-      external rtheta_lm
+      real*8   rtheta_lm_div,drtheta_lm
+      external rtheta_lm_div,drtheta_lm
 
       r = sqrt(x*x + y*y + z*z)
       cos_theta = z/r
       phi = datan2(y,x)
-c      c_x = -x*z/r**3
-c      c_y = -y*z/r**3
-c      c_z = 1.0d0/r - z*z/r**3
 
       mod_m = abs(m)
+
+      f1 = drtheta_lm(l,m,cos_theta)
       if (m.lt.0) then
          tmp2 = dsin(mod_m*phi)
-c         tmp_phi = mod_m*dcos(mod_m*phi)
+         f2   = mod_m *dcos(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
       else if (m.gt.0) then
          tmp2 = dcos(mod_m*phi)
-c         tmp_phi = -mod_m*dsin(mod_m*phi)
+         f2   = -mod_m*dsin(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
       else
          tmp2 = 1.0d0
-c         tmp_phi = 0.0d0
+         f2   = 0.0d0
       end if
+
+      dTx = f1*cos_theta*cos(phi) - f2*sin(phi)
+      dTy = f1*cos_theta*sin(phi) + f2*cos(phi)
+      dTz = -f1*dsqrt(1.0d0-cos_theta**2)
 
       return
       end
