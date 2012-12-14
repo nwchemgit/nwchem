@@ -527,6 +527,49 @@ c         end if
 
 
 
+*     **************************************
+*     *                                    *
+*     *           Tesseral_lm              *
+*     *                                    *
+*     **************************************
+
+*  Calculates the tesseral harmonic for x,y,z such that
+*
+*                                               {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                               {sin(|m|*phi)   m<0
+* 
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      double precision function Tesseral_lm(l,m,cos_theta,phi)
+      implicit none
+      integer l,m
+      real*8 cos_theta,phi
+
+*     **** local variables ****
+      integer mod_m
+      real*8 tmp2,r
+
+*     **** external functions
+      real*8   rtheta_lm
+      external rtheta_lm
+
+      mod_m = abs(m)
+      if (m.lt.0) then
+         tmp2 = dsin(mod_m*phi)
+      else if (m.gt.0) then
+         tmp2 = dcos(mod_m*phi)
+      else
+         tmp2 = 1.0d0
+      end if
+
+      Tesseral_lm = rtheta_lm(l,m,cos_theta)*tmp2
+      return
+      end
+
+
+
+
 
 *     **************************************
 *     *                                    *
