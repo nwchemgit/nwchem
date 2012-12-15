@@ -735,9 +735,9 @@ c      end
 *     *         nwpw_compcharge_set_gintegrals        *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_compcharge_set_gintegrals(move)
+      subroutine nwpw_compcharge_set_gintegrals(move,periodic)
       implicit none
-      logical move
+      logical move,periodic
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -747,12 +747,28 @@ c      end
       integer ii,jj,ia,ja,indx
       integer iii,jjj,iia,jja
       integer lm1,l1,m1,lm2,l2,m2
-      real*8 R1(3),R12(3),s1,s2
+      integer l,nshl3d,rcell,rcell_hndl
+      real*8 R1(3),R12(3),s1,s2,Rab(3)
       real*8 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
 
 *     **** external functions ****
       real*8   ion_rion,nwpw_WGaussian
       external ion_rion,nwpw_WGaussian
+      integer  ewald_nshl3d,ewald_rcell_ptr
+      external ewald_nshl3d,ewald_rcell_ptr
+
+      if (periodic) then
+         nshl3d = ewald_nshl3d()
+         rcell  = ewald_rcell_ptr()
+      else
+         if (.not. MA_push_get(mt_dbl,3,"rcellflm",rcell_hndl,rcell))
+     >   call errquit("nwpw_compcharge_set_gintegrals:stack",1,MA_ERR)
+
+         nshl3d = 1
+         dbl_mb(rcell)   = 0.0d0
+         dbl_mb(rcell+1) = 0.0d0
+         dbl_mb(rcell+2) = 0.0d0
+      end if
 
       indx = 0
       do iii=1,nion_paw
@@ -780,31 +796,47 @@ c      end
                lm2 = 0
                do l2=0,int_mb(mult_l(1)+jja-1)
                do m2=-l2,l2
-                  if (move) then
-                     call nwpw_dWGaussian(l1,m1,s1,l2,m2,s2,R12,W1,dW1)
-                     call nwpw_dWGaussian(l1,m1,s1,
-     >                                    l2,m2,sigma_smooth,R12,W2,dW2)
-                     call nwpw_dWGaussian(l1,m1,sigma_smooth,
-     >                                    l2,m2,s2,R12,W3,dW3)
-                     call nwpw_dWGaussian(l1,m1,sigma_smooth,
-     >                                    l2,m2,sigma_smooth,R12,W4,dW4)
-                     dbl_mb(e_gauss(1)+indx) = W1 + W4 - W2 - W3
-                     dbl_mb(f_gauss(1)+3*indx)   = dW1(1) + dW4(1)
-     >                                           - dW2(1) - dW3(1)
-                     dbl_mb(f_gauss(1)+3*indx+1) = dW1(2) + dW4(2)
-     >                                           - dW2(2) - dW3(2)
-                     dbl_mb(f_gauss(1)+3*indx+2) = dW1(3) + dW4(3)
-     >                                           - dW2(3) - dW3(3)
-                  else
-                     W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s2,R12)
-                     W2 = nwpw_WGaussian(l1,m1,s1,
-     >                                   l2,m2,sigma_smooth,R12)
-                     W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
-     >                                   l2,m2,s2,R12)
-                     W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
-     >                                   l2,m2,sigma_smooth,R12)
-                     dbl_mb(e_gauss(1)+indx) = W1 + W4 - W2 - W3
-                  end if
+                  do l=1,nshl3d
+                     Rab(1) = R12(1) + dbl_mb(rcell+l-1)
+                     Rab(2) = R12(2) + dbl_mb(rcell+l-1+nshl3d)
+                     Rab(3) = R12(3) + dbl_mb(rcell+l-1+2*nshl3d)
+                     if (move) then
+                        call nwpw_dWGaussian(l1,m1,s1,l2,m2,s2,Rab,
+     >                                       W1,dW1)
+                        call nwpw_dWGaussian(l1,m1,s1,
+     >                                       l2,m2,sigma_smooth,Rab,
+     >                                       W2,dW2)
+                        call nwpw_dWGaussian(l1,m1,sigma_smooth,
+     >                                       l2,m2,s2,Rab,
+     >                                       W3,dW3)
+                        call nwpw_dWGaussian(l1,m1,sigma_smooth,
+     >                                       l2,m2,sigma_smooth,Rab,
+     >                                       W4,dW4)
+                        dbl_mb(e_gauss(1)+indx) 
+     >                     = dbl_mb(e_gauss(1)+indx) 
+     >                     + W1 + W4 - W2 - W3
+                        dbl_mb(f_gauss(1)+3*indx)   
+     >                     = dbl_mb(f_gauss(1)+3*indx)
+     >                     + dW1(1) + dW4(1) - dW2(1) - dW3(1)
+                        dbl_mb(f_gauss(1)+3*indx+1) 
+     >                     = dbl_mb(f_gauss(1)+3*indx+1) 
+     >                     + dW1(2) + dW4(2) - dW2(2) - dW3(2)
+                        dbl_mb(f_gauss(1)+3*indx+2) 
+     >                     = dbl_mb(f_gauss(1)+3*indx+2)
+     >                     + dW1(3) + dW4(3) - dW2(3) - dW3(3)
+                     else
+                        W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s2,Rab)
+                        W2 = nwpw_WGaussian(l1,m1,s1,
+     >                                      l2,m2,sigma_smooth,Rab)
+                        W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
+     >                                      l2,m2,s2,Rab)
+                        W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
+     >                                      l2,m2,sigma_smooth,Rab)
+                        dbl_mb(e_gauss(1)+indx) 
+     >                     = dbl_mb(e_gauss(1)+indx)
+     >                     + W1 + W4 - W2 - W3
+                     end if
+                  end do
                   indx = indx + 1
                end do
                end do
@@ -814,6 +846,11 @@ c      end
 
          end do
       end do
+
+      if (.not.periodic) then
+        if (.not.MA_pop_stack(rcell_hndl))
+     >   call errquit("nwpw_compcharge_set_gintegrals:stack",2,MA_ERR)
+      end if
 
       return
       end
