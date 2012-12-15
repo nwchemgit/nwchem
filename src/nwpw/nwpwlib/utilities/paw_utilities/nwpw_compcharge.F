@@ -735,6 +735,7 @@ c      end
 *     *         nwpw_compcharge_set_gintegrals        *
 *     *                                               *
 *     *************************************************
+
       subroutine nwpw_compcharge_set_gintegrals(move,periodic)
       implicit none
       logical move,periodic
@@ -775,11 +776,14 @@ c      end
          iia = int_mb(katm_paw(1)+iii-1)
          s1  = dbl_mb(sigma_paw(1)+iia-1)
 
+*        **** calculate on-site integrals ****
+
          ii  = int_mb(ion_pawtoion(1)+iii-1)
          R1(1) = ion_rion(1,ii)
          R1(2) = ion_rion(2,ii)
          R1(3) = ion_rion(3,ii)
 
+*        **** calculate IJ integrals ****
          do jjj=iii+1,nion_paw
             jja = int_mb(katm_paw(1)+jjj-1)
             s2  = dbl_mb(sigma_paw(1)+jja-1)
@@ -854,3 +858,18 @@ c      end
 
       return
       end
+
+*     *************************************************
+*     *                                               *
+*     *           nwpw_compcharge_E_multipole         *
+*     *                                               *
+*     *************************************************
+
+c               indx1up = (iii-1)*2*lm_size_max+ lm1
+c               indx1dn = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm1
+c               q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+c
+c               indx2up = (jjj-1)*2*lm_size_max+ lm2
+c               indx2dn = (jjj-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm2
+c               q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+
