@@ -5,12 +5,16 @@
 *     **** common block for nwpw_compcharge data  ****
       logical isgamma
       integer nion,nkatm,mult_l_max,lm_size_max,npack0,nfft3d
+      integer nion_paw,nkatm_paw,katm_paw(2)
+      integer katm_pawtoion(2),ion_pawtoion(2)
+      integer katm_iontopaw(2),ion_iontopaw(2)
       integer mult_l(2),lm_size(2)
+      integer sigma_paw(2)
 c      integer sigma(2)
       real*8 sigma_smooth
 
       integer gk_smooth(2)   ! gk_smooth(k)  = 4*pi * Exp[-k*k*sigma_smooth**2 / 4] 
-      integer gk(2)          ! gk(k,1:nkatm) = 4*pi * Exp[-k*k*sigma(ia)**2 / 4]
+      integer gk(2)          ! gk(k,1:nkatm_paw) = 4*pi * Exp[-k*k*sigma(ia)**2 / 4]
       integer glm(2)         ! glm(k, lm=1:(max_mult_l+1)**2) =  Tlm(k) * |k|**l / (2*l+1)!!
                              !    - Note that (-i)**l factor will be assumed in the calculation.
                              !      Also note that  the Tlm and gaussian terms are rearranged to save space
@@ -20,7 +24,7 @@ c      integer sigma(2)
                              !           gk_smooth = |k|**l * Exp[-k*k*sigma_smooth**2 / 4] / (2*l+1)!!
                              !       but this requires more space
 
-      integer Qlm(2)         ! Qlm(lm=1:(mult_l+1)**2,1:nion) = compensation charge coefficients
+      integer Qlm(2)         ! Qlm(lm=1:(mult_l+1)**2,1:nion_paw) = compensation charge coefficients
 
       integer nindx_Tndiff(2)
       integer shift_Tndiff(2)
@@ -30,11 +34,14 @@ c      integer sigma(2)
       integer coeff_Tndiff(2)   
 
       common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,
-     >                  sigma_smooth,
+     >                  sigma_smooth,sigma_paw,
      >                  mult_l,lm_size,
      >                  nindx_Tndiff,shift_Tndiff,
      >                  lm_Tndiff,iprj_Tndiff,jprj_Tndiff,coeff_Tndiff,
      >                  nion,nkatm,mult_l_max,lm_size_max,npack0,nfft3d,
+     >                  nion_paw,nkatm_paw,katm_paw,
+     >                  katm_pawtoion,ion_pawtoion,
+     >                  katm_iontopaw,ion_iontopaw,
      >                  isgamma
 
 

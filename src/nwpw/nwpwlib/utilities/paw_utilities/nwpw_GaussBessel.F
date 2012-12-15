@@ -1,10 +1,10 @@
 c
-c $Id: nwpw_GausBessel.F 21176 2011-10-10 06:35:49Z d3y133 $
+c $Id: nwpw_GaussBessel.F 21176 2011-10-10 06:35:49Z d3y133 $
 c
 
 *     ******************************************************
 *     *                                                    *
-*     *             nwpw_GausBessel                        *
+*     *               nwpw_GaussBessel                     *
 *     *                                                    *
 *     ******************************************************
 *
@@ -17,7 +17,7 @@ c
 *     This function uses the SpecialKummer function. Note it is assumed that
 *     (n+l) is an even integer.
 *
-      real*8 function nwpw_GausBessel(n,l,alpha,R)
+      real*8 function nwpw_GaussBessel(n,l,alpha,R)
       implicit none
       integer n,l
       real*8  alpha,R
@@ -42,7 +42,7 @@ c
       
       c = (dsqrt(pi)/((2.0d0**((n+l)/2+1))*(alpha**(n+l+1)))) * (x/y)
       
-      nwpw_GausBessel =  c
+      nwpw_GaussBessel =  c
      >               * (R**l) 
      >               * nwpw_SpecialKummer((n+l)/2,l,-(0.5d0*R/alpha)**2)
       return
@@ -50,7 +50,7 @@ c
 
 *     ******************************************************
 *     *                                                    *
-*     *             nwpw_dGausBessel                       *
+*     *                nwpw_dGaussBessel                   *
 *     *                                                    *
 *     ******************************************************
 *
@@ -63,7 +63,7 @@ c
 *     This function uses the SpecialKummer function. Note it is assumed that
 *     (n+l) is an even integer.
 *
-      real*8 function nwpw_dGausBessel(n,l,alpha,R)
+      real*8 function nwpw_dGaussBessel(n,l,alpha,R)
       implicit none
       integer n,l
       real*8  alpha,R
@@ -88,7 +88,7 @@ c
 
       c = (dsqrt(pi)/((2.0d0**((n+l)/2+1))*(alpha**(n+l+1)))) * (x/y)
 
-      nwpw_dGausBessel =  c
+      nwpw_dGaussBessel =  c
      >    * ( (l*R**(l-1))
      >        *nwpw_SpecialKummer((n+l)/2,l,-(0.5d0*R/alpha)**2)
      >      - (0.5d0*R**(l+1)/alpha**2) 

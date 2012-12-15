@@ -64,7 +64,7 @@ c
       do l = abs(la-lb), (la+lb), 2
          mtmp = 0.0d0
          do m=-l,l
-            mtmp = mtmp + nwpw_gaunt(l,m,la,ma,lb,mb)
+            mtmp = mtmp + nwpw_gaunt(.false.,l,m,la,ma,lb,mb)
      <                   *Tesseral_lm(l,m,cos_theta,phi)
          end do
          tmp = tmp + fac * mtmp * nwpw_GaussBessel(la+lb,l,alpha,R)
@@ -98,11 +98,11 @@ c
 *            | g(l,m,s;r) * |r|**l *Tlm(rhat) dr = 1
 *            /
 *
-      subroutine nwpw_dWGaussian(la,ma,sa,lb,mb,sb,Rab,dW)
+      subroutine nwpw_dWGaussian(la,ma,sa,lb,mb,sb,Rab,W,dW)
       implicit none
       integer la,ma,lb,mb
       real*8  sa,sb,Rab(3)
-      real*8  dW(3)
+      real*8  W,dW(3)
  
 *     *** local variables ***
       integer l,m,fac
@@ -136,6 +136,7 @@ c
          fac = 1
       end if
       
+      W = 0.0d0
       dW(1) = 0.0d0
       dW(2) = 0.0d0
       dW(3) = 0.0d0
@@ -145,7 +146,7 @@ c
          mtmpy = 0.0d0
          mtmpz = 0.0d0
          do m=-l,l
-            gg1 = nwpw_gaunt(l,m,la,ma,lb,mb)
+            gg1 = nwpw_gaunt(.false.,l,m,la,ma,lb,mb)
             call dTesseral_lm(l,m,cos_theta,phi,Tx,Ty,Tz)
             mtmp = mtmp   + gg1*Tesseral_lm(l,m,cos_theta,phi)
             mtmpx = mtmpx + gg1*Tx
@@ -154,11 +155,16 @@ c
          end do
          gg2 = nwpw_GaussBessel(la+lb,l,alpha,R)
          gg3 = nwpw_dGaussBessel(la+lb,l,alpha,R)
+         W     = W     + fac*(mtmp*gg2)
          dW(1) = dW(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
          dW(2) = dW(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
          dW(3) = dW(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
          fac = -fac
       end do
+      W = W*c
+      dW(1) = dW(1)*c
+      dW(2) = dW(2)*c
+      dW(3) = dW(3)*c
 
       return
       end 

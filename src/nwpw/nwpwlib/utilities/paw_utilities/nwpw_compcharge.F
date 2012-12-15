@@ -26,16 +26,16 @@
 
 *     ***** local variables ****
       logical value
-      integer k,l,m,lm,ia,Gindx,Gall(2),G(3),tsize
+      integer k,l,m,lm,ii,iii,ia,iia,Gindx,Gall(2),G(3),tsize
       integer iasize,i,j,li,mi,lj,mj,bi,bj
       integer indx,comp_charge_tag,comp_indx
       real*8  scal,gg,fourpioveromega,sumall
       real*8  taunt
 
 *     **** external functions ****
-      integer  control_code,G_indx,c_G_indx
+      integer  control_code,G_indx,c_G_indx,ion_katm
+      external control_code,G_indx,c_G_indx,ion_katm
       real*8   double_factorial,lattice_omega,ewald_rcut
-      external control_code,G_indx,c_G_indx
       external double_factorial,lattice_omega,ewald_rcut
       integer  psi_data_get_ptr
       external psi_data_get_ptr
@@ -45,11 +45,75 @@
       nion         = nion0
       nkatm        = nkatm0
       sigma_smooth = ewald_rcut()
-      value = MA_alloc_get(mt_int,nkatm,"mult_l",mult_l(2),mult_l(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,nkatm,"lm_size",lm_size(2),lm_size(1))
+
+*     **** determine nion_paw, nkatm_paw, katm_paw, ****
+*     ****           katm_pawtoion, ion_pawtoion,  ****
+*     ****           katm_iontopaw, ion_iontopaw     ****
+      nion_paw = 0
+      do ii=1,nion
+         ia = ion_katm(ii)
+         if (psp_type(ia).eq.4) then
+            nion_paw = nion_paw + 1
+         end if
+      end do
+      nkatm_paw = 0
+      do ia=1,nkatm
+         if (psp_type(ia).eq.4) then
+            nkatm_paw = nkatm_paw + 1
+         end if
+      end do
+      value =           MA_alloc_get(mt_int,nion,"ion_iontopaw",
+     >                               ion_iontopaw(2),ion_iontopaw(1))
+      value = value.and.MA_alloc_get(mt_int,nion_paw,"ion_pawtoion",
+     >                               ion_pawtoion(2),ion_pawtoion(1))
+      value = value.and.MA_alloc_get(mt_int,nkatm,"katm_iontopaw",
+     >                               katm_iontopaw(2),katm_iontopaw(1))
+      value = value.and.MA_alloc_get(mt_int,nkatm_paw,"katm_pawtoion",
+     >                               katm_pawtoion(2),katm_pawtoion(1))
+      value = value.and.MA_alloc_get(mt_int,nkatm_paw,"katm_paw",
+     >                               katm_paw(2),katm_paw(1))
+      value = value.and.MA_alloc_get(mt_dbl,nkatm_paw,"sigma_paw",
+     >                               sigma_paw(2),sigma_paw(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",0,MA_ERR)
+
+      iia = 0
+      do ia=1,nkatm
+         if (psp_type(ia).eq.4) then
+            iia = iia + 1
+            int_mb(katm_pawtoion(1)+iia) = ia
+            int_mb(katm_iontopaw(1)+ia)  = iia
+         else
+            int_mb(katm_iontopaw(1)+ia)  = -1
+         end if
+      end do
+      iii = 0
+      do ii=1,nion
+         ia = ion_katm(ii)
+         iia = int_mb(katm_iontopaw(1)+ia-1)
+         if (psp_type(ia).eq.4) then
+            iii = iii + 1
+            int_mb(katm_paw(1)+iii)     = iia
+            int_mb(ion_pawtoion(1)+iii) = ii
+            int_mb(ion_iontopaw(1)+ii)  = iii
+         else
+            int_mb(ion_iontopaw(1)+ii)  = -1
+         end if
+      end do
+      do iia=1,nkatm_paw
+         ia = int_mb(katm_pawtoion(1)+iia-1)
+         dbl_mb(sigma_paw(1)+iia) = sigma(ia)
+      end do
+
+
+*     **** allocate mult_l and lm_size ****
+      value = value.and.MA_alloc_get(mt_int,nkatm_paw,
+     >                     "mult_l",mult_l(2),mult_l(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,nkatm_paw,
+     >                     "lm_size",lm_size(2),lm_size(1))
+      if (.not.value)
+     >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
       !**** band structure code ****
       if ((control_code().eq.5).or.
@@ -71,12 +135,11 @@
       end if
 
       mult_l_max = 0
-      do ia=1,nkatm
-         if (psp_type(ia).eq.4) then
-            int_mb(mult_l(1)+ia-1)  = 2*lmax0(ia)
-            int_mb(lm_size(1)+ia-1) = (2*lmax0(ia)+1)**2
-            if (mult_l_max.lt.(2*lmax0(ia))) mult_l_max = 2*lmax0(ia)
-         end if
+      do iia=1,nkatm_paw
+         ia = int_mb(katm_pawtoion(1)+iia-1)
+         int_mb(mult_l(1)+iia-1)  = 2*lmax0(ia)
+         int_mb(lm_size(1)+iia-1) = (2*lmax0(ia)+1)**2
+         if (mult_l_max.lt.(2*lmax0(ia))) mult_l_max = 2*lmax0(ia)
       end do
 
       !*** allocate gk_smooth, gk,and glm ***
@@ -84,19 +147,19 @@
       value = MA_alloc_get(mt_dbl,npack0,
      >                     "gk_smooth",gk_smooth(2),gk_smooth(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,npack0*nkatm,"gk",gk(2),gk(1))
+     >        MA_alloc_get(mt_dbl,npack0*nkatm_paw,"gk",gk(2),gk(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,npack0*lm_size_max,
      >                     "glm",glm(2),glm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion*lm_size_max,
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlm",Qlm(2),Qlm(1))
       value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
-      call dcopy(2*nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -155,64 +218,59 @@
       end do
 
 *     **** define gk(k,ia)  = 4*pi * Exp[-k*k*sigma(ia**2 / 4] ****
-      do ia=1,nkatm
-         if (psp_type(ia).eq.4) then
-            do k=1,npack0
-               scal = 0.25d0*sigma(ia)**2
-               gg   = dbl_mb(G(1)+k-1)**2 
-     >              + dbl_mb(G(2)+k-1)**2 
-     >              + dbl_mb(G(3)+k-1)**2
-               dbl_mb(gk(1)+(ia-1)*npack0+k-1) 
-     >              = fourpioveromega*dexp(-gg*scal)
-            end do
-         else
-            call dcopy(npack0,0.0d0,0,dbl_mb(gk(1)+(ia-1)*npack0),1)
-         end if
+      do iia=1,nkatm_paw
+         do k=1,npack0
+            scal = 0.25d0*dbl_mb(sigma_paw(1)+iia-1)**2
+            gg   = dbl_mb(G(1)+k-1)**2 
+     >           + dbl_mb(G(2)+k-1)**2 
+     >           + dbl_mb(G(3)+k-1)**2
+            dbl_mb(gk(1)+(ia-1)*npack0+k-1) 
+     >           = fourpioveromega*dexp(-gg*scal)
+         end do
       end do
       if (.not.MA_pop_stack(Gall(2)))
      >   call errquit("nwpw_compcharge_init: pop stack",0,MA_ERR)
 
 
 
-      if (.not.MA_alloc_get(mt_int,nkatm,"nindx_Tndiff",
+      if (.not.MA_alloc_get(mt_int,nkatm_paw,"nindx_Tndiff",
      >                      nindx_Tndiff(2),nindx_Tndiff(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
 
-      if (.not.MA_alloc_get(mt_int,nkatm,"shift_Tndiff",
+      if (.not.MA_alloc_get(mt_int,nkatm_paw,"shift_Tndiff",
      >                      shift_Tndiff(2),shift_Tndiff(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
 
       indx = 0
-      do ia=1,nkatm
-         int_mb(shift_Tndiff(1)+ia-1) = indx
-         if (psp_type(ia).eq.4) then
-            comp_charge_tag = comp_charge_matrix(ia)
+      do iia=1,nkatm_paw
+         ia = int_mb(katm_pawtoion(1)+iia-1)
+         int_mb(shift_Tndiff(1)+iia-1) = indx
 
-            do l=0,int_mb(mult_l(1)+ia-1)
-               comp_indx = psi_data_get_ptr(comp_charge_tag,l+1)
-               do m=-l,l
+         comp_charge_tag = comp_charge_matrix(ia)
 
-                  do j=1,nprj(ia)
-                     lj = l_prj(j,ia)
-                     mj = m_prj(j,ia)
-                     bj = b_prj(j,ia)
+         do l=0,int_mb(mult_l(1)+iia-1)
+            comp_indx = psi_data_get_ptr(comp_charge_tag,l+1)
+            do m=-l,l
+               do j=1,nprj(ia)
+                  lj = l_prj(j,ia)
+                  mj = m_prj(j,ia)
+                  bj = b_prj(j,ia)
 
-                     do i=1,nprj(ia)
-                        li = l_prj(i,ia)
-                        mi = m_prj(i,ia)
-                        bi = b_prj(i,ia)
-                        taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
-     >                       *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
-                        if (dabs(taunt).gt.1.0d-11) then
-                           indx = indx + 1
-                        end if
-                     end do
+                  do i=1,nprj(ia)
+                     li = l_prj(i,ia)
+                     mi = m_prj(i,ia)
+                     bi = b_prj(i,ia)
+                     taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+     >                    *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
+                     if (dabs(taunt).gt.1.0d-11) then
+                        indx = indx + 1
+                     end if
                   end do
-
                end do
             end do
-         end if
-         int_mb(nindx_Tndiff(1)+ia-1)=indx-int_mb(shift_Tndiff(1)+ia-1)
+         end do
+         
+        int_mb(nindx_Tndiff(1)+iia-1)=indx-int_mb(shift_Tndiff(1)+iia-1)
       end do
 
       value = MA_alloc_get(mt_int,indx,"lm_Tndiff",
@@ -231,41 +289,40 @@
      >  "nwpw_compcharge_init: error allocating work arrays",0,MA_ERR)
 
       indx = 0
-      do ia=1,nkatm
-         if (psp_type(ia).eq.4) then
-            comp_charge_tag = comp_charge_matrix(ia)
+      do iia=1,nkatm_paw
+         ia = int_mb(katm_pawtoion(1)+iia-1)
+        
+         comp_charge_tag = comp_charge_matrix(ia)
 
-            lm = 0
-            do l=0,int_mb(mult_l(1)+ia-1)
-               comp_indx = psi_data_get_ptr(comp_charge_tag,l+1)
-               do m=-l,l
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+            comp_indx = psi_data_get_ptr(comp_charge_tag,l+1)
+            do m=-l,l
 
-                  do j=1,nprj(ia)
-                     lj = l_prj(j,ia)
-                     mj = m_prj(j,ia)
-                     bj = b_prj(j,ia)
+               do j=1,nprj(ia)
+                  lj = l_prj(j,ia)
+                  mj = m_prj(j,ia)
+                  bj = b_prj(j,ia)
 
-                     do i=1,nprj(ia)
-                        li = l_prj(i,ia)
-                        mi = m_prj(i,ia)
-                        bi = b_prj(i,ia)
-                        taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
-     >                       *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
-                        if (dabs(taunt).gt.1.0d-11) then
-                           int_mb(lm_Tndiff(1)+indx)   = lm
-                           int_mb(iprj_Tndiff(1)+indx) = i
-                           int_mb(jprj_Tndiff(1)+indx) = j
-                           dbl_mb(coeff_Tndiff(1)+indx) = taunt
-                           indx = indx + 1
-                        end if
-                     end do
+                  do i=1,nprj(ia)
+                     li = l_prj(i,ia)
+                     mi = m_prj(i,ia)
+                     bi = b_prj(i,ia)
+                     taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+     >                    *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
+                     if (dabs(taunt).gt.1.0d-11) then
+                        int_mb(lm_Tndiff(1)+indx)   = lm
+                        int_mb(iprj_Tndiff(1)+indx) = i
+                        int_mb(jprj_Tndiff(1)+indx) = j
+                        dbl_mb(coeff_Tndiff(1)+indx) = taunt
+                        indx = indx + 1
+                     end if
                   end do
-                  lm = lm + 1
                end do
+               lm = lm + 1
             end do
-         end if
+         end do
       end do
-
 
       return
       end
@@ -284,7 +341,13 @@
 #include "nwpw_compcharge.fh"
 
       logical value
-      value =           MA_free_heap(mult_l(2))
+      value =           MA_free_heap(ion_iontopaw(2))
+      value = value.and.MA_free_heap(ion_pawtoion(2))
+      value = value.and.MA_free_heap(katm_iontopaw(2))
+      value = value.and.MA_free_heap(katm_pawtoion(2))
+      value = value.and.MA_free_heap(katm_paw(2))
+      value = value.and.MA_free_heap(sigma_paw(2))
+      value = value.and.MA_free_heap(mult_l(2))
       value = value.and.MA_free_heap(lm_size(2))
       value = value.and.MA_free_heap(gk_smooth(2))
       value = value.and.MA_free_heap(gk(2))
@@ -320,7 +383,7 @@
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
-      integer n,k,ms,lm,iprj,jprj,shift,indx,n1(2),n2(2)
+      integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1,n1(2),n2(2)
       real*8  scal,coeff,w
 
 *     **** external functions ****
@@ -328,7 +391,10 @@
       external lattice_omega
 
 
-      indx = (ii-1)*2*lm_size_max
+      iii = int_mb(ion_iontopaw(1) +ii-1)
+      iia = int_mb(katm_iontopaw(1)+ia-1)
+
+      indx = (iii-1)*2*lm_size_max
       call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
       n1(1) = 1
       n1(2) = ne(1)+1
@@ -336,8 +402,8 @@
       n2(2) = ne(1)+ne(2)
       scal = 1.0d0/lattice_omega()
 
-      shift = int_mb(shift_Tndiff(1)+ia-1)
-      do k=1,int_mb(nindx_Tndiff(1)+ia-1)
+      shift = int_mb(shift_Tndiff(1)+iia-1)
+      do k=1,int_mb(nindx_Tndiff(1)+iia-1)
          lm    = int_mb(lm_Tndiff(1)+shift+k-1)
          iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
          jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
@@ -347,11 +413,12 @@
             do n=n1(ms),n2(ms)
                w = w + sw1(n,iprj)*sw1(n,jprj)
             end do
-            indx = (ii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
-            dbl_mb(Qlm(1)+indx) = dbl_mb(Qlm(1)+indx) + coeff*w
+c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
+            indx1 = indx + (ms-1)*lm_size_max + lm
+            dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) + coeff*w
          end do
       end do
-      call D1dB_SumAll(dbl_mb(Qlm(1)+indx))
+      call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlm(1)+indx))
 
       return
       end 
@@ -447,12 +514,9 @@ c      end
 
 *     **** local variables ****
       logical value
-      integer ii,ia,lm,l,m,indx,QTlm(2),tmp(2),exi(2)
+      integer iii,iia,ii,lm,l,m,indx,QTlm(2),tmp(2),exi(2)
       real*8  q,sumall
 
-*     **** external functions ****
-      integer  ion_katm
-      external ion_katm
 
       value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
@@ -463,16 +527,17 @@ c      end
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
 
       call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
-      do ii=1,nion
-         ia = ion_katm(ii)
-         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call strfac_pack(0,iii,dcpl_mb(exi(1)))
 
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
          lm = 0
-         do l=0,int_mb(mult_l(1)+ia-1)
+         do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               indx = (ii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
+               indx = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
                q = dbl_mb(Qlm(1)+indx)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
@@ -527,12 +592,8 @@ c      end
 
 *     **** local variables ****
       logical value
-      integer ii,ia,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
+      integer iii,iia,ii,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
       real*8  q,sumall
-
-*     **** external functions ****
-      integer  ion_katm
-      external ion_katm
 
       value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
@@ -544,17 +605,18 @@ c      end
 
       call dcopy(2*npack0,0.0d0,0,dng_cmp,1)
       call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
-      do ii=1,nion
-         ia = ion_katm(ii)
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
 
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
          lm = 0
-         do l=0,int_mb(mult_l(1)+ia-1)
+         do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               indx1 = (ii-1)*2*lm_size_max+ lm
-               indx2 = (ii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
                q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
@@ -573,7 +635,7 @@ c      end
             end do
          end do
          call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
-         call Pack_tc_Mul2(0,dbl_mb(gk(1)+(ia-1)*npack0),
+         call Pack_tc_Mul2(0,dbl_mb(gk(1)+(iia-1)*npack0),
      >                       dcpl_mb(QTlm(1)))
          call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
@@ -610,12 +672,9 @@ c      end
 
 *     **** local variables ****
       logical value
-      integer ii,ia,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
+      integer iii,iia,ii,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
       real*8  q,sumall
 
-*     **** external functions ****
-      integer  ion_katm
-      external ion_katm
 
       value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
@@ -626,17 +685,18 @@ c      end
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
 
       call dcopy(2*npack0,0.0d0,0,dng_cmp,1)
-      do ii=1,nion
-         ia = ion_katm(ii)
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
 
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
          lm = 0
-         do l=0,int_mb(mult_l(1)+ia-1)
+         do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               indx1 = (ii-1)*2*lm_size_max+ lm
-               indx2 = (ii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
                q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
@@ -654,7 +714,7 @@ c      end
                lm = lm + 1
             end do
          end do
-         call Pack_tc_Mul2(0,dbl_mb(gk(1)+(ia-1)*npack0),
+         call Pack_tc_Mul2(0,dbl_mb(gk(1)+(iia-1)*npack0),
      >                       dcpl_mb(QTlm(1)))
          call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
@@ -670,3 +730,90 @@ c      end
       end
 
 
+*     *************************************************
+*     *                                               *
+*     *         nwpw_compcharge_set_gintegrals        *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_set_gintegrals(move)
+      implicit none
+      logical move
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     ***** local variables ****
+      integer ii,jj,ia,ja,indx
+      integer iii,jjj,iia,jja
+      integer lm1,l1,m1,lm2,l2,m2
+      real*8 R1(3),R12(3),s1,s2
+      real*8 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
+
+*     **** external functions ****
+      real*8   ion_rion,nwpw_WGaussian
+      external ion_rion,nwpw_WGaussian
+
+      indx = 0
+      do iii=1,nion_paw
+         iia = int_mb(katm_paw(1)+iii-1)
+         s1  = dbl_mb(sigma_paw(1)+iia-1)
+
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         R1(1) = ion_rion(1,ii)
+         R1(2) = ion_rion(2,ii)
+         R1(3) = ion_rion(3,ii)
+
+         do jjj=iii+1,nion_paw
+            jja = int_mb(katm_paw(1)+jjj-1)
+            s2  = dbl_mb(sigma_paw(1)+jja-1)
+
+            jj  = int_mb(ion_pawtoion(1)+jjj-1)
+            R12(1) = R1(1) - ion_rion(1,jj)
+            R12(2) = R1(2) - ion_rion(2,jj)
+            R12(3) = R1(3) - ion_rion(3,jj)
+
+            lm1 = 0
+            do l1=0,int_mb(mult_l(1)+iia-1)
+            do m1=-l1,l1
+
+               lm2 = 0
+               do l2=0,int_mb(mult_l(1)+jja-1)
+               do m2=-l2,l2
+                  if (move) then
+                     call nwpw_dWGaussian(l1,m1,s1,l2,m2,s2,R12,W1,dW1)
+                     call nwpw_dWGaussian(l1,m1,s1,
+     >                                    l2,m2,sigma_smooth,R12,W2,dW2)
+                     call nwpw_dWGaussian(l1,m1,sigma_smooth,
+     >                                    l2,m2,s2,R12,W3,dW3)
+                     call nwpw_dWGaussian(l1,m1,sigma_smooth,
+     >                                    l2,m2,sigma_smooth,R12,W4,dW4)
+                     dbl_mb(e_gauss(1)+indx) = W1 + W4 - W2 - W3
+                     dbl_mb(f_gauss(1)+3*indx)   = dW1(1) + dW4(1)
+     >                                           - dW2(1) - dW3(1)
+                     dbl_mb(f_gauss(1)+3*indx+1) = dW1(2) + dW4(2)
+     >                                           - dW2(2) - dW3(2)
+                     dbl_mb(f_gauss(1)+3*indx+2) = dW1(3) + dW4(3)
+     >                                           - dW2(3) - dW3(3)
+                  else
+                     W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s2,R12)
+                     W2 = nwpw_WGaussian(l1,m1,s1,
+     >                                   l2,m2,sigma_smooth,R12)
+                     W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
+     >                                   l2,m2,s2,R12)
+                     W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
+     >                                   l2,m2,sigma_smooth,R12)
+                     dbl_mb(e_gauss(1)+indx) = W1 + W4 - W2 - W3
+                  end if
+                  indx = indx + 1
+               end do
+               end do
+
+            end do
+            end do
+
+         end do
+      end do
+
+      return
+      end
