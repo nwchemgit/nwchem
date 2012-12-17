@@ -27,7 +27,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 46)
+      parameter (num_dirs = 47)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -60,8 +60,13 @@ c
       double precision efield_y
       double precision efield_z
       integer maxiter
+c
       logical lvspec
       integer owstart(2), owend(2)
+c
+      logical lxps
+      integer lenstr
+      character*255 inp_vecs
 c
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
@@ -70,7 +75,7 @@ c
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb','cgmin','nocgmin','tol2e','ri-scf','lock',
-     $         'rodft','fukui','maxiter','vspec','end'/
+     $         'rodft','fukui','maxiter','vspec','xps','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -120,7 +125,7 @@ c
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
-     $     9999) ind
+     $     4400, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -770,6 +775,27 @@ c
      &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'dft:owend',mt_int,2,owend))
      &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
+c
+      goto 10
+c
+c     xps
+c
+ 4400 continue
+      lxps = .true.
+ 4401 if (inp_a(test)) then
+        lenstr = inp_strlen(test)
+        inp_vecs = test(1:lenstr)
+        if (.not. rtdb_cput(rtdb,'dft:mos_ini',1,inp_vecs)) call errquit
+     $    ('dft_input: failed to store xps vectors',4400,RTDB_ERR)
+      end if 
+ 4402 if (inp_a(test)) then
+        lenstr = inp_strlen(test)
+        inp_vecs = test(1:lenstr)
+        if (.not. rtdb_cput(rtdb,'dft:mos_fin',1,inp_vecs)) call errquit
+     $    ('dft_input: failed to store xps vectors',4400,RTDB_ERR)
+      end if 
+      if (.not.rtdb_put(rtdb,'dft:lxps',mt_log,1,lxps)) call errquit
+     $    ('dft_input: failed to store lxps',4400,RTDB_ERR)
 c
       goto 10
 c

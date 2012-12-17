@@ -4,7 +4,8 @@ c
 c
 C     $Id$
 
-c     occup 5 3
+c     occup 
+c      5 3
 c      1.0 1.0
 c      1.0 1.0
 c      1.0 1.0
@@ -41,7 +42,6 @@ c
       lfromfile = .false.
 c     
 c     read occup from the input deck and persist it in the rtdb
-c     
       if (ga_nodeid() .ne. 0) return
 c     
 c     Check that this is indeed a occupations line
@@ -55,10 +55,13 @@ c
       nfocc_in(1) = 0  ! spin-1
       nfocc_in(2) = 0  ! spin-2
       status = .true.
-      status = status .and. inp_i(nfocc_in(1))
-      status = status .and. inp_i(nfocc_in(2))
+      if (inp_read()) then
+         if (.not. inp_i(nfocc_in(1))) nfocc_in(1) = 0
+         if (.not. inp_i(nfocc_in(2))) nfocc_in(2) = 0
+      end if ! inp_read()
 c
       nfocc=nfocc_in(1)+nfocc_in(2) ! total fractional occupation
+      if (nfocc.eq.0) return
       imin=2
       imaj=1   ! spin-1 is dominant
       if (nfocc_in(1).lt.nfocc_in(2)) then
