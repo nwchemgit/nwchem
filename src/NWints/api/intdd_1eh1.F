@@ -1,3 +1,30 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the integral 2nd derivatives of the 1-electron Hamiltonian
+C>
+C> Compute the integral 2nd derivatives of the 1-electron Hamiltonian
+C> consisting of the kinetic energy integrals and the nuclear attraction
+C> integrals. The kinetic energy integral 2nd derivatives are given by
+C> \f{eqnarray*}{
+C>   -\frac{1}{2}\frac{\partial^2 (\mu|\nabla_1^2|\nu)}{\partial R_x\partial R_y} &=&
+C>   -\frac{1}{2}\int \frac{\partial^2 [g_\mu(X_\mu,r_1)\nabla_1^2g_\nu(X_\nu,r_1)]}
+C>                         {\partial X_x\partial X_y}dr_1
+C> \f}
+C> The nuclear attraction integral 2nd derivatives are given by
+C> \f{eqnarray*}{
+C>   \sum_A\frac{\partial^2 (\mu|Z_AR_A^{-1}|\nu)}{\partial R_x\partial R_y} &=&
+C>      \sum_A\int \frac{\partial^2 [g_\mu(X_\mu,r_1)Z_AR^{-1}_{A1}g_\nu(X_\nu,r_1)]}
+C>                      {\partial X_x\partial R_y}dr_1
+C> \f}
+C> The integral 2nd derivatives are returned in `H1a` in an order that is
+C> equivalent to the declaration `H1a(nint,ncoordu,ncoordv,natom,ncoorda)`,
+C> where `nint` refers to the number of integrals associated with the shell
+C> pair, `ncoordu` refers the number of Cartesian coordinates of the atom 
+C> associated shell `ish` likewise `ncoordv` refers to atomic coordinates of the
+C> `jsh` atom, `natom` is the number of atoms and `ncoorda` is the number
+C> of coordinates of each nucleus.
+C>
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
 C $Id$
@@ -58,15 +85,15 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] ``i'' contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] ``j'' contraction index
-      integer lscr      ! [input] length of scratch space
-      integer lH1a      ! [input] number of h1 integral derivatives in shells ish and jsh
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] `i` contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] `j` contraction index
+      integer lscr      !< [Input] length of scratch space
+      integer lH1a      !< [Input] number of h1 integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      double precision scr(lscr) ! [input] scratch array
-      double precision H1a(*)    ! [output] derivative integrals
+      double precision scr(lscr) !< [Input] scratch array
+      double precision H1a(*)    !< [Output] derivative integrals
 c
 c::local
       integer nint, offset, nat
@@ -312,4 +339,4 @@ c
       endif
 c
       end
-      
+C> @}
