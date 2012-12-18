@@ -1912,7 +1912,7 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         DEFINES  += -DCHKUNDFLW -DGCC4
-        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
+        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
         ifeq ($(_GCC46),Y) 
           DEFINES  += -DGCC46
         endif
