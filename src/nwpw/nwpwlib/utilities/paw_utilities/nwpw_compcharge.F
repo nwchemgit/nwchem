@@ -753,8 +753,8 @@ c      end
       real*8 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
 
 *     **** external functions ****
-      real*8   ion_rion,nwpw_WGaussian
-      external ion_rion,nwpw_WGaussian
+      real*8   ion_rion,nwpw_WGaussian,nwpw_UGaussian
+      external ion_rion,nwpw_WGaussian,nwpw_UGaussian
       integer  ewald_nshl3d,ewald_rcell_ptr
       external ewald_nshl3d,ewald_rcell_ptr
 
@@ -777,13 +777,24 @@ c      end
          s1  = dbl_mb(sigma_paw(1)+iia-1)
 
 *        **** calculate on-site integrals ****
+         do l1=0,int_mb(mult_l(1)+iia-1)
+         do m1=-l1,l1
+            W1 = nwpw_UGaussian(l1,m1,s1,l2,m2,s2)
+            W2 = nwpw_UGaussian(l1,m1,s1,l2,m2,sigma_smooth)
+            W3 = nwpw_UGaussian(l1,m1,sigma_smooth,l2,m2,s2)
+            W4 = nwpw_UGaussian(l1,m1,sigma_smooth,l2,m2,sigma_smooth)
+            dbl_mb(e_gauss(1)+indx) = dbl_mb(e_gauss(1)+indx)
+     >                              + W1 + W4 - W2 - W3
+            indx = indx + 1
+         end do
+         end do
 
+
+*        **** calculate IJ integrals ****
          ii  = int_mb(ion_pawtoion(1)+iii-1)
          R1(1) = ion_rion(1,ii)
          R1(2) = ion_rion(2,ii)
          R1(3) = ion_rion(3,ii)
-
-*        **** calculate IJ integrals ****
          do jjj=iii+1,nion_paw
             jja = int_mb(katm_paw(1)+jjj-1)
             s2  = dbl_mb(sigma_paw(1)+jja-1)
