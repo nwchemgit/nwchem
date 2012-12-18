@@ -1,10 +1,11 @@
 c
 c     Calculates xps intensity between the initial and final states
 c
-      subroutine dft_xps(rtdb,ao_bas_han,geom,ipol,nmo,nbf)
+      subroutine dft_xps(rtdb,ao_bas_han,geom)
 c
       implicit none
 c
+#include "bas.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -53,7 +54,9 @@ c
       character*255 mos_fin
       character*255 scftype    ! Type of SCF
       character*32 pname
-      double precision scal,xps_intens
+      double precision scal,xps_wif
+      logical oskel
+c
       double precision two, three
       parameter (two=2.d0,three=3.d0)
       double precision au2ev
@@ -75,11 +78,27 @@ c     Get oscillator strength scale factor
       if (.not. rtdb_get(rtdb, 'xps:scal', mt_dbl, 1, scal))
      &     scal = 1.d0
 c
+c     Get scftype
+      if (.not. rtdb_cget(rtdb, 'dft:scftype', 1, scftype))
+     $  call errquit(pname//'DFT scftype not defined',0,RTDB_ERR)
+      if (scftype.eq.'RHF') ipol = 1
+      if (scftype.eq.'UHF') ipol = 2
+c
+c     Get the number of basis functions
+      if (.not. bas_numbf(ao_bas_han,nbf)) 
+     &    call errquit(pname//'failed to get nbf',1,BASIS_ERR)
+c
 c     Get the file names
       if (.not. rtdb_cget(rtdb,'dft:mos_ini',1,mos_ini)) 
      &  call errquit(pname//'failed to get initial vectors',0,RTDB_ERR)
       if (.not. rtdb_cget(rtdb,'dft:mos_fin',1,mos_fin)) 
      &  call errquit(pname//'failed to get final vectors',0,RTDB_ERR)
+c
+c      if (nodezero) then
+c            write(luout,*) "dft:scftype:",scftype
+c            write(luout,*) "dft:mos_ini:",mos_ini
+c            write(luout,*) "dft:mos_fin:",mos_fin 
+c      end if 
 c
 c     Allocate global arrays for MO vectors
       if (.not.ma_push_get(mt_dbl,nbf*ipol,'evl',l_evl,k_evl)) 
@@ -145,6 +164,11 @@ c     Compute dipole integrals in the AO basis
       call ga_zero(g_dpz)
       call int_dip_ga(ao_bas_han,ao_bas_han,g_dpx,g_dpy,g_dpz)
 c
+ctest
+c      oskel = .false.
+c      call int_1e_ga(ao_bas_han, ao_bas_han,g_dpx,'overlap',oskel)
+ctest
+c
 c     Compute (Cf)T * D * (Ci)
       do i=1,ipol
 c      x-comp
@@ -180,10 +204,21 @@ c     Calculate transition dipole
       tdz = ga_trace_diag(g_tdz(1))
 c
 c     Calculate the intensity
-      xps_intens = 2.d0/3.d0 * (tdx*tdx + tdy*tdy + tdz*tdz)
-      if (ga_nodeid().eq.0) write(luout,*) "xps_intensity: ",xps_intens
+      if (ipol.eq.1) then
+        xps_wif = (tdx*tdx + tdy*tdy + tdz*tdz)/(nbf*nbf)
+      else
+        xps_wif = (tdx*tdx + tdy*tdy + tdz*tdz)/(4.d0*nbf*nbf)
+      end if ! ipol
+      xps_wif = 2.d0/3.d0 * xps_wif
+      if (ga_nodeid().eq.0) 
+     &      write(luout,*) "xps_intensity: ",xps_wif
 c
 c     Clean up
+      if (.not.ma_pop_stack(l_occ)) call errquit
+     &  (pname//'failed to deallocate occ',0,MA_ERR)
+      if (.not.ma_pop_stack(l_evl)) call errquit
+     &  (pname//'failed to deallocate evl',0,MA_ERR)
+c
       if (.not.ga_destroy(g_tmp)) 
      &  call errquit(pname//'failed to destroy g_tmp',0,GA_ERR)
       if (.not.ga_destroy(g_dpx)) 
