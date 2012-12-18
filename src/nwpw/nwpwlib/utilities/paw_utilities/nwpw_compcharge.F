@@ -729,6 +729,64 @@ c      end
       return
       end
 
+*     *************************************************
+*     *                                               *
+*     *         nwpw_set_gcount                       *
+*     *                                               *
+*     *************************************************
+
+      subroutinen nwpw_set_gcount()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer taskid,np,pcount,gcount
+      integer l1,m1,l2,m2,iii,jjj,iia,jja
+
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+      pcount = 0
+      gcount = 0
+      do iii=1,nion_paw
+         iia = int_mb(katm_paw(1)+iii-1)
+
+*        **** calculate on-site integrals ****
+         do l1=0,int_mb(mult_l(1)+iia-1)
+         do m1=-l1,l1
+            if (mod(pcount,np).eq.taskid) then
+               gcount = gcount + 1
+            end if
+            pcount = pcount + 1
+         end do
+         end do
+         do jjj=iii+1,nion_paw
+            jja = int_mb(katm_paw(1)+jjj-1)
+
+            do l1=0,int_mb(mult_l(1)+iia-1)
+            do m1=-l1,l1
+               do l2=0,int_mb(mult_l(1)+jja-1)
+               do m2=-l2,l2
+                  if (mod(pcount,np).eq.taskid) then
+                     gcount = gcount + 1
+                  end if
+                  pcount = pcount + 1
+               end do
+               end do
+            end do
+            end do
+         end do
+      end do
+      ngauss = gcount
+      return
+      end
 
 *     *************************************************
 *     *                                               *
@@ -745,6 +803,7 @@ c      end
 #include "nwpw_compcharge.fh"
 
 *     ***** local variables ****
+      integer taskid,np,pcount
       integer ii,jj,ia,ja,indx
       integer iii,jjj,iia,jja
       integer lm1,l1,m1,lm2,l2,m2
@@ -758,6 +817,9 @@ c      end
       integer  ewald_nshl3d,ewald_rcell_ptr
       external ewald_nshl3d,ewald_rcell_ptr
 
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
       if (periodic) then
          nshl3d = ewald_nshl3d()
          rcell  = ewald_rcell_ptr()
@@ -770,8 +832,11 @@ c      end
          dbl_mb(rcell+1) = 0.0d0
          dbl_mb(rcell+2) = 0.0d0
       end if
+      call dcopy(ngauss,0.0d0,0,dbl_mb(e_gauss(1)),1)
+      call dcopy(3*ngauss,0.0d0,0,dbl_mb(f_gauss(1)),1)
 
-      indx = 0
+      pcount = 0
+      indx   = 0
       do iii=1,nion_paw
          iia = int_mb(katm_paw(1)+iii-1)
          s1  = dbl_mb(sigma_paw(1)+iia-1)
@@ -779,13 +844,16 @@ c      end
 *        **** calculate on-site integrals ****
          do l1=0,int_mb(mult_l(1)+iia-1)
          do m1=-l1,l1
-            W1 = nwpw_UGaussian(l1,m1,s1,l2,m2,s2)
-            W2 = nwpw_UGaussian(l1,m1,s1,l2,m2,sigma_smooth)
-            W3 = nwpw_UGaussian(l1,m1,sigma_smooth,l2,m2,s2)
-            W4 = nwpw_UGaussian(l1,m1,sigma_smooth,l2,m2,sigma_smooth)
-            dbl_mb(e_gauss(1)+indx) = dbl_mb(e_gauss(1)+indx)
-     >                              + W1 + W4 - W2 - W3
-            indx = indx + 1
+            if (mod(pcount,np).eq.taskid) then
+               W1=nwpw_UGaussian(l1,m1,s1,l2,m2,s2)
+               W2=nwpw_UGaussian(l1,m1,s1,l2,m2,sigma_smooth)
+               W3=nwpw_UGaussian(l1,m1,sigma_smooth,l2,m2,s2)
+               W4=nwpw_UGaussian(l1,m1,sigma_smooth,l2,m2,sigma_smooth)
+               dbl_mb(e_gauss(1)+indx) = dbl_mb(e_gauss(1)+indx)
+     >                                 + W1 + W4 - W2 - W3
+               indx = indx + 1
+            end if
+            pcount = pcount + 1
          end do
          end do
 
@@ -811,6 +879,7 @@ c      end
                lm2 = 0
                do l2=0,int_mb(mult_l(1)+jja-1)
                do m2=-l2,l2
+                  if (mod(pcount,np).eq.taskid) then
                   do l=1,nshl3d
                      Rab(1) = R12(1) + dbl_mb(rcell+l-1)
                      Rab(2) = R12(2) + dbl_mb(rcell+l-1+nshl3d)
@@ -853,6 +922,8 @@ c      end
                      end if
                   end do
                   indx = indx + 1
+                  end if
+                  pcount = pcount + 1
                end do
                end do
 
