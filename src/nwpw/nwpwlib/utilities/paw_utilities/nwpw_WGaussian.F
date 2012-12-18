@@ -168,3 +168,50 @@ c
 
       return
       end 
+
+*     ******************************************************
+*     *                                                    *
+*     *             nwpw_UGaussian                         *
+*     *                                                    *
+*     ******************************************************
+*
+*     Calculates the two electron one center Gaussian integral
+*
+*                                            //
+*    WGaussian(la,ma,sa,lb,Ra,mb,sb,Rb)   =  || g(la,ma,sa;r) * g(lb,mb,sb;r')  
+*                                            || ------------------------------------  dr dr'
+*                                            //                |r-r'|
+*
+*     where g(l,m,s; r) = C_l * |r|**l * exp(-(r/s)**2) * Tlm(rhat) 
+*
+*          and C_l = 2**(l+2) / (sqrt(pi) (2*l+1)!! s**(2*l+3) )
+*           
+*     The normalization constant C_l is defined such at
+*            /
+*            | g(l,m,s;r) * |r|**l *Tlm(rhat) dr = 1
+*            /
+*
+      real*8 function nwpw_UGaussian(la,ma,sa,lb,mb,sb)
+      implicit none
+      integer la,ma,lb,mb
+      real*8  sa,sb
+ 
+*     *** local variables ***
+      real*8 x,y,twopi,s,U
+
+*     **** external functions ****
+      integer  nwpw_doublefactorial
+      external nwpw_doublefactorial
+
+      U = 0.0d0
+      if ((la.eq.lb).and.(ma.eq.mb)) then
+         twopi = 8.0d0*datan(1.0d0)
+         x = dble((2*la+1)*nwpw_doublefactorial(2*la+1))
+         y = (dsqrt(0.5d0*(sa*sa+sb*sb)))**(2*la+1)
+         U = 4.0d0*dsqrt(twopi)/(x*y) 
+      end if
+
+      nwpw_UGaussian = U
+      return
+      end 
+
