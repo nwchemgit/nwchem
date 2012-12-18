@@ -82,6 +82,8 @@ c
       double precision eone, etwo, enrep, energy
       double precision dft_time
 c
+      logical lxps
+c
       nexc = 1
 c
 c     == Preliminaries ==
@@ -104,6 +106,11 @@ c
       lsuccess = .false.
       ltried_scf = .false.
       ltried_cgmin = .false.
+c
+c     initialize
+      if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, 0.d0))
+     &   call errquit('dft_scf: failed to store energy in rtdb', 0,
+     &       RTDB_ERR)
 c
 c     == SCALAPACK related ==
 c
@@ -152,6 +159,18 @@ c     == This uses the old NWdft data structures, rather than tthe rtdb ==
       if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
          call errquit(pname//'Exiting',1, BASIS_ERR)
       endif 
+c
+c     Do XPS calculation
+      if (.not. rtdb_get(rtdb, 'dft:lxps',mt_log,1,lxps))
+     &   lxps = .false.
+      if (lxps) then
+        call dft_xps(rtdb,ao_bas_han,geom)
+        dft_main0d = .true.
+        return
+      endif ! lxps
+c
+
+
       iter = 0
       Etold = 0.D0
 c
