@@ -854,6 +854,53 @@ c      end
                indx = indx + 1
             end if
             pcount = pcount + 1
+
+            if (nshl3d.gt.1) then
+               do l2=0,int_mb(mult_l(1)+iia-1)
+               do m2=-l2,l2
+                  if (mod(pcount,np).eq.taskid) then
+                  do l=2,nshl3d
+                     Rab(1) = dbl_mb(rcell+l-1)
+                     Rab(2) = dbl_mb(rcell+l-1+nshl3d)
+                     Rab(3) = dbl_mb(rcell+l-1+2*nshl3d)
+                     if (move) then
+                        call nwpw_dWGaussian(l1,m1,s1,l2,m2,s2,Rab,
+     >                                       W1,dW1)
+                        call nwpw_dWGaussian(l1,m1,s1,
+     >                                       l2,m2,sigma_smooth,Rab,
+     >                                       W2,dW2)
+                        call nwpw_dWGaussian(l1,m1,sigma_smooth,
+     >                                       l2,m2,sigma_smooth,Rab,
+     >                                    W4,dW4)
+                        dbl_mb(e_gauss(1)+indx)
+     >                     = dbl_mb(e_gauss(1)+indx)
+     >                     + W1 + W4 - 2*W2 
+                        dbl_mb(f_gauss(1)+3*indx)
+     >                     = dbl_mb(f_gauss(1)+3*indx)
+     >                     + dW1(1) + dW4(1) - 2*dW2(1)
+                        dbl_mb(f_gauss(1)+3*indx+1)
+     >                     = dbl_mb(f_gauss(1)+3*indx+1)
+     >                     + dW1(2) + dW4(2) - 2*dW2(2)
+                        dbl_mb(f_gauss(1)+3*indx+2)
+     >                     = dbl_mb(f_gauss(1)+3*indx+2)
+     >                     + dW1(3) + dW4(3) - 2*dW2(3)
+                     else
+                        W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s1,Rab)
+                        W2 = nwpw_WGaussian(l1,m1,s1,
+     >                                      l2,m2,sigma_smooth,Rab)
+                        W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
+     >                                      l2,m2,sigma_smooth,Rab)
+                        dbl_mb(e_gauss(1)+indx)
+     >                     = dbl_mb(e_gauss(1)+indx)
+     >                     + W1 + W4 - 2*W2
+                     end if
+                  end do
+                  indx = indx + 1
+                  end if
+                  pcount = pcount + 1
+               end do
+               end do
+            end if
          end do
          end do
 
