@@ -1,3 +1,19 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute 2-center 2-electron integral 2nd derivatives
+C>
+C> Compute the 2-center 2-electron integral 2nd derivatives as given by
+C> \f{eqnarray*}{
+C> \frac{\partial^2({\mu}|{\nu})}{\partial X_x\partial X_y} = \int_{-\infty}^{\infty} \frac{\partial^2 g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})}{\partial X_x\partial X_y}dr_{1}dr_{2}
+C> \f}
+C> The integral derivatives are stored in an order that is consistent with
+C> the declaration `ERI(natcrd*(natcrd+1)/2,nint)`, where `nint` is the number
+C> of integrals in the shell pair, `natcrd` is the number of Cartesian
+C> coordinates in the shell pair, i.e. 6 ( = 2 atoms * 3 coordinates).
+C> The actual lexical indeces of the atoms on which the shells `ish` and 
+C> `jsh` are centered are returned in `idatom`.
+C>
       subroutine intdd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom)
 c $Id$
@@ -85,16 +101,16 @@ c
       external cando_txs
 ckw
 c::passed
-      integer brain ! [input] basis set handle for bra basis
-      integer ish   ! [input] lexical contraction index 
-      integer ketin ! [input] basis set handle for ket basis
-      integer jsh   ! [input] lexical contraction index 
-      integer lscr  ! [input] length of scratch array
-      integer leri  ! [input] length of eri array
-      double precision scr(lscr) ! [scratch] scratch array for integral code.
-      double precision eri(leri) ! [output]  array for two electron integral derivatives.
+      integer brain !< [Input] basis set handle for bra basis
+      integer ish   !< [Input] lexical contraction index 
+      integer ketin !< [Input] basis set handle for ket basis
+      integer jsh   !< [Input] lexical contraction index 
+      integer lscr  !< [Input] length of scratch array
+      integer leri  !< [Input] length of eri array
+      double precision scr(lscr) !< [Scratch] scratch array for integral code.
+      double precision eri(leri) !< [Output]  array for two electron integral derivatives.
 c NOTE: length of idatom is always 4 because there can be at most 4 centers involved
-      integer idatom(4)          ! [output]  array identifying centers for derivatives
+      integer idatom(4)          !< [Output]  array identifying centers for derivatives
 c
 c::local
       integer nint, ucont
@@ -193,3 +209,4 @@ c
       endif
 c
       end
+C> @}
