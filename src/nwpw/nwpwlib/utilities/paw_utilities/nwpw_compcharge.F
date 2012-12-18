@@ -735,23 +735,31 @@ c      end
 *     *                                               *
 *     *************************************************
 
-      subroutinen nwpw_set_gcount()
+      subroutinen nwpw_set_gcount(periodic)
       implicit none
+      logical periodic
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
-      integer taskid,np,pcount,gcount
+      integer taskid,np,pcount,gcount,nshl3d
       integer l1,m1,l2,m2,iii,jjj,iia,jja
 
 *     **** external functions ****
-      real*8   ion_rion
-      external ion_rion
+      real*8   ion_rion,ewald_nshl3d
+      external ion_rion,ewald_nshl3d
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+
+      if (periodic) then
+         nshl3d = ewald_nshl3d()
+      else
+         nshl3d = 1
+      end if
+
 
       pcount = 0
       gcount = 0
@@ -765,8 +773,20 @@ c      end
                gcount = gcount + 1
             end if
             pcount = pcount + 1
+
+            if (nshl3d.gt.1) then
+               do l2=0,int_mb(mult_l(1)+iia-1)
+               do m2=-l2,l2
+                  if (mod(pcount,np).eq.taskid) then
+                     gcount = gcount + 1
+                  end if
+                  pcount = pcount + 1
+               end do
+               end do
+            end if
          end do
          end do
+
          do jjj=iii+1,nion_paw
             jja = int_mb(katm_paw(1)+jjj-1)
 
