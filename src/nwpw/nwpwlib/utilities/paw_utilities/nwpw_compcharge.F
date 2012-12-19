@@ -787,6 +787,7 @@ c      end
          end do
          end do
 
+*        **** calculate IJ integrals ****
          do jjj=iii+1,nion_paw
             jja = int_mb(katm_paw(1)+jjj-1)
 
@@ -807,6 +808,8 @@ c      end
       ngauss = gcount
       return
       end
+
+
 
 *     *************************************************
 *     *                                               *
