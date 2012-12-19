@@ -1,5 +1,17 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Initialize the integral 2nd derivatives drivers
+C>
+C> This is the main initialization routine for integral second 
+C> derivatives.
+C> Default memory requirements, accuracy thresholds, and other 
+C> initializations for all base integral codes are set here. 
+C> This routine will read (from the rtdb) any integral 
+C> settings changed by the user.
+C>
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
 c:tex-This is the main initialization routine for integral second 
@@ -37,9 +49,9 @@ c::functions
       external texas_check_basis_ok
 c::passed
 c:tex-\begin{verbatim}
-      integer rtdb        ! [input] run time data base handle
-      integer nbas        ! [input] number of basis sets to be used
-      integer bases(nbas) ! [input] basis set handles
+      integer rtdb        !< [Input] run time data base handle
+      integer nbas        !< [Input] number of basis sets to be used
+      integer bases(nbas) !< [Input] basis set handles
 c:tex-\end{verbatim}
 c::local
       integer ibas, ang2use, angm
@@ -290,4 +302,4 @@ c See if any basis has an attached SO potential
       init_intdd = 1
       end
 
-      
+C> @}

@@ -1,5 +1,16 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Initialize the integral derivative drivers
+C>
+C> This is the main initialization routine for integral derivatives.
+C> Default memory requirements, accuracy thresholds, and other 
+C> initializations for all base integral codes are set here. 
+C> This routine will read (from the rtdb) any integral 
+C> settings changed by the user.
+C>
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
 c:tex-This is the main initialization routine for integral derivatives.
@@ -37,9 +48,9 @@ c intd_init_org.
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer rtdb        ! [input] run time data base handle
-      integer nbas        ! [input] number of basis sets to be used
-      integer bases(nbas) ! [input] basis set handles
+      integer rtdb        !< [Input] run time data base handle
+      integer nbas        !< [Input] number of basis sets to be used
+      integer bases(nbas) !< [Input] basis set handles
 c:tex-\end{verbatim}
 c::local
       integer mybm_a, mybIm_a, ibas, nrbas     ! Temporary variables
@@ -444,4 +455,4 @@ c
       call errquit('sp_der_init',911, INT_ERR)
       end
 
-      
+C> @}
