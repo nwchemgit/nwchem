@@ -155,11 +155,23 @@
      >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlm",Qlm(2),Qlm(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "Qlmx",Qlmx(2),Qlmx(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "Qlmy",Qlmy(2),Qlmy(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "Qlmz",Qlmz(2),Qlmz(1))
+      value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmx(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmy(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmz(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -353,6 +365,9 @@
       value = value.and.MA_free_heap(gk(2))
       value = value.and.MA_free_heap(glm(2))
       value = value.and.MA_free_heap(Qlm(2))
+      value = value.and.MA_free_heap(Qlmx(2))
+      value = value.and.MA_free_heap(Qlmy(2))
+      value = value.and.MA_free_heap(Qlmz(2))
       value = value.and.MA_free_heap(shift_Tndiff(2))
       value = value.and.MA_free_heap(nindx_Tndiff(2))
       value = value.and.MA_free_heap(lm_Tndiff(2))
@@ -422,6 +437,84 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
 
       return
       end 
+
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_gen_Qlmxyz       *
+*     *                                               *
+*     *************************************************
+
+*     This routine computes Qlmx,Qlmy,Qlmz for atom ii.
+
+      subroutine nwpw_compcharge_gen_Qlmxyz(ii,ia,ispin,ne,nprj,sw1,
+     >                                      sw1x,sw1y,sw1z)
+      implicit none
+      integer ii,ia
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  sw1x(ne(1)+ne(2),nprj)
+      real*8  sw1y(ne(1)+ne(2),nprj)
+      real*8  sw1z(ne(1)+ne(2),nprj)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1,n1(2),n2(2)
+      real*8  scal,coeff,wx,wy,wz
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      iii = int_mb(ion_iontopaw(1) +ii-1)
+      iia = int_mb(katm_iontopaw(1)+ia-1)
+
+      indx = (iii-1)*2*lm_size_max
+      call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlmx(1)+indx),1)
+      call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlmy(1)+indx),1)
+      call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlmz(1)+indx),1)
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+      scal = 1.0d0/lattice_omega()
+
+      shift = int_mb(shift_Tndiff(1)+iia-1)
+      do k=1,int_mb(nindx_Tndiff(1)+iia-1)
+         lm    = int_mb(lm_Tndiff(1)+shift+k-1)
+         iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
+         jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
+         coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
+         do ms=1,ispin
+            wx = 0.0d0
+            wy = 0.0d0
+            wz = 0.0d0
+            do n=n1(ms),n2(ms)
+               wx = wx + sw1x(n,iprj)*sw1(n,jprj) 
+     >                 + sw1(n,iprj)*sw1x(n,jprj)
+               wy = wy + sw1y(n,iprj)*sw1(n,jprj) 
+     >                 + sw1(n,iprj)*sw1y(n,jprj)
+               wz = wz + sw1z(n,iprj)*sw1(n,jprj) 
+     >                 + sw1(n,iprj)*sw1z(n,jprj)
+            end do
+c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
+            indx1 = indx + (ms-1)*lm_size_max + lm
+            dbl_mb(Qlmx(1)+indx1) = dbl_mb(Qlmx(1)+indx1) + coeff*wx
+            dbl_mb(Qlmy(1)+indx1) = dbl_mb(Qlmy(1)+indx1) + coeff*wy
+            dbl_mb(Qlmz(1)+indx1) = dbl_mb(Qlmz(1)+indx1) + coeff*wz
+         end do
+      end do
+      call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlmx(1)+indx))
+      call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlmy(1)+indx))
+      call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlmz(1)+indx))
+
+      return
+      end
+
 
 c*     *************************************************
 c*     *                                               *
@@ -841,8 +934,12 @@ c      end
      >                              lm1_gauss(2),lm1_gauss(1))
       value = value.and.MA_alloc_get(mt_int,ngauss,"lm2_gauss",
      >                              lm2_gauss(2),lm2_gauss(1))
+      value = value.and.MA_alloc_get(mt_int,ngauss,"iii1_gauss",
+     >                              iii1_gauss(2),iii1_gauss(1))
+      value = value.and.MA_alloc_get(mt_int,ngauss,"iii2_gauss",
+     >                              iii2_gauss(2),iii2_gauss(1))
       if (.not.value)
-     > call errquit("nwpw_init_indx_integrals::cannot allocate memory",
+     > call errquit("nwpw_init_indx_integrals:cannot allocate memory",
      >             0,MA_ERR)
 
       if (periodic) then
@@ -863,6 +960,8 @@ c      end
             if (mod(pcount,np).eq.taskid) then
                int_mb(lm1_gauss(1)+gcount) = (iii-1)*2*lm_size_max+ lm1
                int_mb(lm2_gauss(1)+gcount) = (iii-1)*2*lm_size_max+ lm1
+               int_mb(iii1_gauss(1)+gcount) = iii
+               int_mb(iii2_gauss(1)+gcount) = iii
                gcount = gcount + 1
             end if
             pcount = pcount + 1
@@ -876,6 +975,8 @@ c      end
      >                     =(iii-1)*2*lm_size_max+lm1
                      int_mb(lm2_gauss(1)+gcount)
      >                     =(iii-1)*2*lm_size_max+lm2
+                     int_mb(iii1_gauss(1)+gcount) = iii
+                     int_mb(iii2_gauss(1)+gcount) = iii
                      gcount = gcount + 1
                   end if
                   pcount = pcount + 1
@@ -901,7 +1002,9 @@ c      end
                      int_mb(lm1_gauss(1)+gcount)
      >                     =(iii-1)*2*lm_size_max+lm1
                      int_mb(lm2_gauss(1)+gcount)
-     >                     =(iii-1)*2*lm_size_max+lm2
+     >                     =(jjj-1)*2*lm_size_max+lm2
+                     int_mb(iii1_gauss(1)+gcount) = iii
+                     int_mb(iii2_gauss(1)+gcount) = jjj
                      gcount = gcount + 1
                   end if
                   pcount = pcount + 1
@@ -1122,6 +1225,10 @@ c      end
       integer k,indx1up,indx1dn,indx2up,indx2dn
       real*8 E,q1,q2
 
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
       E = 0.0d0
       do k=1,ngauss
          indx1up = int_mb(lm1_gauss(1)+k-1)
@@ -1138,3 +1245,88 @@ c      end
       return
       end
 
+*     *************************************************
+*     *                                               *
+*     *           nwpw_compcharge_F_multipole         *
+*     *                                               *
+*     *************************************************
+*
+      subroutinen nwpw_compcharge_F_multipole(ispin,fion)
+      implicit none
+      integer ispin
+      real*8 fion(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer k,indx1up,indx1dn,indx2up,indx2dn
+      integer iii1,iii2,ii1,ii2
+      integer fmult(2)
+      real*8 q1,q1x,q1y,q1z,q2,q2x,q2y,q2z
+      real*8 tmp,tmpx,tmpy,tmpz,R,R12(3)
+
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
+      if (.not.MA_push_get(mt_dbl,3*nion_paw,"fmult",fmult(2),fmult(1)))
+     >   call errquit("nwpw_compcharge_F_multipole:stack",1,MA_ERR)
+      call dcopy(3*nion_paw,0.0d0,0,dbl_mb(fmult(1)))
+
+      do k=1,ngauss
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         indx2dn = indx2up + (ispin-1)*lm_size_max
+         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+
+         q1x = dbl_mb(Qlmx(1)+indx1up) + dbl_mb(Qlmx(1)+indx1dn)
+         q1y = dbl_mb(Qlmy(1)+indx1up) + dbl_mb(Qlmy(1)+indx1dn)
+         q1z = dbl_mb(Qlmz(1)+indx1up) + dbl_mb(Qlmz(1)+indx1dn)
+
+         q2x = dbl_mb(Qlmx(1)+indx2up) + dbl_mb(Qlmx(1)+indx2dn)
+         q2y = dbl_mb(Qlmy(1)+indx2up) + dbl_mb(Qlmy(1)+indx2dn)
+         q2z = dbl_mb(Qlmz(1)+indx2up) + dbl_mb(Qlmz(1)+indx2dn)
+
+         iii1 = int_mb(iii1_gauss(1)+k-1)
+         iii2 = int_mb(iii2_gauss(1)+k-1)
+         ii1 = int_mb(ion_pawtoion(1)+iii1-1)
+         ii2 = int_mb(ion_pawtoion(1)+iii2-1)
+         R12(1) = ion_rion(1,ii1) - ion_rion(1,ii2)
+         R12(2) = ion_rion(2,ii1) - ion_rion(2,ii2)
+         R12(3) = ion_rion(3,ii1) - ion_rion(3,ii2)
+         R = dsqrt(R12(1)*R12(1)+R12(2)*R12(2)+R12(3)*R12(3))
+         R12(1) = R12(1)/R
+         R12(2) = R12(2)/R
+         R12(3) = R12(3)/R
+        
+         tmp  =       dbl_mb(e_gauss(1)+3*(k-1))
+         tmpx = q1*q2*dbl_mb(f_gauss(1)+3*(k-1))  *R12(1)
+         tmpy = q1*q2*dbl_mb(f_gauss(1)+3*(k-1)+1)*R12(2)
+         tmpz = q1*q2*dbl_mb(f_gauss(1)+3*(k-1)+2)*R12(3)
+
+         dbl_mb(fmult(1)+3*(iii1-1))   = dbl_mb(fmult(1)+3*(iii1-1))
+     >                                 - tmpx - q1x*q2*tmp
+         dbl_mb(fmult(1)+3*(iii1-1)+1) = dbl_mb(fmult(1)+3*(iii1-1)+1)
+     >                                 - tmpy - q1y*q2*tmp
+         dbl_mb(fmult(1)+3*(iii1-1)+2) = dbl_mb(fmult(1)+3*(iii1-1)+2) 
+     >                                 - tmpz - q1z*q2*tmp
+
+         dbl_mb(fmult(1)+3*(iii2-1))   = dbl_mb(fmult(1)+3*(iii2-1))
+     >                                 + tmpx - q1*q2x*tmp
+         dbl_mb(fmult(1)+3*(iii2-1)+1) = dbl_mb(fmult(1)+3*(iii2-1)+1)
+     >                                 + tmpy - q1*q2y*tmp
+         dbl_mb(fmult(1)+3*(iii2-1)+2) = dbl_mb(fmult(1)+3*(iii2-1)+2) 
+     >                                 + tmpz - q1*q2z*tmp
+      end do
+      call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(fmult(1)))
+
+
+      if (.not.MA_pop_stack(fmult(2)))
+     >  call errquit("nwpw_compcharge_F_multipole:stack",2,MA_ERR)
+
+      return
+      end
