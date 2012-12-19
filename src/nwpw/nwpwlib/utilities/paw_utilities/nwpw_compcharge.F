@@ -155,15 +155,11 @@
      >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlm",Qlm(2),Qlm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
-     >                     "Qlm_total",Qlm_total(2),Qlm_total(1))
-      value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
-      call dcopy(nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlm_total(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -357,7 +353,6 @@
       value = value.and.MA_free_heap(gk(2))
       value = value.and.MA_free_heap(glm(2))
       value = value.and.MA_free_heap(Qlm(2))
-      value = value.and.MA_free_heap(Qlm_total(2))
       value = value.and.MA_free_heap(shift_Tndiff(2))
       value = value.and.MA_free_heap(nindx_Tndiff(2))
       value = value.and.MA_free_heap(lm_Tndiff(2))
@@ -389,7 +384,6 @@
 
 *     **** local variables ****
       integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1,n1(2),n2(2)
-      integer indxt,indx2
       real*8  scal,coeff,w
 
 *     **** external functions ****
@@ -401,9 +395,7 @@
       iia = int_mb(katm_iontopaw(1)+ia-1)
 
       indx = (iii-1)*2*lm_size_max
-      indxt = (iii-1)*lm_size_max
       call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
-      call dcopy(lm_size_max,0.0d0,0,dbl_mb(Qlm_total(1)+indx),1)
       n1(1) = 1
       n1(2) = ne(1)+1
       n2(1) = ne(1)
@@ -423,14 +415,10 @@
             end do
 c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
             indx1 = indx + (ms-1)*lm_size_max + lm
-            indx2 = indxt +  lm
             dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) + coeff*w
-            dbl_mb(Qlm_total(1)+indx2) = dbl_mb(Qlm_total(1)+indx2) 
-     >                                 + coeff*w
          end do
       end do
       call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlm(1)+indx))
-      call D1dB_Vector_SumAll(lm_size_max,dbl_mb(Qlm_total(1)+indxt))
 
       return
       end 
@@ -627,11 +615,9 @@ c      end
          do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               !indx1 = (iii-1)*2*lm_size_max+ lm
-               !indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
-               !q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
-               indx1 = (iii-1)*lm_size_max + lm
-               q = dbl_mb(Qlm_total(1)+indx1)
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
      >                               dcpl_mb(exi(1)),
@@ -709,11 +695,9 @@ c      end
          do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               !indx1 = (iii-1)*2*lm_size_max+ lm
-               !indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
-               !q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
-               indx1 = (iii-1)*lm_size_max + lm
-               q = dbl_mb(Qlm_total(1)+indx1)
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
      >                               dcpl_mb(exi(1)),
@@ -877,8 +861,8 @@ c      end
          do l1=0,int_mb(mult_l(1)+iia-1)
          do m1=-l1,l1
             if (mod(pcount,np).eq.taskid) then
-               int_mb(lm1_gauss(1)+gcount) = (iii-1)*lm_size_max+ lm1
-               int_mb(lm2_gauss(1)+gcount) = (iii-1)*lm_size_max+ lm1
+               int_mb(lm1_gauss(1)+gcount) = (iii-1)*2*lm_size_max+ lm1
+               int_mb(lm2_gauss(1)+gcount) = (iii-1)*2*lm_size_max+ lm1
                gcount = gcount + 1
             end if
             pcount = pcount + 1
@@ -888,8 +872,10 @@ c      end
                do l2=0,int_mb(mult_l(1)+iia-1)
                do m2=-l2,l2
                   if (mod(pcount,np).eq.taskid) then
-                     int_mb(lm1_gauss(1)+gcount)=(iii-1)*lm_size_max+lm1
-                     int_mb(lm2_gauss(1)+gcount)=(iii-1)*lm_size_max+lm2
+                     int_mb(lm1_gauss(1)+gcount)
+     >                     =(iii-1)*2*lm_size_max+lm1
+                     int_mb(lm2_gauss(1)+gcount)
+     >                     =(iii-1)*2*lm_size_max+lm2
                      gcount = gcount + 1
                   end if
                   pcount = pcount + 1
@@ -912,8 +898,10 @@ c      end
                do l2=0,int_mb(mult_l(1)+jja-1)
                do m2=-l2,l2
                   if (mod(pcount,np).eq.taskid) then
-                     int_mb(lm1_gauss(1)+gcount)=(iii-1)*lm_size_max+lm1
-                     int_mb(lm2_gauss(1)+gcount)=(iii-1)*lm_size_max+lm2
+                     int_mb(lm1_gauss(1)+gcount)
+     >                     =(iii-1)*2*lm_size_max+lm1
+                     int_mb(lm2_gauss(1)+gcount)
+     >                     =(iii-1)*2*lm_size_max+lm2
                      gcount = gcount + 1
                   end if
                   pcount = pcount + 1
@@ -927,10 +915,6 @@ c      end
       end do
       return
       end
-
-
-
-
 
 
 *     *************************************************

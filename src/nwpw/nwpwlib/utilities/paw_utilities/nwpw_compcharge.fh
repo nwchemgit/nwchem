@@ -25,7 +25,6 @@ c      integer sigma(2)
                              !       but this requires more space
 
       integer Qlm(2)         ! Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = compensation charge coefficients
-      integer Qlm_total(2)   ! Qlm_total(lm=1:(mult_l+1)**2,1:nion_paw) = compensation charge coefficients
 
       integer nindx_Tndiff(2)
       integer shift_Tndiff(2)
@@ -34,7 +33,7 @@ c      integer sigma(2)
       integer jprj_Tndiff(2)
       integer coeff_Tndiff(2)   
 
-      common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,Qlm_total,
+      common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,
      >                  sigma_smooth,sigma_paw,
      >                  mult_l,lm_size,
      >                  nindx_Tndiff,shift_Tndiff,
