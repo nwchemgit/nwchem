@@ -155,11 +155,15 @@
      >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlm",Qlm(2),Qlm(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "Qlm_total",Qlm_total(2),Qlm_total(1))
+      value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
+      call dcopy(nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlm_total(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -353,6 +357,7 @@
       value = value.and.MA_free_heap(gk(2))
       value = value.and.MA_free_heap(glm(2))
       value = value.and.MA_free_heap(Qlm(2))
+      value = value.and.MA_free_heap(Qlm_total(2))
       value = value.and.MA_free_heap(shift_Tndiff(2))
       value = value.and.MA_free_heap(nindx_Tndiff(2))
       value = value.and.MA_free_heap(lm_Tndiff(2))
@@ -384,6 +389,7 @@
 
 *     **** local variables ****
       integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1,n1(2),n2(2)
+      integer indxt,indx2
       real*8  scal,coeff,w
 
 *     **** external functions ****
@@ -395,7 +401,9 @@
       iia = int_mb(katm_iontopaw(1)+ia-1)
 
       indx = (iii-1)*2*lm_size_max
+      indxt = (iii-1)*lm_size_max
       call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
+      call dcopy(lm_size_max,0.0d0,0,dbl_mb(Qlm_total(1)+indx),1)
       n1(1) = 1
       n1(2) = ne(1)+1
       n2(1) = ne(1)
@@ -415,10 +423,14 @@
             end do
 c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
             indx1 = indx + (ms-1)*lm_size_max + lm
+            indx2 = indxt +  lm
             dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) + coeff*w
+            dbl_mb(Qlm_total(1)+indx2) = dbl_mb(Qlm_total(1)+indx2) 
+     >                                 + coeff*w
          end do
       end do
       call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlm(1)+indx))
+      call D1dB_Vector_SumAll(lm_size_max,dbl_mb(Qlm_total(1)+indxt))
 
       return
       end 
@@ -615,9 +627,11 @@ c      end
          do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               indx1 = (iii-1)*2*lm_size_max+ lm
-               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
-               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               !indx1 = (iii-1)*2*lm_size_max+ lm
+               !indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               !q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               indx1 = (iii-1)*lm_size_max + lm
+               q = dbl_mb(Qlm_total(1)+indx1)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
      >                               dcpl_mb(exi(1)),
@@ -695,9 +709,11 @@ c      end
          do l=0,int_mb(mult_l(1)+iia-1)
             do m=-l,l
                
-               indx1 = (iii-1)*2*lm_size_max+ lm
-               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
-               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               !indx1 = (iii-1)*2*lm_size_max+ lm
+               !indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               !q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               indx1 = (iii-1)*lm_size_max + lm
+               q = dbl_mb(Qlm_total(1)+indx1)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
      >                               dcpl_mb(exi(1)),
@@ -808,6 +824,112 @@ c      end
       ngauss = gcount
       return
       end
+
+
+*     *************************************************
+*     *                                               *
+*     *         nwpw_init_indx_gintegrals             *
+*     *                                               *
+*     *************************************************
+
+      subroutinen nwpw_init_indx_gintegrals(periodic)
+      implicit none
+      logical periodic
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer taskid,np,pcount,gcount,nshl3d
+      integer l1,m1,l2,m2,iii,jjj,iia,jja
+      integer lm1,lm2
+
+*     **** external functions ****
+      real*8   ion_rion,ewald_nshl3d
+      external ion_rion,ewald_nshl3d
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+      value =           MA_alloc_get(mt_int,ngauss,"lm1_gauss",
+     >                              lm1_gauss(2),lm1_gauss(1))
+      value = value.and.MA_alloc_get(mt_int,ngauss,"lm2_gauss",
+     >                              lm2_gauss(2),lm2_gauss(1))
+      if (.not.value)
+     > call errquit("nwpw_init_indx_integrals::cannot allocate memory",
+     >             0,MA_ERR)
+
+      if (periodic) then
+         nshl3d = ewald_nshl3d()
+      else
+         nshl3d = 1
+      end if
+
+      pcount = 0
+      gcount = 0
+      do iii=1,nion_paw
+         iia = int_mb(katm_paw(1)+iii-1)
+
+*        **** calculate on-site integrals ****
+         lm1 = 0
+         do l1=0,int_mb(mult_l(1)+iia-1)
+         do m1=-l1,l1
+            if (mod(pcount,np).eq.taskid) then
+               int_mb(lm1_gauss(1)+gcount) = (iii-1)*lm_size_max+ lm1
+               int_mb(lm2_gauss(1)+gcount) = (iii-1)*lm_size_max+ lm1
+               gcount = gcount + 1
+            end if
+            pcount = pcount + 1
+
+            if (nshl3d.gt.1) then
+               lm2 = 0
+               do l2=0,int_mb(mult_l(1)+iia-1)
+               do m2=-l2,l2
+                  if (mod(pcount,np).eq.taskid) then
+                     int_mb(lm1_gauss(1)+gcount)=(iii-1)*lm_size_max+lm1
+                     int_mb(lm2_gauss(1)+gcount)=(iii-1)*lm_size_max+lm2
+                     gcount = gcount + 1
+                  end if
+                  pcount = pcount + 1
+                  lm2 = lm2 + 1
+               end do
+               end do
+            end if
+            lm1 = lm1 + 1
+         end do
+         end do
+
+*        **** calculate IJ integrals ****
+         do jjj=iii+1,nion_paw
+            jja = int_mb(katm_paw(1)+jjj-1)
+
+            lm1 = 0
+            do l1=0,int_mb(mult_l(1)+iia-1)
+            do m1=-l1,l1
+               lm2 = 0
+               do l2=0,int_mb(mult_l(1)+jja-1)
+               do m2=-l2,l2
+                  if (mod(pcount,np).eq.taskid) then
+                     int_mb(lm1_gauss(1)+gcount)=(iii-1)*lm_size_max+lm1
+                     int_mb(lm2_gauss(1)+gcount)=(iii-1)*lm_size_max+lm2
+                     gcount = gcount + 1
+                  end if
+                  pcount = pcount + 1
+                  lm2 = lm2 + 1
+               end do
+               end do
+               lm1 = lm1 + 1
+            end do
+            end do
+         end do
+      end do
+      return
+      end
+
+
+
 
 
 

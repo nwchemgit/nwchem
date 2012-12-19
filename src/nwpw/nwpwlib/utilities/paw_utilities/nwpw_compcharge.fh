@@ -24,7 +24,8 @@ c      integer sigma(2)
                              !           gk_smooth = |k|**l * Exp[-k*k*sigma_smooth**2 / 4] / (2*l+1)!!
                              !       but this requires more space
 
-      integer Qlm(2)         ! Qlm(lm=1:(mult_l+1)**2,1:nion_paw) = compensation charge coefficients
+      integer Qlm(2)         ! Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = compensation charge coefficients
+      integer Qlm_total(2)   ! Qlm_total(lm=1:(mult_l+1)**2,1:nion_paw) = compensation charge coefficients
 
       integer nindx_Tndiff(2)
       integer shift_Tndiff(2)
@@ -33,7 +34,7 @@ c      integer sigma(2)
       integer jprj_Tndiff(2)
       integer coeff_Tndiff(2)   
 
-      common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,
+      common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,Qlm_total,
      >                  sigma_smooth,sigma_paw,
      >                  mult_l,lm_size,
      >                  nindx_Tndiff,shift_Tndiff,
@@ -47,4 +48,6 @@ c      integer sigma(2)
 
 *     ******* Two-Electron Gaussian integral block **********
       integer e_gauss(2),f_gauss(2),indx_gauss(2),ngauss
-      common / nwpw_gaussian_block / e_gauss,f_gauss,indx_gauss,ngauss
+      integer lm1_gauss(2),lm2_gauss(2)
+      common / nwpw_gaussian_block / e_gauss,f_gauss,indx_gauss,
+     >                               lm1_gauss,lm2_gauss,ngauss
