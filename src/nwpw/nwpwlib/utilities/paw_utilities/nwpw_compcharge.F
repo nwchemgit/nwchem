@@ -1098,12 +1098,43 @@ c      end
 *     *           nwpw_compcharge_E_multipole         *
 *     *                                               *
 *     *************************************************
+*
+*    This routine calulates the multipole energy defined by
+* 
+*                    //
+*    Emultipole  =  || (ncmp(r)-ncmp_smooth(r))*(ncmp(r')-ncmp_smooth(r'))
+*                   || ---------------------------------------------------  dr dr'
+*                   //                       |r-r'|
+*
+*    using two electron two center Gaussian Coulomb integrals.
+*
+*     Uses - compensation charge Qlm, and a table of Gaussian integrals stored in e_gauss
+*
+      real*8 function nwpw_compcharge_E_multipole(ispin)
+      implicit none
+      integer ispin
 
-c               indx1up = (iii-1)*2*lm_size_max+ lm1
-c               indx1dn = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm1
-c               q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-c
-c               indx2up = (jjj-1)*2*lm_size_max+ lm2
-c               indx2dn = (jjj-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm2
-c               q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer k,indx1up,indx1dn,indx2up,indx2dn
+      real*8 E,q1,q2
+
+      E = 0.0d0
+      do k=1,ngauss
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         indx2dn = indx2up + (ispin-1)*lm_size_max
+         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+         E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
+      end do
+      call Parallel_SumAll(E)
+
+      nwpw_compcharge_E_multipole = E
+      return
+      end
 
