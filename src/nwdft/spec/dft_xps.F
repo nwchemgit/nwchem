@@ -21,9 +21,10 @@ c
       integer rtdb               ! [input]
       integer ao_bas_han         ! [input]
       integer geom
-      integer ipol               ! [input]
-      integer nmo(2)             ! [input]
-      integer nbf                ! [input]
+c
+      integer ipol 
+      integer nmo(2)
+      integer nbf
 c
       integer nbf_verify  
       integer ipol_verify  
@@ -31,30 +32,32 @@ c
       integer g_mos_ini(2)
       integer g_mos_fin(2)
 c
-      integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
-      integer l_occ,k_occ      ! MA handles for occupancies (AB)
+      integer l_evl,k_evl      ! MA handles for eigenvalues 
+      integer l_occ,k_occ      ! MA handles for occupancies 
 c
-      integer g_dpx              ! dipole x-component ao basis
-      integer g_dpy              ! dipole y-component ao basis
-      integer g_dpz              ! dipole z-component ao basis
+      integer g_dpx            ! dipole x-component ao basis
+      integer g_dpy            ! dipole y-component ao basis
+      integer g_dpz            ! dipole z-component ao basis
 c
-      integer g_tdx(2) 
-      integer g_tdy(2)
-      integer g_tdz(2)
+      integer g_tdx(2)         ! transition dipole x
+      integer g_tdy(2)         ! transition dipole y
+      integer g_tdz(2)         ! transition dipole z
+c
       integer g_tmp
 c
-      double precision tdx,tdy,tdz     
+      double precision tdx,tdy,tdz      ! transition moments
 c
       logical nodezero
       integer i
 c
       character*255 title      ! Title
       character*255 basisname  ! Basis set name
-      character*255 mos_ini 
-      character*255 mos_fin
-      character*255 scftype    ! Type of SCF
+      character*255 mos_ini    ! initial state movecs
+      character*255 mos_fin    ! final state movecs
+      character*255 scftype    ! type of the scf: RHF OR UHF
       character*32 pname
-      double precision scal,xps_wif
+      double precision xps_scale
+      double precision xps_wif
       logical oskel
 c
       double precision two, three
@@ -74,9 +77,9 @@ c     Preliminaries
       pname="dft_xps: "
 c
 c     Get oscillator strength scale factor
-      scal = 1.d0
-      if (.not. rtdb_get(rtdb, 'xps:scal', mt_dbl, 1, scal))
-     &     scal = 1.d0
+      xps_scale = 1.d0
+      if (.not. rtdb_get(rtdb, 'xps:scale', mt_dbl, 1, xps_scale))
+     &     xps_scale = 1.d0
 c
 c     Get scftype
       if (.not. rtdb_cget(rtdb, 'dft:scftype', 1, scftype))
@@ -203,15 +206,16 @@ c     Calculate transition dipole
       tdy = ga_trace_diag(g_tdy(1))
       tdz = ga_trace_diag(g_tdz(1))
 c
-c     Calculate the intensity
+c     Calculate the normalized intensity
       if (ipol.eq.1) then
         xps_wif = (tdx*tdx + tdy*tdy + tdz*tdz)/(nbf*nbf)
       else
         xps_wif = (tdx*tdx + tdy*tdy + tdz*tdz)/(4.d0*nbf*nbf)
       end if ! ipol
-      xps_wif = 2.d0/3.d0 * xps_wif
+      xps_wif = 2.d0/3.d0 * xps_wif * xps_scale
+c
       if (ga_nodeid().eq.0) 
-     &      write(luout,*) "xps_intensity: ",xps_wif
+     &      write(luout,*) "XPS Intensity: ",xps_wif
 c
 c     Clean up
       if (.not.ma_pop_stack(l_occ)) call errquit
