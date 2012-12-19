@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 101)
+      parameter (num_dirs = 102)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -115,6 +115,7 @@ c
      >            'uterm',
      >            'et',
      >            'cpmd_properties',
+     >            'use_grid_cmp',
      >            'end'/
 
       double precision kb
@@ -174,7 +175,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,6900,7000,4250,7100,7200,7300,
+     >       6700,6800,6900,7000,4250,7100,7200,7300,7400,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1468,6 +1469,16 @@ c
       move = nwpw_parse_boolean(zone_name,move)
       if (.not.rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,move))
      >  call errquit('nwpw_input: error writing to rtdb',7300,RTDB_ERR)
+
+      goto 10
+
+c
+c use_grid_cmp
+c
+ 7400 if (.not.inp_a(zone_name)) move = .true.
+      move = nwpw_parse_boolean(zone_name,move)
+      if (.not.rtdb_put(rtdb,'nwpw:use_grid_cmp',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',7400,RTDB_ERR)
 
       goto 10
 
