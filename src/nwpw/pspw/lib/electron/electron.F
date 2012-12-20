@@ -2551,3 +2551,29 @@ cccc#include "frac_occ.fh"
 
 
 
+*     ***********************************
+*     *			 		*
+*     *     electron_dn_cmp_coulomb     *
+*     *					*
+*     ***********************************
+
+      real*8 function electron_dn_cmp_coulomb()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "electron_common.fh"
+
+*     **** local variables ****
+      real*8 E
+
+      E = 0.0d0
+      if (paw_exist) then
+         call  nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                     dcpl_mb(dng_cmp(1)),
+     >                                     dcpl_mb(dng_cmp_smooth(1)))
+      end if
+
+      electron_dn_cmp_coulomb = E
+      return
+      end
+
