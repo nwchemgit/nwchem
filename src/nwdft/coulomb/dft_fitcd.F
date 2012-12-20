@@ -804,9 +804,11 @@ c            endif
          enddo
       enddo
 cedo      call ga_sync
-      call ga_dgop(Msg_Mull1, qatom, natoms,'+')
-      call ga_dgop(Msg_Mull2, qshell, nshells,'+')
-      call ga_igop(Msg_Mull1, shell_types, nshells*natoms,'+')
+      if (oprint_mull_fit) then
+         call ga_dgop(Msg_Mull1, qatom, natoms,'+')
+         call ga_dgop(Msg_Mull2, qshell, nshells,'+')
+         call ga_igop(Msg_Mull1, shell_types, nshells*natoms,'+')
+      endif
       if (me.eq.0.and.oprint_mull_fit) then
          call dft_header(
      &       'Fitted Density - Mulliken Population Analysis')
