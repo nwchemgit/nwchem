@@ -620,10 +620,11 @@ c      end
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
 
       call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
+      if (isgamma) then
       do iii=1,nion_paw
          iia  = int_mb(katm_paw(1)+iii-1)
          ii = int_mb(ion_pawtoion(1)+iii-1)
-         call strfac_pack(0,iii,dcpl_mb(exi(1)))
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
 
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
          lm = 0
@@ -652,6 +653,43 @@ c      end
 
       end do
       call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      else
+
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+            do m=-l,l
+
+               indx = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx)
+               if (mod(l,2).eq.0) then
+                  call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               else
+                  call Cram_rc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+
+               call Cram_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+
+               lm = lm + 1
+            end do
+         end do
+         call Cram_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+
+      end do
+      call Cram_rc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      end if
 
 
       value =           MA_pop_stack(exi(2))
@@ -698,6 +736,9 @@ c      end
 
       call dcopy(2*npack0,0.0d0,0,dng_cmp,1)
       call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
+
+      if (isgamma) then
+
       do iii=1,nion_paw
          iia  = int_mb(katm_paw(1)+iii-1)
          ii = int_mb(ion_pawtoion(1)+iii-1)
@@ -734,6 +775,47 @@ c      end
 
       end do
       call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      else
+
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+            do m=-l,l
+
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               if (mod(l,2).eq.0) then
+                  call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               else
+                  call Cram_rc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+
+               call Cram_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+
+               lm = lm + 1
+            end do
+         end do
+         call Cram_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+         call Cram_rc_Mul2(0,dbl_mb(gk(1)+(iia-1)*npack0),
+     >                       dcpl_mb(QTlm(1)))
+         call Cram_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
+
+      end do
+      call Cram_rc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      end if
 
       value =           MA_pop_stack(exi(2))
       value = value.and.MA_pop_stack(tmp(2))
@@ -778,6 +860,9 @@ c      end
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
 
       call dcopy(2*npack0,0.0d0,0,dng_cmp,1)
+
+      if (isgamma) then
+
       do iii=1,nion_paw
          iia  = int_mb(katm_paw(1)+iii-1)
          ii = int_mb(ion_pawtoion(1)+iii-1)
@@ -812,6 +897,44 @@ c      end
          call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
       end do
+
+      else
+
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+            do m=-l,l
+
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               if (mod(l,2).eq.0) then
+                  call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               else
+                  call Cram_rc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+
+               call Cram_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+
+               lm = lm + 1
+            end do
+         end do
+         call Cram_rc_Mul2(0,dbl_mb(gk(1)+(iia-1)*npack0),
+     >                       dcpl_mb(QTlm(1)))
+         call Cram_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
+      end do
+
+      end if
 
       value =           MA_pop_stack(exi(2))
       value = value.and.MA_pop_stack(tmp(2))
