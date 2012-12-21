@@ -164,6 +164,9 @@
      >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlmz",Qlmz(2),Qlmz(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "dEmult_Qlm",dEmult_Qlm(2),dEmult_Qlm(1))
+      value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
@@ -172,6 +175,7 @@
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmx(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmy(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmz(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -368,6 +372,7 @@
       value = value.and.MA_free_heap(Qlmx(2))
       value = value.and.MA_free_heap(Qlmy(2))
       value = value.and.MA_free_heap(Qlmz(2))
+      value = value.and.MA_free_heap(dEmult_Qlm(2))
       value = value.and.MA_free_heap(shift_Tndiff(2))
       value = value.and.MA_free_heap(nindx_Tndiff(2))
       value = value.and.MA_free_heap(lm_Tndiff(2))
@@ -437,6 +442,66 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
 
       return
       end 
+
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_gen_sw2          *
+*     *                                               *
+*     *************************************************
+
+*     This routine computes sw2 for atom ii.
+
+      subroutine nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nprj,sw1,sw2)
+      implicit none
+      integer ii,ia
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  sw2(ne(1)+ne(2),nprj)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1,n1(2),n2(2)
+      real*8  scal,coeff,w
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      iii = int_mb(ion_iontopaw(1) +ii-1)
+      iia = int_mb(katm_iontopaw(1)+ia-1)
+
+      indx = (iii-1)*2*lm_size_max
+
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+      scal = 1.0d0/lattice_omega()
+
+      shift = int_mb(shift_Tndiff(1)+iia-1)
+      do k=1,int_mb(nindx_Tndiff(1)+iia-1)
+         lm    = int_mb(lm_Tndiff(1)+shift+k-1)
+         iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
+         jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
+         coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
+         do ms=1,ispin
+            indx1 = indx + (ms-1)*lm_size_max + lm
+            w     = dbl_mb(dEmult_Qlm(1)+indx1)*coeff
+            do n=n1(ms),n2(ms)
+               sw2(n,iprj) = sw2(n,iprj) + sw1(n,jprj)*w
+            end do
+
+         end do
+      end do
+
+      return
+      end 
+
 
 
 *     *************************************************
@@ -1348,9 +1413,6 @@ c      end
       integer k,indx1up,indx1dn,indx2up,indx2dn
       real*8 E,q1,q2
 
-*     **** external functions ****
-      real*8   ion_rion
-      external ion_rion
 
       E = 0.0d0
       do k=1,ngauss
@@ -1453,3 +1515,52 @@ c      end
 
       return
       end
+
+
+
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_gen_dEmult_Qlm         *
+*     *                                               *
+*     *************************************************
+*
+*    This routine calculates the derivative of the multipole
+*    energy wrt to Qlm
+*
+      subroutine nwpw_compcharge_gen_dEmult_Qlm(ispin)
+      implicit none
+      integer ispin
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer k,indx1up,indx1dn,indx2up,indx2dn
+      real*8 q1,q2
+
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
+      do k=1,ngauss
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         indx2dn = indx2up + (ispin-1)*lm_size_max
+         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+
+         dbl_mb(dEmult_Qlm(1)+indx1up) = dbl_mb(dEmult_Qlm(1)+indx1up) 
+     >                                 + q2*dbl_mb(e_gauss(1)+k-1)
+         dbl_mb(dEmult_Qlm(1)+indx1dn) = dbl_mb(dEmult_Qlm(1)+indx1dn) 
+     >                                 + q2*dbl_mb(e_gauss(1)+k-1)
+
+         dbl_mb(dEmult_Qlm(1)+indx2up) = dbl_mb(dEmult_Qlm(1)+indx2up) 
+     >                                 + q1*dbl_mb(e_gauss(1)+k-1)
+         dbl_mb(dEmult_Qlm(1)+indx2dn) = dbl_mb(dEmult_Qlm(1)+indx2dn) 
+     >                                 + q1*dbl_mb(e_gauss(1)+k-1)
+      end do
+      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+     >                            dbl_mb(dEmult_Qlm(1)))
+      
+      return
+      end
+
