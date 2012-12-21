@@ -3,11 +3,10 @@ c $Id$
 C> \ingroup nwint
 C> @{
 C>
-C> \brief Calculate the dipole dipvelity integrals
+C> \brief Calculate the dipole velocity integrals
 C>
-C> Compute the dipole dipvelity (!?) integrals for a given shell pair.
-C> Apparently this routine is currently not used anywhere so not a clue
-C> as to what this really does...
+C> Compute the dipole velocity integrals for a given shell pair.
+C> Apparently this routine is currently not used anywhere.
 C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_dipvel}
