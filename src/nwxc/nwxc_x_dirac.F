@@ -1,3 +1,4 @@
+#ifndef SECOND_DERIV
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_x_dirac.F
 C> The Dirac-Slater exchange functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{

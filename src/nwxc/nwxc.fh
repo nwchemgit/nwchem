@@ -2,6 +2,14 @@ C> \ingroup nwxc
 C> @{
 C>
 C> \file nwxc.fh
+C> Declarations of the various API functions of the NWXC module.
+C>
+C> @}
+C>
+C> \ingroup nwxc_api
+C> @{
+C>
+C> \file nwxc.fh
 C> \brief Public data and function interfaces for the DFT functional library
 C>
       logical nwxc_add_df   !< Add a term to the functional
