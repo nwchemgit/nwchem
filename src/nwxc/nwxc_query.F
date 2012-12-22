@@ -83,6 +83,19 @@ C>
       return
       end
 C>
+C> \brief Retrieve the density tolerance
+C>
+C> Retrieve the current setting of the density tolerance.
+C> In the evaluation of the functional densities less 
+C> than this tolerance will be ignored.
+C>
+      double precision function nwxc_get_rho_tolerance()
+      implicit none
+#include "nwxcP.fh"
+      nwxc_get_rho_tolerance = nwxc_rho_tol
+      return
+      end
+C>
 C> \brief Retrieve the Coulomb Attenuation parameters
 C>
 C> Using the Coulomb Attenuation or range separation the Coulomb

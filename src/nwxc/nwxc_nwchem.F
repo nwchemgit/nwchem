@@ -1,4 +1,4 @@
-C> \ingroup nwxc_api
+C> \ingroup nwxc
 C> @{
 C>
 C> \file nwxc_nwchem.F

@@ -29,6 +29,7 @@ C>
       data nwxc_cam_alpha / 0.0d0 /
       data nwxc_cam_beta  / 0.0d0 /
       data nwxc_cam_gamma / 0.0d0 /
+      data nwxc_rho_tol   / 1.0d-10 /
       end
 C> @}
 C> \ingroup nwxc_api
@@ -54,5 +55,6 @@ C>
       nwxc_cam_alpha = 0.0d0
       nwxc_cam_beta  = 0.0d0
       nwxc_cam_gamma = 0.0d0
+      nwxc_rho_tol   = 1.0d-10
       end
 C> @}

@@ -20,6 +20,9 @@ C>
       logical nwxc_rtdb_load  !< Load the functional from the RTDB
       logical nwxc_rtdb_store !< Store the functional on the RTDB
 C>
+      logical nwxc_set_rho_tolerance !< Set the density tolerance
+C>
       double precision nwxc_wght_hfx  !< The Hartree-Fock exchange weight
       double precision nwxc_wght_mp2c !< The MP2 correlation weight
+      double precision nwxc_get_rho_tolerance !< Get density tolerance
 C> @}

@@ -165,4 +165,22 @@ c       Oh dear, the functional was not recognized
 
       return
       end
+C>
+C> \brief Set the density tolerance
+C>
+C> Sets the tolerance that is used to screen small density values.
+C> Valid tolerances are nonnegative double precision values.
+C>
+C> \return Return .true. if a valid tolerance value is passed in,
+C> and .false. otherwise.
+C>
+      logical function nwxc_set_rho_tolerance(tol)
+      implicit none
+#include "nwxcP.fh"
+      double precision tol
+      nwxc_set_rho_tolerance = .false.
+      if (tol.lt.0.0d0) return
+      nwxc_rho_tol = tol
+      return
+      end
 C> @}
