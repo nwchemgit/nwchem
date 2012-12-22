@@ -64,18 +64,16 @@ c
           j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
           call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
           call ga_get(g_prod_s(i),l,l,ivector,ivector,p,1)
+          evl_diff = evl(nmo(i),i)-evl(1,i)  ! span the eigenvalues
           if (lecut) then
-            evl_diff = diff_max
             if (evl(j,i).le.ecut) then
               evl_diff = evl(k,i)-evl(j,i)
             end if
           else if (lowin) then
-            evl_diff = diff_max
             if (j.ge.owstart(i) .and. j.le.owend(i)) then
               evl_diff = evl(k,i)-evl(j,i)
             end if
           else if (lewin) then
-            evl_diff = diff_max
             if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
               evl_diff = evl(k,i)-evl(j,i)
             end if

@@ -869,18 +869,16 @@ c
               k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
               j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
               call ga_get(g_residuals_1(i),l,l,n,n,r,1)
+              evl_diff = evl(nmo(i),i)-evl(1,i) ! span the eigenvalues
               if (lecut) then
-                evl_diff = diff_max
                 if (evl(j,i).le.ecut) then
                   evl_diff = evl(k,i)-evl(j,i)
                 end if
               else if (lowin) then
-                evl_diff = diff_max
                 if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
                   evl_diff = evl(k,i)-evl(j,i)
                 endif
               else if (lewin) then
-                evl_diff = diff_max
                 if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
                   evl_diff = evl(k,i)-evl(j,i)
                 end if
@@ -975,18 +973,16 @@ c
                 k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
                 j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
                 call ga_get(g_residuals_2(i),l,l,n,n,r,1)
+                evl_diff = evl(nmo(i),i)-evl(1,i) ! span the eigenvalues
                 if (lecut) then
-                  evl_diff = diff_max
                   if (evl(j,i).le.ecut) then
                     evl_diff = evl(k,i)-evl(j,i)
                   end if
                 else if (lowin) then
-                  evl_diff = diff_max
                   if((j.ge.owstart(i)).and.(j.le.owend(i))) then
                     evl_diff = evl(k,i)-evl(j,i)
                   endif
                 else if (lewin) then
-                  evl_diff = diff_max
                   if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
                     evl_diff = evl(k,i)-evl(j,i)
                   end if
