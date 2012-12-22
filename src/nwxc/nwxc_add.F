@@ -158,7 +158,7 @@ c
         nwxc_wght_mp2 = nwxc_wght_mp2 + dfweight
         nwxc_add_df = nwxc_usr_add_func(NWXC_MP2C,dfweight)
       else if (dfname.eq."slater") then
-        nwxc_add_df = nwxc_all_add_func(NWXC_SLATER,dfweight)
+        nwxc_add_df = nwxc_all_add_func(NWXC_X_SLATER,dfweight)
       else
 c       Oh dear, the functional was not recognized
       endif

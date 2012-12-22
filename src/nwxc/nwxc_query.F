@@ -315,8 +315,9 @@ c
            cdata = "Hartree-Fock Exchange"
          case (NWXC_MP2C)
            cdata = "Moller-Plesset 2nd Order Correlation"
-         case (NWXC_SLATER)
-           cdata = "Slater Exchange ()"
+         case (NWXC_X_SLATER)
+           cdata = "Slater Exchange (JC Slater, PhysRev 81, 385, (1951)"
+     +             //" doi:10.1103/PhysRev.81.385)"
          case default
            stat = .false.
        end select

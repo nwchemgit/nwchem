@@ -5,9 +5,10 @@
 
     OBJ_OPTIMIZE = 
 
-             OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o
+             OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
+                   nwxc_x_dirac.o
 
-         HEADERS = nwxc.fh
+         HEADERS = nwxc.fh nwxc_param.fh
 
      LIB_TARGETS = 
 

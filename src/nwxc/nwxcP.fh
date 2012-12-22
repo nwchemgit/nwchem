@@ -18,8 +18,8 @@ c
       integer NWXC_MP2C            !< The MP2 correlation
       parameter (NWXC_MP2C = NWXC_HFXC + 1)
 c
-      integer NWXC_SLATER          !< The Slater exchange functional
-      parameter (NWXC_SLATER = NWXC_MP2C + 1)
+      integer NWXC_X_SLATER          !< The Slater exchange functional
+      parameter (NWXC_X_SLATER = NWXC_MP2C + 1)
 C  
 C  Internally the functional specification will be stored using 
 C  a collection of datastructures. For specific terms that the library
@@ -57,6 +57,7 @@ C
       double precision nwxc_cam_alpha         !< The CAM alpha
       double precision nwxc_cam_beta          !< The CAM beta
       double precision nwxc_cam_gamma         !< The CAM gamma
+      double precision nwxc_rho_tol           !< The tolerance on the density
       double precision nwxc_wghts(NWXC_MAX_F) !< The functional weights
 C
 C Users can specify functionals by listing individual terms or they
@@ -79,6 +80,7 @@ C
       double precision nwxc_usr_wghts(NWXC_MAX_F)
 c
       common /nwxc_func_spec/
+     +       nwxc_rho_tol,
      +       nwxc_cam_alpha,nwxc_cam_beta,nwxc_cam_gamma,
      +       nwxc_wght_hf,nwxc_wght_mp2,nwxc_usr_wghts,
      +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
