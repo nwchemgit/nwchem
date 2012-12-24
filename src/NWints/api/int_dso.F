@@ -1,5 +1,25 @@
 c $Id$
 *
+C> \ingroup nwint_api
+C> @{
+C>
+C> \brief Compute the 1-electron diamagnetic spin-spin integrals
+C>
+C> Compute the 1-electron diamagnetic spin-spin integrals as defined
+C> by (see e.g. [1]):
+C> \f{eqnarray*}{
+C>   I_{x,x'} &=&  \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{(X_A-r_1)_x(X_B-r_1)_{x'}}{|X_A-r_1|^3|X_B-r_1|^3}g_{\nu}(X_{\nu},r_{1})dr_{1},\; A \ne B
+C> \f}
+C> Where \f$ A \f$ and \f$ B \f$ are the atoms for which the spin-spin
+C> integrals are evaluated, \f$ x \f$ and \f$ x' \f$ are the corresponding
+C> Cartesian coordinates.
+C>
+C> [1] O. Matsuoka, T. Aoyama,
+C>     "Molecular integral of diamagnetic contribution to nuclear
+C>      spin-spin coupling constant",
+C>     J. Chem. Phys. <b>73</b>, 5718-5720 (1980), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.440051">10.1063/1.440051</a>.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_dso}
 c:tex-This routine computes the 1-electron Diamagnetic spin-spin integrals
@@ -33,18 +53,18 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lh11               ! [input] length of h11 buffer
-      double precision h11(lh11) ! [output] h11 integrals
-      integer npairs ! [input] number of atoms under consideration
-      double precision xyzpt(3,2*npairs) ! [input] coords of atoms under consideration
-      logical para   ! [input] flag for calculating paramagnetic integrals
-      logical dia    ! [input] flag for calculating diamagnetic integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lh11               !< [Input] length of h11 buffer
+      double precision h11(lh11) !< [Output] h11 integrals
+      integer npairs !< [Input] number of atoms under consideration
+      double precision xyzpt(3,2*npairs) !< [Input] coords of atoms under consideration
+      logical para   !< [Input] flag for calculating paramagnetic integrals
+      logical dia    !< [Input] flag for calculating diamagnetic integrals
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -153,3 +173,4 @@ c     We now have the integrals in array (nsph_ints,3,npairs)
 c
       return
       end
+C> @}
