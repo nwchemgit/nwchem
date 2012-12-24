@@ -1,5 +1,11 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Terminate the program if a spherical harmonic basis set
+C> is in effect when this routine is called
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospherical\_check}
 c:tex-This routine stubs out routines that are not ready for 
@@ -19,8 +25,8 @@ c
 #include "basP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer basisin     ! [input] basis set handle
-      character*(*) tine  ! [input] routine identifier
+      integer basisin     !< [Input] basis set handle
+      character*(*) tine  !< [Input] routine identifier
 c:tex-\end{verbatim}
 c
       integer basis
@@ -38,6 +44,10 @@ c
         call errquit(' int_nospherical_check: error ',911, INT_ERR)
       endif
       end
+C>
+C> \brief Terminate the program is a generally contracted basis set
+C> is in effect when this routine is called
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nogencont\_check}
 c:tex-This routine stubs out routines that are not ready for 
@@ -58,8 +68,8 @@ c
 #include "basP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer basisin     ! [input] basis set handle
-      character*(*) tine  ! [input] routine identifier
+      integer basisin     !< [Input] basis set handle
+      character*(*) tine  !< [Input] routine identifier
 c:tex-\end{verbatim}
 c
       integer basis
@@ -78,6 +88,10 @@ c
         call errquit(' int_nogencont_check: error ',911, INT_ERR)
       endif
       end
+C>
+C> \brief Terminate the program is an SP-basis set is in effect when
+C> this routine is called
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospshell\_check}
 c:tex-This routine stubs out routines that are not ready for 
@@ -98,8 +112,8 @@ c
 #include "basP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer basisin     ! [input] basis set handle
-      character*(*) tine  ! [input] routine identifier
+      integer basisin     !< [Input] basis set handle
+      character*(*) tine  !< [Input] routine identifier
 c:tex-\end{verbatim}
 c
       integer basis
@@ -118,6 +132,10 @@ c
         call errquit(' int_nospshell_check: error ',911, INT_ERR)
       endif
       end
+C>
+C> \brief Terminate the program if both SP-shells and general contractions
+C> are present in the current basis set
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_bothsp\_gc\_check}
 c:tex-This routine checks to see if the basis sets used
@@ -138,9 +156,9 @@ c
 #include "basP.fh"
 #include "util.fh"
 c:tex-\begin{verbatim}
-      integer nbas           ! [input] number of basis sets
-      integer basesin(nbas)  ! [input] basis set handles
-      character*(*) tine     ! [input] routine identifier
+      integer nbas           !< [Input] number of basis sets
+      integer basesin(nbas)  !< [Input] basis set handles
+      character*(*) tine     !< [Input] routine identifier
 c:tex-\end{verbatim}
 
       integer bas1, basis1
@@ -175,3 +193,4 @@ c:tex-\end{verbatim}
         enddo
       enddo
       end
+C> @}

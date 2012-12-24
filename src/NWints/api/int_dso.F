@@ -1,6 +1,6 @@
 c $Id$
 *
-C> \ingroup nwint_api
+C> \ingroup nwint
 C> @{
 C>
 C> \brief Compute the 1-electron diamagnetic spin-spin integrals
