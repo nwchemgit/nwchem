@@ -1,17 +1,43 @@
 c $Id$
 *
-c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsection{int\_2e4c}
-c:tex-this routine computes the 4 center (traditional) 2 electron integrals: 
-c:tex-\begin{eqnarray*}
-c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
-c:tex-\end{eqnarray*}
-c:tex-
-c:tex-{\it Syntax:}
-c:tex-\begin{verbatim}
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Calculate the 4-center 2-electron integrals between GIAO basis functions
+C>
+C> The GIAO basis functions are important in the treatment of magnetic
+C> properties. These properties are not automatically gauge invariant but
+C> by multiplying the usual Atomic Orbitals (AO) with a magnetic field dependent
+C> factor Gauge Invariant Atomic Orbitals (GIAO) can be defined. Using these
+C> basis functions the properties can be cast in an gauge invariant form (see
+C> e.g. [1]).
+C> 
+C> In the presence of a magnetic field a vector potential is generated given by
+C> \f{eqnarray*}{
+C>   \vec{A} = \vec{B} \otimes \vec{r}
+C> \f}
+C> where \f$ \vec{B} \f$ is the magnetic field, \f$ \vec{r} \f$ is the position
+C> vector relative to the origin of the system, \f$ \vec{A} \f$ the generated
+C> vector potential.
+C> A GIAO is now given by
+C> \f{eqnarray*}{
+C>    g^{GIAO}_\mu(X_\mu,r) = g_\mu(X_\mu,r)e^{-i \vec{A}\cdot\vec{r}}
+C> \f}
+C> The integrals computed here can now be represented as
+C> \f{eqnarray*}{
+C>    ({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty}
+C>    g^{GIAO}_{\mu}(X_{\mu},r_{1})g^{GIAO}_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}
+C>    g^{GIAO}_{\nu}(X_{\nu},r_{2})g^{GIAO}_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+C> \f}
+C>
+C> [1] K. Wolinski, J.F. Hinton, P. Pulay,
+C>     "Efficient implementation of the gauge-independent atomic orbital
+C>      method for NMR chemical shift calculations",
+C>     J. Am. Chem. Soc. <b>112</b>, 8251-8260 (1990), DOI:
+C>     <a href="http://dx.doi.org/10.1021/ja00179a005">10.1021/ja00179a005</a>.
+C>
       subroutine int_giao_2e(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c:tex-\end{verbatim}
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -47,18 +73,16 @@ c::functions
       external cando_sp
       external cando_txs
 c:: passed
-c:tex-\begin{verbatim}
-      integer brain ! [input] bra basis set handle
-      integer ish   ! [input] shell/contraction index
-      integer jsh   ! [input] shell/contraction index
-      integer ketin ! [input] ket basis set handle
-      integer ksh   ! [input] shell/contraction index
-      integer lsh   ! [input] shell/contraction index
-      integer lscr  ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] array
-      integer leri  ! [input|output] length of integral array
-      double precision eri(*) ! [output] 2e4c integrals
-c:tex-\end{verbatim}
+      integer brain !< [Input] bra basis set handle
+      integer ish   !< [Input] shell/contraction index
+      integer jsh   !< [Input] shell/contraction index
+      integer ketin !< [Input] ket basis set handle
+      integer ksh   !< [Input] shell/contraction index
+      integer lsh   !< [Input] shell/contraction index
+      integer lscr  !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] array
+      integer leri  !< [In|Output] length of integral array
+      double precision eri(*) !< [Output] 2e4c integrals
 c:: local
       integer bra, ket 
       integer ab_geom, cd_geom, ucont, ityp
@@ -215,3 +239,4 @@ c
       d_nbf = d_nbf_s
       end
 c
+C> @}
