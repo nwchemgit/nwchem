@@ -2,7 +2,7 @@
 
 OBJ = 
 
-OBJ_OPTIMIZE = 
+OBJ_OPTIMIZE = mr_ccsd_e.o mr_ccsd_t1.o mr_ccsd_t2.o mr_ccsd_dcl.o
 
 LIB_INCLUDES = -I../../include -I../include
 
@@ -12,7 +12,6 @@ USES_BLAS =
 
 LIB_DEFINES = 
 
-#              -DDEBUG_PRINT
 
 HEADERS = 
 
