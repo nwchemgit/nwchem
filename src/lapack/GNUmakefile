@@ -80,7 +80,9 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                ztrevc.o zlaswp.o \
                dgeev.o dgebak.o dgebal.o dgehrd.o \
                dhseqr.o dorghr.o dtrevc.o dlaln2.o dlahqr.o dgehd2.o \
-               dlanhs.o dlarfx.o dlahrd.o dlanv2.o
+               dlanhs.o dlarfx.o dlahrd.o dlanv2.o \
+               dlarra.o dlarrb.o dlarrc.o dlarrd.o dlarrf.o dlarrk.o dlarrv.o\
+               dlar1v.o dlaneg.o
 
 #pgf77 on Linux, hpux (and possibly others) puts dlamch routines into infinite loop
         OBJ = $(OBJ_DLAMCH)
