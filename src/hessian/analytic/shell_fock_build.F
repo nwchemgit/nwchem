@@ -418,12 +418,12 @@ c    $                    jbflo, jbfhi, bledo)
      $                    ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
                      call new_get_dens_block(g_dens, ndens, bledo, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
+                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
+                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
+                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
+                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
+                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
+                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
 c
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
@@ -621,14 +621,12 @@ c
      $     g_dens, ndens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac)
       implicit none
       integer  ndens, g_dens, blen, ibflo, ibfhi, jbflo, jbfhi
-      integer blen2
       double precision buf(*), fac(ndens)
 c
       integer lo(3), hi(3), ld(3)
       integer idens
 c
-      blen2 = blen*blen
-      call dcopy(ndens*blen*blen,0d0,0,buf,1)
+cedo      call dcopy(ndens*blen*blen,0d0,0,buf,1)
       lo(1) = 1
       hi(1) = ndens
       lo(2) = ibflo
