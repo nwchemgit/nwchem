@@ -57,6 +57,7 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
                 ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o        \
+                zsyrk.o      zsyr2k.o     zsymm.o      zher.o \
                 xerbla.o     zgeru.o dzasum.o dsyr.o   zdotu.o
 #else
 #######################################################################
