@@ -653,14 +653,30 @@ c
       integer idens, i, j
       double precision factor
 c
-      do idens = 1, ndens
-        factor = fac(idens)
-        do i = 1, ibfhi-ibflo+1
-          do j = 1, jbfhi-jbflo+1
-            buf(idens,i,j) = buf(idens,i,j) * factor
-          enddo
+      if(ndens.eq.1) then
+        factor = fac(1)
+        do j = 1, jbfhi-jbflo+1
+           do i = 1, ibfhi-ibflo+1
+              buf(1,i,j) = buf(1,i,j) * factor
+           enddo
         enddo
+      elseif(ndens.eq.2) then
+         do j = 1, jbfhi-jbflo+1
+            do i = 1, ibfhi-ibflo+1
+               buf(1,i,j) = buf(1,i,j) * fac(1)
+               buf(2,i,j) = buf(2,i,j) * fac(2)
+            enddo
+         enddo
+      else
+      do idens = 1, ndens
+         factor = fac(idens)
+         do i = 1, ibfhi-ibflo+1
+            do j = 1, jbfhi-jbflo+1
+               buf(idens,i,j) = buf(idens,i,j) * factor
+            enddo
+         enddo
       enddo
+      endif
 c
       return
       end

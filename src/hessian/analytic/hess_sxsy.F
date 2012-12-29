@@ -52,11 +52,11 @@ c
 c
 c     Allocate local scratch space for overlap integral derivatives
 c
-      if (.not. ma_push_get(MT_DBL, 2*nocc,'hess_sxsy: scr',
+      if (.not. ma_push_get(MT_DBL, 2*nocc*nocc,'hess_sxsy: scr',
      &     l_scr, k_scr))
      &     call errquit('hess_sxsy: cannot allocate scr',0, MA_ERR)
       ioff = k_scr - 1
-      joff = ioff + nocc
+      joff = ioff + nocc*nocc
 c
 c     Parallelize over hessian elements
 c
@@ -85,11 +85,10 @@ c
 c
 c     Loop over occupied MO's and compute contribution a column at a time
 c
-                  do jocc = 1, nocc
                      lo(1) = ipert + noffset
                      hi(1) = ipert + noffset
-                     lo(3) = jocc
-                     hi(3) = jocc
+                     lo(3) = 1
+                     hi(3) = nocc
                      call nga_get(g_tx, lo, hi,
      &                    dbl_mb(ioff+1), ld)
                      lo(1) = jpert + noffset
@@ -97,12 +96,14 @@ c
                      call nga_get(g_tx, lo, hi,
      &                    dbl_mb(joff+1), ld)
                      do iocc = 1, nocc
-                        deltah = deltah
-     &                       + (e(iocc)+e(jocc))
-     &                       * dbl_mb(ioff+iocc) * dbl_mb(joff+iocc)
+                        do jocc = 1, nocc
+                           deltah = deltah
+     &                          + (e(iocc)+e(jocc)) *
+     &                          dbl_mb(ioff+(jocc-1)*nocc+iocc) * 
+     *                          dbl_mb(joff+(jocc-1)*nocc+iocc)
+                        enddo
                      enddo
-                  enddo
-c
+c     
                   deltah = deltah * fac
 c
 c     Update hessian
