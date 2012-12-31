@@ -1,5 +1,16 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the kinetic and nuclear attraction 1-electron GIAO integrals 
+C> perturbed by the nuclear magnetic moments and the external magnetic field
+C>
+C> Compute the kinetic energy and nuclear attraction 1-electron GIAO integrals
+C> perturbed by the nuclear magnetic moments and the external magnetic field.
+C> For a definition of the GIAO basis functions see the
+C> `int_giao_2e` routine.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaoh11}
 c:tex-This routine computes the 1-elec GIAO integrals of the h perturbed by the nuclear magnetic moments
@@ -34,18 +45,18 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lh11               ! [input] length of h11 diamagnetic buffer
-      double precision h11(lh11) ! [output] h11 integrals
-      integer nat    ! [input] number of atoms under consideration
-      double precision xyzpt(3,nat) ! [input] coords of atoms under consideration
-      logical para   ! [input] flag for calculating paramagnetic integrals
-      logical dia    ! [input] flag for calculating diamagnetic integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lh11               !< [Input] length of h11 diamagnetic buffer
+      double precision h11(lh11) !< [Output] h11 integrals
+      integer nat    !< [Input] number of atoms under consideration
+      double precision xyzpt(3,nat) !< [Input] coords of atoms under consideration
+      logical para   !< [Input] flag for calculating paramagnetic integrals
+      logical dia    !< [Input] flag for calculating diamagnetic integrals
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -153,3 +164,4 @@ c     We now have the integrals in array (nsph_ints,3,3,nat)
 c
       return
       end
+C> @}

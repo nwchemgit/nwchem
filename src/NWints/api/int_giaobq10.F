@@ -1,5 +1,17 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the kinetic and nuclear attraction 1-electron GIAO integrals 
+C> perturbed by the nuclear magnetic moments including embedding point charges
+C>
+C> Compute the kinetic energy and nuclear attraction 1-electron GIAO integrals
+C> perturbed by the nuclear magnetic moments.
+C> In the nuclear attraction integrals the contributions of any embedding point
+C> charges are included. For a definition of the GIAO basis functions see the
+C> `int_giao_2e` routine.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaobq10}
 c:tex-This routine computes the 1-elec GIAO integrals of the kinetic and nuclear attraction 
@@ -35,17 +47,17 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lbq10              ! [input] length of bq10 buffer
-      double precision bq10(lbq10) ! [output] bq10 integrals
-      integer nbq                  ! [input] number of bq centers
-      double precision qbq(nbq)    ! [input] bq charges
-      double precision cbq(3*nbq)  ! [input] bq coordinates
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lbq10              !< [Input] length of bq10 buffer
+      double precision bq10(lbq10) !< [Output] bq10 integrals
+      integer nbq                  !< [Input] number of bq centers
+      double precision qbq(nbq)    !< [Input] bq charges
+      double precision cbq(3*nbq)  !< [Input] bq coordinates
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -153,3 +165,4 @@ c     We now have the integrals in array (nsph_ints,3)
 c
       return
       end
+C> @}

@@ -10,18 +10,18 @@ C> properties. These properties are not automatically gauge invariant but
 C> by multiplying the usual Atomic Orbitals (AO) with a magnetic field dependent
 C> factor Gauge Invariant Atomic Orbitals (GIAO) can be defined. Using these
 C> basis functions the properties can be cast in an gauge invariant form (see
-C> e.g. [1]).
+C> [1,2]).
 C> 
 C> In the presence of a magnetic field a vector potential is generated given by
 C> \f{eqnarray*}{
-C>   \vec{A} = \vec{B} \otimes \vec{r}
+C>   \vec{A}_A = \vec{B} \otimes \vec{R}_A
 C> \f}
-C> where \f$ \vec{B} \f$ is the magnetic field, \f$ \vec{r} \f$ is the position
-C> vector relative to the origin of the system, \f$ \vec{A} \f$ the generated
-C> vector potential.
+C> where \f$ \vec{B} \f$ is the magnetic field, \f$ \vec{R}_A \f$ is the
+C> nuclear position relative to the origin of the systems,
+C> \f$ \vec{A} \f$ the generated vector potential.
 C> A GIAO is now given by
 C> \f{eqnarray*}{
-C>    g^{GIAO}_\mu(X_\mu,r) = g_\mu(X_\mu,r)e^{-i \vec{A}\cdot\vec{r}}
+C>    g^{GIAO}_\mu(X_\mu,r) = g_\mu(X_\mu,r)e^{-i \vec{A}_A\cdot\vec{r}}
 C> \f}
 C> The integrals computed here can now be represented as
 C> \f{eqnarray*}{
@@ -30,7 +30,14 @@ C>    g^{GIAO}_{\mu}(X_{\mu},r_{1})g^{GIAO}_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12
 C>    g^{GIAO}_{\nu}(X_{\nu},r_{2})g^{GIAO}_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
 C> \f}
 C>
-C> [1] K. Wolinski, J.F. Hinton, P. Pulay,
+C> [1] M. Dupuis,
+C>     "New integral transforms for molecular properties and application
+C>     to a massively parallel GIAO-SCF implementation",
+C>     Comp. Phys. Comm. <b>134</b>, 150-166 (2001), DOI:
+C>     <a href="http://dx.doi.org/10.1016/S0010-4655(00)00195-8">
+C>     10.1016/S0010-4655(00)00195-8</a>.
+C>
+C> [2] K. Wolinski, J.F. Hinton, P. Pulay,
 C>     "Efficient implementation of the gauge-independent atomic orbital
 C>      method for NMR chemical shift calculations",
 C>     J. Am. Chem. Soc. <b>112</b>, 8251-8260 (1990), DOI:

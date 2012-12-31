@@ -1,5 +1,15 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the 1-electron GIAO Lagrangian integrals 
+C>
+C> Compute the 1-electron GIAO Lagrangian integrals.
+C> For a definition of the GIAO basis functions see the
+C> `int_giao_2e` routine.
+C>
+
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaol10}
 c:tex-This routine computes the 1-elec GIAO Lagrangian integrals
@@ -33,14 +43,14 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer ll10               ! [input] length of l10 buffer
-      double precision l10(ll10) ! [output] l10 integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer ll10               !< [Input] length of l10 buffer
+      double precision l10(ll10) !< [Output] l10 integrals
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -147,3 +157,4 @@ c     We now have the integrals in array (nsph_ints,3)
 c
       return
       end
+C> @}

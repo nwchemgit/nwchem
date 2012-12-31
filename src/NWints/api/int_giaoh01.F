@@ -1,5 +1,16 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the kinetic and nuclear attraction 1-electron GIAO integrals 
+C> perturbed by the nuclear magnetic moments
+C>
+C> Compute the kinetic energy and nuclear attraction 1-electron GIAO integrals
+C> perturbed by the nuclear magnetic moments.
+C> For a definition of the GIAO basis functions see the
+C> `int_giao_2e` routine.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaoh01}
 c:tex-This routine computes the 1-elec GIAO integrals of the h perturbed by the nuclear magnetic moments
@@ -35,16 +46,16 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lh01               ! [input] length of h01 buffer
-      double precision h01(lh01) ! [output] h01 integrals
-      integer nat    ! [input] number of atoms under consideration
-      double precision xyzpt(3,nat) ! [input] coords of atoms under consideration
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lh01               !< [Input] length of h01 buffer
+      double precision h01(lh01) !< [Output] h01 integrals
+      integer nat    !< [Input] number of atoms under consideration
+      double precision xyzpt(3,nat) !< [Input] coords of atoms under consideration
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -151,3 +162,4 @@ c     We now have the integrals in array (nsph_ints,3,nat)
 c
       return
       end
+C> @}
