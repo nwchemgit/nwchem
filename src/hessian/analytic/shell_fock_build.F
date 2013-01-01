@@ -418,12 +418,12 @@ c    $                    jbflo, jbfhi, bledo)
      $                    ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
                      call new_get_dens_block(g_dens, ndens, bledo, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
-                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
-                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
-                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
-                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
-                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
-                     call ycopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
 c
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
