@@ -1,5 +1,25 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Main initialization routine for integrals
+C>
+C> This routine is the main initialization routine for the 
+C> integral packages. It sets memory limits, accuracy thresholds,
+C> and other initializations for all base integral codes. The
+C> routine reads any integral settings changed by the user from
+C> the runtime database.
+C>
+C> This routine is a wrapper around the original `int_init` which is now
+C> called `int_init_org`. The reason for this extension is related to the
+C> basis set use in Douglas-Kroll. Douglas-Kroll uses a fitting basis
+C> set, which could be larger (# of exponents but also higher angular 
+C> momenta), which also needs to be included in the initialization
+C> procedure. The wrapper sets the Douglas-Kroll stuff and adds the new
+C> fitting basis set to the list of active basis sets and calls 
+C> `int_init_org`.
+C>
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
 c:tex-This is the main initialization routine for integrals.
@@ -37,9 +57,9 @@ c int_init_org.
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer rtdb        ! [input] run time data base handle
-      integer nbas        ! [input] number of basis sets to be used
-      integer bases(nbas) ! [input] basis set handles
+      integer rtdb        !< [Input] run time data base handle
+      integer nbas        !< [Input] number of basis sets to be used
+      integer bases(nbas) !< [Input] basis set handles
 c:tex-\end{verbatim}
 c::local
       integer mybm_a, mybIm_a, ibas, nrbas     ! Temporary variables
@@ -149,6 +169,16 @@ c
 c
       end
 c
+C>
+C> \brief Initialization routine for integrals
+C>
+C> This routine is the initialization routine for the 
+C> integral packages. It sets memory limits, accuracy thresholds,
+C> and other initializations for all base integral codes. The
+C> routine reads any integral settings changed by the user from
+C> the runtime database. Only data associated with relativistic
+C> basis sets are handled in `int_init`.
+C>
       subroutine int_init_org(rtdb, nbas, bases)
 c
 c initializes integral code to data structers for a integral computation
@@ -175,9 +205,9 @@ c::functions
       logical  texas_check_basis_ok
       external texas_check_basis_ok
 c::passed
-      integer rtdb        ! [input] run time data base handle
-      integer nbas        ! [input] number of basis sets to be used
-      integer bases(nbas) ! [input] basis set handles
+      integer rtdb        !< [Input] run time data base handle
+      integer nbas        !< [Input] number of basis sets to be used
+      integer bases(nbas) !< [Input] basis set handles
 c::local
       integer txs_mem_min ! memory from texas
       integer ibas, ang2use, angm, type
@@ -430,15 +460,19 @@ c See if any basis has an attached SO potential
       integer nbas
       integer bases(nbas)
       end
+C>
+C> \brief Check if the integrals for all basis sets can be evaluated by
+C> the Texas integral package
+C>
       logical function texas_check_basis_ok(nbas,bases)
       implicit none
 #include "bas.fh"
 #include "errquit.fh"
 #include "util.fh"
 c::passed
-      integer nbas             ! [input] number of basis sets
-      integer bases(nbas)      ! [input] basis set handles
-*return:: texas_check_basis_ok ! [output] true texas is okay to use
+      integer nbas             !< [Input] number of basis sets
+      integer bases(nbas)      !< [Input] basis set handles
+*return:: texas_check_basis_ok !< [Output] true texas is okay to use
 c::local
       integer ibas       ! specific basis index
       integer ishell     ! specific shell index
@@ -496,3 +530,4 @@ c
 c   
       return
       end
+C> @}

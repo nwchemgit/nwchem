@@ -401,6 +401,34 @@ C> Transform integrals from the way they were computed
 C> \f$(d|s)\f$ and \f$(d|p)\f$ to \f$(d|sp)\f$. The transformation
 C> proceeds in place.
 C>
+C> <table>
+C> <tr><th> no.</th><th>computed order</th><th>transformed order</th><th>permutation      </th></tr>
+C> <tr><td>  1 </td><td> \f$(xx|s)\f$  </td><td> \f$(xx|s)\f$     </td><td>                       </td></tr>
+C> <tr><td>  2 </td><td> \f$(xy|s)\f$  </td><td> \f$(xx|x)\f$     </td><td> \f$2 \rightarrow 5\f$ </td></tr>
+C> <tr><td>  3 </td><td> \f$(xz|s)\f$  </td><td> \f$(xx|y)\f$     </td><td> \f$3 \rightarrow 9\f$ </td></tr>
+C> <tr><td>  4 </td><td> \f$(yy|s)\f$  </td><td> \f$(xx|z)\f$     </td><td> \f$4 \rightarrow 13\f$ </td></tr>
+C> <tr><td>  5 </td><td> \f$(yz|s)\f$  </td><td> \f$(xy|s)\f$     </td><td> \f$5 \rightarrow 17\f$ </td></tr>
+C> <tr><td>  6 </td><td> \f$(zz|s)\f$  </td><td> \f$(xy|x)\f$     </td><td> \f$6 \rightarrow 21\f$ </td></tr>
+C> <tr><td>  7 </td><td> \f$(xx|x)\f$  </td><td> \f$(xy|y)\f$     </td><td> \f$7 \rightarrow 2\f$ </td></tr>
+C> <tr><td>  8 </td><td> \f$(xx|y)\f$  </td><td> \f$(xy|z)\f$     </td><td> \f$8 \rightarrow 3\f$ </td></tr>
+C> <tr><td>  9 </td><td> \f$(xx|z)\f$  </td><td> \f$(xz|s)\f$     </td><td> \f$9 \rightarrow 4\f$ </td></tr>
+C> <tr><td> 10 </td><td> \f$(xy|x)\f$  </td><td> \f$(xz|x)\f$     </td><td> \f$10\rightarrow 6\f$ </td></tr>
+C> <tr><td> 11 </td><td> \f$(xy|y)\f$  </td><td> \f$(xz|y)\f$     </td><td> \f$11\rightarrow 7\f$ </td></tr>
+C> <tr><td> 12 </td><td> \f$(xy|z)\f$  </td><td> \f$(xz|z)\f$     </td><td> \f$12\rightarrow 8\f$ </td></tr>
+C> <tr><td> 13 </td><td> \f$(xz|x)\f$  </td><td> \f$(yy|s)\f$     </td><td> \f$13\rightarrow 10\f$ </td></tr>
+C> <tr><td> 14 </td><td> \f$(xz|y)\f$  </td><td> \f$(yy|x)\f$     </td><td> \f$14\rightarrow 11\f$ </td></tr>
+C> <tr><td> 15 </td><td> \f$(xz|z)\f$  </td><td> \f$(yy|y)\f$     </td><td> \f$15\rightarrow 12\f$ </td></tr>
+C> <tr><td> 16 </td><td> \f$(yy|x)\f$  </td><td> \f$(yy|z)\f$     </td><td> \f$16\rightarrow 14\f$ </td></tr>
+C> <tr><td> 17 </td><td> \f$(yy|y)\f$  </td><td> \f$(yz|s)\f$     </td><td> \f$17\rightarrow 15\f$ </td></tr>
+C> <tr><td> 18 </td><td> \f$(yy|z)\f$  </td><td> \f$(yz|x)\f$     </td><td> \f$18\rightarrow 16\f$ </td></tr>
+C> <tr><td> 19 </td><td> \f$(yz|x)\f$  </td><td> \f$(yz|y)\f$     </td><td> \f$19\rightarrow 18\f$ </td></tr>
+C> <tr><td> 20 </td><td> \f$(yz|y)\f$  </td><td> \f$(yz|z)\f$     </td><td> \f$20\rightarrow 19\f$ </td></tr>
+C> <tr><td> 21 </td><td> \f$(yz|z)\f$  </td><td> \f$(zz|s)\f$     </td><td> \f$21\rightarrow 20\f$ </td></tr>
+C> <tr><td> 22 </td><td> \f$(zz|x)\f$  </td><td> \f$(zz|x)\f$     </td><td>                        </td></tr>
+C> <tr><td> 23 </td><td> \f$(zz|y)\f$  </td><td> \f$(zz|y)\f$     </td><td>                        </td></tr>
+C> <tr><td> 24 </td><td> \f$(zz|z)\f$  </td><td> \f$(zz|z)\f$     </td><td>                        </td></tr>
+C> </table>
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1dsp}
 c:tex-This routine transforms integrals from the way they
