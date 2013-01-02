@@ -1,5 +1,14 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Private wrapper routine that calls McMurchie-Davidson
+C> 1-electron integral routines
+C>
+C> Call the McMurchie-Davidson 1-electron integral routines and
+C> handle any permutations to compute the SP integrals.
+C>
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
 c:tex-This is a layer routine that calls the 
@@ -25,36 +34,36 @@ c:tex-\end{verbatim}
 c::passed
 c:tex-For an integral $<i|Operator|j>$
 c:tex-\begin{verbatim}
-      integer i_nprim  ! [input] num. prims on function i
-      integer i_ngen   ! [input] num general conts on func. i
-      integer Li       ! [input] angular momentum of func. i  
-      integer ictri    ! [input] lexical atom index for function i 
-      integer j_nprim  ! [input] num. prims on function j     
-      integer j_ngen   ! [input] num general conts on func. j 
-      integer Lj       ! [input] angular momentum of func. j  
-      integer ictrj    ! [input] lexical atom index for function j 
-      integer nat      ! [input] number of atoms
-      integer lscr     ! [input] size of scratch array
-      integer lstv     ! [input] size of any integral buffer
-      double precision xyzi(3)  ! [input] position of center i
-      double precision expi(i_nprim) ! [input] exponents on i
-      double precision coefi(i_nprim,i_ngen) ! [input] i coeffs
-      double precision xyzj(3)  ! [input] position of center j
-      double precision expj(j_nprim)  ! [input] exponents on j
-      double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
-      double precision xyz(3,nat)  ! [input] all atom positions
-      double precision zan(nat)  ! [input] charges on all atoms
-      double precision exinv(nat)   ! [input] inverse nuclear exponents
-      double precision scr(lscr)  ! [scratch] scratch buffers
-      double precision S(lstv)  ! [output] overlap integrals
-      double precision T(lstv)  ! [output] kinetic energy integrals
-      double precision V(lstv)  ! [output] potential integrals
-      logical doS     ! [input] compute overlap (True/False)
-      logical doT     ! [input] compute kinetic (True/False)
-      logical doV     ! [input] compute potential (True/False)
-      logical canAB   ! [input] compute only canonical ints (false only)
-      logical dryrun  ! [input] true means only compute required memory
-      character*(*) msg ![input] calling func. identification message
+      integer i_nprim  !< [Input] num. prims on function i
+      integer i_ngen   !< [Input] num general conts on func. i
+      integer Li       !< [Input] angular momentum of func. i  
+      integer ictri    !< [Input] lexical atom index for function i 
+      integer j_nprim  !< [Input] num. prims on function j     
+      integer j_ngen   !< [Input] num general conts on func. j 
+      integer Lj       !< [Input] angular momentum of func. j  
+      integer ictrj    !< [Input] lexical atom index for function j 
+      integer nat      !< [Input] number of atoms
+      integer lscr     !< [Input] size of scratch array
+      integer lstv     !< [Input] size of any integral buffer
+      double precision xyzi(3)  !< [Input] position of center i
+      double precision expi(i_nprim) !< [Input] exponents on i
+      double precision coefi(i_nprim,i_ngen) !< [Input] i coeffs
+      double precision xyzj(3)  !< [Input] position of center j
+      double precision expj(j_nprim)  !< [Input] exponents on j
+      double precision coefj(j_nprim,j_ngen)  !< [Input] j coeffs
+      double precision xyz(3,nat)  !< [Input] all atom positions
+      double precision zan(nat)  !< [Input] charges on all atoms
+      double precision exinv(nat)   !< [Input] inverse nuclear exponents
+      double precision scr(lscr)  !< [Scratch] scratch buffers
+      double precision S(lstv)  !< [Output] overlap integrals
+      double precision T(lstv)  !< [Output] kinetic energy integrals
+      double precision V(lstv)  !< [Output] potential integrals
+      logical doS     !< [Input] compute overlap (True/False)
+      logical doT     !< [Input] compute kinetic (True/False)
+      logical doV     !< [Input] compute potential (True/False)
+      logical canAB   !< [Input] compute only canonical ints (false only)
+      logical dryrun  !< [Input] true means only compute required memory
+      character*(*) msg !< [Input] calling function identification message
 c:tex-\end{verbatim}
 c::local
       integer offset
@@ -202,6 +211,10 @@ c * (s|s), (s|x), (s|y), (s|z)
 c
 c
       end
+C>
+C> \brief Call the McMurchie-Davidson 1-electron integral routines
+C> while handling all ECP integral options.
+C>
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp\_ecp}
 c:tex-This is a layer routine that calls the 
@@ -227,36 +240,36 @@ c:tex-\end{verbatim}
 c::passed
 c:tex-For an integral $<i|Operator|j>$
 c:tex-\begin{verbatim}
-      integer i_nprim  ! [input] num. prims on function i
-      integer i_ngen   ! [input] num general conts on func. i
-      integer Li       ! [input] angular momentum of func. i  
-      integer ictri    ! [input] lexical atom index for function i 
-      integer j_nprim  ! [input] num. prims on function j     
-      integer j_ngen   ! [input] num general conts on func. j 
-      integer Lj       ! [input] angular momentum of func. j  
-      integer ictrj    ! [input] lexical atom index for function j 
-      integer nat      ! [input] number of atoms
-      integer lscr     ! [input] size of scratch array
-      integer lstv     ! [input] size of any integral buffer
-      double precision xyzi(3)  ! [input] position of center i
-      double precision expi(i_nprim) ! [input] exponents on i
-      double precision coefi(i_nprim,i_ngen) ! [input] i coeffs
-      double precision xyzj(3)  ! [input] position of center j
-      double precision expj(j_nprim)  ! [input] exponents on j
-      double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
-      double precision xyz(3,nat)  ! [input] all atom positions
-      double precision zan(nat)  ! [input] charges on all atoms
-      double precision exinv(nat)   ! [input] inverse nuclear exponents
-      double precision scr(lscr)  ! [scratch] scratch buffers
-      double precision S(lstv)  ! [output] overlap integrals
-      double precision T(lstv)  ! [output] kinetic energy integrals
-      double precision V(lstv)  ! [output] potential integrals
-      logical doS     ! [input] compute overlap (True/False)
-      logical doT     ! [input] compute kinetic (True/False)
-      logical doV     ! [input] compute potential (True/False)
-      logical canAB   ! [input] compute only canonical ints (false only)
-      logical dryrun  ! [input] true means only compute required memory
-      character*(*) msg ![input] calling func. identification message
+      integer i_nprim  !< [Input] num. prims on function i
+      integer i_ngen   !< [Input] num general conts on func. i
+      integer Li       !< [Input] angular momentum of func. i  
+      integer ictri    !< [Input] lexical atom index for function i 
+      integer j_nprim  !< [Input] num. prims on function j     
+      integer j_ngen   !< [Input] num general conts on func. j 
+      integer Lj       !< [Input] angular momentum of func. j  
+      integer ictrj    !< [Input] lexical atom index for function j 
+      integer nat      !< [Input] number of atoms
+      integer lscr     !< [Input] size of scratch array
+      integer lstv     !< [Input] size of any integral buffer
+      double precision xyzi(3)  !< [Input] position of center i
+      double precision expi(i_nprim) !< [Input] exponents on i
+      double precision coefi(i_nprim,i_ngen) !< [Input] i coeffs
+      double precision xyzj(3)  !< [Input] position of center j
+      double precision expj(j_nprim)  !< [Input] exponents on j
+      double precision coefj(j_nprim,j_ngen)  !< [Input] j coeffs
+      double precision xyz(3,nat)  !< [Input] all atom positions
+      double precision zan(nat)  !< [Input] charges on all atoms
+      double precision exinv(nat)   !< [Input] inverse nuclear exponents
+      double precision scr(lscr)  !< [Scratch] scratch buffers
+      double precision S(lstv)  !< [Output] overlap integrals
+      double precision T(lstv)  !< [Output] kinetic energy integrals
+      double precision V(lstv)  !< [Output] potential integrals
+      logical doS     !< [Input] compute overlap (True/False)
+      logical doT     !< [Input] compute kinetic (True/False)
+      logical doV     !< [Input] compute potential (True/False)
+      logical canAB   !< [Input] compute only canonical ints (false only)
+      logical dryrun  !< [Input] true means only compute required memory
+      character*(*) msg !< [Input] calling func. identification message
 c:tex-\end{verbatim}
 c::local
       integer nintV
@@ -291,6 +304,30 @@ c::local
       endif
 *
       end
+C>
+C> \brief Transform the S and P integrals to SP integrals
+C>
+C> This routine transforms integrals from the way they were
+C> computed \f$ (p|s) \f$ and \f$ (p|p) \f$ to \f$ (p|sp) \f$.
+C> The transformation is performed in place as follows:
+C>
+C> <table>
+C> <tr><th> no.</th><th>computed order</th><th>transformed order</th><th>permutation      </th></tr>
+C> <tr><td>  1 </td><td> \f$(x|s)\f$ </td><td> \f$(x|s)\f$ </td><td>                        </td></tr>
+C> <tr><td>  2 </td><td> \f$(y|s)\f$ </td><td> \f$(x|x)\f$ </td><td> \f$2 \rightarrow 5\f$  </td></tr>
+C> <tr><td>  3 </td><td> \f$(z|s)\f$ </td><td> \f$(x|y)\f$ </td><td> \f$3 \rightarrow 9\f$  </td></tr>
+C> <tr><td>  4 </td><td> \f$(x|x)\f$ </td><td> \f$(x|z)\f$ </td><td> \f$4 \rightarrow 2\f$  </td></tr>
+C> <tr><td>  5 </td><td> \f$(x|y)\f$ </td><td> \f$(y|s)\f$ </td><td> \f$5 \rightarrow 3\f$  </td></tr>
+C> <tr><td>  6 </td><td> \f$(x|z)\f$ </td><td> \f$(y|x)\f$ </td><td> \f$6 \rightarrow 4\f$  </td></tr>
+C> <tr><td>  7 </td><td> \f$(y|x)\f$ </td><td> \f$(y|y)\f$ </td><td> \f$7 \rightarrow 6\f$  </td></tr>
+C> <tr><td>  8 </td><td> \f$(y|y)\f$ </td><td> \f$(y|z)\f$ </td><td> \f$8 \rightarrow 7\f$  </td></tr>
+C> <tr><td>  9 </td><td> \f$(y|z)\f$ </td><td> \f$(z|s)\f$ </td><td> \f$9 \rightarrow 8\f$  </td></tr>
+C> <tr><td> 10 </td><td> \f$(z|x)\f$ </td><td> \f$(z|x)\f$ </td><td>                        </td></tr>
+C> <tr><td> 11 </td><td> \f$(z|y)\f$ </td><td> \f$(z|y)\f$ </td><td>                        </td></tr>
+C> <tr><td> 12 </td><td> \f$(z|z)\f$ </td><td> \f$(z|z)\f$ </td><td>                        </td></tr>
+C> </table>
+C>
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1psp}
 c:tex-This routine transforms integrals from the way they
@@ -337,9 +374,8 @@ c 12.  (z|z)     (z|z)
 c
       implicit none
 c:tex-\begin{verbatim}
-      integer num_blocks  ! [input] num. blocks to transform
-      double precision block(12,num_blocks) ! [input/output] 
-c. . . . . . . . . . . . . . . . . . . . . .! integral block
+      integer num_blocks  !< [Input] num. blocks to transform
+      double precision block(12,num_blocks) !< [Input/output] integral block
 c:tex-\end{verbatim}
 c
       integer ib
@@ -357,6 +393,14 @@ c
         block(5,ib) = temp1        ! temp1 -> 5 or 2 -> 5
 00100 continue
       end
+C>
+C> \brief Transform integrals involving D functions to
+C> SP integrals
+C>
+C> Transform integrals from the way they were computed
+C> \f$(d|s)\f$ and \f$(d|p)\f$ to \f$(d|sp)\f$. The transformation
+C> proceeds in place.
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1dsp}
 c:tex-This routine transforms integrals from the way they
@@ -427,9 +471,8 @@ c 24.  (zz|z)     (zz|z)
 c
       implicit none
 c:tex-\begin{verbatim}
-      integer num_blocks  ! [input] num. blocks to transform
-      double precision block(24,num_blocks) ! [input/output] 
-c . . . . . . . . . . . . . . . . . . . . . ! integral block
+      integer num_blocks  !< [Input] num. blocks to transform
+      double precision block(24,num_blocks) !< [Input/Output] integral block
 c:tex-\end{verbatim}
 c
       double precision temp1, temp2, temp3
@@ -462,6 +505,11 @@ c
         block(21,ib) = temp2          ! temp2 -> 21 or 6 -> 21
 00100 continue
       end
+C>
+C> \brief Transform the integrals from the way they were computed
+C> as \f$(s|s)\f$, \f$(s|p)\f$, \f$(p|s)\f$ and \f$(p|p)\f$ to
+C> \f$(sp|sp)\f$
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1spsp}
 c:tex-This routine transforms integrals from the way they
@@ -518,9 +566,8 @@ c 15.   (z|y)      (z|y)
 c 16.   (z|z)      (z|z)
       implicit none
 c:tex-\begin{verbatim}
-      integer num_blocks        ! [input] num. blocks to transform
-      double precision block(16,num_blocks) ! [input/output] 
-c . . . . . . . . . . . . . . . . . . . . . ! integral block
+      integer num_blocks        !< [Input] num. blocks to transform
+      double precision block(16,num_blocks) !< [Input/Output] integral block
 c:tex-\end{verbatim}
 c
       double precision temp
@@ -538,6 +585,10 @@ c
         block(9, ib) = temp
 00100 continue
       end
+C> 
+C> \brief Transform the integrals from the way they were computed as
+C> \f$(s|X)\f$ and \f$(p|X)\f$ to \f$(sp|X)\f$
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1spa}
 c:tex-This routine transforms integrals from the way they
@@ -554,17 +605,14 @@ c
       implicit none
 c::passed
 c:tex-\begin{verbatim}
-      integer sizeb  ! [input] size of non sp block
-      integer num_blocks ! [input] num of blocks to transform
+      integer sizeb  !< [Input] size of non sp block
+      integer num_blocks !< [Input] num of blocks to transform
 *
-* . . . . . . . . . . . . . . .! [output] (sp|X) transformed integral block
-      double precision sp_block(sizeb,1:4,num_blocks) 
+      double precision sp_block(sizeb,1:4,num_blocks) !< [Output] (sp|X) transformed integral block
 *
-* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (s|X) block
-      double precision s_block(sizeb,num_blocks)
+      double precision s_block(sizeb,num_blocks)      !< [Input] computed (s|X) block
 *
-* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (p|X) block
-      double precision p_block(sizeb,2:4,num_blocks)
+      double precision p_block(sizeb,2:4,num_blocks)  !< [Input] computed (p|X) block
 c:tex-\end{verbatim}
 c::local
       integer block
@@ -579,6 +627,10 @@ c
 00200   continue
 00100 continue
       end
+C> 
+C> \brief Transform the integrals from the way they were computed as
+C> \f$(X|s)\f$ and \f$(X|p)\f$ to \f$(X|sp)\f$
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_sp1b}
 c:tex-This routine transforms integrals from the way they
@@ -595,17 +647,14 @@ c
       implicit none
 c::passed
 c:tex-\begin{verbatim}
-      integer sizea ! [input] size of non sp block
-      integer num_blocks ! [input] num of blocks to transform
+      integer sizea !< [Input] size of non sp block
+      integer num_blocks !< [Input] num of blocks to transform
 *
-* . . . . . . . . . . . . . . .! [output] (X|sp) transformed integral block
-      double precision sp_block(1:4,sizea,num_blocks)
+      double precision sp_block(1:4,sizea,num_blocks) !< [Output] (X|sp) transformed integral block
 *
-* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (X|s) block
-      double precision s_block(sizea,num_blocks)
+      double precision s_block(sizea,num_blocks)      !< [Input] computed (X|s) block
 *
-* . . . . . . . . . . . . . . . . . . . . . .! [input] computed (X|p) block
-      double precision p_block(2:4,sizea,num_blocks)
+      double precision p_block(2:4,sizea,num_blocks)  !< [Input] computed (X|p) block
 c:tex-\end{verbatim}
 c::local
       integer block
@@ -621,3 +670,4 @@ c
 00200   continue
 00100 continue
       end
+C> @}
