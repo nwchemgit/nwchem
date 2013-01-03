@@ -22,7 +22,7 @@
 	sym_mo_ap_op_so.o sym_op_clsfy_so.o ga_orth_mos_so.o  \
 	ga_orthog_so.o sym_op_cname_so.o grad_dens_so2.o \
 	dft_scf_utils_so.o dft_frac_mo_so.o
-	OBJ_OPTIMIZE = ga_compl.o
+	OBJ_OPTIMIZE = 
 
      LIBRARY = libnwdft.a
 
