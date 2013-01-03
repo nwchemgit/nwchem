@@ -37,8 +37,9 @@ C> @{
 *
 * 6. 3-center repulsion Int d1 d2 Xi(1)Xj(1-R)(1/r12)Gp(2-R2)         eq. 41
 * 
-*  All equations refer to our gross paper JCP 105, 10983 (1995) which I 
-*  believe you have a copy of, if not Ill bring one.
+* All equations refer to our gross paper JCP 105, 10983 (1995),
+* doi:10.1063/1.472866 of which I believe you have a copy of, if not I will
+* bring one.
 * 
 * Probably you will need some more details on how we want this, or we can
 * talk to you to understand how we get it, then we can reshuffle things as
