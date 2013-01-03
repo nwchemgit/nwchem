@@ -1,4 +1,4 @@
-cedo#define USE_PDSYEVR 1
+#define USE_PDSYEVR 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
@@ -60,6 +60,9 @@ c
 c
 c     get xij through canonical orthog
 c
+#ifdef SCALAPACK
+      if(yev.eq.'m') ncanorg=0
+#endif
       if(ncanorg.eq.0) then
          if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
      &        nbf, 0, g_xij)) 
@@ -109,7 +112,7 @@ c
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call dft_scaleig(g_fockt, g_vecstt, evals,
-     P     nb, yev) 
+     P     nocc) 
 #else
       call ga_diag_std(
      .     g_fockt,  g_vecstt, evals)
@@ -117,6 +120,8 @@ c
 #else 
       call ga_diag_std_seq(g_fockt, g_vecstt, evals)
 #endif
+cedo      call ga_print(g_fockt)
+cedo      call ga_print(g_vecstt)
       if (odftps) call pstat_off(ps_diag)
       if (oprint_time)
      &     call dft_tstamp(' called diag ')
@@ -199,12 +204,15 @@ c
       end
 #ifdef SCALAPACK
       subroutine dft_scaleig(g_s,g_svecs,evals,
-     A     nb, yev)
+     A      nocc)
       implicit none
+#include "dft_scaleig.fh"
       integer g_s,g_svecs
       double precision evals(*)
-      character*1 yev
-      integer nb
+      integer nocc
+c
+      integer alo(2),ahi(2),dimm,dimm2,nmoout,ii,
+     T     typpe
 c
       if(yev.eq.'v') then
          call ga_pdsyev(g_s, g_svecs, evals,nb)
@@ -213,11 +221,54 @@ c
       elseif(yev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
-      elseif(yev.eq.'r') then
-         call ga_pdsyevr(g_s, g_svecs, evals,nb)
+      elseif(yev.eq.'r'.or.yev.eq.'m') then
+         nmoout=0
+         if(yev.eq.'m') nmoout=nocc
+         call ga_pdsyevr(g_s, g_svecs, evals,nb,nmoout)
+         call ga_inquire(g_svecs, typpe, dimm, dimm)
+         if(nmoout.ne.0) then
+            alo(1)=1
+            ahi(1)=dimm
+            alo(2)=nmoout+1
+            ahi(2)=dimm
+            call nga_zero_patch(g_svecs, alo, ahi)
+         endif
 #endif
       else
          call errquit(' wrong pdsyev value',0,0)
+      endif
+      return
+      end
+      subroutine dft_scaleig_so(g_s,g_svecs,evals,
+     A      nocc)
+      implicit none
+#include "dft_scaleig.fh"
+      integer g_s(*),g_svecs(*)
+      double precision evals(*)
+      integer nocc
+c
+      integer alo(2),ahi(2),dimm,nmoout,ii,
+     T     typpe
+c
+      if(yev.eq.'d') then
+         call ga_pzheevd(g_s, g_svecs, evals,nb)
+#ifdef USE_PDSYEVR
+      elseif(yev.eq.'r'.or.yev.eq.'m') then
+         nmoout=0
+         if(yev.eq.'m') nmoout=nocc
+         call ga_pzheevr(g_s, g_svecs, evals,nb,nmoout)
+         call ga_inquire(g_svecs(1), typpe, dimm, dimm)
+         if(nmoout.ne.0) then
+            alo(1)=1
+            ahi(1)=dimm
+            alo(2)=nmoout+1
+            ahi(2)=dimm
+            call nga_zero_patch(g_svecs(1), alo, ahi)
+            call nga_zero_patch(g_svecs(2), alo, ahi)
+         endif
+#endif
+      else
+         call errquit(' wrong pzheevs value',0,0)
       endif
       return
       end

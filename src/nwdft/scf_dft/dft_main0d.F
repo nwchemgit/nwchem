@@ -467,7 +467,7 @@ c
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
          call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),nb,
-     P     yev) 
+     P     'd',nb) 
 #else
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #endif

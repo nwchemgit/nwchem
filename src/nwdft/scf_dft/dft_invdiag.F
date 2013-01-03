@@ -12,9 +12,6 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
-#ifdef SCALAPACK
-#include "dft_scaleig.fh"
-#endif
 c
       integer me,nproc,i,j,g_tmp2
       integer lev,iev,ltmp,itmp
@@ -38,7 +35,7 @@ C     diag
 #if defined(PARALLEL_DIAG)         
 #ifdef SCALAPACK
       call dft_scaleig(g_a, g_tmp2, DBl_MB(iev),
-     P     nb, yev) 
+     P     0) 
 #else
       call ga_diag_std(g_A,g_tmp2,DBl_MB(iev))
 #endif

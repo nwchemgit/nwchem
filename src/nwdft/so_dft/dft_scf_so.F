@@ -22,6 +22,9 @@ c
 #include "util.fh"
 #include "zora.fh"  ! zora contribution
 #include "case.fh"  ! coulomb attenuation
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
 c     
       integer rtdb              ! [input]
       double precision Etold, Enuc, trace
@@ -215,6 +218,7 @@ c     zora related
       logical do_avg_fon
       logical do_core_fon
 c
+      integer nmoout
       logical spinor
       logical dft_mem3c
       external dft_mem3c
@@ -1519,6 +1523,13 @@ cso#endif
 cso      call ga_diag_compl(g_fockso(1), g_fockso(2), g_moso(1), 
 cso     &                   g_moso(2),  Dbl_MB(k_eval(1))) 
 c      write(*,*)"compare"
+      call ga_zero(g_moso(1))
+      call ga_zero(g_moso(2))
+#ifdef SCALAPACK
+      nmoout=0
+      call dft_scaleig_so(g_fockso,g_moso,dbl_mb(k_eval(1)),
+     A      nmoout)
+#else
       do i = 1, nbf_mo 
          do j = 1, nbf_mo
             DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=dcmplx(0.0, 0.0)
@@ -1539,11 +1550,10 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
      $           +dcmplx(0d0,dbl_mb(ibuff+j-1))
          enddo 
       enddo
-      call ga_zero(g_moso(1))
-      call ga_zero(g_moso(2))
       call zheev( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
      $            Dbl_mb(k_eval(1)), 
      $            DCpl_mb(iwork), LLWORK, Dbl_mb(irwork), INFO )
+      if(ga_nodeid().eq.0) then
       do i = 1, nbf_mo
          do j = 1, nbf_mo 
             dbl_mb(ibuff+j-1)=0.0d0
@@ -1551,7 +1561,6 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
          enddo 
          i1=i
          call ga_put(g_moso(1),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
-         trace = ddot(nbf_mo,dbl_mb(ibuff),1,dbl_mb(ibuff),1) 
          do j = 1, nbf_mo 
             dbl_mb(ibuff+j-1)=0.0d0
             dbl_mb(ibuff+j-1)=
@@ -1559,8 +1568,10 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
          enddo
          i1=i 
          call ga_put(g_moso(2),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
-         trace = ddot(nbf_mo,dbl_mb(ibuff),1,dbl_mb(ibuff),1) 
       enddo
+      endif
+      call ga_sync()
+#endif
 c      write(*,'("before transform")')
 c      write(*,*)(Dbl_mb(k_eval(1)+i),i=0,nbf_mo-1)
 c      call ga_print(g_moso(1))

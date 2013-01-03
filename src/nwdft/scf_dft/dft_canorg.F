@@ -47,11 +47,13 @@ c
                   aaz = svals(i)
                   aaz = 1.d0/sqrt(aaz)
                   call dscal(numi, aaz, DBL_MB(icount), 1)
-                  call ga_put(g_xij,ilo,ihi,i-ndep,i-ndep,
-     .                 dbl_mb(icount),numi)
+cold                  call ga_put(g_xij,ilo,ihi,i-ndep,i-ndep,
+cold     .                 dbl_mb(icount),numi)
                endif
                icount=icount+numi
             enddo
+            call ga_put(g_xij,ilo,ihi,jlo,jhi,
+     .           dbl_mb(itmpm),numi)
             if(.not.MA_Pop_Stack(ltmpm)) call errquit(
      .           'failed popstack in dftcanorg ',0, 0)
          endif
@@ -104,6 +106,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
+#include "dft_scaleig.fh"
 #include "global.fh"
 #include "stdio.fh"
       character*(*) movecs_in
@@ -128,8 +131,9 @@ c
          vecs_or_dens='vectors'
          ldmix=.true.
          ncanorg=1
-      else
       endif
+cedo with partial eigeensolver, need to get starting canonic. orthog
+      if(yev.eq.'m') ncanorg=0
       nmo_out=dft_lindep(nbf_ao,toll_s,
      .        svals,me.eq.0,luout)
       if(nmo_out.ne.nbf_ao) then
@@ -400,3 +404,68 @@ c     ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
       
       return
       end
+      integer function dft_nonzvecs(g_vecs,nbf,noc)
+      implicit none
+#include "errquit.fh"
+c
+      integer g_vecs ! GA handle for  vecs [input]
+      integer nbf
+      integer noc
+c
+#include "mafdecls.fh"
+#include "global.fh"
+#include "dft_scaleig.fh"
+c     
+      integer me, nproc, i
+      integer ltmpm, itmpm,l_nz,k_nz
+      double precision dabsmax,aaz,toll
+      parameter(toll=1d-9)
+      external dabsmax
+      integer ilo,ihi,jlo,jhi,numi,numj,icount
+c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+c     
+      if (.not. MA_Push_Get(MT_int, nbf , 'nonzero', 
+     T     l_nz, k_nz)) call errquit(
+     T           'dftnz: failed to alloc nz',0, MA_ERR)
+      call ifill(nbf,0d0,int_mb(k_nz),1)
+      call ga_distribution(g_vecs,
+     .           ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. ilo.le.ihi) then
+         numi =  ihi-ilo+1
+         numj =  jhi-jlo+1
+         if (numi.gt.0 .and. numj.gt.0) then
+            if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'tmpm', 
+     T           ltmpm, itmpm)) call errquit(
+     T           'dftcano: failed to alloc tmpm',0, MA_ERR)
+            call ga_get(g_vecs,ilo,ihi,jlo,jhi,
+     .           dbl_mb(itmpm),numi)
+            icount=itmpm
+            do i=jlo,jhi
+               aaz=dabsmax(numi,dbl_mb(icount))
+               if(aaz.gt.toll) int_mb(k_nz+i-1)=1d0
+               icount=icount+numi
+            enddo
+            if(.not.MA_Pop_Stack(ltmpm)) call errquit(
+     .           'failed popstack in dftcanorg ',0, 0)
+         endif
+      endif
+      call ga_igop(375, int_mb(k_nz), nbf, '+')
+      do i=nbf,1,-1
+         if(int_mb(k_nz+i-1).ne.0) then
+            dft_nonzvecs=i
+            goto 1
+         endif
+      enddo
+ 1    continue
+c     we should be using all the electrons .. right?
+      dft_nonzvecs=max(noc,dft_nonzvecs)
+      write(6,*) ' nonzvecs ',dft_nonzvecs
+      call util_flush(6)
+c     
+      if(.not.MA_Pop_Stack(l_nz)) call errquit(
+     .     'failed popstack in dftnz ',0, 0)
+      return
+      end
+c

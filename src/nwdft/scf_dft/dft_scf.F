@@ -165,7 +165,7 @@ c
       integer g_focks(2)
       double precision nel_fon(4)
       integer nmo_fon(4), ncore_fon(2)
-      integer g_movad,
+      integer g_movad,nmo_adapt(2),
      ,     ncanorg,g_gmovecs(2)
       logical gotsmear,quickguess,diisreset
       logical llldb,llldb_out,util_statldb,staticguess
@@ -199,6 +199,10 @@ c     timings
 c     for Gaussian Nuclear Model
       integer iatom,l_zetanuc, k_zetanuc
       external get_zetanuc_arr
+      integer dft_nonzvecs
+      external dft_nonzvecs
+c -----FA: 04-21-11: for Gaussian Nuclear Model --- END
+
 c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
@@ -1207,25 +1211,30 @@ c        symmetry adapt vectors?
 c
          if (oadapt)then
             if(nmo(ispin).ne.0) then
-               if (.not. ga_create(mt_dbl, nbf_ao, nmo(ispin),
-     ,           'movad', nbf_ao, 0, g_movad)) call errquit(
+chack
+               nmo_adapt(ispin)=nmo(ispin)
+               nmo_adapt(ispin)=dft_nonzvecs(g_movecs(ispin),nbf_ao,
+     N              noc(ispin))
+               if (.not. ga_create(mt_dbl, nbf_ao, nmo_adapt(ispin),
+     ,           'movadddd', nbf_ao, 0, g_movad)) call errquit(
      +           'dft_scf: gacreate failed ',0, GA_ERR)
+               call ga_zero(g_movad)
                call ga_copy_patch('n', g_movecs(ispin), 1, nbf_ao, 
-     .            1, nmo(ispin),
-     ,            g_movad, 1,nbf_ao,1,nmo(ispin))
+     .            1, nmo_adapt(ispin),
+     ,            g_movad, 1,nbf_ao,1,nmo_adapt(ispin))
             else
                g_movad=g_movecs(ispin)
             endif
             if(ispin.eq.1)name = '- alpha'
             if(ispin.eq.2)name = '- beta'
             call scf_movecs_sym_adapt(ao_bas_han, g_movad,
-     &           oprint_syma, nmo, name,
+     &           oprint_syma, nmo_adapt, name,
      &           .true., 
      &                                int_mb(k_ir+nbf_ao*(ispin-1)))
             if(nmo(ispin).ne.0) then
                call ga_copy_patch('n', 
-     ,              g_movad, 1,nbf_ao,1,nmo(ispin),
-     .              g_movecs(ispin), 1, nbf_ao, 1, nmo(ispin))
+     ,              g_movad, 1,nbf_ao,1,nmo_adapt(ispin),
+     .              g_movecs(ispin), 1, nbf_ao, 1, nmo_adapt(ispin))
                if (.not. ga_destroy(g_movad)) call errquit(
      &              'dft_scf: could not destroy g_movad', 0, GA_ERR)
             endif
