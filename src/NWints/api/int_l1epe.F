@@ -1,5 +1,22 @@
 c $Id$
 *
+C>
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the non-zero 1 electron potential integrals
+C>
+C> This routine computes the 1 electron potential integrals, (\f$V\f$).
+C> If an ECP is defined then the ECP integral contributions are summed 
+C> directly into the V integrals.  Integrals are computed with labels 
+C> and zero valued integrals removed.  
+C> 
+C> \f{eqnarray*}{
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+C> {-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1epe}
 c:tex-This routine computes the 1 electron potential integrals, ($V$):
@@ -36,18 +53,18 @@ c::function
       external int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      double precision zerotol   ! [input] zero integral threshold
-      integer lpe                ! [input] length of potential buffer
-      integer numgen             ! [output] number of integrals generated
-      integer ilab(lpe)          ! [output] i bas fun labels array
-      integer jlab(lpe)          ! [output] j bas fun labels array
-      double precision Pe(lpe)   ! [output] potential integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision zerotol   !< [Input] zero integral threshold
+      integer lpe                !< [Input] length of potential buffer
+      integer numgen             !< [Output] number of integrals generated
+      integer ilab(lpe)          !< [Output] i bas fun labels array
+      integer jlab(lpe)          !< [Output] j bas fun labels array
+      double precision Pe(lpe)   !< [Output] potential integrals
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j
@@ -95,3 +112,4 @@ c
 00100 continue
 c
       end
+C> @}

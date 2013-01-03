@@ -1,5 +1,20 @@
 c $Id$
 *
+C>
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the non-zero 1 electron kinetic energy integrals
+C>
+C> This routine computes the 1 electron kinetic energy integrals, 
+C> (\f$T\f$),
+C> with labels and zero valued integrals removed:
+C> 
+C> \f{eqnarray*}{
+C> T & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eke}
 c:tex-This routine computes the 1 electron kinetic energy integrals, ($T$).
@@ -32,18 +47,18 @@ c::function
       external int_chk_sh, int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      double precision zerotol   ! [input] zero threshold
-      integer lke                ! [input] length of 1e buffers
-      integer numgen             ! [output] number of Ke integrals
-      integer ilab(lke)          ! [output] i bas fun labels array
-      integer jlab(lke)          ! [output] j bas fun labels array
-      double precision Ke(lke)   ! [output] kinetic energy integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision zerotol   !< [Input] zero threshold
+      integer lke                !< [Input] length of 1e buffers
+      integer numgen             !< [Output] number of Ke integrals
+      integer ilab(lke)          !< [Output] i bas fun labels array
+      integer jlab(lke)          !< [Output] j bas fun labels array
+      double precision Ke(lke)   !< [Output] kinetic energy integrals
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j
@@ -90,3 +105,4 @@ c
 00100 continue
 c
       end
+C> @}

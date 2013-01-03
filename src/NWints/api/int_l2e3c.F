@@ -1,5 +1,18 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute non-zero 3 center 2-electron integrals
+C>
+C> Computes 3 center 2-electron integrals of the following kind:
+C> \f{eqnarray*}{
+C> ({\mu}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}
+C> g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+C> \f}
+C> All zero valued integrals are removed and the remaining integrals
+C> identified with appropriate labels.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e3c}
 c:tex-this routine computes the 3 center 2 electron integrals
@@ -37,21 +50,21 @@ c::functions
       external int_chk_sh
 c::passed
 c:tex-\begin{verbatim}
-      integer brain ! [input] bra basis set handle
-      integer ish   ! [input] shell/contraction index
-      integer ketin ! [input] ket basis set handle
-      integer jsh   ! [input] shell/contraction index
-      integer ksh   ! [input] shell/contraction index
-      integer lscr  ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] array
-      double precision zerotol   ! [input] zero threshold
-      integer leri  ! [input] length of integral array
-      integer  nint ! [output] number of integrals computed
-      integer ilab(leri) ! [output] i bas fun labels array
-      integer jlab(leri) ! [output] j bas fun labels array
-      integer klab(leri) ! [output] k bas fun labels array
-      double precision eri(leri) ! [output] 2e3c integrals
-      logical canket ! [input] canonicalize ket bas. fun. label pairs
+      integer brain !< [Input] bra basis set handle
+      integer ish   !< [Input] shell/contraction index
+      integer ketin !< [Input] ket basis set handle
+      integer jsh   !< [Input] shell/contraction index
+      integer ksh   !< [Input] shell/contraction index
+      integer lscr  !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] array
+      double precision zerotol   !< [Input] zero threshold
+      integer leri  !< [Input] length of integral array
+      integer  nint !< [Output] number of integrals computed
+      integer ilab(leri) !< [Output] i bas fun labels array
+      integer jlab(leri) !< [Output] j bas fun labels array
+      integer klab(leri) !< [Output] k bas fun labels array
+      double precision eri(leri) !< [Output] 2e3c integrals
+      logical canket !< [Input] canonicalize ket bas. fun. label pairs
 c:tex-\end{verbatim}
 c::local
       logical shells_ok
@@ -125,3 +138,4 @@ c
 00100 continue
 c
       end
+C> @}

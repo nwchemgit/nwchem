@@ -1,5 +1,17 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the non-zero 2 center 2-electron integrals.
+C>
+C> Computes 2 center 2-electron integrals of the form:
+C> \f{eqnarray*}{
+C> ({\mu}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})dr_{1}dr_{2}
+C> \f}
+C> The zero valued integrals are removed and the remaining integrals
+C> identified with appropriate labels.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e2c}
 c:tex-this routine computes the 2 center 2 electron integrals
@@ -35,18 +47,18 @@ c::functions
       external int_chk_sh
 c::passed
 c:tex-\begin{verbatim}
-      integer brain ! [input] bra basis set handle
-      integer ish   ! [input] shell/contraction index
-      integer ketin ! [input] ket basis set handle
-      integer jsh   ! [input] shell/contraction index
-      integer lscr  ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] array
-      double precision zerotol   ! [input] zero threshold
-      integer leri  ! [input] length of integral array
-      integer nint  ! [output] num of ints computed
-      integer ilab(leri) ! [output] i bas func label array
-      integer jlab(leri) ! [output] j bas func label array
-      double precision eri(leri) ! [output] 2e2c integrals
+      integer brain !< [Input] bra basis set handle
+      integer ish   !< [Input] shell/contraction index
+      integer ketin !< [Input] ket basis set handle
+      integer jsh   !< [Input] shell/contraction index
+      integer lscr  !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] array
+      double precision zerotol   !< [Input] zero threshold
+      integer leri  !< [Input] length of integral array
+      integer nint  !< [Output] num of ints computed
+      integer ilab(leri) !< [Output] i bas func label array
+      integer jlab(leri) !< [Output] j bas func label array
+      double precision eri(leri) !< [Output] 2e2c integrals
 c:tex-\end{verbatim}
 c::local
       logical shells_ok
@@ -102,3 +114,4 @@ c
 00100 continue
 c
       end
+C> @}

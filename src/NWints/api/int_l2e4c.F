@@ -1,5 +1,38 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Calculate a block of non-zero 4 center 2-electron integrals
+C>
+C> The routine takes 4 shells of basis functions. The first pair of
+C> shells generates the "bra" charge distribution and the second pair
+C> the "ket" charge distribution. This routine evaluates the integral
+C> of the Coulomb operator for the repulsion of these charge
+C> distributions. In summary the following expression is evaluated:
+C> \f{eqnarray*}{
+C>    ({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty}
+C>    g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}
+C>    g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+C> \f}
+C> All zero valued integrals are removed and the remaining integrals
+C> identified with appropriate labels.
+C>
+C> At present this routine provides the following algorithms:
+C>
+C> - SP-rotated axis 
+C>
+C> - McMurchie-Davidson
+C>
+C> - Obara-Saika (Texas)
+C>
+C> Not available are:
+C>
+C> - Rys quadrature (Hondo)
+C>
+C> The choice of algorithm is controlled by capability checks and user
+C> inputs (see the various cando functions for details).
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e4c}
 c:tex-this routine computes the 4 center (traditional) 2 electron integrals
@@ -38,23 +71,23 @@ c::functions
       external int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
-      integer brain ! [input] bra basis set handle
-      integer ish   ! [input] shell/contraction index
-      integer jsh   ! [input] shell/contraction index
-      integer ketin ! [input] ket basis set handle
-      integer ksh   ! [input] shell/contraction index
-      integer lsh   ! [input] shell/contraction index
-      double precision zerotol ! [input] zero threshold
-      integer lscr  ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] array
-      integer leri  ! [input] length of integral array
-      integer nint  ! [output] number of integrals computed
-      integer ilab(leri) ! [output] i bas fun label array 
-      integer jlab(leri) ! [output] j bas fun label array 
-      integer klab(leri) ! [output] k bas fun label array 
-      integer llab(leri) ! [output] l bas fun label array 
-      double precision eri(leri) ! [output] 2e4c integrals
-      logical canonicalize ! [input] canonicalize labels
+      integer brain !< [Input] bra basis set handle
+      integer ish   !< [Input] shell/contraction index
+      integer jsh   !< [Input] shell/contraction index
+      integer ketin !< [Input] ket basis set handle
+      integer ksh   !< [Input] shell/contraction index
+      integer lsh   !< [Input] shell/contraction index
+      double precision zerotol !< [Input] zero threshold
+      integer lscr  !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] array
+      integer leri  !< [Input] length of integral array
+      integer nint  !< [Output] number of integrals computed
+      integer ilab(leri) !< [Output] i bas fun label array 
+      integer jlab(leri) !< [Output] j bas fun label array 
+      integer klab(leri) !< [Output] k bas fun label array 
+      integer llab(leri) !< [Output] l bas fun label array 
+      double precision eri(leri) !< [Output] 2e4c integrals
+      logical canonicalize !< [Input] canonicalize labels
 c:tex-\end{verbatim}
 c::local
       logical status_sp, status_txs
@@ -299,3 +332,4 @@ c
 c
       endif
       end
+C> @}

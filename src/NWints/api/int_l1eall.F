@@ -1,5 +1,26 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C> \brief Compute any 1-electron integrals removing any zero integrals
+C>
+C> This routine computes the 1 electron integrals \f$S\f$, \f$T\f$, and \f$V\f$:
+C> \f{eqnarray*}{
+C> S & = & ({\mu}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> T & = & ({\mu}|-\frac{1}{2}\nabla^{2}|{\nu}) \\\\
+C>   & = & -\frac{1}{2}\int_{-\infty}^{\infty}g_{\mu}(X_{\mu},r_{1})\nabla^{2}(r_{1})\\
+C>         g_{\nu}(X_{\nu},r_{1})dr_{1} \\\\
+C> V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+C> {-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+C> \f}
+C> All zero valued integrals are removed and the remaining integrals
+C> identified with appropriate labels.
+C>
+C> If an ECP is defined then the ECP integral contributions are summed
+C> directly into the V integrals.
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eall}
 c:tex-This routine computes the 1 electron integrals S, T, and V 
@@ -40,20 +61,20 @@ c::function
       external int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision zerotol ! [input] zero threshold for integrals
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lstv               ! [input] length of one electron buffers
-      integer ilab(lstv)         ! [output] i bas. fun. index array
-      integer jlab(lstv)         ! [output] j bas. fun. index array
-      double precision T(lstv)   ! [output] kinetic integral buffer
-      double precision V(lstv)   ! [output] potential integral buffer
-      double precision S(lstv)   ! [output] overlap integral buffer
-      integer numstv             ! [output] number of returned integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision zerotol !< [Input] zero threshold for integrals
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lstv               !< [Input] length of one electron buffers
+      integer ilab(lstv)         !< [Output] i bas. fun. index array
+      integer jlab(lstv)         !< [Output] j bas. fun. index array
+      double precision T(lstv)   !< [Output] kinetic integral buffer
+      double precision V(lstv)   !< [Output] potential integral buffer
+      double precision S(lstv)   !< [Output] overlap integral buffer
+      integer numstv             !< [Output] number of returned integrals
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, iscrS, iscrT, iscrV, icount, i, j
@@ -125,3 +146,4 @@ c
 00100 continue
 c
       end
+C> @}

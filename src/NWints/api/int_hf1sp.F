@@ -538,6 +538,30 @@ C> \brief Transform the integrals from the way they were computed
 C> as \f$(s|s)\f$, \f$(s|p)\f$, \f$(p|s)\f$ and \f$(p|p)\f$ to
 C> \f$(sp|sp)\f$
 C>
+C> This routine transforms the integrals from the way they were computed
+C> as \f$(s|s)\f$, \f$(s|p)\f$, \f$(p|s)\f$ and \f$(p|p)\f$ to
+C> \f$(sp|sp)\f$. The transformation completes as follows:
+C>
+C> <table>
+C> <tr><th> no.</th><th>computed order</th><th>transformed order</th><th>permutation      </th></tr>
+C> <tr><td>  1 </td><td> \f$(s|s)\f$ </td><td> \f$(s|s)\f$ </td><td>                        </td></tr>
+C> <tr><td>  2 </td><td> \f$(s|x)\f$ </td><td> \f$(s|x)\f$ </td><td>                        </td></tr>
+C> <tr><td>  3 </td><td> \f$(s|y)\f$ </td><td> \f$(s|y)\f$ </td><td>                        </td></tr>
+C> <tr><td>  4 </td><td> \f$(s|z)\f$ </td><td> \f$(s|z)\f$ </td><td>                        </td></tr>
+C> <tr><td>  5 </td><td> \f$(x|s)\f$ </td><td> \f$(x|s)\f$ </td><td>                        </td></tr>
+C> <tr><td>  6 </td><td> \f$(y|s)\f$ </td><td> \f$(x|x)\f$ </td><td> \f$6 \rightarrow 9 \f$ </td></tr>
+C> <tr><td>  7 </td><td> \f$(z|s)\f$ </td><td> \f$(x|y)\f$ </td><td> \f$7 \rightarrow 13\f$ </td></tr>
+C> <tr><td>  8 </td><td> \f$(x|x)\f$ </td><td> \f$(x|z)\f$ </td><td> \f$8 \rightarrow 6 \f$ </td></tr>
+C> <tr><td>  9 </td><td> \f$(x|y)\f$ </td><td> \f$(y|s)\f$ </td><td> \f$9 \rightarrow 7 \f$ </td></tr>
+C> <tr><td> 10 </td><td> \f$(x|z)\f$ </td><td> \f$(y|x)\f$ </td><td> \f$10\rightarrow 8 \f$ </td></tr>
+C> <tr><td> 11 </td><td> \f$(y|x)\f$ </td><td> \f$(y|y)\f$ </td><td> \f$11\rightarrow 10\f$ </td></tr>
+C> <tr><td> 12 </td><td> \f$(y|y)\f$ </td><td> \f$(y|z)\f$ </td><td> \f$12\rightarrow 11\f$ </td></tr>
+C> <tr><td> 13 </td><td> \f$(y|z)\f$ </td><td> \f$(z|s)\f$ </td><td> \f$13\rightarrow 12\f$ </td></tr>
+C> <tr><td> 14 </td><td> \f$(z|x)\f$ </td><td> \f$(z|x)\f$ </td><td>                        </td></tr>
+C> <tr><td> 15 </td><td> \f$(z|y)\f$ </td><td> \f$(z|y)\f$ </td><td>                        </td></tr>
+C> <tr><td> 16 </td><td> \f$(z|z)\f$ </td><td> \f$(z|z)\f$ </td><td>                        </td></tr>
+C> </table>
+C>
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1spsp}
 c:tex-This routine transforms integrals from the way they

@@ -1,5 +1,19 @@
 c $Id$
 *
+C>
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the non-zero 1 electron overlap integrals
+C>
+C> This routine computes the 1 electron overlap integrals (\f$S\f$)
+C> with labels and zero valued integrals removed:
+C> 
+C> \f{eqnarray*}{
+C> S & = & ({\mu}|{\nu}) \\\\
+C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+C> \f}
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eov}
 c:tex-This routine computes the 1 electron overlap integrals ($S$)
@@ -33,18 +47,18 @@ c::function
       external int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      double precision zerotol   ! [input] zero threshold
-      integer lov                ! [input] length of overlap buffer
-      integer numgen             ! [output] num of ints generated
-      integer ilab(lov)          ! [output] i bas fun labels array
-      integer jlab(lov)          ! [output] j bas fun labels array
-      double precision Ov(lov)   ! [output] overlap integral buffer
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision zerotol   !< [Input] zero threshold
+      integer lov                !< [Input] length of overlap buffer
+      integer numgen             !< [Output] num of ints generated
+      integer ilab(lov)          !< [Output] i bas fun labels array
+      integer jlab(lov)          !< [Output] j bas fun labels array
+      double precision Ov(lov)   !< [Output] overlap integral buffer
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j
@@ -91,3 +105,4 @@ c
 00100 continue
 c
       end
+C> @}

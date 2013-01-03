@@ -1,5 +1,16 @@
 c $Id$
 *
+C> \ingroup nwint
+C>
+C> \brief Generate labels for general 2 index 1 electron integrals
+C>
+C> This routine generates labels for general 2 index one 
+C> electron integrals.  This is mostly unused since the other 
+C> integral type specific label routines are now used.  This 
+C> routine requires that the integral block be computed prior 
+C> to the label call.  Other routines now integrate label 
+C> generation with computation.  
+C>
 c:tex-% this is part of the API Standard Integral routines
 c:tex-\subsection{int\_l1gen1e}
 c:tex-This routine generates labels for general 2 index one 
@@ -31,19 +42,19 @@ c::function
       external int_chk_sh
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] bra basis set handle
-      integer ish     ! [input] bra shell lexical index
-      integer j_basis ! [input] ket basis set handle
-      integer jsh     ! [input] ket shell lexical index
-      double precision zerotol ! [input] zero threshold
-      integer l1e       ! [input] length of buffers for integrals
-      integer ilab(l1e) ! [output] i bas func labels array
-      integer jlab(l1e) ! [output] j bas func labels array
-      double precision Gen1e(l1e) ! [input/output] 1e integrals
-      integer lscr ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] array
-      integer numgen ! [output] number of integrals 
-c . . . . . . . . . .!           saved and returned
+      integer i_basis !< [input] bra basis set handle
+      integer ish     !< [input] bra shell lexical index
+      integer j_basis !< [input] ket basis set handle
+      integer jsh     !< [input] ket shell lexical index
+      double precision zerotol !< [input] zero threshold
+      integer l1e       !< [input] length of buffers for integrals
+      integer ilab(l1e) !< [output] i bas func labels array
+      integer jlab(l1e) !< [output] j bas func labels array
+      double precision Gen1e(l1e) !< [input/output] 1e integrals
+      integer lscr !< [input] length of scratch array
+      double precision scr(lscr) !< [scratch] array
+      integer numgen !< [output] number of integrals 
+                     !< saved and returned
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j
@@ -92,3 +103,4 @@ c
 00100 continue
 c
       end
+C> @}
