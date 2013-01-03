@@ -687,6 +687,11 @@ c
 c     check for fon input
 c
       fon = .false.
+      nmo_fon = 0
+      nmo_fon2 = 0
+      nel_fon = 0
+      nel_fon2 = 0
+      ncore_fon = 0
       if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
 c
 c       variable 'fon' should be true, otherwise there's 
@@ -1255,7 +1260,7 @@ c
      &        n_semi_bufs, fd, IOLGC, 
      .        natoms,
      &        .false., 0d0, .false.)
-      endif
+      endif  ! cdfit
 c     
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
@@ -2122,10 +2127,10 @@ c
 c     Switch the mo order to match the determinantal occupancy 
 c
       iswap = ncore_fon + 1  ! first partially filled orbital
-      jswap = iswap + idet ! forms the pair (i,j) to be swapped
-      swap(1) = iswap  ! assign the pair
-      swap(2) = jswap  ! assign the pair
+      jswap = iswap + idet   ! forms the pair (i,j) to be swapped
       if (jswap.ge.iswap) then
+         swap(1) = iswap  ! assign the pair
+         swap(2) = jswap  ! assign the pair
          if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap))  ! swap is queried in movecs_swap_so
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
@@ -2149,6 +2154,8 @@ c
  4443 format(/,1x,'Restoring orbital order')
 c
       if (jswap.ge.iswap) then
+         swap(1) = iswap  ! assign the pair
+         swap(2) = jswap  ! assign the pair
          if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap))  ! swap is queried in movecs_swap_so
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
