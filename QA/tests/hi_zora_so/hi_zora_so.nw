@@ -18,7 +18,6 @@ dft
  grid xfine
  grid lebedev H 350 18 I 350 18 
  xc b3lyp
- vectors input test2.movecs output test3.movecs
 end
 
 relativistic
