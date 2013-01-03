@@ -329,8 +329,20 @@ c
          case (NWXC_MP2C)
            cdata = "Moller-Plesset 2nd Order Correlation"
          case (NWXC_X_SLATER)
-           cdata = "Slater Exchange (JC Slater, PhysRev 81, 385, (1951)"
-     +             //" doi:10.1103/PhysRev.81.385)"
+           cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385, "
+     +             //"(1951) doi:10.1103/PhysRev.81.385)"
+         case (NWXC_X_PBE)
+           cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
+     +             //"Phys.Rev.Lett. 77, 3865, (1996)"
+     +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXC_C_PBE)
+           cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
+     +             //"Phys.Rev.Lett. 77, 3865, (1996)"
+     +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXC_PBE)
+           cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
+     +             //"Phys.Rev.Lett. 77, 3865, (1996)"
+     +             //" doi:10.1103/PhysRevLett.77.3865)"
          case default
            stat = .false.
        end select

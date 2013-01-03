@@ -86,6 +86,9 @@ C
            case (NWXC_X_SLATER)
              call nwxc_x_dirac(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                         rho,f,dfdr)
+           case (NWXC_X_PBE)
+             call nwxc_x_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case default
              call errquit("nwxc_eval_df: invalid functional",
      +                    nwxc_ids(it),UERR)
