@@ -340,9 +340,10 @@ c
 c
 c     replicated DM and Fock Matrix
 c
-c     turned off for now: needs to be debugged
+c     turned off for nbf gt 500 since becomes a memory hog
 c
       dorepon=.true.
+      if(nbf.gt.500) dorepon=.false.
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
          docopy=.true.
@@ -363,6 +364,10 @@ c
             g_fock=g_fockrep
          else
             if(dorepd) call util_mirrstop(1,g_densrep)
+            if(ga_nodeid().eq.0) then
+               write(6,*) ' no mirroring in shellfockbld'
+               call util_flush(6)
+            endif
          endif
       endif
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
@@ -668,14 +673,14 @@ c
             enddo
          enddo
       else
-      do idens = 1, ndens
-         factor = fac(idens)
-         do i = 1, ibfhi-ibflo+1
-            do j = 1, jbfhi-jbflo+1
-               buf(idens,i,j) = buf(idens,i,j) * factor
+         do idens = 1, ndens
+            factor = fac(idens)
+            do i = 1, ibfhi-ibflo+1
+               do j = 1, jbfhi-jbflo+1
+                  buf(idens,i,j) = buf(idens,i,j) * factor
+               enddo
             enddo
          enddo
-      enddo
       endif
 c
       return
