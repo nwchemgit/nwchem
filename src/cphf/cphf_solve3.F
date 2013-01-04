@@ -87,7 +87,7 @@ c
       external rohf_hessv_precond3_damp_anti,
      &         ga_lkain_2cpl3_damp_cmplx_redmem,
      &         ga_lkain_2cpl3_damp_cmplx_redmem1,
-     &         ga_lkain_2cpl3_nw,
+     &         ga_lkain_2cpl3_ext,
      &         conv2complex,rohf_hessv3_cmplx
       integer nocc1(2),nvir1(2)
       external get_cconjugate
@@ -509,10 +509,10 @@ c         debug=.false. ! to see entering vectors
            if (debug) write (6,*) 'calling ga_lkain_2cpl3'
 
 c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_nw'
+c    &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_ext'
 
 c           call ga_lkain_2cpl3(
-           call ga_lkain_2cpl3_nw(
+           call ga_lkain_2cpl3_ext(
      &                      rtdb,
      &                      g_work   , g_grad, 
      &                      g_work_im, g_grad_im, 
@@ -524,7 +524,7 @@ c           call ga_lkain_2cpl3(
      &                      gamwidth, ncomp)
 
 c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-AFT-uhf-ga_lkain_2cpl3_nw'
+c    &      write(*,*) 'FA-AFT-uhf-ga_lkain_2cpl3_ext'
 
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3'
          else
@@ -770,10 +770,10 @@ c        g_grad is the constant rhs vector
            if (debug) write (6,*) 'calling ga_lkain_2cpl3'
 
 c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-BEF-rhf-ga_lkain_2cpl3_nw'
+c    &      write(*,*) 'FA-BEF-rhf-ga_lkain_2cpl3_ext'
 
 c           call ga_lkain_2cpl3(rtdb,
-           call ga_lkain_2cpl3_nw(rtdb,
+           call ga_lkain_2cpl3_ext(rtdb,
      &                         g_work   , g_grad, 
      &                         g_work_im, g_grad_im, 
      &                         rohf_hessv3,rohf_hessv_precond3,
@@ -784,14 +784,14 @@ c           call ga_lkain_2cpl3(rtdb,
      &                         gamwidth, ncomp)
 
 c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-AFT-rhf-ga_lkain_2cpl3_nw'
+c    &      write(*,*) 'FA-AFT-rhf-ga_lkain_2cpl3_ext'
      
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3'
 
          else
 
-           if (ga_nodeid().eq.0)  
-     &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem'
+c          if (ga_nodeid().eq.0)  
+c    &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem'
 c --- Transfer (g_work,g_work_im) --> g_work_cmplx
 c              (g_grad,g_grad_im) --> g_grad_cmplx
 c ----- Create complex GA arrays ----------- START
@@ -892,8 +892,8 @@ c ----- Create complex GA arrays ----------- END
             if(.not.ga_destroy(g_grad_cmplx(ipm))) call errquit(
      $     'cphf_solve3: could not destroy grad_cmplx',ipm, GA_ERR)
            enddo ! end-loop-ipm
-           if (ga_nodeid().eq.0)  
-     &       write (*,*) 'FA AFT ga_lkain_2cpl3_damp_cmplx_redmem'
+c          if (ga_nodeid().eq.0)  
+c    &       write (*,*) 'FA AFT ga_lkain_2cpl3_damp_cmplx_redmem'
  201       continue
 
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3_damp'

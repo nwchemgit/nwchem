@@ -54,6 +54,8 @@ c
       external movecs_read_header, cphf_poliz
       logical int_normalize
       external int_normalize
+      external ga_lkain_ext
+     
 c
       logical hf_job
 c
@@ -280,6 +282,7 @@ c !!! BGJ
      &       RTDB_ERR)
 c !!! BGJ
 c 000000000000000 prepare guess 000000000000 START
+      if (ndata.eq.2) then
          if (.not. rtdb_get(rtdb, 'cphf2-aores:guess', 
      &      mt_log,1,use_my_guess)) use_my_guess = .false.
       call prepare_guess(
@@ -293,6 +296,7 @@ c 000000000000000 prepare guess 000000000000 START
      &               .false.,     ! in : lifetime= T complex   = F real
      &               use_my_guess,! in : = T guess-file =F guess=(energy-scaling)*g_b 
      &               rtdb)        ! in : rtdb handle
+       endif
 c Note.- en-scl*g_b is unpropertly called "preconditioning"
 c 000000000000000 prepare guess 000000000000 END
       if (scftype .eq. 'UHF') then
@@ -306,9 +310,23 @@ c        enforces that.
           call uhf_precond(g_work,0.0d0)
          endif 
 c        Call the solver
-         call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
+         if (ndata.eq.2) then
+
+c          if (ga_nodeid().eq.0)
+c     &      write(*,*) 'BEF ga_lkain_ext-uhf'
+
+          call ga_lkain_ext(rtdb,g_work,g_grad,uhf_hessv2,uhf_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
      &        oprint_solve)
+         else 
+
+c          if (ga_nodeid().eq.0)
+c     &      write(*,*) 'BEF ga_lkain-uhf'
+
+          call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
+     $        precond_tol, max_precond_sub, maxiter, .false., 
+     &        oprint_solve)
+         endif
          noskew_uhf = .true.
       else 
 c        For property related CPHF. NMR has imaginary perturbation
@@ -320,10 +338,25 @@ c        enforces that.
           call rohf_hessv_precond(g_work,0.0d0)
          endif
 c        Call the solver
-         call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
+         if (ndata.eq.2) then
+
+c          if (ga_nodeid().eq.0)
+c     &      write(*,*) 'BEF ga_lkain_ext-rhf'
+
+          call ga_lkain_ext(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
-     $        precond_tol, max_precond_sub, maxiter, .false., 
-     &        oprint_solve)
+     $         precond_tol, max_precond_sub, maxiter, .false., 
+     &         oprint_solve)
+         else
+
+c          if (ga_nodeid().eq.0)
+c     &      write(*,*) 'BEF ga_lkain-rhf'
+
+          call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
+     R         rohf_hessv_precond,
+     $         precond_tol, max_precond_sub, maxiter, .false., 
+     &         oprint_solve)
+         endif
          noskew = .true.
       endif
 c !!! BGJ
