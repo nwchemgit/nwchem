@@ -179,7 +179,7 @@ endif
               util_erf.o  \
               util_cflush.o  \
               util_length_scale.o  \
-              ga_it2.o \
+              ga_it2.o ga_lkain_ext.o\
               ma_print.o freeze_input.o ga_extra.o \
               util_test.o util_ga_test.o util.o util_patch_test.o \
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
@@ -199,7 +199,7 @@ endif
 	      util_params.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F
+                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
