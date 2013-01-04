@@ -1,7 +1,10 @@
-      subroutine ga_lkain_2cpl3(rtdb, g_x, g_b, g_x_im, g_b_im,
-     &   product, precond, 
-     $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
-     &   lifetime, gamwidth, ncomp)
+      subroutine ga_lkain_2cpl3(rtdb, 
+     &                          g_x, g_b, 
+     &                          g_x_im, g_b_im,
+     &                          product, precond, 
+     $                          tol, mmaxsub, maxiter, 
+     &                          odiff, oprint, omega, limag,
+     &                          lifetime, gamwidth, ncomp)
 
 c     $Id$
 
@@ -30,6 +33,8 @@ c
       integer maxiter           ! [input] maximum no. of iterations
       logical odiff             ! [input] use differences in product
       logical oprint            ! [input] print flag
+
+      integer ipm
 c
 c     Solves the linear equations A(X)=0 for multiple vectors.
 c
@@ -61,21 +66,28 @@ c     to about 10*nvec.
 c
 c     Needs to be extended to store the sub-space vectors out-of-core
 c     at least while the product() routine is being executed.
-c
-      integer iter, n, n2, nvec, nsub, isub, type, maxsub, ipm,
-     &   ntmp1, ntmp2
+
+      integer iter, n, n2, nvec, nsub, isub, type, maxsub, 
+     &        ntmp1, ntmp2
 
 c ... jochen: for convenience, now most arrays have two components.
 c     that might be changed later if memory becomes an issue
-      integer g_y, g_Ay, g_Ax(2), g_r(2), g_r2, g_a, g_bb,
-     &   g_c, g_xold(2), g_Axold(2), g_Ax_im(2)
-      double precision rmax, rmax1, rmax2, acc
+      integer g_y, g_Ay, 
+     &        g_Ax(2), g_r(2), g_r2, 
+     &        g_a, g_bb,g_c, 
+     &        g_xold(2), g_Axold(2), g_Ax_im(2)
+      double precision rmax, rmax1, rmax2, acc,rmx(2)
       logical converged
       logical odebug, debug, converge_precond
+
+      double precision omg(2)
+      integer dsp
 c
 c     =================================================================
 c
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
+c      debug=.true.
 
 c     check input key if we should check for convergence
 c     after the preconditioner has been applied to the residual
@@ -108,7 +120,7 @@ c       ... jochen: do a sanity check on the array dimensions
      &     nvec,CALC_ERR)
       endif
       
-c     later we combine the two components to vecors of double
+c     later we combine the two components to vectors of double
 c     length if we have two components, otherwise not:
       n2 = n
       if (ncomp.gt.1) n2 = n+n                  
@@ -188,9 +200,34 @@ c
 c     ---------------------
 c     start interation loop
 c     ---------------------
-c     
-      do iter = 1, maxiter
-        
+c   
+c 000000000000 check guess 000000000 START  
+        if (debug) then
+         do ipm=1,ncomp
+             if (ga_nodeid().eq.0)
+     &        write(*,51) iter,ipm
+ 51           format('-------g_x-re-guess(',
+     &               i3,',',i3,')--------- START') 
+             call ga_print(g_x(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,52) iter,ipm
+ 52           format('-------g_x-re-guess(',
+     &               i3,',',i3,')--------- END') 
+             if (lifetime) then
+             if (ga_nodeid().eq.0)
+     &        write(*,53) iter,ipm
+ 53           format('-------g_x-im-guess(',
+     &               i3,',',i3,')--------- START') 
+             call ga_print(g_x_im(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,54) iter,ipm
+ 54           format('-------g_x-im-guess(',
+     &               i3,',',i3,')--------- END') 
+             endif
+         enddo
+        endif ! end-if-debug
+c 000000000000 check guess 000000000 END
+      do iter = 1, maxiter       
 c       
 c ... jochen: here in the iteration loops we keep track
 c       of two components of the solution vector, ipm = 1 and 2
@@ -198,18 +235,108 @@ c       (ipm stands for + (plus) and - (minus) components)
 c       
         if (odiff) then
           do ipm = 1,ncomp   
-            call ga_add(1.0d0, g_x(ipm), -1.0d0,
-     &         g_xold(ipm),  g_x(ipm))
+            call ga_add(1.0d0,g_x(ipm), 
+     &                 -1.0d0,g_xold(ipm),
+     &                        g_x(ipm))
             call ga_sync()
-          enddo
+          enddo ! end-loop-ncomp
         endif
 c       
 c ... jochen: call product routine with initial or intermediate
 c       solution vector: g_x and g_Ax MUST have two components here
         
         if (debug) write (6,*) 'calling product from ga_lkain_2cpl'
-        call product(acc, g_x, g_Ax, g_x_im, g_Ax_im, omega, limag,
-     &     lifetime, gamwidth, ncomp)
+        if (debug) then 
+           if (ga_nodeid().eq.0) then
+             write(*,10) iter
+ 10          format('------ g_x-BEF-product(',i3,')---START')
+           endif
+            do ipm=1,ncomp
+             if (ga_nodeid().eq.0)
+     &        write(*,31) iter,ipm
+ 31           format('-------g_x-re(',i3,',',i3,')--------- START') 
+             call ga_print(g_x(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,32) iter,ipm
+ 32           format('-------g_x-re(',i3,',',i3,')--------- END') 
+             if (ga_nodeid().eq.0)
+     &        write(*,33) iter,ipm
+ 33           format('-------g_Ax-re(',i3,',',i3,')--------- START') 
+             call ga_print(g_Ax(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,34) iter,ipm
+ 34           format('-------g_Ax-re(',i3,',',i3,')--------- END') 
+             if (lifetime) then
+             if (ga_nodeid().eq.0)
+     &        write(*,35) iter,ipm
+ 35           format('-------g_x-im(',i3,',',i3,')--------- START') 
+              call ga_print(g_x_im(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,36) iter,ipm
+ 36           format('-------g_x-im(',i3,',',i3,')--------- END') 
+             if (ga_nodeid().eq.0)
+     &        write(*,37) iter,ipm
+ 37           format('-------g_Ax-im(',i3,',',i3,')--------- START') 
+              call ga_print(g_Ax_im(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,38) iter,ipm
+ 38           format('-------g_Ax-im(',i3,',',i3,')--------- END') 
+             endif
+            enddo ! end-loop-ipm
+           if (ga_nodeid().eq.0) then
+             write(*,11) iter
+ 11          format('------ g_x-BEF-product(',i3,')---END')
+           endif
+        endif ! end-if-debug
+
+        call product(acc, 
+     &               g_x   , g_Ax, 
+     &               g_x_im, g_Ax_im, 
+     &               omega, limag,
+     &               lifetime, gamwidth, ncomp)
+        if (debug) then
+           if (ga_nodeid().eq.0) then
+             write(*,12) iter
+ 12          format('------ g_x-AFT-product(',i3,')---START')
+           endif
+            do ipm=1,ncomp
+             if (ga_nodeid().eq.0)
+     &        write(*,41) iter,ipm
+ 41           format('-------g_x-re(',i3,',',i3,')--------- START') 
+             call ga_print(g_x(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,42) iter,ipm
+ 42           format('-------g_x-re(',i3,',',i3,')--------- END') 
+             if (ga_nodeid().eq.0)
+     &        write(*,43) iter,ipm
+ 43           format('-------g_Ax-re(',i3,',',i3,')--------- START') 
+             call ga_print(g_Ax(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,44) iter,ipm
+ 44           format('-------g_Ax-re(',i3,',',i3,')--------- END') 
+             if (lifetime) then
+             if (ga_nodeid().eq.0)
+     &        write(*,45) iter,ipm
+ 45           format('-------g_x-im(',i3,',',i3,')--------- START') 
+              call ga_print(g_x_im(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,46) iter,ipm
+ 46           format('-------g_x-im(',i3,',',i3,')--------- END') 
+             if (ga_nodeid().eq.0)
+     &        write(*,47) iter,ipm
+ 47           format('-------g_Ax-im(',i3,',',i3,')--------- START') 
+              call ga_print(g_Ax_im(ipm))
+             if (ga_nodeid().eq.0)
+     &        write(*,48) iter,ipm
+ 48           format('-------g_Ax-im(',i3,',',i3,')--------- END') 
+             endif
+            enddo ! end-loop-ipm
+           if (ga_nodeid().eq.0) then
+             write(*,13) iter
+ 13          format('------ g_x-AFT-product(',i3,')---END')
+           endif
+        endif ! end-if-debug
+
         call ga_sync()
         if (debug) write (6,*) 'returning product from ga_lkain_2cpl'
 
@@ -220,10 +347,12 @@ c       with g_r2 here
         do ipm = 1,ncomp
           
           if (odiff) then
-            call ga_add(1.0d0, g_Ax(ipm), 1.0d0,
-     &         g_Axold(ipm), g_Ax(ipm))
-            call ga_add(1.0d0, g_x(ipm),  1.0d0,
-     &         g_xold(ipm),  g_x(ipm))
+            call ga_add(1.0d0, g_Ax(ipm), 
+     &                  1.0d0, g_Axold(ipm), 
+     &                         g_Ax(ipm))
+            call ga_add(1.0d0, g_x(ipm),  
+     &                  1.0d0, g_xold(ipm),  
+     &                         g_x(ipm))
             call ga_sync()
             call ga_copy(g_x(ipm), g_xold(ipm))
             call ga_copy(g_Ax(ipm), g_Axold(ipm))
@@ -234,30 +363,63 @@ c
 c         g_Ax = g_b if the system is solved. During the first cycle,
 c         g_Ax is calculated from the initial guess
           call ga_add(1.0d0, g_b(ipm),
-     &       -1.0d0, g_Ax(ipm), g_r(ipm)) ! The residual
-          call ga_sync()
-c         
+     &               -1.0d0, g_Ax(ipm), 
+     &                       g_r(ipm)) ! The residual
+          call ga_sync()        
         enddo                   ! ipm = 1,ncomp
         call ga_sync()
-
+          if (debug) then
+           do ipm=1,ncomp
+            if (ga_nodeid().eq.0) then
+             write(*,49) ipm,iter
+ 49          format('----g_Ax(',i3,',',i3,')-----START')
+            endif
+            call ga_print(g_Ax(ipm))
+            if (ga_nodeid().eq.0) then
+             write(*,50) ipm,iter
+ 50          format('----g_Ax(',i3,',',i3,')-----END')
+            endif
+            if (ga_nodeid().eq.0) then
+             write(*,2779) ipm,iter
+ 2779        format('----g_b(',i3,',',i3,')-----START')
+            endif
+            call ga_print(g_b(ipm))
+            if (ga_nodeid().eq.0) then
+             write(*,2880) ipm,iter
+ 2880        format('----g_b(',i3,',',i3,')-----END')
+            endif
+            if (ga_nodeid().eq.0) then
+             write(*,2782) iter,ipm
+ 2782        format('----g_r(',i3,',',i3,')-----START')
+            endif
+            call ga_print(g_r(ipm))
+            if (ga_nodeid().eq.0) then
+             write(*,2783) iter,ipm
+ 2783        format('----g_r(',i3,',',i3,')-----END')
+            endif
+           enddo ! end-loop-ipm
+          endif ! end-if-debug      
 c       convergence checking:
 c       find the largest element of the residual either 
 c       before or after the call to the preconditioner
+         omg(1)=-omega
+         omg(2)= omega
 
-        if (converge_precond) then
-          call precond(g_r(1),  -omega)
-          if (ncomp.gt.1) then
-            call precond(g_r(2),   omega)
-          endif
-        endif
+         if (converge_precond) then
+          do ipm=1,ncomp
+           call precond(g_r(ipm),omg(ipm))
+          enddo ! end-loop-ipm
+         endif ! end-if-converge_precond
+         rmx(1)=0.0d0
+         rmx(2)=0.0d0
+          do ipm=1,ncomp
+           call ga_maxelt(g_r(ipm),rmx(ipm))   
+          enddo ! end-loop-ipm
 
-        call ga_maxelt(g_r(1), rmax1)
-        if (ncomp.gt.1) then
-          call ga_maxelt(g_r(2), rmax2)
-        else
-          rmax2 = 0d0
-        endif
-        rmax = max(rmax1, rmax2)  
+         rmax1=rmx(1)
+         rmax2=rmx(2)
+
+         rmax = max(rmax1, rmax2)  
       
         if (oprint .and. ga_nodeid().eq.0) then
           write(6,3) iter, nsub+nvec, rmax, util_wallsec()
@@ -275,45 +437,29 @@ c ... jochen: changed 0d0 to omega in the calls below
 c       (there were only two in ga_lkain, one with g_aX, one with g_r)
 c       for array g_r the preconditioner call is only necessary
 c       in case converge_precond is .false.
-
-        call precond(g_Ax(1), -omega)
-        if (.not.converge_precond) call precond(g_r(1), -omega)
-        if (ncomp.gt.1) then
-          call precond(g_Ax(2),  omega)
-          if (.not.converge_precond) call precond(g_r(2), omega)
-        endif       
+        omg(1)=-omega
+        omg(2)= omega
+        do ipm=1,ncomp
+         call precond(g_Ax(ipm),omg(ipm))
+         if (.not.converge_precond) 
+     &   call precond(g_r(ipm) ,omg(ipm))
+        enddo ! end-loop-ipm
+  
         call ga_sync()
         
-c       Copy the vectors to the subspace work area
-c       
-        call ga_copy_patch('n', 
-     $     g_Ax(1), 1, n, 1, nvec, 
-     $     g_Ay, 1, n, nsub+1, nsub+nvec)
-        call ga_sync()
-        if (ncomp.gt.1) then
-          call ga_copy_patch('n', 
-     $       g_Ax(2), 1, n, 1, nvec, 
-     $       g_Ay, n+1, n2, nsub+1, nsub+nvec)
-        endif
-        call ga_copy_patch('n', 
-     $     g_x(1), 1, n, 1, nvec, 
-     $     g_y, 1, n, nsub+1, nsub+nvec)
-        call ga_sync()
-        if (ncomp.gt.1) then
-          call ga_copy_patch('n', 
-     $       g_x(2), 1, n, 1, nvec, 
-     $       g_y, n+1, n2, nsub+1, nsub+nvec)
-        endif
-
-c       g_r2 is needed below for multiplication
-        call ga_copy_patch('n', 
-     $     g_r(1), 1, n, 1, nvec, 
-     $     g_r2, 1, n, 1, nvec)
-        if (ncomp.gt.1) then
-          call ga_copy_patch('n', 
-     $       g_r(2), 1, n, 1, nvec, 
-     $       g_r2, n+1, n2, 1, nvec)
-        endif
+c       Copy the vectors to the subspace work area      
+        do ipm=1,ncomp
+         dsp=n*(ipm-1)
+         call ga_copy_patch('n', 
+     $                      g_Ax(ipm),1    ,n    ,1     ,nvec, 
+     $                      g_Ay     ,1+dsp,n+dsp,nsub+1,nsub+nvec)
+         call ga_copy_patch('n', 
+     $                      g_x(ipm),1    ,n    ,1     ,nvec, 
+     $                      g_y     ,1+dsp,n+dsp,nsub+1,nsub+nvec)
+         call ga_copy_patch('n', 
+     $                      g_r(ipm),1    ,n    ,1,nvec, 
+     $                      g_r2    ,1+dsp,n+dsp,1,nvec)
+        enddo ! end-loop-ipm
         
         nsub = nsub + nvec
 c       
@@ -334,9 +480,9 @@ c
         call ga_zero(g_c)
         call ga_sync()
         call ga_dgemm('t','n',nsub,nsub,n2,1.0d0,
-     &     g_y,g_Ay,0.0d0,g_a)
+     &                g_y,g_Ay,0.0d0,g_a)
         call ga_dgemm('t','n',nsub,nvec,n2,1.0d0,
-     &     g_y,g_r2,0.0d0,g_bb)
+     &                g_y,g_r2,0.0d0,g_bb)
         call ga_sync()
         if (odebug) call ga_print(g_a)
         if (odebug) call ga_print(g_c)
@@ -357,52 +503,49 @@ c       Form and add the correction, in parts, onto the solution
 c       
         call ga_sync()
         call ga_dgemm('n','n',n2,nvec,nsub,-1.0d0,
-     &     g_Ay,g_c,1.0d0,g_r2)
+     &                g_Ay,g_c,1.0d0,g_r2)
         if (odebug) then
           write(6,*) ' The update in the complement '
           call ga_print(g_r2)
         end if
 c       
 c       copy components of g_r2 into g_r before adding g_r to  g_x
-c
-        call ga_sync()
-        call ga_copy_patch('n', 
-     $     g_r2, 1, n, 1, nvec, 
-     $     g_r(1), 1, n, 1,nvec)
-        if (ncomp.gt.1) then
-          call ga_copy_patch('n', 
-     $       g_r2, n+1, n2, 1, nvec, 
-     $       g_r(2), 1, n, 1,nvec)
-        endif
-        call ga_sync()
-c       
+        do ipm=1,ncomp
+         dsp=n*(ipm-1)
+         call ga_copy_patch('n', 
+     $                     g_r2    ,1+dsp,n+dsp,1,nvec, 
+     $                     g_r(ipm),1    ,n    ,1,nvec)      
+        enddo ! end-loop-ipm
+        call ga_sync()       
         do ipm = 1,ncomp
-          call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
-        enddo
+          call ga_add(1.0d0, g_r(ipm), 
+     &                1.0d0, g_x(ipm), 
+     &                       g_x(ipm))
+        enddo ! end-loop-ipm
         
         call ga_sync()
         call ga_dgemm('n','n',n2,nvec,nsub,1.0d0,
-     &     g_y,g_c,0.0d0,g_r2)
+     &                g_y,g_c,0.0d0,g_r2)
+
         call ga_sync()
         if (odebug) then
           write(6,*) ' The update in the subspace '
           call ga_print(g_r2)
         end if
 c       
-c       copy components of g_r2 into g_r before adding g_r to  g_x
-c
-        call ga_copy_patch('n', 
-     $     g_r2, 1, n, 1, nvec, 
-     $     g_r(1), 1, n, 1,nvec)
-        if (ncomp.gt.1) then
-          call ga_copy_patch('n', 
-     $       g_r2, n+1, n2, 1, nvec, 
-     $       g_r(2), 1, n, 1,nvec)
-        endif
+c       copy components of g_r2 into g_r before adding g_r to  g_x    
+        do ipm=1,ncomp
+         dsp=n*(ipm-1)
+         call ga_copy_patch('n', 
+     $                     g_r2    ,1+dsp,n+dsp,1,nvec, 
+     $                     g_r(ipm),1    ,n    ,1,nvec)      
+        enddo ! end-loop-ipm
         call ga_sync()
         do ipm = 1,ncomp
-          call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
-        enddo
+          call ga_add(1.0d0, g_r(ipm), 
+     &                1.0d0, g_x(ipm), 
+     &                       g_x(ipm))
+        enddo ! end-loop-ipm
         call ga_sync()
 c        
         if (.not. ga_destroy(g_a)) call errquit
@@ -507,13 +650,20 @@ c     &    CALC_ERR)
 c     
       end
 
-c     ******************************************************************
-c     ******************************************************************
-
-      subroutine ga_lkain_2cpl3_damp(rtdb, g_x, g_b, g_x_im, g_b_im,
-     &   product, precond, 
-     $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
-     &   lifetime, gamwidth, ncomp)
+      subroutine ga_lkain_2cpl3_damp(rtdb, 
+     &                               g_x, g_b, 
+     &                               g_x_im, g_b_im,
+     &                               product, precond, 
+     $                               tol, mmaxsub, maxiter, 
+     &                               odiff, oprint, omega, limag,
+     &                               lifetime, gamwidth, ncomp)
+c  Written by J. Autschbach, SUNY Buffalo
+c  Improvements made
+c          by F. Aquino,     Northwestern University 
+c          03-15-12
+c  Note.- Modifying/Improving ga_lkain_2cpl3_damp() as of old src code
+c         appeared on download src 11-20-12
+c --> Experimental (not published yet)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -587,9 +737,20 @@ c     that might be changed later if memory becomes an issue
       double precision rmax, rmax1, rmax2, acc
       logical converged
       logical odebug, debug, converge_precond
+      double complex val_cmplx
+      logical debug1
+      integer p1,p2,m1,m2,stat_solve
+      
+c      integer l_zre,k_zre,g_z,
+c     &        l_zim,k_zim
+      external copy_rtor2,copy_r2tor,copy_AxxtoAyy,
+     &         update_g_x1
+
+      debug1 = .false. ! FA no  printouts
+c      debug1 = .true.  ! FA yes printouts
 c
 c     =================================================================
-c
+
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
 
 c     check input key if we should check for convergence
@@ -623,6 +784,19 @@ c
 
       call ga_inquire(g_x(1), type, n, nvec)
 
+c ------- create (zre,zim) ---------- START
+c      if (.not.MA_Push_Get(mt_dbl,n,'hessv jfacs',l_zre,k_zre))
+c     &     call errquit('sh-fockbld2: cannot allocate jfac',
+c     &                  n, MA_ERR)
+c      if (.not.MA_Push_Get(mt_dbl,n,'hessv kfacs',l_zim,k_zim))
+c     &     call errquit('sh-fockbld2: cannot allocate kfac',
+c     &                  n, MA_ERR)
+c        if (.not. ga_create(MT_DCPL,n,nvec, 'lkain_2cpl: z',
+c     $     0, 0, g_z))
+c     $     call errquit('lkain: failed allocating z', nvec,
+c     &     GA_ERR)
+c           call ga_zero(g_z)
+c ------- create (zre,zim) ---------- END
       if (ncomp.gt.1) then
         call ga_inquire(g_x(2), type, ntmp1, ntmp2)
         
@@ -636,6 +810,7 @@ c     later we combine the two components to vecors of double
 c     length and combine again Re and Im, i.e. 
 c     the dimension is up to 4*n
 
+c ========= to be removed ============ start
       n2 = n
       if (ncomp.gt.1) n2 = 2 * n   
       n3 = n
@@ -645,6 +820,7 @@ c     the dimension is up to 4*n
       if (ncomp.gt.1 .or. lifetime) n4 = 2* n
       if (lifetime .and. ncomp.gt.1) n4 = 4 * n
       if (debug) write (6,*) 'n1n2n3n4',n,n2,n3,n4
+c ========= to be removed ============ end
 
       maxsub = mmaxsub          ! So don't modify input scalar arg
       if (maxsub .lt. 3*nvec) maxsub = 3*nvec
@@ -749,8 +925,9 @@ c       (ipm stands for + (plus) and - (minus) components)
 c       
         if (odiff) then
           do ipm = 1,ncomp   
-            call ga_add(1.0d0, g_x(ipm), -1.0d0,
-     &         g_xold(ipm),  g_x(ipm))
+            call ga_add( 1.0d0,g_x(ipm), 
+     &                  -1.0d0,g_xold(ipm),  
+     &                         g_x(ipm))
             call ga_sync()
           enddo
         endif
@@ -758,11 +935,65 @@ c
 c ... jochen: call product routine with initial or intermediate
 c       solution vector: g_x and g_Ax MUST have dimension two here
 c       even if only one of them is used
+          if (debug) then   
+            do ipm=1,ncomp
+             if (ga_nodeid().eq.0) then
+              write(*,112) iter,ipm
+ 112          format('------ prod-g_x-1(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_x(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,113) iter,ipm
+ 113          format('------ prod-g_x-1(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,114) iter,ipm
+ 114          format('------ prod-g_Ax-1(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_Ax(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,115) iter,ipm
+ 115          format('------ prod-g_Ax-1(',i3,',',i3,')------ END')
+             endif
+             if (lifetime) then
+              call ga_print(g_x_im(ipm))
+              call ga_print(g_Ax_im(ipm))
+             endif
+            enddo ! end-loop-ipm
+         endif ! end-if-debug
         
         if (debug) write (6,*)
      &     'calling product from ga_lkain_2cpl_damp'
         call product(acc, g_x, g_Ax,  g_x_im, g_Ax_im, omega, limag,
      &     lifetime, gamwidth, ncomp)
+         if (debug) then
+            do ipm=1,ncomp
+             if (ga_nodeid().eq.0) then
+              write(*,116) iter,ipm
+ 116          format('------ prod-g_x-2(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_x(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,117) iter,ipm
+ 117          format('------ prod-g_x-2(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,118) iter,ipm
+ 118          format('------ prod-g_Ax-2(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_Ax(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,119) iter,ipm
+ 119          format('------ prod-g_Ax-2(',i3,',',i3,')------ END')
+             endif
+             enddo ! end-loop-ipm
+           endif ! end-if-debug
+c             if (iter.eq.3) then
+c               if (ga_nodeid().eq.0)
+c     &          write(*,*) 'FA-STOP-convergence at 3rd iter'
+c               stop
+c             endif              
+
         if (debug) write (6,*)
      &     'returning product from ga_lkain_2cpl_damp'
 
@@ -775,10 +1006,12 @@ c       with g_r2 here
           
           if (odiff) then
 c           jochen: odiff stuff presently ignored
-            call ga_add(1.0d0, g_Ax(ipm), 1.0d0,
-     &         g_Axold(ipm), g_Ax(ipm))
-            call ga_add(1.0d0, g_x(ipm),  1.0d0,
-     &         g_xold(ipm),  g_x(ipm))
+            call ga_add(1.0d0,g_Ax(ipm), 
+     &                  1.0d0,g_Axold(ipm), 
+     &                        g_Ax(ipm))
+            call ga_add(1.0d0,g_x(ipm),  
+     &                  1.0d0,g_xold(ipm),
+     &                        g_x(ipm))
             call ga_sync()
             call ga_copy(g_x(ipm), g_xold(ipm))
             call ga_copy(g_Ax(ipm), g_Axold(ipm))
@@ -798,29 +1031,50 @@ c         energy denominators, including the frequency term,
 c         and assigned real and imaginary parts accordingly)
 
           call ga_sync()
-          call ga_add(1.0d0, g_b(ipm),
-     &       -1.0d0, g_Ax(ipm), g_r(ipm)) ! The residual, Real part
+c FA: Step 1:
+          call ga_add( 1.0d0,g_b(ipm),
+     &                -1.0d0,g_Ax(ipm), 
+     &                       g_r(ipm)) ! The residual, Real part
+
+          if (debug) then
+             if (ga_nodeid().eq.0) then
+              write(*,120) iter,ipm
+ 120          format('------ prod-g_b(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_b(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,121) iter,ipm
+ 121          format('------ prod-g_b(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,122) iter,ipm
+ 122          format('------ prod-g_r(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_r(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,123) iter,ipm
+ 123          format('------ prod-g_r(',i3,',',i3,')------ END')
+             endif
+          endif ! end-if-debug
 
           if (lifetime) then
-            call ga_add(1.0d0, g_b_im(ipm),
-     &         -1.0d0, g_Ax_im(ipm), g_r_im(ipm)) ! The residual, Im part
+            call ga_add( 1.0d0,g_b_im(ipm),
+     &                  -1.0d0,g_Ax_im(ipm), 
+     &                         g_r_im(ipm)) ! The residual, Im part
           endif
 c         
         enddo                   ! ipm = 1,ncomp
-        call ga_sync()
 
 c       convergence checking:
 c       find the largest element of the residual either 
 c       before or after the call to the preconditioner
 
         if (converge_precond) then
-          call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
-          if (ncomp.gt.1) then
-            call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
-          endif          
+         do ipm=1,ncomp
+          call precond(g_r(ipm),g_r_im(ipm),-omega,gamwidth)
+         enddo ! end-loop-ipm
         endif
-        call ga_sync()
-c
+
         call ga_maxelt(g_r(1), rmax1)
         if (ncomp.gt.1) then
           call ga_maxelt(g_r(2), rmax2)
@@ -863,60 +1117,74 @@ c       in case converge_precond is .false.
           if (.not.converge_precond) 
      &       call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
         endif
-        call ga_sync()
+
         if (debug) write (6,*) 'lkain3_damp: back from precond'
                 
 c       Copy the vectors to the subspace work area
-c       
-        call ga_copy_patch('n', 
-     $     g_Ax(1), 1, n, 1, nvec, 
-     $     g_Ay, 1, n, nsub+1, nsub+nvec)
-        if (ncomp.gt.1) call ga_copy_patch('n', 
-     $     g_Ax(2), 1, n, 1, nvec, 
-     $     g_Ay, n+1, n2, nsub+1, nsub+nvec)
-        if (lifetime) then
-          call ga_copy_patch('n', 
-     $       g_Ax_im(1), 1, n, 1, nvec, 
-     $       g_Ay, n2+1, n3, nsub+1, nsub+nvec)
-          if (ncomp.gt.1) call ga_copy_patch('n', 
-     $       g_Ax_im(2), 1, n, 1, nvec, 
-     $       g_Ay, n3+1, n4, nsub+1, nsub+nvec)
-        endif                   ! lifetime
-        call ga_copy_patch('n', 
-     $     g_x(1), 1, n, 1, nvec, 
-     $     g_y, 1, n, nsub+1, nsub+nvec)
-        if (ncomp.gt.1)  call ga_copy_patch('n', 
-     $     g_x(2), 1, n, 1, nvec, 
-     $     g_y, n+1, n2, nsub+1, nsub+nvec)
-        if (lifetime) then
-          call ga_copy_patch('n', 
-     $       g_x_im(1), 1, n, 1, nvec, 
-     $       g_y, n2+1, n3, nsub+1, nsub+nvec)
-          if (ncomp.gt.1) call ga_copy_patch('n', 
-     $       g_x_im(2), 1, n, 1, nvec, 
-     $       g_y, n3+1, n4, nsub+1, nsub+nvec)
-        endif                   ! lifetime
-        call ga_sync()
-        if (debug) write (6,*) 'lkain3_damp: vec to sub complete'
+c   
+c ---- FA-copy ((Ax,Ax_im),(x,x_im)) -> (Ay,y) ------ START
+c FA: Step 2:
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-0(',iter,')-----START' 
+        call ga_print(g_x(1))
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-0(',iter,')-----END'    
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x_im-0(',iter,')-----START' 
+        call ga_print(g_x_im(1))
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x_im-0(',iter,')-----END'        
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_Ax-0(',iter,')-----START' 
+        call ga_print(g_Ax(1))
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_Ax-0(',iter,')-----END'          
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r-0(',iter,')-----START' 
+        call ga_print(g_r(1))
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r-0(',iter,')-----END'  
+        endif ! end-if-debug1  
+     
+        call copy_AxxtoAyy(g_Ax,g_Ax_im,
+     &                     g_x,g_x_im,
+     &                     g_Ay,g_y,
+     &                     nvec,
+     &                     ncomp,
+     &                     nsub,
+     &                     n,
+     &                     lifetime)
 
-c       g_r2 is needed below for multiplication
-        call ga_copy_patch('n', 
-     $     g_r(1), 1, n, 1, nvec, 
-     $     g_r2, 1, n, 1, nvec)
-        if (ncomp.gt.1) call ga_copy_patch('n', 
-     $     g_r(2), 1, n, 1, nvec, 
-     $     g_r2, n+1, n2, 1, nvec)
-        if (lifetime) then
-          call ga_copy_patch('n', 
-     $       g_r_im(1), 1, n, 1, nvec, 
-     $       g_r2, n2+1, n3, 1, nvec)
-          if (ncomp.gt.1) call ga_copy_patch('n', 
-     $       g_r_im(2), 1, n, 1, nvec, 
-     $       g_r2, n3+1, n4, 1, nvec)
-        endif                   ! lifetime
-        call ga_sync()
-        if (debug) write (6,*) 'lkain3_damp: r2 complete'
-        
+c ---- FA-copy ((Ax,Ax_im),(x,x_im)) -> (Ay,y) ------ END
+c ----- FA--- (g_r,g_r_im) -> g_r2 ---------- START
+c FA: Step 3:
+         call copy_rtor2(g_r2,
+     &                   g_r,
+     &                   g_r_im,
+     &                   ncomp,
+     &                   nvec,
+     &                   n,
+     &                   lifetime)
+c ----- FA--- (g_r,g_r_im) -> g_r2 ---------- END 
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_y-0(',iter,')-----START' 
+        call ga_print(g_y)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_y-0(',iter,')-----END'          
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_Ay-0(',iter,')-----START' 
+        call ga_print(g_Ay)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_Ay-0(',iter,')-----END'          
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r2-0(',iter,')-----START' 
+        call ga_print(g_r2)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r2-0(',iter,')-----END'    
+        endif ! end-if-debug1
+
         nsub = nsub + nvec
 c       
 c       Form and solve the subspace equations using SVD in order
@@ -934,13 +1202,11 @@ c
         call ga_zero(g_a)
         call ga_zero(g_bb)
         call ga_zero(g_c)
-        call ga_sync()
         call ga_dgemm('t','n',nsub,nsub,n4,1.0d0,
-     &     g_y,g_Ay,0.0d0,g_a)
-        call ga_sync()
+     &                g_y,g_Ay,0.0d0,g_a)
         call ga_dgemm('t','n',nsub,nvec,n4,1.0d0,
-     &     g_y,g_r2,0.0d0,g_bb)
-        call ga_sync()
+     &                g_y,g_r2,0.0d0,g_bb)
+
         if (odebug) call ga_print(g_a)
         if (odebug) call ga_print(g_c)
 c       
@@ -952,83 +1218,112 @@ c       small threshold in the SVD solve (e.g., 1e-14), but for more
 c       realistic examples (maxsub << n) there is only a little
 c       advantage and in the precence of real noise in the products
 c       screening with a realistic threshold is important.
-c       
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_a(',iter,')-----START' 
+        call ga_print(g_a)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_a(',iter,')-----END'
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_bb(',iter,')-----START' 
+        call ga_print(g_bb)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_bb(',iter,')-----END'
+        endif ! end-if-debug1
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++    
+c ++++++++++++++ real linear solver ++++++++++++++++++ 
         call ga_svd_solve_seq(g_a,g_bb,g_c,1d-14)
+
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-test ga_lu_solve ...'
+c        call ga_lu_solve('n',g_a,g_bb)
+
+c        stat_solve=ga_solve(g_a,g_bb)
+c        if (ga_nodeid().eq.0) then
+c         write(*,14) stat_solve
+c 14      format('FA-test ga_lu_solve(Choleski->LU) stat=',i3)
+c        endif
+c        call ga_copy(g_bb,g_c)
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_c(',iter,')-----START' 
+        call ga_print(g_c)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_c(',iter,')-----END'
+        endif ! end-if-debug1
+        
         if (odebug) call ga_print(g_c)
 c       
-c       Form and add the correction, in parts, onto the solution
-c       
-        call ga_sync()
+c       Form and add the correction, in parts, onto the solution      
+c FA: Step 5:
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r2-BEF(',iter,')-----START' 
+        call ga_print(g_r2)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r2-BEF(',iter,')-----END'
+        endif ! end-if-debug1
+
         call ga_dgemm('n','n',n4,nvec,nsub,-1.0d0,
-     &     g_Ay,g_c,1.0d0,g_r2)
-        call ga_sync()
-        if (odebug) then
-          write(6,*) ' The update in the complement '
-          call ga_print(g_r2)
-        end if
-        if (debug) write (6,*) 'lkain3_damp: after dgemm'
+     &                g_Ay,g_c,1.0d0,g_r2)
+
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r2-AFT(',iter,')-----START' 
+        call ga_print(g_r2)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_r2-AFT(',iter,')-----END'
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-BEF-1(',iter,')-----START' 
+        call ga_print(g_x)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-BEF-1(',iter,')-----END'
+        endif ! end-if-debug1
 c       
 c       copy components of g_r2 into g_r before adding g_r to  g_x
-        call ga_copy_patch('n', 
-     $     g_r2, 1, n, 1, nvec, 
-     $     g_r(1), 1, n, 1,nvec)
-        if (ncomp.gt.1) call ga_copy_patch('n', 
-     $     g_r2, n+1, n2, 1, nvec, 
-     $     g_r(2), 1, n, 1,nvec)
-        if (lifetime) then
-          call ga_copy_patch('n', 
-     $       g_r2, n2+1, n3, 1, nvec, 
-     $       g_r_im(1), 1, n, 1,nvec)
-          if (ncomp.gt.1) call ga_copy_patch('n', 
-     $       g_r2, n3+1, n4, 1, nvec, 
-     $       g_r_im(2), 1, n, 1,nvec)
-        endif                   ! lifetime
-        call ga_sync()
-        if (debug) write (6,*) 'lkain3_damp: r2 copied'
-c               
-        do ipm = 1,ncomp
-          call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
-          if (lifetime)
-     &       call ga_add(1.0d0, g_r_im(ipm),
-     &       1.0d0, g_x_im(ipm), g_x_im(ipm))
-        enddo
-        call ga_sync()
-c       
+       call update_g_x1(g_r2,    ! in   :
+     &                 g_x,     ! in/ou: updated
+     &                 g_x_im,  ! in/ou: updated
+     &                 ncomp,   ! in   : nr. components
+     &                 nvec,    ! in   : (x,y,z) = 3
+     &                 n,       ! in   : size of block (e.g. RE1,RE2,IM1 or IM2)
+     &                 lifetime)! in   : = .true. if complex
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-AFT-1(',iter,')-----START' 
+        call ga_print(g_x)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-AFT-1(',iter,')-----END'
+        endif ! end-if-debug1
+c FA: Step 8:
         call ga_dgemm('n','n',n4,nvec,nsub,1.0d0,
-     &     g_y,g_c,0.0d0,g_r2)
-        call ga_sync()
-        if (odebug) then
-          write(6,*) ' The update in the subspace '
-          call ga_print(g_r2)
-        end if
-        if (debug) write (6,*) 'lkain3_damp: subspace updated'
-        
-c       
+     &                g_y,g_c,0.0d0,g_r2)
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_y c(',iter,')-----START' 
+        call ga_print(g_r2)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_y c(',iter,')-----END'
+        endif ! end-if-debug1
 c       copy components of g_r2 into g_r before adding g_r to  g_x
-        call ga_copy_patch('n', 
-     $     g_r2, 1, n, 1, nvec, 
-     $     g_r(1), 1, n, 1,nvec)
-        if (ncomp.gt.1) call ga_copy_patch('n', 
-     $     g_r2, n+1, n2, 1, nvec, 
-     $     g_r(2), 1, n, 1,nvec)
-        if (lifetime) then
-          call ga_copy_patch('n', 
-     $       g_r2, n2+1, n3, 1, nvec, 
-     $       g_r_im(1), 1, n, 1,nvec)
-          if (ncomp.gt.1) call ga_copy_patch('n', 
-     $       g_r2, n3+1, n4, 1, nvec, 
-     $       g_r_im(2), 1, n, 1,nvec)
-        endif                   ! lifetime
-        call ga_sync()
-        do ipm = 1,ncomp
-          call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
-          if (lifetime)
-     &       call ga_add(1.0d0, g_r_im(ipm),
-     &       1.0d0, g_x_im(ipm), g_x_im(ipm))
-        enddo
-        call ga_sync()
-        if (debug) write (6,*) 'lkain3_damp: gr to gx complete'
-c        
+       call update_g_x1(g_r2,    ! in   :
+     &                 g_x,     ! in/ou: updated
+     &                 g_x_im,  ! in/ou: updated
+     &                 ncomp,   ! in   : nr. components
+     &                 nvec,    ! in   : (x,y,z) = 3
+     &                 n,       ! in   : size of block (e.g. RE1,RE2,IM1 or IM2)
+     &                 lifetime)! in   : = .true. if complex
+
+        if (debug1) then
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-AFT-2(',iter,')-----START' 
+        call ga_print(g_x)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---------g_x-AFT-2(',iter,')-----END'  
+        endif ! end-if-debug1
+       
         if (.not. ga_destroy(g_a)) call errquit
      &     ('lkain_2cpl: a',0, GA_ERR)
         if (.not. ga_destroy(g_bb)) call errquit
@@ -1038,97 +1333,33 @@ c
 c       
 c       Reduce the subspace as necessary
 c       
+        if (ga_nodeid().eq.0) then
+         write(*,17) iter,nsub,maxsub,nvec,n4
+ 17      format('(iter,nsub,maxsub,nvec,n4)=(',
+     &          i3,',',i4,',',i4,',',i3,',',i4,')')
+        endif
+        if (debug1) then
+         if (iter.eq.2) then
+          write(*,*) 'STOP-test-linsolver'
+          stop
+         endif
+        endif ! end-if-debug1 
+
         if (nsub .eq. maxsub) then
-          do isub = nvec+1, maxsub, nvec
-c           Real part:
-c           component 1: 
-            call ga_copy_patch('n', 
-     $         g_Ay,    1, n, isub, isub+nvec-1, 
-     $         g_Ax(1), 1, n, 1, nvec)
-            call ga_sync()
-            call ga_copy_patch('n', 
-     $         g_Ax(1), 1, n, 1, nvec,
-     $         g_Ay,    1, n, isub-nvec, isub-1)
-c           component 2: 
-            if (ncomp.gt.1) then
-              call ga_copy_patch('n', 
-     $           g_Ay,    n+1, n2, isub, isub+nvec-1, 
-     $           g_Ax(2), 1,   n,  1, nvec)
-              call ga_sync()
-              call ga_copy_patch('n', 
-     $           g_Ax(2), 1,   n,  1, nvec,
-     $           g_Ay,    n+1, n2, isub-nvec, isub-1)  
-            endif
-            if (lifetime) then
-c             Imaginary part:
-c             component 1: 
-              call ga_copy_patch('n', 
-     $           g_Ay,    n2+1, n3, isub, isub+nvec-1, 
-     $           g_Ax_im(1), 1, n, 1, nvec)
-              call ga_sync()
-              call ga_copy_patch('n', 
-     $           g_Ax_im(1), 1, n, 1, nvec,
-     $           g_Ay,    n2+1, n3, isub-nvec, isub-1)
-c             component 2: 
-              if (ncomp.gt.1) then
-                call ga_copy_patch('n', 
-     $             g_Ay,    n3+1, n4, isub, isub+nvec-1, 
-     $             g_Ax_im(2), 1,   n,  1, nvec)
-                call ga_sync()
-                call ga_copy_patch('n', 
-     $             g_Ax_im(2), 1,   n,  1, nvec,
-     $             g_Ay,    n3+1, n4, isub-nvec, isub-1)         
-              endif
-            endif               ! lifetime
-c             
-c           Real part:
-c           component 1:
-            call ga_sync()
-            call ga_copy_patch('n', 
-     $         g_y,     1, n, isub, isub+nvec-1, 
-     $         g_Ax(1), 1, n, 1, nvec)
-            call ga_sync()
-            call ga_copy_patch('n', 
-     $         g_Ax(1), 1, n, 1, nvec,
-     $         g_y,     1, n, isub-nvec, isub-1)
-c           component 2:
-            if (ncomp.gt.1)  then
-              call ga_copy_patch('n', 
-     $           g_y,     n+1, n2, isub, isub+nvec-1, 
-     $           g_Ax(2), 1,   n,  1, nvec)
-              call ga_sync()
-              call ga_copy_patch('n', 
-     $           g_Ax(2), 1,   n,  1, nvec,
-     $           g_y,     n+1, n2, isub-nvec, isub-1)
-            endif
-c
-            if (lifetime) then
-c             Imaginary Part:
-c             component 1:
-              call ga_copy_patch('n', 
-     $           g_y,     n2+1, n3, isub, isub+nvec-1, 
-     $           g_Ax_im(1), 1, n, 1, nvec)
-              call ga_sync()
-              call ga_copy_patch('n', 
-     $           g_Ax_im(1), 1, n, 1, nvec,
-     $           g_y,     n2+1, n3, isub-nvec, isub-1)
-c             component 2:
-              if (ncomp.gt.1) then
-                call ga_copy_patch('n', 
-     $             g_y,     n3+1, n4, isub, isub+nvec-1, 
-     $             g_Ax_im(2), 1,   n,  1, nvec)
-                call ga_sync()
-                call ga_copy_patch('n', 
-     $             g_Ax_im(2), 1,   n,  1, nvec,
-     $             g_y,     n3+1, n4, isub-nvec, isub-1)
-              endif
-            endif               ! lifetime
-c           
-          end do                ! isub = nvec+1, maxsub, nvec
-          nsub = nsub - nvec
+c ====== FA: left-shifting patch ==== START
+c Note.- matrices Ay,y shift to left nvec positions
+c        removing leftmost patch of dimension: n4 x nvec
+         if (ga_nodeid().eq.0)
+     &    write(*,*) 'FA-matrix-nvec-left-shifting:'
+         do isub = nvec+1, maxsub, nvec
+          call ga_copy_patch('n',g_Ay,1,n4,isub,isub+nvec-1, 
+     $                           g_Ay,1,n4,isub-nvec,isub-1)
+          call ga_copy_patch('n',g_y ,1,n4,isub,isub+nvec-1, 
+     $                           g_y ,1,n4,isub-nvec,isub-1)
+c ====== FA: left-shifting patch ==== END
+         enddo ! end-loop-isub
+         nsub = nsub - nvec
         end if                  ! (nsub .eq. maxsub) 
-        if (debug) write (6,*) 'lkain3_damp: sub reduction comp.'
-c       
       enddo                     ! iter = 1,maxiter
   100 continue                  ! jump here if converged
 c     
@@ -1151,8 +1382,7 @@ c
      &       ('lkain_2cpl: destroy',201, GA_ERR)
           if (.not. ga_destroy(g_r_im(ipm))) call errquit
      &       ('lkain_2cpl: destroy',51, GA_ERR)
-        endif
-c       
+        endif      
       enddo                     ! ipm = 1,2
       
       if (.not. ga_destroy(g_Ay)) call errquit
@@ -1170,8 +1400,7 @@ c
           call ga_print(g_x_im(1))
           if (ncomp.gt.1) call ga_print(g_x_im(2))
         endif
-      endif
-      
+      endif    
       
 c ... jochen: disable this error exit during debuging phase
 c     but print a warning instead
