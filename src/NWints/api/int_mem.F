@@ -2,6 +2,13 @@ c $Id$
 *
 C> \ingroup nwint
 C> @{
+C>
+C> \brief Retrieve maximum buffer and scratch array sizes
+C>
+C> This routine returns the maximum buffer and scratch array
+C> sizes for both one electron and two electron (4 center) 
+C> integrals.
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -20,10 +27,10 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer max1e       ! [output] max 1e buffer size
-      integer maxg        ! [output] max 2e4c buffer size
-      integer mscratch_1e ! [output] max scr for 1e ints
-      integer mscratch_2e ! [output] max scr for 2e ints
+      integer max1e       !< [Output] max 1e buffer size
+      integer maxg        !< [Output] max 2e4c buffer size
+      integer mscratch_1e !< [Output] max scr for 1e ints
+      integer mscratch_2e !< [Output] max scr for 2e ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem')) then
@@ -35,6 +42,10 @@ c
         call errquit('int_mem: int_init was not called' ,0, INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array size
+C> for 1-electron integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_1e}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -53,8 +64,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer max1e       ! [output] max 1e buffer size
-      integer mscratch_1e ! [output] max scr for 1e ints
+      integer max1e       !< [Output] max 1e buffer size
+      integer mscratch_1e !< [Output] max scr for 1e ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_1e')) then
@@ -64,6 +75,10 @@ c
         call errquit('int_mem_1e: int_init was not called' ,0, INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array size
+C> for 2-electron integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_2e4c}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -82,8 +97,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer maxg        ! [output] max 2e4c buffer size
-      integer mscratch_2e ! [output] max scr for 2e ints
+      integer maxg        !< [Output] max 2e4c buffer size
+      integer mscratch_2e !< [Output] max scr for 2e ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_2e4c')) then
@@ -93,6 +108,10 @@ c
         call errquit('int_mem_2e4c: int_init was not called',0, INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array size
+C> for 1-electron Hamiltonian integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_h1}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -111,8 +130,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer maxh1       ! [output] max buffer size for H1 ints
-      integer mscratch_h1 ! [output] max scr size for H1 ints
+      integer maxh1       !< [Output] max buffer size for H1 ints
+      integer mscratch_h1 !< [Output] max scr size for H1 ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_h1')) then
@@ -122,6 +141,10 @@ c
         call errquit('int_mem_h1: int_init was not called',0, INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array size
+C> for 2-electron 3-center integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_2eec}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -140,8 +163,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer maxg           ! [output] max buf size for 2e3c ints
-      integer mscratch_2e3c  ! [output] max scr size for 2e3c ints
+      integer maxg           !< [Output] max buf size for 2e3c ints
+      integer mscratch_2e3c  !< [Output] max scr size for 2e3c ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_2e3c')) then
@@ -151,6 +174,10 @@ c
         call errquit('int_mem_2e3c: int_init was not called',0, INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array size
+C> for 2-electron 2-center integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_2e2c}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -169,8 +196,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer maxg          ! [output] max buf size for 2e2c ints
-      integer mscratch_2e2c ! [output] max scr size for 2e2c ints
+      integer maxg          !< [Output] max buf size for 2e2c ints
+      integer mscratch_2e2c !< [Output] max scr size for 2e2c ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_2e2c')) then
@@ -180,6 +207,10 @@ c
         call errquit('int_mem_2e2c: int_init was not called',0, INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array size
+C> for 1-electron 3-center integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_3ov}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -198,8 +229,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer maxbuf       ! [output] max buf size for 3 center ov
-      integer mscratch_3ov ! [output] max scr size for 3 center ov
+      integer maxbuf       !< [Output] max buf size for 3 center ov
+      integer mscratch_3ov !< [Output] max scr size for 3 center ov
 c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_3ov')) then
@@ -209,6 +240,9 @@ c
         call errquit('int_mem_3ov: int_init was not called' ,0, INT_ERR)
       endif
       end
+C>
+C> \brief Print buffer and scratch array sizes
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem\_print}
 c:tex-This routine prints the maximum buffer and scratch array
@@ -248,6 +282,10 @@ c
 10001 format(a,i12,1x,'64-bit-words',i20,1x,'Kbytes')
 10000 format(//)
       end
+C>
+C> \brief Retrieve maximum buffer and scratch array sizes for the
+C> blocking 2-electron integrals
+C>
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{intb\_mem\_2e4c}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -266,8 +304,8 @@ c::functions
       external int_chk_init
 c::passed
 c:tex-\begin{verbatim}
-      integer maxg        ! [output] max buf size for blocked 2e4c ints
-      integer mscratch_2e ! [output] max scr size for blocked 2e4c ints
+      integer maxg        !< [Output] max buf size for blocked 2e4c ints
+      integer mscratch_2e !< [Output] max scr size for blocked 2e4c ints
 c:tex-\end{verbatim}
 c
       if (int_chk_init('intb_mem_2e4c')) then
@@ -278,6 +316,10 @@ c
      &       INT_ERR)
       endif
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array sizes for 
+C> the dipole/multipole integrals
+C>
       subroutine int_mem_dipole(maxbuf, maxscr,
      &    basisin_i, basisin_j, lval_max)
       implicit none
@@ -288,11 +330,11 @@ c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxbuf    ! [output] maximum buffer size for dipole routines
-      integer maxscr    ! [output] maximum scratch size for dipole routines
-      integer basisin_i ! [input] basis set for part of multipole ints
-      integer basisin_j ! [input] other basis set for part of multipole ints
-      integer lval_max  ! [input] maximum lval used
+      integer maxbuf    !< [Output] maximum buffer size for dipole routines
+      integer maxscr    !< [Output] maximum scratch size for dipole routines
+      integer basisin_i !< [Input] basis set for part of multipole ints
+      integer basisin_j !< [Input] other basis set for part of multipole ints
+      integer lval_max  !< [Input] maximum order multipole used
 *
       integer maxang_i
       integer maxang_j
@@ -312,6 +354,12 @@ c::passed
       maxbuf = maxbuf * ((maxang_i+1)*(maxang_i+2))/2
       maxbuf = maxbuf * ((maxang_j+1)*(maxang_j+2))/2
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array sizes for 
+C> the dipole/multipole integrals
+C>
+C> This routine is identical to `int_mem_dipole`.
+C>
       subroutine int_mem_dipole_l(maxbuf, maxscr,
      &    basisin_i, basisin_j, lval)
       implicit none
@@ -322,11 +370,11 @@ c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxbuf    ! [output] maximum buffer size for dipole routines
-      integer maxscr    ! [output] maximum scratch size for dipole routines
-      integer basisin_i ! [input] basis set for part of multipole ints
-      integer basisin_j ! [input] other basis set for part of multipole ints
-      integer lval      ! [input] lval for the given call
+      integer maxbuf    !< [Output] maximum buffer size for dipole routines
+      integer maxscr    !< [Output] maximum scratch size for dipole routines
+      integer basisin_i !< [Input] basis set for part of multipole ints
+      integer basisin_j !< [Input] other basis set for part of multipole ints
+      integer lval      !< [Input] order of multipole for the given call
 *
       integer maxang_i
       integer maxang_j
@@ -346,6 +394,10 @@ c::passed
       maxbuf = maxbuf * ((maxang_i+1)*(maxang_i+2))/2
       maxbuf = maxbuf * ((maxang_j+1)*(maxang_j+2))/2
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array sizes for 
+C> the dipole/multipole derivative integrals
+C>
       subroutine intd_mem_dipole(maxbuf, maxscr,
      &    basisin_i, basisin_j, lval_max)
       implicit none
@@ -357,11 +409,11 @@ c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxbuf    ! [output] maximum buffer size for dipole routines
-      integer maxscr    ! [output] maximum scratch size for dipole routines
-      integer basisin_i ! [input] basis set for part of multipole ints
-      integer basisin_j ! [input] other basis set for part of multipole ints
-      integer lval_max  ! [input] maximum lval used
+      integer maxbuf    !< [Output] maximum buffer size for dipole routines
+      integer maxscr    !< [Output] maximum scratch size for dipole routines
+      integer basisin_i !< [Input] basis set for part of multipole ints
+      integer basisin_j !< [Input] other basis set for part of multipole ints
+      integer lval_max  !< [Input] maximum order multipole used
 *
       if (.not.int_chk_init('intd_mem_dipole')) then
         call errquit('intd_mem_dipole: int_init was not called' ,0,
@@ -370,6 +422,12 @@ c::passed
       call int_mem_dipole(maxbuf,maxscr,basisin_i,basisin_j,lval_max)
       maxbuf = maxbuf * 9  ! (block,xyz,3) 3=atom1, atom2, multipole center
       end
+C>
+C> \brief Retrieve the maximum buffer and scratch array sizes for 
+C> the dipole/multipole derivative integrals
+C>
+C> This routine is identical to `intd_mem_dipole`.
+C>
       subroutine intd_mem_dipole_l(maxbuf, maxscr,
      &    basisin_i, basisin_j, lval)
       implicit none
@@ -379,11 +437,11 @@ c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxbuf    ! [output] maximum buffer size for dipole routines
-      integer maxscr    ! [output] maximum scratch size for dipole routines
-      integer basisin_i ! [input] basis set for part of multipole ints
-      integer basisin_j ! [input] other basis set for part of multipole ints
-      integer lval      ! [input] lval for the given call
+      integer maxbuf    !< [Output] maximum buffer size for dipole routines
+      integer maxscr    !< [Output] maximum scratch size for dipole routines
+      integer basisin_i !< [Input] basis set for part of multipole ints
+      integer basisin_j !< [Input] other basis set for part of multipole ints
+      integer lval      !< [Input] multipole order for the given call
 *
       if (.not.int_chk_init('intd_mem_dipole_l')) then
         call errquit('intd_mem_dipole_l: int_init was not called' ,0,

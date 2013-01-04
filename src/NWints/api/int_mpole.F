@@ -1,5 +1,33 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the multipole integrals up to order `lmax`
+C>
+C> The general form is \f$\langle shell | pole | shell \rangle\f$. 
+C> Integrals are returned in shell blocks of \f$<ish|L|jsh>\f$ where
+C> \f$L\f$ runs from 0 to \f$l_{max}\f$
+C> one block for each \f$L\f$ value.  
+C>
+C> The integral for each \f$L\f$ value computed is:
+C> \f{eqnarray*}{
+C> ({\mu}|{\hat{L}}|{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})\hat{L}g_{\lambda}(X,r_{1})dr_{1}
+C> \f}
+C>
+C> For example, if `ish` = \f$p\f$ and \f$L\f$ = 1 and `jsh` = \f$p\f$ you
+C> would get 
+C> (3*1*3)+(3*3*3)=36 integrals.
+C> The order would be:
+C> <table>
+C> <tr><td> \f$<x|x>\f$ </td><td> \f$<x|y>\f$ </td><td> \f$<x|z>\f$ </td><td> \f$<y|x>\f$ </td><td> \f$<y|y>\f$ </td><td> \f$\ldots\f$ </td><td> \f$<z|z>\f$ </td><td> (first nine) </td></tr>
+C> <tr><td> \f$<x|x|x>\f$ </td><td> \f$<x|x|y>\f$ </td><td> \f$<x|x|z>\f$ </td><td> \f$<y|x|x>\f$ </td><td> \f$<y|x|y>\f$ </td><td> \f$\ldots\f$ </td><td> \f$<z|x|z>\f$ </td><td> (second nine) </td></tr>
+C> <tr><td> \f$<x|y|x>\f$ </td><td> \f$<x|y|y>\f$ </td><td> \f$<x|y|z>\f$ </td><td> \f$<y|y|x>\f$ </td><td> \f$<y|y|y>\f$ </td><td> \f$\ldots\f$ </td><td> \f$<z|y|z>\f$ </td><td> (third nine) </td></tr>
+C> <tr><td> \f$<x|z|x>\f$ </td><td> \f$<x|z|y>\f$ </td><td> \f$<x|z|z>\f$ </td><td> \f$<y|z|x>\f$ </td><td> \f$<y|z|y>\f$ </td><td> \f$\ldots\f$ </td><td> \f$<z|z|z>\f$ </td><td> (fourth nine) </td></tr>
+C> </table>
+C>
+
+
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mpole}
 c:tex-This routine returns multipole integrals up to the level $lmax$
@@ -54,17 +82,17 @@ c::functions
       external int_nint_cart, int_nint
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis             ! [input] basis set handle for ish
-      integer ish                 ! [input] i shell/contraction
-      integer j_basis             ! [input] basis set handle for jsh
-      integer jsh                 ! [input] j shell/contraction
-      integer lmax                ! [input] maximum lvalue for 
-c . . . . . . . . . . . . . . . . !   multipole integrals in this batch
-      double precision centerl(3) ! [input] coordinates of multipole
-      integer lscr                ! [input] length of scratch array
-      double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input] length of multipole ints
-      double precision MP(lmpint) ! [output] multipole integrals
+      integer i_basis             !< [Input] basis set handle for ish
+      integer ish                 !< [Input] i shell/contraction
+      integer j_basis             !< [Input] basis set handle for jsh
+      integer jsh                 !< [Input] j shell/contraction
+      integer lmax                !< [Input] maximum lvalue for 
+                                  !< multipole integrals in this batch
+      double precision centerl(3) !< [Input] coordinates of multipole
+      integer lscr                !< [Input] length of scratch array
+      double precision scr(lscr)  !< [Input] scratch array
+      integer lmpint              !< [Input] length of multipole ints
+      double precision MP(lmpint) !< [Output] multipole integrals
 c:tex-\end{verbatim}
 c::local      
       logical any_spherical
@@ -281,3 +309,4 @@ c...................................TriDiag..DryRun
         endif
 00100 continue
       end
+C> @}

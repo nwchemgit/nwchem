@@ -1,3 +1,70 @@
+C> \ingroup nwint
+C> @{
+C>
+C> routine to compute multipole integrals at a given lvalue.
+C> 
+C> The general form is <shell|pole|shell>
+C>
+C> the returned buffer is logically (mpole range, jlo:jhi, ilo:ihi)
+C> where mpole range is 1:((lval+1)*(lval+2)/2)
+C>
+C> Integrals are returned in shell blocks of <L|ish|jsh> L=lval
+C> one block for the given L value.  
+C> for ish = d and Lval = 1 and jsh = p you would get:
+C> (6*3*3)=54 integrals
+C> order would be 
+C> \code
+C>   <xx|x|x> <xx|y|x> <xx|z|x> ( 1- 3)
+C>   <xx|x|y> <xx|y|y> <xx|z|y> ( 4- 6) 
+C>   <xx|x|z> <xx|y|z> <xx|z|z> ( 7- 9)
+C>   <xy|x|x> <xy|y|x> <xy|z|x> (10-12)
+C>   <xy|x|y> <xy|y|y> <xy|z|y> (13-15)
+C>   <xy|x|z> <xy|y|z> <xy|z|z> (16-18)
+C>   <xz|x|x> <xz|y|x> <xz|z|x> (19-21)
+C>   <xz|x|y> <xz|y|y> <xz|z|y> (22-24)
+C>   <xz|x|z> <xz|y|z> <xz|z|z> (25-27)
+C>   <yy|x|x> <yy|y|x> <yy|z|x> (28-30)
+C>   <yy|x|y> <yy|y|y> <yy|z|y> (31-33)
+C>   <yy|x|z> <yy|y|z> <yy|z|z> (34-36)
+C>   <yz|x|x> <yz|y|x> <yz|z|x> (37-39)
+C>   <yz|x|y> <yz|y|y> <yz|z|y> (40-42)
+C>   <yz|x|z> <yz|y|z> <yz|z|z> (43-45)
+C>   <zz|x|x> <zz|y|x> <zz|z|x> (46-48)
+C>   <zz|x|y> <zz|y|y> <zz|z|y> (49-51)
+C>   <zz|x|z> <zz|y|z> <zz|z|z> (52-54)
+C> \endcode
+C>
+C>
+C> for ish = p and Lval = 2 and jsh = p you would get:
+C> (3*6*3) = 54 integrals
+C> order would be 
+C> \code
+C>   <x|xx|x> <x|xy|x> <x|xz|x> <x|yy|x> <x|yz|x> <x|zz|x>  ( 1- 6)
+C>   <x|xx|y> <x|xy|y> <x|xz|y> <x|yy|y> <x|yz|y> <x|zz|y>  ( 7-12)
+C>   <x|xx|z> <x|xy|z> <x|xz|z> <x|yy|z> <x|yz|z> <x|zz|z>  (13-18)
+C>   <y|xx|x> <y|xy|x> <y|xz|x> <y|yy|x> <y|yz|x> <y|zz|x>  (19-24)
+C>   <y|xx|y> <y|xy|y> <y|xz|y> <y|yy|y> <y|yz|y> <y|zz|y>  (25-30)
+C>   <y|xx|z> <y|xy|z> <y|xz|z> <y|yy|z> <y|yz|z> <y|zz|z>  (31-36)
+C>   <z|xx|x> <z|xy|x> <z|xz|x> <z|yy|x> <z|yz|x> <z|zz|x>  (37-42)
+C>   <z|xx|y> <z|xy|y> <z|xz|y> <z|yy|y> <z|yz|y> <z|zz|y>  (43-48)
+C>   <z|xx|z> <z|xy|z> <z|xz|z> <z|yy|z> <z|yz|z> <z|zz|z>  (49-54)
+C> \endcode
+C>
+C> for ish = s and lval = 4 and jsh = p you would get:
+C> (1*15*3) = 45 integrals
+C> \code
+C>   <s|xxxx|x> <s|xxxy|x> <s|xxxz|x> <s|xxyy|x> <s|xxyz|x> <s|xxzz|x> ( 1- 6)
+C>   <s|xyyy|x> <s|xyyz|x> <s|xyzz|x> <s|xzzz|x> <s|yyyy|x> <s|yyyz|x> ( 7-12)
+C>   <s|yyzz|x> <s|yzzz|x> <s|zzzz|x>                                  (13-15)
+C>   <s|xxxx|y> <s|xxxy|y> <s|xxxz|y> <s|xxyy|y> <s|xxyz|y> <s|xxzz|y> (16-21)
+C>   <s|xyyy|y> <s|xyyz|y> <s|xyzz|y> <s|xzzz|y> <s|yyyy|y> <s|yyyz|y> (22-27)
+C>   <s|yyzz|y> <s|yzzz|y> <s|zzzz|y>                                  (28-30)
+C>   <s|xxxx|z> <s|xxxy|z> <s|xxxz|z> <s|xxyy|z> <s|xxyz|z> <s|xxzz|z> (31-36)
+C>   <s|xyyy|z> <s|xyyz|z> <s|xyzz|z> <s|xzzz|z> <s|yyyy|z> <s|yyyz|z> (37-42)
+C>   <s|yyzz|z> <s|yzzz|z> <s|zzzz|z>                                  (43-45)
+C> \endcode
+C>
+C>
       subroutine int_mpolel(i_basis, ish, j_basis, jsh, lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
@@ -83,20 +150,19 @@ c::functions
       external int_chk_init
       external int_nint_cart, int_nint
 c::passed
-      integer i_basis             ! [input] basis set handle for ish
-      integer ish                 ! [input] i shell/contraction
-      integer j_basis             ! [input] basis set handle for jsh
-      integer jsh                 ! [input] j shell/contraction
-      integer lval                ! [input] maximum lvalue for 
-*.......................................... multipole integrals 
-*.......................................... in this batch
-      double precision centerl(3) ! [input] coordinates of multipole
-      integer lscr                ! [input] length of scratch array
-      double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input] length of multipole 
-*.......................................... integrals array
-      double precision MP(lmpint) ! [output] multipole integrals
-      integer num_mpint           ! [output] number of multipole integrals
+      integer i_basis             !< [Input] basis set handle for ish
+      integer ish                 !< [Input] i shell/contraction
+      integer j_basis             !< [Input] basis set handle for jsh
+      integer jsh                 !< [Input] j shell/contraction
+      integer lval                !< [Input] maximum lvalue for 
+                                  !< multipole integrals in this batch
+      double precision centerl(3) !< [Input] coordinates of multipole
+      integer lscr                !< [Input] length of scratch array
+      double precision scr(lscr)  !< [Input] scratch array
+      integer lmpint              !< [Input] length of multipole 
+                                  !< integrals array
+      double precision MP(lmpint) !< [Output] multipole integrals
+      integer num_mpint           !< [Output] number of multipole integrals
 c::local      
       logical any_spherical
       logical shells_ok
@@ -210,3 +276,4 @@ c.....................TriDiag..DryRun
      &      .false.)
       endif
       end
+C> @}
