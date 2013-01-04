@@ -1211,30 +1211,26 @@ c        symmetry adapt vectors?
 c
          if (oadapt)then
             if(nmo(ispin).ne.0) then
-chack
-               nmo_adapt(ispin)=nmo(ispin)
-               nmo_adapt(ispin)=dft_nonzvecs(g_movecs(ispin),nbf_ao,
-     N              noc(ispin))
-               if (.not. ga_create(mt_dbl, nbf_ao, nmo_adapt(ispin),
-     ,           'movadddd', nbf_ao, 0, g_movad)) call errquit(
-     +           'dft_scf: gacreate failed ',0, GA_ERR)
-               call ga_zero(g_movad)
+               if (.not. ga_create(mt_dbl, nbf_ao, nmo(ispin),
+     +           'movad', nbf_ao, 0, g_movad)) call errquit(
+     +              'dft_scf: gacreate failed ',0, GA_ERR)
                call ga_copy_patch('n', g_movecs(ispin), 1, nbf_ao, 
-     .            1, nmo_adapt(ispin),
-     ,            g_movad, 1,nbf_ao,1,nmo_adapt(ispin))
+     .            1, nmo(ispin),
+     ,            g_movad, 1,nbf_ao,1,nmo(ispin))
+
             else
                g_movad=g_movecs(ispin)
             endif
             if(ispin.eq.1)name = '- alpha'
             if(ispin.eq.2)name = '- beta'
             call scf_movecs_sym_adapt(ao_bas_han, g_movad,
-     &           oprint_syma, nmo_adapt, name,
+     &           oprint_syma, nmo, name,
      &           .true., 
      &                                int_mb(k_ir+nbf_ao*(ispin-1)))
             if(nmo(ispin).ne.0) then
                call ga_copy_patch('n', 
-     ,              g_movad, 1,nbf_ao,1,nmo_adapt(ispin),
-     .              g_movecs(ispin), 1, nbf_ao, 1, nmo_adapt(ispin))
+     ,              g_movad, 1,nbf_ao,1,nmo(ispin),
+     .              g_movecs(ispin), 1, nbf_ao, 1, nmo(ispin))
                if (.not. ga_destroy(g_movad)) call errquit(
      &              'dft_scf: could not destroy g_movad', 0, GA_ERR)
             endif

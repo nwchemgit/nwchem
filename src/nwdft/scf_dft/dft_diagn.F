@@ -207,12 +207,12 @@ c
      A      nocc)
       implicit none
 #include "dft_scaleig.fh"
+#include "global.fh"
       integer g_s,g_svecs
       double precision evals(*)
-      integer nocc
+      integer nocc,i
 c
-      integer alo(2),ahi(2),dimm,dimm2,nmoout,ii,
-     T     typpe
+      integer nmoout
 c
       if(yev.eq.'v') then
          call ga_pdsyev(g_s, g_svecs, evals,nb)
@@ -225,14 +225,9 @@ c
          nmoout=0
          if(yev.eq.'m') nmoout=nocc
          call ga_pdsyevr(g_s, g_svecs, evals,nb,nmoout)
-         call ga_inquire(g_svecs, typpe, dimm, dimm)
-         if(nmoout.ne.0) then
-            alo(1)=1
-            ahi(1)=dimm
-            alo(2)=nmoout+1
-            ahi(2)=dimm
-            call nga_zero_patch(g_svecs, alo, ahi)
-         endif
+         if(nmoout.ne.0) 
+c     patching non computed eigenvectors with identity
+     d        call dft_idtyvecs(g_svecs,nmoout+1)
 #endif
       else
          call errquit(' wrong pdsyev value',0,0)
@@ -247,8 +242,7 @@ c
       double precision evals(*)
       integer nocc
 c
-      integer alo(2),ahi(2),dimm,nmoout,ii,
-     T     typpe
+      integer nmoout
 c
       if(yev.eq.'d') then
          call ga_pzheevd(g_s, g_svecs, evals,nb)
@@ -257,15 +251,11 @@ c
          nmoout=0
          if(yev.eq.'m') nmoout=nocc
          call ga_pzheevr(g_s, g_svecs, evals,nb,nmoout)
-         call ga_inquire(g_svecs(1), typpe, dimm, dimm)
-         if(nmoout.ne.0) then
-            alo(1)=1
-            ahi(1)=dimm
-            alo(2)=nmoout+1
-            ahi(2)=dimm
-            call nga_zero_patch(g_svecs(1), alo, ahi)
-            call nga_zero_patch(g_svecs(2), alo, ahi)
-         endif
+         if(nmoout.ne.0)  then
+c     patching non computed eigenvectors with identity
+             call dft_idtyvecs(g_svecs(1),nmoout+1)
+             call dft_idtyvecs(g_svecs(2),nmoout+1)
+          endif
 #endif
       else
          call errquit(' wrong pzheevs value',0,0)
@@ -273,3 +263,32 @@ c
       return
       end
 #endif
+      subroutine dft_idtyvecs(g_a,istart)
+      implicit none
+#include "global.fh"
+      integer g_a
+      integer istart
+c
+      integer alo(2),ahi(2)
+      integer dimm,i
+      integer typpe
+
+      call ga_inquire(g_a, typpe, dimm, dimm)
+      if(istart.gt.dimm) return
+      alo(1)=1
+      ahi(1)=dimm
+      alo(2)=istart
+      ahi(2)=dimm
+      call nga_zero_patch(g_a, alo, ahi)
+      call ga_distribution(g_a,
+     D     ga_nodeid(), alo(1), ahi(1), alo(2), ahi(2))
+      if (alo(1).gt.0 .and. alo(1).le.ahi(1)) then
+         if(ahi(1).ge.istart) then
+            do i=max(alo(1),istart),min(ahi(1),dimm)
+               if(i.ge.alo(2).and.i.le.ahi(2))
+     P              call ga_put(g_a,i,i,i,i,1d0,0)
+            enddo
+         endif
+      endif
+      return
+      end

@@ -461,8 +461,10 @@ c
  1    continue
 c     we should be using all the electrons .. right?
       dft_nonzvecs=max(noc,dft_nonzvecs)
+#if 0
       write(6,*) ' nonzvecs ',dft_nonzvecs
       call util_flush(6)
+#endif
 c     
       if(.not.MA_Pop_Stack(l_nz)) call errquit(
      .     'failed popstack in dftnz ',0, 0)
