@@ -340,10 +340,9 @@ c
 c
 c     replicated DM and Fock Matrix
 c
-c     turned off for nbf gt 500 since becomes a memory hog
+c     turned off for now: needs to be debugged
 c
       dorepon=.true.
-      if(nbf.gt.500) dorepon=.false.
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
          docopy=.true.
@@ -364,10 +363,6 @@ c
             g_fock=g_fockrep
          else
             if(dorepd) call util_mirrstop(1,g_densrep)
-            if(ga_nodeid().eq.0) then
-               write(6,*) ' no mirroring in shellfockbld'
-               call util_flush(6)
-            endif
          endif
       endif
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
@@ -626,12 +621,14 @@ c
      $     g_dens, ndens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac)
       implicit none
       integer  ndens, g_dens, blen, ibflo, ibfhi, jbflo, jbfhi
+      integer blen2
       double precision buf(*), fac(ndens)
 c
       integer lo(3), hi(3), ld(3)
       integer idens
 c
-cedo      call dcopy(ndens*blen*blen,0d0,0,buf,1)
+      blen2 = blen*blen
+      call dcopy(ndens*blen*blen,0d0,0,buf,1)
       lo(1) = 1
       hi(1) = ndens
       lo(2) = ibflo
@@ -658,30 +655,14 @@ c
       integer idens, i, j
       double precision factor
 c
-      if(ndens.eq.1) then
-        factor = fac(1)
-        do j = 1, jbfhi-jbflo+1
-           do i = 1, ibfhi-ibflo+1
-              buf(1,i,j) = buf(1,i,j) * factor
-           enddo
+      do idens = 1, ndens
+        factor = fac(idens)
+        do i = 1, ibfhi-ibflo+1
+          do j = 1, jbfhi-jbflo+1
+            buf(idens,i,j) = buf(idens,i,j) * factor
+          enddo
         enddo
-      elseif(ndens.eq.2) then
-         do j = 1, jbfhi-jbflo+1
-            do i = 1, ibfhi-ibflo+1
-               buf(1,i,j) = buf(1,i,j) * fac(1)
-               buf(2,i,j) = buf(2,i,j) * fac(2)
-            enddo
-         enddo
-      else
-         do idens = 1, ndens
-            factor = fac(idens)
-            do i = 1, ibfhi-ibflo+1
-               do j = 1, jbfhi-jbflo+1
-                  buf(idens,i,j) = buf(idens,i,j) * factor
-               enddo
-            enddo
-         enddo
-      endif
+      enddo
 c
       return
       end

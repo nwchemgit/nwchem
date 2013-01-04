@@ -27,7 +27,7 @@ OBJ_OPTIMIZE =  hess_anal.o \
                 hess_tidy.o\
 		uhf_fock_setup.o uhf_fock_finish.o\
 		print_dens_bit.o \
-		shell_fock_build_nw.o
+		shell_fock_build_ext.o
 
      LIBRARY = libhessian.a
 
