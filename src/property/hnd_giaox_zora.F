@@ -1,3 +1,4 @@
+c
       subroutine hnd_giaox_zora(rtdb,basis,geom)
 c $Id$
       implicit none
@@ -101,6 +102,8 @@ c      switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
       debug_giaox=0 ! =1 for debugging print outs of matrices
 c      debug_giaox=1 ! =1 for debugging print outs of matrices
       if (ga_nodeid().eq.0) write(luout,9999)
+c
+      oskel = .false.
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb
@@ -898,7 +901,8 @@ c ------- TEST: get_par() get_dia()------ START
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
      &   nat_slc,         ! IN  : nr. atoms
      &   geom,
-     &   rtdb)
+     &   rtdb,
+     &   oskel)
       endif
 
       call get_dia(dbl_mb(k_dia),   ! OUT: dia tensor
@@ -910,7 +914,8 @@ c ------- TEST: get_par() get_dia()------ START
      &             dbl_mb(k_fukui), ! IN : Fukui term
      &             dbl_mb(k_xyz),   ! IN : nuclear positions
      &             nat_slc,         ! IN : selected atoms
-     &             rtdb)            ! IN : rtdb handle
+     &             rtdb,            ! IN : rtdb handle
+     &             oskel)            
 c ------- TEST: get_par() get_dia()------ END
 c +++++++++ print-total-pardia-transferred +++ START
        if (ga_nodeid().eq.0) then
@@ -1148,7 +1153,8 @@ c     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
      &                   pos,       ! IN  : Nuclear positions (x,y,z)
      &                   natoms,    ! IN  : nr. atoms
      &                   geom,
-     &                   rtdb)
+     &                   rtdb,
+     &                   oskel)
 c Purpose : Assemble NMR Chemical Shielding: paramagnetic tensor
 c Author  : Fredy Aquino
 c Date    : 03-03-11, 11-23-12 (adding Fukui term)
@@ -1762,7 +1768,8 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      &                   Fukui,  ! IN  : Fukui term
      &                   pos,    ! IN  : Nuclear positions (x,y,z)
      &                   natoms, ! IN  : nr. atoms
-     &                   rtdb)
+     &                   rtdb,
+     &                   oskel)
 
 c Purpose : Assemble NMR Chemical Shielding: diamagnetic tensor
 c Author  : Fredy Aquino
