@@ -1,3 +1,345 @@
+c ... jochen: this comes from rohf_hessv2.F but has everything
+c     "v2" replaced by "v3", for use with frequency-dependent response
+c     and is called from the cphf_solve3 part of the cphf code
+c
+c ... jochen: further mods were made to accomodate the situation that
+c     we might have damping in the response. That causes all quantities to
+c     have an imaginary part, too
+
+      subroutine rohf_hessv3_ext(acc, 
+     &                       g_x, g_ax, 
+     &                       g_x_im, g_Ax_im,
+     &   omega, limag, lifetime, gamwidth, ncomp)
+c
+c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
+c     Date   : 03-24-12
+c     Note.- Equivalent to rohf_hessv3() (routine written by 
+c            J. Autschbach) but using optimizing routines.
+ 
+      implicit none
+#include "errquit.fh"
+#include "crohf.fh"
+#include "cscf.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+c     $Id: rohf_hessv3.F 19983 2011-02-21 02:53:21Z niri $
+c
+c ... jochen: these two arrays now have two components:
+      integer g_x(2)  ! [input]  A-matrix elements for density matrix
+      integer g_ax(2) ! [output] Perturbed Fock operator
+c ... jochen: also, we might have imaginary components:
+      integer g_x_im(2)  ! [input]  A-matrix elements, Im
+      integer g_ax_im(2) ! [output] Perturbed Fock operator, Im
+
+      double precision acc, omega, gamwidth
+      logical limag, lifetime
+c     
+      integer gtype,grow,gcol,growp,gcolp, ipm, ncomp
+      logical oprint, debug
+      external rohf_hessv_xx3_ext
+c
+c     ================================================================
+
+      debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
+      if (debug) write (6,*)
+     &   'rohf_hessv3: limag, omega, lifetime, gamwidth',
+     &   limag, omega, lifetime, gamwidth
+c
+c     Check for debug 
+c     
+      oprint= util_print('rohf_hessv2',print_debug)
+      if (crohf_init_flag.ne.1)
+     $     call errquit('rohf_hessv3: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
+c
+c ... jochen: use first component for the dimension checks.
+c     the second component MUST have the same dimensions
+c     otherwise there will be problems
+      call ga_inquire(g_x(1),gtype,grow,gcol)
+      if (grow.ne.crohf_vlen)
+     $     call errquit('rohf_hessv3: invalid vector length',0,
+     &       UNKNOWN_ERR)
+      call ga_inquire(g_ax(1),gtype,growp,gcolp)
+      if (growp.ne.crohf_vlen)
+     $     call errquit('rohf_hessv3: invalid vector length',0,
+     &       UNKNOWN_ERR)
+      if (gcol.ne.gcolp)
+     $     call errquit('rohf_hessv3: invalid no. of vectors',0,
+     &       UNKNOWN_ERR)
+c     
+c     Call internal routine
+c  
+      if (debug) write (6,*) 'calling rohf_hessv_xx3'
+
+      call rohf_hessv_xx3_ext( basis, geom, nbf, nmo,
+     $     nclosed, nopen,
+     $     pflg, 
+     &     g_movecs, 
+     &     oskel, noskew,
+     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
+     $     acc, lshift, 
+     &     g_x, g_ax, 
+     &     g_x_im, g_Ax_im, 
+     &     omega, limag,
+     &     lifetime, gamwidth, ncomp)
+
+      if (debug) write (6,*) 'back from rohf_hessv_xx3'
+c
+c     Zap numbers much smaller than acc to ensure hard zeroes 
+c     remain unpolluted ... cannot use a threshold larger than the
+c     integral accuracy since can break symmetry in non-abelian groups
+c     Also must ensure that the threshold tends to zero to permit
+c     tight convergence.
+c
+c ... jochen: screen components
+      do ipm = 1,ncomp
+        call ga_screen(g_ax(ipm),
+     &       max(min(acc*acc,acc*0.01d0,1d-12),1d-16))
+        if (lifetime) call ga_screen(g_ax_im(ipm), 
+     &       max(min(acc*acc,acc*0.01d0,1d-12),1d-16))
+      enddo
+c
+      end
+
+      subroutine rohf_hessv_xx3_ext( basis, geom, 
+     &     nbf, nmo, nclosed, nopen, 
+     $     pflg,
+     $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
+     $     acc, lshift, 
+     &     g_x, g_ax, 
+     &     g_x_im, g_Ax_im, 
+     &     omega, limag,
+     &     lifetime, gamwidth, ncomp)
+c     Note.- Improvements to this subroutine done by
+c            Fredy W. Aquino, Northwestern University (Oct 2012)
+c            Using rohf_hessv_2e2_opt() instead of old rohf_hessv_2e2()
+c                  rohf_hessv_2e3_opt() instead of old rohf_hessv_2e3() 
+
+C     $Id: rohf_hessv3.F 19983 2011-02-21 02:53:21Z niri $
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "bgj.fh"
+c     
+      integer basis, geom
+      integer nbf, nmo, nclosed, nopen
+      integer pflg
+      integer g_movecs
+      logical oskel, noskew
+      integer g_fcv, g_fpv, g_fcp
+      double precision acc
+      double precision lshift
+c ... jochen: input arrays g_x and g_Ax have two components here
+      integer g_x(2), g_ax(2), vlen, nvec, g_tmp, gtype, ipm
+      integer g_x_im(2)  ! [input]  A-matrix elements, Im
+      integer g_ax_im(2) ! [output] Perturbed Fock operator, Im
+
+      double precision omega, gamwidth, wls, wlsim,omg(2)
+      logical limag, lifetime
+      integer ncomp
+      logical debug
+      external rohf_hessv_2e3_opt 
+
+c
+c     =================================================================
+
+      debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
+c      debug = (.true. .and. ga_nodeid().eq.0) ! for code development
+c
+      if (debug) write (6,*) 'hessv3: omega =',omega
+      if (debug) write (6,*) 'hessv3: limag =',limag
+      if (debug) write (6,*)
+     &   'hessv3: lifetime, gamwidth =',lifetime, gamwidth
+c
+      do ipm = 1,ncomp
+        call ga_zero(g_Ax(ipm))
+        if (lifetime) call ga_zero(g_Ax_im(ipm))
+      end do
+      if (pflg.gt.2 .or. pflg.le.0) then
+         call errquit('rohf_hessv_xx: pflg invalid ', pflg,
+     &       UNKNOWN_ERR)
+      endif
+c
+c ... jochen: to be consistent with the preconditioner, where
+c     the level shift is added, we need to do the same thing here
+c     and also add and subtract the frequency times 4 (it is times
+c     4 because of the factors of 4 in rohf_hessv_1e and in the
+c     preconditioner)
+c     During a response calculation, pflg is equal to 2
+c
+c     what do we do here? Compare Gauss' paper Eqs. (32) and (135):
+c     The lhs of the CPHF equations contain a term
+c     (e_a - e_i -/+ omega) U_ai. First, we initialize g_Ax with
+c     the term proportional to omega, then we add the delta-e term
+c     (the e's are the orbital energies, calculated in hessv_1e as
+c     the diagonal of the Fock matrix transformed to the MO basis)
+
+      if (pflg .gt. 0) then
+        omg(1)=-omega
+        omg(2)= omega
+        if (.not.lifetime) then
+c        no damping: initialize Ax with terms proportional omega
+         do ipm=1,ncomp
+          wls = lshift + 4d0 * omg(ipm)
+          call ga_dadd(wls,g_x(ipm),0.d0,g_ax(ipm),g_ax(ipm))
+         enddo ! end-loop-ipm
+        else                    ! lifetime
+c        take care of damping here: Re and Im are coupled by gamwidth
+         do ipm=1,ncomp
+          wls   = lshift + 4d0* omg(ipm)
+          wlsim = -4d0 * gamwidth
+c          write(*,19) lshift,wls,wlsim
+c 19       format('RE:(lshift,wls,wlsim)=(',
+c     &           f15.8,',',f15.8,',',f15.8,')') 
+
+          call ga_dadd(wls  ,g_x(ipm),
+     &                 wlsim,g_x_im(ipm),
+     &                       g_ax(ipm))
+          wls   =  4d0 * gamwidth
+          wlsim = lshift + 4d0* omg(ipm)
+
+c          write(*,20) lshift,wls,wlsim
+c 20       format('IM:(lshift,wls,wlsim)=(',
+c     &           f15.8,',',f15.8,',',f15.8,')') 
+
+          call ga_dadd(wls  ,g_x(ipm),
+     &                 wlsim,g_x_im(ipm),
+     &                       g_ax_im(ipm))  
+         enddo ! end-lopp-ipm
+        endif                   ! .not.lifetime
+        call ga_sync()
+        if (debug) write (6,*) 'calling rohf_hessv_1e'
+
+c ============== debug g_ax ==================== START
+        if (debug) then
+          do ipm=1,2
+            if (ga_nodeid().eq.0)        
+     &      write(*,*) '------- g_ax_re-0-c(',ipm,')------ START' 
+            call ga_print(g_ax(ipm))
+            if (ga_nodeid().eq.0)
+     &      write(*,*) '------- g_ax_re-0-c(',ipm,')------ END'
+          enddo ! end-loop-ipm
+         if (lifetime) then
+          do ipm=1,2
+           if (ga_nodeid().eq.0)        
+     &     write(*,*) '------- g_ax_im-0-c(',ipm,')------ START' 
+           call ga_print(g_ax_im(ipm))
+           if (ga_nodeid().eq.0)
+     &     write(*,*) '------- g_ax_im-0-c(',ipm,')------ END'
+          enddo ! end-loop-ipm
+         endif ! end-if-lifetime
+        endif ! end-if-debug
+c ============== debug g_ax ==================== END
+c 
+c       next: add (e_a - e_i) times A (also called U) matrix to Ax
+        do ipm=1,ncomp
+         call rohf_hessv_1e(basis,geom,        ! in : handles
+     &                      nmo,nclosed,nopen, ! in : (nmo,nocc) nopen=0 for closed shell
+     $                      g_fcv,g_fpv,g_fcp, ! in : densities
+     $                      g_x(ipm),          ! in : g_x
+     &                      g_ax(ipm))         ! out: 1e contrib to Ax
+        enddo ! end-loop-ipm
+        if (lifetime) then
+        do ipm=1,ncomp
+         call rohf_hessv_1e(basis,geom,        ! in : handles
+     &                      nmo,nclosed,nopen, ! in : (nmo,nocc) nopen=0 for closed shell
+     $                      g_fcv,g_fpv,g_fcp, ! in : densities
+     $                      g_x_im(ipm),       ! in : g_x_im
+     &                      g_ax_im(ipm))      ! out: 1e contrib to Ax_im
+        enddo ! end-loop-ipm
+        endif ! end-if-lifetime
+      endif                     ! pflg.gt.0
+c ============== debug g_ax ==================== START
+      if (debug) then
+       do ipm=1,2
+         if (ga_nodeid().eq.0)        
+     &    write(*,*) '------- g_ax_re-0-d(',ipm,')------ START' 
+         call ga_print(g_ax(ipm))
+         if (ga_nodeid().eq.0)
+     &    write(*,*) '------- g_ax_re-0-d(',ipm,')------ END'
+       enddo ! end-loop-ipm
+       if (lifetime) then
+       do ipm=1,2
+         if (ga_nodeid().eq.0)        
+     &    write(*,*) '------- g_ax_im-0-d(',ipm,')------ START' 
+         call ga_print(g_ax_im(ipm))
+         if (ga_nodeid().eq.0)
+     &    write(*,*) '------- g_ax_im-0-d(',ipm,')------ END'
+       enddo ! end-loop-ipm
+       endif ! end-if-lifetime
+      endif ! end-if-debug
+c ============== debug g_ax ==================== END
+      if (pflg .gt. 1) then
+c
+c       the next call basically uses the current guess for the solution
+c       vector x (in g_x, which is the perturbed density matrix in the
+c       MO basis) and calculates the perturbed Fock operator in the MO basis.
+c       real and imaginary part of that Fock operator can be handled
+c       separately here
+
+        if (ncomp.gt.1) then    ! call 2e code for dynamic case
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF rohf_hessv_2e3_opt-RE-IM'
+
+           call rohf_hessv_2e3_opt(
+     &                  basis,   ! in: basis handle
+     &                  geom,    ! in: geom  handle
+     &                  nbf,     ! in: nr. basis functions
+     &                  nmo,     ! in: nr. MOs
+     &                  nclosed, ! in: nr. double occupied MOs
+     &                  nopen,   ! in: nr. single occupied MOs
+     $                  g_movecs,! in: MO coefficients
+     &                  oskel,   ! in: =.true. ->
+     &                  noskew,  ! in: =.true. -> symmetric density matrix
+     &                  g_x,     ! in: 
+     &                  g_x_im,  ! in: 
+     &                  g_ax,    ! in/out: Hessian product
+     &                  g_ax_im, ! in/out: Hessian product
+     &                  acc,     ! in: accuracy Fock construction
+     &                  limag,   ! in: =.true. -> imaginary component allowed
+     &                  lifetime)! in: =.true. -> RE-IM =.false -> RE
+
+c            if (ga_nodeid().eq.0)
+c     &       write(*,*) 'FA-AFT rohf_hessv_2e3_opt-RE-IM'
+
+        else                    ! call static 2e code
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF rohf_hessv_2e2_opt'
+
+             call rohf_hessv_2e2_opt(
+     &                              basis,     ! in : basis handle
+     &                              geom,      ! in : geom  handle
+     &                              nbf,       ! in : nr. basis functions
+     &                              nmo,       ! in : nr. MOs vecs
+     &                              nclosed,   ! in : nr. occupied MOs 
+     &                              nopen,     ! in : nr. open shells (unpaired e's)
+     $                              g_movecs,  ! in : MO vec coeffs 
+     &                              oskel,     ! in :
+     &                              noskew,    ! in : symm density ?
+     &                              acc,       ! in : accuracy Fock construction   
+     &                              g_x(1),    ! in : RE g_x 
+     &                              g_x_im(1), ! in : IM g_x
+     &                              g_ax(1),   ! in/ou : RE g_ax Hessian product
+     &                              g_ax_im(1),! in/ou : IM g_ax Hessian product
+     &                              lifetime)
+
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-AFT rohf_hessv_2e2_opt'
+
+        endif                   ! ncomp
+        
+      endif                     ! pflg.gt.1
+c     
+      end
+
       subroutine rohf_hessv3_cmplx(
      &                  acc,       ! in : accuracy
      &                  g_z,       ! in : z
