@@ -101,10 +101,10 @@ c     assign + and - components for indexing amat:
         im = 2
       endif
 
-      if (ga_nodeid().eq.0) then
-       write(*,1) ip,im,lstatic
- 1     format('(ip,im,lstatic)=(',i3,',',i3,',',L1,')')
-      endif
+c     if (ga_nodeid().eq.0) then
+c      write(*,1) ip,im,lstatic
+c1     format('(ip,im,lstatic)=(',i3,',',i3,',',L1,')')
+c     endif
         
       do ipm = 1,ncomp
         call ga_zero(g_pmats(ipm))

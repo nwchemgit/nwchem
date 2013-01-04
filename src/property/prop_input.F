@@ -663,6 +663,16 @@ c ... jochen: write cphf iteration threshold if set by input
      $                               convergence     ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       endif ! aor_conv
+c ----- FA-11-30-12: Adding new parameter: aor_damp ---- START
+      if (aor_damp.eq.0) then ! FA-06-06-12
+        if (.not. rtdb_put(rtdb, 'cphf:cphf3write',    mt_int, 1,
+     $                               cphf3write))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+        if (.not. rtdb_put(rtdb, 'cphf:checkorth',    mt_int, 1,
+     $                               checkorth))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      endif ! aor_damp
+c ----- FA-11-30-12: Adding new parameter: aor_damp ---- END
       if (.not. rtdb_put(rtdb, 'aoresponse:gamwidth', mt_dbl, 1,
      $                               gamwidth        ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
