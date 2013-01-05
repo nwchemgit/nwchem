@@ -373,6 +373,7 @@ c
      &                   sh_atom,oskel)
 c
 c     Get external and cosmo bq contribution
+c
       nbq = 0
       nextbq = 0
       ncosbq = 0

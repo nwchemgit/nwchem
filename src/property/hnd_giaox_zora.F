@@ -1,4 +1,3 @@
-c
       subroutine hnd_giaox_zora(rtdb,basis,geom)
 c $Id$
       implicit none
@@ -88,6 +87,7 @@ c ----- Definitions for NLMO analysis ---- END
      &        ga_h01_num,! OUTPUT
      &        ga_Fji     ! OUTPUT
       logical skip_cphf_ev_shield
+      oskel=.false.
 c Note.- switch_nmrcs_analysis=.true. has to go together with
 c        switch_skip_cphf=.true.
 c -----------------------------------
@@ -102,8 +102,6 @@ c      switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
       debug_giaox=0 ! =1 for debugging print outs of matrices
 c      debug_giaox=1 ! =1 for debugging print outs of matrices
       if (ga_nodeid().eq.0) write(luout,9999)
-c
-      oskel = .false.
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb
@@ -148,7 +146,7 @@ c ------- Read (nat,atmnr) --------- START
        write(*,*) 'nat_slc=',nat_slc
        do i=1,nat_slc
         write(*,7) i,int_mb(k_AtNr+i-1)
- 7      format('In hnd_giaox_zora:: atomnr(',i3,')=',i5)
+ 7      format('atomnr(',i3,')=',i5)
        enddo
       endif
 c ------- Read (nat,atmnr) --------- END
@@ -174,16 +172,18 @@ c     First allocate some memory for occupation numbers and eigenvalues
      &    errquit('hnd_giaox_zora: could not get nbf',0, BASIS_ERR)
 
 c ++++++ Reading shieldings data from file ++++++ START
+      if (do_zora) then ! ==========if-do_zora-START
 c       Note.- lbl_nmrcs defined in zora.fh
         call util_file_name(lbl_nmrcs,.false.,.false.,zorafilename)
-      icalczora = 0  ! initialize the flag
-      type_nmrdata=1 ! =1,2,3=shieldings,hyperfine,gshift      
-      if (.not.dft_zoraNMR_read(zorafilename,
+       icalczora = 0  ! initialize the flag
+       type_nmrdata=1 ! =1,2,3=shieldings,hyperfine,gshift      
+       if (.not.dft_zoraNMR_read(zorafilename,
      &     type_nmrdata,
      &     nbf,nat_slc,
      &     g_AtNr1,ga_dia,
      &     ga_para1,ga_h01_num,ga_Fji)) icalczora=1 
 c Note.- If I print the GAs here it gets freezed
+      endif ! ======================if-do_zora-END
 c ++++++ Reading shieldings data from file ++++++ END
       if (debug_giaox.eq.1) then
         if (ga_nodeid().eq.0)
@@ -902,7 +902,7 @@ c ------- TEST: get_par() get_dia()------ START
      &   nat_slc,         ! IN  : nr. atoms
      &   geom,
      &   rtdb,
-     &   oskel)
+     &   oskel)           ! IN  : = .false.
       endif
 
       call get_dia(dbl_mb(k_dia),   ! OUT: dia tensor
@@ -915,7 +915,7 @@ c ------- TEST: get_par() get_dia()------ START
      &             dbl_mb(k_xyz),   ! IN : nuclear positions
      &             nat_slc,         ! IN : selected atoms
      &             rtdb,            ! IN : rtdb handle
-     &             oskel)            
+     &             oskel)           ! IN : = .false
 c ------- TEST: get_par() get_dia()------ END
 c +++++++++ print-total-pardia-transferred +++ START
        if (ga_nodeid().eq.0) then
@@ -1087,7 +1087,8 @@ c ---- Destroy stored ga arrays ------ START
            if (.not. ga_destroy(g_d1_oo)) call errquit(
      &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)  
            if (.not. ga_destroy(g_d1_ov)) call errquit(
-     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)  
+     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR) 
+       if (do_zora) then 
            if (.not. ga_destroy(ga_dia)) call errquit(
      &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)  
         if (.not. ga_destroy(ga_para1)) call errquit(
@@ -1097,7 +1098,8 @@ c ---- Destroy stored ga arrays ------ START
         if (.not. ga_destroy(ga_Fji)) call errquit(
      &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)    
         if (.not. ga_destroy(g_AtNr1)) call errquit(
-     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)            
+     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR) 
+       endif           
 c ---- Destroy stored ga arrays ------ END
 c
 c     Clean up all remaining memory
@@ -1154,7 +1156,7 @@ c     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
      &                   natoms,    ! IN  : nr. atoms
      &                   geom,
      &                   rtdb,
-     &                   oskel)
+     &                   oskel)     ! IN  : =.false.
 c Purpose : Assemble NMR Chemical Shielding: paramagnetic tensor
 c Author  : Fredy Aquino
 c Date    : 03-03-11, 11-23-12 (adding Fukui term)
@@ -1312,6 +1314,11 @@ c -------- get R_nu ------------- START
      $    call errquit('get_par: g_R', 0,GA_ERR)
        enddo
        call get_chi_centers_ga(g_R,basis,nbf,geom,natoms)
+c       if (ga_nodeid().eq.0)
+c     &   write(*,*) '----------g_R--------- START'
+c       call ga_print(g_R)
+c       if (ga_nodeid().eq.0)
+c     &   write(*,*) '----------g_R--------- END'
 c -------- get R_nu ------------- END
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> nonrel'
@@ -1327,6 +1334,7 @@ c ----- Calculate g_h01 --------- START
       call ga_zero(g_h01)
       call int_giao_1ega(basis,basis,g_h01,'h01',pos(1),
      &                   natoms,oskel)
+
          if (debug_get_par.eq.1) then
           if (ga_nodeid().eq.0)
      &     write(*,*) '------ g_h01 --------- START'
@@ -1350,6 +1358,18 @@ c ----- Calculate g_h01 --------- END
        dlo(2) = 1
        dhi(2) = nbf
        ind=0
+
+c       if (ga_nodeid().eq.0) 
+c     &   write(*,*) '-------g_dens(1)----START'
+c       call ga_print(g_dens(1))
+c       if (ga_nodeid().eq.0) 
+c     &   write(*,*) '-------g_dens(1)----END'
+c       if (ga_nodeid().eq.0) 
+c     &   write(*,*) '-------g_dens(2)----START'
+c       call ga_print(g_dens(2))
+c       if (ga_nodeid().eq.0) 
+c     &   write(*,*) '-------g_dens(2)----END'
+
        do iatom = 1, natoms
         do iy = 1, 3
          blo(3) = blo(3) + 1
@@ -1374,6 +1394,17 @@ c ----- Calc. Fukui term ------- START
           call ga_scale_cols(g_t2,g_R(a))          ! R_{nu,b} g_N
           call ga_scale_rows(g_t2,g_R(b))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t2
           call ga_add(1.0d0,g_t1,-1.0d0,g_t2,g_t3) ! g_t3=-4c^2 <chi_mu|i/(2c)(R_mu x R_nu)_k h_t^{01}|chi_nu>
+
+c          if (ga_nodeid().eq.0) then
+c           write(*,2) iatom,ix,iy
+c 2         format('-------g_t3(',i4,',',i4,',',i4,')----START')
+c          endif
+c           call ga_print(g_t3)
+c          if (ga_nodeid().eq.0) then
+c           write(*,3) iatom,ix,iy
+c 3         format('-------g_t3(',i4,',',i4,',',i4,')----END')
+c          endif
+
           val=0.0d0
           do ispin=1,npol
            val=val+nga_ddot_patch(g_dens(ispin),'n',dlo,dhi,
@@ -1475,7 +1506,8 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      &                   pos,         ! IN  : Nuclear positions (x,y,z)
      &                   natoms,      ! IN  : nr. atoms
      &                   geom,
-     &                   rtdb)
+     &                   rtdb,
+     &                   oskel)
 c Purpose : Assemble NMR Chemical Shielding: paramagnetic tensor
 c Author  : Fredy Aquino
 c Date    : 03-03-11, 11-23-12 (adding Fukui term)

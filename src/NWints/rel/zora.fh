@@ -54,7 +54,7 @@ czora-nmr-cs FA
         character*(*) lbl_cphfgshift
         parameter(lbl_cphfgshift='zora_gshiftcphf')
         character*(*) lbl_cphfshield
-        parameter(lbl_cphfshield='zora_shieldcphf')
+        parameter(lbl_cphfshield='shieldcphf')
         character*(*) lbl_cphfhyp
         parameter(lbl_cphfhyp='zora_hypcphf')
         logical do_NonRel

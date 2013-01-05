@@ -1036,7 +1036,7 @@ c     Broadcast status to other nodes
       dft_zoraCPHF_write = (ok .eq. 1)
       if (ga_nodeid() .eq. 0) then
          write(6,22) filename(1:inp_strlen(filename))
- 22      format(/' Wrote ZORA CPHF data to ',a/)
+ 22      format(/' Wrote CPHF data to ',a/)
          call util_flush(luout)
       endif
       return
