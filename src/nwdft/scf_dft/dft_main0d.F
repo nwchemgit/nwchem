@@ -78,6 +78,7 @@ c
       logical status
       logical ldirect, xc_active
       character*32 pname
+      character*1 yev0
 c 
       double precision eone, etwo, enrep, energy
       double precision dft_time
@@ -466,8 +467,11 @@ c
       if (odftps) call pstat_on(ps_diag)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-         call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),nb,
-     P     'd',nb) 
+c     we need all eigenvectors for the overlap matrix,
+         yev0=yev
+         if(yev.eq.'m')  yev='r'
+         call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals), idum)
+         yev=yev0
 #else
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #endif
