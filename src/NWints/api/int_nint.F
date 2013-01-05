@@ -1,5 +1,19 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Calculate the number of integrals for a given
+C> shell quartet
+C>
+C> This is an internal routine which should never be called by an
+C> NWChem application module directly.
+C>
+C> This routine computes the number of integrals for a given 
+C> shell/contraction grouping; if an input shell is zero then 
+C> the routine ignores this shell.  This routine works
+C> for both cartesian and spherical basis sets.
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nint}
 c:tex-This routine computes the number of integrals for a given 
@@ -21,14 +35,14 @@ c
 #include "errquit.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] contraction index (e.g., ish)
-      integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] contraction index (e.g., jsh)
-      integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] contraction index (e.g., ksh)
-      integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] contraction index (e.g., lsh)
+      integer ibasin   !< [Input] basis set handle for icnt
+      integer icnt     !< [Input] contraction index (e.g., ish)
+      integer jbasin   !< [Input] basis set handle for jcnt
+      integer jcnt     !< [Input] contraction index (e.g., jsh)
+      integer kbasin   !< [Input] basis set handle for kcnt
+      integer kcnt     !< [Input] contraction index (e.g., ksh)
+      integer lbasin   !< [Input] basis set handle for lcnt
+      integer lcnt     !< [Input] contraction index (e.g., lsh)
 c:tex-\end{verbatim}
 c::local
       integer hi,lo,nbf
@@ -79,6 +93,19 @@ c..lcnt/lsh
         int_nint = int_nint*nbf
       endif
       end
+C>
+C> \brief Calculate the number of integrals for a given
+C> quartet of unique shells
+C>
+C> This is an internal routine which should never be called by an
+C> NWChem application module directly.
+C>
+C> This routine computes the number of integrals for a given 
+C> shell/contraction grouping; if an input shell is zero then 
+C> the routine ignores this shell. The input shell must be a
+C> unique shell in the sense of the basis set API. This routine
+C> works for both cartesian and spherical basis sets.
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_unint}
 c:tex-This routine computes the number of integrals for a given 
@@ -101,14 +128,14 @@ c::functions
       external nbf_from_ucont
 c::passed
 c:tex-\begin{verbatim}
-      integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] unique contraction index (e.g., ish)
-      integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] unique contraction index (e.g., jsh)
-      integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] unique contraction index (e.g., ksh)
-      integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] unique contraction index (e.g., lsh)
+      integer ibasin   !< [Input] basis set handle for icnt
+      integer icnt     !< [Input] unique contraction index (e.g., ish)
+      integer jbasin   !< [Input] basis set handle for jcnt
+      integer jcnt     !< [Input] unique contraction index (e.g., jsh)
+      integer kbasin   !< [Input] basis set handle for kcnt
+      integer kcnt     !< [Input] unique contraction index (e.g., ksh)
+      integer lbasin   !< [Input] basis set handle for lcnt
+      integer lcnt     !< [Input] unique contraction index (e.g., lsh)
 c:tex-\end{verbatim}
 c::local
       integer nbf
@@ -149,6 +176,25 @@ c..lcnt/lsh
         int_unint = int_unint*nbf
       endif
       end
+C>
+C> \brief Calculate the number of cartesian integrals for a given
+C> shell quartet
+C>
+C> This is an internal routine which should never be called by an
+C> NWChem application module directly.
+C>
+C> This routine computes the number of integrals for a given 
+C> shell/contraction grouping; if an input shell is zero then 
+C> the routine ignores this shell.  This routine will work 
+C> for both cartesian and spherical basis sets. However, in either
+C> case it will calculate the number of integrals as if the basis sets
+C> were cartesian. The reason for this is that in the case of
+C> spherical harmonic basis sets the integral codes calculate the
+C> cartesian integrals first and transform them to spherical harmonics.
+C> Because of this all buffers have to be large enough to hold the 
+C> larger sets of cartesian integrals that are calculated as 
+C> intermediates.
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nint\_cart}
 c:tex-This routine computes the number of integrals for a given 
@@ -173,14 +219,14 @@ c:tex-\end{verbatim}
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] contraction index (e.g., ish)
-      integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] contraction index (e.g., jsh)
-      integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] contraction index (e.g., ksh)
-      integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] contraction index (e.g., lsh)
+      integer ibasin   !< [Input] basis set handle for icnt
+      integer icnt     !< [Input] contraction index (e.g., ish)
+      integer jbasin   !< [Input] basis set handle for jcnt
+      integer jcnt     !< [Input] contraction index (e.g., jsh)
+      integer kbasin   !< [Input] basis set handle for kcnt
+      integer kcnt     !< [Input] contraction index (e.g., ksh)
+      integer lbasin   !< [Input] basis set handle for lcnt
+      integer lcnt     !< [Input] contraction index (e.g., lsh)
 c:tex-\end{verbatim}
 c:local
       integer type, nprim, ngen, spcart
@@ -235,6 +281,26 @@ c..lcnt/lsh
         int_nint_cart = int_nint_cart*nbf
       endif
       end
+C>
+C> \brief Calculate the number of cartesian integrals for a given
+C> quartet of unique shells
+C>
+C> This is an internal routine which should never be called by an
+C> NWChem application module directly.
+C>
+C> This routine computes the number of integrals for a given 
+C> shell/contraction grouping; if an input shell is zero then 
+C> the routine ignores this shell. The shells have to be unique
+C> shells in the sense of the basis set API. This routine will work 
+C> for both cartesian and spherical basis sets. However, in either
+C> case it will calculate the number of integrals as if the basis sets
+C> were cartesian. The reason for this is that in the case of
+C> spherical harmonic basis sets the integral codes calculate the
+C> cartesian integrals first and transform them to spherical harmonics.
+C> Because of this all buffers have to be large enough to hold the 
+C> larger sets of cartesian integrals that are calculated as 
+C> intermediates.
+C>
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_unint\_cart}
 c:tex-This routine computes the number of integrals for a given 
@@ -259,14 +325,14 @@ c:tex-\end{verbatim}
 c
 c::passed
 c:tex-\begin{verbatim}
-      integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] unique contraction index (e.g., ish)
-      integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] unique contraction index (e.g., jsh)
-      integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] unique contraction index (e.g., ksh)
-      integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] unique contraction index (e.g., lsh)
+      integer ibasin   !< [Input] basis set handle for icnt
+      integer icnt     !< [Input] unique contraction index (e.g., ish)
+      integer jbasin   !< [Input] basis set handle for jcnt
+      integer jcnt     !< [Input] unique contraction index (e.g., jsh)
+      integer kbasin   !< [Input] basis set handle for kcnt
+      integer kcnt     !< [Input] unique contraction index (e.g., ksh)
+      integer lbasin   !< [Input] basis set handle for lcnt
+      integer lcnt     !< [Input] unique contraction index (e.g., lsh)
 c:tex-\end{verbatim}
 c::local
       integer type, nprim, ngen, spcart
@@ -323,7 +389,7 @@ c..lcnt/lsh
         nbf = int_nbf_x(type)*ngen
         int_unint_cart = int_unint_cart*nbf
       endif
-* not used :      end
+      end
 * not used :      integer function int_nint_raw(ibasin,icnt,jbasin,jcnt,
 * not used :     &       kbasin,kcnt,lbasin,lcnt)
 * not used :      implicit none
@@ -455,4 +521,5 @@ c..lcnt/lsh
 * not used :        nbf = int_nbf_x(type)
 * not used :        int_unint_raw = int_unint_raw*nbf
 * not used :      endif
-      end
+* not used :      end
+C> @}

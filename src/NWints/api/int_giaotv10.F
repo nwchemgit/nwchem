@@ -9,7 +9,14 @@ C>
 C> Compute the kinetic energy and nuclear attraction 1-electron GIAO integrals
 C> perturbed by the nuclear magnetic moments.
 C> For a definition of the GIAO basis functions see the
-C> `int_giao_2e` routine.
+C> `int_giao_2e` routine (see also [1]).
+C>
+C> [1] M. Dupuis,
+C>     "New integral transforms for molecular properties and application
+C>     to a massively parallel GIAO-SCF implementation",
+C>     Comp. Phys. Comm. <b>134</b>, 150-166 (2001), DOI:
+C>     <a href="http://dx.doi.org/10.1016/S0010-4655(00)00195-8">
+C>     10.1016/S0010-4655(00)00195-8</a>.
 C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaotv10}

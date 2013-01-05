@@ -1,5 +1,28 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute projected multipole integrals up to the specified level
+C>
+C> This routine computes projected multipole integrals up to level 
+C> \f$l_{max}\f$ (\f$0 \rightarrow l_{max}\f$).
+C> The general form is \f$\langle pole | shell \rangle\f$.
+C>  
+C> Integrals are returned in \f$\langle pole | shell \rangle\f$ blocks
+C> one block for each \f$L\f$ value \f$0 \rightarrow l_{max}\f$. 
+C> 
+C> For example, a multipole, L = 1 and a D shell 
+C> would yield (1+3)*6 = 24 integrals.
+C> 
+C> The order would be:
+C> <table>
+C> <tr><td> <0|xx> </td><td> <0|xy> </td><td> <0|xz> </td><td> <0|yy> </td><td> \f$\ldots\f$ </td><td> <0|zz> </td><td> first six </td></tr>
+C> <tr><td> <x|xx> </td><td> <x|xy> </td><td> <x|xz> </td><td> <x|yy> </td><td> \f$\ldots\f$ </td><td> <x|zz> </td><td> second six </td></tr>
+C> <tr><td> <y|xx> </td><td> <y|xy> </td><td> <y|xz> </td><td> <y|yy> </td><td> \f$\ldots\f$ </td><td> <y|zz> </td><td> third six </td></tr>
+C> <tr><td> <z|xx> </td><td> <z|xy> </td><td> <z|xz> </td><td> <z|yy> </td><td> \f$\ldots\f$ </td><td> <z|zz> </td><td> third six </td></tr>
+C> </table>
+C>
 c:tex-% This is part of the standard API routines
 c:tex-\subsection{int\_projpole}
 c:tex-This routine computes projected multipole integrals up to level 
@@ -48,16 +71,16 @@ c::functions
       external int_nint_cart, int_nint
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis             ! [input] basis set handle for ish
-      integer ish                 ! [input] i shell/contraction
-      integer lmax                ! [input] maximum lvalue for 
-c . . . . . . . . . . . . . . . . !      multipole ints in this batch
-      double precision centerl(3) ! [input] coordinates of multipole
-      integer lscr                ! [input] length of scratch array
-      double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input/output] length of 
-c . . . . . . . . . . . . . . . . !       multipole integrals array
-      double precision MP(lmpint) ! [output] multipole integrals
+      integer i_basis             !< [Input] basis set handle for ish
+      integer ish                 !< [Input] i shell/contraction
+      integer lmax                !< [Input] maximum lvalue for 
+                                  !< multipole ints in this batch
+      double precision centerl(3) !< [Input] coordinates of multipole
+      integer lscr                !< [Input] length of scratch array
+      double precision scr(lscr)  !< [Input] scratch array
+      integer lmpint              !< [Input/Output] length of 
+                                  !< multipole integrals array
+      double precision MP(lmpint) !< [Output] multipole integrals
 c:tex-\end{verbatim}
 c::local      
       logical shells_ok
@@ -152,3 +175,4 @@ c.............. dryrun
 c
 00100 continue
       end
+C> @}
