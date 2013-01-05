@@ -78,7 +78,10 @@ C>
 c
       integer i
 c
-      nwxc_usr_add_func = .false.
+      logical  nwxc_set_dependencies
+      external nwxc_set_dependencies
+c
+      nwxc_usr_add_func = .true.
 c
       i = 1 
       do while (i.le.nwxc_usr_num.and.nwxc_usr_ids(i).ne.iterm)
@@ -88,16 +91,17 @@ c
 c       the functional was not found on the list
         if (nwxc_usr_num.ge.NWXC_MAX_F) then
 c         we are out of space
+          nwxc_usr_add_func = .false.
           return
         endif
         nwxc_usr_num = nwxc_usr_num + 1
         nwxc_usr_ids(nwxc_usr_num)   = iterm
         nwxc_usr_wghts(nwxc_usr_num) = weight
+        nwxc_usr_add_func = nwxc_set_dependencies(iterm)
       else
 c       the functional was found on the list
         nwxc_usr_wghts(i) = nwxc_usr_wghts(i) + weight
       endif
-      nwxc_usr_add_func = .true.
 c
       return
       end
@@ -181,6 +185,42 @@ C>
       nwxc_set_rho_tolerance = .false.
       if (tol.lt.0.0d0) return
       nwxc_rho_tol = tol
+      return
+      end
+C>
+C> \brief Set the dependencies for the new functional term
+C>
+C> An important aspect in DFT is to keep track of what quantities
+C> a functional depends on as this relates to many expressions a code
+C> needs to evaluate. This function updates the appropriate data
+C> in accordance to the term being added.
+C>
+      logical function nwxc_set_dependencies(iterm)
+      implicit none
+#include "nwxcP.fh"
+      integer iterm
+      logical stat
+      stat = .true.
+      select case (iterm)
+        case (NWXC_HFXC,NWXC_MP2C)
+c         do not do anything
+        case (NWXC_X_SLATER)
+          nwxc_depends_on_rho   = .true.
+        case (NWXC_X_PBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+        case (NWXC_C_PW91LDA)
+          nwxc_depends_on_rho   = .true.
+        case (NWXC_C_PBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+        case (NWXC_PBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+        case default
+          stat = .false.
+      end select
+      nwxc_set_dependencies = stat
       return
       end
 C> @}

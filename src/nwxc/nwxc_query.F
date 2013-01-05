@@ -335,6 +335,10 @@ c
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXC_C_PW91LDA)
+           cdata = "PW91 LDA Correlation (JP Perdew, Y Wang, "
+     +             //"Phys.Rev.B 45, 13244, (1992)"
+     +             //" doi:10.1103/PhysRevB.45.13244)"
          case (NWXC_C_PBE)
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"

@@ -89,6 +89,12 @@ C
            case (NWXC_X_PBE)
              call nwxc_x_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXC_C_PW91LDA)
+             call nwxc_c_pw91lda(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                           rho,f,dfdr)
+           case (NWXC_C_PBE)
+             call nwxc_c_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case default
              call errquit("nwxc_eval_df: invalid functional",
      +                    nwxc_ids(it),UERR)

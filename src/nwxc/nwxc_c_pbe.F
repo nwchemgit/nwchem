@@ -44,10 +44,10 @@ C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
 C>
 #ifndef SECOND_DERIV
-      Subroutine nwxc_c_pbe(clda, tol_rho, ipol, nq, wght, rho, rgamma, 
+      Subroutine nwxc_c_pbe(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                      ffunc, Amat, Cmat) 
 #else
-      Subroutine nwxc_c_pbe_d2(clda, tol_rho, ipol, nq, wght, rho,
+      Subroutine nwxc_c_pbe_d2(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, ffunc, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
@@ -59,7 +59,6 @@ c
 c
 c     Input and other parameters
 c
-      external clda            !< [Input] The LDA correlation functional
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -234,10 +233,11 @@ c        LDA part
 c        ========
 c
 #ifndef SECOND_DERIV
-         call clda(tol_rho, ipol, 1, 1.0d0, rho_t(2), nepsc, dnepscdn) 
+         call nwxc_c_pw91lda(tol_rho, ipol, 1, 1.0d0, rho_t(2),
+     &                       nepsc, dnepscdn) 
 #else
-         call clda(tol_rho, ipol, 1, 1.0d0, rho_t(2), nepsc, dnepscdn,
-     &             d2nepscdn2)
+         call nwxc_c_pw91lda_d2(tol_rho, ipol, 1, 1.0d0, rho_t(2),
+     &                          nepsc, dnepscdn, d2nepscdn2)
 #endif
 c
 c        ==================

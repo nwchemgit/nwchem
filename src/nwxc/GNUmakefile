@@ -6,7 +6,8 @@
     OBJ_OPTIMIZE = 
 
              OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
-                   nwxc_x_dirac.o nwxc_x_pbe.o nwxc_c_pbe.o
+                   nwxc_x_dirac.o nwxc_c_pw91lda.o nwxc_x_pbe.o \
+                   nwxc_c_pbe.o
 
          HEADERS = nwxc.fh nwxc_param.fh
 
