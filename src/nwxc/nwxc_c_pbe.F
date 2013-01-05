@@ -91,7 +91,7 @@ c
       double precision GAMMA, BETA, PI
       parameter (GAMMA = 0.03109069086965489503494086371273d0)
       parameter (BETA = 0.06672455060314922d0)
-      parameter (PI = 3.1415926535897932385d0)
+c     parameter (PI = 3.1415926535897932385d0)
 c
 c     Threshold parameters
 c
@@ -200,6 +200,8 @@ c  Derivatives of these are named like d...dna, d2...dnadnb,
 c  d2...dna2, etc.
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
+c
+      pi = acos(-1.0d0)
 c
       do 20 n = 1, nq
 c

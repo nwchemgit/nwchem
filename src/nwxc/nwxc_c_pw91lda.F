@@ -57,7 +57,7 @@ c
       double precision onethird, fourthirds, twothirds, pi
       Parameter (onethird = 1.D0/3.D0, fourthirds = 4.D0/3.D0)
       Parameter (twothirds = 2.D0/3.D0)
-      Parameter (pi = 3.1415926535898D0)
+c     Parameter (pi = 3.1415926535898D0)
 c
 c     Functional Parameters
 c
@@ -89,6 +89,7 @@ c
 c
 c     Define miscellaneous parameters.
 c
+      pi = acos(-1.0d0)
       p0 = (1.0d0/(fourthirds*pi))**onethird
       p1 = 0.5D0/(2.d0**onethird - 1.d0)
       p2 = fourthirds*p1

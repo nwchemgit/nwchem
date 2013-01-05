@@ -335,6 +335,10 @@ c
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXC_X_VS98)
+           cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
+     +             //"J.Chem.Phys. 109, 400, (1998)"
+     +             //" doi:10.1063/1.3005348)"
          case (NWXC_C_PW91LDA)
            cdata = "PW91 LDA Correlation (JP Perdew, Y Wang, "
      +             //"Phys.Rev.B 45, 13244, (1992)"
@@ -343,10 +347,18 @@ c
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXC_C_VS98)
+           cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
+     +             //"J.Chem.Phys. 109, 400, (1998)"
+     +             //" doi:10.1063/1.3005348)"
          case (NWXC_PBE)
            cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXC_VS98)
+           cdata = "VS98 (T van Voorhis, GE Scuseria, "
+     +             //"J.Chem.Phys. 109, 400, (1998)"
+     +             //" doi:10.1063/1.3005348)"
          case default
            stat = .false.
        end select

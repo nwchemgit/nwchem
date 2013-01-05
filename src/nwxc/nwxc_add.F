@@ -163,6 +163,28 @@ c
         nwxc_add_df = nwxc_usr_add_func(NWXC_MP2C,dfweight)
       else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXC_X_SLATER,dfweight)
+      else if (dfname.eq."xpbe96") then
+        nwxc_add_df = nwxc_all_add_func(NWXC_X_PBE,dfweight)
+      else if (dfname.eq."xvs98") then
+        nwxc_add_df = nwxc_all_add_func(NWXC_X_VS98,dfweight)
+      else if (dfname.eq."cpw91lda") then
+        nwxc_add_df = nwxc_all_add_func(NWXC_C_PW91LDA,dfweight)
+      else if (dfname.eq."cpbe96") then
+        nwxc_add_df = nwxc_all_add_func(NWXC_C_PBE,dfweight)
+      else if (dfname.eq."cvs98") then
+        nwxc_add_df = nwxc_all_add_func(NWXC_C_VS98,dfweight)
+      else if (dfname.eq."pbe96") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXC_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXC_X_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXC_C_PBE,dfweight)
+      else if (dfname.eq."vs98") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXC_VS98,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXC_X_VS98,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXC_C_VS98,dfweight)
       else
 c       Oh dear, the functional was not recognized
       endif
@@ -209,14 +231,26 @@ c         do not do anything
         case (NWXC_X_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
+        case (NWXC_X_VS98)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+          nwxc_depends_on_tau   = .true.
         case (NWXC_C_PW91LDA)
           nwxc_depends_on_rho   = .true.
         case (NWXC_C_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
+        case (NWXC_C_VS98)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+          nwxc_depends_on_tau   = .true.
         case (NWXC_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
+        case (NWXC_VS98)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+          nwxc_depends_on_tau   = .true.
         case default
           stat = .false.
       end select

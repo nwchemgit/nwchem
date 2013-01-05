@@ -24,15 +24,25 @@ c
       integer NWXC_X_PBE        !< The PBE exchange functional
       parameter (NWXC_X_PBE = NWXC_X_SLATER + 1)
 c
+      integer NWXC_X_VS98       !< The VS98 exchange functional
+      parameter (NWXC_X_VS98 = NWXC_X_PBE + 1)
+c
       integer NWXC_C_PW91LDA    !< The PW91 LDA correlation functional
-      parameter (NWXC_C_PW91LDA = NWXC_X_PBE + 1)
+      parameter (NWXC_C_PW91LDA = NWXC_X_VS98 + 1)
 c
       integer NWXC_C_PBE        !< The PBE correlation functional
       parameter (NWXC_C_PBE = NWXC_C_PW91LDA + 1)
 c
+      integer NWXC_C_VS98       !< The VS98 correlation functional
+      parameter (NWXC_C_VS98 = NWXC_C_PBE + 1)
+c
       integer NWXC_PBE          !< The PBE functional 
                                 !< (exchange and correlation)
-      parameter (NWXC_PBE = NWXC_C_PBE + 1)
+      parameter (NWXC_PBE = NWXC_C_VS98 + 1)
+c
+      integer NWXC_VS98         !< The VS98 functional 
+                                !< (exchange and correlation)
+      parameter (NWXC_VS98 = NWXC_PBE + 1)
 C  
 C  Internally the functional specification will be stored using 
 C  a collection of datastructures. For specific terms that the library
