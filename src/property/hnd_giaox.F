@@ -371,7 +371,7 @@ c
       NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic
       call int_giao_1ega(basis,basis,g_s10,'tv10',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
-c ++++++++++++ COSMO-added-07-13-11+++++++++++++ START
+c
 c     Get external and cosmo bq contribution
       nbq = 0
       nextbq = 0
@@ -386,7 +386,6 @@ c     Get external and cosmo bq contribution
         call int_giao_1ega(basis,basis,g_s10,'bq10',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
       end if
-c ++++++++++++ COSMO-added-07-13-11+++++++++++++ END
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs

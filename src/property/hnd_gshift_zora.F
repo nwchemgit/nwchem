@@ -2110,7 +2110,7 @@ c ----------- Create scratch ga-arrays ------- END
      &              1.0d0, ga_Fji, ! update g_s10_1 with ga_Fji
      &              g_s10_1)       ! out
       endif
-c ++++++++++++ COSMO-added-07-13-11+++++++++++++ START
+c
 c     Get external and cosmo bq contribution
       nbq = 0
       nextbq = 0
@@ -2125,7 +2125,7 @@ c     Get external and cosmo bq contribution
         call int_giao_1ega(basis,basis,g_s10_1,'bq10',dbl_mb(k_xyz),
      &                     natoms,oskel)
       end if
-c ++++++++++++ COSMO-added-07-13-11+++++++++++++ END
+c
 c     Transform H10 to MO and add to g_rhs
 c     Copy: g_s10_1 --> g_s10
        blo(1) = 1
@@ -4924,7 +4924,7 @@ c     &                     'tv10',pos(1),natoms,oskel)
      &              1.0d0,ga_Fji, ! update g_s10_1 with ga_Fji
      &                    g_s10_1)! out
       endif
-c ++++++++++++ COSMO-added-07-13-11+++++++++++++ START
+c
 c     Get external and cosmo bq contribution
       nbq = 0
       nextbq = 0
@@ -4939,7 +4939,7 @@ c     Get external and cosmo bq contribution
         call int_giao_1ega(basis,basis,g_s10_1,'bq10',dbl_mb(k_xyz),
      &                     natoms,oskel)
       end if
-c ++++++++++++ COSMO-added-07-13-11+++++++++++++ END
+c
 c     Transform H10 to MO and add to g_rhs
 c     Copy: g_s10_1 --> g_s10
        blo(1) = 1
