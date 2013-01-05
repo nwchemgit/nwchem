@@ -79,9 +79,9 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,*)
-      double precision Cmat(nq,*)
-      double precision Mmat(nq,*)
+      double precision Amat(nq,*) !< [Output] The derivative wrt rho
+      double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
+      double precision Mmat(nq,*) !< [Output] The derivative wrt tau
 c
 c     Local
 c
