@@ -57,7 +57,7 @@ c $Id$
      &         dft_zoraNMR_read,get_slctd_atoms
       logical dft_zoraNMR_read
       double precision val1
-      logical     oskel, status
+      logical  oskel, status,debug_cs
       double precision val_ov_Coul,val_ov_Exch,val_ov_noJK,
      &                 val_ov_1e,val_ov_eSji
 
@@ -874,7 +874,8 @@ c ------- TEST: get_par() get_dia()------ START
      &   nbf,             ! IN  : nr. basis functions
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
      &   nat_slc,         ! IN  : nr. atoms
-     &   rtdb)
+     &   rtdb,
+     &   oskel)
       if (.not. ga_destroy(g_d1_ov_Coul)) call errquit(  
      &  'hnd_giaox_zora: ga_destroy failed g_d1_ov_Coul',0, GA_ERR)
       if (.not. ga_destroy(g_d1_ov_Exch)) call errquit(  
@@ -918,6 +919,8 @@ c ------- TEST: get_par() get_dia()------ START
      &             oskel)           ! IN : = .false
 c ------- TEST: get_par() get_dia()------ END
 c +++++++++ print-total-pardia-transferred +++ START
+      debug_cs=.false.
+      if (debug_cs) then
        if (ga_nodeid().eq.0) then
       ic=1
        do iatom = 1, nat_slc
@@ -960,6 +963,7 @@ c +++++++++ print-total-pardia-transferred +++ START
         enddo ! end-loop-ix
        enddo ! end-loop-iatom
        endif ! end-if-ga_nodeid-eq-0
+      endif ! end-if-debug_cs
 c +++++++++ print-total-dia-transferred +++ END
       if (.not.ma_pop_stack(l_fukui)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_fukui',0,MA_ERR)
@@ -1723,9 +1727,12 @@ c ----- Calc. Fukui term ------- START
           val=val+nga_ddot_patch(g_dens(ispin),'n',dlo,dhi,
      &                                    g_t3,'n',dlo,dhi)         
          enddo ! end-loop-ispin
+
          Fukui(ix,iy,iatom)=val*ppm
-         write(*,1) ix,iy,iatom,Fukui(ix,iy,iatom)
- 1       format('Fukui(',i4,',',i4,',',i4,')=',f15.8)
+
+c         write(*,1) ix,iy,iatom,Fukui(ix,iy,iatom)
+c 1       format('Fukui(',i4,',',i4,',',i4,')=',f15.8)
+
 c ----- Calc. Fukui term ------- END
 c ----- store in par_arr ------- START
           par_arr(ind+1)=Fukui(ix,iy,iatom)
@@ -1897,11 +1904,11 @@ c Note.- Printing lines below does not affect output
 c        It is ok to print it out but I will comment to
 c        reduce printouts.
 
-             if (ga_nodeid().eq.0) then
-              write(*,1) ix1,iy1,iatom,Fukui(ix1,iy1,iatom)
-  1           format('Fukui(ix1,iy1,iatom)(',i4,',',i4,',',i4,')=',
-     &               f15.8)
-             endif
+c             if (ga_nodeid().eq.0) then
+c              write(*,1) ix1,iy1,iatom,Fukui(ix1,iy1,iatom)
+c  1           format('Fukui(ix1,iy1,iatom)(',i4,',',i4,',',i4,')=',
+c     &               f15.8)
+c             endif
 
             ix1=ix1+1
          enddo ! end-loop-ix
