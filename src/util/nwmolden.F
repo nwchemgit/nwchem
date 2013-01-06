@@ -21,7 +21,7 @@ c
 #include "errquit.fh"
       character*64 filename
 c
-      call util_file_prefix ('molden', filename )
+      call util_file_prefix('molden', filename )
 c
       if (MOLDEN_UNIT.gt.9) then
          open(unit=MOLDEN_UNIT,
@@ -77,6 +77,9 @@ c
       character*32 element
       character*80 buf
       logical status
+c
+c this might be wrong if something other than atomic units
+c are specified in the NWChem geometry input, etc.
 c
       write(MOLDEN_UNIT,100) '[Atoms] AU'
  100  format(a10)
@@ -242,6 +245,8 @@ c
   50  format(a4)
 c
 c     allocate local memory
+c
+c     TODO: this is not scalable and probably won't work in DDSCF scheme
 c
       if (.not.ma_push_get(mt_dbl,nbf,'vector',l_vec,k_vec))
      1    call errquit('nwmolden_movecs: MA alloc. failed',nbf,MA_ERR)
