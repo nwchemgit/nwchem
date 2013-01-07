@@ -1,5 +1,10 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute the velocity integrals
+C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_veloc}
 c:tex-This routine computes the velocity integrals
@@ -32,14 +37,14 @@ c::functions
       external cando_hnd_1e_prp
 c::passed
 c:tex-\begin{verbatim}
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr) ! [scratch] scratch array
-      integer lh11               ! [input] length of h11 buffer
-      double precision h11(lh11) ! [output] h11 integrals
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr) !< [Scratch] scratch array
+      integer lh11               !< [Input] length of h11 buffer
+      double precision h11(lh11) !< [Output] h11 integrals
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -146,3 +151,4 @@ c     We now have the integrals in array (nsph_ints,3)
 c
       return
       end
+C> @}

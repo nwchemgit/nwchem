@@ -3,22 +3,25 @@ c $Id$
 C> \ingroup nwint
 C> @{
 C>
-C> \brief Compute the 1-electron diamagnetic spin-spin integrals
+C> \brief Compute the 1-electron diamagnetic spin-orbit integrals
 C>
-C> Compute the 1-electron diamagnetic spin-spin integrals as defined
-C> by (see e.g. [1]):
+C> Compute the 1-electron diamagnetic spin-orbit integrals as defined
+C> by (see e.g. [1], Equation (2.5e)):
 C> \f{eqnarray*}{
-C>   I_{x,x'} &=&  \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{(X_A-r_1)_x(X_B-r_1)_{x'}}{|X_A-r_1|^3|X_B-r_1|^3}g_{\nu}(X_{\nu},r_{1})dr_{1},\; A \ne B
+C>   I_{x,x'} &=&  \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})
+C>     \frac{(X_A-r_1)\cdot(X_B-r_1)\delta_{x,x'}-(X_A-r_1)_x(X_B-r_1)_{x'}}
+C>     {|X_B-r_1|^3}g_{\nu}(X_{\nu},r_{1})dr_{1}
 C> \f}
-C> Where \f$ A \f$ and \f$ B \f$ are the atoms for which the spin-spin
+C> Where \f$ A \f$ and \f$ B \f$ are the atoms for which the spin-orbital
 C> integrals are evaluated, \f$ x \f$ and \f$ x' \f$ are the corresponding
 C> Cartesian coordinates.
 C>
-C> [1] O. Matsuoka, T. Aoyama,
-C>     "Molecular integral of diamagnetic contribution to nuclear
-C>      spin-spin coupling constant",
-C>     J. Chem. Phys. <b>73</b>, 5718-5720 (1980), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.440051">10.1063/1.440051</a>.
+C> [1] M. Dupuis,
+C>     <i>"New integral transforms for molecular properties and applications
+C>      to a massively parallel GIAO-SCF implementation"</i>,
+C>     Comp. Phys. Comm. <b>134</b>, 150-166 (2001), DOI:
+C>     <a href="http://dx.doi.org/10.1016/S0010-4655(00)00195-8">
+C>     10.1016/S0010-4655(00)00195-8</a>.
 C>
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_dso}

@@ -11,7 +11,7 @@ C> (\f$T\f$),
 C> with labels and zero valued integrals removed:
 C> 
 C> \f{eqnarray*}{
-C> T & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\
+C> T & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\\\
 C>   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
 C> \f}
 C>

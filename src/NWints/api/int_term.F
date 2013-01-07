@@ -1,4 +1,9 @@
 c $Id$
+C> \ingroup nwint
+C> @{
+C>
+C> \brief The main integral termination routine
+C>
 c:tex-
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_terminate}
@@ -63,6 +68,9 @@ c
       endif
 c
       end
+C>
+C> \brief The derivative integral termination routine
+C>
 c:tex-
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_terminate}
@@ -131,6 +139,9 @@ c
       endif
 c
       end
+C>
+C> \brief The 2nd derivative integral termination routine
+C>
 c:tex-
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_terminate}
@@ -181,3 +192,4 @@ c
       endif
 c
       end
+C> @}
