@@ -1678,7 +1678,8 @@ c      end do
       if (occ_tag.gt.0) then
          elocal = 0.0d0
          do nb=1,nbrillq
-            weight = brillioun_weight(Pneb_convert_nb(nb))
+            !weight = brillioun_weight(Pneb_convert_nb(nb))
+            weight = brillioun_weight(nb)
             psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
             occ_shift = cpsi_data_get_chnk(occ_tag,nb)
 
@@ -1701,7 +1702,8 @@ c      end do
       else
          elocal = 0.0d0
          do nb=1,nbrillq
-            weight = brillioun_weight(Pneb_convert_nb(nb))
+            !weight = brillioun_weight(Pneb_convert_nb(nb))
+            weight = brillioun_weight(nb)
             psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
              
             do n=1,neall
