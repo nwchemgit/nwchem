@@ -1,3 +1,18 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute 1-electron Gaussian periodic multipole
+C>  integrals for \f$l\f$ from \f$0\f$ to \f$l_{max}\f$
+C>
+C> See [1] for details.
+C>
+C> [1] JE Jaffe, AC Hess,
+C>     <i>"Gaussian basis density functional theory for systems 
+C>     periodic in two or three dimensions: Energy and forces"</i>,
+C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
+C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    10.1063/1.472866</a>
+C>
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
@@ -46,22 +61,21 @@ c::functions
       external int_chk_init
       external int_nint_cart, int_nint
 c::passed
-      integer i_basis             ! [input] basis set handle for ish
-      integer ish                 ! [input] i shell/contraction
-      integer j_basis             ! [input] basis set handle for jsh
-      integer jsh                 ! [input] j shell/contraction
+      integer i_basis             !< [Input] basis set handle for ish
+      integer ish                 !< [Input] i shell/contraction
+      integer j_basis             !< [Input] basis set handle for jsh
+      integer jsh                 !< [Input] j shell/contraction
 c...     translation vectors are in fractional coordinates 
-      double precision R(3)       ! [input] translation vec on j cont.
-      integer lmax ! [input] maximum lvalue for 
-*.......................................... multipole integrals 
-*.......................................... in this batch
-      double precision centerl(3) ! [input] coordinates of multipole
-      integer lscr                ! [input] length of scratch array
-      double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input] length of multipole 
+      double precision R(3)       !< [Input] translation vec on j cont.
+      integer lmax !< [Input] maximum lvalue for 
+                   !< multipole integrals in this batch
+      double precision centerl(3) !< [Input] coordinates of multipole
+      integer lscr                !< [Input] length of scratch array
+      double precision scr(lscr)  !< [Input] scratch array
+      integer lmpint              !< [Input] length of multipole 
 *.......................................... integrals array
-      double precision MP(lmpint) ! [output] multipole integrals
-      integer num_mpint           ! [output] number of multipole integrals
+      double precision MP(lmpint) !< [Output] multipole integrals
+      integer num_mpint           !< [Output] number of multipole integrals
 c::local      
       logical shells_ok
       integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
@@ -192,3 +206,4 @@ c...................................TriDiag..DryRun
 00100 continue
       num_mpint = num_int
       end
+C> @}

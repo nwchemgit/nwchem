@@ -1,3 +1,18 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute 1-electron Gaussian periodic overlap
+C> integrals
+C>
+C> See [1] for details.
+C>
+C> [1] JE Jaffe, AC Hess,
+C>     <i>"Gaussian basis density functional theory for systems 
+C>     periodic in two or three dimensions: Energy and forces"</i>,
+C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
+C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    10.1063/1.472866</a>
+C>
       subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
 c $Id$
       implicit none
@@ -24,15 +39,15 @@ c::functions
       external cando_nw_1e
       external cando_nw
 c::passed
-      integer i_basis ! basis set handle for ish functions
-      integer j_basis ! basis set handle for jsh functions
-      integer ish     ! lexical contraction/shell index
-      integer jsh     ! lexical contraction/shell index
-      integer lscr    ! length of the scratch array
-      integer lov     ! length of the overlap integral array
-      double precision Ov(lov)   ! overlap integral array
-      double precision scr(lscr) ! scratch array
-      double precision R(3)  ! translational vector fractional coordinates
+      integer i_basis !< [Input] basis set handle for ish functions
+      integer j_basis !< [Input] basis set handle for jsh functions
+      integer ish     !< [Input] lexical contraction/shell index
+      integer jsh     !< [Input] lexical contraction/shell index
+      integer lscr    !< [Input] length of the scratch array
+      integer lov     !< [Input] length of the overlap integral array
+      double precision Ov(lov)   !< [Output] overlap integral array
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision R(3)  !< [Input] translational vector fractional coordinates
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont
@@ -125,3 +140,4 @@ c.............. dryrun
       endif
 c
       end
+C> @}
