@@ -117,7 +117,7 @@
         do n=1,ne(ms)
           call dread(5,dcpl_mb(cfull(1)),n2ft3d)
 
-          write(*,*) "converting .... psi:", n," spin:",ms
+          write(*,'(A,I5,A,I2)') "converting .... psi:", n," spin:",ms
           do k=0,cell_expand(3)-1
           do j=0,cell_expand(2)-1
           do i=0,cell_expand(1)-1

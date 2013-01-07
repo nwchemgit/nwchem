@@ -106,7 +106,8 @@
         do n=1,ne(ms)
           call dread(5,dcpl_mb(cfull(1)),n2ft3d)
           if (control_print(print_medium))
-     >      write(luout,*) "converting .... psi:", n," spin:",ms
+     >      write(luout,'(A,I5,A,I2)') 
+     >      "converting .... psi:", n," spin:",ms
           call wvfnc_expander_convert(ngrid,dcpl_mb(cfull(1)),
      >                               dngrid,dcpl_mb(dcfull(1)))
 
