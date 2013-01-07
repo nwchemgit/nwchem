@@ -4971,3 +4971,31 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_use_grid_cmp     *
+*     *                                 *
+*     ***********************************
+      logical function control_use_grid_cmp()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:use_grid_cmp',mt_log,1,value))
+     >   value = .false.
+
+      control_use_grid_cmp = value
+      return
+      end
+
+
