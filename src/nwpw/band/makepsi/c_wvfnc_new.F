@@ -75,9 +75,11 @@
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
         if (spin_orbit) then
-           write(*,*) "-   spin_orbit, nalpha=nbeta:",ne(1),ne(2)
+           write(*,'(A,2I5)') "-   spin_orbit, nalpha=nbeta:",
+     >                        ne(1),ne(2)
         else
-           write(*,*) "-   spin, nalpha, nbeta:",ispin,ne(1),ne(2)
+           write(*,'(A,I2,2I5)') "-   spin, nalpha, nbeta:",
+     >                           ispin,ne(1),ne(2)
         end if
         call flush(6)
         value = MA_pop_stack(filling(2))
