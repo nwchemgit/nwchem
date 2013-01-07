@@ -167,6 +167,7 @@
 
 *     **** external functions ****
 
+
 *     **** deallocate projector data ****
       call cpsp_projector_end()
 
@@ -191,6 +192,10 @@
       value = value.and.MA_free_heap(locp(2))
       value = value.and.MA_free_heap(nmax(2))
       value = value.and.MA_free_heap(psp_type(2))
+      if (pspspin) then
+         value = value.and.MA_free_heap(pspspin_upions(2))
+         value = value.and.MA_free_heap(pspspin_downions(2))
+      end if
       if (.not. value)
      >  call errquit('cpsp_end:error freeing heap memory',0,MA_ERR)
 
