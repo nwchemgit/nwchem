@@ -108,7 +108,8 @@
         do n=1,ne(ms)
           call dread(5,dcpl_mb(cfull(1)),n2ft3d)
 
-          write(*,*) "converting .... psi:", n," spin:",ms," nb:",nb
+          write(*,'(A,I5,A,I2,A,I5)') 
+     >    "converting .... psi:", n," spin:",ms," nb:",nb
           call c_wvfnc_expander_convert(ngrid,dcpl_mb(cfull(1)),
      >                               dngrid,dcpl_mb(dcfull(1)))
 
