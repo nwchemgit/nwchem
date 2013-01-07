@@ -3,7 +3,7 @@
 *
 
 *     **** common block for nwpw_compcharge data  ****
-      logical isgamma
+      logical isgamma,use_grid_cmp
       integer nion,nkatm,mult_l_max,lm_size_max,npack0,nfft3d
       integer nion_paw,nkatm_paw,katm_paw(2)
       integer katm_pawtoion(2),ion_pawtoion(2)
@@ -29,6 +29,7 @@ c      integer sigma(2)
       integer Qlmy(2)        ! Qlmy(lm=1:(mult_l+1)**2,2,1:nion_paw) = compensation charge coefficients
       integer Qlmz(2)        ! Qlmz(lm=1:(mult_l+1)**2,2,1:nion_paw) = compensation charge coefficients
       integer dEmult_Qlm(2)  ! dEmult_Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = dEmult/dQlm
+      integer dE_Qlm(2)      ! dE_Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = dE/dQlm where E is the total energy of the system
 
       integer nindx_Tndiff(2)
       integer shift_Tndiff(2)
@@ -47,7 +48,7 @@ c      integer sigma(2)
      >                  nion_paw,nkatm_paw,katm_paw,
      >                  katm_pawtoion,ion_pawtoion,
      >                  katm_iontopaw,ion_iontopaw,
-     >                  isgamma
+     >                  isgamma,use_grid_cmp
 
 
 *     ******* Two-Electron Gaussian integral block **********

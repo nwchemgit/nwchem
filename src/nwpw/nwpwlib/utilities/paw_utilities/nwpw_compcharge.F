@@ -41,6 +41,8 @@
       external psi_data_get_ptr
       real*8   nwpw_gaunt
       external nwpw_gaunt
+      logical  control_use_grid_cmp
+      external control_use_grid_cmp
 
       nion         = nion0
       nkatm        = nkatm0
@@ -115,6 +117,9 @@
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
+      !**** use_grid_cmp routines ****
+      use_grid_cmp = control_use_grid_cmp()
+
       !**** band structure code ****
       if ((control_code().eq.5).or.
      >    (control_code().eq.13).or.
@@ -167,6 +172,9 @@
      >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "dEmult_Qlm",dEmult_Qlm(2),dEmult_Qlm(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "dE_Qlm",dE_Qlm(2),dE_Qlm(1))
+      value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
@@ -176,6 +184,7 @@
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmy(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmz(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dE_Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -373,6 +382,7 @@
       value = value.and.MA_free_heap(Qlmy(2))
       value = value.and.MA_free_heap(Qlmz(2))
       value = value.and.MA_free_heap(dEmult_Qlm(2))
+      value = value.and.MA_free_heap(dE_Qlm(2))
       value = value.and.MA_free_heap(shift_Tndiff(2))
       value = value.and.MA_free_heap(nindx_Tndiff(2))
       value = value.and.MA_free_heap(lm_Tndiff(2))
@@ -443,6 +453,19 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
       return
       end 
 
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_gen_dE_Qlm           *
+*     *                                               *
+*     *************************************************
+
+      subroutine nwpw_compcharge_gen_dE_Qlm(ispin,V,Vsmooth)
+      implicit none
+      integer ispin
+      real*8 V(*),Vsmooth(*)
+      return
+      end
+
 
 *     *************************************************
 *     *                                               *
@@ -450,8 +473,10 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
 *     *                                               *
 *     *************************************************
 
-*     This routine computes sw2 for atom ii.
-
+*     This routine computes sw2 from Qlm for atom ii. Where sw2
+*
+*      dE_Qlm/dpsi_i(r) = Sum(I,lm) dE/dQlm * dQlm/dpsi_i(r) = sum(iprj) |iprj> * sw2(iprj,i)
+*     
       subroutine nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nprj,sw1,sw2)
       implicit none
       integer ii,ia
@@ -491,7 +516,7 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
          coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
          do ms=1,ispin
             indx1 = indx + (ms-1)*lm_size_max + lm
-            w     = dbl_mb(dEmult_Qlm(1)+indx1)*coeff
+            w     = dbl_mb(dE_Qlm(1)+indx1)*coeff
             do n=n1(ms),n2(ms)
                sw2(n,iprj) = sw2(n,iprj) + sw1(n,jprj)*w
             end do
