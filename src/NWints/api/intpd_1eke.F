@@ -1,3 +1,18 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute 1-electron Gaussian periodic kinetic energy
+C> integral derivatives
+C>
+C> See [1] for details.
+C>
+C> [1] JE Jaffe, AC Hess,
+C>     <i>"Gaussian basis density functional theory for systems
+C>     periodic in two or three dimensions: Energy and forces"</i>,
+C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
+C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    10.1063/1.472866</a>
+C>
       subroutine intpd_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,
      &    lKea,Kea,idatom)
 *
@@ -29,16 +44,16 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis           ! basis set handle for ish functions
-      integer j_basis           ! basis set handle for jsh functions
-      integer ish               ! lexical contraction/shell index
-      integer jsh               ! lexical contraction/shell index
-      integer lscr              ! length of the scratch array
-      integer lKea              ! length of the keerlap integral array
-      double precision Kea(lKea) ! keerlap integral array
-      double precision scr(lscr) ! scratch array
-      double precision R(3)     ! translational vector fractional coordinates
-      integer idatom(*)         ! [output] array identifying centers for derivatives
+      integer i_basis           !< [Input] basis set handle for ish functions
+      integer j_basis           !< [Input] basis set handle for jsh functions
+      integer ish               !< [Input] lexical contraction/shell index
+      integer jsh               !< [Input] lexical contraction/shell index
+      integer lscr              !< [Input] length of the scratch array
+      integer lKea              !< [Input] length of the integral array
+      double precision Kea(lKea) !< [Output] kinetic energy integral array
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision R(3)     !< [Input] translational vector fractional coordinates
+      integer idatom(*)         ! [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
 c::local
@@ -140,3 +155,4 @@ c........... dryrun
       endif
 c
       end
+C> @}

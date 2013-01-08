@@ -1,3 +1,14 @@
+C> \ingroup nwint
+C> @{
+C> 
+C> \brief Compute the nuclear attaction integrals for pseudo nucleii
+C>
+C> This subroutine is modified from int_1epe. It evaluates the nuclear 
+C> attraction integrals for each pseudo nucleus at positions specified by the
+C> array qxyz, which are just the quardrature points. The effective charges
+C> of these pseudo nuclei are determined by the transition densities and/or 
+C> the quardrature weights.
+C>
 c $Id$
       subroutine int_vstat1e(i_basis,ish,j_basis,jsh,lscr,scr,nqpts,
      &     vint,qxyz,zq,dens)
@@ -35,17 +46,17 @@ c
       external cando_nw_1e
       external cando_nw
 c
-      integer i_basis ! [input] basis set handle for ish
-      integer ish     ! [input] i shell/contraction
-      integer j_basis ! [input] basis set handle for jsh
-      integer jsh     ! [input] j shell/contraction
-      integer lscr    ! [input] length of scratch array
-      double precision scr(lscr)    ! [scratch] scratch array
-      integer nqpts                 ! [input] length of potential buffer
-      double precision vint(nqpts)  ! [output] potential integrals
-      double precision qxyz(3,nqpts)  ! [input] coordinates of q points
-      double precision zq(nqpts)    ! [input] effective charges on q points
-      double precision dens(*)      ! [input] elements of density matrix
+      integer i_basis !< [Input] basis set handle for ish
+      integer ish     !< [Input] i shell/contraction
+      integer j_basis !< [Input] basis set handle for jsh
+      integer jsh     !< [Input] j shell/contraction
+      integer lscr    !< [Input] length of scratch array
+      double precision scr(lscr)    !< [Scratch] scratch array
+      integer nqpts                 !< [Input] length of potential buffer
+      double precision vint(nqpts)  !< [Output] potential integrals
+      double precision qxyz(3,nqpts) !< [Input] coordinates of q points
+      double precision zq(nqpts)    !< [Input] effective charges on q points
+      double precision dens(*)      !< [Input] elements of density matrix
 c::local
       logical shells_ok, orel, oirel, ojrel, oNR
       integer i_geom, j_geom, ibas, jbas, ucont
@@ -185,4 +196,4 @@ c
       endif
 c     
       end
-      
+C> @}

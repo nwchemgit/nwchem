@@ -1,3 +1,19 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute 2-electron 2-center Gaussian periodic electron
+C> repulsion integral derivatives
+C>
+C> The code in question always uses density fitting approaches for
+C> the 2-center 2-electron integrals are needed. See [1] for details.
+C>
+C> [1] JE Jaffe, AC Hess,
+C>     <i>"Gaussian basis density functional theory for systems
+C>     periodic in two or three dimensions: Energy and forces"</i>,
+C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
+C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    10.1063/1.472866</a>
+C>
       subroutine intpd_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri, idatom2)
 *
@@ -34,16 +50,16 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c:: passed
-      integer brain  ! basis set handle for bra function
-      integer ketin  ! basis set handle for ket function
-      integer ish    ! lexical contraction/shell index
-      integer jsh    ! lexical contraction/shell index
-      integer lscr   ! length of scratch array
-      integer leri   ! length of ERI array
-      integer idatom2(*) ! [output]  array identifying centers for derivatives externalized
-      double precision scr(lscr) ! scratch array 
-      double precision eri(leri) ! ERI array
-      double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
+      integer brain  !< [Input] basis set handle for bra function
+      integer ketin  !< [Input] basis set handle for ket function
+      integer ish    !< [Input] lexical contraction/shell index
+      integer jsh    !< [Input] lexical contraction/shell index
+      integer lscr   !< [Input] length of scratch array
+      integer leri   !< [Input] length of ERI array
+      integer idatom2(*) !< [Output]  array identifying centers for derivatives externalized
+      double precision scr(lscr) !< [Scratch] scratch array 
+      double precision eri(leri) !< [Output] ERI array
+      double precision Rj(3)  !< [Input] translation vector for jsh center (fractional coordinates)
 c:: local
       integer idatom(4)
       logical shells_ok
@@ -163,3 +179,4 @@ c
         call errquit('intpd_2e2c: fatal error ',0, INT_ERR)
       endif
       end
+C> @}

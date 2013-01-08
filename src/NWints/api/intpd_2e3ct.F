@@ -1,3 +1,19 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute transposed 2-electron 3-center Gaussian periodic
+C> electron repulsion integral derivatives
+C>
+C> The code in question always uses density fitting approaches for
+C> the 3-center 2-electron integrals are needed. See [1] for details.
+C>
+C> [1] JE Jaffe, AC Hess,
+C>     <i>"Gaussian basis density functional theory for systems
+C>     periodic in two or three dimensions: Energy and forces"</i>,
+C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
+C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    10.1063/1.472866</a>
+C>
       subroutine intpd_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 
      &       lscr, scr, leri, eri, idatom)
 *
@@ -36,19 +52,19 @@ c::functions
       external int_chk_init
       external int_nint_cart
 c:: passed
-      integer brain  ! basis set handle for bra function
-      integer ketin  ! basis set handle for ket function
-      integer ish    ! lexical contraction/shell index
-      integer jsh    ! lexical contraction/shell index
-      integer ksh    ! lexical contraction/shell index
-      integer lscr   ! length of scratch array
-      integer leri   ! length of ERI array
-      integer idatom(4) ! atom index of derivatives
-      double precision scr(lscr) ! scratch array 
-      double precision eri(leri) ! ERI array
+      integer brain  !< [Input] basis set handle for bra function
+      integer ketin  !< [Input] basis set handle for ket function
+      integer ish    !< [Input] lexical contraction/shell index
+      integer jsh    !< [Input] lexical contraction/shell index
+      integer ksh    !< [Input] lexical contraction/shell index
+      integer lscr   !< [Input] length of scratch array
+      integer leri   !< [Input] length of ERI array
+      integer idatom(4) !< [Input] atom index of derivatives
+      double precision scr(lscr) !< [Scratch] scratch array 
+      double precision eri(leri) !< [Output] ERI array
 c translation vectors are in fractional coordinates !
-      double precision Rj(3)  ! translation vector for jsh center 
-      double precision Rk(3)  ! translation vector for ksh center 
+      double precision Rj(3)  !< [Input] translation vector for jsh center 
+      double precision Rk(3)  !< [Input] translation vector for ksh center 
 c:: local
       logical shells_ok
       integer bra, ket 
@@ -180,3 +196,4 @@ c
         call errquit('intpd_2e3ct: fatal error ',0, INT_ERR)
       endif
       end
+C> @}

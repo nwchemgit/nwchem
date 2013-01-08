@@ -1,5 +1,11 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> McMurchie-Davidson integral code
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{exact\_mem}
@@ -29,9 +35,9 @@ c:: functions
       external api_is_atomic_basis
 c:: passed
 c:tex-\begin{verbatim}
-      integer rtdb        ! [input] the RTDB handle
-      integer nbas        ! [input] number of basis sets
-      integer bases(nbas) ! [input] basis set handles
+      integer rtdb        !< [Input] the RTDB handle
+      integer nbas        !< [Input] number of basis sets
+      integer bases(nbas) !< [Input] basis set handles
 c:tex-\end{verbatim}
 c:: local
       integer lmem_2e4c, lmem_1e
@@ -168,6 +174,10 @@ c.. debug write statements
 #endif
 c
       end
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> 3-center overlap integral code
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_3ov}
@@ -194,11 +204,11 @@ c:tex-\end{verbatim}
 c::function
 c::passed
 c:tex-\begin{verbatim}
-      integer ibasin  ! [input] basis set handle for ``i'' contractions
-      integer jbasin  ! [input] basis set handle for ``j'' contractions
-      integer kbasin  ! [input] basis set handle for ``k'' contractions
-      integer lsz_buf ! [output] maximum size of integral buffer 
-      integer memsize ! [output] memory needed for scratch array
+      integer ibasin  !< [Input] basis set handle for ``i'' contractions
+      integer jbasin  !< [Input] basis set handle for ``j'' contractions
+      integer kbasin  !< [Input] basis set handle for ``k'' contractions
+      integer lsz_buf !< [Output] maximum size of integral buffer 
+      integer memsize !< [Output] memory needed for scratch array
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, kbas
@@ -300,6 +310,10 @@ c
       endif
       lsz_buf = nbfimax*nbfjmax*nbfkmax
       end
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> 1-electron integral codes
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_1e}
@@ -325,10 +339,10 @@ c:tex-\end{verbatim}
 #include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer brain   ! [input] bra basis set handle
-      integer ketin   ! [input] ket basis set handle
-      integer max1e   ! [output] max size of 1e integrals buffer
-      integer memsize ! [output] max size of scratch space for 1e integral evaluation
+      integer brain   !< [Input] bra basis set handle
+      integer ketin   !< [Input] ket basis set handle
+      integer max1e   !< [Output] max size of 1e integrals buffer
+      integer memsize !< [Output] max size of scratch space for 1e integral evaluation
 c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
@@ -414,6 +428,10 @@ c
 #endif
 c
       end
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> Douglas-Kroll integral codes for the fitting basis
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_1e\_dk}
@@ -432,10 +450,10 @@ c:tex-\end{verbatim}
 #include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer brain   ! [input] bra basis set handle
-      integer ketin   ! [input] ket basis set handle
-      integer max1e   ! [output] max size of 1e integrals buffer
-      integer memsize ! [output] max size of scratch space for 1e integral evaluation
+      integer brain   !< [Input] bra basis set handle
+      integer ketin   !< [Input] ket basis set handle
+      integer max1e   !< [Output] max size of 1e integrals buffer
+      integer memsize !< [Output] max size of scratch space for 1e integral evaluation
 c:tex-\end{verbatim}
 c::local
       integer lsz_1e, lmem_1e
@@ -456,6 +474,10 @@ c
 c
       end
 c
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> relativistic integral codes
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_1e\_rel}
@@ -482,10 +504,10 @@ c:tex-\end{verbatim}
 #include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
-      integer brain   ! [input] bra basis set handle
-      integer ketin   ! [input] ket basis set handle
-      integer max1e   ! [output] max size of 1e integrals buffer
-      integer memsize ! [output] max size of scratch space for 1e integral evaluation
+      integer brain   !< [Input] bra basis set handle
+      integer ketin   !< [Input] ket basis set handle
+      integer max1e   !< [Output] max size of 1e integrals buffer
+      integer memsize !< [Output] max size of scratch space for 1e integral evaluation
 c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
@@ -568,6 +590,10 @@ c
 #endif
 c
       end
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> 2-electron 2-center integral code
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_2e4c}
@@ -617,10 +643,10 @@ c::functions
       external cando_sp_u
 c::passed
 c:tex-\begin{verbatim}
-      integer brain   ! [input] bra basis set handle
-      integer ketin   ! [input] ket basis set handle
-      integer maxg    ! [output] max size of 2e integrals buffer
-      integer memsize ! [output] max size of scratch space for 2e integral evaluation
+      integer brain   !< [Input] bra basis set handle
+      integer ketin   !< [Input] ket basis set handle
+      integer maxg    !< [Output] max size of 2e integrals buffer
+      integer memsize !< [Output] max size of scratch space for 2e integral evaluation
 c:tex-\end{verbatim}
 c     NB. On input, memsize contains the (dummy) memory limit for 2e integrals
 c::local
@@ -856,6 +882,10 @@ c... add 10% for abbc and abcc class shells not checked for
 *      write(luout,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
       end
+C>
+C> \brief Internal routine to compute the memory required by the 
+C> 2-electron 3-center integral code
+C>
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{emem\_2e3c}
@@ -882,10 +912,10 @@ c:tex-\end{verbatim}
 c::functions
 c::passed
 c:tex-\begin{verbatim}
-      integer brain   ! [input] bra basis set handle
-      integer ketin   ! [input] ket basis set handle
-      integer maxg    ! [output] max size of 2e integrals buffer
-      integer memsize ! [output] max size of scratch space for 2e integral evaluation
+      integer brain   !< [Input] bra basis set handle
+      integer ketin   !< [Input] ket basis set handle
+      integer maxg    !< [Output] max size of 2e integrals buffer
+      integer memsize !< [Output] max size of scratch space for 2e integral evaluation
 c:tex-\end{verbatim}
 c     NB. On input, memsize contains the (dummy) memory limit for 2e integrals
 c::local
@@ -1633,3 +1663,4 @@ c
 #endif
 c
       end
+C> @}

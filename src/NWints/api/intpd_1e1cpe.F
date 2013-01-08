@@ -1,3 +1,18 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute 1-electron 1-center Gaussian periodic nuclear attraction
+C> integrals derivatives
+C>
+C> See [1] for details.
+C>
+C> [1] JE Jaffe, AC Hess,
+C>     <i>"Gaussian basis density functional theory for systems
+C>     periodic in two or three dimensions: Energy and forces"</i>,
+C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
+C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    10.1063/1.472866</a>
+C>
       subroutine intpd_1e1cpe(i_basis,ish,Ri,lscr,scr,lpea,Pea)
 *
 * $Id$
@@ -28,13 +43,13 @@ c::functions
       external cando_nw
       external int_nint_cart
 c::passed
-      integer i_basis           ! basis set handle for ish functions
-      integer ish               ! lexical contraction/shell index
-      integer lscr              ! length of the scratch array
-      integer lpea              ! length of potential energy derivative integral array
-      double precision Pea(lpea) ! potential energy derivative integral array
-      double precision scr(lscr) ! scratch array
-      double precision Ri(3)    ! translation vector for ish center (fractional coordinates)
+      integer i_basis           !< [Input] basis set handle for ish functions
+      integer ish               !< [Input] lexical contraction/shell index
+      integer lscr              !< [Input] length of the scratch array
+      integer lpea              !< [Input] length of potential energy derivative integral array
+      double precision Pea(lpea) !< [Output] potential energy derivative integral array
+      double precision scr(lscr) !< [Scratch] scratch array
+      double precision Ri(3)    !< [Input] translation vector for ish center (fractional coordinates)
 c::local
       logical shells_ok
       integer mynint
@@ -97,3 +112,4 @@ c........... dryrun
       endif
 c
       end
+C> @}
