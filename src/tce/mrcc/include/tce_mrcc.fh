@@ -121,6 +121,8 @@ c      double precision dvalue
       integer idiis
       logical lzorafromdft
 
+      logical lsubterm
+
        parameter(maxorb=1024,maxref=800,maxexcit=18,maxdiism=15)
        double precision toleiimag
        parameter(toleiimag=1e-5) ! Tolereance for imaginary eigenvalue
@@ -188,7 +190,7 @@ ckbn mrcc-r-1 CC     +     d_c1m(maxref),rec_mem,l_sqc,k_sqc,
        common/tcemrccint2/ idiis
 
 ckbn mrcc-r-1 CC       common/tcemrcclogical/ read_int, write_int,forcedegen
-       common/tcemrcclogical/ forcedegen
+       common/tcemrcclogical/ forcedegen, lsubterm
 
        common/tcemrccdouble/ duhfens(maxref),epsilon,
      +     mrccshift,drootmuc(maxref),orbdegenenergy(maxref,maxorb),
