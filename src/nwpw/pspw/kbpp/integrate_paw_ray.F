@@ -140,7 +140,7 @@
           f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
           !f(i)=(rho(i)*vlocal(i))*sn(i)
         end do
-ccccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q-zv*forpi*CS(NRHO)/(Q*Q)
+ccccc        vl_ray(k1)=simp(NRHO,F,DRHO)*forpi/Q-zv*forpi*CS(NRHO)/(Q*Q)
         vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
      >            -zv*forpi*cs(nrho)/(Q*Q)
 c        vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
