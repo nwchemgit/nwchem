@@ -1117,6 +1117,24 @@ c
         cfg(nela+i) = kx(i)
       enddo
 c
+c  If closed shell, but the requested symmetry is
+c  not symmetryic one, we need to find an
+c  open-shell singlet with alpha and beta in
+c  different orbitals
+c
+      if (nela.eq.nelb.and.symstate.gt.1) then
+         do i=nela,1,-1
+            do j=nela,norb
+            isym = osym(kx(i))
+            isym = MULX(isym,osym(kx(j)))
+            if (isym.eq.symstate) goto 110
+            enddo
+         enddo
+         call errquit('singlet symmetry state not found in CAS',0,
+     &       GEOM_ERR)
+ 110     cfg(nela+i) = kx(j)
+      endif
+c
 c  Loop through all possible permutations of
 c  (nela-nelb) electons in (norb-nelb) orbitals
 c  Find lowest energy with appropriate symmetry
