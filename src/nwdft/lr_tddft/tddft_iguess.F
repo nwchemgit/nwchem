@@ -398,15 +398,15 @@ c
           call sym_irrepname(geom,int_mb(k_irrep+m-1),oname)
           write(LuOut,9030) m,int_mb(k_sortp+m-1),
      1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),oname,
-     2      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1)),
-     3      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
+     2      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
+     3      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1)),
      4      (evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1))-
      5      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)))*au2ev
         enddo
         write(LuOut,9020)
       endif
  9000 format(i5,' smallest eigenvalue differences (eV) ')
- 9010 format('  No. Spin  Occ  Vir  Irrep   E(Vir)    E(Occ)   E(Diff)')
+ 9010 format('  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)')
  9020 format('--------------------------------------------------------')
  9030 format(4i5,1x,a4,1x,3f10.3)
 c
