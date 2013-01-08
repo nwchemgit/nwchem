@@ -1278,7 +1278,7 @@ c     >                    dcpl_mb(QYlm(1)))
      >               dcpl_mb(g_lm(1)+(kk)*npack0),
      >               dcpl_mb(QYlm(1)))
 
-           write(*,*) " qlm=",l,m,dcpl_mb(paw_qlm_spin(1,ms)+jj)
+           !write(*,*) " qlm=",l,m,dcpl_mb(paw_qlm_spin(1,ms)+jj)
            jj = jj + 1
            kk = kk + 1
          end do
