@@ -109,7 +109,7 @@ find ${target} -name testoutputs -exec rm -rf {} \;         2>&1 > /dev/null
 find ${target} -name bin -exec rm -rf {} \;                 2>&1 > /dev/null
 find ${target} -name include_stamp -exec rm -rf {} \;       2>&1 > /dev/null
 find ${target} -name dependencies -exec rm -rf {} \;        2>&1 > /dev/null
-find ${target} -name "doalltests.*" -exec rm -rf {} \;      2>&1 > /dev/null
+find ${target} -name "doalltests.*.log" -exec rm -rf {} \;  2>&1 > /dev/null
 find ${target} -name "build_nwchem*.log" -exec rm -rf {} \; 2>&1 > /dev/null
 echo "Done."
 #
