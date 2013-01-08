@@ -23,7 +23,7 @@ fi
 source=`pwd`/$1
 linux=$2
 gcc=$3
-distro=nwchem-6.0-binary-${linux}-${gcc}
+distro=nwchem-6.1.1-binary-${linux}-${gcc}
 target=`pwd`/${distro}
 echo "Generating binary distro"
 echo "Source: " ${source}
@@ -59,7 +59,7 @@ if [ -d ${target}/QA/testoutputs ] ; then
    rm -rf ${target}/QA/testoutputs
    echo "Validation results removed."
 fi
-find ${target}/QA -name "doalltests*" -exec rm -f {} \; -print
+find ${target}/QA -name "doalltests.*.log" -exec rm -f {} \; -print
 find ${target} -name .svn -exec rm -rf {} \; -print
 tar -vzcf ${target}.tgz ${distro} 2>&1 > ${target}.MANIFEST
 tar -cf ${target}.tar ${distro}
