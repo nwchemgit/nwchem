@@ -282,9 +282,9 @@ c !!! BGJ
      &       RTDB_ERR)
 c !!! BGJ
 c 000000000000000 prepare guess 000000000000 START
-      if (ndata.eq.2) then
-         if (.not. rtdb_get(rtdb, 'cphf2-aores:guess', 
-     &      mt_log,1,use_my_guess)) use_my_guess = .false.
+c HvD: prepare_guess must always be called as it initializes g_work
+      if (.not. rtdb_get(rtdb, 'cphf2-aores:guess', 
+     &    mt_log,1,use_my_guess)) use_my_guess = .false.
       call prepare_guess(
      &               g_work,      ! out: RE guess
      &               g_work_im,   ! out: dummy
@@ -296,7 +296,6 @@ c 000000000000000 prepare guess 000000000000 START
      &               .false.,     ! in : lifetime= T complex   = F real
      &               use_my_guess,! in : = T guess-file =F guess=(energy-scaling)*g_b 
      &               rtdb)        ! in : rtdb handle
-       endif
 c Note.- en-scl*g_b is unpropertly called "preconditioning"
 c 000000000000000 prepare guess 000000000000 END
       if (scftype .eq. 'UHF') then
