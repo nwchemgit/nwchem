@@ -247,7 +247,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
      >   .and.rtdb_put(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))
      >   .and.rtdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
      >   .and.rtdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
-     >   .and.rtdb_get(rtdb,'cpmd:nose_restart',mt_log,1,.true.)
+     >   .and.rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,.true.)
       if (.not.value)
      >  call errquit(
      >       'Nose_End: error writing to rtdb', 0, RTDB_ERR)
