@@ -22,6 +22,11 @@ USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F \
             cr_qcisd_t.F m2_dot_m1t1.F
 
 
+ifdef TCE_GPU
+ OBJ_OPTIMIZE += hybrid.o
+ USES_BLAS +=
+endif
+
 LIB_DEFINES += -DDEBUG_PRINT
 #LIB_DEFINES += -DSSE2_VERSION
 #
