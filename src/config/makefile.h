@@ -2500,6 +2500,9 @@ endif
 (%.o):	%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
 
+(%.o):  %.cu
+	$(CUDA) -c $(CUDA_FLAGS) -c $(CUDA_INCLUDE) $(CUDA_LIBS) -o $% $<
+
 (%.o):  %.o
 
 # Preceding line has a tab to make an empty rule
