@@ -470,6 +470,7 @@ c
 c     we need all eigenvectors for the overlap matrix,
          yev0=yev
          if(yev.eq.'m')  yev='r'
+         idum=0
          call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals), idum)
          yev=yev0
 #else
