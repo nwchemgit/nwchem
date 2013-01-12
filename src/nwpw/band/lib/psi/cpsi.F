@@ -2908,9 +2908,9 @@ c     *****  read initial wavefunctions into psi1  ****
          kx = brillioun_k(1,nbq)
          ky = brillioun_k(2,nbq)
          kz = brillioun_k(3,nbq)
-         call C3dB_r_Copy(1,dbl_mb(c_G_indx(1)),dbl_mb(Gx(1)))
-         call C3dB_r_Copy(1,dbl_mb(c_G_indx(2)),dbl_mb(Gy(1)))
-         call C3dB_r_Copy(1,dbl_mb(c_G_indx(3)),dbl_mb(Gz(1)))
+         call C3dB_t_Copy(1,dbl_mb(c_G_indx(1)),dbl_mb(Gx(1)))
+         call C3dB_t_Copy(1,dbl_mb(c_G_indx(2)),dbl_mb(Gy(1)))
+         call C3dB_t_Copy(1,dbl_mb(c_G_indx(3)),dbl_mb(Gz(1)))
          do i=1,nfft3d
             dbl_mb(Gx(1)+i-1) = dbl_mb(Gx(1)+i-1) + kx
             dbl_mb(Gy(1)+i-1) = dbl_mb(Gy(1)+i-1) + ky
