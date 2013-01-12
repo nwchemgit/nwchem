@@ -441,9 +441,9 @@ c      complex*16 psi1(*),psi2(*)
         G(3)  = c_G_indx(3)
 
 *       **** define Gx,Gy and Gz in packed space ****
-        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
       end if
 
       omega = lattice_omega()
@@ -566,9 +566,9 @@ c                    dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
 c                    end do
 
 *                   **** define Gx,Gy and Gz in packed space ****
-                    call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+                    call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+                    call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+                    call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
                     call Cram_r_pack(nb,dbl_mb(Gx(1)))
                     call Cram_r_pack(nb,dbl_mb(Gy(1)))
                     call Cram_r_pack(nb,dbl_mb(Gz(1)))

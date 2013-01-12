@@ -464,9 +464,9 @@
         G(3)  = c_G_indx(3)
 
 *       **** define Gx,Gy and Gz in packed space ****
-        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
         call Cram_r_pack(0,dbl_mb(Gx(1)))
         call Cram_r_pack(0,dbl_mb(Gy(1)))
         call Cram_r_pack(0,dbl_mb(Gz(1)))
@@ -569,9 +569,9 @@ c        call Cram_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       G(3)  = c_G_indx(3)
 
 *     **** define Gx,Gy and Gz in packed space ****
-      call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+      call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+      call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+      call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
       call Cram_r_pack(0,dbl_mb(Gx(1)))
       call Cram_r_pack(0,dbl_mb(Gy(1)))
       call Cram_r_pack(0,dbl_mb(Gz(1)))
@@ -728,9 +728,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if (move) then
 
 *              **** define Gx,Gy and Gz in packed space ****
-               call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-               call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-               call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+               call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+               call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+               call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
                call Cram_r_pack(nbq,dbl_mb(Gx(1)))
                call Cram_r_pack(nbq,dbl_mb(Gy(1)))
                call Cram_r_pack(nbq,dbl_mb(Gz(1)))
@@ -910,9 +910,9 @@ c                    end do
 
 
 *                   **** define Gx,Gy and Gz in packed space ****
-                    call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+                    call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+                    call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+                    call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
                     call Cram_r_pack(nbq,dbl_mb(Gx(1)))
                     call Cram_r_pack(nbq,dbl_mb(Gy(1)))
                     call Cram_r_pack(nbq,dbl_mb(Gz(1)))
@@ -1293,9 +1293,9 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 
 
 *       **** define Gx,Gy and Gz in packed space ****
-        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
         call Cram_r_pack(nbq,dbl_mb(Gx(1)))
         call Cram_r_pack(nbq,dbl_mb(Gy(1)))
         call Cram_r_pack(nbq,dbl_mb(Gz(1)))
