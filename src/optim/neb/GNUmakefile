@@ -8,7 +8,7 @@ LIBRARY=liboptim.a
 
 HEADERS=
 
-USES_BLAS= neb_drv.F neb_utils.F bead_list.F
+USES_BLAS= neb_drv.F neb_utils.F bead_list.F neb_input.F
 
 include ../../config/makefile.h
 
