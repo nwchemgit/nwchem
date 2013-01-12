@@ -835,6 +835,19 @@ c     p = p_map(k)
       return
       end
 
+      subroutine C3dB_t_Copy(nb,A,B)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 B(*)
+
+#include "C3dB.fh"
+
+      call dcopy(nfft3d_map(nb),A,1,B,1)
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *         C3dB_fft_init           *
@@ -2782,6 +2795,78 @@ c      call ga_sync()
       sumall = sum
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_tt_dot            *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_tt_dot(nb,A,B,sumall)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+      real*8  sumall
+
+#include "C3dB.fh"
+
+      integer np
+      real*8  sum
+
+      real*8   ddot
+      external ddot
+
+      call Parallel3d_np_i(np)
+
+*     **** sum up dot product on this node ****
+      sum = ddot(nfft3d_map(nb),A,1,B,1)
+
+*     **** add up sums from other nodes ****
+      if (np.gt.1) then
+         call C3dB_SumAll(sum)
+      end if
+
+      sumall = sum
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_tt_idot           *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_tt_idot(nb,A,B,sumall)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+      real*8  sumall
+
+#include "C3dB.fh"
+
+      integer np
+      real*8  sum
+
+      real*8   ddot
+      external ddot
+
+      call Parallel3d_np_i(np)
+
+*     **** sum up dot product on this node ****
+      sum = ddot(nfft3d_map(nb),A,1,B,1)
+
+c*     **** add up sums from other nodes ****
+c      if (np.gt.1) then
+c         call C3dB_SumAll(sum)
+c      end if
+
+      sumall = sum
+      return
+      end
+
 
 *     ***********************************
 *     *					*
