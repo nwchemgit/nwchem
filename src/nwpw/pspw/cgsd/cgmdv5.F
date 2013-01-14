@@ -257,6 +257,9 @@
 *     **** read ions ****
       value = ion_init(rtdb)
 
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
@@ -319,8 +322,6 @@
       call meta_initialize(rtdb)
 
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
 
 
 *     **** initialize pressure ****

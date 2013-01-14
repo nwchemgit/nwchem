@@ -122,13 +122,15 @@ c      call psi_1toelectron()
 
 *     **** paw energies ****
       if (psp_pawexist()) then
-         E(14) = psi_1ke_atom()            !*** kinetic atom ***
-         E(15) = psp_kinetic_core()        !*** kinetic core ***
-         E(16) = psi_1vloc_atom()          !*** vlocal atom  ***
-         E(17) = 0.0d0                     !*** vcoulomb atom  ***
-         E(18) = psi_1xc_atom()            !*** exc atom  ***
-         E(30) = psp_ion_core()            !*** ion core energy ****
-         E(31) = psi_1valence_core_atom()  !*** valence core energy
+         E(35) = psi_1ke_atom()            !*** kinetic atom ***
+         E(36) = psp_kinetic_core()        !*** kinetic core ***
+         E(37) = psi_1vloc_atom()          !*** vlocal atom  ***
+         E(38) = 0.0d0                     !*** vcoulomb atom  ***
+         E(39) = psi_1xc_atom()            !*** exc atom  ***
+         E(40) = psp_ion_core()            !*** ion core energy ****
+         E(41) = psi_1valence_core_atom()  !*** valence core energy
+         E(42) = 0.0d0                     !*** short-range valence v_local energy
+         E(43) = 0.0d0                     !*** ncmp coulomb energy
       end if
 
 *     **** get pspw_charge  energies ****

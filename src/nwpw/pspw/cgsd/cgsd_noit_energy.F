@@ -202,6 +202,7 @@ c        **** paw energies ****
          write(luout,1681) E(15),E(15)/ion_nion()
          write(luout,1682) E(30),E(30)/ion_nion()
          write(luout,1683) E(31),E(31)/ion_nion()
+         write(luout,1684) E(32),E(32)/ion_nion()
          write(luout,1690) E(16),E(16)/neall
          write(luout,1696) E(17),E(17)/neall
          write(luout,1697) E(18),E(18)/neall
@@ -442,6 +443,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
  1682 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
  1683 FORMAT( ' core+srloc-(valence):',E19.10,' (',E15.5,'/ion)')
+ 1684 FORMAT( ' short-range V_local :',E19.10,' (',E15.5,'/ion)')
  1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
