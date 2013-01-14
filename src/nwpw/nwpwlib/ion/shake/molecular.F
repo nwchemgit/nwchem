@@ -162,6 +162,31 @@
       return
       end 
 
+*     *******************************************
+*     *						*
+*     *	     molecular_number_constraints	*
+*     *						*
+*     *******************************************
+      integer function molecular_number_constraints()
+      implicit none
+
+      integer m,msize,na,nb,nc,cyclic,indxa(20)
+      double precision blist(20)
+
+      nc = 0
+      call pspw_molecule_msize(msize)
+      do m=1,msize
+         call pspw_molecule_data(m,na,indxa,blist,cyclic)
+         nb = na-1
+         if (cyclic.eq.1) nb = nb+1
+         nc = nc + nb
+      end do
+
+      molecular_number_constraints = nc
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -354,7 +379,6 @@
               write(*,120) indxa(nb),indxa(1),blist(nb),
      >                     dbl_mb(indx2),dbl_mb(indx),
      >                       dbl_mb(indx3)-dbl_mb(indx)**2
-                indx  = indx + 1
               indx  = indx + 1
               indx2 = indx2 + 1
               indx3 = indx3 + 1
@@ -363,7 +387,6 @@
                 write(*,120) indxa(b),indxa(b+1),blist(b),
      >                       dbl_mb(indx2),dbl_mb(indx),
      >                       dbl_mb(indx3)-dbl_mb(indx)**2
-                indx  = indx + 1
                 indx  = indx + 1
                 indx2 = indx2 + 1
                 indx3 = indx3 + 1
@@ -389,6 +412,7 @@
 
       return
       end
+
 
       subroutine molecular_sub_force_average(rion,fion,af,af2,ac)
       implicit none
