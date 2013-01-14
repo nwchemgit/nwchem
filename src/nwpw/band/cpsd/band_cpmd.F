@@ -278,6 +278,9 @@ c      parameter (autoatm =290.360032539d6)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()
       call cpsp_readall()
@@ -362,8 +365,6 @@ c     **** allocate other variables ****
       call v_cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi1_tag)
 
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
 
 
 *     ******************************
