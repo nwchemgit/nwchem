@@ -46,6 +46,14 @@ c
 c
 c     Inputs
 c
+c     - closed shell
+c
+#define R_T  1
+#define G_TT 1
+#define T_T  1
+c
+c     - open shell
+c
 #define R_A  1
 #define R_B  2
 #define G_AA 1

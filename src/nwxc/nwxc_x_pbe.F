@@ -48,7 +48,7 @@ C>
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                     Amat, Cmat)
 #else
-      Subroutine xc_xpbe96_d2(
+      Subroutine nwxc_x_pbe96_d2(
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                        Amat, Amat2, Cmat, Cmat2)
 #endif
@@ -130,9 +130,9 @@ c
 CDEC$ NOSWP
 #endif
          do 10 n = 1, nq
-            if (rho(n,R_A).lt.tol_rho) goto 10
-            rho43 = C*rho(n,R_A)**F43
-            rrho = 1d0/rho(n,R_A)
+            if (rho(n,R_T).lt.tol_rho) goto 10
+            rho43 = C*rho(n,R_T)**F43
+            rrho = 1d0/rho(n,R_T)
             rho13 = F43*rho43*rrho
 #ifdef SECOND_DERIV
             rhom23 = F13*rho13*rrho
@@ -148,7 +148,7 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = dsqrt(rgamma(n,G_AA))
+            gam12 = dsqrt(rgamma(n,G_TT))
             if (gam12.lt.tol_rho**2) goto 10
 c
 

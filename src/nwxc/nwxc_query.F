@@ -9,6 +9,15 @@ C
 C> \ingroup nwxc_api
 C> @{
 C>
+cDEBUG
+      logical function nwxc_is_on()
+      implicit none
+#include "nwxcP.fh"
+      nwxc_is_on = nwxc_on
+      return
+      end
+cDEBUG
+C>
 C> \brief Does this functional have Hartree-Fock exchange?
 C>
 C> A function to query the functional for the presence of a
@@ -78,8 +87,9 @@ C>
       logical function nwxc_has_disp()
       implicit none
 #include "nwxcP.fh"
-      call errquit("not sure how to do this yet",0,0)
-      nwxc_has_disp = nwxc_wght_hf .gt. 0.0d0
+c     call errquit("not sure how to do this yet",0,0)
+c     nwxc_has_disp = nwxc_disp_... .gt. 0.0d0
+      nwxc_has_disp = .false.
       return
       end
 C>
@@ -324,38 +334,38 @@ c
        stat   = .true.
        lendat = len(cdata)
        select case (func_id)
-         case (NWXC_HFXC)
+         case (NWXCP_HFXC)
            cdata = "Hartree-Fock Exchange"
-         case (NWXC_MP2C)
+         case (NWXCP_MP2C)
            cdata = "Moller-Plesset 2nd Order Correlation"
-         case (NWXC_X_SLATER)
+         case (NWXCP_X_SLATER)
            cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385, "
      +             //"(1951) doi:10.1103/PhysRev.81.385)"
-         case (NWXC_X_PBE)
+         case (NWXCP_X_PBE)
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
-         case (NWXC_X_VS98)
+         case (NWXCP_X_VS98)
            cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400, (1998)"
      +             //" doi:10.1063/1.3005348)"
-         case (NWXC_C_PW91LDA)
+         case (NWXCP_C_PW91LDA)
            cdata = "PW91 LDA Correlation (JP Perdew, Y Wang, "
      +             //"Phys.Rev.B 45, 13244, (1992)"
      +             //" doi:10.1103/PhysRevB.45.13244)"
-         case (NWXC_C_PBE)
+         case (NWXCP_C_PBE)
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
-         case (NWXC_C_VS98)
+         case (NWXCP_C_VS98)
            cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400, (1998)"
      +             //" doi:10.1063/1.3005348)"
-         case (NWXC_PBE)
+         case (NWXCP_PBE)
            cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865, (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
-         case (NWXC_VS98)
+         case (NWXCP_VS98)
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400, (1998)"
      +             //" doi:10.1063/1.3005348)"
@@ -363,7 +373,7 @@ c
            stat = .false.
        end select
        i = lendat
-       do while (cdata(i:i).ne." ")
+       do while (cdata(i:i).eq." ")
          i = i - 1
        enddo
        stat = stat .and. (i.lt.lendat)

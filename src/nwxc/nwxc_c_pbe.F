@@ -104,7 +104,7 @@ c
 c
 c     Intermediate derivative results, etc.
 c
-      integer n
+      integer n,i
       double precision rhoval, gammaval
       double precision nepsc, dnepscdn(2)
       double precision epsc, depscdna, depscdnb
@@ -561,19 +561,22 @@ c    &      Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
 c    &                        + d2nepscdn2(D2_RB_RB)*fac
 #endif
 c        endif
-         ffunc(n)=ffunc(n)+wght*(H0*rhoval)
-         Amat(n,D1_RA) = Amat(n,D1_RA) +  (H0 + rhoval*dH0dna)*wght
+         ffunc(n)=ffunc(n)+wght*(nepsc + H0*rhoval)
+         Amat(n,D1_RA) = Amat(n,D1_RA)
+     &                 +  (dnepscdn(D1_RA) + H0 + rhoval*dH0dna)*wght
          if (ipol.eq.2) then
-           Amat(n,D1_RB) = Amat(n,D1_RB) +  (H0 + rhoval*dH0dnb)*wght
+           Amat(n,D1_RB) = Amat(n,D1_RB)
+     &                   +  (dnepscdn(D1_RB) + H0 + rhoval*dH0dnb)*wght
          endif
 #ifdef SECOND_DERIV
          Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (2.d0*dH0dna + rhoval*d2H0dna2)*wght
+     &   + (d2nepscdn2(D2_RA_RA) + 2.d0*dH0dna + rhoval*d2H0dna2)*wght
          Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
-     &           + (dH0dna + dH0dnb + rhoval*d2H0dnadnb)*wght
+     &   + (d2nepscdn2(D2_RA_RB) + dH0dna + dH0dnb
+     &      + rhoval*d2H0dnadnb)*wght
          if (ipol.eq.2) then
            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &           + (2.d0*dH0dnb + rhoval*d2H0dnb2)*wght
+     &     + (d2nepscdn2(D2_RB_RB) + 2.d0*dH0dnb + rhoval*d2H0dnb2)*wght
          endif
 #endif
 c

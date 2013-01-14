@@ -22,6 +22,9 @@ C>
       data nwxc_depends_on_rho   / .false. /
       data nwxc_depends_on_gamma / .false. /
       data nwxc_depends_on_tau   / .false. /
+cDEBUG
+      data nwxc_on               / .false. /
+cDEBUG
       data nwxc_num_f     / 0 /
       data nwxc_usr_num   / 0 /
       data nwxc_wght_hf   / 0.0d0 /
@@ -29,7 +32,7 @@ C>
       data nwxc_cam_alpha / 0.0d0 /
       data nwxc_cam_beta  / 0.0d0 /
       data nwxc_cam_gamma / 0.0d0 /
-      data nwxc_rho_tol   / 1.0d-10 /
+      data nwxc_rho_tol   / 1.0d-7 /
       end
 C> @}
 C> \ingroup nwxc_api
@@ -48,6 +51,9 @@ C>
       nwxc_depends_on_rho   = .false.
       nwxc_depends_on_gamma = .false.
       nwxc_depends_on_tau   = .false.
+cDEBUG
+      nwxc_on               = .false. 
+cDEBUG
       nwxc_num_f     = 0 
       nwxc_usr_num   = 0 
       nwxc_wght_hf   = 0.0d0 
@@ -55,6 +61,6 @@ C>
       nwxc_cam_alpha = 0.0d0
       nwxc_cam_beta  = 0.0d0
       nwxc_cam_gamma = 0.0d0
-      nwxc_rho_tol   = 1.0d-10
+      nwxc_rho_tol   = 1.0d-7
       end
 C> @}

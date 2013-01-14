@@ -33,4 +33,7 @@ C>
       double precision nwxc_wght_hfx  !< The Hartree-Fock exchange weight
       double precision nwxc_wght_mp2c !< The MP2 correlation weight
       double precision nwxc_get_rho_tolerance !< Get density tolerance
+cDEBUG
+      logical nwxc_is_on
+cDEBUG
 C> @}

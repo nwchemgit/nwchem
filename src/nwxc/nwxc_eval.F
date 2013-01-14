@@ -31,6 +31,7 @@ C>
        subroutine nwxc_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
        implicit none
 #include "nwxcP.fh"
+#include "nwxc_param.fh"
        integer ipol !< [Input] The number of spin channels
        integer nq   !< [Input] The number of points
 C
@@ -48,6 +49,9 @@ C
        integer ip !< Counter over spin channels
        integer it !< Counter of functional terms
 C
+       logical nwxc_is_gga  !< Is the functional a GGA
+       logical nwxc_is_mgga !< Is the functional a meta-GGA
+C
        integer nd1r(2) !< The number of partial derivatives wrt rho as
                        !< a function of ipol
        integer nd1g(2) !< The number of partial derivatives wrt gamma as
@@ -58,6 +62,9 @@ C
        data nd1g / D1_GAA, D1_GBB /
        data nd1t / D1_TA,  D1_TB  /
 C
+cDEBUG
+c      write(*,*)'*** nwxc_eval_df'
+cDEBUG
        do iq = 1, nq
          f(iq) = 0.0d0
        enddo
@@ -83,27 +90,28 @@ C
 C
        do it = 1, nwxc_num_f
          select case (nwxc_ids(it))
-           case (NWXC_X_SLATER)
+           case (NWXCP_X_SLATER)
              call nwxc_x_dirac(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                         rho,f,dfdr)
-           case (NWXC_X_PBE)
+           case (NWXCP_X_PBE)
              call nwxc_x_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
-           case (NWXC_X_VS98)
+           case (NWXCP_X_VS98)
              call nwxc_x_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
-           case (NWXC_C_PW91LDA)
+           case (NWXCP_C_PW91LDA)
              call nwxc_c_pw91lda(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                           rho,f,dfdr)
-           case (NWXC_C_PBE)
+           case (NWXCP_C_PBE)
              call nwxc_c_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
-           case (NWXC_C_VS98)
+           case (NWXCP_C_VS98)
              call nwxc_c_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case default
-             call errquit("nwxc_eval_df: invalid functional",
-     +                    nwxc_ids(it),UERR)
+c            call errquit("nwxc_eval_df: invalid functional",
+c    +                    nwxc_ids(it),UERR)
+             write(*,*)"nwxc_eval_df: invalid functional",nwxc_ids(it)
          end select
        enddo
 C

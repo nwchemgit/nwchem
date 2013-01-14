@@ -85,7 +85,7 @@ c
 c
 c     Compute the partial derivatives of the exchange functional of Dirac.
 c
-      double precision P3, P4, Pi, one_third
+      double precision P1, P2, P3, P4, Pi, one_third
 c
 c     P1 =       -(3/PI)**(1/3)
 c     P2 = -(3/4)*(3/PI)**(1/3)
@@ -105,6 +105,8 @@ c     Parameter (P4 = -0.9305257363490993D+00)
 c
       Pi = acos(-1.0d0)
       one_third = 1.0d0/3.0d0
+      P1 = -(3.0d0/Pi)**one_third
+      P2 = (3.0d0/4.0d0)*P1
       P3 = -(6.0d0/Pi)**one_third
       P4 = (3.0d0/4.0d0)*P3
 c
@@ -116,14 +118,14 @@ c
 c         write(LuOut,*)'xc_dirac called: restricted'
 #endif
          do n = 1, nq
-            if (rho(n,R_A).gt.tol_rho)then
-               rho13=rho(n,R_A)**one_third
-               Amat(n,D1_RA) = Amat(n,D1_RA) + wght*P3*rho13
+            if (rho(n,R_T).gt.tol_rho)then
+               rho13=rho(n,R_T)**one_third
+               Amat(n,D1_RA) = Amat(n,D1_RA) + wght*P1*rho13
 #ifdef SECOND_DERIV
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
-     +               wght*2.0d0*one_third*P3*rho13/rho(n,R_A)
+     +               wght*2.0d0*one_third*P1*rho13/rho(n,R_T)
 #endif
-               func(n) = func(n) + wght*2*P4*rho(n,R_A)*rho13
+               func(n) = func(n) + wght*P2*rho(n,R_T)*rho13
             endif
          enddo
 c

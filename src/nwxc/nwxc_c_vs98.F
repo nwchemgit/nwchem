@@ -156,9 +156,9 @@ c         not divide the tau by 2 here
           TA = tau(n,T_A) 
           if(ta.lt.dtol) goto 20
                   
-          Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
-     &                ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
-     &                r13,r14,r15,r16,r17,r18)
+          Call nwxc_vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
+     &                     ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
+     &                     r13,r14,r15,r16,r17,r18)
           PB = PA
           GBB = GAA
           TB = TA
@@ -198,9 +198,9 @@ c        In the bc95css subroutine, we use 2*TA as the tau
 c
          TA = tau(n,T_A)*2.0d0
 
-         Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
-     &               ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
-     &               r13,r14,r15,r16,r17,r18)
+         Call nwxc_vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
+     &                    ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
+     &                    r13,r14,r15,r16,r17,r18)
          func(n)        = func(n)        + FA*wght
          Amat(n,D1_RA)  = Amat(n,D1_RA)  + FPA*wght
          Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + FGA*wght
@@ -219,13 +219,13 @@ c
          GBB = rgamma(n,G_BB)
          TB = tau(n,T_B)*2.0d0
 
-         Call vs98ss(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
-     &               ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,
-     &               r13,r14,r15,r16,r17,r18)
+         Call nwxc_vs98ss(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
+     &                    ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,
+     &                    r13,r14,r15,r16,r17,r18)
          func(n)        = func(n)        + FB*wght
-         Amat(n,D1_RA)  = Amat(n,D1_RA)  + FPB*wght
+         Amat(n,D1_RB)  = Amat(n,D1_RB)  + FPB*wght
          Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + FGB*wght
-         Mmat(n,D1_TA)  = Mmat(n,D1_TA)  + FTB*wght
+         Mmat(n,D1_TB)  = Mmat(n,D1_TB)  + FTB*wght
          
 #if 0
       write (0,'(A,3F20.6)') "BAmat Cmat Mmat",FPB,FGB,FTB
@@ -290,8 +290,9 @@ C>
 C> This routine evaluates the same-spin part of the VS98 functional for
 C> 1 grid point and 1 spin-case.
 C>
-      Subroutine vs98ss(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,EUEGP,
-     &                   ChiP,ChiG,ZP,ZT,r13,r14,r15,r16,r17,r18)
+      Subroutine nwxc_vs98ss(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,
+     +                       EUEGP,ChiP,ChiG,ZP,ZT,
+     +                       r13,r14,r15,r16,r17,r18)
       Implicit none
 C
 C     Compute the same-spin part of the vs98 correlation functional for one grid

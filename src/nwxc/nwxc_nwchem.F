@@ -33,26 +33,65 @@ C> and .false. otherwise.
 C>
       logical function nwxc_input()
       implicit none
+#include "stdio.fh"
+#include "errquit.fh"
 #include "inp.fh"
+#include "nwxcP.fh"
       logical       stat    !< The overall status
-      character*255 test    !< Functional tag
+      character*32  func    !< Functional tag
+      character*32  local   !< "Locality" of the functional 
+                            !< (local/nonlocal)
       double precision wght !< Functional weight
       integer len           !< Length of functional name
+      logical olocal        !< If .true. use local part
+      logical ononlocal     !< If .true. use non-local part
 c
 c     Functions
 c
-      logical  nwxc_add_df
-      external nwxc_add_df
+      logical  nwxc_add_df, nwxc_usr_add_func, nwxc_add_func
+      external nwxc_add_df, nwxc_usr_add_func, nwxc_add_func
 c
       call nwxc_init()
+cDEBUG
+      nwxc_on = .true.
+cDEBUG
       stat = .true.
-      do while (inp_a(test))
+      do while (inp_a(func))
+        if (inp_a(local)) then
+          olocal = .true.
+          ononlocal = .true.
+          if (inp_compare(.false.,'local',local)) then
+            ononlocal = .false.
+          else if (inp_compare(.false.,'nonlocal',local)) then
+            olocal = .false.
+          else
+            call inp_prev_field()
+          endif
+        endif
         if (.not.inp_f(wght)) then
           wght = 1.0d0
-          call inp_prev_field()
+c         call inp_prev_field() ! not necessary inp_f does not move
+c                               ! cursor if failed
         endif
-        len = inp_strlen(test)
-        stat = stat .and. nwxc_add_df(test(1:len),wght)
+        len = inp_strlen(func)
+        select case (func(1:len))
+          case ("xpbe96")
+            if (olocal.and.ononlocal) then
+              stat = stat .and. nwxc_add_df(func(1:len),wght)
+            else if (ononlocal) then
+              stat = stat .and. nwxc_usr_add_func(NWXCP_X_PBE,wght)
+              stat = stat .and. nwxc_usr_add_func(NWXCP_X_SLATER,-wght)
+              stat = stat .and. nwxc_add_func(NWXCP_X_PBE,wght)
+            else
+              write(LuOut,*)' xpbe96 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+              write(LuOut,*)' Resubmit using slater exchange. '
+              call errquit(' xc_inp - functional description ',0,
+     &                     INPUT_ERR)
+            endif
+          case default
+            stat = stat .and. nwxc_add_df(func(1:len),wght)
+        end select
       enddo
       nwxc_input = stat
       return
@@ -97,15 +136,15 @@ c
         write(luout,*)
         if (nwxc_has_hfx()) then
           wght = nwxc_wght_hfx()
-          if (.not.nwxc_get_info(NWXC_HFXC,term)) then
-            call errquit("illegal functional",NWXC_HFXC,UERR)
+          if (.not.nwxc_get_info(NWXCP_HFXC,term)) then
+            call errquit("illegal functional",NWXCP_HFXC,UERR)
           endif
           write(luout,1000)wght,term(1:inp_strlen(term))
         endif
         if (nwxc_has_mp2c()) then
           wght = nwxc_wght_mp2c()
-          if (.not.nwxc_get_info(NWXC_MP2C,term)) then
-            call errquit("illegal functional",NWXC_MP2C,UERR)
+          if (.not.nwxc_get_info(NWXCP_MP2C,term)) then
+            call errquit("illegal functional",NWXCP_MP2C,UERR)
           endif
           write(luout,1000)wght,term(1:inp_strlen(term))
         endif
@@ -237,6 +276,9 @@ c
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_usr_num)
 c
       nwxc_rtdb_load = status
+cDEBUG
+      nwxc_on = status
+cDEBUG
       if (.not. status) then
 c
 c       The specified functional was not found so return .false.
