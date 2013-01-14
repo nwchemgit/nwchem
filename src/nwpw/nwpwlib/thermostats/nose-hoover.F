@@ -27,8 +27,8 @@
 
 *     **** local variables ****
       logical value,nosers
-      integer i,rtdb,n,m
-      real*8 pi,am,fmass,tmpe
+      integer i,rtdb,n,m,nc
+      real*8 pi,am,fmass,tmpe,g
       real*8 Te,Pe_tmp,betae
       real*8 Tr,Pr_tmp
 
@@ -39,7 +39,7 @@
       real*8   control_Nose_Pr
       real*8   control_Nose_Tr
       real*8   ion_amass
-      integer  ion_nion,control_rtdb
+      integer  ion_nion,control_rtdb,molecular_number_constraints
       
       external control_fake_mass
       external control_Nose_Pe
@@ -47,7 +47,7 @@
       external control_Nose_Pr
       external control_Nose_Tr
       external ion_amass
-      external ion_nion,control_rtdb
+      external ion_nion,control_rtdb,molecular_number_constraints
      
 
 *     ************************************
@@ -135,9 +135,11 @@ c      Xr2 = 0.0d0
  
 
 *     **** Set Er0(1) = (1/2)*(g*k*T), where g=number of degrees of freedom ****
-      if (ion_nion().gt.2) then
+      nc = molecular_number_constraints()
+      if ((ion_nion()-nc).gt.2) then
 c        Er0 = 0.5d0*(3.0d0*dble(ion_nion())-6.0d0)*kb*Tr
-        dbl_mb(Er0(1)) = 0.5d0*(3.0d0*dble(ion_nion())-6.0d0)*kb*Tr
+        g = 3.0d0*dble(ion_nion())-6.0d0 - dble(nc)
+        dbl_mb(Er0(1)) = 0.5d0*g*kb*Tr
 
 *     **** Dimer molecule. note that the above formula may not work for ****
 *     **** linear molecules with more than two atoms.                   ****
@@ -294,23 +296,25 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       parameter (kb=3.16679d-6)
 
 *     **** local variables ****
-      integer i
-      real*8 am,fmass,betae
+      integer i,nc
+      real*8 am,fmass,betae,g
 
 *     **** external functions ****
       real*8   control_fake_mass
       real*8   ion_amass
-      integer  ion_nion
+      integer  ion_nion,molecular_number_constraints
       external control_fake_mass
       external ion_amass
-      external ion_nion
+      external ion_nion,molecular_number_constraints
 
       fmass = control_fake_mass()
 
 
-*     **** reSet Er0(1) = (1/2)*(g*k*T), where g=number of degrees of freedom ****
-      if (ion_nion().gt.2) then
-        dbl_mb(Er0(1)) = 0.5d0*(3.0d0*dble(ion_nion())-6.0d0)*kb*Tr_new
+*     **** reSet Er0(1) = (1/2)*(g)*k*T), where g=number of degrees of freedom ****
+      nc = molecular_number_constraints()
+      if ((ion_nion()-nc).gt.2) then
+        g = 3.0d0*dble(ion_nion())-6.0d0 - dble(nc)
+        dbl_mb(Er0(1)) = 0.5d0*(g)*kb*Tr_new
 
 *     **** Dimer molecule. note that the above formula may not work for ****
 *     **** linear molecules with more than two atoms.                   ****
