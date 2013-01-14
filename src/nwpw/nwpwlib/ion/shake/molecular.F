@@ -173,14 +173,19 @@
       integer m,msize,na,nb,nc,cyclic,indxa(20)
       double precision blist(20)
 
+      logical value
+      common /pspw_molecular/ value
+
       nc = 0
-      call pspw_molecule_msize(msize)
-      do m=1,msize
-         call pspw_molecule_data(m,na,indxa,blist,cyclic)
-         nb = na-1
-         if (cyclic.eq.1) nb = nb+1
-         nc = nc + nb
-      end do
+      if (value) then
+         call pspw_molecule_msize(msize)
+         do m=1,msize
+            call pspw_molecule_data(m,na,indxa,blist,cyclic)
+            nb = na-1
+            if (cyclic.eq.1) nb = nb+1
+            nc = nc + nb
+         end do
+      end if
 
       molecular_number_constraints = nc
       return
