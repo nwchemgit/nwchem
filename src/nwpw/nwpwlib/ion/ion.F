@@ -859,12 +859,17 @@ c         eki1=0.5d0*eki1
       double precision kb
       parameter (kb=3.16679d-6)
 
-      double precision ave,T
+      integer nc
+      double precision ave,T,g
+      integer  molecular_number_constraints
+      external molecular_number_constraints
 
       T = 0.0d0
+      nc = molecular_number_constraints()
       ave = (ke_total/dble(ke_count))
-      if (nion.gt.2) then
-         T = 2.0d0*ave/(3.0d0*nion-6.0d0)/kb
+      if ((nion-nc).gt.2) then
+         g = 3.0d0*nion-6.0d0 - dble(nc)
+         T = 2.0d0*ave/(g)/kb
       else
          T = 2.0d0*ave/kb
       end if
