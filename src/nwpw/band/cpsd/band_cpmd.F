@@ -1306,7 +1306,7 @@ ccc
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
- 1211 FORMAT(5X,'   number of constraints = ', I6,' (DOF=',I6,' )' )
+ 1211 FORMAT(5X,'   number of constraints = ', I6,' ( DOF = ',I6,' )' )
  1220 FORMAT(/' number of electrons: spin up=',F6.2,16x,
      >                               '  down=',F6.2,A)
  1221 FORMAT( ' number of orbitals : spin up=',I6,
