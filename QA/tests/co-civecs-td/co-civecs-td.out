@@ -1,0 +1,861 @@
+ argument  1 = co-civecs-td.nw
+
+
+
+============================== echo of input deck ==============================
+#
+# transition densities for 5 roots
+#
+echo
+
+start co-civecs-td
+title co-civecs-td
+
+memory 1000 mb
+
+geometry units angstrom noautosym nocenter
+ O 0       0        0
+ C 0       0.00     1.15
+end
+
+basis spherical
+  * library "def2-sv(p)"
+end
+
+dft
+  xc b3lyp
+end
+#
+tddft
+  cis
+  nroots 5
+  notriplet
+  civecs
+end
+task tddft
+
+# cube file for td 1
+dplot
+  civecs co.civecs_singlet
+  root 1
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_01.cube
+end
+task dplot
+
+# cube file for td 4
+dplot
+  civecs co.civecs_singlet
+  root 4
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_04.cube
+end
+task dplot
+================================================================================
+
+
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 6.1.1
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2012
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = orion
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Tue Jan 15 11:47:29 2013
+
+    compiled        = Tue_Jan_15_11:33:31_2013
+    source          = /home/niri/nwchem/nwchem-dev
+    nwchem branch   = Development
+    nwchem revision = 23287
+    ga revision     = 10143
+    input           = co-civecs-td.nw
+    prefix          = co-civecs-td.
+    data base       = ./co-civecs-td.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   32768001 doubles =    250.0 Mbytes
+    stack    =   32768001 doubles =    250.0 Mbytes
+    global   =   65536000 doubles =    500.0 Mbytes (distinct from heap & stack)
+    total    =  131072002 doubles =   1000.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                   co-civecs-td
+                                   ------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+          ------
+          auto-z
+          ------
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.00000000
+    2 C                    6.0000     0.00000000     0.00000000     1.15000000
+
+      Atomic Mass 
+      ----------- 
+
+      O                 15.994910
+      C                 12.000000
+
+
+ Effective nuclear repulsion energy (a.u.)      22.0873982191
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000    13.0391093212
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.15000
+
+
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ O                     0.00000000     0.00000000     0.00000000
+ C                     0.00000000     0.00000000     1.15000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 C                |   1 O                |     2.17318  |     1.15000
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          1
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-dev/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                         def2-sv(p)                 on all atoms 
+
+
+ tddft_input: filename not found; default name will be used
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                                   co-civecs-td
+
+
+                      Basis "ao basis" -> "ao basis" (spherical)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.26617678E+03 -0.005343
+  1 S  3.40870102E+02 -0.039890
+  1 S  7.73631352E+01 -0.178539
+  1 S  2.14796449E+01 -0.464277
+  1 S  6.65894331E+00 -0.443097
+
+  2 S  8.09759757E-01  1.000000
+
+  3 S  2.55307722E-01  1.000000
+
+  4 P  1.77215043E+01  0.043395
+  4 P  3.86355054E+00  0.230941
+  4 P  1.04809209E+00  0.513753
+
+  5 P  2.76415444E-01  1.000000
+
+  6 D  1.20000000E+00  1.000000
+
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.23840169E+03  0.005457
+  1 S  1.86290050E+02  0.040638
+  1 S  4.22511763E+01  0.180256
+  1 S  1.16765579E+01  0.463151
+  1 S  3.59305065E+00  0.440872
+
+  2 S  4.02451474E-01  1.000000
+
+  3 S  1.30901827E-01  1.000000
+
+  4 P  9.46809706E+00  0.038388
+  4 P  2.01035451E+00  0.211170
+  4 P  5.47710047E-01  0.513282
+
+  5 P  1.52686138E-01  1.000000
+
+  6 D  8.00000000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                         def2-sv(p)                6       14   3s2p1d
+ C                         def2-sv(p)                6       14   3s2p1d
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     2
+          No. of electrons :    14
+           Alpha electrons :     7
+            Beta electrons :     7
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    28
+                     number of shells:    12
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           5.0       434
+          C                   0.70       49           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    98
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -112.31596440
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -112.696994
+ 1-e energy   =    -196.800123
+ 2-e energy   =      62.015731
+ HOMO         =      -0.384038
+ LUMO         =       0.032565
+
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+
+ #quartets = 3.080D+03 #integrals = 2.185D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./co-civecs-td.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =   6981
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = ./co-civecs-td.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      5        Max. recs in file   =     37237
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       32.57            32574079
+          Stack Space remaining (MW):       32.77            32767749
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -113.1699207156 -1.35D+02  3.56D-02  4.23D-01     0.2
+ d= 0,ls=0.0,diis     2   -112.9541868359  2.16D-01  2.31D-02  2.77D+00     0.2
+ d= 0,ls=0.0,diis     3   -113.2229904656 -2.69D-01  3.35D-03  1.10D-02     0.3
+  Resetting Diis
+ d= 0,ls=0.0,diis     4   -113.2240809706 -1.09D-03  6.35D-04  6.67D-04     0.3
+ d= 0,ls=0.0,diis     5   -113.2241550773 -7.41D-05  5.77D-05  1.59D-06     0.4
+ d= 0,ls=0.0,diis     6   -113.2241548828  1.95D-07  3.21D-05  4.00D-06     0.4
+ d= 0,ls=0.0,diis     7   -113.2241552085 -3.26D-07  1.17D-05  3.14D-07     0.5
+ d= 0,ls=0.0,diis     8   -113.2241552423 -3.38D-08  1.25D-06  2.22D-09     0.5
+
+
+         Total DFT energy =     -113.224155242327
+      One electron energy =     -197.358605158963
+           Coulomb energy =       75.908793111748
+    Exchange-Corr. energy =      -13.861741414230
+ Nuclear repulsion energy =       22.087398219118
+
+ Numeric. integr. density =       14.000000032167
+
+     Total iterative time =      0.4s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-1.924763D+01
+              MO Center= -9.5D-19,  4.1D-18,  1.9D-04, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.988701  1 O  s          
+
+ Vector    2  Occ=2.000000D+00  E=-1.031141D+01
+              MO Center=  1.7D-18, -1.8D-17,  1.1D+00, r^2= 2.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      0.989233  2 C  s          
+
+ Vector    3  Occ=2.000000D+00  E=-1.145132D+00
+              MO Center= -1.3D-16, -2.6D-16,  3.3D-01, r^2= 4.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.529745  1 O  s                 16      0.280119  2 C  s          
+     1      0.265112  1 O  s                  3      0.236806  1 O  s          
+    20     -0.221399  2 C  pz                 6      0.182218  1 O  pz         
+
+ Vector    4  Occ=2.000000D+00  E=-5.715487D-01
+              MO Center= -4.8D-18,  4.1D-16, -3.4D-03, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.486995  1 O  pz                16      0.388893  2 C  s          
+     3     -0.359788  1 O  s                  2     -0.325505  1 O  s          
+     9      0.233538  1 O  pz                15     -0.171314  2 C  s          
+     1     -0.154194  1 O  s          
+
+ Vector    5  Occ=2.000000D+00  E=-4.734889D-01
+              MO Center=  6.6D-16,  4.2D-16,  3.0D-01, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.491293  1 O  px                 7      0.298780  1 O  px         
+    18      0.285307  2 C  px                 5      0.267619  1 O  py         
+     8      0.162752  1 O  py                19      0.155413  2 C  py         
+
+ Vector    6  Occ=2.000000D+00  E=-4.734889D-01
+              MO Center= -3.0D-16,  3.4D-16,  3.0D-01, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.491293  1 O  py                 8      0.298780  1 O  py         
+    19      0.285307  2 C  py                 4     -0.267619  1 O  px         
+     7     -0.162752  1 O  px                18     -0.155413  2 C  px         
+
+ Vector    7  Occ=2.000000D+00  E=-3.791397D-01
+              MO Center= -3.0D-16, -7.7D-16,  1.4D+00, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.487310  2 C  s                 20      0.449294  2 C  pz         
+    16      0.398108  2 C  s                  6     -0.269977  1 O  pz         
+    15     -0.184957  2 C  s          
+
+ Vector    8  Occ=0.000000D+00  E=-3.751504D-02
+              MO Center= -5.5D-18, -1.3D-16,  9.3D-01, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.591978  2 C  py                19      0.566760  2 C  py         
+     8     -0.428086  1 O  py                 5     -0.406148  1 O  py         
+
+ Vector    9  Occ=0.000000D+00  E=-3.751504D-02
+              MO Center=  1.4D-16,  4.5D-17,  9.3D-01, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.591978  2 C  px                18      0.566760  2 C  px         
+     7     -0.428086  1 O  px                 4     -0.406148  1 O  px         
+
+ Vector   10  Occ=0.000000D+00  E= 2.174309D-01
+              MO Center= -6.3D-16, -2.2D-16,  8.5D-01, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17     -1.922124  2 C  s                  3      1.833047  1 O  s          
+    23      1.641334  2 C  pz                 9      0.552192  1 O  pz         
+    16      0.294538  2 C  s                 20      0.188373  2 C  pz         
+     2      0.186730  1 O  s          
+
+ Vector   11  Occ=0.000000D+00  E= 3.930214D-01
+              MO Center=  9.1D-16, -3.1D-15,  1.9D+00, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.519547  2 C  s                 17     -1.126814  2 C  s          
+    23     -0.782977  2 C  pz                20      0.326602  2 C  pz         
+     3     -0.306962  1 O  s                 15     -0.278850  2 C  s          
+     9     -0.182781  1 O  pz         
+
+ Vector   12  Occ=0.000000D+00  E= 4.543830D-01
+              MO Center=  2.3D-16,  2.9D-15,  1.2D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.111954  2 C  py                19     -0.967526  2 C  py         
+
+ Vector   13  Occ=0.000000D+00  E= 4.543830D-01
+              MO Center= -8.0D-16,  6.2D-17,  1.2D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.111954  2 C  px                18     -0.967526  2 C  px         
+
+ Vector   14  Occ=0.000000D+00  E= 6.996871D-01
+              MO Center=  2.8D-17, -1.1D-15,  5.3D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20     -1.105299  2 C  pz                16      1.009838  2 C  s          
+     9     -0.868061  1 O  pz                23      0.485408  2 C  pz         
+     2     -0.384447  1 O  s                  6     -0.274078  1 O  pz         
+    15     -0.156484  2 C  s          
+
+ Vector   15  Occ=0.000000D+00  E= 8.336892D-01
+              MO Center=  4.2D-16,  1.9D-15, -3.2D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      1.218507  1 O  pz                 6     -0.826462  1 O  pz         
+    16     -0.440796  2 C  s                  2      0.432299  1 O  s          
+    26     -0.216199  2 C  d  0              17     -0.196535  2 C  s          
+    23      0.194959  2 C  pz         
+
+ Vector   16  Occ=0.000000D+00  E= 9.428570D-01
+              MO Center= -3.5D-16, -2.8D-15,  7.5D-03, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.291492  1 O  py                 5     -0.929945  1 O  py         
+    22     -0.527839  2 C  py                 7      0.153987  1 O  px         
+
+ Vector   17  Occ=0.000000D+00  E= 9.428570D-01
+              MO Center= -1.3D-16, -3.7D-17,  7.5D-03, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.291492  1 O  px                 4     -0.929945  1 O  px         
+    21     -0.527839  2 C  px                 8     -0.153987  1 O  py         
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.93153429
+
+ moments of inertia (a.u.)
+ ------------------
+          32.380035712816           0.000000000000           0.000000000000
+           0.000000000000          32.380035712816           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -7.000000     -7.000000     14.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1     -0.059355     -6.549232     -6.549232     13.039109
+
+     2   2 0 0     -7.495783     -3.747892     -3.747892      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -7.495783     -3.747892     -3.747892      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -9.256277    -18.796336    -18.796336     28.336395
+
+
+ Parallel integral file used       4 records with       0 large values
+
+                                NWChem TDDFT Module
+                                -------------------
+
+
+                                   co-civecs-td
+
+
+            General Information
+            -------------------
+           No. of orbitals :    56
+            Alpha orbitals :    28
+             Beta orbitals :    28
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity :     1
+    Number of AO functions :    28
+        Use of symmetry is : off
+      Symmetry adaption is : off
+         Schwarz screening : 0.10D-07
+
+              XC Information
+              --------------
+                  B3LYP Method XC Potential
+              Hartree-Fock (Exact) Exchange   0.20          
+                 Slater Exchange Functional   0.80 local    
+             Becke 1988 Exchange Functional   0.72 non-local
+       Lee-Yang-Parr Correlation Functional   0.81          
+           VWN I RPA Correlation Functional   0.19 local    
+
+             TDDFT Information
+             -----------------
+          Calculation type : Tamm-Dancoff TDDFT
+         Wavefunction type : Restricted singlets
+          No. of electrons :    14
+           Alpha electrons :     7
+            Beta electrons :     7
+              No. of roots :     5
+          Max subspacesize :   147
+            Max iterations :   100
+               Target root :     1
+           Target symmetry : none
+      Symmetry restriction : off
+                 Algorithm : Optimal
+        Davidson threshold : 0.10D-03
+
+            Memory Information
+            ------------------
+          Available GA space size is         262143216 doubles
+          Available MA space size is          65534611 doubles
+          Length of a trial vector is          147
+          Algorithm : Incore multiple tensor contraction
+          Estimated peak GA usage is             99274 doubles
+          Estimated peak MA usage is             13000 doubles
+
+    5 smallest eigenvalue differences (eV) 
+--------------------------------------------------------
+  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)
+--------------------------------------------------------
+    1    1    7    8 a        -0.379    -0.038     9.296
+    2    1    7    9 a        -0.379    -0.038     9.296
+    3    1    6    8 a        -0.473    -0.038    11.863
+    4    1    6    9 a        -0.473    -0.038    11.863
+    5    1    5    8 a        -0.473    -0.038    11.863
+--------------------------------------------------------
+
+  Entering Davidson iterations
+  Restricted singlet excited states
+
+  Iter   NTrls   NConv    DeltaV     DeltaE      Time   
+  ----  ------  ------  ---------  ---------  --------- 
+    1      5       0     0.41E+00   0.10+100        0.4
+    2     10       0     0.20E+00   0.21E+00        0.4
+    3     15       1     0.81E-02   0.52E-01        0.4
+    4     19       1     0.94E-03   0.58E-04        0.4
+    5     23       5     0.69E-04   0.44E-06        0.4
+  ----  ------  ------  ---------  ---------  --------- 
+  Convergence criterion met
+ fn_civecs: ./co-civecs-td.civecs_singlet                                                                                                                                                                                                                                  
+
+  CI vectors are stored in ./co-civecs-td.civecs_singlet   
+
+  Ground state a     -113.224155242 a.u.
+
+  -------------------------------------------------------------
+  Root  1 singlet a     0.313037173 a.u.       8.5182 eV 
+  -------------------------------------------------------------
+     Transition Moments    X  0.04338   Y  0.68184   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.15504
+     Transition Moments   YY  0.00000  YZ  2.43685  ZZ  0.00000
+     Dipole Oscillator Strength                         0.09742
+
+     Occ.  4  a   ---  Virt.  8  a      0.19516
+     Occ.  7  a   ---  Virt.  8  a     -0.97734
+  -------------------------------------------------------------
+  Root  2 singlet a     0.313037173 a.u.       8.5182 eV 
+  -------------------------------------------------------------
+     Transition Moments    X -0.68184   Y  0.04338   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ -2.43685
+     Transition Moments   YY  0.00000  YZ  0.15504  ZZ  0.00000
+     Dipole Oscillator Strength                         0.09742
+
+     Occ.  4  a   ---  Virt.  9  a     -0.19516
+     Occ.  7  a   ---  Virt.  9  a      0.97734
+  -------------------------------------------------------------
+  Root  3 singlet a     0.346038075 a.u.       9.4162 eV 
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX -0.00005  XY  0.00000  XZ  0.00000
+     Transition Moments   YY -0.00006  YZ  0.00000  ZZ -0.00008
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  5  a   ---  Virt.  8  a      0.59788
+     Occ.  5  a   ---  Virt.  9  a     -0.37677
+     Occ.  6  a   ---  Virt.  8  a     -0.37677
+     Occ.  6  a   ---  Virt.  9  a     -0.59788
+  -------------------------------------------------------------
+  Root  4 singlet a     0.358768935 a.u.       9.7626 eV 
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX -0.33349  XY  0.05105  XZ  0.00000
+     Transition Moments   YY  0.33368  YZ  0.00000  ZZ  0.00015
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  5  a   ---  Virt.  8  a     -0.39150
+     Occ.  5  a   ---  Virt.  9  a      0.58842
+     Occ.  6  a   ---  Virt.  8  a     -0.58842
+     Occ.  6  a   ---  Virt.  9  a     -0.39150
+  -------------------------------------------------------------
+  Root  5 singlet a     0.358768941 a.u.       9.7626 eV 
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX -0.05098  XY -0.33359  XZ  0.00000
+     Transition Moments   YY  0.05111  YZ  0.00000  ZZ  0.00010
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  5  a   ---  Virt.  8  a      0.58842
+     Occ.  5  a   ---  Virt.  9  a      0.39150
+     Occ.  6  a   ---  Virt.  8  a     -0.39150
+     Occ.  6  a   ---  Virt.  9  a      0.58842
+
+              Target root =      1
+          Target symmetry = none
+      Ground state energy =   -113.224155242327
+        Excitation energy =      0.313037172641
+     Excited state energy =   -112.911118069687
+
+
+ Task  times  cpu:        2.5s     wall:        3.9s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  File vec is ./co-civecs-td.movecs                                                           
+
+  Limits (a.u.) specified for the density plot:
+  ---------------------------------------------
+
+        From        To      # of spacings
+X    -7.55891     7.55891        50
+Y    -7.55891     7.55891        50
+Z    -7.55891     7.55891        50
+
+  Total number of grid points =                132651
+
+  1-st set of MOs      : ./co-civecs-td.movecs
+  CIVECS file     : co.civecs_singlet
+  Output is written to : co-td_01.cube
+  Type of picture      : CHARGE DENSITY
+  Format used          : Gaussian9x Cube
+  Spin                 : TOTAL   
+  The density is computed using all orbitals
+  The density is computed on the specified grid
+  max element   9.071085813196826E-002
+
+  Aproximate Charge    =     0.00
+
+ Task  times  cpu:        0.2s     wall:        0.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  File vec is ./co-civecs-td.movecs                                                           
+
+  Limits (a.u.) specified for the density plot:
+  ---------------------------------------------
+
+        From        To      # of spacings
+X    -7.55891     7.55891        50
+Y    -7.55891     7.55891        50
+Z    -7.55891     7.55891        50
+
+  Total number of grid points =                132651
+
+  1-st set of MOs      : ./co-civecs-td.movecs
+  CIVECS file     : co.civecs_singlet
+  Output is written to : co-td_04.cube
+  Type of picture      : CHARGE DENSITY
+  Format used          : Gaussian9x Cube
+  Spin                 : TOTAL   
+  The density is computed using all orbitals
+  The density is computed on the specified grid
+  max element   0.152582347944057     
+
+  Aproximate Charge    =     0.00
+
+ Task  times  cpu:        0.2s     wall:        0.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 1751     1751     5.71e+04 6567     3.39e+04   92        0        0     
+number of processes/call 1.35e+00 1.67e+00 1.38e+00 2.00e+00 0.00e+00
+bytes total:             2.26e+07 1.51e+06 1.11e+07 7.21e+04 0.00e+00 0.00e+00
+bytes remote:            1.73e+07 4.46e+05 9.22e+06 -7.21e+04 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 268440 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        23	        47
+	current total bytes		         0	         0
+	maximum total bytes		   1551248	  22510584
+	maximum total K-bytes		      1552	     22511
+	maximum total M-bytes		         2	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+    J. Hammond, J. Autschbach, F. Aquino, S. Hirata, M. T. Hackler, K. Lopata,
+      J. Mullin, P. Nichols, R. Peverati, Y. Zhao, P.-D. Fan, R. J. Harrison,
+        M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+       B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+      G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
+        K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
+  T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening,
+         M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
+     R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu,
+      L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
+                  G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+
+ Total times  cpu:        2.9s     wall:        5.6s

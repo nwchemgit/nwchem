@@ -1,0 +1,56 @@
+#
+# transition densities for 5 roots
+#
+echo
+
+start co-civecs-td
+title co-civecs-td
+
+memory 1000 mb
+
+geometry units angstrom noautosym nocenter
+ O 0       0        0
+ C 0       0.00     1.15
+end
+
+basis spherical
+  * library "def2-sv(p)"
+end
+
+dft
+  xc b3lyp
+end
+#
+tddft
+  cis
+  nroots 5
+  notriplet
+  civecs
+end
+task tddft
+
+# cube file for td 1
+dplot
+  civecs co.civecs_singlet
+  root 1
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_01.cube
+end
+task dplot
+
+# cube file for td 4
+dplot
+  civecs co.civecs_singlet
+  root 4
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_04.cube
+end
+task dplot
