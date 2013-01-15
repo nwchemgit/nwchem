@@ -115,6 +115,11 @@
          call pspw_molecule_msize(msize)
          do m=1,msize
             call pspw_molecule_data(m,na,indxa,blist,cyclic)
+            do i=1,na-1
+               call ion_add_constraint()
+            end do
+            if (cyclic.eq.1) call ion_add_constraint()
+            
             if (taskid.eq.MASTER) then
             if (cyclic.eq.1) then
                write(*,'(A,A,10(A,I3,I3,A,F6.3,A))') 
