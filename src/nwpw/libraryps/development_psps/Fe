@@ -1,0 +1,37 @@
+#
+# $Id: Fe 19707 2010-10-29 17:59:36Z d3y133 $
+#
+Comment: Fe pseudopotential parameters
+Comment: Relativistic TM, 3s and 3p in the valence, multiple s and p projectors, no semicore
+Comment: Fe(III) reference atom
+Comment: developed by EJB
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+ <atom>
+ Fe
+  0.260000E+02  0.560000E+02   3   3
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.600000E+01
+   3   2  0.500000E+01
+ <end>
+ <solver> pauli                     <end>
+ <pseudopotential> troullier-martins         <end>
+ <rcut>
+   0  1.80
+   1  1.80
+   2  1.80
+ <end>
+ <kb_expansion>
+   0  2
+   1  2
+ <end>
+<screening_cut> 0.10 <end>
+<comment> Parameterized 3s3p3d valence (1/11/2013 by EJB) Troullier-Martin psp <end>
+
