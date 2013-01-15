@@ -148,6 +148,9 @@
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
 
+      integer  ion_nconstraints,ion_ndof
+      external ion_nconstraints,ion_ndof
+
     
 
 
@@ -383,6 +386,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
          endif
          write(luout,1220) en(1),en(cpsi_ispin()),
      >                 ' (fourier space)'
@@ -713,6 +717,7 @@ cc      call band_kp_structure(rtdb)
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1211 FORMAT(5X,'   number of constraints = ', I6,' (DOF=',I6,' )' )
  1220 FORMAT(/' number of electrons: spin up=',F8.2,
      >                          '  spin down=',F8.2,A)
  1221 FORMAT( ' number of orbitals:  spin up=',I8,
