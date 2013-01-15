@@ -186,8 +186,8 @@ cccc#include "frac_occ.fh"
       logical  meta_found,psp_U_psputerm
       external meta_found,psp_U_psputerm
 
-      integer  ion_nconstraint,ion_ndof
-      external ion_nconstraint,ion_ndof
+      integer  ion_nconstraints,ion_ndof
+      external ion_nconstraints,ion_ndof
 
 
 *                            |************|
@@ -551,7 +551,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
          write(luout,1200) vcx,vcy,vcz
          write(luout,1210) vgx,vgy,vgz
-         write(luout,1211) ion_nconstraint(),ion_ndof()
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
 
          if (fractional) then
