@@ -26,6 +26,10 @@ ifdef MRCC_METHODS
       LIB_DEFINES += -DMRCC_METHODS
 endif
 
+ifdef TCE_CUDA
+      LIB_DEFINES += -DTCE_CUDA
+endif
+
 OBJ = tce_input.o tce_init.o tce_energy.o tce_energy_fragment.o
 
 OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
