@@ -22,9 +22,9 @@ USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F \
             cr_qcisd_t.F m2_dot_m1t1.F
 
 
-ifdef TCE_GPU
- OBJ_OPTIMIZE += hybrid.o
- USES_BLAS +=
+ifdef TCE_CUDA
+ OBJ_OPTIMIZE += hybrid.o memory.o sd_t_total.o ccsd_t_gpu.o ccsd_t_singles_gpu.o ccsd_t_doubles_gpu.o
+ USES_BLAS += ccsd_t_singles_gpu.F ccsd_t_doubles_gpu.F
 endif
 
 LIB_DEFINES += -DDEBUG_PRINT
