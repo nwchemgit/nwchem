@@ -150,21 +150,17 @@ c
               end do ! ipol
             end do ! nroots
            close(unit=69,status='keep',err=1002) ! file
-           ok = 1
+         end if  ! nodezero
+         call ga_sync()
 c
-c          Separate out X and Y vectors if the calculations are not TDA
-c          Nothing needs to be done for TDA as Y is zero
-           if (.not.tda) then
-             do i=1,ipol
+c        Separate out X and Y vectors if the calculations are not TDA
+c        Nothing needs to be done for TDA as Y is zero
+         if (.not.tda) then
+          do i=1,ipol
               call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
               call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
-             enddo
-           end if
-c
-         end if  ! nodezero
-c
-         call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
-         call ga_sync()
+          enddo
+         end if
 c
 c        calculate X component of the transition density matrix
          call tddft_transfm(iroot,g_x,g_movecs,nbf_ao,nocc,nmo,

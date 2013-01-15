@@ -167,19 +167,17 @@ c -- If there is no specified file names of MO vectors, then looking for
 c    the scf or dft MO vectors names in RTDB.
       if (inp_compare(.false.,File_Vec,' ')) then
         tag = 'scf:input  vectors'
-        if (iproc.eq.0) then
-         write(luout,*) ' trying scf '
-        end if
+c        if (iproc.eq.0) then
+c         write(luout,*) ' trying scf '
+c        end if
         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
-        if (iproc.eq.0) then
-           write(luout,*) ' trying dft '
-        end if
+c        if (iproc.eq.0) then
+c           write(luout,*) ' trying dft '
+c        end if
            tag = 'dft:input  vectors'
            if (.not. rtdb_cget(rtdb, tag, 1, File_vec))
      .          call util_file_name('movecs',.false.,.false.,File_Vec)
-           if (iproc.eq.0) then
-             write(luout,*) ' File vec is ',File_Vec
-           end if
+           if (iproc.eq.0) write(luout,*) ' File vec is ',File_Vec
         endif
       endif
 c
