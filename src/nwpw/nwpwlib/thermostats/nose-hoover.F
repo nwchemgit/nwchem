@@ -27,7 +27,7 @@
 
 *     **** local variables ****
       logical value,nosers
-      integer i,rtdb,n,m,nc,g
+      integer i,rtdb,n,m,g
       real*8 pi,am,fmass,tmpe
       real*8 Te,Pe_tmp,betae
       real*8 Tr,Pr_tmp
@@ -136,8 +136,7 @@ c      Xr2 = 0.0d0
 
 *     **** Set Er0(1) = (1/2)*(g*k*T), where g=number of degrees of freedom ****
 *     **** Dimer molecule. note that the above formula may not work for linear molecules with more than two atoms. ****
-      nc = ion_nconstraints()
-      g = 3*ion_nion()-6-nc
+      g = 3*ion_nion()-6-ion_nconstraints()
       if (g.lt.1) g = 1
       dbl_mb(Er0(1)) = 0.5d0*g*kb*Tr
 
