@@ -220,6 +220,8 @@
 *     *****************************************
       call seperate_pointcharge(rtdb)
 
+*     **** intialize the number of constraints ***
+      nconstraints = 0
 
 *     **************************
 *     **** read in ion data ****
@@ -859,20 +861,14 @@ c         eki1=0.5d0*eki1
       double precision kb
       parameter (kb=3.16679d-6)
 
-      integer nc
-      double precision ave,T,g
-      integer  molecular_number_constraints
-      external molecular_number_constraints
+      integer dof
+      double precision ave,T
 
       T = 0.0d0
-      nc = molecular_number_constraints()
+      dof = 3*nion-6-nconstraints
+      if (dof<1) dof = 1
       ave = (ke_total/dble(ke_count))
-      if ((nion-nc).gt.2) then
-         g = 3.0d0*nion-6.0d0 - dble(nc)
-         T = 2.0d0*ave/(g)/kb
-      else
-         T = 2.0d0*ave/kb
-      end if
+      T = 2.0d0*ave/dble(dof)/kb
 
       ion_Temperature = T
       return 
@@ -2302,6 +2298,58 @@ c      end do
 
       return
       end
+
+*     ***************************
+*     *                         *
+*     *   ion_nconstraints      *
+*     *                         *
+*     ***************************
+      integer function ion_nconstraints()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      ion_nconstraints = nconstraints
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *       ion_ndof          *
+*     *                         *
+*     ***************************
+      integer function ion_ndof()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      integer dof
+
+      dof = 3*nion - 6 - nconstraints
+      if (dof<1) dof = 1
+
+      ion_ndof = dof
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *    ion_add_constraint   *
+*     *                         *
+*     ***************************
+      subroutine ion_add_constraint(nc)
+      implicit none             
+      integer nc
+
+***** ion common block ****
+#include "ion.fh"
+
+      nconstraints = nconstraints + nc
+      return
+      end
+
 
 
 *     ***************************

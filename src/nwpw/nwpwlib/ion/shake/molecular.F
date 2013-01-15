@@ -115,10 +115,11 @@
          call pspw_molecule_msize(msize)
          do m=1,msize
             call pspw_molecule_data(m,na,indxa,blist,cyclic)
-            do i=1,na-1
-               call ion_add_constraint()
-            end do
-            if (cyclic.eq.1) call ion_add_constraint()
+            if (cyclic.eq.1)  then
+               call ion_add_constraint(na)
+            else
+               call ion_add_constraint(na-1)
+            end if
             
             if (taskid.eq.MASTER) then
             if (cyclic.eq.1) then

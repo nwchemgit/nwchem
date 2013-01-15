@@ -1,6 +1,6 @@
 *     *************************
 *     *                       *
-*     *     ion_init_FixIon       *
+*     *     ion_init_FixIon   *
 *     *                       *
 *     *************************
       subroutine ion_init_FixIon(rtdb)
