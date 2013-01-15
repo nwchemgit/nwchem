@@ -368,6 +368,9 @@ c     **** allocate other variables ****
       call v_cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi1_tag)
 
 
+c*     **** initialize QM/MM ****
+c      call pspw_qmmm_init(rtdb)
+c
 
 
 *     ******************************
@@ -412,9 +415,6 @@ c     **** allocate other variables ****
       end if
 
 
-c*     **** initialize QM/MM ****
-c      call pspw_qmmm_init(rtdb)
-c
 c*     **** initialize dplot ****
 c      call dplot_iteration_init()
 
