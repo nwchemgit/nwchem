@@ -186,6 +186,9 @@
 
       character*255 cpsp_comment,comment
       external      cpsp_comment
+      integer  ion_nconstraints,ion_ndof
+      external ion_nconstraints,ion_ndof
+
 
 
 *                            |************|
@@ -534,6 +537,7 @@ c         call pspw_print_HFX(6)
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
          write(luout,1220) en(1),en(ispin),' (fourier space)'
          write(luout,1221) ne(1),neq(1),
@@ -797,6 +801,7 @@ c      call cpsi_data_dealloc(lmd_tag)
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
 
          write(luout,*)
@@ -1046,6 +1051,7 @@ c
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1211 FORMAT(5X,'   number of constraints = ', I6,' (DOF=',I6,' )' )
  1220 FORMAT(/' number of electrons: spin up=',F6.2, 16x,
      >                               '  down=',F6.2,A)
 c 1220 FORMAT(/' number of electrons: spin up=',I6,
@@ -1086,7 +1092,7 @@ c     >        A)
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
- 1271 FORMAT(5x, ' translation contrained')
+ 1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
