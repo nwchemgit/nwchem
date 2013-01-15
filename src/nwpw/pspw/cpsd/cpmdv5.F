@@ -186,6 +186,9 @@ cccc#include "frac_occ.fh"
       logical  meta_found,psp_U_psputerm
       external meta_found,psp_U_psputerm
 
+      integer  ion_nconstraint,ion_ndof
+      external ion_nconstraint,ion_ndof
+
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -548,6 +551,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
          write(luout,1200) vcx,vcy,vcz
          write(luout,1210) vgx,vgy,vgz
+         write(luout,1211) ion_nconstraint(),ion_ndof()
 
 
          if (fractional) then
@@ -1326,6 +1330,7 @@ c      call frac_occ_end()
 
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1211 FORMAT(5X,'   number of constraints = ', I6,'(DOF=',I6,' )' )
  1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)
  1220 FORMAT(/' number of electrons: spin up=',I6,
      >        ' (',I4,' per task)',
