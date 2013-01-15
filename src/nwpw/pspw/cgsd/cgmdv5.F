@@ -172,6 +172,9 @@
       external Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
       external Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
       external Nose_Mchain,Nose_Nchain
+      integer  ion_nconstraints,ion_ndof
+      external ion_nconstraints,ion_ndof
+
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -507,6 +510,7 @@ c         end if
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
          write(luout,1200) vcx,vcy,vcz
          write(luout,1210) vgx,vgy,vgz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
          !end if
 
@@ -943,29 +947,30 @@ c      call control_up_print()
 
       if (oprint) then
          call print_elapsed_time(icount*it_in*dt)
-         write(6,1300)
-         write(6,1410)
-         write(6,1420)
+         write(luout,1300)
+         write(luout,1410)
+         write(luout,1420)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else if (ion_q_zFixIon(I)) then
-           write(6,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            end if
          end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
 
-         write(6,1421)
-         write(6,1192) (I,ion_aname(I),
+         write(luout,1421)
+         write(luout,1192) (I,ion_aname(I),
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
-         write(6,1200) vcx,vcy,vcz
-         write(6,1210) vgx,vgy,vgz
+         write(luout,1200) vcx,vcy,vcz
+         write(luout,1210) vgx,vgy,vgz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
       end if
 
       EV = cgsd_noit_energy()
@@ -973,21 +978,21 @@ c      call control_up_print()
       if (oprint) then
 
          write(luout,1300)
-         write(6,1472) ion_ke(),ion_ke()/ion_nion()
+         write(luout,1472) ion_ke(),ion_ke()/ion_nion()
 
 *       **** write out Temperatures ****
          eki0 = ion_Temperature()
-         write(6,1480) eki0
-         write(6,1490) ion_com_Temperature()
+         write(luout,1480) eki0
+         write(luout,1490) ion_com_Temperature()
 
          eave = E25/dble(icount+icount_shift)
          evar = E26/dble(icount+icount_shift)
          evar = evar - eave*eave
          cv = (evar)/(kb*ion_Temperature()**2)
          cv = cv/dble(ion_nion())
-         write(6,1492) eave
-         write(6,1493) evar
-         write(6,1494) cv
+         write(luout,1492) eave
+         write(luout,1493) evar
+         write(luout,1494) cv
 
       end if
       call cgsd_energy_gradient(dbl_mb(fion(1)))
@@ -1202,6 +1207,7 @@ c      call frac_occ_end()
 
  1200 FORMAT(5X,'    G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1211 FORMAT(5X,'   number of constraints = ', I6,' (DOF=',I6,' )' )
  1219 FORMAT(/' number of active electrons: spin up=',F6.2,
      >        '  down=',F6.2,A)
  1220 FORMAT(/' number of active electrons: spin up=',I6,  

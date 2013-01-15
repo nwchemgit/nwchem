@@ -152,6 +152,9 @@
 
       logical pspw_bqext
       external pspw_bqext
+      integer  ion_nconstraints,ion_ndof
+      external ion_nconstraints,ion_ndof
+
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -392,6 +395,7 @@ c           call psp_check_print(ia)
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
          call pspw_charge_Print(luout)
          end if
@@ -716,6 +720,7 @@ c      call frac_occ_end()
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1211 FORMAT(5X,'   number of constraints = ', I6,' (DOF=',I6,' )' )
  1219 FORMAT(/' number of electrons: spin up=',F6.2,16x,
      >        '  down=',F6.2,A)
  1220 FORMAT(/' number of electrons: spin up=',I6,
