@@ -455,6 +455,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
                end do
             end do
+            call pspw_2qmmm_ion_add_constraint()
          end if
 
 *        *** more bond ****
@@ -1395,4 +1396,38 @@ c     **** external functions ***
 
       return
       end
+
+*     ***************************************
+*     *                                     *
+*     *      pspw_2qmmm_ion_add_constraint  *
+*     *                                     *
+*     ***************************************
+      subroutine pspw_2qmmm_ion_add_constraint()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "pspw_2qmmm.fh"
+
+*     **** local variables ****
+      integer w1,wk1,ks1,ns
+      integer nshk,ii,jj,kk
+
+      do w1=1,nfrag
+         wk1  = int_mb(kfrag(1)+w1-1)
+         nshk = int_mb(nshake(1)+wk1-1)
+         if (nshk.gt.0) then
+            ks1 = int_mb(indx_frag_start(1)+w1-1)
+            ii  = int_mb(nab_shake_start(1)  +wk1-1)
+            jj  = int_mb(nindx_shake_start(1)+wk1-1)
+            kk  = int_mb(ndsq_shake_start(1) +wk1-1)
+            do ns=1,nshk
+               call ion_add_constraint(int_mb(nb(1)+ii-1+ns-1))
+            end do
+         end if
+      end do
+      return
+      end
+
+
 
