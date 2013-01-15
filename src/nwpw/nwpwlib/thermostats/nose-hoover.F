@@ -27,8 +27,8 @@
 
 *     **** local variables ****
       logical value,nosers
-      integer i,rtdb,n,m,nc
-      real*8 pi,am,fmass,tmpe,g
+      integer i,rtdb,n,m,nc,g
+      real*8 pi,am,fmass,tmpe
       real*8 Te,Pe_tmp,betae
       real*8 Tr,Pr_tmp
 
@@ -39,7 +39,7 @@
       real*8   control_Nose_Pr
       real*8   control_Nose_Tr
       real*8   ion_amass
-      integer  ion_nion,control_rtdb,molecular_number_constraints
+      integer  ion_nion,control_rtdb,ion_nconstraints
       
       external control_fake_mass
       external control_Nose_Pe
@@ -47,7 +47,7 @@
       external control_Nose_Pr
       external control_Nose_Tr
       external ion_amass
-      external ion_nion,control_rtdb,molecular_number_constraints
+      external ion_nion,control_rtdb,ion_nconstraints
      
 
 *     ************************************
@@ -135,18 +135,23 @@ c      Xr2 = 0.0d0
  
 
 *     **** Set Er0(1) = (1/2)*(g*k*T), where g=number of degrees of freedom ****
-      nc = molecular_number_constraints()
-      if ((ion_nion()-nc).gt.2) then
-c        Er0 = 0.5d0*(3.0d0*dble(ion_nion())-6.0d0)*kb*Tr
-        g = 3.0d0*dble(ion_nion())-6.0d0 - dble(nc)
-        dbl_mb(Er0(1)) = 0.5d0*g*kb*Tr
+*     **** Dimer molecule. note that the above formula may not work for linear molecules with more than two atoms. ****
+      nc = ion_nconstraints()
+      g = 3*ion_nion()-6-nc
+      if (g.lt.1) g = 1
+      dbl_mb(Er0(1)) = 0.5d0*g*kb*Tr
 
-*     **** Dimer molecule. note that the above formula may not work for ****
-*     **** linear molecules with more than two atoms.                   ****
-      else
-c        Er0 = 0.5d0*(1)*kb*Tr
-        dbl_mb(Er0(1)) = 0.5d0*(1)*kb*Tr
-      end if
+c      if ((ion_nion()-nc).gt.2) then
+cc        Er0 = 0.5d0*(3.0d0*dble(ion_nion())-6.0d0)*kb*Tr
+c        g = 3.0d0*dble(ion_nion())-6.0d0 - dble(nc)
+c        dbl_mb(Er0(1)) = 0.5d0*g*kb*Tr
+c
+c*     **** Dimer molecule. note that the above formula may not work for ****
+c*     **** linear molecules with more than two atoms.                   ****
+c      else
+cc        Er0 = 0.5d0*(1)*kb*Tr
+c        dbl_mb(Er0(1)) = 0.5d0*(1)*kb*Tr
+c      end if
 
 *     **** Set Er0(2:Nchain) = 1/2*(k*T) ****
       if (Nchain.gt.1) then
