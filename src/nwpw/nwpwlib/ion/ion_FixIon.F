@@ -182,6 +182,7 @@
 
   102 continue
       if (count.ne.0) then
+         call ion_add_constraint(3*count)
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
           write(*,*)
@@ -218,6 +219,7 @@
       end if
 
       if (countz.ne.0) then
+         call ion_add_constraint(countz)
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
           write(*,*)
@@ -263,6 +265,7 @@
 
 
       if (count2.ne.0) then
+         call ion_add_constraint(3*count2)
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
           write(*,*) 
