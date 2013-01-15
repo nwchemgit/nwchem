@@ -1242,7 +1242,7 @@ c      call frac_occ_end()
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters for minimizer:')
- 1271 FORMAT(5x, ' translation contrained')
+ 1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10, 
