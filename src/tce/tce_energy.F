@@ -3302,9 +3302,19 @@ c
               call ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                           d_v2,k_v2_offset,pt3_2,size_t1)
             else
+
+#ifdef TCE_CUDA
+              if (nodezero) write(LuOut,*) 'Using CUDA CCSD(T) code'
+              if (nodezero) call util_flush(LuOut)
+              call ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+#else
               if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
+              if (nodezero) call util_flush(LuOut)
               call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+#endif
+
             endif
           elseif (restart_ccsd_t.gt.0) then
             pt3_1 = 0.0d0
