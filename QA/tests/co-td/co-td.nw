@@ -1,0 +1,92 @@
+#
+# transition densities for 5 roots
+#
+echo
+
+start co-td
+title co-td
+
+memory 1000 mb
+
+geometry units angstrom noautosym nocenter
+ O 0       0        0
+ C 0       0.00     1.15
+end
+
+basis spherical
+  * library "def2-sv(p)"
+end
+
+dft
+  xc b3lyp
+end
+#
+# the "transden" keyword will produce the ao rep of the transition density for all 5 roots
+# these files have the .tdens_ suffix
+tddft
+  cis
+  nroots 5
+  notriplet
+  transden
+end
+task tddft
+
+# cube file for td 1
+dplot
+  densmat co-td.tdens_000001
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_01.cube
+end
+task dplot
+
+# cube file for td 2
+dplot
+  densmat co-td.tdens_000002
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_02.cube
+end
+task dplot
+
+# cube file for td 3
+dplot
+  densmat co-td.tdens_000003
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_03.cube
+end
+task dplot
+
+# cube file for td 4
+dplot
+  densmat co-td.tdens_000004
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_04.cube
+end
+task dplot
+
+# cube file for td 5
+dplot
+  densmat co-td.tdens_000005
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-td_05.cube
+end
+task dplot
