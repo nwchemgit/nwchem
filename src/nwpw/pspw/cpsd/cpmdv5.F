@@ -361,6 +361,8 @@ cccc#include "frac_occ.fh"
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
       
+*     **** initialize QM/MM ****
+      call pspw_qmmm_init(rtdb)
 
 *     ******************************
 *     **** scaling psi velocity ****
@@ -421,8 +423,6 @@ cccc#include "frac_occ.fh"
       end if
 
 
-*     **** initialize QM/MM ****
-      call pspw_qmmm_init(rtdb)
 
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
