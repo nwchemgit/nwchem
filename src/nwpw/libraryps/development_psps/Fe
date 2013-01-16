@@ -1,10 +1,39 @@
 #
 # $Id: Fe 19707 2010-10-29 17:59:36Z d3y133 $
 #
+
 Comment: Fe pseudopotential parameters
 Comment: Relativistic TM, 3s and 3p in the valence, multiple s and p projectors, no semicore
 Comment: Fe(III) reference atom
-Comment: developed by EJB
+Comment: Developed by EJB on 1/11/2013
+Comment:
+Comment: Results for Goethite (Conventional cell)
+Comment: XC        Ecut     Monkhorst-Pack         Energy     a(Angstroms)     b(Angstroms)     c(Angstroms)
+Comment: PBE96       50              1x3x2  -615.21524684            9.866            2.974            4.514   antiferromagnetic
+Comment: PBE96       60              1x3x2  -615.26213095            9.952            3.002            4.581   antiferromagnetic
+Comment: PBE96       70              1x3x2  -615.27419176           10.020            3.016            4.631   antiferromagnetic
+Comment: PBE96       80              1x3x2  -615.27582459           10.044            3.018            4.639   antiferromagnetic
+Comment: experiment (T=25C)                                          9.9134           3.0128           4.5800  antiferromagnetic
+Comment:
+Comment: Results for Hematite
+Comment:
+Comment: experiment
+Comment:
+Comment: Results for FeO (X^5 Delta) molecule
+Comment: XC          Ecut/Basis         Energy     Re(Angstroms)     w(cm-1)     De(eV)
+Comment: PBE96               50  -137.11786912           1.55944
+Comment: PBE96               60  -137.12269296           1.55792
+Comment: PBE96               70  -137.12410210           1.55756
+Comment: PBE96               80  -137.12435249           1.55773 
+Comment: experiment                                      1.57           965        4.26
+Comment:
+Comment: Results for Fe atom (quintet)
+Comment: XC          Ecut/Basis         Energy
+Comment: PBE96               50   -121.1479154
+Comment: PBE96               60   -121.1470458
+Comment: PBE96               70   -121.1473092
+Comment: PBE96               80   -121.1474909
+Comment:
 
 [lmax] 2
 [locp] 0
@@ -33,5 +62,5 @@ Comment: developed by EJB
    1  2
  <end>
 <screening_cut> 0.10 <end>
-<comment> Parameterized 3s3p3d valence (1/11/2013 by EJB) Troullier-Martin psp <end>
+<comment> Parameterized Fe Troullier-Martin psp (3s3p3d4s4p projectors, 1/11/2013 by EJB) <end>
 
