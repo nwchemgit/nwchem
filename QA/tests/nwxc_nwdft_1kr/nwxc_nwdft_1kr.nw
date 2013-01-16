@@ -1,0 +1,103 @@
+# $Id$
+echo
+start nwxc_dat
+
+geometry
+  Kr 0.0 0.0 0.0
+end
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+# Uncontracted the 2 outer S-functions from the core shell.
+basis
+Kr    S
+ 121095.8700000             -0.0017062        
+  18179.4990000             -0.0130372        
+   4135.0244000             -0.0649915        
+   1166.5606000             -0.2236678        
+    379.5258400             -0.4665839        
+    130.8760500             -0.3715006        
+Kr    S
+    253.4819300              0.1097265        
+     30.0462320             -0.6301801        
+     12.5257890             -0.4442448        
+Kr    S
+     23.2690980             -0.2343607        
+      3.8678875              0.7351894        
+      1.6436802              0.3983798        
+Kr    S
+      2.7904565              0.2305767        
+      0.4676485             -0.7249465        
+Kr    S
+      0.1750899              1.0000000        
+Kr    P
+   1659.8844000             -0.0083195        
+    392.5200600             -0.0633941        
+    124.8949600             -0.2500195        
+     45.4285890             -0.5049266        
+     17.0162090             -0.3497957        
+Kr    P
+      9.3987393             -0.3290142        
+      3.8150619             -0.5438178        
+      1.5717667             -0.2324568        
+Kr    P
+      0.8101745              0.3373338        
+      0.3064747              0.5352931        
+Kr    P
+      0.1093540              1.0000000        
+Kr    D
+     67.8193990              0.0580719        
+     19.0035410              0.2812775        
+      6.1890315              0.5301052        
+      1.9192995              0.4008533        
+Kr    D
+      0.4020000              1.0000000 
+end
+
+# LDA exchange
+
+dft
+  vectors input atomic
+  xc slater
+end
+task dft energy
+
+# GGA exchange
+
+dft
+  vectors input atomic
+  xc xpbe96
+end
+task dft energy
+
+# meta-GGA exchange
+
+dft
+  vectors input atomic
+  xc xvs98
+end
+task dft energy
+
+# Hartree-Fock exchange + LDA(PW91) correlation 
+
+dft
+  vectors input atomic
+  xc hfexch pw91lda
+end
+task dft energy
+
+# Hartree-Fock exchange + GGA correlation 
+
+dft
+  vectors input atomic
+  xc hfexch cpbe96
+end
+task dft energy
+
+# Hartree-Fock exchange + meta-GGA correlation 
+
+dft
+  vectors input atomic
+  xc hfexch cvs98
+end
+task dft energy

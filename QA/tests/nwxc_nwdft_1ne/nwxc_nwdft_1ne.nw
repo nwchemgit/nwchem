@@ -1,0 +1,81 @@
+# $Id$
+echo
+start nwxc_dat
+
+geometry
+  Ne 0.0 0.0 0.0
+end
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+basis
+Ne    S
+   7883.8261000              0.0020375        
+   1184.4055000              0.0155468        
+    269.6730900              0.0759638        
+     75.9416520              0.2511027        
+     24.3210950              0.4804765        
+      8.1832559              0.3251142        
+Ne    S
+     17.4495240             -0.0790100        
+      1.5516316              0.5676274        
+Ne    S
+      0.4476985              1.0000000        
+Ne    P
+     52.9038080              0.0187911        
+     12.1233610              0.1157605        
+      3.5859225              0.3342627        
+      1.0921634              0.4778038        
+Ne    P
+      0.2994419              1.0000000        
+Ne    D
+      1.2000000              1.0000000 
+end
+
+# LDA exchange
+
+dft
+  vectors input atomic
+  xc slater
+end
+task dft energy
+
+# GGA exchange
+
+dft
+  vectors input atomic
+  xc xpbe96
+end
+task dft energy
+
+# meta-GGA exchange
+
+dft
+  vectors input atomic
+  xc xvs98
+end
+task dft energy
+
+# Hartree-Fock exchange + LDA(PW91) correlation 
+
+dft
+  vectors input atomic
+  xc hfexch pw91lda
+end
+task dft energy
+
+# Hartree-Fock exchange + GGA correlation 
+
+dft
+  vectors input atomic
+  xc hfexch cpbe96
+end
+task dft energy
+
+# Hartree-Fock exchange + meta-GGA correlation 
+
+dft
+  vectors input atomic
+  xc hfexch cvs98
+end
+task dft energy

@@ -1,0 +1,71 @@
+# $Id$
+echo
+start nwxc_dat
+
+geometry
+  He 0.0 0.0 0.0
+end
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+# Uncontracted the 2 outer S-functions from the core shell.
+basis
+  He    S
+    221.3880300              0.0027491        
+     33.2619660              0.0208658        
+      7.5616549              0.0970588        
+  He    S
+      2.0855990              0.2807289        
+  He    S
+      0.6143392              0.4742218        
+  He    S
+      0.1829212              1.0000000        
+end
+
+# LDA exchange
+
+dft
+  vectors input atomic
+  xc slater
+end
+task dft energy
+
+# GGA exchange
+
+dft
+  vectors input atomic
+  xc xpbe96
+end
+task dft energy
+
+# meta-GGA exchange
+
+dft
+  vectors input atomic
+  xc xvs98
+end
+task dft energy
+
+# Hartree-Fock exchange + LDA(PW91) correlation 
+
+dft
+  vectors input atomic
+  xc hfexch pw91lda
+end
+task dft energy
+
+# Hartree-Fock exchange + GGA correlation 
+
+dft
+  vectors input atomic
+  xc hfexch cpbe96
+end
+task dft energy
+
+# Hartree-Fock exchange + meta-GGA correlation 
+
+dft
+  vectors input atomic
+  xc hfexch cvs98
+end
+task dft energy
