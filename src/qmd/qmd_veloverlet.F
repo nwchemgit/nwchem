@@ -106,7 +106,7 @@ c     instantaneous kinetic energy
       call qmd_kinetic(nat,m,v,ekin)
 c
 c     instantaneous temperature
-      final_temp = 2.0d0*ekin/kb/(1.d0*ndof)
+      final_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
 c
       return
       end

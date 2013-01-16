@@ -26,7 +26,7 @@ c
       pname='qmd_berendsen: '
 c
 c     instantaneous temperature
-      inst_temp = 2.0d0*ekin/kb/(1.d0*ndof)
+      inst_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
 c
 c     velocity scaling factor: Berendsen scaling
       ratio_temp = targ_temp/inst_temp

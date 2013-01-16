@@ -32,10 +32,10 @@ c     temperature
       common/qmd_temps/targ_temp,final_temp
 c
 c     integrators
-      logical do_vv                      ! velocity verlet
-      common/qmd_integrators/do_vv
+      logical do_veloverlet                      ! velocity verlet
+      common/qmd_integrators/do_veloverlet
 c
 c     nuclear-md constraints
       logical do_linear
-      integer ndof
-      common/qmd_constr/do_linear,ndof
+      integer ndeg
+      common/qmd_constr/do_linear,ndeg

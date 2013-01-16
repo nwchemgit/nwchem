@@ -117,7 +117,7 @@ c     nuclear md integrator
      $ call errquit(pname//'failed to read integrator',0,RTDB_ERR)
       if (ga_nodeid().eq.0) 
      & write(luout,*) "integrator_nucl: ",integrator_nucl
-      if (integrator_nucl.eq.'velocity-verlet') do_vv = .true.
+      if (integrator_nucl.eq.'velocity-verlet') do_veloverlet = .true.
 c
 c     berendsen tau parameter
       if (.not.rtdb_get(rtdb,'qmd:tau',mt_dbl,1,tau))

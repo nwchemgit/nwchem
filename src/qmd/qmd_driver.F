@@ -108,11 +108,11 @@ c     get the active atoms (also need a check for linearity)
      $   call errquit(pname//'grad_active_atoms',nat,MA_ERR)
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
 c      if (do_linear) then    ! check for linear flag
-c        ndof = 3*nactive-5   ! 3N-5 (linear)
+c        ndeg = 3*nactive-5   ! 3N-5 (linear)
 c      else
-c        ndof = 3*nactive-6   ! 3N-6 (general)
+c        ndeg = 3*nactive-6   ! 3N-6 (general)
 c      end if
-      ndof = 3*nactive
+      ndeg = 3*nactive-6
 c
 c     get the masses, initial coordinates
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
@@ -145,7 +145,7 @@ c       print md run information
          write(luout,*)
          call util_print_centered(LuOut,'QMD Run Information',20,.true.)
          write(luout,*) "istep_nucl: ",istep_nucl
-         write(luout,*) "Time elapsed: ",(istep_nucl-1)*dt_nucl*au2fs
+         write(luout,*) "Time elapsed: ",istep_nucl*dt_nucl*au2fs
          write(luout,*) "ekin: ",ekin
          write(luout,*) "esys: ",esys
          write(luout,*) "etotal: ",etotal

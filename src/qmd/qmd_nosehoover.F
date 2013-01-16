@@ -38,7 +38,7 @@ c
       v_nh(2) = v_nh(2) + g_nh(2)*dt4
       v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
 c
-      g_nh(1) = (2.0d0*ekin - ndof*kbt)/m_nh(1)
+      g_nh(1) = (2.0d0*ekin - ndeg*kbt)/m_nh(1)
 c
       v_nh(1) = v_nh(1) + g_nh(1)*dt4
       v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
@@ -52,7 +52,7 @@ c     scale kinetic energy
       ekin = ekin*scalefac*scalefac
 c
 c     nose-hoover 2 chain formula: Frenkel & Smit
-      g_nh(1) = (2.0d0*ekin - ndof*kbt)/m_nh(1)
+      g_nh(1) = (2.0d0*ekin - ndeg*kbt)/m_nh(1)
 c
       v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
       v_nh(1) = v_nh(1) + g_nh(1)*dt4

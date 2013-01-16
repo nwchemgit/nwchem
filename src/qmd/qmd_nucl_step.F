@@ -51,7 +51,7 @@ c
       end if ! istep 
 c
 c     choose the integrator
-      if (do_vv) then
+      if (do_veloverlet) then
         call qmd_veloverlet(rtdb,geom,nat,dt,m,r,v,g,esys,ekin)
       else 
         call errquit(pname//'unknown integrator',0,CALC_ERR)

@@ -42,7 +42,7 @@ c     Set default values
 c     ------------------
 c
 c     Nuclear MD time step: dt_nucl
-      dt_nucl = 5.d0
+      dt_nucl = 1.d0
       if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
      & call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
 c
@@ -62,7 +62,7 @@ c     Total number of electronic time steps: nstep_elec
      & call errquit(pname//'failed to write nstep_elec',0,RTDB_ERR)
 c
 c     Target nuclear MD temperature: targ_temp (Kelvin)
-      targ_temp = 300.d0  ! Kelvin
+      targ_temp = 298.d0  ! Kelvin
       if (.not.rtdb_put(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
      & call errquit(pname//'failed to write targ_temp',0,RTDB_ERR)
 c
@@ -72,7 +72,7 @@ c     Nuclear thermostat
      & call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
 c     Berendsen tau parameter
-      tau=10.d0
+      tau=0.1d0
       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
@@ -102,12 +102,12 @@ c
       if (.not. inp_a(test)) 
      1  call errquit(pname//'failed reading keyword',0,INPUT_ERR)
 c
-c     Nuclear MD time step: dt_nucl
+c     Nuclear MD time step: dt_nucl in femtoseconds
       if (inp_compare(.false.,test,'dt_nucl')) then
        if (.not.inp_f(dt_nucl)) then
           write(luout,*) 'dt_nucl: value not found; ',
-     1      'default value of 5.d0 will be used'
-          dt_nucl = 5.d0
+     1      'default value of 1.0 au will be used'
+          dt_nucl = 1.d0
        endif
        if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
      &  call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
@@ -147,8 +147,8 @@ c     Target nuclear MD temperature: targ_temp (Kelvin)
       else if (inp_compare(.false.,test,'targ_temp')) then
        if (.not.inp_f(targ_temp)) then
           write(luOut,*) 'targ_temp: value not found; ',
-     1      'default value of 300.d0 will be used'
-          targ_temp = 300.d0  ! Kelvin
+     1      'default value of 298.d0 will be used'
+          targ_temp = 298.d0  ! Kelvin
        endif
        if (.not.rtdb_put(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
      &  call errquit(pname//'failed to write targ_temp',0,
@@ -169,7 +169,7 @@ c     Nuclear thermostat: Berendsen
           thermostat='berendsen'
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-       if (.not.inp_f(tau)) tau = 10.d0
+       if (.not.inp_f(tau)) tau = 0.1d0
        if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
