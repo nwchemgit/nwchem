@@ -694,7 +694,7 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
         call Cram_cc_daxpy(nb,-1.0d0,psi0(1,n),psi2(1,n))
         call Cram_cc_Sum2(nb,psi1(1,n),psi2(1,n))
         call Cram_c_SMul1(nb,2.0d0*sse,psi2(1,n))
-        call Cram_cc_Sum2(nb,psi1(1,n),psi2(1,n))
+        call Cram_cc_Sum2(nb,psi0(1,n),psi2(1,n))
       end do
 
       return
