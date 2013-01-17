@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: $
+# $Id: nwxc_nwdft_3he.nw 23458 2013-01-16 22:48:03Z d3y133 $
 echo
 start nwxc_dat
 
@@ -87,6 +87,16 @@ dft
   xc hfexch cvs98
 end
 task dft energy
+
+# GGA exchange + GGA correlation
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc cpbe96
+end
+task dft energy
 ================================================================================
 
 
@@ -128,8 +138,8 @@ task dft energy
            ---------------
 
     hostname        = arcen
-    program         = ../../../bin/LINUX64/nwchem
-    date            = Wed Jan 16 14:04:25 2013
+    program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
+    date            = Wed Jan 16 15:46:46 2013
 
     compiled        = Wed_Jan_16_13:58:47_2013
     source          = /home/d3y133/nwchem-dev/nwchem-ref
@@ -138,9 +148,9 @@ task dft energy
     ga revision     = 10183
     input           = nwxc_nwdft_3he.nw
     prefix          = nwxc_dat.
-    data base       = ./nwxc_dat.db
+    data base       = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.db
     status          = startup
-    nproc           =        1
+    nproc           =        4
     time left       =     -1s
 
 
@@ -159,8 +169,8 @@ task dft energy
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir
 
 
 
@@ -205,6 +215,9 @@ task dft energy
  geometry
  He                    0.00000000     0.00000000     0.00000000
 
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-ref/QA/../src/basis/libraries/>
+  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   He (Helium)
@@ -315,24 +328,27 @@ task dft energy
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./nwxc_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  12178
+ Max. records in memory =      2        Max. records in file   =   3037
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Grid_pts file          = ./nwxc_dat.gridpts.0
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     64949
+ Max. records in memory =      3        Max. recs in file   =     16202
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864872
+           Heap Space remaining (MW):       12.94            12938652
           Stack Space remaining (MW):       13.11            13107061
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -1.8494861879 -1.85D+00  1.91D-01  1.54D-01     0.0
+ d= 0,ls=0.0,diis     1     -1.8494861879 -1.85D+00  1.91D-01  1.54D-01     0.1
                                                      0.00D+00  0.00D+00
   Resetting Diis
  d= 0,ls=0.0,diis     2     -1.8731369782 -2.37D-02  9.92D-03  5.54D-04     0.1
@@ -431,10 +447,10 @@ task dft energy
       <S2> =      2.0000 (Exact =     2.0000)
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.1s     wall:        0.1s
+ Task  times  cpu:        0.1s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -526,19 +542,22 @@ task dft energy
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./nwxc_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  12176
+ Max. records in memory =      2        Max. records in file   =   3037
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Grid_pts file          = ./nwxc_dat.gridpts.0
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     64939
+ Max. records in memory =      3        Max. recs in file   =     16202
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864872
+           Heap Space remaining (MW):       12.94            12938652
           Stack Space remaining (MW):       13.11            13107061
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
@@ -641,10 +660,10 @@ task dft energy
       <S2> =      2.0000 (Exact =     2.0000)
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.1s     wall:        0.1s
+ Task  times  cpu:        0.1s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -736,19 +755,22 @@ task dft energy
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./nwxc_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  12176
+ Max. records in memory =      2        Max. records in file   =   3037
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Grid_pts file          = ./nwxc_dat.gridpts.0
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     64939
+ Max. records in memory =      3        Max. recs in file   =     16202
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864872
+           Heap Space remaining (MW):       12.94            12938652
           Stack Space remaining (MW):       13.11            13107061
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
@@ -756,7 +778,7 @@ task dft energy
  d= 0,ls=0.0,diis     1     -1.9151954146 -1.92D+00  2.44D-01  2.70D-01     0.2
                                                      0.00D+00  0.00D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2     -1.9564518127 -4.13D-02  2.17D-02  1.43D-03     0.3
+ d= 0,ls=0.0,diis     2     -1.9564518127 -4.13D-02  2.17D-02  1.43D-03     0.2
                                                      0.00D+00  0.00D+00
  d= 0,ls=0.0,diis     3     -1.9566950854 -2.43D-04  6.85D-04  3.37D-06     0.3
                                                      0.00D+00  0.00D+00
@@ -854,10 +876,10 @@ task dft energy
       <S2> =      2.0000 (Exact =     2.0000)
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.1s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -951,33 +973,36 @@ task dft energy
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./nwxc_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  12176
+ Max. records in memory =      2        Max. records in file   =   3037
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Grid_pts file          = ./nwxc_dat.gridpts.0
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     64939
+ Max. records in memory =      3        Max. recs in file   =     16202
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864872
+           Heap Space remaining (MW):       12.94            12938652
           Stack Space remaining (MW):       13.11            13107061
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -1.9894714381 -1.99D+00  1.70D-01  2.24D-01     0.4
+ d= 0,ls=0.0,diis     1     -1.9894714381 -1.99D+00  1.70D-01  2.24D-01     0.3
                                                      0.00D+00  0.00D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.0235991285 -3.41D-02  3.36D-02  8.44D-03     0.4
+ d= 0,ls=0.0,diis     2     -2.0235991285 -3.41D-02  3.36D-02  8.44D-03     0.3
                                                      0.00D+00  0.00D+00
  d= 0,ls=0.0,diis     3     -2.0248425262 -1.24D-03  4.26D-04  1.71D-06     0.4
                                                      0.00D+00  0.00D+00
  d= 0,ls=0.0,diis     4     -2.0248426723 -1.46D-07  6.22D-05  1.58D-08     0.4
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     5     -2.0248426746 -2.34D-09  3.67D-06  4.23D-11     0.5
+ d= 0,ls=0.0,diis     5     -2.0248426746 -2.34D-09  3.67D-06  4.23D-11     0.4
                                                      0.00D+00  0.00D+00
 
 
@@ -1068,10 +1093,10 @@ task dft energy
       <S2> =      2.0000 (Exact =     2.0000)
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.1s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -1161,39 +1186,42 @@ task dft energy
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      0.5
-   Time prior to 1st pass:      0.5
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
 
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./nwxc_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  12176
+ Max. records in memory =      2        Max. records in file   =   3037
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Grid_pts file          = ./nwxc_dat.gridpts.0
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     64939
+ Max. records in memory =      3        Max. recs in file   =     16202
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864872
+           Heap Space remaining (MW):       12.94            12938652
           Stack Space remaining (MW):       13.11            13107061
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -1.9571524001 -1.96D+00  1.65D-01  2.14D-01     0.5
+ d= 0,ls=0.0,diis     1     -1.9571524001 -1.96D+00  1.65D-01  2.14D-01     0.4
                                                      0.00D+00  0.00D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2     -1.9900151077 -3.29D-02  3.36D-02  8.55D-03     0.6
+ d= 0,ls=0.0,diis     2     -1.9900151077 -3.29D-02  3.36D-02  8.55D-03     0.5
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     3     -1.9912783451 -1.26D-03  3.99D-04  2.47D-06     0.6
+ d= 0,ls=0.0,diis     3     -1.9912783451 -1.26D-03  3.99D-04  2.47D-06     0.5
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     4     -1.9912784928 -1.48D-07  5.38D-05  1.80D-08     0.7
+ d= 0,ls=0.0,diis     4     -1.9912784928 -1.48D-07  5.38D-05  1.80D-08     0.5
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     5     -1.9912784946 -1.81D-09  3.20D-06  3.73D-11     0.7
+ d= 0,ls=0.0,diis     5     -1.9912784946 -1.81D-09  3.20D-06  3.73D-11     0.5
                                                      0.00D+00  0.00D+00
 
 
@@ -1205,7 +1233,7 @@ task dft energy
 
  Numeric. integr. density =        1.999999209612
 
-     Total iterative time =      0.3s
+     Total iterative time =      0.1s
 
 
 
@@ -1284,10 +1312,10 @@ task dft energy
       <S2> =      2.0000 (Exact =     2.0000)
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.4s
 
 
                                 NWChem Input Module
@@ -1376,41 +1404,44 @@ task dft energy
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      0.7
-   Time prior to 1st pass:      0.7
+   Time after variat. SCF:      0.6
+   Time prior to 1st pass:      0.6
 
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./nwxc_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  12176
+ Max. records in memory =      2        Max. records in file   =   3037
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Grid_pts file          = ./nwxc_dat.gridpts.0
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     64939
+ Max. records in memory =      3        Max. recs in file   =     16202
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864872
+           Heap Space remaining (MW):       12.94            12938652
           Stack Space remaining (MW):       13.11            13107061
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -1.9915116881 -1.99D+00  9.24D-02  1.94D-01     0.8
+ d= 0,ls=0.0,diis     1     -1.9915116881 -1.99D+00  9.24D-02  1.94D-01     0.6
                                                      0.00D+00  0.00D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.0184984424 -2.70D-02  3.09D-02  7.61D-03     0.8
+ d= 0,ls=0.0,diis     2     -2.0184984424 -2.70D-02  3.09D-02  7.61D-03     0.6
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     3     -2.0196440663 -1.15D-03  2.78D-03  2.50D-05     0.9
+ d= 0,ls=0.0,diis     3     -2.0196440663 -1.15D-03  2.78D-03  2.50D-05     0.6
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     4     -2.0196490585 -4.99D-06  7.07D-04  1.26D-06     0.9
+ d= 0,ls=0.0,diis     4     -2.0196490585 -4.99D-06  7.07D-04  1.26D-06     0.6
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     5     -2.0196493109 -2.52D-07  1.25D-05  2.81D-09     0.9
+ d= 0,ls=0.0,diis     5     -2.0196493109 -2.52D-07  1.25D-05  2.81D-09     0.7
                                                      0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     6     -2.0196493113 -3.66D-10  6.74D-07  1.01D-11     1.0
+ d= 0,ls=0.0,diis     6     -2.0196493113 -3.66D-10  6.74D-07  1.01D-11     0.7
                                                      0.00D+00  0.00D+00
 
 
@@ -1422,7 +1453,7 @@ task dft energy
 
  Numeric. integr. density =        1.999999173224
 
-     Total iterative time =      0.2s
+     Total iterative time =      0.1s
 
 
 
@@ -1501,10 +1532,228 @@ task dft energy
       <S2> =      2.0000 (Exact =     2.0000)
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.2s     wall:        0.3s
+ Task  times  cpu:        0.2s     wall:        0.4s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  pbe96 is a nonlocal functional; adding pw91lda local functional. 
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :     2
+           Alpha electrons :     2
+            Beta electrons :     0
+          Charge           :     0
+          Spin multiplicity:     3
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:     4
+                     number of shells:     4
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+            Perdew 1991 LDA Correlation Functional  1.000 local    
+           PerdewBurkeErnz. Correlation Functional  1.000 non-local
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          He                  0.35       49           4.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    49
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -2.86104912
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -2.861049
+ 1-e energy   =      -3.886256
+ 2-e energy   =       1.025207
+ HOMO         =      -0.917921
+ LUMO         =       0.533533
+
+   Time after variat. SCF:      0.7
+   Time prior to 1st pass:      0.7
+
+ #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =   3037
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      3        Max. recs in file   =     16202
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.94            12938652
+          Stack Space remaining (MW):       13.11            13107061
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1     -1.1483749375 -1.15D+00  3.22D-02  1.06D-02     0.7
+                                                     0.00D+00  0.00D+00
+  Resetting Diis
+ d= 0,ls=0.0,diis     2     -1.1495768585 -1.20D-03  8.08D-04  3.53D-05     0.8
+                                                     0.00D+00  0.00D+00
+ d= 0,ls=0.0,diis     3     -1.1495803584 -3.50D-06  1.90D-04  2.57D-07     0.8
+                                                     0.00D+00  0.00D+00
+ d= 0,ls=0.0,diis     4     -1.1495803880 -2.96D-08  2.31D-05  6.41D-09     0.8
+                                                     0.00D+00  0.00D+00
+ d= 0,ls=0.0,diis     5     -1.1495803887 -7.25D-10  1.03D-07  3.19D-14     0.8
+                                                     0.00D+00  0.00D+00
+
+
+         Total DFT energy =       -1.149580388739
+      One electron energy =       -2.374987357223
+           Coulomb energy =        1.241829847184
+    Exchange-Corr. energy =       -0.016422878701
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        1.999999155916
+
+     Total iterative time =      0.1s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-4.011538D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.452154  1 He s                  4      0.355248  1 He s          
+     2      0.263795  1 He s          
+
+ Vector    2  Occ=1.000000D+00  E= 4.858916D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.496497  1 He s                  3     -1.179687  1 He s          
+
+ Vector    3  Occ=0.000000D+00  E= 3.076225D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      2.194094  1 He s                  2     -1.623439  1 He s          
+     4     -0.894749  1 He s          
+
+ Vector    4  Occ=0.000000D+00  E= 1.715662D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.940463  1 He s                  1     -1.566345  1 He s          
+     3     -1.170215  1 He s                  4      0.381667  1 He s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=0.000000D+00  E=-1.999455D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.534436  1 He s                  2      0.393903  1 He s          
+
+ Vector    2  Occ=0.000000D+00  E=-4.297210D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.425783  1 He s                  3     -0.779137  1 He s          
+     2     -0.179463  1 He s          
+
+ Vector    3  Occ=0.000000D+00  E= 1.660957D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      2.326776  1 He s                  2     -1.542767  1 He s          
+     4     -1.055360  1 He s          
+
+ Vector    4  Occ=0.000000D+00  E= 1.518102D+01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.976638  1 He s                  1     -1.563709  1 He s          
+     3     -1.213669  1 He s                  4      0.400374  1 He s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4
+    beta      1      2      3      4
+ overlap   0.969  0.964  0.990  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      2.0000 (Exact =     2.0000)
+
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        0.1s     wall:        0.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -1515,10 +1764,10 @@ task dft energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1266     1266     4354     1820     2017        0        0        0     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             4.46e+05 1.42e+05 2.58e+05 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+calls: 1480     1480     3350     1406     1152        0        0        0     
+number of processes/call 1.13e+00 1.16e+00 1.34e+00 0.00e+00 0.00e+00
+bytes total:             3.55e+05 1.34e+05 1.47e+05 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.44e+04 7.20e+03 1.24e+04 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 8320 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1530,8 +1779,8 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        23	        47
 	current total bytes		         0	         0
-	maximum total bytes		   1938264	  22509680
-	maximum total K-bytes		      1939	     22510
+	maximum total bytes		   1348392	  22509680
+	maximum total K-bytes		      1349	     22510
 	maximum total M-bytes		         2	        23
 
 
@@ -1572,4 +1821,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        1.0s     wall:        1.3s
+ Total times  cpu:        0.8s     wall:        3.5s
