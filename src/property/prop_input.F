@@ -476,6 +476,11 @@ c     what EFG options will appear
      &       INPUT_ERR)
          endif
 c             
+      else if (inp_compare(.false.,'print', test) .or. 
+     $        inp_compare(.false.,'noprint', test)) then
+c          
+         call util_print_input(rtdb, 'prop')
+c
       elseif ( inp_compare(.false., 'end', test)) then
          goto 99999
       else
