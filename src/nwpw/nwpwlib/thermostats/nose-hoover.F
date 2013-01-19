@@ -26,7 +26,7 @@
 
 
 *     **** local variables ****
-      logical value,nosers
+      logical value
       integer i,rtdb,n,m,g
       real*8 pi,am,fmass,tmpe
       real*8 Te,Pe_tmp,betae
@@ -835,5 +835,17 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
 #include "nose-hoover.fh"
       Nose_Nchain = Nchain
+      return
+      end
+
+*     *********************
+*     *                   *
+*     *    Nose_restart   *
+*     *                   *
+*     *********************
+      logical function Nose_restart()
+      implicit none
+#include "nose-hoover.fh"
+      Nose_restart = nosers
       return
       end
