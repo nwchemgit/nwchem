@@ -146,10 +146,11 @@ c
       call dft_cscf_scftype(scftype)
 c
       if ((.not.even).and.(.not.odft).and.(.not.rodft)) then
+       if (ga_nodeid().eq.0)
+     &    write(luout,"(10x,'Number of electrons: ',i10)") nel
        call errquit(
-     &  'Odd number of electrons. Please specify if this 
-     &a restricted open-shell or open-shell calculation',0,
-     &       INPUT_ERR)
+     &  'Odd number of electrons. Please specify a 
+     &restricted open-shell or open-shell calculation',nel,INPUT_ERR)
       end if
 c     
 c     odd # of electrons or not a singlet state --> LSD
