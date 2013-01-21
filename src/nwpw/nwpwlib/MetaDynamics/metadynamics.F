@@ -279,9 +279,11 @@ c     **********************************************
       if (taskid.eq.MASTER) then
          write(luout,*) 
          write(luout,*)  "MetaDynamics parameters:"
-         write(luout,'(A,5x,I6)')"   - update      = ",maxmetacount
-         write(luout,'(A,5x,I6)')"   - print       = ",maxmetaprintcount
-         write(luout,'(A,5x,I6)')"   - print_shift = ",metarayshift
+         write(luout,'(A,5x,I6," * inner iterations")')
+     >   "   - update      = ",maxmetacount
+         write(luout,'(A,5x,I6," * inner iterations")')
+     >   "   - print       = ",maxmetaprintcount
+         write(luout,'(A,5x,I6)') "   - print_shift = ",metarayshift
          if (dTtempered.gt.0.0d0) then
             write(luout,'(A,5x,F11.6)') 
      >      "   - Tempered dT (K) = ",dTtempered
