@@ -39,7 +39,7 @@ c     **********************************************
       metaprintcount = 0
       rtdb_name = 'metadynamics_print'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)) 
-     >   maxmetaprintcount=100
+     >   maxmetaprintcount=1
 
       rtdb_name = 'metadynamics_nmeta'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nmeta)) nmeta = 0
@@ -58,7 +58,7 @@ c     **********************************************
 
          rtdb_name = 'metadynamics_print_shift'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metarayshift)) 
-     >      metarayshift = 0
+     >      metarayshift = maxmetaprintcount
 
          rtdb_name = 'metadynamics_metaraycount'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metaraycount)) 
@@ -1371,6 +1371,7 @@ c     **********************************************
                write(53,'(A,I8)') "#metacount ",metacount
                write(53,'(A,I8)') "#metarayshift ",metarayshift
                write(53,'(A,I8)') "#metaraycount ",metaraycount
+               write(53,'(A,I8)')"#maxmetaprintcount ",maxmetaprintcount
                write(53,'(A,F18.12)') "#dTempered ",dTtempered
                write(53,'(A,I8)') "#nxmeta_all ",nxmeta_all
 
@@ -1578,6 +1579,7 @@ c               close(53)
            write(54,'(A,I8)') "#metacount ",metacount
            write(54,'(A,I8)') "#metarayshift ",metarayshift
            write(54,'(A,I8)') "#metaraycount ",metaraycount
+           write(54,'(A,I8)') "#maxmetaprintcount ",maxmetaprintcount
          end if
       end if
 

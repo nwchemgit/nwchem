@@ -20,9 +20,10 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 16)
+      parameter (num_dirs = 17)
       character*18 dirs(num_dirs)
       data dirs / 'update',
+     >            'print',
      >            'print_shift',
      >            'bond',
      >            'angle',
@@ -71,6 +72,7 @@ c
       integer metaindexmax
       integer nmeta,nxmeta_all,nindxmeta,nparammeta
       integer maxmetacount,metacount,metarayshift,metaraycount
+      integer maxmetaprintcount
       integer j,jstart,jlast,jstride,n1,n2,i,d,jj(10)
       integer nka,nkb,nkc,nkd,nka_gs,nkb_gs,nkc_gs,nkd_gs
 
@@ -143,8 +145,8 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
-      goto ( 100, 150, 200, 300, 400, 500, 600, 701,702,703, 800,900,
-     >      1000,1100,1200,
+      goto ( 100, 120,150, 200, 300, 400, 500, 600, 701,702,703, 800,
+     >       900,1000,1100,1200,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -154,6 +156,18 @@ c  update
 c
  100  if (inp_i(sindx(1))) then
          rtdb_name = 'metadynamics_update'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,sindx)
+         if (.not. value) call errquit(
+     >   'metadynamics_input:failed writing update',0, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  print
+c
+ 120  if (inp_i(sindx(1))) then
+         rtdb_name = 'metadynamics_print'
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,sindx)
          if (.not. value) call errquit(
      >   'metadynamics_input:failed writing update',0, RTDB_ERR)
@@ -952,6 +966,7 @@ c
           read(53,*) test,metacount
           read(53,*) test,metarayshift
           read(53,*) test,metaraycount
+          read(53,*) test,maxmetaprintcount
           read(53,*) test,dTtempered
           read(53,*) test,nxmeta_all
 
@@ -1021,9 +1036,11 @@ c
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metarayshift)
           rtdb_name = 'metadynamics_metaraycount'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
+          rtdb_name = 'metadynamics_print'
+          value=value.and.
+     >          rtdb_put(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)
           rtdb_name = 'metadynamics_tempered'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,dTtempered)
-
           rtdb_name = 'metadynamics_ymeta'
           value=value.and.
      >       rtdb_put(rtdb,rtdb_name,mt_dbl,nxmeta_all,dbl_mb(ymeta(1)))
