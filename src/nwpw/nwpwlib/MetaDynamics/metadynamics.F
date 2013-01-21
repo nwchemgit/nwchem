@@ -39,7 +39,7 @@ c     **********************************************
       metaprintcount = 0
       rtdb_name = 'metadynamics_print'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)) 
-     >   maxmetaprintcount=1
+     >   maxmetaprintcount=100
 
       rtdb_name = 'metadynamics_nmeta'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nmeta)) nmeta = 0
