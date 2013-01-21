@@ -78,7 +78,6 @@ c     **********************************************
          if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,12,sn2)) then
             call dcopy(12,0.0d0,0,sn2,1)
          end if
-         write(*,*) "sn2=",sn2
 
          value = .true.
          if (nmeta.gt.0) then
