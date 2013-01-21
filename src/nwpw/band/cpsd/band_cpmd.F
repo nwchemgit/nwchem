@@ -157,8 +157,8 @@ c      parameter (autoatm =290.360032539d6)
       external     cpsp_semicore,pspw_qmmm_found
       external     cpsp_rcore,cpsp_ncore,cpsp_rlocal,ion_TotalCharge
 
-      logical  control_Nose,control_Mulliken,control_print
-      external control_Nose,control_Mulliken,control_print
+      logical  control_Nose,control_Mulliken,control_print,Nose_restart
+      external control_Nose,control_Mulliken,control_print,Nose_restart
 
       integer  Nose_Mchain,Nose_Nchain
       external Nose_Mchain,Nose_Nchain
@@ -626,6 +626,11 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          write(luout,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
            write(luout,1295)
+           if (Nose_restart()) then
+              write(*,*) "    thermostats resused"
+           else
+              write(*,*) "    thermostats initialized"
+           end if
            do i=1,Nose_Mchain()
              write(luout,1297) i,control_Nose_Te(),Nose_Qe(i),
      >                     Nose_Pe(i),Nose_Ee0(i)
