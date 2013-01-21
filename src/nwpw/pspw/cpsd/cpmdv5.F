@@ -605,9 +605,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
          if (control_Nose()) then
            write(luout,1295)
            if (Nose_restart()) then
-              write(*,*) "    thermostats resused"
+              write(luout,*) "    thermostats resused"
            else
-              write(*,*) "    thermostats initialized"
+              write(luout,*) "    thermostats initialized"
            end if
            do i=1,Nose_Mchain()
              write(luout,1297) i,control_Nose_Te(),Nose_Qe(i),
