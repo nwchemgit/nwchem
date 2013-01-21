@@ -146,8 +146,8 @@ cccc#include "frac_occ.fh"
       external     psp_semicore,pspw_qmmm_found
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  control_Nose,control_Mulliken
-      external control_Nose,control_Mulliken
+      logical  control_Nose,control_Mulliken,Nose_restart
+      external control_Nose,control_Mulliken,Nose_restart
 
       integer  Nose_Mchain,Nose_Nchain
       external Nose_Mchain,Nose_Nchain
@@ -604,6 +604,11 @@ c      call frac_occ_init(rtdb,ispin,ne)
          write(luout,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
            write(luout,1295)
+           if (Nose_restart()) then
+              write(*,*) "    thermostats resused"
+           else
+              write(*,*) "    thermostats initialized"
+           end if
            do i=1,Nose_Mchain()
              write(luout,1297) i,control_Nose_Te(),Nose_Qe(i),
      >                     Nose_Pe(i),Nose_Ee0(i)
