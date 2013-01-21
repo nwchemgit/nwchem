@@ -91,39 +91,25 @@
      >  call errquit("Nose_Init: out of heap memory",0,MA_ERR)
 
 *     **** restart using Newton Step ??? ****
-c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
-c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
-c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
       if ((.not.rtdb_get(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))) 
-     >      .or.(.not.nosers))
-     >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))) 
-     >      .or.(.not.nosers))
-     >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))) 
-     >      .or.(.not.nosers))
-     >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
-
+     >.or.(.not.rtdb_get(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))) 
+     >.or.(.not.rtdb_get(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))) 
+     >.or.(.not.rtdb_get(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))) 
+     >.or.(.not.rtdb_get(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))) 
+     >.or.(.not.rtdb_get(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))) 
+     >      .or.(.not.nosers)) then
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
+         nosers = .false.
+      end if
       call dcopy(Mchain,0.0d0,0,dbl_mb(Xe2(1)),1)
       call dcopy(Mchain,Pe_tmp,0,dbl_mb(Pe(1)),1)
-
-
-c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
-c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
-c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))) 
-     >      .or.(.not.nosers))
-     >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))) 
-     >      .or.(.not.nosers))
-     >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))) 
-     >      .or.(.not.nosers))
-     >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
-
       call dcopy(Nchain,0.0d0,0,dbl_mb(Xr2(1)),1)
       call dcopy(Nchain,Pr_tmp,0,dbl_mb(Pr(1)),1)
-
 
 
 c      Xe0 = 0.0d0
