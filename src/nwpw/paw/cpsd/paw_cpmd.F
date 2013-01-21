@@ -137,6 +137,7 @@
 #include "rtdb.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
+#include "stdio.fh"
       
       logical value
 
@@ -264,8 +265,8 @@
       real*8       nwpw_timing,paw_psi_CheckOrtho
       external     nwpw_timing,paw_psi_CheckOrtho
 
-      logical  control_Nose
-      external control_Nose
+      logical  control_Nose,Nose_restart
+      external control_Nose,Nose_restart
 
       integer  Nose_Mchain,Nose_Nchain
       external Nose_Mchain,Nose_Nchain
@@ -313,25 +314,25 @@
 
 *     ***** print out header ****
       if (taskid.eq.MASTER) then
-         write(6,1000)
-         write(6,1010)
-         write(6,1020)
-         write(6,1010)
-         write(6,1030)
-         write(6,1010)
-         write(6,1035)
-         write(6,1036)
-         write(6,1010)
-         write(6,1040)
-         write(6,1010)
-         write(6,1041)
-         write(6,1010)
-         write(6,1042)
-         write(6,1043)
-         write(6,1010)
-         write(6,1000)
+         write(luout,1000)
+         write(luout,1010)
+         write(luout,1020)
+         write(luout,1010)
+         write(luout,1030)
+         write(luout,1010)
+         write(luout,1035)
+         write(luout,1036)
+         write(luout,1010)
+         write(luout,1040)
+         write(luout,1010)
+         write(luout,1041)
+         write(luout,1010)
+         write(luout,1042)
+         write(luout,1043)
+         write(luout,1010)
+         write(luout,1000)
          call nwpw_message(1)
-         write(6,1110)
+         write(luout,1110)
       end if
       
       value = control_read(7,rtdb)
@@ -513,15 +514,15 @@ c      call init_paw_density(ispin,lmax)
      >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
           if (taskid.eq.MASTER) then
             if (ms.eq.1) then
-              write(*,*) "Warning: ",
+              write(luout,*) "Warning: ",
      >                   "Gram-Schmidt performed on up spin of psi2 "
-              write(*,*) "       : (old error=",deltae,
+              write(luout,*) "       : (old error=",deltae,
      >                   " new error=",deltac,")"
             end if
             if (ms.eq.2) then
-              write(*,*) "Warning: ",
+              write(luout,*) "Warning: ",
      >                   "Gram-Schmidt performed on down spin of psi2 "
-              write(*,*) "       : (old error=",deltae,
+              write(luout,*) "       : (old error=",deltae,
      >                   " new error=",deltac,")"
             end if
 
@@ -605,44 +606,44 @@ c      call pspw_qmmm_init(rtdb)
       mulliken = control_Mulliken()
 
       if (taskid.eq.MASTER) then
-         write(6,1111) np
-         write(6,1117) np_i,np_j
-         if (mapping.eq.1) write(6,1112)
-         if (mapping.eq.2) write(6,1113)
-         if (mapping.eq.3) write(6,1118)
+         write(luout,1111) np
+         write(luout,1117) np_i,np_j
+         if (mapping.eq.1) write(luout,1112)
+         if (mapping.eq.2) write(luout,1113)
+         if (mapping.eq.3) write(luout,1118)
 
-         write(6,1115)
-         write(6,1121) control_boundry(),control_version()
-         if (ispin.eq.1) write(6,1130) 'restricted'
-         if (ispin.eq.2) write(6,1130) 'unrestricted'
+         write(luout,1115)
+         write(luout,1121) control_boundry(),control_version()
+         if (ispin.eq.1) write(luout,1130) 'restricted'
+         if (ispin.eq.2) write(luout,1130) 'unrestricted'
          IF (control_gga().eq.0) THEN
-            write(6,1131) 'Vosko et al parameterization'
+            write(luout,1131) 'Vosko et al parameterization'
          ELSE IF (control_gga().eq.10) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'PBE96 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.11) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'BLYP (White and Bird) parameterization'
          ELSE IF (control_gga().eq.12) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'revPBE (White and Bird) parameterization'
          ELSE
-            write(6,1131) 'unknown parameterization'
+            write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0,0)
          END IF
 
-         write(6,1140)
+         write(luout,1140)
          do ia = 1,ion_nkatm()
-            write(6,1141) ia,ion_atom(ia),
+            write(luout,1141) ia,ion_atom(ia),
      >                    paw_basis_ion_charge(ia),
      >                    paw_basis_core_charge(ia)
-            write(6,1143) paw_basis_sphere_radius(ia)
-            !write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
-            write(6,1144) paw_basis_sigma(ia)
-            write(6,1150) paw_proj_nbasis(ia)
-            write(6,1151)
+            write(luout,1143) paw_basis_sphere_radius(ia)
+            !write(luout,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
+            write(luout,1144) paw_basis_sigma(ia)
+            write(luout,1150) paw_proj_nbasis(ia)
+            write(luout,1151)
             do i=1,paw_basis_nbasis(ia)
-              write(6,1152) paw_basis_n_ps(i,ia),
+              write(luout,1152) paw_basis_n_ps(i,ia),
      >                      paw_basis_n(i,ia),
      >                      spdf_name(paw_basis_orb_l(i,ia)),
      >                      paw_basis_eig(i,ia),
@@ -656,90 +657,93 @@ c      call pspw_qmmm_init(rtdb)
      >                        (paw_basis_ion_charge(ia)
      >                        -paw_basis_core_charge(ia))
          end do
-         write(6,1159) icharge
+         write(luout,1159) icharge
 
-         write(6,1160)
-         write(6,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
-         write(6,1180)
+         write(luout,1160)
+         write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
+         write(luout,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+           write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+           write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
            end if
          end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
 
 
 
-         write(6,1181)
-         write(6,1192) (I,ion_aname(I),
+         write(luout,1181)
+         write(luout,1192) (I,ion_aname(I),
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
-         write(6,1200) vcx,vcy,vcz
-         write(6,1210) vgx,vgy,vgz
+         write(luout,1200) vcx,vcy,vcz
+         write(luout,1210) vgx,vgy,vgz
 
 
-
-
-         write(6,1220) ne(1),ne(ispin),' ( fourier space)'
-         write(6,1230)
-         write(6,1241) lattice_unita(1,1),
+         write(luout,1220) ne(1),ne(ispin),' ( fourier space)'
+         write(luout,1230)
+         write(luout,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
      >                 lattice_unita(3,1)
-         write(6,1242) lattice_unita(1,2),
+         write(luout,1242) lattice_unita(1,2),
      >                 lattice_unita(2,2),
      >                 lattice_unita(3,2)
-         write(6,1243) lattice_unita(1,3),
+         write(luout,1243) lattice_unita(1,3),
      >                 lattice_unita(2,3),
      >                 lattice_unita(3,3)
-         write(6,1244) lattice_unitg(1,1),
+         write(luout,1244) lattice_unitg(1,1),
      >                 lattice_unitg(2,1),
      >                 lattice_unitg(3,1)
-         write(6,1245) lattice_unitg(1,2),
+         write(luout,1245) lattice_unitg(1,2),
      >                 lattice_unitg(2,2),
      >                 lattice_unitg(3,2)
-         write(6,1246) lattice_unitg(1,3),
+         write(luout,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
-         write(6,1231) lattice_omega()
-         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1231) lattice_omega()
+         write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(0),pack_nwave(0)
-         write(6,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(1),pack_nwave(1)
-         write(6,1260) paw_mult_rcut(),paw_mult_ncut()
-         write(6,1270)
-         write(6,1262) lmax
-         if (.not.control_translation()) write(6,1271)
-         if (.not.control_rotation())    write(6,1272)
-         write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_rte(),control_rti()
-         write(6,1222) eke0,eki0,ekg
-         write(6,1223) eke1,eki1
-         write(6,1224) (eke1-eke0),(eki1-eki0)
+         write(luout,1260) paw_mult_rcut(),paw_mult_ncut()
+         write(luout,1270)
+         write(luout,1262) lmax
+         if (.not.control_translation()) write(luout,1271)
+         if (.not.control_rotation())    write(luout,1272)
+         write(luout,1280) control_time_step(),control_fake_mass()
+         write(luout,1290) control_rte(),control_rti()
+         write(luout,1222) eke0,eki0,ekg
+         write(luout,1223) eke1,eki1
+         write(luout,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
-           write(6,1295)
+           write(luout,1295)
+           if (Nose_restart()) then
+              write(luout,*) "    thermostats resused"
+           else
+              write(luout,*) "    thermostats initialized"
+           end if
            do i=1,Nose_Mchain()
-             write(6,1297) i,control_Nose_Te(),Nose_Qe(i),
+             write(luout,1297) i,control_Nose_Te(),Nose_Qe(i),
      >                     Nose_Pe(i),Nose_Ee0(i)
            end do
            do i=1,Nose_Nchain()
-             write(6,1298) i,control_Nose_Tr(),Nose_Qr(i),
+             write(luout,1298) i,control_Nose_Tr(),Nose_Qr(i),
      >                     Nose_Pr(i),Nose_Er0(i)
            end do
          else
-           write(6,1294)
+           write(luout,1294)
          end if
         if (control_SA()) then
-           write(6,1296) sa_decay(1),sa_decay(2)
+           write(luout,1296) sa_decay(1),sa_decay(2)
          end if
 
-         if (mulliken) write(6,1299)
-         write(6,1300)
-         write(6,1305)
-         call util_flush(6)
+         if (mulliken) write(luout,1299)
+         write(luout,1300)
+         write(luout,1305)
+         call util_flush(luout)
       end if
 
 
