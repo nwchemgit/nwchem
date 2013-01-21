@@ -130,7 +130,7 @@ c
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
       double precision alpha,emin,emax
       double precision Pe,Pr,Te,Tr
-      integer npoints
+      integer npoints,mchain,nchain
       logical mulliken,allow_translation
       integer ispin,multiplicity,space_avail
       integer nx,ny,nz,minimizer,h_values,i_values,nuterms
@@ -1200,6 +1200,8 @@ c
       Pr = 100.00d0
       Te = 298.15d0
       Tr = 298.15d0
+      mchain = 1
+      nchain = 1
       if (.not. inp_f(fe)) goto 6601
       Pe = fe
       if (.not. inp_f(fe)) goto 6601
@@ -1213,6 +1215,8 @@ c
       if (inp_compare(.false.,zone_name,'start'))      nosers=.false.
       if (inp_compare(.false.,zone_name,'clear'))      nosers=.false.
       if (inp_compare(.false.,zone_name,'initialize')) nosers=.false.
+      if (.not.inp_i(mchain)) goto 6601
+      if (.not.inp_i(nchain)) goto 6601
  6601 value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
      >   .and.rtdb_put(rtdb,'nwpw:nose',mt_log,1,nose)
       value = value.and.
@@ -1226,6 +1230,10 @@ c
       value = value.and.rtdb_put(rtdb,'nwpw:Pr',mt_dbl,1,Pr)
       value = value.and.rtdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
       value = value.and.rtdb_put(rtdb,'nwpw:Tr',mt_dbl,1,Tr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,mchain)
+      value = value.and.rtdb_put(rtdb,'nwpw:Mchain',mt_int,1,mchain)
+      value = value.and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,nchain)
+      value = value.and.rtdb_put(rtdb,'nwpw:Nchain',mt_int,1,nchain)
       if (.not.value)
      > call errquit('nwpw_input: writing ', 6600, RTDB_ERR)
       goto 10
