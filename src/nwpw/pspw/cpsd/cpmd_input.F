@@ -91,7 +91,7 @@ c
        character*50 exchange_correlation,zone_name
        logical geometry_optimize,frac_coord,mulliken,mulliken_kawai
        double precision fake_mass,time_step,rcut
-       integer loop(2),npsp,ncut
+       integer loop(2),npsp,ncut,mchain,nchain
        double precision scaling(2),ecut,wcut
        logical          nose,nosers
        double precision Pe,Te,fe
@@ -360,6 +360,8 @@ c
       Pr = 100.00d0
       Te = 298.15d0
       Tr = 298.15d0
+      mchain = 1
+      nchain = 1
       if (.not. inp_f(fe)) goto 1901   
       Pe = fe
       if (.not. inp_f(fe)) goto 1901   
@@ -373,6 +375,8 @@ c
       if (inp_compare(.false.,zone_name,'start'))      nosers=.false.
       if (inp_compare(.false.,zone_name,'clear'))      nosers=.false.
       if (inp_compare(.false.,zone_name,'initialize')) nosers=.false.
+      if (.not.inp_i(mchain)) goto 1901
+      if (.not.inp_i(nchain)) goto 1901
  1901 value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
       value = value.and.
      >        rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,nosers)
@@ -380,6 +384,8 @@ c
       value = value.and.rtdb_put(rtdb,'cpmd:Te',mt_dbl,1,Te)
       value = value.and.rtdb_put(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
       value = value.and.rtdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,mchain)
+      value = value.and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,nchain)
       if (.not.value)
      > call errquit('cpmd_input: writing ', 1900, RTDB_ERR)
       goto 10
