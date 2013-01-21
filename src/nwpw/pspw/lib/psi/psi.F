@@ -4693,6 +4693,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
          alpha = control_ks_alpha()
          kT    = smearkT
          ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+         if (dabs(ZZ).lt.1.0d-9) go to 98
+
          if (ispin.eq.2) then
             ndiff = control_multiplicity() - 1
             Z(1) = 0.5d0*(ZZ+ndiff)
@@ -4795,6 +4797,17 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
          end do !** ms***
          if (ms.eq.1) smearcorrection=smearcorrection+smearcorrection
+
+         go to 99
+
+  98     continue
+         smearcorrection = 0.0d0
+         do ms=1,ispin
+            shift2 = occ1(1) + (ms-1)*ne(1)
+            call dcopy(ne(ms),0.0d0,0,dbl_mb(shift2),1)
+         end do
+
+  99     continue
 
       end if
 
