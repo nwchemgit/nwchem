@@ -162,12 +162,12 @@
       external control_bo_time_step,control_rti,ion_ke,ion_Temperature
       real*8   ion_com_Temperature
       external ion_com_Temperature
-      logical  control_Nose,control_SA,control_pressure
+      logical  control_Nose,control_SA,control_pressure,Nose_restart
       real*8   control_Nose_Te,control_Nose_Tr,control_SA_decay,Nose_ssr
       real*8   Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
       real*8   Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
       integer  Nose_Mchain,Nose_Nchain
-      external control_Nose,control_SA,control_pressure
+      external control_Nose,control_SA,control_pressure,Nose_restart
       external control_Nose_Te,control_Nose_Tr,control_SA_decay,Nose_ssr
       external Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
       external Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
@@ -601,15 +601,20 @@ c         end if
          write(luout,1223) eki1
          write(luout,1224) (eki1-eki0)
          if (nose) then
-           write(6,1395)
+           write(luout,1395)
+           if (Nose_restart()) then
+              write(luout,*) "    thermostats resused"
+           else
+              write(luout,*) "    thermostats initialized"
+           end if
            do i=1,Nose_Nchain()
-             write(6,1398) i,control_Nose_Tr(),Nose_Qr(i),
+             write(luout,1398) i,control_Nose_Tr(),Nose_Qr(i),
      >                   Nose_Pr(i),Nose_Er0(i)
            end do
          else
-           write(6,1394)
+           write(luout,1394)
          end if
-        if (calc_pressure) write(6,1393)
+        if (calc_pressure) write(luout,1393)
          if (control_SA()) then
            write(luout,1396) sa_decay(2)
          end if
