@@ -12,6 +12,7 @@ c     **********************************************
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "metadynamics.fh"
 
 *     **** local variables ****
@@ -224,25 +225,25 @@ c     **********************************************
             call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
             if (boundary(1).gt.0.0d0) then
                if (taskid.eq.MASTER)
-     >            write(*,'(A,2F11.6)') 
+     >            write(luout,'(A,2F11.6)') 
      >                 "  ... setting boundary, w,sigma=",
      >                 boundary(1),boundary(2)
                call meta_setboundary(boundary(1),boundary(2))
             end if
             if (dabs(sn2(1)).gt.0.0d0) then
                if (taskid.eq.MASTER)
-     >            write(*,'(A)') "  ... setting sn2 surface"
+     >            write(luout,'(A)') "  ... setting sn2 surface"
                call meta_setsn2surface(sn2)
             end if
          else
             if (taskid.eq.MASTER) 
-     >         write(*,*) "  ... reading metadynamics data from rtdb"
+     >        write(luout,*) "  ... reading metadynamics data from rtdb"
 
             !*** re-scale tempered ***
             fac = 1.0d0
             if (dTtempered.gt.0.0d0) then
                if (taskid.eq.MASTER) 
-     >            write(*,*) 
+     >            write(luout,*) 
      >            "  ... re-scaling to be consistent with tempering"
                if (control_Nose()) then
                   temp = control_Nose_Tr()
@@ -276,10 +277,14 @@ c     **********************************************
 *     **** write out header info ****
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-         write(*,*) 
-         write(*,*)  "MetaDynamics parameters:"
+         write(luout,*) 
+         write(luout,*)  "MetaDynamics parameters:"
+         write(luout,'(A,5x,I6)')"   - update      = ",maxmetacount
+         write(luout,'(A,5x,I6)')"   - print       = ",maxmetaprintcount
+         write(luout,'(A,5x,I6)')"   - print_shift = ",metarayshift
          if (dTtempered.gt.0.0d0) then
-            write(*,'(A,5x,F11.6)') "   - Tempered dT (K) = ",dTtempered
+            write(luout,'(A,5x,F11.6)') 
+     >      "   - Tempered dT (K) = ",dTtempered
          end if
          do d=1,nmeta
             s1 = int_mb(sindxmeta(1) +d-1)
@@ -289,7 +294,7 @@ c     **********************************************
             sigma = dbl_mb(parammeta(1)+s2+1)
 
             if (ntype.eq.1) then
-             write(*,'(A,5x,2I4,
+             write(luout,'(A,5x,2I4,
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Bond Parameters =  ",
@@ -300,7 +305,7 @@ c     **********************************************
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.2) then
-             write(*,'(A,3I4,4x,A,F11.6,4x,A,F11.6,
+             write(luout,'(A,3I4,4x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Angle Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,3),
@@ -315,10 +320,10 @@ c     **********************************************
              n  =  dbl_mb(parammeta(1)+s2+2)
              m  =  dbl_mb(parammeta(1)+s2+3)
              r0 =  dbl_mb(parammeta(1)+s2+4)
-             write(*,1001) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
-             write(*,1002) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
+             write(luout,1001) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
+             write(luout,1002) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
 
-             write(*,'(A,/6x,A,F11.6,4x,A,F11.6,
+             write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,
      >                   /6x,A,F11.6,F11.6,
@@ -332,16 +337,16 @@ c     **********************************************
      >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
      >           'periodix=  ',int_mb(pmeta(1)+d-1)
               if (dbl_mb(parammeta(1)+s2+5).lt.0) then
-                 write(*,'(6x,A)') '- LJ function form'
+                 write(luout,'(6x,A)') '- LJ function form'
               else
-                 write(*,'(6x,A)') '- Sprik function form'
+                 write(luout,'(6x,A)') '- Sprik function form'
               end if
 
             else if (ntype.eq.5) then
              n1 = int_mb(indxmeta(1)+s1+2)
-             write(*,1001) int_mb(indxmeta(1)+s1+1)
-             write(*,1002) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
-             write(*,'(A,5x,
+             write(luout,1001) int_mb(indxmeta(1)+s1+1)
+             write(luout,1002) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
+             write(luout,'(A,5x,
      >                /6x,A,F11.6,F11.6,F11.6,
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
@@ -357,7 +362,7 @@ c     **********************************************
             else if (ntype.eq.6) then
 
              if (int_mb(indxmeta(1)+s1+1).eq.1) then
-             write(*,'(A,5x,I4,
+             write(luout,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - X Parameters =  ",
@@ -367,7 +372,7 @@ c     **********************************************
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic= ',int_mb(pmeta(1)+d-1)
              else if (int_mb(indxmeta(1)+s1+1).eq.2) then
-             write(*,'(A,5x,I4,
+             write(luout,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Y Parameters =  ",
@@ -377,7 +382,7 @@ c     **********************************************
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic= ',int_mb(pmeta(1)+d-1)
              else 
-             write(*,'(A,5x,I4,
+             write(luout,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Z Parameters =  ",
@@ -389,7 +394,7 @@ c     **********************************************
              end if
 
             else if (ntype.eq.7) then
-             write(*,'(A,5x,A,I4,4x,A,I4,
+             write(luout,'(A,5x,A,I4,4x,A,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - local_density_trace Parameters =  ",
@@ -1501,6 +1506,7 @@ c               close(53)
       character*(*) filename
 
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "metadynamics.fh"
 
       integer   MASTER
@@ -1526,11 +1532,11 @@ c               close(53)
      >                                  full_bak)
          inquire(file=full_bak,exist=found_bak)
          if (found_bak) then
-            write(*,*)
-            write(*,*) "META-GAUSS99-bak exists:"
+            write(luout,*)
+            write(luout,*) "META-GAUSS99-bak exists:"
             l1=index(full_bak,' ')
             l2=index(full_filename,' ')
-            write(*,*) "   Copying ",full_bak(1:l2),
+            write(luout,*) "   Copying ",full_bak(1:l2),
      >                 " to ",full_filename(1:l2)
             write(*,*)
             call util_file_copy(full_bak,full_filename)
