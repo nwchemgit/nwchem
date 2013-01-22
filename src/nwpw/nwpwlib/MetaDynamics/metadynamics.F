@@ -1059,16 +1059,16 @@ c     **** 2bonds ****
          dy1 = y2-y1
          dz1 = z2-z1
          call lattice_min_difference(dx1,dy1,dz1)
+         r1 = dsqrt(dx1**2 + dy1**2 + dz1**2)
          dx2 = x4-x3
          dy2 = y4-y3
          dz2 = z4-z3
          call lattice_min_difference(dx2,dy2,dz2)
+         r2 = dsqrt(dx2**2 + dy2**2 + dz2**2)
          d1a = param(3)
          d2a = param(4)
          d1b = param(5)
          d2b = param(6)
-         r1 = dsqrt(dx1**2 + dy1**2 + dz1**2)
-         r2 = dsqrt(dx2**2 + dy2**2 + dz2**2)
          la = dsqrt((r1-d1a)**2 + (r2-d2a)**2)
          lb = dsqrt((r1-d1b)**2 + (r2-d2b)**2)
          if (dabs(la).lt.1.0d-6) then
