@@ -407,6 +407,23 @@ c     **********************************************
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
+            else if (ntype.eq.8) then
+             write(luout,'(A,
+     >                /6x,A,2I4,
+     >                /6x,A,2I4,
+     >                /6x,A,2F11.6,
+     >                /6x,A,2F11.6,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >       "   - 2Bonds Parameters =  ",
+     >           'bond 1 indexes=',(int_mb(indxmeta(1)+s1+j),j=1,2),
+     >           'bond 2 indexes=',(int_mb(indxmeta(1)+s1+j),j=3,4),
+     >           'bond center 1 =',(dbl_mb(parammeta(1)+s2+j),j=2,3),
+     >           'bond center 2 =',(dbl_mb(parammeta(1)+s2+j),j=4,5),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1)
             end if
 
          end do
@@ -521,9 +538,9 @@ c     **********************************************
 
 *     **** local variables ****
       integer i,j,ntype,n1,n2
-      real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r3
-      real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f
-      real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2
+      real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
+      real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
+      real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
 
 *     **** external functions ****
       real*8   ion_rion,psp_ld_trace
@@ -697,6 +714,37 @@ c     **** n-plane ****
       else if (ntype.eq.7) then
          f =  psp_ld_trace(indx(2),indx(3),ispin,ne,psi1)
 
+*     *** 2bonds ****
+      else if (ntype.eq.8) then
+         x1 = ion_rion(1,indx(2))
+         y1 = ion_rion(2,indx(2))
+         z1 = ion_rion(3,indx(2))
+         x2 = ion_rion(1,indx(3))
+         y2 = ion_rion(2,indx(3))
+         z2 = ion_rion(3,indx(3))
+         x3 = ion_rion(1,indx(4))
+         y3 = ion_rion(2,indx(4))
+         z3 = ion_rion(3,indx(4))
+         x4 = ion_rion(1,indx(5))
+         y4 = ion_rion(2,indx(5))
+         z4 = ion_rion(3,indx(5))
+         dx1 = x2-x1
+         dy1 = y2-y1
+         dz1 = z2-z1
+         call lattice_min_difference(dx1,dy1,dz1)
+         dx2 = x4-x3
+         dy2 = y4-y3
+         dz2 = z4-z3
+         call lattice_min_difference(dx2,dy2,dz2)
+         d1a = param(3)
+         d2a = param(4)
+         d1b = param(5)
+         d2b = param(6)
+         r1 = dsqrt(dx1**2 + dy1**2 + dz1**2)
+         r2 = dsqrt(dx2**2 + dy2**2 + dz2**2)
+         la = dsqrt((r1-d1a)**2 + (r2-d2a)**2)
+         lb = dsqrt((r1-d1b)**2 + (r2-d2b)**2)
+         f = la/(la+lb)
 
       end if
 
@@ -725,8 +773,9 @@ c     **********************************************
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
-      real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz
-      real*8 x4,y4,z4,dx2,dy2,dz2,r2
+      real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
+      real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
+      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2
 
 *     **** external functions ****
       real*8   ion_rion
@@ -992,6 +1041,71 @@ c     **** ld_trace ***
      >                                 (-dv),fmeta_psi1,
      >                                 move,fmeta)
 
+c     **** 2bonds ****
+      else if (ntype.eq.8) then
+         x1 = ion_rion(1,indx(2))
+         y1 = ion_rion(2,indx(2))
+         z1 = ion_rion(3,indx(2))
+         x2 = ion_rion(1,indx(3))
+         y2 = ion_rion(2,indx(3))
+         z2 = ion_rion(3,indx(3))
+         x3 = ion_rion(1,indx(4))
+         y3 = ion_rion(2,indx(4))
+         z3 = ion_rion(3,indx(4))
+         x4 = ion_rion(1,indx(5))
+         y4 = ion_rion(2,indx(5))
+         z4 = ion_rion(3,indx(5))
+         dx1 = x2-x1
+         dy1 = y2-y1
+         dz1 = z2-z1
+         call lattice_min_difference(dx1,dy1,dz1)
+         dx2 = x4-x3
+         dy2 = y4-y3
+         dz2 = z4-z3
+         call lattice_min_difference(dx2,dy2,dz2)
+         d1a = param(3)
+         d2a = param(4)
+         d1b = param(5)
+         d2b = param(6)
+         r1 = dsqrt(dx1**2 + dy1**2 + dz1**2)
+         r2 = dsqrt(dx2**2 + dy2**2 + dz2**2)
+         la = dsqrt((r1-d1a)**2 + (r2-d2a)**2)
+         lb = dsqrt((r1-d1b)**2 + (r2-d2b)**2)
+         if (dabs(la).lt.1.0d-6) then
+            dlar1 = dtanh((r1-d1a)/1.0d-7)
+            dlar2 = dtanh((r2-d2a)/1.0d-7)
+         else
+            dlar1 = (r1-d1a)/la
+            dlar2 = (r2-d2a)/la
+         end if
+         if (dabs(lb).lt.1.0d-6) then
+            dlbr1 = dtanh((r1-d1b)/1.0d-7)
+            dlbr2 = dtanh((r2-d2b)/1.0d-7)
+         else
+            dlbr1 = (r1-d1b)/lb
+            dlbr2 = (r2-d2b)/lb
+         end if
+         !f = la/(la+lb)
+         dfla = 1.0d0/(la+lb) - la/(la+lb)**2
+         dflb = -la/(la+lb)**2
+         df1 = dfla*dlar1 + dflb*dlbr1
+         df2 = dfla*dlar2 + dflb*dlbr2
+
+         fmeta(1,indx(2)) = fmeta(1,indx(2)) + (dx1/r1)*dv*df1
+         fmeta(2,indx(2)) = fmeta(2,indx(2)) + (dy1/r1)*dv*df1
+         fmeta(3,indx(2)) = fmeta(3,indx(2)) + (dz1/r1)*dv*df1
+
+         fmeta(1,indx(3)) = fmeta(1,indx(3)) - (dx1/r1)*dv*df1
+         fmeta(2,indx(3)) = fmeta(2,indx(3)) - (dy1/r1)*dv*df1
+         fmeta(3,indx(3)) = fmeta(3,indx(3)) - (dz1/r1)*dv*df1
+
+         fmeta(1,indx(4)) = fmeta(1,indx(4)) + (dx2/r2)*dv*df2
+         fmeta(2,indx(4)) = fmeta(2,indx(4)) + (dy2/r2)*dv*df2
+         fmeta(3,indx(4)) = fmeta(3,indx(4)) + (dz2/r2)*dv*df2
+
+         fmeta(1,indx(5)) = fmeta(1,indx(5)) - (dx2/r2)*dv*df2
+         fmeta(2,indx(5)) = fmeta(2,indx(5)) - (dy2/r2)*dv*df2
+         fmeta(3,indx(5)) = fmeta(3,indx(5)) - (dz2/r2)*dv*df2
       end if
 
 *     ***** move = .false. ******
