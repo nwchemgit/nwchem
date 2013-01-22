@@ -37,7 +37,6 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc pbe96
-   xc new pbe96
    unrestricted
 end
 task pspw energy
