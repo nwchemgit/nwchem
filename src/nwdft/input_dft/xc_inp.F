@@ -267,7 +267,7 @@ c
 c     
 c     beckehandh; Becke Half and Half
 c                 AD Becke JCP 98, 1372
-c                 0.5*Exc(LSD) + 0.5*Ex(HF) 
+c                 0.5*Exc(LSD) + 0.5*Ex(HF) + 0.5*Ec(PW91LDA)
 c             
   300 xccomb(3) = .true.
         xfac(1) = 0.5d0
