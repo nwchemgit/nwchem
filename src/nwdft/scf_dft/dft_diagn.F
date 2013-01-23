@@ -1,4 +1,5 @@
-#define USE_PDSYEVR 1
+cedo#define USE_PDSYEVR 1
+cedo#define USE_ELPA 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
@@ -221,6 +222,7 @@ c
       elseif(yev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
+#warning YVRVRVR
       elseif(yev.eq.'r'.or.yev.eq.'m') then
          nmoout=0
          if(yev.eq.'m') nmoout=nocc
@@ -228,6 +230,15 @@ c
          if(nmoout.ne.0) 
 c     patching non computed eigenvectors with identity
      d        call dft_idtyvecs(g_svecs,nmoout+1)
+#endif
+#ifdef USE_ELPA
+      elseif(yev.eq.'e') then
+         nmoout=0
+         call ga_evp_real(g_s, g_svecs, evals,nb,nmoout)
+      elseif(yev.eq.'l') then
+         nmoout=nocc
+         call ga_evp_real(g_s, g_svecs, evals,nb,nmoout)
+         call dft_idtyvecs(g_svecs,nmoout+1)
 #endif
       else
          call errquit(' wrong pdsyev value',0,0)
@@ -244,6 +255,7 @@ c     patching non computed eigenvectors with identity
 c
       integer nmoout
 c
+#ifdef USE_GAPZHEEVD
       if(yev.eq.'d') then
          call ga_pzheevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
@@ -260,6 +272,9 @@ c     patching non computed eigenvectors with identity
       else
          call errquit(' wrong pzheevs value',0,0)
       endif
+#else
+         call errquit(' dftscaleigso: not working',0,0)
+#endif
       return
       end
 #endif

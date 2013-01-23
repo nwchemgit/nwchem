@@ -27,6 +27,9 @@
      LIBRARY = libnwdft.a
 
  LIB_DEFINES =
+ifeq ($(shell nm ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o|egrep ga_pzheevd |awk '/ga_pzheevd/ { print "Y"}'),Y)
+ LIB_DEFINES += -DUSE_GAPZHEEVD
+endif
 
 LIB_INCLUDES = -I../include -I../../ddscf
 

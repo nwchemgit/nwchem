@@ -43,7 +43,13 @@
      LIBRARY = libnwdft.a
 _PDSYEVR = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_PDSYEVR\ 1/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
- LIB_DEFINES += -DUSE_PDSYVER
+ LIB_DEFINES += -DUSE_PDSYEVR
+endif
+ifeq ($(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_ELPA\ 1/ {print "Y"}')),Y)
+ LIB_DEFINES += -DUSE_ELPA
+endif
+ifeq ($(shell nm ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o|egrep ga_pzheevd |awk '/ga_pzheevd/ { print "Y"}'),Y)
+ LIB_DEFINES += -DUSE_GAPZHEEVD
 endif
 
 LIB_INCLUDES = -I../include -I../grid
