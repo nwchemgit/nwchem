@@ -1,3 +1,22 @@
+C>
+C> \brief Calculate Fukui indeces
+C>
+C> Calculate Fukui indeces for open shell wavefunctions [1,2].
+C>
+C> [1] E. Chamorro, P. P&eacute;rez,
+C>     <i>"Condensed-to-atoms electronic Fukui functions within the
+C>     framework of spin-polarized density-functional theory"</i>,
+C>     J. Chem. Phys. <b>123</b>, 114107 (2005), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2033689">
+C>     10.1063/1.2033689</a>.
+C>
+C> [2] R.G. Parr, W. Yang,
+C>     <i>"Density functional approach to the frontier-electron theory
+C>     of chemical reactivity"</i>,
+C>     J. Am. Chem. Soc. <b>106</b>, 4049-4050 (1984), DOI:
+C>     <a href="http://dx.doi.org/10.1021/ja00326a036">
+C>     10.1021/ja00326a036</a>.
+C>
       Subroutine fukui(g_movecs, k_eval, tol2e, rtdb,
      &                 nExc, iVxc_opt, g_xcinv, IOLGC, g_wght,
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
@@ -482,14 +501,14 @@ c
       if (.not.rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
      &   call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
-     &    ('fukui: could not detroy g_dens(1)',0, GA_ERR)
+     &    ('fukui: could not destroy g_dens(1)',0, GA_ERR)
       if (.not. ga_destroy(g_vxc(1))) call errquit
-     &    ('fukui: could not detroy g_vxc(1)',0, GA_ERR)
+     &    ('fukui: could not destroy g_vxc(1)',0, GA_ERR)
       if (ipol.eq.2) then
         if (.not. ga_destroy(g_dens(2))) call errquit
-     &    ('fukui: could not detroy g_dens(2)',0, GA_ERR)
+     &    ('fukui: could not destroy g_dens(2)',0, GA_ERR)
         if (.not. ga_destroy(g_vxc(2))) call errquit
-     &    ('fukui: could not detroy g_vxc(2)',0, GA_ERR)
+     &    ('fukui: could not destroy g_vxc(2)',0, GA_ERR)
       end if
 c
       if (.not. ga_destroy(g_orb)) call errquit
