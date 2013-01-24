@@ -87,7 +87,7 @@ c
       endif
       if(theory.eq.'dft') then
          if(.not.xc_got2nd()) call errquit(
-     '        'analytic 2nds not ready for these XC functionals',0,
+     A        'analytic 2nds not ready for these XC functionals',0,
      &       CAPMIS_ERR)
 c
 c     set grid to fine or leave the user to set it to xfine
@@ -154,6 +154,7 @@ c
 
        call dft_inpanae(rtdb)
       endif
+#if 0
 c
 c     make the Fock build go direct
 c
@@ -165,6 +166,7 @@ c
       if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
      $  call errquit('hess_energyinit: failed to store filesize',0,
      &       RTDB_ERR)
+#endif
 c
       return
       end
