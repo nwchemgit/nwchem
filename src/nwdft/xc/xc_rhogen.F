@@ -82,7 +82,7 @@ c
       integer xc_rhoscreen
       integer nonzero,nonz0
       integer i_nz,l_nz
-      integer sizeblk
+      integer sizeblk, gindx
 #ifdef DEBUG
       integer ga_nodeid
       external ga_nodeid
@@ -133,16 +133,18 @@ c
       DELFUNC_MAX=0d0
       if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
 c
+      nonzero=0
       if(dftnbget) then
-         if(npert.gt.1.or.ipol.gt.1) call errquit(' crash ',0,0)
          if (.not.ma_push_get
-     &        (mt_int,(natoms*(natoms+1))/2,'nzmap map',l_nz,i_nz))
+     &        (mt_int,(ipol*npert*natoms*(natoms+1))/2,
+     N        'nzmap map',l_nz,i_nz))
      &        call errquit('xcrho:push_get failed', 13, MA_ERR)
          nonzero=xc_rhoscreen(grad,ipol,natoms,npert,
      I        iniz,
      W        tol_rho,wmax,
      O        int_mb(i_nz),
      R        rchi_atom,rdelchi_atom,rdens_atom)
+         
          if(nonzero.eq.0) goto 1688
 c
 c     prefetch first DM block
@@ -213,19 +215,16 @@ c
             endif
             call endtimer(monitor_rscreen0)
             if (doitt) then
+            do ii = 1, ipol
+c
+c              screening parameters
+c
+            if((what.gt.1).or.(rdens_atom(iat,jat,ii)*
+     R              wmax*FUNC_MAXI*FUNC_MAXJ.ge.tol_rho)) then
 c
 c           Loop over perturbations
 c
             do 215 ipert = 1,npert
-            do 210 ii = 1, ipol
-c
-c              screening parameters
-c
-               if(what.lt.2) then
-                  P_MAXIJ = rdens_atom(iat,jat,ii)
-                  if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho)
-     G                 goto 210
-               endif
                sizeblk=nbfia*nbfja
                call updist(monitor_size_ga_get, sizeblk)
 c
@@ -236,12 +235,19 @@ c
                   call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, 
      I                 ifirst, jfirst, ibf(inizia), ibf(inizja))
                   nonz0=nonz0+1
+                  if((npert*ipol).gt.1) then
+                     gindx=ipert+(ii-1)*npert+1
+                    
+                     if(gindx.gt.npert*ipol)gindx=mod(gindx,npert*ipol)
+                  else
+                     gindx=1
+                  endif
                   if(nonz0.le.nonzero)
      C                 call xc_getdmblock(int_mb(i_nz),nonz0,natoms,
-     C                 cetobfr,g_dens(ipert+(ii-1)*npert),
+     C                 cetobfr,g_dens(gindx),
      A                    Pmat,nbhandl)
                if (wmax*FUNC_MAXI*FUNC_MAXJ*
-     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 210
+     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 215
                else
                   call starttimer(monitor_gaget)
                   if(truerepdm) then
@@ -254,7 +260,7 @@ c
                   endif
                   call endtimer(monitor_gaget)
                if (wmax*FUNC_MAXI*FUNC_MAXJ*
-     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 210
+     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 215
                call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
      &                      jfirst, ibf(inizia), ibf(inizja))
                endif
@@ -349,8 +355,9 @@ c
                   endif
             endif
                call endtimer(monitor_rhocomp)
-  210       continue
   215       continue
+         endif
+         enddo
          endif
   220    continue
   225    continue
