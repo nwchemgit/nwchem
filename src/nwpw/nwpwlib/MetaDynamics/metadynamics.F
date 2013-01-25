@@ -285,7 +285,7 @@ c     **********************************************
      >   "   - print       = ",maxmetaprintcount
          write(luout,'(A,5x,I6)') "   - print_shift = ",metarayshift
          if (dTtempered.gt.0.0d0) then
-            write(luout,'(A,5x,F11.6)') 
+            write(luout,'(A,5x,F11.1)') 
      >      "   - Tempered dT (K) = ",dTtempered
          end if
          do d=1,nmeta
