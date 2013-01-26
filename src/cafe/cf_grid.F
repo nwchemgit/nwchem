@@ -118,27 +118,27 @@ c
       if(knode(k).eq.node) then
       lgrid=.true.
       k=k-kfrom(node+1)+1
-      j0=int(yw(iwm,2,iwa))-1
+      j0=int(yw(iwm,2,iwa))-morder
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
       lsldo(node+1,k)=.true.
-      miny=min(miny,j0+2)
-      maxy=max(maxy,j0+1+morder)
       do 5 ith2=1,morder
       j0=j0+1
-      j=j0+1
+      j=j0+1+(ngy-isign(ngy,j0))/2
+      miny=min(miny,j)
+      maxy=max(maxy,j)
 c      j=j0+1+(ngy-isign(ngy,j0))/2
 c      if(j.gt.ngy) j=j-ngy
 c      if(j.lt.1) j=j+ngy
       prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(iwq(iwa),1,ipset)
-      i0=int(yw(iwm,1,iwa))-1
+      i0=int(yw(iwm,1,iwa))-morder
 c      if(j.lt.miny) miny=j
 c      if(j.gt.maxy) maxy=j
-      minx=min(minx,i0+2)
-      maxx=max(maxx,i0+1+morder)
       do 6 ith1=1,morder
       i0=i0+1
-      i=i0+1
+      i=i0+1+(ngx-isign(ngx,i0))/2
+      minx=min(minx,i)
+      maxx=max(maxx,i)
 c      i=i0+1+(ngx-isign(ngx,i0))/2
 c      if(i.gt.ngx) i=i-ngx
 c      if(i.lt.1) i=i+ngx
@@ -168,33 +168,36 @@ c      write(*,'(2i5,f12.5)') isa,isgm(isa),charge
       if(knode(k).eq.node) then
       lgrid=.true.
       k=k-kfrom(node+1)+1
-      j0=int(ys(isa,2))-1
+      j0=int(ys(isa,2))-morder
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
       lsldo(node+1,k)=.true.
-      miny=min(miny,j0+2)
-      maxy=max(maxy,j0+1+morder)
       do 9 ith2=1,morder
       j0=j0+1
-      j=j0+1
+      j=j0+1+(ngy-isign(ngy,j0))/2
+      miny=min(miny,j)
+      maxy=max(maxy,j)
 c      j=j0+1+(ngy-isign(ngy,j0))/2
 c      if(j.gt.ngy) j=j-ngy
 c      if(j.lt.1) j=j+ngy
       prod=theta(ith2,2,indx)*theta(ith3,3,indx)*charge
-      i0=int(ys(isa,1))-1
+      i0=int(ys(isa,1))-morder
 c      if(j.lt.miny) miny=j
 c      if(j.gt.maxy) maxy=j
-      minx=min(minx,i0+2)
-      maxx=max(maxx,i0+1+morder)
       do 10 ith1=1,morder
       i0=i0+1
-      i=i0+1
+      i=i0+1+(ngx-isign(ngx,i0))/2
+      minx=min(minx,i)
+      maxx=max(maxx,i)
 c      i=i0+1+(ngx-isign(ngx,i0))/2
 c      if(i.gt.ngx) i=i-ngx
 c      if(i.lt.1) i=i+ngx
 c      if(i.lt.minx) minx=i
 c      if(i.gt.maxx) maxx=i
       grid(i,j,k)=grid(i,j,k)+theta(ith1,1,indx)*prod
+      write(18,567) ys(isa,1),ys(isa,2),ys(isa,3),charge,i,j,k,
+     + theta(ith1,1,indx),prod
+  567 format(4f12.6,3i5,2f12.6)
    10 continue
     9 continue
       endif
@@ -375,6 +378,7 @@ c
       if(kfrom(me+1).gt.0) then
       do 2 k=kfrom(me+1),kto(me+1)
       kg=k+1-kfrom(me+1)
+c
       do 3 j=1,ngy
       do 4 i=1,ngx
       if(i+j+k.gt.3) then
@@ -409,6 +413,7 @@ c
       endif
     4 continue
     3 continue
+c
     2 continue
       endif
 c
