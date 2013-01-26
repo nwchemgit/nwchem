@@ -195,9 +195,6 @@ c      if(i.lt.1) i=i+ngx
 c      if(i.lt.minx) minx=i
 c      if(i.gt.maxx) maxx=i
       grid(i,j,k)=grid(i,j,k)+theta(ith1,1,indx)*prod
-      write(18,567) ys(isa,1),ys(isa,2),ys(isa,3),charge,i,j,k,
-     + theta(ith1,1,indx),prod
-  567 format(4f12.6,3i5,2f12.6)
    10 continue
     9 continue
       endif
@@ -479,20 +476,14 @@ c
       if(k.lt.1) k=k+ngz
       if(knode(k).eq.node) then
       k=k-kfrom(node+1)+1
-      j0=int(yw(iwm,2,iwa))-1
+      j0=int(yw(iwm,2,iwa))-morder
       do 5 ith2=1,morder
       j0=j0+1
-      j=j0+1
-c      j=j0+1+(ngy-isign(ngy,j0))/2
-c      if(j.gt.ngy) j=j-ngy
-c      if(j.lt.1) j=j+ngy
-      i0=int(yw(iwm,1,iwa))-1
+      j=j0+1+(ngy-isign(ngy,j0))/2
+      i0=int(yw(iwm,1,iwa))-morder
       do 6 ith1=1,morder
       i0=i0+1
-      i=i0+1
-c      i=i0+1+(ngx-isign(ngx,i0))/2
-c      if(i.gt.ngx) i=i-ngx
-c      if(i.lt.1) i=i+ngx
+      i=i0+1+(ngx-isign(ngx,i0))/2
       term=chg(iwq(iwa),1,iset)*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
@@ -529,16 +520,14 @@ c
       k=k0+1+(ngz-isign(ngz,k0))/2
       if(knode(k).eq.node) then
       k=k-kfrom(node+1)+1
-      j0=int(ys(isa,2))-1
+      j0=int(ys(isa,2))-morder
       do 9 ith2=1,morder
       j0=j0+1
-      j=j0+1
-c      j=j0+1+(ngy-isign(ngy,j0))/2
-      i0=int(ys(isa,1))-1
+      j=j0+1+(ngy-isign(ngy,j0))/2
+      i0=int(ys(isa,1))-morder
       do 10 ith1=1,morder
       i0=i0+1
-      i=i0+1
-c      i=i0+1+(ngx-isign(ngx,i0))/2
+      i=i0+1+(ngx-isign(ngx,i0))/2
       term=charge*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
