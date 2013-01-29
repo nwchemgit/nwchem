@@ -95,7 +95,7 @@
       if (time>1.0d-9) then
          write(luout,1708) msg,time,time/dble(counter),100*time/ttime
       end if
- 1708 FORMAT(A,E14.6,E14.6,F14.1)
+ 1708 FORMAT(A,E14.6,E14.6,F12.1,' %')
       return
       end
 
