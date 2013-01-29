@@ -132,6 +132,7 @@ c     check dt_nucl against the berendsen tau
         if (ga_nodeid().eq.0) then
          write(luout,*) "dt_nucl has to be lesser than tau"
          write(luout,*) "adjusting dt_nucl to accomodate"
+         write(luout,*) "new dt_nucl: ", dt_nucl
         end if
       end if
 c
