@@ -1643,7 +1643,7 @@ c               close(53)
      >                       full_filename)
 
 *        **** check for backup file ***
-         call util_file_name_noprefix('META_GAUSS99-bak',.false.,
+         call util_file_name_noprefix('META-GAUSS99-bak',.false.,
      >                                  .false.,
      >                                  full_bak)
          inquire(file=full_bak,exist=found_bak)
@@ -1731,7 +1731,7 @@ c               close(53)
          close(unit=54)
 
 *        **** remove backup file ***
-         call util_file_name_noprefix('META-GAUSS-bak',.false.,
+         call util_file_name_noprefix('META-GAUSS99-bak',.false.,
      >                                .false.,
      >                                full_bak)
          call util_file_unlink(full_bak)
