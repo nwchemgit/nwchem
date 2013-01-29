@@ -3,9 +3,9 @@
 *
 
 *     *******************************
-*     *             				*
-*     *     psi_history_read 		*
-*     *             				*
+*     *                             *
+*     *     psi_history_read        *
+*     *                             *
 *     *******************************
 
       subroutine psi_history_read(ispin,ne,psi,psitmp)
@@ -137,9 +137,9 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
 
 *     *******************************
-*     *             				*
-*     *  psi_history_generate_coef	*
-*     *             				*
+*     *                             *
+*     *  psi_history_generate_coef  *
+*     *                             *
 *     *******************************
 
       subroutine psi_history_generate_coef(coef)
@@ -376,9 +376,9 @@ c      write(*,*) "diff:",dsqrt(gx)
       end
 
 *     *******************************
-*     *             				*
-*     *   psi_history_check_last 	*
-*     *             				*
+*     *                             *
+*     *   psi_history_check_last    *
+*     *                             *
 *     *******************************
 
       logical function psi_history_check_last()
@@ -641,17 +641,17 @@ c      write(*,*) "diff:",dsqrt(gx)
 
 
 *     ***********************************
-*     *             					*
-*     *           ion_write_filename	*
-*     *             					*
+*     *                                 *
+*     *           ion_write_filename    *
+*     *                                 *
 *     ***********************************
 
       subroutine ion_write_filename(filename)
       implicit none 
-#include "errquit.fh"
       character*(*) filename
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 
 *    *** local variables ***
@@ -671,6 +671,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       integer  ion_nion
       external ion_nion
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
 
       nion = ion_nion()
@@ -703,14 +704,15 @@ c      write(*,*) "diff:",dsqrt(gx)
       end if
 
       value = MA_pop_stack(rion(2))
+      call nwpw_timing_end(50)
       return
       end
 
 
 *     ***********************************
-*     *             					*
-*     *           ion_read_filename		*
-*     *             					*
+*     *                                 *
+*     *           ion_read_filename     *
+*     *                                 *
 *     ***********************************
 
       subroutine ion_read_filename(filename,rion)
@@ -734,6 +736,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       integer  ion_nion
       external ion_nion
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
 
 
@@ -753,6 +756,7 @@ c      write(*,*) "diff:",dsqrt(gx)
         call closefile(5)
       end if
 
+      call nwpw_timing_end(50)
       return
       end
 

@@ -41,6 +41,7 @@ c     complex*16 tmp(*)
       logical  control_parallel_io
       external control_parallel_io
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
@@ -126,6 +127,8 @@ c     complex*16 tmp(*)
       value = value.and.MA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('psi_write_filename:error popping stack',0,MA_ERR)
+
+      call nwpw_timing_end(50)
       return
       end
 

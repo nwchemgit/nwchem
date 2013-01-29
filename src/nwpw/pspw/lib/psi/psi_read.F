@@ -49,6 +49,7 @@ c     complex*16 tmp(*)
       external control_print,control_parallel_io
       
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
@@ -187,6 +188,7 @@ c     **** send header to all nodes ****
 
 *     end if
 
+      call nwpw_timing_end(50)
       return
       end
 
@@ -237,6 +239,7 @@ c     complex*16 tmp(*)
       external control_parallel_io
       
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
@@ -361,6 +364,7 @@ c         end if
 
 *     end if
 
+      call nwpw_timing_end(50)
       return
       end
 
@@ -411,6 +415,7 @@ c     complex*16 tmp(*)
       external control_print,control_parallel_io
       
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
@@ -546,6 +551,7 @@ c      end if
 
 *     end if
 
+      call nwpw_timing_end(50)
       return
       end
 
