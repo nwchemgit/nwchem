@@ -1,0 +1,43 @@
+# $Id$
+echo
+
+#memory 950 mb
+
+start nwxc_dat
+
+charge 0
+
+geometry
+  Ne 0.0 0.0 0.0
+end
+
+set nwpw:minimizer 2
+
+# LDA exchange-correlation
+
+nwpw 
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc lda
+   unrestricted
+end
+task pspw energy
+
+# GGA exchange-correlation
+
+nwpw 
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc pbe96
+   unrestricted
+end
+task pspw energy
+
