@@ -1128,10 +1128,11 @@ c     **** 2bonds ****
 *     *              meta_update                    *
 *     *                                             *
 *     ***********************************************
-      subroutine meta_update(ispin,ne,psi1)
+      subroutine meta_update(ispin,ne,psi1,E)
       implicit none
       integer ispin,ne(2)
       real*8 psi1(*)
+      real*8 E(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1208,7 +1209,7 @@ c     >                                    ispin,ne,psi1)
                   end if
                end do
             end do
-            call meta_gauss_write(nmeta,r0,sigma0,w*expv)
+            call meta_gauss_write(nmeta,r0,sigma0,w*expv,E)
          end if
 
          end if
@@ -1746,10 +1747,10 @@ c               close(53)
 *     *          meta_gauss_write                   *
 *     *                                             *
 *     ***********************************************
-      subroutine meta_gauss_write(n,r,sigma,w)
+      subroutine meta_gauss_write(n,r,sigma,w,E)
       implicit none
       integer n
-      real*8 r(*),sigma(*),w
+      real*8 r(*),sigma(*),w,E(*)
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -1760,7 +1761,8 @@ c               close(53)
       call Parallel_taskid(taskid)
 
       if (taskid.eq.MASTER) then
-         write(54,111) (r(i),i=1,n),(sigma(i),i=1,n),w
+         write(54,111) (r(i),i=1,n),(sigma(i),i=1,n),w,
+     >                 E(2)-E(31)+E(32),E(3),E(4),E(31),E(32)
          call util_flush(54)
       end if
   111 format(99e14.6)
