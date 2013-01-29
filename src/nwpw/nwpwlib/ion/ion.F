@@ -65,6 +65,7 @@
       external control_frac_coord
       external control_code
 
+      call nwpw_timing_start(50)
 *     *** write out CIF file ***
       call CIF_write(rtdb)
 
@@ -122,6 +123,7 @@
         value = geom_rtdb_delete(rtdb,'pspwgeometry')
         value = geom_rtdb_delete(rtdb,'qmmmgeometry')
       end if
+      call nwpw_timing_end(50)
       return
       end
 
@@ -209,6 +211,7 @@
       external         control_version
       external         control_ion_time_step,ion_amass_geom
 
+      call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
 
 *     ***** set periodic ****
@@ -333,6 +336,7 @@ c         eki1=0.5d0*eki1
       end if
 
 
+      call nwpw_timing_end(50)
       ion_init = value
       return
       end
@@ -668,9 +672,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***********************
-*     *						*
-*     *	     nwpw_bqbq		*
-*     *						*
+*     *                     *
+*     *	     nwpw_bqbq      *
+*     *                     *
 *     ***********************
       logical function nwpw_bqbq()
       implicit none
@@ -2656,7 +2660,8 @@ c     **** ouput xyz format ****
 
       double precision lattice_unita
       external lattice_unita
- 
+
+      call nwpw_timing_start(50) 
 
       call dscal(nion*3, 1.0d0/angstrom_to_au, dbl_mb(r1(1)), 1)
       call ecce_print2('cartesian coordinates', mt_dbl,
@@ -2693,6 +2698,7 @@ c
       value = value.and.MA_pop_stack(rt(2))
       if (.not. value) call errquit('popping stack',0,0)
 
+      call nwpw_timing_end(50) 
 c
       return
       end
