@@ -45,7 +45,7 @@
       logical  control_allow_translation
       external control_allow_translation
 
-
+      call nwpw_timing_start(50)
       value = rtdb_parallel(.true.)
       code = code_in
       trtdb = rtdb
@@ -859,6 +859,7 @@ c         return
       else
          value = .false.
          write(*,*) "control_read: unknown code type:",code
+         call nwpw_timing_end(50)
          control_read = value
          return
       end if
@@ -1026,6 +1027,7 @@ cccc set to some reasonable default !
          minimizer = 1   ! make the default Grassmann cg
       end if
 
+      call nwpw_timing_end(50)
       control_read = value
       return
       end
