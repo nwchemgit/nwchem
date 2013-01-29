@@ -23,7 +23,7 @@ c     nose-hoover thermostat parameters
       double precision m_nh(maxchain)    ! chain masses
       double precision g_nh(maxchain)    ! bath couplings
 c     
-      common/qmd_thermostat/do_berendsen,tau,
+      common/qmd_tstats/do_berendsen,tau,
      &                      do_nosehoover,r_nh,v_nh,m_nh,g_nh
 c
 c     temperature

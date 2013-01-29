@@ -1,5 +1,5 @@
 c
-c     main qmd driver
+c     qmd_driver: main driver
 c
       logical function qmd_driver(rtdb)
 c
@@ -51,8 +51,12 @@ c
       logical task_gradient
       external task_gradient
 c
+c     preliminaries
       status = .true.
       pname = "qmd_driver: "
+      esys = 0.d0
+      ekin = 0.d0
+      etotal = 0.d0
 c
 c     get xyzfileunit
       if(.not.util_get_io_unit(xyzfileunit))
@@ -104,15 +108,15 @@ c
       call dfill(3*nat, 0.0d0, dbl_mb(k_g), 1)
 c
 c     get the active atoms (also need a check for linearity)
+c     need to implement constraints
       if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act)) ! active
      $   call errquit(pname//'grad_active_atoms',nat,MA_ERR)
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
-c      if (do_linear) then    ! check for linear flag
-c        ndeg = 3*nactive-5   ! 3N-5 (linear)
-c      else
-c        ndeg = 3*nactive-6   ! 3N-6 (general)
-c      end if
-      ndeg = 3*nactive-6
+      if (do_linear) then    ! check for linear flag
+        ndeg = 3*nactive-5   ! 3N-5 (linear)
+      else
+        ndeg = 3*nactive-6   ! 3N-6 (general)
+      end if
 c
 c     get the masses, initial coordinates
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
@@ -121,26 +125,50 @@ c     get the masses, initial coordinates
      $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
 c     perform energy gradient calculation on initial coordinates
-      esys = 0.d0
-      ekin = 0.d0
-      etotal = 0.d0
-      if (.not. task_gradient(rtdb))
-     &   call errquit(pname//'task_gradient',0,CALC_ERR)
-      if(.not.rtdb_get(rtdb,'task:gradient',mt_dbl,3*nat,dbl_mb(k_g)))
-     &   call errquit(pname//'rtdb_get gradient',0,RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,esys))
-     &   call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
+      call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
-c     nuclear molecular dynamics loop
+c     initialize velocity and acceleration 
+      call qmd_nucl_dt(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_g))
+c
+c     apply thermostat to initial velocities
+      call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+c
+c     start nuclear molecular dynamics loop
       do istep_nucl = 1,nstep_nucl
 c
-c       take a nuclear md step
-        call qmd_nucl_step(rtdb,geom,nat,istep_nucl,dt_nucl,
-     &    dbl_mb(k_m),dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_g),esys,ekin)
+c       update position and velocity at half step: dt2
+        call qmd_nucl_dt2(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_r),
+     &      dbl_mb(k_v),dbl_mb(k_g))
+c
+c       apply thermostat
+        call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+c
+c       update geom and store in rtdb
+        call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
+c
+c       calculate energy and gradient
+        call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+c
+c       update velocity at full step: dt
+        call qmd_nucl_dt(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
+     &             dbl_mb(k_g))
+c
+c       apply thermostat
+        call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+c
+c       persist updated velocity in geom
+        if (.not.geom_vel_set(geom,dbl_mb(k_v)))
+     $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
+c
+c       instantaneous total energy: instantaneous kinetic energy + system energy
         etotal = ekin + esys
+c
+c       instantaneous temperature
+        final_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
 c
 c       print md run information
         if (ga_nodeid().eq.0) then
+c
          write(luout,*)
          write(luout,*)
          call util_print_centered(LuOut,'QMD Run Information',20,.true.)
@@ -152,13 +180,11 @@ c       print md run information
          write(luout,*) "targ_temp: ",targ_temp
          write(luout,*) "final_temp: ",final_temp
          write(luout,*)
-        endif
 c
-c       write trajectory
-        if (ga_nodeid().eq.0) then
-           call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
+c        write trajectory
+         call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
      &          istep_nucl,etotal,geom)
-        end if
+        end if  ! ga_nodeid()
 c
       end do  ! istep_nucl
 c

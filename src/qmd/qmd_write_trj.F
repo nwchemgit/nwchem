@@ -1,5 +1,5 @@
 c
-c     write trajectory: xyz file in angstroms
+c     qmd_write_trj: write trajectory: xyz file in angstroms
 c
       subroutine qmd_write_trj(xyzfilename,xyzfileunit,
      &           mode_append,nat,iframe,etotal,geom)

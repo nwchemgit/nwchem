@@ -1,4 +1,6 @@
 c
+c     qmd_init: initialize parameters
+c     
       subroutine qmd_init(rtdb,nstep_nucl,dt_nucl)
 c
       implicit none
