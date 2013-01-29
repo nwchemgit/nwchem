@@ -2292,6 +2292,7 @@ c     logocal semicore(0:nkatmx)
       external     control_boundry
       external     ion_atom
       
+      call nwpw_timing_start(50)
 
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
@@ -2492,6 +2493,7 @@ c     logocal semicore(0:nkatmx)
       end if
 
 
+      call nwpw_timing_end(50)
       return
       end
 
