@@ -83,6 +83,19 @@
       return
       end
 
+      subroutine nwpw_timing_print(msg,time,counter)
+      implicit none
+      character*(*) msg
+      real*8 time
+      integer counter
+#include "stdio.fh"
+      if (time>1.0d-9) then
+         write(luout,1708) msg,time,time/dble(counter)
+      end if
+ 1708 FORMAT(A,E14.6,E14.6)
+      return
+      end
+
 
       subroutine nwpw_timing_print_final(oprint,counter)
       implicit none
@@ -98,93 +111,94 @@ c     **** external functions ****
       if (oprint) then
       write(luout,1809) 'Time spent doing               ',
      >                  'total','step'
-         write(luout,1808) '  FFTs                       : ',
-     >                 nwpw_timing(1),
-     >                 nwpw_timing(1)/dble(counter)
-         write(luout,1808) '  dot products               : ',
-     >                 nwpw_timing(2),
-     >                 nwpw_timing(2)/dble(counter)
-         write(luout,1808) '  geodesic                   : ',
-     >                 nwpw_timing(10),
-     >                 nwpw_timing(10)/dble(counter)
-         write(luout,1808) '  ffm_dgemm                  : ',
-     >                 nwpw_timing(15),
-     >                 nwpw_timing(15)/dble(counter)
-         write(luout,1808) '  fmf_dgemm                  : ',
-     >                 nwpw_timing(16),
-     >                 nwpw_timing(16)/dble(counter)
-         write(luout,1808) '  m_diagonalize              : ',
-     >                 nwpw_timing(17),
-     >                 nwpw_timing(17)/dble(counter)
+         call nwpw_timing_print(
+     >                 '  FFTs                       : ',
+     >                 nwpw_timing(1),counter)
+         call nwpw_timing_print(
+     >                 '  dot products               : ',
+     >                 nwpw_timing(2),counter)
+         call nwpw_timing_print(
+     >                 '  geodesic                   : ',
+     >                 nwpw_timing(10),counter)
+         call nwpw_timing_print(
+     >                 '  ffm_dgemm                  : ',
+     >                 nwpw_timing(15),counter)
+         call nwpw_timing_print(
+     >                 '  fmf_dgemm                  : ',
+     >                 nwpw_timing(16),counter)
+         call nwpw_timing_print(
+     >                 '  m_diagonalize              : ',
+     >                 nwpw_timing(17),counter)
 
-         write(luout,1808) '    - m_tredq                : ',
-     >                 nwpw_timing(22),
-     >                 nwpw_timing(22)/dble(counter)
-         write(luout,1808) '       - m_tredq_houseq      : ',
-     >                 nwpw_timing(26),
-     >                 nwpw_timing(26)/dble(counter)
-         write(luout,1808) '       - m_tredq_houseq_dgemm: ',
-     >                 nwpw_timing(28),
-     >                 nwpw_timing(28)/dble(counter)
-         write(luout,1808) '       - m_tredq_dgemm1      : ',
-     >                 nwpw_timing(27),
-     >                 nwpw_timing(27)/dble(counter)
+         call nwpw_timing_print(
+     >                 '    - m_tredq                : ',
+     >                 nwpw_timing(22),counter)
+         call nwpw_timing_print(
+     >                 '       - m_tredq_houseq      : ',
+     >                 nwpw_timing(26),counter)
+         call nwpw_timing_print(
+     >                 '       - m_tredq_houseq_dgemm: ',
+     >                 nwpw_timing(28),counter)
+         call nwpw_timing_print(
+     >                 '       - m_tredq_dgemm1      : ',
+     >                 nwpw_timing(27),counter)
 
-         write(luout,1808) '    - m_getdiags             : ',
-     >                 nwpw_timing(23),
-     >                 nwpw_timing(23)/dble(counter)
-         write(luout,1808) '    - m_tqliq                : ',
-     >                 nwpw_timing(24),
-     >                 nwpw_timing(24)/dble(counter)
-         write(luout,1808) '    - m_eigsrt               : ',
-     >                 nwpw_timing(25),
-     >                 nwpw_timing(25)/dble(counter)
+         call nwpw_timing_print(
+     >                 '    - m_getdiags             : ',
+     >                 nwpw_timing(23),counter)
+         call nwpw_timing_print(
+     >                 '    - m_tqliq                : ',
+     >                 nwpw_timing(24),counter)
+         call nwpw_timing_print(
+     >                 '    - m_eigsrt               : ',
+     >                 nwpw_timing(25),counter)
 
-         write(luout,1808) '  exchange correlation       : ',
-     >                 nwpw_timing(4),
-     >                 nwpw_timing(4)/dble(counter)
-         write(luout,1808) '  local pseudopotentials     : ',
-     >                 nwpw_timing(5),
-     >                 nwpw_timing(5)/dble(counter)
-         write(luout,1808) '  non-local pseudopotentials : ',
-     >                 nwpw_timing(6),
-     >                 nwpw_timing(6)/dble(counter)
-         write(luout,1808) '  hartree potentials         : ',
-     >                 nwpw_timing(7),
-     >                 nwpw_timing(7)/dble(counter)
-         write(luout,1808) '  ion-ion interaction        : ',
-     >                 nwpw_timing(21),
-     >                 nwpw_timing(21)/dble(counter)
-         write(luout,1808) '  structure factors          : ',
-     >                 nwpw_timing(8),
-     >                 nwpw_timing(8)/dble(counter)
-         write(luout,1808) '  phase factors              : ',
-     >                 nwpw_timing(20),
-     >                 nwpw_timing(20)/dble(counter)
-         write(luout,1808) '  masking and packing        : ',
-     >                 nwpw_timing(9),
-     >                 nwpw_timing(9)/dble(counter)
-         write(luout,1808) '  queue fft                  : ',
-     >                 nwpw_timing(30),
-     >                 nwpw_timing(30)/dble(counter)
-         write(luout,1808) '  queue fft (serial)         : ',
-     >                 nwpw_timing(31),
-     >                 nwpw_timing(31)/dble(counter)
-         write(luout,1808) '  queue fft (message passing): ',
-     >                 nwpw_timing(32),
-     >                 nwpw_timing(32)/dble(counter)
-         write(luout,1808) '  HFX potential              : ',
-     >                 nwpw_timing(33),
-     >                 nwpw_timing(33)/dble(counter)
-         write(luout,1808) '  qmmm LJ                    : ',
-     >                 nwpw_timing(40),
-     >                 nwpw_timing(40)/dble(counter)
-         write(luout,1808) '  qmmm residual Q            : ',
-     >                 nwpw_timing(41),
-     >                 nwpw_timing(41)/dble(counter)
+         call nwpw_timing_print(
+     >                 '  exchange correlation       : ',
+     >                 nwpw_timing(4),counter)
+         call nwpw_timing_print(
+     >                 '  local pseudopotentials     : ',
+     >                 nwpw_timing(5),counter)
+         call nwpw_timing_print(
+     >                 '  non-local pseudopotentials : ',
+     >                 nwpw_timing(6),counter)
+         call nwpw_timing_print(
+     >                 '  hartree potentials         : ',
+     >                 nwpw_timing(7),counter)
+         call nwpw_timing_print(
+     >                 '  ion-ion interaction        : ',
+     >                 nwpw_timing(21),counter)
+         call nwpw_timing_print(
+     >                 '  structure factors          : ',
+     >                 nwpw_timing(8),counter)
+         call nwpw_timing_print(
+     >                 '  phase factors              : ',
+     >                 nwpw_timing(20),counter)
+         call nwpw_timing_print(
+     >                 '  masking and packing        : ',
+     >                 nwpw_timing(9),counter)
+         call nwpw_timing_print(
+     >                 '  queue fft                  : ',
+     >                 nwpw_timing(30),counter)
+         call nwpw_timing_print(
+     >                 '  queue fft (serial)         : ',
+     >                 nwpw_timing(31),counter)
+         call nwpw_timing_print(
+     >                 '  queue fft (message passing): ',
+     >                 nwpw_timing(32),counter)
+         call nwpw_timing_print(
+     >                 '  HFX potential              : ',
+     >                 nwpw_timing(33),counter)
+         call nwpw_timing_print(
+     >                 '  qmmm LJ                    : ',
+     >                 nwpw_timing(40),counter)
+         call nwpw_timing_print(
+     >                 '  qmmm residual Q            : ',
+     >                 nwpw_timing(41),counter)
       end if
 
       return 
  1808 FORMAT(A,E14.6,E14.6)
  1809 FORMAT(//A,2A14)
       end
+
