@@ -790,7 +790,7 @@ c      call xyz_write()
 
 
          !**** metadynamics update ****
-         call meta_update(ispin,neq,dcpl_mb(psi1(1)))
+         call meta_update(ispin,neq,dcpl_mb(psi1(1)),E)
 
          if (taskid.eq.MASTER) then 
 
