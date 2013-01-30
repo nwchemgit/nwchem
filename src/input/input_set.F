@@ -6,11 +6,11 @@ C$Id$
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
-      integer rtdb              ! [input]
-      character*255 field       ! input buffer
-      character*255 name        ! name of variable being set
+      integer rtdb                   !< [Input] The RTDB handle
+      character*(rtdb_max_key) field ! input buffer
+      character*(rtdb_max_key) name  ! name of variable being set
       integer ma_type
-      integer ntypes            ! no. of known data types
+      integer ntypes                 ! no. of known data types
       parameter (ntypes = 5)
       character*8 type, types(ntypes) ! known data types
       integer ma_types(5)
@@ -21,7 +21,7 @@ C$Id$
       integer i, nvalues, max_values, H_Values, I_Values, Space_Avail
       logical input_is_ilist
       parameter (max_values = 100)
-      character*64     cvals(max_values)
+      character*(rtdb_max_file) cvals(max_values) ! may contain file names
       character*8 test
       data types /'string', 'real', 'integer', 'logical', 'double'/
 c
