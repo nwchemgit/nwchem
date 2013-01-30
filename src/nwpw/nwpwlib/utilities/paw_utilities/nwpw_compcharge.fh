@@ -39,7 +39,7 @@ c      integer sigma(2)
       integer coeff_Tndiff(2)   
 
       common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,
-     >                  Qlmx,Qlmy,Qlmz,dEmult_Qlm,
+     >                  Qlmx,Qlmy,Qlmz,dEmult_Qlm,dE_Qlm,
      >                  sigma_smooth,sigma_paw,
      >                  mult_l,lm_size,
      >                  nindx_Tndiff,shift_Tndiff,

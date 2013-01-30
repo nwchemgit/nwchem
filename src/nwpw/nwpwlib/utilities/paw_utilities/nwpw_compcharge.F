@@ -72,7 +72,7 @@
      >                               katm_iontopaw(2),katm_iontopaw(1))
       value = value.and.MA_alloc_get(mt_int,nkatm_paw,"katm_pawtoion",
      >                               katm_pawtoion(2),katm_pawtoion(1))
-      value = value.and.MA_alloc_get(mt_int,nkatm_paw,"katm_paw",
+      value = value.and.MA_alloc_get(mt_int,nion_paw,"katm_paw",
      >                               katm_paw(2),katm_paw(1))
       value = value.and.MA_alloc_get(mt_dbl,nkatm_paw,"sigma_paw",
      >                               sigma_paw(2),sigma_paw(1))
@@ -83,10 +83,10 @@
       do ia=1,nkatm
          if (psp_type(ia).eq.4) then
             iia = iia + 1
-            int_mb(katm_pawtoion(1)+iia) = ia
-            int_mb(katm_iontopaw(1)+ia)  = iia
+            int_mb(katm_pawtoion(1)+iia-1) = ia
+            int_mb(katm_iontopaw(1)+ia-1)  = iia
          else
-            int_mb(katm_iontopaw(1)+ia)  = -1
+            int_mb(katm_iontopaw(1)+ia-1)  = -1
          end if
       end do
       iii = 0
@@ -95,16 +95,16 @@
          iia = int_mb(katm_iontopaw(1)+ia-1)
          if (psp_type(ia).eq.4) then
             iii = iii + 1
-            int_mb(katm_paw(1)+iii)     = iia
-            int_mb(ion_pawtoion(1)+iii) = ii
-            int_mb(ion_iontopaw(1)+ii)  = iii
+            int_mb(katm_paw(1)+iii-1)     = iia
+            int_mb(ion_pawtoion(1)+iii-1) = ii
+            int_mb(ion_iontopaw(1)+ii-1)  = iii
          else
-            int_mb(ion_iontopaw(1)+ii)  = -1
+            int_mb(ion_iontopaw(1)+ii-1)  = -1
          end if
       end do
       do iia=1,nkatm_paw
          ia = int_mb(katm_pawtoion(1)+iia-1)
-         dbl_mb(sigma_paw(1)+iia) = sigma(ia)
+         dbl_mb(sigma_paw(1)+iia-1) = sigma(ia)
       end do
 
 
@@ -242,14 +242,14 @@
          dbl_mb(gk_smooth(1)+k-1) = fourpioveromega*dexp(-gg*scal)
       end do
 
-*     **** define gk(k,ia)  = 4*pi * Exp[-k*k*sigma(ia**2 / 4] ****
+*     **** define gk(k,iia)  = 4*pi * Exp[-k*k*sigma(iia**2 / 4] ****
       do iia=1,nkatm_paw
          do k=1,npack0
             scal = 0.25d0*dbl_mb(sigma_paw(1)+iia-1)**2
             gg   = dbl_mb(G(1)+k-1)**2 
      >           + dbl_mb(G(2)+k-1)**2 
      >           + dbl_mb(G(3)+k-1)**2
-            dbl_mb(gk(1)+(ia-1)*npack0+k-1) 
+            dbl_mb(gk(1)+(iia-1)*npack0+k-1) 
      >           = fourpioveromega*dexp(-gg*scal)
          end do
       end do

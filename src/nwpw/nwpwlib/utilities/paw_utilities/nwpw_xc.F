@@ -319,7 +319,8 @@ c       **** define derivative wrt to phi ****
      >                  paw_rho2_ps_prime(2),paw_rho2_ps_prime(1))
       end if
       if (.not.ok)
-     > call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     > call errquit("nwpw_xc_init: error allocating work arrays",
+     >               1,MA_ERR)
       
 c      call nwpw_init_gntxc(mult_l_max)
 c      if ((gga.ge.10).and.(mult_l_max.ge.1)) then
@@ -335,7 +336,7 @@ c      end if
      >     MA_alloc_get(mt_int,nkatm,"shift_rholm",
      >                  shift_rholm(2),shift_rholm(1))
       if (.not.ok)
-     > call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     > call errquit("nwpw_xc_init: error allocating work arrays",2,0)
 
       nsize = 0
       do ia=1,nkatm
@@ -377,7 +378,7 @@ c      end if
      >     MA_alloc_get(mt_dbl,nsize,"coeff_rholm",
      >                 coeff_rholm(2),coeff_rholm(1))
       if (.not.ok)
-     > call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     > call errquit("nwpw_xc_init: error allocating work arrays",3,0)
 
       nsize = 0
       do ia=1,nkatm
@@ -418,7 +419,7 @@ c      end if
      >        MA_alloc_get(mt_int,nkatm,"shift_2rholm",
      >                  shift_2rholm(2),shift_2rholm(1))
          if (.not.ok)
-     >    call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     >    call errquit("nwpw_xc_init: error allocating work arrays",4,0)
 
          nsize = 0
          do ia=1,nkatm
@@ -460,7 +461,7 @@ c      end if
      >        MA_alloc_get(mt_dbl,nsize,"coeff_2rholm",
      >                     coeff_2rholm(2),coeff_2rholm(1))
          if (.not.ok)
-     >    call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     >    call errquit("nwpw_xc_init: error allocating work arrays",5,0)
 
 
          nsize = 0
@@ -499,7 +500,7 @@ c      end if
      >        MA_alloc_get(mt_int,nkatm,"shift_3rholm",
      >                  shift_3rholm(2),shift_3rholm(1))
          if (.not.ok)
-     >    call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     >    call errquit("nwpw_xc_init: error allocating work arrays",6,0)
 
          nsize = 0
          do ia=1,nkatm
@@ -541,7 +542,7 @@ c      end if
      >        MA_alloc_get(mt_dbl,nsize,"coeff_3rholm",
      >                     coeff_3rholm(2),coeff_3rholm(1))
          if (.not.ok)
-     >    call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+     >    call errquit("nwpw_xc_init: error allocating work arrays",7,0)
 
          nsize = 0
          do ia=1,nkatm
