@@ -198,14 +198,14 @@ c     $Id$
 
 c        **** paw energies ****
          if (psp_pawexist()) then
-         write(luout,1680) E(14),E(14)/neall
-         write(luout,1681) E(15),E(15)/ion_nion()
-         write(luout,1682) E(30),E(30)/ion_nion()
-         write(luout,1683) E(31),E(31)/ion_nion()
-         write(luout,1684) E(32),E(32)/ion_nion()
-         write(luout,1690) E(16),E(16)/neall
+         write(luout,1680) E(35),E(35)/neall
+         write(luout,1681) E(36),E(36)/ion_nion()
+         write(luout,1682) E(40),E(40)/ion_nion()
+         write(luout,1683) E(42),E(42)/ion_nion()
+         write(luout,1684) E(37),E(37)/ion_nion()
+         write(luout,1690) E(37),E(37)/neall
          write(luout,1696) E(17),E(17)/neall
-         write(luout,1697) E(18),E(18)/neall
+         write(luout,1697) E(39),E(39)/neall
          write(luout,1698) E(19),E(19)/ion_nion()
          end if
 
