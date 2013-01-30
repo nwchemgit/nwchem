@@ -233,7 +233,7 @@ c
          endif
       endif
       xcrep_glob=0
-      if(xcreplicated_l.and.xcrep_ga) xcrep_glob=1
+      if(xcreplicated_l.and.(xcrep_ga.or.truerep)) xcrep_glob=1
       call ga_igop(375,xcrep_glob,1, '+')
       xcreplicated=xcrep_glob.eq.ga_nnodes()
 
