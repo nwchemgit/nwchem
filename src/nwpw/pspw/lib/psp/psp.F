@@ -1899,6 +1899,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       rlocal = 0.0d0
+      n1dgrid = 0
+      n1dbasis = 0
+      sigma = 0.0d0
 
       pio = control_parallel_io()
       if (pio) then
@@ -2461,6 +2464,7 @@ c     logocal semicore(0:nkatmx)
       value = value.and.MA_pop_stack(tmp(2))
       if (.not. value)
      > call errquit('psp_readall:error popping stack',0,MA_ERR)
+
 
 
 *     **** done reading set nprj_max and prjtmp for nonlocal psp operator ****
