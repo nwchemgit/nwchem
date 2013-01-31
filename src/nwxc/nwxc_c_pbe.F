@@ -207,7 +207,10 @@ c
 c
 c        n and zeta = (na - nb)/n
 c
-         rhoval = rho(n,R_A)+rho(n,R_B)
+         rhoval = rho(n,R_A)
+         if (ipol.eq.2) then
+           rhoval = rhoval+rho(n,R_B)
+         endif
          rho_t(1) = rhoval
          rho_t(2) = rho(n,R_A)
          if (ipol.eq.2) then
@@ -590,7 +593,8 @@ c
             dH0dg = GAMMA*(phi**3)*darglogdg/arglog
             if (ipol.eq.1) then
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dH0dg*rhoval*wght
-               Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dH0dg*rhoval*wght*2.0d0
+c              Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dH0dg*rhoval*wght*2.0d0
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dH0dg*rhoval*wght*2.0d0
             else
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dH0dg*rhoval*wght
                Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dH0dg*rhoval*wght*2.0d0

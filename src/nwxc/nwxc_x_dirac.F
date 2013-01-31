@@ -137,7 +137,7 @@ c
 c         write(LuOut,*)'xc_dirac called: unrestricted'
 #endif
          do n = 1,nq
-            if (rho(n,R_A).gt.tol_rho)then
+            if (rho(n,R_A).gt.0.5d0*tol_rho)then
                rho13=rho(n,R_A)**one_third
                Amat(n,D1_RA) = Amat(n,D1_RA) + wght*P3*rho13
 #ifdef SECOND_DERIV
@@ -146,7 +146,7 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
 #endif
                func(n) = func(n) + wght*P4*rho(n,R_A)*rho13
             endif
-            if (rho(n,R_B).gt.tol_rho)then
+            if (rho(n,R_B).gt.0.5d0*tol_rho)then
                rho13=rho(n,R_B)**one_third
                Amat(n,D1_RB) = Amat(n,D1_RB) + wght*P3*rho13
 #ifdef SECOND_DERIV

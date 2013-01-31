@@ -105,21 +105,22 @@ c
       double precision gpbe0,gpbe1,gpbe2
       double precision grpbe0,grpbe1,grpbe2
       double precision grevpbe0,grevpbe1,grevpbe2
-      gpbe0(s)= uk*(1d0 - 1d0/(1d0+umk*s*s))
-      gpbe1(s)= 2d0*um*s/(1d0+umk*s*s)**2
-      gpbe2(s)= 2d0*um*(1d0-4d0*umk*s*s/(1d0+umk*s*s))/(1d0+umk*s*s)**2
-      grevpbe0(s)= ukrev*(1d0 - 1d0/(1d0+umkrev*s*s))
-      grevpbe1(s)= 2d0*um*s/(1d0+umkrev*s*s)**2
-      grevpbe2(s)= 2d0*um*(1d0-4d0*umkrev*s*s/(1d0+umkrev*s*s))/
-     /     (1d0+umkrev*s*s)**2
-      grpbe0(s)= uk*(1d0 - exp(-umk*s*s))
-      grpbe1(s)= 2d0*um*s*exp(-umk*s*s)
-      grpbe2(s)= 2d0*um*exp(-umk*s*s)*(1d0-2d0*umk*s*s)
+      gpbe0(s)= uk*(1.0d0 - 1.0d0/(1.0d0+umk*s*s))
+      gpbe1(s)= 2.0d0*um*s/(1.0d0+umk*s*s)**2
+      gpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umk*s*s/(1.0d0+umk*s*s))/
+     +     (1.0d0+umk*s*s)**2
+      grevpbe0(s)= ukrev*(1.0d0 - 1.0d0/(1.0d0+umkrev*s*s))
+      grevpbe1(s)= 2.0d0*um*s/(1.0d0+umkrev*s*s)**2
+      grevpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umkrev*s*s/(1.0d0+umkrev*s*s))/
+     /     (1.0d0+umkrev*s*s)**2
+      grpbe0(s)= uk*(1.0d0 - exp(-umk*s*s))
+      grpbe1(s)= 2.0d0*um*s*exp(-umk*s*s)
+      grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
       
 c
-      pi = acos(-1.d0)
-      C = -3d0/(4d0*pi)*(3d0*pi*pi)**F13
-      Cs = 0.5d0/(3d0*pi*pi)**F13
+      pi = acos(-1.0d0)
+      C = -3.0d0/(4.0d0*pi)*(3.0d0*pi*pi)**F13
+      Cs = 0.5d0/(3.0d0*pi*pi)**F13
       Cs = Cs * C               ! account for including C in rho43
 c
       if (ipol.eq.1 )then
@@ -132,7 +133,7 @@ CDEC$ NOSWP
          do 10 n = 1, nq
             if (rho(n,R_T).lt.tol_rho) goto 10
             rho43 = C*rho(n,R_T)**F43
-            rrho = 1d0/rho(n,R_T)
+            rrho = 1.0d0/rho(n,R_T)
             rho13 = F43*rho43*rrho
 #ifdef SECOND_DERIV
             rhom23 = F13*rho13*rrho
@@ -154,7 +155,7 @@ c
 
             s = Cs*gam12/rho43
             d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/rgamma(n,G_AA)
+            d1s(2) = 0.5d0*s/rgamma(n,G_TT)
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
@@ -171,7 +172,7 @@ c
 #ifdef SECOND_DERIV
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_AA)
+            d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_TT)
             gpp=gpbe2(s)
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
@@ -199,8 +200,10 @@ CDEC$ NOSWP
 c           if (rho(n,1).lt.tol_rho) goto 20
 c
 c     Alpha
+c     - factor 1/2 on tolerance needed for consistency with closed shell
+c       case
 c
-            if (rho(n,R_A).lt.tol_rho) goto 25
+            if (rho(n,R_A).lt.0.5d0*tol_rho) goto 25
             rho43 = C*(2d0*rho(n,R_A))**F43
             rrho = 0.5d0/rho(n,R_A)
             rho13 = F43*rho43*rrho
@@ -219,7 +222,7 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = 2d0*dsqrt(rgamma(n,G_AA))
+            gam12 = 2.0d0*dsqrt(rgamma(n,G_AA))
             if (gam12.lt.tol_rho**2) goto 25
 c
             s = Cs*gam12/rho43
@@ -258,10 +261,12 @@ c
 #endif
 c
 c     Beta
+c     - factor 1/2 on tolerance needed for consistency with closed shell
+c       case
 c
  25         continue
-            if (rho(n,R_B).lt.tol_rho) goto 20
-            rho43 = C*(2d0*rho(n,R_B))**F43
+            if (rho(n,R_B).lt.0.5d0*tol_rho) goto 20
+            rho43 = C*(2.0d0*rho(n,R_B))**F43
             rrho = 0.5d0/rho(n,R_B)
             rho13 = F43*rho43*rrho
 #ifdef SECOND_DERIV
@@ -279,7 +284,7 @@ c
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
-            gam12 = 2d0*dsqrt(rgamma(n,G_BB))
+            gam12 = 2.0d0*dsqrt(rgamma(n,G_BB))
             if (gam12.lt.tol_rho**2) goto 20
 c
             s = Cs*gam12/rho43
