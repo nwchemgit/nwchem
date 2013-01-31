@@ -2813,23 +2813,16 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *         psi_1xc_atom            *
 *     *                                 *
 *     ***********************************
-      real*8 function psi_1xc_atom()
+      subroutine psi_1xc_atom(exc,pxc)
       implicit none
+      real*8 exc,pxc
 
 #include "mafdecls.fh"
 #include "psi.fh"
 
-*     **** local variables ***
-      real*8 ave
-
-*     **** external functions ****
-      real*8   psp_xc_atom
-      external psp_xc_atom
-
-      ave =  psp_xc_atom(ispin,neq,dcpl_mb(psi1(1)))
-      call D1dB_SumAll(ave)
-
-      psi_1xc_atom = ave
+      call psp_xc_atom(ispin,neq,dcpl_mb(psi1(1)),exc,pxc)
+      call D1dB_SumAll(exc)
+      call D1dB_SumAll(pxc)
       return
       end
 
