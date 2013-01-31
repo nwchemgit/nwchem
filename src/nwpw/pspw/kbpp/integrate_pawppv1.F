@@ -108,7 +108,9 @@ c      P3=dsqrt(105.0d0*forpi)
 *     ***********  Normarization constants  *************
       call dcopy(5*nmax*nmax*(lmax+1),0.0d0,0,Gijl,1)
 
-*     **** overlap  - 2 ***
+*     *********************
+*     **** 2 - overlap  ***
+*     *********************
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
@@ -136,7 +138,9 @@ c      P3=dsqrt(105.0d0*forpi)
       end do
 
 
-*     **** add kinetic  - 3 ***
+*     *********************
+*     **** 3 - kinetic  ***
+*     *********************
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
@@ -167,7 +171,11 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
       end do
 
-
+*     *********************************************************
+*     **** 4 - Vlocal =  nloc*Vloc - ncmp*Vloc + nv*Vsrloc ****
+*     ****    where Vloc = v_ps - zv*erf(r/rlocal)/r       ****
+*     ****    and   Vsrloc = -zv/r - Vloc                  ****
+*     *********************************************************
 *     **** nloc*Vloc -- add pseudo  - 4 ***
       do i=1,nbasis
          la = l_ps(i)
@@ -196,7 +204,7 @@ c      P3=dsqrt(105.0d0*forpi)
               do k=1,nrho
                 !f1(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
                 f1(k) = (phi_ae(k,i)*phi_ae(k,j) 
-     >               - phi_ps(k,i)*phi_ps(k,j))*(v_ps(k))
+     >                 - phi_ps(k,i)*phi_ps(k,j))*(v_ps(k))
               end do
               d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
@@ -245,8 +253,6 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
       end do
 
-
-
 *     **** add nv*Vsrloc to pseudo - 4 ***
       do i=1,nbasis
          la = l_ps(i)
@@ -278,6 +284,9 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
       end do
 
+*     **************************************
+*     **** valence core matrix elements ****
+*     **************************************
 *     **** vcore - 5 ***
       if (Zc.gt.0.0d0) then
          do k=1,icut
@@ -349,8 +358,8 @@ c     >                                    f2,2,f4,log_amesh)
 
       l = nmax*nmax*(lmax+1)
       call dcopy(l,      Gijl(1,1,0,3),1,Gijl(1,1,0,1),1)  !** kinetic **
-      call daxpy(l,1.0d0,Gijl(1,1,0,4),1,Gijl(1,1,0,1),1)  !** pseudo  **
-      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)  !** vcore   **
+      call daxpy(l,1.0d0,Gijl(1,1,0,4),1,Gijl(1,1,0,1),1)  !** Vsrloc - short range pseudo  **
+      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)  !** vcore - valence-core   **
         
 *     **** comp_charge_matrix(nbasis,nbasis,0:2*lmax) ****
       do i=1,nbasis
