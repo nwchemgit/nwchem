@@ -27,6 +27,7 @@ c
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8  e_lj,e_q,e_spring
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
+      real*8  exc_atom,pxc_atom
       
 
 *     **** external functions ****
@@ -69,10 +70,10 @@ c
 
 *     ***** PAW functions ****
       logical  psp_pawexist
-      real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom,psi_1xc_atom
+      real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       real*8   psp_ion_core,psi_1valence_core_atom
       external psp_pawexist
-      external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom,psi_1xc_atom
+      external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       external psp_ion_core,psi_1valence_core_atom
 
       call Pack_npack(1,npack1)
@@ -124,13 +125,19 @@ c      call psi_1toelectron()
       if (psp_pawexist()) then
          E(35) = psi_1ke_atom()            !*** kinetic atom ***
          E(36) = psp_kinetic_core()        !*** kinetic core ***
-         E(37) = psi_1vloc_atom()          !*** vlocal atom  ***
-         E(38) = 0.0d0                     !*** vcoulomb atom  ***
-         E(39) = psi_1xc_atom()            !*** exc atom  ***
-         E(40) = psp_ion_core()            !*** ion core energy ****
-         E(41) = psi_1valence_core_atom()  !*** valence core energy
-         E(42) = 0.0d0                     !*** short-range valence v_local energy
-         E(43) = 0.0d0                     !*** ncmp coulomb energy
+
+         E(37) = psi_1valence_core_atom()  !*** valence core energy ***
+         E(38) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
+
+         E(39) = 0.0d0                     !*** vcoulomb atom  ***
+         E(40) = 0.0d0                     !*** ncmp-ncmp coulomb energy ***
+         E(41) = 0.0d0                     !*** ncmp-smooth coulomb energy ***
+
+         call psi_1xc_atom(exc_atom,pxc_atom)
+         E(42) = exc_atom                  !*** exc atom  ***
+         E(43) = pxc_atom                  !*** pxc atom  ***
+
+         E(44) = psp_ion_core()            !*** ion core energy ****
       end if
 
 *     **** get pspw_charge  energies ****

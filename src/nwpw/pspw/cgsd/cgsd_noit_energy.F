@@ -200,13 +200,14 @@ c        **** paw energies ****
          if (psp_pawexist()) then
          write(luout,1680) E(35),E(35)/neall
          write(luout,1681) E(36),E(36)/ion_nion()
-         write(luout,1682) E(40),E(40)/ion_nion()
-         write(luout,1683) E(42),E(42)/ion_nion()
-         write(luout,1684) E(37),E(37)/ion_nion()
-         write(luout,1690) E(37),E(37)/neall
-         write(luout,1696) E(17),E(17)/neall
-         write(luout,1697) E(39),E(39)/neall
-         write(luout,1698) E(19),E(19)/ion_nion()
+         write(luout,1682) E(37),E(37)/neall
+         write(luout,1683) E(38),E(38)/neall
+         write(luout,1684) E(39),E(39)/neall
+         write(luout,1685) E(40),E(40)/neall
+         write(luout,1686) E(41),E(41)/neall
+         write(luout,1687) E(42),E(42)/neall
+         write(luout,1688) E(42),E(42)/neall
+         write(luout,1689) E(43),E(43)/ion_nion()
          end if
 
         if (pspw_qmmm_found()) then
@@ -441,15 +442,14 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
  1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
- 1682 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
- 1683 FORMAT( ' core+srloc-(valence):',E19.10,' (',E15.5,'/ion)')
- 1684 FORMAT( ' short-range V_local :',E19.10,' (',E15.5,'/ion)')
- 1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
- 1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
- 1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
- 1698 FORMAT(/' coulomb (multipole) :',E19.10,' (',E15.5,'/ion)')
-
-
+ 1682 FORMAT( ' valence-core        :',E19.10,' (',E15.5,'/electron)')
+ 1683 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1684 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1685 FORMAT( ' coulomb  (ncmp-ncmp):',E19.10,' (',E15.5,'/electron)')
+ 1686 FORMAT( ' coulomb    (ncmp-pw):',E19.10,' (',E15.5,'/electron)')
+ 1687 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1688 FORMAT( ' pxc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1689 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
