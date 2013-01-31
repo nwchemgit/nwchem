@@ -1,0 +1,53 @@
+c
+c     General implementation of VWN functionals (continued)
+c
+c     BGJ (4/00)
+*
+* $Id$
+*
+c     Finish off the unrestricted case:
+c     Assemble the entire functional and its derivatives given the
+c     parameterization-dependent part deltaEc(rs,zeta) and its derivatives
+c
+         eps = e(1) + dec_rsz
+         d1ersz(1) = d1e(1) + d1dec_rsz(1)
+         d1ersz(2) = d1dec_rsz(2)
+         d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
+         d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
+         func(n) = func(n) + eps*rhoval*wght
+         Amat(n,D1_RA) = Amat(n,D1_RA) + (eps + rhoval*d1edrho(1))*wght
+         if (ipol.eq.2)
+     &      Amat(n,D1_RB) = Amat(n,D1_RB)
+     &                    + (eps + rhoval*d1edrho(2))*wght
+#ifdef SECOND_DERIV
+c        1 = rsrs, 2 = rsz, 3 = zz
+         d2ersz(1) = d2e(1) + d2dec_rsz(1)
+         d2ersz(2) = d2dec_rsz(2)
+         d2ersz(3) = d2dec_rsz(3)
+c        1 = aa, 2 = ab, 3 = bb
+         d2edrho(1) = d2ersz(1)*d1rs*d1rs
+     &              + d2ersz(2)*d1rs*d1zeta(1)*2.d0
+     &              + d2ersz(3)*d1zeta(1)*d1zeta(1)
+     &              + d1ersz(1)*d2rs
+     &              + d1ersz(2)*d2zeta(1)
+         d2edrho(2) = d2ersz(1)*d1rs*d1rs
+     &              + d2ersz(2)*d1rs*(d1zeta(1)+d1zeta(2))
+     &              + d2ersz(3)*d1zeta(1)*d1zeta(2)
+     &              + d1ersz(1)*d2rs
+     &              + d1ersz(2)*d2zeta(2)
+         d2edrho(3) = d2ersz(1)*d1rs*d1rs
+     &              + d2ersz(2)*d1rs*d1zeta(2)*2.d0
+     &              + d2ersz(3)*d1zeta(2)*d1zeta(2)
+     &              + d1ersz(1)*d2rs
+     &              + d1ersz(2)*d2zeta(3)
+         Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &        + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*wght
+         Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
+     &        + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*wght
+         Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+     &        + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*wght
+#endif
+  200 continue
+c
+      return
+      end
