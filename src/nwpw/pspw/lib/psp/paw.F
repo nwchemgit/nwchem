@@ -509,8 +509,6 @@
       end
 
 
-
-
 *     ***********************************
 *     *					*
 *     *	        psp_kinetic_atom	*
@@ -941,22 +939,6 @@
       end
 
 
-c*     ***********************************
-c*     *					*
-c*     *	        psp_xc_atom	        *
-c*     *					*
-c*     ***********************************
-c
-c*    This routine computes the paw atomic kinetic energy
-c*
-c      real*8 function psp_xc_atom(ispin,ne,psi1)
-c      implicit none
-c      integer    ispin,ne(2)
-c      complex*16 psi1(*)
-c
-c      psp_xc_atom = 0.0d0
-c      return
-c      end
 
 *     ***********************************
 *     *					*
@@ -964,12 +946,13 @@ c      end
 *     *					*
 *     ***********************************
 
-*    This routine computes the paw atomic xc psp energy
+*    This routine computes the paw atomic exc and pxc psp energies
 *
-      real*8 function psp_xc_atom(ispin,ne,psi1)
+      subroutine psp_xc_atom(ispin,ne,psi1,exc,pxc)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi1(*)
+      real*8 exc,pxc
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -993,6 +976,8 @@ c      end
       external lattice_omega,nwpw_xc_energy_atom
 
 
+      exc = 0.0d0
+      pxc = 0.0d0
       nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
@@ -1006,6 +991,7 @@ c      end
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
+
 
       omega = lattice_omega()
       scal    = 1.0d0/(omega)
@@ -1061,6 +1047,7 @@ c      end
 
 
 *       **** sw2 = sw2 + Vxcijl*sw1 ******
+        call dcopy(nn*nproj,0.0d0,0,dbl_mb(sw2(1)),1)
         call nwpw_xc_solve(ii,ia,
      >     int_mb(n1dgrid(1)+ia-1),
      >     int_mb(n1dbasis(1)+ia-1),
@@ -1076,6 +1063,11 @@ c      end
      >     dbl_mb(log_amesh(1)+ia-1),
      >     ispin,ne,int_mb(nprj(1)+ia-1),dbl_mb(sw1(1)),dbl_mb(sw2(1)))
 
+*          **** pxc = transpose(sw1)*sw2) ****
+           do l=0,(nn*nproj-1)
+            pxc = pxc + dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
+           end do
+
         end if !** nproj>0 **
       end do !** ii **
 
@@ -1085,13 +1077,9 @@ c      end
       if (.not.value) call errquit('psp_xc_atom: popping stack',3,
      &       MA_ERR)
 
-      psp_xc_atom = nwpw_xc_energy_atom()
+      exc = nwpw_xc_energy_atom()
       return 
       end
-
-
-
-
 
 
 
@@ -1185,8 +1173,6 @@ c     >                          l_prj(i),m_prj(i))
       end do
       return
       end
-
-
 
 
 *     ***********************************
@@ -1303,6 +1289,71 @@ c     >                          l_prj(i),m_prj(i))
 
       return 
       end
+
+
+*     *************************************************
+*     *                                               *
+*     *              psp_hartree_cmp_cmp              *
+*     *                                               *
+*     *************************************************
+*
+*    This routine calulates the hartree energy of the compensation charge density.
+*
+*                         //
+*    E_cmp_cmp   = 0.5 * || (ncmp(r))*(ncmp(r'))
+*                        || --------------------  dr dr'
+*                       //       |r-r'|
+*
+*    using either a Fourier grid (use_grid_cmp=.true.)
+*    or a combinations of Fourier grids and two electron two center Gaussian Coulomb integrals (use_grid_cmp=.false.).
+*
+      real*8 function psp_hartree_cmp_cmp(ispin)
+      implicit none
+      integer ispin
+
+      psp_hartree_cmp_cmp = 0.0d0
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *              psp_hartree_cmp_smooth           *
+*     *                                               *
+*     *************************************************
+*
+*    This routine calulates the hartree energy of the compensation charge density.
+*
+*                         //
+*    E_cmp_smooth     =  || (ncmp(r))*(nsmooth(r'))
+*                        || -----------------------  dr dr'
+*                       //         |r-r'|
+*
+*    using either a Fourier grid 
+*
+      real*8 function psp_hartree_cmp_smooth(ispin,nsmooth)
+      implicit none
+      integer ispin
+      complex*16 nsmooth(*)
+      psp_hartree_cmp_smooth = 0.0d0
+      return
+      end
+
+
+*     *************************************************
+*     *                                               *
+*     *              psp_hartree_atom                 *
+*     *                                               *
+*     *************************************************
+*
+*
+      real*8 function psp_hartree_atom(ispin)
+      implicit none
+      integer ispin
+      psp_hartree_atom = 0.0d0
+      return
+      end
+
+
 
 
 
