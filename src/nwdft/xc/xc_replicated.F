@@ -313,6 +313,15 @@ c
                call ga_sync()
                if (odftps) call pstat_off(ps_xmrge)
             endif
+c
+c     cleanup of logical to avoid mayhem in later calls
+c
+            truerepxc=.false.
+            truerepdm=.false.
+            truerep=.false.
+            xcreplicated=.false.
+            dorepdm=.false.
+            dorepxc=.false.
          else
             do i = 1, ipol
                if(.not.dograd) then
