@@ -2412,66 +2412,69 @@ c    >                         sum)
 #include "mafdecls.fh"
 #include "electron_common.fh"
 #include "errquit.fh"
-cccc#include "frac_occ.fh"
 
+      real*8   E_vnonlocal
+      external E_vnonlocal
 
-*     **** local variables ****
-      logical value
-      integer i,n,ms,n1(2),n2(2),np
-      integer nee(2)
-      integer n2ft3d
-      real*8 enlocal,sum
-      integer tmp1(2),tmp2(2)
+c*     **** local variables ****
+c      logical value
+c      integer i,n,ms,n1(2),n2(2),np
+c      integer nee(2)
+c      integer n2ft3d
+c      real*8 enlocal,sum
+c      integer tmp1(2),tmp2(2)
+c
+c
+c      call Parallel_np(np)
+c
+c      n2ft3d = 2*nfft3d
+c      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+c      value = value.and.
+c     >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
+c      if (.not. value) call errquit(
+c     >            'electron_psi_vl_ave: out of stack memory',0, MA_ERR)
+c
+c      n1(1) = 1
+c      n2(1) = neq(1)
+c      n1(2) = neq(1) + 1
+c      n2(2) = neq(1) + neq(2)
+c
+c
+c
+c*     **** average Kohn-Sham v_nonlocal energy ****
+c      nee(1) = 1
+c      nee(2) = 0
+c      enlocal = 0.0d0
+c      do ms=1,ispin
+c         do n=n1(ms),n2(ms)
+c            call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+c            call v_nonlocal(ispin,nee,psi1(1+(n-1)*npack1),
+c     >                      dbl_mb(tmp1(1)),
+c     >                      .false.,dbl_mb(tmp2(1)),fractional,occ)
+c            call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
+c     >                         dbl_mb(tmp1(1)),
+c     >                         sum)
+c            if (fractional) then
+c               call Dneall_qton(n,i)
+c               sum=sum*occ(i)
+c            end if
+c            enlocal = enlocal - sum
+c         end do
+c      end do
+c      if (np.gt.1) call Parallel_SumAll(enlocal)
+c      if (ispin.eq.1) enlocal = enlocal+enlocal
+c
+c 
+c      value = MA_pop_stack(tmp2(2))
+c      value = value.and.
+c     >        MA_pop_stack(tmp1(2))
+c      if (.not. value) call errquit(
+c     >           'electron_psi_vl_ave: error popping stack memory',0,
+c     &       MA_ERR)
+c
+c      electron_psi_vnl_ave = enlocal
 
-
-      call Parallel_np(np)
-
-      n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0, MA_ERR)
-
-      n1(1) = 1
-      n2(1) = neq(1)
-      n1(2) = neq(1) + 1
-      n2(2) = neq(1) + neq(2)
-
-
-
-*     **** average Kohn-Sham v_nonlocal energy ****
-      nee(1) = 1
-      nee(2) = 0
-      enlocal = 0.0d0
-      do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
-            call v_nonlocal(ispin,nee,psi1(1+(n-1)*npack1),
-     >                      dbl_mb(tmp1(1)),
-     >                      .false.,dbl_mb(tmp2(1)),fractional,occ)
-            call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
-     >                         dbl_mb(tmp1(1)),
-     >                         sum)
-            if (fractional) then
-               call Dneall_qton(n,i)
-               sum=sum*occ(i)
-            end if
-            enlocal = enlocal - sum
-         end do
-      end do
-      if (np.gt.1) call Parallel_SumAll(enlocal)
-      if (ispin.eq.1) enlocal = enlocal+enlocal
-
- 
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit(
-     >           'electron_psi_vl_ave: error popping stack memory',0,
-     &       MA_ERR)
-
-      electron_psi_vnl_ave = enlocal
+      electron_psi_vnl_ave = E_vnonlocal(ispin,neq,fractional,occ)
       return
       end
 
