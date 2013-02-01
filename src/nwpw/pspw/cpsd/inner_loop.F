@@ -98,8 +98,8 @@ c     real*8     fion(3,natmx)
       external lattice_omega,coulomb_e,ewald_e
       integer  control_version
       external control_version
-      real*8   ion_ion_e
-      external ion_ion_e
+      real*8   ion_ion_e,E_vnonlocal
+      external ion_ion_e,E_vnonlocal
 
       double precision Dneall_m_trace
       external         Dneall_m_trace
@@ -503,19 +503,20 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
  
 *     ***** average Kohn-Sham v_nonlocal energy ****
-      call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
-      call v_nonlocal(ispin,ne,psi1,Hpsi,
-     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
-      enlocal = 0.0d0
-      do ms=1,ispin
-      do n=n1(ms),n2(ms)
-         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
-         if (fractional) sum=sum*occ1(n)
-         enlocal = enlocal - sum
-      end do
-      end do
-      if (np.gt.1) call Parallel_SumAll(enlocal)
-      if (ispin.eq.1) enlocal = 2.0d0*enlocal
+c      call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
+c      call v_nonlocal(ispin,ne,psi1,Hpsi,
+c     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
+c      enlocal = 0.0d0
+c      do ms=1,ispin
+c      do n=n1(ms),n2(ms)
+c         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
+c         if (fractional) sum=sum*occ1(n)
+c         enlocal = enlocal - sum
+c      end do
+c      end do
+c      if (np.gt.1) call Parallel_SumAll(enlocal)
+c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
+      enlocal = E_vnonlocal(ispin,ne,fractional,occ1)
 
 
 

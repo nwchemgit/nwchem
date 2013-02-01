@@ -88,11 +88,11 @@ c     real*8     fion(3,natmx)
 
 *     ***** external functions ****
       integer  ion_nion,control_gga
-      real*8   ion_ke,ion_ion_e
+      real*8   ion_ke,ion_ion_e,E_vnonlocal
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
       external ion_nion,control_gga
-      external ion_ke,ion_ion_e
+      external ion_ke,ion_ion_e,E_vnonlocal
       external control_time_step,control_fake_mass,ion_dti
       external lattice_omega,coulomb_e,ewald_e
       logical  psp_semicore
@@ -720,20 +720,21 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
 *     ******** pressure ******
       if (calc_pressure) then
 
-*        ***** average Kohn-Sham v_nonlocal energy ****
-        call dcopy(2*npack1*nemaxq,0.0d0,0,Hpsi,1)
-        call v_nonlocal(ispin,neq,psi1,Hpsi,
-     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
-        enlocal = 0.0d0
-        do ms=1,ispin
-        do n=n1(ms),n2(ms)
-         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
-         if (fractional) sum=sum*occ1(n)
-         enlocal = enlocal - sum
-        end do
-        end do
-        if (np.gt.1) call Parallel_SumAll(enlocal)
-        if (ispin.eq.1) enlocal = 2.0d0*enlocal
+c*        ***** average Kohn-Sham v_nonlocal energy ****
+c        call dcopy(2*npack1*nemaxq,0.0d0,0,Hpsi,1)
+c        call v_nonlocal(ispin,neq,psi1,Hpsi,
+c     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
+c        enlocal = 0.0d0
+c        do ms=1,ispin
+c        do n=n1(ms),n2(ms)
+c         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
+c         if (fractional) sum=sum*occ1(n)
+c         enlocal = enlocal - sum
+c        end do
+c        end do
+c        if (np.gt.1) call Parallel_SumAll(enlocal)
+c        if (ispin.eq.1) enlocal = 2.0d0*enlocal
+        enlocal = E_vnonlocal(ispin,neq,fractional,occ1)
 
 
         call cgsd_pressure_stress(ispin,neq,psi1,
