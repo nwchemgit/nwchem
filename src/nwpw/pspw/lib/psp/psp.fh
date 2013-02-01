@@ -112,3 +112,24 @@
      >                          psputerm_ld,psputerm_ld_start,
      >                          psputerm_ld_count,
      >                          psputerm_vcount,pspnuterms,psputerm
+
+*     **** common block for prj_indx ****
+      integer shift_prj_indx(2)
+      integer ii_prj_indx(2)
+      integer ia_prj_indx(2)
+      integer nproj_prj_indx(2)
+      integer swstart_prj_indx(2)
+      integer sd_function_prj_indx(2)
+      integer sw1a(2),sw2a(2)
+      integer n_prj_indx,nion_prj_indx
+      integer swann
+      logical swaset
+      common / psp_prj_indx_block / shift_prj_indx,
+     >                              ii_prj_indx,
+     >                              ia_prj_indx,
+     >                              nproj_prj_indx,
+     >                              swstart_prj_indx,
+     >                              sd_function_prj_indx,
+     >                              sw1a,sw2a,
+     >                              n_prj_indx,nion_prj_indx,
+     >                              swann,swaset
