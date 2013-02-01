@@ -2005,6 +2005,68 @@ c                 end do
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	 	   E_vnonlocal  	*
+*     *					*
+*     ***********************************
+      real*8 function E_vnonlocal(ispin,ne,fractional,occ)
+      implicit none
+      integer ispin,ne(2)
+      logical fractional
+      real*8 occ(*)
+
+#include "mafdecls.fh"
+#include "psp.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      real*8 E
+
+*     **** external functions ****
+      real*8   E_vnonlocal_sub
+      external E_vnonlocal_sub
+
+      E = E_vnonlocal_sub(ne(1)+ne(2),n_prj_indx,
+     >                    dbl_mb(sw1a(1)),dbl_mb(sw2a(1)),
+     >                    fractional,occ)
+      call D1dB_SumAll(E)
+      if (ispin.eq.1) E = E+E
+
+      E_vnonlocal = E
+      return
+      end
+
+      real*8 function E_vnonlocal_sub(nn,nprjs,sw1,sw2,fractional,occ)
+      implicit none
+      integer nn,nprjs
+      real*8 sw1(nn,nprjs),sw2(nn,nprjs)
+      logical fractional
+      real*8 occ(*)
+
+*     **** local variables ****
+      integer i,ip,n
+      real*8 sum
+
+      sum = 0.0d0
+      if (fractional) then
+         do ip=1,nprjs
+            do n=1,nn
+               call Dneall_qton(n,i)
+               sum = sum + sw1(n,ip)*sw2(n,ip)*occ(i)
+            end do
+         end do
+      else
+         do ip=1,nprjs
+            do n=1,nn
+               sum = sum + sw1(n,ip)*sw2(n,ip)
+            end do
+         end do
+      end if
+
+      E_vnonlocal_sub = sum
+      return
+      end
 
 *     ***********************************
 *     *					*
