@@ -1813,6 +1813,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
          nproj       = int_mb(nproj_prj_indx(1)+ip-1)
          swstart     = int_mb(swstart_prj_indx(1)+ip-1)
 
+
 *        **** sw2 = Gijl*sw1 ******
          Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
          call Multiply_Gijl_sw1(nn,
@@ -1829,7 +1830,35 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                          dbl_mb(sw1a(1)+swstart*nn),
      >                          dbl_mb(sw2a(1)+swstart*nn))
 
+     
+*        **** paw operations #1 - generate it's compcharge, add local coulombs, and add xc potential ****
+         if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+
+*           **** paw atom - generate it's compcharge ***
+            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nproj,
+     >                                   dbl_mb(sw1a(1)+swstart*nn))
+
+*           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
+            call nwpw_xc_solve(ii,ia,
+     >        int_mb(n1dgrid(1)+ia-1),
+     >        int_mb(n1dbasis(1)+ia-1),
+     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
+     >        dbl_mb(log_amesh(1)+ia-1),
+     >        ispin,ne,nproj,
+     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
+         end if
       end do
+
+*     **** paw operations #2 - ****
+
 
 *     **** do Kleinman-Bylander Multiplication ****
       call dscal(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
