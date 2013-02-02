@@ -28,6 +28,82 @@ C> adds each contribution to the outputs. Therefore we first of all
 C> zero all the output variables, and subsequently add all the 
 C> required terms.
 C>
+C> Experience has shown that for these kinds of routines it is 
+C> essential to be precise about the arguments are. Hence we define
+C> them here is detail. First of all the inputs are:
+C>
+C> Rho (density)
+C> -------------
+C> 
+C> Rho is the electron density. In closed shell cases the total 
+C> electron density is used, in open shell cases the \f$\alpha\f$-electron
+C> and \f$\beta\f$-electron densities are used. The density is defined as
+C> \f{eqnarray*}{
+C>   \rho^\alpha(\vec{r}) 
+C>   &=& \sum_{i \in \{occupied\}}{\;}^\alpha\phi^*_i(\vec{r})\;^\alpha\phi_i(\vec{r}) \\\\
+C>   &=& \sum_{\mu\nu}\chi_\mu(\vec{r})D^\alpha_{\mu\nu}\chi_\nu(\vec{r}) \\\\
+C>   \rho^\beta(\vec{r}) 
+C>   &=& \sum_{i \in \{occupied\}}{\;}^\beta\phi^*_i(\vec{r})\;^\beta\phi_i(\vec{r}) \\\\
+C>   &=& \sum_{\mu\nu}\chi_\mu(\vec{r})D^\beta_{\mu\nu}\chi_\nu(\vec{r}) \\\\
+C>   \rho^t(\vec{r}) &=& \rho^\alpha(\vec{r})+\rho^\beta(\vec{r})
+C> \f}
+C> where \f$ D^\alpha \f$ and \f$ D^\beta \f$ are the \f$\alpha\f$- and 
+C> \f$\beta\f$-electron density matrices, the functions \f$^\alpha\phi\f$ and
+C> \f$^\beta\phi\f$ are spin-orbitals.
+C>
+C> Gamma (density gradient)
+C> ------------------------
+C>
+C> Gamma is the norm of the density gradient squared. In closed shell cases
+C> norm of the gradient of the total electron density squared is used. In open
+C> shell cases the various spin components are used. The different components
+C> are defined as:
+C> \f{eqnarray*}{
+C>   \gamma^{\alpha\alpha}(\vec{r})
+C>   &=& \nabla\rho^\alpha(\vec{r})\cdot\nabla\rho^\alpha(\vec{r}) \\\\
+C>   \gamma^{\alpha\beta}(\vec{r})
+C>   &=& \nabla\rho^\alpha(\vec{r})\cdot\nabla\rho^\beta(\vec{r}) \\\\
+C>   \gamma^{\beta\beta}(\vec{r})
+C>   &=& \nabla\rho^\beta(\vec{r})\cdot\nabla\rho^\beta(\vec{r}) \\\\
+C>   \gamma^{tt}(\vec{r})
+C>   &=& \gamma^{\alpha\alpha}(\vec{r})+\gamma^{\beta\beta}(\vec{r})
+C>    +  2\gamma^{\alpha\beta}(\vec{r})
+C> \f}
+C>
+C> Next the outputs are:
+C>
+C> The functional
+C> --------------
+C>
+C> The exchange-correlation energy at every point, in general terms defined
+C> as:
+C> \f{eqnarray*}{
+C>   f &=& 
+C>   f\left(\rho^\alpha,\rho^\beta,\gamma^{\alpha\alpha},\gamma^{\alpha\beta},
+C>          \gamma^{\beta\beta}\right)
+C> \f}
+C>
+C> The derivatives of \f$f\f$ with respect to the density
+C> ------------------------------------------------------
+C>
+C> The derivative of the exchange-correlation energy with respect to the
+C> electron density (`dfdr`), defined as:
+C> \f{eqnarray*}{
+C>   \frac{\mathrm{d}f}{\mathrm{d}\rho^\alpha} \\\\
+C>   \frac{\mathrm{d}f}{\mathrm{d}\rho^\beta}
+C> \f}
+C>
+C> The derivatives \f$f\f$ with respect to the density gradient
+C> ------------------------------------------------------------
+C>
+C> The routine evaluates the following derivatives related to the density
+C> gradients (`dfdg`):
+C> \f{eqnarray*}{
+C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\alpha\alpha}} \\\\
+C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\alpha\beta}} \\\\
+C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\beta\beta}}
+C> \f}
+C>
        subroutine nwxc_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
        implicit none
 #include "nwxcP.fh"
@@ -36,7 +112,7 @@ C>
        integer nq   !< [Input] The number of points
 C
        double precision rho(nq,ipol)     !< [Input] Density
-       double precision gamma(nq,ipol+1) !< [Input] |Density gradient|
+       double precision gamma(nq,ipol+1) !< [Input] |Density gradient|^2
        double precision tau(nq,ipol)     !< [Input] Kinetic energy 
                                          !< density
 C
