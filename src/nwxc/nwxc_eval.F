@@ -69,6 +69,14 @@ C>   \gamma^{tt}(\vec{r})
 C>   &=& \gamma^{\alpha\alpha}(\vec{r})+\gamma^{\beta\beta}(\vec{r})
 C>    +  2\gamma^{\alpha\beta}(\vec{r})
 C> \f}
+C> In the above the gradient of the density for one spin channel is of course
+C> \f{eqnarray*}{
+C>    \nabla\rho^\sigma(\vec{r})
+C>    &=& \sum_{\mu\nu}\left\{
+C>    \left(\nabla\chi_\mu(\vec{r})\right)D^\sigma_{\mu\nu}\chi_\nu(\vec{r})+
+C>    \chi_\mu(\vec{r})D^\sigma_{\mu\nu}\left(\nabla\chi_\nu(\vec{r})\right)
+C>    \right\}
+C> \f}
 C>
 C> Next the outputs are:
 C>
@@ -103,6 +111,125 @@ C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\alpha\alpha}} \\\\
 C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\alpha\beta}} \\\\
 C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\beta\beta}}
 C> \f}
+C>
+C> Conversions
+C> -----------
+C>
+C> This routine assumes that the functional is defined in terms of one 
+C> particular set of quantities. In practice there are a number of different
+C> conventions that may be used and that are all equally valid. For example
+C> we have described the functional in terms of the \f$\alpha\f$- and 
+C> \f$\beta\f$-electron density. However, the functional could also be defined
+C> in terms of the total- and spin-densities. There are a number of these
+C> equally valid representations that can be used. This leads to the question
+C> quantities from one representation can be expressed in terms of those of 
+C> another representation. Here we will present a number of these conversions
+C> that we have encountered and worked out. 
+C>
+C> Converting between the norm of gradient squared and the norm
+C> ------------------------------------------------------------
+C>
+C> In the Gaussian basis set DFT code in NWChem the functional is differentiated
+C> with respect to the norm of the gradient squared. In the planewave codes
+C> by contrast the norm of the gradient is used. Hence we need to be able to
+C> convert the derivatives from one representation to another. Some of these
+C> conversions are simple, for example:
+C> \f{eqnarray*}{
+C>   \frac{\partial f}{\partial |\gamma^{\alpha\alpha}|}
+C>   &=& 
+C>   \frac{\partial f}{\partial \gamma^{\alpha\alpha}}
+C>   \frac{\partial \gamma^{\alpha\alpha}}{\partial |\gamma^{\alpha\alpha}|} \\\\
+C>   \frac{\partial f}{\partial |\gamma^{\alpha\alpha}|}
+C>   &=& 
+C>   \frac{\partial f}{\partial \gamma^{\alpha\alpha}}
+C>   \frac{\partial |\gamma^{\alpha\alpha}|^2}{\partial |\gamma^{\alpha\alpha}|} \\\\
+C>   \frac{\partial f}{\partial |\gamma^{\alpha\alpha}|}
+C>   &=& 2
+C>   \frac{\partial f}{\partial \gamma^{\alpha\alpha}}
+C>   |\gamma^{\alpha\alpha}|
+C> \f}
+C> Similarly we have for the \f$\gamma^{\beta\beta}\f$ component:
+C> \f{eqnarray*}{
+C>   \frac{\partial f}{\partial |\gamma^{\beta\beta}|}
+C>   &=& 2
+C>   \frac{\partial f}{\partial \gamma^{\beta\beta}}
+C>   |\gamma^{\beta\beta}|
+C> \f}
+C> To work out how to convert
+C> between these representations we start by considering the functional as
+C> a functional of the density matrices. Next we express the functional in
+C> terms of the desired quantities
+C> \f{eqnarray*}{
+C>   f\left(D^\alpha,D^\beta\right)
+C>   &=& f\left(\gamma^{\alpha\alpha}(D^\alpha),\gamma^{\beta\beta}(D^\beta),
+C>             \gamma^{\alpha\beta}(D^\alpha,D^\beta)\right) \\\\\
+C>   &=& f\left(|\gamma^{\alpha\alpha}(D^\alpha)|,
+C>              |\gamma^{\beta\beta}(D^\beta)|,
+C>              |\gamma^{tt}(D^\alpha,D^\beta)|\right) \\\\\
+C> \f}
+C> Because of the equalities we know that the derivatives with respect to a
+C> particular property also have to equate to eachother as, for example
+C> \f{eqnarray*}{
+C>   \frac{\mathrm{d} f\left(\gamma^{\alpha\alpha},
+C>         \gamma^{\beta\beta},
+C>         \gamma^{\alpha\beta}\right)}{\mathrm{d}\gamma^{\alpha\alpha}}
+C>   &=&
+C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
+C>         |\gamma^{\beta\beta}|,
+C>         |\gamma^{tt}|\right)}{\mathrm{d}\gamma^{\alpha\alpha}} \\\\
+C>   \frac{\mathrm{d} f\left(\gamma^{\alpha\alpha},
+C>         \gamma^{\beta\beta},
+C>         \gamma^{\alpha\beta}\right)}{\mathrm{d}\gamma^{\beta\beta}}
+C>   &=&
+C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
+C>         |\gamma^{\beta\beta}|,
+C>         |\gamma^{tt}|\right)}{\mathrm{d}\gamma^{\beta\beta}} \\\\
+C>   \frac{\mathrm{d} f\left(\gamma^{\alpha\alpha},
+C>         \gamma^{\beta\beta},
+C>         \gamma^{\alpha\beta}\right)}{\mathrm{d}\gamma^{\alpha\beta}}
+C>   &=&
+C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
+C>         |\gamma^{\beta\beta}|,
+C>         |\gamma^{tt}|\right)}{\mathrm{d}\gamma^{\alpha\beta}} \\\\
+C> \f}
+C> On the left hand sides we have the quantities that this routine
+C> `nwxc_eval_df` calculates. Here we are particularly interested in the last
+C> equation.
+C> Working out the right hand sides we get:
+C> \f{eqnarray*}{
+C>   \frac{\mathrm{d} f\left(\gamma^{\alpha\alpha},
+C>         \gamma^{\beta\beta},
+C>         \gamma^{\alpha\beta}\right)}{\mathrm{d}\gamma^{\alpha\beta}}
+C>   &=&
+C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
+C>         |\gamma^{\beta\beta}|,
+C>         |\gamma^{tt}|\right)}{\mathrm{d}|\gamma^{tt}|}
+C>   \frac{\mathrm{d}|\gamma^{tt}|}{\mathrm{d}\gamma^{\alpha\beta}}
+C> \f}
+C> Using the definition
+C> \f$|\gamma^{tt}|=(\gamma^{\alpha\alpha}+\gamma^{\beta\beta}+2\gamma^{\alpha\beta})^{1/2}\f$
+C> we can simplify this expression further to
+C> \f{eqnarray*}{
+C>   \frac{\mathrm{d} f\left(\gamma^{\alpha\alpha},
+C>         \gamma^{\beta\beta},
+C>         \gamma^{\alpha\beta}\right)}{\mathrm{d}\gamma^{\alpha\beta}}
+C>   &=&
+C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
+C>         |\gamma^{\beta\beta}|,
+C>         |\gamma^{tt}|\right)}{\mathrm{d}|\gamma^{tt}|}
+C>   (\gamma^{tt})^{-1/2} \\\\
+C>   \frac{\mathrm{d} f\left(\gamma^{\alpha\alpha},
+C>         \gamma^{\beta\beta},
+C>         \gamma^{\alpha\beta}\right)}{\mathrm{d}\gamma^{\alpha\beta}}
+C>   |\gamma^{tt}|
+C>   &=&
+C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
+C>         |\gamma^{\beta\beta}|,
+C>         |\gamma^{tt}|\right)}{\mathrm{d}|\gamma^{tt}|}
+C> \f}
+C> Interestingly this relationship does not depend on \f$\gamma^{\alpha\alpha}
+C> or \f$\gamma^{\beta\beta}\f$ even though these quantities are contained
+C> in the norm of the total density gradient.
 C>
        subroutine nwxc_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
        implicit none
