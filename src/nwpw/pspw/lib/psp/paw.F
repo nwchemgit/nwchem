@@ -1290,6 +1290,45 @@ c     >                          l_prj(i),m_prj(i))
       return 
       end
 
+*     *************************************************
+*     *                                               *
+*     *              psp_hartree_cmp_pw               *
+*     *                                               *
+*     *************************************************
+*
+*     This
+*
+*
+*                      //
+*    E_cmp_pw    =    || (ncmp(r))*(npw(r'))
+*                     || -------------------  dr dr'
+*                    //       |r-r'|
+*
+*
+*   dE_cmp_pw/dpsi^*(r) = 
+*
+*                           /
+*                       +  |    ncmp(r')
+*                          | --------------  dr' * psi(r)
+*                         /     |r-r'|
+*
+*
+*
+      subroutine psp_hartree_cmp_pw(ispin,ne,vpwr,
+     >                              psik,Hpsik,
+     >                              psir,Hpsir,
+     >                              move,fion,fractional,occ)
+      integer ispin,ne(2)
+      real*8 vpwr(*)
+      complex*16 psik(*),Hpsik(*)
+      real*8     psir(*),Hpsir(*)
+      logical    move
+      real*8     fion(3,*)
+      logical    fractional
+      real*8     occ(*)
+
+      return
+      end
 
 *     *************************************************
 *     *                                               *
