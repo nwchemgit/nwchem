@@ -617,6 +617,7 @@ C     ON FIRST CALL, IF NO DATA UNCOMMENTED, TEST MACHINE TYPES.
 *}
       END
 
+#ifdef DONOT_COMPILE
       double precision function dgamma (x)
 c jan 1984 edition.  w. fullerton, c3, los alamos scientific lab.
 c jan 1994 wpp@ips.id.ethz.ch, ehg@research.att.com   declare xsml
@@ -752,6 +753,7 @@ c
 c
       return
       end
+#endif
       function alog (x)
 c june 1977 edition.   w. fullerton, c3, los alamos scientific lab.
       dimension alncs(6), center(4), alncen(5)
@@ -1943,6 +1945,7 @@ C REMOVE THE FOLLOWING LINE IF FORTRAN66 IS PREFERRED TO FORTRAN77.
 *	exit(1);return 0; /* for compilers that complain of missing return values */
 *}
       END
+#ifdef DONOT_COMPILE
       REAL FUNCTION R1MACH(I)
       INTEGER I
 C
@@ -2157,6 +2160,7 @@ C
 *	exit(1); return 0; /* for compilers that complain of missing return values */
 *}
       END
+#endif
       subroutine fdump
       call errquit(' FDUMP / NETLIB ',0, UNKNOWN_ERR)
       stop "boem"

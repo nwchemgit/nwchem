@@ -5,7 +5,7 @@
 #include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "se_defs.fh"
+c#include "se_defs.fh"
 c
 c::passed
       integer rtdb ![input] rtdb handle
