@@ -1,6 +1,6 @@
 c#define NUM_DEVICE 1
       SUBROUTINE ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                  d_v2,k_v2_offset,energy1,energy2,size_t1)
+     1                  d_v2,k_v2_offset,energy1,energy2,size_t1,icuda)
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -61,14 +61,24 @@ c
 c - T1/X1 LOCALIZATION ----------
 c    opening l_t1_local and l_x1_local
 c     NEW...
+
+cTCE_CUDA 
+      integer icuda
+      integer cuda_device_number
+      cuda_device_number = 0
+
 ckbn -2
       nodezero=(ga_nodeid().eq.0)
 ckbn      sum_s = 0.0d0
 ckbn      sum_d = 0.0d0
-      has_GPU = check_device()
+      has_GPU = check_device(icuda)
+      if (nodezero) call util_flush(LuOut)
       if (has_GPU.eq.1) then
-        call device_init()
+       call device_init(icuda,cuda_device_number)
+       if(cuda_device_number .eq. 30 ) call errquit("cuda",30,INPUT_ERR)
       endif
+      if(nodezero) 
+     + write(*,'(A,I3,A)') "You are using ",icuda, " devices per node"
 
 ckbn In a large cluster it is better to get and broadcast
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
@@ -155,13 +165,13 @@ c      call device_init()
 c            device_me = get_device_id()
 c        NEW..
 c      init GPU mem
-            has_GPU = check_device()
+            has_GPU = check_device(icuda)
             if (has_GPU.eq.1) then
               call initmemmodule()
             endif
 
 c       NEW
-            has_GPU = check_device()
+            has_GPU = check_device(icuda)
             call ccsd_t_singles_gpu(dbl_mb(k_singles),
      1        k_t1_local,d_v2,k_t1_offset,
      2        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2,
@@ -207,7 +217,7 @@ c     3       int_mb(k_offset+t_h3b-1)
 
 c       NEW
 c            device_me = get_device_id()
-            has_GPU = check_device()
+            has_GPU = check_device(icuda)
             if (has_GPU.eq.0) then
 c      CPU process
             do t_p4 = 1, int_mb(k_range+t_p4b-1)

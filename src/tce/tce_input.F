@@ -119,6 +119,11 @@ c --- 4 index transform. ---
       integer maxs,ichopx,i4im,idiskx
 c --- EOM solver
       integer hbard
+
+#ifdef TCE_CUDA
+      integer icuda
+#endif
+
 c
 c -------------------------------------
 c What input block are we dealing with?
@@ -1108,6 +1113,19 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
+c      TCE_CUDA Number of CUDA devices per node
+c
+      write(*,*) "I am here1"
+      else if (inp_compare(.false.,test,'cuda')) then
+      write(*,*) "I am here2"
+        if (.not.inp_i(icuda))
+     1    call errquit('tce_input: no icuda',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:cuda',mt_int,1,icuda))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      write(*,*) "I am here3"
+
+c
 c     MAXITER (the maximum number of Davidson iterations)
 c
       else if (inp_compare(.false.,test,'maxiter')) then
@@ -1479,6 +1497,7 @@ c
         if (.not.rtdb_put(rtdb,'tce:act_excit_lvl',mt_int,1,numact))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+
 c
 c     PRINT
 c

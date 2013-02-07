@@ -197,6 +197,9 @@ c ---------------------------------------------
       external scf
       integer i
       integer j
+#ifdef TCE_CUDA
+      integer icuda
+#endif
 c --- debug ---
 c      integer dup1,dup2,dup3,dup4,dup5,dup6
 c -------------
@@ -3305,9 +3308,12 @@ c
 
 #ifdef TCE_CUDA
               if (nodezero) write(LuOut,*) 'Using CUDA CCSD(T) code'
+               if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,icuda)) then
+                call errquit('tce_energy: reading cuda',icuda,CALC_ERR) 
+               end if 
               if (nodezero) call util_flush(LuOut)
               call ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,icuda)
 #else
               if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
               if (nodezero) call util_flush(LuOut)
