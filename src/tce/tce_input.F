@@ -120,9 +120,8 @@ c --- 4 index transform. ---
 c --- EOM solver
       integer hbard
 
-#ifdef TCE_CUDA
+c --- TCE_CUDA
       integer icuda
-#endif
 
 c
 c -------------------------------------
@@ -1112,18 +1111,16 @@ c
         if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+
 c
 c      TCE_CUDA Number of CUDA devices per node
 c
-      write(*,*) "I am here1"
       else if (inp_compare(.false.,test,'cuda')) then
-      write(*,*) "I am here2"
         if (.not.inp_i(icuda))
      1    call errquit('tce_input: no icuda',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:cuda',mt_int,1,icuda))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-      write(*,*) "I am here3"
 
 c
 c     MAXITER (the maximum number of Davidson iterations)

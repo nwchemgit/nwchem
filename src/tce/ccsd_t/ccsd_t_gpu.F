@@ -72,13 +72,13 @@ ckbn -2
 ckbn      sum_s = 0.0d0
 ckbn      sum_d = 0.0d0
       has_GPU = check_device(icuda)
-      if (nodezero) call util_flush(LuOut)
       if (has_GPU.eq.1) then
        call device_init(icuda,cuda_device_number)
        if(cuda_device_number .eq. 30 ) call errquit("cuda",30,INPUT_ERR)
       endif
       if(nodezero) 
      + write(*,'(A,I3,A)') "You are using ",icuda, " devices per node"
+      if (nodezero) call util_flush(LuOut)
 
 ckbn In a large cluster it is better to get and broadcast
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
