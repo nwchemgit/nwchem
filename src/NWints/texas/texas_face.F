@@ -1671,7 +1671,8 @@ c total:
 c
       maxmem_tot = maxmem_scr + maxmem_bl
 c
-      l_blsize=maxmem_tot
+cadded 10% extra for spin-orbit case failure
+      l_blsize=(maxmem_tot*11)/10
 c
 c minimum memory (1-ij,1-kl,1-ijkl at the time)
 c
