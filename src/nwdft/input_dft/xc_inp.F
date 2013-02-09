@@ -123,7 +123,7 @@ c     srexch ==> 9310
 c     hse03 ==> 9320
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=128)
+      parameter (num_dirs=132)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -168,9 +168,11 @@ c
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
-     &     'b3pw91','pbe96','dldf','srhfexch','hse03'/
+     &     'b3pw91','pbe96','dldf','srhfexch','hse03',
+     &     's12g','s12h','cam-s12g','cam-s12h'/
 c     becke97-d, ssb-d
-      logical disp
+      logical disp, dumdirect
+      integer ivdw
 c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
@@ -211,7 +213,7 @@ c
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
-     &  8532,8533,8534,9300,9310,9320,1999) ind
+     &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -3249,6 +3251,119 @@ c     (Grimme) with factor 0.847455
 c
       goto 10
 c
+c     s12g functional
+c
+ 4610 xccomb(60) = .true.
+        xfac(60) = 1.d0
+      nlxfac(60) = .true.
+        xfac(2)  = 1.03842032d0
+       lxfac(2)  = .true.
+c
+       lcfac(6)  = .true.
+        cfac(6)  = 1.0d0
+      nlcfac(12) = .true.
+        cfac(12) = 1.0d0
+c
+c       this functional must be used with vdw contrib
+c       (Grimme3) with factors 1.17755954 & 0.84432515
+c
+      ivdw = 3
+      if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, ivdw))
+     &    call errquit('xc_inp: rtdb_put failed vdw', 0, RTDB_ERR)
+c
+      goto 10
+c
+c     s12h functional
+c
+ 4620 xccomb(61) = .true.
+         xfac(1) = 0.25d0
+        lxfac(1) = .true.
+       nlxfac(1) = .true.
+        xfac(61) = 0.75d0
+      nlxfac(61) = .true.
+        xfac(2)  = 1.02543951d0*xfac(61)
+       lxfac(2)  = .true.
+c
+       lcfac(6)  = .true.
+        cfac(6)  = 1.0d0
+      nlcfac(12) = .true.
+        cfac(12) = 1.0d0
+c
+c       this functional must be used with vdw contrib
+c       (Grimme3) with factors 1.07735222 & 0.37705816
+c
+      ivdw = 3
+      if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, ivdw))
+     &    call errquit('xc_inp: rtdb_put failed vdw', 0, RTDB_ERR)
+c
+      goto 10
+c
+ 4630 xccomb(62) = .true.
+c
+c     cam-s12g
+c
+      cam_omega = 1.52420731d0
+      cam_alpha = 0.0d0
+      cam_beta  = 0.34485046d0
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &    cam_beta)
+c
+           xfac(1) = 1.0d0
+          lxfac(1) = .true.
+         nlxfac(1) = .true.
+          xfac(62) = 1.0d0
+         lxfac(62) = .true.
+        nlxfac(62) = .true.
+c
+       lcfac(6)  = .true.
+        cfac(6)  = 1.0d0
+      nlcfac(12) = .true.
+        cfac(12) = 1.0d0
+c
+c       this functional must be used with vdw contrib
+c       (Grimme3) with factors 1.20250451 & 0.86124355
+c
+      ivdw = 3
+      if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, ivdw))
+     &    call errquit('xc_inp: rtdb_put failed vdw', 0, RTDB_ERR)
+c
+      goto 10
+c
+ 4640 xccomb(63) = .true.
+c
+c     cam-s12h
+c
+      cam_omega = 0.48516891d0
+      cam_alpha = 0.25d0
+      cam_beta  = 0.10897845d0
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &    cam_beta)
+c
+           xfac(1) = 1.0d0
+          lxfac(1) = .true.
+         nlxfac(1) = .true.
+          xfac(63) = 1.0d0
+         lxfac(63) = .true.
+        nlxfac(63) = .true.
+c
+       lcfac(6)  = .true.
+        cfac(6)  = 1.0d0
+      nlcfac(12) = .true.
+        cfac(12) = 1.0d0
+c
+c       this functional must be used with vdw contrib
+c       (Grimme3) with factors 1.08034183 & 0.37999939
+c
+      ivdw = 3
+      if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, ivdw))
+     &    call errquit('xc_inp: rtdb_put failed vdw', 0, RTDB_ERR)
+c
+      goto 10
+c
 c     kt1: Keal-Tozer functional nr. 1
 c
  4700   xfac(47) = 1.d0
@@ -3807,6 +3922,33 @@ c
       call errquit('sic_input: invalid format', 0, INPUT_ERR)
 c     
       end
+      subroutine forcedirect(rtdb)
+      implicit none
 
+      integer rtdb
+
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "cdft.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+
+      integer memsize, filesize
+c
+c     Force use of direct
+c
+      direct = .true.
+      filesize = -1
+      memsize  = -1
+      if (.not. rtdb_put(rtdb, 'dft:direct',mt_log,1,direct))
+     &   call errquit('cam-s12h: rtdb_put failed',400,RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'int2e:filesize',mt_int,1,filesize))
+     $     call errquit('cam-s12h: failed to store filesize',401,
+     &                  RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'int2e:memsize',mt_int,1,memsize))
+     $     call errquit('cam-s12h: failed to store filesize',402,
+     &                  RTDB_ERR)
+      end
 
 

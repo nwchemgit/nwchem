@@ -19,7 +19,7 @@ c
 #include "stdio.fh"
 #include "steric.fh"
 c
-      integer nq
+      integer nq, is12x
       double precision rho(*), delrho(*)
 c
       double precision Mmat(*), ttau(*)
@@ -406,6 +406,66 @@ c
      &                     Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                     Ex, qwght, ldew, func)
          endif 
+      endif
+c
+c s12g
+c
+      if (abs(xfac(60)).gt.eps) then
+         is12x = 1
+         if (.not. do_2nd) then
+            call xc_s12x(tol_rho, xfac(60), lxfac(60), nlxfac(60),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         else
+            call xc_s12x_d2(tol_rho, xfac(60), lxfac(60), nlxfac(60),
+     &         rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         endif
+      endif
+c
+c s12h
+c
+      if (abs(xfac(61)).gt.eps) then
+         is12x = 2
+         if (.not. do_2nd) then
+            call xc_s12x(tol_rho, xfac(61), lxfac(61), nlxfac(61),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         else
+            call xc_s12x_d2(tol_rho, xfac(61), lxfac(61), nlxfac(61),
+     &         rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         endif
+      endif
+c
+c cam-s12g
+c
+      if (abs(xfac(62)).gt.eps) then
+         is12x = 1
+         if (.not. do_2nd) then
+            call xc_cams12x(tol_rho, xfac(62), lxfac(62), nlxfac(62),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         else
+            call xc_cams12x_d2(tol_rho, xfac(62), lxfac(62), nlxfac(62),
+     &         rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         endif
+      endif
+c
+c cam-s12h
+c
+      if (abs(xfac(63)).gt.eps) then
+         is12x = 2
+         if (.not. do_2nd) then
+            call xc_cams12x(tol_rho, xfac(63), lxfac(63), nlxfac(63),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         else
+            call xc_cams12x_d2(tol_rho, xfac(63), lxfac(63), nlxfac(63),
+     &         rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func, is12x)
+         endif
       endif
 c
       if (abs(xfac(8)).gt.eps)then

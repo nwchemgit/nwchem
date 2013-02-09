@@ -32,7 +32,8 @@ c
      + xfac(48) + xfac(49) + xfac(50) + xfac(51) +
      + cfac(48) + cfac(49) + cfac(50) + cfac(51) +
      + xfac(52) + xfac(53) + xfac(54) +
-     + cfac(52) + cfac(53) + cfac(54)
+     + cfac(52) + cfac(53) + cfac(54) +
+     + xfac(60) + xfac(61) + xfac(62) + xfac(63)
 c
       if (abs(tot).gt.eps.or.lb94.or.cs00)then
          xc_chkgrad = .true.
@@ -245,6 +246,9 @@ c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
 c
+      logical direct
+      integer memsize, filesize
+c
 c     set cam flag 
       if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
@@ -268,6 +272,20 @@ c
 c     Force texas integrals to false for CAM calculations
       if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
      &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+c
+c     Force use of direct
+c
+      direct = .true.
+      filesize = -1
+      memsize  = -1
+      if (.not. rtdb_put(rtdb, 'dft:direct',mt_log,1,direct))
+     &   call errquit('xc_setcamparam: rtdb_put failed',400,RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'int2e:filesize',mt_int,1,filesize))
+     $     call errquit('xc_setcamparam: failed to store filesize',401,
+     &                  RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'int2e:memsize',mt_int,1,memsize))
+     $     call errquit('xc_setcamparam: failed to store filesize',402,
+     &                  RTDB_ERR)
 c
       return
       end

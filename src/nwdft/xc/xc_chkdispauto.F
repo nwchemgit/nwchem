@@ -11,7 +11,8 @@ c
       lhasautodisp = .false.
 c
 c     beck97-d, ssb-d
-      lhasautodisp = xccomb(37).or.xccomb(46)   
+      lhasautodisp = xccomb(37).or.xccomb(46).or.xccomb(60).or.
+     &               xccomb(61).or.xccomb(62).or.xccomb(63)
 c
       if (lhasautodisp) then
          xc_chkdispauto = .true.

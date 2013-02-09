@@ -355,6 +355,12 @@ c TPSS
         else if(xfac(21).eq.1.0d0.and.cfac(27).eq.1.0d0) then
            scalesr6 = 1.166d0
            scales8  = 1.105d0
+c B2-PLYP
+        else if(xccomb(2).and.xfac(1).eq.0.53d0.and.
+     &          xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
+           scales6  = 0.640d0
+           scalesr6 = 1.094d0
+           scales8  = 1.682d0
 c B3LYP
         else if (xccomb(2)) then
            scalesr6 = 1.261d0
@@ -373,12 +379,6 @@ c PW6B95
 c TPSS0
 c          scalesr6 = 1.252d0
 c          scales8  = 1.242d0
-c B2-PLYP
-        else if(xccomb(2).and.xfac(1).eq.0.53d0.and.
-     &          xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
-           scales6  = 0.640d0
-           scalesr6 = 1.094d0
-           scales8  = 1.682d0
 c PWPB95
 c          scales6  = 0.820d0
 c          scalesr6 = 1.557d0
@@ -439,6 +439,22 @@ c b3pw91
         else if (xccomb(50)) then
            scalesr6 = 1.176d0
            scales8  = 1.775d0
+c s12g
+        else if (xccomb(60)) then
+           scalesr6 = 1.17755954d0
+           scales8  = 0.84432515d0
+c s12h
+        else if (xccomb(61)) then
+           scalesr6 = 1.07735222d0
+           scales8  = 0.37705816d0
+c cam-s12g
+        else if (xccomb(62)) then
+           scalesr6 = 1.20250451d0
+           scales8  = 0.86124355d0
+c cam-s12h
+        else if (xccomb(63)) then
+           scalesr6 = 1.08034183d0
+           scales8  = 0.37999939d0
 c revpbe0
 c          scalesr6 = 0.949d0
 c          scales8  = 0.792d0

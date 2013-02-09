@@ -19,7 +19,7 @@ c     Note: This is repeated in xc.fh
 c     It is duplicated here to address some build issues
 c
       integer numfunc
-      parameter(numfunc=59)
+      parameter(numfunc=63)
 c
       character*256 title
       character*16 grtagin

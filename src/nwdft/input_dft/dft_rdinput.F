@@ -610,6 +610,10 @@ c
       xname(52)='               SOGGA gradient correction'
       xname(53)='             SOGGA11 gradient correction'
       xname(54)='           SOGGA11-X gradient correction'
+      xname(60)='      S12g(GGA-part) Exchange Functional'
+      xname(61)='      S12h(GGA-part) Exchange Functional'
+      xname(62)='  CAM-S12g(GGA-part) Exchange Functional'
+      xname(63)='  CAM-S12h(GGA-part) Exchange Functional'
 
 c
 c     Exchange-Correlation combination functional name defaults.
@@ -665,6 +669,10 @@ c
       xcname(57)='             B3PW91 Method XC Functional'
       xcname(58)='              PBE96 Method XC Functional'
       xcname(59)='              HSE03 Method XC Functional'
+      xcname(60)='               S12g Method XC Functional'
+      xcname(61)='               S12h Method XC Functional'
+      xcname(62)='           CAM-S12g Method XC Functional'
+      xcname(63)='           CAM-S12h Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
