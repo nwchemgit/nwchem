@@ -684,8 +684,8 @@ c     OUTPUT: g_rhs
      &  skip_cphf_ev_gshift = .false.       
       if (.not.(switch_skip_cphf) .and.
      &    .not.(skip_cphf_ev_gshift)) then ! START-check-skip-cphf
-       if (ga_nodeid().eq.0)
-     &  write(*,*) 'COMPUTE cphf g-shift data ...'
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) 'COMPUTE cphf g-shift data ...'
 c     Write ga_rhs to disk 
        call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)

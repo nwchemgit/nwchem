@@ -307,8 +307,8 @@ c        goto 123
      &                 mt_log,1,skip_cphf_ev_hyp))        
      &  skip_cphf_ev_hyp = .false.       
       if (.not.(skip_cphf_ev_hyp)) then ! ----- if-skip-cphf--START
-       if (ga_nodeid().eq.0)
-     &  write(*,*) 'COMPUTE cphf hyp data ...'
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) 'COMPUTE cphf hyp data ...'
 c     Write ga_rhs to disk 
        call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
