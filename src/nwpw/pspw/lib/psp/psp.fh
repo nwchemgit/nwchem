@@ -115,6 +115,7 @@
 
 *     **** common block for prj_indx ****
       integer shift_prj_indx(2)
+      integer l_prj_prj_indx(2)
       integer ii_prj_indx(2)
       integer ia_prj_indx(2)
       integer nproj_prj_indx(2)
@@ -124,7 +125,7 @@
       integer n_prj_indx,nion_prj_indx
       integer swann
       logical swaset
-      common / psp_prj_indx_block / shift_prj_indx,
+      common / psp_prj_indx_block / shift_prj_indx,l_prj_prj_indx,
      >                              ii_prj_indx,
      >                              ia_prj_indx,
      >                              nproj_prj_indx,

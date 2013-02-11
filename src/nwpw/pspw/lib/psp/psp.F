@@ -401,6 +401,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
       value = MA_alloc_get(mt_int,n_prj_indx,'shift_prj_indx',
      >                     shift_prj_indx(2),shift_prj_indx(1))
+      value = MA_alloc_get(mt_int,n_prj_indx,'l_prj_prj_indx',
+     >                     l_prj_prj_indx(2),l_prj_prj_indx(1))
       value = value.and.
      >        MA_alloc_get(mt_log,n_prj_indx,'sd_function_prj_indx',
      >              sd_function_prj_indx(2),sd_function_prj_indx(1))
@@ -433,7 +435,9 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
               sd_function = (k.eq.0)
 
               int_mb(shift_prj_indx(1)+count2)       = shift
+              int_mb(l_prj_prj_indx(1)+count2)       = l_prj
               log_mb(sd_function_prj_indx(1)+count2) = sd_function
+
               count2 = count2 + 1
            end do
         end if !** nproj>0 **
@@ -441,6 +445,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
       return 
       end
+
 
 *     ****************************************************
 *     *                                                  *
@@ -503,6 +508,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(nproj_prj_indx(2))
       value = value.and.MA_free_heap(swstart_prj_indx(2))
       value = value.and.MA_free_heap(shift_prj_indx(2))
+      value = value.and.MA_free_heap(l_prj_prj_indx(2))
       value = value.and.MA_free_heap(sd_function_prj_indx(2))
       if (swaset) then
          value = value.and.MA_free_heap(sw1a(2))
@@ -1858,6 +1864,10 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       end do
 
 *     **** paw operations #2 - ****
+      do ip=1,nion_prj_indx
+         ii          = int_mb(ii_prj_indx(1)+ip-1)
+         ia          = int_mb(ia_prj_indx(1)+ip-1)
+      end do
 
 
 *     **** do Kleinman-Bylander Multiplication ****
@@ -1882,6 +1892,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
             do l=1,nproj
                shift       = int_mb(shift_prj_indx(1)+jp)
+               l_prj       = int_mb(l_prj_prj_indx(1)+jp)
                sd_function = log_mb(sd_function_prj_indx(1)+jp)
                jp = jp + 1
 
@@ -1901,6 +1912,20 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                               dcpl_mb(exi(1)),
      >                               dcpl_mb(prjtmp(1)+l1*npack1))
                end if
+
+*              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
+*              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
+               if (pspspin) then
+                  if (log_mb(pspspin_upions(1)+ii-1).and.
+     >               (l_prj.eq.pspspin_upl))
+     >            call dscal(ne(1),pspspin_upscale,
+     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn),1)
+                  if (log_mb(pspspin_downions(1)+ii-1).and.
+     >               (l_prj.eq.pspspin_downl))
+     >            call dscal(ne(2),pspspin_downscale,
+     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn+ne(1)),1)
+               end if
+
                l1 = l1 + 1
             end do
          end do
@@ -2515,6 +2540,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 
             do l=1,nproj
                shift       = int_mb(shift_prj_indx(1)+jp)
+               l_prj       = int_mb(l_prj_prj_indx(1)+jp)
                sd_function = log_mb(sd_function_prj_indx(1)+jp)
                jp = jp + 1
 
@@ -2534,6 +2560,20 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                               dcpl_mb(exi(1)),
      >                               dcpl_mb(prjtmp(1)+l1*npack1))
                end if
+
+*              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
+*              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
+               if (pspspin) then
+                  if (log_mb(pspspin_upions(1)+ii-1).and.
+     >               (l_prj.eq.pspspin_upl))
+     >            call dscal(ne(1),pspspin_upscale,
+     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn),1)
+                  if (log_mb(pspspin_downions(1)+ii-1).and.
+     >               (l_prj.eq.pspspin_downl))
+     >            call dscal(ne(2),pspspin_downscale,
+     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn+ne(1)),1)
+               end if
+
                l1 = l1 + 1
             end do
          end do
