@@ -305,11 +305,12 @@ c
             call cosmo_initialize(rtdb,geom,basis,osome)
 c
 c           Turn cosmo on, we want to run the calculation
-c           Start with gas_phase run
+c           Start with gas_phase run unless told otherwise
 c
             cosmo_last = .true.
             cosmo_on = .true.
-            cosmo_phase = 1
+            if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
+     >         cosmo_phase = 1
          endif
       endif
       oinitialized = .true.
