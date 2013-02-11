@@ -144,7 +144,7 @@ c     == Cosmo initialization ==
             call cosmo_initialize(rtdb,geom,ao_bas_han,oprint)
 c
 c           Turn cosmo on, we want to run the calculation
-c           Start with gas_phase run
+c           Start with gas_phase run unless told otherwise
 c
             cosmo_last = .true.
             cosmo_on = .true.
