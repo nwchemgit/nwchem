@@ -123,7 +123,8 @@ c      double precision dvalue
 
       logical lsubterm
 
-       parameter(maxorb=1024,maxref=800,maxexcit=18,maxdiism=15)
+c       parameter(maxorb=1024,maxref=800,maxexcit=18,maxdiism=15)
+       parameter(maxorb=600,maxref=100,maxexcit=18,maxdiism=10)
        double precision toleiimag
        parameter(toleiimag=1e-5) ! Tolereance for imaginary eigenvalue
 

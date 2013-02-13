@@ -1,0 +1,2 @@
+#ckbn
+	This directory contains all include files for mrcc. This is done to avoid compilation of full tce, in case of a change in tce_mrcc.fh
