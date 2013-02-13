@@ -107,7 +107,7 @@ c
       one_third = 1.0d0/3.0d0
       P1 = -(3.0d0/Pi)**one_third
       P2 = (3.0d0/4.0d0)*P1
-      P3 = -(6.0d0/Pi)**one_third
+      P3 = (2.0d0**one_third)*P1
       P4 = (3.0d0/4.0d0)*P3
 c
       if (ipol.eq.1)then
