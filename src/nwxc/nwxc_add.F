@@ -153,6 +153,7 @@ C>
       logical function nwxc_add_df(dfname,dfweight)
       implicit none
 #include "nwxcP.fh"
+#include "nwxc_param.fh"
       character*(*)    dfname   !< [Input] The name of the functional
       double precision dfweight !< [Input] The weight of the functional
 c
@@ -208,6 +209,21 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_VS98,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_VS98,dfweight)
+c
+c     Dispersion corrected functionals
+c
+      else if (dfname.eq."pbe96-d1") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_PBE_D1,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+        nwxc_disp_id    = NWXC_DISP_D1
+        nwxc_disp_s6    = 0.7d0
+        nwxc_disp_s8    = 0.0d0
+        nwxc_disp_alpha = 23.0d0
       else
 c       Oh dear, the functional was not recognized
       endif

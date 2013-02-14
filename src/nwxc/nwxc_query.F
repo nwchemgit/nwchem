@@ -404,6 +404,10 @@ c
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_PBE_D1)
+           cdata = "PBE-D1 (S Grimme, "
+     +             //"J.Comput.Chem. 25, 1463 (2004)"
+     +             //" doi:10.1002/jcc.20078)"
          case default
            stat = .false.
        end select
