@@ -206,8 +206,8 @@ c        **** paw energies ****
          write(luout,1685) E(40),E(40)/neall
          write(luout,1686) E(41),E(41)/neall
          write(luout,1687) E(42),E(42)/neall
-         write(luout,1688) E(42),E(42)/neall
-         write(luout,1689) E(43),E(43)/ion_nion()
+         write(luout,1688) E(43),E(43)/neall
+         write(luout,1689) E(44),E(44)/ion_nion()
          end if
 
         if (pspw_qmmm_found()) then
