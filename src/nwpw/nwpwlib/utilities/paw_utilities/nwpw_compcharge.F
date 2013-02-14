@@ -396,6 +396,77 @@
 
 *     *************************************************
 *     *                                               *
+*     *          nwpw_compcharge_lm_size_max          *
+*     *                                               *
+*     *************************************************
+      integer function nwpw_compcharge_lm_size_max()
+      implicit none
+#include "nwpw_compcharge.fh"
+
+      nwpw_compcharge_lm_size_max = lm_size_max
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_mult_l               *
+*     *                                               *
+*     *************************************************
+      integer function nwpw_compcharge_mult_l(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer iia
+
+      iia = int_mb(katm_iontopaw(1)+ia-1)
+
+      if (iia.eq.-1) then
+         nwpw_compcharge_mult_l = -1
+      else
+         nwpw_compcharge_mult_l = int_mb(mult_l(1)+iia-1)
+      end if
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_Qlm                  *
+*     *                                               *
+*     *************************************************
+      real*8 function nwpw_compcharge_Qlm(ms,ii,l,m)
+      implicit none
+      integer ms,ii,l,m
+
+#include "mafdecls.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer lm,iii,iia,indx
+      real*8 tmp
+
+      tmp = 0.0d0
+      iii = int_mb(ion_iontopaw(1)+ii-1)
+      if (iii.ne.-1) then
+         iia = int_mb(katm_paw(1)+iii-1)
+
+         if ((l.le.int_mb(mult_l(1)+iia-1)).and.(abs(m).le.l)) then
+            lm = l*(l+1) + m
+            indx  = (iii-1)*2*lm_size_max + (ms-1)*lm_size_max + lm
+            tmp = dbl_mb(Qlm(1)+indx)
+         end if
+      end if
+
+      nwpw_compcharge_Qlm = tmp
+      return
+      end
+
+
+*     *************************************************
+*     *                                               *
 *     *              nwpw_compcharge_gen_Qlm          *
 *     *                                               *
 *     *************************************************
@@ -465,6 +536,7 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
       real*8 V(*),Vsmooth(*)
       return
       end
+
 
 
 *     *************************************************
