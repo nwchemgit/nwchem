@@ -1725,7 +1725,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 #include "errquit.fh"
 
 *     *** local variables ***
-      integer G(3),npack1,nion,nu
+      integer G(3),npack1,nion,nu,mult_l,m,ms
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
@@ -1744,6 +1744,10 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       external ion_nion,ion_katm,Pack_G_indx
       external psi_data_get_ptr,psi_data_get_chnk
       external lattice_omega,ddot
+      integer  nwpw_compcharge_mult_l
+      external nwpw_compcharge_mult_l
+      real*8   nwpw_compcharge_Qlm
+      external nwpw_compcharge_Qlm
 
       call nwpw_timing_start(6) 
 
@@ -1864,10 +1868,29 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       end do
 
 *     **** paw operations #2 - ****
+      vmm(1) = 0.0d0
+      vmm(2) = 0.0d0
       do ip=1,nion_prj_indx
          ii          = int_mb(ii_prj_indx(1)+ip-1)
          ia          = int_mb(ia_prj_indx(1)+ip-1)
+         if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+            mult_l = nwpw_compcharge_mult_l(ia)
+            do l=0,mult_l
+            do m=-l,l
+                ff(1) = nwpw_compcharge_Qlm(    1,ii,l,m)
+                ff(2) = nwpw_compcharge_Qlm(ispin,ii,l,m)
+                write(*,*) "ii,l,m,qup,qdown=",ii,l,m,ff(1),ff(ispin)
+                if ((l.eq.0).and.(m.eq.0)) then 
+                   vmm(1) = vmm(1) + ff(1)
+                   vmm(2) = vmm(2) + ff(2)
+                end if 
+            end do
+            end do
+         end if
+
       end do
+      write(*,*) "total s charge =",vmm(1)*dsqrt(16.0d0*datan(1.0d0)),
+     >                              vmm(2)*dsqrt(16.0d0*datan(1.0d0))
 
 
 *     **** do Kleinman-Bylander Multiplication ****
