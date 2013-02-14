@@ -78,6 +78,17 @@ C>    \chi_\mu(\vec{r})D^\sigma_{\mu\nu}\left(\nabla\chi_\nu(\vec{r})\right)
 C>    \right\}
 C> \f}
 C>
+C> Tau (kinetic energy density)
+C> ----------------------------
+C>
+C> Tau is the kinetic energy density which encapsulates 2nd derivative
+C> information about the electron density. This quantity is defined
+C> as:
+C> \f{eqnarray*}{
+C>   \tau^\sigma(\vec{r}) 
+C>   &=& \frac{1}{2}\sum_{i\in\{occupied\}}|\nabla\phi_i(\vec{r})|^2
+C> \f}
+C>
 C> Next the outputs are:
 C>
 C> The functional
@@ -227,7 +238,7 @@ C>   \frac{\mathrm{d} f\left(|\gamma^{\alpha\alpha}|,
 C>         |\gamma^{\beta\beta}|,
 C>         |\gamma^{tt}|\right)}{\mathrm{d}|\gamma^{tt}|}
 C> \f}
-C> Interestingly this relationship does not depend on \f$\gamma^{\alpha\alpha}
+C> Interestingly this relationship does not depend on \f$\gamma^{\alpha\alpha}\f$
 C> or \f$\gamma^{\beta\beta}\f$ even though these quantities are contained
 C> in the norm of the total density gradient.
 C>
@@ -265,9 +276,6 @@ C
        data nd1g / D1_GAA, D1_GBB /
        data nd1t / D1_TA,  D1_TB  /
 C
-cDEBUG
-c      write(*,*)'*** nwxc_eval_df'
-cDEBUG
        do iq = 1, nq
          f(iq) = 0.0d0
        enddo
@@ -311,6 +319,9 @@ C
            case (NWXCP_C_VS98)
              call nwxc_c_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_VWN5)
+             call nwxc_c_vwn5(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,f,dfdr)
            case default
 c            call errquit("nwxc_eval_df: invalid functional",
 c    +                    nwxc_ids(it),UERR)

@@ -36,9 +36,16 @@ c
       integer NWXCP_C_VS98       !< The VS98 correlation functional
       parameter (NWXCP_C_VS98 = NWXCP_C_PBE + 1)
 c
+      integer NWXCP_C_VWN5       !< The VWN5 correlation functional
+      parameter (NWXCP_C_VWN5 = NWXCP_C_VS98 + 1)
+c
+      integer NWXCP_LDA          !< The LDA functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_LDA = NWXCP_C_VWN5 + 1)
+c
       integer NWXCP_PBE          !< The PBE functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_PBE = NWXCP_C_VS98 + 1)
+      parameter (NWXCP_PBE = NWXCP_LDA + 1)
 c
       integer NWXCP_VS98         !< The VS98 functional 
                                  !< (exchange and correlation)
@@ -80,6 +87,17 @@ C
       double precision nwxc_cam_alpha         !< The CAM alpha
       double precision nwxc_cam_beta          !< The CAM beta
       double precision nwxc_cam_gamma         !< The CAM gamma
+      logical          nwxc_cam_srhfex        !< Do the short range part
+                                              !< with Hartree-Fock
+                                              !< exchange?
+      integer          nwxc_disp_id           !< The dispersion term
+                                              !< identifier
+      double precision nwxc_disp_alpha        !< The dispersion damping
+                                              !< parameter
+      double precision nwxc_disp_s6           !< The dispersion strength
+                                              !< R^-6 term
+      double precision nwxc_disp_s8           !< The dispersion strength
+                                              !< R^-8 term
       double precision nwxc_rho_tol           !< The tolerance on the density
       double precision nwxc_wghts(NWXC_MAX_F) !< The functional weights
 C
@@ -101,19 +119,17 @@ C
       integer nwxc_usr_num
       integer nwxc_usr_ids(NWXC_MAX_F)
       double precision nwxc_usr_wghts(NWXC_MAX_F)
-cDEBUG
       logical nwxc_on
-cDEBUG
 c
       common /nwxc_func_spec/
      +       nwxc_rho_tol,
      +       nwxc_cam_alpha,nwxc_cam_beta,nwxc_cam_gamma,
+     +       nwxc_disp_alpha,nwxc_disp_s6,nwxc_disp_s8,
      +       nwxc_wght_hf,nwxc_wght_mp2,nwxc_usr_wghts,
      +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
-     +       nwxc_usr_ids,
+     +       nwxc_disp_id,nwxc_usr_ids,
      +       nwxc_depends_on_rho,nwxc_depends_on_gamma,
      +       nwxc_depends_on_tau
-cDEBUG
      +      ,nwxc_on
-cDEBUG
+C
 C  @}

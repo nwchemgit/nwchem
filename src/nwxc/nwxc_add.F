@@ -83,6 +83,12 @@ c
 c
       nwxc_usr_add_func = .true.
 c
+      if (iterm.eq.NWXCP_HFXC) then
+        return
+      else if (iterm.eq.NWXCP_MP2C) then
+        return
+      endif
+c
       i = 1 
       do while (i.le.nwxc_usr_num.and.nwxc_usr_ids(i).ne.iterm)
         i = i + 1
@@ -154,13 +160,16 @@ c
       external nwxc_add_func, nwxc_usr_add_func, nwxc_all_add_func
 c
       nwxc_add_df = .false.
-c
-      if (dfname.eq."hfex") then
+      if (dfname.eq."hfexch") then
         nwxc_wght_hf = nwxc_wght_hf + dfweight
-        nwxc_add_df = nwxc_usr_add_func(NWXCP_HFXC,dfweight)
+        nwxc_add_df = .true.
+c       Hartree-Fock exchange and MP2 correlation are handled different
+c       nwxc_add_df = nwxc_usr_add_func(NWXCP_HFXC,dfweight)
       else if (dfname.eq."mp2") then
         nwxc_wght_mp2 = nwxc_wght_mp2 + dfweight
-        nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
+        nwxc_add_df = .true.
+c       Hartree-Fock exchange and MP2 correlation are handled different
+c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
       else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_SLATER,dfweight)
       else if (dfname.eq."xpbe96") then
@@ -171,14 +180,24 @@ c
      &                nwxc_add_func(NWXCP_X_PBE,dfweight)
       else if (dfname.eq."xvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_VS98,dfweight)
-      else if (dfname.eq."cpw91lda") then
+      else if (dfname.eq."cpw91lda".or.dfname.eq."pw91lda") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PW91LDA,dfweight)
       else if (dfname.eq."cpbe96") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."cvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VS98,dfweight)
+      else if (dfname.eq."cvwn5") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN5,dfweight)
+      else if (dfname.eq."lda") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_LDA,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_VWN5,dfweight)
       else if (dfname.eq."pbe96") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_PBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -192,7 +211,7 @@ c
       else
 c       Oh dear, the functional was not recognized
       endif
-
+c
       return
       end
 C>
@@ -248,6 +267,10 @@ c         do not do anything
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
           nwxc_depends_on_tau   = .true.
+        case (NWXCP_C_VWN5)
+          nwxc_depends_on_rho   = .true.
+        case (NWXCP_LDA)
+          nwxc_depends_on_rho   = .true.
         case (NWXCP_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.

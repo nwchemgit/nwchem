@@ -19,7 +19,7 @@ C>
 C> This file contains these integration routines.
 C>
 C> @}
-C=======================================================================
+C
 C> \ingroup nwxc_api
 C> @{
 C>
@@ -42,7 +42,7 @@ C>
       character*32  local   !< "Locality" of the functional 
                             !< (local/nonlocal)
       double precision wght !< Functional weight
-      integer len           !< Length of functional name
+      integer ilen          !< Length of functional name
       logical olocal        !< If .true. use local part
       logical ononlocal     !< If .true. use non-local part
 c
@@ -52,14 +52,13 @@ c
       external nwxc_add_df, nwxc_usr_add_func, nwxc_add_func
 c
       call nwxc_init()
-cDEBUG
       nwxc_on = .true.
-cDEBUG
       stat = .true.
       do while (inp_a(func))
+        olocal = .true.
+        ononlocal = .true.
+c
         if (inp_a(local)) then
-          olocal = .true.
-          ononlocal = .true.
           if (inp_compare(.false.,'local',local)) then
             ononlocal = .false.
           else if (inp_compare(.false.,'nonlocal',local)) then
@@ -73,24 +72,28 @@ cDEBUG
 c         call inp_prev_field() ! not necessary inp_f does not move
 c                               ! cursor if failed
         endif
-        len = inp_strlen(func)
-        select case (func(1:len))
+        ilen = inp_strlen(func)
+        select case (func(1:ilen))
           case ("xpbe96")
             if (olocal.and.ononlocal) then
-              stat = stat .and. nwxc_add_df(func(1:len),wght)
-            else if (ononlocal) then
+              stat = stat .and. nwxc_add_df(func(1:ilen),wght)
+            else if ((.not.olocal).and.ononlocal) then
               stat = stat .and. nwxc_usr_add_func(NWXCP_X_PBE,wght)
               stat = stat .and. nwxc_usr_add_func(NWXCP_X_SLATER,-wght)
               stat = stat .and. nwxc_add_func(NWXCP_X_PBE,wght)
-            else
+            else if (olocal.and.(.not.ononlocal)) then
               write(LuOut,*)' xpbe96 "local" is equivalent to the',
      &                ' slater exchange local functional. '
               write(LuOut,*)' Resubmit using slater exchange. '
               call errquit(' xc_inp - functional description ',0,
      &                     INPUT_ERR)
+            else
+              write(LuOut,*)' Want to add nothing???',olocal,ononlocal
+              call errquit(' xc_inp - functional description ',0,
+     &                     INPUT_ERR)
             endif
           case default
-            stat = stat .and. nwxc_add_df(func(1:len),wght)
+            stat = stat .and. nwxc_add_df(func(1:ilen),wght)
         end select
       enddo
       nwxc_input = stat
@@ -104,7 +107,7 @@ C> to the NWChem output file. The functional is printed as specified
 C> on the user list, so as to match the user input as closely as 
 C> possible.
 C>
-      subroutine nwxc_output()
+      subroutine nwxc_print()
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -201,12 +204,23 @@ c
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,nwxc_num_f)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_num"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,nwxc_usr_num)
+c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_alpha"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_alpha)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_beta"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_beta)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_gamma"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_gamma)
+c
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_id"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,nwxc_disp_id)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_s6"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_disp_s6)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_s8"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_disp_s8)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_alpha"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_disp_alpha)
+c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_hf"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_wght_hf)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_mp2"
@@ -276,9 +290,7 @@ c
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_usr_num)
 c
       nwxc_rtdb_load = status
-cDEBUG
       nwxc_on = status
-cDEBUG
       if (.not. status) then
 c
 c       The specified functional was not found so return .false.
@@ -301,6 +313,16 @@ c
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_beta)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_gamma"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_gamma)
+c
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_id"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_disp_id)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_s6"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_disp_s6)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_s8"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_disp_s8)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_alpha"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_disp_alpha)
+c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_hf"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_wght_hf)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_wght_mp2"
@@ -339,5 +361,87 @@ c
       endif
 c
       return
+      end
+C> @}
+C
+C> \ingroup nwxc_priv
+C> @{
+C>
+C> \brief Private printing routine to investigate the state of the
+C> evaluation list
+C>
+      subroutine nwxc_printP()
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+#include "global.fh"
+#include "errquit.fh"
+#include "nwxcP.fh"
+c
+      double precision wght !< The functional weight
+      character*255 term    !< The functional term details
+      integer iterm         !< The functional identifier
+      integer ientry        !< Counter
+c
+c     Functions
+c
+      logical  nwxc_has_hfx, nwxc_has_mp2c, nwxc_has_cam, nwxc_has_disp
+      external nwxc_has_hfx, nwxc_has_mp2c, nwxc_has_cam, nwxc_has_disp
+c
+      logical  nwxc_get_df, nwxc_get_info
+      external nwxc_get_df, nwxc_get_info
+c
+      double precision nwxc_wght_mp2c, nwxc_wght_hfx
+      external         nwxc_wght_mp2c, nwxc_wght_hfx
+
+c
+ 20   format(1x,a20,i4)
+      if (ga_nodeid().eq.0) then
+        call util_flush(luout)
+        write(luout,*)" =================================="
+        write(luout,*)" === Current Density Functional ==="
+        write(luout,*)" =================================="
+        write(luout,*)
+        write(luout,20)"NWXCP_HFXC",NWXCP_HFXC
+        write(luout,20)"NWXCP_MP2C",NWXCP_MP2C
+        write(luout,20)"NWXCP_X_SLATER",NWXCP_X_SLATER
+        write(luout,20)"NWXCP_X_PBE",NWXCP_X_PBE
+        write(luout,20)"NWXCP_X_VS98",NWXCP_X_VS98
+        write(luout,20)"NWXCP_C_PW91LDA",NWXCP_C_PW91LDA
+        write(luout,20)"NWXCP_C_PBE",NWXCP_C_PBE
+        write(luout,20)"NWXCP_C_VS98",NWXCP_C_VS98
+        write(luout,20)"NWXCP_C_VWN5",NWXCP_C_VWN5
+        write(luout,20)"NWXCP_LDA",NWXCP_LDA
+        write(luout,20)"NWXCP_PBE",NWXCP_PBE
+        write(luout,20)"NWXCP_VS98",NWXCP_VS98
+        write(luout,*)
+        if (nwxc_has_hfx()) then
+          wght = nwxc_wght_hfx()
+          if (.not.nwxc_get_info(NWXCP_HFXC,term)) then
+            call errquit("illegal functional",NWXCP_HFXC,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        endif
+        if (nwxc_has_mp2c()) then
+          wght = nwxc_wght_mp2c()
+          if (.not.nwxc_get_info(NWXCP_MP2C,term)) then
+            call errquit("illegal functional",NWXCP_MP2C,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        endif
+        ientry = 1
+        do ientry = 1, nwxc_num_f
+          write(luout,1000)nwxc_wghts(ientry),nwxc_ids(ientry)
+        enddo
+        if (nwxc_has_cam()) then
+          call errquit("must think about CAM",0,UERR)
+        endif
+        if (nwxc_has_disp()) then
+          call errquit("must think about DISP",0,UERR)
+        endif
+        call util_flush(luout)
+      endif
+c
+ 1000 format(1x,f12.6,"  ",i4)
       end
 C> @}

@@ -21,6 +21,7 @@ C>
       logical nwxc_has_disp !< Does this functional have dispersion corrections?
       logical nwxc_has_xc   !< Does this functional have exchange-correlation?
       logical nwxc_input    !< Parse the functional input
+      logical nwxc_is_on    !< Is this library used for the functionals?
       logical nwxc_is_lda   !< Is this functional an LDA functional?
       logical nwxc_is_gga   !< Is this functional an GGA functional?
       logical nwxc_is_mgga  !< Is this functional a meta-GGA functional?
@@ -33,7 +34,4 @@ C>
       double precision nwxc_wght_hfx  !< The Hartree-Fock exchange weight
       double precision nwxc_wght_mp2c !< The MP2 correlation weight
       double precision nwxc_get_rho_tolerance !< Get density tolerance
-cDEBUG
-      logical nwxc_is_on
-cDEBUG
 C> @}

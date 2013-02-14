@@ -20,6 +20,9 @@ c     - 3rd order in Cmat3
 c     - 3rd order in Mmat3
 c     and the number of columns in these tables as well.
 c
+c     At the end of the file we also define identifiers for different
+c     dispersion energy models.
+c
 c     Inputs
 c
 #define NCOL_RHO   2
@@ -203,4 +206,9 @@ c
 #define D3_TA_TB_TB    48
 #define D3_TB_TB_TB    49
 c
+#define NWXC_DISP_NONE -1
+#define NWXC_DISP_VDW2  0
+#define NWXC_DISP_D1    1
+#define NWXC_DISP_D2    2
+#define NWXC_DISP_D3    3
 #endif

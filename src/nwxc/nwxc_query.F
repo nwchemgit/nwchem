@@ -9,14 +9,18 @@ C
 C> \ingroup nwxc_api
 C> @{
 C>
-cDEBUG
+C> \brief Is this library used to evaluate the functional
+C>
+C> Certainly in interim stages one might want to choose to use
+C> this library or another mechanism to evaluate the functional.
+C> This function returns .true. if this library has been activated.
+C>
       logical function nwxc_is_on()
       implicit none
 #include "nwxcP.fh"
       nwxc_is_on = nwxc_on
       return
       end
-cDEBUG
 C>
 C> \brief Does this functional have Hartree-Fock exchange?
 C>
@@ -82,14 +86,13 @@ C> must be implemented in the application code as this library cannot
 C> provide that.
 C>
 C> \return Returns .true. if the functional contains a dispersion
-C> correction term (i.e. is a hybrid functional), and .false. otherwise.
+C> correction term, and .false. otherwise.
 C>
       logical function nwxc_has_disp()
       implicit none
 #include "nwxcP.fh"
-c     call errquit("not sure how to do this yet",0,0)
-c     nwxc_has_disp = nwxc_disp_... .gt. 0.0d0
-      nwxc_has_disp = .false.
+#include "nwxc_param.fh"
+      nwxc_has_disp = nwxc_disp_id.ne.NWXC_DISP_NONE
       return
       end
 C>
@@ -119,7 +122,7 @@ C> and \f$ \gamma \f$. To enable returning multiple values at once this
 C> routine is implemented as a subroutine.
 C>
       subroutine nwxc_get_cam(alpha,beta,gamma)
-c     implicit none
+      implicit none
 #include "nwxcP.fh"
       double precision alpha !< [Output] The alpha parameter
       double precision beta  !< [Output] The beta parameter
@@ -127,6 +130,32 @@ c     implicit none
       alpha = nwxc_cam_alpha
       beta  = nwxc_cam_beta
       gamma = nwxc_cam_gamma
+      end
+C>
+C> \brief Retrieve the dispersion correction parameters
+C>
+C> A variety of dispersion corrections have been suggested in the 
+C> literature. These corrections consist of \f$\frac{S_6}{R^6}\f$
+C> and \f$\frac{S_8}{R^8}\f$ factors combined with a damping factor
+C> \f$f(\alpha;R)\f$. The exact form of the dispersion correction
+C> comes in a few different flavors. So to specify which expression
+C> should be used this subroutine returns the \f$S\f$-factors, the
+C> \f$\alpha\f$-damping parameter as well as the DispID. It
+C> is assumed that the host code implements the actual expression
+C> and has tables of the atomic \f$C_6\f$, and if applicable, \f$C_8\f$
+C> coeffcients.
+C>
+      subroutine nwxc_get_disp(dispid,s6,s8,alpha)
+      implicit none
+#include "nwxcP.fh"
+      integer dispid      !< [Output] The dispersion identifier
+      double precision s6 !< [Output] The \f$S_6\f$ scale factor
+      double precision s8 !< [Output] The \f$S_8\f$ scale factor
+      double precision alpha !< [Output] The \f$\alpha\f$ damping factor
+      dispid = nwxc_disp_id
+      s6     = nwxc_disp_s6
+      s8     = nwxc_disp_s8
+      alpha  = nwxc_disp_alpha
       end
 C>
 C> \brief Retrieve the Hartree-Fock exchange weight
@@ -339,35 +368,41 @@ c
          case (NWXCP_MP2C)
            cdata = "Moller-Plesset 2nd Order Correlation"
          case (NWXCP_X_SLATER)
-           cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385, "
+           cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385 "
      +             //"(1951) doi:10.1103/PhysRev.81.385)"
          case (NWXCP_X_PBE)
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
-     +             //"Phys.Rev.Lett. 77, 3865, (1996)"
+     +             //"Phys.Rev.Lett. 77, 3865 (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
          case (NWXCP_X_VS98)
            cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
-     +             //"J.Chem.Phys. 109, 400, (1998)"
+     +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
          case (NWXCP_C_PW91LDA)
            cdata = "PW91 LDA Correlation (JP Perdew, Y Wang, "
-     +             //"Phys.Rev.B 45, 13244, (1992)"
+     +             //"Phys.Rev.B 45, 13244 (1992)"
      +             //" doi:10.1103/PhysRevB.45.13244)"
          case (NWXCP_C_PBE)
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
-     +             //"Phys.Rev.Lett. 77, 3865, (1996)"
+     +             //"Phys.Rev.Lett. 77, 3865 (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
          case (NWXCP_C_VS98)
            cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
-     +             //"J.Chem.Phys. 109, 400, (1998)"
+     +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_C_VWN5)
+           cdata = "VWN5 Correlation (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_LDA)
+           cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
          case (NWXCP_PBE)
            cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
-     +             //"Phys.Rev.Lett. 77, 3865, (1996)"
+     +             //"Phys.Rev.Lett. 77, 3865 (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
          case (NWXCP_VS98)
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
-     +             //"J.Chem.Phys. 109, 400, (1998)"
+     +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
          case default
            stat = .false.
