@@ -918,7 +918,7 @@ fi
 # are prescribed. This is not the case on other platforms.
 #
 echo "=== figure out Network, MPI, and LinAlg libraries ==="
-if [ -d /bgsys/drivers/ppcfloor ] ; then
+if [ -f /bgsys/drivers/ppcfloor/comm/sys/include/dcmf.h ] ; then
   #
   # This is a BlueGene/P machine
   #
@@ -969,6 +969,59 @@ if [ -d /bgsys/drivers/ppcfloor ] ; then
   fi
   if [ ${#MPI_CXX} -eq 0 ] ; then
     export MPI_CXX=mpixlcxx
+  fi
+fi
+if [ -f /bgsys/drivers/ppcfloor/comm/sys/include/pami.h ] ; then
+  #
+  # This is a BlueGene/Q machine
+  #
+  if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+    export NWCHEM_TARGET=BGQ
+  fi
+  if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+    export ARMCI_NETWORK=MPI-MT
+  fi
+  if [ ${#MSG_COMMS} -eq 0 ] ; then
+    export MSG_COMMS=MPI
+  fi
+  if [ ${#USE_MPI} -eq 0 ] ; then
+    export USE_MPI=y
+  fi
+  if [ ${#BGCOMPILERS} -eq 0 ] ; then
+    export BGCOMPILERS=/bgsys/drivers/ppcfloor/gnu-linux/bin
+  fi
+  if [ ${#BGQ_INSTALLDIR} -eq 0 ] ; then
+    export BGQ_INSTALLDIR=/bgsys/drivers/ppcfloor
+  fi
+  if [ ${#BGQ_RUNTIMEPATH} -eq 0 ] ; then
+    export BGQ_RUNTIMEPATH=/bgsys/drivers/ppcfloor/runtime
+  fi
+  if [ ${#ARMCIDRV} -eq 0 ] ; then
+    export ARMCIDRV=${BGQ_INSTALLDIR}
+  fi
+  if [ ${#BGDRIVER} -eq 0 ] ; then
+    export BGDRIVER=${ARMCIDRV}
+  fi
+  if [ ${#MPI_LIB} -eq 0 ] ; then
+    export MPI_LIB=${BGDRIVER}/comm/lib
+  fi
+  if [ ${#MPI_INCLUDE} -eq 0 ] ; then
+    export MPI_INCLUDE=${BGDRIVER}/comm/include
+  fi
+  if [ ${#BGMLMPI_INCLUDE} -eq 0 ] ; then
+    export BGMLMPI_INCLUDE=${MPI_INCLUDE}
+  fi
+  if [ ${#LIBMPI} -eq 0 ] ; then
+    export LIBMPI="-L${MPI_LIB} -lfmpich_.cnk -lmpich.cnk -ldcmf.cnk -ldcmfcoll.cnk -lpthread -lrt -L${BGQ_RUNTIMEPATH}/SPI -lSPI.cna"
+  fi
+  if [ ${#MPI_F90} -eq 0 ] ; then
+    export MPI_F90=mpixlf77_r
+  fi
+  if [ ${#MPI_CC} -eq 0 ] ; then
+    export MPI_CC=mpixlc_r
+  fi
+  if [ ${#MPI_CXX} -eq 0 ] ; then
+    export MPI_CXX=mpixlcxx_r
   fi
 fi
 #
@@ -1823,7 +1876,7 @@ if [ "x${option}" != "xrealclean" ]; then
   fi
 fi
 echo "=== compile nwchem ==="
-make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
+make -j1 DIAG=PAR FFLAGS="-ffpe-trap=invalid,zero,overflow -fdefault-integer-8 -g -pg" CFLAGS="-ffpe-trap=invalid,zero,overflow -g -pg" FOPTIMIZE="-ffpe-trap=invalid,zero,overflow -fdefault-integer-8 -g -pg -O" COPTIMIZE="-ffpe-trap=invalid,zero,overflow -g -pg -O" FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="-pg $LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 echo "=== all done ==="
