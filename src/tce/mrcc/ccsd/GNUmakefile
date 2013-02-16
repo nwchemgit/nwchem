@@ -19,7 +19,7 @@ HEADERS =
 
 ifdef MRCC_METHODS
 #ckbn mrcc-r-1 -3
-      LIB_DEFINES += -DMRCC_METHODS
+      LIB_DEFINES += -DMRCC_METHODS -DMRCC_LOCAL_FOCK -DMRCC_LOCAL_T1
 endif
 
 include ../../../config/makefile.h
