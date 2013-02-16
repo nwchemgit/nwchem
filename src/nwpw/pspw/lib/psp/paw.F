@@ -1384,11 +1384,109 @@ c     >                          l_prj(i),m_prj(i))
 *     *                                               *
 *     *************************************************
 *
+*   This routine computes the sum of Watom = Sum(I=1,nionpaw) W1atom^I + W2atom^I+ W3atom^I where
 *
-      real*8 function psp_hartree_atom(ispin)
+*                      //
+*    W1atom^I = 0.5 * || (n^I(r)*n^I(r') - ntilde^I(r)*ntilde^I(r'))
+*                     || -------------------------------------------  dr dr'
+*                    //                    |r-r'|
+*
+*                      //
+*    W2atom^I =   -   || ntilde^I(r)*ncmp^I(r') 
+*                     || ----------------------  dr dr'
+*                    //         |r-r'|
+*
+*                      //
+*    W3atom^I = -0.5* || ncmp^I(r)*ncmp^I(r') 
+*                     || --------------------  dr dr'
+*                    //         |r-r'|
+*
+      real*8 function psp_hartree_atom(ispin,ne,psi1)
       implicit none
-      integer ispin
-      psp_hartree_atom = 0.0d0
+      integer    ispin,ne(2)
+      complex*16 psi1(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** local variables ****
+      logical value,sd_function
+      integer ii,ia,nion,nproj,npack1,nn,k,l,shift,l_prj
+      integer exi(2),sw1(2)
+      real*8  Watom
+
+*     ***** external functions ****
+      integer  ion_nion,ion_katm,psi_data_get_ptr
+      external ion_nion,ion_katm,psi_data_get_ptr
+      real*8   nwpw_compcharge_Watom
+      external nwpw_compcharge_Watom
+
+      nn = ne(1)+ne(2)
+
+*     **** allocate local memory ****
+      nion = ion_nion()
+      call Pack_npack(1,npack1)
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+      if (.not.value) 
+     >  call errquit('psp_hartree_atom: out of stack',0,MA_ERR)
+
+      Watom = 0.0d0
+      do ii=1,nion
+         ia = ion_katm(ii)
+         nproj = int_mb(nprj(1)+ia-1)
+         if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+
+*           **** structure factor ****
+            call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+*           **** generate sw1's and projectors ****
+            do l=1,nproj
+
+               shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+               l_prj = int_mb(l_projector(1)+(l-1)
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+#ifdef GCC4
+               k = iand(l_prj,1)
+#else
+               k = and(l_prj,1)
+#endif
+               sd_function = (k.eq.0)
+
+*              **** phase factor does not matter therefore ****
+*              **** (-i)^l is the same as (i)^l in the     ****
+*              **** Rayleigh scattering formula            ****
+
+*              *** current function is s or d ****
+               if (sd_function) then
+                  call Pack_tc_Mul(1,dbl_mb(shift),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*              *** current function is p or f ****
+               else
+                  call Pack_tc_iMul(1,dbl_mb(shift),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
+               end if
+               call Pack_cc_indot(1,nn,
+     >                          psi1,
+     >                          dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                          dbl_mb(sw1(1)+(l-1)*nn))
+
+            end do
+            call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+
+            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nproj,
+     >                               dbl_mb(sw1(1)))
+
+c            Watom = Watom + nwpw_compcharge_Watom(ii,ia,ispin,ne,nproj,
+c     >                                            dbl_mb(sw1(1)))
+         end if
+      end do
+      psp_hartree_atom = Watom
       return
       end
 
