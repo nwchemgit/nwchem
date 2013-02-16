@@ -1,0 +1,5 @@
+#ckbn
+	Main routines for mrcc only files below are
+			in ../tce			GNUmakefile tce_energy_fragment.F tce_init.F tce_input.F
+			in ../../input			GNUmakefile input_parse.F
+
