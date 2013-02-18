@@ -22,6 +22,11 @@ c
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 #include "dra.fh"
+
+#ifdef MRCC_METHODS
+#include "./mrcc/include/tce_mrcc.fh"
+#endif
+
 c
       integer rtdb             ! RTDB handle
       integer nbf_verify       ! nbf read from movecs_read_header
@@ -59,6 +64,11 @@ c
       double precision fac,xxx
       double precision pi
       parameter(pi = 3.14159265358979323846264338327950288419D0)
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+      integer imrcc
+#endif
+
 c
 c
       nodezero=(ga_nodeid().eq.0)
@@ -157,6 +167,31 @@ c
           rohf = .true.
           ipol = 2
         endif
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+        if (.not.rtdb_get(rtdb,'tce:mrcc',mt_int,1,imrcc))
+     1   imrcc = 0
+        if(imrcc .eq. 1) then
+         if(nodezero) then
+          write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Bnocc(1) ",nocc(1),
+     +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
+         endif
+         if(nodezero) write(LuOut,"('WARNING!!!!!!!!',
+     1 ' ROHF FOR MRCC CODE. OCC HAS BEEN CHANGED.')")
+         nocc(1) = nclosed+(nopen/2)
+         nocc(2) = nocc(1)
+         mult = 1
+         if(nodezero) then
+          write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Anocc(1) ",nocc(1),
+     +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
+         endif
+         restricted = .false.
+         ipol=2
+         rohf = .true.
+         write(LuOut,*)"nocc ",nocc(1),nocc(2),mult,restricted,ipol,rohf
+         call util_flush(LuOut)
+        endif
+#endif
       endif
 c     ---------
 c     TCE input
