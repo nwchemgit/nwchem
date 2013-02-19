@@ -1860,11 +1860,11 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                   dbl_mb(wtmp(1)))
 
 *           **** atomic coulomb matrix - sw2 = sw2 + Vhatomijl*sw1  ****
-            call nwpw_compcharge_atomic_coulomb(ii,ia,ispin,ne,nproj,
-     >                                   dbl_mb(wtmp(1)),
-     >                                   dbl_mb(sw1a(1)+swstart*nn),
-     >                                   dbl_mb(sw2a(1)+swstart*nn),
-     >                                   eh_atom)
+c            call nwpw_compcharge_atomic_coulomb(ii,ia,ispin,ne,nproj,
+c     >                                   dbl_mb(wtmp(1)),
+c     >                                   dbl_mb(sw1a(1)+swstart*nn),
+c     >                                   dbl_mb(sw2a(1)+swstart*nn),
+c     >                                   eh_atom)
 
 *           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
             call nwpw_xc_solve(ii,ia,
