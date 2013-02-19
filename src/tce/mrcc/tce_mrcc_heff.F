@@ -1333,6 +1333,18 @@ c             if(abs(vr(l,j)).lt.1.0d-8)
            write(6,"('Target root: ',I4)")mkroot
         end if
 
+ckbn	Introduce some checks before proceeding further.
+
+ckbn    check of mkroot, crash if mkroot gt nref
+        if(nodezero) then 
+         if(mkroot.gt.nref) call errquit
+     +    ('root followed is greater than total number of references',0,
+     +    CALC_ERR)
+        endif
+
+
+
+
         if(nref.gt.20) then
          if(nodezero)write(LuOut,"(/,'Right eigenvector for target',I7,
      1 /)")mkroot
