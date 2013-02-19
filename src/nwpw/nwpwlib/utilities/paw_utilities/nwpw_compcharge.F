@@ -473,18 +473,18 @@
 
 *     This routine computes Qlm for atom ii.
 
-      subroutine nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nprj,sw1)
+      subroutine nwpw_compcharge_gen_Qlm(ii,ia,ispin,nprj,wmatrix)
       implicit none
       integer ii,ia
-      integer ispin,ne(2),nprj
-      real*8  sw1(ne(1)+ne(2),nprj)
+      integer ispin,nprj
+      real*8  wmatrix(nprj,nprj,ispin)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
-      integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1,n1(2),n2(2)
+      integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1
       real*8  scal,coeff,w
 
 *     **** external functions ****
@@ -497,10 +497,6 @@
 
       indx = (iii-1)*2*lm_size_max
       call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
-      n1(1) = 1
-      n1(2) = ne(1)+1
-      n2(1) = ne(1)
-      n2(2) = ne(1)+ne(2)
       scal = 1.0d0/lattice_omega()
 
       shift = int_mb(shift_Tndiff(1)+iia-1)
@@ -510,16 +506,12 @@
          jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
          coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
          do ms=1,ispin
-            w = 0.0d0
-            do n=n1(ms),n2(ms)
-               w = w + sw1(n,iprj)*sw1(n,jprj)
-            end do
-c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
             indx1 = indx + (ms-1)*lm_size_max + lm
-            dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) + coeff*w
+            dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) 
+     >                           + coeff*wmatrix(iprj,jprj,ms)
          end do
       end do
-      call D1dB_Vector_SumAll(2*lm_size_max,dbl_mb(Qlm(1)+indx))
+      call D1dB_Vector_SumAll(ispin*lm_size_max,dbl_mb(Qlm(1)+indx))
 
       return
       end 

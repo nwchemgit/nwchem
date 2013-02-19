@@ -2,6 +2,31 @@
 
 *     *************************************************
 *     *                                               *
+*     *          nwpw_compcharge_atomic_coulomb       *
+*     *                                               *
+*     *************************************************
+
+*     This routine computes the atomic coulomb interactions
+
+      subroutine nwpw_compcharge_atomic_coulomb(ii,ia,ispin,ne,nprj,
+     >                                          sw1,sw2,eh_atom)
+      implicit none
+      integer ii,ia
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  sw2(ne(1)+ne(2),nprj)
+      real*8  eh_atom
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+      return
+      end
+
+
+*     *************************************************
+*     *                                               *
 *     *              nwpw_compcharge_Watom            *
 *     *                                               *
 *     *************************************************
