@@ -71,10 +71,10 @@ c
 *     ***** PAW functions ****
       logical  psp_pawexist
       real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
-      real*8   psp_ion_core,psi_1valence_core_atom,psi_1ehartree_atom
+      real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       external psp_pawexist
       external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
-      external psp_ion_core,psi_1valence_core_atom,psi_1ehartree_atom
+      external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
 
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
@@ -130,7 +130,7 @@ c      call psi_1toelectron()
          E(37) = psi_1valence_core_atom()  !*** valence core energy ***
          E(38) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
 
-         ehartree_atom = psi_1ehartree_atom()
+         ehartree_atom = psi_1hartree_atom()
          E(39) = 0.0d0                     !*** vcoulomb atom  ***
          E(40) = 0.0d0                     !*** ncmp-ncmp coulomb energy ***
          E(41) = 0.0d0                     !*** ncmp-smooth coulomb energy ***
