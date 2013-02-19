@@ -1275,8 +1275,16 @@ c     >                          l_prj(i),m_prj(i))
         end do
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
-        call nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nproj,
-     >                               dbl_mb(sw1(1)))
+
+*       **** paw atom - generate it's atomic density matrix ****
+        call psp_gen_density_matrix(ispin,ne,nproj,
+     >                              dbl_mb(sw1(1)),
+     >                              dbl_mb(wtmp(1)))
+
+*       **** paw atom - generate it's compcharge ***
+        call nwpw_compcharge_gen_Qlm(ii,ia,ispin,nproj,
+     >                               dbl_mb(wtmp(1)))
+
 
 
         end if !** nproj>0 **
@@ -1479,13 +1487,27 @@ c     >                          l_prj(i),m_prj(i))
             end do
             call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
-            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nproj,
-     >                               dbl_mb(sw1(1)))
+*           **** paw atom - generate it's atomic density matrix ****
+            call psp_gen_density_matrix(ispin,ne,nproj,
+     >                                  dbl_mb(sw1(1)),
+     >                                  dbl_mb(wtmp(1)))
+
+*           **** paw atom - generate it's compcharge ***
+            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,nproj,
+     >                                   dbl_mb(wtmp(1)))
+
 
 c            Watom = Watom + nwpw_compcharge_Watom(ii,ia,ispin,ne,nproj,
 c     >                                            dbl_mb(sw1(1)))
          end if
       end do
+
+*     **** deallocate stack memory ****
+      value =           MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) 
+     >  call errquit('psp_hartree_atom:popping stack',1,MA_ERR)
+
       psp_hartree_atom = Watom
       return
       end
