@@ -219,6 +219,11 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       nprj_max = psp_nprj_max()
       value = MA_alloc_get(mt_dcpl,npack1*nprj_max*nprj_mult,
      >                     'prjtmp',prjtmp(2),prjtmp(1))
+      if (pawexist) then
+         value = value.and.
+     >            MA_alloc_get(mt_dbl,2*nprj_max*nprj_max,
+     >                        'wtmp',wtmp(2),wtmp(1))
+      end if
       if (.not. value)
      >   call errquit('psp_proj_init:out of heap memory',0,MA_ERR)
       return
@@ -278,6 +283,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       end do
 
       value = MA_free_heap(prjtmp(2))
+      if (pawexist) value = value.and.MA_free_heap(wtmp(2))
       value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(vnl(2))
 c     value = value.and.MA_free_heap(vnlnrm(2))
@@ -1732,7 +1738,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       complex*16 ctmp
       integer exi(2),xtmp(2),sum(2)
       logical value,sd_function
-      real*8 vmm(50)
+      real*8 vmm(50),eh_atom
       integer ld_ptr
 
 *     **** external functions ****
@@ -1841,12 +1847,24 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                          dbl_mb(sw2a(1)+swstart*nn))
 
      
-*        **** paw operations #1 - generate it's compcharge, add local coulombs, and add xc potential ****
+*        **** paw operations #1 - generate it's compcharge, add atomic coulomb, and add xc potential ****
          if ((int_mb(psp_type(1)+ia-1).eq.4)) then
 
+*           **** paw atom - generate it's atomic density matrix ****
+            call psp_gen_density_matrix(ispin,ne,nproj,
+     >                                  dbl_mb(sw1a(1)+swstart*nn),
+     >                                  dbl_mb(wtmp(1)))
+
 *           **** paw atom - generate it's compcharge ***
-            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nproj,
-     >                                   dbl_mb(sw1a(1)+swstart*nn))
+            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,nproj,
+     >                                   dbl_mb(wtmp(1)))
+
+*           **** atomic coulomb matrix - sw2 = sw2 + Vhatomijl*sw1  ****
+            call nwpw_compcharge_atomic_coulomb(ii,ia,ispin,ne,nproj,
+     >                                   dbl_mb(wtmp(1)),
+     >                                   dbl_mb(sw1a(1)+swstart*nn),
+     >                                   dbl_mb(sw2a(1)+swstart*nn),
+     >                                   eh_atom)
 
 *           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
             call nwpw_xc_solve(ii,ia,
@@ -1867,7 +1885,8 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
          end if
       end do
 
-*     **** paw operations #2 - ****
+*     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
+      if (pawexist) then
       vmm(1) = 0.0d0
       vmm(2) = 0.0d0
       do ip=1,nion_prj_indx
@@ -1891,6 +1910,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       end do
       write(*,*) "total s charge =",vmm(1)*dsqrt(16.0d0*datan(1.0d0)),
      >                              vmm(2)*dsqrt(16.0d0*datan(1.0d0))
+      end if
 
 
 *     **** do Kleinman-Bylander Multiplication ****

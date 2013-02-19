@@ -3,7 +3,7 @@
 *
 
 *     **** common block  for psp ****
-      integer    prjtmp(2)
+      integer    prjtmp(2),wtmp(2)
       integer    vl(2)
       integer    vnl(2)
       !integer    vnlnrm(2),Gijl(2)
@@ -20,7 +20,7 @@
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16,nmax_max=3)
       character*2  atom(nkatmx)
       character*80 comment(nkatmx)
-      common / psp_block / prjtmp,vl,vnl,Gijl,zv,amass,rc,
+      common / psp_block / prjtmp,wtmp,vl,vnl,Gijl,zv,amass,rc,
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
      >                     b_projector,r3_matrix,

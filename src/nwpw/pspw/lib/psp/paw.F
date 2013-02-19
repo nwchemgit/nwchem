@@ -1490,10 +1490,51 @@ c     >                                            dbl_mb(sw1(1)))
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	    psp_gen_density_matrix      *
+*     *					*
+*     ***********************************
+*
+*   This routine computes the atomic spin density matrix from a atomic spin sw1.
+*
+      subroutine psp_gen_density_matrix(ispin,ne,nprj,sw1,wmatrix)
+      implicit none
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  wmatrix(nprj,nprj,ispin)
 
+*     **** local variables ****
+      integer i,j,ms,n,n1(2),n2(2)
+      real*8  tmp
 
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1)+1
+      n2(2) = ne(1)+ne(2)
 
+      call dcopy(ispin*nprj*nprj,0.0d0,0,wmatrix,1)
+      do j=1,nprj
+         do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            wmatrix(j,j,ms) = wmatrix(j,j,ms) + sw1(n,j)*sw1(n,j)
+         end do
+         end do
+      end do
 
+      do j=1,nprj
+         do i=j+1,nprj
+            do ms=1,ispin
+            do n=n1(ms),n2(ms)
+               tmp = sw1(n,i)*sw1(n,j)
+               wmatrix(i,j,ms) = wmatrix(i,j,ms) + tmp
+               wmatrix(j,i,ms) = wmatrix(j,i,ms) + tmp
+            end do
+            end do
+         end do
+      end do
+      return
+      end
 
 
 
