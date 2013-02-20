@@ -27,7 +27,7 @@ thresh 1d-8
 profile 
 end
 
-set prop:newaoresp 1
+#set prop:newaoresp 1
 
 property
 response  1 8.8559E-2
