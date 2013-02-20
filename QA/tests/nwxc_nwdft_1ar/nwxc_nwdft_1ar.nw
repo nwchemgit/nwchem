@@ -88,3 +88,18 @@ dft
   xc hfexch cvs98
 end
 task dft energy
+
+# GGA exchange-correlation
+
+dft
+  vectors input atomic
+  xc revpbe
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc rpbe
+end
+task dft energy
+

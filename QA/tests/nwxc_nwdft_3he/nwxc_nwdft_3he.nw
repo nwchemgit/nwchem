@@ -91,3 +91,21 @@ dft
   xc cpbe96
 end
 task dft energy
+
+# GGA exchange-correlation
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc revpbe
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc rpbe
+end
+task dft energy
