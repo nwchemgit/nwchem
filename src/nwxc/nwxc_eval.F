@@ -272,6 +272,11 @@ C
                        !< a function of ipol
        integer nd1t(2) !< The number of partial derivatives wrt tau as
                        !< a function of ipol
+C
+       integer max_param
+       parameter (max_param = 10)
+       double precision param(max_param)
+C
        data nd1r / D1_RA,  D1_RB  /
        data nd1g / D1_GAA, D1_GBB /
        data nd1t / D1_TA,  D1_TB  /
@@ -305,7 +310,12 @@ C
              call nwxc_x_dirac(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                         rho,f,dfdr)
            case (NWXCP_X_PBE)
-             call nwxc_x_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+             param(1) = 0.8040d0
+             call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_REVPBE)
+             param(1) = 1.245d0
+             call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_VS98)
              call nwxc_x_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),

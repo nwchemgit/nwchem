@@ -44,11 +44,11 @@ C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
 C>
 #ifndef SECOND_DERIV
-      Subroutine nwxc_x_pbe(
+      Subroutine nwxc_x_pbe(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                     Amat, Cmat)
 #else
-      Subroutine nwxc_x_pbe96_d2(
+      Subroutine nwxc_x_pbe_d2(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                        Amat, Amat2, Cmat, Cmat2)
 #endif
@@ -59,6 +59,7 @@ c
 c
 #include "nwxc_param.fh"
 c
+      double precision param(*)!< [Input] Parameters of functional
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -89,8 +90,9 @@ c
 #ifdef SECOND_DERIV
       double precision F73
 #endif
-      parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
-      parameter(ukrev=1.245d0, umkrev=um/ukrev)
+c     parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
+c     parameter(ukrev=1.245d0, umkrev=um/ukrev)
+      parameter(um=0.2195149727645171d0)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
 #ifdef SECOND_DERIV
       parameter (F73=7.d0/3.d0)
@@ -109,15 +111,17 @@ c
       gpbe1(s)= 2.0d0*um*s/(1.0d0+umk*s*s)**2
       gpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umk*s*s/(1.0d0+umk*s*s))/
      +     (1.0d0+umk*s*s)**2
-      grevpbe0(s)= ukrev*(1.0d0 - 1.0d0/(1.0d0+umkrev*s*s))
-      grevpbe1(s)= 2.0d0*um*s/(1.0d0+umkrev*s*s)**2
-      grevpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umkrev*s*s/(1.0d0+umkrev*s*s))/
-     /     (1.0d0+umkrev*s*s)**2
+c     grevpbe0(s)= ukrev*(1.0d0 - 1.0d0/(1.0d0+umkrev*s*s))
+c     grevpbe1(s)= 2.0d0*um*s/(1.0d0+umkrev*s*s)**2
+c     grevpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umkrev*s*s/(1.0d0+umkrev*s*s))/
+c    /     (1.0d0+umkrev*s*s)**2
       grpbe0(s)= uk*(1.0d0 - exp(-umk*s*s))
       grpbe1(s)= 2.0d0*um*s*exp(-umk*s*s)
       grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
       
 c
+      uk = param(1)
+      umk = um/uk
       pi = acos(-1.0d0)
       C = -3.0d0/(4.0d0*pi)*(3.0d0*pi*pi)**F13
       Cs = 0.5d0/(3.0d0*pi*pi)**F13

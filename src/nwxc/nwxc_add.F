@@ -179,6 +179,12 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_PBE,dfweight)
+      else if (dfname.eq."xrevpbe") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_REVPBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_REVPBE,dfweight)
       else if (dfname.eq."xvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_VS98,dfweight)
       else if (dfname.eq."cpw91lda".or.dfname.eq."pw91lda") then
@@ -201,6 +207,14 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+      else if (dfname.eq."revpbe") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_REVPBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_REVPBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."vs98") then ! alias
@@ -270,6 +284,9 @@ c         do not do anything
         case (NWXCP_X_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
+        case (NWXCP_X_REVPBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
         case (NWXCP_X_VS98)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
@@ -288,6 +305,9 @@ c         do not do anything
         case (NWXCP_LDA)
           nwxc_depends_on_rho   = .true.
         case (NWXCP_PBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+        case (NWXCP_REVPBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
         case (NWXCP_VS98)
