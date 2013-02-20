@@ -67,6 +67,11 @@ c
       raman_modes_list=.false.  ! default for input selected raman modes
 c
 c ----------------------- read values from raman input ------------------------------
+c
+c     set prop:newaoresp 1  ! set the new solver in the rtdb
+      if (.not.rtdb_put(rtdb, 'prop:newaoresp', mt_int, 1,1))
+     & call errquit(pname//'rtdb put failed',0, RTDB_ERR)
+c
  10   if(.not.inp_read() )
      $  call errquit(pname//'unexpected eof',911, INPUT_ERR)
       if (.not. inp_a(test) )
