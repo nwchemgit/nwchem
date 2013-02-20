@@ -139,14 +139,15 @@ c
       if(ivdw.eq.1)then
 c version 1 
 c     S. Grimme J Comp Chem 25, 1463 (2004)
-        c6ij_sk =2.d0*ci*cj/(ci+cj)
-        else if(ivdw.eq.2) then
+          c6ij_sk =2.d0*ci*cj/(ci+cj)
+      else if(ivdw.eq.2) then
 c version 2
 c     S. Grimme J Comp Chem 27, 1787 (2006)
           c6ij_sk =sqrt(ci*cj)
+      else if(ivdw.eq.3) then
 c version 3
 c     S. Grimme J Chem Phys 132, 154104 (2010)
-        else if(ivdw.eq.0) then
+      else if(ivdw.eq.0) then
           ni=xc_neff(zi)
           nj=xc_neff(zj)
           c6ij_sk=2d0*(ci*ci*cj*cj*ni*nj)**(1d0/3d0)/

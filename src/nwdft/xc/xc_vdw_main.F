@@ -268,6 +268,16 @@ c
 c
 c DFT-D3
 c
+c As off August, 2011 Grimme states: "Adding three-body corrections is
+c currently not recommended, as very little is known about the three-
+c body behaviour of common DFs in overlapping density regions."
+c http://toc.uni-muenster.de/DFTD3/data/man.pdf, section 1.3.
+c Hence the three-body terms have not been implemented.
+c
+c The reference to three-center derivatives in the gradient code
+c refers to contributions that come from differentiating the
+c coordination dependent dispersion coefficients.
+c
       else if (ivdw.eq.3) then
         do i=1,n-1
           if (Z(i).ne.0) then
@@ -592,15 +602,15 @@ c
          enddo
       enddo
 c
-         call output(hessvdw,1,n3xyz,1,n3xyz,
-     &        n3xyz,n3xyz,1)
+      call output(hessvdw,1,n3xyz,1,n3xyz,
+     &            n3xyz,n3xyz,1)
 c
       call daxpy(nat2,1d0,hessvdw,1,dbl_mb(k_exybs),1)
 c
 c:write the final hessian
 c
-          call output(dbl_mb(k_exybs),1,n3xyz,1,n3xyz,
-     &        n3xyz,n3xyz,1)
+      call output(dbl_mb(k_exybs),1,n3xyz,1,n3xyz,
+     &            n3xyz,n3xyz,1)
       call  stpr_wrt_fd_from_sq(dbl_mb(k_exybs),n3xyz,filehess)
       write(LuOut,* ) 'New hessian file vdw corrected has been 
      .                      written:', filehess 
