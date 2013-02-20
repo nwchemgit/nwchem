@@ -23,6 +23,7 @@ C>
       data nwxc_depends_on_rho   / .false. /
       data nwxc_depends_on_gamma / .false. /
       data nwxc_depends_on_tau   / .false. /
+      data nwxc_cam_srhfex       / .false. /
       data nwxc_on               / .false. /
       data nwxc_num_f      / 0 /
       data nwxc_usr_num    / 0 /
@@ -55,6 +56,7 @@ C>
       nwxc_depends_on_rho   = .false.
       nwxc_depends_on_gamma = .false.
       nwxc_depends_on_tau   = .false.
+      nwxc_cam_srhfex       = .false.
       nwxc_on               = .false. 
       nwxc_num_f      = 0 
       nwxc_usr_num    = 0 

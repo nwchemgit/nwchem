@@ -211,6 +211,8 @@ c
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_beta)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_gamma"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_gamma)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_srhfex"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_LOG,1,nwxc_cam_srhfex)
 c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_id"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,nwxc_disp_id)
@@ -313,6 +315,8 @@ c
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_beta)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_gamma"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,nwxc_cam_gamma)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_cam_srhfex"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_LOG,1,nwxc_cam_srhfex)
 c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_disp_id"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_disp_id)

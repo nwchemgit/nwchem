@@ -118,18 +118,26 @@ C>   \frac{1}{r_{12}} &=& \frac{1-[\alpha+\beta\mathrm{erf}(\gamma r_{12})]}{r_{
 C>                     +  \frac{\alpha+\beta\mathrm{erf}(\gamma r_{12})}{r_{12}}
 C> \f}
 C> This routine retrieves the parameters \f$ \alpha \f$, \f$ \beta \f$,
-C> and \f$ \gamma \f$. To enable returning multiple values at once this
-C> routine is implemented as a subroutine.
+C> and \f$ \gamma \f$. In addition the argument \f$ srhfx \f$ 
+C> indicates whether the short-range term should be evaluated using
+C> the Hartree-Fock formulation of exchange (`srhfx = .true.`) or the
+C> long range part (`srhfx = .false.`).
 C>
-      subroutine nwxc_get_cam(alpha,beta,gamma)
+C> To enable returning multiple values at once this routine is
+C> implemented as a subroutine.
+C>
+      subroutine nwxc_get_cam(alpha,beta,gamma,srhfx)
       implicit none
 #include "nwxcP.fh"
       double precision alpha !< [Output] The alpha parameter
       double precision beta  !< [Output] The beta parameter
       double precision gamma !< [Output] The gamma parameter
+      logical srhfx !< [Output] T if short-range exchange is 
+                    !< Hartree-Fock exchange
       alpha = nwxc_cam_alpha
       beta  = nwxc_cam_beta
       gamma = nwxc_cam_gamma
+      srhfx = nwxc_cam_srhfex
       end
 C>
 C> \brief Retrieve the dispersion correction parameters

@@ -131,7 +131,7 @@ c
      +       nwxc_disp_alpha,nwxc_disp_s6,nwxc_disp_s8,
      +       nwxc_wght_hf,nwxc_wght_mp2,nwxc_usr_wghts,
      +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
-     +       nwxc_disp_id,nwxc_usr_ids,
+     +       nwxc_disp_id,nwxc_usr_ids,nwxc_cam_srhfex,
      +       nwxc_depends_on_rho,nwxc_depends_on_gamma,
      +       nwxc_depends_on_tau
      +      ,nwxc_on
