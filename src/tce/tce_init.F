@@ -169,18 +169,24 @@ c
         endif
 #ifdef MRCC_METHODS
 ckbn mrcc-r-1 -3
-        if (.not.rtdb_get(rtdb,'tce:mrcc',mt_int,1,imrcc))
-     1   imrcc = 0
+        if(.not.rtdb_get(rtdb,'tce:mrcc',mt_int,1,imrcc)) imrcc = 0
         if(imrcc .eq. 1) then
+         if (hftype.eq.'UHF') then
+          call errquit(
+     +     'tce_init: tce mrcc works only with rhf and rohf',0,CALC_ERR)
+         endif
          if(nodezero) then
           write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Bnocc(1) ",nocc(1),
      +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
          endif
          if(nodezero) write(LuOut,"('WARNING!!!!!!!!',
-     1 ' ROHF FOR MRCC CODE. OCC HAS BEEN CHANGED.')")
-         nocc(1) = nclosed+(nopen/2)
-         nocc(2) = nocc(1)
-         mult = 1
+     1     ' ROHF FOR MRCC CODE. OCC HAS BEEN CHANGED.')")
+c        nocc(1) = nclosed+(nopen/2)
+c        nocc(2) = nocc(1)
+c        mult = 1
+         nocc(1) = nclosed + nopen
+         nocc(2) = nclosed
+         mult = nopen + 1
          if(nodezero) then
           write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Anocc(1) ",nocc(1),
      +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
@@ -188,7 +194,8 @@ ckbn mrcc-r-1 -3
          restricted = .false.
          ipol=2
          rohf = .true.
-         write(LuOut,*)"nocc ",nocc(1),nocc(2),mult,restricted,ipol,rohf
+         if(nodezero)
+     +   write(LuOut,*)"nocc ",nocc(1),nocc(2),mult,restricted,ipol,rohf
          call util_flush(LuOut)
         endif
 #endif
