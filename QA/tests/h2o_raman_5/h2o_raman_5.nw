@@ -1,0 +1,58 @@
+echo
+
+start h2o_raman_5
+title h2o_raman_5
+
+geometry water noautoz units angstrom nocenter
+symmetry c1
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+O library 6-31g*
+H library 6-31g*
+end
+
+memory global 3000 heap 1000 stack 1000 mb
+
+set geometry water
+
+dft
+#odft
+#mult 1
+ xc b3lyp
+# xc becke88 perdew86
+ convergence energy 1d-8 nolevelshifting
+ iterations 100
+ grid fine
+ direct
+end
+
+hessian
+profile
+end
+
+set prop:newaoresp 1
+#set cphf:thresh 1.0d-6
+#set cphf:acc 1.0d-16
+set cphf:maxiter 60
+
+property
+response  1 0.7215362372e-01  # hartrees = 631.4769817 nm incident laser beam
+#response  1 8.580669E-2  # hartrees = 531 nm incident laser beam
+damping 0.004
+convergence 1e-6
+end
+
+#raman ; low 350 ; high 1700 ; first 8; last 9; freqdone ; saveaoresp ; end
+#raman ; low 350 ; high 1700 ; freqdone ; saveaoresp ; end
+#raman ; low 350 ; high 1700 ; freqdone ; end
+#raman ; low 350 ; high 1700 ; preraman ; end
+raman
+low 350 ; high 1700 ;
+#raman_modes_list 2 7 9 ;
+end
+driver ; tight ; end
+task dft raman
