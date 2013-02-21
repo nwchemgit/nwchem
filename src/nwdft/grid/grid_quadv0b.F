@@ -376,7 +376,7 @@ c
       call ifill(mcenters,0,iniz,1)
       call ifill(mcenters,0,ifin,1)
       if(acc_gauss.gt.25d0.or.acc_gauss.lt.3d0) call errquit(
-     ' ' grid_nbfm: silly accgauss ',nint(acc_gauss), UNKNOWN_ERR)
+     + ' grid_nbfm: silly accgauss ',nint(acc_gauss), UNKNOWN_ERR)
       acc_loc=-acc_gauss
 c
       n1 = 0
