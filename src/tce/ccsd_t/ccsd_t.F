@@ -81,7 +81,6 @@ C
            do t_h3b = t_h2b,noab
             range_h3 = int_mb(k_range+t_h3b-1)
             offset_h3 = k_evl_sorted+int_mb(k_offset+t_h3b-1)-1
-            if (next.eq.count) then                        
             if (int_mb(k_spin+t_p4b-1)
      1         +int_mb(k_spin+t_p5b-1)
      2         +int_mb(k_spin+t_p6b-1)
@@ -101,6 +100,9 @@ C
      3          ieor(int_mb(k_sym+t_h1b-1),
      4          ieor(int_mb(k_sym+t_h2b-1),
      5               int_mb(k_sym+t_h3b-1)))))).eq.0) then
+c
+            if (next.eq.count) then
+c
             size = range_p4 * range_p5 * range_p6
      3           * range_h1 * range_h2 * range_h3
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
@@ -171,12 +173,14 @@ c
      1        call errquit('ccsd_t',3,MA_ERR)
             if (.not.MA_POP_STACK(l_singles)) 
      1        call errquit('ccsd_t',4,MA_ERR)
-            endif
-            endif
-            endif
+c
             next = nxtask(nprocs,1)
             endif
             count = count + 1
+c
+            endif
+            endif
+            endif
            enddo
           enddo
          enddo
