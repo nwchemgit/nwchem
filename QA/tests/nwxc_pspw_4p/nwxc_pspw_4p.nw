@@ -1,4 +1,4 @@
-# $Id$
+# $Id: nwxc_pspw_4n.nw 23504 2013-01-29 06:58:18Z d3y133 $
 echo
 
 #memory 950 mb
@@ -8,7 +8,7 @@ start nwxc_dat
 charge 0
 
 geometry
-  He 0.0 0.0 0.0
+  P 0.0 0.0 0.0
 end
 
 set nwpw:minimizer 2
@@ -16,6 +16,7 @@ set nwpw:minimizer 2
 # LDA exchange-correlation
 
 nwpw 
+   mult 4
    simulation_cell
      boundary_conditions aperiodic
      ngrid 32 32 32
@@ -23,12 +24,14 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc lda
+   unrestricted
 end
 task pspw energy
 
 # GGA exchange-correlation
 
 nwpw 
+   mult 4
    simulation_cell
      boundary_conditions aperiodic
      ngrid 32 32 32
@@ -36,10 +39,12 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc pbe96
+   unrestricted
 end
 task pspw energy
 
 nwpw 
+   mult 4
    simulation_cell
      boundary_conditions aperiodic
      ngrid 32 32 32
@@ -47,10 +52,12 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc revpbe
+   unrestricted
 end
 task pspw energy
 
 nwpw 
+   mult 4
    simulation_cell
      boundary_conditions aperiodic
      ngrid 32 32 32
@@ -58,10 +65,13 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc rpbe
+   unrestricted
 end
 task pspw energy
 
+
 nwpw 
+   mult 4
    simulation_cell
      boundary_conditions aperiodic
      ngrid 32 32 32
@@ -69,6 +79,6 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc hse
+   unrestricted
 end
 task pspw energy
-

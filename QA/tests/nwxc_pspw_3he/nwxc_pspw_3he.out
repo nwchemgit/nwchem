@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: $
+# $Id: nwxc_pspw_3he.nw 23460 2013-01-17 00:11:15Z d3y133 $
 echo
 
 #memory 950 mb
@@ -44,6 +44,42 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc pbe96
+end
+task pspw energy
+
+nwpw
+   mult 3
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc revpbe
+end
+task pspw energy
+
+nwpw
+   mult 3
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc rpbe
+end
+task pspw energy
+
+nwpw
+   mult 3
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc hse
 end
 task pspw energy
 ================================================================================
@@ -88,9 +124,9 @@ task pspw energy
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
-    date            = Wed Jan 16 15:47:01 2013
+    date            = Fri Feb 22 11:51:09 2013
 
-    compiled        = Wed_Jan_16_13:58:47_2013
+    compiled        = Fri_Feb_22_11:42:18_2013
     source          = /home/d3y133/nwchem-dev/nwchem-ref
     nwchem branch   = Development
     nwchem revision = 23457
@@ -99,7 +135,7 @@ task pspw energy
     prefix          = nwxc_dat.
     data base       = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.db
     status          = startup
-    nproc           =        4
+    nproc           =        1
     time left       =     -1s
 
 
@@ -179,7 +215,7 @@ task pspw energy
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Wed Jan 16 15:47:01 2013  <<<
+     >>>  JOB STARTED       AT Fri Feb 22 11:51:09 2013  <<<
           ================ input data ========================
   library name resolved from: environment
   NWCHEM_NWPW_LIBRARY set to: </home/d3y133/nwchem-dev/nwchem-ref/QA/../src/nwpw/libraryps/>
@@ -194,10 +230,10 @@ task pspw energy
  -   spin, nalpha, nbeta:                    2                    2                    0
 
  input psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
- Warning - Gram-Schmidt being performed on psi:   2.00000000000000        1.69730162015574        2.00000000000000       0.302698379844262     
+ Warning - Gram-Schmidt being performed on psi:   2.00000000000000        1.69730162015574        2.00000000000000       0.302698379844260     
 
- number of processors used:         4
- processor grid           :   4 x   1
+ number of processors used:         1
+ processor grid           :   1 x   1
  parallel mapping         :2d hilbert
  parallel mapping         :  balanced
  parallel io              :       off
@@ -238,8 +274,8 @@ task pspw energy
                   alpha=  90.000 beta=  90.000 gamma=  90.000
                   omega=      8000.0
 
-      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     2134 per task)
-      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     2134 per task)
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
 
  technical parameters:
       time step=      5.80     ficticious mass=  400000.0
@@ -254,7 +290,7 @@ task pspw energy
 
 
           ============ Grassmann lmbfgs iteration ============
-     >>>  ITERATION STARTED AT Wed Jan 16 15:47:08 2013  <<<
+     >>>  ITERATION STARTED AT Fri Feb 22 11:51:38 2013  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
      -  15 steepest descent iterations performed
@@ -267,7 +303,7 @@ task pspw energy
       60   -0.2015682352E+01   -0.85859E-06    0.10328E-06
       70   -0.2015684353E+01   -0.90428E-07    0.12139E-07
   *** tolerance ok. iteration terminated
-     >>>  ITERATION ENDED   AT Wed Jan 16 15:47:13 2013  <<<
+     >>>  ITERATION ENDED   AT Fri Feb 22 11:51:51 2013  <<<
 
 
 ==  Summary Of Results  ==
@@ -326,20 +362,20 @@ mu   =  (   -0.0039,   -0.0037,   -0.0044 ) au
 == Timing ==
 
 cputime in seconds
-  prologue    :   0.771750E+01
-  main loop   :   0.434816E+01
-  epilogue    :   0.317769E-01
-  total       :   0.120974E+02
-  cputime/step:   0.247055E-01       (     176 evalulations,      66 linesearches)
+  prologue    :   0.294238E+02
+  main loop   :   0.125387E+02
+  epilogue    :   0.338197E-02
+  total       :   0.419658E+02
+  cputime/step:   0.712424E-01       (     176 evalulations,      66 linesearches)
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.177554E+01  0.100883E-01
-  dot products               :   0.100096E+00  0.568728E-03
-  geodesic                   :   0.372372E+00  0.211575E-02
-  ffm_dgemm                  :   0.295593E-01  0.167950E-03
-  fmf_dgemm                  :   0.305077E+00  0.173339E-02
-  m_diagonalize              :   0.152154E-02  0.864510E-05
+  FFTs                       :   0.438266E+01  0.249015E-01
+  dot products               :   0.653474E-01  0.371292E-03
+  geodesic                   :   0.781395E+00  0.443974E-02
+  ffm_dgemm                  :   0.375947E-01  0.213606E-03
+  fmf_dgemm                  :   0.764073E+00  0.434133E-02
+  m_diagonalize              :   0.163765E-02  0.930483E-05
     - m_tredq                :   0.000000E+00  0.000000E+00
        - m_tredq_houseq      :   0.000000E+00  0.000000E+00
        - m_tredq_houseq_dgemm:   0.000000E+00  0.000000E+00
@@ -347,24 +383,24 @@ Time spent doing                        total          step
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.136209E+01  0.773917E-02
-  local pseudopotentials     :   0.340104E-02  0.193241E-04
-  non-local pseudopotentials :   0.646353E-02  0.367246E-04
+  exchange correlation       :   0.564472E+01  0.320723E-01
+  local pseudopotentials     :   0.141509E-01  0.804026E-04
+  non-local pseudopotentials :   0.676489E-02  0.384369E-04
   hartree potentials         :   0.000000E+00  0.000000E+00
   ion-ion interaction        :   0.000000E+00  0.000000E+00
-  structure factors          :   0.219345E-04  0.124628E-06
-  phase factors              :   0.119209E-04  0.677326E-07
-  masking and packing        :   0.133390E+00  0.757900E-03
-  queue fft                  :   0.407265E+00  0.231401E-02
-  queue fft (serial)         :   0.179082E+00  0.101751E-02
-  queue fft (message passing):   0.221722E+00  0.125978E-02
+  structure factors          :   0.600815E-04  0.341372E-06
+  phase factors              :   0.150204E-04  0.853430E-07
+  masking and packing        :   0.141078E+00  0.801581E-03
+  queue fft                  :   0.993610E+00  0.564551E-02
+  queue fft (serial)         :   0.674567E+00  0.383277E-02
+  queue fft (message passing):   0.300441E+00  0.170705E-02
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
 
-     >>>  JOB COMPLETED     AT Wed Jan 16 15:47:13 2013  <<<
+     >>>  JOB COMPLETED     AT Fri Feb 22 11:51:51 2013  <<<
 
- Task  times  cpu:       11.4s     wall:       12.1s
+ Task  times  cpu:       41.9s     wall:       42.0s
 
 
                                 NWChem Input Module
@@ -386,13 +422,13 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Wed Jan 16 15:47:13 2013  <<<
+     >>>  JOB STARTED       AT Fri Feb 22 11:51:51 2013  <<<
           ================ input data ========================
 
  input psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
 
- number of processors used:         4
- processor grid           :   4 x   1
+ number of processors used:         1
+ processor grid           :   1 x   1
  parallel mapping         :2d hilbert
  parallel mapping         :  balanced
  parallel io              :       off
@@ -433,8 +469,8 @@ Time spent doing                        total          step
                   alpha=  90.000 beta=  90.000 gamma=  90.000
                   omega=      8000.0
 
-      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     2134 per task)
-      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     2134 per task)
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
 
  technical parameters:
       time step=      5.80     ficticious mass=  400000.0
@@ -449,14 +485,14 @@ Time spent doing                        total          step
 
 
           ============ Grassmann lmbfgs iteration ============
-     >>>  ITERATION STARTED AT Wed Jan 16 15:47:13 2013  <<<
+     >>>  ITERATION STARTED AT Fri Feb 22 11:51:51 2013  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
       10   -0.2104495743E+01   -0.62704E-04    0.65692E-03
       20   -0.2104617397E+01   -0.10462E-05    0.62983E-06
       30   -0.2104619484E+01   -0.76885E-07    0.21915E-08
   *** tolerance ok. iteration terminated
-     >>>  ITERATION ENDED   AT Wed Jan 16 15:47:16 2013  <<<
+     >>>  ITERATION ENDED   AT Fri Feb 22 11:52:00 2013  <<<
 
 
 ==  Summary Of Results  ==
@@ -515,20 +551,20 @@ mu   =  (   -0.0015,   -0.0015,   -0.0015 ) au
 == Timing ==
 
 cputime in seconds
-  prologue    :   0.115001E+00
-  main loop   :   0.288035E+01
-  epilogue    :   0.335259E-01
-  total       :   0.302888E+01
-  cputime/step:   0.496612E-01       (      58 evalulations,      26 linesearches)
+  prologue    :   0.205210E+00
+  main loop   :   0.901692E+01
+  epilogue    :   0.331497E-02
+  total       :   0.922545E+01
+  cputime/step:   0.155464E+00       (      58 evalulations,      26 linesearches)
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.115467E+01  0.199082E-01
-  dot products               :   0.257766E-01  0.444423E-03
-  geodesic                   :   0.140222E+00  0.241763E-02
-  ffm_dgemm                  :   0.879007E-02  0.151553E-03
-  fmf_dgemm                  :   0.114499E+00  0.197412E-02
-  m_diagonalize              :   0.598889E-03  0.103257E-04
+  FFTs                       :   0.280070E+01  0.482879E-01
+  dot products               :   0.208925E-01  0.360216E-03
+  geodesic                   :   0.299692E+00  0.516710E-02
+  ffm_dgemm                  :   0.112525E-01  0.194008E-03
+  fmf_dgemm                  :   0.288658E+00  0.497687E-02
+  m_diagonalize              :   0.631550E-03  0.108888E-04
     - m_tredq                :   0.000000E+00  0.000000E+00
        - m_tredq_houseq      :   0.000000E+00  0.000000E+00
        - m_tredq_houseq_dgemm:   0.000000E+00  0.000000E+00
@@ -536,24 +572,602 @@ Time spent doing                        total          step
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.187787E+01  0.323771E-01
-  local pseudopotentials     :   0.335288E-02  0.578083E-04
-  non-local pseudopotentials :   0.224066E-02  0.386320E-04
+  exchange correlation       :   0.668610E+01  0.115278E+00
+  local pseudopotentials     :   0.140421E-01  0.242106E-03
+  non-local pseudopotentials :   0.215459E-02  0.371481E-04
   hartree potentials         :   0.000000E+00  0.000000E+00
   ion-ion interaction        :   0.000000E+00  0.000000E+00
-  structure factors          :   0.171661E-04  0.295968E-06
-  phase factors              :   0.119199E-04  0.205516E-06
-  masking and packing        :   0.392125E-01  0.676078E-03
-  queue fft                  :   0.136297E+00  0.234996E-02
-  queue fft (serial)         :   0.589043E-01  0.101559E-02
-  queue fft (message passing):   0.752978E-01  0.129824E-02
+  structure factors          :   0.600815E-04  0.103589E-05
+  phase factors              :   0.140657E-04  0.242512E-06
+  masking and packing        :   0.566226E-01  0.976253E-03
+  queue fft                  :   0.326800E+00  0.563449E-02
+  queue fft (serial)         :   0.221172E+00  0.381331E-02
+  queue fft (message passing):   0.995714E-01  0.171675E-02
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
 
-     >>>  JOB COMPLETED     AT Wed Jan 16 15:47:16 2013  <<<
+     >>>  JOB COMPLETED     AT Fri Feb 22 11:52:00 2013  <<<
 
- Task  times  cpu:        2.7s     wall:        3.0s
+ Task  times  cpu:        9.2s     wall:        9.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PSPW Calculation              *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Fri Feb 22 11:52:00 2013  <<<
+          ================ input data ========================
+
+ input psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
+
+ number of processors used:         1
+ processor grid           :   1 x   1
+ parallel mapping         :2d hilbert
+ parallel mapping         :  balanced
+ parallel io              :       off
+
+ options:
+      boundary conditions  = aperiodic   (version4)
+      electron spin        = unrestricted
+      exchange-correlation = revPBE (White and Bird) parameterization
+
+ elements involved in the cluster:
+      1: He  valence charge:  2.0000  lmax=  0
+             comment    : Troullier-Martins pseudopotential
+             pseudpotential type            :   0
+             highest angular component      :   0
+             local potential used           :   0
+             number of non-local projections:   0
+             aperiodic cutoff radius        :  1.000
+             cutoff =   1.976
+
+
+ total charge:   0.000
+
+ atomic composition:
+     He  :    1
+
+ number of electrons: spin up=     2 (   2 per task)  down=     0 (   0 per task) (fourier space)
+ number of orbitals : spin up=     2 (   2 per task)  down=     0 (   0 per task) (fourier space)
+
+ supercell:
+      cell_name:  cell_default                                      
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=      8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+      maximum iterations =      1000 (   10 inner    100 outer )
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Fri Feb 22 11:52:00 2013  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.2141367597E+01    0.00000E+00    0.38013E-31
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Fri Feb 22 11:52:02 2013  <<<
+
+
+==  Summary Of Results  ==
+
+ number of electrons: spin up=    2.00000  down=    0.00000 (real space)
+
+ total     energy    :  -0.2141367597E+01 (   -0.21414E+01/ion)
+ total orbital energy:  -0.1358964436E+01 (   -0.67948E+00/electron)
+ hartree   energy    :   0.9189341960E+00 (    0.45947E+00/electron)
+ exc-corr  energy    :  -0.7422735625E+00 (   -0.37114E+00/electron)
+ ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
+
+ kinetic (planewave) :   0.1554718342E+01 (    0.77736E+00/electron)
+ V_local (planewave) :  -0.3872746572E+01 (   -0.19364E+01/electron)
+ V_nl    (planewave) :   0.0000000000E+00 (    0.00000E+00/electron)
+ V_Coul  (planewave) :   0.1837868392E+01 (    0.91893E+00/electron)
+ V_xc.   (planewave) :  -0.8788045977E+00 (   -0.43940E+00/electron)
+ Virial Coefficient  :  -0.1874090438E+01
+
+ orbital energies:
+    -0.1583505E+00 (  -4.309eV)
+    -0.1200614E+01 ( -32.671eV)
+
+ Total PSPW energy   :  -0.2141367597E+01
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =    2.00000000000000     
+ <S^2>      =    2.00000000000000     
+
+
+
+== Center of Charge ==
+
+spin up     (    0.0007,    0.0007,    0.0008 )
+     total  (    0.0007,    0.0007,    0.0008 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+crystal     (    0.0000,    0.0000,    0.0000 )
+
+
+== Crystal Dipole ==
+
+mu   =  (   -0.0015,   -0.0015,   -0.0015 ) au
+|mu| =     0.0026 au,       0.0065 Debye
+
+
+== Molecular Dipole wrt Center of Mass ==
+
+mu   =  (   -0.0015,   -0.0015,   -0.0015 ) au
+|mu| =     0.0026 au,       0.0065 Debye
+
+ output psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.205776E+00
+  main loop   :   0.179435E+01
+  epilogue    :   0.323391E-02
+  total       :   0.200336E+01
+  cputime/step:   0.138027E+00       (      13 evalulations,       1 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.636510E+00  0.489623E-01
+  dot products               :   0.163698E-02  0.125922E-03
+  geodesic                   :   0.341499E-01  0.262691E-02
+  ffm_dgemm                  :   0.500204E-03  0.384772E-04
+  fmf_dgemm                  :   0.330665E-01  0.254358E-02
+  m_diagonalize              :   0.469665E-04  0.361280E-05
+    - m_tredq                :   0.000000E+00  0.000000E+00
+       - m_tredq_houseq      :   0.000000E+00  0.000000E+00
+       - m_tredq_houseq_dgemm:   0.000000E+00  0.000000E+00
+       - m_tredq_dgemm1      :   0.000000E+00  0.000000E+00
+    - m_getdiags             :   0.000000E+00  0.000000E+00
+    - m_tqliq                :   0.000000E+00  0.000000E+00
+    - m_eigsrt               :   0.000000E+00  0.000000E+00
+  exchange correlation       :   0.129816E+01  0.998584E-01
+  local pseudopotentials     :   0.140581E-01  0.108139E-02
+  non-local pseudopotentials :   0.607967E-03  0.467667E-04
+  hartree potentials         :   0.000000E+00  0.000000E+00
+  ion-ion interaction        :   0.000000E+00  0.000000E+00
+  structure factors          :   0.598431E-04  0.460331E-05
+  phase factors              :   0.140657E-04  0.108198E-05
+  masking and packing        :   0.142149E-01  0.109345E-02
+  queue fft                  :   0.728657E-01  0.560506E-02
+  queue fft (serial)         :   0.491584E-01  0.378142E-02
+  queue fft (message passing):   0.223080E-01  0.171600E-02
+  HFX potential              :   0.000000E+00  0.000000E+00
+  qmmm LJ                    :   0.000000E+00  0.000000E+00
+  qmmm residual Q            :   0.000000E+00  0.000000E+00
+
+     >>>  JOB COMPLETED     AT Fri Feb 22 11:52:02 2013  <<<
+
+ Task  times  cpu:        2.0s     wall:        2.0s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PSPW Calculation              *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Fri Feb 22 11:52:02 2013  <<<
+          ================ input data ========================
+
+ input psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
+
+ number of processors used:         1
+ processor grid           :   1 x   1
+ parallel mapping         :2d hilbert
+ parallel mapping         :  balanced
+ parallel io              :       off
+
+ options:
+      boundary conditions  = aperiodic   (version4)
+      electron spin        = unrestricted
+      exchange-correlation = LDA (Vosko et al) parameterization
+
+ elements involved in the cluster:
+      1: He  valence charge:  2.0000  lmax=  0
+             comment    : Troullier-Martins pseudopotential
+             pseudpotential type            :   0
+             highest angular component      :   0
+             local potential used           :   0
+             number of non-local projections:   0
+             aperiodic cutoff radius        :  1.000
+             cutoff =   1.976
+
+
+ total charge:   0.000
+
+ atomic composition:
+     He  :    1
+
+ number of electrons: spin up=     2 (   2 per task)  down=     0 (   0 per task) (fourier space)
+ number of orbitals : spin up=     2 (   2 per task)  down=     0 (   0 per task) (fourier space)
+
+ supercell:
+      cell_name:  cell_default                                      
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=      8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+      maximum iterations =      1000 (   10 inner    100 outer )
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Fri Feb 22 11:52:02 2013  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.2015524709E+01   -0.56656E-04    0.65588E-03
+      20   -0.2015678101E+01   -0.23707E-05    0.11173E-05
+      30   -0.2015684423E+01   -0.90443E-07    0.57650E-08
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Fri Feb 22 11:52:07 2013  <<<
+
+
+==  Summary Of Results  ==
+
+ number of electrons: spin up=    2.00000  down=    0.00000 (real space)
+
+ total     energy    :  -0.2015684423E+01 (   -0.20157E+01/ion)
+ total orbital energy:  -0.1321063739E+01 (   -0.66053E+00/electron)
+ hartree   energy    :   0.8845425172E+00 (    0.44227E+00/electron)
+ exc-corr  energy    :  -0.5926480504E+00 (   -0.29632E+00/electron)
+ ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
+
+ kinetic (planewave) :   0.1458292490E+01 (    0.72915E+00/electron)
+ V_local (planewave) :  -0.3765871379E+01 (   -0.18829E+01/electron)
+ V_nl    (planewave) :   0.0000000000E+00 (    0.00000E+00/electron)
+ V_Coul  (planewave) :   0.1769085034E+01 (    0.88454E+00/electron)
+ V_xc.   (planewave) :  -0.7825698835E+00 (   -0.39128E+00/electron)
+ Virial Coefficient  :  -0.1905897650E+01
+
+ orbital energies:
+    -0.1025113E+00 (  -2.789eV)
+    -0.1218552E+01 ( -33.159eV)
+
+ Total PSPW energy   :  -0.2015684423E+01
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =    2.00000000000000     
+ <S^2>      =    2.00000000000000     
+
+
+
+== Center of Charge ==
+
+spin up     (    0.0013,    0.0013,    0.0013 )
+     total  (    0.0013,    0.0013,    0.0013 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+crystal     (    0.0000,    0.0000,    0.0000 )
+
+
+== Crystal Dipole ==
+
+mu   =  (   -0.0026,   -0.0026,   -0.0026 ) au
+|mu| =     0.0045 au,       0.0116 Debye
+
+
+== Molecular Dipole wrt Center of Mass ==
+
+mu   =  (   -0.0026,   -0.0026,   -0.0026 ) au
+|mu| =     0.0045 au,       0.0116 Debye
+
+ output psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.205376E+00
+  main loop   :   0.463383E+01
+  epilogue    :   0.320387E-02
+  total       :   0.484240E+01
+  cputime/step:   0.724035E-01       (      64 evalulations,      29 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.159730E+01  0.249578E-01
+  dot products               :   0.229052E-01  0.357894E-03
+  geodesic                   :   0.334383E+00  0.522474E-02
+  ffm_dgemm                  :   0.120264E-01  0.187912E-03
+  fmf_dgemm                  :   0.321409E+00  0.502201E-02
+  m_diagonalize              :   0.685429E-03  0.107098E-04
+    - m_tredq                :   0.000000E+00  0.000000E+00
+       - m_tredq_houseq      :   0.000000E+00  0.000000E+00
+       - m_tredq_houseq_dgemm:   0.000000E+00  0.000000E+00
+       - m_tredq_dgemm1      :   0.000000E+00  0.000000E+00
+    - m_getdiags             :   0.000000E+00  0.000000E+00
+    - m_tqliq                :   0.000000E+00  0.000000E+00
+    - m_eigsrt               :   0.000000E+00  0.000000E+00
+  exchange correlation       :   0.206365E+01  0.322445E-01
+  local pseudopotentials     :   0.139542E-01  0.218034E-03
+  non-local pseudopotentials :   0.248504E-02  0.388287E-04
+  hartree potentials         :   0.000000E+00  0.000000E+00
+  ion-ion interaction        :   0.000000E+00  0.000000E+00
+  structure factors          :   0.598431E-04  0.935048E-06
+  phase factors              :   0.128736E-04  0.201150E-06
+  masking and packing        :   0.527747E-01  0.824604E-03
+  queue fft                  :   0.360878E+00  0.563872E-02
+  queue fft (serial)         :   0.244941E+00  0.382720E-02
+  queue fft (message passing):   0.109200E+00  0.170625E-02
+  HFX potential              :   0.000000E+00  0.000000E+00
+  qmmm LJ                    :   0.000000E+00  0.000000E+00
+  qmmm residual Q            :   0.000000E+00  0.000000E+00
+
+     >>>  JOB COMPLETED     AT Fri Feb 22 11:52:07 2013  <<<
+
+ Task  times  cpu:        4.8s     wall:        4.8s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PSPW Calculation              *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Fri Feb 22 11:52:07 2013  <<<
+          ================ input data ========================
+
+ input psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
+
+ number of processors used:         1
+ processor grid           :   1 x   1
+ parallel mapping         :2d hilbert
+ parallel mapping         :  balanced
+ parallel io              :       off
+
+ options:
+      boundary conditions  = aperiodic   (version4)
+      electron spin        = unrestricted
+      exchange-correlation = HSE (White and Bird) parameterization
+      - HFX relaxed
+      - HFX alpha orbitals:    1    2
+      - HFX beta orbitals :
+      - HFX free-space coulomb solver
+      - HFX scaling parameter (pspw:HFX_parameter)     : 0.250E+00
+
+
+ elements involved in the cluster:
+      1: He  valence charge:  2.0000  lmax=  0
+             comment    : Troullier-Martins pseudopotential
+             pseudpotential type            :   0
+             highest angular component      :   0
+             local potential used           :   0
+             number of non-local projections:   0
+             aperiodic cutoff radius        :  1.000
+             cutoff =   1.976
+
+
+ total charge:   0.000
+
+ atomic composition:
+     He  :    1
+
+ number of electrons: spin up=     2 (   2 per task)  down=     0 (   0 per task) (fourier space)
+ number of orbitals : spin up=     2 (   2 per task)  down=     0 (   0 per task) (fourier space)
+
+ supercell:
+      cell_name:  cell_default                                      
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=      8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+      maximum iterations =      1000 (   10 inner    100 outer )
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Fri Feb 22 11:52:07 2013  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10                 NaN            NaN    0.57424E-03
+  *** energy going up. iteration not terminated
+     -  10 steepest descent iterations performed
+      20                 NaN            NaN    0.33043E-06
+  *** energy going up. iteration not terminated
+     -  10 steepest descent iterations performed
+      30                 NaN            NaN    0.55695E-07
+  *** energy going up. iteration not terminated
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Fri Feb 22 11:52:46 2013  <<<
+
+
+==  Summary Of Results  ==
+
+ number of electrons: spin up=    2.00000  down=    0.00000 (real space)
+
+ total     energy    :                NaN (            NaN/ion)
+ total orbital energy:  -0.1549315348E+01 (   -0.77466E+00/electron)
+ hartree   energy    :   0.9191398546E+00 (    0.45957E+00/electron)
+ exc-corr  energy    :  -0.5823004315E+00 (   -0.29115E+00/electron)
+ HF exchange energy  :  -0.1654666296E+00 (   -0.82733E-01/electron)
+ ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
+
+ kinetic (planewave) :   0.1552157151E+01 (    0.77608E+00/electron)
+ V_local (planewave) :  -0.3870949314E+01 (   -0.19355E+01/electron)
+ V_nl    (planewave) :   0.0000000000E+00 (    0.00000E+00/electron)
+ V_Coul  (planewave) :   0.1838279709E+01 (    0.91914E+00/electron)
+ V_xc.   (planewave) :                NaN (            NaN/electron)
+ K.S. HFX energy     :  -0.3309332592E+00 (   -0.16547E+00/electron)
+ Virial Coefficient  :                NaN
+
+ orbital energies:
+    -0.1716776E+00 (  -4.672eV)
+    -0.1377638E+01 ( -37.488eV)
+
+ Total PSPW energy   :                NaN
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =    2.00000000000000     
+ <S^2>      =    2.00000000000000     
+
+
+
+== Center of Charge ==
+
+spin up     (    0.0005,    0.0005,    0.0005 )
+     total  (    0.0005,    0.0005,    0.0005 )
+ionic       (    0.0000,    0.0000,    0.0000 )
+crystal     (    0.0000,    0.0000,    0.0000 )
+
+
+== Crystal Dipole ==
+
+mu   =  (   -0.0010,   -0.0010,   -0.0010 ) au
+|mu| =     0.0018 au,       0.0045 Debye
+
+
+== Molecular Dipole wrt Center of Mass ==
+
+mu   =  (   -0.0010,   -0.0010,   -0.0010 ) au
+|mu| =     0.0018 au,       0.0045 Debye
+
+ output psi filename:/home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.205067E+00
+  main loop   :   0.387507E+02
+  epilogue    :   0.333810E-02
+  total       :   0.389592E+02
+  cputime/step:   0.334058E+00       (     116 evalulations,      30 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.132044E+02  0.113831E+00
+  dot products               :   0.339310E-01  0.292509E-03
+  geodesic                   :   0.423077E+00  0.364722E-02
+  ffm_dgemm                  :   0.208362E-01  0.179622E-03
+  fmf_dgemm                  :   0.423194E+00  0.364822E-02
+  m_diagonalize              :   0.875452E-03  0.754700E-05
+    - m_tredq                :   0.000000E+00  0.000000E+00
+       - m_tredq_houseq      :   0.000000E+00  0.000000E+00
+       - m_tredq_houseq_dgemm:   0.000000E+00  0.000000E+00
+       - m_tredq_dgemm1      :   0.000000E+00  0.000000E+00
+    - m_getdiags             :   0.000000E+00  0.000000E+00
+    - m_tqliq                :   0.000000E+00  0.000000E+00
+    - m_eigsrt               :   0.000000E+00  0.000000E+00
+  exchange correlation       :   0.261696E+02  0.225600E+00
+  local pseudopotentials     :   0.141280E-01  0.121793E-03
+  non-local pseudopotentials :   0.484443E-02  0.417623E-04
+  hartree potentials         :   0.000000E+00  0.000000E+00
+  ion-ion interaction        :   0.000000E+00  0.000000E+00
+  structure factors          :   0.153780E-03  0.132569E-05
+  phase factors              :   0.119199E-04  0.102758E-06
+  masking and packing        :   0.111158E+00  0.958262E-03
+  queue fft                  :   0.655510E+00  0.565095E-02
+  queue fft (serial)         :   0.445005E+00  0.383625E-02
+  queue fft (message passing):   0.197981E+00  0.170674E-02
+  HFX potential              :   0.812281E+01  0.700243E-01
+  qmmm LJ                    :   0.000000E+00  0.000000E+00
+  qmmm residual Q            :   0.000000E+00  0.000000E+00
+
+     >>>  JOB COMPLETED     AT Fri Feb 22 11:52:46 2013  <<<
+
+ Task  times  cpu:       38.9s     wall:       39.0s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -577,11 +1191,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       282	        22
+	maximum number of blocks	       286	        20
 	current total bytes		         0	         0
-	maximum total bytes		   9143528	   1829760
-	maximum total K-bytes		      9144	      1830
-	maximum total M-bytes		        10	         2
+	maximum total bytes		  35802104	   9263984
+	maximum total K-bytes		     35803	      9264
+	maximum total M-bytes		        36	        10
 
 
                                 NWChem Input Module
@@ -621,4 +1235,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:       14.0s     wall:       16.2s
+ Total times  cpu:       97.0s     wall:       97.0s

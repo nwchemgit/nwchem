@@ -60,6 +60,15 @@ dft
 end
 task dft energy
 
+dft
+  direct
+  mult 4
+  odft
+  vectors input atomic
+  xc xwpbe
+end
+task dft energy
+
 # meta-GGA exchange
 
 dft
@@ -115,5 +124,14 @@ dft
   odft
   vectors input atomic
   xc rpbe
+end
+task dft energy
+  
+dft
+  direct
+  mult 4
+  odft
+  vectors input atomic
+  xc hse03
 end
 task dft energy

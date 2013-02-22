@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: nwxc_nwdft_1kr.nw 23458 2013-01-16 22:48:03Z d3y133 $
+# $Id: nwxc_nwdft_1kr.nw 23613 2013-02-20 23:51:14Z d3y133 $
 echo
 start nwxc_dat
 
@@ -76,6 +76,13 @@ dft
 end
 task dft energy
 
+dft
+  direct
+  vectors input atomic
+  xc xwpbe
+end
+task dft energy
+
 # meta-GGA exchange
 
 dft
@@ -121,6 +128,13 @@ dft
   xc rpbe
 end
 task dft energy
+
+dft
+  direct
+  vectors input atomic
+  xc hse03
+end
+task dft energy
 ================================================================================
 
 
@@ -163,9 +177,9 @@ task dft energy
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
-    date            = Wed Feb 20 15:28:51 2013
+    date            = Fri Feb 22 11:42:43 2013
 
-    compiled        = Sun_Feb_03_17:58:08_2013
+    compiled        = Fri_Feb_22_11:42:18_2013
     source          = /home/d3y133/nwchem-dev/nwchem-ref
     nwchem branch   = Development
     nwchem revision = 23457
@@ -174,7 +188,7 @@ task dft energy
     prefix          = nwxc_dat.
     data base       = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.db
     status          = startup
-    nproc           =        4
+    nproc           =        1
     time left       =     -1s
 
 
@@ -378,50 +392,47 @@ task dft energy
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      0.2
-   Time prior to 1st pass:      0.2
+   Time after variat. SCF:      0.7
+   Time prior to 1st pass:      0.7
 
  #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
+ Max. records in memory =      5        Max. records in file   =   5885
  No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.47            12467906
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2746.2923917570 -2.75D+03  1.24D-02  3.04D+00     0.6
+ d= 0,ls=0.0,diis     1  -2746.2923917570 -2.75D+03  1.24D-02  3.04D+00     1.4
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2746.3020627823 -9.67D-03  4.52D-03  7.42D-03     0.6
- d= 0,ls=0.0,diis     3  -2746.3022507770 -1.88D-04  4.11D-03  2.46D-03     0.6
- d= 0,ls=0.0,diis     4  -2746.3023008663 -5.01D-05  2.02D-03  1.90D-03     0.7
- d= 0,ls=0.0,diis     5  -2746.3025667861 -2.66D-04  5.05D-05  8.46D-07     0.7
- d= 0,ls=0.0,diis     6  -2746.3025669431 -1.57D-07  1.62D-07  3.40D-11     0.7
+ d= 0,ls=0.0,diis     2  -2746.3020627823 -9.67D-03  4.52D-03  7.42D-03     1.5
+ d= 0,ls=0.0,diis     3  -2746.3022507770 -1.88D-04  4.11D-03  2.46D-03     1.6
+ d= 0,ls=0.0,diis     4  -2746.3023008663 -5.01D-05  2.02D-03  1.90D-03     1.7
+ d= 0,ls=0.0,diis     5  -2746.3025667861 -2.66D-04  5.05D-05  8.46D-07     1.8
+ d= 0,ls=0.0,diis     6  -2746.3025669431 -1.57D-07  1.62D-07  3.40D-11     2.0
 
 
-         Total DFT energy =    -2746.302566943102
-      One electron energy =    -3826.298630556882
-           Coulomb energy =     1168.358306800458
+         Total DFT energy =    -2746.302566943098
+      One electron energy =    -3826.298630556877
+           Coulomb energy =     1168.358306800457
     Exchange-Corr. energy =      -88.362243186678
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999985681
 
-     Total iterative time =      0.5s
+     Total iterative time =      1.3s
 
 
 
@@ -429,116 +440,111 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-7.061680D+00
-              MO Center= -3.1D-16, -1.2D-16, -1.6D-16, r^2= 9.8D-02
+              MO Center= -1.9D-16, -2.0D-17, -3.5D-16, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.808748  1 Kr pz                 9     -0.700347  1 Kr px         
-     8     -0.334034  1 Kr pz                 6      0.289262  1 Kr px         
-    10      0.202234  1 Kr py         
+    11      0.805854  1 Kr pz                10     -0.708504  1 Kr py         
+     8     -0.332839  1 Kr pz                 7      0.292630  1 Kr py         
+     9      0.184605  1 Kr px         
 
  Vector    9  Occ=2.000000D+00  E=-7.061680D+00
-              MO Center= -1.9D-16, -4.1D-16, -2.4D-16, r^2= 9.8D-02
+              MO Center= -5.6D-16, -2.5D-17, -1.5D-16, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.912267  1 Kr py                11     -0.502688  1 Kr pz         
-     7     -0.376790  1 Kr py                 9     -0.317066  1 Kr px         
-     8      0.207623  1 Kr pz         
+     9      1.018527  1 Kr px                 6     -0.420678  1 Kr px         
+    11     -0.357796  1 Kr pz         
 
  Vector   10  Occ=2.000000D+00  E=-3.035320D+00
-              MO Center=  5.6D-17,  2.2D-16,  9.6D-17, r^2= 1.1D-01
+              MO Center=  2.8D-16,  2.9D-17,  1.5D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.534614  1 Kr dyz               20      0.610849  1 Kr dxz        
-    19     -0.480663  1 Kr dxy        
+    20      1.700899  1 Kr dxz               22      0.233337  1 Kr dyz        
 
  Vector   11  Occ=2.000000D+00  E=-3.035320D+00
-              MO Center=  2.5D-16,  3.5D-17,  7.0D-17, r^2= 1.1D-01
+              MO Center= -4.3D-17,  1.3D-16,  1.9D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.309259  1 Kr dxy               20     -0.833462  1 Kr dxz        
-    22      0.741795  1 Kr dyz        
+    22      1.688407  1 Kr dyz               20     -0.245507  1 Kr dxz        
+    19     -0.219590  1 Kr dxy        
 
  Vector   12  Occ=2.000000D+00  E=-3.035320D+00
-              MO Center=  1.1D-16,  1.4D-16,  2.2D-16, r^2= 1.1D-01
+              MO Center=  2.2D-16,  2.4D-16,  4.1D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.375214  1 Kr dxz               19      1.006707  1 Kr dxy        
-    22     -0.232177  1 Kr dyz        
+    19      1.702728  1 Kr dxy               22      0.232539  1 Kr dyz        
 
  Vector   13  Occ=2.000000D+00  E=-3.035320D+00
-              MO Center=  9.5D-18,  2.6D-16,  1.8D-16, r^2= 1.1D-01
+              MO Center=  6.3D-18,  2.0D-16,  1.9D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.949255  1 Kr dyy               23     -0.727560  1 Kr dzz        
-    18     -0.221695  1 Kr dxx        
+    21      0.949963  1 Kr dyy               23     -0.725884  1 Kr dzz        
+    18     -0.224079  1 Kr dxx        
 
  Vector   14  Occ=2.000000D+00  E=-3.035320D+00
-              MO Center=  3.4D-16,  2.0D-17,  2.5D-16, r^2= 1.1D-01
+              MO Center=  3.0D-16,  2.8D-17,  8.0D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.967972  1 Kr dxx               23     -0.676029  1 Kr dzz        
-    21     -0.291943  1 Kr dyy        
+    18      0.967560  1 Kr dxx               23     -0.677832  1 Kr dzz        
+    21     -0.289727  1 Kr dyy        
 
  Vector   15  Occ=2.000000D+00  E=-7.710007D-01
-              MO Center=  1.6D-16,  7.4D-16, -8.1D-17, r^2= 8.2D-01
+              MO Center=  1.4D-15,  9.0D-16,  4.4D-16, r^2= 8.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.672654  1 Kr s                  3      0.494579  1 Kr s          
      5     -0.464148  1 Kr s                  2      0.175261  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-2.984217D-01
-              MO Center=  1.7D-15,  7.9D-16,  1.4D-15, r^2= 1.3D+00
+              MO Center=  6.4D-16, -7.2D-16, -5.0D-18, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.741621  1 Kr pz                12      0.449358  1 Kr px         
-    11      0.349753  1 Kr pz                17      0.242088  1 Kr pz         
-     9      0.211920  1 Kr px         
+    13      0.857015  1 Kr py                10      0.404173  1 Kr py         
+    16      0.279756  1 Kr py         
 
  Vector   17  Occ=2.000000D+00  E=-2.984217D-01
-              MO Center= -1.1D-16,  1.4D-15,  2.9D-16, r^2= 1.3D+00
+              MO Center= -4.6D-16,  2.6D-16, -5.9D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.818631  1 Kr py                10      0.386071  1 Kr py         
-    16      0.267226  1 Kr py                12      0.211185  1 Kr px         
-    14     -0.205053  1 Kr pz         
+    12      0.849694  1 Kr px                 9      0.400721  1 Kr px         
+    15      0.277367  1 Kr px                14      0.180924  1 Kr pz         
 
  Vector   18  Occ=2.000000D+00  E=-2.984217D-01
-              MO Center= -1.2D-15, -4.0D-16,  5.3D-17, r^2= 1.3D+00
+              MO Center=  6.8D-16, -7.2D-17,  5.2D-15, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.714339  1 Kr px                14     -0.405898  1 Kr pz         
-     9      0.336887  1 Kr px                13     -0.285951  1 Kr py         
-    15      0.233182  1 Kr px                11     -0.191424  1 Kr pz         
+    14      0.840941  1 Kr pz                11      0.396593  1 Kr pz         
+    17      0.274509  1 Kr pz                12     -0.171409  1 Kr px         
 
  Vector   19  Occ=0.000000D+00  E= 2.932283D-01
-              MO Center=  1.6D-13,  1.7D-13,  3.7D-13, r^2= 3.6D+00
+              MO Center=  2.9D-13,  3.7D-13,  2.6D-13, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.069099  1 Kr pz                14     -0.940852  1 Kr pz         
-    16      0.493211  1 Kr py                15      0.471722  1 Kr px         
-    13     -0.434046  1 Kr py                12     -0.415135  1 Kr px         
-    11     -0.312458  1 Kr pz         
+    16      0.877699  1 Kr py                13     -0.772413  1 Kr py         
+    15      0.685320  1 Kr px                17      0.607232  1 Kr pz         
+    12     -0.603111  1 Kr px                14     -0.534390  1 Kr pz         
+    10     -0.256519  1 Kr py                 9     -0.200294  1 Kr px         
+    11     -0.177471  1 Kr pz         
 
  Vector   20  Occ=0.000000D+00  E= 2.932283D-01
-              MO Center=  5.6D-14,  1.5D-13, -9.3D-14, r^2= 3.6D+00
+              MO Center=  6.1D-14, -1.0D-13,  8.2D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.025337  1 Kr py                13     -0.902340  1 Kr py         
-    17     -0.641538  1 Kr pz                14      0.564580  1 Kr pz         
-    15      0.381920  1 Kr px                12     -0.336106  1 Kr px         
-    10     -0.299668  1 Kr py                11      0.187498  1 Kr pz         
+    16      0.906019  1 Kr py                13     -0.797335  1 Kr py         
+    17     -0.713204  1 Kr pz                14      0.627650  1 Kr pz         
+    15     -0.528412  1 Kr px                12      0.465025  1 Kr px         
+    10     -0.264796  1 Kr py                11      0.208443  1 Kr pz         
+     9      0.154435  1 Kr px         
 
  Vector   21  Occ=0.000000D+00  E= 2.932283D-01
-              MO Center= -4.4D-14,  2.2D-14,  9.5D-15, r^2= 3.6D+00
+              MO Center= -9.9D-14,  1.5D-14,  9.2D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.113717  1 Kr px                12     -0.980118  1 Kr px         
-    16     -0.560515  1 Kr py                13      0.493277  1 Kr py         
-     9     -0.325498  1 Kr px                17     -0.232825  1 Kr pz         
-    14      0.204896  1 Kr pz                10      0.163818  1 Kr py         
+    15      0.927290  1 Kr px                17     -0.855195  1 Kr pz         
+    12     -0.816055  1 Kr px                14      0.752608  1 Kr pz         
+     9     -0.271013  1 Kr px                11      0.249942  1 Kr pz         
 
  Vector   22  Occ=0.000000D+00  E= 2.967142D-01
-              MO Center= -1.8D-13, -3.4D-13, -2.8D-13, r^2= 2.7D+00
+              MO Center= -2.5D-13, -2.8D-13, -4.3D-13, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.513831  1 Kr s                  4      1.906173  1 Kr s          
@@ -547,44 +553,48 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2      0.195116  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 5.038658D-01
-              MO Center= -6.1D-17, -2.4D-15, -1.6D-15, r^2= 1.2D+00
+              MO Center= -2.4D-16, -4.4D-16, -1.6D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.736722  1 Kr dyz               22     -0.392601  1 Kr dyz        
-    27      0.158669  1 Kr dyy        
+    26      1.498475  1 Kr dxz               28     -0.716011  1 Kr dyz        
+    25      0.578528  1 Kr dxy               20     -0.338743  1 Kr dxz        
+    22      0.161861  1 Kr dyz        
 
  Vector   24  Occ=0.000000D+00  E= 5.038658D-01
-              MO Center=  2.0D-17, -1.4D-17, -6.5D-16, r^2= 1.2D+00
+              MO Center=  1.7D-15, -2.1D-16,  7.1D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.748941  1 Kr dxz               20     -0.395363  1 Kr dxz        
+    24      0.958787  1 Kr dxx               27     -0.749490  1 Kr dyy        
+    18     -0.216742  1 Kr dxx               29     -0.209297  1 Kr dzz        
+    26      0.191847  1 Kr dxz               21      0.169429  1 Kr dyy        
 
  Vector   25  Occ=0.000000D+00  E= 5.038658D-01
-              MO Center= -8.4D-17, -5.5D-17, -2.7D-16, r^2= 1.2D+00
+              MO Center= -1.3D-15,  2.3D-15, -4.6D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.177168  1 Kr dxy               27     -0.743126  1 Kr dyy        
-    29      0.471525  1 Kr dzz               24      0.271602  1 Kr dxx        
-    19     -0.266109  1 Kr dxy               21      0.167990  1 Kr dyy        
+    29      0.957629  1 Kr dzz               27     -0.679200  1 Kr dyy        
+    28     -0.387416  1 Kr dyz               24     -0.278429  1 Kr dxx        
+    23     -0.216480  1 Kr dzz               25      0.199764  1 Kr dxy        
+    21      0.153539  1 Kr dyy        
 
  Vector   26  Occ=0.000000D+00  E= 5.038658D-01
-              MO Center= -8.9D-16, -1.7D-15,  2.1D-16, r^2= 1.2D+00
+              MO Center= -1.8D-15, -2.0D-15, -2.6D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.306857  1 Kr dxy               27      0.655481  1 Kr dyy        
-    29     -0.374401  1 Kr dzz               19     -0.295426  1 Kr dxy        
-    28     -0.284303  1 Kr dyz               24     -0.281079  1 Kr dxx        
-    26     -0.170198  1 Kr dxz        
+    28     -1.028940  1 Kr dyz               25      1.005920  1 Kr dxy        
+    26     -0.902485  1 Kr dxz               29     -0.264901  1 Kr dzz        
+    22      0.232601  1 Kr dyz               19     -0.227397  1 Kr dxy        
+    20      0.204015  1 Kr dxz               24      0.202727  1 Kr dxx        
 
  Vector   27  Occ=0.000000D+00  E= 5.038658D-01
-              MO Center=  8.5D-16,  1.8D-16,  6.7D-16, r^2= 1.2D+00
+              MO Center= -9.2D-16, -2.5D-15, -9.6D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.939416  1 Kr dxx               29     -0.808164  1 Kr dzz        
-    18     -0.212363  1 Kr dxx               23      0.182693  1 Kr dzz        
+    25      1.306283  1 Kr dxy               28      1.177899  1 Kr dyz        
+    19     -0.295297  1 Kr dxy               22     -0.266274  1 Kr dyz        
 
  Vector   28  Occ=0.000000D+00  E= 1.766299D+00
-              MO Center= -9.5D-17, -2.0D-16, -2.9D-16, r^2= 1.7D+00
+              MO Center=  5.7D-18, -1.9D-17, -2.4D-16, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.056773  1 Kr s                 24     -1.976710  1 Kr dxx        
@@ -593,10 +603,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2     -0.160235  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        0.7s     wall:        1.6s
+ Task  times  cpu:        2.0s     wall:        2.0s
 
 
                                 NWChem Input Module
@@ -682,50 +692,47 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      0.9
-   Time prior to 1st pass:      0.9
+   Time after variat. SCF:      2.6
+   Time prior to 1st pass:      2.6
 
  #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
+ Max. records in memory =      5        Max. records in file   =   5885
  No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.47            12467906
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2751.0772023494 -2.75D+03  1.03D-02  7.43D-01     1.2
+ d= 0,ls=0.0,diis     1  -2751.0772023494 -2.75D+03  1.03D-02  7.43D-01     3.6
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2751.0832177719 -6.02D-03  4.29D-03  5.41D-03     1.3
- d= 0,ls=0.0,diis     3  -2751.0833700048 -1.52D-04  3.93D-03  2.05D-03     1.4
- d= 0,ls=0.0,diis     4  -2751.0834011670 -3.12D-05  1.94D-03  1.72D-03     1.5
- d= 0,ls=0.0,diis     5  -2751.0836498046 -2.49D-04  3.32D-05  3.56D-07     1.5
- d= 0,ls=0.0,diis     6  -2751.0836498721 -6.75D-08  2.06D-07  3.51D-11     1.6
+ d= 0,ls=0.0,diis     2  -2751.0832177719 -6.02D-03  4.29D-03  5.41D-03     3.9
+ d= 0,ls=0.0,diis     3  -2751.0833700049 -1.52D-04  3.93D-03  2.05D-03     4.3
+ d= 0,ls=0.0,diis     4  -2751.0834011670 -3.12D-05  1.94D-03  1.72D-03     4.6
+ d= 0,ls=0.0,diis     5  -2751.0836498046 -2.49D-04  3.32D-05  3.56D-07     4.9
+ d= 0,ls=0.0,diis     6  -2751.0836498721 -6.75D-08  2.06D-07  3.51D-11     5.3
 
 
-         Total DFT energy =    -2751.083649872059
-      One electron energy =    -3826.544994033368
-           Coulomb energy =     1168.628280858017
-    Exchange-Corr. energy =      -93.166936696708
+         Total DFT energy =    -2751.083649872062
+      One electron energy =    -3826.544994033367
+           Coulomb energy =     1168.628280858014
+    Exchange-Corr. energy =      -93.166936696709
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999985599
 
-     Total iterative time =      0.7s
+     Total iterative time =      2.6s
 
 
 
@@ -733,110 +740,105 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-7.095506D+00
-              MO Center=  1.8D-16, -2.1D-16,  4.4D-17, r^2= 9.8D-02
+              MO Center=  2.9D-17, -9.0D-17, -1.6D-16, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.025451  1 Kr px                 6     -0.422880  1 Kr px         
-    10     -0.327616  1 Kr py                11      0.169812  1 Kr pz         
+    11      1.068305  1 Kr pz                 8     -0.440553  1 Kr pz         
+    10     -0.180624  1 Kr py         
 
  Vector    9  Occ=2.000000D+00  E=-7.095506D+00
-              MO Center= -1.5D-16, -2.2D-17,  1.3D-17, r^2= 9.8D-02
+              MO Center=  4.2D-17,  1.3D-16, -3.8D-17, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.032825  1 Kr py                 7     -0.425921  1 Kr py         
-     9      0.341183  1 Kr px         
+    10      1.053651  1 Kr py                 7     -0.434509  1 Kr py         
+     9      0.232974  1 Kr px                11      0.152513  1 Kr pz         
 
  Vector   10  Occ=2.000000D+00  E=-3.049689D+00
-              MO Center=  2.3D-18,  3.1D-17, -1.7D-17, r^2= 1.1D-01
+              MO Center= -3.3D-18, -3.2D-18,  1.7D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.320229  1 Kr dxz               22      1.072791  1 Kr dyz        
-    19     -0.250492  1 Kr dxy        
+    20      1.484415  1 Kr dxz               22      0.869994  1 Kr dyz        
 
  Vector   11  Occ=2.000000D+00  E=-3.049689D+00
-              MO Center= -3.3D-17,  8.6D-17, -6.2D-17, r^2= 1.1D-01
+              MO Center= -8.0D-17, -3.5D-17, -5.9D-18, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.342907  1 Kr dxy               22      0.945391  1 Kr dyz        
-    20     -0.511855  1 Kr dxz        
+    19      1.709013  1 Kr dxy               22      0.167836  1 Kr dyz        
 
  Vector   12  Occ=2.000000D+00  E=-3.049689D+00
-              MO Center=  1.4D-18,  3.4D-18,  6.4D-17, r^2= 1.1D-01
+              MO Center= -3.0D-17,  3.0D-17, -9.8D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.043903  1 Kr dxy               20      0.977143  1 Kr dxz        
-    22     -0.955746  1 Kr dyz        
+    22      1.474970  1 Kr dyz               20     -0.863146  1 Kr dxz        
+    19     -0.199567  1 Kr dxy        
 
  Vector   13  Occ=2.000000D+00  E=-3.049689D+00
-              MO Center= -3.2D-18,  1.3D-16,  8.3D-17, r^2= 1.1D-01
+              MO Center=  1.5D-17, -3.4D-19,  3.1D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.898712  1 Kr dzz               21     -0.813424  1 Kr dyy        
+    23      0.956918  1 Kr dzz               21     -0.709412  1 Kr dyy        
+    18     -0.247506  1 Kr dxx        
 
  Vector   14  Occ=2.000000D+00  E=-3.049689D+00
-              MO Center=  1.3D-16, -9.6D-17,  5.6D-18, r^2= 1.1D-01
+              MO Center=  6.9D-17, -8.9D-17,  2.5D-18, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.989664  1 Kr dxx               21     -0.568269  1 Kr dyy        
-    23     -0.421395  1 Kr dzz        
+    18      0.962060  1 Kr dxx               21     -0.695299  1 Kr dyy        
+    23     -0.266761  1 Kr dzz        
 
  Vector   15  Occ=2.000000D+00  E=-7.771088D-01
-              MO Center= -1.5D-15,  2.2D-15, -4.1D-17, r^2= 8.2D-01
+              MO Center= -5.5D-16, -1.5D-15, -2.9D-16, r^2= 8.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.676296  1 Kr s                  3      0.484430  1 Kr s          
      5     -0.458962  1 Kr s                  2      0.174887  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-3.036255D-01
-              MO Center= -3.3D-16, -2.1D-16,  1.1D-15, r^2= 1.3D+00
+              MO Center= -3.7D-17, -1.4D-16, -1.5D-15, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.763984  1 Kr py                14     -0.414320  1 Kr pz         
-    10      0.358991  1 Kr py                16      0.250353  1 Kr py         
-    11     -0.194686  1 Kr pz         
+    12      0.757438  1 Kr px                 9      0.355915  1 Kr px         
+    13     -0.327781  1 Kr py                14      0.272671  1 Kr pz         
+    15      0.248208  1 Kr px                10     -0.154022  1 Kr py         
 
  Vector   17  Occ=2.000000D+00  E=-3.036255D-01
-              MO Center= -2.6D-16,  3.3D-16, -6.1D-16, r^2= 1.3D+00
+              MO Center= -4.6D-16, -6.2D-16,  3.3D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.762582  1 Kr pz                13      0.412510  1 Kr py         
-    11      0.358333  1 Kr pz                17      0.249894  1 Kr pz         
-    10      0.193836  1 Kr py         
+    14      0.823382  1 Kr pz                11      0.386902  1 Kr pz         
+    12     -0.273298  1 Kr px                17      0.269817  1 Kr pz         
 
  Vector   18  Occ=2.000000D+00  E=-3.036255D-01
-              MO Center=  8.2D-16,  4.9D-16, -3.6D-18, r^2= 1.3D+00
+              MO Center=  9.5D-18,  1.1D-15,  5.4D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.866906  1 Kr px                 9      0.407354  1 Kr px         
-    15      0.284080  1 Kr px         
+    13      0.803249  1 Kr py                10      0.377442  1 Kr py         
+    12      0.327258  1 Kr px                16      0.263220  1 Kr py         
+     9      0.153776  1 Kr px         
 
  Vector   19  Occ=0.000000D+00  E= 2.824201D-01
-              MO Center=  1.1D-15, -3.6D-16, -8.1D-15, r^2= 3.6D+00
+              MO Center= -9.6D-18, -3.4D-16,  2.5D-15, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.255752  1 Kr pz                14     -1.105863  1 Kr pz         
-    11     -0.366098  1 Kr pz                15     -0.171060  1 Kr px         
-    12      0.150642  1 Kr px         
+    17      1.268044  1 Kr pz                14     -1.116688  1 Kr pz         
+    11     -0.369681  1 Kr pz         
 
  Vector   20  Occ=0.000000D+00  E= 2.824201D-01
-              MO Center=  1.6D-14,  7.1D-14, -5.1D-16, r^2= 3.6D+00
+              MO Center=  1.8D-14,  4.6D-16,  6.0D-16, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.238301  1 Kr py                13     -1.090495  1 Kr py         
-    10     -0.361010  1 Kr py                15      0.273517  1 Kr px         
-    12     -0.240870  1 Kr px         
+    15      1.267636  1 Kr px                12     -1.116329  1 Kr px         
+     9     -0.369562  1 Kr px         
 
  Vector   21  Occ=0.000000D+00  E= 2.824201D-01
-              MO Center= -4.8D-14,  1.0D-14, -6.4D-15, r^2= 3.6D+00
+              MO Center=  3.0D-15, -1.1D-13, -5.6D-16, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.226454  1 Kr px                12     -1.080062  1 Kr px         
-     9     -0.357556  1 Kr px                16     -0.269786  1 Kr py         
-    13      0.237584  1 Kr py                17      0.176887  1 Kr pz         
-    14     -0.155773  1 Kr pz         
+    16      1.267676  1 Kr py                13     -1.116364  1 Kr py         
+    10     -0.369574  1 Kr py         
 
  Vector   22  Occ=0.000000D+00  E= 2.933675D-01
-              MO Center=  3.2D-14, -8.2D-14,  1.6D-14, r^2= 2.8D+00
+              MO Center= -2.1D-14,  1.1D-13, -1.6D-15, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.529784  1 Kr s                  4      1.903681  1 Kr s          
@@ -845,46 +847,46 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2      0.193801  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 4.984812D-01
-              MO Center=  9.6D-16, -5.3D-16, -3.0D-16, r^2= 1.2D+00
+              MO Center=  7.3D-17, -1.7D-17,  8.3D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.683703  1 Kr dxy               19     -0.378932  1 Kr dxy        
-    26      0.374383  1 Kr dxz               28     -0.336587  1 Kr dyz        
+    25      1.617100  1 Kr dxy               28      0.439274  1 Kr dyz        
+    19     -0.363942  1 Kr dxy               29      0.271579  1 Kr dzz        
+    27     -0.267818  1 Kr dyy        
 
  Vector   24  Occ=0.000000D+00  E= 4.984812D-01
-              MO Center= -5.5D-16, -1.8D-16, -9.7D-16, r^2= 1.2D+00
+              MO Center= -8.3D-16, -2.3D-16,  4.9D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.561066  1 Kr dxz               28     -0.641976  1 Kr dyz        
-    25     -0.452572  1 Kr dxy               20     -0.351331  1 Kr dxz        
+    24      0.935434  1 Kr dxx               29     -0.798524  1 Kr dzz        
+    25      0.212969  1 Kr dxy               18     -0.210527  1 Kr dxx        
+    23      0.179715  1 Kr dzz        
 
  Vector   25  Occ=0.000000D+00  E= 4.984812D-01
-              MO Center= -1.9D-16, -5.8D-16,  3.6D-16, r^2= 1.2D+00
+              MO Center= -2.7D-16,  3.7D-16, -1.5D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.606323  1 Kr dyz               26      0.711227  1 Kr dxz        
-    22     -0.361517  1 Kr dyz               20     -0.160068  1 Kr dxz        
-    25      0.158236  1 Kr dxy        
+    27      0.968176  1 Kr dyy               29     -0.567154  1 Kr dzz        
+    25      0.522926  1 Kr dxy               24     -0.401022  1 Kr dxx        
+    21     -0.217896  1 Kr dyy        
 
  Vector   26  Occ=0.000000D+00  E= 4.984812D-01
-              MO Center= -2.3D-16, -3.0D-16, -6.7D-16, r^2= 1.2D+00
+              MO Center= -1.9D-16,  2.1D-16, -3.4D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.988271  1 Kr dzz               24     -0.705763  1 Kr dxx        
-    27     -0.282508  1 Kr dyy               23     -0.222419  1 Kr dzz        
-    18      0.158838  1 Kr dxx        
+    28      1.525601  1 Kr dyz               26     -0.762132  1 Kr dxz        
+    25     -0.417937  1 Kr dxy               22     -0.343349  1 Kr dyz        
+    20      0.171524  1 Kr dxz        
 
  Vector   27  Occ=0.000000D+00  E= 4.984812D-01
-              MO Center=  5.1D-16, -8.7D-16, -3.9D-17, r^2= 1.2D+00
+              MO Center=  1.8D-15,  7.0D-16,  2.8D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      0.966136  1 Kr dyy               24     -0.722006  1 Kr dxx        
-    29     -0.244131  1 Kr dzz               25     -0.225376  1 Kr dxy        
-    21     -0.217437  1 Kr dyy               26      0.163417  1 Kr dxz        
-    18      0.162493  1 Kr dxx        
+    26      1.585834  1 Kr dxz               28      0.767225  1 Kr dyz        
+    20     -0.356905  1 Kr dxz               22     -0.172671  1 Kr dyz        
 
  Vector   28  Occ=0.000000D+00  E= 1.759574D+00
-              MO Center= -2.7D-16, -5.4D-17, -1.4D-16, r^2= 1.7D+00
+              MO Center= -2.0D-16,  2.3D-17, -2.9D-16, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.044731  1 Kr s                 24     -1.974896  1 Kr dxx        
@@ -893,10 +895,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2     -0.160591  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        0.9s     wall:        1.1s
+ Task  times  cpu:        3.3s     wall:        3.4s
 
 
                                 NWChem Input Module
@@ -922,6 +924,289 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    29
+                     number of shells:    11
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                     LC-wPBE(h)Exchange Functional  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Kr                  1.15      112           5.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   112
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:       -2751.43658543
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -2751.436585
+ 1-e energy   =   -3827.731820
+ 2-e energy   =    1076.295235
+ HOMO         =      -0.525439
+ LUMO         =       0.441898
+
+   Time after variat. SCF:      6.0
+   Time prior to 1st pass:      6.0
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     25        Max. recs in file   =     31391
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.80            12795598
+          Stack Space remaining (MW):       13.11            13106953
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -2746.2923917644 -2.75D+03  1.24D-02  3.04D+00     6.6
+  Resetting Diis
+ d= 0,ls=0.0,diis     2  -2746.3020627671 -9.67D-03  4.52D-03  7.42D-03     7.2
+ d= 0,ls=0.0,diis     3  -2746.3022507753 -1.88D-04  4.11D-03  2.46D-03     7.9
+ d= 0,ls=0.0,diis     4  -2746.3023008651 -5.01D-05  2.02D-03  1.90D-03     8.5
+ d= 0,ls=0.0,diis     5  -2746.3025667861 -2.66D-04  5.05D-05  8.47D-07     9.2
+ d= 0,ls=0.0,diis     6  -2746.3025669431 -1.57D-07  1.62D-07  3.39D-11     9.8
+
+
+         Total DFT energy =    -2746.302566943131
+      One electron energy =    -3826.298630641198
+           Coulomb energy =     1168.358306888170
+    Exchange-Corr. energy =      -88.362243190102
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =       35.999999985682
+
+     Total iterative time =      3.8s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    8  Occ=2.000000D+00  E=-7.061680D+00
+              MO Center=  7.3D-16, -2.6D-16,  3.1D-16, r^2= 9.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.880838  1 Kr px                11      0.614126  1 Kr pz         
+     6     -0.363809  1 Kr px                 8     -0.253650  1 Kr pz         
+    10     -0.180086  1 Kr py         
+
+ Vector    9  Occ=2.000000D+00  E=-7.061680D+00
+              MO Center=  5.6D-17,  4.3D-17, -4.1D-16, r^2= 9.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.729431  1 Kr pz                 9     -0.615653  1 Kr px         
+    10     -0.523793  1 Kr py                 8     -0.301274  1 Kr pz         
+     6      0.254280  1 Kr px                 7      0.216340  1 Kr py         
+
+ Vector   10  Occ=2.000000D+00  E=-3.035320D+00
+              MO Center=  3.9D-17,  3.6D-18,  4.1D-17, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.713119  1 Kr dxz               22      0.155995  1 Kr dyz        
+
+ Vector   11  Occ=2.000000D+00  E=-3.035320D+00
+              MO Center=  1.7D-17, -3.5D-17,  1.2D-16, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.701568  1 Kr dyz               19      0.198634  1 Kr dxy        
+    20     -0.155713  1 Kr dxz        
+
+ Vector   12  Occ=2.000000D+00  E=-3.035320D+00
+              MO Center= -6.2D-17, -3.1D-17,  5.8D-18, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.708682  1 Kr dxy               22     -0.198220  1 Kr dyz        
+
+ Vector   13  Occ=2.000000D+00  E=-3.035320D+00
+              MO Center= -1.2D-17,  3.2D-17,  2.4D-17, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.992741  1 Kr dyy               18     -0.519583  1 Kr dxx        
+    23     -0.473159  1 Kr dzz        
+
+ Vector   14  Occ=2.000000D+00  E=-3.035320D+00
+              MO Center= -9.2D-18,  1.9D-18,  9.5D-17, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23     -0.873176  1 Kr dzz               18      0.846425  1 Kr dxx        
+
+ Vector   15  Occ=2.000000D+00  E=-7.710007D-01
+              MO Center=  1.3D-14,  1.3D-14,  1.3D-14, r^2= 8.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.672654  1 Kr s                  3      0.494579  1 Kr s          
+     5     -0.464148  1 Kr s                  2      0.175261  1 Kr s          
+
+ Vector   16  Occ=2.000000D+00  E=-2.984217D-01
+              MO Center=  2.8D-14,  1.5D-14,  1.0D-14, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.836335  1 Kr px                 9      0.394421  1 Kr px         
+    15      0.273006  1 Kr px                14     -0.226601  1 Kr pz         
+
+ Vector   17  Occ=2.000000D+00  E=-2.984217D-01
+              MO Center=  1.9D-14,  2.6D-14,  3.9D-14, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.768697  1 Kr pz                13      0.368196  1 Kr py         
+    11      0.362522  1 Kr pz                17      0.250927  1 Kr pz         
+    10      0.173643  1 Kr py                12      0.174180  1 Kr px         
+
+ Vector   18  Occ=2.000000D+00  E=-2.984217D-01
+              MO Center=  1.2D-14,  2.1D-14,  1.1D-14, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.784370  1 Kr py                10      0.369913  1 Kr py         
+    14     -0.338465  1 Kr pz                16      0.256043  1 Kr py         
+    12     -0.164338  1 Kr px                11     -0.159622  1 Kr pz         
+
+ Vector   19  Occ=0.000000D+00  E= 2.932283D-01
+              MO Center=  9.9D-12,  1.1D-12,  7.1D-13, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.258209  1 Kr px                12     -1.107278  1 Kr px         
+     9     -0.367728  1 Kr px         
+
+ Vector   20  Occ=0.000000D+00  E= 2.932283D-01
+              MO Center= -5.4D-13, -1.0D-13,  8.0D-12, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.265237  1 Kr pz                14     -1.113462  1 Kr pz         
+    11     -0.369782  1 Kr pz         
+
+ Vector   21  Occ=0.000000D+00  E= 2.932283D-01
+              MO Center= -8.0D-13,  7.6D-12,  5.6D-14, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.261205  1 Kr py                13     -1.109914  1 Kr py         
+    10     -0.368604  1 Kr py         
+
+ Vector   22  Occ=0.000000D+00  E= 2.967142D-01
+              MO Center= -8.6D-12, -8.5D-12, -8.8D-12, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      3.513831  1 Kr s                  4      1.906173  1 Kr s          
+    24     -0.692155  1 Kr dxx               27     -0.692155  1 Kr dyy        
+    29     -0.692155  1 Kr dzz                3     -0.299436  1 Kr s          
+     2      0.195116  1 Kr s          
+
+ Vector   23  Occ=0.000000D+00  E= 5.038658D-01
+              MO Center= -2.6D-14, -5.0D-15, -6.8D-15, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      1.007649  1 Kr dxx               29     -0.573094  1 Kr dzz        
+    27     -0.434555  1 Kr dyy               18     -0.227788  1 Kr dxx        
+    26     -0.206041  1 Kr dxz        
+
+ Vector   24  Occ=0.000000D+00  E= 5.038658D-01
+              MO Center= -2.3D-14, -2.0D-14,  4.9D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.719830  1 Kr dxy               19     -0.388783  1 Kr dxy        
+    26     -0.221296  1 Kr dxz               27      0.185129  1 Kr dyy        
+
+ Vector   25  Occ=0.000000D+00  E= 5.038658D-01
+              MO Center=  5.6D-15, -1.2D-14, -2.0D-14, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.617787  1 Kr dyz               26     -0.674007  1 Kr dxz        
+    22     -0.365715  1 Kr dyz               20      0.152365  1 Kr dxz        
+
+ Vector   26  Occ=0.000000D+00  E= 5.038658D-01
+              MO Center= -2.8D-14, -1.2D-14, -2.6D-14, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      1.583259  1 Kr dxz               28      0.668804  1 Kr dyz        
+    20     -0.357910  1 Kr dxz               25      0.237224  1 Kr dxy        
+    27     -0.186521  1 Kr dyy               22     -0.151189  1 Kr dyz        
+
+ Vector   27  Occ=0.000000D+00  E= 5.038658D-01
+              MO Center=  4.9D-15, -1.8D-14, -1.5D-14, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.882686  1 Kr dyy               29     -0.826489  1 Kr dzz        
+    25     -0.276600  1 Kr dxy               26      0.250850  1 Kr dxz        
+    28      0.212498  1 Kr dyz               21     -0.199539  1 Kr dyy        
+    23      0.186835  1 Kr dzz        
+
+ Vector   28  Occ=0.000000D+00  E= 1.766299D+00
+              MO Center= -6.4D-15, -6.3D-15, -6.5D-15, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      4.056773  1 Kr s                 24     -1.976710  1 Kr dxx        
+    27     -1.976710  1 Kr dyy               29     -1.976710  1 Kr dzz        
+     3     -0.957189  1 Kr s                  4     -0.499109  1 Kr s          
+     2     -0.160235  1 Kr s          
+
+
+ Task  times  cpu:        4.5s     wall:        4.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :    36
+           Alpha electrons :    18
+            Beta electrons :    18
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:    29
                      number of shells:    11
           Convergence on energy requested: 1.00D-06
@@ -982,50 +1267,38 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      1.8
-   Time prior to 1st pass:      1.8
-
- #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
+   Time after variat. SCF:     10.5
+   Time prior to 1st pass:     10.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.80            12795598
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2752.4701991461 -2.75D+03  1.05D-02  1.84D+00     2.1
+ d= 0,ls=0.0,diis     1  -2752.4701991535 -2.75D+03  1.05D-02  1.84D+00    11.4
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2752.4765653037 -6.37D-03  3.22D-03  1.45D-03     2.2
- d= 0,ls=0.0,diis     3  -2752.4766991548 -1.34D-04  2.17D-03  6.70D-04     2.3
- d= 0,ls=0.0,diis     4  -2752.4767444234 -4.53D-05  8.99D-04  4.14D-04     2.5
- d= 0,ls=0.0,diis     5  -2752.4768009553 -5.65D-05  2.12D-05  1.50D-07     2.6
- d= 0,ls=0.0,diis     6  -2752.4768009830 -2.77D-08  1.59D-08  3.32D-13     2.7
+ d= 0,ls=0.0,diis     2  -2752.4765652946 -6.37D-03  3.22D-03  1.45D-03    12.4
+ d= 0,ls=0.0,diis     3  -2752.4766991540 -1.34D-04  2.17D-03  6.70D-04    13.3
+ d= 0,ls=0.0,diis     4  -2752.4767444231 -4.53D-05  8.99D-04  4.14D-04    14.3
+ d= 0,ls=0.0,diis     5  -2752.4768009554 -5.65D-05  2.12D-05  1.50D-07    15.2
+ d= 0,ls=0.0,diis     6  -2752.4768009831 -2.77D-08  1.59D-08  3.29D-13    16.1
 
 
-         Total DFT energy =    -2752.476800982975
-      One electron energy =    -3827.956533575799
-           Coulomb energy =     1170.094680063941
-    Exchange-Corr. energy =      -94.614947471118
+         Total DFT energy =    -2752.476800983102
+      One electron energy =    -3827.956533757538
+           Coulomb energy =     1170.094680263825
+    Exchange-Corr. energy =      -94.614947489389
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999987696
 
-     Total iterative time =      0.8s
+     Total iterative time =      5.6s
 
 
 
@@ -1033,105 +1306,110 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-7.223486D+00
-              MO Center=  4.4D-16,  1.0D-16,  1.6D-16, r^2= 9.8D-02
+              MO Center= -1.7D-16,  3.2D-16,  1.2D-16, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.968644  1 Kr px                 6     -0.399993  1 Kr px         
-    11      0.362128  1 Kr pz                10     -0.343584  1 Kr py         
+    10      0.922096  1 Kr py                 9     -0.572075  1 Kr px         
+     7     -0.380771  1 Kr py                 6      0.236233  1 Kr px         
 
  Vector    9  Occ=2.000000D+00  E=-7.223486D+00
-              MO Center= -1.1D-17,  4.1D-17,  1.7D-16, r^2= 9.8D-02
+              MO Center=  2.3D-16,  1.3D-16, -2.2D-16, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.027672  1 Kr pz                 8     -0.424368  1 Kr pz         
-     9     -0.346407  1 Kr px         
+     9      0.856905  1 Kr px                10      0.570280  1 Kr py         
+    11     -0.357702  1 Kr pz                 6     -0.353851  1 Kr px         
+     7     -0.235492  1 Kr py         
 
  Vector   10  Occ=2.000000D+00  E=-3.144704D+00
-              MO Center=  2.1D-18, -1.9D-17,  9.6D-17, r^2= 1.1D-01
+              MO Center= -2.4D-18, -6.0D-17,  5.1D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.516507  1 Kr dyz               20      0.795796  1 Kr dxz        
-    19      0.173571  1 Kr dxy        
+    22      1.711321  1 Kr dyz        
 
  Vector   11  Occ=2.000000D+00  E=-3.144704D+00
-              MO Center=  1.9D-17, -2.1D-17, -5.1D-17, r^2= 1.1D-01
+              MO Center=  1.2D-17,  4.9D-17,  7.3D-19, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.450312  1 Kr dxz               22     -0.812131  1 Kr dyz        
-    19      0.446798  1 Kr dxy        
+    19      1.715119  1 Kr dxy        
 
  Vector   12  Occ=2.000000D+00  E=-3.144704D+00
-              MO Center=  1.5D-17, -1.9D-16,  5.5D-17, r^2= 1.1D-01
+              MO Center= -1.5D-16,  1.1D-17,  4.3D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.653250  1 Kr dxy               20     -0.475575  1 Kr dxz        
+    20      1.714658  1 Kr dxz        
 
  Vector   13  Occ=2.000000D+00  E=-3.144704D+00
-              MO Center= -7.6D-17, -6.7D-18, -4.5D-17, r^2= 1.1D-01
+              MO Center= -6.0D-17, -1.8D-17,  1.0D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.993265  1 Kr dxx               23     -0.523447  1 Kr dzz        
-    21     -0.469818  1 Kr dyy        
+    18      0.961954  1 Kr dxx               23     -0.692445  1 Kr dzz        
+    21     -0.269509  1 Kr dyy        
 
  Vector   14  Occ=2.000000D+00  E=-3.144704D+00
-              MO Center= -4.9D-18, -5.5D-17, -1.7D-16, r^2= 1.1D-01
+              MO Center= -1.3D-17,  4.0D-17,  7.8D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.875713  1 Kr dyy               23     -0.844797  1 Kr dzz        
+    21      0.956365  1 Kr dyy               23     -0.712233  1 Kr dzz        
+    18     -0.244133  1 Kr dxx        
 
  Vector   15  Occ=2.000000D+00  E=-8.052406D-01
-              MO Center= -9.5D-16,  1.7D-15,  3.4D-15, r^2= 8.3D-01
+              MO Center= -5.5D-16, -5.2D-18,  7.1D-17, r^2= 8.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.674494  1 Kr s                  3      0.480228  1 Kr s          
      5     -0.461868  1 Kr s                  2      0.176458  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-3.164554D-01
-              MO Center=  3.7D-15,  1.8D-15,  1.9D-15, r^2= 1.2D+00
+              MO Center=  1.7D-15,  1.8D-15,  5.6D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.832058  1 Kr px                 9      0.388820  1 Kr px         
-    13      0.309570  1 Kr py                15      0.246686  1 Kr px         
+    13      0.744809  1 Kr py                14     -0.437714  1 Kr pz         
+    10      0.348049  1 Kr py                16      0.220818  1 Kr py         
+    11     -0.204544  1 Kr pz                12     -0.205517  1 Kr px         
 
  Vector   17  Occ=2.000000D+00  E=-3.164554D-01
-              MO Center=  3.7D-16, -9.1D-16,  1.0D-15, r^2= 1.2D+00
+              MO Center= -1.1D-15,  2.6D-15,  6.6D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.828042  1 Kr py                10      0.386944  1 Kr py         
-    12     -0.310096  1 Kr px                16      0.245495  1 Kr py         
+    14      0.639816  1 Kr pz                13      0.481824  1 Kr py         
+    12      0.383475  1 Kr px                11      0.298986  1 Kr pz         
+    10      0.225156  1 Kr py                17      0.189690  1 Kr pz         
+     9      0.179198  1 Kr px         
 
  Vector   18  Occ=2.000000D+00  E=-3.164554D-01
-              MO Center=  9.4D-18,  8.4D-17, -2.3D-15, r^2= 1.2D+00
+              MO Center=  3.3D-15,  3.7D-16,  6.8D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.883965  1 Kr pz                11      0.413077  1 Kr pz         
-    17      0.262075  1 Kr pz         
+    12      0.774133  1 Kr px                14     -0.433144  1 Kr pz         
+     9      0.361752  1 Kr px                15      0.229512  1 Kr px         
+    11     -0.202408  1 Kr pz         
 
  Vector   19  Occ=0.000000D+00  E= 3.325276D-01
-              MO Center= -4.4D-14,  3.8D-14, -5.0D-15, r^2= 3.6D+00
+              MO Center= -6.2D-15,  1.1D-14, -6.6D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      0.967562  1 Kr px                12     -0.837629  1 Kr px         
-    16     -0.819211  1 Kr py                13      0.709200  1 Kr py         
-     9     -0.275701  1 Kr px                10      0.233429  1 Kr py         
+    17      1.257598  1 Kr pz                14     -1.088716  1 Kr pz         
+    11     -0.358345  1 Kr pz                16     -0.170837  1 Kr py         
 
  Vector   20  Occ=0.000000D+00  E= 3.325276D-01
-              MO Center= -2.3D-15, -2.4D-15,  1.8D-16, r^2= 3.6D+00
+              MO Center=  2.9D-14,  3.1D-14,  1.7D-15, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      0.961984  1 Kr py                13     -0.832800  1 Kr py         
-    15      0.826792  1 Kr px                12     -0.715762  1 Kr px         
-    10     -0.274112  1 Kr py                 9     -0.235589  1 Kr px         
+    15      0.915704  1 Kr px                16      0.882670  1 Kr py         
+    12     -0.792735  1 Kr px                13     -0.764137  1 Kr py         
+     9     -0.260924  1 Kr px                10     -0.251512  1 Kr py         
 
  Vector   21  Occ=0.000000D+00  E= 3.325276D-01
-              MO Center= -6.0D-15,  5.3D-14,  4.3D-13, r^2= 3.6D+00
+              MO Center= -6.2D-14,  6.5D-14,  1.1D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.263410  1 Kr pz                14     -1.093748  1 Kr pz         
-    11     -0.360001  1 Kr pz                16      0.153477  1 Kr py         
+    16     -0.900990  1 Kr py                15      0.878764  1 Kr px         
+    13      0.779997  1 Kr py                12     -0.760755  1 Kr px         
+    10      0.256732  1 Kr py                 9     -0.250399  1 Kr px         
+    17     -0.189912  1 Kr pz                14      0.164409  1 Kr pz         
 
  Vector   22  Occ=0.000000D+00  E= 3.411560D-01
-              MO Center=  5.2D-14, -8.8D-14, -4.3D-13, r^2= 2.7D+00
+              MO Center=  3.8D-14, -1.0D-13,  5.0D-14, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.430618  1 Kr s                  4      1.917312  1 Kr s          
@@ -1140,50 +1418,45 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2      0.198903  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 5.123466D-01
-              MO Center= -1.3D-15, -2.5D-16,  4.9D-17, r^2= 1.2D+00
+              MO Center=  8.4D-16, -3.8D-15,  2.2D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.898482  1 Kr dxx               27     -0.654856  1 Kr dyy        
-    25      0.508618  1 Kr dxy               28      0.506760  1 Kr dyz        
-    29     -0.243626  1 Kr dzz               18     -0.200557  1 Kr dxx        
+    28      1.556272  1 Kr dyz               26     -0.608118  1 Kr dxz        
+    25     -0.531516  1 Kr dxy               22     -0.347387  1 Kr dyz        
 
  Vector   24  Occ=0.000000D+00  E= 5.123466D-01
-              MO Center= -2.4D-16, -2.4D-15, -9.1D-16, r^2= 1.2D+00
+              MO Center=  1.6D-15,  5.0D-16,  2.8D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28     -1.173150  1 Kr dyz               25      1.110620  1 Kr dxy        
-    26      0.447932  1 Kr dxz               29     -0.313788  1 Kr dzz        
-    22      0.261867  1 Kr dyz               19     -0.247910  1 Kr dxy        
-    27      0.207146  1 Kr dyy        
+    26      1.647296  1 Kr dxz               28      0.599622  1 Kr dyz        
+    20     -0.367705  1 Kr dxz               25     -0.172669  1 Kr dxy        
 
  Vector   25  Occ=0.000000D+00  E= 5.123466D-01
-              MO Center= -7.7D-16,  1.0D-16, -3.6D-16, r^2= 1.2D+00
+              MO Center= -9.4D-16, -4.1D-15,  6.1D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.191406  1 Kr dxy               28      1.044799  1 Kr dyz        
-    24     -0.429136  1 Kr dxx               19     -0.265942  1 Kr dxy        
-    29      0.264774  1 Kr dzz               22     -0.233217  1 Kr dyz        
-    26      0.205626  1 Kr dxz               27      0.164362  1 Kr dyy        
+    24      0.961820  1 Kr dxx               27     -0.593735  1 Kr dyy        
+    25      0.512714  1 Kr dxy               29     -0.368085  1 Kr dzz        
+    18     -0.214695  1 Kr dxx               26      0.162637  1 Kr dxz        
 
  Vector   26  Occ=0.000000D+00  E= 5.123466D-01
-              MO Center= -2.5D-16,  4.1D-16, -1.8D-15, r^2= 1.2D+00
+              MO Center= -3.1D-15,  1.7D-15, -8.2D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.654048  1 Kr dxz               25     -0.440652  1 Kr dxy        
-    20     -0.369212  1 Kr dxz               28      0.332105  1 Kr dyz        
-    29     -0.153879  1 Kr dzz        
+    25      1.525179  1 Kr dxy               28      0.549940  1 Kr dyz        
+    29      0.377563  1 Kr dzz               19     -0.340446  1 Kr dxy        
+    24     -0.305819  1 Kr dxx        
 
  Vector   27  Occ=0.000000D+00  E= 5.123466D-01
-              MO Center= -2.9D-16, -7.3D-16, -8.6D-16, r^2= 1.2D+00
+              MO Center= -9.0D-16, -2.9D-15, -1.8D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.887147  1 Kr dzz               27     -0.733479  1 Kr dyy        
-    28     -0.530005  1 Kr dyz               26      0.357236  1 Kr dxz        
-    23     -0.198026  1 Kr dzz               21      0.163725  1 Kr dyy        
-    24     -0.153668  1 Kr dxx        
+    29     -0.871090  1 Kr dzz               27      0.820314  1 Kr dyy        
+    25      0.463163  1 Kr dxy               23      0.194442  1 Kr dzz        
+    21     -0.183108  1 Kr dyy               28      0.177687  1 Kr dyz        
 
  Vector   28  Occ=0.000000D+00  E= 1.839547D+00
-              MO Center=  5.6D-17,  2.6D-16, -8.0D-16, r^2= 1.8D+00
+              MO Center= -3.2D-17, -3.8D-16,  2.3D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.128758  1 Kr s                 24     -1.991322  1 Kr dxx        
@@ -1192,10 +1465,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2     -0.157001  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
-
-
- Task  times  cpu:        1.0s     wall:        1.3s
+ Task  times  cpu:        6.3s     wall:        6.4s
 
 
                                 NWChem Input Module
@@ -1222,6 +1492,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:    29
                      number of shells:    11
           Convergence on energy requested: 1.00D-06
@@ -1283,49 +1554,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      2.9
-   Time prior to 1st pass:      2.9
-
- #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
+   Time after variat. SCF:     16.8
+   Time prior to 1st pass:     16.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.80            12795598
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2754.7064965691 -2.75D+03  4.47D-03  6.90D-03     3.1
+ d= 0,ls=0.0,diis     1  -2754.7064965689 -2.75D+03  4.47D-03  6.90D-03    17.6
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2754.7074040689 -9.07D-04  6.55D-04  4.52D-04     3.2
- d= 0,ls=0.0,diis     3  -2754.7074375458 -3.35D-05  6.74D-05  2.30D-06     3.2
- d= 0,ls=0.0,diis     4  -2754.7074377322 -1.86D-07  1.04D-05  3.99D-08     3.2
- d= 0,ls=0.0,diis     5  -2754.7074377373 -5.07D-09  1.12D-06  1.20D-09     3.3
+ d= 0,ls=0.0,diis     2  -2754.7074040687 -9.07D-04  6.55D-04  4.52D-04    18.3
+ d= 0,ls=0.0,diis     3  -2754.7074375455 -3.35D-05  6.74D-05  2.30D-06    19.0
+ d= 0,ls=0.0,diis     4  -2754.7074377320 -1.86D-07  1.04D-05  3.99D-08    19.7
+ d= 0,ls=0.0,diis     5  -2754.7074377371 -5.07D-09  1.12D-06  1.20D-09    20.4
 
 
-         Total DFT energy =    -2754.707437737279
-      One electron energy =    -3828.862085382565
-           Coulomb energy =     1171.075150299529
-    Exchange-Corr. energy =      -96.920502654243
+         Total DFT energy =    -2754.707437737059
+      One electron energy =    -3828.862085390422
+           Coulomb energy =     1171.075150307238
+    Exchange-Corr. energy =      -96.920502653875
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999988086
 
-     Total iterative time =      0.4s
+     Total iterative time =      3.6s
 
 
 
@@ -1333,175 +1592,160 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-8.444162D+00
-              MO Center=  3.3D-17,  2.6D-16,  7.7D-17, r^2= 9.7D-02
+              MO Center= -3.5D-16, -2.0D-17, -2.2D-16, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.036505  1 Kr py                 7     -0.428049  1 Kr py         
-    11     -0.275516  1 Kr pz                 9      0.213653  1 Kr px         
+     9      1.012776  1 Kr px                 6     -0.418249  1 Kr px         
+    10      0.408250  1 Kr py                 7     -0.168596  1 Kr py         
 
  Vector    9  Occ=2.000000D+00  E=-8.444162D+00
-              MO Center= -1.8D-16,  1.5D-16,  5.4D-18, r^2= 9.7D-02
+              MO Center=  1.6D-16,  4.5D-17,  5.6D-17, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.004570  1 Kr px                 6     -0.414860  1 Kr px         
-    11     -0.318739  1 Kr pz                10     -0.291795  1 Kr py         
+    10      1.004106  1 Kr py                 7     -0.414669  1 Kr py         
+     9     -0.412503  1 Kr px                 6      0.170353  1 Kr px         
 
  Vector   10  Occ=2.000000D+00  E=-3.919204D+00
-              MO Center= -6.2D-18, -1.5D-17, -1.2D-17, r^2= 1.1D-01
+              MO Center= -1.4D-17,  4.0D-17,  3.9D-18, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.578898  1 Kr dyz               20      0.689824  1 Kr dxz        
+    19      1.686247  1 Kr dxy               22     -0.354217  1 Kr dyz        
 
  Vector   11  Occ=2.000000D+00  E=-3.919204D+00
-              MO Center= -1.5D-16,  7.5D-17, -1.0D-16, r^2= 1.1D-01
+              MO Center= -8.4D-18,  1.4D-17, -3.8D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.420308  1 Kr dxz               19     -0.734947  1 Kr dxy        
-    22     -0.643276  1 Kr dyz        
+    22      1.685979  1 Kr dyz               19      0.355486  1 Kr dxy        
 
  Vector   12  Occ=2.000000D+00  E=-3.919204D+00
-              MO Center= -9.8D-18,  4.6D-17,  3.1D-19, r^2= 1.1D-01
+              MO Center= -1.7D-16, -7.7D-18,  1.1D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.558370  1 Kr dxy               20      0.691300  1 Kr dxz        
-    22     -0.254025  1 Kr dyz        
+    20      1.721977  1 Kr dxz        
 
  Vector   13  Occ=2.000000D+00  E=-3.919204D+00
-              MO Center= -2.5D-17, -3.4D-17, -1.1D-16, r^2= 1.1D-01
+              MO Center= -3.8D-17, -5.1D-17, -6.7D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.967426  1 Kr dxx               23     -0.685681  1 Kr dzz        
-    21     -0.281745  1 Kr dyy        
+    18      0.994673  1 Kr dxx               21     -0.516031  1 Kr dyy        
+    23     -0.478642  1 Kr dzz        
 
  Vector   14  Occ=2.000000D+00  E=-3.919204D+00
-              MO Center= -6.1D-18, -1.1D-16,  2.1D-17, r^2= 1.1D-01
+              MO Center=  1.6D-18,  3.8D-17,  7.2D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.954442  1 Kr dyy               23     -0.721276  1 Kr dzz        
-    18     -0.233166  1 Kr dxx        
+    23     -0.872390  1 Kr dzz               21      0.850875  1 Kr dyy        
 
  Vector   15  Occ=2.000000D+00  E=-1.208255D+00
-              MO Center= -6.6D-18, -9.5D-16, -9.1D-16, r^2= 8.4D-01
+              MO Center= -1.8D-15, -5.7D-16, -1.6D-15, r^2= 8.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.650462  1 Kr s                  3      0.472541  1 Kr s          
      5     -0.439812  1 Kr s                  2      0.165610  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-5.747606D-01
-              MO Center=  6.8D-16, -2.6D-16,  3.6D-16, r^2= 1.2D+00
+              MO Center=  2.1D-15, -4.8D-16, -1.4D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.828072  1 Kr px                 9      0.380573  1 Kr px         
-    13     -0.329179  1 Kr py                15      0.240496  1 Kr px         
-    10     -0.151287  1 Kr py         
+    12      0.855629  1 Kr px                 9      0.393238  1 Kr px         
+    15      0.248499  1 Kr px                13     -0.240192  1 Kr py         
 
  Vector   17  Occ=2.000000D+00  E=-5.747606D-01
-              MO Center=  1.3D-15,  2.8D-15,  2.8D-15, r^2= 1.2D+00
+              MO Center=  1.2D-15,  3.1D-15,  3.3D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.631794  1 Kr pz                13      0.593058  1 Kr py         
-    11      0.290366  1 Kr pz                10      0.272563  1 Kr py         
-    12      0.210433  1 Kr px                17      0.183491  1 Kr pz         
-    16      0.172241  1 Kr py         
+    14      0.664499  1 Kr pz                13      0.555270  1 Kr py         
+    11      0.305396  1 Kr pz                10      0.255196  1 Kr py         
+    12      0.212791  1 Kr px                17      0.192990  1 Kr pz         
+    16      0.161267  1 Kr py         
 
  Vector   18  Occ=2.000000D+00  E=-5.747606D-01
-              MO Center=  4.6D-16,  3.0D-16,  4.4D-17, r^2= 1.2D+00
+              MO Center=  1.3D-15, -2.0D-15,  3.9D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14     -0.628409  1 Kr pz                13      0.578867  1 Kr py         
-    11     -0.288810  1 Kr pz                10      0.266041  1 Kr py         
-    12      0.255300  1 Kr px                17     -0.182508  1 Kr pz         
-    16      0.168120  1 Kr py         
+    13      0.655093  1 Kr py                14     -0.590114  1 Kr pz         
+    10      0.301073  1 Kr py                11     -0.271210  1 Kr pz         
+    16      0.190258  1 Kr py                17     -0.171386  1 Kr pz         
 
  Vector   19  Occ=0.000000D+00  E= 4.056597D-01
-              MO Center=  3.4D-14, -2.4D-15, -3.4D-14, r^2= 3.6D+00
+              MO Center= -8.1D-15, -1.7D-13, -1.1D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17     -0.915581  1 Kr pz                15      0.883380  1 Kr px         
-    14      0.789905  1 Kr pz                12     -0.762124  1 Kr px         
-    11      0.256509  1 Kr pz                 9     -0.247488  1 Kr px         
+    16      1.269837  1 Kr py                13     -1.095535  1 Kr py         
+    10     -0.355758  1 Kr py         
 
  Vector   20  Occ=0.000000D+00  E= 4.056597D-01
-              MO Center= -9.2D-14,  1.9D-14, -8.8D-14, r^2= 3.6D+00
+              MO Center=  3.2D-14,  1.2D-15, -4.2D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      0.899799  1 Kr px                17      0.880807  1 Kr pz         
-    12     -0.776290  1 Kr px                14     -0.759905  1 Kr pz         
-     9     -0.252088  1 Kr px                11     -0.246767  1 Kr pz         
-    16     -0.191920  1 Kr py                13      0.165577  1 Kr py         
+    17      1.012438  1 Kr pz                14     -0.873468  1 Kr pz         
+    15     -0.772387  1 Kr px                12      0.666367  1 Kr px         
+    11     -0.283645  1 Kr pz                 9      0.216392  1 Kr px         
 
  Vector   21  Occ=0.000000D+00  E= 4.056597D-01
-              MO Center= -2.8D-14, -1.9D-13, -1.4D-14, r^2= 3.6D+00
+              MO Center= -2.0D-13,  1.9D-14, -1.6D-13, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.257702  1 Kr py                13     -1.085066  1 Kr py         
-    10     -0.352358  1 Kr py                15      0.179709  1 Kr px         
-    12     -0.155042  1 Kr px         
+    15      1.010984  1 Kr px                12     -0.872213  1 Kr px         
+    17      0.768816  1 Kr pz                14     -0.663286  1 Kr pz         
+     9     -0.283238  1 Kr px                11     -0.215392  1 Kr pz         
 
- Vector   22  Occ=0.000000D+00  E= 4.140367D-01
-              MO Center=  8.3D-14,  1.7D-13,  1.4D-13, r^2= 2.8D+00
+ Vector   22  Occ=0.000000D+00  E= 4.140369D-01
+              MO Center=  1.8D-13,  1.5D-13,  2.1D-13, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.640559  1 Kr s                  4      1.893072  1 Kr s          
-    24     -0.756378  1 Kr dxx               27     -0.756378  1 Kr dyy        
-    29     -0.756378  1 Kr dzz                3     -0.327285  1 Kr s          
+     5      3.640558  1 Kr s                  4      1.893073  1 Kr s          
+    24     -0.756377  1 Kr dxx               27     -0.756377  1 Kr dyy        
+    29     -0.756377  1 Kr dzz                3     -0.327285  1 Kr s          
      2      0.187643  1 Kr s          
 
- Vector   23  Occ=0.000000D+00  E= 6.590732D-01
-              MO Center= -6.9D-16,  5.3D-16, -2.5D-16, r^2= 1.2D+00
+ Vector   23  Occ=0.000000D+00  E= 6.590733D-01
+              MO Center=  1.1D-16, -1.4D-16, -1.3D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.507539  1 Kr dxy               28      0.675192  1 Kr dyz        
-    26     -0.614501  1 Kr dxz               19     -0.327611  1 Kr dxy        
+    25      1.738001  1 Kr dxy               19     -0.377693  1 Kr dxy        
+    28     -0.204201  1 Kr dyz               26      0.155469  1 Kr dxz        
 
- Vector   24  Occ=0.000000D+00  E= 6.590732D-01
-              MO Center= -3.7D-17, -1.5D-16, -5.6D-16, r^2= 1.2D+00
+ Vector   24  Occ=0.000000D+00  E= 6.590733D-01
+              MO Center= -4.0D-16,  1.3D-15, -1.7D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.568779  1 Kr dxz               28      0.746575  1 Kr dyz        
-    20     -0.340919  1 Kr dxz               25      0.304346  1 Kr dxy        
-    22     -0.162242  1 Kr dyz        
+    28      1.728819  1 Kr dyz               22     -0.375698  1 Kr dyz        
+    26     -0.246536  1 Kr dxz               25      0.212388  1 Kr dxy        
 
- Vector   25  Occ=0.000000D+00  E= 6.590732D-01
-              MO Center= -1.7D-16,  8.1D-16, -4.9D-16, r^2= 1.2D+00
+ Vector   25  Occ=0.000000D+00  E= 6.590733D-01
+              MO Center= -1.5D-15, -2.0D-16,  2.3D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.838664  1 Kr dxx               28      0.815730  1 Kr dyz        
-    27     -0.590644  1 Kr dyy               25     -0.404041  1 Kr dxy        
-    29     -0.248020  1 Kr dzz               26     -0.246439  1 Kr dxz        
-    18     -0.182254  1 Kr dxx               22     -0.177270  1 Kr dyz        
+    26      1.737103  1 Kr dxz               20     -0.377498  1 Kr dxz        
+    28      0.255702  1 Kr dyz        
 
- Vector   26  Occ=0.000000D+00  E= 6.590732D-01
-              MO Center= -1.7D-17, -4.5D-16, -1.5D-15, r^2= 1.2D+00
+ Vector   26  Occ=0.000000D+00  E= 6.590733D-01
+              MO Center=  5.3D-17,  7.0D-16,  9.5D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.985860  1 Kr dzz               27     -0.696494  1 Kr dyy        
-    24     -0.289365  1 Kr dxx               23     -0.214242  1 Kr dzz        
-    21      0.151359  1 Kr dyy        
+    29      0.958135  1 Kr dzz               27     -0.763715  1 Kr dyy        
+    23     -0.208217  1 Kr dzz               24     -0.194420  1 Kr dxx        
+    21      0.165967  1 Kr dyy        
 
- Vector   27  Occ=0.000000D+00  E= 6.590732D-01
-              MO Center=  1.3D-17, -2.5D-16,  2.2D-16, r^2= 1.2D+00
+ Vector   27  Occ=0.000000D+00  E= 6.590733D-01
+              MO Center= -2.2D-16, -1.2D-16, -2.6D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.193637  1 Kr dyz               25     -0.752654  1 Kr dxy        
-    24     -0.498687  1 Kr dxx               26     -0.466201  1 Kr dxz        
-    27      0.450709  1 Kr dyy               22     -0.259395  1 Kr dyz        
-    19      0.163563  1 Kr dxy        
+    24      0.993828  1 Kr dxx               27     -0.673664  1 Kr dyy        
+    29     -0.320164  1 Kr dzz               18     -0.215974  1 Kr dxx        
 
- Vector   28  Occ=0.000000D+00  E= 2.050198D+00
-              MO Center=  8.4D-17, -1.5D-18, -1.1D-17, r^2= 1.7D+00
+ Vector   28  Occ=0.000000D+00  E= 2.050199D+00
+              MO Center=  3.1D-17,  5.6D-17,  1.2D-16, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.950219  1 Kr s                 24     -1.955456  1 Kr dxx        
+     5      3.950220  1 Kr s                 24     -1.955456  1 Kr dxx        
     27     -1.955456  1 Kr dyy               29     -1.955456  1 Kr dzz        
-     3     -0.925057  1 Kr s                  4     -0.574340  1 Kr s          
+     3     -0.925057  1 Kr s                  4     -0.574339  1 Kr s          
      2     -0.165531  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
-
-
- Task  times  cpu:        0.6s     wall:        0.8s
+ Task  times  cpu:        4.3s     wall:        4.3s
 
 
                                 NWChem Input Module
@@ -1529,6 +1773,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:    29
                      number of shells:    11
           Convergence on energy requested: 1.00D-06
@@ -1591,49 +1836,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      3.5
-   Time prior to 1st pass:      3.5
-
- #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
+   Time after variat. SCF:     21.1
+   Time prior to 1st pass:     21.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.80            12795598
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2753.2024443800 -2.75D+03  4.57D-03  6.13D-03     3.8
+ d= 0,ls=0.0,diis     1  -2753.2024443798 -2.75D+03  4.57D-03  6.13D-03    22.0
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2753.2033363588 -8.92D-04  6.24D-04  3.94D-04     3.9
- d= 0,ls=0.0,diis     3  -2753.2033626946 -2.63D-05  1.02D-04  4.58D-06     4.0
- d= 0,ls=0.0,diis     4  -2753.2033632772 -5.83D-07  1.87D-05  1.93D-07     4.1
- d= 0,ls=0.0,diis     5  -2753.2033632983 -2.11D-08  2.17D-06  2.74D-09     4.2
+ d= 0,ls=0.0,diis     2  -2753.2033363585 -8.92D-04  6.24D-04  3.94D-04    23.0
+ d= 0,ls=0.0,diis     3  -2753.2033626943 -2.63D-05  1.02D-04  4.58D-06    24.0
+ d= 0,ls=0.0,diis     4  -2753.2033632769 -5.83D-07  1.87D-05  1.93D-07    24.9
+ d= 0,ls=0.0,diis     5  -2753.2033632980 -2.10D-08  2.17D-06  2.74D-09    25.9
 
 
-         Total DFT energy =    -2753.203363298266
-      One electron energy =    -3828.746376850531
-           Coulomb energy =     1170.954045947996
-    Exchange-Corr. energy =      -95.411032395732
+         Total DFT energy =    -2753.203363297959
+      One electron energy =    -3828.746376861848
+           Coulomb energy =     1170.954045959188
+    Exchange-Corr. energy =      -95.411032395300
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999988144
 
-     Total iterative time =      0.7s
+     Total iterative time =      4.8s
 
 
 
@@ -1641,157 +1874,156 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-8.422558D+00
-              MO Center= -4.8D-13,  3.4D-15, -2.6D-16, r^2= 9.7D-02
+              MO Center= -6.4D-15,  4.8D-13,  2.3D-15, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.932814  1 Kr pz                10     -0.570673  1 Kr py         
-     8     -0.385330  1 Kr pz                 7      0.235736  1 Kr py         
+     9      1.091994  1 Kr px                 6     -0.451085  1 Kr px         
 
  Vector    9  Occ=2.000000D+00  E=-8.422558D+00
-              MO Center=  6.9D-13,  2.3D-15,  2.2D-15, r^2= 9.7D-02
+              MO Center=  2.2D-15, -7.0D-13,  2.2D-15, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.093531  1 Kr px                 6     -0.451720  1 Kr px         
+    10      1.093531  1 Kr py                 7     -0.451720  1 Kr py         
 
  Vector   10  Occ=2.000000D+00  E=-3.895413D+00
-              MO Center= -6.0D-19, -2.0D-15, -2.2D-15, r^2= 1.1D-01
+              MO Center= -2.3D-15, -2.6D-19, -2.1D-15, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.723436  1 Kr dyz        
+    20      1.723607  1 Kr dxz        
 
  Vector   11  Occ=2.000000D+00  E=-3.895413D+00
-              MO Center=  7.9D-20, -2.4D-15, -2.2D-15, r^2= 1.1D-01
+              MO Center= -2.1D-15, -7.4D-20, -2.2D-15, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.861724  1 Kr dyy               23     -0.861712  1 Kr dzz        
+    18      0.861883  1 Kr dxx               23     -0.861724  1 Kr dzz        
 
  Vector   12  Occ=2.000000D+00  E=-3.895413D+00
-              MO Center=  4.9D-13,  1.9D-16, -2.6D-16, r^2= 1.1D-01
+              MO Center= -2.5D-15, -5.0D-13, -1.4D-15, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.362592  1 Kr dxz               19     -1.055540  1 Kr dxy        
+    19      1.499222  1 Kr dxy               22      0.850385  1 Kr dyz        
 
  Vector   13  Occ=2.000000D+00  E=-3.895413D+00
-              MO Center=  4.9D-13, -2.5D-15, -1.9D-15, r^2= 1.1D-01
+              MO Center=  5.2D-16, -5.0D-13, -7.6D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.362592  1 Kr dxy               20      1.055540  1 Kr dxz        
+    22      1.499222  1 Kr dyz               19     -0.850385  1 Kr dxy        
 
  Vector   14  Occ=2.000000D+00  E=-3.895413D+00
-              MO Center=  6.5D-13, -8.1D-16, -7.2D-16, r^2= 1.1D-01
+              MO Center= -8.1D-16, -6.6D-13, -7.9D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.995125  1 Kr dxx               21     -0.497553  1 Kr dyy        
-    23     -0.497572  1 Kr dzz        
+    21      0.995125  1 Kr dyy               18     -0.497425  1 Kr dxx        
+    23     -0.497700  1 Kr dzz        
 
  Vector   15  Occ=2.000000D+00  E=-1.195962D+00
-              MO Center=  7.6D-12, -4.5D-14, -4.6D-14, r^2= 8.4D-01
+              MO Center= -4.5D-14, -7.7D-12, -4.5D-14, r^2= 8.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.645852  1 Kr s                  3      0.470235  1 Kr s          
      5     -0.433269  1 Kr s                  2      0.164824  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-5.643462D-01
-              MO Center= -2.6D-11,  3.4D-15,  3.0D-15, r^2= 1.2D+00
+              MO Center=  2.7D-15,  2.7D-11,  2.8D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.892231  1 Kr px                 9      0.410057  1 Kr px         
-    15      0.258388  1 Kr px         
+    13      0.892231  1 Kr py                10      0.410057  1 Kr py         
+    16      0.258388  1 Kr py         
 
  Vector   17  Occ=2.000000D+00  E=-5.643462D-01
-              MO Center= -8.5D-13,  1.5D-13,  1.9D-14, r^2= 1.2D+00
+              MO Center=  4.4D-14,  8.6D-13, -2.1D-14, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.886476  1 Kr py                10      0.407413  1 Kr py         
-    16      0.256722  1 Kr py         
+    12      0.770559  1 Kr px                14     -0.449795  1 Kr pz         
+     9      0.354138  1 Kr px                15      0.223152  1 Kr px         
+    11     -0.206720  1 Kr pz         
 
  Vector   18  Occ=2.000000D+00  E=-5.643462D-01
-              MO Center= -8.5D-13, -1.2D-14,  1.2D-13, r^2= 1.2D+00
+              MO Center=  9.3D-14,  8.6D-13,  1.6D-13, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.886476  1 Kr pz                11      0.407413  1 Kr pz         
-    17      0.256722  1 Kr pz         
+    14      0.770559  1 Kr pz                12      0.449795  1 Kr px         
+    11      0.354138  1 Kr pz                17      0.223152  1 Kr pz         
+     9      0.206720  1 Kr px         
 
  Vector   19  Occ=0.000000D+00  E= 4.250473D-01
-              MO Center=  1.6D-09,  1.1D-14,  3.1D-15, r^2= 3.6D+00
+              MO Center= -6.3D-15, -1.6D-09, -2.0D-17, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.273813  1 Kr px                12     -1.098447  1 Kr px         
-     9     -0.356689  1 Kr px         
+    16      1.273813  1 Kr py                13     -1.098447  1 Kr py         
+    10     -0.356689  1 Kr py         
 
  Vector   20  Occ=0.000000D+00  E= 4.250473D-01
-              MO Center= -1.0D-12, -1.0D-12, -1.1D-11, r^2= 3.6D+00
+              MO Center= -2.5D-12,  1.0D-12, -1.1D-11, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.267945  1 Kr pz                14     -1.093387  1 Kr pz         
-    11     -0.355046  1 Kr pz         
+    17      1.242840  1 Kr pz                14     -1.071739  1 Kr pz         
+    11     -0.348016  1 Kr pz                15      0.279190  1 Kr px         
+    12     -0.240754  1 Kr px         
 
  Vector   21  Occ=0.000000D+00  E= 4.250473D-01
-              MO Center= -1.0D-12, -8.6D-12,  8.3D-13, r^2= 3.6D+00
+              MO Center= -7.2D-12,  1.0D-12,  1.6D-12, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.267945  1 Kr py                13     -1.093387  1 Kr py         
-    10     -0.355046  1 Kr py         
+    15      1.242840  1 Kr px                12     -1.071739  1 Kr px         
+     9     -0.348016  1 Kr px                17     -0.279190  1 Kr pz         
+    14      0.240754  1 Kr pz         
 
- Vector   22  Occ=0.000000D+00  E= 4.308261D-01
-              MO Center= -1.6D-09,  9.5D-12,  9.7D-12, r^2= 2.8D+00
+ Vector   22  Occ=0.000000D+00  E= 4.308262D-01
+              MO Center=  9.6D-12,  1.6D-09,  9.7D-12, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.633648  1 Kr s                  4      1.895278  1 Kr s          
+     5      3.633647  1 Kr s                  4      1.895278  1 Kr s          
     24     -0.753263  1 Kr dxx               27     -0.753263  1 Kr dyy        
     29     -0.753263  1 Kr dzz                3     -0.326607  1 Kr s          
      2      0.188325  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 6.657517D-01
-              MO Center= -1.1D-18, -1.0D-14, -7.0D-15, r^2= 1.2D+00
+              MO Center= -8.3D-15, -3.0D-19, -8.2D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      0.869912  1 Kr dyy               29     -0.869843  1 Kr dzz        
-    28      0.300103  1 Kr dyz               21     -0.189346  1 Kr dyy        
-    23      0.189331  1 Kr dzz        
+    26      1.129143  1 Kr dxz               24      0.678598  1 Kr dxx        
+    29     -0.678548  1 Kr dzz               20     -0.245770  1 Kr dxz        
 
  Vector   24  Occ=0.000000D+00  E= 6.657517D-01
-              MO Center=  6.3D-19, -6.2D-15, -7.1D-15, r^2= 1.2D+00
+              MO Center= -7.5D-15, -8.3D-19, -7.7D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.739755  1 Kr dyz               22     -0.378676  1 Kr dyz        
-    27     -0.150053  1 Kr dyy               29      0.150051  1 Kr dzz        
+    26      1.357146  1 Kr dxz               24     -0.564590  1 Kr dxx        
+    29      0.564553  1 Kr dzz               20     -0.295397  1 Kr dxz        
 
  Vector   25  Occ=0.000000D+00  E= 6.657517D-01
-              MO Center=  1.8D-12, -7.3D-16, -8.4D-15, r^2= 1.2D+00
+              MO Center= -1.3D-16, -1.9D-12,  1.3D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.755932  1 Kr dxz               20     -0.382198  1 Kr dxz        
-    25      0.183064  1 Kr dxy        
+    28     -1.281500  1 Kr dyz               25      1.214318  1 Kr dxy        
+    22      0.278932  1 Kr dyz               19     -0.264309  1 Kr dxy        
 
  Vector   26  Occ=0.000000D+00  E= 6.657517D-01
-              MO Center=  1.8D-12, -7.0D-15,  6.9D-16, r^2= 1.2D+00
+              MO Center= -8.0D-15, -1.9D-12, -7.2D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.755932  1 Kr dxy               19     -0.382198  1 Kr dxy        
-    26     -0.183064  1 Kr dxz        
+    25      1.281499  1 Kr dxy               28      1.214318  1 Kr dyz        
+    19     -0.278932  1 Kr dxy               22     -0.264309  1 Kr dyz        
 
  Vector   27  Occ=0.000000D+00  E= 6.657517D-01
-              MO Center=  1.9D-12, -2.6D-15, -2.6D-15, r^2= 1.2D+00
+              MO Center= -2.9D-15, -1.9D-12, -2.5D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.019282  1 Kr dxx               27     -0.509582  1 Kr dyy        
-    29     -0.509701  1 Kr dzz               18     -0.221858  1 Kr dxx        
+    27      1.019282  1 Kr dyy               24     -0.509587  1 Kr dxx        
+    29     -0.509695  1 Kr dzz               21     -0.221858  1 Kr dyy        
 
- Vector   28  Occ=0.000000D+00  E= 2.066875D+00
-              MO Center= -9.1D-14,  4.6D-15,  4.6D-15, r^2= 1.7D+00
+ Vector   28  Occ=0.000000D+00  E= 2.066876D+00
+              MO Center=  4.6D-15,  1.0D-13,  4.7D-15, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.956921  1 Kr s                 24     -1.956439  1 Kr dxx        
+     5      3.956922  1 Kr s                 24     -1.956439  1 Kr dxx        
     27     -1.956439  1 Kr dyy               29     -1.956439  1 Kr dzz        
-     3     -0.927894  1 Kr s                  4     -0.573196  1 Kr s          
+     3     -0.927895  1 Kr s                  4     -0.573195  1 Kr s          
      2     -0.165634  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
-
-
- Task  times  cpu:        0.9s     wall:        1.1s
+ Task  times  cpu:        5.4s     wall:        5.5s
 
 
                                 NWChem Input Module
@@ -1819,6 +2051,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:    29
                      number of shells:    11
           Convergence on energy requested: 1.00D-06
@@ -1880,49 +2113,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      4.4
-   Time prior to 1st pass:      4.4
-
- #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
+   Time after variat. SCF:     26.5
+   Time prior to 1st pass:     26.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.80            12795598
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2753.3900293587 -2.75D+03  3.39D-03  4.90D-02     4.7
+ d= 0,ls=0.0,diis     1  -2753.3900293585 -2.75D+03  3.39D-03  4.90D-02    27.6
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2753.3905918950 -5.63D-04  4.65D-04  8.83D-05     4.8
- d= 0,ls=0.0,diis     3  -2753.3905981362 -6.24D-06  7.20D-05  2.06D-06     5.0
- d= 0,ls=0.0,diis     4  -2753.3905983458 -2.10D-07  1.17D-05  1.10D-07     5.1
- d= 0,ls=0.0,diis     5  -2753.3905983548 -9.02D-09  2.01D-06  1.53D-09     5.2
+ d= 0,ls=0.0,diis     2  -2753.3905918946 -5.63D-04  4.65D-04  8.83D-05    28.6
+ d= 0,ls=0.0,diis     3  -2753.3905981358 -6.24D-06  7.20D-05  2.06D-06    29.7
+ d= 0,ls=0.0,diis     4  -2753.3905983454 -2.10D-07  1.17D-05  1.10D-07    30.7
+ d= 0,ls=0.0,diis     5  -2753.3905983545 -9.03D-09  2.01D-06  1.53D-09    31.7
 
 
-         Total DFT energy =    -2753.390598354827
-      One electron energy =    -3828.142297651957
-           Coulomb energy =     1170.334551044203
-    Exchange-Corr. energy =      -95.582851747073
+         Total DFT energy =    -2753.390598354451
+      One electron energy =    -3828.142297666602
+           Coulomb energy =     1170.334551058688
+    Exchange-Corr. energy =      -95.582851746537
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999986930
 
-     Total iterative time =      0.8s
+     Total iterative time =      5.2s
 
 
 
@@ -1930,54 +2151,51 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-8.418392D+00
-              MO Center= -2.2D-14, -3.7D-14, -9.3D-15, r^2= 9.7D-02
+              MO Center=  1.4D-14,  9.2D-15,  5.5D-15, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.858354  1 Kr py                 9      0.582533  1 Kr px         
-     7     -0.354086  1 Kr py                11      0.349921  1 Kr pz         
-     6     -0.240305  1 Kr px         
+    11     -0.790903  1 Kr pz                 9      0.746446  1 Kr px         
+     8      0.326261  1 Kr pz                 6     -0.307921  1 Kr px         
 
  Vector    9  Occ=2.000000D+00  E=-8.418392D+00
-              MO Center=  7.2D-15,  1.1D-14,  1.1D-14, r^2= 9.7D-02
+              MO Center=  7.3D-15, -2.6D-14,  1.3D-14, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.917340  1 Kr px                10     -0.474520  1 Kr py         
-     6     -0.378418  1 Kr px                11     -0.363151  1 Kr pz         
-     7      0.195748  1 Kr py         
+    10      1.087457  1 Kr py                 7     -0.448594  1 Kr py         
 
  Vector   10  Occ=2.000000D+00  E=-3.882243D+00
-              MO Center= -7.0D-15, -7.7D-15,  2.9D-16, r^2= 1.1D-01
+              MO Center= -1.3D-14, -5.6D-15, -1.1D-14, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.043424  1 Kr dxy               22     -1.008878  1 Kr dyz        
-    20     -0.928161  1 Kr dxz        
+    20      1.595966  1 Kr dxz               22      0.644735  1 Kr dyz        
 
  Vector   11  Occ=2.000000D+00  E=-3.882243D+00
-              MO Center= -1.4D-14, -1.4D-14, -1.1D-14, r^2= 1.1D-01
+              MO Center= -1.0D-14, -5.9D-15, -6.2D-15, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.371979  1 Kr dxy               22      0.751478  1 Kr dyz        
-    20      0.722163  1 Kr dxz        
+    19      1.360766  1 Kr dxy               22      0.950739  1 Kr dyz        
+    20     -0.465194  1 Kr dxz        
 
  Vector   12  Occ=2.000000D+00  E=-3.882243D+00
-              MO Center= -6.6D-16,  3.9D-16, -1.1D-14, r^2= 1.1D-01
+              MO Center=  2.2D-15, -9.3D-15, -3.7D-15, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.258644  1 Kr dxz               22     -1.177545  1 Kr dyz        
+    22      1.285369  1 Kr dyz               19     -1.053922  1 Kr dxy        
+    20     -0.456192  1 Kr dxz        
 
  Vector   13  Occ=2.000000D+00  E=-3.882243D+00
-              MO Center= -6.2D-15, -1.2D-15, -1.3D-14, r^2= 1.1D-01
+              MO Center= -7.1D-15, -1.3D-14, -5.9D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.972875  1 Kr dzz               18     -0.663694  1 Kr dxx        
-    21     -0.309181  1 Kr dyy        
+    21      0.957789  1 Kr dyy               18     -0.712723  1 Kr dxx        
+    23     -0.245067  1 Kr dzz        
 
  Vector   14  Occ=2.000000D+00  E=-3.882243D+00
-              MO Center= -7.5D-15, -1.3D-14, -3.2D-16, r^2= 1.1D-01
+              MO Center= -6.7D-15, -1.0D-15, -1.3D-14, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.945625  1 Kr dyy               18     -0.741081  1 Kr dxx        
-    23     -0.204544  1 Kr dzz        
+    23      0.964667  1 Kr dzz               18     -0.694600  1 Kr dxx        
+    21     -0.270066  1 Kr dyy        
 
  Vector   15  Occ=2.000000D+00  E=-1.178080D+00
               MO Center= -2.0D-13, -2.0D-13, -2.0D-13, r^2= 8.4D-01
@@ -1987,115 +2205,108 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.430197  1 Kr s                  2      0.162657  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-5.550122D-01
-              MO Center= -6.5D-14,  6.5D-14,  5.8D-14, r^2= 1.2D+00
+              MO Center= -6.6D-14, -1.6D-15,  1.6D-13, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.657643  1 Kr px                13     -0.441204  1 Kr py         
-    14     -0.386136  1 Kr pz                 9      0.301817  1 Kr px         
-    10     -0.202485  1 Kr py                15      0.202484  1 Kr px         
-    11     -0.177212  1 Kr pz         
+    14      0.771465  1 Kr pz                12     -0.418705  1 Kr px         
+    11      0.354054  1 Kr pz                17      0.237529  1 Kr pz         
+     9     -0.192159  1 Kr px         
 
  Vector   17  Occ=2.000000D+00  E=-5.550122D-01
-              MO Center=  1.4D-13, -1.4D-13,  4.0D-13, r^2= 1.2D+00
+              MO Center=  4.6D-13, -1.4D-13,  2.4D-13, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.785192  1 Kr pz                11      0.360354  1 Kr pz         
-    13     -0.308548  1 Kr py                12      0.254026  1 Kr px         
-    17      0.241756  1 Kr pz         
+    12      0.751207  1 Kr px                14      0.382442  1 Kr pz         
+     9      0.344757  1 Kr px                13     -0.256287  1 Kr py         
+    15      0.231292  1 Kr px                11      0.175517  1 Kr pz         
 
  Vector   18  Occ=2.000000D+00  E=-5.550122D-01
-              MO Center=  4.9D-13,  6.4D-13,  1.1D-13, r^2= 1.2D+00
+              MO Center=  1.7D-13,  7.1D-13,  1.7D-13, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.697419  1 Kr py                12      0.528425  1 Kr px         
-    10      0.320072  1 Kr py                 9      0.242514  1 Kr px         
-    16      0.214731  1 Kr py                15      0.162699  1 Kr px         
+    13      0.839517  1 Kr py                10      0.385286  1 Kr py         
+    16      0.258482  1 Kr py                12      0.191393  1 Kr px         
+    14      0.186646  1 Kr pz         
 
  Vector   19  Occ=0.000000D+00  E= 3.934128D-01
-              MO Center=  7.8D-12, -8.9D-13, -2.4D-11, r^2= 3.6D+00
+              MO Center=  3.7D-13,  3.6D-13, -3.7D-11, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.209685  1 Kr pz                14     -1.053874  1 Kr pz         
-    15     -0.387905  1 Kr px                11     -0.342002  1 Kr pz         
-    12      0.337942  1 Kr px         
+    17      1.271000  1 Kr pz                14     -1.107291  1 Kr pz         
+    11     -0.359337  1 Kr pz         
 
  Vector   20  Occ=0.000000D+00  E= 3.934128D-01
-              MO Center= -5.1D-11, -1.3D-11, -1.6D-11, r^2= 3.6D+00
+              MO Center= -3.9D-11, -7.2D-13, -4.0D-13, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.177878  1 Kr px                12     -1.026164  1 Kr px         
-    17      0.366497  1 Kr pz                 9     -0.333010  1 Kr px         
-    14     -0.319291  1 Kr pz                16      0.306668  1 Kr py         
-    13     -0.267168  1 Kr py         
+    15      1.270838  1 Kr px                12     -1.107150  1 Kr px         
+     9     -0.359291  1 Kr px         
 
  Vector   21  Occ=0.000000D+00  E= 3.934128D-01
-              MO Center=  5.3D-12, -2.4D-11,  2.6D-12, r^2= 3.6D+00
+              MO Center=  6.9D-13, -3.7D-11, -3.6D-13, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.232786  1 Kr py                13     -1.074000  1 Kr py         
-    10     -0.348534  1 Kr py                15     -0.279096  1 Kr px         
-    12      0.243148  1 Kr px         
+    16      1.270847  1 Kr py                13     -1.107158  1 Kr py         
+    10     -0.359294  1 Kr py         
 
- Vector   22  Occ=0.000000D+00  E= 4.031818D-01
+ Vector   22  Occ=0.000000D+00  E= 4.031819D-01
               MO Center=  3.7D-11,  3.7D-11,  3.7D-11, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.725343  1 Kr s                  4      1.880691  1 Kr s          
+     5      3.725342  1 Kr s                  4      1.880691  1 Kr s          
     24     -0.799348  1 Kr dxx               27     -0.799348  1 Kr dyy        
     29     -0.799348  1 Kr dzz                3     -0.343178  1 Kr s          
      2      0.183208  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 6.686795D-01
-              MO Center=  2.2D-15, -9.6D-15, -6.2D-15, r^2= 1.2D+00
+              MO Center=  8.8D-16, -7.0D-15, -9.8D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.683190  1 Kr dyz               25     -0.525343  1 Kr dxy        
-    22     -0.364771  1 Kr dyz        
+    29      0.917498  1 Kr dzz               27     -0.828245  1 Kr dyy        
+    25      0.210051  1 Kr dxy               23     -0.198835  1 Kr dzz        
+    21      0.179493  1 Kr dyy        
 
  Vector   24  Occ=0.000000D+00  E= 6.686795D-01
-              MO Center= -3.8D-15, -1.4D-16, -5.3D-15, r^2= 1.2D+00
+              MO Center= -7.6D-15, -5.8D-15,  5.7D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.663704  1 Kr dxz               20     -0.360548  1 Kr dxz        
-    24     -0.282065  1 Kr dxx               27      0.281364  1 Kr dyy        
-    25     -0.173626  1 Kr dxy        
+    25      1.256301  1 Kr dxy               24     -0.691335  1 Kr dxx        
+    27      0.475922  1 Kr dyy               19     -0.272258  1 Kr dxy        
+    29      0.215413  1 Kr dzz               26      0.156916  1 Kr dxz        
 
  Vector   25  Occ=0.000000D+00  E= 6.686795D-01
-              MO Center= -2.5D-15, -3.9D-15, -1.2D-14, r^2= 1.2D+00
+              MO Center= -1.3D-14, -9.3D-15, -2.5D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      1.018367  1 Kr dzz               27     -0.518848  1 Kr dyy        
-    24     -0.499519  1 Kr dxx               23     -0.220695  1 Kr dzz        
+    25      1.198542  1 Kr dxy               24      0.742728  1 Kr dxx        
+    29     -0.388124  1 Kr dzz               27     -0.354603  1 Kr dyy        
+    19     -0.259741  1 Kr dxy               18     -0.160960  1 Kr dxx        
 
  Vector   26  Occ=0.000000D+00  E= 6.686795D-01
-              MO Center= -1.2D-14, -7.4D-15, -3.7D-15, r^2= 1.2D+00
+              MO Center= -7.6D-15,  2.2D-15, -8.6D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.842459  1 Kr dxx               27     -0.829955  1 Kr dyy        
-    26      0.561975  1 Kr dxz               18     -0.182573  1 Kr dxx        
-    21      0.179863  1 Kr dyy        
+    26      1.718868  1 Kr dxz               20     -0.372503  1 Kr dxz        
+    28     -0.349924  1 Kr dyz               25     -0.192348  1 Kr dxy        
 
  Vector   27  Occ=0.000000D+00  E= 6.686795D-01
-              MO Center= -1.2D-14, -9.9D-15, -4.6D-15, r^2= 1.2D+00
+              MO Center= -3.2D-15, -1.1D-14, -9.4D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.675548  1 Kr dxy               28      0.526019  1 Kr dyz        
-    19     -0.363115  1 Kr dxy               26      0.179664  1 Kr dxz        
+    28      1.720713  1 Kr dyz               22     -0.372903  1 Kr dyz        
+    26      0.365289  1 Kr dxz        
 
- Vector   28  Occ=0.000000D+00  E= 2.047356D+00
-              MO Center=  4.6D-15,  4.5D-15,  4.5D-15, r^2= 1.6D+00
+ Vector   28  Occ=0.000000D+00  E= 2.047357D+00
+              MO Center=  4.5D-15,  4.5D-15,  4.5D-15, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.872634  1 Kr s                 24     -1.938779  1 Kr dxx        
     27     -1.938779  1 Kr dyy               29     -1.938779  1 Kr dzz        
-     3     -0.915083  1 Kr s                  4     -0.619359  1 Kr s          
+     3     -0.915084  1 Kr s                  4     -0.619359  1 Kr s          
      2     -0.169763  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
-
-
- Task  times  cpu:        1.0s     wall:        1.3s
+ Task  times  cpu:        5.9s     wall:        5.9s
 
 
                                 NWChem Input Module
@@ -2121,6 +2332,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:    29
                      number of shells:    11
           Convergence on energy requested: 1.00D-06
@@ -2181,50 +2393,38 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      5.4
-   Time prior to 1st pass:      5.4
-
- #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
+   Time after variat. SCF:     32.4
+   Time prior to 1st pass:     32.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.80            12795598
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2751.2478856056 -2.75D+03  9.87D-03  6.41D-01     5.7
+ d= 0,ls=0.0,diis     1  -2751.2478856131 -2.75D+03  9.87D-03  6.41D-01    33.2
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2751.2533793444 -5.49D-03  4.00D-03  4.96D-03     5.8
- d= 0,ls=0.0,diis     3  -2751.2535284410 -1.49D-04  3.60D-03  1.76D-03     5.9
- d= 0,ls=0.0,diis     4  -2751.2535610278 -3.26D-05  1.77D-03  1.43D-03     5.9
- d= 0,ls=0.0,diis     5  -2751.2537664094 -2.05D-04  3.07D-05  3.08D-07     6.0
- d= 0,ls=0.0,diis     6  -2751.2537664674 -5.81D-08  1.88D-07  2.28D-11     6.1
+ d= 0,ls=0.0,diis     2  -2751.2533793406 -5.49D-03  4.00D-03  4.96D-03    34.0
+ d= 0,ls=0.0,diis     3  -2751.2535284323 -1.49D-04  3.60D-03  1.76D-03    34.8
+ d= 0,ls=0.0,diis     4  -2751.2535610203 -3.26D-05  1.77D-03  1.43D-03    35.6
+ d= 0,ls=0.0,diis     5  -2751.2537664095 -2.05D-04  3.07D-05  3.08D-07    36.3
+ d= 0,ls=0.0,diis     6  -2751.2537664676 -5.81D-08  1.88D-07  2.29D-11    37.1
 
 
-         Total DFT energy =    -2751.253766467442
-      One electron energy =    -3826.597411331721
-           Coulomb energy =     1168.683867887775
-    Exchange-Corr. energy =      -93.340223023496
+         Total DFT energy =    -2751.253766467570
+      One electron energy =    -3826.597411270569
+           Coulomb energy =     1168.683867823198
+    Exchange-Corr. energy =      -93.340223020199
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999985711
 
-     Total iterative time =      0.7s
+     Total iterative time =      4.7s
 
 
 
@@ -2232,104 +2432,112 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-7.094390D+00
-              MO Center=  1.4D-16,  2.5D-17,  1.6D-16, r^2= 9.8D-02
+              MO Center=  4.6D-17,  2.0D-16, -1.1D-16, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.919426  1 Kr px                11      0.584853  1 Kr pz         
-     6     -0.379149  1 Kr px                 8     -0.241179  1 Kr pz         
+     9      0.754094  1 Kr px                11      0.714055  1 Kr pz         
+    10     -0.330865  1 Kr py                 6     -0.310970  1 Kr px         
+     8     -0.294459  1 Kr pz         
 
  Vector    9  Occ=2.000000D+00  E=-7.094390D+00
-              MO Center=  2.7D-16, -3.1D-17, -2.9D-16, r^2= 9.8D-02
+              MO Center=  2.4D-17,  1.5D-16, -3.1D-17, r^2= 9.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.915810  1 Kr pz                 9     -0.584838  1 Kr px         
-     8     -0.377658  1 Kr pz                 6      0.241173  1 Kr px         
+     9      0.774003  1 Kr px                11     -0.755815  1 Kr pz         
+     6     -0.319180  1 Kr px                 8      0.311680  1 Kr pz         
 
  Vector   10  Occ=2.000000D+00  E=-3.046841D+00
-              MO Center= -1.7D-17,  8.5D-17, -2.1D-18, r^2= 1.1D-01
+              MO Center=  8.0D-17,  6.2D-17, -2.4D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.718861  1 Kr dxy        
+    20      1.615327  1 Kr dxz               22      0.514700  1 Kr dyz        
+    19     -0.293997  1 Kr dxy        
 
  Vector   11  Occ=2.000000D+00  E=-3.046841D+00
-              MO Center=  3.0D-17,  3.8D-17, -2.8D-17, r^2= 1.1D-01
+              MO Center=  3.3D-17, -8.1D-17,  3.4D-18, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.339437  1 Kr dyz               20      1.079852  1 Kr dxz        
+    19      1.648595  1 Kr dxy               22      0.468593  1 Kr dyz        
+    20      0.150515  1 Kr dxz        
 
  Vector   12  Occ=2.000000D+00  E=-3.046841D+00
-              MO Center= -7.5D-18, -6.8D-19,  3.3D-17, r^2= 1.1D-01
+              MO Center=  1.1D-17, -8.1D-17, -1.5D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.339048  1 Kr dxz               22     -1.078232  1 Kr dyz        
+    22      1.573520  1 Kr dyz               20     -0.573344  1 Kr dxz        
+    19     -0.394998  1 Kr dxy        
 
  Vector   13  Occ=2.000000D+00  E=-3.046841D+00
-              MO Center=  1.5D-16,  6.6D-19, -6.6D-17, r^2= 1.1D-01
+              MO Center=  1.7D-17,  7.5D-17, -4.5D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.913913  1 Kr dxx               23     -0.794260  1 Kr dzz        
+    23      0.951518  1 Kr dzz               21     -0.722773  1 Kr dyy        
+    18     -0.228745  1 Kr dxx        
 
  Vector   14  Occ=2.000000D+00  E=-3.046841D+00
-              MO Center= -4.2D-17, -1.1D-17,  4.2D-17, r^2= 1.1D-01
+              MO Center= -1.1D-16, -1.3D-16,  1.1D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.986107  1 Kr dyy               23     -0.596666  1 Kr dzz        
-    18     -0.389441  1 Kr dxx        
+    18      0.966711  1 Kr dxx               21     -0.681340  1 Kr dyy        
+    23     -0.285371  1 Kr dzz        
 
  Vector   15  Occ=2.000000D+00  E=-7.751329D-01
-              MO Center= -1.2D-15, -3.6D-15,  2.1D-15, r^2= 8.2D-01
+              MO Center= -3.8D-16,  1.1D-15,  5.1D-16, r^2= 8.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.675194  1 Kr s                  3      0.481805  1 Kr s          
      5     -0.453654  1 Kr s                  2      0.174532  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-3.021400D-01
-              MO Center=  4.0D-16, -1.8D-15,  1.4D-15, r^2= 1.3D+00
+              MO Center=  3.3D-16,  2.0D-16,  2.9D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.846734  1 Kr px                 9      0.397546  1 Kr px         
-    15      0.276081  1 Kr px                13     -0.184313  1 Kr py         
+    12      0.697917  1 Kr px                14      0.410152  1 Kr pz         
+     9      0.327675  1 Kr px                13     -0.319195  1 Kr py         
+    15      0.227558  1 Kr px                11      0.192568  1 Kr pz         
 
  Vector   17  Occ=2.000000D+00  E=-3.021400D-01
-              MO Center=  1.4D-16,  2.3D-15, -2.6D-15, r^2= 1.3D+00
+              MO Center= -7.5D-16,  9.8D-17,  1.9D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.699543  1 Kr py                14     -0.506790  1 Kr pz         
-    10      0.328439  1 Kr py                11     -0.237940  1 Kr pz         
-    16      0.228089  1 Kr py                17     -0.165241  1 Kr pz         
+    13      0.712976  1 Kr py                14      0.497730  1 Kr pz         
+    10      0.334746  1 Kr py                11      0.233687  1 Kr pz         
+    16      0.232469  1 Kr py                17      0.162287  1 Kr pz         
 
  Vector   18  Occ=2.000000D+00  E=-3.021400D-01
-              MO Center= -9.8D-17, -9.8D-16,  5.6D-16, r^2= 1.3D+00
+              MO Center= -3.5D-16,  3.8D-16,  2.6D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.702918  1 Kr pz                13      0.483597  1 Kr py         
-    11      0.330023  1 Kr pz                17      0.229189  1 Kr pz         
-    10      0.227051  1 Kr py                12      0.170993  1 Kr px         
-    16      0.157679  1 Kr py         
+    14      0.584156  1 Kr pz                12     -0.518636  1 Kr px         
+    13     -0.383376  1 Kr py                11      0.274264  1 Kr pz         
+     9     -0.243502  1 Kr px                17      0.190466  1 Kr pz         
+    10     -0.179997  1 Kr py                15     -0.169103  1 Kr px         
 
  Vector   19  Occ=0.000000D+00  E= 2.865120D-01
-              MO Center= -6.5D-14, -3.4D-15, -4.1D-16, r^2= 3.6D+00
+              MO Center= -2.5D-15, -6.5D-15, -4.2D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.266610  1 Kr px                12     -1.114448  1 Kr px         
-     9     -0.368671  1 Kr px         
+    17      1.251222  1 Kr pz                14     -1.100909  1 Kr pz         
+    11     -0.364192  1 Kr pz                16      0.195185  1 Kr py         
+    13     -0.171737  1 Kr py         
 
  Vector   20  Occ=0.000000D+00  E= 2.865120D-01
-              MO Center= -1.1D-15, -5.8D-15,  1.5D-13, r^2= 3.6D+00
+              MO Center=  1.7D-15, -3.8D-14,  6.0D-15, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.267497  1 Kr pz                14     -1.115229  1 Kr pz         
-    11     -0.368929  1 Kr pz         
+    16      1.252790  1 Kr py                13     -1.102288  1 Kr py         
+    10     -0.364648  1 Kr py                17     -0.192661  1 Kr pz         
+    14      0.169516  1 Kr pz         
 
  Vector   21  Occ=0.000000D+00  E= 2.865120D-01
-              MO Center=  2.2D-15, -3.7D-14, -9.6D-16, r^2= 3.6D+00
+              MO Center= -2.8D-15, -2.2D-16,  2.0D-16, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.265749  1 Kr py                13     -1.113691  1 Kr py         
-    10     -0.368420  1 Kr py         
+    15      1.265450  1 Kr px                12     -1.113428  1 Kr px         
+     9     -0.368333  1 Kr px         
 
  Vector   22  Occ=0.000000D+00  E= 2.989411D-01
-              MO Center=  6.4D-14,  4.7D-14, -1.5D-13, r^2= 2.8D+00
+              MO Center=  3.8D-15,  4.5D-14,  3.5D-14, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.527029  1 Kr s                  4      1.904360  1 Kr s          
@@ -2338,43 +2546,49 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2      0.193966  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 4.981594D-01
-              MO Center=  1.5D-16,  1.0D-15, -5.2D-16, r^2= 1.2D+00
+              MO Center=  6.2D-16, -9.9D-16, -2.4D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.684154  1 Kr dyz               25     -0.390510  1 Kr dxy        
-    22     -0.378843  1 Kr dyz               26      0.312390  1 Kr dxz        
+    28      1.072602  1 Kr dyz               27      0.734226  1 Kr dyy        
+    24     -0.447635  1 Kr dxx               25     -0.442894  1 Kr dxy        
+    26     -0.354595  1 Kr dxz               29     -0.286590  1 Kr dzz        
+    22     -0.241277  1 Kr dyz               21     -0.165161  1 Kr dyy        
 
  Vector   24  Occ=0.000000D+00  E= 4.981594D-01
-              MO Center= -2.2D-16, -8.9D-17, -1.7D-15, r^2= 1.2D+00
+              MO Center=  2.4D-16,  9.4D-17, -6.2D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.735580  1 Kr dxz               20     -0.390411  1 Kr dxz        
-    28     -0.297403  1 Kr dyz        
+    28      1.051496  1 Kr dyz               26     -0.852863  1 Kr dxz        
+    25      0.708301  1 Kr dxy               27     -0.509704  1 Kr dyy        
+    29      0.273969  1 Kr dzz               22     -0.236529  1 Kr dyz        
+    24      0.235735  1 Kr dxx               20      0.191848  1 Kr dxz        
+    19     -0.159329  1 Kr dxy        
 
  Vector   25  Occ=0.000000D+00  E= 4.981594D-01
-              MO Center= -4.6D-17,  3.6D-16,  2.7D-19, r^2= 1.2D+00
+              MO Center=  3.5D-16, -1.6D-16, -1.8D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.717015  1 Kr dxy               28      0.400694  1 Kr dyz        
-    19     -0.386235  1 Kr dxy        
+    25      1.535055  1 Kr dxy               26      0.518966  1 Kr dxz        
+    27      0.403115  1 Kr dyy               19     -0.345304  1 Kr dxy        
+    24     -0.221185  1 Kr dxx               29     -0.181930  1 Kr dzz        
 
  Vector   26  Occ=0.000000D+00  E= 4.981594D-01
-              MO Center=  2.5D-16,  5.1D-16, -1.1D-16, r^2= 1.2D+00
+              MO Center= -2.4D-17, -1.6D-16,  4.0D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.010805  1 Kr dxx               27     -0.608942  1 Kr dyy        
-    29     -0.401863  1 Kr dzz               18     -0.227376  1 Kr dxx        
+    26      1.411082  1 Kr dxz               28      0.919171  1 Kr dyz        
+    20     -0.317417  1 Kr dxz               27     -0.269735  1 Kr dyy        
+    25     -0.247443  1 Kr dxy               22     -0.206763  1 Kr dyz        
 
  Vector   27  Occ=0.000000D+00  E= 4.981594D-01
-              MO Center= -1.9D-18,  1.2D-15, -6.4D-16, r^2= 1.2D+00
+              MO Center= -6.0D-16, -2.6D-17,  1.9D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.930964  1 Kr dzz               27     -0.813792  1 Kr dyy        
-    23     -0.209416  1 Kr dzz               21      0.183059  1 Kr dyy        
-    28     -0.163930  1 Kr dyz        
+    29     -0.911517  1 Kr dzz               24      0.845352  1 Kr dxx        
+    23      0.205042  1 Kr dzz               18     -0.190158  1 Kr dxx        
 
  Vector   28  Occ=0.000000D+00  E= 1.763420D+00
-              MO Center= -1.2D-16, -1.6D-16, -2.6D-16, r^2= 1.7D+00
+              MO Center=  3.4D-17,  4.8D-16,  3.3D-16, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.047723  1 Kr s                 24     -1.975388  1 Kr dxx        
@@ -2383,10 +2597,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2     -0.160654  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
-
-
- Task  times  cpu:        0.9s     wall:        1.1s
+ Task  times  cpu:        5.4s     wall:        5.4s
 
 
                                 NWChem Input Module
@@ -2412,6 +2623,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:    29
                      number of shells:    11
           Convergence on energy requested: 1.00D-06
@@ -2472,50 +2684,38 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HOMO         =      -0.525439
  LUMO         =       0.441898
 
-   Time after variat. SCF:      6.3
-   Time prior to 1st pass:      6.3
-
- #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   1477
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
+   Time after variat. SCF:     37.8
+   Time prior to 1st pass:     37.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =      7883
+ Max. records in memory =     25        Max. recs in file   =     31391
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.89            12885716
+           Heap Space remaining (MW):       12.80            12795598
           Stack Space remaining (MW):       13.11            13106953
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2751.3124883520 -2.75D+03  1.01D-02  6.04D-01     6.6
+ d= 0,ls=0.0,diis     1  -2751.3124883595 -2.75D+03  1.01D-02  6.04D-01    38.6
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2751.3178379533 -5.35D-03  4.41D-03  5.44D-03     6.7
- d= 0,ls=0.0,diis     3  -2751.3179991204 -1.61D-04  4.02D-03  2.11D-03     6.8
- d= 0,ls=0.0,diis     4  -2751.3180299149 -3.08D-05  1.99D-03  1.79D-03     6.8
- d= 0,ls=0.0,diis     5  -2751.3182910539 -2.61D-04  2.92D-05  2.76D-07     6.9
- d= 0,ls=0.0,diis     6  -2751.3182911063 -5.24D-08  3.37D-07  5.02D-11     7.0
+ d= 0,ls=0.0,diis     2  -2751.3178379493 -5.35D-03  4.41D-03  5.44D-03    39.4
+ d= 0,ls=0.0,diis     3  -2751.3179991118 -1.61D-04  4.02D-03  2.11D-03    40.1
+ d= 0,ls=0.0,diis     4  -2751.3180299073 -3.08D-05  1.99D-03  1.79D-03    40.9
+ d= 0,ls=0.0,diis     5  -2751.3182910540 -2.61D-04  2.92D-05  2.76D-07    41.7
+ d= 0,ls=0.0,diis     6  -2751.3182911064 -5.24D-08  3.37D-07  5.02D-11    42.5
 
 
-         Total DFT energy =    -2751.318291106309
-      One electron energy =    -3826.560451665366
-           Coulomb energy =     1168.646048522863
-    Exchange-Corr. energy =      -93.403887963805
+         Total DFT energy =    -2751.318291106435
+      One electron energy =    -3826.560451646619
+           Coulomb energy =     1168.646048501972
+    Exchange-Corr. energy =      -93.403887961787
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =       35.999999985628
 
-     Total iterative time =      0.7s
+     Total iterative time =      4.7s
 
 
 
@@ -2523,113 +2723,105 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    8  Occ=2.000000D+00  E=-7.095721D+00
-              MO Center=  1.5D-16, -1.5D-16, -6.0D-17, r^2= 9.7D-02
+              MO Center=  1.6D-16,  1.8D-16, -2.3D-16, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.081157  1 Kr py                 7     -0.445837  1 Kr py         
+    10      1.019706  1 Kr py                 7     -0.420497  1 Kr py         
+     9      0.374262  1 Kr px                 6     -0.154335  1 Kr px         
 
  Vector    9  Occ=2.000000D+00  E=-7.095721D+00
-              MO Center=  3.1D-16,  1.6D-16,  3.0D-17, r^2= 9.7D-02
+              MO Center= -2.1D-16,  1.3D-16, -1.1D-16, r^2= 9.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.901163  1 Kr px                11     -0.597930  1 Kr pz         
-     6     -0.371613  1 Kr px                 8      0.246569  1 Kr pz         
+    11      1.048854  1 Kr pz                 8     -0.432517  1 Kr pz         
+     9     -0.296304  1 Kr px         
 
  Vector   10  Occ=2.000000D+00  E=-3.047471D+00
-              MO Center=  9.0D-18,  3.1D-17,  1.5D-16, r^2= 1.1D-01
+              MO Center= -2.1D-17, -2.4D-17,  4.3D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.424836  1 Kr dyz               20      0.934497  1 Kr dxz        
-    19     -0.239646  1 Kr dxy        
+    19      1.253771  1 Kr dxy               20     -1.164651  1 Kr dxz        
+    22     -0.179396  1 Kr dyz        
 
  Vector   11  Occ=2.000000D+00  E=-3.047471D+00
-              MO Center= -9.1D-18,  3.7D-17,  2.0D-19, r^2= 1.1D-01
+              MO Center=  2.6D-17, -2.4D-17, -3.5D-17, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.345167  1 Kr dxy               20     -0.778640  1 Kr dxz        
-    22      0.737124  1 Kr dyz        
+    20      1.224632  1 Kr dxz               19      1.176836  1 Kr dxy        
+    22      0.275773  1 Kr dyz        
 
  Vector   12  Occ=2.000000D+00  E=-3.047471D+00
-              MO Center=  3.5D-16, -2.9D-16, -3.8D-16, r^2= 1.1D-01
+              MO Center=  9.4D-18, -7.2D-17,  1.1D-16, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.216411  1 Kr dxz               19      1.042802  1 Kr dxy        
-    22     -0.622205  1 Kr dyz        
+    22      1.688632  1 Kr dyz               20     -0.323645  1 Kr dxz        
 
  Vector   13  Occ=2.000000D+00  E=-3.047471D+00
-              MO Center= -2.8D-17,  6.1D-17,  7.8D-17, r^2= 1.1D-01
+              MO Center= -3.6D-18, -7.0D-17, -1.0D-18, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.939777  1 Kr dzz               21     -0.746329  1 Kr dyy        
-    18     -0.193447  1 Kr dxx        
+    23      0.978228  1 Kr dzz               21     -0.638549  1 Kr dyy        
+    18     -0.339679  1 Kr dxx        
 
  Vector   14  Occ=2.000000D+00  E=-3.047471D+00
-              MO Center=  9.2D-17,  1.3D-16, -2.8D-17, r^2= 1.1D-01
+              MO Center= -1.9D-16, -7.8D-17,  7.2D-18, r^2= 1.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.974178  1 Kr dxx               21     -0.653667  1 Kr dyy        
-    23     -0.320511  1 Kr dzz        
+    18      0.933486  1 Kr dxx               21     -0.760748  1 Kr dyy        
+    23     -0.172738  1 Kr dzz        
 
  Vector   15  Occ=2.000000D+00  E=-7.752791D-01
-              MO Center= -2.3D-15,  4.6D-16, -2.3D-15, r^2= 8.2D-01
+              MO Center=  1.1D-16, -2.3D-16,  2.4D-16, r^2= 8.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.675676  1 Kr s                  3      0.480784  1 Kr s          
      5     -0.451449  1 Kr s                  2      0.174532  1 Kr s          
 
  Vector   16  Occ=2.000000D+00  E=-3.023557D-01
-              MO Center= -1.2D-15, -2.4D-16, -6.8D-16, r^2= 1.3D+00
+              MO Center=  2.2D-15, -2.1D-15, -6.1D-15, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.816905  1 Kr py                10      0.383554  1 Kr py         
-    16      0.267352  1 Kr py                14     -0.224729  1 Kr pz         
-    12      0.195188  1 Kr px         
+    12      0.840775  1 Kr px                 9      0.394761  1 Kr px         
+    15      0.275164  1 Kr px                14     -0.220716  1 Kr pz         
 
  Vector   17  Occ=2.000000D+00  E=-3.023557D-01
-              MO Center=  2.3D-16,  3.7D-17,  2.3D-16, r^2= 1.3D+00
+              MO Center= -3.2D-16, -3.0D-16,  1.6D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.624632  1 Kr pz                12      0.604166  1 Kr px         
-    11      0.293277  1 Kr pz                 9      0.283668  1 Kr px         
-    17      0.204426  1 Kr pz                15      0.197728  1 Kr px         
+    13      0.842625  1 Kr py                10      0.395630  1 Kr py         
+    16      0.275769  1 Kr py                14     -0.210982  1 Kr pz         
 
  Vector   18  Occ=2.000000D+00  E=-3.023557D-01
-              MO Center= -4.6D-15,  3.1D-15,  3.1D-15, r^2= 1.3D+00
+              MO Center= -1.0D-14, -1.9D-15, -3.0D-15, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.593988  1 Kr px                14     -0.561488  1 Kr pz         
-    13     -0.296389  1 Kr py                 9      0.278889  1 Kr px         
-    11     -0.263630  1 Kr pz                15      0.194397  1 Kr px         
-    17     -0.183760  1 Kr pz         
+    14      0.814068  1 Kr pz                11      0.382222  1 Kr pz         
+    17      0.266423  1 Kr pz                12      0.218237  1 Kr px         
+    13      0.213545  1 Kr py         
 
  Vector   19  Occ=0.000000D+00  E= 2.833392D-01
-              MO Center= -9.7D-16,  5.1D-15,  1.6D-14, r^2= 3.6D+00
+              MO Center= -5.8D-15,  7.0D-16,  2.4D-15, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.207601  1 Kr pz                14     -1.063221  1 Kr pz         
-    16      0.379821  1 Kr py                11     -0.351733  1 Kr pz         
-    13     -0.334410  1 Kr py         
+    15      1.260944  1 Kr px                12     -1.110186  1 Kr px         
+     9     -0.367270  1 Kr px         
 
  Vector   20  Occ=0.000000D+00  E= 2.833392D-01
-              MO Center=  9.8D-15,  3.2D-14, -9.4D-15, r^2= 3.6D+00
+              MO Center=  3.7D-15, -1.1D-15,  3.4D-14, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.169359  1 Kr py                13     -1.029551  1 Kr py         
-    15      0.348594  1 Kr px                17     -0.345695  1 Kr pz         
-    10     -0.340594  1 Kr py                12     -0.306916  1 Kr px         
-    14      0.304364  1 Kr pz         
+    17      1.260788  1 Kr pz                14     -1.110049  1 Kr pz         
+    11     -0.367224  1 Kr pz         
 
  Vector   21  Occ=0.000000D+00  E= 2.833392D-01
-              MO Center=  4.6D-15, -1.9D-15, -3.8D-16, r^2= 3.6D+00
+              MO Center=  3.2D-16, -3.4D-15, -1.3D-16, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.216982  1 Kr px                12     -1.071481  1 Kr px         
-     9     -0.354465  1 Kr px                16     -0.311061  1 Kr py         
-    13      0.273871  1 Kr py                17      0.174980  1 Kr pz         
-    14     -0.154060  1 Kr pz         
+    16      1.266870  1 Kr py                13     -1.115404  1 Kr py         
+    10     -0.368996  1 Kr py         
 
  Vector   22  Occ=0.000000D+00  E= 2.994794D-01
-              MO Center= -1.2D-14, -3.5D-14, -6.9D-15, r^2= 2.8D+00
+              MO Center=  1.7D-15,  4.9D-15, -3.5D-14, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.532028  1 Kr s                  4      1.903426  1 Kr s          
@@ -2638,47 +2830,49 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2      0.193618  1 Kr s          
 
  Vector   23  Occ=0.000000D+00  E= 4.978254D-01
-              MO Center=  2.1D-16, -1.2D-16,  7.8D-16, r^2= 1.2D+00
+              MO Center=  6.7D-15, -6.3D-16,  4.2D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29     -0.886759  1 Kr dzz               24      0.837024  1 Kr dxx        
-    28      0.349823  1 Kr dyz               23      0.199409  1 Kr dzz        
-    18     -0.188225  1 Kr dxx        
+    26      1.675861  1 Kr dxz               28     -0.471484  1 Kr dyz        
+    20     -0.376858  1 Kr dxz        
 
  Vector   24  Occ=0.000000D+00  E= 4.978254D-01
-              MO Center=  4.5D-16, -7.4D-16,  4.3D-16, r^2= 1.2D+00
+              MO Center=  2.5D-16, -1.1D-16,  1.9D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.537602  1 Kr dxy               26     -0.850010  1 Kr dxz        
-    19     -0.345767  1 Kr dxy               20      0.191145  1 Kr dxz        
+    27      0.931037  1 Kr dyy               24     -0.775558  1 Kr dxx        
+    28      0.248822  1 Kr dyz               25     -0.229702  1 Kr dxy        
+    21     -0.209366  1 Kr dyy               18      0.174403  1 Kr dxx        
+    29     -0.155479  1 Kr dzz        
 
  Vector   25  Occ=0.000000D+00  E= 4.978254D-01
-              MO Center=  2.0D-15, -1.9D-15,  8.8D-16, r^2= 1.2D+00
+              MO Center=  1.8D-15,  4.3D-15,  5.5D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      0.944586  1 Kr dxz               27     -0.763404  1 Kr dyy        
-    25      0.549130  1 Kr dxy               24      0.425587  1 Kr dxx        
-    28     -0.407103  1 Kr dyz               29      0.337817  1 Kr dzz        
-    20     -0.212413  1 Kr dxz               21      0.171670  1 Kr dyy        
+    28      1.382644  1 Kr dyz               25      0.969069  1 Kr dxy        
+    22     -0.310921  1 Kr dyz               26      0.274786  1 Kr dxz        
+    29     -0.241930  1 Kr dzz               19     -0.217918  1 Kr dxy        
+    24      0.179448  1 Kr dxx        
 
  Vector   26  Occ=0.000000D+00  E= 4.978254D-01
-              MO Center=  2.9D-15, -6.6D-16, -2.0D-15, r^2= 1.2D+00
+              MO Center= -7.3D-16,  3.7D-16,  2.4D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.155273  1 Kr dxz               25      0.659508  1 Kr dxy        
-    27      0.660505  1 Kr dyy               24     -0.378807  1 Kr dxx        
-    29     -0.281697  1 Kr dzz               20     -0.259791  1 Kr dxz        
-    28     -0.166561  1 Kr dyz        
+    29      0.927904  1 Kr dzz               25      0.638994  1 Kr dxy        
+    24     -0.633155  1 Kr dxx               27     -0.294749  1 Kr dyy        
+    23     -0.208662  1 Kr dzz        
 
  Vector   27  Occ=0.000000D+00  E= 4.978254D-01
-              MO Center= -6.2D-17, -3.5D-16,  9.2D-16, r^2= 1.2D+00
+              MO Center= -2.4D-16, -3.6D-16,  1.5D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.667779  1 Kr dyz               26      0.404894  1 Kr dxz        
-    22     -0.375040  1 Kr dyz               29      0.235820  1 Kr dzz        
+    25      1.301541  1 Kr dxy               28     -0.957629  1 Kr dyz        
+    26     -0.456641  1 Kr dxz               19     -0.292683  1 Kr dxy        
+    29     -0.291820  1 Kr dzz               27      0.246554  1 Kr dyy        
+    22      0.215346  1 Kr dyz        
 
  Vector   28  Occ=0.000000D+00  E= 1.762021D+00
-              MO Center= -2.7D-16, -1.9D-16,  1.2D-16, r^2= 1.7D+00
+              MO Center= -4.4D-17, -3.5D-17, -8.0D-17, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.043824  1 Kr s                 24     -1.974646  1 Kr dxx        
@@ -2687,10 +2881,308 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2     -0.160971  1 Kr s          
 
 
- Parallel integral file used       4 records with       0 large values
+ Task  times  cpu:        5.4s     wall:        5.4s
 
 
- Task  times  cpu:        0.9s     wall:        1.1s
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :    36
+           Alpha electrons :    18
+            Beta electrons :    18
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    29
+                     number of shells:    11
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                        HSE03 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  0.250          
+          PerdewBurkeErnzerhof Exchange Functional  1.000          
+                     CAM-PBE96 Exchange Functional -0.250          
+            Perdew 1991 LDA Correlation Functional  1.000 local    
+           PerdewBurkeErnz. Correlation Functional  1.000 non-local
+
+           Range-Separation Parameters        
+           ---------------------------
+           Alpha           :  0.00
+           Beta            :  1.00
+           Gamma           :  0.33
+           Short-Range HF  :     T
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Kr                  1.15      112           5.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   112
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:       -2751.43658543
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -2751.436585
+ 1-e energy   =   -3827.731820
+ 2-e energy   =    1076.295235
+ HOMO         =      -0.525439
+ LUMO         =       0.441898
+
+   Time after variat. SCF:     42.7
+   Time prior to 1st pass:     42.7
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     25        Max. recs in file   =     31391
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.80            12799390
+          Stack Space remaining (MW):       13.11            13106953
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -2753.0088646440 -2.75D+03  7.12D-03  3.86D-01    43.5
+  Resetting Diis
+ d= 0,ls=0.0,diis     2  -2753.0118453805 -2.98D-03  1.91D-03  5.07D-04    44.2
+ d= 0,ls=0.0,diis     3  -2753.0118965661 -5.12D-05  1.25D-03  2.09D-04    44.9
+ d= 0,ls=0.0,diis     4  -2753.0119113300 -1.48D-05  5.19D-04  1.29D-04    45.6
+ d= 0,ls=0.0,diis     5  -2753.0119299319 -1.86D-05  1.19D-05  4.52D-08    46.3
+ d= 0,ls=0.0,diis     6  -2753.0119299405 -8.55D-09  2.73D-08  4.60D-13    47.0
+
+
+         Total DFT energy =    -2753.011929940471
+      One electron energy =    -3827.815569936914
+           Coulomb energy =     1169.958660052078
+    Exchange-Corr. energy =      -95.155020055635
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =       35.999999987182
+
+     Total iterative time =      4.3s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    8  Occ=2.000000D+00  E=-7.415219D+00
+              MO Center= -9.0D-17,  4.3D-16, -1.9D-16, r^2= 9.7D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.776520  1 Kr px                10      0.737916  1 Kr py         
+     6     -0.320357  1 Kr px                 7     -0.304431  1 Kr py         
+    11      0.207236  1 Kr pz         
+
+ Vector    9  Occ=2.000000D+00  E=-7.415219D+00
+              MO Center=  6.0D-17,  6.5D-19,  5.1D-16, r^2= 9.7D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.063204  1 Kr pz                 8     -0.438630  1 Kr pz         
+     9     -0.240852  1 Kr px         
+
+ Vector   10  Occ=2.000000D+00  E=-3.247300D+00
+              MO Center= -2.4D-17, -3.6D-17,  7.9D-17, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.181071  1 Kr dxy               22     -1.049108  1 Kr dyz        
+    20     -0.683992  1 Kr dxz        
+
+ Vector   11  Occ=2.000000D+00  E=-3.247300D+00
+              MO Center= -3.6D-17,  7.2D-17, -3.5D-17, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.337191  1 Kr dyz               19      1.062252  1 Kr dxy        
+    20     -0.216953  1 Kr dxz        
+
+ Vector   12  Occ=2.000000D+00  E=-3.247300D+00
+              MO Center=  5.5D-17, -1.4D-17, -5.5D-18, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.564677  1 Kr dxz               19      0.663229  1 Kr dxy        
+    22     -0.273591  1 Kr dyz        
+
+ Vector   13  Occ=2.000000D+00  E=-3.247300D+00
+              MO Center= -2.1D-17, -2.2D-16, -3.1D-16, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.912891  1 Kr dzz               21     -0.796599  1 Kr dyy        
+
+ Vector   14  Occ=2.000000D+00  E=-3.247300D+00
+              MO Center=  1.9D-16, -1.8D-17, -4.3D-17, r^2= 1.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.986984  1 Kr dxx               21     -0.594049  1 Kr dyy        
+    23     -0.392935  1 Kr dzz        
+
+ Vector   15  Occ=2.000000D+00  E=-8.635561D-01
+              MO Center=  2.5D-16, -5.3D-16, -4.5D-18, r^2= 8.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.676269  1 Kr s                  3      0.476694  1 Kr s          
+     5     -0.429264  1 Kr s                  2      0.172642  1 Kr s          
+
+ Vector   16  Occ=2.000000D+00  E=-3.592957D-01
+              MO Center= -1.5D-15,  1.8D-16,  1.3D-15, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.751443  1 Kr py                14     -0.421515  1 Kr pz         
+    10      0.349718  1 Kr py                16      0.228605  1 Kr py         
+    11     -0.196171  1 Kr pz                12      0.194604  1 Kr px         
+
+ Vector   17  Occ=2.000000D+00  E=-3.592957D-01
+              MO Center=  7.2D-16, -1.3D-15, -1.7D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.761421  1 Kr px                 9      0.354362  1 Kr px         
+    13     -0.352224  1 Kr py                14     -0.276386  1 Kr pz         
+    15      0.231640  1 Kr px                10     -0.163923  1 Kr py         
+
+ Vector   18  Occ=2.000000D+00  E=-3.592957D-01
+              MO Center= -2.5D-16, -1.1D-16,  8.1D-17, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.725361  1 Kr pz                12      0.403212  1 Kr px         
+    11      0.337580  1 Kr pz                13      0.302463  1 Kr py         
+    17      0.220670  1 Kr pz                 9      0.187653  1 Kr px         
+
+ Vector   19  Occ=0.000000D+00  E= 2.768783D-01
+              MO Center=  6.1D-15,  1.4D-14, -6.3D-14, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.236127  1 Kr pz                14     -1.074765  1 Kr pz         
+    11     -0.352859  1 Kr pz                16     -0.275633  1 Kr py         
+    13      0.239652  1 Kr py         
+
+ Vector   20  Occ=0.000000D+00  E= 2.768783D-01
+              MO Center= -2.2D-16,  2.3D-15,  4.8D-16, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.238777  1 Kr py                13     -1.077068  1 Kr py         
+    10     -0.353615  1 Kr py                17      0.281579  1 Kr pz         
+    14     -0.244822  1 Kr pz         
+
+ Vector   21  Occ=0.000000D+00  E= 2.768783D-01
+              MO Center=  7.5D-14, -4.4D-15,  5.8D-15, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.265173  1 Kr px                12     -1.100019  1 Kr px         
+     9     -0.361150  1 Kr px         
+
+ Vector   22  Occ=0.000000D+00  E= 2.812048D-01
+              MO Center= -8.1D-14, -1.2D-14,  5.6D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      3.533291  1 Kr s                  4      1.902527  1 Kr s          
+    24     -0.700942  1 Kr dxx               27     -0.700942  1 Kr dyy        
+    29     -0.700942  1 Kr dzz                3     -0.309901  1 Kr s          
+     2      0.192841  1 Kr s          
+
+ Vector   23  Occ=0.000000D+00  E= 4.747163D-01
+              MO Center=  3.9D-17,  5.7D-17, -6.3D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      1.088058  1 Kr dxz               29     -0.705007  1 Kr dzz        
+    27      0.637515  1 Kr dyy               28     -0.335469  1 Kr dyz        
+    20     -0.242206  1 Kr dxz               23      0.156938  1 Kr dzz        
+
+ Vector   24  Occ=0.000000D+00  E= 4.747163D-01
+              MO Center= -2.5D-16,  2.9D-16, -7.6D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.682494  1 Kr dyz               22     -0.374531  1 Kr dyz        
+    29     -0.304424  1 Kr dzz               24      0.191171  1 Kr dxx        
+
+ Vector   25  Occ=0.000000D+00  E= 4.747163D-01
+              MO Center= -3.8D-17, -4.0D-17,  3.6D-17, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      1.201144  1 Kr dxz               25     -0.794791  1 Kr dxy        
+    29      0.555399  1 Kr dzz               27     -0.342577  1 Kr dyy        
+    28      0.315152  1 Kr dyz               20     -0.267380  1 Kr dxz        
+    24     -0.212822  1 Kr dxx               19      0.176924  1 Kr dxy        
+
+ Vector   26  Occ=0.000000D+00  E= 4.747163D-01
+              MO Center=  8.8D-16,  1.1D-15,  5.7D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.574974  1 Kr dxy               26      0.645196  1 Kr dxz        
+    19     -0.350596  1 Kr dxy               29      0.254169  1 Kr dzz        
+    28      0.156123  1 Kr dyz        
+
+ Vector   27  Occ=0.000000D+00  E= 4.747163D-01
+              MO Center=  1.1D-15, -2.1D-16,  2.2D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.969480  1 Kr dxx               27     -0.694001  1 Kr dyy        
+    29     -0.275479  1 Kr dzz               26      0.268412  1 Kr dxz        
+    28     -0.221313  1 Kr dyz               18     -0.215810  1 Kr dxx        
+    21      0.154488  1 Kr dyy        
+
+ Vector   28  Occ=0.000000D+00  E= 1.775641D+00
+              MO Center= -9.0D-17,  2.2D-17,  1.3D-16, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      4.044679  1 Kr s                 24     -1.974348  1 Kr dxx        
+    27     -1.974348  1 Kr dyy               29     -1.974348  1 Kr dzz        
+     3     -0.947243  1 Kr s                  4     -0.513991  1 Kr s          
+     2     -0.160430  1 Kr s          
+
+
+ Task  times  cpu:        4.5s     wall:        4.6s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -2701,11 +3193,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  965      965     5109     4499      948        0        0        0     
-number of processes/call 1.07e+00 1.05e+00 1.26e+00 0.00e+00 0.00e+00
-bytes total:             1.40e+07 4.64e+06 6.38e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            5.79e+05 3.72e+05 4.00e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 242208 bytes
+calls: 1219     1219     1.14e+04 9282     2999        0        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             3.18e+07 7.25e+06 2.02e+07 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 262392 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -2714,11 +3206,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        23	        47
+	maximum number of blocks	        23	        48
 	current total bytes		         0	         0
-	maximum total bytes		   1771512	  22510560
-	maximum total K-bytes		      1772	     22511
-	maximum total M-bytes		         2	        23
+	maximum total bytes		   5113992	  22510560
+	maximum total K-bytes		      5114	     22511
+	maximum total M-bytes		         6	        23
 
 
                                 NWChem Input Module
@@ -2758,4 +3250,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        7.0s     wall:       10.5s
+ Total times  cpu:       47.0s     wall:       47.4s
