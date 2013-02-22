@@ -112,7 +112,7 @@ c      total_all_s = 0.0d0
          do t_h1b = 1,noab
           do t_h2b = t_h1b,noab
            do t_h3b = t_h2b,noab
-            if (next.eq.count) then                        
+ccx            if (next.eq.count) then                        
 
 
             if (int_mb(k_spin+t_p4b-1)
@@ -134,6 +134,9 @@ c      total_all_s = 0.0d0
      3          ieor(int_mb(k_sym+t_h1b-1),
      4          ieor(int_mb(k_sym+t_h2b-1),
      5               int_mb(k_sym+t_h3b-1)))))).eq.0) then
+c
+            if (next.eq.count) then
+c
             size = int_mb(k_range+t_p4b-1)
      1           * int_mb(k_range+t_p5b-1)
      2           * int_mb(k_range+t_p6b-1)
@@ -299,12 +302,17 @@ c
 
             if (.not.MA_POP_STACK(l_singles)) 
      1        call errquit('ccsd_t',4,MA_ERR)
-            endif
-            endif
-            endif
+c
             next = nxtask(nprocs,1)
             endif
             count = count + 1
+c
+            endif
+            endif
+            endif
+ccx            next = nxtask(nprocs,1)
+ccx            endif
+ccx            count = count + 1
            enddo
           enddo
          enddo
