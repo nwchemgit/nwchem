@@ -317,6 +317,9 @@ C
              param(1) = 1.245d0
              call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_RPBE)
+             call nwxc_x_rpbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_VS98)
              call nwxc_x_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)

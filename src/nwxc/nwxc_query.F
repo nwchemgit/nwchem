@@ -386,6 +386,10 @@ c
            cdata = "revPBE Exchange (Y Zhang, W Yang, "
      +             //"Phys.Rev.Lett. 80, 890 (1998)"
      +             //" doi:10.1103/PhysRevLett.80.890)"
+         case (NWXCP_X_RPBE)
+           cdata = "RPBE Exchange (B Hammer, LB Hanssen, JK Norskov, "
+     +             //"Phys.Rev.B 59, 7413 (1999)"
+     +             //" doi:10.1103/PhysRevB.59.7413)"
          case (NWXCP_X_VS98)
            cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
@@ -416,6 +420,10 @@ c
            cdata = "revPBE (Y Zhang, W Yang, "
      +             //"Phys.Rev.Lett. 80, 890 (1998)"
      +             //" doi:10.1103/PhysRevLett.80.890)"
+         case (NWXCP_RPBE)
+           cdata = "RPBE (B Hammer, LB Hanssen, JK Norskov, "
+     +             //"Phys.Rev.B 59, 7413 (1999)"
+     +             //" doi:10.1103/PhysRevB.59.7413)"
          case (NWXCP_VS98)
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"

@@ -15,7 +15,8 @@ C> \brief Evaluate the PBE exchange functional
 C>
 C> The PBE exchange functional [1,2] can be seen as a simplification
 C> of the PW91 functional [3,4]. The functional form is a 
-C> straightforward GGA.
+C> straightforward GGA. The functional parameters were later revised
+C> to achieve better atomization energies [5].
 C>
 C> [1] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Generalized Gradient Approximation Made Simple"
@@ -42,6 +43,12 @@ C> approximation"
 C> Phys. Rev. B <b>40</b>, 3399-3399 (1989), DOI:
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
+C>
+C> [5] Y. Zhang, W. Yang, "Comment on: Generalized gradient
+C> approximation made simple", Phys. Rev. Lett. <b>80</b>, 890-890
+C> (1998), DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevLett.80.890">
+C> 10.1103/PhysRevLett.80.890</a>.
 C>
 #ifndef SECOND_DERIV
       Subroutine nwxc_x_pbe(param,
