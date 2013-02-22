@@ -83,14 +83,15 @@
       double precision gx,gy,gz,a,q,d
       double precision ecut,wcut,dG,yp1
       double precision xerf,yerf
+      double precision vgl
 
 *     **** external functions ****
       real*8   control_ecut,control_wcut,util_erf
       real*8   nwpw_splint,log_integrate_def,log_integrate_def0
-      real*8   log_multipole_energy
+      real*8   log_multipole_energy,nwpw_double_factorial
       external control_ecut,control_wcut,util_erf
       external nwpw_splint,log_integrate_def,log_integrate_def0
-      external log_multipole_energy
+      external log_multipole_energy,nwpw_double_factorial
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -398,7 +399,10 @@ c     >                                    f2,2,f4,log_amesh)
          end do
       end do
 
-*     **** hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:2*lmax) ****
+*     **** hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:2*lmax)        ****
+*     **** Note - This is the effective hartree matrix which includes  ****
+*     **** comp_charge_matrix and comp_pot_matrix terms in it.         ****
+
       l = nbasis*nbasis*nbasis*nbasis*(2*lmax+1)
       call dcopy(l,0.0d0,0,hartree_matrix,1)
       do i=1,nbasis
@@ -424,6 +428,10 @@ c     >                                    f2,2,f4,log_amesh)
                   end do
 
                   do l=0,2*lmax
+                     d = (2*l+1)*nwpw_double_factorial(2*l+1)
+     >                          *sigma**(2*l+1)
+                     vgl = 4.0d0*dsqrt(twopi)/d
+
                      if ((l.le.sum_l) .and.(l.ge.dif_l)) then
                      if ((l.le.sum_l2).and.(l.ge.dif_l2)) then
                         d = log_multipole_energy(l,icut,rho,
@@ -432,10 +440,30 @@ c     >                                    f2,2,f4,log_amesh)
      >                    - log_multipole_energy(l,icut,rho,
      >                                   k1,f3,
      >                                   k2,f4,log_amesh)
-                        hartree_matrix(i,j,i2,j2,l) = d
+
+                        hartree_matrix(i,j,i2,j2,l) = d 
+     >                         - 2.0d0*   comp_pot_matrix(i,j,l)
+     >                                *comp_charge_matrix(i2,j2,l)
+     >                         - vgl  *comp_charge_matrix(i,j,l)
+     >                                *comp_charge_matrix(i2,j2,l)
+
                         hartree_matrix(j,i,i2,j2,l) = d
+     >                         - 2.0d0*   comp_pot_matrix(j,i,l)
+     >                                *comp_charge_matrix(i2,j2,l)
+     >                         - vgl  *comp_charge_matrix(j,i,l)
+     >                                *comp_charge_matrix(i2,j2,l)
+
                         hartree_matrix(i,j,j2,i2,l) = d
+     >                         - 2.0d0*   comp_pot_matrix(i,j,l)
+     >                                *comp_charge_matrix(j2,i2,l)
+     >                         - vgl  *comp_charge_matrix(i,j,l)
+     >                                *comp_charge_matrix(j2,i2,l)
+
                         hartree_matrix(j,i,j2,i2,l) = d
+     >                         - 2.0d0*   comp_pot_matrix(j,i,l)
+     >                                *comp_charge_matrix(j2,i2,l)
+     >                         - vgl  *comp_charge_matrix(j,i,l)
+     >                                *comp_charge_matrix(j2,i2,l)
                      end if
                      end if
                   end do
