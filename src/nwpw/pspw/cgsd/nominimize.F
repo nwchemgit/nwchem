@@ -131,7 +131,7 @@ c      call psi_1toelectron()
          E(38) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
 
          ehartree_atom = psi_1hartree_atom()
-         E(39) = 0.0d0                     !*** vcoulomb atom  ***
+         E(39) = ehartree_atom             !*** vcoulomb atom  ***
          E(40) = 0.0d0                     !*** ncmp-ncmp coulomb energy ***
          E(41) = 0.0d0                     !*** ncmp-smooth coulomb energy ***
 
