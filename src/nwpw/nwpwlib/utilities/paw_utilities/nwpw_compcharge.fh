@@ -50,6 +50,20 @@ c      integer sigma(2)
      >                  katm_iontopaw,ion_iontopaw,
      >                  isgamma,use_grid_cmp
 
+*     **** data for atomic hartree indexing ****
+      integer nindx_hartree(2)
+      integer shift_hartree(2)
+      integer coeff_hartree(2)
+      integer iprj_hartree(2)
+      integer jprj_hartree(2)
+      integer iprj1_hartree(2)
+      integer jprj1_hartree(2)
+      common /nwpw_hartree_block/ nindx_hartree,shift_hartree,
+     >                           coeff_hartree,
+     >                           iprj_hartree, jprj_hartree,
+     >                           iprj1_hartree,jprj1_hartree
+
+
 
 *     ******* Two-Electron Gaussian integral block **********
       integer e_gauss(2),f_gauss(2),indx_gauss(2),ngauss

@@ -11,7 +11,8 @@
      >                                nprj,nbasis,psp_type,
      >                                lmax0,sigma,
      >                                nprj_max,l_prj,m_prj,b_prj,
-     >                                comp_charge_matrix)
+     >                                comp_charge_matrix,
+     >                                hartree_matrix)
       implicit none
       integer nion0,nkatm0
       integer nprj(*),nbasis(*),psp_type(*),lmax0(*)
@@ -19,6 +20,7 @@
       integer nprj_max
       integer l_prj(nprj_max,*),m_prj(nprj_max,*),b_prj(nprj_max,*)
       integer comp_charge_matrix(*)
+      integer hartree_matrix(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -27,8 +29,9 @@
 *     ***** local variables ****
       logical value
       integer k,l,m,lm,ii,iii,ia,iia,Gindx,Gall(2),G(3),tsize
-      integer iasize,i,j,li,mi,lj,mj,bi,bj
-      integer indx,comp_charge_tag,comp_indx
+      integer iasize,i,j,li,mi,lj,mj,bi,bj,nb
+      integer i1,j1,li1,mi1,bi1,lj1,mj1,bj1
+      integer indx,comp_charge_tag,comp_indx,matr_ptr
       real*8  scal,gg,fourpioveromega,sumall
       real*8  taunt
 
@@ -37,8 +40,8 @@
       external control_code,G_indx,c_G_indx,ion_katm
       real*8   double_factorial,lattice_omega,ewald_rcut
       external double_factorial,lattice_omega,ewald_rcut
-      integer  psi_data_get_ptr
-      external psi_data_get_ptr
+      integer  psi_data_get_ptr,psi_data_get_chnk
+      external psi_data_get_ptr,psi_data_get_chnk
       real*8   nwpw_gaunt
       external nwpw_gaunt
       logical  control_use_grid_cmp
@@ -258,6 +261,10 @@
 
 
 
+*     *******************************************************
+*     *****  define indexing for compcharge evalulations ****
+*     *******************************************************
+
       if (.not.MA_alloc_get(mt_int,nkatm_paw,"nindx_Tndiff",
      >                      nindx_Tndiff(2),nindx_Tndiff(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
@@ -311,7 +318,7 @@
      >                     coeff_Tndiff(2),coeff_Tndiff(1))
       if (.not.value)
      > call errquit(
-     >  "nwpw_compcharge_init: error allocating work arrays",0,MA_ERR)
+     >  "nwpw_compcharge_init: error allocating work arrays",4,MA_ERR)
 
       indx = 0
       do iia=1,nkatm_paw
@@ -345,6 +352,141 @@
                   end do
                end do
                lm = lm + 1
+            end do
+         end do
+      end do
+
+
+
+*     ************************************************************
+*     *****  define indexing for hartree matrixi evalulations ****
+*     ************************************************************
+
+      if (.not.MA_alloc_get(mt_int,nkatm_paw,"nindx_hartree",
+     >                      nindx_hartree(2),nindx_hartree(1)))
+     >  call errquit("nwpw_compcharge_init:allocate fail",5,MA_ERR)
+
+      if (.not.MA_alloc_get(mt_int,nkatm_paw,"shift_hartree",
+     >                      shift_hartree(2),shift_hartree(1)))
+     >  call errquit("nwpw_compcharge_init:allocate fail",6,MA_ERR)
+
+      indx = 0
+      do iia=1,nkatm_paw
+         ia = int_mb(katm_pawtoion(1)+iia-1)
+         int_mb(shift_hartree(1)+iia-1) = indx
+
+         nb = nbasis(ia)
+         matr_ptr = psi_data_get_chnk(hartree_matrix(ia))
+
+         do j = 1,nprj(ia)
+            lj = l_prj(j,ia)
+            mj = m_prj(j,ia)
+            bj = b_prj(j,ia)
+            do i = 1,nprj(ia)
+               li = l_prj(i,ia)
+               mi = m_prj(i,ia)
+               bi = b_prj(i,ia)
+               do j1 = 1,nprj(ia)
+                  lj1 = l_prj(j1,ia)
+                  mj1 = m_prj(j1,ia)
+                  bj1 = b_prj(j1,ia)
+                  do i1 = 1,nprj(ia)
+                     li1 = l_prj(i1,ia)
+                     mi1 = m_prj(i1,ia)
+                     bi1 = b_prj(i1,ia)
+                     do l=0,int_mb(mult_l(1)+iia-1)
+                        do m=-l,l
+                           taunt =
+     >                        nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+     >                       *nwpw_gaunt(.false.,l,m,li1,mi1,lj1,mj1)
+     >                       *dbl_mb(matr_ptr
+     >                              + (bi-1)
+     >                              + (bj-1)*nb
+     >                              + (bi1-1)*nb*nb
+     >                              + (bj1-1)*nb*nb*nb
+     +                              + l*nb*nb*nb*nb)
+                           if (dabs(taunt).gt.1.0d-11) then
+                              indx = indx + 1
+                           end if
+                        end do
+                     end do
+
+                  end do
+               end do
+
+            end do
+         end do
+         int_mb(nindx_hartree(1)+iia-1) = indx
+     >                                  - int_mb(shift_hartree(1)+iia-1)
+      end do
+
+
+      value = MA_alloc_get(mt_int,indx,"iprj_hartree",
+     >                 iprj_hartree(2),iprj_hartree(1))
+      value = value.and.
+     >     MA_alloc_get(mt_int,indx,"jprj_hartree",
+     >                 jprj_hartree(2),jprj_hartree(1))
+      value = value.and.
+     >     MA_alloc_get(mt_int,indx,"iprj1_hartree",
+     >                 iprj1_hartree(2),iprj1_hartree(1))
+      value = value.and.
+     >     MA_alloc_get(mt_int,indx,"jprj1_hartree",
+     >                 jprj1_hartree(2),jprj1_hartree(1))
+      value = value.and.
+     >     MA_alloc_get(mt_dbl,indx,"coeff_hartree",
+     >                 coeff_hartree(2),coeff_hartree(1))
+      if (.not.value)
+     >   call errquit("nwpw_compcharge_init:allocate fail",7,MA_ERR)
+
+
+      indx = 0
+      do iia=1,nkatm_paw
+         ia = int_mb(katm_pawtoion(1)+iia-1)
+
+         nb = nbasis(ia)
+         matr_ptr = psi_data_get_chnk(hartree_matrix(ia))
+
+         do j = 1,nprj(ia)
+            lj = l_prj(j,ia)
+            mj = m_prj(j,ia)
+            bj = b_prj(j,ia)
+            do i = 1,nprj(ia)
+               li = l_prj(i,ia)
+               mi = m_prj(i,ia)
+               bi = b_prj(i,ia)
+               do j1 = 1,nprj(ia)
+                  lj1 = l_prj(j1,ia)
+                  mj1 = m_prj(j1,ia)
+                  bj1 = b_prj(j1,ia)
+                  do i1 = 1,nprj(ia)
+                     li1 = l_prj(i1,ia)
+                     mi1 = m_prj(i1,ia)
+                     bi1 = b_prj(i1,ia)
+                     do l=0,int_mb(mult_l(1)+iia-1)
+                        do m=-l,l
+                           taunt =
+     >                        nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+     >                       *nwpw_gaunt(.false.,l,m,li1,mi1,lj1,mj1)
+     >                       *dbl_mb(matr_ptr
+     >                              + (bi-1)
+     >                              + (bj-1)*nb
+     >                              + (bi1-1)*nb*nb
+     >                              + (bj1-1)*nb*nb*nb
+     +                              + l*nb*nb*nb*nb)
+                           if (dabs(taunt).gt.1.0d-11) then
+                              int_mb(iprj_hartree(1)+indx)  = i
+                              int_mb(jprj_hartree(1)+indx)  = j
+                              int_mb(iprj1_hartree(1)+indx) = i1
+                              int_mb(jprj1_hartree(1)+indx) = j1
+                              dbl_mb(coeff_hartree(1)+indx) = taunt
+                              indx = indx + 1
+                           end if
+                        end do
+                     end do
+
+                  end do
+               end do
+
             end do
          end do
       end do
@@ -389,6 +531,15 @@
       value = value.and.MA_free_heap(iprj_Tndiff(2))
       value = value.and.MA_free_heap(jprj_Tndiff(2))
       value = value.and.MA_free_heap(coeff_Tndiff(2))
+
+      value = value.and.MA_free_heap(shift_hartree(2))
+      value = value.and.MA_free_heap(nindx_hartree(2))
+      value = value.and.MA_free_heap(iprj_hartree(2))
+      value = value.and.MA_free_heap(jprj_hartree(2))
+      value = value.and.MA_free_heap(iprj1_hartree(2))
+      value = value.and.MA_free_heap(jprj1_hartree(2))
+      value = value.and.MA_free_heap(coeff_hartree(2))
+
       if (.not.value)
      >   call errquit("nwpw_compcharge_end: freeing heap",0,MA_ERR)
       return
@@ -1652,5 +1803,136 @@ c      end
       
       return
       end
+
+
+*     *************************************************
+*     *                                               *
+*     *         nwpw_compcharge_coulomb_atom          *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_coulomb_atom(ii,ia,ispin,ne,nprj,
+     >                                        wmatrix,sw1,sw2,eh_atom)
+      implicit none
+      integer ii,ia
+      integer ispin,ne(2),nprj
+      real*8  wmatrix(nprj,nprj,ispin)
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  sw2(ne(1)+ne(2),nprj)
+      real*8  eh_atom
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer iia,shift
+
+      call nwpw_timing_start(4)
+      call nwpw_timing_start(22)
+
+      iia = int_mb(katm_iontopaw(1)+ia-1)
+
+      shift = int_mb(shift_hartree(1)+iia-1)
+      call nwpw_compcharge_coulomb_sub(ispin,ne,nprj,wmatrix,sw1,sw2,
+     >                           eh_atom,
+     >                           int_mb(nindx_hartree(1)+iia-1),
+     >                           int_mb(iprj_hartree(1)+shift),
+     >                           int_mb(jprj_hartree(1)+shift),
+     >                           int_mb(iprj1_hartree(1)+shift),
+     >                           int_mb(jprj1_hartree(1)+shift),
+     >                           dbl_mb(coeff_hartree(1)+shift))
+
+
+      call nwpw_timing_end(4)
+      call nwpw_timing_end(22)
+      return
+      end
+
+c     *********************************************
+c     *                                           *
+c     *           nwpw_compcharge_coulomb_sub     *
+c     *                                           *
+c     *********************************************
+      subroutine nwpw_compcharge_coulomb_sub(ispin,ne,nprj,wmatrix,
+     >                                 sw1,sw2,eh,
+     >                                 nindx,
+     >                                 iprj_hartree, jprj_hartree,
+     >                                 iprj1_hartree,jprj1_hartree,
+     >                                 coeff_hartree)
+      implicit none
+      integer ispin,ne(2),nprj
+      real*8  wmatrix(nprj,nprj,ispin)
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  sw2(ne(1)+ne(2),nprj)
+      real*8  eh
+      integer n1dgrid,nbasis,lmax2
+      integer nindx,iprj_hartree(*),jprj_hartree(*)
+      integer iprj1_hartree(*),jprj1_hartree(*)
+      real*8  coeff_hartree(*)
+
+      integer n,i,iprj,jprj,iprj1,jprj1
+      real*8  coeff,w,w1,scal
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call nwpw_timing_start(21)
+      scal = 1.0d0/lattice_omega()
+
+      do i=1,nindx
+         iprj  = iprj_hartree(i)
+         jprj  = jprj_hartree(i)
+         iprj1 = iprj1_hartree(i)
+         jprj1 = jprj1_hartree(i)
+         coeff = coeff_hartree(i)
+         w  = wmatrix(iprj,jprj,1)   + wmatrix(iprj,jprj,ispin)
+         w1 = wmatrix(iprj1,jprj1,1) + wmatrix(iprj1,jprj1,ispin)
+         eh = eh + coeff*w*w1*scal*scal
+         do n=1,ne(1)+ne(2)
+            sw2(n,iprj) = sw2(n,iprj) 
+     >                  + scal*coeff*sw1(n,jprj)*w1
+         end do
+      end do
+   
+      call nwpw_timing_end(21)
+      return
+      end
+
+
+
+
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_W1_atom_solve          *
+*     *                                               *
+*     *************************************************
+
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_W2_atom          *
+*     *                                               *
+*     *************************************************
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_W2_atom_solve          *
+*     *                                               *
+*     *************************************************
+
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_W3_atom          *
+*     *                                               *
+*     *************************************************
+
+
+
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_W3_atom_solve          *
+*     *                                               *
+*     *************************************************
 
 

@@ -8,7 +8,6 @@
 		nwpw_xc.o\
 		nwpw_vosko.o\
 		nwpw_gga.o\
-		nwpw_hartree.o\
 		nwpw_SpecialKummer.o \
 		nwpw_GaussBessel.o \
 		nwpw_WGaussian.o
@@ -17,7 +16,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_hartree.F
+    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F
 
   LIB_DEFINES = 
 
