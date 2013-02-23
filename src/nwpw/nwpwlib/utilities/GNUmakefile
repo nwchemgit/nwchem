@@ -36,7 +36,8 @@
 		log_integrate.o \
 		nwpw_parse.o \
 		nwpw_matrix_invert.o \
-		analysis_expansion_coef.o
+		analysis_expansion_coef.o \
+		nwpw_double_factorial.o
 
 	  OBJ = 
 
