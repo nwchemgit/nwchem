@@ -1823,6 +1823,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 
 *     **** Compute sw2  ****
+      eh_atom = 0.0d0
       do ip=1,nion_prj_indx
          ii          = int_mb(ii_prj_indx(1)+ip-1)
          ia          = int_mb(ia_prj_indx(1)+ip-1)
@@ -1860,11 +1861,12 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                   dbl_mb(wtmp(1)))
 
 *           **** atomic coulomb matrix - sw2 = sw2 + Vhatomijl*sw1  ****
-c            call nwpw_compcharge_atomic_coulomb(ii,ia,ispin,ne,nproj,
-c     >                                   dbl_mb(wtmp(1)),
-c     >                                   dbl_mb(sw1a(1)+swstart*nn),
-c     >                                   dbl_mb(sw2a(1)+swstart*nn),
-c     >                                   eh_atom)
+            call nwpw_compcharge_coulomb_atom(ii,ia,ispin,ne,nproj,
+     >                                   dbl_mb(wtmp(1)),
+     >                                   dbl_mb(sw1a(1)+swstart*nn),
+     >                                   dbl_mb(sw2a(1)+swstart*nn),
+     >                                   eh_atom)
+            write(*,*) "eh_atom=",ip,ii,eh_atom
 
 *           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
             call nwpw_xc_solve(ii,ia,
@@ -1882,6 +1884,7 @@ c     >                                   eh_atom)
      >        dbl_mb(log_amesh(1)+ia-1),
      >        ispin,ne,nproj,
      >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
+
          end if
       end do
 
@@ -2909,7 +2912,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 *     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
 
-         !**** allocate and reading hartree_matrix(n1dbasis,n1dbasis,n1dbasis,n1dbasi,2*lmax+1) ****
+         !**** allocate and reading hartree_matrix(n1dbasis,n1dbasis,n1dbasis,n1dbasis,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis*n1dbasis*n1dbasis
          hartree_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(hartree_tag)
@@ -2929,7 +2932,7 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Parallela_Brdcst_values(com_p,MASTER,(2*lmax+1)*msglen,
      >                                dbl_mb(indx))
 
-         !**** allocate and reading comp_pot_matrix(n1dbasis,n1dbasi,2*lmax+1) ****
+         !**** allocate and reading comp_pot_matrix(n1dbasis,n1dbasis,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis
          comp_pot_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(comp_pot_tag)
@@ -3366,7 +3369,8 @@ c     logocal semicore(0:nkatmx)
      >                             int_mb(l_projector(1)),
      >                             int_mb(m_projector(1)),
      >                             int_mb(b_projector(1)),
-     >                             int_mb(comp_charge_matrix(1)))
+     >                             int_mb(comp_charge_matrix(1)),
+     >                             int_mb(hartree_matrix(1)))
 
          call nwpw_xc_init(ion_nion(),npsp,
      >                     int_mb(nprj(1)),

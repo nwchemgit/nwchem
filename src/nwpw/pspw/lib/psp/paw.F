@@ -1409,9 +1409,9 @@ c     >                          l_prj(i),m_prj(i))
 *                     || --------------------  dr dr'
 *                    //         |r-r'|
 *
-      real*8 function psp_hartree_atom(ispin,ne,psi1)
+      real*8 function psp_hartree_atom(ispin,neq,psi1)
       implicit none
-      integer    ispin,ne(2)
+      integer    ispin,neq(2)
       complex*16 psi1(*)
 
 #include "mafdecls.fh"
@@ -1430,7 +1430,7 @@ c     >                          l_prj(i),m_prj(i))
       real*8   nwpw_compcharge_Watom
       external nwpw_compcharge_Watom
 
-      nn = ne(1)+ne(2)
+      nn = neq(1)+neq(2)
 
 *     **** allocate local memory ****
       nion = ion_nion()
@@ -1488,7 +1488,7 @@ c     >                          l_prj(i),m_prj(i))
             call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
 *           **** paw atom - generate it's atomic density matrix ****
-            call psp_gen_density_matrix(ispin,ne,nproj,
+            call psp_gen_density_matrix(ispin,neq,nproj,
      >                                  dbl_mb(sw1(1)),
      >                                  dbl_mb(wtmp(1)))
 
@@ -1555,6 +1555,8 @@ c     >                                            dbl_mb(sw1(1)))
             end do
          end do
       end do
+      call D1dB_Vector_SumAll(ispin*nprj*nprj,wmatrix)
+
       return
       end
 
