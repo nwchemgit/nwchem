@@ -429,7 +429,7 @@ c     >                                    f2,2,f4,log_amesh)
 
                   do l=0,2*lmax
                      d = (2*l+1)*nwpw_double_factorial(2*l+1)
-     >                          *sigma**(2*l+1)
+     >                          *(sigma**(2*l+1))
                      vgl = 4.0d0*dsqrt(twopi)/d
 
                      if ((l.le.sum_l) .and.(l.ge.dif_l)) then
