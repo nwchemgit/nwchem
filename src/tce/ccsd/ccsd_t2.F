@@ -314,7 +314,6 @@ C     i0 ( p3 p4 h1 h2 )_v + = 1 * v ( p3 p4 h1 h2 )_v
        DO p4b = p3b,noab+nvab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+p4b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -323,6 +322,7 @@ C     i0 ( p3 p4 h1 h2 )_v + = 1 * v ( p3 p4 h1 h2 )_v
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               CALL TCE_RESTRICTED_4(p3b,p4b,h1b,h2b,
@@ -349,12 +349,12 @@ C     i0 ( p3 p4 h1 h2 )_v + = 1 * v ( p3 p4 h1 h2 )_v
                IF (.not.MA_POP_STACK(l_a)) 
      1              CALL ERRQUIT('ccsd_t2_1',4,MA_ERR)
               END IF
+          next = NXTASK(nprocs, 1)
+          END IF
+          count = count + 1
              END IF
             END IF
            END IF
-           next = NXTASK(nprocs, 1)
-          END IF
-          count = count + 1
          END DO
         END DO
        END DO
@@ -399,7 +399,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( h10 ) * t ( p3 h10 )_t * i1 
        DO p4b = noab+1,noab+nvab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+p4b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -408,6 +407,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( h10 ) * t ( p3 h10 )_t * i1 
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. 
      2           ieor(irrep_v,irrep_t)) THEN
+            IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
@@ -493,12 +493,12 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( h10 ) * t ( p3 h10 )_t * i1 
      1             CALL ERRQUIT('ccsd_t2_2',10,MA_ERR)
               IF (.not.MA_POP_STACK(l_cs)) 
      1             CALL ERRQUIT('ccsd_t2_2',11,MA_ERR)
+          next = NXTASK(nprocs, 1)
+          END IF
+          count = count + 1
              END IF
             END IF
            END IF
-           next = NXTASK(nprocs, 1)
-          END IF
-          count = count + 1
          END DO
         END DO
        END DO
@@ -536,7 +536,6 @@ C     i1 ( h10 p3 h1 h2 )_v + = 1 * v ( h10 p3 h1 h2 )_v
        DO h10b = 1,noab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+h10b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -545,6 +544,7 @@ C     i1 ( h10 p3 h1 h2 )_v + = 1 * v ( h10 p3 h1 h2 )_v
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               CALL TCE_RESTRICTED_4(p3b,h10b,h1b,h2b,
@@ -581,12 +581,12 @@ C     i1 ( h10 p3 h1 h2 )_v + = 1 * v ( h10 p3 h1 h2 )_v
                IF (.not.MA_POP_STACK(l_as)) 
      1              CALL ERRQUIT('ccsd_t2_2_1',5,MA_ERR)
               END IF
-             END IF
-            END IF
-           END IF
            next = NXTASK(nprocs, 1)
           END IF
           count = count + 1
+             END IF
+            END IF
+           END IF
          END DO
         END DO
        END DO
@@ -705,7 +705,6 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( h11 ) * t ( p3 h11 )_t * i2 ( h10 h
        DO h10b = 1,noab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+h10b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -714,6 +713,7 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( h11 ) * t ( p3 h11 )_t * i2 ( h10 h
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. 
      2           ieor(irrep_v,irrep_t)) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
@@ -799,12 +799,12 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( h11 ) * t ( p3 h11 )_t * i2 ( h10 h
      1             CALL ERRQUIT('ccsd_t2_2_2',10,MA_ERR)
               IF (.not.MA_POP_STACK(l_cs)) 
      1             CALL ERRQUIT('ccsd_t2_2_2',11,MA_ERR)
-             END IF
-            END IF
-           END IF
            next = NXTASK(nprocs, 1)
           END IF
           count = count + 1
+             END IF
+            END IF
+           END IF
          END DO
         END DO
        END DO
@@ -842,7 +842,6 @@ C     i2 ( h10 h11 h1 h2 )_v + = -1 * v ( h10 h11 h1 h2 )_v
        DO h11b = h10b,noab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)
      1          +int_mb(k_spin+h11b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -851,6 +850,7 @@ C     i2 ( h10 h11 h1 h2 )_v + = -1 * v ( h10 h11 h1 h2 )_v
              IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+h10b-1) * int_mb(k_range+h11b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               CALL TCE_RESTRICTED_4(h10b,h11b,h1b,h2b,
@@ -878,12 +878,12 @@ C     i2 ( h10 h11 h1 h2 )_v + = -1 * v ( h10 h11 h1 h2 )_v
                 IF (.not.MA_POP_STACK(l_a)) 
      1               CALL ERRQUIT('ccsd_t2_2_2_1',4,MA_ERR)
               END IF
-             END IF
-            END IF
-           END IF
            next = NXTASK(nprocs, 1)
           END IF
           count = count + 1
+             END IF
+            END IF
+           END IF
          END DO
         END DO
        END DO
@@ -1034,7 +1034,6 @@ C     i2 ( h10 h11 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * i3 (
       DO h11b = h10b,noab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b
      &-1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin
@@ -1042,6 +1041,7 @@ C     i2 ( h10 h11 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * i3 (
       IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_m
      &b(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) 
      &THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h10b-1) * int_mb(k_range+h11b-1) * int_mb(k_
      &range+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -1112,12 +1112,12 @@ C     i2 ( h10 h11 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * i3 (
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_2_2',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -1155,7 +1155,6 @@ C     i3 ( h10 h11 h1 p5 )_v + = 1 * v ( h10 h11 h1 p5 )_v
        DO h11b = h10b,noab
         DO h1b = 1,noab
          DO p5b = noab+1,noab+nvab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)
      1          +int_mb(k_spin+h11b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+p5b-1).ne.8)) THEN
@@ -1164,6 +1163,7 @@ C     i3 ( h10 h11 h1 p5 )_v + = 1 * v ( h10 h11 h1 p5 )_v
              IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+p5b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+h10b-1) * int_mb(k_range+h11b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+p5b-1)
               CALL TCE_RESTRICTED_4(h10b,h11b,h1b,p5b,
@@ -1191,12 +1191,12 @@ C     i3 ( h10 h11 h1 p5 )_v + = 1 * v ( h10 h11 h1 p5 )_v
                IF (.not.MA_POP_STACK(l_a)) 
      1              CALL ERRQUIT('ccsd_t2_2_2_2_1',4,MA_ERR)
               END IF
-             END IF
-            END IF
-           END IF
            next = NXTASK(nprocs, 1)
           END IF
           count = count + 1
+             END IF
+            END IF
+           END IF
          END DO
         END DO
        END DO
@@ -1338,7 +1338,6 @@ C     i3 ( h10 h11 h1 p5 )_vt + = -1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h10 h1
       DO h11b = h10b,noab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b
      &-1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin
@@ -1346,6 +1345,7 @@ C     i3 ( h10 h11 h1 p5 )_vt + = -1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h10 h1
       IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_m
      &b(k_sym+h1b-1),int_mb(k_sym+p5b-1)))) .eq. ieor(irrep_v,irrep_t)) 
      &THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h10b-1) * int_mb(k_range+h11b-1) * int_mb(k_
      &range+h1b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -1434,12 +1434,12 @@ C     i3 ( h10 h11 h1 p5 )_vt + = -1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h10 h1
      &RR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_2_2_2',11
      &,MA_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -1514,7 +1514,6 @@ C     i2 ( h10 h11 h1 h2 )_vt + = -1/2 * Sum ( p7 p8 ) * t ( p7 p8 h1 h2 )_t * v
       DO h11b = h10b,noab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b
      &-1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin
@@ -1522,6 +1521,7 @@ C     i2 ( h10 h11 h1 h2 )_vt + = -1/2 * Sum ( p7 p8 ) * t ( p7 p8 h1 h2 )_t * v
       IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_m
      &b(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) 
      &THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h10b-1) * int_mb(k_range+h11b-1) * int_mb(k_
      &range+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -1601,12 +1601,12 @@ C     i2 ( h10 h11 h1 h2 )_vt + = -1/2 * Sum ( p7 p8 ) * t ( p7 p8 h1 h2 )_t * v
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_2_3',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -1674,7 +1674,6 @@ C     i1 ( h10 p3 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * i2 (
       DO h10b = 1,noab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+
@@ -1682,6 +1681,7 @@ C     i1 ( h10 p3 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * i2 (
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -1753,12 +1753,12 @@ C     i1 ( h10 p3 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * i2 (
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_2_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_3',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -1792,7 +1792,6 @@ C     i2 ( h10 p3 h1 p5 )_v + = 1 * v ( h10 p3 h1 p5 )_v
        DO h10b = 1,noab
         DO h1b = 1,noab
          DO p5b = noab+1,noab+nvab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+h10b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+p5b-1).ne.8)) THEN
@@ -1801,6 +1800,7 @@ C     i2 ( h10 p3 h1 p5 )_v + = 1 * v ( h10 p3 h1 p5 )_v
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+p5b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+p5b-1)
               CALL TCE_RESTRICTED_4(p3b,h10b,h1b,p5b,
@@ -1837,12 +1837,12 @@ C     i2 ( h10 p3 h1 p5 )_v + = 1 * v ( h10 p3 h1 p5 )_v
                IF (.not.MA_POP_STACK(l_as)) 
      1              CALL ERRQUIT('ccsd_t2_2_3_1',5,MA_ERR)
               END IF
-             END IF
-            END IF
-           END IF
            next = NXTASK(nprocs, 1)
           END IF
           count = count + 1
+             END IF
+            END IF
+           END IF
          END DO
         END DO
        END DO
@@ -1979,7 +1979,6 @@ C     i2 ( h10 p3 h1 p5 )_vt + = -1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h10 p3 
       DO h10b = 1,noab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+
@@ -1987,6 +1986,7 @@ C     i2 ( h10 p3 h1 p5 )_vt + = -1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h10 p3 
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+p5b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -2073,12 +2073,12 @@ C     i2 ( h10 p3 h1 p5 )_vt + = -1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h10 p3 
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_3_2',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -2146,7 +2146,6 @@ C     i1 ( h10 p3 h1 h2 )_ft + = -1 * Sum ( p5 ) * t ( p3 p5 h1 h2 )_t * i2 ( h1
       DO h10b = 1,noab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+
@@ -2154,6 +2153,7 @@ C     i1 ( h10 p3 h1 h2 )_ft + = -1 * Sum ( p5 ) * t ( p3 p5 h1 h2 )_t * i2 ( h1
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_f,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -2225,12 +2225,12 @@ C     i1 ( h10 p3 h1 h2 )_ft + = -1 * Sum ( p5 ) * t ( p3 p5 h1 h2 )_t * i2 ( h1
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_2_4',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_4',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -2266,12 +2266,12 @@ C     i2 ( h10 p5 )_f + = 1 * f ( h10 p5 )_f
       next = NXTASK(nprocs, 1)
       DO h10b = 1,noab
        DO p5b = noab+1,noab+nvab
-        IF (next.eq.count) THEN
          IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)
      1                            +int_mb(k_spin+p5b-1).ne.4)) THEN
           IF (int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+p5b-1)) THEN
            IF (ieor(int_mb(k_sym+h10b-1),int_mb(k_sym+p5b-1)) 
      1         .eq. irrep_f) THEN
+        IF (next.eq.count) THEN
             dimc = int_mb(k_range+h10b-1) * int_mb(k_range+p5b-1)
             CALL TCE_RESTRICTED_2(h10b,p5b,h10b_1,p5b_1)
             dim_common = 1
@@ -2303,12 +2303,12 @@ C     i2 ( h10 p5 )_f + = 1 * f ( h10 p5 )_f
              IF (.not.MA_POP_STACK(l_as)) 
      1            CALL ERRQUIT('ccsd_t2_2_4_1',5,MA_ERR)
             END IF
+        next = NXTASK(nprocs, 1)
+        END IF
+        count = count + 1
            END IF
           END IF
          END IF
-         next = NXTASK(nprocs, 1)
-        END IF
-        count = count + 1
        END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -2430,12 +2430,12 @@ C     i2 ( h10 p5 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 h10 p5 p6
       next = NXTASK(nprocs, 1)
       DO h10b = 1,noab
       DO p5b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)+int_mb(k_spin+p5b-
      &1).ne.4)) THEN
       IF (int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+p5b-1)) THEN
       IF (ieor(int_mb(k_sym+h10b-1),int_mb(k_sym+p5b-1)) .eq. ieor(irrep
      &_v,irrep_t)) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h10b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_2_4_2',0,MA_ERR)
@@ -2550,12 +2550,12 @@ C     i2 ( h10 p5 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 h10 p5 p6
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_4_2',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -2624,7 +2624,6 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( h7 p9 ) * t ( p3 p9 h1 h7 )_
       DO h10b = 1,noab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+
@@ -2632,6 +2631,7 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( h7 p9 ) * t ( p3 p9 h1 h7 )_
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -2742,12 +2742,12 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( h7 p9 ) * t ( p3 p9 h1 h7 )_
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_2_5',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_5',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -2785,7 +2785,6 @@ C     i2 ( h7 h10 h1 p9 )_v + = 1 * v ( h7 h10 h1 p9 )_v
        DO h10b = h7b,noab
         DO h1b = 1,noab
          DO p9b = noab+1,noab+nvab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+h7b-1)
      1          +int_mb(k_spin+h10b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+p9b-1).ne.8)) THEN
@@ -2794,6 +2793,7 @@ C     i2 ( h7 h10 h1 p9 )_v + = 1 * v ( h7 h10 h1 p9 )_v
              IF (ieor(int_mb(k_sym+h7b-1),ieor(int_mb(k_sym+h10b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+p9b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+h7b-1) * int_mb(k_range+h10b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+p9b-1)
               CALL TCE_RESTRICTED_4(h7b,h10b,h1b,p9b,
@@ -2821,12 +2821,12 @@ C     i2 ( h7 h10 h1 p9 )_v + = 1 * v ( h7 h10 h1 p9 )_v
                IF (.not.MA_POP_STACK(l_a)) 
      1              CALL ERRQUIT('ccsd_t2_2_5_1',4,MA_ERR)
               END IF
-             END IF
-            END IF
-           END IF
            next = NXTASK(nprocs, 1)
           END IF
           count = count + 1
+             END IF
+            END IF
+           END IF
          END DO
         END DO
        END DO
@@ -2967,7 +2967,6 @@ C     i2 ( h7 h10 h1 p9 )_vt + = 1 * Sum ( p5 ) * t ( p5 h1 )_t * v ( h7 h10 p5 
       DO h10b = h7b,noab
       DO h1b = 1,noab
       DO p9b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h7b-1)+int_mb(k_spin+h10b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p9b-1).ne.8)) THEN
       IF (int_mb(k_spin+h7b-1)+int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+
@@ -2975,6 +2974,7 @@ C     i2 ( h7 h10 h1 p9 )_vt + = 1 * Sum ( p5 ) * t ( p5 h1 )_t * v ( h7 h10 p5 
       IF (ieor(int_mb(k_sym+h7b-1),ieor(int_mb(k_sym+h10b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+p9b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h7b-1) * int_mb(k_range+h10b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+p9b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -3061,12 +3061,12 @@ C     i2 ( h7 h10 h1 p9 )_vt + = 1 * Sum ( p5 ) * t ( p5 h1 )_t * v ( h7 h10 p5 
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_5_2',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -3141,7 +3141,6 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v (
       DO h10b = 1,noab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h10b-1) .eq. int_mb(k_spin+
@@ -3149,6 +3148,7 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v (
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h10b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h10b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -3230,12 +3230,12 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v (
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_2_6',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_2_6',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -3309,7 +3309,6 @@ C     i0 ( p3 p4 h1 h2 )_tf + = -1 * P( 2 ) * Sum ( h9 ) * t ( p3 p4 h1 h9 )_t *
       DO p4b = p3b,noab+nvab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -3317,6 +3316,7 @@ C     i0 ( p3 p4 h1 h2 )_tf + = -1 * P( 2 ) * Sum ( h9 ) * t ( p3 p4 h1 h9 )_t *
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_t,irrep_f)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -3399,12 +3399,12 @@ C     i0 ( p3 p4 h1 h2 )_tf + = -1 * P( 2 ) * Sum ( h9 ) * t ( p3 p4 h1 h9 )_t *
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_4',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_4',11,MA_ER
      &R)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -3440,12 +3440,12 @@ C     i1 ( h9 h1 )_f + = 1 * f ( h9 h1 )_f
       next = NXTASK(nprocs, 1)
       DO h9b = 1,noab
        DO h1b = 1,noab
-        IF (next.eq.count) THEN
          IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)
      1        +int_mb(k_spin+h1b-1).ne.4)) THEN
           IF (int_mb(k_spin+h9b-1) .eq. int_mb(k_spin+h1b-1)) THEN
            IF (ieor(int_mb(k_sym+h9b-1),int_mb(k_sym+h1b-1)) 
      1         .eq. irrep_f) THEN
+        IF (next.eq.count) THEN
             dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h1b-1)
             CALL TCE_RESTRICTED_2(h9b,h1b,h9b_1,h1b_1)
             IF (dimc .gt. 0) THEN
@@ -3459,12 +3459,12 @@ C     i1 ( h9 h1 )_f + = 1 * f ( h9 h1 )_f
              IF (.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('ccsd_t2_4_1',4,MA_ERR)
             END IF
+        next = NXTASK(nprocs, 1)
+        END IF
+        count = count + 1
            END IF
           END IF
          END IF
-         next = NXTASK(nprocs, 1)
-        END IF
-        count = count + 1
        END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -3559,12 +3559,12 @@ C     i1 ( h9 h1 )_ft + = 1 * Sum ( p8 ) * t ( p8 h1 )_t * i2 ( h9 p8 )_f
       next = NXTASK(nprocs, 1)
       DO h9b = 1,noab
        DO h1b = 1,noab
-        IF (next.eq.count) THEN
          IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)
      1                            +int_mb(k_spin+h1b-1).ne.4)) THEN
           IF (int_mb(k_spin+h9b-1) .eq. int_mb(k_spin+h1b-1)) THEN
            IF (ieor(int_mb(k_sym+h9b-1),int_mb(k_sym+h1b-1)) 
      1         .eq. ieor(irrep_f,irrep_t)) THEN
+         IF (next.eq.count) THEN
             dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h1b-1)
             IF (.not.MA_PUSH_GET(mt_dbl,dimc,'c',l_c,k_c)) 
      1           CALL ERRQUIT('ccsd_t2_4_2',0,MA_ERR)
@@ -3614,12 +3614,12 @@ C     i1 ( h9 h1 )_ft + = 1 * Sum ( p8 ) * t ( p8 h1 )_t * i2 ( h9 p8 )_f
      2          (h1b - 1 + noab * (h9b - 1)))
            IF (.not.MA_POP_STACK(l_c)) 
      1          CALL ERRQUIT('ccsd_t2_4_2',10,MA_ERR)
+        next = NXTASK(nprocs, 1)
+        END IF
+        count = count + 1
            END IF
           END IF
          END IF
-         next = NXTASK(nprocs, 1)
-        END IF
-        count = count + 1
        END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -3653,12 +3653,12 @@ C     i2 ( h9 p8 )_f + = 1 * f ( h9 p8 )_f
       next = NXTASK(nprocs, 1)
       DO h9b = 1,noab
        DO p8b = noab+1,noab+nvab
-        IF (next.eq.count) THEN
          IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)
      1                            +int_mb(k_spin+p8b-1).ne.4)) THEN
           IF (int_mb(k_spin+h9b-1) .eq. int_mb(k_spin+p8b-1)) THEN
            IF (ieor(int_mb(k_sym+h9b-1),int_mb(k_sym+p8b-1)) 
      1         .eq. irrep_f) THEN
+        IF (next.eq.count) THEN
             dimc = int_mb(k_range+h9b-1) * int_mb(k_range+p8b-1)
             CALL TCE_RESTRICTED_2(h9b,p8b,h9b_1,p8b_1)
             IF (dimc .gt. 0) THEN
@@ -3673,12 +3673,12 @@ C     i2 ( h9 p8 )_f + = 1 * f ( h9 p8 )_f
              IF (.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('ccsd_t2_4_2_1',4,MA_ERR)
             END IF
+        next = NXTASK(nprocs, 1)
+        END IF
+        count = count + 1
            END IF
           END IF
          END IF
-         next = NXTASK(nprocs, 1)
-        END IF
-        count = count + 1
        END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -3796,12 +3796,12 @@ C     i2 ( h9 p8 )_vt + = 1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 h9 p6 p8 )_
       next = NXTASK(nprocs, 1)
       DO h9b = 1,noab
       DO p8b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)+int_mb(k_spin+p8b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+h9b-1) .eq. int_mb(k_spin+p8b-1)) THEN
       IF (ieor(int_mb(k_sym+h9b-1),int_mb(k_sym+p8b-1)) .eq. ieor(irrep_
      &v,irrep_t)) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h9b-1) * int_mb(k_range+p8b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_4_2_2',0,MA_ERR)
@@ -3916,12 +3916,12 @@ C     i2 ( h9 p8 )_vt + = 1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 h9 p6 p8 )_
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_4_2_2',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -3984,12 +3984,12 @@ C     i1 ( h9 h1 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 h9 h1 p6 )
       next = NXTASK(nprocs, 1)
       DO h9b = 1,noab
       DO h1b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)+int_mb(k_spin+h1b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+h9b-1) .eq. int_mb(k_spin+h1b-1)) THEN
       IF (ieor(int_mb(k_sym+h9b-1),int_mb(k_sym+h1b-1)) .eq. ieor(irrep_
      &v,irrep_t)) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h1b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_4_3',0,MA_ERR)
@@ -4073,12 +4073,12 @@ C     i1 ( h9 h1 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 h9 h1 p6 )
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_4_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_4_3',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -4148,12 +4148,12 @@ C     i1 ( h9 h1 )_vt + = -1/2 * Sum ( h8 p6 p7 ) * t ( p6 p7 h1 h8 )_t * v ( h8
       next = NXTASK(nprocs, 1)
       DO h9b = 1,noab
       DO h1b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)+int_mb(k_spin+h1b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+h9b-1) .eq. int_mb(k_spin+h1b-1)) THEN
       IF (ieor(int_mb(k_sym+h9b-1),int_mb(k_sym+h1b-1)) .eq. ieor(irrep_
      &v,irrep_t)) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h1b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_4_4',0,MA_ERR)
@@ -4260,12 +4260,12 @@ C     i1 ( h9 h1 )_vt + = -1/2 * Sum ( h8 p6 p7 ) * t ( p6 p7 h1 h8 )_t * v ( h8
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_4_4',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_4_4',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -4306,7 +4306,6 @@ C     i0 ( p3 p4 h1 h2 )_tf + = 1 * P( 2 ) * Sum ( p5 ) * t ( p3 p5 h1 h2 )_t * 
        DO p4b = noab+1,noab+nvab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+p4b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -4315,6 +4314,7 @@ C     i0 ( p3 p4 h1 h2 )_tf + = 1 * P( 2 ) * Sum ( p5 ) * t ( p3 p5 h1 h2 )_t * 
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. 
      2           ieor(irrep_t,irrep_f)) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
@@ -4414,12 +4414,12 @@ C     i0 ( p3 p4 h1 h2 )_tf + = 1 * P( 2 ) * Sum ( p5 ) * t ( p3 p5 h1 h2 )_t * 
      1             CALL ERRQUIT('ccsd_t2_5',10,MA_ERR)
               IF (.not.MA_POP_STACK(l_cs)) 
      1             CALL ERRQUIT('ccsd_t2_5',11,MA_ERR)
+          next = NXTASK(nprocs, 1)
+          END IF
+          count = count + 1
              END IF
             END IF
            END IF
-           next = NXTASK(nprocs, 1)
-          END IF
-          count = count + 1
          END DO
         END DO
        END DO
@@ -4454,12 +4454,12 @@ C     i1 ( p3 p5 )_f + = 1 * f ( p3 p5 )_f
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
        DO p5b = noab+1,noab+nvab
-        IF (next.eq.count) THEN
          IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1        +int_mb(k_spin+p5b-1).ne.4)) THEN
           IF (int_mb(k_spin+p3b-1) .eq. int_mb(k_spin+p5b-1)) THEN
            IF (ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p5b-1)) 
      1         .eq. irrep_f) THEN
+        IF (next.eq.count) THEN
             dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p5b-1)
             CALL TCE_RESTRICTED_2(p3b,p5b,p3b_1,p5b_1)
             IF (dimc .gt. 0) THEN
@@ -4474,12 +4474,12 @@ C     i1 ( p3 p5 )_f + = 1 * f ( p3 p5 )_f
              IF (.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('ccsd_t2_5_1',4,MA_ERR)
             END IF
+        next = NXTASK(nprocs, 1)
+        END IF
+        count = count + 1
            END IF
           END IF
          END IF
-         next = NXTASK(nprocs, 1)
-        END IF
-        count = count + 1
        END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -4601,12 +4601,12 @@ C     i1 ( p3 p5 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 p3 p5 p6 )
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p5b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p5b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+p3b-1) .eq. int_mb(k_spin+p5b-1)) THEN
       IF (ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p5b-1)) .eq. ieor(irrep_
      &v,irrep_t)) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_5_2',0,MA_ERR)
@@ -4690,12 +4690,12 @@ C     i1 ( p3 p5 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 p3 p5 p6 )
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_5_2',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_5_2',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -4765,12 +4765,12 @@ C     i1 ( p3 p5 )_vt + = -1/2 * Sum ( h7 h8 p6 ) * t ( p3 p6 h7 h8 )_t * v ( h7
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p5b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p5b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+p3b-1) .eq. int_mb(k_spin+p5b-1)) THEN
       IF (ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p5b-1)) .eq. ieor(irrep_
      &v,irrep_t)) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_5_3',0,MA_ERR)
@@ -4877,12 +4877,12 @@ C     i1 ( p3 p5 )_vt + = -1/2 * Sum ( h7 h8 p6 ) * t ( p3 p6 h7 h8 )_t * v ( h7
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_5_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_5_3',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       next = NXTASK(-nprocs, 1)
@@ -4954,7 +4954,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1/2 * Sum ( h11 h9 ) * t ( p3 p4 h9 h11 )_t * i
       DO p4b = p3b,noab+nvab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -4962,6 +4961,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1/2 * Sum ( h11 h9 ) * t ( p3 p4 h9 h11 )_t * i
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -5034,12 +5034,12 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1/2 * Sum ( h11 h9 ) * t ( p3 p4 h9 h11 )_t * i
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_6',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_6',11,MA_ER
      &R)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -5077,7 +5077,6 @@ C     i1 ( h9 h11 h1 h2 )_v + = -1 * v ( h9 h11 h1 h2 )_v
        DO h11b = h9b,noab
         DO h1b = 1,noab
          DO h2b = h1b,noab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)
      1          +int_mb(k_spin+h11b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+h2b-1).ne.8)) THEN
@@ -5086,6 +5085,7 @@ C     i1 ( h9 h11 h1 h2 )_v + = -1 * v ( h9 h11 h1 h2 )_v
              IF (ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+h11b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h11b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
               CALL TCE_RESTRICTED_4(h9b,h11b,h1b,h2b,
@@ -5112,12 +5112,12 @@ C     i1 ( h9 h11 h1 h2 )_v + = -1 * v ( h9 h11 h1 h2 )_v
                IF (.not.MA_POP_STACK(l_a)) 
      1              CALL ERRQUIT('ccsd_t2_6_1',4,MA_ERR)
               END IF
+          next = NXTASK(nprocs, 1)
+          END IF
+          count = count + 1
              END IF
             END IF
            END IF
-           next = NXTASK(nprocs, 1)
-          END IF
-          count = count + 1
          END DO
         END DO
        END DO
@@ -5258,7 +5258,6 @@ C     i1 ( h9 h11 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( p8 ) * t ( p8 h1 )_t * i2 ( 
       DO h11b = h9b,noab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)+int_mb(k_spin+h11b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+h9b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin+
@@ -5266,6 +5265,7 @@ C     i1 ( h9 h11 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( p8 ) * t ( p8 h1 )_t * i2 ( 
       IF (ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h11b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -5335,12 +5335,12 @@ C     i1 ( h9 h11 h1 h2 )_vt + = 1 * P( 2 ) * Sum ( p8 ) * t ( p8 h1 )_t * i2 ( 
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_6_2',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_6_2',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -5378,7 +5378,6 @@ C     i2 ( h9 h11 h1 p8 )_v + = 1 * v ( h9 h11 h1 p8 )_v
        DO h11b = h9b,noab
         DO h1b = 1,noab
          DO p8b = noab+1,noab+nvab
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)
      1          +int_mb(k_spin+h11b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+p8b-1).ne.8)) THEN
@@ -5387,6 +5386,7 @@ C     i2 ( h9 h11 h1 p8 )_v + = 1 * v ( h9 h11 h1 p8 )_v
              IF (ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+h11b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+p8b-1)))) 
      2           .eq. irrep_v) THEN
+           IF (next.eq.count) THEN
               dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h11b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+p8b-1)
               CALL TCE_RESTRICTED_4(h9b,h11b,h1b,p8b,
@@ -5414,12 +5414,12 @@ C     i2 ( h9 h11 h1 p8 )_v + = 1 * v ( h9 h11 h1 p8 )_v
                IF (.not.MA_POP_STACK(l_a)) 
      1              CALL ERRQUIT('ccsd_t2_6_2_1',4,MA_ERR)
               END IF
+          next = NXTASK(nprocs, 1)
+          END IF
+          count = count + 1
              END IF
             END IF
            END IF
-           next = NXTASK(nprocs, 1)
-          END IF
-          count = count + 1
          END DO
         END DO
        END DO
@@ -5560,7 +5560,6 @@ C     i2 ( h9 h11 h1 p8 )_vt + = 1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h9 h11 p
       DO h11b = h9b,noab
       DO h1b = 1,noab
       DO p8b = noab+1,noab+nvab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)+int_mb(k_spin+h11b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p8b-1).ne.8)) THEN
       IF (int_mb(k_spin+h9b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin+
@@ -5568,6 +5567,7 @@ C     i2 ( h9 h11 h1 p8 )_vt + = 1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h9 h11 p
       IF (ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+p8b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h11b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+p8b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -5654,12 +5654,12 @@ C     i2 ( h9 h11 h1 p8 )_vt + = 1/2 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h9 h11 p
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_6_2_2',11,M
      &A_ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -5734,7 +5734,6 @@ C     i1 ( h9 h11 h1 h2 )_vt + = -1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v 
       DO h11b = h9b,noab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h9b-1)+int_mb(k_spin+h11b-
      &1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+h9b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin+
@@ -5742,6 +5741,7 @@ C     i1 ( h9 h11 h1 h2 )_vt + = -1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v 
       IF (ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_mb
      &(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) T
      &HEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+h9b-1) * int_mb(k_range+h11b-1) * int_mb(k_r
      &ange+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -5820,12 +5820,12 @@ C     i1 ( h9 h11 h1 h2 )_vt + = -1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v 
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_6_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_6_3',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -5895,7 +5895,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 4 ) * Sum ( h6 p5 ) * t ( p3 p5 h1 h6 )_
       DO p4b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -5903,6 +5902,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 4 ) * Sum ( h6 p5 ) * t ( p3 p5 h1 h6 )_
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -6021,12 +6021,12 @@ c **************
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_7',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_7',11,MA_ER
      &R)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -6067,7 +6067,6 @@ c *** peta ***
         DO p5b = noab+1,noab+nvab
          DO h6b = 1,noab
 c ************
-          IF (next.eq.count) THEN
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+h6b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+p5b-1).ne.8)) THEN
@@ -6076,6 +6075,7 @@ c ************
              IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h6b-1),
      1           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+p5b-1)))) 
      2           .eq. irrep_v) THEN
+          IF (next.eq.count) THEN
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h6b-1) 
      1             * int_mb(k_range+h1b-1) * int_mb(k_range+p5b-1)
               CALL TCE_RESTRICTED_4(p3b,h6b,h1b,p5b,
@@ -6114,12 +6114,12 @@ c **************
                IF (.not.MA_POP_STACK(l_as)) 
      1              CALL ERRQUIT('ccsd_t2_7_1',5,MA_ERR)
               END IF
+          next = NXTASK(nprocs, 1)
+          END IF
+          count = count + 1
              END IF
             END IF
            END IF
-           next = NXTASK(nprocs, 1)
-          END IF
-          count = count + 1
          END DO
         END DO
        END DO
@@ -6269,7 +6269,6 @@ c *** peta ***
       DO p5b = noab+1,noab+nvab
       DO h6b = 1,noab
 c ************
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1) .eq. int_mb(k_spin+h
@@ -6277,6 +6276,7 @@ c ************
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h6b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+p5b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h6b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -6364,12 +6364,12 @@ c ************
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_7_2',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_7_2',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -6442,7 +6442,6 @@ c *** peta ***
       DO p5b = noab+1,noab+nvab
       DO h6b = 1,noab
 c ************
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1) .eq. int_mb(k_spin+h
@@ -6450,6 +6449,7 @@ c ************
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h6b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+p5b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h6b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+p5b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -6596,12 +6596,12 @@ c ************
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_7_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_7_3',11,MA_
      &ERR)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -6687,7 +6687,6 @@ c *************
       DO p4b = p3b,noab+nvab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -6695,6 +6694,7 @@ c *************
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -6832,12 +6832,12 @@ c             call util_flush(6)
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_8',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_8',11,MA_ER
      &R)
-      END IF
-      END IF
-      END IF
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
+      END IF
+      END IF
+      END IF
       END DO
       END DO
       END DO
@@ -7346,7 +7346,6 @@ cc      next = nxtval(nprocs)
           do h3b = 1,noab
             do h4b = h3b,noab
 cccx              if (next.eq.count) then
-              if (noloadbalance.or.(next.eq.count)) then
                 if (util_print('t2',print_debug))
      1            write(LuOut,9200) p1b,p2b,h3b,h4b,ga_nodeid()
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
@@ -7357,6 +7356,9 @@ cccx     1            ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
 cccx     2            .eq. 0) then
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
      &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_t) THEN
+c
+              if (noloadbalance.or.(next.eq.count)) then
+c
                  size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
      1                * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                  if (.not.ma_push_get(mt_dbl,size,'t2',l_t2,k_t2))
@@ -7478,13 +7480,13 @@ c deallocation
 c
                  if (.not.ma_pop_stack(l_t2))
      1             call errquit('tce_guess_t2: MA problem',1,MA_ERR)
+              next = NXTASK(nprocs, 1)
+              endif
+              count = count + 1
                 endif
                 endif
                 endif
 cc                next = nxtval(nprocs)
-                next = NXTASK(nprocs, 1)
-              endif
-              count = count + 1
             enddo
           enddo
         enddo
@@ -7517,7 +7519,6 @@ cc      next = nxtval(nprocs)
           do h3b = 1,noab
             do h4b = h3b,noab
 cccx              if (next.eq.count) then
-              if (noloadbalance.or.(next.eq.count)) then
                 if (util_print('t2',print_debug))
      1            write(LuOut,9200) p1b,p2b,h3b,h4b,ga_nodeid()
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)
@@ -7529,6 +7530,8 @@ cccx     1            ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
 cccx     2            .eq. 0) then
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
      &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_t) THEN
+c
+                 if (noloadbalance.or.(next.eq.count)) then
 c
          SPINSUM=int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)+
      2            int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)
@@ -7669,13 +7672,15 @@ c deallocation
 c
                  if (.not.ma_pop_stack(l_t2))
      1             call errquit('tce_guess_t2: MA problem',1,MA_ERR)
+c
+               next = NXTASK(nprocs, 1)
+              endif
+              count = count + 1
+c
                 endif
                 endif
                 endif
 cc                next = nxtval(nprocs)
-               next = NXTASK(nprocs, 1)
-              endif
-              count = count + 1
             enddo
           enddo
         enddo
@@ -7794,7 +7799,6 @@ cc      next = nxtval(nprocs)
           do h3b = 1,noab
             do h4b = h3b,noab
 cccx              if (next.eq.count) then
-              if (noloadbalance.or.(next.eq.count)) then
                 if (util_print('t2',print_debug))
      1            write(LuOut,9200) p1b,p2b,h3b,h4b,ga_nodeid()
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
@@ -7805,6 +7809,7 @@ cccx     1            ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
 cccx     2            .eq. 0) then
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
      &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_t) THEN
+              if (noloadbalance.or.(next.eq.count)) then
                  size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
      1                * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                  if (.not.ma_push_get(mt_dbl,size,'t2',l_t2,k_t2))
@@ -7925,13 +7930,15 @@ c deallocation
 c
                  if (.not.ma_pop_stack(l_t2))
      1             call errquit('tce_guess_t2: MA problem',1,MA_ERR)
+c
+               next = NXTASK(nprocs, 1)
+              endif
+              count = count + 1
+c
                 endif
                 endif
                 endif
 cc                next = nxtval(nprocs)
-               next = NXTASK(nprocs, 1)
-              endif
-              count = count + 1
             enddo
           enddo
         enddo
@@ -7964,7 +7971,6 @@ cc      next = nxtval(nprocs)
           do h3b = 1,noab
             do h4b = h3b,noab
 cccx              if (next.eq.count) then
-              if (noloadbalance.or.(next.eq.count)) then
                 if (util_print('t2',print_debug))
      1            write(LuOut,9200) p1b,p2b,h3b,h4b,ga_nodeid()
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)
@@ -7976,6 +7982,8 @@ cccx     1            ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
 cccx     2            .eq. 0) then
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
      &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_t) THEN
+c
+              if (noloadbalance.or.(next.eq.count)) then
 c
          SPINSUM=int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)+
      2            int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)
@@ -8116,13 +8124,15 @@ c deallocation
 c
                  if (.not.ma_pop_stack(l_t2))
      1             call errquit('tce_guess_t2: MA problem',1,MA_ERR)
+c
+              next = NXTASK(nprocs, 1)
+              endif
+              count = count + 1
+c
                 endif
                 endif
                 endif
 cc                next = nxtval(nprocs)
-               next = NXTASK(nprocs, 1)
-              endif
-              count = count + 1
             enddo
           enddo
         enddo
@@ -8202,7 +8212,6 @@ cc      next = NXTVAL(nprocs)
       DO p4b = p3b,noab+nvab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -8210,6 +8219,7 @@ cc      next = NXTVAL(nprocs)
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -8290,13 +8300,13 @@ cc      next = NXTVAL(nprocs)
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('lccsd_t2_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('lccsd_t2_3',11,MA_E
      &RR)
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
       END IF
       END IF
       END IF
 cc      next = NXTVAL(nprocs)
-      next = NXTASK(nprocs, 1)
-      END IF
-      count = count + 1
       END DO
       END DO
       END DO
@@ -8379,7 +8389,6 @@ cc      next = NXTVAL(nprocs)
       DO p4b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO h2b = h1b,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -8387,6 +8396,7 @@ cc      next = NXTVAL(nprocs)
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,ieor(irrep_t
      &,irrep_t))) THEN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -8455,13 +8465,15 @@ cc      next = NXTVAL(nprocs)
       END IF
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('vt1t1_1',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('vt1t1_1',11,MA_ERR)
+c
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
+c
       END IF
       END IF
       END IF
 cc      next = NXTVAL(nprocs)
-      next = NXTASK(nprocs, 1)
-      END IF
-      count = count + 1
       END DO
       END DO
       END DO
@@ -8603,7 +8615,6 @@ cc      next = NXTVAL(nprocs)
       DO h5b = 1,noab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h5b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h5b-1) .eq. int_mb(k_spin+h
@@ -8611,6 +8622,7 @@ cc      next = NXTVAL(nprocs)
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+h5b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+h5b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -8691,13 +8703,13 @@ cc      next = NXTVAL(nprocs)
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('vt1t1_1_2',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('vt1t1_1_2',11,MA_ER
      &R)
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
       END IF
       END IF
       END IF
 cc      next = NXTVAL(nprocs)
-      next = NXTASK(nprocs, 1)
-      END IF
-      count = count + 1
       END DO
       END DO
       END DO
@@ -8775,7 +8787,6 @@ cc      next = NXTVAL(nprocs)
       DO p4b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -8783,6 +8794,7 @@ cc      next = NXTVAL(nprocs)
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_t,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -8866,13 +8878,13 @@ cc      next = NXTVAL(nprocs)
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('half_t1t1_1',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('half_t1t1_1',11,MA_
      &ERR)
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
       END IF
       END IF
       END IF
 cc      next = NXTVAL(nprocs)
-      next = NXTASK(nprocs, 1)
-      END IF
-      count = count + 1
       END DO
       END DO
       END DO
@@ -8948,7 +8960,6 @@ cc      next = NXTVAL(nprocs)
       DO p4b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO h2b = 1,noab
-      IF (next.eq.count) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h
@@ -8956,6 +8967,7 @@ cc      next = NXTVAL(nprocs)
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_t,irrep_t)) TH
      &EN
+      IF (next.eq.count) THEN
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
@@ -9040,13 +9052,13 @@ cc      next = NXTVAL(nprocs)
      &)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('m_half_t1t1_1',11,M
      &A_ERR)
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
       END IF
       END IF
       END IF
 cc      next = NXTVAL(nprocs)
-      next = NXTASK(nprocs, 1)
-      END IF
-      count = count + 1
       END DO
       END DO
       END DO
