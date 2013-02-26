@@ -418,4 +418,104 @@ c        write(6,*)'YES5',ga_nodeid(),iref
 
        return
        end
+c
+c ===================================================
+c
+      subroutine amp_stabilization(vl,vr,nref)
+      double precision vl(nref,nref),vr(nref,nref)
+      double precision tol,x,xsum
+      integer aux1(nref)
+      integer i,j,k,idiff,jdiff,jtot
+c
+      tol=1.0d-9
+c vr part
+      do j=1,nref  ! column
+       do i=1,nref
+        aux1(i)=0
+       enddo
+       idiff=1
+       do i=1,nref
+        if(aux1(i).eq.0) then
+         x=dabs(vr(i,j))
+         if(x.lt.tol) then
+          aux1(i)=idiff
+          go to 11
+         end if
+         do k=i,nref
+          if(dabs(dabs(vr(k,j))-dabs(x)).le.tol) aux1(k)=idiff
+         enddo
+ 11      continue
+         idiff=idiff+1
+        end if
+       enddo
+       idiff=idiff-1
+       do jdiff=1,idiff
+        jtot=0
+        xsum=0.0d0
+        do i=1,nref
+         if(aux1(i).eq.jdiff) then
+          jtot=jtot+1
+          xsum=xsum+dabs(vr(i,j))
+         end if
+        enddo
+        xsum=xsum/dreal(jtot)
+        do i=1,nref
+         if(aux1(i).eq.jdiff) then
+           if(vr(i,j).lt.0.0d0) then
+            vr(i,j)=-xsum
+           else
+            vr(i,j)=xsum
+           end if
+         end if
+        enddo
+       enddo
+      enddo
+c vl part
+      do j=1,nref  ! column
+       do i=1,nref
+        aux1(i)=0
+       enddo
+       idiff=1
+       do i=1,nref
+        if(aux1(i).eq.0) then
+         x=dabs(vl(i,j))
+         if(x.lt.tol) then
+          aux1(i)=idiff
+          go to 12
+         end if
+         do k=i,nref
+          if(dabs(dabs(vl(k,j))-dabs(x)).le.tol) aux1(k)=idiff
+         enddo
+ 12      continue
+         idiff=idiff+1
+        end if
+       enddo
+       idiff=idiff-1
+       do jdiff=1,idiff
+        jtot=0
+        xsum=0.0d0
+        do i=1,nref
+         if(aux1(i).eq.jdiff) then
+          jtot=jtot+1
+          xsum=xsum+dabs(vl(i,j))
+         end if
+        enddo
+        xsum=xsum/dreal(jtot)
+        do i=1,nref
+         if(aux1(i).eq.jdiff) then
+           if(vl(i,j).lt.0.0d0) then
+            vl(i,j)=-xsum
+           else
+            vl(i,j)=xsum
+           end if
+         end if
+        enddo
+       enddo
+      enddo
+c
+      return
+      end
+c
+c ===================================================
+c
 
