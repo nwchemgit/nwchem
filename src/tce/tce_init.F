@@ -246,7 +246,7 @@ c
         if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
      1  call errquit('tce_init: failed to write zlshift',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:zlshiftl',mt_dbl,1,zlshift)) then
+      if (.not.rtdb_get(rtdb,'tce:zlshiftl',mt_dbl,1,zlshiftl)) then
         zlshiftl = 0.0d0
         if (.not.rtdb_put(rtdb,'tce:zlshiftl',mt_dbl,1,zlshiftl))
      1  call errquit('tce_init: failed to write zlshiftl',0,RTDB_ERR)
