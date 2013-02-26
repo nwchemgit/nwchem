@@ -33,6 +33,7 @@ c$$$      double precision pvec(nstrb,nstra)
 c
       integer nel, ssmax
       integer ss, tt
+      logical nextodd
 c
 c  Maximum open shell electrons for
 c  nel electrons in norb orbitals
@@ -48,15 +49,24 @@ c
 c
 c  Now loop over all spin quantum numbers, T.ne.S
 c 
+      nextodd = .true.
       do tt=ssmax,0,-2
         if (tt.ne.ss) then
-          call detci_lowdinproj( norb, nsym, nela, nelb, nstra, nstrb,
-     $                           osym, ataba, atabb, nexa, nexb,
-     $                           exa, exb, ss, tt, g_civec, g_pvec )
-          call ga_copy(g_pvec,g_civec)
+          if (nextodd) then
+            nextodd = .false.
+            call detci_lowdinproj( norb, nsym, nela, nelb, nstra, nstrb,
+     $                             osym, ataba, atabb, nexa, nexb,
+     $                             exa, exb, ss, tt, g_civec, g_pvec )
+          else
+            nextodd = .true.
+            call detci_lowdinproj( norb, nsym, nela, nelb, nstra, nstrb,
+     $                             osym, ataba, atabb, nexa, nexb,
+     $                             exa, exb, ss, tt, g_pvec, g_civec )
 c$$$          PRINT*,' TT = ',TT
 c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
+          endif
         endif
+      if (.not.nextodd) call ga_copy( g_pvec, g_civec )
       enddo
       return
       end
@@ -71,6 +81,8 @@ c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
      $                             osym, ataba, atabb, nexa, nexb,
      $                             exa, exb, k2, s2, g_civec, g_pvec )
       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "detciP.fh"
 #include "detci.fh"
@@ -100,19 +112,16 @@ c
       integer pij(detci_maxorb,detci_maxorb)
       integer occa(detci_maxorb),occb(detci_maxorb)
       integer elva(detci_maxelec), elvb(detci_maxelec)
-      integer ict
-      integer next, node, numnodes
-      double precision fac, s, k, xxci, xx
-c
-c
-c
-      numnodes = ga_nnodes()
-      node = ga_nodeid()
-      next = 0
+      integer alo, ahi, blo, bhi, l_xxci, k_xxci
+      integer next, node, numnode
+      double precision fac, s, k, xxci, xx, fc
 c
       s = 0.5d0*s2
       k = 0.5d0*k2
-      ict = 0
+      fac = 0.25d0*(nela - nelb)**2 + 0.5d0*(nela + nelb) - s*(s+1)
+      fc  = 1.d0/(k*(k+1) - s*(s+1))
+      fac = fac*fc
+      node = ga_nodeid()
       call ga_zero(g_pvec)
 c
 c
@@ -138,64 +147,38 @@ c  Apply permutation operator  -E  E    for all i,j open shell
 c                                ij ji                
 c  Loop over CI vector
 c
-      do i=1,nela
-        elva(i) = i
+      call ga_distribution( g_civec, node, blo, bhi, alo, ahi )
+      if (.not.ma_push_get(MT_DBL, (bhi-blo+1), 'detci:lowdin',
+     $                     l_xxci, k_xxci))
+     $    call errquit('detci: cannot allocate lowdin',0, MA_ERR)
+      do istra = alo, ahi
+         call ifill((detci_maxorb*detci_maxorb),0,eij,1)
+         call ifill((detci_maxorb*detci_maxorb),0,pij,1)
+         do iex=1,nexa
+           eij(exa(6,iex,istra),exa(5,iex,istra)) = exa(1,iex,istra)
+           pij(exa(6,iex,istra),exa(5,iex,istra)) = exa(4,iex,istra)
+         enddo
+         call ga_get(g_civec,blo,bhi,istra,istra,dbl_mb(k_xxci),1)
+         call ga_acc(g_pvec,blo,bhi,istra,istra,dbl_mb(k_xxci),1,fac)
+         do istrb = blo, bhi
+            do iex=1,nexb
+              iib = exb(5,iex,istrb)
+              jjb = exb(6,iex,istrb)
+              if (eij(iib,jjb).ne.0) then
+                jstrb = exb(1,iex,istrb)
+                jstra = eij(iib,jjb)
+                xx = -dbl_mb(k_xxci+istrb-blo)*pij(iib,jjb)
+     &               *exb(4,iex,istrb)*fc
+                if (dabs(xx).gt.1.0d-12)
+     &             call ga_acc(g_pvec,jstrb,jstrb,jstra,jstra,xx,1,1.d0)
+              endif
+            enddo
+         enddo
       enddo
- 101  continue
-      istra = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
-      call detci_elv2occ( norb, nelb, elva, occa )
-      call ifill((detci_maxorb*detci_maxorb),0,eij,1)
-      call ifill((detci_maxorb*detci_maxorb),0,pij,1)
-      do iex=1,nexa
-        eij(exa(6,iex,istra),exa(5,iex,istra)) = exa(1,iex,istra)
-        pij(exa(6,iex,istra),exa(5,iex,istra)) = exa(4,iex,istra)
-      enddo
-
-      do i=1,nelb
-        elvb(i) = i
-      enddo
- 102  continue
-      istrb = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
-      next = next + 1
-      if (mod(next,numnodes).eq.node) then
-        call detci_elv2occ( norb, nelb, elvb, occb )
-        call ga_get(g_civec,istrb,istrb,istra,istra,xxci,1)
-c
-c
-c
-        do iex=1,nexb
-          iib = exb(5,iex,istrb)
-          jjb = exb(6,iex,istrb)
-          if (eij(iib,jjb).ne.0) then
-            jstrb = exb(1,iex,istrb)
-            jstra = eij(iib,jjb)
-            xx = -xxci*pij(iib,jjb)*exb(4,iex,istrb)
-            call ga_acc(g_pvec,jstrb,jstrb,jstra,jstra,xx,1,1.d0)
-          endif
-        enddo
-c
-c
-c
-      endif
-      if (detci_getnextelv( norb, nelb, elvb )) goto 102
-      if (detci_getnextelv( norb, nela, elva )) goto 101
+      if (.not.ma_pop_stack(l_xxci))
+     $   call errquit('cannot pop stack detci:lowdin',0, MA_ERR)
 c
 c  End loop over CI vector
-c                      1         2    1
-c  Trivial components  -(n  - n )  +  -(n - n ) - s(s + 1)
-c                      4  a    b      2  a   b
-c
-      fac = 0.25d0*(nela - nelb)**2 + 0.5d0*(nela + nelb) - s*(s+1)
-      call ga_dadd( fac, g_civec, 1.d0, g_pvec, g_pvec )
-c
-c  Denominator         1
-c               ---------------
-c               k(k+1) - s(s+1)
-c
-      fac = 1.d0/(k*(k+1) - s*(s+1))
-      call ga_dscal(g_pvec,fac)
-c
-c
 c
       return
       end

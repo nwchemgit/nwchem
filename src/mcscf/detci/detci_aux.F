@@ -1071,7 +1071,7 @@ c  Generate lowest Aufbau configuration
 c  for given symmetry
 c
       subroutine detci_guesscfg( norb, nsym, nela, nelb,
-     $                           osym, eps, symstate, cfg )
+     $                           osym, eps, symstate, cfg, ncfg )
       implicit none
 #include "errquit.fh"
 #include "detci.fh"
@@ -1082,7 +1082,8 @@ c
       integer osym(norb)
       double precision eps(norb)
       integer symstate
-      integer cfg(nela+nelb)
+      integer cfg(nela+nelb,*)
+      integer ncfg
 c
       integer ix(detci_maxorb),kx(detci_maxorb)
       integer jx(2*detci_maxorb)
@@ -1094,6 +1095,7 @@ c
 c
 c  Sort orbitals by energy
 c
+      ncfg = 1
       call ifill(norb,0,ix,1)
       do i=1,norb
         xx = 1000.d0
@@ -1110,11 +1112,13 @@ c
 c
 c  Doubly occupy lowest nelb orbitals 
 c
-      call ifill((nela+nelb),0,cfg,1)
+      call ifill((nela+nelb)*2,0,cfg,1)
       jj = 0
       do i=1,nelb
-        cfg(i) = kx(i)
-        cfg(nela+i) = kx(i)
+        cfg(i,1) = kx(i)
+        cfg(i,2) = kx(i)
+        cfg(nela+i,1) = kx(i)
+        cfg(nela+i,2) = kx(i)
       enddo
 c
 c  If closed shell, but the requested symmetry is
@@ -1123,6 +1127,7 @@ c  open-shell singlet with alpha and beta in
 c  different orbitals
 c
       if (nela.eq.nelb.and.symstate.gt.1) then
+         ncfg = 2
          do i=nela,1,-1
             do j=nela,norb
             isym = osym(kx(i))
@@ -1132,7 +1137,8 @@ c
          enddo
          call errquit('singlet symmetry state not found in CAS',0,
      &       GEOM_ERR)
- 110     cfg(nela+i) = kx(j)
+ 110     cfg(nela+i,1) = kx(j)
+         cfg(i,2) = kx(j)
       endif
 c
 c  Loop through all possible permutations of
@@ -1143,7 +1149,7 @@ c
         nopen = nela - nelb
         noorb = norb - nelb
         elow = 10000.d0
-        cfg(nelb+1) = -1
+        cfg(nelb+1,1) = -1
         do i=1,nopen
           ix(i) = i
         enddo
@@ -1161,27 +1167,26 @@ c
         if ((isym.eq.symstate).and.(xx.lt.elow)) then
           elow = xx
           do i=1,nopen
-            cfg(nelb+i) = jx(i)
+            cfg(nelb+i,1) = jx(i)
           enddo
         endif
         if (detci_getnextelv(noorb,nopen,ix)) goto 111
-        if (cfg(nelb+1).eq.-1)
+        if (cfg(nelb+1,1).eq.-1)
      $    call errquit('symmetry state not found in CAS',0,
      &       GEOM_ERR)
       endif
 c
 c  Sort config by ascending indices
 c
-      call util_isort(nela,cfg)
-      call util_isort(nelb,cfg(nela+1))
-
+      call util_isort(nela,cfg(1,1))
+      call util_isort(nelb,cfg(nela+1,1))
+      if (ncfg.eq.2) then
+         call util_isort(nela,cfg(1,2))
+         call util_isort(nelb,cfg(nela+1,2))
+      endif
+c
       return
       end
-
-
-
-
-
 c
 c  Generate some CI guess vector
 c  from a list of configurations and 
