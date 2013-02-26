@@ -163,10 +163,11 @@ c
           call util_isort( nelb, guess_cfg(nela+1) )
         else
           call detci_guesscfg( nact, nsym, nela, nelb, actsym,
-     $                         acteps, symstate, guess_cfg )
+     $                         acteps, symstate, guess_cfg, nguesscfg )
         endif
-        nguesscfg = 1
-        guess_coeff(1) = 1.d0
+        do i=1,nguesscfg
+           guess_coeff(i) = 1.d0/nguesscfg
+        enddo
         call detci_guess( nguesscfg, guess_cfg, guess_coeff,
      $                    g_civec, g_wvec(1) )
         if (util_print('ci guess',print_debug)) then
