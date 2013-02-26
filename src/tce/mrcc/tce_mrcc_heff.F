@@ -1157,6 +1157,7 @@ c       if(nodezero)write(6,*)'TEST 3'
         if(nodezero) then
         call DGEEV('V','V',nref,heff,nref,er,ei,vl,nref,vr,
      $                  nref,work,4*nref,info)
+        call amp_stabilization(vl,vr,nref)
         endif
 c      if(nodezero)write(6,*)'TEST 4'
         call ga_sync()
