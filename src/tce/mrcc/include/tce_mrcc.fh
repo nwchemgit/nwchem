@@ -214,3 +214,4 @@ c     + dvalue
      +     r2_diis_existm(maxdiism,maxref),
      +     r3_diis_existm(maxdiism,maxref),
      +     r4_diis_existm(maxdiism,maxref)
+

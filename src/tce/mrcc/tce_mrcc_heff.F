@@ -1157,6 +1157,7 @@ c       if(nodezero)write(6,*)'TEST 3'
         if(nodezero) then
         call DGEEV('V','V',nref,heff,nref,er,ei,vl,nref,vr,
      $                  nref,work,4*nref,info)
+        if(info .ne. 0) call errquit('Heff diagonalization',0,CALC_ERR)
         call amp_stabilization(vl,vr,nref)
         endif
 c      if(nodezero)write(6,*)'TEST 4'
@@ -1342,6 +1343,36 @@ ckbn    check of mkroot, crash if mkroot gt nref
      +    ('root followed is greater than total number of references',0,
      +    CALC_ERR)
         endif
+
+
+ckbn check whether there is imaginary eigen values
+        do i=1,nref
+c         write(LuOut,'(A,F17.10)')'Imaginary eigenvalue',ei(i)
+c         if (nodezero) call util_flush(LuOut)
+         if(abs(ei(i)).ge.toleiimag) then
+          write(LuOut,'(A,F15.10)')
+     +            'Warning: complex Heff eigenvalue detected',ei(i)
+          if(i.eq.mkroot) then
+           write(LuOut,*) "ignorecomplex1 ", ignorecomplex
+c          if (rtdb_get(rtdb,'mrcc:ignorecomplex',mt_log,1,
+c     +     ignorecomplex)) ignorecomplex = .true.
+c           call errquit('Complex root found and no ignorecomplex option',
+c     +      0,RTDB_ERR)
+c          else
+c           if(nodezero) write(*,*) "ignorecomplex1. ", ignorecomplex
+c           ignorecomplex = .true.
+c          endif
+c           if(nodezero) write(*,*) "ignorecomplex2 ", ignorecomplex
+           if(ignorecomplex) then
+            write(LuOut,'(A,F15.10)')
+     +       'Warning: Proceeding with complex Heff eigenvalue ',ei(i)
+           else
+            call errquit('Warning:complex Heff eigenvalue detected',0,
+     +                    UNKNOWN_ERR)
+           endif
+          endif
+         endif
+        enddo
 
 
 

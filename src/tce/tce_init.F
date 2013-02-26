@@ -187,6 +187,12 @@ c        mult = 1
          nocc(1) = nclosed + nopen
          nocc(2) = nclosed
          mult = nopen + 1
+ckbn Check whether number of electrons is even
+         if( mod((nocc(1) + nocc(2)),2)  .ne. 0) 
+     +    call errquit
+     +   ('tce_init: Current tce mrcc works only with even number of e'
+     +    ,0,CALC_ERR)
+
          if(nodezero) then
           write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Anocc(1) ",nocc(1),
      +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
