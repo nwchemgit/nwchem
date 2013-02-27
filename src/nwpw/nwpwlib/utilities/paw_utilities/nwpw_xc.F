@@ -1912,7 +1912,7 @@ c
       n1(2) = ne(1)+1
       n2(1) = ne(1)
       n2(2) = ne(1)+ne(2)
-      scal = 1.0d0/dsqrt(lattice_omega())
+      !scal = 1.0d0/dsqrt(lattice_omega())
 
 *     ***init to zero***
       do i=1,nindx
@@ -1921,7 +1921,8 @@ c
          jprj  = jprj_rholm(i)
          bi    = bi_rholm(i)
          bj    = bj_rholm(i)
-         coeff = coeff_rholm(i)*scal
+         !coeff = coeff_rholm(i)*scal
+         coeff = coeff_rholm(i)
          do ms=1,ispin
             if (ne(ms).gt.0) then
                do n=n1(ms),n2(ms)

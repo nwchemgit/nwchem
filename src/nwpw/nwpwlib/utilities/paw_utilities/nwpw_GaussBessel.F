@@ -24,23 +24,26 @@ c
  
 *     *** local variables ***
       integer i
-      real*8 c,x,y,pi
+      real*8 c,pi
+c      real*8 c,x,y,pi,c1
 
 *     **** external functions ****
-      integer  nwpw_doublefactorial
-      external nwpw_doublefactorial
-      real*8   nwpw_SpecialKummer
-      external nwpw_SpecialKummer
+c      integer  nwpw_doublefactorial
+c      external nwpw_doublefactorial
+      real*8   nwpw_SpecialKummer,ln_gamma
+      external nwpw_SpecialKummer,ln_gamma
 
       if (mod(n+l,2).eq.1) then
          call errquit("nwpw_GaussBessel: n+l is not even",0,0)
       end if
 
       pi = 4.0d0*datan(1.0d0)
-      x = dble(nwpw_doublefactorial(n+l-1))
-      y = dble(nwpw_doublefactorial(2*l+1))
-      
-      c = (dsqrt(pi)/((2.0d0**((n+l)/2+1))*(alpha**(n+l+1)))) * (x/y)
+c      x = dble(nwpw_doublefactorial(n+l-1))
+c      y = dble(nwpw_doublefactorial(2*l+1))
+c      c1 = (dsqrt(pi)/((2.0d0**((n+l)/2+1))*(alpha**(n+l+1)))) * (x/y)
+
+      c = (dsqrt(pi)/((2.0d0**(l+2))*(alpha**(n+l+1)))) 
+     >  * dexp(ln_gamma((n+l+1)/2.0d0) - ln_gamma(l+1.5d0))
       
       nwpw_GaussBessel =  c
      >               * (R**l) 

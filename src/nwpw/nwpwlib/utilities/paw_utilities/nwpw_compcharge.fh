@@ -66,9 +66,12 @@ c      integer sigma(2)
 
 
 *     ******* Two-Electron Gaussian integral block **********
-      integer e_gauss(2),f_gauss(2),indx_gauss(2),ngauss
+      logical periodic
+      integer e_gauss(2),f_gauss(2),indx_gauss(2),ngauss,ngauss_max
       integer lm1_gauss(2),lm2_gauss(2)
       integer iii1_gauss(2),iii2_gauss(2)
       common / nwpw_gaussian_block / e_gauss,f_gauss,indx_gauss,
      >                               iii1_gauss,iii2_gauss,
-     >                               lm1_gauss,lm2_gauss,ngauss
+     >                               lm1_gauss,lm2_gauss,
+     >                               ngauss,ngauss_max,
+     >                               periodic
