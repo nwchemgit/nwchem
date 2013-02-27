@@ -133,6 +133,12 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hfexch bc95
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc hfexch cvs98
 end
 task dft energy
