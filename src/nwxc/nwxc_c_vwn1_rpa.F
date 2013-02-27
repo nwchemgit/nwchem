@@ -2,8 +2,8 @@
 C> \ingroup nwxc
 C> @{
 C>
-C> \file nwxc_c_vwn5.F
-C> The Vosko, Wilk, Nusair correlation functional #5
+C> \file nwxc_c_vwn1_rpa.F
+C> The Vosko, Wilk, Nusair correlation functional #1 with RPA parametrization
 C>
 C> @}
 #endif
@@ -11,10 +11,10 @@ C> \ingroup nwxc_priv
 C> @{
 C>
 C> \brief The homogenous electron gas correlation functional of
-C> Vosko, Wilk and Nusair #5 of 1980
+C> Vosko, Wilk and Nusair #1 of 1980 with RPA parametrization
 C>
-C> The correlation functional #5 of Vosko, Wilk and Nusair parametrized
-C> against Ceperley-Alder Monte Carlo data [1].
+C> The correlation functional #1 of Vosko, Wilk and Nusair parametrized
+C> against RPA data [1].
 C>
 C> [1] S.H. Vosko, L. Wilk, M. Nusair,
 C>     <i>"Accurate spin-dependent electron liquid correlation energies
@@ -25,20 +25,20 @@ C>
 *
 * $Id$
 *
-#define FNL_VWN_5
+#define FNL_VWN_1_RPA
 #include "nwxc_c_vwn_a.fh"
 c
 c     Compute the function deltaEc(rs,zeta) function and its derivatives
 c     wrt rs and zeta for the spin-unrestricted case - the rest has the
 c     same form for all VWN functionals and is handled in the header files.
 c
-            dec_rsz = devwn_rsz
-            d1dec_rsz(1) = d1devwn_rsz(1)
-            d1dec_rsz(2) = d1devwn_rsz(2)
+            dec_rsz = dec_rs1*fz
+            d1dec_rsz(1) = d1dec_rs1*fz
+            d1dec_rsz(2) = dec_rs1*d1fz
 #ifdef SECOND_DERIV
-            d2dec_rsz(1) = d2devwn_rsz(1)
-            d2dec_rsz(2) = d2devwn_rsz(2)
-            d2dec_rsz(3) = d2devwn_rsz(3)
+            d2dec_rsz(1) = d2dec_rs1*fz
+            d2dec_rsz(2) = d1dec_rs1*d1fz
+            d2dec_rsz(3) = dec_rs1*d2fz
 #endif
 c
 #include "nwxc_c_vwn_b.fh"
@@ -48,7 +48,7 @@ c
 c
 c     Compile source again for the 2nd derivative case
 c
-#include "nwxc_c_vwn5.F"
+#include "nwxc_c_vwn1_rpa.F"
 #endif
 C>
 C> @}

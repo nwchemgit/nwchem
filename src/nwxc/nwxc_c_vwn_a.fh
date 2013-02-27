@@ -18,27 +18,33 @@ c     BETA_SET_RS1 - governs which set of parameters to use for the epsilon
 c                    difference in beta in Eq. 3.2
 
 #if defined(FNL_VWN_1)
-#define VWN_NAME xc_vwn_1
+#define VWN_NAME nwxc_c_vwn1
+#define VWN_NAME_D2 nwxc_c_vwn1_d2
 
 #elif defined(FNL_VWN_1_RPA)
-#define VWN_NAME xc_vwn_1_rpa
+#define VWN_NAME nwxc_c_vwn1_rpa
+#define VWN_NAME_D2 nwxc_c_vwn1_rpa_d2
 
 #elif defined(FNL_VWN_2)
-#define VWN_NAME xc_vwn_2
+#define VWN_NAME nwxc_c_vwn2
+#define VWN_NAME_D2 nwxc_c_vwn2_d2
 #define USE_VWN_DEC
 #define NEED_RPA_RS1
 
 #elif defined(FNL_VWN_3)
-#define VWN_NAME xc_vwn_3
+#define VWN_NAME nwxc_c_vwn3
+#define VWN_NAME_D2 nwxc_c_vwn3_d2
 #define USE_VWN_DEC
 #define NEED_RPA_RS1
 
 #elif defined(FNL_VWN_4)
-#define VWN_NAME xc_vwn_4
+#define VWN_NAME nwxc_c_vwn4
+#define VWN_NAME_D2 nwxc_c_vwn4_d2
 #define USE_VWN_DEC
 
 #elif defined(FNL_VWN_5)
 #define VWN_NAME nwxc_c_vwn5
+#define VWN_NAME_D2 nwxc_c_vwn5_d2
 #define USE_VWN_DEC
 #endif
 
@@ -66,10 +72,9 @@ c     Set which parameters to use for epsilon difference in beta(rs)
       Subroutine VWN_NAME(tol_rho, ipol, nq, wght, 
      &                    rho, func, Amat)
 #else
-c     Couldn't get concatenation operator to work with g77 preprocessor -
-c     hopefully all Fortran compilers will eat the following space
-      Subroutine VWN_NAME _d2(tol_rho, ipol, nq, wght,
-     &                        rho, func, Amat, Amat2)
+c     Could not get concatenation operator to work with g77 preprocessor
+      Subroutine VWN_NAME_D2(tol_rho, ipol, nq, wght,
+     &                       rho, func, Amat, Amat2)
 #endif
       implicit none
 #include "nwxc_param.fh"
@@ -177,7 +182,7 @@ c           Convert interpolation formulas from Rydberg to Hartree units
             ct2(i) = 0.5D0*ct2(i)
             ct3(i) = 0.5D0*ct3(i)
          enddo
-#ifdef FNL_VWN_1_RPA
+#if defined(FNL_VWN_1_RPA) || defined(FNL_VWN_5_RPA)
 c        Copy RPA over Monte Carlo for all parameters
          call dcopy(3, A(4), 1, A(1), 1)
          call dcopy(3, b(4), 1, b(1), 1)

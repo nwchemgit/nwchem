@@ -217,7 +217,17 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."cvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VS98,dfweight)
-      else if (dfname.eq."cvwn5") then
+      else if (dfname.eq."vwn_1") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN1,dfweight)
+      else if (dfname.eq."vwn_1_rpa") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN1_RPA,dfweight)
+      else if (dfname.eq."vwn_2") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN2,dfweight)
+      else if (dfname.eq."vwn_3") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN3,dfweight)
+      else if (dfname.eq."vwn_4") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN4,dfweight)
+      else if (dfname.eq."vwn_5") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN5,dfweight)
       else if (dfname.eq."lda") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_LDA,dfweight)
@@ -358,6 +368,16 @@ c         do not do anything
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
           nwxc_depends_on_tau   = .true.
+        case (NWXCP_C_VWN1)
+          nwxc_depends_on_rho   = .true.
+        case (NWXCP_C_VWN1_RPA)
+          nwxc_depends_on_rho   = .true.
+        case (NWXCP_C_VWN2)
+          nwxc_depends_on_rho   = .true.
+        case (NWXCP_C_VWN3)
+          nwxc_depends_on_rho   = .true.
+        case (NWXCP_C_VWN4)
+          nwxc_depends_on_rho   = .true.
         case (NWXCP_C_VWN5)
           nwxc_depends_on_rho   = .true.
         case (NWXCP_LDA)

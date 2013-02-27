@@ -2,8 +2,8 @@
 C> \ingroup nwxc
 C> @{
 C>
-C> \file nwxc_c_vwn5.F
-C> The Vosko, Wilk, Nusair correlation functional #5
+C> \file nwxc_c_vwn4.F
+C> The Vosko, Wilk, Nusair correlation functional #4
 C>
 C> @}
 #endif
@@ -11,9 +11,9 @@ C> \ingroup nwxc_priv
 C> @{
 C>
 C> \brief The homogenous electron gas correlation functional of
-C> Vosko, Wilk and Nusair #5 of 1980
+C> Vosko, Wilk and Nusair #4 of 1980
 C>
-C> The correlation functional #5 of Vosko, Wilk and Nusair parametrized
+C> The correlation functional #4 of Vosko, Wilk and Nusair parametrized
 C> against Ceperley-Alder Monte Carlo data [1].
 C>
 C> [1] S.H. Vosko, L. Wilk, M. Nusair,
@@ -25,7 +25,7 @@ C>
 *
 * $Id$
 *
-#define FNL_VWN_5
+#define FNL_VWN_4
 #include "nwxc_c_vwn_a.fh"
 c
 c     Compute the function deltaEc(rs,zeta) function and its derivatives
@@ -48,7 +48,7 @@ c
 c
 c     Compile source again for the 2nd derivative case
 c
-#include "nwxc_c_vwn5.F"
+#include "nwxc_c_vwn4.F"
 #endif
 C>
 C> @}

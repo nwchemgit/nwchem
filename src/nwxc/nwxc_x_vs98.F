@@ -50,7 +50,7 @@ c     [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
      &                       func, Amat, Cmat, Mmat) 
 
 c   
-c$Id: xc_xvs98.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
       implicit none
 c

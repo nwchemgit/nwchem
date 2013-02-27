@@ -24,7 +24,7 @@ C>     Phys. Rev. B <b>45</b>, 13244-13249 (1992), DOI:
 C>     <a href="http://dx.doi.org/10.1103/PhysRevB.45.13244">
 C>     10.1103/PhysRevB.45.13244</a>.
 *
-* $Id: xc_pw91lda.F 20247 2011-04-28 18:58:49Z d3y133 $
+* $Id$
 *
 #ifndef SECOND_DERIV
       Subroutine nwxc_c_pw91lda(tol_rho, ipol, nq, wght, rho,

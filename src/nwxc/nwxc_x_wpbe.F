@@ -414,5 +414,5 @@ c     Compile source again for the 2nd derivative case
 c
 #include "nwxc_x_wpbe.F"
 #endif
-c $Id: xc_xwpbe.F 21176 2011-10-10 06:35:49Z d3y133 $
+c $Id$
 C> @}

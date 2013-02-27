@@ -48,8 +48,23 @@ c
       integer NWXCP_C_VS98       !< The VS98 correlation functional
       parameter (NWXCP_C_VS98 = NWXCP_C_PBE + 1)
 c
+      integer NWXCP_C_VWN1       !< The VWN1 correlation functional
+      parameter (NWXCP_C_VWN1 = NWXCP_C_VS98 + 1)
+c
+      integer NWXCP_C_VWN1_RPA   !< The VWN1 RPA correlation functional
+      parameter (NWXCP_C_VWN1_RPA = NWXCP_C_VWN1 + 1)
+c
+      integer NWXCP_C_VWN2       !< The VWN2 correlation functional
+      parameter (NWXCP_C_VWN2 = NWXCP_C_VWN1_RPA + 1)
+c
+      integer NWXCP_C_VWN3       !< The VWN3 correlation functional
+      parameter (NWXCP_C_VWN3 = NWXCP_C_VWN2 + 1)
+c
+      integer NWXCP_C_VWN4       !< The VWN4 correlation functional
+      parameter (NWXCP_C_VWN4 = NWXCP_C_VWN3 + 1)
+c
       integer NWXCP_C_VWN5       !< The VWN5 correlation functional
-      parameter (NWXCP_C_VWN5 = NWXCP_C_VS98 + 1)
+      parameter (NWXCP_C_VWN5 = NWXCP_C_VWN4 + 1)
 c
       integer NWXCP_LDA          !< The LDA functional 
                                  !< (exchange and correlation)

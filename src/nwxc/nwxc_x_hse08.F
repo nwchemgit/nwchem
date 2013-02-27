@@ -1140,5 +1140,5 @@ c     Compile source again for the 2nd derivative case
 c
 #include "nwxc_x_hse08.F"
 #endif
-c $Id: hse08fx.F 21176 2011-10-10 06:35:49Z d3y133 $
+c $Id$
 C> @}

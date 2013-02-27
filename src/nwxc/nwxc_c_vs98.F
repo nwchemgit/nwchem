@@ -42,7 +42,7 @@ c
       Subroutine nwxc_c_vs98(tol_rho, ipol, nq, wght, rho, rgamma,  
      &                       tau, func, Amat, Cmat, Mmat)
 c
-c$Id: xc_cvs98.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
 c  Reference
 c   [a] T. V. Voorhis and G. E. Scuseria, J. Chem. Phys. 109, 400 (1998). 

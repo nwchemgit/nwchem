@@ -20,7 +20,7 @@ C> @{
      +           Amat,Cmat,Amat2,Cmat2,Cmat3)
 #endif
 c
-C$Id: xc_att_xc.F 19696 2010-10-29 16:53:42Z d3y133 $
+C$Id$
 c
       implicit none
 c      

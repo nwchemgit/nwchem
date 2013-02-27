@@ -414,6 +414,21 @@ c
            cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_C_VWN1)
+           cdata = "VWN1 Correlation (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_C_VWN1_RPA)
+           cdata = "VWN1RPA Correlation (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_C_VWN2)
+           cdata = "VWN2 Correlation (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_C_VWN3)
+           cdata = "VWN3 Correlation (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_C_VWN4)
+           cdata = "VWN4 Correlation (SH Vosko, L Wilk, M Nusair, "
+     +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
          case (NWXCP_C_VWN5)
            cdata = "VWN5 Correlation (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"

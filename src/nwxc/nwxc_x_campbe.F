@@ -75,7 +75,7 @@ C>
      &                        Amat, Amat2, Cmat, Cmat2)
 #endif
 c
-c$Id: xc_camxpbe96.F 22714 2012-08-15 05:05:24Z niri $
+c$Id$
 c
       implicit none
 c
