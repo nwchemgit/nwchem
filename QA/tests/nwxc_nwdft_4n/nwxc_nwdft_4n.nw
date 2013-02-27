@@ -57,9 +57,12 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc xwpbe
+  xc xwpbe 1.00 hfexch 1.00
+  cam 0.3 cam_alpha 0.00 cam_beta 1.00
 end
 task dft energy
+
+set dft:cam_exch F
 
 # meta-GGA exchange
 
@@ -127,3 +130,5 @@ dft
   xc hse03
 end
 task dft energy
+
+set dft:cam_exch F
