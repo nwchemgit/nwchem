@@ -244,6 +244,7 @@ C> in the norm of the total density gradient.
 C>
        subroutine nwxc_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
        implicit none
+c#include "errquit.fh"
 #include "nwxcP.fh"
 #include "nwxc_param.fh"
        integer ipol !< [Input] The number of spin channels
@@ -309,6 +310,13 @@ C
            case (NWXCP_X_SLATER)
              call nwxc_x_dirac(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                         rho,f,dfdr)
+           case (NWXCP_X_CAMPBE)
+             param(1) = 0.8040d0
+             param(2) = nwxc_cam_alpha
+             param(3) = nwxc_cam_beta
+             param(4) = nwxc_cam_gamma
+             call nwxc_x_campbe(param,nwxc_rho_tol,ipol,nq,
+     +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_PBE)
              param(1) = 0.8040d0
              call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
@@ -319,6 +327,10 @@ C
      +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_RPBE)
              call nwxc_x_rpbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_WPBE)
+             param(1) = nwxc_cam_gamma
+             call nwxc_x_wpbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_VS98)
              call nwxc_x_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),

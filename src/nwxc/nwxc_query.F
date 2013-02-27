@@ -378,6 +378,10 @@ c
          case (NWXCP_X_SLATER)
            cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385 "
      +             //"(1951) doi:10.1103/PhysRev.81.385)"
+         case (NWXCP_X_CAMPBE)
+           cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
+     +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"
+     +             //" doi:10.1063/1.2723119)"
          case (NWXCP_X_PBE)
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
@@ -390,6 +394,10 @@ c
            cdata = "RPBE Exchange (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
      +             //" doi:10.1103/PhysRevB.59.7413)"
+         case (NWXCP_X_WPBE)
+           cdata = "WPBE Exchange (E Weintraub, TM Henderson, "
+     +             //"GE Scuseria, J.Chem.Theory.Comput. 5, 754 (2009)"
+     +             //" doi:10.1021/ct800530u)"
          case (NWXCP_X_VS98)
            cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
@@ -412,6 +420,10 @@ c
          case (NWXCP_LDA)
            cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_HSE)
+           cdata = "HSE (J Heyd, GE Scuseria, M Ernzerhof, "
+     +             //"J.Chem.Phys. 118, 8207 (2003)"
+     +             //" doi:10.1063/1.2204597)"
          case (NWXCP_PBE)
            cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"

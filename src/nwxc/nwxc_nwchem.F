@@ -158,10 +158,15 @@ c
           endif
           write(luout,1000)wght,term(1:inp_strlen(term))
         enddo
-        if (nwxc_has_cam()) then
-          call errquit("must think about CAM",0,UERR)
-        endif
+c       if (nwxc_has_cam()) then
+c         if (ga_nodeid().eq.0) then
+c           write(luout,*)"must think about CAM"
+c         endif
+c       endif
         if (nwxc_has_disp()) then
+          if (ga_nodeid().eq.0) then
+            write(luout,*)"must think about DISP"
+          endif
           call errquit("must think about DISP",0,UERR)
         endif
       endif
@@ -197,6 +202,11 @@ c
       character*256 rtdb_key !< Key to access data on the RTDB
       integer lenname        !< Length of the functional name
       logical status         !< Status of the store operation
+      logical  nwxc_has_cam
+      external nwxc_has_cam
+cHACK
+      logical junk
+cHACK
 c
       lenname = inp_strlen(name)
       status = .true.
@@ -248,6 +258,18 @@ c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_tau"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_LOG,1,
      +                           nwxc_depends_on_tau)
+cHACK
+c     This stuff is to be removed when the integration is finalized
+      if (nwxc_has_cam()) then
+        status=status.and.
+     &     rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.)
+      else
+        if (rtdb_get(rtdb,'int:cando_txs',mt_log,1,junk)) then
+          status=status.and.
+     &       rtdb_delete(rtdb,'int:cando_txs')
+        endif
+      endif
+cHACK
       nwxc_rtdb_store = status
 c
       return

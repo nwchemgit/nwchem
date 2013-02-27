@@ -21,8 +21,11 @@ c
       integer NWXCP_X_SLATER     !< The Slater exchange functional
       parameter (NWXCP_X_SLATER = NWXCP_MP2C + 1)
 c
+      integer NWXCP_X_CAMPBE     !< The CAM-PBE exchange functional
+      parameter (NWXCP_X_CAMPBE = NWXCP_X_SLATER + 1)
+c
       integer NWXCP_X_PBE        !< The PBE exchange functional
-      parameter (NWXCP_X_PBE = NWXCP_X_SLATER + 1)
+      parameter (NWXCP_X_PBE = NWXCP_X_CAMPBE + 1)
 c
       integer NWXCP_X_REVPBE     !< The REVPBE exchange functional
       parameter (NWXCP_X_REVPBE = NWXCP_X_PBE + 1)
@@ -30,8 +33,11 @@ c
       integer NWXCP_X_RPBE       !< The RPBE exchange functional
       parameter (NWXCP_X_RPBE = NWXCP_X_REVPBE + 1)
 c
+      integer NWXCP_X_WPBE       !< The WPBE screened exchange functional
+      parameter (NWXCP_X_WPBE = NWXCP_X_RPBE + 1)
+c
       integer NWXCP_X_VS98       !< The VS98 exchange functional
-      parameter (NWXCP_X_VS98 = NWXCP_X_RPBE + 1)
+      parameter (NWXCP_X_VS98 = NWXCP_X_WPBE + 1)
 c
       integer NWXCP_C_PW91LDA    !< The PW91 LDA correlation functional
       parameter (NWXCP_C_PW91LDA = NWXCP_X_VS98 + 1)
@@ -61,9 +67,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_RPBE = NWXCP_REVPBE + 1)
 c
+      integer NWXCP_HSE          !< The HSE functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HSE = NWXCP_RPBE + 1)
+c
       integer NWXCP_VS98         !< The VS98 functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_VS98 = NWXCP_RPBE + 1)
+      parameter (NWXCP_VS98 = NWXCP_HSE + 1)
 c
       integer NWXCP_PBE_D1       !< The PBE-D1 functional 
                                  !< (exchange and correlation)

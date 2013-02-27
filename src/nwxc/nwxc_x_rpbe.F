@@ -2,8 +2,8 @@
 C> \ingroup nwxc
 C> @{
 C>
-C> \file nwxc_x_pbe.F
-C> The PBE exchange functional
+C> \file nwxc_x_rpbe.F
+C> The RPBE exchange functional
 C>
 C> @}
 #endif
@@ -11,14 +11,13 @@ C>
 C> \ingroup nwxc_priv
 C> @{
 C>
-C> \brief Evaluate the PBE exchange functional
+C> \brief Evaluate the RPBE exchange functional
 C>
 C> The PBE exchange functional [1,2] can be seen as a simplification
 C> of the PW91 functional [3,4]. The functional form is a 
 C> straightforward GGA. The functional parameters were later revised
-C> to achieve better atomization energies [5].
-C>
-C> ### References ###
+C> to achieve better atomization energies, and satisfy the Lieb-Oxford
+C> criterion locally [5].
 C>
 C> [1] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Generalized Gradient Approximation Made Simple"
@@ -46,18 +45,19 @@ C> Phys. Rev. B <b>40</b>, 3399-3399 (1989), DOI:
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
 C>
-C> [5] Y. Zhang, W. Yang, "Comment on: Generalized gradient
-C> approximation made simple", Phys. Rev. Lett. <b>80</b>, 890-890
-C> (1998), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.80.890">
-C> 10.1103/PhysRevLett.80.890</a>.
+C> [5] B. Hammer, L.B. Hansen, J.K. N&oslash;rskov,
+C> "Improved adsorption energetics within density-functional theory
+C> using revised Perdew-Burke-Ernzerhof functionals",
+C> Phys. Rev. B <b>59</b>, 7413-7421 (1999), DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413">
+C> 10.1103/PhysRevB.59.7413</a>.
 C>
 #ifndef SECOND_DERIV
-      Subroutine nwxc_x_pbe(param,
+      Subroutine nwxc_x_rpbe(
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                     Amat, Cmat)
 #else
-      Subroutine nwxc_x_pbe_d2(param,
+      Subroutine nwxc_x_rpbe_d2(
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                        Amat, Amat2, Cmat, Cmat2)
 #endif
@@ -68,8 +68,6 @@ c
 c
 #include "nwxc_param.fh"
 c
-      double precision param(*)!< [Input] Parameters of functional
-                               !< - param(1): \f$ \mu_k \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -100,9 +98,8 @@ c
 #ifdef SECOND_DERIV
       double precision F73
 #endif
-c     parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
+      parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
 c     parameter(ukrev=1.245d0, umkrev=um/ukrev)
-      parameter(um=0.2195149727645171d0)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
 #ifdef SECOND_DERIV
       parameter (F73=7.d0/3.d0)
@@ -114,24 +111,22 @@ c
 #ifdef SECOND_DERIV
       double precision rhom23, d2s(3), gpp, d2g(3)
 #endif
-      double precision gpbe0,gpbe1,gpbe2
+c     double precision gpbe0,gpbe1,gpbe2
       double precision grpbe0,grpbe1,grpbe2
-      double precision grevpbe0,grevpbe1,grevpbe2
-      gpbe0(s)= uk*(1.0d0 - 1.0d0/(1.0d0+umk*s*s))
-      gpbe1(s)= 2.0d0*um*s/(1.0d0+umk*s*s)**2
-      gpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umk*s*s/(1.0d0+umk*s*s))/
-     +     (1.0d0+umk*s*s)**2
+c     double precision grevpbe0,grevpbe1,grevpbe2
+c     gpbe0(s)= uk*(1.0d0 - 1.0d0/(1.0d0+umk*s*s))
+c     gpbe1(s)= 2.0d0*um*s/(1.0d0+umk*s*s)**2
+c     gpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umk*s*s/(1.0d0+umk*s*s))/
+c    +     (1.0d0+umk*s*s)**2
 c     grevpbe0(s)= ukrev*(1.0d0 - 1.0d0/(1.0d0+umkrev*s*s))
 c     grevpbe1(s)= 2.0d0*um*s/(1.0d0+umkrev*s*s)**2
 c     grevpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umkrev*s*s/(1.0d0+umkrev*s*s))/
 c    /     (1.0d0+umkrev*s*s)**2
-c     grpbe0(s)= uk*(1.0d0 - exp(-umk*s*s))
-c     grpbe1(s)= 2.0d0*um*s*exp(-umk*s*s)
-c     grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
+      grpbe0(s)= uk*(1.0d0 - exp(-umk*s*s))
+      grpbe1(s)= 2.0d0*um*s*exp(-umk*s*s)
+      grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
       
 c
-      uk = param(1)
-      umk = um/uk
       pi = acos(-1.0d0)
       C = -3.0d0/(4.0d0*pi)*(3.0d0*pi*pi)**F13
       Cs = 0.5d0/(3.0d0*pi*pi)**F13
@@ -173,8 +168,8 @@ c
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
-            g=gpbe0(s)
-            gp=gpbe1(s)
+            g=grpbe0(s)
+            gp=grpbe1(s)
 c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
@@ -187,7 +182,7 @@ c
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
             d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_TT)
-            gpp=gpbe2(s)
+            gpp=grpbe2(s)
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
             d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
@@ -245,8 +240,8 @@ c
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
-            g=gpbe0(s)
-            gp=gpbe1(s)
+            g=grpbe0(s)
+            gp=grpbe1(s)
 c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
@@ -259,7 +254,7 @@ c
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
             d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_AA)
-            gpp=gpbe2(s)
+            gpp=grpbe2(s)
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
             d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
@@ -307,8 +302,8 @@ c
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
-            g=gpbe0(s)
-            gp=gpbe1(s)
+            g=grpbe0(s)
+            gp=grpbe1(s)
 c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
@@ -321,7 +316,7 @@ c
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
             d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_BB)
-            gpp=gpbe2(s)
+            gpp=grpbe2(s)
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
             d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
@@ -346,6 +341,6 @@ c
 c
 c     Compile source again for the 2nd derivative case
 c
-#include "nwxc_x_pbe.F"
+#include "nwxc_x_rpbe.F"
 #endif
 C> @}

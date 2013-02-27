@@ -173,6 +173,13 @@ c       Hartree-Fock exchange and MP2 correlation are handled different
 c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
       else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_SLATER,dfweight)
+      else if (dfname.eq."xcampbe") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMPBE,dfweight)
+        nwxc_wght_hf    = 0.25d0
+        nwxc_cam_alpha  = 0.0d0
+        nwxc_cam_beta   = 1.0d0
+        nwxc_cam_gamma  = 0.33d0
+        nwxc_cam_srhfex = .true.
       else if (dfname.eq."xpbe96") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_PBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -191,6 +198,17 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_RPBE,dfweight)
+      else if (dfname.eq."xwpbe") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_WPBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_WPBE,dfweight)
+c       nwxc_wght_hf    = 1.00d0
+        nwxc_cam_alpha  = 0.0d0
+        nwxc_cam_beta   = 1.0d0
+        nwxc_cam_gamma  = 0.30d0
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."xvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_VS98,dfweight)
       else if (dfname.eq."cpw91lda".or.dfname.eq."pw91lda") then
@@ -207,6 +225,21 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_VWN5,dfweight)
+      else if (dfname.eq."hse03") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_HSE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_PBE,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_CAMPBE,-0.25d0*dfweight)
+        nwxc_wght_hf    = 0.25d0
+        nwxc_cam_alpha  = 0.0d0
+        nwxc_cam_beta   = 1.0d0
+        nwxc_cam_gamma  = 0.33d0
+        nwxc_cam_srhfex = .true.
       else if (dfname.eq."pbe96") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_PBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -221,16 +254,18 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_REVPBE,dfweight)
-        nwxc_add_df = nwxc_add_df .and.
-     &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+c       In the NWChem DFT code REVPBE does not include correlation
+c       nwxc_add_df = nwxc_add_df .and.
+c    &                nwxc_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."rpbe") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_RPBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_RPBE,dfweight)
-        nwxc_add_df = nwxc_add_df .and.
-     &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+c       In the NWChem DFT code RPBE does not include correlation
+c       nwxc_add_df = nwxc_add_df .and.
+c    &                nwxc_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."vs98") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_VS98,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -295,6 +330,9 @@ C>
 c         do not do anything
         case (NWXCP_X_SLATER)
           nwxc_depends_on_rho   = .true.
+        case (NWXCP_X_CAMPBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
         case (NWXCP_X_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
@@ -302,6 +340,9 @@ c         do not do anything
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
         case (NWXCP_X_RPBE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+        case (NWXCP_X_WPBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
         case (NWXCP_X_VS98)
@@ -321,6 +362,9 @@ c         do not do anything
           nwxc_depends_on_rho   = .true.
         case (NWXCP_LDA)
           nwxc_depends_on_rho   = .true.
+        case (NWXCP_HSE)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
         case (NWXCP_PBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
