@@ -27,7 +27,7 @@ c
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8  e_lj,e_q,e_spring
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
-      real*8  exc_atom,pxc_atom,ehartree_atom
+      real*8  exc_atom,pxc_atom,ehartree_atom,emult
       
 
 *     **** external functions ****
@@ -72,9 +72,11 @@ c
       logical  psp_pawexist
       real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
+      real*8   psi_1hartree_cmp
       external psp_pawexist
       external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
+      external psi_1hartree_cmp
 
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
@@ -111,10 +113,12 @@ c      call psi_1toelectron()
       E(8)  = psi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
+
+*     ***** qmmm energies *****
       if (pspw_qmmm_found()) then
-         e_lj     = pspw_qmmm_LJ_E()
-         e_q      = pspw_qmmm_Q_E()
-         e_spring = pspw_qmmm_spring_E()
+         e_lj     = pspw_qmmm_LJ_E()     !*** independent of psi ***
+         e_q      = pspw_qmmm_Q_E()      !*** independent of psi ***
+         e_spring = pspw_qmmm_spring_E() !*** independent of psi ***
          E(1)  = E(1) + e_lj + e_q + e_spring
 
          E(11) = e_lj
@@ -125,28 +129,31 @@ c      call psi_1toelectron()
 *     **** paw energies ****
       if (psp_pawexist()) then
          E(35) = psi_1ke_atom()            !*** kinetic atom ***
-         E(36) = psp_kinetic_core()        !*** kinetic core ***
+         E(36) = psp_kinetic_core()        !*** kinetic core  - independent of psi ***
 
          E(37) = psi_1valence_core_atom()  !*** valence core energy ***
          E(38) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
 
          ehartree_atom = psi_1hartree_atom()
+         emult = psi_1hartree_cmp()
          E(39) = ehartree_atom             !*** vcoulomb atom  ***
-         E(40) = 0.0d0                     !*** ncmp-ncmp coulomb energy ***
+         E(40) = emult                     !*** ncmp-ncmp coulomb energy ***
          E(41) = 0.0d0                     !*** ncmp-smooth coulomb energy ***
 
          call psi_1xc_atom(exc_atom,pxc_atom)
          E(42) = exc_atom                  !*** exc atom  ***
          E(43) = pxc_atom                  !*** pxc atom  ***
 
-         E(44) = psp_ion_core()            !*** ion core energy ****
+         E(44) = psp_ion_core()            !*** ion core energy - independent of psi ***
+
+         E(1) = E(1) + E(36) + E(44)
       end if
 
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then
          E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
+         E(20)  = pspw_charge_Energy_ion()    !*** independent of psi ***
+         E(21)  = pspw_charge_Energy_charge() !*** independent of psi ***
          E(1)   = E(1) + E(20) + E(21)
       end if
 

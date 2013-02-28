@@ -268,6 +268,12 @@ c     value = psi_initialize()
          call ewald_phafac()
       end if
 
+*     **** initialize two-electron Gaussian integrals ****
+      if (psp_pawexist()) then
+         call nwpw_gintegrals_init()
+         call nwpw_gintegrals_set((flag.gt.0))
+      end if
+
 *     **** read in wavefunctions and initialize psi ****
       if (.not.control_check_charge_multiplicity()) then
         call psi_new()
@@ -626,6 +632,7 @@ c     end if
       call pspw_qmmm_end()
 c      call frac_occ_end()
       call meta_finalize(rtdb)
+      if (psp_pawexist()) call nwpw_gintegrals_end()
 
       call ion_end()
       call psp_end()
