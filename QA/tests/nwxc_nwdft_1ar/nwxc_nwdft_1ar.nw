@@ -53,6 +53,12 @@ task dft energy
 
 dft
   vectors input atomic
+  xc becke88
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc xpbe96
 end
 task dft energy

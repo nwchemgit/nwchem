@@ -38,6 +38,14 @@ dft
   mult 3
   odft
   vectors input atomic
+  xc becke88
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
   xc xpbe96
 end
 task dft energy
