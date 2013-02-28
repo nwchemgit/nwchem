@@ -335,6 +335,23 @@ C
            case (NWXCP_X_VS98)
              call nwxc_x_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_B95)
+             param(1) = 0.0031d0
+             param(2) = 0.038d0
+             call nwxc_c_b95(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_PW6B95)
+             param(1) = 0.00262d0
+             param(2) = 0.03668d0
+             call nwxc_c_b95(param,nwxc_rho_tol,ipol,nq,
+     +                       nwxc_wghts(it),rho,gamma,tau,
+     +                       f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_PWB6K)
+             param(1) = 0.00353d0
+             param(2) = 0.04120d0
+             call nwxc_c_b95(param,nwxc_rho_tol,ipol,nq,
+     +                       nwxc_wghts(it),rho,gamma,tau,
+     +                       f,dfdr,dfdg,dfdt)
            case (NWXCP_C_PW91LDA)
              call nwxc_c_pw91lda(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                           rho,f,dfdr)

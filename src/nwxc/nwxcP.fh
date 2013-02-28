@@ -39,8 +39,17 @@ c
       integer NWXCP_X_VS98       !< The VS98 exchange functional
       parameter (NWXCP_X_VS98 = NWXCP_X_WPBE + 1)
 c
+      integer NWXCP_C_B95        !< The B95 correlation functional
+      parameter (NWXCP_C_B95 = NWXCP_X_VS98 + 1)
+c
+      integer NWXCP_C_PW6B95     !< The PW6B95 correlation functional
+      parameter (NWXCP_C_PW6B95 = NWXCP_C_B95 + 1)
+c
+      integer NWXCP_C_PWB6K      !< The PWB6K correlation functional
+      parameter (NWXCP_C_PWB6K = NWXCP_C_PW6B95 + 1)
+c
       integer NWXCP_C_PW91LDA    !< The PW91 LDA correlation functional
-      parameter (NWXCP_C_PW91LDA = NWXCP_X_VS98 + 1)
+      parameter (NWXCP_C_PW91LDA = NWXCP_C_PWB6k + 1)
 c
       integer NWXCP_C_PBE        !< The PBE correlation functional
       parameter (NWXCP_C_PBE = NWXCP_C_PW91LDA + 1)

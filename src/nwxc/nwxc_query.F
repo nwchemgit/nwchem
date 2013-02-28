@@ -402,6 +402,18 @@ c
            cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_C_B95)
+           cdata = "B95 Correlation (AD Becke, "
+     +             //"J.Chem.Phys. 104, 1040 (1996)"
+     +             //" doi:10.1063/1.4708298)"
+         case (NWXCP_C_PW6B95)
+           cdata = "PW6B95 Correlation (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem. A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
+         case (NWXCP_C_PWB6K)
+           cdata = "PWB6K Correlation (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem. A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
          case (NWXCP_C_PW91LDA)
            cdata = "PW91 LDA Correlation (JP Perdew, Y Wang, "
      +             //"Phys.Rev.B 45, 13244 (1992)"

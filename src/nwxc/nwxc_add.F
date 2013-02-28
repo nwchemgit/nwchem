@@ -229,6 +229,12 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN4,dfweight)
       else if (dfname.eq."vwn_5") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN5,dfweight)
+      else if (dfname.eq."bc95") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B95,dfweight)
+      else if (dfname.eq."cpw6b95") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_PW6B95,dfweight)
+      else if (dfname.eq."cpwb6k") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_PWB6K,dfweight)
       else if (dfname.eq."lda") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_LDA,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -356,6 +362,18 @@ c         do not do anything
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
         case (NWXCP_X_VS98)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+          nwxc_depends_on_tau   = .true.
+        case (NWXCP_C_B95)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+          nwxc_depends_on_tau   = .true.
+        case (NWXCP_C_PW6B95)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+          nwxc_depends_on_tau   = .true.
+        case (NWXCP_C_PWB6K)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
           nwxc_depends_on_tau   = .true.
