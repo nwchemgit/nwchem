@@ -7,9 +7,9 @@
      >                        2027025,10321920/
                                          
       if( n.ge.(-1) .and. n.le.16) then
-        nwpw_double_factorial = n11(n)
+        nwpw_double_factorial = dble(n11(n))
       else
-        nwpw_double_factorial = -999999
+        nwpw_double_factorial = -999999.0d0
         call errquit("too big parameter in nwpw_double_factorial",1,0)
       end if
 
