@@ -1070,6 +1070,7 @@
 
         end if !** nproj>0 **
       end do !** ii **
+      pxc = pxc*scal
 
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
