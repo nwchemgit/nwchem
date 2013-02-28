@@ -38,8 +38,10 @@
 *     **** external functions ****
       integer  control_code,G_indx,c_G_indx,ion_katm
       external control_code,G_indx,c_G_indx,ion_katm
-      real*8   nwpw_doublefactorial,lattice_omega,ewald_rcut
-      external nwpw_doublefactorial,lattice_omega,ewald_rcut
+      integer  nwpw_doublefactorial
+      external nwpw_doublefactorial
+      real*8   lattice_omega,ewald_rcut
+      external lattice_omega,ewald_rcut
       integer  psi_data_get_ptr,psi_data_get_chnk
       external psi_data_get_ptr,psi_data_get_chnk
       real*8   nwpw_gaunt,lattice_unita,control_rcut
@@ -231,7 +233,7 @@
       do l =0,mult_l_max
 
 *        **** define  |k|**l / (2*l+1)!! ****
-         scal = 1.0d0/nwpw_doublefactorial(2*l+1)
+         scal = 1.0d0/dble(nwpw_doublefactorial(2*l+1))
          if (l.gt.0) then
             do k=1,npack0
                gg = dbl_mb(G(1)+k-1)**2 
@@ -905,12 +907,12 @@ c      end
       real*8  c,pi
 
 *     ***** external functions ****
-      real*8   nwpw_doublefactorial
+      integer  nwpw_doublefactorial
       external nwpw_doublefactorial
 
       pi = 4.0d0*datan(1.0d0)
       c  = 2**(l+2)/(dsqrt(pi)
-     >    *nwpw_doublefactorial(2*l+1)*sigma**(2*l+3))
+     >    *dble(nwpw_doublefactorial(2*l+1))*sigma**(2*l+3))
 
       !*** this fixes possible underflow error ***
       do i=1,nr
@@ -1281,11 +1283,11 @@ c      end
 
 *     *************************************************
 *     *                                               *
-*     *         nwpw_set_gcount                       *
+*     *         nwpw_gintegrals_set_gcount            *
 *     *                                               *
 *     *************************************************
 
-      subroutine nwpw_set_gcount()
+      subroutine nwpw_gintegrals_set_gcount()
       implicit none
 
 #include "mafdecls.fh"
@@ -1304,6 +1306,7 @@ c      end
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+
       periodic = (control_version().eq.3)
 
       if (periodic) then
@@ -1364,11 +1367,11 @@ c      end
 
 *     *************************************************
 *     *                                               *
-*     *         nwpw_init_indx_gintegrals             *
+*     *           nwpw_gintegrals_init                *
 *     *                                               *
 *     *************************************************
 
-      subroutine nwpw_init_indx_gintegrals()
+      subroutine nwpw_gintegrals_init()
       implicit none
 
 #include "mafdecls.fh"
@@ -1377,18 +1380,8 @@ c      end
 
 *     **** local variables ****
       logical value
-      integer taskid,np,pcount,gcount,nshl3d
-      integer l1,m1,l2,m2,iii,jjj,iia,jja
-      integer lm1,lm2
 
-*     **** external functions ****
-      real*8   ion_rion,ewald_nshl3d
-      external ion_rion,ewald_nshl3d
-
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
-
-      call nwpw_set_gcount()
+      call nwpw_gintegrals_set_gcount()
 
       value =           MA_alloc_get(mt_int,ngauss_max,"lm1_gauss",
      >                              lm1_gauss(2),lm1_gauss(1))
@@ -1399,7 +1392,7 @@ c      end
       value = value.and.MA_alloc_get(mt_int,ngauss_max,"iii2_gauss",
      >                              iii2_gauss(2),iii2_gauss(1))
       if (.not.value)
-     > call errquit("nwpw_init_indx_integrals:cannot allocate memory",
+     > call errquit("nwpw_gintegrals_init:cannot allocate memory",
      >             0,MA_ERR)
 
       return
@@ -1408,11 +1401,38 @@ c      end
 
 *     *************************************************
 *     *                                               *
-*     *         nwpw_compcharge_set_gintegrals        *
+*     *           nwpw_gintegrals_end                 *
 *     *                                               *
 *     *************************************************
+      subroutine nwpw_gintegrals_end()
+      implicit none
 
-      subroutine nwpw_compcharge_set_gintegrals(move)
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+
+      value =           MA_free_heap(lm1_gauss(2))
+      value = value.and.MA_free_heap(lm2_gauss(2))
+      value = value.and.MA_free_heap(iii1_gauss(2))
+      value = value.and.MA_free_heap(iii2_gauss(2))
+      if (.not.value)
+     > call errquit("nwpw_gintegrals_end:cannot allocate memory",
+     >             0,MA_ERR)
+
+      return
+      end
+
+
+
+*     *************************************************
+*     *                                               *
+*     *             nwpw_gintegrals_set               *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_gintegrals_set(move)
       implicit none
       logical move
 
@@ -1436,14 +1456,14 @@ c      end
 *     **** external functions ****
       real*8   ion_rion,nwpw_WGaussian,nwpw_UGaussian
       external ion_rion,nwpw_WGaussian,nwpw_UGaussian
-      real*8   nwpw_doublefactorial
+      integer  nwpw_doublefactorial
       external nwpw_doublefactorial
       integer  ewald_nshl3d,ewald_rcell_ptr
       external ewald_nshl3d,ewald_rcell_ptr
 
-
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+
 
       if (periodic) then
          nshl3d = ewald_nshl3d()
@@ -1471,10 +1491,10 @@ c      end
          do l1=0,int_mb(mult_l(1)+iia-1)
          do m1=-l1,l1
             if (mod(pcount,np).eq.taskid) then
-               W1=nwpw_UGaussian(l1,m1,s1,l1,m1,s1)
-               W2=nwpw_UGaussian(l1,m1,s1,l1,m1,sigma_smooth)
-               W4=nwpw_UGaussian(l1,m1,sigma_smooth,l1,m1,sigma_smooth)
-               e1 = 0.5d0*W1 + 0.5d0*W4 - W2
+                W1=nwpw_UGaussian(l1,m1,s1,l1,m1,s1)
+                W2=nwpw_UGaussian(l1,m1,s1,l1,m1,sigma_smooth)
+                W4=nwpw_UGaussian(l1,m1,sigma_smooth,l1,m1,sigma_smooth)
+                e1 = 0.5d0*W1 + 0.5d0*W4 - W2
                if (dabs(e1).gt.tole) then
                   dbl_mb(e_gauss(1)+indx) = e1
                   int_mb(lm1_gauss(1)+indx) = (iii-1)*2*lm_size_max+ lm1
@@ -1624,8 +1644,6 @@ c     >                                      l2,m2,s2,Rab)
       end do
       ngauss = indx
 
-
-      write(*,*) "ngauss,ngauss_max=",ngauss,ngauss_max
       if (.not.periodic) then
         if (.not.MA_pop_stack(rcell_hndl))
      >   call errquit("nwpw_compcharge_set_gintegrals:stack",2,MA_ERR)
@@ -1910,39 +1928,5 @@ c     *********************************************
       end
 
 
-
-
-*     *************************************************
-*     *                                               *
-*     *        nwpw_compcharge_W1_atom_solve          *
-*     *                                               *
-*     *************************************************
-
-
-*     *************************************************
-*     *                                               *
-*     *              nwpw_compcharge_W2_atom          *
-*     *                                               *
-*     *************************************************
-*     *************************************************
-*     *                                               *
-*     *        nwpw_compcharge_W2_atom_solve          *
-*     *                                               *
-*     *************************************************
-
-
-*     *************************************************
-*     *                                               *
-*     *              nwpw_compcharge_W3_atom          *
-*     *                                               *
-*     *************************************************
-
-
-
-*     *************************************************
-*     *                                               *
-*     *        nwpw_compcharge_W3_atom_solve          *
-*     *                                               *
-*     *************************************************
 
 
