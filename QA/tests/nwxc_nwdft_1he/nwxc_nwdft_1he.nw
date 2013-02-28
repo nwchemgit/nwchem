@@ -120,6 +120,18 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hfexch cpw6b95
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch cpwb6k
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc hfexch cvs98
 end
 task dft energy

@@ -164,6 +164,22 @@ task dft energy
 
 dft
   mult 4
+  odft 
+  vectors input atomic
+  xc hfexch cpw6b95
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cpwb6k
+end
+task dft energy
+
+dft
+  mult 4
   odft
   vectors input atomic
   xc hfexch cvs98
