@@ -2836,6 +2836,27 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *                                 *
+*     *         psi_1hartree_cmp        *
+*     *                                 *
+*     ***********************************
+      real*8 function psi_1hartree_cmp()
+      implicit none
+         
+#include "mafdecls.fh"
+#include "psi.fh"
+         
+*     **** external functions ****
+      real*8   nwpw_compcharge_E_multipole
+      external nwpw_compcharge_E_multipole
+         
+      psi_1hartree_cmp = nwpw_compcharge_E_multipole(ispin)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
 *     *         psi_1xc_atom            *
 *     *                                 *
 *     ***********************************
