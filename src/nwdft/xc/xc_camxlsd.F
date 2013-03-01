@@ -93,10 +93,8 @@ c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
            if (rho(n,1).gt.tol_rho)then
-             rho32=0.0d0
-             rho33=0.0d0
-             if (rho(n,2).gt.tol_rho) rho32=rho(n,2)**one_third
-             if (rho(n,3).gt.tol_rho) rho33=rho(n,3)**one_third
+             rho32=max(rho(n,2),0.0d0)**one_third
+             rho33=max(rho(n,3),0.0d0)**one_third
 c
              Etmp = rho32*rho(n,2)*P4*fac
              Atmp = P3*rho32*fac
