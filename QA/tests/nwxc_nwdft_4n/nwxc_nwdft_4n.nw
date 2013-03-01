@@ -53,12 +53,16 @@ end
 task dft energy
 
 dft
+  direct
   mult 4
   odft
   vectors input atomic
   xc xbnl07
+  cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
+
+set dft:cam_exch F
 
 dft
   mult 4

@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: nwxc_nwdft_1he.nw 23658 2013-02-28 23:44:15Z d3y133 $
+# $Id: nwxc_nwdft_1he.nw 23660 2013-03-01 00:42:13Z d3y133 $
 echo
 start nwxc_dat
 
@@ -45,10 +45,14 @@ end
 task dft energy
 
 dft
+  direct
   vectors input atomic
   xc xbnl07
+  cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
+
+set dft:cam_exch F
 
 dft
   vectors input atomic
@@ -226,9 +230,9 @@ set dft:cam_exch F
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
-    date            = Thu Feb 28 16:25:32 2013
+    date            = Thu Feb 28 17:45:41 2013
 
-    compiled        = Tue_Feb_26_17:34:18_2013
+    compiled        = Thu_Feb_28_17:15:29_2013
     source          = /home/d3y133/nwchem-dev/nwchem-ref
     nwchem branch   = Development
     nwchem revision = 23625
@@ -417,13 +421,13 @@ set dft:cam_exch F
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  11247
+ Max. records in memory =      2        Max. records in file   =  11232
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59984
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -580,13 +584,13 @@ set dft:cam_exch F
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  11245
+ Max. records in memory =      2        Max. records in file   =  11232
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -650,7 +654,7 @@ set dft:cam_exch F
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        0.2s     wall:        0.2s
+ Task  times  cpu:        0.1s     wall:        0.2s
 
 
                                 NWChem Input Module
@@ -662,6 +666,7 @@ set dft:cam_exch F
                                  -----------------
 
 
+  int_init: cando_txs set to always be  F
   Caching 1-el integrals 
 
             General Information
@@ -676,6 +681,7 @@ set dft:cam_exch F
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:     4
                      number of shells:     4
           Convergence on energy requested: 1.00D-06
@@ -685,6 +691,13 @@ set dft:cam_exch F
               XC Information
               --------------
                    LC-BNL 2007 Exchange Functional  1.000 local    
+
+           Range-Separation Parameters        
+           ---------------------------
+           Alpha           :  0.00
+           Beta            :  1.00
+           Gamma           :  0.50
+           Short-Range HF  :     F
 
              Grid Information
              ----------------
@@ -739,81 +752,69 @@ set dft:cam_exch F
    Time after variat. SCF:      0.3
    Time prior to 1st pass:      0.3
 
- #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  11245
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864892
+           Heap Space remaining (MW):       13.00            12996193
           Stack Space remaining (MW):       13.11            13107074
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.7194896920 -2.72D+00  3.88D-02  2.26D-02     0.3
+ d= 0,ls=0.0,diis     1     -2.3145543932 -2.31D+00  8.27D-02  6.55D-02     0.3
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.7224728687 -2.98D-03  8.35D-03  5.07D-03     0.3
- d= 0,ls=0.0,diis     3     -2.7230106074 -5.38D-04  4.20D-04  5.93D-06     0.4
- d= 0,ls=0.0,diis     4     -2.7230111114 -5.04D-07  1.22D-04  1.19D-06     0.4
- d= 0,ls=0.0,diis     5     -2.7230112365 -1.25D-07  1.66D-07  3.37D-12     0.4
+ d= 0,ls=0.0,diis     2     -2.3237122443 -9.16D-03  2.22D-02  2.55D-02     0.3
+ d= 0,ls=0.0,diis     3     -2.3268676572 -3.16D-03  6.74D-04  6.48D-06     0.4
+ d= 0,ls=0.0,diis     4     -2.3268683675 -7.10D-07  2.02D-04  2.42D-06     0.4
+ d= 0,ls=0.0,diis     5     -2.3268686561 -2.89D-07  8.22D-06  2.94D-09     0.4
 
 
-         Total DFT energy =       -2.723011236468
-      One electron energy =       -3.845242436645
-           Coulomb energy =        1.975527354111
-    Exchange-Corr. energy =       -0.853296153934
+         Total DFT energy =       -2.326868656077
+      One electron energy =       -3.802250921744
+           Coulomb energy =        1.907918842163
+    Exchange-Corr. energy =       -0.432536576496
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =        1.999999927477
+ Numeric. integr. density =        1.999999902032
 
-     Total iterative time =      0.1s
+     Total iterative time =      0.2s
 
 
 
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
 
- Vector    1  Occ=2.000000D+00  E=-5.159581D-01
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.7D-01
+ Vector    1  Occ=2.000000D+00  E=-3.253530D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.464964  1 He s                  4      0.319343  1 He s          
-     2      0.278742  1 He s          
+     3      0.423254  1 He s                  4      0.371082  1 He s          
+     2      0.278010  1 He s          
 
- Vector    2  Occ=0.000000D+00  E= 4.089146D-01
+ Vector    2  Occ=0.000000D+00  E= 5.264036D-01
               MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      1.494587  1 He s                  3     -1.136627  1 He s          
+     4      1.494355  1 He s                  3     -1.179997  1 He s          
 
- Vector    3  Occ=0.000000D+00  E= 2.945903D+00
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.2D-01
+ Vector    3  Occ=0.000000D+00  E= 3.124191D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      2.209884  1 He s                  2     -1.608878  1 He s          
-     4     -0.910120  1 He s          
+     3      2.196772  1 He s                  2     -1.610753  1 He s          
+     4     -0.891379  1 He s          
 
- Vector    4  Occ=0.000000D+00  E= 1.688976D+01
+ Vector    4  Occ=0.000000D+00  E= 1.708753D+01
               MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      1.950086  1 He s                  1     -1.565401  1 He s          
-     3     -1.178073  1 He s                  4      0.384529  1 He s          
+     2      1.949065  1 He s                  1     -1.565377  1 He s          
+     3     -1.175675  1 He s                  4      0.382877  1 He s          
 
 
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.2s     wall:        0.2s
 
 
                                 NWChem Input Module
@@ -825,6 +826,7 @@ set dft:cam_exch F
                                  -----------------
 
 
+  int_init: cando_txs set to always be  F
   Caching 1-el integrals 
 
             General Information
@@ -839,6 +841,7 @@ set dft:cam_exch F
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  30
+          This is a Direct SCF calculation.
           AO basis - number of functions:     4
                      number of shells:     4
           Convergence on energy requested: 1.00D-06
@@ -899,42 +902,33 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      0.4
-   Time prior to 1st pass:      0.4
-
- #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  11245
- No. of bits per label  =      8        No. of bits per value  =     64
-
+   Time after variat. SCF:      0.5
+   Time prior to 1st pass:      0.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.86            12864892
+           Heap Space remaining (MW):       13.00            12996193
           Stack Space remaining (MW):       13.11            13107074
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.8489860167 -2.85D+00  3.14D-02  4.81D-02     0.4
+ d= 0,ls=0.0,diis     1     -2.8489860167 -2.85D+00  3.14D-02  4.81D-02     0.5
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.8512981566 -2.31D-03  5.02D-03  7.16D-04     0.5
+ d= 0,ls=0.0,diis     2     -2.8512981565 -2.31D-03  5.02D-03  7.16D-04     0.5
  d= 0,ls=0.0,diis     3     -2.8513593473 -6.12D-05  2.35D-03  1.93D-04     0.5
  d= 0,ls=0.0,diis     4     -2.8513751050 -1.58D-05  7.62D-04  4.48D-05     0.5
- d= 0,ls=0.0,diis     5     -2.8513798582 -4.75D-06  1.44D-07  6.44D-12     0.5
- d= 0,ls=0.0,diis     6     -2.8513798582 -4.41D-13  3.08D-08  4.68D-14     0.5
+ d= 0,ls=0.0,diis     5     -2.8513798582 -4.75D-06  1.44D-07  6.44D-12     0.6
+ d= 0,ls=0.0,diis     6     -2.8513798582 -4.44D-13  3.08D-08  4.68D-14     0.6
 
 
-         Total DFT energy =       -2.851379858245
-      One electron energy =       -3.867736003584
-           Coulomb energy =        2.018393281662
-    Exchange-Corr. energy =       -1.002037136322
+         Total DFT energy =       -2.851379858223
+      One electron energy =       -3.867736003579
+           Coulomb energy =        2.018393281674
+    Exchange-Corr. energy =       -1.002037136318
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =        1.999999932629
@@ -972,9 +966,6 @@ set dft:cam_exch F
   ----- ------------  ---------------      ----- ------------  ---------------
      2      1.957285  1 He s                  1     -1.564641  1 He s          
      3     -1.183787  1 He s                  4      0.386196  1 He s          
-
-
- Parallel integral file used       1 records with       0 large values
 
 
  Task  times  cpu:        0.1s     wall:        0.2s
@@ -1073,12 +1064,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      0.5
-   Time prior to 1st pass:      0.5
+   Time after variat. SCF:      0.6
+   Time prior to 1st pass:      0.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -1089,10 +1080,10 @@ set dft:cam_exch F
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1     -2.8557265706 -2.86D+00  2.57D-02  4.36D-02     0.6
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.8580601415 -2.33D-03  2.93D-03  4.30D-04     0.6
+ d= 0,ls=0.0,diis     2     -2.8580601415 -2.33D-03  2.93D-03  4.30D-04     0.7
  d= 0,ls=0.0,diis     3     -2.8580867552 -2.66D-05  2.41D-04  3.25D-06     0.7
  d= 0,ls=0.0,diis     4     -2.8580870382 -2.83D-07  2.39D-05  1.52D-07     0.7
- d= 0,ls=0.0,diis     5     -2.8580870483 -1.01D-08  4.35D-06  3.59D-10     0.7
+ d= 0,ls=0.0,diis     5     -2.8580870483 -1.01D-08  4.35D-06  3.59D-10     0.8
 
 
          Total DFT energy =       -2.858087048337
@@ -1226,12 +1217,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      0.7
-   Time prior to 1st pass:      0.7
+   Time after variat. SCF:      0.8
+   Time prior to 1st pass:      0.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -1242,8 +1233,8 @@ set dft:cam_exch F
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1     -2.8752826681 -2.88D+00  2.57D-02  2.12D-02     0.8
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.8768184441 -1.54D-03  1.40D-03  1.33D-04     0.8
- d= 0,ls=0.0,diis     3     -2.8768279248 -9.48D-06  7.73D-04  2.13D-05     0.8
+ d= 0,ls=0.0,diis     2     -2.8768184441 -1.54D-03  1.40D-03  1.33D-04     0.9
+ d= 0,ls=0.0,diis     3     -2.8768279248 -9.48D-06  7.73D-04  2.13D-05     0.9
  d= 0,ls=0.0,diis     4     -2.8768298114 -1.89D-06  2.25D-04  3.40D-06     0.9
  d= 0,ls=0.0,diis     5     -2.8768301829 -3.72D-07  1.09D-06  8.38D-11     0.9
 
@@ -1386,7 +1377,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -1395,12 +1386,12 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     0.9
+ d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.0
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     0.9
+ d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.0
  d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.0
  d= 0,ls=0.0,diis     4     -2.9741005704 -7.41D-08  3.70D-05  2.01D-08     1.0
- d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.0
+ d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.1
 
 
          Total DFT energy =       -2.974100573341
@@ -1536,12 +1527,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      1.0
-   Time prior to 1st pass:      1.0
+   Time after variat. SCF:      1.1
+   Time prior to 1st pass:      1.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -1550,12 +1541,12 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -3.0113406493 -3.01D+00  6.41D-03  1.86D-03     1.0
+ d= 0,ls=0.0,diis     1     -3.0113406493 -3.01D+00  6.41D-03  1.86D-03     1.1
   Resetting Diis
  d= 0,ls=0.0,diis     2     -3.0116310057 -2.90D-04  1.39D-03  3.79D-05     1.1
  d= 0,ls=0.0,diis     3     -3.0116377216 -6.72D-06  1.70D-04  6.90D-07     1.1
- d= 0,ls=0.0,diis     4     -3.0116378137 -9.21D-08  4.14D-05  2.51D-08     1.1
- d= 0,ls=0.0,diis     5     -3.0116378174 -3.70D-09  3.26D-07  1.33D-12     1.1
+ d= 0,ls=0.0,diis     4     -3.0116378137 -9.21D-08  4.14D-05  2.51D-08     1.2
+ d= 0,ls=0.0,diis     5     -3.0116378174 -3.70D-09  3.26D-07  1.33D-12     1.2
 
 
          Total DFT energy =       -3.011637817400
@@ -1691,12 +1682,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      1.1
-   Time prior to 1st pass:      1.1
+   Time after variat. SCF:      1.2
+   Time prior to 1st pass:      1.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -1707,8 +1698,8 @@ set dft:cam_exch F
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.2
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.2
- d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.2
+ d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.3
+ d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.3
  d= 0,ls=0.0,diis     4     -2.9741005704 -7.41D-08  3.70D-05  2.01D-08     1.3
  d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.3
 
@@ -1851,7 +1842,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -1860,12 +1851,12 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.3
+ d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.4
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.4
  d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.4
- d= 0,ls=0.0,diis     4     -2.9741005704 -7.41D-08  3.70D-05  2.01D-08     1.4
- d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.4
+ d= 0,ls=0.0,diis     4     -2.9741005704 -7.41D-08  3.70D-05  2.01D-08     1.5
+ d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.5
 
 
          Total DFT energy =       -2.974100573341
@@ -2001,12 +1992,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      1.4
-   Time prior to 1st pass:      1.4
+   Time after variat. SCF:      1.5
+   Time prior to 1st pass:      1.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2017,8 +2008,8 @@ set dft:cam_exch F
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.5
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.5
- d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.5
+ d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.6
+ d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.6
  d= 0,ls=0.0,diis     4     -2.9741005704 -7.41D-08  3.70D-05  2.01D-08     1.6
  d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.6
 
@@ -2161,7 +2152,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2170,12 +2161,12 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.6
+ d= 0,ls=0.0,diis     1     -2.9738579959 -2.97D+00  5.73D-03  1.54D-03     1.7
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.6
+ d= 0,ls=0.0,diis     2     -2.9740952138 -2.37D-04  1.22D-03  2.98D-05     1.7
  d= 0,ls=0.0,diis     3     -2.9741004963 -5.28D-06  1.53D-04  5.54D-07     1.7
  d= 0,ls=0.0,diis     4     -2.9741005704 -7.41D-08  3.70D-05  2.01D-08     1.7
- d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.7
+ d= 0,ls=0.0,diis     5     -2.9741005733 -2.94D-09  2.77D-07  9.97D-13     1.8
 
 
          Total DFT energy =       -2.974100573341
@@ -2311,12 +2302,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      1.7
-   Time prior to 1st pass:      1.7
+   Time after variat. SCF:      1.8
+   Time prior to 1st pass:      1.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2329,8 +2320,8 @@ set dft:cam_exch F
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9736928146 -2.32D-04  1.21D-03  2.91D-05     1.8
  d= 0,ls=0.0,diis     3     -2.9736979745 -5.16D-06  1.51D-04  5.42D-07     1.8
- d= 0,ls=0.0,diis     4     -2.9736980470 -7.25D-08  3.66D-05  1.96D-08     1.8
- d= 0,ls=0.0,diis     5     -2.9736980499 -2.87D-09  2.73D-07  9.71D-13     1.8
+ d= 0,ls=0.0,diis     4     -2.9736980470 -7.25D-08  3.66D-05  1.96D-08     1.9
+ d= 0,ls=0.0,diis     5     -2.9736980499 -2.87D-09  2.73D-07  9.71D-13     1.9
 
 
          Total DFT energy =       -2.973698049910
@@ -2468,12 +2459,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      1.8
-   Time prior to 1st pass:      1.8
+   Time after variat. SCF:      1.9
+   Time prior to 1st pass:      1.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2482,12 +2473,12 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9030627567 -2.90D+00  5.51D-03  3.32D-03     1.9
+ d= 0,ls=0.0,diis     1     -2.9030627567 -2.90D+00  5.51D-03  3.32D-03     2.0
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9032114005 -1.49D-04  1.33D-03  4.55D-05     2.0
- d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.39D-04  3.85D-07     2.0
- d= 0,ls=0.0,diis     4     -2.9032165732 -5.91D-08  3.46D-05  1.62D-08     2.0
- d= 0,ls=0.0,diis     5     -2.9032165757 -2.47D-09  1.02D-07  1.16D-12     2.1
+ d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.39D-04  3.85D-07     2.1
+ d= 0,ls=0.0,diis     4     -2.9032165732 -5.91D-08  3.46D-05  1.62D-08     2.1
+ d= 0,ls=0.0,diis     5     -2.9032165757 -2.47D-09  1.02D-07  1.16D-12     2.2
 
 
          Total DFT energy =       -2.903216575661
@@ -2624,12 +2615,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      2.1
-   Time prior to 1st pass:      2.1
+   Time after variat. SCF:      2.2
+   Time prior to 1st pass:      2.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2640,9 +2631,9 @@ set dft:cam_exch F
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1     -2.9031180261 -2.90D+00  3.34D-03  2.79D-04     2.2
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.9031694926 -5.15D-05  8.17D-04  1.04D-05     2.2
+ d= 0,ls=0.0,diis     2     -2.9031694926 -5.15D-05  8.17D-04  1.04D-05     2.3
  d= 0,ls=0.0,diis     3     -2.9031711987 -1.71D-06  3.18D-05  3.20D-08     2.3
- d= 0,ls=0.0,diis     4     -2.9031712016 -2.94D-09  6.72D-06  7.70D-10     2.3
+ d= 0,ls=0.0,diis     4     -2.9031712016 -2.94D-09  6.72D-06  7.70D-10     2.4
 
 
          Total DFT energy =       -2.903171201614
@@ -2779,12 +2770,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      2.3
-   Time prior to 1st pass:      2.3
+   Time after variat. SCF:      2.4
+   Time prior to 1st pass:      2.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2793,10 +2784,10 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9047002812 -2.90D+00  3.29D-03  2.71D-04     2.4
+ d= 0,ls=0.0,diis     1     -2.9047002812 -2.90D+00  3.29D-03  2.71D-04     2.5
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9047515336 -5.13D-05  7.94D-04  9.89D-06     2.5
- d= 0,ls=0.0,diis     3     -2.9047531864 -1.65D-06  3.73D-05  4.06D-08     2.5
+ d= 0,ls=0.0,diis     3     -2.9047531864 -1.65D-06  3.73D-05  4.06D-08     2.6
  d= 0,ls=0.0,diis     4     -2.9047531904 -4.04D-09  8.16D-06  1.08D-09     2.6
 
 
@@ -2939,7 +2930,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -2948,10 +2939,10 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9018252193 -2.90D+00  3.37D-03  2.91D-04     2.6
+ d= 0,ls=0.0,diis     1     -2.9018252193 -2.90D+00  3.37D-03  2.91D-04     2.7
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9018768502 -5.16D-05  8.30D-04  1.07D-05     2.7
- d= 0,ls=0.0,diis     3     -2.9018785930 -1.74D-06  2.90D-05  2.80D-08     2.7
+ d= 0,ls=0.0,diis     3     -2.9018785930 -1.74D-06  2.90D-05  2.80D-08     2.8
  d= 0,ls=0.0,diis     4     -2.9018785954 -2.46D-09  6.00D-06  6.32D-10     2.8
 
 
@@ -3094,7 +3085,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -3106,9 +3097,9 @@ set dft:cam_exch F
  d= 0,ls=0.0,diis     1     -2.9009170757 -2.90D+00  7.25D-03  4.97D-03     2.9
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9010762347 -1.59D-04  9.65D-04  1.72D-05     2.9
- d= 0,ls=0.0,diis     3     -2.9010787215 -2.49D-06  1.38D-04  3.75D-07     2.9
+ d= 0,ls=0.0,diis     3     -2.9010787215 -2.49D-06  1.38D-04  3.75D-07     3.0
  d= 0,ls=0.0,diis     4     -2.9010787799 -5.84D-08  2.90D-05  1.12D-08     3.0
- d= 0,ls=0.0,diis     5     -2.9010787817 -1.83D-09  4.24D-08  4.97D-14     3.0
+ d= 0,ls=0.0,diis     5     -2.9010787817 -1.83D-09  4.24D-08  4.97D-14     3.1
 
 
          Total DFT energy =       -2.901078781747
@@ -3250,7 +3241,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -3259,12 +3250,12 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.8909996195 -2.89D+00  2.30D-02  2.62D-02     3.1
+ d= 0,ls=0.0,diis     1     -2.8909996195 -2.89D+00  2.30D-02  2.62D-02     3.2
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.8922862292 -1.29D-03  2.94D-03  3.32D-04     3.2
- d= 0,ls=0.0,diis     3     -2.8923117451 -2.55D-05  1.37D-03  7.19D-05     3.2
+ d= 0,ls=0.0,diis     3     -2.8923117451 -2.55D-05  1.37D-03  7.19D-05     3.3
  d= 0,ls=0.0,diis     4     -2.8923178424 -6.10D-06  4.16D-04  1.36D-05     3.3
- d= 0,ls=0.0,diis     5     -2.8923192726 -1.43D-06  2.77D-07  4.08D-12     3.3
+ d= 0,ls=0.0,diis     5     -2.8923192726 -1.43D-06  2.77D-07  4.08D-12     3.4
  d= 0,ls=0.0,diis     6     -2.8923192726 -4.84D-13  1.17D-09  4.17D-16     3.4
 
 
@@ -3404,7 +3395,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -3413,13 +3404,13 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.8640850302 -2.86D+00  2.99D-02  4.85D-02     3.4
+ d= 0,ls=0.0,diis     1     -2.8640850302 -2.86D+00  2.99D-02  4.85D-02     3.5
   Resetting Diis
- d= 0,ls=0.0,diis     2     -2.8662793673 -2.19D-03  4.21D-03  4.33D-04     3.4
+ d= 0,ls=0.0,diis     2     -2.8662793673 -2.19D-03  4.21D-03  4.33D-04     3.5
  d= 0,ls=0.0,diis     3     -2.8663175245 -3.82D-05  1.94D-03  1.23D-04     3.5
  d= 0,ls=0.0,diis     4     -2.8663277428 -1.02D-05  6.27D-04  2.87D-05     3.5
  d= 0,ls=0.0,diis     5     -2.8663308301 -3.09D-06  7.46D-07  3.96D-11     3.5
- d= 0,ls=0.0,diis     6     -2.8663308301 -4.28D-12  1.20D-09  8.72D-17     3.5
+ d= 0,ls=0.0,diis     6     -2.8663308301 -4.28D-12  1.20D-09  8.72D-17     3.6
 
 
          Total DFT energy =       -2.866330830097
@@ -3553,12 +3544,12 @@ set dft:cam_exch F
  HOMO         =      -0.917921
  LUMO         =       0.533533
 
-   Time after variat. SCF:      3.5
-   Time prior to 1st pass:      3.5
+   Time after variat. SCF:      3.6
+   Time prior to 1st pass:      3.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -3571,8 +3562,8 @@ set dft:cam_exch F
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.8690508524 -2.42D-03  4.73D-03  4.79D-04     3.6
  d= 0,ls=0.0,diis     3     -2.8690947362 -4.39D-05  2.21D-03  1.44D-04     3.6
- d= 0,ls=0.0,diis     4     -2.8691068908 -1.22D-05  7.27D-04  3.60D-05     3.6
- d= 0,ls=0.0,diis     5     -2.8691108640 -3.97D-06  1.17D-06  9.51D-11     3.6
+ d= 0,ls=0.0,diis     4     -2.8691068908 -1.22D-05  7.27D-04  3.60D-05     3.7
+ d= 0,ls=0.0,diis     5     -2.8691108640 -3.97D-06  1.17D-06  9.51D-11     3.7
  d= 0,ls=0.0,diis     6     -2.8691108640 -1.06D-11  2.26D-09  3.31D-16     3.7
 
 
@@ -3724,7 +3715,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =     59974
+ Max. records in memory =      9        Max. recs in file   =     59903
 
 
            Memory utilization after 1st SCF pass: 
@@ -3733,11 +3724,11 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9016841103 -2.90D+00  1.37D-02  1.31D-02     3.7
+ d= 0,ls=0.0,diis     1     -2.9016841103 -2.90D+00  1.37D-02  1.31D-02     3.8
   Resetting Diis
  d= 0,ls=0.0,diis     2     -2.9022429830 -5.59D-04  6.12D-04  4.16D-05     3.8
  d= 0,ls=0.0,diis     3     -2.9022453367 -2.35D-06  2.73D-04  3.50D-06     3.9
- d= 0,ls=0.0,diis     4     -2.9022456559 -3.19D-07  6.83D-05  3.65D-07     3.9
+ d= 0,ls=0.0,diis     4     -2.9022456559 -3.19D-07  6.83D-05  3.65D-07     4.0
  d= 0,ls=0.0,diis     5     -2.9022456942 -3.82D-08  2.09D-07  4.41D-12     4.0
 
 
@@ -3795,9 +3786,9 @@ set dft:cam_exch F
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 2558     2558     1.04e+04 3741     5160        0        0        0     
+calls: 2563     2563     1.04e+04 3752     5132        0        0        0     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             1.11e+06 2.84e+05 6.60e+05 0.00e+00 0.00e+00 0.00e+00
+bytes total:             1.12e+06 2.85e+05 6.57e+05 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 4992 bytes
 MA_summarize_allocated_blocks: starting scan ...
