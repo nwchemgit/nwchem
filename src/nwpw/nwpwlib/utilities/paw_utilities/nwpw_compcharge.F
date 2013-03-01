@@ -751,17 +751,19 @@
       n1(2) = ne(1)+1
       n2(1) = ne(1)
       n2(2) = ne(1)+ne(2)
-      scal = 1.0d0/lattice_omega()
+      !scal = 1.0d0/lattice_omega()
 
       shift = int_mb(shift_Tndiff(1)+iia-1)
       do k=1,int_mb(nindx_Tndiff(1)+iia-1)
          lm    = int_mb(lm_Tndiff(1)+shift+k-1)
          iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
          jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
-         coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
+         coeff = dbl_mb(coeff_Tndiff(1)+shift+k-1)
          do ms=1,ispin
             indx1 = indx + (ms-1)*lm_size_max + lm
-            w     = dbl_mb(dE_Qlm(1)+indx1)*coeff
+            w     = dbl_mb(dEmult_Qlm(1)+indx1)*coeff
+            write(*,*) "ii,lm,ms,coeff,w=",ii,lm,ms,coeff,w
+
             do n=n1(ms),n2(ms)
                sw2(n,iprj) = sw2(n,iprj) + sw1(n,jprj)*w
             end do
@@ -1825,6 +1827,9 @@ c     >                                      l2,m2,s2,Rab)
      >                                 + q1*dbl_mb(e_gauss(1)+k-1)
          dbl_mb(dEmult_Qlm(1)+indx2dn) = dbl_mb(dEmult_Qlm(1)+indx2dn) 
      >                                 + q1*dbl_mb(e_gauss(1)+k-1)
+
+       write(*,*) "k,q1,q2,egauss=",k,q1,q2,dbl_mb(e_gauss(1)+k),
+     >   dbl_mb(dEmult_Qlm(1)+indx1up),dbl_mb(dEmult_Qlm(1)+indx2up) 
       end do
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dEmult_Qlm(1)))
