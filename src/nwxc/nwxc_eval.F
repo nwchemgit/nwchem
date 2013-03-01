@@ -310,6 +310,9 @@ C
            case (NWXCP_X_SLATER)
              call nwxc_x_dirac(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                         rho,f,dfdr)
+           case (NWXCP_X_B88)
+             call nwxc_x_b88(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_CAMPBE)
              param(1) = 0.8040d0
              param(2) = nwxc_cam_alpha

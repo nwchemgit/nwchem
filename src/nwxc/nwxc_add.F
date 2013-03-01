@@ -173,6 +173,12 @@ c       Hartree-Fock exchange and MP2 correlation are handled different
 c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
       else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_SLATER,dfweight)
+      else if (dfname.eq."becke88") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B88,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B88,dfweight)
       else if (dfname.eq."xcampbe") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMPBE,dfweight)
         nwxc_wght_hf    = 0.25d0
@@ -346,6 +352,9 @@ C>
 c         do not do anything
         case (NWXCP_X_SLATER)
           nwxc_depends_on_rho   = .true.
+        case (NWXCP_X_B88)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
         case (NWXCP_X_CAMPBE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.

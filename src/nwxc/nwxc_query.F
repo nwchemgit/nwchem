@@ -378,6 +378,10 @@ c
          case (NWXCP_X_SLATER)
            cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385 "
      +             //"(1951) doi:10.1103/PhysRev.81.385)"
+         case (NWXCP_X_B88)
+           cdata = "Becke88 Exchange (AD Becke, "
+     +             //"Phys.Rev.A 38, 3098 (1988)"
+     +             //" doi:10.1103/PhysRevA.38.3098)"
          case (NWXCP_X_CAMPBE)
            cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
      +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"
