@@ -52,6 +52,16 @@ dft
 end
 task dft energy
 
+dft
+  mult 3
+  odft
+  direct
+  vectors input atomic
+  xc xcamb88
+  cam 0.33 cam_alpha 0.19 cam_beta 0.46
+end
+task dft energy
+
 set dft:cam_exch F
 
 dft
