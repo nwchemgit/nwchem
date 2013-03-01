@@ -56,6 +56,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc xbnl07
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc xpbe96
 end
 task dft energy
