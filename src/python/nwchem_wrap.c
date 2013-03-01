@@ -991,7 +991,8 @@ static PyObject *wrap_task_hessian(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    return NULL;
+     Py_INCREF(Py_None);
+     return Py_None;
 }
 
 static PyObject *wrap_task_freq(PyObject *self, PyObject *args)
