@@ -1890,12 +1890,19 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
       if (pawexist) then
+         call nwpw_compcharge_gen_dEmult_Qlm(ispin)
       vmm(1) = 0.0d0
       vmm(2) = 0.0d0
       do ip=1,nion_prj_indx
          ii          = int_mb(ii_prj_indx(1)+ip-1)
          ia          = int_mb(ia_prj_indx(1)+ip-1)
+         nproj       = int_mb(nproj_prj_indx(1)+ip-1)
+         swstart     = int_mb(swstart_prj_indx(1)+ip-1)
          if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+            call nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nproj,
+     >                                   dbl_mb(sw1a(1)+swstart*nn),
+     >                                   dbl_mb(sw2a(1)+swstart*nn))
+     
             mult_l = nwpw_compcharge_mult_l(ia)
             do l=0,mult_l
             do m=-l,l
