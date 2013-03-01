@@ -382,6 +382,10 @@ c
            cdata = "Becke88 Exchange (AD Becke, "
      +             //"Phys.Rev.A 38, 3098 (1988)"
      +             //" doi:10.1103/PhysRevA.38.3098)"
+         case (NWXCP_X_BNL)
+           cdata = "BNL Exchange (R Baer, D Neuhauser, E Livshits, "
+     +             //"Phys.Chem.Chem.Phys. 9, 2932 (2007)"
+     +             //" doi:10.1039/B617919C)"
          case (NWXCP_X_CAMPBE)
            cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
      +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"
