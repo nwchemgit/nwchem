@@ -1626,15 +1626,18 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	  _FC=pgf90
 	  ifeq ($(PE_ENV),PGI)
 	  _FC=pgf90
+          _CC=pgcc
 	  endif
 	  ifeq ($(PE_ENV),INTEL)
 	  _FC=ifort
+          _CC=icc
 	  endif
-#        _CC=pgcc
-	  CC=gcc
       endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
+      endif
+      ifeq ($(CC),icc)
+        _CC=icc
       endif
       ifeq ($(FC),pgf90)
         _FC=pgf90
@@ -1765,13 +1768,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@echo 
 	@exit 1
       endif
-      ifeq ($(CC),icc)
-        COPTIONS   =   -ftz
-        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
-      endif
-      ifeq ($(CC),gcc)
-        COPTIONS   =   -O3 -funroll-loops -ffast-math
-      endif
       ifdef USE_SHARED
         COPTIONS += -fPIC
       endif
@@ -1880,6 +1876,14 @@ endif
         COPTIONS   =   -O
       else
         COPTIONS   =   -O3 -funroll-loops -ffast-math  
+      endif
+      ifeq ($(_CC),icc)
+        COPTIONS   =   -ftz
+#old        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
+        COPTIMIZE =  -O2
+      endif
+      ifeq ($(CC),gcc)
+        COPTIONS   =   -O3 -funroll-loops -ffast-math
       endif
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
