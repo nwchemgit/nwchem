@@ -413,6 +413,8 @@ c      end
 
       total_energy = eorbit + exc - ehartr - pxc
 
+
+
 *     **** SIC corrections ****
       if (pspw_SIC()) then
       if (pspw_SIC_relaxed()) then

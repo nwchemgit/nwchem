@@ -66,10 +66,12 @@ c     complex*16 vpsi(nfft3d)
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
+      logical  psp_pawexist
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external lattice_omega
+      external psp_pawexist
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
@@ -114,6 +116,8 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
+      if (psp_pawexist()) call psp_set_vc(vc)
+   
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
