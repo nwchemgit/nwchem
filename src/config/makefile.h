@@ -1623,8 +1623,15 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
    endif
       _FC=noifc
       ifeq ($(FC),ftn)
-        _FC=pgf90
-        _CC=pgcc
+	  _FC=pgf90
+	  ifeq ($(PE_ENV),PGI)
+	  _FC=pgf90
+	  endif
+	  ifeq ($(PE_ENV),INTEL)
+	  _FC=ifort
+	  endif
+#        _CC=pgcc
+	  CC=gcc
       endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
@@ -1636,10 +1643,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
         _FC=pgf90
       endif
       ifeq ($(FC),ifc)
-       _FC=ifc
+       _FC=ifort
       endif
       ifeq ($(FC),ifort)
-       _FC=ifc
+       _FC=ifort
       endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
@@ -1800,7 +1807,7 @@ $(error )
 endif
 endif
 
-      ifeq ($(_FC),ifc)
+      ifeq ($(_FC),ifort)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
        _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
