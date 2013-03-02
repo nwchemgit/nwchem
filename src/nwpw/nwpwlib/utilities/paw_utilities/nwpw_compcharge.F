@@ -699,17 +699,68 @@
 
 *     *************************************************
 *     *                                               *
-*     *          nwpw_compcharge_gen_dE_Qlm           *
+*     *          nwpw_compcharge_add_dE_Qlm           *
 *     *                                               *
 *     *************************************************
-
-      subroutine nwpw_compcharge_gen_dE_Qlm(ispin,V,Vsmooth)
+      subroutine nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,deqlm)
       implicit none
-      integer ispin
-      real*8 V(*),Vsmooth(*)
+      integer ispin,ii,l,m
+      real*8 deqlm
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer ms,iii,iia,indx,lm
+
+      iii = int_mb(ion_iontopaw(1)+ii-1)
+      if (iii.ne.-1) then
+         iia = int_mb(katm_paw(1)+iii-1)
+         if ((l.le.int_mb(mult_l(1)+iia-1)).and.(abs(m).le.l)) then
+            lm = l*(l+1) + m
+            do ms =1,ispin
+               indx  = (iii-1)*2*lm_size_max + (ms-1)*lm_size_max + lm
+               dbl_mb(dE_Qlm(1)+indx) = deqlm
+            end do
+         end if
+      end if
       return
       end
 
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_reduce_dE_Qlm        *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_reduce_dE_Qlm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+     >                            dbl_mb(dE_Qlm(1)))
+
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_zero_dE_Qlm          *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_zero_dE_Qlm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dE_Qlm(1)),1)
+      return
+      end
 
 
 *     *************************************************
@@ -761,8 +812,8 @@
          coeff = dbl_mb(coeff_Tndiff(1)+shift+k-1)
          do ms=1,ispin
             indx1 = indx + (ms-1)*lm_size_max + lm
-            w     = dbl_mb(dEmult_Qlm(1)+indx1)*coeff
-            write(*,*) "ii,lm,ms,coeff,w=",ii,lm,ms,coeff,w
+            !w     = dbl_mb(dEmult_Qlm(1)+indx1)*coeff
+            w     = dbl_mb(dE_Qlm(1)+indx1)*coeff
 
             do n=n1(ms),n2(ms)
                sw2(n,iprj) = sw2(n,iprj) + sw1(n,jprj)*w
@@ -773,7 +824,6 @@
 
       return
       end 
-
 
 
 *     *************************************************
@@ -1283,6 +1333,95 @@ c      end
       return
       end
 
+
+
+*     *************************************************
+*     *                                               *
+*     *           nwpw_compcharge_gen_glm2            *
+*     *                                               *
+*     *************************************************
+*
+*   This routine returns the fourier transforms of dn_cmp and dn_cmp_smooth
+ 
+      subroutine nwpw_compcharge_gen_glm2(ii,l,m,glm_out,glm_smooth_out)
+      implicit none
+      integer ii,l,m
+      complex*16 glm_out(*)
+      complex*16 glm_smooth_out(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer iii,iia,lm,tmp(2),exi(2)
+
+      iii = int_mb(ion_iontopaw(1)+ii-1)
+      iia  = int_mb(katm_paw(1)+iii-1)
+      if ((l.le.int_mb(mult_l(1)+iia-1)).and.(abs(m).le.l)) then
+         lm = l*(l+1) + m
+
+         value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+         if (.not.value)
+     >     call errquit("nwpw_compcharge_gen_glm2:stack",0,MA_ERR)
+
+         if (isgamma) then
+            call strfac_pack(0,ii,dcpl_mb(exi(1)))
+            if (mod(l,2).eq.0) then
+               call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                          dcpl_mb(exi(1)),
+     >                          dcpl_mb(tmp(1)))
+            else
+               call Pack_tc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+            end if
+            call Pack_tc_Mul(0,dbl_mb(gk(1)+(iia-1)*npack0),
+     >                         dcpl_mb(tmp(1)),
+     >                         glm_out)
+            call Pack_tc_Mul(0,dbl_mb(gk_smooth(1)),
+     >                         dcpl_mb(tmp(1)),
+     >                         glm_smooth_out)
+         else
+            call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+            if (mod(l,2).eq.0) then
+               call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                            dcpl_mb(exi(1)),
+     >                            dcpl_mb(tmp(1)))
+            else
+               call Cram_rc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                             dcpl_mb(exi(1)),
+     >                             dcpl_mb(tmp(1)))
+            end if
+            call Cram_rc_Mul(0,dbl_mb(gk(1)+(iia-1)*npack0),
+     >                         dcpl_mb(tmp(1)),
+     >                         glm_out)
+            call Cram_rc_Mul(0,dbl_mb(gk_smooth(1)),
+     >                         dcpl_mb(tmp(1)),
+     >                         glm_smooth_out)
+         end if
+
+         value =           MA_pop_stack(exi(2))
+         value = value.and.MA_pop_stack(tmp(2))
+         if (.not.value)
+     >     call errquit("nwpw_compcharge_gen_glm2:stack",1,MA_ERR)
+
+
+      else
+         call errquit("nwpw_compcharge_gen_glm2:bad l,m,",l,m)
+      end if
+      return
+      end
+
+
+
+
+
+
+
 *     *************************************************
 *     *                                               *
 *     *         nwpw_gintegrals_set_gcount            *
@@ -1790,14 +1929,14 @@ c     >                                      l2,m2,s2,Rab)
 
 *     *************************************************
 *     *                                               *
-*     *        nwpw_compcharge_gen_dEmult_Qlm         *
+*     *        nwpw_compcharge_add_dEmult_Qlm         *
 *     *                                               *
 *     *************************************************
 *
 *    This routine calculates the derivative of the multipole
 *    energy wrt to Qlm
 *
-      subroutine nwpw_compcharge_gen_dEmult_Qlm(ispin)
+      subroutine nwpw_compcharge_add_dEmult_Qlm(ispin)
       implicit none
       integer ispin
 
@@ -1809,7 +1948,7 @@ c     >                                      l2,m2,s2,Rab)
       integer k,indx1up,indx1dn,indx2up,indx2dn
       real*8 q1,q2
 
-      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
+c      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
       do k=1,ngauss
          indx1up = int_mb(lm1_gauss(1)+k-1)
          indx1dn = indx1up + (ispin-1)*lm_size_max
@@ -1818,21 +1957,19 @@ c     >                                      l2,m2,s2,Rab)
          q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
          q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
 
-         dbl_mb(dEmult_Qlm(1)+indx1up) = dbl_mb(dEmult_Qlm(1)+indx1up) 
+         dbl_mb(dE_Qlm(1)+indx1up) = dbl_mb(dE_Qlm(1)+indx1up) 
      >                                 + q2*dbl_mb(e_gauss(1)+k-1)
-         dbl_mb(dEmult_Qlm(1)+indx1dn) = dbl_mb(dEmult_Qlm(1)+indx1dn) 
+         dbl_mb(dE_Qlm(1)+indx1dn) = dbl_mb(dE_Qlm(1)+indx1dn) 
      >                                 + q2*dbl_mb(e_gauss(1)+k-1)
 
-         dbl_mb(dEmult_Qlm(1)+indx2up) = dbl_mb(dEmult_Qlm(1)+indx2up) 
+         dbl_mb(dE_Qlm(1)+indx2up) = dbl_mb(dE_Qlm(1)+indx2up) 
      >                                 + q1*dbl_mb(e_gauss(1)+k-1)
-         dbl_mb(dEmult_Qlm(1)+indx2dn) = dbl_mb(dEmult_Qlm(1)+indx2dn) 
+         dbl_mb(dE_Qlm(1)+indx2dn) = dbl_mb(dE_Qlm(1)+indx2dn) 
      >                                 + q1*dbl_mb(e_gauss(1)+k-1)
 
-       write(*,*) "k,q1,q2,egauss=",k,q1,q2,dbl_mb(e_gauss(1)+k),
-     >   dbl_mb(dEmult_Qlm(1)+indx1up),dbl_mb(dEmult_Qlm(1)+indx2up) 
       end do
-      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
-     >                            dbl_mb(dEmult_Qlm(1)))
+c      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+c     >                            dbl_mb(dE_Qlm(1)))
       
       return
       end
