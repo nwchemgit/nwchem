@@ -207,7 +207,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
 *     ***** local variables ****
       logical value
-      integer npack1
+      integer npack1,npack0
 
 *     ***** external functions *****
       integer  psp_nprj_max,control_nprj_mult
@@ -215,6 +215,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
 
       call Pack_npack(1,npack1)
+      call Pack_npack(1,npack0)
       nprj_mult= control_nprj_mult()
       nprj_max = psp_nprj_max()
       value = MA_alloc_get(mt_dcpl,npack1*nprj_max*nprj_mult,
@@ -223,11 +224,42 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.
      >            MA_alloc_get(mt_dbl,2*nprj_max*nprj_max,
      >                        'wtmp',wtmp(2),wtmp(1))
+         value = value.and.
+     >            MA_alloc_get(mt_dcpl,npack0,'vc_tmp',
+     >                         vc_tmp(2),vc_tmp(1))
+         value = value.and.
+     >            MA_alloc_get(mt_dcpl,npack0,'vcmptmp',
+     >                         vcmp_tmp(2),vcmp_tmp(1))
       end if
       if (.not. value)
      >   call errquit('psp_proj_init:out of heap memory',0,MA_ERR)
       return
       end
+
+      subroutine psp_set_vc(vcin)
+      implicit none
+      complex*16 vcin(*)
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      call Pack_c_Copy(0,vcin,dcpl_mb(vc_tmp(1))) 
+      return
+      end 
+
+      subroutine psp_get_vcmp(vcmpout)
+      implicit none
+      complex*16 vcmpout(*)
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      call Pack_c_Copy(0,dcpl_mb(vcmp_tmp(1)),vcmpout) 
+      return
+      end 
+
 
 
 *     ***********************************
@@ -283,7 +315,11 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       end do
 
       value = MA_free_heap(prjtmp(2))
-      if (pawexist) value = value.and.MA_free_heap(wtmp(2))
+      if (pawexist) then
+         value = value.and.MA_free_heap(wtmp(2))
+         value = value.and.MA_free_heap(vc_tmp(2))
+         value = value.and.MA_free_heap(vcmp_tmp(2))
+      end if
       value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(vnl(2))
 c     value = value.and.MA_free_heap(vnlnrm(2))
@@ -1716,7 +1752,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *           changed to D3dB_Vector_SumAll(nn*nproj,dbl_mb(sw1(1))) and then place sw1 --> sw1a(distributed)
 *
       subroutine v_nonlocal(ispin,ne,psi1,psi2,move,fion,
-     >                          fractional,occ)
+     >                      fractional,occ)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi1(*)
@@ -1731,13 +1767,17 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 #include "errquit.fh"
 
 *     *** local variables ***
-      integer G(3),npack1,nion,nu,mult_l,m,ms
+      integer pcount,taskid_j,np_j
+      integer G(3),npack0,npack1,nion,nu,mult_l,m,ms
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
       integer k,shift,l_prj,nproj,Gijl_indx
-      real*8  omega,scal,ff(3)
+      integer nx,ny,nz
+      real*8  omega,scal,ff(3),scal1
       complex*16 ctmp
       integer exi(2),xtmp(2),sum(2)
-      logical value,sd_function
+      integer dng_cmp(2),dng_cmp_smooth(2)
+      integer vcmp(2),vcmp_smooth(2)
+      logical value,sd_function,periodic
       real*8 vmm(50),eh_atom
       integer ld_ptr
 
@@ -1750,12 +1790,16 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       external ion_nion,ion_katm,Pack_G_indx
       external psi_data_get_ptr,psi_data_get_chnk
       external lattice_omega,ddot
-      integer  nwpw_compcharge_mult_l
-      external nwpw_compcharge_mult_l
+      integer  nwpw_compcharge_mult_l,control_version
+      external nwpw_compcharge_mult_l,control_version
       real*8   nwpw_compcharge_Qlm
       external nwpw_compcharge_Qlm
 
       call nwpw_timing_start(6) 
+
+      periodic = (control_version().eq.3)
+      call Parallel2d_taskid_j(taskid_j)
+      call Parallel2d_np_j(np_j)
 
 *     **** allocate local memory ****
       nion = ion_nion()
@@ -1781,6 +1825,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
       omega = lattice_omega()
       scal = 1.0d0/(omega)
+
 
       jp = 0
       do ip=1,nion_prj_indx
@@ -1888,38 +1933,118 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
          end if
       end do
 
+
 *     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
       if (pawexist) then
-         call nwpw_compcharge_gen_dEmult_Qlm(ispin)
-      vmm(1) = 0.0d0
-      vmm(2) = 0.0d0
-      do ip=1,nion_prj_indx
-         ii          = int_mb(ii_prj_indx(1)+ip-1)
-         ia          = int_mb(ia_prj_indx(1)+ip-1)
-         nproj       = int_mb(nproj_prj_indx(1)+ip-1)
-         swstart     = int_mb(swstart_prj_indx(1)+ip-1)
-         if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+         write(*,*) "hera"
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal1 = 1.0d0/dble(nx*ny*nz)
+
+         if (periodic) then
+            call Pack_npack(0,npack0)
+         else
+            call D3dB_nfft3d(1,npack0)
+         end if
+         value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
+     >                       dng_cmp(2),dng_cmp(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,'vcmp',
+     >                       vcmp(2),vcmp(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+     >                       vcmp_smooth(2),vcmp_smooth(1))
+         if (.not.value) 
+     >     call errquit('v_nonlocal:out of stack',4, MA_ERR)
+
+         call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                    dcpl_mb(dng_cmp(1)),
+     >                                    dcpl_mb(dng_cmp_smooth(1)))
+
+         write(*,*) "herb"
+         !*** compute hartree potential of ntilde + ncmp_tilde ***
+         !*** compute hartree potential ncmp   - ncmp_tilde ***
+         if (periodic) then
+            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+            call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
+     >                     dcpl_mb(vcmp_smooth(1)))
+
+            call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
+            call Pack_cc_Sub(0,dcpl_mb(vcmp_tmp(1)),
+     >                         dcpl_mb(vcmp_smooth(1)),
+     >                         dcpl_mb(vcmp(1)))
+            call Pack_cc_Sum2(0,dcpl_mb(vc_tmp(1)),
+     >                          dcpl_mb(vcmp_smooth(1)))
+ 
+
+         else
+c            call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
+c            call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
+c            call coulomb2_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+c            call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+c            call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
+c            call Pack_c_pack(0,dcpl_mb(vcmp(1)))
+c            
+c            call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
+c            call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
+c            call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
+c     >                     dcpl_mb(vcmp_smooth(1)))
+c            call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+c            call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+c            call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
+         end if
+         
+         write(*,*) "herc"
+         call nwpw_compcharge_zero_dE_Qlm()
+         call nwpw_compcharge_add_dEmult_Qlm(ispin)
+         pcount = 0
+         do ip=1,nion_prj_indx
+            ii          = int_mb(ii_prj_indx(1)+ip-1)
+            ia          = int_mb(ia_prj_indx(1)+ip-1)
+            if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+               mult_l = nwpw_compcharge_mult_l(ia)
+               do l=0,mult_l
+               do m=-l,l
+                  if (mod(pcount,np_j).eq.taskid_j) then
+                     call nwpw_compcharge_gen_glm2(ii,l,m,
+     >                        dcpl_mb(dng_cmp(1)),
+     >                        dcpl_mb(dng_cmp_smooth(1)))
+                     call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
+     >                                   dcpl_mb(vcmp_smooth(1)),ff(1))
+                     call Pack_cc_idot(0,dcpl_mb(dng_cmp_smooth(1)),
+     >                                   dcpl_mb(vcmp(1)),ff(2))
+                     write(*,*) "ff=",ff(1),ff(2)
+                     call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
+     >                                               ff(1)+ff(2))
+                  end if
+                  pcount = pcount + 1
+               end do
+               end do
+            end if
+         end do
+         call nwpw_compcharge_reduce_dE_Qlm()
+         write(*,*) "herd"
+
+         do ip=1,nion_prj_indx
+            ii          = int_mb(ii_prj_indx(1)+ip-1)
+            ia          = int_mb(ia_prj_indx(1)+ip-1)
+            nproj       = int_mb(nproj_prj_indx(1)+ip-1)
+            swstart     = int_mb(swstart_prj_indx(1)+ip-1)
             call nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nproj,
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn))
+         end do
      
-            mult_l = nwpw_compcharge_mult_l(ia)
-            do l=0,mult_l
-            do m=-l,l
-                ff(1) = nwpw_compcharge_Qlm(    1,ii,l,m)
-                ff(2) = nwpw_compcharge_Qlm(ispin,ii,l,m)
-                write(*,*) "ii,l,m,qup,qdown=",ii,l,m,ff(1),ff(ispin)
-                if ((l.eq.0).and.(m.eq.0)) then 
-                   vmm(1) = vmm(1) + ff(1)
-                   vmm(2) = vmm(2) + ff(2)
-                end if 
-            end do
-            end do
-         end if
-
-      end do
-      write(*,*) "total s charge =",vmm(1)*dsqrt(16.0d0*datan(1.0d0)),
-     >                              vmm(2)*dsqrt(16.0d0*datan(1.0d0))
+         value =           MA_pop_stack(vcmp_smooth(2))
+         value = value.and.MA_pop_stack(vcmp(2))
+         value = value.and.MA_pop_stack(dng_cmp_smooth(2))
+         value = value.and.MA_pop_stack(dng_cmp(2))
+         if (.not.value) 
+     >     call errquit('v_nonlocal:popping stack',5,MA_ERR)
       end if
 
 
