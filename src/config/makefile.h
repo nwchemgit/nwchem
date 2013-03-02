@@ -1632,6 +1632,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	  _FC=ifort
           _CC=icc
 	  endif
+          DEFINES  += -DCRAYXT -DEAFHACK -DNOFSCHECK
       endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
@@ -1852,7 +1853,6 @@ endif
         FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
        ifeq ($(FC),ftn)
-          DEFINES  += -DCRAYXT -DEAFHACK -DNOFSCHECK
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
        endif
        ifeq ($(NWCHEM_TARGET),CATAMOUNT)
