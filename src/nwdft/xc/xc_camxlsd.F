@@ -70,10 +70,12 @@ c
             if (rho(n,1).gt.tol_rho)then
              rho13=rho(n,1)**one_third
              Etmp = rho(n,1)*rho13*P2*fac
-             if(ldew)func(n) = func(n) + rho(n,1)*rho13*fac*P2
              Atmp = rho13*P1*fac
              Ctmp = 0.d0
              call xc_att_xc(rho(n,1),ipol,Etmp,Atmp,Ctmp)
+             if(ldew)func(n) = func(n) + Etmp
+             Ex = Ex + qwght(n)*Etmp
+             Amat(n,1) = Amat(n,1) + Atmp
 #ifdef SECOND_DERIV
              A2tmp = (rho13/rho(n,1))*2.0d0*one_third*P1*fac
              C2tmp = 0.d0
@@ -82,8 +84,6 @@ c
      &           C2tmp,C3tmp)
              Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 #endif
-             Ex = Ex + qwght(n)*Etmp
-             Amat(n,1) = Amat(n,1) + Atmp
             endif
    10    continue
 c
@@ -102,6 +102,7 @@ c
              call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,Ctmp)
              Amat(n,1) = Amat(n,1) + Atmp
              Ex = Ex + qwght(n)*Etmp
+             if(ldew)func(n) = func(n) + Etmp
 #ifdef SECOND_DERIV
              A2tmp = 0.d0
              C2tmp = 0.d0
@@ -120,6 +121,7 @@ c
              call xc_att_xc(rho(n,3),ipol,Etmp,Atmp,Ctmp)
              Amat(n,2) = Amat(n,2) + Atmp
              Ex = Ex + qwght(n)*Etmp
+             if(ldew)func(n) = func(n) + Etmp
 #ifdef SECOND_DERIV
              A2tmp = 0.d0
              C2tmp = 0.d0
@@ -132,8 +134,8 @@ c
              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
 #endif
 c
-             if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
-     &                                      rho33*rho(n,3)   )*P4*fac
+c            if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
+c    &                                      rho33*rho(n,3)   )*P4*fac
             endif
    20    continue
 c 
