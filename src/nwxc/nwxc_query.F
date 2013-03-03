@@ -386,6 +386,14 @@ c
            cdata = "BNL Exchange (R Baer, D Neuhauser, E Livshits, "
      +             //"Phys.Chem.Chem.Phys. 9, 2932 (2007)"
      +             //" doi:10.1039/B617919C)"
+         case (NWXCP_X_CAMB88)
+           cdata = "CAM-B88 Exchange (T Yanai, DP Tew, "
+     +             //"NC Handy, Chem.Phys.Lett. 393, 51 (2004)"
+     +             //" doi:10.1016/j.cplett.2004.06.011)"
+         case (NWXCP_X_CAMLSD)
+           cdata = "CAM-LSD Exchange (T Yanai, DP Tew, "
+     +             //"NC Handy, Chem.Phys.Lett. 393, 51 (2004)"
+     +             //" doi:10.1016/j.cplett.2004.06.011)"
          case (NWXCP_X_CAMPBE)
            cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
      +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"

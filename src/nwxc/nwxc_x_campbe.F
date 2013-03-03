@@ -228,13 +228,14 @@ c           endif
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))*4d0
             C3tmp = rho43*d2g(3)*8d0
 c
-            call nwxc_x_att_d2(param(2),rho(n,R_T),ipol,Etmp,Atmp,Ctmp,
-     &           A2tmp,C2tmp,C3tmp)
+            call nwxc_x_att_d2(param(2),tol_rho,rho(n,R_T),ipol,
+     &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp*wght
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp*wght
 #else
-            call nwxc_x_att(param(2),rho(n,R_T),ipol,Etmp,Atmp,Ctmp)
+            call nwxc_x_att(param(2),tol_rho,rho(n,R_T),ipol,
+     &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
             Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp*wght
@@ -318,13 +319,14 @@ c           endif
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))
             C3tmp = rho43*d2g(3)*0.5d0
 c
-            call nwxc_x_att_d2(param(2),rho(n,R_A),ipol,Etmp,Atmp,Ctmp,
-     &           A2tmp,C2tmp,C3tmp)
+            call nwxc_x_att_d2(param(2),tol_rho,rho(n,R_A),ipol,
+     &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp*wght
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp*wght
 #else
-            call nwxc_x_att(param(2),rho(n,R_A),ipol,Etmp,Atmp,Ctmp)
+            call nwxc_x_att(param(2),tol_rho,rho(n,R_A),ipol,
+     &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
             Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp*wght
@@ -400,13 +402,14 @@ c
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))
             C3tmp =  rho43*d2g(3)*0.5d0
 c
-            call nwxc_x_att_d2(param(2),rho(n,R_B),ipol,Etmp,Atmp,Ctmp,
-     &           A2tmp,C2tmp,C3tmp)
+            call nwxc_x_att_d2(param(2),tol_rho,rho(n,R_B),ipol,
+     &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp*wght
             Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp*wght
             Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp*wght
 #else
-            call nwxc_x_att(param(2),rho(n,R_B),ipol,Etmp,Atmp,Ctmp)
+            call nwxc_x_att(param(2),tol_rho,rho(n,R_B),ipol,
+     &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
             Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp*wght

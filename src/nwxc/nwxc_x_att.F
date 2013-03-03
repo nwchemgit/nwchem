@@ -14,13 +14,18 @@ C> @{
 !ocl scalar
 #endif
 #ifndef SECOND_DERIV
-      Subroutine nwxc_x_att(param,rho,ipol,Ex,Amat,Cmat)
+      Subroutine nwxc_x_att(param,tol_rho,rho,ipol,Ex,Amat,Cmat)
 #else
-      Subroutine nwxc_x_att_d2(param,rho,ipol,Ex,
+      Subroutine nwxc_x_att_d2(param,tol_rho,rho,ipol,Ex,
      +           Amat,Cmat,Amat2,Cmat2,Cmat3)
 #endif
 c
 C$Id$
+c
+c The results of this routine are non-linear functions of Ex (see the
+c calculation of 'a'). This seems strange as it means that
+c short/long-range functional of a sum of energy terms is not the same
+c as the sum of short/long-range functional terms. Why is this?
 c
       implicit none
 c      
@@ -30,6 +35,7 @@ c
                                 !< - param(1): \f$ \alpha_{CAM} \f$
                                 !< - param(2): \f$ \beta_{CAM} \f$
                                 !< - param(3): \f$ \omega_{CAM} \f$
+      double precision tol_rho  !< [Input] The lower limit on the density
       double precision rho      !< [Input] The density
       integer ipol              !< [Input] The number of spin channels
 c
@@ -80,6 +86,11 @@ c         write(luout,*) 'alpha',alpha
 c         write(luout,*) 'beta',beta
 c         write(luout,*) 'mu',mu
 c          
+          if (ipol.eq.1) then
+            if (rho.lt.tol_rho) return
+          else
+            if (rho.lt.0.5d0*tol_rho) return
+          endif
           cam_alpha = param(1)
           cam_beta  = param(2)
           cam_omega = param(3)

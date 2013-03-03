@@ -184,6 +184,24 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
         nwxc_cam_alpha  = 0.0d0
         nwxc_cam_beta   = 1.0d0
         nwxc_cam_gamma  = 0.5d0
+      else if (dfname.eq."xcamb88") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_CAMB88,dfweight)
+c       nwxc_add_df = nwxc_add_df .and.
+c    &                nwxc_add_func(NWXCP_X_CAMLSD,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_CAMB88,dfweight)
+        nwxc_wght_hf    = 0.00d0
+        nwxc_cam_alpha  = 0.19d0
+        nwxc_cam_beta   = 0.46d0
+        nwxc_cam_gamma  = 0.33d0
+        nwxc_cam_srhfex = .false.
+      else if (dfname.eq."xcamlsd") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMLSD,dfweight)
+        nwxc_wght_hf    = 0.00d0
+        nwxc_cam_alpha  = 0.5d0
+        nwxc_cam_beta   = 0.5d0
+        nwxc_cam_gamma  = 0.3d0
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."xcampbe") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMPBE,dfweight)
         nwxc_wght_hf    = 0.25d0
@@ -361,6 +379,11 @@ c         do not do anything
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
         case (NWXCP_X_BNL)
+          nwxc_depends_on_rho   = .true.
+        case (NWXCP_X_CAMB88)
+          nwxc_depends_on_rho   = .true.
+          nwxc_depends_on_gamma = .true.
+        case (NWXCP_X_CAMLSD)
           nwxc_depends_on_rho   = .true.
         case (NWXCP_X_CAMPBE)
           nwxc_depends_on_rho   = .true.
