@@ -202,7 +202,7 @@ c
      $                      -3.0d0*fdmp8*s8*grad_c6(1)*Qfac/(rjk**4.0d0)
                        force(2,A)=force(2,A)
      $                      -fdmp6*s6*grad_c6(2)/(rjk**3.0d0)
-     $                      -3.0d0*fdmp8*s8*grad_c6(1)*Qfac/(rjk**4.0d0)
+     $                      -3.0d0*fdmp8*s8*grad_c6(2)*Qfac/(rjk**4.0d0)
                        force(3,A)=force(3,A)
      $                      -fdmp6*s6*grad_c6(3)/(rjk**3.0d0)
      $                      -3.0d0*fdmp8*s8*grad_c6(3)*Qfac/(rjk**4.0d0)
