@@ -99,6 +99,9 @@ endif
 	$(INSTALL)
 
 configure_ga:
+ifdef OLD_GA
+	@(cd ../contrib/mapointer_test; ./fix_include_files)
+endif
 	$(MAKE) -C tools configure_ga
 
 # This dependency so that includes which are made by libraries rule
