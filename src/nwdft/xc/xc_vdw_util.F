@@ -280,8 +280,8 @@ c
 c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
            scales6 = 1.20d0
-c PBE
-        else if(xfac(7).eq.1.0d0.and.cfac(12).eq.1.0d0) then
+c PBE (PBE96)
+        else if(xccomb(58) then
            scales6 = 0.75d0
 c TPSS
         else if(xfac(21).eq.1.0d0.and.cfac(27).eq.1.0d0) then
@@ -339,8 +339,8 @@ c B97-D
 c revPBE
 c          scalesr6 = 0.923d0
 c          scales8  = 1.010d0
-c PBE96
-        else if(xccomb(51)) then
+c PBE/PBE96
+        else if(xccomb(58)) then
            scalesr6 = 1.217d0
            scales8  = 0.722d0
 c PBESOL
@@ -402,7 +402,7 @@ c bpbe
 c          scalesr6 = 1.087d0
 c          scales8  = 2.033d0
 c bhlyp
-        else if (xccomb(48)) then
+        else if (xccomb(55)) then
            scalesr6 = 1.370d0
            scales8  = 1.442d0
 c tpssh
@@ -437,7 +437,7 @@ c otpss
 c          scalesr6 = 1.128d0
 c          scales8  = 1.494d0
 c b3pw91
-        else if (xccomb(50)) then
+        else if (xccomb(57)) then
            scalesr6 = 1.176d0
            scales8  = 1.775d0
 c s12g
