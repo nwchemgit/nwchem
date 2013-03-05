@@ -257,8 +257,8 @@ c
 c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
           scales6 = 1.40d0
-c PBE
-        else if(xfac(7).eq.1.0d0.and.cfac(12).eq.1.0d0) then
+c PBE / PBE96
+        else if(xccomb(58) then
          scales6 = 0.70d0
 c BP86
          else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
@@ -280,7 +280,7 @@ c
 c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
            scales6 = 1.20d0
-c PBE (PBE96)
+c PBE / PBE96
         else if(xccomb(58) then
            scales6 = 0.75d0
 c TPSS
