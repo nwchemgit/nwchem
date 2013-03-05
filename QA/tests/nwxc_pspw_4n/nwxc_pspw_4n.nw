@@ -8,7 +8,7 @@ start nwxc_dat
 charge 0
 
 geometry
-  N 0.0 0.0 0.0
+  N  0.0 0.0 0.0
 end
 
 set nwpw:minimizer 2
@@ -24,7 +24,6 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc lda
-   unrestricted
 end
 task pspw energy
 
@@ -38,8 +37,19 @@ nwpw
      SC 20.0      #Not checking automatic unit cell generation
    end
    lcao #added 3/26/10 because of changed default
+   xc blyp
+end
+task pspw energy
+
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
    xc pbe96
-   unrestricted
 end
 task pspw energy
 
@@ -52,7 +62,6 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc revpbe
-   unrestricted
 end
 task pspw energy
 
@@ -65,7 +74,54 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc rpbe
-   unrestricted
+end
+task pspw energy
+
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc pbesol
+end
+task pspw energy
+
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc b3lyp
+end
+task pspw energy
+
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc blyp0
+end
+task pspw energy
+
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc bnl
 end
 task pspw energy
 
@@ -78,7 +134,29 @@ nwpw
    end
    lcao #added 3/26/10 because of changed default
    xc hse
-   unrestricted
 end
 task pspw energy
 
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc pbe0
+end
+task pspw energy
+
+nwpw 
+   mult 4
+   simulation_cell
+     boundary_conditions aperiodic
+     ngrid 32 32 32
+     SC 20.0      #Not checking automatic unit cell generation
+   end
+   lcao #added 3/26/10 because of changed default
+   xc revpbe0
+end
+task pspw energy

@@ -180,6 +180,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc hfexch lyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc hfexch cpbe96
 end
 task dft energy
