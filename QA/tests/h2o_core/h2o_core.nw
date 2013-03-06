@@ -47,7 +47,8 @@ end
 task dft
 
 tddft
-  alpha 1 1 beta 1 1
+  alpha 1 1
+  beta 1 1 
   cis
   nroots 10
   notriplet

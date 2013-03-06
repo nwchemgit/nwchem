@@ -52,7 +52,8 @@ end
 task dft
 
 tddft
-  alpha 1 1 beta 1 1
+  alpha 1 1
+  beta 1 1
   cis
   nroots 10
   notriplet
@@ -101,7 +102,7 @@ task tddft
 
     hostname        = orion
     program         = ../../../bin/LINUX64/nwchem
-    date            = Wed Mar  6 14:16:52 2013
+    date            = Wed Mar  6 14:19:18 2013
 
     compiled        = Wed_Mar_06_14:13:44_2013
     source          = /home/niri/nwchem/nwchem-dev
@@ -362,14 +363,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.8891411257 -8.51D+01  2.94D-02  4.02D-01     0.1
+ d= 0,ls=0.0,diis     1    -75.8891411257 -8.51D+01  2.94D-02  4.02D-01     0.2
   Resetting Diis
  d= 0,ls=0.0,diis     2    -75.9015610775 -1.24D-02  1.31D-02  2.67D-01     0.2
  d= 0,ls=0.0,diis     3    -75.9241544077 -2.26D-02  2.99D-03  4.66D-03     0.2
- d= 0,ls=0.0,diis     4    -75.9241973522 -4.29D-05  1.47D-03  4.33D-03     0.2
+ d= 0,ls=0.0,diis     4    -75.9241973522 -4.29D-05  1.47D-03  4.33D-03     0.3
  d= 0,ls=0.0,diis     5    -75.9245649548 -3.68D-04  8.59D-05  7.11D-06     0.3
  d= 0,ls=0.0,diis     6    -75.9245657749 -8.20D-07  1.86D-05  1.89D-07     0.3
- d= 0,ls=0.0,diis     7    -75.9245658033 -2.84D-08  2.27D-06  7.06D-10     0.3
+ d= 0,ls=0.0,diis     7    -75.9245658033 -2.84D-08  2.27D-06  7.06D-10     0.4
 
 
          Total DFT energy =      -75.924565803345
@@ -394,7 +395,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1      0.992689  1 O  s          
 
  Vector    2  Occ=2.000000D+00  E=-1.119147D+00
-              MO Center= -5.9D-16, -1.6D-12, -7.7D-02, r^2= 5.1D-01
+              MO Center= -4.6D-16, -1.6D-12, -7.7D-02, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.467852  1 O  s                  6      0.440101  1 O  s          
@@ -421,7 +422,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3      0.639446  1 O  px                 7      0.511584  1 O  px         
 
  Vector    6  Occ=0.000000D+00  E= 1.285617D-01
-              MO Center=  2.9D-13, -4.5D-12, -6.3D-01, r^2= 2.5D+00
+              MO Center=  2.9D-13, -4.6D-12, -6.3D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.318466  1 O  s                 17     -1.000868  2 H  s          
@@ -429,7 +430,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.250908  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 2.176790D-01
-              MO Center= -5.6D-17,  3.9D-12, -5.9D-01, r^2= 2.6D+00
+              MO Center= -5.6D-17,  4.0D-12, -5.9D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.331753  2 H  s                 19     -1.331753  3 H  s          
@@ -454,7 +455,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.205176  3 H  s                 15      0.175677  1 O  dzz        
 
  Vector   10  Occ=0.000000D+00  E= 9.924183D-01
-              MO Center=  1.7D-14,  1.1D-12, -2.6D-01, r^2= 1.5D+00
+              MO Center=  1.8D-14,  1.2D-12, -2.6D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.213794  1 O  s                 16      0.784907  2 H  s          
@@ -464,20 +465,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     15     -0.234069  1 O  dzz        
 
  Vector   11  Occ=0.000000D+00  E= 9.985910D-01
-              MO Center=  4.0D-12, -2.0D-14,  1.1D-01, r^2= 1.1D+00
+              MO Center=  4.0D-12, -2.1D-14,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -1.035930  1 O  px                 3      0.962857  1 O  px         
 
  Vector   12  Occ=0.000000D+00  E= 1.186463D+00
-              MO Center=  1.7D-14, -2.8D-13,  7.0D-02, r^2= 1.5D+00
+              MO Center=  1.7D-14, -3.1D-13,  7.0D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.596292  1 O  py                 4     -1.012700  1 O  py         
     17     -0.942317  2 H  s                 19      0.942317  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 1.282435D+00
-              MO Center= -2.7D-14,  1.8D-12, -3.8D-01, r^2= 1.4D+00
+              MO Center= -3.0D-14,  1.8D-12, -3.8D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      3.636511  1 O  s                  2     -1.462024  1 O  s          
@@ -494,7 +495,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     10     -0.367168  1 O  dxx                6     -0.250544  1 O  s          
 
  Vector   15  Occ=0.000000D+00  E= 1.854645D+00
-              MO Center=  8.3D-15,  9.5D-14,  1.2D-01, r^2= 6.1D-01
+              MO Center=  7.9D-15,  9.6D-14,  1.2D-01, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.732051  1 O  dxy        
@@ -532,7 +533,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.3s     wall:        1.2s
+ Task  times  cpu:        0.4s     wall:        1.2s
 
 
                                 NWChem Input Module
@@ -638,10 +639,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9245658036 -8.51D+01  2.20D-07  1.00D-11     0.4
+ d= 0,ls=0.0,diis     1    -75.9245658036 -8.51D+01  2.20D-07  1.00D-11     0.5
   Resetting Diis
- d= 0,ls=0.0,diis     2    -75.9245658036 -2.33D-12  8.32D-08  2.63D-12     0.5
- d= 0,ls=0.0,diis     3    -75.9245658036 -3.41D-13  3.98D-08  8.47D-13     0.5
+ d= 0,ls=0.0,diis     2    -75.9245658036 -2.37D-12  8.32D-08  2.63D-12     0.5
+ d= 0,ls=0.0,diis     3    -75.9245658036 -2.27D-13  3.98D-08  8.47D-13     0.5
 
 
          Total DFT energy =      -75.924565803556
@@ -660,13 +661,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.957731D+01
-              MO Center= -4.3D-17, -2.0D-15,  1.2D-01, r^2= 1.5D-02
+              MO Center= -4.2D-17, -2.0D-15,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.992689  1 O  s          
 
  Vector    2  Occ=2.000000D+00  E=-1.119146D+00
-              MO Center=  1.6D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
+              MO Center=  2.8D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.467852  1 O  s                  6      0.440101  1 O  s          
@@ -687,13 +688,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      6      0.368650  1 O  s                  2      0.170002  1 O  s          
 
  Vector    5  Occ=2.000000D+00  E=-3.634744D-01
-              MO Center=  9.9D-15, -1.6D-14,  9.7D-02, r^2= 6.0D-01
+              MO Center=  9.4D-15, -1.6D-14,  9.7D-02, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.639446  1 O  px                 7      0.511585  1 O  px         
 
  Vector    6  Occ=0.000000D+00  E= 1.285620D-01
-              MO Center=  1.7D-14,  9.7D-13, -6.3D-01, r^2= 2.5D+00
+              MO Center=  1.7D-14,  9.2D-13, -6.3D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.318467  1 O  s                 17     -1.000868  2 H  s          
@@ -701,14 +702,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.250908  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 2.176795D-01
-              MO Center=  1.8D-17, -1.7D-12, -5.9D-01, r^2= 2.6D+00
+              MO Center=  1.0D-17, -1.6D-12, -5.9D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.331754  2 H  s                 19     -1.331754  3 H  s          
      8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.834228D-01
-              MO Center=  1.2D-16, -7.0D-13, -9.1D-02, r^2= 1.5D+00
+              MO Center=  1.8D-16, -7.0D-13, -9.1D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.839708  2 H  s                 18     -0.839708  3 H  s          
@@ -716,7 +717,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
 
  Vector    9  Occ=0.000000D+00  E= 9.884569D-01
-              MO Center= -2.6D-13,  3.1D-14,  3.9D-01, r^2= 1.0D+00
+              MO Center= -2.5D-13,  3.9D-14,  3.9D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.893433  1 O  pz                 6     -0.808523  1 O  s          
@@ -726,7 +727,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.205172  3 H  s                 15      0.175678  1 O  dzz        
 
  Vector   10  Occ=0.000000D+00  E= 9.924188D-01
-              MO Center=  1.6D-16,  4.3D-13, -2.6D-01, r^2= 1.5D+00
+              MO Center=  2.4D-15,  4.2D-13, -2.6D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.213788  1 O  s                 16      0.784910  2 H  s          
@@ -736,20 +737,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     15     -0.234068  1 O  dzz        
 
  Vector   11  Occ=0.000000D+00  E= 9.985915D-01
-              MO Center=  2.6D-13, -1.1D-15,  1.1D-01, r^2= 1.1D+00
+              MO Center=  2.5D-13, -9.8D-16,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -1.035930  1 O  px                 3      0.962857  1 O  px         
 
  Vector   12  Occ=0.000000D+00  E= 1.186464D+00
-              MO Center=  1.0D-15, -4.5D-13,  7.0D-02, r^2= 1.5D+00
+              MO Center=  7.1D-16, -4.6D-13,  7.0D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.596292  1 O  py                 4     -1.012700  1 O  py         
     17     -0.942317  2 H  s                 19      0.942317  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 1.282436D+00
-              MO Center= -1.4D-15,  8.9D-13, -3.8D-01, r^2= 1.4D+00
+              MO Center= -9.0D-16,  9.1D-13, -3.8D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      3.636511  1 O  s                  2     -1.462024  1 O  s          
@@ -759,14 +760,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 1.841623D+00
-              MO Center=  1.3D-15,  5.4D-15,  1.7D-01, r^2= 6.2D-01
+              MO Center=  1.5D-15,  5.6D-15,  1.7D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
     10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
 
  Vector   15  Occ=0.000000D+00  E= 1.854646D+00
-              MO Center= -4.1D-17,  2.8D-15,  1.2D-01, r^2= 6.1D-01
+              MO Center=  5.7D-16,  2.5D-15,  1.2D-01, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.732051  1 O  dxy        
@@ -918,14 +919,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   -------------------------------------------------------------
   Root  4 singlet a    20.195885951 a.u.     549.5583 eV 
   -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y -0.01797   Z  0.00000
+     Transition Moments    X  0.00000   Y  0.01797   Z  0.00000
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
-     Transition Moments   YY  0.00000  YZ -0.00770  ZZ  0.00000
+     Transition Moments   YY  0.00000  YZ  0.00770  ZZ  0.00000
      Dipole Oscillator Strength                         0.00435
 
-     Occ.  1  a   ---  Virt.  7  a    0.11624 X
-     Occ.  1  a   ---  Virt.  8  a   -0.98664 X
-     Occ.  1  a   ---  Virt. 12  a   -0.10818 X
+     Occ.  1  a   ---  Virt.  7  a   -0.11624 X
+     Occ.  1  a   ---  Virt.  8  a    0.98664 X
+     Occ.  1  a   ---  Virt. 12  a    0.10818 X
   -------------------------------------------------------------
   Root  5 singlet a    20.301533059 a.u.     552.4331 eV 
   -------------------------------------------------------------
@@ -1051,10 +1052,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9245658036 -8.51D+01  4.07D-08  6.89D-13     1.6
+ d= 0,ls=0.0,diis     1    -75.9245658036 -8.51D+01  4.07D-08  6.89D-13     1.7
   Resetting Diis
- d= 0,ls=0.0,diis     2    -75.9245658036 -7.11D-14  1.82D-08  7.31D-13     1.7
- d= 0,ls=0.0,diis     3    -75.9245658036  1.28D-13  1.74D-09  4.11D-16     1.7
+ d= 0,ls=0.0,diis     2    -75.9245658036 -4.26D-14  1.82D-08  7.31D-13     1.7
+ d= 0,ls=0.0,diis     3    -75.9245658036 -9.95D-14  1.74D-09  4.11D-16     1.7
 
 
          Total DFT energy =      -75.924565803556
@@ -1073,40 +1074,40 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.957731D+01
-              MO Center= -2.6D-18, -2.0D-15,  1.2D-01, r^2= 1.5D-02
+              MO Center= -8.0D-19, -2.0D-15,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.992689  1 O  s          
 
  Vector    2  Occ=2.000000D+00  E=-1.119146D+00
-              MO Center=  1.1D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
+              MO Center=  2.2D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.467852  1 O  s                  6      0.440101  1 O  s          
      1     -0.209992  1 O  s          
 
  Vector    3  Occ=2.000000D+00  E=-5.860238D-01
-              MO Center= -1.3D-16,  1.4D-12, -1.0D-01, r^2= 7.8D-01
+              MO Center= -1.2D-16,  1.4D-12, -1.0D-01, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.514731  1 O  py                 8      0.288218  1 O  py         
     16      0.231473  2 H  s                 18     -0.231473  3 H  s          
 
  Vector    4  Occ=2.000000D+00  E=-4.398893D-01
-              MO Center= -2.0D-15, -1.2D-14,  1.9D-01, r^2= 6.9D-01
+              MO Center= -2.2D-15, -1.0D-14,  1.9D-01, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.554576  1 O  pz                 9      0.391860  1 O  pz         
      6      0.368650  1 O  s                  2      0.170002  1 O  s          
 
  Vector    5  Occ=2.000000D+00  E=-3.634745D-01
-              MO Center=  7.4D-16, -1.6D-14,  9.7D-02, r^2= 6.0D-01
+              MO Center=  6.5D-16, -1.6D-14,  9.7D-02, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.639446  1 O  px                 7      0.511585  1 O  px         
 
  Vector    6  Occ=0.000000D+00  E= 1.285620D-01
-              MO Center=  1.3D-15,  8.5D-13, -6.3D-01, r^2= 2.5D+00
+              MO Center=  1.4D-15,  1.0D-12, -6.3D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.318467  1 O  s                 17     -1.000868  2 H  s          
@@ -1114,14 +1115,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.250908  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 2.176795D-01
-              MO Center=  8.5D-18, -1.6D-12, -5.9D-01, r^2= 2.6D+00
+              MO Center=  4.3D-17, -1.8D-12, -5.9D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.331754  2 H  s                 19     -1.331754  3 H  s          
      8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.834228D-01
-              MO Center=  1.3D-16, -7.3D-13, -9.1D-02, r^2= 1.5D+00
+              MO Center= -4.4D-17, -7.0D-13, -9.1D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.839708  2 H  s                 18     -0.839708  3 H  s          
@@ -1129,7 +1130,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
 
  Vector    9  Occ=0.000000D+00  E= 9.884568D-01
-              MO Center=  1.9D-15,  3.4D-14,  3.9D-01, r^2= 1.0D+00
+              MO Center= -1.9D-14,  3.6D-14,  3.9D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.893434  1 O  pz                 6     -0.808525  1 O  s          
@@ -1139,7 +1140,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.205171  3 H  s                 15      0.175679  1 O  dzz        
 
  Vector   10  Occ=0.000000D+00  E= 9.924188D-01
-              MO Center=  1.7D-16,  4.5D-13, -2.6D-01, r^2= 1.5D+00
+              MO Center= -8.1D-16,  4.4D-13, -2.6D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.213786  1 O  s                 16      0.784910  2 H  s          
@@ -1149,20 +1150,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     15     -0.234067  1 O  dzz        
 
  Vector   11  Occ=0.000000D+00  E= 9.985914D-01
-              MO Center= -1.7D-15, -1.0D-15,  1.1D-01, r^2= 1.1D+00
+              MO Center=  2.0D-14, -9.4D-16,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -1.035930  1 O  px                 3      0.962857  1 O  px         
 
  Vector   12  Occ=0.000000D+00  E= 1.186464D+00
-              MO Center= -7.4D-17, -5.1D-13,  7.0D-02, r^2= 1.5D+00
+              MO Center= -8.4D-18, -4.6D-13,  7.0D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.596292  1 O  py                 4     -1.012700  1 O  py         
     17     -0.942317  2 H  s                 19      0.942317  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 1.282436D+00
-              MO Center= -6.2D-16,  9.9D-13, -3.8D-01, r^2= 1.4D+00
+              MO Center= -1.2D-15,  9.0D-13, -3.8D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      3.636511  1 O  s                  2     -1.462024  1 O  s          
@@ -1172,14 +1173,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 1.841623D+00
-              MO Center= -2.6D-17,  5.9D-15,  1.7D-01, r^2= 6.2D-01
+              MO Center= -2.9D-16,  5.6D-15,  1.7D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
     10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
 
  Vector   15  Occ=0.000000D+00  E= 1.854645D+00
-              MO Center=  1.4D-16,  2.3D-15,  1.2D-01, r^2= 6.1D-01
+              MO Center=  2.0D-16,  1.5D-15,  1.2D-01, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.732051  1 O  dxy        
@@ -1470,9 +1471,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                                      3.12D-10  1.20D-17
   Singularity in Pulay matrix. Error and Fock matrices removed. 
   Resetting Diis
- d= 0,ls=0.0,diis     2    -75.9245658036  0.00D+00  1.09D-10  6.46D-18     2.4
+ d= 0,ls=0.0,diis     2    -75.9245658036 -1.42D-14  1.09D-10  6.46D-18     2.5
                                                      1.09D-10  6.46D-18
- d= 0,ls=0.0,diis     3    -75.9245658036 -5.68D-14  1.13D-10  5.45D-18     2.5
+ d= 0,ls=0.0,diis     3    -75.9245658036 -7.11D-14  1.13D-10  5.45D-18     2.5
                                                      1.13D-10  5.45D-18
 
 
@@ -1492,129 +1493,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.957731D+01
-              MO Center=  1.4D-18, -2.0D-15,  1.2D-01, r^2= 1.5D-02
+              MO Center=  4.9D-20, -2.0D-15,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.992689  1 O  s          
 
  Vector    2  Occ=1.000000D+00  E=-1.119146D+00
-              MO Center=  1.3D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     2      0.467852  1 O  s                  6      0.440101  1 O  s          
-     1     -0.209992  1 O  s          
-
- Vector    3  Occ=1.000000D+00  E=-5.860238D-01
-              MO Center= -1.1D-17,  1.4D-12, -1.0D-01, r^2= 7.8D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.514731  1 O  py                 8      0.288218  1 O  py         
-    16      0.231473  2 H  s                 18     -0.231473  3 H  s          
-
- Vector    4  Occ=1.000000D+00  E=-4.398893D-01
-              MO Center= -9.1D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.554576  1 O  pz                 9      0.391860  1 O  pz         
-     6      0.368650  1 O  s                  2      0.170002  1 O  s          
-
- Vector    5  Occ=1.000000D+00  E=-3.634745D-01
-              MO Center= -1.1D-16, -1.6D-14,  9.7D-02, r^2= 6.0D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.639446  1 O  px                 7      0.511585  1 O  px         
-
- Vector    6  Occ=0.000000D+00  E= 1.285620D-01
-              MO Center=  3.7D-17,  1.0D-12, -6.3D-01, r^2= 2.5D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.318467  1 O  s                 17     -1.000868  2 H  s          
-    19     -1.000868  3 H  s                  9     -0.482283  1 O  pz         
-     5     -0.250908  1 O  pz         
-
- Vector    7  Occ=0.000000D+00  E= 2.176795D-01
-              MO Center= -7.1D-18, -1.7D-12, -5.9D-01, r^2= 2.6D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.331754  2 H  s                 19     -1.331754  3 H  s          
-     8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
-
- Vector    8  Occ=0.000000D+00  E= 8.834228D-01
-              MO Center= -9.7D-17, -7.0D-13, -9.1D-02, r^2= 1.5D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    16      0.839708  2 H  s                 18     -0.839708  3 H  s          
-     8     -0.557127  1 O  py                17     -0.549791  2 H  s          
-    19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
-
- Vector    9  Occ=0.000000D+00  E= 9.884568D-01
-              MO Center=  9.0D-15,  4.0D-14,  3.9D-01, r^2= 1.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.893434  1 O  pz                 6     -0.808525  1 O  s          
-     9     -0.735099  1 O  pz                 2      0.384983  1 O  s          
-    16      0.341042  2 H  s                 18      0.341042  3 H  s          
-    13      0.247143  1 O  dyy               17     -0.205171  2 H  s          
-    19     -0.205171  3 H  s                 15      0.175679  1 O  dzz        
-
- Vector   10  Occ=0.000000D+00  E= 9.924188D-01
-              MO Center= -8.1D-16,  4.3D-13, -2.6D-01, r^2= 1.5D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.213786  1 O  s                 16      0.784910  2 H  s          
-    18      0.784910  3 H  s                  2     -0.762273  1 O  s          
-    17     -0.592008  2 H  s                 19     -0.592008  3 H  s          
-     9      0.491675  1 O  pz                10     -0.350327  1 O  dxx        
-    15     -0.234067  1 O  dzz        
-
- Vector   11  Occ=0.000000D+00  E= 9.985914D-01
-              MO Center= -7.7D-15, -1.1D-15,  1.1D-01, r^2= 1.1D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     7     -1.035930  1 O  px                 3      0.962857  1 O  px         
-
- Vector   12  Occ=0.000000D+00  E= 1.186464D+00
-              MO Center=  1.6D-16, -4.3D-13,  7.0D-02, r^2= 1.5D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.596292  1 O  py                 4     -1.012700  1 O  py         
-    17     -0.942317  2 H  s                 19      0.942317  3 H  s          
-
- Vector   13  Occ=0.000000D+00  E= 1.282436D+00
-              MO Center= -6.5D-16,  8.8D-13, -3.8D-01, r^2= 1.4D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     6      3.636511  1 O  s                  2     -1.462024  1 O  s          
-     9     -1.114644  1 O  pz                17     -0.795070  2 H  s          
-    19     -0.795070  3 H  s                 13     -0.657714  1 O  dyy        
-     5      0.432776  1 O  pz                15     -0.398074  1 O  dzz        
-    16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
-
- Vector   14  Occ=0.000000D+00  E= 1.841623D+00
-              MO Center=  3.1D-16,  5.6D-15,  1.7D-01, r^2= 6.2D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
-    10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
-
- Vector   15  Occ=0.000000D+00  E= 1.854645D+00
-              MO Center=  9.5D-17,  2.7D-15,  1.2D-01, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.732051  1 O  dxy        
-
-
-                     DFT Final Beta Molecular Orbital Analysis
-                     -----------------------------------------
-
- Vector    1  Occ=1.000000D+00  E=-1.957731D+01
-              MO Center=  7.5D-19, -2.0D-15,  1.2D-01, r^2= 1.5D-02
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     1      0.992689  1 O  s          
-
- Vector    2  Occ=1.000000D+00  E=-1.119146D+00
-              MO Center= -8.1D-18, -1.1D-12, -7.7D-02, r^2= 5.1D-01
+              MO Center=  4.5D-17, -1.1D-12, -7.7D-02, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.467852  1 O  s                  6      0.440101  1 O  s          
@@ -1628,20 +1513,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16      0.231473  2 H  s                 18     -0.231473  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-4.398893D-01
-              MO Center= -6.4D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
+              MO Center=  3.8D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.554576  1 O  pz                 9      0.391860  1 O  pz         
      6      0.368650  1 O  s                  2      0.170002  1 O  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.634745D-01
-              MO Center=  2.2D-16, -1.6D-14,  9.7D-02, r^2= 6.0D-01
+              MO Center= -2.8D-16, -1.6D-14,  9.7D-02, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.639446  1 O  px                 7      0.511585  1 O  px         
 
  Vector    6  Occ=0.000000D+00  E= 1.285620D-01
-              MO Center= -5.2D-17,  1.0D-12, -6.3D-01, r^2= 2.5D+00
+              MO Center=  1.0D-16,  9.1D-13, -6.3D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.318467  1 O  s                 17     -1.000868  2 H  s          
@@ -1649,14 +1534,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.250908  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 2.176795D-01
-              MO Center= -4.2D-18, -1.7D-12, -5.9D-01, r^2= 2.6D+00
+              MO Center=  4.5D-19, -1.6D-12, -5.9D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.331754  2 H  s                 19     -1.331754  3 H  s          
      8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.834228D-01
-              MO Center= -4.7D-18, -6.9D-13, -9.1D-02, r^2= 1.5D+00
+              MO Center=  9.9D-18, -7.1D-13, -9.1D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.839708  2 H  s                 18     -0.839708  3 H  s          
@@ -1664,7 +1549,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
 
  Vector    9  Occ=0.000000D+00  E= 9.884568D-01
-              MO Center=  1.2D-14,  3.6D-14,  3.9D-01, r^2= 1.0D+00
+              MO Center=  2.3D-15,  3.0D-14,  3.9D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.893434  1 O  pz                 6     -0.808525  1 O  s          
@@ -1674,7 +1559,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.205171  3 H  s                 15      0.175679  1 O  dzz        
 
  Vector   10  Occ=0.000000D+00  E= 9.924188D-01
-              MO Center=  1.2D-15,  4.2D-13, -2.6D-01, r^2= 1.5D+00
+              MO Center=  8.9D-17,  4.4D-13, -2.6D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.213786  1 O  s                 16      0.784910  2 H  s          
@@ -1684,20 +1569,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     15     -0.234067  1 O  dzz        
 
  Vector   11  Occ=0.000000D+00  E= 9.985914D-01
-              MO Center= -1.4D-14, -1.0D-15,  1.1D-01, r^2= 1.1D+00
+              MO Center= -3.0D-15, -1.0D-15,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -1.035930  1 O  px                 3      0.962857  1 O  px         
 
  Vector   12  Occ=0.000000D+00  E= 1.186464D+00
-              MO Center= -1.7D-16, -4.4D-13,  7.0D-02, r^2= 1.5D+00
+              MO Center=  2.2D-16, -4.8D-13,  7.0D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.596292  1 O  py                 4     -1.012700  1 O  py         
     17     -0.942317  2 H  s                 19      0.942317  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 1.282436D+00
-              MO Center=  7.9D-16,  8.8D-13, -3.8D-01, r^2= 1.4D+00
+              MO Center=  4.6D-16,  9.4D-13, -3.8D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      3.636511  1 O  s                  2     -1.462024  1 O  s          
@@ -1707,14 +1592,130 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 1.841623D+00
-              MO Center= -6.9D-17,  5.8D-15,  1.7D-01, r^2= 6.2D-01
+              MO Center= -2.2D-16,  5.9D-15,  1.7D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
     10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
 
  Vector   15  Occ=0.000000D+00  E= 1.854645D+00
-              MO Center=  2.8D-16,  3.8D-15,  1.2D-01, r^2= 6.1D-01
+              MO Center= -4.5D-16,  2.7D-15,  1.2D-01, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.732051  1 O  dxy        
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-1.957731D+01
+              MO Center= -7.9D-19, -2.0D-15,  1.2D-01, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.992689  1 O  s          
+
+ Vector    2  Occ=1.000000D+00  E=-1.119146D+00
+              MO Center= -1.5D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.467852  1 O  s                  6      0.440101  1 O  s          
+     1     -0.209992  1 O  s          
+
+ Vector    3  Occ=1.000000D+00  E=-5.860238D-01
+              MO Center=  5.2D-18,  1.4D-12, -1.0D-01, r^2= 7.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.514731  1 O  py                 8      0.288218  1 O  py         
+    16      0.231473  2 H  s                 18     -0.231473  3 H  s          
+
+ Vector    4  Occ=1.000000D+00  E=-4.398893D-01
+              MO Center= -5.9D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.554576  1 O  pz                 9      0.391860  1 O  pz         
+     6      0.368650  1 O  s                  2      0.170002  1 O  s          
+
+ Vector    5  Occ=1.000000D+00  E=-3.634745D-01
+              MO Center=  1.8D-16, -1.6D-14,  9.7D-02, r^2= 6.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.639446  1 O  px                 7      0.511585  1 O  px         
+
+ Vector    6  Occ=0.000000D+00  E= 1.285620D-01
+              MO Center=  3.8D-18,  9.2D-13, -6.3D-01, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.318467  1 O  s                 17     -1.000868  2 H  s          
+    19     -1.000868  3 H  s                  9     -0.482283  1 O  pz         
+     5     -0.250908  1 O  pz         
+
+ Vector    7  Occ=0.000000D+00  E= 2.176795D-01
+              MO Center= -3.1D-18, -1.6D-12, -5.9D-01, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.331754  2 H  s                 19     -1.331754  3 H  s          
+     8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
+
+ Vector    8  Occ=0.000000D+00  E= 8.834228D-01
+              MO Center=  8.3D-17, -6.9D-13, -9.1D-02, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.839708  2 H  s                 18     -0.839708  3 H  s          
+     8     -0.557127  1 O  py                17     -0.549791  2 H  s          
+    19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
+
+ Vector    9  Occ=0.000000D+00  E= 9.884568D-01
+              MO Center= -4.2D-15,  2.3D-14,  3.9D-01, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.893434  1 O  pz                 6     -0.808525  1 O  s          
+     9     -0.735099  1 O  pz                 2      0.384983  1 O  s          
+    16      0.341042  2 H  s                 18      0.341042  3 H  s          
+    13      0.247143  1 O  dyy               17     -0.205171  2 H  s          
+    19     -0.205171  3 H  s                 15      0.175679  1 O  dzz        
+
+ Vector   10  Occ=0.000000D+00  E= 9.924188D-01
+              MO Center=  1.3D-15,  4.4D-13, -2.6D-01, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.213786  1 O  s                 16      0.784910  2 H  s          
+    18      0.784910  3 H  s                  2     -0.762273  1 O  s          
+    17     -0.592008  2 H  s                 19     -0.592008  3 H  s          
+     9      0.491675  1 O  pz                10     -0.350327  1 O  dxx        
+    15     -0.234067  1 O  dzz        
+
+ Vector   11  Occ=0.000000D+00  E= 9.985914D-01
+              MO Center=  1.8D-15, -1.0D-15,  1.1D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     -1.035930  1 O  px                 3      0.962857  1 O  px         
+
+ Vector   12  Occ=0.000000D+00  E= 1.186464D+00
+              MO Center=  2.6D-17, -4.8D-13,  7.0D-02, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.596292  1 O  py                 4     -1.012700  1 O  py         
+    17     -0.942317  2 H  s                 19      0.942317  3 H  s          
+
+ Vector   13  Occ=0.000000D+00  E= 1.282436D+00
+              MO Center=  1.3D-15,  9.3D-13, -3.8D-01, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      3.636511  1 O  s                  2     -1.462024  1 O  s          
+     9     -1.114644  1 O  pz                17     -0.795070  2 H  s          
+    19     -0.795070  3 H  s                 13     -0.657714  1 O  dyy        
+     5      0.432776  1 O  pz                15     -0.398074  1 O  dzz        
+    16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
+
+ Vector   14  Occ=0.000000D+00  E= 1.841623D+00
+              MO Center= -4.9D-17,  6.5D-15,  1.7D-01, r^2= 6.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
+    10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
+
+ Vector   15  Occ=0.000000D+00  E= 1.854645D+00
+              MO Center= -9.7D-17,  3.4D-15,  1.2D-01, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.732051  1 O  dxy        
@@ -1881,9 +1882,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                                      1.04D-10  5.77D-18
   Singularity in Pulay matrix. Error and Fock matrices removed. 
   Resetting Diis
- d= 0,ls=0.0,diis     2    -75.9245658036 -4.26D-14  1.09D-10  5.94D-18     2.6
+ d= 0,ls=0.0,diis     2    -75.9245658036 -5.68D-14  1.09D-10  5.94D-18     2.7
                                                      1.09D-10  5.94D-18
- d= 0,ls=0.0,diis     3    -75.9245658036  1.56D-13  1.10D-10  6.19D-18     2.7
+ d= 0,ls=0.0,diis     3    -75.9245658036  1.28D-13  1.10D-10  6.19D-18     2.7
                                                      1.10D-10  6.19D-18
 
 
@@ -1903,40 +1904,40 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.957731D+01
-              MO Center= -2.6D-18, -2.0D-15,  1.2D-01, r^2= 1.5D-02
+              MO Center= -2.3D-19, -2.0D-15,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.992689  1 O  s          
 
  Vector    2  Occ=1.000000D+00  E=-1.119146D+00
-              MO Center= -1.9D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
+              MO Center= -1.2D-18, -1.1D-12, -7.7D-02, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.467852  1 O  s                  6      0.440101  1 O  s          
      1     -0.209992  1 O  s          
 
  Vector    3  Occ=1.000000D+00  E=-5.860238D-01
-              MO Center=  3.9D-18,  1.4D-12, -1.0D-01, r^2= 7.8D-01
+              MO Center= -3.2D-17,  1.4D-12, -1.0D-01, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.514731  1 O  py                 8      0.288218  1 O  py         
     16      0.231473  2 H  s                 18     -0.231473  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-4.398893D-01
-              MO Center= -4.0D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
+              MO Center=  3.4D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.554576  1 O  pz                 9      0.391860  1 O  pz         
      6      0.368650  1 O  s                  2      0.170002  1 O  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.634745D-01
-              MO Center=  7.6D-17, -1.6D-14,  9.7D-02, r^2= 6.0D-01
+              MO Center= -6.2D-17, -1.6D-14,  9.7D-02, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.639446  1 O  px                 7      0.511585  1 O  px         
 
  Vector    6  Occ=0.000000D+00  E= 1.285620D-01
-              MO Center= -4.3D-17,  9.5D-13, -6.3D-01, r^2= 2.5D+00
+              MO Center= -9.7D-18,  9.2D-13, -6.3D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.318467  1 O  s                 17     -1.000868  2 H  s          
@@ -1944,14 +1945,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.250908  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 2.176795D-01
-              MO Center=  3.9D-18, -1.7D-12, -5.9D-01, r^2= 2.6D+00
+              MO Center=  6.7D-19, -1.7D-12, -5.9D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.331754  2 H  s                 19     -1.331754  3 H  s          
      8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.834228D-01
-              MO Center= -3.8D-17, -6.9D-13, -9.1D-02, r^2= 1.5D+00
+              MO Center=  3.7D-17, -7.3D-13, -9.1D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.839708  2 H  s                 18     -0.839708  3 H  s          
@@ -1959,7 +1960,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
 
  Vector    9  Occ=0.000000D+00  E= 9.884568D-01
-              MO Center= -3.2D-16,  3.5D-14,  3.9D-01, r^2= 1.0D+00
+              MO Center=  2.9D-14,  3.0D-14,  3.9D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.893433  1 O  pz                 6     -0.808525  1 O  s          
@@ -1969,7 +1970,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.205171  3 H  s                 15      0.175679  1 O  dzz        
 
  Vector   10  Occ=0.000000D+00  E= 9.924188D-01
-              MO Center=  2.5D-16,  4.3D-13, -2.6D-01, r^2= 1.5D+00
+              MO Center= -2.1D-15,  4.5D-13, -2.6D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.213786  1 O  s                 16      0.784910  2 H  s          
@@ -1979,20 +1980,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     15     -0.234067  1 O  dzz        
 
  Vector   11  Occ=0.000000D+00  E= 9.985914D-01
-              MO Center=  5.2D-16, -8.0D-16,  1.1D-01, r^2= 1.1D+00
+              MO Center= -2.7D-14, -9.2D-16,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -1.035930  1 O  px                 3      0.962857  1 O  px         
 
  Vector   12  Occ=0.000000D+00  E= 1.186464D+00
-              MO Center= -2.1D-16, -4.7D-13,  7.0D-02, r^2= 1.5D+00
+              MO Center=  1.2D-16, -4.8D-13,  7.0D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.596292  1 O  py                 4     -1.012700  1 O  py         
     17     -0.942317  2 H  s                 19      0.942317  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 1.282436D+00
-              MO Center= -3.8D-16,  9.1D-13, -3.8D-01, r^2= 1.4D+00
+              MO Center=  1.1D-17,  9.6D-13, -3.8D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      3.636511  1 O  s                  2     -1.462024  1 O  s          
@@ -2002,14 +2003,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 1.841623D+00
-              MO Center=  4.5D-16,  5.5D-15,  1.7D-01, r^2= 6.2D-01
+              MO Center=  5.0D-16,  6.4D-15,  1.7D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
     10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
 
  Vector   15  Occ=0.000000D+00  E= 1.854645D+00
-              MO Center=  3.9D-16,  3.6D-15,  1.2D-01, r^2= 6.1D-01
+              MO Center= -1.4D-17,  2.9D-15,  1.2D-01, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.732051  1 O  dxy        
@@ -2019,40 +2020,40 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                      -----------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.957731D+01
-              MO Center= -8.2D-19, -2.0D-15,  1.2D-01, r^2= 1.5D-02
+              MO Center= -4.6D-19, -2.0D-15,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.992689  1 O  s          
 
  Vector    2  Occ=1.000000D+00  E=-1.119146D+00
-              MO Center=  5.1D-17, -1.1D-12, -7.7D-02, r^2= 5.1D-01
+              MO Center= -1.2D-16, -1.1D-12, -7.7D-02, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.467852  1 O  s                  6      0.440101  1 O  s          
      1     -0.209992  1 O  s          
 
  Vector    3  Occ=1.000000D+00  E=-5.860238D-01
-              MO Center=  1.3D-17,  1.4D-12, -1.0D-01, r^2= 7.8D-01
+              MO Center= -1.4D-17,  1.4D-12, -1.0D-01, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.514731  1 O  py                 8      0.288218  1 O  py         
     16      0.231473  2 H  s                 18     -0.231473  3 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-4.398893D-01
-              MO Center= -2.5D-16, -1.1D-14,  1.9D-01, r^2= 6.9D-01
+              MO Center= -2.7D-17, -1.1D-14,  1.9D-01, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.554576  1 O  pz                 9      0.391860  1 O  pz         
      6      0.368650  1 O  s                  2      0.170002  1 O  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.634745D-01
-              MO Center=  2.7D-17, -1.6D-14,  9.7D-02, r^2= 6.0D-01
+              MO Center= -9.3D-17, -1.6D-14,  9.7D-02, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.639446  1 O  px                 7      0.511585  1 O  px         
 
  Vector    6  Occ=0.000000D+00  E= 1.285620D-01
-              MO Center=  1.2D-17,  9.3D-13, -6.3D-01, r^2= 2.5D+00
+              MO Center= -1.0D-16,  9.0D-13, -6.3D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.318467  1 O  s                 17     -1.000868  2 H  s          
@@ -2060,14 +2061,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.250908  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 2.176795D-01
-              MO Center=  6.8D-18, -1.6D-12, -5.9D-01, r^2= 2.6D+00
+              MO Center= -6.3D-18, -1.6D-12, -5.9D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.331754  2 H  s                 19     -1.331754  3 H  s          
      8     -0.791549  1 O  py                 4     -0.378657  1 O  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.834228D-01
-              MO Center=  7.7D-17, -7.0D-13, -9.1D-02, r^2= 1.5D+00
+              MO Center= -2.0D-17, -7.3D-13, -9.1D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.839708  2 H  s                 18     -0.839708  3 H  s          
@@ -2075,7 +2076,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19      0.549791  3 H  s                 14     -0.350265  1 O  dyz        
 
  Vector    9  Occ=0.000000D+00  E= 9.884568D-01
-              MO Center= -1.6D-14,  3.7D-14,  3.9D-01, r^2= 1.0D+00
+              MO Center=  4.8D-15,  2.9D-14,  3.9D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.893433  1 O  pz                 6     -0.808525  1 O  s          
@@ -2085,7 +2086,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.205171  3 H  s                 15      0.175679  1 O  dzz        
 
  Vector   10  Occ=0.000000D+00  E= 9.924188D-01
-              MO Center=  1.6D-15,  4.3D-13, -2.6D-01, r^2= 1.5D+00
+              MO Center=  3.2D-16,  4.5D-13, -2.6D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.213786  1 O  s                 16      0.784910  2 H  s          
@@ -2095,20 +2096,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     15     -0.234067  1 O  dzz        
 
  Vector   11  Occ=0.000000D+00  E= 9.985914D-01
-              MO Center=  1.5D-14, -9.6D-16,  1.1D-01, r^2= 1.1D+00
+              MO Center= -4.8D-15, -9.4D-16,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -1.035930  1 O  px                 3      0.962857  1 O  px         
 
  Vector   12  Occ=0.000000D+00  E= 1.186464D+00
-              MO Center=  1.8D-16, -4.7D-13,  7.0D-02, r^2= 1.5D+00
+              MO Center= -1.8D-16, -5.0D-13,  7.0D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.596292  1 O  py                 4     -1.012700  1 O  py         
     17     -0.942317  2 H  s                 19      0.942317  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 1.282436D+00
-              MO Center=  6.1D-18,  9.1D-13, -3.8D-01, r^2= 1.4D+00
+              MO Center= -4.3D-16,  9.8D-13, -3.8D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      3.636511  1 O  s                  2     -1.462024  1 O  s          
@@ -2118,14 +2119,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16     -0.329757  2 H  s                 18     -0.329757  3 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 1.841623D+00
-              MO Center= -7.3D-17,  5.6D-15,  1.7D-01, r^2= 6.2D-01
+              MO Center= -4.3D-16,  5.7D-15,  1.7D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.010179  1 O  dzz               13     -0.576513  1 O  dyy        
     10     -0.367168  1 O  dxx                6     -0.250543  1 O  s          
 
  Vector   15  Occ=0.000000D+00  E= 1.854645D+00
-              MO Center= -2.8D-16,  3.3D-15,  1.2D-01, r^2= 6.1D-01
+              MO Center=  4.0D-16,  2.7D-15,  1.2D-01, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.732051  1 O  dxy        
@@ -2220,7 +2221,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                Target root :     1
            Target symmetry : none
               Alpha Window :     1     1
-               Beta Window :     0     0
+               Beta Window :     1     1
        Energy Window Lower :0.00D+00
       Energy Window Higher :0.00D+00
       Symmetry restriction : off
@@ -2241,15 +2242,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)
 --------------------------------------------------------
     1    1    1    6 a       -19.577     0.129   536.224
-    2    1    1    7 a       -19.577     0.218   538.649
-    3    1    1    8 a       -19.577     0.883   556.765
-    4    1    1    9 a       -19.577     0.988   559.623
-    5    1    1   10 a       -19.577     0.992   559.731
-    6    1    1   11 a       -19.577     0.999   559.899
-    7    1    1   12 a       -19.577     1.186   565.011
-    8    1    1   13 a       -19.577     1.282   567.623
-    9    1    1   14 a       -19.577     1.842   582.839
-   10    1    1   15 a       -19.577     1.855   583.194
+    2    2    1    6 a       -19.577     0.129   536.224
+    3    1    1    7 a       -19.577     0.218   538.649
+    4    2    1    7 a       -19.577     0.218   538.649
+    5    1    1    8 a       -19.577     0.883   556.765
+    6    2    1    8 a       -19.577     0.883   556.765
+    7    1    1    9 a       -19.577     0.988   559.623
+    8    2    1    9 a       -19.577     0.988   559.623
+    9    1    1   10 a       -19.577     0.992   559.731
+   10    2    1   10 a       -19.577     0.992   559.731
 --------------------------------------------------------
 
   Entering Davidson iterations
@@ -2257,9 +2258,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1     10       0     0.11E+00   0.10+100        0.4
-    2     20       2     0.12E-01   0.55E-02        0.5
-    3     28      10     0.54E-03   0.52E-04        0.5
+    1     10       0     0.18E+00   0.10+100        0.4
+    2     20       0     0.17E-01   0.42E-01        0.6
+    3     30      10     0.77E-03   0.11E-03        0.5
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -2267,130 +2268,166 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   <S2> =   0.0000
 
   -------------------------------------------------------------
-  Root  1         a    19.454305070 a.u.     529.3788 eV 
-  <S2> =   1.0142
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.00000   Z  0.02730
-     Transition Moments   XX  0.00401  XY  0.00000  XZ  0.00000
-     Transition Moments   YY  0.00109  YZ  0.00000  ZZ  0.01460
-     Dipole Oscillator Strength                         0.00967
-
-     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.98385
-     Occ.  1 alpha a   ---  Virt.  9 alpha a     -0.13537
-     Occ.  1 alpha a   ---  Virt. 10 alpha a     -0.07435
-     Occ.  1 alpha a   ---  Virt. 13 alpha a     -0.08661
-  -------------------------------------------------------------
-  Root  2         a    19.510837595 a.u.     530.9171 eV 
-  <S2> =   1.0126
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.04032   Z  0.00000
-     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
-     Transition Moments   YY  0.00000  YZ  0.00494  ZZ  0.00000
-     Dipole Oscillator Strength                         0.02114
-
-     Occ.  1 alpha a   ---  Virt.  7 alpha a      0.97525
-     Occ.  1 alpha a   ---  Virt.  8 alpha a      0.10351
-     Occ.  1 alpha a   ---  Virt. 12 alpha a      0.19466
-  -------------------------------------------------------------
-  Root  3         a    20.113898204 a.u.     547.3273 eV 
-  <S2> =   1.0330
-  -------------------------------------------------------------
-     Transition Moments    X  0.05074   Y  0.00000   Z  0.00000
-     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.01238
-     Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.03453
-
-     Occ.  1 alpha a   ---  Virt. 11 alpha a     -0.99964
-  -------------------------------------------------------------
-  Root  4         a    20.119346805 a.u.     547.4755 eV 
-  <S2> =   1.0303
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.00000   Z  0.04890
-     Transition Moments   XX -0.00178  XY  0.00000  XZ  0.00000
-     Transition Moments   YY -0.00757  YZ  0.00000  ZZ  0.01875
-     Dipole Oscillator Strength                         0.03207
-
-     Occ.  1 alpha a   ---  Virt.  6 alpha a     -0.13714
-     Occ.  1 alpha a   ---  Virt.  9 alpha a     -0.97716
-     Occ.  1 alpha a   ---  Virt. 10 alpha a      0.10358
-     Occ.  1 alpha a   ---  Virt. 13 alpha a     -0.12058
-  -------------------------------------------------------------
-  Root  5         a    20.193007166 a.u.     549.4799 eV 
-  <S2> =   1.0027
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y -0.01501   Z  0.00000
-     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
-     Transition Moments   YY  0.00000  YZ -0.00584  ZZ  0.00000
-     Dipole Oscillator Strength                         0.00303
-
-     Occ.  1 alpha a   ---  Virt.  7 alpha a      0.13749
-     Occ.  1 alpha a   ---  Virt.  8 alpha a     -0.97537
-     Occ.  1 alpha a   ---  Virt. 12 alpha a     -0.16866
-  -------------------------------------------------------------
-  Root  6         a    20.288835612 a.u.     552.0875 eV 
-  <S2> =   1.0107
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.00000   Z  0.00056
-     Transition Moments   XX -0.00278  XY  0.00000  XZ  0.00000
-     Transition Moments   YY -0.00907  YZ  0.00000  ZZ -0.00691
-     Dipole Oscillator Strength                         0.00000
-
-     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.09122
-     Occ.  1 alpha a   ---  Virt.  9 alpha a      0.08838
-     Occ.  1 alpha a   ---  Virt. 10 alpha a      0.98988
-  -------------------------------------------------------------
-  Root  7         a    20.336474893 a.u.     553.3839 eV 
-  <S2> =   1.0283
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y -0.04309   Z  0.00000
-     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
-     Transition Moments   YY  0.00000  YZ -0.00313  ZZ  0.00000
-     Dipole Oscillator Strength                         0.02517
-
-     Occ.  1 alpha a   ---  Virt.  7 alpha a      0.17286
-     Occ.  1 alpha a   ---  Virt.  8 alpha a      0.19105
-     Occ.  1 alpha a   ---  Virt. 12 alpha a     -0.96575
-  -------------------------------------------------------------
-  Root  8         a    20.552856756 a.u.     559.2719 eV 
-  <S2> =   1.0110
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.00000   Z -0.01063
-     Transition Moments   XX -0.01002  XY  0.00000  XZ  0.00000
-     Transition Moments   YY -0.00336  YZ  0.00000  ZZ -0.01274
-     Dipole Oscillator Strength                         0.00155
-
-     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.06696
-     Occ.  1 alpha a   ---  Virt.  9 alpha a     -0.13361
-     Occ.  1 alpha a   ---  Virt. 13 alpha a      0.98654
-  -------------------------------------------------------------
-  Root  9         a    21.039863431 a.u.     572.5241 eV 
-  <S2> =   1.0004
-  -------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.00000   Z  0.00016
-     Transition Moments   XX  0.00309  XY  0.00000  XZ  0.00000
-     Transition Moments   YY  0.00381  YZ  0.00000  ZZ -0.00556
-     Dipole Oscillator Strength                         0.00000
-
-     Occ.  1 alpha a   ---  Virt. 14 alpha a      0.99972
-  -------------------------------------------------------------
-  Root 10         a    21.051526705 a.u.     572.8414 eV 
-  <S2> =   1.0004
+  Root  1         a    19.430295776 a.u.     528.7255 eV 
+  <S2> =   2.0000
   -------------------------------------------------------------
      Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
-     Transition Moments   XX  0.00000  XY  0.00525  XZ  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
      Dipole Oscillator Strength                         0.00000
 
-     Occ.  1 alpha a   ---  Virt. 15 alpha a     -0.99999
+     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.69137
+     Occ.  1 alpha a   ---  Virt.  9 alpha a     -0.11143
+     Occ.  1 alpha a   ---  Virt. 10 alpha a     -0.06120
+     Occ.  1 alpha a   ---  Virt. 13 alpha a     -0.07332
+     Occ.  1 beta  a   ---  Virt.  6 beta  a     -0.69137
+     Occ.  1 beta  a   ---  Virt.  9 beta  a      0.11143
+     Occ.  1 beta  a   ---  Virt. 10 beta  a      0.06120
+     Occ.  1 beta  a   ---  Virt. 13 beta  a      0.07332
+  -------------------------------------------------------------
+  Root  2         a    19.477492281 a.u.     530.0098 eV 
+  <S2> =   0.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.03733
+     Transition Moments   XX  0.00570  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00167  YZ  0.00000  ZZ  0.02010
+     Dipole Oscillator Strength                         0.01810
+
+     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.69940
+     Occ.  1 alpha a   ---  Virt.  9 alpha a     -0.08020
+     Occ.  1 beta  a   ---  Virt.  6 beta  a      0.69940
+     Occ.  1 beta  a   ---  Virt.  9 beta  a     -0.08020
+  -------------------------------------------------------------
+  Root  3         a    19.489729798 a.u.     530.3428 eV 
+  <S2> =   2.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  1 alpha a   ---  Virt.  7 alpha a      0.68410
+     Occ.  1 alpha a   ---  Virt.  8 alpha a      0.07719
+     Occ.  1 alpha a   ---  Virt. 12 alpha a      0.16132
+     Occ.  1 beta  a   ---  Virt.  7 beta  a     -0.68410
+     Occ.  1 beta  a   ---  Virt.  8 beta  a     -0.07719
+     Occ.  1 beta  a   ---  Virt. 12 beta  a     -0.16132
+  -------------------------------------------------------------
+  Root  4         a    19.530739610 a.u.     531.4587 eV 
+  <S2> =   0.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.05542   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00000  YZ  0.00680  ZZ  0.00000
+     Dipole Oscillator Strength                         0.03999
+
+     Occ.  1 alpha a   ---  Virt.  7 alpha a      0.69433
+     Occ.  1 alpha a   ---  Virt.  8 alpha a      0.06906
+     Occ.  1 alpha a   ---  Virt. 12 alpha a      0.11403
+     Occ.  1 beta  a   ---  Virt.  7 beta  a      0.69433
+     Occ.  1 beta  a   ---  Virt.  8 beta  a      0.06906
+     Occ.  1 beta  a   ---  Virt. 12 beta  a      0.11403
+  -------------------------------------------------------------
+  Root  5         a    20.079242998 a.u.     546.3842 eV 
+  <S2> =   2.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.11215
+     Occ.  1 alpha a   ---  Virt.  9 alpha a      0.68575
+     Occ.  1 alpha a   ---  Virt. 10 alpha a     -0.08876
+     Occ.  1 alpha a   ---  Virt. 13 alpha a      0.09433
+     Occ.  1 beta  a   ---  Virt.  6 beta  a     -0.11215
+     Occ.  1 beta  a   ---  Virt.  9 beta  a     -0.68575
+     Occ.  1 beta  a   ---  Virt. 10 beta  a      0.08876
+     Occ.  1 beta  a   ---  Virt. 13 beta  a     -0.09433
+  -------------------------------------------------------------
+  Root  6         a    20.161132790 a.u.     548.6126 eV 
+  <S2> =   0.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.07091
+     Transition Moments   XX -0.00252  XY  0.00000  XZ  0.00000
+     Transition Moments   YY -0.01069  YZ  0.00000  ZZ  0.02737
+     Dipole Oscillator Strength                         0.06759
+
+     Occ.  1 alpha a   ---  Virt.  6 alpha a     -0.08177
+     Occ.  1 alpha a   ---  Virt.  9 alpha a     -0.69632
+     Occ.  1 alpha a   ---  Virt. 10 alpha a      0.05318
+     Occ.  1 alpha a   ---  Virt. 13 alpha a     -0.07183
+     Occ.  1 beta  a   ---  Virt.  6 beta  a     -0.08177
+     Occ.  1 beta  a   ---  Virt.  9 beta  a     -0.69632
+     Occ.  1 beta  a   ---  Virt. 10 beta  a      0.05318
+     Occ.  1 beta  a   ---  Virt. 13 beta  a     -0.07183
+  -------------------------------------------------------------
+  Root  7         a    20.188799716 a.u.     549.3654 eV 
+  <S2> =   2.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  1 alpha a   ---  Virt.  7 alpha a     -0.11814
+     Occ.  1 alpha a   ---  Virt.  8 alpha a      0.67360
+     Occ.  1 alpha a   ---  Virt. 12 alpha a      0.17813
+     Occ.  1 beta  a   ---  Virt.  7 beta  a      0.11814
+     Occ.  1 beta  a   ---  Virt.  8 beta  a     -0.67360
+     Occ.  1 beta  a   ---  Virt. 12 beta  a     -0.17813
+  -------------------------------------------------------------
+  Root  8         a    20.195898943 a.u.     549.5586 eV 
+  <S2> =   0.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y -0.01805   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00000  YZ -0.00815  ZZ  0.00000
+     Dipole Oscillator Strength                         0.00439
+
+     Occ.  1 alpha a   ---  Virt.  7 alpha a      0.08213
+     Occ.  1 alpha a   ---  Virt.  8 alpha a     -0.69768
+     Occ.  1 alpha a   ---  Virt. 12 alpha a     -0.07632
+     Occ.  1 beta  a   ---  Virt.  7 beta  a      0.08213
+     Occ.  1 beta  a   ---  Virt.  8 beta  a     -0.69768
+     Occ.  1 beta  a   ---  Virt. 12 beta  a     -0.07632
+  -------------------------------------------------------------
+  Root  9         a    20.276291832 a.u.     551.7462 eV 
+  <S2> =   2.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
+     Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
+     Dipole Oscillator Strength                         0.00000
+
+     Occ.  1 alpha a   ---  Virt.  6 alpha a      0.07969
+     Occ.  1 alpha a   ---  Virt.  9 alpha a      0.07088
+     Occ.  1 alpha a   ---  Virt. 10 alpha a      0.69582
+     Occ.  1 alpha a   ---  Virt. 13 alpha a      0.05111
+     Occ.  1 beta  a   ---  Virt.  6 beta  a     -0.07969
+     Occ.  1 beta  a   ---  Virt.  9 beta  a     -0.07088
+     Occ.  1 beta  a   ---  Virt. 10 beta  a     -0.69582
+     Occ.  1 beta  a   ---  Virt. 13 beta  a     -0.05111
+  -------------------------------------------------------------
+  Root 10         a    20.301624233 a.u.     552.4355 eV 
+  <S2> =   0.0000
+  -------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00257
+     Transition Moments   XX -0.00384  XY  0.00000  XZ  0.00000
+     Transition Moments   YY -0.01320  YZ  0.00000  ZZ -0.00898
+     Dipole Oscillator Strength                         0.00009
+
+     Occ.  1 alpha a   ---  Virt. 10 alpha a      0.70315
+     Occ.  1 beta  a   ---  Virt. 10 beta  a      0.70315
 
               Target root =      1
           Target symmetry = none
       Ground state energy =    -75.924565803554
-        Excitation energy =     19.454305069619
-     Excited state energy =    -56.470260733935
+        Excitation energy =     19.430295776315
+     Excited state energy =    -56.494270027239
 
 
- Task  times  cpu:        1.7s     wall:        2.5s
+ Task  times  cpu:        1.8s     wall:        2.6s
 
 
                                 NWChem Input Module
@@ -2407,10 +2444,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 9184     9184     7.21e+04 2.03e+04 3.66e+04  434        0        0     
-number of processes/call 1.16e+00 1.38e+00 1.47e+00 1.70e+00 0.00e+00
-bytes total:             3.42e+07 5.01e+06 1.94e+07 3.47e+05 0.00e+00 0.00e+00
-bytes remote:            1.65e+07 9.89e+05 1.27e+07 -1.01e+05 0.00e+00 0.00e+00
+calls: 9556     9556     7.99e+04 2.12e+04 3.98e+04  450        0        0     
+number of processes/call 1.15e+00 1.38e+00 1.47e+00 1.70e+00 0.00e+00
+bytes total:             3.74e+07 5.22e+06 2.02e+07 3.60e+05 0.00e+00 0.00e+00
+bytes remote:            1.73e+07 1.03e+06 1.31e+07 -1.05e+05 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 281520 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
@@ -2458,4 +2495,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        4.1s     wall:        9.3s
+ Total times  cpu:        4.3s     wall:        9.4s
