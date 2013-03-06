@@ -16,17 +16,19 @@ basis
   H library 6-31g*
 end
 
-occup 6 0  # single determinant (core-hole)
- 1.0
- 2.0
- 2.0
- 2.0
- 2.0
- 0.0
+occup  # single determinant (core-hole)
+ 6 6
+ 1.0 0.0
+ 1.0 1.0
+ 1.0 1.0
+ 1.0 1.0
+ 1.0 1.0
+ 0.0 0.0
 end
 
 dft
+ odft
+ mult 1
  xc beckehandh
- vectors output core-hole.movecs
 end
 task dft
