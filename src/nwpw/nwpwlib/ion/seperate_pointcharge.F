@@ -126,8 +126,16 @@
       logical qmmm
 
       qmmm = .false.
-      if (index(string,'x').eq.1)   qmmm = .true.
-      if (index(string,'X').eq.1)   qmmm = .true.
+      if (index(string,'x').eq.1) then
+         qmmm = .true.
+         if (index(string,'e').eq.2)  qmmm = .false.
+         if (index(string,'E').eq.2)  qmmm = .false.
+      end if
+      if (index(string,'X').eq.1) then
+         qmmm = .true.
+         if (index(string,'e').eq.2)  qmmm = .false.
+         if (index(string,'E').eq.2)  qmmm = .false.
+      end if
       if (index(string,'bq').eq.1)  qmmm = .true.
       if (index(string,'Bq').eq.1)  qmmm = .true.
       if (index(string,'bQ').eq.1)  qmmm = .true.
