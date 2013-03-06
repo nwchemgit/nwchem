@@ -13,6 +13,7 @@
 #include "stdio.fh"
 #include "cfock.fh"
 #include "prop.fh"
+#include "inp.fh"
 c
 c     Property module.
 c
@@ -44,6 +45,9 @@ c
       double precision ithresh, tthresh, e_conv, tol_rho, tol_rho_rd
       double precision job_grid_acc
 c
+      character*32 key
+      logical flag
+c 
       logical grid_clinit, task_energy
       external grid_clinit, task_energy
 c
@@ -251,17 +255,20 @@ c
 c
 c     Make sure the energy and vectors have been calculated
 c
-  
       if(vectors_in.eq.' ') then
+c
+c       Remove the converged flag to force recalculation
+c
+        key = theory(1:inp_strlen(theory))//":converged"
+        if (rtdb_get(rtdb, key, mt_log, 1, flag)) then
+          if (.not. rtdb_put(rtdb, key, mt_log, 1, .false.))
+     $      call errquit("task: could not write to rtdb",0,RTDB_ERR)
+        endif
+c
+c       Calculate the energy
+c
         if(.not.task_energy(rtdb)) call errquit
      *    ('hnd_property: energy failure', 555, CALC_ERR)
-c
-c       Making sure scf_init realizes that ODFT is UHF
-c
-c       if (theory.eq.'dft') then
-c          if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, 'UHF')) call
-c    &         errquit('hnd_property: rtdb_cput failed',100,RTDB_ERR)
-c       endif
 c
 c       Depending on calculation write prop:input vectors to rtdb
 c
