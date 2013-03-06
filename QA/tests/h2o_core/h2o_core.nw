@@ -22,8 +22,33 @@ end
 task dft
 
 tddft
-#  ewin -20.0 -10.0
-#  ecut -10.0
+  ecut -10
+  nroots 5
+  notriplet
+  thresh 1d-03
+end
+task tddft
+
+tddft
+  ewin -20.0 -10.0
+  cis
+  nroots 5
+  notriplet
+  thresh 1d-03
+end 
+task tddft 
+
+dft
+  odft
+  mult 1
+  xc beckehandh
+  print "final vector analysis"
+end
+task dft
+
+tddft
+  alpha 1 1 beta 1 1
+  cis
   nroots 10
   notriplet
   thresh 1d-03
