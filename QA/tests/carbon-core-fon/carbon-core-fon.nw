@@ -24,11 +24,8 @@ dft
  fon partial 1 electrons 1.0 filled 2
  xc pbe0
  convergence energy 1d-8  nolevelshifting
-# vectors input carbon-core-fon.movecs
-# noscf
- vspec alpha 1
 end
-#task dft
+task dft
 
 dft
  print "final vectors analysis"
@@ -39,4 +36,4 @@ dft
  xc pbe0
  convergence energy 1d-8 
 end
-#task dft
+task dft
