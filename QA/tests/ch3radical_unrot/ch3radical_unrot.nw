@@ -1,0 +1,36 @@
+echo
+
+start ch3radical_unrot
+title ch3radical_unrot
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c  0.0    0.0    0.0
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+BASIS "ao basis" PRINT
+ * library 6-311G
+END
+
+relativistic
+ zora on
+ zora:cutoff_NMR 1d-8
+ zora:cutoff 1d-30
+end
+
+dft
+ odft
+ mult 2
+ xc b3lyp
+end
+task dft
+
+property
+ gshift
+ hyperfine 
+ shielding
+end
+task dft property
