@@ -1,6 +1,7 @@
       subroutine tce_mrcc_diis_init
       implicit none
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
       integer i,iref
 
       do iref=1,maxref

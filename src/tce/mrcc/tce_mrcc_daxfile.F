@@ -11,6 +11,7 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
 #include "tce_main.fh"
 
       integer n

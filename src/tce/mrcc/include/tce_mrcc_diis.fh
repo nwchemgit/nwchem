@@ -1,0 +1,218 @@
+c
+c---------------------------
+c Header for MRCC interface
+c---------------------------
+c
+c       integer maxorb
+c       integer maxref
+c       integer maxexcit
+c       logical isactive
+c       integer ihefferank,iheffefrom
+c       integer mutualoper0
+c       integer ihefferank0
+c       integer iheffeto,iheffespin
+c       integer mutualoper
+c       integer l_movecs_sortedm,k_movecs_sortedm
+c       integer l_spin_sortedm,k_spin_sortedm
+c       integer l_irs_sortedm,k_irs_sortedm
+c       integer l_evl_sortedm,k_evl_sortedm
+c       integer l_mo_indexm,k_mo_indexm
+c       integer l_isactive,k_isactive
+c       integer l_spinm,k_spinm 
+c       integer l_symm,k_symm 
+c       integer l_rangem,k_rangem
+c       integer l_offsetm,k_offsetm
+c       integer l_alpham,k_alpham
+c       integer l_spin_tmpm,k_spin_tmpm
+c       integer l_sym_tmpm,k_sym_tmpm
+c       integer l_range_tmpm,k_range_tmpm
+c       integer l_active_tmpm,k_active_tmpm
+c       integer nblcks,g_movecsm
+c       integer d_f1m 
+c       integer l_evl_tile,k_evl_tile
+c       integer l_irs_tile,k_irs_tile
+c       integer l_heff,k_heff
+c       integer iocc
+c       integer l_moindex_sorted,k_moindex_sorted
+c       logical lconverged
+       integer maxdiism
+c       integer moindexes
+c       integer d_v2orbm
+c       integer moblocks
+c       integer orbinblck
+c       integer offsetinblck
+c       integer d_c1m
+c       integer l_sqc,k_sqc
+c       integer l_sqcl,k_sqcl
+      
+      integer t1_diism          ! T1 files for DIIS
+      integer r1_diism          ! R1 files for DIIS
+      integer t2_diism          ! T2 files for DIIS
+      integer r2_diism          ! R2 files for DIIS
+      integer t3_diism          ! T3 files for DIIS
+      integer r3_diism          ! R3 files for DIIS
+      integer t4_diism          ! T4 files for DIIS
+      integer r4_diism          ! R4 files for DIIS
+      integer t1_pointerm       ! Pointer to open T1 file for DIIS
+      integer r1_pointerm       ! Pointer to open R1 file for DIIS
+      integer t2_pointerm       ! Pointer to open T2 file for DIIS
+      integer r2_pointerm       ! Pointer to open R2 file for DIIS
+      integer t3_pointerm       ! Pointer to open T3 file for DIIS
+      integer r3_pointerm       ! Pointer to open R3 file for DIIS
+      integer t4_pointerm       ! Pointer to open T4 file for DIIS
+      integer r4_pointerm       ! Pointer to open R4 file for DIIS
+      logical t1_diis_existm    ! True if T1 DIIS file exist
+      logical r1_diis_existm    ! True if R1 DIIS file exist
+      logical t2_diis_existm    ! True if T2 DIIS file exist
+      logical r2_diis_existm    ! True if R2 DIIS file exist
+      logical t3_diis_existm    ! True if T3 DIIS file exist
+      logical r3_diis_existm    ! True if R3 DIIS file exist
+      logical t4_diis_existm    ! True if T4 DIIS file exist
+      logical r4_diis_existm    ! True if R4 DIIS file exist
+      
+c       double precision duhfens
+c       double precision epsilon
+c       double precision mrccshift
+c       integer mkroot
+c       double precision drootmuc
+c       double precision orbdegenenergy
+c       logical forcedegen
+c
+cckbn mrcc-r-1 CC       logical read_int, write_int
+cckbn mrcc-r-1 CC       integer rec_mem                         ! restart record size in MB
+c
+c       integer iphnum
+c       integer invhnum
+c       integer invpnum
+c
+c      integer k_sghandles,l_sghandles
+c      integer k_sgsizes,l_sgsizes
+c      integer k_sgassigment,l_sgassigment
+c      logical lusesg
+c
+c      integer l_innodes,k_innodes
+c      integer l_goffset,k_goffset
+c      integer l_refafi,k_refafi
+c      logical lusesub,luseeaf2e
+c      integer pgbsize
+c      integer g_heff
+c      double precision dnorm
+c      logical lfullheff
+c      logical lusesamefock_it,lusesamefock_nonit
+c      integer targetroot
+c      double precision bwcoefwanted
+c      integer iroottooverlap
+c      logical rootfromoverlap
+c      integer mkrootold
+c      logical ignorecomplex
+c      logical lsave2e,lread2e
+c      logical lsavet,lreadt
+c      integer nref
+c      logical mrccdebug
+c      logical lusescffv
+c      logical limprovet
+c      integer iignore
+cc      double precision dvalue
+c      integer nrootmuc
+c      integer iitarget
+c
+c      integer mypgid
+
+      integer idiis
+c      logical lzorafromdft
+c
+c      logical lsubterm
+c
+cc       parameter(maxorb=1024,maxref=800,maxexcit=18,maxdiism=15)
+c       parameter(maxorb=510,maxref=200,maxexcit=18,maxdiism=10)
+       parameter(maxdiism=10)
+c       double precision toleiimag
+c       parameter(toleiimag=1e-5) ! Tolereance for imaginary eigenvalue
+c
+c       common/tcemrccint/ isactive(maxorb,2),ihefferank(maxref,maxref),
+c     3     iheffefrom(maxexcit,maxref,maxref),
+c     +     iheffeto(maxexcit,maxref,maxref),
+c     +     iheffespin(maxexcit,maxref,maxref),
+c     +     mutualoper(2*maxexcit,maxref,maxref),
+c     +     l_movecs_sortedm(maxref),k_movecs_sortedm(maxref),
+c     +     l_spin_sortedm(maxref),k_spin_sortedm(maxref),
+c     +     l_irs_sortedm(maxref),k_irs_sortedm(maxref),
+c     +     l_evl_sortedm(maxref),k_evl_sortedm(maxref),
+c     +     l_mo_indexm(maxref),k_mo_indexm(maxref),
+c     +     l_isactive(maxref),k_isactive(maxref),
+c     +     l_spinm(maxref),k_spinm(maxref),
+c     +     l_symm(maxref),k_symm(maxref),
+c     +     l_rangem(maxref),k_rangem(maxref),
+c     +     l_offsetm(maxref),k_offsetm(maxref),
+c     +     l_alpham(maxref),k_alpham(maxref),
+c     +     l_spin_tmpm(maxref),k_spin_tmpm(maxref),
+c     +     l_sym_tmpm(maxref),k_sym_tmpm(maxref),
+c     +     l_range_tmpm(maxref),k_range_tmpm(maxref),
+c     +     l_active_tmpm(maxref),k_active_tmpm(maxref),
+c     +     nblcks(4,maxref),g_movecsm(maxref,2),
+c     +     d_f1m(maxref),
+c     +     l_evl_tile(2),k_evl_tile(2),
+c     +     l_irs_tile(2),k_irs_tile(2),
+c     +     l_heff,k_heff,iocc(maxorb,maxref,2),
+c     +     l_moindex_sorted(maxref),k_moindex_sorted(maxref),
+c     +     lconverged,moindexes(maxorb,2,maxref),
+c     +     d_v2orbm(maxref),moblocks(maxorb,2,maxref),
+c     +     orbinblck(maxorb,2,maxref),offsetinblck(maxorb,2,maxref),
+cckbn mrcc-r-1 CC     +     d_c1m(maxref),rec_mem,l_sqc,k_sqc,
+c     +     d_c1m(maxref),l_sqc,k_sqc,
+c     +     mkroot,ihefferank0(maxref,maxref),
+c     +     mutualoper0(2*maxexcit,maxref,maxref),
+c     +     iphnum(maxorb,maxref,2),invhnum(maxorb,maxref,2),
+c     +     invpnum(maxorb,maxref,2),
+c     +     k_sghandles,l_sghandles,
+c     +     k_sgsizes,l_sgsizes,
+c     +     k_sgassigment,l_sgassigment,lusesg,
+c     +     lusesub,pgbsize,g_heff,
+c     +     l_innodes,k_innodes,l_goffset,k_goffset,
+c     +     l_refafi,k_refafi,luseeaf2e,l_sqcl,k_sqcl,
+c     +     mypgid,lfullheff,lusesamefock_it,lusesamefock_nonit,
+c     +     targetroot,
+c     +     iroottooverlap,
+c     +     rootfromoverlap,
+c     +     mkrootold,
+c     +     ignorecomplex,
+c     +     lsave2e,lread2e,
+c     +     lsavet,lreadt,
+c     +     nref,
+c     +     mrccdebug,
+c     +     lusescffv,
+c     +     limprovet,
+c     +     iignore,
+c     +     nrootmuc,
+c     +     iitarget,
+c     +     lzorafromdft
+c
+c
+c
+       common/tcemrccint2/ idiis
+
+cckbn mrcc-r-1 CC       common/tcemrcclogical/ read_int, write_int,forcedegen
+c       common/tcemrcclogical/ forcedegen, lsubterm
+c
+c       common/tcemrccdouble/ duhfens(maxref),epsilon,
+c     +     mrccshift,drootmuc(maxref),orbdegenenergy(maxref,maxorb),
+c     + dnorm,bwcoefwanted(maxref)
+cc     + dvalue
+
+       common/tcemrccdiis/ t1_diism(maxdiism,maxref),
+     +     t2_diism(maxdiism,maxref),t3_diism(maxdiism,maxref),
+     +     t4_diism(maxdiism,maxref),r1_diism(maxdiism,maxref),
+     +     r2_diism(maxdiism,maxref),r3_diism(maxdiism,maxref),
+     +     r4_diism(maxdiism,maxref),t1_pointerm(maxref),
+     +     t2_pointerm(maxref),t3_pointerm(maxref),
+     +     t4_pointerm(maxref),r1_pointerm(maxref),
+     +     r2_pointerm(maxref),r3_pointerm(maxref),
+     +     r4_pointerm(maxref),t1_diis_existm(maxdiism,maxref),
+     +     t2_diis_existm(maxdiism,maxref),
+     +     t3_diis_existm(maxdiism,maxref),
+     +     t4_diis_existm(maxdiism,maxref),
+     +     r1_diis_existm(maxdiism,maxref),
+     +     r2_diis_existm(maxdiism,maxref),
+     +     r3_diis_existm(maxdiism,maxref),
+     +     r4_diis_existm(maxdiism,maxref)
+

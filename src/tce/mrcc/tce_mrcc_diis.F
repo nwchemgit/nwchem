@@ -16,6 +16,7 @@ c     5  rtdb,iref,nref)
 #include "tce_main.fh"
 #include "tce_diis.fh"
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
 #include "rtdb.fh"
 
       logical transpose
@@ -458,7 +459,8 @@ c vr part
           xsum=xsum+dabs(vr(i,j))
          end if
         enddo
-        xsum=xsum/dreal(jtot)
+c        xsum=xsum/dreal(jtot)
+        xsum=xsum/dble(jtot)
         do i=1,nref
          if(aux1(i).eq.jdiff) then
            if(vr(i,j).lt.0.0d0) then
@@ -500,7 +502,8 @@ c vl part
           xsum=xsum+dabs(vl(i,j))
          end if
         enddo
-        xsum=xsum/dreal(jtot)
+c        xsum=xsum/dreal(jtot)
+        xsum=xsum/dble(jtot)
         do i=1,nref
          if(aux1(i).eq.jdiff) then
            if(vl(i,j).lt.0.0d0) then

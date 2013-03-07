@@ -35,7 +35,7 @@ c
        integer iocc
        integer l_moindex_sorted,k_moindex_sorted
        logical lconverged
-       integer maxdiism
+c       integer maxdiism
        integer moindexes
        integer d_v2orbm
        integer moblocks
@@ -45,30 +45,30 @@ c
        integer l_sqc,k_sqc
        integer l_sqcl,k_sqcl
       
-      integer t1_diism          ! T1 files for DIIS
-      integer r1_diism          ! R1 files for DIIS
-      integer t2_diism          ! T2 files for DIIS
-      integer r2_diism          ! R2 files for DIIS
-      integer t3_diism          ! T3 files for DIIS
-      integer r3_diism          ! R3 files for DIIS
-      integer t4_diism          ! T4 files for DIIS
-      integer r4_diism          ! R4 files for DIIS
-      integer t1_pointerm       ! Pointer to open T1 file for DIIS
-      integer r1_pointerm       ! Pointer to open R1 file for DIIS
-      integer t2_pointerm       ! Pointer to open T2 file for DIIS
-      integer r2_pointerm       ! Pointer to open R2 file for DIIS
-      integer t3_pointerm       ! Pointer to open T3 file for DIIS
-      integer r3_pointerm       ! Pointer to open R3 file for DIIS
-      integer t4_pointerm       ! Pointer to open T4 file for DIIS
-      integer r4_pointerm       ! Pointer to open R4 file for DIIS
-      logical t1_diis_existm    ! True if T1 DIIS file exist
-      logical r1_diis_existm    ! True if R1 DIIS file exist
-      logical t2_diis_existm    ! True if T2 DIIS file exist
-      logical r2_diis_existm    ! True if R2 DIIS file exist
-      logical t3_diis_existm    ! True if T3 DIIS file exist
-      logical r3_diis_existm    ! True if R3 DIIS file exist
-      logical t4_diis_existm    ! True if T4 DIIS file exist
-      logical r4_diis_existm    ! True if R4 DIIS file exist
+c      integer t1_diism          ! T1 files for DIIS
+c      integer r1_diism          ! R1 files for DIIS
+c      integer t2_diism          ! T2 files for DIIS
+c      integer r2_diism          ! R2 files for DIIS
+c      integer t3_diism          ! T3 files for DIIS
+c      integer r3_diism          ! R3 files for DIIS
+c      integer t4_diism          ! T4 files for DIIS
+c      integer r4_diism          ! R4 files for DIIS
+c      integer t1_pointerm       ! Pointer to open T1 file for DIIS
+c      integer r1_pointerm       ! Pointer to open R1 file for DIIS
+c      integer t2_pointerm       ! Pointer to open T2 file for DIIS
+c      integer r2_pointerm       ! Pointer to open R2 file for DIIS
+c      integer t3_pointerm       ! Pointer to open T3 file for DIIS
+c      integer r3_pointerm       ! Pointer to open R3 file for DIIS
+c      integer t4_pointerm       ! Pointer to open T4 file for DIIS
+c      integer r4_pointerm       ! Pointer to open R4 file for DIIS
+c      logical t1_diis_existm    ! True if T1 DIIS file exist
+c      logical r1_diis_existm    ! True if R1 DIIS file exist
+c      logical t2_diis_existm    ! True if T2 DIIS file exist
+c      logical r2_diis_existm    ! True if R2 DIIS file exist
+c      logical t3_diis_existm    ! True if T3 DIIS file exist
+c      logical r3_diis_existm    ! True if R3 DIIS file exist
+c      logical t4_diis_existm    ! True if T4 DIIS file exist
+c      logical r4_diis_existm    ! True if R4 DIIS file exist
       
        double precision duhfens
        double precision epsilon
@@ -118,13 +118,14 @@ c      double precision dvalue
 
       integer mypgid
 
-      integer idiis
+c      integer idiis
       logical lzorafromdft
 
       logical lsubterm
 
 c       parameter(maxorb=1024,maxref=800,maxexcit=18,maxdiism=15)
-       parameter(maxorb=600,maxref=100,maxexcit=18,maxdiism=10)
+c       parameter(maxorb=510,maxref=200,maxexcit=18,maxdiism=10)
+       parameter(maxorb=510,maxref=200,maxexcit=18)
        double precision toleiimag
        parameter(toleiimag=1e-5) ! Tolereance for imaginary eigenvalue
 
@@ -188,7 +189,7 @@ ckbn mrcc-r-1 CC     +     d_c1m(maxref),rec_mem,l_sqc,k_sqc,
 
 
 
-       common/tcemrccint2/ idiis
+c       common/tcemrccint2/ idiis
 
 ckbn mrcc-r-1 CC       common/tcemrcclogical/ read_int, write_int,forcedegen
        common/tcemrcclogical/ forcedegen, lsubterm
@@ -198,20 +199,20 @@ ckbn mrcc-r-1 CC       common/tcemrcclogical/ read_int, write_int,forcedegen
      + dnorm,bwcoefwanted(maxref)
 c     + dvalue
 
-       common/tcemrccdiis/ t1_diism(maxdiism,maxref),
-     +     t2_diism(maxdiism,maxref),t3_diism(maxdiism,maxref),
-     +     t4_diism(maxdiism,maxref),r1_diism(maxdiism,maxref),
-     +     r2_diism(maxdiism,maxref),r3_diism(maxdiism,maxref),
-     +     r4_diism(maxdiism,maxref),t1_pointerm(maxref),
-     +     t2_pointerm(maxref),t3_pointerm(maxref),
-     +     t4_pointerm(maxref),r1_pointerm(maxref),
-     +     r2_pointerm(maxref),r3_pointerm(maxref),
-     +     r4_pointerm(maxref),t1_diis_existm(maxdiism,maxref),
-     +     t2_diis_existm(maxdiism,maxref),
-     +     t3_diis_existm(maxdiism,maxref),
-     +     t4_diis_existm(maxdiism,maxref),
-     +     r1_diis_existm(maxdiism,maxref),
-     +     r2_diis_existm(maxdiism,maxref),
-     +     r3_diis_existm(maxdiism,maxref),
-     +     r4_diis_existm(maxdiism,maxref)
-
+c       common/tcemrccdiis/ t1_diism(maxdiism,maxref),
+c     +     t2_diism(maxdiism,maxref),t3_diism(maxdiism,maxref),
+c     +     t4_diism(maxdiism,maxref),r1_diism(maxdiism,maxref),
+c     +     r2_diism(maxdiism,maxref),r3_diism(maxdiism,maxref),
+c     +     r4_diism(maxdiism,maxref),t1_pointerm(maxref),
+c     +     t2_pointerm(maxref),t3_pointerm(maxref),
+c     +     t4_pointerm(maxref),r1_pointerm(maxref),
+c     +     r2_pointerm(maxref),r3_pointerm(maxref),
+c     +     r4_pointerm(maxref),t1_diis_existm(maxdiism,maxref),
+c     +     t2_diis_existm(maxdiism,maxref),
+c     +     t3_diis_existm(maxdiism,maxref),
+c     +     t4_diis_existm(maxdiism,maxref),
+c     +     r1_diis_existm(maxdiism,maxref),
+c     +     r2_diis_existm(maxdiism,maxref),
+c     +     r3_diis_existm(maxdiism,maxref),
+c     +     r4_diis_existm(maxdiism,maxref)
+c

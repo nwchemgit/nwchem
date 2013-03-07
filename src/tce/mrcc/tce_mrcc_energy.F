@@ -22,6 +22,7 @@
 
 #ifdef MRCC_METHODS
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
 #endif
 
       integer rtdb
@@ -239,6 +240,9 @@ ckbn-4
 ckbn-13 placed it here and added to common block
        if (.not.rtdb_get(rtdb,'mrcc:usescffermiv',mt_log,1,lusescffv))
      + lusescffv = .false.
+       if(nodezero) write(*,*) "Using fermivacuum by default" 
+       lusescffv = .true.
+
        if (.not.rtdb_get(rtdb,'mrcc:improvetiling',mt_log,1,limprovet))
      + limprovet = .false.
        if (.not.rtdb_get(rtdb,'mrcc:diistype',mt_int,1,idiis))
@@ -360,7 +364,32 @@ c     ==========
 ckbn MR-r      call tce_mrcc_init(rtdb)
 ckbn replaced tce_mrcc_init with standard tce_init	!has to be tested
 c      call tce_mrcc_init(rtdb)
+      
       call tce_init(rtdb)
+
+ckbn  check for maxorb
+      if( ((nmo(1)-nfv(1)-nfc(1)) .gt. maxorb) .or. 
+     +    ((nmo(2)-nfv(2)-nfc(2)) .gt. maxorb) ) then
+       write(LuOut,'(A,I5,A,I5)') 'Maximum number of MOs ',
+     +  maxorb,' is lower than current number of MOs',
+     +  max((nmo(1)-nfv(1)-nfc(1)),(nmo(2)-nfv(2)-nfc(2)))
+       call util_flush(LuOut)
+        call errquit
+     + ('tce_mrcc_energy: Above maximum number of MOs',0,RTDB_ERR)
+      endif
+
+ckbn Exit if diis is greater than maxdiis
+      if(diis .gt. maxdiism) then
+       write(LuOut,'(A,I5,A,I5)') 'Current diis value', diis,
+     + ' is larger than maximum', maxdiism
+       call util_flush(LuOut)
+        call errquit
+     + ('tce_mrcc_energy: Above maximum diis value',0,RTDB_ERR)
+      endif
+
+c      write(*,*) "ioalg", ioalg
+c      if(ioalg .ne. 2 ) call errquit
+c     + ('tce_mrcc_energy: TCE MRCC needs ioalgorithm',0,INPUT_ERR)
 
 ckbn MR-r      if(lcas)call tce_mrcc_create_cas(rtdb)
       if(lcas)call tce_mrcc_create_cas(rtdb)
@@ -370,15 +399,20 @@ ckbn MR-r      call tce_mrcc_readref(rtdb)
       call tce_mrcc_readref(rtdb) 
 
       if (.not.rtdb_get(rtdb,'bwcc:targetroot',mt_int,1,itargetx)) then
-      if(.not.rtdb_get(rtdb,'mrcc:roottooverlap',mt_int,1,
-     + iroottooverlap))
-     + call errquit('tce_mrcc_read: rtdb failed reading iroottooverlap',
-     + 0,RTDB_ERR)
+c       write(*,*) "I am here1","itargetx",itargetx
+       if(.not.rtdb_get(rtdb,'mrcc:roottooverlap',mt_int,1,
+     +  iroottooverlap)) call errquit
+     +  ('tce_mrcc_read: rtdb failed reading iroottooverlap',
+     +  0,RTDB_ERR)
+      else
+        mkrootold = itargetx
+        mkroot    = itargetx
+c        write(*,*) "I am here1 mkroot",itargetx,mkrootold,mkroot
       endif
 ckbn analyze reference for mrcc calculation end
 
 
-         
+
       if (nodezero) call util_flush(LuOut)
 
 ckbn Test for MA and GA 
@@ -1685,7 +1719,7 @@ c       Add DCl,L and UL terms
 c     ==========================
 c
           if(.not.lconverged) then      ! a posteriori corr
-           write(*,*) "I am here 1 dcl ul"
+c           write(*,*) "I am here 1 dcl ul"
 
            itcpu = - util_cpusec()
            itwall = - util_wallsec()

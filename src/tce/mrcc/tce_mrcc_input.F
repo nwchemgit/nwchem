@@ -7,6 +7,7 @@
 #include "stdio.fh"
 #include "global.fh"
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
       integer rtdb
       character*1025 test
 c      integer nref 

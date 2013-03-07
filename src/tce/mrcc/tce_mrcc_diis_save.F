@@ -15,6 +15,7 @@
 #include "tce_main.fh"
 #include "tce_diis.fh"
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
 #include "rtdb.fh"
 
       logical transpose

@@ -169,7 +169,6 @@ c         write(6,*)iactshift,nocc(1),nocc(2)
              endif
            enddo
            call sym_irrepname(geom,irrep+1,irrepname)
- 
         if(targetsym.eq.irrepname) then
 
           ic = ic + 1
@@ -193,6 +192,17 @@ c         write(6,*)iactshift,nocc(1),nocc(2)
       if (.not.rtdb_put(rtdb,'bwcc:nref',mt_int,1,ic))
      1   call errquit('tce_mrcc_input: failed writing to rtdb',0,
      2   RTDB_ERR)
+
+c       this routine has to be rewritten at some point
+
+ckbn    check whether number of references go beyond maxref
+        if(ic .gt. maxref)  then
+        if(nodezero)  
+     +   write(LuOut,'(A,I5,A,I5)') "Number of references: ",ic,
+     +   " greater than maximum number of references: " , maxref
+        if(nodezero) call util_flush(LuOut)
+        call errquit('tce_mrcc_create_cas: nref > maxref',3,RTDB_ERR)
+        endif
 
         return
         end

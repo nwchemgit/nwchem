@@ -4,6 +4,7 @@ c     Terminates the DIIS
 c
       implicit none
 #include "tce_mrcc.fh"
+#include "tce_mrcc_diis.fh"
       integer i,iref
 c
       do iref=1,maxref
