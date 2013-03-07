@@ -214,8 +214,8 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       external psp_nprj_max,control_nprj_mult
 
 
+      call Pack_npack(0,npack0)
       call Pack_npack(1,npack1)
-      call Pack_npack(1,npack0)
       nprj_mult= control_nprj_mult()
       nprj_max = psp_nprj_max()
       value = MA_alloc_get(mt_dcpl,npack1*nprj_max*nprj_mult,
@@ -1965,7 +1965,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                    dcpl_mb(dng_cmp(1)),
      >                                    dcpl_mb(dng_cmp_smooth(1)))
 
-         write(*,*) "herb"
          !*** compute hartree potential of ntilde + ncmp_tilde ***
          !*** compute hartree potential ncmp   - ncmp_tilde ***
          if (periodic) then
@@ -2017,9 +2016,9 @@ c            call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
      >                                   dcpl_mb(vcmp_smooth(1)),ff(1))
                      call Pack_cc_idot(0,dcpl_mb(dng_cmp_smooth(1)),
      >                                   dcpl_mb(vcmp(1)),ff(2))
-                     write(*,*) "ff=",ff(1),ff(2)
+                     write(*,*) "ff=",ff(1)*omega,ff(2)*omega
                      call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
-     >                                               ff(1)+ff(2))
+     >                                              (ff(1)+ff(2))*omega)
                   end if
                   pcount = pcount + 1
                end do
