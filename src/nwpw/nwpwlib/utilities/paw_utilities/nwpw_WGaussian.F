@@ -43,10 +43,15 @@ c
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(2*la+1))
       y = dble(nwpw_doublefactorial(2*lb+1))
-      alpha = 0.25d0*(sa*sa + sb*sb)
+      alpha = dsqrt(0.25d0*(sa*sa + sb*sb))
       R = dsqrt(Rab(1)*Rab(1) + Rab(2)*Rab(2) + Rab(3)*Rab(3))
       cos_theta = Rab(3)/R
-      phi       = datan2(Rab(2),Rab(1))
+
+      if ((dabs(Rab(2)).lt.1.0d-9).and.(dabs(Rab(1)).lt.1.0d-9)) then
+         phi = 0.0d0
+      else
+         phi = datan2(Rab(2),Rab(1))
+      end if
 
       if (mod(2*la+lb,1).eq.1) then 
          c = -32.0d0*pi/(x*y)
@@ -118,7 +123,7 @@ c
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(2*la+1))
       y = dble(nwpw_doublefactorial(2*lb+1))
-      alpha = 0.25d0*(sa*sa + sb*sb)
+      alpha = dsqrt(0.25d0*(sa*sa + sb*sb))
 
       R = dsqrt(Rab(1)*Rab(1) + Rab(2)*Rab(2) + Rab(3)*Rab(3))
       cos_theta = Rab(3)/R

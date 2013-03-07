@@ -386,7 +386,7 @@
 
 
 *     ************************************************************
-*     *****  define indexing for hartree matrixi evalulations ****
+*     *****  define indexing for hartree matrix evalulations  ****
 *     ************************************************************
 
       if (.not.MA_alloc_get(mt_int,nkatm_paw,"nindx_hartree",
@@ -1440,10 +1440,8 @@ c      end
       integer l1,m1,l2,m2,iii,jjj,iia,jja
 
 *     **** external functions ****
-      integer  control_version
-      external control_version
-      real*8   ion_rion,ewald_nshl3d
-      external ion_rion,ewald_nshl3d
+      integer  control_version,ewald_nshl3d
+      external control_version,ewald_nshl3d
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
@@ -1522,6 +1520,7 @@ c      end
 *     **** local variables ****
       logical value
 
+
       call nwpw_gintegrals_set_gcount()
 
       value =           MA_alloc_get(mt_int,ngauss_max,"lm1_gauss",
@@ -1532,6 +1531,10 @@ c      end
      >                              iii1_gauss(2),iii1_gauss(1))
       value = value.and.MA_alloc_get(mt_int,ngauss_max,"iii2_gauss",
      >                              iii2_gauss(2),iii2_gauss(1))
+      value = value.and.MA_alloc_get(mt_dbl,ngauss_max,"e_gauss",
+     >                              e_gauss(2),e_gauss(1))
+      value = value.and.MA_alloc_get(mt_dbl,3*ngauss_max,"f_gauss",
+     >                              f_gauss(2),f_gauss(1))
       if (.not.value)
      > call errquit("nwpw_gintegrals_init:cannot allocate memory",
      >             0,MA_ERR)
@@ -1559,6 +1562,8 @@ c      end
       value = value.and.MA_free_heap(lm2_gauss(2))
       value = value.and.MA_free_heap(iii1_gauss(2))
       value = value.and.MA_free_heap(iii2_gauss(2))
+      value = value.and.MA_free_heap(e_gauss(2))
+      value = value.and.MA_free_heap(f_gauss(2))
       if (.not.value)
      > call errquit("nwpw_gintegrals_end:cannot allocate memory",
      >             0,MA_ERR)
@@ -1583,7 +1588,7 @@ c      end
 
 *     ***** local variables ****
       real*8 tole
-      parameter (tole=1.0d-12)
+      parameter (tole=1.0d-15)
 
       integer taskid,np,pcount
       integer ii,jj,ia,ja,indx
@@ -1601,6 +1606,7 @@ c      end
       external nwpw_doublefactorial
       integer  ewald_nshl3d,ewald_rcell_ptr
       external ewald_nshl3d,ewald_rcell_ptr
+
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
@@ -1636,7 +1642,7 @@ c      end
                 W2=nwpw_UGaussian(l1,m1,s1,l1,m1,sigma_smooth)
                 W4=nwpw_UGaussian(l1,m1,sigma_smooth,l1,m1,sigma_smooth)
                 e1 = 0.5d0*W1 + 0.5d0*W4 - W2
-               if (dabs(e1).gt.tole) then
+                if (dabs(e1).gt.tole) then
                   dbl_mb(e_gauss(1)+indx) = e1
                   int_mb(lm1_gauss(1)+indx) = (iii-1)*2*lm_size_max+ lm1
                   int_mb(lm2_gauss(1)+indx) = (iii-1)*2*lm_size_max+ lm1
@@ -1644,7 +1650,7 @@ c      end
                   int_mb(iii2_gauss(1)+indx) = iii
 
                   indx = indx + 1
-               end if
+                end if
                
             end if
             pcount = pcount + 1
@@ -1664,10 +1670,11 @@ c      end
                            W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s1,Rab)
                            W2 = nwpw_WGaussian(l1,m1,s1,
      >                                         l2,m2,sigma_smooth,Rab)
+c                           W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
+c     >                                         l2,m2,s1,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
-                           e1 = e1 + 0.5d0*W1 + 0.5d0*W4 - W2
-
+                           e1=e1+0.5d0*W1+0.5d0*W4-W2
                         end if
                      end do
                      if (dabs(e1).gt.tole) then
@@ -1731,26 +1738,26 @@ c      end
                            call nwpw_dWGaussian(l1,m1,s1,
      >                                          l2,m2,sigma_smooth,Rab,
      >                                          W2,dW2)
-c                           call nwpw_dWGaussian(l1,m1,sigma_smooth,
-c     >                                          l2,m2,s2,Rab,
-c     >                                          W3,dW3)
+                           call nwpw_dWGaussian(l1,m1,sigma_smooth,
+     >                                          l2,m2,s2,Rab,
+     >                                          W3,dW3)
                            call nwpw_dWGaussian(l1,m1,sigma_smooth,
      >                                          l2,m2,sigma_smooth,Rab,
      >                                          W4,dW4)
-                           e1 = e1 + W1 + W4 - 2*W2
-                           de1(1) = de1(1) + dW1(1) + dW4(1) - 2*dW2(1)
-                           de1(2) = de1(2) + dW1(2) + dW4(2) - 2*dW2(2)
-                           de1(3) = de1(3) + dW1(3) + dW4(3) - 2*dW2(3)
+                           e1 = e1 + W1 + W4 - W2 - W3
+                           de1(1)=de1(1)+dW1(1)+dW4(1)-dW2(1)-dW3(1)
+                           de1(2)=de1(2)+dW1(2)+dW4(2)-dW2(2)-dW3(2)
+                           de1(3)=de1(3)+dW1(3)+dW4(3)-dW2(3)-dW3(3)
 
                         else
                            W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s2,Rab)
                            W2 = nwpw_WGaussian(l1,m1,s1,
      >                                         l2,m2,sigma_smooth,Rab)
-c                        W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
-c     >                                      l2,m2,s2,Rab)
+                           W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
+     >                                      l2,m2,s2,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
-                           e1 = e1 + W1 + W4 - 2*W2
+                           e1 = e1 + W1 + W4 - W2 - W3
                         end if
                         end if
                      end do
@@ -1801,10 +1808,10 @@ c     >                                      l2,m2,s2,Rab)
 *
 *    This routine calulates the multipole energy defined by
 * 
-*                    //
-*    Emultipole  =  || (ncmp(r)-ncmp_smooth(r))*(ncmp(r')-ncmp_smooth(r'))
-*                   || ---------------------------------------------------  dr dr'
-*                   //                       |r-r'|
+*                         //
+*    Emultipole  = 0.5 * || (ncmp(r)-ncmp_smooth(r))*(ncmp(r')-ncmp_smooth(r'))
+*                        || ---------------------------------------------------  dr dr'
+*                        //                       |r-r'|
 *
 *    using two electron two center Gaussian Coulomb integrals.
 *
@@ -1821,6 +1828,7 @@ c     >                                      l2,m2,s2,Rab)
 *     **** local variables ****
       integer k,indx1up,indx1dn,indx2up,indx2dn
       real*8 E,q1,q2
+      integer iii,jjj,l1,m1,l2,m2
 
 
       E = 0.0d0
@@ -1829,9 +1837,21 @@ c     >                                      l2,m2,s2,Rab)
          indx1dn = indx1up + (ispin-1)*lm_size_max
          indx2up = int_mb(lm2_gauss(1)+k-1)
          indx2dn = indx2up + (ispin-1)*lm_size_max
+
+         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+
+
+
          q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
          q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
          E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
+
+         if (dabs(q1*q2*dbl_mb(e_gauss(1)+k-1)).gt.1.0d-15) then
+         write(*,'(A,6I4,E20.12,2E15.6)') "ii,li,mi,jj,lj,mj:",
+     >             iii,l1,m1,jjj,l2,m2,
+     >             dbl_mb(e_gauss(1)+k-1),q1,q2
+         end if 
       end do
       call Parallel_SumAll(E)
 
@@ -2070,5 +2090,26 @@ c     *********************************************
       end
 
 
+
+      subroutine nwpw_compcharge_indxiiilm(indx,iii,l,m)
+      implicit none
+      integer indx
+      integer iii,l,m
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+      integer lm
+
+      iii = indx/(2*lm_size_max) + 1
+      lm = indx - (iii-1)*2*lm_size_max
+      l = 0
+      do while ((lm+1) .gt. (l+1)**2)
+         l = l + 1
+      end do
+      m = lm - l*(l+1)
+      return
+      end
 
 
