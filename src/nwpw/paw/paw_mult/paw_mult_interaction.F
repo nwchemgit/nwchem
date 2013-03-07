@@ -380,7 +380,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       real*8 phase_factor2,phase_factor1, phase_factor
       real*8 const4_l,const2_l,const1_l,const,twopi
 
-      complex*16 f
+      complex*16 f,f2
 
       !**** external functions ****
       integer    paw_double_factorial
@@ -514,9 +514,9 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
        sigma_a = paw_basis_sigma(ia)
 
        sigma4 = dsqrt((sigma_smooth**2+sigma_a**2)/2)
+       sigma3 = dsqrt((sigma_a**2+sigma_smooth**2)/2)
        sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2)
        sigma1 = dsqrt((sigma_a**2+sigma_a**2)/2)
-
 
         il = 1
         do l1=0,mult_l
@@ -537,8 +537,67 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
               if ((l1.eq.l2).and.(m1.eq.(-m2)) ) then
                 mult_energy_coeff(ii,il,ii,ilp) = 
      >          mult_energy_coeff(ii,il,ii,ilp) + f
-
               end if
+
+              f2 = dcmplx(0.0d0,0.0d0)
+              do lshell=1,nshl3d
+                 R = dsqrt( (rcell(1,lshell))**2
+     >                    + (rcell(2,lshell))**2
+     >                    + (rcell(3,lshell))**2)
+
+                 if (R.gt.1.0d-9) then
+                 cos_theta = (rcell(3,nshl3d))/R
+                 if (  (dabs(rcell(2,lshell)).lt.1.0d-9) 
+     >           .and. (dabs(rcell(1,lshell)).lt.1.0d-9)) then
+                    phi = 0.0d0
+                 else
+                    phi = datan2(rcell(2,lshell),rcell(1,lshell))
+                 end if
+
+                 r_over_s4 = R/sigma4
+                 r_over_s3 = R/sigma3
+                 r_over_s2 = R/sigma2
+                 r_over_s1 = R/sigma1
+
+                 m = m1 + m2
+                 phase_factor4 = (-1)**(m1+l1)/sigma4**(l1+l2+1)
+                 phase_factor3 = (-1)**(m1+l1)/sigma3**(l1+l2+1)
+                 phase_factor2 = (-1)**(m1+l1)/sigma2**(l1+l2+1)
+                 phase_factor1 = (-1)**(m1+l1)/sigma1**(l1+l2+1)
+                 phase_factor  = 1.0d0
+                 do l=l1+l2,MAX(ABS(l1-l2),ABS(m1+m2)),-2
+
+                 !*** gaunt coefficent is non-zero ***
+                if ((m.eq.(m2+m1))       .and.
+     >              (mod(l+l2+l1,2).eq.0).and.
+     >              (l1.le.(l+l2))       .and.
+     >              (l1.ge.abs(l-l2)))    then
+                gaunt_coeff = gen_gaunt_coeff(l,m,l2,m2,l1,-m1)
+
+                p1 = (l1+l2+l)/2
+                f2=f2+  paw_get_mult_coeff(l1,l2,l)*phase_factor
+     >                  *gaunt_coeff*find_Y_lm(l,m,cos_theta,phi)
+     >                  *(
+     >  -(r_over_s4**l)
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s4)**2)*phase_factor4
+     > - (r_over_s3**l)
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s3)**2)*phase_factor3
+     > + (r_over_s2**l)
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s2)**2)*phase_factor2
+     > + (r_over_s1**l)
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s1)**2)*phase_factor1
+     >                   ) 
+                end if
+
+                 phase_factor = -phase_factor
+                 end do !*l*
+
+               end if !*R!=0*
+              end do !*lshell*
+
+              mult_energy_coeff(ii,il,ii,ilp) = 
+     >        mult_energy_coeff(ii,il,ii,ilp) + f2
+
 
               ilp = ilp+1
             end do !*m2*

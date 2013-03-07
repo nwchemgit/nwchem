@@ -160,6 +160,7 @@
       integer jj,ja,lj,mj,jl,jll,mult_lj
       integer nion,indx,lmax,lmax2
       real*8 e_mult
+      real*8 xxx
 
       call nwpw_timing_start(14)
       call Parallel_np(np)
