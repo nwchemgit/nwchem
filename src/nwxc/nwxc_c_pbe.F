@@ -15,7 +15,8 @@ C> \brief Evaluate the PBE correlation functional
 C>
 C> The PBE correlation functional [1,2] can be seen as a simplification
 C> of the PW91 functional [3,4]. The functional form is a 
-C> straightforward GGA.
+C> straightforward GGA. This routine also provide the correlation
+C> part of PBESOL [5,6].
 C>
 C> [1] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Generalized Gradient Approximation Made Simple"
@@ -43,11 +44,25 @@ C> Phys. Rev. B <b>40</b>, 3399-3399 (1989), DOI:
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
 C>
+C> [5] J.P. Perdew, A. Ruzsinszky, G.I. Csonka, O.A. Vydrov,
+C> G.E. Scuseria, L.A. Constantin, X. Zhou, K. Burke,
+C> "Restoring the density-gradient expansion for exchange in solids
+C> and surfaces", Phys. Rev. Lett. <b>100</b>, 136406-136409 (2008),
+C> DOI: <a href="http://dx.doi.org/10.1103/PhysRevLett.100.136406">
+C> 10.1103/PhysRevLett.100.136406</a>.
+C>
+C> [6] J.P. Perdew, A. Ruzsinszky, G.I. Csonka, O.A. Vydrov,
+C> G.E. Scuseria, L.A. Constantin, X. Zhou, K. Burke,
+C> "Erratum: Restoring the density-gradient expansion for exchange in solids
+C> and surfaces", Phys. Rev. Lett. <b>102</b>, 039902-039902 (2009),
+C> DOI: <a href="http://dx.doi.org/10.1103/PhysRevLett.102.039902">
+C> 10.1103/PhysRevLett.102.039902</a>.
+C>
 #ifndef SECOND_DERIV
-      Subroutine nwxc_c_pbe(tol_rho, ipol, nq, wght, rho, rgamma, 
+      Subroutine nwxc_c_pbe(param,tol_rho, ipol, nq, wght, rho, rgamma, 
      &                      ffunc, Amat, Cmat) 
 #else
-      Subroutine nwxc_c_pbe_d2(tol_rho, ipol, nq, wght, rho,
+      Subroutine nwxc_c_pbe_d2(param,tol_rho, ipol, nq, wght, rho,
      &                         rgamma, ffunc, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
@@ -59,6 +74,8 @@ c
 c
 c     Input and other parameters
 c
+      double precision param(*)!< [Input] Parameters of functional
+                               !< - param(1): \f$ \beta \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -90,7 +107,7 @@ c     Constants in PBE functional
 c
       double precision GAMMA, BETA, PI
       parameter (GAMMA = 0.03109069086965489503494086371273d0)
-      parameter (BETA = 0.06672455060314922d0)
+c     parameter (BETA = 0.06672455060314922d0)
 c     parameter (PI = 3.1415926535897932385d0)
 c
 c     Threshold parameters
@@ -201,6 +218,7 @@ c  d2...dna2, etc.
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
+      beta = param(1)
       pi = acos(-1.0d0)
 c
       do 20 n = 1, nq

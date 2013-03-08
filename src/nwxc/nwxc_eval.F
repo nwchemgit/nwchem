@@ -275,7 +275,7 @@ C
                        !< a function of ipol
 C
        integer max_param
-       parameter (max_param = 10)
+       parameter (max_param = 30)
        double precision param(max_param)
 C
        data nd1r / D1_RA,  D1_RB  /
@@ -331,17 +331,25 @@ C
      +                          nwxc_wghts(it),rho,f,dfdr)
            case (NWXCP_X_CAMPBE)
              param(1) = 0.8040d0
-             param(2) = nwxc_cam_alpha
-             param(3) = nwxc_cam_beta
-             param(4) = nwxc_cam_gamma
+             param(2) = 0.2195149727645171d0
+             param(3) = nwxc_cam_alpha
+             param(4) = nwxc_cam_beta
+             param(5) = nwxc_cam_gamma
              call nwxc_x_campbe(param,nwxc_rho_tol,ipol,nq,
      +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_PBE)
              param(1) = 0.8040d0
+             param(2) = 0.2195149727645171d0
+             call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_PBESOL)
+             param(1) = 0.8040d0
+             param(2) = 10.0d0/81.0d0
              call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_REVPBE)
              param(1) = 1.245d0
+             param(2) = 0.2195149727645171d0
              call nwxc_x_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_RPBE)
@@ -374,11 +382,31 @@ C
            case (NWXCP_C_PW91LDA)
              call nwxc_c_pw91lda(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                           rho,f,dfdr)
+           case (NWXCP_C_LYP)
+             call nwxc_c_lyp(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_PBE)
-             call nwxc_c_pbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+             param(1) = 0.066724550603149d0
+             call nwxc_c_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_PBESOL)
+             param(1) = 0.046d0
+             call nwxc_c_pbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_VS98)
-             call nwxc_c_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+             param(1)  =  7.035010d-01
+             param(2)  =  7.694574d-03
+             param(3)  =  5.152765d-02
+             param(4)  =  3.394308d-05
+             param(5)  = -1.269420d-03
+             param(6)  =  1.296118d-03
+             param(7)  =  3.270912d-01
+             param(8)  = -3.228915d-02
+             param(9)  = -2.942406d-02
+             param(10) =  2.134222d-03
+             param(11) = -5.451559d-03
+             param(12) =  1.577575d-02
+             call nwxc_c_vs98(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case (NWXCP_C_VWN1)
              call nwxc_c_vwn1(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),

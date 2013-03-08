@@ -82,10 +82,11 @@ c
 #include "nwxc_param.fh"
 c      
       double precision param(*)!< [Input] Parameters of functional
-                               !< - param(1): \f$ \mu_k \f$
-                               !< - param(2): \f$ \alpha_{CAM} \f$
-                               !< - param(3): \f$ \beta_{CAM} \f$
-                               !< - param(4): \f$ \omega_{CAM} \f$
+                               !< - param(1): \f$ \kappa \f$
+                               !< - param(2): \f$ \mu \f$
+                               !< - param(3): \f$ \alpha_{CAM} \f$
+                               !< - param(4): \f$ \beta_{CAM} \f$
+                               !< - param(5): \f$ \omega_{CAM} \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -121,7 +122,7 @@ c
 #endif
 c     parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
 c     parameter(ukrev=1.245d0, umkrev=um/ukrev)
-      parameter(um=0.2195149727645171d0)
+c     parameter(um=0.2195149727645171d0)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
 #ifdef SECOND_DERIV
       parameter (F73=7.d0/3.d0)
@@ -148,6 +149,7 @@ c     grpbe1(s)= 2d0*um*s*exp(-umk*s*s)
 c     grpbe2(s)= 2d0*um*exp(-umk*s*s)*(1d0-2d0*umk*s*s)
 c
       uk = param(1)
+      um = param(2)
       umk = um/uk
       pi = acos(-1.d0)
       C = -3d0/(4d0*pi)*(3d0*pi*pi)**F13
@@ -228,13 +230,13 @@ c           endif
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))*4d0
             C3tmp = rho43*d2g(3)*8d0
 c
-            call nwxc_x_att_d2(param(2),tol_rho,rho(n,R_T),ipol,
+            call nwxc_x_att_d2(param(3),tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp*wght
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp*wght
 #else
-            call nwxc_x_att(param(2),tol_rho,rho(n,R_T),ipol,
+            call nwxc_x_att(param(3),tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
@@ -319,13 +321,13 @@ c           endif
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))
             C3tmp = rho43*d2g(3)*0.5d0
 c
-            call nwxc_x_att_d2(param(2),tol_rho,rho(n,R_A),ipol,
+            call nwxc_x_att_d2(param(3),tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp*wght
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp*wght
 #else
-            call nwxc_x_att(param(2),tol_rho,rho(n,R_A),ipol,
+            call nwxc_x_att(param(3),tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
@@ -402,13 +404,13 @@ c
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))
             C3tmp =  rho43*d2g(3)*0.5d0
 c
-            call nwxc_x_att_d2(param(2),tol_rho,rho(n,R_B),ipol,
+            call nwxc_x_att_d2(param(3),tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp*wght
             Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp*wght
             Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp*wght
 #else
-            call nwxc_x_att(param(2),tol_rho,rho(n,R_B),ipol,
+            call nwxc_x_att(param(3),tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght

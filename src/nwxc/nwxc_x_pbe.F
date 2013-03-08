@@ -16,7 +16,9 @@ C>
 C> The PBE exchange functional [1,2] can be seen as a simplification
 C> of the PW91 functional [3,4]. The functional form is a 
 C> straightforward GGA. The functional parameters were later revised
-C> to achieve better atomization energies [5].
+C> to achieve better atomization energies [5]. Further revisions
+C> were introduced for solids and interfaces [6,7], and introducing
+C> exact exchange with PBE0 [8].
 C>
 C> ### References ###
 C>
@@ -52,6 +54,28 @@ C> (1998), DOI:
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.80.890">
 C> 10.1103/PhysRevLett.80.890</a>.
 C>
+C> [6] J.P. Perdew, A. Ruzsinszky, G.I. Csonka, O.A. Vydrov,
+C> G.E. Scuseria, L.A. Constantin, X. Zhou, K. Burke,
+C> "Restoring the density-gradient expansion for exchange in solids
+C> and surfaces", Phys. Rev. Lett. <b>100</b>, 136406-136409 (2008),
+C> DOI: <a href="http://dx.doi.org/10.1103/PhysRevLett.100.136406">
+C> 10.1103/PhysRevLett.100.136406</a>.
+C>
+C> [7] J.P. Perdew, A. Ruzsinszky, G.I. Csonka, O.A. Vydrov,
+C> G.E. Scuseria, L.A. Constantin, X. Zhou, K. Burke,
+C> "Erratum: Restoring the density-gradient expansion for exchange in
+C> solids and surfaces", Phys. Rev. Lett. <b>102</b>, 039902-039902
+C> (2009), DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevLett.102.039902">
+C> 10.1103/PhysRevLett.102.039902</a>.
+C>
+C> [8] C. Adamo, V. Barone,
+C> "Toward reliable density functional methods without adjustable
+C> parameters: The PBE0 model", J. Chem. Phys. <b>110</b>, 6158-6170
+C> (1999), DOI:
+C> <a href="http://dx.doi.org/10.1063/1.478522">
+C> 10.1063/1.478522</a>.
+C>
 #ifndef SECOND_DERIV
       Subroutine nwxc_x_pbe(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
@@ -69,7 +93,8 @@ c
 #include "nwxc_param.fh"
 c
       double precision param(*)!< [Input] Parameters of functional
-                               !< - param(1): \f$ \mu_k \f$
+                               !< - param(1): \f$ \kappa \f$
+                               !< - param(2): \f$ \mu \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -102,7 +127,7 @@ c
 #endif
 c     parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
 c     parameter(ukrev=1.245d0, umkrev=um/ukrev)
-      parameter(um=0.2195149727645171d0)
+c     parameter(um=0.2195149727645171d0)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
 #ifdef SECOND_DERIV
       parameter (F73=7.d0/3.d0)
@@ -131,6 +156,7 @@ c     grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
       
 c
       uk = param(1)
+      um = param(2)
       umk = um/uk
       pi = acos(-1.0d0)
       C = -3.0d0/(4.0d0*pi)*(3.0d0*pi*pi)**F13

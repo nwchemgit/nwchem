@@ -2,7 +2,7 @@ C> \ingroup nwxc
 C> @{
 C>
 C> \file nwxc_c_vs98.F
-C> Implementation of the VS98 exchange functional
+C> Implementation of the VS98 correlation functional
 C>
 C> @}
 C>
@@ -39,8 +39,8 @@ c                              ijzy - 3  M06-HF
 c                              ijzy - 4  M06
 c                              ijzy - 5  M06-2X
 c
-      Subroutine nwxc_c_vs98(tol_rho, ipol, nq, wght, rho, rgamma,  
-     &                       tau, func, Amat, Cmat, Mmat)
+      Subroutine nwxc_c_vs98(param, tol_rho, ipol, nq, wght, rho,
+     &                       rgamma, tau, func, Amat, Cmat, Mmat)
 c
 c$Id$
 c
@@ -53,9 +53,21 @@ c
 c
 #include "nwxc_param.fh"
 c
-c
 c     Input and other parameters
 c
+      double precision param(*) !< [Input] Parameters of functional (table 1)
+                                !< - param(1): \f$ a_{\sigma\sigma'} \f$
+                                !< - param(2): \f$ b_{\sigma\sigma'} \f$
+                                !< - param(3): \f$ c_{\sigma\sigma'} \f$
+                                !< - param(4): \f$ d_{\sigma\sigma'} \f$
+                                !< - param(5): \f$ e_{\sigma\sigma'} \f$
+                                !< - param(6): \f$ f_{\sigma\sigma'} \f$
+                                !< - param(7): \f$ a_{\sigma\sigma} \f$
+                                !< - param(8): \f$ b_{\sigma\sigma} \f$
+                                !< - param(9): \f$ c_{\sigma\sigma} \f$
+                                !< - param(10): \f$ d_{\sigma\sigma} \f$
+                                !< - param(11): \f$ e_{\sigma\sigma} \f$
+                                !< - param(12): \f$ f_{\sigma\sigma} \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -115,19 +127,19 @@ c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
 c     DTol=1.0d-7
       dtol=tol_rho
-C     Parameters for VS98 
-      r7=   7.035010d-01
-      r8=   7.694574d-03
-      r9=   5.152765d-02
-      r10=   3.394308d-05
-      r11=  -1.269420d-03
-      r12=   1.296118d-03
-      r13=   3.270912d-01
-      r14=  -3.228915d-02
-      r15=  -2.942406d-02
-      r16=   2.134222d-03
-      r17=  -5.451559d-03
-      r18=   1.577575d-02
+C     Parameters for VS98 / M06-L / M06-HF / M06 / M06-2X
+      r7=   param(1)
+      r8=   param(2)
+      r9=   param(3)
+      r10=  param(4)
+      r11=  param(5)
+      r12=  param(6)
+      r13=  param(7)
+      r14=  param(8)
+      r15=  param(9)
+      r16=  param(10)
+      r17=  param(11)
+      r18=  param(12)
 c
       Pi = F4*ATan(F1)
       F6=6.0d0

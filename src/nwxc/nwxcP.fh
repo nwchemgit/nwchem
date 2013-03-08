@@ -24,8 +24,11 @@ c
       integer NWXCP_X_B88        !< The Becke 1988  exchange functional
       parameter (NWXCP_X_B88 = NWXCP_X_SLATER + 1)
 c
+      integer NWXCP_X_B0         !< The B0 exchange functional
+      parameter (NWXCP_X_B0 = NWXCP_X_B88 + 1)
+c
       integer NWXCP_X_BNL        !< The BNL 2007  exchange functional
-      parameter (NWXCP_X_BNL = NWXCP_X_B88 + 1)
+      parameter (NWXCP_X_BNL = NWXCP_X_B0 + 1)
 c
       integer NWXCP_X_CAMB88     !< The CAM-B88 exchange functional
       parameter (NWXCP_X_CAMB88 = NWXCP_X_BNL + 1)
@@ -39,11 +42,20 @@ c
       integer NWXCP_X_PBE        !< The PBE exchange functional
       parameter (NWXCP_X_PBE = NWXCP_X_CAMPBE + 1)
 c
+      integer NWXCP_X_PBE0       !< The PBE0 exchange functional
+      parameter (NWXCP_X_PBE0 = NWXCP_X_PBE + 1)
+c
+      integer NWXCP_X_PBESOL     !< The PBESOL exchange functional
+      parameter (NWXCP_X_PBESOL = NWXCP_X_PBE0 + 1)
+c
       integer NWXCP_X_REVPBE     !< The REVPBE exchange functional
-      parameter (NWXCP_X_REVPBE = NWXCP_X_PBE + 1)
+      parameter (NWXCP_X_REVPBE = NWXCP_X_PBESOL + 1)
+c
+      integer NWXCP_X_REVPBE0    !< The REVPBE0 exchange functional
+      parameter (NWXCP_X_REVPBE0 = NWXCP_X_REVPBE + 1)
 c
       integer NWXCP_X_RPBE       !< The RPBE exchange functional
-      parameter (NWXCP_X_RPBE = NWXCP_X_REVPBE + 1)
+      parameter (NWXCP_X_RPBE = NWXCP_X_REVPBE0 + 1)
 c
       integer NWXCP_X_WPBE       !< The WPBE screened exchange functional
       parameter (NWXCP_X_WPBE = NWXCP_X_RPBE + 1)
@@ -54,8 +66,11 @@ c
       integer NWXCP_C_B95        !< The B95 correlation functional
       parameter (NWXCP_C_B95 = NWXCP_X_VS98 + 1)
 c
+      integer NWXCP_C_LYP        !< The LYP correlation functional
+      parameter (NWXCP_C_LYP = NWXCP_C_B95 + 1)
+c
       integer NWXCP_C_PW6B95     !< The PW6B95 correlation functional
-      parameter (NWXCP_C_PW6B95 = NWXCP_C_B95 + 1)
+      parameter (NWXCP_C_PW6B95 = NWXCP_C_LYP + 1)
 c
       integer NWXCP_C_PWB6K      !< The PWB6K correlation functional
       parameter (NWXCP_C_PWB6K = NWXCP_C_PW6B95 + 1)
@@ -66,8 +81,11 @@ c
       integer NWXCP_C_PBE        !< The PBE correlation functional
       parameter (NWXCP_C_PBE = NWXCP_C_PW91LDA + 1)
 c
+      integer NWXCP_C_PBESOL     !< The PBESOL correlation functional
+      parameter (NWXCP_C_PBESOL = NWXCP_C_PBE + 1)
+c
       integer NWXCP_C_VS98       !< The VS98 correlation functional
-      parameter (NWXCP_C_VS98 = NWXCP_C_PBE + 1)
+      parameter (NWXCP_C_VS98 = NWXCP_C_PBESOL + 1)
 c
       integer NWXCP_C_VWN1       !< The VWN1 correlation functional
       parameter (NWXCP_C_VWN1 = NWXCP_C_VS98 + 1)
@@ -87,21 +105,49 @@ c
       integer NWXCP_C_VWN5       !< The VWN5 correlation functional
       parameter (NWXCP_C_VWN5 = NWXCP_C_VWN4 + 1)
 c
+      integer NWXCP_B3LYP        !< The B3LYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B3LYP = NWXCP_C_VWN5 + 1)
+c
+      integer NWXCP_B3PW91       !< The B3PW91 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B3PW91 = NWXCP_B3LYP + 1)
+c
+      integer NWXCP_B0LYP        !< The B0LYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B0LYP = NWXCP_B3PW91 + 1)
+c
+      integer NWXCP_BLYP         !< The BLYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BLYP = NWXCP_B0LYP + 1)
+c
       integer NWXCP_LDA          !< The LDA functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_LDA = NWXCP_C_VWN5 + 1)
+      parameter (NWXCP_LDA = NWXCP_BLYP + 1)
 c
       integer NWXCP_PBE          !< The PBE functional 
                                  !< (exchange and correlation)
       parameter (NWXCP_PBE = NWXCP_LDA + 1)
 c
+      integer NWXCP_PBE0         !< The PBE0 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBE0 = NWXCP_PBE + 1)
+c
+      integer NWXCP_PBESOL       !< The PBESOL functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBESOL = NWXCP_PBE0 + 1)
+c
       integer NWXCP_REVPBE       !< The REVPBE functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_REVPBE = NWXCP_PBE + 1)
+      parameter (NWXCP_REVPBE = NWXCP_PBESOL + 1)
+c
+      integer NWXCP_REVPBE0      !< The REVPBE0 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_REVPBE0 = NWXCP_REVPBE + 1)
 c
       integer NWXCP_RPBE         !< The RPBE functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_RPBE = NWXCP_REVPBE + 1)
+      parameter (NWXCP_RPBE = NWXCP_REVPBE0 + 1)
 c
       integer NWXCP_HSE          !< The HSE functional 
                                  !< (exchange and correlation)

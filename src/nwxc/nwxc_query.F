@@ -378,6 +378,8 @@ c
          case (NWXCP_X_SLATER)
            cdata = "Slater Exchange (JC Slater, Phys.Rev. 81, 385 "
      +             //"(1951) doi:10.1103/PhysRev.81.385)"
+         case (NWXCP_X_B0)
+           cdata = "Becke0 Exchange (ACM0 variant of Becke88)"
          case (NWXCP_X_B88)
            cdata = "Becke88 Exchange (AD Becke, "
      +             //"Phys.Rev.A 38, 3098 (1988)"
@@ -402,10 +404,21 @@ c
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXCP_X_PBE0)
+           cdata = "PBE0 Exchange (C Adamo, V Barone, "
+     +             //"J.Chem.Phys. 110, 6158 (1999)"
+     +             //" doi:10.1063/1.478522)"
+         case (NWXCP_X_PBESOL)
+           cdata = "PBESOL Exchange (JP Perdew, A Ruzsinszky, "
+     +             //"GI Csonka, et al., "
+     +             //"Phys.Rev.Lett. 100, 136406 (2008)"
+     +             //" doi:10.1103/PhysRevLett.100.136406)"
          case (NWXCP_X_REVPBE)
            cdata = "revPBE Exchange (Y Zhang, W Yang, "
      +             //"Phys.Rev.Lett. 80, 890 (1998)"
      +             //" doi:10.1103/PhysRevLett.80.890)"
+         case (NWXCP_X_REVPBE0)
+           cdata = "revPBE0 Exchange (ACM0 variant of REVPBE Exchange)"
          case (NWXCP_X_RPBE)
            cdata = "RPBE Exchange (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
@@ -434,10 +447,19 @@ c
            cdata = "PW91 LDA Correlation (JP Perdew, Y Wang, "
      +             //"Phys.Rev.B 45, 13244 (1992)"
      +             //" doi:10.1103/PhysRevB.45.13244)"
+         case (NWXCP_C_LYP)
+           cdata = "LYP Correlation (C Lee, W Yang, RG Parr, "
+     +             //"Phys.Rev.B 37, 785 (1988)"
+     +             //" doi:10.1103/PhysRevB.37.785)"
          case (NWXCP_C_PBE)
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXCP_C_PBESOL)
+           cdata = "PBESOL Correlation (JP Perdew, A Ruzsinszky, "
+     +             //"GI Csonka, et al., "
+     +             //"Phys.Rev.Lett. 100, 136406 (2008)"
+     +             //" doi:10.1103/PhysRevLett.100.136406)"
          case (NWXCP_C_VS98)
            cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
@@ -460,6 +482,17 @@ c
          case (NWXCP_C_VWN5)
            cdata = "VWN5 Correlation (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_B3LYP)
+           cdata = "B3LYP (PJ Stephens, FJ Devlin, CF Chabalowski, "
+     +             //"MJ Frisch, J.Phys.Chem. 98, 11623 (1994) "
+     +             //"doi:10.1021/j100096a001)"
+         case (NWXCP_B3PW91)
+           cdata = "B3PW91 (AD Becke, J.Chem.Phys. 98, 5648 (1993) "
+     +             //"doi:10.1063/1.464913)"
+         case (NWXCP_BLYP)
+           cdata = "BLYP"
+         case (NWXCP_B0LYP)
+           cdata = "B0LYP (ACM0 variant of BLYP)"
          case (NWXCP_LDA)
            cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
@@ -471,10 +504,21 @@ c
            cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
      +             //" doi:10.1103/PhysRevLett.77.3865)"
+         case (NWXCP_PBE0)
+           cdata = "PBE0 (C Adamo, V Barone, "
+     +             //"J.Chem.Phys. 110, 6158 (1999)"
+     +             //" doi:10.1063/1.478522)"
+         case (NWXCP_PBESOL)
+           cdata = "PBESOL (JP Perdew, A Ruzsinszky, "
+     +             //"GI Csonka, et al., "
+     +             //"Phys.Rev.Lett. 100, 136406 (2008)"
+     +             //" doi:10.1103/PhysRevLett.100.136406)"
          case (NWXCP_REVPBE)
            cdata = "revPBE (Y Zhang, W Yang, "
      +             //"Phys.Rev.Lett. 80, 890 (1998)"
      +             //" doi:10.1103/PhysRevLett.80.890)"
+         case (NWXCP_REVPBE0)
+           cdata = "revPBE0 (ACM0 variant of revPBE)"
          case (NWXCP_RPBE)
            cdata = "RPBE (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
