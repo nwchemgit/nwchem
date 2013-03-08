@@ -270,7 +270,7 @@ c
          itol2e = itol_max
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
-         iswitc = iswitc+1
+         if(iter.ge.nfock/2)iswitc = iswitc+1
       else
          iswitc=0
       endif
