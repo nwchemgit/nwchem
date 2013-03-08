@@ -11,6 +11,10 @@ c $Id$
 c
       integer i,ii
       util_mirrmat=.false.
+#ifdef DISABLE_GAMIRROR
+#warning disabling gamirror
+      return
+#endif
 c     need to add sanity check on docopy vs dozero
       do i=1,nmat
          if(util_mirrclone(g_a(i),g_amirr(i))) then

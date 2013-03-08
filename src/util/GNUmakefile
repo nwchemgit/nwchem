@@ -103,7 +103,7 @@ ifeq ($(_CPU),ia64)
   EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o erfc.o
 endif
 ifeq ($(_CPU),x86_64)
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o  linux_setfpucw.o
+  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o  linux_setfpucw.o linux_printaff.o
   ifeq ($(FC),pathf90)
     EXTRA_OBJ += util_cflush.o
   endif
@@ -252,6 +252,9 @@ ifdef SLURM
   DEFINES += -DSLURM
 endif
 
+ifdef DISABLE_GAMIRROR
+  DEFINES += -DDISABLE_GAMIRROR
+endif
 ifdef USE_NOFSCHECK
   DEFINES += -DNOFSCHECK
 endif
