@@ -101,8 +101,6 @@ c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
       integer s2
       integer g_civec
       integer g_pvec
-c$$$      double precision civec(nstrb,nstra)
-c$$$      double precision pvec(nstrb,nstra)
 c
 c
 c
@@ -110,19 +108,19 @@ c
       integer iib, jjb
       integer eij(detci_maxorb,detci_maxorb)
       integer pij(detci_maxorb,detci_maxorb)
-      integer occa(detci_maxorb),occb(detci_maxorb)
-      integer elva(detci_maxelec), elvb(detci_maxelec)
       integer alo, ahi, blo, bhi, l_xxci, k_xxci
       integer next, node, numnode
       double precision fac, s, k, xxci, xx, fc
+      integer scat_dim, k_ia, l_ia, k_ib, l_ib, k_xa, l_xa
+      integer isc, offset, bdim
+      double precision val
 c
+      isc = 0
       s = 0.5d0*s2
       k = 0.5d0*k2
       fac = 0.25d0*(nela - nelb)**2 + 0.5d0*(nela + nelb) - s*(s+1)
       fc  = 1.d0/(k*(k+1) - s*(s+1))
-      fac = fac*fc
       node = ga_nodeid()
-      call ga_zero(g_pvec)
 c
 c
 c  Lowdin projection operator:
@@ -141,16 +139,40 @@ c           1        2   1            b  a
 c         = -(n - n )  + -(n + n ) - E  E
 c           4  a   b     2  a   b     ij ji
 c
+c  Scale vector by denominator:
+c
+c  Denominator         1
+c               ---------------
+c               k(k+1) - s(s+1)
+c
+      call ga_dscal(g_civec,fc)
+c
+c                      1         2    1
+c  Trivial components  -(n  - n )  +  -(n - n ) - s(s + 1)
+c                      4  a    b      2  a   b
+c
+      call ga_dadd(fac, g_civec, 0.0d0, g_pvec, g_pvec)
 c
 c                                b  a
 c  Apply permutation operator  -E  E    for all i,j open shell
 c                                ij ji                
 c  Loop over CI vector
 c
-      call ga_distribution( g_civec, node, blo, bhi, alo, ahi )
-      if (.not.ma_push_get(MT_DBL, (bhi-blo+1), 'detci:lowdin',
-     $                     l_xxci, k_xxci))
-     $    call errquit('detci: cannot allocate lowdin',0, MA_ERR)
+      call ga_distribution(g_civec, node, blo, bhi, alo, ahi )
+      call ga_access(g_civec, blo, bhi, alo, ahi, k_xxci, bdim)
+c
+c  Allocate scatter data block and pointer blocks
+c
+      scat_dim = 40000
+      if (.not.ma_push_get(MT_DBL, scat_dim, 'detci:lowdin',
+     $                     l_xa, k_xa))
+     $    call errquit('detci: cannot allocate xa lowdin',0, MA_ERR)
+      if (.not.ma_push_get(MT_INT, scat_dim, 'detci:lowdin',
+     $                     l_ib, k_ib))
+     $    call errquit('detci: cannot allocate ib lowdin',0, MA_ERR)
+      if (.not.ma_push_get(MT_INT, scat_dim, 'detci:lowdin',
+     $                     l_ia, k_ia))
+     $    call errquit('detci: cannot allocate ia lowdin',0, MA_ERR)
       do istra = alo, ahi
          call ifill((detci_maxorb*detci_maxorb),0,eij,1)
          call ifill((detci_maxorb*detci_maxorb),0,pij,1)
@@ -158,25 +180,43 @@ c
            eij(exa(6,iex,istra),exa(5,iex,istra)) = exa(1,iex,istra)
            pij(exa(6,iex,istra),exa(5,iex,istra)) = exa(4,iex,istra)
          enddo
-         call ga_get(g_civec,blo,bhi,istra,istra,dbl_mb(k_xxci),1)
-         call ga_acc(g_pvec,blo,bhi,istra,istra,dbl_mb(k_xxci),1,fac)
+         offset=(istra-alo)*bdim-blo
          do istrb = blo, bhi
-            do iex=1,nexb
-              iib = exb(5,iex,istrb)
-              jjb = exb(6,iex,istrb)
-              if (eij(iib,jjb).ne.0) then
-                jstrb = exb(1,iex,istrb)
-                jstra = eij(iib,jjb)
-                xx = -dbl_mb(k_xxci+istrb-blo)*pij(iib,jjb)
-     &               *exb(4,iex,istrb)*fc
-                if (dabs(xx).gt.1.0d-12)
-     &             call ga_acc(g_pvec,jstrb,jstrb,jstra,jstra,xx,1,1.d0)
-              endif
-            enddo
+            val = -dbl_mb(k_xxci+offset+istrb)
+            if (dabs(val).gt.1.0d-14) then 
+               do iex=1,nexb
+                  iib = exb(5,iex,istrb)
+                  jjb = exb(6,iex,istrb)
+                  if ((eij(iib,jjb).ne.0).and.(pij(iib,jjb).ne.0)) then
+                    jstrb = exb(1,iex,istrb)
+                    jstra = eij(iib,jjb)
+                    xx = val*pij(iib,jjb)*exb(4,iex,istrb)
+                    if (dabs(xx).gt.1.0d-14) then
+                       isc=isc+1
+                       dbl_mb(k_xa+isc-1)=xx
+                       int_mb(k_ib+isc-1)=jstrb
+                       int_mb(k_ia+isc-1)=jstra
+                       if (isc.eq.scat_dim) then
+                          call ga_scatter_acc(g_pvec,dbl_mb(k_xa),
+     &                           int_mb(k_ib),int_mb(k_ia),isc,1.0d0)
+                          isc=0
+                       endif
+                    endif
+                  endif
+               enddo
+            endif
          enddo
       enddo
-      if (.not.ma_pop_stack(l_xxci))
-     $   call errquit('cannot pop stack detci:lowdin',0, MA_ERR)
+      if (isc.gt.0) call ga_scatter_acc(g_pvec,dbl_mb(k_xa),
+     &                             int_mb(k_ib),int_mb(k_ia),isc,1.0d0)
+      call ga_release(g_civec, blo, bhi, alo, ahi)
+      call ga_sync()
+      if (.not.ma_pop_stack(l_ia))
+     $   call errquit('cannot pop stack ia detci:lowdin',0, MA_ERR)
+      if (.not.ma_pop_stack(l_ib))
+     $   call errquit('cannot pop stack ib detci:lowdin',0, MA_ERR)
+      if (.not.ma_pop_stack(l_xa))
+     $   call errquit('cannot pop stack xa detci:lowdin',0, MA_ERR)
 c
 c  End loop over CI vector
 c
