@@ -9,8 +9,8 @@ rt_tddft_init_rtdb.o \
 rt_tddft_init_check_params.o \
 rt_tddft_init_overlap_canorg.o \
 rt_tddft_init_common.o \
-rt_tddft_clean.o
-
+rt_tddft_clean.o \
+task_rt_tddft.o 
 
 OBJ_OPTIMIZE = 
 

@@ -1983,6 +1983,43 @@ c !!! BGJ
       endif
 c !!! BGJ
 c
+
+#if 0
+C---------------------------------------------------------------------------
+C     KAL
+C     NOTE: place just before destroying g_focks in dft_scf.F
+C
+C     Dump matrices to file for later comparison
+C     
+      if (ipol .eq. 1) then
+         call zmat_compare_dump_purereal(g_focks(1), "fock_cs_gs")
+         call zmat_compare_dump_purereal(g_dens(1), "dens_cs_gs")
+
+         if (do_zora) then
+            call zmat_compare_dump_purereal(g_zora_sf(1),"g_zora_cs_sf")
+         endif
+
+      else
+         call zmat_compare_dump_purereal(g_focks(1), "fock_alpha_gs")
+         call zmat_compare_dump_purereal(g_dens(1), "dens_alpha_gs")
+
+         call zmat_compare_dump_purereal(g_focks(2), "fock_beta_gs")
+         call zmat_compare_dump_purereal(g_dens(2), "dens_beta_gs")
+
+         if (do_zora) then
+            call zmat_compare_dump_purereal(g_zora_sf(1),
+     $           "g_zora_alpha_sf")
+            call zmat_compare_dump_purereal(g_zora_sf(2),
+     $           "g_zora_beta_sf")
+         endif
+      endif
+C
+C     KAL
+C---------------------------------------------------------------------------
+#endif      
+
+
+      
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
       if (.not. ga_destroy(g_focks(1))) call errquit

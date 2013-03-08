@@ -40,6 +40,64 @@ c
       call grid_cleanup(.true.)
 c
       end
+
+      
+C
+C     == DFT RT_TDDFT ==
+C
+      logical function dft_rt_tddft(rtdb)
+
+      implicit none
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+      integer rtdb
+
+      logical nwdft
+      external nwdft
+      logical status
+
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
+
+      if (.not. rtdb_put(rtdb,'dft:lrt_tddft',mt_log,1,.true.))
+     &    call errquit('dft_rt_tddft: rtdb_put failed',0,RTDB_ERR)
+
+      dft_rt_tddft = nwdft (rtdb)
+      call grid_cleanup(.true.)
+
+      end
+
+      
+C
+C     == SODFT RT_TDDFT ==
+C
+      logical function sodft_rt_tddft(rtdb)
+
+      implicit none
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+      integer rtdb
+
+      logical nwdft
+      external nwdft
+      logical status
+
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
+
+      if (.not. rtdb_put(rtdb,'dft:lrt_tddft',mt_log,1,.true.))
+     &    call errquit('dft_rt_tddft: rtdb_put failed',0,RTDB_ERR)
+
+      sodft_rt_tddft = nwdft(rtdb)
+      call grid_cleanup(.true.)
+
+      end
+
+      
 c
 c     == Main DFT driver ==
       logical function nwdft(rtdb)
@@ -81,6 +139,10 @@ c
       logical lrt_tddft
       character*32 pname
       integer nclosed, nopen
+
+      logical rt_tddft
+      external rt_tddft
+      
 c     
       pname = "nwdft:"
       nwdft = .false.
@@ -198,8 +260,8 @@ c
                   call util_flush(Luout)
                endif
                converged = .true.
-               nwdft = .true.
-               goto 1101
+               nwdft = .true
+               if (.not. lrt_tddft) goto 1101
             endif
          endif
       endif
@@ -273,7 +335,13 @@ c
 #ifdef GA_TRACE
         call trace_init(100000)                       ! initialize trace
 #endif
-        nwdft = dft_main0d(rtdb)
+
+        if (lrt_tddft) then
+           nwdft = rt_tddft (rtdb)
+        else
+           nwdft = dft_main0d(rtdb)
+        endif
+
 #ifdef GA_TRACE
         call trace_end(ga_nodeid())                   ! end trace
 #endif

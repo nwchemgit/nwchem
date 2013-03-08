@@ -207,13 +207,15 @@ C      call rt_tddft_print_notice ("Disabled init MO Fock check")
 C
 C     Check that this Fock matrix is consistent with SCF Fock matrix.
 C
-      call zmat_compare_and_print (params%ns_ao, g_zfock_ao,
-     $     "fock_cs_gs", params%tol_zero,
-     $     "GS and RT-TDDFT Fock matrices")
 
-      call zmat_compare_and_print (params%ns_ao, g_zdens_ao,
-     $     "dens_cs_gs", params%tol_zero,
-     $     "GS and RT-TDDFT density matrices")
+C     (disabled for now; uncomment in dft_scf.F
+c$$$      call zmat_compare_and_print (params%ns_ao, g_zfock_ao,
+c$$$     $     "fock_cs_gs", params%tol_zero,
+c$$$     $     "GS and RT-TDDFT Fock matrices")
+c$$$
+c$$$      call zmat_compare_and_print (params%ns_ao, g_zdens_ao,
+c$$$     $     "dens_cs_gs", params%tol_zero,
+c$$$     $     "GS and RT-TDDFT density matrices")
 
 
 C
