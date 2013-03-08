@@ -260,7 +260,7 @@ c
                   call util_flush(Luout)
                endif
                converged = .true.
-               nwdft = .true
+               nwdft = .true.
                if (.not. lrt_tddft) goto 1101
             endif
          endif

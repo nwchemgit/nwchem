@@ -15,11 +15,7 @@ rt_tddft_excite.o \
 rt_tddft_checkpoint.o \
 rt_tddft_zora_scale.o \
 rt_tddft_project.o \
-dft_gradients_MOD.o \
-grad_force_MOD.o \
 rt_tddft_zdens_tot_movecs.o
-
-
 
 OBJ_OPTIMIZE = 
 
