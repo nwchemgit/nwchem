@@ -1,0 +1,16 @@
+      logical, external :: mat_is_symmetric
+      logical, external :: mat_is_idempotent
+      logical, external :: mat_is_hermitian
+      logical, external :: mat_is_tracex
+      logical, external :: mat_is_same
+      logical, external :: mat_is_ident
+      logical, external :: mat_is_purereal
+      logical, external :: mat_is_unitary
+      logical, external :: mat_is_posneg
+
+      logical, external :: dmat_io_dump
+      logical, external :: dmat_io_read
+
+      double precision, external        :: mat_norm
+      double precision, external        :: zmat_checksum
+

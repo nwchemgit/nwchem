@@ -1,0 +1,320 @@
+C> @file rt_tddft.fh
+C> @ingroup rt_tddft
+
+C
+C     Preprocessor macros.
+C
+
+#define halt()                  halt_fl(__FILE__,__LINE__)
+#define rt_tddft_cs_confirm(p)  rtcscfl(p,__FILE__,__LINE__)
+#define rt_tddft_os_confirm(p)  rtoscfl(p,__FILE__,__LINE__)
+#define rt_tddft_so_confirm(p)  rtsocfl(p,__FILE__,__LINE__)
+
+
+C
+C     Universal constants.
+C     
+      double precision, parameter :: dpi = 3.14159265358979323846d0
+      double complex, parameter   :: z0 = (0d0, 0d0)
+      double complex, parameter   :: zi = (0d0, 1d0)
+      double complex, parameter   :: zni = (0d0, -1d0)
+      double complex, parameter   :: z1 = (1d0, 0d0)
+      double complex, parameter   :: zn1 = (-1d0, 0d0)
+      double complex, parameter   :: zhalf = (0.5d0, 0d0)
+      double complex, parameter   :: znhalf = (-0.5d0, 0d0)
+      double complex, parameter   :: z2 = (2d0, 0d0)
+C      character(*), parameter     :: out_tag = "<rt_tddft>: "
+      
+
+C
+C     Unit conversions.
+C
+      double precision, parameter :: au2fs = 0.024189d0    ! au time to femtoseconds
+      double precision, parameter :: au2vnm = 514.21d0     ! au elec field to V/nm
+      double precision, parameter :: au2debye = 2.541746d0 ! au dip mom to debye
+      double precision, parameter :: au2ev = 27.2114       ! au energy to eV
+      double precision, parameter :: deg2rad = 180d0 / dpi ! 1 deg in radians
+
+
+C
+C     Hardcoded limits to the number of geometries, fields, and
+C     excitation rules.  I think 100 is a sane choice (that is the
+C     default max number of geoms in nwchem).  I chose hardcoded max
+C     numbers since each of these are derived data types, and therefore
+C     there is no MA routine for allocating them.
+C
+      integer, parameter          :: rt_max_geoms = 100
+      integer, parameter          :: rt_max_fields = 100
+      integer, parameter          :: rt_max_excites = 100
+
+      
+
+C
+C     Vector for field, dipoles, etc.
+C
+      type :: rt_vector_t
+         double precision :: x, y, z
+      end type rt_vector_t
+
+      
+C
+C     "half" of a 3x3 tensor (for quadrupole quantities)
+C
+      type :: rt_quad_t
+         double precision :: xx, xy, xz, yy, yz, zz
+      end type rt_quad_t
+
+
+C
+C     Handles for vector GA's
+C
+      type :: rt_vector_handle_t
+         integer :: x, y, z
+      end type rt_vector_handle_t
+
+
+C
+C     Handles for quadrupole GA's
+C
+      type :: rt_quad_handle_t
+         integer :: xx, xy, xz, yy, yz, zz
+      end type rt_quad_handle_t
+
+
+C
+C     Geometry fragments.
+C
+      type :: rt_geom_t
+         character*16       :: name
+         integer            :: ncent
+         integer            :: g_mask     !dbl, nbf_ao x nbf_ao, allocd in rt_tddft_init_geoms
+         integer            :: nbf        !number basis functions with center in this geom
+         double precision   :: charge_nuc !total nuclear charge
+         type(rt_vector_t)  :: ndip       !nuclear dipole moment
+         logical            :: measure
+         type(rt_vector_t)  :: vec(2)     !tot appl field on this geom at this t; alpha,beta
+         type(rt_quad_t)    :: quad       !tot appl field gradient this geom at this t
+      end type rt_geom_t
+
+
+C
+C     Time-dependent system energies.
+C
+      type :: rt_energies_t
+         double precision     :: core        
+         double precision     :: coul
+         double precision     :: xc(2)
+         double precision     :: tot
+         double precision     :: gs   ! ground state energy
+      end type rt_energies_t
+
+
+C
+C     Contains parameters for an external field (excitation)
+C
+      type :: rt_field_t
+         character(16)     :: name         !hardcoded to match geom name max
+         character(20)     :: type
+         character(2)      :: polarization !x,y,z for dipole, xx, xy, ... for quad
+         character         :: spin         !"a"-alpha, "b"-beta, "t"-total
+         double precision  :: center
+         double precision  :: width
+         double precision  :: frequency
+         double precision  :: max
+         double precision  :: phase
+         type(rt_vector_t) :: vec(2)       ! value of field at this t; alpha, beta spins
+         type(rt_quad_t)   :: quad         ! value of field gradient at this t !XXX alpha,beta
+      end type rt_field_t
+
+
+C     
+C     Rule for applying field
+C
+      type :: rt_excite_t
+         integer           :: field_indx
+         integer           :: geom_indx
+         integer           :: ao_indx
+      end type rt_excite_t
+
+
+C
+C     Struct containing all time-invarient parameters and GA handles
+C     that are set once and do not change after that.  These include
+C     those used in complex Fock build, tranformations, dipole
+C     integrals, propagation parameters etc.
+C
+C     Note there are two set of sizes for the matrices.  nbf_ao and
+C     nbf_mo are the number of basis functions in the AO and MO bases
+C     (dictated by the number of basis and canorg results), whereas
+C     ns_ao and ns_mo are the "super matrix" size of the Fock, density,
+C     transform, etc matrices.  For open and close shell, ns_ao = nbf_ao
+C     and ns_mo = nbf_mo, whereas for spin orbit ns_ao = 2*nbf_ao and
+C     ns_mo = 2*nbf_mo.  In general, all calculations are carried out
+C     using "super" matrices.
+C
+C
+      type :: rt_params_t
+         integer          :: rtdb
+
+         character(len=24):: tag
+
+C     (theory:  "CS"=closed shell, "OS"=open shell, "SO"=spin orbit)
+         character(len=2) :: theory
+
+C     (override DFT disk settings)
+         logical          :: nodisk
+
+C     (tolerances)
+         double precision :: tol_zero 
+         double precision :: tol_series
+         double precision :: tol_interpol         
+         double precision :: d_conv         ! SCF density convergence
+         integer          :: terms_series   !num terms need to convergence in series
+         integer          :: terms_interpol !num terms need to convergence in interpolation
+
+
+C     (handle for AO basis)
+         integer          :: ao_bas_han
+
+
+C     (profiling and checking)
+         logical          :: prof
+         integer          :: checklvl    !1=base checks, 2=extra, 3=pedantic
+
+         
+C     (flag for skipping propagation, useful to post-process)
+         logical          :: noprop
+
+         
+C     (which time-dependent system properties to print)
+         logical          :: print_dipole
+         logical          :: print_quad
+         logical          :: print_field
+         logical          :: print_moocc
+         logical          :: print_energy
+         logical          :: print_cputime
+         logical          :: print_charge
+         logical          :: print_convergence
+         logical          :: print_s2
+
+         
+C     (post-processing dens mat snapshots using dplot)
+         logical          :: viz_dplot ! do the post-processing?
+         logical          :: viz_subgs ! subtract the ground state from dens plots
+         double precision :: viz_tstart
+         double precision :: viz_tend
+         double precision :: viz_treference
+         logical          :: viz_active
+
+C     (xyz output of TD geometry when moving nuclei)
+         logical          :: print_xyz         
+         
+         
+C     (Fock build params)
+         integer          :: ipol
+         logical          :: iolgc
+         integer          :: natoms
+         integer          :: nalpha, nbeta  !number of alpha,beta electrons
+         integer          :: ntotel
+         integer          :: syscharge
+         integer          :: nExc
+         integer          :: iVxc_opt
+         integer          :: iVcoul_opt
+         double precision :: tol2e_re !2e schwartz tolerance for real matrices
+         double precision :: tol2e_im !2e schwartz tolerance for imag matrices (eg im part of exact exchange)
+
+         
+C     (dummy Fock params)
+         integer          :: g_vxc(4)  !one element before cs,os refactor
+         integer          :: g_xcinv
+         double precision :: rho_n
+
+         
+C     (charge density fitting for Coulomb part of Fock matrix)
+         integer          :: n_batch
+         integer          :: l_3ceri, k_3ceri   !dbl
+         integer          :: n3c_int
+         integer          :: l_3cwhat, k_3cwhat !int
+         integer          :: n3c_dbl
+         integer          :: iwhat_max
+         integer          :: n_semi_bufs
+         integer          :: fd
+
+         
+C     (matrix sizes)
+         integer          :: nbf_ao  ! num atomic orbitals
+         integer          :: nbf_mo  ! num MO; nbf_nmo < nbf_nao if we have lin. dep.
+         integer          :: ns_ao   ! AO basis matrix size (CS/OS: nbf_ao, SO: 2*nbf_ao)
+         integer          :: ns_mo   ! MO basis matrix size (CS/OS: nbf_mo, SO: 2*nbf_mo)
+
+         
+C     (canonical orthogonalization transforms, etc)
+         integer          :: g_zX    ! dcpl X trans mat; ns_ao x ns_mo; allocd in canorg
+         integer          :: g_zY    ! dcpl Y trans mat P->P'; ns_ao x ns_mo; allocd in canorg
+         integer          :: g_s     ! overlap matrix; nbf_ao x nbf_ao; allocd in canorg
+
+         
+         integer          :: g_s12   ! XXX TMP
+         integer          :: g_sn12  ! XXX TMP
+         integer          :: g_zcommut !XXX TMP
+
+
+         
+C     (center of mass--origin of system)
+         double precision :: origin(3)
+
+         
+C     (dipole and quadrupole integrals)
+         type(rt_vector_handle_t) :: g_dip  ! nbf_ao x nbf_ao dipole mats; allocd in init
+         type(rt_quad_handle_t)   :: g_quad ! nbf_ao x nbf_ao quadrupole mats; allocd in init
+
+         
+C     (time and propagator options)
+         double precision :: dt          ! time step
+         double precision :: tmin        ! starting time
+         double precision :: tmax        ! end time
+         integer          :: nt          ! total num time steps
+         integer          :: prop_method ! 1=euler, 2=rk4, 3=2nd order magnus
+         integer          :: exp_method  ! 1=pseries, 2=diag, 3=bch (disabled)
+
+         
+C     (printing options)
+         integer          :: nchecks     ! number of checks we do
+         integer          :: nprints     ! number of outputs
+         integer          :: nsnapshots  ! number of dens mat snapshots
+         integer          :: nrestarts   ! number of restart points
+         integer          :: nestims     ! number of estimated time remaining prints
+
+         
+C     (geometries)
+         integer         :: geom_active         ! internal index for active geometry
+         integer         :: geom_active_handle  ! geom handle for active geometry
+         integer         :: ngeoms
+         type(rt_geom_t) :: geom(rt_max_geoms)       !XXX HARDCODED, MUST CHECK RANGE
+
+         
+C     (fields and excitation rules)
+         integer           :: nfields
+         integer           :: nexcites
+         type(rt_field_t)  :: field(rt_max_fields)   !XXX HARDCODED, MUST CHECK RANGE
+         type(rt_excite_t) :: excite(rt_max_excites) !XXX HARDCODED, MUST CHECK RANGE
+
+         
+C     (nuclear energy; independent of time)
+         double precision  :: Enuc
+
+         
+C     (static calculation stuff, ie dont rebuild fock)
+         logical          :: static              ! if true dont rebuild Fock matrix 
+         integer          :: g_zfock_ao_init(2)  ! initial Fock in AO basis
+         logical          :: skip_fock           ! if true, dont rebuild Fock matrix 
+
+
+C     (zora stuff)
+         logical          :: lzoraso
+         logical          :: lzorasf
+         integer          :: g_zora_sf(2)
+         integer          :: g_zora_scale_sf(2)
+         
+         
+      end type rt_params_t
