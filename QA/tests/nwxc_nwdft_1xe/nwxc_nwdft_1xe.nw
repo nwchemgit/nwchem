@@ -116,6 +116,18 @@ end
 task dft energy
 
 dft
+  vectors input atomic
+  xc revpbe
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc rpbe
+end
+task dft energy
+
+dft
   direct
   vectors input atomic
   xc xwpbe 1.00 hfexch 1.00
@@ -223,13 +235,13 @@ task dft energy
 
 dft
   vectors input atomic
-  xc revpbe
+  xc revpbe cpbe96
 end
 task dft energy
 
 dft
   vectors input atomic
-  xc rpbe
+  xc rpbe cpbe96
 end
 task dft energy
 

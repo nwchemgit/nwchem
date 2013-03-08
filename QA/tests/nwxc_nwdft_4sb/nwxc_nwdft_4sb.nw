@@ -127,6 +127,22 @@ end
 task dft energy
 
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc revpbe
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc rpbe
+end
+task dft energy
+
+dft
   direct
   mult 4
   odft
@@ -266,7 +282,7 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc revpbe
+  xc revpbe cpbe96
 end
 task dft energy
   
@@ -274,7 +290,7 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc rpbe
+  xc rpbe cpbe96
 end
 task dft energy
   

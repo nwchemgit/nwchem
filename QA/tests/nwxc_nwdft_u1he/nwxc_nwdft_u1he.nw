@@ -90,13 +90,13 @@ task dft energy
 dft
   odft
   vectors input atomic
-  xc revpbe
+  xc revpbe cpbe96
 end
 task dft energy
   
 dft
   odft
   vectors input atomic
-  xc rpbe
+  xc rpbe cpbe96
 end
 task dft energy
