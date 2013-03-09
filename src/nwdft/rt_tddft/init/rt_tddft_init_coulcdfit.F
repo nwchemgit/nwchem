@@ -12,6 +12,10 @@ C
 #include "util.fh"
 #include "cdft.fh"
 #include "rt_tddft.fh"
+#ifdef SCALAPACK
+            integer ga_cholesky,ga_llt_i
+            external ga_cholesky,ga_llt_i
+#endif
 
 
 C     == In/out ==
