@@ -219,18 +219,13 @@ C
 C     Call lapack generic complex diagonalizer.
 C
          call ga_sync ()
-
-cfix
-         call errquit (pname//"failed to chop stack", 0, MA_ERR)
-c         call zgeev ("V", "V", n, dcpl_mb(iza), n, zevals,
-c     $        dcpl_mb(ievecs_left), n, dcpl_mb(ievecs_right), n, 
-c     $        dcpl_mb(ilwork), nlwork, dbl_mb(irwork), info)
-cfix
+         call zgeev ("V", "V", n, dcpl_mb(iza), n, zevals,
+     $        dcpl_mb(ievecs_left), n, dcpl_mb(ievecs_right), n, 
+     $        dcpl_mb(ilwork), nlwork, dbl_mb(irwork), info)
          call ga_sync ()
-         
+c         
          if (info.lt.0) call errquit (pname//"bad args to zgeev",0,0)
          if (info.gt.0) call errquit (pname//"zgeev failed",0,0)
-
 C     
 C     Load eigenvectors into GA (output); note we want the "right"
 C     eigenvectors: A v_j = a_j v_j
