@@ -219,9 +219,13 @@ C
 C     Call lapack generic complex diagonalizer.
 C
          call ga_sync ()
-         call zgeev ("V", "V", n, dcpl_mb(iza), n, zevals,
-     $        dcpl_mb(ievecs_left), n, dcpl_mb(ievecs_right), n, 
-     $        dcpl_mb(ilwork), nlwork, dbl_mb(irwork), info)
+
+cfix
+         call errquit (pname//"failed to chop stack", 0, MA_ERR)
+c         call zgeev ("V", "V", n, dcpl_mb(iza), n, zevals,
+c     $        dcpl_mb(ievecs_left), n, dcpl_mb(ievecs_right), n, 
+c     $        dcpl_mb(ilwork), nlwork, dbl_mb(irwork), info)
+cfix
          call ga_sync ()
          
          if (info.lt.0) call errquit (pname//"bad args to zgeev",0,0)
