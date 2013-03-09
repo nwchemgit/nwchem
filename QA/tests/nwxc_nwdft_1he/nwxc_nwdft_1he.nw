@@ -41,7 +41,7 @@ task dft energy
 dft
   direct
   vectors input atomic
-  xc xbnl07
+  xc xbnl07 hfexch 1.00
   cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
@@ -49,7 +49,7 @@ task dft energy
 dft
   direct
   vectors input atomic
-  xc xcamb88
+  xc xcamb88 hfexch 1.00
   cam 0.33 cam_alpha 0.19 cam_beta 0.46
 end
 task dft energy
@@ -57,7 +57,7 @@ task dft energy
 dft 
   direct
   vectors input atomic
-  xc xcamlsd
+  xc xcamlsd hfexch 1.00
   cam 0.3 cam_alpha 0.5 cam_beta 0.5
 end
 task dft energy

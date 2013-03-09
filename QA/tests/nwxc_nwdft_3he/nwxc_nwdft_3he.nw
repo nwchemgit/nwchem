@@ -47,7 +47,7 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc xbnl07
+  xc xbnl07 hfexch
   cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
@@ -57,7 +57,7 @@ dft
   odft
   direct
   vectors input atomic
-  xc xcamb88
+  xc xcamb88 hfexch
   cam 0.33 cam_alpha 0.19 cam_beta 0.46
 end
 task dft energy
@@ -67,7 +67,7 @@ dft
   odft
   direct
   vectors input atomic
-  xc xcamlsd
+  xc xcamlsd hfexch
   cam 0.3 cam_alpha 0.5 cam_beta 0.5
 end
 task dft energy

@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: nwxc_nwdft_4as.nw 23686 2013-03-05 18:11:48Z d3y133 $
+# $Id: nwxc_nwdft_4as.nw 23709 2013-03-08 22:00:09Z d3y133 $
 echo
 start nwxc_dat
 
@@ -84,7 +84,7 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc xbnl07
+  xc xbnl07 hfexch
   cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
@@ -94,7 +94,7 @@ dft
   odft
   direct
   vectors input atomic
-  xc xcamb88
+  xc xcamb88 hfexch
   cam 0.33 cam_alpha 0.19 cam_beta 0.46
 end
 task dft energy
@@ -104,7 +104,7 @@ dft
   odft
   direct
   vectors input atomic
-  xc xcamlsd
+  xc xcamlsd hfexch
   cam 0.3 cam_alpha 0.5 cam_beta 0.5
 end
 task dft energy
@@ -339,7 +339,7 @@ set dft:cam_exch F
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
-    date            = Fri Mar  8 13:39:19 2013
+    date            = Fri Mar  8 15:59:12 2013
 
     compiled        = Fri_Mar_08_12:14:38_2013
     source          = /home/d3y133/nwchem-dev/nwchem-ref
@@ -562,13 +562,13 @@ set dft:cam_exch F
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =  10191
+ Max. records in memory =      5        Max. records in file   =  10189
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54351
+ Max. records in memory =     25        Max. recs in file   =     54341
 
 
            Memory utilization after 1st SCF pass: 
@@ -577,18 +577,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2229.1267386643 -2.23D+03  1.67D-02  3.11D-01     3.3
+ d= 0,ls=0.0,diis     1  -2229.1267386643 -2.23D+03  1.67D-02  3.11D-01     3.4
                                                      7.77D-03  3.01D-01
   Resetting Diis
  d= 0,ls=0.0,diis     2  -2229.1453479963 -1.86D-02  7.21D-03  2.63D-03     4.0
                                                      3.98D-03  1.28D-03
- d= 0,ls=0.0,diis     3  -2229.1469507533 -1.60D-03  4.02D-03  9.96D-04     4.6
+ d= 0,ls=0.0,diis     3  -2229.1469507533 -1.60D-03  4.02D-03  9.96D-04     4.7
                                                      2.00D-03  4.93D-04
- d= 0,ls=0.0,diis     4  -2229.1472782224 -3.27D-04  1.53D-03  5.85D-04     5.3
+ d= 0,ls=0.0,diis     4  -2229.1472782224 -3.27D-04  1.53D-03  5.85D-04     5.4
                                                      7.67D-04  3.64D-04
- d= 0,ls=0.0,diis     5  -2229.1475939102 -3.16D-04  9.60D-05  1.07D-06     6.0
+ d= 0,ls=0.0,diis     5  -2229.1475939102 -3.16D-04  9.60D-05  1.07D-06     6.1
                                                      5.03D-05  4.06D-07
- d= 0,ls=0.0,diis     6  -2229.1475948020 -8.92D-07  4.73D-07  2.06D-11     6.6
+ d= 0,ls=0.0,diis     6  -2229.1475948020 -8.92D-07  4.73D-07  2.06D-11     6.8
                                                      2.30D-07  2.17D-11
 
 
@@ -600,7 +600,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000012692
 
-     Total iterative time =      5.2s
+     Total iterative time =      5.3s
 
 
 
@@ -995,7 +995,7 @@ set dft:cam_exch F
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        6.6s     wall:        6.7s
+ Task  times  cpu:        6.7s     wall:        6.8s
 
 
                                 NWChem Input Module
@@ -1081,21 +1081,21 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:      8.0
-   Time prior to 1st pass:      8.0
+   Time after variat. SCF:      8.2
+   Time prior to 1st pass:      8.2
 
  #quartets = 2.211D+03 #integrals = 1.727D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =  10189
+ Max. records in memory =      5        Max. records in file   =  10187
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -1104,18 +1104,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2233.8426648417 -2.23D+03  1.70D-02  9.25D-02    11.3
+ d= 0,ls=0.0,diis     1  -2233.8426648417 -2.23D+03  1.70D-02  9.25D-02    11.5
                                                      7.62D-03  8.15D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2233.8588771007 -1.62D-02  7.21D-03  2.85D-03    13.3
+ d= 0,ls=0.0,diis     2  -2233.8588771007 -1.62D-02  7.21D-03  2.85D-03    13.5
                                                      4.16D-03  1.22D-03
- d= 0,ls=0.0,diis     3  -2233.8607012495 -1.82D-03  3.83D-03  1.03D-03    15.3
+ d= 0,ls=0.0,diis     3  -2233.8607012495 -1.82D-03  3.83D-03  1.03D-03    15.6
                                                      1.99D-03  5.90D-04
- d= 0,ls=0.0,diis     4  -2233.8610120221 -3.11D-04  1.49D-03  5.70D-04    17.3
+ d= 0,ls=0.0,diis     4  -2233.8610120221 -3.11D-04  1.49D-03  5.70D-04    17.6
                                                      7.83D-04  3.73D-04
- d= 0,ls=0.0,diis     5  -2233.8613117213 -3.00D-04  6.38D-05  4.98D-07    19.3
+ d= 0,ls=0.0,diis     5  -2233.8613117213 -3.00D-04  6.38D-05  4.98D-07    19.7
                                                      3.59D-05  1.96D-07
- d= 0,ls=0.0,diis     6  -2233.8613121297 -4.08D-07  3.13D-07  8.06D-12    21.3
+ d= 0,ls=0.0,diis     6  -2233.8613121297 -4.08D-07  3.13D-07  8.06D-12    21.8
                                                      2.83D-07  1.10D-11
 
 
@@ -1127,7 +1127,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000012393
 
-     Total iterative time =     13.3s
+     Total iterative time =     13.6s
 
 
 
@@ -1529,13 +1529,14 @@ set dft:cam_exch F
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:       14.7s     wall:       14.8s
+ Task  times  cpu:       15.0s     wall:       15.0s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+  xc_inp: hfexch multiplicative factor not found.
 
                                  NWChem DFT Module
                                  -----------------
@@ -1565,6 +1566,7 @@ set dft:cam_exch F
 
               XC Information
               --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
                    LC-BNL 2007 Exchange Functional  1.000 local    
 
            Range-Separation Parameters        
@@ -1624,12 +1626,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:     22.1
-   Time prior to 1st pass:     22.1
+   Time after variat. SCF:     22.6
+   Time prior to 1st pass:     22.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -1638,395 +1640,393 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2220.9214717672 -2.22D+03  9.36D-03  3.10D-01    23.5
-                                                     1.02D-02  3.06D-01
+ d= 0,ls=0.0,diis     1  -2229.5521777777 -2.23D+03  1.27D-02  3.19D-01    24.6
+                                                     5.98D-03  3.03D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2220.9321866916 -1.07D-02  5.46D-03  5.92D-03    24.7
-                                                     3.24D-03  5.78D-03
- d= 0,ls=0.0,diis     3  -2220.9331644806 -9.78D-04  5.16D-03  2.02D-03    26.0
-                                                     2.68D-03  1.40D-03
- d= 0,ls=0.0,diis     4  -2220.9332669411 -1.02D-04  2.71D-03  1.61D-03    27.3
-                                                     1.40D-03  9.57D-04
- d= 0,ls=0.0,diis     5  -2220.9341362768 -8.69D-04  1.55D-04  3.16D-06    28.6
-                                                     8.25D-05  1.01D-06
- d= 0,ls=0.0,diis     6  -2220.9341387953 -2.52D-06  8.27D-07  3.61D-10    29.9
-                                                     7.29D-07  3.34D-10
- d= 0,ls=0.0,diis     7  -2220.9341387955 -1.77D-10  1.01D-07  1.65D-12    31.2
-                                                     7.66D-08  8.64D-13
+ d= 0,ls=0.0,diis     2  -2229.5780163608 -2.58D-02  2.05D-03  8.24D-04    26.6
+                                                     1.40D-03  2.02D-04
+ d= 0,ls=0.0,diis     3  -2229.5785596054 -5.43D-04  5.20D-04  5.10D-05    28.6
+                                                     5.55D-04  1.90D-05
+ d= 0,ls=0.0,diis     4  -2229.5786058375 -4.62D-05  2.26D-04  3.58D-06    30.6
+                                                     2.89D-04  3.20D-06
+ d= 0,ls=0.0,diis     5  -2229.5786117750 -5.94D-06  1.84D-05  3.92D-08    32.6
+                                                     4.23D-05  1.55D-07
+ d= 0,ls=0.0,diis     6  -2229.5786118861 -1.11D-07  6.33D-06  5.69D-09    34.6
+                                                     1.00D-05  4.93D-09
+ d= 0,ls=0.0,diis     7  -2229.5786118925 -6.34D-09  8.35D-07  6.70D-11    36.6
+                                                     6.12D-07  1.81D-11
 
 
-         Total DFT energy =    -2220.934138795451
-      One electron energy =    -3106.936583950695
-           Coulomb energy =      954.265117487335
-    Exchange-Corr. energy =      -68.262672332090
+         Total DFT energy =    -2229.578611892490
+      One electron energy =    -3110.254375248711
+           Coulomb energy =      957.694895687635
+    Exchange-Corr. energy =      -77.019132331414
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =       33.000000021542
+ Numeric. integr. density =       33.000000010455
 
-     Total iterative time =      9.0s
+     Total iterative time =     14.0s
 
 
 
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
 
- Vector    5  Occ=1.000000D+00  E=-4.741155D+01
-              MO Center=  2.9D-17, -1.5D-17, -6.0D-18, r^2= 1.1D-02
+ Vector    5  Occ=1.000000D+00  E=-4.785166D+01
+              MO Center=  8.8D-18,  3.9D-17,  7.9D-18, r^2= 1.1D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.727175  1 As pz                 6      0.670514  1 As px         
+     7      0.957260  1 As py                 8      0.262722  1 As pz         
 
- Vector    6  Occ=1.000000D+00  E=-6.543561D+00
-              MO Center= -4.9D-17, -3.7D-17, -1.2D-16, r^2= 1.2D-01
+ Vector    6  Occ=1.000000D+00  E=-6.996624D+00
+              MO Center=  7.4D-17, -8.8D-17, -1.5D-16, r^2= 1.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.129579  1 As s                  2     -0.488292  1 As s          
+     3      1.128923  1 As s                  2     -0.488241  1 As s          
 
- Vector    7  Occ=1.000000D+00  E=-4.666513D+00
-              MO Center= -1.0D-16, -4.5D-17,  1.1D-17, r^2= 1.3D-01
+ Vector    7  Occ=1.000000D+00  E=-5.117278D+00
+              MO Center= -1.4D-16, -2.7D-17, -8.3D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.082141  1 As pz                 8      0.433182  1 As pz         
+    10      0.993909  1 As py                 9      0.423489  1 As px         
+     7      0.398006  1 As py                 6      0.169584  1 As px         
 
- Vector    8  Occ=1.000000D+00  E=-4.666513D+00
-              MO Center= -8.1D-17,  3.4D-17, -2.4D-16, r^2= 1.3D-01
+ Vector    8  Occ=1.000000D+00  E=-5.117278D+00
+              MO Center=  9.9D-17,  6.5D-18, -3.6D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.808194  1 As py                 9     -0.719670  1 As px         
-     7      0.323521  1 As py                 6     -0.288085  1 As px         
+    11      0.788339  1 As pz                 9      0.665636  1 As px         
+    10     -0.324507  1 As py                 8      0.315686  1 As pz         
+     6      0.266551  1 As px         
 
- Vector    9  Occ=1.000000D+00  E=-4.666513D+00
-              MO Center= -1.5D-16,  1.5D-18,  1.1D-17, r^2= 1.3D-01
+ Vector    9  Occ=1.000000D+00  E=-5.117278D+00
+              MO Center= -3.1D-17, -8.2D-19,  4.2D-18, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.808159  1 As px                10      0.719773  1 As py         
-     6      0.323507  1 As px                 7      0.288126  1 As py         
+     9      0.739893  1 As px                11     -0.738728  1 As pz         
+     6      0.296286  1 As px                 8     -0.295820  1 As pz         
+    10     -0.276940  1 As py         
 
- Vector   10  Occ=1.000000D+00  E=-1.342424D+00
-              MO Center=  1.1D-16, -3.9D-18,  5.6D-17, r^2= 1.7D-01
+ Vector   10  Occ=1.000000D+00  E=-1.770292D+00
+              MO Center=  6.6D-17,  5.2D-17, -1.7D-17, r^2= 1.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.706934  1 As dxz        
+    21      0.960418  1 As dyy               18     -0.683828  1 As dxx        
+    23     -0.276590  1 As dzz        
 
- Vector   11  Occ=1.000000D+00  E=-1.342424D+00
-              MO Center=  1.1D-18,  4.2D-17,  1.3D-16, r^2= 1.7D-01
+ Vector   11  Occ=1.000000D+00  E=-1.770292D+00
+              MO Center= -6.7D-17,  4.5D-17,  5.5D-17, r^2= 1.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.710642  1 As dyz        
+    23      0.949305  1 As dzz               18     -0.714186  1 As dxx        
+    21     -0.235119  1 As dyy        
 
- Vector   12  Occ=1.000000D+00  E=-1.342424D+00
-              MO Center=  7.8D-17,  5.1D-17, -8.7D-18, r^2= 1.7D-01
+ Vector   12  Occ=1.000000D+00  E=-1.770292D+00
+              MO Center=  8.5D-17,  6.2D-17,  2.0D-16, r^2= 1.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.707794  1 As dxy        
+    20      1.551018  1 As dxz               22      0.596963  1 As dyz        
+    19      0.413554  1 As dxy        
 
- Vector   13  Occ=1.000000D+00  E=-1.342424D+00
-              MO Center= -7.5D-17, -9.4D-17,  1.9D-18, r^2= 1.7D-01
+ Vector   13  Occ=1.000000D+00  E=-1.770292D+00
+              MO Center= -6.8D-17,  1.2D-16,  6.2D-17, r^2= 1.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.898444  1 As dxx               21     -0.805524  1 As dyy        
+    22      1.603106  1 As dyz               20     -0.553503  1 As dxz        
+    19     -0.238188  1 As dxy        
 
- Vector   14  Occ=1.000000D+00  E=-1.342424D+00
-              MO Center=  8.5D-18, -3.2D-17, -7.5D-17, r^2= 1.7D-01
+ Vector   14  Occ=1.000000D+00  E=-1.770292D+00
+              MO Center=  1.0D-16,  1.3D-16, -3.0D-17, r^2= 1.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.984577  1 As dzz               21     -0.572086  1 As dyy        
-    18     -0.412491  1 As dxx        
+    19      1.644776  1 As dxy               20     -0.470135  1 As dxz        
 
- Vector   15  Occ=1.000000D+00  E=-3.461701D-01
-              MO Center=  3.2D-16, -2.6D-16,  1.8D-16, r^2= 1.3D+00
+ Vector   15  Occ=1.000000D+00  E=-7.575590D-01
+              MO Center= -2.5D-16, -2.5D-16, -4.0D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.613552  1 As s                  5      0.512028  1 As s          
-     3     -0.430750  1 As s          
+     4      0.589885  1 As s                  5      0.500535  1 As s          
+     3     -0.422383  1 As s          
 
- Vector   16  Occ=1.000000D+00  E=-3.475836D-02
-              MO Center=  5.4D-16, -1.0D-15, -4.8D-16, r^2= 2.5D+00
+ Vector   16  Occ=1.000000D+00  E=-3.514042D-01
+              MO Center=  1.0D-15,  1.3D-16, -3.9D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.522974  1 As pz                13      0.413413  1 As py         
-    17     -0.317515  1 As pz                16     -0.250997  1 As py         
-    12      0.239739  1 As px                11     -0.218466  1 As pz         
-    10     -0.172698  1 As py         
+    14      0.624012  1 As pz                12      0.539765  1 As px         
+    11     -0.249552  1 As pz                17     -0.225803  1 As pz         
+     9     -0.215860  1 As px                15     -0.195318  1 As px         
 
- Vector   17  Occ=1.000000D+00  E=-3.475836D-02
-              MO Center= -3.2D-16, -8.2D-16,  9.8D-17, r^2= 2.5D+00
+ Vector   17  Occ=1.000000D+00  E=-3.514042D-01
+              MO Center=  3.1D-16,  4.4D-16, -4.9D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.660966  1 As px                15     -0.401295  1 As px         
-     9     -0.276110  1 As px                13     -0.219779  1 As py         
+    13      0.821127  1 As py                10     -0.328380  1 As py         
+    16     -0.297130  1 As py         
 
- Vector   18  Occ=1.000000D+00  E=-3.475836D-02
-              MO Center=  4.6D-16, -3.5D-15, -9.1D-16, r^2= 2.5D+00
+ Vector   18  Occ=1.000000D+00  E=-3.514042D-01
+              MO Center=  2.7D-16, -5.0D-16,  6.5D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.531671  1 As py                14     -0.460084  1 As pz         
-    16     -0.322795  1 As py                17      0.279332  1 As pz         
-    10     -0.222099  1 As py                11      0.192194  1 As pz         
+    12      0.628351  1 As px                14     -0.533867  1 As pz         
+     9     -0.251287  1 As px                15     -0.227373  1 As px         
+    11      0.213501  1 As pz                17      0.193183  1 As pz         
 
- Vector   19  Occ=0.000000D+00  E= 2.833222D-01
-              MO Center= -2.8D-15, -4.0D-15,  2.7D-14, r^2= 5.1D+00
+ Vector   19  Occ=0.000000D+00  E= 2.779389D-01
+              MO Center= -2.6D-15, -1.2D-14,  6.8D-14, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.226007  1 As pz                14      1.184878  1 As pz         
-    11     -0.338494  1 As pz                16     -0.183221  1 As py         
-    13     -0.177075  1 As py         
+    17      1.264824  1 As pz                14      1.108607  1 As pz         
+    11     -0.307809  1 As pz                16     -0.215341  1 As py         
+    13     -0.188744  1 As py         
 
- Vector   20  Occ=0.000000D+00  E= 2.833222D-01
-              MO Center= -3.3D-16,  1.5D-15,  2.0D-16, r^2= 5.1D+00
+ Vector   20  Occ=0.000000D+00  E= 2.779389D-01
+              MO Center=  3.3D-14, -3.2D-15,  7.1D-16, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.206768  1 As py                13      1.166285  1 As py         
-    10     -0.333182  1 As py                15     -0.272152  1 As px         
-    12     -0.263023  1 As px                17      0.151663  1 As pz         
+    15      1.276624  1 As px                12      1.118949  1 As px         
+     9     -0.310681  1 As px         
 
- Vector   21  Occ=0.000000D+00  E= 2.833222D-01
-              MO Center=  2.2D-14,  4.6D-15,  3.1D-15, r^2= 5.1D+00
+ Vector   21  Occ=0.000000D+00  E= 2.779389D-01
+              MO Center=  3.3D-15,  3.1D-14,  5.5D-15, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.209378  1 As px                12      1.168808  1 As px         
-     9     -0.333903  1 As px                16      0.251990  1 As py         
-    13      0.243536  1 As py                17      0.165117  1 As pz         
-    14      0.159578  1 As pz         
+    16      1.258598  1 As py                13      1.103150  1 As py         
+    10     -0.306294  1 As py                17      0.219176  1 As pz         
+    14      0.192105  1 As pz         
 
- Vector   22  Occ=0.000000D+00  E= 2.904104D-01
-              MO Center= -1.9D-14, -2.4D-15, -3.0D-14, r^2= 4.1D+00
+ Vector   22  Occ=0.000000D+00  E= 2.829273D-01
+              MO Center= -3.2D-14, -1.6D-14, -7.3D-14, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.160009  1 As s                  4     -1.738015  1 As s          
-    24     -0.617782  1 As dxx               27     -0.617782  1 As dyy        
-    29     -0.617782  1 As dzz        
+     5      3.166845  1 As s                  4     -1.740031  1 As s          
+    24     -0.623918  1 As dxx               27     -0.623918  1 As dyy        
+    29     -0.623918  1 As dzz        
 
- Vector   23  Occ=0.000000D+00  E= 5.264309D-01
-              MO Center= -1.0D-15,  2.2D-16, -9.6D-17, r^2= 1.8D+00
+ Vector   23  Occ=0.000000D+00  E= 5.079130D-01
+              MO Center= -1.8D-15, -8.0D-17,  1.0D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.563543  1 As dxz               20     -0.393332  1 As dxz        
-    25     -0.387933  1 As dxy               29     -0.340588  1 As dzz        
-    24      0.324348  1 As dxx               28     -0.296491  1 As dyz        
+    24      1.019697  1 As dxx               29     -0.549456  1 As dzz        
+    27     -0.470241  1 As dyy               18     -0.257784  1 As dxx        
 
- Vector   24  Occ=0.000000D+00  E= 5.264309D-01
-              MO Center=  4.9D-16,  1.1D-15,  5.8D-16, r^2= 1.8D+00
+ Vector   24  Occ=0.000000D+00  E= 5.079130D-01
+              MO Center=  9.8D-17,  2.1D-16, -3.7D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.669630  1 As dyz               26      0.475720  1 As dxz        
-    22     -0.420019  1 As dyz               24     -0.164715  1 As dxx        
-    29      0.157353  1 As dzz        
+    27      0.905951  1 As dyy               29     -0.860216  1 As dzz        
+    21     -0.229028  1 As dyy               23      0.217466  1 As dzz        
 
- Vector   25  Occ=0.000000D+00  E= 5.264309D-01
-              MO Center=  1.3D-15,  2.2D-15,  1.2D-15, r^2= 1.8D+00
+ Vector   25  Occ=0.000000D+00  E= 5.079130D-01
+              MO Center= -2.2D-16,  2.5D-16, -6.7D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.926604  1 As dxy               27      0.828506  1 As dyy        
-    29     -0.641962  1 As dzz               19     -0.233100  1 As dxy        
-    21     -0.208423  1 As dyy               24     -0.186544  1 As dxx        
-    23      0.161495  1 As dzz        
+    28     -1.160009  1 As dyz               25      1.081545  1 As dxy        
+    26     -0.781193  1 As dxz               22      0.293255  1 As dyz        
+    19     -0.273419  1 As dxy               20      0.197489  1 As dxz        
 
- Vector   26  Occ=0.000000D+00  E= 5.264309D-01
-              MO Center= -8.3D-16,  4.6D-16, -4.5D-16, r^2= 1.8D+00
+ Vector   26  Occ=0.000000D+00  E= 5.079130D-01
+              MO Center= -2.5D-16,  1.4D-16, -1.2D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.913052  1 As dxy               29      0.682130  1 As dzz        
-    26      0.672037  1 As dxz               24     -0.571934  1 As dxx        
-    28     -0.481244  1 As dyz               19     -0.229691  1 As dxy        
-    23     -0.171599  1 As dzz               20     -0.169060  1 As dxz        
+    25      1.354817  1 As dxy               28      1.114018  1 As dyz        
+    19     -0.342503  1 As dxy               22     -0.281628  1 As dyz        
+    26      0.221487  1 As dxz        
 
- Vector   27  Occ=0.000000D+00  E= 5.264309D-01
-              MO Center= -1.2D-15,  1.4D-15, -4.0D-16, r^2= 1.8D+00
+ Vector   27  Occ=0.000000D+00  E= 5.079130D-01
+              MO Center= -1.4D-16, -6.2D-17, -6.8D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.129210  1 As dxy               24      0.740108  1 As dxx        
-    27     -0.585760  1 As dyy               19     -0.284069  1 As dxy        
-    18     -0.186185  1 As dxx               29     -0.154347  1 As dzz        
+    26      1.570447  1 As dxz               28     -0.734143  1 As dyz        
+    20     -0.397015  1 As dxz               25      0.346921  1 As dxy        
+    22      0.185594  1 As dyz        
 
- Vector   28  Occ=0.000000D+00  E= 1.288181D+00
-              MO Center= -6.5D-17, -6.9D-17, -1.6D-16, r^2= 2.5D+00
+ Vector   28  Occ=0.000000D+00  E= 1.322853D+00
+              MO Center= -2.5D-16, -1.2D-16, -1.7D-16, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.380879  1 As s                 24     -1.810658  1 As dxx        
-    27     -1.810658  1 As dyy               29     -1.810658  1 As dzz        
-     4      0.801209  1 As s                  3     -0.618638  1 As s          
-     2      0.185042  1 As s          
+     5      3.378996  1 As s                 24     -1.810510  1 As dxx        
+    27     -1.810510  1 As dyy               29     -1.810510  1 As dzz        
+     4      0.818237  1 As s                  3     -0.612706  1 As s          
+     2      0.188510  1 As s                 18     -0.152639  1 As dxx        
+    21     -0.152639  1 As dyy               23     -0.152639  1 As dzz        
 
 
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
- Vector    5  Occ=1.000000D+00  E=-4.740785D+01
-              MO Center= -3.3D-17,  6.5D-18,  2.6D-17, r^2= 1.1D-02
+ Vector    5  Occ=1.000000D+00  E=-4.784741D+01
+              MO Center=  1.4D-17,  8.4D-18, -6.7D-18, r^2= 1.1D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.743833  1 As px                 8     -0.645028  1 As pz         
+     7      0.878903  1 As py                 6      0.419681  1 As px         
+     8      0.191888  1 As pz         
 
- Vector    6  Occ=1.000000D+00  E=-6.537764D+00
-              MO Center= -6.0D-17,  9.8D-17, -1.6D-15, r^2= 1.2D-01
+ Vector    6  Occ=1.000000D+00  E=-6.989955D+00
+              MO Center= -2.9D-17,  1.5D-16, -3.3D-15, r^2= 1.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.130187  1 As s                  2     -0.488497  1 As s          
+     3      1.129848  1 As s                  2     -0.488561  1 As s          
 
- Vector    7  Occ=1.000000D+00  E=-4.659787D+00
-              MO Center= -2.9D-17, -6.6D-17, -3.3D-17, r^2= 1.3D-01
+ Vector    7  Occ=1.000000D+00  E=-5.109352D+00
+              MO Center=  1.1D-15, -7.1D-16, -9.6D-16, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.080389  1 As pz                 8      0.432424  1 As pz         
+    10     -0.755363  1 As py                 9      0.691686  1 As px         
+    11      0.349276  1 As pz                 7     -0.302450  1 As py         
+     6      0.276954  1 As px         
 
- Vector    8  Occ=1.000000D+00  E=-4.659787D+00
-              MO Center=  7.8D-18,  4.2D-17, -7.4D-16, r^2= 1.3D-01
+ Vector    8  Occ=1.000000D+00  E=-5.109352D+00
+              MO Center= -6.4D-16,  4.4D-16,  1.0D-15, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.997226  1 As px                10      0.419435  1 As py         
-     6      0.399138  1 As px                 7      0.167878  1 As py         
+    11      1.024205  1 As pz                 8      0.410096  1 As pz         
+    10      0.255855  1 As py                 9     -0.237777  1 As px         
 
- Vector    9  Occ=1.000000D+00  E=-4.659787D+00
-              MO Center=  1.8D-17, -1.1D-16, -7.5D-16, r^2= 1.3D-01
+ Vector    9  Occ=1.000000D+00  E=-5.109352D+00
+              MO Center= -9.9D-17, -2.6D-16, -1.2D-15, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.995898  1 As py                 9     -0.421567  1 As px         
-     7      0.398606  1 As py                 6     -0.168731  1 As px         
+     9      0.797514  1 As px                10      0.731411  1 As py         
+     6      0.319328  1 As px                 7      0.292860  1 As py         
 
- Vector   10  Occ=1.000000D+00  E=-1.331601D+00
-              MO Center=  7.7D-18, -1.2D-16, -1.5D-15, r^2= 1.6D-01
+ Vector   10  Occ=1.000000D+00  E=-1.756845D+00
+              MO Center= -6.6D-17, -5.2D-17, -9.2D-18, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.709646  1 As dxz        
+    21      0.990781  1 As dyy               23     -0.529382  1 As dzz        
+    18     -0.461398  1 As dxx        
 
- Vector   11  Occ=1.000000D+00  E=-1.331601D+00
-              MO Center=  5.2D-17,  2.0D-17, -1.7D-15, r^2= 1.6D-01
+ Vector   11  Occ=1.000000D+00  E=-1.756845D+00
+              MO Center=  1.8D-17,  4.5D-19,  7.6D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.714437  1 As dyz        
+    18      0.877667  1 As dxx               23     -0.838416  1 As dzz        
 
- Vector   12  Occ=1.000000D+00  E=-1.331601D+00
-              MO Center= -1.9D-16,  9.3D-18, -2.3D-17, r^2= 1.6D-01
+ Vector   12  Occ=1.000000D+00  E=-1.756845D+00
+              MO Center=  7.3D-18,  1.1D-17, -7.9D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.703341  1 As dxy        
+    20      1.686231  1 As dxz               22      0.312421  1 As dyz        
 
- Vector   13  Occ=1.000000D+00  E=-1.331601D+00
-              MO Center= -1.3D-17,  1.0D-16, -1.8D-17, r^2= 1.6D-01
+ Vector   13  Occ=1.000000D+00  E=-1.756845D+00
+              MO Center= -3.2D-17,  5.4D-17, -2.0D-16, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.901117  1 As dxx               21     -0.806456  1 As dyy        
+    22      1.670274  1 As dyz               20     -0.294629  1 As dxz        
+    19      0.270076  1 As dxy        
 
- Vector   14  Occ=1.000000D+00  E=-1.331601D+00
-              MO Center=  6.6D-17,  2.7D-16, -2.3D-15, r^2= 1.6D-01
+ Vector   14  Occ=1.000000D+00  E=-1.756845D+00
+              MO Center=  9.4D-17, -4.7D-17, -1.7D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.981784  1 As dzz               21     -0.573980  1 As dyy        
-    18     -0.407804  1 As dxx        
+    19      1.693529  1 As dxy               22     -0.249279  1 As dyz        
 
- Vector   15  Occ=1.000000D+00  E=-2.756626D-01
-              MO Center= -2.4D-16,  1.2D-16, -3.3D-13, r^2= 1.3D+00
+ Vector   15  Occ=1.000000D+00  E=-5.711081D-01
+              MO Center=  6.3D-17, -4.6D-17,  3.1D-14, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.603336  1 As s                  4      0.587408  1 As s          
-     3     -0.447615  1 As s          
+     4      0.643869  1 As s                  5      0.513215  1 As s          
+     3     -0.447789  1 As s          
 
- Vector   16  Occ=0.000000D+00  E= 2.474331D-02
-              MO Center=  6.6D-15,  1.3D-14, -9.6D-14, r^2= 2.8D+00
+ Vector   16  Occ=0.000000D+00  E= 2.888849D-02
+              MO Center=  4.6D-15,  7.2D-15,  7.6D-14, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.547421  1 As py                16     -0.482259  1 As py         
-    12      0.257018  1 As px                10     -0.239746  1 As py         
-    15     -0.226424  1 As px         
+    16     -0.471525  1 As py                13      0.465393  1 As py         
+    15     -0.322984  1 As px                12      0.318784  1 As px         
+    10     -0.210009  1 As py         
 
- Vector   17  Occ=0.000000D+00  E= 2.474331D-02
-              MO Center= -2.6D-16,  2.7D-16, -1.0D-13, r^2= 2.8D+00
+ Vector   17  Occ=0.000000D+00  E= 2.888849D-02
+              MO Center=  1.0D-14, -1.5D-15,  7.6D-14, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.547701  1 As px                15     -0.482506  1 As px         
-    13     -0.257089  1 As py                 9     -0.239869  1 As px         
-    16      0.226487  1 As py         
+    15     -0.471425  1 As px                12      0.465295  1 As px         
+    16      0.323067  1 As py                13     -0.318866  1 As py         
+     9     -0.209965  1 As px         
 
- Vector   18  Occ=0.000000D+00  E= 2.474331D-02
-              MO Center= -2.0D-15, -1.0D-14,  2.6D-13, r^2= 2.8D+00
+ Vector   18  Occ=0.000000D+00  E= 2.888849D-02
+              MO Center= -1.3D-14, -6.6D-16,  6.9D-13, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.604752  1 As pz                17     -0.532765  1 As pz         
-    11     -0.264854  1 As pz         
+    17     -0.571454  1 As pz                14      0.564023  1 As pz         
+    11     -0.254516  1 As pz         
 
- Vector   19  Occ=0.000000D+00  E= 3.162005D-01
-              MO Center= -8.3D-15, -6.3D-14, -1.1D-14, r^2= 4.8D+00
+ Vector   19  Occ=0.000000D+00  E= 3.305827D-01
+              MO Center=  4.0D-14,  1.3D-14, -7.9D-12, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.248521  1 As py                16      1.195272  1 As py         
-    10     -0.363324  1 As py                12      0.166973  1 As px         
-    15      0.159851  1 As px         
+     5      3.240124  1 As s                  4     -1.707961  1 As s          
+    24     -0.658064  1 As dxx               27     -0.658064  1 As dyy        
+    29     -0.658064  1 As dzz        
 
- Vector   20  Occ=0.000000D+00  E= 3.162005D-01
-              MO Center= -9.9D-14,  1.3D-14, -1.2D-14, r^2= 4.8D+00
+ Vector   20  Occ=0.000000D+00  E= 3.383432D-01
+              MO Center= -3.0D-15, -5.6D-14, -1.2D-15, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.248486  1 As px                15      1.195238  1 As px         
-     9     -0.363313  1 As px                13     -0.167006  1 As py         
-    16     -0.159883  1 As py         
+    13      1.276670  1 As py                16      1.186450  1 As py         
+    10     -0.375564  1 As py         
 
- Vector   21  Occ=0.000000D+00  E= 3.162005D-01
-              MO Center=  8.1D-14,  2.6D-14, -9.7D-12, r^2= 4.8D+00
+ Vector   21  Occ=0.000000D+00  E= 3.383432D-01
+              MO Center=  5.5D-14, -2.9D-15, -9.2D-16, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      1.259597  1 As pz                17      1.205875  1 As pz         
-    11     -0.366547  1 As pz         
+    12      1.276590  1 As px                15      1.186375  1 As px         
+     9     -0.375541  1 As px         
 
- Vector   22  Occ=0.000000D+00  E= 3.214944D-01
-              MO Center=  2.6D-14,  2.3D-14,  9.6D-12, r^2= 4.1D+00
+ Vector   22  Occ=0.000000D+00  E= 3.383432D-01
+              MO Center= -9.1D-14,  4.6D-14,  7.3D-12, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.189965  1 As s                  4     -1.736055  1 As s          
-    24     -0.639377  1 As dxx               27     -0.639377  1 As dyy        
-    29     -0.639377  1 As dzz        
+    14      1.278351  1 As pz                17      1.188012  1 As pz         
+    11     -0.376059  1 As pz         
 
- Vector   23  Occ=0.000000D+00  E= 5.994499D-01
-              MO Center=  3.9D-14, -1.3D-14,  9.1D-14, r^2= 1.8D+00
+ Vector   23  Occ=0.000000D+00  E= 6.373628D-01
+              MO Center= -2.2D-15, -1.0D-15, -1.6D-14, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.554082  1 As dyz               25      0.727797  1 As dxy        
-    22     -0.381836  1 As dyz               26      0.262078  1 As dxz        
-    19     -0.178819  1 As dxy               29     -0.173847  1 As dzz        
-    24      0.163438  1 As dxx        
+    24      1.015516  1 As dxx               27     -0.600935  1 As dyy        
+    29     -0.414581  1 As dzz               18     -0.245772  1 As dxx        
 
- Vector   24  Occ=0.000000D+00  E= 5.994499D-01
-              MO Center= -3.0D-14, -4.4D-14,  4.9D-14, r^2= 1.8D+00
+ Vector   24  Occ=0.000000D+00  E= 6.373628D-01
+              MO Center=  5.9D-16, -4.0D-15, -8.1D-14, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.314685  1 As dxy               26     -1.030411  1 As dxz        
-    28     -0.496779  1 As dyz               19     -0.323017  1 As dxy        
-    20      0.253171  1 As dxz               24      0.173874  1 As dxx        
+    29      0.933258  1 As dzz               27     -0.825666  1 As dyy        
+    23     -0.225864  1 As dzz               21      0.199825  1 As dyy        
 
- Vector   25  Occ=0.000000D+00  E= 5.994499D-01
-              MO Center= -6.9D-15,  2.8D-14,  8.9D-14, r^2= 1.8D+00
+ Vector   25  Occ=0.000000D+00  E= 6.373628D-01
+              MO Center= -3.4D-14,  9.1D-15, -2.7D-14, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.176016  1 As dxz               25      0.900452  1 As dxy        
-    29      0.477494  1 As dzz               28     -0.435648  1 As dyz        
-    24     -0.361234  1 As dxx               20     -0.288946  1 As dxz        
-    19     -0.221240  1 As dxy        
+    25      1.402760  1 As dxy               28      1.039269  1 As dyz        
+    19     -0.339491  1 As dxy               26     -0.284128  1 As dxz        
+    22     -0.251520  1 As dyz        
 
- Vector   26  Occ=0.000000D+00  E= 5.994499D-01
-              MO Center=  3.6D-15, -4.5D-15,  2.1D-14, r^2= 1.8D+00
+ Vector   26  Occ=0.000000D+00  E= 6.373628D-01
+              MO Center=  2.0D-14,  1.7D-14, -6.2D-14, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      1.002889  1 As dyy               24     -0.632256  1 As dxx        
-    29     -0.370632  1 As dzz               21     -0.246409  1 As dyy        
-    25      0.192438  1 As dxy               18      0.155345  1 As dxx        
+    28      1.232419  1 As dyz               26      1.059114  1 As dxz        
+    25     -0.698544  1 As dxy               22     -0.298266  1 As dyz        
+    20     -0.256323  1 As dxz               19      0.169059  1 As dxy        
 
- Vector   27  Occ=0.000000D+00  E= 5.994499D-01
-              MO Center= -9.6D-15,  3.0D-14,  1.2D-13, r^2= 1.8D+00
+ Vector   27  Occ=0.000000D+00  E= 6.373628D-01
+              MO Center=  1.4D-14, -2.7D-14, -5.7D-14, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29     -0.799619  1 As dzz               26      0.781905  1 As dxz        
-    24      0.674805  1 As dxx               28     -0.523350  1 As dyz        
-    23      0.196465  1 As dzz               20     -0.192113  1 As dxz        
-    18     -0.165799  1 As dxx        
+    26      1.387837  1 As dxz               25      0.820271  1 As dxy        
+    28     -0.727741  1 As dyz               20     -0.335879  1 As dxz        
+    19     -0.198519  1 As dxy               22      0.176125  1 As dyz        
 
- Vector   28  Occ=0.000000D+00  E= 1.333521D+00
-              MO Center=  2.8D-17,  1.6D-16, -4.0D-15, r^2= 2.5D+00
+ Vector   28  Occ=0.000000D+00  E= 1.376670D+00
+              MO Center= -2.1D-17,  5.1D-17, -2.8D-14, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.339883  1 As s                 24     -1.804027  1 As dxx        
-    27     -1.804027  1 As dyy               29     -1.804027  1 As dzz        
-     4      0.816053  1 As s                  3     -0.608059  1 As s          
-     2      0.185350  1 As s          
+     5      3.309534  1 As s                 24     -1.799790  1 As dxx        
+    27     -1.799790  1 As dyy               29     -1.799790  1 As dzz        
+     4      0.835530  1 As s                  3     -0.593138  1 As s          
+     2      0.187688  1 As s                 18     -0.155266  1 As dxx        
+    21     -0.155266  1 As dyy               23     -0.155266  1 As dzz        
 
 
    alpha - beta orbital overlaps 
@@ -2034,32 +2034,33 @@ set dft:cam_exch F
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      4      3      5      6      7      9      8     10
- overlap   1.000  1.000  0.831  0.836  0.993  1.000  0.998  0.946  0.945  0.996
+    beta      1      2      4      3      5      6      9      7      8     10
+ overlap   1.000  1.000  0.988  0.919  0.908  1.000  0.910  0.838  0.857  0.961
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     13     14     15     18     17     16     21     19
- overlap   0.997  0.994  1.000  0.994  1.000  0.715  0.973  0.709  0.981  0.928
+    beta     11     12     13     14     15     18     16     17     22     21
+ overlap   0.961  0.940  0.944  0.918  0.999  0.721  0.805  0.654  0.961  0.975
 
 
    alpha     21     22     23     24     25     26     27     28     29
-    beta     20     22     27     23     26     25     24     28     29
- overlap   0.933  1.000  0.738  0.856  0.816  0.931  0.595  1.000  1.000
+    beta     20     19     23     24     26     25     27     28     29
+ overlap   0.960  1.000  0.989  0.989  0.963  0.958  0.959  1.000  1.000
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      3.7506 (Exact =     3.7500)
+      <S2> =      3.7518 (Exact =     3.7500)
 
 
- Task  times  cpu:        9.8s     wall:        9.9s
+ Task  times  cpu:       14.8s     wall:       14.8s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+  xc_inp: hfexch multiplicative factor not found.
 
                                  NWChem DFT Module
                                  -----------------
@@ -2089,6 +2090,7 @@ set dft:cam_exch F
 
               XC Information
               --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
                    CAM-Becke88 Exchange Functional  1.000          
 
            Range-Separation Parameters        
@@ -2148,12 +2150,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:     32.0
-   Time prior to 1st pass:     32.0
+   Time after variat. SCF:     37.4
+   Time prior to 1st pass:     37.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -2162,411 +2164,402 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2215.5199219904 -2.22D+03  1.77D-02  5.26D-01    34.6
-                                                     1.50D-02  5.37D-01
+ d= 0,ls=0.0,diis     1  -2233.6430229363 -2.23D+03  1.28D-02  6.85D-02    40.7
+                                                     5.54D-03  5.52D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2215.5502713329 -3.03D-02  1.09D-02  3.86D-02    37.1
-                                                     7.24D-03  3.83D-02
- d= 0,ls=0.0,diis     3  -2215.5585539750 -8.28D-03  8.92D-03  7.56D-03    39.7
-                                                     4.71D-03  5.74D-03
- d= 0,ls=0.0,diis     4  -2215.5589902397 -4.36D-04  4.50D-03  6.24D-03    42.3
-                                                     2.36D-03  4.29D-03
- d= 0,ls=0.0,diis     5  -2215.5618489733 -2.86D-03  1.79D-04  4.09D-06    44.9
-                                                     8.89D-05  1.27D-06
- d= 0,ls=0.0,diis     6  -2215.5618521298 -3.16D-06  5.48D-06  1.00D-08    47.4
-                                                     4.12D-06  7.26D-09
- d= 0,ls=0.0,diis     7  -2215.5618521354 -5.55D-09  2.78D-07  1.31D-11    50.0
-                                                     2.77D-07  8.51D-12
+ d= 0,ls=0.0,diis     2  -2233.6603845712 -1.74D-02  1.20D-03  5.68D-04    44.0
+                                                     1.97D-03  2.82D-04
+ d= 0,ls=0.0,diis     3  -2233.6606622077 -2.78D-04  4.97D-04  3.66D-05    47.4
+                                                     3.44D-04  4.17D-05
+ d= 0,ls=0.0,diis     4  -2233.6606829648 -2.08D-05  7.96D-05  5.49D-06    50.7
+                                                     1.17D-04  5.50D-06
+ d= 0,ls=0.0,diis     5  -2233.6606852615 -2.30D-06  3.34D-05  5.28D-08    54.0
+                                                     6.22D-05  1.23D-07
+ d= 0,ls=0.0,diis     6  -2233.6606854225 -1.61D-07  2.07D-06  3.76D-10    57.3
+                                                     2.28D-06  3.73D-10
 
 
-         Total DFT energy =    -2215.561852135383
-      One electron energy =    -3104.403823423437
-           Coulomb energy =      951.600874180357
-    Exchange-Corr. energy =      -62.758902892303
+         Total DFT energy =    -2233.660685422530
+      One electron energy =    -3110.688035664075
+           Coulomb energy =      958.162851082616
+    Exchange-Corr. energy =      -81.135500841071
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =       33.000000020643
+ Numeric. integr. density =       33.000000011536
 
-     Total iterative time =     18.0s
+     Total iterative time =     19.9s
 
 
 
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
 
- Vector    5  Occ=1.000000D+00  E=-4.685256D+01
-              MO Center=  1.7D-17,  1.7D-17, -1.3D-17, r^2= 1.1D-02
+ Vector    5  Occ=1.000000D+00  E=-4.824767D+01
+              MO Center=  1.5D-17, -1.3D-17, -2.0D-18, r^2= 1.1D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.822500  1 As px                 7      0.487060  1 As py         
-     8     -0.263339  1 As pz         
+     7      0.956307  1 As py                 6      0.219815  1 As px         
+     8      0.152351  1 As pz         
 
- Vector    6  Occ=1.000000D+00  E=-6.453460D+00
-              MO Center= -1.4D-16,  3.5D-17, -6.0D-17, r^2= 1.2D-01
+ Vector    6  Occ=1.000000D+00  E=-7.093189D+00
+              MO Center=  5.6D-17,  9.2D-17, -9.6D-17, r^2= 1.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.136450  1 As s                  2     -0.486938  1 As s          
+     3      1.133385  1 As s                  2     -0.487847  1 As s          
 
- Vector    7  Occ=1.000000D+00  E=-4.569336D+00
-              MO Center= -2.7D-17, -3.3D-17, -4.0D-17, r^2= 1.3D-01
+ Vector    7  Occ=1.000000D+00  E=-5.152801D+00
+              MO Center= -1.1D-16,  3.8D-17, -4.8D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.025770  1 As pz                 8      0.413345  1 As pz         
-     9     -0.328607  1 As px         
+    11      0.941304  1 As pz                10      0.523384  1 As py         
+     8      0.376258  1 As pz                 7      0.209207  1 As py         
 
- Vector    8  Occ=1.000000D+00  E=-4.569336D+00
-              MO Center=  2.1D-17,  6.9D-18, -5.1D-17, r^2= 1.3D-01
+ Vector    8  Occ=1.000000D+00  E=-5.152801D+00
+              MO Center= -1.2D-16,  9.1D-17,  1.6D-16, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.887961  1 As py                 9      0.594837  1 As px         
-     7      0.357813  1 As py                 6      0.239696  1 As px         
+    10      0.791356  1 As py                 9      0.646317  1 As px         
+    11     -0.359993  1 As pz                 7      0.316321  1 As py         
+     6      0.258346  1 As px         
 
- Vector    9  Occ=1.000000D+00  E=-4.569336D+00
-              MO Center=  6.7D-17,  4.8D-17, -6.4D-17, r^2= 1.3D-01
+ Vector    9  Occ=1.000000D+00  E=-5.152801D+00
+              MO Center=  2.1D-17,  2.6D-16,  9.8D-20, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.837409  1 As px                10     -0.609682  1 As py         
-     6      0.337443  1 As px                11      0.300169  1 As pz         
-     7     -0.245678  1 As py         
+     9      0.861544  1 As px                10     -0.522867  1 As py         
+    11      0.397388  1 As pz                 6      0.344376  1 As px         
+     7     -0.209000  1 As py                 8      0.158844  1 As pz         
 
- Vector   10  Occ=1.000000D+00  E=-1.267011D+00
-              MO Center=  4.8D-17, -3.5D-18,  5.6D-17, r^2= 1.7D-01
+ Vector   10  Occ=1.000000D+00  E=-1.722132D+00
+              MO Center=  1.1D-16, -3.9D-17, -1.1D-16, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.699749  1 As dxz        
+    20      1.613561  1 As dxz               19      0.578728  1 As dxy        
 
- Vector   11  Occ=1.000000D+00  E=-1.267011D+00
-              MO Center= -3.5D-18,  1.5D-17,  1.9D-17, r^2= 1.7D-01
+ Vector   11  Occ=1.000000D+00  E=-1.722132D+00
+              MO Center=  7.0D-18, -2.7D-16,  1.3D-16, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.634790  1 As dyz               19     -0.465897  1 As dxy        
+    19      1.576541  1 As dxy               20     -0.568314  1 As dxz        
+    22     -0.358627  1 As dyz        
 
- Vector   12  Occ=1.000000D+00  E=-1.267011D+00
-              MO Center= -1.8D-17, -2.1D-17, -7.4D-18, r^2= 1.7D-01
+ Vector   12  Occ=1.000000D+00  E=-1.722132D+00
+              MO Center=  8.9D-18, -3.0D-17,  4.5D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.637035  1 As dxy               22      0.463031  1 As dyz        
+    22      1.676081  1 As dyz               19      0.341695  1 As dxy        
 
- Vector   13  Occ=1.000000D+00  E=-1.267011D+00
-              MO Center= -2.5D-16, -2.2D-16,  5.0D-17, r^2= 1.7D-01
+ Vector   13  Occ=1.000000D+00  E=-1.722132D+00
+              MO Center= -1.6D-17, -1.6D-16,  6.5D-18, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.909706  1 As dxx               21     -0.775612  1 As dyy        
+    21      0.955400  1 As dyy               18     -0.699187  1 As dxx        
+    23     -0.256214  1 As dzz        
 
- Vector   14  Occ=1.000000D+00  E=-1.267011D+00
-              MO Center= -2.1D-17,  1.8D-17,  1.3D-16, r^2= 1.7D-01
+ Vector   14  Occ=1.000000D+00  E=-1.722132D+00
+              MO Center=  1.1D-16, -1.9D-17, -3.6D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.975017  1 As dzz               21     -0.602418  1 As dyy        
-    18     -0.372599  1 As dxx        
+    23      0.956133  1 As dzz               18     -0.700054  1 As dxx        
+    21     -0.256080  1 As dyy        
 
- Vector   15  Occ=1.000000D+00  E=-4.012596D-01
-              MO Center=  2.8D-16, -2.1D-16,  2.9D-16, r^2= 1.3D+00
+ Vector   15  Occ=1.000000D+00  E=-6.601019D-01
+              MO Center= -6.7D-17,  6.7D-17, -2.6D-16, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.591572  1 As s                  5      0.483148  1 As s          
-     3     -0.430302  1 As s          
+     4      0.610986  1 As s                  5      0.476868  1 As s          
+     3     -0.414809  1 As s          
 
- Vector   16  Occ=1.000000D+00  E=-9.236767D-02
-              MO Center=  7.9D-16,  8.5D-18, -5.0D-17, r^2= 2.4D+00
+ Vector   16  Occ=1.000000D+00  E=-2.895682D-01
+              MO Center=  3.9D-18, -1.7D-16, -6.2D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13     -0.499574  1 As py                12      0.454753  1 As px         
-    16      0.293161  1 As py                15     -0.266859  1 As px         
-    14     -0.241038  1 As pz                10      0.212253  1 As py         
-     9     -0.193210  1 As px         
+    14      0.774389  1 As pz                11     -0.308001  1 As pz         
+    17     -0.298942  1 As pz                12     -0.215566  1 As px         
 
- Vector   17  Occ=1.000000D+00  E=-9.236767D-02
-              MO Center=  1.4D-16,  1.5D-16, -7.5D-17, r^2= 2.4D+00
+ Vector   17  Occ=1.000000D+00  E=-2.895682D-01
+              MO Center=  2.4D-16, -4.3D-16, -2.3D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.505210  1 As px                13      0.501716  1 As py         
-    15     -0.296469  1 As px                16     -0.294418  1 As py         
-     9     -0.214647  1 As px                10     -0.213163  1 As py         
+    13      0.774898  1 As py                10     -0.308203  1 As py         
+    16     -0.299139  1 As py                12     -0.244036  1 As px         
 
- Vector   18  Occ=1.000000D+00  E=-9.236767D-02
-              MO Center= -2.3D-15, -1.9D-15, -1.3D-15, r^2= 2.4D+00
+ Vector   18  Occ=1.000000D+00  E=-2.895682D-01
+              MO Center=  4.4D-16,  6.2D-16, -2.6D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.669968  1 As pz                17     -0.393152  1 As pz         
-    11     -0.284647  1 As pz                12      0.228989  1 As px         
+    12      0.747439  1 As px                 9     -0.297282  1 As px         
+    15     -0.288539  1 As px                14      0.245644  1 As pz         
+    13      0.213731  1 As py         
 
- Vector   19  Occ=0.000000D+00  E= 2.401065D-01
-              MO Center=  1.2D-13, -7.8D-14,  1.5D-14, r^2= 4.1D+00
+ Vector   19  Occ=0.000000D+00  E= 2.350259D-01
+              MO Center=  1.2D-13, -2.5D-13,  1.3D-13, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.156970  1 As s                  4     -1.742892  1 As s          
-    24     -0.617494  1 As dxx               27     -0.617494  1 As dyy        
-    29     -0.617494  1 As dzz        
+     5      3.136180  1 As s                  4     -1.744871  1 As s          
+    24     -0.604387  1 As dxx               27     -0.604387  1 As dyy        
+    29     -0.604387  1 As dzz        
 
- Vector   20  Occ=0.000000D+00  E= 2.447036D-01
-              MO Center= -1.2D-13,  3.2D-14, -5.4D-14, r^2= 5.2D+00
+ Vector   20  Occ=0.000000D+00  E= 2.376069D-01
+              MO Center= -6.5D-14,  4.9D-14, -2.0D-13, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.101028  1 As px                12      1.056735  1 As px         
-    17      0.508116  1 As pz                14      0.487675  1 As pz         
-     9     -0.306770  1 As px                16     -0.301214  1 As py         
-    13     -0.289097  1 As py         
+    17      1.184195  1 As pz                14      1.049708  1 As pz         
+    15      0.389460  1 As px                12      0.345230  1 As px         
+    16     -0.292070  1 As py                11     -0.290378  1 As pz         
+    13     -0.258901  1 As py         
 
- Vector   21  Occ=0.000000D+00  E= 2.447036D-01
-              MO Center= -4.7D-15,  4.7D-14,  3.8D-14, r^2= 5.2D+00
+ Vector   21  Occ=0.000000D+00  E= 2.376069D-01
+              MO Center=  8.0D-14,  1.1D-13,  4.0D-16, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      0.967533  1 As py                13      0.928611  1 As py         
-    17      0.784582  1 As pz                14      0.753019  1 As pz         
-    10     -0.269575  1 As py                11     -0.218601  1 As pz         
+    16      1.028869  1 As py                13      0.912022  1 As py         
+    15      0.762051  1 As px                12      0.675506  1 As px         
+    10     -0.252290  1 As py                 9     -0.186864  1 As px         
 
- Vector   22  Occ=0.000000D+00  E= 2.447036D-01
-              MO Center= -9.4D-16, -1.2D-15,  1.3D-15, r^2= 5.2D+00
+ Vector   22  Occ=0.000000D+00  E= 2.376069D-01
+              MO Center= -1.3D-13,  9.7D-14,  6.7D-14, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      0.829110  1 As pz                14      0.795756  1 As pz         
-    16     -0.730974  1 As py                13     -0.701568  1 As py         
-    15     -0.582604  1 As px                12     -0.559167  1 As px         
-    11     -0.231008  1 As pz                10      0.203665  1 As py         
-     9      0.162326  1 As px         
+    15      0.952314  1 As px                12      0.844161  1 As px         
+    16     -0.703865  1 As py                13     -0.623929  1 As py         
+    17     -0.486800  1 As pz                14     -0.431515  1 As pz         
+     9     -0.233518  1 As px                10      0.172596  1 As py         
 
- Vector   23  Occ=0.000000D+00  E= 4.646614D-01
-              MO Center=  2.0D-15,  3.1D-15,  2.0D-15, r^2= 1.8D+00
+ Vector   23  Occ=0.000000D+00  E= 4.465673D-01
+              MO Center= -6.8D-17, -5.0D-18, -1.0D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.119514  1 As dxy               26      1.083364  1 As dxz        
-    27     -0.420605  1 As dyy               28      0.400130  1 As dyz        
-    19     -0.301340  1 As dxy               20     -0.291610  1 As dxz        
-    24      0.232348  1 As dxx               29      0.188257  1 As dzz        
+    24      0.999522  1 As dxx               27     -0.679927  1 As dyy        
+    29     -0.319595  1 As dzz               18     -0.248048  1 As dxx        
+    21      0.168735  1 As dyy        
 
- Vector   24  Occ=0.000000D+00  E= 4.646614D-01
-              MO Center= -2.8D-16,  2.9D-17, -1.7D-16, r^2= 1.8D+00
+ Vector   24  Occ=0.000000D+00  E= 4.465673D-01
+              MO Center= -1.8D-17, -6.1D-17, -1.2D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.319847  1 As dxy               26     -1.034465  1 As dxz        
-    19     -0.355264  1 As dxy               28     -0.293429  1 As dyz        
-    20      0.278448  1 As dxz               29     -0.258947  1 As dzz        
-    27      0.200863  1 As dyy        
+    29      0.969630  1 As dzz               27     -0.761593  1 As dyy        
+    23     -0.240630  1 As dzz               24     -0.208038  1 As dxx        
+    21      0.189002  1 As dyy        
 
- Vector   25  Occ=0.000000D+00  E= 4.646614D-01
-              MO Center=  4.5D-16, -1.1D-16, -6.9D-16, r^2= 1.8D+00
+ Vector   25  Occ=0.000000D+00  E= 4.465673D-01
+              MO Center=  6.4D-17,  9.2D-17,  7.0D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.961456  1 As dzz               26     -0.511138  1 As dxz        
-    27     -0.482392  1 As dyy               24     -0.479064  1 As dxx        
-    28     -0.272507  1 As dyz               23     -0.258796  1 As dzz        
+    25      1.441653  1 As dxy               26      0.897645  1 As dxz        
+    28      0.492788  1 As dyz               19     -0.357771  1 As dxy        
+    20     -0.222766  1 As dxz        
 
- Vector   26  Occ=0.000000D+00  E= 4.646614D-01
-              MO Center=  4.8D-17,  1.8D-17, -4.0D-16, r^2= 1.8D+00
+ Vector   26  Occ=0.000000D+00  E= 4.465673D-01
+              MO Center=  1.1D-16,  8.2D-17, -1.9D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.615226  1 As dyz               26     -0.657777  1 As dxz        
-    22     -0.434772  1 As dyz               20      0.177054  1 As dxz        
+    28      1.535620  1 As dyz               25     -0.777418  1 As dxy        
+    26      0.405542  1 As dxz               22     -0.381090  1 As dyz        
+    19      0.192930  1 As dxy        
 
- Vector   27  Occ=0.000000D+00  E= 4.646614D-01
-              MO Center= -5.7D-16, -1.6D-17,  1.8D-16, r^2= 1.8D+00
+ Vector   27  Occ=0.000000D+00  E= 4.465673D-01
+              MO Center=  3.2D-16,  1.0D-16, -4.4D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.861433  1 As dxx               27     -0.754383  1 As dyy        
-    28     -0.436283  1 As dyz               26     -0.426653  1 As dxz        
-    25     -0.319605  1 As dxy               18     -0.231872  1 As dxx        
-    21      0.203058  1 As dyy        
+    26      1.468584  1 As dxz               28     -0.725261  1 As dyz        
+    25     -0.666504  1 As dxy               20     -0.364454  1 As dxz        
+    22      0.179986  1 As dyz               19      0.165404  1 As dxy        
 
- Vector   28  Occ=0.000000D+00  E= 1.251892D+00
-              MO Center= -2.0D-16,  3.8D-17, -9.0D-17, r^2= 2.5D+00
+ Vector   28  Occ=0.000000D+00  E= 1.253691D+00
+              MO Center= -3.0D-16,  1.6D-16, -2.8D-16, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.385113  1 As s                 24     -1.808927  1 As dxx        
-    27     -1.808927  1 As dyy               29     -1.808927  1 As dzz        
-     4      0.806241  1 As s                  3     -0.639237  1 As s          
-     2      0.189200  1 As s          
+     5      3.409076  1 As s                 24     -1.816335  1 As dxx        
+    27     -1.816335  1 As dyy               29     -1.816335  1 As dzz        
+     4      0.798546  1 As s                  3     -0.611469  1 As s          
+     2      0.184240  1 As s                 18     -0.151892  1 As dxx        
+    21     -0.151892  1 As dyy               23     -0.151892  1 As dzz        
 
 
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
- Vector    5  Occ=1.000000D+00  E=-4.684962D+01
-              MO Center=  2.1D-17,  1.8D-19, -1.8D-17, r^2= 1.1D-02
+ Vector    5  Occ=1.000000D+00  E=-4.824273D+01
+              MO Center= -3.4D-17, -2.8D-17, -1.7D-17, r^2= 1.1D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.668745  1 As py                 6      0.630357  1 As px         
-     8     -0.372176  1 As pz         
+     6      0.698822  1 As px                 7      0.569891  1 As py         
+     8      0.415828  1 As pz         
 
- Vector    6  Occ=1.000000D+00  E=-6.448782D+00
-              MO Center=  3.5D-17,  1.0D-16,  9.1D-17, r^2= 1.2D-01
+ Vector    6  Occ=1.000000D+00  E=-7.085308D+00
+              MO Center=  4.0D-17,  1.6D-16, -2.4D-17, r^2= 1.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.136532  1 As s                  2     -0.487142  1 As s          
+     3      1.133364  1 As s                  2     -0.488102  1 As s          
 
- Vector    7  Occ=1.000000D+00  E=-4.563906D+00
-              MO Center= -4.7D-17, -1.2D-16, -4.4D-17, r^2= 1.3D-01
+ Vector    7  Occ=1.000000D+00  E=-5.142758D+00
+              MO Center=  1.4D-16, -1.6D-16,  9.4D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.740964  1 As px                11      0.698646  1 As pz         
-    10      0.356735  1 As py                 6      0.298544  1 As px         
-     8      0.281493  1 As pz         
+    10      0.882147  1 As py                11     -0.563869  1 As pz         
+     7      0.352586  1 As py                 9     -0.280365  1 As px         
+     8     -0.225373  1 As pz         
 
- Vector    8  Occ=1.000000D+00  E=-4.563906D+00
-              MO Center= -4.9D-17,  3.8D-17,  2.0D-16, r^2= 1.3D-01
+ Vector    8  Occ=1.000000D+00  E=-5.142758D+00
+              MO Center= -5.3D-17,  1.3D-16, -1.5D-16, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.821206  1 As pz                 9     -0.603740  1 As px         
-    10     -0.354278  1 As py                 8      0.330874  1 As pz         
-     6     -0.243254  1 As px         
+     9      0.951663  1 As px                11     -0.517933  1 As pz         
+     6      0.380371  1 As px                 8     -0.207013  1 As pz         
 
- Vector    9  Occ=1.000000D+00  E=-4.563906D+00
-              MO Center=  1.5D-16, -3.6D-17,  7.8D-17, r^2= 1.3D-01
+ Vector    9  Occ=1.000000D+00  E=-5.142758D+00
+              MO Center=  1.2D-16, -4.9D-17,  9.7D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.954789  1 As py                 9     -0.500864  1 As px         
-     7      0.384696  1 As py                 6     -0.201805  1 As px         
+    11      0.767159  1 As pz                10      0.629074  1 As py         
+     9      0.436427  1 As px                 8      0.306626  1 As pz         
+     7      0.251435  1 As py                 6      0.174436  1 As px         
 
- Vector   10  Occ=1.000000D+00  E=-1.257959D+00
-              MO Center=  2.5D-17,  3.2D-18, -8.5D-17, r^2= 1.7D-01
+ Vector   10  Occ=1.000000D+00  E=-1.709620D+00
+              MO Center= -2.3D-17, -1.8D-17, -9.2D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.660149  1 As dxz               22     -0.372854  1 As dyz        
+    20      1.590326  1 As dxz               22     -0.449652  1 As dyz        
+    19      0.445790  1 As dxy        
 
- Vector   11  Occ=1.000000D+00  E=-1.257959D+00
-              MO Center=  3.5D-18,  5.6D-17, -8.8D-17, r^2= 1.7D-01
+ Vector   11  Occ=1.000000D+00  E=-1.709620D+00
+              MO Center= -1.0D-16, -1.1D-16,  1.2D-16, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.652711  1 As dyz               20      0.387888  1 As dxz        
-    19      0.189172  1 As dxy        
+    22      1.265232  1 As dyz               19     -0.975034  1 As dxy        
+    20      0.632105  1 As dxz        
 
- Vector   12  Occ=1.000000D+00  E=-1.257959D+00
-              MO Center= -1.4D-16,  1.6D-16,  2.6D-17, r^2= 1.7D-01
+ Vector   12  Occ=1.000000D+00  E=-1.709620D+00
+              MO Center= -4.3D-17,  2.4D-17, -3.3D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.691145  1 As dxy               22     -0.217386  1 As dyz        
+    19      1.342969  1 As dxy               22      1.067750  1 As dyz        
 
- Vector   13  Occ=1.000000D+00  E=-1.257959D+00
-              MO Center=  4.1D-17, -1.3D-17,  6.5D-19, r^2= 1.7D-01
+ Vector   13  Occ=1.000000D+00  E=-1.709620D+00
+              MO Center= -7.6D-18, -3.2D-17, -5.5D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.889017  1 As dxx               21     -0.813708  1 As dyy        
+    21      0.937585  1 As dyy               23     -0.741564  1 As dzz        
+    18     -0.196021  1 As dxx        
 
- Vector   14  Occ=1.000000D+00  E=-1.257959D+00
-              MO Center= -1.8D-17, -1.0D-17, -5.0D-18, r^2= 1.7D-01
+ Vector   14  Occ=1.000000D+00  E=-1.709620D+00
+              MO Center=  1.5D-17, -1.3D-17,  1.4D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.983312  1 As dzz               21     -0.556889  1 As dyy        
-    18     -0.426422  1 As dxx        
+    18      0.969448  1 As dxx               23     -0.658468  1 As dzz        
+    21     -0.310980  1 As dyy        
 
- Vector   15  Occ=1.000000D+00  E=-3.287287D-01
-              MO Center=  3.3D-17,  1.4D-16,  6.2D-17, r^2= 1.3D+00
+ Vector   15  Occ=1.000000D+00  E=-5.071747D-01
+              MO Center=  2.7D-17,  1.5D-16, -6.3D-17, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.595589  1 As s                  5      0.536885  1 As s          
-     3     -0.447180  1 As s          
+     4      0.642012  1 As s                  5      0.512498  1 As s          
+     3     -0.438132  1 As s          
 
- Vector   16  Occ=0.000000D+00  E=-2.196649D-02
-              MO Center= -1.1D-15,  3.6D-15, -7.0D-16, r^2= 2.6D+00
+ Vector   16  Occ=0.000000D+00  E=-1.437584D-02
+              MO Center= -3.9D-16, -6.2D-17, -1.7D-15, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.579413  1 As px                15     -0.422894  1 As px         
-    14     -0.265614  1 As pz                 9     -0.252050  1 As px         
-    17      0.193863  1 As pz                13     -0.165771  1 As py         
+    14      0.624422  1 As pz                17     -0.489831  1 As pz         
+    11     -0.267255  1 As pz         
 
- Vector   17  Occ=0.000000D+00  E=-2.196649D-02
-              MO Center= -6.1D-16,  5.1D-16, -1.5D-15, r^2= 2.6D+00
+ Vector   17  Occ=0.000000D+00  E=-1.437584D-02
+              MO Center= -6.4D-17, -3.4D-16, -7.2D-17, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.590620  1 As pz                17     -0.431074  1 As pz         
-    11     -0.256925  1 As pz                12      0.214235  1 As px         
-    13     -0.197539  1 As py                15     -0.156363  1 As px         
+    13      0.498638  1 As py                16     -0.391159  1 As py         
+    12      0.383253  1 As px                15     -0.300645  1 As px         
+    10     -0.213419  1 As py                 9     -0.164034  1 As px         
 
- Vector   18  Occ=0.000000D+00  E=-2.196649D-02
-              MO Center=  1.0D-15,  2.9D-16, -4.0D-16, r^2= 2.6D+00
+ Vector   18  Occ=0.000000D+00  E=-1.437584D-02
+              MO Center=  3.9D-16, -3.6D-16, -1.6D-16, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.606010  1 As py                16     -0.442307  1 As py         
-    10     -0.263620  1 As py                12      0.228329  1 As px         
-    15     -0.166650  1 As px         
+    12      0.494567  1 As px                13     -0.396563  1 As py         
+    15     -0.387966  1 As px                16      0.311086  1 As py         
+     9     -0.211676  1 As px                10      0.169731  1 As py         
 
- Vector   19  Occ=0.000000D+00  E= 2.860687D-01
-              MO Center= -4.2D-14, -6.1D-15,  2.2D-14, r^2= 5.0D+00
+ Vector   19  Occ=0.000000D+00  E= 2.963785D-01
+              MO Center=  3.0D-15,  5.7D-13,  1.2D-12, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.077018  1 As px                15      1.072904  1 As px         
-    14     -0.577856  1 As pz                17     -0.575648  1 As pz         
-     9     -0.315885  1 As px                11      0.169483  1 As pz         
-    13      0.158046  1 As py                16      0.157442  1 As py         
+     5      3.195976  1 As s                  4     -1.721322  1 As s          
+    24     -0.634232  1 As dxx               27     -0.634232  1 As dyy        
+    29     -0.634232  1 As dzz        
 
- Vector   20  Occ=0.000000D+00  E= 2.860687D-01
-              MO Center=  6.9D-14,  9.6D-14,  1.6D-13, r^2= 5.0D+00
+ Vector   20  Occ=0.000000D+00  E= 2.968368D-01
+              MO Center= -1.9D-14, -1.8D-13, -1.3D-12, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.980795  1 As pz                17      0.977048  1 As pz         
-    13      0.604554  1 As py                16      0.602245  1 As py         
-    12      0.437514  1 As px                15      0.435843  1 As px         
-    11     -0.287663  1 As pz                10     -0.177313  1 As py         
+    14      1.230332  1 As pz                17      1.207143  1 As pz         
+    11     -0.353960  1 As pz                13      0.176782  1 As py         
+    16      0.173450  1 As py         
 
- Vector   21  Occ=0.000000D+00  E= 2.860687D-01
-              MO Center= -3.6D-14,  9.2D-14, -4.1D-14, r^2= 5.0D+00
+ Vector   21  Occ=0.000000D+00  E= 2.968368D-01
+              MO Center=  9.2D-14, -3.7D-13,  5.1D-14, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.062261  1 As py                16      1.058203  1 As py         
-    14     -0.472215  1 As pz                17     -0.470411  1 As pz         
-    12     -0.409240  1 As px                15     -0.407677  1 As px         
-    10     -0.311557  1 As py         
+    13      1.195025  1 As py                16      1.172501  1 As py         
+    10     -0.343802  1 As py                12     -0.298746  1 As px         
+    15     -0.293115  1 As px                14     -0.167253  1 As pz         
+    17     -0.164100  1 As pz         
 
- Vector   22  Occ=0.000000D+00  E= 2.883751D-01
-              MO Center=  8.7D-15, -1.8D-13, -1.4D-13, r^2= 4.1D+00
+ Vector   22  Occ=0.000000D+00  E= 2.968368D-01
+              MO Center= -7.5D-14, -1.8D-14,  3.7D-15, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.180649  1 As s                  4     -1.734867  1 As s          
-    24     -0.631401  1 As dxx               27     -0.631401  1 As dyy        
-    29     -0.631401  1 As dzz        
+    12      1.206533  1 As px                15      1.183792  1 As px         
+     9     -0.347112  1 As px                13      0.293207  1 As py         
+    16      0.287681  1 As py         
 
- Vector   23  Occ=0.000000D+00  E= 5.469040D-01
-              MO Center=  2.9D-16,  7.6D-17, -4.0D-16, r^2= 1.8D+00
+ Vector   23  Occ=0.000000D+00  E= 5.716700D-01
+              MO Center=  4.5D-17, -6.6D-16, -1.4D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.211034  1 As dxz               29      0.726069  1 As dzz        
-    24     -0.389987  1 As dxx               27     -0.336081  1 As dyy        
-    20     -0.317654  1 As dxz               28     -0.227744  1 As dyz        
-    23     -0.190447  1 As dzz        
+    27      0.996055  1 As dyy               24     -0.693518  1 As dxx        
+    29     -0.302537  1 As dzz               21     -0.237966  1 As dyy        
+    18      0.165687  1 As dxx        
 
- Vector   24  Occ=0.000000D+00  E= 5.469040D-01
-              MO Center= -1.1D-15, -3.3D-15,  6.0D-16, r^2= 1.8D+00
+ Vector   24  Occ=0.000000D+00  E= 5.716700D-01
+              MO Center=  2.0D-16,  8.3D-17,  1.4D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.666740  1 As dxy               19     -0.437185  1 As dxy        
-    27     -0.281780  1 As dyy               26     -0.277434  1 As dxz        
-    24      0.225062  1 As dxx        
+    29      0.975476  1 As dzz               24     -0.749743  1 As dxx        
+    23     -0.233049  1 As dzz               27     -0.225733  1 As dyy        
+    18      0.179120  1 As dxx        
 
- Vector   25  Occ=0.000000D+00  E= 5.469040D-01
-              MO Center= -3.8D-16,  1.2D-16,  9.0D-16, r^2= 1.8D+00
+ Vector   25  Occ=0.000000D+00  E= 5.716700D-01
+              MO Center=  5.6D-17, -6.1D-18, -3.1D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.393272  1 As dyz               26      0.564495  1 As dxz        
-    27      0.489293  1 As dyy               25      0.373983  1 As dxy        
-    22     -0.365454  1 As dyz               24     -0.278135  1 As dxx        
-    29     -0.211158  1 As dzz        
+    28      1.575683  1 As dyz               26     -0.689329  1 As dxz        
+    25     -0.413878  1 As dxy               22     -0.376444  1 As dyz        
+    20      0.164687  1 As dxz        
 
- Vector   26  Occ=0.000000D+00  E= 5.469040D-01
-              MO Center=  1.2D-15, -1.2D-15,  1.1D-16, r^2= 1.8D+00
+ Vector   26  Occ=0.000000D+00  E= 5.716700D-01
+              MO Center= -2.0D-16,  1.2D-16, -6.4D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      0.955199  1 As dyz               27     -0.778885  1 As dyy        
-    24      0.618854  1 As dxx               25     -0.423691  1 As dxy        
-    22     -0.250548  1 As dyz               21      0.204301  1 As dyy        
-    18     -0.162325  1 As dxx               29      0.160031  1 As dzz        
+    25      1.652242  1 As dxy               28      0.561134  1 As dyz        
+    19     -0.394735  1 As dxy               26      0.290634  1 As dxz        
 
- Vector   27  Occ=0.000000D+00  E= 5.469040D-01
-              MO Center=  6.1D-17,  5.5D-17,  2.1D-16, r^2= 1.8D+00
+ Vector   27  Occ=0.000000D+00  E= 5.716700D-01
+              MO Center= -9.3D-17,  1.3D-17,  2.3D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.122585  1 As dxz               29     -0.663491  1 As dzz        
-    24      0.614597  1 As dxx               28     -0.464812  1 As dyz        
-    20     -0.294453  1 As dxz               23      0.174033  1 As dzz        
-    18     -0.161208  1 As dxx        
+    26      1.602998  1 As dxz               28      0.575845  1 As dyz        
+    25     -0.477540  1 As dxy               20     -0.382970  1 As dxz        
 
- Vector   28  Occ=0.000000D+00  E= 1.304126D+00
-              MO Center=  6.6D-17,  5.4D-17, -6.7D-17, r^2= 2.5D+00
+ Vector   28  Occ=0.000000D+00  E= 1.317288D+00
+              MO Center=  1.0D-16,  3.2D-17, -3.2D-16, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.356427  1 As s                 24     -1.804660  1 As dxx        
-    27     -1.804660  1 As dyy               29     -1.804660  1 As dzz        
-     4      0.809344  1 As s                  3     -0.632448  1 As s          
-     2      0.187915  1 As s          
+     5      3.350199  1 As s                 24     -1.807088  1 As dxx        
+    27     -1.807088  1 As dyy               29     -1.807088  1 As dzz        
+     4      0.812712  1 As s                  3     -0.597840  1 As s          
+     2      0.183442  1 As s                 18     -0.152767  1 As dxx        
+    21     -0.152767  1 As dyy               23     -0.152767  1 As dzz        
 
 
    alpha - beta orbital overlaps 
@@ -2574,32 +2567,33 @@ set dft:cam_exch F
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      5      3      4      6      8      7      9     10
- overlap   1.000  1.000  0.858  0.901  0.923  1.000  0.878  0.737  0.849  0.984
+    beta      1      2      3      4      5      6      9      8      7     10
+ overlap   1.000  1.000  0.862  0.909  0.773  1.000  0.852  0.663  0.789  0.957
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     13     14     15     16     18     17     22     21
- overlap   0.914  0.916  0.995  0.998  1.000  0.868  0.865  0.988  1.000  0.655
+    beta     11     12     13     14     15     16     18     17     19     20
+ overlap   0.797  0.765  0.827  0.833  1.000  0.857  0.823  0.696  1.000  0.878
 
 
    alpha     21     22     23     24     25     26     27     28     29
-    beta     20     19     24     24     27     26     25     28     29
- overlap   0.851  0.793  0.614  0.762  0.753  0.626  0.686  1.000  1.000
+    beta     22     21     23     24     26     25     27     28     29
+ overlap   0.759  0.649  0.814  0.814  0.933  0.787  0.721  1.000  1.000
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      3.7505 (Exact =     3.7500)
+      <S2> =      3.7510 (Exact =     3.7500)
 
 
- Task  times  cpu:       18.8s     wall:       18.9s
+ Task  times  cpu:       20.7s     wall:       20.8s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+  xc_inp: hfexch multiplicative factor not found.
 
                                  NWChem DFT Module
                                  -----------------
@@ -2629,6 +2623,7 @@ set dft:cam_exch F
 
               XC Information
               --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
                      CAM-LSD   Exchange Functional  1.000 local    
 
            Range-Separation Parameters        
@@ -2688,12 +2683,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:     50.8
-   Time prior to 1st pass:     50.8
+   Time after variat. SCF:     58.1
+   Time prior to 1st pass:     58.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -2702,416 +2697,410 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2188.2503316698 -2.19D+03  5.47D-02  2.60D+00    52.1
-                                                     4.37D-02  2.71D+00
+ d= 0,ls=0.0,diis     1  -2231.5093218542 -2.23D+03  1.09D-02  8.91D-02    60.1
+                                                     3.53D-03  7.49D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2188.2214681749  2.89D-02  4.57D-02  8.78D-01    53.3
-                                                     3.06D-02  7.93D-01
- d= 0,ls=0.0,diis     3  -2188.4016258058 -1.80D-01  3.87D-02  1.33D-01    54.5
-                                                     2.21D-02  1.05D-01
-  Resetting Diis
- d= 0,ls=0.0,diis     4  -2188.3703303885  3.13D-02  2.06D-02  2.40D-01    55.7
-                                                     1.25D-02  1.82D-01
- d= 0,ls=0.0,diis     5  -2188.4584276086 -8.81D-02  1.09D-03  1.17D-04    57.0
-                                                     6.37D-04  9.18D-05
-  Resetting Diis
- d= 0,ls=0.0,diis     6  -2188.4584090111  1.86D-05  6.22D-04  1.59D-04    58.2
-                                                     3.30D-04  1.17D-04
- d= 0,ls=0.0,diis     7  -2188.4584746940 -6.57D-05  2.87D-05  3.65D-08    59.4
-                                                     1.47D-05  1.28D-08
- d= 0,ls=0.0,diis     8  -2188.4584746893  4.62D-09  1.29D-05  5.79D-08    60.6
-                                                     6.31D-06  3.17D-08
- d= 0,ls=0.0,diis     9  -2188.4584747190 -2.97D-08  1.68D-06  3.92D-10    61.9
-                                                     8.57D-07  1.16D-10
+ d= 0,ls=0.0,diis     2  -2231.5246191369 -1.53D-02  1.80D-03  9.35D-04    62.0
+                                                     1.39D-03  1.78D-04
+ d= 0,ls=0.0,diis     3  -2231.5251257503 -5.07D-04  5.31D-04  3.69D-05    64.0
+                                                     5.41D-04  3.00D-05
+ d= 0,ls=0.0,diis     4  -2231.5251712916 -4.55D-05  1.77D-04  3.58D-06    65.9
+                                                     2.76D-04  4.50D-06
+ d= 0,ls=0.0,diis     5  -2231.5251775048 -6.21D-06  5.51D-05  1.98D-07    67.8
+                                                     8.00D-05  3.04D-07
+ d= 0,ls=0.0,diis     6  -2231.5251779040 -3.99D-07  6.49D-06  4.09D-09    69.8
+                                                     1.14D-05  7.51D-09
+ d= 0,ls=0.0,diis     7  -2231.5251779115 -7.42D-09  5.56D-07  3.39D-11    71.7
+                                                     1.39D-07  4.00D-12
 
 
-         Total DFT energy =    -2188.458474719035
-      One electron energy =    -3094.714938918669
-           Coulomb energy =      941.603574928974
-    Exchange-Corr. energy =      -35.347110729339
+         Total DFT energy =    -2231.525177911454
+      One electron energy =    -3110.992065772921
+           Coulomb energy =      958.486104052312
+    Exchange-Corr. energy =      -79.019216190845
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =       33.000000031222
+ Numeric. integr. density =       33.000000011153
 
-     Total iterative time =     11.1s
+     Total iterative time =     13.6s
 
 
 
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
 
- Vector    5  Occ=1.000000D+00  E=-4.562285D+01
-              MO Center= -1.3D-17, -2.6D-17,  2.2D-17, r^2= 1.1D-02
+ Vector    5  Occ=1.000000D+00  E=-4.900595D+01
+              MO Center= -3.0D-18, -5.1D-18,  2.0D-17, r^2= 1.1D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.741828  1 As py                 6      0.537970  1 As px         
-     8     -0.371148  1 As pz         
+     6      0.729616  1 As px                 8     -0.664034  1 As pz         
 
- Vector    6  Occ=1.000000D+00  E=-6.074858D+00
-              MO Center= -9.1D-17,  1.2D-17,  5.4D-17, r^2= 1.2D-01
+ Vector    6  Occ=1.000000D+00  E=-7.487658D+00
+              MO Center= -1.4D-16, -3.1D-17, -4.7D-17, r^2= 1.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.156493  1 As s                  2     -0.484086  1 As s          
+     3      1.146489  1 As s                  2     -0.486910  1 As s          
 
- Vector    7  Occ=1.000000D+00  E=-4.209594D+00
-              MO Center=  2.0D-16,  4.1D-17,  5.6D-17, r^2= 1.3D-01
+ Vector    7  Occ=1.000000D+00  E=-5.476573D+00
+              MO Center= -1.2D-17,  6.6D-17,  1.5D-16, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.822572  1 As pz                 9     -0.618218  1 As px         
-     8      0.336478  1 As pz                10     -0.293513  1 As py         
-     6     -0.252885  1 As px         
+    11      0.811352  1 As pz                 9      0.702251  1 As px         
+     8      0.324777  1 As pz                 6      0.281105  1 As px         
+    10     -0.150910  1 As py         
 
- Vector    8  Occ=1.000000D+00  E=-4.209594D+00
-              MO Center= -2.9D-17,  6.8D-17, -1.2D-16, r^2= 1.3D-01
+ Vector    8  Occ=1.000000D+00  E=-5.476573D+00
+              MO Center=  3.6D-18, -3.5D-17,  4.0D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.820289  1 As px                11      0.670328  1 As pz         
-     6      0.335544  1 As px                 8      0.274201  1 As pz         
-    10      0.150847  1 As py         
+    10      0.705359  1 As py                11      0.609428  1 As pz         
+     9     -0.552531  1 As px                 7      0.282349  1 As py         
+     8      0.243949  1 As pz                 6     -0.221173  1 As px         
 
- Vector    9  Occ=1.000000D+00  E=-4.209594D+00
-              MO Center= -8.0D-17, -4.3D-16, -7.7D-17, r^2= 1.3D-01
+ Vector    9  Occ=1.000000D+00  E=-5.476573D+00
+              MO Center=  1.5D-17,  1.2D-16, -7.7D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.017872  1 As py                 7      0.416366  1 As py         
-     9     -0.299834  1 As px         
+    10      0.808653  1 As py                 9      0.613006  1 As px         
+    11     -0.380169  1 As pz                 7      0.323697  1 As py         
+     6      0.245381  1 As px                 8     -0.152178  1 As pz         
 
- Vector   10  Occ=1.000000D+00  E=-9.792203D-01
-              MO Center= -2.3D-17, -8.0D-18,  8.6D-17, r^2= 1.9D-01
+ Vector   10  Occ=1.000000D+00  E=-1.913047D+00
+              MO Center=  2.9D-17, -1.4D-17,  9.1D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.558504  1 As dxz               22      0.642745  1 As dyz        
-    26      0.163993  1 As dxz        
+    20      1.552753  1 As dxz               22     -0.713991  1 As dyz        
+    19     -0.155052  1 As dxy        
 
- Vector   11  Occ=1.000000D+00  E=-9.792203D-01
-              MO Center=  4.7D-17, -1.4D-16,  3.1D-17, r^2= 1.9D-01
+ Vector   11  Occ=1.000000D+00  E=-1.913047D+00
+              MO Center= -3.0D-17, -8.8D-17, -1.6D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.551078  1 As dyz               20     -0.643985  1 As dxz        
-    28      0.163212  1 As dyz               19      0.150068  1 As dxy        
+    22      1.558445  1 As dyz               20      0.700773  1 As dxz        
+    19     -0.160174  1 As dxy        
 
- Vector   12  Occ=1.000000D+00  E=-9.792203D-01
-              MO Center= -8.7D-16, -6.3D-16,  1.2D-16, r^2= 1.9D-01
+ Vector   12  Occ=1.000000D+00  E=-1.913047D+00
+              MO Center=  3.5D-16, -3.7D-16, -3.0D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.677664  1 As dxy               25      0.176532  1 As dxy        
-    22     -0.156657  1 As dyz        
+    19      1.701108  1 As dxy               20      0.206946  1 As dxz        
 
- Vector   13  Occ=1.000000D+00  E=-9.792203D-01
-              MO Center= -2.9D-17,  1.2D-16,  7.2D-18, r^2= 1.9D-01
+ Vector   13  Occ=1.000000D+00  E=-1.913047D+00
+              MO Center= -2.9D-18, -5.2D-17, -2.7D-18, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.907675  1 As dzz               21     -0.755962  1 As dyy        
-    18     -0.151712  1 As dxx        
+    21      0.890692  1 As dyy               23     -0.821250  1 As dzz        
 
- Vector   14  Occ=1.000000D+00  E=-9.792203D-01
-              MO Center= -6.6D-17,  3.8D-17, -6.5D-17, r^2= 1.9D-01
+ Vector   14  Occ=1.000000D+00  E=-1.913047D+00
+              MO Center=  1.2D-16,  1.2D-17, -6.2D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.961858  1 As dxx               21     -0.612708  1 As dyy        
-    23     -0.349150  1 As dzz        
+    18      0.988000  1 As dxx               23     -0.554072  1 As dzz        
+    21     -0.433928  1 As dyy        
 
- Vector   15  Occ=1.000000D+00  E=-3.144877D-01
-              MO Center=  9.2D-17,  1.1D-16, -5.4D-17, r^2= 1.4D+00
+ Vector   15  Occ=1.000000D+00  E=-7.529344D-01
+              MO Center=  7.6D-17,  1.4D-16, -7.5D-17, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.525763  1 As s                  5      0.506809  1 As s          
-     3     -0.449091  1 As s          
+     4      0.594744  1 As s                  5      0.475745  1 As s          
+     3     -0.411099  1 As s          
 
- Vector   16  Occ=1.000000D+00  E=-2.318643D-02
-              MO Center= -1.4D-15,  1.7D-15,  7.1D-16, r^2= 2.8D+00
+ Vector   16  Occ=1.000000D+00  E=-3.457210D-01
+              MO Center=  3.6D-17,  1.7D-17,  6.9D-17, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.462127  1 As px                14      0.386314  1 As pz         
-    15     -0.384897  1 As px                17     -0.321754  1 As pz         
-     9     -0.214945  1 As px                11     -0.179683  1 As pz         
-    13      0.151603  1 As py         
+    14      0.689572  1 As pz                13      0.421178  1 As py         
+    11     -0.273336  1 As pz                17     -0.260405  1 As pz         
+    10     -0.166949  1 As py                16     -0.159051  1 As py         
 
- Vector   17  Occ=1.000000D+00  E=-2.318643D-02
-              MO Center=  2.5D-15, -4.7D-16, -2.5D-17, r^2= 2.8D+00
+ Vector   17  Occ=1.000000D+00  E=-3.457210D-01
+              MO Center= -2.8D-16,  2.2D-16, -1.3D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.573354  1 As py                16     -0.477535  1 As py         
-    10     -0.266679  1 As py                12     -0.232789  1 As px         
-    15      0.193885  1 As px         
+    12      0.786138  1 As px                 9     -0.311613  1 As px         
+    15     -0.296871  1 As px                13      0.232032  1 As py         
 
- Vector   18  Occ=1.000000D+00  E=-2.318643D-02
-              MO Center=  2.5D-17,  9.4D-17, -8.3D-17, r^2= 2.8D+00
+ Vector   18  Occ=1.000000D+00  E=-3.457210D-01
+              MO Center= -4.0D-16,  1.4D-16,  2.8D-16, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.483411  1 As pz                17     -0.402624  1 As pz         
-    12     -0.343557  1 As px                15      0.286142  1 As px         
-    11     -0.224844  1 As pz                13     -0.184569  1 As py         
-     9      0.159796  1 As px                16      0.153724  1 As py         
+    13      0.663994  1 As py                14     -0.443105  1 As pz         
+    10     -0.263197  1 As py                16     -0.250746  1 As py         
+    12     -0.186783  1 As px                11      0.175640  1 As pz         
+    17      0.167331  1 As pz         
 
- Vector   19  Occ=0.000000D+00  E= 2.911569D-01
-              MO Center=  9.8D-15,  2.4D-15,  4.0D-15, r^2= 4.1D+00
+ Vector   19  Occ=0.000000D+00  E= 2.777513D-01
+              MO Center=  2.5D-13, -3.4D-14,  5.6D-13, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.221044  1 As s                  4     -1.735945  1 As s          
-    24     -0.659915  1 As dxx               27     -0.659915  1 As dyy        
-    29     -0.659915  1 As dzz        
+     5      3.179028  1 As s                  4     -1.736563  1 As s          
+    24     -0.629176  1 As dxx               27     -0.629176  1 As dyy        
+    29     -0.629176  1 As dzz        
 
- Vector   20  Occ=0.000000D+00  E= 3.038878D-01
-              MO Center= -5.5D-15, -3.1D-15,  3.0D-15, r^2= 4.8D+00
+ Vector   20  Occ=0.000000D+00  E= 2.783550D-01
+              MO Center= -8.7D-14, -8.6D-14, -5.7D-13, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.973403  1 As px                15      0.943414  1 As px         
-    13      0.563278  1 As py                14     -0.548362  1 As pz         
-    16      0.545924  1 As py                17     -0.531467  1 As pz         
-     9     -0.299636  1 As px                10     -0.173390  1 As py         
-    11      0.168799  1 As pz         
+    17      1.253214  1 As pz                14      1.106599  1 As pz         
+    11     -0.305223  1 As pz                15      0.190956  1 As px         
+    16      0.188408  1 As py                12      0.168616  1 As px         
+    13      0.166366  1 As py         
 
- Vector   21  Occ=0.000000D+00  E= 3.038878D-01
-              MO Center= -4.3D-16,  1.2D-15,  2.4D-16, r^2= 4.8D+00
+ Vector   21  Occ=0.000000D+00  E= 2.783550D-01
+              MO Center=  1.9D-14,  6.4D-14, -1.2D-14, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.116017  1 As py                16      1.081634  1 As py         
-    12     -0.518893  1 As px                15     -0.502906  1 As px         
-    10     -0.343536  1 As py                14      0.225283  1 As pz         
-    17      0.218342  1 As pz                 9      0.159727  1 As px         
+    16      1.207845  1 As py                13      1.066538  1 As py         
+    15      0.357609  1 As px                12      0.315772  1 As px         
+    10     -0.294173  1 As py                17     -0.236077  1 As pz         
+    14     -0.208459  1 As pz         
 
- Vector   22  Occ=0.000000D+00  E= 3.038878D-01
-              MO Center= -4.0D-15, -1.6D-16, -7.0D-15, r^2= 4.8D+00
+ Vector   22  Occ=0.000000D+00  E= 2.783550D-01
+              MO Center= -1.8D-13,  5.6D-14,  1.9D-14, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      1.101837  1 As pz                17      1.067890  1 As pz         
-    12      0.590536  1 As px                15      0.572343  1 As px         
-    11     -0.339171  1 As pz                 9     -0.181781  1 As px         
+    15      1.215795  1 As px                12      1.073558  1 As px         
+    16     -0.384862  1 As py                13     -0.339837  1 As py         
+     9     -0.296110  1 As px         
 
- Vector   23  Occ=0.000000D+00  E= 5.447674D-01
-              MO Center= -4.5D-16,  2.2D-16, -2.5D-17, r^2= 1.8D+00
+ Vector   23  Occ=0.000000D+00  E= 5.025870D-01
+              MO Center=  1.1D-16,  1.1D-17, -9.6D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.408269  1 As dxz               28     -0.958541  1 As dyz        
-    20     -0.428847  1 As dxz               22      0.291896  1 As dyz        
-    24     -0.220241  1 As dxx               25      0.188477  1 As dxy        
-    29      0.177645  1 As dzz        
+    26      1.698058  1 As dxz               20     -0.415438  1 As dxz        
+    28     -0.242118  1 As dyz               27     -0.240218  1 As dyy        
+    29      0.162319  1 As dzz        
 
- Vector   24  Occ=0.000000D+00  E= 5.447674D-01
-              MO Center= -1.4D-15, -1.1D-16,  8.9D-16, r^2= 1.8D+00
+ Vector   24  Occ=0.000000D+00  E= 5.025870D-01
+              MO Center=  4.8D-17,  2.3D-17, -3.3D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.566547  1 As dxy               26     -0.570718  1 As dxz        
-    28     -0.560771  1 As dyz               19     -0.477046  1 As dxy        
-    20      0.173796  1 As dxz               22      0.170767  1 As dyz        
+    25      1.515103  1 As dxy               28     -0.899061  1 As dyz        
+    19     -0.370677  1 As dxy               22      0.219959  1 As dyz        
 
- Vector   25  Occ=0.000000D+00  E= 5.447674D-01
-              MO Center=  1.0D-15, -1.2D-15, -1.6D-15, r^2= 1.8D+00
+ Vector   25  Occ=0.000000D+00  E= 5.025870D-01
+              MO Center= -6.6D-17,  2.8D-16, -1.5D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.960203  1 As dxx               29     -0.625395  1 As dzz        
-    28     -0.425657  1 As dyz               27     -0.334808  1 As dyy        
-    18     -0.292402  1 As dxx               26      0.210053  1 As dxz        
-    23      0.190446  1 As dzz               25     -0.159959  1 As dxy        
+    28      1.502621  1 As dyz               25      0.898690  1 As dxy        
+    22     -0.367623  1 As dyz               26      0.229112  1 As dxz        
+    19     -0.219869  1 As dxy        
 
- Vector   26  Occ=0.000000D+00  E= 5.447674D-01
-              MO Center= -1.0D-16,  2.0D-16, -2.9D-16, r^2= 1.8D+00
+ Vector   26  Occ=0.000000D+00  E= 5.025870D-01
+              MO Center=  1.6D-16, -2.8D-17,  4.4D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      0.958537  1 As dyy               29     -0.766860  1 As dzz        
-    21     -0.291894  1 As dyy               23      0.233525  1 As dzz        
-    24     -0.191677  1 As dxx        
+    24      1.013349  1 As dxx               27     -0.543372  1 As dyy        
+    29     -0.469978  1 As dzz               18     -0.247920  1 As dxx        
+    26     -0.154382  1 As dxz        
 
- Vector   27  Occ=0.000000D+00  E= 5.447674D-01
-              MO Center=  2.7D-16,  3.9D-16, -2.8D-17, r^2= 1.8D+00
+ Vector   27  Occ=0.000000D+00  E= 5.025870D-01
+              MO Center= -1.2D-17, -7.1D-18, -1.4D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.293382  1 As dyz               26      0.865000  1 As dxz        
-    25      0.765549  1 As dxy               22     -0.393862  1 As dyz        
-    20     -0.263410  1 As dxz               19     -0.233126  1 As dxy        
-    24      0.155818  1 As dxx               29     -0.150949  1 As dzz        
+    29     -0.890918  1 As dzz               27      0.826572  1 As dyy        
+    26      0.401961  1 As dxz               23      0.217967  1 As dzz        
+    21     -0.202224  1 As dyy        
 
- Vector   28  Occ=0.000000D+00  E= 1.355009D+00
-              MO Center= -6.4D-17, -3.6D-17,  2.0D-17, r^2= 2.4D+00
+ Vector   28  Occ=0.000000D+00  E= 1.343652D+00
+              MO Center= -1.4D-16, -6.0D-17, -1.0D-16, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.317328  1 As s                 24     -1.790690  1 As dxx        
-    27     -1.790690  1 As dyy               29     -1.790690  1 As dzz        
-     4      0.846909  1 As s                  3     -0.677479  1 As s          
-     2      0.201208  1 As s          
+     5      3.372166  1 As s                 24     -1.809761  1 As dxx        
+    27     -1.809761  1 As dyy               29     -1.809761  1 As dzz        
+     4      0.829461  1 As s                  3     -0.601743  1 As s          
+     2      0.187587  1 As s                 18     -0.156949  1 As dxx        
+    21     -0.156949  1 As dyy               23     -0.156949  1 As dzz        
 
 
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
- Vector    5  Occ=1.000000D+00  E=-4.562094D+01
-              MO Center=  2.1D-17, -4.7D-17,  8.8D-18, r^2= 1.1D-02
+ Vector    5  Occ=1.000000D+00  E=-4.899905D+01
+              MO Center= -2.2D-18,  4.1D-19, -4.7D-18, r^2= 1.1D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      0.741995  1 As pz                 6     -0.652962  1 As px         
+     8      0.887377  1 As pz                 7      0.325918  1 As py         
+     6      0.302992  1 As px         
 
- Vector    6  Occ=1.000000D+00  E=-6.071923D+00
-              MO Center= -1.8D-17,  3.8D-17, -9.9D-18, r^2= 1.2D-01
+ Vector    6  Occ=1.000000D+00  E=-7.476671D+00
+              MO Center= -1.8D-17,  1.4D-16,  4.3D-17, r^2= 1.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.156592  1 As s                  2     -0.484230  1 As s          
+     3      1.146056  1 As s                  2     -0.487177  1 As s          
 
- Vector    7  Occ=1.000000D+00  E=-4.206220D+00
-              MO Center=  1.5D-17,  5.4D-18, -3.3D-17, r^2= 1.3D-01
+ Vector    7  Occ=1.000000D+00  E=-5.461595D+00
+              MO Center=  9.2D-17, -4.8D-17, -7.3D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.008317  1 As pz                 8      0.412424  1 As pz         
-    10     -0.358038  1 As py         
+    10      0.906778  1 As py                 9     -0.559591  1 As px         
+     7      0.362982  1 As py                 6     -0.224003  1 As px         
+    11     -0.199015  1 As pz         
 
- Vector    8  Occ=1.000000D+00  E=-4.206220D+00
-              MO Center=  9.6D-17,  1.3D-16,  1.4D-17, r^2= 1.3D-01
+ Vector    8  Occ=1.000000D+00  E=-5.461595D+00
+              MO Center= -1.2D-16, -1.3D-16, -5.8D-17, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.789381  1 As px                10     -0.688802  1 As py         
-     6      0.322874  1 As px                 7     -0.281735  1 As py         
-    11     -0.219825  1 As pz         
+     9      0.893534  1 As px                10      0.589127  1 As py         
+     6      0.357680  1 As px                 7      0.235827  1 As py         
+    11      0.171818  1 As pz         
 
- Vector    9  Occ=1.000000D+00  E=-4.206220D+00
-              MO Center=  3.7D-18,  1.2D-16, -4.7D-17, r^2= 1.3D-01
+ Vector    9  Occ=1.000000D+00  E=-5.461595D+00
+              MO Center=  5.7D-17, -4.1D-17, -1.1D-16, r^2= 1.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.737058  1 As py                 9      0.722338  1 As px         
-     7      0.301473  1 As py                 6      0.295452  1 As px         
-    11      0.284373  1 As pz         
+    11      1.051602  1 As pz                 8      0.420955  1 As pz         
+     9     -0.251894  1 As px         
 
- Vector   10  Occ=1.000000D+00  E=-9.734768D-01
-              MO Center= -8.9D-18,  8.0D-18, -4.5D-17, r^2= 1.9D-01
+ Vector   10  Occ=1.000000D+00  E=-1.899667D+00
+              MO Center= -3.5D-18, -1.4D-17, -4.7D-18, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      1.646526  1 As dxz               19     -0.348080  1 As dxy        
-    26      0.164178  1 As dxz        
+    22      1.516907  1 As dyz               20     -0.704643  1 As dxz        
+    19     -0.403119  1 As dxy        
 
- Vector   11  Occ=1.000000D+00  E=-9.734768D-01
-              MO Center=  5.5D-18, -1.2D-17, -5.7D-17, r^2= 1.9D-01
+ Vector   11  Occ=1.000000D+00  E=-1.899667D+00
+              MO Center=  3.5D-17,  1.8D-17, -4.3D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.664163  1 As dyz               19     -0.209206  1 As dxy        
-    20     -0.189040  1 As dxz               28      0.165936  1 As dyz        
+    20      1.568252  1 As dxz               22      0.694349  1 As dyz        
 
- Vector   12  Occ=1.000000D+00  E=-9.734768D-01
-              MO Center=  7.8D-18,  1.5D-17,  7.4D-18, r^2= 1.9D-01
+ Vector   12  Occ=1.000000D+00  E=-1.899667D+00
+              MO Center= -1.8D-17, -9.9D-17, -1.9D-18, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.639855  1 As dxy               20      0.325789  1 As dxz        
-    22      0.242340  1 As dyz               25      0.163512  1 As dxy        
+    19      1.666461  1 As dxy               22      0.419675  1 As dyz        
 
- Vector   13  Occ=1.000000D+00  E=-9.734768D-01
-              MO Center= -5.9D-18, -8.5D-17,  9.5D-17, r^2= 1.9D-01
+ Vector   13  Occ=1.000000D+00  E=-1.899667D+00
+              MO Center= -9.9D-18,  5.1D-17,  4.9D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.869318  1 As dyy               23     -0.815904  1 As dzz        
+    21      0.899718  1 As dyy               23     -0.813711  1 As dzz        
 
- Vector   14  Occ=1.000000D+00  E=-9.734768D-01
-              MO Center= -6.3D-17, -3.0D-17,  5.2D-17, r^2= 1.9D-01
+ Vector   14  Occ=1.000000D+00  E=-1.899667D+00
+              MO Center=  2.1D-18, -5.2D-17, -2.1D-17, r^2= 1.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.973704  1 As dxx               23     -0.533902  1 As dzz        
-    21     -0.439802  1 As dyy        
+    18      0.988700  1 As dxx               23     -0.569317  1 As dzz        
+    21     -0.419382  1 As dyy        
 
- Vector   15  Occ=1.000000D+00  E=-2.756070D-01
-              MO Center= -1.5D-16, -2.1D-16, -1.4D-16, r^2= 1.4D+00
+ Vector   15  Occ=1.000000D+00  E=-5.545207D-01
+              MO Center= -1.6D-16, -1.3D-16,  6.5D-17, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.536306  1 As s                  4      0.527854  1 As s          
-     3     -0.457577  1 As s          
+     4      0.622714  1 As s                  5      0.510328  1 As s          
+     3     -0.432396  1 As s          
 
- Vector   16  Occ=0.000000D+00  E= 1.282693D-02
-              MO Center= -2.3D-16,  6.1D-17, -2.6D-17, r^2= 2.9D+00
+ Vector   16  Occ=0.000000D+00  E= 2.753769D-02
+              MO Center= -2.5D-16, -3.2D-16,  1.4D-16, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.536552  1 As pz                17     -0.509486  1 As pz         
-    11     -0.254355  1 As pz                13      0.182982  1 As py         
-    16     -0.173752  1 As py         
+    17     -0.432542  1 As pz                14      0.409530  1 As pz         
+    16      0.313024  1 As py                13     -0.296371  1 As py         
+    15      0.233920  1 As px                12     -0.221475  1 As px         
+    11     -0.183955  1 As pz         
 
- Vector   17  Occ=0.000000D+00  E= 1.282693D-02
-              MO Center=  2.2D-16,  1.8D-17,  3.4D-17, r^2= 2.9D+00
+ Vector   17  Occ=0.000000D+00  E= 2.753769D-02
+              MO Center= -8.2D-18, -3.8D-16,  7.0D-17, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.554807  1 As px                15     -0.526820  1 As px         
-     9     -0.263009  1 As px                13      0.156468  1 As py         
+    15     -0.491208  1 As px                12      0.465076  1 As px         
+    16      0.311251  1 As py                13     -0.294692  1 As py         
+     9     -0.208906  1 As px         
 
- Vector   18  Occ=0.000000D+00  E= 1.282693D-02
-              MO Center= -1.5D-16,  3.6D-16,  4.5D-16, r^2= 2.9D+00
+ Vector   18  Occ=0.000000D+00  E= 2.753769D-02
+              MO Center=  1.7D-16,  3.6D-16,  3.0D-16, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.531062  1 As py                16     -0.504273  1 As py         
-    10     -0.251753  1 As py                14     -0.210725  1 As pz         
-    17      0.200096  1 As pz         
+    17     -0.388678  1 As pz                16     -0.380702  1 As py         
+    14      0.368000  1 As pz                13      0.360448  1 As py         
+    15     -0.209263  1 As px                12      0.198130  1 As px         
+    11     -0.165301  1 As pz                10     -0.161908  1 As py         
 
- Vector   19  Occ=0.000000D+00  E= 3.162812D-01
-              MO Center= -6.9D-15, -1.6D-14,  2.2D-15, r^2= 4.1D+00
+ Vector   19  Occ=0.000000D+00  E= 3.308540D-01
+              MO Center= -7.8D-15, -4.1D-15, -1.4D-14, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.234850  1 As s                  4     -1.731063  1 As s          
-    24     -0.668200  1 As dxx               27     -0.668200  1 As dyy        
-    29     -0.668200  1 As dzz        
+     5      3.249062  1 As s                  4     -1.711770  1 As s          
+    24     -0.664975  1 As dxx               27     -0.664975  1 As dyy        
+    29     -0.664975  1 As dzz        
 
- Vector   20  Occ=0.000000D+00  E= 3.254462D-01
-              MO Center=  6.8D-15, -1.5D-16, -1.0D-16, r^2= 4.7D+00
+ Vector   20  Occ=0.000000D+00  E= 3.439400D-01
+              MO Center=  1.0D-14,  1.8D-15,  2.1D-15, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.268760  1 As px                15      1.195887  1 As px         
-     9     -0.392824  1 As px         
+    12      1.243267  1 As px                15      1.145255  1 As px         
+     9     -0.363384  1 As px                14      0.242090  1 As pz         
+    17      0.223005  1 As pz                13      0.209431  1 As py         
+    16      0.192921  1 As py         
 
- Vector   21  Occ=0.000000D+00  E= 3.254462D-01
-              MO Center=  2.8D-16,  1.6D-14, -1.3D-15, r^2= 4.7D+00
+ Vector   21  Occ=0.000000D+00  E= 3.439400D-01
+              MO Center= -2.2D-15,  5.6D-16,  1.1D-14, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.265393  1 As py                16      1.192713  1 As py         
-    10     -0.391781  1 As py         
+    14      1.256753  1 As pz                17      1.157678  1 As pz         
+    11     -0.367326  1 As pz                12     -0.255001  1 As px         
+    15     -0.234898  1 As px         
 
- Vector   22  Occ=0.000000D+00  E= 3.254462D-01
-              MO Center= -5.4D-17, -2.3D-16, -8.6D-16, r^2= 4.7D+00
+ Vector   22  Occ=0.000000D+00  E= 3.439400D-01
+              MO Center= -3.8D-17,  1.6D-15, -1.9D-16, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      1.265072  1 As pz                17      1.192410  1 As pz         
-    11     -0.391681  1 As pz         
+    13      1.265145  1 As py                16      1.165408  1 As py         
+    10     -0.369778  1 As py                12     -0.193503  1 As px         
+    15     -0.178248  1 As px         
 
- Vector   23  Occ=0.000000D+00  E= 5.882609D-01
-              MO Center= -3.6D-17,  2.1D-18, -1.7D-16, r^2= 1.8D+00
+ Vector   23  Occ=0.000000D+00  E= 6.316896D-01
+              MO Center= -6.7D-17,  4.3D-17,  1.5D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.097088  1 As dxz               29     -0.703200  1 As dzz        
-    24      0.663107  1 As dxx               20     -0.328531  1 As dxz        
-    23      0.210578  1 As dzz               18     -0.198572  1 As dxx        
+    26      1.471684  1 As dxz               28      0.686698  1 As dyz        
+    25      0.358031  1 As dxy               27     -0.347458  1 As dyy        
+    20     -0.345136  1 As dxz               24      0.197985  1 As dxx        
+    22     -0.161043  1 As dyz        
 
- Vector   24  Occ=0.000000D+00  E= 5.882609D-01
-              MO Center=  4.7D-16,  2.3D-16, -6.7D-17, r^2= 1.8D+00
+ Vector   24  Occ=0.000000D+00  E= 6.316896D-01
+              MO Center=  1.4D-16,  3.1D-16, -7.8D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.311123  1 As dxz               24     -0.616121  1 As dxx        
-    29      0.488702  1 As dzz               20     -0.392625  1 As dxz        
-    28      0.296843  1 As dyz               18      0.184502  1 As dxx        
-    25     -0.167109  1 As dxy        
+    25      1.627927  1 As dxy               26     -0.393177  1 As dxz        
+    19     -0.381778  1 As dxy               28     -0.372660  1 As dyz        
+    27     -0.234663  1 As dyy               24      0.190335  1 As dxx        
 
- Vector   25  Occ=0.000000D+00  E= 5.882609D-01
-              MO Center=  2.2D-16,  2.5D-16, -8.0D-19, r^2= 1.8D+00
+ Vector   25  Occ=0.000000D+00  E= 6.316896D-01
+              MO Center= -1.4D-16,  2.3D-16, -2.2D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.733992  1 As dxy               19     -0.519256  1 As dxy        
-    26      0.208288  1 As dxz        
+    28      1.492834  1 As dyz               26     -0.813564  1 As dxz        
+    22     -0.350096  1 As dyz               29      0.273985  1 As dzz        
+    20      0.190795  1 As dxz        
 
- Vector   26  Occ=0.000000D+00  E= 5.882609D-01
-              MO Center= -1.1D-17,  3.6D-16, -6.8D-17, r^2= 1.8D+00
+ Vector   26  Occ=0.000000D+00  E= 6.316896D-01
+              MO Center=  3.8D-17, -6.2D-16, -2.2D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.709915  1 As dyz               22     -0.512046  1 As dyz        
-    26     -0.247834  1 As dxz               25      0.186683  1 As dxy        
-    27     -0.160957  1 As dyy        
+    27      0.902412  1 As dyy               24     -0.623611  1 As dxx        
+    25      0.580891  1 As dxy               26      0.361722  1 As dxz        
+    28      0.316095  1 As dyz               29     -0.278801  1 As dzz        
+    21     -0.211632  1 As dyy        
 
- Vector   27  Occ=0.000000D+00  E= 5.882609D-01
-              MO Center=  7.1D-17, -6.4D-16, -2.3D-16, r^2= 1.8D+00
+ Vector   27  Occ=0.000000D+00  E= 6.316896D-01
+              MO Center=  1.2D-16, -5.4D-17,  7.0D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      0.989114  1 As dyy               29     -0.545229  1 As dzz        
-    24     -0.443886  1 As dxx               21     -0.296198  1 As dyy        
-    26     -0.277442  1 As dxz               28      0.249653  1 As dyz        
-    23      0.163273  1 As dzz        
+    29      0.930737  1 As dzz               24     -0.749583  1 As dxx        
+    28     -0.437299  1 As dyz               23     -0.218274  1 As dzz        
+    27     -0.181154  1 As dyy               18      0.175791  1 As dxx        
 
- Vector   28  Occ=0.000000D+00  E= 1.382458D+00
-              MO Center= -1.4D-17,  1.8D-17, -1.2D-17, r^2= 2.4D+00
+ Vector   28  Occ=0.000000D+00  E= 1.397425D+00
+              MO Center= -3.3D-17,  4.2D-17,  1.6D-16, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      3.300281  1 As s                 24     -1.788141  1 As dxx        
-    27     -1.788141  1 As dyy               29     -1.788141  1 As dzz        
-     4      0.849873  1 As s                  3     -0.673677  1 As s          
-     2      0.200580  1 As s          
+     5      3.301860  1 As s                 24     -1.798236  1 As dxx        
+    27     -1.798236  1 As dyy               29     -1.798236  1 As dzz        
+     4      0.852044  1 As s                  3     -0.586317  1 As s          
+     2      0.187840  1 As s                 18     -0.158828  1 As dxx        
+    21     -0.158828  1 As dyy               23     -0.158828  1 As dzz        
 
 
    alpha - beta orbital overlaps 
@@ -3119,26 +3108,26 @@ set dft:cam_exch F
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      5      3      4      6      7      9      8     10
- overlap   1.000  1.000  0.757  0.871  0.743  1.000  0.833  0.781  0.845  0.927
+    beta      1      2      4      5      3      6      7      9      8     10
+ overlap   1.000  1.000  0.748  0.796  0.699  1.000  0.589  0.709  0.816  0.716
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     13     14     15     17     18     16     19     20
- overlap   0.936  0.953  0.974  0.977  1.000  0.867  0.884  0.752  1.000  0.781
+    beta     11     12     13     14     15     18     17     16     19     21
+ overlap   0.746  0.969  1.000  0.999  1.000  0.815  0.642  0.726  1.000  0.912
 
 
    alpha     21     22     23     24     25     26     27     28     29
-    beta     21     22     26     25     23     27     26     28     29
- overlap   0.869  0.894  0.646  0.856  0.750  0.927  0.699  1.000  1.000
+    beta     22     20     23     24     25     27     26     28     29
+ overlap   0.879  0.830  0.816  0.922  0.702  0.716  0.669  1.000  1.000
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      3.7502 (Exact =     3.7500)
+      <S2> =      3.7510 (Exact =     3.7500)
 
 
- Task  times  cpu:       11.9s     wall:       11.9s
+ Task  times  cpu:       14.4s     wall:       14.4s
 
 
                                 NWChem Input Module
@@ -3226,12 +3215,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:     62.7
-   Time prior to 1st pass:     62.7
+   Time after variat. SCF:     72.5
+   Time prior to 1st pass:     72.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -3240,18 +3229,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2233.4527031583 -2.23D+03  1.67D-02  9.36D-02    65.4
+ d= 0,ls=0.0,diis     1  -2233.4527031583 -2.23D+03  1.67D-02  9.36D-02    75.3
                                                      7.49D-03  8.34D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2233.4681713323 -1.55D-02  7.34D-03  2.80D-03    68.0
+ d= 0,ls=0.0,diis     2  -2233.4681713323 -1.55D-02  7.34D-03  2.80D-03    78.0
                                                      4.40D-03  1.32D-03
- d= 0,ls=0.0,diis     3  -2233.4699293812 -1.76D-03  4.17D-03  1.12D-03    70.7
+ d= 0,ls=0.0,diis     3  -2233.4699293812 -1.76D-03  4.17D-03  1.12D-03    80.7
                                                      2.22D-03  6.19D-04
- d= 0,ls=0.0,diis     4  -2233.4702541968 -3.25D-04  1.66D-03  6.72D-04    73.3
+ d= 0,ls=0.0,diis     4  -2233.4702541968 -3.25D-04  1.66D-03  6.72D-04    83.4
                                                      8.92D-04  4.30D-04
- d= 0,ls=0.0,diis     5  -2233.4706235199 -3.69D-04  7.22D-05  6.34D-07    76.0
+ d= 0,ls=0.0,diis     5  -2233.4706235199 -3.69D-04  7.22D-05  6.34D-07    86.2
                                                      4.43D-05  2.63D-07
- d= 0,ls=0.0,diis     6  -2233.4706240551 -5.35D-07  1.85D-07  6.67D-12    78.6
+ d= 0,ls=0.0,diis     6  -2233.4706240551 -5.35D-07  1.85D-07  6.67D-12    88.9
                                                      7.25D-07  2.25D-11
 
 
@@ -3263,7 +3252,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000012674
 
-     Total iterative time =     15.9s
+     Total iterative time =     16.3s
 
 
 
@@ -3667,7 +3656,7 @@ set dft:cam_exch F
       <S2> =      3.7508 (Exact =     3.7500)
 
 
- Task  times  cpu:       16.7s     wall:       16.8s
+ Task  times  cpu:       17.2s     wall:       17.2s
 
 
                                 NWChem Input Module
@@ -3755,12 +3744,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:     79.4
-   Time prior to 1st pass:     79.4
+   Time after variat. SCF:     89.7
+   Time prior to 1st pass:     89.7
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -3769,18 +3758,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2233.6141153011 -2.23D+03  1.66D-02  8.33D-02    82.1
+ d= 0,ls=0.0,diis     1  -2233.6141153011 -2.23D+03  1.66D-02  8.33D-02    92.5
                                                      7.40D-03  7.31D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2233.6295313478 -1.54D-02  6.92D-03  2.58D-03    84.7
+ d= 0,ls=0.0,diis     2  -2233.6295313478 -1.54D-02  6.92D-03  2.58D-03    95.2
                                                      4.46D-03  1.22D-03
- d= 0,ls=0.0,diis     3  -2233.6311744122 -1.64D-03  3.86D-03  9.94D-04    87.4
+ d= 0,ls=0.0,diis     3  -2233.6311744122 -1.64D-03  3.86D-03  9.94D-04    97.9
                                                      2.20D-03  5.69D-04
- d= 0,ls=0.0,diis     4  -2233.6314709989 -2.97D-04  1.53D-03  5.82D-04    90.0
+ d= 0,ls=0.0,diis     4  -2233.6314709989 -2.97D-04  1.53D-03  5.82D-04   100.6
                                                      8.64D-04  3.79D-04
- d= 0,ls=0.0,diis     5  -2233.6317876542 -3.17D-04  6.44D-05  5.17D-07    92.7
+ d= 0,ls=0.0,diis     5  -2233.6317876542 -3.17D-04  6.44D-05  5.17D-07   103.3
                                                      4.28D-05  2.21D-07
- d= 0,ls=0.0,diis     6  -2233.6317880899 -4.36D-07  1.78D-07  9.10D-12    95.3
+ d= 0,ls=0.0,diis     6  -2233.6317880899 -4.36D-07  1.78D-07  9.10D-12   106.0
                                                      5.20D-07  1.34D-11
 
 
@@ -3792,7 +3781,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000012539
 
-     Total iterative time =     15.9s
+     Total iterative time =     16.3s
 
 
 
@@ -4193,7 +4182,7 @@ set dft:cam_exch F
       <S2> =      3.7510 (Exact =     3.7500)
 
 
- Task  times  cpu:       16.7s     wall:       16.8s
+ Task  times  cpu:       17.1s     wall:       17.2s
 
 
                                 NWChem Input Module
@@ -4281,12 +4270,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:     96.1
-   Time prior to 1st pass:     96.1
+   Time after variat. SCF:    106.8
+   Time prior to 1st pass:    106.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -4295,18 +4284,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2233.6760527604 -2.23D+03  1.65D-02  7.95D-02    98.8
+ d= 0,ls=0.0,diis     1  -2233.6760527604 -2.23D+03  1.65D-02  7.95D-02   109.6
                                                      7.47D-03  6.94D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2233.6912021273 -1.51D-02  6.98D-03  2.58D-03   101.5
+ d= 0,ls=0.0,diis     2  -2233.6912021273 -1.51D-02  6.98D-03  2.58D-03   112.3
                                                      4.67D-03  1.26D-03
- d= 0,ls=0.0,diis     3  -2233.6928259273 -1.62D-03  4.02D-03  1.05D-03   104.2
+ d= 0,ls=0.0,diis     3  -2233.6928259273 -1.62D-03  4.02D-03  1.05D-03   115.1
                                                      2.35D-03  6.03D-04
- d= 0,ls=0.0,diis     4  -2233.6931304032 -3.04D-04  1.61D-03  6.36D-04   106.9
+ d= 0,ls=0.0,diis     4  -2233.6931304032 -3.04D-04  1.61D-03  6.36D-04   117.8
                                                      9.41D-04  4.13D-04
- d= 0,ls=0.0,diis     5  -2233.6934830325 -3.53D-04  6.48D-05  5.26D-07   109.5
+ d= 0,ls=0.0,diis     5  -2233.6934830325 -3.53D-04  6.48D-05  5.26D-07   120.6
                                                      4.68D-05  2.34D-07
- d= 0,ls=0.0,diis     6  -2233.6934834821 -4.50D-07  4.85D-07  1.70D-11   112.2
+ d= 0,ls=0.0,diis     6  -2233.6934834821 -4.50D-07  4.85D-07  1.70D-11   123.3
                                                      9.48D-07  4.27D-11
 
 
@@ -4318,7 +4307,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000012578
 
-     Total iterative time =     16.1s
+     Total iterative time =     16.5s
 
 
 
@@ -4710,7 +4699,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       16.9s     wall:       16.9s
+ Task  times  cpu:       17.3s     wall:       17.3s
 
 
                                 NWChem Input Module
@@ -4806,12 +4795,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    113.0
-   Time prior to 1st pass:    113.0
+   Time after variat. SCF:    124.1
+   Time prior to 1st pass:    124.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -4820,18 +4809,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2233.4809567050 -2.23D+03  1.23D-02  9.62D-02   116.5
+ d= 0,ls=0.0,diis     1  -2233.4809567050 -2.23D+03  1.23D-02  9.62D-02   127.7
                                                      6.44D-03  8.33D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2233.5015296403 -2.06D-02  1.45D-03  5.32D-04   119.9
+ d= 0,ls=0.0,diis     2  -2233.5015296403 -2.06D-02  1.45D-03  5.32D-04   131.1
                                                      1.72D-03  2.27D-04
- d= 0,ls=0.0,diis     3  -2233.5018620144 -3.32D-04  4.04D-04  2.03D-05   123.3
+ d= 0,ls=0.0,diis     3  -2233.5018620144 -3.32D-04  4.04D-04  2.03D-05   134.6
                                                      5.05D-04  1.50D-05
- d= 0,ls=0.0,diis     4  -2233.5018876839 -2.57D-05  1.33D-04  1.65D-06   126.7
+ d= 0,ls=0.0,diis     4  -2233.5018876839 -2.57D-05  1.33D-04  1.65D-06   138.2
                                                      2.19D-04  1.73D-06
- d= 0,ls=0.0,diis     5  -2233.5018904258 -2.74D-06  2.37D-05  7.29D-08   130.1
+ d= 0,ls=0.0,diis     5  -2233.5018904258 -2.74D-06  2.37D-05  7.29D-08   141.7
                                                      3.07D-05  7.25D-08
- d= 0,ls=0.0,diis     6  -2233.5018904994 -7.36D-08  3.86D-06  1.11D-09   133.6
+ d= 0,ls=0.0,diis     6  -2233.5018904994 -7.36D-08  3.86D-06  1.11D-09   145.2
                                                      7.11D-06  3.56D-09
 
 
@@ -4843,7 +4832,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000011282
 
-     Total iterative time =     20.6s
+     Total iterative time =     21.1s
 
 
 
@@ -5224,7 +5213,7 @@ set dft:cam_exch F
       <S2> =      3.7515 (Exact =     3.7500)
 
 
- Task  times  cpu:       21.4s     wall:       21.4s
+ Task  times  cpu:       21.9s     wall:       21.9s
 
 
                                 NWChem Input Module
@@ -5312,12 +5301,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    134.4
-   Time prior to 1st pass:    134.4
+   Time after variat. SCF:    146.0
+   Time prior to 1st pass:    146.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -5326,18 +5315,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2234.5446928559 -2.23D+03  1.92D-02  2.02D-01   138.0
+ d= 0,ls=0.0,diis     1  -2234.5446928559 -2.23D+03  1.92D-02  2.02D-01   149.7
                                                      9.95D-03  1.96D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2234.5681680352 -2.35D-02  6.55D-03  3.68D-03   141.6
+ d= 0,ls=0.0,diis     2  -2234.5681680352 -2.35D-02  6.55D-03  3.68D-03   153.4
                                                      6.24D-03  1.80D-03
- d= 0,ls=0.0,diis     3  -2234.5700655834 -1.90D-03  3.39D-03  1.25D-03   145.2
+ d= 0,ls=0.0,diis     3  -2234.5700655834 -1.90D-03  3.39D-03  1.25D-03   157.1
                                                      2.33D-03  9.17D-04
- d= 0,ls=0.0,diis     4  -2234.5704853691 -4.20D-04  1.20D-03  4.87D-04   148.8
+ d= 0,ls=0.0,diis     4  -2234.5704853691 -4.20D-04  1.20D-03  4.87D-04   160.7
                                                      8.63D-04  3.70D-04
- d= 0,ls=0.0,diis     5  -2234.5707091050 -2.24D-04  3.33D-05  1.88D-07   152.4
+ d= 0,ls=0.0,diis     5  -2234.5707091050 -2.24D-04  3.33D-05  1.88D-07   164.4
                                                      3.42D-05  9.42D-08
- d= 0,ls=0.0,diis     6  -2234.5707092402 -1.35D-07  9.22D-07  5.83D-11   155.9
+ d= 0,ls=0.0,diis     6  -2234.5707092402 -1.35D-07  9.22D-07  5.83D-11   168.1
                                                      1.77D-06  1.74D-10
 
 
@@ -5349,7 +5338,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000010218
 
-     Total iterative time =     21.6s
+     Total iterative time =     22.1s
 
 
 
@@ -5741,7 +5730,7 @@ set dft:cam_exch F
       <S2> =      3.7523 (Exact =     3.7500)
 
 
- Task  times  cpu:       22.4s     wall:       22.4s
+ Task  times  cpu:       22.9s     wall:       23.0s
 
 
                                 NWChem Input Module
@@ -5831,12 +5820,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    156.7
-   Time prior to 1st pass:    156.7
+   Time after variat. SCF:    169.0
+   Time prior to 1st pass:    169.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -5845,18 +5834,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2236.6034538724 -2.24D+03  1.30D-02  2.37D-02   158.1
+ d= 0,ls=0.0,diis     1  -2236.6034538724 -2.24D+03  1.30D-02  2.37D-02   170.4
                                                      3.07D-03  6.04D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2236.6234684151 -2.00D-02  2.52D-03  2.07D-03   159.5
+ d= 0,ls=0.0,diis     2  -2236.6234684151 -2.00D-02  2.52D-03  2.07D-03   171.8
                                                      1.53D-03  8.79D-04
- d= 0,ls=0.0,diis     3  -2236.6246466224 -1.18D-03  1.02D-03  1.50D-04   160.8
+ d= 0,ls=0.0,diis     3  -2236.6246466224 -1.18D-03  1.02D-03  1.50D-04   173.1
                                                      7.61D-04  8.23D-05
- d= 0,ls=0.0,diis     4  -2236.6248183914 -1.72D-04  5.33D-04  1.59D-05   162.2
+ d= 0,ls=0.0,diis     4  -2236.6248183914 -1.72D-04  5.33D-04  1.59D-05   174.5
                                                      5.48D-04  1.73D-05
- d= 0,ls=0.0,diis     5  -2236.6248470371 -2.86D-05  2.40D-05  1.58D-07   163.5
+ d= 0,ls=0.0,diis     5  -2236.6248470371 -2.86D-05  2.40D-05  1.58D-07   175.8
                                                      4.39D-05  1.47D-07
- d= 0,ls=0.0,diis     6  -2236.6248472018 -1.65D-07  5.15D-06  4.29D-09   164.8
+ d= 0,ls=0.0,diis     6  -2236.6248472018 -1.65D-07  5.15D-06  4.29D-09   177.2
                                                      9.17D-06  7.19D-09
 
 
@@ -5868,7 +5857,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008967
 
-     Total iterative time =      8.1s
+     Total iterative time =      8.2s
 
 
 
@@ -6275,7 +6264,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:        8.9s     wall:        8.9s
+ Task  times  cpu:        9.1s     wall:        9.3s
 
 
                                 NWChem Input Module
@@ -6365,12 +6354,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    165.6
-   Time prior to 1st pass:    165.6
+   Time after variat. SCF:    178.0
+   Time prior to 1st pass:    178.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -6379,18 +6368,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2237.2945728691 -2.24D+03  1.33D-02  2.49D-02   167.0
+ d= 0,ls=0.0,diis     1  -2237.2945728691 -2.24D+03  1.33D-02  2.49D-02   179.5
                                                      3.22D-03  6.46D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2237.3156045222 -2.10D-02  2.60D-03  2.18D-03   168.3
+ d= 0,ls=0.0,diis     2  -2237.3156045222 -2.10D-02  2.60D-03  2.18D-03   180.8
                                                      1.53D-03  9.09D-04
- d= 0,ls=0.0,diis     3  -2237.3168376377 -1.23D-03  1.05D-03  1.59D-04   169.7
+ d= 0,ls=0.0,diis     3  -2237.3168376377 -1.23D-03  1.05D-03  1.59D-04   182.2
                                                      7.65D-04  8.46D-05
- d= 0,ls=0.0,diis     4  -2237.3170178406 -1.80D-04  5.51D-04  1.69D-05   171.0
+ d= 0,ls=0.0,diis     4  -2237.3170178406 -1.80D-04  5.51D-04  1.69D-05   183.5
                                                      5.56D-04  1.80D-05
- d= 0,ls=0.0,diis     5  -2237.3170480360 -3.02D-05  2.47D-05  1.65D-07   172.4
+ d= 0,ls=0.0,diis     5  -2237.3170480360 -3.02D-05  2.47D-05  1.65D-07   184.9
                                                      4.62D-05  1.60D-07
- d= 0,ls=0.0,diis     6  -2237.3170482136 -1.78D-07  5.14D-06  4.28D-09   173.7
+ d= 0,ls=0.0,diis     6  -2237.3170482136 -1.78D-07  5.14D-06  4.28D-09   186.2
                                                      9.20D-06  7.29D-09
 
 
@@ -6402,7 +6391,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008748
 
-     Total iterative time =      8.1s
+     Total iterative time =      8.2s
 
 
 
@@ -6813,7 +6802,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:        8.9s     wall:        8.9s
+ Task  times  cpu:        9.0s     wall:        9.0s
 
 
                                 NWChem Input Module
@@ -6903,12 +6892,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    174.5
-   Time prior to 1st pass:    174.5
+   Time after variat. SCF:    187.0
+   Time prior to 1st pass:    187.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -6917,18 +6906,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2236.6064173699 -2.24D+03  1.31D-02  2.40D-02   175.9
+ d= 0,ls=0.0,diis     1  -2236.6064173699 -2.24D+03  1.31D-02  2.40D-02   188.4
                                                      3.02D-03  6.16D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2236.6267643110 -2.03D-02  2.57D-03  2.12D-03   177.3
+ d= 0,ls=0.0,diis     2  -2236.6267643110 -2.03D-02  2.57D-03  2.12D-03   189.8
                                                      1.58D-03  8.98D-04
- d= 0,ls=0.0,diis     3  -2236.6279828488 -1.22D-03  1.03D-03  1.53D-04   178.6
+ d= 0,ls=0.0,diis     3  -2236.6279828488 -1.22D-03  1.03D-03  1.53D-04   191.2
                                                      7.67D-04  8.49D-05
- d= 0,ls=0.0,diis     4  -2236.6281585088 -1.76D-04  5.37D-04  1.62D-05   180.0
+ d= 0,ls=0.0,diis     4  -2236.6281585088 -1.76D-04  5.37D-04  1.62D-05   192.6
                                                      5.43D-04  1.75D-05
- d= 0,ls=0.0,diis     5  -2236.6281873464 -2.88D-05  2.31D-05  1.56D-07   181.3
+ d= 0,ls=0.0,diis     5  -2236.6281873464 -2.88D-05  2.31D-05  1.56D-07   193.9
                                                      4.02D-05  1.34D-07
- d= 0,ls=0.0,diis     6  -2236.6281874973 -1.51D-07  5.22D-06  4.54D-09   182.7
+ d= 0,ls=0.0,diis     6  -2236.6281874973 -1.51D-07  5.22D-06  4.54D-09   195.3
                                                      9.07D-06  7.22D-09
 
 
@@ -6940,7 +6929,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008882
 
-     Total iterative time =      8.2s
+     Total iterative time =      8.3s
 
 
 
@@ -7345,7 +7334,7 @@ set dft:cam_exch F
       <S2> =      3.7508 (Exact =     3.7500)
 
 
- Task  times  cpu:        9.0s     wall:        9.0s
+ Task  times  cpu:        9.1s     wall:        9.2s
 
 
                                 NWChem Input Module
@@ -7435,12 +7424,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    183.5
-   Time prior to 1st pass:    183.5
+   Time after variat. SCF:    196.1
+   Time prior to 1st pass:    196.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -7449,18 +7438,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2236.6065628327 -2.24D+03  1.31D-02  2.41D-02   184.9
+ d= 0,ls=0.0,diis     1  -2236.6065628327 -2.24D+03  1.31D-02  2.41D-02   197.5
                                                      3.01D-03  6.16D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2236.6269232270 -2.04D-02  2.57D-03  2.12D-03   186.2
+ d= 0,ls=0.0,diis     2  -2236.6269232270 -2.04D-02  2.57D-03  2.12D-03   198.9
                                                      1.59D-03  8.99D-04
- d= 0,ls=0.0,diis     3  -2236.6281433779 -1.22D-03  1.03D-03  1.53D-04   187.6
+ d= 0,ls=0.0,diis     3  -2236.6281433779 -1.22D-03  1.03D-03  1.53D-04   200.2
                                                      7.67D-04  8.49D-05
- d= 0,ls=0.0,diis     4  -2236.6283191247 -1.76D-04  5.37D-04  1.62D-05   189.0
+ d= 0,ls=0.0,diis     4  -2236.6283191247 -1.76D-04  5.37D-04  1.62D-05   201.6
                                                      5.42D-04  1.74D-05
- d= 0,ls=0.0,diis     5  -2236.6283479409 -2.88D-05  2.31D-05  1.56D-07   190.3
+ d= 0,ls=0.0,diis     5  -2236.6283479409 -2.88D-05  2.31D-05  1.56D-07   202.9
                                                      4.00D-05  1.33D-07
- d= 0,ls=0.0,diis     6  -2236.6283480909 -1.50D-07  5.22D-06  4.54D-09   191.7
+ d= 0,ls=0.0,diis     6  -2236.6283480909 -1.50D-07  5.22D-06  4.54D-09   204.3
                                                      9.05D-06  7.21D-09
 
 
@@ -7970,12 +7959,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    192.5
-   Time prior to 1st pass:    192.5
+   Time after variat. SCF:    205.1
+   Time prior to 1st pass:    205.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -7984,18 +7973,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2236.6074143564 -2.24D+03  1.32D-02  2.41D-02   193.9
+ d= 0,ls=0.0,diis     1  -2236.6074143564 -2.24D+03  1.32D-02  2.41D-02   206.5
                                                      3.00D-03  6.19D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2236.6278379341 -2.04D-02  2.58D-03  2.13D-03   195.2
+ d= 0,ls=0.0,diis     2  -2236.6278379341 -2.04D-02  2.58D-03  2.13D-03   207.8
                                                      1.60D-03  9.03D-04
- d= 0,ls=0.0,diis     3  -2236.6290658636 -1.23D-03  1.04D-03  1.53D-04   196.6
+ d= 0,ls=0.0,diis     3  -2236.6290658636 -1.23D-03  1.04D-03  1.53D-04   209.2
                                                      7.64D-04  8.50D-05
- d= 0,ls=0.0,diis     4  -2236.6292415903 -1.76D-04  5.36D-04  1.62D-05   197.9
+ d= 0,ls=0.0,diis     4  -2236.6292415903 -1.76D-04  5.36D-04  1.62D-05   210.5
                                                      5.34D-04  1.73D-05
- d= 0,ls=0.0,diis     5  -2236.6292701027 -2.85D-05  2.26D-05  1.53D-07   199.3
+ d= 0,ls=0.0,diis     5  -2236.6292701027 -2.85D-05  2.26D-05  1.53D-07   211.9
                                                      3.81D-05  1.27D-07
- d= 0,ls=0.0,diis     6  -2236.6292702453 -1.43D-07  5.19D-06  4.55D-09   200.6
+ d= 0,ls=0.0,diis     6  -2236.6292702453 -1.43D-07  5.19D-06  4.55D-09   213.2
                                                      8.86D-06  7.10D-09
 
 
@@ -8503,12 +8492,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    201.4
-   Time prior to 1st pass:    201.4
+   Time after variat. SCF:    214.0
+   Time prior to 1st pass:    214.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -8517,18 +8506,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2236.6067261442 -2.24D+03  1.31D-02  2.41D-02   202.8
+ d= 0,ls=0.0,diis     1  -2236.6067261442 -2.24D+03  1.31D-02  2.41D-02   215.4
                                                      3.01D-03  6.17D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2236.6271043364 -2.04D-02  2.57D-03  2.12D-03   204.1
+ d= 0,ls=0.0,diis     2  -2236.6271043364 -2.04D-02  2.57D-03  2.12D-03   216.8
                                                      1.59D-03  9.00D-04
- d= 0,ls=0.0,diis     3  -2236.6283267514 -1.22D-03  1.04D-03  1.53D-04   205.5
+ d= 0,ls=0.0,diis     3  -2236.6283267514 -1.22D-03  1.04D-03  1.53D-04   218.1
                                                      7.67D-04  8.51D-05
- d= 0,ls=0.0,diis     4  -2236.6285026788 -1.76D-04  5.37D-04  1.62D-05   206.8
+ d= 0,ls=0.0,diis     4  -2236.6285026788 -1.76D-04  5.37D-04  1.62D-05   219.5
                                                      5.41D-04  1.74D-05
- d= 0,ls=0.0,diis     5  -2236.6285314859 -2.88D-05  2.30D-05  1.55D-07   208.2
+ d= 0,ls=0.0,diis     5  -2236.6285314859 -2.88D-05  2.30D-05  1.55D-07   220.8
                                                      3.97D-05  1.32D-07
- d= 0,ls=0.0,diis     6  -2236.6285316348 -1.49D-07  5.22D-06  4.55D-09   209.5
+ d= 0,ls=0.0,diis     6  -2236.6285316348 -1.49D-07  5.22D-06  4.55D-09   222.2
                                                      9.03D-06  7.20D-09
 
 
@@ -8946,7 +8935,7 @@ set dft:cam_exch F
       <S2> =      3.7508 (Exact =     3.7500)
 
 
- Task  times  cpu:        8.9s     wall:        8.9s
+ Task  times  cpu:        8.9s     wall:        9.0s
 
 
                                 NWChem Input Module
@@ -9036,12 +9025,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    210.3
-   Time prior to 1st pass:    210.3
+   Time after variat. SCF:    223.0
+   Time prior to 1st pass:    223.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -9050,18 +9039,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2236.5927094181 -2.24D+03  1.31D-02  2.40D-02   211.7
+ d= 0,ls=0.0,diis     1  -2236.5927094181 -2.24D+03  1.31D-02  2.40D-02   224.4
                                                      3.01D-03  6.11D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2236.6129957373 -2.03D-02  2.56D-03  2.11D-03   213.0
+ d= 0,ls=0.0,diis     2  -2236.6129957373 -2.03D-02  2.56D-03  2.11D-03   225.7
                                                      1.58D-03  8.96D-04
- d= 0,ls=0.0,diis     3  -2236.6142137953 -1.22D-03  1.03D-03  1.53D-04   214.4
+ d= 0,ls=0.0,diis     3  -2236.6142137953 -1.22D-03  1.03D-03  1.53D-04   227.1
                                                      7.72D-04  8.54D-05
- d= 0,ls=0.0,diis     4  -2236.6143900100 -1.76D-04  5.39D-04  1.63D-05   215.7
+ d= 0,ls=0.0,diis     4  -2236.6143900100 -1.76D-04  5.39D-04  1.63D-05   228.4
                                                      5.49D-04  1.77D-05
- d= 0,ls=0.0,diis     5  -2236.6144191591 -2.91D-05  2.35D-05  1.59D-07   217.1
+ d= 0,ls=0.0,diis     5  -2236.6144191591 -2.91D-05  2.35D-05  1.59D-07   229.8
                                                      4.11D-05  1.37D-07
- d= 0,ls=0.0,diis     6  -2236.6144193144 -1.55D-07  5.29D-06  4.64D-09   218.5
+ d= 0,ls=0.0,diis     6  -2236.6144193144 -1.55D-07  5.29D-06  4.64D-09   231.1
                                                      9.24D-06  7.38D-09
 
 
@@ -9073,7 +9062,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008891
 
-     Total iterative time =      8.1s
+     Total iterative time =      8.2s
 
 
 
@@ -9483,7 +9472,7 @@ set dft:cam_exch F
       <S2> =      3.7508 (Exact =     3.7500)
 
 
- Task  times  cpu:        8.9s     wall:        9.0s
+ Task  times  cpu:        9.0s     wall:        9.0s
 
 
                                 NWChem Input Module
@@ -9573,12 +9562,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    219.3
-   Time prior to 1st pass:    219.3
+   Time after variat. SCF:    232.0
+   Time prior to 1st pass:    232.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -9587,20 +9576,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.2258599534 -2.24D+03  1.24D-02  2.09D-02   222.1
+ d= 0,ls=0.0,diis     1  -2235.2258599534 -2.24D+03  1.24D-02  2.09D-02   234.7
                                                      2.62D-03  3.88D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.2437977203 -1.79D-02  2.42D-03  1.81D-03   224.8
+ d= 0,ls=0.0,diis     2  -2235.2437977203 -1.79D-02  2.42D-03  1.81D-03   237.3
                                                      1.54D-03  7.54D-04
- d= 0,ls=0.0,diis     3  -2235.2448533926 -1.06D-03  9.01D-04  1.14D-04   227.5
+ d= 0,ls=0.0,diis     3  -2235.2448533926 -1.06D-03  9.01D-04  1.14D-04   240.0
                                                      7.19D-04  6.65D-05
- d= 0,ls=0.0,diis     4  -2235.2449881064 -1.35D-04  4.44D-04  1.18D-05   230.2
+ d= 0,ls=0.0,diis     4  -2235.2449881064 -1.35D-04  4.44D-04  1.18D-05   242.7
                                                      4.91D-04  1.33D-05
- d= 0,ls=0.0,diis     5  -2235.2450094307 -2.13D-05  2.35D-05  1.42D-07   233.0
+ d= 0,ls=0.0,diis     5  -2235.2450094307 -2.13D-05  2.35D-05  1.42D-07   245.3
                                                      3.79D-05  1.17D-07
- d= 0,ls=0.0,diis     6  -2235.2450095661 -1.35D-07  6.27D-06  6.75D-09   235.7
+ d= 0,ls=0.0,diis     6  -2235.2450095661 -1.35D-07  6.27D-06  6.75D-09   248.0
                                                      1.08D-05  8.20D-09
- d= 0,ls=0.0,diis     7  -2235.2450095743 -8.13D-09  5.15D-07  4.66D-11   238.4
+ d= 0,ls=0.0,diis     7  -2235.2450095743 -8.13D-09  5.15D-07  4.66D-11   250.7
                                                      1.92D-07  6.24D-12
 
 
@@ -9612,7 +9601,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000009454
 
-     Total iterative time =     19.1s
+     Total iterative time =     18.8s
 
 
 
@@ -9984,7 +9973,7 @@ set dft:cam_exch F
       <S2> =      3.7506 (Exact =     3.7500)
 
 
- Task  times  cpu:       20.0s     wall:       20.0s
+ Task  times  cpu:       19.6s     wall:       19.6s
 
 
                                 NWChem Input Module
@@ -10076,12 +10065,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    239.2
-   Time prior to 1st pass:    239.2
+   Time after variat. SCF:    251.5
+   Time prior to 1st pass:    251.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54331
 
 
            Memory utilization after 1st SCF pass: 
@@ -10090,20 +10079,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.2248256392 -2.24D+03  1.27D-02  2.26D-02   242.1
+ d= 0,ls=0.0,diis     1  -2235.2248256392 -2.24D+03  1.27D-02  2.26D-02   254.3
                                                      3.38D-03  5.50D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.2443906497 -1.96D-02  2.86D-03  2.25D-03   244.8
+ d= 0,ls=0.0,diis     2  -2235.2443906497 -1.96D-02  2.86D-03  2.25D-03   257.1
                                                      1.17D-03  6.54D-04
- d= 0,ls=0.0,diis     3  -2235.2456336989 -1.24D-03  1.00D-03  1.47D-04   247.6
+ d= 0,ls=0.0,diis     3  -2235.2456336989 -1.24D-03  1.00D-03  1.47D-04   259.9
                                                      6.04D-04  6.21D-05
- d= 0,ls=0.0,diis     4  -2235.2457864854 -1.53D-04  5.10D-04  1.57D-05   250.3
+ d= 0,ls=0.0,diis     4  -2235.2457864854 -1.53D-04  5.10D-04  1.57D-05   262.8
                                                      4.70D-04  1.43D-05
- d= 0,ls=0.0,diis     5  -2235.2458120916 -2.56D-05  2.81D-05  1.82D-07   253.1
+ d= 0,ls=0.0,diis     5  -2235.2458120916 -2.56D-05  2.81D-05  1.82D-07   265.6
                                                      5.59D-05  2.45D-07
- d= 0,ls=0.0,diis     6  -2235.2458123441 -2.53D-07  7.39D-06  8.62D-09   256.0
+ d= 0,ls=0.0,diis     6  -2235.2458123441 -2.53D-07  7.39D-06  8.62D-09   268.4
                                                      1.66D-05  1.60D-08
- d= 0,ls=0.0,diis     7  -2235.2458123591 -1.50D-08  5.50D-07  5.59D-11   258.8
+ d= 0,ls=0.0,diis     7  -2235.2458123591 -1.50D-08  5.50D-07  5.59D-11   271.2
                                                      2.99D-07  8.89D-12
 
 
@@ -10115,7 +10104,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000009031
 
-     Total iterative time =     19.5s
+     Total iterative time =     19.7s
 
 
 
@@ -10487,7 +10476,7 @@ set dft:cam_exch F
       <S2> =      3.7506 (Exact =     3.7500)
 
 
- Task  times  cpu:       20.4s     wall:       20.4s
+ Task  times  cpu:       20.5s     wall:       20.6s
 
 
                                 NWChem Input Module
@@ -10578,12 +10567,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    259.6
-   Time prior to 1st pass:    259.6
+   Time after variat. SCF:    272.1
+   Time prior to 1st pass:    272.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -10592,20 +10581,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.5283854566 -2.24D+03  1.31D-02  2.35D-02   263.5
+ d= 0,ls=0.0,diis     1  -2235.5283854566 -2.24D+03  1.31D-02  2.35D-02   275.9
                                                      3.08D-03  5.60D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.5482555214 -1.99D-02  2.58D-03  2.04D-03   267.2
+ d= 0,ls=0.0,diis     2  -2235.5482555214 -1.99D-02  2.58D-03  2.04D-03   279.6
                                                      1.47D-03  8.88D-04
- d= 0,ls=0.0,diis     3  -2235.5494574621 -1.20D-03  1.02D-03  1.46D-04   271.0
+ d= 0,ls=0.0,diis     3  -2235.5494574621 -1.20D-03  1.02D-03  1.46D-04   283.3
                                                      7.74D-04  8.75D-05
- d= 0,ls=0.0,diis     4  -2235.5496320435 -1.75D-04  5.38D-04  1.58D-05   274.8
+ d= 0,ls=0.0,diis     4  -2235.5496320435 -1.75D-04  5.38D-04  1.58D-05   287.0
                                                      5.97D-04  1.92D-05
- d= 0,ls=0.0,diis     5  -2235.5496629687 -3.09D-05  2.66D-05  1.85D-07   278.6
+ d= 0,ls=0.0,diis     5  -2235.5496629687 -3.09D-05  2.66D-05  1.85D-07   290.7
                                                      5.89D-05  2.02D-07
- d= 0,ls=0.0,diis     6  -2235.5496631971 -2.28D-07  6.12D-06  6.11D-09   282.4
+ d= 0,ls=0.0,diis     6  -2235.5496631971 -2.28D-07  6.12D-06  6.11D-09   294.4
                                                      1.35D-05  1.06D-08
- d= 0,ls=0.0,diis     7  -2235.5496632066 -9.52D-09  6.85D-07  8.02D-11   286.2
+ d= 0,ls=0.0,diis     7  -2235.5496632066 -9.52D-09  6.85D-07  8.02D-11   298.1
                                                      2.24D-07  1.00D-11
 
 
@@ -10617,7 +10606,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008942
 
-     Total iterative time =     26.6s
+     Total iterative time =     26.0s
 
 
 
@@ -10990,7 +10979,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:       27.5s     wall:       27.5s
+ Task  times  cpu:       26.8s     wall:       26.9s
 
 
                                 NWChem Input Module
@@ -11081,12 +11070,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    287.1
-   Time prior to 1st pass:    287.1
+   Time after variat. SCF:    298.9
+   Time prior to 1st pass:    298.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -11095,20 +11084,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.5593681864 -2.24D+03  1.31D-02  2.36D-02   290.9
+ d= 0,ls=0.0,diis     1  -2235.5593681864 -2.24D+03  1.31D-02  2.36D-02   302.6
                                                      3.03D-03  5.58D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.5793226659 -2.00D-02  2.59D-03  2.05D-03   294.7
+ d= 0,ls=0.0,diis     2  -2235.5793226659 -2.00D-02  2.59D-03  2.05D-03   306.3
                                                      1.50D-03  9.01D-04
- d= 0,ls=0.0,diis     3  -2235.5805361355 -1.21D-03  1.02D-03  1.47D-04   298.5
+ d= 0,ls=0.0,diis     3  -2235.5805361355 -1.21D-03  1.02D-03  1.47D-04   310.0
                                                      7.83D-04  8.84D-05
- d= 0,ls=0.0,diis     4  -2235.5807123734 -1.76D-04  5.40D-04  1.59D-05   302.3
+ d= 0,ls=0.0,diis     4  -2235.5807123734 -1.76D-04  5.40D-04  1.59D-05   313.7
                                                      5.98D-04  1.91D-05
- d= 0,ls=0.0,diis     5  -2235.5807433289 -3.10D-05  2.60D-05  1.82D-07   306.1
+ d= 0,ls=0.0,diis     5  -2235.5807433289 -3.10D-05  2.60D-05  1.82D-07   317.5
                                                      5.65D-05  1.89D-07
- d= 0,ls=0.0,diis     6  -2235.5807435442 -2.15D-07  6.07D-06  6.09D-09   309.9
+ d= 0,ls=0.0,diis     6  -2235.5807435442 -2.15D-07  6.07D-06  6.09D-09   321.3
                                                      1.32D-05  1.02D-08
- d= 0,ls=0.0,diis     7  -2235.5807435534 -9.22D-09  6.73D-07  7.75D-11   313.7
+ d= 0,ls=0.0,diis     7  -2235.5807435534 -9.22D-09  6.73D-07  7.75D-11   325.1
                                                      2.18D-07  9.59D-12
 
 
@@ -11120,7 +11109,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008917
 
-     Total iterative time =     26.7s
+     Total iterative time =     26.3s
 
 
 
@@ -11495,7 +11484,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:       27.5s     wall:       27.5s
+ Task  times  cpu:       27.1s     wall:       27.1s
 
 
                                 NWChem Input Module
@@ -11586,12 +11575,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    314.5
-   Time prior to 1st pass:    314.5
+   Time after variat. SCF:    325.9
+   Time prior to 1st pass:    325.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -11600,20 +11589,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.4870966648 -2.24D+03  1.30D-02  2.34D-02   318.4
+ d= 0,ls=0.0,diis     1  -2235.4870966648 -2.24D+03  1.30D-02  2.34D-02   329.7
                                                      3.11D-03  5.61D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.5068224552 -1.97D-02  2.58D-03  2.04D-03   322.1
+ d= 0,ls=0.0,diis     2  -2235.5068224552 -1.97D-02  2.58D-03  2.04D-03   333.4
                                                      1.45D-03  8.73D-04
- d= 0,ls=0.0,diis     3  -2235.5080155307 -1.19D-03  1.02D-03  1.46D-04   325.9
+ d= 0,ls=0.0,diis     3  -2235.5080155307 -1.19D-03  1.02D-03  1.46D-04   337.2
                                                      7.68D-04  8.68D-05
- d= 0,ls=0.0,diis     4  -2235.5081889031 -1.73D-04  5.38D-04  1.57D-05   329.7
+ d= 0,ls=0.0,diis     4  -2235.5081889031 -1.73D-04  5.38D-04  1.57D-05   341.0
                                                      5.97D-04  1.92D-05
- d= 0,ls=0.0,diis     5  -2235.5082198497 -3.09D-05  2.71D-05  1.89D-07   333.5
+ d= 0,ls=0.0,diis     5  -2235.5082198497 -3.09D-05  2.71D-05  1.89D-07   344.8
                                                      6.07D-05  2.12D-07
- d= 0,ls=0.0,diis     6  -2235.5082200888 -2.39D-07  6.18D-06  6.17D-09   337.3
+ d= 0,ls=0.0,diis     6  -2235.5082200888 -2.39D-07  6.18D-06  6.17D-09   348.6
                                                      1.38D-05  1.09D-08
- d= 0,ls=0.0,diis     7  -2235.5082200986 -9.79D-09  6.92D-07  8.19D-11   341.1
+ d= 0,ls=0.0,diis     7  -2235.5082200986 -9.79D-09  6.92D-07  8.19D-11   352.4
                                                      2.31D-07  1.04D-11
 
 
@@ -11625,7 +11614,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000008977
 
-     Total iterative time =     26.6s
+     Total iterative time =     26.5s
 
 
 
@@ -12009,7 +11998,7 @@ set dft:cam_exch F
       <S2> =      3.7506 (Exact =     3.7500)
 
 
- Task  times  cpu:       27.4s     wall:       27.5s
+ Task  times  cpu:       27.3s     wall:       27.3s
 
 
                                 NWChem Input Module
@@ -12100,12 +12089,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    342.0
-   Time prior to 1st pass:    342.0
+   Time after variat. SCF:    353.2
+   Time prior to 1st pass:    353.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -12114,20 +12103,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.4159281783 -2.24D+03  1.26D-02  2.75D-02   345.8
+ d= 0,ls=0.0,diis     1  -2235.4159281783 -2.24D+03  1.26D-02  2.75D-02   357.1
                                                      5.75D-03  1.17D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.4341304330 -1.82D-02  2.56D-03  1.65D-03   349.5
+ d= 0,ls=0.0,diis     2  -2235.4341304330 -1.82D-02  2.56D-03  1.65D-03   360.9
                                                      1.50D-03  9.97D-04
- d= 0,ls=0.0,diis     3  -2235.4351853440 -1.05D-03  7.54D-04  7.26D-05   353.2
+ d= 0,ls=0.0,diis     3  -2235.4351853440 -1.05D-03  7.54D-04  7.26D-05   364.7
                                                      6.65D-04  7.24D-05
- d= 0,ls=0.0,diis     4  -2235.4352878287 -1.02D-04  3.28D-04  7.52D-06   357.0
+ d= 0,ls=0.0,diis     4  -2235.4352878287 -1.02D-04  3.28D-04  7.52D-06   368.5
                                                      4.94D-04  1.46D-05
- d= 0,ls=0.0,diis     5  -2235.4353062921 -1.85D-05  4.80D-05  2.53D-07   360.9
+ d= 0,ls=0.0,diis     5  -2235.4353062921 -1.85D-05  4.80D-05  2.53D-07   372.4
                                                      1.03D-04  4.61D-07
- d= 0,ls=0.0,diis     6  -2235.4353068208 -5.29D-07  6.83D-06  1.07D-08   364.7
+ d= 0,ls=0.0,diis     6  -2235.4353068208 -5.29D-07  6.83D-06  1.07D-08   376.2
                                                      2.30D-05  1.79D-08
- d= 0,ls=0.0,diis     7  -2235.4353068387 -1.78D-08  5.42D-07  3.64D-11   368.5
+ d= 0,ls=0.0,diis     7  -2235.4353068387 -1.78D-08  5.42D-07  3.64D-11   380.0
                                                      2.95D-07  1.84D-11
 
 
@@ -12139,7 +12128,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000009740
 
-     Total iterative time =     26.6s
+     Total iterative time =     26.8s
 
 
 
@@ -12535,7 +12524,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:       27.4s     wall:       27.5s
+ Task  times  cpu:       27.6s     wall:       27.7s
 
 
                                 NWChem Input Module
@@ -12626,12 +12615,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    369.4
-   Time prior to 1st pass:    369.4
+   Time after variat. SCF:    380.9
+   Time prior to 1st pass:    380.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -12640,18 +12629,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.1648177619 -2.24D+03  2.00D-02  8.34D-02   372.2
+ d= 0,ls=0.0,diis     1  -2235.1648177619 -2.24D+03  2.00D-02  8.34D-02   383.8
                                                      6.92D-03  6.78D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.1840968314 -1.93D-02  7.60D-03  3.65D-03   375.0
+ d= 0,ls=0.0,diis     2  -2235.1840968314 -1.93D-02  7.60D-03  3.65D-03   386.6
                                                      4.19D-03  1.56D-03
- d= 0,ls=0.0,diis     3  -2235.1863157542 -2.22D-03  3.74D-03  1.19D-03   377.7
+ d= 0,ls=0.0,diis     3  -2235.1863157542 -2.22D-03  3.74D-03  1.19D-03   389.5
                                                      1.95D-03  7.79D-04
- d= 0,ls=0.0,diis     4  -2235.1866798895 -3.64D-04  1.41D-03  5.58D-04   380.5
+ d= 0,ls=0.0,diis     4  -2235.1866798895 -3.64D-04  1.41D-03  5.58D-04   392.3
                                                      7.52D-04  4.01D-04
- d= 0,ls=0.0,diis     5  -2235.1869537059 -2.74D-04  4.26D-05  2.47D-07   383.3
+ d= 0,ls=0.0,diis     5  -2235.1869537059 -2.74D-04  4.26D-05  2.47D-07   395.2
                                                      2.43D-05  1.05D-07
- d= 0,ls=0.0,diis     6  -2235.1869538945 -1.89D-07  2.82D-07  2.40D-11   386.0
+ d= 0,ls=0.0,diis     6  -2235.1869538945 -1.89D-07  2.82D-07  2.40D-11   398.0
                                                      3.64D-07  1.32D-11
 
 
@@ -12663,7 +12652,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000010536
 
-     Total iterative time =     16.7s
+     Total iterative time =     17.2s
 
 
 
@@ -13044,7 +13033,7 @@ set dft:cam_exch F
       <S2> =      3.7506 (Exact =     3.7500)
 
 
- Task  times  cpu:       17.5s     wall:       17.5s
+ Task  times  cpu:       18.0s     wall:       18.0s
 
 
                                 NWChem Input Module
@@ -13135,12 +13124,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    386.8
-   Time prior to 1st pass:    386.8
+   Time after variat. SCF:    398.8
+   Time prior to 1st pass:    398.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -13149,18 +13138,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.2267552213 -2.24D+03  1.99D-02  7.95D-02   389.7
+ d= 0,ls=0.0,diis     1  -2235.2267552213 -2.24D+03  1.99D-02  7.95D-02   401.7
                                                      6.80D-03  6.42D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.2456350212 -1.89D-02  7.72D-03  3.70D-03   392.5
+ d= 0,ls=0.0,diis     2  -2235.2456350212 -1.89D-02  7.72D-03  3.70D-03   404.5
                                                      4.37D-03  1.60D-03
- d= 0,ls=0.0,diis     3  -2235.2478711666 -2.24D-03  3.91D-03  1.25D-03   395.2
+ d= 0,ls=0.0,diis     3  -2235.2478711666 -2.24D-03  3.91D-03  1.25D-03   407.3
                                                      2.06D-03  8.13D-04
- d= 0,ls=0.0,diis     4  -2235.2482498070 -3.79D-04  1.50D-03  6.07D-04   398.0
+ d= 0,ls=0.0,diis     4  -2235.2482498070 -3.79D-04  1.50D-03  6.07D-04   410.1
                                                      8.10D-04  4.32D-04
- d= 0,ls=0.0,diis     5  -2235.2485545579 -3.05D-04  4.32D-05  2.53D-07   400.9
+ d= 0,ls=0.0,diis     5  -2235.2485545579 -3.05D-04  4.32D-05  2.53D-07   412.9
                                                      2.62D-05  1.08D-07
- d= 0,ls=0.0,diis     6  -2235.2485547529 -1.95D-07  3.86D-07  2.06D-11   403.6
+ d= 0,ls=0.0,diis     6  -2235.2485547529 -1.95D-07  3.86D-07  2.06D-11   415.7
                                                      5.00D-07  1.57D-11
 
 
@@ -13567,7 +13556,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:       17.6s     wall:       17.6s
+ Task  times  cpu:       17.6s     wall:       17.7s
 
 
                                 NWChem Input Module
@@ -13667,12 +13656,12 @@ set dft:cam_exch F
  HOMO         =      -0.161638
  LUMO         =      -0.161638
 
-   Time after variat. SCF:    404.4
-   Time prior to 1st pass:    404.4
+   Time after variat. SCF:    416.5
+   Time prior to 1st pass:    416.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     54341
+ Max. records in memory =     25        Max. recs in file   =     54320
 
 
            Memory utilization after 1st SCF pass: 
@@ -13681,18 +13670,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -2235.1378984199 -2.24D+03  1.92D-02  5.81D-02   407.9
+ d= 0,ls=0.0,diis     1  -2235.1378984199 -2.24D+03  1.92D-02  5.81D-02   419.9
                                                      5.57D-03  4.19D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -2235.1546289834 -1.67D-02  6.59D-03  3.60D-03   411.2
+ d= 0,ls=0.0,diis     2  -2235.1546289834 -1.67D-02  6.59D-03  3.60D-03   423.2
                                                      3.82D-03  1.80D-03
- d= 0,ls=0.0,diis     3  -2235.1567737775 -2.14D-03  2.82D-03  8.22D-04   414.6
+ d= 0,ls=0.0,diis     3  -2235.1567737775 -2.14D-03  2.82D-03  8.22D-04   426.6
                                                      1.45D-03  5.99D-04
- d= 0,ls=0.0,diis     4  -2235.1570433228 -2.70D-04  1.02D-03  2.94D-04   418.0
+ d= 0,ls=0.0,diis     4  -2235.1570433228 -2.70D-04  1.02D-03  2.94D-04   429.9
                                                      5.49D-04  2.19D-04
- d= 0,ls=0.0,diis     5  -2235.1571844024 -1.41D-04  1.22D-05  2.35D-08   421.5
+ d= 0,ls=0.0,diis     5  -2235.1571844024 -1.41D-04  1.22D-05  2.35D-08   433.3
                                                      9.06D-06  1.37D-08
- d= 0,ls=0.0,diis     6  -2235.1571844199 -1.75D-08  4.95D-07  1.83D-11   424.9
+ d= 0,ls=0.0,diis     6  -2235.1571844199 -1.75D-08  4.95D-07  1.83D-11   436.6
                                                      3.40D-07  8.27D-12
 
 
@@ -13704,7 +13693,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       33.000000010519
 
-     Total iterative time =     20.5s
+     Total iterative time =     20.2s
 
 
 
@@ -14093,7 +14082,7 @@ set dft:cam_exch F
       <S2> =      3.7506 (Exact =     3.7500)
 
 
- Task  times  cpu:       21.3s     wall:       21.3s
+ Task  times  cpu:       21.0s     wall:       21.0s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -14104,9 +14093,9 @@ set dft:cam_exch F
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 6310     6310     6.37e+04 3.97e+04 1.69e+04    0        0        0     
+calls: 6176     6176     6.31e+04 3.97e+04 1.66e+04    0        0        0     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             1.84e+08 3.97e+07 1.14e+08 0.00e+00 0.00e+00 0.00e+00
+bytes total:             1.81e+08 3.91e+07 1.12e+08 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 437320 bytes
 MA_summarize_allocated_blocks: starting scan ...
@@ -14161,4 +14150,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:      425.0s     wall:      425.9s
+ Total times  cpu:      436.7s     wall:      437.8s
