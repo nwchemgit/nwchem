@@ -27,7 +27,7 @@ c
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8  e_lj,e_q,e_spring
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
-      real*8  exc_atom,pxc_atom,ehartree_atom,emult
+      real*8  exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
       
 
 *     **** external functions ****
@@ -72,11 +72,11 @@ c
       logical  psp_pawexist
       real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
-      real*8   psi_1hartree_cmp
+      real*8   psi_1hartree_cmp_cmp,dng_1hartree_cmp_pw
       external psp_pawexist
       external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
-      external psi_1hartree_cmp
+      external psi_1hartree_cmp_cmp,dng_1hartree_cmp_pw
 
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
@@ -135,12 +135,15 @@ c      call psi_1toelectron()
          E(38) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
 
          ehartree_atom = psi_1hartree_atom()
-         emult = psi_1hartree_cmp()
+         ecmp_cmp      = psi_1hartree_cmp_cmp()
+         ecmp_pw       = dng_1hartree_cmp_pw()
          E(39) = ehartree_atom             !*** vcoulomb atom  ***
-         E(40) = emult                     !*** ncmp-ncmp coulomb energy ***
-         E(41) = 0.0d0                     !*** ncmp-smooth coulomb energy ***
+         E(40) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
+         E(41) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
 
-         call psi_1xc_atom(exc_atom,pxc_atom)
+         !call psi_1xc_atom(exc_atom,pxc_atom)
+         exc_atom = 0.0d0
+         pxc_atom = 0.0d0
          E(42) = exc_atom                  !*** exc atom  ***
          E(43) = pxc_atom                  !*** pxc atom  ***
 
