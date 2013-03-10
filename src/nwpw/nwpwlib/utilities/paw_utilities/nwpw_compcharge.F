@@ -1337,6 +1337,82 @@ c      end
 
 *     *************************************************
 *     *                                               *
+*     *           nwpw_compcharge_gen_glm             *
+*     *                                               *
+*     *************************************************
+*
+*   This routine returns the fourier transforms of dn_cmp
+
+      subroutine nwpw_compcharge_gen_glm(ii,l,m,glm_out)
+      implicit none
+      integer ii,l,m
+      complex*16 glm_out(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer iii,iia,lm,tmp(2),exi(2)
+
+      iii = int_mb(ion_iontopaw(1)+ii-1)
+      iia  = int_mb(katm_paw(1)+iii-1)
+      if ((l.le.int_mb(mult_l(1)+iia-1)).and.(abs(m).le.l)) then
+         lm = l*(l+1) + m
+
+         value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+         if (.not.value)
+     >     call errquit("nwpw_compcharge_gen_glm:stack",0,MA_ERR)
+
+         if (isgamma) then
+            call strfac_pack(0,ii,dcpl_mb(exi(1)))
+            if (mod(l,2).eq.0) then
+               call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                          dcpl_mb(exi(1)),
+     >                          dcpl_mb(tmp(1)))
+            else
+               call Pack_tc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+            end if
+            call Pack_tc_Mul(0,dbl_mb(gk(1)+(iia-1)*npack0),
+     >                         dcpl_mb(tmp(1)),
+     >                         glm_out)
+         else
+            call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+            if (mod(l,2).eq.0) then
+               call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                            dcpl_mb(exi(1)),
+     >                            dcpl_mb(tmp(1)))
+            else
+               call Cram_rc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                             dcpl_mb(exi(1)),
+     >                             dcpl_mb(tmp(1)))
+            end if
+            call Cram_rc_Mul(0,dbl_mb(gk(1)+(iia-1)*npack0),
+     >                         dcpl_mb(tmp(1)),
+     >                         glm_out)
+
+         end if
+         value =           MA_pop_stack(exi(2))
+         value = value.and.MA_pop_stack(tmp(2))
+         if (.not.value)
+     >     call errquit("nwpw_compcharge_gen_glm:stack",1,MA_ERR)
+
+
+      else
+         call errquit("nwpw_compcharge_gen_glm:bad l,m,",l,m)
+      end if
+      return
+      end
+
+
+
+*     *************************************************
+*     *                                               *
 *     *           nwpw_compcharge_gen_glm2            *
 *     *                                               *
 *     *************************************************
@@ -2086,6 +2162,96 @@ c     *********************************************
       end do
    
       call nwpw_timing_end(21)
+      return
+      end
+
+
+*     *************************************************
+*     *                                               *
+*     *         nwpw_compcharge_coulomb_e_atom        *
+*     *                                               *
+*     *************************************************
+      real*8 function nwpw_compcharge_coulomb_e_atom(ii,ia,ispin,nprj,
+     >                                               wmatrix)
+      implicit none
+      integer ii,ia
+      integer ispin,nprj
+      real*8  wmatrix(nprj,nprj,ispin)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer iia,shift
+      real*8  eh_atom
+
+*     **** external functions ****
+      real*8   nwpw_compcharge_coulomb_e_sub
+      external nwpw_compcharge_coulomb_e_sub
+
+      call nwpw_timing_start(4)
+      call nwpw_timing_start(22)
+
+      iia = int_mb(katm_iontopaw(1)+ia-1)
+
+      shift = int_mb(shift_hartree(1)+iia-1)
+      eh_atom = nwpw_compcharge_coulomb_e_sub(ispin,nprj,wmatrix,
+     >                           int_mb(nindx_hartree(1)+iia-1),
+     >                           int_mb(iprj_hartree(1)+shift),
+     >                           int_mb(jprj_hartree(1)+shift),
+     >                           int_mb(iprj1_hartree(1)+shift),
+     >                           int_mb(jprj1_hartree(1)+shift),
+     >                           dbl_mb(coeff_hartree(1)+shift))
+      call nwpw_timing_end(4)
+      call nwpw_timing_end(22)
+
+      nwpw_compcharge_coulomb_e_atom = eh_atom
+      return
+      end
+
+
+
+c     *********************************************
+c     *                                           *
+c     *         nwpw_compcharge_coulomb_e_sub     *
+c     *                                           *
+c     *********************************************
+      real*8 function nwpw_compcharge_coulomb_e_sub(ispin,nprj,wmatrix,
+     >                                 nindx,
+     >                                 iprj_hartree, jprj_hartree,
+     >                                 iprj1_hartree,jprj1_hartree,
+     >                                 coeff_hartree)
+      implicit none
+      integer ispin,nprj
+      real*8  wmatrix(nprj,nprj,ispin)
+      integer n1dgrid,nbasis,lmax2
+      integer nindx,iprj_hartree(*),jprj_hartree(*)
+      integer iprj1_hartree(*),jprj1_hartree(*)
+      real*8  coeff_hartree(*)
+
+      integer n,i,iprj,jprj,iprj1,jprj1
+      real*8  coeff,w,w1,scal
+      real*8  eh
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      eh = 0.0d0
+      scal = 1.0d0/lattice_omega()
+      do i=1,nindx
+         iprj  = iprj_hartree(i)
+         jprj  = jprj_hartree(i)
+         iprj1 = iprj1_hartree(i)
+         jprj1 = jprj1_hartree(i)
+         coeff = coeff_hartree(i)
+         w  = wmatrix(iprj,jprj,1)   + wmatrix(iprj,jprj,ispin)
+         w1 = wmatrix(iprj1,jprj1,1) + wmatrix(iprj1,jprj1,ispin)
+         eh = eh + coeff*w*w1*scal*scal*0.5d0
+      end do
+
+      nwpw_compcharge_coulomb_e_sub = eh
       return
       end
 
