@@ -2836,20 +2836,38 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         psi_1hartree_cmp        *
+*     *      psi_1hartree_cmp_cmp       *
 *     *                                 *
 *     ***********************************
-      real*8 function psi_1hartree_cmp()
+      real*8 function psi_1hartree_cmp_cmp()
+      implicit none
+         
+#include "psi.fh"
+         
+*     **** external functions ****
+      real*8   psp_hartree_cmp_cmp
+      external psp_hartree_cmp_cmp
+         
+      psi_1hartree_cmp_cmp = psp_hartree_cmp_cmp(ispin)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         dng_1hartree_cmp_pw     *
+*     *                                 *
+*     ***********************************
+      real*8 function dng_1hartree_cmp_pw()
       implicit none
          
 #include "mafdecls.fh"
 #include "psi.fh"
          
 *     **** external functions ****
-      real*8   nwpw_compcharge_E_multipole
-      external nwpw_compcharge_E_multipole
-         
-      psi_1hartree_cmp = nwpw_compcharge_E_multipole(ispin)
+      real*8   psp_hartree_cmp_pw
+      external psp_hartree_cmp_pw
+
+      dng_1hartree_cmp_pw = psp_hartree_cmp_pw(ispin,dcpl_mb(dng1(1)))
       return
       end
 
