@@ -172,7 +172,7 @@ cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
       end do
       vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
      >         +twopi*zv*rho(nrho)**2
-      !vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
+c      vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       end if
 
 

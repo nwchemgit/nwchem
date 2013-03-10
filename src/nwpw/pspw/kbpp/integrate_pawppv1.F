@@ -93,6 +93,12 @@
       external nwpw_splint,log_integrate_def,log_integrate_def0
       external log_multipole_energy,nwpw_double_factorial
 
+*      ****** DEBUG *****
+      !call dcopy(nrho,0.0d0,0,v_ps,1)
+      !rlocal = 2.0d0
+       write(*,*) "rlocal=",rlocal
+*      ****** DEBUG *****
+
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
@@ -229,15 +235,21 @@ c      P3=dsqrt(105.0d0*forpi)
       call nwpw_compcharge_gen_rgaussian(0,sigma,nrho,rho,f1)
       do k=1,nrho
         f2(k) = f1(k)*(v_ps(k)*rho(k)**2)
+        write(33,*) rho(k),f1(k),v_ps(k),f2(k)
       end do
       d = log_integrate_def(2,f2,0,rho,log_amesh,nrho)
+      write(*,*) " 1 ncmp*vloc=",d
 
       do k=1,nrho
         xerf = rho(k)/rlocal
         yerf = util_erf(xerf)
         f2(k) = f1(k)*(-zv*yerf*rho(k))
+        write(34,*) rho(k),-zv*yerf/rho(k),v_ps(k),
+     >              (-zv*yerf/rho(k)+v_ps(k))
       end do
       d = d + log_integrate_def(1,f2,0,rho,log_amesh,nrho)
+      !d = d*dsqrt(forpi)
+      write(*,*) " 2 ncmp*vloc=",d
 
       do i=1,nbasis
          la = l_ps(i)
