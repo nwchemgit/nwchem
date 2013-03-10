@@ -1299,45 +1299,6 @@ c     >                          l_prj(i),m_prj(i))
       return 
       end
 
-*     *************************************************
-*     *                                               *
-*     *              psp_hartree_cmp_pw               *
-*     *                                               *
-*     *************************************************
-*
-*     This
-*
-*
-*                      //
-*    E_cmp_pw    =    || (ncmp(r))*(npw(r'))
-*                     || -------------------  dr dr'
-*                    //       |r-r'|
-*
-*
-*   dE_cmp_pw/dpsi^*(r) = 
-*
-*                           /
-*                       +  |    ncmp(r')
-*                          | --------------  dr' * psi(r)
-*                         /     |r-r'|
-*
-*
-*
-      subroutine psp_hartree_cmp_pw(ispin,ne,vpwr,
-     >                              psik,Hpsik,
-     >                              psir,Hpsir,
-     >                              move,fion,fractional,occ)
-      integer ispin,ne(2)
-      real*8 vpwr(*)
-      complex*16 psik(*),Hpsik(*)
-      real*8     psir(*),Hpsir(*)
-      logical    move
-      real*8     fion(3,*)
-      logical    fractional
-      real*8     occ(*)
-
-      return
-      end
 
 *     *************************************************
 *     *                                               *
@@ -1359,30 +1320,121 @@ c     >                          l_prj(i),m_prj(i))
       implicit none
       integer ispin
 
-      psp_hartree_cmp_cmp = 0.0d0
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** local variables ****
+      logical ok
+      integer npack0,dng_cmp(2),dng_cmp_smooth(2),vcmp_smooth(2)
+      real*8 eh,e1,e2
+      
+*     **** external functions ****
+      real*8   nwpw_compcharge_E_multipole,lattice_omega
+      external nwpw_compcharge_E_multipole,lattice_omega
+
+      call Pack_npack(0,npack0)
+      ok = MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
+      if (.not.ok)
+     >   call errquit('psp_hartree_cmp_cmp:out of stack',0,MA_ERR)
+
+*     **** Using pw grid ***
+      if (use_grid_cmp) then
+         call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+         call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
+         call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)),e1)
+         eh = 0.5d0*e1*lattice_omega()
+
+*     **** Using gaussian Multipole energies ****
+      else
+
+*        **** multipole energy ****
+         eh = nwpw_compcharge_E_multipole(ispin)
+
+         ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >                 dng_cmp_smooth(2),dng_cmp_smooth(1))
+         ok = ok.and.
+     >        MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+     >                    vcmp_smooth(2),vcmp_smooth(1))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_cmp:out of stack',1,MA_ERR)
+
+         call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                    dcpl_mb(dng_cmp(1)),
+     >                                    dcpl_mb(dng_cmp_smooth(1)))
+         call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
+     >                  dcpl_mb(vcmp_smooth(1)))
+         call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                      dcpl_mb(vcmp_smooth(1)),e1)
+         call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
+     >                      dcpl_mb(vcmp_smooth(1)),e2)
+
+*        **** add cmp energies ****
+         eh = eh + (e1-0.5d0*e2)*lattice_omega()
+
+         ok =        MA_pop_stack(vcmp_smooth(2))
+         ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_cmpl:popping stack',2,MA_ERR)
+      end if
+
+      ok = MA_pop_stack(dng_cmp(2))
+      if (.not.ok)
+     >   call errquit('psp_hartree_cmp_cmp:popping stack',3,MA_ERR)
+
+      psp_hartree_cmp_cmp = eh
       return
       end
 
 *     *************************************************
 *     *                                               *
-*     *              psp_hartree_cmp_smooth           *
+*     *              psp_hartree_cmp_pw               *
 *     *                                               *
 *     *************************************************
 *
 *    This routine calulates the hartree energy of the compensation charge density.
 *
 *                         //
-*    E_cmp_smooth     =  || (ncmp(r))*(nsmooth(r'))
+*    E_cmp_smooth     =  || (ncmp(r))*(npw(r'))
 *                        || -----------------------  dr dr'
 *                       //         |r-r'|
 *
 *    using either a Fourier grid 
 *
-      real*8 function psp_hartree_cmp_smooth(ispin,nsmooth)
+      real*8 function psp_hartree_cmp_pw(ispin,dng)
       implicit none
       integer ispin
-      complex*16 nsmooth(*)
-      psp_hartree_cmp_smooth = 0.0d0
+      complex*16 dng(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical ok
+      integer npack0,dng_cmp(2),vcmp(2)
+      real*8 eh
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call Pack_npack(0,npack0)
+      ok = MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
+      ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
+      if (.not.ok)
+     >   call errquit('psp_hartree_cmp_pwl:out of stack',0,MA_ERR)
+
+      call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+      call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+      call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
+      eh = eh*lattice_omega()
+
+      ok =        MA_pop_stack(vcmp(2))
+      ok = ok.and.MA_pop_stack(dng_cmp(2))
+      if (.not.ok)
+     >   call errquit('psp_hartree_cmp_pwl:popping stack',1,MA_ERR)
+
+      psp_hartree_cmp_pw = eh
       return
       end
 
@@ -1428,8 +1480,8 @@ c     >                          l_prj(i),m_prj(i))
 *     ***** external functions ****
       integer  ion_nion,ion_katm,psi_data_get_ptr
       external ion_nion,ion_katm,psi_data_get_ptr
-      real*8   nwpw_compcharge_Watom
-      external nwpw_compcharge_Watom
+      real*8   nwpw_compcharge_coulomb_e_atom
+      external nwpw_compcharge_coulomb_e_atom
 
       nn = neq(1)+neq(2)
 
@@ -1498,8 +1550,9 @@ c     >                          l_prj(i),m_prj(i))
      >                                   dbl_mb(wtmp(1)))
 
 
-c            Watom = Watom + nwpw_compcharge_Watom(ii,ia,ispin,ne,nproj,
-c     >                                            dbl_mb(sw1(1)))
+            Watom = Watom 
+     >            + nwpw_compcharge_coulomb_e_atom(ii,ia,ispin,nproj,
+     >                                             dbl_mb(wtmp(1)))
          end if
       end do
 

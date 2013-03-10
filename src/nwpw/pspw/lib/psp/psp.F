@@ -26,8 +26,8 @@
       logical value
 
 *     **** external functions *****
-      logical  control_pspspin
-      external control_pspspin
+      logical  control_pspspin,control_use_grid_cmp
+      external control_pspspin,control_use_grid_cmp
       integer  ion_nkatm,ion_nion,control_pspnuterms
       external ion_nkatm,ion_nion,control_pspnuterms
  
@@ -186,8 +186,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 *     **** allocate semicore data ****
       call semicore_init()
 
-*     *** set pawexist ****
+*     *** set pawexist and use_grid_cmp ****
       pawexist = .false.
+      use_grid_cmp = control_use_grid_cmp()
 
 
       return
@@ -236,15 +237,26 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       return
       end
 
-      subroutine psp_set_vc(vcin)
+      subroutine psp_set_vcandvl(vcin,vlin)
       implicit none
       complex*16 vcin(*)
+      complex*16 vlin(*)
 
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "psp.fh"
 
+*     **** local variables ****
+      real*8 scal
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      scal = 1.0d0/lattice_omega()
+
       call Pack_c_Copy(0,vcin,dcpl_mb(vc_tmp(1))) 
+      !call Pack_cc_daxpy(0,scal,vlin,dcpl_mb(vc_tmp(1))) 
       return
       end 
 
@@ -1913,22 +1925,22 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                   eh_atom)
             write(*,*) "eh_atom=",ip,ii,eh_atom
 
-*           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
-            call nwpw_xc_solve(ii,ia,
-     >        int_mb(n1dgrid(1)+ia-1),
-     >        int_mb(n1dbasis(1)+ia-1),
-     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
-     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
-     >        dbl_mb(log_amesh(1)+ia-1),
-     >        ispin,ne,nproj,
-     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
+c*           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
+c            call nwpw_xc_solve(ii,ia,
+c     >        int_mb(n1dgrid(1)+ia-1),
+c     >        int_mb(n1dbasis(1)+ia-1),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
+c     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
+c     >        dbl_mb(log_amesh(1)+ia-1),
+c     >        ispin,ne,nproj,
+c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
 
          end if
       end do
@@ -1936,7 +1948,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
       if (pawexist) then
-         write(*,*) "hera"
          call D3dB_nx(1,nx)
          call D3dB_ny(1,ny)
          call D3dB_nz(1,nz)
@@ -1947,86 +1958,147 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
          else
             call D3dB_nfft3d(1,npack0)
          end if
-         value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
-     >                       dng_cmp(2),dng_cmp(1))
-         value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
-     >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
-         value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,'vcmp',
-     >                       vcmp(2),vcmp(1))
-         value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
-     >                       vcmp_smooth(2),vcmp_smooth(1))
-         if (.not.value) 
-     >     call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-         call nwpw_compcharge_gen_dn_cmp2(ispin,
-     >                                    dcpl_mb(dng_cmp(1)),
-     >                                    dcpl_mb(dng_cmp_smooth(1)))
+*        **** zero out dE/dQlm array ****
+         call nwpw_compcharge_zero_dE_Qlm()
 
-         !*** compute hartree potential of ntilde + ncmp_tilde ***
-         !*** compute hartree potential ncmp   - ncmp_tilde ***
-         if (periodic) then
-            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
-            call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
-     >                     dcpl_mb(vcmp_smooth(1)))
+         if (use_grid_cmp) then
+            value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
+     >                          dng_cmp(2),dng_cmp(1))
+            value = value.and.
+     >              MA_push_get(mt_dcpl,npack0,'vcmp',
+     >                          vcmp(2),vcmp(1))
+            if (.not.value) 
+     >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-            call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
-            call Pack_cc_Sub(0,dcpl_mb(vcmp_tmp(1)),
-     >                         dcpl_mb(vcmp_smooth(1)),
-     >                         dcpl_mb(vcmp(1)))
-            call Pack_cc_Sum2(0,dcpl_mb(vc_tmp(1)),
-     >                          dcpl_mb(vcmp_smooth(1)))
- 
+            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
+            call Pack_cc_Sum(0,
+     >                       dcpl_mb(vc_tmp(1)),
+     >                       dcpl_mb(vcmp_tmp(1)),
+     >                       dcpl_mb(vcmp(1)))
+
+            pcount = 0
+            do ip=1,nion_prj_indx
+               ii          = int_mb(ii_prj_indx(1)+ip-1)
+               ia          = int_mb(ia_prj_indx(1)+ip-1)
+               if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+                  mult_l = nwpw_compcharge_mult_l(ia)
+                  do l=0,mult_l
+                  do m=-l,l
+                     if (mod(pcount,np_j).eq.taskid_j) then
+                        call nwpw_compcharge_gen_glm(ii,l,m,
+     >                                      dcpl_mb(dng_cmp(1)))
+                        call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
+     >                                      dcpl_mb(vcmp(1)),ff(1))
+                        write(*,*) "ff=",ff(1)*omega
+                        call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
+     >                                                  ff(1)*omega)
+                     end if
+                     pcount = pcount + 1
+                  end do
+                  end do
+               end if
+            end do
+            value =           MA_pop_stack(vcmp(2))
+            value = value.and.MA_pop_stack(dng_cmp(2))
+            if (.not.value) 
+     >      call errquit('v_nonlocal:popping stack',4, MA_ERR)
 
          else
-c            call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
-c            call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
-c            call coulomb2_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
-c            call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
-c            call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
-c            call Pack_c_pack(0,dcpl_mb(vcmp(1)))
+
+            call nwpw_compcharge_add_dEmult_Qlm(ispin)
+
+            value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
+     >                          dng_cmp(2),dng_cmp(1))
+            value = value.and.
+     >              MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >                          dng_cmp_smooth(2),dng_cmp_smooth(1))
+            value = value.and.
+     >              MA_push_get(mt_dcpl,npack0,'vcmp',
+     >                          vcmp(2),vcmp(1))
+            value = value.and.
+     >              MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+     >                          vcmp_smooth(2),vcmp_smooth(1))
+            if (.not.value) 
+     >        call errquit('v_nonlocal:out of stack',4, MA_ERR)
+
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dcpl_mb(dng_cmp(1)),
+     >                                       dcpl_mb(dng_cmp_smooth(1)))
+
+            !*** compute hartree potential of ntilde + ncmp_tilde ***
+            !*** compute hartree potential ncmp   - ncmp_tilde ***
+            if (periodic) then
+               call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+               call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
+     >                        dcpl_mb(vcmp_smooth(1)))
+
+               call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
+               call Pack_cc_Sub(0,dcpl_mb(vcmp_tmp(1)),
+     >                            dcpl_mb(vcmp_smooth(1)),
+     >                            dcpl_mb(vcmp(1)))
+               call Pack_cc_Sum2(0,dcpl_mb(vc_tmp(1)),
+     >                             dcpl_mb(vcmp_smooth(1)))
+ 
+
+            else
+c               call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
+c               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
+c               call coulomb2_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+c               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+c               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
+c               call Pack_c_pack(0,dcpl_mb(vcmp(1)))
 c            
-c            call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
-c            call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
-c            call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
-c     >                     dcpl_mb(vcmp_smooth(1)))
-c            call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
-c            call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
-c            call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
-         end if
-         
-         write(*,*) "herc"
-         call nwpw_compcharge_zero_dE_Qlm()
-         call nwpw_compcharge_add_dEmult_Qlm(ispin)
-         pcount = 0
-         do ip=1,nion_prj_indx
-            ii          = int_mb(ii_prj_indx(1)+ip-1)
-            ia          = int_mb(ia_prj_indx(1)+ip-1)
-            if ((int_mb(psp_type(1)+ia-1).eq.4)) then
-               mult_l = nwpw_compcharge_mult_l(ia)
-               do l=0,mult_l
-               do m=-l,l
-                  if (mod(pcount,np_j).eq.taskid_j) then
-                     call nwpw_compcharge_gen_glm2(ii,l,m,
-     >                        dcpl_mb(dng_cmp(1)),
-     >                        dcpl_mb(dng_cmp_smooth(1)))
-                     call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
-     >                                   dcpl_mb(vcmp_smooth(1)),ff(1))
-                     call Pack_cc_idot(0,dcpl_mb(dng_cmp_smooth(1)),
-     >                                   dcpl_mb(vcmp(1)),ff(2))
-                     write(*,*) "ff=",ff(1)*omega,ff(2)*omega
-                     call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
-     >                                              (ff(1)+ff(2))*omega)
-                  end if
-                  pcount = pcount + 1
-               end do
-               end do
+c               call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
+c               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
+c               call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
+c     >                        dcpl_mb(vcmp_smooth(1)))
+c               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+c               call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+c               call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
             end if
-         end do
+         
+
+            pcount = 0
+            do ip=1,nion_prj_indx
+               ii          = int_mb(ii_prj_indx(1)+ip-1)
+               ia          = int_mb(ia_prj_indx(1)+ip-1)
+               if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+                  mult_l = nwpw_compcharge_mult_l(ia)
+                  do l=0,mult_l
+                  do m=-l,l
+                     if (mod(pcount,np_j).eq.taskid_j) then
+                        call nwpw_compcharge_gen_glm2(ii,l,m,
+     >                           dcpl_mb(dng_cmp(1)),
+     >                           dcpl_mb(dng_cmp_smooth(1)))
+                        call Pack_cc_idot(0,
+     >                                    dcpl_mb(dng_cmp(1)),
+     >                                    dcpl_mb(vcmp_smooth(1)),
+     >                                    ff(1))
+                        call Pack_cc_idot(0,
+     >                                    dcpl_mb(dng_cmp_smooth(1)),
+     >                                    dcpl_mb(vcmp(1)),
+     >                                    ff(2))
+                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
+                        call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
+     >                                           (ff(1)+ff(2))*omega)
+                     end if
+                     pcount = pcount + 1
+                  end do
+                  end do
+               end if
+            end do
+
+            value =           MA_pop_stack(vcmp_smooth(2))
+            value = value.and.MA_pop_stack(vcmp(2))
+            value = value.and.MA_pop_stack(dng_cmp_smooth(2))
+            value = value.and.MA_pop_stack(dng_cmp(2))
+            if (.not.value) 
+     >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
+         end if
+
          call nwpw_compcharge_reduce_dE_Qlm()
-         write(*,*) "herd"
 
          do ip=1,nion_prj_indx
             ii          = int_mb(ii_prj_indx(1)+ip-1)
@@ -2038,12 +2110,7 @@ c            call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
      >                                   dbl_mb(sw2a(1)+swstart*nn))
          end do
      
-         value =           MA_pop_stack(vcmp_smooth(2))
-         value = value.and.MA_pop_stack(vcmp(2))
-         value = value.and.MA_pop_stack(dng_cmp_smooth(2))
-         value = value.and.MA_pop_stack(dng_cmp(2))
-         if (.not.value) 
-     >     call errquit('v_nonlocal:popping stack',5,MA_ERR)
+
       end if
 
 
@@ -3099,6 +3166,7 @@ c     **** define Gx,Gy and Gz in packed space ****
         call Parallela_Brdcst_values(com_p,MASTER,msglen,rmax)
         call Parallela_Brdcst_values(com_p,MASTER,msglen,sigma)
         call Parallela_Brdcst_values(com_p,MASTER,msglen,zion)
+
 
         eig_tag     = psi_data_alloc(n1dbasis,1)
         phi_ae_tag  = psi_data_alloc(n1dbasis,n1dgrid)
