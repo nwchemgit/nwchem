@@ -2237,10 +2237,10 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       elocal = 0.0d0
 
 *     **** paw ncmp*Vlocal energy ****
-      if (paw_exist) then
-          call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(tmp1(1)))
-          call Pack_cc_dot(1,dbl_mb(tmp1(1)),dcpl_mb(vl(1)),elocal)
-      end if
+c      if (paw_exist) then
+c          call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(tmp1(1)))
+c          call Pack_cc_dot(1,dbl_mb(tmp1(1)),dcpl_mb(vl(1)),elocal)
+c      end if
 
 
 *     **** average Kohn-Sham v_local energy ****

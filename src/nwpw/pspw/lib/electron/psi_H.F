@@ -116,7 +116,7 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
-      if (psp_pawexist()) call psp_set_vc(vc)
+      if (psp_pawexist()) call psp_set_vcandvl(vc,vl)
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
