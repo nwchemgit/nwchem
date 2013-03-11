@@ -1632,6 +1632,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	  _FC=ifort
           _CC=icc
 	  endif
+	  ifeq ($(PE_ENV),GNU)
+	  _FC=gfortran
+          _CC=gcc
+	  endif
           DEFINES  += -DCRAYXT -DEAFHACK -DNOFSCHECK
       endif
       ifeq ($(CC),pgcc)
