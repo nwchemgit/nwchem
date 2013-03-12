@@ -109,7 +109,7 @@ c
       integer g5b,g6b
       double precision edelta
       double precision norm_r1,norm_r2
-      double precision dsummary(5000,2)  !Print summary in the end
+ckbn      double precision dsummary(5000,2)  !Print summary in the end
       integer k_movecs,l_movecs
       logical lcheckpoints
       integer icheckpoint
@@ -1569,8 +1569,8 @@ c kk ---
 
         if (nodezero) write(LuOut,"(/,'Iter.',I4,2f24.13,2f24.13,
      1     2f18.13)")iter,epsilon,enrep+epsilon,epsilon-edelta
-        dsummary(iter,1) = enrep+epsilon
-        dsummary(iter,2) = epsilon-duhfens(mkroot)
+ckbn        dsummary(iter,1) = enrep+epsilon
+ckbn        dsummary(iter,2) = epsilon-duhfens(mkroot)
 c
 c     ==========================
 c             Converged
@@ -1838,7 +1838,7 @@ c     +     write(LuOut,"(/,'Final MR-BWCCSD energy and ecorr: ',2F18.12,
 c     1     2F18.12)")epsilon+enrep,epsilon-duhfens(1)
 c          write(LuOut,"('A posteriori correction: ',2F18.12,
 c     1     2F18.12,/)")epsilon-edelta
-          call tce_mrcc_print_summary(iter,dsummary)
+ckbn          call tce_mrcc_print_summary(iter,dsummary)
 
           write(LuOut,*)""
           if( .not. se4t ) then
@@ -2341,8 +2341,8 @@ c        call tce_diagonalize_heff(nref,rtdb)
      1 2f18.13)")iter,epsilon,enrep+epsilon,epsilon-edelta
         if (nodezero) call util_flush(LuOut)
 
-        dsummary(iter,1) = enrep+epsilon
-        dsummary(iter,2) = epsilon-duhfens(1)
+ckbn        dsummary(iter,1) = enrep+epsilon
+ckbn        dsummary(iter,2) = epsilon-duhfens(1)
 c
 c     ==========================
 c             Converged
@@ -2474,7 +2474,7 @@ ckbn*******************************************************************
           call tce_mrcc_diis_tidy()
 
           if(nodezero) then
-           call tce_mrcc_print_summary(iter,dsummary)
+ckbn           call tce_mrcc_print_summary(iter,dsummary)
 
            write(LuOut,*) ""
            if(.not. se4t) write(LuOut,9080)

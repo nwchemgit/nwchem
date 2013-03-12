@@ -1,56 +1,56 @@
-         subroutine tce_mrcc_print_summary(iter,dsummary)
-         implicit none
-#include "tce.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "errquit.fh"
-#include "sym.fh"
-#include "tce_mrcc.fh"
-#include "global.fh"
-#include "tce_main.fh"
-
-      integer iter
-      double precision dsummary(5000,2)
-      logical nodezero
-      integer i,j
-
-      nodezero = (ga_nodeid().eq.0)
- 
-      dsummary(1,2) = 0.0d0
- 
-      if(nodezero) then 
-        write(LuOut,"(/)")
-        call util_print_centered
-     1  (LuOut,'======================================================',
-     2  40,.false.)
-       call util_print_centered
-     1  (LuOut,'Summary output from iterations',
-     2  40,.false.)
-        call util_print_centered
-     1  (LuOut,'======================================================',
-     2  40,.false.)
-        write(LuOut,*)        
-
-        write(LuOut,9100)
-        call util_print_centered
-     1  (LuOut,'------------------------------------------------------',
-     2  40,.false.)
-        do i=1,iter
-         write(LuOut,9200)i,(dsummary(i,j),j=1,2)
-        enddo
-        call util_print_centered
-     1  (LuOut,'======================================================',
-     2  40,.false.)
-      endif
-
-      if (nodezero) call util_flush(LuOut)
-
- 9100 format(15x,'  Iteration  ',3x,'Energy (a.u.)',9x,'Corr. energy')
- 9200 format(17x,1x,i4,40f22.12,7x)
-
-      return
-      end
+ckbn         subroutine tce_mrcc_print_summary(iter,dsummary)
+ckbn         implicit none
+ckbn#include "tce.fh"
+ckbn#include "mafdecls.fh"
+ckbn#include "stdio.fh"
+ckbn#include "rtdb.fh"
+ckbn#include "errquit.fh"
+ckbn#include "sym.fh"
+ckbn#include "tce_mrcc.fh"
+ckbn#include "global.fh"
+ckbn#include "tce_main.fh"
+ckbn
+ckbn      integer iter
+ckbn      double precision dsummary(5000,2)
+ckbn      logical nodezero
+ckbn      integer i,j
+ckbn
+ckbn      nodezero = (ga_nodeid().eq.0)
+ckbn 
+ckbn      dsummary(1,2) = 0.0d0
+ckbn 
+ckbn      if(nodezero) then 
+ckbn        write(LuOut,"(/)")
+ckbn        call util_print_centered
+ckbn     1  (LuOut,'======================================================',
+ckbn     2  40,.false.)
+ckbn       call util_print_centered
+ckbn     1  (LuOut,'Summary output from iterations',
+ckbn     2  40,.false.)
+ckbn        call util_print_centered
+ckbn     1  (LuOut,'======================================================',
+ckbn     2  40,.false.)
+ckbn        write(LuOut,*)        
+ckbn
+ckbn        write(LuOut,9100)
+ckbn        call util_print_centered
+ckbn     1  (LuOut,'------------------------------------------------------',
+ckbn     2  40,.false.)
+ckbn        do i=1,iter
+ckbn         write(LuOut,9200)i,(dsummary(i,j),j=1,2)
+ckbn        enddo
+ckbn        call util_print_centered
+ckbn     1  (LuOut,'======================================================',
+ckbn     2  40,.false.)
+ckbn      endif
+ckbn
+ckbn      if (nodezero) call util_flush(LuOut)
+ckbn
+ckbn 9100 format(15x,'  Iteration  ',3x,'Energy (a.u.)',9x,'Corr. energy')
+ckbn 9200 format(17x,1x,i4,40f22.12,7x)
+ckbn
+ckbn      return
+ckbn      end
 
 
          subroutine tce_mrcc_print_t1type(d_t1,k_t1_offset,iref,irefnew)

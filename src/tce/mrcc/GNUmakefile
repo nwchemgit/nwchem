@@ -14,11 +14,11 @@ OBJ_OPTIMIZE =  tce_mrcc_energy.o tce_mrcc_readref.o tce_mrcc_calcexcit.o tce_mr
 		tce_mrcc_diis_init.o tce_mrcc_heff.o  \
 		tce_mrcc_diis.o tce_mrcc_jacobi_t1.o tce_mrcc_jacobi_t2.o \
 		tce_mrcc_gacp.o tce_mrcc_daxfile.o tce_mrcc_diis_tidy.o tce_jacobi_sub_t1.o tce_jacobi_sub_t2.o \
-		tce_mrcc_print.o \
 		tce_mrcc_c1.o tce_mrcc_c1_offset.o tce_mrcc_c2.o tce_mrcc_c2_offset.o \
 		tce_mrcc_mul_1.o tce_mrcc_mul_2.o \
 		tce_mrcc_diis_save.o tce_mrcc_diis_new.o  tce_mrcc_create_cas1.o
 		
+#		tce_mrcc_print.o \
 
 LIB_INCLUDES = -I../include -I./include
 
@@ -39,11 +39,11 @@ USES_BLAS = tce_mrcc_energy.F tce_mrcc_readref.F tce_mrcc_calcexcit.F tce_mrcc_s
 	    tce_mrcc_diis_init.F tce_mrcc_heff.F  \
 	    tce_mrcc_diis.F tce_mrcc_jacobi_t1.F tce_mrcc_jacobi_t2.F \
 	    tce_mrcc_gacp.F tce_mrcc_daxfile.F tce_mrcc_diis_tidy.F tce_jacobi_sub_t1.F tce_jacobi_sub_t2.F \
-	    tce_mrcc_print.F \
 	    tce_mrcc_c1.F tce_mrcc_c1_offset.F tce_mrcc_c2.F tce_mrcc_c2_offset.F \
 	    tce_mrcc_mul_1.F tce_mrcc_mul_2.F \
 	    tce_mrcc_diis_save.F tce_mrcc_diis_new.F tce_mrcc_create_cas1.F 
 		
+#	    tce_mrcc_print.F \
 
 
 LIB_DEFINES = 
