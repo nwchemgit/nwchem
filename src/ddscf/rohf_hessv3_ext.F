@@ -764,8 +764,8 @@ c     &     write(*,*) 'FA-BEF rohf_hessv_2e3_opt_cmplx'
      &                  noskew,   ! in : =.true. -> symmetric density matrix
      &                  acc,      ! in : accuracy Fock construction
      &                  limag,    ! in : =.true. -> imaginary component allowed
-     &                  lifetime, ! in : =.true. -> RE-IM =.false -> RE
-     &                  iter_cphf)! in: iteration nr. in cphf cycle
+     &                  lifetime) ! in : =.true. -> RE-IM =.false -> RE
+cold     &                  iter_cphf)! in: iteration nr. in cphf cycle
 
 c            if (ga_nodeid().eq.0)
 c     &       write(*,*) 'FA-AFT rohf_hessv_2e3_opt_cmplx'
