@@ -567,13 +567,18 @@ c        if (ga_nodeid().eq.0) then
 c         write(*,103) n1,maxsub
 c 103     format('(n1,maxsumb)=(',i4,',',i4,')')
 c        endif
+c
+       call ga_inquire(g_z(1),gtype,n,nvec) ! get (n1,nvec)
+c       write(*,178) n,nvec
+c  178  format('(n,nvec)=(',i3,',',i3,')')
+c
         alo(1)=1
         ahi(1)=n1
         alo(2)=nsub+1
         ahi(2)=nsub+nvec
         call nga_zero_patch(g_Az1,alo,ahi)
 c ----- Clear sub-block ---- END
-
+c
       if (pflg.gt.2 .or. pflg.le.0) then
          call errquit('rohf_hessv_xx: pflg invalid ', pflg,
      &       UNKNOWN_ERR)
@@ -592,9 +597,6 @@ c     (e_a - e_i -/+ omega) U_ai. First, we initialize g_Ax with
 c     the term proportional to omega, then we add the delta-e term
 c     (the e's are the orbital energies, calculated in hessv_1e as
 c     the diagonal of the Fock matrix transformed to the MO basis)
-       call ga_inquire(g_z(1),gtype,n,nvec) ! get (n1,nvec)
-c       write(*,178) n,nvec
-c  178  format('(n,nvec)=(',i3,',',i3,')')
       if (pflg .gt. 0) then
         omg(1)=-omega
         omg(2)= omega
