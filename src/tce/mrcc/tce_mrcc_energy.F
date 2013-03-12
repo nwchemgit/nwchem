@@ -26,6 +26,7 @@
 #endif
 
       integer rtdb
+      logical se4t
       logical nodezero
       logical no_aposteriori
       character*255 modelname
@@ -232,6 +233,11 @@ c     +
        if(nodezero) write(*,*) "savet",lsavet
 
 ckbn-4
+      if (.not.rtdb_get(rtdb,'mrcc:se4t',mt_log,1,se4t))
+     2   se4t = .false.
+      if(nodezero) write(*,*) "se4t", se4t
+
+ckbn-4
       if (.not.rtdb_get(rtdb,'mrcc:no_aposteriori',
      +     mt_log,1,no_aposteriori)) no_aposteriori = .false.
       if(nodezero) write(*,*) "no_aposteriori", no_aposteriori
@@ -392,7 +398,8 @@ c      if(ioalg .ne. 2 ) call errquit
 c     + ('tce_mrcc_energy: TCE MRCC needs ioalgorithm',0,INPUT_ERR)
 
 ckbn MR-r      if(lcas)call tce_mrcc_create_cas(rtdb)
-      if(lcas)call tce_mrcc_create_cas(rtdb)
+c      if(lcas)call tce_mrcc_create_cas(rtdb)
+      if(lcas)call tce_mrcc_create_cas1(rtdb)
       if (.not.rtdb_get(rtdb,'bwcc:nref', mt_int, 1, nref))
      1  call ERRQUIT('tce_mrcc_readref',1,RTDB_ERR)
 ckbn MR-r      call tce_mrcc_readref(rtdb) 
@@ -1622,8 +1629,185 @@ cxxx
 
          endif ! not lconverged
 ckbnjjjj
- 1333    continue ! After avoiding a posteriori correction
 ckbn*******************************************************************
+ckbn**************************BWCCSD(T)********************************
+ckbn*******************************************************************
+ 1333    continue ! After avoiding a posteriori correction
+
+cx       if(lconverged)write(*,*) "Before", lconverged,ga_nodeid()
+       if(se4t .and. lconverged )  then
+ckbn subg -4
+       call dfill(maxref,0.d0,pt3_1m,1)
+       call dfill(maxref,0.d0,pt3_2m,1)
+       call dfill(maxref,0.d0,pt3_3m,1)
+       if(ga_pgroup_nodeid(mypgid).eq.0) call util_flush(LuOut)
+       call ga_sync()
+       if(lusesub)call ga_pgroup_sync(mypgid)
+          itcpu3 = - util_cpusec()
+          itwall3 = - util_wallsec()
+          itcpu3_1 =  util_cpusec()
+          itwall3_1 =  util_wallsec()
+
+        if(lusesub) then
+        if( ga_pgroup_nodeid(mypgid).eq.0) then
+         if (.not.MA_PUSH_GET(mt_dbl,nref*nref,'(T) ptheff',l_ptheff,
+     1        k_ptheff)) call errquit('ptheff: MA error',3,MA_ERR)
+         call dfill(nref*nref,0.d0,dbl_mb(k_ptheff),1)
+        endif
+        endif
+
+        if(lusesub) call ga_print(g_heff)
+
+        do irefpt=1,nref
+
+        if((int_mb(k_refafi+irefpt-1).eq.int_mb(k_innodes
+     1 +innodes+ga_nodeid())).or.(.not.lusesub)) then
+
+         k_sym = k_symm(irefpt)
+         k_offset = k_offsetm(irefpt)
+         k_range = k_rangem(irefpt)
+         k_spin = k_spinm(irefpt)
+         k_movecs_sorted = k_movecs_sortedm(irefpt)
+         k_evl_sorted = k_evl_sortedm(irefpt)
+         k_active = k_active_tmpm(irefpt)
+
+         noa = nblcks(1,irefpt)
+         nob = nblcks(2,irefpt)
+         nva = nblcks(3,irefpt)
+         nvb = nblcks(4,irefpt)
+         noab = noa+nob
+         nvab = nva+nvb
+       if(lusesub) then
+
+        if (.not.MA_PUSH_GET(mt_dbl,size_r1m(irefpt),'t1_localpt',
+     1      l_t1_localpt,k_t1_localpt))
+     1      call errquit('t1_localpt',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_localpt),size_r1m(irefpt))
+c    copy d_t1 ==> k_t1_local
+         if( ga_pgroup_nodeid(mypgid) .eq. 0) then
+          call ga_get(d_t1m(irefpt),1,size_r1m(irefpt),1,1,
+     &                dbl_mb(k_t1_localpt),1) 
+        endif
+          call ga_pgroup_brdcst(mypgid,65540,dbl_mb(k_t1_localpt),
+     +     MA_sizeof(MT_DBL,1,MT_BYTE)*size_r1m(irefpt)*1,0)
+
+        if (.not.MA_PUSH_GET(mt_dbl,size_1em(irefpt),'f1_localpt',
+     1      l_f1_localpt,k_f1_localpt))
+     1      call errquit('f1_localpt',1,MA_ERR)
+        call ma_zero(dbl_mb(k_f1_localpt),size_1em(irefpt))
+c    copy d_f1 ==> k_f1_local
+         if( ga_pgroup_nodeid(mypgid) .eq. 0) then
+          call ga_get(d_f1m(irefpt),1,size_1em(irefpt),1,1,
+     &                dbl_mb(k_f1_localpt),1) 
+        endif
+          call ga_pgroup_brdcst(mypgid,65541,dbl_mb(k_f1_localpt),
+     +     MA_sizeof(MT_DBL,1,MT_BYTE)*size_1em(irefpt)*1,0)
+
+       endif
+       
+       if(lusesub) then
+        call tce_mrcc_ccsdpt_subg(k_t1_localpt,k_t1_offsetm(irefpt),
+     +                           d_t2m(irefpt),k_t2_offsetm(irefpt),
+     +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
+     +                           k_f1_localpt,
+     +                           k_f1_offsetm(irefpt),
+     +                           pt3_1m(irefpt),pt3_2m(irefpt),
+     +                           pt3_3m(irefpt),irefpt)
+
+         else
+          call tce_mrcc_ccsdpt(d_t1m(irefpt),k_t1_offsetm(irefpt),
+     +                           d_t2m(irefpt),k_t2_offsetm(irefpt),
+     +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
+     +                           d_f1m(irefpt),
+     +                           k_f1_offsetm(irefpt),
+     +                           pt3_1m(irefpt),pt3_2m(irefpt),
+     +                           pt3_3m(irefpt),irefpt)
+       endif
+
+        if(lusesub) then
+        if( ga_pgroup_nodeid(mypgid) .eq. 0) write(LuOut,'(A,I10)') 
+     +     "I am here my pgroup_nodeid ",ga_pgroup_nodeid(mypgid)
+        call util_flush(LuOut)
+        if( ga_pgroup_nodeid(mypgid) .eq. 0) then
+         dbl_mb(k_ptheff+((irefpt-1)*nref+(irefpt-1)))=pt3_3m(irefpt)
+        endif
+        endif
+
+        if(lusesub) then
+         if(.not.MA_POP_STACK(l_f1_localpt))
+     &      call errquit('l_t1_localpt',2,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_localpt))
+     &      call errquit('l_t1_localpt',2,MA_ERR)
+        endif
+
+        if(lusesub) then
+        if( ga_pgroup_nodeid(mypgid).eq.0) then
+         write(LuOut,'(A,I5,F15.10)')"Correction to Heff from iref " ,
+     +     irefpt,pt3_3m(irefpt)
+        call util_flush(LuOut)
+        endif
+        else 
+        if(nodezero) then
+         write(LuOut,'(A,I5,F15.10)')"Correction to Heff from iref " ,
+     +     irefpt,pt3_3m(irefpt)
+        call util_flush(LuOut)
+        endif 
+        endif ! lusesub
+
+       endif ! .not. lusesub
+       end do
+
+       if(lusesub) then
+        if( ga_pgroup_nodeid(mypgid).eq.0)
+     +    call ga_acc(g_heff,1,nref*nref,1,1,dbl_mb(k_ptheff),1,1.0d0)
+       endif
+       call ga_sync()
+
+      if(.not.lusesub) then 
+      do i=1,nref
+       dbl_mb(k_heff+((i-1)*nref+(i-1)))=
+     +       dbl_mb(k_heff+((i-1)*nref+(i-1)))+pt3_3m(i)
+      enddo
+      endif
+
+        if(lusesub) then
+        if( ga_pgroup_nodeid(mypgid).eq.0) then
+         if (.not.MA_POP_STACK(l_ptheff)) 
+     1    call errquit('ccsd_t',3,MA_ERR)
+        endif
+        endif
+
+        if(lusesub) call ga_print(g_heff)
+
+       if(nodezero) then
+        write(LuOut,"(/,'Final1 MR-BWCCSD energy before (T) correction:
+     +     ',2F18.12)")epsilon+enrep
+       endif
+
+        call tce_diagonalize_heff(rtdb)
+
+       if(nodezero) then
+        write(LuOut,"(/,'Final2 MR-BWCCSD energy after (T) correction:
+     +     ',2F18.12)")epsilon+enrep
+       endif
+
+         itcpu3 = itcpu3 + util_cpusec()
+         itwall3 = itwall3 + util_wallsec()
+         itcpu3_2 =  util_cpusec()
+         itwall3_2 = util_wallsec()
+         call ga_dgop(mt_dbl,itcpu3 ,1,'max')
+         call ga_dgop(mt_dbl,itwall3,1,'max')
+         if(nodezero) then
+            write(LuOut,"('Iter cpu (t) ',2f15.5)") itcpu3, itwall3
+           write(LuOut,"('Iter cpu (t)n ',2f15.5)") (itcpu3_2-itcpu3_1),
+     +                     (itwall3_2-itwall3_1)
+            call util_flush(LuOut)
+         endif
+
+       endif
+
+ckbn*******************************************************************
+
 cxxx
          cpu = cpu + util_cpusec()
          wall = wall + util_wallsec()
@@ -1650,12 +1834,33 @@ c kk ---
          call tce_mrcc_diis_tidy()
 
          if(nodezero) then
-          write(LuOut,"(/,'Final MR-BWCCSD energy and ecorr: ',2F18.12,
-     1     2F18.12)")epsilon+enrep,epsilon-duhfens(1)
-          write(LuOut,"('A posteriori correction: ',2F18.12,
-     1     2F18.12,/)")epsilon-edelta
+c     +     write(LuOut,"(/,'Final MR-BWCCSD energy and ecorr: ',2F18.12,
+c     1     2F18.12)")epsilon+enrep,epsilon-duhfens(1)
+c          write(LuOut,"('A posteriori correction: ',2F18.12,
+c     1     2F18.12,/)")epsilon-edelta
           call tce_mrcc_print_summary(iter,dsummary)
 
+          write(LuOut,*)""
+          if( .not. se4t ) then
+           if(.not. no_aposteriori) write(LuOut,9080) 
+     +      "BW-MRCCSD with a posteriori correction ",
+     +      epsilon+enrep
+           if(no_aposteriori) write(LuOut,9080)
+     +      "BW-MRCCSD without a posteriori correction ",
+     +      epsilon+enrep
+          else
+           if(.not. no_aposteriori) write(LuOut,9080)
+     +      "BW-MRCCSD(T) with a posteriori correction ",
+     +      epsilon+enrep
+           if(no_aposteriori) write(LuOut,9080)
+     +      "BW-MRCCSD(T) without a posteriori correction ",
+     +      epsilon+enrep
+          endif
+          write(LuOut,*)""
+          call util_print_centered (LuOut,
+     +     "======================================================",
+     +     40,.false.)
+          write(LuOut,*)""
           write(LuOut,9220) cpu, wall
           call util_flush(LuOut)
          endif ! nodezero 
@@ -2177,6 +2382,83 @@ c           close(unitn)
         endif
 ckbnttttt
 
+ckbn*******************************************************************
+ckbn**************************MkCCSD(T)********************************
+ckbn*******************************************************************
+ckbn   SE4T for MkCC
+c       if((se4t .and. lconverged) .or. (uncoup_pt3 .and. lconverged)) 
+       if((se4t .and. lconverged) ) then
+        call ga_sync()
+        if(lusesub) call errquit(
+     +   'tce_mrcc_energy: Subgroups not supported in Mk-MRCCSD(T)',30,
+     +    INPUT_ERR)
+
+          itcpu3 = - util_cpusec()
+          itwall3 = - util_wallsec()
+       call dfill(maxref,0.d0,pt3_1m,1)
+       call dfill(maxref,0.d0,pt3_2m,1)
+       call dfill(maxref,0.d0,pt3_3m,1)
+
+        do irefpt=1,nref
+
+         k_sym = k_symm(irefpt)
+         k_offset = k_offsetm(irefpt)
+         k_range = k_rangem(irefpt)
+         k_spin = k_spinm(irefpt)
+         k_movecs_sorted = k_movecs_sortedm(irefpt)
+         k_evl_sorted = k_evl_sortedm(irefpt)
+         k_active = k_active_tmpm(irefpt)
+         noa = nblcks(1,irefpt)
+         nob = nblcks(2,irefpt)
+         nva = nblcks(3,irefpt)
+         nvb = nblcks(4,irefpt)
+         noab = noa+nob
+         nvab = nva+nvb
+
+          if(nodezero) write(*,*) "Call tce_mrcc_ccsdpt"
+          call tce_mrcc_ccsdpt(d_t1m(irefpt),k_t1_offsetm(irefpt),
+     +                           d_t2m(irefpt),k_t2_offsetm(irefpt),
+     +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
+     +                           d_f1m(irefpt),
+     +                           k_f1_offsetm(irefpt),
+     +                           pt3_1m(irefpt),pt3_2m(irefpt),
+     +                           pt3_3m(irefpt),irefpt)
+       if(nodezero) then
+       write(*,*)"E4T  ","iref",irefpt," ",pt3_1m(irefpt) 
+        write(*,'(A,I5,F15.10)')"Correction to Heff from iref " ,
+     +    irefpt,pt3_3m(irefpt)
+       endif 
+
+
+        end do
+
+      do i=1,nref
+       dbl_mb(k_heff+((i-1)*nref+(i-1)))=
+     +       dbl_mb(k_heff+((i-1)*nref+(i-1)))+pt3_3m(i)
+      enddo
+
+       if(nodezero) then
+        write(LuOut,"(/,'Final1 MR-MkCCSD energy before (T) correction:
+     +     ',2F18.12)")epsilon+enrep
+       endif
+
+        call ga_sync()
+        call tce_diagonalize_heff(rtdb)
+
+       if(nodezero) then
+        write(LuOut,"(/,'Final2 MR-MkCCSD energy after (T) correction:
+     +     ',2F18.12)")epsilon+enrep
+       endif
+         itcpu3 = itcpu3 + util_cpusec()
+         itwall3 = itwall3 + util_wallsec()
+         if(nodezero) then
+            write(LuOut,"('Iter cpu (t) ',2f15.5)") itcpu3, itwall3
+            call util_flush(LuOut)
+         endif
+
+       endif ! se4t
+ckbn*******************************************************************
+
 
 
           do iref=1,nref
@@ -2192,15 +2474,21 @@ ckbnttttt
           call tce_mrcc_diis_tidy()
 
           if(nodezero) then
-
-           write(LuOut,"(/,'Final MR-MkCCSD energy and ecorr: ',2F18.12,
-     1     2F18.12)")epsilon+enrep,epsilon-duhfens(1)
-
            call tce_mrcc_print_summary(iter,dsummary)
 
+           write(LuOut,*) ""
+           if(.not. se4t) write(LuOut,9080)
+     +     "Mk-MRCCSD ",epsilon+enrep
+
+           if(se4t) write(LuOut,9080)
+     +     "Mk-MRCCSD(T) ",epsilon+enrep
+
+           write(LuOut,*) ""
+           call util_print_centered (LuOut,
+     +     "======================================================",
+     2     40,.false.)
 
            call util_flush(LuOut)
-
           endif
 
            tce_mrcc_energy = .true.
@@ -2737,6 +3025,7 @@ c cleanup cleanup cleanup cleanup cleanup cleanup cleanup cleanup cleanup cleanu
  9220 format(1x,'MRCC cpu & wall time / sec',2f15.1)
  9222 format(1x,'Residues and T update / sec',2f15.1)
 
+ 9080 format(1x,A,'(Hartrees) = ',f25.15)
 
 #else
       CALL ERRQUIT('MRCC Methods not compiled (tce_mrcc_energy.F) 
