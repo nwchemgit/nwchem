@@ -1,5 +1,4 @@
 #include "header.h"
-
 #include <map>
 #include <set>
 using namespace std;
@@ -40,7 +39,7 @@ static int is_init=0;
   typedef cudaError (*mallocfn_t)(void **ptr, size_t bytes);
   static void *morecore(mallocfn_t fn, size_t bytes) {
     void *ptr;
-    cutilSafeCall(fn((void **)&ptr, bytes));
+    CUDA_SAFE(fn((void **)&ptr, bytes));
     num_morecore += 1;
     if(ptr==NULL) {
       /*try one more time*/
@@ -75,7 +74,7 @@ void *getGpuMem(size_t bytes) {
   assert(is_init);
   void *ptr;
 #ifdef NO_OPT
-  cutilSafeCall(cudaMalloc((void **) &ptr, bytes));
+  CUDA_SAFE(cudaMalloc((void **) &ptr, bytes));
 #else
   if(free_list_gpu.find(bytes)!=free_list_gpu.end()) {
     set<void*> &lst = free_list_gpu.find(bytes)->second;
@@ -104,7 +103,7 @@ void *getHostMem(size_t bytes) {
   assert(is_init);
   void *ptr;
 #ifdef NO_OPT
-  cutilSafeCall(cudaMallocHost((void **) &ptr, bytes));
+  CUDA_SAFE(cudaMallocHost((void **) &ptr, bytes));
 #else
   if(free_list_host.find(bytes)!=free_list_host.end()) {
     set<void*> &lst = free_list_host.find(bytes)->second;

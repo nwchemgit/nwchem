@@ -275,10 +275,10 @@ extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -296,7 +296,7 @@ extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -561,11 +561,11 @@ extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  //cutilSafeCall(
+  //CUDA_SAFE(
     cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice); //);
-  //cutilSafeCall(  
+  //CUDA_SAFE(  
     cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice); //);
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
@@ -586,7 +586,7 @@ extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_2_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -844,10 +844,10 @@ extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -863,7 +863,7 @@ extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_3_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -1128,10 +1128,10 @@ extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -1149,7 +1149,7 @@ extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -1421,10 +1421,10 @@ extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -1444,7 +1444,7 @@ extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -1709,10 +1709,10 @@ extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -1730,7 +1730,7 @@ extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -1995,10 +1995,10 @@ extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -2016,7 +2016,7 @@ extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -2288,10 +2288,10 @@ extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -2311,7 +2311,7 @@ extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -2576,10 +2576,10 @@ extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -2597,7 +2597,7 @@ extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d1_9_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -2864,10 +2864,10 @@ extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -2885,7 +2885,7 @@ extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -3145,10 +3145,10 @@ extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -3164,7 +3164,7 @@ extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_2_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -3431,10 +3431,10 @@ extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -3452,7 +3452,7 @@ extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_3_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -3726,10 +3726,10 @@ extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -3749,7 +3749,7 @@ extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -4016,10 +4016,10 @@ extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4037,7 +4037,7 @@ extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -4311,10 +4311,10 @@ extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4334,7 +4334,7 @@ extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR();
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -4608,10 +4608,10 @@ extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4631,7 +4631,7 @@ extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -4905,10 +4905,10 @@ extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4928,7 +4928,7 @@ extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -5202,10 +5202,10 @@ extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    cutilSafeCall(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
   }
-  cutilSafeCall(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  cutilSafeCall(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -5225,7 +5225,7 @@ extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     sd_t_d2_9_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
-    cutilCheckMsg("Kernel execution failed");
+    CHECK_ERR("Kernel execution failed");
   }
   cudaThreadSynchronize();
   for(i=0;i<nstreams;++i){
@@ -5347,22 +5347,22 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
     eval_d5 = (double*)getGpuMem(p5d*sizeof(double));
     eval_d6 = (double*)getGpuMem(p6d*sizeof(double));
 
-    cutilSafeCall(cudaMemcpy(eval_d1, eval1, h1d*sizeof(double), cudaMemcpyHostToDevice));
-    cutilSafeCall(cudaMemcpy(eval_d2, eval2, h2d*sizeof(double), cudaMemcpyHostToDevice));
-    cutilSafeCall(cudaMemcpy(eval_d3, eval3, h3d*sizeof(double), cudaMemcpyHostToDevice));
-    cutilSafeCall(cudaMemcpy(eval_d4, eval4, p4d*sizeof(double), cudaMemcpyHostToDevice));
-    cutilSafeCall(cudaMemcpy(eval_d5, eval5, p5d*sizeof(double), cudaMemcpyHostToDevice));
-    cutilSafeCall(cudaMemcpy(eval_d6, eval6, p6d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(cudaMemcpy(eval_d1, eval1, h1d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(cudaMemcpy(eval_d2, eval2, h2d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(cudaMemcpy(eval_d3, eval3, h3d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(cudaMemcpy(eval_d4, eval4, p4d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(cudaMemcpy(eval_d5, eval5, p5d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(cudaMemcpy(eval_d6, eval6, p6d*sizeof(double), cudaMemcpyHostToDevice));
 /* for test only */
 //printf("host 2 is %f %f\n", host2[0], host2[1]);
-//    cutilSafeCall(cudaMemcpy(t3_s_d, host2, total_elements*h3d*sizeof(double), cudaMemcpyHostToDevice));
+//    CUDA_SAFE(cudaMemcpy(t3_s_d, host2, total_elements*h3d*sizeof(double), cudaMemcpyHostToDevice));
 
     dim3 dimBlock(1); //T2*T1);
     dim3 dimGrid(total_block);
     compute_energy_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d, eval_d1,eval_d2,eval_d3,eval_d4,eval_d5,eval_d6,energy_d, factor, h1d*h2d*p4d*p5d*p6d, t3_d, t3_s_d);
 	cudaThreadSynchronize();
-    //cutilCheckMsg("Kernel execution failed");
-    cutilSafeCall(cudaMemcpy(((char *) energy_h) , ((char *) energy_d) , 
+    //CHECK_ERR("Kernel execution failed");
+    CUDA_SAFE(cudaMemcpy(((char *) energy_h) , ((char *) energy_d) , 
     size_energy*total_block*2, cudaMemcpyDeviceToHost));
 
     for(int i=1;i<dimGrid.x;i++)
@@ -5374,8 +5374,8 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
      
 //    printf("CUDA energy_h is %f %f %d %d %d %d %d %d\n", energy_h[0], energy_h[dimGrid.x]); //, total_size, h1d, h2d, p4d, p5d,p6d);
 /*
-    cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_d) , sizeof(double)*h3d*total_elements, cudaMemcpyDeviceToHost));
-    cutilSafeCall(cudaMemcpy(((char *) ts3) , ((char *) t3_s_d) , sizeof(double)*h3d*total_elements, cudaMemcpyDeviceToHost));
+    CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_d) , sizeof(double)*h3d*total_elements, cudaMemcpyDeviceToHost));
+    CUDA_SAFE(cudaMemcpy(((char *) ts3) , ((char *) t3_s_d) , sizeof(double)*h3d*total_elements, cudaMemcpyDeviceToHost));
     total_s[0]=0.0, total_d[0]=0.0;
     for(int i=0;i<h3d*total_elements;i++) {
         total_s[0] += ts3[i];
@@ -5476,9 +5476,9 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	nstreams = 1;
 	size_block_t3 = size_t3 / nstreams;
 	size_el_block_t3 = size_block_t3 / sizeof(double);
-//cutilSafeCall(cudaMalloc((void**) &t3_d, size_t3));
-//cutilSafeCall(cudaMalloc((void**) &t2_d, size_t2));
-//cutilSafeCall(cudaMalloc((void**) &v2_d, size_v2));
+//CUDA_SAFE(cudaMalloc((void**) &t3_d, size_t3));
+//CUDA_SAFE(cudaMalloc((void**) &t2_d, size_t2));
+//CUDA_SAFE(cudaMalloc((void**) &v2_d, size_v2));
 //	t3_d = (double *) getGpuMem(size_t3);
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
@@ -5486,10 +5486,10 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -5508,12 +5508,12 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*
     st = timer();
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
@@ -5529,7 +5529,7 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 */
 	cudaThreadSynchronize();
 
-//	cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
 	}
@@ -5612,18 +5612,18 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
         cudaMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
 	}*/
-//cutilSafeCall(cudaMalloc((void**) &t2_d, size_t2));
-//cutilSafeCall(cudaMalloc((void**) &v2_d, size_v2));
+//CUDA_SAFE(cudaMalloc((void**) &t2_d, size_t2));
+//CUDA_SAFE(cudaMalloc((void**) &v2_d, size_v2));
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 /*	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}*/
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d ;
@@ -5643,11 +5643,11 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 //  for(i=0;i<nstreams;++i){
 
     sd_t_s1_2_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 //	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
@@ -5661,7 +5661,7 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 		stream++;
 	}*/
 	cudaThreadSynchronize();
-//	cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 /*
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
@@ -5709,10 +5709,10 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d ;
@@ -5731,11 +5731,11 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
@@ -5749,7 +5749,7 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}
 */	cudaThreadSynchronize();
-	//cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
@@ -5841,10 +5841,10 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 /*	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}*/
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -5865,12 +5865,12 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
  // for(i=0;i<nstreams;++i){
     sd_t_s1_4_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
     //sd_t_s1_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 //	}
 
 
 	cudaThreadSynchronize();
-	/*	cutilSafeCall(cudaMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, cudaMemcpyDeviceToHost));
+	/*	CUDA_SAFE(cudaMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, cudaMemcpyDeviceToHost));
 	printf("Time for Async DeviceToHost %f\n", et-st);
 	stream = 0;
 //	while (stream < nstreams) {
@@ -5976,10 +5976,10 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d ;
@@ -5998,11 +5998,11 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
@@ -6018,7 +6018,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 */
 	cudaThreadSynchronize();
 
-	//cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
 	}
@@ -6110,10 +6110,10 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6132,10 +6132,10 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
@@ -6149,7 +6149,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}*/
 	cudaThreadSynchronize();
-	//cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
@@ -6247,10 +6247,10 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6269,11 +6269,11 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
@@ -6287,7 +6287,7 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}*/
 	cudaThreadSynchronize();
-	//cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
@@ -6379,10 +6379,10 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6401,11 +6401,11 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 	stream = 0;
 	while (stream < nstreams) {
@@ -6418,7 +6418,7 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}*/
 	cudaThreadSynchronize();
-//	cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
@@ -6471,10 +6471,10 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(cudaStreamCreate(&streams[i]));
 	}
-	cutilSafeCall(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	cutilSafeCall(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6493,11 +6493,11 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		cutilCheckMsg("Kernel execution failed");
+		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cutilSafeCall(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
 	}
 	stream = 0;
 	while (stream < nstreams) {
@@ -6510,7 +6510,7 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}*/
 	cudaThreadSynchronize();
-	//cutilSafeCall(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 //  printf("out is %lf\n", t3_p[0]);
 	for (i = 0; i < nstreams; ++i) {
