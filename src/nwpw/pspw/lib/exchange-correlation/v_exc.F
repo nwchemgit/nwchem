@@ -5,6 +5,7 @@
       subroutine vxc(n2ft3d,ispin,dn,xcp,xce,x)
       implicit double precision(a-h, o-z)
       implicit integer (i-n)
+#include "nwxc.fh"
 
       integer n2ft3d
       integer ispin
@@ -47,13 +48,36 @@
       call nwpw_timing_start(4)
       pi=4.0d0*datan(1.0d0)
 
-
 *     square root of wigner radius
       do 100 k=1,n2ft3d
-        rho=dn(k,1)+dn(k,ispin)+dncut
-        x(k)=crs/rho**one6th
+        if (nwxc_is_on()) then
+          if (ispin.eq.1) then
+            rho=dn(k,1)+dn(k,ispin)+dncut
+            x(k)        = rho
+          else
+            x(k)        = dn(k,1) + 0.5d0*dncut
+            x(n2ft3d+k) = dn(k,2) + 0.5d0*dncut
+          endif
+        else
+          rho=dn(k,1)+dn(k,ispin)+dncut
+          x(k)=crs/rho**one6th
+        endif
   100 continue
 
+      if (nwxc_is_on()) then
+        call nwxc_eval_df(ispin,n2ft3d,x,dumgam,dumtau,xce,xcp,
+     &                    dumgam,dumtau)
+        if (ispin.eq.1) then
+          do k = 1, n2ft3d
+            xce(k,1) = xce(k,1)/x(k)
+          enddo
+        else
+          do k = 1, n2ft3d
+            xce(k,1) = xce(k,1)/(x(k)+x(n2ft3d+k))
+          enddo
+        endif
+        return
+      endif
 *     paramagnetic correlation energy & potential
       do 110 k=1,n2ft3d
         xx=1.0d0/(x(k)*(x(k)+bp)+cp)

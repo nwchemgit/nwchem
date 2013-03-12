@@ -16,6 +16,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "control.fh"
+#include "nwxc.fh"
 
       logical value,np_default
       integer ispin0,ne(2),nbrill,np1,np2
@@ -141,6 +142,9 @@
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
+      if (nwxc_rtdb_load(rtdb,"dft")) then
+c       call nwxc_print()
+      endif
 
 #include "control_gga.fh"
 
@@ -216,6 +220,10 @@
       if(.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
+
+      if (nwxc_rtdb_load(rtdb,"dft")) then
+c       call nwxc_print()
+      endif
 
 #include "control_gga.fh"
 
@@ -334,6 +342,9 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
+      if (nwxc_rtdb_load(rtdb,"dft")) then
+c       call nwxc_print()
+      endif
 
 #include "control_gga.fh"
 
@@ -522,6 +533,10 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
+      if (nwxc_rtdb_load(rtdb,"dft")) then
+c       call nwxc_print()
+      endif
+
 #include "control_gga.fh"
 
 
@@ -622,6 +637,10 @@ c
          gga = 0
       end if
 
+      if (nwxc_rtdb_load(rtdb,"dft")) then
+c       call nwxc_print()
+      endif
+
       if (.not.rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
       if (.not.rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
@@ -701,6 +720,10 @@ c
       else
          gga = 0
       end if
+
+      if (nwxc_rtdb_load(rtdb,"dft")) then
+c       call nwxc_print()
+      endif
 
 
       if (.not.rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))

@@ -10,6 +10,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
+#include "nwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
@@ -134,6 +135,11 @@ c
       logical mulliken,allow_translation
       integer ispin,multiplicity,space_avail
       integer nx,ny,nz,minimizer,h_values,i_values,nuterms
+chvd
+      double precision a,b,c
+      logical hfsr
+      integer flag
+chvd
        
 *     **** external functions ****
       character*7 c_index_name
@@ -607,6 +613,46 @@ c
      >          'nwpw_input: failed to read exchange_correlation', 0,
      &       INPUT_ERR)
       ind = index(exchange_correlation,' ') - 1
+      if (exchange_correlation(1:ind).eq.'new') then
+c       call inp_prev_field()
+        if (.not.nwxc_input()) then
+          call errquit("nwpw_input: not a functional",
+     +                 0,UERR)
+        endif
+        if (.not.nwxc_rtdb_store(rtdb,"dft")) then
+          call errquit("nwpw_input: store functional failed",
+     +                 0,UERR)
+        endif
+        value = .true.
+        if (nwxc_has_hfx()) then
+          value = value .and.
+     +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+          value = value .and.
+     +            rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,
+     +                     nwxc_wght_hfx())
+        else
+          value = value .and.
+     +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        endif
+        if (nwxc_has_cam()) then
+          call nwxc_get_cam(a,b,c,hfsr)
+          if (hfsr) then
+            flag = 4
+          else
+            flag = 2
+          endif
+          value = value .and.
+     +            rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,flag)
+          value = value .and.
+     +            rtdb_put(rtdb,'pspw:HFX_solver_type',mt_int,1,1)
+          value = value .and. 
+     +            rtdb_put(rtdb,'nwpw:attenuation',mt_dbl,1,c)
+        else
+          value = value .and.
+     +            rtdb_put(rtdb,'pspw:HFX_solver_type',mt_int,1,2)
+        endif
+        goto 10
+      endif
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
      >   .and.rtdb_cput(rtdb,'band:exchange_correlation',

@@ -24,6 +24,7 @@
 
 
 #include "mafdecls.fh"
+#include "nwxc.fh"
 
 
 c     **** local variables ****      
@@ -36,8 +37,11 @@ c     **** local variables ****
       integer rhoup(2),grupx(2),grupy(2),grupz(2)
       integer rhodn(2),grdnx(2),grdny(2),grdnz(2)
       integer          grallx(2),grally(2),grallz(2)
+      integer          grad(2),gtmp(2)
       integer xagr(2),xfn(2),xfdn(2)
       real*8 hm(3,3),W(3,3),omega
+      real*8 dncut,dumtau
+      parameter(dncut = 1.0d-30)
 
 *     **** external functions ****
       integer  G_indx
@@ -134,6 +138,27 @@ c     >                      dbl_mb(agr(1)),
 c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
+         if (nwxc_is_on()) then
+c
+c          Evaluate the functional
+c
+           call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
+     >                       dumtau,xce,
+     >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
+c
+c          Calculate the energy density from the functional
+c
+           do u = 1, n2ft3d
+             xce(u) = xce(u)/(dbl_mb(rho(1)-1+u)+dncut)
+           enddo
+c
+c          Tranform the gradient terms from (df/d|grad n|^2) to 
+c          (df/d|grad n|)
+c
+           call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
+           call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+c
+         else
 c         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
 c     >                       dbl_mb(agr(1)))
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
@@ -193,6 +218,7 @@ c        ***** calculate fdn=df/d|grad n|  ****
          else
           call errquit('bad gga',0,0)
          end if
+         endif
 
 
      
@@ -332,6 +358,10 @@ c        *****                          agr,fn,fdn      *****
         agr(1) = xagr(1)
         agr(2) = xagr(1) +   n2ft3d
         agr(3) = xagr(1) + 2*n2ft3d
+        value = value.and.
+     >        MA_push_get(mt_dbl, 3*n2ft3d,'grad',grad(2),grad(1))
+        value = value.and.
+     >        MA_push_get(mt_dbl, 3*n2ft3d,'gtmp',gtmp(2),gtmp(1))
         value = value.and.
      >        MA_push_get(mt_dbl, 2*n2ft3d,'xfn',xfn(2),xfn(1))
         fn(1) = xfn(1)
@@ -476,7 +506,63 @@ c     >                      dbl_mb(agr(3)))
 c         call D3dB_rr_Sqrt(1,dbl_mb(agr(3)),
 c     >                       dbl_mb(agr(3)))
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
-
+         if (nwxc_is_on()) then
+c
+c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
+c
+           call D3dB_r_Copy(1,dbl_mb(agr(1)),dbl_mb(grad(1)))
+           call D3dB_r_Copy(1,dbl_mb(agr(2)),dbl_mb(grad(1)+2*n2ft3d))
+           call D3dB_r_Copy(1,dbl_mb(agr(3)),dbl_mb(grad(1)+n2ft3d))
+c
+c          Replace |grad x| with |grad x|^2
+c
+           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)))
+           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+2*n2ft3d))
+           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+n2ft3d))
+c
+c          Replace |grad n|^2 with |(grad nup|grad ndn)|^2
+c
+           call D3dB_rr_Sub2(1,dbl_mb(grad(1)),dbl_mb(grad(1)+n2ft3d))
+           call D3dB_rr_Sub2(1,dbl_mb(grad(1)+2*n2ft3d),
+     +                         dbl_mb(grad(1)+n2ft3d))
+           call D3dB_r_SMul1(1,0.5d0,dbl_mb(grad(1)+n2ft3d))
+c
+c          Evaluate the functional
+c
+           call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
+     >                       dumtau,xce,
+     >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
+c
+c          Replace f with the energy density f/n
+c
+           do u = 1, n2ft3d
+             xce(u) = xce(u)/(dn(u,1)+dn(u,2)+dncut)
+           enddo
+c          
+c          Replace (df/d|grad nup|^2) with (df/d|grad nup|)
+c
+           call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+           call D3dB_r_SMul1(1,2.0d0,dbl_mb(fdn(1)))
+c
+c          Replace (df/d|grad ndn|^2) with (df/d|grad ndn|)
+c
+           call D3dB_rr_Mul(1,dbl_mb(agr(2)),dbl_mb(fdn(3)),
+     +                      dbl_mb(gtmp(1)+n2ft3d))
+           call D3dB_r_SMul1(1,2.0d0,dbl_mb(gtmp(1)+n2ft3d))
+c
+c          Replace (df/d|(grad nup|grad ndn)|^2) with (df/d|grad n|)
+c
+           call D3dB_rr_Mul(1,dbl_mb(agr(3)),dbl_mb(fdn(2)),
+     +                      dbl_mb(gtmp(1)+2*n2ft3d))
+c
+c          Put the results back into fdn
+c
+           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
+     +                       dbl_mb(fdn(2)),1)
+           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
+     +                       dbl_mb(fdn(3)),1)
+c
+         else
  
 c        ***** calculate    ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
@@ -525,6 +611,7 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          else 
           call errquit('bad gga',0,0)
          end if
+         end if ! nwxc_is_on
 
          
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****
@@ -751,6 +838,8 @@ c     >                            dbl_mb(grdnz(1)))
          value = MA_pop_stack(xce(2))
          value = value.and.MA_pop_stack(xfdn(2))
          value = value.and.MA_pop_stack(xfn(2))
+         value = value.and.MA_pop_stack(gtmp(2))
+         value = value.and.MA_pop_stack(grad(2))
          value = value.and.MA_pop_stack(xagr(2))
 
          value = value.and.MA_pop_stack(grallz(2))

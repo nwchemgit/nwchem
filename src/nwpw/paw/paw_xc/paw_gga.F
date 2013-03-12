@@ -8,14 +8,19 @@
      >                   rho,agr,
      >                   xce,fn,fdn,tmp)
       implicit none
+#include "nwxc.fh"
       integer gga,ic,ispin
       double precision rho(ic,ispin)
       double precision agr(ic,*)
+      double precision grad(ispin+1)
 
       double precision xce(ic)
       double precision fn(ic,ispin)
       double precision fdn(ic,*)
       double precision tmp(ic)
+
+      double precision dtmp, dncut, dumtau
+      parameter(dncut = 1.0d-30)
       
 *     **** local variables ****
       integer i
@@ -26,6 +31,20 @@ c     **** restricted calculations ****
          do i=1,ic
            tmp(i) = (rho(i,1)+rho(i,1))
          end do
+         if (nwxc_is_on()) then
+           call D3db_rr_Sqr1(1,agr)
+           call nwxc_eval_df(1,ic,tmp,agr,
+     >                       dumtau,xce,
+     >                       fn,fdn,dumtau)
+c
+c          Calculate energy density from energy
+c
+           do i = 1, ic
+             xce(i) = xce(i)/(tmp(i)+dncut)
+           enddo
+           call D3dB_rr_Sqrt1(1,agr)
+           call D3dB_rr_Mul2(1,agr,fdn)
+         else
          if (gga.eq.10) then
          call gen_PBE96_BW_restricted(ic,
      >                                tmp,
@@ -54,11 +73,41 @@ c     **** restricted calculations ****
          else
           call errquit('bad gga',0,0)
          end if
+         endif ! nwxc_is_on
 
 
 c     **** unrestricted calculations ****
       else if (ispin.eq.2) then
 
+         if (nwxc_is_on()) then
+           do i = 1, ic
+             grad(1) = agr(i,1)**2
+             grad(2) = agr(i,3)**2
+             grad(3) = agr(i,2)**2
+             grad(2) = 0.5d0*(grad(2) - grad(1) - grad(3))
+             agr(i,1) = grad(1)
+             agr(i,2) = grad(2)
+             agr(i,3) = grad(3)
+           enddo
+           call nwxc_eval_df(2,ic,rho,grad,
+     >                       dumtau,xce,
+     >                       fn,fdn,dumtau)
+           do i = 1, ic
+             xce(i)   = xce(i)/(rho(i,1)+rho(i,2)+dncut)
+             dtmp     = fdn(i,2)
+             fdn(i,2) = fdn(i,3)
+             fdn(i,3) = dtmp
+             grad(1)  = dsqrt(agr(i,1))
+             grad(2)  = dsqrt(agr(i,3))
+             grad(3)  = dsqrt(2.0d0*agr(i,2)+agr(i,1)+agr(i,3))
+             agr(i,1) = grad(1)
+             agr(i,2) = grad(2)
+             agr(i,3) = grad(3)
+             fdn(i,1) = 2.0d0*fdn(i,1)*agr(i,1)
+             fdn(i,2) = 2.0d0*fdn(i,2)*agr(i,2)
+             fdn(i,3) =       fdn(i,3)*agr(i,3)
+           enddo
+         else
          if (gga.eq.10) then
          call gen_PBE96_BW_unrestricted(ic,
      >                                rho,
@@ -87,6 +136,7 @@ c     **** unrestricted calculations ****
          else
           call errquit('bad gga',0,0)
          end if
+         endif ! nwxc_is_on
 
       else
         call errquit('bad spin',0,ispin)

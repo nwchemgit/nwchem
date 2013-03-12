@@ -15,6 +15,7 @@
 
 #include "mafdecls.fh"
 #include "global.fh"
+#include "nwxc.fh"
 
 *     **** local variables ****
       logical value
@@ -78,12 +79,13 @@ c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 
 
       gga = control_gga()
-      if (gga.eq.0) then
+      if ((.not.nwxc_is_on().and.gga.eq.0).or.
+     &    (nwxc_is_on().and.nwxc_is_lda())) then
         call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)),
      >                    dbl_mb(tmp2(1)))
-      else
+      else 
         call v_bwexc(gga,n2ft3d,ispin,dbl_mb(dnall(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),

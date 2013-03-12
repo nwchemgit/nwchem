@@ -150,6 +150,7 @@
 #include "paw_energy_core_atom.fh"
 #include "paw_energy_hartree_atom.fh"
 #include "paw_xc.fh"
+#include "nwxc.fh"
 
 
 *     **** local variables ****
@@ -449,7 +450,8 @@ c        call paw_density_solve()
         !call paw_xc_print()
         
 *       *** plane wave ***
-        if (gga.eq.0) then
+        if ((.not.nwxc_is_on().and.gga.eq.0).or.
+     &      (nwxc_is_on().and.nwxc_is_lda())) then
           call vxc(n2ft3d,ispin,dn,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),

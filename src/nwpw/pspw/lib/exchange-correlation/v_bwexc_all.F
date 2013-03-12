@@ -19,12 +19,15 @@
       
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "nwxc.fh"
 
       integer tmp1(2)
       
 *     **** lda's ****
-      if (gga.eq.0) then
-         if (.not.MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)))
+      if ((.not.nwxc_is_on().and.gga.eq.0).or.
+     +    (nwxc_is_on().and.nwxc_is_lda())) then
+         if (.not.MA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
+     >                        tmp1(2),tmp1(1)))
      >      call errquit('v_bwexc_all: out of stack memory',0,MA_ERR)
 
          call vxc(n2ft3d,ispin,dn,xcp,xce,dbl_mb(tmp1(1)))
@@ -35,9 +38,14 @@
 
 
 *     **** gga's ****
-      else if ((gga.ge.10).and.(gga.lt.100)) then
+      else if ((.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100)).or.
+     +         (nwxc_is_on().and.nwxc_is_gga())) then
          call v_bwexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
       
+*     **** meta-gga's ****
+      else if (nwxc_is_mgga()) then
+c        call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
+
 *     **** hybrid gga's ****
       else if (gga.eq.110) then
          call v_bwexc(10,n2ft3d,ispin,dn,0.75d0,1.0d0,xcp,xce)
@@ -108,7 +116,12 @@
       integer luout,gga
 
 #include "errquit.fh"
+#include "nwxc.fh"
 
+      if (nwxc_is_on()) then
+         call nwxc_print
+         return
+      endif
       IF (gga.eq.-1) THEN
          write(luout,1131) 'off'
       ELSE IF (gga.eq.0) THEN
