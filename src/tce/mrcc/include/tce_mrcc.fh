@@ -7,10 +7,11 @@ c
        integer maxref
        integer maxexcit
        logical isactive
-       integer ihefferank,iheffefrom
+       integer ihefferank
+c      integer iheffefrom
        integer mutualoper0
        integer ihefferank0
-       integer iheffeto,iheffespin
+c       integer iheffeto,iheffespin
        integer mutualoper
        integer l_movecs_sortedm,k_movecs_sortedm
        integer l_spin_sortedm,k_spin_sortedm
@@ -130,9 +131,9 @@ c       parameter(maxorb=510,maxref=200,maxexcit=18,maxdiism=10)
        parameter(toleiimag=1e-5) ! Tolereance for imaginary eigenvalue
 
        common/tcemrccint/ isactive(maxorb,2),ihefferank(maxref,maxref),
-     3     iheffefrom(maxexcit,maxref,maxref),
-     +     iheffeto(maxexcit,maxref,maxref),
-     +     iheffespin(maxexcit,maxref,maxref),
+c     3     iheffefrom(maxexcit,maxref,maxref),
+c     +     iheffeto(maxexcit,maxref,maxref),
+c     +     iheffespin(maxexcit,maxref,maxref),
      +     mutualoper(2*maxexcit,maxref,maxref),
      +     l_movecs_sortedm(maxref),k_movecs_sortedm(maxref),
      +     l_spin_sortedm(maxref),k_spin_sortedm(maxref),

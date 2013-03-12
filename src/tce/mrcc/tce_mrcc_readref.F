@@ -34,6 +34,10 @@ c      logical mrccdebug
       integer isign,erank2
 c      logical lusescffv
       character*1024 aocc0
+ckbn  moved from include/tce_mrcc.fh
+      integer iheffefrom(maxexcit,maxref,maxref)
+      integer iheffeto(maxexcit,maxref,maxref)
+      integer iheffespin(maxexcit,maxref,maxref)
 
       nodezero = (ga_nodeid().eq.0)
 
