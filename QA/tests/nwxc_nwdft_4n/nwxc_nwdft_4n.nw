@@ -83,6 +83,7 @@ end
 task dft energy
 
 set dft:cam_exch F
+set dft:direct   F
 
 dft
   mult 4
@@ -117,6 +118,22 @@ end
 task dft energy
 
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xm05
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xm05-2x
+end
+task dft energy
+
+dft
   direct
   mult 4
   odft
@@ -127,6 +144,7 @@ end
 task dft energy
 
 set dft:cam_exch F
+set dft:direct   F
 
 # meta-GGA exchange
 
@@ -224,6 +242,22 @@ dft
 end
 task dft energy
 
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cm05
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cm05-2x
+end
+task dft energy
+
 # Hartree-Fock exchange + meta-GGA correlation 
 
 dft
@@ -285,6 +319,22 @@ end
 task dft energy
   
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc m05
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc m05-2x
+end
+task dft energy
+  
+dft
   direct
   mult 4
   odft
@@ -294,3 +344,4 @@ end
 task dft energy
 
 set dft:cam_exch F
+set dft:direct   F
