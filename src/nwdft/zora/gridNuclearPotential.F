@@ -82,10 +82,11 @@ c
       logical lSuccess
       double precision rx,ry,rz,dist
       double precision amat_nucl(nqpts),
-     &                zetanuc_arr(natoms),erf
+     &                zetanuc_arr(natoms)
       integer closegridpts(*)
       logical ofinite
-      external merf,get_zetanuc_arr
+      double precision util_erf
+      external get_zetanuc_arr,util_erf
       do igrid = 1,nqpts   ! == loop over the grid points ==
        amat_nucl(igrid) = 0.d0  
        do iatom = 1,natoms ! == loop over the atoms ==
@@ -98,10 +99,10 @@ c     == distance from the grid points to the atom centers ==
         rz = nucCoords(3) - qxyz(3,igrid)
         dist = dsqrt(rx*rx + ry*ry + rz*rz)
         rtemp = zetanuc_arr(iatom)*dist
-        call merf(rtemp,erf) ! Evaluate erf(sqrt(zetanuc)r_L)
         if (dist.gt.zoracutoff) then ! == check cutoff ==          
            amat_nucl(igrid) = amat_nucl(igrid) - 
-     &                        nucCharge/dist*erf
+     &                        nucCharge/dist*
+     *          util_erf(rtemp) ! Evaluate erf(sqrt(zetanuc)r_L)
         else
           closegridpts(igrid) = igrid
         end if
@@ -140,10 +141,11 @@ c Date  : 04-20-11
       double precision rx,ry,rz,dist
       double precision amat_nucl(nqpts),
      &                zetanuc_arr(natoms)
-      double precision a_coeff,rtemp,gammap,gammaq
+      double precision a_coeff,rtemp
       integer closegridpts(*)
+      double precision dgami
 c
-      external dgratio,  ! Evaluates Incomplete Gamma Function P(a,x)
+      external dgami,  ! Evaluates Incomplete Gamma Function P(a,x)
      &         get_zetanuc_arr
 c
       call get_zetanuc_arr(geom,natoms,zetanuc_arr) ! zetanuc_arr(i) i=1,natoms
@@ -160,11 +162,11 @@ c     == distance from the grid points to the atom centers ==
         ry = nucCoords(2) - qxyz(2,igrid)
         rz = nucCoords(3) - qxyz(3,igrid)
         dist = dsqrt(rx*rx + ry*ry + rz*rz)
-        rtemp = real(zetanuc_arr(iatom)*dist*dist)
-        call dgratio(a_coeff,rtemp,gammap,gammaq,0)! Evaluate P(1/2,zetanuc r_L^2)
         if (dist.gt.zoracutoff) then ! == check cutoff ==          
+           rtemp = real(zetanuc_arr(iatom)*dist*dist)
            amat_nucl(igrid) = amat_nucl(igrid) - 
-     &                        nucCharge/dist*gammap
+     &                        nucCharge/dist*
+     *          dgami(a_coeff,rtemp)! Evaluate P(1/2,zetanuc r_L^2)
         else
           closegridpts(igrid) = igrid
         end if

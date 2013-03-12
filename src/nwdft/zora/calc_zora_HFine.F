@@ -758,9 +758,10 @@ c    =1/2 for Vnucl (in gridNuclearPotential)
       character*16 tags
       logical is_atom
       double precision atmass,zetanuc
-      double precision gammap,gammaq,rtemp,a_coeff
+      double precision rtemp,a_coeff
 c
-      external dgratio,  ! defined in Incomplete_Gamma_TOMS_654.F
+      double precision dgami
+      external dgami, 
      &         get_znuc
 c
       call get_znuc(atmass,zetanuc)
@@ -771,8 +772,7 @@ c
          ac_prod=ac_prod+rxyz(i)*rxyz(i)
         enddo
         rtemp = zetanuc*ac_prod  ! dist*dist
-        call dgratio(a_coeff,rtemp,gammap,gammaq,0)
-        amat_Pnucl(igrid) = gammap  ! P(3/2,\tilde{r}_N^2)
+        amat_Pnucl(igrid) = dgami(a_coeff,rtemp)  ! P(3/2,\tilde{r}_N^2)
       end do ! igrid
 c
       return
@@ -803,8 +803,9 @@ c    =1/2 for Vnucl (in gridNuclearPotential)
       double precision qxyz(3),Pnucl
       double precision rxyz(3),dist,dist2,ac_prod
       double precision zetanuc_slc
-      double precision gammap,gammaq,rtemp,a_coeff
-      external gratio ! defined in Incomplete_Gamma_TOMS_654.F
+      double precision rtemp,a_coeff
+      double precision dgami
+      external dgami ! Incomplete Gamma
 c ---------- Defining values at hand to check --------- START    
 
 c      xyz_NMRcoords(1)=  0.07090063d0
@@ -827,8 +828,7 @@ c ---------- Defining values at hand to check --------- ENd
          ac_prod=ac_prod+rxyz(i)*rxyz(i)
         enddo
         rtemp = zetanuc_slc*ac_prod  ! dist*dist
-        call dgratio(a_coeff,rtemp,gammap,gammaq,0)
-        Pnucl = dble(gammap)  ! P(3/2,\tilde{r}_N^2)
+        Pnucl = dgami(a_coeff,rtemp)  ! P(3/2,\tilde{r}_N^2)
        return
        end
 c
