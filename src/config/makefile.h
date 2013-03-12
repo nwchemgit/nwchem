@@ -1953,6 +1953,9 @@ endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
       endif
       ifeq ($(_FC),crayftn)
+        EXPLICITF = TRUE
+        CPP = /usr/bin/cpp  -P -C -traditional
+        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         FOPTIONS   +=   
         FDEBUG   =    -g
         FOPTIMIZE   +=   -O2
