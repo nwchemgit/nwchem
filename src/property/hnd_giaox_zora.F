@@ -870,10 +870,14 @@ c ------- TEST: get_par() get_dia()------ START
      &   g_d1_ov_noJK,    ! IN  : Perturbed density matrix (OV part-all -(Coul,Exch)) 
      &   g_d1_ov_1e,      ! IN  : Perturbed density matrix (OV part-1e   contrib)
      &   g_d1_ov_eSji,    ! IN  : Perturbed density matrix (OV part-eSji contrib)
+     &        g_dens,
+     &                   npol,        ! IN  : nr. polarizations
+     &        dbl_mb(k_fukui),
      &   basis,           ! IN  : basis handle
      &   nbf,             ! IN  : nr. basis functions
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
      &   nat_slc,         ! IN  : nr. atoms
+     &        geom,
      &   rtdb,
      &   oskel)
       if (.not. ga_destroy(g_d1_ov_Coul)) call errquit(  
