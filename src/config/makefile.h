@@ -1636,6 +1636,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	  _FC=gfortran
           _CC=gcc
 	  endif
+	  ifeq ($(PE_ENV),CRAY)
+	  _FC=crayftn
+          _CC=craycc
+	  endif
           DEFINES  += -DCRAYXT -DEAFHACK -DNOFSCHECK
       endif
       ifeq ($(CC),pgcc)
@@ -1661,12 +1665,18 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
        DEFINES  += -DGFORTRAN
       endif
        ifdef USE_I4FLAGS
-           ifneq ($(_FC),gfortran)
-             FOPTIONS += -i4 
+           ifeq ($(_FC),gfortran)
+             FOPTIONS += -fdefault-integer-8
+	   else  ifeq ($(_FC),crayftn)
+             FOPTIONS += -d h
+	   else   
+             FOPTIONS += -i4
            endif
        else
          ifeq ($(_FC),gfortran)
            FOPTIONS += -fdefault-integer-8
+         else  ifeq ($(_FC),crayftn)
+             FOPTIONS += -e h
          else
            FOPTIONS += -i8
          endif
@@ -1878,8 +1888,6 @@ endif
       endif
       ifeq ($(_CC),pgcc)
         COPTIONS   =   -O
-      else
-        COPTIONS   =   -O3 -funroll-loops -ffast-math  
       endif
       ifeq ($(_CC),icc)
         COPTIONS   =   -ftz
@@ -1943,6 +1951,14 @@ endif
         endif
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
+      endif
+      ifeq ($(_FC),crayftn)
+        FOPTIONS   +=   
+        FDEBUG   =    -g
+        FOPTIMIZE   +=   -O2
+      endif
+      ifeq ($(_FC),craycc)
+        COPTIONS   =   -O
       endif
 endif
 
