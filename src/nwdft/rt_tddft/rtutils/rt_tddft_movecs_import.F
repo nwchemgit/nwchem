@@ -417,7 +417,7 @@ C
 
 
 
-CXXX  [KAL]: REMOVE ONCE UNIFIED
+CXXX  [KAL]: REMOVE ONCE UNIFIED WITH CLOSEDSHELL ROUTINE
 C====================================================================
 C
 C     rt_tddft_os_movecs_zdens.F
@@ -560,13 +560,11 @@ C
      $     call errquit (pname//
      $     'Initial movecs wrong size: mo_ns_mo(1) /= ns_mo', 0, 0)
 
-
-CXXX  [KAL]: FIX !!!!!
-c$$$      if (mo_ns_mo(2) .ne. params%ns_mo)
-c$$$     $     call errquit (pname//
-c$$$     $     'Initial movecs wrong size: mo_ns_mo(2) /= ns_mo', 0, 0)
+      if (mo_ns_mo(2) .ne. params%ns_mo)
+     $     call errquit (pname//
+     $     'Initial movecs wrong size: mo_ns_mo(2) /= ns_mo', 0, 0)
       
-      call rt_tddft_print_warning ("Didnt check mo_ns_mo(2) == ns_mo")
+C      call rt_tddft_print_warning ("Didnt check mo_ns_mo(2) == ns_mo")
 
       if (mo_nsets .ne. 2)
      $     call errquit (pname//"Wrong number of initial movecs,"//

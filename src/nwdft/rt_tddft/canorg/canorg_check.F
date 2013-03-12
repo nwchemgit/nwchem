@@ -6,7 +6,6 @@ C
 C     (1) X^+ S X = 1_m    (X orthogonalizes S)
 C     (2) Y^+ X = 1_m      (Y^+ is left inverse of X)
 C     (3) X^+ Y = 1_m      (Y is the right inverse of X^+)
-C     (4) Z X^+ = 1_n      (Z is the left inverse of X^+)
 C
 C     True but not checked:
 C         Y X^+ = 1_n
@@ -45,9 +44,6 @@ C     == Variables ==
       integer g_zsr_nn          !n x n scratch
       integer g_zsr_mm          !m x m scratch
       integer g_zsr_nm          !n x m scratch
-
-C     (junk)
-      double complex junk
 
 
 
@@ -100,28 +96,6 @@ C
       if (.not. mat_is_ident (g_zsr_mm, params%tol_zero))
      $     call errquit (pname // "X^+ Y /= 1_m", 0, 0)
 
-
-C
-C     XXX TESTING  X^+ X = s^-1
-C
-c$$$      call ga_zero (g_zsr_mm)
-c$$$      call ga_zgemm ("T", "N", params%ns_mo, params%ns_mo, params%ns_ao,
-c$$$     $     z1, params%g_zX, params%g_zX, z0, g_zsr_mm)
-c$$$      call ga_print (g_zsr_mm)
-c$$$      call halt ()
-      
-      
-C
-C     (4) Z X^+   = 1_n      (Z is the left inverse of X^+)
-C
-C     XXX WRONG
-c$$$      call ga_zero (g_zsr_nn)
-c$$$      call ga_zgemm ("N", "T", params%ns_ao, params%ns_ao, params%ns_mo,
-c$$$     $     z1, params%g_zZ, params%g_zX, z0, g_zsr_nn)
-c$$$      if (.not. mat_is_ident (g_zsr_nn, params%tol_zero))
-c$$$     $     call errquit (pname // "Z X^+ /= 1_n", 0, 0)
-
-      
 
 C
 C     (4) Tr[P'(alpha)] = Nelec(alpha), note that P'(alpha) is full dens
