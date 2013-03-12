@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: nwxc_nwdft_4sb.nw 23709 2013-03-08 22:00:09Z d3y133 $
+# $Id: nwxc_nwdft_4sb.nw 23718 2013-03-09 01:08:26Z d3y133 $
 echo
 start nwxc_dat
 
@@ -149,6 +149,14 @@ end
 task dft energy
 
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xtpss03
+end
+task dft energy
+
+dft
   direct
   mult 4
   odft
@@ -248,6 +256,14 @@ dft
 end
 task dft energy
 
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch ctpss03
+end
+task dft energy
+
 # Hartree-Fock exchange + meta-GGA correlation
 
 dft
@@ -297,6 +313,14 @@ dft
   odft
   vectors input atomic
   xc rpbe cpbe96
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xtpss03 ctpss03
 end
 task dft energy
 
@@ -352,9 +376,9 @@ set dft:cam_exch F
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
-    date            = Fri Mar  8 16:36:08 2013
+    date            = Mon Mar 11 20:49:05 2013
 
-    compiled        = Fri_Mar_08_12:14:38_2013
+    compiled        = Fri_Mar_08_17:16:00_2013
     source          = /home/d3y133/nwchem-dev/nwchem-ref
     nwchem branch   = Development
     nwchem revision = 23625
@@ -580,12 +604,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:      4.6
-   Time prior to 1st pass:      4.6
+   Time after variat. SCF:      4.7
+   Time prior to 1st pass:      4.7
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     11        Max. records in file   =  10187
+ Max. records in memory =     11        Max. records in file   =  10183
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -594,7 +618,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54331
+ Max. records in memory =     27        Max. recs in file   =     54310
 
 
            Memory utilization after 1st SCF pass: 
@@ -603,18 +627,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6304.7904114075 -6.30D+03  1.58D-02  3.11D+00    10.0
+ d= 0,ls=0.0,diis     1  -6304.7904114075 -6.30D+03  1.58D-02  3.11D+00    10.3
                                                      9.23D-03  3.11D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6304.8100449901 -1.96D-02  7.27D-03  3.11D-03    11.1
+ d= 0,ls=0.0,diis     2  -6304.8100449901 -1.96D-02  7.27D-03  3.11D-03    11.4
                                                      4.32D-03  1.62D-03
- d= 0,ls=0.0,diis     3  -6304.8113527057 -1.31D-03  4.50D-03  1.33D-03    12.2
+ d= 0,ls=0.0,diis     3  -6304.8113527057 -1.31D-03  4.50D-03  1.33D-03    12.6
                                                      2.80D-03  8.52D-04
- d= 0,ls=0.0,diis     4  -6304.8118055319 -4.53D-04  1.77D-03  6.72D-04    13.3
+ d= 0,ls=0.0,diis     4  -6304.8118055319 -4.53D-04  1.77D-03  6.72D-04    13.7
                                                      1.12D-03  4.74D-04
- d= 0,ls=0.0,diis     5  -6304.8121958753 -3.90D-04  6.00D-05  3.96D-07    14.4
+ d= 0,ls=0.0,diis     5  -6304.8121958753 -3.90D-04  6.00D-05  3.96D-07    14.8
                                                      3.26D-05  1.58D-07
- d= 0,ls=0.0,diis     6  -6304.8121962237 -3.48D-07  3.22D-07  3.98D-11    15.5
+ d= 0,ls=0.0,diis     6  -6304.8121962237 -3.48D-07  3.22D-07  3.98D-11    15.9
                                                      7.38D-07  5.85D-11
 
 
@@ -626,7 +650,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000092321
 
-     Total iterative time =     10.9s
+     Total iterative time =     11.2s
 
 
 
@@ -1057,7 +1081,7 @@ set dft:cam_exch F
  Parallel integral file used       2 records with       0 large values
 
 
- Task  times  cpu:       15.5s     wall:       15.6s
+ Task  times  cpu:       15.9s     wall:       16.0s
 
 
                                 NWChem Input Module
@@ -1143,12 +1167,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:     20.1
-   Time prior to 1st pass:     20.1
+   Time after variat. SCF:     20.5
+   Time prior to 1st pass:     20.5
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     11        Max. records in file   =  10185
+ Max. records in memory =     11        Max. records in file   =  10181
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1157,7 +1181,7 @@ set dft:cam_exch F
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54320
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -1166,18 +1190,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6312.7019669809 -6.31D+03  1.56D-02  8.15D-01    28.0
+ d= 0,ls=0.0,diis     1  -6312.7019669809 -6.31D+03  1.56D-02  8.15D-01    28.5
                                                      8.34D-03  8.18D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6312.7155092538 -1.35D-02  7.46D-03  3.02D-03    31.5
+ d= 0,ls=0.0,diis     2  -6312.7155092538 -1.35D-02  7.46D-03  3.02D-03    32.1
                                                      4.89D-03  1.47D-03
- d= 0,ls=0.0,diis     3  -6312.7169087476 -1.40D-03  4.70D-03  1.50D-03    35.2
+ d= 0,ls=0.0,diis     3  -6312.7169087476 -1.40D-03  4.70D-03  1.50D-03    35.9
                                                      3.12D-03  9.99D-04
- d= 0,ls=0.0,diis     4  -6312.7174176704 -5.09D-04  1.86D-03  7.30D-04    38.8
+ d= 0,ls=0.0,diis     4  -6312.7174176704 -5.09D-04  1.86D-03  7.30D-04    39.7
                                                      1.24D-03  5.21D-04
- d= 0,ls=0.0,diis     5  -6312.7178439514 -4.26D-04  4.69D-05  2.48D-07    42.5
+ d= 0,ls=0.0,diis     5  -6312.7178439514 -4.26D-04  4.69D-05  2.48D-07    43.4
                                                      2.87D-05  1.02D-07
- d= 0,ls=0.0,diis     6  -6312.7178441695 -2.18D-07  2.15D-07  3.27D-11    46.2
+ d= 0,ls=0.0,diis     6  -6312.7178441695 -2.18D-07  2.15D-07  3.27D-11    47.2
                                                      5.30D-07  4.66D-11
 
 
@@ -1189,7 +1213,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000091330
 
-     Total iterative time =     26.1s
+     Total iterative time =     26.7s
 
 
 
@@ -1621,7 +1645,7 @@ set dft:cam_exch F
  Parallel integral file used       2 records with       0 large values
 
 
- Task  times  cpu:       30.7s     wall:       30.7s
+ Task  times  cpu:       31.3s     wall:       31.3s
 
 
                                 NWChem Input Module
@@ -1718,12 +1742,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:     49.3
-   Time prior to 1st pass:     49.3
+   Time after variat. SCF:     50.4
+   Time prior to 1st pass:     50.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54320
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -1732,20 +1756,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6305.3427930730 -6.31D+03  1.20D-02  3.11D+00    55.6
+ d= 0,ls=0.0,diis     1  -6305.3427930730 -6.31D+03  1.20D-02  3.11D+00    57.0
                                                      7.71D-03  3.11D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6305.3684797977 -2.57D-02  2.24D-03  1.70D-03    61.9
+ d= 0,ls=0.0,diis     2  -6305.3684797977 -2.57D-02  2.24D-03  1.70D-03    63.3
                                                      1.18D-03  7.36D-04
- d= 0,ls=0.0,diis     3  -6305.3691400232 -6.60D-04  7.04D-04  6.02D-05    68.3
+ d= 0,ls=0.0,diis     3  -6305.3691400232 -6.60D-04  7.04D-04  6.02D-05    69.7
                                                      5.38D-04  1.61D-05
- d= 0,ls=0.0,diis     4  -6305.3691963395 -5.63D-05  2.56D-04  5.38D-06    74.6
+ d= 0,ls=0.0,diis     4  -6305.3691963395 -5.63D-05  2.56D-04  5.38D-06    76.1
                                                      3.11D-04  2.24D-06
- d= 0,ls=0.0,diis     5  -6305.3692034631 -7.12D-06  5.02D-05  1.43D-07    81.0
+ d= 0,ls=0.0,diis     5  -6305.3692034631 -7.12D-06  5.02D-05  1.43D-07    82.5
                                                      7.76D-05  2.16D-07
- d= 0,ls=0.0,diis     6  -6305.3692037859 -3.23D-07  1.07D-05  4.51D-09    87.3
+ d= 0,ls=0.0,diis     6  -6305.3692037859 -3.23D-07  1.07D-05  4.51D-09    88.9
                                                      2.90D-05  1.97D-08
- d= 0,ls=0.0,diis     7  -6305.3692038079 -2.21D-08  1.03D-06  1.04D-10    93.7
+ d= 0,ls=0.0,diis     7  -6305.3692038079 -2.21D-08  1.03D-06  1.04D-10    95.3
                                                      1.07D-06  2.49D-11
 
 
@@ -1757,7 +1781,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000070233
 
-     Total iterative time =     44.4s
+     Total iterative time =     44.9s
 
 
 
@@ -2186,7 +2210,7 @@ set dft:cam_exch F
       <S2> =      3.7527 (Exact =     3.7500)
 
 
- Task  times  cpu:       47.5s     wall:       47.6s
+ Task  times  cpu:       48.1s     wall:       48.2s
 
 
                                 NWChem Input Module
@@ -2283,12 +2307,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:     96.8
-   Time prior to 1st pass:     96.8
+   Time after variat. SCF:     98.5
+   Time prior to 1st pass:     98.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54320
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -2297,18 +2321,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6312.4807781185 -6.31D+03  1.13D-02  5.49D-01   105.7
+ d= 0,ls=0.0,diis     1  -6312.4807781185 -6.31D+03  1.13D-02  5.49D-01   107.4
                                                      6.20D-03  5.47D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6312.4955164838 -1.47D-02  1.55D-03  9.64D-04   114.4
+ d= 0,ls=0.0,diis     2  -6312.4955164838 -1.47D-02  1.55D-03  9.64D-04   116.3
                                                      1.80D-03  3.66D-04
- d= 0,ls=0.0,diis     3  -6312.4958756473 -3.59D-04  6.47D-04  5.44D-05   123.2
+ d= 0,ls=0.0,diis     3  -6312.4958756473 -3.59D-04  6.47D-04  5.44D-05   125.4
                                                      5.12D-04  6.57D-05
- d= 0,ls=0.0,diis     4  -6312.4959028203 -2.72D-05  1.17D-04  6.88D-06   132.1
+ d= 0,ls=0.0,diis     4  -6312.4959028203 -2.72D-05  1.17D-04  6.88D-06   134.6
                                                      1.68D-04  6.20D-06
- d= 0,ls=0.0,diis     5  -6312.4959055444 -2.72D-06  3.53D-05  5.53D-08   140.9
+ d= 0,ls=0.0,diis     5  -6312.4959055444 -2.72D-06  3.53D-05  5.53D-08   143.7
                                                      7.19D-05  8.50D-08
- d= 0,ls=0.0,diis     6  -6312.4959057006 -1.56D-07  2.69D-06  3.04D-10   149.8
+ d= 0,ls=0.0,diis     6  -6312.4959057006 -1.56D-07  2.69D-06  3.04D-10   152.8
                                                      6.21D-06  9.70D-10
 
 
@@ -2320,7 +2344,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000081438
 
-     Total iterative time =     52.9s
+     Total iterative time =     54.3s
 
 
 
@@ -2754,7 +2778,7 @@ set dft:cam_exch F
       <S2> =      3.7518 (Exact =     3.7500)
 
 
- Task  times  cpu:       56.1s     wall:       56.1s
+ Task  times  cpu:       57.5s     wall:       57.5s
 
 
                                 NWChem Input Module
@@ -2851,12 +2875,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    152.9
-   Time prior to 1st pass:    152.9
+   Time after variat. SCF:    156.0
+   Time prior to 1st pass:    156.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54320
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -2865,20 +2889,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6308.8737142457 -6.31D+03  9.77D-03  7.86D-01   159.2
+ d= 0,ls=0.0,diis     1  -6308.8737142457 -6.31D+03  9.77D-03  7.86D-01   162.3
                                                      4.51D-03  7.79D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6308.8876644108 -1.40D-02  1.97D-03  1.05D-03   165.5
+ d= 0,ls=0.0,diis     2  -6308.8876644108 -1.40D-02  1.97D-03  1.05D-03   168.6
                                                      1.18D-03  1.55D-04
- d= 0,ls=0.0,diis     3  -6308.8882263540 -5.62D-04  6.50D-04  4.69D-05   171.8
+ d= 0,ls=0.0,diis     3  -6308.8882263540 -5.62D-04  6.50D-04  4.69D-05   174.9
                                                      5.56D-04  2.07D-05
- d= 0,ls=0.0,diis     4  -6308.8882772368 -5.09D-05  2.20D-04  4.52D-06   178.1
+ d= 0,ls=0.0,diis     4  -6308.8882772368 -5.09D-05  2.20D-04  4.52D-06   181.4
                                                      3.18D-04  3.00D-06
- d= 0,ls=0.0,diis     5  -6308.8882842043 -6.97D-06  6.78D-05  2.07D-07   184.5
+ d= 0,ls=0.0,diis     5  -6308.8882842043 -6.97D-06  6.78D-05  2.07D-07   187.9
                                                      1.08D-04  2.97D-07
- d= 0,ls=0.0,diis     6  -6308.8882847299 -5.26D-07  9.66D-06  4.59D-09   190.8
+ d= 0,ls=0.0,diis     6  -6308.8882847299 -5.26D-07  9.66D-06  4.59D-09   194.4
                                                      2.63D-05  1.53D-08
- d= 0,ls=0.0,diis     7  -6308.8882847477 -1.78D-08  8.12D-07  5.77D-11   197.1
+ d= 0,ls=0.0,diis     7  -6308.8882847477 -1.78D-08  8.12D-07  5.77D-11   200.9
                                                      3.37D-07  5.37D-12
 
 
@@ -2890,7 +2914,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000076965
 
-     Total iterative time =     44.2s
+     Total iterative time =     45.0s
 
 
 
@@ -3319,7 +3343,7 @@ set dft:cam_exch F
       <S2> =      3.7519 (Exact =     3.7500)
 
 
- Task  times  cpu:       47.4s     wall:       47.4s
+ Task  times  cpu:       48.1s     wall:       48.2s
 
 
                                 NWChem Input Module
@@ -3407,12 +3431,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    200.3
-   Time prior to 1st pass:    200.3
+   Time after variat. SCF:    204.1
+   Time prior to 1st pass:    204.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54320
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -3421,18 +3445,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6311.9680928857 -6.31D+03  1.51D-02  8.50D-01   206.8
+ d= 0,ls=0.0,diis     1  -6311.9680928857 -6.31D+03  1.51D-02  8.50D-01   210.8
                                                      7.83D-03  8.53D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6311.9806590481 -1.26D-02  7.63D-03  2.88D-03   213.1
+ d= 0,ls=0.0,diis     2  -6311.9806590481 -1.26D-02  7.63D-03  2.88D-03   217.4
                                                      5.01D-03  1.45D-03
- d= 0,ls=0.0,diis     3  -6311.9819202186 -1.26D-03  5.13D-03  1.60D-03   219.6
+ d= 0,ls=0.0,diis     3  -6311.9819202186 -1.26D-03  5.13D-03  1.60D-03   224.0
                                                      3.32D-03  1.03D-03
- d= 0,ls=0.0,diis     4  -6311.9824435886 -5.23D-04  2.08D-03  8.52D-04   226.0
+ d= 0,ls=0.0,diis     4  -6311.9824435886 -5.23D-04  2.08D-03  8.52D-04   230.6
                                                      1.36D-03  5.91D-04
- d= 0,ls=0.0,diis     5  -6311.9829687701 -5.25D-04  5.21D-05  2.99D-07   232.5
+ d= 0,ls=0.0,diis     5  -6311.9829687701 -5.25D-04  5.21D-05  2.99D-07   237.3
                                                      3.76D-05  1.26D-07
- d= 0,ls=0.0,diis     6  -6311.9829690462 -2.76D-07  6.87D-07  4.70D-11   238.9
+ d= 0,ls=0.0,diis     6  -6311.9829690462 -2.76D-07  6.87D-07  4.70D-11   243.9
                                                      8.04D-07  6.18D-11
 
 
@@ -3444,7 +3468,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000094465
 
-     Total iterative time =     38.6s
+     Total iterative time =     39.8s
 
 
 
@@ -3880,7 +3904,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       41.8s     wall:       41.8s
+ Task  times  cpu:       43.0s     wall:       43.0s
 
 
                                 NWChem Input Module
@@ -3968,12 +3992,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    242.0
-   Time prior to 1st pass:    242.0
+   Time after variat. SCF:    247.1
+   Time prior to 1st pass:    247.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -3982,18 +4006,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6312.1889030768 -6.31D+03  1.51D-02  7.61D-01   248.5
+ d= 0,ls=0.0,diis     1  -6312.1889030768 -6.31D+03  1.51D-02  7.61D-01   253.8
                                                      7.71D-03  7.64D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6312.2013135734 -1.24D-02  7.33D-03  2.79D-03   254.8
+ d= 0,ls=0.0,diis     2  -6312.2013135734 -1.24D-02  7.33D-03  2.79D-03   260.3
                                                      5.40D-03  1.42D-03
- d= 0,ls=0.0,diis     3  -6312.2025266875 -1.21D-03  4.91D-03  1.51D-03   261.3
+ d= 0,ls=0.0,diis     3  -6312.2025266875 -1.21D-03  4.91D-03  1.51D-03   267.0
                                                      3.53D-03  9.94D-04
- d= 0,ls=0.0,diis     4  -6312.2030314710 -5.05D-04  1.98D-03  7.94D-04   267.7
+ d= 0,ls=0.0,diis     4  -6312.2030314710 -5.05D-04  1.98D-03  7.94D-04   273.6
                                                      1.42D-03  5.56D-04
- d= 0,ls=0.0,diis     5  -6312.2035167270 -4.85D-04  4.61D-05  2.49D-07   274.2
+ d= 0,ls=0.0,diis     5  -6312.2035167270 -4.85D-04  4.61D-05  2.49D-07   280.3
                                                      3.93D-05  1.11D-07
- d= 0,ls=0.0,diis     6  -6312.2035169534 -2.26D-07  8.83D-07  5.13D-11   280.6
+ d= 0,ls=0.0,diis     6  -6312.2035169534 -2.26D-07  8.83D-07  5.13D-11   286.9
                                                      7.48D-07  5.61D-11
 
 
@@ -4005,7 +4029,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000093292
 
-     Total iterative time =     38.6s
+     Total iterative time =     39.8s
 
 
 
@@ -4445,7 +4469,7 @@ set dft:cam_exch F
       <S2> =      3.7513 (Exact =     3.7500)
 
 
- Task  times  cpu:       41.7s     wall:       41.7s
+ Task  times  cpu:       43.0s     wall:       43.0s
 
 
                                 NWChem Input Module
@@ -4533,12 +4557,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    283.7
-   Time prior to 1st pass:    283.7
+   Time after variat. SCF:    290.1
+   Time prior to 1st pass:    290.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -4547,18 +4571,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6312.2752309134 -6.31D+03  1.51D-02  7.27D-01   290.2
+ d= 0,ls=0.0,diis     1  -6312.2752309134 -6.31D+03  1.51D-02  7.27D-01   296.7
                                                      7.73D-03  7.30D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6312.2872580254 -1.20D-02  7.45D-03  2.79D-03   296.6
+ d= 0,ls=0.0,diis     2  -6312.2872580254 -1.20D-02  7.45D-03  2.79D-03   303.3
                                                      5.61D-03  1.46D-03
- d= 0,ls=0.0,diis     3  -6312.2884296270 -1.17D-03  5.14D-03  1.59D-03   303.2
+ d= 0,ls=0.0,diis     3  -6312.2884296270 -1.17D-03  5.14D-03  1.59D-03   310.1
                                                      3.65D-03  1.04D-03
- d= 0,ls=0.0,diis     4  -6312.2889492112 -5.20D-04  2.11D-03  8.69D-04   309.7
+ d= 0,ls=0.0,diis     4  -6312.2889492112 -5.20D-04  2.11D-03  8.69D-04   316.7
                                                      1.51D-03  6.05D-04
- d= 0,ls=0.0,diis     5  -6312.2894941159 -5.45D-04  4.54D-05  2.45D-07   316.1
+ d= 0,ls=0.0,diis     5  -6312.2894941159 -5.45D-04  4.54D-05  2.45D-07   323.4
                                                      4.70D-05  1.14D-07
- d= 0,ls=0.0,diis     6  -6312.2894943454 -2.30D-07  1.75D-06  1.29D-10   322.5
+ d= 0,ls=0.0,diis     6  -6312.2894943454 -2.30D-07  1.75D-06  1.29D-10   330.0
                                                      2.52D-06  1.53D-10
 
 
@@ -4570,7 +4594,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000093886
 
-     Total iterative time =     38.8s
+     Total iterative time =     39.9s
 
 
 
@@ -5003,7 +5027,555 @@ set dft:cam_exch F
       <S2> =      3.7514 (Exact =     3.7500)
 
 
- Task  times  cpu:       41.9s     wall:       42.0s
+ Task  times  cpu:       43.1s     wall:       43.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :    51
+           Alpha electrons :    27
+            Beta electrons :    24
+          Charge           :     0
+          Spin multiplicity:     4
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    39
+                     number of shells:    14
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                  TPSS metaGGA Exchange Functional  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Sb                  1.45      123           7.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   123
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:       -6312.62469178
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -6312.393405
+ 1-e energy   =   -8691.148864
+ 2-e energy   =    2378.755459
+ HOMO         =      -0.153665
+ LUMO         =      -0.153665
+
+   Time after variat. SCF:    333.2
+   Time prior to 1st pass:    333.2
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     27        Max. recs in file   =     54300
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.77            12774753
+          Stack Space remaining (MW):       13.11            13106786
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -6312.1806725855 -6.31D+03  1.44D-02  2.73D-01   341.7
+                                                     6.86D-03  2.75D-01
+  Resetting Diis
+ d= 0,ls=0.0,diis     2  -6312.1925656517 -1.19D-02  5.97D-03  2.10D-03   350.2
+                                                     4.86D-03  1.00D-03
+ d= 0,ls=0.0,diis     3  -6312.1936208478 -1.06D-03  3.69D-03  9.90D-04   358.7
+                                                     2.77D-03  6.75D-04
+ d= 0,ls=0.0,diis     4  -6312.1939725546 -3.52D-04  1.44D-03  4.70D-04   367.2
+                                                     1.08D-03  3.41D-04
+ d= 0,ls=0.0,diis     5  -6312.1942445654 -2.72D-04  3.62D-05  1.78D-07   375.7
+                                                     3.18D-05  8.41D-08
+ d= 0,ls=0.0,diis     6  -6312.1942447183 -1.53D-07  5.36D-07  9.67D-12   384.2
+                                                     7.78D-07  1.34D-11
+
+
+         Total DFT energy =    -6312.194244718346
+      One electron energy =    -8690.773620111328
+           Coulomb energy =     2541.631993026695
+    Exchange-Corr. energy =     -163.052617633713
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =       51.000000091561
+
+     Total iterative time =     50.9s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector   14  Occ=1.000000D+00  E=-1.921688D+01
+              MO Center=  1.7D-16,  3.6D-16,  1.1D-18, r^2= 3.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.905938  1 Sb dxx               25     -0.802100  1 Sb dyy        
+
+ Vector   15  Occ=1.000000D+00  E=-5.070496D+00
+              MO Center=  6.9D-16,  1.6D-16,  9.7D-16, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.190910  1 Sb s                  3      0.695328  1 Sb s          
+     2     -0.264463  1 Sb s          
+
+ Vector   16  Occ=1.000000D+00  E=-3.646153D+00
+              MO Center=  2.9D-16,  7.0D-16,  6.1D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.924623  1 Sb px                14     -0.614662  1 Sb py         
+    10     -0.548391  1 Sb px                15     -0.368534  1 Sb pz         
+    11      0.364555  1 Sb py                12      0.218576  1 Sb pz         
+     7     -0.160693  1 Sb px         
+
+ Vector   17  Occ=1.000000D+00  E=-3.646153D+00
+              MO Center=  5.5D-17,  4.7D-16,  8.8D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.100426  1 Sb pz                12     -0.652659  1 Sb pz         
+    14     -0.331766  1 Sb py                13      0.218057  1 Sb px         
+    11      0.196770  1 Sb py                 9     -0.191247  1 Sb pz         
+
+ Vector   18  Occ=1.000000D+00  E=-3.646153D+00
+              MO Center=  8.5D-17, -5.2D-16,  9.5D-17, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.938443  1 Sb py                13      0.682700  1 Sb px         
+    11     -0.556588  1 Sb py                10     -0.404907  1 Sb px         
+     8     -0.163095  1 Sb py         
+
+ Vector   19  Occ=1.000000D+00  E=-1.265308D+00
+              MO Center= -2.2D-16, -4.0D-17, -1.3D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.774023  1 Sb dxy               23     -0.656135  1 Sb dxy        
+    30      0.468170  1 Sb dxz               24     -0.173156  1 Sb dxz        
+
+ Vector   20  Occ=1.000000D+00  E=-1.265308D+00
+              MO Center=  4.1D-17,  2.9D-16, -4.0D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.815430  1 Sb dyz               26     -0.671450  1 Sb dyz        
+    30      0.248404  1 Sb dxz        
+
+ Vector   21  Occ=1.000000D+00  E=-1.265308D+00
+              MO Center= -5.5D-17,  6.1D-17, -2.2D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      1.755244  1 Sb dxz               24     -0.649189  1 Sb dxz        
+    29     -0.461825  1 Sb dxy               32     -0.253332  1 Sb dyz        
+    23      0.170809  1 Sb dxy        
+
+ Vector   22  Occ=1.000000D+00  E=-1.265308D+00
+              MO Center= -2.1D-18, -4.3D-17, -9.4D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33     -0.951376  1 Sb dzz               28      0.875759  1 Sb dxx        
+    27      0.351873  1 Sb dzz               22     -0.323906  1 Sb dxx        
+
+ Vector   23  Occ=1.000000D+00  E=-1.265308D+00
+              MO Center= -3.7D-16, -2.9D-16, -1.2D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      1.056323  1 Sb dyy               28     -0.592125  1 Sb dxx        
+    33     -0.464198  1 Sb dzz               25     -0.390689  1 Sb dyy        
+    22      0.219002  1 Sb dxx               27      0.171687  1 Sb dzz        
+
+ Vector   24  Occ=1.000000D+00  E=-4.423336D-01
+              MO Center=  1.8D-14,  7.7D-15,  2.0D-14, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.655204  1 Sb s                  4      0.500889  1 Sb s          
+     6      0.427231  1 Sb s                  3      0.234043  1 Sb s          
+
+ Vector   25  Occ=1.000000D+00  E=-1.854706D-01
+              MO Center= -2.2D-15, -2.2D-17, -1.1D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.771764  1 Sb pz                15     -0.391043  1 Sb pz         
+    16      0.381075  1 Sb px                21     -0.252308  1 Sb pz         
+    13     -0.193086  1 Sb px                12      0.177112  1 Sb pz         
+
+ Vector   26  Occ=1.000000D+00  E=-1.854706D-01
+              MO Center=  5.8D-15, -4.2D-15,  6.2D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.844233  1 Sb py                14     -0.427761  1 Sb py         
+    20     -0.276000  1 Sb py                11      0.193743  1 Sb py         
+
+ Vector   27  Occ=1.000000D+00  E=-1.854706D-01
+              MO Center=  6.4D-15, -9.8D-15,  2.0D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.761193  1 Sb px                13     -0.385686  1 Sb px         
+    18     -0.367260  1 Sb pz                19     -0.248852  1 Sb px         
+    15      0.186086  1 Sb pz                10      0.174686  1 Sb px         
+    17     -0.167658  1 Sb py         
+
+ Vector   28  Occ=0.000000D+00  E= 9.021878D-02
+              MO Center=  1.4D-13,  4.7D-14,  4.7D-13, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      4.948100  1 Sb s                  5     -1.914622  1 Sb s          
+    34     -1.212260  1 Sb dxx               37     -1.212260  1 Sb dyy        
+    39     -1.212260  1 Sb dzz               28     -0.481199  1 Sb dxx        
+    31     -0.481199  1 Sb dyy               33     -0.481199  1 Sb dzz        
+     4     -0.412083  1 Sb s                  3     -0.346755  1 Sb s          
+
+ Vector   29  Occ=0.000000D+00  E= 1.247058D-01
+              MO Center= -8.9D-15, -7.6D-14, -9.4D-16, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.325413  1 Sb py                17      1.202575  1 Sb py         
+    14     -0.409975  1 Sb py                19      0.201941  1 Sb px         
+    16      0.183226  1 Sb px                11      0.178044  1 Sb py         
+
+ Vector   30  Occ=0.000000D+00  E= 1.247058D-01
+              MO Center= -1.7D-13,  1.4D-14, -7.8D-15, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.324642  1 Sb px                16      1.201875  1 Sb px         
+    13     -0.409736  1 Sb px                20     -0.203449  1 Sb py         
+    17     -0.184593  1 Sb py                10      0.177941  1 Sb px         
+
+ Vector   31  Occ=0.000000D+00  E= 1.247058D-01
+              MO Center=  1.5D-14,  1.4D-14, -4.1D-13, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.339595  1 Sb pz                18      1.215442  1 Sb pz         
+    15     -0.414362  1 Sb pz                12      0.179950  1 Sb pz         
+
+ Vector   32  Occ=0.000000D+00  E= 2.142880D-01
+              MO Center= -1.7D-14,  9.1D-15,  4.8D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.509946  1 Sb dxy               36      0.896648  1 Sb dxz        
+    29     -0.499032  1 Sb dxy               30     -0.296339  1 Sb dxz        
+    34     -0.212284  1 Sb dxx               38     -0.204590  1 Sb dyz        
+    23      0.168704  1 Sb dxy        
+
+ Vector   33  Occ=0.000000D+00  E= 2.142880D-01
+              MO Center=  1.4D-15,  3.9D-15, -5.9D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.355676  1 Sb dxz               38      0.997099  1 Sb dyz        
+    35     -0.618779  1 Sb dxy               30     -0.448046  1 Sb dxz        
+    32     -0.329538  1 Sb dyz               29      0.204504  1 Sb dxy        
+    24      0.151468  1 Sb dxz        
+
+ Vector   34  Occ=0.000000D+00  E= 2.142880D-01
+              MO Center= -1.5D-15, -4.8D-15, -1.8D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.490012  1 Sb dyz               36     -0.779401  1 Sb dxz        
+    35      0.598762  1 Sb dxy               32     -0.492444  1 Sb dyz        
+    30      0.257589  1 Sb dxz               29     -0.197889  1 Sb dxy        
+    26      0.166477  1 Sb dyz               34     -0.156444  1 Sb dxx        
+
+ Vector   35  Occ=0.000000D+00  E= 2.142880D-01
+              MO Center=  8.4D-15,  7.8D-15, -3.8D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      1.001036  1 Sb dxx               37     -0.528873  1 Sb dyy        
+    35      0.487743  1 Sb dxy               39     -0.472163  1 Sb dzz        
+    28     -0.330839  1 Sb dxx               31      0.174791  1 Sb dyy        
+    29     -0.161197  1 Sb dxy               33      0.156048  1 Sb dzz        
+
+ Vector   36  Occ=0.000000D+00  E= 2.142880D-01
+              MO Center= -1.7D-15, -9.4D-15, -5.6D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39     -0.914733  1 Sb dzz               37      0.889290  1 Sb dyy        
+    33      0.302316  1 Sb dzz               31     -0.293907  1 Sb dyy        
+
+ Vector   37  Occ=0.000000D+00  E= 7.328536D-01
+              MO Center=  5.4D-16,  5.7D-16, -4.4D-15, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.835480  1 Sb s                 34     -2.613475  1 Sb dxx        
+    37     -2.613475  1 Sb dyy               39     -2.613475  1 Sb dzz        
+    28     -1.026992  1 Sb dxx               31     -1.026992  1 Sb dyy        
+    33     -1.026992  1 Sb dzz                5      0.728462  1 Sb s          
+     4     -0.471618  1 Sb s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector   14  Occ=1.000000D+00  E=-1.921474D+01
+              MO Center= -7.2D-17, -3.8D-17,  4.5D-16, r^2= 3.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27     -0.882346  1 Sb dzz               22      0.833688  1 Sb dxx        
+
+ Vector   15  Occ=1.000000D+00  E=-5.065194D+00
+              MO Center=  9.5D-16,  2.3D-17,  9.1D-16, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.182714  1 Sb s                  3      0.694625  1 Sb s          
+     2     -0.264396  1 Sb s          
+
+ Vector   16  Occ=1.000000D+00  E=-3.640574D+00
+              MO Center=  6.7D-16, -1.6D-17, -5.0D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      0.954797  1 Sb pz                13     -0.629979  1 Sb px         
+    12     -0.566107  1 Sb pz                10      0.373520  1 Sb px         
+    14      0.250839  1 Sb py                 9     -0.165872  1 Sb pz         
+
+ Vector   17  Occ=1.000000D+00  E=-3.640574D+00
+              MO Center= -3.5D-16,  7.1D-16, -4.6D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.946265  1 Sb px                15      0.668836  1 Sb pz         
+    10     -0.561049  1 Sb px                12     -0.396558  1 Sb pz         
+    14     -0.169332  1 Sb py                 7     -0.164390  1 Sb px         
+
+ Vector   18  Occ=1.000000D+00  E=-3.640574D+00
+              MO Center=  4.4D-16,  1.7D-17,  5.0D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      1.131300  1 Sb py                11     -0.670757  1 Sb py         
+    13      0.281319  1 Sb px                 8     -0.196535  1 Sb py         
+    10     -0.166797  1 Sb px         
+
+ Vector   19  Occ=1.000000D+00  E=-1.254190D+00
+              MO Center= -2.9D-16,  4.0D-16, -2.4D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.568912  1 Sb dxy               32      0.921183  1 Sb dyz        
+    23     -0.580017  1 Sb dxy               26     -0.340556  1 Sb dyz        
+    30     -0.281441  1 Sb dxz        
+
+ Vector   20  Occ=1.000000D+00  E=-1.254190D+00
+              MO Center=  1.3D-16,  1.4D-16, -2.0D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.592013  1 Sb dyz               29     -0.894696  1 Sb dxy        
+    26     -0.588557  1 Sb dyz               23      0.330763  1 Sb dxy        
+    30      0.234058  1 Sb dxz        
+
+ Vector   21  Occ=1.000000D+00  E=-1.254190D+00
+              MO Center= -1.6D-16, -7.0D-17, -3.4D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      1.780325  1 Sb dxz               24     -0.658175  1 Sb dxz        
+    29      0.359544  1 Sb dxy               28     -0.174163  1 Sb dxx        
+
+ Vector   22  Occ=1.000000D+00  E=-1.254190D+00
+              MO Center= -1.3D-16,  1.7D-18, -4.8D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.969980  1 Sb dxx               33     -0.832522  1 Sb dzz        
+    22     -0.358596  1 Sb dxx               27      0.307778  1 Sb dzz        
+    30      0.281864  1 Sb dxz        
+
+ Vector   23  Occ=1.000000D+00  E=-1.254190D+00
+              MO Center= -7.3D-17, -3.2D-16,  7.4D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      1.051328  1 Sb dyy               33     -0.654301  1 Sb dzz        
+    28     -0.397027  1 Sb dxx               25     -0.388669  1 Sb dyy        
+    27      0.241891  1 Sb dzz        
+
+ Vector   24  Occ=1.000000D+00  E=-3.440021D-01
+              MO Center=  1.5D-14,  8.1D-15,  1.1D-14, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.650176  1 Sb s                  6      0.562690  1 Sb s          
+     4      0.559729  1 Sb s                  3      0.241081  1 Sb s          
+
+ Vector   25  Occ=0.000000D+00  E=-8.578176D-02
+              MO Center=  8.0D-15,  6.4D-15, -3.7D-15, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.617010  1 Sb py                18      0.468449  1 Sb pz         
+    14     -0.321205  1 Sb py                20     -0.290103  1 Sb py         
+    15     -0.243867  1 Sb pz                21     -0.220253  1 Sb pz         
+
+ Vector   26  Occ=0.000000D+00  E=-8.578176D-02
+              MO Center=  3.6D-15,  5.1D-15, -1.5D-15, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.557142  1 Sb pz                17     -0.470018  1 Sb py         
+    15     -0.290039  1 Sb pz                16      0.281816  1 Sb px         
+    21     -0.261955  1 Sb pz                14      0.244684  1 Sb py         
+    20      0.220991  1 Sb py         
+
+ Vector   27  Occ=0.000000D+00  E=-8.578176D-02
+              MO Center=  2.0D-15, -8.3D-15, -3.1D-16, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.721613  1 Sb px                13     -0.375660  1 Sb px         
+    19     -0.339285  1 Sb px                18     -0.284417  1 Sb pz         
+    10      0.170313  1 Sb px         
+
+ Vector   28  Occ=0.000000D+00  E= 1.339618D-01
+              MO Center=  1.1D-13,  1.8D-14, -5.5D-14, r^2= 6.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.073161  1 Sb s                  5     -1.876689  1 Sb s          
+    34     -1.270190  1 Sb dxx               37     -1.270190  1 Sb dyy        
+    39     -1.270190  1 Sb dzz               28     -0.526384  1 Sb dxx        
+    31     -0.526384  1 Sb dyy               33     -0.526384  1 Sb dzz        
+     4     -0.464529  1 Sb s                  3     -0.348995  1 Sb s          
+
+ Vector   29  Occ=0.000000D+00  E= 1.702678D-01
+              MO Center=  6.7D-15, -1.3D-15,  5.7D-14, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.294359  1 Sb pz                18      1.244895  1 Sb pz         
+    15     -0.432153  1 Sb pz                20     -0.248114  1 Sb py         
+    17     -0.238633  1 Sb py                12      0.187977  1 Sb pz         
+
+ Vector   30  Occ=0.000000D+00  E= 1.702678D-01
+              MO Center= -1.2D-15,  1.7D-15, -9.0D-15, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.293560  1 Sb py                17      1.244127  1 Sb py         
+    14     -0.431886  1 Sb py                21      0.252835  1 Sb pz         
+    18      0.243173  1 Sb pz                11      0.187861  1 Sb py         
+
+ Vector   31  Occ=0.000000D+00  E= 1.702678D-01
+              MO Center= -1.2D-13, -1.2D-14,  1.6D-14, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.315585  1 Sb px                16      1.265310  1 Sb px         
+    13     -0.439240  1 Sb px                10      0.191060  1 Sb px         
+
+ Vector   32  Occ=0.000000D+00  E= 3.171931D-01
+              MO Center= -1.5D-14, -6.7D-15, -9.6D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.559328  1 Sb dxz               38      0.852121  1 Sb dyz        
+    30     -0.496504  1 Sb dxz               32     -0.271323  1 Sb dyz        
+    34      0.174974  1 Sb dxx               24      0.167237  1 Sb dxz        
+
+ Vector   33  Occ=0.000000D+00  E= 3.171931D-01
+              MO Center= -5.3D-15,  5.9D-15, -3.6D-16, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.799357  1 Sb dxy               29     -0.572931  1 Sb dxy        
+    23      0.192980  1 Sb dxy               38      0.152746  1 Sb dyz        
+
+ Vector   34  Occ=0.000000D+00  E= 3.171931D-01
+              MO Center=  6.8D-16, -9.1D-16, -1.7D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.572463  1 Sb dyz               36     -0.876289  1 Sb dxz        
+    32     -0.500686  1 Sb dyz               30      0.279018  1 Sb dxz        
+    26      0.168646  1 Sb dyz        
+
+ Vector   35  Occ=0.000000D+00  E= 3.171931D-01
+              MO Center= -1.8D-14, -1.4D-14,  1.2D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37     -0.927496  1 Sb dyy               34      0.848547  1 Sb dxx        
+    31      0.295323  1 Sb dyy               28     -0.270185  1 Sb dxx        
+    36     -0.243509  1 Sb dxz               38     -0.173831  1 Sb dyz        
+
+ Vector   36  Occ=0.000000D+00  E= 3.171931D-01
+              MO Center=  5.4D-15, -3.4D-15, -5.8D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      1.038139  1 Sb dzz               34     -0.579110  1 Sb dxx        
+    37     -0.459029  1 Sb dyy               33     -0.330553  1 Sb dzz        
+    28      0.184394  1 Sb dxx        
+
+ Vector   37  Occ=0.000000D+00  E= 7.926386D-01
+              MO Center=  6.4D-16,  2.0D-16,  9.6D-16, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.717157  1 Sb s                 34     -2.584259  1 Sb dxx        
+    37     -2.584259  1 Sb dyy               39     -2.584259  1 Sb dzz        
+    28     -1.001207  1 Sb dxx               31     -1.001207  1 Sb dyy        
+    33     -1.001207  1 Sb dzz                5      0.729815  1 Sb s          
+     4     -0.451205  1 Sb s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      3      4      3      6      8      9      7     12
+ overlap   1.000  1.000  0.729  0.824  0.682  1.000  0.736  0.982  0.742  0.953
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     11     10     14     13     15     16     17     18     19     20
+ overlap   0.844  0.825  0.836  0.835  1.000  0.795  0.729  0.903  0.785  0.891
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     21     22     23     24     26     25     27     28     30     31
+ overlap   0.887  0.972  0.977  0.999  0.769  0.717  0.945  1.000  0.963  0.969
+
+
+   alpha     31     32     33     34     35     36     37     38     39
+    beta     29     33     32     34     35     36     37     38     39
+ overlap   0.979  0.821  0.942  0.898  0.803  0.842  0.999  1.000  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      3.7517 (Exact =     3.7500)
+
+
+ Task  times  cpu:       54.2s     wall:       54.2s
 
 
                                 NWChem Input Module
@@ -5099,12 +5671,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    325.7
-   Time prior to 1st pass:    325.7
+   Time after variat. SCF:    387.3
+   Time prior to 1st pass:    387.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -5113,20 +5685,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6312.0093258350 -6.31D+03  1.08D-02  8.50D-01   334.6
+ d= 0,ls=0.0,diis     1  -6312.0093258350 -6.31D+03  1.08D-02  8.50D-01   396.4
                                                      7.10D-03  8.51D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6312.0268016907 -1.75D-02  1.75D-03  1.09D-03   343.5
+ d= 0,ls=0.0,diis     2  -6312.0268016907 -1.75D-02  1.75D-03  1.09D-03   405.3
                                                      1.44D-03  3.31D-04
- d= 0,ls=0.0,diis     3  -6312.0272660858 -4.64D-04  5.95D-04  3.74D-05   352.5
+ d= 0,ls=0.0,diis     3  -6312.0272660858 -4.64D-04  5.95D-04  3.74D-05   414.5
                                                      5.52D-04  2.87D-05
- d= 0,ls=0.0,diis     4  -6312.0273012322 -3.51D-05  1.24D-04  3.76D-06   361.6
+ d= 0,ls=0.0,diis     4  -6312.0273012322 -3.51D-05  1.24D-04  3.76D-06   423.8
                                                      2.17D-04  2.27D-06
- d= 0,ls=0.0,diis     5  -6312.0273046186 -3.39D-06  7.30D-05  2.67D-07   370.6
+ d= 0,ls=0.0,diis     5  -6312.0273046186 -3.39D-06  7.30D-05  2.67D-07   433.1
                                                      1.19D-04  2.50D-07
- d= 0,ls=0.0,diis     6  -6312.0273051634 -5.45D-07  6.83D-06  1.82D-09   379.6
+ d= 0,ls=0.0,diis     6  -6312.0273051634 -5.45D-07  6.83D-06  1.82D-09   442.3
                                                      1.92D-05  6.84D-09
- d= 0,ls=0.0,diis     7  -6312.0273051719 -8.45D-09  9.07D-07  4.11D-11   388.6
+ d= 0,ls=0.0,diis     7  -6312.0273051719 -8.45D-09  9.07D-07  4.11D-11   451.3
                                                      8.38D-07  1.15D-11
 
 
@@ -5138,7 +5710,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000078942
 
-     Total iterative time =     63.0s
+     Total iterative time =     64.0s
 
 
 
@@ -5560,7 +6132,7 @@ set dft:cam_exch F
       <S2> =      3.7527 (Exact =     3.7500)
 
 
- Task  times  cpu:       66.1s     wall:       66.2s
+ Task  times  cpu:       67.1s     wall:       67.2s
 
 
                                 NWChem Input Module
@@ -5648,12 +6220,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    391.8
-   Time prior to 1st pass:    391.8
+   Time after variat. SCF:    454.4
+   Time prior to 1st pass:    454.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -5662,18 +6234,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.0363779492 -6.32D+03  1.93D-02  2.08D+00   400.0
+ d= 0,ls=0.0,diis     1  -6315.0363779492 -6.32D+03  1.93D-02  2.08D+00   462.6
                                                      1.40D-02  2.09D+00
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6315.0610504644 -2.47D-02  6.93D-03  4.53D-03   408.1
+ d= 0,ls=0.0,diis     2  -6315.0610504644 -2.47D-02  6.93D-03  4.53D-03   470.8
                                                      8.19D-03  2.56D-03
- d= 0,ls=0.0,diis     3  -6315.0629425382 -1.89D-03  3.91D-03  1.53D-03   416.2
+ d= 0,ls=0.0,diis     3  -6315.0629425382 -1.89D-03  3.91D-03  1.53D-03   479.0
                                                      3.28D-03  1.19D-03
- d= 0,ls=0.0,diis     4  -6315.0634745532 -5.32D-04  1.41D-03  5.29D-04   424.4
+ d= 0,ls=0.0,diis     4  -6315.0634745532 -5.32D-04  1.41D-03  5.29D-04   487.4
                                                      1.35D-03  4.17D-04
- d= 0,ls=0.0,diis     5  -6315.0637331627 -2.59D-04  1.89D-05  6.74D-08   432.6
+ d= 0,ls=0.0,diis     5  -6315.0637331627 -2.59D-04  1.89D-05  6.74D-08   495.8
                                                      5.56D-05  4.44D-08
- d= 0,ls=0.0,diis     6  -6315.0637332177 -5.49D-08  2.37D-06  5.38D-10   440.7
+ d= 0,ls=0.0,diis     6  -6315.0637332177 -5.49D-08  2.37D-06  5.38D-10   504.2
                                                      6.45D-06  8.57D-10
 
 
@@ -5685,7 +6257,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000071876
 
-     Total iterative time =     48.9s
+     Total iterative time =     49.8s
 
 
 
@@ -6116,7 +6688,7 @@ set dft:cam_exch F
       <S2> =      3.7532 (Exact =     3.7500)
 
 
- Task  times  cpu:       52.1s     wall:       52.1s
+ Task  times  cpu:       52.9s     wall:       52.9s
 
 
                                 NWChem Input Module
@@ -6206,12 +6778,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    443.8
-   Time prior to 1st pass:    443.8
+   Time after variat. SCF:    507.4
+   Time prior to 1st pass:    507.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -6220,20 +6792,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6317.5171139662 -6.32D+03  1.18D-02  1.79D-02   447.8
+ d= 0,ls=0.0,diis     1  -6317.5171139662 -6.32D+03  1.18D-02  1.79D-02   511.4
                                                      3.85D-03  6.93D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6317.5344987436 -1.74D-02  2.78D-03  1.83D-03   451.7
+ d= 0,ls=0.0,diis     2  -6317.5344987436 -1.74D-02  2.78D-03  1.83D-03   515.3
                                                      1.40D-03  5.90D-04
- d= 0,ls=0.0,diis     3  -6317.5356651469 -1.17D-03  1.16D-03  1.50D-04   455.7
+ d= 0,ls=0.0,diis     3  -6317.5356651469 -1.17D-03  1.16D-03  1.50D-04   519.3
                                                      7.08D-04  4.93D-05
- d= 0,ls=0.0,diis     4  -6317.5358416518 -1.77D-04  6.35D-04  1.71D-05   459.6
+ d= 0,ls=0.0,diis     4  -6317.5358416518 -1.77D-04  6.35D-04  1.71D-05   523.2
                                                      5.76D-04  1.19D-05
- d= 0,ls=0.0,diis     5  -6317.5358724370 -3.08D-05  3.02D-05  1.38D-07   463.5
+ d= 0,ls=0.0,diis     5  -6317.5358724370 -3.08D-05  3.02D-05  1.38D-07   527.2
                                                      7.45D-05  2.00D-07
- d= 0,ls=0.0,diis     6  -6317.5358726892 -2.52D-07  5.74D-06  3.42D-09   467.5
+ d= 0,ls=0.0,diis     6  -6317.5358726892 -2.52D-07  5.74D-06  3.42D-09   531.1
                                                      1.53D-05  8.45D-09
- d= 0,ls=0.0,diis     7  -6317.5358726970 -7.81D-09  4.17D-07  3.83D-11   471.4
+ d= 0,ls=0.0,diis     7  -6317.5358726970 -7.81D-09  4.17D-07  3.83D-11   535.0
                                                      2.89D-07  4.40D-12
 
 
@@ -6672,7 +7244,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       30.7s     wall:       30.8s
+ Task  times  cpu:       30.8s     wall:       30.9s
 
 
                                 NWChem Input Module
@@ -6762,12 +7334,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    474.5
-   Time prior to 1st pass:    474.5
+   Time after variat. SCF:    538.2
+   Time prior to 1st pass:    538.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -6776,20 +7348,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6318.5985777905 -6.32D+03  1.21D-02  1.90D-02   478.5
+ d= 0,ls=0.0,diis     1  -6318.5985777905 -6.32D+03  1.21D-02  1.90D-02   542.3
                                                      4.07D-03  7.41D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6318.6170430954 -1.85D-02  2.88D-03  1.95D-03   482.4
+ d= 0,ls=0.0,diis     2  -6318.6170430954 -1.85D-02  2.88D-03  1.95D-03   546.4
                                                      1.38D-03  6.17D-04
- d= 0,ls=0.0,diis     3  -6318.6182766995 -1.23D-03  1.20D-03  1.62D-04   486.4
+ d= 0,ls=0.0,diis     3  -6318.6182766995 -1.23D-03  1.20D-03  1.62D-04   550.4
                                                      6.98D-04  5.05D-05
- d= 0,ls=0.0,diis     4  -6318.6184640034 -1.87D-04  6.61D-04  1.85D-05   490.3
+ d= 0,ls=0.0,diis     4  -6318.6184640034 -1.87D-04  6.61D-04  1.85D-05   554.5
                                                      5.76D-04  1.24D-05
- d= 0,ls=0.0,diis     5  -6318.6184967504 -3.27D-05  3.13D-05  1.44D-07   494.2
+ d= 0,ls=0.0,diis     5  -6318.6184967504 -3.27D-05  3.13D-05  1.44D-07   558.5
                                                      7.80D-05  2.19D-07
- d= 0,ls=0.0,diis     6  -6318.6184970233 -2.73D-07  5.66D-06  3.32D-09   498.2
+ d= 0,ls=0.0,diis     6  -6318.6184970233 -2.73D-07  5.66D-06  3.32D-09   562.6
                                                      1.51D-05  8.39D-09
- d= 0,ls=0.0,diis     7  -6318.6184970310 -7.64D-09  4.11D-07  3.91D-11   502.1
+ d= 0,ls=0.0,diis     7  -6318.6184970310 -7.64D-09  4.11D-07  3.91D-11   566.6
                                                      2.79D-07  4.33D-12
 
 
@@ -6801,7 +7373,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000054235
 
-     Total iterative time =     27.6s
+     Total iterative time =     28.4s
 
 
 
@@ -7224,7 +7796,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       30.7s     wall:       30.7s
+ Task  times  cpu:       31.6s     wall:       31.6s
 
 
                                 NWChem Input Module
@@ -7314,12 +7886,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    505.2
-   Time prior to 1st pass:    505.2
+   Time after variat. SCF:    569.8
+   Time prior to 1st pass:    569.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -7328,20 +7900,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6317.5197242687 -6.32D+03  1.19D-02  1.82D-02   509.2
+ d= 0,ls=0.0,diis     1  -6317.5197242687 -6.32D+03  1.19D-02  1.82D-02   574.0
                                                      3.79D-03  7.08D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6317.5373963474 -1.77D-02  2.83D-03  1.88D-03   513.2
+ d= 0,ls=0.0,diis     2  -6317.5373963474 -1.77D-02  2.83D-03  1.88D-03   578.0
                                                      1.45D-03  5.98D-04
- d= 0,ls=0.0,diis     3  -6317.5386001011 -1.20D-03  1.17D-03  1.53D-04   517.2
+ d= 0,ls=0.0,diis     3  -6317.5386001011 -1.20D-03  1.17D-03  1.53D-04   582.1
                                                      7.12D-04  5.08D-05
- d= 0,ls=0.0,diis     4  -6317.5387802422 -1.80D-04  6.39D-04  1.75D-05   521.1
+ d= 0,ls=0.0,diis     4  -6317.5387802422 -1.80D-04  6.39D-04  1.75D-05   586.2
                                                      5.68D-04  1.20D-05
- d= 0,ls=0.0,diis     5  -6317.5388112217 -3.10D-05  2.92D-05  1.36D-07   525.1
+ d= 0,ls=0.0,diis     5  -6317.5388112217 -3.10D-05  2.92D-05  1.36D-07   590.2
                                                      6.84D-05  1.83D-07
- d= 0,ls=0.0,diis     6  -6317.5388114521 -2.30D-07  5.82D-06  3.68D-09   529.1
+ d= 0,ls=0.0,diis     6  -6317.5388114521 -2.30D-07  5.82D-06  3.68D-09   594.3
                                                      1.53D-05  8.65D-09
- d= 0,ls=0.0,diis     7  -6317.5388114602 -8.02D-09  4.03D-07  3.56D-11   533.0
+ d= 0,ls=0.0,diis     7  -6317.5388114602 -8.02D-09  4.03D-07  3.56D-11   598.4
                                                      2.62D-07  4.11D-12
 
 
@@ -7353,7 +7925,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000055779
 
-     Total iterative time =     27.8s
+     Total iterative time =     28.5s
 
 
 
@@ -7786,7 +8358,7 @@ set dft:cam_exch F
       <S2> =      3.7512 (Exact =     3.7500)
 
 
- Task  times  cpu:       30.9s     wall:       31.0s
+ Task  times  cpu:       31.7s     wall:       31.8s
 
 
                                 NWChem Input Module
@@ -7876,12 +8448,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    536.2
-   Time prior to 1st pass:    536.2
+   Time after variat. SCF:    601.6
+   Time prior to 1st pass:    601.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -7890,20 +8462,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6317.5198573228 -6.32D+03  1.19D-02  1.82D-02   540.2
+ d= 0,ls=0.0,diis     1  -6317.5198573228 -6.32D+03  1.19D-02  1.82D-02   605.7
                                                      3.79D-03  7.09D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6317.5375413843 -1.77D-02  2.83D-03  1.88D-03   544.2
+ d= 0,ls=0.0,diis     2  -6317.5375413843 -1.77D-02  2.83D-03  1.88D-03   609.8
                                                      1.45D-03  5.98D-04
- d= 0,ls=0.0,diis     3  -6317.5387466656 -1.21D-03  1.17D-03  1.53D-04   548.2
+ d= 0,ls=0.0,diis     3  -6317.5387466656 -1.21D-03  1.17D-03  1.53D-04   613.8
                                                      7.12D-04  5.08D-05
- d= 0,ls=0.0,diis     4  -6317.5389268842 -1.80D-04  6.39D-04  1.75D-05   552.2
+ d= 0,ls=0.0,diis     4  -6317.5389268842 -1.80D-04  6.39D-04  1.75D-05   617.9
                                                      5.66D-04  1.20D-05
- d= 0,ls=0.0,diis     5  -6317.5389578389 -3.10D-05  2.91D-05  1.36D-07   556.1
+ d= 0,ls=0.0,diis     5  -6317.5389578389 -3.10D-05  2.91D-05  1.36D-07   622.0
                                                      6.79D-05  1.82D-07
- d= 0,ls=0.0,diis     6  -6317.5389580677 -2.29D-07  5.82D-06  3.69D-09   560.1
+ d= 0,ls=0.0,diis     6  -6317.5389580677 -2.29D-07  5.82D-06  3.69D-09   626.0
                                                      1.53D-05  8.64D-09
- d= 0,ls=0.0,diis     7  -6317.5389580758 -8.03D-09  4.02D-07  3.54D-11   564.0
+ d= 0,ls=0.0,diis     7  -6317.5389580758 -8.03D-09  4.02D-07  3.54D-11   630.1
                                                      2.60D-07  4.08D-12
 
 
@@ -7915,7 +8487,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000055753
 
-     Total iterative time =     27.9s
+     Total iterative time =     28.5s
 
 
 
@@ -8348,7 +8920,7 @@ set dft:cam_exch F
       <S2> =      3.7512 (Exact =     3.7500)
 
 
- Task  times  cpu:       31.0s     wall:       31.0s
+ Task  times  cpu:       31.7s     wall:       31.8s
 
 
                                 NWChem Input Module
@@ -8438,12 +9010,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    567.1
-   Time prior to 1st pass:    567.1
+   Time after variat. SCF:    633.2
+   Time prior to 1st pass:    633.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -8452,20 +9024,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6317.5206698841 -6.32D+03  1.19D-02  1.82D-02   571.1
+ d= 0,ls=0.0,diis     1  -6317.5206698841 -6.32D+03  1.19D-02  1.82D-02   637.2
                                                      3.75D-03  7.13D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6317.5384113954 -1.77D-02  2.84D-03  1.89D-03   575.0
+ d= 0,ls=0.0,diis     2  -6317.5384113954 -1.77D-02  2.84D-03  1.89D-03   641.2
                                                      1.46D-03  6.00D-04
- d= 0,ls=0.0,diis     3  -6317.5396242149 -1.21D-03  1.17D-03  1.53D-04   579.0
+ d= 0,ls=0.0,diis     3  -6317.5396242149 -1.21D-03  1.17D-03  1.53D-04   645.1
                                                      7.05D-04  5.08D-05
- d= 0,ls=0.0,diis     4  -6317.5398043281 -1.80D-04  6.37D-04  1.75D-05   582.9
+ d= 0,ls=0.0,diis     4  -6317.5398043281 -1.80D-04  6.37D-04  1.75D-05   649.0
                                                      5.53D-04  1.18D-05
- d= 0,ls=0.0,diis     5  -6317.5398349098 -3.06D-05  2.83D-05  1.33D-07   586.9
+ d= 0,ls=0.0,diis     5  -6317.5398349098 -3.06D-05  2.83D-05  1.33D-07   653.0
                                                      6.37D-05  1.71D-07
- d= 0,ls=0.0,diis     6  -6317.5398351244 -2.15D-07  5.79D-06  3.71D-09   590.8
+ d= 0,ls=0.0,diis     6  -6317.5398351244 -2.15D-07  5.79D-06  3.71D-09   656.9
                                                      1.48D-05  8.49D-09
- d= 0,ls=0.0,diis     7  -6317.5398351323 -7.87D-09  3.96D-07  3.42D-11   594.9
+ d= 0,ls=0.0,diis     7  -6317.5398351323 -7.87D-09  3.96D-07  3.42D-11   660.9
                                                      2.36D-07  3.90D-12
 
 
@@ -8907,7 +9479,7 @@ set dft:cam_exch F
       <S2> =      3.7513 (Exact =     3.7500)
 
 
- Task  times  cpu:       30.9s     wall:       30.9s
+ Task  times  cpu:       30.8s     wall:       30.8s
 
 
                                 NWChem Input Module
@@ -8997,12 +9569,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    598.1
-   Time prior to 1st pass:    598.1
+   Time after variat. SCF:    664.0
+   Time prior to 1st pass:    664.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -9011,20 +9583,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6317.5200056936 -6.32D+03  1.19D-02  1.82D-02   602.2
+ d= 0,ls=0.0,diis     1  -6317.5200056936 -6.32D+03  1.19D-02  1.82D-02   668.0
                                                      3.78D-03  7.10D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6317.5377055098 -1.77D-02  2.83D-03  1.88D-03   606.2
+ d= 0,ls=0.0,diis     2  -6317.5377055098 -1.77D-02  2.83D-03  1.88D-03   672.0
                                                      1.45D-03  5.99D-04
- d= 0,ls=0.0,diis     3  -6317.5389129709 -1.21D-03  1.17D-03  1.53D-04   610.3
+ d= 0,ls=0.0,diis     3  -6317.5389129709 -1.21D-03  1.17D-03  1.53D-04   676.0
                                                      7.12D-04  5.09D-05
- d= 0,ls=0.0,diis     4  -6317.5390933453 -1.80D-04  6.39D-04  1.75D-05   614.3
+ d= 0,ls=0.0,diis     4  -6317.5390933453 -1.80D-04  6.39D-04  1.75D-05   680.0
                                                      5.64D-04  1.19D-05
- d= 0,ls=0.0,diis     5  -6317.5391242751 -3.09D-05  2.90D-05  1.36D-07   618.4
+ d= 0,ls=0.0,diis     5  -6317.5391242751 -3.09D-05  2.90D-05  1.36D-07   684.1
                                                      6.71D-05  1.80D-07
- d= 0,ls=0.0,diis     6  -6317.5391245015 -2.26D-07  5.82D-06  3.70D-09   622.4
+ d= 0,ls=0.0,diis     6  -6317.5391245015 -2.26D-07  5.82D-06  3.70D-09   688.1
                                                      1.52D-05  8.62D-09
- d= 0,ls=0.0,diis     7  -6317.5391245095 -8.00D-09  4.01D-07  3.52D-11   626.5
+ d= 0,ls=0.0,diis     7  -6317.5391245095 -8.00D-09  4.01D-07  3.52D-11   692.2
                                                      2.55D-07  4.05D-12
 
 
@@ -9036,7 +9608,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000055717
 
-     Total iterative time =     28.4s
+     Total iterative time =     28.1s
 
 
 
@@ -9455,7 +10027,7 @@ set dft:cam_exch F
       <S2> =      3.7513 (Exact =     3.7500)
 
 
- Task  times  cpu:       31.6s     wall:       31.6s
+ Task  times  cpu:       31.3s     wall:       31.3s
 
 
                                 NWChem Input Module
@@ -9545,12 +10117,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    629.7
-   Time prior to 1st pass:    629.7
+   Time after variat. SCF:    695.4
+   Time prior to 1st pass:    695.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -9559,20 +10131,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6317.4985685694 -6.32D+03  1.19D-02  1.81D-02   633.8
+ d= 0,ls=0.0,diis     1  -6317.4985685694 -6.32D+03  1.19D-02  1.81D-02   699.5
                                                      3.79D-03  7.03D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6317.5161808166 -1.76D-02  2.83D-03  1.87D-03   637.8
+ d= 0,ls=0.0,diis     2  -6317.5161808166 -1.76D-02  2.83D-03  1.87D-03   703.5
                                                      1.45D-03  5.96D-04
- d= 0,ls=0.0,diis     3  -6317.5173838272 -1.20D-03  1.17D-03  1.53D-04   641.8
+ d= 0,ls=0.0,diis     3  -6317.5173838272 -1.20D-03  1.17D-03  1.53D-04   707.6
                                                      7.19D-04  5.12D-05
- d= 0,ls=0.0,diis     4  -6317.5175643527 -1.81D-04  6.41D-04  1.75D-05   645.9
+ d= 0,ls=0.0,diis     4  -6317.5175643527 -1.81D-04  6.41D-04  1.75D-05   711.6
                                                      5.76D-04  1.21D-05
- d= 0,ls=0.0,diis     5  -6317.5175956297 -3.13D-05  2.96D-05  1.39D-07   649.9
+ d= 0,ls=0.0,diis     5  -6317.5175956297 -3.13D-05  2.96D-05  1.39D-07   715.7
                                                      7.00D-05  1.88D-07
- d= 0,ls=0.0,diis     6  -6317.5175958673 -2.38D-07  5.89D-06  3.77D-09   654.0
+ d= 0,ls=0.0,diis     6  -6317.5175958673 -2.38D-07  5.89D-06  3.77D-09   719.7
                                                      1.57D-05  8.87D-09
- d= 0,ls=0.0,diis     7  -6317.5175958756 -8.31D-09  4.06D-07  3.62D-11   658.0
+ d= 0,ls=0.0,diis     7  -6317.5175958756 -8.31D-09  4.06D-07  3.62D-11   723.7
                                                      2.72D-07  4.20D-12
 
 
@@ -10010,7 +10582,7 @@ set dft:cam_exch F
       <S2> =      3.7512 (Exact =     3.7500)
 
 
- Task  times  cpu:       31.5s     wall:       31.6s
+ Task  times  cpu:       31.6s     wall:       31.6s
 
 
                                 NWChem Input Module
@@ -10100,12 +10672,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    661.2
-   Time prior to 1st pass:    661.2
+   Time after variat. SCF:    726.9
+   Time prior to 1st pass:    726.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -10114,20 +10686,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.2224593263 -6.32D+03  1.11D-02  1.51D-02   667.9
+ d= 0,ls=0.0,diis     1  -6315.2224593263 -6.32D+03  1.11D-02  1.51D-02   733.6
                                                      3.16D-03  4.18D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6315.2378214657 -1.54D-02  2.69D-03  1.58D-03   674.5
+ d= 0,ls=0.0,diis     2  -6315.2378214657 -1.54D-02  2.69D-03  1.58D-03   740.2
                                                      1.42D-03  4.84D-04
- d= 0,ls=0.0,diis     3  -6315.2388693503 -1.05D-03  1.01D-03  1.10D-04   681.1
+ d= 0,ls=0.0,diis     3  -6315.2388693503 -1.05D-03  1.01D-03  1.10D-04   746.9
                                                      7.11D-04  4.00D-05
- d= 0,ls=0.0,diis     4  -6315.2390034169 -1.34D-04  5.18D-04  1.23D-05   687.7
+ d= 0,ls=0.0,diis     4  -6315.2390034169 -1.34D-04  5.18D-04  1.23D-05   753.5
                                                      5.55D-04  9.27D-06
- d= 0,ls=0.0,diis     5  -6315.2390260811 -2.27D-05  3.37D-05  1.34D-07   694.3
+ d= 0,ls=0.0,diis     5  -6315.2390260811 -2.27D-05  3.37D-05  1.34D-07   760.2
                                                      6.99D-05  1.72D-07
- d= 0,ls=0.0,diis     6  -6315.2390263127 -2.32D-07  7.19D-06  6.49D-09   700.8
+ d= 0,ls=0.0,diis     6  -6315.2390263127 -2.32D-07  7.19D-06  6.49D-09   766.7
                                                      2.16D-05  1.20D-08
- d= 0,ls=0.0,diis     7  -6315.2390263258 -1.32D-08  4.09D-07  2.98D-11   707.2
+ d= 0,ls=0.0,diis     7  -6315.2390263258 -1.32D-08  4.09D-07  2.98D-11   773.4
                                                      4.16D-07  4.92D-12
 
 
@@ -10139,7 +10711,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000060829
 
-     Total iterative time =     46.0s
+     Total iterative time =     46.4s
 
 
 
@@ -10574,7 +11146,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       49.2s     wall:       49.3s
+ Task  times  cpu:       49.7s     wall:       49.7s
 
 
                                 NWChem Input Module
@@ -10666,12 +11238,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    710.4
-   Time prior to 1st pass:    710.4
+   Time after variat. SCF:    776.6
+   Time prior to 1st pass:    776.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -10680,20 +11252,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.3674536207 -6.32D+03  1.16D-02  1.70D-02   716.9
+ d= 0,ls=0.0,diis     1  -6315.3674536207 -6.32D+03  1.16D-02  1.70D-02   783.4
                                                      4.53D-03  6.55D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6315.3849254378 -1.75D-02  3.16D-03  2.03D-03   723.3
+ d= 0,ls=0.0,diis     2  -6315.3849254378 -1.75D-02  3.16D-03  2.03D-03   790.0
                                                      1.03D-03  4.40D-04
- d= 0,ls=0.0,diis     3  -6315.3861916817 -1.27D-03  1.16D-03  1.48D-04   729.9
+ d= 0,ls=0.0,diis     3  -6315.3861916817 -1.27D-03  1.16D-03  1.48D-04   796.7
                                                      5.08D-04  3.31D-05
- d= 0,ls=0.0,diis     4  -6315.3863502539 -1.59D-04  6.15D-04  1.73D-05   736.4
+ d= 0,ls=0.0,diis     4  -6315.3863502539 -1.59D-04  6.15D-04  1.73D-05   803.5
                                                      4.69D-04  9.11D-06
- d= 0,ls=0.0,diis     5  -6315.3863777899 -2.75D-05  3.73D-05  1.65D-07   742.9
+ d= 0,ls=0.0,diis     5  -6315.3863777899 -2.75D-05  3.73D-05  1.65D-07   810.2
                                                      8.18D-05  2.84D-07
- d= 0,ls=0.0,diis     6  -6315.3863781482 -3.58D-07  9.02D-06  8.02D-09   749.4
+ d= 0,ls=0.0,diis     6  -6315.3863781482 -3.58D-07  9.02D-06  8.02D-09   816.9
                                                      2.90D-05  2.25D-08
- d= 0,ls=0.0,diis     7  -6315.3863781724 -2.42D-08  2.48D-07  1.84D-11   756.0
+ d= 0,ls=0.0,diis     7  -6315.3863781724 -2.42D-08  2.48D-07  1.84D-11   823.6
                                                      3.95D-07  3.63D-12
 
 
@@ -10705,7 +11277,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000056064
 
-     Total iterative time =     45.6s
+     Total iterative time =     47.0s
 
 
 
@@ -11118,7 +11690,569 @@ set dft:cam_exch F
       <S2> =      3.7512 (Exact =     3.7500)
 
 
- Task  times  cpu:       48.7s     wall:       48.8s
+ Task  times  cpu:       50.2s     wall:       50.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :    51
+           Alpha electrons :    27
+            Beta electrons :    24
+          Charge           :     0
+          Spin multiplicity:     4
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    39
+                     number of shells:    14
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+             TPSS03 metaGGA Correlation Functional  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Sb                  1.45      123           7.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   123
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:       -6312.62469178
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -6312.393405
+ 1-e energy   =   -8691.148864
+ 2-e energy   =    2378.755459
+ HOMO         =      -0.153665
+ LUMO         =      -0.153665
+
+   Time after variat. SCF:    826.8
+   Time prior to 1st pass:    826.8
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     27        Max. recs in file   =     54300
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.77            12774753
+          Stack Space remaining (MW):       13.11            13106786
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -6315.3675899992 -6.32D+03  1.19D-02  1.79D-02   835.6
+                                                     3.65D-03  6.42D-03
+  Resetting Diis
+ d= 0,ls=0.0,diis     2  -6315.3856444139 -1.81D-02  3.24D-03  2.07D-03   844.3
+                                                     1.23D-03  5.72D-04
+ d= 0,ls=0.0,diis     3  -6315.3870575102 -1.41D-03  1.19D-03  1.53D-04   853.1
+                                                     5.06D-04  4.62D-05
+ d= 0,ls=0.0,diis     4  -6315.3872309605 -1.73D-04  6.17D-04  1.77D-05   861.7
+                                                     3.94D-04  9.79D-06
+ d= 0,ls=0.0,diis     5  -6315.3872579302 -2.70D-05  2.69D-05  1.21D-07   870.3
+                                                     4.38D-05  1.11D-07
+ d= 0,ls=0.0,diis     6  -6315.3872580735 -1.43D-07  6.10D-06  5.71D-09   879.0
+                                                     1.67D-05  9.34D-09
+ d= 0,ls=0.0,diis     7  -6315.3872580834 -9.89D-09  2.12D-07  1.22D-11   887.8
+                                                     6.77D-08  1.43D-12
+
+
+         Total DFT energy =    -6315.387258083413
+      One electron energy =    -8693.335789642479
+           Coulomb energy =     2544.305942358634
+    Exchange-Corr. energy =     -166.357410799568
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =       51.000000053973
+
+     Total iterative time =     60.9s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector   14  Occ=1.000000D+00  E=-2.088026D+01
+              MO Center= -8.9D-17,  5.6D-18, -4.3D-17, r^2= 3.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.973992  1 Sb dxx               27     -0.658858  1 Sb dzz        
+    25     -0.315134  1 Sb dyy        
+
+ Vector   15  Occ=1.000000D+00  E=-6.134017D+00
+              MO Center=  6.3D-17, -4.2D-16, -1.7D-16, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.184183  1 Sb s                  3      0.701431  1 Sb s          
+     2     -0.259701  1 Sb s          
+
+ Vector   16  Occ=1.000000D+00  E=-4.516885D+00
+              MO Center= -3.5D-16,  2.9D-16, -1.7D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.973477  1 Sb px                10     -0.573761  1 Sb px         
+    15      0.467257  1 Sb pz                14      0.453506  1 Sb py         
+    12     -0.275398  1 Sb pz                11     -0.267293  1 Sb py         
+     7     -0.167704  1 Sb px         
+
+ Vector   17  Occ=1.000000D+00  E=-4.516885D+00
+              MO Center=  4.8D-16,  1.5D-16,  7.2D-17, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.012053  1 Sb pz                12     -0.596498  1 Sb pz         
+    13     -0.564599  1 Sb px                10      0.332771  1 Sb px         
+     9     -0.174350  1 Sb pz                14      0.169205  1 Sb py         
+
+ Vector   18  Occ=1.000000D+00  E=-4.516885D+00
+              MO Center=  1.3D-16, -2.1D-16, -9.7D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      1.066469  1 Sb py                11     -0.628570  1 Sb py         
+    15     -0.359268  1 Sb pz                13     -0.324383  1 Sb px         
+    12      0.211751  1 Sb pz                10      0.191189  1 Sb px         
+     8     -0.183724  1 Sb py         
+
+ Vector   19  Occ=1.000000D+00  E=-1.748963D+00
+              MO Center= -1.0D-16,  2.0D-16,  6.0D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      1.700752  1 Sb dxz               24     -0.622334  1 Sb dxz        
+    29      0.567619  1 Sb dxy               32     -0.399578  1 Sb dyz        
+    23     -0.207701  1 Sb dxy        
+
+ Vector   20  Occ=1.000000D+00  E=-1.748963D+00
+              MO Center= -4.0D-16, -2.7D-16,  6.0D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.744192  1 Sb dxy               23     -0.638229  1 Sb dxy        
+    30     -0.532495  1 Sb dxz               32      0.234949  1 Sb dyz        
+    24      0.194849  1 Sb dxz        
+
+ Vector   21  Occ=1.000000D+00  E=-1.748963D+00
+              MO Center= -3.8D-17, -1.1D-16,  8.8D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.772657  1 Sb dyz               26     -0.648645  1 Sb dyz        
+    30      0.440391  1 Sb dxz               24     -0.161147  1 Sb dxz        
+
+ Vector   22  Occ=1.000000D+00  E=-1.748963D+00
+              MO Center=  2.3D-16,  5.7D-17,  4.6D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      0.966906  1 Sb dyy               28     -0.845157  1 Sb dxx        
+    25     -0.353807  1 Sb dyy               22      0.309257  1 Sb dxx        
+    32      0.178001  1 Sb dyz        
+
+ Vector   23  Occ=1.000000D+00  E=-1.748963D+00
+              MO Center= -2.9D-16,  1.4D-16,  2.4D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      1.055567  1 Sb dzz               28     -0.633796  1 Sb dxx        
+    31     -0.421771  1 Sb dyy               27     -0.386249  1 Sb dzz        
+    22      0.231916  1 Sb dxx               25      0.154333  1 Sb dyy        
+
+ Vector   24  Occ=1.000000D+00  E=-7.277658D-01
+              MO Center= -7.2D-16,  8.2D-16, -3.4D-16, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.669489  1 Sb s                  4      0.424536  1 Sb s          
+     6      0.419867  1 Sb s                  3      0.225188  1 Sb s          
+
+ Vector   25  Occ=1.000000D+00  E=-3.614515D-01
+              MO Center=  5.9D-17, -6.4D-16,  1.1D-15, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.890009  1 Sb pz                15     -0.439955  1 Sb pz         
+    21     -0.209238  1 Sb pz                12      0.197338  1 Sb pz         
+    16     -0.186987  1 Sb px         
+
+ Vector   26  Occ=1.000000D+00  E=-3.614515D-01
+              MO Center=  5.2D-16,  1.5D-15, -4.3D-17, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.884903  1 Sb px                13     -0.437431  1 Sb px         
+    18      0.207555  1 Sb pz                19     -0.208037  1 Sb px         
+    10      0.196206  1 Sb px         
+
+ Vector   27  Occ=1.000000D+00  E=-3.614515D-01
+              MO Center= -3.4D-15,  1.6D-16, -7.3D-15, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.898521  1 Sb py                14     -0.444163  1 Sb py         
+    20     -0.211239  1 Sb py                11      0.199225  1 Sb py         
+    16      0.166897  1 Sb px         
+
+ Vector   28  Occ=0.000000D+00  E= 1.826001D-01
+              MO Center= -5.6D-14, -3.9D-13, -3.9D-14, r^2= 6.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.178909  1 Sb s                  5     -1.898444  1 Sb s          
+    34     -1.316578  1 Sb dxx               37     -1.316578  1 Sb dyy        
+    39     -1.316578  1 Sb dzz               28     -0.509574  1 Sb dxx        
+    31     -0.509574  1 Sb dyy               33     -0.509574  1 Sb dzz        
+     4     -0.407822  1 Sb s                  3     -0.344773  1 Sb s          
+
+ Vector   29  Occ=0.000000D+00  E= 2.169628D-01
+              MO Center=  8.6D-14, -1.1D-14, -5.4D-14, r^2= 7.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.189483  1 Sb px                16      1.031565  1 Sb px         
+    21     -0.614387  1 Sb pz                18     -0.532820  1 Sb pz         
+    13     -0.344147  1 Sb px                20      0.198268  1 Sb py         
+    15      0.177757  1 Sb pz                17      0.171945  1 Sb py         
+
+ Vector   30  Occ=0.000000D+00  E= 2.169628D-01
+              MO Center=  7.2D-14,  1.0D-13,  1.8D-13, r^2= 7.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.120799  1 Sb pz                18      0.972000  1 Sb pz         
+    20      0.586472  1 Sb py                17      0.508611  1 Sb py         
+    19      0.481155  1 Sb px                16      0.417276  1 Sb px         
+    15     -0.324275  1 Sb pz                14     -0.169681  1 Sb py         
+
+ Vector   31  Occ=0.000000D+00  E= 2.169628D-01
+              MO Center= -9.8D-14,  2.7D-13, -8.6D-14, r^2= 7.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.203491  1 Sb py                17      1.043714  1 Sb py         
+    21     -0.444959  1 Sb pz                19     -0.430431  1 Sb px         
+    18     -0.385885  1 Sb pz                16     -0.373286  1 Sb px         
+    14     -0.348200  1 Sb py         
+
+ Vector   32  Occ=0.000000D+00  E= 3.285571D-01
+              MO Center=  2.9D-16,  2.0D-14, -2.6D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.538437  1 Sb dyz               36     -0.791673  1 Sb dxz        
+    35     -0.518494  1 Sb dxy               32     -0.492960  1 Sb dyz        
+    30      0.253675  1 Sb dxz               29      0.166141  1 Sb dxy        
+    26      0.164578  1 Sb dyz        
+
+ Vector   33  Occ=0.000000D+00  E= 3.285571D-01
+              MO Center=  4.2D-15, -4.4D-16,  3.0D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.565067  1 Sb dxy               38      0.769381  1 Sb dyz        
+    29     -0.501493  1 Sb dxy               36      0.470101  1 Sb dxz        
+    32     -0.246532  1 Sb dyz               23      0.167427  1 Sb dxy        
+    30     -0.150634  1 Sb dxz        
+
+ Vector   34  Occ=0.000000D+00  E= 3.285571D-01
+              MO Center= -2.7D-15, -1.0D-15,  4.3D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.553909  1 Sb dxz               35     -0.737635  1 Sb dxy        
+    38      0.551032  1 Sb dyz               30     -0.497918  1 Sb dxz        
+    29      0.236360  1 Sb dxy               32     -0.176567  1 Sb dyz        
+    24      0.166234  1 Sb dxz        
+
+ Vector   35  Occ=0.000000D+00  E= 3.285571D-01
+              MO Center=  1.6D-16, -4.9D-15, -7.6D-16, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      1.002374  1 Sb dzz               37     -0.750241  1 Sb dyy        
+    33     -0.321190  1 Sb dzz               34     -0.252133  1 Sb dxx        
+    31      0.240399  1 Sb dyy        
+
+ Vector   36  Occ=0.000000D+00  E= 3.285571D-01
+              MO Center= -6.4D-16,  1.3D-15,  2.6D-16, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      1.011872  1 Sb dxx               37     -0.724290  1 Sb dyy        
+    28     -0.324234  1 Sb dxx               39     -0.287583  1 Sb dzz        
+    31      0.232084  1 Sb dyy        
+
+ Vector   37  Occ=0.000000D+00  E= 8.996833D-01
+              MO Center=  7.5D-16,  3.0D-15,  5.1D-16, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.703266  1 Sb s                 34     -2.606295  1 Sb dxx        
+    37     -2.606295  1 Sb dyy               39     -2.606295  1 Sb dzz        
+    28     -1.135107  1 Sb dxx               31     -1.135107  1 Sb dyy        
+    33     -1.135107  1 Sb dzz                5      0.924091  1 Sb s          
+     4     -0.676553  1 Sb s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector   14  Occ=1.000000D+00  E=-2.087681D+01
+              MO Center=  6.8D-17, -4.3D-16, -5.5D-16, r^2= 3.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.917072  1 Sb dzz               25     -0.789372  1 Sb dyy        
+
+ Vector   15  Occ=1.000000D+00  E=-6.117911D+00
+              MO Center=  7.4D-18, -1.4D-16,  1.2D-16, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.169935  1 Sb s                  3      0.700167  1 Sb s          
+     2     -0.259395  1 Sb s          
+
+ Vector   16  Occ=1.000000D+00  E=-4.498077D+00
+              MO Center= -5.2D-18, -4.2D-16,  1.4D-15, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.091118  1 Sb pz                12     -0.643201  1 Sb pz         
+    13     -0.421410  1 Sb px                10      0.248416  1 Sb px         
+     9     -0.188020  1 Sb pz         
+
+ Vector   17  Occ=1.000000D+00  E=-4.498077D+00
+              MO Center= -1.3D-16,  5.2D-16, -4.3D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.885929  1 Sb px                14     -0.665916  1 Sb py         
+    10     -0.522244  1 Sb px                11      0.392549  1 Sb py         
+    15      0.378667  1 Sb pz                12     -0.223220  1 Sb pz         
+     7     -0.152662  1 Sb px         
+
+ Vector   18  Occ=1.000000D+00  E=-4.498077D+00
+              MO Center= -7.9D-16,  2.1D-16,  3.8D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.961603  1 Sb py                13      0.639723  1 Sb px         
+    11     -0.566853  1 Sb py                10     -0.377109  1 Sb px         
+    15      0.194359  1 Sb pz                 8     -0.165702  1 Sb py         
+
+ Vector   19  Occ=1.000000D+00  E=-1.734428D+00
+              MO Center=  4.1D-16, -1.3D-16,  2.8D-16, r^2= 3.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      1.785798  1 Sb dxz               24     -0.653144  1 Sb dxz        
+    32     -0.420610  1 Sb dyz               29     -0.188867  1 Sb dxy        
+    26      0.153835  1 Sb dyz        
+
+ Vector   20  Occ=1.000000D+00  E=-1.734428D+00
+              MO Center=  1.3D-16, -1.8D-15, -6.5D-17, r^2= 3.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.665083  1 Sb dxy               23     -0.608993  1 Sb dxy        
+    32      0.592276  1 Sb dyz               30      0.287547  1 Sb dxz        
+    31     -0.249350  1 Sb dyy               26     -0.216621  1 Sb dyz        
+    28      0.206385  1 Sb dxx        
+
+ Vector   21  Occ=1.000000D+00  E=-1.734428D+00
+              MO Center=  1.8D-16,  5.8D-17,  4.7D-16, r^2= 3.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.465304  1 Sb dyz               29     -0.776481  1 Sb dxy        
+    26     -0.535925  1 Sb dyz               31     -0.407301  1 Sb dyy        
+    28      0.379464  1 Sb dxx               23      0.283993  1 Sb dxy        
+    30      0.218733  1 Sb dxz        
+
+ Vector   22  Occ=1.000000D+00  E=-1.734428D+00
+              MO Center= -1.0D-16, -1.1D-15, -7.8D-16, r^2= 3.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.934841  1 Sb dxx               32     -0.807483  1 Sb dyz        
+    31     -0.607602  1 Sb dyy               22     -0.341912  1 Sb dxx        
+    33     -0.327239  1 Sb dzz               26      0.295332  1 Sb dyz        
+    30     -0.249744  1 Sb dxz               25      0.222226  1 Sb dyy        
+
+ Vector   23  Occ=1.000000D+00  E=-1.734428D+00
+              MO Center=  2.3D-16,  1.2D-15, -9.6D-16, r^2= 3.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      1.013497  1 Sb dzz               31     -0.732798  1 Sb dyy        
+    27     -0.370680  1 Sb dzz               32     -0.303906  1 Sb dyz        
+    28     -0.280699  1 Sb dxx               25      0.268016  1 Sb dyy        
+    30     -0.192961  1 Sb dxz        
+
+ Vector   24  Occ=1.000000D+00  E=-5.140942D-01
+              MO Center=  5.6D-16,  7.9D-16,  2.0D-15, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.606631  1 Sb s                  6      0.518322  1 Sb s          
+     4      0.492844  1 Sb s                  3      0.225085  1 Sb s          
+
+ Vector   25  Occ=0.000000D+00  E=-1.685198D-02
+              MO Center= -4.2D-15, -2.3D-17, -5.7D-16, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -0.525278  1 Sb pz                18      0.516406  1 Sb pz         
+    15     -0.301499  1 Sb pz                20     -0.231716  1 Sb py         
+    17      0.227802  1 Sb py         
+
+ Vector   26  Occ=0.000000D+00  E=-1.685198D-02
+              MO Center= -4.1D-16,  2.7D-15,  7.8D-15, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19     -0.573979  1 Sb px                16      0.564285  1 Sb px         
+    13     -0.329452  1 Sb px         
+
+ Vector   27  Occ=0.000000D+00  E=-1.685198D-02
+              MO Center= -1.2D-16,  5.6D-16, -3.2D-16, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20     -0.527153  1 Sb py                17      0.518249  1 Sb py         
+    14     -0.302575  1 Sb py                21      0.231471  1 Sb pz         
+    18     -0.227562  1 Sb pz         
+
+ Vector   28  Occ=0.000000D+00  E= 1.964275D-01
+              MO Center=  4.7D-14,  1.0D-14,  4.5D-14, r^2= 6.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.294197  1 Sb s                  5     -1.890251  1 Sb s          
+    34     -1.373131  1 Sb dxx               37     -1.373131  1 Sb dyy        
+    39     -1.373131  1 Sb dzz               28     -0.531449  1 Sb dxx        
+    31     -0.531449  1 Sb dyy               33     -0.531449  1 Sb dzz        
+     4     -0.426000  1 Sb s                  3     -0.347714  1 Sb s          
+
+ Vector   29  Occ=0.000000D+00  E= 2.670483D-01
+              MO Center= -4.8D-14,  2.8D-15, -5.4D-15, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.371382  1 Sb px                19      1.236402  1 Sb px         
+    13     -0.497773  1 Sb px                10      0.216281  1 Sb px         
+
+ Vector   30  Occ=0.000000D+00  E= 2.670483D-01
+              MO Center=  6.2D-15,  7.6D-16, -4.0D-14, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      1.372337  1 Sb pz                21      1.237263  1 Sb pz         
+    15     -0.498119  1 Sb pz                12      0.216432  1 Sb pz         
+
+ Vector   31  Occ=0.000000D+00  E= 2.670483D-01
+              MO Center= -6.9D-16, -1.3D-14, -7.3D-16, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.376799  1 Sb py                20      1.241285  1 Sb py         
+    14     -0.499739  1 Sb py                11      0.217135  1 Sb py         
+
+ Vector   32  Occ=0.000000D+00  E= 4.126749D-01
+              MO Center=  1.1D-15,  2.2D-15, -2.2D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.439500  1 Sb dyz               36      0.851111  1 Sb dxz        
+    35     -0.683169  1 Sb dxy               32     -0.439842  1 Sb dyz        
+    30     -0.260058  1 Sb dxz               29      0.208743  1 Sb dxy        
+
+ Vector   33  Occ=0.000000D+00  E= 4.126749D-01
+              MO Center= -1.8D-15, -2.9D-15, -1.9D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.646246  1 Sb dxy               36      0.615508  1 Sb dxz        
+    29     -0.503013  1 Sb dxy               38      0.417375  1 Sb dyz        
+    30     -0.188070  1 Sb dxz               23      0.167077  1 Sb dxy        
+
+ Vector   34  Occ=0.000000D+00  E= 4.126749D-01
+              MO Center=  3.3D-15, -9.0D-16, -3.2D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.469704  1 Sb dxz               38     -1.008410  1 Sb dyz        
+    30     -0.449070  1 Sb dxz               32      0.308121  1 Sb dyz        
+    35     -0.293807  1 Sb dxy        
+
+ Vector   35  Occ=0.000000D+00  E= 4.126749D-01
+              MO Center=  2.5D-16, -4.5D-16, -4.9D-16, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      1.041666  1 Sb dxx               39     -0.565745  1 Sb dzz        
+    37     -0.475920  1 Sb dyy               28     -0.318283  1 Sb dxx        
+    33      0.172864  1 Sb dzz        
+
+ Vector   36  Occ=0.000000D+00  E= 4.126749D-01
+              MO Center=  5.3D-17,  3.0D-16, -3.4D-16, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37      0.928023  1 Sb dyy               39     -0.876161  1 Sb dzz        
+    31     -0.283559  1 Sb dyy               33      0.267713  1 Sb dzz        
+
+ Vector   37  Occ=0.000000D+00  E= 9.187659D-01
+              MO Center= -4.2D-16, -5.0D-16, -7.0D-16, r^2= 3.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.597744  1 Sb s                 34     -2.584854  1 Sb dxx        
+    37     -2.584854  1 Sb dyy               39     -2.584854  1 Sb dzz        
+    28     -1.145965  1 Sb dxx               31     -1.145965  1 Sb dyy        
+    33     -1.145965  1 Sb dzz                5      0.980137  1 Sb s          
+     4     -0.709203  1 Sb s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      5      3      4      6      9      7      9     10
+ overlap   1.000  1.000  0.896  0.950  0.925  1.000  0.697  0.859  0.694  0.885
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     12     11     14     13     15     18     16     17     19     20
+ overlap   0.953  0.842  0.945  0.944  1.000  0.838  0.986  0.826  0.914  0.860
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     21     22     23     24     25     26     27     28     29     30
+ overlap   0.863  0.840  0.915  1.000  0.922  0.939  0.908  1.000  0.792  0.746
+
+
+   alpha     31     32     33     34     35     36     37     38     39
+    beta     31     34     33     32     36     35     37     38     39
+ overlap   0.827  0.785  0.977  0.803  0.957  0.957  1.000  1.000  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      3.7514 (Exact =     3.7500)
+
+
+ Task  times  cpu:       64.2s     wall:       64.2s
 
 
                                 NWChem Input Module
@@ -11209,12 +12343,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    759.1
-   Time prior to 1st pass:    759.1
+   Time after variat. SCF:    890.9
+   Time prior to 1st pass:    890.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -11223,20 +12357,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.9499803310 -6.32D+03  1.18D-02  1.74D-02   767.4
+ d= 0,ls=0.0,diis     1  -6315.9499803310 -6.32D+03  1.18D-02  1.74D-02   899.3
                                                      4.48D-03  6.62D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6315.9673594129 -1.74D-02  2.82D-03  1.85D-03   775.5
+ d= 0,ls=0.0,diis     2  -6315.9673594129 -1.74D-02  2.82D-03  1.85D-03   907.5
                                                      1.27D-03  6.05D-04
- d= 0,ls=0.0,diis     3  -6315.9685395261 -1.18D-03  1.15D-03  1.48D-04   783.7
+ d= 0,ls=0.0,diis     3  -6315.9685395261 -1.18D-03  1.15D-03  1.48D-04   915.7
                                                      6.99D-04  5.25D-05
- d= 0,ls=0.0,diis     4  -6315.9687187965 -1.79D-04  6.39D-04  1.72D-05   791.9
+ d= 0,ls=0.0,diis     4  -6315.9687187965 -1.79D-04  6.39D-04  1.72D-05   924.1
                                                      6.37D-04  1.34D-05
- d= 0,ls=0.0,diis     5  -6315.9687521275 -3.33D-05  3.42D-05  1.64D-07   800.1
+ d= 0,ls=0.0,diis     5  -6315.9687521275 -3.33D-05  3.42D-05  1.64D-07   932.6
                                                      1.06D-04  2.92D-07
- d= 0,ls=0.0,diis     6  -6315.9687525052 -3.78D-07  6.69D-06  4.39D-09   808.3
+ d= 0,ls=0.0,diis     6  -6315.9687525052 -3.78D-07  6.69D-06  4.39D-09   941.0
                                                      2.37D-05  1.28D-08
- d= 0,ls=0.0,diis     7  -6315.9687525182 -1.30D-08  4.41D-07  4.23D-11   816.4
+ d= 0,ls=0.0,diis     7  -6315.9687525182 -1.30D-08  4.41D-07  4.23D-11   949.4
                                                      1.29D-07  4.19D-12
 
 
@@ -11248,7 +12382,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000056075
 
-     Total iterative time =     57.3s
+     Total iterative time =     58.5s
 
 
 
@@ -11672,7 +12806,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       60.5s     wall:       60.6s
+ Task  times  cpu:       61.6s     wall:       61.7s
 
 
                                 NWChem Input Module
@@ -11763,12 +12897,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    819.6
-   Time prior to 1st pass:    819.6
+   Time after variat. SCF:    952.6
+   Time prior to 1st pass:    952.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54300
 
 
            Memory utilization after 1st SCF pass: 
@@ -11777,20 +12911,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.9965234483 -6.32D+03  1.19D-02  1.75D-02   827.8
+ d= 0,ls=0.0,diis     1  -6315.9965234483 -6.32D+03  1.19D-02  1.75D-02   961.0
                                                      4.41D-03  6.60D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6316.0139828952 -1.75D-02  2.83D-03  1.85D-03   836.1
+ d= 0,ls=0.0,diis     2  -6316.0139828952 -1.75D-02  2.83D-03  1.85D-03   969.4
                                                      1.29D-03  6.15D-04
- d= 0,ls=0.0,diis     3  -6316.0151768349 -1.19D-03  1.16D-03  1.49D-04   844.5
+ d= 0,ls=0.0,diis     3  -6316.0151768349 -1.19D-03  1.16D-03  1.49D-04   977.8
                                                      7.15D-04  5.37D-05
- d= 0,ls=0.0,diis     4  -6316.0153585596 -1.82D-04  6.43D-04  1.73D-05   852.9
+ d= 0,ls=0.0,diis     4  -6316.0153585596 -1.82D-04  6.43D-04  1.73D-05   986.2
                                                      6.45D-04  1.35D-05
- d= 0,ls=0.0,diis     5  -6316.0153921659 -3.36D-05  3.35D-05  1.62D-07   861.3
+ d= 0,ls=0.0,diis     5  -6316.0153921659 -3.36D-05  3.35D-05  1.62D-07   994.7
                                                      1.04D-04  2.76D-07
- d= 0,ls=0.0,diis     6  -6316.0153925251 -3.59D-07  6.62D-06  4.40D-09   869.7
+ d= 0,ls=0.0,diis     6  -6316.0153925251 -3.59D-07  6.62D-06  4.40D-09  1003.1
                                                      2.35D-05  1.24D-08
- d= 0,ls=0.0,diis     7  -6316.0153925378 -1.27D-08  4.40D-07  4.17D-11   878.2
+ d= 0,ls=0.0,diis     7  -6316.0153925378 -1.27D-08  4.40D-07  4.17D-11  1011.5
                                                      1.19D-07  4.16D-12
 
 
@@ -11802,7 +12936,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000055815
 
-     Total iterative time =     58.6s
+     Total iterative time =     58.9s
 
 
 
@@ -12239,7 +13373,7 @@ set dft:cam_exch F
       <S2> =      3.7511 (Exact =     3.7500)
 
 
- Task  times  cpu:       61.7s     wall:       61.8s
+ Task  times  cpu:       62.1s     wall:       62.1s
 
 
                                 NWChem Input Module
@@ -12330,12 +13464,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    881.4
-   Time prior to 1st pass:    881.4
+   Time after variat. SCF:   1014.6
+   Time prior to 1st pass:   1014.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54290
 
 
            Memory utilization after 1st SCF pass: 
@@ -12344,20 +13478,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.8840596658 -6.32D+03  1.18D-02  1.73D-02   889.7
+ d= 0,ls=0.0,diis     1  -6315.8840596658 -6.32D+03  1.18D-02  1.73D-02  1022.9
                                                      4.52D-03  6.68D-03
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6315.9012863743 -1.72D-02  2.81D-03  1.84D-03   897.9
+ d= 0,ls=0.0,diis     2  -6315.9012863743 -1.72D-02  2.81D-03  1.84D-03  1031.3
                                                      1.25D-03  5.94D-04
- d= 0,ls=0.0,diis     3  -6315.9024533574 -1.17D-03  1.15D-03  1.47D-04   906.3
+ d= 0,ls=0.0,diis     3  -6315.9024533574 -1.17D-03  1.15D-03  1.47D-04  1039.7
                                                      6.89D-04  5.16D-05
- d= 0,ls=0.0,diis     4  -6315.9026303786 -1.77D-04  6.36D-04  1.70D-05   914.7
+ d= 0,ls=0.0,diis     4  -6315.9026303786 -1.77D-04  6.36D-04  1.70D-05  1048.2
                                                      6.31D-04  1.33D-05
- d= 0,ls=0.0,diis     5  -6315.9026634627 -3.31D-05  3.48D-05  1.66D-07   923.1
+ d= 0,ls=0.0,diis     5  -6315.9026634627 -3.31D-05  3.48D-05  1.66D-07  1056.6
                                                      1.08D-04  3.02D-07
- d= 0,ls=0.0,diis     6  -6315.9026638531 -3.90D-07  6.79D-06  4.44D-09   931.5
+ d= 0,ls=0.0,diis     6  -6315.9026638531 -3.90D-07  6.79D-06  4.44D-09  1065.0
                                                      2.39D-05  1.31D-08
- d= 0,ls=0.0,diis     7  -6315.9026638664 -1.33D-08  4.40D-07  4.24D-11   940.0
+ d= 0,ls=0.0,diis     7  -6315.9026638664 -1.33D-08  4.40D-07  4.24D-11  1073.4
                                                      1.46D-07  4.23D-12
 
 
@@ -12369,7 +13503,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000056472
 
-     Total iterative time =     58.6s
+     Total iterative time =     58.8s
 
 
 
@@ -12785,7 +13919,7 @@ set dft:cam_exch F
       <S2> =      3.7510 (Exact =     3.7500)
 
 
- Task  times  cpu:       61.8s     wall:       61.9s
+ Task  times  cpu:       61.9s     wall:       62.0s
 
 
                                 NWChem Input Module
@@ -12876,12 +14010,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:    943.2
-   Time prior to 1st pass:    943.2
+   Time after variat. SCF:   1076.6
+   Time prior to 1st pass:   1076.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54290
 
 
            Memory utilization after 1st SCF pass: 
@@ -12890,20 +14024,20 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6315.5244303256 -6.32D+03  1.15D-02  4.17D-02   951.7
+ d= 0,ls=0.0,diis     1  -6315.5244303256 -6.32D+03  1.15D-02  4.17D-02  1084.9
                                                      9.35D-03  3.45D-02
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6315.5406158009 -1.62D-02  2.76D-03  1.38D-03   960.1
+ d= 0,ls=0.0,diis     2  -6315.5406158009 -1.62D-02  2.76D-03  1.38D-03  1093.1
                                                      1.53D-03  8.73D-04
- d= 0,ls=0.0,diis     3  -6315.5416855588 -1.07D-03  8.40D-04  7.17D-05   968.6
+ d= 0,ls=0.0,diis     3  -6315.5416855588 -1.07D-03  8.40D-04  7.17D-05  1101.4
                                                      7.56D-04  6.37D-05
- d= 0,ls=0.0,diis     4  -6315.5418039005 -1.18D-04  4.07D-04  8.16D-06   977.2
+ d= 0,ls=0.0,diis     4  -6315.5418039005 -1.18D-04  4.07D-04  8.16D-06  1109.7
                                                      6.65D-04  1.38D-05
- d= 0,ls=0.0,diis     5  -6315.5418276832 -2.38D-05  4.63D-05  2.24D-07   985.7
+ d= 0,ls=0.0,diis     5  -6315.5418276832 -2.38D-05  4.63D-05  2.24D-07  1118.0
                                                      1.37D-04  4.33D-07
- d= 0,ls=0.0,diis     6  -6315.5418282802 -5.97D-07  7.57D-06  1.08D-08   994.2
+ d= 0,ls=0.0,diis     6  -6315.5418282802 -5.97D-07  7.57D-06  1.08D-08  1126.3
                                                      4.11D-05  2.41D-08
- d= 0,ls=0.0,diis     7  -6315.5418283112 -3.11D-08  5.15D-07  1.79D-11  1002.7
+ d= 0,ls=0.0,diis     7  -6315.5418283112 -3.11D-08  5.15D-07  1.79D-11  1134.7
                                                      5.62D-07  1.95D-11
 
 
@@ -12915,7 +14049,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000063744
 
-     Total iterative time =     59.6s
+     Total iterative time =     58.1s
 
 
 
@@ -13346,7 +14480,7 @@ set dft:cam_exch F
       <S2> =      3.7518 (Exact =     3.7500)
 
 
- Task  times  cpu:       62.8s     wall:       62.8s
+ Task  times  cpu:       61.2s     wall:       61.3s
 
 
                                 NWChem Input Module
@@ -13437,12 +14571,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:   1006.0
-   Time prior to 1st pass:   1006.0
+   Time after variat. SCF:   1137.8
+   Time prior to 1st pass:   1137.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54290
 
 
            Memory utilization after 1st SCF pass: 
@@ -13451,18 +14585,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6314.8830912318 -6.31D+03  1.96D-02  7.57D-01  1012.6
+ d= 0,ls=0.0,diis     1  -6314.8830912318 -6.31D+03  1.96D-02  7.57D-01  1144.4
                                                      8.76D-03  7.56D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6314.9001494972 -1.71D-02  8.46D-03  4.54D-03  1019.2
+ d= 0,ls=0.0,diis     2  -6314.9001494972 -1.71D-02  8.46D-03  4.54D-03  1151.0
                                                      5.34D-03  2.60D-03
- d= 0,ls=0.0,diis     3  -6314.9022286879 -2.08D-03  5.01D-03  1.96D-03  1026.0
+ d= 0,ls=0.0,diis     3  -6314.9022286879 -2.08D-03  5.01D-03  1.96D-03  1157.5
                                                      3.27D-03  1.43D-03
- d= 0,ls=0.0,diis     4  -6314.9029162458 -6.88D-04  1.90D-03  8.00D-04  1032.8
+ d= 0,ls=0.0,diis     4  -6314.9029162458 -6.88D-04  1.90D-03  8.00D-04  1164.1
                                                      1.27D-03  6.17D-04
- d= 0,ls=0.0,diis     5  -6314.9033529874 -4.37D-04  3.38D-05  1.58D-07  1039.5
+ d= 0,ls=0.0,diis     5  -6314.9033529874 -4.37D-04  3.38D-05  1.58D-07  1170.7
                                                      2.30D-05  7.82D-08
- d= 0,ls=0.0,diis     6  -6314.9033531122 -1.25D-07  7.98D-07  2.92D-11  1046.3
+ d= 0,ls=0.0,diis     6  -6314.9033531122 -1.25D-07  7.98D-07  2.92D-11  1177.3
                                                      2.12D-07  1.48D-11
 
 
@@ -13474,7 +14608,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000070938
 
-     Total iterative time =     40.4s
+     Total iterative time =     39.5s
 
 
 
@@ -13907,7 +15041,7 @@ set dft:cam_exch F
       <S2> =      3.7508 (Exact =     3.7500)
 
 
- Task  times  cpu:       43.6s     wall:       43.6s
+ Task  times  cpu:       42.6s     wall:       42.7s
 
 
                                 NWChem Input Module
@@ -13998,12 +15132,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:   1049.5
-   Time prior to 1st pass:   1049.5
+   Time after variat. SCF:   1180.4
+   Time prior to 1st pass:   1180.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54290
 
 
            Memory utilization after 1st SCF pass: 
@@ -14012,18 +15146,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6314.9694190683 -6.31D+03  1.96D-02  7.23D-01  1056.3
+ d= 0,ls=0.0,diis     1  -6314.9694190683 -6.31D+03  1.96D-02  7.23D-01  1187.0
                                                      8.47D-03  7.22D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6314.9859264261 -1.65D-02  8.67D-03  4.59D-03  1063.0
+ d= 0,ls=0.0,diis     2  -6314.9859264261 -1.65D-02  8.67D-03  4.59D-03  1193.6
                                                      5.42D-03  2.65D-03
- d= 0,ls=0.0,diis     3  -6314.9879973886 -2.07D-03  5.27D-03  2.06D-03  1069.7
+ d= 0,ls=0.0,diis     3  -6314.9879973886 -2.07D-03  5.27D-03  2.06D-03  1200.2
                                                      3.32D-03  1.49D-03
- d= 0,ls=0.0,diis     4  -6314.9887176066 -7.20D-04  2.02D-03  8.74D-04  1076.4
+ d= 0,ls=0.0,diis     4  -6314.9887176066 -7.20D-04  2.02D-03  8.74D-04  1206.8
                                                      1.31D-03  6.66D-04
- d= 0,ls=0.0,diis     5  -6314.9892070291 -4.89D-04  3.45D-05  1.60D-07  1083.2
+ d= 0,ls=0.0,diis     5  -6314.9892070291 -4.89D-04  3.45D-05  1.60D-07  1213.4
                                                      2.70D-05  7.73D-08
- d= 0,ls=0.0,diis     6  -6314.9892071592 -1.30D-07  1.35D-06  7.40D-11  1089.9
+ d= 0,ls=0.0,diis     6  -6314.9892071592 -1.30D-07  1.35D-06  7.40D-11  1220.0
                                                      1.07D-06  6.03D-11
 
 
@@ -14035,7 +15169,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000071727
 
-     Total iterative time =     40.4s
+     Total iterative time =     39.5s
 
 
 
@@ -14464,7 +15598,562 @@ set dft:cam_exch F
       <S2> =      3.7509 (Exact =     3.7500)
 
 
- Task  times  cpu:       43.6s     wall:       43.7s
+ Task  times  cpu:       42.7s     wall:       42.8s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :    51
+           Alpha electrons :    27
+            Beta electrons :    24
+          Charge           :     0
+          Spin multiplicity:     4
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    39
+                     number of shells:    14
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                  TPSS metaGGA Exchange Functional  1.000          
+             TPSS03 metaGGA Correlation Functional  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Sb                  1.45      123           7.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   123
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:       -6312.62469178
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -6312.393405
+ 1-e energy   =   -8691.148864
+ 2-e energy   =    2378.755459
+ HOMO         =      -0.153665
+ LUMO         =      -0.153665
+
+   Time after variat. SCF:   1223.1
+   Time prior to 1st pass:   1223.1
+
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     27        Max. recs in file   =     54290
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.77            12774753
+          Stack Space remaining (MW):       13.11            13106786
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -6314.8749971189 -6.31D+03  1.92D-02  2.69D-01  1231.8
+                                                     7.06D-03  2.66D-01
+  Resetting Diis
+ d= 0,ls=0.0,diis     2  -6314.8918115368 -1.68D-02  6.97D-03  3.57D-03  1240.5
+                                                     4.42D-03  2.21D-03
+ d= 0,ls=0.0,diis     3  -6314.8935946587 -1.78D-03  3.89D-03  1.35D-03  1249.3
+                                                     2.65D-03  1.08D-03
+ d= 0,ls=0.0,diis     4  -6314.8940806380 -4.86D-04  1.44D-03  5.15D-04  1258.0
+                                                     1.00D-03  4.25D-04
+ d= 0,ls=0.0,diis     5  -6314.8943537209 -2.73D-04  2.40D-05  9.17D-08  1266.8
+                                                     1.76D-05  5.28D-08
+ d= 0,ls=0.0,diis     6  -6314.8943537914 -7.05D-08  5.14D-07  1.06D-11  1275.6
+                                                     2.86D-07  8.58D-12
+
+
+         Total DFT energy =    -6314.894353791410
+      One electron energy =    -8692.165979741094
+           Coulomb energy =     2543.064587540352
+    Exchange-Corr. energy =     -165.792961590668
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =       51.000000066789
+
+     Total iterative time =     52.5s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector   14  Occ=1.000000D+00  E=-1.926413D+01
+              MO Center= -4.4D-16, -2.0D-16,  3.8D-16, r^2= 3.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.983545  1 Sb dxx               27     -0.597045  1 Sb dzz        
+    25     -0.386500  1 Sb dyy        
+
+ Vector   15  Occ=1.000000D+00  E=-5.117027D+00
+              MO Center=  1.0D-15,  4.0D-16,  1.2D-15, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.189700  1 Sb s                  3      0.695595  1 Sb s          
+     2     -0.264340  1 Sb s          
+
+ Vector   16  Occ=1.000000D+00  E=-3.691635D+00
+              MO Center=  7.0D-16, -5.3D-16, -3.6D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.813633  1 Sb py                15      0.795305  1 Sb pz         
+    11     -0.482383  1 Sb py                12     -0.471517  1 Sb pz         
+    13     -0.274404  1 Sb px                10      0.162687  1 Sb px         
+
+ Vector   17  Occ=1.000000D+00  E=-3.691635D+00
+              MO Center=  3.9D-16,  5.5D-16,  2.1D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.830414  1 Sb py                15     -0.820422  1 Sb pz         
+    11     -0.492332  1 Sb py                12      0.486408  1 Sb pz         
+
+ Vector   18  Occ=1.000000D+00  E=-3.691635D+00
+              MO Center= -7.5D-16, -1.3D-16,  2.6D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.134628  1 Sb px                10     -0.672693  1 Sb px         
+    15      0.253386  1 Sb pz                 7     -0.197098  1 Sb px         
+    12     -0.150226  1 Sb pz         
+
+ Vector   19  Occ=1.000000D+00  E=-1.307630D+00
+              MO Center=  1.5D-16, -7.6D-17, -2.9D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      1.720426  1 Sb dxz               24     -0.636099  1 Sb dxz        
+    32     -0.629992  1 Sb dyz               26      0.232929  1 Sb dyz        
+
+ Vector   20  Occ=1.000000D+00  E=-1.307630D+00
+              MO Center= -1.9D-17, -6.3D-17, -5.1D-19, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.722415  1 Sb dyz               26     -0.636834  1 Sb dyz        
+    30      0.619999  1 Sb dxz               24     -0.229234  1 Sb dxz        
+
+ Vector   21  Occ=1.000000D+00  E=-1.307630D+00
+              MO Center= -3.7D-16, -1.7D-17,  2.3D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.826151  1 Sb dxy               23     -0.675189  1 Sb dxy        
+    30     -0.167792  1 Sb dxz        
+
+ Vector   22  Occ=1.000000D+00  E=-1.307630D+00
+              MO Center= -1.2D-16, -1.4D-16, -2.1D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      1.054011  1 Sb dyy               28     -0.626287  1 Sb dxx        
+    33     -0.427723  1 Sb dzz               25     -0.389703  1 Sb dyy        
+    22      0.231559  1 Sb dxx               27      0.158144  1 Sb dzz        
+
+ Vector   23  Occ=1.000000D+00  E=-1.307630D+00
+              MO Center= -2.3D-17, -1.8D-17, -7.9D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      0.969998  1 Sb dzz               28     -0.855486  1 Sb dxx        
+    27     -0.358641  1 Sb dzz               22      0.316302  1 Sb dxx        
+
+ Vector   24  Occ=1.000000D+00  E=-4.681091D-01
+              MO Center=  1.8D-14,  7.4D-15,  1.8D-14, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.676160  1 Sb s                  4      0.508053  1 Sb s          
+     6      0.374212  1 Sb s                  3      0.238081  1 Sb s          
+
+ Vector   25  Occ=1.000000D+00  E=-2.068058D-01
+              MO Center= -2.3D-14,  2.2D-15,  4.3D-16, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.763363  1 Sb px                18      0.432427  1 Sb pz         
+    13     -0.380814  1 Sb px                15     -0.215722  1 Sb pz         
+    19     -0.204374  1 Sb px                17     -0.193595  1 Sb py         
+    10      0.172139  1 Sb px         
+
+ Vector   26  Occ=1.000000D+00  E=-2.068058D-01
+              MO Center=  2.1D-14, -8.0D-15,  6.4D-15, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.629647  1 Sb pz                16     -0.467783  1 Sb px         
+    17     -0.438086  1 Sb py                15     -0.314108  1 Sb pz         
+    13      0.233360  1 Sb px                14      0.218545  1 Sb py         
+    21     -0.168575  1 Sb pz         
+
+ Vector   27  Occ=1.000000D+00  E=-2.068058D-01
+              MO Center=  8.8D-15, -2.5D-15,  3.8D-15, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.760130  1 Sb py                18      0.473018  1 Sb pz         
+    14     -0.379201  1 Sb py                15     -0.235972  1 Sb pz         
+    20     -0.203509  1 Sb py                11      0.171410  1 Sb py         
+
+ Vector   28  Occ=0.000000D+00  E= 8.542411D-02
+              MO Center=  3.9D-13,  3.0D-14,  9.0D-14, r^2= 6.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      4.886531  1 Sb s                  5     -1.912132  1 Sb s          
+    34     -1.182697  1 Sb dxx               37     -1.182697  1 Sb dyy        
+    39     -1.182697  1 Sb dzz               28     -0.473065  1 Sb dxx        
+    31     -0.473065  1 Sb dyy               33     -0.473065  1 Sb dzz        
+     4     -0.407182  1 Sb s                  3     -0.344706  1 Sb s          
+
+ Vector   29  Occ=0.000000D+00  E= 1.181633D-01
+              MO Center= -4.9D-14, -1.3D-13, -5.0D-14, r^2= 7.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.255519  1 Sb py                17      1.107367  1 Sb py         
+    19      0.402730  1 Sb px                14     -0.372917  1 Sb py         
+    16      0.355208  1 Sb px                21      0.286396  1 Sb pz         
+    18      0.252602  1 Sb pz                11      0.161598  1 Sb py         
+
+ Vector   30  Occ=0.000000D+00  E= 1.181633D-01
+              MO Center= -2.6D-13,  1.2D-13, -1.7D-13, r^2= 7.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.055587  1 Sb px                16      0.931028  1 Sb px         
+    21      0.680078  1 Sb pz                18      0.599829  1 Sb pz         
+    20     -0.493731  1 Sb py                17     -0.435471  1 Sb py         
+    13     -0.313533  1 Sb px                15     -0.201998  1 Sb pz         
+
+ Vector   31  Occ=0.000000D+00  E= 1.181633D-01
+              MO Center= -6.2D-14,  1.4D-14,  1.1D-13, r^2= 7.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.129607  1 Sb pz                18      0.996313  1 Sb pz         
+    19     -0.737621  1 Sb px                16     -0.650582  1 Sb px         
+    15     -0.335518  1 Sb pz                13      0.219090  1 Sb px         
+
+ Vector   32  Occ=0.000000D+00  E= 1.931238D-01
+              MO Center= -3.0D-15, -2.2D-14,  1.3D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.090174  1 Sb dyz               35     -0.879434  1 Sb dxy        
+    37     -0.571039  1 Sb dyy               36      0.548011  1 Sb dxz        
+    32     -0.357504  1 Sb dyz               34      0.357842  1 Sb dxx        
+    29      0.288396  1 Sb dxy               39      0.213198  1 Sb dzz        
+    31      0.187263  1 Sb dyy               30     -0.179711  1 Sb dxz        
+
+ Vector   33  Occ=0.000000D+00  E= 1.931238D-01
+              MO Center= -3.0D-15,  7.7D-15, -8.8D-16, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.566711  1 Sb dxy               38      0.731159  1 Sb dyz        
+    29     -0.513777  1 Sb dxy               37     -0.278475  1 Sb dyy        
+    32     -0.239771  1 Sb dyz               36      0.196785  1 Sb dxz        
+    23      0.173519  1 Sb dxy               39      0.153661  1 Sb dzz        
+
+ Vector   34  Occ=0.000000D+00  E= 1.931238D-01
+              MO Center=  3.2D-15, -7.4D-15, -6.3D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.188596  1 Sb dxz               38     -1.134804  1 Sb dyz        
+    37     -0.412765  1 Sb dyy               30     -0.389780  1 Sb dxz        
+    32      0.372140  1 Sb dyz               34      0.282452  1 Sb dxx        
+    35      0.163003  1 Sb dxy        
+
+ Vector   35  Occ=0.000000D+00  E= 1.931238D-01
+              MO Center= -2.6D-14, -1.0D-14,  3.2D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.210202  1 Sb dxz               37      0.660789  1 Sb dyy        
+    34     -0.586152  1 Sb dxx               38      0.473616  1 Sb dyz        
+    30     -0.396865  1 Sb dxz               31     -0.216695  1 Sb dyy        
+    28      0.192219  1 Sb dxx               32     -0.155314  1 Sb dyz        
+
+ Vector   36  Occ=0.000000D+00  E= 1.931238D-01
+              MO Center= -1.1D-14, -1.4D-15, -1.9D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      0.997752  1 Sb dzz               34     -0.721210  1 Sb dxx        
+    33     -0.327196  1 Sb dzz               37     -0.276542  1 Sb dyy        
+    28      0.236509  1 Sb dxx               36     -0.212114  1 Sb dxz        
+    38     -0.161909  1 Sb dyz        
+
+ Vector   37  Occ=0.000000D+00  E= 7.156588D-01
+              MO Center= -1.7D-15, -5.2D-16, -5.5D-17, r^2= 4.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.881069  1 Sb s                 34     -2.620521  1 Sb dxx        
+    37     -2.620521  1 Sb dyy               39     -2.620521  1 Sb dzz        
+    28     -1.013490  1 Sb dxx               31     -1.013490  1 Sb dyy        
+    33     -1.013490  1 Sb dzz                5      0.689664  1 Sb s          
+     4     -0.443849  1 Sb s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector   14  Occ=1.000000D+00  E=-1.926188D+01
+              MO Center=  3.7D-16, -1.1D-16,  1.3D-16, r^2= 3.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.981457  1 Sb dxx               27     -0.616977  1 Sb dzz        
+    25     -0.364480  1 Sb dyy        
+
+ Vector   15  Occ=1.000000D+00  E=-5.111403D+00
+              MO Center=  9.7D-16,  2.0D-16,  9.9D-16, r^2= 2.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.182083  1 Sb s                  3      0.694910  1 Sb s          
+     2     -0.264270  1 Sb s          
+
+ Vector   16  Occ=1.000000D+00  E=-3.685784D+00
+              MO Center=  2.9D-16,  5.5D-16,  1.4D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      0.942636  1 Sb pz                14     -0.687283  1 Sb py         
+    12     -0.558706  1 Sb pz                11      0.407357  1 Sb py         
+     9     -0.163689  1 Sb pz         
+
+ Vector   17  Occ=1.000000D+00  E=-3.685784D+00
+              MO Center=  8.5D-17, -9.1D-17, -1.3D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.948639  1 Sb py                15      0.681915  1 Sb pz         
+    11     -0.562265  1 Sb py                12     -0.404175  1 Sb pz         
+     8     -0.164731  1 Sb py         
+
+ Vector   18  Occ=1.000000D+00  E=-3.685784D+00
+              MO Center= -2.9D-16, -1.2D-16,  5.0D-16, r^2= 2.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.163409  1 Sb px                10     -0.689560  1 Sb px         
+     7     -0.202026  1 Sb px         
+
+ Vector   19  Occ=1.000000D+00  E=-1.296918D+00
+              MO Center= -1.2D-16,  7.4D-17, -4.8D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.758132  1 Sb dyz               26     -0.649788  1 Sb dyz        
+    29      0.531052  1 Sb dxy               23     -0.196271  1 Sb dxy        
+
+ Vector   20  Occ=1.000000D+00  E=-1.296918D+00
+              MO Center= -5.4D-16,  6.8D-16,  1.8D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.763159  1 Sb dxy               23     -0.651645  1 Sb dxy        
+    32     -0.528236  1 Sb dyz               26      0.195231  1 Sb dyz        
+
+ Vector   21  Occ=1.000000D+00  E=-1.296918D+00
+              MO Center= -9.0D-16, -1.8D-16, -9.1D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      1.813229  1 Sb dxz               24     -0.670151  1 Sb dxz        
+    33     -0.163480  1 Sb dzz        
+
+ Vector   22  Occ=1.000000D+00  E=-1.296918D+00
+              MO Center= -2.9D-16, -2.7D-16, -9.7D-19, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      0.995627  1 Sb dyy               28     -0.816633  1 Sb dxx        
+    25     -0.367973  1 Sb dyy               22      0.301819  1 Sb dxx        
+    33     -0.178994  1 Sb dzz        
+
+ Vector   23  Occ=1.000000D+00  E=-1.296918D+00
+              MO Center=  1.2D-16, -2.2D-16,  4.1D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      1.035189  1 Sb dzz               28     -0.679443  1 Sb dxx        
+    27     -0.382595  1 Sb dzz               31     -0.355746  1 Sb dyy        
+    30      0.265243  1 Sb dxz               22      0.251115  1 Sb dxx        
+
+ Vector   24  Occ=1.000000D+00  E=-3.863312D-01
+              MO Center=  2.3D-14,  6.4D-15,  1.0D-14, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.630553  1 Sb s                  4      0.567969  1 Sb s          
+     6      0.527101  1 Sb s                  3      0.239508  1 Sb s          
+
+ Vector   25  Occ=0.000000D+00  E=-1.304945D-01
+              MO Center=  5.5D-15,  6.7D-15, -1.0D-14, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.640197  1 Sb pz                16      0.401362  1 Sb px         
+    15     -0.329218  1 Sb pz                17     -0.285300  1 Sb py         
+    21     -0.269478  1 Sb pz                13     -0.206399  1 Sb px         
+    19     -0.168945  1 Sb px         
+
+ Vector   26  Occ=0.000000D+00  E=-1.304945D-01
+              MO Center= -3.4D-15, -5.3D-15,  1.3D-14, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.696128  1 Sb px                18     -0.402377  1 Sb pz         
+    13     -0.357981  1 Sb px                19     -0.293021  1 Sb px         
+    15      0.206921  1 Sb pz                21      0.169372  1 Sb pz         
+    10      0.162054  1 Sb px         
+
+ Vector   27  Occ=0.000000D+00  E=-1.304945D-01
+              MO Center= -3.0D-15,  2.2D-14,  1.2D-14, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.751735  1 Sb py                14     -0.386576  1 Sb py         
+    20     -0.316427  1 Sb py                18      0.283867  1 Sb pz         
+    11      0.174999  1 Sb py         
+
+ Vector   28  Occ=0.000000D+00  E= 1.056500D-01
+              MO Center=  1.4D-13,  1.0D-14,  2.7D-14, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      4.941543  1 Sb s                  5     -1.905246  1 Sb s          
+    34     -1.210893  1 Sb dxx               37     -1.210893  1 Sb dyy        
+    39     -1.210893  1 Sb dzz               28     -0.492826  1 Sb dxx        
+    31     -0.492826  1 Sb dyy               33     -0.492826  1 Sb dzz        
+     4     -0.435811  1 Sb s                  3     -0.348844  1 Sb s          
+
+ Vector   29  Occ=0.000000D+00  E= 1.500015D-01
+              MO Center= -9.2D-14, -1.5D-14,  1.1D-14, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.323735  1 Sb px                16      1.249675  1 Sb px         
+    13     -0.430529  1 Sb px                10      0.187000  1 Sb px         
+
+ Vector   30  Occ=0.000000D+00  E= 1.500015D-01
+              MO Center= -2.1D-15,  8.1D-15, -2.3D-14, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.104856  1 Sb pz                18      1.043042  1 Sb pz         
+    20      0.735805  1 Sb py                17      0.694639  1 Sb py         
+    15     -0.359342  1 Sb pz                14     -0.239312  1 Sb py         
+    12      0.156080  1 Sb pz         
+
+ Vector   31  Occ=0.000000D+00  E= 1.500015D-01
+              MO Center= -1.0D-15,  1.4D-14, -1.6D-14, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      1.103079  1 Sb py                17      1.041365  1 Sb py         
+    21     -0.732249  1 Sb pz                18     -0.691281  1 Sb pz         
+    14     -0.358764  1 Sb py                15      0.238155  1 Sb pz         
+    11      0.155829  1 Sb py         
+
+ Vector   32  Occ=0.000000D+00  E= 2.652858D-01
+              MO Center= -4.6D-14, -3.6D-14, -1.6D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      1.001935  1 Sb dxx               37     -0.722534  1 Sb dyy        
+    28     -0.318335  1 Sb dxx               39     -0.279401  1 Sb dzz        
+    31      0.229564  1 Sb dyy               35      0.212527  1 Sb dxy        
+
+ Vector   33  Occ=0.000000D+00  E= 2.652858D-01
+              MO Center= -2.7D-17, -9.0D-15, -1.4D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.784210  1 Sb dyz               32     -0.566880  1 Sb dyz        
+    36     -0.199475  1 Sb dxz               26      0.190860  1 Sb dyz        
+
+ Vector   34  Occ=0.000000D+00  E= 2.652858D-01
+              MO Center= -1.0D-14, -6.7D-19, -1.3D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.788519  1 Sb dxz               30     -0.568249  1 Sb dxz        
+    38      0.201588  1 Sb dyz               24      0.191321  1 Sb dxz        
+
+ Vector   35  Occ=0.000000D+00  E= 2.652858D-01
+              MO Center= -5.7D-15,  1.4D-14,  1.4D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.779429  1 Sb dxy               29     -0.565361  1 Sb dxy        
+    23      0.190349  1 Sb dxy               37      0.152394  1 Sb dyy        
+
+ Vector   36  Occ=0.000000D+00  E= 2.652858D-01
+              MO Center= -2.9D-15, -1.6D-14,  1.2D-14, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      0.999910  1 Sb dzz               37     -0.729595  1 Sb dyy        
+    33     -0.317692  1 Sb dzz               34     -0.270315  1 Sb dxx        
+    31      0.231807  1 Sb dyy               38     -0.166534  1 Sb dyz        
+    35      0.156382  1 Sb dxy        
+
+ Vector   37  Occ=0.000000D+00  E= 7.546624D-01
+              MO Center= -2.8D-16,  1.7D-16,  1.7D-15, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      5.824079  1 Sb s                 34     -2.608258  1 Sb dxx        
+    37     -2.608258  1 Sb dyy               39     -2.608258  1 Sb dzz        
+    28     -1.005403  1 Sb dxx               31     -1.005403  1 Sb dyy        
+    33     -1.005403  1 Sb dzz                5      0.691131  1 Sb s          
+     4     -0.444112  1 Sb s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      5      3      4      6      7      8      9     11
+ overlap   1.000  1.000  0.903  0.829  0.825  1.000  0.782  0.883  0.791  0.913
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     12     10     13     14     15     17     16     18     21     19
+ overlap   0.931  0.938  0.999  0.998  1.000  0.976  0.987  0.989  0.895  0.892
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     20     22     23     24     25     26     27     28     30     29
+ overlap   0.963  0.968  0.962  1.000  0.877  0.842  0.961  1.000  0.696  0.730
+
+
+   alpha     31     32     33     34     35     36     37     38     39
+    beta     30     33     35     33     32     36     37     38     39
+ overlap   0.675  0.576  0.808  0.658  0.676  0.860  1.000  1.000  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      3.7511 (Exact =     3.7500)
+
+
+ Task  times  cpu:       55.6s     wall:       55.7s
 
 
                                 NWChem Input Module
@@ -14564,12 +16253,12 @@ set dft:cam_exch F
  HOMO         =      -0.153665
  LUMO         =      -0.153665
 
-   Time after variat. SCF:   1093.1
-   Time prior to 1st pass:   1093.1
+   Time after variat. SCF:   1278.7
+   Time prior to 1st pass:   1278.7
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     27        Max. recs in file   =     54310
+ Max. records in memory =     27        Max. recs in file   =     54290
 
 
            Memory utilization after 1st SCF pass: 
@@ -14578,18 +16267,18 @@ set dft:cam_exch F
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -6314.9389556148 -6.31D+03  1.88D-02  4.73D-01  1102.4
+ d= 0,ls=0.0,diis     1  -6314.9389556148 -6.31D+03  1.88D-02  4.73D-01  1287.7
                                                      7.62D-03  4.68D-01
   Resetting Diis
- d= 0,ls=0.0,diis     2  -6314.9537763232 -1.48D-02  7.33D-03  3.98D-03  1111.5
+ d= 0,ls=0.0,diis     2  -6314.9537763232 -1.48D-02  7.33D-03  3.98D-03  1296.6
                                                      4.63D-03  2.39D-03
- d= 0,ls=0.0,diis     3  -6314.9557146425 -1.94D-03  3.96D-03  1.38D-03  1120.7
+ d= 0,ls=0.0,diis     3  -6314.9557146425 -1.94D-03  3.96D-03  1.38D-03  1305.6
                                                      2.50D-03  1.04D-03
- d= 0,ls=0.0,diis     4  -6314.9562409091 -5.26D-04  1.42D-03  4.57D-04  1129.7
+ d= 0,ls=0.0,diis     4  -6314.9562409091 -5.26D-04  1.42D-03  4.57D-04  1314.6
                                                      9.19D-04  3.59D-04
- d= 0,ls=0.0,diis     5  -6314.9564875831 -2.47D-04  1.86D-05  5.06D-08  1138.7
+ d= 0,ls=0.0,diis     5  -6314.9564875831 -2.47D-04  1.86D-05  5.06D-08  1323.6
                                                      1.26D-05  2.73D-08
- d= 0,ls=0.0,diis     6  -6314.9564876222 -3.91D-08  3.59D-07  7.73D-12  1147.8
+ d= 0,ls=0.0,diis     6  -6314.9564876222 -3.91D-08  3.59D-07  7.73D-12  1332.6
                                                      2.31D-07  6.13D-12
 
 
@@ -14601,7 +16290,7 @@ set dft:cam_exch F
 
  Numeric. integr. density =       51.000000070916
 
-     Total iterative time =     54.7s
+     Total iterative time =     53.9s
 
 
 
@@ -15030,7 +16719,7 @@ set dft:cam_exch F
       <S2> =      3.7507 (Exact =     3.7500)
 
 
- Task  times  cpu:       57.9s     wall:       57.9s
+ Task  times  cpu:       57.1s     wall:       57.1s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -15041,9 +16730,9 @@ set dft:cam_exch F
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 6320     6320     7.73e+04 5.79e+04 1.76e+04    0        0        0     
+calls: 7034     7034     8.60e+04 6.46e+04 1.96e+04    0        0        0     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             3.42e+08 7.34e+07 2.15e+08 0.00e+00 0.00e+00 0.00e+00
+bytes total:             3.80e+08 8.16e+07 2.38e+08 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 790920 bytes
 MA_summarize_allocated_blocks: starting scan ...
@@ -15098,4 +16787,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:     1147.8s     wall:     1149.3s
+ Total times  cpu:     1332.6s     wall:     1334.3s

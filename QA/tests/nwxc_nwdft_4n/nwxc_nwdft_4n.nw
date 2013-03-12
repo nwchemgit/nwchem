@@ -109,6 +109,14 @@ end
 task dft energy
 
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xtpss03
+end
+task dft energy
+
+dft
   direct
   mult 4
   odft
@@ -208,6 +216,14 @@ dft
 end
 task dft energy
 
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch ctpss03
+end
+task dft energy
+
 # Hartree-Fock exchange + meta-GGA correlation 
 
 dft
@@ -257,6 +273,14 @@ dft
   odft
   vectors input atomic
   xc rpbe cpbe96
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xtpss03 ctpss03
 end
 task dft energy
   
