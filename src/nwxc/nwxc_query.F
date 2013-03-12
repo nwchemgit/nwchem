@@ -423,6 +423,10 @@ c
            cdata = "RPBE Exchange (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
      +             //" doi:10.1103/PhysRevB.59.7413)"
+         case (NWXCP_X_TPSS)
+           cdata = "TPSS Exchange (J Tao, JP Perdew, VN Staveroverov, "
+     +             //"GE Scuseria, Phys.Rev.Lett. 91, 146401 (2003) "
+     +             //"doi:10.1103/PhysRevLett.91.146401)"
          case (NWXCP_X_WPBE)
            cdata = "WPBE Exchange (E Weintraub, TM Henderson, "
      +             //"GE Scuseria, J.Chem.Theory.Comput. 5, 754 (2009)"
@@ -460,6 +464,10 @@ c
      +             //"GI Csonka, et al., "
      +             //"Phys.Rev.Lett. 100, 136406 (2008)"
      +             //" doi:10.1103/PhysRevLett.100.136406)"
+         case (NWXCP_C_TPSS)
+           cdata = "TPSS Correlation (J Tao, JP Perdew, VN "
+     +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "
+     +             //"146401 (2003) doi:10.1103/PhysRevLett.91.146401)"
          case (NWXCP_C_VS98)
            cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
@@ -523,6 +531,10 @@ c
            cdata = "RPBE (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
      +             //" doi:10.1103/PhysRevB.59.7413)"
+         case (NWXCP_TPSS)
+           cdata = "TPSS (J Tao, JP Perdew, VN "
+     +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "
+     +             //"146401 (2003) doi:10.1103/PhysRevLett.91.146401)"
          case (NWXCP_VS98)
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
