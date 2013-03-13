@@ -1668,7 +1668,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
            ifeq ($(_FC),gfortran)
              FOPTIONS += -fdefault-integer-8
 	   else  ifeq ($(_FC),crayftn)
-             FOPTIONS += -d h
+             FOPTIONS += -s integer32
 	   else   
              FOPTIONS += -i4
            endif
@@ -1676,7 +1676,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
          ifeq ($(_FC),gfortran)
            FOPTIONS += -fdefault-integer-8
          else  ifeq ($(_FC),crayftn)
-             FOPTIONS += -e h
+             FOPTIONS += -s integer64
          else
            FOPTIONS += -i8
          endif
@@ -1956,9 +1956,10 @@ endif
         EXPLICITF = TRUE
         CPP = /usr/bin/cpp  -P -C -traditional
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-        FOPTIONS   +=   
+        FOPTIONS   +=  -Ktrap=fp 
         FDEBUG   =    -g
-        FOPTIMIZE   +=   -O2
+#       FOPTIMIZE = -O2 -O scalar3,thread0,vector1,ipa0
+        FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
       endif
       ifeq ($(_FC),craycc)
         COPTIONS   =   -O

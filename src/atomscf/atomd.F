@@ -273,6 +273,7 @@ c.......................................................................
             nbci = nbc(i)
             do l = 1 , nbci
                ll = noff + l*(l+1)/2
+CDIR$  NEXTSCALAR
                do m = 1 , l
                   mm = noff + m*(m+1)/2
                   lm = lm + 1

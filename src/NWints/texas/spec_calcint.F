@@ -1951,21 +1951,23 @@ c
 c===============================================================
       subroutine doquarts(isupb,isbl_size,isbl_q,ipoint,
      *                                    ijklpres,nblspec)
+      implicit real*8 (a-h,o-z)
       dimension isbl_q(*) ! dim=nquart
       dimension ijklpres(*) ! dim.=nbls
 c------------------------------------------------
 c For PNL ijklpres(ijkl) is set up to zeros at the very begining
 c------------------------------------------------
          ijklspec=0
-         do 100 iqp=1,isbl_size
+!DIR$ NEXTSCALAR
+         do iqp=1,isbl_size
          iq=isbl_q(ipoint+iqp)
-         if(iq.eq.0) go to 100
+         if(iq.ne.0) then
             ijklspec=ijklspec+1
             ijkl=iqp
 check it in:
             ijklpres(ijkl)=iq
-c
-  100    continue
+         endif
+         enddo
 c
          nblspec=ijklspec
 c
