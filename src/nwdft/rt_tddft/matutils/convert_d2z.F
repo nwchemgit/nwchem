@@ -109,8 +109,8 @@ C     All GAs are the right data type, shape, and size.  Call the
 C     parallel conversion routine.
 C
       
-C      call convert_d2z_parallel (n, g_ascal, g_bscal, g_z)
-      call convert_d2z_serial (n, g_ascal, g_bscal, g_z)
+      call convert_d2z_parallel (n, g_ascal, g_bscal, g_z)
+C      call convert_d2z_serial (n, g_ascal, g_bscal, g_z)
 
       
 C
@@ -179,6 +179,133 @@ C     == Variables ==
 
 
 
+C====================================================================
+C
+C     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
+C     were previously scaled. 
+C
+      subroutine convert_d2z_parallel (n, g_a, g_b, g_z)
+      implicit none
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+
+
+C     == Inputs ==
+      integer, intent(in) :: g_a               ! real part of GA, already scaled
+      integer, intent(in) :: g_b               ! imag part of GA, already scaled
+      integer, intent(in) :: n                 ! size of g_a, g_b, g_z
+
+      
+C     == Outputs ==
+      integer, intent(in) :: g_z
+
+
+C     == Parameters ==
+      character(*), parameter :: pname = "convert_d2z_parallel: "
+
+ 
+C     == Variables ==
+      integer np                !number of processors
+      integer me                !current processor
+      integer m0                !this proc gets a m x n chunk to work with
+      integer m                 !proc 0 gets a chunk this big to work with
+      integer istart, iend
+      integer bfr_size
+      integer la, ia, lb, ib    !real buffer handles and indicies
+      integer lz, iz            !complex buffer handle and index
+      logical ok
+      integer j
+      double precision aval, bval
+
+C     not needed I think
+C      call ga_sync ()
+
+      me = ga_nodeid ()
+      np = ga_nnodes ()
+
+C
+C     Determine how much work this current processor does, which is a
+C     slice of size m x n.  Since the total matrix size is n x n, each
+C     processor will get an n/np x n slice.  If n/np does not divide
+C     evenly, the extra will be given to processor 0.
+C
+      m0 = n/np + mod (n, np)
+      
+      if (me.eq.0) then
+         m = m0
+      else
+         m = n/np
+      endif
+
+c$$$      write (luout, "(1x,a,i0,a,i0,a,i0,a)")
+c$$$     $     "Processor ", me, " gets ", m, " x ", n, "."
+
+
+C
+C     Find the start and end index for the column index.  That is, this
+C     processor is working with an m x n slice, so we need to figure out
+C     what part of the full matrix we are working with.  We use fortran
+C     notation (starting at 1).  Proc 0 goes from 1 to m0, proc 1 goes
+C     from m0 + 1 to m0 + 1 + m, etc.
+C
+      if (me.eq.0) then
+         istart = 1
+         iend = m0
+      else
+         istart = m0 + 1 + (me-1)*m
+         iend = istart + m - 1
+      endif
+
+
+c$$$      write (luout, "(1x,a,i0,a,i0,a,i0,a, i0, a, i0, a)")
+c$$$     $     "Processor ", me, " starts at ", istart,
+c$$$     $     " and ends at ", iend, "; length ", m, " x ", n, "."
+
+      
+C
+C     Now allocate the two real local buffers (a,b) and the one complex
+C     local buffer (z).  Each buffer is size m*n.  
+C
+      bfr_size = m*n
+
+      ok = .true.
+      ok = ok .and. ma_push_get(mt_dbl,  bfr_size, pname//"a", la, ia)
+      ok = ok .and. ma_push_get(mt_dbl,  bfr_size, pname//"b", lb, ib)
+      ok = ok .and. ma_push_get(mt_dcpl, bfr_size, pname//"z", lz, iz)
+      if (.not.ok) call errquit (pname//"failed to allocate", 0, MA_ERR)
+
+
+      call ga_get (g_a, 1, n, istart, iend, dbl_mb(ia), n)
+      call ga_get (g_b, 1, n, istart, iend, dbl_mb(ib), n)
+      
+      do j = 1, bfr_size
+         aval = dbl_mb(ia+j-1)
+         bval = dbl_mb(ib+j-1)
+         dcpl_mb(iz + j - 1) = dcmplx (aval, bval)
+      enddo
+
+      call ga_put (g_z, 1, n, istart, iend, dcpl_mb(iz), n)
+      
+
+C      
+C     Clean up
+C
+      if (.not. ma_chop_stack (la))
+     $     call errquit (pname//"failed to chop stack", 0, MA_ERR)
+
+C     not needed I think
+C      call ga_sync ()
+
+
+      end subroutine
+
+
+
+
+#if 0
 C====================================================================
 C
 C     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
@@ -309,3 +436,4 @@ C
       call ga_sync ()
       
       end subroutine
+#endif
