@@ -1876,7 +1876,7 @@ if [ "x${option}" != "xrealclean" ]; then
   fi
 fi
 echo "=== compile nwchem ==="
-make -j1 DIAG=PAR FFLAGS="-ffpe-trap=invalid,zero,overflow -fdefault-integer-8 -g -pg" CFLAGS="-ffpe-trap=invalid,zero,overflow -g -pg" FOPTIMIZE="-ffpe-trap=invalid,zero,overflow -fdefault-integer-8 -g -pg -O" COPTIMIZE="-ffpe-trap=invalid,zero,overflow -g -pg -O" FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="-pg $LDOPTIONS" $option
+make -j1 DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 echo "=== all done ==="
