@@ -36,8 +36,8 @@
       external dft_energy
       logical scf
       external scf
-      logical mcscf
-      external mcscf
+ckbn      logical mcscf
+ckbn      external mcscf
       integer g_ao1e(2)        ! GA handle for AO Fock matrices
       integer d_ao2e           ! SF handle for AO 2e integrals
 ckbn  integer i,j,iref,nref,yref
@@ -90,9 +90,10 @@ c     logical mrccdebug
       integer l_e_offsetm(maxref),k_e_offsetm(maxref)
       integer size_em(maxref),size_r1m(maxref),size_r2m(maxref)
       integer d_em(maxref),d_r1m(maxref),d_r2m(maxref)
-      integer d_corr,d_corr2
-      double precision dbwcorr,dbwcorrf,dbwcorrf2
-      double precision dbench1
+      integer d_corr
+ckbn  integer d_corr2
+ckbn      double precision dbwcorr,dbwcorrf,dbwcorrf2
+ckbn      double precision dbench1
 
 c t1 localization
 c      integer l_t1_local,k_t1_local
@@ -135,16 +136,17 @@ ckbn-5
       integer irefpt
       integer imkconv,iiref
       integer irefpth,jrefpth
-      double precision pt3_1m(maxref),pt3_2m(maxref),pt3_3m(maxref)
-      double precision pt_heff(maxref*maxref)
+ckbn      double precision pt3_1m(maxref),pt3_2m(maxref),pt3_3m(maxref)
+      double precision pt3_3m(maxref)
+ckbn      double precision pt_heff(maxref*maxref)
       integer l_t1_localpt,k_t1_localpt
       integer l_f1_localpt,k_f1_localpt
       integer l_f1_local,k_f1_local
       integer l_t1_local,k_t1_local
       integer pgidtobrdcst 
       integer k_ptheff,l_ptheff
-      double precision hcnubycmu(maxref*maxref)
-      double precision pt3_off2m(maxref*maxref)
+ckbn      double precision hcnubycmu(maxref*maxref)
+ckbn      double precision pt3_off2m(maxref*maxref)
       integer ipt,jpt
       integer itargetx
       double precision itcpu3  ! CPU sec counter
@@ -1637,8 +1639,8 @@ ckbn*******************************************************************
 cx       if(lconverged)write(*,*) "Before", lconverged,ga_nodeid()
        if(se4t .and. lconverged )  then
 ckbn subg -4
-       call dfill(maxref,0.d0,pt3_1m,1)
-       call dfill(maxref,0.d0,pt3_2m,1)
+c       call dfill(maxref,0.d0,pt3_1m,1)
+c       call dfill(maxref,0.d0,pt3_2m,1)
        call dfill(maxref,0.d0,pt3_3m,1)
        if(ga_pgroup_nodeid(mypgid).eq.0) call util_flush(LuOut)
        call ga_sync()
@@ -1711,7 +1713,7 @@ c    copy d_f1 ==> k_f1_local
      +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
      +                           k_f1_localpt,
      +                           k_f1_offsetm(irefpt),
-     +                           pt3_1m(irefpt),pt3_2m(irefpt),
+c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
      +                           pt3_3m(irefpt),irefpt)
 
          else
@@ -1720,7 +1722,7 @@ c    copy d_f1 ==> k_f1_local
      +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
      +                           d_f1m(irefpt),
      +                           k_f1_offsetm(irefpt),
-     +                           pt3_1m(irefpt),pt3_2m(irefpt),
+c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
      +                           pt3_3m(irefpt),irefpt)
        endif
 
@@ -2395,8 +2397,8 @@ c       if((se4t .and. lconverged) .or. (uncoup_pt3 .and. lconverged))
 
           itcpu3 = - util_cpusec()
           itwall3 = - util_wallsec()
-       call dfill(maxref,0.d0,pt3_1m,1)
-       call dfill(maxref,0.d0,pt3_2m,1)
+c       call dfill(maxref,0.d0,pt3_1m,1)
+c       call dfill(maxref,0.d0,pt3_2m,1)
        call dfill(maxref,0.d0,pt3_3m,1)
 
         do irefpt=1,nref
@@ -2421,10 +2423,10 @@ c       if((se4t .and. lconverged) .or. (uncoup_pt3 .and. lconverged))
      +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
      +                           d_f1m(irefpt),
      +                           k_f1_offsetm(irefpt),
-     +                           pt3_1m(irefpt),pt3_2m(irefpt),
+c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
      +                           pt3_3m(irefpt),irefpt)
        if(nodezero) then
-       write(*,*)"E4T  ","iref",irefpt," ",pt3_1m(irefpt) 
+ckbn       write(*,*)"E4T  ","iref",irefpt," ",pt3_1m(irefpt) 
         write(*,'(A,I5,F15.10)')"Correction to Heff from iref " ,
      +    irefpt,pt3_3m(irefpt)
        endif 

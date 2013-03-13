@@ -31,9 +31,8 @@ c        integer nref,iref
         integer ibpos(maxorb+1)
 c        integer itotreal,idbocc(10240,maxorb)
         integer itotreal
-c        character*10240 s
+        character*10240 s
 c        character*maxref s
-        character*1024 s
         integer iactshift
         character*8 t1
         character*3 t2

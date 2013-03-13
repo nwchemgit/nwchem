@@ -5,7 +5,8 @@ ckbn ccsd_t.F modified to tce_mrcc_ccsdpt_uncoup_pt3.F
      +                           d_v2,k_v2_offset,
      +                           d_f1,
      +                           k_f1_offset,
-     +                           energy1,energy2,energy3,
+c     +                          energy1,energy2,energy3,
+     +                           energy3,
      1                           iref)
 c     1                           iref,nref)
 
@@ -59,7 +60,7 @@ c      integer k_q3fnt2,l_q3fnt2
       integer range_p4,range_p5,range_p6
       integer range_h1,range_h2,range_h3
       double precision energy(3)
-      double precision energy1,energy2
+c      double precision energy1,energy2
 ckbn-2
       double precision energy3
       double precision factor,denom
@@ -95,8 +96,8 @@ ckbn-2
       energy(1)=0.0d0
       energy(2)=0.0d0
       energy(3)=0.0d0
-      energy1  =0.0d0
-      energy2  =0.0d0
+c      energy1  =0.0d0
+c      energy2  =0.0d0
       energy3  =0.0d0
       do t_p4b = noab+1,noab+nvab
        range_p4 = int_mb(k_range+t_p4b-1)
@@ -282,10 +283,10 @@ c                 if(nodezero) call util_flush(LuOut)
                 endif
                
 
-                  energy1 = energy1 + factor*denom
-     1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
-                  energy2 = energy2 + factor*denom*dbl_mb(k_doubles+i)
-     1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
+c                  energy1 = energy1 + factor*denom
+c     1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
+c                  energy2 = energy2 + factor*denom*dbl_mb(k_doubles+i)
+c     1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
                   energy3 = energy3 + factor*denom*dbl_mb(k_doubles+i)
      +                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
 
@@ -327,8 +328,8 @@ c            ENDIF
       next = nxtask(-nprocs,1)
       call ga_sync()
       endif
-      energy(1) = energy1
-      energy(2) = energy2
+c      energy(1) = energy1
+c      energy(2) = energy2
       energy(3) = energy3
       if(lusesub) then
 c     call ga_pgroup_dgop(p_handle, type, buf, lenbuf, op)
@@ -336,19 +337,21 @@ c     call ga_pgroup_dgop(p_handle, type, buf, lenbuf, op)
       else 
       call ga_dgop(mt_dbl,energy,3,'+')
       endif
-      energy1 = energy(1)
-      energy2 = energy(2)
+c      energy1 = energy(1)
+c      energy2 = energy(2)
       energy3 = energy(3)
 
       if(lusesub)then
       if(ga_pgroup_nodeid(mypgid).eq.0) then
-      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
-     +   " energy2 ",energy2," energy3 ",energy3
+c      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
+c     +   " energy2 ",energy2," energy3 ",energy3
+      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy3 ",energy3
       endif
       else
       if(nodezero) then
-      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
-     +   " energy2 ",energy2," energy3 ",energy3
+c      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
+c     +   " energy2 ",energy2," energy3 ",energy3
+      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy3 ",energy3
       endif
       endif
 
