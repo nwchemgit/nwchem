@@ -171,7 +171,7 @@ c       endif
         endif
       endif
 c
- 1000 format(1x,f12.6,"  ",a)
+ 1000 format(1x,f14.8,"  ",a)
       end
 C>
 C> \brief Store the density functional on the RTDB

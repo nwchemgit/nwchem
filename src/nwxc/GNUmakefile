@@ -4,9 +4,9 @@
 
     OBJ_OPTIMIZE = nwxc_eval.o nwxc_x_att.o nwxc_x_b88.o nwxc_x_bnl.o \
                    nwxc_x_camb88.o nwxc_x_camlsd.o nwxc_x_campbe.o \
-                   nwxc_x_dirac.o nwxc_x_hse08.o nwxc_x_pbe.o nwxc_x_rpbe.o \
+                   nwxc_x_dirac.o nwxc_x_hse08.o nwxc_x_m05.o nwxc_x_pbe.o nwxc_x_rpbe.o \
                    nwxc_x_tpss03.o \
-                   nwxc_x_wpbe.o nwxc_x_vs98.o nwxc_c_b95.o nwxc_c_lyp.o nwxc_c_pw91lda.o \
+                   nwxc_x_wpbe.o nwxc_x_vs98.o nwxc_c_b95.o nwxc_c_lyp.o nwxc_c_m05.o nwxc_c_pw91lda.o \
                    nwxc_c_pbe.o nwxc_c_Mpbe.o nwxc_c_tpss03.o \
                    nwxc_c_vs98.o nwxc_c_lsda.o nwxc_c_vwn1.o \
                    nwxc_c_vwn1_rpa.o nwxc_c_vwn2.o nwxc_c_vwn3.o nwxc_c_vwn4.o \

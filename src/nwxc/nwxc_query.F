@@ -400,6 +400,18 @@ c
            cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
      +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"
      +             //" doi:10.1063/1.2723119)"
+         case (NWXCP_X_DLDF)
+           cdata = "DLDF Exchange (K Pernal, R Podeszwa, "
+     +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
+     +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
+         case (NWXCP_X_M05)
+           cdata = "M05 Exchange (Y Zhao, NE Schultz, DG Truhlar, "
+     +             //"J.Chem.Phys. 123, 161103 (2005)"
+     +             //" doi:10.1063/1.2126975)"
+         case (NWXCP_X_M05_2X)
+           cdata = "M05-2X Exchange (Y Zhao, NE Schultz, DG Truhlar, "
+     +             //"J.Chem.Phys. 123, 161103 (2005)"
+     +             //" doi:10.1063/1.2126975)"
          case (NWXCP_X_PBE)
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
@@ -439,6 +451,10 @@ c
            cdata = "B95 Correlation (AD Becke, "
      +             //"J.Chem.Phys. 104, 1040 (1996)"
      +             //" doi:10.1063/1.4708298)"
+         case (NWXCP_C_DLDF)
+           cdata = "DLDF Correlation (K Pernal, R Podeszwa, "
+     +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
+     +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
          case (NWXCP_C_PW6B95)
            cdata = "PW6B95 Correlation (Y Zhao, DG Truhlar, "
      +             //"J.Phys.Chem. A 109, 5656 (2005)"
@@ -455,6 +471,14 @@ c
            cdata = "LYP Correlation (C Lee, W Yang, RG Parr, "
      +             //"Phys.Rev.B 37, 785 (1988)"
      +             //" doi:10.1103/PhysRevB.37.785)"
+         case (NWXCP_C_M05)
+           cdata = "M05 Correlation (Y Zhao, NE Schultz, DG Truhlar, "
+     +             //"J.Chem.Phys. 123, 161103 (2005)"
+     +             //" doi:10.1063/1.2126975)"
+         case (NWXCP_C_M05_2X)
+           cdata = "M05-2X Correlation (Y Zhao, NE Schultz, DG Truhlar,"
+     +             //" J.Chem.Phys. 123, 161103 (2005)"
+     +             //" doi:10.1063/1.2126975)"
          case (NWXCP_C_PBE)
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
@@ -501,9 +525,21 @@ c
            cdata = "BLYP"
          case (NWXCP_B0LYP)
            cdata = "B0LYP (ACM0 variant of BLYP)"
+         case (NWXCP_DLDF)
+           cdata = "DLDF (K Pernal, R Podeszwa, "
+     +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
+     +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
          case (NWXCP_LDA)
            cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_M05)
+           cdata = "M05 (Y Zhao, NE Schultz, DG Truhlar, "
+     +             //"J.Chem.Phys. 123, 161103 (2005)"
+     +             //" doi:10.1063/1.2126975)"
+         case (NWXCP_M05_2X)
+           cdata = "M05-2X (Y Zhao, NE Schultz, DG Truhlar,"
+     +             //" J.Chem.Phys. 123, 161103 (2005)"
+     +             //" doi:10.1063/1.2126975)"
          case (NWXCP_HSE)
            cdata = "HSE (J Heyd, GE Scuseria, M Ernzerhof, "
      +             //"J.Chem.Phys. 118, 8207 (2003)"
