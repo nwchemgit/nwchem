@@ -85,8 +85,7 @@ C
 C
 C     Now if the GA are double, we just elem mult by the mask.  If
 C     complex, we make extract real and imag parts and mask
-C     individually.  Note that we screen the matrix (set small values to
-C     hard zero).
+C     individually.
 C     
       if (dtype_full .eq. mt_dbl) then !double
          call ga_zero (g_maskd)
@@ -106,10 +105,10 @@ C
          call convert_z2d (g_full, g_fullre, g_fullim)
          
          call ga_elem_multiply(g_fullre,params%geom(ig)%g_mask,g_fullre)
-         call ga_screen (g_fullre, thresh)
+C         call ga_screen (g_fullre, thresh)
 
          call ga_elem_multiply(g_fullim,params%geom(ig)%g_mask,g_fullim)
-         call ga_screen (g_fullim, thresh)
+C         call ga_screen (g_fullim, thresh)
  
          call convert_d2z (1d0, g_fullre, 1d0, g_fullim, g_maskd)
         

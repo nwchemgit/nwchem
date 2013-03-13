@@ -93,8 +93,11 @@ C
       if (ngeom_rtdb .lt. 1)
      $     call errquit (pname//"invalid ngeom_rtdb < 1",0,0)
 
-      if (ngeom_rtdb .gt. nw_max_geoms)
-     $     call errquit (pname//"invalid ngeom_rtdb > nw_max_geoms",0,0)
+c$$$      if (ngeom_rtdb .gt. nw_max_geoms)
+c$$$     $     call errquit (pname//"invalid ngeom_rtdb > nw_max_geoms",0,0)
+
+      if (ngeom_rtdb .gt. max_geom_rtdb)
+     $     call errquit(pname//"invalid ngeom_rtdb > max_geom_rtdb",0,0)
  
       if (.not. rtdb_cget (params%rtdb,'geometry:names',
      $     ngeom_rtdb,names_rtdb))

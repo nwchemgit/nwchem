@@ -107,8 +107,10 @@ C
 C
 C     All GAs are the right data type, shape, and size.  Call the
 C     parallel conversion routine.
+C
       
-      call convert_d2z_parallel (n, g_ascal, g_bscal, g_z)
+C      call convert_d2z_parallel (n, g_ascal, g_bscal, g_z)
+      call convert_d2z_serial (n, g_ascal, g_bscal, g_z)
 
       
 C
@@ -122,10 +124,65 @@ C
       end subroutine
 
 
+
+
 C====================================================================
 C
 C     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
-C     were previously scaled.
+C     were previously scaled.  Does all work on processor 0.
+C
+      subroutine convert_d2z_serial (n, g_a, g_b, g_z)
+      implicit none
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+
+C     == Inputs ==
+      integer, intent(in) :: g_a               ! real part of GA, already scaled
+      integer, intent(in) :: g_b               ! imag part of GA, already scaled
+      integer, intent(in) :: n                 ! size of g_a, g_b, g_z
+
+      
+C     == Outputs ==
+      integer, intent(in) :: g_z
+
+
+C     == Parameters ==
+      character(*), parameter :: pname = "convert_d2z_serial: "
+
+
+C     == Variables ==
+      integer me
+      integer i, j
+      double precision val_a, val_b
+      double complex val_z
+      
+      me = ga_nodeid ()
+
+      if (me.eq.0) then
+         do i = 1, n
+            do j = 1, n
+               call ga_get (g_a, i, i, j, j, val_a, 1)
+               call ga_get (g_b, i, i, j, j, val_b, 1)
+               
+               val_z = dcmplx (val_a, val_b)
+               call ga_put (g_z, i, i, j, j, val_z, 1)
+            enddo
+         enddo
+      endif
+      call ga_sync ()
+      
+      end subroutine
+
+
+
+
+C====================================================================
+C
+C     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
+C     were previously scaled.  XXXFIXME: parallelization not working
 C
       subroutine convert_d2z_parallel (n, g_a, g_b, g_z)
       implicit none

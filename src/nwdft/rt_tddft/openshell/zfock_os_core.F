@@ -5,6 +5,9 @@ C     Calculates 1 electron part (Hcore) of a open shell complex Fock
 C     matrix.  Note that input is the real part of the density matrix,
 C     and output is real part of the Fock matrix.
 C
+C     Of course, we can need only compute this once, but I do it every
+C     time step since it is cheap (XXX do once and store).
+C
       subroutine zfock_os_core (params, g_densre, g_fcore)
       implicit none
 
@@ -55,9 +58,6 @@ C
       call int_1e_ga(ao_bas_han,ao_bas_han,g_fcore(1),'potential',oskel)
 
       call ga_copy (g_fcore(1), g_fcore(2))
-
-
-CXXX  [KAL]: Ecore seems about 5 x 10^-7 off from SCF value?
 
       if (params%prof) call prof_end (elapsed, "Fock OS core")
 

@@ -487,6 +487,10 @@ C     (<S^2> of entire active geom, calc in MO basis)
 
             
 C     (dipole moment, calc in AO basis)
+C
+C     note: I dont think dipmom_alpha + dipmom_beta = dip_total (note I
+C     use the total density matrix to compute dipmom_tot)
+C     
             if (params%print_dipole) then
                do ig = 1, params%ngeoms
                   
@@ -494,11 +498,27 @@ C     (dipole moment, calc in AO basis)
 
                      outstr = "Dipole moment [" //
      $                    trim (params%geom(ig)%name) //
-     $                    "] (total spin)"
+     $                    "] (alpha spin)"
                      call rt_tddft_calc_dip_geom (params,
-     $                    g_densre_ao_tot, ig, dipmom_alpha)
+     $                    g_densre_ao(1), ig, dipmom_alpha)
                      call rt_tddft_print_vector (params, tt,
      $                    dipmom_alpha, outstr)
+
+                     outstr = "Dipole moment [" //
+     $                    trim (params%geom(ig)%name) //
+     $                    "] (beta spin)"
+                     call rt_tddft_calc_dip_geom (params,
+     $                    g_densre_ao(2), ig, dipmom_beta)
+                     call rt_tddft_print_vector (params, tt,
+     $                    dipmom_beta, outstr)
+
+                     outstr = "Dipole moment [" //
+     $                    trim (params%geom(ig)%name) //
+     $                    "] (total spin)"
+                     call rt_tddft_calc_dip_geom (params,
+     $                    g_densre_ao_tot, ig, dipmom_tot)
+                     call rt_tddft_print_vector (params, tt,
+     $                    dipmom_tot, outstr)
                      
                   endif         !end "measure" this geom
                enddo            !loop over geoms

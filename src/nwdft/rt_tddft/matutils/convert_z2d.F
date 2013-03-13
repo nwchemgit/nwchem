@@ -80,14 +80,69 @@ C
      $     call errquit (pname//"all GAs must have same size", 0, 0)
 
       
-
-C
-C     Call parallel converter routine.
-C
-      call convert_z2d_parallel (n, g_z, g_a, g_b)
+C     Call the conversion routine.
+C      call convert_z2d_parallel (n, g_z, g_a, g_b)
+      call convert_z2d_serial (n, g_z, g_a, g_b)
 
       end subroutine
 
+
+      
+C====================================================================
+C
+C     Driver routine for unpacking g_z into real and imag parts.  Serial
+C     version, does all work on proc 0.
+C
+      subroutine convert_z2d_serial (n, g_z, g_a, g_b)
+      implicit none
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+
+C     == Inputs ==
+      integer, intent(in) :: g_z
+      integer, intent(in) :: n                 ! size of g_a, g_b, g_z
+
+      
+C     == Outputs ==
+      integer, intent(in) :: g_a               ! real part of GA
+      integer, intent(in) :: g_b               ! imag part of GA
+
+
+C     == Parameters ==
+      character(*), parameter :: pname = "convert_z2d_serial: "
+
+C     == Variables ==
+      integer me
+      integer i, j
+      double precision val_a, val_b
+      double complex val_z
+      
+      me = ga_nodeid ()
+
+      if (me.eq.0) then
+         do i = 1, n
+            do j = 1, n
+               call ga_get (g_z, i, i, j, j, val_z, 1)
+               
+               val_a = dble (val_z)
+               val_b = aimag (val_z)
+               call ga_put (g_a, i, i, j, j, val_a, 1)
+               call ga_put (g_b, i, i, j, j, val_b, 1)
+
+            enddo
+         enddo
+      endif
+      call ga_sync ()
+
+      
+      end subroutine
+
+
+
+      
 C====================================================================
 C
 C     Driver routine for unpacking g_z into real and imag parts.
