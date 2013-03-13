@@ -30,10 +30,6 @@ C     == Variables ==
       integer dtype_maskd, n1_maskd, n2_maskd
       integer g_fullre, g_fullim
 
-      double precision elapsed
-      
-
-      if (params%prof) call prof_start (elapsed)
 
 C
 C     Check input GA
@@ -126,7 +122,5 @@ C         call ga_screen (g_fullim, thresh)
          call errquit (pname//"bad data type for g_full",0,0)
       endif
 
-
-      if (params%prof) call prof_end (elapsed, "Geometry masking")
 
       end subroutine

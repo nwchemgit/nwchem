@@ -905,7 +905,7 @@ C     == External ==
       
 C     == Variables ==      
       integer dtype, n1, n2
-      integer g_zscr1
+      integer g_zscr1, g_zscr2
       
 
 C
@@ -925,19 +925,26 @@ C
       if (.not.ga_duplicate (g_z, g_zscr1, "zscr1"))
      $     call errquit (pname//"alloc failed", 0, GA_ERR)
 
+      if (.not.ga_duplicate (g_z, g_zscr2, "zscr2"))
+     $     call errquit (pname//"alloc failed", 0, GA_ERR)
+
       
 C
 C     Check if A^+ A = I.
 C     
       call ga_zero (g_zscr1)
       call mat_hermconj (g_z, g_zscr1)
-      
-      call ga_zgemm ("N", "N", n1, n1, n1,
-     $     zone, g_zscr1, g_z, zzero, g_zscr1)
 
-      mat_is_unitary = mat_is_ident (g_zscr1, tol)
+      call ga_zero (g_zscr2)
+      call ga_zgemm ("N", "N", n1, n1, n1,
+     $     zone, g_zscr1, g_z, zzero, g_zscr2)
+
+      mat_is_unitary = mat_is_ident (g_zscr2, tol)
 
       if (.not.ga_destroy (g_zscr1))
+     $     call errquit (pname//"destroy failed", 0, GA_ERR)
+
+      if (.not.ga_destroy (g_zscr2))
      $     call errquit (pname//"destroy failed", 0, GA_ERR)
 
       end function
