@@ -259,6 +259,12 @@ task dft energy
 
 dft
   vectors input atomic
+  xc dldf
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc xtpss03 ctpss03
 end
 task dft energy
