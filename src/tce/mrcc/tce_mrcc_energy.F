@@ -1843,6 +1843,10 @@ c     1     2F18.12,/)")epsilon-edelta
 ckbn          call tce_mrcc_print_summary(iter,dsummary)
 
           write(LuOut,*)""
+          write(LuOut,'(A)')
+     +"=================================================="//
+     +"==================================================="
+          write(LuOut,*)""
           if( .not. se4t ) then
            if(.not. no_aposteriori) write(LuOut,9080) 
      +      "BW-MRCCSD with a posteriori correction ",
@@ -1859,9 +1863,9 @@ ckbn          call tce_mrcc_print_summary(iter,dsummary)
      +      epsilon+enrep
           endif
           write(LuOut,*)""
-          call util_print_centered (LuOut,
-     +     "======================================================",
-     +     40,.false.)
+          write(LuOut,'(A)')
+     +"=================================================="//
+     +"==================================================="
           write(LuOut,*)""
           write(LuOut,9220) cpu, wall
           call util_flush(LuOut)
@@ -2479,6 +2483,10 @@ ckbn*******************************************************************
 ckbn           call tce_mrcc_print_summary(iter,dsummary)
 
            write(LuOut,*) ""
+           write(LuOut,'(A)')
+     +"=================================================="//
+     +"==================================================="
+           write(LuOut,*)""
            if(.not. se4t) write(LuOut,9080)
      +     "Mk-MRCCSD ",epsilon+enrep
 
@@ -2486,10 +2494,10 @@ ckbn           call tce_mrcc_print_summary(iter,dsummary)
      +     "Mk-MRCCSD(T) ",epsilon+enrep
 
            write(LuOut,*) ""
-           call util_print_centered (LuOut,
-     +     "======================================================",
-     2     40,.false.)
-
+           write(LuOut,'(A)')
+     +"=================================================="//
+     +"==================================================="
+           write(LuOut,*)""
            call util_flush(LuOut)
           endif
 
