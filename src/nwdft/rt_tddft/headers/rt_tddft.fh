@@ -253,10 +253,13 @@ C     (canonical orthogonalization transforms, etc)
          integer          :: g_zY    ! dcpl Y trans mat P->P'; ns_ao x ns_mo; allocd in canorg
          integer          :: g_s     ! overlap matrix; nbf_ao x nbf_ao; allocd in canorg
 
+
+C     (core part of Fock matrix, which is time-independent and real-valued)
+         integer          :: g_fock_ao_core
          
-         integer          :: g_s12   ! XXX TMP
-         integer          :: g_sn12  ! XXX TMP
-         integer          :: g_zcommut !XXX TMP
+C         integer          :: g_s12   ! XXX TMP
+C         integer          :: g_sn12  ! XXX TMP
+C         integer          :: g_zcommut !XXX TMP
 
 
          

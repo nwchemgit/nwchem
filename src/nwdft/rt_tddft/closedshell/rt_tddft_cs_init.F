@@ -35,8 +35,6 @@ C     == Variables ==
 
       params%theory = "CS"
 
-
-
       call rt_tddft_init_common (params)
 
       

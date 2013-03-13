@@ -31,10 +31,10 @@ C     == Parameters ==
       if (.not. ga_destroy (params%g_s))    !allocd in rt_tddft_init_overlap_canorg.F
      $     call errquit (pname//"failed to destroy g_s", 0, 0)
       
-      if (.not. ga_destroy (params%g_s12))  !allocd in rt_tddft_init_overlap_canorg.F
-     $     call errquit (pname//"failed to destroy g_s12", 0, 0)
-
-      if (.not. ga_destroy (params%g_sn12)) !allocd in rt_tddft_init_overlap_canorg.F
-     $     call errquit (pname//"failed to destroy g_sn12", 0, 0)
+c$$$      if (.not. ga_destroy (params%g_s12))  !allocd in rt_tddft_init_overlap_canorg.F
+c$$$     $     call errquit (pname//"failed to destroy g_s12", 0, 0)
+c$$$
+c$$$      if (.not. ga_destroy (params%g_sn12)) !allocd in rt_tddft_init_overlap_canorg.F
+c$$$     $     call errquit (pname//"failed to destroy g_sn12", 0, 0)
 
       end subroutine

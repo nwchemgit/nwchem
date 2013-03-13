@@ -50,6 +50,12 @@ C
      $     call errquit(pname//"g_dip, g_quad destroy failed", 0,GA_ERR)
 
 
+C
+C     Clean up 1e integrals
+C
+      if (.not. ga_destroy (params%g_fock_ao_core))
+     $     call errquit (pname//"destroy failed", 0, GA_ERR)
+
       
 C
 C     Clean up 2e and CD fitting integrals.

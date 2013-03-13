@@ -46,6 +46,9 @@ C     (tmp dip and quad integral matricies; all nbf_ao x nbf_ao)
       integer g_quad_xx, g_quad_xy, g_quad_xz
       integer g_quad_yy, g_quad_yz, g_quad_zz
 
+      double precision elapsed
+      integer g_fock_ao_core
+
 
       me = ga_nodeid ()
 
@@ -284,6 +287,30 @@ C
       call rt_tddft_init_geoms (params)
 
 
+C
+C     Compute and store 1e (time-dependent) core part of the Fock
+C     matrix.  Note, the GA created here will be destroyed in
+C     rt_tddft_clean().
+C
+       if (params%prof) call prof_start (elapsed)
+
+C     xxx check ns_ao vs nbf_ao
+      if (.not. ga_create (mt_dbl, params%nbf_ao, params%nbf_ao,
+     $     "fock_ao_core", 0, 0, g_fock_ao_core))
+     $     call errquit (pname//"create fock_ao_core failed",0,GA_ERR)
+      
+      call ga_zero (g_fock_ao_core)
+      call int_1e_ga(ao_bas_han, ao_bas_han,
+     $     g_fock_ao_core, 'kinetic', oskel)
+      call int_1e_ga(ao_bas_han, ao_bas_han,
+     $     g_fock_ao_core, 'potential', oskel)
+
+      params%g_fock_ao_core = g_fock_ao_core
+
+      if (params%prof) call prof_end(elapsed,"Fock core initialization")
+
+
+      
       if (params%static)
      $     call rt_tddft_print_warning ("Static calculation--"//
      $     "Fock matrix will be frozen")

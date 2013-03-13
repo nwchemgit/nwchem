@@ -46,16 +46,24 @@ C      call rt_tddft_os_confirm (params)
       
       if (params%prof) call prof_start (elapsed)
 
-      call ga_zero (g_fcore(1))
-      call ga_zero (g_fcore(2))
 
 C
 C     Both alpha and beta spins have same core part: compute alpha and
 C     copy to beta later.
 C
 
-      call int_1e_ga(ao_bas_han,ao_bas_han,g_fcore(1),'kinetic',oskel)
-      call int_1e_ga(ao_bas_han,ao_bas_han,g_fcore(1),'potential',oskel)
+
+C     (compute on the fly)
+c$$$      call ga_zero (g_fcore(1))
+c$$$      call ga_zero (g_fcore(2))
+c$$$
+c$$$      call int_1e_ga(ao_bas_han,ao_bas_han,g_fcore(1),'kinetic',oskel)
+c$$$      call int_1e_ga(ao_bas_han,ao_bas_han,g_fcore(1),'potential',oskel)
+
+
+C     (use pre-computed/static)
+      call ga_zero (g_fcore(1))
+      call ga_copy (params%g_fock_ao_core, g_fcore(1))
 
       call ga_copy (g_fcore(1), g_fcore(2))
 

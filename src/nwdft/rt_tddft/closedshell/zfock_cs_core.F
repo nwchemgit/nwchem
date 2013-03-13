@@ -43,12 +43,17 @@ C     == Variables ==
 
       if (params%prof) call prof_start (elapsed)
 
+C     (compute on the fly)
+c$$$      call ga_zero (g_fcore)
+c$$$      call int_1e_ga(ao_bas_han, ao_bas_han, g_fcore,'kinetic', oskel)
+c$$$      call int_1e_ga(ao_bas_han, ao_bas_han, g_fcore,'potential', oskel)
+c$$$C      call int_1e_ga(ao_bas_han, ao_bas_han, g_fcore,'potential0',oskel)  #0 means dont include bq part
+
+C     (use pre-computed/static)
       call ga_zero (g_fcore)
-
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_fcore,'kinetic', oskel)
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_fcore,'potential', oskel)
-C      call int_1e_ga(ao_bas_han, ao_bas_han, g_fcore,'potential0',oskel)  #0 means dont include bq part
-
+      call ga_copy (params%g_fock_ao_core, g_fcore)
+      
+      
       if (params%prof) call prof_end (elapsed, "Fock CS core")
 
       end subroutine

@@ -42,7 +42,7 @@ C     == Variables ==
 C     (tmp)
       double precision toll_s
       integer n_dep
-      integer g_scr, g_s12, g_sn12
+C      integer g_scr, g_s12, g_sn12
 
 
 
@@ -104,14 +104,14 @@ C
 
 
 C     XXX TMP XXX
-      if (.not. ga_duplicate (g_s, g_scr, "scr"))
-     $     call errquit (pname//"failed to create scr",0,0)
-
-      if (.not. ga_duplicate (g_s, g_s12, "s12"))
-     $     call errquit (pname//"failed to create s12",0,0)
-
-      if (.not. ga_duplicate (g_s, g_sn12, "sn12"))
-     $     call errquit (pname//"failed to create sn12",0,0)
+c$$$      if (.not. ga_duplicate (g_s, g_scr, "scr"))
+c$$$     $     call errquit (pname//"failed to create scr",0,0)
+c$$$
+c$$$      if (.not. ga_duplicate (g_s, g_s12, "s12"))
+c$$$     $     call errquit (pname//"failed to create s12",0,0)
+c$$$
+c$$$      if (.not. ga_duplicate (g_s, g_sn12, "sn12"))
+c$$$     $     call errquit (pname//"failed to create sn12",0,0)
 
       
       call util_tolls (params%rtdb, .false., toll_s,
@@ -119,25 +119,25 @@ C     XXX TMP XXX
 
 
 C     S^{-1/2}
-      call ga_zero (g_scr)
-      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_sn12, 
-     &     g_scr, nbf_ao, 2)
+c$$$      call ga_zero (g_scr)
+c$$$      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_sn12, 
+c$$$     &     g_scr, nbf_ao, 2)
 
 C     S^{1/2}
-      call ga_zero (g_scr)
-      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_s12, 
-     &     g_scr, nbf_ao, 3)
+c$$$      call ga_zero (g_scr)
+c$$$      call diis_bld12_so(toll_s, dbl_mb(isvals), g_svecs, g_s12, 
+c$$$     &     g_scr, nbf_ao, 3)
 
 
-      params%g_s12 = g_s12
-      params%g_sn12 = g_sn12
+C      params%g_s12 = g_s12
+C      params%g_sn12 = g_sn12
 
 
       if (.not. ga_destroy (g_svecs))
      $     call errquit (pname//"Failed to destroy Svecs", 0, 0)
 
-      if (.not. ga_destroy (g_scr))
-     $     call errquit (pname//"Failed to destroy scr", 0, 0)
+c$$$      if (.not. ga_destroy (g_scr))
+c$$$     $     call errquit (pname//"Failed to destroy scr", 0, 0)
 
       if (.not.ma_pop_stack(lsvals))
      $     call errquit(pname//'cannot pop stack',0, MA_ERR)

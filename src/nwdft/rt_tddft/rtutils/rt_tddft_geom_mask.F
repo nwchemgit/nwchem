@@ -29,7 +29,11 @@ C     == Variables ==
       integer dtype_full, n1_full, n2_full
       integer dtype_maskd, n1_maskd, n2_maskd
       integer g_fullre, g_fullim
+
+      double precision elapsed
       
+
+      if (params%prof) call prof_start (elapsed)
 
 C
 C     Check input GA
@@ -90,7 +94,7 @@ C
       if (dtype_full .eq. mt_dbl) then !double
          call ga_zero (g_maskd)
          call ga_elem_multiply (g_full, params%geom(ig)%g_mask, g_maskd)
-         call ga_screen (g_maskd, thresh)
+C         call ga_screen (g_maskd, thresh)
          
       elseif (dtype_full .eq. mt_dcpl) then !complex
 
@@ -121,5 +125,8 @@ C         call ga_screen (g_fullim, thresh)
       else
          call errquit (pname//"bad data type for g_full",0,0)
       endif
+
+
+      if (params%prof) call prof_end (elapsed, "Geometry masking")
 
       end subroutine
