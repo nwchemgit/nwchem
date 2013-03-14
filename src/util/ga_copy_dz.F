@@ -16,6 +16,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "errquit.fh"
+#ifndef MAPOINTER
+#define MAPOINTER integer*8
+#endif
       integer g_in  !< [Input] Double precision global array
       integer g_out !< [Output] Double complex global array
 c
