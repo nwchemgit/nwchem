@@ -169,9 +169,6 @@ C     == Parameters ==
 
  
 C     == Variables ==
-      integer np                !number of processors
-      integer me                !current processor
-      integer m0                !this proc gets a m x n chunk to work with
       integer m                 !proc 0 gets a chunk this big to work with
       integer istart, iend
       integer bfr_size
@@ -180,82 +177,34 @@ C     == Variables ==
       integer j
       logical ok
       double complex zval
+
       
 C     not needed I think
 C      call ga_sync ()
 
-      me = ga_nodeid ()
-      np = ga_nnodes ()
+      call calc_array_partitioning (n, m, istart, iend, bfr_size)
 
-C
-C     Determine how much work this current processor does, which is a
-C     slice of size m x n.  Since the total matrix size is n x n, each
-C     processor will get an n/np x n slice.  If n/np does not divide
-C     evenly, the extra will be given to processor 0.
-C
-      m0 = n/np + mod (n, np)
+      if (bfr_size .gt. 0) then
+         ok = .true.
+         ok = ok.and.ma_push_get(mt_dbl,  bfr_size, pname//"a", la, ia)
+         ok = ok.and.ma_push_get(mt_dbl,  bfr_size, pname//"b", lb, ib)
+         ok = ok.and.ma_push_get(mt_dcpl, bfr_size, pname//"z", lz, iz)
+         if (.not.ok) call errquit(pname//"failed to allocate",0,MA_ERR)
+
+         call ga_get (g_z, 1, n, istart, iend, dcpl_mb(iz), n)
       
-      if (me.eq.0) then
-         m = m0
-      else
-         m = n/np
+         do j = 1, bfr_size
+            zval = dcpl_mb(iz + j - 1)
+            dbl_mb(ia + j - 1) = dble (zval)
+            dbl_mb(ib + j - 1) = aimag (zval)
+         enddo
+         
+         call ga_put (g_a, 1, n, istart, iend, dbl_mb(ia), n)
+         call ga_put (g_b, 1, n, istart, iend, dbl_mb(ib), n)
+         
+         if (.not. ma_chop_stack (la))
+     $        call errquit (pname//"failed to chop stack", 0, MA_ERR)
       endif
-
-c$$$      write (luout, "(1x,a,i0,a,i0,a,i0,a)")
-c$$$     $     "Processor ", me, " gets ", m, " x ", n, "."
-
-
-C
-C     Find the start and end index for the column index.  That is, this
-C     processor is working with an m x n slice, so we need to figure out
-C     what part of the full matrix we are working with.  We use fortran
-C     notation (starting at 1).  Proc 0 goes from 1 to m0, proc 1 goes
-C     from m0 + 1 to m0 + 1 + m, etc.
-C
-      if (me.eq.0) then
-         istart = 1
-         iend = m0
-      else
-         istart = m0 + 1 + (me-1)*m
-         iend = istart + m - 1
-      endif
-
-
-c$$$      write (luout, "(1x,a,i0,a,i0,a,i0,a, i0, a, i0, a)")
-c$$$     $     "Processor ", me, " starts at ", istart,
-c$$$     $     " and ends at ", iend, "; length ", m, " x ", n, "."
-
-      
-C
-C     Now allocate the two real local buffers (a,b) and the one complex
-C     local buffer (z).  Each buffer is size m*n.  
-C
-      bfr_size = m*n
-
-      ok = .true.
-      ok = ok .and. ma_push_get(mt_dbl,  bfr_size, pname//"a", la, ia)
-      ok = ok .and. ma_push_get(mt_dbl,  bfr_size, pname//"b", lb, ib)
-      ok = ok .and. ma_push_get(mt_dcpl, bfr_size, pname//"z", lz, iz)
-      if (.not.ok) call errquit (pname//"failed to allocate", 0, MA_ERR)
-
-
-      call ga_get (g_z, 1, n, istart, iend, dcpl_mb(iz), n)
-      
-      do j = 1, bfr_size
-         zval = dcpl_mb(iz + j - 1)
-         dbl_mb(ia + j - 1) = dble (zval)
-         dbl_mb(ib + j - 1) = aimag (zval)
-      enddo
-
-      call ga_put (g_a, 1, n, istart, iend, dbl_mb(ia), n)
-      call ga_put (g_b, 1, n, istart, iend, dbl_mb(ib), n)
-      
-
-C      
-C     Clean up
-C
-      if (.not. ma_chop_stack (la))
-     $     call errquit (pname//"failed to chop stack", 0, MA_ERR)
 
 C     not needed I think
 C      call ga_sync ()
@@ -263,6 +212,8 @@ C      call ga_sync ()
       end subroutine
 
 
+
+      
 
 #if 0      
 C====================================================================

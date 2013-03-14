@@ -11,7 +11,8 @@ zmat_checksum.o \
 zmat_spectral_range.o \
 zmat_max_abs_elem.o \
 zmat_compare.o \
-elem_compare.o
+elem_compare.o \
+calc_array_partitioning.o
 
 
 OBJ_OPTIMIZE = 

@@ -122,5 +122,4 @@ C         call ga_screen (g_fullim, thresh)
          call errquit (pname//"bad data type for g_full",0,0)
       endif
 
-
       end subroutine
