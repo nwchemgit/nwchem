@@ -66,7 +66,10 @@ c
       detci_abdotab_etime = 0.d0
       detci_abscat_etime = 0.d0
       detci_absync_etime = 0.d0
-      cdetci_profprint = .false.
+      detci_density_onepdm = 0.0d0
+      detci_density_twopdm = 0.0d0
+      detci_density_twopdmab = 0.0d0
+      cdetci_profprint = .true. 
 c
 c  Copy CI parameters
 c
@@ -320,6 +323,9 @@ c
      $                                     detci_abscat_etime,
      $                                     detci_absync_etime,
      $                                     detci_density_etime,
+     $                                     detci_density_onepdm,
+     $                                     detci_density_twopdm,
+     $                                     detci_density_twopdmab,
      $                                     detci_spinadp_etime,
      $                                     detci_symmadp_etime
  901    format(/,10x,'Number of sigma calls:',4x,i5,
@@ -336,6 +342,9 @@ c
      $         /,23x,'o',5('<'),' (ab) scat',3x,f10.2,
      $         /,23x,'o',5('<'),' (ab) sync',3x,f10.2,
      $         /,23x,'o',5('<'),' Density',5x,f10.2,
+     $         /,23x,'o',5('<'),' Density one',1x,f10.2,
+     $         /,23x,'o',5('<'),' Density two',1x,f10.2,
+     $         /,23x,'o',5('<'),' Density ab',2x,f10.2,
      $         /,23x,'o',5('<'),' Spin adapt',2x,f10.2,
      $         /,23x,'o',5('<'),' Symm adapt',2x,f10.2)
 
@@ -821,7 +830,7 @@ c
       integer nekla, neklb
       integer nn
       integer g_civect
-      double precision tx
+      double precision tx, tx2
 c
 c  Check internals
 c
@@ -851,23 +860,28 @@ c
 c
 c
 c
+      tx2 = util_cpusec() 
       call detci_onepdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), cdetci_ixmap,
      $                   g_civec, g_civect, onepdm )
+      detci_density_onepdm = detci_density_onepdm + util_cpusec() - tx2
 c
 c
 c
+      tx2 = util_cpusec() 
       call dfill(nn*nn, 0.0d0, twopdm, 1)
       call detci_twopdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), cdetci_ixmap,
      $                   g_civec, g_civect, twopdm )
+      detci_density_twopdm = detci_density_twopdm + util_cpusec() - tx2
 c
 c
 c
+      tx2 = util_cpusec() 
       call detci_twopdm_ab( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                      cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                      nekla, neklb, cdetci_osym, cdetci_ixmap,
@@ -879,7 +893,8 @@ c
      $                      dbl_mb(k_detci_cprime),
      $                      dbl_mb(k_detci_sprime),
      $                      g_civec, twopdm )
-       call ga_dgop(1, twopdm, nn*nn, '+')
+      detci_density_twopdmab=detci_density_twopdmab+util_cpusec()-tx2
+      call ga_dgop(1, twopdm, nn*nn, '+')
 c
 c
 c
