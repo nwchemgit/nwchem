@@ -1,14 +1,36 @@
- argument  1 = cytosine-rt-tddft.nw
+ argument  1 = cytosine.nw
 
 
 
 ============================== echo of input deck ==============================
-
-echo
+##
+## Real-time TDDFT QA
+## rt_tddft_cytosine_cam_cdfit
+##
+## This will test range-separated XC and charge density fitting by
+## propagating from a converged ground state in the absence of an
+## external field.  Since we are at a variational minimum, the dipole
+## moment and energy should be time-independent and consistent with
+## the DFT SCF values.
+##
+## Manual checks:
+##
+## Total energy: -394.71444119
+## $ grep "Total DFT energy = " cytosine.out | grep -v "#"
+## $ grep "# Etot$" cytosine.out
+##
+## Dipole moment: (2.256532, -0.774701, 1.145943)
+## $ grep -A9 "Multipole" cytosine.out | tail -n3 | cut -c10-30
+## $ grep "# Dipole.*\]$" cytosine.out | cut -c12-91
+##
 
 title "Cytosine CD fitting + CAM-B3LYP"
 
-start cytosine-rt-tddft
+scratch_dir ./scratch
+permanent_dir ./perm
+
+start cytosine
+echo
 
 memory total 2000 mb
 
@@ -103,9 +125,9 @@ O    D
 end
 
 
-##
-## H, C, N, O: ahlrichs coulomb fitting
-##
+# ##
+# ## H, C, N, O: ahlrichs coulomb fitting
+# ##
 basis "cd basis"
 H    S
       9.30813000E+00         0.03446618
@@ -214,9 +236,9 @@ end
 
 
 ##
-## cam-b3lyp with tight convergence
+## CAM-B3LYP with tight convergence
 ##
-## (not "direct" since coulomb part done with charge density fitting)
+## (no need for "direct" since coulomb part done with charge density fitting)
 ##
 dft
   xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
@@ -228,9 +250,7 @@ task dft energy
 
 
 ##
-## no excitation, instead checking we are at variational minumum (no
-## dynamics over the first few time steps), and that the energy is
-## consistent with the SCF
+## No excitation, just propagate a few steps with full checking and profiling
 ##
 rt_tddft
   tmax 1.0
@@ -238,6 +258,8 @@ rt_tddft
 
   nchecks *
   checklvl 3
+  nrestarts 0
+  prof
 end
 task dft rt_tddft
 ================================================================================
@@ -280,18 +302,18 @@ task dft rt_tddft
            Job information
            ---------------
 
-    hostname        = orion
-    program         = ../../../bin/LINUX64/nwchem
-    date            = Mon Mar 11 14:12:38 2013
+    hostname        = hydra
+    program         = /home/lopata/nwchem/nwchem-trunk/bin/LINUX64/nwchem
+    date            = Thu Mar 14 13:30:10 2013
 
-    compiled        = Sun_Mar_10_16:49:26_2013
-    source          = /home/niri/nwchem/nwchem-dev
+    compiled        = Thu_Mar_14_13:29:59_2013
+    source          = /home/lopata/nwchem/nwchem-trunk
     nwchem branch   = Development
-    nwchem revision = 23633
-    ga revision     = 10143
-    input           = cytosine-rt-tddft.nw
-    prefix          = cytosine-rt-tddft.
-    data base       = ./cytosine-rt-tddft.db
+    nwchem revision = 23769
+    ga revision     = 10271
+    input           = cytosine.nw
+    prefix          = cytosine.
+    data base       = ./perm/cytosine.db
     status          = startup
     nproc           =        4
     time left       =     -1s
@@ -312,8 +334,8 @@ task dft rt_tddft
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = ./perm
+  0 scratch   = ./scratch
 
 
 
@@ -442,7 +464,7 @@ task dft rt_tddft
 
 
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-dev/src/basis/libraries/>
+  library file name is: </home/lopata/nwchem/nwchem-trunk/src/basis/libraries/>
   
                       Basis "ao basis" -> "" (spherical)
                       -----
@@ -567,7 +589,7 @@ task dft rt_tddft
 
 
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-dev/src/basis/libraries/>
+  library file name is: </home/lopata/nwchem/nwchem-trunk/src/basis/libraries/>
   
                       Basis "cd basis" -> "" (cartesian)
                       -----
@@ -801,76 +823,77 @@ task dft rt_tddft
  HOMO         =      -0.278990
  LUMO         =      -0.013652
 
-   Time after variat. SCF:      2.2
+   Time after variat. SCF:      2.1
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:         8014363.
-            This is reduced with Schwarz screening to:         4377177.
-            Incore requires a per proc buffer size of:         1439990.
+            This is reduced with Schwarz screening to:         3897656.
+            Incore requires a per proc buffer size of:         1320110.
                   The minimum integral buffer size is:           85400
           Minimum dble words available (all nodes) is:       131069072
                    This is reduced (for later use) to:       130802762
-                             Suggested buffer size is:         1439990
+                             Suggested buffer size is:         1320110
 
-           1.440 MW buffer allocated for incore 3-center 
+           1.320 MW buffer allocated for incore 3-center 
           2e- integral storage on stack. 
           The percent of 3c 2e- integrals held in-core is: 100.00
 
-   Time prior to 1st pass:      3.0
+   Time prior to 1st pass:      2.8
 
- Integral file          = ./cytosine-rt-tddft.aoints.0
+ Integral file          = ./scratch/cytosine.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =    347        Max. records in file   =   6881
+ Max. records in memory =    347        Max. records in file   = 362059
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 1.780D+06 #integrals = 3.802D+07 #direct =  0.0% #cached =100.0%
 
 
-File balance: exchanges=     4  moved=     5  time=   0.0
+File balance: exchanges=     4  moved=    18  time=   0.0
 
 
- Grid_pts file          = ./cytosine-rt-tddft.gridpts.0
+ Grid_pts file          = ./scratch/cytosine.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     36700
+ Max. records in memory =     25        Max. recs in file   =   1930831
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):       42.49            42485334
-          Stack Space remaining (MW):       64.09            64093951
+          Stack Space remaining (MW):       64.21            64213831
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -394.5087684704 -7.55D+02  1.49D-02  1.77D+00    19.9
- d= 0,ls=0.0,diis     2   -394.3708867073  1.38D-01  9.01D-03  3.53D+00    22.3
- d= 0,ls=0.0,diis     3   -394.7055958844 -3.35D-01  1.69D-03  8.94D-02    24.8
- d= 0,ls=0.0,diis     4   -394.7121142342 -6.52D-03  6.71D-04  2.30D-02    27.2
- d= 0,ls=0.0,diis     5   -394.7143237285 -2.21D-03  1.89D-04  1.00D-03    29.6
+ d= 0,ls=0.0,diis     1   -394.5087684701 -7.55D+02  1.49D-02  1.77D+00    18.3
+ d= 0,ls=0.0,diis     2   -394.3708866113  1.38D-01  9.01D-03  3.53D+00    21.0
+ d= 0,ls=0.0,diis     3   -394.7055958885 -3.35D-01  1.69D-03  8.94D-02    23.7
+ d= 0,ls=0.0,diis     4   -394.7121142306 -6.52D-03  6.71D-04  2.30D-02    26.4
+ d= 0,ls=0.0,diis     5   -394.7143237289 -2.21D-03  1.89D-04  1.00D-03    29.1
   Resetting Diis
- d= 0,ls=0.0,diis     6   -394.7144243755 -1.01D-04  6.29D-05  1.23D-04    32.1
- d= 0,ls=0.0,diis     7   -394.7144396779 -1.53D-05  3.47D-05  9.08D-06    34.5
- d= 0,ls=0.0,diis     8   -394.7144399021 -2.24D-07  1.45D-05  1.14D-05    37.0
- d= 0,ls=0.0,diis     9   -394.7144411113 -1.21D-06  5.82D-06  4.03D-07    39.4
- d= 0,ls=0.0,diis    10   -394.7144411720 -6.06D-08  3.11D-06  9.11D-08    41.9
- d= 0,ls=0.0,diis    11   -394.7144411910 -1.90D-08  1.05D-06  1.79D-08    44.3
- d= 0,ls=0.0,diis    12   -394.7144411933 -2.37D-09  2.84D-07  1.95D-09    46.8
- d= 0,ls=0.0,diis    13   -394.7144411936 -2.90D-10  1.68D-07  1.08D-10    49.2
- d= 0,ls=0.0,diis    14   -394.7144411937 -5.14D-11  4.08D-08  1.66D-11    51.7
- d= 0,ls=0.0,diis    15   -394.7144411937 -5.23D-12  1.07D-08  1.09D-12    54.1
- d= 0,ls=0.0,diis    16   -394.7144411937 -9.09D-13  4.63D-09  2.68D-13    56.5
- d= 0,ls=0.0,diis    17   -394.7144411937  9.09D-13  9.07D-10  2.35D-14    59.0
+ d= 0,ls=0.0,diis     6   -394.7144243749 -1.01D-04  6.29D-05  1.23D-04    31.8
+ d= 0,ls=0.0,diis     7   -394.7144396775 -1.53D-05  3.47D-05  9.08D-06    34.5
+ d= 0,ls=0.0,diis     8   -394.7144399017 -2.24D-07  1.45D-05  1.14D-05    37.2
+ d= 0,ls=0.0,diis     9   -394.7144411110 -1.21D-06  5.82D-06  4.03D-07    39.9
+ d= 0,ls=0.0,diis    10   -394.7144411716 -6.06D-08  3.11D-06  9.11D-08    42.6
+ d= 0,ls=0.0,diis    11   -394.7144411906 -1.90D-08  1.05D-06  1.79D-08    45.3
+ d= 0,ls=0.0,diis    12   -394.7144411930 -2.38D-09  2.84D-07  1.95D-09    47.9
+ d= 0,ls=0.0,diis    13   -394.7144411933 -2.89D-10  1.68D-07  1.08D-10    50.6
+ d= 0,ls=0.0,diis    14   -394.7144411933 -5.09D-11  4.08D-08  1.66D-11    53.3
+ d= 0,ls=0.0,diis    15   -394.7144411933 -2.96D-12  1.08D-08  1.12D-12    56.0
+ d= 0,ls=0.0,diis    16   -394.7144411933 -2.61D-12  4.71D-09  2.92D-13    58.7
+ d= 0,ls=0.0,diis    17   -394.7144411933 -1.82D-12  1.12D-09  2.85D-14    61.4
+ d= 0,ls=0.0,diis    18   -394.7144411933  6.37D-12  6.10D-10  4.84D-15    64.1
 
 
-         Total DFT energy =     -394.714441193675
-      One electron energy =    -1250.676384045276
-           Coulomb energy =      548.234893027752
-    Exchange-Corr. energy =      -53.055334705955
+         Total DFT energy =     -394.714441193326
+      One electron energy =    -1250.676384678884
+           Coulomb energy =      548.234893722243
+    Exchange-Corr. energy =      -53.055334766490
  Nuclear repulsion energy =      360.782384529804
 
- Numeric. integr. density =       57.999996220637
+ Numeric. integr. density =       57.999996219656
 
-     Total iterative time =     56.0s
+     Total iterative time =     61.3s
 
 
 
@@ -907,7 +930,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     83     -0.244278  10 N  s                84     -0.203018  10 N  s         
     44     -0.165213   4 C  s                 4     -0.159563   1 C  px        
 
- Vector   12  Occ=2.000000D+00  E=-9.616719D-01
+ Vector   12  Occ=2.000000D+00  E=-9.616720D-01
               MO Center=  9.9D-01,  2.3D+00, -2.1D+00, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -920,7 +943,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     30      0.286633   3 C  s                44      0.209948   4 C  s         
 
- Vector   14  Occ=2.000000D+00  E=-7.636027D-01
+ Vector   14  Occ=2.000000D+00  E=-7.636028D-01
               MO Center=  1.4D+00,  1.4D+00, -1.7D+00, r^2= 3.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -941,7 +964,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
               MO Center=  1.8D+00,  2.8D+00, -1.7D+00, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-   113     -0.310723  12 N  px               62      0.295985   6 H  s         
+   113     -0.310723  12 N  px               62      0.295984   6 H  s         
     67     -0.263190   7 H  s               114      0.237530  12 N  py        
     86      0.173534  10 N  py                5     -0.172550   1 C  py        
     31      0.159075   3 C  s         
@@ -954,7 +977,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     86     -0.217892  10 N  py               72      0.207021   8 H  s         
     46      0.201633   4 C  px               32      0.165390   3 C  px        
 
- Vector   18  Occ=2.000000D+00  E=-6.141745D-01
+ Vector   18  Occ=2.000000D+00  E=-6.141746D-01
               MO Center=  1.5D+00,  1.9D+00, -1.8D+00, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -981,7 +1004,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
    101      0.181037  11 N  pz               34      0.158938   3 C  pz        
     48      0.154155   4 C  pz               90      0.152730  10 N  pz        
 
- Vector   21  Occ=2.000000D+00  E=-5.272180D-01
+ Vector   21  Occ=2.000000D+00  E=-5.272181D-01
               MO Center=  1.7D+00,  1.3D+00, -1.5D+00, r^2= 3.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -1004,18 +1027,18 @@ File balance: exchanges=     4  moved=     5  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.276238   1 C  px              127     -0.266130  13 O  px        
    129     -0.240338  13 O  pz              115      0.236327  12 N  pz        
-    20      0.204408   2 C  pz               87     -0.195931  10 N  pz        
+    20      0.204408   2 C  pz               87     -0.195932  10 N  pz        
    126      0.189025  13 O  s               130     -0.167615  13 O  px        
    118      0.164371  12 N  pz        
 
- Vector   24  Occ=2.000000D+00  E=-4.495941D-01
+ Vector   24  Occ=2.000000D+00  E=-4.495942D-01
               MO Center=  2.9D-01,  2.0D+00, -2.4D+00, r^2= 4.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    127      0.329844  13 O  px              115      0.261852  12 N  pz        
      6     -0.208354   1 C  pz              130      0.205365  13 O  px        
    118      0.179026  12 N  pz               18     -0.171479   2 C  px        
-   126     -0.168173  13 O  s                 4     -0.166139   1 C  px        
+   126     -0.168174  13 O  s                 4     -0.166139   1 C  px        
     85      0.164285  10 N  px               20      0.157107   2 C  pz        
 
  Vector   25  Occ=2.000000D+00  E=-4.046195D-01
@@ -1062,7 +1085,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     37      0.194772   3 C  pz               87     -0.194690  10 N  pz        
     90     -0.172073  10 N  pz        
 
- Vector   30  Occ=0.000000D+00  E= 1.019799D-02
+ Vector   30  Occ=0.000000D+00  E= 1.019798D-02
               MO Center=  1.4D+00,  1.3D+00, -1.7D+00, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -1072,7 +1095,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     37     -0.241240   3 C  pz               49     -0.227718   4 C  px        
    101      0.219408  11 N  pz               87     -0.204824  10 N  pz        
 
- Vector   31  Occ=0.000000D+00  E= 7.588095D-02
+ Vector   31  Occ=0.000000D+00  E= 7.588094D-02
               MO Center=  7.3D-01,  1.6D+00, -2.1D+00, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -1106,7 +1129,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
               MO Center=  1.7D+00,  8.3D-01, -1.5D+00, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    73      1.418672   8 H  s                58     -1.050882   5 H  s         
+    73      1.418671   8 H  s                58     -1.050882   5 H  s         
     45     -0.953737   4 C  s                78      0.943771   9 H  s         
     31     -0.773682   3 C  s                63     -0.752709   6 H  s         
     35     -0.738086   3 C  px               84      0.669268  10 N  s         
@@ -1122,7 +1145,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     45     -0.698892   4 C  s                58     -0.621874   5 H  s         
     22     -0.549596   2 C  py               37      0.517432   3 C  pz        
 
- Vector   36  Occ=0.000000D+00  E= 1.940090D-01
+ Vector   36  Occ=0.000000D+00  E= 1.940089D-01
               MO Center=  2.6D+00,  2.0D+00, -1.2D+00, r^2= 8.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -1140,17 +1163,17 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     51     -0.481072   4 C  pz               68      0.468116   7 H  s         
     73     -0.434124   8 H  s                 9     -0.430716   1 C  pz        
    104      0.428341  11 N  pz               63     -0.341489   6 H  s         
-     6     -0.337604   1 C  pz               31      0.338492   3 C  s         
+     6     -0.337604   1 C  pz               31      0.338493   3 C  s         
 
  Vector   38  Occ=0.000000D+00  E= 2.701213D-01
               MO Center=  1.4D+00,  7.4D-01, -1.6D+00, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.701439   2 C  s                31     -1.633392   3 C  s         
-    49      1.337519   4 C  px               84      1.329667  10 N  s         
+    49      1.337518   4 C  px               84      1.329667  10 N  s         
     45     -0.842412   4 C  s                58      0.731990   5 H  s         
     88      0.717136  10 N  px                3     -0.690027   1 C  s         
-    36     -0.659641   3 C  py               22     -0.649939   2 C  py        
+    36     -0.659642   3 C  py               22     -0.649939   2 C  py        
 
  Vector   39  Occ=0.000000D+00  E= 2.929850D-01
               MO Center=  1.2D+00,  1.6D+00, -1.9D+00, r^2= 4.5D+00
@@ -1159,28 +1182,28 @@ File balance: exchanges=     4  moved=     5  time=   0.0
     17      2.438586   2 C  s                 3      1.866582   1 C  s         
     36     -1.797084   3 C  py               45     -1.568662   4 C  s         
     98     -1.567290  11 N  s                50     -0.904156   4 C  py        
-    49     -0.776692   4 C  px               31      0.721330   3 C  s         
+    49     -0.776692   4 C  px               31      0.721331   3 C  s         
     84     -0.686492  10 N  s               112     -0.537000  12 N  s         
 
  Vector   40  Occ=0.000000D+00  E= 3.503083D-01
               MO Center=  2.6D-01,  1.2D+00, -2.3D+00, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31      2.342252   3 C  s                45     -1.965674   4 C  s         
+    31      2.342251   3 C  s                45     -1.965673   4 C  s         
     17     -1.664558   2 C  s                35     -1.616495   3 C  px        
-    50     -1.521888   4 C  py                7      1.485724   1 C  px        
-    22      1.244712   2 C  py              126      1.135514  13 O  s         
-    73      0.951039   8 H  s                21      0.917282   2 C  px        
+    50     -1.521887   4 C  py                7      1.485724   1 C  px        
+    22      1.244712   2 C  py              126      1.135513  13 O  s         
+    73      0.951039   8 H  s                21      0.917283   2 C  px        
 
  Vector   41  Occ=0.000000D+00  E= 3.567800D-01
               MO Center=  1.4D+00,  1.6D+00, -1.8D+00, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      2.115846   1 C  s                31     -2.114382   3 C  s         
-    50      1.956300   4 C  py               45      1.923416   4 C  s         
+     3      2.115846   1 C  s                31     -2.114383   3 C  s         
+    50      1.956301   4 C  py               45      1.923416   4 C  s         
     36      1.644788   3 C  py               49      1.079228   4 C  px        
-    22      0.966795   2 C  py               78      0.921241   9 H  s         
-    89     -0.845559  10 N  py               35      0.761260   3 C  px        
+    22      0.966795   2 C  py               78      0.921242   9 H  s         
+    89     -0.845559  10 N  py               35      0.761261   3 C  px        
 
  Vector   42  Occ=0.000000D+00  E= 3.764151D-01
               MO Center=  1.2D+00,  1.4D+00, -1.8D+00, r^2= 5.4D+00
@@ -1196,8 +1219,8 @@ File balance: exchanges=     4  moved=     5  time=   0.0
               MO Center=  1.0D+00,  2.0D+00, -2.0D+00, r^2= 5.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      2.566001   2 C  s                22      2.136080   2 C  py        
-     3     -1.693036   1 C  s               112     -1.656581  12 N  s         
+    17      2.566000   2 C  s                22      2.136080   2 C  py        
+     3     -1.693037   1 C  s               112     -1.656581  12 N  s         
     49     -1.154688   4 C  px              126      1.124900  13 O  s         
    117      1.036430  12 N  py                7      0.885553   1 C  px        
     88     -0.857834  10 N  px              116      0.854824  12 N  px        
@@ -1227,7 +1250,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      2.098335   1 C  py               49     -1.020662   4 C  px        
-    45      0.950502   4 C  s                98     -0.840986  11 N  s         
+    45      0.950501   4 C  s                98     -0.840986  11 N  s         
     17     -0.743965   2 C  s               102      0.677057  11 N  px        
     22     -0.622937   2 C  py               88     -0.550827  10 N  px        
     89      0.529841  10 N  py               46      0.475784   4 C  px        
@@ -1258,16 +1281,16 @@ File balance: exchanges=     4  moved=     5  time=   0.0
 
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
-     0   0 0 0      0.000000    -29.000000    -29.000000     58.000000
+     0   0 0 0     -0.000000    -29.000000    -29.000000     58.000000
 
-     1   1 0 0      2.256531    -49.102701    -49.102701    100.461934
+     1   1 0 0      2.256532    -49.102701    -49.102701    100.461934
      1   0 1 0     -0.774701    -93.185605    -93.185605    185.596509
      1   0 0 1      1.145943    111.187383    111.187383   -221.228823
 
-     2   2 0 0    -28.383910   -271.443342   -271.443342    514.502774
+     2   2 0 0    -28.383909   -271.443342   -271.443342    514.502774
      2   1 1 0     10.323553   -210.403035   -210.403035    431.129623
      2   1 0 1     -8.449715    106.754404    106.754404   -221.958523
-     2   0 2 0    -29.409894   -468.351919   -468.351919    907.293943
+     2   0 2 0    -29.409894   -468.351918   -468.351918    907.293943
      2   0 1 1      7.594222    352.332998    352.332998   -697.071775
      2   0 0 2    -44.523904   -485.580253   -485.580253    926.636602
 
@@ -1275,7 +1298,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
  Parallel integral file used     872 records with       0 large values
 
 
- Task  times  cpu:       59.0s     wall:       61.3s
+ Task  times  cpu:       64.1s     wall:       64.7s
 
 
                                 NWChem Input Module
@@ -1293,7 +1316,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
 
   The DFT is already converged 
 
-         Total DFT energy =   -394.714441193675
+         Total DFT energy =   -394.714441193326
 
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
@@ -1380,8 +1403,8 @@ File balance: exchanges=     4  moved=     5  time=   0.0
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:         8014363.
-            This is reduced with Schwarz screening to:         4377177.
-            Incore requires a per proc buffer size of:         1439990.
+            This is reduced with Schwarz screening to:         3897656.
+            Incore requires a per proc buffer size of:         1320110.
                   The minimum integral buffer size is:           85400
           The percent of 3c 2e- integrals held in-core is: 100.00
 
@@ -1390,6 +1413,7 @@ File balance: exchanges=     4  moved=     5  time=   0.0
  Geometry               Atoms      Basis func.   Nuc. charge          Nuc. dip. mom.
  -----------------------------------------------------------------------------------------
  *system              13 (100% )   137 (100% )     58.00      100.46    185.60   -221.23
+ [prof] Fock core initialization took 5 ms.
 
 =============== Geometry Initialization ===============
   Active geometry: "system"
@@ -1439,9 +1463,9 @@ File balance: exchanges=     4  moved=     5  time=   0.0
      Quantites to print : messages, dipole, field, energy, <S^2>
      No. print points   : 5 (once every 1 time steps)
      No. checks         : 5 (once every 1 time steps)
-     No. restart points : 5 (once every 1 time steps)
+     No. restart points : None
      Checking level     : 3 (full--not implemented yet)
-     Profiling          : No
+     Profiling          : Yes
  
  
  Dipole and quadrupole matrices
@@ -1473,10 +1497,10 @@ File balance: exchanges=     4  moved=     5  time=   0.0
  
 ****************************** WARNING ****************************** 
   Starting movecs not specified--trying SCF output: 
-   ./cytosine-rt-tddft.movecs 
+   ./perm/cytosine.movecs 
 ********************************************************************* 
  
-     File name              : ./cytosine-rt-tddft.movecs
+     File name              : ./perm/cytosine.movecs
      Job title              : Cytosine CD fitting + CAM-B3LYP
      Basis set name         : ao basis
      SCF type               : dft
@@ -1486,219 +1510,397 @@ File balance: exchanges=     4  moved=     5  time=   0.0
    Vector      Occupation     Eigenvalue [au]
  --------------------------------------------
          1        2.00       -1.91432980E+01
-         2        2.00       -1.44560333E+01
+         2        2.00       -1.44560334E+01
          3        2.00       -1.44104250E+01
-         4        2.00       -1.43728590E+01
+         4        2.00       -1.43728591E+01
          5        2.00       -1.03649178E+01
          6        2.00       -1.03551113E+01
          7        2.00       -1.03310728E+01
          8        2.00       -1.02652043E+01
-         9        2.00       -1.11805486E+00
-        10        2.00       -1.06871392E+00
-        11        2.00       -1.03371210E+00
-        12        2.00       -9.61671949E-01
-        13        2.00       -8.81099300E-01
-        14        2.00       -7.63602749E-01
-        15        2.00       -7.40023819E-01
-        16        2.00       -6.73336650E-01
-        17        2.00       -6.53981894E-01
-        18        2.00       -6.14174545E-01
-        19        2.00       -5.88327570E-01
-        20        2.00       -5.31123200E-01
-        21        2.00       -5.27218049E-01
-        22        2.00       -5.12525925E-01
-        23        2.00       -4.55985170E-01
-        24        2.00       -4.49594145E-01
-        25        2.00       -4.04619508E-01
-        26        2.00       -3.26990557E-01
-        27        2.00       -3.17572028E-01
-        28        2.00       -2.98909492E-01
-        29        2.00       -2.80044355E-01
-        30        0.00        1.01979926E-02
-        31        0.00        7.58809521E-02
-        32        0.00        9.11990217E-02
-        33        0.00        1.13079225E-01
-        34        0.00        1.40405388E-01
-        35        0.00        1.65591514E-01
-        36        0.00        1.94008951E-01
-        37        0.00        2.10613015E-01
-        38        0.00        2.70121329E-01
-        39        0.00        2.92985023E-01
-        40        0.00        3.50308282E-01
-        41        0.00        3.56779984E-01
-        42        0.00        3.76415145E-01
-        43        0.00        3.98959968E-01
-        44        0.00        4.21443522E-01
-        45        0.00        4.83638890E-01
-        46        0.00        4.87464022E-01
-        47        0.00        5.01907007E-01
-        48        0.00        5.23918170E-01
-        49        0.00        5.63040484E-01
-        50        0.00        5.70226260E-01
-        51        0.00        5.81801177E-01
-        52        0.00        5.92730258E-01
-        53        0.00        6.12501355E-01
-        54        0.00        6.49539547E-01
-        55        0.00        6.60021146E-01
-        56        0.00        6.65146045E-01
-        57        0.00        6.85701693E-01
-        58        0.00        7.22382306E-01
-        59        0.00        7.71040620E-01
-        60        0.00        7.84612472E-01
-        61        0.00        8.12916391E-01
-        62        0.00        8.28999369E-01
-        63        0.00        8.56122682E-01
-        64        0.00        8.63132221E-01
-        65        0.00        8.92594356E-01
-        66        0.00        9.18982332E-01
-        67        0.00        9.36265845E-01
-        68        0.00        9.64630177E-01
-        69        0.00        9.84424037E-01
-        70        0.00        1.00257080E+00
-        71        0.00        1.01478351E+00
-        72        0.00        1.02112544E+00
-        73        0.00        1.07747279E+00
-        74        0.00        1.10952291E+00
-        75        0.00        1.13078760E+00
-        76        0.00        1.14850499E+00
-        77        0.00        1.17150860E+00
-        78        0.00        1.19278603E+00
-        79        0.00        1.20080322E+00
-        80        0.00        1.23127324E+00
-        81        0.00        1.27260219E+00
-        82        0.00        1.28206613E+00
-        83        0.00        1.33878644E+00
-        84        0.00        1.34440342E+00
-        85        0.00        1.37965665E+00
-        86        0.00        1.45433069E+00
-        87        0.00        1.48318573E+00
-        88        0.00        1.52698588E+00
-        89        0.00        1.56549248E+00
-        90        0.00        1.58434520E+00
-        91        0.00        1.64016670E+00
-        92        0.00        1.66500275E+00
-        93        0.00        1.69589909E+00
-        94        0.00        1.74308852E+00
-        95        0.00        1.75884978E+00
-        96        0.00        1.76872162E+00
-        97        0.00        1.80827579E+00
-        98        0.00        1.82634869E+00
-        99        0.00        1.84014406E+00
-       100        0.00        1.85597499E+00
-       101        0.00        1.87058749E+00
-       102        0.00        1.89025167E+00
-       103        0.00        1.91764253E+00
-       104        0.00        1.96322103E+00
-       105        0.00        1.98564892E+00
-       106        0.00        2.04876914E+00
-       107        0.00        2.06182921E+00
-       108        0.00        2.10145855E+00
-       109        0.00        2.15301300E+00
-       110        0.00        2.15868095E+00
-       111        0.00        2.25364793E+00
-       112        0.00        2.25618400E+00
-       113        0.00        2.34120981E+00
-       114        0.00        2.39289988E+00
-       115        0.00        2.40486779E+00
-       116        0.00        2.42930560E+00
-       117        0.00        2.50787807E+00
-       118        0.00        2.54010138E+00
-       119        0.00        2.57578974E+00
-       120        0.00        2.59634596E+00
-       121        0.00        2.61810314E+00
-       122        0.00        2.64394919E+00
-       123        0.00        2.69598833E+00
-       124        0.00        2.72321285E+00
-       125        0.00        2.75873195E+00
-       126        0.00        2.82113503E+00
-       127        0.00        2.84969614E+00
+         9        2.00       -1.11805487E+00
+        10        2.00       -1.06871393E+00
+        11        2.00       -1.03371211E+00
+        12        2.00       -9.61671966E-01
+        13        2.00       -8.81099316E-01
+        14        2.00       -7.63602762E-01
+        15        2.00       -7.40023832E-01
+        16        2.00       -6.73336661E-01
+        17        2.00       -6.53981909E-01
+        18        2.00       -6.14174557E-01
+        19        2.00       -5.88327584E-01
+        20        2.00       -5.31123214E-01
+        21        2.00       -5.27218065E-01
+        22        2.00       -5.12525939E-01
+        23        2.00       -4.55985178E-01
+        24        2.00       -4.49594154E-01
+        25        2.00       -4.04619519E-01
+        26        2.00       -3.26990576E-01
+        27        2.00       -3.17572041E-01
+        28        2.00       -2.98909498E-01
+        29        2.00       -2.80044369E-01
+        30        0.00        1.01979782E-02
+        31        0.00        7.58809421E-02
+        32        0.00        9.11990167E-02
+        33        0.00        1.13079222E-01
+        34        0.00        1.40405383E-01
+        35        0.00        1.65591510E-01
+        36        0.00        1.94008946E-01
+        37        0.00        2.10613001E-01
+        38        0.00        2.70121319E-01
+        39        0.00        2.92985010E-01
+        40        0.00        3.50308272E-01
+        41        0.00        3.56779974E-01
+        42        0.00        3.76415135E-01
+        43        0.00        3.98959959E-01
+        44        0.00        4.21443510E-01
+        45        0.00        4.83638880E-01
+        46        0.00        4.87464013E-01
+        47        0.00        5.01906995E-01
+        48        0.00        5.23918159E-01
+        49        0.00        5.63040475E-01
+        50        0.00        5.70226252E-01
+        51        0.00        5.81801166E-01
+        52        0.00        5.92730246E-01
+        53        0.00        6.12501343E-01
+        54        0.00        6.49539537E-01
+        55        0.00        6.60021133E-01
+        56        0.00        6.65146034E-01
+        57        0.00        6.85701684E-01
+        58        0.00        7.22382294E-01
+        59        0.00        7.71040611E-01
+        60        0.00        7.84612461E-01
+        61        0.00        8.12916383E-01
+        62        0.00        8.28999360E-01
+        63        0.00        8.56122668E-01
+        64        0.00        8.63132213E-01
+        65        0.00        8.92594347E-01
+        66        0.00        9.18982322E-01
+        67        0.00        9.36265832E-01
+        68        0.00        9.64630165E-01
+        69        0.00        9.84424025E-01
+        70        0.00        1.00257079E+00
+        71        0.00        1.01478350E+00
+        72        0.00        1.02112543E+00
+        73        0.00        1.07747278E+00
+        74        0.00        1.10952290E+00
+        75        0.00        1.13078759E+00
+        76        0.00        1.14850498E+00
+        77        0.00        1.17150859E+00
+        78        0.00        1.19278602E+00
+        79        0.00        1.20080321E+00
+        80        0.00        1.23127323E+00
+        81        0.00        1.27260218E+00
+        82        0.00        1.28206612E+00
+        83        0.00        1.33878643E+00
+        84        0.00        1.34440341E+00
+        85        0.00        1.37965664E+00
+        86        0.00        1.45433068E+00
+        87        0.00        1.48318571E+00
+        88        0.00        1.52698587E+00
+        89        0.00        1.56549247E+00
+        90        0.00        1.58434519E+00
+        91        0.00        1.64016669E+00
+        92        0.00        1.66500274E+00
+        93        0.00        1.69589908E+00
+        94        0.00        1.74308851E+00
+        95        0.00        1.75884977E+00
+        96        0.00        1.76872160E+00
+        97        0.00        1.80827578E+00
+        98        0.00        1.82634868E+00
+        99        0.00        1.84014405E+00
+       100        0.00        1.85597498E+00
+       101        0.00        1.87058748E+00
+       102        0.00        1.89025165E+00
+       103        0.00        1.91764252E+00
+       104        0.00        1.96322102E+00
+       105        0.00        1.98564891E+00
+       106        0.00        2.04876913E+00
+       107        0.00        2.06182920E+00
+       108        0.00        2.10145853E+00
+       109        0.00        2.15301298E+00
+       110        0.00        2.15868094E+00
+       111        0.00        2.25364792E+00
+       112        0.00        2.25618399E+00
+       113        0.00        2.34120979E+00
+       114        0.00        2.39289987E+00
+       115        0.00        2.40486778E+00
+       116        0.00        2.42930559E+00
+       117        0.00        2.50787806E+00
+       118        0.00        2.54010137E+00
+       119        0.00        2.57578973E+00
+       120        0.00        2.59634595E+00
+       121        0.00        2.61810313E+00
+       122        0.00        2.64394918E+00
+       123        0.00        2.69598832E+00
+       124        0.00        2.72321283E+00
+       125        0.00        2.75873194E+00
+       126        0.00        2.82113502E+00
+       127        0.00        2.84969613E+00
        128        0.00        2.87638946E+00
-       129        0.00        2.92743479E+00
-       130        0.00        3.05418674E+00
-       131        0.00        3.11862692E+00
-       132        0.00        3.19456357E+00
-       133        0.00        3.40279665E+00
+       129        0.00        2.92743478E+00
+       130        0.00        3.05418672E+00
+       131        0.00        3.11862691E+00
+       132        0.00        3.19456356E+00
+       133        0.00        3.40279664E+00
        134        0.00        3.53563229E+00
-       135        0.00        3.54386232E+00
-       136        0.00        3.59400612E+00
-       137        0.00        3.74396997E+00
+       135        0.00        3.54386231E+00
+       136        0.00        3.59400611E+00
+       137        0.00        3.74396995E+00
  
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
 
- Integral file          = ./cytosine-rt-tddft.aoints.0
+ Integral file          = ./scratch/cytosine.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =    347        Max. records in file   =   6879
+ Max. records in memory =    347        Max. records in file   = 362059
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 1.780D+06 #integrals = 3.804D+07 #direct =  0.0% #cached =100.0%
 
 
-File balance: exchanges=     3  moved=    15  time=   0.0
+File balance: exchanges=     3  moved=    17  time=   0.0
 
+ [prof] Fock CS CAM exch took 14 s.
 
- Grid_pts file          = ./cytosine-rt-tddft.gridpts.0
+ Grid_pts file          = ./scratch/cytosine.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =     36690
+ Max. records in memory =     25        Max. recs in file   =   1930831
 
+ [prof] Fock CS dft xc took 2133 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 16 s.
 <rt_tddft>:      0.00000        ### Propagation started ###
+ [prof] Fock CS z2d took 5 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS dft xc took 1933 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3265 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1313 ms.
+ [prof] Fock CS dft xc took 1933 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3257 ms.
+ [prof] Fields and excitation potential took 0 ms.
 <rt_tddft>:      0.00000        ### Checks passed ###
+ [prof] Checks took 3265 ms.
 <rt_tddft>:      0.00000        ### No applied E-field ###
 <rt_tddft>:      0.00000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.00000  -1.250676383974E+003     # Ecore
-<rt_tddft>:      0.00000   5.482348929571E+002     # Ecoul
-<rt_tddft>:      0.00000  -5.305533470650E+001     # Exc(1)
+<rt_tddft>:      0.00000  -1.250676384670E+003     # Ecore
+<rt_tddft>:      0.00000   5.482348937143E+002     # Ecoul
+<rt_tddft>:      0.00000  -5.305533476778E+001     # Exc(1)
 <rt_tddft>:      0.00000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.00000  -3.947144411933E+002     # Etot
-<rt_tddft>:      0.00000  -3.069544618484E-012     # Eadded
-<rt_tddft>:      0.00000   2.256531454045E+000  -7.747013186157E-001   1.145942990468E+000     # Dipole moment [system]
-<rt_tddft>:      0.00000        ### Saved restart point ###
-<rt_tddft>:      0.00000   2.748912208972E-012     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.00000  -3.947144411935E+002     # Etot
+<rt_tddft>:      0.00000  -2.273736754432E-013     # Eadded
+<rt_tddft>:      0.00000   2.256531587404E+000  -7.747012923653E-001   1.145943039664E+000     # Dipole moment [system]
+ [prof] Properties took 5 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+ [prof] Fock CS z2d took 5 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS dft xc took 1945 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+<rt_tddft>:      0.00000   6.735945135006E-012     # Magnus interpol (matrix 1 of 1)
 <rt_tddft>:      0.00000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6733 ms.
+ [prof] Complete time step took 11 s.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS dft xc took 1933 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3265 ms.
+ [prof] Fields and excitation potential took 0 ms.
 <rt_tddft>:      0.20000        ### Checks passed ###
+ [prof] Checks took 3273 ms.
 <rt_tddft>:      0.20000        ### No applied E-field ###
 <rt_tddft>:      0.20000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.20000  -1.250676383970E+003     # Ecore
-<rt_tddft>:      0.20000   5.482348929528E+002     # Ecoul
-<rt_tddft>:      0.20000  -5.305533470608E+001     # Exc(1)
+<rt_tddft>:      0.20000  -1.250676384657E+003     # Ecore
+<rt_tddft>:      0.20000   5.482348936996E+002     # Ecoul
+<rt_tddft>:      0.20000  -5.305533476571E+001     # Exc(1)
 <rt_tddft>:      0.20000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.20000  -3.947144411933E+002     # Etot
-<rt_tddft>:      0.20000  -2.728484105319E-012     # Eadded
-<rt_tddft>:      0.20000   2.256531452939E+000  -7.747013192991E-001   1.145942989401E+000     # Dipole moment [system]
-<rt_tddft>:      0.20000        ### Saved restart point ###
-<rt_tddft>:      0.20000   4.747224835455E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.20000  -3.947144411935E+002     # Etot
+<rt_tddft>:      0.20000   2.614797267597E-012     # Eadded
+<rt_tddft>:      0.20000   2.256531586826E+000  -7.747012924171E-001   1.145943039376E+000     # Dipole moment [system]
+ [prof] Properties took 4 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1937 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3281 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 9 ms.
+ [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3265 ms.
+ [prof] Fields and excitation potential took 5 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+<rt_tddft>:      0.20000   5.316902473851E-011     # Magnus interpol (matrix 1 of 1)
 <rt_tddft>:      0.20000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6721 ms.
+ [prof] Complete time step took 11 s.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1929 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3261 ms.
+ [prof] Fields and excitation potential took 0 ms.
 <rt_tddft>:      0.40000        ### Checks passed ###
+ [prof] Checks took 3269 ms.
 <rt_tddft>:      0.40000        ### No applied E-field ###
 <rt_tddft>:      0.40000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.40000  -1.250676383969E+003     # Ecore
-<rt_tddft>:      0.40000   5.482348929526E+002     # Ecoul
-<rt_tddft>:      0.40000  -5.305533470660E+001     # Exc(1)
+<rt_tddft>:      0.40000  -1.250676384638E+003     # Ecore
+<rt_tddft>:      0.40000   5.482348936791E+002     # Ecoul
+<rt_tddft>:      0.40000  -5.305533476406E+001     # Exc(1)
 <rt_tddft>:      0.40000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.40000  -3.947144411933E+002     # Etot
-<rt_tddft>:      0.40000   4.547473508865E-013     # Eadded
-<rt_tddft>:      0.40000   2.256531450710E+000  -7.747013211038E-001   1.145942987030E+000     # Dipole moment [system]
-<rt_tddft>:      0.40000        ### Saved restart point ###
-<rt_tddft>:      0.40000   1.279953920630E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.40000  -3.947144411935E+002     # Etot
+<rt_tddft>:      0.40000  -6.821210263297E-013     # Eadded
+<rt_tddft>:      0.40000   2.256531586076E+000  -7.747012930371E-001   1.145943039065E+000     # Dipole moment [system]
+ [prof] Properties took 4 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 4 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+<rt_tddft>:      0.40000   6.800515706118E-011     # Magnus interpol (matrix 1 of 1)
 <rt_tddft>:      0.40000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6733 ms.
+ [prof] Complete time step took 11 s.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1933 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 0 ms.
 <rt_tddft>:      0.60000        ### Checks passed ###
+ [prof] Checks took 3285 ms.
 <rt_tddft>:      0.60000        ### No applied E-field ###
 <rt_tddft>:      0.60000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.60000  -1.250676383978E+003     # Ecore
-<rt_tddft>:      0.60000   5.482348929622E+002     # Ecoul
-<rt_tddft>:      0.60000  -5.305533470784E+001     # Exc(1)
+<rt_tddft>:      0.60000  -1.250676384610E+003     # Ecore
+<rt_tddft>:      0.60000   5.482348936453E+002     # Ecoul
+<rt_tddft>:      0.60000  -5.305533475909E+001     # Exc(1)
 <rt_tddft>:      0.60000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.60000  -3.947144411933E+002     # Etot
-<rt_tddft>:      0.60000   0.000000000000E+000     # Eadded
-<rt_tddft>:      0.60000   2.256531447267E+000  -7.747013243537E-001   1.145942983498E+000     # Dipole moment [system]
-<rt_tddft>:      0.60000        ### Saved restart point ###
-<rt_tddft>:      0.60000   5.027533944713E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.60000  -3.947144411935E+002     # Etot
+<rt_tddft>:      0.60000   6.821210263297E-013     # Eadded
+<rt_tddft>:      0.60000   2.256531584364E+000  -7.747012941348E-001   1.145943038346E+000     # Dipole moment [system]
+ [prof] Properties took 4 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 8 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1937 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3265 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+<rt_tddft>:      0.60000   3.954792049399E-011     # Magnus interpol (matrix 1 of 1)
 <rt_tddft>:      0.60000                     2     # Magnus total interpolations
-<rt_tddft>:      0.80000        ### Propagation finished ###
+ [prof] Magnus propagation converged after 2 interpolations; took 6721 ms.
+ [prof] Complete time step took 11 s.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS dft xc took 1933 ms.
+ [prof] Fock CS d2z took 5 ms.
+ [prof] Fock CS total build took 3269 ms.
+ [prof] Fields and excitation potential took 0 ms.
+<rt_tddft>:      0.80000        ### Checks passed ###
+ [prof] Checks took 3277 ms.
+<rt_tddft>:      0.80000        ### No applied E-field ###
+<rt_tddft>:      0.80000   3.607823845298E+002     # Enuc
+<rt_tddft>:      0.80000  -1.250676384586E+003     # Ecore
+<rt_tddft>:      0.80000   5.482348936201E+002     # Ecoul
+<rt_tddft>:      0.80000  -5.305533475721E+001     # Exc(1)
+<rt_tddft>:      0.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.80000  -3.947144411935E+002     # Etot
+<rt_tddft>:      0.80000   2.614797267597E-012     # Eadded
+<rt_tddft>:      0.80000   2.256531582307E+000  -7.747012958420E-001   1.145943037527E+000     # Dipole moment [system]
+ [prof] Properties took 5 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS dft xc took 1945 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3277 ms.
+ [prof] Fields and excitation potential took 5 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS d2z took 4 ms.
+ [prof] Fock CS total build took 3281 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+<rt_tddft>:      0.80000   4.698819111582E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.80000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6737 ms.
+ [prof] Complete time step took 11 s.
+<rt_tddft>:      1.00000        ### Propagation finished ###
 
- Parallel integral file used     872 records with       0 large values
+ Parallel integral file used     873 records with       0 large values
 
 
- Task  times  cpu:       53.0s     wall:       55.3s
+ Task  times  cpu:       70.1s     wall:       70.4s
 
 
                                 NWChem Input Module
@@ -1715,11 +1917,11 @@ File balance: exchanges=     3  moved=    15  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1197     1197     1.70e+05 1.15e+05 9.47e+04    0        0        0     
-number of processes/call 1.18e+00 1.09e+00 1.07e+00 0.00e+00 0.00e+00
-bytes total:             2.98e+08 1.75e+08 1.11e+08 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.88e+08 8.28e+07 7.65e+07 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 2745616 bytes
+calls: 1375     1375     1.77e+05 1.17e+05 1.04e+05    0        0        0     
+number of processes/call 1.13e+00 1.02e+00 1.08e+00 0.00e+00 0.00e+00
+bytes total:             3.34e+08 2.02e+08 1.19e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            2.08e+08 9.35e+07 8.35e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2714008 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1731,9 +1933,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        26	        49
 	current total bytes		         0	         0
-	maximum total bytes		 184405104	  30361528
-	maximum total K-bytes		    184406	     30362
-	maximum total M-bytes		       185	        31
+	maximum total bytes		 184405104	  29402488
+	maximum total K-bytes		    184406	     29403
+	maximum total M-bytes		       185	        30
 
 
                                      CITATION
@@ -1766,4 +1968,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:      112.1s     wall:      117.8s
+ Total times  cpu:      134.2s     wall:      136.2s

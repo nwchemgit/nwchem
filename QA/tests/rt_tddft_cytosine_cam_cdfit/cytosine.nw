@@ -1,9 +1,31 @@
-
-echo
+##
+## Real-time TDDFT QA
+## rt_tddft_cytosine_cam_cdfit
+## 
+## This will test range-separated XC and charge density fitting by
+## propagating from a converged ground state in the absence of an
+## external field.  Since we are at a variational minimum, the dipole
+## moment and energy should be time-independent and consistent with
+## the DFT SCF values.
+##
+## Manual checks:
+##
+## Total energy: -394.71444119
+## $ grep "Total DFT energy = " cytosine.out | grep -v "#"
+## $ grep "# Etot$" cytosine.out
+## 
+## Dipole moment: (2.256532, -0.774701, 1.145943)
+## $ grep -A9 "Multipole" cytosine.out | tail -n3 | cut -c10-30
+## $ grep "# Dipole.*\]$" cytosine.out | cut -c12-91
+##
 
 title "Cytosine CD fitting + CAM-B3LYP"
 
-start cytosine-rt-tddft
+scratch_dir ./scratch
+permanent_dir ./perm
+
+start cytosine
+echo
 
 memory total 2000 mb
 
@@ -98,9 +120,9 @@ O    D
 end
 
 
-##
-## H, C, N, O: ahlrichs coulomb fitting
-##
+# ##
+# ## H, C, N, O: ahlrichs coulomb fitting
+# ##
 basis "cd basis"
 H    S
       9.30813000E+00         0.03446618       
@@ -209,9 +231,9 @@ end
 
 
 ##
-## cam-b3lyp with tight convergence
+## CAM-B3LYP with tight convergence
 ##
-## (not "direct" since coulomb part done with charge density fitting)
+## (no need for "direct" since coulomb part done with charge density fitting)
 ##
 dft
   xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
@@ -223,9 +245,7 @@ task dft energy
 
 
 ##
-## no excitation, instead checking we are at variational minumum (no
-## dynamics over the first few time steps), and that the energy is
-## consistent with the SCF
+## No excitation, just propagate a few steps with full checking and profiling
 ##
 rt_tddft
   tmax 1.0
@@ -233,5 +253,7 @@ rt_tddft
 
   nchecks *
   checklvl 3
+  nrestarts 0
+  prof
 end
 task dft rt_tddft
