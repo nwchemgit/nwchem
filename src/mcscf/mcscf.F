@@ -48,6 +48,7 @@ c
       logical ohalf, oaodisk, oblk, oaokeep, oaoreuse      ! toggles for 4-index
       logical ocisolve
       integer ciiterlo, ciiterhi      ! Iteration range for CI solution
+      integer k_tsym, l_tsym, k_evl, l_evl, k_ord, l_ord, iord_in, iorb
 c
       double precision time_iter_start
       integer time_prev_iter
@@ -301,7 +302,7 @@ c
 
       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_movecs )
-c     
+c 
 c     Orbital irreps
 c     
       if (.not.ma_push_get(MT_INT, nbf, 'MO sym', l_sym, k_sym))
@@ -313,10 +314,49 @@ c
      &       GEOM_ERR)
       call ga_orthog_mos(basis, g_movecs)
 c
+      if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
+     $     call errquit('mcscf: cannot dup MO vectors',0, GA_ERR)
+c
       status = detci_memsiz(nact, nela, nelb, nsym,
      $     int_mb(k_sym+nclosed), nci )
       if (oprinfo) write(6,7761) nci
  7761 format(7x,'No. of determinants:',6x,i8/)
+c
+c     Order orbitals based in CAS input
+c
+      if (.not.ma_push_get(MT_INT, nact, 'order', l_ord, k_ord))
+     $     call errquit('mcscf: cannot allocate order',0, MA_ERR)
+      iord_in=-1
+      do i=1,nir
+         do j=nclosed+1,nclosed+nact
+            if (int_mb(k_sym+j-1).eq.i) then
+               iord_in = iord_in + 1
+               int_mb(k_ord+iord_in) = j
+            endif
+         enddo
+      enddo
+      call ga_copy(g_movecs,g_hcore)
+      if (.not.ma_push_get(MT_DBL, nact,'tmp evals', l_evl, k_evl))
+     $   call errquit('mcscf_reorder: cannot allocate tmp evals',0,
+     &                 MA_ERR)
+      call dcopy(nact,dbl_mb(k_evals+nclosed),1,dbl_mb(k_evl),1)
+      if (.not.ma_push_get(MT_INT, nact,'tmp sym', l_tsym, k_tsym))
+     $    call errquit('mcscf_reorder: cannot allocate tmp sym',0,
+     &                 MA_ERR)
+      call icopy(nact,int_mb(k_sym+nclosed),1,int_mb(k_tsym),1)
+      do i=1,nact 
+         iorb=int_mb(k_ord+i-1)
+         call ga_copy_patch('N',g_hcore,1,nbf,iorb,iorb,
+     &                          g_movecs,1,nbf,nclosed+i,nclosed+i)
+         dbl_mb(k_evals+nclosed+i-1) = dbl_mb(k_evl+iorb-nclosed-1)
+         int_mb(k_sym+nclosed+i-1)   = int_mb(k_tsym+iorb-nclosed-1)
+      enddo
+      if (.not.ma_pop_stack(l_tsym))
+     $     call errquit('mcscf: cannot pop temp sym',0, MA_ERR)
+      if (.not.ma_pop_stack(l_evl))
+     $     call errquit('mcscf: cannot pop tmp evls',0, MA_ERR)
+      if (.not.ma_pop_stack(l_ord))
+     $     call errquit('mcscf: cannot pop order',0, MA_ERR)
 c     
 c     Print orbital info
 c     
@@ -330,10 +370,6 @@ c
          write(6,888) (zir(int_mb(k_sym+i)),i=0,nbf-1)
  888     format(15(a4,1x))
       endif
-
-
-      if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
-     $     call errquit('mcscf: cannot dup MO vectors',0, GA_ERR)
 c     
 c     Create conjugacy vectors
 c     
