@@ -96,6 +96,7 @@ c                               ! cursor if failed
             stat = stat .and. nwxc_add_df(func(1:ilen),wght)
         end select
       enddo
+      call nwxc_detect_dependencies()
       nwxc_input = stat
       return
       end

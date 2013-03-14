@@ -78,8 +78,8 @@ C>
 c
       integer i
 c
-      logical  nwxc_set_dependencies
-      external nwxc_set_dependencies
+c     logical  nwxc_set_dependencies
+c     external nwxc_set_dependencies
 c
       nwxc_usr_add_func = .true.
 c
@@ -103,7 +103,7 @@ c         we are out of space
         nwxc_usr_num = nwxc_usr_num + 1
         nwxc_usr_ids(nwxc_usr_num)   = iterm
         nwxc_usr_wghts(nwxc_usr_num) = weight
-        nwxc_usr_add_func = nwxc_set_dependencies(iterm)
+c       nwxc_usr_add_func = nwxc_set_dependencies(iterm)
       else
 c       the functional was found on the list
         nwxc_usr_wghts(i) = nwxc_usr_wghts(i) + weight
@@ -647,11 +647,11 @@ c         do not do anything
         case (NWXCP_M05)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
-          nwxc_depends_on_tau = .true.
+          nwxc_depends_on_tau   = .true.
         case (NWXCP_M05_2X)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
-          nwxc_depends_on_tau = .true.
+          nwxc_depends_on_tau   = .true.
         case (NWXCP_HSE)
           nwxc_depends_on_rho   = .true.
           nwxc_depends_on_gamma = .true.
@@ -687,4 +687,60 @@ c         do not do anything
       nwxc_set_dependencies = stat
       return
       end
+C>
+C> \brief Detect the dependencies for the functional
+C>
+C> An important aspect in DFT is to keep track of what quantities
+C> a functional depends on as this relates to many expressions a code
+C> needs to evaluate. This function updates the appropriate data
+C> in accordance to the current definition of the functional.
+C>
+      subroutine nwxc_detect_dependencies()
+      implicit none
+#include "nwxcP.fh"
+      integer i      !< Counter
+      integer maxpt  !< The number of points
+      parameter (maxpt = 3)
+c     
+      double precision rho(maxpt)    !< The density
+      double precision rgamma(maxpt) !< The norm of the gradient
+      double precision tau(maxpt)    !< The kinetic energy density
+c
+      double precision func(maxpt)   !< The functional value
+      double precision dfdr(maxpt)   !< Derivative wrt rho
+      double precision dfdg(maxpt)   !< Derivative wrt rgamma
+      double precision dfdt(maxpt)   !< Derivative wrt tau
+c
+      double precision abssum
+c
+      data rho   /0.5d0, 1.0d0, 1.5d0/
+      data rgamma/0.5d0, 0.7d0, 0.9d0/
+      data tau   /0.33d0,0.66d0,1.0d0/
+      data func/maxpt*0.0d0/
+      data dfdr/maxpt*0.0d0/
+      data dfdg/maxpt*0.0d0/
+      data dfdt/maxpt*0.0d0/
+c
+      call nwxc_eval_df(1,maxpt,rho,rgamma,tau,func,dfdr,dfdg,dfdt)
+c
+      abssum = 0.0d0
+      do i = 1, maxpt
+        abssum = abssum + abs(dfdr(i))
+      enddo
+      nwxc_depends_on_rho = (abssum.gt.0.0d0)
+c
+      abssum = 0.0d0
+      do i = 1, maxpt
+        abssum = abssum + abs(dfdg(i))
+      enddo
+      nwxc_depends_on_gamma = (abssum.gt.0.0d0)
+c
+      abssum = 0.0d0
+      do i = 1, maxpt
+        abssum = abssum + abs(dfdt(i))
+      enddo
+      nwxc_depends_on_tau = (abssum.gt.0.0d0)
+c
+      end
+
 C> @}
