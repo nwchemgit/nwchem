@@ -43,7 +43,7 @@ static void module_stack_push(const char *module)
     
     if ( (modlen+stacklen+2) >= sizeof(module_stack) ) {
 	if (print_warning) {
-	    fprintf(stderr, "!! ecce_print: module_stack too small %d %d\n",
+	    fprintf(stderr, "!! ecce_print: module_stack too small %d %zu\n",
 		    modlen+stacklen+2, sizeof(module_stack));
 	    print_warning = 0;
 	}
@@ -375,7 +375,7 @@ void FATR ecce_print_file_open_(const char *filename, int flen)
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print_file_open: name too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_file_open: name too long? (%d %zu)\n",
 		flen, sizeof(buf));
 	return;
     }
@@ -400,7 +400,7 @@ void FATR ecce_print_echo_input_(const char *filename, int flen)
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print_echo_input: name too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_echo_input: name too long? (%d %zu)\n",
 		flen, sizeof(buf));
 	return;
     }
@@ -430,7 +430,7 @@ void FATR ecce_print2_(const char *key, Integer *ma_type,
     char buf[1024];
 
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
+	fprintf(stderr,"!! ecce_print: key too long (%d %zu)\n", 
 		keylen, sizeof(buf));
 	return;
     }
@@ -457,7 +457,7 @@ void FATR ecce_print2_dbl_tol_(const char *key,
     char buf[1024];
 
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
+	fprintf(stderr,"!! ecce_print: key too long (%d %zu)\n", 
 		keylen, sizeof(buf));
 	return;
     }
@@ -479,7 +479,7 @@ void FATR ecce_print1_(const char *key, Integer *ma_type,
     char buf[1024];
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
+	fprintf(stderr,"!! ecce_print: key too long (%d %zu)\n", 
 		keylen, sizeof(buf));
 	return;
     }
@@ -499,7 +499,7 @@ void FATR ecce_print_module_entry_(const char *module, int modlen)
     char buf[1024];
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(module, modlen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print_module_entry: name too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_module_entry: name too long? (%d %zu)\n",
 		modlen, sizeof(buf));
 	return;
     }
@@ -522,13 +522,13 @@ void FATR ecce_print_module_exit_(const char *module, const char *status,
     char buf[1024], buf1[1024];
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(module, modlen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print_module_exit: name too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_module_exit: name too long? (%d %zu)\n",
 		modlen, sizeof(buf));
 	return;
     }
 
     if (!fortchar_to_string(status, statlen, buf1, sizeof(buf1))) {
-	fprintf(stderr,"!! ecce_print_module_exit: status too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_module_exit: status too long? (%d %zu)\n",
 		statlen, sizeof(buf1));
 	return;
     }
@@ -552,7 +552,7 @@ void FATR ecce_print1_char_(const char *key, const char *data, Integer *dim1,
     int i;
     if (!ecce_print_enabled) return;
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
+	fprintf(stderr,"!! ecce_print: key too long (%d %zu)\n", 
 		keylen, sizeof(buf));
 	return;
     }
@@ -560,7 +560,7 @@ void FATR ecce_print1_char_(const char *key, const char *data, Integer *dim1,
     print_info("begin", buf, "char", (int) *dim1, 0);
     for (i=0; i<*dim1; i++, data+= dlen) {
 	if (!fortchar_to_string(data, dlen, buf1, sizeof(buf1))) {
-	    fprintf(stderr,"!! ecce_print1_char: datum too long (%d %d)\n", 
+	    fprintf(stderr,"!! ecce_print1_char: datum too long (%d %zu)\n", 
 		    dlen, sizeof(buf1));
 	    return;
 	}
@@ -582,7 +582,7 @@ void FATR ecce_print_echo_string_(const char *filename, int flen)
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print_echo_string: name too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_echo_string: name too long? (%d %zu)\n",
 		flen, sizeof(buf));
 	return;
     }
@@ -602,7 +602,7 @@ void FATR ecce_print_version_(const char *filename, int flen)
     char buf[1024];
 
     if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
-	fprintf(stderr,"!! ecce_print_version: name too long? (%d %d)\n",
+	fprintf(stderr,"!! ecce_print_version: name too long? (%d %zu)\n",
 		flen, sizeof(buf));
 	return;
     }

@@ -215,3 +215,14 @@ c
       enddo
       return
       end
+
+#ifdef OLD_GA
+      subroutine ga_zgop(typ, x, n, op)
+      implicit none
+      integer typ
+      integer n
+      double complex x(n)
+      character*(*) op
+      call ga_error('ga_zgop not implemented in GA 4.3', 1)
+      end
+#endif

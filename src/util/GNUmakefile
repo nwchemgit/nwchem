@@ -8,6 +8,10 @@ else
    LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
 endif
 
+ifeq ($(TARGET),MACX)
+  LIB_DEFINES += -DOLD_GA
+endif
+
 # The packing routines have been modified so that they work
 # for all combinations of 32-bit, 64-bit, big-endian, little-endian
 
