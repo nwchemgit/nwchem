@@ -1,8 +1,9 @@
-#  aug-cc-pVTZ-PP MP2 Fitting  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  aug-cc-pVTZ-PP MP2 Fitting  EMSL  Basis Set Exchange Library  3/15/13 10:19 AM
 # Elements                             References
 # --------                             ----------
 # Ru: J. G. Hill and J. A. Platts, Calculating interaction energies in transition metal complexes with local electron correlation methods, J. Chem. Phys. 129, 134101 (2008).
 # Y Zr Nb Mo Tc Rh Pd: J. Grant Hill and James A. Platts, Auxiliary Basis Sets for Density-Fitted MP2 Calculations: Correlation-Consistent Basis Sets for the 4d Elements, J. Chem. Theory Comput. 5, 500 (2009).
+# Hf Ta W Re Os Ir Pt: J. Grant Hill, Auxiliary basis sets for density fitting second-order Møller-Plesset perturbation theory: Correlation consistent basis sets for the 5d elements Hf-Pt, J. Chem. Phys. 135, 044105 (2011).
 # 
 
 
@@ -886,4 +887,116 @@ Pd    I
       1.9861364              1.0000000        
 Pd    I
       0.9689220              1.0000000        
+end
+basis "Hf_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+Hf    S
+      0.0033850              1.0000000        
+Hf    P
+      0.0032140              1.0000000        
+Hf    D
+      0.0026810              1.0000000        
+Hf    F
+      0.0271330              1.0000000        
+Hf    G
+      0.0400460              1.0000000        
+Hf    H
+      0.1235530              1.0000000        
+Hf    I
+      0.2700160              1.0000000        
+end
+basis "Ta_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+Ta    S
+      0.0045110              1.0000000        
+Ta    P
+      0.0034320              1.0000000        
+Ta    D
+      0.0028750              1.0000000        
+Ta    F
+      0.0293670              1.0000000        
+Ta    G
+      0.0537690              1.0000000        
+Ta    H
+      0.1695310              1.0000000        
+Ta    I
+      0.3720270              1.0000000        
+end
+basis "W_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+W    S
+      0.0049230              1.0000000        
+W    P
+      0.0035620              1.0000000        
+W    D
+      0.0034140              1.0000000        
+W    F
+      0.0318720              1.0000000        
+W    G
+      0.0680750              1.0000000        
+W    H
+      0.2116930              1.0000000        
+W    I
+      0.4990550              1.0000000        
+end
+basis "Re_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+Re    S
+      0.0034970              1.0000000        
+Re    P
+      0.0088250              1.0000000        
+Re    D
+      0.0046370              1.0000000        
+Re    F
+      0.0886390              1.0000000        
+Re    G
+      0.0987410              1.0000000        
+Re    H
+      0.2709810              1.0000000        
+Re    I
+      0.6306410              1.0000000        
+end
+basis "Os_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+Os    S
+      0.0067000              1.0000000        
+Os    P
+      0.0046240              1.0000000        
+Os    D
+      0.0057760              1.0000000        
+Os    F
+      0.0372120              1.0000000        
+Os    G
+      0.0835680              1.0000000        
+Os    H
+      0.2891340              1.0000000        
+Os    I
+      0.7080580              1.0000000        
+end
+basis "Ir_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+Ir    S
+      0.0057350              1.0000000        
+Ir    P
+      0.0061120              1.0000000        
+Ir    D
+      0.0115060              1.0000000        
+Ir    F
+      0.0345070              1.0000000        
+Ir    G
+      0.1134010              1.0000000        
+Ir    H
+      0.3463610              1.0000000        
+Ir    I
+      0.8344040              1.0000000        
+end
+basis "Pt_aug-cc-pVTZ-PP MP2 Fitting" SPHERICAL
+Pt    S
+      0.0103770              1.0000000        
+Pt    P
+      0.0109990              1.0000000        
+Pt    D
+      0.0175920              1.0000000        
+Pt    F
+      0.0351040              1.0000000        
+Pt    G
+      0.1062380              1.0000000        
+Pt    H
+      0.3806310              1.0000000        
+Pt    I
+      0.9277760              1.0000000        
 end

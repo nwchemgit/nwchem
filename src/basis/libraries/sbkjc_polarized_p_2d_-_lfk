@@ -1,4 +1,4 @@
-#  SBKJC Polarized (p,2d) - LFK  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
+#  SBKJC Polarized (p,2d) - LFK  EMSL  Basis Set Exchange Library  3/15/13 10:19 AM
 # Elements                             References
 # --------                             ----------
 # H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Ge As Se Br Kr Rb Sr Sn Sb Te I Xe Cs Ba Pb Bi Po At Rn : N.P. Labello, A.M. Ferreira, H.A. Kurtz, An augmented effective core potential basis set for the calculation of molecular polarizabilities., J. Comput. Chem. 26, 1464-1471 (2005), and N.P. Labello, A.M. Ferreira, H.A. Kurtz, Correlated, relativistic, and basis set limit molecular polarizability calculations to evaluate an augmented effective core potential basis set.  
@@ -644,7 +644,7 @@ Rn    D
       0.119848800            1.00000000       
       0.047685800            0.74112900       
 end
-ASSOCIATED_ECP "SBKJC ECP"
+ASSOCIATED_ECP "sbkjc_ecp"
 # H - HE: J.S. BINKLEY, J.A. POPLE, W.J.HEHRE, J. AM. CHEM.SOC. 102, 939 (1980)
 # LI - AR: W.J. STEVENS, H. BASCH, M. KRAUSS, J. CHEM. PHYS. 81, 6026 (1984)
 # K - RN:  W.J. STEVENS, M. KRAUSS, H. BASCH, P. G. Jasien, Can. J. Chem. 70,

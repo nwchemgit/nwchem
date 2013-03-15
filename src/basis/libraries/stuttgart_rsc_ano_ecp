@@ -1,4 +1,4 @@
-#  Stuttgart RSC ANO/ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
+#  Stuttgart RSC ANO/ECP  EMSL  Basis Set Exchange Library  3/15/13 10:17 AM
 # Elements                             References
 # --------                             ----------
 # La - Lu:  X. Cao and M. Dolg, J. Chem. Phys. (to be published)
@@ -875,7 +875,7 @@ Lu    G
       1.1574000              0.3080390              0.5867050              0.3331220        
       0.4244000              0.0545630              0.1733570              0.5341000        
 end
-ASSOCIATED_ECP "STUTTGART RSC 1997 ECP"
+ASSOCIATED_ECP "stuttgart_rsc_1997_ecp"
 # ELEMENTS                      REFERENCES
 # ---------                       ----------
 # 

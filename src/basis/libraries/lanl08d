@@ -1,4 +1,4 @@
-#  LANL08d  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  LANL08d  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
 # Elements                             References
 # --------                             ----------
 # Si   P   S   Cl   Ge   As   Se   Br   Sn   Sb   Te   I   Pb   Bi: P.J. Hay and W.R. Wadt, J. Chem. Phys. 82, 284 (1985).
@@ -260,7 +260,7 @@ Bi    P
 Bi    D
       0.1920000              1.0000000        
 end
-ASSOCIATED_ECP "LANL2DZ ECP"
+ASSOCIATED_ECP "lanl2dz_ecp"
 # Elements                             References
 # --------                             ----------
 # Na - Hg: P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 270 (1985).

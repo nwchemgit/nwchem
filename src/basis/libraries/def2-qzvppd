@@ -1,4 +1,4 @@
-#  Def2-QZVPPD  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  Def2-QZVPPD  EMSL  Basis Set Exchange Library  3/15/13 10:17 AM
 # Elements                             References
 # --------                             ----------
 # H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn: Dmitrij Rappoport and F. Furche, Property-optimized Gaussian basis sets for molecular response calculations, J. Chem. Phys. 133, 134105 (2010).
@@ -4725,3 +4725,14 @@ Rn    F
 Rn    G
       0.47630000000          1.0000000        
 end
+ASSOCIATED_ECP "def2-ecp"
+# Elements                             References
+# --------                             ----------
+# Y-Cd(ecp-28), Hf-Hg(ecp-46): D. Andrae,U. Haeussermann, M.Dolg, H.Stoll, H.Preuss, Theor.Chim.Acta, 1990, 77, 123?141.
+# In-Sb(ecp-28), Tl-Bi(ecp-46): B. Metz, H. Stoll, M. Dolg, J. Chem. Phys., 2000, 113, 2563?2569.
+# Te-Xe(ecp-28), Po-Rn(ecp-46): K. A. Peterson, D. Figgen, E. Goll, H. Stoll, M. Dolg, J. Chem. Phys., 2003, 119, 11113?11123.
+# Rb(ecp-28), Cs(ecp-46): T.Leininger, A.Nicklass, W.Kuechle, H.Stoll, M.Dolg, A.Bergner, Chem. Phys. Lett., 1996, 255, 274?280.
+# Sr(ecp-28), Ba(ecp-46): M. Kaupp, P. V. Schleyer, H. Stoll and H. Preuss, J. Chem. Phys., 1991, 94, 1360?1366.
+# 
+
+

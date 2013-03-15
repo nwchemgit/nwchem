@@ -1,4 +1,4 @@
-#  DZQ  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
+#  DZQ  EMSL  Basis Set Exchange Library  3/15/13 10:19 AM
 # Elements                             References
 # --------                             ----------
 # Y Zr Nb Mo Tc Ru Rh Pd Ag : T N. E. Schultz, Y. Zhao, and D. G. Truhlar, Density Functionals for Inorganometallic and Organometallic Chemistry, Journal of Physical Chemistry A 109, 11127-11143 (2005).
@@ -282,7 +282,7 @@ Ag    F
 Ag    F
       0.2711000000D+00       1.0000000        
 end
-ASSOCIATED_ECP "SBKJC ECP"
+ASSOCIATED_ECP "sbkjc_ecp"
 # H - HE: J.S. BINKLEY, J.A. POPLE, W.J.HEHRE, J. AM. CHEM.SOC. 102, 939 (1980)
 # LI - AR: W.J. STEVENS, H. BASCH, M. KRAUSS, J. CHEM. PHYS. 81, 6026 (1984)
 # K - RN:  W.J. STEVENS, M. KRAUSS, H. BASCH, P. G. Jasien, Can. J. Chem. 70,

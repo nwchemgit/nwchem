@@ -1,4 +1,4 @@
-#  cc-pVTZ-PP  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  cc-pVTZ-PP  EMSL  Basis Set Exchange Library  3/15/13 10:19 AM
 # Elements                             References
 # --------                             ----------
 # Ga-As,In-Sb, Tl-Bi   : K.A. Peterson, J. Chem. Phys. 119, 11099 (2003).
@@ -1683,7 +1683,7 @@ Rn    D
 Rn    F
       0.4303000              1.0000000        
 end
-ASSOCIATED_ECP "Stuttgart-Koeln MCDHF RSC ECP"
+ASSOCIATED_ECP "stuttgart-koeln_mcdhf_rsc_ecp"
 # ELEMENTS                      REFERENCES
 # ---------                       ----------
 # O: B. Metz and H. Stoll, private communication (KAP)

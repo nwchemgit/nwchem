@@ -1,8 +1,9 @@
-#  aug-cc-pVDZ-PP MP2 Fitting  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  aug-cc-pVDZ-PP MP2 Fitting  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
 # Elements                             References
 # --------                             ----------
 # Ru: J. G. Hill and J. A. Platts, Calculating interaction energies in transition metal complexes with local electron correlation methods, J. Chem. Phys. 129, 134101 (2008).
 # Y Zr Nb Mo Tc Rh Pd: J. Grant Hill and James A. Platts, Auxiliary Basis Sets for Density-Fitted MP2 Calculations: Correlation-Consistent Basis Sets for the 4d Elements, J. Chem. Theory Comput. 5, 500 (2009).
+# Hf Ta W Re Os Ir Pt: J. Grant Hill, Auxiliary basis sets for density fitting second-order Møller-Plesset perturbation theory: Correlation consistent basis sets for the 5d elements Hf-Pt, J. Chem. Phys. 135, 044105 (2011).
 # 
 
 
@@ -662,4 +663,102 @@ Pd    H
       1.7586391              1.0000000        
 Pd    H
       0.7133880              1.0000000        
+end
+basis "Hf_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+Hf    S
+      0.0073050              1.0000000        
+Hf    P
+      0.0065620              1.0000000        
+Hf    D
+      0.0411240              1.0000000        
+Hf    F
+      0.0513030              1.0000000        
+Hf    G
+      0.0492610              1.0000000        
+Hf    H
+      0.1965820              1.0000000        
+end
+basis "Ta_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+Ta    S
+      0.0122530              1.0000000        
+Ta    P
+      0.0178300              1.0000000        
+Ta    D
+      0.0502560              1.0000000        
+Ta    F
+      0.0319840              1.0000000        
+Ta    G
+      0.0806470              1.0000000        
+Ta    H
+      0.2769540              1.0000000        
+end
+basis "W_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+W    S
+      0.0150570              1.0000000        
+W    P
+      0.0147440              1.0000000        
+W    D
+      0.0573060              1.0000000        
+W    F
+      0.0601530              1.0000000        
+W    G
+      0.0722970              1.0000000        
+W    H
+      0.3818820              1.0000000        
+end
+basis "Re_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+Re    S
+      0.0234640              1.0000000        
+Re    P
+      0.0232980              1.0000000        
+Re    D
+      0.0635900              1.0000000        
+Re    F
+      0.0513040              1.0000000        
+Re    G
+      0.0888790              1.0000000        
+Re    H
+      0.4394400              1.0000000        
+end
+basis "Os_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+Os    S
+      0.0435520              1.0000000        
+Os    P
+      0.0357500              1.0000000        
+Os    D
+      0.0631840              1.0000000        
+Os    F
+      0.0642150              1.0000000        
+Os    G
+      0.0972410              1.0000000        
+Os    H
+      0.5176980              1.0000000        
+end
+basis "Ir_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+Ir    S
+      0.0516400              1.0000000        
+Ir    P
+      0.0484810              1.0000000        
+Ir    D
+      0.0680470              1.0000000        
+Ir    F
+      0.0825750              1.0000000        
+Ir    G
+      0.1311310              1.0000000        
+Ir    H
+      0.6191870              1.0000000        
+end
+basis "Pt_aug-cc-pVDZ-PP MP2 Fitting" SPHERICAL
+Pt    S
+      0.0502530              1.0000000        
+Pt    P
+      0.0420960              1.0000000        
+Pt    D
+      0.0736330              1.0000000        
+Pt    F
+      0.0819450              1.0000000        
+Pt    G
+      0.1237160              1.0000000        
+Pt    H
+      0.6912880              1.0000000        
 end

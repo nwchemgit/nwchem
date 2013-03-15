@@ -1,4 +1,4 @@
-#  LANL08(f)  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  LANL08(f)  EMSL  Basis Set Exchange Library  3/15/13 10:19 AM
 # Elements                             References
 # --------                             ----------
 # Sc   Ti   V   Cr   Mn   Fe   Co   Ni   Cu   Y   Zr   Nb   Mo   Tc   Ru   Rh   Pd   Ag   La   Hf   Ta   W   Re   Os   Ir   Pt   Au: P.J. Hay and W.R. Wadt, J. Chem. Phys. 82, 299 (1985).
@@ -872,7 +872,7 @@ Au    D
 Au    F
       1.0500000              1.0000000        
 end
-ASSOCIATED_ECP "LANL2DZ ECP"
+ASSOCIATED_ECP "lanl2dz_ecp"
 # Elements                             References
 # --------                             ----------
 # Na - Hg: P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 270 (1985).

@@ -1,4 +1,4 @@
-#  Def2-SV(P)  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  Def2-SVP  EMSL  Basis Set Exchange Library  3/15/13 10:19 AM
 # Elements                             References
 # --------                             ----------
 # H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn : F. Weigend and R. Ahlrichs, Phys. Chem. Chem. Phys., Balanced basis sets of split valence, triple zeta valence and quadruple zeta valence
@@ -7,15 +7,17 @@
 
 
 
-basis "H_Def2-SV(P)" SPHERICAL
+basis "H_Def2-SVP" SPHERICAL
 H    S
      13.0107010              0.19682158E-01   
       1.9622572              0.13796524       
       0.44453796             0.47831935       
 H    S
       0.12194962             1.0000000        
+H    P
+      0.8000000              1.0000000        
 end
-basis "He_Def2-SV(P)" SPHERICAL
+basis "He_Def2-SVP" SPHERICAL
 He    S
      38.354936737            0.23814288905E-01      
       5.7689081479           0.15490906777    
@@ -25,7 +27,7 @@ He    S
 He    P
       1.0000000              1.0000000        
 end
-basis "Li_Def2-SV(P)" SPHERICAL
+basis "Li_Def2-SVP" SPHERICAL
 Li    S
     266.27785516             0.64920150325E-02      
      40.069783447            0.47747863215E-01      
@@ -42,7 +44,7 @@ Li    P
 Li    P
       0.0820000              1.0000000        
 end
-basis "Be_Def2-SV(P)" SPHERICAL
+basis "Be_Def2-SVP" SPHERICAL
 Be    S
     515.18616125             0.55615307983E-02      
      77.511037595            0.41190068062E-01      
@@ -60,7 +62,7 @@ Be    P
 Be    P
       0.60515465890E-01            1.0000000        
 end
-basis "B_Def2-SV(P)" SPHERICAL
+basis "B_Def2-SVP" SPHERICAL
 B    S
     839.31830086            -0.55929201074E-02      
     126.26464843            -0.41565520771E-01      
@@ -80,7 +82,7 @@ B    P
 B    D
       0.5000000              1.0000000        
 end
-basis "C_Def2-SV(P)" SPHERICAL
+basis "C_Def2-SVP" SPHERICAL
 C    S
    1238.4016938              0.54568832082E-02      
     186.29004992             0.40638409211E-01      
@@ -100,7 +102,7 @@ C    P
 C    D
       0.8000000              1.0000000        
 end
-basis "N_Def2-SV(P)" SPHERICAL
+basis "N_Def2-SVP" SPHERICAL
 N    S
    1712.8415853             -0.53934125305E-02      
     257.64812677            -0.40221581118E-01      
@@ -120,7 +122,7 @@ N    P
 N    D
       1.0000000              1.0000000        
 end
-basis "O_Def2-SV(P)" SPHERICAL
+basis "O_Def2-SVP" SPHERICAL
 O    S
    2266.1767785             -0.53431809926E-02      
     340.87010191            -0.39890039230E-01      
@@ -140,7 +142,7 @@ O    P
 O    D
       1.2000000              1.0000000        
 end
-basis "F_Def2-SV(P)" SPHERICAL
+basis "F_Def2-SVP" SPHERICAL
 F    S
    2894.8325990             -0.53408255515E-02      
     435.41939120            -0.39904258866E-01      
@@ -160,7 +162,7 @@ F    P
 F    D
       1.4000000              1.0000000        
 end
-basis "Ne_Def2-SV(P)" SPHERICAL
+basis "Ne_Def2-SVP" SPHERICAL
 Ne    S
    3598.9736625             -0.53259297003E-02      
     541.32073112            -0.39817417969E-01      
@@ -180,7 +182,7 @@ Ne    P
 Ne    D
       1.8880000              1.0000000        
 end
-basis "Na_Def2-SV(P)" SPHERICAL
+basis "Na_Def2-SVP" SPHERICAL
 Na    S
    4098.2003908             -0.58535911879E-02      
     616.49374031            -0.43647161872E-01      
@@ -206,7 +208,7 @@ Na    P
 Na    D
       0.1310000              1.0000000        
 end
-basis "Mg_Def2-SV(P)" SPHERICAL
+basis "Mg_Def2-SVP" SPHERICAL
 Mg    S
    4953.8339196             -0.57778967498E-02      
     745.18044154            -0.43124761082E-01      
@@ -234,7 +236,7 @@ Mg    P
 Mg    D
       0.1010000              1.0000000        
 end
-basis "Al_Def2-SV(P)" SPHERICAL
+basis "Al_Def2-SVP" SPHERICAL
 Al    S
    5887.5727030              0.13483347987E-02      
     885.61225996             0.10071576809E-01      
@@ -262,7 +264,7 @@ Al    P
 Al    D
       0.3000000              1.0000000        
 end
-basis "Si_Def2-SV(P)" SPHERICAL
+basis "Si_Def2-SVP" SPHERICAL
 Si    S
    6903.7118686              0.13373962995E-02      
    1038.4346419              0.99966546241E-02      
@@ -290,7 +292,7 @@ Si    P
 Si    D
       0.3500000              1.0000000        
 end
-basis "P_Def2-SV(P)" SPHERICAL
+basis "P_Def2-SVP" SPHERICAL
 P    S
    8002.4795106              0.57503489302E-02      
    1203.6813590              0.43007628959E-01      
@@ -318,7 +320,7 @@ P    P
 P    D
       0.4500000              1.0000000        
 end
-basis "S_Def2-SV(P)" SPHERICAL
+basis "S_Def2-SVP" SPHERICAL
 S    S
    9184.9303010             -0.22294387756E-02      
    1381.5105503             -0.16683029937E-01      
@@ -346,7 +348,7 @@ S    P
 S    D
       0.5500000              1.0000000        
 end
-basis "Cl_Def2-SV(P)" SPHERICAL
+basis "Cl_Def2-SVP" SPHERICAL
 Cl    S
   10449.8275660              0.19708362484E-02      
    1571.7365221              0.14754727977E-01      
@@ -374,7 +376,7 @@ Cl    P
 Cl    D
       0.6500000              1.0000000        
 end
-basis "Ar_Def2-SV(P)" SPHERICAL
+basis "Ar_Def2-SVP" SPHERICAL
 Ar    S
   11797.1197650              0.20214479973E-02      
    1774.3522753              0.15139852688E-01      
@@ -402,7 +404,7 @@ Ar    P
 Ar    D
       0.6960000              1.0000000        
 end
-basis "K_Def2-SV(P)" SPHERICAL
+basis "K_Def2-SVP" SPHERICAL
 K    S
   31478.7467640              0.39838653994E-02      
    4726.8876066              0.30501759762E-01      
@@ -439,7 +441,7 @@ K    D
 K    D
       0.0980000              1.0000000        
 end
-basis "Ca_Def2-SV(P)" SPHERICAL
+basis "Ca_Def2-SVP" SPHERICAL
 Ca    S
   35138.7139290              0.39482520740E-02      
    5276.4111348              0.30234243552E-01      
@@ -478,7 +480,7 @@ Ca    D
 Ca    D
       0.70528614919E-01            1.0000000        
 end
-basis "Sc_Def2-SV(P)" SPHERICAL
+basis "Sc_Def2-SVP" SPHERICAL
 Sc    S
   38956.0818040              0.39293205858E-02      
    5849.5733637              0.30093221229E-01      
@@ -517,8 +519,10 @@ Sc    D
       0.54016355610          0.48594185717    
 Sc    D
       0.16211214518          1.0000000        
+Sc    F
+      0.3450000              1.0000000        
 end
-basis "Ti_Def2-SV(P)" SPHERICAL
+basis "Ti_Def2-SVP" SPHERICAL
 Ti    S
   42961.5121850              0.39127635355E-02      
    6450.9759169              0.29969820489E-01      
@@ -557,8 +561,10 @@ Ti    D
       0.69027361954          0.48647124166    
 Ti    D
       0.21088738554          1.0000000        
+Ti    F
+      0.5620000              1.0000000        
 end
-basis "V_Def2-SV(P)" SPHERICAL
+basis "V_Def2-SVP" SPHERICAL
 V    S
   47160.3760600              0.14498688908E-02      
    7081.4110871              0.11106435251E-01      
@@ -597,8 +603,10 @@ V    D
       0.82480925277          0.48488354148    
 V    D
       0.25257904742          1.0000000        
+V    F
+      0.8310000              1.0000000        
 end
-basis "Cr_Def2-SV(P)" SPHERICAL
+basis "Cr_Def2-SVP" SPHERICAL
 Cr    S
   51528.0863490              0.14405823106E-02      
    7737.2103487              0.11036202287E-01      
@@ -637,8 +645,10 @@ Cr    D
       0.78244754808          0.47071118077    
 Cr    D
       0.21995774311          1.0000000        
+Cr    F
+      1.1470000              1.0000000        
 end
-basis "Mn_Def2-SV(P)" SPHERICAL
+basis "Mn_Def2-SVP" SPHERICAL
 Mn    S
   56137.0090370              0.14321304702E-02      
    8429.2063943              0.10972509162E-01      
@@ -677,8 +687,10 @@ Mn    D
       1.1026472189           0.48152670661    
 Mn    D
       0.33743205934          1.0000000        
+Mn    F
+      1.3260000              1.0000000        
 end
-basis "Fe_Def2-SV(P)" SPHERICAL
+basis "Fe_Def2-SVP" SPHERICAL
 Fe    S
   60923.6406430              0.14302254466E-02      
    9147.8893982              0.10958790038E-01      
@@ -717,8 +729,10 @@ Fe    D
       1.2129967888           0.47745100883    
 Fe    D
       0.36524393170          1.0000000        
+Fe    F
+      1.5980000              1.0000000        
 end
-basis "Co_Def2-SV(P)" SPHERICAL
+basis "Co_Def2-SVP" SPHERICAL
 Co    S
   65902.2082570              0.14284614936E-02      
    9895.3896027              0.10946072783E-01      
@@ -757,8 +771,10 @@ Co    D
       1.3413193804           0.47549837676    
 Co    D
       0.40015009743          1.0000000        
+Co    F
+      1.9030000              1.0000000        
 end
-basis "Ni_Def2-SV(P)" SPHERICAL
+basis "Ni_Def2-SVP" SPHERICAL
 Ni    S
   71074.8032110              0.14260386729E-02      
   10672.0209410              0.10928236994E-01      
@@ -797,8 +813,10 @@ Ni    D
       1.4771565078           0.47365096014    
 Ni    D
       0.43735921792          1.0000000        
+Ni    F
+      2.1740000              1.0000000        
 end
-basis "Cu_Def2-SV(P)" SPHERICAL
+basis "Cu_Def2-SVP" SPHERICAL
 Cu    S
   76381.3480560              0.14336079896E-02      
   11468.7774990              0.10986749865E-01      
@@ -837,8 +855,10 @@ Cu    D
       1.4132925109           0.46147880178    
 Cu    D
       0.38878001452          1.0000000        
+Cu    F
+      2.2330000              1.0000000        
 end
-basis "Zn_Def2-SV(P)" SPHERICAL
+basis "Zn_Def2-SVP" SPHERICAL
 Zn    S
   82000.7116290              0.14210764000E-02      
   12312.4717770              0.10891499487E-01      
@@ -877,8 +897,10 @@ Zn    D
       1.7737904917           0.468989591719   
 Zn    D
       0.51975583665          1.0000000        
+Zn    F
+      2.6140000              1.0000000        
 end
-basis "Ga_Def2-SV(P)" SPHERICAL
+basis "Ga_Def2-SVP" SPHERICAL
 Ga    S
   87842.1262960              0.14271588798E-02      
   13189.4964020              0.10938894097E-01      
@@ -922,7 +944,7 @@ Ga    D
 Ga    D
       0.2070000              1.0000000        
 end
-basis "Ge_Def2-SV(P)" SPHERICAL
+basis "Ge_Def2-SVP" SPHERICAL
 Ge    S
   93889.8366420              0.14233976060E-02      
   14097.4975280              0.10910795654E-01      
@@ -966,7 +988,7 @@ Ge    D
 Ge    D
       0.2460000              1.0000000        
 end
-basis "As_Def2-SV(P)" SPHERICAL
+basis "As_Def2-SVP" SPHERICAL
 As    S
  100146.5255400              0.14258349617E-02      
   15036.8617110              0.10930176963E-01      
@@ -1010,7 +1032,7 @@ As    D
 As    D
       0.2930000              1.0000000        
 end
-basis "Se_Def2-SV(P)" SPHERICAL
+basis "Se_Def2-SVP" SPHERICAL
 Se    S
  106612.2002700              0.14274889113E-02      
   16007.6047010              0.10943525114E-01      
@@ -1054,7 +1076,7 @@ Se    D
 Se    D
       0.3380000              1.0000000        
 end
-basis "Br_Def2-SV(P)" SPHERICAL
+basis "Br_Def2-SVP" SPHERICAL
 Br    S
  113286.3877600              0.14283037779E-02      
   17009.6263030              0.10950417496E-01      
@@ -1098,7 +1120,7 @@ Br    D
 Br    D
       0.3890000              1.0000000        
 end
-basis "Kr_Def2-SV(P)" SPHERICAL
+basis "Kr_Def2-SVP" SPHERICAL
 Kr    S
  120165.6487500              0.14294234496E-02      
   18042.5001690              0.10959597020E-01      
@@ -1142,7 +1164,7 @@ Kr    D
 Kr    D
       0.4430000              1.0000000        
 end
-basis "Rb_Def2-SV(P)" SPHERICAL
+basis "Rb_Def2-SVP" SPHERICAL
 Rb    S
       4.6687885071           0.29008526793    
       2.9442428420          -0.67740090428    
@@ -1169,7 +1191,7 @@ Rb    D
 Rb    D
       0.27432280711E-01            1.0000000        
 end
-basis "Sr_Def2-SV(P)" SPHERICAL
+basis "Sr_Def2-SVP" SPHERICAL
 Sr    S
       5.9276428767           0.19698765364    
       3.0691274814          -0.64852205985    
@@ -1197,7 +1219,7 @@ Sr    D
 Sr    D
       0.36655000000E-01            1.0000000        
 end
-basis "Y_Def2-SV(P)" SPHERICAL
+basis "Y_Def2-SVP" SPHERICAL
 Y    S
       5.1329580000          -1.3864845457     
       4.2401920000           1.9459581166     
@@ -1226,8 +1248,10 @@ Y    D
       0.17470950748          0.43861485518224 
 Y    D
       0.61978796638E-01            1.0000000        
+Y    F
+      0.2651500              1.0000000        
 end
-basis "Zr_Def2-SV(P)" SPHERICAL
+basis "Zr_Def2-SVP" SPHERICAL
 Zr    S
       5.8737890000           0.54255558714    
       4.2872700000          -0.95241333244    
@@ -1256,8 +1280,10 @@ Zr    D
       0.22674948677          0.42757027999    
 Zr    D
       0.83011031631E-01            1.0000000        
+Zr    F
+      0.3926100              1.0000000        
 end
-basis "Nb_Def2-SV(P)" SPHERICAL
+basis "Nb_Def2-SVP" SPHERICAL
 Nb    S
       6.5663010000          -0.94917907866    
       4.5864380000           1.5736372883     
@@ -1286,8 +1312,10 @@ Nb    D
       0.27140946867          0.4179975484761  
 Nb    D
       0.10054426592          1.0000000        
+Nb    F
+      0.5227000              1.0000000        
 end
-basis "Mo_Def2-SV(P)" SPHERICAL
+basis "Mo_Def2-SVP" SPHERICAL
 Mo    S
       7.2033800000          -0.89310617237    
       5.0522950000           1.6074095756     
@@ -1316,8 +1344,10 @@ Mo    D
       0.31530878939          0.41123927009    
 Mo    D
       0.11754374390          1.0000000        
+Mo    F
+      0.6554500              1.0000000        
 end
-basis "Tc_Def2-SV(P)" SPHERICAL
+basis "Tc_Def2-SVP" SPHERICAL
 Tc    S
       7.4344020000          -1.1436289973     
       5.5513270000           1.8752000559     
@@ -1346,8 +1376,10 @@ Tc    D
       0.36427094833          0.40796933085    
 Tc    D
       0.13678402297          1.0000000        
+Tc    F
+      0.7908500              1.0000000        
 end
-basis "Ru_Def2-SV(P)" SPHERICAL
+basis "Ru_Def2-SVP" SPHERICAL
 Ru    S
       7.9365700000          -1.1772083350     
       5.9842450000           1.6197059592     
@@ -1376,8 +1408,10 @@ Ru    D
       0.40379445583          0.40371732508    
 Ru    D
       0.14978618173          1.0000000        
+Ru    F
+      0.9431400              1.0000000        
 end
-basis "Rh_Def2-SV(P)" SPHERICAL
+basis "Rh_Def2-SVP" SPHERICAL
 Rh    S
       7.9177440000           0.14014042010165D+01      
       6.8412070000          -0.17975072656312D+01      
@@ -1406,8 +1440,10 @@ Rh    D
       0.39957494644          0.39567661995894 
 Rh    D
       0.13951120264          1.0000000        
+Rh    F
+      1.0949900              1.0000000        
 end
-basis "Pd_Def2-SV(P)" SPHERICAL
+basis "Pd_Def2-SVP" SPHERICAL
 Pd    S
       8.4756400000           1.2392391076     
       7.1657170000          -1.6563109970     
@@ -1436,8 +1472,10 @@ Pd    D
       0.44471659896          0.39293650406    
 Pd    D
       0.15544893836          1.0000000        
+Pd    F
+      1.2462900              1.0000000        
 end
-basis "Ag_Def2-SV(P)" SPHERICAL
+basis "Ag_Def2-SVP" SPHERICAL
 Ag    S
       9.0884420000          -1.9808918797     
       7.5407310000           2.7554513347     
@@ -1466,8 +1504,10 @@ Ag    D
       0.49313817671          0.39064954560    
 Ag    D
       0.17285032603          1.0000000        
+Ag    F
+      1.3971100              1.0000000        
 end
-basis "Cd_Def2-SV(P)" SPHERICAL
+basis "Cd_Def2-SVP" SPHERICAL
 Cd    S
       9.7270110000          -1.7930075316     
       7.8375230000           2.6110318971     
@@ -1496,8 +1536,10 @@ Cd    D
       0.59373316766          0.39218971958231D+00      
 Cd    D
       0.21760141520          1.0000000        
+Cd    F
+      1.5981300              1.0000000        
 end
-basis "In_Def2-SV(P)" SPHERICAL
+basis "In_Def2-SVP" SPHERICAL
 In    S
     283.52297445             0.70132141424E-03      
      23.324282101           -0.90887432418E-01      
@@ -1532,7 +1574,7 @@ In    D
 In    D
       0.18000000000          1.0000000        
 end
-basis "Sn_Def2-SV(P)" SPHERICAL
+basis "Sn_Def2-SVP" SPHERICAL
 Sn    S
     375.95156177             0.15224884228E-02      
      23.661818008           -0.16776065030    
@@ -1567,7 +1609,7 @@ Sn    D
 Sn    D
       0.20500000000          1.0000000        
 end
-basis "Sb_Def2-SV(P)" SPHERICAL
+basis "Sb_Def2-SVP" SPHERICAL
 Sb    S
     372.76139166             0.15878057239E-02      
      22.689478596           -0.15027605583    
@@ -1602,7 +1644,7 @@ Sb    D
 Sb    D
       0.23060000000          1.0000000        
 end
-basis "Te_Def2-SV(P)" SPHERICAL
+basis "Te_Def2-SVP" SPHERICAL
 Te    S
     396.47954659             0.26307731203E-02      
      21.919773309           -0.13203517066    
@@ -1637,7 +1679,7 @@ Te    D
 Te    D
       0.25000000000          1.0000000        
 end
-basis "I_Def2-SV(P)" SPHERICAL
+basis "I_Def2-SVP" SPHERICAL
 I    S
     445.90489176             0.20037290389E-02      
      23.336842412           -0.14989397324    
@@ -1672,7 +1714,7 @@ I    D
 I    D
       0.30900000000          1.0000000        
 end
-basis "Xe_Def2-SV(P)" SPHERICAL
+basis "Xe_Def2-SVP" SPHERICAL
 Xe    S
    6420.2481656              0.25092173886E-03      
     983.54530664             0.16251948178E-02      
@@ -1721,7 +1763,7 @@ Xe    F
 Xe    F
       2.5000000              1.0000000        
 end
-basis "Cs_Def2-SV(P)" SPHERICAL
+basis "Cs_Def2-SVP" SPHERICAL
 Cs    S
       5.8778113443           0.12859994983    
       4.3631538286          -0.34632569725    
@@ -1748,7 +1790,7 @@ Cs    D
 Cs    D
       0.33216214821E-01            1.0000000        
 end
-basis "Ba_Def2-SV(P)" SPHERICAL
+basis "Ba_Def2-SVP" SPHERICAL
 Ba    S
       2.3961900000          -5.9554766710     
       2.2433050000           6.6805648241     
@@ -1776,7 +1818,7 @@ Ba    D
 Ba    D
       0.0355780              1.0000000        
 end
-basis "La_Def2-SV(P)" SPHERICAL
+basis "La_Def2-SVP" SPHERICAL
 La    S
       5.0873990000          -0.44173707857    
       4.2709780000           0.85812489720    
@@ -1806,8 +1848,10 @@ La    D
       0.13398788830          0.44878277154181D+00      
 La    D
       0.51275503081E-01            1.0000000        
+La    F
+      0.2568300              1.0000000        
 end
-basis "Hf_Def2-SV(P)" SPHERICAL
+basis "Hf_Def2-SVP" SPHERICAL
 Hf    S
      14.592485000           -0.80196298812    
      11.547491000            1.5261602829     
@@ -1837,8 +1881,10 @@ Hf    D
       0.20564954488          0.44224303496859 
 Hf    D
       0.73099858787E-01            1.0000000        
+Hf    F
+      0.3154700              1.0000000        
 end
-basis "Ta_Def2-SV(P)" SPHERICAL
+basis "Ta_Def2-SVP" SPHERICAL
 Ta    S
      14.400000000            0.99343296745    
      12.000000000           -1.6510077975     
@@ -1868,8 +1914,10 @@ Ta    D
       0.24216276510          0.43497228231503D+00      
 Ta    D
       0.87909318337E-01            1.0000000        
+Ta    F
+      0.3738600              1.0000000        
 end
-basis "W_Def2-SV(P)" SPHERICAL
+basis "W_Def2-SVP" SPHERICAL
 W    S
      15.000000000           -0.53315505392    
      12.000000000            1.0014141748     
@@ -1899,8 +1947,10 @@ W    D
       0.27865835325          0.43158409241461D+00      
 W    D
       0.10225296446          1.0000000        
+W    F
+      0.4319900              1.0000000        
 end
-basis "Re_Def2-SV(P)" SPHERICAL
+basis "Re_Def2-SVP" SPHERICAL
 Re    S
      14.781862000           -1.1395193885     
      12.324075000            1.9371421121     
@@ -1930,8 +1980,10 @@ Re    D
       0.32069843172          0.43261236265745D+00      
 Re    D
       0.11892742980          1.0000000        
+Re    F
+      0.4898900              1.0000000        
 end
-basis "Os_Def2-SV(P)" SPHERICAL
+basis "Os_Def2-SVP" SPHERICAL
 Os    S
      15.286736000           -1.0647114485     
      12.700638000            1.8433193269     
@@ -1961,8 +2013,10 @@ Os    D
       0.41588406618          0.48220605798770D+00      
 Os    D
       0.14653507868          1.0000000        
+Os    F
+      0.5506500              1.0000000        
 end
-basis "Ir_Def2-SV(P)" SPHERICAL
+basis "Ir_Def2-SVP" SPHERICAL
 Ir    S
      15.293709000           -1.6731899791     
      13.573682000            2.3934378976     
@@ -1992,8 +2046,10 @@ Ir    D
       0.44322534858          0.47078394930144 
 Ir    D
       0.15641305125          1.0000000        
+Ir    F
+      0.6100800              1.0000000        
 end
-basis "Pt_Def2-SV(P)" SPHERICAL
+basis "Pt_Def2-SVP" SPHERICAL
 Pt    S
      16.559563000           -0.53808800717    
      13.892440000            0.91402161377    
@@ -2023,8 +2079,10 @@ Pt    D
       0.37160028160          0.41129165525    
 Pt    D
       0.13155928617          1.0000000        
+Pt    F
+      0.6681300              1.0000000        
 end
-basis "Au_Def2-SV(P)" SPHERICAL
+basis "Au_Def2-SVP" SPHERICAL
 Au    S
      20.115299000           -0.15910719389    
      12.193477000            0.79105526778    
@@ -2054,8 +2112,10 @@ Au    D
       0.48190232338          0.46152130957882D+00      
 Au    D
       0.16490636769          1.0000000        
+Au    F
+      0.7248200              1.0000000        
 end
-basis "Hg_Def2-SV(P)" SPHERICAL
+basis "Hg_Def2-SVP" SPHERICAL
 Hg    S
      26.842049000           -0.26845096483E-01      
      10.320909000            0.81771278143    
@@ -2085,8 +2145,10 @@ Hg    D
       0.50841366863          0.43493523158359 
 Hg    D
       0.18501599388          1.0000000        
+Hg    F
+      0.7956900              1.0000000        
 end
-basis "Tl_Def2-SV(P)" SPHERICAL
+basis "Tl_Def2-SVP" SPHERICAL
 Tl    S
      45.356924655            0.50938157397E-02      
      20.278843336           -0.14805704314    
@@ -2121,7 +2183,7 @@ Tl    D
 Tl    D
       0.15500000000          1.0000000        
 end
-basis "Pb_Def2-SV(P)" SPHERICAL
+basis "Pb_Def2-SVP" SPHERICAL
 Pb    S
      55.727520333            0.29681153058E-02      
      20.302912827           -0.14352634362    
@@ -2156,7 +2218,7 @@ Pb    D
 Pb    D
       0.17500000000          1.0000000        
 end
-basis "Bi_Def2-SV(P)" SPHERICAL
+basis "Bi_Def2-SVP" SPHERICAL
 Bi    S
     175.19632102             0.80278879028E-03      
      19.820147783           -0.14624461250    
@@ -2191,7 +2253,7 @@ Bi    D
 Bi    D
       0.20000000000          1.0000000        
 end
-basis "Po_Def2-SV(P)" SPHERICAL
+basis "Po_Def2-SVP" SPHERICAL
 Po    S
     278.13783916             0.91690497839E-03      
      19.659291105           -0.14713009283    
@@ -2226,7 +2288,7 @@ Po    D
 Po    D
       0.21500000000          1.0000000        
 end
-basis "At_Def2-SV(P)" SPHERICAL
+basis "At_Def2-SVP" SPHERICAL
 At    S
     303.23376176             0.63504969788E-03      
      20.289449240           -0.13823165350    
@@ -2261,7 +2323,7 @@ At    D
 At    D
       0.23500000000          1.0000000        
 end
-basis "Rn_Def2-SV(P)" SPHERICAL
+basis "Rn_Def2-SVP" SPHERICAL
 Rn    S
    5187.7442468              0.16097034848E-03      
     768.14491207             0.10508214789E-02      
@@ -2310,7 +2372,7 @@ Rn    F
 Rn    F
       2.1000000              1.0000000        
 end
-ASSOCIATED_ECP "DEF2-ECP"
+ASSOCIATED_ECP "def2-ecp"
 # Elements                             References
 # --------                             ----------
 # Y-Cd(ecp-28), Hf-Hg(ecp-46): D. Andrae,U. Haeussermann, M.Dolg, H.Stoll, H.Preuss, Theor.Chim.Acta, 1990, 77, 123?141.

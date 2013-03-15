@@ -1,4 +1,4 @@
-#  STO-3G* Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  STO-3G* Polarization  EMSL  Basis Set Exchange Library  3/15/13 10:17 AM
 # Elements                             Reference
 # --------                             ----------
 # Na - Ar:  J.B. Collins, P.R. Schleyer, J.S. Binkley, J.A. Pople, J. Chem. 
@@ -38,4 +38,3 @@ basis "Ar_STO-3G* Polarization" SPHERICAL
 Ar    D
       0.3900000              1.0000000        
 end
-

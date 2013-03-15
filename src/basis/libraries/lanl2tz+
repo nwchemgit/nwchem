@@ -1,4 +1,4 @@
-#  LANL2TZ+  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  LANL2TZ+  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
 # Elements                             References
 # --------                             ----------
 # Sc   Ti   V   Cr   Mn   Fe   Co   Ni   Cu   Zn: P.J. Hay and W.R. Wadt, J. Chem. Phys. 82, 299 (1985).
@@ -317,7 +317,7 @@ Zn    D
 Zn    D
       0.1700000              1.0000000        
 end
-ASSOCIATED_ECP "LANL2DZ ECP"
+ASSOCIATED_ECP "lanl2dz_ecp"
 # Elements                             References
 # --------                             ----------
 # Na - Hg: P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 270 (1985).

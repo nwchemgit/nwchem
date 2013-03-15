@@ -1,4 +1,4 @@
-#  Def2-QZVP  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  Def2-QZVP  EMSL  Basis Set Exchange Library  3/15/13 10:17 AM
 # Elements                             References
 # --------                             ----------
 # H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn : F. Weigend and R. Ahlrichs, Phys. Chem. Chem. Phys., Balanced basis sets of split valence, triple zeta valence and quadruple zeta valence
@@ -4418,7 +4418,7 @@ Rn    F
 Rn    G
       0.476300000            1.0000000        
 end
-ASSOCIATED_ECP "DEF2-ECP"
+ASSOCIATED_ECP "def2-ecp"
 # Elements                             References
 # --------                             ----------
 # Y-Cd(ecp-28), Hf-Hg(ecp-46): D. Andrae,U. Haeussermann, M.Dolg, H.Stoll, H.Preuss, Theor.Chim.Acta, 1990, 77, 123?141.

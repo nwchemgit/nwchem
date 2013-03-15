@@ -1,7 +1,8 @@
-#  cc-pVDZ-F12_OPTRI  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  cc-pVDZ-F12_OPTRI  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
 # Elements                             References
 # --------                             ----------
 # H B C N O F Ne Al Si P S Cl Ar: K.E. Yousaf and K.A. Peterson, Optimized auxiliary basis sets for explicitly correlated methods, Journal of Chemical Physics 129, 184108 (2008).
+# Li Be Na Mg: J. Grant Hill and Kirk A. Peterson, Correlation consistent basis sets for explicitly correlated wavefunctions: valence and core?valence basis sets for Li, Be, Na, and Mg, Physical Chemistry Chemical Physics 12, 10460 (2010).
 # 
 
 
@@ -23,6 +24,74 @@ H    D
       1.6617710              1.0000000        
 H    D
       0.4585010              1.0000000        
+end
+basis "Li_cc-pVDZ-F12_OPTRI" SPHERICAL
+Li    S
+      0.3537126              1.0000000        
+Li    S
+      0.2125887              1.0000000        
+Li    S
+      0.0574747              1.0000000        
+Li    S
+      0.0210272              1.0000000        
+Li    P
+      0.3997171              1.0000000        
+Li    P
+      0.1075101              1.0000000        
+Li    P
+      0.0379347              1.0000000        
+Li    P
+      0.0140919              1.0000000        
+Li    D
+      0.5642437              1.0000000        
+Li    D
+      0.2119040              1.0000000        
+Li    D
+      0.0917688              1.0000000        
+Li    D
+      0.0349915              1.0000000        
+Li    F
+      0.5538977              1.0000000        
+Li    F
+      0.2955732              1.0000000        
+Li    F
+      0.0851734              1.0000000        
+Li    G
+      0.2690192              1.0000000        
+end
+basis "Be_cc-pVDZ-F12_OPTRI" SPHERICAL
+Be    S
+      0.8779700              1.0000000        
+Be    S
+      0.4595400              1.0000000        
+Be    S
+      0.1143600              1.0000000        
+Be    S
+      0.0291500              1.0000000        
+Be    P
+      0.9745900              1.0000000        
+Be    P
+      0.2901600              1.0000000        
+Be    P
+      0.0941200              1.0000000        
+Be    P
+      0.0323000              1.0000000        
+Be    D
+      0.8795200              1.0000000        
+Be    D
+      0.4741100              1.0000000        
+Be    D
+      0.1989800              1.0000000        
+Be    D
+      0.0890974              1.0000000        
+Be    F
+      1.1952457              1.0000000        
+Be    F
+      0.3501042              1.0000000        
+Be    F
+      0.0889893              1.0000000        
+Be    G
+      0.5609638              1.0000000        
 end
 basis "B_cc-pVDZ-F12_OPTRI" SPHERICAL
 B    S
@@ -227,6 +296,78 @@ Ne    F
       0.9299590              1.0000000        
 Ne    G
       2.8677250              1.0000000        
+end
+basis "Na_cc-pVDZ-F12_OPTRI" SPHERICAL
+Na    S
+      2.9347410              1.0000000        
+Na    S
+      0.3486070              1.0000000        
+Na    S
+      0.0926760              1.0000000        
+Na    S
+      0.0118550              1.0000000        
+Na    P
+     10.8919930              1.0000000        
+Na    P
+      1.2007960              1.0000000        
+Na    P
+      0.3334490              1.0000000        
+Na    P
+      0.0686190              1.0000000        
+Na    P
+      0.0115070              1.0000000        
+Na    D
+      5.5315440              1.0000000        
+Na    D
+      0.3157640              1.0000000        
+Na    D
+      0.1445770              1.0000000        
+Na    D
+      0.0849870              1.0000000        
+Na    F
+      0.7110334              1.0000000        
+Na    F
+      0.2653676              1.0000000        
+Na    F
+      0.0461348              1.0000000        
+Na    G
+      2.3826961              1.0000000        
+end
+basis "Mg_cc-pVDZ-F12_OPTRI" SPHERICAL
+Mg    S
+      3.5039530              1.0000000        
+Mg    S
+      0.2288600              1.0000000        
+Mg    S
+      0.0586040              1.0000000        
+Mg    S
+      0.0254650              1.0000000        
+Mg    P
+      7.2210930              1.0000000        
+Mg    P
+      1.5043990              1.0000000        
+Mg    P
+      0.4797700              1.0000000        
+Mg    P
+      0.1288007              1.0000000        
+Mg    P
+      0.0476970              1.0000000        
+Mg    D
+      5.7466450              1.0000000        
+Mg    D
+      0.8879130              1.0000000        
+Mg    D
+      0.5971400              1.0000000        
+Mg    D
+      0.1335350              1.0000000        
+Mg    F
+      0.9318021              1.0000000        
+Mg    F
+      0.5929790              1.0000000        
+Mg    F
+      0.2338778              1.0000000        
+Mg    G
+      0.2660970              1.0000000        
 end
 basis "Al_cc-pVDZ-F12_OPTRI" SPHERICAL
 Al    S
