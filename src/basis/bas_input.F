@@ -927,7 +927,7 @@ c
           do 31 ind = 1, inp_strlen(standard)
              if (standard(ind:ind) .eq. '(' .or. 
      &           standard(ind:ind) .eq. ')' .or.     
-                 standard(ind:ind) .eq. '[' .or. 
+     &           standard(ind:ind) .eq. '[' .or. 
      &           standard(ind:ind) .eq. ']' ) goto 31
              lena = lena + 1
              if (standard(ind:ind) .eq. ',' .or.
