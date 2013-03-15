@@ -59,8 +59,12 @@ c
       integer rtdb         ! FA-02-22-11, for occupations
       integer switch_focc  ! FA-02-22-11, for occupations
       logical status       ! FA-02-22-11, for occupations
+      double precision anoc(2),new_ntotel
       logical debug_fon
       logical no_avg_fon
+      integer nocinit
+      save nocinit,anoc
+      data nocinit /1/
 c
 c     preliminaries
       sqrtpi=sqrt(acos(-1d0))
@@ -68,8 +72,6 @@ c     preliminaries
       nproc=ga_nnodes()
       rhfuhf=2d0
       if(ipol.eq.2) rhfuhf=1d0
-c
-      if(ssmear.lt.toll.or.iter.lt.-1) then
 c       
 c     check degener
 c       
@@ -87,8 +89,10 @@ c       average fractional occupations (leading orbitals)
             call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
      &         AO_bas_han,nbf,g_vecs(isp),g_dens(isp),toll)
           enddo
-          return
+          if(ssmear.lt.toll)return
         endif ! fon
+c
+      if(ssmear.lt.toll.or.iter.lt.-1) then
 c
         if (odftps) call pstat_on(ps_dgemm)
 c
@@ -116,6 +120,20 @@ c
 c
         if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &     call errquit('dftdensm: failed to alloc tmpm',nbf, MA_ERR)
+c
+c     fon
+c
+        if(nocinit.eq.1) then
+           if(fon) then
+              anoc(1)=ncore_fon(1)+nel_fon(1)
+              anoc(2)=ncore_fon(2)+nel_fon(2)
+           else
+              anoc(1)=noc(1)
+              anoc(2)=noc(2)
+           endif
+           nocinit=0
+        endif
+        new_ntotel=anoc(1)+anoc(2)
 c       
 c       initialize ef
 c       
@@ -128,13 +146,15 @@ c
           call dfill(nbf*ipol, 0.d0, focc, 1)
           if(spinset.and.ipol.eq.2) then
             nmo(2)=0
-            call dft_zero(2,nbf,nmo,noc(1),efermi(1),evals,
+            call dft_zero(2,nbf,nmo,anoc(1),efermi(1),evals,
      ,         ssmear,toll,.true.)
-            call dft_zero(2,nbf,nmo,noc(2),efermi(2),evals(nbf+1),
+            call dft_zero(2,nbf,nmo,anoc(2),efermi(2),evals(nbf+1),
      .         ssmear,toll,.true.)
             nmo(2)=nmo(1)
           else
-            call dft_zero(ipol,nbf,nmo,ntotel,efermi(1),evals,ssmear,
+cold            call dft_zero(ipol,nbf,nmo,ntotel,efermi(1),evals,ssmear,
+            call dft_zero(ipol,nbf,nmo,new_ntotel,
+     E            efermi(1),evals,ssmear,
      .         toll,spinset)
             efermi(2)=efermi(1)
           endif
@@ -197,7 +217,7 @@ c
 c       
 c       compute entropy correction to total e
 c     
-        if(.not.fon) then
+        if(ssmear.gt.1d-8) then
           cksum=0.d0
          do i=1,nmo(1)
            x=(evals(i)-efermi(1))/ssmear
@@ -249,7 +269,8 @@ c
       double precision evals(nbf*ipol) 
       double precision ssmear
       double precision toll
-      integer ntotel
+cold      integer ntotel
+      double precision ntotel
       double precision efermi
       logical spinset
 c
@@ -267,15 +288,16 @@ C
 c
 c     closed shell
 c
-         efermi=evals(ntotel/2)
+         efermi=evals(int(ntotel/2))
       else
 c
 c     open shell
 c
          if(spinset) then
-            efermi=evals(ntotel/2)
+            efermi=evals(int(ntotel/2))
          else
-            efermi=0.5d0*(evals(ntotel/2)+evals(nbf+ntotel/2))
+            efermi=0.5d0*(evals(int(ntotel/2))+
+     +           evals(nbf+int(ntotel/2)))
          endif
       endif
       step=max(2.d0*ssmear,1.d0)
@@ -363,7 +385,8 @@ c
       integer nbf,nmo(2)
       double precision efermi
       double precision evals(nbf*ipol)
-      integer ntotel 
+cold      integer ntotel 
+      double precision ntotel
       double precision ssmear
 #include "msgids.fh"
 c
@@ -372,7 +395,6 @@ c
       external util_erfc
       double precision one,x,xb,rhfuhf,
      , fzeroa ,fzerob ,na,nb
-      parameter(one=1.d0)
       rhfuhf=2d0/ipol
       fzeroa=0d0
       fzerob=0d0
@@ -387,11 +409,11 @@ c
          fzeroa=fzeroa+na
          if(ipol.eq.2) fzerob=fzerob+nb
       enddo
-C      write(0,*) ' ef a b ',efermi,fzeroa,fzerob
-C      write(0,*) 'abs  a b ',abs(noc(1)-fzeroa),abs(noc(2)-fzerob)
+c      write(6,*) ' ef a b ',efermi,fzeroa,fzerob
          fzero=ntotel-(fzeroa+fzerob)*rhfuhf
-C      write(0,*) ' fzero efer ',fzero,efermi
-C      write(0,*) ' ==============='
+c      write(6,*) ' ntotel  ',ntotel
+c      write(6,*) ' fzero efer ',fzero,efermi
+c      write(6,*) ' ==============='
       return
       end
 c

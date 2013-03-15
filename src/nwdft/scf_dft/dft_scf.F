@@ -280,6 +280,7 @@ c
             endif
          endif
       endif
+      write(6,*) ' scf ss sme ',ssmear,smear_in
 c
 c     check for FON in rtdb:
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1, fon)) then
@@ -720,7 +721,7 @@ c       fractional occupations:
           pstrace=ga_ddot(g_dens,g_s)
           if(ga_nodeid().eq.0) then
             write(luout,'(5x,a)') 'FON applied'
-            write (luout,'(5x,a,1x,e15.7)')
+            write (luout,'(5x,a,1x,2pe15.7)')
      &         'tr(P*S): ',pstrace 
           end if
           if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
@@ -938,8 +939,10 @@ c
          if(ipol.eq.2) then
             if (.not. ga_destroy(g_denso(2))) call errquit
      &           ('dft_scf: could not destroy g_dens2', 0, GA_ERR)
+            if(iter.gt.0) then
             if (.not. MA_free_heap(l_gdiis))  call errquit
      &           (' dft_scf:cannot popstack',111, MA_ERR)
+            endif
          endif
          if (odftps) call pstat_on(ps_scfend)
          goto 1970
