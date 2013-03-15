@@ -1,0 +1,81 @@
+title "F-CH3-Cl- NEB calculations"
+
+echo
+
+start neb-fch3cl
+
+charge -1
+
+basis 
+  * library 3-21g
+end
+
+scf
+thresh 1.0e-6
+end
+
+cosmo
+do_gasphase .false.
+rsolv 0.5
+lineq 1
+end
+
+
+#### define the start geometry ####
+geometry units angstroms print xyz noautosym
+C         0.43428508     1.30389123    -0.00211075
+F         0.21507683     2.70819739    -0.02367214
+H         0.99389707     1.05144526     0.88175895
+H         0.98631197     1.02048006    -0.88075791
+H        -0.51702447     0.80258158     0.01050422
+Cl        0.80848468    -1.88419629    -0.01525049
+end
+
+
+#### define the end geometry ####
+geometry endgeom units angstroms print xyz noautosym
+C         1.00786954    -0.19959493     0.82110514
+F        -0.00943900    -3.12486940    -0.02266769
+H         0.64767567    -1.18953707     0.52064081
+H         1.99811404     0.03394569     0.47874040
+H         0.85911342     0.03069667     1.85933092
+Cl       -0.13180391     1.05817932    -0.11523885
+end
+
+
+### RUN NEB calculation with 5 then 10 beads ###
+neb
+   impose
+   nbeads 5
+   maxiter 5
+   stepsize 0.01
+   kbeads 0.001
+   nhist 10
+end
+task scf neb ignore
+
+neb
+   maxiter 10
+   nbeads 10
+   stepsize 0.10
+   kbeads 0.1
+end
+task scf neb ignore
+
+
+### continue by running Zero-Temperature String calculation with 10 beads ###
+string
+  nbeads 10
+  maxiter 10
+  freeze1 .true.
+  freezeN .true.
+  nhist 5
+end
+task scf string ignore
+
+
+### rerun NEB with tighter spring constant ###
+neb
+   kbeads 1.0
+end
+task scf neb ignore
