@@ -1,0 +1,2272 @@
+ argument  1 = tcne.nw
+
+
+
+============================== echo of input deck ==============================
+##
+## Real-time TDDFT QA
+## rt_tddft_tcne_spinkick
+##
+## This tests open shell propagation and spin-dependent excitation
+## rules.  Here we excite the alpha spin with a positive kick, and the
+## beta spin with a negative kick.
+##
+## Suggested checks:
+## nw_rtparse.py -xdipole -salpha -pz -c myrun.out tcne.out
+## nw_rtparse.py -xdipole -sbeta -pz -c myrun.out tcne.out
+## nw_rtparse.py -xenergy -c myrun.out tcne.out
+## nw_rtparse.py -xS2 -c myrun.out tcne.out
+##
+
+title "Tetracyanoethylene anion"
+
+echo
+scratch_dir ./scratch
+permanent_dir ./perm
+
+start tcne
+echo
+
+
+##
+## optimized with cc-pvdz/B3LYP
+##
+geometry "system" units angstroms noautosym nocenter noautoz
+ C    -1.77576486     0.66496556     0.00004199
+ N    -2.94676621     0.71379797     0.00004388
+ C    -0.36046718     0.62491168     0.00003506
+ C     0.36049301    -0.62492429    -0.00004895
+ C     1.77579907    -0.66504145    -0.00006082
+ N     2.94680364    -0.71382258    -0.00006592
+ C    -0.31262746    -1.87038951    -0.00011201
+ N    -0.85519492    -2.90926164    -0.00016331
+ C     0.31276207     1.87031662     0.00010870
+ N     0.85498782     2.90938919     0.00016857
+end
+
+set geometry "system"
+
+
+##
+## C, N: 6-31G
+##
+basis
+C    S
+   3047.5249000              0.0018347
+    457.3695100              0.0140373
+    103.9486900              0.0688426
+     29.2101550              0.2321844
+      9.2866630              0.4679413
+      3.1639270              0.3623120
+C    SP
+      7.8682724             -0.1193324              0.0689991
+      1.8812885             -0.1608542              0.3164240
+      0.5442493              1.1434564              0.7443083
+C    SP
+      0.1687144              1.0000000              1.0000000
+N    S
+   4173.5110000              0.0018348
+    627.4579000              0.0139950
+    142.9021000              0.0685870
+     40.2343300              0.2322410
+     12.8202100              0.4690700
+      4.3904370              0.3604550
+N    SP
+     11.6263580             -0.1149610              0.0675800
+      2.7162800             -0.1691180              0.3239070
+      0.7722180              1.1458520              0.7408950
+N    SP
+      0.2120313              1.0000000              1.0000000
+end
+
+charge -1
+
+dft
+  mult 2
+  odft
+  xc b3lyp
+end
+task dft energy
+
+
+##
+## Excite alpha and beta spins with different kick excitations.  Also
+## do full checking.
+##
+rt_tddft
+  tmax 5.0
+  dt 0.2
+
+  nrestarts 0
+  nchecks *
+  checklvl 3
+
+  field "ka"
+    type delta
+    polarization z
+    max 0.001
+    spin alpha
+  end
+
+  field "kb"
+    type delta
+    polarization z
+    max -0.001
+    spin beta
+  end
+
+  excite "system" with "ka"
+  excite "system" with "kb"
+end
+task dft rt_tddft
+
+================================================================================
+
+
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 6.1.1
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2012
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = hydra
+    program         = /home/lopata/nwchem/nwchem-trunk/bin/LINUX64/nwchem
+    date            = Thu Mar 14 17:12:04 2013
+
+    compiled        = Thu_Mar_14_13:29:59_2013
+    source          = /home/lopata/nwchem/nwchem-trunk
+    nwchem branch   = Development
+    nwchem revision = 23769
+    ga revision     = 10271
+    input           = tcne.nw
+    prefix          = tcne.
+    data base       = ./perm/tcne.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = ./perm
+  0 scratch   = ./scratch
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                             Tetracyanoethylene anion
+                             ------------------------
+
+ Scaling coordinates for geometry "system" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+
+                              Geometry "system" -> ""
+                              -----------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000    -1.77576486     0.66496556     0.00004199
+    2 N                    7.0000    -2.94676621     0.71379797     0.00004388
+    3 C                    6.0000    -0.36046718     0.62491168     0.00003506
+    4 C                    6.0000     0.36049301    -0.62492429    -0.00004895
+    5 C                    6.0000     1.77579907    -0.66504145    -0.00006082
+    6 N                    7.0000     2.94680364    -0.71382258    -0.00006592
+    7 C                    6.0000    -0.31262746    -1.87038951    -0.00011201
+    8 N                    7.0000    -0.85519492    -2.90926164    -0.00016331
+    9 C                    6.0000     0.31276207     1.87031662     0.00010870
+   10 N                    7.0000     0.85498782     2.90938919     0.00016857
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      N                 14.003070
+
+
+ Effective nuclear repulsion energy (a.u.)     372.1695025761
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+    -0.0000373977    -0.0004681985    -0.0006304882
+
+
+            XYZ format geometry
+            -------------------
+    10
+ system
+ C                    -1.77576486     0.66496556     0.00004199
+ N                    -2.94676621     0.71379797     0.00004388
+ C                    -0.36046718     0.62491168     0.00003506
+ C                     0.36049301    -0.62492429    -0.00004895
+ C                     1.77579907    -0.66504145    -0.00006082
+ N                     2.94680364    -0.71382258    -0.00006592
+ C                    -0.31262746    -1.87038951    -0.00011201
+ N                    -0.85519492    -2.90926164    -0.00016331
+ C                     0.31276207     1.87031662     0.00010870
+ N                     0.85498782     2.90938919     0.00016857
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 N                |   1 C                |     2.21479  |     1.17202
+    3 C                |   1 C                |     2.67560  |     1.41586
+    4 C                |   3 C                |     2.72663  |     1.44287
+    5 C                |   4 C                |     2.67561  |     1.41587
+    6 N                |   5 C                |     2.21480  |     1.17202
+    7 C                |   4 C                |     2.67533  |     1.41572
+    8 N                |   7 C                |     2.21480  |     1.17202
+    9 C                |   3 C                |     2.67533  |     1.41572
+   10 N                |   9 C                |     2.21484  |     1.17204
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          9
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 N                |   1 C                |   3 C                |   179.23
+    1 C                |   3 C                |   4 C                |   121.60
+    1 C                |   3 C                |   9 C                |   116.77
+    4 C                |   3 C                |   9 C                |   121.63
+    3 C                |   4 C                |   5 C                |   121.60
+    3 C                |   4 C                |   7 C                |   121.63
+    5 C                |   4 C                |   7 C                |   116.77
+    4 C                |   5 C                |   6 N                |   179.24
+    4 C                |   7 C                |   8 N                |   179.19
+    3 C                |   9 C                |  10 N                |   179.16
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:         10
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </home/lopata/nwchem/nwchem-trunk/src/basis/libraries/>
+  
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.04752490E+03  0.001835
+  1 S  4.57369510E+02  0.014037
+  1 S  1.03948690E+02  0.068843
+  1 S  2.92101550E+01  0.232184
+  1 S  9.28666300E+00  0.467941
+  1 S  3.16392700E+00  0.362312
+
+  2 S  7.86827240E+00 -0.119332
+  2 S  1.88128850E+00 -0.160854
+  2 S  5.44249300E-01  1.143456
+
+  3 P  7.86827240E+00  0.068999
+  3 P  1.88128850E+00  0.316424
+  3 P  5.44249300E-01  0.744308
+
+  4 S  1.68714400E-01  1.000000
+
+  5 P  1.68714400E-01  1.000000
+
+  N (Nitrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  4.17351100E+03  0.001835
+  1 S  6.27457900E+02  0.013995
+  1 S  1.42902100E+02  0.068587
+  1 S  4.02343300E+01  0.232241
+  1 S  1.28202100E+01  0.469070
+  1 S  4.39043700E+00  0.360455
+
+  2 S  1.16263580E+01 -0.114961
+  2 S  2.71628000E+00 -0.169118
+  2 S  7.72218000E-01  1.145852
+
+  3 P  1.16263580E+01  0.067580
+  3 P  2.71628000E+00  0.323907
+  3 P  7.72218000E-01  0.740895
+
+  4 S  2.12031300E-01  1.000000
+
+  5 P  2.12031300E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                       user specified              5        9   3s2p
+ N                       user specified              5        9   3s2p
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                             Tetracyanoethylene anion
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :    10
+          No. of electrons :    65
+           Alpha electrons :    33
+            Beta electrons :    32
+          Charge           :    -1
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    90
+                     number of shells:    50
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          11.0       434
+          N                   0.65       49          13.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   490
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -443.13647787
+
+ Renormalizing density from      64.00 to     65
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -452.235668
+ 1-e energy   =   -1358.711267
+ 2-e energy   =     534.306096
+ HOMO         =       0.112393
+ LUMO         =       0.246090
+
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
+
+ Integral file          = ./scratch/tcne.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =     67        Max. records in file   = 362065
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 5.333D+05 #integrals = 3.737D+06 #direct =  0.0% #cached =100.0%
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = ./scratch/tcne.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     21        Max. recs in file   =   1930861
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.45             8451352
+          Stack Space remaining (MW):       13.11            13106105
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -446.8562481525 -8.19D+02  4.11D-02  1.10D+00     2.6
+                                                     3.92D-02  1.10D+00
+ d= 0,ls=0.0,diis     2   -443.0833166679  3.77D+00  3.41D-02  9.12D+00     3.9
+                                                     3.27D-02  8.55D+00
+ d= 0,ls=0.0,diis     3   -447.4712925751 -4.39D+00  2.85D-03  3.00D-02     5.2
+                                                     2.94D-03  3.23D-02
+ d= 0,ls=0.0,diis     4   -447.4848441417 -1.36D-02  8.87D-04  6.19D-03     6.5
+                                                     7.63D-04  4.77D-03
+ d= 0,ls=0.0,diis     5   -447.4872892685 -2.45D-03  1.54D-04  2.10D-04     7.9
+                                                     1.58D-04  2.22D-04
+  Resetting Diis
+ d= 0,ls=0.0,diis     6   -447.4874142251 -1.25D-04  1.19D-04  6.30D-05     9.3
+                                                     7.94D-05  6.69D-06
+ d= 0,ls=0.0,diis     7   -447.4874628170 -4.86D-05  2.82D-05  1.33D-06    10.7
+                                                     3.53D-05  2.91D-06
+ d= 0,ls=0.0,diis     8   -447.4874684459 -5.63D-06  2.67D-05  2.78D-06    12.1
+                                                     9.72D-06  2.45D-07
+ d= 0,ls=0.0,diis     9   -447.4874694166 -9.71D-07  2.04D-05  9.74D-07    13.5
+                                                     3.71D-05  3.86D-06
+ d= 0,ls=0.0,diis    10   -447.4874719003 -2.48D-06  1.01D-05  4.11D-07    14.9
+                                                     6.55D-06  2.87D-07
+ d= 0,ls=0.0,diis    11   -447.4874721255 -2.25D-07  2.28D-06  4.25D-08    16.2
+                                                     2.65D-06  4.82D-08
+
+
+         Total DFT energy =     -447.487472125520
+      One electron energy =    -1351.704245878843
+           Coulomb energy =      592.206142725058
+    Exchange-Corr. energy =      -60.158871547873
+ Nuclear repulsion energy =      372.169502576137
+
+ Numeric. integr. density =       64.999999675038
+
+     Total iterative time =     15.8s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector   10  Occ=1.000000D+00  E=-1.010821D+01
+              MO Center=  2.2D-02,  1.0D-01,  7.4D-07, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    73      0.535295   9 C  s                 1      0.484711   1 C  s         
+    37      0.487000   5 C  s                55      0.480462   7 C  s         
+
+ Vector   11  Occ=1.000000D+00  E=-8.107453D-01
+              MO Center=  1.1D-04, -9.0D-05, -5.0D-06, r^2= 6.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.167228   2 N  s                47      0.167250   6 N  s         
+    65      0.167112   8 N  s                83      0.167107  10 N  s         
+    15      0.163006   2 N  s                51      0.163024   6 N  s         
+    69      0.162878   8 N  s                87      0.162890  10 N  s         
+     2      0.157287   1 C  s                38      0.157305   5 C  s         
+
+ Vector   12  Occ=1.000000D+00  E=-8.022360D-01
+              MO Center=  2.2D-04,  3.1D-04, -4.8D-06, r^2= 6.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.182826   2 N  s                47     -0.182849   6 N  s         
+    65     -0.182401   8 N  s                83      0.182458  10 N  s         
+    15      0.177567   2 N  s                51     -0.177587   6 N  s         
+    69     -0.177175   8 N  s                87      0.177226  10 N  s         
+     2      0.151492   1 C  s                38     -0.151508   5 C  s         
+
+ Vector   13  Occ=1.000000D+00  E=-7.980624D-01
+              MO Center=  1.9D-04, -4.3D-04, -4.8D-06, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.187909   2 N  s                47     -0.187955   6 N  s         
+    65      0.188340   8 N  s                83     -0.188290  10 N  s         
+    15      0.183823   2 N  s                51     -0.183866   6 N  s         
+    69      0.184266   8 N  s                87     -0.184220  10 N  s         
+
+ Vector   14  Occ=1.000000D+00  E=-7.959810D-01
+              MO Center= -5.5D-04,  2.4D-04, -4.7D-06, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.190441   2 N  s                47      0.190355   6 N  s         
+    65     -0.190499   8 N  s                83     -0.190517  10 N  s         
+    15      0.170221   2 N  s                51      0.170144   6 N  s         
+    69     -0.170210   8 N  s                87     -0.170215  10 N  s         
+
+ Vector   15  Occ=1.000000D+00  E=-7.144729D-01
+              MO Center=  3.8D-05, -6.2D-05, -6.1D-06, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.273786   3 C  s                29      0.273795   4 C  s         
+    24      0.153056   3 C  s                33      0.153060   4 C  s         
+     3      0.152287   1 C  px               39     -0.152293   5 C  px        
+
+ Vector   16  Occ=1.000000D+00  E=-6.177535D-01
+              MO Center=  2.7D-05, -4.6D-05, -6.1D-06, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.233317   3 C  s                29     -0.233298   4 C  s         
+     3      0.172899   1 C  px               24      0.172492   3 C  s         
+    33     -0.172468   4 C  s                39      0.172897   5 C  px        
+
+ Vector   17  Occ=1.000000D+00  E=-4.893358D-01
+              MO Center= -6.0D-05,  1.2D-04, -6.3D-06, r^2= 2.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.253540   3 C  px               30      0.253490   4 C  px        
+     3     -0.167003   1 C  px               39     -0.166966   5 C  px        
+    58     -0.167131   7 C  py               76     -0.167151   9 C  py        
+
+ Vector   18  Occ=1.000000D+00  E=-4.119654D-01
+              MO Center= -2.4D-06,  4.7D-05, -6.5D-06, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.332073   3 C  py               31     -0.332054   4 C  py        
+    21     -0.178995   3 C  px               30      0.179005   4 C  px        
+
+ Vector   19  Occ=1.000000D+00  E=-4.110288D-01
+              MO Center=  1.3D-04, -1.6D-04, -6.3D-06, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -0.254625   3 C  px               30      0.254662   4 C  px        
+     6      0.236688   1 C  s                42      0.236706   5 C  s         
+    60     -0.229757   7 C  s                78     -0.229737   9 C  s         
+     3      0.188893   1 C  px               39     -0.188920   5 C  px        
+    58     -0.175428   7 C  py               76      0.175393   9 C  py        
+
+ Vector   20  Occ=1.000000D+00  E=-3.038171D-01
+              MO Center=  4.0D-05, -5.7D-05, -5.8D-06, r^2= 3.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.272788   3 C  pz               32      0.272798   4 C  pz        
+     5      0.180293   1 C  pz               41      0.180299   5 C  pz        
+    59      0.180327   7 C  pz               77      0.180315   9 C  pz        
+
+ Vector   21  Occ=1.000000D+00  E=-2.568349D-01
+              MO Center=  1.6D-05,  6.0D-05, -5.3D-06, r^2= 6.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.213452   1 C  pz               41     -0.213449   5 C  pz        
+    59     -0.213497   7 C  pz               77      0.213501   9 C  pz        
+    14      0.191730   2 N  pz               50     -0.191730   6 N  pz        
+    68     -0.191762   8 N  pz               86      0.191780  10 N  pz        
+    23      0.155466   3 C  pz               32     -0.155455   4 C  pz        
+
+ Vector   22  Occ=1.000000D+00  E=-2.434323D-01
+              MO Center=  2.6D-04,  6.3D-03, -3.7D-06, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67      0.227873   8 N  py               85     -0.228784  10 N  py        
+    12      0.205602   2 N  px               15     -0.204445   2 N  s         
+    48     -0.205456   6 N  px               51     -0.204272   6 N  s         
+    69     -0.203929   8 N  s                87     -0.204726  10 N  s         
+    24     -0.153431   3 C  s                33     -0.152937   4 C  s         
+
+ Vector   23  Occ=1.000000D+00  E=-2.396073D-01
+              MO Center=  5.0D-03, -3.2D-03, -4.3D-06, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.234512   2 N  px               48      0.235337   6 N  px        
+    67     -0.226823   8 N  py               85     -0.226546  10 N  py        
+    24     -0.221031   3 C  s                33      0.221481   4 C  s         
+    15     -0.187066   2 N  s                51      0.187764   6 N  s         
+    69      0.186400   8 N  s                87     -0.186108  10 N  s         
+
+ Vector   24  Occ=1.000000D+00  E=-2.382266D-01
+              MO Center= -3.6D-03, -3.4D-05, -3.9D-06, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.232418   2 N  px               48      0.231850   6 N  px        
+    67      0.176274   8 N  py               85      0.176122  10 N  py        
+    69     -0.164555   8 N  s                15     -0.163481   2 N  s         
+    87      0.164288  10 N  s                51      0.163034   6 N  s         
+    66      0.162433   8 N  px               84      0.162452  10 N  px        
+
+ Vector   25  Occ=1.000000D+00  E=-2.318114D-01
+              MO Center= -1.8D-03, -2.7D-03, -3.8D-06, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.243680   2 N  px               48     -0.243542   6 N  px        
+    67     -0.200133   8 N  py               85      0.199854  10 N  py        
+    15     -0.169897   2 N  s                51     -0.169773   6 N  s         
+    69      0.170039   8 N  s                87      0.169663  10 N  s         
+    25      0.164802   3 C  px               34     -0.164747   4 C  px        
+
+ Vector   26  Occ=1.000000D+00  E=-2.271835D-01
+              MO Center=  5.4D-04, -4.6D-04, -4.9D-06, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.215804   1 C  py               13      0.216469   2 N  py        
+    40      0.215894   5 C  py               49      0.216566   6 N  py        
+    66     -0.213723   8 N  px               84     -0.213711  10 N  px        
+    57     -0.170029   7 C  px               75     -0.169982   9 C  px        
+
+ Vector   27  Occ=1.000000D+00  E=-2.258882D-01
+              MO Center= -1.7D-04,  4.1D-04, -4.8D-06, r^2= 7.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.235843   2 N  pz               50     -0.235797   6 N  pz        
+    68      0.235721   8 N  pz               86     -0.235794  10 N  pz        
+     5      0.206132   1 C  pz               41     -0.206084   5 C  pz        
+    59      0.206038   7 C  pz               77     -0.206084   9 C  pz        
+
+ Vector   28  Occ=1.000000D+00  E=-2.212944D-01
+              MO Center=  2.0D-04, -3.8D-04, -5.5D-06, r^2= 7.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.240638   2 N  pz               50      0.240695   6 N  pz        
+    68     -0.240653   8 N  pz               86     -0.240603  10 N  pz        
+     5      0.206782   1 C  pz               41      0.206824   5 C  pz        
+    59     -0.206805   7 C  pz               77     -0.206742   9 C  pz        
+
+ Vector   29  Occ=1.000000D+00  E=-2.147208D-01
+              MO Center= -1.1D-04,  8.3D-04, -4.9D-06, r^2= 7.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.225892   2 N  py               49      0.225827   6 N  py        
+    57      0.208565   7 C  px               75      0.208679   9 C  px        
+     4      0.190249   1 C  py               40      0.190182   5 C  py        
+    67     -0.170221   8 N  py               85     -0.170078  10 N  py        
+    66      0.162548   8 N  px               84      0.162924  10 N  px        
+
+ Vector   30  Occ=1.000000D+00  E=-2.135460D-01
+              MO Center= -8.8D-04,  2.7D-04, -4.9D-06, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    66      0.228145   8 N  px               84     -0.228151  10 N  px        
+    13      0.191207   2 N  py               49     -0.191010   6 N  py        
+     4      0.166644   1 C  py               40     -0.166459   5 C  py        
+    58     -0.166938   7 C  py               76      0.166975   9 C  py        
+
+ Vector   31  Occ=1.000000D+00  E=-2.030036D-01
+              MO Center=  4.3D-04, -9.4D-04, -4.8D-06, r^2= 7.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25     -0.260341   3 C  px               34      0.260328   4 C  px        
+    13      0.245219   2 N  py               49     -0.245327   6 N  py        
+     4      0.204348   1 C  py               40     -0.204427   5 C  py        
+    57     -0.203526   7 C  px               75      0.203396   9 C  px        
+    62      0.200933   7 C  py               80     -0.200777   9 C  py        
+
+ Vector   32  Occ=1.000000D+00  E=-1.441318D-01
+              MO Center= -6.0D-05,  1.1D-05, -5.7D-06, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.288642   3 C  pz               32      0.288639   4 C  pz        
+    14     -0.237232   2 N  pz               50     -0.237221   6 N  pz        
+    68     -0.237276   8 N  pz               86     -0.237279  10 N  pz        
+    27      0.216953   3 C  pz               36      0.216953   4 C  pz        
+    18     -0.162767   2 N  pz               54     -0.162762   6 N  pz        
+
+ Vector   33  Occ=1.000000D+00  E=-4.134452D-02
+              MO Center= -1.3D-06, -1.8D-05, -5.7D-06, r^2= 5.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.355293   3 C  pz               36     -0.355292   4 C  pz        
+    23      0.338386   3 C  pz               32     -0.338392   4 C  pz        
+    14     -0.224111   2 N  pz               50      0.224114   6 N  pz        
+    68      0.224212   8 N  pz               86     -0.224208  10 N  pz        
+    18     -0.189101   2 N  pz               54      0.189108   6 N  pz        
+
+ Vector   34  Occ=0.000000D+00  E= 1.256628D-01
+              MO Center= -6.5D-03,  1.1D-02, -4.6D-06, r^2= 6.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      0.629242   3 C  py               35      0.627806   4 C  py        
+    33      0.428675   4 C  s                24     -0.424042   3 C  s         
+    25     -0.362485   3 C  px               34     -0.361832   4 C  px        
+    80      0.274095   9 C  py               62      0.272441   7 C  py        
+    17     -0.244999   2 N  py               53     -0.242753   6 N  py        
+
+ Vector   35  Occ=0.000000D+00  E= 1.275077D-01
+              MO Center=  7.1D-03, -1.1D-02, -6.0D-06, r^2= 6.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.514638   3 C  s                33      0.510545   4 C  s         
+     6     -0.381297   1 C  s                42     -0.381776   5 C  s         
+    60     -0.381764   7 C  s                78     -0.381365   9 C  s         
+    53      0.260557   6 N  py               17     -0.258301   2 N  py        
+    49      0.241396   6 N  py               13     -0.239209   2 N  py        
+
+ Vector   36  Occ=0.000000D+00  E= 1.557115D-01
+              MO Center= -3.5D-04,  8.9D-04, -6.2D-06, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.332775   1 C  pz               45     -0.332641   5 C  pz        
+    63      0.332473   7 C  pz               81     -0.332689   9 C  pz        
+    18     -0.299059   2 N  pz               54      0.298923   6 N  pz        
+    72     -0.298789   8 N  pz               90      0.298969  10 N  pz        
+     5      0.247515   1 C  pz               41     -0.247388   5 C  pz        
+
+ Vector   37  Occ=0.000000D+00  E= 1.638685D-01
+              MO Center= -4.6D-04, -4.5D-04, -3.8D-06, r^2= 6.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61      0.372508   7 C  px               79      0.372441   9 C  px        
+    25      0.351695   3 C  px               34      0.351740   4 C  px        
+     7      0.349324   1 C  px               43      0.349424   5 C  px        
+     6      0.319568   1 C  s                42     -0.319591   5 C  s         
+    60      0.317986   7 C  s                78     -0.317708   9 C  s         
+
+ Vector   38  Occ=0.000000D+00  E= 1.737192D-01
+              MO Center=  5.1D-04, -8.4D-04, -5.7D-06, r^2= 7.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.317606   1 C  pz               45      0.317806   5 C  pz        
+    63     -0.317754   7 C  pz               81     -0.317578   9 C  pz        
+    18     -0.292014   2 N  pz               54     -0.292187   6 N  pz        
+    72      0.292144   8 N  pz               90      0.291970  10 N  pz        
+     5      0.281652   1 C  pz               41      0.281810   5 C  pz        
+
+ Vector   39  Occ=0.000000D+00  E= 2.149534D-01
+              MO Center=  8.9D-05,  8.5D-05, -4.7D-06, r^2= 6.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.318511   1 C  py               40     -0.318552   5 C  py        
+    61     -0.312712   7 C  px               79      0.313124   9 C  px        
+     8      0.302657   1 C  py               44     -0.302547   5 C  py        
+    57     -0.301677   7 C  px               75      0.301722   9 C  px        
+    17     -0.287106   2 N  py               53      0.287059   6 N  py        
+
+ Vector   40  Occ=0.000000D+00  E= 2.270215D-01
+              MO Center= -8.4D-05, -1.7D-04, -6.5D-06, r^2= 6.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.393913   1 C  pz               45      0.393903   5 C  pz        
+    63      0.393999   7 C  pz               81      0.393935   9 C  pz        
+    18     -0.282952   2 N  pz               54     -0.282934   6 N  pz        
+    72     -0.283004   8 N  pz               90     -0.282942  10 N  pz        
+    27     -0.279850   3 C  pz               36     -0.279885   4 C  pz        
+
+ Vector   41  Occ=0.000000D+00  E= 2.916516D-01
+              MO Center=  6.8D-04, -1.1D-03, -4.8D-06, r^2= 6.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.463656   1 C  s                42      1.465141   5 C  s         
+    60      1.464398   7 C  s                78      1.463122   9 C  s         
+    15     -1.214403   2 N  s                51     -1.215273   6 N  s         
+    69     -1.216471   8 N  s                87     -1.215298  10 N  s         
+     7     -0.786451   1 C  px               43      0.786838   5 C  px        
+
+ Vector   42  Occ=0.000000D+00  E= 3.040320D-01
+              MO Center= -5.7D-04,  1.3D-03, -3.3D-05, r^2= 5.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    60     -1.324719   7 C  s                78      1.326206   9 C  s         
+     6      1.308791   1 C  s                42     -1.307469   5 C  s         
+    69      1.203182   8 N  s                87     -1.204810  10 N  s         
+    15     -1.188112   2 N  s                51      1.187197   6 N  s         
+     7     -0.845358   1 C  px               43     -0.844873   5 C  px        
+
+ Vector   43  Occ=0.000000D+00  E= 3.091145D-01
+              MO Center= -2.5D-04,  2.1D-04, -5.9D-06, r^2= 5.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15     -1.295917   2 N  s                51      1.295489   6 N  s         
+     6      1.288519   1 C  s                42     -1.288268   5 C  s         
+    69     -1.279629   8 N  s                87      1.279952  10 N  s         
+    60      1.270900   7 C  s                78     -1.270953   9 C  s         
+     7     -1.012912   1 C  px               43     -1.012516   5 C  px        
+
+ Vector   44  Occ=0.000000D+00  E= 3.162421D-01
+              MO Center= -5.8D-05,  2.0D-05,  2.1D-05, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.553326   3 C  pz               36     -0.553310   4 C  pz        
+    23      0.423221   3 C  pz               32     -0.423194   4 C  pz        
+     9     -0.415661   1 C  pz               45      0.415626   5 C  pz        
+    63      0.415809   7 C  pz               81     -0.415811   9 C  pz        
+     5     -0.262325   1 C  pz               41      0.262296   5 C  pz        
+
+ Vector   45  Occ=0.000000D+00  E= 4.191110D-01
+              MO Center=  1.6D-05, -3.7D-04, -3.6D-06, r^2= 7.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      2.579291   1 C  px               43     -2.579483   5 C  px        
+    62     -2.330516   7 C  py               80      2.330349   9 C  py        
+    15      2.300190   2 N  s                51      2.300386   6 N  s         
+    69     -2.303777   8 N  s                87     -2.303173  10 N  s         
+    25      1.924088   3 C  px               34     -1.923764   4 C  px        
+
+ Vector   46  Occ=0.000000D+00  E= 4.907123D-01
+              MO Center= -7.0D-05, -7.9D-06, -6.4D-06, r^2= 5.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      2.769283   1 C  px               43      2.768266   5 C  px        
+    62      2.563025   7 C  py               80      2.563705   9 C  py        
+    69      2.174606   8 N  s                87     -2.175150  10 N  s         
+    15      2.162308   2 N  s                51     -2.161689   6 N  s         
+    25      1.941544   3 C  px               34      1.940386   4 C  px        
+
+ Vector   47  Occ=0.000000D+00  E= 4.959077D-01
+              MO Center=  1.7D-04, -1.5D-04, -4.8D-06, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      5.017836   3 C  s                33     -5.019397   4 C  s         
+     7     -2.124740   1 C  px               43     -2.126027   5 C  px        
+    62      2.060028   7 C  py               80      2.060185   9 C  py        
+    15     -1.872526   2 N  s                51      1.873295   6 N  s         
+    69      1.859181   8 N  s                87     -1.859213  10 N  s         
+
+ Vector   48  Occ=0.000000D+00  E= 5.199373D-01
+              MO Center= -2.0D-06,  3.8D-04, -7.1D-06, r^2= 6.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      4.853689   3 C  s                33      4.851755   4 C  s         
+     7     -2.837834   1 C  px               43      2.837612   5 C  px        
+    62     -2.291159   7 C  py               80      2.291966   9 C  py        
+    15     -2.261245   2 N  s                51     -2.260997   6 N  s         
+    69     -2.256937   8 N  s                87     -2.257317  10 N  s         
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector   10  Occ=1.000000D+00  E=-1.010935D+01
+              MO Center=  1.9D-02,  1.0D-01,  5.9D-07, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    73      0.532918   9 C  s                 1      0.486904   1 C  s         
+    37      0.488062   5 C  s                55      0.479420   7 C  s         
+
+ Vector   11  Occ=1.000000D+00  E=-8.056048D-01
+              MO Center=  8.6D-05, -8.9D-05, -5.0D-06, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.165970   2 N  s                47      0.165987   6 N  s         
+    65      0.165796   8 N  s                83      0.165791  10 N  s         
+     2      0.160277   1 C  s                15      0.160207   2 N  s         
+    38      0.160293   5 C  s                51      0.160221   6 N  s         
+    56      0.160160   7 C  s                69      0.160021   8 N  s         
+
+ Vector   12  Occ=1.000000D+00  E=-7.974581D-01
+              MO Center=  1.7D-04,  2.6D-04, -4.9D-06, r^2= 6.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.180122   2 N  s                47     -0.180139   6 N  s         
+    65     -0.179496   8 N  s                83      0.179544  10 N  s         
+    15      0.173252   2 N  s                51     -0.173267   6 N  s         
+    69     -0.172673   8 N  s                87      0.172715  10 N  s         
+     2      0.154623   1 C  s                38     -0.154635   5 C  s         
+
+ Vector   13  Occ=1.000000D+00  E=-7.933700D-01
+              MO Center=  1.7D-04, -3.6D-04, -4.8D-06, r^2= 7.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.184856   2 N  s                47     -0.184895   6 N  s         
+    65      0.185470   8 N  s                83     -0.185430  10 N  s         
+    15      0.177055   2 N  s                51     -0.177092   6 N  s         
+    69      0.177669   8 N  s                87     -0.177634  10 N  s         
+
+ Vector   14  Occ=1.000000D+00  E=-7.911512D-01
+              MO Center= -4.5D-04,  2.1D-04, -4.8D-06, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.187509   2 N  s                47      0.187439   6 N  s         
+    65     -0.187620   8 N  s                83     -0.187637  10 N  s         
+    15      0.164459   2 N  s                51      0.164397   6 N  s         
+    69     -0.164501   8 N  s                87     -0.164505  10 N  s         
+
+ Vector   15  Occ=1.000000D+00  E=-7.030480D-01
+              MO Center=  3.7D-05, -5.5D-05, -6.1D-06, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.273241   3 C  s                29      0.273248   4 C  s         
+     3      0.154972   1 C  px               39     -0.154978   5 C  px        
+
+ Vector   16  Occ=1.000000D+00  E=-6.064942D-01
+              MO Center=  3.2D-05, -5.6D-05, -6.1D-06, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.231931   3 C  s                29     -0.231914   4 C  s         
+     3      0.177737   1 C  px               39      0.177736   5 C  px        
+
+ Vector   17  Occ=1.000000D+00  E=-4.862252D-01
+              MO Center= -6.3D-05,  1.2D-04, -6.3D-06, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.250299   3 C  px               30      0.250249   4 C  px        
+     3     -0.170259   1 C  px               39     -0.170220   5 C  px        
+    58     -0.170356   7 C  py               76     -0.170378   9 C  py        
+
+ Vector   18  Occ=1.000000D+00  E=-4.087935D-01
+              MO Center= -3.3D-06,  5.5D-05, -6.4D-06, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.335876   3 C  py               31     -0.335858   4 C  py        
+    21     -0.164981   3 C  px               30      0.164988   4 C  px        
+
+ Vector   19  Occ=1.000000D+00  E=-4.083952D-01
+              MO Center=  1.3D-04, -1.7D-04, -6.3D-06, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -0.260457   3 C  px               30      0.260495   4 C  px        
+     6      0.249175   1 C  s                42      0.249192   5 C  s         
+    60     -0.232575   7 C  s                78     -0.232554   9 C  s         
+     3      0.197401   1 C  px               39     -0.197430   5 C  px        
+    58     -0.176478   7 C  py               76      0.176440   9 C  py        
+
+ Vector   20  Occ=1.000000D+00  E=-2.861833D-01
+              MO Center=  3.3D-05, -4.8D-05, -5.6D-06, r^2= 4.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.239631   3 C  pz               32      0.239635   4 C  pz        
+     5      0.194213   1 C  pz               41      0.194218   5 C  pz        
+    59      0.194235   7 C  pz               77      0.194224   9 C  pz        
+
+ Vector   21  Occ=1.000000D+00  E=-2.432194D-01
+              MO Center=  1.1D-05,  3.6D-05, -5.2D-06, r^2= 6.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.223068   1 C  pz               41     -0.223066   5 C  pz        
+    59     -0.223058   7 C  pz               77      0.223058   9 C  pz        
+    14      0.187462   2 N  pz               50     -0.187461   6 N  pz        
+    68     -0.187417   8 N  pz               86      0.187431  10 N  pz        
+
+ Vector   22  Occ=1.000000D+00  E=-2.386298D-01
+              MO Center=  1.4D-04,  5.6D-03, -3.8D-06, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67      0.224351   8 N  py               85     -0.225163  10 N  py        
+    15     -0.198875   2 N  s                51     -0.198730   6 N  s         
+    69     -0.198391   8 N  s                87     -0.199090  10 N  s         
+    12      0.196682   2 N  px               48     -0.196569   6 N  px        
+    24     -0.150294   3 C  s         
+
+ Vector   23  Occ=1.000000D+00  E=-2.341239D-01
+              MO Center=  4.7D-03, -2.7D-03, -4.5D-06, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67     -0.229978   8 N  py               85     -0.229758  10 N  py        
+    12      0.226159   2 N  px               48      0.226908   6 N  px        
+    24     -0.211201   3 C  s                33      0.211612   4 C  s         
+    15     -0.176951   2 N  s                51      0.177578   6 N  s         
+    69      0.175235   8 N  s                87     -0.175011  10 N  s         
+
+ Vector   24  Occ=1.000000D+00  E=-2.331379D-01
+              MO Center= -3.0D-03,  7.4D-05, -4.0D-06, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.225744   2 N  px               48      0.225248   6 N  px        
+    66      0.169303   8 N  px               84      0.169342  10 N  px        
+    67      0.166158   8 N  py               85      0.166035  10 N  py        
+    69     -0.156242   8 N  s                87      0.155995  10 N  s         
+    15     -0.154173   2 N  s                51      0.153794   6 N  s         
+
+ Vector   25  Occ=1.000000D+00  E=-2.264338D-01
+              MO Center= -1.7D-03, -2.3D-03, -3.9D-06, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.241568   2 N  px               48     -0.241410   6 N  px        
+    67     -0.196350   8 N  py               85      0.196101  10 N  py        
+    15     -0.165890   2 N  s                51     -0.165755   6 N  s         
+    69      0.166028   8 N  s                87      0.165709  10 N  s         
+    25      0.162650   3 C  px               34     -0.162591   4 C  px        
+
+ Vector   26  Occ=1.000000D+00  E=-2.253449D-01
+              MO Center=  3.2D-04, -5.5D-04, -4.7D-06, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    66     -0.217465   8 N  px               84     -0.217403  10 N  px        
+     4      0.213875   1 C  py               40      0.213939   5 C  py        
+    13      0.205406   2 N  py               49      0.205478   6 N  py        
+    57     -0.161284   7 C  px               75     -0.161254   9 C  px        
+
+ Vector   27  Occ=1.000000D+00  E=-2.154681D-01
+              MO Center= -1.6D-04,  3.4D-04, -4.0D-06, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.220647   2 N  pz               50     -0.220605   6 N  pz        
+    68      0.220581   8 N  pz               86     -0.220640  10 N  pz        
+     5      0.219106   1 C  pz               41     -0.219061   5 C  pz        
+    59      0.219091   7 C  pz               77     -0.219134   9 C  pz        
+
+ Vector   28  Occ=1.000000D+00  E=-2.125196D-01
+              MO Center= -6.3D-04,  4.5D-04, -5.7D-06, r^2= 7.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.218586   2 N  py               49      0.218411   6 N  py        
+    57      0.211677   7 C  px               75      0.211743   9 C  px        
+     4      0.189607   1 C  py               40      0.189438   5 C  py        
+    67     -0.178047   8 N  py               85     -0.177886  10 N  py        
+
+ Vector   29  Occ=1.000000D+00  E=-2.107809D-01
+              MO Center= -4.4D-04,  5.1D-04, -4.9D-06, r^2= 7.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    66      0.225017   8 N  px               84     -0.225090  10 N  px        
+    13      0.181298   2 N  py               49     -0.181210   6 N  py        
+    58     -0.170587   7 C  py               76      0.170633   9 C  py        
+     4      0.163794   1 C  py               40     -0.163699   5 C  py        
+
+ Vector   30  Occ=1.000000D+00  E=-2.097796D-01
+              MO Center=  1.8D-04, -3.3D-04, -5.2D-06, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.225341   2 N  pz               50      0.225388   6 N  pz        
+    68     -0.225324   8 N  pz               86     -0.225283  10 N  pz        
+     5      0.220884   1 C  pz               41      0.220926   5 C  pz        
+    59     -0.220919   7 C  pz               77     -0.220862   9 C  pz        
+
+ Vector   31  Occ=1.000000D+00  E=-2.007735D-01
+              MO Center=  4.6D-04, -9.7D-04, -4.9D-06, r^2= 7.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25     -0.263534   3 C  px               34      0.263523   4 C  px        
+    13      0.240879   2 N  py               49     -0.240991   6 N  py        
+     4      0.207784   1 C  py               40     -0.207869   5 C  py        
+    57     -0.208232   7 C  px               75      0.208096   9 C  px        
+    62      0.205263   7 C  py               80     -0.205098   9 C  py        
+
+ Vector   32  Occ=1.000000D+00  E=-1.131867D-01
+              MO Center= -4.2D-05,  3.7D-05, -5.9D-06, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.296247   3 C  pz               32      0.296242   4 C  pz        
+    27      0.242754   3 C  pz               36      0.242753   4 C  pz        
+    14     -0.221770   2 N  pz               50     -0.221760   6 N  pz        
+    68     -0.221815   8 N  pz               86     -0.221824  10 N  pz        
+    18     -0.157948   2 N  pz               54     -0.157942   6 N  pz        
+
+ Vector   33  Occ=0.000000D+00  E= 3.084401D-02
+              MO Center=  2.7D-05, -1.6D-05, -5.6D-06, r^2= 5.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.339487   3 C  pz               36     -0.339491   4 C  pz        
+    23      0.308894   3 C  pz               32     -0.308904   4 C  pz        
+    14     -0.223932   2 N  pz               50      0.223941   6 N  pz        
+    68      0.224019   8 N  pz               86     -0.224019  10 N  pz        
+    18     -0.206742   2 N  pz               54      0.206754   6 N  pz        
+
+ Vector   34  Occ=0.000000D+00  E= 1.288437D-01
+              MO Center= -9.2D-03,  1.6D-02, -4.2D-06, r^2= 6.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      0.617348   3 C  py               35      0.615498   4 C  py        
+    33      0.391935   4 C  s                24     -0.385805   3 C  s         
+    25     -0.355592   3 C  px               34     -0.354709   4 C  px        
+    80      0.277709   9 C  py               62      0.275459   7 C  py        
+    17     -0.249949   2 N  py               53     -0.246785   6 N  py        
+
+ Vector   35  Occ=0.000000D+00  E= 1.302066D-01
+              MO Center=  9.8D-03, -1.6D-02, -6.2D-06, r^2= 6.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.497939   3 C  s                33      0.492893   4 C  s         
+     6     -0.370800   1 C  s                42     -0.371656   5 C  s         
+    60     -0.371656   7 C  s                78     -0.370870   9 C  s         
+    53      0.265272   6 N  py               17     -0.262140   2 N  py        
+    49      0.243992   6 N  py               13     -0.240976   2 N  py        
+
+ Vector   36  Occ=0.000000D+00  E= 1.648613D-01
+              MO Center= -4.8D-04, -4.6D-04, -9.1D-06, r^2= 6.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61      0.368186   7 C  px               79      0.368115   9 C  px        
+    25      0.352028   3 C  px               34      0.352085   4 C  px        
+     7      0.345603   1 C  px               43      0.345711   5 C  px        
+     6      0.321582   1 C  s                42     -0.321614   5 C  s         
+    60      0.320046   7 C  s                78     -0.319772   9 C  s         
+
+ Vector   37  Occ=0.000000D+00  E= 1.677671D-01
+              MO Center= -3.8D-04,  9.5D-04, -7.7D-07, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.326321   1 C  pz               45     -0.326183   5 C  pz        
+    63      0.326001   7 C  pz               81     -0.326222   9 C  pz        
+    18     -0.311116   2 N  pz               54      0.310966   6 N  pz        
+    72     -0.310844   8 N  pz               90      0.311042  10 N  pz        
+    14     -0.241603   2 N  pz               50      0.241483   6 N  pz        
+
+ Vector   38  Occ=0.000000D+00  E= 1.862943D-01
+              MO Center=  5.2D-04, -9.0D-04, -5.7D-06, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.310135   1 C  pz               45      0.310339   5 C  pz        
+    63     -0.310223   7 C  pz               81     -0.310039   9 C  pz        
+    18     -0.304172   2 N  pz               54     -0.304358   6 N  pz        
+    72      0.304287   8 N  pz               90      0.304094  10 N  pz        
+     5      0.274216   1 C  pz               41      0.274375   5 C  pz        
+
+ Vector   39  Occ=0.000000D+00  E= 2.152904D-01
+              MO Center=  6.7D-05,  8.7D-05, -4.6D-06, r^2= 7.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.316783   1 C  py               40     -0.316820   5 C  py        
+    61     -0.312761   7 C  px               79      0.313165   9 C  px        
+     8      0.299539   1 C  py               44     -0.299426   5 C  py        
+    57     -0.299911   7 C  px               75      0.299955   9 C  px        
+    17     -0.290121   2 N  py               53      0.290070   6 N  py        
+
+ Vector   40  Occ=0.000000D+00  E= 2.396196D-01
+              MO Center= -1.1D-04, -1.5D-04, -6.6D-06, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.391413   1 C  pz               45      0.391397   5 C  pz        
+    63      0.391536   7 C  pz               81      0.391478   9 C  pz        
+    18     -0.294450   2 N  pz               72     -0.294557   8 N  pz        
+    27     -0.293083   3 C  pz               36     -0.293111   4 C  pz        
+    54     -0.294427   6 N  pz               90     -0.294497  10 N  pz        
+
+ Vector   41  Occ=0.000000D+00  E= 2.953275D-01
+              MO Center=  6.4D-04, -1.0D-03, -4.6D-06, r^2= 6.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.473617   1 C  s                42      1.475004   5 C  s         
+    60      1.474143   7 C  s                78      1.473040   9 C  s         
+    15     -1.252507   2 N  s                51     -1.253338   6 N  s         
+    69     -1.254488   8 N  s                87     -1.253420  10 N  s         
+     7     -0.826766   1 C  px               43      0.827149   5 C  px        
+
+ Vector   42  Occ=0.000000D+00  E= 3.097203D-01
+              MO Center= -4.8D-04,  1.2D-03, -1.6D-05, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    60     -1.358314   7 C  s                78      1.359650   9 C  s         
+     6      1.299354   1 C  s                42     -1.298156   5 C  s         
+    69      1.294049   8 N  s                87     -1.295601  10 N  s         
+    15     -1.235515   2 N  s                51      1.234720   6 N  s         
+     7     -0.905195   1 C  px               43     -0.904798   5 C  px        
+
+ Vector   43  Occ=0.000000D+00  E= 3.110944D-01
+              MO Center= -2.9D-04,  1.8D-04, -6.0D-06, r^2= 5.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15     -1.326495   2 N  s                51      1.326009   6 N  s         
+     6      1.316001   1 C  s                42     -1.315689   5 C  s         
+    69     -1.267189   8 N  s                87      1.267446  10 N  s         
+    60      1.253965   7 C  s                78     -1.253948   9 C  s         
+     7     -1.035905   1 C  px               43     -1.035467   5 C  px        
+
+ Vector   44  Occ=0.000000D+00  E= 3.415251D-01
+              MO Center= -4.4D-05,  2.9D-06,  3.8D-06, r^2= 4.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.607686   3 C  pz               36     -0.607676   4 C  pz        
+    23      0.434000   3 C  pz               32     -0.433977   4 C  pz        
+     9     -0.410565   1 C  pz               45      0.410537   5 C  pz        
+    63      0.410727   7 C  pz               81     -0.410723   9 C  pz        
+     5     -0.256498   1 C  pz               41      0.256475   5 C  pz        
+
+ Vector   45  Occ=0.000000D+00  E= 4.213065D-01
+              MO Center=  1.7D-05, -3.9D-04, -3.6D-06, r^2= 7.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      2.605344   1 C  px               43     -2.605545   5 C  px        
+    62     -2.355516   7 C  py               80      2.355309   9 C  py        
+    15      2.321457   2 N  s                51      2.321661   6 N  s         
+    69     -2.324954   8 N  s                87     -2.324312  10 N  s         
+    25      1.949419   3 C  px               34     -1.949105   4 C  px        
+
+ Vector   46  Occ=0.000000D+00  E= 4.906816D-01
+              MO Center= -4.4D-05,  2.1D-05, -6.4D-06, r^2= 5.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      2.760006   1 C  px               43      2.759036   5 C  px        
+    62      2.544233   7 C  py               80      2.545031   9 C  py        
+    15      2.155913   2 N  s                51     -2.155331   6 N  s         
+    69      2.159455   8 N  s                87     -2.160118  10 N  s         
+    25      1.936555   3 C  px               34      1.935387   4 C  px        
+
+ Vector   47  Occ=0.000000D+00  E= 5.066615D-01
+              MO Center=  1.9D-04, -2.0D-04, -4.7D-06, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      5.011568   3 C  s                33     -5.013395   4 C  s         
+     7     -2.118445   1 C  px               43     -2.119895   5 C  px        
+    62      2.063127   7 C  py               80      2.063146   9 C  py        
+    15     -1.852607   2 N  s                51      1.853508   6 N  s         
+    69      1.849544   8 N  s                87     -1.849439  10 N  s         
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      3      4      5      6      7      8      9     10
+ overlap   0.998  0.999  0.998  1.000  1.000  1.000  1.000  0.995  0.995  1.000
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     11     12     13     14     15     16     17     18     19     20
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  0.999  0.999  0.998
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     21     22     23     24     25     26     27     30     28     29
+ overlap   0.999  0.998  0.993  0.998  1.000  0.993  0.999  0.999  0.998  0.998
+
+
+   alpha     31     32     33     34     35     36     37     38     39     40
+    beta     31     32     33     34     35     37     36     38     39     40
+ overlap   1.000  0.998  0.998  1.000  1.000  0.999  1.000  0.999  1.000  0.999
+
+
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     41     42     43     44     45     46     47     48     49     50
+ overlap   1.000  0.999  1.000  0.997  1.000  1.000  0.999  1.000  1.000  0.999
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     51     52     53     54     55     56     57     58     59     60
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  0.999  1.000  1.000
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     61     63     62     64     65     66     67     68     69     70
+ overlap   1.000  0.999  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     71     72     73     74     75     76     77     78     79     80
+ overlap   1.000  1.000  1.000  1.000  0.999  1.000  1.000  1.000  0.998  1.000
+
+
+   alpha     81     82     83     84     85     86     87     88     89     90
+    beta     81     82     83     84     85     86     87     88     89     90
+ overlap   0.999  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      0.7595 (Exact =     0.7500)
+
+
+ center of mass
+ --------------
+ x =  -0.00000059 y =  -0.00000731 z =  -0.00000985
+
+ moments of inertia (a.u.)
+ ------------------
+        1268.663560520478          31.957982696149           0.008152599222
+          31.957982696149        1231.363876404573          -0.075071755988
+           0.008152599222          -0.075071755988        2500.027427946683
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -1.000000    -33.000000    -32.000000     64.000000
+
+     1   1 0 0     -0.000095     -0.000022     -0.000035     -0.000037
+     1   0 1 0     -0.000321      0.000079      0.000069     -0.000468
+     1   0 0 1      0.000007      0.000324      0.000314     -0.000630
+
+     2   2 0 0    -68.134621   -347.070256   -336.643085    615.578721
+     2   1 1 0     -2.795699      6.582319      6.605187    -15.983204
+     2   1 0 1     -0.000049      0.002036      0.001991     -0.004076
+     2   0 2 0    -64.914225   -354.781258   -344.366365    634.233398
+     2   0 1 1     -0.001379     -0.019710     -0.019199      0.037530
+     2   0 0 2    -41.429296    -21.536584    -19.892714      0.000002
+
+
+ Parallel integral file used      88 records with       0 large values
+
+
+ Task  times  cpu:       16.3s     wall:       16.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                           NWChem Real-Time TDDFT Module
+                           -----------------------------
+
+
+                             Tetracyanoethylene anion
+
+
+
+  The DFT is already converged 
+
+         Total DFT energy =   -447.487472125520
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :    10
+          No. of electrons :    65
+           Alpha electrons :    33
+            Beta electrons :    32
+          Charge           :    -1
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    90
+                     number of shells:    50
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          11.0       434
+          N                   0.65       49          13.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   490
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+ 
+ ***********************
+ * Open-shell RT-TDDFT *
+ ***********************
+ 
+ 
+****************************** WARNING ****************************** 
+  Schwartz screening tolerance is similar to the Magnus interpolation  
+  tolerance--this may cause problems with convergence.  If  
+  so, try loosening tol_interpol. 
+********************************************************************* 
+ 
+ 
+ 
+ Geometry               Atoms      Basis func.   Nuc. charge          Nuc. dip. mom.
+ -----------------------------------------------------------------------------------------
+ *system              10 (100% )    90 (100% )     64.00       -0.00     -0.00     -0.00
+
+=============== Geometry Initialization ===============
+  Active geometry: "system"
+  No linear dependencies
+  Number of atomic orbitals    = 90
+  Number of molecular orbitals = 90
+=======================================================
+
+ 
+ 
+             System parameters
+             -----------------
+     No. atoms              : 10
+     Wavefunction type      : spin polarized
+     No. alpha electrons    : 33
+     No. beta electrons     : 32
+     Total no. electrons    : 65
+     System charge          : -1
+ 
+ 
+               2e integrals
+               ------------
+     tol2e for real part of Fock matrix: 1.0000E-08
+     tol2e for imag part of Fock matrix: 1.0000E-10
+ 
+ 
+                    Propagation parameters
+                    ----------------------
+     End time (tmax)       : 5.0000E+00 au = 1.2094E-01 fs
+     Time step (dt)        : 2.0000E-01 au = 4.8378E-03 fs
+     No. time steps (nt)   : 25
+     Progagation method    : 2nd order Magnus w/ self-consistent interpolation
+     Exponentiation method : Adaptive contractive power series
+ 
+ 
+                        Tolerances
+                        ----------
+     Zero / comparison / check tolerance  : 1.0000E-08
+     Series convergence tolerance         : 1.0000E-10
+     Interpolation convergence tolerance  : 1.0000E-07
+     Reqd no. zero terms in series        : 3
+     Reqd no. zero terms in interpolation : 1
+ 
+ 
+                Output and checking parameters
+                ------------------------------
+     Quantites to print : messages, dipole, field, energy, <S^2>
+     No. print points   : 25 (once every 1 time steps)
+     No. checks         : 25 (once every 1 time steps)
+     No. restart points : None
+     Checking level     : 3 (full--not implemented yet)
+     Profiling          : No
+ 
+ 
+ Dipole and quadrupole matrices
+ ------------------------------
+     Center of mass = (-5.9197E-07, -7.3102E-06, -9.8512E-06)
+     norm[D_x]  = 2.4806E+01
+     norm[D_y]  = 2.6830E+01
+     norm[D_z]  = 9.8738E+00
+     norm[Q_xx] = 1.1372E+02
+     norm[Q_xy] = 3.9157E+01
+     norm[Q_xz] = 1.7875E+01
+     norm[Q_yy] = 1.1740E+02
+     norm[Q_yz] = 3.0555E+01
+     norm[Q_zz] = 1.6994E+01
+ 
+ 
+         Applied fields
+         --------------
+ 
+               "ka"
+     Type            : delta
+     Polarization    : z
+     Field maximum   : 1.0000E-03 au = 5.1421E-01 V/nm
+ 
+               "kb"
+     Type            : delta
+     Polarization    : z
+     Field maximum   : ********** au = ********** V/nm
+ 
+ 
+        Excitation rules
+        ----------------
+     Excite geometry "system" with "ka"
+     Excite geometry "system" with "kb"
+ 
+ 
+                              Open shell propagation
+                              ----------------------
+ 
+ 
+ Initial state: Imported open shell MO eigenvectors
+ --------------------------------------------------
+ 
+****************************** WARNING ****************************** 
+  Starting movecs not specified--trying SCF output: 
+   ./perm/tcne.movecs 
+********************************************************************* 
+ 
+ 
+   Vector      Occupation     Eigenvalue [au]
+ --------------------------------------------
+         1        1.00       -1.42176034E+01
+         2        1.00       -1.42175905E+01
+         3        1.00       -1.42175804E+01
+         4        1.00       -1.42175506E+01
+         5        1.00       -1.01248957E+01
+         6        1.00       -1.01246298E+01
+         7        1.00       -1.01083257E+01
+         8        1.00       -1.01083010E+01
+         9        1.00       -1.01082917E+01
+        10        1.00       -1.01082059E+01
+        11        1.00       -8.10745341E-01
+        12        1.00       -8.02235957E-01
+        13        1.00       -7.98062413E-01
+        14        1.00       -7.95981006E-01
+        15        1.00       -7.14472860E-01
+        16        1.00       -6.17753488E-01
+        17        1.00       -4.89335849E-01
+        18        1.00       -4.11965388E-01
+        19        1.00       -4.11028811E-01
+        20        1.00       -3.03817082E-01
+        21        1.00       -2.56834935E-01
+        22        1.00       -2.43432262E-01
+        23        1.00       -2.39607337E-01
+        24        1.00       -2.38226614E-01
+        25        1.00       -2.31811401E-01
+        26        1.00       -2.27183534E-01
+        27        1.00       -2.25888155E-01
+        28        1.00       -2.21294443E-01
+        29        1.00       -2.14720828E-01
+        30        1.00       -2.13546034E-01
+        31        1.00       -2.03003560E-01
+        32        1.00       -1.44131798E-01
+        33        1.00       -4.13445175E-02
+        34        0.00        1.25662763E-01
+        35        0.00        1.27507668E-01
+        36        0.00        1.55711520E-01
+        37        0.00        1.63868529E-01
+        38        0.00        1.73719198E-01
+        39        0.00        2.14953379E-01
+        40        0.00        2.27021511E-01
+        41        0.00        2.91651592E-01
+        42        0.00        3.04032016E-01
+        43        0.00        3.09114476E-01
+        44        0.00        3.16242128E-01
+        45        0.00        4.19110966E-01
+        46        0.00        4.90712270E-01
+        47        0.00        4.95907687E-01
+        48        0.00        5.19937339E-01
+        49        0.00        6.01650682E-01
+        50        0.00        6.05836840E-01
+        51        0.00        6.14054731E-01
+        52        0.00        6.42292304E-01
+        53        0.00        6.75313435E-01
+        54        0.00        6.83141130E-01
+        55        0.00        6.99513063E-01
+        56        0.00        7.24781290E-01
+        57        0.00        7.40441375E-01
+        58        0.00        7.61371897E-01
+        59        0.00        7.79152754E-01
+        60        0.00        7.92243806E-01
+        61        0.00        7.96785744E-01
+        62        0.00        8.02653898E-01
+        63        0.00        8.10611482E-01
+        64        0.00        8.26645450E-01
+        65        0.00        8.53412588E-01
+        66        0.00        8.68739469E-01
+        67        0.00        8.90155043E-01
+        68        0.00        9.22416139E-01
+        69        0.00        9.22973478E-01
+        70        0.00        9.58267720E-01
+        71        0.00        9.72733059E-01
+        72        0.00        9.87230371E-01
+        73        0.00        1.02469620E+00
+        74        0.00        1.05216087E+00
+        75        0.00        1.06378520E+00
+        76        0.00        1.08127371E+00
+        77        0.00        1.13208483E+00
+        78        0.00        1.15296008E+00
+        79        0.00        1.15498550E+00
+        80        0.00        1.16126971E+00
+        81        0.00        1.19461844E+00
+        82        0.00        1.31434178E+00
+        83        0.00        1.35746835E+00
+        84        0.00        1.48499118E+00
+        85        0.00        1.61332648E+00
+        86        0.00        1.68484035E+00
+        87        0.00        1.76183480E+00
+        88        0.00        1.88445013E+00
+        89        0.00        1.96816723E+00
+        90        0.00        1.97965379E+00
+ 
+ 
+   Vector      Occupation     Eigenvalue [au]
+ --------------------------------------------
+         1        1.00       -1.42143124E+01
+         2        1.00       -1.42143010E+01
+         3        1.00       -1.42142899E+01
+         4        1.00       -1.42142589E+01
+         5        1.00       -1.01202170E+01
+         6        1.00       -1.01199116E+01
+         7        1.00       -1.01094712E+01
+         8        1.00       -1.01094462E+01
+         9        1.00       -1.01094348E+01
+        10        1.00       -1.01093485E+01
+        11        1.00       -8.05604792E-01
+        12        1.00       -7.97458126E-01
+        13        1.00       -7.93370046E-01
+        14        1.00       -7.91151245E-01
+        15        1.00       -7.03048002E-01
+        16        1.00       -6.06494213E-01
+        17        1.00       -4.86225226E-01
+        18        1.00       -4.08793462E-01
+        19        1.00       -4.08395239E-01
+        20        1.00       -2.86183311E-01
+        21        1.00       -2.43219405E-01
+        22        1.00       -2.38629822E-01
+        23        1.00       -2.34123872E-01
+        24        1.00       -2.33137907E-01
+        25        1.00       -2.26433828E-01
+        26        1.00       -2.25344925E-01
+        27        1.00       -2.15468076E-01
+        28        1.00       -2.12519619E-01
+        29        1.00       -2.10780887E-01
+        30        1.00       -2.09779648E-01
+        31        1.00       -2.00773489E-01
+        32        1.00       -1.13186700E-01
+        33        0.00        3.08440126E-02
+        34        0.00        1.28843678E-01
+        35        0.00        1.30206598E-01
+        36        0.00        1.64861282E-01
+        37        0.00        1.67767092E-01
+        38        0.00        1.86294285E-01
+        39        0.00        2.15290380E-01
+        40        0.00        2.39619615E-01
+        41        0.00        2.95327508E-01
+        42        0.00        3.09720278E-01
+        43        0.00        3.11094368E-01
+        44        0.00        3.41525149E-01
+        45        0.00        4.21306491E-01
+        46        0.00        4.90681586E-01
+        47        0.00        5.06661495E-01
+        48        0.00        5.24994493E-01
+        49        0.00        6.04499050E-01
+        50        0.00        6.10684972E-01
+        51        0.00        6.18599340E-01
+        52        0.00        6.41490091E-01
+        53        0.00        6.77104961E-01
+        54        0.00        6.81856182E-01
+        55        0.00        6.99743828E-01
+        56        0.00        7.25017989E-01
+        57        0.00        7.42941899E-01
+        58        0.00        7.63740952E-01
+        59        0.00        7.80668632E-01
+        60        0.00        7.93419903E-01
+        61        0.00        7.97924438E-01
+        62        0.00        8.11502828E-01
+        63        0.00        8.15845578E-01
+        64        0.00        8.29047981E-01
+        65        0.00        8.55572356E-01
+        66        0.00        8.73592979E-01
+        67        0.00        9.06469695E-01
+        68        0.00        9.25585091E-01
+        69        0.00        9.34434153E-01
+        70        0.00        9.68573110E-01
+        71        0.00        9.76171522E-01
+        72        0.00        9.95425753E-01
+        73        0.00        1.02641743E+00
+        74        0.00        1.05659091E+00
+        75        0.00        1.07698625E+00
+        76        0.00        1.08338135E+00
+        77        0.00        1.13183018E+00
+        78        0.00        1.15566496E+00
+        79        0.00        1.16156559E+00
+        80        0.00        1.16554293E+00
+        81        0.00        1.19680840E+00
+        82        0.00        1.32257558E+00
+        83        0.00        1.36175536E+00
+        84        0.00        1.48670297E+00
+        85        0.00        1.61925430E+00
+        86        0.00        1.68760333E+00
+        87        0.00        1.76656932E+00
+        88        0.00        1.88900469E+00
+        89        0.00        1.97231562E+00
+        90        0.00        1.98384930E+00
+ 
+
+ Integral file          = ./scratch/tcne.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =     67        Max. records in file   = 362063
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 5.337D+05 #integrals = 4.269D+06 #direct =  0.0% #cached =100.0%
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = ./scratch/tcne.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     21        Max. recs in file   =   1930851
+
+<rt_tddft>:      0.00000        ### Propagation started ###
+<rt_tddft>:      0.00000        ### Checks passed ###
+<rt_tddft>:      0.00000   3.721695025761E+002     # Enuc
+<rt_tddft>:      0.00000  -1.351704836216E+003     # Ecore
+<rt_tddft>:      0.00000   5.922067434718E+002     # Ecoul
+<rt_tddft>:      0.00000  -6.015888185509E+001     # Exc(1)
+<rt_tddft>:      0.00000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.00000  -4.474874720236E+002     # Etot
+<rt_tddft>:      0.00000  -1.591615728103E-012     # Eadded
+<rt_tddft>:      0.00000   7.595146795251E-001     # <S^2>
+<rt_tddft>:      0.00000  -5.953948503823E-005  -3.895680552102E-004  -3.064735189627E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      0.00000  -7.264441726385E-005  -3.992444925354E-004  -3.168546410076E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      0.00000  -9.478622499337E-005  -3.206140368199E-004   7.160018859481E-006     # Dipole moment [system] (total spin)
+<rt_tddft>:      0.00000   0.000000000000E+000   0.000000000000E+000   1.000000000000E-003     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      0.00000   0.000000000000E+000   0.000000000000E+000  -1.000000000000E-003     # Applied E-field [system] (beta spin)
+<rt_tddft>:      0.00000   1.484872460544E-007     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.00000   1.732168954938E-007     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.00000   7.132736623561E-010     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.00000   4.043301249368E-010     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.00000                     3     # Magnus total interpolations
+<rt_tddft>:      0.20000        ### Checks passed ###
+<rt_tddft>:      0.20000        ### Estimated time remaining: 3 minute(s) 0 second(s) ###
+<rt_tddft>:      0.20000   3.721695025761E+002     # Enuc
+<rt_tddft>:      0.20000  -1.351704840411E+003     # Ecore
+<rt_tddft>:      0.20000   5.922067492977E+002     # Ecoul
+<rt_tddft>:      0.20000  -6.015888337119E+001     # Exc(1)
+<rt_tddft>:      0.20000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.20000  -4.474874719084E+002     # Etot
+<rt_tddft>:      0.20000   1.151242940978E-007     # Eadded
+<rt_tddft>:      0.20000   7.595147916225E-001     # <S^2>
+<rt_tddft>:      0.20000  -5.865721279541E-005  -3.883095245678E-004  -1.871771927903E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      0.20000  -7.172409201850E-005  -3.979753000545E-004  -4.278040661685E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      0.20000  -9.298362746968E-005  -3.180863136887E-004   1.550691987095E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      0.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      0.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      0.20000   8.594159983666E-008     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.20000   1.121912969193E-007     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.20000   3.478565657744E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.20000   4.791932850523E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.20000                     3     # Magnus total interpolations
+<rt_tddft>:      0.40000        ### Checks passed ###
+<rt_tddft>:      0.40000        ### Estimated time remaining: 2 minute(s) 36 second(s) ###
+<rt_tddft>:      0.40000   3.721695025761E+002     # Enuc
+<rt_tddft>:      0.40000  -1.351704850804E+003     # Ecore
+<rt_tddft>:      0.40000   5.922067618559E+002     # Ecoul
+<rt_tddft>:      0.40000  -6.015888553676E+001     # Exc(1)
+<rt_tddft>:      0.40000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.40000  -4.474874719084E+002     # Etot
+<rt_tddft>:      0.40000   1.151206561190E-007     # Eadded
+<rt_tddft>:      0.40000   7.595147788764E-001     # <S^2>
+<rt_tddft>:      0.40000  -5.630165332171E-005  -3.849104613174E-004   8.766380208665E-007     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      0.40000  -6.925447019945E-005  -3.945421673901E-004  -5.971257812333E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      0.40000  -8.815844624088E-005  -3.112541177632E-004   3.423903561738E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      0.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      0.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      0.40000   5.462601926354E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.40000   8.794724948302E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.40000                     2     # Magnus total interpolations
+<rt_tddft>:      0.60000        ### Checks passed ###
+<rt_tddft>:      0.60000        ### Estimated time remaining: 2 minute(s) 12 second(s) ###
+<rt_tddft>:      0.60000   3.721695025761E+002     # Enuc
+<rt_tddft>:      0.60000  -1.351704867401E+003     # Ecore
+<rt_tddft>:      0.60000   5.922067832048E+002     # Ecoul
+<rt_tddft>:      0.60000  -6.015889028855E+001     # Exc(1)
+<rt_tddft>:      0.60000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.60000  -4.474874719084E+002     # Etot
+<rt_tddft>:      0.60000   1.151206561190E-007     # Eadded
+<rt_tddft>:      0.60000   7.595147598738E-001     # <S^2>
+<rt_tddft>:      0.60000  -5.257196439068E-005  -3.795067040739E-004   1.925261436023E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      0.60000  -6.534073147613E-005  -3.890848925163E-004  -7.736804486481E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      0.60000  -8.051501854744E-005  -3.003930856647E-004   4.933387378411E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      0.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      0.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      0.60000   7.120236178437E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.60000   5.978946893137E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.60000                     2     # Magnus total interpolations
+<rt_tddft>:      0.80000        ### Checks passed ###
+<rt_tddft>:      0.80000        ### Estimated time remaining: 1 minute(s) 58 second(s) ###
+<rt_tddft>:      0.80000   3.721695025761E+002     # Enuc
+<rt_tddft>:      0.80000  -1.351704884935E+003     # Ecore
+<rt_tddft>:      0.80000   5.922068048816E+002     # Ecoul
+<rt_tddft>:      0.80000  -6.015889443083E+001     # Exc(1)
+<rt_tddft>:      0.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.80000  -4.474874719084E+002     # Etot
+<rt_tddft>:      0.80000   1.151198603111E-007     # Eadded
+<rt_tddft>:      0.80000   7.595147293529E-001     # <S^2>
+<rt_tddft>:      0.80000  -4.788411534840E-005  -3.727723189444E-004   3.772593329427E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      0.80000  -6.041276470903E-005  -3.822920476733E-004  -9.467013406780E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      0.80000  -7.089920274161E-005  -2.868658556974E-004   6.104617109454E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      0.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      0.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      0.80000   6.764183435592E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      0.80000   1.202645871778E-008     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      0.80000                     2     # Magnus total interpolations
+<rt_tddft>:      1.00000        ### Checks passed ###
+<rt_tddft>:      1.00000        ### Estimated time remaining: 1 minute(s) 48 second(s) ###
+<rt_tddft>:      1.00000   3.721695025761E+002     # Enuc
+<rt_tddft>:      1.00000  -1.351704902908E+003     # Ecore
+<rt_tddft>:      1.00000   5.922068282740E+002     # Ecoul
+<rt_tddft>:      1.00000  -6.015889985017E+001     # Exc(1)
+<rt_tddft>:      1.00000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      1.00000  -4.474874719084E+002     # Etot
+<rt_tddft>:      1.00000   1.151177002612E-007     # Eadded
+<rt_tddft>:      1.00000   7.595146841749E-001     # <S^2>
+<rt_tddft>:      1.00000  -4.261991741039E-005  -3.651925506754E-004   5.161286267063E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      1.00000  -5.486694915469E-005  -3.746641222202E-004  -1.078281918491E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      1.00000  -6.008918924216E-005  -2.716581619691E-004   6.833488704501E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      1.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      1.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      1.00000   2.343217841982E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      1.00000   4.419774324305E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      1.00000                     2     # Magnus total interpolations
+<rt_tddft>:      1.20000        ### Checks passed ###
+<rt_tddft>:      1.20000        ### Estimated time remaining: 1 minute(s) 39 second(s) ###
+<rt_tddft>:      1.20000   3.721695025761E+002     # Enuc
+<rt_tddft>:      1.20000  -1.351704916267E+003     # Ecore
+<rt_tddft>:      1.20000   5.922068453457E+002     # Ecoul
+<rt_tddft>:      1.20000  -6.015890356286E+001     # Exc(1)
+<rt_tddft>:      1.20000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      1.20000  -4.474874719084E+002     # Etot
+<rt_tddft>:      1.20000   1.151186097559E-007     # Eadded
+<rt_tddft>:      1.20000   7.595146240354E-001     # <S^2>
+<rt_tddft>:      1.20000  -3.723339929884E-005  -3.574479476045E-004   6.173162268557E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      1.20000  -4.917378862324E-005  -3.669005390119E-004  -1.176445502330E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      1.20000  -4.900951057074E-005  -2.561499756855E-004   7.135890335588E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      1.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      1.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      1.20000   3.720762142834E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      1.20000   4.534621345087E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      1.20000                     2     # Magnus total interpolations
+<rt_tddft>:      1.40000        ### Checks passed ###
+<rt_tddft>:      1.40000        ### Estimated time remaining: 1 minute(s) 32 second(s) ###
+<rt_tddft>:      1.40000   3.721695025761E+002     # Enuc
+<rt_tddft>:      1.40000  -1.351704924460E+003     # Ecore
+<rt_tddft>:      1.40000   5.922068568633E+002     # Ecoul
+<rt_tddft>:      1.40000  -6.015890688770E+001     # Exc(1)
+<rt_tddft>:      1.40000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      1.40000  -4.474874719084E+002     # Etot
+<rt_tddft>:      1.40000   1.151183823822E-007     # Eadded
+<rt_tddft>:      1.40000   7.595145470094E-001     # <S^2>
+<rt_tddft>:      1.40000  -3.190793002794E-005  -3.498541013087E-004   7.194089955592E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      1.40000  -4.353385622657E-005  -3.593322803566E-004  -1.282263544897E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      1.40000  -3.804410893515E-005  -2.409878707450E-004   6.763362949254E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      1.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      1.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      1.40000   8.350649061128E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      1.40000   1.188542664288E-008     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      1.40000                     2     # Magnus total interpolations
+<rt_tddft>:      1.60000        ### Checks passed ###
+<rt_tddft>:      1.60000        ### Estimated time remaining: 1 minute(s) 25 second(s) ###
+<rt_tddft>:      1.60000   3.721695025761E+002     # Enuc
+<rt_tddft>:      1.60000  -1.351704926101E+003     # Ecore
+<rt_tddft>:      1.60000   5.922068600202E+002     # Ecoul
+<rt_tddft>:      1.60000  -6.015890840369E+001     # Exc(1)
+<rt_tddft>:      1.60000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      1.60000  -4.474874719084E+002     # Etot
+<rt_tddft>:      1.60000   1.151190645032E-007     # Eadded
+<rt_tddft>:      1.60000   7.595144532900E-001     # <S^2>
+<rt_tddft>:      1.60000  -2.703158970085E-005  -3.429257609096E-004   7.485441157496E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      1.60000  -3.834888991427E-005  -3.524874933953E-004  -1.319578342225E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      1.60000  -2.798280231708E-005  -2.272147433917E-004   5.945395235421E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      1.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      1.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      1.60000   2.316280500736E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      1.60000   4.352603832913E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      1.60000                     2     # Magnus total interpolations
+<rt_tddft>:      1.80000        ### Checks passed ###
+<rt_tddft>:      1.80000        ### Estimated time remaining: 1 minute(s) 19 second(s) ###
+<rt_tddft>:      1.80000   3.721695025761E+002     # Enuc
+<rt_tddft>:      1.80000  -1.351704921277E+003     # Ecore
+<rt_tddft>:      1.80000   5.922068557105E+002     # Ecoul
+<rt_tddft>:      1.80000  -6.015890891857E+001     # Exc(1)
+<rt_tddft>:      1.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      1.80000  -4.474874719084E+002     # Etot
+<rt_tddft>:      1.80000   1.151195192506E-007     # Eadded
+<rt_tddft>:      1.80000   7.595143463723E-001     # <S^2>
+<rt_tddft>:      1.80000  -2.248738632638E-005  -3.365007426339E-004   7.598480079908E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      1.80000  -3.351290605558E-005  -3.462142544830E-004  -1.342829246958E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      1.80000  -1.860261506614E-005  -2.145164861851E-004   4.750693986311E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      1.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      1.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      1.80000   4.837985567718E-010     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      1.80000   1.603961408136E-010     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      1.80000                     2     # Magnus total interpolations
+<rt_tddft>:      2.00000        ### Checks passed ###
+<rt_tddft>:      2.00000        ### Estimated time remaining: 1 minute(s) 13 second(s) ###
+<rt_tddft>:      2.00000   3.721695025761E+002     # Enuc
+<rt_tddft>:      2.00000  -1.351704911215E+003     # Ecore
+<rt_tddft>:      2.00000   5.922068446752E+002     # Ecoul
+<rt_tddft>:      2.00000  -6.015890794453E+001     # Exc(1)
+<rt_tddft>:      2.00000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      2.00000  -4.474874719084E+002     # Etot
+<rt_tddft>:      2.00000   1.151187234427E-007     # Eadded
+<rt_tddft>:      2.00000   7.595142276791E-001     # <S^2>
+<rt_tddft>:      2.00000  -1.828123757086E-005  -3.306460703145E-004   7.594455689247E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      2.00000  -2.904090453804E-005  -3.405836978425E-004  -1.359905599701E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      2.00000  -9.924464771771E-006  -2.030312572341E-004   3.002814805366E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      2.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      2.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      2.00000   1.194865828502E-008     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      2.00000   1.389296966359E-008     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      2.00000                     2     # Magnus total interpolations
+<rt_tddft>:      2.20000        ### Checks passed ###
+<rt_tddft>:      2.20000        ### Estimated time remaining: 1 minute(s) 7 second(s) ###
+<rt_tddft>:      2.20000   3.721695025761E+002     # Enuc
+<rt_tddft>:      2.20000  -1.351704897675E+003     # Ecore
+<rt_tddft>:      2.20000   5.922068299033E+002     # Ecoul
+<rt_tddft>:      2.20000  -6.015890671325E+001     # Exc(1)
+<rt_tddft>:      2.20000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      2.20000  -4.474874719084E+002     # Etot
+<rt_tddft>:      2.20000   1.151153128376E-007     # Eadded
+<rt_tddft>:      2.20000   7.595140993659E-001     # <S^2>
+<rt_tddft>:      2.20000  -1.423389424993E-005  -3.250211770771E-004   7.072171680111E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      2.20000  -2.475703598215E-005  -3.352555374088E-004  -1.326328618185E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      2.20000  -1.593252912713E-006  -1.920782035558E-004   1.137672865582E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      2.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      2.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      2.20000   2.355172723512E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      2.20000   4.405811715458E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      2.20000                     2     # Magnus total interpolations
+<rt_tddft>:      2.40000        ### Checks passed ###
+<rt_tddft>:      2.40000        ### Estimated time remaining: 1 minute(s) 1 second(s) ###
+<rt_tddft>:      2.40000   3.721695025761E+002     # Enuc
+<rt_tddft>:      2.40000  -1.351704882003E+003     # Ecore
+<rt_tddft>:      2.40000   5.922068123155E+002     # Ecoul
+<rt_tddft>:      2.40000  -6.015890479756E+001     # Exc(1)
+<rt_tddft>:      2.40000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      2.40000  -4.474874719084E+002     # Etot
+<rt_tddft>:      2.40000   1.151173592007E-007     # Eadded
+<rt_tddft>:      2.40000   7.595139651983E-001     # <S^2>
+<rt_tddft>:      2.40000  -1.005856088021E-005  -3.192348135563E-004   6.462744516391E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      2.40000  -2.037510653530E-005  -3.298355125461E-004  -1.286028665515E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      2.40000   6.964009854116E-006  -1.808718151874E-004  -9.266035046116E-006     # Dipole moment [system] (total spin)
+<rt_tddft>:      2.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      2.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      2.40000   6.261698048959E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      2.40000   5.045764472911E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      2.40000                     2     # Magnus total interpolations
+<rt_tddft>:      2.60000        ### Checks passed ###
+<rt_tddft>:      2.60000        ### Estimated time remaining: 56 second(s) ###
+<rt_tddft>:      2.60000   3.721695025761E+002     # Enuc
+<rt_tddft>:      2.60000  -1.351704865297E+003     # Ecore
+<rt_tddft>:      2.60000   5.922067938552E+002     # Ecoul
+<rt_tddft>:      2.60000  -6.015890304300E+001     # Exc(1)
+<rt_tddft>:      2.60000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      2.60000  -4.474874719084E+002     # Etot
+<rt_tddft>:      2.60000   1.151175865743E-007     # Eadded
+<rt_tddft>:      2.60000   7.595138276122E-001     # <S^2>
+<rt_tddft>:      2.60000  -5.492054276246E-006  -3.129113633786E-004   5.864577329077E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      2.60000  -1.563231377411E-005  -3.239401520005E-004  -1.246956393094E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      2.60000   1.627330924059E-005  -1.686530044243E-004  -3.001048135685E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      2.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      2.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      2.60000   1.112267788983E-008     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      2.60000   1.149639738962E-008     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      2.60000                     2     # Magnus total interpolations
+<rt_tddft>:      2.80000        ### Checks passed ###
+<rt_tddft>:      2.80000        ### Estimated time remaining: 51 second(s) ###
+<rt_tddft>:      2.80000   3.721695025761E+002     # Enuc
+<rt_tddft>:      2.80000  -1.351704849316E+003     # Ecore
+<rt_tddft>:      2.80000   5.922067766230E+002     # Ecoul
+<rt_tddft>:      2.80000  -6.015890179122E+001     # Exc(1)
+<rt_tddft>:      2.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      2.80000  -4.474874719084E+002     # Etot
+<rt_tddft>:      2.80000   1.151186097559E-007     # Eadded
+<rt_tddft>:      2.80000   7.595136888751E-001     # <S^2>
+<rt_tddft>:      2.80000  -4.481536262091E-007  -3.058564741290E-004   4.936917452549E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      2.80000  -1.043772080500E-005  -3.173654470379E-004  -1.174823979183E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      2.80000   2.651180290592E-005  -1.550234102599E-004  -5.064405509811E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      2.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      2.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      2.80000   2.030585255497E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      2.80000   3.244898794108E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      2.80000                     2     # Magnus total interpolations
+<rt_tddft>:      3.00000        ### Checks passed ###
+<rt_tddft>:      3.00000        ### Estimated time remaining: 45 second(s) ###
+<rt_tddft>:      3.00000   3.721695025761E+002     # Enuc
+<rt_tddft>:      3.00000  -1.351704832460E+003     # Ecore
+<rt_tddft>:      3.00000   5.922067585387E+002     # Ecoul
+<rt_tddft>:      3.00000  -6.015890056295E+001     # Exc(1)
+<rt_tddft>:      3.00000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      3.00000  -4.474874719084E+002     # Etot
+<rt_tddft>:      3.00000   1.151164497060E-007     # Eadded
+<rt_tddft>:      3.00000   7.595135519282E-001     # <S^2>
+<rt_tddft>:      3.00000   5.357576268850E-006  -2.976525304037E-004   4.045780851877E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      3.00000  -4.503434366754E-006  -3.096853187490E-004  -1.103110952053E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      3.00000   3.825181921790E-005  -1.391393382288E-004  -6.804468803540E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      3.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      3.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      3.00000   3.106239709894E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      3.00000   1.509196545513E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      3.00000                     2     # Magnus total interpolations
+<rt_tddft>:      3.20000        ### Checks passed ###
+<rt_tddft>:      3.20000        ### Estimated time remaining: 40 second(s) ###
+<rt_tddft>:      3.20000   3.721695025761E+002     # Enuc
+<rt_tddft>:      3.20000  -1.351704816265E+003     # Ecore
+<rt_tddft>:      3.20000   5.922067417582E+002     # Ecoul
+<rt_tddft>:      3.20000  -6.015889997811E+001     # Exc(1)
+<rt_tddft>:      3.20000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      3.20000  -4.474874719084E+002     # Etot
+<rt_tddft>:      3.20000   1.151177002612E-007     # Eadded
+<rt_tddft>:      3.20000   7.595134186282E-001     # <S^2>
+<rt_tddft>:      3.20000   1.178251781120E-005  -2.885049561216E-004   3.309559379105E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      3.20000   2.030741766745E-006  -3.010929026015E-004  -1.045451582707E-003     # Dipole moment [system] (beta spin)
+<rt_tddft>:      3.20000   5.121093687954E-005  -1.213993477567E-004  -8.400746596674E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      3.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      3.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      3.20000   7.163503790153E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      3.20000   5.663847169046E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      3.20000                     2     # Magnus total interpolations
+<rt_tddft>:      3.40000        ### Checks passed ###
+<rt_tddft>:      3.40000        ### Estimated time remaining: 35 second(s) ###
+<rt_tddft>:      3.40000   3.721695025761E+002     # Enuc
+<rt_tddft>:      3.40000  -1.351704798831E+003     # Ecore
+<rt_tddft>:      3.40000   5.922067237806E+002     # Ecoul
+<rt_tddft>:      3.40000  -6.015889943385E+001     # Exc(1)
+<rt_tddft>:      3.40000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      3.40000  -4.474874719084E+002     # Etot
+<rt_tddft>:      3.40000   1.151158812718E-007     # Eadded
+<rt_tddft>:      3.40000   7.595132899872E-001     # <S^2>
+<rt_tddft>:      3.40000   1.875264328000E-005  -2.784461470791E-004   2.314100611899E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      3.40000   9.095412240256E-006  -2.916105176931E-004  -9.588240619641E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      3.40000   6.524573285382E-005  -1.018581538190E-004  -9.692582194439E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      3.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      3.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      3.40000   3.363044953630E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      3.40000   4.407084697178E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      3.40000                     2     # Magnus total interpolations
+<rt_tddft>:      3.60000        ### Checks passed ###
+<rt_tddft>:      3.60000        ### Estimated time remaining: 30 second(s) ###
+<rt_tddft>:      3.60000   3.721695025761E+002     # Enuc
+<rt_tddft>:      3.60000  -1.351704781251E+003     # Ecore
+<rt_tddft>:      3.60000   5.922067058953E+002     # Ecoul
+<rt_tddft>:      3.60000  -6.015889912865E+001     # Exc(1)
+<rt_tddft>:      3.60000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      3.60000  -4.474874719084E+002     # Etot
+<rt_tddft>:      3.60000   1.151145170297E-007     # Eadded
+<rt_tddft>:      3.60000   7.595131668014E-001     # <S^2>
+<rt_tddft>:      3.60000   2.612468124319E-005  -2.676948812770E-004   1.535212883943E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      3.60000   1.655018821189E-005  -2.814486011555E-004  -8.893174096264E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      3.60000   8.007254677800E-005  -8.094497149358E-005  -1.053079424022E-004     # Dipole moment [system] (total spin)
+<rt_tddft>:      3.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      3.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      3.60000   1.238214641930E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      3.60000   8.772960136127E-011     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      3.60000                     2     # Magnus total interpolations
+<rt_tddft>:      3.80000        ### Checks passed ###
+<rt_tddft>:      3.80000        ### Estimated time remaining: 25 second(s) ###
+<rt_tddft>:      3.80000   3.721695025761E+002     # Enuc
+<rt_tddft>:      3.80000  -1.351704762245E+003     # Ecore
+<rt_tddft>:      3.80000   5.922066861951E+002     # Ecoul
+<rt_tddft>:      3.80000  -6.015889843509E+001     # Exc(1)
+<rt_tddft>:      3.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      3.80000  -4.474874719084E+002     # Etot
+<rt_tddft>:      3.80000   1.151173592007E-007     # Eadded
+<rt_tddft>:      3.80000   7.595130494618E-001     # <S^2>
+<rt_tddft>:      3.80000   3.356941895127E-005  -2.567073907764E-004   8.315826174401E-005     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      3.80000   2.406617066519E-005  -2.710544237390E-004  -8.249130512069E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      3.80000   9.503326692162E-005  -5.956330358003E-005  -1.112666106331E-004     # Dipole moment [system] (total spin)
+<rt_tddft>:      3.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      3.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      3.80000   3.712984808502E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      3.80000   2.037430446578E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      3.80000                     2     # Magnus total interpolations
+<rt_tddft>:      4.00000        ### Checks passed ###
+<rt_tddft>:      4.00000        ### Estimated time remaining: 20 second(s) ###
+<rt_tddft>:      4.00000   3.721695025761E+002     # Enuc
+<rt_tddft>:      4.00000  -1.351704744802E+003     # Ecore
+<rt_tddft>:      4.00000   5.922066685186E+002     # Ecoul
+<rt_tddft>:      4.00000  -6.015889820083E+001     # Exc(1)
+<rt_tddft>:      4.00000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      4.00000  -4.474874719084E+002     # Etot
+<rt_tddft>:      4.00000   1.151155402113E-007     # Eadded
+<rt_tddft>:      4.00000   7.595129384845E-001     # <S^2>
+<rt_tddft>:      4.00000   4.078776649230E-005  -2.458936639300E-004   6.645798590004E-006     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      4.00000   3.134749473510E-005  -2.608297894993E-004  -7.504380330129E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      4.00000   1.095329385503E-004  -3.852494252321E-005  -1.133040555931E-004     # Dipole moment [system] (total spin)
+<rt_tddft>:      4.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      4.00000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      4.00000   3.427792716337E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      4.00000   4.233229766726E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      4.00000                     2     # Magnus total interpolations
+<rt_tddft>:      4.20000        ### Checks passed ###
+<rt_tddft>:      4.20000        ### Estimated time remaining: 15 second(s) ###
+<rt_tddft>:      4.20000   3.721695025761E+002     # Enuc
+<rt_tddft>:      4.20000  -1.351704728000E+003     # Ecore
+<rt_tddft>:      4.20000   5.922066509873E+002     # Ecoul
+<rt_tddft>:      4.20000  -6.015889747167E+001     # Exc(1)
+<rt_tddft>:      4.20000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      4.20000  -4.474874719084E+002     # Etot
+<rt_tddft>:      4.20000   1.151161086455E-007     # Eadded
+<rt_tddft>:      4.20000   7.595128343604E-001     # <S^2>
+<rt_tddft>:      4.20000   4.765645375748E-005  -2.354301172378E-004  -5.703637745978E-005     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      4.20000   3.826972873533E-005  -2.509475257177E-004  -6.856134603958E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      4.20000   1.233238598441E-004  -1.817913203084E-005  -1.121616590258E-004     # Dipole moment [system] (total spin)
+<rt_tddft>:      4.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      4.20000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      4.20000   1.279802264165E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      4.20000   4.781164353318E-010     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      4.20000                     2     # Magnus total interpolations
+<rt_tddft>:      4.40000        ### Checks passed ###
+<rt_tddft>:      4.40000        ### Estimated time remaining: 10 second(s) ###
+<rt_tddft>:      4.40000   3.721695025761E+002     # Enuc
+<rt_tddft>:      4.40000  -1.351704715295E+003     # Ecore
+<rt_tddft>:      4.40000   5.922066380189E+002     # Ecoul
+<rt_tddft>:      4.40000  -6.015889720810E+001     # Exc(1)
+<rt_tddft>:      4.40000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      4.40000  -4.474874719084E+002     # Etot
+<rt_tddft>:      4.40000   1.151144033429E-007     # Eadded
+<rt_tddft>:      4.40000   7.595127384057E-001     # <S^2>
+<rt_tddft>:      4.40000   5.378314947713E-005  -2.258995614124E-004  -1.036687663012E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      4.40000   4.443994744641E-005  -2.419830623994E-004  -6.337834664515E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      4.40000   1.356207741932E-004   3.158870924835E-007  -1.069640539228E-004     # Dipole moment [system] (total spin)
+<rt_tddft>:      4.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      4.40000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      4.40000   1.969394647361E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      4.40000   7.792164691267E-010     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      4.40000                     2     # Magnus total interpolations
+<rt_tddft>:      4.60000        ### Checks passed ###
+<rt_tddft>:      4.60000        ### Estimated time remaining: 5 second(s) ###
+<rt_tddft>:      4.60000   3.721695025761E+002     # Enuc
+<rt_tddft>:      4.60000  -1.351704707131E+003     # Ecore
+<rt_tddft>:      4.60000   5.922066297733E+002     # Ecoul
+<rt_tddft>:      4.60000  -6.015889712640E+001     # Exc(1)
+<rt_tddft>:      4.60000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      4.60000  -4.474874719084E+002     # Etot
+<rt_tddft>:      4.60000   1.151148580902E-007     # Eadded
+<rt_tddft>:      4.60000   7.595126523282E-001     # <S^2>
+<rt_tddft>:      4.60000   5.916152846019E-005  -2.173106388499E-004  -1.617880227647E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      4.60000   4.985191042728E-005  -2.339405551588E-004  -5.697335893198E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      4.60000   1.464111162459E-004   1.694731689561E-005  -1.010334332547E-004     # Dipole moment [system] (total spin)
+<rt_tddft>:      4.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      4.60000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      4.60000   1.912100699997E-009     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      4.60000   2.452077207948E-009     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      4.60000                     2     # Magnus total interpolations
+<rt_tddft>:      4.80000        ### Checks passed ###
+<rt_tddft>:      4.80000        ### Estimated time remaining: 0 second(s) ###
+<rt_tddft>:      4.80000   3.721695025761E+002     # Enuc
+<rt_tddft>:      4.80000  -1.351704705632E+003     # Ecore
+<rt_tddft>:      4.80000   5.922066290222E+002     # Ecoul
+<rt_tddft>:      4.80000  -6.015889787445E+001     # Exc(1)
+<rt_tddft>:      4.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      4.80000  -4.474874719084E+002     # Etot
+<rt_tddft>:      4.80000   1.151155402113E-007     # Eadded
+<rt_tddft>:      4.80000   7.595125771302E-001     # <S^2>
+<rt_tddft>:      4.80000   6.371962573049E-005  -2.097794236864E-004  -1.966046629604E-004     # Dipole moment [system] (alpha spin)
+<rt_tddft>:      4.80000   5.443107314740E-005  -2.269340908585E-004  -5.241717861584E-004     # Dipole moment [system] (beta spin)
+<rt_tddft>:      4.80000   1.555483762328E-004   3.148499638250E-005  -9.028827028894E-005     # Dipole moment [system] (total spin)
+<rt_tddft>:      4.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (alpha spin)
+<rt_tddft>:      4.80000   0.000000000000E+000   0.000000000000E+000   0.000000000000E+000     # Applied E-field [system] (beta spin)
+<rt_tddft>:      4.80000   6.905982452565E-010     # Magnus interpol (matrix 1 of 2)
+<rt_tddft>:      4.80000   8.935854278747E-010     # Magnus interpol (matrix 2 of 2)
+<rt_tddft>:      4.80000                     2     # Magnus total interpolations
+<rt_tddft>:      5.00000        ### Propagation finished ###
+
+ Parallel integral file used     100 records with       0 large values
+
+
+ Task  times  cpu:      125.3s     wall:      125.7s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 9957     9957     4.25e+05 8.52e+04 2.46e+05    0        0        0     
+number of processes/call 1.04e+00 1.06e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             8.52e+08 3.64e+08 1.74e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            4.85e+08 5.22e+07 1.18e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1587600 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        23	        47
+	current total bytes		         0	         0
+	maximum total bytes		  37246792	  22517528
+	maximum total K-bytes		     37247	     22518
+	maximum total M-bytes		        38	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+    J. Hammond, J. Autschbach, F. Aquino, S. Hirata, M. T. Hackler, K. Lopata,
+      J. Mullin, P. Nichols, R. Peverati, Y. Zhao, P.-D. Fan, R. J. Harrison,
+        M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+       B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+      G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
+        K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
+  T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening,
+         M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
+     R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu,
+      L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
+                  G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+
+ Total times  cpu:      141.6s     wall:      143.3s

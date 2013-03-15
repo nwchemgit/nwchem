@@ -13,15 +13,11 @@
 ## moment and energy should be time-independent and consistent with
 ## the DFT SCF values.
 ##
-## Manual checks:
-##
-## Total energy: -394.71444119
-## $ grep "Total DFT energy = " cytosine.out | grep -v "#"
-## $ grep "# Etot$" cytosine.out
-##
-## Dipole moment: (2.256532, -0.774701, 1.145943)
-## $ grep -A9 "Multipole" cytosine.out | tail -n3 | cut -c10-30
-## $ grep "# Dipole.*\]$" cytosine.out | cut -c12-91
+## Suggested checks:
+## nw_rtparse -xdipole -px -c myrun.out cytosine.out
+## nw_rtparse -xdipole -py -c myrun.out cytosine.out
+## nw_rtparse -xdipole -pz -c myrun.out cytosine.out
+## nw_rtparse -xenergy -c myrun.out cytosine.out
 ##
 
 title "Cytosine CD fitting + CAM-B3LYP"
@@ -304,7 +300,7 @@ task dft rt_tddft
 
     hostname        = hydra
     program         = /home/lopata/nwchem/nwchem-trunk/bin/LINUX64/nwchem
-    date            = Thu Mar 14 13:30:10 2013
+    date            = Thu Mar 14 17:00:45 2013
 
     compiled        = Thu_Mar_14_13:29:59_2013
     source          = /home/lopata/nwchem/nwchem-trunk
@@ -823,7 +819,7 @@ task dft rt_tddft
  HOMO         =      -0.278990
  LUMO         =      -0.013652
 
-   Time after variat. SCF:      2.1
+   Time after variat. SCF:      2.0
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -843,19 +839,19 @@ task dft rt_tddft
 
  Integral file          = ./scratch/cytosine.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =    347        Max. records in file   = 362059
+ Max. records in memory =    347        Max. records in file   = 362061
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 1.780D+06 #integrals = 3.802D+07 #direct =  0.0% #cached =100.0%
 
 
-File balance: exchanges=     4  moved=    18  time=   0.0
+File balance: exchanges=     4  moved=     6  time=   0.0
 
 
  Grid_pts file          = ./scratch/cytosine.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =   1930831
+ Max. records in memory =     25        Max. recs in file   =   1930841
 
 
            Memory utilization after 1st SCF pass: 
@@ -865,35 +861,35 @@ File balance: exchanges=     4  moved=    18  time=   0.0
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1   -394.5087684701 -7.55D+02  1.49D-02  1.77D+00    18.3
- d= 0,ls=0.0,diis     2   -394.3708866113  1.38D-01  9.01D-03  3.53D+00    21.0
- d= 0,ls=0.0,diis     3   -394.7055958885 -3.35D-01  1.69D-03  8.94D-02    23.7
- d= 0,ls=0.0,diis     4   -394.7121142306 -6.52D-03  6.71D-04  2.30D-02    26.4
- d= 0,ls=0.0,diis     5   -394.7143237289 -2.21D-03  1.89D-04  1.00D-03    29.1
+ d= 0,ls=0.0,diis     2   -394.3708866474  1.38D-01  9.01D-03  3.53D+00    20.9
+ d= 0,ls=0.0,diis     3   -394.7055958865 -3.35D-01  1.69D-03  8.94D-02    23.6
+ d= 0,ls=0.0,diis     4   -394.7121142318 -6.52D-03  6.71D-04  2.30D-02    26.3
+ d= 0,ls=0.0,diis     5   -394.7143237289 -2.21D-03  1.89D-04  1.00D-03    29.0
   Resetting Diis
- d= 0,ls=0.0,diis     6   -394.7144243749 -1.01D-04  6.29D-05  1.23D-04    31.8
- d= 0,ls=0.0,diis     7   -394.7144396775 -1.53D-05  3.47D-05  9.08D-06    34.5
- d= 0,ls=0.0,diis     8   -394.7144399017 -2.24D-07  1.45D-05  1.14D-05    37.2
- d= 0,ls=0.0,diis     9   -394.7144411110 -1.21D-06  5.82D-06  4.03D-07    39.9
- d= 0,ls=0.0,diis    10   -394.7144411716 -6.06D-08  3.11D-06  9.11D-08    42.6
- d= 0,ls=0.0,diis    11   -394.7144411906 -1.90D-08  1.05D-06  1.79D-08    45.3
- d= 0,ls=0.0,diis    12   -394.7144411930 -2.38D-09  2.84D-07  1.95D-09    47.9
- d= 0,ls=0.0,diis    13   -394.7144411933 -2.89D-10  1.68D-07  1.08D-10    50.6
- d= 0,ls=0.0,diis    14   -394.7144411933 -5.09D-11  4.08D-08  1.66D-11    53.3
- d= 0,ls=0.0,diis    15   -394.7144411933 -2.96D-12  1.08D-08  1.12D-12    56.0
- d= 0,ls=0.0,diis    16   -394.7144411933 -2.61D-12  4.71D-09  2.92D-13    58.7
- d= 0,ls=0.0,diis    17   -394.7144411933 -1.82D-12  1.12D-09  2.85D-14    61.4
- d= 0,ls=0.0,diis    18   -394.7144411933  6.37D-12  6.10D-10  4.84D-15    64.1
+ d= 0,ls=0.0,diis     6   -394.7144243749 -1.01D-04  6.29D-05  1.23D-04    31.6
+ d= 0,ls=0.0,diis     7   -394.7144396775 -1.53D-05  3.47D-05  9.08D-06    34.3
+ d= 0,ls=0.0,diis     8   -394.7144399017 -2.24D-07  1.45D-05  1.14D-05    37.0
+ d= 0,ls=0.0,diis     9   -394.7144411110 -1.21D-06  5.82D-06  4.03D-07    39.7
+ d= 0,ls=0.0,diis    10   -394.7144411716 -6.06D-08  3.11D-06  9.11D-08    42.3
+ d= 0,ls=0.0,diis    11   -394.7144411906 -1.90D-08  1.05D-06  1.79D-08    45.0
+ d= 0,ls=0.0,diis    12   -394.7144411930 -2.38D-09  2.84D-07  1.95D-09    47.7
+ d= 0,ls=0.0,diis    13   -394.7144411933 -2.95D-10  1.68D-07  1.08D-10    50.3
+ d= 0,ls=0.0,diis    14   -394.7144411933 -4.81D-11  4.06D-08  1.64D-11    53.0
+ d= 0,ls=0.0,diis    15   -394.7144411933 -3.87D-12  1.09D-08  1.10D-12    55.7
+ d= 0,ls=0.0,diis    16   -394.7144411933 -4.55D-13  4.48D-09  2.42D-13    58.4
+ d= 0,ls=0.0,diis    17   -394.7144411933  1.82D-12  1.10D-09  2.76D-14    61.0
+ d= 0,ls=0.0,diis    18   -394.7144411933 -1.14D-12  5.99D-10  8.41D-15    63.7
 
 
-         Total DFT energy =     -394.714441193326
-      One electron energy =    -1250.676384678884
-           Coulomb energy =      548.234893722243
-    Exchange-Corr. energy =      -53.055334766490
+         Total DFT energy =     -394.714441193328
+      One electron energy =    -1250.676384695044
+           Coulomb energy =      548.234893740195
+    Exchange-Corr. energy =      -53.055334768283
  Nuclear repulsion energy =      360.782384529804
 
  Numeric. integr. density =       57.999996219656
 
-     Total iterative time =     61.3s
+     Total iterative time =     60.9s
 
 
 
@@ -964,7 +960,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
               MO Center=  1.8D+00,  2.8D+00, -1.7D+00, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-   113     -0.310723  12 N  px               62      0.295984   6 H  s         
+   113     -0.310723  12 N  px               62      0.295985   6 H  s         
     67     -0.263190   7 H  s               114      0.237530  12 N  py        
     86      0.173534  10 N  py                5     -0.172550   1 C  py        
     31      0.159075   3 C  s         
@@ -1129,7 +1125,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
               MO Center=  1.7D+00,  8.3D-01, -1.5D+00, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    73      1.418671   8 H  s                58     -1.050882   5 H  s         
+    73      1.418672   8 H  s                58     -1.050882   5 H  s         
     45     -0.953737   4 C  s                78      0.943771   9 H  s         
     31     -0.773682   3 C  s                63     -0.752709   6 H  s         
     35     -0.738086   3 C  px               84      0.669268  10 N  s         
@@ -1298,7 +1294,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
  Parallel integral file used     872 records with       0 large values
 
 
- Task  times  cpu:       64.1s     wall:       64.7s
+ Task  times  cpu:       63.7s     wall:       64.4s
 
 
                                 NWChem Input Module
@@ -1316,7 +1312,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
 
   The DFT is already converged 
 
-         Total DFT energy =   -394.714441193326
+         Total DFT energy =   -394.714441193328
 
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
@@ -1413,7 +1409,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
  Geometry               Atoms      Basis func.   Nuc. charge          Nuc. dip. mom.
  -----------------------------------------------------------------------------------------
  *system              13 (100% )   137 (100% )     58.00      100.46    185.60   -221.23
- [prof] Fock core initialization took 5 ms.
+ [prof] Fock core initialization took 0 ms.
 
 =============== Geometry Initialization ===============
   Active geometry: "system"
@@ -1514,69 +1510,69 @@ File balance: exchanges=     4  moved=    18  time=   0.0
          3        2.00       -1.44104250E+01
          4        2.00       -1.43728591E+01
          5        2.00       -1.03649178E+01
-         6        2.00       -1.03551113E+01
+         6        2.00       -1.03551114E+01
          7        2.00       -1.03310728E+01
          8        2.00       -1.02652043E+01
          9        2.00       -1.11805487E+00
         10        2.00       -1.06871393E+00
         11        2.00       -1.03371211E+00
-        12        2.00       -9.61671966E-01
-        13        2.00       -8.81099316E-01
-        14        2.00       -7.63602762E-01
-        15        2.00       -7.40023832E-01
+        12        2.00       -9.61671965E-01
+        13        2.00       -8.81099314E-01
+        14        2.00       -7.63602761E-01
+        15        2.00       -7.40023831E-01
         16        2.00       -6.73336661E-01
-        17        2.00       -6.53981909E-01
-        18        2.00       -6.14174557E-01
-        19        2.00       -5.88327584E-01
-        20        2.00       -5.31123214E-01
-        21        2.00       -5.27218065E-01
-        22        2.00       -5.12525939E-01
-        23        2.00       -4.55985178E-01
-        24        2.00       -4.49594154E-01
-        25        2.00       -4.04619519E-01
+        17        2.00       -6.53981906E-01
+        18        2.00       -6.14174556E-01
+        19        2.00       -5.88327583E-01
+        20        2.00       -5.31123212E-01
+        21        2.00       -5.27218063E-01
+        22        2.00       -5.12525938E-01
+        23        2.00       -4.55985177E-01
+        24        2.00       -4.49594153E-01
+        25        2.00       -4.04619517E-01
         26        2.00       -3.26990576E-01
-        27        2.00       -3.17572041E-01
-        28        2.00       -2.98909498E-01
-        29        2.00       -2.80044369E-01
-        30        0.00        1.01979782E-02
-        31        0.00        7.58809421E-02
-        32        0.00        9.11990167E-02
+        27        2.00       -3.17572040E-01
+        28        2.00       -2.98909496E-01
+        29        2.00       -2.80044367E-01
+        30        0.00        1.01979792E-02
+        31        0.00        7.58809438E-02
+        32        0.00        9.11990175E-02
         33        0.00        1.13079222E-01
-        34        0.00        1.40405383E-01
+        34        0.00        1.40405384E-01
         35        0.00        1.65591510E-01
         36        0.00        1.94008946E-01
-        37        0.00        2.10613001E-01
-        38        0.00        2.70121319E-01
-        39        0.00        2.92985010E-01
-        40        0.00        3.50308272E-01
-        41        0.00        3.56779974E-01
+        37        0.00        2.10613003E-01
+        38        0.00        2.70121320E-01
+        39        0.00        2.92985012E-01
+        40        0.00        3.50308274E-01
+        41        0.00        3.56779975E-01
         42        0.00        3.76415135E-01
-        43        0.00        3.98959959E-01
-        44        0.00        4.21443510E-01
-        45        0.00        4.83638880E-01
-        46        0.00        4.87464013E-01
-        47        0.00        5.01906995E-01
-        48        0.00        5.23918159E-01
-        49        0.00        5.63040475E-01
-        50        0.00        5.70226252E-01
-        51        0.00        5.81801166E-01
-        52        0.00        5.92730246E-01
+        43        0.00        3.98959960E-01
+        44        0.00        4.21443511E-01
+        45        0.00        4.83638881E-01
+        46        0.00        4.87464014E-01
+        47        0.00        5.01906996E-01
+        48        0.00        5.23918161E-01
+        49        0.00        5.63040476E-01
+        50        0.00        5.70226253E-01
+        51        0.00        5.81801167E-01
+        52        0.00        5.92730247E-01
         53        0.00        6.12501343E-01
-        54        0.00        6.49539537E-01
-        55        0.00        6.60021133E-01
+        54        0.00        6.49539538E-01
+        55        0.00        6.60021135E-01
         56        0.00        6.65146034E-01
-        57        0.00        6.85701684E-01
-        58        0.00        7.22382294E-01
-        59        0.00        7.71040611E-01
-        60        0.00        7.84612461E-01
+        57        0.00        6.85701686E-01
+        58        0.00        7.22382297E-01
+        59        0.00        7.71040612E-01
+        60        0.00        7.84612463E-01
         61        0.00        8.12916383E-01
-        62        0.00        8.28999360E-01
-        63        0.00        8.56122668E-01
+        62        0.00        8.28999361E-01
+        63        0.00        8.56122671E-01
         64        0.00        8.63132213E-01
-        65        0.00        8.92594347E-01
-        66        0.00        9.18982322E-01
-        67        0.00        9.36265832E-01
-        68        0.00        9.64630165E-01
+        65        0.00        8.92594348E-01
+        66        0.00        9.18982323E-01
+        67        0.00        9.36265833E-01
+        68        0.00        9.64630166E-01
         69        0.00        9.84424025E-01
         70        0.00        1.00257079E+00
         71        0.00        1.01478350E+00
@@ -1584,18 +1580,18 @@ File balance: exchanges=     4  moved=    18  time=   0.0
         73        0.00        1.07747278E+00
         74        0.00        1.10952290E+00
         75        0.00        1.13078759E+00
-        76        0.00        1.14850498E+00
+        76        0.00        1.14850499E+00
         77        0.00        1.17150859E+00
         78        0.00        1.19278602E+00
         79        0.00        1.20080321E+00
         80        0.00        1.23127323E+00
         81        0.00        1.27260218E+00
         82        0.00        1.28206612E+00
-        83        0.00        1.33878643E+00
+        83        0.00        1.33878644E+00
         84        0.00        1.34440341E+00
         85        0.00        1.37965664E+00
         86        0.00        1.45433068E+00
-        87        0.00        1.48318571E+00
+        87        0.00        1.48318572E+00
         88        0.00        1.52698587E+00
         89        0.00        1.56549247E+00
         90        0.00        1.58434519E+00
@@ -1604,7 +1600,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
         93        0.00        1.69589908E+00
         94        0.00        1.74308851E+00
         95        0.00        1.75884977E+00
-        96        0.00        1.76872160E+00
+        96        0.00        1.76872161E+00
         97        0.00        1.80827578E+00
         98        0.00        1.82634868E+00
         99        0.00        1.84014405E+00
@@ -1616,7 +1612,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
        105        0.00        1.98564891E+00
        106        0.00        2.04876913E+00
        107        0.00        2.06182920E+00
-       108        0.00        2.10145853E+00
+       108        0.00        2.10145854E+00
        109        0.00        2.15301298E+00
        110        0.00        2.15868094E+00
        111        0.00        2.25364792E+00
@@ -1632,7 +1628,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
        121        0.00        2.61810313E+00
        122        0.00        2.64394918E+00
        123        0.00        2.69598832E+00
-       124        0.00        2.72321283E+00
+       124        0.00        2.72321284E+00
        125        0.00        2.75873194E+00
        126        0.00        2.82113502E+00
        127        0.00        2.84969613E+00
@@ -1645,7 +1641,7 @@ File balance: exchanges=     4  moved=    18  time=   0.0
        134        0.00        3.53563229E+00
        135        0.00        3.54386231E+00
        136        0.00        3.59400611E+00
-       137        0.00        3.74396995E+00
+       137        0.00        3.74396996E+00
  
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
@@ -1653,254 +1649,254 @@ File balance: exchanges=     4  moved=    18  time=   0.0
 
  Integral file          = ./scratch/cytosine.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =    347        Max. records in file   = 362059
+ Max. records in memory =    347        Max. records in file   = 362061
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 1.780D+06 #integrals = 3.804D+07 #direct =  0.0% #cached =100.0%
 
 
-File balance: exchanges=     3  moved=    17  time=   0.0
+File balance: exchanges=     3  moved=    16  time=   0.0
 
  [prof] Fock CS CAM exch took 14 s.
 
  Grid_pts file          = ./scratch/cytosine.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   =   1930831
+ Max. records in memory =     25        Max. recs in file   =   1930841
 
- [prof] Fock CS dft xc took 2133 ms.
+ [prof] Fock CS dft xc took 2137 ms.
  [prof] Fock CS d2z took 0 ms.
  [prof] Fock CS total build took 16 s.
 <rt_tddft>:      0.00000        ### Propagation started ###
- [prof] Fock CS z2d took 5 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1317 ms.
- [prof] Fock CS dft xc took 1933 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3265 ms.
- [prof] Fields and excitation potential took 0 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
  [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1313 ms.
- [prof] Fock CS dft xc took 1933 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3257 ms.
- [prof] Fields and excitation potential took 0 ms.
-<rt_tddft>:      0.00000        ### Checks passed ###
- [prof] Checks took 3265 ms.
-<rt_tddft>:      0.00000        ### No applied E-field ###
-<rt_tddft>:      0.00000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.00000  -1.250676384670E+003     # Ecore
-<rt_tddft>:      0.00000   5.482348937143E+002     # Ecoul
-<rt_tddft>:      0.00000  -5.305533476778E+001     # Exc(1)
-<rt_tddft>:      0.00000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.00000  -3.947144411935E+002     # Etot
-<rt_tddft>:      0.00000  -2.273736754432E-013     # Eadded
-<rt_tddft>:      0.00000   2.256531587404E+000  -7.747012923653E-001   1.145943039664E+000     # Dipole moment [system]
- [prof] Properties took 5 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
- [prof] Fock CS z2d took 0 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1321 ms.
- [prof] Fock CS dft xc took 1941 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
- [prof] Fields and excitation potential took 0 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
- [prof] Fock CS z2d took 5 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1317 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
  [prof] Fock CS dft xc took 1945 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
+ [prof] Fock CS d2z took 5 ms.
+ [prof] Fock CS total build took 3285 ms.
  [prof] Fields and excitation potential took 0 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
-<rt_tddft>:      0.00000   6.735945135006E-012     # Magnus interpol (matrix 1 of 1)
-<rt_tddft>:      0.00000                     2     # Magnus total interpolations
- [prof] Magnus propagation converged after 2 interpolations; took 6733 ms.
- [prof] Complete time step took 11 s.
- [prof] Fock CS z2d took 0 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1317 ms.
- [prof] Fock CS dft xc took 1933 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3265 ms.
- [prof] Fields and excitation potential took 0 ms.
-<rt_tddft>:      0.20000        ### Checks passed ###
- [prof] Checks took 3273 ms.
-<rt_tddft>:      0.20000        ### No applied E-field ###
-<rt_tddft>:      0.20000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.20000  -1.250676384657E+003     # Ecore
-<rt_tddft>:      0.20000   5.482348936996E+002     # Ecoul
-<rt_tddft>:      0.20000  -5.305533476571E+001     # Exc(1)
-<rt_tddft>:      0.20000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.20000  -3.947144411935E+002     # Etot
-<rt_tddft>:      0.20000   2.614797267597E-012     # Eadded
-<rt_tddft>:      0.20000   2.256531586826E+000  -7.747012924171E-001   1.145943039376E+000     # Dipole moment [system]
- [prof] Properties took 4 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
  [prof] Fock CS CD fitting coul took 17 ms.
  [prof] Fock CS CAM exch took 1325 ms.
- [prof] Fock CS dft xc took 1937 ms.
+ [prof] Fock CS dft xc took 1941 ms.
  [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3281 ms.
+ [prof] Fock CS total build took 3285 ms.
  [prof] Fields and excitation potential took 0 ms.
+<rt_tddft>:      0.00000        ### Checks passed ###
+ [prof] Checks took 3293 ms.
+<rt_tddft>:      0.00000        ### No applied E-field ###
+<rt_tddft>:      0.00000   3.607823845298E+002     # Enuc
+<rt_tddft>:      0.00000  -1.250676384591E+003     # Ecore
+<rt_tddft>:      0.00000   5.482348936284E+002     # Ecoul
+<rt_tddft>:      0.00000  -5.305533476016E+001     # Exc(1)
+<rt_tddft>:      0.00000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.00000  -3.947144411933E+002     # Etot
+<rt_tddft>:      0.00000  -1.023181539495E-012     # Eadded
+<rt_tddft>:      0.00000   2.256531541946E+000  -7.747013197611E-001   1.145943020996E+000     # Dipole moment [system]
+ [prof] Properties took 5 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
  [prof] Fock CS CD fitting coul took 9 ms.
- [prof] Fock CS CAM exch took 1317 ms.
- [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1953 ms.
  [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3265 ms.
+ [prof] Fock CS total build took 3285 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+ [prof] Fock CS z2d took 4 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1949 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3289 ms.
  [prof] Fields and excitation potential took 5 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
-<rt_tddft>:      0.20000   5.316902473851E-011     # Magnus interpol (matrix 1 of 1)
-<rt_tddft>:      0.20000                     2     # Magnus total interpolations
- [prof] Magnus propagation converged after 2 interpolations; took 6721 ms.
+<rt_tddft>:      0.00000   2.621902694955E-012     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.00000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6757 ms.
  [prof] Complete time step took 11 s.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
  [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1321 ms.
- [prof] Fock CS dft xc took 1929 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3261 ms.
- [prof] Fields and excitation potential took 0 ms.
-<rt_tddft>:      0.40000        ### Checks passed ###
- [prof] Checks took 3269 ms.
-<rt_tddft>:      0.40000        ### No applied E-field ###
-<rt_tddft>:      0.40000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.40000  -1.250676384638E+003     # Ecore
-<rt_tddft>:      0.40000   5.482348936791E+002     # Ecoul
-<rt_tddft>:      0.40000  -5.305533476406E+001     # Exc(1)
-<rt_tddft>:      0.40000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.40000  -3.947144411935E+002     # Etot
-<rt_tddft>:      0.40000  -6.821210263297E-013     # Eadded
-<rt_tddft>:      0.40000   2.256531586076E+000  -7.747012930371E-001   1.145943039065E+000     # Dipole moment [system]
- [prof] Properties took 4 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
- [prof] Fock CS z2d took 0 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
  [prof] Fock CS CAM exch took 1325 ms.
- [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS dft xc took 1945 ms.
  [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
+ [prof] Fock CS total build took 3285 ms.
  [prof] Fields and excitation potential took 4 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+<rt_tddft>:      0.20000        ### Checks passed ###
+ [prof] Checks took 3293 ms.
+<rt_tddft>:      0.20000        ### No applied E-field ###
+<rt_tddft>:      0.20000   3.607823845298E+002     # Enuc
+<rt_tddft>:      0.20000  -1.250676384594E+003     # Ecore
+<rt_tddft>:      0.20000   5.482348936308E+002     # Ecoul
+<rt_tddft>:      0.20000  -5.305533476019E+001     # Exc(1)
+<rt_tddft>:      0.20000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.20000  -3.947144411933E+002     # Etot
+<rt_tddft>:      0.20000  -1.023181539495E-012     # Eadded
+<rt_tddft>:      0.20000   2.256531542090E+000  -7.747013199429E-001   1.145943021063E+000     # Dipole moment [system]
+ [prof] Properties took 5 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CD fitting coul took 9 ms.
  [prof] Fock CS CAM exch took 1325 ms.
- [prof] Fock CS dft xc took 1941 ms.
+ [prof] Fock CS dft xc took 1953 ms.
  [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
- [prof] Fields and excitation potential took 0 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
-<rt_tddft>:      0.40000   6.800515706118E-011     # Magnus interpol (matrix 1 of 1)
-<rt_tddft>:      0.40000                     2     # Magnus total interpolations
- [prof] Magnus propagation converged after 2 interpolations; took 6733 ms.
- [prof] Complete time step took 11 s.
- [prof] Fock CS z2d took 0 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 17 ms.
- [prof] Fock CS CAM exch took 1321 ms.
- [prof] Fock CS dft xc took 1933 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
- [prof] Fields and excitation potential took 0 ms.
-<rt_tddft>:      0.60000        ### Checks passed ###
- [prof] Checks took 3285 ms.
-<rt_tddft>:      0.60000        ### No applied E-field ###
-<rt_tddft>:      0.60000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.60000  -1.250676384610E+003     # Ecore
-<rt_tddft>:      0.60000   5.482348936453E+002     # Ecoul
-<rt_tddft>:      0.60000  -5.305533475909E+001     # Exc(1)
-<rt_tddft>:      0.60000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.60000  -3.947144411935E+002     # Etot
-<rt_tddft>:      0.60000   6.821210263297E-013     # Eadded
-<rt_tddft>:      0.60000   2.256531584364E+000  -7.747012941348E-001   1.145943038346E+000     # Dipole moment [system]
- [prof] Properties took 4 ms.
- [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
- [prof] Fock CS z2d took 0 ms.
- [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1321 ms.
- [prof] Fock CS dft xc took 1941 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
+ [prof] Fock CS total build took 3293 ms.
  [prof] Fields and excitation potential took 0 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 8 ms.
- [prof] Fock CS CAM exch took 1321 ms.
- [prof] Fock CS dft xc took 1937 ms.
- [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3265 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1949 ms.
+ [prof] Fock CS d2z took 5 ms.
+ [prof] Fock CS total build took 3289 ms.
  [prof] Fields and excitation potential took 0 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
-<rt_tddft>:      0.60000   3.954792049399E-011     # Magnus interpol (matrix 1 of 1)
-<rt_tddft>:      0.60000                     2     # Magnus total interpolations
- [prof] Magnus propagation converged after 2 interpolations; took 6721 ms.
+<rt_tddft>:      0.20000   2.078159866414E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.20000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6761 ms.
  [prof] Complete time step took 11 s.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 17 ms.
- [prof] Fock CS CAM exch took 1317 ms.
- [prof] Fock CS dft xc took 1933 ms.
- [prof] Fock CS d2z took 5 ms.
- [prof] Fock CS total build took 3269 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1329 ms.
+ [prof] Fock CS dft xc took 1945 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3285 ms.
  [prof] Fields and excitation potential took 0 ms.
-<rt_tddft>:      0.80000        ### Checks passed ###
- [prof] Checks took 3277 ms.
-<rt_tddft>:      0.80000        ### No applied E-field ###
-<rt_tddft>:      0.80000   3.607823845298E+002     # Enuc
-<rt_tddft>:      0.80000  -1.250676384586E+003     # Ecore
-<rt_tddft>:      0.80000   5.482348936201E+002     # Ecoul
-<rt_tddft>:      0.80000  -5.305533475721E+001     # Exc(1)
-<rt_tddft>:      0.80000   0.000000000000E+000     # Exc(2)
-<rt_tddft>:      0.80000  -3.947144411935E+002     # Etot
-<rt_tddft>:      0.80000   2.614797267597E-012     # Eadded
-<rt_tddft>:      0.80000   2.256531582307E+000  -7.747012958420E-001   1.145943037527E+000     # Dipole moment [system]
+<rt_tddft>:      0.40000        ### Checks passed ###
+ [prof] Checks took 3293 ms.
+<rt_tddft>:      0.40000        ### No applied E-field ###
+<rt_tddft>:      0.40000   3.607823845298E+002     # Enuc
+<rt_tddft>:      0.40000  -1.250676384601E+003     # Ecore
+<rt_tddft>:      0.40000   5.482348936386E+002     # Ecoul
+<rt_tddft>:      0.40000  -5.305533476080E+001     # Exc(1)
+<rt_tddft>:      0.40000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.40000  -3.947144411933E+002     # Etot
+<rt_tddft>:      0.40000  -2.046363078989E-012     # Eadded
+<rt_tddft>:      0.40000   2.256531542372E+000  -7.747013201278E-001   1.145943021164E+000     # Dipole moment [system]
+ [prof] Properties took 4 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1957 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3293 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS dft xc took 1953 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3289 ms.
+ [prof] Fields and excitation potential took 5 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+<rt_tddft>:      0.40000   6.462652635264E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.40000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6757 ms.
+ [prof] Complete time step took 11 s.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1945 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3285 ms.
+ [prof] Fields and excitation potential took 0 ms.
+<rt_tddft>:      0.60000        ### Checks passed ###
+ [prof] Checks took 3293 ms.
+<rt_tddft>:      0.60000        ### No applied E-field ###
+<rt_tddft>:      0.60000   3.607823845298E+002     # Enuc
+<rt_tddft>:      0.60000  -1.250676384614E+003     # Ecore
+<rt_tddft>:      0.60000   5.482348936523E+002     # Ecoul
+<rt_tddft>:      0.60000  -5.305533476157E+001     # Exc(1)
+<rt_tddft>:      0.60000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.60000  -3.947144411933E+002     # Etot
+<rt_tddft>:      0.60000  -1.250555214938E-012     # Eadded
+<rt_tddft>:      0.60000   2.256531542719E+000  -7.747013208988E-001   1.145943021330E+000     # Dipole moment [system]
  [prof] Properties took 5 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 17 ms.
- [prof] Fock CS CAM exch took 1317 ms.
- [prof] Fock CS dft xc took 1945 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1953 ms.
  [prof] Fock CS d2z took 0 ms.
- [prof] Fock CS total build took 3277 ms.
+ [prof] Fock CS total build took 3293 ms.
  [prof] Fields and excitation potential took 5 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
  [prof] Fock CS z2d took 0 ms.
  [prof] Fock CS core took 0 ms.
- [prof] Fock CS CD fitting coul took 13 ms.
- [prof] Fock CS CAM exch took 1321 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1953 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3293 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+<rt_tddft>:      0.60000   7.644551658359E-012     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.60000                     2     # Magnus total interpolations
+ [prof] Magnus propagation converged after 2 interpolations; took 6761 ms.
+ [prof] Complete time step took 11 s.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 17 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
  [prof] Fock CS dft xc took 1941 ms.
- [prof] Fock CS d2z took 4 ms.
+ [prof] Fock CS d2z took 0 ms.
  [prof] Fock CS total build took 3281 ms.
+ [prof] Fields and excitation potential took 4 ms.
+<rt_tddft>:      0.80000        ### Checks passed ###
+ [prof] Checks took 3293 ms.
+<rt_tddft>:      0.80000        ### No applied E-field ###
+<rt_tddft>:      0.80000   3.607823845298E+002     # Enuc
+<rt_tddft>:      0.80000  -1.250676384626E+003     # Ecore
+<rt_tddft>:      0.80000   5.482348936644E+002     # Ecoul
+<rt_tddft>:      0.80000  -5.305533476180E+001     # Exc(1)
+<rt_tddft>:      0.80000   0.000000000000E+000     # Exc(2)
+<rt_tddft>:      0.80000  -3.947144411933E+002     # Etot
+<rt_tddft>:      0.80000  -7.048583938740E-012     # Eadded
+<rt_tddft>:      0.80000   2.256531543446E+000  -7.747013218184E-001   1.145943021660E+000     # Dipole moment [system]
+ [prof] Properties took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1949 ms.
+ [prof] Fock CS d2z took 5 ms.
+ [prof] Fock CS total build took 3289 ms.
+ [prof] Fields and excitation potential took 0 ms.
+ [prof] Power series with scaling 2^4 converged after 11 terms; took 41 ms.
+ [prof] Fock CS z2d took 0 ms.
+ [prof] Fock CS core took 0 ms.
+ [prof] Fock CS CD fitting coul took 13 ms.
+ [prof] Fock CS CAM exch took 1325 ms.
+ [prof] Fock CS dft xc took 1953 ms.
+ [prof] Fock CS d2z took 0 ms.
+ [prof] Fock CS total build took 3289 ms.
  [prof] Fields and excitation potential took 0 ms.
  [prof] Power series with scaling 2^4 converged after 11 terms; took 45 ms.
-<rt_tddft>:      0.80000   4.698819111582E-011     # Magnus interpol (matrix 1 of 1)
+<rt_tddft>:      0.80000   2.503597329451E-011     # Magnus interpol (matrix 1 of 1)
 <rt_tddft>:      0.80000                     2     # Magnus total interpolations
- [prof] Magnus propagation converged after 2 interpolations; took 6737 ms.
+ [prof] Magnus propagation converged after 2 interpolations; took 6761 ms.
  [prof] Complete time step took 11 s.
 <rt_tddft>:      1.00000        ### Propagation finished ###
 
  Parallel integral file used     873 records with       0 large values
 
 
- Task  times  cpu:       70.1s     wall:       70.4s
+ Task  times  cpu:       70.4s     wall:       70.6s
 
 
                                 NWChem Input Module
@@ -1917,10 +1913,10 @@ File balance: exchanges=     3  moved=    17  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1375     1375     1.77e+05 1.17e+05 1.04e+05    0        0        0     
-number of processes/call 1.13e+00 1.02e+00 1.08e+00 0.00e+00 0.00e+00
-bytes total:             3.34e+08 2.02e+08 1.19e+08 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            2.08e+08 9.35e+07 8.35e+07 0.00e+00 0.00e+00 0.00e+00
+calls: 1375     1375     1.59e+05 1.18e+05 9.34e+04    0        0        0     
+number of processes/call 1.14e+00 1.02e+00 1.09e+00 0.00e+00 0.00e+00
+bytes total:             3.18e+08 2.02e+08 1.10e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.97e+08 9.36e+07 7.68e+07 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 2714008 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
@@ -1968,4 +1964,4 @@ MA usage statistics:
       L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
                   G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:      134.2s     wall:      136.2s
+ Total times  cpu:      134.1s     wall:      136.1s

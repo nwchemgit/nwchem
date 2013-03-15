@@ -8,15 +8,11 @@
 ## moment and energy should be time-independent and consistent with
 ## the DFT SCF values.
 ##
-## Manual checks:
-##
-## Total energy: -394.71444119
-## $ grep "Total DFT energy = " cytosine.out | grep -v "#"
-## $ grep "# Etot$" cytosine.out
-## 
-## Dipole moment: (2.256532, -0.774701, 1.145943)
-## $ grep -A9 "Multipole" cytosine.out | tail -n3 | cut -c10-30
-## $ grep "# Dipole.*\]$" cytosine.out | cut -c12-91
+## Suggested checks:
+## nw_rtparse -xdipole -px -c myrun.out cytosine.out
+## nw_rtparse -xdipole -py -c myrun.out cytosine.out
+## nw_rtparse -xdipole -pz -c myrun.out cytosine.out
+## nw_rtparse -xenergy -c myrun.out cytosine.out
 ##
 
 title "Cytosine CD fitting + CAM-B3LYP"
