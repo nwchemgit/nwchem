@@ -647,9 +647,6 @@ c       call inp_prev_field()
      +            rtdb_put(rtdb,'pspw:HFX_solver_type',mt_int,1,1)
           value = value .and. 
      +            rtdb_put(rtdb,'nwpw:attenuation',mt_dbl,1,c)
-        else
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX_solver_type',mt_int,1,2)
         endif
         goto 10
       endif
