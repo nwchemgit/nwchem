@@ -12,10 +12,10 @@
 ## beta spin with a negative kick.
 ##
 ## Suggested checks:
-## nw_rtparse.py -xdipole -salpha -pz -c myrun.out tcne.out
-## nw_rtparse.py -xdipole -sbeta -pz -c myrun.out tcne.out
-## nw_rtparse.py -xenergy -c myrun.out tcne.out
-## nw_rtparse.py -xS2 -c myrun.out tcne.out
+## nw_rtparse -xdipole -salpha -pz -c myrun.out tcne.out
+## nw_rtparse -xdipole -sbeta -pz -c myrun.out tcne.out
+## nw_rtparse -xenergy -c myrun.out tcne.out
+## nw_rtparse -xS2 -c myrun.out tcne.out
 ##
 
 title "Tetracyanoethylene anion"
