@@ -19,7 +19,9 @@
         double precision detci_abdotab_etime
         double precision detci_abscat_etime
 	double precision detci_absync_etime
-c
+        double precision detci_density_onepdm
+        double precision detci_density_twopdm
+        double precision detci_density_twopdmab
 c
 	common/detcistats/detci_init_etime,
      $                    detci_sigma_etime,
@@ -38,6 +40,8 @@ c
      $                    detci_abscat_etime,
      $                    detci_absync_etime,
      $                    detci_sigma_calls,
-     $                    detci_density_calls
+     $                    detci_density_calls,
+     $                    detci_density_onepdm,
+     $                    detci_density_twopdm,
+     $                    detci_density_twopdmab
 c
-
