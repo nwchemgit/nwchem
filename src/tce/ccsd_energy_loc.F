@@ -25,6 +25,7 @@ c
       double precision residual
       logical nodezero
       integer dummy
+      integer unitn
       character*255 filename
 c
       nodezero=(ga_nodeid().eq.0)
@@ -190,6 +191,15 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
         call deletefile(d_e)
         if (nodezero) call util_flush(LuOut)
       enddo
+c
+          call util_file_name('t1amp',.false.,.false.,filename)
+          unitn=79
+          call write_tensor(filename,d_t1,size_t1,unitn)
+          call util_file_name('t2amp',.false.,.false.,filename)
+          unitn=80
+          call write_tensor(filename,d_t2,size_t2,unitn)
+          call ga_sync()
+c
       call errquit('ccsd_energy_loc: maxiter exceeded',iter,CALC_ERR)
       return
  9020 format(1x,'Cpu & wall time / sec',2f15.1)
