@@ -2566,7 +2566,7 @@ c === jaguar ===
            unitn=80
            call read_tensor(filename,d_t2,size_t2,unitn)
            call ga_sync()
-           go to 320
+ccx           go to 320
           end if
 c ==============
 #ifdef MIRROR_SING
