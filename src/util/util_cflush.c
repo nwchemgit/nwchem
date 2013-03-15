@@ -13,4 +13,5 @@ int util_cflush_()
 {
   fflush(stdout);
   fflush(stderr);
+  return 0;
 }
