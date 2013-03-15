@@ -133,6 +133,10 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DINTEGER_1=byte
 endif
 
+ifneq ($(OLD_GA),)
+  EXTRA_OBJ += ga_zgop.o
+endif
+
        BLAS = dfill.o ifill.o  mabyte_fill.o 
 
    LIB_TARGETS = testsolve testecce
