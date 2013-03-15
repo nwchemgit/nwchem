@@ -424,6 +424,19 @@ c     **********************************************
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1)
+
+            else if (ntype.eq.9) then
+             write(luout,'(A,5x,A,I4,4x,A,I4,4x,A,I4,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >       "   - local_density_trace2_diff Parameters =  ",
+     >           'atom index1=',int_mb(indxmeta(1)+s1+1),
+     >           'atom index2=',int_mb(indxmeta(1)+s1+2),
+     >           'l=',int_mb(indxmeta(1)+s1+3),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
             end if
 
          end do
@@ -534,7 +547,7 @@ c     **********************************************
       integer indx(*)
       real*8  param(*)
       integer ispin,ne(2)
-      real*8  psi1
+      real*8  psi1(*)
 
 *     **** local variables ****
       integer i,j,ntype,n1,n2
@@ -745,6 +758,11 @@ c     **** n-plane ****
          la = dsqrt((r1-d1a)**2 + (r2-d2a)**2)
          lb = dsqrt((r1-d1b)**2 + (r2-d2b)**2)
          f = la/(la+lb)
+
+*     **** ld_trace2diff ****
+      else if (ntype.eq.9) then
+         f =  psp_ld_trace(indx(2),indx(4),ispin,ne,psi1)
+     >     -  psp_ld_trace(indx(3),indx(4),ispin,ne,psi1)
 
       end if
 
@@ -1106,6 +1124,17 @@ c     **** 2bonds ****
          fmeta(1,indx(5)) = fmeta(1,indx(5)) - (dx2/r2)*dv*df2
          fmeta(2,indx(5)) = fmeta(2,indx(5)) - (dy2/r2)*dv*df2
          fmeta(3,indx(5)) = fmeta(3,indx(5)) - (dz2/r2)*dv*df2
+
+c     **** ld_trace2diff ***
+      else if (ntype.eq.9) then
+         call psp_ld_trace_gradient(indx(2),indx(4),ispin,ne,psi1,
+     >                                 .false.,param,
+     >                                 (-dv),fmeta_psi1,
+     >                                 move,fmeta)
+         call psp_ld_trace_gradient(indx(3),indx(4),ispin,ne,psi1,
+     >                                 .false.,param,
+     >                                 (dv),fmeta_psi1,
+     >                                 move,fmeta)
       end if
 
 *     ***** move = .false. ******
@@ -1114,6 +1143,15 @@ c     **** 2bonds ****
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
      >                                 (-dv),fmeta_psi1,
+     >                                 move,fmeta)
+         else if (ntype.eq.9) then
+         call psp_ld_trace_gradient(indx(2),indx(4),ispin,ne,psi1,
+     >                                 .false.,param,
+     >                                 (-dv),fmeta_psi1,
+     >                                 move,fmeta)
+         call psp_ld_trace_gradient(indx(3),indx(4),ispin,ne,psi1,
+     >                                 .false.,param,
+     >                                 (dv),fmeta_psi1,
      >                                 move,fmeta)
          end if
       end if
@@ -1381,7 +1419,7 @@ c     >                                    ispin,ne,psi1)
             do d=1,nmeta
                s1 = int_mb(sindxmeta(1) +d-1)
                ntype = int_mb(indxmeta(1)+s1)
-               if (ntype.eq.7) then
+               if ((ntype.eq.7).or.(ntype.eq.9)) then
                   p = p + r(d)*dv(d)
                end if
             end do
@@ -1703,6 +1741,8 @@ c               close(53)
            write(54,'(A,I8)') "#metarayshift ",metarayshift
            write(54,'(A,I8)') "#metaraycount ",metaraycount
            write(54,'(A,I8)') "#maxmetaprintcount ",maxmetaprintcount
+           write(54,'(A)') "# (r(i),i=1,n),(sigma(i),i=1,n),w,",
+     >                     "E(2)-E(31)+E(32),E(3),E(4),E(31),E(32)"
          end if
       end if
 
