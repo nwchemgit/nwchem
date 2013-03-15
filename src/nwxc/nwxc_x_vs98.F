@@ -46,8 +46,8 @@ c     [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
 
 
 
-      Subroutine nwxc_x_vs98(tol_rho, ipol, nq, wght, rho, rgamma, tau,
-     &                       func, Amat, Cmat, Mmat) 
+      Subroutine nwxc_x_vs98(param,tol_rho, ipol, nq, wght, rho, rgamma,
+     &                       tau, func, Amat, Cmat, Mmat) 
 
 c   
 c$Id$
@@ -56,6 +56,13 @@ c
 c
 #include "nwxc_param.fh"
 c
+      double precision param(*) !< [Input] Parameters of the functional (see Table 1 of [1])
+                                !< - param(1): \f$ a \f$
+                                !< - param(2): \f$ b \f$
+                                !< - param(3): \f$ c \f$
+                                !< - param(4): \f$ d \f$
+                                !< - param(5): \f$ e \f$
+                                !< - param(6): \f$ f \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -115,16 +122,21 @@ cedo       parameter( pi = 3.1415926535897932384626433832795d0 )
      &           Eight=8.0d0, Nine=9.0d0,F10=10.d0, F11=11.d0)
       pi=acos(-1.0d0)
 
-
+      r1 = param(1)
+      r2 = param(2)
+      r3 = param(3)
+      r4 = param(4)
+      r5 = param(5)
+      r6 = param(6)
 c
 c     Parameters for VS98
 c
-      r1=  -9.800683d-01
-      r2=  -3.556788d-03
-      r3=   6.250326d-03
-      r4=  -2.354518d-05
-      r5=  -1.282732d-04
-      r6=   3.574822d-04
+c     r1=  -9.800683d-01
+c     r2=  -3.556788d-03
+c     r3=   6.250326d-03
+c     r4=  -2.354518d-05
+c     r5=  -1.282732d-04
+c     r6=   3.574822d-04
       
       DTol = tol_rho
 c

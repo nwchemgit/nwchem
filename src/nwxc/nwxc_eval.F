@@ -277,6 +277,8 @@ C
        integer max_param
        parameter (max_param = 30)
        double precision param(max_param)
+       double precision Axlsda
+       parameter (Axlsda = -0.9305257363491d0 )
 C
        data nd1r / D1_RA,  D1_RB  /
        data nd1g / D1_GAA, D1_GBB /
@@ -368,6 +370,84 @@ C
              param(11) =   15.23694d0
              call nwxc_x_m05(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_M06)
+             param( 1) =  1.422057D-01*Axlsda
+             param( 2) =  7.370319D-04*Axlsda
+             param( 3) = -1.601373D-02*Axlsda
+             param( 4) =  0.000000D+00
+             param( 5) =  0.000000D+00
+             param( 6) =  0.000000D+00
+             param( 7) =  5.877943D-01
+             param( 8) = -1.371776D-01
+             param( 9) =  2.682367D-01
+             param(10) = -2.515898D+00
+             param(11) = -2.978892D+00
+             param(12) =  8.710679D+00
+             param(13) =  1.688195D+01
+             param(14) = -4.489724D+00
+             param(15) = -3.299983D+01
+             param(16) = -1.449050D+01
+             param(17) =  2.043747D+01
+             param(18) =  1.256504D+01
+             call nwxc_x_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_M06_HF)
+             param( 1) = -1.179732D-01*Axlsda
+             param( 2) = -2.500000D-03*Axlsda
+             param( 3) = -1.180065D-02*Axlsda
+             param( 4) =  0.000000D+00
+             param( 5) =  0.000000D+00
+             param( 6) =  0.000000D+00
+             param( 7) =  1.179732D-01
+             param( 8) = -1.066708D+00
+             param( 9) = -1.462405D-01
+             param(10) =  7.481848D+00
+             param(11) =  3.776679D+00
+             param(12) = -4.436118D+01
+             param(13) = -1.830962D+01
+             param(14) =  1.003903D+02
+             param(15) =  3.864360D+01
+             param(16) = -9.806018D+01
+             param(17) = -2.557716D+01
+             param(18) =  3.590404D+01
+             call nwxc_x_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_M06_L)
+             param( 1) =  6.012244D-01*Axlsda
+             param( 2) =  4.748822D-03*Axlsda
+             param( 3) = -8.635108D-03*Axlsda
+             param( 4) = -9.308062D-06*Axlsda
+             param( 5) =  4.482811D-05*Axlsda
+             param( 6) =  0.000000D+00
+             param( 7) =  3.987756D-01
+             param( 8) =  2.548219D-01
+             param( 9) =  3.923994D-01
+             param(10) = -2.103655D+00
+             param(11) = -6.302147D+00
+             param(12) =  1.097615D+01
+             param(13) =  3.097273D+01
+             param(14) = -2.318489D+01
+             param(15) = -5.673480D+01
+             param(16) =  2.160364D+01
+             param(17) =  3.421814D+01
+             param(18) = -9.049762D+00
+             call nwxc_x_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_M06_2X)
+             param( 1) =  4.600000D-01
+             param( 2) = -2.206052D-01
+             param( 3) = -9.431788D-02
+             param( 4) =  2.164494D+00
+             param( 5) = -2.556466D+00
+             param( 6) = -1.422133D+01
+             param( 7) =  1.555044D+01
+             param( 8) =  3.598078D+01
+             param( 9) = -2.722754D+01
+             param(10) = -3.924093D+01
+             param(11) =  1.522808D+01
+             param(12) =  1.522227D+01
+             call nwxc_x_m06_2x(param,nwxc_rho_tol,ipol,nq,
+     +            nwxc_wghts(it),rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case (NWXCP_X_PBE)
              param(1) = 0.8040d0
              param(2) = 0.2195149727645171d0
@@ -394,7 +474,13 @@ C
              call nwxc_x_wpbe(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_VS98)
-             call nwxc_x_vs98(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+             param(1) =  -9.800683d-01
+             param(2) =  -3.556788d-03
+             param(3) =   6.250326d-03
+             param(4) =  -2.354518d-05
+             param(5) =  -1.282732d-04
+             param(6) =   3.574822d-04
+             call nwxc_x_vs98(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case (NWXCP_C_B95)
              param(1) = 0.0031d0
@@ -429,6 +515,118 @@ C
              param( 9) =   1.47665d0
              param(10) = -11.92365d0
              call nwxc_c_m05(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_M06)
+c
+             param( 1) =  -2.741539D+00
+             param( 2) =  -6.720113D-01
+             param( 3) =  -7.932688D-02
+             param( 4) =   1.918681D-03
+             param( 5) =  -2.032902D-03
+             param( 6) =   0.000000D+00
+             param( 7) =   4.905945D-01
+             param( 8) =  -1.437348D-01
+             param( 9) =   2.357824D-01
+             param(10) =   1.871015D-03
+             param(11) =  -3.788963D-03
+             param(12) =   0.000000D+00
+c
+             param(13) =   3.741539D+00
+             param(14) =   2.187098D+02
+             param(15) =  -4.531252D+02
+             param(16) =   2.936479D+02
+             param(17) =  -6.287470D+01
+             param(18) =   5.094055D-01
+             param(19) =  -1.491085D+00
+             param(20) =   1.723922D+01
+             param(21) =  -3.859018D+01
+             param(22) =   2.845044D+01
+c
+             call nwxc_c_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_M06_HF)
+c
+             param( 1) =  -6.746338D-01
+             param( 2) =  -1.534002D-01
+             param( 3) =  -9.021521D-02
+             param( 4) =  -1.292037D-03
+             param( 5) =  -2.352983D-04
+             param( 6) =   0.000000D+00
+             param( 7) =   8.976746D-01
+             param( 8) =  -2.345830D-01
+             param( 9) =   2.368173D-01
+             param(10) =  -9.913890D-04
+             param(11) =  -1.146165D-02
+             param(12) =   0.000000D+00
+c
+             param(13) =   1.674634D+00
+             param(14) =   5.732017D+01
+             param(15) =   5.955416D+01
+             param(16) =  -2.311007D+02
+             param(17) =   1.255199D+02
+             param(18) =   1.023254D-01
+             param(19) =  -2.453783D+00
+             param(20) =   2.913180D+01
+             param(21) =  -3.494358D+01
+             param(22) =   2.315955D+01
+c
+             call nwxc_c_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_M06_L)
+c
+             param( 1) =   3.957626D-01
+             param( 2) =  -5.614546D-01
+             param( 3) =   1.403963D-02
+             param( 4) =   9.831442D-04
+             param( 5) =  -3.577176D-03
+             param( 6) =   0.000000D+00
+             param( 7) =   4.650534D-01
+             param( 8) =   1.617589D-01
+             param( 9) =   1.833657D-01
+             param(10) =   4.692100D-04
+             param(11) =  -4.990573D-03
+             param(12) =   0.000000D+00
+c
+             param(13) =   6.042374D-01
+             param(14) =   1.776783D+02
+             param(15) =  -2.513252D+02
+             param(16) =   7.635173D+01
+             param(17) =  -1.255699D+01
+             param(18) =   5.349466D-01
+             param(19) =   5.396620D-01
+             param(20) =  -3.161217D+01
+             param(21) =   5.149592D+01
+             param(22) =  -2.919613D+01
+c
+             call nwxc_c_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_M06_2X)
+c
+             param( 1) =   1.166404D-01
+             param( 2) =  -9.120847D-02
+             param( 3) =  -6.726189D-02
+             param( 4) =   6.720580D-05
+             param( 5) =   8.448011D-04
+             param( 6) =   0.000000D+00
+             param( 7) =   6.902145D-01
+             param( 8) =   9.847204D-02
+             param( 9) =   2.214797D-01
+             param(10) =  -1.968264D-03
+             param(11) =  -6.775479D-03
+             param(12) =   0.000000D+00
+c
+             param(13) =   8.833596D-01
+             param(14) =   3.357972D+01
+             param(15) =  -7.043548D+01
+             param(16) =   4.978271D+01
+             param(17) =  -1.852891D+01
+             param(18) =   3.097855D-01
+             param(19) =  -5.528642D+00
+             param(20) =   1.347420D+01
+             param(21) =  -3.213623D+01
+             param(22) =   2.846742D+01
+c
+             call nwxc_c_m06(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case (NWXCP_C_PW6B95)
              param(1) = 0.00262d0
