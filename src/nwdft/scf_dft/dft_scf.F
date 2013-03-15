@@ -264,6 +264,8 @@ c
       rabuck_act=.false.
       if (.not.rtdb_get(rtdb, 'dft:diisreset', mt_int, 1,
      &   ndisrst))ndisrst=9999
+cold  diisreset=.false.
+      if(ndisrst.gt.0) diisreset=.true.
       if (.not.rtdb_get(rtdb, 'dft:spinset', mt_log, 1,
      &   spinset))spinset=.false.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
@@ -1313,7 +1315,6 @@ c
 c
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
-      diisreset=.false.
       if((.not.rabuck_act).and.
      .gotsmear(ssmear).and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
@@ -1333,8 +1334,9 @@ c
       if(gotsmear(ssmear).and.mod(iter,ndisrst).eq.0) then
          if(iter.gt.1.and.diising) diisreset=.true.
       endif
-      if(diisreset.or.iswitc.eq.1) then
+      if(diisreset.and.iswitc.eq.1) then
          if(me.eq.0) write(LuOut,*) ' Resetting Diis'
+         if(ndisrst.eq.9999) diisreset=.false.
          call diis_driver(toll_s, derr,  ipol, icall, nfock, 
      &        nbf_ao, geom, ao_bas_han, g_focks, 
      &        g_dens, g_tmp, g_svecs, svals, 
