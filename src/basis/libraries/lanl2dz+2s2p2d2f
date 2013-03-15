@@ -1,0 +1,60 @@
+#  Lanl2DZ+2s2p2d2f  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
+# Elements                             References
+# --------                             ----------
+# Rh: Otello M. Roscioni, Edmond P. F. Lee, John M. Dyke, Development and testing of a compact basis set for use in effective core potential calculations on rhodium complexes, Journal of Computational Chemistry 33(26):2049-57 (2012).
+# 
+
+
+
+basis "Rh_Lanl2DZ+2s2p2d2f" SPHERICAL
+Rh    S
+      2.6460000             -1.3554084        
+      1.7510000              1.6112233        
+      0.5713000              0.5893814        
+Rh    S
+      2.6460000              1.1472137        
+      1.7510000             -1.4943525        
+      0.5713000             -0.8589704        
+      0.1438000              1.0297241        
+Rh    S
+      0.0428000              1.0000000        
+Rh    S
+      0.0850000              1.0000000        
+Rh    S
+      0.0150000              1.0000000        
+Rh    P
+      5.4400000             -0.0987699        
+      1.3290000              0.7433595        
+      0.4845000              0.3668462        
+Rh    P
+      0.6595000             -0.0838056        
+      0.0869000              1.0244841        
+Rh    P
+      0.0257000              1.0000000        
+Rh    P
+      1.0000000              1.0000000        
+Rh    P
+      0.1200000              1.0000000        
+Rh    D
+      3.6690000              0.0760059        
+      1.4230000              0.5158852        
+      0.5091000              0.5436585        
+Rh    D
+      1.0000000              1.0000000        
+Rh    D
+      0.1610000              1.0000000        
+Rh    D
+      0.0800000              1.0000000        
+Rh    F
+      0.5000000              1.0000000        
+Rh    F
+      0.0800000              1.0000000        
+end
+ASSOCIATED_ECP "lanl2dz_ecp"
+# Elements                             References
+# --------                             ----------
+# Na - Hg: P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 270 (1985).
+#          P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 284 (1985).
+#          P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 299 (1985).
+#   
+
