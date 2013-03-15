@@ -1,3 +1,8 @@
+ifneq ($(OLD_GA),)
+  EXTRA_OBJ += ga_zadd.o
+endif
+
+
 OBJ = \
 convert_d2z.o \
 convert_z2d.o \
@@ -12,7 +17,8 @@ zmat_spectral_range.o \
 zmat_max_abs_elem.o \
 zmat_compare.o \
 elem_compare.o \
-calc_array_partitioning.o
+calc_array_partitioning.o \
+$(EXTRA_OBJ)
 
 
 OBJ_OPTIMIZE = 
