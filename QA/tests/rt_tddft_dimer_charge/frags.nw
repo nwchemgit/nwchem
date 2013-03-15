@@ -1,0 +1,117 @@
+##
+## Real-time TDDFT QA
+## rt_tddft_dimer_charge
+## 
+## This tests the fragment approach by computing the charge dynamics
+## in a H2 dimer (separated by 2A in the z-direction).  An extra
+## electron is added to one of the H2 molecules, each are converged to
+## their individual ground states, then the electron dynamics are
+## propagated from this extremely non-physical initial condition.  Of
+## course, this is not properly converged with basis set, etc, and is
+## just for testing purposes.
+##
+## Here, instead of the time-dependent dipole moment, we are
+## interested in the time-dependent charge on each H2 molecule, akin
+## to a TD Mulliken analysis.
+##
+## The excess electron will oscillate between the top and bottom H2
+## molecules.  Note that output "Charge" corresponds to total
+## electronic charge, i.e., neutral H2 has Charge = -2.0, whereas -1
+## H2 has Charge = -3.0.  The overall dimer has Charge = -5.0.
+##
+## To see the charge dynamics of the alpha (excess) electron:
+##
+## nw_rtparse -xcharge -salpha -gbottom frags.out > bottom.dat
+## nw_rtparse -xcharge -salpha -gtop frags.out > top.dat
+## gnuplot > plot "bottom.dat" w l, "top.dat" w l 
+##
+## Suggested checks:
+## 
+## nw_rtparse -xcharge -salpha -gtop -c myrun.out frags.out
+## nw_rtparse -xcharge -salpha -gbottom -c myrun.out frags.out
+## nw_rtparse -xdipole -salpha -gdimer -pz -c myrun.out frags.out
+## nw_rtparse -xdipole -sbeta -gdimer -pz -c myrun.out frags.out
+##
+
+title "Hydrogen dimer fragment charge dynamics"
+echo
+scratch_dir ./scratch
+permanent_dir ./perm
+
+start frags
+
+geometry "bottom" units angstroms nocenter noautoz noautosym
+ H    -0.38 0.0 0.0
+ H     0.38 0.0 0.0
+end
+
+geometry "top" units angstroms nocenter noautoz noautosym
+ H    -0.38 0.0 2.0
+ H     0.38 0.0 2.0
+end
+
+geometry "dimer" units angstroms nocenter noautoz noautosym
+ H    -0.38 0.0 0.0
+ H     0.38 0.0 0.0
+ H    -0.38 0.0 2.0
+ H     0.38 0.0 2.0
+end
+
+basis
+  H library cc-pvdz
+end
+
+## universal dft settings
+dft
+  xc pbe0
+  odft
+end
+
+
+## -1 fragment
+charge -1
+set geometry "bottom"
+dft
+  mult 2
+  vectors input atomic output "bottom.movecs"
+end
+task dft energy
+
+
+## neutral fragment
+charge 0
+set geometry "top"
+dft
+  mult 1
+  vectors input atomic output "top.movecs"
+end
+task dft energy
+
+
+## assemble the two fragments but don't do SCF
+charge -1
+set geometry "dimer"
+dft
+  mult 2
+  vectors input fragment "bottom.movecs" "top.movecs" output "dimer.movecs"
+  noscf
+end
+task dft energy
+
+
+##
+## Do rt-tddft on this crazy initial condition. No need for excitation
+## since we are far from the ground state anyways.
+##
+rt_tddft
+  tmax 50.0
+  dt 0.2
+
+  nrestarts 0
+  
+  print charge dipole energy
+
+  load vectors "dimer.movecs"
+end
+task dft rt_tddft
+
