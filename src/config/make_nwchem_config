@@ -16,7 +16,7 @@
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver optim scfaux cphf ccsd vib mcscf prepar \
+	nwxc rimp2 stepper driver optim scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop \
         property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq cons\
@@ -31,7 +31,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib \
-                    -lsmd -lsmddb\
+                    -lnwxc -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca
@@ -71,7 +71,7 @@ EXP_all = $(filter-out argos leps smd uccsdt python develop oimp2 scfaux plane_w
 EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
-EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
+EXP_qm  = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans tce vscf 
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property selci dplot \
@@ -79,12 +79,12 @@ EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
-EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
+EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans vscf 
 EXP_tps = prepar nwmd analyz diana
-EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
+EXP_md  = prepar nwmd analyz ddscf nwdft nwxc gradients esp
 EXP_classical  = prepar nwmd analyz
-EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
+EXP_venus = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian \
           ccsd vib property mp2_grad geninterface bq cons
 # Need bq in front of cons?
 EXP_qmmm_valiev = $(filter-out argos leps transport nbo tce uccsdt python diana develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc ,$(KNOWN_MODULE_SUBDIRS) )
@@ -128,14 +128,14 @@ MODULES := $(patsubst geninterface,geninterface,$(MODULES) )
 
 MODULES := $(patsubst property,property ddscf,$(MODULES) )
 
-MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
+MODULES := $(patsubst plane_wave,plane_wave nwdft nwxc,$(MODULES) )
 MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
 
 MODULES := $(patsubst vib,vib stepper driver optim gradients,$(MODULES) )
 MODULES := $(patsubst driver, driver stepper optim gradients,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
-MODULES := $(patsubst gradients,gradients ddscf nwdft,$(MODULES) )
-MODULES := $(patsubst hessian,hessian ddscf gradients nwdft cphf property stepper vib,$(MODULES) )
+MODULES := $(patsubst gradients,gradients ddscf nwdft nwxc,$(MODULES) )
+MODULES := $(patsubst hessian,hessian ddscf gradients nwdft nwxc cphf property stepper vib,$(MODULES) )
 
 MODULES := $(patsubst rimp2_grad,rimp2_grad rimp2 cphf ddscf mp2_grad NWints,$(MODULES) )
 MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
@@ -148,15 +148,15 @@ MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
-MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
+MODULES := $(patsubst nwdft,nwdft nwxc ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
 MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 
-MODULES := $(patsubst transport, transport nwdft dplot gradients driver optim,$(MODULES) )
+MODULES := $(patsubst transport, transport nwdft nwxc dplot gradients driver optim,$(MODULES) )
 
-MODULES := $(patsubst tce,tce nwdft ddscf NWints hessian gradients,$(MODULES) )
+MODULES := $(patsubst tce,tce nwdft nwxc ddscf NWints hessian gradients,$(MODULES) )
 
 MODULES := $(patsubst argos,argos cafe space fft qhop,$(MODULES) )
 MODULES := $(patsubst nwmd,nwmd cafe space fft qhop,$(MODULES) )
@@ -165,10 +165,10 @@ MODULES := $(patsubst develop,develop ddscf uccsdt,$(MODULES) )
 MODULES := $(patsubst uccsdt,uccsdt ddscf ccsd,$(MODULES) )
 MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 
-MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
-MODULES := $(patsubst nwpw,nwpw fft,$(MODULES) )
+MODULES := $(patsubst dplot,dplot nwdft nwxc ddscf,$(MODULES) )
+MODULES := $(patsubst nwpw,nwpw nwxc fft,$(MODULES) )
 
-MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints,$(MODULES) )
+MODULES := $(patsubst ddscf,ddscf  atomscf nwdft nwxc NWints,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #
@@ -201,7 +201,7 @@ MOD_LIBS := $(patsubst hessian,-lhessian,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ccsd,-lccsd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcscf,-lmcscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst moints,-lmoints,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwdft,-lnwdft,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwdft,-lnwdft -lnwxc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2,-lrimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2_grad,-lrimp2g,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst oimp2,-loimp2,$(MOD_LIBS) )
@@ -210,7 +210,7 @@ MOD_LIBS := $(patsubst symmetry,-lnwcutil,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst plane_wave,-lplnwv -lnwxc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst etrans,-letrans,$(MOD_LIBS) )
@@ -233,7 +233,7 @@ MOD_LIBS := $(patsubst optim,-loptim,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cons,-lcons,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst bq,-lbq,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwpw,-lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwpw,-lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lnwxc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst smd,-lsmd -lsmddb,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst perfm,-lperfm,$(MOD_LIBS) )
