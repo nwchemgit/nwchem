@@ -2718,6 +2718,31 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *        D3dB_rr_SqrAdd           *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rr_SqrAdd(nb,A,C)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 C(*)
+
+#include "D3dB.fh"
+
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         C(i) = C(i) + A(i)**2
+      end do
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *
