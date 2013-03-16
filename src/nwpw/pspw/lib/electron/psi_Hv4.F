@@ -56,7 +56,7 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx,done,dodftu,meta
+      logical dosic,dohfx,done,dodftu,meta,meta_gga
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz,indx1,indx2
       real*8  scal1,scal2
@@ -70,9 +70,11 @@
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
+      logical  nwpw_meta_gga_on
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
+      external nwpw_meta_gga_on
       external lattice_omega
 
 
@@ -80,6 +82,7 @@
       dohfx  = (pspw_HFX().and.pspw_HFX_relaxed())
       dodftu = psp_U_psputerm()
       meta   = meta_found()
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -135,6 +138,12 @@
          call meta_force(ispin,ne,psi_k,Hpsi_k,move,fion)
       end if
 
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,ne,psi_k,Hpsi_k)
+      end if
 
 
 *     **********************************************
@@ -315,7 +324,7 @@ c     >                         dcpl_mb(vpsi(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dohfx
+      logical dohfx,meta_gga
       integer nne(2)
       integer nx,ny,nz
       real*8  scal1,fion(3,1)
@@ -327,15 +336,16 @@ c     >                         dcpl_mb(vpsi(1)))
 
 
 *     **** external functions ****
-      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
 
       dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.hfxon
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -382,6 +392,14 @@ c     >                         dcpl_mb(vpsi(1)))
 c     if (pspw_SIC().and.pspw_SIC_relaxed()) then
 c        call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
 c     end if
+
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,nne,orb_k,Horb_k)
+      end if
+
 
 *     **********************
 *     **** HFX energy   ****
@@ -475,7 +493,7 @@ c     >                      dcpl_mb(vpsi(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dohfx,dodftu
+      logical dohfx,dodftu,meta_gga
       integer nne(2)
       integer nx,ny,nz
       real*8  scal1,fion(3,1)
@@ -487,16 +505,17 @@ c     >                      dcpl_mb(vpsi(1)))
 
 
 *     **** external functions ****
-      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       real*8   lattice_omega
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       external lattice_omega
 
 
       dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.hfxon
       dodftu = psp_U_psputerm().and.hfxon
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -549,6 +568,15 @@ c     >                      dcpl_mb(vpsi(1)))
 c     if (pspw_SIC().and.pspw_SIC_relaxed()) then
 c        call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
 c     end if
+
+
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,nne,orb_k,Horb_k)
+      end if
+
 
 *     **********************
 *     **** HFX energy   ****
@@ -644,6 +672,7 @@ c     >                      dcpl_mb(vpsi(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
+      logical meta_gga
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz,indx1,indx2
       real*8  scal1,scal2,fion(3),occ(3)
@@ -655,12 +684,13 @@ c     >                      dcpl_mb(vpsi(1)))
 
 
 *     **** external functions ****
-      logical  D3dB_rc_pfft3_queue_filled
+      logical  D3dB_rc_pfft3_queue_filled,nwpw_meta_gga_on
       real*8   lattice_omega
-      external D3dB_rc_pfft3_queue_filled
+      external D3dB_rc_pfft3_queue_filled,nwpw_meta_gga_on
       external lattice_omega
 
 
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -692,6 +722,15 @@ c     >                      dcpl_mb(vpsi(1)))
 *     **** add non-local psp ***
 *     **************************
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,.false.,fion,.false.,occ)
+
+
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,ne,psi_k,Hpsi_k)
+      end if
+
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vsr_l    ****

@@ -50,7 +50,7 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx,dodftu,meta
+      logical dosic,dohfx,dodftu,meta,meta_gga
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       real*8  scal1,scal2
@@ -66,18 +66,19 @@ c     complex*16 vpsi(nfft3d)
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
-      logical  psp_pawexist
+      logical  psp_pawexist,nwpw_meta_gga_on
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
+      external psp_pawexist,nwpw_meta_gga_on
       external lattice_omega
-      external psp_pawexist
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
       dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
       dodftu = psp_U_psputerm()
       meta = meta_found()
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -136,6 +137,13 @@ c     complex*16 vpsi(nfft3d)
          call meta_force(ispin,ne,psi_k,Hpsi_k,move,fion)
       end if
 
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,ne,psi_k,Hpsi_k)
+      end if
+
 
 *     *******************************************************
 *     **** SIC corrections- Hpsi_r = Vsic*psi_r ****
@@ -150,6 +158,7 @@ c     complex*16 vpsi(nfft3d)
       if (dohfx) then
          call pspw_potential_HFX(ispin,psi_r,dbl_mb(Hpsi_r(1)))
       end if
+
 
 
 *     **********************************************************
@@ -280,7 +289,7 @@ c     >                         dcpl_mb(vpsi(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dohfx
+      logical dohfx,meta_gga
       integer nne(2)
       integer nx,ny,nz
       real*8  scal1,fion(3,1)
@@ -292,15 +301,16 @@ c     >                         dcpl_mb(vpsi(1)))
 
 
 *     **** external functions ****
-      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
 
       dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.hfxon
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -341,6 +351,14 @@ c     >                         dcpl_mb(vpsi(1)))
 *     *********************************************************
       call v_nonlocal(ispin,nne,orb_k,Horb_k,
      >                .false.,fion,.false.,fion)
+
+
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,nne,orb_k,Horb_k)
+      end if
 
 *     ***************************
 *     **** SIC corrections?? ****
@@ -447,20 +465,21 @@ c     >                      dcpl_mb(vpsi(1)))
 *     **** tempory space ****
       integer nfft3d,n2ft3d,npack1
       integer vpsi(2),Horb_r(2)
-      logical value
+      logical value,meta_gga
 
 
 *     **** external functions ****
-      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       real*8   lattice_omega
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,nwpw_meta_gga_on
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       external lattice_omega
 
 
       dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.hfxon
       dodftu = psp_U_psputerm().and.hfxon
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -508,6 +527,14 @@ c     >                      dcpl_mb(vpsi(1)))
          call psp_U_v_nonlocal(ispin,nne,orb_k,Horb_k,
      >                .false.,fion,.false.,fion,.false.)
       end if
+
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,nne,orb_k,Horb_k)
+      end if
+
 
 *     ***************************
 *     **** SIC corrections?? ****
@@ -609,17 +636,18 @@ c     complex*16 vall(nfft3d)
 c     complex*16 vpsi(nfft3d)
       integer nfft3d,n2ft3d,npack1,indx1,indx2
       integer vall(2),vpsi(2)
-      logical value,done
+      logical value,done,meta_gga
       real*8 fion(3),occ(3)
 
 
 *     **** external functions ****
-      logical  D3dB_rc_pfft3_queue_filled
+      logical  D3dB_rc_pfft3_queue_filled,nwpw_meta_gga_on
       real*8   lattice_omega
-      external D3dB_rc_pfft3_queue_filled
+      external D3dB_rc_pfft3_queue_filled,nwpw_meta_gga_on
       external lattice_omega
 
 
+      meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -652,6 +680,16 @@ c     complex*16 vpsi(nfft3d)
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,.false.,fion,.false.,occ)
+
+
+
+*     **********************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
+*     **********************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,ne,psi_k,Hpsi_k)
+      end if
+
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl       ****
