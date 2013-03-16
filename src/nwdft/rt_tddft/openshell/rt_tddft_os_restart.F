@@ -175,6 +175,7 @@ C     == Variables ==
       character(255) fname_im_alpha, fname_im_beta
       logical ok
       double precision elapsed
+      double precision tdiff
 
       
       call rt_tddft_os_confirm (params)
@@ -190,8 +191,10 @@ C
       if (.not.rtdb_get (params%rtdb,"rt_tddft:rest_tt",mt_dbl, 1, tt))
      $     call errquit (pname//"failed to read rest_tt from rtdb",0,0)
 
-      if (tt .ne. (params%tmin + (it-1)*params%dt))
-     $     call errquit (pname//"inconsistent rest_it, rest_tt",0,0)
+      tdiff = tt - (params%tmin + (it-1)*params%dt)
+      if ( abs(tdiff) > 1d-4 ) then
+         call errquit (pname//"inconsistent rest_it, rest_tt",0,0)
+      endif
       
       if (.not.rtdb_get (params%rtdb,"rt_tddft:rest_checksum",
      $     mt_dbl, 1, rest_checksum)) call errquit (pname//
