@@ -316,8 +316,13 @@ c     value = psi_initialize()
 *     **** initialize DFT+U ****
       call psp_U_init()
 
+*     **** initialize  META GGA ****
+      call nwpw_meta_gga_init()
+
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
+
+*     **** initialize  META GGA ****
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -625,6 +630,7 @@ c     end if
       call Pack_end()
       call G_end()
       call psp_U_end()
+      call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()

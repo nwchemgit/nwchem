@@ -321,6 +321,9 @@
 *     **** initialize DFT+U ****
       call psp_U_init()
 
+*     **** initialize Meta GGA ****
+      call nwpw_meta_gga_init()
+
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
 
@@ -1102,6 +1105,7 @@ c      call control_up_print()
       call Pack_end()
       call G_end()
       call psp_U_end()
+      call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()
