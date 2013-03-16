@@ -441,6 +441,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
 *     **** initialize DFT+U ****
       call psp_U_init()
 
+*     **** initialize META GGA ****
+      call nwpw_meta_gga_init()
+
 
 *     **** initialize pressure ****
       calc_pressure = control_pressure().and.(control_version().eq.3)
@@ -1223,6 +1226,7 @@ c         end if
       call psp_end()
       call ion_end_FixIon()
       call psp_U_end()
+      call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_qmmm_end()

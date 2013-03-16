@@ -410,6 +410,9 @@ c         end if
 *     **** initialize DFT+U ****
       call psp_U_init()
 
+*     **** initialize META GGA ****
+      call nwpw_meta_gga_init()
+
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
 
@@ -900,6 +903,7 @@ c            write(luout,1706) E(18)
       call psp_end()
       call ion_end_FixIon()
       call psp_U_end()
+      call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()
