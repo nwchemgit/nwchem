@@ -209,6 +209,7 @@ c
 c     misc
 c
       logical debug_fon
+      logical zora_recalc
 c
 c     =========================================================================
 c
@@ -595,6 +596,18 @@ c       == try reading the zora atomic corrections from file ==
         icalczora = 0  ! initialize the flag
         if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
      &            mult, g_zora_sf, g_zora_scale_sf)) icalczora = 1
+c
+c     if specified, force recalculation of the zora corrections
+c
+        if (.not.rtdb_get(rtdb, 'dft:zora_recalc', mt_log, 1,
+     &       zora_recalc)) zora_recalc = .false.
+c
+        if (zora_recalc) then
+           icalczora = 1
+           if (me.eq.0) then
+              write(luout,*) "Forcing recalculation of ZORA corrections"
+           endif
+        endif
 c
 c       == calculate the zora spin-free atomic corrections ==
         if (icalczora.eq.1) then 
