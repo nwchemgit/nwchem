@@ -262,6 +262,7 @@ c        end do
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
 
+        call nwpw_meta_gga_gen_tau(ispin,neq,psi1)
 
 *       *********************
 *       **** generate dn ****
