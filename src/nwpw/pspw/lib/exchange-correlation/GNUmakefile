@@ -7,6 +7,7 @@
 		v_exc.o \
             	v_bwexc.o \
             	v_bwexc_euv.o \
+		nwpw_meta_gga.o \
             	pbe96.o \
             	pbesol.o \
             	revpbe.o \
@@ -21,7 +22,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = v_bwexc_euv.F v_bwexc.F
+    USES_BLAS = v_bwexc_euv.F v_bwexc.F nwpw_meta_gga.F
 
 
   LIB_DEFINES = 

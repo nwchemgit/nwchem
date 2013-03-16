@@ -1,0 +1,11 @@
+*
+* $Id: nwpw_meta_gga.fh 19707 2010-10-29 17:59:36Z d3y133 $
+*
+
+*     **** NWPW_META_GGA common block ****
+      logical meta_on
+      integer dfdtau(2)
+      common / NWPW_META_GGA_Block / dfdtau,
+     >                               meta_on
+
+

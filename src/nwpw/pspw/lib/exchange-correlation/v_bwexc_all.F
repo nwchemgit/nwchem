@@ -81,13 +81,18 @@ c        call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "nwxc.fh"
 
 *     **** lda's ****
-      if (gga.eq.0) then
+      if ((.not.nwxc_is_on().and.gga.eq.0).or.
+     +    (nwxc_is_on().and.nwxc_is_lda())) then
+
          call vxc(n2ft3d,ispin,dn,xcp,xce,tmp1)
 
 *     **** gga's ****
-      else if ((gga.ge.10).and.(gga.lt.100)) then
+      else if ((.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100)).or.
+     +         (nwxc_is_on().and.nwxc_is_gga())) then
+
          call v_bwexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
       
 *     **** hybrid gga's ****
@@ -119,7 +124,7 @@ c        call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
 #include "nwxc.fh"
 
       if (nwxc_is_on()) then
-         call nwxc_print
+         call nwxc_print_nwpw()
          return
       endif
       IF (gga.eq.-1) THEN
