@@ -1572,6 +1572,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psi_r(1)))
       call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))  !*** probably not neeeded!
 
+*     ****  generate tau functions ****
+      call nwpw_meta_gga_gen_tau(ispin,neq,psi_k)
+
       return
       end
 
