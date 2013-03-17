@@ -190,6 +190,8 @@
      >                                  j=0,nbasis-1)
          close(11)
       end if
+
+
       msglen = nbasis
       call Parallel_Brdcst_ivalues(MASTER,msglen,int_mb(nae(1)))
       call Parallel_Brdcst_ivalues(MASTER,msglen,int_mb(nps(1)))
