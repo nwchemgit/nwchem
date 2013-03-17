@@ -2872,6 +2872,28 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         dng_1vlpaw_pw           *
+*     *                                 *
+*     ***********************************
+      real*8 function dng_1vlpaw_pw()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** external functions ****
+      real*8   psp_vlpaw_e
+      external psp_vlpaw_e
+
+      dng_1vlpaw_pw = psp_vlpaw_e(dcpl_mb(dng1(1)))
+      return
+      end
+
+
+
+
 
 *     ***********************************
 *     *                                 *
