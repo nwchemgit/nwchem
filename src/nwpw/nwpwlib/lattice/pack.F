@@ -163,6 +163,7 @@
 
       nwave_all(0) = nida(0) + nidb(0)
       nwave_all(1) = nida(1) + nidb(1)
+      ! write(*,*) "nwave_all=",nwave_all
 
       call D3dB_ISumAll(nwave_all(0))
       call D3dB_ISumAll(nwave_all(1)) 
