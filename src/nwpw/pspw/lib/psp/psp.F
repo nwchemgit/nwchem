@@ -45,7 +45,8 @@ c    >         MA_alloc_get(mt_dbl,(lmmax_max*npsp),
 c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 
       value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
-      value = value.and.MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
 c      value = value.and.
 c     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
 c     >                    'Gijl',Gijl(2),Gijl(1))
@@ -231,6 +232,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.
      >            MA_alloc_get(mt_dcpl,npack0,'vcmptmp',
      >                         vcmp_tmp(2),vcmp_tmp(1))
+         value = value.and.
+     >            MA_alloc_get(mt_dcpl,npack0,'vlpaw_tmp',
+     >                         vlpaw_tmp(2),vlpaw_tmp(1))
       end if
       if (.not. value)
      >   call errquit('psp_proj_init:out of heap memory',0,MA_ERR)
@@ -256,11 +260,11 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       scal = 1.0d0/lattice_omega()
 
       call Pack_c_Copy(0,vcin,dcpl_mb(vc_tmp(1))) 
-      !call Pack_cc_daxpy(0,scal,vlin,dcpl_mb(vc_tmp(1))) 
+      call Pack_cc_daxpy(0,scal,vlin,dcpl_mb(vc_tmp(1))) 
       return
       end 
 
-      subroutine psp_get_vcmp(vcmpout)
+      subroutine psp_get_vcmpvlpaw(vcmpout)
       implicit none
       complex*16 vcmpout(*)
 
@@ -268,9 +272,42 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "mafdecls.fh"
 #include "psp.fh"
 
+*     **** local variables ****
+      real*8 scal
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      scal = 1.0d0/lattice_omega()
+
       call Pack_c_Copy(0,dcpl_mb(vcmp_tmp(1)),vcmpout) 
+      call Pack_cc_daxpy(0,scal,dcpl_mb(vlpaw_tmp(1)),vcmpout) 
       return
       end 
+
+
+
+      real*8 function psp_vlpaw_e(dng)
+      implicit none
+      complex*16 dng(*)
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "psp.fh"
+
+*     **** local variables ****
+      real*8 e
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call Pack_cc_dot(0,dcpl_mb(vlpaw_tmp(1)),dng,e)
+      psp_vlpaw_e = e
+      return
+      end
+
 
 
 
@@ -331,6 +368,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.MA_free_heap(wtmp(2))
          value = value.and.MA_free_heap(vc_tmp(2))
          value = value.and.MA_free_heap(vcmp_tmp(2))
+         value = value.and.MA_free_heap(vlpaw_tmp(2))
       end if
       value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(vnl(2))
@@ -1308,6 +1346,9 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
          call dcopy(3*nion,0.0d0,0,fion,1)
       end if
 
+      if (pawexist) 
+     >   call dcopy((2*npack0),0.0d0,0,dcpl_mb(vlpaw_tmp(1)),1)
+
       call dcopy((2*npack0),0.0d0,0,vl_out,1)
       do ii=1,nion
        if (mod(ii-1,np_j).eq.taskid_j) then
@@ -1334,7 +1375,13 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
            call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                      dcpl_mb(exi(1)),
      >                      dcpl_mb(vtmp(1)))
-           call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
+
+           if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+              call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),
+     >                            dcpl_mb(vlpaw_tmp(1)))
+           else
+              call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
+           end if
 
            if (move) then
 #ifndef CRAY
@@ -1353,7 +1400,11 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
        end if
       end do
-      if (np_j.gt.1) call D1dB_Vector_SumAll(2*npack0,vl_out)
+      if (np_j.gt.1) then
+         call D1dB_Vector_SumAll(2*npack0,vl_out)
+         if (pawexist) 
+     >      call D1dB_Vector_SumAll(2*npack0,dcpl_mb(vlpaw_tmp(2)))
+      end if
       if (move) call Parallel_Vector_SumAll(3*nion,fion)
 
       value = .true.
@@ -1971,7 +2022,18 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
             if (.not.value) 
      >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
+     >                                      dcpl_mb(dng_cmp(1)))
+            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(vcmp_tmp(1)),ff(1))
+            write(*,*) "e_i-i=",0.5d0*ff(1)
+
+            !call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+
+            call nwpw_compcharge_gen_dn_cmp_zv(ispin,dbl_mb(zv(1)),
+     >                                         dcpl_mb(dng_cmp(1)))
+
             call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
             call Pack_cc_Sum(0,
      >                       dcpl_mb(vc_tmp(1)),
@@ -2023,7 +2085,7 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
             if (.not.value) 
      >        call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-            call nwpw_compcharge_gen_dn_cmp2(ispin,
+            call nwpw_compcharge_gen_dn_cmp2_zv(ispin,dbl_mb(zv(1)),
      >                                       dcpl_mb(dng_cmp(1)),
      >                                       dcpl_mb(dng_cmp_smooth(1)))
 

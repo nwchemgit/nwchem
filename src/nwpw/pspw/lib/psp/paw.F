@@ -824,6 +824,9 @@
 
       real*8  vloc_atom
 
+      integer i,j,n,li,lj,mi,mj,ni,nj
+      real*8 w,ee
+
 *     **** external functions ****
       integer  ion_nion,ion_katm
       integer  psi_data_get_ptr
@@ -899,6 +902,44 @@
 
         end do
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+
+        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),4)
+        ee = 0.0d0
+        do i=1,nproj
+        do j=1,nproj
+           w = 0.0d0
+           do n=1,nn
+              w = w + dbl_mb(sw1(1)+n-1+nn*(i-1))
+     >               *dbl_mb(sw1(1)+n-1+nn*(j-1))
+           end do 
+           ni = int_mb(n_projector(1)+(i-1)
+     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+           li = int_mb(l_projector(1)+(i-1)
+     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+           mi = int_mb(m_projector(1)+(i-1)
+     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+           nj = int_mb(n_projector(1)+(j-1)
+     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+           lj = int_mb(l_projector(1)+(j-1)
+     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+           mj = int_mb(l_projector(1)+(j-1)
+     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+
+          if ((li.eq.lj).and.(mi.eq.mj)) then
+           ee = ee + w*scal*dbl_mb(Gijl_indx+(ni-1)
+     >             +(nj-1)*int_mb(nmax(1)+ia-1)
+     >             + li*int_mb(nmax(1)+ia-1)**2) 
+        
+          write(*,*) "ovlp=",i,j,w*scal,ee,
+     >        dbl_mb(Gijl_indx+(ni-1)
+     >             +(nj-1)*int_mb(nmax(1)+ia-1)
+     >             + li*int_mb(nmax(1)+ia-1)**2),
+     >     ni,li,mi,
+     >     nj,lj,mj 
+           end if
+
+        end do
+        end do
 
 
 *       **** sw2 = Tijl*sw1 ******
@@ -1327,11 +1368,13 @@ c     >                          l_prj(i),m_prj(i))
 *     **** local variables ****
       logical ok
       integer npack0,dng_cmp(2),dng_cmp_smooth(2),vcmp_smooth(2)
-      real*8 eh,e1,e2
+      real*8 eh,e1,e2,eh0
       
 *     **** external functions ****
       real*8   nwpw_compcharge_E_multipole,lattice_omega
       external nwpw_compcharge_E_multipole,lattice_omega
+      real*8   nwpw_compcharge_E_multipole_zv
+      external nwpw_compcharge_E_multipole_zv
 
       call Pack_npack(0,npack0)
       ok = MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
@@ -1349,7 +1392,9 @@ c     >                          l_prj(i),m_prj(i))
       else
 
 *        **** multipole energy ****
+         eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
          eh = nwpw_compcharge_E_multipole(ispin)
+         write(*,*) "Emults=",eh0,eh
 
          ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                 dng_cmp_smooth(2),dng_cmp_smooth(1))
@@ -1613,8 +1658,6 @@ c     >                          l_prj(i),m_prj(i))
 
       return
       end
-
-
 
 
 
