@@ -2134,7 +2134,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >               move,
      >               dcpl_mb(tmp1(1)),
      >               dbl_mb(tmp2(1)))
-
       value = MA_pop_stack(tmp2(2))
       value = value.and.
      >        MA_pop_stack(tmp1(2))

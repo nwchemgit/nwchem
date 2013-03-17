@@ -165,7 +165,7 @@ c     complex*16 vpsi(nfft3d)
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
       if (psp_pawexist()) then
-         call psp_get_vcmp(dcpl_mb(vall(1)))
+         call psp_get_vcmpvlpaw(dcpl_mb(vall(1)))
          call Pack_cc_daxpy(0,scal2,vl,dcpl_mb(vall(1)))
       else
          call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
