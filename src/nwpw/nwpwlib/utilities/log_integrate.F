@@ -258,7 +258,7 @@ c     **** local variables ***
 
       w = log_integrate_def(power_f,dbl_mb(f_tmp(1)),0,g_r,
      >                      log_amesh,nrange)
-      w = w*fourpi/(2.0d0*l + 1.0d0)
+      w = w*fourpi/dble(2.0d0*l + 1.0d0)
 
       ok = MA_pop_stack(f_tmp(2))
       ok = ok.and.MA_pop_stack(q2_l(2))
