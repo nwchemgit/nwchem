@@ -471,4 +471,83 @@ c
 c
  1000 format(1x,f12.6,"  ",i4)
       end
+
+
+
+C>
+C> \brief Print the current density functional in nwpw format
+C>
+C> Extract various components of the current functional and write them
+C> to the NWChem output file. The functional is printed as specified
+C> on the user list, so as to match the user input as closely as 
+C> possible.
+C>
+      subroutine nwxc_print_nwpw()
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+#include "global.fh"
+#include "errquit.fh"
+#include "nwxcP.fh"
+c
+      double precision wght !< The functional weight
+      character*255 term    !< The functional term details
+      integer iterm         !< The functional identifier
+      integer ientry        !< Counter
+c
+c     Functions
+c
+      logical  nwxc_has_hfx, nwxc_has_mp2c, nwxc_has_cam, nwxc_has_disp
+      external nwxc_has_hfx, nwxc_has_mp2c, nwxc_has_cam, nwxc_has_disp
+c
+      logical  nwxc_get_df, nwxc_get_info
+      external nwxc_get_df, nwxc_get_info
+c
+      double precision nwxc_wght_mp2c, nwxc_wght_hfx
+      external         nwxc_wght_mp2c, nwxc_wght_hfx
+
+c
+      if (ga_nodeid().eq.0) then
+        write(luout,*)
+        write(luout,*)"     exchange correlation = "
+        if (nwxc_has_hfx()) then
+          wght = nwxc_wght_hfx()
+          if (.not.nwxc_get_info(NWXCP_HFXC,term)) then
+            call errquit("illegal functional",NWXCP_HFXC,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        endif
+        if (nwxc_has_mp2c()) then
+          wght = nwxc_wght_mp2c()
+          if (.not.nwxc_get_info(NWXCP_MP2C,term)) then
+            call errquit("illegal functional",NWXCP_MP2C,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        endif
+        ientry = 1
+        do while (nwxc_get_df(ientry,iterm,wght))
+          if (.not.nwxc_get_info(iterm,term)) then
+            call errquit("illegal functional",iterm,UERR)
+          endif
+          write(luout,1000)wght,term(1:inp_strlen(term))
+        enddo
+c       if (nwxc_has_cam()) then
+c         if (ga_nodeid().eq.0) then
+c           write(luout,*)"must think about CAM"
+c         endif
+c       endif
+        if (nwxc_has_disp()) then
+          if (ga_nodeid().eq.0) then
+            write(luout,*)"must think about DISP"
+          endif
+          call errquit("must think about DISP",0,UERR)
+        endif
+        write(luout,*)
+      endif
+c
+ 1000 format(2x,f14.8,"  ",a)
+      end
+
+
+
 C> @}
