@@ -34,7 +34,7 @@ c
       integer  psi_neq,control_version
       real*8   dng_1ehartree
       real*8   psi_1ke
-      real*8   psi_1vl,psi_1v_field
+      real*8   psi_1vl,psi_1v_field,dng_1vlpaw_pw
       real*8   psi_1vnl
       real*8   rho_1exc
       real*8   rho_1pxc
@@ -44,7 +44,7 @@ c
       external psi_neq,control_version
       external dng_1ehartree
       external psi_1ke
-      external psi_1vl,psi_1v_field
+      external psi_1vl,psi_1v_field,dng_1vlpaw_pw
       external psi_1vnl
       external rho_1exc
       external rho_1pxc
@@ -132,24 +132,26 @@ c      call psi_1toelectron()
          E(36) = psp_kinetic_core()        !*** kinetic core  - independent of psi ***
 
          E(37) = psi_1valence_core_atom()  !*** valence core energy ***
-         E(38) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
+         E(38) = dng_1vlpaw_pw()           !*** Vlocal_paw (pw basis) ***
+         E(39) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
 
          ehartree_atom = psi_1hartree_atom()
          ecmp_cmp      = psi_1hartree_cmp_cmp()
          ecmp_pw       = dng_1hartree_cmp_pw()
-         E(39) = ehartree_atom             !*** vcoulomb atom  ***
-         E(40) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
-         E(41) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
+         E(40) = ehartree_atom             !*** vcoulomb atom  ***
+         E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
+         E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
 
          !call psi_1xc_atom(exc_atom,pxc_atom)
          exc_atom = 0.0d0
          pxc_atom = 0.0d0
-         E(42) = exc_atom                  !*** exc atom  ***
-         E(43) = pxc_atom                  !*** pxc atom  ***
+         E(43) = exc_atom                  !*** exc atom  ***
+         E(44) = pxc_atom                  !*** pxc atom  ***
 
-         E(44) = psp_ion_core()            !*** ion core energy - independent of psi ***
+         E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
 
-         E(1) = E(1) + E(36) + E(44)
+         E(1) = E(1) + E(36) + E(45) 
+     >        - E(40) - E(41)  + E(43) - E(44)
       end if
 
 *     **** get pspw_charge  energies ****
