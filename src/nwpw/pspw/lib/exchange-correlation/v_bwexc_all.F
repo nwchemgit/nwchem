@@ -44,7 +44,7 @@
       
 *     **** meta-gga's ****
       else if (nwxc_is_mgga()) then
-c        call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
+         call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
 
 *     **** hybrid gga's ****
       else if (gga.eq.110) then
