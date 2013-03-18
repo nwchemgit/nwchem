@@ -1974,24 +1974,24 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn),
      >                                   eh_atom)
-            write(*,*) "eh_atom=",ip,ii,eh_atom
+c            write(*,*) "eh_atom=",ip,ii,eh_atom
 
-c*           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
-c            call nwpw_xc_solve(ii,ia,
-c     >        int_mb(n1dgrid(1)+ia-1),
-c     >        int_mb(n1dbasis(1)+ia-1),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
-c     >        dbl_mb(log_amesh(1)+ia-1),
-c     >        ispin,ne,nproj,
-c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
+*           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
+            call nwpw_xc_solve(ii,ia,
+     >        int_mb(n1dgrid(1)+ia-1),
+     >        int_mb(n1dbasis(1)+ia-1),
+     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
+     >        dbl_mb(log_amesh(1)+ia-1),
+     >        ispin,ne,nproj,
+     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
 
          end if
       end do
@@ -2027,12 +2027,12 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
             call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
             call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
      >                         dcpl_mb(vcmp_tmp(1)),ff(1))
-            write(*,*) "e_i-i=",0.5d0*ff(1)
+c            write(*,*) "e_i-i=",0.5d0*ff(1)
 
-            !call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
 
-            call nwpw_compcharge_gen_dn_cmp_zv(ispin,dbl_mb(zv(1)),
-     >                                         dcpl_mb(dng_cmp(1)))
+c            call nwpw_compcharge_gen_dn_cmp_zv(ispin,dbl_mb(zv(1)),
+c     >                                         dcpl_mb(dng_cmp(1)))
 
             call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
             call Pack_cc_Sum(0,
@@ -2053,7 +2053,7 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
      >                                      dcpl_mb(dng_cmp(1)))
                         call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
      >                                      dcpl_mb(vcmp(1)),ff(1))
-                        write(*,*) "ff=",ff(1)*omega
+c                        write(*,*) "ff=",ff(1)*omega
                         call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
      >                                                  ff(1)*omega)
                      end if
@@ -2142,7 +2142,7 @@ c               call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
      >                                    dcpl_mb(dng_cmp_smooth(1)),
      >                                    dcpl_mb(vcmp(1)),
      >                                    ff(2))
-                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
+c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
                         call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
      >                                           (ff(1)+ff(2))*omega)
                      end if
