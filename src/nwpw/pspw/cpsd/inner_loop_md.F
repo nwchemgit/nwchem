@@ -127,6 +127,12 @@ c     real*8     fion(3,natmx)
 
       logical  meta_found,psp_U_psputerm
       external meta_found,psp_U_psputerm
+      logical  nwpw_meta_gga_on
+      external nwpw_meta_gga_on
+      real*8   nwpw_meta_gga_pxc
+      external nwpw_meta_gga_pxc
+
+
 
       call Parallel_np(np)
       call Pack_npack(0,npack0)
@@ -616,6 +622,10 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
       exc = exc*dv
       pxc = pxc*dv
 
+      if (nwpw_meta_gga_on()) then
+         pxc = pxc + nwpw_meta_gga_pxc(ispin,neq,psi1)
+      end if
+
 
 
         
@@ -695,6 +705,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
          call meta_energypotential(ispin,neq,psi1,E(31),E(32))
          E(2)  = E(2) + E(31) - E(32)
       end if
+
 
 
 

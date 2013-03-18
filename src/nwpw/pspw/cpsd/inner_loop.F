@@ -114,6 +114,12 @@ c     real*8     fion(3,natmx)
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
+      logical  nwpw_meta_gga_on
+      external nwpw_meta_gga_on
+      real*8   nwpw_meta_gga_pxc
+      external nwpw_meta_gga_pxc
+
+
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
@@ -480,6 +486,10 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
       end if
       exc = exc*dv
       pxc = pxc*dv
+
+      if (nwpw_meta_gga_on()) then
+         pxc = pxc + nwpw_meta_gga_pxc(ispin,ne,psi1)
+      end if
         
   
 *     ***** average Kohn-Sham kinetic energy ****
