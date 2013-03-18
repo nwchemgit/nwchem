@@ -2307,11 +2307,6 @@ c     >                                         l2,m2,s1,Rab)
          q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
          E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
 
-         if (dabs(q1*q2*dbl_mb(e_gauss(1)+k-1)).gt.1.0d-15) then
-         write(*,'(A,6I4,E20.12,2E15.6)') "ii,li,mi,jj,lj,mj:",
-     >             iii,l1,m1,jjj,l2,m2,
-     >             dbl_mb(e_gauss(1)+k-1),q1,q2
-         end if 
       end do
       call Parallel_SumAll(E)
 
@@ -2502,11 +2497,11 @@ c     >                            dbl_mb(dE_Qlm(1)))
          q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)+q22
          E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
 
-         if (dabs(q1*q2*dbl_mb(e_gauss(1)+k-1)).gt.1.0d-15) then
-         write(*,'(A,6I4,E20.12,2E15.6)') "ii,li,mi,jj,lj,mj:",
-     >             iii,l1,m1,jjj,l2,m2,
-     >             dbl_mb(e_gauss(1)+k-1),q1,q2
-         end if 
+c         if (dabs(q1*q2*dbl_mb(e_gauss(1)+k-1)).gt.1.0d-15) then
+c         write(*,'(A,6I4,E20.12,2E15.6)') "ii,li,mi,jj,lj,mj:",
+c     >             iii,l1,m1,jjj,l2,m2,
+c     >             dbl_mb(e_gauss(1)+k-1),q1,q2
+c         end if 
       end do
       call Parallel_SumAll(E)
 
