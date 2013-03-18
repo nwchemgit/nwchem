@@ -104,7 +104,7 @@
       n1(1) = 1
       n2(1) = neq(1)
       n1(2) = neq(1)+1
-      n2(1) = neq(1)+neq(2)
+      n2(2) = neq(1)+neq(2)
 
       scal2 = 1.0d0/lattice_omega()
 
@@ -122,24 +122,25 @@
 
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tau(1)),1)
       do ms=1,ispin
-      do n=n1(ms),n2(ms)
-         do xyz=1,3
+         do n=n1(ms),n2(ms)
+            do xyz=1,3
 
-*           **** compute dpsi(G,1:3) ****
-            call Pack_tc_iMul(1,dbl_mb(G(xyz)),
-     >                          psi(1+(n-1)*npack1),
-     >                          dcpl_mb(dpsi(1)))
+*              **** compute dpsi(G,1:3) ****
+               call Pack_tc_iMul(1,dbl_mb(G(xyz)),
+     >                             psi(1+(n-1)*npack1),
+     >                             dcpl_mb(dpsi(1)))
 
-*           **** compute dpsi(r,1:3) ****
-            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
-            call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
-            call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
+*              **** compute dpsi(r,1:3) ****
+               call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+               call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
+               call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
-*           **** tau(r,ms) += dpsi(r,ms)**2 ****
-            call D3dB_rr_SqrAdd(1,dcpl_mb(dpsi(1)),
-     >                            dbl_mb(tau(1)+(ms-1)*n2ft3d))
+*              **** tau(r,ms) += dpsi(r,ms)**2 ****
+               call D3dB_rr_SqrAdd(1,dcpl_mb(dpsi(1)),
+     >                               dbl_mb(tau(1)+(ms-1)*n2ft3d))
+            end do
          end do
-      end do
+         call D3dB_r_Zero_Ends(1,dbl_mb(tau(1)+(ms-1)*n2ft3d))
       end do
 
 *     **** deallocate stack ****
@@ -185,7 +186,7 @@
       n1(1) = 1
       n2(1) = neq(1)
       n1(2) = neq(1)+1
-      n2(1) = neq(1)+neq(2)
+      n2(2) = neq(1)+neq(2)
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -226,6 +227,7 @@
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(G,1:3) ****
+            call D3dB_r_Zero_Ends(1,dcpl_mb(dpsi(1)))
             call D3dB_rc_fft3f(1,dcpl_mb(dpsi(1)))
             call Pack_c_pack(1,dcpl_mb(dpsi(1)))
 
