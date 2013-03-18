@@ -100,6 +100,11 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.unix procs $np oniom3
 ./runtests.unix procs $np cytosine_ccsd
 ./runtests.unix procs $np h2o_selci
+
+#
+#--- NEB test cases
+./runtests.unix procs $np neb-fch3cl neb-isobutene
+
 #
 #--- range-separated functionals tests
 ./runtests.mpi.unix procs $1 acr-camb3lyp-cdfit

@@ -205,6 +205,8 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np carbon_fon
 ./runtests.mpi.unix procs $np ch5n_nbo
 ./runtests.mpi.unix procs $np tpss tpssh
+./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
+
 #
 #--- if we only want quick tests get out now!
 if ($what == "xfast") then
