@@ -283,7 +283,6 @@ c
             endif
          endif
       endif
-      write(6,*) ' scf ss sme ',ssmear,smear_in
 c
 c     check for FON in rtdb:
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1, fon)) then
