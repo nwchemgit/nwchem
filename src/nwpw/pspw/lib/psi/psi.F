@@ -3107,6 +3107,27 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
+*     *                                 *
+*     *         psi_1meta_gga_pxc       *
+*     *                                 *
+*     ***********************************
+      real*8 function psi_1meta_gga_pxc()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** external functions ****
+      real*8   nwpw_meta_gga_pxc
+      external nwpw_meta_gga_pxc
+
+      psi_1meta_gga_pxc = nwpw_meta_gga_pxc(ispin,neq,dcpl_mb(psi1(1)))
+      return
+      end
+
+
+
+*     ***********************************
 *     *					*
 *     *		dng_1ehartree           *
 *     *					*
