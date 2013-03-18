@@ -226,6 +226,17 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
       else if (dfname.eq."xm06-2x") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_M06_2X,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.54*dfweight
+      else if (dfname.eq."xm08-hx") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_M08_HX,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.5223d0*dfweight
+      else if (dfname.eq."xm08-so") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_M08_SO,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.5679d0*dfweight
+      else if (dfname.eq."xm11") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_M11,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 1.0000d0*dfweight
+      else if (dfname.eq."xm11-l") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_M11_L,dfweight)
       else if (dfname.eq."xpbe96") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_PBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -297,6 +308,14 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M06_L,dfweight)
       else if (dfname.eq."cm06-2x") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M06_2X,dfweight)
+      else if (dfname.eq."cm08-hx") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_M08_HX,dfweight)
+      else if (dfname.eq."cm08-so") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_M08_SO,dfweight)
+      else if (dfname.eq."cm11") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11,dfweight)
+      else if (dfname.eq."cm11-l") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11_L,dfweight)
       else if (dfname.eq."cpbe96") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."cpbesol") then
@@ -416,6 +435,24 @@ c       nwxc_wght_hf    = 0.20d0
         nwxc_add_df = nwxc_add_df .and.
      +                nwxc_add_func(NWXCP_C_M06_2X,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.54d0*dfweight
+      else if (dfname.eq."m08-hx") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_M08_HX,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     +                nwxc_add_func(NWXCP_X_M08_HX,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     +                nwxc_add_func(NWXCP_C_M08_HX,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.5223d0*dfweight
+      else if (dfname.eq."m08-so") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_M08_SO,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     +                nwxc_add_func(NWXCP_X_M08_SO,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     +                nwxc_add_func(NWXCP_C_M08_SO,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.5223d0*dfweight
+      else if (dfname.eq."m11") then ! alias
+        nwxc_add_df = nwxc_all_add_func(NWXCP_M11,dfweight)
+      else if (dfname.eq."m11-l") then ! alias
+        nwxc_add_df = nwxc_all_add_func(NWXCP_M11_L,dfweight)
       else if (dfname.eq."hse03".or.dfname.eq."hse") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_HSE,dfweight)
         nwxc_add_df = nwxc_add_df .and.

@@ -428,6 +428,22 @@ c
            cdata = "M06-2X Exchange (Y Zhao, DG Truhlar, "
      +             //"J.Chem.Phys. 123, 194101 (2006)"
      +             //" doi:10.1063/1.2370993)"
+         case (NWXCP_X_M08_HX)
+           cdata = "M08-HX Exchange (Y Zhao, DG Truhlar, "
+     +             //"J.Chem.TheoryComput. 4, 1849 (2008)"
+     +             //" doi:10.1021/ct800246v)"
+         case (NWXCP_X_M08_SO)
+           cdata = "M08-SO Exchange (Y Zhao, DG Truhlar, "
+     +             //"J.Chem.TheoryComput. 4, 1849 (2008)"
+     +             //" doi:10.1021/ct800246v)"
+         case (NWXCP_X_M11)
+           cdata = "M11 Exchange (R Peverati, DG Truhlar, "
+     +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
+     +             //" doi:10.1021/jz201170d)"
+         case (NWXCP_X_M11_L)
+           cdata = "M11-L Exchange (R Peverati, DG Truhlar, "
+     +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
+     +             //" doi:10.1021/jz201170d)"
          case (NWXCP_X_PBE)
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
@@ -511,6 +527,22 @@ c
            cdata = "M06-2X Correlation (Y Zhao, DG Truhlar, "
      +             //"J.Chem.Phys. 123, 194101 (2006)"
      +             //" doi:10.1063/1.2370993)"
+         case (NWXCP_C_M08_HX)
+           cdata = "M08-HX Correlation (Y Zhao, DG Truhlar, "
+     +             //"J.Chem.TheoryComput. 4, 1849 (2008)"
+     +             //" doi:10.1021/ct800246v)"
+         case (NWXCP_C_M08_SO)
+           cdata = "M08-SO Correlation (Y Zhao, DG Truhlar, "
+     +             //"J.Chem.TheoryComput. 4, 1849 (2008)"
+     +             //" doi:10.1021/ct800246v)"
+         case (NWXCP_C_M11)
+           cdata = "M11 Correlation (R Peverati, DG Truhlar, "
+     +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
+     +             //" doi:10.1021/jz201170d)"
+         case (NWXCP_C_M11_L)
+           cdata = "M11-L Correlation (R Peverati, DG Truhlar, "
+     +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
+     +             //" doi:10.1021/jz201170d)"
          case (NWXCP_C_PBE)
            cdata = "PBE Correlation (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
@@ -588,6 +620,22 @@ c
            cdata = "M06-2X (Y Zhao, DG Truhlar, "
      +             //"J.Chem.Phys. 123, 194101 (2006)"
      +             //" doi:10.1063/1.2370993)"
+         case (NWXCP_M08_HX)
+           cdata = "M08-HX (Y Zhao, DG Truhlar, "
+     +             //"J.Chem.TheoryComput. 4, 1849 (2008)"
+     +             //" doi:10.1021/ct800246v)"
+         case (NWXCP_M08_SO)
+           cdata = "M08-SO (Y Zhao, DG Truhlar, "
+     +             //"J.Chem.TheoryComput. 4, 1849 (2008)"
+     +             //" doi:10.1021/ct800246v)"
+         case (NWXCP_M11)
+           cdata = "M11 (R Peverati, DG Truhlar, "
+     +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
+     +             //" doi:10.1021/jz201170d)"
+         case (NWXCP_M11_L)
+           cdata = "M11-L (R Peverati, DG Truhlar, "
+     +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
+     +             //" doi:10.1021/jz201170d)"
          case (NWXCP_HSE)
            cdata = "HSE (J Heyd, GE Scuseria, M Ernzerhof, "
      +             //"J.Chem.Phys. 118, 8207 (2003)"

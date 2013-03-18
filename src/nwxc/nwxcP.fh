@@ -60,8 +60,20 @@ c
       integer NWXCP_X_M06_2X     !< The M06-2X exchange functional
       parameter (NWXCP_X_M06_2X = NWXCP_X_M06_L + 1)
 c
+      integer NWXCP_X_M08_HX     !< The M08-HX exchange functional
+      parameter (NWXCP_X_M08_HX = NWXCP_X_M06_2X + 1)
+c
+      integer NWXCP_X_M08_SO     !< The M08-SO exchange functional
+      parameter (NWXCP_X_M08_SO = NWXCP_X_M08_HX + 1)
+c
+      integer NWXCP_X_M11        !< The M11 exchange functional
+      parameter (NWXCP_X_M11 = NWXCP_X_M08_SO + 1)
+c
+      integer NWXCP_X_M11_L      !< The M11-L exchange functional
+      parameter (NWXCP_X_M11_L = NWXCP_X_M11 + 1)
+c
       integer NWXCP_X_PBE        !< The PBE exchange functional
-      parameter (NWXCP_X_PBE = NWXCP_X_M06_2X + 1)
+      parameter (NWXCP_X_PBE = NWXCP_X_M11_L + 1)
 c
       integer NWXCP_X_PBE0       !< The PBE0 exchange functional
       parameter (NWXCP_X_PBE0 = NWXCP_X_PBE + 1)
@@ -114,8 +126,20 @@ c
       integer NWXCP_C_M06_2X     !< The M06-2X correlation functional
       parameter (NWXCP_C_M06_2X = NWXCP_C_M06_L + 1)
 c
+      integer NWXCP_C_M08_HX     !< The M08-HX correlation functional
+      parameter (NWXCP_C_M08_HX = NWXCP_C_M06_2X + 1)
+c
+      integer NWXCP_C_M08_SO     !< The M08-SO correlation functional
+      parameter (NWXCP_C_M08_SO = NWXCP_C_M08_HX + 1)
+c
+      integer NWXCP_C_M11        !< The M11 correlation functional
+      parameter (NWXCP_C_M11 = NWXCP_C_M08_SO + 1)
+c
+      integer NWXCP_C_M11_L      !< The M11-L correlation functional
+      parameter (NWXCP_C_M11_L = NWXCP_C_M11 + 1)
+c
       integer NWXCP_C_PW6B95     !< The PW6B95 correlation functional
-      parameter (NWXCP_C_PW6B95 = NWXCP_C_M06_2X + 1)
+      parameter (NWXCP_C_PW6B95 = NWXCP_C_M11_L + 1)
 c
       integer NWXCP_C_PWB6K      !< The PWB6K correlation functional
       parameter (NWXCP_C_PWB6K = NWXCP_C_PW6B95 + 1)
@@ -201,9 +225,25 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_M06_2X = NWXCP_M06_L + 1)
 c
+      integer NWXCP_M08_HX       !< The M08-HX functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M08_HX = NWXCP_M06_2X + 1)
+c
+      integer NWXCP_M08_SO       !< The M08-SO functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M08_SO = NWXCP_M08_HX + 1)
+c
+      integer NWXCP_M11          !< The M11 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M11 = NWXCP_M08_SO + 1)
+c
+      integer NWXCP_M11_L       !< The M11-L functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M11_L = NWXCP_M11 + 1)
+c
       integer NWXCP_PBE          !< The PBE functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_PBE = NWXCP_M06_2X + 1)
+      parameter (NWXCP_PBE = NWXCP_M11_L + 1)
 c
       integer NWXCP_PBE0         !< The PBE0 functional 
                                  !< (exchange and correlation)
