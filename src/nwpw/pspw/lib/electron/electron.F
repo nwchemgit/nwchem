@@ -332,13 +332,15 @@ c      end
 
 *     **** external functions *****
       logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
-      logical  pspw_HFX,pspw_HFX_relaxed,meta_found
+      logical  pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
+      real*8   nwpw_meta_gga_pxc
       external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
-      external pspw_HFX,pspw_HFX_relaxed,meta_found
+      external pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
+      external nwpw_meta_gga_pxc
       
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -410,6 +412,12 @@ c      end
       exc = exc*dv
       pxc = pxc*dv
 
+*     **** meta_GGA energy ****
+      if (nwpw_meta_gga_on()) then
+         pxc = pxc + nwpw_meta_gga_pxc(ispin,neq,psi_k)
+      end if
+
+
 
       total_energy = eorbit + exc - ehartr - pxc
 
@@ -442,6 +450,7 @@ c      end
          call psp_U_psputerm_energy(edftu,pdftu)
          total_energy = total_energy + edftu - pdftu
       end if
+
 
 *     **** metadynamics energy ****
       if (meta_found()) then
