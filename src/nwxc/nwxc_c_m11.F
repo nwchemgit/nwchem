@@ -83,8 +83,8 @@ c
                                 !< - param(8): \f$ a_7 \f$
                                 !< - param(9): \f$ a_8 \f$
                                 !< - param(10): \f$ a_9 \f$
-                                !< - param(11): \f$ a_10 \f$
-                                !< - param(12): \f$ a_11 \f$
+                                !< - param(11): \f$ a_{10} \f$
+                                !< - param(12): \f$ a_{11} \f$
                                 !< - param(13): \f$ b_0 \f$
                                 !< - param(14): \f$ b_1 \f$
                                 !< - param(15): \f$ b_2 \f$
@@ -95,8 +95,8 @@ c
                                 !< - param(20): \f$ b_7 \f$
                                 !< - param(21): \f$ b_8 \f$
                                 !< - param(22): \f$ b_9 \f$
-                                !< - param(23): \f$ b_10 \f$
-                                !< - param(24): \f$ b_11 \f$
+                                !< - param(23): \f$ b_{10} \f$
+                                !< - param(24): \f$ b_{11} \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels

@@ -68,8 +68,8 @@ c
                                 !< - param(8): \f$ a_7 \f$
                                 !< - param(9): \f$ a_8 \f$
                                 !< - param(10): \f$ a_9 \f$
-                                !< - param(11): \f$ a_10 \f$
-                                !< - param(12): \f$ a_11 \f$
+                                !< - param(11): \f$ a_{10} \f$
+                                !< - param(12): \f$ a_{11} \f$
                                 !< - param(13): \f$ b_0 \f$
                                 !< - param(14): \f$ b_1 \f$
                                 !< - param(15): \f$ b_2 \f$
@@ -80,8 +80,8 @@ c
                                 !< - param(20): \f$ b_7 \f$
                                 !< - param(21): \f$ b_8 \f$
                                 !< - param(22): \f$ b_9 \f$
-                                !< - param(23): \f$ b_10 \f$
-                                !< - param(24): \f$ b_11 \f$
+                                !< - param(23): \f$ b_{10} \f$
+                                !< - param(24): \f$ b_{11} \f$
                                 !< - param(25): \f$ c_0 \f$
                                 !< - param(26): \f$ c_1 \f$
                                 !< - param(27): \f$ c_2 \f$
@@ -92,8 +92,8 @@ c
                                 !< - param(32): \f$ c_7 \f$
                                 !< - param(33): \f$ c_8 \f$
                                 !< - param(34): \f$ c_9 \f$
-                                !< - param(35): \f$ c_10 \f$
-                                !< - param(36): \f$ c_11 \f$
+                                !< - param(35): \f$ c_{10} \f$
+                                !< - param(36): \f$ c_{11} \f$
                                 !< - param(37): \f$ d_0 \f$
                                 !< - param(38): \f$ d_1 \f$
                                 !< - param(39): \f$ d_2 \f$
@@ -104,8 +104,8 @@ c
                                 !< - param(44): \f$ d_7 \f$
                                 !< - param(45): \f$ d_8 \f$
                                 !< - param(46): \f$ d_9 \f$
-                                !< - param(47): \f$ d_10 \f$
-                                !< - param(48): \f$ d_11 \f$
+                                !< - param(47): \f$ d_{10} \f$
+                                !< - param(48): \f$ d_{11} \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -945,8 +945,8 @@ c
                                 !< - param(8): \f$ a_7 \f$
                                 !< - param(9): \f$ a_8 \f$
                                 !< - param(10): \f$ a_9 \f$
-                                !< - param(11): \f$ a_10 \f$
-                                !< - param(12): \f$ a_11 \f$
+                                !< - param(11): \f$ a_{10} \f$
+                                !< - param(12): \f$ a_{11} \f$
                                 !< - param(13): \f$ b_0 \f$
                                 !< - param(14): \f$ b_1 \f$
                                 !< - param(15): \f$ b_2 \f$
@@ -957,8 +957,8 @@ c
                                 !< - param(20): \f$ b_7 \f$
                                 !< - param(21): \f$ b_8 \f$
                                 !< - param(22): \f$ b_9 \f$
-                                !< - param(23): \f$ b_10 \f$
-                                !< - param(24): \f$ b_11 \f$
+                                !< - param(23): \f$ b_{10} \f$
+                                !< - param(24): \f$ b_{11} \f$
                                 !< - param(25): \f$ c_0 \f$
                                 !< - param(26): \f$ c_1 \f$
                                 !< - param(27): \f$ c_2 \f$
@@ -969,8 +969,8 @@ c
                                 !< - param(32): \f$ c_7 \f$
                                 !< - param(33): \f$ c_8 \f$
                                 !< - param(34): \f$ c_9 \f$
-                                !< - param(35): \f$ c_10 \f$
-                                !< - param(36): \f$ c_11 \f$
+                                !< - param(35): \f$ c_{10} \f$
+                                !< - param(36): \f$ c_{11} \f$
                                 !< - param(37): \f$ d_0 \f$
                                 !< - param(38): \f$ d_1 \f$
                                 !< - param(39): \f$ d_2 \f$
@@ -981,8 +981,8 @@ c
                                 !< - param(44): \f$ d_7 \f$
                                 !< - param(45): \f$ d_8 \f$
                                 !< - param(46): \f$ d_9 \f$
-                                !< - param(47): \f$ d_10 \f$
-                                !< - param(48): \f$ d_11 \f$
+                                !< - param(47): \f$ d_{10} \f$
+                                !< - param(48): \f$ d_{11} \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
