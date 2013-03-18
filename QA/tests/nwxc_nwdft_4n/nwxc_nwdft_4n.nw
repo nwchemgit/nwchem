@@ -166,6 +166,38 @@ end
 task dft energy
 
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xm08-hx
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xm08-so
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xm11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xm11-l
+end
+task dft energy
+
+dft
   direct
   mult 4
   odft
@@ -322,6 +354,38 @@ dft
 end
 task dft energy
 
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cm08-hx
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cm08-so
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cm11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cm11-l
+end
+task dft energy
+
 # Hartree-Fock exchange + meta-GGA correlation 
 
 dft
@@ -435,6 +499,38 @@ dft
   odft
   vectors input atomic
   xc m06-hf
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc m08-hx
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc m08-so
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc m11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc m11-l
 end
 task dft energy
   
