@@ -96,12 +96,14 @@ c
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
 
-      real*8   control_time_step,control_fake_mass
-      external control_time_step,control_fake_mass
+      real*8   control_time_step,control_fake_mass,psi_1meta_gga_pxc
+      external control_time_step,control_fake_mass,psi_1meta_gga_pxc
       integer  control_lmbfgs_size
       external control_lmbfgs_size
       logical  control_precondition,pspw_HFX,psp_U_psputerm,meta_found
       external control_precondition,pspw_HFX,psp_U_psputerm,meta_found
+      logical  nwpw_meta_gga_on
+      external nwpw_meta_gga_on
 
 
       dt = control_time_step()
@@ -327,6 +329,11 @@ c     call psi_check()
          call electron_meta_energies(ehfx,phfx)
          E(31) =  ehfx
          E(32) =  phfx
+      end if
+
+*     **** Metadynamics GGA Tau potential term ****
+      if (nwpw_meta_gga_on()) then
+         E(10) = E(10) - psi_1meta_gga_pxc()
       end if
 
 

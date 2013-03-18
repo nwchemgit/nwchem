@@ -101,6 +101,12 @@ c
       external psi_1_noupdate_energy,psi_eigenvalue
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
+      logical  nwpw_meta_gga_on
+      external nwpw_meta_gga_on
+      real*8   psi_1meta_gga_pxc
+      external psi_1meta_gga_pxc
+
+
    
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -403,6 +409,13 @@ c      call psi_check()
          E(31) =  ehfx
          E(32) =  phfx
       end if
+
+*     **** Metadynamics GGA Tau potential term ****
+      if (nwpw_meta_gga_on()) then
+         E(10) = E(10) - psi_1meta_gga_pxc()
+      end if
+
+
 
 
       failed = (sd_count.ge.MAX_SD_COUNT)

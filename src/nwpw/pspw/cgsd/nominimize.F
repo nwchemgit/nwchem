@@ -78,6 +78,13 @@ c
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       external psi_1hartree_cmp_cmp,dng_1hartree_cmp_pw
 
+      logical  nwpw_meta_gga_on
+      external nwpw_meta_gga_on
+      real*8   psi_1meta_gga_pxc
+      external psi_1meta_gga_pxc
+
+
+
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
 
@@ -192,6 +199,13 @@ c      call psi_1toelectron()
          E(31) =  ehfx
          E(32) =  phfx
       end if
+
+*     **** Metadynamics GGA Tau potential term ****
+      if (nwpw_meta_gga_on()) then
+         E(10) = E(10) - psi_1meta_gga_pxc()
+      end if
+
+
 
 
       value = MA_free_heap(G1(2))
