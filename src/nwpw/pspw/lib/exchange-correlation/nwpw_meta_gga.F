@@ -217,13 +217,12 @@
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-            call Pack_c_SMul1(1,scal1,dcpl_mb(dpsi(1)))
+            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
 *           **** multiply dpsi(r,1:3) = dfdtau(r,ms)*dpsi(r,1:3) ****
             call D3dB_rr_Mul2(1,dbl_mb(dfdtau(1)+(ms-1)*n2ft3d),
-     >                          dcpl_mb(dpsi(1)),
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(G,1:3) ****
@@ -232,7 +231,7 @@
             call Pack_c_pack(1,dcpl_mb(dpsi(1)))
 
 *           **** compute Hpsi = grad dot dpsi(G) ****
-            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+            call Pack_c_SMul1(1,scal1,dcpl_mb(dpsi(1)))
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
             call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
