@@ -1,0 +1,87 @@
+title "Isobutene rearrangement - NEB calculations"
+
+echo
+
+start neb-isobutene
+
+basis 
+  * library 3-21G
+end
+
+dft
+   xc b3lyp
+   iterations 4011
+end
+
+
+
+#### define the start geometry ####
+geometry units angstroms print xyz noautosym
+C        -1.30027937    -0.63471541     0.11691257
+C         0.00517579     0.12937911     0.00190364
+H        -1.45489604    -1.26551731    -0.76883101
+H        -2.15285144     0.04376424     0.21470295
+H        -1.28003223    -1.29945400     0.99101836
+C         1.24558540    -0.73282739    -0.13689309
+H         1.34805781    -1.39988455     0.72964501
+H         2.14976844    -0.12203241    -0.21537383
+H         1.17354654    -1.36768012    -1.03027190
+C         0.05849907     1.46267643     0.02137314
+H        -0.83737902     2.06783813     0.12133740
+H         0.99995066     1.99703325    -0.06195043
+end
+
+
+#### define the end geometry ####
+geometry endgeom units angstroms print xyz noautosym
+C        -1.18474072    -0.83331349     0.09616964
+C         0.11558092    -0.05609269     0.01625666
+H        -1.74304069    -0.74520868    -0.84555789
+H        -1.82408740    -0.43021346     0.89312148
+H        -1.00459736    -1.89355494     0.29669943
+C         1.30665374    -0.63407364     0.18415070
+H         1.40148230    -1.69649827     0.38682858
+H         2.22979163    -0.06562817     0.12496443
+H        -0.55001407     1.58178341    -1.22694000
+C        -0.03692999     1.42614661    -0.26834960
+H        -0.64661804     1.90553492     0.50933417
+H         0.93471452     1.92727469    -0.30776178
+end
+
+
+### RUN NEB calculation with 5 then 10 beads ###
+neb
+   impose
+   nbeads 5
+   maxiter 5
+   stepsize 0.01
+   kbeads 0.001
+   nhist 10
+end
+task dft neb ignore
+
+neb
+   maxiter 10
+   nbeads 10
+   stepsize 0.10
+   kbeads 0.1
+end
+task dft neb ignore
+
+
+### continue by running Zero-Temperature String calculation with 10 beads ###
+string
+  nbeads 10
+  maxiter 10
+  freeze1 .true.
+  freezeN .true.
+  nhist 5
+end
+task dft string ignore
+
+
+### rerun NEB with tighter spring constant ###
+neb
+   kbeads 1.0
+end
+task dft neb ignore
