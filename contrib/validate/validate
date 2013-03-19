@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Validate
+# ========
+#
+# Go through the output of the QA test suite run, and for every test case
+# that failed summarize the differences.
+#
+# Command line arguments:
+#
+# - $0: this script
+# - $1: the name of the log file
+#
+# First we want to know where we are so that we can invoke the scripts we
+# need. The scripts we need live in the same location as this file.
+#
+if [ -f "$0" ] ; then
+   # The first item on the command line is an actual file so it must have
+   # been specified including the path.
+   path="`dirname \"$0\"`"
+else
+   # The first item on the command line is not a file so it must have been
+   # found in PATH.
+   path="`which \"$0\"`"
+   path="`dirname \"$path\"`"
+fi
+testlist=`$path/get_tests.bash $1`
+for tcase in $testlist; do
+   if [ -f testoutputs/${tcase}.out.nwparse ] ; then
+      # This is a regular test case that completed.
+      diff testoutputs/${tcase}.ok.out.nwparse testoutputs/${tcase}.out.nwparse > /dev/null
+      stat=$?
+      if [ ${stat} -ne 0 ] ; then
+         tkdiff testoutputs/${tcase}.ok.out.nwparse testoutputs/${tcase}.out.nwparse
+      fi
+   elif [ -f testoutputs/${tcase}.ok.tst ] ; then
+      # This is a molecular dynamics simulation.
+      diff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top > /dev/null
+      stat=$?
+      if [ ${stat} -ne 0 ] ; then
+         tkdiff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top
+      fi
+   else
+      # This is a regular test case that crashed.
+      tkdiff testoutputs/${tcase}.ok.out testoutputs/${tcase}.out
+   fi
+done
