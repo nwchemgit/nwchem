@@ -21,7 +21,7 @@ c
       integer ltmpm, itmpm,ndep
       double precision aaz
       integer ilo,ihi,jlo,jhi,numi,numj,icount
-      integer jfirst,jlast
+      integer jfirst,jlast,ptrfirst
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -45,21 +45,21 @@ c
             icount=itmpm
             jfirst=99999
             jlast=-1
+            ptrfirst=0
             do i=jlo,jhi
-               if(i-ndep.ge.1) then
+               if(i.gt.ndep) then
+                  if(ptrfirst.eq.0) ptrfirst=icount
                   jfirst=min(i-ndep,jfirst)
                   jlast=max(i-ndep,jlast)
                   aaz = svals(i)
                   aaz = 1.d0/sqrt(aaz)
                   call dscal(numi, aaz, DBL_MB(icount), 1)
-cold                  call ga_put(g_xij,ilo,ihi,i-ndep,i-ndep,
-cold     .                 dbl_mb(icount),numi)
                endif
                icount=icount+numi
             enddo
             if(jlast.ne.-1)
      C           call ga_put(g_xij,ilo,ihi,jfirst,jlast,
-     .           dbl_mb(itmpm),numi)
+     .           dbl_mb(ptrfirst),numi)
             if(.not.MA_Pop_Stack(ltmpm)) call errquit(
      .           'failed popstack in dftcanorg ',0, 0)
          endif
