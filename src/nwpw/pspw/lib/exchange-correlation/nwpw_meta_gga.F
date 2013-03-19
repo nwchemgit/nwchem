@@ -235,7 +235,7 @@
             call Pack_c_SMul1(1,(scal1),dcpl_mb(dpsi(1)))
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
-            call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
+c            call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
 
          end do
       end do
@@ -331,7 +331,7 @@
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
             call Pack_cc_idot(1,psi(1+(n-1)*npack1),dcpl_mb(dpsi(1)),ee)
-            pmeta = pmeta + ee
+            pmeta = pmeta - ee
 
          end do
       end do
@@ -343,8 +343,8 @@
 
       call Parallel_SumAll(pmeta)
       if (ispin.eq.1) pmeta = pmeta + pmeta
+
       end if
-      pmeta = 0.0d0
 
       nwpw_meta_gga_pxc = pmeta
       return
