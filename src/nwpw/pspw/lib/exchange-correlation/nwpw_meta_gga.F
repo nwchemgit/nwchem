@@ -106,7 +106,7 @@
       n1(2) = neq(1)+1
       n2(2) = neq(1)+neq(2)
 
-      scal2 = 1.0d0/lattice_omega()
+      scal2 = 0.5d0/lattice_omega()
 
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
@@ -131,7 +131,6 @@
      >                             dcpl_mb(dpsi(1)))
 
 *              **** compute dpsi(r,1:3) ****
-               !call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
                call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
                call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -193,8 +192,8 @@
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-      scal1 = 1.0d0/dble(nx*ny*nz)
-      scal2 = 1.0d0/dsqrt(lattice_omega())
+      scal1 = 0.5d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
 
 
       call D3dB_nfft3d(1,nfft3d)
@@ -219,7 +218,7 @@
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -288,7 +287,7 @@ c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal1 = 0.5d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
 
 
@@ -314,7 +313,7 @@ c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -345,6 +344,7 @@ c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
       call Parallel_SumAll(pmeta)
       if (ispin.eq.1) pmeta = pmeta + pmeta
       end if
+      pmeta = 0.0d0
 
       nwpw_meta_gga_pxc = pmeta
       return
