@@ -89,7 +89,7 @@
 #include "nwpw_meta_gga.fh"
 
 *     **** local variables ****
-      integer ms,n,n2ft3d,nfft3d,npack1,xyz
+      integer ms,n,n2ft3d,nfft3d,npack1,xyz,nx,ny,nz
       integer G(3),n1(2),n2(2),dpsi(2)
       real*8 scal2
 
@@ -131,7 +131,7 @@
      >                             dcpl_mb(dpsi(1)))
 
 *              **** compute dpsi(r,1:3) ****
-               call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+               !call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
                call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
                call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -140,12 +140,14 @@
      >                               dbl_mb(tau(1)+(ms-1)*n2ft3d))
             end do
          end do
+         call D3dB_r_SMul1(1,(scal2),dbl_mb(tau(1)+(ms-1)*n2ft3d))
          call D3dB_r_Zero_Ends(1,dbl_mb(tau(1)+(ms-1)*n2ft3d))
       end do
 
 *     **** deallocate stack ****
       if (.not.MA_pop_stack(dpsi(2)))
      >   call errquit('nwpw_meta_gga_Hpsik:popping stack',0,MA_ERR)
+
 
       end if
       return
@@ -192,7 +194,7 @@
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
-      scal2 = 1.0d0/lattice_omega()
+      scal2 = 1.0d0/dsqrt(lattice_omega())
 
 
       call D3dB_nfft3d(1,nfft3d)
@@ -217,7 +219,7 @@
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -231,7 +233,7 @@
             call Pack_c_pack(1,dcpl_mb(dpsi(1)))
 
 *           **** compute Hpsi = grad dot dpsi(G) ****
-            call Pack_c_SMul1(1,(-scal1),dcpl_mb(dpsi(1)))
+            call Pack_c_SMul1(1,(scal1),dcpl_mb(dpsi(1)))
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
             call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
@@ -312,7 +314,7 @@
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+c            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -326,7 +328,7 @@
             call Pack_c_pack(1,dcpl_mb(dpsi(1)))
 
 *           **** compute Hpsi = grad dot dpsi(G) ****
-            call Pack_c_SMul1(1,(-scal1),dcpl_mb(dpsi(1)))
+            call Pack_c_SMul1(1,(scal1),dcpl_mb(dpsi(1)))
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
             call Pack_cc_idot(1,psi(1+(n-1)*npack1),dcpl_mb(dpsi(1)),ee)
