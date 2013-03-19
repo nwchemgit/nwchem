@@ -307,6 +307,11 @@ c     call psi_check()
       exc      = rho_1exc()
       pxc      = rho_1pxc()
 
+*     **** Metadynamics GGA Tau potential term ****
+      if (nwpw_meta_gga_on()) then
+         pxc = pxc + psi_1meta_gga_pxc()
+      end if
+
       E(1)  = Enew + eion
       E(2)  = eorbit
       E(3)  = ehartree
@@ -359,10 +364,6 @@ c     call psi_check()
          E(32) =  phfx
       end if
 
-*     **** Metadynamics GGA Tau potential term ****
-      if (nwpw_meta_gga_on()) then
-         E(10) = E(10) - psi_1meta_gga_pxc()
-      end if
 
 
 
