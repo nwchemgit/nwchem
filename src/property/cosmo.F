@@ -43,7 +43,7 @@ c
       maxbem   =3
       ificos   =0
       lineq    =1
-      rsolv    =0.0d+00
+      rsolv    =0.5d+00
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',911,MA_ERR)
       do iat=1,nw_max_atom
@@ -457,7 +457,7 @@ c
       maxbem   =3
       ificos   =0
       lineq    =1
-      rsolv    =0.0d+00
+      rsolv    =0.5d+00
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
