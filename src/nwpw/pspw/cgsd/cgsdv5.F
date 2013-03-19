@@ -244,9 +244,6 @@
       call ga_sync()
 
 
-*     **** read in wavefunctions and initialize psi ****
-c     value = psi_initialize()
-
 *     **** read ions ****
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
