@@ -1067,20 +1067,6 @@ c     psp_rc = rc(i,ia)
       return
       end
 
-*     ***********************************
-*     *                                 *
-*     *            psp_pawexist         *
-*     *                                 *
-*     ***********************************
-      logical function psp_pawexist()
-      implicit none
-
-#include "psp.fh"
-
-      psp_pawexist = pawexist
-      return
-      end
-
 
 *     **********************************
 *     *                                *

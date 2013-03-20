@@ -2,6 +2,23 @@
 * $Id$
 *
 
+
+*     ***********************************
+*     *                                 *
+*     *            psp_pawexist         *
+*     *                                 *
+*     ***********************************
+      logical function psp_pawexist()
+      implicit none
+
+#include "psp.fh"
+
+      psp_pawexist = pawexist
+      return
+      end
+
+
+
 *     ***********************************
 *     *					*
 *     *	 	   psp_overlap_S	*
@@ -930,12 +947,13 @@
      >             +(nj-1)*int_mb(nmax(1)+ia-1)
      >             + li*int_mb(nmax(1)+ia-1)**2) 
         
-          write(*,*) "ovlp=",i,j,w*scal,ee,
-     >        dbl_mb(Gijl_indx+(ni-1)
-     >             +(nj-1)*int_mb(nmax(1)+ia-1)
-     >             + li*int_mb(nmax(1)+ia-1)**2),
-     >     ni,li,mi,
-     >     nj,lj,mj 
+c          write(*,*) "ovlp=",i,j,w*scal,ee,
+c     >        dbl_mb(Gijl_indx+(ni-1)
+c     >             +(nj-1)*int_mb(nmax(1)+ia-1)
+c     >             + li*int_mb(nmax(1)+ia-1)**2),
+c     >     ni,li,mi,
+c     >     nj,lj,mj 
+
            end if
 
         end do
