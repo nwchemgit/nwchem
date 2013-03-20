@@ -173,6 +173,12 @@ c
      $                     911, RTDB_ERR)
          endif
 c
+      else
+         if (ga_nodeid().eq.0) then
+           write(LuOut,*)'cosmo_input: read unknown keyword: ',field
+           call util_flush(LuOut)
+         endif
+         call errquit('cosmo_input: unknown keyword',911,INPUT_ERR)
       endif
 c
       go to 10
