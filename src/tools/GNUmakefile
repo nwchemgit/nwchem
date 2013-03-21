@@ -185,6 +185,25 @@ else
 endif
 endif # GEMINI
 
+ifeq ($(ARMCI_NETWORK),DMAPP)
+    DMAPP_COMBINED =
+ifneq ($(DMAPP_INCLUDE),)
+        DMAPP_COMBINED += $(DMAPP_INCLUDE)
+endif
+ifneq ($(DMAPP_LIB),)
+        DMAPP_COMBINED += $(DMAPP_LIB)
+endif
+ifneq ($(DMAPP_LIB_NAME),)
+        DMAPP_COMBINED += $(DMAPP_LIB_NAME)
+endif
+DMAPP_COMBINED := $(strip $(DMAPP_COMBINED))
+ifeq ($(DMAPP_COMBINED),)
+    MAYBE_ARMCI = --with-dmapp
+else
+    MAYBE_ARMCI = --with-dmapp="$(DMAPP_COMBINED)"
+endif
+endif # DMAPP used for Gemini and Aries Cray Networks
+
 ifeq ($(ARMCI_NETWORK),PORTALS)
     PORTALS_COMBINED =
 ifneq ($(PORTALS_INCLUDE),)
@@ -296,6 +315,11 @@ endif # MPI-SPAWN
 ifeq ($(ARMCI_NETWORK),MPI-MT) 
     MAYBE_ARMCI = --with-mpi-mt
 endif # MPI-MT
+
+# ARMCI over MPI-1 with progress rank
+ifeq ($(ARMCI_NETWORK),MPI-PR) 
+    MAYBE_ARMCI = --with-mpi-pr
+endif # MPI-PR
 
 # ARMCI over MPI without data server
 #ifeq ($(ARMCI_NETWORK),$(findstring $(ARMCI_NETWORK),MPI_TS MPI-TS))
@@ -453,7 +477,8 @@ else
     ifdef EXP_GA
         GA_DIR = ga-exp1
     else
-        GA_DIR = ga-5-1-1
+#        GA_DIR = ga-5-1-1
+        GA_DIR = ga-5-2
     endif
 endif
 BUILDDIR = build
