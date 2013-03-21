@@ -42,7 +42,7 @@ c
      +'T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Wind
      +us,'/
       data chr03/
-     +'J. Hammond, J. Autschbach, K. Bhaskaran Nair, J. Brabec, F. Aquin
+     +'J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, F. Aquin
      +o,'/
       data chr04/
      +'S. Hirata, M. T. Hackler, K. Lopata, J. Mullin, P. Nichols, R. Pe
