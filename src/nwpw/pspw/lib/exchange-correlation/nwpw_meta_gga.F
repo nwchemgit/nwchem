@@ -218,7 +218,7 @@
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+            !call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
@@ -235,7 +235,7 @@
             call Pack_c_SMul1(1,(scal1),dcpl_mb(dpsi(1)))
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
-c            call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
+            call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
 
          end do
       end do
@@ -313,7 +313,7 @@ c            call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
      >                          dcpl_mb(dpsi(1)))
 
 *           **** compute dpsi(r,1:3) ****
-            call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
+            !call Pack_c_SMul1(1,scal2,dcpl_mb(dpsi(1)))
             call Pack_c_unpack(1,dcpl_mb(dpsi(1)))
             call D3dB_cr_fft3b(1,dcpl_mb(dpsi(1)))
 
