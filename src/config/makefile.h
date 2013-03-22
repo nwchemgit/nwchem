@@ -245,7 +245,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 ifdef OLD_GA
        CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
 else
-       CORE_LIBS = -lnwcutil -lga -lpeigs -lperfm -lcons -lbq -lnwcutil
+       CORE_LIBS = -lnwcutil -lga -larmci -lpeigs -lperfm -lcons -lbq -lnwcutil
 endif
 
     ifdef USE_INTEGER4
@@ -2069,7 +2069,7 @@ ifdef OLD_GA
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
 else
         CORE_LIBS = -lnwcutil \
-                    -L$(GA_LIBDIR) -lga -lpeigs \
+                    -L$(GA_LIBDIR) -lga -larmci -lpeigs \
                     -L/usr/lang/mpi2/lib32 -lmpi -lmp
 endif
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
@@ -2124,7 +2124,7 @@ ifdef OLD_GA
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib64 -lmpi -lmp
 else
         CORE_LIBS = -lnwcutil \
-                    -L$(GA_LIBDIR) -lga -lpeigs \
+                    -L$(GA_LIBDIR) -lga -larmci -lpeigs \
                     -L/usr/lang/mpi2/lib64 -lmpi -lmp
 endif
        EXTRA_LIBS = -llapack -lblas -lsocket -Wl,-J,-P,-t,-dy
