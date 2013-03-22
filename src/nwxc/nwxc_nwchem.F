@@ -16,6 +16,8 @@ C> - storing the functional on the RTDB
 C>
 C> - retrieving the functional from the RTDB
 C>
+C> - deleting the functional from the RTDB
+C>
 C> This file contains these integration routines.
 C>
 C> @}
@@ -307,6 +309,7 @@ c
       integer lenname        !< Length of the functional name
       logical status         !< Status of the store operation
 c
+      call nwxc_init()
       lenname = inp_strlen(name)
       status = .true.
       rtdb_key = "dft:xc:"//name(1:lenname)//":nwxc_num_f"
@@ -389,14 +392,25 @@ c
 c
       return
       end
-
+C>
+C> \brief Delete the density functional from the RTDB
+C>
+C> Delete the current settings of the density functional stored with
+C> a particular name from the RTDB. We integrate the variable names
+C> in the RTDB keys to eliminate any source of ambiguity for what
+C> the data elements are. If the functional could not be deleted 
+C> the routine returns .false.. This allows one to attempt to
+C> remove a functional even if no functional was previously defined.
+C> Such behavior is OK depending on the coding conventions in the
+C> host code.
+C>
+C> \return Return .true. if the functional was successfully
+C> deleted, and .false. otherwise.
+C> 
       logical function nwxc_rtdb_delete(rtdb,name)
       implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
-#include "nwxcP.fh"
       integer rtdb       !< [Input] The RTDB handle
       character*(*) name !< [Input] The name under which the functional
                          !< is stored
@@ -416,7 +430,6 @@ c
       nwxc_rtdb_delete = status
       return
       end
-
 C> @}
 C
 C> \ingroup nwxc_priv
