@@ -628,11 +628,18 @@ c       call inp_prev_field()
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
+     +            rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+          value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,
+     +                     nwxc_wght_hfx())
+          value = value .and.
+     +            rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,
      +                     nwxc_wght_hfx())
         else
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+          value = value .and.
+     +            rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
         endif
         if (nwxc_has_cam()) then
           call nwxc_get_cam(a,b,c,hfsr)
@@ -644,12 +651,19 @@ c       call inp_prev_field()
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,flag)
           value = value .and.
+     +            rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,flag)
+          value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX_solver_type',mt_int,1,1)
+          value = value .and.
+     +            rtdb_put(rtdb,'band:HFX_solver_type',mt_int,1,1)
           value = value .and. 
      +            rtdb_put(rtdb,'nwpw:attenuation',mt_dbl,1,c)
         endif
         goto 10
       endif
+
+      value = nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
+
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
      >   .and.rtdb_cput(rtdb,'band:exchange_correlation',
@@ -661,12 +675,15 @@ c       call inp_prev_field()
 
       value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
       value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+      value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
       value = value.and.
      >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
       value = value.and.
      >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
       value = value.and.
      >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,1.0d0)
 
       if ((inp_compare(.false.,exchange_correlation,'lda-sic')).or.
      >    (inp_compare(.false.,exchange_correlation,'pbe96-sic'))) then
