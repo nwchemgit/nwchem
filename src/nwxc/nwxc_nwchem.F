@@ -389,6 +389,34 @@ c
 c
       return
       end
+
+      logical function nwxc_rtdb_delete(rtdb,name)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "nwxcP.fh"
+      integer rtdb       !< [Input] The RTDB handle
+      character*(*) name !< [Input] The name under which the functional
+                         !< is stored
+
+c
+      character*256 rtdb_key !< Key to access data on the RTDB
+      integer lenname        !< Length of the functional name
+      logical status         !< Status of the store operation
+c
+      lenname = inp_strlen(name)
+      status = .true.
+      rtdb_key = "dft:xc:"//name(1:lenname)//":nwxc_num_f"
+      status=status.and.rtdb_delete(rtdb,rtdb_key)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_num"
+      status=status.and.rtdb_delete(rtdb,rtdb_key)
+
+      nwxc_rtdb_delete = status
+      return
+      end
+
 C> @}
 C
 C> \ingroup nwxc_priv

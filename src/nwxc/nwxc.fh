@@ -28,6 +28,7 @@ C>
 C>
       logical nwxc_rtdb_load  !< Load the functional from the RTDB
       logical nwxc_rtdb_store !< Store the functional on the RTDB
+      logical nwxc_rtdb_delete !< delete the functional on the RTDB
 C>
       logical nwxc_set_rho_tolerance !< Set the density tolerance
 C>
