@@ -87,6 +87,13 @@ while [ $# -ge 1 ] ; do
   esac
 done
 #
+# If all we need to do is to print the usage information, do it now and be done.
+#
+if [ "$task" == "help" ] ; then
+  usage
+  exit 0
+fi
+#
 # Now we need to do something about the Doxygen configuration with respect to
 # the locations of the include files. We cannot point to the common include
 # directory as Doxygen will also find the include files in the source code
@@ -109,10 +116,7 @@ echo "adding the include files paths:"
 cat doxyb$$.tmp
 rm -f doxya$$.tmp doxyb$$.tmp
 #
-if [ "$task" == "help" ] ; then
-  usage
-  exit 0
-elif [ "$task" == "graph" ] ; then
+if [ "$task" == "graph" ] ; then
   date
   grep -v "INCLUDE_PATH           =" "$path/doxygen.rc" > "$path/doxygen$$.rc"
   echo "INCLUDE_PATH           =" $includedirs >> "$path/doxygen$$.rc"
