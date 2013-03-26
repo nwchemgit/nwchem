@@ -83,6 +83,8 @@ c
       double precision eone, etwo, enrep, energy
       double precision dft_time
 c
+      logical largenode
+c
       logical lxps
 c
       nexc = 1
@@ -170,8 +172,6 @@ c     Do XPS calculation
         return
       endif ! lxps
 c
-
-
       iter = 0
       Etold = 0.D0
 c
@@ -183,6 +183,14 @@ c     == ZORA options ==
       do_zora = .false.
       if (rtdb_get(rtdb,'zora:on',mt_log,1,do_zora)) 
      &     do_zora = .true.
+c
+c     turn off grid nodisk with zora
+      if (.not.rtdb_get(rtdb,'dft:largenode', mt_log, 1, largenode))
+     &     largenode=.false.
+      if (do_zora.and.largenode) then
+        if(.not.rtdb_put(rtdb,'dft:largenode',mt_log,1,.false.))
+     &    call errquit('grid_inp: rtdb_put failed', 1660, RTDB_ERR)
+      end if ! do_zora and largenode
 c
 c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
