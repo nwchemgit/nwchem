@@ -62,6 +62,10 @@ c$$$     $     "failed to read nsnapshots from rtdb", 0, RTDB_ERR)
      $     mt_log, 1, params%prof)) call errquit (pname//
      $     "failed to read prof from rtdb", 0, RTDB_ERR)
 
+      if (.not.rtdb_get(params%rtdb, "rt_tddft:matrix_checks",
+     $     mt_log, 1, params%matrix_checks)) call errquit (pname//
+     $     "failed to read matrix_checks from rtdb", 0, RTDB_ERR)
+
       if (.not.rtdb_get(params%rtdb, "rt_tddft:nodisk",
      $     mt_log, 1, params%nodisk)) call errquit (pname//
      $     "failed to read nodisk from rtdb", 0, RTDB_ERR)

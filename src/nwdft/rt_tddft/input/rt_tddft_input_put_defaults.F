@@ -33,6 +33,7 @@ C      integer, parameter          :: nsnapshots = 0
       integer, parameter          :: checklvl = 1   ! default to base checks only
 
       logical, parameter          :: prof = .false.
+      logical, parameter          :: matrix_checks = .false.
       logical, parameter          :: noprop = .false.
       logical, parameter          :: static = .false.
       logical, parameter          :: dplot_do = .false. ! do postproc
@@ -169,6 +170,10 @@ C
 C     Misc flags
 C      
       if (.not.rtdb_put(rtdb,'rt_tddft:prof',mt_log,1,prof))
+     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
+
+      if (.not.rtdb_put(rtdb,'rt_tddft:matrix_checks',
+     $     mt_log,1,matrix_checks))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 
       if (.not.rtdb_put(rtdb,'rt_tddft:noprop',mt_log,1,noprop))

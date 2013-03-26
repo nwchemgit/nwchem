@@ -31,6 +31,52 @@ C     == Outputs ==
 C     == Parameters ==
       character(*), parameter  :: pname = "zfock_os_core_scalarzora: "
 
+
+      if (.not. do_zora)
+     $     call errquit (pname//"called without ZORA active",0,0)
+
+      call rt_tddft_os_confirm (params)
+
+
+C     
+C     Only adds the scalar part; the spin-orbit part is added in the SO
+C     code separately.
+C
+      call ga_zero (g_fcore(1))
+      call ga_zero (g_fcore(2))
+      call ga_add(1d0, g_fcore(1), 1d0, params%g_zora_sf(1), g_fcore(1))
+      call ga_add(1d0, g_fcore(2), 1d0, params%g_zora_sf(2), g_fcore(2))
+
+      end subroutine
+
+
+#if 0
+      subroutine zfock_os_core_scalarzora (params, g_densre, g_fcore)
+      implicit none
+
+#include "rtdb.fh"
+#include "bas.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "cdft.fh"
+#include "global.fh"
+#include "zora.fh"
+#include "rt_tddft.fh"
+
+      
+C     == Inputs ==
+      type(rt_params_t), intent(in) :: params
+      integer, intent(in)           :: g_densre(2)
+
+      
+C     == Outputs ==
+      integer, intent(in)           :: g_fcore(2) 
+
+      
+C     == Parameters ==
+      character(*), parameter  :: pname = "zfock_os_core_scalarzora: "
+
       
 C     == Variables ==
       double precision elapsed
@@ -112,3 +158,4 @@ C     2 for ipol = 2
      $     call prof_end (elapsed, "Fock CS core scalar ZORA")
       
       end subroutine
+#endif

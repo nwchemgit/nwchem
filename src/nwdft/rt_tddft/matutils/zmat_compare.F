@@ -32,6 +32,11 @@ C     == Variables ==
       if (.not. dmat_io_dump (g_im, fname))
      $     call errquit(pname//"dump of g_im failed: "//trim(fname),0,0)
 
+      if (ga_nodeid().eq.0) then
+         write (luout, *) pname//'saved complex matrix to "'
+     $        //trim(fname)//'"'
+      endif
+      
       end subroutine 
 
 
@@ -78,6 +83,10 @@ C     == Variables ==
       if (.not. ga_destroy (g_zero))
      $     call errquit (pname//"destroy failed", 0, 0)
 
+      if (ga_nodeid().eq.0) then
+         write (luout, *) pname//'saved real matrix to "'
+     $        //trim(fname)//'"'
+      endif
 
       end subroutine 
 

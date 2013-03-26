@@ -240,22 +240,23 @@ C
 C
 C     Check that this Fock matrix is consistent with SCF Fock matrix.
 C
-C     (disabled for now; uncomment in dft_scf.F
-c$$$      call zmat_compare_and_print (params%ns_ao, g_zfock_ao(1),
-c$$$     $     "fock_alpha_gs", params%tol_zero,
-c$$$     $     "GS and RT-TDDFT alpha Fock matrices")
-c$$$
-c$$$      call zmat_compare_and_print (params%ns_ao, g_zfock_ao(2),
-c$$$     $     "fock_beta_gs", params%tol_zero,
-c$$$     $     "GS and RT-TDDFT beta Fock matrices")
-c$$$
-c$$$      call zmat_compare_and_print (params%ns_ao, g_zdens_ao(1),
-c$$$     $     "dens_alpha_gs", params%tol_zero,
-c$$$     $     "GS and RT-TDDFT alpha density matrices")
-c$$$
-c$$$      call zmat_compare_and_print (params%ns_ao, g_zdens_ao(2),
-c$$$     $     "dens_beta_gs", params%tol_zero,
-c$$$     $     "GS and RT-TDDFT beta density matrices")
+      if (params%matrix_checks) then
+         call zmat_compare_and_print (params%ns_ao, g_zfock_ao(1),
+     $        "fock_alpha_gs", params%tol_zero,
+     $        "GS and RT-TDDFT alpha Fock matrices")
+         
+         call zmat_compare_and_print (params%ns_ao, g_zfock_ao(2),
+     $        "fock_beta_gs", params%tol_zero,
+     $        "GS and RT-TDDFT beta Fock matrices")
+         
+         call zmat_compare_and_print (params%ns_ao, g_zdens_ao(1),
+     $        "dens_alpha_gs", params%tol_zero,
+     $        "GS and RT-TDDFT alpha density matrices")
+         
+         call zmat_compare_and_print (params%ns_ao, g_zdens_ao(2),
+     $        "dens_beta_gs", params%tol_zero,
+     $        "GS and RT-TDDFT beta density matrices")
+      endif
 
 
 C

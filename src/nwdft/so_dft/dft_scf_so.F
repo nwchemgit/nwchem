@@ -2437,6 +2437,27 @@ c
       if (.not.ma_pop_stack(lcntoce))
      &   call errquit('dft_scf: cannot pop stack:lcntoce',0, MA_ERR)
 c
+#if 0
+C---------------------------------------------------------------------------
+C     KAL
+C
+C     Dump matrices to file for later comparison.  Used in the real-time
+C     TDDFT code (with "matrix_checks" option) for checking purposes.
+C
+C     NOTE: place just before destroying g_focks in dft_scf.F
+C     
+      call zmat_compare_dump (g_fockso(1), g_fockso(2), "fock_so_gs")
+      call zmat_compare_dump (g_densso(1), g_densso(2), "dens_so_gs")
+
+      if (do_zora) then
+         call zmat_compare_dump(g_zora_sf(1), g_zora_sf(2),"zora_sf_gs")
+         call zmat_compare_dump(g_zora_so(1), g_zora_so(2),"zora_so_gs")
+      endif
+C
+C     KAL
+C---------------------------------------------------------------------------
+#endif      
+
       if(.not.ga_destroy(g_moso(1)))     
      &     call errquit('dft_scf_so: error destroy Movecs Re',0, GA_ERR)
       if(.not.ga_destroy(g_moso(2)))     

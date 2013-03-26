@@ -30,7 +30,7 @@ C     == Varibles ==
 
       double precision tmin, tmax, dt
       
-      logical prof, noprop, static, nodisk
+      logical prof, noprop, static, nodisk, matrix_checks
 C      logical dplot_do, subgs
 C      character*20 dplot_opts
       integer nchecks, nprints, nrestarts
@@ -377,6 +377,17 @@ C
             prof=.true.
 
             if (.not.rtdb_put(rtdb,'rt_tddft:prof',mt_log,1,prof))
+     $           call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
+
+
+C
+C     profiling
+C
+         elseif (inp_compare(.false.,test,'matrix_checks')) then
+            matrix_checks=.true.
+
+            if (.not.rtdb_put(rtdb,'rt_tddft:matrix_checks',
+     $           mt_log,1,matrix_checks))
      $           call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 
 

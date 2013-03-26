@@ -179,6 +179,7 @@ C     (handle for AO basis)
 
 C     (profiling and checking)
          logical          :: prof
+         logical          :: matrix_checks !read and compare vs ground state matrices via zmat_compare()
          integer          :: checklvl    !1=base checks, 2=extra, 3=pedantic
 
          
