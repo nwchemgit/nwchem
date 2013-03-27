@@ -1,3 +1,11 @@
+C>
+C> \brief Evaluate the basis functions and their derivatives on a grid
+C>
+C> This routine calculates the values of contracted Gaussians on a grid. 
+C> Upon request the subroutine can evaluate up to 3rd order derivatives
+C> in addition to the basis function values. In addition the basis 
+C> functions may be Cartesian or spherical harmonic basis functions.
+C>
       subroutine xc_eval_basis(basis_hand, maxder, chi, d1chi, d2chi,
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
@@ -15,21 +23,39 @@ c
 c!!! Will we still need this?
 #include "bas.fh"
 c
-      integer basis_hand        ! [input] basis set handle
-      integer maxder            ! [input] max derivative order to compute
-      integer nq                ! [input] number of quadrature points
-      integer natoms            ! [input] number of atoms
-      double precision chi(nq,*) ! [output] basis function values
-      double precision d1chi(nq,3,*) ! [output] basis function 1st derivs
-      double precision d2chi(nq,6,*) ! [output] basis function 2nd derivs
-      double precision d3chi(nq,10,*) ! [output] basis function 3rd derivs
-      double precision rq(nq,natoms) ! [input] squared pt-ctr distances
-      double precision qxyz(3,nq) ! [input] grid point coordinates
-      double precision ccoord(3,natoms) ! [input] nuclear coordinates
-      integer iniz(*)           ! [input] ***???
-      logical docset(*)         ! [input] whether cset set is significant
-      integer bas_cent_info(3,natoms) ! [input] ***???
-      integer bas_cset_info(6,*) ! [input] ***???
+      integer basis_hand        !< [Input] basis set handle
+      integer maxder            !< [Input] max derivative order to compute
+      integer nq                !< [Input] number of quadrature points
+      integer natoms            !< [Input] number of atoms
+      double precision chi(nq,*) !< [output] basis function values
+      double precision d1chi(nq,3,*) !< [output] basis function 1st derivs
+      double precision d2chi(nq,6,*) !< [output] basis function 2nd derivs
+      double precision d3chi(nq,10,*) !< [output] basis function 3rd derivs
+      double precision rq(nq,natoms) !< [Input] squared pt-ctr distances
+      double precision qxyz(3,nq) !< [Input] grid point coordinates
+      double precision ccoord(3,natoms) !< [Input] nuclear coordinates
+      integer iniz(*)           !< [Input] iniz(i).eq.0 means the basis 
+                                !< functions on atom \f$i\f$ are not evaluated,
+                                !< only used in derivatives where atoms
+                                !< positions may be frozen
+      logical docset(*)         !< [Input] whether cset set is significant
+      integer bas_cent_info(3,natoms) !< [Input] Basis set info for each
+                                      !< center
+                                      !< - 1. The maximum angular momentum
+                                      !< - 2. The lowest rank shell on the
+                                      !<   atom
+                                      !< - 3. The highest rank shell on the
+                                      !<   atom
+      integer bas_cset_info(6,*) !< [Input] Basis set info for each shell
+                                 !< - 1. The lowest rank basis function in the
+                                 !<   shell
+                                 !< - 2. The highest rank basis function in the
+                                 !<   shell
+                                 !< - 3. The angular momentum of the shell
+                                 !< - 4. The number of primitives in the shell
+                                 !< - 5. The number of contractions in the shell
+                                 !< - 6. Whether the shell is Cartesian or
+                                 !<   spherical harmonic
 c
       external nang_cart, nang_cart_tot
       integer nang_cart, nang_cart_tot
@@ -319,15 +345,58 @@ c
       return
       end
 c
+C> \brief Evaluate the radial factor of a contracted Gaussian
+C>
+C> This routine evaluates the radial factor of a contracted Gaussian
+C> basis function given the square of the atom-grid point distances.
+C> In addition the derivatives of the basis function are calculated
+C> also. All derivatives from 0-th order up to and including 3-rd
+C> order can be calculated.
+C>
+C> To calculate the derivatives this routine uses the fact that
+C> the derivative of a Gaussian function is again a Gaussian function,
+C> i.e.
+C> \f{eqnarray*}{
+C>   f(r) &=& \sum_i c_i e^{-\alpha_i r^2} \\\\
+C>   \frac{\partial f(r)}{\partial r} &=& 
+C>       \sum_i -2\alpha_i c_i r e^{-\alpha_i r^2} \\\\
+C>   \frac{\partial^2 f(r)}{\partial r^2} 
+C>       &=& \sum_i \left\{ -2\alpha_i c_i e^{-\alpha_i r^2}+
+C>                  (2\alpha_i r)^2 c_i e^{-\alpha_i r^2}\right\} \\\\
+C>   &\ldots&
+C> \f}
+C> where \f$\alpha_i\f$ are the exponents and \f$c_i\f$ are the 
+C> contraction coefficients.
+C> This routine however does not evaluate the complete derivatives but
+C> only the basic terms, i.e.
+C> \f{eqnarray*}{
+C>   \left[\frac{\partial^n f(r)}{\partial r^n}\right]_{\mathrm{basic}}
+C>   &=& \sum_i (-2\alpha_i)^n c_i e^{-\alpha_i r^2}
+C> \f}
+C> These quantities are to be combined with the angular quantities 
+C> elsewhere to construct the correct total derivatives.
+C>
       subroutine eval_radial(crad, r2, nq, maxd, zprim, ccoef,
      *     nprimo, ncontr)
       implicit none
 #include "errquit.fh"
-      integer nq, maxd, nprimo, ncontr
-      integer nd
-      double precision crad(0:maxd,nq), r2(nq),
-     *     zprim(nprimo), ccoef(nprimo,ncontr)
+      integer nq     !< [Input] The number of grid points
+      integer maxd   !< [Input] The maximum order of derivative
+      integer nprimo !< [Input] The number of primitives
+      integer ncontr !< [Input] The number of contractions
 c
+      double precision r2(nq) !< [Input] The square of the distance
+                              !< between the atom and the grid points
+      double precision zprim(nprimo) !< [Input] The exponents
+      double precision ccoef(nprimo,ncontr) !< [Input] The contraction
+                                            !< coefficients
+c
+      double precision crad(0:maxd,nq) !< [Output] The radial function
+                                       !< and its derivatives, where
+                                       !< the derivatives run fastest,
+                                       !< and the grid points slowest
+c
+      integer nd
       integer n, iprimo
       double precision zeta, t(0:3), tmp
 #ifdef CHKUNDFLW
@@ -349,7 +418,7 @@ c
       zeta = -zprim(1)
       t(0) = ccoef(1,1)
       do n = 1, maxd
-         t(n) = zeta*t(n-1)*2d0
+         t(n) = zeta*t(n-1)*2.0d0
       enddo
 #ifdef CHKUNDFLW
       if(rmax*zeta.lt.undovl) then
@@ -393,6 +462,25 @@ c
       return
       end
 c
+C> \brief Evaluate the angular factor of a contracted Gaussian
+C>
+C> This routine evaluates the angular factor of a contracted Gaussian
+C> basis function. If desired it will also calculate up-to 3-rd order
+C> derivatives of the angular function.
+C>
+C> To evaluate the angular components the subroutine is given the
+C> coordinates of the atom on which the basis functions are centered
+C> as well as the coordinates of the grid points. The angular momentum
+C> functions can be evaluated as spherical harmonics or Cartesian 
+C> functions.
+C>
+C> Examples:
+C> - S-functions: Angular factor is 1, all derivatives are 0.
+C> - P-functions: Angular factors are \f$x\f$, \f$y\f$, and \f$z\f$,
+C>   the derivatives for \f$x\f$ are 1, 0, and 0, for \f$y\f$ they are
+C>   0, 1, and 0, and for \f$z\f$ they are 0, 0, and 1, the 2nd 
+C>   derivatives and higher are all 0.
+C>
       subroutine eval_angular(ang, d1ang, d2ang, d3ang, q, ctr, nq,
      &     l2k, maxl, maxder, gen_l, spherical)
       implicit none
@@ -400,11 +488,40 @@ c
 c
 #include "mafdecls.fh"
 c
-      integer nq, maxl, maxder, l2k(0:maxl,0:maxl,0:maxl), gen_l
-      double precision ang(nq,*), d1ang(nq,dx:dz,*),
-     &     d2ang(nq,dxx:dzz,*), d3ang(nq,dxxx:dzzz,*),
-     &     q(3,nq), ctr(3), cd(2), cf(7)
-      logical spherical
+      integer nq        !< [Input] The number of grid points
+      integer maxl      !< [Input] The maximum angular momentum in basis
+                        !< functions
+      integer maxder    !< [Input] The maximum order of derivative
+      integer gen_l     !< [Input] The momentum above which the angular
+                        !< momentum part should be evaluated with the
+                        !< general expression
+      logical spherical !< [Input] If .true. the angular momentum 
+                        !< functions will be evaluated in spherical
+                        !< harmonics, otherwise Cartesian functions 
+                        !< are evaluated
+c
+      double precision q(3,nq) !< [Input] The grid point coordinates
+      double precision ctr(3)  !< [Input] The atom coordinates
+c
+      integer l2k(0:maxl,0:maxl,0:maxl) !< [Output] Maps the power of
+                                        !< x, y, and z to the rank of
+                                        !< a particular basis function
+      double precision ang(nq,*)             !< [Output] The angular
+                                             !< momentum functions
+      double precision d1ang(nq,dx:dz,*)     !< [Output] The 1st
+                                             !< derivative of the
+                                             !< angular momentum
+                                             !< functions
+      double precision d2ang(nq,dxx:dzz,*)   !< [Output] The 2nd
+                                             !< derivative of the
+                                             !< angular momentum
+                                             !< functions
+      double precision d3ang(nq,dxxx:dzzz,*) !< [Output] The 3rd
+                                             !< derivative of the
+                                             !< angular momentum
+                                             !< functions
+c
+      double precision cd(2), cf(7)
 c
       integer n, l, nl, nl1, i1s, i1, ix, iy, i, nx, nxy, lx, ly, lz,
      &     k, k1(dx:dz), k2(dxx:dzz), k3(dxxx:dzzz), iscr, lscr, nscr
@@ -797,8 +914,17 @@ c
       subroutine eval_der_radial(drad, rad, ang, nq, maxd, maxcomp)
       implicit none
 #include "errquit.fh"
-      integer nq, maxd, maxcomp
-      double precision drad(maxcomp,nq), rad(0:maxd,nq), ang(nq,*)
+      integer nq      !< [Input] The number of grid points
+      integer maxd    !< [Input] The maximum order of derivative
+      integer maxcomp !< [Input] The leading dimension of `drad`
+c
+      double precision rad(0:maxd,nq) !< [Input] The radial derivatives
+      double precision ang(nq,*)      !< [Input] The angular momentum
+                                      !< functions
+c
+      double precision drad(maxcomp,nq) !< [Output] The radial
+                                        !< derivatives times the angular
+                                        !< momentum functions
 c
       integer n
       double precision r1, r2, r3, x, y, z
@@ -889,9 +1015,9 @@ c
 c     Special case: s functions - just copy
 
          if (max_der_component .eq. dzero) then
-            call dcopy(nq, drad, 1, chi, 1)
+           call dcopy(nq, drad, 1, chi, 1)
          elseif (max_der_component .eq. dz) then
-            call dcopy(nq, drad, max_der_component, chi, 1)
+           call dcopy(nq, drad, max_der_component, chi, 1)
            call dcopy(
      .           nq,drad(dx,1),max_der_component,d1chi(1,dx,1),1)
            call dcopy(

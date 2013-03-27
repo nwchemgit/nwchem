@@ -483,6 +483,11 @@ c     Precompute relevant basis info for XC
 c
 c     BGJ - 9/00
 c
+C> \brief Precompute basis info for XC
+C>
+C> Precompute information on the particular basis set in hand.
+C> The tables generated are used in the basis function evaluation.
+C>
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
@@ -491,10 +496,26 @@ c
       implicit none
 #include "errquit.fh"
 c      
-      integer basis_hand        ! [input]
-      integer mcenters          ! [input]
-      integer bas_cent_info(3,mcenters) ! [output]
-      integer bas_cset_info(6,*) ! [output]
+      integer basis_hand        !< [Input] The basis set handle
+      integer mcenters          !< [Input] The number of centers with basis
+                                !< functions
+      integer bas_cent_info(3,mcenters) !< [Output] Basis set info for each
+                                        !< center
+                                        !< - 1. The maximum angular momentum
+                                        !< - 2. The lowest rank shell on the
+                                        !<   atom
+                                        !< - 3. The highest rank shell on the
+                                        !<   atom
+      integer bas_cset_info(6,*) !< [Output] Basis set info for each shell
+                                 !< - 1. The lowest rank basis function in the
+                                 !<   shell
+                                 !< - 2. The highest rank basis function in the
+                                 !<   shell
+                                 !< - 3. The angular momentum of the shell
+                                 !< - 4. The number of primitives in the shell
+                                 !< - 5. The number of contractions in the shell
+                                 !< - 6. Whether the shell is Cartesian or
+                                 !<   spherical harmonic
 c
 #include "bas.fh"
 c
