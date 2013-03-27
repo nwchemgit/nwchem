@@ -110,6 +110,8 @@ c     == Do quasi-Newton-Raphson DFT ==
       call dft_cg_guess(rtdb)
       dft_time = -util_cpusec()
       grid_written=grid_reopen(geom)
+c     grid is not there yet
+      grid_written=.false.
       if (dft_cscf_equals_scftype("UHF")) then
         call uhf_init(rtdb)
         lsuccess = dft_uks_nr_solve(rtdb, energy, eone, etwo, exc,

@@ -927,11 +927,13 @@ c
       oreopen=.true.
 c     extract eaf_size_in_dbl from eaftype
       eaf_size_in_dbl=(eaftype-1000000)
-cfix for atom case (enuc=0!!)
+#if 0
+cfix for atom case (enuc=0!!) and cg
       if(enuc.le.1d-6) then
          grid_reopen=.false.
          return
       endif
+#endif
       grid_reopen=
      .     grid_file_open(enuc,
      .     gridfilename, memsize, filesize, eaf_size_in_dbl)
