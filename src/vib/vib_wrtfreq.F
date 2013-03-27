@@ -231,9 +231,12 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
           if (freq.gt.(0.1d0)) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
             xdum   = thetav/temp
+c  fix to take avoid abnormal values
+            if(xdum.lt.20d0*2.3025d0) then
             Cv_vib = Cv_vib + exp(xdum)* (xdum/(exp(xdum)-1.0d0))**2 
             Svib   = Svib + xdum/(exp(xdum)-1.0d0)   
      >             - log(1.0d0-exp(-xdum))
+            endif
           end if
         end do
         end if
