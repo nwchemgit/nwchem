@@ -1,0 +1,33 @@
+start tce_ccsd2_t_cl2o
+
+echo
+
+geometry units angstrom
+Cl  0.0000000000        0.0000000000        0.0000000000
+O   0.0000000000        1.5000000000        0.0000000000
+Cl  0.0000000000       -0.9219169030       -2.0513581410
+end
+
+basis 
+ * library cc-pvdz
+end
+
+scf
+ thresh 1.0e-10
+ tol2e 1.0e-10
+ singlet
+ rhf
+end
+
+
+tce
+ freeze atomic
+ 2eorb
+ 2emet 13
+ ccsd(2)_t
+ tilesize 15
+ attilesize 40
+end 
+
+task tce energy
+
