@@ -95,12 +95,17 @@ c
             call y2_restart_save(d_lambda2,k_l2_offset,size_l2,0,
      1                           handle_l2,irrep_y)
           endif
+          if((perturbative.eq.'lambda(t)').or.
+     1      (perturbative.eq.'lambda[t]').or.
+     2      (perturbative.eq.'2_t').or.
+     3      (perturbative.eq.'2_tq')) go to 4511
           call ccsd_dipole(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
      1         d_lambda1,d_lambda2,
      2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      3         k_t1_offset,k_t2_offset,
      4         k_l1_offset,k_l2_offset,
      5         size_l1,size_l2,dipole_scf,dipole_cor)
+ 4511     continue 
           return
         endif
       if (save_l(1).and.(mod(iter,save_interval).eq.0)) then
