@@ -325,19 +325,11 @@ endif # MPI-PR
 #ifeq ($(ARMCI_NETWORK),$(findstring $(ARMCI_NETWORK),MPI_TS MPI-TS))
 # my mac barf's on this for some reason...removing findstring...EJB
 ifeq ($(ARMCI_NETWORK),MPI_TS) 
-    ifneq ($(EXP_GA),)
         MAYBE_ARMCI = --with-mpi-ts
-    else
-        MAYBE_ARMCI = --with-mpi-mt
-    endif
 endif # MPI_TS
 
 ifeq ($(ARMCI_NETWORK),MPI-TS) 
-    ifneq ($(EXP_GA),)
         MAYBE_ARMCI = --with-mpi-ts
-    else
-        MAYBE_ARMCI = --with-mpi-mt
-    endif
 endif # MPI-TS
 
 
