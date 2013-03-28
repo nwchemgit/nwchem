@@ -259,9 +259,11 @@ c
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
       endif
       do ndns = 1, ndens
-        call hess_sxsy(dbl_mb(k_exy),
-     &     dbl_mb(k_evals+(ndns-1)*nbf),g_rhs,
-     &     log_mb(k_act),ncent,nocc(ndns),(ndns-1)*n3xyz,ouhf)
+        if (nocc(ndns).gt.0) then
+           call hess_sxsy(dbl_mb(k_exy),
+     &        dbl_mb(k_evals+(ndns-1)*nbf),g_rhs,
+     &        log_mb(k_act),ncent,nocc(ndns),(ndns-1)*n3xyz,ouhf)
+        endif
       enddo
 c
 c
