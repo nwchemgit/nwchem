@@ -44,6 +44,7 @@ C     local variables
       double precision zero, one, mone, two, mtwo
       logical status,lfrac_occ
       double precision toll
+      double precision docca,doccb
 
       parameter ( mtwo = -2.D0 )
       parameter ( mone = -1.D0 )
@@ -54,15 +55,23 @@ C     local variables
 c
 C     get MO vectors from file (taken from Roberts scf_movecs_read)
 
+      docca = 0.0d0
+      doccb = 0.0d0
       g_vecs = ga_create_atom_blocked ( geom, basis, 'mo vectors' )
       if (.not. movecs_read (movecs, 1, occ, evals, g_vecs)) 
      $     call errquit('grad_dens: could not read mo vectors', 110,
      &       DISK_ERR)
+      do i = 1, nbf
+        docca = docca + occ(i)
+      enddo
       if (scftype .eq. 'UHF') then
          g_vecs2 = ga_create_atom_blocked(geom, basis, 'uhf mo vectors')
          if (.not. movecs_read(movecs, 2, occ(nbf+1), evals(nbf+1),
      $        g_vecs2)) call errquit
      $        ('grad_dens: could not read beta UHF MOs',0, DISK_ERR)
+         do i = 1, nbf
+           doccb = doccb + occ(nbf+i)
+         enddo
       end if
 c
       if (scftype .eq. 'RHF') then
@@ -247,8 +256,13 @@ c
 C        energy-weighted density
 c
 C        create eigenvalue diagonal matrix
-         nocca = nclosed + nopen ! == nalpha
-         noccb = nclosed         ! nbeta
+         if (docca.ge.doccb) then
+           nocca = nclosed + nopen ! == nalpha
+           noccb = nclosed         ! nbeta
+         else
+           nocca = nclosed         ! == nalpha
+           noccb = nclosed + nopen ! nbeta
+         endif
          if(lfrac_occ ) then
 c
 c          fractional occupation, therefore check new nocs
