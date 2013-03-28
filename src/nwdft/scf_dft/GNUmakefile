@@ -42,6 +42,7 @@
 
      LIBRARY = libnwdft.a
 ifndef OLD_GA
+ifdef USE_SCALAPACK
 ifeq ($(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk '/HAVE_ELPA/ {print "Y"}'),Y)
  LIB_DEFINES += -DUSE_ELPA
 endif
@@ -51,6 +52,7 @@ endif
 _PDSYEVR = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_PDSYEVR\ 1/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
  LIB_DEFINES += -DUSE_PDSYEVR
+endif
 endif
 endif
 
