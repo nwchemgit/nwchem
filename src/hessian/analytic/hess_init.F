@@ -185,7 +185,7 @@ c       nopen = nopen + 1
         odft = .true.
         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
      *    mult = 1
-        nopen = mult - 1
+        nopen = abs(mult) - 1
 c
 c     Get information about fitting and scale factors
 c
@@ -228,7 +228,7 @@ c     *     call errquit('hess_init: error getting nmo:', 555)
         else
           nalpha = dftnoc(1)
           nbeta  = dftnoc(2)
-          nclosed = nbeta    ! assumes that there are more alphas than betas
+          nclosed = min(nalpha,nbeta)    ! no longer assumes that there are more alphas than betas
           scftype = 'UHF'
           if (ocdfit) then
             jfac(2) = 0.0d0
