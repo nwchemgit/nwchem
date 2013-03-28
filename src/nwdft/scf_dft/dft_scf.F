@@ -787,8 +787,15 @@ c
 c      write(LuOut,*)' movecs_guess = ',movecs_guess
       if (movecs_guess.eq.'restart') then
          ltight=.true.
-         homo_lumo_gap=dbl_mb(k_eval(1)+noc(1)) -
-     -        dbl_mb(k_eval(1)+noc(1)-1)
+         if (noc(1).gt.0) then
+           homo_lumo_gap=dbl_mb(k_eval(1)+noc(1)) -
+     -                   dbl_mb(k_eval(1)+noc(1)-1)
+         endif
+         if (noc(2).gt.0) then
+           homo_lumo_gap=min(homo_lumo_gap,
+     &                   dbl_mb(k_eval(2)+noc(2)) -
+     -                   dbl_mb(k_eval(2)+noc(2)-1))
+         endif
       endif
 c     
 c     May not want levelshifting initially until sure that the
