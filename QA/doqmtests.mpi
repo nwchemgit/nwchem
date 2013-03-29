@@ -22,7 +22,7 @@ else
 endif
 #
 #---   small tests
-./runtests.mpi.unix procs $np testtask
+#./runtests.mpi.unix procs $np testtask
 ./runtests.mpi.unix procs $np h2o_opt c2h4
 ./runtests.mpi.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
 ./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne rimp2_he scf_feco5 small_intchk tagcheck testtab
@@ -47,7 +47,7 @@ echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 ./runtests.mpi.unix procs $np dft_siosi3
 ./runtests.mpi.unix procs $np dft_cr2
 ./runtests.mpi.unix procs $np dft_x
-./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq
+./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq h2o-hse
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np dielsalder
