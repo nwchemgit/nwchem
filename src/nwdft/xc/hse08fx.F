@@ -196,7 +196,7 @@ c
       d1hden  = hb1 + two*hb2*s +three*hb3*s2 + four*hb4*s3 +
      &          five*hb5*s4 + six*hb6*s5 + seven*hb7*s6 +
      &          eight*hb8*s7 + nine*hb9*s8 
-      d1H =   (hden*d1hnum -hnum*d1hden)/hden**two
+      d1H =   (d1hnum -hnum*(d1hden/hden))/hden
 
 c
 c     calculate first derivative of variables needed with respect to s
