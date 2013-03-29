@@ -2345,6 +2345,7 @@ c    >        + (n-1)*(nx+2)*ny*nq
 
       indx = 1
       do j=1,(ny*nq*ne)
+CDIR$ NOVECTOR
          do i=nx,2,-1
             B(indx+i) = A(indx+i-1)
          end do
