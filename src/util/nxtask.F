@@ -6,7 +6,7 @@ C$Id$
 #include "mafdecls.fh"
 C  This is needed so that subgroups work, GA has MPI_COMM_WORLD in it
 C  But, it does not work on all platforms
-C#define GANXTVAL 1
+#define GANXTVAL 1
       integer rtdb
 c
 c     load dlb info
