@@ -2,7 +2,7 @@
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,g_buffer2,
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
      3  symmetry,l_irs,k_irs,tda,lecut,ecut,lowin,owstart,owend,lewin,
-     4  ewinl,ewinh)
+     4  ewinl,ewinh,vshift)
 c
 c $Id$
 c
@@ -80,8 +80,10 @@ C     logical vector_exists
       logical tda_verify
       double precision r
 c
+      integer kmin,kmax
       integer necut,newin
       double precision ecut,evl_diff,ewinl,ewinh
+      integer vshift
       logical lecut, is_lower
       logical lowin, in_owin
       logical lewin, in_ewin
@@ -242,9 +244,12 @@ c ----------------------------------
 c
 c      if (ga_nodeid().eq.0) then
 c          write(6,*) "lecut: ",lecut
+c          write(6,*) "vshift: ",vshift
 c          write(6,*) "lewin: ",lewin
 c          write(6,*) "lowin: ",lowin
 c          write(6,*) "nov(1)+nov(2):",nov(1)+nov(2)
+c          write(6,*) "nmo(1): ",nmo(1)
+c          if (ipol.eq.2) write(6,*) "nmo(2): ",nmo(2)
 c      end if
 c
 c     initialise
@@ -263,8 +268,10 @@ c
       nowin = 0
       newin = 0
       do i=1,ipol
+        kmin = nocc(i)+1+vshift
+        kmax = nmo(i)-nfv(i)
         do j=nfc(i)+1,nocc(i)
-          do k=nocc(i)+1,nmo(i)-nfv(i)
+          do k=kmin,kmax
            if (lecut) then
               is_lower = (evl(j,i).le.ecut)
               if (.not. is_lower) goto 100
@@ -338,8 +345,10 @@ c
         newin=0
         found=.false.
         do i=1,ipol
+         kmin = nocc(i)+1+vshift
+         kmax = nmo(i)-nfv(i) 
          do j=nfc(i)+1,nocc(i)
-          do k=nocc(i)+1,nmo(i)-nfv(i)
+          do k=kmin,kmax
              if (lecut) then
               is_lower = (evl(j,i).le.ecut)
               if (.not. is_lower) goto 200

@@ -1,6 +1,6 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2  lowin, owstart, owend, lewin, ewinl, ewinh)
+     2  lowin, owstart, owend, lewin, ewinl, ewinh, vshift)
 c
 c $Id$
 c
@@ -35,6 +35,7 @@ c
       integer iproc            ! Processor number
       integer ilo,ihi,jlo,jhi  ! Distribution of GA data
       double precision evl(nbf_ao,2)   ! Eigenvalues
+      integer vshift
       logical lecut
       double precision ecut
       logical lewin
@@ -60,7 +61,11 @@ c
      1    call errquit('tddft_epsilon: an internal error detected',0,
      &       GA_ERR)
         do l=ilo,ihi
-          k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+          if (vshift.gt.0) then
+             k=nocc(i)+1+vshift
+          else
+             k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+          end if
           j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
           call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
           call ga_get(g_prod_s(i),l,l,ivector,ivector,p,1)

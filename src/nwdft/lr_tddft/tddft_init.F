@@ -5,7 +5,7 @@
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
-     7  lowin,owstart,owend,lewin,ewinl,ewinh)
+     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
 c
 c $Id$
 c
@@ -92,6 +92,7 @@ c
       logical nodezero
       logical dummy
       logical lecut
+      integer vshift
       double precision ecut
       logical lewin
       double precision ewinl,ewinh,etmp
@@ -278,6 +279,13 @@ c --------------------------------------------
       end if
       if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      &   diff_max = 100000.d0
+c
+c ---------------------------
+c Get reference shift: vshift
+c ---------------------------
+      vshift = 0
+      if (.not.rtdb_get(rtdb,'tddft:vshift',mt_int,1,vshift))
+     &   vshift = 0
 c
 c --------------------------------------------
 c Get the energy cutoff on the occupied states
@@ -616,6 +624,7 @@ c
           write (LuOut, 9190) owstart(2), owend(2)
         endif
         if (lecut) write (LuOut, 9195) ecut
+        if (vshift.gt.0) write (LuOut, 9061) vshift
         if (lewin) then
           write (LuOut, 9196) ewinl
           write (LuOut, 9197) ewinh
@@ -664,6 +673,7 @@ c
      1       3x,'   Symmetry adaption is : ',a3)
  9050 format(3x,' Number of AO functions :',2x,i4)
  9060 format(3x,'           No. of roots :',2x,i4)
+ 9061 format(3x,'          Virtual shift :',2x,i4)
  9070 format(3x,'       Max subspacesize :',2x,i4)
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Davidson threshold : ',d8.2)

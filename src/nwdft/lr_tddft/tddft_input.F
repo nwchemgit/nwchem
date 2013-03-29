@@ -52,6 +52,7 @@ c
       logical tda,symmetry, cdspectrum, velocity, lgiao, gmh
       double precision thresh
       double precision ecut
+      integer vshift
       logical lecut
       double precision ewinl,ewinh
       logical lewin
@@ -90,6 +91,12 @@ c
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
       if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c
+c     VSHIFT (reference virtual state)
+c
+      vshift = 0
+      if (.not.rtdb_put(rtdb,'tddft:vshift',mt_int,1,vshift))
+     &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
 c     OWIN
 c
@@ -279,6 +286,14 @@ c
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
         if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     VSHIFT (reference virtual state)
+c
+      else if (inp_compare(.false.,test,'vshift')) then
+        if (.not.inp_i(vshift)) vshift = 0
+        if (.not.rtdb_put(rtdb,'tddft:vshift',mt_int,1,vshift))
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c

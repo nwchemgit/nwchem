@@ -4,7 +4,7 @@
      3  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      5  nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
-     6  diff_max,lowin,owstart,owend,lewin,ewinl,ewinh)
+     6  diff_max,lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
 c
 c $Id$
 c
@@ -85,6 +85,7 @@ c
       integer ilo,ihi,jlo,jhi
       integer dummy,request
       double precision ecut,evl_diff
+      integer vshift
       logical lecut
       logical lowin
       logical lewin
@@ -866,7 +867,11 @@ c
             if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
      1        ('tddft_residual: an internal error detected',0, CALC_ERR)
             do l=ilo,ihi
-              k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+              if (vshift.gt.0) then
+                 k=nocc(i)+1+vshift
+              else
+                 k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+              end if
               j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
               call ga_get(g_residuals_1(i),l,l,n,n,r,1)
               evl_diff = evl(nmo(i),i)-evl(1,i) ! span the eigenvalues
@@ -970,7 +975,11 @@ c
               if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
      1          ('tddft_residual: an internal error detected',0, GA_ERR)
               do l=ilo,ihi
-                k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+                if (vshift.gt.0) then
+                   k=nocc(i)+1+vshift
+                else
+                   k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+                end if
                 j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
                 call ga_get(g_residuals_2(i),l,l,n,n,r,1)
                 evl_diff = evl(nmo(i),i)-evl(1,i) ! span the eigenvalues

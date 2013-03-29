@@ -175,6 +175,7 @@ c
       logical nodezero
       integer i,n
       integer dummy,request
+      integer vshift
       logical lecut
       double precision ecut
       double precision diff_max
@@ -244,6 +245,12 @@ c --------------------------------------------
       end if
       if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      &   diff_max = 100000.d0
+c
+c --------------------------------------------
+c Get reference virtual state
+c --------------------------------------------
+      if (.not.rtdb_get(rtdb,'tddft:vshift',mt_int,1,vshift))
+     &   vshift = 0
 c
 c --------------------------------------------
 c Get the energy window on the occupied states
@@ -467,11 +474,11 @@ c
             if (algorithm.eq.1) then
               call tddft_epsilon(n,g_trials,g_prod_p,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2          lowin,owstart,owend,lewin,ewinl,ewinh)
+     2          lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
               if (.not.tda) then
                 call tddft_epsilon(n,g_trials,g_prod_m,
      1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2            lowin,owstart,owend,lewin,ewinl,ewinh)
+     2            lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
               endif
             else
               do i=1,ipol
@@ -486,7 +493,7 @@ c
               enddo
               call tddft_epsilon(1,g_buffer1,g_buffer2,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2          lowin,owstart,owend,lewin,ewinl,ewinh)
+     2          lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
               do i=1,ipol
                 dummy=dra_write_section(.false.,
      1            g_buffer2(i),1,nov(i),1,1,
@@ -506,7 +513,7 @@ c
                 enddo
                 call tddft_epsilon(1,g_buffer1,g_buffer2,
      1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2            lowin,owstart,owend,lewin,ewinl,ewinh)
+     2            lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
                 do i=1,ipol
                   dummy=dra_write_section(.false.,
      1              g_buffer2(i),1,nov(i),1,1,
@@ -650,11 +657,11 @@ c
             if (algorithm.eq.2) then
               call tddft_epsilon(n,g_trials,g_prod_p,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2          lowin,owstart,owend,lewin,ewinl,ewinh)
+     2          lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
               if (.not.tda) then
                 call tddft_epsilon(n,g_trials,g_prod_m,
      1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2            lowin,owstart,owend,lewin,ewinl,ewinh)
+     2            lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
               endif
             else
               do i=1,ipol
@@ -669,7 +676,7 @@ c
               enddo
               call tddft_epsilon(1,g_buffer1,g_buffer2,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2          lowin,owstart,owend,lewin,ewinl,ewinh)
+     2          lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
               do i=1,ipol
                 dummy=dra_write_section(.false.,
      1            g_buffer2(i),1,nov(i),1,1,
@@ -689,7 +696,7 @@ c
                 enddo
                 call tddft_epsilon(1,g_buffer1,g_buffer2,
      1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
-     2            lowin,owstart,owend,lewin,ewinl,ewinh)
+     2            lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
                 do i=1,ipol
                   dummy=dra_write_section(.false.,
      1              g_buffer2(i),1,nov(i),1,1,
@@ -787,7 +794,7 @@ c
      4    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
      5    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
      6    evl,nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
-     7    diff_max,lowin,owstart,owend,lewin,ewinl,ewinh)
+     7    diff_max,lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
         nproducts = ntrials ! ntrials may have changed do due restart
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
