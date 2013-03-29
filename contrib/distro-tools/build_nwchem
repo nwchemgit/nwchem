@@ -1,4 +1,5 @@
 #!/bin/bash
+#export RELEASE=6.3
 function usage()
 {
    cat <<EOF
@@ -912,6 +913,18 @@ else
   exit 1
 fi
 #
+# Check whether NWCHEM_TOP is set to something sensible...
+#
+if [ ${#RELEASE} -ne 0 ] ; then
+  if [ ${#NWCHEM_TOP} -ne 0 ] ; then
+    echo "${NWCHEM_TOP}" | grep "${RELEASE}" > /dev/null
+    status=$?
+    if [ ${status} -ne 0 ] ; then
+      export NWCHEM_TOP=${NWCHEM_TOP}-${RELEASE}
+    fi
+  fi
+fi
+#
 # See if we can detect which platform we are on.
 # This is most relevant to the various BlueGene platforms as they are a complete
 # package, i.e. if you know you are on a BlueGene/P then all required settings
@@ -1068,7 +1081,7 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
       echo "Use the following command to check which modules are loaded:"
       echo "  module list"
       # There seems to be a Gemini interconnect on this Cray machine
-      export ARMCI_NETWORK="GEMINI"
+      export ARMCI_NETWORK="DMAPP"
       if [ ${#USE_MPI} -eq 0 ] ; then
         export USE_MPI=y
       fi
