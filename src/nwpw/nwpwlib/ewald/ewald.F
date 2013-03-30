@@ -154,6 +154,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       sum = 0.0d0
       do n1=(-N+1),(N-1) 
       do n2=(-N+1),(N-1) 
+CDIR$ NOVECTOR
       do n3=(-N+1),(N-1) 
          nterm=iabs(n1)+iabs(n2)+iabs(n3)
          if (nterm.ne.0) then

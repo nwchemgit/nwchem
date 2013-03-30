@@ -3887,6 +3887,7 @@ c      call Parallel2d_np_i(np)
       !do q=1,nq(nb)
       !do j=1,ny(nb)
       !do i=1,nx(nb)
+CDIR$ NOVECTOR
       do index = 1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          if (dabs(B(index)) .le. eta) then
@@ -3926,6 +3927,7 @@ c      call Parallel2d_np_i(np)
       !do q=1,nq(nb)
       !do j=1,ny(nb)
       !do i=1,nx(nb)
+CDIR$ NOVECTOR
       do index = 1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          if (dabs(A(index)) .le. eta) then
