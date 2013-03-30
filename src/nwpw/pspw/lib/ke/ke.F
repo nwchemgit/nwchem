@@ -418,6 +418,7 @@ c        write(*,*) "n,E(R)=",n,Ep,control_Ep()-50*Ep
 c        Ep =  control_Ep() - 15*Ep
         Ep =  control_Ep()
         cm = 1.0d0/Ep
+CDIR$ NOVECTOR
         do k=1,npack
           x = -dbl_mb(tg_indx+k-1)
           dm = x*cm
