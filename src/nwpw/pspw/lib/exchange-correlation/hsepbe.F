@@ -45,6 +45,8 @@ c
       double precision  r16,r32,r24,r48,r11,r64,r35
       double precision  pi,pi2,srpi,s02
       double precision  f12,f13,f32,f52,f72,f92
+      double precision  tollz,faczeta
+      parameter (tollz=1d-16)
 
 c
 c     Constants for HJS hole
@@ -178,7 +180,9 @@ c
       d1hden  = hb1 + two*hb2*s +three*hb3*s2 + four*hb4*s3 +
      &          five*hb5*s4 + six*hb6*s5 + seven*hb7*s6 +
      &          eight*hb8*s7 + nine*hb9*s8 
-      d1H =   (hden*d1hnum -hnum*d1hden)/hden**two
+cfpe
+c      d1H =   (hden*d1hnum -hnum*d1hden)/hden**two
+       d1H =   ((d1hnum -hnum*(d1hden/hden))/hden)
 
 c
 c     calculate first derivative of variables needed with respect to s
@@ -198,6 +202,10 @@ c
 c
 c     Calculate the first derivate of EGs with respect to s
 c
+      faczeta = 0d0
+      if(abs(zeta).gt.tollz) faczeta = faczeta + d1zeta/dsqrt(zeta)
+c     if(abs(eta).gt.tollz) faczeta = faczeta - d1eta/dsqrt(eta)
+      faczeta = faczeta - d1eta/dsqrt(eta)
       d1EGs = -(two/five)*C*(d1Fs*lambda + Fs*d1lambda) -
      &        (eight/r15)*B*lambda*d1lambda -
      &        (r18/five)*A*lambda*lambda*d1lambda -
@@ -205,7 +213,7 @@ c
      &        (r42/five)*(lambda**f52)*
      &        d1lambda*(dsqrt(zeta)-dsqrt(eta))-
      &        (six/five)*(lambda**(seven/two))*
-     &        (d1zeta/dsqrt(zeta)-d1eta/dsqrt(eta))
+     &        faczeta
 
 c
 c     Calculate the first derivate of denominators needed with respect

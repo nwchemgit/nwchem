@@ -96,6 +96,8 @@ cccc#include "frac_occ.fh"
       integer icount,it_in,it_out,icount_shift
       real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
+      double precision tollz
+      parameter(tollz=1d-16)
       integer mapping,mapping1d
       character*50 filename
       character*255 full_filename,full_bak
@@ -870,8 +872,10 @@ c      call xyz_write()
 
 *        **** update thermostats using SA decay ****
          if (SA) then
-           t1 = icount*it_in*dt/sa_decay(1)
-           t2 = icount*it_in*dt/sa_decay(2)
+           if(abs(sa_decay(1)).gt.tollz) 
+     *     t1 = icount*it_in*dt/sa_decay(1)
+           if(abs(sa_decay(2)).gt.tollz) 
+     *     t2 = icount*it_in*dt/sa_decay(2)
            Te_new = Te_init*dexp(-t1)
            Tr_new = Tr_init*dexp(-t2)
            call Nose_reset_T(Te_new,Tr_new)
