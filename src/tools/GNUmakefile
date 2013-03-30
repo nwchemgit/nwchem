@@ -473,6 +473,10 @@ else
         GA_DIR = ga-5-2
     endif
 endif
+ifndef ARMCI_NETWORK
+    ARMCI_NETWORK=MPI-TS
+    MAYBE_ARMCI = --with-mpi-ts
+endif
 BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
