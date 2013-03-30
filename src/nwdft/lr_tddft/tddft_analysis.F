@@ -1615,27 +1615,29 @@ c       clean up arrays used for dipole-velocity integrals
       endif                     ! velocity
 c     /jochen
 c
- 9100 format(2x,'Ground state ',a4,f16.9,' a.u.')
+ 9100 format(2x,'Ground state ',a4,f22.12,' a.u.')
  9110 format(2x,
-     1  '-------------------------------------------------------------',
-     2  /,2x,'Root',i3,1x,a7,1x,a4,f13.9,' a.u. ',f12.4,' eV ')
+     1  '---------------------------------------------------------------
+     3-------------',
+     2  /,2x,'Root',i4,1x,a7,1x,a4,f22.9,' a.u.',f22.4,' eV ')
  9190 format(2x,
-     1  '-------------------------------------------------------------')
+     1  '---------------------------------------------------------------
+     3-------------')
  9200 format(5x,'Transition Moments    X',f9.5,'   Y',f9.5,'   Z',f9.5
      1    ,/,5x,'Transition Moments   XX',f9.5,'  XY',f9.5,'  XZ',f9.5
      2    ,/,5x,'Transition Moments   YY',f9.5,'  YZ',f9.5,'  ZZ',f9.5
      7    ,/,5x,'Dipole Oscillator Strength',20x,f12.5)
  9210 format(5x,'Transition Moments                    Spin forbidden'
      1    ,/,5x,'Oscillator Strength                   Spin forbidden')
- 9120 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f10.5)
- 9130 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f8.5,' X')
- 9140 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f8.5,' Y')
- 9150 format(5x,'Occ.',i3,1x,a5,1x,a4,'---  Virt.',
-     1  i3,1x,a5,1x,a4,f10.5)
- 9160 format(5x,'Occ.',i3,1x,a5,1x,a4,'---  Virt.',
-     1  i3,1x,a5,1x,a4,f8.5,' X')
- 9170 format(5x,'Occ.',i3,1x,a5,1x,a4,'---  Virt.',
-     1  i3,1x,a5,1x,a4,f8.5,' Y')
+ 9120 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f10.5)
+ 9130 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f8.5,' X')
+ 9140 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f8.5,' Y')
+ 9150 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
+     1  i5,1x,a5,1x,a4,f10.5)
+ 9160 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
+     1  i5,1x,a5,1x,a4,f8.5,' X')
+ 9170 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
+     1  i5,1x,a5,1x,a4,f8.5,' Y')
  9180 format(2x,'<S2> = ',f8.4)
  9250 format(5x,a
      $    ,/,5x,'       X ',f12.7,'   Y',f12.7,'   Z',f12.7)
