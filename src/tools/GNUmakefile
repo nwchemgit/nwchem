@@ -332,6 +332,10 @@ ifeq ($(ARMCI_NETWORK),MPI-TS)
         MAYBE_ARMCI = --with-mpi-ts
 endif # MPI-TS
 
+ifeq ($(ARMCI_NETWORK),ARMCI) 
+        MAYBE_ARMCI = --with-armci
+endif # ARMCIARMCI
+
 
 ifdef USE_MPI
     MPI_COMBINED =
