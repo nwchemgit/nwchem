@@ -425,62 +425,31 @@ c
      $  call errquit('ga_civec_create called uninitialized',0,
      &       INPUT_ERR)
 c
-c  Find maximum dimension of symmetry block of string_a
-c  There will be some waisted space in this approach
-c
-      detstore = 0
-      do isym=1, nsym
-         do jsym=1, nsym
-            if (MULX(jsym,isym).eq.ksym) then
-               maxa = cdetci_ataba(norb,nela,i)-cdetci_ataba(0,0,i)+1
-               maxb = cdetci_atabb(norb,nelb,i)-cdetci_atabb(0,0,i)+1
-               detstore = detstore + maxa*maxb
-            endif
-         enddo
-      enddo
-c
 c  Distribute both string_b and string_a such that different
 c  symmetry blocks in string_b are not split between processors.
 c  String_a will be split over nproc/nsym tasks
 c
       nblock   = 0
-      detstore = 1
-      if (nproc.le.nsym) then
-c
-c  Some processors will get multiple symmetry blocks 
-c
-         do isym=1,nsym
-            do jsym=1,nsym
-               if (MULX(jsym,isym).eq.ksym) then
+      detstore = 0
+      ntasks = nproc/nsym
+      if (mod(nproc,nsym).ne.0) ntasks=ntasks+1
+      do isym=1,nsym
+         do jsym=1,nsym
+            if (MULX(jsym,isym).eq.ksym) then
+               nblock=nblock+1
+               map1(nblock)=detstore+1
+               maxa=cdetci_ataba(norb,nela,jsym)
+     &              -cdetci_ataba(0,0,jsym)+1
+               maxb=cdetci_atabb(norb,nelb,isym)
+     &              -cdetci_atabb(0,0,isym)+1
+               do i=2,ntasks
                   nblock=nblock+1
-                  map1(nblock)=detstore
-                  maxa=cdetci_ataba(norb,nela,i)-cdetci_ataba(0,0,i)+1
-                  maxb=cdetci_atabb(norb,nelb,i)-cdetci_atabb(0,0,i)+1
-                  detstore=detstore+maxa*maxb
+                  map1(nblock)=detstore+(i-1)*(maxa/ntasks)+1
                endif
-            enddo
+               detstore=detstore+maxa*maxb
+            endif
          enddo
-      else
-c
-c  ntasks per symmetry irrep to distribute the work
-c  block over second dimension (alpha strings, string_a)
-c
-         ntasks = nproc/nsym
-         if (mod(nproc,nsym).ne.0) ntasks=ntasks+1
-         do isym=1,nsym
-            do jsym=1,nsym
-               if (MULX(jsym,isym).eq.ksym) then
-                  maxa=cdetci_ataba(norb,nela,i)-cdetci_ataba(0,0,i)+1
-                  maxb=cdetci_atabb(norb,nelb,i)-cdetci_atabb(0,0,i)+1
-                  do i=1,ntasks
-                     nblock=nblock+1
-                     map1(nblock)=detstore+(i-1)*(maxa/ntasks)+1
-                  endif
-                  detstore=detstore+maxa*maxb
-               endif
-            enddo
-         enddo
-      endif
+      enddo
 c
 c  Generate GA
 c
