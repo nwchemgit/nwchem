@@ -1,0 +1,40 @@
+*
+* $Id: detciP.fh 19708 2010-10-29 18:04:21Z d3y133 $
+*
+      integer detci_maxsy                            ! symmtery
+      integer detci_maxorb                           ! active 
+      integer detci_maxelec_tot                      ! total electrons
+      integer detci_maxelec                          ! alpha or beta electrons
+      integer detci_maxstr                           ! strings
+      integer detci_maxtij                           ! maximum triangular sum (ij)
+      integer detci_maxoper                          ! space for E operators
+      integer detci_maxguess_cfg                     ! maximum guess configs
+c
+c
+c
+      parameter(detci_maxsy=8)
+      parameter(detci_maxorb=32)
+      parameter(detci_maxelec_tot=20)
+      parameter(detci_maxelec=20)
+      parameter(detci_maxguess_cfg=6)
+c
+c
+c
+c Use:
+c                        detci_maxorb!
+c      ----------------------------------------------
+c      (detci_maxorb - detci_maxelec)!.detci_maxelec!
+c
+      parameter(detci_maxstr=462)
+c
+c
+c
+      parameter(detci_maxtij=((detci_maxorb*(detci_maxorb+1))/2))
+c
+c
+c
+      parameter(detci_maxoper=6*detci_maxstr*
+     $                         detci_maxelec*detci_maxorb)
+c
+c
+c

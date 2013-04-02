@@ -1,0 +1,47 @@
+*
+* $Id: cdetcistats.fh 23780 2013-03-15 01:48:16Z niri $
+*
+	integer detci_sigma_calls
+	integer detci_density_calls
+        double precision detci_init_etime
+	double precision detci_sigma_etime
+	double precision detci_saa_etime
+	double precision detci_sbb_etime
+	double precision detci_sab_etime
+	double precision detci_density_etime
+	double precision detci_spinadp_etime
+	double precision detci_symmadp_etime
+        double precision detci_aaff_etime
+	double precision detci_aagop_etime
+        double precision detci_aadot_etime
+        double precision detci_abstr_etime 
+        double precision detci_abgath_etime
+        double precision detci_abdotab_etime
+        double precision detci_abscat_etime
+	double precision detci_absync_etime
+        double precision detci_density_onepdm
+        double precision detci_density_twopdm
+        double precision detci_density_twopdmab
+c
+	common/detcistats/detci_init_etime,
+     $                    detci_sigma_etime,
+     $                    detci_saa_etime,
+     $                    detci_sbb_etime,
+     $                    detci_sab_etime,
+     $                    detci_density_etime,
+     $                    detci_spinadp_etime,
+     $                    detci_symmadp_etime,
+     $                    detci_aaff_etime,
+     $                    detci_aagop_etime,
+     $                    detci_aadot_etime,
+     $                    detci_abstr_etime, 
+     $                    detci_abgath_etime,
+     $                    detci_abdotab_etime,
+     $                    detci_abscat_etime,
+     $                    detci_absync_etime,
+     $                    detci_density_onepdm,
+     $                    detci_density_twopdm,
+     $                    detci_density_twopdmab,
+     $                    detci_sigma_calls,
+     $                    detci_density_calls
+c

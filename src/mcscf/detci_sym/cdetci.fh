@@ -1,0 +1,113 @@
+*
+* $Id: cdetci.fh 19708 2010-10-29 18:04:21Z d3y133 $
+*
+      integer detci_maxtsize                                 ! arc-table size
+      parameter(detci_maxtsize=(detci_maxorb+1)*
+     $          (detci_maxelec+1)*(detci_maxsy))
+c
+c
+c                        (detci_maxorb-1)!
+c        -----------------------------------------------
+c        (detci_maxelec-1)! (detci_maxorb - detci_maxelec)!
+c
+c
+      integer detci_maxekl
+      parameter(detci_maxekl=495)
+c
+c This is our magic cookie!
+c
+      integer CDETCI_MAGIC
+      parameter(CDETCI_MAGIC = 1965)
+      integer CDETCI_INVALID
+      parameter(CDETCI_INVALID = -1965)
+c
+c
+c
+      integer cdetci_valid                            ! Validity flag
+      integer cdetci_norb                             ! Orbitals
+      integer cdetci_nela                             ! Alpha electrons
+      integer cdetci_nelb                             ! Beta electrons
+      integer cdetci_nsym                             ! Irreps
+      integer cdetci_symstate                         ! Wavefunction symmetry irrep
+      integer cdetci_osym                             ! Orbital symmetries
+      integer cdetci_ixmap                            ! Map from external -> internal indices
+      integer cdetci_irmap                            ! Map from internal -> external indices
+      integer l_detci_exa, k_detci_exa                ! Alpha excitation table
+      integer l_detci_exb, k_detci_exb                ! Beta excitation table
+      integer cdetci_ataba                            ! Alpha arc weight table
+      integer cdetci_atabb                            ! Beta arc weight table
+      logical cdetci_spinadapt                        ! Toggle spin-adaption in preconditioning
+      logical cdetci_profprint                        ! Toggle detailed profile printing
+      double precision cdetci_squant                  ! Spin quantum number
+      double precision cdetci_eref                    ! Reference ground-state for preconditioning
+      double precision cdetci_eps                     ! Orbital energies
+c
+c
+C      integer cdetci_exa                              ! Alpha excitation table (replace with stack handle)
+C      integer cdetci_exb                              ! Beta excitation table (replace with stack handle)
+C      double precision cdetci_h                       ! One-electron hamil
+C      double precision cdetci_g                       ! ERIs
+C      double precision cdetci_fscr
+C      double precision cdetci_rhsscr
+C      double precision cdetci_lhsscr
+C      double precision cdetci_cprime
+C      double precision cdetci_sprime
+C
+      integer l_detci_h, k_detci_h                    ! One-electron hamil
+      integer l_detci_g, k_detci_g                    ! ERIs
+      integer l_detci_fscr, k_detci_fscr
+      integer l_detci_rhsscr, k_detci_rhsscr
+      integer l_detci_lhsscr, k_detci_lhsscr
+      integer l_detci_iscr, k_detci_iscr
+      integer l_detci_cprime, k_detci_cprime
+      integer l_detci_sprime, k_detci_sprime
+      integer cdetci_ipad
+c
+c
+c
+      common/detci/
+     $       cdetci_valid,
+     $       cdetci_norb,
+     $       cdetci_nela,
+     $       cdetci_nelb,
+     $       cdetci_nsym,
+     $       cdetci_symstate,
+     $       cdetci_osym(detci_maxorb),
+     $       cdetci_ixmap(detci_maxorb),
+     $       cdetci_irmap(detci_maxorb),
+     $       cdetci_ataba(0:detci_maxorb,0:detci_maxelec,detci_maxsy),
+     $       cdetci_atabb(0:detci_maxorb,0:detci_maxelec,detci_maxsy),
+     $       l_detci_exa, k_detci_exa,
+     $       l_detci_exb, k_detci_exb,
+     $       cdetci_ipad(2),
+     $       cdetci_eref,
+     $       cdetci_eps(detci_maxorb),
+     $       l_detci_h,            k_detci_h,
+     $       l_detci_g,            k_detci_g,
+     $       l_detci_fscr,         k_detci_fscr,
+     $       l_detci_rhsscr,       k_detci_rhsscr,
+     $       l_detci_lhsscr,       k_detci_lhsscr,
+     $       l_detci_iscr,         k_detci_iscr,
+     $       l_detci_cprime,       k_detci_cprime,
+     $       l_detci_sprime,       k_detci_sprime,
+     $       cdetci_squant,
+     $       cdetci_spinadapt,
+     $       cdetci_profprint
+c
+c
+c
+c$$$     $           cdetci_h(detci_maxtij),
+c$$$     $           cdetci_g(detci_maxtij*detci_maxtij),
+c$$$     $           cdetci_exa(detci_maxoper),
+c$$$     $           cdetci_exb(detci_maxoper),
+c$$$     $           cdetci_fscr(detci_maxstr),
+c$$$     $           cdetci_rhsscr(detci_maxstr),
+c$$$     $           cdetci_lhsscr(detci_maxstr),
+c$$$     $           cdetci_cprime(detci_maxstr*detci_maxekl),
+c$$$     $           cdetci_sprime(detci_maxstr*detci_maxekl),
+c$$$     $           cdetci_iscr(detci_maxstr),
+
+
+
+
+
