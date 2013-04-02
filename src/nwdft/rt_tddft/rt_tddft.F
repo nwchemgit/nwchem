@@ -64,11 +64,11 @@ C
          
          if (ipol.eq.1) then             !closed shell DFT
             if (me.eq.0) then
-               write (luout, *) ""
+               write (luout, *) " " 
                write (luout, *) "*************************"
                write (luout, *) "* Closed-shell RT-TDDFT *"
                write (luout, *) "*************************"
-               write (luout, *) ""
+               write (luout, *) " "
                call util_flush (luout)
             endif
             call rt_tddft_cs_init (params)
@@ -77,11 +77,11 @@ C
             
          elseif (ipol.eq.2) then         !open shell DFT
             if (me.eq.0) then
-               write (luout, *) ""
+               write (luout, *) " "
                write (luout, *) "***********************"
                write (luout, *) "* Open-shell RT-TDDFT *"
                write (luout, *) "***********************"
-               write (luout, *) ""
+               write (luout, *) " "
                call util_flush (luout)
             endif
             call rt_tddft_os_init (params)

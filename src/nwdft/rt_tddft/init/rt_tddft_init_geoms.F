@@ -262,14 +262,14 @@ C
 C     Print geom info to stdout
 C
       if (me .eq.0) then
-         write (luout, *) ""
-         write (luout, *) ""
+         write (luout, *) " "
+         write (luout, *) " "
          
-         write (luout, *), "Geometry               "//
+         write (luout, *) "Geometry               "//
      $        "Atoms      Basis func.   "//
      $        "Nuc. charge          Nuc. dip. mom."
 
-         write (luout, *), "-----------------"//
+         write (luout, *) "-----------------"//
      $        "------------------------------------"//
      $        "------------------------------------"
 
@@ -280,7 +280,7 @@ C
          per_bf = 100 * params%geom(ig)%nbf / params%nbf_ao
          per_cen = 100 * params%geom(ig)%ncent / params%natoms
 
-C         role_string = ""
+C         role_string = " "
 
 C         if ( trim(params%geom(ig)%name) .eq. trim(active_geom_name))
 C     $        role_string = trim(role_string) // "<= Active "
