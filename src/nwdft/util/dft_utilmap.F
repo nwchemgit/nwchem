@@ -37,6 +37,7 @@ c
 c     
 #include "global.fh"
 #include "msgids.fh"
+#include "mafdecls.fh"
       integer n                         ! Original size [input]
       integer nr                        ! Reduced size  [input]
       integer map(2,nr)                 ! map(1,*)=lo, map(2,*)=hi [input]
@@ -59,16 +60,18 @@ c
       external util_matops
       integer ityp, ndim, dims(3)
       integer lo(3),hi(3),ld(2),ld12,offs
+      integer ilo,ihi,jlo,jhi,numi,numj,
+     A     ltmpm,itmpm,offt
       logical l3d
 c     
       call nga_inquire(g_a, ityp, ndim, dims)
       l3d=.false.
       if(ndim.gt.2) then
-#ifdef DEBUG
+
+         call errquit(' util_mat_red: 3d not ready ',0,0)
          write(6,*) ' matreduce: ndim gt 2!, =',ndim
          write(6,*) ' na ',n_a, ' dims1 ',dims(1),dims(1)/n_a
          write(6,*) '  dims ',dims
-#endif
          l3d=.true.
          offs=dims(1)/n_a
       endif
@@ -79,48 +82,42 @@ c
      A     call dfill(n_a*nr*nr, 0.0d0, r, 1)
 
       do k = 1, n_a
-c
-c         write(6,*) ' util_mat_reduce: input matrix '
-c         call ga_print(g_a(k))
-c     
-         do jr = 1, nr
-cedo            do ir = 1, nr
-            do ir = 1, jr
-               itask=itask+1
-               if(mod(itask,nproc).eq.me) then
-                  ielems = map(2,ir) - map(1,ir) + 1
-                  jelems = map(2,jr) - map(1,jr) + 1
-                  if (ielems.gt.0 .and. jelems.gt.0) then
-                     if(l3d) then
-                        ielems=ielems*offs
-                        lo(1)=1+(k-1)*offs
-                        hi(1)=lo(1)+offs-1
-                        lo(2)=map(1,ir)
-                        hi(2)=map(2,ir)
-                        lo(3)=map(1,jr)
-                        hi(3)=map(2,jr)
-                        ld(1)=offs
-                        ld(2)=mxmap
-                        call nga_get(g_a, lo,hi,
-     .                       scr, ld)
-                        ld12=ld(1)*ld(2)
-                     else
-                        call ga_get(g_a(k), map(1,ir), map(2,ir), 
-     .                       map(1,jr), map(2,jr), scr, mxmap)
-                        ld12=mxmap
-                     endif
-                     sum=util_matops(op,ielems,jelems,scr,ld12)
-                     r(ir,jr,k) = max(r(ir,jr,k),sum)
+         call ga_distribution(g_a(k),
+     .        ga_nodeid(), ilo, ihi, jlo, jhi)
+         if (ilo.gt.0 .and. ilo.le.ihi) then
+            numi =  ihi-ilo+1
+            numj =  jhi-jlo+1
+            if (numi.gt.0 .and. numj.gt.0) then
+               if (.not.MA_Push_Get(MT_Dbl,numi*numj,'scr',ltmpm,itmpm))
+     &              call errquit('dft_util: cant alloc scr',0, 0)
+               call ga_get(g_a(k),ilo,ihi,jlo,jhi,
+     .              dbl_mb(itmpm),numi)
+               do jr = 1,nr
+                  do ir = 1, jr
+                     ielems = map(2,ir) - map(1,ir) + 1
+                     jelems = map(2,jr) - map(1,jr) + 1
+                     if (ielems.gt.0 .and. jelems.gt.0) then
+                        if(map(1,ir).ge.ilo.and.map(2,ir).le.ihi.and.
+     A                       map(1,jr).ge.jlo.and.map(2,jr).le.jhi) then
+                           offt=(map(1,ir)-ilo)+(map(1,jr)-jlo)*numi
+                           ld12=mxmap
+                        sum=util_matops(op,ielems,jelems,
+     A                          dbl_mb(itmpm+offt),numi)
+                        r(ir,jr,k) = max(r(ir,jr,k),sum)
 c     
 c     copy upper triangle of r(ij) to upper triangle
 c     
                      if(ir.ne.jr) r(jr,ir,k)=r(ir,jr,k)
-                  endif
-               endif
-            end do
-         end do
-c         write(6,*) ' util_mat_reduce: reduced matrix '
-c         call output(r(1,1,k), 1, nr, 1, nr, nr, nr, 1)
+                     endif
+                     endif
+               enddo
+            enddo
+            if(.not.MA_Pop_Stack(ltmpm)) call errquit(
+     .           'failed popstack in dftutmp ',0, 0)
+         endif
+         endif
+c     write(6,*) ' util_mat_reduce: reduced matrix '
+c     call output(r(1,1,k), 1, nr, 1, nr, nr, nr, 1)
       enddo
 c
 c     global sum
