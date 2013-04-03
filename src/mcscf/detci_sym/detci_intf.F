@@ -434,21 +434,16 @@ c
       ntasks = nproc/nsym
       if (mod(nproc,nsym).ne.0) ntasks=ntasks+1
       do isym=1,nsym
-         do jsym=1,nsym
-            if (MULX(jsym,isym).eq.ksym) then
-               nblock=nblock+1
-               map1(nblock)=detstore+1
-               maxa=cdetci_ataba(norb,nela,jsym)
-     &              -cdetci_ataba(0,0,jsym)+1
-               maxb=cdetci_atabb(norb,nelb,isym)
-     &              -cdetci_atabb(0,0,isym)+1
-               do i=2,ntasks
-                  nblock=nblock+1
-                  map1(nblock)=detstore+(i-1)*(maxa/ntasks)+1
-               endif
-               detstore=detstore+maxa*maxb
-            endif
+         jsym=MULX(isym,ksym)
+         nblock=nblock+1
+         map1(nblock)=detstore+1
+         maxa=cdetci_ataba(norb,nela,jsym)-cdetci_ataba(0,0,jsym)+1
+         maxb=cdetci_atabb(norb,nelb,isym)-cdetci_atabb(0,0,isym)+1
+         do i=2,ntasks
+            nblock=nblock+1
+            map1(nblock)=detstore+(i-1)*(maxa/ntasks)+1
          enddo
+         detstore=detstore+maxa*maxb
       enddo
 c
 c  Generate GA
