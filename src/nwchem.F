@@ -322,8 +322,8 @@ c
           if(io_code.ne.0.and.
      A         util_print('total time', print_high))  then
              write(luout,*) ' iostat ',io_code
-             call util_flush(LuOut)
            endif
+           call util_flush(LuOut)
         endif
       endif
       call ecce_print1('all tasks cpu time',mt_dbl,total_cpu,1)
