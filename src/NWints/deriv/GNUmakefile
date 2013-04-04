@@ -16,5 +16,9 @@ USES_BLAS = hf1PRtoAB.f hf1d.F hf2PRtoAB.f hf2QStoCD.f hf2d.F hf2d_2a.F hf2d_2a2
             hf1d_cosmo.F
 
 include ../../config/makefile.h
+ifdef XLF14
+  DEFINES += -DXLF14
+endif
+
 include ../../config/makelib.h
 
