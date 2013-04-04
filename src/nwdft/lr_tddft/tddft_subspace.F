@@ -128,35 +128,16 @@ c
             enddo
           endif
         enddo
-        call ga_sync()
+cold        call ga_sync()
 c
 c -----------------------------------------------------------------
 c Now we accumulate the local contributions to form the full matrix
 c -----------------------------------------------------------------
 c
-        if (.not.ga_create(mt_dbl,ntrials,ntrials,'Work A+B',
-     1    ntrials,ntrials,g_apb_tmp)) call errquit
-     2    ('tddft_subspace: failed to create g_apb_tmp',0, GA_ERR)
-        call ga_zero(g_apb_tmp)
-        call ga_acc(g_apb_tmp,1,ntrials,1,ntrials,apb,ntrials,1.0d0)
-        if (.not.tda) then
-          if (.not.ga_create(mt_dbl,ntrials,ntrials,'Work A-B',
-     1      ntrials,ntrials,g_amb_tmp)) call errquit
-     2      ('tddft_subspace: failed to create g_amb_tmp',0, GA_ERR)
-          call ga_zero(g_amb_tmp)
-          call ga_acc(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials,1.0d0)
-        endif
-        call ga_sync()
-        call ga_get(g_apb_tmp,1,ntrials,1,ntrials,apb,ntrials)
+c use gdops for amb and apb instead of costly accs        
+        call ga_dgop(913,apb,ntrials*ntrials, '+')
         if (.not.tda)
-     1    call ga_get(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials)
-        call ga_sync()
-        if (.not.ga_destroy(g_apb_tmp)) call errquit
-     1    ('tddft_subspace: failed to destroy g_apb_tmp',0, GA_ERR)
-        if (.not.tda) then
-          if (.not.ga_destroy(g_amb_tmp)) call errquit
-     1      ('tddft_subspace: failed to destroy g_amb_tmp',0, GA_ERR)
-        endif
+     C       call ga_dgop(914,amb,ntrials*ntrials, '+')
         if (.not.ma_pop_stack(l_prod)) call errquit
      1    ('tddft_subspace: failed to deallocate prod',0, MA_ERR)
         if (.not.ma_pop_stack(l_trial)) call errquit
