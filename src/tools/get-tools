@@ -80,7 +80,7 @@ then
     rm -rf $TOOLDIR/tcgmsg
     rm -rf $TOOLDIR/tcgmsg-mpi
 fi
-if svn checkout $GA_OLD_SVN $GA_OLD --username anonymous --password anonymous
+if svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
 then
     cd $GA_OLD
     rm -f README
@@ -104,7 +104,7 @@ if test -d $GA_DIRNAME
 then
     echo "Updating existing $GA_DIRNAME"
     cd $GA_DIRNAME
-    if svn update --username anonymous --password anonymous
+    if svn update --username nwchem --password nwchem
     then
         echo "Finished updating existing $GA_DIRNAME"
     else
@@ -114,7 +114,7 @@ then
         if rm -rf $GA_DIRNAME
         then
             echo "Checking out $GA_SVN"
-            svn checkout $GA_SVN $GA_DIRNAME --username anonymous --password anonymous
+            svn checkout $GA_SVN $GA_DIRNAME --username nwchem --password nwchem
         else
             echo "Failed to remove $GA_DIRNAME"
             echo "get-tools has failed"
@@ -123,5 +123,5 @@ then
     cd $TOOLDIR
 else
     echo "Checking out $GA_SVN"
-    svn checkout $GA_SVN $GA_DIRNAME --username anonymous --password anonymous
+    svn checkout $GA_SVN $GA_DIRNAME --username nwchem --password nwchem
 fi
