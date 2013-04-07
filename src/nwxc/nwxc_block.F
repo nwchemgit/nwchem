@@ -36,6 +36,8 @@ C>
       data nwxc_disp_id    / NWXC_DISP_NONE /
       data nwxc_disp_s6    / 0.0d0 /
       data nwxc_disp_s8    / 0.0d0 /
+      data nwxc_disp_sr6   / 0.0d0 /
+      data nwxc_disp_sr8   / 0.0d0 /
       data nwxc_disp_alpha / 0.0d0 /
       end
 C> @}
@@ -69,6 +71,8 @@ C>
       nwxc_disp_id    = NWXC_DISP_NONE
       nwxc_disp_s6    = 0.0d0
       nwxc_disp_s8    = 0.0d0
+      nwxc_disp_sr6   = 0.0d0
+      nwxc_disp_sr8   = 0.0d0
       nwxc_disp_alpha = 0.0d0
       end
 C> @}

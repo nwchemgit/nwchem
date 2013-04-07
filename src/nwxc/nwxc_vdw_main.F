@@ -38,22 +38,22 @@ c
 c     Allocate memory blocks
 c
       if (.not. geom_ncent(geom, n)) 
-     &   call errquit('xcvdw: geom_ncent failed',geom, GEOM_ERR)
+     &   call errquit('nwxc_vdw: geom_ncent failed',geom, GEOM_ERR)
       if (.not.MA_push_get(MT_Dbl,n*3,'xyz',l_xyz,i_xyz))
-     &   call errquit('xcvdw: cannot allocate xyz',0, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot allocate xyz',0, MA_ERR)
       if (.not.MA_Push_Get(MT_int,n,'atns',lz,iz))
-     &   call errquit('xcvdw: cannot allocate atns',0, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot allocate atns',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,n,'charge',lcharge,icharge))
-     &   call errquit('xcvdw: cannot allocate charge',0, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot allocate charge',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Byte,n*16,'tags',ltags,itags))
-     &   call errquit('xcvdw: cannot allocate tags',0, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot allocate tags',0, MA_ERR)
       if (.not. geom_cart_get2(geom, n, Byte_MB(itags),
      &        Dbl_MB(i_xyz), Dbl_MB(icharge), int_mb(iz)))
-     &   call errquit('xcvdw: geom_cart_get failed',74, GEOM_ERR)
+     &   call errquit('nwxc_vdw: geom_cart_get failed',74, GEOM_ERR)
       if (.not.ma_pop_stack(ltags))
-     &   call errquit('xcvdw: cannot pop stack',2, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot pop stack',2, MA_ERR)
       if (.not.ma_pop_stack(lcharge))
-     &   call errquit('xcvdw: cannot pop stack',3, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot pop stack',3, MA_ERR)
 c
 c     Which Grimme dispersion version
 c
@@ -63,24 +63,30 @@ c
 c     conversion factor angs 2 au
 c
        if(.not.geom_get_ang2au(geom, scalea)) call
-     S     errquit('xcvdw: gang2au failed',0,0)
+     S     errquit('nwxc_vdw: gang2au failed',0,0)
 c
 c     Initialize are variables
 c
       if(.not.nwxc_vdw_init(scalea))
-     &   call errquit('xcvdw: vwdinit failed',0, 0)
+     &   call errquit('nwxc_vdw: vwdinit failed',0, 0)
 c
 c     Read in some user defined parameters
 c
+      call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,alpha)
+cDEBUG
+      write(*,*)'nwxc_vdw: after nwxc_get_disp: s6,s8,sr6,sr8=',
+     &          s6,s8,sr6,sr8
+cDEBUG
       if (.not.rtdb_get(rtdb,'dft:vdwalpha',MT_DBL,1,alpha))
      &      alpha = 20.0d0
       if (ivdw.eq.3) alpha = 14.0d0
 c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
-      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
+      stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
+cc    if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
 cc     &    call get_scaling_fac(s6,s8,sr6,sr8)
-     &      call nwxc_get_disp(ivdw,s6,s8,alpha)
+cc   &      call nwxc_get_disp(ivdw,s6,s8,alpha)
 c
       if(what.eq.'energy') then
 c
@@ -127,7 +133,7 @@ c
 c     Gradient calculation
 c
       if (.not.MA_push_get(MT_Dbl,n*3,'xyz',l_fvdw,i_fvdw))
-     &   call errquit('xcvdw: cannot allocate forcev',0, MA_ERR)
+     &   call errquit('nwxc_vdw: cannot allocate forcev',0, MA_ERR)
 c
          call nwxc_vdw_der(s6,s8,sr6,sr8,n,dbl_mb(i_xyz),int_mb(iz),
      D     dbl_mb(i_fvdw))
@@ -197,7 +203,7 @@ c
 c     Clean up
 c
       if (.not.ma_chop_stack(l_xyz)) 
-     C   call errquit('xcvdw: cannot pop stack',4, MA_ERR)
+     C   call errquit('nwxc_vdw: cannot pop stack',4, MA_ERR)
 c
       return
       end

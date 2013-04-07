@@ -547,6 +547,8 @@ c
         nwxc_disp_id    = NWXC_DISP_D1
         nwxc_disp_s6    = 0.7d0
         nwxc_disp_s8    = 0.0d0
+        nwxc_disp_sr6   = 0.0d0
+        nwxc_disp_sr8   = 0.0d0
         nwxc_disp_alpha = 23.0d0
       else
 c       Oh dear, the functional was not recognized
