@@ -1,5 +1,5 @@
       logical function dft_uks_nr_solve(rtdb, energy, eone, etwo, exc,
-     +                                  enrep, nexc)
+     +                                  enrep, edisp, nexc)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -20,6 +20,7 @@ c
       integer rtdb
       double precision energy   ! Return UKS energy
       double precision eone, etwo, enrep ! Return UKS energy contribs
+      double precision edisp  ! Return UKS dispersion correction
       double precision exc(2) ! Return exchange-correlation contribs
       integer nexc
 c     
@@ -121,7 +122,7 @@ c
 c           Compute the energy and gradient at step*search direction
 c     
             call dft_uks_step_energy(rtdb, step, g_search,
-     $           eone, etwo, exc, enrep, energy, g_grad, nexc)
+     $           eone, etwo, exc, enrep, energy, edisp, g_grad, nexc)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)

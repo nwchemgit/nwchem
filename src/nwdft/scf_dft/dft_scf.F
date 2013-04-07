@@ -104,7 +104,7 @@ cc    Jorge Garza/End
       integer int_wall_time_reqd
       double precision pp
       double precision anucl_charg, anel
-      double precision etnew, tol2e, tol2e_sleazy,tdots
+      double precision etnew, tol2e, tol2e_sleazy,tdots, edisp
 c     
 c     Note, damping, levelshifting, and diising logicals
 c     are used to turn on/off these procedures per
@@ -433,6 +433,18 @@ c     Energy decomposition switch
 c     
       nExc    = idecomp + 1
       Etnew = 0.d0
+c
+c     vdw  bit
+c
+c     activate disp if is present in rtdb
+c     or include dispersion if this a functional that includes dispersion
+c
+      Edisp = 0.0d0
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+c
+      if(disp.or.xc_chkdispauto())
+     &      call xc_vdw(rtdb,geom,Edisp,dum,'energy')
 c     
 c     == scf energy convergence criterion ==
       if (.not. ga_duplicate(g_fock, g_tmp, 'tmp matrix'))
@@ -980,7 +992,7 @@ c
  3234 format(10x,'itol2e=',i2,' iAOacc=',i2,' iXCacc=',i2)
 
       Ecoul  = ZERO
-      Exc(1)= ZERO
+      Exc(1) = ZERO
       Exc(2) = ZERO
       rms(1) = 0.d0
       rms(2) = 0.d0
@@ -1041,9 +1053,9 @@ c
 c     Calculate the total electronic energy.
 c     
       if (nExc.eq.1)then
-         Etnew = Ecore + Ecoul + Exc(1)
+         Etnew = Ecore + Ecoul + Exc(1) + Edisp
       else
-         Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
+         Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp
       endif
 c
       if (oprint_conv_details.and.me.eq.0)then
@@ -1555,9 +1567,9 @@ c
      ,        rlshift,dbl_mb(k_eval(1)))
 c
       if (nExc.eq.1)then
-        Etnew = Ecore + Ecoul + Exc(1) +tdots
+        Etnew = Ecore + Ecoul + Exc(1) + tdots + Edisp
       else
-        Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots
+        Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots + Edisp
       endif
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 c    
@@ -1597,16 +1609,6 @@ c     Jorge Garza / Begin
 c
 c     Jorge Garza / End
 c     
-c     vdw  bit
-c
-c     activate disp if is present in rtdb
-c     or include dispersion if this a functional that includes dispersion
-      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
-     &   disp=.false.
-c
-      if(disp.or.xc_chkdispauto())
-     &      call xc_vdw(rtdb,geom,Etnew,dum,'energy')
-c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
       if(cosmo_on.and.cosmo_phase.eq.1) then
@@ -1683,6 +1685,9 @@ c
      &                      exc(2), 
      &                      enuc
          end if
+         if (abs(Edisp).gt.0.0d0) then
+          write(LuOut,224)Edisp
+         endif
          if (do_zora) write(luout,2221) ener_scal
          write(luout,2222) rho_n
          write(luout,2223) dft_time
@@ -2122,6 +2127,7 @@ c
      &     '          Exchange energy =', f22.12/
      &     '       Correlation energy =', f22.12/
      &     ' Nuclear repulsion energy =', f22.12/)
+ 224  format('    Dispersion correction =', f22.12/)
 c
  2221 format('       Scaling correction =', f22.12/)
  2222 format(' Numeric. integr. density =', f22.12/)

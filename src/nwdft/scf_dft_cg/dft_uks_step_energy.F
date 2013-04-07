@@ -1,5 +1,5 @@
       subroutine dft_uks_step_energy(rtdb, step, g_search,
-     $     eone, etwo, exc, enrep, energy, g_grad, nexc)
+     $     eone, etwo, exc, enrep, energy, edisp, g_grad, nexc)
       implicit none
 #include "errquit.fh"
 #include "cuhf.fh"
@@ -11,7 +11,7 @@ c
       integer rtdb
       double precision step
       integer g_search
-      double precision eone, etwo, enrep, energy
+      double precision eone, etwo, enrep, energy, edisp
       double precision exc(2)
       integer nexc
       integer g_grad
@@ -36,8 +36,8 @@ c
 c
 c     Compute energy and gradient
 c     
-      call dft_uks_energy(g_tmp, eone, etwo, exc, enrep, energy, g_grad,
-     $                    nexc)
+      call dft_uks_energy(g_tmp, eone, etwo, exc, enrep,
+     $                    energy, edisp, g_grad, nexc)
 c     
 c     Tidy up
 c

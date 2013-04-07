@@ -1,5 +1,5 @@
-      subroutine dft_uks_energy( g_vecs, eone, etwo, exc, enrep, energy,
-     $                           g_grad, nexc )
+      subroutine dft_uks_energy( g_vecs, eone, etwo, exc, enrep,
+     $                           energy, edisp, g_grad, nexc )
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -32,9 +32,11 @@ c
       double precision e_a_coul, e_a_exch, e_b_coul, e_b_exch,
      &     e_a_xc, e_b_xc
       double precision errmaxa, errmaxb
+      double precision Edisp, dum
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical odebug
+      logical disp
       logical cphf_uhf
       logical xc_gotxc
       external xc_gotxc
@@ -228,10 +230,10 @@ c
       e_a_exch = 0.5d0*ga_ddot(g_a_dens,g_a_exch)
       e_b_exch = 0.5d0*ga_ddot(g_b_dens,g_b_exch)
       if (xc_gotxc()) then
-        etwo = e_a_coul + e_b_coul 
+        etwo = e_a_coul + e_b_coul + Edisp
         exc(1) = exc(1) - e_a_exch - e_b_exch
       else
-        etwo = e_a_coul + e_b_coul - e_a_exch - e_b_exch 
+        etwo = e_a_coul + e_b_coul - e_a_exch - e_b_exch + Edisp
       endif
 c take this out? it seems that the xc_gotxc part does essentially the
 c same thing apart from the fact that the energy is added on properly.

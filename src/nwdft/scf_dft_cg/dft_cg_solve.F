@@ -80,6 +80,12 @@ c
 c
       double precision eone, etwo, enrep, energy
       double precision dft_time
+      double precision edisp, dum
+      logical disp
+c
+      logical  xc_chkdispauto
+      external xc_chkdispauto
+c
       nexc = 1
 c
 c     == Preliminaries ==
@@ -105,6 +111,14 @@ c     == Evaluate the nuclear repulsion energy ==
      & call errquit(pname//'Error in nuclear repulsion',
      &                1,BASIS_ERR)
 c
+c     == Dispersion corrections ==
+      Edisp = 0.0d0
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+c
+      if(disp.or.xc_chkdispauto())
+     &      call xc_vdw(rtdb,geom,Edisp,dum,'energy')
+c
 c     == Do quasi-Newton-Raphson DFT ==
       call dft_cg_init(rtdb)
       call dft_cg_guess(rtdb)
@@ -115,12 +129,12 @@ c     grid is not there yet
       if (dft_cscf_equals_scftype("UHF")) then
         call uhf_init(rtdb)
         lsuccess = dft_uks_nr_solve(rtdb, energy, eone, etwo, exc,
-     +                              enrep, nexc)
+     +                              enrep, edisp, nexc)
         call uhf_tidy(rtdb)
       else
         call rohf_init(rtdb)
         lsuccess = dft_roks_nr_solve(rtdb, energy, eone, etwo,
-     +                               exc, enrep, nexc)
+     +                               exc, enrep, edisp, nexc)
         call rohf_tidy
       endif
       call grid_cleanup(.true.)
@@ -139,6 +153,9 @@ c
         else
           write(LuOut,210)energy,eone,etwo,exc(1),exc(2),enuc
         end if
+        if (abs(edisp).gt.0.0d0) then
+          write(luout,215) edisp
+        endif
         write(luout,220) rho_n
         write(luout,230) dft_time
       endif
@@ -217,6 +234,7 @@ c
      &     '          Exchange energy =', f22.12/
      &     '       Correlation energy =', f22.12/
      &     ' Nuclear repulsion energy =', f22.12/)
+ 215  format('    Dispersion correction =', f22.12/)
 c
  220  format(' Numeric. integr. density =', f22.12/)
  230  format('     Total iterative time =', f9.1,'s'//)

@@ -1,5 +1,5 @@
       logical function dft_roks_nr_solve(rtdb, energy, eone, etwo, exc,
-     +                                   enrep, nexc)
+     +                                   enrep, edisp, nexc)
 c     $Id$
       implicit none
 #include "errquit.fh"
@@ -24,6 +24,7 @@ c
       double precision energy   ! Return ROKS energy
       double precision eone, etwo, enrep ! Return ROKS energy contribs
       double precision exc(2) ! Return DFT energy contribs
+      double precision edisp ! Dispersion correction
       integer nexc
 c     
 c     Local GA handles 
@@ -104,7 +105,7 @@ c
      $    call errquit('dft_roks_nr_solve: ga_cre work', 0, GA_ERR)
 c
       tlastwrite = util_wallsec()
-c     
+c
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
       oprint_ls   = util_print('line search', print_high)
@@ -240,7 +241,7 @@ c
             if (ga_nodeid().eq.0) call util_flush(6)
 
             call dft_roks_step_energy(rtdb, step, g_search,
-     $           eone, etwo, exc, enrep, energy, g_grad, nexc)
+     $           eone, etwo, exc, enrep, energy, edisp, g_grad, nexc)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
 c
             if(odbug) then

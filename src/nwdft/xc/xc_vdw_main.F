@@ -325,13 +325,14 @@ c
       logical xc_vdw_init
       external xc_vdw_init
       logical oprint,oprinth
+      logical stat
 c
       logical geom_cart_get2 
       external geom_cart_get2 
 c
       double precision delta,delta_default
 c
-      oprint = util_print('vdw', print_medium)
+      oprint = util_print('vdw', print_high)
       oprinth = util_print('vdw high', print_high)
 c
 c     Allocate memory blocks
@@ -377,8 +378,8 @@ c
 c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
-      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
-     &    call get_scaling_fac(s6,s8,sr6,sr8)
+      call get_scaling_fac(s6,s8,sr6,sr8)
+      stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
 c
       if(what.eq.'energy') then
 c

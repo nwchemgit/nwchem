@@ -1,6 +1,6 @@
       subroutine dft_roks_fock(rtdb, geom, basis, nclosed, nopen, nmo,
      $     tol2e, g_vecs,
-     $     eone, etwo, Exc, g_fcv, g_fpv,
+     $     eone, etwo, edisp, Exc, g_fcv, g_fpv,
      $     g_fcp, nExc, oskel, iter)
 *
 * $Id$
@@ -103,7 +103,7 @@ c
 c     Local variables
 c     
       double precision eone_closed, eone_open, etwo_closed, etwo_open
-      double precision errmax
+      double precision errmax, Edisp, dum
       integer nset
       parameter(nset=7)
       integer g_cdens, g_odens, g_cfock, g_hcore, g_ocoul, g_oexch
@@ -125,10 +125,14 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+      logical  xc_chkdispauto
+      external xc_chkdispauto
+c
       integer g_cos1e
       dimension g_cos1e(3)
       double precision ecosmo
       logical osome
+      logical disp
       logical xc_gotxc
       external xc_gotxc
       double precision xc_hfexch
@@ -371,7 +375,7 @@ c
      $     ga_ddot(g_cdens,g_oexch) +
      $     0.5d0*ga_ddot(g_odens,g_ocoul) +
      $     ga_ddot(g_odens,g_oexch)
-      etwo = etwo_closed + etwo_open
+      etwo = etwo_closed + etwo_open + Edisp
 c     
       call ga_dadd(One, g_hcore, One, g_cfock, g_cfock)
       if (xc_gotxc().and.nopen.eq.0) then

@@ -1,5 +1,5 @@
       subroutine dft_roks_step_energy(rtdb, step, g_search,
-     $     eone, etwo, exc, enrep, energy, g_grad, nexc)
+     $     eone, etwo, exc, enrep, energy, edisp, g_grad, nexc)
 *
 * $Id$
 *
@@ -14,7 +14,7 @@ c
       integer rtdb
       double precision step
       integer g_search
-      double precision eone, etwo, enrep, energy, exc(2)
+      double precision eone, etwo, enrep, energy, exc(2), edisp
       integer g_grad
       integer nexc
 c
@@ -45,7 +45,7 @@ c
 c     Compute energy and gradient
 c     
       call dft_roks_energy(g_tmp, eone, etwo, exc, enrep, energy,
-     $                     g_grad, rtdb, nexc)
+     $                     edisp, g_grad, rtdb, nexc)
 c     
 c     Tidy up
 c

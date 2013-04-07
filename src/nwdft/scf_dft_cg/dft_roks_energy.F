@@ -1,5 +1,5 @@
       subroutine dft_roks_energy( g_vecs, eone, etwo, exc, enrep,
-     $                            energy, g_grad, rtdb, nexc )
+     $                            energy, edisp, g_grad, rtdb, nexc )
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -17,6 +17,7 @@ c
 
       integer g_vecs
       double precision energy
+      double precision edisp
       integer g_grad
 c     
       integer nexc
@@ -50,7 +51,7 @@ c
 
       call dft_roks_fock(rtdb, geom, basis,
      $     nclosed, nopen, nmo, tol2e, g_vecs,
-     $     eone, etwo, Exc, 
+     $     eone, etwo, edisp, Exc, 
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, nExc, oskel, iter )
 
       if(ga_nodeid().eq.0.and.osome) then
