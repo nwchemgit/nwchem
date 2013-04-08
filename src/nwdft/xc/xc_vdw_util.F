@@ -246,6 +246,8 @@ c
       implicit none
 #include "cdft.fh"
 #include "xc_vdw.fh"
+#include "stdio.fh"
+#include "global.fh"
       double precision scales6,scales8,scalesr6,scalesr8
 c
 c DFT-D1 version
@@ -266,10 +268,12 @@ c BP86
 c default
         else 
          scales6 = 1.00d0
-         write(6,*)'WARNING:'
-         write(6,*)'you are using HF or an untested DF together'
-         write(6,*)'with the dispersion correction!'
+         if (ga_nodeid().eq.0) then
+           write(luout,*)'WARNING:'
+           write(luout,*)'you are using HF or an untested DF together'
+           write(luout,*)'with the dispersion correction!'
          endif
+        endif
        else if ( ivdw.eq.2) then
 c
 c DFT-D2 version
