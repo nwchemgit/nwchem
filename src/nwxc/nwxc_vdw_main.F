@@ -26,6 +26,7 @@ c
       logical nwxc_vdw_init
       external nwxc_vdw_init
       logical oprint,oprinth
+      logical       stat
 c
       logical geom_cart_get2 
       external geom_cart_get2 
