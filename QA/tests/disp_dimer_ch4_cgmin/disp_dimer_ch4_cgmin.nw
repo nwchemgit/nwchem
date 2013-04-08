@@ -1,0 +1,41 @@
+echo
+# calculation for methane dimer Grimme JCC 2004
+# with BLYP/TZVP2P
+
+title "ch4_2"
+
+
+start ch4_2
+
+geometry units angstroms noautoz
+ C 0.00000000 0.00000000 1.78977169
+ H 0.00000000 0.00000000 2.88489619
+ H -0.72912121 0.72912121 1.42221856
+ H -0.26687689 -0.99599810 1.42221856
+ H 0.99599810 0.26687689 1.42221856
+ C 0.00000000 0.00000000 -1.78977169
+ H -0.99599810 -0.26687689 -1.42221856
+ H 0.00000000 0.00000000 -2.88489619
+ H 0.72912121 -0.72912121 -1.42221856
+ H 0.26687689 0.99599810 -1.42221856
+end
+
+
+basis "ao basis" spherical noprint
+  * library cc-pvdz
+end
+
+dft
+ cgmin
+ xc  becke88 1. lyp 1.
+ vectors output ch4_2.movecs
+ direct
+ disp vdw 1
+end
+task dft optimize
+
+dft
+ cgmin
+ disp vdw 3
+end
+task dft energy
