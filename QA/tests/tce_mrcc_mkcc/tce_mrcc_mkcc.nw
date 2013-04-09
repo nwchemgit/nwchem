@@ -1,24 +1,36 @@
 echo
 start h2o
 
-memory global 40 mb stack 23 mb heap 5 mb
-
 geometry units au
- O 0       0        0
- H 0       1.430   -1.107
- H 0      -1.430   -1.107
+H                     0.00000000     -2.27289450     -1.58834700
+O                     0.00000000     0.00000000    -.01350000
+H                     0.00000000      2.27289450     -1.58834700
 end
 
-
-basis
-  O library 6-31g*
-  H library 6-31g*
+basis spherical
+  O library cc-pvdz
+  H library cc-pvdz
 end
 
 scf
- rohf
- singlet
+  rohf
+  singlet
+  thresh 1.0e-10
+  tol2e 1.0e-10
 end
 
-task scf gradient
+tce
+  mkccsd
+  thresh 1.0e-10
+  targetsym a1
+  maxiter 600
+  io ga
+end
 
+mrccdata
+  se4t
+  root 1
+  cas 2 2
+end
+
+task tce energy
