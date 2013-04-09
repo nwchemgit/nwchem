@@ -311,6 +311,26 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
+        if (/MR-BWCCSD energy/ || (/BW-MRCCSD/ && /a posteriori/) || /MR-MkCCSD energy/ ) {
+            if ($debug) {print "\ndebug: $_";}
+            @line_tokens = split(' ');
+            $num_line_tokens = @line_tokens;
+            if ($debug) {
+                print "debug:line_tokens: @line_tokens \n";
+                print "debug:number     : $num_line_tokens \n";
+            }
+            for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+                if (! $quiet) {
+                    printf "%s ", @line_tokens[$itok];
+                }
+                printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+            }
+#                                                   *** Assumes $itok was incremented above
+            if (! $quiet) {
+                printf "%.10f\n", set_to_digits(@line_tokens[$itok],10);
+            }
+            printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
+        }
 	if (/isotropic =/ || /anisotropy =/) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
