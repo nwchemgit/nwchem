@@ -99,11 +99,12 @@ c
       integer iter              ! [input] iteration number
       integer nExc              ! [input] no. exch-corr components
       double precision Exc(2)   ! [output] exchange-correlation energy
+      double precision Edisp    ! [input] dispersion correction
 c     
 c     Local variables
 c     
       double precision eone_closed, eone_open, etwo_closed, etwo_open
-      double precision errmax, Edisp, dum
+      double precision errmax, dum, Ebq
       integer nset
       parameter(nset=7)
       integer g_cdens, g_odens, g_cfock, g_hcore, g_ocoul, g_oexch
@@ -234,6 +235,14 @@ c
 c
 c     One-electron integrals and energies
 c     
+      if (rtdb_get(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) then
+        call ga_zero(g_hcore)
+        call int_1e_ga(basis, basis, g_hcore, 'bq_pot', oskel)
+        Ebq = ga_ddot(g_adens,g_hcore)+ga_ddot(g_bdens,g_hcore)
+        if (.not. rtdb_put(rtdb,'dft:bq_energy',mt_dbl,1,Ebq))
+     $     call errquit('dft_roks_fock: writing bq_energy failed',
+     $     0, RTDB_ERR)
+      endif
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)

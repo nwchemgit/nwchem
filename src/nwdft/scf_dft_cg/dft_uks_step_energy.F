@@ -36,7 +36,7 @@ c
 c
 c     Compute energy and gradient
 c     
-      call dft_uks_energy(g_tmp, eone, etwo, exc, enrep,
+      call dft_uks_energy(rtdb, g_tmp, eone, etwo, exc, enrep,
      $                    energy, edisp, g_grad, nexc)
 c     
 c     Tidy up

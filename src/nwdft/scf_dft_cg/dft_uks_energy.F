@@ -1,4 +1,4 @@
-      subroutine dft_uks_energy( g_vecs, eone, etwo, exc, enrep,
+      subroutine dft_uks_energy( rtdb, g_vecs, eone, etwo, exc, enrep,
      $                           energy, edisp, g_grad, nexc )
       implicit none
 #include "errquit.fh"
@@ -18,6 +18,7 @@ c
       integer g_vecs(2)
       double precision energy
       integer g_grad
+      integer rtdb
 c     
       double precision eone, etwo, enrep, Exc(2)
       integer nExc
@@ -32,7 +33,7 @@ c
       double precision e_a_coul, e_a_exch, e_b_coul, e_b_exch,
      &     e_a_xc, e_b_xc
       double precision errmaxa, errmaxb
-      double precision Edisp, dum
+      double precision Edisp, dum, Ebq
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical odebug
@@ -275,6 +276,14 @@ c
 c     reuse g_a_exch to hold the 1-e integrals
 c
       g_hcore = g_a_exch
+      if (rtdb_get(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) then
+        call ga_zero(g_hcore)
+        call int_1e_ga(basis, basis, g_hcore, 'bq_pot', oskel)
+        Ebq = ga_ddot(g_a_dens,g_hcore)+ga_ddot(g_b_dens,g_hcore)
+        if (.not. rtdb_put(rtdb,'dft:bq_energy',mt_dbl,1,Ebq))
+     $     call errquit('dft_roks_fock: writing bq_energy failed',
+     $     0, RTDB_ERR)
+      endif
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
