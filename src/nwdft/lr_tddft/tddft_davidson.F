@@ -542,15 +542,15 @@ c --------------
 c Deallocate NGA
 c --------------
 c
-          if (.not.ga_destroy(g_ntrl)) call errquit
-     1      ('tddft_davidson: failed to deallocate g_ntrl',0, GA_ERR)
-          if (.not.ga_destroy(g_nprd_p)) call errquit
-     1      ('tddft_davidson: failed to deallocate g_nprd_p',0, GA_ERR)
           if (.not.tda) then
             if (.not.ga_destroy(g_nprd_m)) call errquit
      1        ('tddft_davidson: failed to deallocate g_nprd_m',0,
      &       GA_ERR)
           endif
+          if (.not.ga_destroy(g_nprd_p)) call errquit
+     1      ('tddft_davidson: failed to deallocate g_nprd_p',0, GA_ERR)
+          if (.not.ga_destroy(g_ntrl)) call errquit
+     1      ('tddft_davidson: failed to deallocate g_ntrl',0, GA_ERR)
 c
 c ===============================================
 c Algorithms 2 & 4 (one product vector at a time)
@@ -899,22 +899,22 @@ c
      1  ('tddft_davidson: failed to deallocate residual_1',0, MA_ERR)
       if (.not.ma_pop_stack(l_valsav)) call errquit
      1  ('tddft_davidson: failed to deallocate valsav',0, MA_ERR)
-      do i=1,ipol
-        if (.not.ga_destroy(g_td(i))) call errquit
-     1    ('tddft_davidson: failed to destroy g_td',0, GA_ERR)
-        if (.not.ga_destroy(g_pd(i))) call errquit
-     1    ('tddft_davidson: failed to destroy g_pd',0, GA_ERR)
-        if (.not.tda) then
-          if (.not.ga_destroy(g_qd(i))) call errquit
-     1      ('tddft_davidson: failed to destroy g_qd',0, GA_ERR)
-        endif
-        if (.not.ga_destroy(g_residuals_1(i))) call errquit
-     1    ('tddft_davidson: failed to destroy g_residuals_1',0, GA_ERR)
+      do i=ipol,1,-1
         if (.not.tda) then
           if (.not.ga_destroy(g_residuals_2(i))) call errquit
      1      ('tddft_davidson: failed to destroy g_residuals_2',0,
      &       GA_ERR)
         endif
+        if (.not.ga_destroy(g_residuals_1(i))) call errquit
+     1    ('tddft_davidson: failed to destroy g_residuals_1',0, GA_ERR)
+        if (.not.tda) then
+          if (.not.ga_destroy(g_qd(i))) call errquit
+     1      ('tddft_davidson: failed to destroy g_qd',0, GA_ERR)
+        endif
+        if (.not.ga_destroy(g_pd(i))) call errquit
+     1    ('tddft_davidson: failed to destroy g_pd',0, GA_ERR)
+        if (.not.ga_destroy(g_td(i))) call errquit
+     1    ('tddft_davidson: failed to destroy g_td',0, GA_ERR)
       enddo
       return
       end

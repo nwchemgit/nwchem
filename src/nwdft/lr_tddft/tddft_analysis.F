@@ -425,13 +425,13 @@ c Get alpha-beta orbital correlation
 c ----------------------------------
 c
       if (ipol.eq.2) then
-        if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
-     1    'AO overlap',-1,-1,g_ovlp))
-     2    call errquit('tddft_analysis: failed to create g_ovlp',0,
-     &       GA_ERR)
         if (.not.ga_create(mt_dbl,nmo(1),nmo(2),
      1    'MO correlation',-1,-1,g_corr))
      2    call errquit('tddft_analysis: failed to create g_corr',0,
+     &       GA_ERR)
+        if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
+     1    'AO overlap',-1,-1,g_ovlp))
+     2    call errquit('tddft_analysis: failed to create g_ovlp',0,
      &       GA_ERR)
         if (.not.ga_create(mt_dbl,nbf_ao,nmo(2),'work',-1,-1,g_work))
      1    call errquit('tddft_analysis: failed to create g_work',0,
@@ -502,17 +502,13 @@ c
           do n=1,nroots
             do m=1,ntrials
               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                            1.0d0,g_x(i),1,nov(i),n,n,
-     2                                  g_x(i),1,nov(i),n,n)
+                call tga_add(apbvec(m,n),g_trials(i),g_x(i),m,n,1)
               else
                 dummy=dra_read_section(.false.,
      1            g_buffer1(i),1,nov(i),1,1,d_trials(i),1,nov(i),m,m,
      2            request)
                 dummy=dra_wait(request)
-                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
-     1                            1.0d0,g_x(i),1,nov(i),n,n,
-     2                                  g_x(i),1,nov(i),n,n)
+                call tga_add(apbvec(m,n),g_buffer1(i),g_x(i),1,n,1)
               endif 
             enddo  ! ntrials
           enddo ! nroots
@@ -544,23 +540,15 @@ c
           do n=1,nroots
             do m=1,ntrials
               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                            1.0d0,g_x(i),1,nov(i),n,n,
-     2                                  g_x(i),1,nov(i),n,n)
-                call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                            1.0d0,g_y(i),1,nov(i),n,n,
-     2                                  g_y(i),1,nov(i),n,n)
+                call tga_add(apbvec(m,n),g_trials(i),g_x(i),m,n,1)
+                call tga_add(ambvec(m,n),g_trials(i),g_y(i),m,n,1)
               else
                 dummy=dra_read_section(.false.,
      1            g_buffer1(i),1,nov(i),1,1,d_trials(i),1,nov(i),m,m,
      2            request)
                 dummy=dra_wait(request)
-                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
-     1                            1.0d0,g_x(i),1,nov(i),n,n,
-     2                                  g_x(i),1,nov(i),n,n)
-                call ga_add_patch(ambvec(m,n),g_buffer1(i),1,nov(i),1,1,
-     1                            1.0d0,g_y(i),1,nov(i),n,n,
-     2                                  g_y(i),1,nov(i),n,n)
+                call tga_add(apbvec(m,n),g_buffer1(i),g_x(i),1,n,1)
+                call tga_add(ambvec(m,n),g_buffer1(i),g_y(i),1,n,1)
               endif
             enddo
           enddo ! nroots
@@ -1680,6 +1668,8 @@ c
       if (ipol.eq.2) then
         if (.not.ma_pop_stack(l_corr)) call errquit
      1    ('tddft_analysis: failed to deallocate corr',0, MA_ERR)
+        if (.not.ga_destroy(g_corr)) call errquit
+     1    ('tddft_analysis: failed to destroy g_corr',0, GA_ERR)
       endif
 c
       do i=ipol,1,-1
@@ -1689,12 +1679,7 @@ c
      1    ('tddft_analysis: failed to deallocate x',0, MA_ERR)
       enddo
 c
-      if (ipol.eq.2) then
-        if (.not.ga_destroy(g_corr)) call errquit
-     1    ('tddft_analysis: failed to destroy g_corr',0, GA_ERR)
-      endif
-c
-      do i=1,ipol
+      do i=ipol,1,-1
         if (.not.ga_destroy(g_x(i))) call errquit
      1    ('tddft_analysis: failed to destroy g_x',0, GA_ERR)
         if (.not.tda) then

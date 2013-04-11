@@ -93,6 +93,7 @@ c
       integer owstart(2)
       integer owend(2)
       double precision diff_max
+      double precision tga_ddot
 c
       iproc=ga_nodeid()
       nodezero=(ga_nodeid().eq.0)
@@ -169,17 +170,15 @@ c
       do n=1,min(nresiduals,ntrials)
         residual_1(n)=0.0d0
         do i=1,ipol
-          residual_1(n)=residual_1(n)+ga_ddot_patch
-     1      (g_residuals_1(i),'N',1,nov(i),n,n,
-     2       g_residuals_1(i),'N',1,nov(i),n,n)
+          residual_1(n)=residual_1(n)+tga_ddot
+     &      (g_residuals_1(i),g_residuals_1(i),n,n)
         enddo
         residual_1(n)=dsqrt(residual_1(n))
         if (.not.tda) then
           residual_2(n)=0.0d0
           do i=1,ipol
-            residual_2(n)=residual_2(n)+ga_ddot_patch
-     1        (g_residuals_2(i),'N',1,nov(i),n,n,
-     2         g_residuals_2(i),'N',1,nov(i),n,n)
+            residual_2(n)=residual_2(n)+tga_ddot
+     &        (g_residuals_2(i),g_residuals_2(i),n,n)
           enddo
           residual_2(n)=dsqrt(residual_2(n))
         endif
@@ -312,18 +311,16 @@ c         Add the product vectors AX to reconstruct the residual vectors
 c
           do i=1,ipol
             if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-              call ga_add_patch(1.d0,g_prod_p(i),1,nov(i),1,nroots,
-     +                          1.d0,g_residuals_1(i),1,nov(i),1,nroots,
-     +                               g_residuals_1(i),1,nov(i),1,nroots)
+              call tga_add(1.0d0,g_prod_p(i),g_residuals_1(i),
+     &               1,1,nroots)
             else
               do n=1,nroots
                 dummy=dra_read_section(.false.,
      1                g_buffer1(i),1,nov(i),1,1,
      2                d_prod_p(i),1,nov(i),n,n,request)
                 dummy=dra_wait(request)
-                call ga_add_patch(1.d0,g_buffer1(i),1,nov(i),1,1,
-     +                            1.d0,g_residuals_1(i),1,nov(i),n,n,
-     +                                 g_residuals_1(i),1,nov(i),n,n)
+                call tga_add(1.0d0,g_buffer1(i),g_residuals_1(i),
+     &               1,n,1)
               enddo
             endif
           enddo
@@ -469,31 +466,26 @@ c         (A-B)(X-Y)-w(X+Y) and (A+B)(X+Y)-w(X-Y)
 c
           do i=1,ipol
             if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-              call ga_add_patch(1.d0,g_prod_m(i),1,nov(i),
-     +                                           nroots+1,2*nroots,
-     +                          1.d0,g_residuals_1(i),1,nov(i),1,nroots,
-     +                               g_residuals_1(i),1,nov(i),1,nroots)
-              call ga_add_patch(1.d0,g_prod_p(i),1,nov(i),1,nroots,
-     +                          1.d0,g_residuals_2(i),1,nov(i),1,nroots,
-     +                               g_residuals_2(i),1,nov(i),1,nroots)
+              call tga_add(1.0d0,g_prod_m(i),g_residuals_1(i),
+     &             nroots+1,1,nroots)
+              call tga_add(1.0d0,g_prod_p(i),g_residuals_2(i),
+     &             1,1,nroots)
             else
               do n=1,nroots
                 dummy=dra_read_section(.false.,
      1                g_buffer1(i),1,nov(i),1,1,
      2                d_prod_m(i),1,nov(i),nroots+n,nroots+n,request)
                 dummy=dra_wait(request)
-                call ga_add_patch(1.d0,g_buffer1(i),1,nov(i),1,1,
-     +                            1.d0,g_residuals_1(i),1,nov(i),n,n,
-     +                                 g_residuals_1(i),1,nov(i),n,n)
+                call tga_add(1.0d0,g_buffer1(i),g_residuals_1(i),
+     &               1,n,1)
               enddo
               do n=1,nroots
                 dummy=dra_read_section(.false.,
      1                g_buffer1(i),1,nov(i),1,1,
      2                d_prod_p(i),1,nov(i),n,n,request)
                 dummy=dra_wait(request)
-                call ga_add_patch(1.d0,g_buffer1(i),1,nov(i),1,1,
-     +                            1.d0,g_residuals_2(i),1,nov(i),n,n,
-     +                                 g_residuals_2(i),1,nov(i),n,n)
+                call tga_add(1.0d0,g_buffer1(i),g_residuals_2(i),
+     &               1,n,1)
               enddo
             endif
           enddo
@@ -533,8 +525,7 @@ c
             if ((algorithm.eq.1).or.(algorithm.eq.2)) then
               r = 0.0d0
               do i=1,ipol
-                r = r + ga_ddot_patch(g_trials(i),'N',1,nov(i),l,l,
-     &                                g_trials(i),'N',1,nov(i),l,l)
+                r = r + tga_ddot(g_trials(i),g_trials(i),l,l)
               enddo ! i=1,ipol
               r = 1.0d0/dsqrt(r)
               do i=1,ipol
@@ -549,8 +540,7 @@ c
      &                  g_buffer2(i),1,nov(i),1,1,
      &                  d_trials(i),1,nov(i),l,l,request)
                 dummy = dra_wait(request)
-                r = r + ga_ddot_patch(g_buffer2(i),'N',1,nov(i),1,1,
-     &                                g_buffer2(i),'N',1,nov(i),1,1)
+                r = r + tga_ddot(g_buffer2(i),g_buffer2(i),1,1)
               enddo ! i=1,ipol
               r = 1.0d0/dsqrt(r)
               do i=1,ipol
@@ -585,19 +575,12 @@ c
               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
                 r = 0.0d0
                 do i=1,ipol
-                  r = r + ga_ddot_patch(g_trials(i),'N',1,nov(i),k,k,
-     &                                  g_trials(i),'N',1,nov(i),l,l)
+                  r = r + tga_ddot(g_trials(i),g_trials(i),k,l)
                 enddo ! i=1,ipol
                 do i=1,ipol
-                  call ga_add_patch(-r,   g_trials(i),1,nov(i),k,k,
-     &                              1.0d0,g_trials(i),1,nov(i),l,l,
-     &                                    g_trials(i),1,nov(i),l,l)
-                  call ga_add_patch(-r,   g_prod_p(i),1,nov(i),k,k,
-     &                              1.0d0,g_prod_p(i),1,nov(i),l,l,
-     &                                    g_prod_p(i),1,nov(i),l,l)
-                  call ga_add_patch(-r,   g_prod_m(i),1,nov(i),k,k,
-     &                              1.0d0,g_prod_m(i),1,nov(i),l,l,
-     &                                    g_prod_m(i),1,nov(i),l,l)
+                  call tga_add(-r,g_trials(i),g_trials(i),k,l,1)
+                  call tga_add(-r,g_prod_p(i),g_prod_p(i),k,l,1)
+                  call tga_add(-r,g_prod_m(i),g_prod_m(i),k,l,1)
                 enddo ! i=1,ipol
               else
                 r = 0.0d0
@@ -610,13 +593,10 @@ c
      &                    g_buffer1(i),1,nov(i),1,1,
      &                    d_trials(i),1,nov(i),k,k,request)
                   dummy = dra_wait(request)
-                  r = r + ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
-     &                                  g_buffer2(i),'N',1,nov(i),1,1)
+                  r = r + tga_ddot(g_buffer1(i),g_buffer2(i),1,1)
                 enddo ! i=1,ipol
                 do i=1,ipol
-                  call ga_add_patch(-r,   g_buffer1(i),1,nov(i),1,1,
-     &                              1.0d0,g_buffer2(i),1,nov(i),1,1,
-     &                                    g_buffer2(i),1,nov(i),1,1)
+                  call tga_add(-r,g_buffer1(i),g_buffer2(i),1,1,1)
                   dummy = dra_write_section(.false.,
      &                    g_buffer2(i),1,nov(i),1,1,
      &                    d_trials(i),1,nov(i),l,l,request)
@@ -630,9 +610,7 @@ c
      &                    g_buffer1(i),1,nov(i),1,1,
      &                    d_prod_p(i),1,nov(i),k,k,request)
                   dummy = dra_wait(request)
-                  call ga_add_patch(-r,   g_buffer1(i),1,nov(i),1,1,
-     &                              1.0d0,g_buffer2(i),1,nov(i),1,1,
-     &                                    g_buffer2(i),1,nov(i),1,1)
+                  call tga_add(-r,g_buffer1(i),g_buffer2(i),1,1,1)
                   dummy = dra_write_section(.false.,
      &                    g_buffer2(i),1,nov(i),1,1,
      &                    d_prod_p(i),1,nov(i),l,l,request)
@@ -646,9 +624,7 @@ c
      &                    g_buffer1(i),1,nov(i),1,1,
      &                    d_prod_m(i),1,nov(i),k,k,request)
                   dummy = dra_wait(request)
-                  call ga_add_patch(-r,   g_buffer1(i),1,nov(i),1,1,
-     &                              1.0d0,g_buffer2(i),1,nov(i),1,1,
-     &                                    g_buffer2(i),1,nov(i),1,1)
+                  call tga_add(-r,g_buffer1(i),g_buffer2(i),1,1,1)
                   dummy = dra_write_section(.false.,
      &                    g_buffer2(i),1,nov(i),1,1,
      &                    d_prod_m(i),1,nov(i),l,l,request)
@@ -660,8 +636,7 @@ c             write(*,'(" overlap (",i2,",",i2,") = ",f22.14)')l,k,r
             if ((algorithm.eq.1).or.(algorithm.eq.2)) then
               r = 0.0d0
               do i=1,ipol
-                r = r + ga_ddot_patch(g_trials(i),'N',1,nov(i),l,l,
-     &                                g_trials(i),'N',1,nov(i),l,l)
+                r = r + tga_ddot(g_trials(i),g_trials(i),l,l)
               enddo ! i=1,ipol
               r = 1.0d0/dsqrt(r)
               do i=1,ipol
@@ -676,8 +651,7 @@ c             write(*,'(" overlap (",i2,",",i2,") = ",f22.14)')l,k,r
      &                  g_buffer2(i),1,nov(i),1,1,
      &                  d_trials(i),1,nov(i),l,l,request)
                 dummy = dra_wait(request)
-                r = r + ga_ddot_patch(g_buffer2(i),'N',1,nov(i),1,1,
-     &                                g_buffer2(i),'N',1,nov(i),1,1)
+                r = r + tga_ddot(g_buffer2(i),g_buffer2(i),1,1)
               enddo ! i=1,ipol
               r = 1.0d0/dsqrt(r)
               do i=1,ipol
@@ -720,19 +694,12 @@ c
                 if ((algorithm.eq.1).or.(algorithm.eq.2)) then
                   r = 0.0d0
                   do i=1,ipol
-                    r = r + ga_ddot_patch(g_trials(i),'N',1,nov(i),k,k,
-     &                                    g_trials(i),'N',1,nov(i),l,l)
+                    r = r + tga_ddot(g_trials(i),g_trials(i),k,l)
                   enddo ! i=1,ipol
                   do i=1,ipol
-                    call ga_add_patch(-r,   g_trials(i),1,nov(i),k,k,
-     &                                1.0d0,g_trials(i),1,nov(i),l,l,
-     &                                      g_trials(i),1,nov(i),l,l)
-                    call ga_add_patch(-r,   g_prod_p(i),1,nov(i),k,k,
-     &                                1.0d0,g_prod_p(i),1,nov(i),l,l,
-     &                                      g_prod_p(i),1,nov(i),l,l)
-                    call ga_add_patch(-r,   g_prod_m(i),1,nov(i),k,k,
-     &                                1.0d0,g_prod_m(i),1,nov(i),l,l,
-     &                                      g_prod_m(i),1,nov(i),l,l)
+                    call tga_add(-r,g_trials(i),g_trials(i),k,l,1)
+                    call tga_add(-r,g_prod_p(i),g_prod_p(i),k,l,1)
+                    call tga_add(-r,g_prod_m(i),g_prod_m(i),k,l,1)
                   enddo ! i=1,ipol
                 else ! ((algorithm.eq.1).or.(algorithm.eq.2))
                   r = 0.0d0
@@ -745,13 +712,10 @@ c
      &                      g_buffer1(i),1,nov(i),1,1,
      &                      d_trials(i),1,nov(i),k,k,request)
                     dummy = dra_wait(request)
-                    r = r + ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
-     &                                    g_buffer2(i),'N',1,nov(i),1,1)
+                    r = r + tga_ddot(g_buffer1(i),g_buffer2(i),1,1)
                   enddo ! i=1,ipol
                   do i=1,ipol
-                    call ga_add_patch(-r,   g_buffer1(i),1,nov(i),1,1,
-     &                                1.0d0,g_buffer2(i),1,nov(i),1,1,
-     &                                      g_buffer2(i),1,nov(i),1,1)
+                    call tga_add(-r,g_buffer1(i),g_buffer2(i),1,1,1)
                     dummy = dra_write_section(.false.,
      &                      g_buffer2(i),1,nov(i),1,1,
      &                      d_trials(i),1,nov(i),l,l,request)
@@ -765,9 +729,7 @@ c
      &                      g_buffer1(i),1,nov(i),1,1,
      &                      d_prod_p(i),1,nov(i),k,k,request)
                     dummy = dra_wait(request)
-                    call ga_add_patch(-r,   g_buffer1(i),1,nov(i),1,1,
-     &                                1.0d0,g_buffer2(i),1,nov(i),1,1,
-     &                                      g_buffer2(i),1,nov(i),1,1)
+                    call tga_add(-r,g_buffer1(i),g_buffer2(i),1,1,1)
                     dummy = dra_write_section(.false.,
      &                      g_buffer2(i),1,nov(i),1,1,
      &                      d_prod_p(i),1,nov(i),l,l,request)
@@ -781,9 +743,7 @@ c
      &                      g_buffer1(i),1,nov(i),1,1,
      &                      d_prod_m(i),1,nov(i),k,k,request)
                     dummy = dra_wait(request)
-                    call ga_add_patch(-r,   g_buffer1(i),1,nov(i),1,1,
-     &                                1.0d0,g_buffer2(i),1,nov(i),1,1,
-     &                                      g_buffer2(i),1,nov(i),1,1)
+                    call tga_add(-r,g_buffer1(i),g_buffer2(i),1,1,1)
                     dummy = dra_write_section(.false.,
      &                      g_buffer2(i),1,nov(i),1,1,
      &                      d_prod_m(i),1,nov(i),l,l,request)
@@ -795,8 +755,7 @@ c               write(*,'(" overlap (",i2,",",i2,") = ",f22.14)')l,k,r
               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
                 r = 0.0d0
                 do i=1,ipol
-                  r = r + ga_ddot_patch(g_trials(i),'N',1,nov(i),l,l,
-     &                                  g_trials(i),'N',1,nov(i),l,l)
+                  r = r + tga_ddot(g_trials(i),g_trials(i),l,l)
                 enddo ! i=1,ipol
                 r = 1.0d0/dsqrt(r)
                 do i=1,ipol
@@ -811,8 +770,7 @@ c               write(*,'(" overlap (",i2,",",i2,") = ",f22.14)')l,k,r
      &                    g_buffer2(i),1,nov(i),1,1,
      &                    d_trials(i),1,nov(i),l,l,request)
                   dummy = dra_wait(request)
-                  r = r + ga_ddot_patch(g_buffer2(i),'N',1,nov(i),1,1,
-     &                                  g_buffer2(i),'N',1,nov(i),1,1)
+                  r = r + tga_ddot(g_buffer2(i),g_buffer2(i),1,1)
                 enddo ! i=1,ipol
                 r = 1.0d0/dsqrt(r)
                 do i=1,ipol
@@ -902,30 +860,24 @@ c
             r=0.0d0
             do i=1,ipol
               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                r=r+ga_ddot_patch(g_residuals_1(i),'N',1,nov(i),n,n,
-     1                            g_trials(i),     'N',1,nov(i),m,m)
+                r=r+tga_ddot(g_residuals_1(i),g_trials(i),n,m)
               else
                 dummy=dra_read_section(.false.,
      1            g_buffer1(i),1,nov(i),1,1,
      2            d_trials(i),1,nov(i),m,m,request)
                 dummy=dra_wait(request)
-                r=r+ga_ddot_patch(g_residuals_1(i),'N',1,nov(i),n,n,
-     1                            g_buffer1(i),    'N',1,nov(i),1,1)
+                r=r+tga_ddot(g_residuals_1(i),g_buffer1(i),n,1)
               endif
             enddo
             do i=1,ipol
               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                call ga_add_patch(1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     1                            -r,   g_trials(i),     1,nov(i),m,m,
-     2                                  g_residuals_1(i),1,nov(i),n,n)
+                call tga_add(-r,g_trials(i),g_residuals_1(i),m,n,1)
               else
                 dummy=dra_read_section(.false.,
      1            g_buffer1(i),1,nov(i),1,1,
      2            d_trials(i),1,nov(i),m,m,request)
                 dummy=dra_wait(request)
-                call ga_add_patch(1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     1                            -r,   g_buffer1(i),    1,nov(i),1,1,
-     2                                  g_residuals_1(i),1,nov(i),n,n)
+                call tga_add(-r,g_buffer1(i),g_residuals_1(i),1,n,1)
               endif
             enddo
           enddo
@@ -934,8 +886,7 @@ c Normalize the new trial vector
 c
           r=0.0d0
           do i=1,ipol
-            r=r+ga_ddot_patch(g_residuals_1(i),'N',1,nov(i),n,n,
-     1                        g_residuals_1(i),'N',1,nov(i),n,n)
+            r=r+tga_ddot(g_residuals_1(i),g_residuals_1(i),n,n)
           enddo
           if (r.gt.1.0d-15) then
             r=dsqrt(r)
@@ -1010,30 +961,24 @@ c
               r=0.0d0
               do i=1,ipol
                 if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                  r=r+ga_ddot_patch(g_residuals_2(i),'N',1,nov(i),n,n,
-     1                              g_trials(i),     'N',1,nov(i),m,m)
+                  r=r+tga_ddot(g_residuals_2(i),g_trials(i),n,m)
                 else
                   dummy=dra_read_section(.false.,
      1              g_buffer1(i),1,nov(i),1,1,
      2              d_trials(i),1,nov(i),m,m,request)
                   dummy=dra_wait(request)
-                  r=r+ga_ddot_patch(g_residuals_2(i),'N',1,nov(i),n,n,
-     1                              g_buffer1(i),    'N',1,nov(i),1,1)
+                  r=r+tga_ddot(g_residuals_2(i),g_buffer1(i),n,1)
                 endif
               enddo
               do i=1,ipol
                 if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                  call ga_add_patch(1.0d0,g_residuals_2(i),1,nov(i),n,n,
-     1                              -r,   g_trials(i),     1,nov(i),m,m,
-     2                                    g_residuals_2(i),1,nov(i),n,n)
+                  call tga_add(-r,g_trials(i),g_residuals_2(i),m,n,1)
                 else
                   dummy=dra_read_section(.false.,
      1              g_buffer1(i),1,nov(i),1,1,
      2              d_trials(i),1,nov(i),m,m,request)
                   dummy=dra_wait(request)
-                  call ga_add_patch(1.0d0,g_residuals_2(i),1,nov(i),n,n,
-     1                              -r,   g_buffer1(i),    1,nov(i),1,1,
-     2                                    g_residuals_2(i),1,nov(i),n,n)
+                  call tga_add(-r,g_buffer1(i),g_residuals_2(i),1,n,1)
                 endif
               enddo
             enddo
@@ -1042,8 +987,7 @@ c Normalize the new trial vector
 c
             r=0.0d0
             do i=1,ipol
-              r=r+ga_ddot_patch(g_residuals_2(i),'N',1,nov(i),n,n,
-     1                          g_residuals_2(i),'N',1,nov(i),n,n)
+              r=r+tga_ddot(g_residuals_2(i),g_residuals_2(i),n,n)
             enddo
             if (r.gt.1.0d-15) then
               r=dsqrt(r)
