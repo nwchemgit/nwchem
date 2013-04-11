@@ -71,7 +71,7 @@ c
             dbl_mb(k_work4+(i-1)*ntrials+j-1)=apb(j,i)
           enddo
         enddo
-        call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
+        call util_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
      1    apbval,dummy1,dummy2,1,apbvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
         call tddft_schmidt(ntrials,apbvec)
@@ -96,7 +96,7 @@ c
             dbl_mb(k_work4+(i-1)*ntrials+j-1)=amb(j,i)
           enddo
         enddo
-        call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
+        call util_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
      1    ambval,dummy1,dummy2,1,ambvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
         call tddft_schmidt(ntrials,ambvec)
@@ -151,7 +151,7 @@ c
             dbl_mb(k_work4+(i-1)*ntrials+j-1)=ambvec(j,i)
           enddo
         enddo
-        call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
+        call util_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
      1    apbval,dummy1,dummy2,1,apbvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
         call tddft_schmidt(ntrials,apbvec)
