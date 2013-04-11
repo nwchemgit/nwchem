@@ -193,7 +193,7 @@ endif
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
               util_dra_test.o util_eaf_test.o util_sf_test.o \
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
-	      ga_lkain_2cpl3_ext.o \
+	      ga_lkain_2cpl3_ext.o  util_dgeev.o\
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
@@ -207,7 +207,7 @@ endif
 	      util_params.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F
+                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
