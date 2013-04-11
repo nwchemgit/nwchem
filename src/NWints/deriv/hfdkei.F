@@ -96,89 +96,103 @@ c Define the angular momentum indices for shell "B".
   
 c Build Tx.
   
-         do m = 1,NPP
-            ti(m) =   2D0*(alpha(1,m)*alpha(2,m))*E(1,m,n1,0,Ia+1,Ib+1)
-         enddo
-         if( Ia.gt.0 )then
-            do  m = 1,NPP
-               ti(m) = ti(m) - Ia*alpha(2,m)*E(1,m,n1,0,Ia-1,Ib+1)
-            enddo
-         endif
-         if( Ib.gt.0 )then
-            do m = 1,NPP
-               ti(m) = ti(m) - Ib*alpha(1,m)*E(1,m,n1,0,Ia+1,Ib-1)
-            enddo
-         endif
-         if( Ia.gt.0 .and. Ib.gt.0 )then
-            do m = 1,NPP
-               ti(m) = ti(m) + 0.5D0*Ia*Ib*E(1,m,n1,0,Ia-1,Ib-1)
-            enddo
+        if( Ia.gt.0 .and. Ib.gt.0 )then
+         do 100 m = 1,NPP
+          Ti(m) =   0.5D0*(        Ia*Ib        )*E(1,m,n1,0,Ia-1,Ib-1)
+     &            -       (        Ia*alpha(2,m))*E(1,m,n1,0,Ia-1,Ib+1)
+     &            -       (alpha(1,m)*Ib        )*E(1,m,n1,0,Ia+1,Ib-1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(1,m,n1,0,Ia+1,Ib+1)
+  100    continue
+        else if( Ia.gt.0 )then
+         do 110 m = 1,NPP
+          Ti(m) = -       (        Ia*alpha(2,m))*E(1,m,n1,0,Ia-1,Ib+1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(1,m,n1,0,Ia+1,Ib+1)
+  110    continue
+        else if( Ib.gt.0 )then
+         do 120 m = 1,NPP
+          Ti(m) = -       (alpha(1,m)*Ib        )*E(1,m,n1,0,Ia+1,Ib-1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(1,m,n1,0,Ia+1,Ib+1)
+  120    continue
+        else
+         do 130 m = 1,NPP
+          Ti(m) =   2.0D0*(alpha(1,m)*alpha(2,m))*E(1,m,n1,0,Ia+1,Ib+1)
+  130    continue
         end if
   
 c Add Tx*Ey*Ez to Tab
   
-        do m = 1,NPP
-           Tab(nn,id) = Tab(nn,id) + Ti(m)*
-     &          E(2,m,n2,0,Ja,Jb)*E(3,m,n3,0,Ka,Kb)
-        enddo
+        do 140 m = 1,NPP
+         Tab(nn,id) = Tab(nn,id) + Ti(m)*
+     &                             E(2,m,n2,0,Ja,Jb)*
+     &                             E(3,m,n3,0,Ka,Kb)
+  140   continue
   
 c Build Ty.
   
-        do m = 1,NPP
-           ti(m) = 2.0D0*(alpha(1,m)*alpha(2,m))*E(2,m,n2,0,Ja+1,Jb+1)
-        enddo
-        if( Ja.gt.0 )then
-           do m = 1,NPP
-              ti(m) = ti(m) - Ja*alpha(2,m)*E(2,m,n2,0,Ja-1,Jb+1)
-           enddo
-        endif
-        if( Jb.gt.0 )then
-           do m = 1,NPP
-              ti(m) = ti(m) - jb*alpha(1,m)*E(2,m,n2,0,Ja+1,Jb-1)
-           enddo
-        endif
         if( Ja.gt.0 .and. Jb.gt.0 )then
-           do m = 1,NPP
-              ti(m) =  ti(m)+ 0.5D0*Ja*Jb*E(2,m,n2,0,Ja-1,Jb-1)
-           enddo
-        endif
-
+         do 200 m = 1,NPP
+          Ti(m) =   0.5D0*(        Ja*Jb        )*E(2,m,n2,0,Ja-1,Jb-1)
+     &            -       (        Ja*alpha(2,m))*E(2,m,n2,0,Ja-1,Jb+1)
+     &            -       (alpha(1,m)*Jb        )*E(2,m,n2,0,Ja+1,Jb-1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(2,m,n2,0,Ja+1,Jb+1)
+  200    continue
+        else if( Ja.gt.0 )then
+         do 210 m = 1,NPP
+          Ti(m) = -       (        Ja*alpha(2,m))*E(2,m,n2,0,Ja-1,Jb+1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(2,m,n2,0,Ja+1,Jb+1)
+  210    continue
+        else if( Jb.gt.0 )then
+         do 220 m = 1,NPP
+          Ti(m) = -       (alpha(1,m)*Jb        )*E(2,m,n2,0,Ja+1,Jb-1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(2,m,n2,0,Ja+1,Jb+1)
+  220    continue
+        else
+         do 230 m = 1,NPP
+          Ti(m) =   2.0D0*(alpha(1,m)*alpha(2,m))*E(2,m,n2,0,Ja+1,Jb+1)
+  230    continue
+        end if
   
 c Add Ex*Ty*Ez to Tab.
   
-        do m = 1,NPP
+        do 240 m = 1,NPP
          Tab(nn,id) = Tab(nn,id) + E(1,m,n1,0,Ia,Ib)*
-     &          Ti(m)*E(3,m,n3,0,Ka,Kb)
-      enddo
+     &                             Ti(m)*
+     &                             E(3,m,n3,0,Ka,Kb)
+  240   continue
   
 c Build Tz.
   
-         do m = 1,NPP
-            ti(m) = 2.0D0*(alpha(1,m)*alpha(2,m))*E(3,m,n3,0,Ka+1,Kb+1)
-         enddo
-         if( Ka.gt.0 )then
-            do m = 1,NPP
-               ti(m) = ti(m) - Ka*alpha(2,m)*E(3,m,n3,0,Ka-1,Kb+1)
-            enddo
-         endif
-         if( Kb.gt.0 )then
-            do  m = 1,NPP
-               ti(m) = ti(m) - kb*alpha(1,m)*Kb*E(3,m,n3,0,Ka+1,Kb-1)
-            enddo
-         endif
         if( Ka.gt.0 .and. Kb.gt.0 )then
-           do m = 1,NPP
-              ti(m) = ti(m) + 0.5D0*Ka*Kb*E(3,m,n3,0,Ka-1,Kb-1)
-           enddo
-        endif
+         do 300 m = 1,NPP
+          Ti(m) =   0.5D0*(        Ka*Kb        )*E(3,m,n3,0,Ka-1,Kb-1)
+     &            -       (        Ka*alpha(2,m))*E(3,m,n3,0,Ka-1,Kb+1)
+     &            -       (alpha(1,m)*Kb        )*E(3,m,n3,0,Ka+1,Kb-1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(3,m,n3,0,Ka+1,Kb+1)
+  300    continue
+        else if( Ka.gt.0 )then
+         do 310 m = 1,NPP
+          Ti(m) = -       (        Ka*alpha(2,m))*E(3,m,n3,0,Ka-1,Kb+1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(3,m,n3,0,Ka+1,Kb+1)
+  310    continue
+        else if( Kb.gt.0 )then
+         do 320 m = 1,NPP
+          Ti(m) = -       (alpha(1,m)*Kb        )*E(3,m,n3,0,Ka+1,Kb-1)
+     &            + 2.0D0*(alpha(1,m)*alpha(2,m))*E(3,m,n3,0,Ka+1,Kb+1)
+  320    continue
+        else
+         do 330 m = 1,NPP
+          Ti(m) =   2.0D0*(alpha(1,m)*alpha(2,m))*E(3,m,n3,0,Ka+1,Kb+1)
+  330    continue
+        end if
   
 c Add Ex*Ey*Tz to Tab.
   
-        do m = 1,NPP
-           Tab(nn,id) = Tab(nn,id) + E(1,m,n1,0,Ia,Ib)*
-     &          E(2,m,n2,0,Ja,Jb)*Ti(m)
-        enddo
-        
+        do 340 m = 1,NPP
+         Tab(nn,id) = Tab(nn,id) + E(1,m,n1,0,Ia,Ib)*
+     &                             E(2,m,n2,0,Ja,Jb)*
+     &                             Ti(m)
+  340   continue
+
   405  continue
 
   410  continue
