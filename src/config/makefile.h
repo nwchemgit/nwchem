@@ -1621,6 +1621,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@echo 
 	@exit 1
    endif
+      FC=gfortran
       _FC=noifc
       ifeq ($(FC),ftn)
 	  _FC=pgf90
@@ -1796,26 +1797,6 @@ endif # end of ia32 bit
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
       FC=pgf90
       CC=gcc
-endif
-      ifeq ($(FC),f77)
-        defineFC: 
-	@echo 
-	@echo please set FC equal to g77, pathf90 or pgf90
-	@echo e.g. type
-	@echo 
-	@echo "    make FC=pathf90"
-	@echo 
-	@exit 1
-      endif
-ifeq ($(_FC),noifc)
-ifndef USE_RISKYFC
-error2:
-$(info     )
-$(info You must define FC to a known compiler, instead of $(FC) )
-$(info For example: ifort, gfortran or pgf90)
-$(info     )
-$(error )
-endif
 endif
 
       ifeq ($(_FC),ifort)
