@@ -3,7 +3,7 @@
 OBJ = tddft_energy.o tddft_input.o tddft_init.o tddft_memory.o tddft_iguess.o \
 tddft_dump.o tddft_davidson.o tddft_transfm.o tddft_contract.o tddft_epsilon.o \
 tddft_subspace.o tddft_diagon.o tddft_residual.o tddft_analysis.o tddft_dftinit.o \
-tddft_finalize.o tddft_sort.o tddft_schmidt.o tddft_fold.o \
+tddft_finalize.o tddft_schmidt.o tddft_fold.o \
 tddft_bdtensor.o
 
 OBJ_OPTIMIZE = 

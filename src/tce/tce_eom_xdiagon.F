@@ -289,7 +289,7 @@ c
      2  dbl_mb(k_wk),4*nxtrials,info)
       if (info.ne.0) call errquit('tce_eom_xdiagon: dgeev failed',info,
      1  UNKNOWN_ERR)
-      call tddft_sort(nxtrials,omega,dbl_mb(k_vr),'A')
+      call util_nwsort(nxtrials,omega,dbl_mb(k_vr),'A')
       if (nodezero.and.util_print('omega',print_debug)) then
         do ivec = 1, nxtrials
           write(LuOut,9000) omega(ivec),omega(ivec)*au2ev

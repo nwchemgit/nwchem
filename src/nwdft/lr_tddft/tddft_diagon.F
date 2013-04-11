@@ -75,7 +75,7 @@ c
      1    apbval,dummy1,dummy2,1,apbvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
         call tddft_schmidt(ntrials,apbvec)
-        call tddft_sort(ntrials,apbval,apbvec,'A')
+        call util_nwsort(ntrials,apbval,apbvec,'A')
         if (util_print('diagonization',print_debug)) then
           if (nodezero) then
             call ma_print(apbval,ntrials,1,'Eigenvalues')
@@ -100,7 +100,7 @@ c
      1    ambval,dummy1,dummy2,1,ambvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
         call tddft_schmidt(ntrials,ambvec)
-        call tddft_sort(ntrials,ambval,ambvec,'A')
+        call util_nwsort(ntrials,ambval,ambvec,'A')
         if (util_print('diagonization',print_debug)) then
           if (nodezero) then
             call ma_print(ambval,ntrials,1,'Eigenvalues')
@@ -155,7 +155,7 @@ c
      1    apbval,dummy1,dummy2,1,apbvec,ntrials,
      2    dbl_mb(k_work3),10*ntrials,info)
         call tddft_schmidt(ntrials,apbvec)
-        call tddft_sort(ntrials,apbval,apbvec,'A')
+        call util_nwsort(ntrials,apbval,apbvec,'A')
         do i=1,ntrials
           if (apbval(i).lt.0.0d0) then
             call errquit
