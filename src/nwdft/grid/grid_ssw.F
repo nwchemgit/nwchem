@@ -140,14 +140,14 @@ c
       integer i,j,ij
       double precision rag,mu,sk
       double precision leps,toll_scr,x
-      parameter(leps=1d-4,toll_scr=1d-10)
+      parameter(leps=1d-6,toll_scr=1d-10)
 #include "xc_erftab.fh"
 c
 #ifdef USE_VEC
       call dfill(nctrs_pruned,1.d0,p,1)
       do  i = 1, nctrs_pruned
 #else
-      call dcopy(nctrs_pruned,1.d0,0,p,1)
+      call ycopy(nctrs_pruned,1.d0,0,p,1)
       do  i = 2, nctrs_pruned
 #endif
          ij = (i*(i-1))/2
@@ -187,24 +187,14 @@ c     use interpolation for erfs
 c
                if(abs(mu).lt.leps) then
                   sk=-1.88063178008d0*mu+0.5d0
-#ifndef USE_VEC
-                  p(i) = p(i)*sk
-#endif
-                  p(j) = p(j)*(1d0 - sk)
                else
                   sk=erf1c(mu)
-                  if(mu.lt.0d0) then
-                     p(j) = p(j)*sk
-#ifndef USE_VEC
-                     p(i) = p(i)*(1d0 - sk)
-#endif
-                  else
-#ifndef USE_VEC
-                     p(i) = p(i)*sk
-#endif
-                     p(j) = p(j)*(1d0 - sk)
-                  endif
                endif
+               if(mu.gt.0d0) sk = 1d0 - sk
+               p(j) = p(j)*sk
+#ifndef USE_VEC
+               p(i) = p(i)*(1d0 - sk)
+#endif
             endif
         endif
 #ifdef USE_VEC
