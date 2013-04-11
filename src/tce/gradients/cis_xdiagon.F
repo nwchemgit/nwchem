@@ -96,12 +96,12 @@ c     Diagonalize the non-Hermitian matrix
 c
       cpu = - util_cpusec()
       wall = - util_wallsec()
-      call tddft_dgeev('n','v',nxtrials,dbl_mb(k_hbar),nxtrials,
+      call util_dgeev('n','v',nxtrials,dbl_mb(k_hbar),nxtrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nxtrials,
      2  dbl_mb(k_wk),4*nxtrials,info)
       if (info.ne.0) call errquit('tce_eom_xdiagon: dgeev failed',info,
      1  UNKNOWN_ERR)
-      call tddft_sort(nxtrials,omega,dbl_mb(k_vr),'A')
+      call util_nwsort(nxtrials,omega,dbl_mb(k_vr),'A')
       if (nodezero.and.util_print('omega',print_debug)) then
         do ivec = 1, nxtrials
           write(LuOut,9000) omega(ivec),omega(ivec)*au2ev
