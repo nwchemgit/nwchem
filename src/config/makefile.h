@@ -1666,7 +1666,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
       endif
        ifdef USE_I4FLAGS
            ifeq ($(_FC),gfortran)
-             FOPTIONS += -fdefault-integer-8
+#wrong             FOPTIONS += -fdefault-integer-8
 	   else  ifeq ($(_FC),crayftn)
              FOPTIONS += -s integer32
 	   else   
