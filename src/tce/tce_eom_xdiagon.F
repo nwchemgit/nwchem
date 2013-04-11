@@ -284,7 +284,7 @@ c
 c  DIAGONALIZE l_shbar
 c
 c
-      call tddft_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
+      call util_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nxtrials,
      2  dbl_mb(k_wk),4*nxtrials,info)
       if (info.ne.0) call errquit('tce_eom_xdiagon: dgeev failed',info,
@@ -904,7 +904,7 @@ c big number on diagonal beyond current space
 c
 c
 c
-        call dgeev(jobvl,jobvr,xdiis,h_eff,xdiis,wr,wi,
+        call util_dgeev(jobvl,jobvr,xdiis,h_eff,xdiis,wr,wi,
      &             vl,xdiis,vr,xdiis,work,lwork,info_x)
 c
 c selection
@@ -1134,7 +1134,7 @@ c
      1    call errquit("tce_energy: deall5",24,MA_ERR)
 c
 c  diagonalize matrix
-        call dgeev(jobvl,jobvr,nxtrials,dbl_mb(k_matrix),
+        call util_dgeev(jobvl,jobvr,nxtrials,dbl_mb(k_matrix),
      &   nxtrials,dbl_mb(k_wr),dbl_mb(k_wi),
      &   dbl_mb(k_vl),nxtrials,dbl_mb(k_vr),
      &   nxtrials,dbl_mb(k_work),lwork,info_x)
@@ -1485,7 +1485,7 @@ c big number on diagonal beyond current space
 c
 c
 c
-        call dgeev(jobvl,jobvr,xdiis,h_eff,xdiis,wr,wi,
+        call util_dgeev(jobvl,jobvr,xdiis,h_eff,xdiis,wr,wi,
      &             vl,xdiis,vr,xdiis,work,lwork,info_x)
 c
 c selection
@@ -1814,7 +1814,7 @@ c big number on diagonal beyond current space
        enddo
 c
 c
-        call dgeev(jobvl,jobvr,xdiis*nroots_reduced,h_eff,
+        call util_dgeev(jobvl,jobvr,xdiis*nroots_reduced,h_eff,
      &             xdiis*nroots_reduced,wr,wi,
      &             vl,xdiis*nroots_reduced,vr,
      &             xdiis*nroots_reduced,work,lwork,info_x)
@@ -2324,7 +2324,7 @@ c big number on diagonal beyond current space
        enddo
 c
 c
-        call dgeev(jobvl,jobvr,xdiis*nroots_reduced,h_eff,
+        call util_dgeev(jobvl,jobvr,xdiis*nroots_reduced,h_eff,
      &             xdiis*nroots_reduced,wr,wi,
      &             vl,xdiis*nroots_reduced,vr,
      &             xdiis*nroots_reduced,work,lwork,info_x)
