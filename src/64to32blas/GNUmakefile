@@ -7,7 +7,7 @@
                  ygebak.o ygebal.o ynrm2.o ylacpy.o ylascl.o\
                  ylange.o ytrevc.o yhseqr.o yorghr.o ygehrd.o\
                  ysterf.o ylarnv.o ylagtf.o ylagts.o yasum.o \
-                 ypotri.o ypotrf.o ysygv.o ygeev.o\
+                 ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
                  ifily.o\
                  xscal.o xaxpy.o xgemm.o xheev.o xcopy.o xdotc.o \
                  ixamax.o
