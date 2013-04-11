@@ -1961,6 +1961,12 @@ c
          enddo
       else if (itype_wfn.eq.1) then
          scfruntyp='RHF'
+         do i = 1, nclosed(1)
+            dbl_mb(i-1+k_occ) = 2.0d0
+         enddo
+         do i = nclosed(1)+1, nclosed(1)+nopen(1)
+            dbl_mb(i-1+k_occ) = 1.0d0
+         enddo
       else
          call errquit("unknown function type",0,0)
       endif
