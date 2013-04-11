@@ -143,7 +143,6 @@ C> and the ga_kain solver.
 C> Because the test is fixed the subroutine takes no inputs
 C> and it prints a summary on standard output. 
 C>
-#if 0
       subroutine ga_lkain_test()
       implicit none
 #include "errquit.fh"
@@ -327,7 +326,6 @@ c
      $     call errquit('test kain', 3, GA_ERR)
 c
       end
-#endif
 C>
 C> \brief The Linear System Solver
 C>
