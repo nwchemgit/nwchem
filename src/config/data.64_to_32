@@ -160,6 +160,7 @@ dlaed9    ylaed9
 dlamrg    ylaemrg
 dlaeda    ylaeda
 dgeev     ygeev
+dgeevx    ygeevx
 dgebak    ygebak
 dgebal    ygebal
 dhseqr    yhseqr
@@ -345,6 +346,7 @@ dlaed9_   ylaed9_
 dlamrg_   ylaemrg_
 dlaeda_   ylaeda_
 dgeev_    ygeev_
+dgeevx_   ygeevx_
 dgebak_   ygebak_
 dgebal_   ygebal_
 dhseqr_   yhseqr_
