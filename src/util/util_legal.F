@@ -247,8 +247,10 @@ c
       integer inambeg !< The beginning of a name
       integer inamend !< The end of a name
       integer ii, jj  !< Temp variable
+      integer ilen
       logical found
 c
+      ilen = inp_strlen(str_names)
       if (ibegin.eq.0) then
         iend    = ibegin
         inambeg = ibegin
@@ -259,8 +261,9 @@ c
         inamend = ibegin
       endif
       do while (inp_strtok(str_names,separators,inambeg,inamend))
-        if (inamend-ibegin+2.lt.mlinelen) then
-          iend = inamend+1  ! We need to include the separator char
+        if (min(inamend,ilen)-ibegin+2.lt.mlinelen) then
+          iend = min(inamend+1,ilen)  ! We need to include the
+                                      ! separator char
         else
           exit
         endif
@@ -268,8 +271,8 @@ c
 c
 c     Increase ibegin to skip any separators or spaces
 c
-      ii = ibegin
-      do ibegin = max(ii,1), iend+1
+      ii = ibegin+1
+      do ibegin = ii, iend+1
         found = " ".eq.str_names(ibegin:ibegin)
         do jj = 1, len(separators)
           found = found
