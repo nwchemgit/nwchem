@@ -34,49 +34,27 @@ c
 #include "stdio.fh"
 #include "util.fh"
 c
-      character*80 chr01,chr02,chr03,chr04,chr05,chr06,chr07,chr08
-      character*80 chr09,chr10,chr11,chr12,chr13,chr14
-      data chr01/
-     +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,'/
-      data chr02/
-     +'T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Wind
-     +us,'/
-      data chr03/
-     +'J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, F. Aquin
-     +o,'/
-      data chr04/
-     +'S. Hirata, M. T. Hackler, K. Lopata, J. Mullin, P. Nichols, R. Pe
-     +verati,'/
-      data chr05/
-     +'J. Pittner, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. 
-     +A. Smith,'/
-      data chr06/
-     +'J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken, A. Vaz
-     +quez-Mayagoitia,'/
-      data chr07/
-     +'L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooije
-     +n,'/
-      data chr08/
-     +'L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. G
-     +arza,'/
-      data chr09/
-     +'K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, 
-     +J. Anchell,'/
-      data chr10/
-     +'D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Dee
-     +gan,'/
-      data chr11/
-     +'K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaff
-     +e,'/
-      data chr12/
-     +'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefiel
-     +d,'/
-      data chr13/
-     +'X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. 
-     +Glaesemann,'/
-      data chr14/
-     +'G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A.
-     + Wong, Z. Zhang.'/
+      logical  next_line
+      external next_line
+      integer  ibegin,iend,ilen
+      character*2048 chr
+      data chr/
+     +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T.
+     + P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+     + J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopat
+     +a, F. Aquino, S. Hirata, M. T. Hackler, J. Mullin, P. Nichols, R. 
+     +Peverati, J. Pittner, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupui
+     +s, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. 
+     +Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. S
+     +wart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
+     + E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao
+     +, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchel
+     +l, D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. D
+     +eegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J
+     +. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Li
+     +ttlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. R
+     +osing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+     + J. H. van Lenthe, A. Wong, Z. Zhang.'/
 c
 c     == default ==
       write(luout,*)
@@ -85,20 +63,13 @@ c     == default ==
       write(luout,*)
       call util_print_centered(luout, 'AUTHORS & CONTRIBUTORS', 40, 
      & .true.)
-      call util_print_centered(luout, chr01, 40, .false.)
-      call util_print_centered(luout, chr02, 40, .false.)
-      call util_print_centered(luout, chr03, 40, .false.)
-      call util_print_centered(luout, chr04, 40, .false.)
-      call util_print_centered(luout, chr05, 40, .false.)
-      call util_print_centered(luout, chr06, 40, .false.)
-      call util_print_centered(luout, chr07, 40, .false.)
-      call util_print_centered(luout, chr08, 40, .false.)
-      call util_print_centered(luout, chr09, 40, .false.)
-      call util_print_centered(luout, chr10, 40, .false.)
-      call util_print_centered(luout, chr11, 40, .false.)
-      call util_print_centered(luout, chr12, 40, .false.)
-      call util_print_centered(luout, chr13, 40, .false.)
-      call util_print_centered(luout, chr14, 40, .false.)
+c
+      ibegin = 0
+      iend   = 0 
+      ilen   = 80
+      do while (next_line(ibegin,iend,ilen,',',chr))
+        call util_print_centered(luout,chr(ibegin:iend),40,.false.)
+      enddo
 c
 c     == print high ==
       if (util_print('references',print_high)) then
@@ -232,3 +203,83 @@ c
      &    /,/)
 c
       end
+c
+C> \brief Return the next line from a string of comma separated items
+C>
+C> The list of authors and contributors is getting rather long and it
+C> has become too cumbersome to manually move names around to fit them
+C> into the list. This function partitions the comma separated list of
+C> names into individual lines. It is indented to be used in the code
+C> as
+C> \code
+C>       ibegin    = 0
+C>       mlinelen  = 80
+C>       separator = ','
+C>       do while (next_line(ibegin,iend,mlinelin,separator,str_names))
+C>         write(*,*)str_names(ibegin:iend)
+C>       enddo
+C> \endcode
+C> I.e. the string is partitioned into chunks of at most `mlinelen`
+C> characters.
+C>
+C> \return Returns .true. if another line of names was found, and
+C> .false. otherwise.
+C>
+      logical function next_line(ibegin,iend,mlinelen,separators,
+     +                           str_names)
+      implicit none
+c
+#include "inp.fh"
+c
+      character*(*) str_names  !< [Input] The string of names
+      character*(*) separators !< [Input] The string of separator
+                               !< characters
+      integer mlinelen         !< [Input] The maximum line length
+      integer iend             !< [In/Output] On input the last
+                               !< character of the previous line,
+                               !< on output the end character of the
+                               !< next line
+      integer ibegin           !< [Output] The beginning of the next
+                               !< line
+c
+c     Local variables
+c
+      integer inambeg !< The beginning of a name
+      integer inamend !< The end of a name
+      integer ii, jj  !< Temp variable
+      logical found
+c
+      if (ibegin.eq.0) then
+        iend    = ibegin
+        inambeg = ibegin
+        inamend = ibegin
+      else
+        ibegin  = iend
+        inambeg = ibegin
+        inamend = ibegin
+      endif
+      do while (inp_strtok(str_names,separators,inambeg,inamend))
+        if (inamend-ibegin+2.lt.mlinelen) then
+          iend = inamend+1  ! We need to include the separator char
+        else
+          exit
+        endif
+      enddo
+c
+c     Increase ibegin to skip any separators or spaces
+c
+      ii = ibegin
+      do ibegin = max(ii,1), iend+1
+        found = " ".eq.str_names(ibegin:ibegin)
+        do jj = 1, len(separators)
+          found = found
+     +    .or.(str_names(ibegin:ibegin).eq.separators(jj:jj))
+        enddo
+        if (.not.found) exit
+      enddo
+c
+      next_line = ibegin.le.iend
+c
+      return
+      end
+c
