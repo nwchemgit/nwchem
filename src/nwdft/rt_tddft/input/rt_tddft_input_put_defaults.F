@@ -29,7 +29,7 @@ C      integer, parameter          :: nsnapshots = 0
       integer, parameter          :: nrestarts = 100
       integer, parameter          :: nchecks = 10
 
-      integer, parameter          :: nprints =  99999999999 ! dummy # when using "*" as # prints
+      integer, parameter          :: nprints =  999999999 ! dummy # when using "*" as # prints
       integer, parameter          :: checklvl = 1   ! default to base checks only
 
       logical, parameter          :: prof = .false.

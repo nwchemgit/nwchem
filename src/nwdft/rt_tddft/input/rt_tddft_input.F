@@ -21,7 +21,7 @@ C     == Inputs ==
 
 C     == Parameters ==
       character(*), parameter :: pname = "rt_tddft_input: "
-      integer, parameter      :: maxnum = 99999999999 ! dummy # when using "*" as # prints
+      integer, parameter      :: maxnum = 999999999 ! dummy # when using "*" as # prints
 
 C     == Varibles ==
       logical done
