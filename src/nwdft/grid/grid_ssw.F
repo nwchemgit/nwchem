@@ -147,7 +147,7 @@ c
       call dfill(nctrs_pruned,1.d0,p,1)
       do  i = 1, nctrs_pruned
 #else
-      call ycopy(nctrs_pruned,1.d0,0,p,1)
+      call dcopy(nctrs_pruned,1.d0,0,p,1)
       do  i = 2, nctrs_pruned
 #endif
          ij = (i*(i-1))/2
