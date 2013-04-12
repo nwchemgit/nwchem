@@ -1477,6 +1477,10 @@ endif
           FOPTIONS += -quiet
       endif
     endif	
+    ifdef  USE_FPE
+      FOPTIONS += -fpe-all=0 -trackback #-fp-model  precise
+    endif
+
     FOPTIMIZE = -O3 -prefetch  -unroll 
     ifeq ($(_CPU),i586)
       FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
@@ -1804,6 +1808,7 @@ endif
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
        _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
        _IFCV10= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /10\.1/ {print "Y"; exit}')
+       _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|awk ' /n 1/ {print "Y"; exit}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
@@ -1831,11 +1836,15 @@ endif
         endif
         FDEBUG= -O2 -g
         FOPTIMIZE = -O3 -prefetch  -unroll 
-        FOPTIMIZE +=  -tpp7 -ip
-        ifeq ($(_GOTSSE3),Y) 
-          FOPTIMIZE += -xP -no-prec-div
+        FOPTIMIZE +=  -tpp7 -ip 
+         ifeq ($(_IFCV11),Y) 
+         FOPTIMIZE += -xHost -no-prec-div
         else
+         ifeq ($(_GOTSSE3),Y) 
+          FOPTIMIZE += -xP -no-prec-div
+         else
           FOPTIMIZE += -xW
+         endif
         endif
       endif	
 #      
