@@ -44,7 +44,7 @@ c
       double precision EpsTwoXprime
 c
 #ifdef SECOND_DERIV
-      double precision Amat2(nq,*)               ! partial second derivatives
+      double precision Amat2(nq,NCOL_AMAT2)               ! partial second derivatives
 #endif
 c
 c     -----------------------------------------------------------------------
@@ -78,8 +78,8 @@ c
               rhoA1 = rhoA
               rhoB1 = rhoB
             else                   ! spin-unrestricted
-              rhoA1 = rhoA*2
-              rhoB1 = rhoB*2
+              rhoA1 = rhoA*2.d0
+              rhoB1 = rhoB*2.d0
             end if
 
             fA   = EpsX(rhoA1,gamma)
@@ -96,15 +96,17 @@ c
 #ifdef SECOND_DERIV
             fppA = EpsTwoXprime(rhoA1,gamma)
             fppB = EpsTwoXprime(rhoB1,gamma)
-
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
-     &        ((fppA*rhoA+fpA)*4)*fac
 c
-c           Guard against case of no beta electrons, e.g. H atom
-            if (ipol.gt.1) then
+            if (ipol.eq.1) then
+             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) +
+     &         (fppA*rhoA+2.0d0*fpA)*fac*2.0d0
+            else
+             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) +
+     &         (fppA*rhoA+fpA)*fac*4.0d0
+c            Guard against case of no beta electrons, e.g. H atom
              if (rho(n,3).gt.tol_rho) then
-              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
-     &          ((fppB*rhoB+fpB)*4)*fac
+                 Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) +
+     &               (fppB*rhoB+fpB)*fac*4.0d0
              end if
             end if
 #endif
