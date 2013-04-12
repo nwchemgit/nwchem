@@ -1478,7 +1478,7 @@ endif
       endif
     endif	
     ifdef  USE_FPE
-      FOPTIONS += -fpe-all=0 -trackback #-fp-model  precise
+      FOPTIONS += -fpe-all=0 -traceback #-fp-model  precise
     endif
 
     FOPTIMIZE = -O3 -prefetch  -unroll 
