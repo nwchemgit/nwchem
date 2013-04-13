@@ -212,12 +212,14 @@ c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
      1    'residual vectors 1',-1,nresiduals,g_residuals_1(i)))
      2    call errquit
      3    ('tddft_davidson: failed to create g_residuals_1',0, GA_ERR)
+        call ga_zero(g_residuals_1(i))
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,nov(i),nresiduals,
      1      'residual vectors 2',-1,nresiduals,g_residuals_2(i)))
      2      call errquit
      3      ('tddft_davidson: failed to create g_residuals_2',0, GA_ERR)
         endif
+        call ga_zero(g_residuals_2(i))
       enddo
       if (.not.ma_push_get(mt_dbl,nroots,'last eigenvalues',
      1  l_valsav,k_valsav)) call errquit
