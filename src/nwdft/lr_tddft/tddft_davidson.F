@@ -198,6 +198,7 @@ c
         nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
+c
 c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
       nresiduals=nroots
       do i=1,ipol
@@ -218,9 +219,10 @@ c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
      1      'residual vectors 2',-1,nresiduals,g_residuals_2(i)))
      2      call errquit
      3      ('tddft_davidson: failed to create g_residuals_2',0, GA_ERR)
+          call ga_zero(g_residuals_2(i))
         endif
-        call ga_zero(g_residuals_2(i))
       enddo
+c
       if (.not.ma_push_get(mt_dbl,nroots,'last eigenvalues',
      1  l_valsav,k_valsav)) call errquit
      2  ('tddft_davidson: failed to allocate valsav',0, MA_ERR)
