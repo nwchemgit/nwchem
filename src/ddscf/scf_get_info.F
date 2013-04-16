@@ -399,7 +399,7 @@ c
 c
 c     Integral caching/file information
 c
-#ifdef CRAYXT
+##if defined(CRAYXT) || defined(BGP) || defined(BGQ)
 c     direct by default to avoid io
       if (.not. rtdb_get(rtdb, 'int2e:filesize',
      $     MT_INT, 1, filesize)) filesize = -1
