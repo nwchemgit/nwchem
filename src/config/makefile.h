@@ -2167,6 +2167,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
    COPTIMIZE = -g
    FOPTIMIZE = -g
    FOPTIONS  = -g
+    DEFINES += -DCHKUNDFLW
 
 #for BGL
    ifeq ($(TARGET),BGL)
@@ -2211,6 +2212,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
         FOPTIONS  += -g -funderscoring
         FOPTIMIZE += -O3 -ffast-math -Wuninitialized 
+        FOPTIMIZE += -O0 -g
 
         # EXT_INT means 64-bit integers are used
         DEFINES   += -DEXT_INT 
@@ -2227,18 +2229,20 @@ endif
     ifeq ($(FC),mpixlf77_r)
         DEFINES   += -DXLFLINUX
         XLF11      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+        XLF14      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 14./ {print "Y"}')
 
         # EXT_INT means 64-bit integers are used
         DEFINES   += -DEXT_INT 
 ifdef USE_I4FLAGS
-        FOPTIONS  += -qintsize=4
+        FOPTIONS  = -qintsize=4
 else
-        FOPTIONS  += -qintsize=8 
+        FOPTIONS  = -qintsize=8 
 endif
 
         FOPTIONS  += -qEXTNAME -qxlf77=leadzero
-        FOPTIONS  += -g -O3 -qstrict -qthreaded -qnosave
-        FOPTIMIZE += -g -O3 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
+        FOPTIONS  +=    -qstrict -qthreaded -qnosave -g
+#        FOPTIMIZE += -qhot=level=0 
+        FDEBUG    = -O0 
 
         # ESSL dependencies should be provided by XLF linker
         CORE_LIBS +=  -llapack $(BLASOPT) -lblas
@@ -2246,11 +2250,7 @@ endif
 
    endif # end BGQ
 
-   ifeq ($(_USE_SCALAPACK),y)
-      DEFINES += -DSCALAPACK
-   endif
-
-   CORE_LIBS +=  -ltcgmsg-mpi -lpeigs -ltcgmsg-mpi -lpeigs
+cedo   CORE_LIBS +=  -ltcgmsg-mpi -lpeigs -ltcgmsg-mpi -lpeigs
 
 endif
 
