@@ -70,7 +70,7 @@
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer ind
-      character*50 filename1,filename2
+      character*50 filename1,filename2,ion_1,ion_2
 
   
 
@@ -94,8 +94,8 @@
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
       external control_tole,control_tolc,control_tolr,ion_rion
-      real*8   control_time_step,control_fake_mass
-      external control_time_step,control_fake_mass
+      real*8   control_time_step,control_fake_mass,ion_rion_extra
+      external control_time_step,control_fake_mass,ion_rion_extra
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
       logical  ion_q_zFixIon
@@ -222,6 +222,14 @@
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
+      if (.not.rtdb_cget(rtdb,'pspw:et:ion_a',1,ion_1))
+     >   ion_1 = 'geometry'
+      if (.not.rtdb_cget(rtdb,'pspw:et:ion_b',1,ion_2))
+     >   ion_2 = 'geometry'
+      call ion_load_extra_geom(.true., rtdb,ion_1)
+      call ion_load_extra_geom(.false.,rtdb,ion_2)
+      call ion_morph_extra(1,2)
+
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
@@ -328,8 +336,8 @@
 *                |**************************|
 
       if (taskid.eq.MASTER) then
-         write(luout,1800) filename1
-         write(luout,1801) filename2
+         write(luout,1800) filename1,ion_1
+         write(luout,1801) filename2,ion_2
          write(luout,1111) np
          write(luout,1117) np_i,np_j
          if (mapping.eq.1) write(luout,1112)
@@ -377,7 +385,39 @@
 
          write(luout,1160)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
-         write(luout,1180)
+         write(luout,1179) ion_1
+         do I=1,ion_nion()
+           if (ion_q_FixIon(I)) then
+           write(luout,1191) I,ion_aname(I),
+     >                   (ion_rion_extra(1,K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           else if (ion_q_zFixIon(I)) then
+           write(luout,1193) I,ion_aname(I),
+     >                   (ion_rion_extra(1,K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           else
+           write(luout,1190) I,ion_aname(I),
+     >                   (ion_rion_extra(1,K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           end if
+         end do
+         write(luout,1179) ion_2
+         do I=1,ion_nion()
+           if (ion_q_FixIon(I)) then
+           write(luout,1191) I,ion_aname(I),
+     >                   (ion_rion_extra(2,K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           else if (ion_q_zFixIon(I)) then
+           write(luout,1193) I,ion_aname(I),
+     >                   (ion_rion_extra(2,K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           else
+           write(luout,1190) I,ion_aname(I),
+     >                   (ion_rion_extra(2,K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           end if
+         end do
+         write(luout,1180) 
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
@@ -655,6 +695,7 @@ c           end do
       call pspw_end_HFX()
       call ion_end_FixIon()
       call pspw_qmmm_end()
+      call ion_delete_extra_geom()
 
       value =           Dneall_m_free(itmp)
       value = value.and.Dneall_m_free(U_ab)
@@ -744,6 +785,7 @@ c           end do
  1159 FORMAT(/' total charge=',F8.3)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I5))
+ 1179 FORMAT(/' position of ions: ',A)
  1180 FORMAT(/' position of ions:')
  1190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
@@ -844,8 +886,8 @@ c           end do
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
                         
- 1800 format( ' Reactant  psi filename: ',A)
- 1801 format( ' Product   psi filename: ',A)
+ 1800 format( ' Reactant  psi filename: ',A,'  geometry: ',A)
+ 1801 format( ' Product   psi filename: ',A,'  geometry: ',A)
  1810 format(/' Electron Overlaps:')
  1811 format( '    Reactants/Reactant overlap          S(RR) : ',E19.10)
  1812 format( '    Reactants/Reactant overlap          S(PP) : ',E19.10)
