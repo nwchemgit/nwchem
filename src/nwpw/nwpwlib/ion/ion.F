@@ -147,9 +147,8 @@
 
       return
       end
+
     
-
-
 
 *     ***************************
 *     *				*
@@ -2810,3 +2809,152 @@ c
       return
       end
 
+
+
+*     ***************************
+*     *                         *
+*     *   ion_load_extra_geom   *
+*     *                         *
+*     ***************************
+      subroutine ion_load_extra_geom(first,rtdb,name1)
+      implicit none
+      logical first
+      integer rtdb
+      character*(*) name1
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical oprint
+      integer nion1,geom
+
+*     **** ion_extra common block ****
+      integer nion_extra,rion_extra(2,10)
+      common / ion_extra / rion_extra,nion_extra
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+      if (first) nion_extra = 0
+
+*     **** load name1 geometry ****
+      if (.not.geom_create(geom,name1))
+     >   call errquit('ion_load_extra_geom: geom_create?',1,GEOM_ERR)
+
+      if (.not.geom_rtdb_load(rtdb,geom,name1)) then
+         if (oprint)
+     >      write(*,*) "ion_load_extra_geom: Cannot load geometry:",
+     >                 name1
+         if (.not.geom_destroy(geom))
+     >      call errquit('ion_load_extra_geom:geom_destroy?',1,GEOM_ERR)
+         return
+      end if
+
+      if (.not.geom_ncent(geom,nion1))
+     >   call errquit('ion_load_extra_geom: geom_ncent?',1,GEOM_ERR)
+
+      if (.not.MA_alloc_get(mt_dbl,(3*nion1),'rion_extra',
+     >                      rion_extra(2,nion_extra+1),
+     >                      rion_extra(1,nion_extra+1)))
+     >   call errquit('ion_load_extra_geom:out of memory',1,MA_ERR)
+
+      call dcopy(3*nion1,0.0d0,0,dbl_mb(rion_extra(1,nion_extra+1)),1)
+
+      if (.not. geom_cart_coords_get(geom,
+     >                          dbl_mb(rion_extra(1,nion_extra+1))))
+     >   call errquit('ion_load_extra_geom: geom cart?',1,GEOM_ERR)
+
+      if (.not.geom_destroy(geom))
+     >   call errquit('ion_load_extra_geom: geom_destroy?',1,GEOM_ERR)
+
+      nion_extra = nion_extra + 1
+      return
+      end
+
+
+
+
+*     ***************************
+*     *                         *
+*     *  ion_delete_extra_geom  *
+*     *                         *
+*     ***************************
+      subroutine ion_delete_extra_geom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** ion_extra common block ****
+      integer nion_extra,rion_extra(2,10)
+      common / ion_extra / rion_extra,nion_extra
+
+      logical value
+      integer i
+
+      value = .true.
+      do i=1,nion_extra
+         value = value.and.MA_free_heap(rion_extra(2,i))
+      end do
+      if (.not.value)
+     >   call errquit('ion_delete_extra_geom: freeing heap',0,MA_ERR)
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *             ion_rion_extra               *
+*     *                                          *
+*     ********************************************
+      real*8 function ion_rion_extra(e,i,j)
+      implicit none
+      integer e,i,j
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** ion_extra common block ****
+      integer nion_extra,rion_extra(2,10)
+      common / ion_extra / rion_extra,nion_extra
+
+      ion_rion_extra = dbl_mb(rion_extra(1,e)+(i-1) + (j-1)*3)
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *             ion_morph_extra              *
+*     *                                          *
+*     ********************************************
+      subroutine ion_morph_extra(e1,e2)
+      implicit none
+      integer e1,e2
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+*     **** ion_extra common block ****
+      integer nion_extra,rion_extra(2,10)
+      common / ion_extra / rion_extra,nion_extra
+
+      integer i,j
+      real*8 dr(3)
+
+      do j=1,nion
+         do i=1,3
+            dr(i) = dbl_mb(rion_extra(1,e2)+(i-1)+(j-1)*3)
+     >            - dbl_mb(rion_extra(1,e1)+(i-1)+(j-1)*3)
+         end do
+         call lattice_min_difference(dr(1),dr(2),dr(3))
+         do i=1,3
+            dbl_mb(r1(1)+(i-1)+(j-1)*3) 
+     >        = dbl_mb(rion_extra(1,e1)+(i-1)+(j-1)*3) + 0.5d0*dr(i)
+         end do
+      end do
+      return
+      end
