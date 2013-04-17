@@ -1513,7 +1513,7 @@ c
 
       goto 10
 c
-c  et movecs_a movecs b
+c  et movecs_a movecs_b ion_a ion_b
 c
  7200 if (inp_a(zone_name)) then
          ind = index(zone_name,' ') - 1
@@ -1524,6 +1524,18 @@ c
       if (inp_a(zone_name)) then
          ind = index(zone_name,' ') - 1
          value = rtdb_cput(rtdb,'pspw:et:movecs_b',1,zone_name(1:ind))
+         if (.not.value)
+     >    call errquit('nwpw_input: writing ',7200,RTDB_ERR)
+      end if 
+      if (inp_a(zone_name)) then
+         ind = index(zone_name,' ') - 1
+         value = rtdb_cput(rtdb,'pspw:et:ion_a',1,zone_name(1:ind))
+         if (.not.value)
+     >    call errquit('nwpw_input: writing ',7200,RTDB_ERR)
+      end if 
+      if (inp_a(zone_name)) then
+         ind = index(zone_name,' ') - 1
+         value = rtdb_cput(rtdb,'pspw:et:ion_b',1,zone_name(1:ind))
          if (.not.value)
      >    call errquit('nwpw_input: writing ',7200,RTDB_ERR)
       end if 
