@@ -453,7 +453,9 @@ c g_sx = g_s * g_sblock12m * g_r12m
          if(.not.MA_pop_stack(lsa2))
      &      call errquit("grid_make_sa: pop sa2", 100, MA_ERR)
        endif
-       call ga_put(g_constr(i),1,nbf_ao,1,nbf_ao,dbl_mb(isa),nbf_ao)
+       if(ga_nodeid().eq.0)
+     G  call ga_put(g_constr(i),1,nbf_ao,1,nbf_ao,dbl_mb(isa),nbf_ao)
+       call ga_sync()
       enddo
       if(.not.MA_pop_stack(lsa))
      &     call errquit("grid_make_sa: pop sa", 100, MA_ERR)
