@@ -16,6 +16,7 @@
 ***********************************************************************
 
       logical function cpmdv5(rtdb)
+CDEC$ OPTIMIZE:0
       implicit none
       integer rtdb
 
@@ -1450,7 +1451,7 @@ c      call frac_occ_end()
  
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F6.3))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
