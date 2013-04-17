@@ -49,6 +49,8 @@
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3,p
       double precision gx,gy,gz,a,q,d
+      double precision tollz
+      parameter(tollz=1d-16)
 
 *     **** Error function parameters ****
       real*8 yerf,xerf
@@ -127,6 +129,7 @@ c     parameter (c6=0.00004306380d0)
         Q=DSQRT(G(k1,1)**2
      >         +G(k1,2)**2
      >         +G(k1,3)**2)
+        if (abs(q).lt.tollz) go to 700
 
         
         GX=G(k1,1)/Q

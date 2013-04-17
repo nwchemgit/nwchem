@@ -62,6 +62,8 @@
 *     **** external functions ****
       double precision dsum,simp,util_erf
       external         dsum,simp,util_erf
+      double precision tollz
+      parameter(tollz=1d-16)
 
       if (version.ne.3) then
          call errquit('integrate_stress - unit cell is aperiodic',0,
@@ -117,7 +119,7 @@
         q=DSqRT(G(k1,1)**2
      >         +G(k1,2)**2
      >         +G(k1,3)**2)
-
+        if(abs(q).lt.tollz) goto 700
         
         gx=G(k1,1)/q
         gy=G(k1,2)/q

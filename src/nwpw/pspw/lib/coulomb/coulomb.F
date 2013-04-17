@@ -27,6 +27,8 @@ c     real*8 vc(nfft3d)
 *     real*8 G(nfft3d,3)
       integer  G_indx
       external G_indx
+      double precision toll
+      parameter (toll=1d-16)
 
       call nwpw_timing_start(7)
       call D3dB_nfft3d(1,nfft3d)
@@ -66,7 +68,8 @@ c    >     + i+1
      >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
 
-         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+         if (((pzero.eq.taskid) .and. (i.eq.zero)).or.
+     E    (abs(gg) .lt.toll))  then
             dbl_mb(tmp1(1)+i-1) = 0.0d0
          else
             dbl_mb(tmp1(1)+i-1) = fourpi/gg
