@@ -374,11 +374,11 @@ c -------------------------------------
 c
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nov(i),nroots,'X vector',
-     1    -1,-1,g_x(i))) call errquit
+     1    -1,nroots,g_x(i))) call errquit
      2    ('tddft_analysis: failed to create g_x',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,nov(i),nroots,'Y vector',
-     1      -1,-1,g_y(i))) call errquit
+     1      -1,nroots,g_y(i))) call errquit
      2      ('tddft_analysis: failed to create g_y',0, GA_ERR)
         endif
       enddo

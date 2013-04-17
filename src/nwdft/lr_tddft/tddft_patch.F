@@ -1,5 +1,14 @@
       double precision function tga_ddot(g_a,g_b,k,l)
 c
+c     Specialized forms of ga_ddot_patch and ga_add_patch. 
+c     Assumption in these routines is that both global arrays
+c     are distributed in the exact same way, with the first
+c     dimension distributed over the processors, but each 
+c     processor containing all elements of the second dimension.
+c     
+c     Using these routines with arrays that are not aligned 
+c     properly will produce incorrect results.
+c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
