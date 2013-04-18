@@ -1168,7 +1168,7 @@ endif
         FOPTIONS   = -Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
-        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
+      _GCC46= $(shell $(FC) -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
         ifeq ($(_GCC46),Y) 
         DEFINES  += -DGCC46
     endif
@@ -1297,7 +1297,7 @@ endif
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
 #         FOPTIMIZE=-O1
 #         FVECTORIZE=-O1
-       _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
+     _GCC46= $(shell $(FC) -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
        ifeq ($(_GCC46),Y) 
          DEFINES  += -DGCC46
        endif
@@ -1519,6 +1519,10 @@ endif
         endif
         FDEBUG = -g -O0
         DEFINES  += -DCHKUNDFLW -DGCC4
+        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
+        ifeq ($(_GCC46),Y) 
+          DEFINES  += -DGCC46
+        endif
       endif
 
   ifeq ($(CC),icc)
@@ -1925,7 +1929,7 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         DEFINES  += -DCHKUNDFLW -DGCC4
-        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
+        _GCC46= $(shell $(FC) -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
         ifeq ($(_GCC46),Y) 
           DEFINES  += -DGCC46
         endif
