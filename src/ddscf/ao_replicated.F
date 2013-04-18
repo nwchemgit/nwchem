@@ -47,11 +47,11 @@ c
       double precision tol2e_local
 c
       if (.not. geom_ncent(geom, natom)) call errquit
-     $     ('ao_fock_2e: geom_ncent failed', 0, GEOM_ERR)
+     $     ('ao_replicated: geom_ncent failed', 0, GEOM_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0, BASIS_ERR)
       if ( .not. bas_numcont(basis, nsh) ) call errquit(
-     $     'ao_fock_2e: problem with call to bas_numcont', basis,
+     $     'ao_replicated: problem with call to bas_numcont', basis,
      &       BASIS_ERR)
 c     
 c     If we can hold most of the integrals in core then we should

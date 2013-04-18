@@ -40,14 +40,16 @@ c
       integer k_fij, k_fik, k_fli, k_fjk, k_flj, k_flk
       integer l_atmp, k_atmp
       integer l_block, k_block, nblock, maxblock
+      integer tdim
+      parameter (tdim = 100000)
       logical status
       logical int2e_test_mem, int2e_buf_write, int2e_file_rewind
       external int2e_test_mem, int2e_buf_write, int2e_file_rewind
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('ao_replicated: bas_numbf failed', 0, BASIS_ERR)
+     $     ('ao_fock_2e: bas_numbf failed', 0, BASIS_ERR)
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('ao_replicated: bas_numcont failed', 0, BASIS_ERR)
+     $     ('ao_fock_2e: bas_numcont failed', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('ao_fock_2e: geom_ncent failed', 0, GEOM_ERR)
 c
@@ -56,7 +58,10 @@ c     'fock:replicated' as false.  It is also overriden here when the
 c     replicated data algorithm would exceed memory requirements
 c
       call intb_mem_2e4c(maxg, lenscr)
-      mem_rep = nbf*nbf*2*nfock + nsh*nsh
+      mem_rep = nbf*nbf*2*nfock + nsh*nsh + maxquartet
+     $        + ma_sizeof(MT_INT,4*maxquartet+nbf*(nbf+1),MT_DBL)
+     $        + nbf*(nbf+1)/2
+     $        + ma_sizeof(MT_INT,2*tdim,MT_DBL)
       if (owritefile) mem_rep = mem_rep + max(0,memsize)
       if (owritefile .or. (.not. (owritefile .or. oreadfile)))
      $      mem_rep = mem_rep + maxeri*5 + lenscr
