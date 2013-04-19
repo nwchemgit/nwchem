@@ -1629,7 +1629,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@echo 
 	@exit 1
    endif
-      FC=gfortran
+#      FC=gfortran
       _FC=noifc
       ifeq ($(FC),ftn)
 	  _FC=pgf90
