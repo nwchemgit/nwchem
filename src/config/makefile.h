@@ -2254,7 +2254,6 @@ endif
 
    endif # end BGQ
 
-cedo   CORE_LIBS +=  -ltcgmsg-mpi -lpeigs -ltcgmsg-mpi -lpeigs
 
 endif
 
