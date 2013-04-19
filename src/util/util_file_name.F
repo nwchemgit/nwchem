@@ -796,7 +796,7 @@ c
       if (.not.ma_push_get(MT_Dbl,l1megabyte,'cc',l_k,i_k))
      &   call errquit('utilfname: cannot allocate ',0, MA_ERR)
       call dcopy(l1megabyte,0d0,0,dbl_mb(i_k),1)
-      ierr = eaf_write(fd, 0, dbl_mb(i_k),8*l1megabyte)
+      ierr = eaf_write(fd, 0d0, dbl_mb(i_k),8*l1megabyte)
       if (.not.ma_pop_stack(l_k))
      &   call errquit('utilfname: cannot deallocate ',0, MA_ERR)
       ierr=eaf_close(fd)
