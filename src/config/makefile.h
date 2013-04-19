@@ -1332,7 +1332,7 @@ endif
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 #
 #
-# Linux or Cygwin under Windows running on an x86 using g77
+# Linux or Cygwin under Windows running on an x86 using gfortran
 #
        NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
@@ -1377,7 +1377,7 @@ ifeq ($(LINUXCPU),x86)
   endif
   
   _CPU = $(shell uname -m  )
- FC  = g77
+ FC  = gfortran
   _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
 
       ifeq ($(FC),g77)
