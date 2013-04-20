@@ -1362,7 +1362,7 @@ endif
       FOPTIMIZE  = -O2 
       ifeq ($(FC),gfortran)
         FOPTIONS   = -Wextra -ffast-math #-Wunused  
-        FOPTIMIZE  = -ffast-math -Wuninitialized
+        FOPTIMIZE  += -ffast-math -Wuninitialized
         _FC=gfortran
         DEFINES  += -DGFORTRAN
       endif
