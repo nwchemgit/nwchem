@@ -1346,6 +1346,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
+         FC  = gfortran
          LINUXCPU = $(shell uname -m |\
                  awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"} ' )
 
@@ -1377,7 +1378,6 @@ ifeq ($(LINUXCPU),x86)
   endif
   
   _CPU = $(shell uname -m  )
- FC  = gfortran
   _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
 
       ifeq ($(FC),g77)
