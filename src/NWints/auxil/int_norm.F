@@ -1,3 +1,38 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Normalize the contraction coefficients in a basis set
+C>
+C> The contraction coefficients in basis sets express a basis function
+C> in terms of normalized Gaussian functions. However, basis functions
+C> as specified with the exponent are unnormalized. A convenient way
+C> to address this is to calculate and absorp the normalization factor
+C> in the contraction coefficients. 
+C>
+C> This function calculates the normalization constants and a set of
+C> contraction coefficients that express basis functions in terms of
+C> unnormalized Gaussians. The unnormalized contraction coefficients
+C> are stored as well because they are used when the basis is printed.
+C> The unnormalized contraction coefficients correspond to the data
+C> a user entered and therefore yield the basis set representation 
+C> that can be recognized as matching the input data. This function
+C> has to be called to ensure that the integral codes calculate
+C> integrals of normalized Gaussian basis functions. Typically this
+C> function is called immediately after loading a basis set from 
+C> the runtime database:
+C>
+C> \code
+C>       if (.not. bas_create(basis,'ao basis'))
+C>      &    call errquit("ddscf: bas_create failed",0,BASIS_ERR)
+C>       if (.not. bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+C>      &    call errquit("ddscf: basis load failed",0,RTDB_ERR)
+C>       if (.not. int_normalize(rtdb,basis))
+C>      &    call errquit("ddscf: normalization failed",0,INT_ERR)
+C> \endcode
+C>
+C> \return Returns .true. if the basis set was normalized successfully,
+C> returns .false. otherwise.
+C>
       logical function int_normalize(rtdb,basisin)
 c $Id$
       implicit none
@@ -11,8 +46,8 @@ c $Id$
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
-      integer basisin             ! [input] basis handle
-      integer rtdb                ! [input] database handle
+      integer basisin  !< [Input] The basis set handle
+      integer rtdb     !< [Input] The runtime database handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
       integer norm_typ
       logical norm_ok
@@ -93,3 +128,5 @@ c........ spd
       enddo
 c
       end
+C>
+C> @}
