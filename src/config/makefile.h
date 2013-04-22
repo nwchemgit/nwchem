@@ -1629,8 +1629,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@echo 
 	@exit 1
    endif
-#      FC=gfortran
-      _FC=noifc
       ifeq ($(FC),ftn)
 	  _FC=pgf90
 	  ifeq ($(PE_ENV),PGI)
@@ -1668,6 +1666,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
       endif
       ifeq ($(FC),ifort)
        _FC=ifort
+      endif
+      ifndef _FC
+      FC=gfortran
+      _FC=gfortran
       endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
@@ -1817,8 +1819,7 @@ endif
       ifneq ($(_IFCE),Y)
         defineFCE: 
 	@echo
-	@echo "   " ifort for EM64T applications is required for x86_64 CPUs
-	@echo "   " ifort for 32-bit applications is not suitable for x86_64 CPUs
+	@echo "   " ifort missing or not suitable for x86_64 CPUs
 	@echo
 	@exit 1
       endif
@@ -1837,6 +1838,9 @@ endif
         DEFINES+= -DIFCV8 -DIFCLINUX
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
+        endif
+        ifdef  USE_FPE
+          FOPTIONS += -fpe0 -traceback #-fp-model  precise
         endif
         FDEBUG= -O2 -g
         FOPTIMIZE = -O3 -prefetch  -unroll 
