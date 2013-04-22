@@ -14,6 +14,7 @@ c
 #include "cscfps.fh"
 #include "cfock.fh"
 #include "util.fh"
+#include "stdio.fh"
 c     
 c     Replicated-data AO 2e-Fock construction routine using the
 c     blocked integral interface.
@@ -41,6 +42,7 @@ c
       integer tdim
       parameter (tdim = 100000)  ! Max no. of distinct pair types
       integer l_plist, k_plist, l_ps, k_ps, l_pinfo, k_pinfo
+      integer words,memlist(10),lmemlist
       logical status
       logical int2e_test_mem, int2e_buf_write, int2e_file_rewind
       external int2e_test_mem, int2e_buf_write, int2e_file_rewind
@@ -83,26 +85,81 @@ c
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
+      lmemlist = 0
       status = .true.
       status = status .and. ma_push_get(MT_DBL, nbf*nbf*nfock, 
      $     'ao_rep: density', l_dens, k_dens)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_dens
+      endif
       status = status .and. ma_push_get(MT_DBL, nbf*nbf*nfock, 
      $     'ao_rep: fock',    l_fock, k_fock)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_fock
+      endif
       status = status .and. ma_push_get(MT_DBL, nsh*nsh, 
      $     'ao_rep: fock',    l_rdens, k_rdens)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_rdens
+      endif
       status = status .and. ma_push_get(MT_DBL, maxquartet,
      $     'ao_rep: q4',    l_q4, k_q4)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_q4
+      endif
       status = status .and. ma_push_get(MT_INT, 4*maxquartet,
      $     'ao_rep: ijkl',    l_ijkl, k_ijkl)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_ijkl
+      endif
       status = status .and. ma_push_get(MT_INT, nbf*(nbf+1),
      $     'ao_rep: plist',    l_plist, k_plist)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_plist
+      endif
       status = status .and. ma_push_get(MT_DBL, nbf*(nbf+1)/2,
      $     'ao_rep: plist',    l_ps, k_ps)
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_ps
+      endif
       status = status .and. ma_push_get(MT_INT, 2*tdim,
      $     'ao_rep: pinfo',    l_pinfo, k_pinfo)
-      if (.not. status) call errquit
+      if (status) then
+        lmemlist = lmemlist + 1
+        memlist(lmemlist) = l_pinfo
+      endif
+      if (.not. status) then
+        do i = lmemlist, 1, -1
+          if (.not.ma_pop_stack(memlist(i))) then
+          endif
+        enddo
+        if (ga_nodeid().eq.0) then
+          write(luout,*)"lmemlist   = ",lmemlist
+          write(luout,*)"nbf        = ",nbf
+          write(luout,*)"nsh        = ",nsh
+          write(luout,*)"nfock      = ",nfock
+          write(luout,*)"maxquartet = ",maxquartet
+          write(luout,*)"tdim       = ",tdim
+          words = 2*nbf*nbf*nfock+nsh*nsh+maxquartet+nbf*(nbf+1)/2+
+     $            ma_sizeof(MT_INT,4*maxquartet+nbf*(nbf+1)+2*tdim,
+     $                      MT_DBL)+8*ma_sizeof_overhead(MT_DBL)
+          write(luout,*)"needing ",words," words or ",
+     $                  ma_sizeof(MT_DBL,words,MT_BYTE)," bytes of ",
+     $                  "memory"
+          write(luout,*)"available are ",ma_inquire_avail(MT_DBL),
+     $                  "words or ",ma_inquire_avail(MT_BYTE)," bytes"
+        endif
+        call errquit
      $     ('ao_replicated: insufficient memory', nfock*nbf*nbf*2,
      &       MA_ERR)
+      endif
 c     
 c     Process 0 gets the density matrices and then broadcasts them
 c     (next version should use triangles)

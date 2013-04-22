@@ -61,7 +61,8 @@ c
       mem_rep = nbf*nbf*2*nfock + nsh*nsh + maxquartet
      $        + ma_sizeof(MT_INT,4*maxquartet+nbf*(nbf+1),MT_DBL)
      $        + nbf*(nbf+1)/2
-     $        + ma_sizeof(MT_INT,2*tdim,MT_DBL)
+     $        + ma_sizeof(MT_INT,2*tdim,MT_DBL) 
+     $        + 8*ma_sizeof_overhead(MT_DBL)
       if (owritefile) mem_rep = mem_rep + max(0,memsize)
       if (owritefile .or. (.not. (owritefile .or. oreadfile)))
      $      mem_rep = mem_rep + maxeri*5 + lenscr
