@@ -99,7 +99,7 @@ C> as:
 C> \f{eqnarray*}{
 C>   f &=& 
 C>   f\left(\rho^\alpha,\rho^\beta,\gamma^{\alpha\alpha},\gamma^{\alpha\beta},
-C>          \gamma^{\beta\beta}\right)
+C>          \gamma^{\beta\beta},\tau^\alpha,\tau^\beta\right)
 C> \f}
 C>
 C> The derivatives of \f$f\f$ with respect to the density
@@ -112,8 +112,8 @@ C>   \frac{\mathrm{d}f}{\mathrm{d}\rho^\alpha} \\\\
 C>   \frac{\mathrm{d}f}{\mathrm{d}\rho^\beta}
 C> \f}
 C>
-C> The derivatives \f$f\f$ with respect to the density gradient
-C> ------------------------------------------------------------
+C> The derivatives of \f$f\f$ with respect to the density gradient
+C> ---------------------------------------------------------------
 C>
 C> The routine evaluates the following derivatives related to the density
 C> gradients (`dfdg`):
@@ -121,6 +121,16 @@ C> \f{eqnarray*}{
 C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\alpha\alpha}} \\\\
 C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\alpha\beta}} \\\\
 C>    \frac{\mathrm{d}f}{\mathrm{d}\gamma^{\beta\beta}}
+C> \f}
+C>
+C> The derivatives of \f$f\f$ with respect to the kinetic energy density
+C> ---------------------------------------------------------------------
+C>
+C> The routine evaluates the following derivatives related to the kinetic
+C> energy density (`dfdt`):
+C> \f{eqnarray*}{
+C>   \frac{\mathrm{d}f}{\mathrm{d}\tau^{\alpha}} \\\\
+C>   \frac{\mathrm{d}f}{\mathrm{d}\tau^{\beta}}
 C> \f}
 C>
 C> Conversions
@@ -133,7 +143,7 @@ C> we have described the functional in terms of the \f$\alpha\f$- and
 C> \f$\beta\f$-electron density. However, the functional could also be defined
 C> in terms of the total- and spin-densities. There are a number of these
 C> equally valid representations that can be used. This leads to the question
-C> quantities from one representation can be expressed in terms of those of 
+C> how quantities from one representation can be expressed in terms of those of 
 C> another representation. Here we will present a number of these conversions
 C> that we have encountered and worked out. 
 C>
