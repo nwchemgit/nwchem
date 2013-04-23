@@ -209,7 +209,6 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np pkzb
 ./runtests.mpi.unix procs $np k6h2o
 ./runtests.mpi.unix procs $np mcscf_ch2 mcscf_ozone
-./runtests.mpi.unix procs $np sif_sodft
 ./runtests.mpi.unix procs $np h2o_raman_3
 ./runtests.mpi.unix procs $np h2o_raman_4
 ./runtests.mpi.unix procs $np tropt-ch3nh2

@@ -100,8 +100,8 @@ dft
   odft
   mult 2
   grid xfine
-  fon partial 4 electrons 1.0 filled 10
-  mulliken
+#  fon partial 4 electrons 1.0 filled 10
+#  mulliken
   convergence energy 1d-8
 end
 
