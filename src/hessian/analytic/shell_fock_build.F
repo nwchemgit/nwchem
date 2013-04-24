@@ -2,6 +2,19 @@ c#define NBACC 1
 c
 c $Id$
 c
+C> \ingroup hess
+C> @{
+C>
+C> \file shell_fock_build.F
+C> Fock matrix derivatives
+C>
+C> \brief Construct Fock matrix derivatives
+C>
+C> This routine constructs Fock matrix derivatives of one or more
+C> Fock matrices. The Fock matrices may be symmetric or anti-symmetric.
+C> The latter occurs, for example, when the Fock matrix is the
+C> imaginary part of a matrix.
+C>
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
 c
@@ -19,10 +32,21 @@ c
 #include "global.fh"
 #include "bas.fh"
 c
-      integer basis, nder, ndens, nfock
-      integer geom
-      integer g_dens, g_fock
-      double precision jfac(*), kfac(*), tol2e
+      integer basis  !< [Input] The basis set handle
+      integer nder   !< [Input] The number of derivatives
+                     !< - nder = 0: Energy
+                     !< - nder = 3: E.g. electric field
+                     !< - nder = 3*natoms: Hessian CPHF RHS
+      integer ndens  !< [Input] The number of density matrices
+      integer nfock  !< [Input] The number of Fock matrices
+      integer geom   !< [Input] The geometry handle
+      integer g_dens !< [Input] The GA handle for the density matrices
+      integer g_fock !< [Input] The GA handle for the Fock matrices
+c
+      double precision jfac(*) !< [Input] The Coulomb scale factor
+      double precision kfac(*) !< [Input] The exchange scale factor
+      double precision tol2e   !< [Input] The 2-electron integral
+                               !< tolerance
 c      logical oactive(*)        ! [input] T if atom is active
 c
       integer nsh, nbf, max_at_bf, max_sh_bf, nshblocks
@@ -46,7 +70,8 @@ c
       integer maxblen           ! maximum value for blen = max no. bf in group
       integer maxsh             ! maximum no. of shells in a group
       integer maxq              ! max quartets in a request
-      logical osym
+      logical osym !< [Input] .True. if the Fock matrices are symmetric,
+                   !< otherwise the Fock matrices are anti-symmetric
       parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
       integer ga_create_atom_blocked
@@ -714,9 +739,9 @@ c
       ld(1) = nfock
       ld(2) = blen
 #ifdef NBACC
-      if(.not.first) then	
+      if(.not.first) then
          call ga_nbwait(hand)
-      endif			
+      endif
       first=.false.
       call nga_nbacc(g_fock,lo,hi,buf,ld,1d0,hand)
 #else
@@ -934,3 +959,4 @@ c
 
       return
       end
+C> @}

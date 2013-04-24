@@ -4,6 +4,39 @@ c
 c     BGJ - 8/98
 c
 c     $Id$
+c 
+C> \ingroup hess
+C> @{
+C>
+C> \file xc_d2expl.F
+C> Explicit 2nd derivatives wrt nuclear coordinates of the DFT 
+C> functional
+C>
+C> \brief Computes explicit nuclear 2nd derivatives of the XC energy
+C>
+C> The explicit 2nd derivatives of the XC energy with respect to the
+C> nuclear coordinates are defined as
+C> \f{eqnarray*}{
+C>   \frac{\mathrm{d}^2E_{xc}}{\mathrm{d}x\mathrm{d}y} &=& \sum_{ij}\int
+C>   \frac{\mathrm{d}^2f_{xc}}{\mathrm{d}p_i\mathrm{d}p_j}
+C>   \frac{\mathrm{d}p_i}{\mathrm{d}x}\frac{\mathrm{d}p_j}{\mathrm{d}y}
+C>   \mathrm{d}r
+C> + \sum_i\int\frac{\mathrm{d}f_{xc}}{\mathrm{d}p_i}
+C>   \frac{\mathrm{d}^2p_i}{\mathrm{d}x\mathrm{d}y}
+C>   \mathrm{d}r
+C> \f}
+C> where \f$p \in \{\rho_\alpha,\rho_\beta,\gamma_{\alpha\alpha},
+C> \gamma_{\alpha\beta},\gamma_{\beta\beta}\}\f$ and the indeces 
+C> \f$i\f$ and \f$j\f$ run over this set.
+c
+c     d2Exc             /    d2fxc    dp(i) dp(j)          / dfxc  d2p(i)
+c     ----- =  sum sum  | ----------- ----- -----  +  sum  | ----- ------
+c     dx dy     i   j  /  dp(i) dp(j)  dx    dy        i  /  dp(i) dx dy
+c
+c     where "p" represents a density parameter in the set
+c     { ra, rb, gaa, gab, gbb }, and the i, j indices run over this set
+c
+c     First step: separable part of 2nd derivative contribution
 c
       Subroutine xc_d2expl(tol_rho, scr, 
      &     Amat, Amat2, Acof2, Cmat, Cmat2, Ccof2, Mmat, Mmat2, Mcof2, 
@@ -20,73 +53,99 @@ c
 #include "util.fh"
 #include "global.fh"
 c
-      logical kske
-      integer basis
-      integer max_at_bf ! [input]
-      integer ipol  ! [input]
-      integer nq    ! [input]
-      integer nbf    ! [input]
-      integer natoms ! [input]
-      integer ncuratoms ! Number of current "active" atoms [input]
-      integer curatoms(natoms) ! Mapping array for current atoms [input]
-      double precision tol_rho
-      logical GRAD,oprint
+      logical kske !< [Input] .True. if the functional is a meta-GGA
+      integer basis !< [Input] The basis set handle
+      integer max_at_bf !< [Input] The maximum number of basis functions
+                        !< on any atom
+      integer ipol  !< [Input] The number of spin channels
+      integer nq    !< [Input] The number of grid points
+      integer nbf    !< [Input] The number of basis functions
+      integer natoms !< [Input] The number of atoms
+      integer ncuratoms !< [Input] The number of currently "active"
+                        !< atoms
+      integer curatoms(natoms) !< [Input] The mapping array for 
+                               !< currently active atoms
+      double precision tol_rho !< [Input] The tolerance on the density
+      logical GRAD !< [Input] .True. if the functional is a GGA
 c
 c     Explicit first derivatives of density wrt current nuclei [input]
 c
-      double precision drho(nq,ipol,3,ncuratoms)
-      double precision ddelrho(nq,3,ipol,3,ncuratoms)
-      double precision dttau(nq,ipol,3,ncuratoms)
+      double precision drho(nq,ipol,3,ncuratoms) !< [Input] Derivative
+      !< of rho wrt nuclear coordinates 
+      double precision ddelrho(nq,3,ipol,3,ncuratoms) !< [Input]
+      !< Derivative of the density gradient wrt nuclear coordinates
+      double precision dttau(nq,ipol,3,ncuratoms) !< [Input] Derivative 
+      !< of the kinetic energy density wrt nuclear coordinates
 c
 c     Space for separable coefficients of first derivatives of density
 c
-      double precision Acof2(nq,ipol,3)
-      double precision Ccof2(nq,3,ipol,3)
-      double precision Mcof2(nq,ipol,3)
+      double precision Acof2(nq,ipol,3) !< [Scratch] Derivative rho
+      double precision Ccof2(nq,3,ipol,3) !< [Scratch] Derivative grad
+      double precision Mcof2(nq,ipol,3) !< [Scratch] Derivative tau
 c
 c     Spin density gradients
 c
-      double precision delrho(nq,3,ipol) ! [input]
+      double precision delrho(nq,3,ipol) !< [Input] Density gradient
 c
-      integer g_dens(ipol) ! GA handle for density matrices [input]
+      integer g_dens(ipol) !< [Input] GA handle for density matrices
 c
 c     Hessian matrix (updated)
 c
-      double precision hess(3,natoms,3,natoms) ! [input/output]
+      double precision hess(3,natoms,3,natoms) !< [In/Output] Hessian
 c
-      double precision scr(nq,15) ! Scratch matrix [input]
-      double precision rchi_atom(natoms)
-      double precision rdelchi_atom(natoms)
-      double precision rdens_atom(natoms,natoms,ipol)
-      integer cetobfr(2,natoms)
+      double precision scr(nq,15) !< [Scratch] matrix
+      double precision rchi_atom(natoms) !< [Input] Screening parameters
+      double precision rdelchi_atom(natoms) !< [Input] Screening
+                                            !< parameters
+      double precision rdens_atom(natoms,natoms,ipol) !< [Input]
+      !< Screening parameters
+      integer cetobfr(2,natoms) !< [Input] First and last basis 
+      !< function of the atoms
 c
-      double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
-      double precision F(max_at_bf*max_at_bf)    ! scratch vector
-      double precision ff(nq,3,*), s(nq,max_at_bf)   ! scratch arrays
+      double precision Pmat(max_at_bf*max_at_bf) !< [Scratch] vector
+      double precision F(max_at_bf*max_at_bf)    !< [Scratch] vector
+      double precision ff(nq,3,*) !< [Scratch] arrays
+      double precision s(nq,max_at_bf) !< [Scratch] arrays
 c
 c     Sampling Matrices for the XC Functional Derivatives
 c
-      double precision Amat(nq,ipol)
-      double precision Cmat(nq,3,ipol)
-      double precision Mmat(nq,ipol)
+      double precision Amat(nq,ipol) !< [Input] Derivative of functional
+      !< wrt rho
+      double precision Cmat(nq,3,ipol) !< [Input] Derivative of the
+      !< functional wrt the norm of the electron density gradient.
+      !< The call to `transform_Cmat` changes the contents to 
+      !< \f$\gamma_{\alpha\alpha}\cdot\frac{\partial \rho_\alpha}{\partial x}
+      !< \ldots \gamma_{\beta\beta}\cdot\frac{\partial \rho_\beta}{\partial z}\f$
+      double precision Mmat(nq,ipol) !< [Input] Derivative of functional
+      !< wrt kinetic energy density
 c
-      double precision Amat2(nq,NCOL_AMAT2)
-      double precision Cmat2(nq,NCOL_CMAT2)
-      double precision Mmat2(nq,NCOL_MMAT2)
+      double precision Amat2(nq,NCOL_AMAT2) !< [Input] 2nd derivative
+      !< of functional wrt rho
+      double precision Cmat2(nq,NCOL_CMAT2) !< [Input] 2nd derivative
+      !< of functional wrt gamma
+      double precision Mmat2(nq,NCOL_MMAT2) !< [Input] 2nd derivative
+      !< of functional wrt kinetic energy density
 c
 c     Sampling Matrices for [Products of] Basis Functions & Gradients
 c
-      integer iniz(natoms), ifin(natoms)
+      integer iniz(natoms) !< [Input] Start something
+      integer ifin(natoms) !< [Input] End something
 c
 c     Basis Functions & Derivatives
 c
-      double precision chi(nq,nbf), delchi(nq,3,nbf),heschi(nq,6,nbf),
-     &                 d3chi(nq,10,nbf)
+      double precision chi(nq,nbf) !< [Input] Basis function values
+      double precision delchi(nq,3,nbf) !< [Input] Basis function 
+                                        !< derivative values
+      double precision heschi(nq,6,nbf) !< [Input] Basis function 
+                                        !< 2nd derivative values
+      double precision d3chi(nq,10,nbf) !< [Input] Basis function 
+                                        !< 3rd derivative values
 c
-      integer ibf(nbf)
+      integer ibf(nbf) !< [Input] Some mapping table
 c
 c     local declarations
 c
+      logical oprint
       double precision A_MAX, C_MAX, AC_MAX, FUNC_MAXI, FUNC_MAXJ
       double precision FUNC_MAX, DELFUNC_MAX, tol_rho_tmp
       integer iatcur, jatcur
@@ -363,12 +422,12 @@ c
                      call dgemv('t',nq, 6, 1d0,heschi(1,1,mu),nq,
      Y                    ff(1,1,1),1,1d0,t6,1)
                   enddo
-                  T(1,1) = t(1,1)+t6(1)
-                  T(1,2) = t(1,2)+t6(2)
-                  T(1,3) = t(1,3)+t6(3)
-                  T(2,2) = t(2,2)+t6(4)
-                  T(2,3) = t(2,3)+t6(5)
-                  T(3,3) = t(3,3)+t6(6)
+                  T(1,1) = T(1,1)+t6(1)
+                  T(1,2) = T(1,2)+t6(2)
+                  T(1,3) = T(1,3)+t6(3)
+                  T(2,2) = T(2,2)+t6(4)
+                  T(2,3) = T(2,3)+t6(5)
+                  T(3,3) = T(3,3)+t6(6)
                   if (GRAD) then
                      do mu = inizja, ifinja
                         do n = 1, nq
@@ -446,12 +505,12 @@ c
                      call dgemv('t',nq, 6, 1d0,heschi(1,1,nu),nq,
      Y                    ff(1,1,1),1,1d0,t6,1)
                   enddo
-                  T(1,1) = t(1,1)+t6(1)
-                  T(1,2) = t(1,2)+t6(2)
-                  T(1,3) = t(1,3)+t6(3)
-                  T(2,2) = t(2,2)+t6(4)
-                  T(2,3) = t(2,3)+t6(5)
-                  T(3,3) = t(3,3)+t6(6)
+                  T(1,1) = T(1,1)+t6(1)
+                  T(1,2) = T(1,2)+t6(2)
+                  T(1,3) = T(1,3)+t6(3)
+                  T(2,2) = T(2,2)+t6(4)
+                  T(2,3) = T(2,3)+t6(5)
+                  T(3,3) = T(3,3)+t6(6)
                   if (GRAD) then
                      do nu = inizia, ifinia
 c     
@@ -531,27 +590,27 @@ c
                         enddo
                         do n = 1,nq
                            s(n,1) = Cmat(n,1,ii)*scr(n,iixx)
-     &                          + Cmat(n,2,ii)*scr(n,iixy)
-     &                          + Cmat(n,3,ii)*scr(n,iixz)
+     &                            + Cmat(n,2,ii)*scr(n,iixy)
+     &                            + Cmat(n,3,ii)*scr(n,iixz)
                            s(n,2) = Cmat(n,1,ii)*scr(n,iixy)
-     &                          + Cmat(n,2,ii)*scr(n,iiyy)
-     &                          + Cmat(n,3,ii)*scr(n,iiyz)
+     &                            + Cmat(n,2,ii)*scr(n,iiyy)
+     &                            + Cmat(n,3,ii)*scr(n,iiyz)
                            s(n,3) = Cmat(n,1,ii)*scr(n,iixz)
-     &                          + Cmat(n,2,ii)*scr(n,iiyz)
-     &                          + Cmat(n,3,ii)*scr(n,iizz)
+     &                            + Cmat(n,2,ii)*scr(n,iiyz)
+     &                            + Cmat(n,3,ii)*scr(n,iizz)
                         enddo
                         call dgemm('t','n',3,3,nq,1d0,
      A                       s,nq,delchi(1,1,mu),nq,1d0,T,3)
                         do n = 1, nq
                            s(n,1) = Cmat(n,1,ii)*heschi(n,iixx,mu)
-     &                          + Cmat(n,2,ii)*heschi(n,iixy,mu)
-     &                          + Cmat(n,3,ii)*heschi(n,iixz,mu)
+     &                            + Cmat(n,2,ii)*heschi(n,iixy,mu)
+     &                            + Cmat(n,3,ii)*heschi(n,iixz,mu)
                            s(n,2) = Cmat(n,1,ii)*heschi(n,iixy,mu)
-     &                          + Cmat(n,2,ii)*heschi(n,iiyy,mu)
-     &                          + Cmat(n,3,ii)*heschi(n,iiyz,mu)
+     &                            + Cmat(n,2,ii)*heschi(n,iiyy,mu)
+     &                            + Cmat(n,3,ii)*heschi(n,iiyz,mu)
                            s(n,3) = Cmat(n,1,ii)*heschi(n,iixz,mu)
-     &                          + Cmat(n,2,ii)*heschi(n,iiyz,mu)
-     &                          + Cmat(n,3,ii)*heschi(n,iizz,mu)
+     &                            + Cmat(n,2,ii)*heschi(n,iiyz,mu)
+     &                            + Cmat(n,3,ii)*heschi(n,iizz,mu)
                         enddo
                         call dgemm('t','n',3,3,nq,1d0,
      A                       ff(1,1,mu-inizja+1),nq,s,nq,1d0,T,3)
@@ -583,3 +642,4 @@ c
 c
       return
       end
+C> @}
