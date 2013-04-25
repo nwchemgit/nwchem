@@ -79,17 +79,16 @@
       end if
 
 *     *** write out 3d blocks ***
-      call ga_sync()
       do ms=1,ispin
       do n=1,ne(ms)
 
 *        **** calculate electronic wavefunction ****
          call ga_get(psimatrix(ms),1,nbasis,n,n,
      >               dbl_mb(coef(1)),nbasis)
+         call ga_sync()
          call lcao_make_psi(dbl_mb(coef(1)),
      >                      dcpl_mb(psi(1)),
      >                      phi)
-         call ga_sync()
 
          call Pack_c_unpack(1,dcpl_mb(psi(1)))
          call D3dB_c_write(1,6,dcpl_mb(psi(1)),

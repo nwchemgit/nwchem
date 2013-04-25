@@ -2249,6 +2249,7 @@ endif
 
         FOPTIONS  += -qEXTNAME -qxlf77=leadzero
         FOPTIONS  +=    -qstrict -qthreaded -qnosave -g
+        FOPTIMIZE += -O2 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt
 #        FOPTIMIZE += -qhot=level=0 
         FDEBUG    = -O0 
 

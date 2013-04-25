@@ -40,15 +40,14 @@
 
 
       call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-      call ga_sync()
       do ms=1,ispin
          do n=1,ne(ms)
 
 *           **** calculate electronic wavefunction ****
             call ga_get(psimatrix(ms),1,nbasis,n,n,
      >                  dbl_mb(coef(1)),nbasis) 
-            call lcao_make_psi(dbl_mb(coef(1)),dbl_mb(tmp(1)),phi)
             call ga_sync()
+            call lcao_make_psi(dbl_mb(coef(1)),dbl_mb(tmp(1)),phi)
 
 *           **** put in real-space ***
             call Pack_c_unpack(1,dbl_mb(tmp(1)))
