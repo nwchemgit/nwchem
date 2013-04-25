@@ -164,9 +164,9 @@ c
          if(dabs(zeta).lt.tol_rho) then
             d2fz = d2fz0
          else
-            if (dabs(zeta+1.d0).le.tol_rho) then 
+            if (dabs(1.0d0+zeta).le.tol_rho) then 
               d2fz = ((1.d0-zeta)**(-twothirds))*p3
-            else if (dabs(zeta-1.d0).le.tol_rho) then
+            else if (dabs(1.0d0-zeta).le.tol_rho) then
               d2fz = ((1.d0+zeta)**(-twothirds))*p3
             else
               d2fz = ((1.d0+zeta)**(-twothirds) +
