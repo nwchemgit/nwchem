@@ -182,7 +182,7 @@ c
             rho_t(2) = rho(n,2)
             rho_t(3) = rho(n,3)
          endif
-         if (rhoval.le.tol_rho) goto 20
+         if (dabs(rhoval).le.tol_rho) goto 20
          if (ipol.eq.1) then
             gammaval = delrho(n,1,1)*delrho(n,1,1) +
      &                 delrho(n,2,1)*delrho(n,2,1) +
@@ -388,7 +388,7 @@ c
 #ifdef SECOND_DERIV
             d2zetadna2   = -2.0d0/(rhoval**2)
             d2zetadnadnb = 0.0d0
-            d2zetadnb2   = -2.0d0/(rhoval**2)
+            d2zetadnb2   = 2.0d0/(rhoval**2)
 #endif
          else
             dzetadna =  2.0d0*rho(n,3)/(rhoval**2)
@@ -396,7 +396,7 @@ c
 #ifdef SECOND_DERIV
             d2zetadna2   = -4.0d0*rho(n,3)/(rhoval**3)
             d2zetadnadnb = 2.0d0*(rho(n,2)-rho(n,3))/(rhoval**3)
-            d2zetadnb2   = -4.0d0*rho(n,2)/(rhoval**3)
+            d2zetadnb2   = 4.0d0*rho(n,2)/(rhoval**3)
 #endif
          endif
 c
@@ -459,7 +459,7 @@ c
      &           - dtdnb/ks*dksdna
      &           + t/(ks**2)*(dksdna*dksdnb)
      &           - t/ks*d2ksdnadnb
-         d2tdnb2 = - dtdna/rhoval
+         d2tdnb2 = - dtdnb/rhoval 
      &           + t/(rhoval**2)
      &           - dtdnb/phi*dphidnb
      &           + t/(phi**2)*(dphidnb**2)
