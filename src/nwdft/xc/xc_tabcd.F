@@ -24,44 +24,59 @@ c
 #include "dist.fh"
 #include "dft_fdist.fh"
 c
-      Logical GRAD
-      integer what ! [in]
-cwhat=0
-cwhat=1 CPKS_LHS
-cwhat=2 CPKS_RHS
-cwhat=2 NMR_RHS
-      integer basis
-      integer max_at_bf ! [input]
-      integer max_at_bf2 ! [input]
-      integer nmat ! Number of XC matrices (alpha + beta sets) to make [input]
-c                  ! e.g. number of perturbations for CPSCF
-      integer imat ! XC matrix loop index
-      integer ipol  ! [input]
-      integer nq    ! [input]
-      integer nbf    ! [input]
-      integer natoms ! [input]
-      integer ncuratoms ! Number of current "active" atoms [input]
-      integer curatoms(*) ! Mapping array for current atoms [input]
+      Logical GRAD !< [Input] .True. if functional depends on density
+                   !< gradient
+      integer what !< [Input] What should be calculated:
+                   !< - what=0: Do everything (?)
+                   !< - what=1: CPKS_LHS
+                   !< - what=2: CPKS_RHS
+                   !< - what=3: NMR_RHS
+      integer basis !< [Input] The basis set handle
+      integer max_at_bf !< [Input] The maximum number of basis functions
+                        !< on an atom
+      integer max_at_bf2 !< [Input] The maximum number of basis
+                         !< functions on an atom
+      integer nmat !< [Input] Number of XC matrices (alpha + beta sets)
+                   !< to compute, e.g. the number of perturbations for
+                   !< CPSCF.
+      integer ipol  !< [Input] The number of spin channels
+      integer nq    !< [Input] The number of grid points
+      integer nbf    !< [Input] The number of basis functions
+      integer natoms !< [Input] The number of atoms
+      integer ncuratoms !< [Input] The number of current "active" atoms
+      integer curatoms(*) !< [Input] Mapping array for current atoms
       integer jatcur,  nu, nu1,  indT
-      double precision tol_rho
-      integer g_vxc(*)   ! GA handle [input]
-      double precision Tmat(*), TTmat(*)
-      double precision rchi_atom(natoms)
-      double precision rdelchi_atom(natoms)
-      double precision rdens_atom(natoms,natoms,ipol)
-      integer cetobfr(2,natoms)
+      double precision tol_rho !< [Input] The electron density threshold
+      integer g_vxc(*)   !< [Input] The GA handle for Fock matrix
+                         !< derivatives
+      double precision Tmat(*) !< [Scratch]
+      double precision TTmat(*) !< [Scratch]
+      double precision rchi_atom(natoms) !< [Input] The maximum basis
+                                         !< function radius for each
+                                         !< atom in this call
+      double precision rdelchi_atom(natoms) !< [Input] The maximum 
+      !< radius of the basis function gradient for each atom in 
+      !< this call
+      double precision rdens_atom(natoms,natoms,ipol) !< Not used
+      integer cetobfr(2,natoms) !< [Input] Mapping from center to 
+      !< basis functions (how different from `iniz` and `ifin`?):
+      !< - cetobfr(1,*): first basis function
+      !< - cetobfr(2,*): last basis function
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol,*), Cmat(nq,3,ipol,*)
-      double precision Mmat(nq,ipol,*) 
+      double precision Amat(nq,ipol,*) !< [Input] The derivative wrt rho
+      double precision Cmat(nq,3,ipol,*) !< [Input] The derivative wrt 
+                                         !< rgamma
+      double precision Mmat(nq,ipol,*) !< [Input] The derivative wrt tau
 c
 c     nmr
-      double precision Emat(nq,max_at_bf)
-      double precision Fmat(nq,3,max_at_bf)
-      double precision qxyz(3,*)                     ! [input] grid point coordinates
-      double precision xyz(3,*)                  ! [input] nuclear coordinates
-      logical kske
+      double precision Emat(nq,max_at_bf) !< [Scratch] NMR only
+      double precision Fmat(nq,3,max_at_bf) !< [Scratch] NMR only
+      double precision qxyz(3,*) !< [Input] Grid point coordinates
+      double precision xyz(3,*)  !< [Input] Nuclear coordinates
+      logical kske !< [Input] .True. if functional depends on kinetic
+                   !< energy density
 c#elif defined(TABCD_CPKS_LHS)
 c
 c     Note: Meaning of dimensioning of Amat and Cmat changes for
@@ -82,15 +97,26 @@ c      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
 c
 c     Sampling Matrices for [Products of] Basis Functions & Gradients
 c
-      double precision Bmat(nq,max_at_bf)
-      double precision Dmat(nq,3,max_at_bf)
-      integer iniz(natoms), ifin(natoms)
+      integer imat ! XC matrix loop index
+      double precision Bmat(nq,max_at_bf) !< [Scratch]
+      double precision Dmat(nq,3,max_at_bf) !< [Scratch]
+      integer iniz(natoms) !< [Input] The first basis function for each
+                           !< atom
+      integer ifin(natoms) !< [Input] The last basis function for each
+                           !< atom
 c
 c     Basis Functions & Gradients
 c
-      double precision chi(nq,nbf), delchi(nq,3,nbf)
-      double precision heschi(nq,6,*)
-      integer ibf(nbf)
+      double precision chi(nq,nbf) !< [Input] The value of the basis
+                                   !< functions at the grid points
+      double precision delchi(nq,3,nbf) !< [Input] The value of the 
+                                        !< gradient of the basis
+                                        !< functions at the grid points
+      double precision heschi(nq,6,*) !< [Input] The value of the 
+                                      !< Hessian of the basis
+                                      !< functions at the grid points
+      integer ibf(nbf) !< [Input] The rank of the basis function for
+                       !< every basis function (why do we need this?)
       double precision A_MAX, C_MAX, AC_MAX, FUNC_MAXI,
      &                 B_MAX, D_MAX, BD_MAX, FUNC_MAXJ
       integer iat, inizia, ifinia, nbfia, nnia, ifirst, ilast
@@ -98,11 +124,12 @@ c
       integer ii, mu, mu1
       integer n,lastjat
       double precision chi1
-      double precision scr(nq)
+      double precision scr(nq) !< [Scratch] Temporary stuff in
+                               !< quadrature
       double precision dabsmax
       double precision tolrho15
       external dabsmax
-      logical l3d
+      logical l3d !< [Input] .True. if XC-matrices stored in a 3D GA
       integer jrsh,jrsh2,n3d,idir,jdir
       integer g_update(2)
 cnmr
@@ -142,7 +169,7 @@ c
       enddo
       tolrho15=tol_rho**1.25d0
       if(what.eq.0) then
-        n3d=1
+         n3d=1
       elseif(what.eq.1) then
          n3d=1
       elseif(what.eq.2) then
@@ -437,13 +464,13 @@ c     Monitoring
                            call xc_atom_blockd(dbl_mb(k_repxc(ii)),
      N                          nbf_ld,basis,iat,jat,ttmat)
                         else
-                        if(truerepxc) then
-                           call xc_atom_block(dbl_mb(k_repxc(ii)),
-     N                          nbf_ld,basis,jat,iat,tmat)
-                        else
-                        call upd_atom_block(g_update(ii),
-     .                       basis,iat,jat,ttmat)
-                        endif
+c                       if(truerepxc) then
+c                          call xc_atom_block(dbl_mb(k_repxc(ii)),
+c    N                          nbf_ld,basis,jat,iat,tmat)
+c                       else
+                           call upd_atom_block(g_update(ii),
+     .                          basis,iat,jat,ttmat)
+c                       endif
                         endif
                      endif
                   endif
