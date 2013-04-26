@@ -136,10 +136,10 @@ C
          end if
       endif
       if (util_print('final vectors analysis', print_default)) then
-         do ilo = 1,max(1,nbeta-10)
+         do ilo = 1,max(1,min(nalpha,nbeta)-10)
             if (dbl_mb(k_eval+ilo-1) .ge. eval_pr_tol_lo) goto 961
          enddo
- 961     do ihi = min(nalpha+10,nmo),nmo
+ 961     do ihi = min(max(nalpha,nbeta)+10,nmo),nmo
             if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol_hi) goto 9611
          enddo
          ihi = max(ihi-1,1)
@@ -693,8 +693,12 @@ c
 c
 c     Make the densites and build the fock matrices
 c
-      call ga_dgemm('n', 't', nbf, nbf, nalpha, one, g_vecs(1),
-     $     g_vecs(1), zero, g_a_dens)
+      if (nalpha .gt. 0) then
+         call ga_dgemm('n', 't', nbf, nbf, nalpha, one, g_vecs(1),
+     $        g_vecs(1), zero, g_a_dens)
+      else
+         call ga_zero(g_a_dens)
+      endif
       if (nbeta .gt. 0) then
          call ga_dgemm('n', 't', nbf, nbf, nbeta, one, g_vecs(2),
      $        g_vecs(2), zero, g_b_dens)
@@ -1507,11 +1511,12 @@ c
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
 c     
-      call ga_dgemm('n', 't', nbf, nbf, nalpha, 1.0d0, g_movecs(1),
-     $     g_movecs(1), 0.0d0, g_adens)
+      if (nalpha .gt. 0) 
+     $    call ga_dgemm('n', 't', nbf, nbf, nalpha, 1.0d0, g_movecs(1),
+     $         g_movecs(1), 0.0d0, g_adens)
       if (nbeta .gt. 0) 
-     $     call ga_dgemm('n', 't', nbf, nbf, nbeta, 1.0d0, g_movecs(2),
-     $        g_movecs(2), 0.0d0, g_bdens)
+     $    call ga_dgemm('n', 't', nbf, nbf, nbeta, 1.0d0, g_movecs(2),
+     $         g_movecs(2), 0.0d0, g_bdens)
       call ga_dadd(1.0d0, g_adens, 1.0d0, g_bdens, g_dens)
 c
       if (oprintmulliken) then
@@ -1561,7 +1566,8 @@ c
       call dfill(len_moments, 0.0d0, alphamoments, 1)
       call dfill(len_moments, 0.0d0, betamoments, 1)
       call geom_nuc_mpole(geom, center, lmax, nuclmoments, len_moments)
-      call multipole_density(basis, center, lmax, g_adens, 
+      if (nalpha .gt. 0)
+     $     call multipole_density(basis, center, lmax, g_adens, 
      $     alphamoments, len_moments)
       if (nbeta .gt. 0) 
      $     call multipole_density(basis, center, lmax, g_bdens, 
