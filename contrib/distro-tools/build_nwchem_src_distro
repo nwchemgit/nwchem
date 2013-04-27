@@ -51,16 +51,17 @@ fi
 #
 # Make sure we include the Global Arrays
 #
+export GA_VERSION=`${target}/src/tools/get-tools --ga-version`
 echo -n "Check for Global Arrays... "
-if [ -d ${target}/src/tools/ga-5-1-1 ] ; then
+if [ -d ${target}/src/tools/${GA_VERSION} ] ; then
   echo "OK"
 else
   echo "No Global Arrays."
-  echo "Running get-tools to get them..."
-  pushd ${target}/src/tools/ga-5-1-1
+  echo "Running get-tools to get: ${GA_VERSION}"
+  pushd ${target}/src/tools
   ./get-tools
   popd
-  if [ -d ${target}/src/tools/ga-5-1-1 ] ; then
+  if [ -d ${target}/src/tools/${GA_VERSION} ] ; then
     echo "Retrieved Global Arrays"
   else
     echo "Failed to get Global Arrays. Aborting..."
