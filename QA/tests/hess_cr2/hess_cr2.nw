@@ -1,0 +1,205 @@
+echo
+
+# Test for the open-shell Hessian capabilities using an open-shell singlet
+# system. In this dimer both atoms are individually high spin atoms but
+# coupled overall to a singlet state. This test case highlighted bugs
+# in the xc_pw91lda and xc_pbe96 implementations (revision r24122).
+#
+# For the pbe96 functional it turned out to be important that the same
+# convergence criteria are used in the geometry optimization as in the 
+# Hessian calculation. Otherwise negative frequencies of -78 /cm show up
+# in the analytic Hessian and the positive frequency is about 480 /cm rather
+# than the 440 /cm that the numerical Hessian calculation gives. Other
+# functionals are less sensitive to the convergence criteria for this molecule.
+
+start cr2_dat
+
+geometry cr2 noautosym
+  cr1 0 0 0
+  cr2 0 0 1.71936 
+  symmetry c2v
+end
+geometry cr
+  cr1 0 0 0
+end
+basis spherical
+  * library 6-31g
+end
+
+dft
+  xc xpbe96 cpbe96
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+# Generate the spin-up and spin-down fragment wavefunctions
+
+set geometry cr
+dft
+  mult 7
+  convergence lshift 0.22
+  vectors input atomic output crup.mos
+end
+task dft ignore
+dft
+  mult -7
+  vectors input atomic output crdn.mos
+end
+task dft ignore
+
+# Compose the broken symmetry wavefunction from the fragments
+
+set geometry cr2
+dft
+  mult 1
+  odft
+  vectors input fragment crup.mos crdn.mos output cr2.mos
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+  grid fine
+  mulliken
+  iterations 9999
+end
+
+driver
+  clear
+end
+
+dft
+  # HF-exchange + PW91LDA
+  xc hfexch pw91lda
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1d-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # PBE
+  xc xpbe96 cpbe96
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1d-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # PBE0
+  xc pbe0
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # rPBE
+  xc rpbe cpbe96
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # revPBE
+  xc revpbe cpbe96
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # BLYP
+  xc becke88 lyp
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # B3LYP
+  xc b3lyp
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # BHLYP
+  xc bhlyp
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # XP91
+  xc xperdew91
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # BeckeHandH
+  xc beckehandh
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
+
+dft
+  # Becke88 + Perdew81
+  xc becke88 perdew81
+  convergence energy 1.0e-8 density 1.0e-5 gradient 1.0e-6
+end
+
+task dft optimize
+task dft freq
+dft
+  convergence energy 1.0e-7 lshift 0.4
+end
+task dft freq numerical
