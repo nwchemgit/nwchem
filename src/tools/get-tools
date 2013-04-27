@@ -12,6 +12,18 @@ then
     exit 1
 fi
 
+ga_version=0
+while [ $# -gt 0 ]
+do
+   case "$1" in
+      --ga-version) ga_version=1;;
+      *)
+         echo >&2 "usage: $0 [--ga-version]"
+         exit 1;;
+   esac
+   shift 
+done
+
 TOOLDIR=`pwd`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
@@ -40,8 +52,10 @@ if test "x$EXP_GA" != x
 then
     EXP_GA=yes
 fi
-echo "OLD_GA=$OLD_GA"
-echo "EXP_GA=$EXP_GA"
+if [ $ga_version == 0 ] ; then
+  echo "OLD_GA=$OLD_GA"
+  echo "EXP_GA=$EXP_GA"
+fi
 
 # If DEV_GA is set at all in the user's environment then it means 'yes'
 if test "x$DEV_GA" != x
@@ -55,6 +69,11 @@ then
 else
     GA_SVN=$GA_STABLE_SVN
     GA_DIRNAME=$GA_STABLE
+fi
+
+if [ $ga_version == 1 ] ; then
+  echo $GA_DIRNAME
+  exit 0
 fi
 
 # Update the "OLD_GA" source.
