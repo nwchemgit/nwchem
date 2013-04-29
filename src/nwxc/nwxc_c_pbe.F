@@ -332,7 +332,7 @@ c
 #ifdef SECOND_DERIV
             d2zetadna2   = -2.0d0/(rhoval**2)
             d2zetadnadnb = 0.0d0
-            d2zetadnb2   = -2.0d0/(rhoval**2)
+            d2zetadnb2   = 2.0d0/(rhoval**2)
 #endif
          else
             dzetadna =  2.0d0*rho(n,R_B)/(rhoval**2)
@@ -340,7 +340,7 @@ c
 #ifdef SECOND_DERIV
             d2zetadna2   = -4.0d0*rho(n,R_B)/(rhoval**3)
             d2zetadnadnb = 2.0d0*(rho(n,R_A)-rho(n,R_B))/(rhoval**3)
-            d2zetadnb2   = -4.0d0*rho(n,R_A)/(rhoval**3)
+            d2zetadnb2   = 4.0d0*rho(n,R_A)/(rhoval**3)
 #endif
          endif
 c
@@ -403,7 +403,7 @@ c
      &           - dtdnb/ks*dksdna
      &           + t/(ks**2)*(dksdna*dksdnb)
      &           - t/ks*d2ksdnadnb
-         d2tdnb2 = - dtdna/rhoval
+         d2tdnb2 = - dtdnb/rhoval
      &           + t/(rhoval**2)
      &           - dtdnb/phi*dphidnb
      &           + t/(phi**2)*(dphidnb**2)
