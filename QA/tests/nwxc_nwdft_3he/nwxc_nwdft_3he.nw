@@ -507,7 +507,7 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc m11-hx
+  xc m08-hx
 end
 task dft energy
 
@@ -515,7 +515,7 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc m11-so
+  xc m08-so
 end
 task dft energy
 
