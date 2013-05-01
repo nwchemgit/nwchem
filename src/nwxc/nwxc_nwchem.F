@@ -265,6 +265,9 @@ c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_tau"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_LOG,1,
      +                           nwxc_depends_on_tau)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_rho_tol"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,
+     +                           nwxc_rho_tol)
 cHACK
 c     This stuff is to be removed when the integration is finalized
       if (nwxc_has_cam()) then
@@ -386,6 +389,9 @@ c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_depends_on_tau"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_LOG,1,
      +                           nwxc_depends_on_tau)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_rho_tol"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,
+     +                           nwxc_rho_tol)
 c
       nwxc_rtdb_load = status
       if (.not.status) then
@@ -481,15 +487,83 @@ c
         write(luout,20)"NWXCP_HFXC",NWXCP_HFXC
         write(luout,20)"NWXCP_MP2C",NWXCP_MP2C
         write(luout,20)"NWXCP_X_SLATER",NWXCP_X_SLATER
+        write(luout,20)"NWXCP_X_B88",NWXCP_X_B88
+        write(luout,20)"NWXCP_X_B0",NWXCP_X_B0
+        write(luout,20)"NWXCP_X_BNL",NWXCP_X_BNL
+        write(luout,20)"NWXCP_X_CAMB88",NWXCP_X_CAMB88
+        write(luout,20)"NWXCP_X_CAMLSD",NWXCP_X_CAMLSD
+        write(luout,20)"NWXCP_X_CAMPBE",NWXCP_X_CAMPBE
+        write(luout,20)"NWXCP_X_DLDF",NWXCP_X_DLDF
+        write(luout,20)"NWXCP_X_M05",NWXCP_X_M05
+        write(luout,20)"NWXCP_X_M05_2X",NWXCP_X_M05_2X
+        write(luout,20)"NWXCP_X_M06",NWXCP_X_M06
+        write(luout,20)"NWXCP_X_M06_HF",NWXCP_X_M06_HF
+        write(luout,20)"NWXCP_X_M06_L",NWXCP_X_M06_L
+        write(luout,20)"NWXCP_X_M06_2X",NWXCP_X_M06_2X
+        write(luout,20)"NWXCP_X_M08_HX",NWXCP_X_M08_HX
+        write(luout,20)"NWXCP_X_M08_SO",NWXCP_X_M08_SO
+        write(luout,20)"NWXCP_X_M11",NWXCP_X_M11
+        write(luout,20)"NWXCP_X_M11_L",NWXCP_X_M11_L
         write(luout,20)"NWXCP_X_PBE",NWXCP_X_PBE
+        write(luout,20)"NWXCP_X_PBE0",NWXCP_X_PBE0
+        write(luout,20)"NWXCP_X_PBESOL",NWXCP_X_PBESOL
+        write(luout,20)"NWXCP_X_REVPBE",NWXCP_X_REVPBE
+        write(luout,20)"NWXCP_X_RPBE",NWXCP_X_RPBE
+        write(luout,20)"NWXCP_X_TPSS",NWXCP_X_TPSS
+        write(luout,20)"NWXCP_X_WPBE",NWXCP_X_WPBE
         write(luout,20)"NWXCP_X_VS98",NWXCP_X_VS98
+        write(luout,20)"NWXCP_C_B95",NWXCP_C_B95
+        write(luout,20)"NWXCP_C_DLDF",NWXCP_C_DLDF
+        write(luout,20)"NWXCP_C_LYP",NWXCP_C_LYP
+        write(luout,20)"NWXCP_C_M05",NWXCP_C_M05
+        write(luout,20)"NWXCP_C_M05_2X",NWXCP_C_M05_2X
+        write(luout,20)"NWXCP_C_M06",NWXCP_C_M06
+        write(luout,20)"NWXCP_C_M06_HF",NWXCP_C_M06_HF
+        write(luout,20)"NWXCP_C_M06_L",NWXCP_C_M06_L
+        write(luout,20)"NWXCP_C_M06_2X",NWXCP_C_M06_2X
+        write(luout,20)"NWXCP_C_M08_HX",NWXCP_C_M08_HX
+        write(luout,20)"NWXCP_C_M08_SO",NWXCP_C_M08_SO
+        write(luout,20)"NWXCP_C_M11",NWXCP_C_M11
+        write(luout,20)"NWXCP_C_M11_L",NWXCP_C_M11_L
+        write(luout,20)"NWXCP_C_PW6B95",NWXCP_C_PW6B95
+        write(luout,20)"NWXCP_C_PWB6K",NWXCP_C_PWB6K
         write(luout,20)"NWXCP_C_PW91LDA",NWXCP_C_PW91LDA
         write(luout,20)"NWXCP_C_PBE",NWXCP_C_PBE
+        write(luout,20)"NWXCP_C_PBESOL",NWXCP_C_PBESOL
+        write(luout,20)"NWXCP_C_TPSS",NWXCP_C_TPSS
         write(luout,20)"NWXCP_C_VS98",NWXCP_C_VS98
+        write(luout,20)"NWXCP_C_VWN1",NWXCP_C_VWN1
+        write(luout,20)"NWXCP_C_VWN1_RPA",NWXCP_C_VWN1_RPA
+        write(luout,20)"NWXCP_C_VWN2",NWXCP_C_VWN2
+        write(luout,20)"NWXCP_C_VWN3",NWXCP_C_VWN3
+        write(luout,20)"NWXCP_C_VWN4",NWXCP_C_VWN4
         write(luout,20)"NWXCP_C_VWN5",NWXCP_C_VWN5
+        write(luout,20)"NWXCP_B3LYP",NWXCP_B3LYP
+        write(luout,20)"NWXCP_B3PW91",NWXCP_B3PW91
+        write(luout,20)"NWXCP_B0LYP",NWXCP_B0LYP
+        write(luout,20)"NWXCP_BLYP",NWXCP_BLYP
+        write(luout,20)"NWXCP_DLDF",NWXCP_DLDF
         write(luout,20)"NWXCP_LDA",NWXCP_LDA
+        write(luout,20)"NWXCP_M05",NWXCP_M05
+        write(luout,20)"NWXCP_M05_2X",NWXCP_M05_2X
+        write(luout,20)"NWXCP_M06",NWXCP_M06
+        write(luout,20)"NWXCP_M06_HF",NWXCP_M06_HF
+        write(luout,20)"NWXCP_M06_L",NWXCP_M06_L
+        write(luout,20)"NWXCP_M06_2X",NWXCP_M06_2X
+        write(luout,20)"NWXCP_M08_HX",NWXCP_M08_HX
+        write(luout,20)"NWXCP_M08_SO",NWXCP_M08_SO
+        write(luout,20)"NWXCP_M11",NWXCP_M11
+        write(luout,20)"NWXCP_M11_L",NWXCP_M11_L
         write(luout,20)"NWXCP_PBE",NWXCP_PBE
+        write(luout,20)"NWXCP_PBE0",NWXCP_PBE0
+        write(luout,20)"NWXCP_PBESOL",NWXCP_PBESOL
+        write(luout,20)"NWXCP_REVPBE",NWXCP_REVPBE
+        write(luout,20)"NWXCP_REVPBE0",NWXCP_REVPBE0
+        write(luout,20)"NWXCP_RPBE",NWXCP_RPBE
+        write(luout,20)"NWXCP_TPSS",NWXCP_TPSS
+        write(luout,20)"NWXCP_HSE",NWXCP_HSE
         write(luout,20)"NWXCP_VS98",NWXCP_VS98
+        write(luout,20)"NWXCP_PBE_D1",NWXCP_PBE_D1
         write(luout,*)
         if (nwxc_has_hfx()) then
           wght = nwxc_wght_hfx()
@@ -507,10 +581,17 @@ c
         endif
         ientry = 1
         do ientry = 1, nwxc_num_f
-          write(luout,1000)nwxc_wghts(ientry),nwxc_ids(ientry)
+          if (.not.nwxc_get_info(nwxc_ids(ientry),term)) then
+            call errquit("illegal functional",NWXCP_HFXC,UERR)
+          endif
+          write(luout,1010)nwxc_wghts(ientry),nwxc_ids(ientry),
+     +                     term(1:inp_strlen(term))
         enddo
         if (nwxc_has_cam()) then
-          call errquit("must think about CAM",0,UERR)
+c         call errquit("must think about CAM",0,UERR)
+          write(luout,1000)nwxc_cam_alpha,"NWXC_CAM_ALPHA"
+          write(luout,1000)nwxc_cam_beta ,"NWXC_CAM_BETA"
+          write(luout,1000)nwxc_cam_gamma,"NWXC_CAM_GAMMA"
         endif
         if (nwxc_has_disp()) then
           call errquit("must think about DISP",0,UERR)
@@ -518,11 +599,9 @@ c
         call util_flush(luout)
       endif
 c
- 1000 format(1x,f12.6,"  ",i4)
+ 1000 format(1x,f12.6,"  ",a)
+ 1010 format(1x,f12.6,"  ",i4,"  ",a)
       end
-
-
-
 C>
 C> \brief Print the current density functional in nwpw format
 C>
