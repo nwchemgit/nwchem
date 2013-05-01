@@ -512,7 +512,7 @@ c       In the NWChem DFT code REVPBE does not include correlation
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."revpbe0") then ! alias
-        nwxc_add_df = nwxc_usr_add_func(NWXCP_REVPBE,dfweight)
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_REVPBE0,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_SLATER,0.75d0*dfweight)
         nwxc_add_df = nwxc_add_df .and.
