@@ -579,10 +579,10 @@ cc
 c     == Begin iteration sequence with S**(-1/2) in g_evecs arrays ==
       if (.not. ga_duplicate(g_s, g_tmp, 'temp'))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
-         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
-     &        g_tmp,  2)
-         if (.not. ga_destroy(g_tmp)) call errquit
-     &      (pname//'Could not destroy g_tmp', 0, GA_ERR)
+      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
+     &     g_tmp,  2)
+      if (.not. ga_destroy(g_tmp)) call errquit
+     &   (pname//'Could not destroy g_tmp', 0, GA_ERR)
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
       if (.not. rtdb_get(rtdb, 'dft:lcdft', mt_log, 1, lcdft))
