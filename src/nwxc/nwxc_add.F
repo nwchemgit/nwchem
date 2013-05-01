@@ -448,11 +448,20 @@ c       nwxc_wght_hf    = 0.20d0
      +                nwxc_add_func(NWXCP_X_M08_SO,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      +                nwxc_add_func(NWXCP_C_M08_SO,dfweight)
-        nwxc_wght_hf= nwxc_wght_hf + 0.5223d0*dfweight
+        nwxc_wght_hf= nwxc_wght_hf + 0.5679d0*dfweight
       else if (dfname.eq."m11") then ! alias
-        nwxc_add_df = nwxc_all_add_func(NWXCP_M11,dfweight)
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_M11,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_M11,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_M11,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 1.0000d0*dfweight
       else if (dfname.eq."m11-l") then ! alias
-        nwxc_add_df = nwxc_all_add_func(NWXCP_M11_L,dfweight)
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_M11_L,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_M11_L,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_M11_L,dfweight)
       else if (dfname.eq."hse03".or.dfname.eq."hse") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_HSE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -521,7 +530,7 @@ c       In the NWChem DFT code REVPBE does not include correlation
 c       In the NWChem DFT code RPBE does not include correlation
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
-      else if (dfname.eq."tpss03") then ! alias
+      else if (dfname.eq."tpss03".or.dfname.eq."tpss") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_TPSS,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_TPSS,dfweight)
