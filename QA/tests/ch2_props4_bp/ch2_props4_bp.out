@@ -1,5 +1,5 @@
  argument  1 = ch2_props4_bp.nw
- 
+
 
 
 ============================== echo of input deck ==============================
@@ -57,26 +57,26 @@ task dft property
 
                                          
                                          
- 
- 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.3
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                              Copyright (c) 1994-2010
+
+                              Copyright (c) 1994-2012
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
- 
+
              NWChem is an open-source computational chemistry package
                         distributed under the terms of the
                       Educational Community License (ECL) 2.0
              A copy of the license is included with this distribution
                               in the LICENSE.TXT file
- 
+
                                   ACKNOWLEDGMENT
                                   --------------
 
@@ -92,19 +92,21 @@ task dft property
            Job information
            ---------------
 
-    hostname      = orion
-    program       = ../../../bin/LINUX64/nwchem
-    date          = Mon Nov  7 15:26:45 2011
+    hostname        = orion
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Thu May  2 09:38:52 2013
 
-    compiled      = Mon_Nov_07_15:23:24_2011
-    source        = /home/niri/nwchem/nwchem-trunk
-    nwchem branch = Development
-    input         = ch2_props4_bp.nw
-    prefix        = ch2_props4_bp.
-    data base     = ./ch2_props4_bp.db
-    status        = startup
-    nproc         =        4
-    time left     =     -1s
+    compiled        = Thu_May_02_07:44:30_2013
+    source          = /home/niri/nwchem/nwchem-6.3
+    nwchem branch   = 6.3
+    nwchem revision = 23861
+    ga revision     = 10285
+    input           = ch2_props4_bp.nw
+    prefix          = ch2_props4_bp.
+    data base       = ./ch2_props4_bp.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
 
 
 
@@ -121,46 +123,45 @@ task dft property
 
            Directory information
            ---------------------
- 
+
   0 permanent = .
   0 scratch   = .
- 
- 
- 
- 
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
                                    ch2_props4_bp
                                    -------------
- ncenter=                     3
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
 
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
- 
- 
- 
+
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000    -0.00589147     0.04720885     0.01050160
     2 H                    1.0000     0.69831687     0.86392831    -0.10575361
     3 H                    1.0000    -1.02419158    -0.06390043     0.36725854
- 
+
       Atomic Mass 
       ----------- 
- 
+
       C                 12.000000
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)       6.1173376527
 
@@ -169,8 +170,8 @@ task dft property
         X                 Y               Z
  ---------------- ---------------- ----------------
     -0.6826134923     2.0471042208     0.6132435410
- 
- 
+
+
             XYZ format geometry
             -------------------
      3
@@ -178,7 +179,7 @@ task dft property
  C                    -0.00589147     0.04720885     0.01050160
  H                     0.69831687     0.86392831    -0.10575361
  H                    -1.02419158    -0.06390043     0.36725854
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -205,7 +206,7 @@ task dft property
 
 
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-trunk/src/basis/libraries/>
+  library file name is: </home/niri/nwchem/nwchem-6.3/src/basis/libraries/>
   
 
 
@@ -219,20 +220,20 @@ task dft property
   perdew86 is a nonlocal functional; adding perdew81 local functional. 
                               NWChem Property Module
                               ----------------------
- 
- 
+
+
                                    ch2_props4_bp
- 
+
   itol2e modified to match energy
   convergence criterion.
- 
+
                                  NWChem DFT Module
                                  -----------------
- 
- 
+
+
                                    ch2_props4_bp
- 
- 
+
+
                       Basis "ao basis" -> "ao basis" (cartesian)
                       -----
   C (Carbon)
@@ -245,25 +246,25 @@ task dft property
   1 S  4.44553000E+01  0.260801
   1 S  1.30290000E+01  0.616462
   1 S  1.82773000E+00  0.221006
- 
+
   2 S  2.09642000E+01  0.114660
   2 S  4.80331000E+00  0.919999
   2 S  1.45933000E+00 -0.003031
- 
+
   3 P  2.09642000E+01  0.040249
   3 P  4.80331000E+00  0.237594
   3 P  1.45933000E+00  0.815854
- 
+
   4 S  4.83456000E-01  1.000000
- 
+
   5 P  4.83456000E-01  1.000000
- 
+
   6 S  1.45585000E-01  1.000000
- 
+
   7 P  1.45585000E-01  1.000000
- 
+
   8 D  6.26000000E-01  1.000000
- 
+
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
@@ -271,11 +272,11 @@ task dft property
   1 S  3.38650000E+01  0.025494
   1 S  5.09479000E+00  0.190373
   1 S  1.15879000E+00  0.852161
- 
+
   2 S  3.25840000E-01  1.000000
- 
+
   3 S  1.02741000E-01  1.000000
- 
+
 
 
  Summary of "ao basis" -> "ao basis" (cartesian)
@@ -290,7 +291,7 @@ task dft property
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
- 
+
             General Information
             -------------------
           SCF calculation type: DFT
@@ -309,13 +310,13 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
           Convergence on energy requested: 1.00D-08
           Convergence on density requested: 1.00D-05
           Convergence on gradient requested: 5.00D-04
- 
+
               XC Information
               --------------
                     Becke 1988 Exchange Functional  1.000          
                 Perdew 1981 Correlation Functional  1.000 local    
                 Perdew 1986 Correlation Functional  1.000 non-local
- 
+
              Grid Information
              ----------------
           Grid used for XC integration:  xfine     
@@ -328,7 +329,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
           Grid pruning is: on 
           Number of quadrature shells:   300
           Spatial weights used:  Erf1
- 
+
           Convergence Information
           -----------------------
           Convergence aids based upon iterative change in 
@@ -343,7 +344,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
           dE  on:    start            ASAP                start   
           dE off:    2 iters         30 iters            80 iters 
 
- 
+
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho: 1.00D-30
@@ -354,11 +355,11 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
           Performing ZORA calculations
           ----------------------------
- 
- 
+
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:         -38.66817135
 
  Read atomic ZORA corrections from ./ch2_props4_bp.zora_sf
@@ -366,25 +367,25 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
  dft_zora_read: failed to open./ch2_props4_bp.zora_sf
        Generating atomic ZORA corrections
        ----------------------------------
- 
+
  In dft_scf:: zora:Knucl= F
  dft_scf: ofinite= F
 
  Grid_pts file          = ./ch2_props4_bp.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     41        Max. recs in file   =    132543
+ Max. records in memory =     41        Max. recs in file   =     20113
 
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 
  Wrote atomic ZORA corrections to ./ch2_props4_bp.zora_sf
 
- 
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:         -38.66817135
- 
+
       Non-variational initial energy
       ------------------------------
 
@@ -393,11 +394,11 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
  2-e energy   =      18.301837
  HOMO         =      -0.184236
  LUMO         =      -0.135421
- 
-   Time after variat. SCF:      1.7
-   Time prior to 1st pass:      1.7
- Warning: integrated density       0.799999996959E+01
- deviates from requested relative accuracy   0.10E-19
+
+   Time after variat. SCF:      2.3
+   Time prior to 1st pass:      2.3
+ Grid integrated density:       7.999999956035
+ Requested integration accuracy:   0.10E-19
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        6.05             6045363
@@ -405,220 +406,337 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -39.1543657879 -4.53D+01  8.93D-03  6.65D-02     2.0
+ d= 0,ls=0.0,diis     1    -39.1543661067 -4.53D+01  8.93D-03  6.65D-02     2.8
                                                      4.51D-03  5.41D-02
- Warning: integrated density       0.799999999970E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     2    -39.1708777145 -1.65D-02  4.75D-03  1.39D-02     2.3
+ Grid integrated density:       7.999999973249
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     2    -39.1708741553 -1.65D-02  4.75D-03  1.39D-02     3.4
                                                      3.23D-03  9.49D-03
- Warning: integrated density       0.800000000004E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     3    -39.1749869664 -4.11D-03  2.14D-03  5.85D-03     2.6
+ Grid integrated density:       8.000000000037
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     3    -39.1749883596 -4.11D-03  2.14D-03  5.85D-03     4.0
                                                      1.04D-03  2.67D-03
- Warning: integrated density       0.799999999993E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     4    -39.1772952647 -2.31D-03  1.22D-04  2.22D-05     2.9
+ Grid integrated density:       7.999999999922
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     4    -39.1772952617 -2.31D-03  1.22D-04  2.22D-05     4.6
                                                      1.93D-04  4.18D-05
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     5    -39.1773173135 -2.20D-05  5.54D-05  2.78D-06     3.3
-                                                     3.35D-05  9.21D-07
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     6    -39.1773186737 -1.36D-06  9.90D-06  5.06D-08     3.6
-                                                     7.80D-06  3.50D-08
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     7    -39.1773187164 -4.27D-08  7.92D-07  2.49D-10     3.9
-                                                     9.11D-07  5.35D-10
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     8    -39.1773187168 -3.76D-10  1.30D-07  8.76D-12     4.2
-                                                     9.49D-08  4.48D-12
- 
+ Grid integrated density:       7.999999999950
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     5    -39.1773173129 -2.21D-05  5.54D-05  2.78D-06     5.2
+                                                     3.35D-05  9.18D-07
+ Grid integrated density:       7.999999999953
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     6    -39.1773186737 -1.36D-06  9.94D-06  5.07D-08     5.8
+                                                     7.78D-06  3.49D-08
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     7    -39.1773187164 -4.28D-08  8.07D-07  2.46D-10     6.4
+                                                     9.01D-07  5.40D-10
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     8    -39.1773187168 -3.76D-10  1.30D-07  8.75D-12     7.0
+                                                     9.60D-08  4.51D-12
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     9    -39.1773187168 -6.33D-12  1.85D-08  1.23D-13     7.6
+                                                     9.93D-09  4.70D-14
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis    10    -39.1773187168 -2.70D-13  1.26D-09  2.01D-15     8.2
+                                                     7.03D-10  1.05D-15
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    11    -39.1773187168  4.97D-14  9.67D-11  4.86D-18     8.8
+                                                     8.36D-11  4.70D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    12    -39.1773187168  3.55D-14  4.65D-11  6.09D-19     9.4
+                                                     2.46D-11  2.81D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    13    -39.1773187168 -8.53D-14  2.95D-11  2.64D-19    10.0
+                                                     1.92D-11  1.83D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    14    -39.1773187168  1.42D-14  2.69D-11  2.31D-19    10.6
+                                                     1.55D-11  1.24D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    15    -39.1773187168  7.11D-15  2.74D-11  2.50D-19    11.2
+                                                     1.67D-11  1.44D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    16    -39.1773187168  6.39D-14  3.06D-11  3.17D-19    11.8
+                                                     1.85D-11  1.77D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    17    -39.1773187168 -1.07D-13  3.48D-11  4.13D-19    12.4
+                                                     2.12D-11  2.32D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    18    -39.1773187168 -9.24D-14  3.99D-11  5.42D-19    13.0
+                                                     2.43D-11  3.04D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    19    -39.1773187168  1.21D-13  4.58D-11  7.14D-19    13.6
+                                                     2.79D-11  4.00D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    20    -39.1773187168 -4.97D-14  5.25D-11  9.41D-19    14.2
+                                                     3.20D-11  5.27D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    21    -39.1773187168  6.39D-14  6.03D-11  1.24D-18    14.8
+                                                     3.68D-11  6.94D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    22    -39.1773187168 -4.97D-14  6.92D-11  1.63D-18    15.4
+                                                     4.22D-11  9.15D-19
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    23    -39.1773187168  4.26D-14  7.95D-11  2.15D-18    16.0
+                                                     4.84D-11  1.21D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    24    -39.1773187168 -1.56D-13  9.12D-11  2.84D-18    16.6
+                                                     5.56D-11  1.59D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    25    -39.1773187168  2.20D-13  1.05D-10  3.74D-18    17.2
+                                                     6.38D-11  2.10D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    26    -39.1773187168 -8.53D-14  1.20D-10  4.93D-18    17.8
+                                                     7.33D-11  2.76D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    27    -39.1773187168  1.35D-13  1.38D-10  6.50D-18    18.4
+                                                     8.41D-11  3.64D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    28    -39.1773187168 -2.20D-13  1.58D-10  8.57D-18    19.0
+                                                     9.66D-11  4.80D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    29    -39.1773187168  1.49D-13  1.82D-10  1.13D-17    19.6
+                                                     1.11D-10  6.32D-18
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis    30    -39.1773187168  0.00D+00  2.09D-10  1.49D-17    20.2
+                                                     1.27D-10  8.33D-18
+
       Commencing ZORA Property Calculations
       -------------------------------------
- 
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-dia1(k,t,iat1,ispin)=(  1,  1,  1,  1)=(   147.47332126,   147.47332126) ppm
-dia1(k,t,iat1,ispin)=(  1,  1,  1,  2)=(   116.74168818,   264.21500944) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  1,  1)=(     2.43696097,     2.43696097) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  1,  2)=(     0.25886455,     2.69582552) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  1,  1)=(    -1.85525564,    -1.85525564) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  1,  2)=(    -0.15434699,    -2.00960262) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  1,  1)=(     2.43692258,     2.43692258) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  1,  2)=(     0.25887709,     2.69579967) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  1,  1)=(   144.61051137,   144.61051137) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  1,  2)=(   116.41324238,   261.02375375) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  1,  1)=(    -0.31530023,    -0.31530023) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  1,  2)=(    -0.05817599,    -0.37347622) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  1,  1)=(    -1.85526240,    -1.85526240) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  1,  2)=(    -0.15434478,    -2.00960718) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  1,  1)=(    -0.31531442,    -0.31531442) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  1,  2)=(    -0.05817135,    -0.37348577) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  1,  1)=(   141.92090556,   141.92090556) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  1,  2)=(   116.24734931,   258.16825488) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  1)=(    -0.97406730,    -0.97406730,    -0.00743812,    -0.00743812) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  2)=(    -0.10426717,    -1.07833447,     0.06296967,     0.05553155) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  1)=(     0.23403187,     0.23403187,     0.00354869,     0.00354869) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  2)=(     0.63227393,     0.86630580,    -0.03004249,    -0.02649379) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  1,  1,  1)=(    -0.31492429,    -0.31492429,    -0.02012558,    -0.02012558) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  1,  1,  2)=(    -0.19908499,    -0.51400928,     0.17037935,     0.15025377) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  1)=(     0.23407026,     0.23407026,     0.00354869,     0.00354869) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  2)=(     0.63226139,     0.86633165,    -0.03004248,    -0.02649379) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  1)=(    -1.17123750,    -1.17123750,    -0.00169306,    -0.00169306) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  2)=(    -1.00755421,    -2.17879171,     0.01433310,     0.01264004) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  2,  1,  1)=(     0.04866117,     0.04866117,     0.00960180,     0.00960180) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  2,  1,  2)=(    -0.24477609,    -0.19611492,    -0.08128704,    -0.07168524) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  1)=(    -0.31491752,    -0.31491752,    -0.02012560,    -0.02012560) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  2)=(    -0.19908720,    -0.51400472,     0.17037937,     0.15025377) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  1)=(     0.04867536,     0.04867536,     0.00960183,     0.00960183) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  2)=(    -0.24478072,    -0.19610536,    -0.08128707,    -0.07168523) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  1)=(    -1.81285334,    -1.81285334,    -0.05445454,    -0.05445454) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  2)=(    -0.91417498,    -2.72702832,     0.46100174,     0.40654720) ppm
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-dia1(k,t,iat1,ispin)=(  1,  1,  2,  1)=(    16.13140629,    16.13140629) ppm
-dia1(k,t,iat1,ispin)=(  1,  1,  2,  2)=(    10.87552904,    27.00693534) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  2,  1)=(     6.19338505,     6.19338505) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  2,  2)=(     3.91295904,    10.10634409) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  2,  1)=(    -1.20271381,    -1.20271381) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  2,  2)=(    -0.38456511,    -1.58727892) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  2,  1)=(     6.13733776,     6.13733776) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  2,  2)=(     3.74816799,     9.88550575) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  2,  1)=(    17.00294378,    17.00294378) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  2,  2)=(    12.66561339,    29.66855718) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  2,  1)=(    -1.01976855,    -1.01976855) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  2,  2)=(    -0.55697668,    -1.57674523) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  2,  1)=(    -1.21259646,    -1.21259646) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  2,  2)=(    -0.41362221,    -1.62621867) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  2,  1)=(    -1.04048280,    -1.04048280) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  2,  2)=(    -0.61788099,    -1.65836379) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(    10.18704175,    10.18704175) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  2,  2)=(     8.01206552,    18.19910726) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  1)=(     1.55107331,     1.55107331,    -0.00306443,    -0.00306443) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  2)=(     2.11107802,     3.66215133,     0.00321184,     0.00014741) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  2,  1)=(    -1.41318836,    -1.41318836,     0.00146202,     0.00146202) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  2,  2)=(    -1.76746958,    -3.18065794,    -0.00153235,    -0.00007033) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  1,  2,  1)=(     0.32561754,     0.32561754,    -0.00829154,    -0.00829154) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  1,  2,  2)=(     0.17972647,     0.50534400,     0.00869041,     0.00039886) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  2,  1)=(    -1.76844525,    -1.76844525,     0.00146202,     0.00146202) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  2,  2)=(    -1.51035310,    -3.27879834,    -0.00153235,    -0.00007033) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  1)=(     1.49038498,     1.49038498,    -0.00069752,    -0.00069752) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  2)=(     1.29944610,     2.78983108,     0.00073108,     0.00003355) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  2,  2,  1)=(     0.36865571,     0.36865571,     0.00395585,     0.00395585) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  2,  2,  2)=(     0.18065714,     0.54931285,    -0.00414614,    -0.00019029) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  1)=(     0.26297617,     0.26297617,    -0.00829154,    -0.00829154) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  2)=(     0.22506304,     0.48803920,     0.00869041,     0.00039886) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  1)=(     0.23735807,     0.23735807,     0.00395585,     0.00395585) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  2)=(     0.27568355,     0.51304162,    -0.00414615,    -0.00019029) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  1)=(     3.05099362,     3.05099362,    -0.02243474,    -0.02243474) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  2)=(     3.40605098,     6.45704460,     0.02351395,     0.00107922) ppm
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-dia1(k,t,iat1,ispin)=(  1,  1,  3,  1)=(    21.33580060,    21.33580060) ppm
-dia1(k,t,iat1,ispin)=(  1,  1,  3,  2)=(    14.85582771,    36.19162832) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  3,  1)=(     1.69126492,     1.69126492) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  3,  2)=(     0.34807741,     2.03934233) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  3,  1)=(    -3.92024203,    -3.92024203) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  3,  2)=(    -2.48432775,    -6.40456978) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  3,  1)=(     1.74729121,     1.74729121) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  3,  2)=(     0.51286895,     2.26016016) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  3,  1)=(    10.70212909,    10.70212909) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  3,  2)=(     7.84724972,    18.54937881) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  3,  1)=(    -0.50817316,    -0.50817316) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  3,  2)=(    -0.21080922,    -0.71898239) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  3,  1)=(    -3.91036309,    -3.91036309) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  3,  2)=(    -2.45527056,    -6.36563364) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  3,  1)=(    -0.48746668,    -0.48746668) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  3,  2)=(    -0.14990473,    -0.63737142) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  3,  1)=(    11.28102143,    11.28102143) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  3,  2)=(     8.84882319,    20.12984461) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  1)=(     0.28749872,     0.28749872,    -0.00239324,    -0.00239324) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  2)=(     0.39353316,     0.68103187,     0.00250855,     0.00011532) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  1)=(    -0.68925173,    -0.68925173,     0.00114180,     0.00114180) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  2)=(    -0.04342698,    -0.73267871,    -0.00119682,    -0.00005502) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  1,  3,  1)=(     0.92026166,     0.92026166,    -0.00647547,    -0.00647547) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  1,  3,  2)=(     1.11849873,     2.03876039,     0.00678748,     0.00031201) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  3,  1)=(    -0.33396982,    -0.33396982,     0.00114180,     0.00114180) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  3,  2)=(    -0.30053990,    -0.63450972,    -0.00119682,    -0.00005502) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  3,  1)=(     3.01966129,     3.01966129,    -0.00054475,    -0.00054475) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  3,  2)=(     3.37815495,     6.39781624,     0.00057099,     0.00002625) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  2,  3,  1)=(     0.10814946,     0.10814946,     0.00308941,     0.00308941) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  2,  3,  2)=(     0.10006159,     0.20821104,    -0.00323827,    -0.00014886) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  3,  1)=(     0.98290744,     0.98290744,    -0.00647547,    -0.00647547) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  3,  2)=(     1.07316279,     2.05607023,     0.00678748,     0.00031201) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  3,  1)=(     0.23945634,     0.23945634,     0.00308941,     0.00308941) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  3,  2)=(     0.00503649,     0.24449284,    -0.00323827,    -0.00014886) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  1)=(     2.78527771,     2.78527771,    -0.01752091,    -0.01752091) ppm
-(dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  2)=(     3.04487858,     5.83015629,     0.01836514,     0.00084423) ppm
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+dia1(k,t,iat1,ispin)=(  1,  1,  1,  1)=(   147.47332764,   147.47332764) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  1,  2)=(   116.74168550,   264.21501313) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  1,  1)=(     2.43696197,     2.43696197) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  1,  2)=(     0.25886445,     2.69582642) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  1,  1)=(    -1.85525521,    -1.85525521) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  1,  2)=(    -0.15434725,    -2.00960245) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  1,  1)=(     2.43692360,     2.43692360) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  1,  2)=(     0.25887698,     2.69580058) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  1,  1)=(   144.61051594,   144.61051594) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  1,  2)=(   116.41324002,   261.02375596) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  1,  1)=(    -0.31530105,    -0.31530105) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  1,  2)=(    -0.05817578,    -0.37347682) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  1,  1)=(    -1.85526197,    -1.85526197) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  1,  2)=(    -0.15434504,    -2.00960701) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  1,  1)=(    -0.31531523,    -0.31531523) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  1,  2)=(    -0.05817115,    -0.37348638) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  1,  1)=(   141.92091232,   141.92091232) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  1,  2)=(   116.24734611,   258.16825844) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  1)=(    -0.97406574,    -0.97406574,    -0.00743803,    -0.00743803) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  2)=(    -0.10426677,    -1.07833251,     0.06296970,     0.05553167) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  1)=(     0.23403240,     0.23403240,     0.00354865,     0.00354865) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  2)=(     0.63227401,     0.86630642,    -0.03004250,    -0.02649385) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  1,  1)=(    -0.31492396,    -0.31492396,    -0.02012532,    -0.02012532) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  1,  2)=(    -0.19908490,    -0.51400885,     0.17037943,     0.15025411) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  1)=(     0.23407078,     0.23407078,     0.00354864,     0.00354864) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  2)=(     0.63226148,     0.86633226,    -0.03004249,    -0.02649385) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  1)=(    -1.17123693,    -1.17123693,    -0.00169304,    -0.00169304) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  2)=(    -1.00755400,    -2.17879093,     0.01433311,     0.01264007) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  1,  1)=(     0.04866069,     0.04866069,     0.00960168,     0.00960168) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  1,  2)=(    -0.24477619,    -0.19611550,    -0.08128708,    -0.07168540) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  1)=(    -0.31491719,    -0.31491719,    -0.02012534,    -0.02012534) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  2)=(    -0.19908711,    -0.51400430,     0.17037945,     0.15025411) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  1)=(     0.04867487,     0.04867487,     0.00960171,     0.00960171) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  2)=(    -0.24478082,    -0.19610595,    -0.08128711,    -0.07168540) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  1)=(    -1.81285135,    -1.81285135,    -0.05445384,    -0.05445384) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  2)=(    -0.91417441,    -2.72702576,     0.46100195,     0.40654812) ppm
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+dia1(k,t,iat1,ispin)=(  1,  1,  2,  1)=(    16.13140339,    16.13140339) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  2,  2)=(    10.87553102,    27.00693441) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  2,  1)=(     6.19338808,     6.19338808) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  2,  2)=(     3.91295672,    10.10634481) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  2,  1)=(    -1.20271346,    -1.20271346) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  2,  2)=(    -0.38456534,    -1.58727881) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  2,  1)=(     6.13733777,     6.13733777) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  2,  2)=(     3.74816849,     9.88550625) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  2,  1)=(    17.00294191,    17.00294191) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  2,  2)=(    12.66561472,    29.66855663) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  2,  1)=(    -1.01976829,    -1.01976829) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  2,  2)=(    -0.55697706,    -1.57674535) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  2,  1)=(    -1.21259665,    -1.21259665) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  2,  2)=(    -0.41362195,    -1.62621860) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  2,  1)=(    -1.04048365,    -1.04048365) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  2,  2)=(    -0.61788033,    -1.65836398) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(    10.18703826,    10.18703826) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  2,  2)=(     8.01206797,    18.19910623) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  1)=(     1.55107375,     1.55107375,    -0.00306442,    -0.00306442) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  2)=(     2.11107845,     3.66215220,     0.00321185,     0.00014742) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  2,  1)=(    -1.41318848,    -1.41318848,     0.00146202,     0.00146202) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  2,  2)=(    -1.76746993,    -3.18065841,    -0.00153236,    -0.00007034) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  2,  1)=(     0.32561744,     0.32561744,    -0.00829152,    -0.00829152) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  2,  2)=(     0.17972639,     0.50534383,     0.00869041,     0.00039889) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  2,  1)=(    -1.76844500,    -1.76844500,     0.00146202,     0.00146202) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  2,  2)=(    -1.51035299,    -3.27879799,    -0.00153235,    -0.00007034) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  1)=(     1.49038483,     1.49038483,    -0.00069752,    -0.00069752) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  2)=(     1.29944607,     2.78983090,     0.00073108,     0.00003356) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  2,  1)=(     0.36865555,     0.36865555,     0.00395584,     0.00395584) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  2,  2)=(     0.18065703,     0.54931257,    -0.00414615,    -0.00019031) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  1)=(     0.26297613,     0.26297613,    -0.00829152,    -0.00829152) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  2)=(     0.22506304,     0.48803917,     0.00869041,     0.00039889) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  1)=(     0.23735805,     0.23735805,     0.00395584,     0.00395584) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  2)=(     0.27568361,     0.51304165,    -0.00414615,    -0.00019031) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  1)=(     3.05099386,     3.05099386,    -0.02243468,    -0.02243468) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  2)=(     3.40605139,     6.45704525,     0.02351398,     0.00107930) ppm
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+dia1(k,t,iat1,ispin)=(  1,  1,  3,  1)=(    21.33579946,    21.33579946) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  3,  2)=(    14.85582858,    36.19162804) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  3,  1)=(     1.69126337,     1.69126337) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  3,  2)=(     0.34807883,     2.03934221) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  3,  1)=(    -3.92024316,    -3.92024316) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  3,  2)=(    -2.48432693,    -6.40457009) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  3,  1)=(     1.74729271,     1.74729271) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  3,  2)=(     0.51286756,     2.26016028) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  3,  1)=(    10.70212498,    10.70212498) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  3,  2)=(     7.84725234,    18.54937732) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  3,  1)=(    -0.50817384,    -0.50817384) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  3,  2)=(    -0.21080867,    -0.71898251) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  3,  1)=(    -3.91036367,    -3.91036367) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  3,  2)=(    -2.45527023,    -6.36563390) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  3,  1)=(    -0.48746623,    -0.48746623) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  3,  2)=(    -0.14990522,    -0.63737145) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  3,  1)=(    11.28101827,    11.28101827) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  3,  2)=(     8.84882540,    20.12984367) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  1)=(     0.28749889,     0.28749889,    -0.00239323,    -0.00239323) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  2)=(     0.39353324,     0.68103213,     0.00250856,     0.00011532) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  1)=(    -0.68925124,    -0.68925124,     0.00114180,     0.00114180) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  2)=(    -0.04342658,    -0.73267781,    -0.00119682,    -0.00005502) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  3,  1)=(     0.92026176,     0.92026176,    -0.00647545,    -0.00647545) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  3,  2)=(     1.11849891,     2.03876068,     0.00678749,     0.00031204) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  3,  1)=(    -0.33396970,    -0.33396970,     0.00114180,     0.00114180) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  3,  2)=(    -0.30053995,    -0.63450965,    -0.00119682,    -0.00005502) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  3,  1)=(     3.01966147,     3.01966147,    -0.00054475,    -0.00054475) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  3,  2)=(     3.37815534,     6.39781680,     0.00057100,     0.00002625) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  3,  1)=(     0.10814941,     0.10814941,     0.00308940,     0.00308940) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  3,  2)=(     0.10006161,     0.20821101,    -0.00323827,    -0.00014887) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  3,  1)=(     0.98290748,     0.98290748,    -0.00647545,    -0.00647545) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  3,  2)=(     1.07316289,     2.05607037,     0.00678749,     0.00031204) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  3,  1)=(     0.23945615,     0.23945615,     0.00308940,     0.00308940) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  3,  2)=(     0.00503634,     0.24449250,    -0.00323828,    -0.00014887) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  1)=(     2.78527788,     2.78527788,    -0.01752087,    -0.01752087) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  2)=(     3.04487891,     5.83015679,     0.01836516,     0.00084429) ppm
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 
  Wrote ZORA NMR data to ./ch2_props4_bp.zora_nmrcs
 
  In get_NMRHFine_ZORA:: zora:Knucl= F
  dft_zora_Hypefine: ofinite= F
- nat_slc=                     3
+ nat_slc=                    3
 In dft_zora_Hyperfine:: atomnr(  1)=    1
 In dft_zora_Hyperfine:: atomnr(  2)=    2
 In dft_zora_Hyperfine:: atomnr(  3)=    3
 CHECK:(atom,ofinite,atmass,zetanucl_slc)=(   1,F,    12.00000000,                 680775029.28673279)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-gFCSD(  1,  1,  1)=     2.17326354
-gFCSD(  1,  1,  2)=    -0.62877073
-gFCSD(  1,  1,  3)=     0.39755793
-gFCSD(  1,  2,  1)=    -0.62877073
-gFCSD(  1,  2,  2)=     2.95806048
-gFCSD(  1,  2,  3)=     0.12819736
-gFCSD(  1,  3,  1)=     0.39755793
-gFCSD(  1,  3,  2)=     0.12819736
-gFCSD(  1,  3,  3)=     3.42460698
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+gFCSD(  1,  1,  1)=     2.17326483
+gFCSD(  1,  1,  2)=    -0.62877101
+gFCSD(  1,  1,  3)=     0.39755791
+gFCSD(  1,  2,  1)=    -0.62877101
+gFCSD(  1,  2,  2)=     2.95806222
+gFCSD(  1,  2,  3)=     0.12819753
+gFCSD(  1,  3,  1)=     0.39755791
+gFCSD(  1,  3,  2)=     0.12819753
+gFCSD(  1,  3,  3)=     3.42460839
 CHECK:(atom,ofinite,atmass,zetanucl_slc)=(   2,F,     1.00782500,                2118265472.55233526)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-gFCSD(  2,  1,  1)=    -0.04569495
-gFCSD(  2,  1,  2)=     0.11347925
-gFCSD(  2,  1,  3)=    -0.01135593
-gFCSD(  2,  2,  1)=     0.11347765
-gFCSD(  2,  2,  2)=    -0.01959193
-gFCSD(  2,  2,  3)=    -0.02237273
-gFCSD(  2,  3,  1)=    -0.01135622
-gFCSD(  2,  3,  2)=    -0.02237332
-gFCSD(  2,  3,  3)=    -0.13030937
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+gFCSD(  2,  1,  1)=    -0.04569544
+gFCSD(  2,  1,  2)=     0.11347935
+gFCSD(  2,  1,  3)=    -0.01135600
+gFCSD(  2,  2,  1)=     0.11347775
+gFCSD(  2,  2,  2)=    -0.01959268
+gFCSD(  2,  2,  3)=    -0.02237277
+gFCSD(  2,  3,  1)=    -0.01135628
+gFCSD(  2,  3,  2)=    -0.02237336
+gFCSD(  2,  3,  3)=    -0.13031006
 CHECK:(atom,ofinite,atmass,zetanucl_slc)=(   3,F,     1.00782500,                2118265472.55233526)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-gFCSD(  3,  1,  1)=     0.05848558
-gFCSD(  3,  1,  2)=     0.02449069
-gFCSD(  3,  1,  3)=    -0.06554983
-gFCSD(  3,  2,  1)=     0.02449229
-gFCSD(  3,  2,  2)=    -0.14568390
-gFCSD(  3,  2,  3)=    -0.01171884
-gFCSD(  3,  3,  1)=    -0.06554955
-gFCSD(  3,  3,  2)=    -0.01171825
-gFCSD(  3,  3,  3)=    -0.10839950
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+gFCSD(  3,  1,  1)=     0.05848501
+gFCSD(  3,  1,  2)=     0.02449085
+gFCSD(  3,  1,  3)=    -0.06554985
+gFCSD(  3,  2,  1)=     0.02449245
+gFCSD(  3,  2,  2)=    -0.14568457
+gFCSD(  3,  2,  3)=    -0.01171889
+gFCSD(  3,  3,  1)=    -0.06554957
+gFCSD(  3,  3,  2)=    -0.01171830
+gFCSD(  3,  3,  3)=    -0.10840022
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 
  Wrote ZORA NMR data to ./ch2_props4_bp.zora_nmrhyp
 
-(nogshift,skip_gshiftAOev,done_Fji)=( 0, F, T)
+(nogshift,skip_gshiftAOev,done_Fji)=( 0,F,T)
 In dft_zora_EPR:: slc_spinpolAO=  0
  WARNING: SLC A-B contrib
  In dft_zora_EPR:: zora:Knucl= F
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  1,  1)=(  0.00027732, -0.00010772,  0.00016960, -0.00163960, -0.00147000, -0.01274028, -0.01421028)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  1,  1)=(  0.00027732, -0.00010772,  0.00016960, -0.00163959, -0.00146999, -0.01274028, -0.01421028)
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  1,  2)=(  0.00051407,  0.00005139,  0.00056546, -0.00135718, -0.00079172,  0.00328411,  0.00249239)
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  1,  3)=(  0.00014240, -0.00029147, -0.00014907,  0.00000832, -0.00014075, -0.00260583, -0.00274657)
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  2,  1)=(  0.00051405,  0.00005139,  0.00056544, -0.00135722, -0.00079178,  0.00328419,  0.00249241)
-(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  2,  2)=( -0.00063023, -0.00002452, -0.00065475,  0.00053778, -0.00011697, -0.01653821, -0.01665518)
-(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  2,  3)=( -0.00037470,  0.00013906, -0.00023564,  0.00076740,  0.00053175, -0.00036396,  0.00016779)
+(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  2,  2)=( -0.00063023, -0.00002452, -0.00065475,  0.00053778, -0.00011697, -0.01653822, -0.01665519)
+(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  2,  3)=( -0.00037470,  0.00013906, -0.00023564,  0.00076740,  0.00053175, -0.00036397,  0.00016779)
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  3,  1)=(  0.00014240, -0.00029147, -0.00014907,  0.00000831, -0.00014076, -0.00260581, -0.00274657)
-(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  3,  2)=( -0.00037471,  0.00013906, -0.00023565,  0.00076738,  0.00053173, -0.00036393,  0.00016779)
+(q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  3,  2)=( -0.00037471,  0.00013906, -0.00023565,  0.00076738,  0.00053173, -0.00036394,  0.00016779)
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  3,  3)=(  0.00029866, -0.00078864, -0.00048998, -0.00083734, -0.00132732, -0.02045890, -0.02178622)
 
  Wrote ZORA NMR data to ./ch2_props4_bp.zora_nmrgshift
@@ -626,155 +744,155 @@ In dft_zora_EPR:: slc_spinpolAO=  0
 
  Wrote ZORA NMR data to ./ch2_props4_bp.zora_nmrgshift_AB
 
- ==> nlist=                     3
+ ==> nlist=                    3
 xyz_EFG( 1)=(    -0.01113326,     0.08921179,     0.01984515)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  1,  1,  1,  1)=(    -0.17402426,    -0.17402426)
-zora-efg(  4,  1,  1,  2,  1)=(     0.50509963,     0.33107537)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  1,  2,  1,  2)=(    -0.00688251,    -0.00688251)
-zora-efg(  4,  1,  2,  2,  2)=(    -0.11302981,    -0.11991232)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  1,  3,  1,  3)=(     0.18090677,     0.18090677)
-zora-efg(  4,  1,  3,  2,  3)=(    -0.39206982,    -0.21116305)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  1,  4,  1,  4)=(    -0.14671221,    -0.14671221)
-zora-efg(  4,  1,  4,  2,  4)=(     0.48243861,     0.33572640)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  1,  5,  1,  5)=(     0.12093731,     0.12093731)
-zora-efg(  4,  1,  5,  2,  5)=(    -0.27686122,    -0.15592391)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  1,  6,  1,  6)=(     0.01365361,     0.01365361)
-zora-efg(  4,  1,  6,  2,  6)=(    -0.11462109,    -0.10096748)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  1,  1,  1,  1)=(    -0.17402440,    -0.17402440)
+zora-efg(  4,  1,  1,  2,  1)=(     0.50509969,     0.33107529)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  1,  2,  1,  2)=(    -0.00688235,    -0.00688235)
+zora-efg(  4,  1,  2,  2,  2)=(    -0.11302992,    -0.11991227)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  1,  3,  1,  3)=(     0.18090675,     0.18090675)
+zora-efg(  4,  1,  3,  2,  3)=(    -0.39206977,    -0.21116302)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  1,  4,  1,  4)=(    -0.14671240,    -0.14671240)
+zora-efg(  4,  1,  4,  2,  4)=(     0.48243870,     0.33572630)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  1,  5,  1,  5)=(     0.12093732,     0.12093732)
+zora-efg(  4,  1,  5,  2,  5)=(    -0.27686119,    -0.15592388)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  1,  6,  1,  6)=(     0.01365371,     0.01365371)
+zora-efg(  4,  1,  6,  2,  6)=(    -0.11462115,    -0.10096744)
 xyz_EFG( 2)=(     1.31962754,     1.63258778,    -0.19984535)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  2,  1,  1,  7)=(     0.08881726,     0.08881726)
-zora-efg(  4,  2,  1,  2,  7)=(     0.06931162,     0.15812889)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  2,  2,  1,  8)=(     0.20927878,     0.20927878)
-zora-efg(  4,  2,  2,  2,  8)=(     0.16367035,     0.37294913)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  2,  3,  1,  9)=(    -0.29809604,    -0.29809604)
-zora-efg(  4,  2,  3,  2,  9)=(    -0.23298197,    -0.53107801)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  2,  4,  1, 10)=(     0.46331419,     0.46331419)
-zora-efg(  4,  2,  4,  2, 10)=(     0.34982910,     0.81314329)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  2,  5,  1, 11)=(    -0.06496073,    -0.06496073)
-zora-efg(  4,  2,  5,  2, 11)=(    -0.05360387,    -0.11856460)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  2,  6,  1, 12)=(    -0.08002486,    -0.08002486)
-zora-efg(  4,  2,  6,  2, 12)=(    -0.05765027,    -0.13767513)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  2,  1,  1,  7)=(     0.08881734,     0.08881734)
+zora-efg(  4,  2,  1,  2,  7)=(     0.06931155,     0.15812889)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  2,  2,  1,  8)=(     0.20927873,     0.20927873)
+zora-efg(  4,  2,  2,  2,  8)=(     0.16367041,     0.37294914)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  2,  3,  1,  9)=(    -0.29809607,    -0.29809607)
+zora-efg(  4,  2,  3,  2,  9)=(    -0.23298196,    -0.53107803)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  2,  4,  1, 10)=(     0.46331425,     0.46331425)
+zora-efg(  4,  2,  4,  2, 10)=(     0.34982907,     0.81314332)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  2,  5,  1, 11)=(    -0.06496077,    -0.06496077)
+zora-efg(  4,  2,  5,  2, 11)=(    -0.05360384,    -0.11856460)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  2,  6,  1, 12)=(    -0.08002488,    -0.08002488)
+zora-efg(  4,  2,  6,  2, 12)=(    -0.05765025,    -0.13767513)
 xyz_EFG( 3)=(    -1.93544145,    -0.12075430,     0.69401801)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  3,  1,  1, 13)=(     0.51586241,     0.51586241)
-zora-efg(  4,  3,  1,  2, 13)=(     0.39217057,     0.90803297)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  3,  2,  1, 14)=(    -0.30759147,    -0.30759147)
-zora-efg(  4,  3,  2,  2, 14)=(    -0.22710222,    -0.53469368)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  3,  3,  1, 15)=(    -0.20827094,    -0.20827094)
-zora-efg(  4,  3,  3,  2, 15)=(    -0.16506835,    -0.37333929)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  3,  4,  1, 16)=(     0.09853662,     0.09853662)
-zora-efg(  4,  3,  4,  2, 16)=(     0.07404289,     0.17257952)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  3,  5,  1, 17)=(    -0.28710135,    -0.28710135)
-zora-efg(  4,  3,  5,  2, 17)=(    -0.22154820,    -0.50864955)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
-zora-efg(  4,  3,  6,  1, 18)=(    -0.03635098,    -0.03635098)
-zora-efg(  4,  3,  6,  2, 18)=(    -0.02463140,    -0.06098238)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  3,  1,  1, 13)=(     0.51586246,     0.51586246)
+zora-efg(  4,  3,  1,  2, 13)=(     0.39217054,     0.90803300)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  3,  2,  1, 14)=(    -0.30759148,    -0.30759148)
+zora-efg(  4,  3,  2,  2, 14)=(    -0.22710222,    -0.53469370)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  3,  3,  1, 15)=(    -0.20827098,    -0.20827098)
+zora-efg(  4,  3,  3,  2, 15)=(    -0.16506832,    -0.37333930)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  3,  4,  1, 16)=(     0.09853670,     0.09853670)
+zora-efg(  4,  3,  4,  2, 16)=(     0.07404282,     0.17257952)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  3,  5,  1, 17)=(    -0.28710138,    -0.28710138)
+zora-efg(  4,  3,  5,  2, 17)=(    -0.22154820,    -0.50864957)
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
+zora-efg(  4,  3,  6,  1, 18)=(    -0.03635100,    -0.03635100)
+zora-efg(  4,  3,  6,  2, 18)=(    -0.02463137,    -0.06098238)
 xyz_EFG( 1)=(    -0.01113326,     0.08921179,     0.01984515)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  1,  1,  1, 19)=(     0.00004142,     0.00004142)
 zora-efg(  3,  1,  1,  2, 19)=(    -0.00003578,     0.00000564)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  1,  2,  1, 20)=(    -0.00000180,    -0.00000180)
 zora-efg(  3,  1,  2,  2, 20)=(     0.00001070,     0.00000890)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  1,  3,  1, 21)=(    -0.00003962,    -0.00003962)
 zora-efg(  3,  1,  3,  2, 21)=(     0.00002508,    -0.00001454)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  1,  4,  1, 22)=(     0.00003638,     0.00003638)
 zora-efg(  3,  1,  4,  2, 22)=(    -0.00003532,     0.00000106)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  1,  5,  1, 23)=(    -0.00002687,    -0.00002687)
 zora-efg(  3,  1,  5,  2, 23)=(     0.00001811,    -0.00000876)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  1,  6,  1, 24)=(    -0.00000519,    -0.00000519)
 zora-efg(  3,  1,  6,  2, 24)=(     0.00000964,     0.00000445)
 xyz_EFG( 2)=(     1.31962754,     1.63258778,    -0.19984535)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  2,  1,  1, 25)=(     0.00001474,     0.00001474)
 zora-efg(  3,  2,  1,  2, 25)=(     0.00001434,     0.00002907)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  2,  2,  1, 26)=(     0.00004082,     0.00004082)
 zora-efg(  3,  2,  2,  2, 26)=(     0.00003554,     0.00007636)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  2,  3,  1, 27)=(    -0.00005555,    -0.00005555)
 zora-efg(  3,  2,  3,  2, 27)=(    -0.00004988,    -0.00010543)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  2,  4,  1, 28)=(     0.00008423,     0.00008423)
 zora-efg(  3,  2,  4,  2, 28)=(     0.00007582,     0.00016005)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  2,  5,  1, 29)=(    -0.00001185,    -0.00001185)
 zora-efg(  3,  2,  5,  2, 29)=(    -0.00001105,    -0.00002290)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  2,  6,  1, 30)=(    -0.00001379,    -0.00001379)
 zora-efg(  3,  2,  6,  2, 30)=(    -0.00001263,    -0.00002643)
 xyz_EFG( 3)=(    -1.93544145,    -0.12075430,     0.69401801)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  3,  1,  1, 31)=(     0.00009451,     0.00009451)
 zora-efg(  3,  3,  1,  2, 31)=(     0.00008487,     0.00017938)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  3,  2,  1, 32)=(    -0.00005574,    -0.00005574)
 zora-efg(  3,  3,  2,  2, 32)=(    -0.00004983,    -0.00010556)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  3,  3,  1, 33)=(    -0.00003877,    -0.00003877)
 zora-efg(  3,  3,  3,  2, 33)=(    -0.00003504,    -0.00007381)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  3,  4,  1, 34)=(     0.00001608,     0.00001608)
 zora-efg(  3,  3,  4,  2, 34)=(     0.00001558,     0.00003165)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  3,  5,  1, 35)=(    -0.00005334,    -0.00005334)
 zora-efg(  3,  3,  5,  2, 35)=(    -0.00004774,    -0.00010108)
- Warning: integrated density       0.800000000226E+01
- deviates from requested relative accuracy   0.10E-19
+ Grid integrated density:       8.000000002267
+ Requested integration accuracy:   0.10E-19
 zora-efg(  3,  3,  6,  1, 36)=(    -0.00000563,    -0.00000563)
 zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
 
@@ -782,36 +900,36 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
 
 
 
-         Total DFT energy =      -39.177318716777
-      One electron energy =      -63.920927226430
-           Coulomb energy =       24.709003684766
-    Exchange-Corr. energy =       -6.082732827818
+         Total DFT energy =      -39.177318716812
+      One electron energy =      -63.920923857705
+           Coulomb energy =       24.708999714803
+    Exchange-Corr. energy =       -6.082732226615
  Nuclear repulsion energy =        6.117337652705
 
-       Scaling correction =        0.008526237774
+       Scaling correction =        0.008526237785
 
- Numeric. integr. density =        7.999999999961
+ Numeric. integr. density =        7.999999999954
 
-     Total iterative time =     49.3s
+     Total iterative time =     88.0s
 
 
- 
+
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
- 
+
  Vector    1  Occ=1.000000D+00  E=-9.948333D+00
               MO Center= -5.9D-03,  4.7D-02,  1.0D-02, r^2= 2.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.565788  1 C  s                  2      0.455976  1 C  s          
- 
- Vector    2  Occ=1.000000D+00  E=-6.135652D-01
+
+ Vector    2  Occ=1.000000D+00  E=-6.135653D-01
               MO Center= -7.4D-02,  2.0D-01,  6.2D-02, r^2= 9.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.507918  1 C  s                 10      0.364956  1 C  s          
      2     -0.179594  1 C  s          
- 
+
  Vector    3  Occ=1.000000D+00  E=-4.135261D-01
               MO Center= -8.3D-02,  2.2D-01,  7.0D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -819,8 +937,8 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
      7      0.277217  1 C  px                21      0.190319  2 H  s          
     24     -0.190328  3 H  s                  3      0.181612  1 C  px         
     20      0.153684  2 H  s                 23     -0.153687  3 H  s          
- 
- Vector    4  Occ=1.000000D+00  E=-2.368504D-01
+
+ Vector    4  Occ=1.000000D+00  E=-2.368505D-01
               MO Center=  6.4D-02, -1.1D-01, -4.3D-02, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -828,32 +946,32 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     10     -0.272255  1 C  s                  4      0.230118  1 C  py         
      6     -0.165256  1 C  s                 11     -0.161986  1 C  px         
      7     -0.155163  1 C  px         
- 
- Vector    5  Occ=1.000000D+00  E=-2.058843D-01
+
+ Vector    5  Occ=1.000000D+00  E=-2.058844D-01
               MO Center= -7.7D-03,  5.1D-02,  1.2D-02, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     13      0.457743  1 C  pz                 9      0.397339  1 C  pz         
      5      0.261014  1 C  pz                11      0.169175  1 C  px         
- 
- Vector    6  Occ=0.000000D+00  E= 3.771729D-02
+
+ Vector    6  Occ=0.000000D+00  E= 3.771723D-02
               MO Center= -1.8D-01,  4.5D-01,  1.5D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.658718  1 C  s                 22     -1.155287  2 H  s          
-    25     -1.155430  3 H  s                 12      0.366831  1 C  py         
+    10      1.658718  1 C  s                 22     -1.155286  2 H  s          
+    25     -1.155430  3 H  s                 12      0.366830  1 C  py         
      6      0.289162  1 C  s                 11     -0.163337  1 C  px         
     21     -0.163583  2 H  s                 24     -0.163607  3 H  s          
- 
+
  Vector    7  Occ=0.000000D+00  E= 1.001822D-01
               MO Center= -2.6D-01,  6.1D-01,  2.0D-01, r^2= 4.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     22      1.678821  2 H  s                 25     -1.678561  3 H  s          
-    11     -0.964044  1 C  px                12     -0.519313  1 C  py         
+    11     -0.964044  1 C  px                12     -0.519312  1 C  py         
     13      0.264727  1 C  pz                 7     -0.227155  1 C  px         
      3     -0.152957  1 C  px         
- 
+
  Vector    8  Occ=0.000000D+00  E= 2.318720D-01
               MO Center= -2.7D-01,  6.4D-01,  2.1D-01, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -862,8 +980,8 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     10     -0.957264  1 C  s                 12     -0.472420  1 C  py         
     22     -0.441731  2 H  s                 25     -0.441984  3 H  s          
     11      0.210211  1 C  px                13     -0.160991  1 C  pz         
- 
- Vector    9  Occ=0.000000D+00  E= 3.313417D-01
+
+ Vector    9  Occ=0.000000D+00  E= 3.313416D-01
               MO Center=  1.4D-01, -2.9D-01, -1.0D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -871,17 +989,17 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     24      1.264327  3 H  s                 12      0.923059  1 C  py         
     13     -0.470463  1 C  pz                22     -0.172473  2 H  s          
     25      0.172342  3 H  s          
- 
+
  Vector   10  Occ=0.000000D+00  E= 3.607847D-01
               MO Center=  1.8D-01, -3.7D-01, -1.3D-01, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      0.944971  1 C  py                 8     -0.733490  1 C  py         
-    10     -0.509092  1 C  s                 11     -0.420768  1 C  px         
-     6      0.343370  1 C  s                  7      0.326449  1 C  px         
+    10     -0.509091  1 C  s                 11     -0.420769  1 C  px         
+     6      0.343369  1 C  s                  7      0.326449  1 C  px         
     13      0.322134  1 C  pz                 9     -0.249985  1 C  pz         
      4     -0.219348  1 C  py         
- 
+
  Vector   11  Occ=0.000000D+00  E= 3.609105D-01
               MO Center= -5.9D-03,  4.7D-02,  1.0D-02, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -889,18 +1007,18 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     13      1.075301  1 C  pz                 9     -0.797421  1 C  pz         
     11      0.397415  1 C  px                 7     -0.294715  1 C  px         
      5     -0.240147  1 C  pz                12     -0.189605  1 C  py         
- 
+
  Vector   12  Occ=0.000000D+00  E= 5.434468D-01
               MO Center= -1.0D-01,  2.6D-01,  8.4D-02, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.736305  1 C  px                22     -1.703117  2 H  s          
+    11      1.736304  1 C  px                22     -1.703117  2 H  s          
     25      1.704559  3 H  s                 12      0.934869  1 C  py         
      7     -0.908128  1 C  px                 8     -0.489008  1 C  py         
-    13     -0.476870  1 C  pz                21      0.429329  2 H  s          
+    13     -0.476870  1 C  pz                21      0.429330  2 H  s          
     24     -0.429440  3 H  s                  9      0.249405  1 C  pz         
- 
- Vector   13  Occ=0.000000D+00  E= 5.569232D-01
+
+ Vector   13  Occ=0.000000D+00  E= 5.569231D-01
               MO Center= -1.7D-01,  4.2D-01,  1.4D-01, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -908,64 +1026,64 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     22     -1.367322  2 H  s                 25     -1.365352  3 H  s          
     12      0.585677  1 C  py                19     -0.283481  1 C  dzz        
     17     -0.276271  1 C  dyy               14     -0.269203  1 C  dxx        
-    11     -0.259495  1 C  px                 8     -0.253570  1 C  py         
- 
+    11     -0.259494  1 C  px                 8     -0.253570  1 C  py         
+
  Vector   14  Occ=0.000000D+00  E= 1.175687D+00
               MO Center= -5.9D-03,  4.7D-02,  1.1D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.232420  1 C  dxz               18      0.805319  1 C  dyz        
     14      0.506931  1 C  dxx               19     -0.376642  1 C  dzz        
- 
+
  Vector   15  Occ=0.000000D+00  E= 1.205399D+00
               MO Center= -5.2D-03,  4.6D-02,  9.9D-03, r^2= 7.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.762176  1 C  dyz               15     -0.720812  1 C  dxy        
-    17      0.658955  1 C  dyy               16     -0.609697  1 C  dxz        
-    19     -0.567019  1 C  dzz        
- 
- 
+    18     -0.762176  1 C  dyz               15      0.720813  1 C  dxy        
+    17     -0.658955  1 C  dyy               16      0.609697  1 C  dxz        
+    19      0.567019  1 C  dzz        
+
+
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
- 
+
  Vector    1  Occ=1.000000D+00  E=-9.920880D+00
               MO Center= -5.9D-03,  4.7D-02,  1.1D-02, r^2= 2.8D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.567120  1 C  s                  2      0.456695  1 C  s          
- 
- Vector    2  Occ=1.000000D+00  E=-5.506307D-01
+
+ Vector    2  Occ=1.000000D+00  E=-5.506308D-01
               MO Center= -1.0D-01,  2.6D-01,  8.4D-02, r^2= 9.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.443709  1 C  s                 10      0.308260  1 C  s          
+     6      0.443709  1 C  s                 10      0.308259  1 C  s          
      2     -0.162318  1 C  s          
- 
- Vector    3  Occ=1.000000D+00  E=-3.945737D-01
+
+ Vector    3  Occ=1.000000D+00  E=-3.945738D-01
               MO Center= -9.3D-02,  2.4D-01,  7.7D-02, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      0.255498  1 C  px                21      0.214423  2 H  s          
     24     -0.214439  3 H  s                  3      0.173085  1 C  px         
     20      0.160853  2 H  s                 23     -0.160860  3 H  s          
- 
+
  Vector    4  Occ=0.000000D+00  E=-1.100760D-01
               MO Center=  9.3D-02, -1.8D-01, -6.6D-02, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.441369  1 C  py                10     -0.388413  1 C  s          
+    12      0.441368  1 C  py                10     -0.388414  1 C  s          
      8      0.269613  1 C  py                 4      0.205744  1 C  py         
-    11     -0.196433  1 C  px                 6     -0.168023  1 C  s          
+    11     -0.196432  1 C  px                 6     -0.168024  1 C  s          
     13      0.150424  1 C  pz         
- 
+
  Vector    5  Occ=0.000000D+00  E=-8.574691D-02
               MO Center= -1.3D-02,  6.3D-02,  1.6D-02, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     13      0.556198  1 C  pz                 9      0.320994  1 C  pz         
      5      0.237088  1 C  pz                11      0.205563  1 C  px         
- 
+
  Vector    6  Occ=0.000000D+00  E= 5.671656D-02
               MO Center= -1.9D-01,  4.6D-01,  1.5D-01, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -973,15 +1091,15 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     10      1.789884  1 C  s                 22     -1.219964  2 H  s          
     25     -1.220107  3 H  s                 12      0.379759  1 C  py         
      6      0.240478  1 C  s                 11     -0.169089  1 C  px         
- 
+
  Vector    7  Occ=0.000000D+00  E= 1.105480D-01
               MO Center= -2.6D-01,  6.2D-01,  2.1D-01, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.716332  2 H  s                 25     -1.716080  3 H  s          
+    22      1.716331  2 H  s                 25     -1.716080  3 H  s          
     11     -0.957619  1 C  px                12     -0.515850  1 C  py         
     13      0.262963  1 C  pz                 7     -0.207689  1 C  px         
- 
+
  Vector    8  Occ=0.000000D+00  E= 2.629599D-01
               MO Center= -2.7D-01,  6.4D-01,  2.1D-01, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -990,16 +1108,16 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     10     -0.934244  1 C  s                 12     -0.467642  1 C  py         
     22     -0.438655  2 H  s                 25     -0.438881  3 H  s          
     11      0.208117  1 C  px                13     -0.159375  1 C  pz         
- 
+
  Vector    9  Occ=0.000000D+00  E= 3.628866D-01
               MO Center=  1.5D-01, -3.0D-01, -1.1D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.762883  1 C  px                21     -1.276045  2 H  s          
+    11      1.762882  1 C  px                21     -1.276045  2 H  s          
     24      1.275889  3 H  s                 12      0.949697  1 C  py         
-    13     -0.484078  1 C  pz                22     -0.234077  2 H  s          
+    13     -0.484078  1 C  pz                22     -0.234076  2 H  s          
     25      0.233962  3 H  s          
- 
+
  Vector   10  Occ=0.000000D+00  E= 4.512173D-01
               MO Center= -6.5D-03,  4.9D-02,  1.1D-02, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1007,7 +1125,7 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     13      1.034840  1 C  pz                 9     -0.848289  1 C  pz         
     11      0.382461  1 C  px                 7     -0.313515  1 C  px         
      5     -0.247767  1 C  pz                12     -0.182470  1 C  py         
- 
+
  Vector   11  Occ=0.000000D+00  E= 4.537898D-01
               MO Center=  1.4D-01, -2.9D-01, -1.0D-01, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1016,35 +1134,35 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     11     -0.429909  1 C  px                 7      0.353533  1 C  px         
     13      0.329168  1 C  pz                 9     -0.270720  1 C  pz         
      4     -0.230640  1 C  py                 6      0.208319  1 C  s          
-    22     -0.181249  2 H  s                 25     -0.181308  3 H  s          
- 
- Vector   12  Occ=0.000000D+00  E= 5.683802D-01
+    22     -0.181248  2 H  s                 25     -0.181307  3 H  s          
+
+ Vector   12  Occ=0.000000D+00  E= 5.683801D-01
               MO Center= -9.7D-02,  2.5D-01,  8.0D-02, r^2= 3.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.698988  1 C  px                22     -1.660953  2 H  s          
+    11      1.698989  1 C  px                22     -1.660954  2 H  s          
     25      1.661375  3 H  s                  7     -0.927833  1 C  px         
-    12      0.915057  1 C  py                 8     -0.499757  1 C  py         
+    12      0.915058  1 C  py                 8     -0.499757  1 C  py         
     13     -0.466571  1 C  pz                21      0.448025  2 H  s          
     24     -0.447992  3 H  s                  9      0.254792  1 C  pz         
- 
+
  Vector   13  Occ=0.000000D+00  E= 6.061370D-01
               MO Center= -1.4D-01,  3.6D-01,  1.2D-01, r^2= 3.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      3.749462  1 C  s                  6     -1.639525  1 C  s          
     22     -1.306088  2 H  s                 25     -1.305369  3 H  s          
-    12      0.500294  1 C  py                14     -0.311450  1 C  dxx        
+    12      0.500295  1 C  py                14     -0.311450  1 C  dxx        
     17     -0.296337  1 C  dyy               19     -0.287079  1 C  dzz        
-    11     -0.222278  1 C  px                 8     -0.192892  1 C  py         
- 
+    11     -0.222278  1 C  px                 8     -0.192893  1 C  py         
+
  Vector   14  Occ=0.000000D+00  E= 1.249491D+00
               MO Center= -5.9D-03,  4.7D-02,  1.1D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.232433  1 C  dxz               18      0.805282  1 C  dyz        
     14      0.506937  1 C  dxx               19     -0.376655  1 C  dzz        
- 
+
  Vector   15  Occ=0.000000D+00  E= 1.346448D+00
               MO Center= -2.5D-03,  4.0D-02,  7.9D-03, r^2= 8.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1054,7 +1172,7 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
     19      0.489394  1 C  dzz               21     -0.240681  2 H  s          
     24     -0.240699  3 H  s                 10      0.189475  1 C  s          
     14      0.182985  1 C  dxx        
- 
+
 
    alpha - beta orbital overlaps 
    ----------------------------- 
@@ -1078,7 +1196,7 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
      Expectation value of S2:  
      --------------------------
       <S2> =      2.0057 (Exact =     2.0000)
- 
+
 
  center of mass
  --------------
@@ -1089,33 +1207,33 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
            2.807967633785          -2.534492470381           1.582561809270
           -2.534492470381           5.982926667838           0.528296823286
            1.582561809270           0.528296823286           7.807417870267
- 
+
      Multipole analysis of the density
      ---------------------------------
- 
+
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -3.000000      8.000000
- 
+
      1   1 0 0     -0.102996      0.200507      0.379110     -0.682613
      1   0 1 0      0.231419     -0.771398     -1.044287      2.047104
      1   0 0 1      0.078871     -0.210123     -0.324250      0.613244
- 
-     2   2 0 0     -4.683157     -5.986660     -4.184591      5.488094
-     2   1 1 0      0.571698     -0.584065     -1.226399      2.382161
+
+     2   2 0 0     -4.683156     -5.986659     -4.184591      5.488094
+     2   1 1 0      0.571698     -0.584064     -1.226400      2.382161
      2   1 0 1     -0.427990      0.382712      0.797576     -1.608278
-     2   0 2 0     -5.340480     -5.321632     -2.746525      2.727677
+     2   0 2 0     -5.340479     -5.321631     -2.746525      2.727677
      2   0 1 1     -0.074909      0.101400      0.223139     -0.399448
-     2   0 0 2     -5.968969     -4.796054     -1.696878      0.523962
- 
- 
+     2   0 0 2     -5.968969     -4.796053     -1.696878      0.523962
+
+
                ZORA NMR Hyperfine
                ------------------
- 
- 
+
+
             Hyperfine Tensor (in au)
             ------------------------
- 
+
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1129,11 +1247,10 @@ nat_slc=   3
 
  Read ZORA NMR data from ./ch2_props4_bp.zora_nmrhyp
 
- COMPUTE cphf hyp data ...
                                 NWChem CPHF Module
                                 ------------------
- 
- 
+
+
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1147,9 +1264,9 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   max iterations   =       50
   max subspace     =       30
 
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- SCF residual:   5.745922542178817E-007
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ SCF residual:   7.822871727536196E-009
 
 
 Iterative solution of linear equations
@@ -1158,55 +1275,55 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     52.1
+        Start time     93.4
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    3.58D-11      53.1
+     1      3    6.64D-13      95.1
 
- Wrote ZORA CPHF data to ./ch2_props4_bp.zora_hypcphf
+ Wrote CPHF data to ./ch2_props4_bp.zora_hypcphf
 
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
 NATOMS=  3
-NW:(dia,par,dia+par)(1,1,1)=(     1.08663177     -0.00156502      1.08506675 )
-NW:(dia,par,dia+par)(1,2,1)=(    -0.31438536     -0.00041564     -0.31480100 )
-NW:(dia,par,dia+par)(1,3,1)=(     0.19877896      0.00026035      0.19903931 )
-NW:(dia,par,dia+par)(2,1,1)=(    -0.31438536     -0.00041564     -0.31480100 )
-NW:(dia,par,dia+par)(2,2,1)=(     1.47903024     -0.00104491      1.47798533 )
-NW:(dia,par,dia+par)(2,3,1)=(     0.06409868      0.00008615      0.06418483 )
-NW:(dia,par,dia+par)(3,1,1)=(     0.19877896      0.00026035      0.19903931 )
-NW:(dia,par,dia+par)(3,2,1)=(     0.06409868      0.00008615      0.06418483 )
-NW:(dia,par,dia+par)(3,3,1)=(     1.71230349     -0.00074332      1.71156017 )
-NW:(dia,par,dia+par)(1,1,2)=(    -0.02284747      0.00001521     -0.02283226 )
-NW:(dia,par,dia+par)(1,2,2)=(     0.05673923     -0.00002702      0.05671221 )
-NW:(dia,par,dia+par)(1,3,2)=(    -0.00567804     -0.00000096     -0.00567900 )
-NW:(dia,par,dia+par)(2,1,2)=(     0.05673923     -0.00002702      0.05671221 )
-NW:(dia,par,dia+par)(2,2,2)=(    -0.00979597      0.00000515     -0.00979081 )
-NW:(dia,par,dia+par)(2,3,2)=(    -0.01118651      0.00000640     -0.01118012 )
-NW:(dia,par,dia+par)(3,1,2)=(    -0.00567804     -0.00000096     -0.00567900 )
-NW:(dia,par,dia+par)(3,2,2)=(    -0.01118651      0.00000640     -0.01118012 )
-NW:(dia,par,dia+par)(3,3,2)=(    -0.06515469      0.00002699     -0.06512769 )
-NW:(dia,par,dia+par)(1,1,3)=(     0.02924279     -0.00001265      0.02923014 )
-NW:(dia,par,dia+par)(1,2,3)=(     0.01224575     -0.00000322      0.01224252 )
-NW:(dia,par,dia+par)(1,3,3)=(    -0.03277484      0.00001353     -0.03276131 )
-NW:(dia,par,dia+par)(2,1,3)=(     0.01224575     -0.00000322      0.01224252 )
-NW:(dia,par,dia+par)(2,2,3)=(    -0.07284195      0.00003887     -0.07280308 )
-NW:(dia,par,dia+par)(2,3,3)=(    -0.00585927      0.00000355     -0.00585573 )
-NW:(dia,par,dia+par)(3,1,3)=(    -0.03277484      0.00001353     -0.03276131 )
-NW:(dia,par,dia+par)(3,2,3)=(    -0.00585927      0.00000355     -0.00585573 )
-NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
+NW:(dia,par,dia+par)(1,1,1)=(     1.08663242     -0.00156502      1.08506739 )
+NW:(dia,par,dia+par)(1,2,1)=(    -0.31438550     -0.00041564     -0.31480114 )
+NW:(dia,par,dia+par)(1,3,1)=(     0.19877895      0.00026035      0.19903931 )
+NW:(dia,par,dia+par)(2,1,1)=(    -0.31438550     -0.00041564     -0.31480114 )
+NW:(dia,par,dia+par)(2,2,1)=(     1.47903111     -0.00104491      1.47798620 )
+NW:(dia,par,dia+par)(2,3,1)=(     0.06409877      0.00008615      0.06418491 )
+NW:(dia,par,dia+par)(3,1,1)=(     0.19877895      0.00026035      0.19903931 )
+NW:(dia,par,dia+par)(3,2,1)=(     0.06409877      0.00008615      0.06418491 )
+NW:(dia,par,dia+par)(3,3,1)=(     1.71230419     -0.00074332      1.71156087 )
+NW:(dia,par,dia+par)(1,1,2)=(    -0.02284772      0.00001521     -0.02283251 )
+NW:(dia,par,dia+par)(1,2,2)=(     0.05673927     -0.00002702      0.05671225 )
+NW:(dia,par,dia+par)(1,3,2)=(    -0.00567807     -0.00000096     -0.00567903 )
+NW:(dia,par,dia+par)(2,1,2)=(     0.05673927     -0.00002702      0.05671225 )
+NW:(dia,par,dia+par)(2,2,2)=(    -0.00979634      0.00000515     -0.00979119 )
+NW:(dia,par,dia+par)(2,3,2)=(    -0.01118653      0.00000640     -0.01118014 )
+NW:(dia,par,dia+par)(3,1,2)=(    -0.00567807     -0.00000096     -0.00567903 )
+NW:(dia,par,dia+par)(3,2,2)=(    -0.01118653      0.00000640     -0.01118014 )
+NW:(dia,par,dia+par)(3,3,2)=(    -0.06515503      0.00002699     -0.06512804 )
+NW:(dia,par,dia+par)(1,1,3)=(     0.02924251     -0.00001265      0.02922986 )
+NW:(dia,par,dia+par)(1,2,3)=(     0.01224582     -0.00000322      0.01224260 )
+NW:(dia,par,dia+par)(1,3,3)=(    -0.03277486      0.00001353     -0.03276132 )
+NW:(dia,par,dia+par)(2,1,3)=(     0.01224582     -0.00000322      0.01224260 )
+NW:(dia,par,dia+par)(2,2,3)=(    -0.07284228      0.00003887     -0.07280341 )
+NW:(dia,par,dia+par)(2,3,3)=(    -0.00585930      0.00000355     -0.00585575 )
+NW:(dia,par,dia+par)(3,1,3)=(    -0.03277486      0.00001353     -0.03276132 )
+NW:(dia,par,dia+par)(3,2,3)=(    -0.00585930      0.00000355     -0.00585575 )
+NW:(dia,par,dia+par)(3,3,3)=(    -0.05420011      0.00002113     -0.05417898 )
       Atom:    1  C 
 
  ----- A-tensor in atomic units ----         ------------- A (MHz) ------------
 
  FC, SD terms:
-  isotropic    A(au)      1.4260                           A(MHz)    191.3540
-      1.0866     -0.3144      0.1988           145.8156    -42.1875     26.6742
-     -0.3144      1.4790      0.0641           -42.1875    198.4717      8.6014
-      0.1988      0.0641      1.7123            26.6742      8.6014    229.7748
+  isotropic    A(au)      1.4260                           A(MHz)    191.3541
+      1.0866     -0.3144      0.1988           145.8157    -42.1875     26.6742
+     -0.3144      1.4790      0.0641           -42.1875    198.4718      8.6014
+      0.1988      0.0641      1.7123            26.6742      8.6014    229.7749
 
  PSO-Spin-Orbit terms:
   isotropic    A(au)     -0.0011                           A(MHz)     -0.1500
@@ -1215,18 +1332,18 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
       0.0003      0.0001     -0.0007             0.0349      0.0116     -0.0997
 
  Total hyperfine coupling tensor:
-  isotropic    A(au)      1.4249                           A(MHz)    191.2040
-      1.0851     -0.3148      0.1990           145.6056    -42.2433     26.7092
-     -0.3148      1.4780      0.0642           -42.2433    198.3315      8.6130
-      0.1990      0.0642      1.7116            26.7092      8.6130    229.6750
+  isotropic    A(au)      1.4249                           A(MHz)    191.2041
+      1.0851     -0.3148      0.1990           145.6057    -42.2433     26.7092
+     -0.3148      1.4780      0.0642           -42.2433    198.3316      8.6130
+      0.1990      0.0642      1.7116            26.7092      8.6130    229.6751
 
  In principal axis representation: total span,skew and asymm
         span        skew       asymm               span        skew       asymm
-      0.9130     -0.7068      2.2329           122.5110    -94.8466    299.6305
+      0.9130     -0.7068      2.2329           122.5110    -94.8467    299.6307
 
  Principal Components and Axis System
-        1           2           3                 1           2           3
-      0.8608      1.6400      1.7738           115.5166    220.0679    238.0276
+        1           2           3                     1           2           3
+      0.8608      1.6400      1.7738           115.5167    220.0680    238.0277
 
 1     0.8557     -0.3882      0.3420
 2     0.4610      0.8723     -0.1632
@@ -1239,10 +1356,10 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
  ----- A-tensor in atomic units ----         ------------- A (MHz) ------------
 
  FC, SD terms:
-  isotropic    A(au)     -0.0326                           A(MHz)    -17.3935
-     -0.0228      0.0567     -0.0057           -12.1903     30.2733     -3.0295
-      0.0567     -0.0098     -0.0112            30.2733     -5.2267     -5.9686
-     -0.0057     -0.0112     -0.0652            -3.0295     -5.9686    -34.7634
+  isotropic    A(au)     -0.0326                           A(MHz)    -17.3936
+     -0.0228      0.0567     -0.0057           -12.1905     30.2734     -3.0295
+      0.0567     -0.0098     -0.0112            30.2734     -5.2269     -5.9686
+     -0.0057     -0.0112     -0.0652            -3.0295     -5.9686    -34.7636
 
  PSO-Spin-Orbit terms:
   isotropic    A(au)      0.0000                           A(MHz)      0.0084
@@ -1251,18 +1368,18 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
       0.0000      0.0000      0.0000            -0.0005      0.0034      0.0144
 
  Total hyperfine coupling tensor:
-  isotropic    A(au)     -0.0326                           A(MHz)    -17.3851
-     -0.0228      0.0567     -0.0057           -12.1822     30.2589     -3.0300
-      0.0567     -0.0098     -0.0112            30.2589     -5.2239     -5.9652
-     -0.0057     -0.0112     -0.0651            -3.0300     -5.9652    -34.7490
+  isotropic    A(au)     -0.0326                           A(MHz)    -17.3852
+     -0.0228      0.0567     -0.0057           -12.1823     30.2590     -3.0301
+      0.0567     -0.0098     -0.0112            30.2590     -5.2241     -5.9652
+     -0.0057     -0.0112     -0.0651            -3.0301     -5.9652    -34.7492
 
  In principal axis representation: total span,skew and asymm
         span        skew       asymm               span        skew       asymm
-      0.1168      0.8393      0.1256            62.3120    447.7899     67.0148
+      0.1168      0.8393      0.1256            62.3120    447.7901     67.0147
 
  Principal Components and Axis System
-        1           2           3                 1           2           3
-     -0.0746     -0.0653      0.0421           -39.8250    -34.8171     22.4870
+        1           2           3                     1           2           3
+     -0.0746     -0.0653      0.0421           -39.8252    -34.8173     22.4868
 
 1     0.6699      0.3420      0.6590
 2    -0.6482     -0.1632      0.7437
@@ -1275,10 +1392,10 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
  ----- A-tensor in atomic units ----         ------------- A (MHz) ------------
 
  FC, SD terms:
-  isotropic    A(au)     -0.0326                           A(MHz)    -17.3936
-      0.0292      0.0122     -0.0328            15.6026      6.5337    -17.4871
-      0.0122     -0.0728     -0.0059             6.5337    -38.8650     -3.1262
-     -0.0328     -0.0059     -0.0542           -17.4871     -3.1262    -28.9184
+  isotropic    A(au)     -0.0326                           A(MHz)    -17.3938
+      0.0292      0.0122     -0.0328            15.6024      6.5338    -17.4871
+      0.0122     -0.0728     -0.0059             6.5338    -38.8652     -3.1262
+     -0.0328     -0.0059     -0.0542           -17.4871     -3.1262    -28.9186
 
  PSO-Spin-Orbit terms:
   isotropic    A(au)      0.0000                           A(MHz)      0.0084
@@ -1287,18 +1404,18 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
       0.0000      0.0000      0.0000             0.0072      0.0019      0.0113
 
  Total hyperfine coupling tensor:
-  isotropic    A(au)     -0.0326                           A(MHz)    -17.3852
-      0.0292      0.0122     -0.0328            15.5958      6.5320    -17.4799
-      0.0122     -0.0728     -0.0059             6.5320    -38.8443     -3.1243
-     -0.0328     -0.0059     -0.0542           -17.4799     -3.1243    -28.9071
+  isotropic    A(au)     -0.0326                           A(MHz)    -17.3854
+      0.0292      0.0122     -0.0328            15.5957      6.5321    -17.4799
+      0.0122     -0.0728     -0.0059             6.5321    -38.8444     -3.1244
+     -0.0328     -0.0059     -0.0542           -17.4799     -3.1244    -28.9073
 
  In principal axis representation: total span,skew and asymm
         span        skew       asymm               span        skew       asymm
-      0.1168      0.8393      0.1256            62.3084    447.7985     67.0078
+      0.1168      0.8393      0.1256            62.3084    447.7987     67.0077
 
  Principal Components and Axis System
-        1           2           3                 1           2           3
-     -0.0746     -0.0653      0.0421           -39.8237    -34.8165     22.4847
+        1           2           3                     1           2           3
+     -0.0746     -0.0653      0.0421           -39.8239    -34.8167     22.4845
 
 1    -0.0546      0.3420      0.9381
 2     0.9797     -0.1632      0.1165
@@ -1306,10 +1423,10 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
 
 
 
- 
+
                    ZORA EFG-Z4
                    -----------
- 
+
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1330,7 +1447,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
  Electric field gradient in molecular frame (a.u.)
          XX             YY             ZZ             XY             XZ             YZ
  ------------------------------------------------------------------------------------------
-        0.109459      -0.088854      -0.020605       0.131911      -0.024122      -0.061114
+        0.109459      -0.088854      -0.020605       0.131910      -0.024122      -0.061114
 
  Principal components (a.u.) and orientation 
  of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
@@ -1393,7 +1510,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
  1 a.u. = 0.324123 10**(16) esu/cm**3  ( or statvolts/cm**2 ) = 0.97174 10**(22) v/m**2 
 
- nat_slc=                     3
+ nat_slc=                    3
 In hnd_efgmap_z4:: atomnr(  1)=    1
 In hnd_efgmap_z4:: atomnr(  2)=    2
 In hnd_efgmap_z4:: atomnr(  3)=    3
@@ -1406,27 +1523,27 @@ Atom(  3,  3)=(    -1.93544145,    -0.12075430,     0.69401801)
 ====> Electronic contribution to EFG in molecular frame (a.u.)
                      XX            YY            ZZ            XY            XZ            YZ
                 ----------------------------------------------------------------------------------
-  ANALYT(C )=(   0.33107547,  -0.11991235,  -0.21116312,   0.33572649,  -0.15592395,  -0.10096750)
-  NUMERI(C )=(   0.33107537,  -0.11991232,  -0.21116305,   0.33572640,  -0.15592391,  -0.10096748)
-  ANALYT(H )=(   0.15812889,   0.37294913,  -0.53107801,   0.81314329,  -0.11856460,  -0.13767513)
-  NUMERI(H )=(   0.15812889,   0.37294913,  -0.53107801,   0.81314329,  -0.11856460,  -0.13767513)
-  ANALYT(H )=(   0.90803297,  -0.53469368,  -0.37333929,   0.17257951,  -0.50864955,  -0.06098238)
-  NUMERI(H )=(   0.90803297,  -0.53469368,  -0.37333929,   0.17257952,  -0.50864955,  -0.06098238)
+  ANALYT(C )=(   0.33107538,  -0.11991230,  -0.21116309,   0.33572639,  -0.15592392,  -0.10096746)
+  NUMERI(C )=(   0.33107529,  -0.11991227,  -0.21116302,   0.33572630,  -0.15592388,  -0.10096744)
+  ANALYT(H )=(   0.15812889,   0.37294914,  -0.53107803,   0.81314331,  -0.11856460,  -0.13767513)
+  NUMERI(H )=(   0.15812889,   0.37294914,  -0.53107803,   0.81314332,  -0.11856460,  -0.13767513)
+  ANALYT(H )=(   0.90803300,  -0.53469369,  -0.37333930,   0.17257952,  -0.50864957,  -0.06098238)
+  NUMERI(H )=(   0.90803300,  -0.53469370,  -0.37333930,   0.17257952,  -0.50864957,  -0.06098238)
 Atom(  1,  1)=(    -0.01113326,     0.08921179,     0.01984515)
 Atom(  2,  2)=(     1.31962754,     1.63258778,    -0.19984535)
 Atom(  3,  3)=(    -1.93544145,    -0.12075430,     0.69401801)
 ====> Electronic contribution to EFG in molecular frame (a.u.)
                      XX            YY            ZZ            XY            XZ            YZ
                 ----------------------------------------------------------------------------------
-EFG-elec(C )=(   0.33106946,  -0.11991042,  -0.21115904,   0.33572050,  -0.15592098,  -0.10096581)
+EFG-elec(C )=(   0.33106938,  -0.11991037,  -0.21115900,   0.33572041,  -0.15592095,  -0.10096577)
 EFG-rhoS(C )=(   0.00000564,   0.00000890,  -0.00001454,   0.00000106,  -0.00000876,   0.00000445)
-EFG-tot (C )=(   0.33107510,  -0.11990152,  -0.21117358,   0.33572156,  -0.15592974,  -0.10096136)
-EFG-elec(H )=(   0.15809938,   0.37287371,  -0.53097309,   0.81298366,  -0.11854166,  -0.13764860)
+EFG-tot (C )=(   0.33107502,  -0.11990147,  -0.21117354,   0.33572147,  -0.15592971,  -0.10096132)
+EFG-elec(H )=(   0.15809939,   0.37287372,  -0.53097311,   0.81298368,  -0.11854166,  -0.13764861)
 EFG-rhoS(H )=(   0.00002907,   0.00007636,  -0.00010543,   0.00016005,  -0.00002290,  -0.00002643)
-EFG-tot (H )=(   0.15812846,   0.37295007,  -0.53107852,   0.81314371,  -0.11856455,  -0.13767503)
-EFG-elec(H )=(   0.90785423,  -0.53458847,  -0.37326576,   0.17254737,  -0.50854898,  -0.06097111)
+EFG-tot (H )=(   0.15812846,   0.37295008,  -0.53107854,   0.81314373,  -0.11856456,  -0.13767503)
+EFG-elec(H )=(   0.90785426,  -0.53458848,  -0.37326578,   0.17254738,  -0.50854900,  -0.06097111)
 EFG-rhoS(H )=(   0.00017938,  -0.00010556,  -0.00007381,   0.00003165,  -0.00010108,  -0.00001105)
-EFG-tot (H )=(   0.90803361,  -0.53469403,  -0.37333957,   0.17257902,  -0.50865006,  -0.06098217)
+EFG-tot (H )=(   0.90803364,  -0.53469405,  -0.37333959,   0.17257903,  -0.50865008,  -0.06098217)
 
  ------------------------------------------------------------
    Atom      X         Y         Z
@@ -1442,7 +1559,7 @@ EFG-tot (H )=(   0.90803361,  -0.53469403,  -0.37333957,   0.17257902,  -0.50865
  Principal components (a.u.) and orientation 
  of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
  --------------------------------------------------------------------------------------
-        0.187146      -0.168389      -0.018758                       0.799539
+        0.187146      -0.168388      -0.018758                       0.799539
 
         0.855721      -0.388282       0.342020
         0.461008       0.872264      -0.163176
@@ -1490,47 +1607,27 @@ EFG-tot (H )=(   0.90803361,  -0.53469403,  -0.37333957,   0.17257902,  -0.50865
         0.111957      -0.163176       0.980224
        -0.327059       0.925417       0.191408
   
- 
+
             Scalar ZORA NMR Shielding
             -------------------------
- 
- switch_skip_cphf= F
- switch_nmrcs_analysis= F
+
 
           -----------------------------------------
           Chemical Shielding Tensors (GIAO, in ppm)
           -----------------------------------------
 
-(j,k)(  1)=(     0.00000000,     0.00000000)
-(j,k)(  2)=(     0.00000000,     0.00000000)
-(j,k)(  3)=(     0.00000000,     0.00000000)
-(j,k)(  4)=(     0.00000000,     0.00000000)
-(j,k)(  5)=(     0.00000000,     0.00000000)
-(j,k)(  6)=(     0.00000000,     0.00000000)
-(j,k)(  7)=(     0.00000000,     0.00000000)
-(j,k)(  8)=(     0.00000000,     0.00000000)
-(j,k)(  9)=(     0.00000000,     0.00000000)
-(j,k)( 10)=(     0.00000000,     0.00000000)
-(j,k)( 11)=(     0.00000000,     0.00000000)
-(j,k)( 12)=(     0.00000000,     0.00000000)
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
- nat_slc=                     3
-In hnd_giaox_zora:: atomnr(  1)=    1
-In hnd_giaox_zora:: atomnr(  2)=    2
-In hnd_giaox_zora:: atomnr(  3)=    3
 
  Read ZORA NMR data from ./ch2_props4_bp.zora_nmrcs
 
- Entering for xc, kfac=  0.000000000000000E+000
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- COMPUTE cphf shield data ...
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
                                 NWChem CPHF Module
                                 ------------------
- 
- 
+
+
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1544,9 +1641,9 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   max iterations   =       50
   max subspace     =       30
 
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- SCF residual:   5.745922542375818E-007
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ SCF residual:   7.822869985350716E-009
 
 
 Iterative solution of linear equations
@@ -1555,46 +1652,19 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     54.8
+        Start time     98.3
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    4.03D-07      55.7
+     1      3    6.92D-09     100.0
 
- Wrote ZORA CPHF data to ./ch2_props4_bp.zora_shieldcphf
+ Wrote CPHF data to ./ch2_props4_bp.shieldcphf
 
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
  Calc. par tensor-> zora
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,1)=(        263.136675          -0.055532          19.938236         -79.906287         -60.023583         203.113092 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,1)=(          3.562131           0.026494         -11.533384          75.932825          64.425935          67.988066 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,1)=(         -2.523612          -0.150254           6.975281         -44.114266         -37.289239         -39.812851 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,1)=(          3.562131           0.026494         -11.532726          75.933998          64.427766          67.989897 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,1)=(        258.844962          -0.012640          34.514197        -176.901160        -142.399604         116.445358 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,1)=(         -0.569591           0.071685           2.534349         -17.732393         -15.126359         -15.695950 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,1)=(         -2.523612          -0.150254           6.975397         -44.114059         -37.288916         -39.812528 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,1)=(         -0.569591           0.071685           2.534592         -17.731959         -15.125682         -15.695273 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,1)=(        255.441227          -0.406547          42.182940        -222.317747        -180.541355          74.899872 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,2)=(         30.669087          -0.000147          -0.046960           2.585563           2.538455          33.207542 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,2)=(          6.766197           0.000070           0.356941          -1.770788          -1.413777           5.352420 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,2)=(         -1.110057          -0.000399          -0.046933          -0.135971          -0.183303          -1.293360 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,2)=(          6.766197           0.000070           0.789244          -3.366562          -2.577248           4.188949 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,2)=(         32.458388          -0.000034           0.692561          -2.759461          -2.066934          30.391454 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,2)=(         -1.086377           0.000190          -0.108876           0.217664           0.108977          -0.977400 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,2)=(         -1.110057          -0.000399           0.029294          -0.417350          -0.388455          -1.498512 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,2)=(         -1.086377           0.000190           0.050896          -0.372111          -0.321024          -1.407401 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,2)=(         24.656152          -0.001079          -0.346095           3.151126           2.803952          27.460104 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,3)=(         36.872660          -0.000115           0.809807          -2.383040          -1.573348          35.299312 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,3)=(          1.466157           0.000055           0.058569           0.876216           0.934840           2.400997 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,3)=(         -4.337686          -0.000312          -0.406044           2.156898           1.750542          -2.587144 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,3)=(          1.466157           0.000055          -0.373590           2.471590           2.098055           3.564212 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,3)=(         24.947195          -0.000026          -0.339902           3.250111           2.910183          27.857378 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,3)=(         -0.451825           0.000149           0.133997          -0.875519          -0.741373          -1.193198 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,3)=(         -4.337686          -0.000312          -0.482245           2.438205           1.955648          -2.382038 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,3)=(         -0.451825           0.000149          -0.025723          -0.285892          -0.311466          -0.763291 )
-NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,3)=(         25.960001          -0.000844          -0.143088           2.083385           1.939453          27.899454 )
       Atom:    1  C 
         Diamagnetic
     263.1367      3.5621     -2.5236
@@ -1682,14 +1752,14 @@ NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,3)=(         25.960001          -0.00084
 
 
 
- 
+
                   ZORA g-Shift
                   ------------
- 
- 
+
+
              g-Shift Tensor (in ppm)
              -----------------------
- 
+
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1700,14 +1770,13 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
  Read ZORA NMR data from ./ch2_props4_bp.zora_nmrgshift_AB
 
 nocc=(  5,  3) nclos=(  0,  0) nvirt=( 20, 22) scftyp=UHF)
- Entering for xc, kfac=  0.000000000000000E+000
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- COMPUTE cphf g-shift data ...
+ coeffpol=   2.00000000000000     
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
                                 NWChem CPHF Module
                                 ------------------
- 
- 
+
+
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1721,9 +1790,9 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   max iterations   =       50
   max subspace     =       30
 
- Warning: integrated density       0.799999999996E+01
- deviates from requested relative accuracy   0.10E-19
- SCF residual:   5.745922542782060E-007
+ Grid integrated density:       7.999999999954
+ Requested integration accuracy:   0.10E-19
+ SCF residual:   7.822873722203980E-009
 
 
 Iterative solution of linear equations
@@ -1732,14 +1801,14 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     57.5
+        Start time    103.1
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    4.03D-07      58.4
+     1      3    6.92D-09     104.8
 
- Wrote ZORA CPHF data to ./ch2_props4_bp.zora_gshiftcphf
+ Wrote CPHF data to ./ch2_props4_bp.zora_gshiftcphf
 
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
@@ -1762,7 +1831,7 @@ NW-2:(dia,gauge,OO,OV,Totpar)(2,3)=(   -0.000967     0.000114    -0.000857    -0
 NW-2:(dia,gauge,OO,OV,Totpar)(3,1)=(   -0.001937    -0.000239     0.001795    -0.070244    -0.068687 )
 NW-2:(dia,gauge,OO,OV,Totpar)(3,2)=(   -0.000967     0.000114    -0.000857    -0.035923    -0.036665 )
 NW-2:(dia,gauge,OO,OV,Totpar)(3,3)=(   -0.404218    -0.000646     0.004858    -0.340452    -0.336240 )
-NW-T:(dia,gauge,OO,OV,Totpar)(1,1)=(   -0.014210     0.000108     0.040312     0.042842     0.083261 )
+NW-T:(dia,gauge,OO,OV,Totpar)(1,1)=(   -0.014210     0.000108     0.040312     0.042841     0.083261 )
 NW-T:(dia,gauge,OO,OV,Totpar)(1,2)=(    0.002492    -0.000051    -0.022958    -0.109906    -0.132916 )
 NW-T:(dia,gauge,OO,OV,Totpar)(1,3)=(   -0.002747     0.000291     0.010608     0.048682     0.059581 )
 NW-T:(dia,gauge,OO,OV,Totpar)(2,1)=(    0.002492    -0.000051    -0.022960    -0.109907    -0.132918 )
@@ -1800,22 +1869,16 @@ NW-T:(dia,gauge,OO,OV,Totpar)(3,3)=(   -0.021786     0.000789     0.077271     0
 
 
 
- Task  times  cpu:       57.5s     wall:       58.3s
- 
- 
+ Task  times  cpu:      102.0s     wall:      103.7s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  Summary of allocated global arrays
 -----------------------------------
-  array 0 => double precision dft_zoraNMR_read: g_AtNr1(1,3),  handle: -1000 
-  array 1 => double precision density matrix(25,25),  handle: -990 
-  array 2 => double precision density matrix(25,25),  handle: -987 
-  array 3 => double precision density matrix(25,25),  handle: -985 
-  array 4 => double precision sf 1(25,25),  handle: -981 
-  array 5 => double precision sf 1(25,25),  handle: -980 
-  array 6 => double precision g_Cifull(25),  handle: -976 
+  No active global arrays
 
 
 
@@ -1823,12 +1886,12 @@ NW-T:(dia,gauge,OO,OV,Totpar)(3,3)=(   -0.021786     0.000789     0.077271     0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1639     1627     5.85e+05 4801     3.86e+04  195        0        0     
-number of processes/call 1.05e+00 2.11e+00 1.70e+00 2.51e+00 0.00e+00
-bytes total:             4.99e+07 4.97e+06 2.69e+07 1.18e+05 0.00e+00 0.00e+00
-bytes remote:            1.86e+07 1.88e+06 1.67e+07 -9.38e+04 0.00e+00 0.00e+00
+calls: 2096     2093     7.89e+05 5436     5.60e+04  195        0     1391     
+number of processes/call 1.04e+00 2.06e+00 1.57e+00 2.51e+00 0.00e+00
+bytes total:             7.21e+07 6.89e+06 4.00e+07 1.18e+05 0.00e+00 1.11e+04
+bytes remote:            2.56e+07 2.24e+06 2.21e+07 -9.38e+04 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 1090888 bytes
- 
+
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1837,18 +1900,18 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        60	       106
+	maximum number of blocks	        60	       105
 	current total bytes		         0	         0
 	maximum total bytes		   4252936	  22521496
 	maximum total K-bytes		      4253	     22522
 	maximum total M-bytes		         5	        23
- 
- 
+
+
                                      CITATION
                                      --------
                 Please cite the following reference when publishing
                            results obtained with NWChem:
- 
+
                  M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
               T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
                         E. Apra, T.L. Windus, W.A. de Jong
@@ -1856,21 +1919,23 @@ MA usage statistics:
                   solution for large scale molecular simulations"
                       Comput. Phys. Commun. 181, 1477 (2010)
                            doi:10.1016/j.cpc.2010.04.018
- 
+
                               AUTHORS & CONTRIBUTORS
                               ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-    J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T. Hackler,
-   Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
-    J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen,
-      M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
-        E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+     F. Aquino, S. Hirata, M. T. Hackler, J. Mullin, P. Nichols, R. Peverati,
+    J. Pittner, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. Silverstein,
+    D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+     H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman,
+      K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+      H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+      A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                                A. Wong, Z. Zhang.
 
- Total times  cpu:       57.5s     wall:       58.5s
+ Total times  cpu:      102.0s     wall:      104.9s
