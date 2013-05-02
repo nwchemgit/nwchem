@@ -91,16 +91,19 @@ c ----- Definitions for NLMO analysis ---- END
 c Note.- switch_nmrcs_analysis=.true. has to go together with
 c        switch_skip_cphf=.true.
 c -----------------------------------
-c      switch_skip_cphf=.true. ! For skipping cphf or cpks
+      debug_giaox=0 ! =1 for debugging print outs of matrices
+c     debug_giaox=1 ! =1 for debugging print outs of matrices
+c     switch_skip_cphf=.true. ! For skipping cphf or cpks
       switch_skip_cphf=.false. ! For NOT skipping cphf or cpks
       switch_nmrcs_analysis=.false. ! For default mode NO nmrcs analysis
-c      switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
-        if (ga_nodeid().eq.0)
+c     switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
+        if (ga_nodeid().eq.0.and.debug_giaox.eq.1)
      &    write(*,*) 'switch_skip_cphf=',switch_skip_cphf
-        if (ga_nodeid().eq.0)
+        if (ga_nodeid().eq.0.and.debug_giaox.eq.1)
      &    write(*,*) 'switch_nmrcs_analysis=',switch_nmrcs_analysis
-      debug_giaox=0 ! =1 for debugging print outs of matrices
-c      debug_giaox=1 ! =1 for debugging print outs of matrices
+c
+c     Print NMR shielding header
+c
       if (ga_nodeid().eq.0) write(luout,9999)
 c
 c     Current CPHF does not handle symmetry 
@@ -113,7 +116,7 @@ c     If DFT get part of the exact exchange defined
       do ifld = 1,nind_jk
         jfac(ifld) =  0.0d0       ! used in shell_fock_build()
         kfac(ifld) = -1.0d0*xfac  ! used in shell_fock_build()
-        if (ga_nodeid().eq.0) then
+        if (ga_nodeid().eq.0.and.debug_giaox.eq.1) then
          write(*,144) ifld,jfac(ifld),kfac(ifld)
   144    format('(j,k)(',i3,')=(',f15.8,',',f15.8,')')
         endif
@@ -142,7 +145,7 @@ c ------- Read (nat,atmnr) --------- START
      &                        nat,           ! in : total nr atoms in molecule            
      &                        rtdb,          ! in : rdt  handle
      &                        typeprop)      ! in : =1,2,3=EFG,Shieldings,Hyperfine
-      if (ga_nodeid().eq.0) then
+      if (ga_nodeid().eq.0.and.debug_giaox.eq.1) then
        write(*,*) 'nat_slc=',nat_slc
        do i=1,nat_slc
         write(*,7) i,int_mb(k_AtNr+i-1)

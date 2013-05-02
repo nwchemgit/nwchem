@@ -82,14 +82,13 @@ c ----- Definitions for NLMO analysis ---- END
       integer debug_gshift
       integer shift,disp
       logical skip_cphf_ev_gshift
-
-c      switch_skip_cphf=.true. ! For skipping cphf or cpks
+c
+      debug_gshift=0 ! =1 for debugging print outs of matrices
+c     switch_skip_cphf=.true. ! For skipping cphf or cpks
       switch_skip_cphf=.false. ! For NOT skipping cphf or cpks
       switch_gshift_analysis=.false. ! For default mode gshift tensor
-c      switch_gshift_analysis=.true.  ! For analysis of gshift tensor
-
-      debug_gshift=0 ! =1 for debugging print outs of matrices
-
+c     switch_gshift_analysis=.true.  ! For analysis of gshift tensor
+c
       npol=2 ! gshift works ONLY for npol=2
       if (ga_nodeid().eq.0) then
         write(LuOut,*)
@@ -109,10 +108,10 @@ c ------- using different settings (j,k)  03-14-11--- START
       do ifld = 1,nind_jk
         jfac(ifld) =  0.0d0       ! used in shell_fock_build()
         kfac(ifld) = -1.0d0*xfac  ! used in shell_fock_build()
-c       if (ga_nodeid().eq.0) then
-c       write(*,145) ifld,jfac(ifld),kfac(ifld)
-c 145   format('(j,k)(',i3,')=(',f15.8,',',f15.8,')')
-c       endif
+        if (ga_nodeid().eq.0.and.debug_gshift.eq.1) then
+          write(*,145) ifld,jfac(ifld),kfac(ifld)
+ 145   format('(j,k)(',i3,')=(',f15.8,',',f15.8,')')
+        endif
       enddo
 c     Integral initialization
       call int_init(rtdb,1,basis)
