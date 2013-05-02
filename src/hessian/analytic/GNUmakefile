@@ -33,10 +33,10 @@ OBJ_OPTIMIZE =  hess_anal.o \
 
    HEADERS = hess_info.fh
 
-LIB_INCLUDES = -I../../../nwdft/include
+LIB_INCLUDES =
 
    USES_BLAS = 	 \
-    onedd_calc.F hess_restart.F shell_fock_build.F shell_fock_build_cam.F shell_fock_build_cam_single.F shell_fock_build_cam_multiple.F shell_fock_buildjk.F shell_fock_buildxc.F twodd_cont.F
+    onedd_calc.F hess_restart.F shell_fock_build.F shell_fock_build_cam.F twodd_cont.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
