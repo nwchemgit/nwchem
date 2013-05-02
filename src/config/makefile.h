@@ -1170,8 +1170,8 @@ endif
         DEFINES  += -DGFORTRAN
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
-        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        ifeq ($(GNU_GT_4_6),true)
+        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GE_4_6),true)
         DEFINES  += -DGCC46
     endif
         ifdef USE_OPENMP
@@ -1301,8 +1301,8 @@ endif
 #         FVECTORIZE=-O1
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
-        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        ifeq ($(GNU_GT_4_6),true)
+        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GE_4_6),true)
          DEFINES  += -DGCC46
        endif
        endif
@@ -1525,8 +1525,8 @@ endif
         DEFINES  += -DCHKUNDFLW -DGCC4
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
-        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        ifeq ($(GNU_GT_4_6),true)
+        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
         endif
       endif
@@ -1945,8 +1945,8 @@ endif
         DEFINES  += -DCHKUNDFLW -DGCC4
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
-        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
+        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
         endif
