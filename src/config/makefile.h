@@ -1168,8 +1168,10 @@ endif
         FOPTIONS   = -Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
-      _GCC46= $(shell $(FC) -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
-        ifeq ($(_GCC46),Y) 
+        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
+        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GT_4_6),true)
         DEFINES  += -DGCC46
     endif
         ifdef USE_OPENMP
@@ -1297,8 +1299,10 @@ endif
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
 #         FOPTIMIZE=-O1
 #         FVECTORIZE=-O1
-     _GCC46= $(shell $(FC) -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
-       ifeq ($(_GCC46),Y) 
+        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
+        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GT_4_6),true)
          DEFINES  += -DGCC46
        endif
        endif
@@ -1519,8 +1523,10 @@ endif
         endif
         FDEBUG = -g -O0
         DEFINES  += -DCHKUNDFLW -DGCC4
-        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
-        ifeq ($(_GCC46),Y) 
+        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
+        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GT_4_6),true)
           DEFINES  += -DGCC46
         endif
       endif
@@ -1671,7 +1677,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
       FC=gfortran
       _FC=gfortran
       endif
+      FOPTIMIZE  = -O2 
       ifeq ($(FC),gfortran)
+        FOPTIONS   = -m64
+        COPTIONS   = -m64
+        FOPTIONS   += -Wextra -ffast-math #-Wunused  
+        FOPTIMIZE  += -ffast-math -Wuninitialized
        _FC=gfortran
        DEFINES  += -DGFORTRAN
       endif
@@ -1933,15 +1944,17 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         DEFINES  += -DCHKUNDFLW -DGCC4
-        _GCC46= $(shell $(FC) -dumpversion  2>&1|awk ' /4.6/ {print "Y";exit};/4.7/ {print "Y";exit};{print "N"}')
-        ifeq ($(_GCC46),Y) 
+        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
+        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        ifeq ($(GNU_GT_4_6),true)
           DEFINES  += -DGCC46
         endif
         ifeq ($(_GOT3DNOW),Y) 
 #we guess its an opteron
           FOPTIMIZE += -march=opteron -mtune=opteron
         else
-        ifeq ($(_GCC46),Y) 
+        ifeq ($(GNU_GT_4_6),true) 
           FOPTIMIZE += -march=native -mtune=native
         else
 #we guess its a nocona em64t
@@ -1972,7 +1985,7 @@ endif
 # xlc v7.0 
 # gcc-3.2.3-42 
 
-      FC=xlf
+#gfortran become default      FC=xlf
          ifeq ($(FC),xlf)
            _FC=xlf
          endif

@@ -192,7 +192,7 @@ endif
 	             $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>&1 | \
 	                   grep -v truncated ; \
 	        /bin/rm -f $$list ; \
-	        echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
+	        echo $(RANLIB) $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
 	        /bin/rm -f $(LOCKFILE) ; \
 	   fi; )
 
