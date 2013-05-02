@@ -133,7 +133,7 @@ c
            endif
            nocinit=0
         endif
-        new_ntotel=anoc(1)+anoc(2)
+        new_ntotel=rhfuhf*(anoc(1)+anoc(2))
 c       
 c       initialize ef
 c       
