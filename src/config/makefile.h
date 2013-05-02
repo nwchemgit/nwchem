@@ -1681,7 +1681,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
       ifeq ($(FC),gfortran)
         FOPTIONS   = -m64
         COPTIONS   = -m64
-        FOPTIONS   += -Wextra -ffast-math #-Wunused  
+        FOPTIONS   += -ffast-math #-Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
        _FC=gfortran
        DEFINES  += -DGFORTRAN
@@ -1933,7 +1933,6 @@ endif
           LDFLAGS += -pg
         endif
 	    LINK.f = $(FC)  $(LDFLAGS) 
-        FOPTIONS   += -Wextra -Wuninitialized #-Wunused
         FOPTIMIZE   = -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
@@ -1946,15 +1945,23 @@ endif
         DEFINES  += -DCHKUNDFLW -DGCC4
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
-        GNU_GT_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        ifeq ($(GNU_GT_4_6),true)
+        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -ge 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
+        ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
+        endif
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
+          FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FOPTIONS += -Warray-bounds
+	  else
+          FOPTIONS   += -Wextra -Wuninitialized #-Wunused
         endif
         ifeq ($(_GOT3DNOW),Y) 
 #we guess its an opteron
           FOPTIMIZE += -march=opteron -mtune=opteron
         else
-        ifeq ($(GNU_GT_4_6),true) 
+        ifeq ($(GNU_GE_4_6),true) 
           FOPTIMIZE += -march=native -mtune=native
         else
 #we guess its a nocona em64t
