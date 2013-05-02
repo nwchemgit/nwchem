@@ -70,7 +70,7 @@ c
       owarn = util_print('sym_movecs_adapt_warn',print_debug)
 c
       if (odebug) then
-c         write(6,*) ' sym_movecs_adapt input orbitals'
+c         write(6,*) ' sym_movecs_adapt_so input orbitals'
 c         call ga_print(g_vecs(1))
 c         call ga_print(g_vecs(2))
       endif
@@ -78,11 +78,12 @@ c
 c     Get char table and group class info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_movecs_adapt: no geometry from basis?', basis,
+     $     ('sym_movecs_adapt_so: no geometry from basis?', basis,
      &       BASIS_ERR)
       nop = sym_number_ops(geom)
       if (.not. ma_push_get(mt_dcpl, 8*nop, 'sym:u', l_u, k_u))
-     $     call errquit('sym_movecs_adapt: unable to alloc u',0, MA_ERR)
+     $     call errquit('sym_movecs_adapt_so: unable to alloc u',
+     $                  0, MA_ERR)
 c     
       call sym_op_classify_so(geom, op_class_index, dcpl_mb(k_u))
       call sym_group_name(geom,group_name)
@@ -108,41 +109,45 @@ c
       call ga_inquire(g_vecs(1), type, nbf, nvec)
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_t(1)))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_t',
+     $     call errquit('sym_movecs_adapt_so: unable to alloc g_t',
      $     nbf*nvec, GA_ERR)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_t(2)))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_t',
+     $     call errquit('sym_movecs_adapt_so: unable to alloc g_t',
      $     nbf*nvec, GA_ERR)
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_q(1)))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_q',
+     $     call errquit('sym_movecs_adapt_so: unable to alloc g_q',
      $     nbf*nvec, GA_ERR)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_q(2)))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_q',
+     $     call errquit('sym_movecs_adapt_so: unable to alloc g_q',
      $     nbf*nvec, GA_ERR)
 
 c
       g_s = ga_create_atom_blocked(geom, basis,'sym: S')
       call ga_inquire(g_s, type, nbf1, nvec1)
       if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',0,0,g_s2))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_s2',0,
+     $     call errquit('sym_movecs_adapt_so: unable to alloc g_s2',0,
      &       GA_ERR)
 *ga:1:0
 *      if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',0,0,g_s))
-*     $     call errquit('sym_movecs_adapt: unable to alloc g_s',0)
+*     $     call errquit('sym_movecs_adapt_so: unable to alloc g_s',0)
       if (.not. ma_push_get(mt_dbl, 2*nbf, 'sym:v', l_v, k_v))
-     $     call errquit('sym_movecs_adapt: unable to alloc v',0, MA_ERR)
+     $     call errquit('sym_movecs_adapt_so: unable to alloc v',
+     $                  0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, 2*nbf, 'sym:q', l_q, k_q))
-     $     call errquit('sym_movecs_adapt: unable to alloc q',0, MA_ERR)
+     $     call errquit('sym_movecs_adapt_so: unable to alloc q',
+     $                  0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, 2*nbf, 'sym:t', l_t, k_t))
-     $     call errquit('sym_movecs_adapt: unable to alloc t',0, MA_ERR)
+     $     call errquit('sym_movecs_adapt_so: unable to alloc t',
+     $                  0, MA_ERR)
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
       nvec_per_proc = (nvec-1)/nproc + 1
       if (.not. ma_push_get(mt_dbl, 2*nir*nvec_per_proc, 'sym:c', 
      $     l_c, k_c))
-     $     call errquit('sym_movecs_adapt: unable to alloc c',0, MA_ERR)
+     $     call errquit('sym_movecs_adapt_so: unable to alloc c',
+     $                  0, MA_ERR)
 c     
       call ga_zero(g_s)
       call ga_zero(g_s2)
@@ -288,10 +293,10 @@ c
          do ir = 1, nir
             if (v(ir) .lt. small_neg) then
                write(6,1) i, (v(j),j=1,nir)
- 1             format(' sym_movecs_adapt: orbital ',i5,
+ 1             format(' sym_movecs_adapt_so: orbital ',i5,
      $              ' negative proj. '/1x,1p,20d10.2)
                call util_flush(6)
-               call errquit('sym_movecs_adapt: negative proj',0,
+               call errquit('sym_movecs_adapt_so: negative proj',0,
      &       GEOM_ERR)
             endif
          enddo
@@ -299,7 +304,7 @@ c
          i1 = idamax(nir, v, 1)
          v1 = v(i1)
          if (v1 .lt. thresh) call errquit
-     $        ('sym_movecs_adapt: no significant component?', 0,
+     $        ('sym_movecs_adapt_so: no significant component?', 0,
      &       GEOM_ERR)
 c     
 c     Look for mixing
@@ -315,7 +320,7 @@ c
             nmixed = nmixed + 1
             if (owarn) then
                write(6,11) i, (v(ir),ir=1,nir)
- 11            format(' sym_movecs_adapt: orbital ',i5,
+ 11            format(' sym_movecs_adapt_so: orbital ',i5,
      $              ' was contaminated'/1x,1p,20d10.2)
                call util_flush(6)
             endif
@@ -327,7 +332,7 @@ c     that only two are involved and they are consecutive just
 c     assign them to symmetries based on odd/even ... if the assumption
 c     is wrong then linear dependence will result.
 c     
-*     call errquit('sym_movecs_adapt: unable to assign MO'//
+*     call errquit('sym_movecs_adapt_so: unable to assign MO'//
 *     $          ' irrep - try restarting from another geometry',0)
             
             if(mod(i-1,2).eq.0)then 
