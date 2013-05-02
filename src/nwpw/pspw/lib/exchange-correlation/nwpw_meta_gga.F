@@ -1,3 +1,13 @@
+*     **************************************************
+*     *                                                *
+*     *            nwpw_meta_gga_bd                    *
+*     *                                                *
+*     **************************************************
+      block data nwpw_meta_gga_bd
+      implicit none
+#include "nwpw_meta_gga.fh"
+      data meta_on/.false./
+      end
 
 *     **************************************************
 *     *                                                *
@@ -50,6 +60,7 @@
          if (.not.ok)
      >      call errquit('nwpw_meta_gga_end:freeing heap',0,MA_ERR)
       end if
+      meta_on = .false.
       return
       end
 
