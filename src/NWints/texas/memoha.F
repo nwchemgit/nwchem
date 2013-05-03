@@ -1,4 +1,4 @@
-* $Id$
+* $Id: memoha.f 19696 2010-10-29 16:53:42Z d3y133 $
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)
@@ -64,10 +64,7 @@ c--
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 c
-      common /logic1/ ndege(1)
-      common /logic2/ len(1)
-      common /logic3/ lensm(1)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"     
 c
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /memor4/ iwt0,iwt1,iwt2,ibuf,ibuf2,
@@ -428,7 +425,7 @@ c--
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /memor4/ iwt0,iwt1,iwt2,ibuf,ibuf2,

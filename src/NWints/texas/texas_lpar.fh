@@ -1,0 +1,31 @@
+c dimensions for logical matrices in TWELINT :
+c
+c up to ff,ff :
+c     parameter (lpar1=14,lpar2= 455,lpar3= 364,lpar4=5,lpar5=13)
+c up to gg,gg :
+c     parameter (lpar1=18,lpar2= 969,lpar3= 816,lpar4=6,lpar5=17)
+c up to hh,hh :
+c     parameter (lpar1=22,lpar2=1771,lpar3=1540,lpar4=7,lpar5=21)
+c up to ii,ii :
+c     parameter (lpar1=26,lpar2=2925,lpar3=2600,lpar4=8,lpar5=25)
+cxx
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      integer ndege,len,lensm
+      integer nfu,icoor,icool,ifrst,ilast,nia,nmxyz,npxyz
+      double precision hnia
+      parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
+      common /logicd/ hnia(3,lpar2)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+c
+      common /logic4/ nfu(lpar1)
+      common /logic5/ icoor(lpar2)
+      common /logic6/ icool(lpar2)
+      common /logic7/ ifrst(lpar2)
+      common /logic8/ ilast(lpar2)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
+
+

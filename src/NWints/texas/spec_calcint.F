@@ -315,8 +315,7 @@ ctime
       common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
 c
-      common /logic2/ len(1)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
@@ -800,7 +799,7 @@ c
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
 c
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1182,7 +1181,7 @@ c
       common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1358,7 +1357,7 @@ c
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
 c
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1755,7 +1754,7 @@ c
       common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,

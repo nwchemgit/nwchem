@@ -144,9 +144,7 @@ c
       common /cpu/ intsize,iacc,icache,memreal
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c
-      common /logic1/ ndege(1)
-      common /logic2/ lenn(1)
-      common /logic3/ lensm(1)
+#include "texas_lpar.fh"
 c
       dimension inx(12,*),nblock1(0:*)
       dimension npar(*)
@@ -258,7 +256,7 @@ c
          if(jtype.gt.4) jtype1=jtype-1
          if(itype1.gt.5) itype1=itype1-1
          if(jtype1.gt.5) jtype1=jtype1-1
-         nfij=lenn(itype1)*lenn(jtype1)
+         nfij=len(itype1)*len(jtype1)
 c
          lci=inx(5,ics1)-inx(1,ics1)
          lcj=inx(5,jcs1)-inx(1,jcs1)
@@ -283,7 +281,7 @@ c
             if(ltype.gt.4)  ltype1=ltype-1
             if(ktype1.gt.5) ktype1=ktype1-1
             if(ltype1.gt.5) ltype1=ltype1-1
-            nfkl=lenn(ktype1)*lenn(ltype1)
+            nfkl=len(ktype1)*len(ltype1)
             nfijkl=nfij*nfkl
 c 
             lck=inx(5,kcs1)-inx(1,kcs1)
@@ -593,10 +591,7 @@ c----------------------------------------------------------------------
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
 c----------------------------------------------------------------------
-      common /logic4/ nfu(1)
-      common /logic1/ ndege(1)
-      common /logic2/ len(1)
-      common /logic3/ lensm(1)
+#include "texas_lpar.fh"
 c----------------------------------------------------------------------
 c ifor=1   for ordinary two-el.integrals
 c ifor=2   for NMR GIAO integral derivatives
@@ -778,10 +773,7 @@ c----------------------------------------------------------------------
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
 c----------------------------------------------------------------------
-      common /logic4/ nfu(1)
-      common /logic1/ ndege(1)
-      common /logic2/ len(1)
-      common /logic3/ lensm(1)
+#include "texas_lpar.fh"
 c----------------------------------------------------------------------
       n_times=1
       if(ifor.eq.2) n_times= 6 ! giao Ist derivatives
@@ -972,10 +964,7 @@ c==============================================================
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
-      common /logic1/ ndege(1)
-      common /logic2/ len(1)
-      common /logic3/ lensm(1)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c------------------------------------------
 c Memory requested in the Memo4a subroutine
 c------------------------------------------
@@ -1167,7 +1156,7 @@ c--
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
 c------------------------------------------
@@ -1455,10 +1444,7 @@ C$PRAGMA SUN OPT=2
       subroutine get_price1(inx,ics1,jcs1,kcs1,lcs1,nfijkl,nprice)
       common /local_info/ mmax,itype,jtype,ktype,ltype,
      *                         icont,jcont,kcont,lcont
-      common /logic1/ ndege(1)
-      common /logic2/ lenn(1)
-      common /logic3/ lensm(1)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       dimension inx(12,*)
 c------------------------- ij part -----------
       itype=inx(12,ics1)
@@ -1476,7 +1462,7 @@ c------------------------- ij part -----------
       ngcj=inx(4,jcs1)
       ngci1=ngci+1
       ngcj1=ngcj+1
-      nfij  =lenn(itype1)*lenn(jtype1)
+      nfij  =len(itype1)*len(jtype1)
       ngcij =ngci1*ngcj1
 c
          nqi=ndege(itype1)
@@ -1512,7 +1498,7 @@ c
 c
 c----------------------  ijkl part -----------
 c
-         nfijkl=nfij*lenn(ktype1)*lenn(ltype1)
+         nfijkl=nfij*len(ktype1)*len(ltype1)
          mmax=nsij+nskl-1
 c
 c---------------------------------------------
@@ -2111,7 +2097,7 @@ c
 c===============================================================
       subroutine get_max_am(itype1,jtype1,ktype1,ltype1,mmax,
      *                      nsij,nskl,nqmax)
-      common /logic1/ ndege(1)
+#include "texas_lpar.fh"
 c
 c returns total angular momentum for (ij,kl) quartet
 c-

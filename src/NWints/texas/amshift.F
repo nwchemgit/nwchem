@@ -1,4 +1,4 @@
-c $Id$
+c $Id: amshift.f 19696 2010-10-29 16:53:42Z d3y133 $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -30,12 +30,10 @@ c
       implicit real*8 (a-h,o-z)
       character*11 scftype
       character*8 where
+#include "texas_lpar.fh"
       common /runtype/ scftype,where
 c
       common /cpu/ intsize,iacc,icache,memreal
-cxx
-      common /logic4/ nfu(1)
-cxx
 c
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common/obarai/
@@ -465,6 +463,7 @@ c------------------------------------
 c  when l-shells are not present
 c------------------------------------
       implicit real*8 (a-h,o-z)
+#include "texas_lpar.fh"
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
@@ -473,7 +472,6 @@ c------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbex,klbex
-      common /logic4/ nfu(1)
 c
        dimension buf2(mnbls,lt1,lt2),wij(mnbls,lt3,lsjl)
        dimension xij(mnbls,lt4,lt5,lt6)
@@ -555,6 +553,7 @@ c*  when 1 l-shell is present somewhere
 c*          in position 1,2 or 3,4
 c***********************************************************
       implicit real*8 (a-h,o-z)
+#include "texas_lpar.fh"
 cxxx
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
 c
@@ -568,9 +567,6 @@ c
 c
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
 c
-cxx
-      common /logic4/ nfu(1)
-cxx
 c
       dimension buf2(mnbls,lt1,lt2),
      * bijx(mnbls,lt3,lt2),
@@ -754,6 +750,7 @@ c*  when 2 l-shells are present somewhere
 c*          in position 1,2 or 3,4
 c***********************************************************
       implicit real*8 (a-h,o-z)
+#include "texas_lpar.fh"
 cxxxx
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
 c
@@ -767,9 +764,6 @@ c
 c
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
 c
-cxx
-      common /logic4/ nfu(1)
-cxx
 c
       dimension x2l(mnbls,lt3,lt4)
       dimension buf2(mnbls,lt1,lt2),
@@ -1050,6 +1044,7 @@ c*  when 3 l-shells are present somewhere
 c*          in positions 1,2 or 3,4
 c***********************************************************
       implicit real*8 (a-h,o-z)
+#include "texas_lpar.fh"
 cxxx
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
 c
@@ -1063,9 +1058,6 @@ c
 c
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
 c
-cxx
-      common /logic4/ nfu(1)
-cxx
 c
       dimension x2l1(mnbls,lt3,lt4),x2l2(mnbls,lt3,lt4),
      *          x2l3(mnbls,lt3,lt4),x2l4(mnbls,lt3,lt4)
@@ -1425,6 +1417,7 @@ c***********************************************************
 c*        when 4 l-shells are present
 c***********************************************************
       implicit real*8 (a-h,o-z)
+#include "texas_lpar.fh"
 ctest
       character*11 scftype
       character*8 where
@@ -1439,7 +1432,6 @@ c
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbex,klbex
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
-      common /logic4/ nfu(1)
 c
       dimension x2l1(mnbls,lt3,lt4),x2l2(mnbls,lt3,lt4),
      *          x2l3(mnbls,lt3,lt4),x2l4(mnbls,lt3,lt4)
@@ -1661,12 +1653,7 @@ c=====================================================
       subroutine horiz12(wij,lw1,lw2,xab,mnbls,nqi,nqj,nsij1)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic6/ icool(1)
-      common /logic7/ ifrst(1)
-      common /logic8/ ilast(1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
 c
       dimension wij(mnbls,lw1,lw2),xab(mnbls,3)
 c---------------------------------------------------
@@ -1700,6 +1687,7 @@ c------------------------------------
 c  when l-shells are not present
 c------------------------------------
       implicit real*8 (a-h,o-z)
+#include "texas_lpar.fh"
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
@@ -1708,7 +1696,6 @@ c------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbex,klbex
-      common /logic4/ nfu(1)
 c
       dimension buf0(nbls,lt1,lt2),wij0(nbls,lt3,lsjl)
       dimension buf2(mnbls,lt1,lt2),wij(mnbls,lt3,lsjl)
@@ -1786,12 +1773,7 @@ c=============================================================
       subroutine horiz12_der1(wij0,wij,lw1,lw2,xab,nbls,nqi,nqj,nsij1)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic6/ icool(1)
-      common /logic7/ ifrst(1)
-      common /logic8/ ilast(1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
 c
       dimension wij0(nbls,lw1,lw2)
       dimension wij(9,nbls,lw1,lw2),xab(9,nbls,3)
@@ -1864,12 +1846,7 @@ c=====================================================
       subroutine horiz34_der1(wij0,wij,lw1,lw2,xab,nbls,nqi,nqj,nsij1)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic6/ icool(1)
-      common /logic7/ ifrst(1)
-      common /logic8/ ilast(1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
 c
       dimension wij0(nbls,lw1,lw2)
       dimension wij(9,nbls,lw1,lw2),xab(9,nbls,3)
@@ -1953,7 +1930,7 @@ c------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbex,klbex
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c
       dimension buf0(nbls,lt1,lt2),wij0(nbls,lt3,lsjl)
       dimension buf1(9*nbls,lt1,lt2),wij1(9*nbls,lt3,lsjl)
@@ -2040,12 +2017,7 @@ c=============================================================
      *                        lw1,lw2,xab,nbls,nqi,nqj,nsij1)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic6/ icool(1)
-      common /logic7/ ifrst(1)
-      common /logic8/ ilast(1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
 c
       dimension wij0(nbls,lw1,lw2)
       dimension wij1(9,nbls,lw1,lw2)
@@ -2182,12 +2154,7 @@ c=====================================================
      *                        lw1,lw2,xab,nbls,nqi,nqj,nsij1)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic6/ icool(1)
-      common /logic7/ ifrst(1)
-      common /logic8/ ilast(1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
 c
       dimension wij0(nbls,lw1,lw2)
       dimension wij1(9,nbls,lw1,lw2)

@@ -12,7 +12,7 @@ c
      *     nqi,nqj,nqk,nql,nsij,nskl,
      *     nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
 c     
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c     
       dimension indx(*)
       dimension xt1(nbls1*lt1*lt2)
@@ -120,7 +120,7 @@ c
      *     nqi,nqj,nqk,nql,nsij,nskl,
      *     nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
 c     
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c     
       dimension indx(*)
       dimension xt1(nbls*lt1*lt2) ! Was nbls1

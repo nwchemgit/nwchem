@@ -79,19 +79,8 @@ c     dimension  nia(3,lp2)
 c     dimension  nmxyz(3,lp2)
 c     dimension  npxyz(3,lp3)
 cxx
-      parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
-      common /logicd/ hnia(3,1)
-      common /logic1/ ndege(lpar4)
-      common /logic2/ len(lpar4)
-      common /logic3/ lensm(lpar5)
-      common /logic4/ nfu(lpar1)
-      common /logic5/ icoor(1)
-      common /logic6/ icool(1)
-      common /logic7/ ifrst(1)
-      common /logic8/ ilast(1)
-      common /logic9/ nia(3,lpar2)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+Cedo      parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
+#include "texas_lpar.fh"
 cxx
 c
       data half /0.5d0/

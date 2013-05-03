@@ -57,7 +57,7 @@ else
       OBJ_OPTIMIZE = 
 endif
 
-      USES_BLAS = amshift.f \
+      USES_BLAS = amshift.F \
                   big_service.F \
                   trobsa.F  getmem.F
 

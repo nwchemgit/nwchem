@@ -447,7 +447,7 @@ c=======================================================================
       subroutine copy_unstable_3(nbls1, iq_u,nbls1_u,mmax,
      *                           p1234,abcd,habcdx )
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       dimension iq_u(*)
 c     dimension p1234(nbls1,3),abcd(nbls1),habcdx(nbls1,3,nfu(mmax))
       dimension p1234(*)      ,abcd(*)    ,habcdx(*)
@@ -488,7 +488,7 @@ c=======================================================================
       subroutine copy_unstable_4(nbls1,iq_u,nbls1_u,nqij,nqkl,
      *                           wt0,wt0_u, lnij,lnkl)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 c
       dimension iq_u(*)
       dimension wt0(nbls1,lnij,lnkl), wt0_u(nbls1_u,lnij,lnkl)
@@ -550,7 +550,7 @@ c
 c====================================================================
       subroutine wt0wt1(wt0,l01,l02,nbls,wt1,l11,l12,nsij,nskl,lab)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       dimension wt0(nbls,l01,l02),wt1(nbls,l11,l12)
 c
 #ifdef XLF11
@@ -609,12 +609,7 @@ c========================
       subroutine obasai_1(rhoapb,abnia,xpa,xwp,mmax,immax,xt,
      *                    l11,l12,nbls)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic7/ ifrst(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
       dimension xt(nbls,l11,l12)
       dimension abnia(nbls,*),rhoapb(*)
       dimension xpa(nbls,3),xwp(nbls,3)
@@ -653,12 +648,7 @@ c========================
       subroutine obasai_2(rhoapb,abnia,xpa,xwp,mmax,immax,xt,
      *                    l11,l12,nbls)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic7/ ifrst(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
 c
       dimension xt(nbls,l11,l12)
       dimension xpa(nbls,3),xwp(nbls,3)
@@ -738,7 +728,7 @@ c
 c=================================================================
       subroutine wt2wt1(wt2,mem2,nbls,wt1,l11,l12,mmax)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       dimension wt1(nbls,l11,l12),wt2(nbls,mem2)
 c
        do 145 inp=1,nfu(mmax+1)
@@ -800,7 +790,7 @@ c
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 C
       dimension wt0(nbls,l01,l02),wt2(nbls,mem2)
       dimension p1234(nbls,3)
@@ -880,7 +870,7 @@ c
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
       dimension wt0(nbls,l01,l02),wt2(nbls,mem2)
       dimension p1234(nbls,3)
 ccccc dimension abcd(nbls),habcd(nbls,3,*)
@@ -970,7 +960,7 @@ c
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 C
       dimension wt0(nbls,l01,l02),wt2(nbls,mem2)
       dimension p1234(nbls,3)
@@ -1040,7 +1030,7 @@ c
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
+#include "texas_lpar.fh"
 C
       dimension wt0(nbls,l01,l02),wt2(nbls,mem2)
       dimension p1234(nbls,3)
@@ -1144,11 +1134,7 @@ c========================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic7/ ifrst(1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
       common /tracy/ kbeg,kend,i0b,i0e,nrec
 c
       dimension xt0(nbls,l01,l02),xt1(nbls,l1b,l1e),
@@ -1216,11 +1202,7 @@ c========================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic7/ ifrst(1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
       common /tracy/ kbeg,kend,i0b,i0e,nrec
 c
       dimension xt0(nbls,l01,l02),xt1(nbls,l1b,l1e),
@@ -1328,11 +1310,7 @@ c
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic7/ ifrst(1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
       common /tracy/ ibeg,iend,k0b,k0e,nrec
 c
       dimension xt0(nbls,l01,l02),xt1(nbls,l1b,l1e),
@@ -1403,11 +1381,7 @@ c=========================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbex,klbex
-      common /logic4/ nfu(1)
-      common /logic5/ icoor(1)
-      common /logic7/ ifrst(1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+#include "texas_lpar.fh"
       common /tracy/ ibeg,iend,k0b,k0e,nrec
 c
       dimension xt0(nbls,l01,l02),xt1(nbls,l1b,l1e),

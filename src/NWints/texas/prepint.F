@@ -1,4 +1,4 @@
-c $Id$
+c $Id: prepint.f 19696 2010-10-29 16:53:42Z d3y133 $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)
@@ -19,7 +19,7 @@ c     parameter (lpar1=26,lpar2=2925,lpar3=2600,lpar4=8,lpar5=25)
 c up to jj,jj :
 c     parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
 c up to kk,kk (which is ii,ii + 2 )
-      parameter (lpar1=34,lpar2=6545,lpar3=5984,lpar4=10,lpar5=33)
+cold      parameter (lpar1=34,lpar2=6545,lpar3=5984,lpar4=10,lpar5=33)
 c up to ll,ll :
 c     parameter (lpar1=38,lpar2=9139,lpar3=8436,lpar4=11,lpar5=37)
 c up to mm,mm :
@@ -33,19 +33,7 @@ c
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
 c
-      common /logicd/ hnia(3,lpar2)
-      common /logic1/ ndege(lpar4)
-      common /logic2/ len(lpar4)
-      common /logic3/ lensm(lpar5)
-c
-      common /logic4/ nfu(lpar1)
-      common /logic5/ icoor(lpar2)
-      common /logic6/ icool(lpar2)
-      common /logic7/ ifrst(lpar2)
-      common /logic8/ ilast(lpar2)
-      common /logic9/ nia(3,lpar2)
-      common /logic10/ nmxyz(3,lpar2)
-      common /logic11/ npxyz(3,lpar3)
+#include "texas_lpar.fh"
 cxx
       common /cpu/ intsize,iacc,icache,memreal
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend

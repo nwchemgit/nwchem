@@ -714,7 +714,7 @@ c  HABCD is used only in TRACY's recursive in routines TRACIJ, TRACKL
 c-----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
-      common /logicd/ hnia(3,1)
+#include "texas_lpar.fh"
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
@@ -1736,7 +1736,7 @@ c
 c====================================================================
       subroutine precal2c_2(lcij,lckl,rapb,rcpd,habcd,nfumax)
       implicit real*8 (a-h,o-z)
-      common /logicd/ hnia(3,1)
+#include "texas_lpar.fh"
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
