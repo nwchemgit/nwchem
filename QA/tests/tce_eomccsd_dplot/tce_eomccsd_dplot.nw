@@ -1,9 +1,6 @@
 echo
 start n2
 
-permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_dplot/perm
-scratch_dir /scratch
-
 geometry
   n  0 0   0.53879155
   n  0 0  -0.53879155
@@ -17,7 +14,7 @@ end
 tce
 ccsd
 nroots 1
-densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_dplot/n2.densmat
+densmat n2.densmat
 end
 
 task tce energy
@@ -30,8 +27,8 @@ dplot
  -3.0 3.0 10
   spin total
   gaussian
-  output  /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_dplot/dens.cube
-  densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_dplot/n2.densmat
+  output  dens.cube
+  densmat n2.densmat
 end
 
 task dplot
