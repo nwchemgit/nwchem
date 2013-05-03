@@ -556,9 +556,6 @@ c          Calculate the difference
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
 *ga:1:0
-      if (.not. ga_create(mt_dbl, nPoint, 1, 'Vls', 
-     &                    0, 0, g_Vls)) 
-     &   call errquit('dplot: error creating g_Vls',0,0)
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
@@ -571,6 +568,9 @@ c          Calculate the difference
          enddo
          if(iproc.eq.0) write(luout,*) ' max element ',maxelt
       Else
+         if (.not. ga_create(mt_dbl, nPoint, 1, 'Vls', 
+     &                       0, 0, g_Vls)) 
+     &   call errquit('dplot: error creating g_Vls',0,0)
          LResult = MA_Push_Get(MT_Dbl,(nAtom+1)**2,'AMt',l_AMt,k_AMt)
          Call ErrMem(LResult,'C_C: Failed to allocate AMt',0)
          LResult = MA_Push_Get(MT_Dbl,nAtom+1,'BMt',l_BMt,k_BMt)
@@ -594,13 +594,13 @@ c          Calculate the difference
          LResult = MA_Pop_Stack(l_Dst)
          LResult = MA_Pop_Stack(l_BMt)
          LResult = MA_Pop_Stack(l_AMt)
+         Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
+         Call GA_Sync
+         if (.not. ga_destroy(g_Vls)) call errquit
+     &      ('dplot: could not destroy g_Vls', 0,0)
       End If
 *
 *---- Print out the values of the density matrix to the output
-      if (what.eq.'CHARGES') then
-         Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
-         Call GA_Sync
-      endif
       call dplot_dump(lgaussian,out_unit,iproc,luout,
      ,     where,what,
      ,     title(1:Lth_Tit),
@@ -655,8 +655,6 @@ c          Calculate the difference
 *
 *---- Destroy global arrays
 c      Call GADest(g_Vls)
-      if (.not. ga_destroy(g_Vls)) call errquit
-     &   ('dplot: could not destroy g_Vls', 0,0)
       If (What.eq.'DENSITY') Then
 c         If (nSet.eq.2) Call GADest(g_Dns(2))
          If (nSet.eq.2)then
