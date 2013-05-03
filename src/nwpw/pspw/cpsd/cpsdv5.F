@@ -1002,7 +1002,7 @@ c      call frac_occ_end()
  1180 FORMAT(/' initial position of ions:')
  1190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
-     >       ' ) - atomic mass= ',F6.3,' - fixed ',A)
+     >       ' ) - atomic mass= ',F7.3,' - fixed ',A)
  1193 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
