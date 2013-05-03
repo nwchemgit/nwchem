@@ -2,8 +2,7 @@
 # $Id: Ag 19707 2010-10-29 17:59:36Z d3y133 $
 #
 Comment: Ag pseudopotential parameters
-Comment: Fitted 12-28-04
-Comment: by E.J. Bylaska, based on Khein and Allens' TM data base
+Comment: Fitted 05-2-2013
 Comment: relativistic TM, quadratic semicore
 
 
@@ -35,3 +34,5 @@ Ag
 
 <semicore> 2.00   <end>
 <semicore_type> quadratic <end>
+
+<comment> Only 5s in valence (4d in core) Parameterized on 5/2/2013 <end>
