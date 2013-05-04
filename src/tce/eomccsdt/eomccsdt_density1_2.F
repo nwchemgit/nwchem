@@ -16,7 +16,7 @@ C     i0 ( )_dxy + = 1 * y ( )_y * i1 ( )_dx
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -38,10 +38,10 @@ C     i0 ( )_dxy + = 1 * y ( )_y * i1 ( )_dx
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_d,ieor(irrep_x,irrep_y))) THEN
       dimc = 1
@@ -89,10 +89,10 @@ C     i0 ( )_dxy + = 1 * y ( )_y * i1 ( )_dx
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('eomccsdt_density1_2
      &',11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

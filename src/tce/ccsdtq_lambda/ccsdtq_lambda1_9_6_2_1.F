@@ -13,7 +13,7 @@ C     i3 ( h9 h11 h14 p7 p8 p10 )_y + = 1 * y ( h9 h11 h14 p7 p8 p10 )_y
       INTEGER k_a_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -39,10 +39,10 @@ C     i3 ( h9 h11 h14 p7 p8 p10 )_y + = 1 * y ( h9 h11 h14 p7 p8 p10 )_y
       INTEGER k_a
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h9b = 1,noab
       DO h11b = h9b,noab
       DO h14b = h11b,noab
@@ -99,7 +99,7 @@ C     i3 ( h9 h11 h14 p7 p8 p10 )_y + = 1 * y ( h9 h11 h14 p7 p8 p10 )_y
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -108,7 +108,7 @@ C     i3 ( h9 h11 h14 p7 p8 p10 )_y + = 1 * y ( h9 h11 h14 p7 p8 p10 )_y
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

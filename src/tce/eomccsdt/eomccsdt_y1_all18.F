@@ -16,7 +16,7 @@ C     i1 ( h7 h8 h6 p1 )_yt + = 1 * Sum ( h5 p4 p3 ) * t ( p3 p4 h5 h6 )_t * y (
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -58,11 +58,11 @@ C     i1 ( h7 h8 h6 p1 )_yt + = 1 * Sum ( h5 p4 p3 ) * t ( p3 p4 h5 h6 )_t * y (
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h7b = 1,noab
       DO h8b = h7b,noab
       DO p1b = noab+1,noab+nvab
@@ -235,14 +235,14 @@ C     i1 ( h7 h8 h6 p1 )_yt + = 1 * Sum ( h5 p4 p3 ) * t ( p3 p4 h5 h6 )_t * y (
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -264,7 +264,7 @@ C     i0 ( h2 p1 )_ytv + = -1/4 * Sum ( h7 h8 h6 ) * i1 ( h7 h8 h6 p1 )_yt * v (
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -302,11 +302,11 @@ C     i0 ( h2 p1 )_ytv + = -1/4 * Sum ( h7 h8 h6 ) * i1 ( h7 h8 h6 p1 )_yt * v (
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p1b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -404,12 +404,12 @@ C     i0 ( h2 p1 )_ytv + = -1/4 * Sum ( h7 h8 h6 ) * i1 ( h7 h8 h6 p1 )_yt * v (
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -428,7 +428,7 @@ C     i2 ( h2 p15 h16 p4 )_v + = 1 * v ( h2 p15 h16 p4 )_v
       INTEGER k_a_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -450,10 +450,10 @@ C     i2 ( h2 p15 h16 p4 )_v + = 1 * v ( h2 p15 h16 p4 )_v
       INTEGER k_a
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p15b = noab+1,noab+nvab
       DO h16b = 1,noab
@@ -503,14 +503,14 @@ C     i2 ( h2 p15 h16 p4 )_v + = 1 * v ( h2 p15 h16 p4 )_v
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -532,7 +532,7 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -1 * Sum ( h8 ) * t ( p15 h8 )_t * v ( h2 h8 h
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -565,10 +565,10 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -1 * Sum ( h8 ) * t ( p15 h8 )_t * v ( h2 h8 h
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p15b = noab+1,noab+nvab
       DO h16b = 1,noab
@@ -657,14 +657,14 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -1 * Sum ( h8 ) * t ( p15 h8 )_t * v ( h2 h8 h
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -686,7 +686,7 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -1 * Sum ( p7 ) * t ( p7 h16 )_t * v ( h2 p15 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -719,10 +719,10 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -1 * Sum ( p7 ) * t ( p7 h16 )_t * v ( h2 p15 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p15b = noab+1,noab+nvab
       DO h16b = 1,noab
@@ -811,14 +811,14 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -1 * Sum ( p7 ) * t ( p7 h16 )_t * v ( h2 p15 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -837,7 +837,7 @@ C     i3 ( h2 h10 p4 p8 )_v + = 1 * v ( h2 h10 p4 p8 )_v
       INTEGER k_a_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -859,10 +859,10 @@ C     i3 ( h2 h10 p4 p8 )_v + = 1 * v ( h2 h10 p4 p8 )_v
       INTEGER k_a
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO h10b = 1,noab
       DO p4b = noab+1,noab+nvab
@@ -920,14 +920,14 @@ C     i3 ( h2 h10 p4 p8 )_v + = 1 * v ( h2 h10 p4 p8 )_v
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -946,7 +946,7 @@ C     i3 ( h2 h10 p4 p8 )_v + = 1/2 * v ( h2 h10 p4 p8 )_v
       INTEGER k_a_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -968,10 +968,10 @@ C     i3 ( h2 h10 p4 p8 )_v + = 1/2 * v ( h2 h10 p4 p8 )_v
       INTEGER k_a
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO h10b = 1,noab
       DO p4b = noab+1,noab+nvab
@@ -1029,14 +1029,14 @@ C     i3 ( h2 h10 p4 p8 )_v + = 1/2 * v ( h2 h10 p4 p8 )_v
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -1058,7 +1058,7 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -2/3 * Sum ( h10 p8 ) * t ( p8 p15 h10 h16 )_t
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -1094,10 +1094,10 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -2/3 * Sum ( h10 p8 ) * t ( p8 p15 h10 h16 )_t
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p15b = noab+1,noab+nvab
       DO h16b = 1,noab
@@ -1217,14 +1217,14 @@ C     i2 ( h2 p15 h16 p4 )_vt + = -2/3 * Sum ( h10 p8 ) * t ( p8 p15 h10 h16 )_t
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -1246,7 +1246,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1 * Sum ( p4 ) * t ( p4 p13 h12 h14 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -1283,10 +1283,10 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1 * Sum ( p4 ) * t ( p4 p13 h12 h14 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p13b = noab+1,noab+nvab
       DO p15b = noab+1,noab+nvab
@@ -1437,7 +1437,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1 * Sum ( p4 ) * t ( p4 p13 h12 h14 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -1446,7 +1446,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1 * Sum ( p4 ) * t ( p4 p13 h12 h14 
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -1465,7 +1465,7 @@ C     i2 ( h2 p4 )_f + = 1 * f ( h2 p4 )_f
       INTEGER k_a_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -1483,10 +1483,10 @@ C     i2 ( h2 p4 )_f + = 1 * f ( h2 p4 )_f
       INTEGER k_a
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p4b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -1525,12 +1525,12 @@ C     i2 ( h2 p4 )_f + = 1 * f ( h2 p4 )_f
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -1552,7 +1552,7 @@ C     i2 ( h2 p4 )_vt + = 1 * Sum ( h10 p9 ) * t ( p9 h10 )_t * v ( h2 h10 p4 p9
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -1584,10 +1584,10 @@ C     i2 ( h2 p4 )_vt + = 1 * Sum ( h10 p9 ) * t ( p9 h10 )_t * v ( h2 h10 p4 p9
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p4b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -1686,12 +1686,12 @@ C     i2 ( h2 p4 )_vt + = 1 * Sum ( h10 p9 ) * t ( p9 h10 )_t * v ( h2 h10 p4 p9
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -1713,7 +1713,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_ft + = 1/6 * Sum ( p4 ) * t ( p4 p13 p15 h12
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -1750,10 +1750,10 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_ft + = 1/6 * Sum ( p4 ) * t ( p4 p13 p15 h12
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p13b = noab+1,noab+nvab
       DO p15b = p13b,noab+nvab
@@ -1867,7 +1867,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_ft + = 1/6 * Sum ( p4 ) * t ( p4 p13 p15 h12
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -1876,7 +1876,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_ft + = 1/6 * Sum ( p4 ) * t ( p4 p13 p15 h12
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -1895,7 +1895,7 @@ C     i2 ( h2 h8 h16 p5 )_v + = 1 * v ( h2 h8 h16 p5 )_v
       INTEGER k_a_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -1917,10 +1917,10 @@ C     i2 ( h2 h8 h16 p5 )_v + = 1 * v ( h2 h8 h16 p5 )_v
       INTEGER k_a
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO h8b = 1,noab
       DO h16b = 1,noab
@@ -1978,14 +1978,14 @@ C     i2 ( h2 h8 h16 p5 )_v + = 1 * v ( h2 h8 h16 p5 )_v
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -2007,7 +2007,7 @@ C     i2 ( h2 h8 h16 p5 )_vt + = -1 * Sum ( p9 ) * t ( p9 h16 )_t * v ( h2 h8 p5
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -2040,10 +2040,10 @@ C     i2 ( h2 h8 h16 p5 )_vt + = -1 * Sum ( p9 ) * t ( p9 h16 )_t * v ( h2 h8 p5
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO h8b = 1,noab
       DO h16b = 1,noab
@@ -2148,14 +2148,14 @@ C     i2 ( h2 h8 h16 p5 )_vt + = -1 * Sum ( p9 ) * t ( p9 h16 )_t * v ( h2 h8 p5
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -2177,7 +2177,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = 1/2 * Sum ( h8 p5 ) * t ( p5 p13 p15 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -2217,10 +2217,10 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = 1/2 * Sum ( h8 p5 ) * t ( p5 p13 p15 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p13b = noab+1,noab+nvab
       DO p15b = p13b,noab+nvab
@@ -2424,7 +2424,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = 1/2 * Sum ( h8 p5 ) * t ( p5 p13 p15 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -2433,7 +2433,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = 1/2 * Sum ( h8 p5 ) * t ( p5 p13 p15 
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -2455,7 +2455,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1/6 * Sum ( p4 p5 ) * t ( p4 p5 p13 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -2498,11 +2498,11 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1/6 * Sum ( p4 p5 ) * t ( p4 p5 p13 
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p13b = noab+1,noab+nvab
       DO p15b = noab+1,noab+nvab
@@ -2640,7 +2640,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1/6 * Sum ( p4 p5 ) * t ( p4 p5 p13 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -2649,7 +2649,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vt + = -1/6 * Sum ( p4 p5 ) * t ( p4 p5 p13 
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -2671,7 +2671,7 @@ C     i2 ( h2 h10 p13 h12 h14 h16 )_vt + = -1 * Sum ( p4 p5 ) * t ( p4 p5 p13 h1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -2714,11 +2714,11 @@ C     i2 ( h2 h10 p13 h12 h14 h16 )_vt + = -1 * Sum ( p4 p5 ) * t ( p4 p5 p13 h1
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p13b = noab+1,noab+nvab
       DO h10b = 1,noab
@@ -2853,7 +2853,7 @@ C     i2 ( h2 h10 p13 h12 h14 h16 )_vt + = -1 * Sum ( p4 p5 ) * t ( p4 p5 p13 h1
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -2862,7 +2862,7 @@ C     i2 ( h2 h10 p13 h12 h14 h16 )_vt + = -1 * Sum ( p4 p5 ) * t ( p4 p5 p13 h1
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -2884,7 +2884,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vtt + = -1/6 * Sum ( h10 ) * t ( p15 h10 )_t
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -2921,10 +2921,10 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vtt + = -1/6 * Sum ( h10 ) * t ( p15 h10 )_t
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p15b = noab+1,noab+nvab
       DO p13b = noab+1,noab+nvab
@@ -3026,7 +3026,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vtt + = -1/6 * Sum ( h10 ) * t ( p15 h10 )_t
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -3035,7 +3035,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vtt + = -1/6 * Sum ( h10 ) * t ( p15 h10 )_t
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -3057,7 +3057,7 @@ C     i3 ( h2 h6 h12 p8 )_vt + = 1 * Sum ( p3 ) * t ( p3 h12 )_t * v ( h2 h6 p3 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -3090,10 +3090,10 @@ C     i3 ( h2 h6 h12 p8 )_vt + = 1 * Sum ( p3 ) * t ( p3 h12 )_t * v ( h2 h6 p3 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO h6b = 1,noab
       DO h12b = 1,noab
@@ -3198,14 +3198,14 @@ C     i3 ( h2 h6 h12 p8 )_vt + = 1 * Sum ( p3 ) * t ( p3 h12 )_t * v ( h2 h6 p3 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -3227,7 +3227,7 @@ C     i2 ( h2 p13 h12 p8 )_vtt + = 1 * Sum ( h6 ) * t ( p13 h6 )_t * i3 ( h2 h6 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -3260,10 +3260,10 @@ C     i2 ( h2 p13 h12 p8 )_vtt + = 1 * Sum ( h6 ) * t ( p13 h6 )_t * i3 ( h2 h6 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p13b = noab+1,noab+nvab
       DO h12b = 1,noab
@@ -3342,14 +3342,14 @@ C     i2 ( h2 p13 h12 p8 )_vtt + = 1 * Sum ( h6 ) * t ( p13 h6 )_t * i3 ( h2 h6 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -3371,7 +3371,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vttt + = -1 * Sum ( p8 ) * t ( p8 p15 h14 h1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -3408,10 +3408,10 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vttt + = -1 * Sum ( p8 ) * t ( p8 p15 h14 h1
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p15b = noab+1,noab+nvab
       DO p13b = noab+1,noab+nvab
@@ -3563,7 +3563,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vttt + = -1 * Sum ( p8 ) * t ( p8 p15 h14 h1
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -3572,7 +3572,7 @@ C     i1 ( h2 p13 p15 h12 h14 h16 )_vttt + = -1 * Sum ( p8 ) * t ( p8 p15 h14 h1
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -3594,7 +3594,7 @@ C     i0 ( h2 p1 )_vty + = -1/2 * Sum ( p13 p15 h12 h14 h16 ) * y ( h12 h14 h16 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -3640,11 +3640,11 @@ C     i0 ( h2 p1 )_vty + = -1/2 * Sum ( p13 p15 h12 h14 h16 ) * y ( h12 h14 h16 
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p1b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -3780,12 +3780,12 @@ C     i0 ( h2 p1 )_vty + = -1/2 * Sum ( p13 p15 h12 h14 h16 ) * y ( h12 h14 h16 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -3807,7 +3807,7 @@ C     i1 ( h2 p4 p7 p8 )_yt + = 1 * Sum ( h6 h5 p3 ) * t ( p3 p4 h5 h6 )_t * y (
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -3849,11 +3849,11 @@ C     i1 ( h2 p4 p7 p8 )_yt + = 1 * Sum ( h6 h5 p3 ) * t ( p3 p4 h5 h6 )_t * y (
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p4b = noab+1,noab+nvab
       DO p7b = noab+1,noab+nvab
@@ -4026,14 +4026,14 @@ C     i1 ( h2 p4 p7 p8 )_yt + = 1 * Sum ( h6 h5 p3 ) * t ( p3 p4 h5 h6 )_t * y (
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -4055,7 +4055,7 @@ C     i0 ( h2 p1 )_ytv + = -1/4 * Sum ( p4 p7 p8 ) * i1 ( h2 p4 p7 p8 )_yt * v (
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -4093,11 +4093,11 @@ C     i0 ( h2 p1 )_ytv + = -1/4 * Sum ( p4 p7 p8 ) * i1 ( h2 p4 p7 p8 )_yt * v (
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       DO h2b = 1,noab
       DO p1b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -4195,12 +4195,12 @@ C     i0 ( h2 p1 )_ytv + = -1/4 * Sum ( p4 p7 p8 ) * i1 ( h2 p4 p7 p8 )_yt * v (
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

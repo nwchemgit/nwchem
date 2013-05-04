@@ -16,7 +16,7 @@ C     i2 ( )_yx + = 1/36 * Sum ( h8 h7 h6 p5 p4 p3 ) * x ( p3 p4 p5 h6 h7 h8 )_x
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -61,11 +61,11 @@ C     i2 ( )_yx + = 1/36 * Sum ( h8 h7 h6 p5 p4 p3 ) * x ( p3 p4 p5 h6 h7 h8 )_x
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_y,irrep_x)) THEN
       dimc = 1
@@ -175,10 +175,10 @@ C     i2 ( )_yx + = 1/36 * Sum ( h8 h7 h6 p5 p4 p3 ) * x ( p3 p4 p5 h6 h7 h8 )_x
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('eomccsdtq_density1_
      &5_6_3',11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

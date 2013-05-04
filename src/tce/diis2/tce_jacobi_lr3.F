@@ -33,8 +33,8 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical noloadbalance
       logical nodezero         ! True if node 0
       double precision omega,shift
@@ -44,7 +44,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_l3))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do h4b = 1,noab
         do h5b = h4b,noab
           do h6b = h5b,noab
@@ -117,7 +117,7 @@ c
                     endif
                     endif
                     endif
-                    next = nxtval(nprocs)
+                    next = nxtask(nprocs,1)
                   endif
                   count = count + 1
                 enddo
@@ -126,7 +126,7 @@ c
           enddo
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end

@@ -65,7 +65,7 @@ C     i0 ( )_yx + = 1 * Sum ( h2 p1 ) * x ( p1 h2 )_x * y ( h2 p1 )_y
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -93,10 +93,10 @@ C     i0 ( )_yx + = 1 * Sum ( h2 p1 ) * x ( p1 h2 )_x * y ( h2 p1 )_y
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_y,irrep_x)) THEN
       dimc = 1
@@ -157,10 +157,10 @@ C     i0 ( )_yx + = 1 * Sum ( h2 p1 ) * x ( p1 h2 )_x * y ( h2 p1 )_y
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('eomccsdtq_denominat
      &or_1',11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -182,7 +182,7 @@ C     i0 ( )_yx + = 1/4 * Sum ( h4 h3 p2 p1 ) * x ( p1 p2 h3 h4 )_x * y ( h3 h4 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -221,11 +221,11 @@ C     i0 ( )_yx + = 1/4 * Sum ( h4 h3 p2 p1 ) * x ( p1 p2 h3 h4 )_x * y ( h3 h4 
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_y,irrep_x)) THEN
       dimc = 1
@@ -313,10 +313,10 @@ C     i0 ( )_yx + = 1/4 * Sum ( h4 h3 p2 p1 ) * x ( p1 p2 h3 h4 )_x * y ( h3 h4 
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('eomccsdtq_denominat
      &or_2',11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -338,7 +338,7 @@ C     i0 ( )_yx + = 1/36 * Sum ( h6 h5 h4 p3 p2 p1 ) * x ( p1 p2 p3 h4 h5 h6 )_x
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -383,11 +383,11 @@ C     i0 ( )_yx + = 1/36 * Sum ( h6 h5 h4 p3 p2 p1 ) * x ( p1 p2 p3 h4 h5 h6 )_x
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_y,irrep_x)) THEN
       dimc = 1
@@ -497,10 +497,10 @@ C     i0 ( )_yx + = 1/36 * Sum ( h6 h5 h4 p3 p2 p1 ) * x ( p1 p2 p3 h4 h5 h6 )_x
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('eomccsdtq_denominat
      &or_3',11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -522,7 +522,7 @@ C     i0 ( )_yx + = 1/576 * Sum ( h8 h7 h6 h5 p4 p3 p2 p1 ) * x ( p1 p2 p3 p4 h5
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -573,11 +573,11 @@ C     i0 ( )_yx + = 1/576 * Sum ( h8 h7 h6 h5 p4 p3 p2 p1 ) * x ( p1 p2 p3 p4 h5
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_y,irrep_x)) THEN
       dimc = 1
@@ -709,10 +709,10 @@ C     i0 ( )_yx + = 1/576 * Sum ( h8 h7 h6 h5 p4 p3 p2 p1 ) * x ( p1 p2 p3 p4 h5
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('eomccsdtq_denominat
      &or_4',11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
