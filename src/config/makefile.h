@@ -1168,9 +1168,9 @@ endif
         FOPTIONS   = -Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
-        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
-        ifdef $GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c22)
+        ifdef GNUMAJOR
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         endif
         ifeq ($(GNU_GE_4_6),true)
@@ -1302,8 +1302,9 @@ endif
 #         FOPTIMIZE=-O1
 #         FVECTORIZE=-O1
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
-        ifdef $GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c22)
+        ifdef GNUMAJOR
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
          DEFINES  += -DGCC46
@@ -1528,8 +1529,9 @@ endif
         FDEBUG = -g -O0
         DEFINES  += -DCHKUNDFLW -DGCC4
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
-        ifdef $GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c22)
+        ifdef GNUMAJOR
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
@@ -1949,9 +1951,9 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         DEFINES  += -DCHKUNDFLW -DGCC4
-        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
-        ifdef $GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dumpversion | cut -f2 -d.)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c22)
+        ifdef GNUMAJOR
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         endif
