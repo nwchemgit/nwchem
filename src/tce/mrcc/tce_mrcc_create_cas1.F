@@ -211,7 +211,7 @@ c      if(nodezero) write(LuOut,'(A,A,I5)')
 c     +byte_mb(k_sidbocc+((iactorb+iactshift)-1)*maxorb+(1)-1),'ii ',ic
 
       write(t2,"(I3.3)")ic
-      if (.not.rtdb_cput(rtdb,t1//t2,1,s))
+      if (.not.rtdb_cput(rtdb,t1//t2,1,s(1:iactorb+iactshift)))
 c      if (.not.rtdb_cput(rtdb,t1//t2,1,byte_mb(k_sidbocc)))
      1   call errquit('tce_mrcc_cas: failed writing to rtdb',0,
      2   RTDB_ERR)
