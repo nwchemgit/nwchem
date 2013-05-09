@@ -394,21 +394,40 @@ else
     endif
 endif
 
-ifneq ($(BLAS_LIB),)
-    ifeq ($(BLAS_SIZE),4)
-        MAYBE_BLAS = --with-blas4="$(strip $(BLAS_LIB))"
+# There really is too much logic here. Overall the aim is that if
+# BLASOPT is set to something sensible, i.e. not "" or " " then
+# that value should be used, otherwise if BLAS_LIB is set to something
+# sensible that value should be used, and otherwise do without an
+# external BLAS library and build the internal source code version
+# instead. HvD.
+ifneq ($(BLASOPT),)
+    ifneq ($(BLAS_LIB),)
+        ifeq ($(BLAS_SIZE),4)
+            MAYBE_BLAS = --with-blas4="$(strip $(BLAS_LIB))"
+        else
+            MAYBE_BLAS = --with-blas8="$(strip $(BLAS_LIB))"
+        endif
     else
-        MAYBE_BLAS = --with-blas8="$(strip $(BLAS_LIB))"
+        ifeq ($(strip $(BLASOPT)),)
+            MAYBE_BLAS = --without-blas
+        else
+            ifeq ($(BLAS_SIZE),4)
+                MAYBE_BLAS = --with-blas4="$(strip $(BLASOPT))"
+            else
+                MAYBE_BLAS = --with-blas8="$(strip $(BLASOPT))"
+            endif
+        endif
     endif
 else
-    MAYBE_BLAS = --without-blas
-endif
-ifneq ($(BLASOPT),)
-     ifeq ($(BLAS_SIZE),4)
-         MAYBE_BLAS = --with-blas4="$(strip $(BLASOPT))"
-     else
-         MAYBE_BLAS = --with-blas8="$(strip $(BLASOPT))"
-     endif
+    ifneq ($(BLAS_LIB),)
+        ifeq ($(BLAS_SIZE),4)
+            MAYBE_BLAS = --with-blas4="$(strip $(BLAS_LIB))"
+        else
+            MAYBE_BLAS = --with-blas8="$(strip $(BLAS_LIB))"
+        endif
+    else
+        MAYBE_BLAS = --without-blas
+    endif
 endif
 
 ifneq ($(LAPACK_LIB),)
