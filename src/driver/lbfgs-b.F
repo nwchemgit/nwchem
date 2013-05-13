@@ -452,7 +452,7 @@ c     ************
      +                 head,col,iter,itail,iupdat,
      +                 nint,nfgv,info,ifun,
      +                 iword,nfree,nact,ileave,nenter
-      double precision theta,fold,ydot,dr,rr,tol,dpmeps,
+      double precision theta,fold,ddot,dr,rr,tol,dpmeps,
      +                 xstep,sbgnrm,ddum,dnorm,dtd,epsmch,
      +                 cpu1,cpu2,cachyt,sbtime,lnscht,time1,time2,
      +                 gd,gdold,stp,stpmx,time
@@ -593,8 +593,8 @@ c        is to resume.
          if (task(1:4) .eq. 'STOP') then
             if (task(7:9) .eq. 'CPU') then
 c                                          restore the previous iterate.
-               call ycopy(n,t,1,x,1)
-               call ycopy(n,r,1,g,1)
+               call dcopy(n,t,1,x,1)
+               call dcopy(n,r,1,g,1)
                f = fold
             endif
             goto 999
@@ -631,7 +631,7 @@ c ----------------- the beginning of the loop --------------------------
 c
       if (.not. cnstnd .and. col .gt. 0) then 
 c                                            skip the search for GCP.
-         call ycopy(n,x,1,z,1)
+         call dcopy(n,x,1,z,1)
          wrk = updatd
          nint = 0
          goto 333
@@ -762,8 +762,8 @@ c      if (info .ne. 0 .or. iback .ge. 20) then
 c      changing from a hardwired number to input parameter(MV)
       if (info .ne. 0 .or. iback .ge. nfmax) then
 c          restore the previous iterate.
-         call ycopy(n,t,1,x,1)
-         call ycopy(n,r,1,g,1)
+         call dcopy(n,t,1,x,1)
+         call dcopy(n,r,1,g,1)
          f = fold
          if (col .eq. 0) then
 c             abnormal termination.
@@ -835,13 +835,13 @@ c     Compute d=newx-oldx, r=newg-oldg, rr=y'y and dr=y's.
       do 42 i = 1, n
          r(i) = g(i) - r(i)
   42  continue
-      rr = ydot(n,r,1,r,1)
+      rr = ddot(n,r,1,r,1)
       if (stp .eq. one) then  
          dr = gd - gdold
          ddum = -gdold
       else
          dr = (gd - gdold)*stp
-         call yscal(n,stp,d,1)
+         call dscal(n,stp,d,1)
          ddum = -gdold*stp
       endif
  
@@ -1383,7 +1383,7 @@ c     ************
       integer          i,j,col2,nfree,nbreak,pointr,
      +                 ibp,nleft,ibkmin,iter
       double precision f1,f2,dt,dtm,tsum,dibp,zibp,dibp2,bkmin,
-     +                 tu,tl,wmc,wmp,wmw,ydot,tj,tj0,neggi,sbgnrm
+     +                 tu,tl,wmc,wmp,wmw,ddot,tj,tj0,neggi,sbgnrm
       double precision one,zero
       parameter        (one=1.0d0,zero=0.0d0)
  
@@ -1393,7 +1393,7 @@ c       the derivative f1 and the vector p = W'd (for theta = 1).
  
       if (sbgnrm .le. zero) then
          if (iprint .ge. 0) write (6,*) 'Subgnorm = 0.  GCP = X.'
-         call ycopy(n,x,1,xcp,1)
+         call dcopy(n,x,1,xcp,1)
          return
       endif 
       bnded = .true.
@@ -1484,12 +1484,12 @@ c       The smallest of the nbreak breakpoints is in t(ibkmin)=bkmin.
  
       if (theta .ne. one) then
 c                   complete the initialization of p for theta not= one.
-         call yscal(col,theta,p(col+1),1)
+         call dscal(col,theta,p(col+1),1)
       endif
  
 c     Initialize GCP xcp = x.
 
-      call ycopy(n,x,1,xcp,1)
+      call dcopy(n,x,1,xcp,1)
 
       if (nbreak .eq. 0 .and. nfree .eq. n + 1) then
 c                  is a zero vector, return with the initial xcp as GCP.
@@ -1509,7 +1509,7 @@ c     Initialize derivative f2.
       if (col .gt. 0) then
          call bmv(m,sy,wt,col,p,v,info)
          if (info .ne. 0) return
-         f2 = f2 - ydot(col2,v,1,p,1)
+         f2 = f2 - ddot(col2,v,1,p,1)
       endif
       dtm = -f1/f2
       tsum = zero
@@ -1607,7 +1607,7 @@ c        temporarily set f1 and f2 for col=0.
 
       if (col .gt. 0) then
 c                          update c = c + dt*p.
-         call yaxpy(col2,dt,p,1,c,1)
+         call daxpy(col2,dt,p,1,c,1)
  
 c        choose wbp,
 c        the row of W corresponding to the breakpoint encountered.
@@ -1621,12 +1621,12 @@ c        the row of W corresponding to the breakpoint encountered.
 c           compute (wbp)Mc, (wbp)Mp, and (wbp)M(wbp)'.
          call bmv(m,sy,wt,col,wbp,v,info)
          if (info .ne. 0) return
-         wmc = ydot(col2,c,1,v,1)
-         wmp = ydot(col2,p,1,v,1) 
-         wmw = ydot(col2,wbp,1,v,1)
+         wmc = ddot(col2,c,1,v,1)
+         wmp = ddot(col2,p,1,v,1) 
+         wmw = ddot(col2,wbp,1,v,1)
  
 c        update p = p - dibp*wbp. 
-         call yaxpy(col2,-dibp,wbp,1,p,1)
+         call daxpy(col2,-dibp,wbp,1,p,1)
  
 c        complete updating f1 and f2 while col > 0.
          f1 = f1 + dibp*wmc
@@ -1660,14 +1660,14 @@ c------------------- the end of the loop -------------------------------
 c     Move free variables (i.e., the ones w/o breakpoints) and 
 c       the variables whose breakpoints haven't been reached.
  
-      call yaxpy(n,tsum,d,1,xcp,1)
+      call daxpy(n,tsum,d,1,xcp,1)
  
  999  continue
  
 c     Update c = c + dtm*p = W'(x^c - x) 
 c       which will be used in computing r = Z'(B(x^c - x) + g).
  
-      if (col .gt. 0) call yaxpy(col2,dtm,p,1,c,1)
+      if (col .gt. 0) call daxpy(col2,dtm,p,1,c,1)
       if (iprint .gt. 100) write (6,1010) (xcp(i),i = 1,n)
       if (iprint .ge. 99) write (6,2010)
 
@@ -1949,7 +1949,7 @@ c     ************
 
       integer          m2,ipntr,jpntr,iy,is,jy,js,is1,js1,k1,i,k,
      +                 col2,pbegin,pend,dbegin,dend,upcl
-      double precision ydot,temp1,temp2,temp3,temp4
+      double precision ddot,temp1,temp2,temp3,temp4
       double precision one,zero
       parameter        (one=1.0d0,zero=0.0d0)
 
@@ -1964,9 +1964,9 @@ c              R_z is the upper triangular part of S'ZZ'Y.
 c                                 shift old part of WN1.
             do 10 jy = 1, m - 1
                js = m + jy
-               call ycopy(m-jy,wn1(jy+1,jy+1),1,wn1(jy,jy),1)
-               call ycopy(m-jy,wn1(js+1,js+1),1,wn1(js,js),1)
-               call ycopy(m-1,wn1(m+2,jy+1),1,wn1(m+1,jy),1)
+               call dcopy(m-jy,wn1(jy+1,jy+1),1,wn1(jy,jy),1)
+               call dcopy(m-jy,wn1(js+1,js+1),1,wn1(js,js),1)
+               call dcopy(m-1,wn1(m+2,jy+1),1,wn1(m+1,jy),1)
   10        continue
          endif
  
@@ -2121,7 +2121,7 @@ c        upper triangle of (2,2) block of wn.
 
       do 72 is = col+1, col2
          do 74 js = is, col2
-            wn(is,js) = wn(is,js) + ydot(col,wn(1,is),1,wn(1,js),1)
+            wn(is,js) = wn(is,js) + ddot(col,wn(1,is),1,wn(1,js),1)
   74        continue
   72     continue
 
@@ -2455,7 +2455,7 @@ c
 c     **********
 
       integer          i
-      double           precision ydot,a1,a2
+      double           precision ddot,a1,a2
       double precision one,zero,big
       parameter        (one=1.0d0,zero=0.0d0,big=1.0d+10)
       double precision ftol,gtol,xtol
@@ -2463,7 +2463,7 @@ c     **********
 
       if (task(1:5) .eq. 'FG_LN') goto 556
 
-      dtd = ydot(n,d,1,d,1)
+      dtd = ddot(n,d,1,d,1)
       dnorm = sqrt(dtd)
 
 c     Determine the maximum step length.
@@ -2502,14 +2502,14 @@ c     Determine the maximum step length.
          stp = one
       endif 
 
-      call ycopy(n,x,1,t,1)
-      call ycopy(n,g,1,r,1)
+      call dcopy(n,x,1,t,1)
+      call dcopy(n,g,1,r,1)
       fold = f
       ifun = 0
       iback = 0
       csave = 'START'
  556  continue
-      gd = ydot(n,g,1,d,1)
+      gd = ddot(n,g,1,d,1)
       if (ifun .eq. 0) then
          gdold=gd
          if (gd .ge. zero) then
@@ -2529,7 +2529,7 @@ c                               Line search is impossible.
          nfgv = nfgv + 1
          iback = ifun - 1 
          if (stp .eq. one) then
-            call ycopy(n,z,1,x,1)
+            call dcopy(n,z,1,x,1)
          else
             do 41 i = 1, n
                x(i) = stp*d(i) + t(i)
@@ -2577,7 +2577,7 @@ c
 c     ************
  
       integer          j,pointr
-      double precision ydot
+      double precision ddot
       double precision one
       parameter        (one=1.0d0)
 
@@ -2593,8 +2593,8 @@ c     Set pointers for matrices WS and WY.
  
 c     Update matrices WS and WY.
 
-      call ycopy(n,d,1,ws(1,itail),1)
-      call ycopy(n,r,1,wy(1,itail),1)
+      call dcopy(n,d,1,ws(1,itail),1)
+      call dcopy(n,r,1,wy(1,itail),1)
  
 c     Set theta=yy/ys.
  
@@ -2607,16 +2607,16 @@ c                                         and the lower triangle of SY:
       if (iupdat .gt. m) then
 c                              move old information
          do 50 j = 1, col - 1
-            call ycopy(j,ss(2,j+1),1,ss(1,j),1)
-            call ycopy(col-j,sy(j+1,j+1),1,sy(j,j),1)
+            call dcopy(j,ss(2,j+1),1,ss(1,j),1)
+            call dcopy(col-j,sy(j+1,j+1),1,sy(j,j),1)
   50     continue
       endif
 c        add new information: the last row of SY
 c                                             and the last column of SS:
       pointr = head
       do 51 j = 1, col - 1
-         sy(col,j) = ydot(n,d,1,wy(1,pointr),1)
-         ss(j,col) = ydot(n,ws(1,pointr),1,d,1)
+         sy(col,j) = ddot(n,d,1,wy(1,pointr),1)
+         ss(j,col) = ddot(n,ws(1,pointr),1,d,1)
          pointr = mod(pointr,m) + 1
   51  continue
       if (stp .eq. one) then
@@ -4233,7 +4233,7 @@ c     fortran sqrt
 c
 c     internal variables
 c
-      double precision ydot,t
+      double precision ddot,t
       double precision s
       integer j,jm1,k
 c     begin block with ...exits to 40
@@ -4245,7 +4245,7 @@ c
             jm1 = j - 1
             if (jm1 .lt. 1) go to 20
             do 10 k = 1, jm1
-               t = a(k,j) - ydot(k-1,a(1,k),1,a(1,j),1)
+               t = a(k,j) - ddot(k-1,a(1,k),1,a(1,j),1)
                t = t/a(k,k)
                a(k,j) = t
                s = s + t*t
@@ -4368,7 +4368,7 @@ c     fortran mod
 c
 c     internal variables
 c
-      double precision ydot,temp
+      double precision ddot,temp
       integer case,j,jj
 c
 c     begin block permitting ...exits to 150
@@ -4395,7 +4395,7 @@ c
             if (n .lt. 2) go to 40
             do 30 j = 2, n
                temp = -b(j-1)
-               call yaxpy(n-j+1,temp,t(j,j-1),1,b(j),1)
+               call daxpy(n-j+1,temp,t(j,j-1),1,b(j),1)
                b(j) = b(j)/t(j,j)
    30       continue
    40       continue
@@ -4409,7 +4409,7 @@ c
             do 60 jj = 2, n
                j = n - jj + 1
                temp = -b(j+1)
-               call yaxpy(j,temp,t(1,j+1),1,b(1),1)
+               call daxpy(j,temp,t(1,j+1),1,b(1),1)
                b(j) = b(j)/t(j,j)
    60       continue
    70       continue
@@ -4422,7 +4422,7 @@ c
             if (n .lt. 2) go to 100
             do 90 jj = 2, n
                j = n - jj + 1
-               b(j) = b(j) - ydot(jj-1,t(j+1,j),1,b(j+1),1)
+               b(j) = b(j) - ddot(jj-1,t(j+1,j),1,b(j+1),1)
                b(j) = b(j)/t(j,j)
    90       continue
   100       continue
@@ -4434,7 +4434,7 @@ c
             b(1) = b(1)/t(1,1)
             if (n .lt. 2) go to 130
             do 120 j = 2, n
-               b(j) = b(j) - ydot(j-1,t(1,j),1,b(1),1)
+               b(j) = b(j) - ddot(j-1,t(1,j),1,b(1),1)
                b(j) = b(j)/t(j,j)
   120       continue
   130       continue
