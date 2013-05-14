@@ -1,3 +1,29 @@
+C> \defgroup selci Selected Configuration Interaction
+C>
+C> \file selci.F
+C> The main driver for the selected CI module
+C>
+C> \brief The Selected Configuration Interaction Module
+C>
+C> The selected CI code dates back to Robert Harrison then based at
+C> Argonne [1]. 
+C>
+C> [1] R.J. Harrison, "Approximating full configuration interaction
+C>     with selected configuration interaction and perturbation theory",
+C>     J. Chem. Phys. <b>94</b> (1991), 5021,
+C>     <a href="http://dx.doi.org/10.1063/1.460537">
+C>     10.1063/1.460537</a>.
+
+C> \ingroup selci
+C> @{
+C>
+C> \brief The main Selected CI driver
+C>
+C> This routine drives the selected CI calculations.
+C>
+C> \return .True. if the calculation was successfull, and
+C> .False. otherwise.
+C>
       logical function selci(rtdb)
 *
 * $Id$
@@ -10,7 +36,7 @@
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "cselcifiles.fh"
-      integer rtdb              ! [input]
+      integer rtdb  !< [Input] The RTDB handle
 c
 c     Driver for the selected CI code
 c
@@ -226,3 +252,5 @@ c
       selci = .true.
 c
       end
+C>
+C> @}
