@@ -76,8 +76,8 @@ else
   set NWCHEM = $NWCHEM_PROJ_PATH/nwchem
 endif
 
-if (! -x $NWCHEM) then
-  echo failed: cannot execute $NWCHEM
+if (! -x "$NWCHEM" ) then
+  echo failed: cannot execute \"$NWCHEM\"
   exit 1
 endif
 
