@@ -452,7 +452,7 @@ c     ************
      +                 head,col,iter,itail,iupdat,
      +                 nint,nfgv,info,ifun,
      +                 iword,nfree,nact,ileave,nenter
-      double precision theta,fold,ddot,dr,rr,tol,dpmeps,
+      double precision theta,fold,ddot,dr,rr,tol,dpmeps,dlamch
      +                 xstep,sbgnrm,ddum,dnorm,dtd,epsmch,
      +                 cpu1,cpu2,cachyt,sbtime,lnscht,time1,time2,
      +                 gd,gdold,stp,stpmx,time
@@ -464,8 +464,11 @@ c     ************
          call my_timer(time1)
 
 c        Generate the current machine precision.
+c        Function dpmeps is not actually save with optimizing compilers
+c        hence switch to dlamch which seems to work better.
 
-         epsmch = dpmeps()
+c        epsmch = dpmeps()
+         epsmch = dlamch('e')
 
 c        Initialize counters and scalars when task='START'.
 
