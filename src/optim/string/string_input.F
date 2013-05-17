@@ -15,10 +15,18 @@ c
 c
 c   local variable
 c
-      character*255 field
+      character*255 field,geom_name,test2
       real*8 tol, temp, stepsize
-      integer nbeads, maxit, interpol,ind
+      integer nbeads, maxit, interpol,ind,i
       logical frze
+
+      logical  neb_setgeom_xyzfilename
+      external neb_setgeom_xyzfilename
+      integer  neb_nbeads_xyzfilename
+      external neb_nbeads_xyzfilename
+      character*7 bead_index_name
+      external    bead_index_name
+
 c
 c     ----- read values from input -----
 c
@@ -88,6 +96,16 @@ c
          if (.not. rtdb_put(rtdb,'string:freezen',mt_log,1,frze))
      $      call errquit('string_input: rtdb put failed',0, RTDB_ERR)
 
+      else if (inp_compare(.false.,'hasmiddle', field)) then
+         if (.not. inp_l(frze)) frze = .true.
+         if (.not. rtdb_put(rtdb,'string:hasmiddle',mt_log,1,frze))
+     $      call errquit('string_input: rtdb put failed',0, RTDB_ERR)
+
+      else if (inp_compare(.false.,'impose', field)) then
+         if (.not. inp_l(frze)) frze = .true.
+         if (.not. rtdb_put(rtdb,'string:impose',mt_log,1,frze))
+     $      call errquit('string_input: rtdb put failed',0, RTDB_ERR)
+
 
       else if (inp_compare(.false.,'print_shift', field)) then
          if(.not. inp_i(ind))
@@ -104,6 +122,47 @@ c
          if (.not. rtdb_put(rtdb,'string:m',mt_int,1,ind))
      >     call errquit('string_input: rtdb put failed',27,
      >     RTDB_ERR)
+
+c
+c     reset
+c     ----------------------------
+      else if (inp_compare(.false.,'reset', field)) then
+       if (.not. rtdb_put(rtdb,'bead_list:new',mt_log,1,.true.))
+     >     call errquit('string_input: rtdb put failed',28,
+     >     RTDB_ERR)
+
+
+c
+c    xyz_path
+c     ----------------------------
+      else if (inp_compare(.false.,'xyz_path', field)) then
+         if (inp_a(test2)) then
+
+            nbeads = neb_nbeads_xyzfilename(test2)
+            if (.not. rtdb_put(rtdb,'string:nbeads',mt_int,1,nbeads))
+     >        call errquit('string_input: rtdb put failed',29,
+     >        RTDB_ERR)
+
+            if (.not. rtdb_put(rtdb,'bead_list:size',mt_int,1,nbeads))
+     >        call errquit('string_input: rtdb put failed',30,
+     >        RTDB_ERR)
+
+            do i=1,nbeads
+               geom_name = 'bead'//bead_index_name(i)//':geom'
+               if (.not.neb_setgeom_xyzfilename(rtdb,test2,i,geom_name))
+     >           call errquit('string_input: rtdb put failed',31,
+     >           RTDB_ERR)
+            end do
+
+            if (.not. rtdb_put(rtdb,'neb:custom_path',mt_log,1,.true.))
+     >        call errquit('string_input: rtdb put failed',32,
+     >        RTDB_ERR)
+
+            if (.not. rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))
+     >        call errquit('string_input: rtdb put failed',33,
+     >        RTDB_ERR)
+
+         end if
 
 c
       else

@@ -49,6 +49,9 @@ C> @{
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+
 
 ! Input parameters that do not get changed
       integer rtdb   ! The runtime database
@@ -61,11 +64,13 @@ C> @{
 
 ! Local variables
       integer maxit,nbeads,natoms,middle,geom,geom2,size,i,interpol
-      real*8 tol,stepsize,t,t1,t2,t3
-      logical converged, freeze1, freezeN, newchain
+      real*8 tol,stepsize,t,t1,t2,t3,rms1,rms2
+      logical converged, freeze1, freezeN, newchain,hasmiddle,impose
+      logical oprint,value
       character*255 geom_name
       integer geom_len,nbeads_exist
       integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2,m
+      integer ks,km,ke,ifit(2),wfit(2),nfit
 
 *     **** external functions ****
       integer     inp_strlen
@@ -73,6 +78,8 @@ C> @{
       external    inp_strlen
       external    bead_index_name
 
+
+      oprint = (ga_nodeid().eq.0)
 
 ! Set convergence criteria
       if (.not. rtdb_get(rtdb,'string:tol',mt_dbl,1,tol))
@@ -144,6 +151,9 @@ C> @{
 
 !        *** Get the coordinates of last geometry ***
          size = k_coords + (nbeads-1)*3*natoms
+         ke = size
+         ks = k_coords
+         km = -1
          if (.not. geom_create(geom2, 'geom2'))
      &      call errquit('task_string: geom_create?', 921, GEOM_ERR)
          if (.not. geom_rtdb_load(rtdb, geom2, 'endgeom'))
@@ -152,17 +162,76 @@ C> @{
      $           call errquit('task_string: geom?',0, GEOM_ERR)
 
 !        *** Middle geometry -- if it exists ***
-         if (.not. geom_rtdb_load(rtdb, geom2, 'midgeom')) then
-            middle = 0
-         else
-           middle = (nbeads/2)+1
-           size = k_coords + (middle-1)*3*natoms
-           if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
-     $           call errquit('task_string: geom?',0, GEOM_ERR)
-         endif
+         if (.not.rtdb_get(rtdb,'string:hasmiddle',mt_log,1,hasmiddle))
+     >      hasmiddle = .false.
+         middle = 0
+         if (hasmiddle) then
+            if (.not. geom_rtdb_load(rtdb, geom2, 'midgeom')) then
+               middle = 0
+               hasmiddle = .false.
+            else
+              middle = (nbeads/2)+1
+              size = k_coords + (middle-1)*3*natoms
+              km = size
+              if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
+     $              call errquit('task_string: geom?',0, GEOM_ERR)
+            end if
+         end if
 
          if (.not. geom_destroy(geom2))
      &      call errquit('task_string: geom_destroy?', geom2, GEOM_ERR)
+
+c        **** impose ****
+         if (.not.rtdb_get(rtdb,'string:impose',mt_log,1,impose))
+     >      impose = .false.
+
+         if (impose) then
+            value= MA_push_get(mt_int,(2*natoms),'ifit',ifit(2),ifit(1))
+            value = value.and.
+     >               MA_push_get(mt_dbl,(natoms),'wfit',wfit(2),wfit(1))
+            if(.not.value) 
+     >        call errquit('string_initial_path failed',3,MA_ERR)
+
+            if (hasmiddle) then
+               call neb_impose(natoms,dbl_mb(ks),dbl_mb(km),
+     >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
+
+               if (oprint) then
+                  write(luout,*)
+     >            " - Imposing midgeom geometry onto",
+     >            " starting (geometry) geometry"
+                  write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
+                  write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+               end if
+
+               call neb_impose(natoms,dbl_mb(km),dbl_mb(ke),
+     >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
+               if (oprint) then
+                  write(luout,*)
+     >            " - Imposing endgeom geometry onto midgeom geometry"
+                  write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
+                  write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+               end if
+            else
+               call neb_impose(natoms,dbl_mb(ks),dbl_mb(ke),
+     >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
+               if (oprint) then
+                  write(luout,*)
+     >            " - Imposing endgeom geometry",
+     >            " onto starting (geometry) geometry"
+                  write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
+                  write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+               end if
+            end if
+
+            value =           MA_pop_stack(wfit(2))
+            value = value.and.MA_pop_stack(ifit(2))
+            if(.not.value) 
+     >         call errquit('string_initial_path failed',4,MA_ERR)
+         end if
+
+         
+
 
 *     **** restart - read in old bead list ****
       else
@@ -172,7 +241,7 @@ C> @{
      >                     mt_int,1,nbeads_exist))
      >     call errquit('getting string:nbeads_exist failed',4,RTDB_ERR)
 
-         write(*,*) "nbeads,nbeads_exist=",nbeads,nbeads_exist
+         if (oprint) write(luout,*) "nbeads,nbeads_exist=",nbeads,nbeads_exist
 
          if (.not. geom_create(geom2, 'geom2'))
      &      call errquit('task_string: geom_create?', 921, GEOM_ERR)
@@ -227,7 +296,8 @@ C> @{
                size = k_coords + (i-1)*3*natoms
                geom_name   = 'bead'//bead_index_name(i)//':geom'
                geom_len = inp_strlen(geom_name)
-               write(*,*) "loading geom2=",geom_name(1:geom_len)
+               if (oprint) 
+     >            write(luout,*) "loading geom2=",geom_name(1:geom_len)
                if (.not.geom_rtdb_load(rtdb,geom2,
      >             geom_name(1:geom_len)))
      >            call errquit('task_string: geom2?',0, GEOM_ERR)
@@ -320,6 +390,7 @@ C> @}
 #include "geom.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
 
 ! Input parameters that do not get changed
       integer maxit  ! Maximum number of iterations (200?)
@@ -414,27 +485,27 @@ C> @}
 
 ! Now we do the work
       if (ga_nodeid() .eq. 0) then
-        write(*,'(a)')'@zts'
-        write(*,'(a)')'@zts String method.'
-        write(*,'(a,f9.5)')'@zts Temperature          = ', 0.0d0
-        write(*,'(a,f9.5)')'@zts Covergence Tolerance = ', tol
-        write(*,'(a,f9.5)')'@zts Step Size            = ', stepsize
-        write(*,'(a,i9)')  '@zts Maximum Time Steps   = ', maxit
-        write(*,'(a,i9)')  '@zts Number of replicas   = ', nbeads
-        write(*,'(a,i9)')  '@zts Number of histories  = ', m
-        write(*,'(a,i9)')  '@zts String Interpolator  = ', interpol
+        write(luout,'(a)')'@zts'
+        write(luout,'(a)')'@zts String method.'
+        write(luout,'(a,f9.5)')'@zts Temperature          = ', 0.0d0
+        write(luout,'(a,f9.5)')'@zts Covergence Tolerance = ', tol
+        write(luout,'(a,f9.5)')'@zts Step Size            = ', stepsize
+        write(luout,'(a,i9)')  '@zts Maximum Time Steps   = ', maxit
+        write(luout,'(a,i9)')  '@zts Number of replicas   = ', nbeads
+        write(luout,'(a,i9)')  '@zts Number of histories  = ', m
+        write(luout,'(a,i9)')  '@zts String Interpolator  = ', interpol
         if (freeze1) then
-          write(*,'(a)')   '@zts First Replica        = frozen'
+          write(luout,'(a)')   '@zts First Replica        = frozen'
         else
-          write(*,'(a)')   '@zts First Replica        = moves'
+          write(luout,'(a)')   '@zts First Replica        = moves'
         endif
         if (freezeN) then
-          write(*,'(a)')   '@zts Last Replica         = frozen'
+          write(luout,'(a)')   '@zts Last Replica         = frozen'
         else
-          write(*,'(a)')   '@zts Last Replica         = moves'
+          write(luout,'(a)')   '@zts Last Replica         = moves'
         endif
-        write(*,'(a)')'@zts'
-        write(*,'(a)')
+        write(luout,'(a)')'@zts'
+        write(luout,'(a)')
      &    '@zts  Step     xrms     xmax        E start       '
      &     //'E middle          E end          E max      E average'
       endif
@@ -466,7 +537,7 @@ C> @}
 
       itm = 0
       do nstep = 1, maxit
-         if (oprint) write(*,*) "string: iteration #",nstep
+         if (oprint) write(luout,*) "string: iteration #",nstep
          itm = itm+1
 
          call dcopy(3*natoms*nbeads,coords,1,coords_old,1)
@@ -498,12 +569,12 @@ C> @}
           end if
           sum  = ddot(ng,dVdx,1,HdVdx,1) /dble(nbeads)
           sum2 = ddot(ng,HdVdx,1,HdVdx,1)/dble(nbeads)
-          if (oprint) write(*,*) "string: <g|s>=",sum
-          if (oprint) write(*,*) "string: <s|s>=",sum2
+          if (oprint) write(luout,*) "string: <g|s>=",sum
+          if (oprint) write(luout,*) "string: <s|s>=",sum2
           if((sum.le.0.0d0).or.(sum .gt.1.0d0).or.(sum2.gt.10.0d0)) then
              call dcopy(ng,dVdx,1,HdVdx,1)
              itm = 0
-             if (oprint) write(*,*) "string: s=g"
+             if (oprint) write(luout,*) "string: s=g"
           end if
 
           finishedstep = .false.
@@ -516,7 +587,8 @@ C> @}
              if ((sum.le.0).or.(sum0.gt.sum0_old)) then
                 call dcopy(ng,dVdx,1,HdVdx,1)
                 itm = 0
-                if (oprint) write(*,*) "string: s=g and itm reset to 0"
+                if (oprint)
+     >             write(luout,*) "string: s=g and itm reset to 0"
              end if
              call string_move(alpha,interpol,geom,natoms,nbeads,
      >                      dg,wrk,dcoords,coords_old,HdVdx,coords)
@@ -537,7 +609,7 @@ C> @}
                    if (stepsize.lt.stepsizem) stepsize = stepsizem
                    manyjj = 0
                    if (oprint) 
-     >                write(*,*) "string: reducing stepsize=",stepsize
+     >             write(luout,*) "string: reducing stepsize=",stepsize
                 end if
              end if
              if ((sum0.le.sum0_old).and.(jj.eq.1)) then
@@ -549,7 +621,7 @@ C> @}
                 end if
              end if
              if (oprint)
-     >          write(*,*) "string: sum0,sum0_old=",
+     >          write(luout,*) "string: sum0,sum0_old=",
      >                     sum0,sum0_old,jj,finishedstep,alpha,itm
 
           end do
@@ -576,7 +648,7 @@ C> @}
               e3 = e3 + energy(i)
            end do
            e3 = e3/dble(nbeads)
-           write(*,
+           write(luout,
      &     '(a5,i5,1x,f8.6,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7,
      &       1x,F14.7)'
      &            )'@zts ',nstep,xrms,xmax,energy(1),
@@ -614,11 +686,11 @@ C> @}
             write(19,*)  "# convergence tol (Xrms,Xmax)=",tol,tol
             write(19,*)
      > "#-------------------------------------------------------"
-            write(*,*) "string: Path Energy #",nstep
+            write(luout,*) "string: Path Energy #",nstep
             do i=1,nbeads
                t = (i-1)/dble(nbeads-1)
                write(19,*) t,energy(i)
-               write(*,*) "string: ",i,energy(i)
+               write(luout,*) "string: ",i,energy(i)
             end do
             close(19)
 
@@ -656,11 +728,12 @@ C> @}
  747  continue
       if (nstep .ge. maxit) then
          if (oprint) 
-     >   write(*,'(a)') '@zts The string calculation failed to converge'
+     >   write(luout,'(a)') 
+     >     '@zts The string calculation failed to converge'
          converged = .false.
       else
          if (oprint)
-     &   write(*,'(a)') '@zts The string calculation converged'
+     &   write(luout,'(a)') '@zts The string calculation converged'
          converged = .true.
       endif
 
@@ -673,9 +746,9 @@ C> @}
       if (ga_nodeid() .eq. 0) then
       open(unit=19,file=full_filename,form='formatted')
 
-       write(*,*)
+       write(luout,*)
        do i = 1, nbeads
-         write(*,'(a16,i5,a21,f20.12)') '@zts Bead number = ', i ,
+         write(luout,'(a16,i5,a21,f20.12)') '@zts Bead number = ', i ,
      &       ' Potential Energy = ', energy(i)
          if ( .not. geom_cart_coords_set( geom, coords(1,1,i) ) )
      &        call errquit('zts_meps: set geometry',i,GEOM_ERR)
