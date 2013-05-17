@@ -1797,9 +1797,7 @@ c
       t_first = t(1)
       f_first = f(1)
 
-      write(*,*) "neb: 1 neb_lineenergy,t1,deltat=",t(1),deltat
       f(2)  =  neb_line_energy(bead_list,kbeads,t(1)+deltat,0)
-      write(*,*) "neb: f1,f2=",f(1),f(2)
       
       iteration = 1
 *     **** make sure that f2 < f1 ******
@@ -1812,26 +1810,20 @@ c
       t_last = t(2)
       f_last = f(2)
 
-      write(*,*) "neb:gera t1,t2=",t(1),t(2)
-      write(*,*) "neb:geraaf1,f2=",f(1),f(2)
 
 *     **** use secant method to generate f(3) *****
       deltat = -f(1)*(t(2)-t(1))/(f(2)-f(1))
       t(3)   = t(1) + deltat
-      write(*,*) "neb:gerb t3,deltat=",t(3),deltat
       f(3)   =  neb_line_energy(bead_list,kbeads,t(3),0)
       iteration = iteration + 1
       t_last = t(3)
       f_last = f(3)
-      write(*,*) "neb:gerb t3,f3=",t(3),f(3)
 
 *     **** sort the function values ****
       call neb_Order_Values(3,f,indx)
 
       deltaf = f(indx(2)) - f(indx(1))
 
-      write(*,*) "neb:deltaf=",deltaf
-      call util_flush(6)
 
       if (stoptype.eq.1) then
         notfinished = (dabs(deltaf).gt.tolerance)
@@ -1841,10 +1833,6 @@ c
      >                .and.(iteration.le.maxiter)
       end if
 
-      write(*,*) "neb: nofinished=",notfinished,secant
-      write(*,*) "neb: fs=",f(indx(1)),f(indx(2)),f(indx(3))
-      write(*,*) "neb: ts=",t(indx(1)),t(indx(2)),t(indx(3))
-      call util_flush(6)
 
       do while (notfinished) 
       
@@ -1852,13 +1840,11 @@ c
 *       **** use secant interpolation to generate tmin ***
         if (secant) then
 
-          write(*,*) "neb: deltat in=",deltat
           call util_flush(6)
           deltat = -f(indx(1))
      >           *(t(indx(2))-t(indx(1)))
      >           /(f(indx(2))-f(indx(1)))
           tmin = t(indx(1)) + deltat
-          write(*,*) "neb: deltat,tmin=",deltat,tmin
           call util_flush(6)
           fmin  =  neb_line_energy(bead_list,kbeads,tmin,0)
           iteration = iteration + 1
@@ -1931,7 +1917,6 @@ c
       if (tmin.ne.t_last) 
      >   f_last = neb_line_energy(bead_list,kbeads,tmin,0)
 
-      write(*,*) "neb: at end",f_last,fmin
       deltaE = (fmin-f_first)
   
       neb_linesearch = fmin
@@ -2083,7 +2068,6 @@ c
       external ddot
 
        ee = 0.0d0
-       write(*,*) "neb: alpha,opt=",alpha,opt
        call util_flush(6)
        call neb_move(ng,
      >               (-alpha),
@@ -2094,26 +2078,20 @@ c
        if (opt.eq.0) then
            call neb_coords_set(bead_list,dbl_mb(c1(1)))
            call runmid_bead_list(bead_list,task_gradient)
-           write(*,*) "neb:hera"
            call neb_energies_get(bead_list,dbl_mb(e1(1)))
-           write(*,*) "neb:herb"
            call neb_gradient_get(bead_list,kbeads,
      >                          dbl_mb(c1(1)),
      >                          dbl_mb(e1(1)),
      >                          dbl_mb(t1(1)),
      >                          dbl_mb(g1(1)))
-           write(*,*) "neb:herc"
            shift = (m-1)*ng
            call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(cs(1)+shift),1)
            call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(gs(1)+shift),1)
-           write(*,*) "neb:herd"
            call neb_lmbfgs(ng,m,
      >                     dbl_mb(cs(1)),
      >                     dbl_mb(gs(1)),
      >                     dbl_mb(s(1)))
-           write(*,*) "neb:here"
            ee = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(s(1)),1)
-           write(*,*) "neb:herf=",ee
            call util_flush(6)
       end if
 
