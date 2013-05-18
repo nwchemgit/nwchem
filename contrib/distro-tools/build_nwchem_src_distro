@@ -1,5 +1,5 @@
 #!/bin/bash
-release=nwchem-6.1.1
+release=nwchem-6.3
 if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
   echo "Usage: $0 source-directory [distribution-directory]"
   echo ""
@@ -82,6 +82,7 @@ echo -n "Cleaning up any build/testing garbage... "
 svn revert ${target}/src/config/make_nwchem_config
 pushd ${target}/src
 export USE_RISKYFC=yes
+make -j 1 nwchem_config                                     2>&1 > /dev/null
 make -j 1 realclean                                         2>&1 > /dev/null
 if [ $? -ne 0 ] ; then
   echo "Make failed. Aborting..."
