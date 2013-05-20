@@ -1034,10 +1034,10 @@ c     BWCCSD
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-      else if (inp_compare(.false.,test,'mkccsd_ext')) then
+      else if (inp_compare(.false.,test,'mkccsd')) then
 c     MkCCSD
         if (module.eq.'tce') then
-        model='mkccsd_ext'
+        model='mkccsd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)

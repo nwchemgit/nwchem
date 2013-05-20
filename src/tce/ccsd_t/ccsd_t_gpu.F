@@ -77,7 +77,7 @@ ckbn      sum_d = 0.0d0
        if(cuda_device_number .eq. 30 ) call errquit("cuda",30,INPUT_ERR)
       endif
       if(nodezero) 
-     + write(*,'(A,I3,A)') "You are using ",icuda, " devices per node"
+     + write(*,'(A,I3,A)') "Using ",icuda, " device per node"
       if (nodezero) call util_flush(LuOut)
 
 ckbn In a large cluster it is better to get and broadcast

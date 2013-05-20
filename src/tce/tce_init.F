@@ -139,11 +139,24 @@ c
      1    call errquit('tce_init: failed to read nocc',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
      1    call errquit('tce_init: failed to read mult',0,RTDB_ERR)
+c *** debug-kk ***
+        if(nodezero) then
+         write(6,*)'ipol= ',ipol
+         call util_flush(6)
+        end if
+c ****************
         if (ipol.eq.1) then
           restricted = .true.
         else
           restricted = .false.
         endif
+c *** debug-kk ***
+        if(nodezero) then
+         write(6,*)'restricter= ',restricted
+         write(6,*)'ROHF= ',rohf
+         call util_flush(6)
+        end if
+c ****************
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
      1    call errquit('tce_init: failed to read nclosed',0,RTDB_ERR)
@@ -175,10 +188,10 @@ ckbn mrcc-r-1 -3
           call errquit(
      +     'tce_init: tce mrcc works only with rhf and rohf',0,CALC_ERR)
          endif
-         if(nodezero) then
-          write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Bnocc(1) ",nocc(1),
-     +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
-         endif
+c         if(nodezero) then
+c          write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Bnocc(1) ",nocc(1),
+c     +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
+c         endif
          if(nodezero) write(LuOut,"('WARNING!!!!!!!!',
      1     ' ROHF FOR MRCC CODE. OCC HAS BEEN CHANGED.')")
 c        nocc(1) = nclosed+(nopen/2)
@@ -194,14 +207,16 @@ ckbn Check whether number of electrons is even
      +    ,0,CALC_ERR)
 
          if(nodezero) then
-          write(LuOut,'(A,I10,A,I10,A,I10,A,I10)') "Anocc(1) ",nocc(1),
+          write(LuOut,'(A,A,I10,A,I10,A,I10,A,I10)') 
+     +     "Occupation",
+     +     " nocc(1) ",nocc(1),
      +     " nocc(2) ",nocc(2)," mult ",mult," nopen ",nopen
          endif
          restricted = .false.
          ipol=2
          rohf = .true.
-         if(nodezero)
-     +   write(LuOut,*)"nocc ",nocc(1),nocc(2),mult,restricted,ipol,rohf
+c        if(nodezero)
+c     +   write(LuOut,*)"nocc ",nocc(1),nocc(2),mult,restricted,ipol,rohf
          call util_flush(LuOut)
         endif
 #endif
@@ -1211,7 +1226,7 @@ ckbn mrcc-r-1 -3
       else if (model.eq.'bwccsd') then
         ctype=
      1    'State Specific Multireference Brillouin-Wigner CCSD theory'
-      else if (model.eq.'mkccsd_ext') then
+      else if (model.eq.'mkccsd') then
         ctype='State Specific Multireference Mukherjee''s CCSD theory'
 #endif
       else
