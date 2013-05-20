@@ -317,7 +317,7 @@ c               call embed_input(rtdb)
                call tce_input(rtdb)
 
 #ifdef MRCC_METHODS
-#warning "MRCC methods are currently under development"
+c#warning "MRCC methods are currently under development"
 ckbn mrcc-r-1 -3
             else if (inp_compare(.false.,test,'mrccdata')) then
                call tce_mrcc_input(rtdb)
