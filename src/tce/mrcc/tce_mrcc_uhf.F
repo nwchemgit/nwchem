@@ -40,7 +40,7 @@ c
       logical odebug
       logical cphf_uhf
       logical nodezero
-      double precision cpu,wall
+c      double precision cpu,wall
 
       nodezero = (ga_nodeid().eq.0)
 
@@ -103,24 +103,24 @@ ckbn      endif
 ckbn      cpu = - util_cpusec()
 ckbn      wall = - util_wallsec()
 c kk ---
-       if(nodezero) then
-         write(6,*)'tce_mrcc_uhf_step1'
-         call util_flush(6)
-       end if
+ckbn       if(nodezero) then
+ckbn         write(6,*)'tce_mrcc_uhf_step1'
+ckbn         call util_flush(6)
+ckbn       end if
 c ------
       call ga_copy(g_a_dens,g_a_coul)
 c kk ---
-       if(nodezero) then
-         write(6,*)'tce_mrcc_uhf_step2'
-         call util_flush(6)
-       end if
+ckbn       if(nodezero) then
+ckbn         write(6,*)'tce_mrcc_uhf_step2'
+ckbn         call util_flush(6)
+ckbn       end if
 c ------
       call ga_copy(g_b_dens,g_b_coul)
 c kk ---
-       if(nodezero) then
-         write(6,*)'tce_mrcc_uhf_step3'
-         call util_flush(6)
-       end if
+ckbn       if(nodezero) then
+ckbn         write(6,*)'tce_mrcc_uhf_step3'
+ckbn         call util_flush(6)
+ckbn       end if
 c ------
 ckbn      cpu = cpu + util_cpusec()
 ckbn      wall = wall + util_wallsec()
@@ -255,17 +255,17 @@ c     2e denotes 2-electron components only
 c
       call ga_dadd(one, g_a_coul, one, g_b_coul, g_a_coul)
 c kk ---
-       if(nodezero) then
-         write(6,*)'tce_mrcc_uhf_step4'
-         call util_flush(6)
-       end if
+ckbn       if(nodezero) then
+ckbn         write(6,*)'tce_mrcc_uhf_step4'
+ckbn         call util_flush(6)
+ckbn       end if
 c ------
       call ga_copy(g_a_coul, g_b_coul)
 c kk ---
-       if(nodezero) then
-         write(6,*)'tce_mrcc_uhf_step5'
-         call util_flush(6)
-       end if
+ckbn       if(nodezero) then
+ckbn         write(6,*)'tce_mrcc_uhf_step5'
+ckbn         call util_flush(6)
+ckbn       end if
 c ------
       call ga_dadd(one, g_a_coul, mone, g_a_exch, g_a_coul)
       call ga_dadd(one, g_b_coul, mone, g_b_exch, g_b_coul)
@@ -350,11 +350,11 @@ c     $        eone, etwo, enrep, energy
      +                       eone,etwo,enrep,energy
       endif
 c
-      cpu = cpu + util_cpusec()
-      wall = wall + util_wallsec()
-      if(nodezero) then
-        write(LuOut,'(A,2f15.5)')"tce_mrcc_uhf7", cpu, wall
-        call util_flush(LuOut)
-      endif
+ckbn      cpu = cpu + util_cpusec()
+ckbn      wall = wall + util_wallsec()
+ckbn      if(nodezero) then
+ckbn        write(LuOut,'(A,2f15.5)')"tce_mrcc_uhf7", cpu, wall
+ckbn        call util_flush(LuOut)
+ckbn      endif
 
       end

@@ -25,12 +25,13 @@ c
 
       nodezero = (ga_nodeid().eq.0)
       if (size.eq.0) then
-c        if (nodezero.and.util_print('files',print_high)) then
+        if (nodezero.and.util_print('files',print_high)) then
         if (nodezero) then
           write(LuOut,*) '*************** Warning ***************'
           write(LuOut,*) ' Create file size is zero. Calculation'
           write(LuOut,*) ' will continue by increasing the size.'
           write(LuOut,*) ' Use of a larger basis set is advised.'
+        endif
         endif
         size = 1
       endif

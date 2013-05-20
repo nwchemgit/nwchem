@@ -42,6 +42,10 @@ c        integer l_sidbocc,k_sidbocc
 
         nodezero = (ga_nodeid().eq.0)
 
+        do k=1,10240
+          s(k:k)=''
+        enddo
+
         t1 = 'bwcc:ref'
 
       if (.not.rtdb_get(rtdb,'mrcc:iactel',mt_int,1,iactel))
@@ -250,14 +254,24 @@ c     +    call errquit("tce_mrcc_energy: MA problem",615,MA_ERR)
 
         integer function mrcc_factorial(input)
          implicit none
+#include "errquit.fh"
          integer input,res
          integer i
+
+c         if(input .lt.  0) 
+c     + call errquit("mrcc_factorial: cas input",30,INPUT_ERR)
+c
+c         if(input .gt. 20) 
+c     + call errquit("mrcc_factorial: cas input",30,INPUT_ERR)
+
 
          res = 1
          do i=1,input
            res = res*i
          enddo
 
+         if(res .le. 0) 
+     + call errquit("mrcc_factorial: cas input",30,INPUT_ERR)
          mrcc_factorial = res
 
         end

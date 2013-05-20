@@ -160,6 +160,7 @@ ckbn      double precision pt3_off2m(maxref*maxref)
       double precision dresr1r2,dr1dotr1,dr2dotr2
       integer itype,idim1, idim2(4)
       integer tg_heff, ngheff, dg_heff
+      integer sub_test
 
 c      logical lusesamefock
 c (t)
@@ -555,17 +556,58 @@ c     ==============
 c        Subgroups
 c     ==============
 c
-      if (.not.rtdb_get(rtdb,'mrcc:subgroups',mt_log,1,lusesub))
+      if (.not.rtdb_get(rtdb,'mrcc:subgroupsize',mt_log,1,lusesub))
      2   lusesub = .false.
 
           if(nodezero.and.lusesub)
      1    write(LuOut,"(/,'Subgroups will be used',/,
      1                    '======================',/)")
         
+
+
+c         if(lusesub) then 
+cckbn
+cckbn          write(LuOut,*) "GA_CLUSTER_NNODES",GA_CLUSTER_NNODES()
+cckbn          call ga_sync()
+cckbn          call util_flush(LuOut)
+cckbn          write(LuOut,*) "GA_CLUSTER_NODEID",GA_CLUSTER_NODEID()
+cckbn          call ga_sync()
+cckbn          call util_flush(LuOut)
+c          sub_test = GA_CLUSTER_NODEID()
+cckbn          write(LuOut,*) "GA_CLUSTER_NPROCS",GA_CLUSTER_NPROCS(sub_test)
+cckbn          call ga_sync()
+cckbn          call util_flush(LuOut)
+c          isubsize =  GA_CLUSTER_NNODES()/nref
+c          if(nodezero) write(*,*) "isubsize ",isubsize
+c          if(isubsize .lt. 1) 
+c     +    call errquit("tce_mrcc_energy: isubsize",0,MA_ERR)
+cckbn          write(LuOut,*) "Subgroup size 1 ", isubsize
+cckbn          call ga_sync()
+cckbn          call util_flush(LuOut)
+c
+c          isubsize =  GA_CLUSTER_NPROCS(sub_test) * isubsize
+c          if(nodezero) write(LuOut,*) "Subgroup size", isubsize
+c          if(isubsize .lt. 
+c     +     ((GA_CLUSTER_NNODES()*GA_CLUSTER_NPROCS(sub_test))/nref))then
+c             write(LuOut,*) "Warning: Number of free processors",
+c     +        ((GA_CLUSTER_NNODES()*GA_CLUSTER_NPROCS(sub_test))
+c     +        - (isubsize*nref))
+c           call util_flush(LuOut)
+c          endif
+c        
+c        endif       
+c
+
+
+
+
         innodes = ga_nnodes()
-        if(nodezero)
-     1  write(LuOut,"('NNodes: ',I8)")innodes
-        call util_flush(LuOut)
+        if(lusesub) then 
+c        if(nodezero) write(LuOut,"('NNodes: ',I8)") innodes
+         if(nodezero) 
+     +    write(LuOut,"('Total Number of cores: ',I8)") innodes
+         call util_flush(LuOut)
+        endif
 
       if (.not.ma_push_get(mt_int,innodes*2,"all innodes",
      2  l_innodes,k_innodes))
@@ -603,16 +645,21 @@ c
 
         inodesperref = isubsize
         inofg = innodes/isubsize 
+c        inofg = (innodes-
+c     +        ((GA_CLUSTER_NNODES()*GA_CLUSTER_NPROCS(sub_test))
+c     +        - (isubsize*nref)))/isubsize 
         ifreenodes = innodes - (isubsize*inofg)
 
         endif
 
 
+        if(lusesub) then 
         if(nodezero) then
           write(LuOut,"(/,'Nodes per ref: ',I8)")inodesperref
           write(LuOut,"('Free nodes left: ',I8)")ifreenodes
-          write(LuOut,"('Total number of non-overlaping groups: '
+          write(LuOut,"('Total number of non-overlapping groups: '
      1 ,I8,/)")inofg
+        endif
         endif
 
       if (.not.ma_push_get(mt_int,inofg,"g offsets",
@@ -651,6 +698,7 @@ c
         enddo
         enddo
 
+        if(lusesub) then 
          if(nodezero) then
 
           write(LuOut,"(/,'Processor distribution',/,
@@ -670,10 +718,11 @@ c
           enddo
            write(LuOut,*)' '
          endif
+        endif
 
          mypgid = int_mb(k_innodes+ga_nodeid()+ga_nnodes())
-c         write(LuOut,'(A,I5,I5,I5)') "mypgid ",mypgid,ga_nodeid(),
-c     +       ga_pgroup_get_default()
+c         write(LuOut,'(A,I5,I5,I5,I5)') "mypgid2 ",mypgid,ga_nodeid(),
+c     +       ga_pgroup_get_default(),ga_nnodes()
          call util_flush(LuOut) 
 
 c -------
@@ -785,7 +834,7 @@ c       if((nodezero) .or. (ga_pgroup_nodeid(mypgid).eq.0))
           unitn=77
           call read_tensor(filename,d_v2m(iref),size_2em(iref),unitn)
 c         close(unitn)
-          if(nodezero) write(*,*) "I am here read mrvn_r"
+c          if(nodezero) write(*,*) "I am here read mrvn_r"
           if(lusesub) then
            call ga_pgroup_sync(mypgid)
           else
@@ -827,9 +876,10 @@ c        if((nodezero) .or. (ga_pgroup_nodeid(mypgid).eq.0))
 c     +   write(LuOut,*)'v2-size iref: ',size_2em(iref),iref
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
-        if((nodezero) .or. (ga_pgroup_nodeid(mypgid).eq.0)) then
-         write(LuOut,"('MO 2-e ints ',2f15.1)") cpu, wall
-         call util_flush(LuOut)
+        if(((nodezero) .or. (ga_pgroup_nodeid(mypgid).eq.0)) 
+     +   .and. mrccdebug) then
+          write(LuOut,"('MO 2-e ints ',2f15.1)") cpu, wall
+          call util_flush(LuOut)
         endif
        endif ! subgroups
       enddo ! nref
@@ -857,7 +907,7 @@ c
          needt1 = .true.
          needt2 = .true.
          needt3 = .true.
-      elseif (model.eq.'mkccsd_ext') then
+      elseif (model.eq.'mkccsd') then
          needt1 = .true.
          needt2 = .true.
       elseif (model.eq.'mkccsdt') then
@@ -873,7 +923,7 @@ c
 
 c        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
 c     1 +innodes+ga_nodeid())).or.(.not.lusesub).or.
-c     2 (model.eq.'mkccsd_ext')) then
+c     2 (model.eq.'mkccsd')) then
         if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
      1 +innodes+ga_nodeid())).or.(.not.lusesub)) then
 
@@ -908,7 +958,7 @@ c         k_active = k_active_tmpm(iref)
      +  "T2: ",iref," in bytes = ",size_t2m(iref)*8
        call util_flush(LuOut)
       endif
-        if(lusesub.and..not.(model.eq.'mkccsd_ext')) then
+        if(lusesub.and..not.(model.eq.'mkccsd')) then
         call pgcreatefile(filename,d_t2m(iref),size_t2m(iref),
      1 int_mb(k_innodes+innodes+ga_nodeid()))
         else
@@ -922,7 +972,7 @@ c         k_active = k_active_tmpm(iref)
            call read_tensor(filename,d_t2m(iref),size_t2m(iref),unitn)
 c           close(unitn)
            call reconcilefile(d_t2m(iref),size_t2m(iref))
-           if(nodezero) write(*,*) "I am here read mrt2"
+c           if(nodezero) write(*,*) "I am here read mrt2"
         endif
 
       endif
@@ -942,7 +992,7 @@ c           close(unitn)
      +  "T1: ",iref," in bytes = ",size_t1m(iref)*8
        call util_flush(LuOut)
       endif
-        if(lusesub.and..not.(model.eq.'mkccsd_ext')) then
+        if(lusesub.and..not.(model.eq.'mkccsd')) then
         call pgcreatefile(filename,d_t1m(iref),size_t1m(iref),
      1 int_mb(k_innodes+innodes+ga_nodeid()))
         else
@@ -956,7 +1006,7 @@ c           close(unitn)
            call read_tensor(filename,d_t1m(iref),size_t1m(iref),unitn)
 c           close(unitn)
            call reconcilefile(d_t1m(iref),size_t1m(iref))
-           if(nodezero) write(*,*) "I am here read mrt1"
+c           if(nodezero) write(*,*) "I am here read mrt1"
         endif
 
       endif
@@ -1142,7 +1192,7 @@ c bwccsd bwccsd bwccsd bwccsd bwccsd bwccsd bwccsd bwccsd bwccsd bwccsd begin
         itcpu2 = - util_cpusec()
         itwall2 = - util_wallsec()
 
-        if(nodezero) write(*,*) "I am here1"
+c        if(nodezero) write(*,*) "I am here1"
 
 #ifdef MRCC_LOCAL_T1
 ckbn @did : localize t1amp
@@ -1203,13 +1253,13 @@ c      endif
           mkrootold = mkroot
           endif
 
-         if(nodezero) write(*,*) "I am here2"
+c         if(nodezero) write(*,*) "I am here2"
 
 ckbn check if roots swapped
          if(iter.gt.4) then
           if(nodezero) then
-           write(LuOut,'(A,I3,A,I3)')
-     +          "mkroot",mkroot,"mkrootold",mkrootold
+c           write(LuOut,'(A,I3,A,I3)')
+c     +          "mkroot",mkroot,"mkrootold",mkrootold
            if(mkroot.ne.mkrootold) then
             write(LuOut,'(A,I5,A,I5)') 
      +      "Warning: Eigenvector swap occured from",
@@ -1221,7 +1271,7 @@ ckbn check if roots swapped
          endif
         endif !.not. lusesub
 
-        if(nodezero) write(*,*) "I am here3"
+c        if(nodezero) write(*,*) "I am here3"
 
         do iref=1,nref        
 
@@ -1412,7 +1462,7 @@ c -----------------------
 c
 c kk ---
 
-          if(nodezero) write(*,*) "I am here4"
+c          if(nodezero) write(*,*) "I am here4"
 
 c_blocked_for_now      if(lfullheff) then
 c_blocked_for_now
@@ -1511,13 +1561,13 @@ c kk ---
 c          itcpu = - util_cpusec()
 c          itwall = - util_wallsec()
 
-        if(nodezero) write(*,*) "I am here5"
+c        if(nodezero) write(*,*) "I am here5"
 
         call tce_heff(d_em,k_e_offsetm,k_r1_offsetm,
      1       k_r2_offsetm,k_r3a_offsetm,k_r4a_offsetm,d_r1m,d_r2m,
      2       d_r3am,d_r4am,.true.,.true.,lfullheff,lfullheff,rtdb)
 
-        if(nodezero) write(*,*) "I am here6"
+c        if(nodezero) write(*,*) "I am here6"
 
 
 c          itcpu = itcpu + util_cpusec()
@@ -1540,7 +1590,7 @@ c kk ---
 c          itcpu = - util_cpusec()
 c          itwall = - util_wallsec()
 
-        if(nodezero) write(*,*) "I am here7"
+c        if(nodezero) write(*,*) "I am here7"
 
 c       call ga_sync()
         call tce_diagonalize_heff(rtdb)
@@ -1567,9 +1617,9 @@ c       call util_flush(6)
 c      endif
 c kk ---
 
-        if(nodezero) write(*,*) "I am here8"
+c        if(nodezero) write(*,*) "I am here8"
 
-        if (nodezero) write(LuOut,"(/,'Iter.',I4,2f24.13,2f24.13,
+        if (nodezero) write(LuOut,"(/,'BWCC iter. #',I4,2f24.13,2f24.13,
      1     2f18.13)")iter,epsilon,enrep+epsilon,epsilon-edelta
 ckbn        dsummary(iter,1) = enrep+epsilon
 ckbn        dsummary(iter,2) = epsilon-duhfens(mkroot)
@@ -1579,8 +1629,8 @@ c             Converged
 c     ==========================
 c
 ckbn -4
-        if(nodezero) write(LuOut,"('ddot Rckbn:',3F16.12)")
-     1    dsqrt(ddotr1),dsqrt(ddotr2),(sqrt(ddotr2)+sqrt(ddotr1))
+c        if(nodezero) write(LuOut,"('ddot Rckbn:',3F16.12)")
+c     1    dsqrt(ddotr1),dsqrt(ddotr2),(sqrt(ddotr2)+sqrt(ddotr1))
 
 ckbn sub-2
 ckbn sub-2        
@@ -1658,7 +1708,7 @@ c       call dfill(maxref,0.d0,pt3_2m,1)
         endif
         endif
 
-        if(lusesub) call ga_print(g_heff)
+c        if(lusesub) call ga_print(g_heff)
 
         do irefpt=1,nref
 
@@ -1727,8 +1777,8 @@ c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
        endif
 
         if(lusesub) then
-        if( ga_pgroup_nodeid(mypgid) .eq. 0) write(LuOut,'(A,I10)') 
-     +     "I am here my pgroup_nodeid ",ga_pgroup_nodeid(mypgid)
+c        if( ga_pgroup_nodeid(mypgid) .eq. 0) write(LuOut,'(A,I10)') 
+c     +     "I am here my pgroup_nodeid ",ga_pgroup_nodeid(mypgid)
         call util_flush(LuOut)
         if( ga_pgroup_nodeid(mypgid) .eq. 0) then
          dbl_mb(k_ptheff+((irefpt-1)*nref+(irefpt-1)))=pt3_3m(irefpt)
@@ -1742,19 +1792,19 @@ c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
      &      call errquit('l_t1_localpt',2,MA_ERR)
         endif
 
-        if(lusesub) then
-        if( ga_pgroup_nodeid(mypgid).eq.0) then
-         write(LuOut,'(A,I5,F15.10)')"Correction to Heff from iref " ,
-     +     irefpt,pt3_3m(irefpt)
-        call util_flush(LuOut)
-        endif
-        else 
-        if(nodezero) then
-         write(LuOut,'(A,I5,F15.10)')"Correction to Heff from iref " ,
-     +     irefpt,pt3_3m(irefpt)
-        call util_flush(LuOut)
-        endif 
-        endif ! lusesub
+c        if(lusesub) then
+c        if( ga_pgroup_nodeid(mypgid).eq.0) then
+c         write(LuOut,'(A,I5,F15.10)')"Correction to Heff from iref " ,
+c     +     irefpt,pt3_3m(irefpt)
+c        call util_flush(LuOut)
+c        endif
+c        else 
+c        if(nodezero) then
+c         write(LuOut,'(A,I5,F15.10)')"Correction to Heff from iref " ,
+c     +     irefpt,pt3_3m(irefpt)
+c        call util_flush(LuOut)
+c        endif 
+c        endif ! lusesub
 
        endif ! .not. lusesub
        end do
@@ -1779,7 +1829,7 @@ c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
         endif
         endif
 
-        if(lusesub) call ga_print(g_heff)
+c        if(lusesub) call ga_print(g_heff)
 
        if(nodezero) then
         write(LuOut,"(/,'Final1 MR-BWCCSD energy before (T) correction:
@@ -1862,6 +1912,8 @@ ckbn          call tce_mrcc_print_summary(iter,dsummary)
      +      "BW-MRCCSD(T) without a posteriori correction ",
      +      epsilon+enrep
           endif
+          if(iter.le.6) write(LuOut,*) "Converged below 6 iterations!"//
+     +     " Please rerun with higher convergence threshold."
           write(LuOut,*)""
           write(LuOut,'(A)')
      +"=================================================="//
@@ -2102,7 +2154,7 @@ c     ===============
 c     Mk CCSD method
 c     ===============
 c
-      else if (model.eq.'mkccsd_ext') then
+      else if (model.eq.'mkccsd') then
 
        if(nodezero) write (LuOut,"('MR MkCCSD, version 1.0')")
 
@@ -2158,8 +2210,8 @@ c         endif
 ckbn check if roots swapped
          if(iter.gt.4) then
           if(nodezero) then
-           write(LuOut,'(A,I3,A,I3)')"mkroot",mkroot,
-     +      "mkrootold",mkrootold
+c           write(LuOut,'(A,I3,A,I3)')"mkroot",mkroot,
+c     +      "mkrootold",mkrootold
            call util_flush(LuOut)
            if(mkroot.ne.mkrootold) then
              write(LuOut,'(A,I5,A,I5)') 
@@ -2355,9 +2407,9 @@ c             Converged
 c     ==========================
 c
 ckbn diis ***
-         if(nodezero)write(LuOut,"('ddot Rckbn:',i5,4F16.12)")iref,
-     1 dsqrt(ddotr1),dsqrt(ddotr2),
-     1 sqrt(ddotr1),sqrt(ddotr2)
+c         if(nodezero)write(LuOut,"('ddot Rckbn:',i5,4F16.12)")iref,
+c     1 dsqrt(ddotr1),dsqrt(ddotr2),
+c     1 sqrt(ddotr1),sqrt(ddotr2)
         if(((abs(epsilon-edelta).lt.thresh).and.
      1 ((sqrt(ddotr2)+sqrt(ddotr1)).lt.thresh)).or.lconverged) then
 
@@ -2421,7 +2473,7 @@ c       call dfill(maxref,0.d0,pt3_2m,1)
          noab = noa+nob
          nvab = nva+nvb
 
-          if(nodezero) write(*,*) "Call tce_mrcc_ccsdpt"
+c          if(nodezero) write(*,*) "Call tce_mrcc_ccsdpt"
           call tce_mrcc_ccsdpt(d_t1m(irefpt),k_t1_offsetm(irefpt),
      +                           d_t2m(irefpt),k_t2_offsetm(irefpt),
      +                           d_v2m(irefpt),k_v2_offsetm(irefpt),
@@ -2429,11 +2481,11 @@ c       call dfill(maxref,0.d0,pt3_2m,1)
      +                           k_f1_offsetm(irefpt),
 c     +                           pt3_1m(irefpt),pt3_2m(irefpt),
      +                           pt3_3m(irefpt),irefpt)
-       if(nodezero) then
-ckbn       write(*,*)"E4T  ","iref",irefpt," ",pt3_1m(irefpt) 
-        write(*,'(A,I5,F15.10)')"Correction to Heff from iref " ,
-     +    irefpt,pt3_3m(irefpt)
-       endif 
+c       if(nodezero) then
+cckbn       write(*,*)"E4T  ","iref",irefpt," ",pt3_1m(irefpt) 
+c        write(*,'(A,I5,F15.10)')"Correction to Heff from iref " ,
+c     +    irefpt,pt3_3m(irefpt)
+c       endif 
 
 
         end do
@@ -2492,6 +2544,9 @@ ckbn           call tce_mrcc_print_summary(iter,dsummary)
 
            if(se4t) write(LuOut,9080)
      +     "Mk-MRCCSD(T) ",epsilon+enrep
+
+          if(iter.le.6) write(LuOut,*) "Converged below 6 iterations!"//
+     +     " Please rerun with higher convergence threshold."
 
            write(LuOut,*) ""
            write(LuOut,'(A)')
@@ -2650,11 +2705,13 @@ c             DDOT conv.
      2             dbl_mb(k_sqc+(iref-1)*nref+mkroot-1)*
      3             dbl_mb(k_sqc+(iref-1)*nref+mkroot-1)
 
-          if(nodezero) write(LuOut,"('ddot R:',i5,2F16.12)")iref,
-     1                      dsqrt(ddotr1),dsqrt(ddotr2)
+c          if(nodezero) write(LuOut,"('ddot R:',i5,2F16.12)")iref,
+c     1                      dsqrt(ddotr1),dsqrt(ddotr2)
          enddo
         endif
 
+          if(nodezero) write(LuOut,"('ddot R:',2F16.12)")
+     1                      dsqrt(ddotr1),dsqrt(ddotr2)
 
 
         call tce_mrcc_diis_new(.false.,iter,
@@ -2757,8 +2814,13 @@ c      call ga_print(d_f1m(4))
 #ifdef MRCC_LOCAL_T1
 ckbn @did : localize t1amp
        if(lusesub) then
-       if(.not.MA_POP_STACK(l_t1_local)) 
-     +  call errquit('t1_local',1,MA_ERR)
+        do iref=1,nref
+         if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
+     +      +innodes+ga_nodeid())).or.(.not.lusesub)) then
+          if(.not.MA_POP_STACK(l_t1_local)) 
+     +     call errquit('t1_local',1,MA_ERR)
+         endif
+        enddo
        endif
 #endif
 
@@ -2792,7 +2854,7 @@ c
       do iref=1,nref
         if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
      1 +innodes+ga_nodeid())).or.(.not.lusesub).or.
-     2 (model.eq.'mkccsd_ext')) then
+     2 (model.eq.'mkccsd')) then
          if(needt2) call deletefile(d_t2m(iref))
          if(needt1) call deletefile(d_t1m(iref))
          if(needt3) call deletefile(d_t3m(iref))
@@ -2827,7 +2889,7 @@ c       endif
 
         if((int_mb(k_refafi+nref-i).eq.int_mb(k_innodes
      1 +innodes+ga_nodeid())).or.(.not.lusesub).or.
-     2 (model.eq.'mkccsd_ext')) then
+     2 (model.eq.'mkccsd')) then
 
        if(lfullheff) then
          if (.not.ma_pop_stack(l_r4a_offsetm(nref-i+1)))
@@ -2889,33 +2951,38 @@ c      call ga_print(d_f1m(2))
 c      call ga_print(d_f1m(3))
 c      call ga_print(d_f1m(4))
 c PNNL
-#ifdef MRCC_LOCAL_FOCK
-      if(lusesub) then
-       do iref=1,nref
-        call deletefile(d_f1m(iref))
-       enddo
-      else
-       do iref=1,nref
-        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
-     +     +innodes+ga_nodeid())).or.(.not.lusesub)) then
-         call deletefile(d_f1m(iref))
-        endif
-       enddo
-      endif
-#else
+c#ifdef MRCC_LOCAL_FOCK
+c      if(lusesub) then
+c       do iref=1,nref
+c        call deletefile(d_f1m(iref))
+c       enddo
+c      else
+c       do iref=1,nref
+c        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
+c     +     +innodes+ga_nodeid())).or.(.not.lusesub)) then
+c         call deletefile(d_f1m(iref))
+c        endif
+c       enddo
+c      endif
+c#else
       do iref=1,nref
-        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
-     1 +innodes+ga_nodeid())).or.(.not.lusesub)) then
+c        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
+c     1 +innodes+ga_nodeid())).or.(.not.lusesub)) then
          call deletefile(d_f1m(iref))
-        endif
+c        endif
       enddo
-#endif
+c#endif
 
 #ifdef MRCC_LOCAL_FOCK
 ckbn @todo : localize fock
        if(lusesub) then
-       if(.not.MA_POP_STACK(l_f1_local)) 
-     +  call errquit('f1_local',1,MA_ERR)
+        do iref=1,nref
+         if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
+     +      +innodes+ga_nodeid())).or.(.not.lusesub)) then
+             if(.not.MA_POP_STACK(l_f1_local)) 
+     +        call errquit('f1_local',1,MA_ERR)
+         endif
+        enddo
        endif
 #endif
 

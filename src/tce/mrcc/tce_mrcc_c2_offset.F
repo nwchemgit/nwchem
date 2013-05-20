@@ -12,7 +12,7 @@
 #include "tce_mrcc.fh"
 
       integer nprocs
-      integer nodezero
+      logical nodezero
       integer isize
       integer size,sizenew
       integer iref
@@ -54,7 +54,14 @@ c      integer nref
       integer newp1,newp2,newh3,newh4
       integer iswap
       integer isw1,isw2
-
+c
+c     keeping compilers quiet
+c
+      p1off = 0
+      p2off = 0
+      h3off = 0
+      h4off = 0
+c
       if(lusesub) then
 
       call ga_pgroup_sync(mypgid)
@@ -183,10 +190,11 @@ c       write(6,"('NEW,..:',I4,I4,I4,I4)")p1new,p2new,h3new,h4new
         if(h3new.le.inoabn)hs=hs+1
         if(h4new.le.inoabn)hs=hs+1
 
+        sign = 1.0d0
+
         if(hs.ne.2)goto 111  
 
         iswap = 0
-        sign = 1.0d0
 
         if(p1new.gt.p2new) then
          t = p1new

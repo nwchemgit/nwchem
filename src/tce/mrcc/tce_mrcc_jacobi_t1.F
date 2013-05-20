@@ -149,8 +149,9 @@ c       endif
          else
                dbl_mb(k_r1+i-1)=0.01d0
          endif
-        if(nodezero) write(LuOut,*)"T1 RESIDUE HAS BEEN CUTED TO 0.01"
-        if(nodezero) call util_flush(LuOut)
+c        if(nodezero) 
+c          write(luout,*)"t1 residue has been modified to 0.01"
+c        if(nodezero) call util_flush(LuOut)
         endif
        endif
       endif
@@ -186,6 +187,7 @@ cc            next = nxtval(nprocs)
 cc      next = nxtval(-nprocs)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
+      call util_flush(LuOut)
       return
       end
 c

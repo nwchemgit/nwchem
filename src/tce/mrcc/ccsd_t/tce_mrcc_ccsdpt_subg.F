@@ -341,19 +341,19 @@ c      energy1 = energy(1)
 c      energy2 = energy(2)
       energy3 = energy(3)
 
-      if(lusesub)then
-      if(ga_pgroup_nodeid(mypgid).eq.0) then
-c      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
-c     +   " energy2 ",energy2," energy3 ",energy3
-      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy3 ",energy3
-      endif
-      else
-      if(nodezero) then
-c      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
-c     +   " energy2 ",energy2," energy3 ",energy3
-      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy3 ",energy3
-      endif
-      endif
+c      if(lusesub)then
+c      if(ga_pgroup_nodeid(mypgid).eq.0) then
+cc      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
+cc     +   " energy2 ",energy2," energy3 ",energy3
+c      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy3 ",energy3
+c      endif
+c      else
+c      if(nodezero) then
+cc      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy1 ",energy1,
+cc     +   " energy2 ",energy2," energy3 ",energy3
+c      write(*,'(A,F17.10,A,F17.10,A,F17.10)')"energy3 ",energy3
+c      endif
+c      endif
 
       return
       end

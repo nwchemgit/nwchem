@@ -131,7 +131,8 @@ c       logical limprovet
        INTEGER nprocs
        INTEGER count
 
-        nodezero = (ga_nodeid().eq.0)
+       nodezero = (ga_nodeid().eq.0)
+       isfound = .false.
 
 c       if (.not.rtdb_get(rtdb,'mrcc:usescffermiv',mt_log,1,lusescffv))
 c     1 lusescffv = .false.
@@ -315,6 +316,8 @@ c ---------------
 c    R2 active
 c ---------------
 c
+      nxt = 0
+      count = 0
       if(limprovet) then
        if(lusesub) then
          nprocs=GA_pgroup_NNODES(mypgid)
@@ -1155,7 +1158,8 @@ c         call util_flush(LuOut)
         call ga_sync()
 c       if(nodezero)write(6,*)'TEST 3'
         if(nodezero) then
-        call DGEEV('V','V',nref,heff,nref,er,ei,vl,nref,vr,
+c        call DGEEV('V','V',nref,heff,nref,er,ei,vl,nref,vr,
+        call util_dgeev('V','V',nref,heff,nref,er,ei,vl,nref,vr,
      $                  nref,work,4*nref,info)
         if(info .ne. 0) call errquit('Heff diagonalization',0,CALC_ERR)
         call amp_stabilization(vl,vr,nref)
@@ -1546,6 +1550,7 @@ c         enddo
 
 cjb new in parallel
 
+      nxt = 0
       if(limprovet) then
        if(lusesub) then
          nprocs=GA_pgroup_NNODES(mypgid)

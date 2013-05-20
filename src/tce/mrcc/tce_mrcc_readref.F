@@ -42,7 +42,7 @@ ckbn  moved from include/tce_mrcc.fh
       nodezero = (ga_nodeid().eq.0)
 
       if(nodezero)
-     1write(LuOut,"(/,'MRCC module - references analysis',/)")
+     1write(LuOut,"(/,'MRCC module - reference analysis',/)")
 
 c       if (.not.rtdb_get(rtdb,'mrcc:debug',mt_log,1,mrccdebug))
 c     1 mrccdebug = .false.

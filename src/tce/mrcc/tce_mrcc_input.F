@@ -116,8 +116,8 @@ c
      2   RTDB_ERR)
           goto 10
       endif
-      if (inp_compare(.false.,test,'subgroups')) then
-       if (.not.rtdb_put(rtdb,'mrcc:subgroups',mt_log,1,.true.))
+      if (inp_compare(.false.,test,'subgroupsize')) then
+       if (.not.rtdb_put(rtdb,'mrcc:subgroupsize',mt_log,1,.true.))
      1   call errquit('tce_mrcc_input: failed writing to rtdb',0,
      2   RTDB_ERR)
         if (inp_i(isubsize)) then
@@ -211,6 +211,9 @@ ckbn-9
 
 ckbn roottooverlap
       if (inp_compare(.false.,test,'roottooverlap')) then
+        call errquit(
+     +  'tce_mrcc_input: roottooverlap not implemented in this version',
+     +   30,INPUT_ERR)
         if (.not. inp_i(iroottooverlap))
      +    call errquit('tce_mrcc_input: failed reading value',1,
      +    RTDB_ERR)
@@ -220,7 +223,7 @@ c     +   call errquit('tce_mrcc_input: failed writing to rtdb',0,
 c     +   RTDB_ERR)
           goto 10
       endif
-      write(*,*) "roottooverlap", iroottooverlap
+c      write(*,*) "roottooverlap", iroottooverlap
 
 ckbn ignore complex root has to be used with caution 
       if (inp_compare(.false.,test,'ignorecomplex')) then

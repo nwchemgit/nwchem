@@ -135,7 +135,7 @@ c
         size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
-      else if (model.eq."mkccsd_ext") then
+      else if (model.eq."mkccsd") then
         size = dfloat(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))

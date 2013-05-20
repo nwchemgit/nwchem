@@ -177,8 +177,9 @@ c       endif
          else
                dbl_mb(k_r2+i-1)=0.01d0
          endif
-        if(nodezero) write(LuOut,*)"T2 RESIDUE HAS BEEN CUTED TO 0.01"
-        if(nodezero) call util_flush(LuOut)
+c        if(nodezero) 
+c          write(luout,*)"t2 residue has been modified to 0.01"
+c        if(nodezero) call util_flush(LuOut)
         endif
        endif
       endif
@@ -224,6 +225,7 @@ c                 endif
       enddo
       nex=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
+      call util_flush(LuOut)
       return
       end
 c

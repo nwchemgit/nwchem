@@ -347,7 +347,7 @@ c
 c     Solve AX = B
 c
         if(nodezero) then
-        write(*,*) "I am here diis1"
+c        write(*,*) "I am here diis1"
         call dgesv(diis+1,1,a,maxdiism+1,iwork,b,maxdiism+1,info)
         if (info .ne. 0)
      1    call errquit('tce_diis: LU decomposition failed',0,
