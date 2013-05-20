@@ -19,7 +19,7 @@
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 6.1.1
+#RELEASE := 6.3
 
 #
 
