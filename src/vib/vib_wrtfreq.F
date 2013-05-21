@@ -178,7 +178,11 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
        
         WRITE (6,10023) temp
         WRITE (6,10022) scalefreq
-        if (linear) write(6,10027)
+        if (linear) then
+           write(6,10027)
+           if (.not.rtdb_put(rtdb,'vib:linear',mt_log,1,.true.))
+     &        call errquit('vib: failed to set linear',555, RTDB_ERR)
+        endif
         WRITE (6,10024) ezero*AUKCAL,   ezero
         WRITE (6,10025) ethermal*AUKCAL,ethermal
         WRITE (6,10026) hthermal*AUKCAL,hthermal

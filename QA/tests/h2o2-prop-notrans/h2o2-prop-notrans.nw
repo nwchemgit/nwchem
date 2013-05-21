@@ -1,8 +1,7 @@
 echo
+
 start h2o2-prop-notrans
-
 title h2o2-prop-notrans
-
 
 geometry units angstrom nocenter
 symmetry c1
@@ -14,26 +13,12 @@ end
 
 basis
   * library 6-31G**
-# * library sto-3g
-# * library 3-21g*
 end
-
-scf
- direct
-end
-
-charge 0
 
 dft
-#grid lebedev 100 8
 direct
-grid fine
-#convergence energy 1d-9
- xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
- cam 0.33 cam_alpha 0.19 cam_beta 0.46
-#XC slater vwn_5
-# XC pbe0
-# XC hfexch
+xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+cam 0.33 cam_alpha 0.19 cam_beta 0.46
 iterations 100
 tolerances tight
 end

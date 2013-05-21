@@ -50,6 +50,10 @@ c     bq variables (MV)
       integer bq_ncent,i_cbq,i_qbq
       integer nat_slc,typeprop
       double precision elpotbq
+c
+      logical docosmo
+      integer ncosbq
+c
       integer nder,l_rhoS,k_rhoS
       integer ii,jj,count_efgtyp   
       integer g_densz4(3)               
@@ -292,13 +296,32 @@ c     -----------------------------
         i_cbq = geom_extbq_coord()
         i_qbq = geom_extbq_charge()
       end if
-
+c
+      docosmo = .false.
+      ncosbq = 0
+      if (rtdb_get(rtdb,'cosmo:nefc',mt_int,1,ncosbq).and.(ncosbq.gt.0))
+     &   docosmo = .true.
+c
 c     ----- collect and output results of all points -----
-      status = rtdb_parallel(.false.)   ! FA-04-23-10
-      if (ga_nodeid().gt.0) goto 300
-
+c
+      if (docosmo) then
+         if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
+     &         call errquit('hnd_efgmap: rtdb get failed for nefc ',911,
+     &         RTDB_ERR)
+         if (.not.ma_push_get(mt_dbl,nefc*3,'efcc',l_efcc,k_efcc))
+     &         call errquit('hnd_efgmap: malloc k_efcc fail',911,ma_err)
+         if (.not.ma_push_get(mt_dbl,nefc,'efcz',l_efcz,k_efcz))
+     &         call errquit('hnd_efgmap: malloc k_efcz fail',911,ma_err)
+         if (.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,
+     &         dbl_mb(k_efcc))) call
+     &         errquit('hnd_efgmap: rtdb get failed efcc',912,rtdb_err)
+         if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
+     &         dbl_mb(k_efcz))) call
+     &         errquit('hnd_efgmap: rtdb get failed efcz',913,rtdb_err)
+      end if ! docosmo
+c
       acc_vec=0 ! reset tvec accumulator <-- For NLMO analysis
-
+c
       do 230  iat=1,nat_slc
          iat1=int_mb(k_AtNr+iat-1)
          xp = dbl_mb(k_xyzpt  +3*(iat1-1))
@@ -331,41 +354,25 @@ c
 c     ----- form -efc- contribution -----
 c           from cosmo point charges !!!!
 
-         if (cosmo_last) then
-            if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
-     &         call errquit('hnd_efgmap: rtdb get failed for nefc ',911,
-     &         RTDB_ERR)
-            if (.not.ma_push_get(mt_dbl,nefc*3,'efcc',l_efcc,k_efcc))
-     &         call errquit('hnd_efgmap: malloc k_efcc fail',911,ma_err)
-            if (.not.ma_push_get(mt_dbl,nefc,'efcz',l_efcz,k_efcz))
-     &         call errquit('hnd_efgmap: malloc k_efcz fail',911,ma_err)
-            if (.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,
-     &         dbl_mb(k_efcc))) call 
-     &         errquit('hnd_efgmap: rtdb get failed efcc',912,rtdb_err)
-            if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
-     &         dbl_mb(k_efcz))) call 
-     &         errquit('hnd_efgmap: rtdb get failed efcz',913,rtdb_err)
+         if (docosmo) then
             do i = 1,nefc
                xn = dbl_mb(k_efcc+3*(i-1)  ) - xp
                yn = dbl_mb(k_efcc+3*(i-1)+1) - yp
                zn = dbl_mb(k_efcc+3*(i-1)+2) - zp
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
                if (rr.lt.1.0d-3) then
-                  write(luout,9993) xp,yp,zp,i
+                  if (ga_nodeid().eq.0) write(luout,9993) xp,yp,zp,i
                else
-               rr5=rr*rr*rr*rr*rr
-               efgxx = efgxx - dbl_mb(k_efcz+i-1)*xn*xn/rr5
-               efgyy = efgyy - dbl_mb(k_efcz+i-1)*yn*yn/rr5
-               efgzz = efgzz - dbl_mb(k_efcz+i-1)*zn*zn/rr5
-               efgxy = efgxy - dbl_mb(k_efcz+i-1)*xn*yn/rr5
-               efgxz = efgxz - dbl_mb(k_efcz+i-1)*xn*zn/rr5
-               efgyz = efgyz - dbl_mb(k_efcz+i-1)*yn*zn/rr5
-            endif
+                rr5=rr*rr*rr*rr*rr
+                efgxx = efgxx - dbl_mb(k_efcz+i-1)*xn*xn/rr5
+                efgyy = efgyy - dbl_mb(k_efcz+i-1)*yn*yn/rr5
+                efgzz = efgzz - dbl_mb(k_efcz+i-1)*zn*zn/rr5
+                efgxy = efgxy - dbl_mb(k_efcz+i-1)*xn*yn/rr5
+                efgxz = efgxz - dbl_mb(k_efcz+i-1)*xn*zn/rr5
+                efgyz = efgyz - dbl_mb(k_efcz+i-1)*yn*zn/rr5
+               endif
             enddo
- 220        continue
-            if (.not.ma_chop_stack(l_efcc)) call 
-     &         errquit('hnd_efgmap: chop stack l_efcc',913,ma_err)
-         endif
+         end if ! docosmo
 c
 c        adding external bq contributions(MV)
 c        ----------------------------------
@@ -376,7 +383,7 @@ c        ----------------------------------
                zn = dbl_mb(i_cbq+3*(i-1)+2) - zp
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
                if (rr.lt.1.0d-3) then
-                  write(luout,9993) xp,yp,zp,i
+                  if (ga_nodeid().eq.0) write(luout,9993) xp,yp,zp,i
                else
                rr5=rr*rr*rr*rr*rr
                efgxx = efgxx - dbl_mb(i_qbq+i-1)*xn*xn/rr5
@@ -446,9 +453,11 @@ c     &      errquit('hnd_efgmap: geom_tag_to_element failed',0,GEOM_ERR)
          call ecce_print2('EFG tensor',MT_DBL,vec,3,3,3)
 c
 c        ----- print tensor components -----
-         write(luout,9998) iat1,symbol,xp,yp,zp
-         write(luout,9997) 
-         write(luout,9995) (dbl_mb(k_efgs+6*(iat-1)+i),i=0,5)
+         if (ga_nodeid().eq.0) then
+           write(luout,9998) iat1,symbol,xp,yp,zp
+           write(luout,9997) 
+           write(luout,9995) (dbl_mb(k_efgs+6*(iat-1)+i),i=0,5)
+         end if 
 c
 c        ----- diagonalize to get principal components and vectors -----
 
@@ -467,13 +476,20 @@ c ------- copy eigenvectors, vec for NLMO analysis----- END
          call ecce_print1('EFG eigenvalues',MT_DBL,eig,3)
          call ecce_print2('EFG eigenvectors',MT_DBL,vec,3,3,3)
          call ecce_print1('EFG asymmetry',MT_DBL,eta,1)
-         write(luout,9992)
-         write(luout,9991) eig(1),eig(2),eig(3),eta
-         write(luout,9988) ((vec(i,j),j=1,3),i=1,3)
-         write(luout,*) ' '
-
+         if (ga_nodeid().eq.0) then
+           write(luout,9992)
+           write(luout,9991) eig(1),eig(2),eig(3),eta
+           write(luout,9988) ((vec(i,j),j=1,3),i=1,3)
+           write(luout,*) ' '
+         end if
+c
   230 continue ! Assembling and printing next atom
-
+c
+      if (docosmo) then
+        if (.not.ma_chop_stack(l_efcc)) call 
+     &         errquit('hnd_efgmap: chop stack l_efcc',913,ma_err)
+      endif
+c
       call ecce_print_module_exit('EFG','ok')
       call util_flush(luout)
 c
@@ -546,8 +562,8 @@ c     Terminate integrals
       call schwarz_tidy()
       call int_terminate()
       return
- 9999 format(/,10x,23(1h-),/,10x,'Electric field gradient',
-     1       /,10x,23(1h-),/)
+ 9999 format(/,10x,26(1h-),/,10x,'Z4-Electric field gradient',
+     1       /,10x,26(1h-),/)
  9998 format(/,1x,60(1h-),/,3x,'Atom',6x,'X',9x,'Y',9x,'Z',/,1x,60(1h-),
      1       /,i5,1x,a2,3f10.5,/,1x,60(1h-),/)
  9997 format(1x,'Electric field gradient in molecular frame (a.u.)',/,

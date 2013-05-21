@@ -28,20 +28,42 @@ testlist=`$path/get_tests.bash $1`
 for tcase in $testlist; do
    if [ -f testoutputs/${tcase}.out.nwparse ] ; then
       # This is a regular test case that completed.
+      echo -n "Test:" ${tcase}
       diff testoutputs/${tcase}.ok.out.nwparse testoutputs/${tcase}.out.nwparse > /dev/null
       stat=$?
       if [ ${stat} -ne 0 ] ; then
+         echo " ... failed ... diffing ..."
          tkdiff testoutputs/${tcase}.ok.out.nwparse testoutputs/${tcase}.out.nwparse
+      else
+         echo " ... OK"
       fi
    elif [ -f testoutputs/${tcase}.ok.tst ] ; then
       # This is a molecular dynamics simulation.
-      diff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top > /dev/null
-      stat=$?
-      if [ ${stat} -ne 0 ] ; then
-         tkdiff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top
+      if [ -f testoutputs/${tcase}.top ] ; then
+         echo -n "Test:" ${tcase}
+         diff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top > /dev/null
+         stat=$?
+         if [ ${stat} -ne 0 ] ; then
+            echo " ... failed ... diffing ..."
+            tkdiff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top
+         else
+            echo " ... OK"
+         fi
+      else
+         echo -n "Test:" ${tcase}
+         diff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.tst > /dev/null
+         stat=$?
+         if [ ${stat} -ne 0 ] ; then
+            echo " ... failed ... diffing ..."
+            tkdiff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.tst
+         else
+            echo " ... OK"
+         fi
       fi
    else
       # This is a regular test case that crashed.
+      echo "Test:" ${tcase} " ... failed ... diffing ..."
       tkdiff testoutputs/${tcase}.ok.out testoutputs/${tcase}.out
    fi
 done
+echo "... All Done ..."

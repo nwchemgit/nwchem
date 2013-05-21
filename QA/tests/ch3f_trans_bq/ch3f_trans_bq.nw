@@ -1,0 +1,38 @@
+echo
+
+start ch3f_trans_bq
+title ch3f_trans_bq
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c +1.00000000  +3.00000000  +5.00000000
+f +1.00000000  +3.00000000  +6.38300000
+h +2.02800000  +3.00000000  +4.65000000
+h +0.48600000  +3.89000000  +4.65000000
+h +0.48600000  +2.11000000  +4.65000000
+end
+
+BASIS "ao basis" PRINT
+* library 6-311G
+END
+
+charge 0
+
+dft
+  direct
+  xc b3lyp
+end
+
+bq
+ load bq_charges
+end
+
+relativistic
+  zora on
+end
+
+property
+  efieldgradz4
+end
+
+task dft property

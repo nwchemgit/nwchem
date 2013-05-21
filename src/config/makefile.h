@@ -1864,14 +1864,14 @@ endif
         FDEBUG= -O2 -g
         FOPTIMIZE = -O3 -prefetch  -unroll 
         FOPTIMIZE +=  -tpp7 -ip 
-         ifeq ($(_IFCV11),Y) 
-         FOPTIMIZE += -xHost -no-prec-div
-        else
          ifeq ($(_GOTSSE3),Y) 
           FOPTIMIZE += -xP -no-prec-div
          else
           FOPTIMIZE += -xW
          endif
+         ifeq ($(_IFCV11),Y) 
+         FOPTIMIZE += -xHost -no-prec-div
+        else
         endif
       endif	
 #      

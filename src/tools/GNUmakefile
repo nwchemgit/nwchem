@@ -500,7 +500,6 @@ else
     ifdef EXP_GA
         GA_DIR = ga-exp1
     else
-#        GA_DIR = ga-5-1-1
         GA_DIR = ga-5-2
     endif
 endif

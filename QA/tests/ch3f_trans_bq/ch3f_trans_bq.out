@@ -1,0 +1,1179 @@
+ argument  1 = ch3f_trans_bq.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+
+start ch3f_trans_bq
+title ch3f_trans_bq
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c +1.00000000  +3.00000000  +5.00000000
+f +1.00000000  +3.00000000  +6.38300000
+h +2.02800000  +3.00000000  +4.65000000
+h +0.48600000  +3.89000000  +4.65000000
+h +0.48600000  +2.11000000  +4.65000000
+end
+
+BASIS "ao basis" PRINT
+* library 6-311G
+END
+
+charge 0
+
+dft
+  direct
+  xc b3lyp
+end
+
+bq
+ load bq_charges
+end
+
+relativistic
+  zora on
+end
+
+property
+  efieldgradz4
+end
+
+task dft property
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.3
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2012
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = orion
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Sat May  4 12:55:36 2013
+
+    compiled        = Sat_May_04_12:13:36_2013
+    source          = /home/niri/nwchem/nwchem-6.3
+    nwchem branch   = 6.3
+    nwchem revision = 23861
+    ga revision     = 10285
+    input           = ch3f_trans_bq.nw
+    prefix          = ch3f_trans_bq.
+    data base       = ./ch3f_trans_bq.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                   ch3f_trans_bq
+                                   -------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 c                    6.0000     1.00000000     3.00000000     5.00000000
+    2 f                    9.0000     1.00000000     3.00000000     6.38300000
+    3 h                    1.0000     2.02800000     3.00000000     4.65000000
+    4 h                    1.0000     0.48600000     3.89000000     4.65000000
+    5 h                    1.0000     0.48600000     2.11000000     4.65000000
+
+      Atomic Mass 
+      ----------- 
+
+      c                 12.000000
+      f                 18.998400
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)      37.4174025949
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+    34.0150677944   102.0452033833   191.6125460640
+
+
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ c                     1.00000000     3.00000000     5.00000000
+ f                     1.00000000     3.00000000     6.38300000
+ h                     2.02800000     3.00000000     4.65000000
+ h                     0.48600000     3.89000000     4.65000000
+ h                     0.48600000     2.11000000     4.65000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 f                |   1 c                |     2.61349  |     1.38300
+    3 h                |   1 c                |     2.05214  |     1.08595
+    4 h                |   1 c                |     2.05172  |     1.08572
+    5 h                |   1 c                |     2.05172  |     1.08572
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 f                |   1 c                |   3 h                |   108.80
+    2 f                |   1 c                |   4 h                |   108.81
+    2 f                |   1 c                |   5 h                |   108.81
+    3 h                |   1 c                |   4 h                |   110.14
+    3 h                |   1 c                |   5 h                |   110.14
+    4 h                |   1 c                |   5 h                |   110.12
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          6
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-6.3/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-311G                   on all atoms 
+
+
+ Successfully loaded bq information from bq_charges
+
+                   Bq Structure Information (Angstroms)
+                   ------------------------------------
+ Name: default                                                                 
+ Number of centers:                    68
+    1  Bq         2.84775906     3.54119610     5.54119610   charge        0.00240954
+    2  Bq         1.54119610     4.84775906     5.54119610   charge        0.00235794
+    3  Bq         2.15470054     4.15470054     6.15470054   charge       -0.00222268
+    4  Bq        -0.84775906     3.54119610     5.54119610   charge        0.00126416
+    5  Bq        -0.84775906     2.45880390     5.54119610   charge        0.00126416
+    6  Bq         1.54119610     1.15224093     5.54119610   charge        0.00235794
+    7  Bq         2.84775906     2.45880390     5.54119610   charge        0.00240954
+    8  Bq         2.15470054     1.84529946     6.15470054   charge       -0.00222268
+    9  Bq         1.54119610     3.54119610     3.15224093   charge        0.00569616
+   10  Bq         1.54119610     4.84775906     4.45880390   charge        0.00241402
+   11  Bq         2.15470054     4.15470054     3.84529946   charge        0.00410469
+   12  Bq         0.45880390     3.54119610     3.15224093   charge        0.00687795
+   13  Bq        -0.84775906     3.54119610     4.45880390   charge        0.00435080
+   14  Bq         0.45880390     2.45880390     3.15224093   charge        0.00687795
+   15  Bq        -0.84775906     2.45880390     4.45880390   charge        0.00435080
+   16  Bq         1.54119610     2.45880390     3.15224093   charge        0.00569616
+   17  Bq         1.54119610     1.15224093     4.45880390   charge        0.00241402
+   18  Bq         2.15470054     1.84529946     3.84529946   charge        0.00410468
+   19  Bq         1.46542865     3.46542865     7.97207282   charge       -0.00958095
+   20  Bq         2.58907282     3.46542865     6.84842865   charge       -0.01043214
+   21  Bq         1.46542865     4.58907282     6.84842865   charge       -0.01067009
+   22  Bq         1.99304248     3.99304248     7.37604248   charge       -0.01155880
+   23  Bq         0.53457135     3.46542865     7.97207282   charge       -0.00959302
+   24  Bq         0.53457135     4.58907282     6.84842865   charge       -0.01058743
+   25  Bq        -0.58907282     3.46542865     6.84842865   charge       -0.01096495
+   26  Bq         0.00695752     3.99304248     7.37604248   charge       -0.01163942
+   27  Bq         0.53457135     2.53457135     7.97207282   charge       -0.00959302
+   28  Bq        -0.58907282     2.53457135     6.84842865   charge       -0.01096495
+   29  Bq         0.53457135     1.41092718     6.84842865   charge       -0.01058743
+   30  Bq         0.00695752     2.00695752     7.37604248   charge       -0.01163942
+   31  Bq         1.46542865     2.53457135     7.97207282   charge       -0.00958095
+   32  Bq         1.46542865     1.41092718     6.84842865   charge       -0.01067008
+   33  Bq         2.58907282     2.53457135     6.84842865   charge       -0.01043214
+   34  Bq         1.99304248     2.00695752     7.37604248   charge       -0.01155880
+   35  Bq         3.22904335     3.35177745     5.00177745   charge        0.00429098
+   36  Bq         2.77855532     3.75055532     5.40055532   charge        0.00149490
+   37  Bq         3.22904335     2.64822255     5.00177745   charge        0.00429098
+   38  Bq         2.77855532     2.24944468     5.40055532   charge        0.00149490
+   39  Bq         2.37977745     3.35177745     3.44895665   charge        0.00321165
+   40  Bq         3.22904335     3.35177745     4.29822255   charge        0.00468472
+   41  Bq         2.37977745     4.20104335     4.29822255   charge        0.00162481
+   42  Bq         2.77855532     3.75055532     3.89944468   charge        0.00458907
+   43  Bq         2.37977745     2.64822255     3.44895665   charge        0.00321165
+   44  Bq         2.37977745     1.79895665     4.29822255   charge        0.00162479
+   45  Bq         3.22904335     2.64822255     4.29822255   charge        0.00468472
+   46  Bq         2.77855532     2.24944468     3.89944468   charge        0.00458906
+   47  Bq         0.83777745     5.09104335     5.00177745   charge        0.00261903
+   48  Bq         0.13422255     5.09104335     5.00177745   charge        0.00450014
+   49  Bq        -0.71504335     4.24177745     5.00177745   charge        0.00341130
+   50  Bq        -0.26455532     4.64055532     5.40055532   charge        0.00380823
+   51  Bq         0.83777745     4.24177745     3.44895665   charge        0.00228057
+   52  Bq         0.83777745     5.09104335     4.29822255   charge        0.00430974
+   53  Bq         1.23655532     4.64055532     3.89944468   charge        0.00195861
+   54  Bq         0.13422255     4.24177745     3.44895665   charge        0.00527841
+   55  Bq         0.13422255     5.09104335     4.29822255   charge        0.00467539
+   56  Bq        -0.71504335     4.24177745     4.29822255   charge        0.00437599
+   57  Bq        -0.26455532     4.64055532     3.89944468   charge        0.00494712
+   58  Bq        -0.71504335     1.75822255     5.00177745   charge        0.00341130
+   59  Bq         0.13422255     0.90895665     5.00177745   charge        0.00450014
+   60  Bq        -0.26455532     1.35944468     5.40055532   charge        0.00380823
+   61  Bq         0.83777745     0.90895665     5.00177745   charge        0.00261903
+   62  Bq         0.13422255     1.75822255     3.44895665   charge        0.00527841
+   63  Bq        -0.71504335     1.75822255     4.29822255   charge        0.00437599
+   64  Bq         0.13422255     0.90895665     4.29822255   charge        0.00467539
+   65  Bq        -0.26455532     1.35944468     3.89944468   charge        0.00494712
+   66  Bq         0.83777745     1.75822255     3.44895665   charge        0.00228057
+   67  Bq         0.83777745     0.90895665     4.29822255   charge        0.00430974
+   68  Bq         1.23655532     1.35944468     3.89944468   charge        0.00195861
+ Total Bq charge:   8.572871975419083E-003
+
+
+                              NWChem Property Module
+                              ----------------------
+
+
+                                   ch3f_trans_bq
+
+  itol2e modified to match energy
+  convergence criterion.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                                   ch3f_trans_bq
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  c (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  4.56324000E+03  0.001967
+  1 S  6.82024000E+02  0.015231
+  1 S  1.54973000E+02  0.076127
+  1 S  4.44553000E+01  0.260801
+  1 S  1.30290000E+01  0.616462
+  1 S  1.82773000E+00  0.221006
+
+  2 S  2.09642000E+01  0.114660
+  2 S  4.80331000E+00  0.919999
+  2 S  1.45933000E+00 -0.003031
+
+  3 P  2.09642000E+01  0.040249
+  3 P  4.80331000E+00  0.237594
+  3 P  1.45933000E+00  0.815854
+
+  4 S  4.83456000E-01  1.000000
+
+  5 P  4.83456000E-01  1.000000
+
+  6 S  1.45585000E-01  1.000000
+
+  7 P  1.45585000E-01  1.000000
+
+  f (Fluorine)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.14271000E+04  0.001801
+  1 S  1.72235000E+03  0.013742
+  1 S  3.95746000E+02  0.068133
+  1 S  1.15139000E+02  0.233325
+  1 S  3.36026000E+01  0.589086
+  1 S  4.91901000E+00  0.299505
+
+  2 S  5.54441000E+01  0.114536
+  2 S  1.26323000E+01  0.920512
+  2 S  3.71756000E+00 -0.003378
+
+  3 P  5.54441000E+01  0.035461
+  3 P  1.26323000E+01  0.237451
+  3 P  3.71756000E+00  0.820458
+
+  4 S  1.16545000E+00  1.000000
+
+  5 P  1.16545000E+00  1.000000
+
+  6 S  3.21892000E-01  1.000000
+
+  7 P  3.21892000E-01  1.000000
+
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.38650000E+01  0.025494
+  1 S  5.09479000E+00  0.190373
+  1 S  1.15879000E+00  0.852161
+
+  2 S  3.25840000E-01  1.000000
+
+  3 S  1.02741000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ c                           6-311G                  7       13   4s3p
+ f                           6-311G                  7       13   4s3p
+ h                           6-311G                  3        3   3s
+
+
+  Caching 1-el integrals 
+  itol2e modified to match energy
+  convergence criterion.
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     5
+          No. of electrons :    18
+           Alpha electrons :     9
+            Beta electrons :     9
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    35
+                     number of shells:    23
+          Convergence on energy requested: 1.00D-07
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  fine      
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          c                   0.70       70           7.0       590
+          f                   0.50       70           7.0       590
+          h                   0.35       60           8.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   320
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  16
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+          Performing ZORA calculations
+          ----------------------------
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -138.57325452
+
+ Read atomic ZORA corrections from ./ch3f_trans_bq.zora_sf
+
+ dft_zora_read: failed to open./ch3f_trans_bq.zora_sf
+       Generating atomic ZORA corrections
+       ----------------------------------
+
+ In dft_scf:: zora:Knucl= F
+ dft_scf: ofinite= F
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+
+ Grid_pts file          = ./ch3f_trans_bq.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     18        Max. recs in file   =     19900
+
+
+ Wrote atomic ZORA corrections to ./ch3f_trans_bq.zora_sf
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -138.57325452
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -139.227995
+ 1-e energy   =    -264.892786
+ 2-e energy   =      88.305556
+ HOMO         =      -0.447942
+ LUMO         =       0.094839
+
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+   Time after variat. SCF:      1.9
+   Time prior to 1st pass:      1.9
+ Grid integrated density:      17.999997644787
+ Requested integration accuracy:   0.10E-06
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.88            12883771
+          Stack Space remaining (MW):       13.10            13104387
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -139.8487895794 -1.77D+02  1.83D-02  7.93D-01     2.2
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+ Grid integrated density:      17.999997702529
+ Requested integration accuracy:   0.10E-06
+ d= 0,ls=0.0,diis     2   -139.8383696990  1.04D-02  1.22D-02  6.50D-01     2.6
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+ d= 0,ls=0.0,diis     3   -139.8877937864 -4.94D-02  3.08D-03  1.25D-01     2.9
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+ d= 0,ls=0.0,diis     4   -139.8963660622 -8.57D-03  7.11D-04  2.01D-03     3.3
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+ d= 0,ls=0.0,diis     5   -139.8965748963 -2.09D-04  1.67D-04  1.15D-04     3.7
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+  Resetting Diis
+ d= 0,ls=0.0,diis     6   -139.8965866539 -1.18D-05  8.95D-06  2.69D-07     4.0
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+ d= 0,ls=0.0,diis     7   -139.8965866809 -2.70D-08  6.67D-07  5.21D-10     4.4
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+
+      Commencing ZORA Property Calculations
+      -------------------------------------
+
+(nogshift,skip_gshiftAOev,done_Fji)=( 1,F,F)
+ ==> nlist=                    5
+xyz_EFG( 1)=(     1.88972599,     5.66917797,     9.44862994)
+zora-efg(  4,  1,  1,  1,  1)=(    -0.12898444,    -0.12898444)
+zora-efg(  4,  1,  2,  1,  2)=(    -0.12888781,    -0.12888781)
+zora-efg(  4,  1,  3,  1,  3)=(     0.25787225,     0.25787225)
+zora-efg(  4,  1,  4,  1,  4)=(     0.00000000,     0.00000000)
+zora-efg(  4,  1,  5,  1,  5)=(     0.00000242,     0.00000242)
+zora-efg(  4,  1,  6,  1,  6)=(     0.00000000,     0.00000000)
+xyz_EFG( 2)=(     1.88972599,     5.66917797,    12.06212099)
+zora-efg(  4,  2,  1,  1,  7)=(     1.44524473,     1.44524473)
+zora-efg(  4,  2,  2,  1,  8)=(     1.44607478,     1.44607478)
+zora-efg(  4,  2,  3,  1,  9)=(    -2.89131951,    -2.89131951)
+zora-efg(  4,  2,  4,  1, 10)=(     0.00000000,     0.00000000)
+zora-efg(  4,  2,  5,  1, 11)=(     0.00013240,     0.00013240)
+zora-efg(  4,  2,  6,  1, 12)=(    -0.00000001,    -0.00000001)
+xyz_EFG( 3)=(     3.83236430,     5.66917797,     8.78722585)
+zora-efg(  4,  3,  1,  1, 13)=(     0.93491283,     0.93491283)
+zora-efg(  4,  3,  2,  1, 14)=(    -0.70082282,    -0.70082282)
+zora-efg(  4,  3,  3,  1, 15)=(    -0.23409001,    -0.23409001)
+zora-efg(  4,  3,  4,  1, 16)=(     0.00000000,     0.00000000)
+zora-efg(  4,  3,  5,  1, 17)=(    -0.70296510,    -0.70296510)
+zora-efg(  4,  3,  6,  1, 18)=(     0.00000000,     0.00000000)
+xyz_EFG( 4)=(     0.91840683,     7.35103410,     8.78722585)
+zora-efg(  4,  4,  1,  1, 19)=(    -0.29183810,    -0.29183810)
+zora-efg(  4,  4,  2,  1, 20)=(     0.52592479,     0.52592479)
+zora-efg(  4,  4,  3,  1, 21)=(    -0.23408668,    -0.23408668)
+zora-efg(  4,  4,  4,  1, 22)=(    -0.70857978,    -0.70857978)
+zora-efg(  4,  4,  5,  1, 23)=(     0.35172086,     0.35172086)
+zora-efg(  4,  4,  6,  1, 24)=(    -0.60906571,    -0.60906571)
+xyz_EFG( 5)=(     0.91840683,     3.98732184,     8.78722585)
+zora-efg(  4,  5,  1,  1, 25)=(    -0.29183810,    -0.29183810)
+zora-efg(  4,  5,  2,  1, 26)=(     0.52592479,     0.52592479)
+zora-efg(  4,  5,  3,  1, 27)=(    -0.23408668,    -0.23408668)
+zora-efg(  4,  5,  4,  1, 28)=(     0.70857978,     0.70857978)
+zora-efg(  4,  5,  5,  1, 29)=(     0.35172086,     0.35172086)
+zora-efg(  4,  5,  6,  1, 30)=(     0.60906571,     0.60906571)
+xyz_EFG( 1)=(     1.88972599,     5.66917797,     9.44862994)
+zora-efg(  3,  1,  1,  1, 31)=(    -0.00017707,    -0.00017707)
+zora-efg(  3,  1,  2,  1, 32)=(    -0.00017708,    -0.00017708)
+zora-efg(  3,  1,  3,  1, 33)=(     0.00035415,     0.00035415)
+zora-efg(  3,  1,  4,  1, 34)=(     0.00000000,     0.00000000)
+zora-efg(  3,  1,  5,  1, 35)=(     0.00000001,     0.00000001)
+zora-efg(  3,  1,  6,  1, 36)=(     0.00000000,     0.00000000)
+xyz_EFG( 2)=(     1.88972599,     5.66917797,    12.06212099)
+zora-efg(  3,  2,  1,  1, 37)=(    -0.00067239,    -0.00067239)
+zora-efg(  3,  2,  2,  1, 38)=(    -0.00067269,    -0.00067269)
+zora-efg(  3,  2,  3,  1, 39)=(     0.00134507,     0.00134507)
+zora-efg(  3,  2,  4,  1, 40)=(     0.00000000,     0.00000000)
+zora-efg(  3,  2,  5,  1, 41)=(    -0.00000004,    -0.00000004)
+zora-efg(  3,  2,  6,  1, 42)=(     0.00000000,     0.00000000)
+xyz_EFG( 3)=(     3.83236430,     5.66917797,     8.78722585)
+zora-efg(  3,  3,  1,  1, 43)=(     0.00017410,     0.00017410)
+zora-efg(  3,  3,  2,  1, 44)=(    -0.00015702,    -0.00015702)
+zora-efg(  3,  3,  3,  1, 45)=(    -0.00001708,    -0.00001708)
+zora-efg(  3,  3,  4,  1, 46)=(     0.00000000,     0.00000000)
+zora-efg(  3,  3,  5,  1, 47)=(    -0.00016247,    -0.00016247)
+zora-efg(  3,  3,  6,  1, 48)=(     0.00000000,     0.00000000)
+xyz_EFG( 4)=(     0.91840683,     7.35103410,     8.78722585)
+zora-efg(  3,  4,  1,  1, 49)=(    -0.00007424,    -0.00007424)
+zora-efg(  3,  4,  2,  1, 50)=(     0.00009133,     0.00009133)
+zora-efg(  3,  4,  3,  1, 51)=(    -0.00001709,    -0.00001709)
+zora-efg(  3,  4,  4,  1, 52)=(    -0.00014347,    -0.00014347)
+zora-efg(  3,  4,  5,  1, 53)=(     0.00008130,     0.00008130)
+zora-efg(  3,  4,  6,  1, 54)=(    -0.00014077,    -0.00014077)
+xyz_EFG( 5)=(     0.91840683,     3.98732184,     8.78722585)
+zora-efg(  3,  5,  1,  1, 55)=(    -0.00007424,    -0.00007424)
+zora-efg(  3,  5,  2,  1, 56)=(     0.00009133,     0.00009133)
+zora-efg(  3,  5,  3,  1, 57)=(    -0.00001709,    -0.00001709)
+zora-efg(  3,  5,  4,  1, 58)=(     0.00014347,     0.00014347)
+zora-efg(  3,  5,  5,  1, 59)=(     0.00008130,     0.00008130)
+zora-efg(  3,  5,  6,  1, 60)=(     0.00014077,     0.00014077)
+
+ Wrote ZORA EFGZ4 data to ./ch3f_trans_bq.zora_efgz4
+
+
+
+         Total DFT energy =     -139.896586680935
+      One electron energy =     -266.608530012130
+           Coulomb energy =      106.399854957764
+    Exchange-Corr. energy =      -17.047145743785
+ Nuclear repulsion energy =       37.359234117216
+
+       Scaling correction =        0.058188194549
+
+ Numeric. integr. density =       18.000000080696
+
+     Total iterative time =     54.0s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-2.465910D+01
+              MO Center=  1.0D+00,  3.0D+00,  6.4D+00, r^2= 1.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.551586  2 F  s                 15      0.468397  2 F  s          
+
+ Vector    2  Occ=2.000000D+00  E=-1.025830D+01
+              MO Center=  1.0D+00,  3.0D+00,  5.0D+00, r^2= 2.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.564345  1 C  s                  2      0.462593  1 C  s          
+
+ Vector    3  Occ=2.000000D+00  E=-1.188177D+00
+              MO Center=  1.0D+00,  3.0D+00,  6.2D+00, r^2= 4.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      0.575477  2 F  s                 23      0.451152  2 F  s          
+    15     -0.192245  2 F  s          
+
+ Vector    4  Occ=2.000000D+00  E=-7.188490D-01
+              MO Center=  1.0D+00,  3.0D+00,  5.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.465546  1 C  s                 10      0.313973  1 C  s          
+    23     -0.211453  2 F  s                 19     -0.194273  2 F  s          
+     2     -0.165984  1 C  s          
+
+ Vector    5  Occ=2.000000D+00  E=-4.938238D-01
+              MO Center=  1.1D+00,  3.0D+00,  5.3D+00, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.290492  1 C  px                20      0.223334  2 F  px         
+     3      0.185207  1 C  px                24      0.184193  2 F  px         
+    11      0.178144  1 C  px                28      0.164461  3 H  s          
+    16      0.155326  2 F  px         
+
+ Vector    6  Occ=2.000000D+00  E=-4.938119D-01
+              MO Center=  8.6D-01,  3.0D+00,  5.3D+00, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.290512  1 C  py                21      0.223306  2 F  py         
+     4      0.185223  1 C  py                25      0.184184  2 F  py         
+    12      0.177878  1 C  py                17      0.155307  2 F  py         
+
+ Vector    7  Occ=2.000000D+00  E=-4.785321D-01
+              MO Center=  1.0D+00,  3.0D+00,  6.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.358860  2 F  pz                26      0.306830  2 F  pz         
+     9     -0.258782  1 C  pz                18      0.250416  2 F  pz         
+    23      0.163688  2 F  s                  5     -0.159198  1 C  pz         
+
+ Vector    8  Occ=2.000000D+00  E=-3.419023D-01
+              MO Center=  1.1D+00,  3.0D+00,  5.9D+00, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.402666  2 F  px                20      0.392468  2 F  px         
+    16      0.282594  2 F  px                28     -0.218741  3 H  s          
+     7     -0.154562  1 C  px         
+
+ Vector    9  Occ=2.000000D+00  E=-3.418946D-01
+              MO Center=  8.9D-01,  3.0D+00,  5.9D+00, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      0.402689  2 F  py                21      0.392497  2 F  py         
+    17      0.282614  2 F  py                31     -0.189439  4 H  s          
+    34      0.189433  5 H  s                  8     -0.154509  1 C  py         
+
+ Vector   10  Occ=0.000000D+00  E= 3.162901D-02
+              MO Center=  1.0D+00,  3.0D+00,  4.5D+00, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      1.968374  1 C  s                 29     -0.925007  3 H  s          
+    32     -0.925610  4 H  s                 35     -0.925610  5 H  s          
+    13     -0.292093  1 C  pz                 6      0.195331  1 C  s          
+
+ Vector   11  Occ=0.000000D+00  E= 8.675735D-02
+              MO Center=  1.0D+00,  3.0D+00,  5.1D+00, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.164545  1 C  pz                23     -0.831074  2 F  s          
+    26      0.469681  2 F  pz                10      0.381057  1 C  s          
+     9      0.262232  1 C  pz                22      0.222226  2 F  pz         
+     5      0.166740  1 C  pz                 6      0.167215  1 C  s          
+    18      0.162748  2 F  pz                28      0.158562  3 H  s          
+
+ Vector   12  Occ=0.000000D+00  E= 8.925949D-02
+              MO Center=  2.7D-01,  3.0D+00,  4.5D+00, r^2= 4.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      1.720736  4 H  s                 35     -1.720782  5 H  s          
+    12     -1.087245  1 C  py                 8     -0.254815  1 C  py         
+     4     -0.178077  1 C  py         
+
+ Vector   13  Occ=0.000000D+00  E= 8.931110D-02
+              MO Center=  1.7D+00,  3.0D+00,  4.5D+00, r^2= 4.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.985975  3 H  s                 11     -1.088330  1 C  px         
+    32     -0.993318  4 H  s                 35     -0.993239  5 H  s          
+     7     -0.254783  1 C  px                 3     -0.178068  1 C  px         
+
+ Vector   14  Occ=0.000000D+00  E= 2.932973D-01
+              MO Center=  7.8D-01,  3.0D+00,  5.0D+00, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.565199  1 C  px                28     -1.318185  3 H  s          
+    31      0.659719  4 H  s                 34      0.659726  5 H  s          
+    24     -0.285567  2 F  px                29      0.237000  3 H  s          
+
+ Vector   15  Occ=0.000000D+00  E= 2.934593D-01
+              MO Center=  1.2D+00,  3.0D+00,  5.0D+00, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.564461  1 C  py                31     -1.142046  4 H  s          
+    34      1.142042  5 H  s                 25     -0.285454  2 F  py         
+    32      0.204578  4 H  s                 35     -0.204578  5 H  s          
+
+ Vector   16  Occ=0.000000D+00  E= 4.125331D-01
+              MO Center=  1.0D+00,  3.0D+00,  4.9D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.146245  1 C  pz                10     -0.885149  1 C  s          
+     9     -0.703437  1 C  pz                28      0.622298  3 H  s          
+    31      0.625055  4 H  s                 34      0.625055  5 H  s          
+     6     -0.500648  1 C  s                  5     -0.249014  1 C  pz         
+    26     -0.246853  2 F  pz                22     -0.232796  2 F  pz         
+
+ Vector   17  Occ=0.000000D+00  E= 4.632206D-01
+              MO Center=  1.0D+00,  3.0D+00,  5.0D+00, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      1.576392  1 C  s                 28     -1.062365  3 H  s          
+    31     -1.060374  4 H  s                 34     -1.060374  5 H  s          
+     9     -0.604557  1 C  pz                23     -0.514410  2 F  s          
+    13      0.471578  1 C  pz                29      0.294074  3 H  s          
+    32      0.288431  4 H  s                 35      0.288431  5 H  s          
+
+ Vector   18  Occ=0.000000D+00  E= 5.415799D-01
+              MO Center=  1.2D+00,  3.0D+00,  4.8D+00, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.943068  1 C  px                29     -1.926509  3 H  s          
+     7     -1.046396  1 C  px                32      0.964456  4 H  s          
+    35      0.964474  5 H  s                 28      0.507874  3 H  s          
+     3     -0.274108  1 C  px                31     -0.255958  4 H  s          
+    34     -0.255963  5 H  s          
+
+ Vector   19  Occ=0.000000D+00  E= 5.417041D-01
+              MO Center=  7.5D-01,  3.0D+00,  4.8D+00, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.943809  1 C  py                32     -1.669355  4 H  s          
+    35      1.669345  5 H  s                  8     -1.046373  1 C  py         
+    31      0.440615  4 H  s                 34     -0.440612  5 H  s          
+     4     -0.274104  1 C  py         
+
+ Nuclear repulsion energy =   37.4174025949061     
+ Bq nuclear interaction energy = -5.816847768990707E-002
+
+ center of mass
+ --------------
+ x =   1.88972599 y =   5.66917797 z =  10.84927025
+
+ moments of inertia (a.u.)
+ ------------------
+          70.045742832072           0.000000000000           0.000000000000
+           0.000000000000          70.049255463773           0.000000000000
+           0.000000000000           0.000000000000          11.406609230869
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -9.000000     -9.000000     18.000000
+
+     1   1 0 0      0.000720    -17.007174    -17.007174     34.015068
+     1   0 1 0      0.000000    -51.022602    -51.022602    102.045203
+     1   0 0 1     -0.712864    -96.162705    -96.162705    191.612546
+
+     2   2 0 0     -8.870649    -39.405286    -39.405286     69.939923
+     2   1 1 0      0.004083    -96.416695    -96.416695    192.837473
+     2   1 0 1     -1.339265   -181.717236   -181.717236    362.095208
+     2   0 2 0     -8.874352   -296.522025   -296.522025    584.169699
+     2   0 1 1     -4.041356   -545.163490   -545.163490   1086.285624
+     2   0 0 2    -24.629910  -1050.694218  -1050.694218   2076.758525
+
+
+                   ZORA EFG-Z4
+                   -----------
+
+
+          -----------------------
+          Electric field gradient
+          -----------------------
+
+ 1 a.u. = 0.324123 10**(16) esu/cm**3  ( or statvolts/cm**2 ) = 0.97174 10**(22) v/m**2 
+
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    1 C    1.88973   5.66918   9.44863
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        0.254794       0.254893      -0.509687       0.000000       0.000022       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.509687       0.254893       0.254794                       0.000193
+
+       -0.000028      -0.000051       1.000000
+        0.000000       1.000000       0.000051
+        1.000000       0.000000       0.000028
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    2 F    1.88973   5.66918  12.06212
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        1.814834       1.815733      -3.630566       0.000000       0.000065       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -3.630566       1.815733       1.814834                       0.000248
+
+       -0.000012      -0.000001       1.000000
+        0.000000       1.000000       0.000001
+        1.000000       0.000000       0.000012
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    3 H    3.83236   5.66918   8.78723
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -0.268866       0.169616       0.099250       0.000000       0.146544       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.320079       0.169616       0.150463                       0.059838
+
+        0.944013       0.000000       0.329907
+        0.000000       1.000000       0.000000
+       -0.329907       0.000000       0.944013
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    4 H    0.91841   7.35103   8.78723
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        0.059764      -0.159417       0.099652       0.190036      -0.073211       0.127223
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.320480       0.169548       0.150932                       0.058087
+
+       -0.472082       0.863850      -0.175788
+        0.817529       0.503610       0.279327
+       -0.329825       0.011847       0.943968
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    5 H    0.91841   3.98732   8.78723
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        0.059764      -0.159417       0.099652      -0.190036      -0.073211      -0.127223
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.320480       0.169548       0.150932                       0.058087
+
+        0.472082       0.863850      -0.175788
+        0.817529      -0.503610      -0.279327
+        0.329825       0.011847       0.943968
+  
+
+          -----------------------
+          Z4-Electric field gradient
+          -----------------------
+
+ 1 a.u. = 0.324123 10**(16) esu/cm**3  ( or statvolts/cm**2 ) = 0.97174 10**(22) v/m**2 
+
+ nat_slc=                    5
+In hnd_efgmap_z4:: atomnr(  1)=    1
+In hnd_efgmap_z4:: atomnr(  2)=    2
+In hnd_efgmap_z4:: atomnr(  3)=    3
+In hnd_efgmap_z4:: atomnr(  4)=    4
+In hnd_efgmap_z4:: atomnr(  5)=    5
+
+ Read ZORA EFGZ4 data from ./ch3f_trans_bq.zora_efgz4
+
+Atom(  1,  1)=(     1.88972599,     5.66917797,     9.44862994)
+Atom(  2,  2)=(     1.88972599,     5.66917797,    12.06212099)
+Atom(  3,  3)=(     3.83236430,     5.66917797,     8.78722585)
+Atom(  4,  4)=(     0.91840683,     7.35103410,     8.78722585)
+Atom(  5,  5)=(     0.91840683,     3.98732184,     8.78722585)
+====> Electronic contribution to EFG in molecular frame (a.u.)
+                     XX            YY            ZZ            XY            XZ            YZ
+                ----------------------------------------------------------------------------------
+  ANALYT(C )=(  -0.12898446,  -0.12888789,   0.25787236,   0.00000000,   0.00000244,   0.00000000)
+  NUMERI(C )=(  -0.12898444,  -0.12888781,   0.25787225,   0.00000000,   0.00000242,   0.00000000)
+  ANALYT(F )=(   1.44524501,   1.44607392,  -2.89131893,   0.00000000,   0.00013240,  -0.00000001)
+  NUMERI(F )=(   1.44524473,   1.44607478,  -2.89131951,   0.00000000,   0.00013240,  -0.00000001)
+  ANALYT(H )=(   0.93491277,  -0.70082278,  -0.23408999,   0.00000000,  -0.70296508,   0.00000000)
+  NUMERI(H )=(   0.93491283,  -0.70082282,  -0.23409001,   0.00000000,  -0.70296510,   0.00000000)
+  ANALYT(H )=(  -0.29183809,   0.52592475,  -0.23408666,  -0.70857974,   0.35172085,  -0.60906569)
+  NUMERI(H )=(  -0.29183810,   0.52592479,  -0.23408668,  -0.70857978,   0.35172086,  -0.60906571)
+  ANALYT(H )=(  -0.29183809,   0.52592475,  -0.23408666,   0.70857974,   0.35172085,   0.60906569)
+  NUMERI(H )=(  -0.29183810,   0.52592479,  -0.23408668,   0.70857978,   0.35172086,   0.60906571)
+Atom(  1,  1)=(     1.88972599,     5.66917797,     9.44862994)
+Atom(  2,  2)=(     1.88972599,     5.66917797,    12.06212099)
+Atom(  3,  3)=(     3.83236430,     5.66917797,     8.78722585)
+Atom(  4,  4)=(     0.91840683,     7.35103410,     8.78722585)
+Atom(  5,  5)=(     0.91840683,     3.98732184,     8.78722585)
+====> Electronic contribution to EFG in molecular frame (a.u.)
+                     XX            YY            ZZ            XY            XZ            YZ
+                ----------------------------------------------------------------------------------
+EFG-elec(C )=(  -0.12885017,  -0.12875360,   0.25760377,   0.00000000,   0.00000245,   0.00000000)
+EFG-rhoS(C )=(  -0.00017707,  -0.00017708,   0.00035415,   0.00000000,   0.00000001,   0.00000000)
+EFG-tot (C )=(  -0.12902724,  -0.12893068,   0.25795792,   0.00000000,   0.00000246,   0.00000000)
+EFG-elec(F )=(   1.44520329,   1.44603201,  -2.89123529,   0.00000000,   0.00013233,  -0.00000001)
+EFG-rhoS(F )=(  -0.00067239,  -0.00067269,   0.00134507,   0.00000000,  -0.00000004,   0.00000000)
+EFG-tot (F )=(   1.44453090,   1.44535932,  -2.88989022,   0.00000000,   0.00013228,  -0.00000001)
+EFG-elec(H )=(   0.93472634,  -0.70066305,  -0.23406329,   0.00000000,  -0.70280168,   0.00000000)
+EFG-rhoS(H )=(   0.00017410,  -0.00015702,  -0.00001708,   0.00000000,  -0.00016247,   0.00000000)
+EFG-tot (H )=(   0.93490043,  -0.70082006,  -0.23408037,   0.00000000,  -0.70296415,   0.00000000)
+EFG-elec(H )=(  -0.29176490,   0.52582485,  -0.23405995,  -0.70842976,   0.35163909,  -0.60892412)
+EFG-rhoS(H )=(  -0.00007424,   0.00009133,  -0.00001709,  -0.00014347,   0.00008130,  -0.00014077)
+EFG-tot (H )=(  -0.29183914,   0.52591618,  -0.23407704,  -0.70857322,   0.35172039,  -0.60906489)
+EFG-elec(H )=(  -0.29176490,   0.52582485,  -0.23405995,   0.70842976,   0.35163909,   0.60892412)
+EFG-rhoS(H )=(  -0.00007424,   0.00009133,  -0.00001709,   0.00014347,   0.00008130,   0.00014077)
+EFG-tot (H )=(  -0.29183914,   0.52591618,  -0.23407704,   0.70857322,   0.35172039,   0.60906489)
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    1 C    1.88973   5.66918   9.44863
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        0.254752       0.254850      -0.509601       0.000000       0.000022       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.509601       0.254850       0.254752                       0.000193
+
+       -0.000028      -0.000051       1.000000
+        0.000000       1.000000       0.000051
+        1.000000       0.000000       0.000028
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    2 F    1.88973   5.66918  12.06212
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        1.814119       1.815018      -3.629138       0.000000       0.000064       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -3.629138       1.815018       1.814119                       0.000248
+
+       -0.000012      -0.000001       1.000000
+        0.000000       1.000000       0.000001
+        1.000000       0.000000       0.000012
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    3 H    3.83236   5.66918   8.78723
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -0.268878       0.169619       0.099259       0.000000       0.146545       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.320090       0.169619       0.150471                       0.059820
+
+        0.944018       0.000000       0.329895
+        0.000000       1.000000       0.000000
+       -0.329895       0.000000       0.944018
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    4 H    0.91841   7.35103   8.78723
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        0.059763      -0.159425       0.099662       0.190042      -0.073211       0.127224
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.320491       0.169551       0.150940                       0.058069
+
+       -0.472084       0.863850      -0.175785
+        0.817533       0.503610       0.279315
+       -0.329813       0.011850       0.943972
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    5 H    0.91841   3.98732   8.78723
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+        0.059763      -0.159425       0.099662      -0.190042      -0.073211      -0.127224
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.320491       0.169551       0.150940                       0.058069
+
+        0.472084       0.863850      -0.175785
+        0.817533      -0.503610      -0.279315
+        0.329813       0.011850       0.943972
+  
+
+ Task  times  cpu:       55.9s     wall:       64.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  421      421     7.00e+05 2363     4.13e+04    0        0      690     
+number of processes/call 1.00e+00 1.27e+00 1.01e+00 0.00e+00 0.00e+00
+bytes total:             2.70e+07 1.94e+06 1.70e+07 0.00e+00 0.00e+00 5.52e+03
+bytes remote:            6.46e+06 6.34e+05 6.69e+05 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 249768 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        29	       105
+	current total bytes		         0	         0
+	maximum total bytes		   1788512	  22531168
+	maximum total K-bytes		      1789	     22532
+	maximum total M-bytes		         2	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+     F. Aquino, S. Hirata, M. T. Hackler, J. Mullin, P. Nichols, R. Peverati,
+    J. Pittner, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. Silverstein,
+    D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+     H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman,
+      K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+      H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+      A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                                A. Wong, Z. Zhang.
+
+ Total times  cpu:       55.9s     wall:       64.3s

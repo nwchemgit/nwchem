@@ -2664,10 +2664,14 @@ c     start interation loop
 c     ---------------------
 c  
 c 000000000000000 getting cphf filename to store 00000000 START
-      if (.not. rtdb_get(rtdb,'cphf3-aores:guess1', 
-     &          mt_int, 1,index4cphf)) call
-     $     errquit('ga_lkain_2cpl3_redmem: failed to read index4cphf ', 
-     &             0, RTDB_ERR)
+c      if (.not. rtdb_get(rtdb,'cphf3-aores:guess1', 
+c     &          mt_int, 1,index4cphf)) call
+c     $     errquit('ga_lkain_2cpl3_redmem: failed to read index4cphf ', 
+c     &             0, RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb,'cphf3-aores:guess1',
+     & mt_int,1,index4cphf))  index4cphf = 0
+
       ramanspc=.false.
       status=rtdb_get(rtdb,'raman:aores0',mt_log,1,ramanspc)
       if (ramanspc) then
@@ -3427,10 +3431,14 @@ c     start interation loop
 c     ---------------------
 c  
 c 000000000000000 getting cphf filename to store 00000000 START
-      if (.not. rtdb_get(rtdb,'cphf3-aores:guess1', 
-     &          mt_int, 1,index4cphf)) call
-     $     errquit('ga_lkain_2cpl3_redmem: failed to read index4cphf ', 
-     &             0, RTDB_ERR)
+c      if (.not. rtdb_get(rtdb,'cphf3-aores:guess1',
+c     &          mt_int, 1,index4cphf)) call
+c     $     errquit('ga_lkain_2cpl3_redmem: failed to read index4cphf ',
+c     &             0, RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb,'cphf3-aores:guess1',
+     & mt_int,1,index4cphf))  index4cphf = 0
+c
       ramanspc=.false.
       status=rtdb_get(rtdb,'raman:aores0',mt_log,1,ramanspc)
       if (ramanspc) then

@@ -1508,6 +1508,38 @@ if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
   export SCALAPACK_SIZE
 fi
 #
+# Check whether this machine supports GPUs
+#
+if [ ${#TCE_CUDA} -ne 0 ] ; then
+  if [ ${#CUDA} -eq 0 ] ; then
+     CUDA=`which nvcc`
+     if [ ${#CUDA} -ne 0 ] ; then
+       export CUDA
+     else
+       unset CUDA
+     fi
+  fi
+  if [ ${#CUDA} -ne 0 ] ; then
+     CUDA_PATH="`dirname ${CUDA}`"
+     CUDA_PATH="`dirname ${CUDA_PATH}`"
+     if [ ${#CUDA_INCLUDE} -eq 0 ] ; then
+       export CUDA_INCLUDE="-I${CUDA_PATH}/include"
+     fi
+     if [ ${#CUDA_LIBS} -eq 0 ] ; then
+       if [ ${NWCHEM_PTR_SIZE} -eq 4 ] ; then
+         export CUDA_LIBS="-L${CUDA_PATH}/lib -lcudart"
+       elif [ ${NWCHEM_PTR_SIZE} -eq 8 ] ; then
+         export CUDA_LIBS="-L${CUDA_PATH}/lib64 -lcudart"
+       else
+         echo "NWCHEM_PTR_SIZE unknown; cannot set CUDA_LIBS; aborting..."
+         exit 100
+       fi
+     fi
+     unset CUDA_PATH
+  fi
+  # There is also a variable CUDA_FLAGS but I have no idea what that should be.
+fi
+#
 # Work out whether BLAS, LAPACK and SCALAPACK are compatible and based on that
 # what we are actually going to use.
 #
@@ -1637,6 +1669,18 @@ fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   echo "SCALAPACK_LIB  =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
 fi
+if [ ${#CUDA} -ne 0 ] ; then
+  echo "CUDA           =" ${CUDA}
+fi
+if [ ${#CUDA_INCLUDE} -ne 0 ] ; then
+  echo "CUDA_INCLUDE   =" ${CUDA_INCLUDE}
+fi
+if [ ${#CUDA_LIBS} -ne 0 ] ; then
+  echo "CUDA_LIBS      =" ${CUDA_LIBS}
+fi
+if [ ${#MRCC_METHODS} -ne 0 ] ; then
+  echo "MRCC_METHODS   =" ${MRCC_METHODS}
+fi
 #
 # Stop if we find essential information missing.
 # I.e. no Fortran, C, or C++ compilers or settings to use obsolete versions
@@ -1668,6 +1712,16 @@ if [ "`basename ${MPI_CXX}`" != "${MPI_CXX}" ] ; then
   echo "ERROR: C++ compiler has to be the basename: ${MPI_CXX}" > /dev/stderr
   echo "ERROR: Invalid C++ compiler: aborting..." > /dev/stderr
   exit 1
+fi
+if [ ${#MRCC_METHODS} -ne 0 ] ; then
+  if [[ ( ${NWCHEM_MODULES} != "all" ) &&
+        ( ${NWCHEM_MODULES} != "pnnl" ) &&
+        ( ${NWCHEM_MODULES} != "alldev" ) &&
+        ( ${NWCHEM_MODULES} != "pnnldev" ) ]] ; then
+    echo "ERROR: The MRCC methods cannot be used with the NWCHEM_MODULES selection: ${NWCHEM_MODULES}" > /dev/stderr
+    echo "ERROR: Conflicting MRCC and NWCHEM_MODULES selection: aborting..." > /dev/stderr
+    exit 1
+  fi
 fi
 
 if [ ${#OLD_GA} -ne 0 ] ; then
@@ -1889,7 +1943,7 @@ if [ "x${option}" != "xrealclean" ]; then
   fi
 fi
 echo "=== compile nwchem ==="
-make -j1 DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
+make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 echo "=== all done ==="
