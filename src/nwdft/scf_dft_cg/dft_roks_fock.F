@@ -121,7 +121,7 @@ c
                                 ! breaking
       double precision jfactor(nset),kfactor(nset)
       integer iv_dens(nset),iv_fock(nset)
-      integer g_tmp(2)
+      integer g_tmp(nset)
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -328,10 +328,18 @@ c       get some work space
 c
         g_tmp(1) = ga_create_atom_blocked(geom, basis,
      $                                    'dft_roks_fock: tmp1')
+        call ga_zero(g_tmp(1))
+        if (nopen.gt.0) then
+          g_tmp(2) = ga_create_atom_blocked(geom, basis,
+     $                                      'dft_roks_fock: tmp2')
+          g_tmp(3) = ga_create_atom_blocked(geom, basis,
+     $                                      'dft_roks_fock: tmp3')
+          call ga_zero(g_tmp(2))
+          call ga_zero(g_tmp(3))
+        endif
 c
 c       calculate the CAM exchange
 c
-        call ga_zero(g_tmp(1))
         call case_setflags(.true.)
         jfactor(1)=0d0
         jfactor(2)=0d0
@@ -340,12 +348,20 @@ c
         kfactor(2)=0d0
         kfactor(3)=-0.5d0*xc_hfexch()
         call fock_2e_cam(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, g_tmp(1), .false., .false.)
+     $     tol2e, oskel, iv_dens, g_tmp, .false., .false.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
+        if (nopen.gt.0) then
+          call ga_dadd(1d0,iv_fock(2),1d0,g_tmp(2),iv_fock(2))
+          call ga_dadd(1d0,iv_fock(3),1d0,g_tmp(3),iv_fock(3))
+        endif
 c
 c       calculate the full Coulomb
 c
         call ga_zero(g_tmp(1))
+        if (nopen.gt.0) then
+          call ga_zero(g_tmp(2))
+          call ga_zero(g_tmp(3))
+        endif
         call case_setflags(.false.)
         jfactor(1)=1d0
         jfactor(2)=1d0
@@ -354,12 +370,23 @@ c
         kfactor(2)=0d0
         kfactor(3)=0d0
         call fock_2e_cam(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, g_tmp(1), .false., .true.)
+     $     tol2e, oskel, iv_dens, g_tmp, .false., .true.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
+        if (nopen.gt.0) then
+          call ga_dadd(1d0,iv_fock(2),1d0,g_tmp(2),iv_fock(2))
+          call ga_dadd(1d0,iv_fock(3),1d0,g_tmp(3),iv_fock(3))
+        endif
 c
 c       destroy work space
         if (.not. ga_destroy(g_tmp(1))) call errquit
      $             ('xc_getv: ga corrupt?',0, GA_ERR)
+        if (nopen.gt.0) then
+          if (.not. ga_destroy(g_tmp(2))) call errquit
+     $               ('xc_getv: ga corrupt?',0, GA_ERR)
+          if (.not. ga_destroy(g_tmp(3))) call errquit
+     $               ('xc_getv: ga corrupt?',0, GA_ERR)
+        endif
+c
       end if
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_vecs)

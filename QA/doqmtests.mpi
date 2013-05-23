@@ -158,6 +158,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o-lcpbe
 ./runtests.mpi.unix procs $np o2_bnl
 ./runtests.mpi.unix procs $np o2_hfattn
+./runtests.mpi.unix procs $np n2_rodft_lrc
 ./runtests.mpi.unix procs $np h2o-hse
 #
 #--- minnesota functionals
