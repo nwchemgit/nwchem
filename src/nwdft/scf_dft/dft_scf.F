@@ -823,7 +823,7 @@ c
       if (ltight)then
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
-         iswitc = 1
+         iswitc = 2
       else
          iAOacc = iAOacc_min
          tol_rho = max(tol_rho_min,tol_rho_max)

@@ -276,7 +276,8 @@ c
          itol2e = itol_max
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
-         if(iter.ge.nfock/2)iswitc = iswitc+1
+         if(iter.ge.nfock/2) iswitc = iswitc+1
+         if(abs(delta).lt.1d-6) iswitc = iswitc+2
       else
          iswitc=0
       endif
