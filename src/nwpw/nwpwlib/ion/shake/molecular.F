@@ -122,7 +122,14 @@
             end if
             
             if (taskid.eq.MASTER) then
-            if (cyclic.eq.1) then
+            if (cyclic.eq.2) then
+               write(*,'(A,A,A,I3,I3,A,I3,I3,A,F6.3,A)') 
+     >         "Bond Difference Constraint:",
+     >         "  fixed bond difference -", 
+     >         " ( bond1 atoms:", indxa(1), indxa(2), 
+     >           " bond2 atoms:", indxa(3), indxa(4),
+     >            " gamma:",blist(1)," )" 
+            else if (cyclic.eq.1) then
                write(*,'(A,A,10(A,I3,I3,A,F6.3,A))') 
      >         "Cyclic Constraint:",
      >         "  fixed bonds -", 
@@ -246,15 +253,22 @@
             end do
 
 *           **** set bond length constraints ****
-            nb = na-1
-            if (cyclic.eq.1) nb = nb+1
-            do b=1,nb
-               blist(b) = blist(b)**2
-            end do
-            call shake_chain(na,indxa,nb,
-     >                       tol,maxit,
-     >                       blist,mass,
-     >                       r2,r1,gabs(m))
+            if (cyclic.eq.2) then
+               call shake_bonddiff(indxa,
+     >                          1.0d-9,maxit,
+     >                          blist(1),mass,
+     >                          r2,r1,gabs(m))
+            else
+               nb = na-1
+               if (cyclic.eq.1) nb = nb+1
+               do b=1,nb
+                  blist(b) = blist(b)**2
+               end do
+               call shake_chain(na,indxa,nb,
+     >                          tol,maxit,
+     >                          blist,mass,
+     >                          r2,r1,gabs(m))
+            end if
          end do
          if (gabprint) then
             if (mod(gabiter,gabmod).eq.0) 

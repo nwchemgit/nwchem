@@ -209,15 +209,16 @@ void FATR pspw_molecule_data_
 
     bsize = asize-1;
     if (*cyclic) bsize = bsize + 1; 
+    if (*cyclic==2) bsize = 1;
     for (i=0; i<bsize; ++i)
        blist[i] = pspw_bond(cur->bond, i+1);
 }
    
 
 /********************************
- *								*
- *         pspw_molecule_msize	*
- *								*
+ *				*
+ *      pspw_molecule_msize	*
+ *				*
  ********************************/
 void FATR pspw_molecule_msize_(Integer *msize)
 {
@@ -246,9 +247,9 @@ void FATR pspw_molecule_end_()
 }
     
 /********************************
- *								*
- *         pspw_molecule_read	*
- *								*
+ *				*
+ *      pspw_molecule_read	*
+ *				*
  ********************************/
 
 void FATR pspw_molecule_read_
@@ -294,15 +295,17 @@ void FATR pspw_molecule_read_
          }
          --asize;
          fscanf(fp,"%c",&cyclic);
-         if (cyclic == 'c') pspw_molecule_cyclic(m,1);
+         if      (cyclic == 'd') pspw_molecule_cyclic(m,2);
+         else if (cyclic == 'c') pspw_molecule_cyclic(m,1);
          else               pspw_molecule_cyclic(m,0);
          bsize = asize - 1;
          if (cyclic == 'c') bsize = bsize+1;
+         if (cyclic == 'd') bsize = 1;
          for (i=0; i<bsize; ++i)
 	 {
             if (!fscanf(fp,"%lf",&x))
 	    {
-               printf("Error reading bond lengths\n");
+               printf("Error reading bond lengths/contraints\n");
                exit(88);
             }
             pspw_molecule_add_bond(m,x);

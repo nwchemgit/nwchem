@@ -6,6 +6,7 @@
             	shake_chain.o \
             	shake_chain2.o \
             	shake_chain3.o \
+		shake_bonddiff.o \
 		shake_analysis.o \
 		molecular.o \
 		pspw_molecule.o \
