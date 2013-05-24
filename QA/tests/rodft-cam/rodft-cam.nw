@@ -1,0 +1,26 @@
+echo
+
+start rodft-cam
+title "N2+ 1.0977A B3LYP/6-31G** open-shell test"
+
+charge 1
+
+geometry
+symmetry d2h
+N 0.0 0.0 -0.54885
+N 0.0 0.0 0.54885
+end
+
+basis
+N library 6-31G**
+end
+
+dft
+xc hfexch 1.00
+cam 2000.0 cam_alpha 0.0 cam_beta 1.0 # HF limit
+direct
+mult 2
+rodft
+cgmin
+end
+task dft
