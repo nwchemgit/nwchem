@@ -123,12 +123,21 @@
             
             if (taskid.eq.MASTER) then
             if (cyclic.eq.2) then
+               if (na.eq.3) then
                write(*,'(A,A,A,I3,I3,A,I3,I3,A,F6.3,A)') 
-     >         "Bond Difference Constraint:",
+     >         "Bond Difference Constraint (natoms=3):",
+     >         "  fixed bond difference -", 
+     >         " ( bond1 atoms:", indxa(1), indxa(3), 
+     >           " bond2 atoms:", indxa(2), indxa(3),
+     >            " gamma:",blist(1)," )" 
+               else
+               write(*,'(A,A,A,I3,I3,A,I3,I3,A,F6.3,A)') 
+     >         "Bond Difference Constraint (natoms=4):",
      >         "  fixed bond difference -", 
      >         " ( bond1 atoms:", indxa(1), indxa(2), 
      >           " bond2 atoms:", indxa(3), indxa(4),
      >            " gamma:",blist(1)," )" 
+               end if
             else if (cyclic.eq.1) then
                write(*,'(A,A,10(A,I3,I3,A,F6.3,A))') 
      >         "Cyclic Constraint:",
@@ -254,7 +263,7 @@
 
 *           **** set bond length constraints ****
             if (cyclic.eq.2) then
-               call shake_bonddiff(indxa,
+               call shake_bonddiff(na,indxa,
      >                          1.0d-9,maxit,
      >                          blist(1),mass,
      >                          r2,r1,gabs(m))
@@ -325,6 +334,7 @@
             call pspw_molecule_data(m,na,indxa,blist,cyclic)
             nb = na-1
             if (cyclic.eq.1) nb = nb+1
+            if (cyclic.eq.2) nb = 1
             nconst = nconst + nb
          end do
 
@@ -392,7 +402,22 @@
             call pspw_molecule_data(m,na,indxa,blist,cyclic)
             nb = na-1
             if (cyclic.eq.1) nb = nb+1
-            if (cyclic.eq.1) then
+            if (cyclic.eq.2) then
+
+              if (na.eq.3) then
+              write(*,121) indxa(1),indxa(3),indxa(2),indxa(3),blist(1),
+     >                     dbl_mb(indx2),dbl_mb(indx),
+     >                     dbl_mb(indx3)-dbl_mb(indx)**2
+              else
+              write(*,121) indxa(1),indxa(2),indxa(3),indxa(4),blist(1),
+     >                     dbl_mb(indx2),dbl_mb(indx),
+     >                     dbl_mb(indx3)-dbl_mb(indx)**2
+              end if
+              indx  = indx + 1
+              indx2 = indx2 + 1
+              indx3 = indx3 + 1
+
+            else if (cyclic.eq.1) then
               do b=1,nb-1
                 write(*,120) indxa(b),indxa(b+1),blist(b),
      >                       dbl_mb(indx2),dbl_mb(indx),
@@ -403,7 +428,7 @@
               end do
               write(*,120) indxa(nb),indxa(1),blist(nb),
      >                     dbl_mb(indx2),dbl_mb(indx),
-     >                       dbl_mb(indx3)-dbl_mb(indx)**2
+     >                     dbl_mb(indx3)-dbl_mb(indx)**2
               indx  = indx + 1
               indx2 = indx2 + 1
               indx3 = indx3 + 1
@@ -420,6 +445,12 @@
          end do
   120    format(1x,'atoms=',I5,I5,
      >          1x,'dist=',E10.3,
+     >          1x,'(shake error=',E10.3,')',
+     >          4x,'<F>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+  121    format(1x,'bond1=',I5,I5,
+     >          1x,'bond2=',I5,I5,
+     >          1x,'gamma=',E10.3,
      >          1x,'(shake error=',E10.3,')',
      >          4x,'<F>=',E14.6,
      >          1x,'(<F**2>-<F>**2=',E10.3,')')
@@ -450,50 +481,105 @@
 *     **** local variables
       integer b,m,msize,na,indxa(20),cyclic,indx
       real*8 x,y,z,f1,f2,ff,blist(20),rr
+      real*8 x1,y1,z1,x2,y2,z2,rr1,rr2
+      real*8 f1a,f1b,f2a,f2b,ff1,ff2
 
       indx = 1
       call pspw_molecule_msize(msize)
       do m=1,msize
          call pspw_molecule_data(m,na,indxa,blist,cyclic)
-         do b=1,na-1
-            x = rion(1,indxa(b+1))-rion(1,indxa(b))
-            y = rion(2,indxa(b+1))-rion(2,indxa(b))
-            z = rion(3,indxa(b+1))-rion(3,indxa(b))
-            rr = dsqrt(x*x + y*y + z*z)
+         if (cyclic.eq.2) then
+            if (na.eq.3) then
+               x1 = rion(1,indxa(1))-rion(1,indxa(3))
+               y1 = rion(2,indxa(1))-rion(2,indxa(3))
+               z1 = rion(3,indxa(1))-rion(3,indxa(3))
+               x2 = rion(1,indxa(2))-rion(1,indxa(3))
+               y2 = rion(2,indxa(2))-rion(2,indxa(3))
+               z2 = rion(3,indxa(2))-rion(3,indxa(3))
+               f1a = x1*fion(1,indxa(1)) 
+     >             + y1*fion(2,indxa(1)) 
+     >             + z1*fion(3,indxa(1))
+               f1b = x1*fion(1,indxa(3)) 
+     >             + y1*fion(2,indxa(3)) 
+     >             + z1*fion(3,indxa(3))
+               f2a = x2*fion(1,indxa(2)) 
+     >             + y2*fion(2,indxa(2)) 
+     >             + z2*fion(3,indxa(2))
+               f2b = x2*fion(1,indxa(3)) 
+     >             + y2*fion(2,indxa(3)) 
+     >             + z2*fion(3,indxa(3))
+            else
+               x1 = rion(1,indxa(1))-rion(1,indxa(2))
+               y1 = rion(2,indxa(1))-rion(2,indxa(2))
+               z1 = rion(3,indxa(1))-rion(3,indxa(2))
+               x2 = rion(1,indxa(3))-rion(1,indxa(4))
+               y2 = rion(2,indxa(3))-rion(2,indxa(4))
+               z2 = rion(3,indxa(3))-rion(3,indxa(4))
+               f1a = x1*fion(1,indxa(1)) 
+     >             + y1*fion(2,indxa(1)) 
+     >             + z1*fion(3,indxa(1))
+               f1b = x1*fion(1,indxa(2)) 
+     >             + y1*fion(2,indxa(2)) 
+     >             + z1*fion(3,indxa(2))
+               f2a = x2*fion(1,indxa(3)) 
+     >             + y2*fion(2,indxa(3)) 
+     >             + z2*fion(3,indxa(3))
+               f2b = x2*fion(1,indxa(4)) 
+     >             + y2*fion(2,indxa(4)) 
+     >             + z2*fion(3,indxa(4))
+            end if
 
-            f1 = x*fion(1,indxa(b)) 
-     >         + y*fion(2,indxa(b)) 
-     >         + z*fion(3,indxa(b))
-            f2 = x*fion(1,indxa(b+1)) 
-     >         + y*fion(2,indxa(b+1)) 
-     >         + z*fion(3,indxa(b+1))
-            ff = 0.5*(f2-f1)/rr
+            rr1 = x1**2 + y1**2 + z1**2 
+            rr2 = x2**2 + y2**2 + z2**2 
+            ff1 = 0.5d0*(f1a-f1b)/rr1
+            ff2 = 0.5d0*(f2a-f2b)/rr2
+            ff = 0.5d0*(ff1-ff2)
 
             af(indx)  = af(indx)  + ff
             af2(indx) = af2(indx) + ff*ff
-
-            ac(indx) = ac(indx) + dabs(rr-blist(b))
-
+            ac(indx) = ac(indx) + rr1 - rr2 - blist(1)
             indx = indx + 1
-         end do
-         if (cyclic.eq.1) then
-            x = rion(1,indxa(na))-rion(1,indxa(1))
-            y = rion(2,indxa(na))-rion(2,indxa(1))
-            z = rion(3,indxa(na))-rion(3,indxa(1))
-            f1 = x*fion(1,indxa(1)) 
-     >         + y*fion(2,indxa(1)) 
-     >         + z*fion(3,indxa(1))
-            f2 = x*fion(1,indxa(na)) 
-     >         + y*fion(2,indxa(na)) 
-     >         + z*fion(3,indxa(na))
-            ff = 0.5*(f2-f1)
-            af(indx)  = af(indx)  + ff
-            af2(indx) = af2(indx) + ff*ff
+         else
+            do b=1,na-1
+               x = rion(1,indxa(b+1))-rion(1,indxa(b))
+               y = rion(2,indxa(b+1))-rion(2,indxa(b))
+               z = rion(3,indxa(b+1))-rion(3,indxa(b))
+               rr = dsqrt(x*x + y*y + z*z)
 
-            rr = dsqrt(x*x + y*y + z*z)
-            ac(indx) = ac(indx) + dabs(rr-blist(na))
+               f1 = x*fion(1,indxa(b)) 
+     >            + y*fion(2,indxa(b)) 
+     >            + z*fion(3,indxa(b))
+               f2 = x*fion(1,indxa(b+1)) 
+     >            + y*fion(2,indxa(b+1)) 
+     >            + z*fion(3,indxa(b+1))
+               ff = 0.5*(f2-f1)/rr
 
-            indx = indx + 1
+               af(indx)  = af(indx)  + ff
+               af2(indx) = af2(indx) + ff*ff
+
+               ac(indx) = ac(indx) + dabs(rr-blist(b))
+
+               indx = indx + 1
+            end do
+            if (cyclic.eq.1) then
+               x = rion(1,indxa(na))-rion(1,indxa(1))
+               y = rion(2,indxa(na))-rion(2,indxa(1))
+               z = rion(3,indxa(na))-rion(3,indxa(1))
+               f1 = x*fion(1,indxa(1)) 
+     >            + y*fion(2,indxa(1)) 
+     >            + z*fion(3,indxa(1))
+               f2 = x*fion(1,indxa(na)) 
+     >            + y*fion(2,indxa(na)) 
+     >            + z*fion(3,indxa(na))
+               ff = 0.5*(f2-f1)
+               af(indx)  = af(indx)  + ff
+               af2(indx) = af2(indx) + ff*ff
+
+               rr = dsqrt(x*x + y*y + z*z)
+               ac(indx) = ac(indx) + dabs(rr-blist(na))
+
+               indx = indx + 1
+            end if
          end if
       end do
 
