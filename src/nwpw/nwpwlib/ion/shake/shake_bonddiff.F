@@ -46,18 +46,22 @@ c
          Rac(1) = r1(1,indx(1)) - r1(1,indx(3))
          Rac(2) = r1(2,indx(1)) - r1(2,indx(3))
          Rac(3) = r1(3,indx(1)) - r1(3,indx(3))
+         call lattice_min_difference(Rac(1),Rac(2),Rac(3))
 
          Rbc(1) = r1(1,indx(2)) - r1(1,indx(3))
          Rbc(2) = r1(2,indx(2)) - r1(2,indx(3))
          Rbc(3) = r1(3,indx(2)) - r1(3,indx(3))
+         call lattice_min_difference(Rbc(1),Rbc(2),Rbc(3))
 
          tRac(1) = r2(1,indx(1)) - r2(1,indx(3))
          tRac(2) = r2(2,indx(1)) - r2(2,indx(3))
          tRac(3) = r2(3,indx(1)) - r2(3,indx(3))
+         call lattice_min_difference(tRac(1),tRac(2),tRac(3))
 
          tRbc(1) = r2(1,indx(2)) - r2(1,indx(3))
          tRbc(2) = r2(2,indx(2)) - r2(2,indx(3))
          tRbc(3) = r2(3,indx(2)) - r2(3,indx(3))
+         call lattice_min_difference(tRbc(1),tRbc(2),tRbc(3))
 
          macinv = 1.0d0/mass(1) + 1.0d0/mass(3)
          mbcinv = 1.0d0/mass(2) + 1.0d0/mass(3)
@@ -134,18 +138,22 @@ c         write(*,*) "x,y1,y2,constraint=",x,y1,y2,C
          Rab(1) = r1(1,indx(1)) - r1(1,indx(2))
          Rab(2) = r1(2,indx(1)) - r1(2,indx(2))
          Rab(3) = r1(3,indx(1)) - r1(3,indx(2))
+         call lattice_min_difference(Rab(1),Rab(2),Rab(3))
 
          Rcd(1) = r1(1,indx(3)) - r1(1,indx(4))
          Rcd(2) = r1(2,indx(3)) - r1(2,indx(4))
          Rcd(3) = r1(3,indx(3)) - r1(3,indx(4))
+         call lattice_min_difference(Rcd(1),Rcd(2),Rcd(3))
 
          tRab(1) = r2(1,indx(1)) - r2(1,indx(2))
          tRab(2) = r2(2,indx(1)) - r2(2,indx(2))
          tRab(3) = r2(3,indx(1)) - r2(3,indx(2))
+         call lattice_min_difference(tRab(1),tRab(2),tRab(3))
 
          tRcd(1) = r2(1,indx(3)) - r2(1,indx(4))
          tRcd(2) = r2(2,indx(3)) - r2(2,indx(4))
          tRcd(3) = r2(3,indx(3)) - r2(3,indx(4))
+         call lattice_min_difference(tRcd(1),tRcd(2),tRcd(3))
 
          mabinv = 1.0d0/mass(1) + 1.0d0/mass(2)
          mcdinv = 1.0d0/mass(3) + 1.0d0/mass(4)
