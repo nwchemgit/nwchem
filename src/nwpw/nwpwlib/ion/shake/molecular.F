@@ -124,14 +124,14 @@
             if (taskid.eq.MASTER) then
             if (cyclic.eq.2) then
                if (na.eq.3) then
-               write(*,'(A,A,A,I3,I3,A,I3,I3,A,F6.3,A)') 
+               write(*,'(A,A,A,I3,I3,A,I3,I3,A,F8.3,A)') 
      >         "Bond Difference Constraint (natoms=3):",
      >         "  fixed bond difference -", 
      >         " ( bond1 atoms:", indxa(1), indxa(3), 
      >           " bond2 atoms:", indxa(2), indxa(3),
      >            " gamma:",blist(1)," )" 
                else
-               write(*,'(A,A,A,I3,I3,A,I3,I3,A,F6.3,A)') 
+               write(*,'(A,A,A,I3,I3,A,I3,I3,A,F8.3,A)') 
      >         "Bond Difference Constraint (natoms=4):",
      >         "  fixed bond difference -", 
      >         " ( bond1 atoms:", indxa(1), indxa(2), 
