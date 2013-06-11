@@ -159,64 +159,67 @@ c                                ij ji
 c  Loop over CI vector
 c
       call ga_distribution(g_civec, node, blo, bhi, alo, ahi )
-      call ga_access(g_civec, blo, bhi, alo, ahi, k_xxci, bdim)
+      if (bhi.gt.0.and.ahi.gt.0) then
+        call ga_access(g_civec, blo, bhi, alo, ahi, k_xxci, bdim)
 c
-c  Allocate scatter data block and pointer blocks
+c       Allocate scatter data block and pointer blocks
 c
-      scat_dim = 40000
-      if (.not.ma_push_get(MT_DBL, scat_dim, 'detci:lowdin',
-     $                     l_xa, k_xa))
-     $    call errquit('detci: cannot allocate xa lowdin',0, MA_ERR)
-      if (.not.ma_push_get(MT_INT, scat_dim, 'detci:lowdin',
-     $                     l_ib, k_ib))
-     $    call errquit('detci: cannot allocate ib lowdin',0, MA_ERR)
-      if (.not.ma_push_get(MT_INT, scat_dim, 'detci:lowdin',
-     $                     l_ia, k_ia))
-     $    call errquit('detci: cannot allocate ia lowdin',0, MA_ERR)
-      do istra = alo, ahi
-         call ifill((detci_maxorb*detci_maxorb),0,eij,1)
-         call ifill((detci_maxorb*detci_maxorb),0,pij,1)
-         do iex=1,nexa
-           eij(exa(6,iex,istra),exa(5,iex,istra)) = exa(1,iex,istra)
-           pij(exa(6,iex,istra),exa(5,iex,istra)) = exa(4,iex,istra)
-         enddo
-         offset=(istra-alo)*bdim-blo
-         do istrb = blo, bhi
-            val = -dbl_mb(k_xxci+offset+istrb)
-            if (dabs(val).gt.1.0d-14) then 
-               do iex=1,nexb
-                  iib = exb(5,iex,istrb)
-                  jjb = exb(6,iex,istrb)
-                  if ((eij(iib,jjb).ne.0).and.(pij(iib,jjb).ne.0)) then
-                    jstrb = exb(1,iex,istrb)
-                    jstra = eij(iib,jjb)
-                    xx = val*pij(iib,jjb)*exb(4,iex,istrb)
-                    if (dabs(xx).gt.1.0d-14) then
-                       isc=isc+1
-                       dbl_mb(k_xa+isc-1)=xx
-                       int_mb(k_ib+isc-1)=jstrb
-                       int_mb(k_ia+isc-1)=jstra
-                       if (isc.eq.scat_dim) then
-                          call ga_scatter_acc(g_pvec,dbl_mb(k_xa),
-     &                           int_mb(k_ib),int_mb(k_ia),isc,1.0d0)
-                          isc=0
-                       endif
-                    endif
-                  endif
-               enddo
-            endif
-         enddo
-      enddo
-      if (isc.gt.0) call ga_scatter_acc(g_pvec,dbl_mb(k_xa),
+        scat_dim = 40000
+        if (.not.ma_push_get(MT_DBL, scat_dim, 'detci:lowdin',
+     $                       l_xa, k_xa))
+     $      call errquit('detci: cannot allocate xa lowdin',0, MA_ERR)
+        if (.not.ma_push_get(MT_INT, scat_dim, 'detci:lowdin',
+     $                       l_ib, k_ib))
+     $      call errquit('detci: cannot allocate ib lowdin',0, MA_ERR)
+        if (.not.ma_push_get(MT_INT, scat_dim, 'detci:lowdin',
+     $                       l_ia, k_ia))
+     $      call errquit('detci: cannot allocate ia lowdin',0, MA_ERR)
+        do istra = alo, ahi
+           call ifill((detci_maxorb*detci_maxorb),0,eij,1)
+           call ifill((detci_maxorb*detci_maxorb),0,pij,1)
+           do iex=1,nexa
+             eij(exa(6,iex,istra),exa(5,iex,istra)) = exa(1,iex,istra)
+             pij(exa(6,iex,istra),exa(5,iex,istra)) = exa(4,iex,istra)
+           enddo
+           offset=(istra-alo)*bdim-blo
+           do istrb = blo, bhi
+              val = -dbl_mb(k_xxci+offset+istrb)
+              if (dabs(val).gt.1.0d-14) then 
+                 do iex=1,nexb
+                    iib = exb(5,iex,istrb)
+                    jjb = exb(6,iex,istrb)
+                    if ((eij(iib,jjb).ne.0).and.(pij(iib,jjb).ne.0))
+     &              then
+                      jstrb = exb(1,iex,istrb)
+                      jstra = eij(iib,jjb)
+                      xx = val*pij(iib,jjb)*exb(4,iex,istrb)
+                      if (dabs(xx).gt.1.0d-14) then
+                         isc=isc+1
+                         dbl_mb(k_xa+isc-1)=xx
+                         int_mb(k_ib+isc-1)=jstrb
+                         int_mb(k_ia+isc-1)=jstra
+                         if (isc.eq.scat_dim) then
+                            call ga_scatter_acc(g_pvec,dbl_mb(k_xa),
      &                             int_mb(k_ib),int_mb(k_ia),isc,1.0d0)
-      call ga_release(g_civec, blo, bhi, alo, ahi)
+                            isc=0
+                         endif
+                      endif
+                    endif
+                 enddo
+              endif
+           enddo
+        enddo
+        if (isc.gt.0) call ga_scatter_acc(g_pvec,dbl_mb(k_xa),
+     &                             int_mb(k_ib),int_mb(k_ia),isc,1.0d0)
+        call ga_release(g_civec, blo, bhi, alo, ahi)
+        if (.not.ma_pop_stack(l_ia))
+     $     call errquit('cannot pop stack ia detci:lowdin',0, MA_ERR)
+        if (.not.ma_pop_stack(l_ib))
+     $     call errquit('cannot pop stack ib detci:lowdin',0, MA_ERR)
+        if (.not.ma_pop_stack(l_xa))
+     $     call errquit('cannot pop stack xa detci:lowdin',0, MA_ERR)
+      endif
       call ga_sync()
-      if (.not.ma_pop_stack(l_ia))
-     $   call errquit('cannot pop stack ia detci:lowdin',0, MA_ERR)
-      if (.not.ma_pop_stack(l_ib))
-     $   call errquit('cannot pop stack ib detci:lowdin',0, MA_ERR)
-      if (.not.ma_pop_stack(l_xa))
-     $   call errquit('cannot pop stack xa detci:lowdin',0, MA_ERR)
 c
 c  End loop over CI vector
 c
