@@ -24,6 +24,7 @@ end
 
 # LDA exchange
 
+set "dft:weight derivatives" T
 dft
   vectors input atomic
   xc slater
@@ -80,6 +81,12 @@ task dft energy
 dft
   vectors input atomic
   xc rpbe
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xpkzb99
 end
 task dft energy
 
@@ -351,6 +358,12 @@ task dft energy
 dft
   vectors input atomic
   xc dldf
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xpkzb99 cpkzb99
 end
 task dft energy
 

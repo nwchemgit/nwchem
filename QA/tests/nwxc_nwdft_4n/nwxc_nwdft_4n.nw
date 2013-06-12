@@ -113,6 +113,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc xpkzb99
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc xtpss03
 end
 task dft energy
@@ -451,6 +459,14 @@ dft
   odft
   vectors input atomic
   xc dldf
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xpkzb99 cpkzb99
 end
 task dft energy
   
