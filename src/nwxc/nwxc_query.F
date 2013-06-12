@@ -471,6 +471,10 @@ c
            cdata = "RPBE Exchange (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
      +             //" doi:10.1103/PhysRevB.59.7413)"
+         case (NWXCP_X_PKZB)
+           cdata = "PKZB Exchange (JP Perdew, S Kurth, A Zupan, "
+     +             //"P Blaha, Phys.Rev.Lett. 82, "
+     +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
          case (NWXCP_X_TPSS)
            cdata = "TPSS Exchange (J Tao, JP Perdew, VN Staveroverov, "
      +             //"GE Scuseria, Phys.Rev.Lett. 91, 146401 (2003) "
@@ -556,6 +560,10 @@ c
      +             //"GI Csonka, et al., "
      +             //"Phys.Rev.Lett. 100, 136406 (2008)"
      +             //" doi:10.1103/PhysRevLett.100.136406)"
+         case (NWXCP_C_PKZB)
+           cdata = "PKZB Correlation (JP Perdew, S Kurth, A Zupan, "
+     +             //"P Blaha, Phys.Rev.Lett. 82, "
+     +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
          case (NWXCP_C_TPSS)
            cdata = "TPSS Correlation (J Tao, JP Perdew, VN "
      +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "
@@ -667,6 +675,10 @@ c
            cdata = "RPBE (B Hammer, LB Hanssen, JK Norskov, "
      +             //"Phys.Rev.B 59, 7413 (1999)"
      +             //" doi:10.1103/PhysRevB.59.7413)"
+         case (NWXCP_PKZB)
+           cdata = "PKZB (JP Perdew, S Kurth, A Zupan, "
+     +             //"P Blaha, Phys.Rev.Lett. 82, "
+     +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
          case (NWXCP_TPSS)
            cdata = "TPSS (J Tao, JP Perdew, VN "
      +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "

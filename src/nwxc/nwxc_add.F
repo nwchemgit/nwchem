@@ -275,6 +275,8 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_RPBE,dfweight)
+      else if (dfname.eq."xpkzb99") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_PKZB,dfweight)
       else if (dfname.eq."xtpss03") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_TPSS,dfweight)
       else if (dfname.eq."xwpbe") then
@@ -320,6 +322,8 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."cpbesol") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PBESOL,dfweight)
+      else if (dfname.eq."cpkzb99") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_PKZB,dfweight)
       else if (dfname.eq."ctpss03") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_TPSS,dfweight)
       else if (dfname.eq."cvs98") then
@@ -530,6 +534,12 @@ c       In the NWChem DFT code REVPBE does not include correlation
 c       In the NWChem DFT code RPBE does not include correlation
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+      else if (dfname.eq."pkzb99".or.dfname.eq."pkzb") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_PKZB,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_PKZB,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PKZB,dfweight)
       else if (dfname.eq."tpss03".or.dfname.eq."tpss") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_TPSS,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -597,42 +607,52 @@ C>
       integer i      !< Counter
       integer maxpt  !< The number of points
       parameter (maxpt = 3)
+      integer maxpt2  !< The number of points
+      parameter (maxpt2 = 2*maxpt)
+      integer maxpt3  !< The number of points
+      parameter (maxpt3 = 3*maxpt)
 c     
-      double precision rho(maxpt)    !< The density
-      double precision rgamma(maxpt) !< The norm of the gradient
-      double precision tau(maxpt)    !< The kinetic energy density
+      double precision rho(maxpt2)    !< The density
+      double precision rgamma(maxpt3) !< The norm of the gradient
+      double precision tau(maxpt2)    !< The kinetic energy density
 c
-      double precision func(maxpt)   !< The functional value
-      double precision dfdr(maxpt)   !< Derivative wrt rho
-      double precision dfdg(maxpt)   !< Derivative wrt rgamma
-      double precision dfdt(maxpt)   !< Derivative wrt tau
+      double precision func(maxpt)    !< The functional value
+      double precision dfdr(maxpt2)   !< Derivative wrt rho
+      double precision dfdg(maxpt3)   !< Derivative wrt rgamma
+      double precision dfdt(maxpt2)   !< Derivative wrt tau
 c
       double precision abssum
 c
-      data rho   /0.5d0, 1.0d0, 1.5d0/
-      data rgamma/0.5d0, 0.7d0, 0.9d0/
-      data tau   /0.33d0,0.66d0,1.0d0/
-      data func/maxpt*0.0d0/
-      data dfdr/maxpt*0.0d0/
-      data dfdg/maxpt*0.0d0/
-      data dfdt/maxpt*0.0d0/
+c     Data taken from the quartet Nitrogen test case nwxc_nwdft_4n;
 c
-      call nwxc_eval_df(1,maxpt,rho,rgamma,tau,func,dfdr,dfdg,dfdt)
+      data rho   /2.2175d-3, 8.2309d-3, 1.4192d-2,
+     +            1.8849d-4, 1.1904d-3, 2.4799d-3/
+      data rgamma/1.7078d-5, 2.6544d-4, 8.3431d-4,
+     +            2.1459d-6, 5.1828d-5, 1.9672d-4,
+     +            2.6964d-7, 1.0119d-5, 4.6388d-5/
+      data tau   /1.1802d-3, 5.2247d-3, 9.8571d-3,
+     +            1.7882d-4, 1.0629d-3, 2.3387d-3/
+      data func/maxpt*0.0d0/
+      data dfdr/maxpt2*0.0d0/
+      data dfdg/maxpt3*0.0d0/
+      data dfdt/maxpt2*0.0d0/
+c
+      call nwxc_eval_df(2,maxpt,rho,rgamma,tau,func,dfdr,dfdg,dfdt)
 c
       abssum = 0.0d0
-      do i = 1, maxpt
+      do i = 1, maxpt2
         abssum = abssum + abs(dfdr(i))
       enddo
       nwxc_depends_on_rho = (abssum.gt.0.0d0)
 c
       abssum = 0.0d0
-      do i = 1, maxpt
+      do i = 1, maxpt3
         abssum = abssum + abs(dfdg(i))
       enddo
       nwxc_depends_on_gamma = (abssum.gt.0.0d0)
 c
       abssum = 0.0d0
-      do i = 1, maxpt
+      do i = 1, maxpt2
         abssum = abssum + abs(dfdt(i))
       enddo
       nwxc_depends_on_tau = (abssum.gt.0.0d0)
