@@ -15,10 +15,13 @@ end
 scf
  rohf
  singlet
+ thresh 1.0e-10
+ tol2e 1.0e-10
 end
 
 tce
   bwccsd
+  thresh 1.0e-10
   targetsym a1
   io ga
 end
