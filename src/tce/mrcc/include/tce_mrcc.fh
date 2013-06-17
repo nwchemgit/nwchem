@@ -126,7 +126,7 @@ c      integer idiis
 
 c       parameter(maxorb=1024,maxref=800,maxexcit=18,maxdiism=15)
 c       parameter(maxorb=510,maxref=200,maxexcit=18,maxdiism=10)
-       parameter(maxorb=510,maxref=200,maxexcit=18)
+       parameter(maxorb=510,maxref=100,maxexcit=18)
        double precision toleiimag
        parameter(toleiimag=1e-5) ! Tolereance for imaginary eigenvalue
 
