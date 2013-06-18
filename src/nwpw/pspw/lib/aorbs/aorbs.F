@@ -229,6 +229,22 @@
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *           aorbs_katm            *
+*     *                                 *
+*     ***********************************
+      integer function aorbs_katm(n)
+      implicit none
+      integer n
+
+#include "mafdecls.fh"
+#include "aorbs.fh"
+
+      aorbs_katm = int_mb(iaaorb(1)+n-1)
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *
@@ -299,9 +315,9 @@ c     >                          + (ia-1)*npack1*norbs_max))
       end
 
 *     ***********************************
-*     *									*
-*     *	 	   aorbs_weight				*
-*     *									*
+*     *					*
+*     *	 	   aorbs_weight		*
+*     *					*
 *     ***********************************
       real*8 function aorbs_weight(n)
       implicit none
