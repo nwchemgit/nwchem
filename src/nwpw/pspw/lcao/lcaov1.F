@@ -146,7 +146,11 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init()
+      call phafac()
+      if (control_version().eq.3) then
+         call ewald_init()
+         call ewald_phafac()
+      end if
 
 *     **** call the lcao code ****
       filename = control_input_psi()
