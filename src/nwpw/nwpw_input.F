@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 102)
+      parameter (num_dirs = 103)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -117,6 +117,7 @@ c
      >            'et',
      >            'cpmd_properties',
      >            'use_grid_cmp',
+     >            'lcao_mask',
      >            'end'/
 
       double precision kb
@@ -181,7 +182,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,6900,7000,4250,7100,7200,7300,7400,
+     >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1561,6 +1562,79 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',7400,RTDB_ERR)
 
       goto 10
+
+
+c
+c  lcao_mask up aorb_indexes
+c  lcao_mask down aorb_indexes
+c
+ 7500 if (inp_a(zone_name)) then
+         value = .true.
+
+         if (inp_compare(.false.,zone_name,'off')) then
+            value = rtdb_put(rtdb,'nwpw:lcao_mask',mt_log,1,.false.)
+            goto 7510
+         end if
+         if (inp_compare(.false.,zone_name,'.false.')) then
+            value = rtdb_put(rtdb,'nwpw:lcao_mask',mt_log,1,.false.)
+            goto 7510
+         end if
+         if (inp_compare(.false.,zone_name,'F')) then
+            value = rtdb_put(rtdb,'nwpw:lcao_mask',mt_log,1,.false.)
+            goto 7510
+         end if
+
+         if (inp_compare(.false.,zone_name,'up') .or.
+     >       inp_compare(.false.,zone_name,'alpha')) then
+            value = rtdb_put(rtdb,'nwpw:lcao_mask',mt_log,1,.true.)
+
+               space_avail = min(100000,ma_inquire_avail(mt_int))
+               if (.not.ma_push_get(mt_int,space_avail,'input scratch',
+     >            h_values, i_values) ) call errquit(
+     >            'nwpw_input: unable to allocate input scratch space',
+     >            space_avail, MA_ERR)
+               if (.not.inp_ilist(space_avail,int_mb(i_values),nx))
+     >         call errquit('nwpw_input: failed reading integer list',
+     >                      0, INPUT_ERR)
+               value = value.and.
+     >         rtdb_put(rtdb,'nwpw:lcao_mask_uporbs',mt_int,
+     >                  nx,int_mb(i_values))
+               if (.not.ma_pop_stack(h_values)) call errquit(
+     >         'nwpw_input: unable to deallocate input scratch space',
+     >                      0, INPUT_ERR)
+
+         end if
+         if (inp_compare(.false.,zone_name,'down') .or.
+     >       inp_compare(.false.,zone_name,'beta')) then
+            value = rtdb_put(rtdb,'nwpw:lcao_mask',mt_log,1,.true.)
+
+               space_avail = min(100000,ma_inquire_avail(mt_int))
+               if (.not.ma_push_get(mt_int,space_avail,'input scratch',
+     >            h_values, i_values) ) call errquit(
+     >            'nwpw_input: unable to allocate input scratch space',
+     >            space_avail, MA_ERR)
+               if (.not.inp_ilist(space_avail,int_mb(i_values),nx))
+     >         call errquit('nwpw_input: failed reading integer list',
+     >                      0, INPUT_ERR)
+               value = value.and.
+     >         rtdb_put(rtdb,'nwpw:lcao_mask_downorbs',mt_int,
+     >                  nx,int_mb(i_values))
+               if (.not.ma_pop_stack(h_values)) call errquit(
+     >         'nwpw_input: unable to deallocate input scratch space',
+     >                      0, INPUT_ERR)
+         end if
+
+ 7510    if (.not.value)
+     >    call errquit('nwpw_input: writing ', 6800, RTDB_ERR)
+
+      end if
+
+      goto 10
+
+
+
+
+
 
 
 
