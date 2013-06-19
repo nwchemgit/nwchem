@@ -1,0 +1,28 @@
+start
+
+echo
+
+title ch3f_bvp86
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c  0.0    0.0    0.0
+f  0.0    0.0    1.383
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+BASIS "ao basis" PRINT
+* library 6-311G
+END
+
+charge 0
+
+#BVP86 functional
+dft
+  xc vwn_5 1.0 becke88 1.0 perdew86 1.0
+  maxiter 100
+end
+
+task dft energy
