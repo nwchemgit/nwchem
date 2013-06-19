@@ -1341,7 +1341,7 @@ endif
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 #
 #
-# Linux or Cygwin under Windows running on an x86 using gfortran
+# Linux or Cygwin under Windows running on an x86 using g77
 #
        NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
@@ -1694,29 +1694,27 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
        _FC=gfortran
        DEFINES  += -DGFORTRAN
       endif
-       ifdef USE_I4FLAGS
-           ifeq ($(_FC),gfortran)
-#wrong             FOPTIONS += -fdefault-integer-8
-	   else  
-              ifeq ($(_FC),crayftn)
-                 FOPTIONS += -s integer32
-	      else   
-                 FOPTIONS += -i4
-              endif
-           endif
-       else
-         ifeq ($(_FC),gfortran)
-           FOPTIONS += -fdefault-integer-8
-         else  
-            ifeq ($(_FC),crayftn)
-              FOPTIONS += -s integer64
-            else
-               FOPTIONS += -i8
-            endif
-         endif
-       endif
-       DEFINES  += -DEXT_INT
-  MAKEFLAGS = -j 1 --no-print-directory
+      ifeq ($(_FC),gfortran)
+        ifdef USE_I4FLAGS
+             FOPTIONS += -fdefault-integer-4
+        else
+             FOPTIONS += -fdefault-integer-8
+        endif
+      else ifeq ($(_FC),crayftn)
+        ifdef USE_I4FLAGS
+             FOPTIONS += -s integer32
+        else
+             FOPTIONS += -s integer64
+        endif
+      else
+        ifdef USE_I4FLAGS
+             FOPTIONS += -i4
+        else
+             FOPTIONS += -i8
+        endif
+      endif
+      DEFINES  += -DEXT_INT
+      MAKEFLAGS = -j 1 --no-print-directory
      _CPU = $(shell uname -m  )
      ifeq ($(BLAS_LIB),)
        CORE_SUBDIRS_EXTRA += blas
@@ -1842,7 +1840,7 @@ endif
       ifneq ($(_IFCE),Y)
         defineFCE: 
 	@echo
-	@echo "   " ifort missing or not suitable for x86_64 CPUs
+	@echo "   " ifort missing or not suitable x86_64 CPUs
 	@echo
 	@exit 1
       endif
@@ -2101,7 +2099,7 @@ ifdef OLD_GA
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
 else
         CORE_LIBS = -lnwcutil \
-                    -L$(GA_LIBDIR) -lga -larmci -lpeigs \
+                    -L$(GA_LIBDIR) -lga -lpeigs \
                     -L/usr/lang/mpi2/lib32 -lmpi -lmp
 endif
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
@@ -2156,7 +2154,7 @@ ifdef OLD_GA
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib64 -lmpi -lmp
 else
         CORE_LIBS = -lnwcutil \
-                    -L$(GA_LIBDIR) -lga -larmci -lpeigs \
+                    -L$(GA_LIBDIR) -lga -lpeigs \
                     -L/usr/lang/mpi2/lib64 -lmpi -lmp
 endif
        EXTRA_LIBS = -llapack -lblas -lsocket -Wl,-J,-P,-t,-dy
@@ -2199,7 +2197,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
    CORE_SUBDIRS_EXTRA = lapack blas
    ARFLAGS = urs
    INSTALL = @echo $@ is built
-   EXPLICITF = TRUE
    CPP=/usr/bin/cpp  -P -C -traditional
    FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
    LDOPTIONS =  -Wl,--relax
@@ -2213,6 +2210,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
 #for BGL
    ifeq ($(TARGET),BGL)
+    EXPLICITF = TRUE
     DEFINES   += -DBGML -DBGL
     FC         = blrts_xlf
     CC         = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
@@ -2226,6 +2224,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
 #for BGP
    ifeq ($(TARGET),BGP)
+    EXPLICITF = TRUE
     DEFINES += -DDCMF -DBGP
     FC     = mpixlf77_r
     CC     = mpicc
@@ -2248,13 +2247,15 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
     RANLIB   = powerpc64-bgq-linux-ranlib
 
     #FC = mpif77
-    #CC = mpicc
+    FC = mpixlf77_r
+
     ifeq ($(FC),mpif77)
+        CC         = mpicc
         DEFINES   += -DGFORTRAN -DGCC4
 
-        FOPTIONS  += -g -funderscoring
-        FOPTIMIZE += -O3 -ffast-math -Wuninitialized 
-        FOPTIMIZE += -O0 -g
+        FOPTIONS  += -g -funderscoring -Wuninitialized 
+        FOPTIMIZE += -O3 -ffast-math
+        FDEBUG    += -O1 -g
 
         # EXT_INT means 64-bit integers are used
         DEFINES   += -DEXT_INT 
@@ -2266,9 +2267,9 @@ endif
         CORE_LIBS +=  -llapack  -lblas 
     endif
 
-    FC = mpixlf77_r
-    CC = mpixlc_r
     ifeq ($(FC),mpixlf77_r)
+        EXPLICITF  = TRUE
+        CC         = mpixlc_r
         DEFINES   += -DXLFLINUX
         XLF11      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
         XLF14      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 14./ {print "Y"}')
@@ -2281,11 +2282,11 @@ else
         FOPTIONS  = -qintsize=8 
 endif
 
-        FOPTIONS  += -qEXTNAME -qxlf77=leadzero
-        FOPTIONS  +=    -qstrict -qthreaded -qnosave -g
-        FOPTIMIZE += -O2 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt
+        FOPTIONS  += -g -qEXTNAME -qxlf77=leadzero
+        FOPTIONS  += -g -qstrict -qthreaded -qnosave
+        FOPTIMIZE += -g -O3 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt
 #        FOPTIMIZE += -qhot=level=0 
-        FDEBUG    = -O0 
+        FDEBUG    = -g -qstrict -O3
 
         # ESSL dependencies should be provided by XLF linker
         CORE_LIBS +=  -llapack $(BLASOPT) -lblas
@@ -2427,7 +2428,15 @@ endif
 ifdef OLD_GA
       CORE_LIBS += -larmci
 else
+  ifeq ($(ARMCI_NETWORK),ARMCI)
+    ifdef EXTERNAL_ARMCI_PATH
+      CORE_LIBS += -L$(EXTERNAL_ARMCI_PATH)/lib -larmci
+    else
+      CORE_LIBS += -L$(NWCHEM_TOP)/src/tools/install/lib -larmci
+    endif
+  else
       CORE_LIBS +=
+  endif
 endif
 
 # MPI version requires tcgmsg-mpi library
