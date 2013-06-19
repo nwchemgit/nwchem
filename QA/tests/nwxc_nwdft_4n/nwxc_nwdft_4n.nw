@@ -53,6 +53,14 @@ end
 task dft energy
 
 dft
+  mult 4
+  odft
+  vectors input atomic
+  xc optx
+end
+task dft energy
+
+dft
   direct
   mult 4
   odft
@@ -295,6 +303,14 @@ dft
   odft
   vectors input atomic
   xc hfexch lyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch perdew91
 end
 task dft energy
 

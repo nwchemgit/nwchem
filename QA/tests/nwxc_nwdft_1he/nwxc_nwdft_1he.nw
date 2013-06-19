@@ -40,6 +40,12 @@ end
 task dft energy
 
 dft
+  vectors input atomic
+  xc optx
+end
+task dft energy
+
+dft
   direct
   vectors input atomic
   xc xbnl07 hfexch 1.00
@@ -226,6 +232,12 @@ task dft energy
 dft
   vectors input atomic
   xc hfexch lyp
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch perdew91
 end
 task dft energy
 
