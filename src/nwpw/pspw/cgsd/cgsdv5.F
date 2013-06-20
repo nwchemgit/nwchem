@@ -57,7 +57,7 @@
 *     **** local variables ****
       logical oprint,lprint,hprint,qmmm
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  EV,EVQ,pi
+      real*8  EV,EVQ,pi,rs
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,mapping1d
 
@@ -389,9 +389,8 @@ c           call psp_check_print(ia)
          write(luout,1159) icharge
 
          if (control_version().eq.3) then
-            EVQ = 0.5d0*(icharge)**2
-     >           *ewald_mandelung()
-     >           *(4.0d0*pi/(3.0*lattice_omega()))**(1.0d0/3.0d0)
+            rs  = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
+            EVQ = 0.5d0*ewald_mandelung()*(icharge**2)/rs
          else
             EVQ = 0.0d0
          end if
@@ -461,7 +460,7 @@ c           call psp_check_print(ia)
          write(luout,1260) ewald_rcut(),ewald_ncut()
          write(luout,1261) ewald_mandelung(),
      >                     ewald_mandelung()
-     >                    *(4.0d0*pi/3.0)**(1.0d0/3.0d0)
+     >                    *(4.0d0*pi/3.0)**(1.0d0/3.0d0),rs
          end if
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
@@ -775,7 +774,7 @@ c      call frac_occ_end()
   
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   Madelung Wigner-Seitz=',f11.8,
-     >                              ' (alpha=',f11.8,')')
+     >                              ' (alpha=',f11.8,' rs=',f11.8,')')
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
@@ -821,8 +820,9 @@ c      call frac_occ_end()
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy     :',E19.10)
- 1601 FORMAT(/' Total PSPW energy (q) :',E19.10)
-
+ 1601 FORMAT(/' Total PSPW energy ',
+     >        '(charge correction - E + 0.5*q**2*mandelung/rs) :',
+     >        E19.10)
  1801 FORMAT(//'== Timing ==')
  1802 FORMAT(/'cputime in seconds')
  1803 FORMAT( '  prologue    : ',E14.6)
