@@ -451,7 +451,9 @@ c           call psp_check_print(ia)
      >                 pack_nwave_all(1),pack_nwave(1)
          if (control_version().eq.3) then
          write(luout,1260) ewald_rcut(),ewald_ncut()
-         write(luout,1261) ewald_mandelung()
+         write(luout,1261) ewald_mandelung(),
+     >                     ewald_mandelung()
+     >                    *(4.0d0*pi/3.0)**(1.0d0/3.0d0)
          end if
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
@@ -761,7 +763,8 @@ c      call frac_occ_end()
      &       '( ',I8,' waves ',I8,' per task)')
   
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1261 FORMAT(5X,'                   Madelung Wigner-Seitz=',f11.8,
+     >                              ' (alpha=',f11.8,')')
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,

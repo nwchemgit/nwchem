@@ -154,9 +154,7 @@ c      call psi_1toelectron()
          E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
          E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
 
-         !call psi_1xc_atom(exc_atom,pxc_atom)
-         exc_atom = 0.0d0
-         pxc_atom = 0.0d0
+         call psi_1xc_atom(exc_atom,pxc_atom)
          E(43) = exc_atom                  !*** exc atom  ***
          E(44) = pxc_atom                  !*** pxc atom  ***
 
