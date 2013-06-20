@@ -530,7 +530,9 @@ c     end if
 
 *     **** extra energy output for QA test ****
       if (lprint) write(LuOut,1600) EV
-      if (lprint) write(LuOut,1601) EV+EVQ
+      if (lprint) then
+         if (EVQ.gt.0.0d0) write(LuOut,1601) EV+EVQ
+      end if
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call psi_spin2(dipole(1))
