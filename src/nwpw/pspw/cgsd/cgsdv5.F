@@ -57,7 +57,7 @@
 *     **** local variables ****
       logical oprint,lprint,hprint,qmmm
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  EV,pi
+      real*8  EV,EVQ,pi
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,mapping1d
 
@@ -388,6 +388,14 @@ c           call psp_check_print(ia)
          icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
 
+         if (control_version().eq.3) then
+            EVQ = 0.5d0*(icharge)**2
+     >           *ewald_mandelung()
+     >           *(4.0d0*pi/(3.0*lattice_omega()))**(1.0d0/3.0d0)
+         else
+            EVQ = 0.0d0
+         end if
+
          write(luout,1160)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          if (hprint) then
@@ -522,6 +530,7 @@ c     end if
 
 *     **** extra energy output for QA test ****
       if (lprint) write(LuOut,1600) EV
+      if (lprint) write(LuOut,1601) EV+EVQ
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call psi_spin2(dipole(1))
@@ -809,7 +818,8 @@ c      call frac_occ_end()
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1600 FORMAT(/' Total PSPW energy   :',E19.10)
+ 1600 FORMAT(/' Total PSPW energy     :',E19.10)
+ 1601 FORMAT(/' Total PSPW energy (q) :',E19.10)
 
  1801 FORMAT(//'== Timing ==')
  1802 FORMAT(/'cputime in seconds')
