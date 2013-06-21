@@ -397,7 +397,7 @@ c
       Exc(2) = 0.0d0
       if (xc_gotxc()) then
         call fock_xc(geom, nbf, basis, nfockxc, iv_dens(4), iv_fock(4),
-     +               Exc, nExc, .false.)
+     +               Exc, nExc)
       endif
 c
 c     enddo DFT stuff

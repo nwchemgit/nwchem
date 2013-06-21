@@ -283,7 +283,7 @@ c
 
         if(xc_got2nd().and. (.not. rodft)) then
            call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
-     +               Exc, nExc, .true.)
+     +                  Exc, nExc)
         end if
 c
         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1,

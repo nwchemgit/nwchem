@@ -1,5 +1,8 @@
+C>
+C> \brief Wrapper for AO-basis XC matrices without fitting
+C>
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
-     &   nfock, g_dens, g_xc, Exc, nExc, l3d)
+     &   nfock, g_dens, g_xc, Exc, nExc)
 c
 c     $Id$
 c
@@ -20,33 +23,33 @@ c!!! BGJ
 #include "stdio.fh"
 c!!! BGJ
 c
-      integer geom              ! [input] Geometry handle
-      integer nbf_ao,ao_bas_han ! [input] No. of AOs and AO handle
-      integer nfock             ! [input] No. of XC matrices
-c                               !         = No. of density matx (RDFT)
-c                               !         = 4 * No. of density matx (UDFT)
-      integer ndens             ! [local] = ipol
-      integer g_dens(*)         ! [input] Array of handles to densities
-      integer g_xc(*)           ! [input] Array of handles to XC matrices
-      integer calc_type         ! [input] Type of XC matrix calculation
-c                               !         = 1 XC contrib to Fock
-c                               !         = 2 XC contrib to CPKS LHS
-c                               !         = 3 XC contrib to CPKS RHS
-c                               !         = 4 XC NMR contrib
-      logical l3d               ! [input] Whether 3-D NGA density
-c                               !         and fock matrices are used.
-c                               !         Must be true when and only when 
-c                               !         calctype = 2
-      logical triplet           ! [rtdb]  True if TDDFT triplet excitation
-c                               !         energy calculations from RDFT.
-c                               !         If not set, then .false. is 
-c                               !         assumed.  For Hessian, this must
-c                               !         be false (or not set).
+      integer geom              !< [Input] Geometry handle
+      integer nbf_ao,ao_bas_han !< [Input] No. of AOs and AO handle
+      integer nfock             !< [Input] No. of XC matrices
+c                               !<         = No. of density matx (RDFT)
+c                               !<         = 4 * No. of density matx (UDFT)
+      integer ndens             !< [Local] = ipol
+      integer g_dens(*)         !< [Input] Array of handles to densities
+      integer g_xc(*)           !< [Input] Array of handles to XC matrices
+      integer calc_type         !< [Input] Type of XC matrix calculation
+c                               !<         = 1 XC contrib to Fock
+c                               !<         = 2 XC contrib to CPKS LHS
+c                               !<         = 3 XC contrib to CPKS RHS
+c                               !<         = 4 XC NMR contrib
+      logical l3d               !< [Local] Whether 3-D NGA density
+c                               !<         and fock matrices are used.
+c                               !<         Must be true when and only when 
+c                               !<         calctype = 2
+      logical triplet           !< [Rtdb]  True if TDDFT triplet excitation
+c                               !<         energy calculations from RDFT.
+c                               !<         If not set, then .false. is 
+c                               !<         assumed.  For Hessian, this must
+c                               !<         be false (or not set).
 c
-      integer nExc              ! [input]  no. exchange-correlation energy
-c                               !          components.
-      double precision Exc(nExc)! [output] Exchange-correlation energy 
-c                               !          components
+      integer nExc              !< [Input]  no. exchange-correlation energy
+c                               !<          components.
+      double precision Exc(nExc)!< [Output] Exchange-correlation energy 
+c                               !<          components
 c
 c     Local declarations
 c
@@ -79,6 +82,7 @@ c Note that ndens=ipol and is not necessarily
 c equal to No. of density matrices.  "nfock" or "nmat"
 c will be related to No. of density matrices. 
 c
+      l3d = (3.eq.ga_ndim(g_xc))
       ndens=1
       if(xc_getipol().eq.2) ndens=2
       rtdb = bgj_get_rtdb_handle()
@@ -131,21 +135,13 @@ c
          call util_flush(luout)
        endif
 c
-c     assumed l3d true AND calc_type=2
-c
-      if(l3d.and.calc_type.ne.2.or.
-     &   (.not.l3d).and.calc_type.eq.2) then
-        write (luout,*) 'l3d, calc_type =',l3d,calc_type
-        call errquit ('fxc: calc_type-l3d logic wrong ',0, UNKNOWN_ERR)
-      end if
-c
 c     Set up local copies of density matrix handles. The number of 
 c     density matrices needed is ndens*nvec+2. The last two are scf
 c     (unperturbed) density matrices.
 c
 c     g_dens_xc is the density matrix used in the XC routines
 c
-      if(l3d) then
+      if(calc_type.eq.2) then
 c     -------------
 c     calc_type = 2
 c     -------------
@@ -245,7 +241,7 @@ c
             write(luout,*) 'g_dens_xc1',int_mb(igxcd)
             call util_flush(luout)
          endif
-         if(l3d) then
+         if(calc_type.eq.2) then
             do i=1,ndens*(nfock_xc+1)
                alo(1)=i
                ahi(1)=i
@@ -254,7 +250,7 @@ c
          else
             call ga_print(int_mb(igxcd))
          endif
-         if(ndens.eq.2.and.(.not.l3d)) then
+         if(ndens.eq.2.and.(calc_type.ne.2)) then
             if(ga_nodeid().eq.0) then
                write(luout,*) 'g_dens_xc2',int_mb(igxcd+1)
                call util_flush(luout)
@@ -288,7 +284,7 @@ c
 c
 c     Clean up
 c
-      if(l3d) then
+      if(calc_type.eq.2) then
          do i=1,dims(1)
          if (.not. ga_destroy(int_mb(igxcd+i-1)))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,

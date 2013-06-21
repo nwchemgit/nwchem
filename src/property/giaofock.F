@@ -278,8 +278,7 @@ c         if (ga_nodeid().eq.0)
 c     &     write(*,*) 'BEF fock_xc() ...'
            call fock_xc(geom,nbf,basis,nfock(npol),
      &                  g_dens1,g_xc,
-     &                  Exc,nExc,
-     &                  .false.) ! out: g_xc
+     &                  Exc,nExc) ! out: g_xc
 c        if (ga_nodeid().eq.0)
 c     &     write(*,*) 'AFT fock_xc() ...'
 
@@ -651,8 +650,7 @@ c         nExc = 1
          nExc = 2 ! BUG: Fixed on 05-10-11
          call fock_xc(geom,nbf,basis,nfock(npol),
      &                g_dens1,g_xc,
-     &                Exc,nExc,
-     &                .false.) ! out: g_xc
+     &                Exc,nExc) ! out: g_xc
         if (debug_giaofock.eq.1) then
           if (ga_nodeid().eq.0)
      &    write(*,*) '---- giao_fock: g_xc -------- START'

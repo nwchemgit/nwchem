@@ -187,14 +187,14 @@ c
 c     works with nfock=1 for CS and nfock=4 for OS
 c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
-     '     '    fock_2e: unexpected nfock value = ',nfock, UNKNOWN_ERR)
+     &     '    fock_2e: unexpected nfock value = ',nfock, UNKNOWN_ERR)
        
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       nExc = 1
       if (doxc) then
       call fock_xc(geom1, nbf,ao_basis,
-     ,     nfock, vg_dens, g_xc,Exc,nExc,.false.)
+     &             nfock, vg_dens, g_xc,Exc,nExc)
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4

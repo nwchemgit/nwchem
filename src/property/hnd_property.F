@@ -106,36 +106,6 @@ c     FA-08-18-10
 
       if (.not.rtdb_get(rtdb, 'dft:cgmin', mt_log, 1, lcgmin))
      &    lcgmin = .false.
-      if (gshift.eq.0 .or. giao.eq.0 .or.
-     &    spinspin.eq.0 .or. noaoresponse.eq.0) then
-        if (lcgmin.and.(ga_nodeid().eq.0)) then
-          write(luout,*)'ERROR:'
-          write(luout,*)'======'
-          write(luout,*)
-          write(luout,*)'At present the use of the quasi Newton-Raphson'
-          write(luout,*)'solver is incompatible with some property'
-          write(luout,*)'calculations. Please use the following'
-          write(luout,*)'approach instead:'
-          write(luout,*)
-          write(luout,*)'   dft'
-          write(luout,*)'     cgmin'
-          write(luout,*)'   end'
-          write(luout,*)'   task dft energy'
-          write(luout,*)
-          write(luout,*)'   dft'
-          write(luout,*)'     nocgmin'
-          write(luout,*)'   end'
-          write(luout,*)'   property'
-          write(luout,*)'     hyperfine'
-          write(luout,*)'     shielding'
-          write(luout,*)'     spinspin'
-          write(luout,*)'   end'
-          write(luout,*)'   task dft property'
-          call util_flush(luout)
-          call errquit('task hessian incompatible with cgmin',
-     &                 0,CAPMIS_ERR)
-        endif
-      endif
 c
 c     Get geometry and make C1 if necessary
 c
@@ -155,6 +125,7 @@ c
 c     Some printout
 c
       if (ga_nodeid().eq.0) then
+         call util_flush(luout)
          if (util_print('information',print_low)) then
             call util_print_centered(luout,'NWChem Property Module',
      $           40,.true.)

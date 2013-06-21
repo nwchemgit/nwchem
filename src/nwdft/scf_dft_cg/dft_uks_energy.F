@@ -219,7 +219,7 @@ c
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       if (xc_gotxc()) then
-        call fock_xc(geom, nbf, basis, 4*2, d, f(5), Exc, nExc, .false.)
+        call fock_xc(geom, nbf, basis, 4*2, d, f(5), Exc, nExc)
       endif
 c
 c     enddo DFT stuff
