@@ -4,9 +4,6 @@ start prop_nh3_dat
 
 # This calculation tests the property code in the case where
 # the DFT part uses the quasi Newton-Raphson solver.
-# Obviously the method used to solve the DFT problem should
-# not matter for the properties but unintentional interactions
-# have been noticed.
 
 title "property calculation for (NH3) - DFT(B3LYP)/aug-cc-pVDZ"
 
