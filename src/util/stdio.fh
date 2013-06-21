@@ -6,20 +6,40 @@ C REVISION
 C     $Id$
 C
 C NOTES
-C     Common block must be initialized with stdio_init.fh in the main
-C     program. stdio_term.fh should be used to wrap up standard I/O
-C     usage.
+C     The common block must be initialized prior to using the I/O
+C     units. Currently the following points change these units:
+C
+C     1) Block data util_stdio_data [util_io.F] sets LuOut to 6 as a
+C        sensible default.
+C
+C     2) Function util_sgroup_set_ioname [util_sgroup.F] sets LuOut
+C        to a value based on the group number.
+C
+C     3) Function util_sgroup_unset_io [util_sgroup.F] closes LuOut.
+C
+C     4) Subroutine smd_group_set_io [smd_group.F] closes LuOut,
+C        resets it, and attaches it to a new file.
+C
+C     5) Subroutine smd_group_set_io_custom [smd_group.F] closes LuOut,
+C        resets it, and attaches it to a new file.
+C
+C     6) Subroutine smd_group_unset_io [smd_group.F] closes LuOut.
+C
+C     This combination ensures that subgroup aware codes can arrange
+C     the I/O capabilities they need, while functionality that is
+C     not subgroup aware still works because of a proper default
+C     setting.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer LUIn, LUOut, LUErr
-c$$$      Common /StdIO_Units/ LuIn, LuOut, LuErr
 C
-C     This way we do not have to worry about the initialization/termination
+C     This way we do not have to worry about the 
+C     initialization/termination
 C
 #ifdef USE_SUBGROUPS
-c     moving luout out of parameter list. 
+c     Moving luout out of parameter list. 
 c     It MUST BE assigned prior to execution.
-c     Potentially 
-c     per group basis at will
+c     Potentially on a per group basis at will.
+c
       Common /StdIO_Units/  LuOut
       Parameter (LuIn = 5, LuErr = 0)
 #else
@@ -27,10 +47,10 @@ c     per group basis at will
 #endif
 C
 C     A potentially useful tidbit:  On Cray machines, units
-C     100, 101, and 102 are always assigned to stdin, stdout, and stderr.
-C     They differ from 5, 6, and 0 in that they cannot be OPENed,
-C     and will not exist according to INQUIRE.  Consequently, 100+
-C     will _always_ correspond to the unix stdio streams regardless
+C     100, 101, and 102 are always assigned to stdin, stdout, and
+C     stderr. They differ from 5, 6, and 0 in that they cannot be
+C     OPENed, and will not exist according to INQUIRE.  Consequently,
+C     100+ will _always_ correspond to the unix stdio streams regardless
 C     of what the application may do with 5/6/0
 C
 C     Also note that on Crays, all of these units are _assigned_ but not
