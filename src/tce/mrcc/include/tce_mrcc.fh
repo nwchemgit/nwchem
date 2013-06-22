@@ -217,3 +217,4 @@ c     +     r2_diis_existm(maxdiism,maxref),
 c     +     r3_diis_existm(maxdiism,maxref),
 c     +     r4_diis_existm(maxdiism,maxref)
 c
+c $Id$

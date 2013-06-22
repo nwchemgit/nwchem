@@ -1,6 +1,6 @@
       SUBROUTINE dcl_t1t1_1(d_a,k_a_offset,d_b,k_b_offset,d_c,k_c_offse
      &t)
-C     $Id: ccsd_t2.F,v 1.4.2.1 2006/07/14 18:51:42 brabecj Exp $
+C     $Id$
 C     i0 ( p3 p4 h1 h2 )_tt + = 1/2 * P( 4 ) * t ( p3 h1 )_t * t ( p4 h2 )_t
       IMPLICIT NONE
 #include "global.fh"

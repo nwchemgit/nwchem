@@ -1,4 +1,4 @@
-/* $Id: util_gnxtval.c,v 1.1 2004/03/27 01:33:27 edo Exp $ */
+/* $Id$ */
 /**
  * NXTVAL Atomic Counter:
  * ----------------------

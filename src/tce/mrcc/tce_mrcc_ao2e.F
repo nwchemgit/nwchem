@@ -1,6 +1,6 @@
       subroutine tce_mrcc_ao2e(rtdb,d_ao2e,iref)
 c
-c $Id: tce_ao2e.F,v 1.17.2.1 2008/08/27 02:32:49 jhammond Exp $
+c $Id$
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c

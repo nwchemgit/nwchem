@@ -32,3 +32,4 @@ int device_init_(long *icuda,long *cuda_device_number ) {
 	}
 }
 
+/* $Id$ */

@@ -1,3 +1,4 @@
 
 c	external get_device_id 
 	integer check_device
+c $Id$

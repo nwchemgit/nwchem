@@ -1,7 +1,7 @@
       subroutine tce_mrcc_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset,
      1 iref,d_mo2e1,k_2e_offset1)
 c
-c $Id: tce_mo2e.F 19706 2010-10-29 17:52:31Z d3y133 $
+c $Id$
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c

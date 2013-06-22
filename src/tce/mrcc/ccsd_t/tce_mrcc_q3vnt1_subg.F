@@ -265,3 +265,4 @@ c     & - 1 + noab * (p5b_1 - noab - 1)))
       END DO
       RETURN
       END
+c $Id$

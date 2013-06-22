@@ -67,3 +67,4 @@ c               orbfromblck(ib,ir-1,iref) = orbindex
       end
 
 
+c $Id$

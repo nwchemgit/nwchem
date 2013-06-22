@@ -83,3 +83,4 @@ c      nodezero = (ga_nodeid().eq.0)
       return
       end
 
+c $Id$
