@@ -240,3 +240,4 @@
 *     End of STRTRI
 *
       END
+c $Id$

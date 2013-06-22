@@ -78,3 +78,4 @@
       DISNAN = DLAISNAN(DIN,DIN)
       RETURN
       END
+c $Id$
