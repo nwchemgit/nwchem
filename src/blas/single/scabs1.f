@@ -55,3 +55,4 @@
       SCABS1 = ABS(REAL(Z)) + ABS(AIMAG(Z))
       RETURN
       END
+c $Id$

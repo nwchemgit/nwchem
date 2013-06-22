@@ -95,3 +95,4 @@
       SCASUM = STEMP
       RETURN
       END
+c $Id$

@@ -110,3 +110,4 @@
       SASUM = STEMP
       RETURN
       END
+c $Id$

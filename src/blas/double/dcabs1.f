@@ -56,3 +56,4 @@
       DCABS1 = ABS(DBLE(Z)) + ABS(DIMAG(Z))
       RETURN
       END
+c $Id$

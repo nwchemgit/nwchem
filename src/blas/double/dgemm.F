@@ -1,6 +1,6 @@
       SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
 C     .. Parameters ..
-C     $Id: dgemm.F 19695 2010-10-29 16:51:02Z d3y133 $
+C     $Id$
       DOUBLE PRECISION ONE, ZERO
       PARAMETER        (ONE=1.0D+0,ZERO=0.0D+0)
       INTEGER          MB, NB, KB
