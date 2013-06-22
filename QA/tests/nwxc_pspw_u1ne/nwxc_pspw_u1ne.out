@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: nwxc_pspw_u1he.nw 23487 2013-01-22 18:41:34Z d3y133 $
+# $Id$
 echo
 
 #memory 950 mb

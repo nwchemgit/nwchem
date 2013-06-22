@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: domknwchemrc 22501 2012-05-20 06:00:35Z d3y133 $
+# $Id$
 #
 #---   Set the appropriate environment variables for the tests.
 #---   Environment variables are preferred to avoid clashes with other 

@@ -4,7 +4,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: nwxc_nwdft_1ne.nw 23771 2013-03-14 21:34:42Z d3y133 $
+# $Id$
 echo
 start nwxc_dat
 
