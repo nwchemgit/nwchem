@@ -533,3 +533,4 @@ C      if (cdfit) call zfock_cs_coulcdfit_clean (params)
 
 
       end subroutine
+c $Id$

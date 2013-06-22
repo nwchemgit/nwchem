@@ -306,3 +306,4 @@ C
       call errquit ("XXX canorg_diag_zs", 0, 0)
 
       end subroutine
+c $Id$

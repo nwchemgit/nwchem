@@ -96,3 +96,4 @@ C     $                 i, j, va, vb, diff
       enddo
 
       end subroutine
+c $Id$

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile 22460 2012-05-14 19:55:13Z niri $
+# $Id$
 #
 	OBJ_OPTIMIZE = \
 	dft_vspec.o\

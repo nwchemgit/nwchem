@@ -249,3 +249,4 @@ C     not needed I think
 C      call ga_sync ()
 
       end subroutine
+c $Id$

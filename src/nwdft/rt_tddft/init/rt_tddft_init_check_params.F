@@ -163,3 +163,4 @@ C         endif
 CXXX  [KAL]: check that field center is before tmax      
 
       end subroutine
+c $Id$

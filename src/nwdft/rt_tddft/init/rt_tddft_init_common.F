@@ -316,3 +316,4 @@ C     xxx check ns_ao vs nbf_ao
      $     "Fock matrix will be frozen")
 
       end subroutine rt_tddft_init_common
+c $Id$

@@ -81,3 +81,4 @@ C
 
       rt_tddft_os_tdfock = .true.
       end function
+c $Id$

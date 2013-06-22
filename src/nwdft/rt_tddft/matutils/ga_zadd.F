@@ -15,3 +15,4 @@ C
       call ga_add (za, g_a, zb, g_b, g_c)
 
       end subroutine
+c $Id$

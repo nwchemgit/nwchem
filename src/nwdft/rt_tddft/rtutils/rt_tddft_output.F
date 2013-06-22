@@ -655,3 +655,4 @@ CXXX  [KAL]: dont subtract nuclear charge for now
       end subroutine
       
       
+c $Id$

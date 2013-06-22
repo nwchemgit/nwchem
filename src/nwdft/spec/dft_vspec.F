@@ -395,4 +395,4 @@ c
       enddo
 c
       end 
-c $Id: dft_vspec.F 22700 2012-08-12 05:20:52Z niri $
+c $Id$

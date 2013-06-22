@@ -13,3 +13,4 @@
       double precision, external        :: mat_norm
       double precision, external        :: zmat_checksum
 
+c $Id$

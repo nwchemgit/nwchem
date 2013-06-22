@@ -503,3 +503,4 @@ C      if (tmin.lt.0d0) call errquit(pname//"tmin must be > 0", 0, 0)
       
       end subroutine
       
+c $Id$

@@ -93,3 +93,4 @@ C     $     ga_ddot (g_densre(2), g_fc(2)))
 
       if (params%prof) call prof_end (elapsed,"Fock OS standard coul")
       end subroutine
+c $Id$

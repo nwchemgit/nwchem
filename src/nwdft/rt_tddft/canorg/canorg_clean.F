@@ -38,3 +38,4 @@ c$$$      if (.not. ga_destroy (params%g_sn12)) !allocd in rt_tddft_init_overlap
 c$$$     $     call errquit (pname//"failed to destroy g_sn12", 0, 0)
 
       end subroutine
+c $Id$

@@ -192,3 +192,4 @@ C     (force quad integrals to be symmetric)
       end subroutine rt_tddft_init_dip_quad_ints_new
 #endif
     
+c $Id$

@@ -89,3 +89,4 @@ C     XXX NOTE: 2 for CS; MAKE THIS MORE ELEGANT
      $     call errquit (pname//"failed to destroy g_tmp2",0,0)
 
       end subroutine
+c $Id$

@@ -97,3 +97,4 @@ CXXX  [KAL]: have an option to return false?
       rt_tddft_cs_tdfock= .true.
 
       end function
+c $Id$

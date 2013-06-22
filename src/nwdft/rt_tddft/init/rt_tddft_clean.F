@@ -94,3 +94,4 @@ C      call int_ecp_terminate ()
       end subroutine rt_tddft_clean
 
 
+c $Id$

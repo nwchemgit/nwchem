@@ -10,7 +10,7 @@
      &                         qwght,ldew,func,is12x)
 #endif
 c
-C$Id: xc_cams12x.F 20247 2011-04-28 18:58:49Z d3y133 $
+C$Id$
 c
       implicit none
 c      

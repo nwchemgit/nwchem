@@ -185,3 +185,4 @@ C     (set to default magnus options, will overwrite if keywords found)
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
             
       end subroutine
+c $Id$

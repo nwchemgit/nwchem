@@ -96,3 +96,4 @@ C
       call rt_tddft_print_msg (params, tt, outstr)
       
       end subroutine
+c $Id$

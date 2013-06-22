@@ -64,3 +64,4 @@ C     == Calculate Coulomb part of F and energy ==
 
       if (params%prof) call prof_end (elapsed,"Fock CS standard coul")
       end subroutine
+c $Id$

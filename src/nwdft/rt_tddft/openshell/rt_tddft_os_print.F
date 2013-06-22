@@ -84,3 +84,4 @@ C     (alpha+beta total spin)
       
       end subroutine
       
+c $Id$

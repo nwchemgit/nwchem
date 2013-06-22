@@ -411,4 +411,4 @@ c
      &  ('dft_vspec_so: failed to destroy g_dp_wk',0,GA_ERR)
 c
       end 
-c $Id: dft_vspec_so.F 22889 2012-09-21 13:44:50Z niri $
+c $Id$

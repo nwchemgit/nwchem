@@ -57,3 +57,4 @@ C     (use pre-computed/static)
       if (params%prof) call prof_end (elapsed, "Fock CS core")
 
       end subroutine
+c $Id$
