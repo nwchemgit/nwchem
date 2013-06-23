@@ -347,3 +347,4 @@ c     Reduce the subspace as necessary
 
       end
 c +++++++++++   ga_lkain_ext() ++++++++++++ END
+c $Id$

@@ -1,6 +1,6 @@
       subroutine util_nwsort(n,value,vector,order)
 c
-c $Id: tddft_sort.F 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
 c
 c Sort the eigenvalues and eigenvectors 
 c in an ascending/descending order

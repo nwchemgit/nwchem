@@ -2,7 +2,7 @@
      $                   VL, LDVL, VR, LDVR, ILO, IHI, SCALE, ABNRM,
      $                   RCONDE, RCONDV, WORK, LWORK, IWORK, INFO )
 *
-* $Id: ygeev.F 19697 2010-10-29 16:57:34Z d3y133 $
+* $Id$
 *
       implicit none
 #include "y64.fh"

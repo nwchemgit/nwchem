@@ -1,4 +1,4 @@
-c $Id: bq_main.F 22577 2012-06-08 17:18:48Z marat $
+c $Id$
 
 
       subroutine bq_force(rtdb)

@@ -6,7 +6,7 @@
      &                          odiff, oprint, omega, limag,
      &                          lifetime, gamwidth, ncomp)
 
-c     $Id: ga_lkain_2cpl3.F 19707 2010-10-29 17:59:36Z d3y133 $
+c     $Id$
 c  Written by J. Autschbach, SUNY Buffalo
 c  Improvements made
 c          by F. Aquino,     Northwestern University 
@@ -7394,7 +7394,7 @@ c --> Experimental (not published yet)
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F 21915 2012-02-01 22:09:20Z d3y133 $
+c     $Id$
 
       integer g_x               ! [in/ou] Re rhs vector of eq. system
       integer g_x_im            ! [in/ou] Im rhs vector of eq. system
@@ -7447,7 +7447,7 @@ c     using 4 * omega
      &                                       g_fcp, 
      &                                       g_x, 
      &                                       g_x_im)
-C     $Id: rohf_hscale.F 19707 2010-10-29 17:59:36Z d3y133 $
+C     $Id$
 c
 c ... jochen: modified version of rohf_hdiag_scale to allow for
 c     a situation where we have damping and a coupled set of equations.

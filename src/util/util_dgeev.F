@@ -2,7 +2,7 @@
       SUBROUTINE UTIL_DGEEV
      $    ( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
-c $Id: tddft_dgeev.F 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
       implicit none
       CHARACTER          JOBVL, JOBVR
       INTEGER            INFO, LDA, LDVL, LDVR, LWORK, N
@@ -32,7 +32,7 @@ c
       SUBROUTINE UTIL_DGEEV
      $    ( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
-c $Id: tddft_dgeev.F 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
 c The subdoutine is identical to the original dgeev but had to be renamed,
 c since otherwise, for IBM SP2, dynamically linked dgeev having different
 c interface syntax is going to be used rather than this.

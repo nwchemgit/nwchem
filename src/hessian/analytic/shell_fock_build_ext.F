@@ -573,3 +573,4 @@ c ===== Move g_fock2 --> g_fock(ipm)  ipm=1,nblock == END
      &   errquit('sh-fockbld2: ga_dstry failed g_dens2',0,GA_ERR)
       return
       end
+c $Id$

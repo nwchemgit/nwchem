@@ -1,5 +1,5 @@
 C
-C $Id: $
+C $Id$
 C
 C> \brief Copy data from a double precision to a double complex array
 C>
