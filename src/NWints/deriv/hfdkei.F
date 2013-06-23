@@ -3,7 +3,7 @@
 #endif
       Subroutine hfdkei(alpha,E,Tab,Ti,NPP,Nint,La,Lb,Li,
      &                  MXD,inder,Nder,canAB)
-c $Id: hfdkei.f 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

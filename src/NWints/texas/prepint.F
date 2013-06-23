@@ -1,4 +1,4 @@
-c $Id: prepint.f 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)

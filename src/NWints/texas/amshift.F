@@ -1,4 +1,4 @@
-c $Id: amshift.f 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM

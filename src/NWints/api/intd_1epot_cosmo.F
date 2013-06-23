@@ -49,7 +49,7 @@ C> last equation.
 c
       subroutine intd_1epot_cosmo(i_basis,ish,j_basis,jsh,lscr,scr,
      &           lH1a,H1a,efc_c,efc_q,nefc)
-C $Id: intd_1epot.F 19696 2010-10-29 16:53:42Z d3y133 $
+C $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

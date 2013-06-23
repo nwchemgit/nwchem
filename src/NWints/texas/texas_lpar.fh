@@ -29,3 +29,4 @@ c
       common /logic11/ npxyz(3,lpar3)
 
 
+c $Id$

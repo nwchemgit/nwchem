@@ -1,4 +1,4 @@
-* $Id: memoha.f 19696 2010-10-29 16:53:42Z d3y133 $
+* $Id$
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)

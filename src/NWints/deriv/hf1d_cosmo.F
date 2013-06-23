@@ -4,7 +4,7 @@
      &       Cxyz,zan,
      &       bNAI,Nint,
      &       canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F 19963 2011-02-17 00:39:03Z d3y133 $
+c $Id$
 c
 c     Calculate derivatives of an nuclear attraction type integral.
 c     The integral is:

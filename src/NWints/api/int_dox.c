@@ -35,3 +35,4 @@ calculated using them.
     DOI: <a href="http://dx.doi.org/10.1063/1.450106">10.1063/1.450106</a>
     (Note: Texas integrals using Obara-Saika).
 */
+/* $Id$ */
