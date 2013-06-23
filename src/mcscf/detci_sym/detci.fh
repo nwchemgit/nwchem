@@ -1,5 +1,5 @@
 *
-* $Id: detci.fh 19708 2010-10-29 18:04:21Z d3y133 $
+* $Id$
 *
       integer detci_elv2str
       integer detci_occ2str

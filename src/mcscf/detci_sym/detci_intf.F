@@ -7,7 +7,7 @@ c
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
      $                       osym, iprint, eps, h, g )
 *
-* $Id: detci_intf.F 23774 2013-03-14 23:01:39Z bert $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

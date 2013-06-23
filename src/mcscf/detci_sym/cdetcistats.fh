@@ -1,5 +1,5 @@
 *
-* $Id: cdetcistats.fh 23780 2013-03-15 01:48:16Z niri $
+* $Id$
 *
 	integer detci_sigma_calls
 	integer detci_density_calls

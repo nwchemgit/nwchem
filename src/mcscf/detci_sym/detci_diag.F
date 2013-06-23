@@ -5,7 +5,7 @@ c
       subroutine detci_dvddiag( mxv, precon, maxiter, tol, oprint,
      $                          g_x, g_x0, g_q, g_s, g_s0, g_sq, e )
 *
-* $Id: detci_diag.F 22595 2012-06-19 19:06:23Z d3y133 $
+* $Id$
 *
       implicit none
 #include "global.fh"

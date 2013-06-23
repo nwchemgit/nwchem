@@ -2,7 +2,7 @@
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
 *
-* $Id: detci_dens.F 19906 2011-02-01 23:22:45Z edo $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
