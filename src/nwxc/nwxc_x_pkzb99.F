@@ -46,7 +46,7 @@ c         PRL 82, 2544 (1999).
       Subroutine nwxc_x_pkzb99(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func, Amat, Cmat, Mmat)
 c   
-c$Id: xc_xpkzb99.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
       implicit none
 c

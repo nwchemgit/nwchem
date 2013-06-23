@@ -1,4 +1,4 @@
-# $Id: GNUmakefile 21484 2011-11-09 21:22:15Z d3p852 $
+# $Id$
 
          LIBRARY = libnwxc.a
 

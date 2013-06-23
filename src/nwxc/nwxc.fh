@@ -36,3 +36,4 @@ C>
       double precision nwxc_wght_mp2c !< The MP2 correlation weight
       double precision nwxc_get_rho_tolerance !< Get density tolerance
 C> @}
+c $Id$

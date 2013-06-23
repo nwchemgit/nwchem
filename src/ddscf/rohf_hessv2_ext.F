@@ -785,3 +785,4 @@ c     $                       g_ax_im,1,ivec,four,'+')
         if (.not.ga_destroy(g_tmp1)) call errquit(
      &      'rohf_hessv3: ga_destroy failed g_tmp',0,GA_ERR)
       end
+c $Id$

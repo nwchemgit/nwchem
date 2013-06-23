@@ -986,3 +986,4 @@ c    +                    nwxc_ids(it),UERR)
 C
        end
 C> @}
+c $Id$

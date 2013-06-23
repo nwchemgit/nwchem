@@ -413,3 +413,4 @@ c     Cleanup g_s10 as we do not need it right now
      &    errquit('fiao_b1: ga_destroy failed g_s10',0,GA_ERR)
       return
       end
+c $Id$

@@ -452,5 +452,5 @@ c
       end
 c
 #endif
-c $Id: xc_bnl.F 22503 2012-05-20 06:58:57Z d3y133 $
+c $Id$
 C> @}

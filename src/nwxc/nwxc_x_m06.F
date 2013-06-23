@@ -51,7 +51,7 @@ c     [b]       Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),131
       Subroutine nwxc_x_m06(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func, Amat, Cmat, Mmat)
 c   
-c$Id: xc_xm06.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
       implicit none
 c
@@ -507,7 +507,7 @@ C>
       Subroutine nwxc_x_m06_2x(param, tol_rho, ipol, nq, wght, 
      &                         rho, rgamma, tau, func, Amat, Cmat, Mmat)
 c   
-c$Id: xc_xm06.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
       implicit none
 c

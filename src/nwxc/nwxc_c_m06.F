@@ -46,7 +46,7 @@ c                              ijzy - 4  M06-2X
       Subroutine nwxc_c_m06(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func, Amat, Cmat, Mmat)
 c
-c$Id: xc_cm06.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
 c     [a]   Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;
 c     [b]   Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),13126-13130.

@@ -34,7 +34,7 @@ C>
       Subroutine nwxc_c_pkzb99(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func, Amat, Cmat, Mmat)
 c
-c$Id: xc_cpkzb99.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
 
 c     References:

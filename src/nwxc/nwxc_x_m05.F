@@ -51,7 +51,7 @@ c     [b]       Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Theory Comput.
       Subroutine nwxc_x_m05(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func, Amat, Cmat, Mmat)
 c   
-c$Id: xc_xm05.F 22535 2012-05-31 01:22:18Z edo $
+c$Id$
 c
       implicit none
 c

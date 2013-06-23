@@ -50,7 +50,7 @@ C>
      &                         rgamma, func, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
-C$Id: xc_lyp88.F 20247 2011-04-28 18:58:49Z d3y133 $
+C$Id$
 c
       implicit none 
 c

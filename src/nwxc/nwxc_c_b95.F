@@ -40,7 +40,7 @@ c                              tau (tauN)- K.S kinetic energy density
       Subroutine nwxc_c_b95(param, tol_rho, ipol, nq, wght, 
      &                      rho, rgamma, tau, func, Amat, Cmat, Mmat)
 c
-c$Id: xc_bc95.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
 c  Reference
 c    Becke, A. D. J. Chem. Phys. 1996, 104, 1040.

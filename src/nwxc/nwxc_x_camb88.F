@@ -44,7 +44,7 @@ C>
      &                            Cmat2)
 #endif
 c
-C$Id: xc_camb88.F 20247 2011-04-28 18:58:49Z d3y133 $
+C$Id$
 c
 c     Coulomb attenuated Becke88 functional
 c

@@ -31,7 +31,7 @@ C> <a href="http://dx.doi.org/10.1063/1.1665298">
 C> 10.1103/1.1665298</a>.
 C>
 c   
-c$Id: xc_ctpss03.F 21740 2012-01-11 00:25:15Z edo $
+c$Id$
 c
 c
 c    Tao,Perdew, Staroverov, Scuseria exchange functional 

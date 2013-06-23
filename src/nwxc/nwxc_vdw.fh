@@ -18,3 +18,4 @@ c
       common /nwxc_vdwc/c6,c8,r0,alpha
       common /nwxc_vdw3/Qatom,cov_table,r0AB,c6ab
       common /nwxc_vdwi/ivdw,maxcn
+c $Id$

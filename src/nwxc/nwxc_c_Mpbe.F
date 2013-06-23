@@ -8,7 +8,7 @@ C>
       Subroutine nwxc_c_Mpbe(tol_rho, ipol, rho, rgamma,
      &                       Ec, Amat, Cmat)
 c
-c$Id: xc_cMpbe96.F 20247 2011-04-28 18:58:49Z d3y133 $
+c$Id$
 c
       Implicit none
 c

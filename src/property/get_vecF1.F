@@ -329,3 +329,4 @@ c ------ Store nopen in rtdb so that CPHF routine is happy ---- END
         enddo
       return
       end
+c $Id$

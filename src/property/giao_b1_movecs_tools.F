@@ -731,3 +731,4 @@ c     alo(2) and ahi(2) will stay as 1 and nclosed(1) for a while
      &   errquit('giao_b1: ga_destroy failed vectors',0,GA_ERR)
       return
       end
+c $Id$

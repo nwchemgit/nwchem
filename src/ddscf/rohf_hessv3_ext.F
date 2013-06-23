@@ -24,7 +24,7 @@ c            J. Autschbach) but using optimizing routines.
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F 19983 2011-02-21 02:53:21Z niri $
+c     $Id$
 c
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
@@ -118,7 +118,7 @@ c            Fredy W. Aquino, Northwestern University (Oct 2012)
 c            Using rohf_hessv_2e2_opt() instead of old rohf_hessv_2e2()
 c                  rohf_hessv_2e3_opt() instead of old rohf_hessv_2e3() 
 
-C     $Id: rohf_hessv3.F 19983 2011-02-21 02:53:21Z niri $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -365,7 +365,7 @@ c --> Experimental (not published yet)
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F 19983 2011-02-21 02:53:21Z niri $
+c     $Id$
       integer ncomp
       integer g_z(ncomp), ! [input]  A-matrix elements for density matrix
      &        g_Az(ncomp) ! [output] Perturbed Fock operator
@@ -511,7 +511,7 @@ c
 c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c     -> modified from rohf_hessv_xx3()
-c     $Id: rohf_hessv3.F 19983 2011-02-21 02:53:21Z niri $
+c     $Id$
 c --> Experimental (not published yet)
 
       implicit none

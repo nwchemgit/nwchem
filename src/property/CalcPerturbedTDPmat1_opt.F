@@ -13,7 +13,7 @@
      &                 imag,     ! in : = .true. if amat is imaginary instead of real
      &                 haveocc)  ! in : = .true. if amat contains occ-occ block
 
-* $Id: CalcPerturbedTDPmat1.F 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id$
 
 c     ==================================================================
 
@@ -461,7 +461,7 @@ c ++++++++++++++++++ Added for debugging ++++++++++++++++ START
      &   (ncomp, g_pmats, g_pmata, g_amat, g_vectors, naos, nocc,
      &   nvir, nmo, lantisym, lstatic, imag, haveocc)
 
-* $Id: CalcPerturbedTDPmat1.F 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id$
 
 c     ==================================================================
 

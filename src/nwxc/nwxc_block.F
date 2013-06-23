@@ -76,3 +76,4 @@ C>
       nwxc_disp_alpha = 0.0d0
       end
 C> @}
+c $Id$
