@@ -191,15 +191,17 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc xm11
+  xc xm11-l
 end
 task dft energy
 
 dft
+  direct
   mult 3
   odft
   vectors input atomic
-  xc xm11-l
+  xc xm11  hfexch
+  cam 0.25 cam_alpha 0.428 cam_beta 0.572
 end
 task dft energy
 
@@ -563,7 +565,7 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc m11
+  xc m11-l
 end
 task dft energy
 
@@ -571,7 +573,7 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc m11-l
+  xc m11
 end
 task dft energy
 
