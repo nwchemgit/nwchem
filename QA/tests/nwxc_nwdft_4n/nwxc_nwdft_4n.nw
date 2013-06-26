@@ -320,6 +320,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc hfexch optc
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc hfexch cpbe96
 end
 task dft energy
@@ -455,6 +463,22 @@ end
 task dft energy
 
 # GGA exchange-correlation
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc optx optc
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc pbe96
+end
+task dft energy
 
 dft
   mult 4

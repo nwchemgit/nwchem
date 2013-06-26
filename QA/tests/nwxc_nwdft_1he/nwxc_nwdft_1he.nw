@@ -244,6 +244,13 @@ end
 task dft energy
 
 dft
+  odft
+  vectors input atomic
+  xc hfexch optc
+end
+task dft energy
+
+dft
   vectors input atomic
   xc hfexch cpbe96
 end
@@ -352,6 +359,13 @@ task dft energy
 dft
   vectors input atomic
   xc pbe96
+end
+task dft energy
+
+dft
+  odft
+  vectors input atomic
+  xc optx optc
 end
 task dft energy
 
