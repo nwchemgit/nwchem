@@ -182,6 +182,12 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_B88,0.75d0*dfweight)
         nwxc_wght_hf = nwxc_wght_hf + 0.25d0*dfweight
+      else if (dfname.eq."optx") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_OPT,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,1.05151d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_OPT,1.43169d0*dfweight)
       else if (dfname.eq."xbnl07".or.dfname.eq."bnl") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_BNL,dfweight)
         nwxc_wght_hf    = nwxc_wght_hf + dfweight
@@ -204,7 +210,7 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
         nwxc_cam_beta   = 0.5d0
         nwxc_cam_gamma  = 0.3d0
         nwxc_cam_srhfex = .false.
-      else if (dfname.eq."xcampbe") then
+      else if (dfname.eq."xcampbe".or.dfname.eq."xcampbe96") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMPBE,dfweight)
         nwxc_wght_hf    = nwxc_wght_hf + 0.25d0*dfweight
         nwxc_cam_alpha  = 0.0d0
@@ -235,6 +241,10 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
       else if (dfname.eq."xm11") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_M11,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 1.0000d0*dfweight
+        nwxc_cam_alpha  = 0.428d0
+        nwxc_cam_beta   = 0.572d0
+        nwxc_cam_gamma  = 0.25d0
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."xm11-l") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_M11_L,dfweight)
       else if (dfname.eq."xpbe96") then
@@ -328,6 +338,12 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_TPSS,dfweight)
       else if (dfname.eq."cvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VS98,dfweight)
+      else if (dfname.eq."perdew91") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_C_P91,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PW91LDA,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_P91,dfweight)
       else if (dfname.eq."vwn_1") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN1,dfweight)
       else if (dfname.eq."vwn_1_rpa") then
@@ -460,6 +476,10 @@ c       nwxc_wght_hf    = 0.20d0
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_M11,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 1.0000d0*dfweight
+        nwxc_cam_alpha  = 0.428d0
+        nwxc_cam_beta   = 0.572d0
+        nwxc_cam_gamma  = 0.25d0
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."m11-l") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_M11_L,dfweight)
         nwxc_add_df = nwxc_add_df .and.

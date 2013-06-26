@@ -116,7 +116,7 @@ c
       double precision EPS
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
-      double precision rho_t(3)
+      double precision rho_t(2)
       double precision dsqgamma
 c
 c     Intermediate derivative results, etc.
@@ -225,14 +225,15 @@ c
 c
 c        n and zeta = (na - nb)/n
 c
-         rhoval = rho(n,R_A)
          if (ipol.eq.2) then
-           rhoval = rhoval+rho(n,R_B)
+           rhoval = rho(n,R_A)+rho(n,R_B)
+         else
+           rhoval = rho(n,R_T)
          endif
          rho_t(1) = rhoval
-         rho_t(2) = rho(n,R_A)
          if (ipol.eq.2) then
-            rho_t(3) = rho(n,R_B)
+            rho_t(1) = rho(n,R_A)
+            rho_t(2) = rho(n,R_B)
          endif
          if (rhoval.le.tol_rho) goto 20
          if (ipol.eq.1) then
@@ -256,10 +257,10 @@ c        LDA part
 c        ========
 c
 #ifndef SECOND_DERIV
-         call nwxc_c_pw91lda(tol_rho, ipol, 1, 1.0d0, rho_t(2),
+         call nwxc_c_pw91lda(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                       nepsc, dnepscdn) 
 #else
-         call nwxc_c_pw91lda_d2(tol_rho, ipol, 1, 1.0d0, rho_t(2),
+         call nwxc_c_pw91lda_d2(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                          nepsc, dnepscdn, d2nepscdn2)
 #endif
 c

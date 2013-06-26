@@ -334,7 +334,7 @@ C     Compute the same-spin part of the m06 correlation functional for one grid
 C     point and one spin-case.
 C
 C
-      double precision param(20)
+      double precision param(22)
       double precision PX, GX, TX, F, FP, FG, FT, Tol_Rho
       double precision EUEG, Chi, EUEGP, ChiP, ChiG
       double precision Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11

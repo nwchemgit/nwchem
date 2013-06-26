@@ -371,13 +371,12 @@ c    &             delrho(n,2,1)*delrho(n,2,1) +
 c    &             delrho(n,3,1)*delrho(n,3,1))
         gammaval = rgamma(n,G_TT)
         TA = tau(n,T_T)/F2
-        TB=TA
+        TB = TA
       else
         RHOA = rho(n,R_A)
         RHOB = rho(n,R_B)
-        rho_t(1) = rho(n,R_A)+rho(n,R_B)
-        rho_t(2) = rho(n,R_A)
-        rho_t(3) = rho(n,R_B)
+        rho_t(1) = rho(n,R_A)
+        rho_t(2) = rho(n,R_B)
 c       gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &             delrho(n,1,2)*delrho(n,1,2) +
 c    &             delrho(n,2,1)*delrho(n,2,1) +
@@ -389,7 +388,7 @@ c    &             delrho(n,2,1)*delrho(n,2,2) +
 c    &             delrho(n,3,1)*delrho(n,3,2))
         gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2*rgamma(n,G_AB)
         TA =  tau(n,T_A)
-        TB =  tau(n,T_A)
+        TB =  tau(n,T_B)
       endif
       RHOVAL  = RHOA + RHOB
       TauP = TA+TB
@@ -408,7 +407,7 @@ c
 c           call xc_pw91lda(tol_rho,1d0,.true.,.false.,rho_t,
 c    &         dnepscdn,1,ipol,nepsc,1d0,
 c    &         .false.,dummy)
-            call nwxc_c_pw91lda(tol_rho,ipol,1,1.0d0,rho_t(2),
+            call nwxc_c_pw91lda(tol_rho,ipol,1,1.0d0,rho_t,
      &           nepsc,dnepscdn)
         
 c
@@ -543,9 +542,11 @@ c
          if (ipol.eq.2) dGGAdRB=rhoval*dH0dnb+H0
 C
          dE1dRA = dLSDAdRA*Fsig1 + LSDA*dF1dR
+         dE1dRB = 0.0d0
          if (ipol.eq.2) dE1dRB = dLSDAdRB*Fsig1 + LSDA*dF1dR
 C
          dE2dRA = dGGAdRA*Fsig2 + GGA*dF2dR
+         dE2dRB = 0.0d0
          if (ipol.eq.2) dE2dRB = dGGAdRB*Fsig2 + GGA*dF2dR 
 c
          dtdg = 0.25d0/(phi*ks*rhoval)/dsqgamma

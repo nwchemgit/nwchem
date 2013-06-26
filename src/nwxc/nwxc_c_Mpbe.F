@@ -138,6 +138,7 @@ c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
 c        n and zeta = (na - nb)/n
 c
+         rhoval = 0.0d0
          if (ipol.eq.1) then
             rhoval = rho(R_T)
             rho_t(1) = rho(R_T)
