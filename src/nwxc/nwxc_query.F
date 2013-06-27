@@ -499,6 +499,10 @@ c
            cdata = "DLDF Correlation (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
      +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
+         case (NWXCP_C_OPT)
+           cdata = "OPT Correlation (NC Handy, AJ Cohen, "
+     +             //"Mol.Phys. 99, 607 (2001)"
+     +             //" doi:10.1080/00268970010023435)"
          case (NWXCP_C_P91)
            cdata = "Perdew91 Correlation (JP Perdew, JA Chevary, "
      +             //"SH Vosko, KA Jackson, MR Pederson, DJ Singh, "
@@ -661,6 +665,10 @@ c
            cdata = "HSE (J Heyd, GE Scuseria, M Ernzerhof, "
      +             //"J.Chem.Phys. 118, 8207 (2003)"
      +             //" doi:10.1063/1.2204597)"
+         case (NWXCP_OPT)
+           cdata = "OPT (NC Handy, AJ Cohen, "
+     +             //"Mol.Phys. 99, 607 (2001)"
+     +             //" doi:10.1080/00268970010023435)"
          case (NWXCP_PBE)
            cdata = "PBE (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"

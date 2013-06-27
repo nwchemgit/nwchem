@@ -915,6 +915,9 @@ c            parameters B
              param(24) =  0.000000D+00
              call nwxc_c_m11(param,nwxc_rho_tol,ipol,nq,
      +            nwxc_wghts(it),rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_OPT)
+             call nwxc_c_opt(nwxc_rho_tol,ipol,nq,
+     +            nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_PW6B95)
              param(1) = 0.00262d0
              param(2) = 0.03668d0

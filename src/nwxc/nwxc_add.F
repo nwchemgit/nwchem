@@ -328,6 +328,8 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11,dfweight)
       else if (dfname.eq."cm11-l") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11_L,dfweight)
+      else if (dfname.eq."optc") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_OPT,dfweight)
       else if (dfname.eq."cpbe96") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PBE,dfweight)
       else if (dfname.eq."cpbesol") then
@@ -501,6 +503,12 @@ c       nwxc_wght_hf    = 0.20d0
         nwxc_cam_beta   = 1.0d0
         nwxc_cam_gamma  = 0.33d0
         nwxc_cam_srhfex = .true.
+      else if (dfname.eq."opt") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_OPT,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_OPT,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_OPT,dfweight)
       else if (dfname.eq."pbe96") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_PBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.

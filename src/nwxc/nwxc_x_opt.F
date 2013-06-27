@@ -23,7 +23,7 @@ C>     Mol. Phys. <b>99</b>, 607-615 (2001), DOI:
 C>     <A HREF="http://dx.doi.org/10.1080/00268970010023435">
 C>     10.1080/00268970010023435</A>.
 c
-C$Id: xc_optx.F 20247 2011-04-28 18:58:49Z d3y133 $
+C$Id$
 c
       subroutine nwxc_x_opt(tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                      Amat, Cmat)
