@@ -29,6 +29,7 @@ C>
       data nwxc_usr_num    / 0 /
       data nwxc_wght_hf    / 0.0d0 /
       data nwxc_wght_mp2   / 0.0d0 /
+      data nwxc_wght_cs00  / 0.0d0 /
       data nwxc_cam_alpha  / 0.0d0 /
       data nwxc_cam_beta   / 0.0d0 /
       data nwxc_cam_gamma  / 0.0d0 /
@@ -64,6 +65,7 @@ C>
       nwxc_usr_num    = 0 
       nwxc_wght_hf    = 0.0d0 
       nwxc_wght_mp2   = 0.0d0
+      nwxc_wght_cs00  = 0.0d0
       nwxc_cam_alpha  = 0.0d0
       nwxc_cam_beta   = 0.0d0
       nwxc_cam_gamma  = 0.0d0
