@@ -111,7 +111,7 @@ c     traceless dipole-quadrupole tensor, full storage
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir,
      &        i,j,k,l
       logical debug, dbgmat, 
-     &        lzora, lantisym
+     &        lzora, lantisym, lroa, me
       double precision sum, scaling,coeffre,coeffim
       double precision tenm8, one, two, three, zero, half, third
       parameter (tenm8=1d-8, one=1d0, two=2d0, three=3d0,
@@ -121,10 +121,22 @@ c     external functions:
       double precision ga_trace_diag
       external ga_trace_diag
 c  ====================================================================
-      debug  = .false. .and. ga_nodeid().eq.0 ! .true. during development
-      dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
+
+      me = (ga_nodeid().eq.0)
+
+      debug  = .false. .and. me ! .true. during development
+      dbgmat = .false. .and. me ! debug large matrices
 
 c      debug=.true.
+
+c     check for ROA keyword
+      lroa = .false.
+      if (rtdb_get(rtdb, 'aor:roadata', mt_log, 1,
+     &   lroa)) continue
+
+      if (lroa .and. me) then
+        write (luout,*) 'aor_r1_beta: roadata output requested'
+      end if
 
       if (debug) write (luout,*) 'hello from aor_r1_beta'
 c     the main results are collected in alfare/in, betare/im.
@@ -136,6 +148,8 @@ c     initialize these and other tensors with zeros:
         alfaim(idir,iresp)    = 0.0d0
         betare(idir,iresp)    = 0.0d0
         betaim(idir,iresp)    = 0.0d0
+       end do
+       do iresp = 1,6
         dipquadre(idir,iresp) = 0.0d0
         dipquadim(idir,iresp) = 0.0d0
        enddo ! end-loop-iresp
@@ -526,8 +540,23 @@ c         subtract trace from diagonal
             call output (dqpol(i,1:3,1:3),1,3,1,3,3,3,1)
           end do
         end if
+
+c       if we have the keyword for the ROA output, let's do that
+c       before the BD tensor gets assembled:
+
+        if (lroa .and. me) then
+          do i = 1,3
+            do j = 1,3
+              tmpmat(i,j) = -omega*betare(i,j)
+            end do
+          end do
+          call aor_write_roadata
+     &       (luout, alfare, betare, tmpmat, dipquadre, dqpol)
+        end if                 
+
 c       assemble BD tensor in tmpmat.
 c       step 1: symmetrize beta tensor
+
         tmpmat(:,:) = half * betare(:,:)
         do i = 1,3
           do j = 1,3

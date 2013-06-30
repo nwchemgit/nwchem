@@ -45,6 +45,7 @@
          int_mpole_1ega.o \
          aoresponse.o \
          aoresponse_beta.o \
+         aor_write_roadata.o \
          aoresponse_beta2.o \
          fiao_f1_movecs.o \
          aor_r1_tensor.o \
