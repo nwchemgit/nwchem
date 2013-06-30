@@ -360,6 +360,8 @@ C
                                               !< R^-8 term
       double precision nwxc_rho_tol           !< The tolerance on the density
       double precision nwxc_wghts(NWXC_MAX_F) !< The functional weights
+c
+      double precision nwxc_wght_cs00
 C
 C Users can specify functionals by listing individual terms or they
 C may use higher level aliases, e.g. B3LYP. B3LYP would be evaluated
