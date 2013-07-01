@@ -111,6 +111,8 @@ c
       external movecs_read,movecs_read_header
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      logical xc_got2nd
+      external xc_got2nd
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -124,6 +126,9 @@ c ---------------------
       if (.not.sym_abelian_group(geom))
      1  call errquit('tddft_init: non-Abelian symmetry not permitted',0,
      2  GEOM_ERR)
+        if(.not.xc_got2nd()) call errquit(
+     A        'analytic 2nds not ready for these XC functionals',0,
+     &       CAPMIS_ERR)
 
       if (.not.rtdb_get(rtdb,'dft:skeleton',mt_log,1,oskel)) then
         oskel=.false.
