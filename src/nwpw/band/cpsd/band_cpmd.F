@@ -371,6 +371,11 @@ c     **** allocate other variables ****
         call v_cpsi_delete()
       end if
 
+*     **** generate initial wavefunction velocities if it does not exist ****
+      if (.not.v_psi_filefind()) then
+        call v_cpsi_new(spin_orbit,ispin,ne,nbrillioun)
+      end if
+
 *     **** convert from pspw format to band format ****
       vers = v_psi_get_version()
       if ((vers.eq.3).or.(vers.eq.4)) then
@@ -381,10 +386,6 @@ c     **** allocate other variables ****
         value = rtdb_parallel(.true.)
       end if
 
-*     **** generate initial wavefunction velocities if it does not exist ****
-      if (.not.v_psi_filefind()) then
-        call v_cpsi_new(spin_orbit,ispin,ne,nbrillioun)
-      end if
 
 *     *****  read psi0 wavefunctions ****
       call v_cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi1_tag)
