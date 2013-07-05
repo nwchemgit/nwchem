@@ -44,7 +44,7 @@
       integer psi0_shift,psi1_shift,psi2_shift
       integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb,lmd_shift
       integer gga,psi_shift,hpsi_shift,hml_shift,nshift1,nshift2
-      real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
+      real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm,weight,sa1,sa2,fmass,ssr,sse,r,s,h
@@ -486,6 +486,51 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
         end do
         call cpsi_data_noupdate(psi2_tag)
 
+
+*       **************************
+*       *** update thermostats ***
+*       **************************
+        if (nose) then
+          if (verlet) then
+             eke = 0.0d0
+             do nb=1,nbrillq
+                psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
+                psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+                do i=1,n2(ispin)
+                   call Cram_cc_idot(nb,
+     >                               dbl_mb(psi2_shift+2*npack1*(i-1)),
+     >                               dbl_mb(psi0_shift+2*npack1*(i-1)),
+     >                               sum)
+                   eke = eke+sum*brillioun_weight(nb)
+                end do
+             end do
+             if (np.gt.1) call Parallel_SumAll(eke)
+             eke = (ne(1)+ne(2) - eke)
+             if (ispin.eq.1) eke = 2.0d0*eke
+             eke = 0.5d0*(fmass/(dt*dt))*eke
+             eki = ion_ke()
+             call Nose_Verlet_Step(eke,eki)
+          else
+              eke = 0.0d0
+              do nb=1,nbrillq
+                psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
+                do i=1,n2(ispin)
+                   call Cram_cc_idot(nb,
+     >                               dbl_mb(psi0_shift+2*npack1*(i-1)),
+     >                               dbl_mb(psi0_shift+2*npack1*(i-1)),
+     >                               sum)
+                   eke = eke+sum*brillioun_weight(nb)
+                end do
+              end do
+              if (np.gt.1) call Parallel_SumAll(eke)
+              if (ispin.eq.1) eke = 2.0d0*eke
+              eke = eke*fmass
+              eki = ion_ke()
+              call Nose_Newton_Step(eke,eki)
+          end if
+        end if
+
+
       end do
 
 *     **** if newton then skip energy calculations ****
@@ -749,3 +794,7 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
 
       return
       end
+
+
+
+      
