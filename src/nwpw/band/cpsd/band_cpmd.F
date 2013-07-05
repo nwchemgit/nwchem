@@ -77,7 +77,7 @@ c      parameter (autoatm =290.360032539d6)
 
       logical verlet,mulliken,SA,found,calc_pressure
       logical lprint,mprint,hprint
-      integer ms,if1,if2
+      integer ms,if1,if2,vers
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
       real*8  ekg,eki0,eki1,sum
@@ -152,16 +152,16 @@ c      parameter (autoatm =290.360032539d6)
       character*12 control_boundry
       external     control_boundry
 
-      logical      cpsp_semicore,pspw_qmmm_found
+      logical      cpsp_semicore,pspw_qmmm_found,pspw_reformat_c_wvfnc
       real*8       cpsp_rcore,cpsp_ncore,cpsp_rlocal,ion_TotalCharge
-      external     cpsp_semicore,pspw_qmmm_found
+      external     cpsp_semicore,pspw_qmmm_found,pspw_reformat_c_wvfnc
       external     cpsp_rcore,cpsp_ncore,cpsp_rlocal,ion_TotalCharge
 
       logical  control_Nose,control_Mulliken,control_print,Nose_restart
       external control_Nose,control_Mulliken,control_print,Nose_restart
 
-      integer  Nose_Mchain,Nose_Nchain
-      external Nose_Mchain,Nose_Nchain
+      integer  Nose_Mchain,Nose_Nchain,psi_get_version
+      external Nose_Mchain,Nose_Nchain,psi_get_version
   
       real*8   control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
       external control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
@@ -350,6 +350,16 @@ c     **** allocate other variables ****
       value = MA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
       if (.not. value)
      >  call errquit('band_cpmd:out of heap memory',0,MA_ERR)
+
+*     **** convert from pspw format to band format ****
+      vers = psi_get_version()
+      if ((vers.eq.3).or.(vers.eq.4)) then
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+          value= pspw_reformat_c_wvfnc(1)
+        end if
+        value = rtdb_parallel(.true.)
+      end if
 
 *     *****  read psi2 wavefunctions ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
