@@ -152,16 +152,18 @@ c      parameter (autoatm =290.360032539d6)
       character*12 control_boundry
       external     control_boundry
 
-      logical      cpsp_semicore,pspw_qmmm_found,pspw_reformat_c_wvfnc
+      logical  pspw_reformat_c_wvfnc,pspw_reformat_c_v_wvfnc
+      external pspw_reformat_c_wvfnc,pspw_reformat_c_v_wvfnc
+      logical      cpsp_semicore,pspw_qmmm_found
       real*8       cpsp_rcore,cpsp_ncore,cpsp_rlocal,ion_TotalCharge
-      external     cpsp_semicore,pspw_qmmm_found,pspw_reformat_c_wvfnc
+      external     cpsp_semicore,pspw_qmmm_found
       external     cpsp_rcore,cpsp_ncore,cpsp_rlocal,ion_TotalCharge
 
       logical  control_Nose,control_Mulliken,control_print,Nose_restart
       external control_Nose,control_Mulliken,control_print,Nose_restart
 
-      integer  Nose_Mchain,Nose_Nchain,psi_get_version
-      external Nose_Mchain,Nose_Nchain,psi_get_version
+      integer  Nose_Mchain,Nose_Nchain,psi_get_version,v_psi_get_version
+      external Nose_Mchain,Nose_Nchain,psi_get_version,v_psi_get_version
   
       real*8   control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
       external control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
@@ -367,6 +369,16 @@ c     **** allocate other variables ****
 *     **** move  wavefunction velocities ****
       if (control_new_vpsi()) then
         call v_cpsi_delete()
+      end if
+
+*     **** convert from pspw format to band format ****
+      vers = v_psi_get_version()
+      if ((vers.eq.3).or.(vers.eq.4)) then
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+          value= pspw_reformat_c_v_wvfnc(1)
+        end if
+        value = rtdb_parallel(.true.)
       end if
 
 *     **** generate initial wavefunction velocities if it does not exist ****
