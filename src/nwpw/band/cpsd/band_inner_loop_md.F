@@ -498,10 +498,12 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
                 psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
                 do i=1,n2(ispin)
                    call Cram_cc_idot(nb,
-     >                               dbl_mb(psi2_shift+2*npack1*(i-1)),
-     >                               dbl_mb(psi0_shift+2*npack1*(i-1)),
+     >                               dbl_mb(psi2_shift),
+     >                               dbl_mb(psi0_shift),
      >                               sum)
                    eke = eke+sum*brillioun_weight(nb)
+                   psi0_shift = psi0_shift + (2*npack1)
+                   psi2_shift = psi2_shift + (2*npack1)
                 end do
              end do
              if (np.gt.1) call Parallel_SumAll(eke)
@@ -516,10 +518,11 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
                 psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
                 do i=1,n2(ispin)
                    call Cram_cc_idot(nb,
-     >                               dbl_mb(psi0_shift+2*npack1*(i-1)),
-     >                               dbl_mb(psi0_shift+2*npack1*(i-1)),
+     >                               dbl_mb(psi0_shift),
+     >                               dbl_mb(psi0_shift),
      >                               sum)
                    eke = eke+sum*brillioun_weight(nb)
+                   psi0_shift = psi0_shift + (2*npack1)
                 end do
               end do
               if (np.gt.1) call Parallel_SumAll(eke)
@@ -600,8 +603,8 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
             call Cram_cc_daxpy(nb,h,
      >                         dbl_mb(psi2_shift),
      >                         dbl_mb(psi0_shift))
-            call Cram_cc_idot(1,dbl_mb(psi0_shift),
-     >                          dbl_mb(psi0_shift),sum)
+            call Cram_cc_idot(nb,dbl_mb(psi0_shift),
+     >                           dbl_mb(psi0_shift),sum)
             eke = eke+sum*brillioun_weight(nb)
             psi0_shift = psi0_shift + (2*npack1)
             psi2_shift = psi2_shift + (2*npack1)
