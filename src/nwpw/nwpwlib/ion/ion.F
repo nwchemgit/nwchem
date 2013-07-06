@@ -50,6 +50,13 @@
       integer geom
       common / ION2/ geom
 
+      integer          ke_count
+      double precision ekg,eki0,eki1
+      double precision ke_total,kg_total,mass
+      common / ION3/ ekg,eki0,eki1,mass,
+     >               ke_total,kg_total,ke_count
+
+
       logical mmexist
       common / ion_qmmm/ mmexist
 
@@ -82,6 +89,10 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.14)) then
          value = geom_vel_set(geom,dbl_mb(r0(1)))
+         value = rtdb_put(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total)
+         value = rtdb_put(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total)
+         value = rtdb_put(rtdb,"nwpw:ke_count",mt_int,1,ke_count)
+
       end if
 
 *     *****************************************************
@@ -301,6 +312,12 @@ c     call ion_shift()
      >    (control_code().eq.14)) then
 *         **** get velocities ****
          value = geom_vel_get(geom,dbl_mb(r0(1)))
+         if (.not.rtdb_get(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total))
+     >      ke_total = 0.0d0
+         if (.not.rtdb_get(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total))
+     >      kg_total = 0.0d0
+         if (.not.rtdb_get(rtdb,"nwpw:ke_count",mt_int,1,ke_count))
+     >      ke_count = 0
 
 c*        ***** scale initial velocities and       ****
 c*        ***** determine initial kinetic energies ****
