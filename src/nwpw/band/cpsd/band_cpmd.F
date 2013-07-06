@@ -249,7 +249,7 @@ c      parameter (autoatm =290.360032539d6)
      >                     control_np_dimensions(3))
       call Parallel3d_np_i(np_i)
       call Parallel3d_np_j(np_j)
-      call Parallel3d_np_j(np_k)
+      call Parallel3d_np_k(np_k)
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
