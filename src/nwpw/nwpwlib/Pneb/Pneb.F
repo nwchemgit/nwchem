@@ -1438,6 +1438,7 @@ c     **** get temp memory from stack ****
       do nb=nb1,nb2
       do ms=ms1,ms2
         if (ne(ms).gt.0) then
+           ierr = 0
            call ZHEEV('V','L',ne(ms),
      >                 V(vindex),ne(ms),
      >                 S(sindex),
@@ -1517,6 +1518,7 @@ c     **** get temp memory from stack ****
       do nb=nb1,nb2
       do ms=ms1,ms2
         if (nein(ms).gt.0) then
+           ierr = 0
            call ZHEEV('V','L',nein(ms),
      >                 V(vindex),nein(ms),
      >                 S(sindex),
