@@ -61,7 +61,7 @@ c
      1    call errquit('tddft_epsilon: an internal error detected',0,
      &       GA_ERR)
         do l=ilo,ihi
-          if (vshift.gt.0) then
+          if (abs(vshift).gt.0) then
              k=nocc(i)+1+vshift
           else
              k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1

@@ -93,6 +93,7 @@ c
       logical dummy
       logical lecut
       integer vshift
+      integer occtop(2)
       double precision ecut
       logical lewin
       double precision ewinl,ewinh,etmp
@@ -161,8 +162,16 @@ c ------------------------------------------------------
      1  call errquit('tddft_init: failed to read ipol',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,nocc))
      1  call errquit('tddft_init: failed to read nocc',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tddft:occtop',mt_int,2,occtop)) then
+          occtop(1) = 0
+          occtop(2) = 0
+      end if
+      if (occtop(1).gt.0) nocc(1) = occtop(1)
+      if (ipol.gt.1.and.occtop(2).gt.0) nocc(2) = occtop(2)
+c
       if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
      1  call errquit('tddft_init: failed to read mult',0, RTDB_ERR)
+c
 c --------------
 c XC functionals
 c --------------
@@ -629,7 +638,7 @@ c
           write (LuOut, 9190) owstart(2), owend(2)
         endif
         if (lecut) write (LuOut, 9195) ecut
-        if (vshift.gt.0) write (LuOut, 9061) vshift
+        if (abs(vshift).gt.0) write (LuOut, 9061) vshift
         if (lewin) then
           write (LuOut, 9196) ewinl
           write (LuOut, 9197) ewinh

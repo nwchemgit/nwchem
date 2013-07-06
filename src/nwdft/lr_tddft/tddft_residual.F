@@ -825,7 +825,7 @@ c
             if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
      1        ('tddft_residual: an internal error detected',0, CALC_ERR)
             do l=ilo,ihi
-              if (vshift.gt.0) then
+              if (abs(vshift).gt.0) then
                  k=nocc(i)+1+vshift
               else
                  k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
@@ -926,7 +926,7 @@ c
               if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
      1          ('tddft_residual: an internal error detected',0, GA_ERR)
               do l=ilo,ihi
-                if (vshift.gt.0) then
+                if (abs(vshift).gt.0) then
                    k=nocc(i)+1+vshift
                 else
                    k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1

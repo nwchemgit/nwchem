@@ -737,8 +737,8 @@ c     == better have static ldb at high node counts ==
      &       ssmear,tdots,iter,.false.,
      .       fon, nel_fon,nmo_fon,ncore_fon,
      .       spinset.or.n_rabuck.ne.0,
-     &       rtdb) ! FA-03-02-11 for occupations keyword
-
+     &       rtdb)
+c
 c ... jochen: next line added '.or. fon' which
 c       gives us the number of electrons created by the
 c       fractional occupations:
@@ -1073,6 +1073,16 @@ c     == is this a oneshot "noscf" type calculation, no diagonalization ==
         last_time_energy = .true. 
         converged = .true.
         levelshifting = .false.  ! turn off levelshifting for noscf
+c
+        call dft_densm(g_dens,g_movecs,
+     &               nbf_ao,nmo,ipol,
+     &               geom,AO_bas_han,noc,ntotel,
+     &               Dbl_MB(k_eval(1)),dbl_mb(k_occ),
+     &               ssmear,tdots,iter,.true.,
+     .               fon, nel_fon,nmo_fon,ncore_fon,
+     .               spinset.or.n_rabuck.ne.0,
+     &               rtdb)
+c
       end if
 c
 c     == is this the last energy evaluation ? ==
@@ -1336,7 +1346,7 @@ c
      &               ssmear,tdots,iter,.true.,
      .               fon, nel_fon,nmo_fon,ncore_fon,
      .               spinset.or.n_rabuck.ne.0,           
-     &               rtdb) ! FA-03-02-11 for occupations keyword
+     &               rtdb)
 c
       if(oprint_info) then
          pstrace=ga_ddot(g_dens,g_s)

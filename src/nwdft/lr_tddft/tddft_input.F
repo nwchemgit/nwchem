@@ -53,6 +53,7 @@ c
       double precision thresh
       double precision ecut
       integer vshift
+      integer occtop(2)
       logical lecut
       double precision ewinl,ewinh
       logical lewin
@@ -96,6 +97,13 @@ c     VSHIFT (reference virtual state)
 c
       vshift = 0
       if (.not.rtdb_put(rtdb,'tddft:vshift',mt_int,1,vshift))
+     &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c     OCCSTART 
+c
+      occtop(1) = 0
+      occtop(2) = 0
+      if (.not.rtdb_put(rtdb,'tddft:occtop',mt_int,2,occtop))
      &  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
 c     OWIN
@@ -294,6 +302,15 @@ c
       else if (inp_compare(.false.,test,'vshift')) then
         if (.not.inp_i(vshift)) vshift = 0
         if (.not.rtdb_put(rtdb,'tddft:vshift',mt_int,1,vshift))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     OCCTOP
+c
+      else if (inp_compare(.false.,test,'occtop')) then
+        if (.not.inp_i(occtop(1))) occtop(1) = 0
+        if (.not.inp_i(occtop(2))) occtop(2) = 0
+        if (.not.rtdb_put(rtdb,'tddft:occtop',mt_int,2,occtop))
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
