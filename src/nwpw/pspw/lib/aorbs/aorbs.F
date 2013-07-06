@@ -229,6 +229,55 @@
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *              aorbs_m            *
+*     *                                 *
+*     ***********************************
+
+      integer function aorbs_m(ia,n)
+      implicit none
+      integer  ia
+      integer n          ! basis number
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     *** local variables ***
+      integer l,m,lm
+
+      lm = int_mb(lmaorb(1)+n-1)
+      m = 0
+      if (lm.eq.1) m = 0
+
+      if (lm.eq.2) m = -1
+      if (lm.eq.3) m =  0
+      if (lm.eq.4) m =  1
+
+      if (lm.eq.5) m = -2
+      if (lm.eq.6) m = -1
+      if (lm.eq.7) m =  0
+      if (lm.eq.8) m =  1
+      if (lm.eq.9) m =  2
+
+      if (lm.eq.10) m = -3
+      if (lm.eq.11) m = -2
+      if (lm.eq.12) m = -1
+      if (lm.eq.13) m =  0
+      if (lm.eq.14) m =  1
+      if (lm.eq.15) m =  2
+      if (lm.eq.16) m =  3
+
+      aorbs_m = m
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *           aorbs_katm            *
@@ -244,6 +293,24 @@
       aorbs_katm = int_mb(iaaorb(1)+n-1)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *           aorbs_ii              *
+*     *                                 *
+*     ***********************************
+      integer function aorbs_ii(n)
+      implicit none
+      integer n
+
+#include "mafdecls.fh"
+#include "aorbs.fh"
+
+      aorbs_ii = int_mb(iiaorb(1)+n-1)
+      return
+      end
+
 
 
 *     ***********************************
