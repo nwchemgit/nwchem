@@ -83,7 +83,10 @@
          np_default = .true.
       else
          np_default = .false.
-         if (.not.((code.eq.5).or.(code.eq.10))) np_dimensions(3) = 1
+         if (.not.((code.eq.5) .or.
+     >             (code.eq.10).or.
+     >             (code.eq.13).or.
+     >             (code.eq.14))) np_dimensions(3) = 1
          if (np_dimensions(3).lt.1) np_dimensions(3) = 1
          if (np_dimensions(2).lt.1) np_dimensions(2) = 1
          if (np_dimensions(1).lt.1) np_dimensions(1) = 1
