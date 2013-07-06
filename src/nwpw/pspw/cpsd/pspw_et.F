@@ -44,8 +44,8 @@
 
 *     ***** energy variables ****
       real*8  E(40)
-      integer Sigma_ab(2),itmp(2)
-      integer U_ab(2),V_ab(2)
+      integer Sigma_ab(2),Cigma_ab(2),itmp(2)
+      integer U_ab(2),V_ab(2),W_ab(2)
 
       logical field_exist
 
@@ -58,7 +58,7 @@
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
-      real*8  EV,pi
+      real*8  EV,pi,EVQ,rs
       integer i,j,k,ia,n,nn,q,nx,ny,nz
       integer ii,jj,indx,indx1
       real*8 w,sumall,virial,scal1,scal2,ehartr,ehfx,phfx,dv
@@ -294,9 +294,13 @@
       field_exist = pspw_charge_found()
       value = MA_alloc_get(mt_dbl,(2*nemax),'Sigma_ab',
      >                     Sigma_ab(2),Sigma_ab(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(2*nemax),'Cigma_ab',
+     >                     Cigma_ab(2),Cigma_ab(1))
       value = value.and.Dneall_m_allocate(0,itmp)
       value = value.and.Dneall_m_allocate(0,U_ab)
       value = value.and.Dneall_m_allocate(0,V_ab)
+      value = value.and.Dneall_m_allocate(0,W_ab)
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
@@ -382,6 +386,14 @@
            icharge = icharge + ion_natm(ia)*psp_zv(ia)
          end do
          write(luout,1159) icharge
+
+         if (control_version().eq.3) then
+            rs  = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
+            EVQ = 0.5d0*ewald_mandelung()*(icharge**2)/rs
+         else
+            EVQ = 0.0d0
+         end if
+
 
          write(luout,1160)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
@@ -489,6 +501,7 @@
          S12(ms) = 1.0d0
          do n=n1(ms),n2(ms)
             S12(ms) = S12(ms)*dbl_mb(Sigma_ab(1)+n-1)
+            dbl_mb(Cigma_ab(1)+n-1) = dacos(dbl_mb(Sigma_ab(1)+n-1))
          end do
       end do
       Sab = S12(1)*S12(ispin)
@@ -607,9 +620,11 @@
       H2ab = H2ab + ehfx*Sab
 
 
-      Haa = H1aa + H2aa + Eion
-      Hbb = H1bb + H2bb + Eion
-      Hab = H1ab + H2ab + Sab*Eion
+      call Parallel_Brdcst_value(0,EVQ)
+
+      Haa = H1aa + H2aa + Eion + EVQ
+      Hbb = H1bb + H2bb + Eion + EVQ
+      Hab = H1ab + H2ab + Sab*(Eion+EVQ)
 
       Vab = (Hab-Sab*(Haa+Hbb)/2.0d0)/(1.0d0-Sab*Sab);
 
@@ -643,6 +658,7 @@ c         write(luout,1812) Sbb
          write(luout,1822) H1bb
          write(luout,1823) H1ab
          write(luout,1824) Eion
+         if (EVQ.gt.0.0d0) write(luout,1825) EVQ
 
          write(luout,1830)
          write(luout,1831) H2aa
@@ -676,6 +692,45 @@ c           end do
       end if
 
 *                |***************************|
+******************  Electron Tranfer Path    **********************
+*                |***************************|
+
+*     **** define |u> ****
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                           dbl_mb(U_ab(1)),1.0d0,
+     >                           dcpl_mb(psi1f(1)),0.0d0)
+
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+     >                           dbl_mb(V_ab(1)),1.0d0,
+     >                           dcpl_mb(psi2f(1)),0.0d0)
+      do q=1,neq(1)+neq(2)
+         call Dneall_qton(q,n)
+         w = dbl_mb(Sigma_ab(1)+n-1)
+         call Pack_c_SMul1(1,w,dcpl_mb(psi1f(1)+(q-1)*npack1))
+
+         call Pack_cc_Sub2(1,dcpl_mb(psi1f(1)+(q-1)*npack1),
+     >                       dcpl_mb(psi2f(1)+(q-1)*npack1))
+
+         w = 1.0d0/dsin(dbl_mb(Cigma_ab(1)+n-1))
+         call Pack_c_SMul1(1,w,dcpl_mb(psi2f(1)+(q-1)*npack1))
+
+      end do
+
+      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
+     >                           dcpl_mb(psi2f(1)),npack1,
+     >                           dbl_mb(itmp(1)))
+
+
+      write(*,*) "<psi1|U>="
+      do ms=1,ispin
+         do nn=1,ne(ms)
+            nx = (nn-1)*ne(ms)+(ms-1)*ne(1)*ne(1)
+            write(*,*) (dbl_mb(itmp(1)+nx+n-1),n=1,ne(ms))
+         end do
+      end do
+
+
+*                |***************************|
 ******************         Prologue          **********************
 *                |***************************|
 
@@ -700,6 +755,8 @@ c           end do
       value =           Dneall_m_free(itmp)
       value = value.and.Dneall_m_free(U_ab)
       value = value.and.Dneall_m_free(V_ab)
+      value = value.and.Dneall_m_free(W_ab)
+      value = value.and.MA_free_heap(Cigma_ab(2))
       value = value.and.MA_free_heap(Sigma_ab(2))
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(psi2(2))
@@ -897,6 +954,7 @@ c           end do
  1822 format( '    Electron energy of product          H1(PP): ',E19.10)
  1823 format( '    Electron energy of reactant/product H1(RP): ',E19.10)
  1824 format( '    Ion-Ion energy                      Eion  : ',E19.10)
+ 1825 format( '    Charge correction    0.5*q**2*mandelung/rs: ',E19.10)
  1830 format(/' Two-electron reactants/product interation energies:')
  1831 format( '    Electron energy of reactant         H2(RR): ',E19.10)
  1832 format( '    Electron energy of product          H2(PP): ',E19.10)
