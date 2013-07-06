@@ -108,7 +108,10 @@
          end do
 
          !*** temporary restriction until ne parallelized in band ***
-         if ((code.eq.5).or.(code.eq.10)) np_dimensions(2) = 1
+         if ((code.eq.5) .or.
+     >       (code.eq.10).or.
+     >       (code.eq.13).or.
+     >       (code.eq.14)) np_dimensions(2) = 1
 
          np_dimensions(1) = np/(np_dimensions(2)*np_dimensions(3))
 
