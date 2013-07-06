@@ -1567,6 +1567,38 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_cc_Sub2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_cc_Sub2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        B(i) = B(i) - A(i)
+      end do
+
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *					*
 *     *	         Pack_tt_Sub		*	
