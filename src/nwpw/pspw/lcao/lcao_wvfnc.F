@@ -30,7 +30,7 @@
       parameter (ALPHA=0.30d0)
 
       logical value,value2,oprint
-      integer ms,i,ia,icharge,ne_excited(2),nn
+      integer ms,i,ia,icharge,ne_excited(2),nn,l,m,n,ii
       integer dn(2),phi1(2),phi2(2),rho(2),vc(2)
       integer ee(2),eigs(2)
       integer smatrix,kematrix
@@ -46,9 +46,9 @@
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
       character*4 ion_atom_qm,ion_atom
-      integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax
+      integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,aorbs_katm
       integer     psp_locp,psp_lmmax,ion_natm,ion_nion,ion_nkatm_qm
-      integer     control_version
+      integer     control_version,aorbs_l,aorbs_m,aorbs_ii
       integer     ewald_ncut,ewald_nshl3d
       real*8      psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
       real*8      ewald_rcut,ewald_e,ion_ion_e,coulomb_e
@@ -57,9 +57,9 @@
       real*8      lattice_unitg,control_tole,control_tolc
       external    psp_semicore,aorbs_init,aorbs_readall
       external    ion_atom_qm,ion_atom
-      external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax
+      external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,aorbs_katm
       external    psp_locp,psp_lmmax,ion_natm,ion_nion,ion_nkatm_qm
-      external    control_version
+      external    control_version,aorbs_l,aorbs_m,aorbs_ii
       external    ewald_ncut,ewald_nshl3d
       external    psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
       external    ewald_rcut,ewald_e,ion_ion_e,coulomb_e
@@ -203,6 +203,14 @@
            write(*,1118) ion_atom_qm(ia),aorbs_norbs(ia)
         end do
         write(*,1119) nbasis
+
+        do n = 1,nbasis
+          ii = aorbs_ii(n)
+          ia = aorbs_katm(n)
+          l = aorbs_l(ia,n)
+          m = aorbs_m(ia,n)
+          write(*,*) "basis function=",n,"  ii,ia,l,m=",ii,ia,l,m
+        end do
 
 
         write(6,1140)
@@ -390,8 +398,8 @@ C        *** Calculate total energy ***
 
 
          if ((oprint).and.(taskid.eq.MASTER))
-     >     write(*,510) it,Etotal,de,rho_error,talpha
-  510 FORMAT(I8,E20.10,3E15.5)
+     >     write(*,510) it,Etotal,Eorbs,de,rho_error,talpha
+  510 FORMAT(I8,2E20.10,3E15.5)
 
          if ((de.lt.control_tole()).and.
      >       (rho_error.lt.control_tolc())) then
@@ -487,6 +495,7 @@ C     **** caluclate number of Density ****
       write(*,1450) Ehart, Ehart/(ne(1)+ne(ispin))
       write(*,1460) Eexc,  Eexc/(ne(1)+ne(ispin))
       write(*,1470) Eion,  Eion/ion_nion()
+      write(*,1480) pxc,   pxc/(ne(1)+ne(ispin))
 
 C     * write out the eigenvalues *
       nn = ne(1) - ne(2)
@@ -511,7 +520,14 @@ C     * write out the eigenvalues *
      >                 dbl_mb(eigs(1)+nbasis-i)*EV
        end do
       else
-        write(*,*) "unrestricted virtuals????"
+       write(*,*)
+       write(*,*) "Unrestricted Virtuals Eigenvalues ..."
+       do i=1,(nbasis-ne(1))-1
+         WRITE(*,1510) dbl_mb(eigs(1)+ne(1)+i),
+     >                 dbl_mb(eigs(1)+ne(1)+i)*EV,
+     >                 dbl_mb(eigs(2)+ne(2)+i),   
+     >                 dbl_mb(eigs(2)+ne(2)+i)*EV
+       end do
       end if
 
       end if
@@ -644,6 +660,7 @@ c     value = .false.
  1450 FORMAT( ' HARTREE   ENERGY    :',E19.10,' (',E15.5,'/ELECTRON)')
  1460 FORMAT( ' EXC-CORR  ENERGY    :',E19.10,' (',E15.5,'/ELECTRON)')
  1470 FORMAT( ' ION-ION   ENERGY    :',E19.10,' (',E15.5,'/ION)')
+ 1480 FORMAT( ' PXC       ENERGY    :',E19.10,' (',E15.5,'/ION)')
  1500 FORMAT(/' ORBITAL ENERGIES:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
