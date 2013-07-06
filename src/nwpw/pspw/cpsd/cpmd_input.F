@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 56)
+      parameter (num_dirs = 57)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -75,6 +75,7 @@ c
      >            'pressure',
      >            'cutoff',
      >            'initial_ion_temperature',
+     >            'reset_Temperature',
      >            'end'/
 
        character*50 cell_name
@@ -122,7 +123,7 @@ c      call cpmd_input_default(rtdb)
      >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
-     >       2500,2600,2700,2800,2900,3000,1150,3100,
+     >       2500,2600,2700,2800,2900,3000,1150,3100,3200,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -537,6 +538,11 @@ c
       else
          value = rtdb_delete(rtdb,'cpmd:init_velocities_temperture')
       end if
+      goto 10
+
+ 3200 value = rtdb_delete(rtdb,"nwpw:ke_total")
+      value = rtdb_delete(rtdb,"nwpw:kg_total")
+      value = rtdb_delete(rtdb,"nwpw:ke_count")
       goto 10
 
 
