@@ -45,7 +45,7 @@
 *     ***** energy variables ****
       real*8  E(40)
       integer Sigma_ab(2),Cigma_ab(2),itmp(2)
-      integer U_ab(2),V_ab(2),W_ab(2)
+      integer U_ab(2),V_ab(2),W_ab(2),Vt(2)
 
       logical field_exist
 
@@ -58,9 +58,9 @@
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
-      real*8  EV,pi,EVQ,rs
+      real*8  EV,pi,EVQ,rs,Eground,Eexcited,t
       integer i,j,k,ia,n,nn,q,nx,ny,nz
-      integer ii,jj,indx,indx1
+      integer ii,jj,indx,indx1,npath
       real*8 w,sumall,virial,scal1,scal2,ehartr,ehfx,phfx,dv
       integer nfft3
       parameter (nfft3=32)
@@ -300,6 +300,7 @@
       value = value.and.Dneall_m_allocate(0,itmp)
       value = value.and.Dneall_m_allocate(0,U_ab)
       value = value.and.Dneall_m_allocate(0,V_ab)
+      value = value.and.Dneall_m_allocate(0,Vt)
       value = value.and.Dneall_m_allocate(0,W_ab)
 
       value = value.and.
@@ -429,7 +430,7 @@
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            end if
          end do
-         write(luout,1180) 
+         write(luout,1179) "midpoint"
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
@@ -495,6 +496,10 @@
      >                           dbl_mb(itmp(1)))
       call Dneall_m_SVD(0,dbl_mb(itmp(1)),dbl_mb(U_ab(1)),
      >                    dbl_mb(Sigma_ab(1)), dbl_mb(V_ab(1)))
+
+*     **** calculate Vt ****
+      call Dneall_mm_transpose(0,dbl_mb(V_ab(1)),dbl_mb(Vt(1)))
+
 
 *     **** calculate S12(ms) and Sab ****
       do ms=1,ispin
@@ -695,7 +700,9 @@ c           end do
 ******************  Electron Tranfer Path    **********************
 *                |***************************|
 
-*     **** define |u> ****
+      npath = 11
+
+*     **** define |u> = |psi2f> ****
       call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
      >                           dbl_mb(U_ab(1)),1.0d0,
      >                           dcpl_mb(psi1f(1)),0.0d0)
@@ -715,19 +722,121 @@ c           end do
          call Pack_c_SMul1(1,w,dcpl_mb(psi2f(1)+(q-1)*npack1))
 
       end do
+      call dcopy(2*(neq(1)+neq(2))*npack1,
+     >           dcpl_mb(psi2f(1)),1,
+     >           dcpl_mb(psi2(1)), 1)
+
+
+*     *********************************
+*     **** epath at ion_1 geometry ****
+*     *********************************
+      if (taskid.eq.MASTER) then
+         write(luout,1900) ion_1
+         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+         write(luout,1906)
+      end if
+      do i=1,npath
+         t = (i-1)/dble(npath-1)
+
+*        *** generate y(t) and yexcited(t) ***
+         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+     >                                 dcpl_mb(psi1(1)),
+     >                                 dcpl_mb(psi2(1)),
+     >                                 dbl_mb(V_ab(1)),
+     >                                 dbl_mb(Vt(1)),
+     >                                 dbl_mb(Cigma_ab(1)),
+     >                                 t,
+     >                                 dcpl_mb(psi1f(1)),
+     >                                 dcpl_mb(psi2f(1)))
+
+*        *** calculate E(y(t)) and E(yexcited(t)) ***
+
+         Eground  = 0.0d0
+         Eexcited = 0.0d0
+         if (taskid.eq.MASTER) then
+            write(luout,1910) t,Eground,Eexcited
+         end if
+      end do
+
+*     *********************************
+*     **** epath at ion_2 geometry ****
+*     *********************************
+      if (taskid.eq.MASTER) then
+         write(luout,1900) ion_2
+         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+         write(luout,1906)
+      end if
+      do i=1,npath
+         t = (i-1)/dble(npath-1)
+
+*        *** generate y(t) and yexcited(t) ***
+         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+     >                                 dcpl_mb(psi1(1)),
+     >                                 dcpl_mb(psi2(1)),
+     >                                 dbl_mb(V_ab(1)),
+     >                                 dbl_mb(Vt(1)),
+     >                                 dbl_mb(Cigma_ab(1)),
+     >                                 t,
+     >                                 dcpl_mb(psi1f(1)),
+     >                                 dcpl_mb(psi2f(1)))
+
+*        *** calculate E(y(t)) and E(yexcited(t)) ***
+
+         Eground  = 0.0d0
+         Eexcited = 0.0d0
+         if (taskid.eq.MASTER) then
+            write(luout,1910) t,Eground,Eexcited
+         end if
+      end do
+
+*     ************************************
+*     **** epath at midpoint geometry ****
+*     ************************************
+      if (taskid.eq.MASTER) then
+         write(luout,1900) "midpoint"
+         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+         write(luout,1906)
+      end if
+      do i=1,npath
+         t = (i-1)/dble(npath-1)
+
+*        *** generate y(t) and yexcited(t) ***
+         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+     >                                 dcpl_mb(psi1(1)),
+     >                                 dcpl_mb(psi2(1)),
+     >                                 dbl_mb(V_ab(1)),
+     >                                 dbl_mb(Vt(1)),
+     >                                 dbl_mb(Cigma_ab(1)),
+     >                                 t,
+     >                                 dcpl_mb(psi1f(1)),
+     >                                 dcpl_mb(psi2f(1)))
+
+*        *** calculate E(y(t)) and E(yexcited(t)) ***
+
+         Eground  = 0.0d0
+         Eexcited = 0.0d0
+         if (taskid.eq.MASTER) then
+            write(luout,1910) t,Eground,Eexcited
+         end if
+      end do
+
+
+
+
+ 
 
       call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
      >                           dcpl_mb(psi2f(1)),npack1,
      >                           dbl_mb(itmp(1)))
 
 
-      write(*,*) "<psi1|U>="
-      do ms=1,ispin
-         do nn=1,ne(ms)
-            nx = (nn-1)*ne(ms)+(ms-1)*ne(1)*ne(1)
-            write(*,*) (dbl_mb(itmp(1)+nx+n-1),n=1,ne(ms))
-         end do
-      end do
+c      write(*,*) "<psi1|U>="
+c      do ms=1,ispin
+c         do nn=1,ne(ms)
+c            nx = (nn-1)*ne(ms)+(ms-1)*ne(1)*ne(1)
+c            write(*,*) (dbl_mb(itmp(1)+nx+n-1),n=1,ne(ms))
+c         end do
+c      end do
 
 
 *                |***************************|
@@ -755,6 +864,7 @@ c           end do
       value =           Dneall_m_free(itmp)
       value = value.and.Dneall_m_free(U_ab)
       value = value.and.Dneall_m_free(V_ab)
+      value = value.and.Dneall_m_free(Vt)
       value = value.and.Dneall_m_free(W_ab)
       value = value.and.MA_free_heap(Cigma_ab(2))
       value = value.and.MA_free_heap(Sigma_ab(2))
@@ -968,6 +1078,10 @@ c           end do
      >        /,48x,F19.3, ' cm-1',
      >        /,48x,F19.3, ' eV',
      >        /,48x,F19.3, ' kcal/mol')
+ 1900 format(//' Electron Transfer Geodesic Path at geometry: ',A)
+ 1905 format(/A12,2A19)
+ 1906 format('    ----------------------------------------------')
+ 1910 format(F12.6,2E19.10)
 
 
 !Electronic energy of reactants     H(RR)      -5.3402392824
@@ -1226,4 +1340,86 @@ c           end do
  
       return
       end
+
+*     ****************************************************
+*     *                                                  *
+*     *               pspw_et_get_yandyexcited           *
+*     *                                                  *
+*     ****************************************************
+      subroutine pspw_et_get_yandyexcited(ispin,neq,npack1,nemax,
+     >                                    a,u,V,Vt,S,
+     >                                    t,y,yexcited)
+      implicit none
+      integer ispin,neq(2),npack1,nemax
+      complex*16 a(*)
+      complex*16 u(*)
+      real*8     V(*),Vt(*)
+      real*8     S(*)
+      real*8     t
+      complex*16 y(*)
+      complex*16 yexcited(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical    value
+      integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    tmpC(2),tmpS(2)
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+*     **** allocate tmp space ****
+      value =           Dneall_m_push_get(0,tmp1)
+      value = value.and.Dneall_m_push_get(0,tmp2)
+      value = value.and.Dneall_m_push_get(0,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) 
+     > call errquit('pspw_et_get_yandyexcited:out of stack',0,MA_ERR)
+
+      call Dneall_mm_SCtimesVtrans(0,t,S,Vt,
+     >                             dbl_mb(tmp1(1)),
+     >                             dbl_mb(tmp3(1)),
+     >                             dbl_mb(tmpC(1)),
+     >                             dbl_mb(tmpS(1)))
+
+
+*     **** generate y(t) ****
+      call Dneall_mmm_Multiply(0,V,dbl_mb(tmp1(1)),1.0d0,
+     >                             dbl_mb(tmp2(1)),0.0d0)
+      call Dneall_fmf_Multiply(0,a,npack1,
+     >                          dbl_mb(tmp2(1)),1.0d0,
+     >                          y,0.0d0)  
+      call Dneall_fmf_Multiply(0,u,npack1,
+     >                          dbl_mb(tmp3(1)),1.0d0,
+     >                          y,1.0d0)
+
+*     **** generate yexcited(t) ****
+      call Dneall_mmm_Multiply(0,V,dbl_mb(tmp3(1)),1.0d0,
+     >                             dbl_mb(tmp2(1)),0.0d0)
+      call Dneall_fmf_Multiply(0,a,npack1,
+     >                          dbl_mb(tmp2(1)),-1.0d0,
+     >                          yexcited,0.0d0)  
+      call Dneall_fmf_Multiply(0,u,npack1,
+     >                          dbl_mb(tmp1(1)),1.0d0,
+     >                          yexcited,1.0d0)
+
+*     **** deallocate tmp space ****
+      value = MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.Dneall_m_pop_stack(tmp3)
+      value = value.and.Dneall_m_pop_stack(tmp2)
+      value = value.and.Dneall_m_pop_stack(tmp1)
+      if (.not.value) 
+     > call errquit('pspw_et_get_yandyexcited:popping stack',0,MA_ERR)
+
+      return
+      end 
+
+
+
+
 
