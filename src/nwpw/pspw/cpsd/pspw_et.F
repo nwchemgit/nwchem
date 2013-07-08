@@ -748,7 +748,7 @@ c           end do
          call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
      >                                 dcpl_mb(psi1(1)),
      >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(V_ab(1)),
+     >                                 dbl_mb(U_ab(1)),
      >                                 dbl_mb(Vt(1)),
      >                                 dbl_mb(Cigma_ab(1)),
      >                                 t,
@@ -836,7 +836,7 @@ c           end do
          call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
      >                                 dcpl_mb(psi1(1)),
      >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(V_ab(1)),
+     >                                 dbl_mb(U_ab(1)),
      >                                 dbl_mb(Vt(1)),
      >                                 dbl_mb(Cigma_ab(1)),
      >                                 t,
@@ -889,7 +889,7 @@ c           end do
          call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
      >                                 dcpl_mb(psi1(1)),
      >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(V_ab(1)),
+     >                                 dbl_mb(U_ab(1)),
      >                                 dbl_mb(Vt(1)),
      >                                 dbl_mb(Cigma_ab(1)),
      >                                 t,
@@ -1443,13 +1443,13 @@ c           end do
 *     *                                                  *
 *     ****************************************************
       subroutine pspw_et_get_yandyexcited(ispin,neq,npack1,nemax,
-     >                                    a,u,V,Vt,S,
+     >                                    a,u,Uab,Vt,S,
      >                                    t,y,yexcited)
       implicit none
       integer ispin,neq(2),npack1,nemax
       complex*16 a(*)
       complex*16 u(*)
-      real*8     V(*),Vt(*)
+      real*8     Uab(*),Vt(*)
       real*8     S(*)
       real*8     t
       complex*16 y(*)
@@ -1484,8 +1484,8 @@ c           end do
 
 
 *     **** generate y(t) ****
-      call Dneall_mmm_Multiply2(0,Vt,dbl_mb(tmp1(1)),
-     >                               dbl_mb(tmp2(1)))
+      call Dneall_mmm_Multiply(0,Uab,dbl_mb(tmp1(1)),1.0d0,
+     >                               dbl_mb(tmp2(1)),0.0d0)
       call Dneall_fmf_Multiply(0,a,npack1,
      >                          dbl_mb(tmp2(1)),1.0d0,
      >                          y,0.0d0)  
@@ -1494,8 +1494,8 @@ c           end do
      >                          y,1.0d0)
 
 *     **** generate yexcited(t) ****
-      call Dneall_mmm_Multiply2(0,Vt,dbl_mb(tmp3(1)),
-     >                               dbl_mb(tmp2(1)))
+      call Dneall_mmm_Multiply(0,Uab,dbl_mb(tmp3(1)),1.0d0,
+     >                               dbl_mb(tmp2(1)),0.0d0)
       call Dneall_fmf_Multiply(0,a,npack1,
      >                          dbl_mb(tmp2(1)),-1.0d0,
      >                          yexcited,0.0d0)  
