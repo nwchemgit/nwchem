@@ -2975,3 +2975,38 @@ c
       end do
       return
       end
+
+*     ********************************************
+*     *                                          *
+*     *             ion_t_morph_extra            *
+*     *                                          *
+*     ********************************************
+      subroutine ion_t_morph_extra(t,e1,e2)
+      implicit none
+      real*8  t
+      integer e1,e2
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+*     **** ion_extra common block ****
+      integer nion_extra,rion_extra(2,10)
+      common / ion_extra / rion_extra,nion_extra
+
+      integer i,j
+      real*8 dr(3)
+
+      do j=1,nion
+         do i=1,3
+            dr(i) = dbl_mb(rion_extra(1,e2)+(i-1)+(j-1)*3)
+     >            - dbl_mb(rion_extra(1,e1)+(i-1)+(j-1)*3)
+         end do
+         call lattice_min_difference(dr(1),dr(2),dr(3))
+         do i=1,3
+            dbl_mb(r1(1)+(i-1)+(j-1)*3)
+     >        = dbl_mb(rion_extra(1,e1)+(i-1)+(j-1)*3) + t*dr(i)
+         end do
+      end do
+      return
+      end
+
