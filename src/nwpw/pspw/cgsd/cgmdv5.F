@@ -1273,7 +1273,7 @@ c      call frac_occ_end()
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1330 FORMAT(5X, ' integration agorithm=   ',A)
+ 1330 FORMAT(5X, ' integration algorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
  1350 FORMAT(I8,2E19.10,E14.5,4F14.2,2E19.10,2F8.4)
  1360 format(100e19.10)
