@@ -103,7 +103,8 @@ ckbn mrcc-r-1 CC       integer rec_mem                         ! restart record 
       integer targetroot
       double precision bwcoefwanted
       integer iroottooverlap
-      logical rootfromoverlap
+      integer iroottooverlapiter
+      logical lrootfromoverlap
       integer mkrootold
       logical ignorecomplex
       logical lsave2e,lread2e
@@ -174,7 +175,8 @@ ckbn mrcc-r-1 CC     +     d_c1m(maxref),rec_mem,l_sqc,k_sqc,
      +     mypgid,lfullheff,lusesamefock_it,lusesamefock_nonit,
      +     targetroot,
      +     iroottooverlap,
-     +     rootfromoverlap,
+     +     iroottooverlapiter,
+     +     lrootfromoverlap,
      +     mkrootold,
      +     ignorecomplex,
      +     lsave2e,lread2e,

@@ -252,6 +252,28 @@ ckbn-13 placed it here and added to common block
        if(nodezero) write(*,*) "Using fermivacuum by default" 
        lusescffv = .true.
 
+ckbn roottooverlap
+       if (.not.rtdb_get(rtdb,'mrcc:rootfromoverlap',mt_log,1,
+     +  lrootfromoverlap))
+     + lrootfromoverlap = .false.
+       if(nodezero)  write(LuOut,*) 
+     +  "Using rootfromoverlap ",lrootfromoverlap
+       if(lrootfromoverlap) then
+       if (.not.rtdb_get(rtdb,'mrcc:iroottooverlap',mt_int,1,
+     +  iroottooverlap))
+     +  call errquit('No root to overlap ',1,rtdb_err)
+       if (.not.rtdb_get(rtdb,'mrcc:iroottooverlapiter',mt_int,1,
+     +  iroottooverlapiter))
+     +  call errquit('No iteration number to select root to overlap ',1,
+     + rtdb_err)
+       if(nodezero)
+     +   write(LuOut,'(A,I5,A,I5)') 
+     +   "Using rootfromoverlap with right eigen vector ",
+     +    iroottooverlap," from iteration ", iroottooverlapiter
+        lrootfromoverlap = .false. ! Turn it on from iroottooverlapiter
+       endif
+
+
        if (.not.rtdb_get(rtdb,'mrcc:improvetiling',mt_log,1,limprovet))
      + limprovet = .false.
        if (.not.rtdb_get(rtdb,'mrcc:diistype',mt_int,1,idiis))
@@ -412,7 +434,7 @@ ckbn MR-r      call tce_mrcc_readref(rtdb)
 c       write(*,*) "I am here1","itargetx",itargetx
        if(.not.rtdb_get(rtdb,'mrcc:roottooverlap',mt_int,1,
      +  iroottooverlap)) call errquit
-     +  ('tce_mrcc_read: rtdb failed reading iroottooverlap',
+     +  ('tce_mrcc_read: rtdb failed reading root to overlap',
      +  0,RTDB_ERR)
       else
         mkrootold = itargetx
@@ -1230,30 +1252,57 @@ c     +     l_t1_local,k_t1_local)) call errquit('t1_local',1,MA_ERR)
 
 
 
-        if(.not. lusesub) then
-ckbn rootto overlap intialization
-c      if(nodezero) then
-c      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+0)
-c      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+1)
-c      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+0)
-c      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+1)
-c      endif
-         if(iter.eq.3) then
+c        if(.not. lusesub) then
+cckbn rootto overlap intialization
+cc      if(nodezero) then
+cc      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+0)
+cc      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+1)
+cc      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+0)
+cc      write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+1)
+cc      endif
+c         if(iter.eq.3) then
+c          if(iroottooverlap.gt.0) then
+c           if(nodezero) write(*,*) "iroottooverlap ", iroottooverlap
+c           do i=1,nref
+c            bwcoefwanted(i) = dbl_mb(k_sqc+(i-1)*nref+iroottooverlap-1) 
+c           enddo
+c           lrootfromoverlap = .true.
+c           do i=1,nref
+c            if(nodezero) write(*,'(A,F17.10)') 
+c     +                   "bwcoefwanted",bwcoefwanted(i)
+c           enddo
+c          endif
+c          mkrootold = mkroot
+c          endif
+
+ckbn root to overlap intialization
+        if(.not. lusesub) then !ckbn can be removed
+c         if(nodezero) then
+c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+0)
+c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+1)
+c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+0)
+c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+1)
+c         endif
+         if(iter.eq.iroottooverlapiter) then
           if(iroottooverlap.gt.0) then
-           if(nodezero) write(*,*) "iroottooverlap ", iroottooverlap
+c           if(nodezero) write(*,*) "iroottooverlap ", iroottooverlap
+           if(nodezero) write(LuOut,'(A,I5,A,I5)')
+     +      "Overlap selected from iteration ", iroottooverlapiter,
+     +      " with respect to root ", iroottooverlap
            do i=1,nref
-            bwcoefwanted(i) = dbl_mb(k_sqc+(i-1)*nref+iroottooverlap-1) 
+            bwcoefwanted(i) = dbl_mb(k_sqc+(i-1)*nref+iroottooverlap-1)
            enddo
-           rootfromoverlap = .true.
+           lrootfromoverlap = .true.
            do i=1,nref
-            if(nodezero) write(*,'(A,F17.10)') 
-     +                   "bwcoefwanted",bwcoefwanted(i)
+            if(nodezero) write(*,'(A,I5,F17.10)')
+     +       "Overlapping right eigen vector ",i,bwcoefwanted(i)
            enddo
+          else
+           call errquit('root to overlap not natural number',0,RTDB_ERR)
           endif
           mkrootold = mkroot
-          endif
+         endif
 
-c         if(nodezero) write(*,*) "I am here2"
 
 ckbn check if roots swapped
          if(iter.gt.4) then
@@ -1593,7 +1642,7 @@ c          itwall = - util_wallsec()
 c        if(nodezero) write(*,*) "I am here7"
 
 c       call ga_sync()
-        call tce_diagonalize_heff(rtdb)
+        call tce_diagonalize_heff(rtdb,iter)
 c       call ga_sync()
 ckbn subg -4
 c        write(LuOut,'(A,F17.10,I5,I5)') "ckbn epsilon",
@@ -1836,7 +1885,7 @@ c        if(lusesub) call ga_print(g_heff)
      +     ',2F18.12)")epsilon+enrep
        endif
 
-        call tce_diagonalize_heff(rtdb)
+        call tce_diagonalize_heff(rtdb,iter)
 
        if(nodezero) then
         write(LuOut,"(/,'Final2 MR-BWCCSD energy after (T) correction:
@@ -2184,6 +2233,29 @@ c
         itwall = - util_wallsec()
 
 
+cckbn root to overlap intialization
+c        if(.not. lusesub) then !ckbn can be removed
+cc         if(nodezero) then
+cc         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+0)
+cc         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+1)
+cc         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+0)
+cc         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+1)
+cc         endif
+c         if(iter.eq.3) then
+c          if(iroottooverlap.gt.0) then
+c           if(nodezero) write(*,*) "iroottooverlap ", iroottooverlap
+c           do i=1,nref
+c            bwcoefwanted(i) = dbl_mb(k_sqc+(i-1)*nref+iroottooverlap-1) 
+c           enddo
+c           lrootfromoverlap = .true.
+c           do i=1,nref
+c            if(nodezero)
+c     +        write(*,'(A,F17.10)')"bwcoefwanted",bwcoefwanted(i)
+c           enddo
+c          endif
+c          mkrootold = mkroot
+c         endif
+
 ckbn root to overlap intialization
         if(.not. lusesub) then !ckbn can be removed
 c         if(nodezero) then
@@ -2192,20 +2264,27 @@ c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(0)*nref+1)
 c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+0)
 c         write(*,*)"ckbn iter",iter,dbl_mb(k_sqc+(1)*nref+1)
 c         endif
-         if(iter.eq.3) then
+         if(iter.eq.iroottooverlapiter) then
           if(iroottooverlap.gt.0) then
-           if(nodezero) write(*,*) "iroottooverlap ", iroottooverlap
+c           if(nodezero) write(*,*) "iroottooverlap ", iroottooverlap
+           if(nodezero) write(LuOut,'(A,I5,A,I5)')
+     +      "Overlap selected from iteration ", iroottooverlapiter,
+     +      " with respect to root ", iroottooverlap
            do i=1,nref
-            bwcoefwanted(i) = dbl_mb(k_sqc+(i-1)*nref+iroottooverlap-1) 
+            bwcoefwanted(i) = dbl_mb(k_sqc+(i-1)*nref+iroottooverlap-1)
            enddo
-           rootfromoverlap = .true.
+           lrootfromoverlap = .true.
            do i=1,nref
-            if(nodezero)
-     +        write(*,'(A,F17.10)')"bwcoefwanted",bwcoefwanted(i)
+            if(nodezero) write(*,'(A,I5,F17.10)')
+     +       "Overlapping right eigen vector ",i,bwcoefwanted(i)
            enddo
+          else
+           call errquit('root to overlap not natural number',0,RTDB_ERR)
           endif
           mkrootold = mkroot
          endif
+
+
 
 ckbn check if roots swapped
          if(iter.gt.4) then
@@ -2393,7 +2472,7 @@ c        call tce_heff(nref,d_em,k_e_offsetm,k_r1_offsetm,
 
 
 c        call tce_diagonalize_heff(nref,rtdb)
-        call tce_diagonalize_heff(rtdb)
+        call tce_diagonalize_heff(rtdb,iter)
 
         if (nodezero) write(LuOut,"(/,'MkCC iter. #',I4,2f24.13,2f24.13,
      1 2f18.13)")iter,epsilon,enrep+epsilon,epsilon-edelta
@@ -2501,7 +2580,7 @@ c       endif
        endif
 
         call ga_sync()
-        call tce_diagonalize_heff(rtdb)
+        call tce_diagonalize_heff(rtdb,iter)
 
        if(nodezero) then
         write(LuOut,"(/,'Final2 MR-MkCCSD energy after (T) correction:

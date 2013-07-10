@@ -1055,7 +1055,7 @@ c ==============================================
 c     Diagonalize effective Hamiltonian
 c ==============================================
 c
-        subroutine tce_diagonalize_heff(rtdb)
+        subroutine tce_diagonalize_heff(rtdb,iter)
         implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1092,6 +1092,11 @@ c        integer nrootmuc
 c        integer iignore
         double precision isum
         integer ddblsize,inntsize
+
+ckbn rootfromoverlap
+        double precision rootoverlap,rootoverlapmax
+        integer stateselectedbyoverlap
+        integer iter
 
         nodezero = (ga_nodeid().eq.0)  
         ddblsize=MA_sizeof(MT_DBL,1,MT_BYTE)
@@ -1334,6 +1339,52 @@ c             if(abs(vr(l,j)).lt.1.0d-8)
 
       endif
       endif
+
+
+ckbn  find the requested root according to overlap instead
+      call ga_sync()
+      if(iter .gt. iroottooverlapiter) then
+c      if(.not.lconverged) then
+        if(lrootfromoverlap) then
+         stateselectedbyoverlap=0
+         rootoverlapmax=-100.0d0
+         do i=1,nref
+          rootoverlap=0.0d0
+          isum = 0.0d0
+          do j=1,nref
+c          if(nodezero)write(*,'(A,2I5,A,F17.10)')"vr(",j,i,")",vr(j,i)
+           rootoverlap=rootoverlap+bwcoefwanted(j)*vr(j,i)
+           isum = isum + vr(j,i)
+          enddo
+          rootoverlap=abs(rootoverlap)
+c          write(*,'(A,F17.10)') "Overlap ", rootovelap
+c          write(*,*) "i1 ",i," rootoverlapmax ",rootoverlapmax,stateselectedbyoverlap,i
+          if(nodezero) write(*,'(A,I5,F17.10,A,F17.10)') "Overlap ",i,
+     +     rootoverlap, " isum ",isum
+          if((iignore.eq.0).or.(abs(isum).gt.1.0d-5)) then
+           if(rootoverlap .gt. rootoverlapmax) then
+            rootoverlapmax=rootoverlap
+            stateselectedbyoverlap=i
+c           write(*,*) "i2 ",i," rootovelapmax ",rootovelapmax,stateselectedbyoverlap,i
+           endif
+          endif
+         enddo
+         mkroot= stateselectedbyoverlap
+         epsilon = er(stateselectedbyoverlap)
+         if(nodezero) write(LuOut,'(A,I5)') 
+     +    'MRCC root selected by overlap is ',stateselectedbyoverlap
+        endif ! lrootfromoverlap
+c      else ! lconverged
+c       if(nodezero) write(*,'(A,L3,A,I5)') "Converged ",lconverged,
+c    +   " so keeping old root ", mkrootold
+c      endif !lconverged
+      endif 
+      call ga_sync()
+
+
+
+
+
 
         if (nodezero.and.(nref.lt.21)) then
            write(6,"('Target root: ',I4)")mkroot

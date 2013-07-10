@@ -210,20 +210,32 @@ ckbn-9
       endif
 
 ckbn roottooverlap
-      if (inp_compare(.false.,test,'roottooverlap')) then
-        call errquit(
-     +  'tce_mrcc_input: roottooverlap not implemented in this version',
-     +   30,INPUT_ERR)
+      if (inp_compare(.false.,test,'rootfromoverlap')) then
+c        call errquit(
+c     +  'tce_mrcc_input: roottooverlap not implemented in this version',
+c     +   30,INPUT_ERR)
         if (.not. inp_i(iroottooverlap))
      +    call errquit('tce_mrcc_input: failed reading value',1,
      +    RTDB_ERR)
-c       if (.not.rtdb_put(rtdb,'mrcc:roottooverlap',mt_int,1,
-c     +    iroottooverlap))
-c     +   call errquit('tce_mrcc_input: failed writing to rtdb',0,
-c     +   RTDB_ERR)
+        if (.not. inp_i(iroottooverlapiter))
+     +    call errquit('tce_mrcc_input: failed reading value',1,
+     +    RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'mrcc:rootfromoverlap',mt_log,1,
+     +    .true.))
+     +   call errquit('tce_mrcc_input: failed writing to rtdb',0,
+     +   RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'mrcc:iroottooverlap',mt_int,1,
+     +    iroottooverlap))
+     +   call errquit('tce_mrcc_input: failed writing to rtdb',0,
+     +   RTDB_ERR)
+       if (.not.rtdb_put(rtdb,'mrcc:iroottooverlapiter',mt_int,1,
+     +    iroottooverlapiter))
+     +   call errquit('tce_mrcc_input: failed writing to rtdb',0,
+     +   RTDB_ERR)
           goto 10
       endif
 c      write(*,*) "roottooverlap", iroottooverlap
+
 
 ckbn ignore complex root has to be used with caution 
       if (inp_compare(.false.,test,'ignorecomplex')) then
