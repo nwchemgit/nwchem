@@ -166,6 +166,8 @@ c$$$     $     ' verify ', overify
 c
 c     Store data to the rtdb
 c
+      if(global_size.eq.0) call errquit(
+     E     'memory_input: no global memory defined ',0,MEM_ERR)
       if (ostore) then
          mem(1) = heap_size
          mem(2) = stack_size
