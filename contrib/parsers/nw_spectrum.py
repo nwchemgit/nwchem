@@ -261,22 +261,46 @@ def parse_input_tddft (opts):
 
             line_strip = line.strip()
 
+            # ##
+            # ## OLD WAY
+            # ## 
+            # ## Note, I would ideally .split() the line directly, but you
+            # ## can have cases like Root356 (for three digit root numbers)
+            # ## so I have to do it this ugly way...
+            # ##
+            # try:
+            #     line_start = line_strip[0:4]          # should contain RootXXX
+            #     line_data = line_strip[7:].split()   
+            #     line_n = line_strip[4:7]              #contains integer root number
+            #     line_e = line_data[-2]                # should contain excitation energy
+            #     line_ev_tag = line_data[-1]           # should contain "eV"
+            # except:
+            #     raise Exception ("Failed to parse data line for root: {0}".format(line_strip))
+
             ##
-            ## Note, I would ideally .split() the line directly, but you
-            ## can have cases like Root356 (for three digit root numbers)
-            ## so I have to do it this ugly way...
+            ## NEW WAY after Niri changed formatting, e.g.:
+            ## Root  48 singlet a             57.454053695 a.u.             1563.4050 eV
             ##
+            line_strip = line.strip()
+            line_split = line_strip.split()
             try:
-                line_start = line_strip[0:4]          # should contain RootXXX
-                line_data = line_strip[7:].split()   
-                line_n = line_strip[4:7]              #contains integer root number
-                line_e = line_data[-2]                # should contain excitation energy
-                line_ev_tag = line_data[-1]           # should contain "eV"
+                line_start = line_split[0]     # contains "Root"
+                line_n = line_split[1]         # contains root number (int)
+                line_ev_tag = line_split[-1]   # contains "eV"
+                line_e = line_split[-2]        # contains excitation energy in eV
             except:
                 raise Exception ("Failed to parse data line for root: {0}".format(line_strip))
-            
-#            print (line_start, line_n, line_data)  #debugging
 
+            if line_start == "Root" and line_ev_tag == "eV":
+                try:
+                    n = int(line_n)
+                    energy_ev = float(line_e)
+                except:
+                    raise Exception ("Failed to convert root values: {0}".format(line_strip))
+            else:
+                raise Exception ("Unexpected format for root: {0}".format(line_strip))
+
+            
             if line_start == "Root" and line_ev_tag == "eV":
                 try:
                     n = int(line_n)
