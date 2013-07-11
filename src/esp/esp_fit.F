@@ -36,80 +36,79 @@ c     set up matrix of linear coefficients
 c     ------------------------------------
 c
       do 1 i=1,ndim
-      do 2 j=1,ndim
-      a(i,j)=zero
-    2 continue
+        do 2 j=1,ndim
+          a(i,j)=zero
+    2   continue
     1 continue
 c
       do 3 i=me+1,natoms,np
-      do 4 j=i,natoms
-      sum=zero
-      do 5 k=1,ngrid
-      sum=sum+one/dsqrt( ( (x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
-     +                       (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
-     +                       (x(3,i)-g(3,k))*(x(3,i)-g(3,k)) )*
-     +                     ( (x(1,j)-g(1,k))*(x(1,j)-g(1,k))+
-     +                       (x(2,j)-g(2,k))*(x(2,j)-g(2,k))+
-     +                       (x(3,j)-g(3,k))*(x(3,j)-g(3,k)) ) )
-    5 continue
-      a(i,j)=sum
-      a(j,i)=sum
-    4 continue
-      a(i,natoms+1)=one
-      do 6 j=2,nconst
-      a(i,natoms+j)=zero
-    6 continue
+        do 4 j=i,natoms
+          sum=zero
+          do 5 k=1,ngrid
+            sum=sum+one/dsqrt( ( (x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
+     +                           (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
+     +                           (x(3,i)-g(3,k))*(x(3,i)-g(3,k)) )*
+     +                         ( (x(1,j)-g(1,k))*(x(1,j)-g(1,k))+
+     +                           (x(2,j)-g(2,k))*(x(2,j)-g(2,k))+
+     +                           (x(3,j)-g(3,k))*(x(3,j)-g(3,k)) ) )
+    5     continue
+          a(i,j)=sum
+          a(j,i)=sum
+    4   continue
+        a(i,natoms+1)=one
+        do 6 j=2,nconst
+          a(i,natoms+j)=zero
+    6   continue
     3 continue
 c
       if(np.gt.1) call ga_dgop(mre_007,a,ndim*ndim,'+')
 c
       do 7 j=1,natoms
-      a(natoms+1,j)=one
+        a(natoms+1,j)=one
     7 continue
 c
 c     construct column vector b
 c     -------------------------
 c
       do 8 i=1,natoms
-      sum=zero
-      do 9 k=1,ngrid
-      sum=sum+v(k)/dsqrt((x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
-     +                   (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
-     +                   (x(3,i)-g(3,k))*(x(3,i)-g(3,k)))
-    9 continue
-      b(i)=sum
+        sum=zero
+        do 9 k=1,ngrid
+          sum=sum+v(k)/dsqrt((x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
+     +                       (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
+     +                       (x(3,i)-g(3,k))*(x(3,i)-g(3,k)))
+    9   continue
+        b(i)=sum
     8 continue
       b(natoms+1)=charge
 c
       ndima=natoms+1
       jcon=0
       do 10 i=2,nconst
-      b(natoms+i)=rcon(i-1)
-      jcon=jcon+1
-      lcon=icon(jcon)
-c      if(lcon.lt.0) goto 13
-      do 11 j=1,lcon
-      jcon=jcon+1
-      k=icon(jcon)
-      if(k.gt.0) then
-      a(natoms+i,k)=one
-      a(k,natoms+i)=one
-      else
-      a(natoms+i,-k)=-one
-      a(-k,natoms+i)=-one
-      endif
-   11 continue
-      ndima=ndima+1
+        b(natoms+i)=rcon(i-1)
+        jcon=jcon+1
+        lcon=icon(jcon)
+        do 11 j=1,lcon
+          jcon=jcon+1
+          k=icon(jcon)
+          if(k.gt.0) then
+            a(natoms+i,k)=one
+            a(k,natoms+i)=one
+          else
+            a(natoms+i,-k)=-one
+            a(-k,natoms+i)=-one
+          endif
+   11   continue
+        ndima=ndima+1
    10 continue
 c
 c     save a copy in akeep and bkeep
 c     ------------------------------
 c
       do 12 i=1,ndim
-      do 13 j=1,ndim
-      akeep(i,j)=a(i,j)
-   13 continue
-      bkeep(i)=b(i)
+        do 13 j=1,ndim
+          akeep(i,j)=a(i,j)
+   13   continue
+        bkeep(i)=b(i)
    12 continue
 c
 c     allocate work arrays for the matrix inversion

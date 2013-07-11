@@ -198,7 +198,7 @@ c
       nconst=nconst+1
 c
       do 1 i=1,107
-      radius(i)=factor*(radius(i)+probe)
+        radius(i)=factor*(radius(i)+probe)
     1 continue
 c
       return

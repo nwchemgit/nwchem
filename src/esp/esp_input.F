@@ -217,13 +217,13 @@ c
       endif
 c
       if(inp_compare(.false.,'qh',item)) then
-      if(.not.inp_f(qh)) qh=0.0d0
-      goto 2
+        if(.not.inp_f(qh)) qh=0.0d0
+        goto 2
       endif
 c
       if(inp_compare(.false.,'recalculate',item)) then
-      newgrd=1
-      goto 2
+        newgrd=1
+        goto 2
       endif
 c
       if(inp_compare(.false.,'constrain',item)) then
@@ -233,97 +233,97 @@ c
       if(.not.inp_a(item))
      + call md_abort('esp_input: constrain error',0)
       if(inp_compare(.false.,'stage2',item)) then
-      if(.not.inp_a(item))
-     + call md_abort('esp_input: constrain error',0)
-      lstage2=.true.
+        if(.not.inp_a(item))
+     +   call md_abort('esp_input: constrain error',0)
+        lstage2=.true.
       else
-      lstage2=.false.
+        lstage2=.false.
       endif
       if(inp_compare(.false.,'equal',item)) then
-      if(.not.inp_i(i))
-     + call md_abort('esp_input: constrain error',0)
-      if(.not.inp_i(j))
-     + call md_abort('esp_input: constrain error',0)
-   41 continue
-      ncon=ncon+1
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-      icon(ncon)=2
-      if(lstage2) icon(ncon)=-2
-      icon(ncon+1)=-i
-      icon(ncon+2)=j
-      rcon(nconst)=0.0d0
-      ncon=ncon+2
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-      if(inp_i(j)) then
-      nconst=nconst+1
-      goto 41
-      endif
-      goto 2
+        if(.not.inp_i(i))
+     +   call md_abort('esp_input: constrain error',0)
+        if(.not.inp_i(j))
+     +   call md_abort('esp_input: constrain error',0)
+   41   continue
+        ncon=ncon+1
+        if(ncon+2.gt.maxcon)
+     +     call md_abort('Increase dimension maxcon',ncon)
+        icon(ncon)=2
+        if(lstage2) icon(ncon)=-2
+        icon(ncon+1)=-i
+        icon(ncon+2)=j
+        rcon(nconst)=0.0d0
+        ncon=ncon+2
+        if(ncon+2.gt.maxcon)
+     +     call md_abort('Increase dimension maxcon',ncon)
+        if(inp_i(j)) then
+          nconst=nconst+1
+          goto 41
+        endif
+        goto 2
       elseif(inp_compare(.false.,'group',item)) then
-      if(.not.inp_i(i))
-     + call md_abort('esp_input: constrain error',0)
-      if(.not.inp_i(j))
-     + call md_abort('esp_input: constrain error',0)
-      if(.not.inp_a(item))
-     + call md_abort('esp_input: constrain error',0)
-      if(.not.inp_compare(.false.,'to',item))
-     + call md_abort('esp_input: constrain error',0)
-      if(.not.inp_i(k))
-     + call md_abort('esp_input: constrain error',0)
-      if(.not.inp_i(l))
-     + call md_abort('esp_input: constrain error',0)
-      if(j.lt.i.or.l.lt.k.or.j-i.ne.l-k)
-     + call md_abort('esp_input: constrain error',0)
-      nconst=nconst-1
-      do 42 m=0,j-i
-      nconst=nconst+1
-      ncon=ncon+1
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-      icon(ncon)=2
-      icon(ncon+1)=-(i+m)
-      icon(ncon+2)=k+m
-      rcon(nconst)=0.0d0
-      ncon=ncon+2
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-   42 continue
-      goto 2
+        if(.not.inp_i(i))
+     +     call md_abort('esp_input: constrain error',0)
+        if(.not.inp_i(j))
+     +     call md_abort('esp_input: constrain error',0)
+        if(.not.inp_a(item))
+     +     call md_abort('esp_input: constrain error',0)
+        if(.not.inp_compare(.false.,'to',item))
+     +     call md_abort('esp_input: constrain error',0)
+        if(.not.inp_i(k))
+     +     call md_abort('esp_input: constrain error',0)
+        if(.not.inp_i(l))
+     +     call md_abort('esp_input: constrain error',0)
+        if(j.lt.i.or.l.lt.k.or.j-i.ne.l-k)
+     +     call md_abort('esp_input: constrain error',0)
+        nconst=nconst-1
+        do 42 m=0,j-i
+          nconst=nconst+1
+          ncon=ncon+1
+          if(ncon+2.gt.maxcon)
+     +       call md_abort('Increase dimension maxcon',ncon)
+          icon(ncon)=2
+          icon(ncon+1)=-(i+m)
+          icon(ncon+2)=k+m
+          rcon(nconst)=0.0d0
+          ncon=ncon+2
+          if(ncon+2.gt.maxcon)
+     +       call md_abort('Increase dimension maxcon',ncon)
+   42   continue
+        goto 2
       elseif(inp_compare(.false.,'xhn',item)) then
-      ncon=ncon+1
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-      jcon=ncon
-      icon(jcon)=0
-      rcon(nconst)=0.0d0
-   43 continue
-      if(inp_i(i)) then
-      icon(jcon)=icon(jcon)+1
-      ncon=ncon+1
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-      icon(ncon)=i
-      goto 43
-      elseif(icon(jcon).gt.2) then
-      do 44 j=1,icon(jcon)-2
-      nconst=nconst+1
-      rcon(nconst)=0.0d0
-      ncon=ncon+1
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-      icon(ncon)=2
-      icon(ncon+1)=icon(jcon+j+1)
-      icon(ncon+2)=-icon(jcon+j+2)
-      ncon=ncon+2
-      if(ncon+2.gt.maxcon)
-     + call md_abort('Increase dimension maxcon',ncon)
-   44 continue
-      endif
-      goto 2
+        ncon=ncon+1
+        if(ncon+2.gt.maxcon)
+     +     call md_abort('Increase dimension maxcon',ncon)
+        jcon=ncon
+        icon(jcon)=0
+        rcon(nconst)=0.0d0
+   43   continue
+        if(inp_i(i)) then
+          icon(jcon)=icon(jcon)+1
+          ncon=ncon+1
+          if(ncon+2.gt.maxcon)
+     +       call md_abort('Increase dimension maxcon',ncon)
+          icon(ncon)=i
+          goto 43
+        elseif(icon(jcon).gt.2) then
+          do 44 j=1,icon(jcon)-2
+            nconst=nconst+1
+            rcon(nconst)=0.0d0
+            ncon=ncon+1
+            if(ncon+2.gt.maxcon)
+     +         call md_abort('Increase dimension maxcon',ncon)
+            icon(ncon)=2
+            icon(ncon+1)=icon(jcon+j+1)
+            icon(ncon+2)=-icon(jcon+j+2)
+            ncon=ncon+2
+            if(ncon+2.gt.maxcon)
+     +         call md_abort('Increase dimension maxcon',ncon)
+   44     continue
+        endif
+        goto 2
       else
-      call md_abort('esp_input: constrain error',0)
+        call md_abort('esp_input: constrain error',0)
       endif
       endif
       ncon=ncon+1

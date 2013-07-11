@@ -46,14 +46,15 @@ c
      + int_mb(inptr))
 c
       if(me.eq.0.and.newgrd.eq.0) then
-      newgrd=1
-      call util_file_name('grid',.false.,.false.,grdfil)
-      open(unit=lfngrd,file=grdfil,form='formatted',status='old',err=9)
-      read(lfngrd,'(i10)',err=9) ngrid
-      mxgrid=ngrid
-      newgrd=0
-      close(unit=lfngrd)
-    9 continue
+        newgrd=1
+        call util_file_name('grid',.false.,.false.,grdfil)
+        open(unit=lfngrd,file=grdfil,form='formatted',
+     +       status='old',err=9)
+        read(lfngrd,'(i10)',err=9) ngrid
+        mxgrid=ngrid
+        newgrd=0
+        close(unit=lfngrd)
+    9   continue
       endif
       call ga_brdcst(mre_011,newgrd,ma_sizeof(mt_int,1,mt_byte),0)
       call ga_brdcst(mre_012,mxgrid,ma_sizeof(mt_int,1,mt_byte),0)
@@ -63,25 +64,25 @@ c
 c
 c     initialize integrals
 c
-      if(.not.int_normalize(irtdb,ibasis))
-     + call md_abort('esp: int_normalize failed',me)
-      call int_init(irtdb,1,ibasis)
+        if(.not.int_normalize(irtdb,ibasis))
+     +   call md_abort('esp: int_normalize failed',me)
+        call int_init(irtdb,1,ibasis)
 c
-c     get number of shells
+c       get number of shells
 c
-      if(.not.bas_numcont(ibasis,nshell))
-     + call md_abort('esp: bas_numcont failed',me)
-      call int_mem_1e(max1e,mem1)
+        if(.not.bas_numcont(ibasis,nshell))
+     +   call md_abort('esp: bas_numcont failed',me)
+        call int_mem_1e(max1e,mem1)
 c
-      mbf=0
-      do 1 ish=1,nshell
-      if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
-     + call md_abort('esp: bas_cn2bfr failed',me)
-      mbf=max(mbf,ihi-ilo+1)
-    1 continue
+        mbf=0
+        do 1 ish=1,nshell
+          if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
+     +     call md_abort('esp: bas_cn2bfr failed',me)
+          mbf=max(mbf,ihi-ilo+1)
+    1   continue
       else
-      nbf=1
-      mbf=1
+        nbf=1
+        mbf=1
       endif
 c
 c     allocate memory:
