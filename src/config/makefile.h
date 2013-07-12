@@ -2529,7 +2529,7 @@ MKDIR = mkdir
 #
 
 .SUFFIXES:	
-.SUFFIXES:	.o .s .F .f .c
+.SUFFIXES:	.o .s .F .f .c .cpp
 
 ifndef FLINT
 
