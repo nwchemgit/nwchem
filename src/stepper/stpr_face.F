@@ -516,8 +516,8 @@ c.. one one int no allocate now
      &    call errquit
      &    ('stpr_store_rtdb: push for dbls failed?',911, MA_ERR)
 c
-      log_mb( klog)       = omin ! OVERRIDDEN BELOW
-      log_mb((klog +  1)) = ts  ! OVERRIDDEN BELOW
+      log_mb( klog)       = omin ! OVERRIDDEN BELOW (see stpr_load_rtdb)
+      log_mb((klog +  1)) = ts   ! OVERRIDDEN BELOW (see stpr_load_rtdb)
       log_mb((klog +  2)) = std
       log_mb((klog +  3)) = trot
       log_mb((klog +  4)) = trtr
@@ -543,10 +543,8 @@ c
       dbl_mb((kdbl +  6)) = convge
       dbl_mb((kdbl +  7)) = convggm
 c
-      if (.not.rtdb_put
-     &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
-     &    call errquit
-     &    ('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
+c     The values of stepper:ts and stepper:omin are also overriden by
+c     task_optimize and task_saddle.
 c
       if (.not.rtdb_put(rtdb,'stepper:ts',MT_LOG,1,ts))
      &    call errquit('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
@@ -558,7 +556,6 @@ c
      &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
      &    call errquit
      &    ('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
-
 c
       if (.not.rtdb_put
      &    (rtdb,'stepper:integervals',MT_INT,ns_int,int_mb(kint)))
@@ -656,11 +653,11 @@ c
 c
 c
       if (.not.rtdb_get(rtdb,'stepper:ts',MT_LOG,1,ts))
-     &    call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &    call errquit('stpr_load_rtdb: rtdb_put failed',911,
      &       RTDB_ERR)
 c
       if (.not.rtdb_get(rtdb,'stepper:omin',MT_LOG,1,omin))
-     &    call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &    call errquit('stpr_load_rtdb: rtdb_put failed',911,
      &       RTDB_ERR)
 c
 ***   omin     = log_mb( klog)          ! NOW DONE INDIVIDUALLY

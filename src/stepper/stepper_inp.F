@@ -106,8 +106,12 @@ c     input is finished
       else if (inp_compare(FF,'noprint',stpr_token)) then
          call util_print_input(rtdb, 'stepper')
       else if(inp_compare(FF,'min',stpr_token)) then
+        write(luout,*)"Stepper: WARNING: Always use MIN with "
+     +                //"TASK ... OPTIMIZE"
         omin = FT
       else if(inp_compare(FF,'ts',stpr_token)) then
+        write(luout,*)"Stepper: WARNING: Always use TS with "
+     +                //"TASK ... SADDLE"
         ts = FT
         omin = FF
       else if(inp_compare(FF,'std',stpr_token)) then
