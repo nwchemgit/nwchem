@@ -203,7 +203,11 @@ c
       integer my_sign, my_quad
       integer imode, ivec, iatom, ixyz, istep
       integer geom
+      character*15  openstat !< The value for STATUS= on OPEN call
       character*255 mydir, filename,filename1
+      character*255 filesetname !< The name for the current set of
+                                !< animated modes.
+      integer filesetnamelength !< The length of filesetname value.
 *      character*30 tag, element
       double precision length_of_step, scale
 *      double precision charge, atn
@@ -212,6 +216,10 @@ c::-statement function
       double precision thresh
       parameter (thresh=1.0d-2)
       logical is_it_close_to  
+      logical overwrite_files !< If .true. the animated mode files
+                              !< will be overwritten if they exist,
+                              !< otherwise the code fail if the files
+                              !< exist already.
       double precision value,test
       intrinsic abs
 *---          is value close to test?
@@ -237,9 +245,23 @@ c
 *  1  1  1  1  1  2  2  2  2  2  3   3   3   3   3   4   4   4   4   4
       call dfill(num_steps,0.0d00,step_norms,1)
       if (.not.rtdb_get(rtdb,'vib:animate:step_size',
-     &                            mt_dbl,1,step_size)) then
+     &                  mt_dbl,1,step_size)) then
          step_size = 0.15
       endif
+      if (.not.rtdb_get(rtdb,'vib:animate:overwrite_files',
+     &                  mt_log,1,overwrite_files)) then
+         overwrite_files = .false.
+      endif
+      if (overwrite_files) then
+         openstat = 'UNKNOWN'
+      else
+         openstat = 'NEW'
+      endif
+      if (.not.rtdb_cget(rtdb,'vib:animate:filename',
+     &                   1,filesetname)) then
+         filesetname = ""
+      endif
+      filesetnamelength = inp_strlen(filesetname)
       cur_step = 0.0d00
       my_sign  = 1.0d00
       do istep = 1,num_steps
@@ -269,14 +291,26 @@ c
         mydir = ' '
         call util_directory_name(mydir, .false., 0)
         filename = ' '
-        write(filename1,10001)
-     &      mydir(1:inp_strlen(mydir)),imode
+        if (filesetnamelength.le.0) then
+          write(filename1,10001)
+     &        mydir(1:inp_strlen(mydir)),imode
+        else
+          write(filename1,10011)
+     &        mydir(1:inp_strlen(mydir)),
+     &        filesetname(1:filesetnamelength),imode
+        endif
         open(unit=89,file=filename1,
-     &       form='formatted',status='new', err=99901)
+     &       form='formatted',status=openstat, err=99901)
         do istep = 1, num_steps
           filename = ' '
-          write(filename,10000)
-     &        mydir(1:inp_strlen(mydir)),imode,istep
+          if (filesetnamelength.le.0) then
+            write(filename,10000)
+     &          mydir(1:inp_strlen(mydir)),imode,istep
+          else
+            write(filename,10010)
+     &          mydir(1:inp_strlen(mydir)),
+     &          filesetname(1:filesetnamelength),imode,istep
+          endif
           if (is_it_close_to(step_norms(istep),0.0d00)) then
             call dfill(nat3,0.0d00,steps,1)
           else
@@ -297,7 +331,7 @@ c
      &       GEOM_ERR)
           call util_file_unlink(filename)
           open(unit=88,file=filename,
-     &        form='formatted',status='new', err=99901)
+     &        form='formatted',status=openstat, err=99901)
           if (.not.geom_print_xyz(geom,88))
      &        call errquit('vib_modestep: geom_print_xyz failed',911,
      &       GEOM_ERR)
@@ -312,6 +346,8 @@ c
       return
 10000 format(a,'/freq.m-',i3.3,'.s-',i3.3,'.xyz')
 10001 format(a,'/freq.m-',i3.3,'.xyz')
+10010 format(a,'/',a,'.freq.m-',i3.3,'.s-',i3.3,'.xyz')
+10011 format(a,'/',a,'.freq.m-',i3.3,'.xyz')
 99901 write(luout,*)' could not open file ',filename
       call errquit('vib_modestep: fatal error ',911, DISK_ERR)
 99902 write(luout,*)' could not close file ',filename

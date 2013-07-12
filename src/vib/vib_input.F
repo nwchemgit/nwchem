@@ -10,6 +10,7 @@ c    reuse [<string> hessian_filename]
 c    mass <integer> lexical_index <real> new_mass
 c    mass <string> tag_identifier <real> new_mass
 c    animate [<real> step_size_for_animation]     
+c    filename <string> file_set_name [overwrite]
 c  end
 c  
 #include "stdio.fh"
@@ -184,6 +185,41 @@ c
             reported = .true.
           endif
           o_masses = .true.
+          goto 00010
+        else if (inp_compare(.false.,test,'filename')) then
+          if (.not.rtdb_put(rtdb,'vib:animate:overwrite_files',mt_log,1,
+     &                      .false.))
+     &        call errquit('freq_vib_input: rtdb_put failed',911,
+     &                     RTDB_ERR)
+          if (inp_a(test)) then
+            if (inp_compare(.false.,test,'overwrite')) then
+              if (.not.rtdb_put(rtdb,'vib:animate:overwrite_files',
+     &                          mt_log,1,.true.))
+     &              call errquit('freq_vib_input: rtdb_put failed',911,
+     &                           RTDB_ERR)
+            else
+              if (.not.rtdb_cput(rtdb,'vib:animate:filename',1,
+     &                           test(1:inp_strlen(test))))
+     &              call errquit('freq_vib_input: rtdb_cput failed',911,
+     &                           RTDB_ERR)
+              if (inp_a(test)) then
+                if (inp_compare(.false.,test,'overwrite')) then
+                  if (.not.rtdb_put(rtdb,'vib:animate:overwrite_files',
+     &                              mt_log,1,.true.))
+     &              call errquit('freq_vib_input: rtdb_put failed',911,
+     &                           RTDB_ERR)
+                else
+                    write(luout,*)'freq_vib_input: could not parse line'
+                    call inp_outrec()
+                    goto 01001
+                endif
+              endif
+            endif
+          else
+            write(luout,*)'freq_vib_input: could not parse line'
+            call inp_outrec()
+            goto 01001
+          endif
           goto 00010
         else
           write(luout,10000)
