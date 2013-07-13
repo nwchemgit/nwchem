@@ -9,7 +9,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh
 	chk_dens.o \
 	xc_util.o \
 	xc_chkdispauto.o \
-	xc_vdw_init.o
+	xc_vdw_init.o 2ndDerivB97.o 
 
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
@@ -27,7 +27,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh
 	xc_lyp88.o \
 	xc_perdew86.o \
 	xc_perdew91.o \
-	xc_pw91lda.o \
+	xc_pw91lda.o xc_pw91ldag.o \
 	xc_rhogen.o \
 	xc_tabcd.o \
 	xc_vwn_1.o \

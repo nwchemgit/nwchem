@@ -52,10 +52,11 @@ c
      &     dec_rs1, dec_rsz, d1dec_rs1, d1dec_rsz(2)
       double precision devwn_rsz, d1devwn_rsz(2), zeta2, zeta3, zeta4,
      &     d2fz0, beta_rs1, d1beta_rs1, t_vwn, d1t_vwn
+      double precision d2e(3)
 #ifdef SECOND_DERIV
       double precision d2beta_rs1, d2t_vwn, d2devwn_rsz(3)
       double precision d2rs, d2x, d2h1, d2h2,
-     &     d2e(3), d2zeta(3), d2dec_rs1, d2dec_rsz(3),
+     &     d2zeta(3), d2dec_rs1, d2dec_rsz(3),
      &     d2ersz(3), d2edrho(3), d2fz, rrho2
 #endif
       double precision p0, p1, p2, p3
@@ -68,6 +69,7 @@ c
      &          14.1189d0, 6.1977d0, 3.3662d0, 0.62517d0,
      &          10.357d0, 3.6231d0, 0.88026d0, 0.49671d0 /
       data initial /1/
+
 c
 c     Define miscellaneous parameters.
 c
@@ -112,34 +114,7 @@ c
 c        Note that the Monte Carlo form (p = 1) is used for h2.
 c
          do i = 1, 3
-            h2 = x*(b(1,i) + x*(b(2,i) + x*(b(3,i) + x*b(4,i))))
-            d1h2 = b(1,i)
-     &           + x*(2d0*b(2,i) + x*(3d0*b(3,i) + 4d0*x*b(4,i)))
-#ifdef SECOND_DERIV
-            d2h2 = 2d0*b(2,i) + x*(6d0*b(3,i) + 12d0*x*b(4,i))
-#endif
-c
-            h1 = DLOG(1d0+1d0/h2)
-            d1h1 = -d1h2/(h2*(h2+1d0))
-#ifdef SECOND_DERIV
-            d2h1 = d1h1*d1h1*(2d0*h2+1d0) - d2h2/(h2*(h2+1d0))
-#endif
-c
-            e(i) = A(i)*(1d0+alp(i)*rs)*h1
-            d1e(i) = A(i)*(2d0*alp(i)*x*h1+(1d0+alp(i)*rs)*d1h1)
-#ifdef SECOND_DERIV
-            d2e(i) = A(i)*(2d0*alp(i)*h1+4d0*alp(i)*x*d1h1
-     &                      +(1d0+alp(i)*rs)*d2h1)
-#endif
-c
-c           Transform derivatives wrt x to derivatives wrt rs
-c
-#ifdef SECOND_DERIV
-c           Do 2nd derivative first so the x first derivative in d1e
-c           is not lost
-            d2e(i) = d2e(i)*d1x*d1x + d1e(i)*d2x
-#endif
-            d1e(i) = d1e(i)*d1x
+            call xc_pw91ldag(rs, i, e(i) ,d1e(i), d2e(i))
          enddo
 c
 c        Compute the polarization function and its derivatives
