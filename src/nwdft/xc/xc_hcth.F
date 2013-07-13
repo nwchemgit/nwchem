@@ -31,6 +31,7 @@ c    F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy,
 c    J. Chem. Phys. 109, 6264-6271 (1998)
 c    subroutine supplied by Fred Hamprecht fah@igc.phys.chem.ethz.ch
 c
+#define OLDCRS 1
       integer n
       double precision gammaval
 c to hcth
@@ -106,6 +107,83 @@ c
       end
 
       Subroutine xc_hcth_d2(tol_rho, xfac, lxfac, nlxfac,
+     &                      cfac, lcfac, nlcfac,rho, delrho,
+     &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &                      Ex, Ec,  qwght, ldew,func,funcname)
+c
+c$Id$
+c
+      Implicit none
+#include "errquit.fh"
+c
+#include "dft2drv.fh"
+#include "2ndDerivB97.h"
+#include "mafdecls.fh"
+c
+      logical ldew ! [input]
+      logical lcfac, nlcfac,  lxfac, nlxfac ! [input]
+      double precision func(*) ![input/output]
+      double precision cfac, xfac ![input]
+      character*4 funcname ! functional name [input]
+c
+      integer ipol  ! no. of spin states [input]
+      integer nq    ! no. of quadrature pts [input]
+      double precision tol_rho! [input]!threshold on density
+      double precision Ec ! Correlation energy [input/output] 
+      double precision Ex ! Exchange    energy [input/output] 
+      double precision rho(nq,ipol*(ipol+1)/2)! Charge Density [input] 
+      double precision delrho(nq,3,ipol) ! Charge Density Gradient[input] 
+      double precision qwght(nq) ! Quadrature Weights [input]
+      double precision Amat(nq,ipol)  !Sampling Matrices for the XC [output]
+      double precision Cmat(nq,*)!Potential & Energy [output]
+      double precision Amat2(nq,NCOL_AMAT2) ! XC functional seconds [output]
+      double precision Cmat2(nq,NCOL_CMAT2) ! XC functional seconds [output]
+c
+      integer i
+      double precision rho_a(0:3),rho_b(0:3)
+      double precision FX(0:_FXC_NUMDERI),FC(0:_FXC_NUMDERI)
+c
+      if(funcname.eq.'b970') then
+         do i=1,nq
+            if(ipol.eq.2) then
+               rho_a(0)=rho(i,2)
+               rho_b(0)=rho(i,3)
+               rho_a(1)=delrho(i,1,1)**2
+               rho_a(2)=delrho(i,2,1)**2
+               rho_a(3)=delrho(i,3,1)**2
+               rho_b(1)=delrho(i,1,2)**2
+               rho_b(2)=delrho(i,2,2)**2
+               rho_b(3)=delrho(i,3,2)**2
+            else
+               rho_a(0)=rho(i,1)*.5d0
+               rho_b(0)=rho_a(0)
+               rho_a(1)=(delrho(i,1,1)*.5d0)**2
+               rho_a(2)=(delrho(i,2,1)*.5d0)**2
+               rho_a(3)=(delrho(i,3,1)*.5d0)**2
+               rho_b(1)=rho_a(1)
+               rho_b(2)=rho_a(2)
+               rho_b(3)=rho_a(3)
+            endif
+            if(rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
+            call dft_xckernel_xb97(rho_a, rho_b, 1d0, FX)
+               Ex = Ex + FX(_FXC_E)*qwght(i)*xfac
+               if(ldew) func(i)=func(i) + FX(_FXC_E)*xfac
+               call xc_fxc2acmat(nq,i,ipol,FX,
+     A              Amat,Cmat,Amat2,Cmat2)
+            call dft_xckernel_cb97(rho_a, rho_b, 1d0, FC)
+               Ec = Ec + FX(_FXC_E)*qwght(i)*cfac
+               if(ldew) func(i)=func(i) + FC(_FXC_E)*cfac
+               call xc_fxc2acmat(nq,i,ipol,FC,
+     A              Amat,Cmat,Amat2,Cmat2)
+               endif
+         enddo
+      else
+         call errquit(' analytical 2nds not ready', 0,  CAPMIS_ERR)
+      endif
+
+      return
+      end
+      Subroutine xc_hcth_d2num(tol_rho, xfac, lxfac, nlxfac,
      &                      cfac, lcfac, nlcfac,rho, delrho,
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
@@ -564,9 +642,8 @@ C      DOUBLE PRECISION du_cab_by_dzb_dzb
       double precision x1,x2,x3,x4
       double precision e_crs1
       double precision drsbydrh
+      double precision d2ez
       double precision decrsdrs
-      double precision eps
-      parameter (eps=1d-19)
 C
 C     F_xs computes HCTH contribution to exchange Energy
 C     using Dirac functional as LDA part
@@ -719,8 +796,12 @@ C
 C     pw91 LDA Ecorr
 C
          if(rhob.gt.tol_rho) then
+#ifdef OLDCRS
             e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
             de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
+#else
+            call xc_pw91ldag(rsb, 2, e_crsb1 ,de_crsb1_by_drsb, d2ez)
+#endif
          else
             e_crsb1 = 0d0
             de_crsb1_by_drsb = 0d0
@@ -786,7 +867,7 @@ C
       if(zeta.lt.-1d0) zeta=-1d0
       if(zeta.gt.1d0) zeta=1d0
 
-      if(abs(1d0-zeta).gt.eps) then
+      if(abs(1d0-zeta).gt.tol_rho) then
          fzeta = (-2.d0 + sign(1d0,1.d0 - zeta)*(abs(1.d0 - zeta))**
      -        (4.D0/3.D0) +
      -        (1.d0 + zeta)**(4.D0/3.D0))/
@@ -799,11 +880,17 @@ C
 C     pw91 LDA Ecorr
 C
       if(rhoa.gt.tol_rho) then
+#ifdef OLDCRS
          e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
+#else
+         call  xc_pw91ldag(rsa, 2, e_crsa1,
+     D        de_crsa1_by_drsa, d2ez)
+#endif
       else
          e_crsa1 = 0d0
       endif
       if(rho.gt.tol_rho) then
+#ifdef OLDCRS
          e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
          e_crsab0 = -0.062182d0*dlog(1.d0 +
      -        16.0818243221511d0/
@@ -820,6 +907,16 @@ C
      -        0.88026d0*rsab32 +
      -        0.49671d0*rsab21))*
      -        (1.d0 + 0.11125d0*rsab)
+#else
+         call xc_pw91ldag(rsab, 2, e_crsab1,
+     D        de_crsab1_by_drsab, d2ez)
+c eps_c(rs,0)
+         call xc_pw91ldag(rsab, 1, e_crsab0,
+     D        de_crsab0_by_drsab, d2ez)
+c     alpha(rs)
+         call xc_pw91ldag(rsab, 3, a_crsab,
+     D        da_crsab_by_drsab, d2ez)
+#endif
       else
          e_crsab1 = 0d0
          e_crsab0 = 0d0
@@ -948,7 +1045,7 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -        (1.D0/3.D0))/3.)/
      -  (-2.d0 + 2d0*2**(1.D0/3.D0))
 
-
+#ifdef OLDCRS
       da_crsab_by_drsab = (-1.d0*(1.d0 + 0.11125d0*rsab)*
      -     (3.623099999999999d0 + 
      -       5.178499999999999d0/rsab12 + 
@@ -978,10 +1075,13 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -   dlog(1.d0 + 16.0818243221511d0/
      -      (3.5876*rsab + 7.595699999999999d0*rsab12 + 
      -        0.49294d0*rsab21 + 1.6382d0*rsab32))
+#endif
       if(rhoa.gt.tol_rho) then
+#ifdef OLDCRS
          de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
          de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
       else
+#endif
          de_crsa1_by_drsa = 0d0
          de_crsab1_by_drsab = 0d0
       endif
@@ -1384,3 +1484,79 @@ Cfah    ENDDO
 
 Cfah-----------------------------------------------------------
 
+Cfah-----------------------------------------------------------
+
+ccc   DFT_XCKernel_PWLDA(ra, rb, FCLDA);
+      subroutine DFT_XCKernel_PWLDA(ra, rb, FCLDA)
+      implicit none
+#include "2ndDerivB97.h"
+      double precision ra, rb
+      double precision FCLDA(0:_FXC_RARB)
+c
+      double precision Amat(2)
+      double precision Amat2(3)
+      double precision rho(3)
+      double precision ec,qwght
+c
+      double precision func
+c
+      rho(1)=ra+rb
+      rho(2)=ra
+      rho(3)=rb
+cinitialize      
+      ec = 0d0
+      qwght=1d0
+      Amat(1)=0d0
+      Amat(2)=0d0
+      Amat2(1)=0d0
+      Amat2(2)=0d0
+      Amat2(3)=0d0
+
+      call xc_pw91lda_d2(1d-20, 1d0, .true., .false., rho,
+     &     Amat, Amat2, 1, 2, Ec, qwght, .false., func)
+
+      FCLDA(_FXC_E)=ec
+      FCLDA(_FXC_RA)=Amat(1)
+      FCLDA(_FXC_RB)=Amat(2)
+c
+      FCLDA(_FXC_RARA)=Amat2(D2_RA_RA)
+      FCLDA(_FXC_RBRB)=Amat2(D2_RB_RB)
+      FCLDA(_FXC_RARB)=Amat2(D2_RA_RB)
+c      rubbish
+      return
+      end
+      subroutine xc_fxc2acmat(nq,i,ipol,FX,
+     A     Amat,Cmat,Amat2,Cmat2)
+      implicit none
+#include "2ndDerivB97.h"
+#include "mafdecls.fh"
+      integer nq,ipol
+      integer i
+      double precision Amat(nq,ipol), Cmat(nq,*)
+      double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
+      double precision FX(0:_FXC_NUMDERI)
+      Amat(i,1) = Amat(i,1) + FX(_FXC_RA) 
+      Cmat(i,D1_GAA) = Cmat(i,D1_GAA) + FX(_FXC_GAA)
+      Amat2(i,D2_RA_RA) = Amat2(i,D2_RA_RA) + FX(_FXC_RARA)
+      Amat2(i,D2_RA_RB) = Amat2(i,D2_RA_RB) + FX(_FXC_RARB)
+      Cmat2(i,D2_GAA_GAA) = Cmat2(i,D2_GAA_GAA) +
+     +     FX(_FXC_GAAGAA)
+      Cmat2(i,D2_GAA_GBB) = Cmat2(i,D2_GAA_GBB) +
+     +     FX(_FXC_GAAGBB)
+      Cmat2(i,D2_RA_GAA) = Cmat2(i,D2_RA_GAA) +
+     +     FX(_FXC_RAGAA)
+      Cmat2(i,D2_RA_GBB) = Cmat2(i,D2_RA_GBB) +
+     +     FX(_FXC_RAGBB)
+      Cmat2(i,D2_RB_GAA) = Cmat2(i,D2_RB_GAA) +
+     +     FX(_FXC_RBGAA)
+      if(ipol.eq.2) then
+         Amat(i,2) = Amat(i,2) + FX(_FXC_RB) 
+         Cmat(i,D1_GBB) = Cmat(i,D1_GBB) + FX(_FXC_GBB)
+         Amat2(i,D2_RB_RB) = Amat2(i,D2_RB_RB) + FX(_FXC_RBRB)
+         Cmat2(i,D2_GBB_GBB) = Cmat2(i,D2_GBB_GBB) +
+     +        FX(_FXC_GBBGBB)
+         Cmat2(i,D2_RB_GBB) = Cmat2(i,D2_RB_GBB) +
+     +        FX(_FXC_RBGBB)
+      endif
+      return
+      end

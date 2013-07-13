@@ -88,7 +88,7 @@ c
       xc_got2nd=.not.(
 c
      .     xfac(4).ne.0d0.or.
-     .     xfac(5).ne.0d0.or.
+cXbecke97     .     xfac(5).ne.0d0.or.
      .     xfac(6).ne.0d0.or.
      .     xfac(10).ne.0d0.or.
      .     xfac(11).ne.0d0.or.
@@ -118,7 +118,7 @@ c
      .     xfac(54).ne.0d0.or.
 c
      .     cfac(13).ne.0d0.or.
-     .     cfac(14).ne.0d0.or.
+cCbecke97     .     cfac(14).ne.0d0.or.
      .     cfac(15).ne.0d0.or.
      .     cfac(16).ne.0d0.or.
      .     cfac(17).ne.0d0.or.
