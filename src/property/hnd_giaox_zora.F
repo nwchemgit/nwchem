@@ -1,6 +1,8 @@
       subroutine hnd_giaox_zora(rtdb,basis,geom)
 c $Id$
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -13,7 +15,8 @@ c $Id$
 #include "prop.fh"
 #include "bgj.fh"
 #include "case.fh"
-#include "zora.fh"  
+#include "zora.fh"
+c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
@@ -110,6 +113,7 @@ c     Current CPHF does not handle symmetry
 c     Making C1 geometry and store it on rtdb
 c     
 c     If DFT get part of the exact exchange defined
+c
       xfac = 1.0d0
       if (use_theory.eq.'dft') xfac = bgj_kfac()    
       nind_jk=12
@@ -209,11 +213,12 @@ c ++++++ Reading shieldings data from file ++++++ END
      &    errquit('hnd_giaox_zora: ma_push_get failed k_occ',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,2*nbf,'eigenval',l_eval,k_eval)) call
      &    errquit('hnd_giaox_zora: ma_push_get failed k_eval',0,MA_ERR)
-
+c
       call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
      &                      nvirt,scftyp,vectors,dbl_mb(k_occ),
      &                      dbl_mb(k_eval),nmo)
-
+c
+c
 c ------ define npol ----- START
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, npol)) then
         if      (scftyp .eq. 'UHF') then
@@ -259,6 +264,7 @@ c     Get Unperturbed Density Matrix
      &                       g_dens, ! out
      &                       ndens,scftyp,
      &                       nclosed,nopen,nvirt)
+c
       ntot=0
       do ispin=1,npol
         ntot=ntot+nocc(ispin)*nvirt(ispin)
@@ -328,6 +334,7 @@ c ----- TEST: for testing Coulomb and Exchange contrib --- END
      &                      dbl_mb(k_xyz),nat_slc,basis, 
      &                      nbf,nmo,npol,nocc,nvirt) 
       endif
+c
       if (debug_giaox.eq.1) then
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- g_rhs-aft-get_prelim_fock -------- START'
@@ -337,7 +344,9 @@ c ----- TEST: for testing Coulomb and Exchange contrib --- END
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- g_rhs-aft-get_prelim_fock -------- START'
       endif 
+c
 c     Build "first order fock matrix"
+c
       if (use_theory.eq.'dft') then
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',0,
@@ -361,7 +370,6 @@ c     Build "first order fock matrix"
 c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 c
-c ++++ WARNING: skipping cam definitions for the moment ---- START
       if (.not.cam_exch) then
          call shell_fock_build(geom, basis,0,3*npol*2,
      $                         jfac,kfac,tol2e,
@@ -375,20 +383,7 @@ c ++++ WARNING: skipping cam definitions for the moment ---- START
      &                              g_fock,! output
      &                              .false.)
       end if
-c ++++ WARNING: skipping cam definitions for the moment ---- END
- 180  continue
- 
-c      write(*,104) npol,nocc(1),nocc(2),
-c     &            nclosed(1),nclosed(2),
-c     &            nvirt(1),nvirt(2),scftyp
-c 104   format('AFT. shell_fock_build: npol=',i3,
-c     &       ' nocc=(',i3,',',i3,') ',
-c     &       'nclos=(',i3,',',i3,') ',
-c     &       'nvirt=(',i3,',',i3,') scftyp=',a,')')
-
-c      if (ga_nodeid().eq.0)
-c     &    write(*,*) 'Aft shell_fock_build ...'
-
+c
       if(use_theory.eq.'dft') then
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
@@ -1007,8 +1002,7 @@ c     Print out tensor information, and write to Ecce file if necessary
 c
 c      Print tensor pieces and sum for total shielding tensor
          if (ga_nodeid().eq.0) then
-c            write(luout,9700) iatom,symbol
-            write(luout,9700) int_mb(k_AtNr+iatom-1),symbol ! Showing original atm nr.
+            write(luout,9700) iatom,symbol ! Showing original atm nr.
             write(luout,9800) (dbl_mb(k_dia+ioff+ix-1),ix=1,9)
             write(luout,9801) (dbl_mb(k_para+ioff+ix-1),ix=1,9)
          endif
@@ -1174,7 +1168,9 @@ c Date    : 03-03-11, 11-23-12 (adding Fukui term)
 c Note.- Adaptation of hnd_giaox.F to hold 
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1185,7 +1181,8 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"
+c
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer rtdb,geom
@@ -1525,7 +1522,9 @@ c Date    : 03-03-11, 11-23-12 (adding Fukui term)
 c Note.- Adaptation of hnd_giaox.F to hold 
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1536,7 +1535,8 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"
+c
       integer rtdb,geom
       integer basis
       integer alo(3), ahi(3), blo(3), bhi(3),
@@ -1823,7 +1823,9 @@ c Date    : 03-03-11, 11-23-12 (adding Fukui term)
 c Note.- Adaptation of hnd_giaox.F to hold 
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1834,7 +1836,8 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
 #include "prop.fh"
 #include "bgj.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"
+c
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer rtdb
@@ -1992,8 +1995,9 @@ c -------------- for shieldings NMLO analysis ----------------- START
      &             nocc,    ! in: nr. occ   nocc(i) i=1,npol
      &             nvirt,   ! in: nr. virt nvirt(i) i=1,npol
      &             nmo)     ! in: nr. MO
-
+c
       implicit none
+c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "global.fh" 
@@ -2004,7 +2008,8 @@ c -------------- for shieldings NMLO analysis ----------------- START
 #include "rtdb.fh"
 #include "cosmo.fh"
 #include "msgids.fh" 
-#include "zora.fh"   
+#include "zora.fh"
+c
 c FA: Revised on 06-22-11
 c ------Main outputs -------- START
       integer g_munu_rot,         ! hyp-FCSD  dia  part

@@ -173,7 +173,7 @@ c     ----- electric field gradient -----
 c
       if(noelfg.eq.0) call hnd_efgmap(rtdb,basis,geom)
 c
-c     ----- electric field gradient with ZORA 4 ----- FA-11-24-09
+c     ----- electric field gradient with ZORA picture change effects -----
 c
       if (do_zora. and. (noelfgZ4.eq.0)) then
         if (ga_nodeid().eq.0) then
@@ -181,8 +181,8 @@ c
          call util_print_centered(LuOut,'ZORA EFG-Z4', 23, .true.)
          write(LuOut,*)
         endif
-        call hnd_efgmap(rtdb,basis,geom)
-        call hnd_efgmap_Z4(rtdb,basis,geom)
+        call hnd_efgmap(rtdb,basis,geom)  ! normal EFG
+        call hnd_efgmap_Z4(rtdb,basis,geom)  ! with picture change (Z4) effects
       end if
 c
 c     ----- electron and spin densities -----
@@ -190,27 +190,19 @@ c
       if(noden.eq.0) call hnd_eldmap(rtdb,basis,geom)
 c
 c     ----- giao -nmr- chemical shifts -----
-      if(nogiao.eq.0 .and. (.not.do_zora)) then
-c        call hnd_giaox(rtdb,basis,geom)
-c        goto 111
-c Note.- hnd_giaox_ZORA() is not working yet for NonRel DFT
-c       it gives different results than hnd_giaox() FA-04-06-11
-
-        call hnd_giaox_ZORA(rtdb,basis,geom) ! non-relativistic
-
- 111    continue
-      endif
- 
-      if((nogiao.eq.0) .and. (do_zora)) then
-        if (ga_nodeid().eq.0) then
+c
+      if((nogiao.eq.0)) then
+        if (ga_nodeid().eq.0 .and. (do_zora)) then
          write(LuOut,*)
            call util_print_centered(LuOut,'Scalar ZORA NMR Shielding', 
      &                   23, .true.)
          write(LuOut,*)
         endif
-        call hnd_giaox_ZORA(rtdb,basis,geom) ! with zora
+        call hnd_giaox_ZORA(rtdb,basis,geom) ! handles both w/wo zora
       end if
-
+c
+c     ------- gshifts are a relativistic property -----
+c
       if(nogshift.eq.0 .and. do_zora) then
         if (ga_nodeid().eq.0) then
          write(LuOut,*)
