@@ -31,6 +31,8 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
+#include "prop.fh"
+#include "stdio.fh"
 c
       integer basis  !< [Input] The basis set handle
       integer nder   !< [Input] The number of derivatives
@@ -75,18 +77,19 @@ c
       parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
       integer ga_create_atom_blocked
+      character*3 theory
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
-c Quietly modify the values of jfac and kfac so that the original
-c values coming in can be consistent with the original fock_2e
+c     Quietly modify the values of jfac and kfac so that the original
+c     values coming in can be consistent with the original fock_2e
 c
       do i= 1, ndens
          jfac(i) = jfac(i)*4.0d00
          kfac(i) = kfac(i)*2.0d00
       enddo
 c
-c Get the dimensions of g_fock and eventually g_dens.
+c     Get the dimensions of g_fock and eventually g_dens.
 c
       call nga_inquire(g_fock, ityp, ndim, dims)
       nfock = dims(1)
@@ -218,7 +221,6 @@ c
      $     int_mb(k_bfglo), int_mb(k_bfghi), int_mb(k_bfmap), 
      $     int_mb(k_rbfmap),
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi), 
-c     $     oactive,
      $     jfac, kfac)
 c
       call nga_reorder(g_dens, .true., int_mb(k_bfmap),
@@ -226,22 +228,25 @@ c
       call nga_reorder(g_fock, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
 c
-c  Clean up memory allocated in this routine
+c     Clean up memory allocated in this routine
 c
       if (.not. ma_chop_stack(l_d_ij))
      $  call errquit('shell_fock_build:failed chopping MA stack',555,
      &       MA_ERR)
 c
-c Quietly modify the values of jfac and kfac back to the original
+c     Quietly modify the values of jfac and kfac back to the original
 c
       do i= 1, ndens
          jfac(i) = jfac(i)/4.0d00
          kfac(i) = kfac(i)/2.0d00
       enddo
 c
-      if(xc_gotxc().and.nder.eq.0)then
+c     Check the theory type to make sure dft is active 
+c     in addition to checking xc_active()
+c
+      if(use_theory.eq.'dft'.and.xc_gotxc().and.nder.eq.0)then
          call xc_newfock(geom,basis,jfac,kfac,nbf,
-     %        nder, ndens, nfock, g_fock,g_dens)
+     &        nder, ndens, nfock, g_fock,g_dens)
       endif
 c
       if (osym) then

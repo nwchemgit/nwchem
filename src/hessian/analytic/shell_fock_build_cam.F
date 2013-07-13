@@ -19,6 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 #include "case.fh"
+#include "prop.fh"
 c
       integer basis, nder, ndens, nfock
       integer geom
@@ -247,9 +248,10 @@ c
      $  call errquit('shell_fock_build:failed chopping MA stack',555,
      &       MA_ERR)
 c
-c     == xc part ==
+c     Check the theory type to make sure dft is active
+c     in addition to checking xc_active()
       call ga_zero(g_loc)
-      if(xc_gotxc().and.nder.eq.0)then
+      if(use_theory.eq.'dft'.and.xc_gotxc().and.nder.eq.0)then
          call xc_newfock(geom,basis,jfac,kfac,nbf,
      %        nder, ndens, nfock, g_loc, g_dens)
       endif
