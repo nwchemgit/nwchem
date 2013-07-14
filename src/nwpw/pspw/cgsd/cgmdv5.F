@@ -52,14 +52,14 @@
       real*8  stress(3,3),lstress(6)
 
 *     **** gradient variables ****
-      integer fion(2)
+      integer fion(2),fion1(2)
 
 *     **** error variables ****
       logical value,newpsi
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,calc_pressure,nose,bo_cpmd
+      logical verlet,mulliken,SA,calc_pressure,nose,bo_cpmd,vverlet
       logical oprint,lprint,hprint,qmmm,found,notfirststep,found_bak
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt,fmass,dte
@@ -376,6 +376,7 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
       end if
 
       bo_cpmd = control_bo_cpmd()
+      vverlet = (control_bo_algorithm().eq.1)
 
 
 *                |**************************|
@@ -598,7 +599,9 @@ c         end if
      >       control_bo_steps_in(),control_bo_steps_out() 
         end if
 
-         if (control_bo_algorithm().eq.0) write(6,1330) "Verlet"
+         if(control_bo_algorithm().eq.0) write(6,1330) "Position Verlet"
+         if(control_bo_algorithm().eq.1) write(6,1330) "Velocity Verlet"
+         if(control_bo_algorithm().eq.2) write(6,1330) "Leap Frog"
 
          write(luout,1340) control_rti()
          write(luout,1222) eki0,ekg
@@ -732,6 +735,10 @@ c         end if
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
+      if (vverlet) then
+         value = value.and.MA_push_get(mt_dbl,(3*nion),
+     >                                'fion1',fion1(2),fion1(1))
+      end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -749,7 +756,7 @@ c         end if
 
       r = 1.0d0
       if (nose) r =  (1.0d0-0.5d0*dt*Nose_dXr())
-      call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
+      call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r) 
       if (nose) call Nose_Newton_Step(0.01d0,eki1)
 
       call xyz_write()
@@ -765,8 +772,13 @@ c         end if
 
 c       **** inner loop ****
         do i=1,it_in
-           call ion_shift()
-           if (nose) call Nose_shift()
+           if (vverlet) then
+              call dcopy(3*nion,dbl_mb(fion(1)),1,dbl_mb(fion1(1)),1)
+              call ion_shift21() 
+           else
+              call ion_shift() 
+              if (nose) call Nose_shift()
+           end if
 
            if (bo_cpmd) then
               if (notfirststep) then
@@ -786,6 +798,11 @@ c       **** inner loop ****
               ssr = Nose_ssr()
               call ion_nose_step(ssr,dbl_mb(fion(1)))
               call Nose_Verlet_Step(0.01d0,eki1)
+           else if (vverlet) then
+              call ion_vverlet_step(dbl_mb(fion(1)),
+     >                              dbl_mb(fion1(1)))  
+              call ion_vshift()  
+              call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
            else
               call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
            end if
@@ -1059,6 +1076,7 @@ c      call control_up_print()
      >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
+      value = value.and.MA_pop_stack(fion1(2))
       value = value.and.MA_pop_stack(fion(2))
       if (.not. value) call errquit('cgmdv5: error writing rtdb',0,
      &       RTDB_ERR)
