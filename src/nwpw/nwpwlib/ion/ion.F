@@ -19,6 +19,7 @@
       value = MA_free_heap(r2(2))
       value = value.and.MA_free_heap(r1(2))
       value = value.and.MA_free_heap(r0(2))
+      value = value.and.MA_free_heap(v2(2))
       value = value.and.MA_free_heap(katm(2))
       value = value.and.MA_free_heap(natm(2))
       value = value.and.MA_free_heap(atom(2))
@@ -71,6 +72,7 @@
       integer  control_code
       external control_frac_coord
       external control_code
+
 
       call nwpw_timing_start(50)
 *     *** write out CIF file ***
@@ -256,6 +258,10 @@
      >        MA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(3*nion),'r0',r0(2),r0(1))
+      v1(1) = r0(1)
+      v1(2) = r0(2)
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(3*nion),'v2',v2(2),v2(1))
       value = value.and.
      >       MA_alloc_get(mt_dbl,(nion),'dti',dti(2),dti(1))
       value = value.and.
@@ -265,6 +271,7 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r1(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(v2(1)),1)
       nion_qm = 0
       nion_mm = 0
       do i=1,nion
@@ -312,6 +319,8 @@ c     call ion_shift()
      >    (control_code().eq.14)) then
 *         **** get velocities ****
          value = geom_vel_get(geom,dbl_mb(r0(1)))
+         call dcopy((3*nion),dbl_mb(r0(1)),1,dbl_mb(v2(1)),1)
+      
          if (.not.rtdb_get(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total))
      >      ke_total = 0.0d0
          if (.not.rtdb_get(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total))
@@ -2036,6 +2045,56 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	      ion_vverlet_step          *
+*     *					*
+*     ***********************************
+
+      subroutine ion_vverlet_step(fion2,fion1)
+      implicit none
+      double precision fion2(3,*)
+      double precision fion1(3,*)
+
+#include "ion.fh"
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      double precision dt
+
+*     *** external functions ****
+      double precision control_ion_time_step
+      external         control_ion_time_step
+
+      dt = control_ion_time_step()
+      call ion_vverlet_sub(nion,dt,dbl_mb(dti(1)),
+     >                     fion1,fion2,
+     >                     dbl_mb(v1(1)),dbl_mb(v2(1)))
+
+
+*     ***** impose molecular constraints - need to implement rattle here***
+
+
+      return
+      end
+
+      subroutine ion_vverlet_sub(nion,dt,dti,fion1,fion2,v1,v2)
+      implicit none
+      integer nion
+      real*8 dt,dti(nion)
+      real*8 fion1(3,nion),fion2(3,nion),v1(3,nion),v2(3,nion)
+      integer i,ii
+      real*8 sa
+      sa = 1.0d0/dt
+      do ii=1,nion
+      do i=1,3
+        v2(i,ii)=v1(i,ii)+0.5d0*sa*dti(ii)*(fion1(i,ii)+fion2(i,ii))
+      end do
+      end do
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -2123,6 +2182,7 @@ c      end do
 
       return
       end
+
       subroutine ion_newt_sub(nion,dta,dti,fion,r0,r1,r2)
       implicit none
       integer nion
@@ -2288,16 +2348,47 @@ c      end do
       implicit none
 
 #include "mafdecls.fh"
-
-***** ion common block ****
 #include "ion.fh"
-
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
-
       return
       end
+
+*     ***************************
+*     *                         *
+*     *         ion_shift21     *
+*     *                         *
+*     ***************************
+      subroutine ion_shift21()
+      implicit none
+              
+#include "mafdecls.fh"
+#include "ion.fh"
+              
+      call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
+      return
+      end     
+
+
+*     ***************************
+*     *                         *
+*     *         ion_vshift      *
+*     *                         *
+*     ***************************
+
+      subroutine ion_vshift()
+      implicit none
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      call dcopy((3*nion),dbl_mb(v2(1)),1,dbl_mb(v1(1)),1)
+      return
+      end
+
+
+
 
 *     ***************************
 *     *                         *
