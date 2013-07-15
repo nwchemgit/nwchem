@@ -2502,6 +2502,9 @@ ifdef USE_LINUXAIO
  CORE_LIBS += -lrt
 endif
 
+# g++ GNU compatibility (might go away)
+ CORE_LIBS += -lstdc++
+
 EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
 
