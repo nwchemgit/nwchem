@@ -165,13 +165,13 @@ c
                rho_b(3)=rho_a(3)
             endif
             if(rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
-            call dft_xckernel_xb97(rho_a, rho_b, 1d0, FX)
+            call dft_xckernel_xb97(rho_a, rho_b, 1d0, tol_rho, FX)
                Ex = Ex + FX(_FXC_E)*qwght(i)*xfac
                if(ldew) func(i)=func(i) + FX(_FXC_E)*xfac
                call xc_fxc2acmat(nq,i,ipol,FX,
      A              Amat,Cmat,Amat2,Cmat2)
-            call dft_xckernel_cb97(rho_a, rho_b, 1d0, FC)
-               Ec = Ec + FX(_FXC_E)*qwght(i)*cfac
+            call dft_xckernel_cb97(rho_a, rho_b, 1d0, tol_rho, FC)
+               Ec = Ec + FC(_FXC_E)*qwght(i)*cfac
                if(ldew) func(i)=func(i) + FC(_FXC_E)*cfac
                call xc_fxc2acmat(nq,i,ipol,FC,
      A              Amat,Cmat,Amat2,Cmat2)
