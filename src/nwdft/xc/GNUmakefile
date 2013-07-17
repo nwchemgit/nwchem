@@ -1,6 +1,6 @@
 # $Id$
 
-HEADERS = xc.fh xc_vdw.fh xc_params.fh
+HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 
 	OBJ = xc_getv.o \
 	xc_exact_pot.o \

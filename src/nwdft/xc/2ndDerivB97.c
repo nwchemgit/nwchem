@@ -371,7 +371,7 @@ inline void gab5tar(double ra, double rb, double ga, double gb, double alpha, do
 
 
 void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
-                        double *tol_rho, double *FX)
+                        double *tol_rho, double *FX, double *sol)
 {
   double ra   = rho_a[0];
   double rb   = rho_b[0];
@@ -388,9 +388,13 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   double Gex_aa_gaagaa,Gex_bb_gbbgbb;
   double Gex_aa_ragaa,Gex_bb_rbgbb;   
 
-  double xss[3] = {0.8094, 0.5073, 0.7481};
+  //  double xss[3] = {0.8094, 0.5073, 0.7481};
+  double xss[3];
   double gamma_xss = 0.004 ;
   
+  xss[0]=sol[0];
+  xss[1]=sol[3];
+  xss[2]=sol[6];
   //  CX    = 0.930525736349;
   CX = 0.9305257363490993;
   CX43  = (4.0/3.0)*CX;
@@ -468,7 +472,7 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
 //
 // ======================================================================================
  void dft_xckernel_cb97_(double *rho_a,double *rho_b, double *ScalGGACin, 
-			 double *tol_rho, double *FC)
+			 double *tol_rho, double *FC, double *sol)
 { 
   double ra   = rho_a[0];
   double rb   = rho_b[0];
@@ -502,12 +506,21 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   double Ggc_ab_ragaa,Ggc_ab_ragbb,Ggc_ab_rbgaa,Ggc_ab_rbgbb;
   double Ggc_ab_gaagaa,Ggc_ab_gaagbb,Ggc_ab_gbbgbb;
 
-  double css[3] = {0.1737, 2.3487, -2.4868};
-  double cab[3] = {0.9454, 0.7471, -4.5961};
+  //old  double css[3] = {0.1737, 2.3487, -2.4868};
+  //old  double cab[3] = {0.9454, 0.7471, -4.5961};
+  double css[3];
+  double cab[3];
   double gamma_css=0.2;
   double gamma_cab=0.006;
 
   double FCLDA[_FCLDA_ELEMENTS];
+
+  css[0]=sol[1];
+  cab[0]=sol[2];
+  css[1]=sol[4];
+  cab[1]=sol[5];
+  css[2]=sol[7];
+  cab[2]=sol[8];
 
   //normal
   if(ra > *tol_rho || rb > *tol_rho) {

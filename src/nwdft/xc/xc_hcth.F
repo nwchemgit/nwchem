@@ -31,7 +31,6 @@ c    F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy,
 c    J. Chem. Phys. 109, 6264-6271 (1998)
 c    subroutine supplied by Fred Hamprecht fah@igc.phys.chem.ethz.ch
 c
-#define OLDCRS 1
       integer n
       double precision gammaval
 c to hcth
@@ -139,47 +138,46 @@ c
       double precision Amat2(nq,NCOL_AMAT2) ! XC functional seconds [output]
       double precision Cmat2(nq,NCOL_CMAT2) ! XC functional seconds [output]
 c
-      integer i
+      integer i,max_pow_u
       double precision rho_a(0:3),rho_b(0:3)
       double precision FX(0:_FXC_NUMDERI),FC(0:_FXC_NUMDERI)
-c
-      if(funcname.eq.'b970') then
-         do i=1,nq
-            if(ipol.eq.2) then
-               rho_a(0)=rho(i,2)
-               rho_b(0)=rho(i,3)
-               rho_a(1)=delrho(i,1,1)**2
-               rho_a(2)=delrho(i,2,1)**2
-               rho_a(3)=delrho(i,3,1)**2
-               rho_b(1)=delrho(i,1,2)**2
-               rho_b(2)=delrho(i,2,2)**2
-               rho_b(3)=delrho(i,3,2)**2
-            else
-               rho_a(0)=rho(i,1)*.5d0
-               rho_b(0)=rho_a(0)
-               rho_a(1)=(delrho(i,1,1)*.5d0)**2
-               rho_a(2)=(delrho(i,2,1)*.5d0)**2
-               rho_a(3)=(delrho(i,3,1)*.5d0)**2
-               rho_b(1)=rho_a(1)
-               rho_b(2)=rho_a(2)
-               rho_b(3)=rho_a(3)
-            endif
-            if(rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
-            call dft_xckernel_xb97(rho_a, rho_b, 1d0, tol_rho, FX)
-               Ex = Ex + FX(_FXC_E)*qwght(i)*xfac
-               if(ldew) func(i)=func(i) + FX(_FXC_E)*xfac
-               call xc_fxc2acmat(nq,i,ipol,FX,
-     A              Amat,Cmat,Amat2,Cmat2)
-            call dft_xckernel_cb97(rho_a, rho_b, 1d0, tol_rho, FC)
-               Ec = Ec + FC(_FXC_E)*qwght(i)*cfac
-               if(ldew) func(i)=func(i) + FC(_FXC_E)*cfac
-               call xc_fxc2acmat(nq,i,ipol,FC,
-     A              Amat,Cmat,Amat2,Cmat2)
-               endif
-         enddo
-      else
-         call errquit(' analytical 2nds not ready', 0,  CAPMIS_ERR)
-      endif
+#include "xc_hcth.fh"
+      double precision sol((limpow+1)*3)
+      call xc_htch_loadcf(funcname,sol,max_pow_u)
+      if(max_pow_u.gt.2) call errquit(' not ready for maxpow=4',0,0)
+      do i=1,nq
+         if(ipol.eq.2) then
+            rho_a(0)=rho(i,2)
+            rho_b(0)=rho(i,3)
+            rho_a(1)=delrho(i,1,1)**2
+            rho_a(2)=delrho(i,2,1)**2
+            rho_a(3)=delrho(i,3,1)**2
+            rho_b(1)=delrho(i,1,2)**2
+            rho_b(2)=delrho(i,2,2)**2
+            rho_b(3)=delrho(i,3,2)**2
+         else
+            rho_a(0)=rho(i,1)*.5d0
+            rho_b(0)=rho_a(0)
+            rho_a(1)=(delrho(i,1,1)*.5d0)**2
+            rho_a(2)=(delrho(i,2,1)*.5d0)**2
+            rho_a(3)=(delrho(i,3,1)*.5d0)**2
+            rho_b(1)=rho_a(1)
+            rho_b(2)=rho_a(2)
+            rho_b(3)=rho_a(3)
+         endif
+         if(rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
+            call dft_xckernel_xb97(rho_a, rho_b, 1d0, tol_rho, FX, sol)
+            Ex = Ex + FX(_FXC_E)*qwght(i)*xfac
+            if(ldew) func(i)=func(i) + FX(_FXC_E)*xfac
+            call xc_fxc2acmat(nq,i,ipol,FX,
+     A           Amat,Cmat,Amat2,Cmat2)
+            call dft_xckernel_cb97(rho_a, rho_b, 1d0, tol_rho, FC, sol)
+            Ec = Ec + FC(_FXC_E)*qwght(i)*cfac
+            if(ldew) func(i)=func(i) + FC(_FXC_E)*cfac
+            call xc_fxc2acmat(nq,i,ipol,FC,
+     A           Amat,Cmat,Amat2,Cmat2)
+         endif
+      enddo
 
       return
       end
@@ -314,20 +312,11 @@ C              mod(grad(rhobeta)), divided by zb !!!!!!!!!
       character*4 functional
       double precision pi
       PARAMETER (PI=3.1415926535898D0)
-
-      integer limpow,n
-      PARAMETER(limpow = 4)
-Cfah limpow is equivalent to "m" in the Becke V paper, that is, the greatest 
-Cfah power of u appearing in the power expansion. 
-Cfah The "Becke V" paper is: 
-Cfah Becke A. D.  Density-functional thermochemistry. V.
-Cfah Systematic optimization of exchange-correlation functionals, 
-Cfah J. Chem. Phys., 1997, 107, 8554-8560
+#include "xc_hcth.fh"
 c
 c     variables passed to hcderiv
 c
-      integer numfunc,nofunc,max_pow_u
-      parameter(numfunc=14)
+      integer nofunc,max_pow_u
       double precision sol((limpow+1)*3), F((limpow+1)*3,4), 
 C     &          FF((limpow+1)*3,5,4),
      &          F_xc((limpow+1)*3)
@@ -360,114 +349,6 @@ Cfah             u_{c beta beta}
 Cfah F_cab -- contains the anti-parallel spin correlation bit with the powers 
 Cfah          of u_{c alpha beta} 
 
-Cfah these transformed variables u will be defined and given short-cut names 
-Cfah below. 
-      double precision coeffs(3*(limpow+1),numfunc)
-      character*4 funcnam(numfunc)
-      integer maxpow(numfunc)
-      data maxpow  /     2,   2 ,      2,    4,      4,    4,     4,
-     ,              2 ,    4 ,    4    ,   2  ,  4  ,  4 ,        2/
-
-      data funcnam/'b970','b980','b971','hcth','hcta','h120','h147',
-     ,             'b97g','h407','hp14','b972','407p','b973','b97d'/
-C               B97        B98   B97-1          HCTH        HCTH-A
-C m max          2,            2,            4,           4,
-Cc X s,0
-      data (coeffs(1,n),n=1,numfunc)/
-     /     +0.80940d+00,0.790194d0, +0.789518d+00,+0.109320d+01,
-     ,     +0.109878d+01,1.09163d0,  1.09025d0, 1.1068d0,   1.08184d0,
-     ,     +0.103161d+01,+0.827642D+00,+1.08018D0,+7.334648D-01,
-     ,     +1.086620d+00/
-
-c C ss,0 
-      data (coeffs(2,n),n=1,numfunc)/
-     ,     +0.17370d+00,-0.120163d0,+0.820011d-01,+0.222601d+00,
-     ,     +0.136823d-01, 0.48951d0,  0.56258d0, 0.4883d0,  1.18777d0,
-     ,     +0.282414d+01,+0.585808D+00,+0.80302D0,+5.623649D-01,
-     ,     +0.22340d+00/
-c C ab,0 
-      data (coeffs(3,n),n=1,numfunc)/
-     ,     +0.94540d+00,0.934715d0,+0.955689d+00,+0.729974d+00,
-     ,     +0.836897d+00,0.51473d0,  0.54235d0,  0.7961d0,  0.58908d0,
-     ,     +0.821827d-01,+0.999849D+00,+0.73604D0,+1.133830D+00,
-     ,     +0.690410d+00/
-c X s,1 
-      data (coeffs(4,n),n=1,numfunc)/
-     ,     +0.50730d+00,0.400271d0,+0.573805d+00,-0.744056d+00,
-     ,     -0.251173d+01,-0.74720d0, -0.79920d0, -0.8765d0, -0.5183d0,
-     ,     -0.360781d+00,+0.478400D-01,-0.4117D0,+2.925270D-01,
-     ,     -0.521270d+00/
-c C ss,1 
-      data (coeffs(5,n),n=1,numfunc)/
-     ,     +0.23487d+01,2.82332d0,+0.271681d+01,-0.338622d-01,
-     ,     +0.268920d+00,-0.26070d0, -0.01710d0, -2.117d0, -2.4029d0,
-     ,     +0.318843d-01,-0.691682D+00,-1.0479D0,-1.322980D+00,
-     ,     -1.562080d+00/
-c C ab,1 
-      data (coeffs(6,n),n=1,numfunc)/
-     ,     +0.74710d+00,1.14105d0,+0.788552d+00,+0.335287d+01,
-     ,     +0.172051d+01,6.92980d0,  7.01460d0, 5.7060d0,  4.4237d0,
-     ,     +0.456466d+01,+0.140626D+01,+3.0270D0,-2.811967D+00,
-     ,     +6.302700d+00/
-c X s,2 
-      data (coeffs(7,n),n=1,numfunc)/
-     ,     +0.74810d+00,0.832857d0,+0.660975d+00,+0.559920d+01,
-     ,     +0.156233d-01,5.07830d0,  5.57210d0, 4.2639d0,   3.4256d0,
-     ,     +0.351994d+01,+0.176125D+01,+2.4368D0,+3.338789D+00,
-     ,     +3.254290d+00/
-c C ss,2
-      data (coeffs(8,n),n=1,numfunc)/
-     ,     -0.24868d+01,-2.59412d0,-0.287103d+01,-0.125170d-01,
-     ,     -0.550769d+00,0.43290d0, -1.30640d0, 2.3235d0,   5.6174d0,
-     ,     -0.178512d+01,+0.394796D+00,+4.9807D0,+6.359191D+00,
-     ,     +1.942930d+00/
-c C ab,2
-      data (coeffs(9,n),n=1,numfunc)/
-     ,     -0.45961d+01,-5.33398d0,-0.547869d+01,-0.115430d+02,
-     ,     -0.278498d+01,-24.7070d0, -28.3820d0,-14.9820d0,-19.222d0,
-     ,     -0.135529d+02,-0.744060D+01,-10.075D0,+7.431302D+00,
-     ,     -14.97120d+00/
-c X s,3 
-      data (coeffs(10,n),n=1,numfunc)/
-     ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.678549d+01,
-     ,     0.00000000d0,-4.10750d0, -5.86760d0 ,0d0       , -2.6290d0,
-     ,     -0.495944d+01,0.d0000000000,+1.3890D0,-1.051158D+01,
-     ,      0.0000000d0/
-c C ss,3
-      data (coeffs(11,n),n=1,numfunc)/
-     ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.802496d+00,
-     ,     +0.103947d+01,-1.99250d0,  1.05750d0,0d0       , -9.1792d0,
-     ,     +0.239795d+01,0.d0000000000,-12.890D0,-7.464002D+00,
-     ,      0.0000000d0/
-c C ab,3
-      data (coeffs(12,n),n=1,numfunc)/
-     ,      0.0000000d0,0.0d000000, 0.00000000d0,+0.808564d+01,
-     ,     -0.457504d+01, 23.1100d0,  35.0330d0,0d0       , 42.572d0,
-     ,     +0.133820d+02,0.000000d0,+20.611D0,-1.969342D+00,
-     ,      0.0000000d0/
-c X s,4 
-      data (coeffs(13,n),n=1,numfunc)/
-     ,      0.0000000d0,0.0d000000, 0.00000000d0,+0.449357d+01,
-     ,     0.00000000d0, 1.17170d0,  3.04540d0, 0d0       , 2.2886d0,
-     ,     +0.241165d+01,0.000000d0,-1.3529D0,+1.060907D+01,
-     ,      0.0000000d0/
-c C ss,4
-      data (coeffs(14,n),n=1,numfunc)/
-     ,      0.0000000d0,0.0d000000, 0.00000000d0,+0.155396d+01,
-     ,     0.00000000d0, 2.48530d0,  0.88540d0, 0d0       , 6.2480d0,
-     ,     -0.876909d+00,0.000000d0,9.6446D0,+1.827082D+00,
-     ,      0.0000000d0/
-c C ab,4
-      data (coeffs(15,n),n=1,numfunc)/
-     ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.447857d+01,
-     ,     0.00000000d0,-11.3230d0, -20.4280d0, 0d0, -42.005d0,
-     ,     -0.317493d+01,0.000000d0,-29.418D0,-1.174423D+01,
-     ,      0.0000000d0/
-c
-c X +0.1! coeffs for HF exchange
-c
-C     ,     +0.19430d+00,+0.210000d+00, 0.00000000d0, 0.00000000d0/
-
 C     Initialise
 
       dfdrac = 0.D0
@@ -484,34 +365,7 @@ C     Initialise
       IF (rhoa .LT. tol_rho.and.rhob.lt.tol_rho) RETURN
 Cfah numerical cutoff: if the density is too low, its contribution is 
 Cfah neglectable. 
-      nofunc = -1               ! take care of compiler warnings
-      do n=1,numfunc
-        if(functional.eq.funcnam(n)) nofunc=n
-      enddo
-      if(nofunc.eq.-1) call errquit('xchcth: cant pair funcname ',0,
-     &       UNKNOWN_ERR)
-      max_pow_u=maxpow(nofunc)
-      do n=1,3*(limpow+1)
-        sol(n)=coeffs(n,nofunc)
-      enddo
-
-C please refer to these coeffs as THCH1/iterate-e750-g500-v1-m4-n4
-
-c      sol( 1) =     0.109320D+01
-c      sol( 2) =     0.222601D+00
-c      sol( 3) =     0.729974D+00
-c      sol( 4) =    -0.744056D+00
-c      sol( 5) =    -0.338622D-01
-c      sol( 6) =     0.335287D+01
-c      sol( 7) =     0.559920D+01
-c      sol( 8) =    -0.125170D-01
-c      sol( 9) =    -0.115430D+02
-c      sol(10) =    -0.678549D+01
-c      sol(11) =    -0.802496D+00
-c      sol(12) =     0.808564D+01
-c      sol(13) =     0.449357D+01
-c      sol(14) =     0.155396D+01
-c      sol(15) =    -0.447857D+01
+      call xc_htch_loadcf(functional,sol,max_pow_u)
       
       CALL hcderiv(max_pow_u,ipol,
      &     F,
@@ -796,12 +650,7 @@ C
 C     pw91 LDA Ecorr
 C
          if(rhob.gt.tol_rho) then
-#ifdef OLDCRS
-            e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
-            de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
-#else
             call xc_pw91ldag(rsb, 2, e_crsb1 ,de_crsb1_by_drsb, d2ez)
-#endif
          else
             e_crsb1 = 0d0
             de_crsb1_by_drsb = 0d0
@@ -880,34 +729,12 @@ C
 C     pw91 LDA Ecorr
 C
       if(rhoa.gt.tol_rho) then
-#ifdef OLDCRS
-         e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
-#else
          call  xc_pw91ldag(rsa, 2, e_crsa1,
      D        de_crsa1_by_drsa, d2ez)
-#endif
       else
          e_crsa1 = 0d0
       endif
       if(rho.gt.tol_rho) then
-#ifdef OLDCRS
-         e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
-         e_crsab0 = -0.062182d0*dlog(1.d0 +
-     -        16.0818243221511d0/
-     -        (7.595699999999999d0*rsab12 +
-     -        3.5876d0*rsab +
-     -        1.6382d0*rsab32 +
-     -        0.49294d0*rsab21))*
-     -        (1.d0 + 0.2137d0*rsab)
-
-         a_crsab = 0.03377399999999999d0*
-     -        dlog(1.d0 + 29.60857464321667/
-     -        (10.35699999999999d0*rsab12 +
-     -        3.623099999999999d0*rsab +
-     -        0.88026d0*rsab32 +
-     -        0.49671d0*rsab21))*
-     -        (1.d0 + 0.11125d0*rsab)
-#else
          call xc_pw91ldag(rsab, 2, e_crsab1,
      D        de_crsab1_by_drsab, d2ez)
 c eps_c(rs,0)
@@ -916,7 +743,6 @@ c eps_c(rs,0)
 c     alpha(rs)
          call xc_pw91ldag(rsab, 3, a_crsab,
      D        da_crsab_by_drsab, d2ez)
-#endif
       else
          e_crsab1 = 0d0
          e_crsab0 = 0d0
@@ -1045,43 +871,10 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -        (1.D0/3.D0))/3.)/
      -  (-2.d0 + 2d0*2**(1.D0/3.D0))
 
-#ifdef OLDCRS
-      da_crsab_by_drsab = (-1.d0*(1.d0 + 0.11125d0*rsab)*
-     -     (3.623099999999999d0 + 
-     -       5.178499999999999d0/rsab12 + 
-     -       0.99342d0*rsab + 1.32039d0*rsab12))/
-     -   ((1.d0 + 29.60857464321667d0/
-     -        (3.623099999999999d0*rsab + 
-     -          10.35699999999999d0*rsab12 + 
-     -          0.49671d0*rsab21 + 0.88026d0*rsab32))*
-     -     (3.623099999999999d0*rsab + 
-     -        10.35699999999999d0*rsab12 + 
-     -        0.49671d0*rsab21 + 0.880260*rsab32)**2) + 
-     -  0.003757357499999999d0*
-     -   dlog(1.d0 + 29.60857464321667/
-     -      (3.623099999999999d0*rsab + 
-     -        10.35699999999999d0*rsab12 + 
-     -        0.49671d0*rsab21 + 0.88026d0*rsab32)) 
-
-      de_crsab0_by_drsab = (1.d0*(1.d0 + 0.2137d0*rsab)*
-     -     (3.5876d0 + 3.797849999999999d0/rsab12 + 
-     -       0.98588d0*rsab + 2.4573*rsab12))/
-     -   ((3.5876d0*rsab + 7.595699999999999d0*rsab12 + 
-     -        0.49294d0*rsab21 + 1.6382d0*rsab32)**2*
-     -     (1.d0 + 16.0818243221511d0/
-     -        (3.5876d0*rsab + 7.595699999999999d0*rsab12 + 
-     -          0.49294d0*rsab21 + 1.6382d0*rsab32))) - 
-     -  0.01328829339999999d0*
-     -   dlog(1.d0 + 16.0818243221511d0/
-     -      (3.5876*rsab + 7.595699999999999d0*rsab12 + 
-     -        0.49294d0*rsab21 + 1.6382d0*rsab32))
-#endif
       if(rhoa.gt.tol_rho) then
-#ifdef OLDCRS
-         de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
-         de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
+         call  xc_pw91ldag(rsa, 2, e_crsa1,
+     D        de_crsa1_by_drsa, d2ez)
       else
-#endif
          de_crsa1_by_drsa = 0d0
          de_crsab1_by_drsab = 0d0
       endif
@@ -1558,5 +1351,45 @@ c      rubbish
          Cmat2(i,D2_RB_GBB) = Cmat2(i,D2_RB_GBB) +
      +        FX(_FXC_RBGBB)
       endif
+      return
+      end
+      subroutine xc_htch_loadcf(functional,sol,max_pow_u)
+      implicit none
+#include "errquit.fh"
+      character*4 functional ! functional name [input]
+      integer max_pow_u ! functional name [input]
+#include "xc_hcth.fh"
+      double precision sol((limpow+1)*3) ! [out]
+c
+      integer nofunc
+c
+      nofunc = -1               ! take care of compiler warnings
+      do n=1,numfunc
+        if(functional.eq.funcnam(n)) nofunc=n
+      enddo
+      if(nofunc.eq.-1) call errquit('xchcth: cant pair funcname ',0,
+     &       UNKNOWN_ERR)
+      max_pow_u=maxpow(nofunc)
+      do n=1,3*(limpow+1)
+        sol(n)=coeffs(n,nofunc)
+      enddo
+
+C please refer to these coeffs as THCH1/iterate-e750-g500-v1-m4-n4
+
+c      sol( 1) =     0.109320D+01
+c      sol( 2) =     0.222601D+00
+c      sol( 3) =     0.729974D+00
+c      sol( 4) =    -0.744056D+00
+c      sol( 5) =    -0.338622D-01
+c      sol( 6) =     0.335287D+01
+c      sol( 7) =     0.559920D+01
+c      sol( 8) =    -0.125170D-01
+c      sol( 9) =    -0.115430D+02
+c      sol(10) =    -0.678549D+01
+c      sol(11) =    -0.802496D+00
+c      sol(12) =     0.808564D+01
+c      sol(13) =     0.449357D+01
+c      sol(14) =     0.155396D+01
+c      sol(15) =    -0.447857D+01
       return
       end
