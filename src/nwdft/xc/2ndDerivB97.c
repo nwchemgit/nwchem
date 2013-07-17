@@ -68,8 +68,8 @@ inline void gss3tar(double r, double g, double alpha, double *a,
 };
 
 inline void gss5tar(double r, double g, double alpha, double *a, 
-                    double f, double fr, double fg, 
-                    double frr, double frg, double fgg)
+                    double *f, double *fr, double *fg, 
+                    double *frr, double *frg, double *fgg)
 {
   // B97 like 
   // S. Grimme, J. Comput. Chem., 2006, 27, 1787-1799 
@@ -104,21 +104,21 @@ inline void gss5tar(double r, double g, double alpha, double *a,
 
   double D2uDr1g1=D2uDs22*D1s2Dr1*D1s2Dg1 + D1uDs21*D2s2Dr1g1; 
 
-  f=a[0] + a[1]*u + a[2]*u*u + a[3]*u*u*u + a[4]*u*u*u*u;
+  *f=a[0] + a[1]*u + a[2]*u*u + a[3]*u*u*u + a[4]*u*u*u*u;
 
-  fr=0.0 + a[1]*D1uDr1 + a[2]*2.0*u*D1uDr1 + a[3]*3.0*u*u*D1uDr1 + a[4]*4.0*u*u*u*D1uDr1;
+  *fr=0.0 + a[1]*D1uDr1 + a[2]*2.0*u*D1uDr1 + a[3]*3.0*u*u*D1uDr1 + a[4]*4.0*u*u*u*D1uDr1;
 
-  fg=0.0 + a[1]*D1uDg1 + a[2]*2.0*u*D1uDg1 + a[3]*3.0*u*u*D1uDg1 + a[4]*4.0*u*u*u*D1uDg1;
+  *fg=0.0 + a[1]*D1uDg1 + a[2]*2.0*u*D1uDg1 + a[3]*3.0*u*u*D1uDg1 + a[4]*4.0*u*u*u*D1uDg1;
 
-  frr=0.0 + a[1]*D2uDr2 + a[2]*2.0*(D1uDr1*D1uDr1 + u*D2uDr2)
+  *frr=0.0 + a[1]*D2uDr2 + a[2]*2.0*(D1uDr1*D1uDr1 + u*D2uDr2)
     + a[3]*3.0*(2.0*u*D1uDr1*D1uDr1 + u*u*D2uDr2)
     + a[4]*4.0*(3.0*u*u*D1uDr1*D1uDr1 + u*u*u*D2uDr2);
 
-  fgg=0.0 + a[1]*D2uDg2 + a[2]*2.0*(D1uDg1*D1uDg1 + u*D2uDg2)
+  *fgg=0.0 + a[1]*D2uDg2 + a[2]*2.0*(D1uDg1*D1uDg1 + u*D2uDg2)
     + a[3]*3.0*(2.0*u*D1uDg1*D1uDg1 + u*u*D2uDg2)
     + a[4]*4.0*(3.0*u*u*D1uDg1*D1uDg1 + u*u*u*D2uDg2);
 
-  frg=0.0 + a[1]*D2uDr1g1 + a[2]*2.0*(D1uDr1*D1uDg1 + u*D2uDr1g1)
+  *frg=0.0 + a[1]*D2uDr1g1 + a[2]*2.0*(D1uDr1*D1uDg1 + u*D2uDr1g1)
     + a[3]*3.0*(2.0*u*D1uDr1*D1uDg1 + u*u*D2uDr1g1)
     + a[4]*4.0*(3.0*u*u*D1uDr1*D1uDg1 + u*u*u*D2uDr1g1);
 
@@ -371,7 +371,7 @@ inline void gab5tar(double ra, double rb, double ga, double gb, double alpha, do
 
 
 void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
-                        double *tol_rho, double *FX, double *sol)
+                        double *tol_rho, double *FX, long *max_pow_u, double *sol)
 {
   double ra   = rho_a[0];
   double rb   = rho_b[0];
@@ -389,21 +389,29 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   double Gex_aa_ragaa,Gex_bb_rbgbb;   
 
   //  double xss[3] = {0.8094, 0.5073, 0.7481};
-  double xss[3];
+  double xss[5];
   double gamma_xss = 0.004 ;
-  
-  xss[0]=sol[0];
-  xss[1]=sol[3];
-  xss[2]=sol[6];
+  int i;
+
+  for (i = 0; i <= *max_pow_u; i++) {
+    xss[i]=sol[i*3];
+  }
+
   //  CX    = 0.930525736349;
   CX = 0.9305257363490993;
   CX43  = (4.0/3.0)*CX;
   CX49  = (4.0/9.0)*CX;
 
   if(ra > *tol_rho ) {
+    if(*max_pow_u == 2 ){
     gss3tar(ra,gaa,gamma_xss,xss,
             &exaa,&Gex_aa_ra,&Gex_aa_gaa,
             &Gex_aa_rara,&Gex_aa_ragaa,&Gex_aa_gaagaa);
+    }else{
+    gss5tar(ra,gaa,gamma_xss,xss,
+            &exaa,&Gex_aa_ra,&Gex_aa_gaa,
+            &Gex_aa_rara,&Gex_aa_ragaa,&Gex_aa_gaagaa);
+    }
     //Slater-X and derivatives 
     ra43 = -CX  *pow(ra,(4.0/3.0));
     ra13 = -CX43*pow(ra,(1.0/3.0));
@@ -420,9 +428,15 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   }
 
   if(rb > *tol_rho ) {
+    if(*max_pow_u == 2 ){
     gss3tar(rb,gbb,gamma_xss,xss,
             &exbb,&Gex_bb_rb,&Gex_bb_gbb,
             &Gex_bb_rbrb,&Gex_bb_rbgbb,&Gex_bb_gbbgbb);
+    }else{
+    gss5tar(rb,gbb,gamma_xss,xss,
+            &exbb,&Gex_bb_rb,&Gex_bb_gbb,
+            &Gex_bb_rbrb,&Gex_bb_rbgbb,&Gex_bb_gbbgbb);
+    }
     //Slater-X, more or less
     rb43 = -CX  *pow(rb,(4.0/3.0));
     rb13 = -CX43*pow(rb,(1.0/3.0));
@@ -472,7 +486,7 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
 //
 // ======================================================================================
  void dft_xckernel_cb97_(double *rho_a,double *rho_b, double *ScalGGACin, 
-			 double *tol_rho, double *FC, double *sol)
+			 double *tol_rho, double *FC, long *max_pow_u, double *sol)
 { 
   double ra   = rho_a[0];
   double rb   = rho_b[0];
@@ -508,19 +522,17 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
 
   //old  double css[3] = {0.1737, 2.3487, -2.4868};
   //old  double cab[3] = {0.9454, 0.7471, -4.5961};
-  double css[3];
-  double cab[3];
+  double css[5];
+  double cab[5];
   double gamma_css=0.2;
   double gamma_cab=0.006;
-
+  int i;
   double FCLDA[_FCLDA_ELEMENTS];
 
-  css[0]=sol[1];
-  cab[0]=sol[2];
-  css[1]=sol[4];
-  cab[1]=sol[5];
-  css[2]=sol[7];
-  cab[2]=sol[8];
+  for (i = 0; i <= *max_pow_u; i++) {
+    css[i]=sol[i*3+1];
+    cab[i]=sol[i*3+2];
+  }
 
   //normal
   if(ra > *tol_rho || rb > *tol_rho) {
@@ -583,9 +595,15 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   Gec_ab_rbrb = Gec_ab_rbrb - Gec_b0_rbrb;
 
   if(ra > *tol_rho) {
+    if(*max_pow_u == 2 ){
     gss3tar(ra,gaa,gamma_css,css,&gcaa,
             &Ggc_aa_ra,&Ggc_aa_gaa,
             &Ggc_aa_rara,&Ggc_aa_ragaa,&Ggc_aa_gaagaa);
+    }else{
+    gss5tar(ra,gaa,gamma_css,css,&gcaa,
+            &Ggc_aa_ra,&Ggc_aa_gaa,
+            &Ggc_aa_rara,&Ggc_aa_ragaa,&Ggc_aa_gaagaa);
+    }
   } else {
     gcaa = css[0] + css[1] + css[2];
     Ggc_aa_ra = 0.0; 
@@ -596,9 +614,15 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   }
 
   if(rb > *tol_rho) {
+    if(*max_pow_u == 2 ){
     gss3tar(rb,gbb,gamma_css,css,&gcbb,
             &Ggc_bb_rb,&Ggc_bb_gbb,
             &Ggc_bb_rbrb,&Ggc_bb_rbgbb,&Ggc_bb_gbbgbb);
+    }else{
+    gss5tar(rb,gbb,gamma_css,css,&gcbb,
+            &Ggc_bb_rb,&Ggc_bb_gbb,
+            &Ggc_bb_rbrb,&Ggc_bb_rbgbb,&Ggc_bb_gbbgbb);
+    }
   } else {
     gcbb = css[0] + css[1] + css[2];
     Ggc_bb_rb = 0.0; 
@@ -609,11 +633,19 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
   }
 
   if(ra > *tol_rho && rb > *tol_rho) {
+    if(*max_pow_u == 2 ){
     gab3tar(ra,rb,gaa,gbb,gamma_cab, cab,
             &gcab,&Ggc_ab_ra,&Ggc_ab_rb,&Ggc_ab_gaa,&Ggc_ab_gbb,
             &Ggc_ab_rara,&Ggc_ab_rarb,&Ggc_ab_rbrb,
             &Ggc_ab_ragaa,&Ggc_ab_ragbb,&Ggc_ab_rbgaa,&Ggc_ab_rbgbb,
             &Ggc_ab_gaagaa,&Ggc_ab_gaagbb,&Ggc_ab_gbbgbb);
+    }else{
+    gab5tar(ra,rb,gaa,gbb,gamma_cab, cab,
+            &gcab,&Ggc_ab_ra,&Ggc_ab_rb,&Ggc_ab_gaa,&Ggc_ab_gbb,
+            &Ggc_ab_rara,&Ggc_ab_rarb,&Ggc_ab_rbrb,
+            &Ggc_ab_ragaa,&Ggc_ab_ragbb,&Ggc_ab_rbgaa,&Ggc_ab_rbgbb,
+            &Ggc_ab_gaagaa,&Ggc_ab_gaagbb,&Ggc_ab_gbbgbb);
+    }
     
   } else { 
     gcab = cab[0] + cab[1] + cab[2]; // u == 1 if s->inf. 
