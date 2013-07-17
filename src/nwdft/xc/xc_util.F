@@ -89,18 +89,18 @@ c
 c
 cXhcth     .     xfac(4).ne.0d0.or.
 cXbecke97     .     xfac(5).ne.0d0.or.
-cXb971-     .     xfac(6).ne.0d0.or.
-     .     xfac(10).ne.0d0.or.
-     .     xfac(11).ne.0d0.or.
+cXb971     .     xfac(6).ne.0d0.or.
+cXh120     .     xfac(10).ne.0d0.or.
+cXh147     .     xfac(11).ne.0d0.or.
 cXB98     .     xfac(12).ne.0d0.or.
-cXV97gga1     .     xfac(13).ne.0d0.or.
-     .     xfac(14).ne.0d0.or.
-     .     xfac(15).ne.0d0.or.
+cXB97gga1     .     xfac(13).ne.0d0.or.
+ch407     .     xfac(14).ne.0d0.or.
+chp14     .     xfac(15).ne.0d0.or.
      .     xfac(16).ne.0d0.or.  ! optx
 cXB972     .     xfac(17).ne.0d0.or.
      .     xfac(18).ne.0d0.or.
      .     xfac(21).ne.0d0.or.
-     .     xfac(22).ne.0d0.or.
+cb973     .     xfac(22).ne.0d0.or.
      .     xfac(28).ne.0d0.or.
      .     xfac(29).ne.0d0.or.
      .     xfac(32).ne.0d0.or.
@@ -120,12 +120,12 @@ c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
 cCB97-1     .     cfac(15).ne.0d0.or.
-     .     cfac(16).ne.0d0.or.
-     .     cfac(17).ne.0d0.or.
+cCh120     .     cfac(16).ne.0d0.or.
+cCh147     .     cfac(17).ne.0d0.or.
 CCB98     .     cfac(18).ne.0d0.or.
 cCB97gga1     .     cfac(19).ne.0d0.or.
-     .     cfac(20).ne.0d0.or.
-     .     cfac(21).ne.0d0.or.
+cCh407     .     cfac(20).ne.0d0.or.
+chp414     .     cfac(21).ne.0d0.or.
      .     cfac(22).ne.0d0.or.
      .     cfac(25).ne.0d0.or.
      .     cfac(27).ne.0d0.or.
