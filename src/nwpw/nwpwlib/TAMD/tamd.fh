@@ -1,0 +1,24 @@
+c $Id: tamd.fh 22366 2012-05-03 16:40:07Z bylaska $
+
+      logical tamdfound
+      integer metacount,maxmetacount
+      integer metaprintcount,maxmetaprintcount
+      integer metaraycount,metarayshift
+
+      integer pmeta(2),ameta(2),bmeta(2),nxmeta(2),ymeta(2)
+      integer indxmeta(2),parammeta(2)
+      integer sindxmeta(2),sparammeta(2)
+      integer nmeta,nxmeta_all,nindxmeta,nparammeta
+
+      real*8  dTtempered,ztamd(10),vztamd(10),dt
+
+      common / tamdcommon / ztamd,vztamd,dt,dTtempered,
+     >                      pmeta,ameta,bmeta,nxmeta,ymeta,
+     >                      indxmeta,parammeta,sindxmeta,sparammeta,
+     >                      nmeta,nxmeta_all,nindxmeta,nparammeta,
+     >                      metacount,maxmetacount,
+     >                      metaprintcount,maxmetaprintcount,
+     >                      metaraycount,metarayshift,
+     >                      tamdfound
+
+
