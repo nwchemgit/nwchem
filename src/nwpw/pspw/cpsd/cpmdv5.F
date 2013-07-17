@@ -186,8 +186,8 @@ cccc#include "frac_occ.fh"
       real*8   Dneall_m_value
       external Dneall_m_value
 
-      logical  meta_found,psp_U_psputerm
-      external meta_found,psp_U_psputerm
+      logical  meta_found,tamd_found,psp_U_psputerm
+      external meta_found,tamd_found,psp_U_psputerm
 
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
@@ -427,8 +427,9 @@ cccc#include "frac_occ.fh"
 
 
 
-*     **** initialize metadynamics ****
+*     **** initialize metadynamics and tamd ****
       call meta_initialize(rtdb)
+      call tamd_initialize(rtdb)
 
 *     **** initialize dplot ****
       call dplot_iteration_init()
@@ -795,8 +796,9 @@ c      call xyz_write()
          eke = eke + E(3)
 
 
-         !**** metadynamics update ****
+         !**** metadynamics and tamd update ****
          call meta_update(ispin,neq,dcpl_mb(psi1(1)),E)
+         call tamd_update(ispin,neq,dcpl_mb(psi1(1)),E)
 
          if (taskid.eq.MASTER) then 
 
@@ -1095,6 +1097,9 @@ c         end if
          if (meta_found()) then
            write(luout,1459) E(31),E(31)/ion_nion()
          end if
+         if (tamd_found()) then
+           write(luout,1461) E(33),E(33)/ion_nion()
+         end if
          write(luout,1470) E(8),E(8)/ion_nion()
          write(luout,1471) E(3),E(3)/n2(ispin)
          write(luout,1472) ion_ke(),ion_ke()/ion_nion()
@@ -1236,6 +1241,7 @@ c         end if
       call pspw_end_HFX()
       call pspw_qmmm_end()
       call meta_finalize(rtdb)
+      call tamd_finalize(rtdb)
       call dplot_iteration_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
@@ -1433,6 +1439,7 @@ c      call frac_occ_end()
  1458 FORMAT( ' DFT+U     energy    :',E19.10,' (',E15.5,'/ion)')
  1459 FORMAT( ' Metadynamics energy :',E19.10,' (',E15.5,'/ion)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
+ 1461 FORMAT( ' TAMD energy         :',E19.10,' (',E15.5,'/ion)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT(/' Kinetic energy (elc)    :',E19.10,' (',E15.5,'/elc)')
  1472 FORMAT( ' Kinetic energy (ion)    :',E19.10,' (',E15.5,'/ion)')

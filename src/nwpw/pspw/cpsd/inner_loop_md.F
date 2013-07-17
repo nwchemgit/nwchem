@@ -125,8 +125,8 @@ c     real*8     fion(3,natmx)
       logical  Dneall_m_push_get_block,Dneall_m_pop_stack
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
-      logical  meta_found,psp_U_psputerm
-      external meta_found,psp_U_psputerm
+      logical  meta_found,tamd_found,psp_U_psputerm
+      external meta_found,tamd_found,psp_U_psputerm
       logical  nwpw_meta_gga_on
       external nwpw_meta_gga_on
       real*8   nwpw_meta_gga_pxc
@@ -704,6 +704,12 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
       if (meta_found()) then
          call meta_energypotential(ispin,neq,psi1,E(31),E(32))
          E(2)  = E(2) + E(31) - E(32)
+      end if
+
+*     **** tamd energy ****
+      if (tamd_found()) then
+         call tamd_energypotential(ispin,neq,psi1,E(33),E(34))
+         E(2)  = E(2) + E(33) - E(34)
       end if
 
 
