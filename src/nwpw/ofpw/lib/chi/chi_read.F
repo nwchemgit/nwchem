@@ -2,7 +2,6 @@
 * $Id$
 *
 
-#define TCGMSG
 *     ***********************************
 *     *             			*
 *     *           chi_read		*
@@ -18,18 +17,10 @@
 #include "rtdb.fh"
 #include "errquit.fh"
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer version,l,rtdb
-      integer nfft3d,npack1
+      integer nfft3d,npack1,occupation
       integer nfft(3)
       real*8  unita(3,3)
       character*50 filename
@@ -52,11 +43,9 @@ c     complex*16 tmp(*)
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
       
-
       call Parallel_taskid(taskid)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
-
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
@@ -85,43 +74,28 @@ c    >                        full_filename)
          call dread(5,unita,9)
          call iread(5,ispin,1)
          call iread(5,ne,2)
+         call iread(5,occupation,2)
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call MPI_BCAST(ispin,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call MPI_BCAST(ne,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif 
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
-      msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
-#endif 
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+
 
 
 *     ***** Error checking ****
-      if (version.eq.5) then
-       call errquit('Error cannot read band structure wavefunctions',1,
+      write(*,*) "version=",version
+      if (version.ne.9) then
+       call errquit(
+     >       'Error cannot read pspw or band structure wavefunctions',1,
      &       INPUT_ERR)
       end if
 

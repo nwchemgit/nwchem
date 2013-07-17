@@ -37,7 +37,7 @@
       double precision unita(3,3)
 
       value = .false.
-      version = 3
+      version = 9
 
 *     **** get wavefunction information ****
       value = rtdb_cget(rtdb,'xpndr:old_wavefunction_filename',

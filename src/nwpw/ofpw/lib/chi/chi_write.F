@@ -19,7 +19,7 @@
 
 *    *** local variables ***
       integer version,l
-      integer nfft3d,npack1
+      integer nfft3d,npack1,occupation
       integer nfft(3)
       real*8  unita(3,3)
       character*50 filename
@@ -53,7 +53,7 @@ c     complex*16 tmp(*)
       if (.not. value) 
      > call errquit('chi_write:out of stack memory',0, MA_ERR)
 
-      version = control_version()
+      version = 9  ! version 9 - ofpw, version 5 - band, version 3 and 4 - pspw
       nfft(1) = control_ngrid(1)
       nfft(2) = control_ngrid(2)
       nfft(3) = control_ngrid(3)
@@ -87,6 +87,8 @@ c    >                       full_filename)
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
+         occupation = -1
+         call iwrite(6,occupation,2)
       end if
 
 *     *** write out 3d blocks ***

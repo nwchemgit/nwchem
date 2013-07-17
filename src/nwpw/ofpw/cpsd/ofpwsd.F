@@ -217,8 +217,6 @@
 
       call D3dB_pfft_init()
 
-      write(*,*) "hera"
-
  
 *     **** read ions ****
       value = ion_init(rtdb)
@@ -238,14 +236,11 @@
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
 
-      write(*,*) "herb"
 
 *     **** generate initial wavefunction if it does not exist ****
       if (.not.control_check_charge_multiplicity()) then
-         write(*,*) "herbb"
         call chi_new()
       end if
-      write(*,*) "herc"
 
 c*     ***** allocate psi2,and psi1 wavefunctions ****
        call psi_get_ne(ispin,ne)

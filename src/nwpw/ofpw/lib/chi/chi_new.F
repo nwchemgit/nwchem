@@ -48,7 +48,7 @@
       external control_rtdb,control_version
 
       filename = control_input_psi()
-      version = control_version()
+      version = 9
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
