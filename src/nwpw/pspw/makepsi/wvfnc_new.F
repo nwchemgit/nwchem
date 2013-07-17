@@ -211,6 +211,9 @@ c    >           + (0.5d0-util_random(0))
         dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
 c        call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
  
+        !**** only one wavefunction if version ==9 ****
+        if (version.eq.9) GO TO 150
+
         DO 130 N=2,NE(ms)
 c         L1=INC3C*K3(N)+INC2C*K2(N)+K1(N)+1
           l1= inc3c*filling(3,n,ms)
