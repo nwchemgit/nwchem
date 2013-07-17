@@ -50,7 +50,7 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx,dodftu,meta,meta_gga
+      logical dosic,dohfx,dodftu,meta,tamd,meta_gga
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       real*8  scal1,scal2
@@ -66,11 +66,11 @@ c     complex*16 vpsi(nfft3d)
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
-      logical  psp_pawexist,nwpw_meta_gga_on
+      logical  psp_pawexist,nwpw_meta_gga_on,tamd_found
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
-      external psp_pawexist,nwpw_meta_gga_on
+      external psp_pawexist,nwpw_meta_gga_on,tamd_found
       external lattice_omega
 
 
@@ -78,6 +78,7 @@ c     complex*16 vpsi(nfft3d)
       dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
       dodftu = psp_U_psputerm()
       meta = meta_found()
+      tamd = tamd_found()
       meta_gga = nwpw_meta_gga_on()
       call Pack_npack(1,npack1)
       
@@ -135,6 +136,13 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
       if (meta) then
          call meta_force(ispin,ne,psi_k,Hpsi_k,move,fion)
+      end if
+
+*     *********************************************************
+*     **** add TAMD potential                                 *
+*     *********************************************************
+      if (tamd) then
+         call tamd_force(ispin,ne,psi_k,Hpsi_k,move,fion)
       end if
 
 *     **********************************************************************
