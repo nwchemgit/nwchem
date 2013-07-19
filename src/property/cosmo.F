@@ -38,7 +38,7 @@ c
       do_cosmo = .true.
       dielec   =78.4d+00
       iscren   =0
-      ifscrn   =1 ! surface charge correction not good in geometry opt.
+      ifscrn   =1 ! surface charge correction not good in geometry opt., old default was 2!!!
       minbem   =2
       maxbem   =3
       ificos   =0
