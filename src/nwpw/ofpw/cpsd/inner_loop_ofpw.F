@@ -38,7 +38,7 @@
       integer nx,ny,nz
       integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
-      real*8  A,B,C,x
+      real*8  A,B,C,x,lmbda(2)
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  etf,etf2,ptf,ptf2
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
@@ -405,14 +405,16 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-        do ms=1,ispin
-           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),A)
-           call Pack_cc_dot(1,psi1(1,ms),psi2(1,ms),B)
-           call Pack_cc_dot(1,psi1(1,ms),psi1(1,ms),C)
-           x =  2.0d0*B - dsqrt(4.0d0*B*B -4.0d0*C*(A-1.0d0))
-           x = -x/(2.0d0*C)
-          call Pack_cc_daxpy(1,x,psi1(1,ms),psi2(1,ms))
-        end do
+        call chi_lmbda(ispin,npack1,psi1,psi2,dte,lmbda,ierr)
+
+c        do ms=1,ispin
+c           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),A)
+c           call Pack_cc_dot(1,psi1(1,ms),psi2(1,ms),B)
+c           call Pack_cc_dot(1,psi1(1,ms),psi1(1,ms),C)
+c           x =  2.0d0*B - dsqrt(4.0d0*B*B -4.0d0*C*(A-1.0d0))
+c           x = -x/(2.0d0*C)
+c          call Pack_cc_daxpy(1,x,psi1(1,ms),psi2(1,ms))
+c        end do
 
       end do
 
