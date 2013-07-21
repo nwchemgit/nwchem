@@ -98,6 +98,10 @@ then
     rm -rf $TOOLDIR/tcgmsg
     rm -rf $TOOLDIR/tcgmsg-mpi
 fi
+# DEBUG
+# Seems necessary to get around a certificate error
+echo "p" | svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
+# DEBUG
 if svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
 then
     cd $GA_OLD
