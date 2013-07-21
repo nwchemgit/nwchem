@@ -143,3 +143,4 @@ else
     echo "Checking out $GA_SVN"
     svn checkout $GA_SVN $GA_DIRNAME --username nwchem --password nwchem
 fi
+exit 0
