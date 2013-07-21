@@ -99,8 +99,8 @@ then
     rm -rf $TOOLDIR/tcgmsg-mpi
 fi
 # DEBUG
-# Seems necessary to get around a certificate error
-yes | svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
+# Seems necessary to get around the way SVN stores passwords
+echo "no" | svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
 # DEBUG
 if svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
 then
