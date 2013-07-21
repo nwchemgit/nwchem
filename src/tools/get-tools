@@ -100,7 +100,7 @@ then
 fi
 # DEBUG
 # Seems necessary to get around a certificate error
-echo "p" | svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
+yes | svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
 # DEBUG
 if svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
 then
