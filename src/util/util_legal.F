@@ -42,19 +42,19 @@ c
      +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T.
      + P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
      + J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopat
-     +a, F. Aquino, S. Hirata, M. T. Hackler, J. Mullin, P. Nichols, R. 
-     +Peverati, J. Pittner, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupui
-     +s, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. 
-     +Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. S
-     +wart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
-     + E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao
-     +, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchel
-     +l, D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. D
-     +eegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J
-     +. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Li
-     +ttlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. R
-     +osing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
-     + J. H. van Lenthe, A. Wong, Z. Zhang.'/
+     +a, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, J. Mullin, P.
+     + Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, R. J. Harri
+     +son, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. T
+     +ipparaju, M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L.
+     + Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, 
+     + L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. G
+     +arza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolin
+     +ski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H.
+     + Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutows
+     +ki, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh,
+     + Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L.
+     + Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Tayl
+     +or, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.'/
 c
 c     == default ==
       write(luout,*)
