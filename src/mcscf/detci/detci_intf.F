@@ -13,6 +13,7 @@ c
 #include "errquit.fh"
 c
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "global.fh"
 #include "util.fh"
 #include "detciP.fh"
@@ -47,6 +48,27 @@ c$$$      integer ij
 c
 c  Reset statistics
 c
+      if (norb.gt.detci_maxorb) then
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*)'*** detci_init: detci_maxorb = ',detci_maxorb
+          write(LuOut,*)'*** detci_init:         norb = ',norb
+          write(LuOut,*)'*** maximum no. orbitals exceeded, edit '
+     +                //'detciP.fh and recompile'
+        endif
+        call errquit("detci_init: maximum no. orbitals exceeded",0,
+     +               UERR)
+      endif
+      if (nela.gt.detci_maxelec.or.nelb.gt.detci_maxelec) then
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*)'*** detci_init: detci_maxelec = ',detci_maxelec
+          write(LuOut,*)'*** detci_init:          nela = ',nela
+          write(LuOut,*)'*** detci_init:          nelb = ',nelb
+          write(LuOut,*)'*** maximum no. electrons exceeded, edit '
+     +                //'detciP.fh and recompile'
+        endif
+        call errquit("detci_init: maximum no. electrons exceeded",0,
+     +               UERR)
+      endif
       tx = util_cpusec()
       detci_init_etime = 0.d0
       detci_saa_etime = 0.d0
