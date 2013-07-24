@@ -27,6 +27,7 @@ c
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "prop.fh"
 c
       integer rtdb
 
@@ -107,6 +108,7 @@ c
      $     call errquit('hess_init: theory not specified',555, RTDB_ERR)
       if (theory.eq.'hyb') theory = 'dft'
       if (theory.eq.'scf') theory = 'hf'
+      use_theory = theory
 c
 c  Check to make sure that the energy and wavefunction are calculated
 c

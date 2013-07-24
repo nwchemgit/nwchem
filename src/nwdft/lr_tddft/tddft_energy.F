@@ -34,6 +34,7 @@ c
 #include "stdio.fh"
 #include "dra.fh"
 #include "xc.fh"
+#include "prop.fh"
 c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
@@ -118,6 +119,7 @@ c -------------------------
 c Ground-state HF/DFT first
 c -------------------------
 c
+      use_theory = "dft"
       call tddft_dftinit(rtdb,oskel,oadapt)
       if (.not.dft_energy(rtdb)) then
         tddft_energy=.false.
