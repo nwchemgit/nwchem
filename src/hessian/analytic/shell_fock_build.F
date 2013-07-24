@@ -77,7 +77,6 @@ c
       parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
       integer ga_create_atom_blocked
-      character*3 theory
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
