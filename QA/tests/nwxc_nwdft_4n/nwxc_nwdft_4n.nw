@@ -599,6 +599,23 @@ dft
   xc m11
 end
 task dft energy
+
+dft
+  mult 4
+  odft 
+  vectors input atomic
+  xc s12g
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc s12h
+end
+task dft energy
+
   
 dft
   direct
@@ -606,6 +623,24 @@ dft
   odft
   vectors input atomic
   xc hse03
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc cam-s12g
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc cam-s12h
 end
 task dft energy
 

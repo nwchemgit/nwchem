@@ -463,9 +463,35 @@ end
 task dft energy
 
 dft
+  vectors input atomic
+  xc s12g
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc s12h
+end
+task dft energy
+
+dft
   direct
   vectors input atomic
   xc hse03
+end
+task dft energy
+
+dft
+  direct
+  vectors input atomic
+  xc cam-s12g
+end
+task dft energy
+
+dft
+  direct
+  vectors input atomic
+  xc cam-s12h
 end
 task dft energy
 
