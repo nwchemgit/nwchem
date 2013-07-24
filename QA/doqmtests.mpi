@@ -216,7 +216,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o_raman_4
 ./runtests.mpi.unix procs $np tropt-ch3nh2
 ./runtests.mpi.unix procs $np h3tr1 h3_dirdyvtst
-./runtests.mpi.unix procs $np h2o_zts
+#./runtests.mpi.unix procs $np h2o_zts
 ./runtests.mpi.unix procs $np geom_load_xyz
 ./runtests.mpi.unix procs $np dft_sicperth2o
 ./runtests.mpi.unix procs $np h2o_hcons
