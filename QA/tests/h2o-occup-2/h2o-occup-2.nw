@@ -16,7 +16,8 @@ basis
  H library 6-31g*
 end
 
-occup 6 5 # alpha and beta occupancy
+occup 
+ 6 5 # alpha and beta occupancy
  1.0  1.0
  1.0  1.0
  1.0  1.0
