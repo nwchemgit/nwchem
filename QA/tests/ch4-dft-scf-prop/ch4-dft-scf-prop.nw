@@ -1,0 +1,36 @@
+echo
+
+start ch4-dft-scf-prop
+
+title "ch4-dft-scf-prop"
+
+charge 0
+
+geometry units angstroms print xyz noautosym noautoz
+C    -0.00004123    -0.00001603    -0.00002409
+H    -0.36397008    -0.99322791     0.26583687
+H    -0.36331325     0.26737285    -0.99306317
+H    -0.36311927     0.72685692     0.72766535
+H     1.09044119    -0.00098669    -0.00041538
+end
+
+basis
+  * library 6-311G**
+end
+
+dft
+  xc b3lyp
+  iterations 500
+  direct
+end
+task dft
+
+property
+  shielding
+end
+
+cosmo
+  dielec 3.9
+end
+
+task scf property
