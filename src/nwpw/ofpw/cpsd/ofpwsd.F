@@ -197,6 +197,8 @@
       nwave = 0
       mapping = control_mapping()
 
+*     **** initialize psi_data ****
+      call psi_data_init(20)
 
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
@@ -741,6 +743,7 @@ c      end if
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
       !call Dne_end()
+      call psi_data_end()
 
 *                |***************************|
 ****************** report consumed cputime   **********************
