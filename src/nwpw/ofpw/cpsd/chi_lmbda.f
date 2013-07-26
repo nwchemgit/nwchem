@@ -61,16 +61,12 @@
 
         do it=1,itrlmd
           sa1 = s22
-          st1 = s21*sa0
-          st2 = sa0*s12
 
-          st1 = st1+st2
-          sa1 = st1+sa1
+          sa1 = sa1 + s21*sa0 + sa0*s12
 
           st1 = s11*sa0
-          st2 = sa0*st1
+          sa1 = sa1 + sa0*st1
 
-          sa1 = st2+sa1
           st1 = sa1-sa0
           adiff = st1 
           if (adiff.lt.convg) go to 630
