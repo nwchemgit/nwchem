@@ -1,8 +1,8 @@
-
+#
 # $Id$
 #
- OBJ_OPTIMIZE = \
-                ofpwsd.o \
+
+ OBJ_OPTIMIZE = ofpwsd.o \
 		inner_loop_ofpw.o \
 		chi_lmbda.o
 

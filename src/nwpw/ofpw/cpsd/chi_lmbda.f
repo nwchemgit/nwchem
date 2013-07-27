@@ -48,13 +48,13 @@
 *       ***** compute the overlap matrices ****
         call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),s22)
         call Pack_cc_dot(1,psi2(1,ms),psi1(1,ms),s21)
-        call Pack_cc_dot(1,psi1(1,ms),psi2(1,ms),s12)
         call Pack_cc_dot(1,psi1(1,ms),psi1(1,ms),s11)
+
 
 *       ***** scale the overlap matrices ****
         s22=(1.0d0-s22)*0.5d0/dte
         s21=(1.0d0-s21)*0.5d0
-        s12=(1.0d0-s12)*0.5d0
+        s12=s21
         s11= (-s11)*0.5d0*dte
 
         sa0 = s22

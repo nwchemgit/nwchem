@@ -107,6 +107,7 @@ c     real*8     fion(3,natmx)
 
       call nwpw_timing_start(12)
 
+
 *     **** allocate MA local variables ****
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
@@ -196,28 +197,39 @@ c     real*8     fion(3,natmx)
 *       *******************
 *       **** get psi_r ****
 *       *******************
-c        do n=n1(1),n2(ispin)
-c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
-c           call Pack_c_unpack(1,psi_r(1,n))
-c           call D3dB_cr_fft3b(1,psi_r(1,n))
-c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
-c        end do
         do n=1,ispin
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+           call Pack_c_unpack(1,psi_r(1,n))
+           call D3dB_cr_fft3b(1,psi_r(1,n))
+c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
-        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
-        do n=1,ispin
-           call D3dB_r_Zero_Ends(1,psi_r(1,n))
-        end do
+c        do n=1,ispin
+c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+c        end do
+c        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
+c        do n=1,ispin
+c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+c        end do
+
+        call D3dB_rr_dot(1,psi_r,psi_r,sum)
+        write(*,*) "psi1|psi1(r)=",sum*scal1
+
+        call Pack_cc_dot(1,psi1,psi1,sum)
+        write(*,*) "psi1|psi1=",sum
+
+
 
 *       *********************
 *       **** generate dn ****
 *       *********************
         call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
         do ms=1,ispin
+           sum = 0.0d0
            do i=1,n2ft3d
-              dn(i,ms) = dn(i,ms) + ne(ms)*scal2*(psi_r(i,ms)**2)
+              dn(i,ms) = dn(i,ms) + dble(ne(ms))*scal2*(psi_r(i,ms)**2)
+              sum = sum + scal2*(psi_r(i,ms)**2)
            end do
+           write(*,*) "DN=",sum*dv
            call D3dB_r_Zero_Ends(1,dn(1,ms))
         end do
 
@@ -227,7 +239,6 @@ c        end do
         call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
         call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dcpl_mb(tmp1(1)))
         call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
-c        call mask_C(0,dcpl_mb(dng(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
 
@@ -371,7 +382,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       ************************************
         do n=1,ispin
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+          call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
         end do
         call nwpw_timing_end(13)
 
