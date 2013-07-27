@@ -12,6 +12,24 @@ ifeq ($(TARGET),MACX)
   LIB_DEFINES += -DOLD_GA
 endif
 
+   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt 200 ]; then echo "Y"; fi  )
+ifeq ($(LONGNWTOP),Y)
+errorlongpwd:
+	@echo " "
+	@echo "The directory name chosen for NWCHEM_TOP is longer than "
+	@echo "the maximum allowed value of 200 characters"
+	@echo "      current NWCHEM_TOP/src="$(SRCDIR)" equal to" $(shell echo $(SRCDIR) |wc -m) "characters"
+	@echo "please chose a directory with a shorter name"
+	@echo "E.g., setenv NWCHEM_TOP /home/nwchem_user/nwchem"
+	@exit 1
+endif
+   LIB_DEFINES += -DNWCHEM_SRCDIR="\"$(SRCDIR)\""
+
+ifeq ($(TARGET),FUJITSU_VPP)
+   LIB_DEFINES += -Wp,-DNWCHEM_SRCDIR="\"$(SRCDIR)\""
+endif
+
+
 # The packing routines have been modified so that they work
 # for all combinations of 32-bit, 64-bit, big-endian, little-endian
 
@@ -162,7 +180,7 @@ endif
 	      util_pname.o sread.o swrite.o \
 	      banner.o util_print.o \
               util_version.o util_nwchem_version.o util_ga_version.o \
-              util_nwchem_paper.o\
+              util_nwchem_paper.o util_nwchem_srcdir.o utilc_nwchem_srcdir.o \
               mk_fit_xf.o \
               int_2c_ga.o \
               ga_local_mdot.o \
@@ -204,7 +222,7 @@ endif
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
               bgj.fh bgj_common.fh nwc_const.fh errquit.fh util_sgroup.fh \
-	      util_params.fh
+	      util_params.fh utilc_nwchem_srcdir.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F

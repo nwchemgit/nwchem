@@ -64,6 +64,11 @@ function usage()
                       routine will be generated.
                       Examples: y, yes.
 
+ NWCHEM_LONG_PATHS -- If set to "Y" use a C-routine to compile in long pathnames
+                      for the basis set library location. Doing this requires
+                      the ISO_C_BINDING module from the Fortran 2008 standard
+                      which might not work with all Fortran compilers.
+
  ARMCI_NETWORK     -- The communication infra-structure the ARMCI library in
                       the GA should use. 
                       Examples: DCMFMPI, GEMINI, PORTALS, OPENIB, MPI-MT.
@@ -893,6 +898,38 @@ function get_pointer_size ()
    echo "ERROR: could not establish the pointer size" > /dev/stderr
    exit 1
 }
+function fortran_has_iso_c_binding ()
+{
+   # This shell function works out whether the fortran compiler supports
+   # the ISO_C_BINDING module. 
+   #
+   fcomp=$1
+   outlist=""
+   echo "c23456 test program">/tmp/testiso$$.f
+   echo "       program test">>/tmp/testiso$$.f
+   echo "       use iso_c_binding">>/tmp/testiso$$.f
+   echo "       character (KIND=C_CHAR,LEN=256) :: line">>/tmp/testiso$$.f
+   echo "       integer (C_INT) :: length">>/tmp/testiso$$.f
+   echo "       length=len(line)">>/tmp/testiso$$.f
+   echo "       line='hello world'">>/tmp/testiso$$.f
+   echo "       write(6,'(\"line=\",a,\"length=\",i6)')line,length">>/tmp/testiso$$.f
+   echo "       end">>/tmp/testiso$$.f
+   $fcomp -o /tmp/testiso$$.x /tmp/testiso$$.f > /dev/null
+   result=$?
+   if [ ${result} -eq 0 ] ; then
+       /tmp/testiso$$.x > /dev/null
+       result=$?
+       if [ ${result} -eq 0 ] ; then
+           echo Y
+           rm -f /tmp/testiso$$.x /tmp/testiso$$.o /tmp/testiso$$.f
+           return 0
+       fi
+   fi
+   rm -f /tmp/testiso$$.x /tmp/testiso$$.o /tmp/testiso$$.f
+   echo "ERROR: Fortran compiler does not support ISO_C_BINDING" > /dev/stderr
+   echo N
+   exit 1
+}
 #
 # Decide what we need to do here
 #
@@ -1508,6 +1545,15 @@ if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
   export SCALAPACK_SIZE
 fi
 #
+# Check whether we can use long pathnames (needs ISO_C_BINDING)
+#
+if [ ${#NWCHEM_LONG_PATHS} -eq 0 ] ; then
+   ISO_C=`fortran_has_iso_c_binding ${MPI_F90}`
+   if [ "x${ISO_C}" == "xY" ] ; then
+      export NWCHEM_LONG_PATHS=Y
+   fi
+fi
+#
 # Check whether this machine supports GPUs
 #
 if [ ${#TCE_CUDA} -ne 0 ] ; then
@@ -1627,59 +1673,62 @@ else
   echo "==============="
   echo
 fi
-echo "NWCHEM_TOP     =" ${NWCHEM_TOP}
-echo "NWCHEM_TARGET  =" ${NWCHEM_TARGET}
-echo "NWCHEM_MODULES =" ${NWCHEM_MODULES}
-if [ ${#OBJECT_MODE} -ne 0 ] ; then
-  echo "OBJECT_MODE    =" ${OBJECT_MODE}
+echo "NWCHEM_TOP        =" ${NWCHEM_TOP}
+echo "NWCHEM_TARGET     =" ${NWCHEM_TARGET}
+echo "NWCHEM_MODULES    =" ${NWCHEM_MODULES}
+if [ ${#NWCHEM_LONG_PATHS} -ne 0 ] ; then
+  echo "NWCHEM_LONG_PATHS =" ${NWCHEM_LONG_PATHS}
 fi
-echo "USE_MPI        =" ${USE_MPI}
+if [ ${#OBJECT_MODE} -ne 0 ] ; then
+  echo "OBJECT_MODE       =" ${OBJECT_MODE}
+fi
+echo "USE_MPI           =" ${USE_MPI}
 if [ ${#USE_MPIF} -ne 0 ] ; then
-  echo "USE_MPIF       =" ${USE_MPIF}
+  echo "USE_MPIF          =" ${USE_MPIF}
 fi
 if [ ${#USE_MPIF4} -ne 0 ] ; then
-  echo "USE_MPIF4      =" ${USE_MPIF4}
+  echo "USE_MPIF4         =" ${USE_MPIF4}
 fi
-echo "MPI_INCLUDE    =" ${MPI_INCLUDE}
-echo "MPI_LIB        =" ${MPI_LIB}
-echo "LIBMPI         =" ${LIBMPI}
-echo "MPI_F90        =" ${MPI_F90}
-echo "MPI_CC         =" ${MPI_CC}
-echo "MPI_CXX        =" ${MPI_CXX}
-echo "ARMCI_NETWORK  =" ${ARMCI_NETWORK}
-echo "MSG_COMMS      =" ${MSG_COMMS}
+echo "MPI_INCLUDE       =" ${MPI_INCLUDE}
+echo "MPI_LIB           =" ${MPI_LIB}
+echo "LIBMPI            =" ${LIBMPI}
+echo "MPI_F90           =" ${MPI_F90}
+echo "MPI_CC            =" ${MPI_CC}
+echo "MPI_CXX           =" ${MPI_CXX}
+echo "ARMCI_NETWORK     =" ${ARMCI_NETWORK}
+echo "MSG_COMMS         =" ${MSG_COMMS}
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
-  echo "IB_INCLUDE     =" ${IB_INCLUDE}
+  echo "IB_INCLUDE        =" ${IB_INCLUDE}
 fi
 if [ ${#IB_LIB} -ne 0 ] ; then
-  echo "IB_LIB         =" ${IB_LIB}
+  echo "IB_LIB            =" ${IB_LIB}
 fi
 if [ ${#IB_LIB_NAME} -ne 0 ] ; then
-  echo "IB_LIB_NAME    =" ${IB_LIB_NAME}
+  echo "IB_LIB_NAME       =" ${IB_LIB_NAME}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
-  echo "BLASOPT        =" ${BLASOPT} 
+  echo "BLASOPT           =" ${BLASOPT} 
 fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
-  echo "BLAS_LIB       =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
+  echo "BLAS_LIB          =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
 fi
 if [ ${#LAPACK_LIB} -ne 0 ] ; then
-  echo "LAPACK_LIB     =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
+  echo "LAPACK_LIB        =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
-  echo "SCALAPACK_LIB  =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
+  echo "SCALAPACK_LIB     =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
 fi
 if [ ${#CUDA} -ne 0 ] ; then
-  echo "CUDA           =" ${CUDA}
+  echo "CUDA              =" ${CUDA}
 fi
 if [ ${#CUDA_INCLUDE} -ne 0 ] ; then
-  echo "CUDA_INCLUDE   =" ${CUDA_INCLUDE}
+  echo "CUDA_INCLUDE      =" ${CUDA_INCLUDE}
 fi
 if [ ${#CUDA_LIBS} -ne 0 ] ; then
-  echo "CUDA_LIBS      =" ${CUDA_LIBS}
+  echo "CUDA_LIBS         =" ${CUDA_LIBS}
 fi
 if [ ${#MRCC_METHODS} -ne 0 ] ; then
-  echo "MRCC_METHODS   =" ${MRCC_METHODS}
+  echo "MRCC_METHODS      =" ${MRCC_METHODS}
 fi
 #
 # Stop if we find essential information missing.

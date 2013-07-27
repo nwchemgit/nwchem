@@ -112,8 +112,9 @@ c
 
 *     **** Try to get from compile ****
       from_compile = .true.
-      libname = 
-     &NWPW_LIBRARY
+      call util_nwchem_srcdir(libname)
+c     libname = 
+c    &NWPW_LIBRARY
 c
 c     add here nwpw/libraryps bit
 c

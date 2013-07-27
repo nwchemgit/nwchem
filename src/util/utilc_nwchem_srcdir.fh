@@ -1,0 +1,15 @@
+! $Id: $
+!
+!     Interface block to bind to the C-function below in a standard way.
+!     More comments on this can be found in util_nwchem_srcdir.c.
+!     We will see if this Fortran stuff actually works...
+!
+#ifdef NWCHEM_LONG_PATHS
+      interface
+        subroutine utilc_nwchem_srcdir(string,length) bind(C)
+          use, intrinsic                  :: ISO_C_BINDING
+          character (KIND=C_CHAR,LEN=256) :: string
+          integer (C_INT)                 :: length
+        end subroutine
+      end interface
+#endif

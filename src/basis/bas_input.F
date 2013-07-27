@@ -1129,8 +1129,7 @@ c
       noslash=.false.
       calls = calls + 1
       if (debug) write(luout,*)' calls:calls: ',calls
-      compiled_name = 
-     &BASIS_LIBRARY
+      call util_nwchem_srcdir(compiled_name)
 c
 c     add here basis/libraries bit
 c
