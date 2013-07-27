@@ -2,12 +2,8 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE = \
-            v_thomasfermi.o
-
-
-
-	  OBJ = 
+  OBJ_OPTIMIZE = 
+  OBJ = v_thomasfermi.o
 
       LIBRARY = libofpw.a
 
