@@ -12,12 +12,17 @@ ifeq ($(TARGET),MACX)
   LIB_DEFINES += -DOLD_GA
 endif
 
-   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt 200 ]; then echo "Y"; fi  )
+ifeq ($(NWCHEM_LONG_PATHS),Y)
+   MXLENPATH = 200
+else
+   MXLENPATH = 64
+endif
+   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt $(MXLENPATH) ]; then echo "Y"; fi  )
 ifeq ($(LONGNWTOP),Y)
 errorlongpwd:
 	@echo " "
 	@echo "The directory name chosen for NWCHEM_TOP is longer than "
-	@echo "the maximum allowed value of 200 characters"
+	@echo "the maximum allowed value of" $(MXLENPATH) "characters"
 	@echo "      current NWCHEM_TOP/src="$(SRCDIR)" equal to" $(shell echo $(SRCDIR) |wc -m) "characters"
 	@echo "please chose a directory with a shorter name"
 	@echo "E.g., setenv NWCHEM_TOP /home/nwchem_user/nwchem"
