@@ -59,7 +59,7 @@ C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a hr
 C>
 C> provides details on the codes capabilities.
 C>
-C> Copyright (c) 1994-2013 Pacific Northwest National Laboratory, Batelle Memorial Institute
+C> Copyright (c) 1994-2013 Pacific Northwest National Laboratory, Battelle Memorial Institute
 C>
 C> Environmental Molecular Sciences Laboratory (EMSL)<br>
 C> Pacific Northwest National Laboratory<br>
