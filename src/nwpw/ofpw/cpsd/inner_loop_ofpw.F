@@ -197,25 +197,18 @@ c     real*8     fion(3,natmx)
 *       *******************
 *       **** get psi_r ****
 *       *******************
-        do n=1,ispin
-           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
-           call Pack_c_unpack(1,psi_r(1,n))
-           call D3dB_cr_fft3b(1,psi_r(1,n))
-c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
-        end do
 c        do n=1,ispin
 c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+c           call Pack_c_unpack(1,psi_r(1,n))
+c           call D3dB_cr_pfft3b(1,1,psi_r(1,n))
 c        end do
-c        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
+        do n=1,ispin
+           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+        end do
+        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
 c        do n=1,ispin
 c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
 c        end do
-
-        call D3dB_rr_dot(1,psi_r,psi_r,sum)
-        write(*,*) "psi1|psi1(r)=",sum*scal1
-
-        call Pack_cc_dot(1,psi1,psi1,sum)
-        write(*,*) "psi1|psi1=",sum
 
 
 
@@ -229,7 +222,6 @@ c        end do
               dn(i,ms) = dn(i,ms) + dble(ne(ms))*scal2*(psi_r(i,ms)**2)
               sum = sum + scal2*(psi_r(i,ms)**2)
            end do
-           write(*,*) "DN=",sum*dv
            call D3dB_r_Zero_Ends(1,dn(1,ms))
         end do
 

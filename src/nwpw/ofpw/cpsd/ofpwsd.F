@@ -203,7 +203,7 @@
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
-      n2ft3d = 2*nfft3d
+      call D3dB_n2ft3d(1,n2ft3d)
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4) 
@@ -252,7 +252,7 @@ c*     ***** allocate psi2,and psi1 wavefunctions ****
        value = value.and.
      >         MA_alloc_get(mt_dcpl,npack1*(ispin),
      >                     'psi1',psi1(2),psi1(1))
-       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+       if (.not. value) call errquit('ofpw:out of heap memory',0,MA_ERR)
 
 
 *     *****  read initial wavefunctions into psi2  ****
@@ -325,12 +325,12 @@ c*     *****  read psi2 wavefunctions ****
       !sum1 = dble(ne(1))
       sum1 = 1.0d0
       call Pack_cc_dot(1,dcpl_mb(psi2(1)),dcpl_mb(psi2(1)),sum2)
-      write(*,*) "sum1,sum2=",sum1,sum2
       if (dabs(sum2-sum1).gt.1.0d-10) then
-         if (taskid.eq.MASTER)
-     >      write(*,*) "Warning: scaling being performed on chi2"
-            call Pack_c_SMul(1,dsqrt(sum1/sum2),
-     >                         dcpl_mb(psi2(1)),
+         if (taskid.eq.MASTER) then
+            write(*,*) "sum1,sum2=",sum1,sum2
+            write(*,*) "Warning: scaling being performed on chi2"
+         end if
+         call Pack_c_SMul1(1,dsqrt(sum1/sum2),
      >                         dcpl_mb(psi2(1)))
       end if
 
@@ -342,29 +342,25 @@ c*     *****  read psi2 wavefunctions ****
          if (dabs(sum2-sum1).gt.1.0d-10) then
             if (taskid.eq.MASTER)
      >         write(*,*) "Warning: scaling being performed on chi2"
-               call Pack_c_SMul(1,dsqrt(sum1/sum2),
-     >                         dcpl_mb(psi2(1)+npack1),
-     >                         dcpl_mb(psi2(1)+npack1))
+            call Pack_c_SMul1(1,dsqrt(sum1/sum2),
+     >                        dcpl_mb(psi2(1)+npack1))
          end if
       end if
      
-      call Pack_cc_dot(1,dcpl_mb(psi2(1)),dcpl_mb(psi2(1)),sum2)
-      write(*,*) "sum3=",sum2
 
 *     **** allocate other variables *****
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(4*nfft3d),
+      value = MA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
+
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ispin),
+     >        MA_alloc_get(mt_dcpl,npack1*ispin,
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(ispin),
+     >        MA_alloc_get(mt_dbl,n2ft3d*ispin,
      >                     'psir',psir(2),psir(1))
 
       if (.not. value) 
-     >   call errquit('ofpw:out of heap memory',0,MA_ERR)
-
+     >   call errquit('ofpw:out of heap memory',1,MA_ERR)
 
 
 *     **** initialize QM/MM ****
@@ -521,7 +517,7 @@ c*     *****  read psi2 wavefunctions ****
      >             npack1,nfft3d,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
      >             it_in,E,deltae,deltac,deltar,
-     >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
+     >             dbl_mb(psir(1)),dcpl_mb(Hpsi(1)))
 
          if (taskid.eq.MASTER) then 
            write(6,1310) icount*it_in,E(1),deltae,deltac,deltar
@@ -781,11 +777,11 @@ c      end if
  1020 FORMAT(10X,'*     Orbital Free DFT microcluster calculation    *')
  1030 FORMAT(10X,'*     [     steepest descent minimization   ]      *')
  1035 FORMAT(10x,'*     [ NorthWest Chemistry implementation ]       *')
- 1040 FORMAT(10X,'*            version #1.00   06/30/07              *')
- 1041 FORMAT(10X,'*    This code was developed by Niri Govind and    *')
- 1042 FORMAT(10X,'*    Eric J. Bylaska and was based upon algorithms *')
- 1043 FORMAT(10X,'*    and code developed by the group of            *')
- 1044 FORMAT(10X,'*    Prof. Emily A. Carter                         *')
+ 1040 FORMAT(10X,'*            version #1.00   08/01/13              *')
+ 1041 FORMAT(10X,'*    This code was developed by Eric J. Bylaska    *')
+ 1042 FORMAT(10X,'*                                                  *')
+ 1043 FORMAT(10X,'*                                                  *')
+ 1044 FORMAT(10X,'*                                                  *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ OFPW input data ===================')
  1111 FORMAT(/' number of processors used:',I3)

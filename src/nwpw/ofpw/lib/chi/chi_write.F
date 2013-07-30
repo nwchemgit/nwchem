@@ -88,7 +88,7 @@ c    >                       full_filename)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
          occupation = -1
-         call iwrite(6,occupation,2)
+         call iwrite(6,occupation,1)
       end if
 
 *     *** write out 3d blocks ***

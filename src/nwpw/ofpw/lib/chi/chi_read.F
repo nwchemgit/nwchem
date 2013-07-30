@@ -74,7 +74,7 @@ c    >                        full_filename)
          call dread(5,unita,9)
          call iread(5,ispin,1)
          call iread(5,ne,2)
-         call iread(5,occupation,2)
+         call iread(5,occupation,1)
       end if
 
 c     **** send header to all nodes ****
@@ -92,7 +92,6 @@ c     **** send header to all nodes ****
 
 
 *     ***** Error checking ****
-      write(*,*) "version=",version
       if (version.ne.9) then
        call errquit(
      >       'Error cannot read pspw or band structure wavefunctions',1,
