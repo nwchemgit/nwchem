@@ -350,6 +350,7 @@ c     **** MM/MM LJ self energy ****
          end if
       end do
 
+
 c     **** MM/MM LJ self image energy ****
       if (nshl3d.gt.1) then
 

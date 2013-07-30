@@ -133,9 +133,9 @@
       inc3c =inc2c*nfft2
 
       scale=1.0d0/dsqrt(2.0d0)
-      zx=(1.0d0,0.0d0)
-      sx=(0.0d0,1.0d0)*scale
-      cx=(1.0d0,0.0d0)*scale
+      zx=dcmplx(1.0d0,0.0d0)
+      sx=dcmplx(0.0d0,1.0d0)*scale
+      cx=dcmplx(1.0d0,0.0d0)*scale
 
 
 *     ***** allocate wavefunction memory ****
@@ -177,6 +177,28 @@
  
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 
+      if (version.eq.9) then
+
+         do ms=1,ispin
+            cc = zx
+            dcpl_mb(cfull_indx) = cc
+            do k=2,nfft3d
+               dcpl_mb(cfull_indx+k-1) = dcpl_mb(cfull_indx+k-1)
+     >                                 + dcmplx((0.5d0-util_random(0)),
+     >                                         (0.5d0-util_random(0)))
+     >                                  /dsqrt(dble(nfft3d))
+            end do
+            call gctimereverse(nfft1,nfft2,nfft3,dcpl_mb(cfull_indx))
+            P=gcdotc(nfft1,nfft2,nfft3,
+     >           dcpl_mb(cfull_indx),
+     >           dcpl_mb(cfull_indx))
+            P=1.0d0/dsqrt(P)
+            call dscal(n2ft3d,P,dcpl_mb(cfull_indx),1)
+            call dwrite(6,dcpl_mb(cfull_indx),n2ft3d)
+         end do
+
+      else
+
       do 150 ms=1,ispin
  
         if (ne(ms).LE.0) GO TO 150
@@ -211,8 +233,6 @@ c    >           + (0.5d0-util_random(0))
         dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
 c        call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
  
-        !**** only one wavefunction if version ==9 ****
-        if (version.eq.9) GO TO 150
 
         DO 130 N=2,NE(ms)
 c         L1=INC3C*K3(N)+INC2C*K2(N)+K1(N)+1
@@ -262,6 +282,7 @@ c          call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
  
 
   150 CONTINUE
+      end if
 
 c     **** add occupation ****
       if (fractional) then
