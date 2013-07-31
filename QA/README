@@ -1,0 +1,22 @@
+README for QA
+=============
+
+$Id: $
+
+The QA directory contains tests cases and baselines for a wide variety
+of functionality in NWChem. For basic usage see the file HOW-TO-RUN-TESTS
+for instructions. 
+
+Besides the manual usage of the QA suite the test cases are now also used by
+the nightly testing infrastructure run through Jenkins. Exploiting this 
+infrastructure imposes some additional requirements:
+
+1. Ready to go submission scripts have to be provided for all the tested
+   platforms. The reason is that the job script will be submitted from a
+   Jenkins build step script. To keep that script as simple as possible the
+   submission script should be as pre-cooked as possible.
+
+2. The test cases should be highly reproducible. The validation of the results
+   is completely automated. Therefore if a test case ran successfully it should
+   validate OK and otherwise if should validate Failed. If there are any 
+   ambiguities the framework will throw up many false positives.

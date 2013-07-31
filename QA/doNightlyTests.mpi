@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# $Id: doalltests.mpi 24223 2013-05-15 20:56:40Z d3y133 $
+#
+# This script runs all the test case for the Nightly builds, using the
+# automated testing framework. This script is expected to be run from the
+# job submission script appropriate for your platform. The job submission
+# script should load the required modules and set the relevant environment
+# variables.
+#
+export NWCHEM_TOP=`pwd`/..
+export NWCHEM_TARGET=LINUX64
+export NWCHEM_TEST=${NWCHEM_TOP}/QA/tests
+export NWCHEM_EXECUTABLE=`find "${NWCHEM_TOP}/bin" -perm -u-x -name "nwchem*"`
+nproc=4
+if [ "$1" != "" ] ; then
+  nproc=$1
+fi
+. ./domknwchemenv
+./domknwchemrc
+status=$?
+if [[ $status != 0 ]]; then
+  echo "ERROR: The script domknwchemrc failed. Exiting."
+  exit $status
+fi
+date
+echo "Done testing"
+date
