@@ -17,7 +17,7 @@ c
       integer geom1, basis1
       integer ipol, mult
       logical cdfit, dmd_rel, dk_rel, zora_rel
-      logical rodft
+      logical rodft, cosmo_on
       logical xc_chktau,xc_getxcfac,cam_exch
       external xc_chktau,xc_getxcfac
 c
@@ -129,6 +129,16 @@ c
       if (cdfit) then
         if (ga_nodeid().eq.0)
      $    write(LuOut,*) 'CD fit detected'
+        return
+      endif
+c
+c     Check for COSMO
+c
+      if (.not. rtdb_get(rtdb, 'slv:cosmo', MT_LOG, 1, cosmo_on))
+     $   cosmo_on = .false.
+      if (cosmo_on) then
+        if (ga_nodeid().eq.0)
+     $    write(LuOut,*) 'COSMO detected'
         return
       endif
 c
