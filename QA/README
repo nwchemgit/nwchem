@@ -1,7 +1,7 @@
 README for QA
 =============
 
-$Id: $
+$Id$
 
 The QA directory contains tests cases and baselines for a wide variety
 of functionality in NWChem. For basic usage see the file HOW-TO-RUN-TESTS

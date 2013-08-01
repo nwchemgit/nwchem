@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: doalltests.mpi 24223 2013-05-15 20:56:40Z d3y133 $
+# $Id$
 #
 # This script runs all the test case for the Nightly builds, using the
 # automated testing framework. This script is expected to be run from the
