@@ -1,0 +1,23 @@
+#!/bin/bash
+#MSUB -A mscfhpcc
+#MSUB -l "walltime=8:00:00"
+#MSUB -l "nodes=2:ppn=8"
+#MSUB -m ae
+#MSUB -o doNightlyTests.out.%j
+#MSUB -e doNightlyTests.err.%j
+#MSUB -N doNightlyTests
+#
+source /etc/profile.d/modules.bash
+source /home/scicons/bin/set_modulepath.sh
+module purge
+module load precision/i8
+module load portland
+module load hpmpi
+module load acml
+module load moab
+module load python
+export NWCHEM_TOP=`pwd`/..
+bcastf $NWCHEM_TOP/bin/LINUX64/nwchem /scratch/nwchem
+export NONSTD_MPI=y
+export MPIRUN_PATH="mpirun -srun -n 8 -N 2 --ntasks-per-node=4"
+./doNightlyTests.mpi
