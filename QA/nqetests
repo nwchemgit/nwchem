@@ -43,6 +43,8 @@ cd ~/nwchem/QA/tests/neda_nbo
 nwdebug neda_nbo.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/ch5n_nbo
 nwdebug ch5n_nbo.nw -queue debug -accnt mp15 -procs 2 -time 1999
+cd ~/nwchem/QA/tests/c4h4_wfn
+nwdebug c4h4_wfn.nw -queue debug -accnt mp15 -procs 2 -time 1999
 #---   small tests that should fail!
 cd ~/nwchem/QA/tests/oh2
 nwdebug oh2.nw -queue debug -accnt mp15 -procs 2 -time 1999

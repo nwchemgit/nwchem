@@ -10,7 +10,7 @@ endif
 ./runtests.tcg5.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
 ./runtests.tcg5.unix procs $np geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.tcg5.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
-./runtests.tcg5.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
+./runtests.tcg5.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse c4h4_wfn
 ./runtests.tcg5.unix procs $np dplot dft_meta prop_uhf_h2o dft_s12gh
 ./runtests.tcg5.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
 

@@ -68,6 +68,7 @@
 	 task_raman.o \
 	 raman_input.o \
 	 raman.o \
+         waimfile.o \
 	 prop_grid.o
 
 #   OBJ = aoresponse_giao_rhs.o

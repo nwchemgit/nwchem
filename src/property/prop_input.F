@@ -25,6 +25,7 @@ c
       integer hypfile, hypopt
       integer efgfile, efgopt
       integer nbofile, nboopt
+      integer aimfile
       integer dipole
       integer quadrupole
       integer octupole
@@ -76,6 +77,7 @@ c
 c
 c>>>  Default property settings.
 c
+      aimfile           = 0
       nbofile           = 0
       nboopt            = 0
       efgfile           = 0 
@@ -391,6 +393,9 @@ c ==========================================
          dipole  = 0
       elseif ( inp_compare(.false., 'nbofile', test)) then
          nbofile = 1
+      elseif ( inp_compare(.false., 'aimfile', test)) then
+         aimfile = 1
+      elseif ( inp_compare(.false., 'all', test)) then
 c ... jochen: read an option (integer value) to define 
 c     what NBO options will appear    
           if (inp_i(nboopt)) then 
@@ -444,6 +449,7 @@ c     what EFG options will appear
          quadrupole  = 0
          dipole    = 0
          nbofile   = 1
+         aimfile = 0
          efgfile   = 1
          hypfile   = 1
          gshiftfile= 1
@@ -500,6 +506,9 @@ c    place integer parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
      $                               nbofile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:aimfile', mt_int, 1,
+     $                               aimfile           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c ... jochen: also write NBO option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:nboopt', mt_int, 1,

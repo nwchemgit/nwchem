@@ -52,6 +52,7 @@ Each property can be requested by defining one of the following keywords:
   HYPERFINE
   SHIELDING [<integer> number_of_atoms <integer> atom_list]
   SPINSPIN [<integer> number_of_pairs <integer> pair_list]
+  AIMFILE
   ALL
 \end{verbatim}
 
@@ -100,3 +101,16 @@ string following the \verb+START+ directive.  The input deck may be edited
 to provide additional options to the NBO calculation, (see the NBO
 user's manual for details.)  
 
+\subsection{AIM file}
+\label{sec:AIMfile}
+
+The keyword {\tt aimfile} creates a \verb+.wfn+ file from a given 
+eigenvector file (i.e., \verb+.movecs+), geometry and a basis set. 
+The \verb+.wfn+ file summarizes the single determinant wavefunction in order to be analyzed 
+through a third-party software.
+Among some known analyses are the Bader's approach for atoms in molecules (AIM), the electron 
+localization function (ELF), the Fermi hole function and energy density analysis.
+The follow input directive will create the an AIM file \verb+.wfx+ format.
+\begin{verbatim}
+ set prop:nowfx F
+\end{verbatim}
