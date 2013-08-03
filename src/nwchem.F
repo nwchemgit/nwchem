@@ -447,8 +447,8 @@ c
 c
       compiled =
      & COMPILATION_DATE
-      srcdir   = 
-     $ COMPILATION_DIR
+      call util_nwchem_srcdir(srcdir)
+      srcdir = srcdir(1:max(1,inp_strlen(srcdir)-4))
       branch =
      & NWCHEM_BRANCH   
       call util_nwchem_version(nwchem_rev)
