@@ -62,6 +62,7 @@ c
 c     $Id$
 c
       implicit none
+cpgi$g opt=1
 c
       integer ldim
       integer if1, il1, if2, il2, if3, il3, if4, il4
