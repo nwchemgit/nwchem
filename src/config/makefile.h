@@ -1161,6 +1161,7 @@ endif
       FOPTIMIZE += -mtune=7450 -mcpu=7450
     endif
     endif
+        FDEBUG = -g -O1
       ifeq ($(FC),gfortran)
     _FC=gfortran
 #gcc version 4.2.0 200512 (experimental)
@@ -1172,10 +1173,16 @@ endif
         ifdef GNUMAJOR
         GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         endif
         ifeq ($(GNU_GE_4_6),true)
         DEFINES  += -DGCC46
-    endif
+        endif
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG += -fno-aggressive-loop-optimizations
+          FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FOPTIONS += -Warray-bounds
+        endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
@@ -1208,7 +1215,6 @@ endif
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
-        FDEBUG = -g -O1
         DEFINES  += -DCHKUNDFLW -DGCC4
       endif
       ifeq ($(FC),ifort)
@@ -1306,8 +1312,14 @@ endif
         ifdef GNUMAJOR
         GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
          DEFINES  += -DGCC46
+        endif
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG += -fno-aggressive-loop-optimizations
+          FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FOPTIONS += -Warray-bounds
         endif
         endif
        endif
