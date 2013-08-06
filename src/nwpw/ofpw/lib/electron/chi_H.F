@@ -100,7 +100,7 @@ c     complex*16 vpsi(nfft3d)
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
       call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
-      call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+      call Pack_cc_Sum2(0,vc,dcpl_mb(vall(1)))
       
 *     **********************************************
 *     **** fourier transform k-space potentials ****
@@ -129,9 +129,8 @@ c     complex*16 vpsi(nfft3d)
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
-     >                       v_tf(1+(ms-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
+            call D3dB_rr_Sum2(1,v_tf(1+(ms-1)*n2ft3d),
+     >                          dcpl_mb(vpsi(1)))
             call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
      >                       psi_r(1+(indx1-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
@@ -148,7 +147,7 @@ c     complex*16 vpsi(nfft3d)
             call D3dB_rc_pfft3f_queueout(1,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****
-            call Pack_cc_daxpy(1,(-scal1),
+            call Pack_cc_daxpy(1,(-scal1)*dble(ne(ms)),
      >                           dcpl_mb(vpsi(1)),
      >                           Hpsi_k(1+(indx2-1)*npack1))
             indx2 = indx2 + 1

@@ -144,7 +144,7 @@
             call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****
-            call Pack_cc_daxpy(1,(-scal1),
+            call Pack_cc_daxpy(1,(-scal1)*dble(ne(ms)),
      >                           dcpl_mb(vpsi(1)),
      >                           Hpsi_k(1+(ms-1)*npack1))
       end do

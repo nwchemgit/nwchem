@@ -217,10 +217,8 @@ c        end do
 *       *********************
         call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
         do ms=1,ispin
-           sum = 0.0d0
            do i=1,n2ft3d
               dn(i,ms) = dn(i,ms) + dble(ne(ms))*scal2*(psi_r(i,ms)**2)
-              sum = sum + scal2*(psi_r(i,ms)**2)
            end do
            call D3dB_r_Zero_Ends(1,dn(1,ms))
         end do
@@ -288,6 +286,8 @@ c        end do
         if (control_version().eq.4) 
      >     call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
 
+
+
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
@@ -323,13 +323,6 @@ c        end do
      >                    dbl_mb(v_tf(1)),
      >                    dbl_mb(e_tf(1)))
 
-        !call dcopy(n2ft3d*ispin,0.0d0,0,dbl_mb(v_tf(1)),1)
-        !call dcopy(n2ft3d,0.0d0,0,dbl_mb(e_tf(1)),1)
-
-        !call dcopy(n2ft3d*ispin,0.0d0,0,dbl_mb(xcp(1)),1)
-        !call dcopy(n2ft3d*ispin,0.0d0,0,dbl_mb(xce(1)),1)
-        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vc(1)),1)
-        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
      
 *       *******************************************
 *       ***** generate other real-space fields ****
@@ -353,6 +346,20 @@ c        end do
 *       ******************
 *       **** get Hchi ****
 *       ******************
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
+        call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
+
+        call daxpy(2*n2ft3d,1.0d0,dbl_mb(xcp(1)),1,dbl_mb(v_tf(1)),1)
+        call daxpy(n2ft3d,  1.0d0,dbl_mb(xce(1)),1,dbl_mb(e_tf(1)),1)
+
+        !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
+        !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+        call dcopy(n2ft3d,  0.0d0,0,dbl_mb(xce(1)),1)
+        call dcopy(2*npack0,0.0d0,0,dcpl_mb(vc(1)),1)
+        call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
+
+
         if (control_version().eq.3) 
      >     call chi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
@@ -410,14 +417,6 @@ c        end do
 *       *****************************************        
         call chi_lmbda(ispin,npack1,psi1,psi2,dte,lmbda,ierr)
 
-c        do ms=1,ispin
-c           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),A)
-c           call Pack_cc_dot(1,psi1(1,ms),psi2(1,ms),B)
-c           call Pack_cc_dot(1,psi1(1,ms),psi1(1,ms),C)
-c           x =  2.0d0*B - dsqrt(4.0d0*B*B -4.0d0*C*(A-1.0d0))
-c           x = -x/(2.0d0*C)
-c          call Pack_cc_daxpy(1,x,psi1(1,ms),psi2(1,ms))
-c        end do
 
       end do
 
@@ -430,14 +429,13 @@ c        end do
 
 *     *** get orbital energies ****
       call Pack_cc_dot(1,psi1(1,1),Hpsi(1,1),eorbit)
-      eorbit = -dble(ne(1))*eorbit
       if (ispin.eq.2) then
          call Pack_cc_dot(1,psi1(1,2),Hpsi(1,2),sum)
-         sum = -sum*dble(ne(2))
          eorbit = eorbit + sum
       else
          eorbit = eorbit + eorbit
-      endif
+      end if
+      eorbit = -eorbit
 
 *     **** get ewald energy ****
       eion = 0.0d0
@@ -453,6 +451,7 @@ c        end do
          call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
          ehartr = 0.5d0*ehartr*dv
       end if
+      ehartr = 0.0d0
         
 
 *     **** get exchange-correlation energy ****
