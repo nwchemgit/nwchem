@@ -3,8 +3,8 @@
 #MSUB -l "walltime=8:00:00"
 #MSUB -l "nodes=2:ppn=8"
 #MSUB -m ae
-#MSUB -o doNightlyTests.out.%j
-#MSUB -e doNightlyTests.err.%j
+#MSUB -o doNightlyTests.out
+#MSUB -e doNightlyTests.err
 #MSUB -N doNightlyTests
 #
 source /etc/profile.d/modules.bash
