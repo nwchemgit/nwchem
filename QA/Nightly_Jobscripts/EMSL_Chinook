@@ -1,5 +1,5 @@
 #!/bin/bash
-#MSUB -A mscfhpcc
+#MSUB -A mscfops
 #MSUB -l "walltime=8:00:00"
 #MSUB -l "nodes=2:ppn=8"
 #MSUB -m ae
