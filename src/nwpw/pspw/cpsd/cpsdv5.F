@@ -165,8 +165,8 @@ cccc#include "frac_occ.fh"
       external Dneall_m_value
       character*9 ion_amm
       external    ion_amm
-      logical  psp_U_psputerm,meta_found
-      external psp_U_psputerm,meta_found
+      logical  psp_U_psputerm,meta_found,ion_disp_on
+      external psp_U_psputerm,meta_found,ion_disp_on
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
 
@@ -800,6 +800,9 @@ c            write(luout,1704) E(16)
 c            write(luout,1705) E(17)
 c            write(luout,1706) E(18)
         end if
+        if (ion_disp_on()) then
+            write(luout,1720) E(33)
+        end if
 
 
 *        **** write out diagonal <psi|H|psi> matrix ****
@@ -1099,6 +1102,8 @@ c      call frac_occ_end()
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

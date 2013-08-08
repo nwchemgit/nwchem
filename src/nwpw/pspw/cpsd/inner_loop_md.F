@@ -127,10 +127,10 @@ c     real*8     fion(3,natmx)
 
       logical  meta_found,tamd_found,psp_U_psputerm
       external meta_found,tamd_found,psp_U_psputerm
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
-      real*8   nwpw_meta_gga_pxc
-      external nwpw_meta_gga_pxc
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   nwpw_meta_gga_pxc,ion_disp_energy
+      external nwpw_meta_gga_pxc,ion_disp_energy
 
 
 
@@ -427,6 +427,9 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       **** get the qmmm force ****
         if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
+*       **** get the dispersion force ****
+        if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
+
 
 *       *****************************************
 *       **** remove ion forces using ion_FixIon *
@@ -706,13 +709,17 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
          E(2)  = E(2) + E(31) - E(32)
       end if
 
-*     **** tamd energy ****
-      if (tamd_found()) then
-         call tamd_energypotential(ispin,neq,psi1,E(33),E(34))
-         E(2)  = E(2) + E(33) - E(34)
+*     **** dispersion energy ***
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(2)  = E(2) + E(33)
       end if
 
-
+*     **** tamd energy ****
+      if (tamd_found()) then
+         call tamd_energypotential(ispin,neq,psi1,E(34),E(35))
+         E(2)  = E(2) + E(34) - E(35)
+      end if
 
 
 *     **** Energy and Energy**2 sum ***

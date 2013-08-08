@@ -186,8 +186,8 @@ cccc#include "frac_occ.fh"
       real*8   Dneall_m_value
       external Dneall_m_value
 
-      logical  meta_found,tamd_found,psp_U_psputerm
-      external meta_found,tamd_found,psp_U_psputerm
+      logical  meta_found,tamd_found,psp_U_psputerm,ion_disp_on
+      external meta_found,tamd_found,psp_U_psputerm,ion_disp_on
 
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
@@ -1098,7 +1098,7 @@ c         end if
            write(luout,1459) E(31),E(31)/ion_nion()
          end if
          if (tamd_found()) then
-           write(luout,1461) E(33),E(33)/ion_nion()
+           write(luout,1461) E(34),E(34)/ion_nion()
          end if
          write(luout,1470) E(8),E(8)/ion_nion()
          write(luout,1471) E(3),E(3)/n2(ispin)
@@ -1114,6 +1114,9 @@ c         end if
 c            write(luout,1705) E(14)
 c            write(luout,1706) E(15)
          end if
+        if (ion_disp_on()) then
+            write(luout,1720) E(33)
+        end if
 
 
          if (control_Nose()) then
@@ -1468,6 +1471,8 @@ c      call frac_occ_end()
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

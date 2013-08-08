@@ -114,10 +114,10 @@ c     real*8     fion(3,natmx)
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
-      real*8   nwpw_meta_gga_pxc
-      external nwpw_meta_gga_pxc
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   nwpw_meta_gga_pxc,ion_disp_energy
+      external nwpw_meta_gga_pxc,ion_disp_energy
 
 
 
@@ -408,6 +408,9 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *          **** get the qmmm force ****
            if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
+*          **** get dispersion force ****
+           if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
+
 *          **** remove ion forces using ion_FixIon ****
            call ion_FixIon(dbl_mb(fion(1)))
 
@@ -490,6 +493,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
       if (nwpw_meta_gga_on()) then
          pxc = pxc + nwpw_meta_gga_pxc(ispin,ne,psi1)
       end if
+
         
   
 *     ***** average Kohn-Sham kinetic energy ****
@@ -593,6 +597,11 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          E(1)  = E(1) + E(31) - E(32)
       end if
 
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
 
 
 *     **** set convergence variables ****
