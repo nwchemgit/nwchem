@@ -2749,108 +2749,108 @@ c      end subroutine parse
 
 
 
-      subroutine split(str,delims,before,sep)
-
-! Routine finds the first instance of a character from 'delims' in the
-! the string 'str'. The characters before the found delimiter are
-! output in 'before'. The characters after the found delimiter are
-! output in 'str'. The optional output character 'sep' contains the 
-! found delimiter. A delimiter in 'str' is treated like an ordinary 
-! character if it is preceded by a backslash (\). If the backslash 
-! character is desired in 'str', then precede it with another backslash.
-
-      character(len=*),intent(inout) :: str,before
-      character(len=*),intent(in) :: delims
-      character,optional :: sep
-      logical :: pres
-      character :: ch,cha
-
-      pres=present(sep)
-      str=adjustl(str)
-      call compact(str)
-      lenstr=len_trim(str)
-      if(lenstr == 0) return        ! string str is empty
-      k=0
-      ibsl=0                        ! backslash initially inactive
-      before=' '
-      do i=1,lenstr
-         ch=str(i:i)
-         if(ibsl == 1) then          ! backslash active
-            k=k+1
-            before(k:k)=ch
-            ibsl=0
-            cycle
-         end if
-         if(ch == '\') then          ! backslash with backslash inactive
-            k=k+1
-            before(k:k)=ch
-            ibsl=1
-            cycle
-         end if
-         ipos=index(delims,ch)         
-         if(ipos == 0) then          ! character is not a delimiter
-            k=k+1
-            before(k:k)=ch
-            cycle
-         end if
-         if(ch /= ' ') then          ! character is a delimiter that is not a space
-            str=str(i+1:)
-            if(pres) sep=ch
-            exit
-         end if
-         cha=str(i+1:i+1)            ! character is a space delimiter
-         iposa=index(delims,cha)
-         if(iposa > 0) then          ! next character is a delimiter
-            str=str(i+2:)
-            if(pres) sep=cha
-            exit
-         else
-            str=str(i+1:)
-            if(pres) sep=ch
-            exit
-         end if
-      end do
-      if(i >= lenstr) str=''
-      str=adjustl(str)              ! remove initial spaces
-      return
-
-      end subroutine split
-
-!**********************************************************************
-
-      subroutine removebksl(str)
-
-! Removes backslash (\) characters. Double backslashes (\\) are replaced
-! by a single backslash.
-
-      character(len=*):: str
-      character(len=1):: ch
-      character(len=len_trim(str))::outstr
-
-      str=adjustl(str)
-      lenstr=len_trim(str)
-      outstr=' '
-      k=0
-      ibsl=0                        ! backslash initially inactive
-      
-      do i=1,lenstr
-        ch=str(i:i)
-        if(ibsl == 1) then          ! backslash active
-         k=k+1
-         outstr(k:k)=ch
-         ibsl=0
-         cycle
-        end if
-        if(ch == '\') then          ! backslash with backslash inactive
-         ibsl=1
-         cycle
-        end if
-        k=k+1
-        outstr(k:k)=ch              ! non-backslash with backslash inactive
-      end do
-      
-      str=adjustl(outstr)
-      
-      end subroutine removebksl
+c      subroutine split(str,delims,before,sep)
+c
+c! Routine finds the first instance of a character from 'delims' in the
+c! the string 'str'. The characters before the found delimiter are
+c! output in 'before'. The characters after the found delimiter are
+c! output in 'str'. The optional output character 'sep' contains the 
+c! found delimiter. A delimiter in 'str' is treated like an ordinary 
+c! character if it is preceded by a backslash (\). If the backslash 
+c! character is desired in 'str', then precede it with another backslash.
+c
+c      character(len=*),intent(inout) :: str,before
+c      character(len=*),intent(in) :: delims
+c      character,optional :: sep
+c      logical :: pres
+c      character :: ch,cha
+c
+c      pres=present(sep)
+c      str=adjustl(str)
+c      call compact(str)
+c      lenstr=len_trim(str)
+c      if(lenstr == 0) return        ! string str is empty
+c      k=0
+c      ibsl=0                        ! backslash initially inactive
+c      before=' '
+c      do i=1,lenstr
+c         ch=str(i:i)
+c         if(ibsl == 1) then          ! backslash active
+c            k=k+1
+c            before(k:k)=ch
+c            ibsl=0
+c            cycle
+c         end if
+c         if(ch == '\') then          ! backslash with backslash inactive
+c            k=k+1
+c            before(k:k)=ch
+c            ibsl=1
+c            cycle
+c         end if
+c         ipos=index(delims,ch)         
+c         if(ipos == 0) then          ! character is not a delimiter
+c            k=k+1
+c            before(k:k)=ch
+c            cycle
+c         end if
+c         if(ch /= ' ') then          ! character is a delimiter that is not a space
+c            str=str(i+1:)
+c            if(pres) sep=ch
+c            exit
+c         end if
+c         cha=str(i+1:i+1)            ! character is a space delimiter
+c         iposa=index(delims,cha)
+c         if(iposa > 0) then          ! next character is a delimiter
+c            str=str(i+2:)
+c            if(pres) sep=cha
+c            exit
+c         else
+c            str=str(i+1:)
+c            if(pres) sep=ch
+c            exit
+c         end if
+c      end do
+c      if(i >= lenstr) str=''
+c      str=adjustl(str)              ! remove initial spaces
+c      return
+c
+c      end subroutine split
+c
+c!**********************************************************************
+c
+c      subroutine removebksl(str)
+c
+c! Removes backslash (\) characters. Double backslashes (\\) are replaced
+c! by a single backslash.
+c
+c      character(len=*):: str
+c      character(len=1):: ch
+c      character(len=len_trim(str))::outstr
+c
+c      str=adjustl(str)
+c      lenstr=len_trim(str)
+c      outstr=' '
+c      k=0
+c      ibsl=0                        ! backslash initially inactive
+c      
+c      do i=1,lenstr
+c        ch=str(i:i)
+c        if(ibsl == 1) then          ! backslash active
+c         k=k+1
+c         outstr(k:k)=ch
+c         ibsl=0
+c         cycle
+c        end if
+c        if(ch == '\') then          ! backslash with backslash inactive
+c         ibsl=1
+c         cycle
+c        end if
+c        k=k+1
+c        outstr(k:k)=ch              ! non-backslash with backslash inactive
+c      end do
+c      
+c      str=adjustl(outstr)
+c      
+c      end subroutine removebksl
 
 
