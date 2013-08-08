@@ -59,10 +59,10 @@ c coversion factors
 
 c DFT-D version
       integer version
-c fixed atoms in geometry opt
-      logical fix(maxat)
 !c cardinal numbers of elements
       !integer,dimension(:), allocatable :: iz  
+cc fixed atoms in geometry opt
+c      logical fix(maxat)
 c cut-off radii for all element pairs
       real*8 r0ab(max_elem,max_elem)
 c C6 for all element pairs 
@@ -245,7 +245,7 @@ c init
       func=' none (read from parameter file)'
       version=0
       pbc=.false.
-      fix=.false.
+      !fix=.false.
       minc6=.false.
       maxc6=.false.
       minc6list=.false.
@@ -595,10 +595,10 @@ c compute C8/C10 for output
           dum=0.5*autoang*r0ab(z,z)
           if(version.eq.4)dum=rs6*0.5*autoang*sqrt(c8/c6)
           atmp=' '
-          if(fix(i)) then
-           atmp='f'
-           btmp='f'
-          endif
+          !if(fix(i)) then
+          ! atmp='f'
+          ! btmp='f'
+          !endif
           write(*,'(i4,3F10.5,3x,a2,1x,a1,F7.3,2x,F7.3,3F12.1,L)')
      .    i,xyz(1:3,i),esym(z),atmp,
      .    dum,cn(i),
@@ -833,9 +833,12 @@ cccccccccccccccccccccccccc
      .                 rthr,echo,cn_thr)
  
       else
+c        call gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+c     .           s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,rthr,
+c     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
         call gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
      .           s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,rthr,
-     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
+     .           numgrad,version,echo,g,gdsp,x,rthr2)
       endif
       call cpu_time(dum2)
 !      echo=.true. !Jonas
@@ -1814,10 +1817,13 @@ c     call prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C compute gradient
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
+c      subroutine gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+c     .                 s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,rthr,
+c     .                 num,version,echo,g,disp,gnorm,cn_thr,fix)
+c
       subroutine gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
      .                 s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,rthr,
-     .                 num,version,echo,g,disp,gnorm,cn_thr,fix)
+     .                 num,version,echo,g,disp,gnorm,cn_thr)
       implicit none  
       !include  'param'
 
@@ -1842,7 +1848,8 @@ c values >5 might lead to bumps in the potential
       real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
       real*8 g(3,*),s6,s18,rcov(max_elem)
       real*8 rs6,rs8,rs10,alp10,alp8,alp6,a1,a2,r2ik        
-      logical noabc,num,echo,fix(n)
+      !logical noabc,num,echo,fix(n)
+      logical noabc,num,echo
  
       integer iat,jat,i,j,kat
       real*8 R0,C6,alp,R42,disp,x1,y1,z1,x2,y2,z2,rr,e6abc  
@@ -2290,9 +2297,9 @@ c use BJ radius
       write(*,*)'|G|=',gnorm
       endif
 
-      do i=1,n                 !fixed atoms have no gradient
-       if(fix(i))g(:,i)=0.0
-      enddo
+c      do i=1,n                 !fixed atoms have no gradient
+c       if(fix(i))g(:,i)=0.0
+c      enddo
 
        
 
@@ -3516,138 +3523,138 @@ c read coordinates in au or Ang. if its a xmol file
 c redone by S.E. to avoid some input errors. Looks for $coord, ang, bohr or number (xmol) in the first line
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine rdcoord(fname,n,xyz,iat,fix,fdum)
-      implicit none             
-      interface
-        subroutine parse(str,delims,args,nargs)
-          character(len=*),intent(inout) :: str
-          character(len=*),intent(in)  :: delims
-          character(len=*),dimension(:),intent(inout) :: args
-          integer, intent(out) :: nargs
-        end subroutine parse
-      end interface
+c      subroutine rdcoord(fname,n,xyz,iat,fix,fdum)
+c      implicit none             
+c      interface
+c        subroutine parse(str,delims,args,nargs)
+c          character(len=*),intent(inout) :: str
+c          character(len=*),intent(in)  :: delims
+c          character(len=*),dimension(:),intent(inout) :: args
+c          integer, intent(out) :: nargs
+c        end subroutine parse
+c      end interface
+c
+c      real*8 xyz(3,*)
+c      integer iat(*),n 
+c      character*(*) fname
+c      logical fix(n),fdum !fix:array of fixed coordinates, fdum: whether dummy atoms exist or not, they are ignored
+c
+c      real*8 floats(3),f
+c      character*80 line
+c      character*80 strings(3)
+c      integer j,ich,cs,cf,ncheck
+c
+c      f=0.0d0
+c      ich=142
+c      open(unit=ich,file=fname)
+c      ncheck=0
+c      rewind(ich)
+c      DO
+c        read(ich,'(a)',end=200)line
+c        if(line.ne."") exit
+c      ENDDO
+c
+c      call readline(line,floats,strings,cs,cf)
+c      if(cf.eq.1.and.floats(1).gt.0) then
+c         f=1./0.52917726d0
+c         read(ich,'(A)',end=200)line
+c      else if (index(line,'$coord').ne.0) then
+c         f=1.0d0
+c      else if (index(line,'ang').ne.0) then
+c         f=1./0.52917726d0
+c      else if (index(line,'bohr').ne.0) then
+c         f=1.0d0
+c      endif
+c      if(f.lt.1.0d0) then
+c       call stoprun('Coordinate format not recognized!')
+c      endif       
+c      DO
+c        read(ich,'(a)',end=200)line
+c         if(index(line,'$redu').ne.0) exit
+c         if(index(line,'$user').ne.0) exit
+c         if(index(line,'$end' ).ne.0) exit
+c         call readline(line,floats,strings,cs,cf)
+c         if(cf.ne.3) cycle
+c         call elem(strings(1),j)         
+c         if(j.eq.0) then
+c          fdum=.true.
+c          cycle !ignores dummies and unknown elements
+c         endif
+c         ncheck=ncheck+1
+c         xyz(1,ncheck)=floats(1)*f
+c         xyz(2,ncheck)=floats(2)*f
+c         xyz(3,ncheck)=floats(3)*f
+c         iat(ncheck)=j
+c         if(strings(2).ne.'')fix(ncheck)=.true.      !fixes coordinate if any other string than element spec is found
+cc      write(*,321)floats(1:3),strings(1:3),j,fix(ncheck)   !debug printout
+c
+c      ENDDO
+c
+c 200  continue
+c
+c      if (n.ne.ncheck) then
+c          write(*,*)n,'/=',ncheck
+c          call stoprun('error reading coord file')
+c      endif
+c      close(ich)
+c
+cc  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
+c      end subroutine rdcoord
 
-      real*8 xyz(3,*)
-      integer iat(*),n 
-      character*(*) fname
-      logical fix(n),fdum !fix:array of fixed coordinates, fdum: whether dummy atoms exist or not, they are ignored
 
-      real*8 floats(3),f
-      character*80 line
-      character*80 strings(3)
-      integer j,ich,cs,cf,ncheck
-
-      f=0.0d0
-      ich=142
-      open(unit=ich,file=fname)
-      ncheck=0
-      rewind(ich)
-      DO
-        read(ich,'(a)',end=200)line
-        if(line.ne."") exit
-      ENDDO
-
-      call readline(line,floats,strings,cs,cf)
-      if(cf.eq.1.and.floats(1).gt.0) then
-         f=1./0.52917726d0
-         read(ich,'(A)',end=200)line
-      else if (index(line,'$coord').ne.0) then
-         f=1.0d0
-      else if (index(line,'ang').ne.0) then
-         f=1./0.52917726d0
-      else if (index(line,'bohr').ne.0) then
-         f=1.0d0
-      endif
-      if(f.lt.1.0d0) then
-       call stoprun('Coordinate format not recognized!')
-      endif       
-      DO
-        read(ich,'(a)',end=200)line
-         if(index(line,'$redu').ne.0) exit
-         if(index(line,'$user').ne.0) exit
-         if(index(line,'$end' ).ne.0) exit
-         call readline(line,floats,strings,cs,cf)
-         if(cf.ne.3) cycle
-         call elem(strings(1),j)         
-         if(j.eq.0) then
-          fdum=.true.
-          cycle !ignores dummies and unknown elements
-         endif
-         ncheck=ncheck+1
-         xyz(1,ncheck)=floats(1)*f
-         xyz(2,ncheck)=floats(2)*f
-         xyz(3,ncheck)=floats(3)*f
-         iat(ncheck)=j
-         if(strings(2).ne.'')fix(ncheck)=.true.      !fixes coordinate if any other string than element spec is found
-c      write(*,321)floats(1:3),strings(1:3),j,fix(ncheck)   !debug printout
-
-      ENDDO
-
- 200  continue
-
-      if (n.ne.ncheck) then
-          write(*,*)n,'/=',ncheck
-          call stoprun('error reading coord file')
-      endif
-      close(ich)
-
-c  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
-      end subroutine rdcoord
-
-
-      subroutine rdatomnumber(fname,n)
-      implicit none             
-      integer n 
-      character*(*) fname
-
-      real*8 floats(3),f
-      character*80 line
-      character*80 strings(3)
-      integer j,ich,cs,cf
-
-      f=0.0d0
-      ich=53
-      open(unit=ich,file=fname)
-      n=0
- 300  read(ich,'(a)',end=200)line
-      if(line.eq."") goto 300
-      call readline(line,floats,strings,cs,cf)
-      if(cf.eq.1.and.floats(1).gt.0.and.cs.eq.0) then
-         f=1./0.52917726d0
-!         write(*,*)floats(1)
-         n=int(floats(1))
-         close(ich)
-         return
-      else if (index(line,'$coord').ne.0) then
-         f=1.0d0
-      else if (index(line,'ang').ne.0) then
-         f=1./0.52917726d0
-      else if (index(line,'bohr').ne.0) then
-         f=1.0d0
-      endif
-      if(f.lt.1.0d0) then
-       call stoprun('Coordinate format not recognized!')
-      endif       
-      DO
-         read(ich,'(a)',end=200)line
-         if(index(line,'$redu').ne.0) exit
-         if(index(line,'$user').ne.0) exit
-         if(index(line,'$end' ).ne.0) exit
-         call readline(line,floats,strings,cs,cf)
-         if(cf.ne.3) exit
-         call elem(strings(1),j)         
-         if(j.eq.0) cycle
-         
-        
-         n=n+1
-      ENDDO
-
- 200  continue
-
-      close(ich)
-
-c  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
-      end subroutine rdatomnumber
+c      subroutine rdatomnumber(fname,n)
+c      implicit none             
+c      integer n 
+c      character*(*) fname
+c
+c      real*8 floats(3),f
+c      character*80 line
+c      character*80 strings(3)
+c      integer j,ich,cs,cf
+c
+c      f=0.0d0
+c      ich=53
+c      open(unit=ich,file=fname)
+c      n=0
+c 300  read(ich,'(a)',end=200)line
+c      if(line.eq."") goto 300
+c      call readline(line,floats,strings,cs,cf)
+c      if(cf.eq.1.and.floats(1).gt.0.and.cs.eq.0) then
+c         f=1./0.52917726d0
+c!         write(*,*)floats(1)
+c         n=int(floats(1))
+c         close(ich)
+c         return
+c      else if (index(line,'$coord').ne.0) then
+c         f=1.0d0
+c      else if (index(line,'ang').ne.0) then
+c         f=1./0.52917726d0
+c      else if (index(line,'bohr').ne.0) then
+c         f=1.0d0
+c      endif
+c      if(f.lt.1.0d0) then
+c       call stoprun('Coordinate format not recognized!')
+c      endif       
+c      DO
+c         read(ich,'(a)',end=200)line
+c         if(index(line,'$redu').ne.0) exit
+c         if(index(line,'$user').ne.0) exit
+c         if(index(line,'$end' ).ne.0) exit
+c         call readline(line,floats,strings,cs,cf)
+c         if(cf.ne.3) exit
+c         call elem(strings(1),j)         
+c         if(j.eq.0) cycle
+c         
+c        
+c         n=n+1
+c      ENDDO
+c
+c 200  continue
+c
+c      close(ich)
+c
+cc  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
+c      end subroutine rdatomnumber
 
 
 
@@ -4184,133 +4191,133 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 c read coordinates in Angst and converts them to au 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine pbcrdcoord(fname,lattice,n,xyz,iat,autoang)
-      implicit none             
-      interface
-        subroutine parse(str,delims,args,nargs)
-        character(len=*),intent(inout) :: str
-        character(len=*),intent(in)  :: delims
-        character(len=*),dimension(:),intent(inout) :: args
-        integer, intent(out) :: nargs
-        end subroutine parse
-      end interface
-       
-      real*8                :: xyz(3,*)
-      real*8, INTENT(OUT)   ::lattice(3,3)
-      integer, INTENT(out)               :: iat(*) 
-      integer, INTENT(in)               :: n 
-      character*(*), INTENT(IN)          :: fname
-      logical              :: selective=.FALSE. ! Selective dynamics
-      logical              :: cartesian=.TRUE.  ! Cartesian or direct
-      real*8, INTENT(IN)   ::autoang
-
-      real*8 xx(10),scalar
-      character*80 line,args(90),args2(90)
-      
-      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2,ncheck
-
-
-      lattice=0
-      
-      ich=142
-      open(unit=ich,file=fname)
-      rewind(ich)
-      ncheck=0
-      ntype=0
-      read(ich,'(a)',end=200)line !first line must contain Element Info
-      call parse(line,' ',args,ntype)
-      read(ich,'(a)',end=200)line !second line contains global scaling factor
-      call readl(line,xx,nn)
-      scalar=xx(1)/autoang        !the Ang->au conversion is included in the scaling factor
-c      write(*,'(F8.6)')scalar
-      DO i=1,3            ! reading the lattice constants
-        read(ich,'(a)',end=200)line
-        call readl(line,xx,nn)
-        IF (nn < 3) call stoprun( 'Error reading unit cell vectors' )
-        lattice(1,i)=xx(1)*scalar
-        lattice(2,i)=xx(2)*scalar
-        lattice(3,i)=xx(3)*scalar
-      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
-      ENDDO
-      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
-      line=adjustl(line)
-      call readl(line,xx,nn)
-      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
-        call parse(line,' ',args,ntype)
-        read(ich,'(a)',end=200)line
-        line=adjustl(line)
-        call readl(line,xx,nn)
-      ENDIF
-!       call elem(args(1),i_dummy2)
-!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
-!          args=args2
-!       ENDIF
-      IF (nn.NE.ntype ) THEN
-!         IF(nn.NE.ntype2) THEN
-        call stoprun( 'Error reading number of atomtypes')
-!         ELSE
-!           ntype=ntype2
-!         ENDIF
-      ENDIF
-      ncheck=0
-      DO i=1,nn
-        i_dummy1=INT(xx(i))
-        call elem(args(i),i_dummy2)
-        IF (i_dummy2<1 .OR. i_dummy2>94) 
-     .   call stoprun( 'Error: unknown element.')
-        DO j=1,i_dummy1
-          ncheck=ncheck+1
-          iat(ncheck)=i_dummy2
-        ENDDO
-      ENDDO
-      if (n.ne.ncheck) call stoprun('Error reading Number of Atoms')
-
-      read(ich,'(a)',end=200)line
-      line=adjustl(line)
-      IF (line(:1).EQ.'s' .OR. line(:1).EQ.'S') THEN
-        selective=.TRUE.
-        read(ich,'(a)',end=200)line
-        line=adjustl(line)
-      ENDIF
-
-c      write(*,*)line(:1)
-      cartesian=(line(:1).EQ.'c' .OR. line(:1).EQ.'C' .OR. 
-     .line(:1).EQ.'k' .OR. line(:1).EQ.'K')
-      DO i=1,n
-        read(ich,'(a)',end=200)line
-        call readl(line,xx,nn)
-        IF (nn.NE.3) call stoprun( 'Error reading coordinates.')
-
-        IF (cartesian) THEN
-          xyz(1,i)=xx(1)*scalar
-          xyz(2,i)=xx(2)*scalar
-          xyz(3,i)=xx(3)*scalar
-        ELSE
-          xyz(1,i)=lattice(1,1)*xx(1)+lattice(1,2)*
-     .    xx(2)+lattice(1,3)*xx(3)
-          xyz(2,i)=lattice(2,1)*xx(1)+lattice(2,2)*xx(2)+lattice(2,3)*
-     .    xx(3)
-          xyz(3,i)=lattice(3,1)*xx(1)+lattice(3,2)*xx(2)+lattice(3,3)*
-     .    xx(3)
-        ENDIF
-        
-c      write(*,321)xyz(:,i),iat(i)   !debug printout
-      
-      ENDDO
-
-      
-c      IF line(1)
-
-c      lattice(1,*)=xx
-      
-
+c      subroutine pbcrdcoord(fname,lattice,n,xyz,iat,autoang)
+c      implicit none             
+c      interface
+c        subroutine parse(str,delims,args,nargs)
+c        character(len=*),intent(inout) :: str
+c        character(len=*),intent(in)  :: delims
+c        character(len=*),dimension(:),intent(inout) :: args
+c        integer, intent(out) :: nargs
+c        end subroutine parse
+c      end interface
+c       
+c      real*8                :: xyz(3,*)
+c      real*8, INTENT(OUT)   ::lattice(3,3)
+c      integer, INTENT(out)               :: iat(*) 
+c      integer, INTENT(in)               :: n 
+c      character*(*), INTENT(IN)          :: fname
+c      logical              :: selective=.FALSE. ! Selective dynamics
+c      logical              :: cartesian=.TRUE.  ! Cartesian or direct
+c      real*8, INTENT(IN)   ::autoang
+c
+c      real*8 xx(10),scalar
+c      character*80 line,args(90),args2(90)
+c      
+c      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2,ncheck
+c
+c
+c      lattice=0
+c      
+c      ich=142
+c      open(unit=ich,file=fname)
+c      rewind(ich)
+c      ncheck=0
+c      ntype=0
+c      read(ich,'(a)',end=200)line !first line must contain Element Info
+c      call parse(line,' ',args,ntype)
+c      read(ich,'(a)',end=200)line !second line contains global scaling factor
 c      call readl(line,xx,nn)
-      
- 200  continue
-
-      close(ich)
-c  321 FORMAT(3F20.10,1X,I3) !debug output
-      end subroutine pbcrdcoord
+c      scalar=xx(1)/autoang        !the Ang->au conversion is included in the scaling factor
+cc      write(*,'(F8.6)')scalar
+c      DO i=1,3            ! reading the lattice constants
+c        read(ich,'(a)',end=200)line
+c        call readl(line,xx,nn)
+c        IF (nn < 3) call stoprun( 'Error reading unit cell vectors' )
+c        lattice(1,i)=xx(1)*scalar
+c        lattice(2,i)=xx(2)*scalar
+c        lattice(3,i)=xx(3)*scalar
+c      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
+c      ENDDO
+c      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
+c      line=adjustl(line)
+c      call readl(line,xx,nn)
+c      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
+c        call parse(line,' ',args,ntype)
+c        read(ich,'(a)',end=200)line
+c        line=adjustl(line)
+c        call readl(line,xx,nn)
+c      ENDIF
+c!       call elem(args(1),i_dummy2)
+c!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
+c!          args=args2
+c!       ENDIF
+c      IF (nn.NE.ntype ) THEN
+c!         IF(nn.NE.ntype2) THEN
+c        call stoprun( 'Error reading number of atomtypes')
+c!         ELSE
+c!           ntype=ntype2
+c!         ENDIF
+c      ENDIF
+c      ncheck=0
+c      DO i=1,nn
+c        i_dummy1=INT(xx(i))
+c        call elem(args(i),i_dummy2)
+c        IF (i_dummy2<1 .OR. i_dummy2>94) 
+c     .   call stoprun( 'Error: unknown element.')
+c        DO j=1,i_dummy1
+c          ncheck=ncheck+1
+c          iat(ncheck)=i_dummy2
+c        ENDDO
+c      ENDDO
+c      if (n.ne.ncheck) call stoprun('Error reading Number of Atoms')
+c
+c      read(ich,'(a)',end=200)line
+c      line=adjustl(line)
+c      IF (line(:1).EQ.'s' .OR. line(:1).EQ.'S') THEN
+c        selective=.TRUE.
+c        read(ich,'(a)',end=200)line
+c        line=adjustl(line)
+c      ENDIF
+c
+cc      write(*,*)line(:1)
+c      cartesian=(line(:1).EQ.'c' .OR. line(:1).EQ.'C' .OR. 
+c     .line(:1).EQ.'k' .OR. line(:1).EQ.'K')
+c      DO i=1,n
+c        read(ich,'(a)',end=200)line
+c        call readl(line,xx,nn)
+c        IF (nn.NE.3) call stoprun( 'Error reading coordinates.')
+c
+c        IF (cartesian) THEN
+c          xyz(1,i)=xx(1)*scalar
+c          xyz(2,i)=xx(2)*scalar
+c          xyz(3,i)=xx(3)*scalar
+c        ELSE
+c          xyz(1,i)=lattice(1,1)*xx(1)+lattice(1,2)*
+c     .    xx(2)+lattice(1,3)*xx(3)
+c          xyz(2,i)=lattice(2,1)*xx(1)+lattice(2,2)*xx(2)+lattice(2,3)*
+c     .    xx(3)
+c          xyz(3,i)=lattice(3,1)*xx(1)+lattice(3,2)*xx(2)+lattice(3,3)*
+c     .    xx(3)
+c        ENDIF
+c        
+cc      write(*,321)xyz(:,i),iat(i)   !debug printout
+c      
+c      ENDDO
+c
+c      
+cc      IF line(1)
+c
+cc      lattice(1,*)=xx
+c      
+c
+cc      call readl(line,xx,nn)
+c      
+c 200  continue
+c
+c      close(ich)
+cc  321 FORMAT(3F20.10,1X,I3) !debug output
+c      end subroutine pbcrdcoord
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -4379,72 +4386,72 @@ c            print '("cn(",I2,I2,"): ",E14.8)',i,iat,damp
 
       end subroutine pbcncoord
 
-      subroutine pbcrdatomnumber(fname,n)
-      implicit none             
-      interface
-        subroutine parse(str,delims,args,nargs)
-        character(len=*),intent(inout) :: str
-        character(len=*),intent(in)  :: delims
-        character(len=*),dimension(:),intent(inout) :: args
-        integer, intent(out) :: nargs
-        end subroutine parse
-      end interface
-       
-      integer, INTENT(out)               :: n 
-      character*(*), INTENT(IN)          :: fname
-      logical              :: selective=.FALSE. ! Selective dynamics
-      logical              :: cartesian=.TRUE.  ! Cartesian or direct
-
-      real*8 xx(10),scalar,fdum
-      character*80 line,args(90),args2(90)
-      
-      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2
-      
-      ich=142
-      open(unit=ich,file=fname)
-      n=0
-      ntype=0
-      read(ich,'(a)',end=200)line !first line must contain Element Info
-      call parse(line,' ',args,ntype)
-      read(ich,'(a)',end=200)line !second line contains global scaling factor
-      call readl(line,xx,nn)
-c      write(*,'(F8.6)')scalar
-      DO i=1,3            ! reading the lattice constants
-        read(ich,'(a)',end=200)line
-        call readl(line,xx,nn)
-        IF (nn < 3) call stoprun( 'Error reading unit cell vectors' )
-      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
-      ENDDO
-      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
-      line=adjustl(line)
-      call readl(line,xx,nn)
-      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
-        call parse(line,' ',args,ntype)
-        read(ich,'(a)',end=200)line
-        line=adjustl(line)
-        call readl(line,xx,nn)
-      ENDIF
-!       call elem(args(1),i_dummy2)
-!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
-!          args=args2
-!       ENDIF
-      IF (nn.NE.ntype ) THEN
-!         IF(nn.NE.ntype2) THEN
-        call stoprun( 'Error reading number of atomtypes')
-!         ELSE
-!           ntype=ntype2
-!         ENDIF
-      ENDIF
-      n=0
-      DO i=1,nn
-        i_dummy1=INT(xx(i))
-          n=n+i_dummy1
-      ENDDO
-
- 200  continue
-
-      close(ich)
-      end subroutine pbcrdatomnumber
+c      subroutine pbcrdatomnumber(fname,n)
+c      implicit none             
+c      interface
+c        subroutine parse(str,delims,args,nargs)
+c        character(len=*),intent(inout) :: str
+c        character(len=*),intent(in)  :: delims
+c        character(len=*),dimension(:),intent(inout) :: args
+c        integer, intent(out) :: nargs
+c        end subroutine parse
+c      end interface
+c       
+c      integer, INTENT(out)               :: n 
+c      character*(*), INTENT(IN)          :: fname
+c      logical              :: selective=.FALSE. ! Selective dynamics
+c      logical              :: cartesian=.TRUE.  ! Cartesian or direct
+c
+c      real*8 xx(10),scalar,fdum
+c      character*80 line,args(90),args2(90)
+c      
+c      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2
+c      
+c      ich=142
+c      open(unit=ich,file=fname)
+c      n=0
+c      ntype=0
+c      read(ich,'(a)',end=200)line !first line must contain Element Info
+c      call parse(line,' ',args,ntype)
+c      read(ich,'(a)',end=200)line !second line contains global scaling factor
+c      call readl(line,xx,nn)
+cc      write(*,'(F8.6)')scalar
+c      DO i=1,3            ! reading the lattice constants
+c        read(ich,'(a)',end=200)line
+c        call readl(line,xx,nn)
+c        IF (nn < 3) call stoprun( 'Error reading unit cell vectors' )
+c      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
+c      ENDDO
+c      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
+c      line=adjustl(line)
+c      call readl(line,xx,nn)
+c      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
+c        call parse(line,' ',args,ntype)
+c        read(ich,'(a)',end=200)line
+c        line=adjustl(line)
+c        call readl(line,xx,nn)
+c      ENDIF
+c!       call elem(args(1),i_dummy2)
+c!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
+c!          args=args2
+c!       ENDIF
+c      IF (nn.NE.ntype ) THEN
+c!         IF(nn.NE.ntype2) THEN
+c        call stoprun( 'Error reading number of atomtypes')
+c!         ELSE
+c!           ntype=ntype2
+c!         ENDIF
+c      ENDIF
+c      n=0
+c      DO i=1,nn
+c        i_dummy1=INT(xx(i))
+c          n=n+i_dummy1
+c      ENDDO
+c
+c 200  continue
+c
+c      close(ich)
+c      end subroutine pbcrdatomnumber
 
 
 
@@ -6808,46 +6815,46 @@ c            string pars procedures
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine parse(str,delims,args,nargs)
-
-! Parses the string 'str' into arguments args(1), ..., args(nargs) based on
-! the delimiters contained in the string 'delims'. Preceding a delimiter in
-! 'str' by a backslash (\) makes this particular instance not a delimiter.
-! The integer output variable nargs contains the number of arguments found.
-      interface 
-        subroutine split(str,delims,before,sep)
-         character(len=*),intent(inout) :: str,before
-         character(len=*),intent(in) :: delims
-         character,optional,intent(inout) :: sep
-       end subroutine split
-      end interface
-
-      character(len=*),intent(inout) :: str
-      character(len=*),intent(in) :: delims
-      character(len=len_trim(str)) :: strsav
-      character(len=*),dimension(:),intent(inout) :: args
-      integer, intent(out) :: nargs
-      
-      strsav=str
-      call compact(str)
-      na=size(args)
-      do i=1,na
-        args(i)=' '
-      end do  
-      nargs=0
-      lenstr=len_trim(str)
-      if(lenstr==0) return
-      k=0
-
-      do
-         if(len_trim(str) == 0) exit
-         nargs=nargs+1
-         call split(str,delims,args(nargs))
-         call removebksl(args(nargs))
-      end do   
-      str=strsav
-
-      end subroutine parse
+c      subroutine parse(str,delims,args,nargs)
+c
+c! Parses the string 'str' into arguments args(1), ..., args(nargs) based on
+c! the delimiters contained in the string 'delims'. Preceding a delimiter in
+c! 'str' by a backslash (\) makes this particular instance not a delimiter.
+c! The integer output variable nargs contains the number of arguments found.
+c      interface 
+c        subroutine split(str,delims,before,sep)
+c         character(len=*),intent(inout) :: str,before
+c         character(len=*),intent(in) :: delims
+c         character,optional,intent(inout) :: sep
+c       end subroutine split
+c      end interface
+c
+c      character(len=*),intent(inout) :: str
+c      character(len=*),intent(in) :: delims
+c      character(len=len_trim(str)) :: strsav
+c      character(len=*),dimension(:),intent(inout) :: args
+c      integer, intent(out) :: nargs
+c      
+c      strsav=str
+c      call compact(str)
+c      na=size(args)
+c      do i=1,na
+c        args(i)=' '
+c      end do  
+c      nargs=0
+c      lenstr=len_trim(str)
+c      if(lenstr==0) return
+c      k=0
+c
+c      do
+c         if(len_trim(str) == 0) exit
+c         nargs=nargs+1
+c         call split(str,delims,args(nargs))
+c         call removebksl(args(nargs))
+c      end do   
+c      str=strsav
+c
+c      end subroutine parse
 
 !**********************************************************************
 
