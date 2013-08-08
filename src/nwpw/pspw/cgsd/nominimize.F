@@ -78,10 +78,10 @@ c
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       external psi_1hartree_cmp_cmp,dng_1hartree_cmp_pw
 
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
-      real*8   psi_1meta_gga_pxc
-      external psi_1meta_gga_pxc
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   psi_1meta_gga_pxc,ion_disp_energy
+      external psi_1meta_gga_pxc,ion_disp_energy
 
 
 
@@ -202,6 +202,13 @@ c      call psi_1toelectron()
          E(31) =  ehfx
          E(32) =  phfx
       end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
+
 
 
       value = MA_free_heap(G1(2))

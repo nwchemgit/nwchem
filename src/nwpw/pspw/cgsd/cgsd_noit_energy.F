@@ -56,8 +56,8 @@ c     $Id$
       external    psi_ab_irrep_name
       integer     control_symmetry,control_version
       external    control_symmetry,control_version
-      logical  psp_pawexist
-      external psp_pawexist
+      logical  psp_pawexist,ion_disp_on
+      external psp_pawexist,ion_disp_on
       real*8   psi_smearfermi,psi_smearcorrection,lattice_omega
       external psi_smearfermi,psi_smearcorrection,lattice_omega
 
@@ -235,6 +235,10 @@ c            write(luout,1706) E(18)
             write(luout,1802) E(19)
             write(luout,1803) E(20)
             write(luout,1804) E(21)
+        end if
+
+        if (ion_disp_on()) then
+            write(luout,1720) E(33)
         end if
 
 *        **** write out <psi|H|psi> matrix ****
@@ -467,6 +471,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1709 FORMAT( ' - MM LJ/QM LJ                    :',E19.10)
  1710 FORMAT( ' - MM Charge Field/MM Charge Field:',E19.10)
  1711 FORMAT( ' - MM LJ/MM LJ                    :',E19.10)
+
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')

@@ -917,6 +917,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
         if (hprint) call write_stress(tstress,"HFX")
       end if
 
+*     **** Dispersion energy component : dE_disp/dhuv ****
       if (ion_disp_on()) then
          call ion_disp_stress(tstress)
         call daxpy(9,1.0d0,tstress,1,stress,1)
