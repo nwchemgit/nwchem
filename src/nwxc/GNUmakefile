@@ -18,7 +18,7 @@
                    nwxc_vdw_util.o nwxc_cs00.o
 
              OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
-                   nwxc_vdw_init.o
+                   nwxc_vdw_init.o nwxc_vdw3.o
 
          HEADERS = nwxc.fh nwxc_param.fh
 
