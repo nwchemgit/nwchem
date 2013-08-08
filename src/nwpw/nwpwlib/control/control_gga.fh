@@ -32,6 +32,7 @@
 *   gga = 200 hartree-fock
 *
 *
+      has_disp = .false.
 
 *
 *     no exchange-correlation functions
@@ -68,6 +69,76 @@
         gga = 14
       else if (inp_compare(.false.,exchange_correlation,'b3lypr')) then
         gga = 15
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe96-grimme2')) then
+        gga = 10
+        options_disp  = '-func pbe -old -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe96-grimme3')) then
+        gga = 10
+        options_disp  = '-func pbe -zero -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe96-grimme4')) then
+        gga = 10
+        options_disp  = '-func pbe -bj -noprint'
+        has_disp   = .true.
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'blyp-grimme2')) then
+        gga = 11
+        options_disp  = '-func b-lyp -old -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'blyp-grimme3')) then
+        gga = 11
+        options_disp  = '-func b-lyp -zero -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'blyp-grimme4')) then
+        gga = 11
+        options_disp  = '-func b-lyp -bj -noprint'
+        has_disp   = .true.
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe-grimme2')) then
+        gga = 12
+        options_disp  = '-func revpbe -old -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe-grimme3')) then
+        gga = 12
+        options_disp  = '-func revpbe -zero -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe-grimme4')) then
+        gga = 12
+        options_disp  = '-func revpbe -bj -noprint'
+        has_disp   = .true.
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbesol-grimme2')) then
+        gga = 13
+        options_disp  = '-func pbesol -old -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbesol-grimme3')) then
+        gga = 13
+        options_disp  = '-func pbesol -zero -noprint'
+        has_disp   = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbesol-grimme4')) then
+        gga = 13
+        options_disp  = '-func pbesol -bj -noprint'
+        has_disp   = .true.
+
+
+
+
 
 
 

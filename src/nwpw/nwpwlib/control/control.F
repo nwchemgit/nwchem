@@ -150,6 +150,7 @@
 
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
+        has_disp = nwxc_has_disp()
       endif
 
 #include "control_gga.fh"
@@ -229,6 +230,7 @@ c       call nwxc_print()
 
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
+        has_disp = nwxc_has_disp()
       endif
 
 #include "control_gga.fh"
@@ -350,6 +352,7 @@ c
 
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
+        has_disp = nwxc_has_disp()
       endif
 
 #include "control_gga.fh"
@@ -541,6 +544,7 @@ c
 
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
+        has_disp = nwxc_has_disp()
       endif
 
 #include "control_gga.fh"
@@ -645,6 +649,7 @@ c       call nwxc_print()
 
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
+        has_disp = nwxc_has_disp()
       endif
 
       if (.not.rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
@@ -729,6 +734,7 @@ c       call nwxc_print()
 
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
+        has_disp = nwxc_has_disp()
       endif
 
 
@@ -2304,6 +2310,35 @@ c      end
 
       control_gga = gga
       return 
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_has_disp         *
+*     *                                 *
+*     ***********************************
+      logical function control_has_disp()
+      implicit none
+
+#include "control.fh"
+
+      control_has_disp = has_disp
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_options_disp     *
+*     *                                 *
+*     ***********************************
+      character*80 function control_options_disp()
+      implicit none
+
+#include "control.fh"
+
+      control_options_disp = options_disp
+      return
       end
 
 
@@ -5028,5 +5063,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       control_use_grid_cmp = value
       return
       end
+
 
 

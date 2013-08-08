@@ -64,3 +64,8 @@
       common / control_fracblk /  frac_temperature,
      >                            frac_ne,
      >                            frac_smeartype,fractional
+
+*     **** control dispersion block ****
+      logical has_disp
+      character*80 options_disp
+      common / control_dispersion / options_disp,has_disp
