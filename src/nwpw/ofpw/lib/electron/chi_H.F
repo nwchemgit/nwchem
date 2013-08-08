@@ -58,7 +58,7 @@
 c     complex*16 vall(nfft3d)
 c     complex*16 vpsi(nfft3d)
       integer nfft3d,n2ft3d,npack1,indx1,indx2
-      integer vall(2),vpsi(2),Hpsi_r(2)
+      integer vall(2),vpsi(2)
       logical value,done
 
 
@@ -75,7 +75,7 @@ c     complex*16 vpsi(nfft3d)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
       call D3dB_nfft3d(1,nfft3d)
-      n2ft3d = 2*nfft3d
+      call D3dB_n2ft3d(1,n2ft3d)
       call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
@@ -106,7 +106,7 @@ c     complex*16 vpsi(nfft3d)
 *     **** fourier transform k-space potentials ****
 *     **********************************************
       call Pack_c_unpack(0,dcpl_mb(vall(1)))
-      call D3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+      call D3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
 *     ******************************
 *     **** add v_field to vall  ****
@@ -118,45 +118,25 @@ c     complex*16 vpsi(nfft3d)
 *     **************************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r +Vsic*psi_r] **** 
 *     ************************************************************** 
-      indx1 = 1
-      indx2 = 1
-      done  = .false.
-      do while (.not.done)
-         if (indx1.le.ispin) then
-            ms = indx1
 
-*           **** vpsi_r = (vall_r+xcp+v_tf)*psi_r + Hpsi_r****
-            call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
-     >                       xcp(1+(ms-1)*n2ft3d),
+      do ms=1,ispin
+         call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
+     >                      xcp(1+(ms-1)*n2ft3d),
+     >                      dcpl_mb(vpsi(1)))
+         call D3dB_rr_Sum2(1,v_tf(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Sum2(1,v_tf(1+(ms-1)*n2ft3d),
-     >                          dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(indx1-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
+         call D3dB_rr_Mul2(1,
+     >                     psi_r(1+(ms-1)*n2ft3d),
+     >                     dcpl_mb(vpsi(1)))
+         call D3dB_rc_pfft3f(1,1,dcpl_mb(vpsi(1)))
+         call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
-
-*           **** put vpsi_r in k-space ****
-            call D3dB_rc_pfft3f_queuein(1,dcpl_mb(vpsi(1)))
-            indx1 = indx1 + 1
-
-         end if
-
-         if ((D3dB_rc_pfft3_queue_filled()).or.
-     >       (indx1.gt.ispin)) then
-            call D3dB_rc_pfft3f_queueout(1,dcpl_mb(vpsi(1)))
-
-*           **** add to Hpsi_k ****
-            call Pack_cc_daxpy(1,(-scal1)*dble(ne(ms)),
-     >                           dcpl_mb(vpsi(1)),
-     >                           Hpsi_k(1+(indx2-1)*npack1))
-            indx2 = indx2 + 1
-         end if
-
-         done = ((indx1.gt.ispin).and.(indx2.gt.ispin))
+*        **** add to Hpsi_k ****
+         call Pack_cc_daxpy(1,(-scal1)*dble(ne(ms)),
+     >                      dcpl_mb(vpsi(1)),
+     >                      Hpsi_k(1+(ms-1)*npack1))
       end do
  
-
       call nwpw_timing_start(12)
 
       value = .true.

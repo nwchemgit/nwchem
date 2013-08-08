@@ -63,7 +63,7 @@ c     real*8     fion(3,natmx)
       integer tmp1(2),tmp2(2)
       integer vl(2),vc(2),dng(2)
       integer vlr_l(2),rho(2),r_grid(2)
-      integer v_field(2)
+      integer v_field(2),v_tmp(2)
       integer xcp(2),xce(2),dnall(2),v_tf(2),e_tf(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
@@ -99,7 +99,7 @@ c     real*8     fion(3,natmx)
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
 
       call Pack_npack(0,npack0)
-      n2ft3d = 2*nfft3d
+      call D3dB_n2ft3d(1,n2ft3d)
       deltamm = 0.0d0
 
       field_exist = pspw_charge_found()
@@ -143,6 +143,9 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
+
+      value = value.and.
+     >        MA_push_get(mt_dbl,(4*nfft3d),'v_tmp',v_tmp(2), v_tmp(1))
 
       value = value.and.
      >        MA_push_get(mt_dbl,(4*nfft3d),'v_tf',v_tf(2), v_tf(1))
@@ -197,18 +200,18 @@ c     real*8     fion(3,natmx)
 *       *******************
 *       **** get psi_r ****
 *       *******************
-c        do n=1,ispin
-c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
-c           call Pack_c_unpack(1,psi_r(1,n))
-c           call D3dB_cr_pfft3b(1,1,psi_r(1,n))
-c        end do
         do n=1,ispin
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+           call Pack_c_unpack(1,psi_r(1,n))
+           call D3dB_cr_pfft3b(1,1,psi_r(1,n))
         end do
-        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
 c        do n=1,ispin
-c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
 c        end do
+c        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
+c        !do n=1,ispin
+c        !   call D3dB_r_Zero_Ends(1,psi_r(1,n))
+c        !end do
 
 
 
@@ -346,18 +349,18 @@ c        end do
 *       ******************
 *       **** get Hchi ****
 *       ******************
-        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
-        call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
+        !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
+        !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
 
-        call daxpy(2*n2ft3d,1.0d0,dbl_mb(xcp(1)),1,dbl_mb(v_tf(1)),1)
-        call daxpy(n2ft3d,  1.0d0,dbl_mb(xce(1)),1,dbl_mb(e_tf(1)),1)
+        !call daxpy(2*n2ft3d,1.0d0,dbl_mb(xcp(1)),1,dbl_mb(v_tf(1)),1)
+        !call daxpy(n2ft3d,  1.0d0,dbl_mb(xce(1)),1,dbl_mb(e_tf(1)),1)
 
         !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
         !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
-        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-        call dcopy(n2ft3d,  0.0d0,0,dbl_mb(xce(1)),1)
-        call dcopy(2*npack0,0.0d0,0,dcpl_mb(vc(1)),1)
-        call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
+        !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+        !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(xce(1)),1)
+        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vc(1)),1)
+        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
 
 
         if (control_version().eq.3) 
@@ -451,7 +454,7 @@ c        end do
          call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
          ehartr = 0.5d0*ehartr*dv
       end if
-      ehartr = 0.0d0
+      !ehartr = 0.0d0
         
 
 *     **** get exchange-correlation energy ****
@@ -579,6 +582,7 @@ c        end do
       value = value.and.MA_pop_stack(dnall(2))
       value = value.and.MA_pop_stack(e_tf(2))
       value = value.and.MA_pop_stack(v_tf(2))
+      value = value.and.MA_pop_stack(v_tmp(2))
       value = value.and.MA_pop_stack(xce(2))
       value = value.and.MA_pop_stack(xcp(2))
       value = value.and.MA_pop_stack(dng(2))

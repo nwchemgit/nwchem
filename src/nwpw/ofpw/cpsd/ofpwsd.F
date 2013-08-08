@@ -526,7 +526,7 @@ c*     *****  read psi2 wavefunctions ****
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
             if (taskid.eq.MASTER) 
      >       write(6,*) ' *** Energy going up.  iteration terminated.'
-            go to 2
+            !go to 2
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.control_tole()).and.
@@ -701,8 +701,6 @@ c        call pspw_print_APC(6)
 c
 c      end if
 
-      call Pack_cc_dot(1,dcpl_mb(psi2(1)),dcpl_mb(psi2(1)),sum2)
-      write(*,*) "end sum3=",sum2
 
 *     ***** write psi2 wavefunctions ****
       call chi_write(ispin,ne,dcpl_mb(psi2(1)))
