@@ -8,7 +8,7 @@
 #MSUB -N doNightlyTests
 #
 source /etc/profile.d/modules.bash
-source /home/scicons/bin/set_modulepath.sh
+#source /home/scicons/bin/set_modulepath.sh
 module purge
 module load precision/i8
 module load portland
