@@ -123,6 +123,11 @@
 #include "errquit.fh"
 #include "nwxc.fh"
 
+      logical  control_has_disp
+      external control_has_disp
+      character*80 control_options_disp
+      external     control_options_disp
+
       if (nwxc_is_on()) then
          call nwxc_print_nwpw()
          return
@@ -169,7 +174,17 @@
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)
       END IF
+      if (control_has_disp()) then
+        if (index(control_options_disp(),'-old').ne.0) 
+     >    write(luout,1132) 'Grimme2'
+        if (index(control_options_disp(),'-zero').ne.0) 
+     >    write(luout,1132) 'Grimme3'
+        if (index(control_options_disp(),'-bj').ne.0) 
+     >    write(luout,1132) 'Grimme4'
+      end if
+      
 
       return
  1131 FORMAT(5X,' exchange-correlation = ',A)
+ 1132 FORMAT(5X,' dispersion correction= ',A)
       end
