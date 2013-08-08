@@ -15,10 +15,10 @@
                    nwxc_c_vwn1_rpa.o nwxc_c_vwn2.o nwxc_c_vwn3.o nwxc_c_vwn4.o \
                    nwxc_c_vwn5.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
-                   nwxc_vdw_util.o nwxc_cs00.o
+                   nwxc_vdw_util.o nwxc_cs00.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o
 
              OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
-                   nwxc_vdw_init.o nwxc_vdw3.o
+                   nwxc_vdw_init.o nwxc_vdw3d.o
 
          HEADERS = nwxc.fh nwxc_param.fh
 
