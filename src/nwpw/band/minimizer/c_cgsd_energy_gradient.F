@@ -35,6 +35,8 @@ c     $Id$         c
       external ion_aname
       external ion_katm,ion_nion,control_version
       external ion_rion
+      logical  ion_disp_on
+      external ion_disp_on
 
 
       allow_translation = control_allow_translation()
@@ -46,6 +48,7 @@ c     $Id$         c
       if (cpsp_semicore(0)) call c_electron_semicoreforce(G1)
 
       call ewald_f(G1)
+      if (ion_disp_on()) call ion_disp_force(G1)
 
 *     **** remove ion forces using ion_FixIon ****
       call ion_FixIon(G1)

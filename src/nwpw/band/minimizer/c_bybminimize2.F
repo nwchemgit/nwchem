@@ -82,8 +82,10 @@ c
       external ewald_e
       external cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
 
-      real*8   cpsi_1_noupdate_energy,cpsi_eigenvalue
-      external cpsi_1_noupdate_energy,cpsi_eigenvalue
+      real*8   cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
+      external cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
+      logical  ion_disp_on
+      external ion_disp_on
    
 
       Ein = E(1)
@@ -343,6 +345,12 @@ c      call cpsi_check()
          call c_electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
       end if
 
 

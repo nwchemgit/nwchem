@@ -10,7 +10,7 @@ c
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer neall,npack1,nbrillq
+      integer neall,npack1,nbrillq,taskid
       integer G1_tag
       real*8  ehartree,eorbit,exc,pxc,eion,ehfx,phfx
       real*8  E0,Enew
@@ -39,7 +39,11 @@ c
       external ewald_e
       external cpsi_1eorbit,cpsi_smearcorrection
       external cpsi_1vnlso
-      integer taskid
+      logical  ion_disp_on
+      external ion_disp_on
+      real*8   ion_disp_energy
+      external ion_disp_energy
+
 
       call Cram_max_npack(npack1)
       neall  = cpsi_neq(1)+cpsi_neq(2)
@@ -80,6 +84,11 @@ c     **** HFX terms ****
          E(27) = phfx
       end if
 
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
 
       call cpsi_data_dealloc(G1_tag)
 

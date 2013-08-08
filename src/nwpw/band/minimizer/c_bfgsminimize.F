@@ -83,12 +83,12 @@ c
       external linesearch
 
 
-      real*8   control_time_step,control_fake_mass
-      external control_time_step,control_fake_mass
+      real*8   control_time_step,control_fake_mass,ion_disp_energy
+      external control_time_step,control_fake_mass,ion_disp_energy
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition,band_hfx
-      external control_precondition,band_hfx
+      logical  control_precondition,band_hfx,ion_disp_on
+      external control_precondition,band_hfx,ion_disp_on
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
@@ -226,6 +226,12 @@ c      call cpsi_check()
          call c_electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
       end if
 
 

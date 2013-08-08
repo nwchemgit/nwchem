@@ -27,6 +27,8 @@
       real*8   lattice_omega,lattice_unita
       external cpsp_semicore,control_print
       external lattice_omega,lattice_unita
+      logical  ion_disp_on
+      external ion_disp_on
 
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
@@ -76,6 +78,15 @@
       call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
       if (hprint) call write_stress(tstress,"ewald")
+
+*     **** Dispersion energy component : dE_disp/dhuv ****
+      if (ion_disp_on()) then
+         call ion_disp_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+        if (hprint) call write_stress(tstress,"Dispersion")
+      end if
+
+
 
 **     **** define ht ****
        do v=1,3

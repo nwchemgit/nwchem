@@ -27,7 +27,7 @@
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2)
-      real*8  E(30),f0,f1,f2,f3,f4,f5,f6
+      real*8  E(50),f0,f1,f2,f3,f4,f5,f6
 
 *     **** external functions ****
       logical     cpsp_semicore,control_out_of_time
@@ -60,8 +60,8 @@
       external cpsi_smearfermi
       integer  control_rtdb
       external control_rtdb
-      logical  control_DOS
-      external control_DOS
+      logical  control_DOS,ion_disp_on
+      external control_DOS,ion_disp_on
 
       call Parallel_taskid(taskid)
 
@@ -248,6 +248,10 @@ c         write(luout,1210) GX,GY,GZ
 
          virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1499) virial
+
+         if (ion_disp_on()) then
+            write(luout,1720) E(33)
+         end if
       end if
 
       NN=cpsi_ne(1)-cpsi_ne(2)
@@ -371,7 +375,7 @@ c     > F8.3,' xhat ) occ=',F5.3)
  1512 FORMAT(E18.7,' (',F8.3,' eV) (|s| =',F6.3,
      >       ', s = <',F7.3,',',F7.3,',',F7.3,'> ) occ=',F5.3)
 
-
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
       end
 

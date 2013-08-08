@@ -78,6 +78,10 @@ c      complex*16 G1(nfft3d,nemax)
       external ewald_e
       external cpsi_1eorbit
       external linesearch
+      real*8   ion_disp_energy
+      external ion_disp_energy
+      logical  ion_disp_on
+      external ion_disp_on
        
   
       call C3dB_nfft3d(1,nfft3d)
@@ -239,6 +243,12 @@ c      call cpsi_data_pop_stack(G0_tag)
          call c_electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
       end if
 
       return

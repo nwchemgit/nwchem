@@ -20,7 +20,7 @@ c     $Id$
       parameter (MASTER=0)
 
       logical value,mprint
-      real*8  E(30),virial,EV
+      real*8  E(50),virial,EV
       real*8  f0,f1,f2,f3,f4,f5,f6
       integer rtdb,neall
       integer i,NN,nb
@@ -54,6 +54,8 @@ c     $Id$
       external brillioun_weight_brdcst
       real*8   cpsi_smearfermi,cpsi_smearcorrection
       external cpsi_smearfermi,cpsi_smearcorrection
+      logical  ion_disp_on
+      external ion_disp_on
 
 
       call Parallel_taskid(taskid)
@@ -117,6 +119,9 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          if (band_HFX())  then
            write(luout,1502) E(27),E(27)/neall
          end if
+        if (ion_disp_on()) then
+            write(luout,1720) E(33)
+        end if
       end if
 
       NN=cpsi_ne(1)-cpsi_ne(2)
@@ -258,6 +263,7 @@ c     call psi_2to1()
  1512 FORMAT(E18.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
      > F8.3,' xhat ) occ=',F5.3)
 
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
       end
 
