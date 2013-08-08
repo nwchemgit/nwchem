@@ -62,6 +62,8 @@ c#include "rtdb.fh"
       external    psi_ab_irrep_name
       integer     control_symmetry,control_version
       external    control_symmetry,control_version
+      logical  ion_disp_on
+      external ion_disp_on
 
 
       call Parallel_taskid(taskid)
@@ -368,6 +370,10 @@ c            write(luout,1704) E(16)
 c            write(luout,1705) E(17)
 c            write(luout,1706) E(18)
         end if
+        if (ion_disp_on()) then
+            write(luout,1720) E(33)
+        end if
+
         if (pspw_charge_found()) then
             write(luout,1800)
             write(luout,1801)
@@ -594,6 +600,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1710 FORMAT( ' - MM Charge Field/MM Charge Field:',E19.10)
  1711 FORMAT( ' - MM LJ/MM LJ                    :',E19.10)
 
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
+
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')
  1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
@@ -640,8 +648,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       external pspw_charge_nion
       external ion_rion,pspw_charge_rion
       external pspw_charge_charge
-      logical  pspw_bqext
-      external pspw_bqext
+      logical  pspw_bqext,ion_disp_on
+      external pspw_bqext,ion_disp_on
 
 
       allow_translation = control_allow_translation()
@@ -684,6 +692,7 @@ c*     **** debug ****
       if (control_version().eq.3) call ewald_f(G1)
       if (control_version().eq.4) call ion_ion_f(G1)
       if (pspw_qmmm_found()) call pspw_qmmm_fion(G1)
+      if (ion_disp_on()) call ion_disp_force(G1)
 
       if (pspw_charge_found()) then
         if(pspw_bqext()) then
@@ -834,12 +843,12 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       real*8  sigma(3,3),xcstress(3,3)
 
 *     **** external functions ****
-      logical  psp_semicore,pspw_SIC,pspw_HFX,control_print
+      logical  psp_semicore,pspw_SIC,pspw_HFX,control_print,ion_disp_on
       integer  control_optimize_cell_strategy
       integer  control_optimize_lattice_vectors
       integer  control_optimize_lattice
       real*8   lattice_omega,lattice_unita
-      external psp_semicore,pspw_SIC,pspw_HFX,control_print
+      external psp_semicore,pspw_SIC,pspw_HFX,control_print,ion_disp_on
       external control_optimize_cell_strategy
       external control_optimize_lattice_vectors
       external control_optimize_lattice
@@ -906,6 +915,12 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
         call electron_HFX_stress(tstress)
         call daxpy(9,1.0d0,tstress,1,stress,1)
         if (hprint) call write_stress(tstress,"HFX")
+      end if
+
+      if (ion_disp_on()) then
+         call ion_disp_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+        if (hprint) call write_stress(tstress,"Dispersion")
       end if
 
 
@@ -1087,12 +1102,12 @@ c     *** call dscal(9,-1.0d0,stress,1)
       real*8  sigma(3,3),xcstress(3,3),hm(3,3),pi
 
 *     **** external functions ****
-      logical  psp_semicore,pspw_SIC,pspw_HFX
+      logical  psp_semicore,pspw_SIC,pspw_HFX,ion_disp_on
       integer  ion_nion,control_gga
       real*8   lattice_omega,lattice_unita,ion_vion,ion_amass
       real*8   lattice_unitg
       external psp_semicore,pspw_SIC,pspw_HFX
-      external ion_nion,control_gga
+      external ion_nion,control_gga,ion_disp_on
       external lattice_omega,lattice_unita,ion_vion,ion_amass
       external lattice_unitg
 
@@ -1224,13 +1239,19 @@ c      write(*,*) "ewald p=",p1
 
 *     **** SIC energy component : dE_SIC/dhuv ****
       if (pspw_SIC())  then
-cc        call electron_SIC_stress(tstress)
+        call electron_SIC_stress(tstress)
         call daxpy(9,1.0d0,tstress,1,stress,1)
       end if
 
 *     **** HFX energy component : dE_HFX/dhuv ****
       if (pspw_hfx())  then
-ccc        call electron_HFX_stress(tstress)
+        call electron_HFX_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+      end if
+
+*     **** Dispersion energy component : dE_disp/dhuv ****
+      if (ion_disp_on()) then
+         call ion_disp_stress(tstress)
         call daxpy(9,1.0d0,tstress,1,stress,1)
       end if
 
@@ -1299,8 +1320,8 @@ ccc        call electron_HFX_stress(tstress)
       external pspw_charge_nion
       external ion_rion,pspw_charge_rion
       external pspw_charge_charge
-      logical  pspw_bqext
-      external pspw_bqext
+      logical  pspw_bqext,ion_disp_on
+      external pspw_bqext,ion_disp_on
 
       nion = ion_nion()
       if (pspw_charge_found().and.
@@ -1314,6 +1335,7 @@ ccc        call electron_HFX_stress(tstress)
       if (control_version().eq.3) call ewald_f(G1)
       if (control_version().eq.4) call ion_ion_f(G1)
       if (pspw_qmmm_found()) call pspw_qmmm_fion(G1)
+      if (ion_disp_on()) call ion_disp_force(G1)
 
       if (pspw_charge_found()) then
         if(pspw_bqext()) then

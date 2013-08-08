@@ -91,8 +91,10 @@ c
 
       logical  control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
-      logical  meta_found
-      external meta_found
+      logical  meta_found,ion_disp_on
+      external meta_found,ion_disp_on
+      real*8   ion_disp_energy
+      external ion_disp_energy
      
   
       call Pack_npack(1,npack1)
@@ -311,6 +313,12 @@ c      call psi_check()
          call electron_meta_energies(ehfx,phfx)
          E(31) =  ehfx
          E(32) =  phfx
+      end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
       end if
 
       value = MA_free_heap(G1(2))

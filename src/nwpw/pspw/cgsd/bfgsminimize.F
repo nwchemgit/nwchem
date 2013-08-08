@@ -102,8 +102,10 @@ c
       external control_lmbfgs_size
       logical  control_precondition,pspw_HFX,psp_U_psputerm,meta_found
       external control_precondition,pspw_HFX,psp_U_psputerm,meta_found
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   ion_disp_energy
+      external ion_disp_energy
 
 
       dt = control_time_step()
@@ -334,6 +336,12 @@ c     call psi_check()
          call electron_meta_energies(ehfx,phfx)
          E(31) =  ehfx
          E(32) =  phfx
+      end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
       end if
 
       return

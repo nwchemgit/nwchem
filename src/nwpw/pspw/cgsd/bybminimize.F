@@ -101,10 +101,10 @@ c
       external psi_1_noupdate_energy,psi_eigenvalue
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
-      real*8   psi_1meta_gga_pxc
-      external psi_1meta_gga_pxc
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   psi_1meta_gga_pxc,ion_disp_energy
+      external psi_1meta_gga_pxc,ion_disp_energy
 
 
    
@@ -415,7 +415,11 @@ c      call psi_check()
          E(10) = E(10) - psi_1meta_gga_pxc()
       end if
 
-
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
 
 
       failed = (sd_count.ge.MAX_SD_COUNT)

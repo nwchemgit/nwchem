@@ -103,10 +103,10 @@ c
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       logical  meta_found
       external meta_found
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
-      real*8   psi_1meta_gga_pxc
-      external psi_1meta_gga_pxc
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   psi_1meta_gga_pxc,ion_disp_energy
+      external psi_1meta_gga_pxc,ion_disp_energy
 
 
 
@@ -309,6 +309,11 @@ c     call psi_check()
          E(10) = E(10) - psi_1meta_gga_pxc()
       end if
 
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
 
 
       return

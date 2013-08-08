@@ -98,10 +98,10 @@ c      complex*16 G1(nfft3d,nemax)
 
       logical  control_precondition,pspw_HFX,psp_U_psputerm,meta_found
       external control_precondition,pspw_HFX,psp_U_psputerm,meta_found
-      logical  nwpw_meta_gga_on
-      external nwpw_meta_gga_on
-      real*8   psi_1meta_gga_pxc
-      external psi_1meta_gga_pxc
+      logical  nwpw_meta_gga_on,ion_disp_on
+      external nwpw_meta_gga_on,ion_disp_on
+      real*8   psi_1meta_gga_pxc,ion_disp_energy
+      external psi_1meta_gga_pxc,ion_disp_energy
        
   
       call Pack_npack(1,npack1)
@@ -364,7 +364,11 @@ c     call psi_check()
          E(32) =  phfx
       end if
 
-
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
 
 
       value = MA_free_heap(G1(2))
