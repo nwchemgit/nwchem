@@ -379,6 +379,9 @@ c*       *******************************************
 c*          **** get the qmmm force ****
 c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
+*          **** get the dispersion force ****
+           if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
+
 *          **** remove ion forces using ion_FixIon ****
            call ion_FixIon(dbl_mb(fion(1)))
 

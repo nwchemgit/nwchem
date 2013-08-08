@@ -390,6 +390,9 @@ c        !*** this code needs to be optimized!!! ****
 c*          **** get the qmmm force ****
 c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
+*       **** get the dispersion force ****
+        if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
+
 *       **** remove ion forces using ion_FixIon ****
         if (fei) 
      >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
