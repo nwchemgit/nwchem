@@ -50,7 +50,7 @@
     
 
 *     ***** energy variables ****
-      real*8  E(30)
+      real*8  E(50)
 
       integer eig_tag,hml_tag,lmd_tag,svec_tag
       integer eig_shift,hml_shift,lmd_shift,svec_shift
@@ -176,8 +176,8 @@
       external control_print
       external control_translation,control_rotation,control_balance
 
-      logical  Dneall_m_allocate,Dneall_m_free
-      external Dneall_m_allocate,Dneall_m_free
+      logical  Dneall_m_allocate,Dneall_m_free,ion_disp_on
+      external Dneall_m_allocate,Dneall_m_free,ion_disp_on
 
       complex*16 Pneb_w_value
       external   Pneb_w_value
@@ -826,6 +826,11 @@ c      call cpsi_data_dealloc(lmd_tag)
          end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
+
+        if (ion_disp_on()) then
+            write(luout,1720) E(33)
+        end if
+
       end if
 
       NN=ne(1)-ne(2)
@@ -1162,6 +1167,8 @@ c     >        A)
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

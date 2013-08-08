@@ -84,6 +84,10 @@
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      logical  ion_disp_on
+      external ion_disp_on
+      real*8   ion_disp_energy
+      external ion_disp_energy
 
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
@@ -510,8 +514,11 @@ c      end if
          end if
       end if
 
-
-
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(1)  = E(1) + E(33)
+      end if
 
 *     **** set convergence variables ****
       deltae = (E(1)-Eold)/(dt*dble(it_in))

@@ -97,6 +97,10 @@
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      logical  ion_disp_on
+      external ion_disp_on
+      real*8   ion_disp_energy
+      external ion_disp_energy
 
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
@@ -636,6 +640,12 @@ c         E(11) = e_lj
 c         E(12) = e_q
 c         E(13) = e_spring
 c      end if
+
+*     **** Dispersion energy ****
+      if (ion_disp_on()) then
+         E(33) = ion_disp_energy()
+         E(2)  = E(2) + E(33)
+      end if
 
 
 *     **** Energy and Energy**2 sum ***

@@ -58,7 +58,7 @@ c      parameter (autoatm =290.360032539d6)
     
 
 *     ***** energy variables ****
-      real*8  E(30),eke,eave,evar,cv
+      real*8  E(50),eke,eave,evar,cv
 
       integer eig_tag,hml_tag,svec_tag
       integer eig_shift,hml_shift,svec_shift
@@ -194,6 +194,8 @@ c      parameter (autoatm =290.360032539d6)
       external      cpsp_comment
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
+      logical  ion_disp_on
+      external ion_disp_on
 
 
 
@@ -1089,7 +1091,9 @@ c            write(6,1704) E(13)
 ccc            write(6,1705) E(14)
 c            write(6,1706) E(15)
 c         end if
-
+         if (ion_disp_on()) then
+           write(luout,1720) E(33)
+         end if
 
          if (control_Nose()) then
            write(luout,1473) E(9),E(9)/neall
@@ -1462,6 +1466,8 @@ ccc
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+
+ 1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
