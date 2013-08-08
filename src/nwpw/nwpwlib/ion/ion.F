@@ -215,11 +215,11 @@
       external    control_code
       
       logical          control_frac_coord,control_init_velocities
-      logical          parseqmmm
+      logical          parseqmmm,control_has_disp
       integer          control_version
       double precision control_ion_time_step,ion_amass_geom
       external         control_frac_coord,control_init_velocities
-      external         parseqmmm
+      external         parseqmmm,control_has_disp
       external         control_version
       external         control_ion_time_step,ion_amass_geom
 
@@ -229,6 +229,9 @@
 *     ***** set periodic ****
       periodic = .true.
       if (control_version().eq.4) periodic = .false.
+
+*     ***** set disp_on ****
+      disp_on = control_has_disp()
 
 *     *****************************************
 *     **** seperate ions and charges       ****
@@ -740,6 +743,8 @@ c         eki1=0.5d0*eki1
       ion_q = q
       return
       end
+
+
 
 
 *     ***********************
@@ -3100,4 +3105,211 @@ c
       end do
       return
       end
+
+
+
+
+*     ***************************
+*     *                         *
+*     *      ion_disp_on        *
+*     *                         * 
+*     ***************************
+      logical function ion_disp_on()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      ion_disp_on = disp_on
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *      ion_disp_energy    *
+*     *                         * 
+*     ***************************
+      real*8 function ion_disp_energy()
+      implicit none
+
+***** ion common block ****
+#include "mafdecls.fh"
+#include "ion.fh"
+#include "errquit.fh"
+
+      integer i,j,ii,iz(2)
+      real*8 edisp
+      real*8 lat(3,3)
+      real*8 g(3,1)
+      real*8 g_lat(3,3)
+      character*80 options
+
+      integer  ion_atn,ion_katm,control_version
+      external ion_atn,ion_katm,control_version
+      real*8   lattice_unita
+      external lattice_unita
+      character*80 control_options_disp
+      external     control_options_disp
+
+      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+     >   call errquit("ion_disp_energy:",0,MA_ERR)
+
+      do ii=1,nion
+         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
+      end do
+
+      if (control_version().eq.4) then
+         options = control_options_disp()
+      else
+         do j=1,3
+         do i=1,3
+            lat(i,j) = lattice_unita(i,j)
+         end do
+         end do
+
+         options = control_options_disp() //' -pbc'
+      end if
+
+      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
+     >                     dbl_mb(r1(1)),lat,edisp,g,g_lat)
+
+      if (.not.MA_pop_stack(iz(2)))
+     >   call errquit("ion_disp_energy:",1,MA_ERR)
+
+      ion_disp_energy = edisp
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *      ion_disp_force     *
+*     *                         * 
+*     ***************************
+      subroutine ion_disp_force(fion)
+      implicit none
+      real*8 fion(3,*)
+
+
+***** ion common block ****
+#include "mafdecls.fh"
+#include "ion.fh"
+#include "errquit.fh"
+
+      integer i,j,ii,gtmp(2),iz(2)
+      real*8 edisp
+      real*8 lat(3,3)
+      real*8 g_lat(3,3)
+      character*80 options
+
+      integer  ion_atn,ion_katm,control_version
+      external ion_atn,ion_katm,control_version
+      real*8   lattice_unita
+      external lattice_unita
+      character*80 control_options_disp
+      external     control_options_disp
+
+      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+     >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
+
+      if (.not.MA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
+     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
+
+      do ii=1,nion
+         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
+      end do
+
+      if (control_version().eq.4) then
+         options = control_options_disp()//' -grad'
+      else
+         do j=1,3
+         do i=1,3
+            lat(i,j) = lattice_unita(i,j)
+         end do
+         end do
+
+         options = control_options_disp() //' -pbc -grad'
+      end if
+
+      call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
+
+      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
+     >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),g_lat)
+
+      call daxpy(3*nion,1.0d0,dbl_mb(gtmp(1)),1,fion,1)
+
+      if (.not.MA_pop_stack(gtmp(2)))
+     >   call errquit("ion_disp_energy: popstak gtmp",1,MA_ERR)
+      if (.not.MA_pop_stack(iz(2)))
+     >   call errquit("ion_disp_energy: popstack iz",1,MA_ERR)
+
+
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *      ion_disp_stress    *
+*     *                         * 
+*     ***************************
+      subroutine ion_disp_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+***** ion common block ****
+#include "mafdecls.fh"
+#include "ion.fh"
+#include "errquit.fh"
+
+      integer i,j,ii,gtmp(2),iz(2)
+      real*8 edisp
+      real*8 lat(3,3)
+      character*80 options
+
+      integer  ion_atn,ion_katm,control_version
+      external ion_atn,ion_katm,control_version
+      real*8   lattice_unita
+      external lattice_unita
+      character*80 control_options_disp
+      external     control_options_disp
+
+      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+     >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
+
+      if (.not.MA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
+     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
+
+      do ii=1,nion
+         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
+      end do
+
+      if (control_version().eq.4) then
+         options = control_options_disp()//' -grad'
+      else
+         do j=1,3
+         do i=1,3
+            lat(i,j) = lattice_unita(i,j)
+         end do
+         end do
+
+         options = control_options_disp()//' -pbc -grad'
+      end if
+
+      call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
+      call dcopy(9,0.0d0,0,stress,1)
+
+      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
+     >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),stress)
+
+
+      if (.not.MA_pop_stack(gtmp(2)))
+     >   call errquit("ion_disp_stress: popstak gtmp",1,MA_ERR)
+      if (.not.MA_pop_stack(iz(2)))
+     >   call errquit("ion_disp_stress: popstack iz",1,MA_ERR)
+
+      return
+      end
+
+
+
 
