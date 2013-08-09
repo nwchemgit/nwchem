@@ -1445,6 +1445,8 @@ c Input Geometry sanity check via CNs, not used
       real*8 cn(*),maxcn
       integer max_elem,maxc
       real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
+      integer  ga_nodeid
+      external ga_nodeid
 
       check=.false.
       do i=1,n
@@ -1457,6 +1459,7 @@ c Input Geometry sanity check via CNs, not used
         endif
        endif
       enddo
+      check = check.and.(ga_nodeid().eq.0)
        if (check) then
         write(*,*)'----------------------------------------------------'
         write(*,*)'!!!! SOME CN ARE VERY LARGE. CHECK COORDINATES !!!!'
@@ -1470,6 +1473,8 @@ c     Input Geometry sanity check (to avoid au/Angtstrom mixups) S.E. 16.3.2012
       logical check
       integer iz(*),n,i,j
       real*8 rcov(94),dist,dx,dy,dz,thr,xyz(3,*),r
+      integer  ga_nodeid
+      external ga_nodeid
       check=.false.
       do i=1,n-1
        do j=i+1,n
@@ -1483,6 +1488,7 @@ c     Input Geometry sanity check (to avoid au/Angtstrom mixups) S.E. 16.3.2012
          endif
        enddo
       enddo
+      check = check.and.(ga_nodeid().eq.0)
       if (check) then
           write(*,*)'--------------------------------------------------'
           write(*,*)'!! SOME DISTANCES VERY SHORT. CHECK COORDINATES !!'

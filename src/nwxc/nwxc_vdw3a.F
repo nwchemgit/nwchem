@@ -219,6 +219,8 @@ c values >5 might lead to bumps in the potential
 
       logical  inp_strtok
       external inp_strtok
+      integer  ga_nodeid
+      external ga_nodeid
 
 
 
@@ -363,6 +365,8 @@ c                                         call readl(atmp,xx,nn)
 c                                         rthr=xx(1)**2
 c                                         endif
       end do
+
+      echo = echo.and.(ga_nodeid().eq.0)
 
 
 

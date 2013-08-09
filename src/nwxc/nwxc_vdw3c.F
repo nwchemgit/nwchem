@@ -836,6 +836,8 @@ c     Input Geometry sanity check for pbc (to avoid au/Angtstrom mixups) J.M.
       logical check
       integer iz(*),n,i,j,taux,tauy,tauz
       real*8 rcov(94),dist,dx,dy,dz,thr,xyz(3,*),r,lat(3,3),tau(3)
+      integer  ga_nodeid
+      external ga_nodeid
       check=.false.
       do i=1,n-1
        do j=i+1,n
@@ -858,6 +860,7 @@ c     Input Geometry sanity check for pbc (to avoid au/Angtstrom mixups) J.M.
          enddo !taux
        enddo !j
       enddo !i
+      check = check.and.(ga_nodeid().eq.0)
       if (check) then
           write(*,*)'--------------------------------------------------'
           write(*,*)'!! SOME DISTANCES VERY SHORT. CHECK COORDINATES !!'
