@@ -202,6 +202,7 @@ c     call psi_2to1()
       value = value.and.rtdb_put(rtdb,'band:E_ewald',   mt_dbl,1,E(5))
       value = value.and.rtdb_put(rtdb,'band:E_local',   mt_dbl,1,E(7))
       value = value.and.rtdb_put(rtdb,'band:E_nonlocal',mt_dbl,1,E(8))
+      value = value.and.rtdb_put(rtdb,'band:E_disp',    mt_dbl,1,E(33))
       if (.not. value) call errquit(
      >   'c_cgsd_noit_energy: numerical stress - error writing rtdb',0,
      &       RTDB_ERR)

@@ -33,6 +33,7 @@
       double precision alpha_stress(3,3)
       double precision RIJ_stress(3,3)
       double precision ewaldG_stress(3,3)
+      double precision disp_stress(3,3)
 
       integer date_len
       character*40 date_string
@@ -62,6 +63,7 @@
       call dscal(9,0.0d0,ewald_stress,   1)
       call dscal(9,0.0d0,local_stress,   1)
       call dscal(9,0.0d0,nonlocal_stress,1)
+      call dscal(9,0.0d0,disp_stress,1)
 
 
       do j=1,3
@@ -115,6 +117,9 @@
      >        rtdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = E
 
+      value = value.and.
+     >        rtdb_get(rtdb,'band:E_disp',mt_dbl,1,E)
+      disp_stress(i,j) = E
 
 *     *****************************
 *     **** - finite difference ****
@@ -158,6 +163,9 @@
       value = value.and.rtdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = nonlocal_stress(i,j) - E
 
+      value = value.and.rtdb_get(rtdb,'band:E_disp',mt_dbl,1,E)
+      disp_stress(i,j) = disp_stress(i,j) - E
+
       end do
       end do
       call dscal(9,(0.5d0/alpha),ke_stress,1)
@@ -166,6 +174,7 @@
       call dscal(9,(0.5d0/alpha),ewald_stress,1)
       call dscal(9,(0.5d0/alpha),local_stress,1)
       call dscal(9,(0.5d0/alpha),nonlocal_stress,1)
+      call dscal(9,(0.5d0/alpha),disp_stress,1)
 
       call write_stress(ke_stress,"ke FD")
       call write_stress(hartree_stress,"coulomb FD")
@@ -173,6 +182,7 @@
       call write_stress(nonlocal_stress,"nonlocal FD")
       call write_stress(xc_stress,"xc FD")
       call write_stress(ewald_stress,"ewald FD")
+      call write_stress(disp_stress,"disp FD")
 
       call dcopy(9,ke_stress,1,stress,1)
       call daxpy(9,1.0d0,xc_stress,1,stress,1)
@@ -180,6 +190,7 @@
       call daxpy(9,1.0d0,ewald_stress,1,stress,1)
       call daxpy(9,1.0d0,local_stress,1,stress,1)
       call daxpy(9,1.0d0,nonlocal_stress,1,stress,1)
+      call daxpy(9,1.0d0,disp_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
 
 
