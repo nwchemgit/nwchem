@@ -366,6 +366,7 @@ c                                         endif
 
 
 
+
 c      do i=1,iargc()
 c      call getarg(i,ftmp)
 c      if(index(ftmp,'-h')      .ne.0) call printoptions
