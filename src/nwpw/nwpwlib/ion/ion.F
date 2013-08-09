@@ -3137,15 +3137,15 @@ c
 #include "ion.fh"
 #include "errquit.fh"
 
-      integer i,j,ii,iz(2)
+      integer i,j,ii,l,iz(2)
       real*8 edisp
       real*8 lat(3,3)
       real*8 g(3,1)
       real*8 g_lat(3,3)
-      character*80 options
+      character*80 options,options1
 
-      integer  ion_atn,ion_katm,control_version
-      external ion_atn,ion_katm,control_version
+      integer  ion_atn,ion_katm,control_version,inp_strlen
+      external ion_atn,ion_katm,control_version,inp_strlen
       real*8   lattice_unita
       external lattice_unita
       character*80 control_options_disp
@@ -3158,8 +3158,11 @@ c
          int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
       end do
 
+      options1 = control_options_disp()
+      l = inp_strlen(options1)
+
       if (control_version().eq.4) then
-         options = control_options_disp()
+         options = options1
       else
          do j=1,3
          do i=1,3
@@ -3167,7 +3170,7 @@ c
          end do
          end do
 
-         options = control_options_disp() //' -pbc'
+         options = options1(1:l)//' -pbc'
       end if
 
       call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
@@ -3195,14 +3198,14 @@ c
 #include "ion.fh"
 #include "errquit.fh"
 
-      integer i,j,ii,gtmp(2),iz(2)
+      integer i,j,ii,l,gtmp(2),iz(2)
       real*8 edisp
       real*8 lat(3,3)
       real*8 g_lat(3,3)
-      character*80 options
+      character*80 options,options1
 
-      integer  ion_atn,ion_katm,control_version
-      external ion_atn,ion_katm,control_version
+      integer  ion_atn,ion_katm,control_version,inp_strlen
+      external ion_atn,ion_katm,control_version,inp_strlen
       real*8   lattice_unita
       external lattice_unita
       character*80 control_options_disp
@@ -3217,9 +3220,12 @@ c
       do ii=1,nion
          int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
       end do
+      
+      options1= control_options_disp()
+      l = inp_strlen(options1)
 
       if (control_version().eq.4) then
-         options = control_options_disp()//' -grad'
+         options = options1(1:l)//' -grad'
       else
          do j=1,3
          do i=1,3
@@ -3227,7 +3233,7 @@ c
          end do
          end do
 
-         options = control_options_disp() //' -pbc -grad'
+         options = options1(1:l)//' -pbc -grad'
       end if
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
@@ -3261,13 +3267,13 @@ c
 #include "ion.fh"
 #include "errquit.fh"
 
-      integer i,j,ii,gtmp(2),iz(2)
+      integer i,j,ii,l,gtmp(2),iz(2)
       real*8 edisp
       real*8 lat(3,3)
-      character*80 options
+      character*80 options,options1
 
-      integer  ion_atn,ion_katm,control_version
-      external ion_atn,ion_katm,control_version
+      integer  ion_atn,ion_katm,control_version,inp_strlen
+      external ion_atn,ion_katm,control_version,inp_strlen
       real*8   lattice_unita
       external lattice_unita
       character*80 control_options_disp
@@ -3283,8 +3289,11 @@ c
          int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
       end do
 
+      options1 = control_options_disp()
+      l = inp_strlen(options1)
+      
       if (control_version().eq.4) then
-         options = control_options_disp()//' -grad'
+         options = options1(1:l)//' -grad'
       else
          do j=1,3
          do i=1,3
@@ -3292,7 +3301,7 @@ c
          end do
          end do
 
-         options = control_options_disp()//' -pbc -grad'
+         options = options1(1:l)//' -pbc -grad'
       end if
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
@@ -3300,6 +3309,8 @@ c
 
       call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
      >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),stress)
+
+      !call dscal(9,-1.0d0,stress,1)
 
 
       if (.not.MA_pop_stack(gtmp(2)))
