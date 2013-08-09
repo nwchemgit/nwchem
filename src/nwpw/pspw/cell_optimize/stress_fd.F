@@ -42,6 +42,7 @@
       double precision Q_stress(3,3)
       double precision spring_stress(3,3)
       double precision dftu_stress(3,3)
+      double precision disp_stress(3,3)
 
       double precision lattice(6)
       double precision lattice2(6)
@@ -64,6 +65,7 @@
       double precision Q_lstress(6)
       double precision spring_lstress(6)
       double precision dftu_lstress(6)
+      double precision disp_lstress(6)
 
       integer date_len
       character*40 date_string
@@ -111,6 +113,7 @@
       call dcopy(9,0.0d0,0,Q_stress,1)
       call dcopy(9,0.0d0,0,spring_stress,1)
       call dcopy(9,0.0d0,0,dftu_stress,1)
+      call dcopy(9,0.0d0,0,disp_stress,1)
 
       do j=1,3
       do i=1,3
@@ -189,6 +192,10 @@
      >        rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dftu_stress(i,j) = E
 
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+      disp_stress(i,j) = E
+
 *     *****************************
 *     **** - finite difference ****
 *     *****************************
@@ -249,6 +256,9 @@
       value = value.and.rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dftu_stress(i,j) = dftu_stress(i,j) - E
 
+      value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+      disp_stress(i,j) = disp_stress(i,j) - E
+
       end do
       end do
       call dscal(9,(0.5d0/alpha),ke_stress,1)
@@ -264,6 +274,7 @@
       call dscal(9,(0.5d0/alpha),Q_stress,1)
       call dscal(9,(0.5d0/alpha),spring_stress,1)
       call dscal(9,(0.5d0/alpha),dftu_stress,1)
+      call dscal(9,(0.5d0/alpha),disp_stress,1)
 
       call write_stress(ke_stress,"ke FD")
       call write_stress(hartree_stress,"coulomb FD")
@@ -278,6 +289,7 @@
       call write_stress(Q_stress,"Q FD")
       call write_stress(spring_stress,"spring FD")
       call write_stress(dftu_stress,"DFTU FD")
+      call write_stress(disp_stress,"Dispersion FD")
 
       call dcopy(9,ke_stress,1,stress,1)
       call daxpy(9,1.0d0,xc_stress,1,stress,1)
@@ -292,6 +304,7 @@
       call daxpy(9,1.0d0,Q_stress,1,stress,1)
       call daxpy(9,1.0d0,spring_stress,1,stress,1)
       call daxpy(9,1.0d0,dftu_stress,1,stress,1)
+      call daxpy(9,1.0d0,disp_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
 
 *     **************************************
@@ -363,6 +376,9 @@
             value = value.and.
      >              rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
             dftu_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+            disp_lstress(i) = E
 
 *           *****************************
 *           **** - finite difference ****
@@ -424,6 +440,9 @@
 
             value = value.and.rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
             dftu_lstress(i) = dftu_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+            disp_lstress(i) = disp_lstress(i) - E
          end do
 
          call dscal(6,(0.5d0/alpha),ke_lstress,1)
@@ -439,6 +458,7 @@
          call dscal(6,(0.5d0/alpha),Q_lstress,1)
          call dscal(6,(0.5d0/alpha),spring_lstress,1)
          call dscal(6,(0.5d0/alpha),dftu_lstress,1)
+         call dscal(6,(0.5d0/alpha),disp_lstress,1)
 
          call write_lstress(ke_lstress,"ke FD")
          call write_lstress(hartree_lstress,"coulomb FD")
@@ -453,6 +473,7 @@
          call write_lstress(Q_lstress,"Q FD")
          call write_lstress(spring_lstress,"spring FD")
          call write_lstress(dftu_lstress,"dftu FD")
+         call write_lstress(disp_lstress,"Dispersion FD")
 
          call dcopy(6,ke_lstress,1,lstress,1)
          call daxpy(6,1.0d0,xc_lstress,1,lstress,1)
@@ -467,6 +488,7 @@
          call daxpy(6,1.0d0,Q_lstress,1,lstress,1)
          call daxpy(6,1.0d0,spring_lstress,1,lstress,1)
          call daxpy(6,1.0d0,dftu_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,disp_lstress,1,lstress,1)
          call write_lstress(lstress,"TOTAL FD")
 
 *        **************************************

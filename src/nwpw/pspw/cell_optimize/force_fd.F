@@ -20,7 +20,7 @@
       integer i
       integer r1(2),geom,nion
       integer r2(2),few(2),fvl(2),fvnl(2),fxc(2),fLJ(2),fQ(2),fspring(2)
-      integer fdftu(2)
+      integer fdftu(2),fdisp(2)
 
 
       double precision alpha,E
@@ -61,6 +61,8 @@
      >     MA_alloc_get(mt_dbl,(3*nion),'fspring',fspring(2),fspring(1))
       value     = value.and.
      >     MA_alloc_get(mt_dbl,(3*nion),'fdftu',fdftu(2),fdftu(1))
+      value     = value.and.
+     >     MA_alloc_get(mt_dbl,(3*nion),'fdisp',fdisp(2),fdisp(1))
       if(.not.value) call errquit
      E   (' stressfd: geom malloc failure ',0,0)
 
@@ -80,6 +82,7 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(fQ(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fspring(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fdftu(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fdisp(1)),1)
 
 
       do i=1,(3*nion)
@@ -139,6 +142,9 @@
      >        rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dbl_mb(fdftu(1)+i-1) = E
 
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+      dbl_mb(fdisp(1)+i-1) = E
 
 *     *****************************
 *     **** - finite difference ****
@@ -187,6 +193,9 @@
       value = value.and.rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dbl_mb(fdftu(1)+i-1) = dbl_mb(fdftu(1)+i-1) - E
 
+      value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+      dbl_mb(fdisp(1)+i-1) = dbl_mb(fdisp(1)+i-1) - E
+
       end do
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(few(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fvl(1)),1)
@@ -196,6 +205,7 @@
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fQ(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fspring(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fdftu(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fdisp(1)),1)
 
       call write_force(nion,dbl_mb(few(1)),"ewald FD")
       call write_force(nion,dbl_mb(fvl(1)),"local FD")
@@ -205,6 +215,7 @@
       call write_force(nion,dbl_mb(fQ(1)), "Q FD")
       call write_force(nion,dbl_mb(fspring(1)), "spring FD")
       call write_force(nion,dbl_mb(fdftu(1)), "DFTU FD")
+      call write_force(nion,dbl_mb(fdisp(1)), "Dispersion FD")
 
       call daxpy(3*nion,1.0d0,dbl_mb(fvl(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fvnl(1)),1,dbl_mb(few(1)),1)
@@ -213,6 +224,7 @@
       call daxpy(3*nion,1.0d0,dbl_mb(fQ(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fspring(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fdftu(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fdisp(1)),1,dbl_mb(few(1)),1)
       call write_force(nion,dbl_mb(few(1)),"total FD")
 
 
@@ -232,6 +244,7 @@
       value = value.and.MA_free_heap(fQ(2))
       value = value.and.MA_free_heap(fspring(2))
       value = value.and.MA_free_heap(fdftu(2))
+      value = value.and.MA_free_heap(fdisp(2))
  
       force_fd = value
       return 
