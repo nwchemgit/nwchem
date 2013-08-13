@@ -15,7 +15,7 @@ void dft_xckernel_pwlda(double  ra, double rb , double FCLDA[_FCLDA_ELEMENTS]){
 };
 
 
-inline void gss3tar(double r, double g, double alpha, double *a, 
+static void gss3tar(double r, double g, double alpha, double *a, 
                     double *f, double *fr, double *fg, 
                     double *frr, double *frg, double *fgg)
 {
@@ -67,7 +67,7 @@ inline void gss3tar(double r, double g, double alpha, double *a,
   return;
 };
 
-inline void gss5tar(double r, double g, double alpha, double *a, 
+static void gss5tar(double r, double g, double alpha, double *a, 
                     double *f, double *fr, double *fg, 
                     double *frr, double *frg, double *fgg)
 {
@@ -125,7 +125,7 @@ inline void gss5tar(double r, double g, double alpha, double *a,
   return;
 };
 
-inline void gab3tar(double ra, double rb, double ga, double gb, double alpha, double *a, 
+static void gab3tar(double ra, double rb, double ga, double gb, double alpha, double *a, 
                     double  *f, double *fra, double *frb, double *fga, double *fgb,
                     double *frara, double *frarb, double *frbrb,
                     double *fraga, double *fragb, double *frbga, double *frbgb,
@@ -232,7 +232,7 @@ inline void gab3tar(double ra, double rb, double ga, double gb, double alpha, do
 };
 
 
-inline void gab5tar(double ra, double rb, double ga, double gb, double alpha, double *a, 
+static void gab5tar(double ra, double rb, double ga, double gb, double alpha, double *a, 
                     double *f, double *fra, double *frb, double *fga, double *fgb,
                     double *frara, double *frarb, double *frbrb,
                     double *fraga, double *fragb, double *frbga, double *frbgb,
