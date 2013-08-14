@@ -519,15 +519,15 @@ c         end if
 
          !end if
 
-         !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (Fourier space)'
 c         if (fractional) then
 c          write(6,1219) en(1),en(psi_ispin()),' (   fractional)'
-c          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+c          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (Fourier space)'
 c         else
           write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),
-     >                      ' (fourier space)'
+     >                      ' (Fourier space)'
           write(luout,1221) psi_ne(1),psi_ne(psi_ispin()),
-     >                      ' (fourier space)'
+     >                      ' (Fourier space)'
 c         end if
          write(luout,1230)
          write(luout,1233) control_cell_name()

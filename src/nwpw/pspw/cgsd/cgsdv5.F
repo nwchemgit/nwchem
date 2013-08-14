@@ -415,19 +415,19 @@ c           call psp_check_print(ia)
          call pspw_charge_Print(luout)
          end if
 
-         !write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         !write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),' (Fourier space)'
          if (control_fractional()) then
           write(luout,1219) en(1),en(psi_ispin()),' (   fractional)'
           write(luout,1221) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
-     >                  ' (fourier space)'
+     >                  ' (Fourier space)'
          else
           write(luout,1220) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
-     >                 ' (fourier space)'
+     >                 ' (Fourier space)'
           write(luout,1221) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
-     >                  ' (fourier space)'
+     >                  ' (Fourier space)'
          end if
          write(luout,1230)
          write(luout,1233) control_cell_name()
