@@ -389,9 +389,9 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1211) ion_nconstraints(),ion_ndof()
          endif
          write(luout,1220) en(1),en(cpsi_ispin()),
-     >                 ' (fourier space)'
+     >                 ' (Fourier space)'
          write(luout,1221) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
-     >                 ' (fourier space)'
+     >                 ' (Fourier space)'
 
          write(luout,1230)
          write(luout,1241) lattice_unita(1,1),
