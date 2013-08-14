@@ -191,7 +191,7 @@
          end if
          write(6,1115)
          write(6,1121) control_boundry(),control_version()
-         write(6,1220) ne(1),ne(ispin),' ( fourier space)'
+         write(6,1220) ne(1),ne(ispin),' ( Fourier space)'
          write(6,1224) ncell
          write(6,1225) position_tolerance
          write(6,1226) origin
