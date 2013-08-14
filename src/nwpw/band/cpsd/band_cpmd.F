@@ -567,9 +567,9 @@ c         call pspw_print_HFX(6)
          write(luout,1210) vgx,vgy,vgz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
-         write(luout,1220) en(1),en(ispin),' (fourier space)'
+         write(luout,1220) en(1),en(ispin),' (Fourier space)'
          write(luout,1221) ne(1),neq(1),
-     >                     ne(ispin),neq(ispin),' (fourier space)'
+     >                     ne(ispin),neq(ispin),' (Fourier space)'
 
          write(luout,1230)
          write(luout,1241) lattice_unita(1,1),
