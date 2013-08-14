@@ -235,7 +235,7 @@ c      character*255 full_filename,full_filename2
          write(6,109) control_input_psi()
          write(6,110) control_output_psi()
 
-         write(6,1220) ne(1),ne(ispin),' ( fourier space)'
+         write(6,1220) ne(1),ne(ispin),' ( Fourier space)'
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
