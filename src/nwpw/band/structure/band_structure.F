@@ -336,7 +336,7 @@
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
          write(luout,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
-     >                 ' (fourier space)'
+     >                 ' (Fourier space)'
 
 
          write(luout,1230)
