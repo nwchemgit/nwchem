@@ -565,12 +565,12 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          if (fractional) then
            write(luout,1219) en(1),en(ispin),' (   fractional)'
            write(luout,1221) ne(1),neq(1),
-     >                   ne(ispin),neq(ispin),' (fourier space)'
+     >                   ne(ispin),neq(ispin),' (Fourier space)'
          else
            write(luout,1220) ne(1),neq(1),
-     >                   ne(ispin),neq(ispin),' (fourier space)'
+     >                   ne(ispin),neq(ispin),' (Fourier space)'
            write(luout,1221) ne(1),neq(1),
-     >                   ne(ispin),neq(ispin),' (fourier space)'
+     >                   ne(ispin),neq(ispin),' (Fourier space)'
          end if
          write(luout,1230)
          write(luout,1241) lattice_unita(1,1),

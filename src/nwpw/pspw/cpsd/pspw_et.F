@@ -447,9 +447,9 @@
          write(luout,1210) gx,gy,gz
 
          write(luout,1220) ne(1),neq(1),
-     >                   ne(ispin),neq(ispin),' (fourier space)'
+     >                   ne(ispin),neq(ispin),' (Fourier space)'
          write(luout,1221) ne(1),neq(1),
-     >                   ne(ispin),neq(ispin),' (fourier space)'
+     >                   ne(ispin),neq(ispin),' (Fourier space)'
          write(luout,1230)
          write(luout,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
