@@ -3242,7 +3242,7 @@ c
       call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
      >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),g_lat)
 
-      call daxpy(3*nion,1.0d0,dbl_mb(gtmp(1)),1,fion,1)
+      call daxpy(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
 
       if (.not.MA_pop_stack(gtmp(2)))
      >   call errquit("ion_disp_energy: popstak gtmp",1,MA_ERR)
