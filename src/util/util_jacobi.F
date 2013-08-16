@@ -34,12 +34,27 @@ c     Diagonalize A using Jacobi overwriting a with
 c     the eigenvectors and returning in e the eigenvalues
 c
       integer l_v, k_v, i, j, ij, ierr
+      double precision summ
 c
 c     trivial 1x1 case
 c
       if(n.eq.1) then
          e(1)=a(1,1)
          a(1,1)=1d0
+         return
+      endif
+c     check for diagonal matrix
+      summ=0d0
+      do i=1,n
+         do j=i+1,n
+            summ=summ+abs(a(j,i))
+         enddo
+      enddo
+      if(summ.lt.(1d-10)) then
+         do i=1,n
+            e(i)=a(i,i)
+            a(i,i)=1d0
+         enddo
          return
       endif
       if (.not. ma_push_get(mt_dbl, n*(n+1)/2 ,'v',l_v, k_v))
