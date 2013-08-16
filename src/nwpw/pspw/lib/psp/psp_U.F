@@ -911,6 +911,7 @@
       end if
       end do
       end do
+      call D1dB_Vector_SumAll(lm*lm*ispin,l_density)
 
       return
       end 
