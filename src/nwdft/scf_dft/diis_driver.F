@@ -90,8 +90,11 @@ c
         call ga_igop(msg_min_ga_avail, avail, 1, 'min')
 c
 c        - subtract off a couple of n^2 objects for later use,
+c          if not(keeps) we use 2 more matrices for S^-1/2 and S^+1/2
 c
         dw_agg_avail = dble(nproc)*dble(avail)/8.0d0-2.0d0*dble(nbf)**2
+        if (.not.keeps) dw_agg_avail = dw_agg_avail-2.0d0*dble(nbf)**2
+c
         n_n2_objs = nint(dw_agg_avail/dble(nbf)**2)
         if (2*mxhist*ipol.gt.n_n2_objs)then
 c
