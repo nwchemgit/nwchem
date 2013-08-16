@@ -296,7 +296,7 @@ c Evaluate and store pair energies
 c
 capr insert oexch
        if (oexch)then
-        call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
+        call moints_e2pair(rtdb, nocc, occ_lo, oseg_lo, oseg_hi, 
      $                      nmo_lo, nmo_hi, vir_lo, vir_hi,
      $                      g_exch, dbl_mb(k_evals), g_epair )
        endif

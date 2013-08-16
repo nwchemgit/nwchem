@@ -22,11 +22,14 @@ c     .    [swap [(alpha||beta)] <integer pair-list>] ]
 c     .  [RIAPPROX <string riapprox default V>]
 c     .  [FILE3C <string filename default "$file_prefix$.mo3cint">]
 c     .  [SCRATCHDISK <integer>]
+c     .  [FSS <real same spin scaling factor for SCS-MP2 default 1/3>]
+c     .  [FOS <real opposite spin scaling factor for SCS-MP2 default 6/5>]
 c     END
 c
       character*20 test, riapprox
       character*255 rifile
       double precision aotol2e, motol2e, scfthresh, cphfthresh, backtol
+      double precision fss,fos
       logical status
       integer scrdisk
 c
@@ -105,6 +108,22 @@ c
      $        ('mp2_input: failed reading scrdisk',0, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'mp2:scratchdisk', mt_dbl, 1,
      $        dble(scrdisk))) 
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+      else if (inp_compare(.false.,test,'fss')) then
+         if (.not. inp_f(fss)) call errquit
+     $        ('mp2_input: failed reading fss',0, INPUT_ERR)
+         if (.not. rtdb_put(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+      else if (inp_compare(.false.,test,'fos')) then
+         if (.not. inp_f(fos)) call errquit
+     $        ('mp2_input: failed reading fos',0, INPUT_ERR)
+         if (.not. rtdb_put(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+      else if (inp_compare(.false.,test,'scs')) then
+         if (.not. rtdb_put(rtdb, 'mp2:scs', mt_log, 1, .true.))
      $        call errquit('mp2_input: failed writing to rtdb',0,
      &       RTDB_ERR)
       else if (inp_compare(.false.,test,'end')) then

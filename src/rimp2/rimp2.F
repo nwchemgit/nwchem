@@ -87,6 +87,9 @@ c     dftmp2 functional stuff: DFT += c2*MP2
 c
       logical dftmp2            ! use DFT reference orbitals and energy
       double precision mp2fac   ! coefficient on MP2 contribution to total energy
+c
+      double precision fss, fos ! Spin Component Scaled (SCS) MP2
+      logical scs               ! SCS flag
 C
 C     Initialize this module
 C
@@ -254,6 +257,15 @@ C
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
      $   'RIMP2: Unable to free local array H_Occ', H_Occ, MA_ERR)
+
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $  fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $  fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS
 C
 C     **********************************************
 C     * Print out calculation information for user *
@@ -273,6 +285,12 @@ C
      $      (AHi(i)-ALo(i)+1, i = 1, TopSpin)
          Write (LuOut, *)
 C
+         if (scs) then
+           Write (LuOut, 8530) 'SCS-MP2:', scs
+           Write (LuOut, 8510) 'Same spin scaling factor:', fss
+           Write (LuOut, 8510) 'Opposite spin scaling factor:', fos
+           Write (LuOut, *)
+         endif
          Write (LuOut, 8500) 'RI integral approximation:',
      $      Approx(:LNBlnk(Approx))
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
@@ -325,6 +343,7 @@ C
  8505 Format(1X, A35, 2X, A)
  8510 Format(1X, A35, 4(1X, 1PE10.3), (/36X, 4(1X, I10)) )
  8520 Format(1X, A35, 4(1X, I10), (/36X, 4(1X,I10)) )
+ 8530 Format(1X, A35, 1X, L1)
 C
  9050 Format(1X, 'The following mapping relates the ''correlated ',
      $       'basis'' to the original SCF basis.')
@@ -406,9 +425,9 @@ C     **********************
 C     * Energy calculation *
 C     **********************
 C
-      If ( .NOT. RIMP2_V_E2( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi,
-     $   NFit, FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
-     $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2),
+      If ( .NOT. RIMP2_V_E2( rtdb, D_Int, FNInt, TopSpin, NCorBF, IHi, 
+     $   AHi, NFit, FitBas, Dbl_MB(I_Eval), MxNCorBF, 
+     $   Dbl_MB(Contrib_Idx),CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2),
      ,     actualname)) Call ErrQuit(
      $   'rimp2: rimp2_v_e2 failed', 911, CALC_ERR)
 C
@@ -459,13 +478,20 @@ c
      $              /,10x,'Unscaled MP2 energy    ',f20.12,
      $              /,10x,'Total DFT+MP2 energy   ',f20.12,
      $              /,10x,43('-'),/)
-          else
+          else if (.not.scs) then
             write(6,999) RefEner,CorEner,TotEner
  999        format(//,10x,43('-'),
      $              /,10x,'SCF energy         ',f24.12,
      $              /,10x,'Correlation energy ',f24.12,
      $              /,10x,'Total MP2 energy   ',f24.12,
      $              /,10x,43('-'),/)
+          else
+            write(6,997) RefEner,CorEner,TotEner
+ 997        format(//,10x,47('-'),
+     $              /,10x,'SCF energy             ',f24.12,
+     $              /,10x,'SCS Correlation energy ',f24.12,
+     $              /,10x,'Total SCS-MP2 energy   ',f24.12,
+     $              /,10x,47('-'),/)
           endif
         endif
 C

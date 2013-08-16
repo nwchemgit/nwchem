@@ -166,6 +166,7 @@ c
       call ga_sync()
       call pstat_on(ps_backt)
       call mp2_back_transform_uhf(
+     $     rtdb, 
      $     nbf, 
      $     nir, 
      $     nva, nva_lo, nva_hi, num_va, num_oa, 
@@ -293,6 +294,7 @@ c
 c
       end
       subroutine mp2_back_transform_uhf(
+     $     rtdb, 
      $     nbf, 
      $     nir, 
      $     nva, nva_lo, nva_hi, num_va, num_oa, 
@@ -315,6 +317,8 @@ c
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "util.fh"
+#include "rtdb.fh"
+      integer rtdb
       integer nbf               ! No. of basis functions
       integer nir               ! No. of irreducible representations
       integer nva, nva_lo, nva_hi ! Number and ranges of virtual orbitals
@@ -354,6 +358,9 @@ c
       integer symi, symj, syma, symb, symia
       integer i, a, u, v, ush, vsh, udim, vdim, ishpair
 c
+      logical scs  ! flag for SCS-MP2
+      double precision fss,fos ! scaling factors for SCS-MP2
+c
 #include "bitops.fh"
 c     
       zero=0.0d0
@@ -362,6 +369,19 @@ c
       tunitptra=1
       tunitptrb=1
 *     tsum = 0
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS gradient
+      if(scs)then
+        if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $    fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+        if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $    fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      else
+        fss=one
+        fos=one
+      endif
 c     
       do i=oseg_lo,oseg_hi 
 	 call ga_fill_patch(g_buf,1,nva,1,nbfpair,99.0d0) ! For debug
@@ -380,7 +400,7 @@ c
                if(num_va(symb).gt.0.and.num_oa(symj).gt.0) then
                   call dgemm('n','t', !             t(j,b)Cbv -> t(j,v)
      $                 num_oa(symj), nbf, num_va(symb),
-     $                 one, t(tcount), num_oa(symj),
+     $                 fss, t(tcount), num_oa(symj),
      $                 c_a(1,sym_lo_va(symb)), nbf,
      $                 zero, tmp, num_oa(symj))
                   call dgemm('n','n', !             Cuj t(j,v) -> t(u,v)
@@ -401,7 +421,7 @@ c
                if(num_vb(symb).gt.0.and.num_ob(symj).gt.0) then
                   call dgemm('n','t', !             t(j,b)Cbv -> t(j,v)
      $                 num_ob(symj), nbf, num_vb(symb),
-     $                 one, t(tcount), num_ob(symj),
+     $                 fos, t(tcount), num_ob(symj),
      $                 c_b(1,sym_lo_vb(symb)), nbf,
      $                 zero, tmp, num_ob(symj))
                   call dgemm('n','n', !             Cuj t(j,v) -> t(u,v)

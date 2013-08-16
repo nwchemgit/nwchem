@@ -1,4 +1,4 @@
-      subroutine mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
+      subroutine mp2_pijab_uhf(rtdb,nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $     sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,sym_lo_ob,
      $     sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,nir,num_va,num_vb,
      $     oseg_lo,oseg_hi,irs_a,irs_b,nva_lo_local,nva_hi_local,
@@ -14,7 +14,8 @@
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "bitops_decls.fh"
-      integer i
+#include "rtdb.fh"
+      integer rtdb,i
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
       integer sym_lo_va(0:*),sym_hi_va(0:*)
@@ -48,6 +49,9 @@ c
       integer l_p_ij_a,l_p_ij_b
       integer k_p_ab_a,k_p_ab_b
       integer l_p_ab_a,l_p_ab_b
+c
+      logical scs                               ! flag for SCS-MP2
+      double precision fss,fos,hfss,mhfss,mfos  ! scaling factors for SCS-MP2
 c     
 c     inline functions to compute offset to diagonal symmetry
 c     blocks in square arrays of dimension occupied and virtual
@@ -96,6 +100,24 @@ c
       call dfill((nva*nva),zero,dbl_mb(k_p_ab_a),1)
       call dfill((nob*nob),zero,dbl_mb(k_p_ij_b),1)
       call dfill((nvb*nvb),zero,dbl_mb(k_p_ab_b),1)
+
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS gradient
+      if(scs)then
+        if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $    fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+        if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $    fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      else
+        fss=one
+        fos=one
+      endif
+      hfss=half*fss
+      mhfss=mhalf*fss
+      mfos=minusone*fos
+c
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          do a_a=nva_lo_local,nva_hi_local 
@@ -116,13 +138,13 @@ c
                if(num_oa(symj).gt.0 .and. num_va(symb).gt.0) then
                   pijacnt = off_oa(symj)+k_p_ij_a
                   call dgemm('n','t',num_oa(symj),
-     $                 num_oa(symj),num_va(symb),mhalf,
+     $                 num_oa(symj),num_va(symb),mhfss,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
      $                 one,dbl_mb(pijacnt),noa)
                   pabacnt = off_va(symb)+k_p_ab_a
                   call dgemm('t','n',num_va(symb),
-     $                 num_va(symb),num_oa(symj),half,
+     $                 num_va(symb),num_oa(symj),hfss,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
      $                 one,dbl_mb(pabacnt),nva)
@@ -131,13 +153,13 @@ c
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   pijbcnt = off_ob(symj)+k_p_ij_b
                   call dgemm('n','t',num_ob(symj),
-     $                 num_ob(symj),num_vb(symb),minusone,
+     $                 num_ob(symj),num_vb(symb),mfos,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
      $                 one,dbl_mb(pijbcnt),nob)
                   pabbcnt = off_vb(symb)+k_p_ab_b
                   call dgemm('t','n',num_vb(symb),
-     $                 num_vb(symb),num_ob(symj),one,
+     $                 num_vb(symb),num_ob(symj),fos,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
      $                 one,dbl_mb(pabbcnt),nvb)

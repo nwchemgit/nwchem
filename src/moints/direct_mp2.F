@@ -38,6 +38,8 @@ c
       double precision tol2e
       character*7 algo
       character*4 scftype
+      double precision fss, fos ! Spin Component Scaled (SCS) MP2
+      logical scs               ! SCS-MP2 flag
 c
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
@@ -299,6 +301,15 @@ C      odisk = odisk.and.(npass.gt.1)
       if (.not.moints_aodisk_init( odisk, oaoreuse ))
      $    call errquit('direct_mp2: cannot initiliaze ao cache',0,
      &      DISK_ERR)
+
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $  fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $  fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS-MP2
 c
 c Print info
 c
@@ -332,6 +343,11 @@ c
         else
           write(6,976) 
  976      format(10x,'Twofold algorithm used',/)
+        endif
+        if (scs) then
+         write(6,'(10x,''SCS-MP2:'',32x,l1)')scs
+         write(6,'(10x,''Same spin scaling factor:'',6x,f10.5)')fss
+         write(6,'(10x,''Opposite spin scaling factor:'',2x,f10.5/)')fos
         endif
         call util_flush(6)
       endif
@@ -370,7 +386,7 @@ c
 c
 c Evaluate and store pair energies
 c
-      call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
+      call moints_e2pair( rtdb, nocc, occ_lo, oseg_lo, oseg_hi, 
      $                  vir_lo, vir_hi, vir_lo, vir_hi,
      $                  g_exch, dbl_mb(k_evals), g_epair )
 c
@@ -445,13 +461,20 @@ c
      $              /,10x,'Unscaled MP2 energy    ',f20.12,
      $              /,10x,'Total DFT+MP2 energy   ',f20.12,
      $              /,10x,43('-'),/)
-          else
+          else if (.not.scs) then
             write(6,999) scf_energy, emp2, scf_energy+emp2
  999        format(//,10x,43('-'),
      $              /,10x,'SCF energy         ',f24.12,
      $              /,10x,'Correlation energy ',f24.12,
      $              /,10x,'Total MP2 energy   ',f24.12,
      $              /,10x,43('-'),/)
+          else
+            write(6,997) scf_energy, emp2, scf_energy+emp2
+ 997        format(//,10x,47('-'),
+     $              /,10x,'SCF energy             ',f24.12,
+     $              /,10x,'SCS Correlation energy ',f24.12,
+     $              /,10x,'Total SCS-MP2 energy   ',f24.12,
+     $              /,10x,47('-'),/)
           endif
         endif
         status = ma_pop_stack(l_epair)

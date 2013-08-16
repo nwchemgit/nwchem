@@ -4,7 +4,7 @@
      &                        bbkp,bb,g_t2,g_ht2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
-     $     refener, Tol2E, occd, oconverged)
+     $     refener, Tol2E, occd, oconverged, eccsdos)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -23,7 +23,7 @@ c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
      &                  hiu(*),hia(*),habe(*),giu(*),gabe(*),
-     &                  bbkp(*),bb(*),eccsd, refener
+     &                  bbkp(*),bb(*),eccsd, refener, eccsdos
 c
 c$$$      double precision rtc
 c$$$      external rtc
@@ -270,7 +270,7 @@ c ----------------------------------------------------------
      &                iprt,cmo,eorb,t1,ht1,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
      &                g_t2,g_ht2,g_nt2,g_nht2,eccsd,
-     &                g_ncoul,g_nexch,tklst, Tol2E, occd)
+     &                g_ncoul,g_nexch,tklst, Tol2E, occd, eccsdos)
       call ga_sync()
 *
 *     RJH more CCD hacks

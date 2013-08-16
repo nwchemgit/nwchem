@@ -1,4 +1,4 @@
-      subroutine mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
+      subroutine mp2_lai_uhf(rtdb,nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $     sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $     sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
      $     sym_lo_foa,sym_hi_foa,num_foa,
@@ -19,7 +19,8 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
-      integer i
+#include "rtdb.fh"
+      integer rtdb, i
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
       integer sym_lo_va(0:*),sym_hi_va(0:*)
@@ -62,6 +63,9 @@ c
       parameter(msg_l_ai1_b_sum=9989)
       integer i_batch
       integer g_wai_a,g_wai_b
+c
+      logical scs                         ! flag for SCS-MP2
+      double precision fss,fos,mfss,mfos  ! scaling factors for SCS-MP2
 c     
 #include "bitops.fh"
 c     
@@ -71,6 +75,22 @@ c
       half=0.5d0
       tunitptra=1
       tunitptrb=1
+
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS gradient
+      if(scs)then
+        if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $    fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+        if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $    fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      else
+        fss=one
+        fos=one
+      endif
+      mfss=-fss
+      mfos=-fos
 
       if (noa_lo .gt. 1) then
          call dfill(noa*(noa_lo-1),zero,l_iy3_a,1)
@@ -116,7 +136,7 @@ c     Ljc <- sum(iab) Tjb,ia*(cb|ia)
 c     
                   call dgemm('n','t',num_oa(symj),
      $                 num_va(symc),num_va(symb),
-     $                 one,t(tcounta),num_oa(symj),
+     $                 fss,t(tcounta),num_oa(symj),
      $                 ia_cb,num_va(symc),one,
      $                 l_ai3_a(sym_lo_oa(symj),sym_lo_va(symc)),noa)
                end if
@@ -141,7 +161,7 @@ c     Ljy <- sum(iab) Tjb,ia*(yb|ia)
 c     
                      call dgemm('n','t',num_oa(symj),
      $                    num_foa(symy),num_va(symb),
-     $                    one,t(tcounta),num_oa(symj),
+     $                    fss,t(tcounta),num_oa(symj),
      $                    ia_cb,num_foa(symy),one,
      $                    l_iy3_a(sym_lo_oa(symj),sym_lo_foa(symy)),noa)
                   end if
@@ -166,7 +186,7 @@ c     Lkb = sum(iaj) (ia|jk)*Tjb,ia
 c     
                   call dgemm('t','n',num_oa(symk),
      $                 num_va(symb),num_oa(symj),
-     $                 minusone,ia_jk,num_oa(symj),
+     $                 mfss,ia_jk,num_oa(symj),
      $                 t(tcounta),num_oa(symj),one,
      $                 l_ai1_a(sym_lo_oa(symk),sym_lo_va(symb)),noa_hi)
                end if
@@ -191,7 +211,7 @@ c     Lyb = sum(iaj) (ia|jy)*Tjb,ia
 c     
                      call dgemm('t','n',num_foa(symk),
      $                    num_va(symb),num_oa(symj),
-     $                    minusone,ia_jk,num_oa(symj),
+     $                    mfss,ia_jk,num_oa(symj),
      $                    t(tcounta),num_oa(symj),one,
      $                    l_ai1_a(sym_lo_foa(symk),sym_lo_va(symb)),
      $                    noa_hi)
@@ -222,7 +242,7 @@ c     Ljc <- sum(iab) Tjb,ia*(cb|ia)
 c     
                   call dgemm('n','t',num_ob(symj),
      $                 num_vb(symc),num_vb(symb),
-     $                 one,t(tcountb),num_ob(symj),
+     $                 fos,t(tcountb),num_ob(symj),
      $                 ia_cb,num_vb(symc),one,
      $                 l_ai3_b(sym_lo_ob(symj),sym_lo_vb(symc)),nob)
                end if
@@ -247,7 +267,7 @@ c     Ljy <- sum(iab) Tjb,ia*(yb|ia)
 c     
                      call dgemm('n','t',num_ob(symj),
      $                    num_fob(symy),num_vb(symb),
-     $                    one,t(tcountb),num_ob(symj),
+     $                    fos,t(tcountb),num_ob(symj),
      $                    ia_cb,num_fob(symy),one,
      $                    l_iy3_b(sym_lo_ob(symj),sym_lo_fob(symy)),nob)
                   end if
@@ -272,7 +292,7 @@ c     Lkb = sum(iaj) (ia|kj)*Tjb,ia
 c     
                   call dgemm('t','n',num_ob(symk),
      $                 num_vb(symb),num_ob(symj),
-     $                 minusone,ia_jk,num_ob(symj),
+     $                 mfos,ia_jk,num_ob(symj),
      $                 t(tcountb),num_ob(symj),one,
      $                 l_ai1_b(sym_lo_ob(symk),sym_lo_vb(symb)),
      $                 nob_hi)
@@ -298,7 +318,7 @@ c     Lyb = sum(iaj) (ia|jy)*Tjb,ia
 c     
                      call dgemm('t','n',num_fob(symk),
      $                    num_vb(symb),num_ob(symj),
-     $                    minusone,ia_jk,num_ob(symj),
+     $                    mfos,ia_jk,num_ob(symj),
      $                    t(tcountb),num_ob(symj),one,
      $                    l_ai1_b(sym_lo_fob(symk),sym_lo_vb(symb)),
      $                    nob_hi)

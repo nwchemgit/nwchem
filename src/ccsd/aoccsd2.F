@@ -52,6 +52,7 @@ c triples
       integer ga_create_jkblocked
       logical oexch,ocoul,ohalf,oprint,oprinthigh
       double precision eccsdt,eccsd,empt(2),tx(3)
+      double precision eccsdos,eccsdss,fos,fss
       Integer Nodes, IAm, memdrv, memtrn
 c
       integer kchunk,nkpass,    ! For reduced-memory triples
@@ -257,7 +258,7 @@ c
      &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
-     $     occd, oconverged)
+     $     occd, oconverged, eccsdos)
 c     
       call ga_sync
 c
@@ -427,6 +428,13 @@ c
       else
          call qexit('aoccsd',0)
       endif
+
+c    get scaling factors for SCS-CCSD
+      if (.not. rtdb_get(rtdb, 'ccsd:fss', mt_dbl, 1, fss))
+     $  fss = 1.13d0        ! same spin scaling factor
+      if (.not. rtdb_get(rtdb, 'ccsd:fos', mt_dbl, 1, fos))
+     $  fos = 1.27d0        ! opposite spin scaling factor
+
 c
       If ( GA_NodeID() .eq. 0 .AND.
      $     Util_Print('information', Print_Low) .AND.
@@ -444,6 +452,27 @@ c
          call ecce_print1('ccsd correlation energy', mt_dbl, eccsd, 1)
          call ecce_print1('ccsd total energy', mt_dbl, refener+eccsd, 1)
          call ecce_print1('total ccsd energy', mt_dbl, refener+eccsd, 1)
+
+c       Spin Componenst Scaled CCSD
+
+         write(LuOut,'(/)')
+         eccsdss=eccsd-eccsdos
+         Call Banner(LuOut,
+     $      'Spin Component Scaled (SCS) CCSD', '-',
+     $      .TRUE., .TRUE., .FALSE.)
+         Write (LuOut, '(1X, A, F30.15)')'Same spin contribution:     ',
+     $      eccsdss
+         Write (LuOut, '(1X, A, F30.15)')'Same spin scaling factor:   ',
+     $      fss
+         Write (LuOut, '(1X, A, F30.15)')'Opposite spin contribution: ',
+     $      eccsdos
+         Write (LuOut, '(1X, A, F30.15)')'Opposite spin scaling fact.:',
+     $      fos
+         Write (LuOut, '(1X, A, F30.15)')'SCS-CCSD correlation energy:',
+     $      eccsdos*fos+eccsdss*fss
+         Write (LuOut, '(1X, A, F30.15)')'Total SCS-CCSD energy:      ',
+     $      RefEner+eccsdos*fos+eccsdss*fss
+
       EndIf
 C
 C     Write our energy out to the database

@@ -87,6 +87,8 @@ c
 c
       logical dftmp2            ! use DFT reference orbitals and energy
       double precision mp2fac   ! coefficient on MP2 contribution to total energy
+      double precision ess,  fss, eos, fos ! Spin Component Scaled (SCS) MP2
+      logical scs                          ! SCS gradient
 c
 c     Check for dftmp2
 c
@@ -376,6 +378,20 @@ c
       e2=0.0d0
       esing = 0.0d0
       etrip = 0.0d0
+
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $  fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $  fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS gradient
+      if (util_print('information',print_low).and.ga_nodeid().eq.0
+     $     .and.scs) then
+         write(6,'(''  SCS-MP2               = '', l1)') scs
+         call util_flush(6)
+      endif
 c     
 c...  A note on notation: arrays for four index quantities of pure spin
 c...  denoted with a _a on the end. Mixed spin case with a _b. On first
@@ -478,8 +494,13 @@ c
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
      $     dbl_mb(k_grad),scftype)
+
+      ess= etrip / 3.0d0
+ 
       if(scftype.eq.'UHF') then
          pass=2
+         esing = 0.0d0
+         etrip = 0.0d0
          call mp2_grad_uhf(rtdb,g_vecs_b,nob_lo,nob_hi,
      $        nvb_lo,nvb_hi,int_mb(k_irs_b),sym_lo_ob,
      $        sym_hi_ob,sym_lo_vb,sym_hi_vb,num_ob_sym,
@@ -498,6 +519,8 @@ c
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
      $        dbl_mb(k_grad),scftype)
+         ess = ess + etrip / 3.0d0
+         eos = e2 - ess
          esing = 0.0d0
          etrip = 0.0d0
       else
@@ -507,6 +530,8 @@ c     spin pieces together and then set alpha=beta.  The
 c     energy and non-separable gradient need doubling.
 c     
          e2 = e2 * 2.0d0
+         ess= ess * 2.0d0
+         eos = e2 - ess
 c     
          if (task .eq. 'gradient') then
             call dscal(3*natoms, 2.0d0, dbl_mb(k_grad), 1)
@@ -564,6 +589,20 @@ c
      $            /,10x,'Triplet pairs      ',f24.12,
      $            /,10x,'Total MP2 energy   ',f24.12,
      $            /,10x,43('-'),/)
+
+                  ! SCS-MP2
+
+          write(6,997) ess, fss, eos, fos, fss*ess+fos*eos,
+     $                 escf+fss*ess+fos*eos
+ 997      format(//,10x,51('-'),
+     $            /,20x,'Spin Component Scaled (SCS) MP2'
+     $            /,10x,'Same spin pairs            ',f24.12,
+     $            /,10x,'Same spin scaling factor   ',f24.12,
+     $            /,10x,'Opposite spin pairs        ',f24.12,
+     $            /,10x,'Opposite spin scaling fact.',f24.12,
+     $            /,10x,'SCS-MP2 correlation energy ',f24.12,
+     $            /,10x,'Total SCS-MP2 energy       ',f24.12,
+     $            /,10x,51('-'),/)
         endif
         call util_flush(6)
       end if 

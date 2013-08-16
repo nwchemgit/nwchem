@@ -123,13 +123,15 @@ c
 c      mo2_lo <= vlo <= vhi <= mo2_hi
 c  
 
-       subroutine moints_e2pair(nocc, ostart, occ_lo, occ_hi, 
+       subroutine moints_e2pair(rtdb, nocc, ostart, occ_lo, occ_hi, 
      $                          mo2_lo, mo2_hi, vlo, vhi, g_k, 
      $                          orbe, g_epair)
        implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "rtdb.fh"
+       integer rtdb                                  ! [input]  run-time database handle
        integer nocc                                  ! [input]  number of occupied orbitals (including frozen)
        integer ostart                                ! [input]  first correlated occupied index
        integer occ_lo, occ_hi                        ! [input]  index range of correlated occupied for this pass 
@@ -146,12 +148,31 @@ c
        double precision xx,denom
        double precision moints_epair_eval
        external moints_epair_eval
+       double precision c1,c2       ! constants for moints_epair_eval (because of SCS-MP2)
+       double precision fss, fos    ! Spin Component Scaled (SCS) MP2
+       logical scs                  ! SCS-MP2 flag
 #ifdef BAD_GACCESS
       integer l_local
 #endif
 c$$$       INTEGER III,JJJ
 c$$$       DOUBLE PRECISION CRAP(1000)
 c
+
+c     flag and scaling factors for SCS-MP2
+
+       if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $   fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+       if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $   fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+       if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $   scs = .false.       ! flag for SCS-MP2
+         if (scs ) then
+           c1 = 2.0d0*(fss+fos)
+           c2 = 2.0d0*fss
+         else
+           c1 = 4.0d0
+           c2 = 2.0d0
+         endif
 c
        ofroz = ostart - 1
        ooff = ((occ_lo-ofroz)*(occ_lo-ofroz-1))/2
@@ -192,7 +213,7 @@ c
 #endif
              xx = moints_epair_eval( vlo, vhi, mo2_lo, mo2_hi, 
      $                                 dbl_mb(k_exch), orbe(nocc+1), 
-     $                                 denom)
+     $                                 denom, c1, c2)
 #ifdef BAD_GACCESS
       if(.not.ma_pop_stack(l_local)) call 
      $  errquit('mointsmp2: popstack failed',0,0)
@@ -233,7 +254,7 @@ c$$$       endif
 
        double precision 
      $    function moints_epair_eval(vlo, vhi, mo2_lo, mo2_hi,
-     $                                 xk, virorbe, denom )
+     $                                 xk, virorbe, denom, c1, c2 )
        implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -243,11 +264,12 @@ c$$$       endif
        double precision xx, yy
        double precision xxxx
        integer a,b
+       double precision c1,c2
 
        xx = 0.d0
        do a=vlo,vhi
          do b=vlo,vhi
-           yy = xk(a,b)*(4.d0*xk(a,b) - 2.d0*xk(b,a))
+           yy = xk(a,b)*(c1*xk(a,b) - c2*xk(b,a))
            xxxx = denom  - virorbe(b) - virorbe(a)
            if (abs(xxxx).lt.1.d-10)
      $       call errquit('moints_epair_eval: zero denominator',0,

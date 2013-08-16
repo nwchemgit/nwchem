@@ -15,12 +15,12 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 17)
+      parameter (num_dirs = 19)
       character*8 dirs(num_dirs)
       character*255 test
       character*80 key
       integer maxit, iprt, MaxDIIS
-      Double Precision convi, tol2e
+      Double Precision convi, tol2e, fss, fos
 C
 C     Length of debugging arrays (LenDbg) is defined in ccsd_debug.fh
 C
@@ -28,7 +28,7 @@ C
       data dirs /'maxiter','thresh','tol2e','iprt',
      $   'print','noprint',
      $   'doa', 'dob', 'dog', 'doh', 'dojk', 'dos', 'dod',
-     $   'diisbas', 'freeze', 'nodisk', 'end'/
+     $   'diisbas', 'freeze', 'nodisk', 'fss', 'fos', 'end'/
 c
 c     Remove previous entries so empty directive forces freeze nothing.
 c     To be consistent with the rest of the code, a new ccsd block
@@ -51,7 +51,8 @@ c
      &       INPUT_ERR)
 c     
       goto (100, 200, 300, 400, 500, 600, 700,
-     $   800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 9999) ind
+     $   800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600,
+     $  1700, 1800, 9999) ind
       call errquit('ccsd_input: unimplemented directive', ind,
      &       INPUT_ERR)
 c     
@@ -171,6 +172,22 @@ C
  1600 print*,'usedisk called input'
       if (.not. rtdb_put(rtdb, 'ccsd:usedisk', mt_log, 1, .false.))
      $     call errquit('ccsd-input: rtdb_put failed', 0, RTDB_ERR)
+      goto 10
+c     
+c     fss <same spin scaling factor for SCS-CCSD>
+c     
+ 1700 if (.not. inp_f(fss)) call errquit
+     $     ('ccsd_input: failed reading fss', 0, INPUT_ERR)
+      if (.not. rtdb_put(rtdb, 'ccsd:fss', mt_dbl, 1, fss))
+     $     call errquit('ccsd_input: rtdb_put failed', 0, RTDB_ERR)
+      goto 10
+c     
+c     fos <opposite spin scaling factor for SCS-CCSD>
+c     
+ 1800 if (.not. inp_f(fos)) call errquit
+     $     ('ccsd_input: failed reading fos', 0, INPUT_ERR)
+      if (.not. rtdb_put(rtdb, 'ccsd:fos', mt_dbl, 1, fos))
+     $     call errquit('ccsd_input: rtdb_put failed', 0, RTDB_ERR)
       goto 10
 c
 c     end

@@ -952,8 +952,13 @@ c
       logical status
       double precision moints_epair_eval
       external moints_epair_eval
+      double precision c1,c2       ! constants for moints_epair_eval (because of SCS-MP2)
 
       tmp2 = util_cpusec()
+c
+      c1=4.0d0
+      c2=2.0d0
+c
       call util_file_name('kh',.true.,.true.,fname)
 #ifdef EAFHACK
       if (eaf_open(fname, 200, kunit).ne.0)
@@ -1038,7 +1043,7 @@ c     $                              orbe(ohi+1), denom )
             call errquit('suspect call to moints_epair_eval',0,
      &       UNKNOWN_ERR)
             xx = moints_epair_eval( nvir, 0, nvir, 0, dbl_mb(k_local),
-     $                              orbe(ohi+1), denom )
+     $                              orbe(ohi+1), denom, c1, c2 )
             call ga_release(g_exch, rlo, rhi, jj, jj )
             if (o.eq.j) xx = xx*0.5d0
             e2 = e2 + xx

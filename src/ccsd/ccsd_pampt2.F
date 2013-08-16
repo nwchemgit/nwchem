@@ -3,7 +3,7 @@
      $                      scra,scrb,hiu,hia,habe,giu,gabe,
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
-     &                      tklst, Tol2E, occd)
+     &                      tklst, Tol2E, occd, eccsdos)
 C     $Id$
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
@@ -29,7 +29,7 @@ c
       integer i,j,a,b,av,bv,ij,ad1,ad2,ad3,ad4,offt2,icnt,nvp1,
      &        ilo,ihi,jlo,jhi,lhoo,lhoov
       integer iin,jin
-      double precision eccsd,fac
+      double precision eccsd,fac, eccsdos
 c
       double precision zip,one,half,two
 c
@@ -259,6 +259,7 @@ c ----------------------------------------------------------
 c
       if (iam.eq.0.and.iprt.gt.5)print *,'start energy'
       eccsd=zip
+      eccsdos=zip
       call ga_zero(g_nt2)
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
       do a=1,nvir
@@ -307,6 +308,11 @@ c
               ad4=(bv-1)*nvir+av
               eccsd=eccsd+fac*(two*scrb(ad3)-scrb(ad4))*scra(ad3)
               eccsd=eccsd+fac*(two*scrb(ad4)-scrb(ad3))*scra(ad4)
+
+c             opposite spin component of ccsd energy for spin component scaled CCSD
+
+              eccsdos=eccsdos+fac*scra(ad3)*scrb(ad3)
+              eccsdos=eccsdos+fac*scra(ad4)*scrb(ad4)
             enddo
             enddo
           endif
@@ -314,6 +320,7 @@ c
         endif
       enddo
       call ga_dgop(msg_cc_ecc,eccsd,1, '+')
+      call ga_dgop(msg_cc_ecc,eccsdos,1, '+')
       if (iprt.gt.5.and.iam.eq.0)then
        write(6,1238)eccsd
  1238  format(/, ' eccsd  ',e20.12,/)

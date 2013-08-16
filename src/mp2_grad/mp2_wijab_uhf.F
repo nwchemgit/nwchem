@@ -1,4 +1,4 @@
-      subroutine mp2_wijab_uhf(nir,nva_lo,nva_hi,
+      subroutine mp2_wijab_uhf(rtdb,nir,nva_lo,nva_hi,
      $     sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
      $     sym_hi_vb,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,num_oa,
      $     num_ob,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
@@ -16,7 +16,8 @@
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "bitops_decls.fh"
-      integer i,a_a,nbf
+#include "rtdb.fh"
+      integer rtdb,i,a_a,nbf
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer nob_lo,nob_hi,nvb_lo,nvb_hi
       integer sym_lo_oa(0:7),sym_hi_oa(0:7)
@@ -48,6 +49,9 @@
       parameter(msg_w_ab_a_sum=9994)
       parameter(msg_w_ab_b_sum=9993)
       integer wijacnt,wijbcnt,wabacnt,wabbcnt
+c
+      logical scs                    ! flag for SCS-MP2
+      double precision fss,fos,hfss  ! scaling factors for SCS-MP2
 c     
       integer k_w_ij_a,k_w_ij_b
       integer l_w_ij_a,l_w_ij_b
@@ -89,6 +93,22 @@ c
       call dfill((nva*nva),zero,dbl_mb(k_w_ab_a),1)
       call dfill((nob*nob),zero,dbl_mb(k_w_ij_b),1)
       call dfill((nvb*nvb),zero,dbl_mb(k_w_ab_b),1)
+
+c     flag and scaling factors for SCS-MP2
+
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS gradient
+      if(scs)then
+        if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $    fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+        if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $    fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      else
+        fss=one
+        fos=one
+      endif
+      hfss=half*fss
+c
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          do a_a=nva_lo_local,nva_hi_local
@@ -139,12 +159,12 @@ c
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
                   wijacnt = off_oa(symj)+k_w_ij_a
                   call dgemm('n','t',num_oa(symj),
-     $                 num_oa(symj),num_va(symb),half,
+     $                 num_oa(symj),num_va(symb),hfss,
      $                 t_a(tcounta),num_oa(symj),t_eps_a(tcounta),
      $                 num_oa(symj),one,dbl_mb(wijacnt),noa)
                   wabacnt = off_va(symb)+k_w_ab_a
                   call dgemm('t','n',num_va(symb),
-     $                 num_va(symb),num_oa(symj),half,
+     $                 num_va(symb),num_oa(symj),hfss,
      $                 t_a(tcounta),num_oa(symj),t_eps_a(tcounta),
      $                 num_oa(symj),one,dbl_mb(wabacnt),nva)
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
@@ -153,12 +173,12 @@ c
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   wijbcnt = off_ob(symj)+k_w_ij_b
                   call dgemm('n','t',num_ob(symj),
-     $                 num_ob(symj),num_vb(symb),one,
+     $                 num_ob(symj),num_vb(symb),fos,
      $                 t_b(tcountb),num_ob(symj),t_eps_b(tcountb),
      $                 num_ob(symj),one,dbl_mb(wijbcnt),nob)
                   wabbcnt = off_vb(symb)+k_w_ab_b
                   call dgemm('t','n',num_vb(symb),
-     $                 num_vb(symb),num_ob(symj),one,
+     $                 num_vb(symb),num_ob(symj),fos,
      $                 t_b(tcountb),num_ob(symj),t_eps_b(tcountb),
      $                 num_ob(symj),one,dbl_mb(wabbcnt),nvb)
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)

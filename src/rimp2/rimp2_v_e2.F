@@ -6,20 +6,21 @@ C REVISION
 C     $Id$
 C
 C SYNOPSIS
-      Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
+      Logical Function RIMP2_V_E2( rtdb, D_Int, FNInt, TopSpin, NMO,
      $   NOcc, NVir, NFit, FitBas, Eig, LDEig, Contrib, E2,
      $   Mem_Opt, IBlock, JBlock,actualname)
       Implicit NONE
 C
       Character*(*) FNInt
       Integer TopSpin, D_Int(TopSpin), NMO(TopSpin), NFit, FitBas,
-     $   IBlock, JBlock, LDEig
+     $   IBlock, JBlock, LDEig, rtdb
       Integer NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
       Double precision E2
       Character*(*) Mem_Opt,actualname
 C
 C ARGUMENTS
+C     rtdb     Handle for run-time database [IN]
 C     D_Int    Handles for integral files [IN]
 C     FNInt    File name for MO basis 3-center integrals [IN]
 C     TopSpin  Number of spins in reference (RHF=1, UHF=2) [IN]
@@ -75,6 +76,7 @@ C INCLUDE FILES
 #include "stdio.fh"
 #include "rimp2_timers.fh"
 #include "util.fh"
+#include "rtdb.fh"
 C
 C EXTERNAL ROUTINES
       Logical Open_3ci_File, Get_3cInts, Close_3cI_File,
@@ -110,6 +112,9 @@ c$$$      Double precision ChkSum, MxElem
       Character*255 String1
       Integer NewIBlk, NewJBlk
       Logical PrInfo
+c
+      double precision fss, fos ! Spin Component Scaled (SCS) MP2
+      logical scs               ! SCS flag
 C
       Call GA_Sync
       Call PStat_On(PS_Energy)
@@ -151,6 +156,20 @@ C
          RIMP2_V_E2 = .FALSE.
          Return
       EndIf
+
+c     flag and scaling factors for SCS-MP2
+      if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
+     $  scs = .false.       ! flag for SCS
+      if (scs) then
+         if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $     fss = 1.0d0/3.0d0   ! same spin scaling factor for SCS-MP2
+         if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $     fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
+      else
+         fss = 1.0d0
+         fos = 1.0d0
+      endif
+
 
 C
 C     Get my processor number
@@ -424,6 +443,18 @@ C                 UHF AA     (IA|JB)       (IA|JB) - (IB|JA)
 C                 UHF Ab     (IA|jb)       (IA|jb) 
 C                 UHF bb     (ia|jb)       (ia|jb) - (ib|ja)
 C
+C                 Introducing SCS scaling, the above table transforms into
+C
+C                 Term          A                           B
+C                 RHF        (IA|JB)      (fss+fos) (IA|JB) - fss (IB|JA)
+C                 UHF AA     (IA|JB)         fss    (IA|JB) - fss (IB|JA)
+C                 UHF Ab     (IA|jb)         fos    (IA|jb) 
+C                 UHF bb     (ia|jb)         fss    (ia|jb) - fss (ib|ja)
+C
+C                 Where fss and fos are the same-spin and opposite-spin scaling
+C                 factors, respectively. In the conventional case we have 
+C                 fss = fos = 1.0, and we recover the previous expressions.
+C
 C                 So in every case except UHF Ab, we can initialize
 C                 B with A transpose, but on a block-wise basis.
 C
@@ -474,18 +505,18 @@ C                    copy of B before moving on.
 C
                      Call GA_Sync
 C
-C                    In all of these cases, we also have to scale B
-C                    by -1 and add some multiple of A to it,
-C                    2 for RHF, 1 for UHF.
+C                    Scale B and add some multiple of A to it,
+C                    according to the SCS scaling above
 C
-                     Fact = Dble( 3 - TopSpin)
-                     Call GA_DAdd( Fact, G_bigA, -FP_One, G_bigB,
+                     Fact = fss + fos * Dble( 2 - TopSpin )
+                     Call GA_DAdd( Fact, G_bigA, -fss, G_bigB,
      $                  G_bigB)
                   Else
 C
 C                    For the mimxed-spin case, its just a straight copy
 C
                      Call GA_Copy( G_bigA, G_bigB)
+                     if ( fos .ne. 1.0d0 ) call GA_Dscal( G_bigB, fos )
                   EndIf
                   Call PStat_Off( PS_form_ab)
 C
