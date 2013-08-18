@@ -678,8 +678,8 @@ c
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
 c
-      parameter (mxface=10920)
-      parameter (mxapex= 4098)
+      parameter (mxface=43688)
+      parameter (mxapex=16386)
       logical     dbug
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
