@@ -202,18 +202,18 @@
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
-      integer exi(2),xtmp(2),sw1(2),sw2(2),sw3(2),asum(2)
+      integer exi(2),xtmp(2),zsw1(2),zsw2(2),zsw3(2),asum(2)
       logical value,sd_function
       real*8 vmm(50)
       integer ld_ptr
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,Pack_G_indx
+      integer  ion_nion,ion_katm,c_G_indx
       integer  psi_data_get_ptr,psi_data_get_chnk
       real*8   lattice_omega
       external is_sORd
-      external ion_nion,ion_katm,Pack_G_indx
+      external ion_nion,ion_katm,c_G_indx
       external psi_data_get_ptr,psi_data_get_chnk
       external lattice_omega
 
@@ -226,11 +226,11 @@
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw2',zsw2(2),zsw2(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw3',sw3(2),sw3(1))
+     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw3',zsw3(2),zsw3(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
@@ -241,9 +241,9 @@
        if (.not. value) 
      >  call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
 
-       G(1)  = Pack_G_indx(1,1)
-       G(2)  = Pack_G_indx(1,2)
-       G(3)  = Pack_G_indx(1,3)
+       G(1)  = c_G_indx(1,1)
+       G(2)  = c_G_indx(1,2)
+       G(3)  = c_G_indx(1,3)
       end if
 
       omega = lattice_omega()
@@ -266,7 +266,7 @@
            call cstrfac_k(ii,nbq,cxr)
            call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
-*          **** generate sw1's and projectors ****
+*          **** generate zsw1's and projectors ****
            do l=1,nproj
               shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
               l_prj = int_mb(l_projector(1)+(l-1) 
@@ -302,7 +302,7 @@
 
 *          **** sw2 = Gijl*sw1 ******
            Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
-           call Multiply_Gijl_sw1(nn,
+           call Multiply_Gijl_zsw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
@@ -402,7 +402,7 @@
 
              end do
 
-             call D3dB_Vector_SumAll(3*(nn),dbl_mb(asum(1)))
+             call C3dB_Vector_SumAll(3*(nn),dbl_mb(asum(1)))
 
              !**** fractional weighting ****
              if (fractional) then
@@ -442,9 +442,9 @@
       value = value.and.MA_pop_stack(asum(2))
       value = value.and.MA_pop_stack(xtmp(2))
       end if
-      value = value.and.MA_pop_stack(sw3(2))
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(zsw3(2))
+      value = value.and.MA_pop_stack(zsw2(2))
+      value = value.and.MA_pop_stack(zsw1(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
@@ -486,18 +486,18 @@
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
-      integer exi(2),xtmp(2),sw1(2),sw2(2),sw3(2),asum(2)
+      integer exi(2),xtmp(2),zsw1(2),zsw2(2),zsw3(2),asum(2)
       logical value,sd_function
       real*8 vmm(50)
       integer ld_ptr
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,Pack_G_indx
+      integer  ion_nion,ion_katm,c_G_indx
       integer  psi_data_get_ptr,psi_data_get_chnk
       real*8   lattice_omega
       external is_sORd
-      external ion_nion,ion_katm,Pack_G_indx
+      external ion_nion,ion_katm,c_G_indx
       external psi_data_get_ptr,psi_data_get_chnk
       external lattice_omega
 
@@ -510,11 +510,11 @@
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw2',zsw2(2),zsw2(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw3',sw3(2),sw3(1))
+     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw3',zsw3(2),zsw3(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
@@ -524,9 +524,9 @@
       if (.not. value) 
      > call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
 
-      G(1)  = Pack_G_indx(1,1)
-      G(2)  = Pack_G_indx(1,2)
-      G(3)  = Pack_G_indx(1,3)
+      G(1)  = c_G_indx(1,1)
+      G(2)  = c_G_indx(1,2)
+      G(3)  = c_G_indx(1,3)
 
       omega = lattice_omega()
       scal = 1.0d0/omega
@@ -546,7 +546,7 @@
 *          **** structure factor and local pseudopotential ****
            call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
-*          **** generate sw1's and projectors ****
+*          **** generate zsw1's and projectors ****
            do l=1,nproj
               shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
               l_prj = int_mb(l_projector(1)+(l-1) 
@@ -575,13 +575,14 @@
               call Pack_cc_indot(1,nn,
      >                      psi1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-     >                      dbl_mb(sw1(1)+(l-1)*nn))
+     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            end do
-           call D3dB_Vector_SumAll((nn*nproj*nprj_mult),dbl_mb(sw1(1)))
+           call C3dB_Vector_SumAll((2*nn*nproj*nprj_mult),
+     >                             dcpl_mb(zsw1(1)))
 
-*          **** sw2 = Gijl*sw1 ******
+*          **** zsw2 = Gijl*zsw1 ******
            Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
-           call Multiply_Gijl_sw1(nn,
+           call Multiply_Gijl_zsw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
@@ -592,10 +593,10 @@
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         dbl_mb(Gijl_indx),
-     >                         dbl_mb(sw1(1)),
-     >                         dbl_mb(sw2(1)))
+     >                         dcpl_mb(zsw1(1)),
+     >                         dcpl_mb(zsw2(1)))
 
-           call dcopy(nn*nproj,0.0d0,0,dbl_mb(sw3(1)),1)
+           call dcopy(2*nn*nproj,0.0d0,0,dcpl_mb(zsw3(1)),1)
            do nu=1,pspnuterms
            if (log_mb(psputerm_ions(1)+ii-1+(nu-1)*nion)) then
               ld_ptr =psputerm_ld(1)+int_mb(psputerm_ld_start(1)+j)
@@ -631,7 +632,7 @@
            end if
            end do
 
-           call Multiply_Gijl_sw1(nn,
+           call Multiply_Gijl_zsw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
@@ -642,8 +643,8 @@
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         dbl_mb(Gijl_indx),
-     >                         dbl_mb(sw3(1)),
-     >                         dbl_mb(sw2(1)))
+     >                         dcpl_mb(zsw3(1)),
+     >                         dcpl_mb(zsw2(1)))
         
 *          **** do Kleinman-Bylander Multiplication ****
            call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
@@ -673,7 +674,7 @@
 
              end do
 
-             call D3dB_Vector_SumAll(3*(nn),dbl_mb(asum(1)))
+             call C3dB_Vector_SumAll(3*(nn),dbl_mb(asum(1)))
 
              !**** fractional weighting ****
              if (fractional) then
@@ -710,9 +711,9 @@
       value = .true.
       value = value.and.MA_pop_stack(asum(2))
       value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(sw3(2))
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(zsw3(2))
+      value = value.and.MA_pop_stack(zsw2(2))
+      value = value.and.MA_pop_stack(zsw1(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
