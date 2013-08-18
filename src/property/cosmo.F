@@ -40,7 +40,7 @@ c
       iscren   =0
       ifscrn   =1 ! surface charge correction not good in geometry opt., old default was 2!!!
       minbem   =2
-      maxbem   =3
+      maxbem   =4
       ificos   =0
       lineq    =1
       rsolv    =0.5d+00
@@ -460,7 +460,7 @@ c
       iscren   =0
       ifscrn   =1 ! surface charge correction not good in geometry opt.
       minbem   =2
-      maxbem   =3
+      maxbem   =4
       ificos   =0
       lineq    =1
       rsolv    =0.5d+00
@@ -525,7 +525,7 @@ c
          maxbem=4
       endif
       if(maxbem.lt.minbem) then
-         maxbem=minbem+2
+         maxbem=min(mxpass,minbem+2)
       endif
 c
       ificos=abs(ificos)
