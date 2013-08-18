@@ -179,7 +179,7 @@
 *  Note - This routine was restructured 5-13-2002 to improve
 *         parallel efficiency.
 *
-      subroutine cpsp_U_v_nonlocal(ispin,ne,psi1,psi2,move,fion,
+      subroutine cpsp_U_v_nonlocal(ispin,ne,psi1_tag,psi2_tag,move,fion,
      >                            fractional,occ,ld_update)
       implicit none
       integer    ispin,ne(2)
@@ -262,7 +262,9 @@
            nproj = int_mb(nprj(1)+ia-1)
 
 *          **** structure factor and local pseudopotential ****
-           call strfac_pack(1,ii,dcpl_mb(exi(1)))
+           call cstrfac_pack(nbq,ii,dcpl_mb(exi(1)))
+           call cstrfac_k(ii,nbq,cxr)
+           call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
 *          **** generate sw1's and projectors ****
            do l=1,nproj
@@ -279,23 +281,24 @@
 
 *             *** current function is s or d ****
               if (sd_function) then
-                 call Pack_tc_Mul(1,dbl_mb(shift),
+                 call Cram_rc_Mul(nbq,dbl_mb(shift),
      >                              dcpl_mb(exi(1)),
      >                              dcpl_mb(prjtmp(1)+(l-1)*npack1))
 
 *             *** current function is p or f ****
               else
-                 call Pack_tc_iMul(1,dbl_mb(shift),
+                 call Cram_irc_iMul(nbq,dbl_mb(shift),
      >                              dcpl_mb(exi(1)),
      >                              dcpl_mb(prjtmp(1)+(l-1)*npack1))
 
               end if
-              call Pack_cc_indot(1,nn,
-     >                      psi1,
+              call Cram_cc_inzdot(nbq,nn,
+     >                      dbl_mb(psi1_shift),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-     >                      dbl_mb(sw1(1)+(l-1)*nn))
+     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            end do
-           call D3dB_Vector_SumAll((nn*nproj*nprj_mult),dbl_mb(sw1(1)))
+           call C3dB_Vector_SumAll((2*nn*nproj*nprj_mult),
+     >                             dcpl_mb(zsw1(1)))
 
 *          **** sw2 = Gijl*sw1 ******
            Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
@@ -310,26 +313,26 @@
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         dbl_mb(Gijl_indx),
-     >                         dbl_mb(sw1(1)),
-     >                         dbl_mb(sw2(1)))
+     >                         dcpl_mb(zsw1(1)),
+     >                         dcpl_mb(zsw2(1)))
 
-           call dcopy(nn*nproj,0.0d0,0,dbl_mb(sw3(1)),1)
+           call dcopy(nn*nproj,0.0d0,0,dcpl_mb(zsw3(1)),1)
            do nu=1,pspnuterms
            if (log_mb(psputerm_ions(1)+ii-1+(nu-1)*nion)) then
               ld_ptr =psputerm_ld(1)+int_mb(psputerm_ld_start(1)+j)
               j = j + 1
               if (ld_update) then
-                 call psputerm_gen_l_density(ispin,ne,nproj,
+                 call cpsputerm_gen_l_density(ispin,ne,nproj,
      >                        int_mb(l_projector(1)
      >                               +(ia-1)*(nmax_max*lmmax_max)),
      >                        int_mb(m_projector(1)
      >                              +(ia-1)*(nmax_max*lmmax_max)),
-     >                        dbl_mb(sw2(1)),
+     >                        dcpl_mb(zsw2(1)),
      >                        int_mb(psputerm_l(1)+nu-1),
      >                        2*int_mb(psputerm_l(1)+nu-1)+1,
      >                        dbl_mb(ld_ptr))
               end if
-              call psputerm_gen_vmm(ispin,
+              call cpsputerm_gen_vmm(ispin,
      >                     int_mb(psputerm_l(1)+nu-1),
      >                     2*int_mb(psputerm_l(1)+nu-1)+1,
      >                     dbl_mb(psputerm_uscale(1)+nu-1),
@@ -338,18 +341,18 @@
      >                           +int_mb(psputerm_vstart(1)+nu-1)),
      >                     dbl_mb(ld_ptr),vmm,
      >                     psputerm_edftu,psputerm_pdftu)
-              call psputerm_add_upotential(ispin,ne,nproj,
+              call cpsputerm_add_upotential(ispin,ne,nproj,
      >                     int_mb(l_projector(1)
      >                            +(ia-1)*(nmax_max*lmmax_max)),
      >                     int_mb(m_projector(1)
      >                           +(ia-1)*(nmax_max*lmmax_max)),
      >                     int_mb(psputerm_l(1)+nu-1),
      >                     2*int_mb(psputerm_l(1)+nu-1)+1,
-     >                     vmm,dbl_mb(sw2(1)),dbl_mb(sw3(1)))
+     >                     vmm,dcpl_mb(zsw2(1)),dcpl_mb(zsw3(1)))
            end if
            end do
 
-           call Multiply_Gijl_sw1(nn,
+           call Multiply_Gijl_zsw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
@@ -360,8 +363,8 @@
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         dbl_mb(Gijl_indx),
-     >                         dbl_mb(sw3(1)),
-     >                         dbl_mb(sw2(1)))
+     >                         dcpl_mb(zsw3(1)),
+     >                         dcpl_mb(zsw2(1)))
         
 *          **** do Kleinman-Bylander Multiplication ****
            call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
@@ -873,12 +876,12 @@
 *     *                psputerm_gen_l_density            *
 *     *                                                  *
 *     ****************************************************
-      subroutine cpsputerm_gen_l_density(ispin,ne,nprj,l_prj,m_prj,sw2,
+      subroutine cpsputerm_gen_l_density(ispin,ne,nprj,l_prj,m_prj,zsw2,
      >                                  l,lm,l_density)
       implicit none
       integer ispin,ne(2),nprj
       integer l_prj(nprj),m_prj(nprj)
-      real*8  sw2(ne(1)+ne(2),nprj)
+      real*8  zsw2(ne(1)+ne(2),nprj)
       integer l,lm
       real*8  l_density(lm,lm,ispin)
 
