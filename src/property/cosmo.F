@@ -2376,7 +2376,7 @@ c
             write(luout,*) 'iterative -lineq-'
          endif
 c
-         if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_int,nefc,x(i20))) then
+         if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
 c
 c           If no raw COSMO charges were found initialize x=0
 c
@@ -2395,7 +2395,7 @@ c
      1                   x(i40),x(i50),x(i60),x(i70),
      2                   efcc,efcs)
 c
-         if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_int,nefc,x(i20))) then
+         if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
             call errquit('hnd_coschg: could not store raw COSMO charge',
      1                   nefc,RTDB_ERR)
          endif
