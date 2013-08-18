@@ -61,3 +61,24 @@
      >                         pspspin_upl,    pspspin_downl,
      >                         pspspin
 
+*     **** common block for cpsputerm ****
+      logical psputerm
+      integer pspnuterms
+      integer psputerm_vcount,psputerm_ld_count
+      integer psputerm_l(2)
+      integer psputerm_uscale(2)
+      integer psputerm_jscale(2)
+      integer psputerm_ions(2)
+      integer psputerm_vstart(2)
+      integer psputerm_vmmmm(2)
+      integer psputerm_ld_start(2)
+      integer psputerm_ld(2)
+      real*8  psputerm_edftu,psputerm_pdftu
+      common / cpsputerm_block / psputerm_edftu,psputerm_pdftu,
+     >                          psputerm_uscale,psputerm_jscale,
+     >                          psputerm_l,psputerm_ions,
+     >                          psputerm_vmmmm,psputerm_vstart,
+     >                          psputerm_ld,psputerm_ld_start,
+     >                          psputerm_ld_count,
+     >                          psputerm_vcount,pspnuterms,psputerm
+
