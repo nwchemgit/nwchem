@@ -27,9 +27,10 @@ c
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
-      if (theory.ne.'scf') then
-         write(LuOut,*) 'Electron Transfer for DFT has not been',
-     &                  ' implemented. NWChem will skip this task!.'
+
+      if ((theory.ne.'scf').and.(theory.ne.'dft')) then
+         write(LuOut,*) 'Electron Transfer has been',
+     &  ' implemented only for HF and DFT. NWChem will skip this task!.'
          task_et = .false.
          return
       endif
@@ -73,7 +74,7 @@ c     This function actually calculates Vba
 c
 *
 #include "rtdb.fh"
-c#include "mafdecls.fh"
+#include "mafdecls.fh"
 c#include "inp.fh"
 c#include "util.fh"
 c#include "global.fh"
@@ -97,12 +98,18 @@ c     Also returns status through the function value
 c
       integer rtdb
       logical status
-      external et_calc
-      logical  et_calc
+      external et_calc, et_calc_fmo
+      logical  et_calc, et_calc_fmo
       double precision Vba
+      integer fmo
 c
       task_et_doit = .false.
-      status = et_calc(rtdb,Vba)
+      if (.not.rtdb_get(rtdb,'et:fmo',MT_INT,1,fmo)) then
+         status = et_calc(rtdb,Vba)
+      else
+         status = et_calc_fmo(rtdb, Vba)
+      endif
+c
       task_et_doit = status
 c
       return
