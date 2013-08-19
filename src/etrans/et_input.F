@@ -8,7 +8,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 c     
-      integer rtdb, method_2e
+      integer rtdb, method_2e, fmo
       character*255 test
       double precision tol2e
 c
@@ -59,6 +59,16 @@ c
 c
          if (.not. rtdb_put(rtdb,'et:method_2e', MT_INT, 1, method_2e))
      $        call errquit('et_input: rtdb_put of method_2e failed',0,
+     &       RTDB_ERR)
+c
+      goto 100
+c
+c     choice of FMO method
+c     ---------------------------
+      else if (inp_compare(.false.,'fmo', test)) then
+        fmo = 1
+         if (.not. rtdb_put(rtdb,'et:fmo', MT_INT, 1, fmo))
+     $        call errquit('et_input: rtdb_put of fmo failed',0,
      &       RTDB_ERR)
 c
       goto 100
