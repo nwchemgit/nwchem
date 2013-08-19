@@ -1,0 +1,521 @@
+echo
+
+start etrans-fmo
+
+title "etrans-fmo"
+
+#simulates Figure 1 in J. AM. CHEM. SOC. 2006, 128, 9882-9886
+
+GEOMETRY frag1 NOCENTER NOAUTOZ NOAUTOSYM
+C  0.672749  0.0      0.0
+C -0.672749  0.0      0.0
+H  1.242623  0.934806 0.0
+H  1.242623 -0.934806 0.0
+H -1.242623  0.934806 0.0
+H -1.242623 -0.934806 0.0
+END
+
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.934806    5.000000
+H   1.242623    -0.934806   5.000000
+H   -1.242623   0.934806    5.000000
+H   -1.242623   -0.934806   5.000000
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.934806    5.000000
+H   1.242623    -0.934806   5.000000
+H   -1.242623   0.934806    5.000000
+H   -1.242623   -0.934806   5.000000
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag1
+dft
+ XC b3lyp
+ vectors input atomic output frag1.movecs
+end
+task dft energy
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 10 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.920604    5.162327
+H   1.242623    -0.920604   4.837673
+H   -1.242623   0.920604    5.162327
+H   -1.242623   -0.920604   4.837673
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.920604    5.162327
+H   1.242623    -0.920604   4.837673
+H   -1.242623   0.920604    5.162327
+H   -1.242623   -0.920604   4.837673
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 20 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.878430    5.319722
+H   1.242623    -0.878430   4.680278
+H   -1.242623   0.878430    5.319722
+H   -1.242623   -0.878430   4.680278
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.878430    5.319722
+H   1.242623    -0.878430   4.680278
+H   -1.242623   0.878430    5.319722
+H   -1.242623   -0.878430   4.680278
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 30 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.809566    5.467403
+H   1.242623    -0.809566   4.532597
+H   -1.242623   0.809566    5.467403
+H   -1.242623   -0.809566   4.532597
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.809566    5.467403
+H   1.242623    -0.809566   4.532597
+H   -1.242623   0.809566    5.467403
+H   -1.242623   -0.809566   4.532597
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 40 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.716103    5.600882
+H   1.242623    -0.716103   4.399118
+H   -1.242623   0.716103    5.600882
+H   -1.242623   -0.716103   4.399118
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.716103    5.600882
+H   1.242623    -0.716103   4.399118
+H   -1.242623   0.716103    5.600882
+H   -1.242623   -0.716103   4.399118
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 50 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.600882    5.716103
+H   1.242623    -0.600882   4.283897
+H   -1.242623   0.600882    5.716103
+H   -1.242623   -0.600882   4.283897
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.600882    5.716103
+H   1.242623    -0.600882   4.283897
+H   -1.242623   0.600882    5.716103
+H   -1.242623   -0.600882   4.283897
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 60 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.467403    5.809566
+H   1.242623    -0.467403   4.190434
+H   -1.242623   0.467403    5.809566
+H   -1.242623   -0.467403   4.190434
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.467403    5.809566
+H   1.242623    -0.467403   4.190434
+H   -1.242623   0.467403    5.809566
+H   -1.242623   -0.467403   4.190434
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 70 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.319722    5.878430
+H   1.242623    -0.319722   4.121570
+H   -1.242623   0.319722    5.878430
+H   -1.242623   -0.319722   4.121570
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.319722    5.878430
+H   1.242623    -0.319722   4.121570
+H   -1.242623   0.319722    5.878430
+H   -1.242623   -0.319722   4.121570
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 80 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.162327    5.920604
+H   1.242623    -0.162327   4.079396
+H   -1.242623   0.162327    5.920604
+H   -1.242623   -0.162327   4.079396
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.162327    5.920604
+H   1.242623    -0.162327   4.079396
+H   -1.242623   0.162327    5.920604
+H   -1.242623   -0.162327   4.079396
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
+
+## 90 degrees rotation
+## change only frag2 and dimer
+GEOMETRY frag2 NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.000000    5.934806
+H   1.242623    -0.000000   4.065194
+H   -1.242623   0.000000    5.934806
+H   -1.242623   -0.000000   4.065194
+END
+
+GEOMETRY dimer NOCENTER NOAUTOZ NOAUTOSYM
+C   0.672749    0.000000    0.000000
+C   -0.672749   0.000000    0.000000
+H   1.242623    0.934806    0.000000
+H   1.242623    -0.934806   0.000000
+H   -1.242623   0.934806    0.000000
+H   -1.242623   -0.934806   0.000000
+C   0.672749    0.000000    5.000000
+C   -0.672749   0.000000    5.000000
+H   1.242623    0.000000    5.934806
+H   1.242623    -0.000000   4.065194
+H   -1.242623   0.000000    5.934806
+H   -1.242623   -0.000000   4.065194
+END
+
+BASIS
+* LIBRARY 6-31+g*
+END
+
+set geometry frag2
+dft
+ XC b3lyp
+ vectors input frag1.movecs output frag2.movecs
+end
+task dft energy
+
+set geometry dimer
+dft
+ XC b3lyp
+ vectors input atomic output dimer.movecs
+end
+task dft energy
+
+ET
+ fmo
+END
+
+TASK dft ET
