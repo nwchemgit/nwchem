@@ -199,6 +199,8 @@ c     == Gather input from all available resources e.g. input unit, ==
 c     == old checkpoint files, etc. ==
       call dft_rdinput(rtdb)
 c
+      call dft_printinfo()
+c
 c     == Cosmo initialization ==
       cosmo_last = .false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
