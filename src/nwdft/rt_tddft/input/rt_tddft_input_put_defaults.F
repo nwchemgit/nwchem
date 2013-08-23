@@ -39,6 +39,7 @@ C      integer, parameter          :: nsnapshots = 0
       logical, parameter          :: subgs = .false.  !sub ground state dens w/ dplot (works?)
       logical, parameter          :: viz = .false.
       logical, parameter          :: nodisk = .false.   !XXX DISABLED NOW--ie, just use DFT settings
+      logical, parameter          :: matrix_checks = .false. 
 
 
       character(len=*), parameter :: tag = "<rt_tddft>: "
@@ -178,6 +179,10 @@ C
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
       
       if (.not.rtdb_put(rtdb,'rt_tddft:nodisk', mt_log,1,nodisk))
+     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
+
+      if (.not.rtdb_put(rtdb,'rt_tddft:matrix_checks',
+     $     mt_log,1,matrix_checks))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 
 
