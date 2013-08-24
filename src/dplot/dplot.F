@@ -38,6 +38,7 @@ c
       Character*80 File_civecs
       Integer g_x(2),g_y(2)
       integer iroot
+      logical ltransden
 c
 *---- Local variables
       Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit,iOff
@@ -69,6 +70,7 @@ c
       Coord(1) = 'X'
       Coord(2) = 'Y'
       Coord(3) = 'Z'
+      ltransden = .false.
 *
 *---- Push context down to DPlot
       If (.not.context_push('dplot'))
@@ -495,9 +497,12 @@ c
           Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
 c
 c         Construct the transition density
+          ltransden=.true.
           call util_file_name_resolve(File_civecs,.false.)
+          call int_init(rtdb,1,AO_Bas_Han)
           call get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
      &      g_Vec,g_Dns)
+          call int_terminate()
          else
 *------- Get the density matrix for the first orbital file
            Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
@@ -601,7 +606,7 @@ c          Calculate the difference
       End If
 *
 *---- Print out the values of the density matrix to the output
-      call dplot_dump(lgaussian,out_unit,iproc,luout,
+      call dplot_dump(lgaussian,ltransden,out_unit,iproc,luout,
      ,     where,what,
      ,     title(1:Lth_Tit),
      ,     natom,dbl_mb(k_xyz),dbl_mb(k_charge),volume,

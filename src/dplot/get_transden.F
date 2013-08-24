@@ -1,7 +1,7 @@
 c
 c        construct the transition density
          subroutine get_transden(spin,iroot,ipol,filename,basis,
-     &        g_movecs, g_dens)
+     &        g_movecs, g_tdens)
 c
          implicit none
 c
@@ -21,9 +21,9 @@ c
          integer iroot
          integer ipol
          character*80 filename
-         integer basis         ! AO basis set handle
+         integer basis            ! AO basis set handle
          integer g_movecs(ipol)   ! MO vectors
-         integer g_dens(ipol)     ! Number of AO basis functions
+         integer g_tdens(ipol)    ! Transition density matrix
 c
          integer i,m,n
          logical tda
@@ -33,7 +33,8 @@ c
          integer nfc(2)
          integer nfv(2)
          integer nov(2)
-         double precision r
+         integer icntr,itmom
+         double precision r,cntr(3),tmom(20)
          integer nbf_ao
 c
          logical nodezero
@@ -52,13 +53,21 @@ c        preliminaries
          ddblsize=MA_sizeof(MT_DBL,1,MT_BYTE)
          logisize=MA_sizeof(MT_LOG,1,MT_BYTE)
          ok = 0
+         call ga_sync()
          nodezero=(ga_nodeid().eq.0)
          if (.not.bas_numbf(basis,nbf_ao))
      &      call errquit(pname//'bas_numbf failed',0,0)
 c
+c        initialization
          do i=1,ipol
-	   call ga_zero(g_dens(i))
+	   call ga_zero(g_tdens(i))
          end do ! ipol
+         do icntr=1,3
+           cntr(icntr)=0.0d0
+         enddo
+         do itmom=1,20
+           tmom(itmom)=0.0d0
+         enddo
 c
 c        Read header information from civecs file
          if (nodezero) then      
@@ -74,6 +83,11 @@ c        Read header information from civecs file
             read(69,*,err=1001) nfv(1),nfv(2)
             read(69,*,err=1001) nov(1),nov(2)
             read(69,*,err=1001)
+c
+            if (ipol.eq.1) nocc(2)=0
+            if (ipol.eq.1) nmo(2)=0
+            if (ipol.eq.1) nfc(2)=0
+            if (ipol.eq.1) nfv(2)=0
 c
             do i=1,ipol
              nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
@@ -131,67 +145,86 @@ c        Read remainder of the civecs file
 c
             do n = 1,nroots
               read(69,*) r  ! energy of root
+              read(69,*) r  ! s2_save(n)
               do i=1,ipol
-               if (tda) then
-                 do m=1,nov(i)
+               do m=1,nov(i)
                    read(69,*) r
                    call ga_put(g_x(i),m,m,n,n,r,1)
-                 end do
-               else
-                 do m=1,nov(i)
-                   read(69,*) r
-                   call ga_put(g_x(i),m,m,n,n,r,1)
-                 end do
+               end do
+               if (.not.tda) then
                  do m=1,nov(i)
                    read(69,*) r
                    call ga_put(g_y(i),m,m,n,n,r,1)
                  end do
-               end if  ! tda
+               end if  ! .not.tda
               end do ! ipol
             end do ! nroots
            close(unit=69,status='keep',err=1002) ! file
+           ok = 1
+c
          end if  ! nodezero
+c
+         call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
          call ga_sync()
 c
 c        Separate out X and Y vectors if the calculations are not TDA
 c        Nothing needs to be done for TDA as Y is zero
          if (.not.tda) then
-          do i=1,ipol
+           do i=1,ipol
               call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
               call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
-          enddo
+           enddo
          end if
 c
 c        calculate X component of the transition density matrix
          call tddft_transfm(iroot,g_x,g_movecs,nbf_ao,nocc,nmo,
      &             nfc,nfv,ipol,g_temp,1)  ! x-transition density
+c
          do i = 1,ipol
-              call ga_copy(g_temp(i),g_dens(i))
+            call multipole_density(basis,cntr,3,
+     1                g_temp(i),tmom,20)  ! transition moments
+            call ga_copy(g_temp(i),g_tdens(i))
          end do
 c
 c        calculate Y component of the transition density matrix
          if (.not.tda) then
+             do i = 1,ipol
+                call ga_zero(g_temp(i))
+             end do
              call tddft_transfm(iroot,g_y,g_movecs,nbf_ao,nocc,nmo,
      &             nfc,nfv,ipol,g_temp,1)  ! y-transition density
 c
 c            accumulate the Y component of the transition density matrix
              do i = 1,ipol
-              call ga_add(1.d0,g_dens(i),1.d0,g_temp(i),g_dens(i))
+              call multipole_density(basis,cntr,3,
+     1                g_temp(i),tmom,20)  ! transition moments
+              call ga_add(1.d0,g_tdens(i),1.d0,g_temp(i),g_tdens(i))
              end do
          end if  ! tda
+c
+         do itmom=1,20
+            tmom(itmom)=tmom(itmom)*dsqrt(2.0d0)
+         enddo
+c
+         if (ga_nodeid().eq.0) then
+                write(luout,*) " *** tmom(2)***: ", tmom(2)
+                write(luout,*) " *** tmom(3)***: ", tmom(3)
+                write(luout,*) " *** tmom(4)***: ", tmom(4)
+         end if
 c
 c        calculate total, spin density or individual components
          If (ipol.eq.2) Then
             If (Spin.eq.'TOTAL') Then
-              Call GA_dAdd(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
+              Call GA_dAdd(1.d0,g_tdens(1),1.d0,g_tdens(2),g_tdens(1))
             Else If (Spin.eq.'SPINDENS') Then
-              Call GA_dAdd(1.d0,g_dens(1),-1.d0,g_dens(2),g_dens(1))
+              Call GA_dAdd(1.d0,g_tdens(1),-1.d0,g_tdens(2),g_tdens(1))
             Else If (Spin.eq.'ALPHA') Then
             Else If (Spin.eq.'BETA') Then
-               Call GA_Copy(g_dens(2),g_dens(1))
+               Call GA_Copy(g_tdens(2),g_tdens(1))
             End If
          End If ! ipol check
 c
+c        cleanup
          do i=1,ipol
             if (.not.ga_destroy(g_x(i))) call errquit
      2       (pname//'failed to destroy g_x',0, GA_ERR)
@@ -210,4 +243,3 @@ c
  1002 call errquit(pname//'failed to close file',0,-1)
 c
       end
-c $Id$
