@@ -177,6 +177,9 @@ c
       character*(nw_max_path_len) fn_transden 
       logical dmat_to_file
       external dmat_to_file
+      double precision s2_save(nroots) 
+      logical lstores2
+      double precision s2_tmp(nroots)
 c
 c     ==================================================================
 
@@ -216,10 +219,24 @@ c     Generalized Mulliken-Hush
       if (.not.rtdb_get(rtdb,'tddft:gmh',mt_log,1,gmh))
      $  gmh=.false.
 c
-c     CI Vectors file 
+c     CI Vectors file
       lcivecs = .false.  ! default
       if (.not.rtdb_get(rtdb,'tddft:lcivecs',mt_log,1,lcivecs))
      $  lcivecs = .false.
+      if (lcivecs) then
+        do n=1,nroots
+          if (ipol.eq.2) then   ! unrestricted
+            s2_save(n) = 0.0d0
+            s2_tmp(n)  = 0.0d0
+          elseif (singlet) then ! restricted singlets
+            s2_save(n) = 0.0d0
+            s2_tmp(n)  = 0.0d0
+          elseif (triplet) then ! restricted triplets
+            s2_save(n) = 2.0d0
+            s2_tmp(n)  = 2.0d0
+          endif
+        enddo
+      endif
 c
 c     Transden file 
       ltransden = .false. ! default
@@ -456,42 +473,6 @@ c
         call ga_get(g_corr,1,nmo(1),1,nmo(2),dbl_mb(k_corr),nmo(1))
       endif
 c
-c --------------------
-c Solution vector file
-c --------------------
-c
-       if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
-     1  call errquit('tddft_analysis: failed to read vector',0)
-c
-       len_fn_civecs = inp_strlen(fn_civecs)
-       if (singlet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_singlet"
-       if (triplet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_triplet"
-c
-       if (nodezero.and.lcivecs) then
-         write(luout,*) "fn_civecs: ",fn_civecs
-         call util_file_name_resolve(fn_civecs, .false.)
-         open(unit=69,file=fn_civecs,form='formatted',status='unknown')
-         write(LuOut,2010) fn_civecs
-         rewind(69)
-         write(69,*) tda
-         write(69,*) ipol
-         write(69,*) nroots
-         if (ipol.eq.1) nocc(2) = 0
-         write(69,*) nocc(1),nocc(2)
-         if (ipol.eq.1) nmo(2) = 0
-         write(69,*) nmo(1),nmo(2)
-         if (ipol.eq.1) nfc(2) = 0
-         write(69,*) nfc(1),nfc(2)
-         if (ipol.eq.1) nfv(2) = 0
-         write(69,*) nfv(1),nfv(2)
-         if (ipol.eq.1) nov(2) = 0
-         write(69,*) nov(1),nov(2)
-         write(69,*)
-       endif ! nodezero
-c
- 2000 format(/,2x,'No CI vector file is created')
- 2010 format(/,2x,'CI vectors are stored in ',a32)
-c
 c ------------
 c Tamm-Dancoff
 c ------------
@@ -513,20 +494,6 @@ c
             enddo  ! ntrials
           enddo ! nroots
         enddo  ! ipol
-c
-c       Write out solution vectors: X (Y=0 in TDA)
-c
-        if (nodezero.and.lcivecs) then
-         do n=1,nroots
-           write(69,*)apbval(n)  ! energy of the root
-           do i=1,ipol
-             do m=1,nov(i)
-               call ga_get(g_x(i),m,m,n,n,r,1)
-               write(69,*) r
-             enddo ! nov
-           enddo ! ipol
-         enddo  ! nroots
-        endif  ! nodezero and lcivecs
 c
 c --------------------
 c Full linear response
@@ -554,28 +521,6 @@ c
           enddo ! nroots
         enddo ! ipol
 c
-c       g_x = X+Y and g_y = X-Y
-c       Write out vectors: X+Y and X-Y
-c
-        if (nodezero.and.lcivecs) then
-           do n=1,nroots
-             write(69,*)apbval(n) ! energy of the root
-             do i=1,ipol
-               do m=1,nov(i)
-                 call ga_get(g_x(i),m,m,n,n,r,1) ! X vectors
-                 write(69,*) r
-               enddo ! nov
-             enddo ! ipol
-c
-             do i=1,ipol
-               do m=1,nov(i)
-                 call ga_get(g_y(i),m,m,n,n,r,1) ! Y vectors
-                 write(69,*) r
-               enddo ! nov
-             enddo ! ipol
-           enddo ! nroots
-        endif  ! nodezero or lcivecs
-c
 c       Separate out the X and Y solution vectors
 c
         do i=1,ipol
@@ -584,8 +529,6 @@ c
         enddo
 c
       endif ! tda
-c
-      if (nodezero.and.lcivecs) close(unit=69)
 c
 c ---------
 c All roots
@@ -649,8 +592,7 @@ c      call util_file_name_resolve(filedens, .false.)
 c      if (.not. dmat_to_file(g_dens(1),filedens))
 c     &   call errquit('tddft_analysis: dmat_to_file error',0,
 c     &              UNKNOWN_ERR)
-
-
+c
       if (gmh) then
 c     Calculate ground state dipole
       if (ipol.eq.1) then  ! closed shell
@@ -875,6 +817,7 @@ c same beta excitation bra
           if (nodezero.and.util_print('excited state',print_default)
      1      .and.(nfc(1).eq.nfc(2)))
      2      write(LuOut,9180) s2
+          if (lcivecs) s2_save(n) = s2
         endif
 c
  1111   continue ! skip over s2 calculation, if set
@@ -1660,6 +1603,131 @@ c
  9310 format('      Ground state energy =',f20.12)
  9320 format('        Excitation energy =',f20.12)
  9330 format('     Excited state energy =',f20.12)
+c
+c ----------------------------------------------------------------------
+c Store the <S2> value for the first cycle of a TDDFT
+c optimization in the RTDB.  This will allow us to use it as a reference
+c for all optimization cycles.
+c ----------------------------------------------------------------------
+c
+      if (lcivecs) then
+        lstores2 = .false.
+c Check if <S2> is already in the RTDB. If it is, we don't do anything
+c else.  Otherwise, we write s2_save to the RTDB.  This only happens if
+c tddft_grad:s2 doesn't exist.
+        if (.not.rtdb_get(rtdb,'tddft_grad:s2',mt_dbl,nroots,s2_tmp))
+     1    lstores2 = .true.
+        if (lstores2) then
+          if (.not.rtdb_put(rtdb,'tddft_grad:s2',mt_dbl,nroots,s2_save))
+     1      call errquit('tddft_analysis: failed to store s2', 0,
+     2        RTDB_ERR)
+        endif
+      endif
+c
+c ---------------------------
+c Handle solution vector file
+c ---------------------------
+c
+c On top of what was present originally for storing
+c the excited state information, we also need <S2> for unrestricted
+c calculations.  This is required because we store every state and
+c it is possible that the states reorder.  We can't use the character
+c of singlet and triplet states to identify states since they can be
+c similar.
+c
+       if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
+     1  call errquit('tddft_analysis: failed to read vector',0,
+     2    RTDB_ERR)
+c
+       len_fn_civecs = inp_strlen(fn_civecs)
+       if (singlet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_singlet"
+       if (triplet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_triplet"
+c
+       if (nodezero.and.lcivecs) then
+         write(luout,*) "fn_civecs: ",fn_civecs
+         call util_file_name_resolve(fn_civecs, .false.)
+         open(unit=69,file=fn_civecs,form='formatted',status='unknown')
+         write(LuOut,2010) fn_civecs
+         rewind(69)
+         write(69,*) tda
+         write(69,*) ipol
+         write(69,*) nroots
+         if (ipol.eq.1) nocc(2) = 0
+         write(69,*) nocc(1),nocc(2)
+         if (ipol.eq.1) nmo(2) = 0
+         write(69,*) nmo(1),nmo(2)
+         if (ipol.eq.1) nfc(2) = 0
+         write(69,*) nfc(1),nfc(2)
+         if (ipol.eq.1) nfv(2) = 0
+         write(69,*) nfv(1),nfv(2)
+         if (ipol.eq.1) nov(2) = 0
+         write(69,*) nov(1),nov(2)
+         write(69,*)
+       endif ! nodezero
+c
+ 2000 format(/,2x,'No CI vector file is created')
+ 2010 format(/,2x,'CI vectors are stored in ',a32)
+c
+c ------------
+c Tamm-Dancoff
+c ------------
+c
+c Modified for RPA with B = 0
+c
+      if (tda) then
+c
+c       Write out solution vectors: X (Y=0 in TDA)
+c
+        if (nodezero.and.lcivecs) then
+         do n=1,nroots
+           write(69,*)apbval(n)  ! energy of the root
+           write(69,*)s2_save(n) ! <S2> value of the root
+           do i=1,ipol
+             do m=1,nov(i)
+               call ga_get(g_x(i),m,m,n,n,r,1)
+               write(69,*) r
+             enddo ! nov
+           enddo ! ipol
+         enddo  ! nroots
+        endif  ! nodezero and lcivecs
+c
+c --------------------
+c Full linear response
+c --------------------
+c
+      else  ! full tddft
+c
+c       g_x = X+Y and g_y = X-Y
+c
+        do i=1,ipol
+           call ga_add(1.0d0,g_x(i), 1.0d0,g_y(i),g_x(i)) ! X+Y
+           call ga_add(1.0d0,g_x(i),-2.0d0,g_y(i),g_y(i)) ! X+Y-2Y = X-Y
+        enddo
+c
+c       Write out vectors: X+Y and X-Y
+c
+        if (nodezero.and.lcivecs) then
+           do n=1,nroots
+             write(69,*)apbval(n)  ! energy of the root
+             write(69,*)s2_save(n) ! <S2> value of the root
+             do i=1,ipol
+               do m=1,nov(i)
+                 call ga_get(g_x(i),m,m,n,n,r,1) ! X vectors
+                 write(69,*) r
+               enddo ! nov
+             enddo ! ipol
+c
+             do i=1,ipol
+               do m=1,nov(i)
+                 call ga_get(g_y(i),m,m,n,n,r,1) ! Y vectors
+                 write(69,*) r
+               enddo ! nov
+             enddo ! ipol
+           enddo ! nroots
+        endif  ! nodezero or lcivecs
+      endif ! tda
+c
+      if (nodezero.and.lcivecs) close(unit=69)
 c
 c ------
 c Return
