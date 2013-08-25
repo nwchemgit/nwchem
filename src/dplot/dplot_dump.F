@@ -81,13 +81,13 @@ c
 c     dump grid values
 c
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
-         if(lgaussian) then
+c
+         if(lgaussian) then ! for cube files
 c
 c     truncation
 c
             Do i = 1, nGrid
-               if(abs(values(i)).lt.1d-10) 
-     .              values(i)=0d0
+               if(abs(values(i)).lt.1d-20) values(i)=0d0
             enddo
             Do i = 1, nGrid,No_Of_Spacings(3)+1
                Write(Out_Unit,99498)(values(i+ii),ii=0,

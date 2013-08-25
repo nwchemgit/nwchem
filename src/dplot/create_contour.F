@@ -244,7 +244,7 @@ C
       If (What.eq.'DENSITY') Then
 *------- Get the values of the density at the grid points (use xc_rhogen
 *        from the NWDFT module)
-         TOLL=1.D-15
+         TOLL=1.D-20
 *
          call dcopy(nbf_ao_mxnbf_ce2, 0.0d0,0,dbl_mb(k_Fmat), 1)
          call dcopy(nbf_ao_mxnbf_ce2,0.0d0,0,dbl_mb(k_Pmat), 1)
