@@ -100,3 +100,7 @@ c     Check these values against rtdb_f2c.c
 c
       integer rtdb_max_key, rtdb_max_file
       parameter (rtdb_max_key=255, rtdb_max_file=255)
+c
+      logical rtdb_seq_mode, rtdb_par_mode
+      parameter (rtdb_seq_mode = .false.)
+      parameter (rtdb_par_mode = .true.)

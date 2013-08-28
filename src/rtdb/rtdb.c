@@ -23,12 +23,10 @@ static int me;
 
 #define MAX_RTDB 5
 #define INACTIVE  -1
-#define SEQUENTIAL 0
-#define PARALLEL   1
 
 /* Mode in which DB was opended */
 static int par_mode[MAX_RTDB] = {INACTIVE,INACTIVE,INACTIVE,INACTIVE,INACTIVE};
-static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
+static int parallel_mode=RTDB_PAR_MODE; /* Current mode RTDB_SEQ_MODE/RTDB_PAR_MODE */
 
 /**
 \ingroup rtdb 
@@ -44,7 +42,7 @@ static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
   rtdb_put operations in addition on rtdb_get operations all processes receive
   the same data. In serial mode only process rank 0 should make RTDB calls.
 
-  \param mode [Input] the new access mode (valid values SEQUENTIAL, PARALLEL)
+  \param mode [Input] the new access mode (valid values RTDB_SEQ_MODE, RTDB_PAR_MODE)
 
   \return the old access mode value
 */
@@ -57,9 +55,9 @@ int rtdb_parallel(const int mode)
   int old = parallel_mode;
 
   if (mode)
-    parallel_mode = PARALLEL;
+    parallel_mode = RTDB_PAR_MODE;
   else
-    parallel_mode = SEQUENTIAL;
+    parallel_mode = RTDB_SEQ_MODE;
   return old;
 }
 
@@ -71,7 +69,7 @@ static int verify_parallel_access()
 #ifdef GAGROUPS
   int me = GA_Nodeid();
 #endif
-  if ((parallel_mode == SEQUENTIAL) && (me != 0)) {
+  if ((parallel_mode == RTDB_SEQ_MODE) && (me != 0)) {
     (void) fflush(stdout);
     (void) fprintf(stderr,"rtdb: sequential access only possible for process 0\n");
     (void) fflush(stderr);
@@ -118,10 +116,10 @@ int rtdb_open(const char *filename, const char *mode, int *handle)
 
   if (!verify_parallel_access()) return 0;
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_open(filename, mode, handle);
 
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     rtdb_broadcast(TYPE_RTDB_HANDLE, MT_INT, 1, (void *) handle);
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
   }
@@ -169,10 +167,10 @@ int rtdb_clone(const int handle, const char *suffix)
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_copy(handle, suffix);
 
-  if (parallel_mode == PARALLEL) 
+  if (parallel_mode == RTDB_PAR_MODE) 
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
 
   return status;
@@ -199,16 +197,16 @@ int rtdb_getfname(const int handle,
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_getfname: seq. open and par. get\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_getfname(handle, fname);
 
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     if ( me == 0) length = strlen(fname)+1;
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &length);
@@ -256,10 +254,10 @@ int rtdb_close(const int handle, const char *mode)
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL || me == 0)
+  if (par_mode[handle] == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_close(handle, mode);
 
-  if (parallel_mode == PARALLEL)
+  if (parallel_mode == RTDB_PAR_MODE)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
 
   if (status) 
@@ -303,16 +301,16 @@ int rtdb_put(const int handle, const char *name, const int ma_type,
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_put: seq. open and par. put\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_put(handle, name, ma_type, nelem, array);
     
-  if (parallel_mode == PARALLEL)
+  if (parallel_mode == RTDB_PAR_MODE)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
 
 
@@ -354,19 +352,19 @@ int rtdb_get(const int handle, const char *name, const int ma_type,
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_get: seq. open and par. get\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_get(handle, name, ma_type, nelem, array);
 
   /* Implicit assumption that all processes call this with nelem
      greater than or equal to value used on process 0 */
 
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
     
     if (status) {
@@ -399,16 +397,16 @@ int rtdb_get_info(const int handle,
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_get_info: seq. open and par. get\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_get_info(handle, name, ma_type, nelem, date);
 
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
     
     if (status) {
@@ -459,16 +457,16 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_ma_get: seq. open and par. get\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_ma_get(handle, name, ma_type, nelem, ma_handle);
 
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
     
     if (status) {
@@ -522,16 +520,16 @@ int rtdb_first(const int handle, const int namelen, char *name)
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_first: seq. open and par. first\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_first(handle, namelen, name);
 
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
     
     if (status) {
@@ -565,16 +563,16 @@ int rtdb_next(const int handle, const int namelen, char *name)
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_next: seq. open and par. next\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_next(handle, namelen, name);
   
-  if (parallel_mode == PARALLEL) {
+  if (parallel_mode == RTDB_PAR_MODE) {
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
     
     if (status) {
@@ -620,16 +618,16 @@ int rtdb_print(const int handle, const int print_values)
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_print: seq. open and par. print\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_print(handle, print_values);
 
-  if (parallel_mode == PARALLEL)
+  if (parallel_mode == RTDB_PAR_MODE)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
 
   return status;
@@ -663,16 +661,16 @@ int rtdb_delete(const int handle, const char *name)
     return 0;
   }
 
-  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+  if (par_mode[handle] == RTDB_SEQ_MODE && parallel_mode == RTDB_PAR_MODE) {
     (void) fprintf(stderr, "rtdb_delete: seq. open and par. delete\n");
     (void) fflush(stderr);
     return 0;
   }
 
-  if (parallel_mode == SEQUENTIAL || me == 0)
+  if (parallel_mode == RTDB_SEQ_MODE || me == 0)
     status = rtdb_seq_delete(handle, name);
 
-  if (parallel_mode == PARALLEL)
+  if (parallel_mode == RTDB_PAR_MODE)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
 
   return status;
