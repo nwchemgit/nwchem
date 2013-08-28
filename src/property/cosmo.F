@@ -39,7 +39,7 @@ c
       do_cosmo = .true.
       dielec   =78.4d+00
       iscren   =0
-      ifscrn   =1 ! surface charge correction not good in geometry opt., old default was 2!!!
+      ifscrn   =2 ! surface charge correction adapted for geometry optimzations
       minbem   =2
       maxbem   =4
       ificos   =0
@@ -459,7 +459,7 @@ c
 c
       dielec   =78.4d+00
       iscren   =0
-      ifscrn   =1 ! surface charge correction not good in geometry opt.
+      ifscrn   =2 ! surface charge correction adapted for geometry optimzations
       minbem   =2
       maxbem   =4
       ificos   =0
@@ -1567,6 +1567,13 @@ c
             enddo
          enddo
          nfac=(lfacmx-lfacmn+1)
+c
+c        ----- only keep the faces at granularity maxbem -----
+c        ----- discard all other faces -----
+c
+         do lface=1,maxfac(maxbem-1)-minfac(minbem+1)+1
+           ijkseg(nseg+lface) = 0
+         enddo
       else
          do iseg=1,nseg
             ifac=iseg+nseg
@@ -1904,6 +1911,7 @@ c
       newapx=0
       do iapx=1,3
          duplic=.false.
+         lduplc=0
          do lapex=1,mapex
             dd=dist(xyz(1,  iapx),xyz(2,  iapx),xyz(3,  iapx),
      1              apex(1,lapex),apex(2,lapex),apex(3,lapex))
@@ -1996,7 +2004,7 @@ C> \brief Compute the COSMO charges
 c
       subroutine cosmo_charges(rtdb,basis,geom,ecos,some,itype_wfn,
      1                         vectors,nclosed,nopen,nbf,nmo)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -2006,23 +2014,38 @@ c
 #include "stdio.fh"
 #include "prop.fh"
 c
-      integer rtdb
-      integer basis
-      integer geom, itype_wfn
-      double precision ecos
-      integer vectors(2), nclosed(2), nopen(2)
+      integer rtdb      !< [Input] The RTDB handle
+      integer basis     !< [Input] The basis set handle
+      integer geom      !< [Input] The geometry handle
+      integer nbf       !< [Input] The number of basis functions
+      integer nmo       !< [Input] The number of molecular orbitals
+      integer itype_wfn !< [Input] The wavefunction type
+                        !< - 1: RHF type wavefunction
+                        !< - 2: UHF type wavefunction
+      integer vectors(2) !< [Input] The GA handles for the SCF vectors
+      integer nclosed(2) !< [Input] The number of closed shell orbitals
+                         !< (only used with RHF)
+      integer nopen(2)   !< [Input] The number of open shell orbitals
+c
+      double precision ecos !< [Output] The intra COSMO charges
+                            !< interaction energy
 
-      logical dbug, out, some
+      logical some !< [Input] Do you want "some" additional output?
+      logical dbug, out
       character*8 scfruntyp
 c
+      double precision dielec,screen,rsolv,adiag,dsurf,dvol
+      double precision srfmol,volmol
+      integer lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
+      integer l_efcrad, k_efcrad
+      integer l_occ,  k_occ
+      integer nefc, ief, i
       integer g_dens(3),ndens,nvirt(2)
-      dimension x(1)
-      equivalence (x(1),dbl_mb(1))
 c
       dbug=.false..and.ga_nodeid().eq.0
       out =.false..and.ga_nodeid().eq.0
@@ -2118,8 +2141,8 @@ c     end of changes (MV)
 c
 
       call hnd_prop_dens_make(rtdb,geom,basis,nbf,nmo,nclosed,nopen,
-     &                       nvirt,scfruntyp,vectors,dbl_mb(k_occ),
-     &                       g_dens,ndens)
+     &                        nvirt,scfruntyp,vectors,dbl_mb(k_occ),
+     &                        g_dens,ndens)
 c
       if(out) then
          write(luout,*) 'in -cosmo_charges, wfntyp = ',itype_wfn
@@ -2165,10 +2188,14 @@ C> electrostatic interaction between two unit charges at the point
 C> charge position, i.e.
 C> \f{eqnarray*}{
 C>   A_{\mu\nu} &=& ||t_\mu - t_\nu||^{-1} \\\\
-C>   A_{\mu\mu} &=& 3.8 |S_\mu|^{-1/2}
+C>   A_{\mu\mu} &=& 3.8 |S_\mu|^{-1/2} \\\\
+C>              &=& a_{\mathrm{diag}} |S_\mu|^{-1/2}
 C> \f}
 C> where \f$ S_\mu \f$ is the surface area associated with the COSMO
-C> charge (see [1] Eqs. 7a and 7b).
+C> charge (see [1] Eqs. 7a and 7b). The quantity \f$a_{\mathrm{diag}}\f$
+C> is evaluated using Eq.(B1). This done in two steps in that the
+C> this quantity is evaluated for the unit sphere in `hnd_cossph`, any
+C> remaining scale factors are applied in the evaluation of \f$A\f$.
 C>
 C> Solving these equations gives the "raw" COSMO charges \f$ x \f$.
 C> These charges should sum up to the total charge contained within 
@@ -2181,7 +2208,7 @@ C> - The electron distribution being represented with Gaussian functions
 C>   extends beyond the SAS
 C>
 C> Therefore the raw COSMO charges are corrected by adding corrections
-C> equally to all charges, as suggested in [2] Eq. (23). 
+C> based on a Lagrange multiplier technique.
 C>
 C> Previously this correction was implemented by scaling the raw COSMO
 C> charges. However, this led to complications with neutral molecules
@@ -2302,8 +2329,8 @@ c
       integer nat ! the number of atoms
       integer iat ! counter over atoms
       integer jef ! counter over COSMO charges
-      integer i10, i11, i12, i20, i21, i22 ! memory offsets
-      integer i30, i40, i50, i60, i70, i80 ! memory offsets
+      integer i10, i11, i12, i20, i21, i22      ! memory offsets
+      integer i30, i40, i50, i60, i70, i80, i90 ! memory offsets
       integer i,ipt,ief ! counters
       integer i_init ! number of ints in memory requirement vector
       integer init ! memory requirement vector
@@ -2330,6 +2357,7 @@ c
       double precision chgfac ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
       double precision chgcvg ! the convergence of the COSMO charges
+      double precision chgina ! the inv(A) COSMO charge
       double precision corcos ! the COSMO charge correction
       double precision errcos ! the COSMO charge error
       double precision delchg ! charge difference
@@ -2345,6 +2373,7 @@ c
       double precision qi, qj ! charges
       double precision rr ! distance
       double precision solnrg ! solvation energy
+      double precision dlambda ! lambda (surface charge correction)
       double precision x(1)
       equivalence (x(1),dbl_mb(1))
       double precision zero, pt5, one, two ! constants
@@ -2369,36 +2398,34 @@ c
       out =out .and.ga_nodeid().eq.0
 c
       iefc_done=.false.
+      all=.false.
       ecos=zero
 c
 c     ----- allocate memory block -----
 c
       if(lineq.ne.1) then
-         need=11*nefc+nefc*nefc
+         need=12*nefc+nefc*nefc
          if(.not.ma_push_get(mt_dbl,need,
      &      'mem init:cosmo:hnd_coschg:1',i_init,init)) then
-            need=nefc+nefc+nefc+nefc+nefc+nefc+nefc
+            need=12*nefc
             lineq=1
             if(.not.ma_push_get(mt_dbl,need,
      &         'mem init:cosmo:hnd_coschg:1',i_init,init))
      &         call errquit(
      &              'hnd_coschg, malloc of init  failed',911,MA_ERR)
-            if(out) then
-               write(luout,*) 'use iterative method for -lineq-'
-            endif
-         else
-            if(out) then
-               write(luout,*) 'use in-memory method for -lineq-'
-            endif
          endif
       else
-         need=11*nefc
+         need=12*nefc
          if(.not.ma_push_get(mt_dbl,need,
      &      'mem init:cosmo:hnd_coschg:2',i_init,init))
      &    call errquit('hnd_coschg, malloc of init  failed',912,MA_ERR)
          lineq=1
-         if(out) then
+      endif
+      if(out) then
+         if(lineq.eq.1) then
             write(luout,*) 'use iterative method for -lineq-'
+         else
+            write(luout,*) 'use in-memory method for -lineq-'
          endif
       endif
 c
@@ -2459,40 +2486,39 @@ c
          i30=i22+nefc
          i40=i30+nefc*nefc
          i50=i40+nefc
-         i60=i50+nefc
+         i80=i50+nefc
+         i90=i80+nefc
 c
 c     ----- in memory -----
 c
          if(out) then
             write(luout,*) '-lineq- in memory'
          endif
-
+c
+c     ----- calculate q* = A^{-1}BQ -----
+c
          iep=i10
 
          do ief=1,nefc
             x(ief+i20-1)=x(ief+iep-1)
          enddo
 
-         do jef=1,nefc
-            xj=efcc(1,jef)
-            yj=efcc(2,jef)
-            zj=efcc(3,jef)
-            do ief=1,nefc
-               if(ief.eq.jef) then
-                  aii=adiag/sqrt(efcs(ief))
-                  x(ief+nefc*(jef-1)+i30-1)=aii
-               else
-                  xi=efcc(1,ief)
-                  yi=efcc(2,ief)
-                  zi=efcc(3,ief)
-                  dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                  x(ief+nefc*(jef-1)+i30-1)=one/dij
-               endif
-            enddo
-         enddo
+         call hnd_cosmata(nefc,efcc,efcs,x(i30))
 c
          nodcmp=1
          call hnd_linequ(x(i30),nefc,x(i20),nefc,
+     1                   x(i40),x(i50),deta,ierr,nodcmp)
+c
+c     ----- calculate t = A^{-1}1 -----
+c
+         do ief=1,nefc
+            x(ief+i80-1)=one
+         enddo
+
+         call hnd_cosmata(nefc,efcc,efcs,x(i30))
+c
+         nodcmp=1
+         call hnd_linequ(x(i30),nefc,x(i80),nefc,
      1                   x(i40),x(i50),deta,ierr,nodcmp)
 c
       else
@@ -2508,12 +2534,15 @@ c
          i60=i50+nefc
          i70=i60+nefc
          i80=i70+nefc
+         i90=i80+nefc
 c
 c     ----- iterative -----
 c
          if(out) then
             write(luout,*) 'iterative -lineq-'
          endif
+c
+c     ----- calculate qraw = q* = A^{-1}BQ -----
 c
          if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
 c
@@ -2536,6 +2565,35 @@ c
 c
          if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
             call errquit('hnd_coschg: could not store raw COSMO charge',
+     1                   nefc,RTDB_ERR)
+         endif
+c
+c     ----- calculate t = A^{-1}1 -----
+c
+         if (.not.rtdb_get(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
+c
+c           If no raw A^{-1}1 charges were found initialize x=0
+c
+            do ief=1,nefc
+               x(ief+i80-1)=zero
+            enddo
+         endif
+c
+         direct=.true.
+c
+c     ----- solve ... -----
+c
+         do ief=1,nefc
+            x(ief+i21-1)=one
+         enddo
+         iep=i21
+
+         call hnd_cosequ(x(iep),x(i80),x(i30),nefc,
+     1                   x(i40),x(i50),x(i60),x(i70),
+     2                   efcc,efcs)
+c
+         if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
+            call errquit('hnd_coschg: could not store raw A^{-1}1',
      1                   nefc,RTDB_ERR)
          endif
       endif
@@ -2568,17 +2626,19 @@ c
 c     ----- correct the COSMO charges ... -----
 c
       chgcos=zero
+      chgina=zero ! inverse of A
       do ief=1,nefc
          chgief=x(ief+i20-1)
          chgcos=chgcos+chgief
+         chgina=chgina+x(i80+ief-1)
       enddo
       if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
      $     charge = 0.0d0
-      errcos=chgcos-charge
-      corcos=-errcos/nefc
+      errcos=charge-chgcos
+      dlambda=errcos/chgina
       if (ifscrn.ne.1) then
          do ief=1,nefc
-            x(ief+i20-1)=x(ief+i20-1)+corcos
+            x(ief+i20-1)=x(ief+i20-1)+dlambda*x(i80+ief-1)
          enddo
       endif
 c
@@ -2595,6 +2655,7 @@ c
       else
          write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
          call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
+         chgfac=one
       endif
 
       if(out) then
@@ -2667,12 +2728,7 @@ c
                aij=adiag/sqrt(efcs(ief))
             else
                dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               if (dij.lt.1.0d-10) then
-c                treat this as a self interaction
-                 aij=adiag/sqrt(0.5d0*(efcs(ief)+efcs(jef)))
-               else
-                 aij=one/dij
-               endif
+               aij=one/dij
             endif
             efcefc=efcefc+qi*aij*qj
          enddo
@@ -2805,6 +2861,45 @@ c
  9986 format(' -wfntyp- = ',a8)
  9985 format(' -scftyp- = ',a8)
  9984 format(' applied screening factor -chgfac- = ',f10.6)
+      end
+C>
+C> \brief Compute matrix A
+C> 
+C> Compute matrix `A` as needed for the in-memory COSMO
+C> charge fitting.
+C>
+      subroutine hnd_cosmata(nefc,efcc,efcs,a)
+      implicit none
+      integer          nefc !< [Input] The number of surface charges
+      double precision efcc(3,nefc) !< [Input] The surface charge coords
+      double precision efcs(nefc)   !< [Input] The surface areas
+      double precision a(nefc,nefc) !< [Output] Matrix `A`
+c
+      integer jef, ief
+      double precision aii, xi, xj, yi, yj, zi, zj, dij, one
+      parameter (one = 1.0d0)
+c
+      double precision adiag,dsurf,dvol,srfmol,volmol
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+c
+      do jef=1,nefc
+         xj=efcc(1,jef)
+         yj=efcc(2,jef)
+         zj=efcc(3,jef)
+         do ief=1,nefc
+            if(ief.eq.jef) then
+               aii=adiag/sqrt(efcs(ief))
+               a(ief,jef)=aii
+            else
+               xi=efcc(1,ief)
+               yi=efcc(2,ief)
+               zi=efcc(3,ief)
+               dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+               a(ief,jef)=one/dij
+            endif
+         enddo
+      enddo
+c
       end
 C>
 C> \brief On the fly matrix-vector multiplication
@@ -3095,6 +3190,7 @@ c
    14       continue
          endif
          aamax=zero
+         imax=0
          do 16 i=j,n
             sum=a(i,j)
             if(j.gt.1) then
