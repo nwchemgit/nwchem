@@ -18,7 +18,6 @@ end
 cosmo
   minbem 2
   maxbem 4
-  ifscrn 1
 end
 
 task scf optimize

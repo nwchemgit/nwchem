@@ -28,7 +28,7 @@ cosmo
   # ifscrn 1: do not correct the total surface charge
   #           this improves the convergence of the geometry
   #           optimization significantly
-  ifscrn 1
+  #ifscrn 1
 end
 
 task scf optimize
