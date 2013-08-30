@@ -502,6 +502,7 @@ c
 c         Construct the transition density
           call util_file_name_resolve(File_civecs,.false.)
           call int_init(rtdb,1,AO_Bas_Han)
+          if (iproc.eq.0) write(luout,*) ' Root: ', iroot
           call get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
      &      g_Vec,g_Dns)
           call int_terminate()

@@ -59,7 +59,8 @@ c
       What      = 'density'
       Spin      = 'total'
       Where     = 'grid'
-      dodos =.false.
+      dodos     =.false.
+      iroot     = 1
 c
 c     try to get a scf movecs
 c
@@ -160,7 +161,6 @@ c
 *
 *---- Read the information about the number of root
   230 Continue
-      iroot = 0
       If (.not. inp_i(iroot))
      &  Call ErrQuit('DPlot_Input: failed to read iroot',0,
      &     INPUT_ERR)
