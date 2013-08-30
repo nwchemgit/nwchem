@@ -1,7 +1,7 @@
       SubRoutine Create_Contour(rtdb,geom,AO_bas_han,nbf,nGrid,
      &                          nSet,nSetTri,g_Dns,g_Vec,
      &                          Grid,Values,
-     .     no_of_spacings,
+     .                          no_of_spacings,tol_rho,
      &                          What,Spin,Orb_No)
 *
 * $Id$
@@ -28,6 +28,7 @@
       Integer nGrid,nSet,nSetTri,g_Dns,g_Vec(2),Orb_No
       Double Precision Grid(3,nGrid),Values(nGrid)
       Character*8 What,Spin
+      double precision tol_rho
 *---- Geometry variables
       Integer nAtom, iAtom, nxyz, l_xyz, k_xyz
       Integer l_Charge, k_Charge, l_Tags, k_Tags
@@ -43,7 +44,6 @@
       Integer lth1
       Integer l_Scr1,k_Scr1
 *---- Used by xc_rhogen
-      Double Precision TOLL
       Integer   lthB
       Integer l_FMat,k_FMat,l_PMat,k_PMat,l_BMat,k_BMat,
      &        l_MOVec,k_MOVec
@@ -244,7 +244,6 @@ C
       If (What.eq.'DENSITY') Then
 *------- Get the values of the density at the grid points (use xc_rhogen
 *        from the NWDFT module)
-         TOLL=1.D-20
 *
          call dcopy(nbf_ao_mxnbf_ce2, 0.0d0,0,dbl_mb(k_Fmat), 1)
          call dcopy(nbf_ao_mxnbf_ce2,0.0d0,0,dbl_mb(k_Pmat), 1)
@@ -254,21 +253,22 @@ c
          call util_rmsatbf(ngrpp, natom,
      .        int_mb(k_iniz),int_mb(k_ifin),
      ,        dbl_mb(k_scr1),dbl_mb(irchi_atom))
-
+c
          call xc_rhogen(0,
-     T        TOLL,AO_Bas_Han,g_Dns,
-     &                  nbf_ao_mxnbf_ce,nAtom,1,1,1,
-     U        1,ngrpp,nBF,mBF,.false.,1,
-     &                  Dbl_mb(k_FMat),Dbl_mb(k_PMat),
-     &                  Dbl_mb(k_BMat),0d0,
-     &                  Dbl_mb(k_Scr1),0,0d0,Int_mb(k_ibf),
-     &                  Int_mb(k_iniz),Int_mb(k_ifin),
-     &                  Values(iOffg),0,
-     &              dbl_mb(irchi_atom), 0,
-     &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0,
-     &               0, 0, .false. )
-
-
+     T         tol_rho,
+     &         AO_Bas_Han,
+     &         g_Dns,
+     &         nbf_ao_mxnbf_ce,
+     &         nAtom,
+     &         1,1,1,
+     U         1,ngrpp,nBF,mBF,.false.,1,
+     &         Dbl_mb(k_FMat),Dbl_mb(k_PMat),Dbl_mb(k_BMat),0d0,
+     &         Dbl_mb(k_Scr1),0,0d0,Int_mb(k_ibf),
+     &         Int_mb(k_iniz),Int_mb(k_ifin), Values(iOffg),0,
+     &         dbl_mb(irchi_atom),0,
+     &         dbl_mb(k_rdat),int_mb(k_cetobfr),100.d0,
+     &         0, .false. )
+c
 *------- Deallocate Scratch memory needed by xc_rhogen
       Else
 *------- Get the values of the orbital at the grid points

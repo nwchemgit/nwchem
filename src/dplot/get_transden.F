@@ -130,7 +130,7 @@ c
 c
 c        Read remainder of the civecs file
          if (nodezero) then      
-           open(unit=69,file=filename,form='formatted',
+          open(unit=69,file=filename,form='formatted',
      &                status='unknown',err=1000)
             rewind(69)
             read(69,*,err=1001) tda
@@ -144,24 +144,35 @@ c        Read remainder of the civecs file
             read(69,*,err=1001)
 c
             do n = 1,nroots
-              read(69,*) r  ! energy of root
-              read(69,*) r  ! s2_save(n)
-              do i=1,ipol
-               do m=1,nov(i)
+             if (tda) then
+               read(69,*) r  ! energy of root
+               read(69,*) r  ! s2_save(n)
+               do i=1,ipol
+                 do m=1,nov(i)
                    read(69,*) r
                    call ga_put(g_x(i),m,m,n,n,r,1)
-               end do
-               if (.not.tda) then
+                 end do
+               end do ! ipol
+             else   ! full tddft
+               read(69,*) r  ! energy of root
+               read(69,*) r  ! s2_save(n)
+               do i=1,ipol
+                 do m=1,nov(i)
+                   read(69,*) r
+                   call ga_put(g_x(i),m,m,n,n,r,1)
+                 end do
+               end do ! ipol
+c
+               do i=1,ipol
                  do m=1,nov(i)
                    read(69,*) r
                    call ga_put(g_y(i),m,m,n,n,r,1)
                  end do
-               end if  ! .not.tda
-              end do ! ipol
+               end do ! ipol
+             end if  ! tda
             end do ! nroots
-           close(unit=69,status='keep',err=1002) ! file
-           ok = 1
-c
+          close(unit=69,status='keep',err=1002) ! file
+          ok = 1
          end if  ! nodezero
 c
          call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
@@ -179,38 +190,42 @@ c
 c        calculate X component of the transition density matrix
          call tddft_transfm(iroot,g_x,g_movecs,nbf_ao,nocc,nmo,
      &             nfc,nfv,ipol,g_temp,1)  ! x-transition density
-c
          do i = 1,ipol
-            call multipole_density(basis,cntr,3,
-     1                g_temp(i),tmom,20)  ! transition moments
-            call ga_copy(g_temp(i),g_tdens(i))
+          call multipole_density(basis,cntr,3,g_temp(i),tmom,20)  ! transition moments
+          call ga_copy(g_temp(i),g_tdens(i))
          end do
 c
 c        calculate Y component of the transition density matrix
          if (.not.tda) then
-             do i = 1,ipol
+           do i = 1,ipol
                 call ga_zero(g_temp(i))
-             end do
-             call tddft_transfm(iroot,g_y,g_movecs,nbf_ao,nocc,nmo,
+           end do
+           call tddft_transfm(iroot,g_y,g_movecs,nbf_ao,nocc,nmo,
      &             nfc,nfv,ipol,g_temp,1)  ! y-transition density
 c
-c            accumulate the Y component of the transition density matrix
-             do i = 1,ipol
-              call multipole_density(basis,cntr,3,
-     1                g_temp(i),tmom,20)  ! transition moments
+c          accumulate the Y component of the transition density matrix
+           do i = 1,ipol
+              call multipole_density(basis,cntr,3,g_temp(i),tmom,20)  ! transition moments
               call ga_add(1.d0,g_tdens(i),1.d0,g_temp(i),g_tdens(i))
-             end do
+           end do
          end if  ! tda
 c
-         do itmom=1,20
-            tmom(itmom)=tmom(itmom)*dsqrt(2.0d0)
-         enddo
+         if (ipol.eq.1) then
+          do i=1,20
+            tmom(i)=tmom(i)*dsqrt(2.0d0)
+          enddo
+         end if 
 c
          if (ga_nodeid().eq.0) then
                 write(luout,*) " *** tmom(2)***: ", tmom(2)
                 write(luout,*) " *** tmom(3)***: ", tmom(3)
                 write(luout,*) " *** tmom(4)***: ", tmom(4)
          end if
+c
+c        symmetrize the transition density matrix
+         do i = 1,ipol
+             call ga_symmetrize(g_tdens(i))
+         enddo
 c
 c        calculate total, spin density or individual components
          If (ipol.eq.2) Then

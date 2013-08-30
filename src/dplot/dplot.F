@@ -38,7 +38,6 @@ c
       Character*80 File_civecs
       Integer g_x(2),g_y(2)
       integer iroot
-      logical ltransden
 c
 *---- Local variables
       Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit,iOff
@@ -58,6 +57,7 @@ c
       Character*255 Title
       Logical LResult, DeBug
       logical lgaussian,dodos
+      double precision tol_rho
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -70,7 +70,6 @@ c
       Coord(1) = 'X'
       Coord(2) = 'Y'
       Coord(3) = 'Z'
-      ltransden = .false.
 *
 *---- Push context down to DPlot
       If (.not.context_push('dplot'))
@@ -119,6 +118,10 @@ c --  Read dodos switch
          DPlot = .TRUE.
          return
       endif
+c
+c --  Read tol_rho 
+      if (.not. rtdb_get(rtdb, 'dplot:tol_rho', mt_dbl, 1,
+     &   tol_rho)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
 c
 c --  Read units
       If (.not.rtdb_cget(rtdb,'dplot:Units',1,Units))
@@ -497,7 +500,6 @@ c
           Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
 c
 c         Construct the transition density
-          ltransden=.true.
           call util_file_name_resolve(File_civecs,.false.)
           call int_init(rtdb,1,AO_Bas_Han)
           call get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
@@ -565,7 +567,7 @@ c          Calculate the difference
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
      &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),
-     .        no_of_spacings,
+     .                       no_of_spacings, tol_rho,
      &                       What,Spin,Int_mb(k_Orb))
          maxelt=0d0
          do i=1,ngrid
@@ -606,10 +608,10 @@ c          Calculate the difference
       End If
 *
 *---- Print out the values of the density matrix to the output
-      call dplot_dump(lgaussian,ltransden,out_unit,iproc,luout,
+      call dplot_dump(lgaussian,out_unit,iproc,luout,
      ,     where,what,
      ,     title(1:Lth_Tit),
-     ,     natom,dbl_mb(k_xyz),dbl_mb(k_charge),volume,
+     ,     natom,dbl_mb(k_xyz),dbl_mb(k_charge),volume,tol_rho,
      ,     Ext_From_To(1,1),Ext_From_To(1,2),
      ,     no_of_spacings,ngrid,dbl_mb(k_vls),Byte_mb(k_Tags))
       If (iProc.eq.0 .and. (Where.ne.'GRID'.or.What.eq.'CHARGES')) Then

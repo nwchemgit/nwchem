@@ -19,7 +19,7 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 15)
+      Parameter (Num_Dirs  = 16)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -38,11 +38,12 @@
       Character*80  File_Mat1,File_Mat2
       Character*80  File_civecs
       logical lgaussian,dodos
+      double precision tol_rho
 *
       Data Dirs / 'LimitXYZ','Vectors','civecs','root',
      .            'densmat','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','print',
-     A     'dos',
+     A     'dos','tol_rho',
      .     'End' /
 c
       Data Allowed_Units / 'angstrom','au','bohr' /
@@ -100,7 +101,7 @@ c
      &   Call ErrQuit('DPlot_Input: unknown directive',0,
      &       INPUT_ERR)
       GoTo (100, 200, 225, 230, 250, 300, 400, 500, 600, 700, 800, 
-     &     900, 964, 1997, 9999) ind
+     &     900, 964, 1997, 1998, 9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind,
      &       INPUT_ERR)
 *
@@ -250,12 +251,22 @@ c
  900  continue
       lgaussian=.true.
       goto 10
+c
  964  continue
       goto 10
       call util_print_input(rtdb, 'dft')
+c
  1997 continue
       dodos=.true.
       goto 10
+c
+ 1998 continue
+      tol_rho = 1d-15
+      If (.not. inp_f(tol_rho))
+     &  Call ErrQuit('DPlot_Input: failed to read tol_rho',0,
+     &     INPUT_ERR)
+      goto 10
+c
  9999 Continue
 *
       If (Charges.eq.'yes') What = 'charges'
@@ -337,4 +348,10 @@ c---- Write the names of the density matrix files to rtdb
      &   1,dodos))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - dodos',0,
      &       RTDB_ERR)
+*
+      If (.not.rtdb_put(rtdb,'dplot:tol_rho',mt_dbl,
+     &   1,tol_rho))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - tol_rho',0,
+     &       RTDB_ERR)
+*
       End
