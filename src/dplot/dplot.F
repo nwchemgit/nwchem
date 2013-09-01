@@ -58,6 +58,7 @@ c
       Logical LResult, DeBug
       logical lgaussian,dodos
       double precision tol_rho
+      logical ltransden,ldiffden
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -112,7 +113,7 @@ c
 c
 c --  Read dodos switch
       if (.not. rtdb_get(rtdb, 'dplot:dodos', mt_log, 1,
-     &   dodos)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
+     &   dodos)) call errquit('dpinput:rtdb_get failed',11, RTDB_ERR)
       if(dodos) then
          call dplot_dosinit(rtdb,file_vec)
          DPlot = .TRUE.
@@ -120,8 +121,18 @@ c --  Read dodos switch
       endif
 c
 c --  Read tol_rho 
-      if (.not. rtdb_get(rtdb, 'dplot:tol_rho', mt_dbl, 1,
-     &   tol_rho)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
+      if (.not. rtdb_get(rtdb, 'dplot:tol_rho', mt_dbl, 1, tol_rho)) 
+     &   call errquit('dpinput:rtdb_get failed',11, RTDB_ERR)
+c
+c     Transition density
+      If (.not.rtdb_get(rtdb,'dplot:transden',mt_log,1,ltransden))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - ltransden',0,
+     &       RTDB_ERR)
+c
+c     Difference density
+      If (.not.rtdb_get(rtdb,'dplot:diffden',mt_log,1,ldiffden))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - ldiffden',0,
+     &       RTDB_ERR)
 c
 c --  Read units
       If (.not.rtdb_cget(rtdb,'dplot:Units',1,Units))
@@ -499,12 +510,19 @@ c
           LResult = MA_Pop_Stack(l_Ene)
           Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
 c
-c         Construct the transition density
+c         Construct the transition density or difference density
           call util_file_name_resolve(File_civecs,.false.)
           call int_init(rtdb,1,AO_Bas_Han)
           if (iproc.eq.0) write(luout,*) ' Root: ', iroot
-          call get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
-     &      g_Vec,g_Dns)
+          if (ltransden) then
+           call get_transden(spin,iroot,nset,File_civecs,ao_bas_han,
+     &        g_Vec,g_Dns)
+          else if (ldiffden) then
+           call get_diffden(spin,iroot,nset,File_civecs,ao_bas_han,
+     &        g_Vec,g_Dns)
+          else
+           call errquit('dplot: please specify transden or diffden',0,0)
+          end if
           call int_terminate()
          else
 *------- Get the density matrix for the first orbital file

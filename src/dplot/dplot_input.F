@@ -19,7 +19,7 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 16)
+      Parameter (Num_Dirs  = 18)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -37,14 +37,14 @@
       Character*80  File_Vec,File_Vec2,File_Out
       Character*80  File_Mat1,File_Mat2
       Character*80  File_civecs
-      logical lgaussian,dodos
+      logical lgaussian,dodos,ltransden,ldiffden
       double precision tol_rho
 *
       Data Dirs / 'LimitXYZ','Vectors','civecs','root',
      .            'densmat','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','print',
-     A     'dos','tol_rho',
-     .     'End' /
+     A            'dos','tol_rho','transden','diffden',
+     .            'End' /
 c
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
@@ -61,6 +61,8 @@ c
       Where     = 'grid'
       dodos     =.false.
       iroot     = 1
+      ltransden = .true.
+      ldiffden = .false.
 c
 c     try to get a scf movecs
 c
@@ -102,7 +104,7 @@ c
      &   Call ErrQuit('DPlot_Input: unknown directive',0,
      &       INPUT_ERR)
       GoTo (100, 200, 225, 230, 250, 300, 400, 500, 600, 700, 800, 
-     &     900, 964, 1997, 1998, 9999) ind
+     &     900, 964, 1997, 1998, 1999, 2000, 9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind,
      &       INPUT_ERR)
 *
@@ -267,6 +269,14 @@ c
      &     INPUT_ERR)
       goto 10
 c
+ 1999 continue
+      ltransden = .true.
+      goto 10
+c
+ 2000 continue
+      ldiffden = .true.
+      goto 10
+c
  9999 Continue
 *
       If (Charges.eq.'yes') What = 'charges'
@@ -354,4 +364,14 @@ c---- Write the names of the density matrix files to rtdb
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - tol_rho',0,
      &       RTDB_ERR)
 *
+      If (.not.rtdb_put(rtdb,'dplot:transden',mt_log,
+     &   1,ltransden))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - ltransden',0,
+     &       RTDB_ERR)
+*
+      If (.not.rtdb_put(rtdb,'dplot:diffden',mt_log,
+     &   1,ldiffden))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - ldiffden',0,
+     &       RTDB_ERR)
+
       End
