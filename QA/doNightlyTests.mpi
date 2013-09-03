@@ -12,9 +12,9 @@ export NWCHEM_TOP=`pwd`/..
 export NWCHEM_TARGET=LINUX64
 export NWCHEM_TEST=${NWCHEM_TOP}/QA/tests
 export NWCHEM_EXECUTABLE=`find "${NWCHEM_TOP}/bin" -perm -u-x -name "nwchem*"`
-nproc=4
+np=4
 if [ "$1" != "" ] ; then
-  nproc=$1
+  np=$1
 fi
 . ./domknwchemenv
 ./domknwchemrc
@@ -24,5 +24,232 @@ if [[ $status != 0 ]]; then
   exit $status
 fi
 date
-echo "Done testing"
+./runtests.mpi.unix procs $np h2o_opt c2h4
+./runtests.mpi.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
+./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne rimp2_he scf_feco5 small_intchk tagcheck testtab
+./runtests.mpi.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
+./runtests.mpi.unix procs $np cosmo_na cosmo_cl cosmo_nacl
+./runtests.mpi.unix procs $np cosmo_h2o_dft cosmo_h2o_bq be dft_s12gh
+./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse bsse_dft_trimer c4h4_wfn
+./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp
+./runtests.mpi.unix procs $np cosmo_h3co cosmo_h3co_ecp cosmo_h2cco2na cosmo_h3co_gp
+./runtests.mpi.unix procs $np dplot dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
+./runtests.mpi.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
+./runtests.mpi.unix procs $np h2o_diag_to_cg h2o_cg_to_diag 
+./runtests.mpi.unix procs $np h2o_diag_opt h2o_cg_opt h2o_diag_opt_ub3lyp h2o_cg_opt_ub3lyp h2o_cg_opt_rob3lyp
+./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
+#
+#---   small tests that should fail!
+echo ' '
+echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
+./runtests.mpi.unix procs $np oh2
+#
+#---   medium tests
+./runtests.mpi.unix procs $np dft_feco5 
+./runtests.mpi.unix procs $np dft_siosi3
+./runtests.mpi.unix procs $np dft_cr2
+./runtests.mpi.unix procs $np dft_x
+./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix procs $np dielsalder
+echo 'The intermediate energy values for the numerical gradient '
+echo 'test may cause some differences.'
+echo 'Please check the final gradient values for correctness.'
+./runtests.mpi.unix procs $np grad_ozone
+./runtests.mpi.unix procs $np dft_ozone 
+./runtests.mpi.unix procs $np hess_c6h6
+./runtests.mpi.unix procs $np hess_nh3_ub3lyp
+./runtests.mpi.unix procs $np intchk
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix procs $np sadsmall
+#
+./runtests.mpi.unix procs $np br2_dk
+./runtests.mpi.unix procs $np uo2_sodft
+./runtests.mpi.unix procs $np uo2_sodft_grad
+./runtests.mpi.unix procs $np si2cl6_gc
+./runtests.mpi.unix procs $np pspw
+./runtests.mpi.unix procs $np pspw_SiC
+./runtests.mpi.unix procs $np pspw_md
+./runtests.mpi.unix procs $np paw
+./runtests.mpi.unix procs $np pspw_polarizability
+./runtests.mpi.unix procs $np pspw_stress
+./runtests.mpi.unix procs $np band
+./runtests.mpi.unix procs $np tddft_h2o
+./runtests.mpi.unix procs $np tddft_h2o_uhf
+./runtests.mpi.unix procs $np tddft_h2o_mxvc20
+./runtests.mpi.unix procs $np tddft_h2o_uhf_mxvc20
+./runtests.mpi.unix procs $np tddft_n2+
+./runtests.mpi.unix procs $np tddft_ac_co
+./runtests.mpi.unix procs $np tce_h2o
+./runtests.mpi.unix procs $np tce_h2o_dipole
+./runtests.mpi.unix procs $np tce_h2o_eomcc
+./runtests.mpi.unix procs $np tce_uhf_uccsd
+./runtests.mpi.unix procs $np tce_cr_eom_t_ch_rohf
+./runtests.mpi.unix procs $np tce_cr_eom_t_ozone
+./runtests.mpi.unix procs $np tce_active_ccsdt
+./runtests.mpi.unix procs $np tce_lr_ccsd_t
+./runtests.mpi.unix procs $np tce_lr_ccsd_tq
+./runtests.mpi.unix procs $np tce_ozone_2eorb
+./runtests.mpi.unix procs $np tce_polar_ccsd_small
+./runtests.mpi.unix procs $np tce_eomsd_eomsol1
+./runtests.mpi.unix procs $np tce_eomsd_eomsol2
+./runtests.mpi.unix procs $np tce_uracil_creomact
+if ( ${?MRCC_METHODS} == 1 ) then
+  if ( "x$MRCC_METHODS" == "xy" ) then
+    ./runtests.mpi.unix procs $np tce_mrcc_bwcc
+    ./runtests.mpi.unix procs $np tce_mrcc_mkcc
+    ./runtests.mpi.unix procs $np tce_mrcc_bwcc_subgroups
+  endif
+endif
+if ( ${?TCE_CUDA} == 1 ) then
+  if ("x$TCE_CUDA" == "xy") then
+    ./runtests.mpi.unix procs $np tce_cuda
+  endif
+endif
+./runtests.mpi.unix procs $np oniom1
+./runtests.mpi.unix procs $np c60_ecp
+./runtests.mpi.unix procs $np h2o_vscf
+#
+# pure zora energy tests
+#
+./runtests.mpi.unix procs $np hi_zora_sf
+./runtests.mpi.unix procs $np xe_zora_sf
+./runtests.mpi.unix procs $np o2_zora_so
+./runtests.mpi.unix procs $np hi_zora_so
+#
+# qmmm tests
+#./runtests.mpi.unix procs $np asa_qmmm
+./runtests.mpi.unix procs $np qmmm_grad0
+./runtests.mpi.unix procs $np lys_qmmm
+./runtests.mpi.unix procs $np ethane_qmmm
+./runtests.mpi.unix procs $np qmmm_opt0
+echo "qmmm frequency  test  may  fail"
+./runtests.mpi.unix procs $np qmmm_freq
+#
+# newproperty tests
+./runtests.mpi.unix procs $np prop_ch3f
+./runtests.mpi.unix procs $np prop_uhf_ch3f
+./runtests.mpi.unix procs $np ch3f_rot
+./runtests.mpi.unix procs $np ch3f_unrot
+./runtests.mpi.unix procs $np ch3f_trans
+./runtests.mpi.unix procs $np ch3f_trans_cosmo
+./runtests.mpi.unix procs $np ch3f_trans_cam_nmr
+./runtests.mpi.unix procs $np ch3f_notrans_cosmo
+./runtests.mpi.unix procs $np ch3f-lc-wpbe
+./runtests.mpi.unix procs $np ch3f-lc-wpbeh
+./runtests.mpi.unix procs $np ch3f_zora_shielding
+./runtests.mpi.unix procs $np ch2_props4_bp
+./runtests.mpi.unix procs $np ch3radical_rot
+./runtests.mpi.unix procs $np ch3radical_unrot
+./runtests.mpi.unix procs $np cho_bp_props
+./runtests.mpi.unix procs $np prop_cg_nh3_b3lyp
+#
+#--- range-separated functionals tests
+./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
+./runtests.mpi.unix procs $np acr-camb3lyp-direct
+./runtests.mpi.unix procs $np acr_lcblyp
+./runtests.mpi.unix procs $np h2_bnl
+./runtests.mpi.unix procs $np h2o_bnl
+./runtests.mpi.unix procs $np h2o-camb3lyp-pol-cdfit
+./runtests.mpi.unix procs $np h2o-camb3lyp-pol
+./runtests.mpi.unix procs $np h2o-cambeckehh
+./runtests.mpi.unix procs $np h2o-campbe0
+./runtests.mpi.unix procs $np h2o-lcpbe
+./runtests.mpi.unix procs $np o2_bnl
+./runtests.mpi.unix procs $np o2_hfattn
+./runtests.mpi.unix procs $np n2_rodft_lrc
+./runtests.mpi.unix procs $np h2o-hse
+#
+#--- minnesota functionals
+./runtests.mpi.unix procs $np m11_ch3
+./runtests.mpi.unix procs $np m11_h2o
+./runtests.mpi.unix procs $np m11-l_ch3
+./runtests.mpi.unix procs $np m11-l_h2o
+./runtests.mpi.unix procs $np m08hx_ch3
+./runtests.mpi.unix procs $np m08hx_h2o
+./runtests.mpi.unix procs $np m08so_ch3
+./runtests.mpi.unix procs $np m08so_h2o
+./runtests.mpi.unix procs $np ch3_m06-hf
+./runtests.mpi.unix procs $np cnh5_m06-2x
+./runtests.mpi.unix procs $np cu2_m06-l
+./runtests.mpi.unix procs $np dft_ch3ochch32
+./runtests.mpi.unix procs $np fh_m06
+./runtests.mpi.unix procs $np dft_m05nh2ch3
+#
+#--- dft + dispersion tests
+./runtests.mpi.unix procs $np disp_dimer_ch4
+./runtests.mpi.unix procs $np h2o-b3lyp-disp
+#
+#--- double hybrid tests
+./runtests.mpi.unix procs $np Ne_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np Ne_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np He_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np He_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np Ar_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np Ar_b2plyp_cc-vqz
+#
+#--- cdspectrum tests
+./runtests.mpi.unix procs $np dmo_tddft_cd
+./runtests.mpi.unix procs $np dmo_tddft_cd_velocity
+#
+#--- spherical atom symmetry test
+./runtests.mpi.unix procs $np ptatom
+#
+#--- xc ssb-d test
+./runtests.mpi.unix procs $np h2o-ssb-d
+./runtests.mpi.unix procs $np h2o-ssb-d-opt
+#
+#--- noscf test
+./runtests.mpi.unix procs $np h2o-noscf
+#
+#--- response tests
+./runtests.mpi.unix procs $np h2o-response
+#
+#--- other tests
+./runtests.mpi.unix procs $np mep-test
+./runtests.mpi.unix procs $np ch2_props4_bp
+./runtests.mpi.unix procs $np pkzb
+./runtests.mpi.unix procs $np k6h2o
+./runtests.mpi.unix procs $np mcscf_ch2 mcscf_ozone
+./runtests.mpi.unix procs $np h2o_raman_3
+./runtests.mpi.unix procs $np h2o_raman_4
+./runtests.mpi.unix procs $np tropt-ch3nh2
+./runtests.mpi.unix procs $np h3tr1 h3_dirdyvtst
+./runtests.mpi.unix procs $np geom_load_xyz
+./runtests.mpi.unix procs $np dft_sicperth2o
+./runtests.mpi.unix procs $np h2o_hcons
+./runtests.mpi.unix procs $np etf_hcons
+./runtests.mpi.unix procs $np h2o2-prop-notrans
+./runtests.mpi.unix procs $np cnh5_m06-2x
+./runtests.mpi.unix procs $np bq_nio
+./runtests.mpi.unix procs $np hess_ch4
+./runtests.mpi.unix procs $np h2o_frozemb
+./runtests.mpi.unix procs $np cho_bp_props
+./runtests.mpi.unix procs $np cho_bp_zora_finite
+./runtests.mpi.unix procs $np h2o-ssb-d-b3lyp
+./runtests.mpi.unix procs $np cu2_m06-l
+./runtests.mpi.unix procs $np ch3_m06-hf
+./runtests.mpi.unix procs $np dntmc_h2o_nh3
+./runtests.mpi.unix procs $np 5h2o_core
+./runtests.mpi.unix procs $np h2o_core
+./runtests.mpi.unix procs $np co_core
+./runtests.mpi.unix procs $np talc
+./runtests.mpi.unix procs $np carbon_fon
+./runtests.mpi.unix procs $np ch5n_nbo
+./runtests.mpi.unix procs $np tpss tpssh
+./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
+#
+#--- test the new density functional library
+#./runtests.mpi.unix procs $np nwxc_nwdft_1he nwxc_nwdft_3he
+#./runtests.mpi.unix procs $np nwxc_pspw_1he  nwxc_pspw_3he
+#./runtests.mpi.unix procs $np nwxc_nwdft_1ne nwxc_nwdft_4n
+#./runtests.mpi.unix procs $np nwxc_pspw_1ne  nwxc_pspw_4n
+#./runtests.mpi.unix procs $np nwxc_nwdft_1ar nwxc_nwdft_4p
+#./runtests.mpi.unix procs $np nwxc_pspw_1ar  nwxc_pspw_4p
+#./runtests.mpi.unix procs $np nwxc_nwdft_1kr nwxc_nwdft_4as
+#./runtests.mpi.unix procs $np nwxc_pspw_1kr  nwxc_pspw_4as
+#./runtests.mpi.unix procs $np nwxc_nwdft_1xe nwxc_nwdft_4sb
+#./runtests.mpi.unix procs $np nwxc_pspw_1xe  nwxc_pspw_4sb
 date
