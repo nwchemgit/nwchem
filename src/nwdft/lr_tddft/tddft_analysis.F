@@ -1177,6 +1177,10 @@ c
          call util_file_name_resolve(fn_transden,.false.)
          if (ipol.gt.1) 
      &    call ga_add(1.d0,g_tdtot(1),1.d0,g_tdtot(2),g_tdtot(1)) ! consolidate
+c         
+         do i = 1,ipol
+            call ga_symmetrize(g_tdtot(i))
+         end do
          if (.not. dmat_to_file(g_tdtot(1),fn_transden))
      &    call errquit('tddft_analysis: dmat_to_file error',0,CALC_ERR)
         end if  ! ltransden
