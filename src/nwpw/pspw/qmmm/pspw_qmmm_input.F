@@ -36,7 +36,7 @@ c
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
-      parameter (num_fdirs = 14)
+      parameter (num_fdirs = 15)
       character*30 fdirs(num_fdirs)
       data fdirs / 'size',
      >             'index_start',
@@ -51,6 +51,7 @@ c
      >             'dihedral_spring',
      >             'dihedral',
      >             'coord_number',
+     >             'bond_pair',
      >             'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -206,6 +207,8 @@ c                            3 - Aij*exp(-rij/Bij) - Cij/rij**6 - Dij/rij**8
 c                            4 - Aij*(rij-Bij)^Cij, 
 c                            5 - Aij*exp(-rij/Bij)
 c                            6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
+c                            7 - ???
+c                            8 - Aij*exp(-(rij/Bij)**2)
 c
  160  element  = '    '
       element2 = '    '
@@ -580,7 +583,7 @@ c
      >  call errquit('pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 602,603,604,605,606,608,611,612,613,607,609,610,620,
+      goto ( 602,603,604,605,606,608,611,612,613,607,609,610,620,614,
      >       699) ind
       call errquit('pspw_qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -773,6 +776,10 @@ c
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
       if (inp_f(sdist(3))) then
+         sindx(3) = 6     ! morse = 6
+         sdist(4) = 0.0d0
+         sdist(5) = 0.0d0
+         sdist(6) = 0.0d0
          nbm = nbm+1
          rtdb_name = 'pspw_qmmm_frag_nmbond:'//c_index_name(nkf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nbm)
@@ -783,7 +790,7 @@ c
          rtdb_name = 'pspw_qmmm_frag_indx_mbond:'
      >               //c_index_name(nkf)
      >               //c_index_name(nbm)
-         value = rtdb_put(rtdb,rtdb_name,mt_int,2,sindx)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,3,sindx)
          if (.not. value)
      >   call errquit(
      >   'pspw_qmmm_input:failed writing bond spring ij',0,RTDB_ERR)
@@ -791,7 +798,7 @@ c
          rtdb_name = 'pspw_qmmm_frag_Kr0_mbond:'
      >               //c_index_name(nkf)
      >               //c_index_name(nbm)
-         value = rtdb_put(rtdb,rtdb_name,mt_dbl,3,sdist)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist)
          if (.not. value)
      >   call errquit(
      >   'pspw_qmmm_input:failed writing bond spring D,rho,ro',
@@ -805,6 +812,8 @@ c
 
 
       goto 601
+
+
 
 c
 c angle spring
@@ -1022,6 +1031,64 @@ c
 
 
 c
+c bond pair i1 i2 type A B C D E F
+c
+c Pair Ion-Ion parameters - 1 - 4*Aij*((Bij/rij)**12-(Bij/rij)**6),
+c                           2 - Aij*exp(-rij/Bij) - Cij/rij**6,
+c                           3 - Aij*exp(-rij/Bij) - Cij/rij**6 - Dij/rij**8
+c                           4 - Aij*(rij-Bij)^Cij,
+c                           5 - Aij*exp(-rij/Bij)
+c                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
+c                           7 - ???
+c                           8 - Aij*exp(-(rij/Bij)**2)
+
+ 614  if (inp_i(sindx(1))) then
+      if (inp_i(sindx(2))) then
+      if (inp_i(sindx(3))) then
+      if (inp_f(sdist(1))) then
+      if (inp_f(sdist(2))) then
+      if (inp_f(sdist(3))) then
+      if (inp_f(sdist(4))) then
+      if (inp_f(sdist(5))) then
+      if (inp_f(sdist(6))) then
+         nbm = nbm+1
+         rtdb_name = 'pspw_qmmm_frag_nmbond:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nbm)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed writing nbm',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_qmmm_frag_indx_mbond:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nbm)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,3,sindx)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed writing bond spring ij',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_qmmm_frag_Kr0_mbond:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nbm)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed writing bond spring D,rho,ro',
+     >    0,RTDB_ERR)
+
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+
+      goto 601
+
+
+c
 c  coord_number
 c
  620  nkc = nkc + 1
@@ -1173,7 +1240,7 @@ c
      >  call errquit('pspw_2qmmm_input: unknown directive',0,INPUT_ERR)
 
 
-      goto ( 702,703,704,705,706,708,711,712,713,707,709,710,720,
+      goto ( 702,703,704,705,706,708,711,712,713,707,709,710,720,714,
      >       799) ind
       call errquit('pspw_2qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -1365,6 +1432,10 @@ c
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
       if (inp_f(sdist(3))) then
+         sindx(3) = 6     ! morse = 6
+         sdist(4) = 0.0d0
+         sdist(5) = 0.0d0
+         sdist(6) = 0.0d0
          nbm = nbm+1
          rtdb_name = 'pspw_2qmmm_frag_nmbond:'//c_index_name(nknf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nbm)
@@ -1375,7 +1446,7 @@ c
          rtdb_name = 'pspw_2qmmm_frag_indx_mbond:'
      >               //c_index_name(nknf)
      >               //c_index_name(nbm)
-         value = rtdb_put(rtdb,rtdb_name,mt_int,2,sindx)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,3,sindx)
          if (.not. value)
      >   call errquit(
      >   'pspw_2qmmm_input:failed writing bond spring ij',0,RTDB_ERR)
@@ -1383,7 +1454,7 @@ c
          rtdb_name = 'pspw_2qmmm_frag_Kr0_mbond:'
      >               //c_index_name(nknf)
      >               //c_index_name(nbm)
-         value = rtdb_put(rtdb,rtdb_name,mt_dbl,3,sdist)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist)
          if (.not. value)
      >   call errquit(
      >   'pspw_2qmmm_input:failed writing bond spring D,rho,ro',
@@ -1446,14 +1517,14 @@ c
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
         nds = nds+1
-        rtdb_name='pspw_2qmmm_frag_ndihedral_spring:'//c_index_name(nkf)
+       rtdb_name='pspw_2qmmm_frag_ndihedral_spring:'//c_index_name(nknf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nds)
         if (.not. value)
      >  call errquit(
      >   'pspw_2qmmm_input:failed writing nds',0,RTDB_ERR)
 
          rtdb_name = 'pspw_2qmmm_frag_indx_dihedral_spring:'
-     >               //c_index_name(nkf)
+     >               //c_index_name(nknf)
      >               //c_index_name(nds)
          value = rtdb_put(rtdb,rtdb_name,mt_int,4,sindx)
          if (.not. value)
@@ -1461,7 +1532,7 @@ c
      >   'pspw_2qmmm_input:failed dihedral spring ijkl',0,RTDB_ERR)
 
          rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral_spring:'
-     >               //c_index_name(nkf)
+     >               //c_index_name(nknf)
      >               //c_index_name(nds)
          value = rtdb_put(rtdb,rtdb_name,mt_dbl,2,sdist)
          if (.not. value)
@@ -1487,14 +1558,14 @@ c
       if (inp_f(sdist(2))) then
       if (inp_f(sdist(3))) then
          ndds = ndds+1
-         rtdb_name='pspw_2qmmm_frag_ndihedral:'//c_index_name(nkf)
+         rtdb_name='pspw_2qmmm_frag_ndihedral:'//c_index_name(nknf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,ndds) 
          if (.not. value)
      >   call errquit(
      >   'pspw_2qmmm_input:failed writing ndds',0,RTDB_ERR)
 
          rtdb_name = 'pspw_2qmmm_frag_indx_dihedral:'
-     >               //c_index_name(nkf)
+     >               //c_index_name(nknf)
      >               //c_index_name(ndds)
          value = rtdb_put(rtdb,rtdb_name,mt_int,4,sindx)
          if (.not. value)
@@ -1502,7 +1573,7 @@ c
      >   'pspw_2qmmm_input:failed dihedral ijkl',0,RTDB_ERR)
 
          rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral:'
-     >               //c_index_name(nkf)
+     >               //c_index_name(nknf)
      >               //c_index_name(ndds)
          value = rtdb_put(rtdb,rtdb_name,mt_dbl,3,sdist)
          if (.not. value)
@@ -1606,6 +1677,57 @@ c
       end if
 
       goto 701
+
+
+c
+c bond_pair i1 i2 type A B C D E F
+c
+ 714  if (inp_i(sindx(1))) then
+      if (inp_i(sindx(2))) then
+      if (inp_i(sindx(3))) then
+      if (inp_f(sdist(1))) then
+      if (inp_f(sdist(2))) then
+      if (inp_f(sdist(3))) then
+      if (inp_f(sdist(4))) then
+      if (inp_f(sdist(5))) then
+      if (inp_f(sdist(6))) then
+         nbm = nbm+1
+         rtdb_name = 'pspw_2qmmm_frag_nmbond:'//c_index_name(nknf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nbm)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed writing nbm',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_indx_mbond:'
+     >               //c_index_name(nknf)
+     >               //c_index_name(nbm)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,3,sindx)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed writing bond spring ij',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_Kr0_mbond:'
+     >               //c_index_name(nknf)
+     >               //c_index_name(nbm)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed writing bond spring D,rho,ro',
+     >    0,RTDB_ERR)
+
+
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+
+      goto 701
+
  
 c
 c  coord_number

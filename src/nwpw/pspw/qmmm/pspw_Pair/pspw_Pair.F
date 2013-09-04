@@ -268,6 +268,13 @@ c
      >                    dbl_mb(param_all(1)+6*(nn+k-1)+4),
      >                    ' Dd:',  
      >                    dbl_mb(param_all(1)+6*(nn+k-1)+5)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.8) then
+                        write(luout,'(4x,A49,E14.6,A5,E14.6)')
+     >              '- Potential=A*exp(-(rij/rho)**2),              A:',
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)),
+     >                    ' rho:',
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+1)
+
                      end if
                   end do
                endif
@@ -634,6 +641,8 @@ c     *********************************************
             E = E + p(1,k)*dexp(-r/p(2,k)) 
      >            - p(3,k)/r**6 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
      >            - p(4,k)/r**8 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+         else if (t(k).eq.8) then
+            E = E + p(1,k)*dexp(-(r/p(2,k))**2)
          endif
       end do
 
@@ -697,6 +706,8 @@ c     *********************************************
                E = E + p(1,k)*dexp(-r/p(2,k)) 
      >            - p(3,k)/r**6 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
      >            - p(4,k)/r**8 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+            else if (t(k).eq.8) then
+                E = E + p(1,k)*dexp(-(r/p(2,k))**2)
             endif
          end do
       end do
@@ -759,6 +770,8 @@ c     *********************************************
                E = E + p(1,k)*dexp(-r/p(2,k)) 
      >            - p(3,k)/r**6 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
      >            - p(4,k)/r**8 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+            else if (t(k).eq.8) then
+               E = E + p(1,k)*dexp(-(r/p(2,k))**2)
             endif
          end do
       end do
@@ -807,13 +820,15 @@ c     *********************************************
             else if (t(k).eq.4) then
                E = E +p(1,k)*( (r-p(2,k))**p(3,k) )
             else if (t(k).eq.5) then
-               E = E + p(1,k)*dexp( r/p(2,k) )
+               E = E + p(1,k)*dexp(r/p(2,k))
             else if (t(k).eq.6) then
                 E = E+p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             else if (t(k).eq.7) then
                E = E + p(1,k)*dexp(-r/p(2,k)) 
      >            - p(3,k)/r**6 * pspw_VPair_fdamp(6,p(5,k),1.0d0,r)
      >            - p(4,k)/r**8 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
+            else if (t(k).eq.8) then
+               E = E + p(1,k)*dexp((r/p(2,k))**2)
             endif
          end do
       end do
@@ -1062,6 +1077,8 @@ c     *********************************************
      >         + 8.0d0*p(4,k)/r**9 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
      >         - p(3,k)/r**6 * pspw_VPair_dfdamp(6,p(5,k),1.0d0,r)
      >         - p(4,k)/r**8 * pspw_VPair_dfdamp(8,p(6,k),1.0d0,r)
+            else if (t(k).eq.8) then
+               dVPair = -(2.0d0*r*p(1,k)/p(2,k)**2)*dexp(-(r/p(2,k))**2)
             else
                dVPair = 0.0d0
             endif
@@ -1137,6 +1154,8 @@ c     *********************************************
      >         + 8.0d0*p(4,k)/r**9 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
      >         - p(3,k)/r**6 * pspw_VPair_dfdamp(6,p(5,k),1.0d0,r)
      >         - p(4,k)/r**8 * pspw_VPair_dfdamp(8,p(6,k),1.0d0,r)
+            else if (t(k).eq.8) then
+               dVPair = -(2.0d0*r*p(1,k)/p(2,k)**2)*dexp(-(r/p(2,k))**2)
             else
                dVPair = 0.0d0
             endif
@@ -1202,6 +1221,8 @@ c     *********************************************
      >      + 8.0d0*p(4,k)/r**9 * pspw_VPair_fdamp(8,p(6,k),1.0d0,r)
      >      - p(3,k)/r**6 * pspw_VPair_dfdamp(6,p(5,k),1.0d0,r)
      >      - p(4,k)/r**8 * pspw_VPair_dfdamp(8,p(6,k),1.0d0,r)
+         else if (t(k).eq.8) then
+            dVPair = -(2.0d0*r*p(1,k)/p(2,k)**2)*dexp(-(r/p(2,k))**2)
          else
             dVpair = 0.0d0
          endif

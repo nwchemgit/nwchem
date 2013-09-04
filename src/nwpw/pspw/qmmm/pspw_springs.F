@@ -326,21 +326,35 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
 *     *                                   *
 *     *************************************
 
-      real*8 function pspw_qmmm_morse_bond_frag(nbond,indx,Kr0,rion)
+* Pair Ion-Ion parameters - 1 - 4*Aij*((Bij/rij)**12-(Bij/rij)**6),
+*                           2 - Aij*exp(-rij/Bij) - Cij/rij**6,
+*                           3 - Aij*exp(-rij/Bij) - Cij/rij**6 - Dij/rij**8
+*                           4 - Aij*(rij-Bij)^Cij,
+*                           5 - Aij*exp(-rij/Bij)
+*                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
+*                           7 - ???
+*                           8 - Aij*exp(-(rij/Bij)**2)
+
+      real*8 function pspw_qmmm_morse_bond_frag(nbond,indx,p,rion)
       implicit none
-      integer nbond,indx(2,*)
-      real*8  Kr0(3,*)
+      integer nbond,indx(3,*)
+      real*8  p(6,*)
       real*8  rion(3,*)
 
 *     **** local variables ****
-      integer ii,jj,b
-      real*8  r,x,y,z
+      integer ii,jj,b,ptype
+      real*8  r,x,y,z,u,u6,u12
       real*8  E
+
+*     **** external functions ****
+      real*8   pspw_VPair_fdamp
+      external pspw_VPair_fdamp
 
       E = 0.0d0
       do b=1,nbond
         ii = indx(1,b)
         jj = indx(2,b)
+        ptype = indx(3,b)
  
         x = rion(1,ii)-rion(1,jj)
         y = rion(2,ii)-rion(2,jj)
@@ -348,7 +362,30 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
         call lattice_min_difference(x,y,z)
         r = dsqrt( x**2 + y**2 + z**2)
 
-        E = E + Kr0(1,b)*( 1.0d0 - dexp(-Kr0(2,b)*(r-Kr0(3,b))) )**2
+        if (ptype.eq.1) then
+            u   = (p(2,b)/r)
+            u6  = u**6
+            u12 = u6**2
+            E = E + 4.0d0*p(1,b)*(u12-u6)
+        else if (ptype.eq.2) then
+           E = E + p(1,b)*dexp(-r/p(2,b)) - p(3,b)/r**6
+        else if (ptype.eq.3) then
+           E = E + p(1,b)*dexp(-r/p(2,b)) - p(3,b)/r**6 - p(4,b)/r**8
+        else if (ptype.eq.4) then
+           E = E + p(1,b)*( (r-p(2,b))**p(3,b) )
+        else if (ptype.eq.5) then
+           E = E + p(1,b)*dexp(-r/p(2,b))
+        else if (ptype.eq.6) then
+           !E = E + Kr0(1,b)*(1.0d0-dexp(-Kr0(2,b)*(r-Kr0(3,b))))**2
+           E = E + p(1,b)*(1.0d0-dexp(-p(2,b)*(r-p(3,b))))**2
+        else if (ptype.eq.7) then
+            E = E + p(1,b)*dexp(-r/p(2,b))
+     >            - p(3,b)/r**6 * pspw_VPair_fdamp(6,p(5,b),1.0d0,r)
+     >            - p(4,b)/r**8 * pspw_VPair_fdamp(8,p(6,b),1.0d0,r)
+        else if (ptype.eq.8) then
+           E = E + p(1,b)*dexp(-(r/p(2,b))**2)
+        end if
+
       end do
 
       pspw_qmmm_morse_bond_frag = E
@@ -361,22 +398,37 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
 *     *    pspw_qmmm_morse_bond_frag_fion      *
 *     *                                        *
 *     ******************************************
-      subroutine pspw_qmmm_morse_bond_frag_fion(nbond,indx,Kr0,rion,
-     >                                           fion)
+
+* Pair Ion-Ion parameters - 1 - 4*Aij*((Bij/rij)**12-(Bij/rij)**6),
+*                           2 - Aij*exp(-rij/Bij) - Cij/rij**6,
+*                           3 - Aij*exp(-rij/Bij) - Cij/rij**6 - Dij/rij**8
+*                           4 - Aij*(rij-Bij)^Cij,
+*                           5 - Aij*exp(-rij/Bij)
+*                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
+*                           7 - ???
+*                           8 - Aij*exp(-(rij/Bij)**2)
+
+      subroutine pspw_qmmm_morse_bond_frag_fion(nbond,indx,p,rion,fion)
       implicit none
-      integer nbond,indx(2,*)
-      real*8  Kr0(3,*)
+      integer nbond,indx(3,*)
+      real*8  p(6,*)
       real*8  rion(3,*)
       real*8  fion(3,*)
 
 *     **** local variables ****
-      integer ii,jj,b
-      real*8  x,y,z,r
-      real*8  dE,ee
+      integer ii,jj,b,ptype
+      real*8  x,y,z,r,u,u6,u12
+      real*8  dE
+
+*     **** external functions ****
+      real*8   pspw_VPair_fdamp,pspw_Vpair_dfdamp
+      external pspw_VPair_fdamp,pspw_Vpair_dfdamp
+
 
       do b=1,nbond
         ii = indx(1,b)
         jj = indx(2,b)
+        ptype = indx(3,b)
 
         x = rion(1,ii)-rion(1,jj)
         y = rion(2,ii)-rion(2,jj)
@@ -384,21 +436,50 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
         call lattice_min_difference(x,y,z)
         r = dsqrt( x**2 + y**2 + z**2)
 
-        ee = dexp(-Kr0(2,b)*(r-Kr0(3,b)))
-        dE = 2.0d0*Kr0(1,b)*Kr0(2,b)*(1.0d0-ee)*ee/r
 
-        fion(1,ii) = fion(1,ii) - x*dE 
-        fion(2,ii) = fion(2,ii) - y*dE 
-        fion(3,ii) = fion(3,ii) - z*dE 
+        if (ptype.eq.1) then
+           u = (p(2,b)/r)
+           u6  = u**6
+           u12 = u6**2
+           dE = -(4.0d0*p(1,b)/r)*(12.0d0*u12-6.0d0*u6)
+        else if (ptype.eq.2) then
+           dE= -p(1,b)/p(2,b)*dexp(-r/p(2,b))+6.0d0*p(3,b)/r**7
+        else if (ptype.eq.3) then
+           dE= -p(1,b)/p(2,b)*dexp(-r/p(2,b))+6.0d0*p(3,b)/r**7
+     >                                       +8.0d0*p(4,b)/r**9
+        else if (ptype.eq.4) then
+           dE =  p(1,b)*p(3,b)*( (r-p(2,b))**(p(3,b)-1.0d0) )
+        else if (ptype.eq.5) then
+           dE = -p(1,b)/p(2,b)*dexp(-r/p(2,b))
+        else if (ptype.eq.6) then
+           dE = 2.0d0*p(1,b)*(1.0d0-dexp(-p(2,b)*(r-p(3,b))))
+     >               *p(2,b)*dexp(-p(2,b)*(r-p(3,b)))
+        else if (ptype.eq.7) then
+           dE = -p(1,b)/p(2,b)*dexp(-r/p(2,b))
+     >     + 6.0d0*p(3,b)/r**7 * pspw_VPair_fdamp(6,p(5,b),1.0d0,r)
+     >     + 8.0d0*p(4,b)/r**9 * pspw_VPair_fdamp(8,p(6,b),1.0d0,r)
+     >     - p(3,b)/r**6 * pspw_VPair_dfdamp(6,p(5,b),1.0d0,r)
+     >     - p(4,b)/r**8 * pspw_VPair_dfdamp(8,p(6,b),1.0d0,r)
+        else if (ptype.eq.8) then
+           dE = -(2.0d0*r*p(1,b)/p(2,b)**2)*dexp(-(r/p(2,b))**2)
+        else
+           dE = 0.0d0
+        end if
 
-        fion(1,jj) = fion(1,jj) + x*dE 
-        fion(2,jj) = fion(2,jj) + y*dE 
-        fion(3,jj) = fion(3,jj) + z*dE 
+        fion(1,ii) = fion(1,ii) - (x/r)*dE 
+        fion(2,ii) = fion(2,ii) - (y/r)*dE 
+        fion(3,ii) = fion(3,ii) - (z/r)*dE 
+
+        fion(1,jj) = fion(1,jj) + (x/r)*dE 
+        fion(2,jj) = fion(2,jj) + (y/r)*dE 
+        fion(3,jj) = fion(3,jj) + (z/r)*dE 
 
       end do
 
       return
       end
+
+
 
 
 

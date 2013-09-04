@@ -347,8 +347,8 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 *           **** mbond stuff  - determine nindxsize and ndsqsize  ****
             int_mb(nindx_mbond_start(1)+ia-1) = nmbindxsize + 1
             int_mb(nKr0_mbond_start(1) +ia-1) = nmKr0size  + 1
-            nmbindxsize = nmbindxsize + 2*int_mb(nmbond(1)+ia-1)
-            nmKr0size   = nmKr0size   + 3*int_mb(nmbond(1)+ia-1)
+            nmbindxsize = nmbindxsize + 3*int_mb(nmbond(1)+ia-1)
+            nmKr0size   = nmKr0size   + 6*int_mb(nmbond(1)+ia-1)
 
 *           **** dihedral_spring stuff  - get ndihedral_spring  ****
             rtdb_name =
@@ -583,17 +583,17 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
                   rtdb_name = 'pspw_2qmmm_frag_indx_mbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,3,
      >                int_mb(indx_mbond(1)+nmbindxsize)))
      >               int_mb(indx_mbond(1)+nmbindxsize) = 0
-                  nmbindxsize = nmbindxsize + 2
+                  nmbindxsize = nmbindxsize + 3
 
                   rtdb_name = 'pspw_2qmmm_frag_Kr0_mbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,6,
      >                dbl_mb(Kr0_mbond(1)+nmKr0size)))
      >               dbl_mb(Kr0_mbond(1)+nmKr0size) = 0.0d0
-                  nmKr0size = nmKr0size + 3
+                  nmKr0size = nmKr0size + 6
 
                end do
             end do
@@ -871,15 +871,110 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_mbond(1)+ii-1
                 shake_ptr = Kr0_mbond(1) +jj-1
 
-             write(luout,'(A,A,2I4,3(4x,A,F11.6))') 
-     >       "   - Morse Parameters: ",
+                kk = int_mb(indx_ptr+2)
+
+                if (kk.eq.1) then
+                        write(luout,'(3x,A49,E14.6,A5,E14.6,/5x,A,2I4)')
+     >              '- Potential=4*e*((s/rij)**12-(s/rij)**6),      e:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' s:',
+     >                    dbl_mb(shake_ptr+1),
      >                  "indexes=",
-     >                  (int_mb(indx_ptr+j-1),j=1,2),
-     >                  "De=", dbl_mb(shake_ptr),
-     >                  "rho=",dbl_mb(shake_ptr+1),
-     >                  "re=", dbl_mb(shake_ptr+2)
-               ii = ii + 2
-               jj = jj + 3
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.2) then
+                        write(luout,'(3x,A49,E14.6,A5,E14.6,A5,E14.6,
+     >                                /5x,A,2I4)')
+     >              '- Potential=A*exp(-rij/rho) - C/rij**6,        A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' rho:',
+     >                    dbl_mb(shake_ptr+1),
+     >                    ' C:',
+     >                    dbl_mb(shake_ptr+2),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.3) then
+                write(luout,'(3x,A49,E14.6,A5,E14.6,A5,E14.6,A5,E14.6,
+     >                        /5x,A,2I4)')
+     >              '- Potential=A*exp(-rij/rho)-C/rij**6-D/rij**8, A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' rho:',
+     >                    dbl_mb(shake_ptr+1),
+     >                    ' C:',
+     >                    dbl_mb(shake_ptr+2),
+     >                    ' D:',
+     >                    dbl_mb(shake_ptr+3),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.4) then
+                        write(luout,'(3x,A49,E14.6,A5,E14.6,A5,E14.6,
+     >                                /5x,A,2I4)')
+     >              '- Potential=A*(rij-B)**C,                      A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' B:',
+     >                    dbl_mb(shake_ptr+1),
+     >                    ' C:',
+     >                    dbl_mb(shake_ptr+2),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.5) then
+                        write(luout,'(3x,A49,E14.6,A5,E14.6,/5x,A,2I4)')
+     >              '- Potential=A*exp(-rij/rho),                   A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' rho:',
+     >                    dbl_mb(shake_ptr+1),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.6) then
+c             write(luout,'(A,A,2I4,3(4x,A,F11.6))')
+c     >       "   - Morse Parameters: ",
+c     >                  "indexes=",
+c     >                  (int_mb(indx_ptr+j-1),j=1,2),
+c     >                  "De=", dbl_mb(shake_ptr),
+c     >                  "rho=",dbl_mb(shake_ptr+1),
+c     >                  "re=", dbl_mb(shake_ptr+2)
+                       write(luout,'(3x,A49,E14.6,A5,E14.6,A5,E14.6,
+     >                              /5x,A,2I4)')
+     >              '- Potential=De*(1-exp(-a*(rij-re)) )**2,      De:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' a:',
+     >                    dbl_mb(shake_ptr+1),
+     >                    ' re:',
+     >                    dbl_mb(shake_ptr+2),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.7) then
+                write(luout,'(3x,A,A,A,
+     >                        /48x,A5,E14.6,A5,E14.6,A5,E14.6,A5,E14.6,
+     >                        /48x,A5,E14.6,A5,E14.6,/5x,A,2I4)')
+     >                    '- Potential=A*exp(-rij/rho)',
+     >                    '-fdamp(6,Cd;rij)*C/rij**6',
+     >                    '-fdamp(8,Dd;rij)*D/rij**8,',
+     >                    ' A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' rho:',
+     >                    dbl_mb(shake_ptr+1),
+     >                    ' C:',
+     >                    dbl_mb(shake_ptr+2),
+     >                    ' D:',
+     >                    dbl_mb(shake_ptr+3),
+     >                    ' Cd:',
+     >                    dbl_mb(shake_ptr+4),
+     >                    ' Dd:',
+     >                    dbl_mb(shake_ptr+5),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.8) then
+                      write(luout,'(3x,A49,E14.6,A5,E14.6,/5x,A,2I4)')
+     >              '- Potential=A*exp(-(rij/rho)**2),              A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' rho:',
+     >                    dbl_mb(shake_ptr+1) ,
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
+                end if
+
+               ii = ii + 3
+               jj = jj + 6
              end do
 
              ii = int_mb(nindx_dihedral_spring_start(1)+ia-1)
