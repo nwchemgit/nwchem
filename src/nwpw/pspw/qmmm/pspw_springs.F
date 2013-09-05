@@ -334,6 +334,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
 *                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 *                           7 - ???
 *                           8 - Aij*exp(-(rij/Bij)**2)
+*                           9 - Aij*exp(-(rij/Bij)**Cij)
 
       real*8 function pspw_qmmm_morse_bond_frag(nbond,indx,p,rion)
       implicit none
@@ -384,6 +385,8 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
      >            - p(4,b)/r**8 * pspw_VPair_fdamp(8,p(6,b),1.0d0,r)
         else if (ptype.eq.8) then
            E = E + p(1,b)*dexp(-(r/p(2,b))**2)
+        else if (ptype.eq.9) then
+           E = E + p(1,b)*dexp(-(r/p(2,b))**p(3,b))
         end if
 
       end do
@@ -407,6 +410,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
 *                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 *                           7 - ???
 *                           8 - Aij*exp(-(rij/Bij)**2)
+*                           8 - Aij*exp(-(rij/Bij)**Cij)
 
       subroutine pspw_qmmm_morse_bond_frag_fion(nbond,indx,p,rion,fion)
       implicit none
@@ -462,6 +466,9 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
      >     - p(4,b)/r**8 * pspw_VPair_dfdamp(8,p(6,b),1.0d0,r)
         else if (ptype.eq.8) then
            dE = -(2.0d0*r*p(1,b)/p(2,b)**2)*dexp(-(r/p(2,b))**2)
+        else if (ptype.eq.9) then
+           dE = -(p(1,b)*p(3,b)*(r/p(2,b))**p(3,b))
+     >           *dexp(-(r/p(2,b))**p(3,b))/r
         else
            dE = 0.0d0
         end if

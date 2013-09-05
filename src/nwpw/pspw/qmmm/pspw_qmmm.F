@@ -1041,6 +1041,17 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
      >                    dbl_mb(shake_ptr+1) ,
      >                  "indexes=",
      >                  (int_mb(indx_ptr+j-1),j=1,2)
+                else if (kk.eq.9) then
+                        write(luout,'(3x,A49,E14.6,A5,E14.6,A5,E14.6,
+     >                                /5x,A,2I4)')
+     >              '- Potential=A*exp(-(rij/B)**C),                A:',
+     >                    dbl_mb(shake_ptr),
+     >                    ' B:',
+     >                    dbl_mb(shake_ptr+1),
+     >                    ' C:',
+     >                    dbl_mb(shake_ptr+2),
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,2)
                 end if
 
                ii = ii + 3
