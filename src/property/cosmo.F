@@ -2208,7 +2208,43 @@ C> - The electron distribution being represented with Gaussian functions
 C>   extends beyond the SAS
 C>
 C> Therefore the raw COSMO charges are corrected by adding corrections
-C> based on a Lagrange multiplier technique.
+C> based on a Lagrange multiplier technique [4]. The corresponding
+C> equations can be derived by starting from an energy expression
+C> in terms of the solute charge distribution and the surface charges.
+C> In NWChem this energy expression including the Lagrange term is
+C> \f{eqnarray*}{
+C>   E(Q,q,\lambda) &=& \frac{1}{2}Q^TCQ + f(\epsilon)Q^TBq
+C>                   +  \frac{1}{2}f(\epsilon)q^TAq
+C>                   +  \lambda(f(\epsilon)Q_{in}+\sum_i q_i)
+C> \f}
+C> where \f$Q\f$ is the charge distribution of the solute (including
+C> both nucleii and electrons), \f$q\f$ is the surface charge
+C> distribution, \f$f(\epsilon)\f$ is the dielectric screening constant
+C> as discussed below, \f$Q_{in}\f$ is the charge within the cavity
+C> or equivalently the solute charge, and finally \f$A\f$, \f$B\f$,
+C> and \f$C\f$ are Coulomb matrices.
+C>
+C> From this equation the surface charges can be derived by minimizing
+C> \f$E\f$ wrt \f$q\f$ and \f$\lambda\f$. This yields
+C> \f{eqnarray*}{
+C>    \frac{\partial E}{\partial q} 
+C>       &=& f(\epsilon)BQ + f(\epsilon)Aq + \Lambda = 0\\\\
+C>    \frac{\partial E}{\partial \lambda}
+C>       &=& f(\epsilon)Q_{in} + \sum_i q_i = 0
+C> \f}
+C> where \f$\Lambda\f$ is a vector of which each element is
+C> \f$\lambda\f$, i.e. \f$\forall_i, \Lambda_i = \lambda\f$. 
+C> Next we get
+C> \f{eqnarray*}{
+C>   q &=& -A^{-1}\left(BQ+\frac{\Lambda}{f(\epsilon)}\right) \\\\
+C>   \lambda &=& \frac{f^2(\epsilon)Q_{in}
+C>                     -f(\epsilon)\sum_i\left[A^{-1}BQ\right]_i}{
+C>                     \sum_{ij}A^{-1}_{ij}}
+C> \f}
+C> Because \f$E\f$ is variationally optimized wrt \f$Q\f$, \f$q\f$,
+C> and \f$\lambda\f$ the gradient expression only involves derivatives
+C> of \f$A\f$, \f$B\f$ and \f$C\f$ just like the original COSMO
+C> gradients [1].
 C>
 C> Previously this correction was implemented by scaling the raw COSMO
 C> charges. However, this led to complications with neutral molecules
@@ -2284,6 +2320,12 @@ C>   "Optimized atomic radii for quantum dielectric continuum solvation
 C>    models", <i>Chem. Phys. Lett.</i> (1995) <b>244</b>, pp 65-74,
 C>   DOI: <a href="http://dx.doi.org/10.1016/0009-2614(95)00898-E">
 C>   10.1016/0009-2614(95)00898-E</a>.
+C>
+C>   [4] D.M. York, M. Karplus,
+C>   "A smooth solvation potential based on the conductor-like 
+C>    screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>   pp 11060-11079, DOI: <a href="http://dx.doi.org/10.1021/jp992097l">
+C>   10.1021/jp992097l</a>.
 c
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,
      &                      efcc,efcs,efcz,ecos)
