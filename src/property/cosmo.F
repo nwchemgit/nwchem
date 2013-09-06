@@ -2211,11 +2211,11 @@ C> Therefore the raw COSMO charges are corrected by adding corrections
 C> based on a Lagrange multiplier technique [4]. The corresponding
 C> equations can be derived by starting from an energy expression
 C> in terms of the solute charge distribution and the surface charges.
-C> In NWChem this energy expression including the Lagrange term is
+C> This energy expression including the Lagrange term is
 C> \f{eqnarray*}{
-C>   E(Q,q,\lambda) &=& \frac{1}{2}Q^TCQ + f(\epsilon)Q^TBq
-C>                   +  \frac{1}{2}f(\epsilon)q^TAq
-C>                   +  \lambda(f(\epsilon)Q_{in}+\sum_i q_i)
+C>   E(Q,q,\lambda) &=& \frac{1}{2}Q^TCQ + Q^TBq
+C>                   +  \frac{1}{2f(\epsilon)}q^TAq
+C>                   +  \lambda\left(f(\epsilon)Q_{in}+\sum_i q_i\right)
 C> \f}
 C> where \f$Q\f$ is the charge distribution of the solute (including
 C> both nucleii and electrons), \f$q\f$ is the surface charge
@@ -2228,7 +2228,7 @@ C> From this equation the surface charges can be derived by minimizing
 C> \f$E\f$ wrt \f$q\f$ and \f$\lambda\f$. This yields
 C> \f{eqnarray*}{
 C>    \frac{\partial E}{\partial q} 
-C>       &=& f(\epsilon)BQ + f(\epsilon)Aq + \Lambda = 0\\\\
+C>       &=& BQ + \frac{1}{f(\epsilon)}Aq + \Lambda = 0\\\\
 C>    \frac{\partial E}{\partial \lambda}
 C>       &=& f(\epsilon)Q_{in} + \sum_i q_i = 0
 C> \f}
@@ -2236,9 +2236,8 @@ C> where \f$\Lambda\f$ is a vector of which each element is
 C> \f$\lambda\f$, i.e. \f$\forall_i, \Lambda_i = \lambda\f$. 
 C> Next we get
 C> \f{eqnarray*}{
-C>   q &=& -A^{-1}\left(BQ+\frac{\Lambda}{f(\epsilon)}\right) \\\\
-C>   \lambda &=& \frac{f^2(\epsilon)Q_{in}
-C>                     -f(\epsilon)\sum_i\left[A^{-1}BQ\right]_i}{
+C>   q &=& -f(\epsilon)A^{-1}\left(BQ+\Lambda\right) \\\\
+C>   \lambda &=& \frac{Q_{in}-\sum_i\left[A^{-1}BQ\right]_i}{
 C>                     \sum_{ij}A^{-1}_{ij}}
 C> \f}
 C> Because \f$E\f$ is variationally optimized wrt \f$Q\f$, \f$q\f$,
@@ -2253,9 +2252,9 @@ C> correction factor would be 0 as well, eliminating the COSMO charges
 C> and hence all solvation effects. This problem had been patched by
 C> calculating the COSMO charges for the nucleii and the electrons 
 C> separately. This led to a cumbersome and expensive algorithm. So
-C> shifting the charges is a solution that is preferred over scaling
-C> the charges. The difference between the two approaches should be
-C> small provided the discretization is fine enough.
+C> shifting the use of a Lagrange constraint is a solution that is
+C> preferred over scaling the charges. The difference between the two
+C> approaches should be small provided the discretization is fine enough.
 C>
 C> In the COSMO model [1] it is realized that dielectric screening
 C> scales as
