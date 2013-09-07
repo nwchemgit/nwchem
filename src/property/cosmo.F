@@ -2179,7 +2179,9 @@ c
       end
 c
 C> \brief Calculate the screened COSMO charges
-c
+C>
+C> ## Introduction ##
+C>
 C> In the COSMO model [1] the charges to represent the solvation effects
 C> are obtained from solving a linear system of equations \f$ Ax=b \f$.
 C> In this system \f$ b \f$ is the electrostatic potential at the 
@@ -2196,6 +2198,8 @@ C> charge (see [1] Eqs. 7a and 7b). The quantity \f$a_{\mathrm{diag}}\f$
 C> is evaluated using Eq.(B1). This done in two steps in that the
 C> this quantity is evaluated for the unit sphere in `hnd_cossph`, any
 C> remaining scale factors are applied in the evaluation of \f$A\f$.
+C>
+C> ## Surface charges satisfying Gauss's theorem ##
 C>
 C> Solving these equations gives the "raw" COSMO charges \f$ x \f$.
 C> These charges should sum up to the total charge contained within 
@@ -2254,7 +2258,8 @@ C> calculating the COSMO charges for the nucleii and the electrons
 C> separately. This led to a cumbersome and expensive algorithm. So
 C> shifting the use of a Lagrange constraint is a solution that is
 C> preferred over scaling the charges. The difference between the two
-C> approaches should be small provided the discretization is fine enough.
+C> approaches should be small provided the discretization is fine
+C> enough.
 C>
 C> In the COSMO model [1] it is realized that dielectric screening
 C> scales as
@@ -2298,6 +2303,57 @@ C> \f$ k \f$ may be reduced as well. In practice \f$ k \f$ does not
 C> depend strongly on the initial value of \f$ x \f$, reduction by at
 C> most a factor 2 are seen when the SCF is nearly converged.
 C>
+C> ## Singularity free surface charge self-interaction ##
+C>
+C> The cavity in continuum solvation models is constructed by creating
+C> spherical cavities around all atoms and merging these volumes. The
+C> Solvent Accessible Surface (SAS) is created representing the
+C> spherical surface around every atom with points and eliminating the 
+C> points that fall inside the sphere around a neighboring atom.
+C> Klamt et al. [1] suggested representing the surface charge by point
+C> charges at the surface discretization points. This leads to
+C> singularities in the solvation energy when some of these points come
+C> together, typically in the vicinity of the boundary between spheres.
+C>
+C> The singularities in the surface self-interaction energy need to be
+C> addressed to ensure that sensible geometry optimizations are 
+C> possible. York and Karplus [4] suggested formally replacing the 
+C> surface point charges by Gaussian charge distributions. This leads
+C> to an interaction of the form
+C> \f{eqnarray*}{
+C>   A(r_i,r_j) &=& \frac{\mathrm{erf}(\zeta_{ij}r_{ij})}{r_{ij}}
+C> \f}
+C> This interaction is relatively easily implemented in force fields
+C> where all charges are point charges. Implementing this for the
+C> interaction between a point charge and an electron distribution
+C> is conceptually harder to do.
+C>
+C> A consistent implementation would need to use this expression for
+C> both the \f$A\f$ and \f$B\f$ matrix. Scalmani and Frisch [5] have
+C> sought to do this exactly by explicitly representing the surface
+C> charges as Gaussians. This could be done of course using the 
+C> charge density fitting integrals but it would require some 
+C> engineering as the surface charges would need to be stored in a
+C> geometry object. Lange and Herbert [6,7] have followed York and
+C> Karplus more closely and applied this approximation only to
+C> matrix \f$A\f$ and not to the surface charge-electron interaction.
+C> However, even applying this interaction just for \f$A\f$ is 
+C> problematic as the expression still contains singularities at
+C> \f$r_{ij} = 0\f$ that can only be avoided by taking limits.
+C> Therefore special care must be taken when using it.
+C>
+C> Similar problems with singular potentials also arise in other
+C> application areas in chemistry. One such area is charge equilibration
+C> where the shielded Coulomb interaction is approximated with the
+C> Ohno formula [8]
+C> \f{eqnarray*}{
+C>   A(r_i,r_j) &=& \frac{1}{\left(a_{ij}^2 + r_{ij}^2\right)^{1/2}}
+C> \f}
+C> This equation has the advantage that it is analytic everywhere
+C> and with an appropriate choice for \f$a_{ij}\f$ it can easily be
+C> mapped onto the original equations suggested by Klamt and 
+C> Sch&uuml;&uuml;rmann [1].
+C>
 C> ### References ###
 C>
 C>   [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
@@ -2325,6 +2381,35 @@ C>   "A smooth solvation potential based on the conductor-like
 C>    screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>   pp 11060-11079, DOI: <a href="http://dx.doi.org/10.1021/jp992097l">
 C>   10.1021/jp992097l</a>.
+C>
+C>   [5] G. Scalmani, M.J. Frisch,
+C>   "Continuous surface charge polarizable continuum models of
+C>    solvation. I. General formalism", <i>J. Chem. Phys.</i> (2010)
+C>   <b>132</b>, 114110,
+C>   DOI: <a href="http://dx.doi.org/10.1063/1.3359469">
+C>   10.1063/1.3359469</a>.
+C>
+C>   [6] A.W. Lange, J.M. Herbert, 
+C>   "Polarizable continuum reaction-field solvation models affording
+C>    smooth potential energy surfaces", <i>J. Phys. Chem. Lett.</i>
+C>   (2010) <b>1</b>, pp 556-561, DOI:
+C>   <a href="http://dx.doi.org/10.1021/jz900282c">
+C>   10.1021/jz900282c</a>.
+C>
+C>   [7] A.W. Lange, J.M. Herbert,
+C>   "A smooth, nonsingular, and faithful discretization scheme for
+C>    polarizable continuum models: The switching/Gaussian approach",
+C>   <i>J. Chem. Phys.</i> (2010) <b>133</b>, 244111, DOI:
+C>   <a href="http://dx.doi.org/10.1063/1.3511297">
+C>   10.1063/1.3511297</a>.
+C>
+C>   [8] R.F. Nalewajski, J. Korchowiec, Z. Zhou,
+C>   "Molecular hardness and softness parameters and their use in
+C>    chemistry", <i>Int. J. Quant. Chem. Symp.</i> (1988),
+C>   <b>22</b>, pp 349-366, DOI:
+C>   <a href="http://dx.doi.org/10.1002/qua.560340840">
+C>   10.1002/qua.560340840</a>.
+C>
 c
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,
      &                      efcc,efcs,efcz,ecos)
