@@ -1,0 +1,8 @@
+LUCIA - GET_CMOAO_ENV (obtain the initial set of MO's that is, the orbitals
+                       in which integrals are imported)
+
+      - GET_CMOINI_GEN - GET_INIMO (obtain start orbitals)
+                                   - GET_CMOAO_ENV
+                                   - PREPARE_CMOAO_INI (obtains the starting
+                                     orbitals, but not as orthonormal)
+                                   -ORT_ORB: Does inter- and intra-gas ortho

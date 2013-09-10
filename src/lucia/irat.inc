@@ -1,0 +1,1 @@
+      COMMON/IRATC/IRAT 

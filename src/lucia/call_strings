@@ -1,0 +1,56 @@
+The codes for that generates and manipulates strings as products of GAS-spaces
+
+GETSTR_TOTSM_SPGP: Generates all strings belonging to a given supergroup and 
+                   symmetry
+                   - GETSTRN_GASSM_SPGP: Generates all strings for given 
+                     symmetries of all strings - changed
+
+GETSTR_ALLSM_GNSPGP: Generates all strings of general supergroup and all symmetries
+                    -GETSTRN_GASSM_GNSPGP: Generates all strings for given
+                     symmetries of all strings
+GETSTR2_TOTSM_SPGP: Generates all strings of general supergroup and all symmetries
+                  : Used extensively in Modern codes as IC - changed
+
+GETSTRN routines:
+
+Routines where strings and string excitations are used:
+
+Sigma: RSBB2BN
+       RSBB1E
+       RSBB2A
+
+Densi:  GSBBD1
+        GSBBD2A
+        GSBBD2B
+
+Standard Diagonal
+         GASDIAS, GASDIAS_PH: CALL GETSTR_TOTSM_SPGP
+
+RSBB2BN:ADAST_GAS   - TS_SYM_PNT2 
+                    - NEXT_SYM_DISTR
+RSBB2BN2: ADAST2_GAS - TS_SYM_PNT2
+                     - NEXT_SYM_DISTR
+RSBB1E: ADAST_GAS
+RSBB2A: ADAADAST_GAS - GETSTR_TOTSM
+
+GSBBD1: ADAST_GAS
+GSBB2A: ADADST_GAS
+GSBBD2B: ADSTN_GAS 
+
+
+Modified: GETSTR_TOTSM_SPGP
+          GETSTR2_TOTSM_SPGP
+          TS_SYM_PNT2 
+          NEXT_SYM_DISTR
+          ADAST_GAS
+          ADASTN_GAS
+
+
+
+
+
+
+
+
+
+

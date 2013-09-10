@@ -1,0 +1,163 @@
+      SUBROUTINE GET_NB_FOR_PH(IHP,ISMOB,IB,NUM)
+*
+* Obtain start and number of orbitals for orbitals 
+* of given sym and H/P
+*
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'cgas.inc'
+*
+      IF(IHP.EQ.1) THEN
+*. Hole orbitals
+        IB = IBSO(ISMOB)
+        NUM = 0
+        DO ITP = 1, N_HOLE_ORBSPACE 
+         NUM = NUM + NOBPTS(ITP,ISMOB)
+        END DO
+      ELSE
+*. Particle orbitals
+        IB = IBSO(ISMOB)
+        DO ITP = 1, N_HOLE_ORBSPACE
+         IB = IB +  NOBPTS(ITP,ISMOB)
+        END DO
+        NUM = 0
+        DO ITP =  N_HOLE_ORBSPACE+1, NGAS
+         NUM = NUM + NOBPTS(ITP,ISMOB)
+        END DO
+      END IF
+*
+      NTEST = 000
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' Input IHP, ISMOB = ', IHP,ISMOB
+        WRITE(6,*) ' Output : IB, NUM ', IB,NUM
+      END IF
+*
+      RETURN
+      END
+      SUBROUTINE GET_QD_INTS(H1,H2,INTP1)
+*
+*  Read in one- and two- body integrals defining qdot problem
+*
+* Jeppe Olsen, May 1999 
+*
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'cgas.inc'
+      INCLUDE 'multd2h.inc'
+*. Pointer to symmetric packed symmetric one-electronintegrals
+      DIMENSION INTP1(*)
+*. Output
+      DIMENSION H1(*), H2(*)
+*
+* One-electron integrals : First H(hh), then H(pp)
+*
+      LUH1 = 90
+      REWIND LUH1
+*. Loop over particle and hole spaces      
+      DO IHP = 1, 2
+        DO ISMOB = 1, NSMOB
+          CALL GET_NB_FOR_PH(IHP,ISMOB,IB,NI)
+          WRITE(6,*) ' ISMOB, NI = ', ISMOB,NI 
+          ISOFF = INTP1(ISMOB)
+          DO I = 1, NI
+          DO J = 1, I
+            II = I + IB - IBSO(ISMOB)
+            JJ = J + IB - IBSO(ISMOB)
+            IJ = ISOFF - 1 + II*(II-1)/2+JJ 
+            WRITE(6,*) ' IHP, ISMOB, I, J = ', IHP, ISMOB, I,J 
+            READ(LUH1,*) H1(IJ)
+            WRITE(6,*) ' IJ and H1(IJ) ', IJ, H1(IJ)
+          END DO
+          END DO
+        END DO   
+      END DO
+*
+* Two body integrals
+*
+*
+      LUHHHH = 81
+      LUHHPP = 82
+      LUPPPP = 83
+*
+      DO ICASE = 1, 3
+* ICASE = 1 => hhhh
+*       = 2 => hhpp
+*       = 3 => pppp
+*
+        WRITE(6,*) ' ICASE = ', ICASE
+        IF(ICASE.EQ.1) THEN
+          LUH = LUHHHH
+        ELSE IF(ICASE.EQ.2) THEN
+          LUH = LUHHPP
+        ELSE 
+          LUH = LUPPPP
+        END IF
+        REWIND LUH
+*. Loop structure over symmetry blocks from TRA2 
+        DO ISYM = 1, NSMOB
+         DO JSYM = 1, NSMOB
+          DO KSYM = 1, NSMOB
+            IJSYM = MULTD2H(ISYM,JSYM)
+            IJKSYM = MULTD2H(IJSYM,KSYM)
+            INTSYM = 1
+            LSYM = MULTD2H(IJKSYM,INTSYM)
+*
+C?            WRITE(6,'(A,4I4)') 
+C?   &        ' ISYM, JSYM, KSYM, LSYM',ISYM,JSYM,KSYM,LSYM
+*. Read in integrals as  (I,J,K,L)
+              IF(ICASE.EQ.1.OR.ICASE.EQ.2) THEN
+*. IJ corresponds to hole spaces
+                IHP = 1
+                JHP = 1
+              ELSE
+*. IJ corresponds to particle spaces
+                IHP = 2
+                JHP = 2
+              END IF
+*
+              IF(ICASE.EQ.1) THEN
+*. Kl corresponds to hole spaces
+                KHP = 1
+                LHP = 1
+              ELSE
+*. kl corresponds to particle spaces
+                KHP = 2
+                LHP = 2
+              END IF
+              CALL GET_NB_FOR_PH(IHP,ISYM,IB,NI)
+              CALL GET_NB_FOR_PH(JHP,JSYM,JB,NJ)
+              CALL GET_NB_FOR_PH(KHP,KSYM,KB,NK)
+              CALL GET_NB_FOR_PH(LHP,LSYM,LB,NL)
+C             GET_NB_FOR_PH(IHP,ISMOB,IBASE,NUM)
+              DO L = 1, NL
+              DO K = 1, NK
+              DO J = 1, NJ
+              DO I = 1, NI
+C               WRITE(6,*) ' I,J,K,L', I,J,K,L
+                READ(LUH,*) XINT
+C               WRITE(6,*)  'XINT = ', XINT
+                II = IB-1+I
+                JJ = JB-1+J
+                KK = KB-1+K
+                LL = LB-1+L
+                IJKL= I2EAD(II,JJ,KK,LL)
+C?              WRITE(6,'(A,4I3,I9,E15.8)') 
+C?   &          ' I,J,K,L,IJKL,XINT', II,JJ,KK,LL,IJKL,XINT
+                H2(IJKL) = XINT
+              END DO
+              END DO
+              END DO
+              END DO
+*.            ^ End of loop over orbitals belonging to given sym
+          END DO
+        END DO
+      END DO
+*.    ^ End of loop over symmetries
+      END DO
+*.    ^ End of loop over Cases(integral types )
+*
+      RETURN
+      END

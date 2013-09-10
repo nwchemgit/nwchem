@@ -1,0 +1,7 @@
+19-8 kl 18.03 : MRCC code working for first (SRCC) case : He, 2e in 2o, 
+                (using single ref)
+20-8 kl 10.32 : MRCC code workong for first true MRCC case : He, 3s,
+                2 in 2 CAS
+20-8 kl 10.41 : MRCC working as SRCC for Be2+ in 4s
+20-8 kl 10.51 : MRCC working as MRCC for Be2+ in 4s, 2e in 2 orbs ( about 400 s!)
+20-8 : Without errors the program works also for Be_6311, HF(DZP) ....

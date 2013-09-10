@@ -1,0 +1,3 @@
+      COMMON/CECORE/ECORE,ECORE_ORIG,ECORE_H,ECORE_HEX,
+     &              ECORE_AB,ECORE_INI,
+     &              ECORE_EXT,ECORE_INA,ECORE_FI

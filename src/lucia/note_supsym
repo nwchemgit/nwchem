@@ -1,0 +1,38 @@
+In each standard symmetry, there are typically more than one supersymmetry.
+It is therefore neccesary to define how the orbitals within a given 
+standard symmetry are ordered. There are two such orderings in action
+
+1: The orbitals within a given standard symmetry are ordered in the same way as the basis-functions. From the information about the ordering of the basis functins, we can therefore determine the ordering of the molecular orbitals. This ordering is the standard order of the orbitals
+
+ISTA_TO_GENSM_REO gives the ordering from super-symmetry block ordering
+to standard symmetry
+
+ISTA_TO_GNSYM: ISTA_TO_GNSYM(I): 
+I is index for orbital ordered according to general symmetry
+(blocks of supersymmetry), 
+ISTA_TO_GNSYM(I) is the corresponding orbital in standard order
+
+2: The orbitals within a given standard symmetry are ordered  as specified by
+   the GAS_SP arrays. This ensures that orbitals of correct super-symmetry 
+   are put in the various gaspaces.  I will call this ordering the actual order.
+   WORK(KMO_STA_TO_ACT_REO) gives the ordering from the standard order to
+   the actual order. This is an internal ordering within each standard symmetry
+   block.
+MO_STA_TO_ACT_REO(I): I is orbital in standard order, MO_STA_TO_ACT_REO(I)
+is the orbital in gas-order 
+
+We want super-symmetry order to actual symmetry 
+Supersym  => standard => actual
+
+MO_STA_TO_ACT_REO(ISTA_TO_GNSYM(ISUP) must do the trick
+
+
+When supersymmetry is active the orbitals are in the program in actual order.
+When reorganizing to super-symmetry blocks we need:
+1: Reorder from actual order to standard order
+2: Reorder from standard order to super-symmetry blocks
+The array accomplishing this reorder is the IACT_TO_GENSM_REO reorder
+
+
+
+ACT_TO_GENSM_REO

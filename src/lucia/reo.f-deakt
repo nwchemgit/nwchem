@@ -1,0 +1,310 @@
+      SUBROUTINE REO_INT
+*
+* Master routine for reordering orbitals within given symmetry
+*
+* Jeppe Olsen, June 2002
+*
+*
+c      INCLUDE 'implicit.inc'
+c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
+      INCLUDE 'crun.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'cintfo.inc'
+      INCLUDE 'glbbas.inc'
+*
+*. Obtain reorder array : IREO(N) is orig number of new orbital N
+*
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'REO_IN')
+*
+      CALL MEMMAN(KLIREO_ORB,NTOOB,'ADDL  ',1,'REO_OR')
+      CALL SET_REO_ORB_ARRAY(WORK(KLIREO_ORB))
+*
+* Reorder two-electron integral matrix
+*
+      CALL MEMMAN(KLINT2,NINT2,'ADDL  ',2,'LINT2 ')
+C     REO_2INT(XIN,XOUT,IREO_ORB,IJKLOF)
+      CALL REO_2INT(WORK(KINT2),WORK(KLINT2),WORK(KLIREO_ORB),
+     &              WORK(KPINT2))
+      CALL COPVEC(WORK(KLINT2),WORK(KINT2),NINT2)
+*
+* Reorder one-electron integrals 
+*
+      CALL MEMMAN(KLINT1,NINT1,'ADDL  ',2,'LINT1 ')
+C     REO_1EMAT(HIN,HOUT,IREO_ORB,IHSM)
+      CALL REO_1EMAT(WORK(KINT1),WORK(KLINT1),WORK(KLIREO_ORB),
+     &               1)
+      CALL COPVEC(WORK(KLINT1),WORK(KINT1),NINT1)
+*
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'REO_IN')
+      RETURN
+      END
+      SUBROUTINE SET_REO_ORB_ARRAY(IREO_ORB_ARRAY)
+*
+* Set up array giving reordering of orbitals
+*.IREO_ORB_ARRAY(N) is orig number of new orbital N
+*
+* Jeppe Olsen, June 2002
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'crun.inc'
+*. Output
+      INTEGER IREO_ORB_ARRAY(*)
+*
+C          ISTVC2(IVEC,IBASE,IFACT,NDIM)
+      CALL ISTVC2(IREO_ORB_ARRAY,0,1,NTOOB)
+
+      DO ISWITCH = 1, NSWITCH
+        ISM = IREO_ORB(1,ISWITCH)
+        IOLD = IREO_ORB(2,ISWITCH)
+        INEW = IREO_ORB(3,ISWITCH)
+        IOFF = 1
+        DO JSM = 1, ISM-1
+          IOFF = IOFF + NTOOBS(JSM)
+        END DO
+        IREO_ORB_ARRAY(IOFF-1+IOLD) = IOFF-1+INEW
+        IREO_ORB_ARRAY(IOFF-1+INEW) = IOFF-1+IOLD
+      END DO
+*
+      NTEST = 000
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' Array for reordering orbitals , new => orig '
+        CALL IWRTMA(IREO_ORB_ARRAY,1,NTOOB,1,NTOOB)
+      END IF
+*
+      RETURN
+      END
+      SUBROUTINE REO_2INT(XIN,XOUT,IREO_ORB,IJKLOF)
+*
+* Reorder two-electron integrals according to reorder array IREO_ORB
+* That allows reordering of orbitals of the same symmetry
+*
+* Jeppe Olsen, June 2002, In sunny Helsingfors
+*
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'multd2h.inc'
+*. Start of given symmetry block
+      INTEGER IJKLOF(NSMOB,NSMOB,NSMOB)
+*. Input integrals
+      DIMENSION XIN(*)
+*. And output integrals
+      DIMENSION XOUT(*)
+*
+      DO ISM = 1, NSMOB
+        DO JSM = 1, ISM 
+          IJSM = MULTD2H(ISM,JSM)
+          DO KSM = 1, ISM
+            IJKSM = MULTD2H(IJSM,KSM)
+            IH2SM = 1
+            LSM = MULTD2H(IJKSM,IH2SM)
+            IF(KSM.EQ.ISM) THEN
+              LSM_MAX = JSM
+            ELSE
+              LSM_MAX = KSM
+            END IF
+            IF(LSM.LE.LSM_MAX) THEN
+*. Offset to integral block
+              IBLK_OFF = IJKLOF(ISM,JSM,KSM)
+              IF(NTEST.GE.10) THEN
+                WRITE(6,*) ' IBLK_OFF = ', IBLK_OFF
+                WRITE(6,*) ' ISM, JSM, KSM, LSM = ',
+     &                       ISM, JSM, KSM, LSM
+              END IF
+              CALL REO_2INT_BLK(XIN(IBLK_OFF),ISM,JSM,KSM,LSM,
+     &             IREO_ORB,IBLK_OFF,XOUT(IBLK_OFF))
+            END IF  
+          END DO
+        END DO
+      END DO
+*
+      RETURN
+      END 
+      SUBROUTINE REO_2INT_BLK(XIN,ISM,JSM,KSM,LSM,IREO_ORB,IJKLOFF,
+     &                        XOUT)
+*
+* Reorder a complete symmetry block  of integrals, 
+* according to orbital reorder array * IREO_ORB
+*
+* On input ISM gt JSM, KSM ge LSM, IJSM ge KLSM
+*
+* XIN and XOUT are symmetryblocks, and IJKLOFF is start of this 
+* symmetry block in complete list
+*
+* Jeppe Olsen, June 2002
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+*
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'orbinp.inc'
+*. Specific input
+      DIMENSION XIN(*)
+      INTEGER IREO_ORB(*)
+*. Output
+      DIMENSION XOUT(*)
+*
+      NTEST = 000
+*
+*. Offset and number of integrals
+*
+      NI = NTOOBS(ISM)
+      NJ = NTOOBS(JSM)
+      NK = NTOOBS(KSM)
+      NL = NTOOBS(LSM)
+*. Offset to start of orbitalsof given symmetry 
+      IOFF = 1 + IELSUM(NTOOBS,ISM-1) 
+      JOFF = 1 + IELSUM(NTOOBS,JSM-1) 
+      KOFF = 1 + IELSUM(NTOOBS,KSM-1) 
+      LOFF = 1 + IELSUM(NTOOBS,LSM-1) 
+*
+      IJKL = 0
+      DO K = 1, NK
+        KOLD = IREO_ORB(KOFF-1+K) 
+        IF(KSM.EQ.LSM) THEN
+         LMAX = K
+        ELSE
+         LMAX = NL
+        END IF
+        DO L = 1, LMAX
+         LOLD = IREO_ORB(LOFF-1+L) 
+*. We now have K and L, the loops over ij depends upon 
+*. whether ISM = JSM, as this condition implies that inner loop is 
+*. j in accordiance with the standard def of IJ
+         IF(ISM.EQ.JSM) THEN
+*
+           IF(ISM.EQ.KSM.AND.JSM.EQ.LSM) THEN
+             IMIN = K
+           ELSE 
+             IMIN = 1
+           END IF
+           DO I = IMIN,NI
+             IOLD = IREO_ORB(IOFF-1+I) 
+             IF(ISM.EQ.JSM) THEN
+               JMAX = I
+             ELSE 
+               JMAX = NJ
+             END IF
+             IF(ISM.EQ.KSM.AND.JSM.EQ.LSM.AND.I.EQ.K) THEN
+               JMIN = L
+             ELSE
+               JMIN = 1
+             END IF
+             DO J = JMIN, JMAX
+*. Address of reordered integral w.r.t start of symmetryblock
+              JOLD = IREO_ORB(J+JOFF-1)
+              IJKL_OLD = I2EAD(IOLD,JOLD,KOLD,LOLD)-IJKLOFF+1
+              IJKL = IJKL + 1
+              IF(NTEST.GE.1000) THEN
+                WRITE(6,*) ' I, J, K, L, IJKL, IJKL_OLD = ',
+     &                       I, J, K, L, IJKL, IJKL_OLD 
+              END IF
+              XOUT(IJKL) = XIN(IJKL_OLD)
+             END DO
+           END DO
+         ELSE 
+*. ISM is .gt. JSM, so normal ordering of IJ
+          IF(ISM.EQ.KSM.AND.JSM.EQ.LSM) THEN
+            IMIN = K
+          ELSE 
+            IMIN = 1
+          END IF
+          DO I = IMIN, NI
+            IOLD = IREO_ORB(IOFF-1+I) 
+            IF(ISM.EQ.KSM.AND.JSM.EQ.LSM.AND.I.EQ.K) THEN
+             JMIN = L
+            ELSE
+             JMIN = 1
+            END IF
+            DO J = JMIN, NJ
+              JOLD = IREO_ORB(J+JOFF-1)
+              IJKL_OLD = I2EAD(IOLD,JOLD,KOLD,LOLD)-IJKLOFF+1
+              IJKL = IJKL + 1
+              IF(NTEST.GE.1000) THEN
+                WRITE(6,*) ' I, J, K, L, IJKL, IJKL_OLD = ',
+     &                       I, J, K, L, IJKL, IJKL_OLD 
+              END IF
+              XOUT(IJKL) = XIN(IJKL_OLD)
+            END DO
+          END DO
+        END IF
+*       ^ End of Switching around between ISM = JSM and ISM > JSM
+      END DO
+      END DO
+*    ^ End of loop over K and L
+*
+      RETURN
+      END
+      SUBROUTINE REO_1EMAT(HIN,HOUT,IREO_ORB,IHSM)
+*
+* Reorder One-electron integral matrix according with 
+*.reorder matrix IREO_ORB. Matrix is assumed to be packed
+*
+* Jeppe Olsen, June 2002, Sunny Helsinki
+*
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'multd2h.inc'
+      INCLUDE 'orbinp.inc'
+*. Input
+      DIMENSION HIN(*)
+      INTEGER IREO_ORB(*)
+*. Output
+      DIMENSION HOUT(*)
+*
+      IJ = 0
+      DO IRSM = 1, NSMOB
+        ICSM = MULTD2H(IRSM,IHSM)
+*
+        IROFF = IBSO(IRSM)
+        ICOFF = IBSO(ICSM)
+*
+        NR = NTOOBS(IRSM)
+        NC = NTOOBS(ICSM)
+*. Offset to this symmetryblock
+        IBLOFF = IJ + 1
+        IF(IRSM.EQ.ICSM) THEN
+*. Symmetric block, packed as lower triangular
+*. Loop over indeces of new matrix block
+*. Offset to this symmetry block
+          DO I = 1, NR
+          DO J = 1, I
+            IJ = IJ + 1
+            I_OLD = IREO_ORB(IROFF-1+I)-IROFF+1
+            J_OLD = IREO_ORB(ICOFF-1+J)-ICOFF+1
+            IJ = IBLOFF-1+I*(I-1)/2+J
+            IJ_OLD = IBLOFF - 1  
+     &             + MAX(I_OLD,J_OLD)*(MAX(I_OLD,J_OLD)-1)/2
+     &             + MIN(I_OLD,J_OLD)
+            HOUT(IJ) = HIN(IJ_OLD)
+          END DO
+          END DO
+        ELSE IF (IRSM.GT.ICSM) THEN
+*. Complete symmetryblock is present
+          DO I = 1, NR
+          DO J = 1, NC
+            IJ = IJ + 1
+            I_OLD = IREO_ORB(IROFF-1+I)-IROFF+1
+            J_OLD = IREO_ORB(ICOFF-1+J)-ICOFF+1
+            IJ = IBLOFF-1+(J-1)*NR + I
+            IJ_OLD = IBLOFF-1+(J_OLD-1)*NR + I_OLD
+            HOUT(IJ) = HIN(IJ_OLD)
+          END DO
+          END DO
+        END IF
+      END DO
+*
+      NTEST = 00
+      IF(NTEST.GE.100) THEN  
+        WRITE(6,*) ' REO_1EMAT : Input one-electron matrix '
+C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
+        CALL PRHONE(HIN,NTOOBS,IHSM,NSMOB,1)
+        WRITE(6,*) ' REO_1EMAT : Output one-electron matrix '
+        CALL PRHONE(HOUT,NTOOBS,IHSM,NSMOB,1)
+      END IF
+*
+      RETURN 
+      END
+

@@ -1,0 +1,39 @@
+NORTCI - MINMAX_EXCIT
+       - MINMAX_FOR_ORBTRA
+       - GEN_CONF_FOR_MINMAX_SPC
+       - NPARA_FOR_MINMAX_SPC
+       - CNFORD2
+       - TRAINT
+       - CALL GET_INIMO
+       - GET_SMO
+       - GET_CBIO
+       - PREPARE_2EI_LIST
+       - DO_ORBTRA
+       - FLAG_ACT_INTLIST
+       - NORTCALC
+
+GEN_CONF_FOR_MINMAX_SPC - GEN_CONF_FOR_MAXMIN_OCC
+                        - INFO_CONF_LIST
+                        - OFFSETS_CSF_FOR_NOPEN
+                        - CONF_GRAPH
+                        - GEN_CONF_FOR_MAXMIN_OCC
+
+
+NORTCALC - GET_3BLKS
+         - INI_CSFEXP
+         - MINGENEIG
+         - ORB_EXCIT_INT_SPACE
+         - GET_CBIO
+         - GET_SMO
+         - DO_ORBTRA
+         - FLAG_ACT_INTLIST
+         - CALL MINGENEIG
+         - VB_GRAD_ORBVBSPC
+         - ORBHES_VB
+         - DIAG_SYMMAT_EISPACK
+         - SOLVE_SHFT_NR_IN_DIAG_BASIS
+         - NEWMO_FROM_KAPPA_NORT
+
+ 
+
+

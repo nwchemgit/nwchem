@@ -1,0 +1,6 @@
+GTIJKL_GN: Reads integrals from WORK(KINT2_A(IE2ARRAY_A) 
+
+GETINT: Determine INTARR as first array having this type of integrals
+        Use integrals from WORK(KINT2_INTARR)
+
+GET_FOCK: calls GETINT_AO which calls GETINT_GN without any tricks

@@ -1,0 +1,11 @@
+      common /opti/ ivar, iorder, ilin, idum_opti_1,
+     &              iprecnd, isubsp, ilsrch, icnjgrd,
+     &              mxsp_sbspja, mxsp_diis, idiistyp, idiis_start,
+     &              thr_diis,
+     &              isbspjatyp, isbspja_start,
+     &              thr_sbspja,
+     &              trini,trmin,trmax,
+     &              trthr1l,trthr1u,trfac1,
+     &              trthr2l,trthr2u,trfac2,trfac3,
+     &              thrstp,thrgrd,thr_de,
+     &              maxmacit, maxmicit, micifac

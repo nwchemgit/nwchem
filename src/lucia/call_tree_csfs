@@ -1,0 +1,137 @@
+Routines in use in connection with CSF's
+
+PROTO_CSF_DIM:  PROTO_CONF_DIM :   Number of prototype SD, CSFs, CMs
+                DIM_PROTO_ARRAYS:  Dim of prototype arrays
+
+GET_DIM_MINMAX_SPACE - GEN_CONF_FOR_MAXMIN_OCC - NEXT_CONF_FROM_MINMAX_OCC
+                                                 - REFORM_CONF_ACCOCC
+                                                 - ISYM_CONF
+                                                 - REFORM_CONF_OCC2
+                                                 - ILEX_FOR_CONF
+
+                     - INFO_CONF_LIST    
+
+CSDTMT_GAS:          - SPNCOM_LUCIA
+                     - REO_PTDET
+                     - CSFDET_LUCIA
+
+GEN_CONF_FOR_CISPC:  - MXMNOC_OCCLS     
+                     - CONF_GRAPH         - CONF_VERTEX_W
+                                          - CONF_ARC_W
+                     - GEN_CONF_FOR_OCCLS - NEXT_CONF_FOR_OCCLS - NXT_CONF
+                                                                - REFORM_CONF_FOR_GAS
+                                          - IADCONST
+                                          - REFORM_CONF_OCC 
+                                          - ILEX_FOR_CONF
+                                          - WRT_CONF_LIST2
+                     - WRT_CONF_LIST2
+
+(for the subconfiguration version)
+                     - GEN_OCCONF_FOR_OCCLS_FROM_OCSBCLS
+                     - REO_FOR_CONFS
+
+CNFORD_GAS:          - REO_GASDET  - REO_GASDET_S  - IAIB_TO_OCCLS
+                                                   - MXMNOC_OCCLS
+                                                   - CONF_GRAPH
+                                                   - GETSTR_TOTSM_SPGP
+                                                   - ABSTR_TO_ORDSTR
+                                                   - IADCONST
+                                                   - REFORM_CONF_OCC
+                                                   - ILEX_FOR_CONF2
+                                                   - EXTRT_MS_OPEN_OB
+                                                   - IZNUM_PTDT
+
+
+
+CSDTVCM  -  CSDTVCB
+
+CSDIAG 
+GET_CSF_H_PRECOND - CNHCN_CSF_BLK - CNHCN_LUCIA     -
+                                                                  -
+                                                - SIGN_CONF_SD
+                                                - ISIGN_TIMES_REAL
+
+ANACSF    
+
+
+
+
+GEN_OCCLS_FOR_CISPAC  - NXT_OCCLS_IN_MINMAX_SPC_
+
+GEN_INFO_FOR_ALL_OCCLS   - GEN_INFO_FOR_ALL_OCCLS_S -   CALL GEN_NCONF_FOR_OCCLSN
+                                                    -   OCCLSDIM_FROM_OCSBCLSDIM
+                         - GEN_NCSF_ETC_FOR_ALL_OCCLS
+Info about dimensions are saved in
+
+
+WORK(KNCN_PER_OP_SM): array, dim MAXOP+1,NIRREP,NOCCLS_MAX: Number of configurations per iopen, sym, occls with atleast MINOP open orbitals
+WORK(KNCN_FOR_OCCLS): array, dim (NIRREP,NOCCLS_MAX): Number of of configs per sym occls with atleast MINOP open orbitals
+WORK(KNCN_ALLSYM_FOR_OCCLS): NOCCLS_MAX: Number of configs, all sym, all number of open orbitals for given occupation class
+
+
+
+
+GEN_CNF_INFO_FOR_OCCLS  - GET_OCCLS_OCC_FOR_NUMB
+                        - ZIB_CONFOCC
+                        - GEN_CONF_FOR_CISPC
+                        - REO_SD_FOR_OCCLS - REO_SD_FOR_OCCLS_S
+
+
+Residing in 
+
+Lucia_csf.f
+lucia_nortci.f
+
+
+--------------------------------------------------------------
+Routines for constructing and using suboccupation classes 
+and subconfigurations
+--------------------------------------------------------------
+
+Number of occupationsubclasses(NOCSBCLST) is determined in STRTYP_GAS
+MINOP is defined from MS2, MAXOP is defined in STRTYP_GAS from NOPEN_MAX
+determined in MAX_NOPEN_NOCCLS_FOR_CISPAC
+
+Info on the definition of the occupation classes:
+-------------------------------------------------
+
+LUCIA - INFO_OCSBLCS - CALL GEN_OCSBLCLS (generates GAS and NEL for each ocsbcls) - OCSBCLS_OF_OCCLS ( the ocsubclasses of each occlass)
+                     - MINOP for each occsubclass
+
+Results returned in
+The occupation sub classes:
+WORK(KOGOCSBCLS): array(2,NOCSBCLST): giving occupation and gaspace of each oc sub  class
+IBOCSBCLS: First oc sub class for each gas
+MNGSOC: Min number of electrons in sub class for given gas
+
+Map occupation classes => occupation sub classes:
+WORK(KOCSBCLS_OF_OCCLS): The occupation sub classes of a given occupation class
+work(KMINOPGAS_FOR_OCCLS): Min number of open orbitals for each gas in a given occupation class
+
+The minimum number of open orbitals per oc sub class, global:
+WORK(KMNOPOCSBCL)
+
+
+Info on dimensions of occupation sub classes:
+----------------------------------------------
+
+LUCIA  - GEN_DIM_SBCNF- GEN_SUBCONF 
+Info is returned in: 
+WORK(KNSBCNF): array with dim (NOPEN_MAX+1,NSMOB,NOCSBCLST)
+WORK(KIBSBCNF): array with dim NOPEN_MAX+1,NSMOB,NOCSBCLST)
+WORK(KLSBCNF):  array with dim  NOCSBCLST
+                    
+
+
+Determination of number of confs for given CI space, 
+
+
+DIM_CISPACE_FROM_SBCNF  - OCCLS_IN_CI (Determines occupation classes in CI space)
+                        - DIM_CISPACE_FROM_SBCNF_IN - OCCLSDIM_FROM_OCSBCLSDIM - OCCLSDIM_FROM_OCSBCLSDIM_IN - DIM_PROD_OCSBCNF
+
+Generate the actual subconfigurations in the form of occupations:
+LUCIA- GEN_OCC_SBCNF - GEN_SUBCONF: Stored in arrays defined by pointers KKOCSBCNF
+
+Generate the configurations from the subconfigurations
+
+

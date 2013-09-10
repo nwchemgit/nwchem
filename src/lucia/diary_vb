@@ -1,0 +1,69 @@
+July 4: Testing pilot code using bio trans and Bio Ham in FCI space
+---------------------------------------------------------------------
+        1) Morning: 1e working with pilot code
+        2)evening/nighti(1.45): 2 electrons in 2 orbitals, no sym, working 
+        3) evening/night( 2.00): 2 electrons in 3 orbitals, no sym, working
+        4) evening/night(2.18): 2 electrons in 4 orbitals, CS sym, working
+        (no errors found going from 2 to 4)
+July 5 continuing testing pilot code
+---------------------------------------
+        1) He, 6-311Gss_CS (5 in sym 1, 1 in sym2 ), working 3.50
+           Two errors in Expansion  and permutations of symmetry
+           blocks found
+        2) H2, DZP, 8 sym1, 2 sym 2, working without further problems
+           compared to 1
+        3) Code with a general number of orbitals and symmetries seem to
+           be working
+July6-7: Working on book with Poul and Trygve
+         Adding code for rotating orbitals in a given GAspace
+
+July 8:  Finished debugging code for working with more general 
+         type of start of orbitals
+         Debugged the code for inactive orbitals
+
+         Checking with HF, DZP, Various occupied spaces
+         and inactive orbitals. Seems like pilot code is working...
+July 13: In the previous days code with generating orbitals 
+         from fragments have been implemented, routines to
+         implement orthogonalization of various spaces have been 
+         implemented and testing.
+July 14: A configuration based direct CI routine has been written 
+         today and is being tested. Routine reuses old config 
+         CI routines developed for preconditioning.. This code
+         is only doing standard CI
+July 15: The above pilot direct CI configuration routine is now 
+         working for simple case : He, 3-21, 6-311G, 6-311Gss after 
+         correcting a few bugs. Four electron (Be in STO-3G, H2 (2-) in 
+         DZP_C2V also okay. Six electrons also tested
+July 16: Code for generating the MINMAX spaces of the intermediate
+         spaces written. Final understanding at 03.00 the 17..
+July 17: A configuration TRACI code written and the first configuration
+         route for the non-orthogonal approach written.
+         17.05: Code is working for first case: He, 3-21G with orthogonal orbitals
+July 18: 08.12: Code is working for first test-case with non-orthogonal
+         orbitals (He, 3-21G), He in 3s basis is also working
+         08.37 He, 3s 1p in CS working (fixed one bug)
+         09.04 H2, DZP in CS working  
+         09.11 Be, 4 e in 5S also working 
+         09.39 Be, 4 e in 2S 1p also working 
+         Code seems to be working in general, running CI on Cr2
+July  19-?? : Working on a pilot VB MCSCF code
+==============================================
+In july19_11:
+July 26: First gradient working (orthogonal orbitals), H2, 3-21G, nosym
+         Gradient for H2, 3-21G, nosym also working for nonorthogonal orbitals
+July 31: First nonorthogonal MCSCF working, H2, 3-21G, nosym
+August 1: Second nonorthogonal MCSCF working, LiH, STO-3G, nosym
+          Also working with inactive orbitals, secondary..
+In aug6_11:
+Starting work on more efficient codes and some generalizations
+
+
+Back working on the code in May 2012...
+
+5 June 2012, 12.05: First MCSCF with active-active + other excitations: H2, 3-21G
+5 June 2012, 14.31: MCSCF with LIH working with 1s as GAS 1 working
+Jun 10, 12.05, MCSCF with N2, cc-pvdz with Hessian from FD using
+               vector function - a few error took some days.
+               
+

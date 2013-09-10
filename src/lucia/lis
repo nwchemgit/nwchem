@@ -1,0 +1,846 @@
+baserou.f:      FUNCTION IELSUM_IND(IACT,NACT,IVEC)
+baserou.f:* IELSUM_IND = sum_I=1 ^NACT IVEC(IACT(I))
+baserou.f:      INTEGER IVEC(*), IACT(NACT)
+baserou.f:        WRITE(6,*) ' IACT: '
+baserou.f:        CALL IWRTMA(IACT,1,NACT,1,NACT)
+baserou.f:       ISUM = ISUM + IVEC(IACT(I))
+densi2_ab.f:      IACTIVE = 0
+densi2_ab.f:          IACTIVE = 1
+densi2_ab.f:            IACTIVE = 1
+densi2_ab.f:            IACTIVE = 0
+densi2_ab.f:            IACTIVE = 1
+densi2_ab.f:            IACTIVE = 0
+densi2_ab.f:            IACTIVE = 1
+densi2_ab.f:            IACTIVE = 0
+densi2_ab.f:C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
+densi2_ab.f:        IF(IACTIVE.EQ.1) THEN
+dgeev_collect.f:*              ISPEC=16: (IACC22) IPARMQ is set to 0, 1 or 2 with the
+dgeev_collect.f:      INTEGER            INMIN, INWIN, INIBL, ISHFTS, IACC22
+dgeev_collect.f:     $                   ISHFTS = 15, IACC22 = 16 )
+dgeev_collect.f:     $    ( ISPEC.EQ.IACC22 ) ) THEN
+dgeev_collect.f:      ELSE IF( ISPEC.EQ.IACC22 ) THEN
+dgeev_collect.f:*        ==== IACC22: Whether to accumulate reflections
+diis.f:     &                    VEC1,VEC2,LUSCR,IACTCOR,IRESET)
+diis.f:* IF IACTCOR.EQ.1 Then overwrite the last correction vector 
+diis.f:      IF(IACTCOR.EQ.0) THEN
+diis.f:*     ^ End of IACTCOR switch 
+dim_pa.f:      SUBROUTINE DIM_SPII(IASPGRP,IBSPGRP,IOBTP,IAB,IAC,NSPII)
+dim_pa.f:        CALL ACOP_SPGRP(NGAS,ISPGPFTP(1,IASPGRP),IAC,IOBTP,
+dim_pa.f:C            ACOP_SPGRP(NNGRP,IGRP_IN,IAC,IGAS,IGRP_OUT,ICODE)
+dim_pa.f:        CALL ACOP_SPGRP(NGAS,ISPGPFTP(1,IBSPGRP),IAC,IOBTP,
+dim_pa.f:C              NST_PA(ISPGP,NIGRP,NACTE,IACTE,NST_ACT,NST_PAS)
+dim_pa.f:        WRITE(6,*) ' IASPGRP, IBSPGRP, IOBTP IAB IAC ', 
+dim_pa.f:     &               IASPGRP, IBSPGRP, IOBTP,IAB,IAC
+dim_pa.f:      SUBROUTINE NST_PA(ISPGP,NIGRP,NACTE,IACTE,NST_ACT,NST_PAS)
+dim_pa.f:*   IACTE    : The active gas orbital spaces (needs not all be distinct)
+dim_pa.f:      DIMENSION IACTE(NACTE)
+dim_pa.f:      INTEGER IPAS(MXPNGAS),IACT(MXPNGAS)
+dim_pa.f:      INTEGER IACTGP(MXPNGAS),IPASGP(MXPNGAS)
+dim_pa.f:        WRITE(6,*) ' Gaspaces of operators ', (IACTE(I),I=1,NACTE)
+dim_pa.f:      CALL ISETVC(IACTGP,IZERO,MXPNGAS)
+dim_pa.f:        IACTGP(IACTE(JACT)) = 1
+dim_pa.f:        IF(IACTGP(IGSFGP(ISPGP(JGRP))).EQ.1) THEN
+dim_pa.f:          IACT(NACT) = JGRP
+dim_pa.f:     &  ' Active gasspaces(index in IGRP) : ', (IACT(JACT),JACT=1,NACT)
+dim_pa.f:        IF(JGRP.EQ.IACT(JACT)) THEN
+dim_pa.f:        IF(IGSFGP(ISPGP(IIGRP)).EQ.IACT(JACT)) THEN
+dim_pa.f:          IACTGP(JACT) = ISPGP(IIGRP)
+dim_pa.f:        CALL NST_SPGRP2(NACT,IACTGP,ISTSYM,NSMST,NSTRIN,NDIST)
+gasdir2.f:     &                  ICOOSC,NCOOSC,ICOOSE,NCOOSE,IACOOS,
+gasdir2.f:      DIMENSION IACOOS(NOCTPA,NOCTPB,NSMST)
+gasdir2.f:C     INTEGER IACOC(MXPNGAS)
+gasdir2.f:     &             NOCCLS,IOCCLS,NACTI,IACTI,
+gasdir2.f:     &             NACTO,IACTO,LUSCR,LUSCR2,LEVEL,LU1,EOUT)
+gasdir2.f:* NOCCLS is number of occupation classes in compound space, NACTI, IACTI, NACTO, IACTO
+gasdir2.f:      IACC = 0
+gasdir2.f:          IACC = IOCC(1) 
+gasdir2.f:          IACC = IACC + IOCC(IGAS)
+gasdir2.f:        IF(IMINMAX(IGAS,1).GT.IACC.OR.IMINMAX(IGAS,2).LT.IACC) 
+gasdir2.f:      SUBROUTINE IACCU(IAR,NELMNT)
+gasdir2.f:C    &                    IAC)
+gasrou.f:     &           NGAS,MXPNGAS,IAC,ISPGRP_AC,IBASEIN,IBASEOUT)
+gasrou.f:*. Check first that supergroups + IAC information is consistent
+gasrou.f:      IF(.NOT.((IAC.EQ.1.AND.NELIN.EQ.NELOUT+1).OR.
+gasrou.f:     &         (IAC.EQ.2.AND.NELIN.EQ.NELOUT-1))) THEN
+gasrou.f:        WRITE(6,*) ' NELIN NELOUT IAC=',NELIN,NELOUT,IAC
+gasrou.f:          IF(IAC.EQ.1) THEN
+gasrou.f:          ELSE IF (IAC.EQ.2) THEN
+gasrou.f:          IF(IAC.EQ.1) THEN
+gasrou.f:          ELSE IF (IAC.EQ.2) THEN
+gasrou.f:       WRITE(6,*) ' IAC = ', IAC
+gasrou.f:      IACTIVE = 0
+gasrou.f:        IACTIVE = 1
+gasrou.f:        IACTIVE = 1
+gasrou.f:      IF(IACTIVE.NE.0.AND. NTEST.GE.50) THEN
+gasrou.f:     &             KKIACT,SCLFAC)
+gasrou.f:     &               KKIACT,SCLFAC)
+gasrou.f:                   IACT = IREO(ILEX)
+gasrou.f:     &             WRITE(6,*) ' IJ ILEX,IACT',IJ, ILEX,IACT
+gasrou.f:                   I1(KKSTR-KMIN+1,IJ) = IACT
+gasrou.f:      INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
+gasrou.f:     &               IACIST)
+gasrou.f:C?     WRITE(6,*) ' IACIST and NACIST arrays '
+gasrou.f:C?     CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
+gasrou.f:        CALL  SYMCOM(3,1,IOBSM,ISMFGS(IOBTP),IACSM)
+gasrou.f:        ISMFGS(IOBTP) = IACSM
+gasrou.f:C?      write(6,*) ' IACSM = ', IACSM
+gasrou.f:        NIAC  = NACIST(IACSM)
+gasrou.f:        IIAC =  IACIST(IACSM)
+gasrou.f:        NISD = NSTB*NIAC*NSTA
+gasrou.f:        CALL ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,   
+gasrou.f:     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+gasrou.f:      IACTIVE = -2810
+gasrou.f:          IACTIVE = 1
+gasrou.f:            IACTIVE = 1
+gasrou.f:            IACTIVE = 0
+gasrou.f:            IACTIVE = 1
+gasrou.f:            IACTIVE = 0
+gasrou.f:            IACTIVE = 1
+gasrou.f:            IACTIVE = 0
+gasrou.f:C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
+gasrou.f:        IF(IACTIVE.EQ.1) THEN
+gasrou.f:C                   IELSUM_IND(IACT,NACT,IVEC)
+lucia.f:     &                  NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,
+lucia.f:* Activated blocks are given in IACOOS
+lucia.f:      INTEGER IACOOS(NOCTPA,NOCTPB,NSMST)
+lucia.f:      CALL ISETVC(IACOOS,0,NOCTPA*NOCTPB*NSMST)
+lucia.f:        IACOOS(IA,IB,ISM) = 1
+lucia.f:          CALL IWRTMA(IACOOS(1,1,ISM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+lucia.f:      FILNAM = 'LUCIA.IAC'
+lucia.f:        LUIAC = IOPEN_NFS(FILNAM)
+lucia.f:        REWIND LUIAC
+lucia.f:          READ(LUIAC,'(A12)',END=110,ERR=100) BLABLA
+lucia.f:            READ(LUIAC,'(A14,I3)') BLABLA,NIRREP_OLD
+lucia.f:            READ(LUIAC,'(A14,I3)') BLABLA,NIRREP_NEW
+lucia.f:            READ(LUIAC,'(A)') BLABLA
+lucia.f:              WRITE(6,*) 'strange input from LUCIA.IAC; I quit ...'
+lucia.f:              READ(LUIAC,*) (IRMAP((ILINE-1)*NQUOT+IDX), IDX = 1,NQUOT)
+lucia.f:            WRITE(6,*) 'found unexpected entry on LUCIA.IAC:'
+lucia.f:     &       'Error reading from LUCIA.IAC or premature end of file'
+lucia.f:        STOP 'Error reading from LUCIA.IAC'
+lucia.f:        CALL RELUNIT(LUIAC,'delete')
+lucia.f:        CALL ISTVC2(IACT_TO_GENSM_REO,0,1,NTOOB)
+lucia.f:C       GET_IACT_TO_GENSM_REO(IACT_TO_GENSM_REO,
+lucia.f:        CALL GET_IACT_TO_GENSM_REO(IACT_TO_GENSM_REO,
+lucia.f:     &                  ICOOSC,IAC,IDC,LUHC,SCR,NSMST)
+lucia.f:* add(IAC = 1) or copy (IAC =2) determinant block (iatp iasm, ibtp ibsm
+lucia.f:* IAC = 2  does not work for LUHC.NE.0 !
+lucia.f:          IF(IAC .EQ. 1 ) THEN
+lucia.f:          ELSE IF(IAC .EQ.2 ) THEN
+lucia.f:            IF(IAC .EQ. 1 ) THEN
+lucia.f:            ELSE IF(IAC .EQ.2 ) THEN
+lucia.f:            IF( IAC .EQ. 1 ) THEN
+lucia.f:          IF(IAC .EQ. 1 ) THEN
+lucia.f:          ELSE IF(IAC .EQ.2 ) THEN
+lucia.f:          IF( IAC .EQ. 1 ) THEN
+lucia.f:C     DO 100 IAC = 1,2
+lucia.f:C       IDELTA = (-1)**IAC
+lucia.f:C         ISTAC(ITYP,IAC) = JTYP
+lucia.f:      CALL ISWPVE(IACT_TO_GENSM_REO, ISTA_TO_GENSM_REO, NTOOB)
+lucia.f:      CALL ISWPVE(IACT_TO_GENSM_REO, ISTA_TO_GENSM_REO, NTOOB)
+lucia.f:        IAC = 0
+lucia3.f:      FUNCTION NCASTR(IAC,NSTTPI,NTPSTI,ICLSI,NOBATP,NOBTP,IELPTP)
+lucia3.f:          CALL NEWTYP(ISTTP,IAC,IOBTP,1,ITPO)
+lucia3.f:          IF(IAC.EQ.1) THEN
+lucia3.f:C                    DIM_SPII(IASPGRP,IBSPGRP,IOBTP,IAB,IAC,NSPII)
+lucia3.f:      SUBROUTINE NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
+lucia3.f:* IACOP(I) = 1 : operator I is an annihilation operator
+lucia3.f:      INTEGER ITPOP(*),IACOP(*)
+lucia3.f:        CALL NEWTYPS(INSPGP,IACOP,ITPOP,NOP,
+lucia3.f:C     NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
+lucia3.f:          IF(IACOP(IOP).EQ.1) THEN
+lucia3.f:      SUBROUTINE NEWTYPS(INSPGP,IACOP,ITPOP,NOP,
+lucia3.f:      DIMENSION IACOP(NOP),ITPOP(NOP)
+lucia3.f:        IF(IACOP(IOP).EQ.1) THEN
+lucia3.f:C         WRITE(6,*) ' String of operator : IAC,ITPOP'
+lucia3.f:C         CALL IWRTMA(IACOP,1,NOP,1,NOP)
+lucia3.f:        WRITE(6,*) ' NEWTYPS : IAC and ITPOP'
+lucia3.f:        CALL IWRTMA(IACOP,1,NOP,1,NOP)
+lucia3.f:      SUBROUTINE GSAXPY(AB,A,B,NABCOL,NACOL,NROW,IABCOL,IACOL)
+lucia3.f:* AB(I,IABCOL(J)) = AB(I,IABCOL(J)) + A(I,IACOL(K))*B(K,J)
+lucia3.f:      DIMENSION IACOL(NACOL),IABCOL(NABCOL)
+lucia3.f:             KACT = IACOL(K)
+lucia3.f:          K1ACT = IACOL(1)
+lucia3.f:           K1ACT = IACOL(1)
+lucia3.f:           K2ACT = IACOL(2)
+lucia3.f:           K1ACT = IACOL(1)
+lucia3.f:           K2ACT = IACOL(2)
+lucia3.f:           K3ACT = IACOL(3)
+lucia3.f:           K1ACT = IACOL(1)
+lucia3.f:           K2ACT = IACOL(2)
+lucia3.f:           K3ACT = IACOL(3)
+lucia3.f:           K4ACT = IACOL(4)
+lucia3.f:            K1ACT = IACOL(K)
+lucia3.f:            K2ACT = IACOL(K+1)
+lucia3.f:            K3ACT = IACOL(K+2)
+lucia3.f:            K4ACT = IACOL(K+3)
+lucia3.f:            K5ACT = IACOL(K+4)
+lucia3.f:      DIMENSION IACAR(2),ITPAR(2)
+lucia3.f:      IACAR(1) = 2
+lucia3.f:      IACAR(2) = 1
+lucia3.f:      CALL NEWTYP(ISTRTP,IACAR,ITPAR,2,KSTRTP)
+lucia3.f:C     NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
+lucia3.f:      DIMENSION IACAR(2),ITPAR(2)
+lucia3.f:      IACAR(1) = 2
+lucia3.f:      IACAR(2) = 1
+lucia3.f:      CALL NEWTYP(ISTRTP,IACAR,ITPAR,2,KSTRTP)
+lucia3.f:C     NEWTYP(INCLS,INTP,IACOP,ITPOP,NOP,OUTCLS,OUTTP)
+lucia4.f:      DIMENSION IACAR(2),ITPAR(2)
+lucia4.f:      IACAR(1) = 2
+lucia4.f:      IACAR(2) = 1
+lucia4.f:      CALL NEWTYP(ISTRGP,ISTRTP,IACAR,ITPAR,2,KSTRGP,KSTRTP)
+lucia4.f:      DIMENSION IACAR(2),ITPAR(2)
+lucia4.f:      IACAR(1) = 2
+lucia4.f:      IACAR(2) = 1
+lucia4.f:      CALL NEWTYP(ISTRGP,ISTRTP,IACAR,ITPAR,2,KSTRGP,KSTRTP)
+lucia5.f:     &                    NACGRP,IACGRP,NPAGRP,IPAGRP)
+lucia5.f:      INTEGER IACGRP(*),IPAGRP(*)
+lucia5.f:      INTEGER IACT(MXPNGAS)
+lucia5.f:      CALL ISETVC(IACT,IZERO,NGAS)
+lucia5.f:        IIACT = IOP(JOP)
+lucia5.f:        IACT(IIACT) = IACT(IIACT) + 1
+lucia5.f:        IF(IACT(IGSFGP(ISPGRP(IGRP))).NE.0) THEN
+lucia5.f:          IACGRP(NACGRP) = ISPGRP(IGRP)
+lucia5.f:        WRITE(6,*) ' Active  part ', (IACGRP(IAC),IAC=1,NACGRP)
+lucia5.f:      INTEGER IACIA(20),IPAIA(20),IACIB(20),IPAIB(20)
+lucia5.f:      INTEGER IACJA(20),IPAJA(20),IACJB(20),IPAJB(20)
+lucia5.f:         IACIA(IGAS) = IASPGP(IGAS)
+lucia5.f:         IACIB(IGAS) = IBSPGP(IGAS)
+lucia5.f:         IACJA(IGAS) = JASPGP(IGAS)
+lucia5.f:         IACJB(IGAS) = JBSPGP(IGAS)
+lucia5.f:     &                 NACIB,IACIB,NIBAC_S,NIBPA_S,IBREO_IB,IREO_IB,
+lucia5.f:     &                 NACJB,IACJB,NJBAC_S,NJBPA_S,IBREO_JB,IREO_JB,
+lucia5.f:                CALL ADAST_GAS(KL_SYM(2),KL_TYP(2),NACJB,IACJB,JBSM_AC,
+lucia5.f:                CALL ADAST_GAS(KL_SYM(1),KL_TYP(1),NACIB,IACIB,IBSM_AC,
+lucia5.f:      SUBROUTINE REO_STR_SPGRP3(ISPGP,NIGRP,ISPGPSM,NSTR,NACTE,IACTE,
+lucia5.f:     &                          NACT,IACTGP,NAST_S,NPST_S,IBREO,IREO,
+lucia5.f:* IACTE that give gasspaces of an operator.
+lucia5.f:*   IACTE    : The active gas orbital spaces (needs not all be distinct)
+lucia5.f:*    IACT   : The active groups
+lucia5.f:      DIMENSION IACTE(NACTE)
+lucia5.f:      DIMENSION IACTGP(*)
+lucia5.f:      INTEGER IACT(MXPNGAS),IPASGP(MXPNGAS)
+lucia5.f:        WRITE(6,*) ' Gaspaces of operators ', (IACTE(I),I=1,NACTE)
+lucia5.f:      CALL ISETVC(IACTGP,IZERO,MXPNGAS)
+lucia5.f:        IACTGP(IACTE(JACT)) = 1
+lucia5.f:        IF(IACTGP(IGSFGP(ISPGP(JGRP))).EQ.1) THEN
+lucia5.f:          IACT(NACT) = JGRP
+lucia5.f:     &  ' Active gasspaces(index in IGRP) : ', (IACT(JACT),JACT=1,NACT)
+lucia5.f:        IF(JGRP.EQ.IACT(JACT)) THEN
+lucia5.f:          IF(IACT(JACT).EQ.INDEX) THEN
+lucia5.f:        IF(IGSFGP(ISPGP(IIGRP)).EQ.IACT(JACT)) THEN
+lucia5.f:          IACTGP(JACT) = ISPGP(IIGRP)
+lucia5.f:        JJACTGP = IACTGP(JACTGP)
+lucia5.f:       NACACEL = NACACEL + NELFGP(IACTGP(JJACT))
+lucia5.f:        CALL IWRTMA(IACTGP,1,NACT,1,NACT)
+lucia5.f:        CALL SYM_DIST_FOR_SPGRP(IACTGP,NACT,ISMAC_T,
+lucia5.f:     &     N2STSMGP(IDIST_ACT(JACT+(JDIST_ACT-1)*NACT),IACT(JACT))
+lucia5.f:        WRITE(6,*) ' Gaspaces of operators ', (IACTE(I),I=1,NACTE)
+lucia5.f:     &                       NACT,IACT,NAST_S,NPST_S,IBREO,
+lucia5.f:*   IACT    : The active groups ( active gas spaces )
+lucia5.f:      DIMENSION IACT(NACT)
+lucia5.f:      INTEGER IACTGP(MXPNGAS),IPASGP(MXPNGAS)
+lucia5.f:        WRITE(6,*) ' Active spaces ', (IACT(I),I=1,NACT)
+lucia5.f:        IACTIVE = 0
+lucia5.f:          IF(IACT(JACT).EQ.IGAS) IACTIVE = 1
+lucia5.f:        IF(IACTIVE.EQ.0) THEN
+lucia5.f:        IF(IACT(JACT).EQ.IGAS) THEN
+lucia5.f:        IACTGP(JACT) = ITPFGS(IACT(JACT))
+lucia5.f:        CALL IWRTMA(IACTGP,1,NACT,1,NACT)
+lucia5.f:        CALL SYM_DIST_FOR_SPGRP(IACTGP,NACT,ISMAC_T,
+lucia5.f:     &     NSTSMGP(IDIST_ACT(JACT,JDIST_ACT),IACT(JACT))
+lucia5.f:             ISMTO(IACT(JACT)) = IDIST_ACT(JACT,JDIST_ACT)
+lucia5.f:             ISTTO(IACT(JACT)) = ISTRAC(JACT)
+lucia5.f:      INTEGER IACT(MXPNGAS)
+lucia5.f:      IACT(1) = 1
+lucia5.f:C     CALL REO_TTS_BLOCK2(CIN,COUT,NACT,IACT,NACT,IACT,
+lucia5.f:      IAC = 1
+lucia5.f:     &               IAC)
+lucia5.f:     &                       NACT,IACT,NAST_S,NPST_S,IBREO,
+lucia5.f:      DIMENSION IACT(NACT)
+lucia5.f:C     INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
+lucia5.f:        WRITE(6,*) ' Active spaces ', (IACT(I),I=1,NACT)
+lucia5.f:        IACTIVE = 0
+lucia5.f:          IF(IACT(JACT).EQ.IGAS) IACTIVE = 1
+lucia5.f:        IF(IACTIVE.EQ.0) THEN
+lucia5.f:        IF(IACT(JACT).EQ.IGAS) THEN
+lucia5.f:        IF( NELFGP(IACT(IGAS)).GT.0) NGSLAC = IGAS
+lucia5.f:          IF(NSTSMGP(ISMST,IACT(IGAS)).GT.0)MXVLAC(IGAS)=ISMST
+lucia5.f:          IF(NSTSMGP(ISMST,IACT(IGAS)).GT.0) MNVLAC(IGAS) = ISMST
+lucia5.f:             LACST = LACST*NSTSMGP(ISMAC(JACT),IACT(JACT))
+lucia5.f:                ISMTO(IACT(IGAS)) = ISMAC(IGAS)
+lucia5.f:      DIMENSION IACAR(2),ITPAR(2)
+lucia5.f:                      IAC = I4_AC(1)
+lucia5.f:                      CALL ADAADAST_GAS(IONE,ISM,ITYP,NI,IAC,
+lucia5.f:                    IAC = I4_AC(1)
+lucia5.f:                    CALL ADAADAST_GAS(IONE,ISM,ITYP,NI,IAC,
+lucia5.f:      SUBROUTINE ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,
+lucia5.f:* upon IAC, JAC : 1=> Annihilation, 
+lucia5.f:        WRITE(6,'(A,4I3)') ' IOB,IOBSM,IOBTP,IAC ', IOB,IOBSM,IOBTP,IAC
+lucia5.f:      IF(IAC.EQ.1) THEN
+lucia5.f:        IACADJ = 2
+lucia5.f:      ELSE IF(IAC.EQ.2) THEN
+lucia5.f:        IACADJ = 1
+lucia5.f:       WRITE(6,*) ' IACADJ, JACADJ', IACADJ,JACADJ
+lucia5.f:      IF(IAC.EQ.1) THEN
+lucia5.f:     &          IIOB,NIOB,IAC,JJOB,NJOB,JAC,
+lucia5.f:     &                IORB,NIORB,IAC,JORB,NJORB,JAC,
+lucia5.f:       WRITE(6,'(A,3I4)') ' IORB,NIORB,IAC ', IORB,NIORB,IAC   
+lucia5.f:      IF(IAC.EQ.2.AND.JAC.EQ.2) THEN
+lucia5.f:                     IACT = IREO(ILEX)
+lucia5.f:                       WRITE(6,*) ' ILEX IACT ', ILEX,IACT
+lucia5.f:                     I1(KKSTR-KMIN+1,IJ) = IACT
+lucia5.f:      ELSE IF(IAC.EQ.1.AND.JAC.EQ.1) THEN
+lucia5.f:               IACT = IREO(ILEX)
+lucia5.f:               IF(IACT.LE.0.OR.IACT.GT.NSTRI) THEN
+lucia5.f:                 WRITE(6,*) ' IACT out of bounds, IACT =  ', IACT
+lucia5.f:                 STOP       ' IACT out of bounds '
+lucia5.f:                 WRITE(6,*) ' ILEX and IACT ', ILEX, IACT
+lucia5.f:               I1(KKSTR-KMIN+1,IJ) = IACT
+lucia5.f:      ELSE IF(IAC.EQ.2.AND.JAC.EQ.1) THEN
+lucia5.f:               IACT = 0
+lucia5.f:                 IACT = IREO(ILEX)
+lucia5.f:                 IF(IACT.LE.0.OR.IACT.GT.NSTRI) THEN
+lucia5.f:                   WRITE(6,*) ' 1: IACT out of bounds, IACT =  ', IACT
+lucia5.f:                   STOP ' IACT out of bounds'
+lucia5.f:                 IACT = IREO(ILEX)
+lucia5.f:                 IF(IACT.LE.0.OR.IACT.GT.NSTRI) THEN
+lucia5.f:                   WRITE(6,*) '2 IACT out of bounds, IACT =  ', IACT
+lucia5.f:                   STOP       ' IACT out of bounds '
+lucia5.f:C?               write(6,*) ' IACT = ', IACT
+lucia5.f:                 IACT = KKSTR
+lucia5.f:               IF(IACT.NE.0) THEN
+lucia5.f:                 I1(KKSTR-KMIN+1,IJ) = IACT
+lucia5.f:      ELSE IF(IAC.EQ.1.AND.JAC.EQ.2) THEN
+lucia5.f:               IACT = 0
+lucia5.f:                   IACT = IREO(ILEX)
+lucia5.f:                   IF(IACT.LE.0.OR.IACT.GT.NSTRI) THEN
+lucia5.f:                     WRITE(6,*) '3 IACT out of bounds, IACT =  ', IACT
+lucia5.f:                     STOP       ' IACT out of bounds '
+lucia5.f:                   IACT = IREO(ILEX)
+lucia5.f:                   IF(IACT.LE.0.OR.IACT.GT.NSTRI) THEN
+lucia5.f:                     WRITE(6,*) '4 IACT out of bounds, IACT =  ', IACT
+lucia5.f:                     STOP       ' IACT out of bounds '
+lucia5.f:                 IF(IACT.NE.0) THEN
+lucia5.f:                   I1(KKSTR-KMIN+1,IJ) = IACT
+lucia5.f:     &                    IAC)
+lucia5.f:* IAC = 2 : Creation map
+lucia5.f:* IAC = 1 : Annihilation map
+lucia5.f:      INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
+lucia5.f:        IF(IAC.EQ.1) THEN
+lucia5.f:        ELSE IF(IAC.EQ.2) THEN
+lucia5.f:          WRITE(6,*) ' Unknown IAC parameter in ADAST ',IAC
+lucia5.f:          STOP       ' Unknown IAC parameter in ADAST '
+lucia5.f:      IACGAS = IOBTP
+lucia5.f:      IF(IAC.EQ.1) THEN
+lucia5.f:      IACGRP = 0
+lucia5.f:       IF(IGSFGP(IGRP(JGRP)).EQ. IACGAS) IACGRP = JGRP
+lucia5.f:*. Note : IACGRP is not the actual active group, it is the address of the
+lucia5.f:      IF(IACGRP.EQ.0) THEN
+lucia5.f:        WRITE(6,*) ' Active GASpace : ', IACGAS
+lucia5.f:      NIEL = NELFGP(IGRP(IACGRP))
+lucia5.f:      IF(NKEL.EQ.-1.OR.NKEL.EQ.NOBPT(IACGAS)+1) THEN
+lucia5.f:*. Find group with NKEL electrons in IACGAS
+lucia5.f:        DO JGRP = IBGPSTR(IACGAS),IBGPSTR(IACGAS)+NGPSTR(IACGAS)-1
+lucia5.f:     &               IACGAS,NKEL
+lucia5.f:      KGRP(IACGRP) = KACGRP
+lucia5.f:      CALL ICOPVE2(WORK(KISTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+lucia5.f:     &               IACIST)
+lucia5.f:C?    WRITE(6,*) ' IACIST for IACGRP,IGRP = ', IACGRP,IGRP(IACGRP)
+lucia5.f:C?    CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
+lucia5.f:      CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+lucia5.f:      DO JGRP = 1, IACGRP-1
+lucia5.f:        ISAVE = ISMFGS(IACGRP)
+lucia5.f:C       CALL  SYMCOM(3,1,IOBSM,ISMFGS(IOBTP),IACSM)
+lucia5.f:        CALL  SYMCOM(3,1,IOBSM,ISMFGS(IACGRP),IACSM)
+lucia5.f:        ISMFGS(IACGRP) = IACSM
+lucia5.f:        ISMFGS(IACGRP) = ISAVE
+lucia5.f:        DO IGAS = 1, IACGRP-1
+lucia5.f:        DO IGAS =  IACGRP+1, NIGRP
+lucia5.f:        NIAC  = NACIST(IACSM)
+lucia5.f:        IIAC =  IACIST(IACSM)
+lucia5.f:C?      WRITE(6,*) ' IIAC, IACSM = ',IIAC, IACSM
+lucia5.f:        NKAC = NNSTSGP(ISMFGS(IACGRP),IACGRP)
+lucia5.f:        IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
+lucia5.f:        NISD = NSTB*NIAC*NSTA
+lucia5.f:        IF(IAC.EQ.1.AND.ISTAC(KACGRP,2).EQ.0) THEN
+lucia5.f:        IF(NSTA*NSTB*NIAC*NKAC.NE.0)
+lucia5.f:     &  CALL ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,   
+lucia5.f:     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+lucia5.f:     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
+lucia5.f:     *              ISTMAP,SGNMAP,SCLFAC,IAC,LROW_IN,IEC)
+lucia5.f:          IF(IAC.EQ.2) THEN
+lucia5.f:          ELSE IF(IAC.EQ.1) THEN
+lucia5.f:      SUBROUTINE REO_TTS_BLOCK2(C_ORIG,C_REO,NACA,IACA,NACB,IACB,
+lucia5.f:      DIMENSION IACA(*),IACB(*)
+lucia5.f:     &                    NACA,IACA,L_AC_A_TOT,L_PA_A_TOT,
+lucia5.f:     &                    NACB,IACB,L_AC_B_TOT,L_PA_B_TOT,
+lucia5.f:      SUBROUTINE REO_TTS_BLOCK(CORIG,CREO,NACA,IACA,NACB,IACB,IAREO,
+lucia5.f:      DIMENSION IACA(*),IACB(*)
+lucia5.f:      DIMENSION IACGPA(MXPNGAS),IACGPB(MXPNGAS)
+lucia5.f:      WRITE(6,*) ' IACA '
+lucia5.f:      CALL IWRTMA(IACA,1,NACA,1,NACA)
+lucia5.f:        IF(IACA(JACA).NE.IGAS) THEN
+lucia5.f:        IF(IACB(JACB).NE.IGAS) THEN
+lucia5.f:        IACGPA(JACA) = ITPFGSA(IACA(JACA))
+lucia5.f:        IACGPB(JACB) = ITPFGSB(IACB(JACB))
+lucia5.f:       CALL IWRTMA(IACGPA,1,NACA,1,NACA)
+lucia5.f:       CALL IWRTMA(IACGPB,1,NACB,1,NACB)
+lucia5.f:          CALL SYM_DIST_FOR_SPGRP(IACGPA,NACA,ISM_AC_A,NDIST_AC_A,
+lucia5.f:          CALL SYM_DIST_FOR_SPGRP(IACGPB,NACB,ISM_AC_B,NDIST_AC_B,
+lucia5.f:                    IAORIG(IACA(J_AC_A))= 
+lucia5.f:                    LA_DIST(IACA(J_AC_A)) = 
+lucia5.f:     &              NASTSMGP(IAORIG(IACA(J_AC_A)),IACA(J_AC_A))
+lucia5.f:                    IBORIG(IACB(J_AC_B))= 
+lucia5.f:                    LB_DIST(IACB(J_AC_B)) = 
+lucia5.f:     &              NBSTSMGP(IBORIG(IACB(J_AC_B)),IACB(J_AC_B))
+lucia5.f:                    write(6,*) ' IBORIG IACB NBSTSMGP '
+lucia5.f:                    WRITE(6,*) IBORIG(IACB(J_AC_B)),IACB(J_AC_B),
+lucia5.f:     &              NBSTSMGP(IBORIG(IACB(J_AC_B)),IACB(J_AC_B))
+lucia5.f:     &                                 NACA,IACA,IREO_A)
+lucia5.f:     &                                 NACB,IACB,IREO_B)
+lucia5.f:      SUBROUTINE EXCCLS2(NCLS,IACTIN,IACTOUT,IEXC,
+lucia5.f:* classes indicated by nonvanishing elements in IACTIN.
+lucia5.f:      DIMENSION IACTIN(NCLS)
+lucia5.f:      DIMENSION IACTOUT(NCLS)
+lucia5.f:      CALL EXCCLS2_S(NGAS,WORK(KIOCCLS),NCLS,IACTIN,IACTOUT,IEXC,
+lucia5.f:      SUBROUTINE EXCCLS2_S(NGAS,ICLS,NCLS,IACTIN,IACTOUT,IEXC,
+lucia5.f:* classes indicated by nonvanishing elements in IACTIN.
+lucia5.f:      DIMENSION IACTIN(NCLS)
+lucia5.f:      DIMENSION IACTOUT(NCLS)
+lucia5.f:      CALL ISETVC(IACTOUT,IZERO,NCLS)
+lucia5.f:        IF(IACTIN(ICLSIN).NE.0) THEN
+lucia5.f:              IACTOUT(ICLSOUT) = 1
+lucia5.f:        IF(IACTOUT(ICLSOUT).GT.0) NACTOUT = NACTOUT + 1
+lucia5.f:           IF(IACTOUT(I).NE.0) WRITE(6,*) I
+lucia5.f:C        CALL IWRTMA(IACTOUT,NCLS,1,NCLS,1)
+lucia5.f:      SUBROUTINE EXCCLS(NCLS,IACTIN,IACTOUT,IEXC)
+lucia5.f:* classes indicated by nonvanishing elements in IACTIN.
+lucia5.f:      DIMENSION IACTIN(NCLS)
+lucia5.f:      DIMENSION IACTOUT(NCLS)
+lucia5.f:      CALL EXCCLS_S(NGAS,WORK(KLOCCLS),NCLS,IACTIN,IACTOUT,IEXC)
+lucia5.f:      SUBROUTINE EXCCLS_S(NGAS,ICLS,NCLS,IACTIN,IACTOUT,IEXC)      
+lucia5.f:* classes indicated by nonvanishing elements in IACTIN.
+lucia5.f:      DIMENSION IACTIN(NCLS)
+lucia5.f:      DIMENSION IACTOUT(NCLS)
+lucia5.f:      CALL ISETVC(IACTOUT,IZERO,NCLS)
+lucia5.f:        IF(IACTIN(ICLSIN).NE.0) THEN
+lucia5.f:            IACTOUT(ICLSOUT) = 1
+lucia5.f:        IF(IACTOUT(ICLSOUT).GT.0) NACTOUT = NACTOUT + 1
+lucia5.f:         CALL IWRTMA(IACTOUT,NCLS,1,NCLS,1)
+lucia5.f:      IACTIVE = 0
+lucia5.f:C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
+lucia5.f:C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
+lucia5.f:     &                    IAC,IACT,IINDEX)
+lucia5.f:* IAC = 2 : Creation map
+lucia5.f:* IAC = 1 : Annihilation map
+lucia5.f:* If info for the Istrings has been set up, IACT = 1
+lucia5.f:      INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
+lucia5.f:        IF(IAC.EQ.1) THEN
+lucia5.f:        ELSE IF(IAC.EQ.2) THEN
+lucia5.f:          WRITE(6,*) ' Unknown IAC parameter in ADAST ',IAC
+lucia5.f:          STOP       ' Unknown IAC parameter in ADAST '
+lucia5.f:      IACGAS = IOBTP
+lucia5.f:      IACT = 0
+lucia5.f:      IF(IAC.EQ.1) THEN
+lucia5.f:      IACGRP = 0
+lucia5.f:       IF(IGSFGP(IGRP(JGRP)).EQ. IACGAS) IACGRP = JGRP
+lucia5.f:*. Note : IACGRP is not the actual active group, it is the address of the
+lucia5.f:      IF(IACGRP.EQ.0) THEN
+lucia5.f:        WRITE(6,*) ' Active GASpace : ', IACGAS
+lucia5.f:      NIEL = NELFGP(IGRP(IACGRP))
+lucia5.f:      IF(NKEL.EQ.-1.OR.NKEL.EQ.NOBPT(IACGAS)+1) THEN
+lucia5.f:*. Find group with NKEL electrons in IACGAS
+lucia5.f:        DO JGRP = IBGPSTR(IACGAS),IBGPSTR(IACGAS)+NGPSTR(IACGAS)-1
+lucia5.f:     &               IACGAS,NKEL
+lucia5.f:      KGRP(IACGRP) = KACGRP
+lucia5.f:      IACT = 1
+lucia5.f:      DO JGRP = 1, IACGRP-1
+lucia5.f:        ISAVE = ISMFGS(IACGRP)
+lucia5.f:        IACSM = MULTD2H(IOBSM,ISMFGS(IACGRP))
+lucia5.f:        ISMFGS(IACGRP) = IACSM
+lucia5.f:        ISMFGS(IACGRP) = ISAVE
+lucia5.f:        DO IGAS = 1, IACGRP-1
+lucia5.f:        DO IGAS =  IACGRP+1, NIGRP
+lucia5.f:        NIAC  = NSTFSMGP(IACSM,IGRP(IACGRP))
+lucia5.f:        IIAC  = ISTFSMGP(IACSM,IGRP(IACGRP))
+lucia5.f:C       NIAC  = NACIST(IACSM)
+lucia5.f:C       IIAC =  IACIST(IACSM)
+lucia5.f:C       NKAC = NNSTSGP(ISMFGS(IACGRP),IACGRP)
+lucia5.f:C       IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
+lucia5.f:        NKAC = NSTFSMGP(ISMFGS(IACGRP),KGRP(IACGRP))
+lucia5.f:        IKAC = ISTFSMGP(ISMFGS(IACGRP),KGRP(IACGRP))
+lucia5.f:        NISD = NSTB*NIAC*NSTA
+lucia5.f:        IF(IAC.EQ.1.AND.ISTAC(KACGRP,2).EQ.0) THEN
+lucia5.f:        IF(NSTA*NSTB*NIAC*NKAC.NE.0)
+lucia5.f:     &  CALL ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,   
+lucia5.f:     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+lucia5.f:     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
+lucia5.f:      SUBROUTINE IAIB_TO_ACCOCC(IATP,IAGRP,IBTP,IBGRP,IACCOCC)
+lucia5.f:      INTEGER IACCOCC(NGAS)
+lucia5.f:      CALL IVCSUM(IACCOCC,NELFSPGP(1,IATP_ABS),NELFSPGP(1,IBTP_ABS),
+lucia5.f:C?    CALL IWRTMA(IACCOCC,1,NGAS,1,NGAS)
+lucia5.f:        IACCOCC(IGAS) = IACCOCC(IGAS) + IACCOCC(IGAS-1)
+lucia5.f:        CALL IWRTMA(IACCOCC,1,NGAS,1,NGAS)
+lucia5.f:      FUNCTION IS_ACCOCC_IN_ACCOCC(IACCOCC,IACCOCC_TOT,NGAS,
+lucia5.f:     &                              NDIM_IACCOCC)
+lucia5.f:* Occupation of an occupation class is given in IACCOCC
+lucia5.f:* Is this occupation included in accumulated occupation IACCOCC_TOT ?
+lucia5.f:      INTEGER IACCOCC(NGAS),IACCOCC_TOT(NDIM_IACCOCC,2)
+lucia5.f:        IF(IACCOCC(IGAS).LT.IACCOCC_TOT(IGAS,1).OR.
+lucia5.f:     &     IACCOCC(IGAS).GT.IACCOCC_TOT(IGAS,2)    ) INCLUDED = 0
+lucia5.f:        WRITE(6,*) '  NDIM_IACCOCC = ',  NDIM_IACCOCC
+lucia5.f:        CALL IWRTMA(IACCOCC,NGAS,1,NGAS,1)
+lucia5.f:        CALL IWRTMA(IACCOCC_TOT,NGAS,2,NDIM_IACCOCC,2)
+lucia5.f:C            IAIB_TO_ACCOCC(IAGRP,IATP,IBGRP,IBTP,IACCOCC)
+lucia5.f:C                  IS_ACCOCC_IN_ACCOCC(IACCOCC,IACCOCC_TOT,NGAS,
+lucia5.f:             NIACT = 0
+lucia5.f:                NIACT = NIACT + 1
+lucia5.f:                IXA(NIACT) = IORB
+lucia5.f:                DO IIORB = 1, NIACT
+lucia7.f:      SUBROUTINE REO_4INDMAT(AIN,AUT,IAC,N1IN,N2IN,N3IN,N4IN,
+lucia7.f:* IAC = 1: Add reordered elements to AUT
+lucia7.f:* IAC = 2: Copy reordered elements to AUT
+lucia7.f:           IF(IAC.EQ.1) THEN
+lucia7.f:           ELSE IF (IAC.EQ.2) THEN
+lucia_cc.f:      IACT = 0
+lucia_cc.f:        IACT = 1
+lucia_cc.f:            IACT = 1
+lucia_cc.f:            IACT = 0
+lucia_cc.f:          IACT = 0
+lucia_cc.f:      I_SX_CCACT = IACT
+lucia_cc.f:        IACT = 1
+lucia_cc.f:        IACT = 0
+lucia_cc.f:          IACT = 1
+lucia_cc.f:             IACT = 0
+lucia_cc.f:            IACT = 0
+lucia_cc.f:      I_DX_CCACT = IACT
+lucia_cc.f:         WRITE(6,*) ' IGAS(c) JGAS(a) KGAS(c) LGAS(a) and IACT',
+lucia_cc.f:     &   IGAS,JGAS,KGAS,LGAS,IACT
+lucia_cc.f:        IACT = I_SX_ACT(IGAS,JGAS)
+lucia_cc.f:        IF(IACT.EQ.1) THEN
+lucia_cc.f:           IACT = I_DX_CCACT(IGAS,KGAS,LGAS,JGAS)
+lucia_cc.f:           IF(IACT.EQ.1) THEN
+lucia_cc.f:        ludia_c = iopen_nus('CCDIAC')
+lucia_csf.f:C              REFORM_CONF_ACCOCC(IACCOCC,IOCC,IWAY,NORB)
+lucia_csf.f:      SUBROUTINE NEXT_CONF_FROM_MINMAX_OCC(IACOCC,
+lucia_csf.f:     &           IACOCC_MIN,IACOCC_MAX,INI,NO_NEW,NORB)
+lucia_csf.f:      INTEGER IACOCC_MIN(NORB),IACOCC_MAX(NORB)
+lucia_csf.f:      INTEGER IACOCC(NORB)
+lucia_csf.f:        CALL IWRTMA(IACOCC,1,NORB,1,NORB)
+lucia_csf.f:*  IACCOCC(I). The initial configuration corresponds to the lowest
+lucia_csf.f:          IACOCC(IORB) = IACOCC_MIN(IORB)
+lucia_csf.f:         IF(IACOCC(IORB).LT.IACOCC(IORB+1) .AND.
+lucia_csf.f:     &      IACOCC(IORB).LT.IACOCC_MAX(IORB)) THEN
+lucia_csf.f:         IACOCC(IMOD) = IACOCC(IMOD)+1
+lucia_csf.f:           IACOCC(IORB) = MAX(IACOCC(IORB+1)-2,IACOCC_MIN(IORB))
+lucia_csf.f:          CALL IWRTMA(IACOCC,1,NORB,1,NORB)
+lucia_csf.f:      SUBROUTINE REFORM_CONF_ACCOCC(IACOCC,IOCC,IWAY,NORB)
+lucia_csf.f:      INTEGER IACOCC(NORB),IOCC(NORB)
+lucia_csf.f:        IOCC(1) = IACOCC(1)
+lucia_csf.f:          IOCC(IORB) = IACOCC(IORB)-IACOCC(IORB-1)
+lucia_csf.f:        IACOCC(1) = IOCC(1)
+lucia_csf.f:          IACOCC(IORB) = IACOCC(IORB-1)+IOCC(IORB)
+lucia_csf.f:       CALL IWRTMA(IACOCC,1,NORB,1,NORB)
+lucia_csf.f:* The configurations are assumed to be defined in a single GASpace, IACTSPC
+lucia_csf.f:C            NEXT_CONF_FROM_MINMAX_OCC(IACOCC,
+lucia_csf.f:C    &       IACOCC_MIN,IACOCC_MAX,INI,NO_NEW,NORB)
+lucia_csf.f:      SUBROUTINE CSDTVC_CONF(C_SD,C_CSF,NOPEN,ISIGN,IAC,IWAY)
+lucia_csf.f:* IAC = 1 => Result is added to outputvector
+lucia_csf.f:      IF(IAC.EQ.1) THEN
+lucia_csf.f:          IACT = IBCONF_OP(IOP+1) - 1 + ICONF
+lucia_csf.f:          IREO(IB_OCCLS-1+ILEXNUM) = IACT
+lucia_csf.f:     &    WRITE(6,*) ' IACT, ILEXNUM = ', IACT, ILEXNUM
+lucia_csf.f:         IACT = 1
+lucia_csf.f:         IF(IDC.EQ.2.AND.IATP.EQ.IBTP.AND.IASM.LT.IBSM) IACT = 0
+lucia_csf.f:         IF(IACT.EQ.1) THEN
+lucia_csf.f:C         IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
+lucia_csf.f:          IM_IN = IS_IACC_CONF_IN_MINMAX_SPC(
+lucia_csf.f:C              REFORM_CONF_ACCOCC(IACCOCC,IOCC,IWAY,NORB)
+lucia_gencc.f:      SUBROUTINE SET_AC_EXTP(IACTP,ISPOBEX_AC,ISOX_TO_OX,NSPOBEX_TP)
+lucia_gencc.f:* Activate spinorbital excitations belonging to type IACTP
+lucia_gencc.f:        IF(ISOX_TO_OX(JSPOBEX_TP).EQ.IACTP) THEN
+lucia_gencc.f:        WRITE(6,*) ' Orbital excitation type activated = ', IACTP
+lucia_gencc.f:      IACT_SPC = 0
+lucia_gencc.f:          IACT_SPC = IGAS
+lucia_gencc.f:     &WRITE(6,*) ' GENCC : IACT_SPC,NACT_SPC',IACT_SPC,NACT_SPC
+lucia_gencc.f:     &     NOBPT,0,IZERO ,IAAEXC_TYP,IACT_SPC,IPRCC,IDUMMY,
+lucia_gencc.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,
+lucia_gencc.f:      IACT_SPC = 0
+lucia_gencc.f:          IACT_SPC = IGAS
+lucia_gencc.f:C?    WRITE(6,*) ' TP_OBEX2 : IACT_SPC,NACT_SPC',IACT_SPC,NACT_SPC
+lucia_gencc.f:          IF(IANNI(IACT_SPC)+1.LE.MX_AAEXC.AND.
+lucia_gencc.f:     &       ICREA(IACT_SPC)+1.LE.MX_AAEXC) THEN
+lucia_gencc.f:            ICREA(IACT_SPC)  = ICREA(IACT_SPC) + 1
+lucia_gencc.f:            IANNI(IACT_SPC)  = IANNI(IACT_SPC) + 1
+lucia_gencc.f:              IF (JGAS.NE.IACT_SPC.AND.ICREA(JGAS).NE.0) IPAA=0
+lucia_gencc.f:              IF (JGAS.NE.IACT_SPC.AND.IANNI(JGAS).NE.0) IPAA=0
+lucia_gencc.f:     &                          NOBPT,MS2TOT,MSCOMB_CC,IAAEXC,IACT_SPC,
+lucia_gencc.f:     &                IACT_SPC,IAAEXC,IREF_AL,IREF_BE,  
+lucia_gencc.f:     &                          NOBPT,MS2TOT,MSCOMB_CC,IAAEXC,IACT_SPC,
+lucia_gencc.f:     &                IACT_SPC,IAAEXC,IREF_AL,IREF_BE,  
+lucia_gencc.f:     &           NOBPT,IMSCOMB,IACT_SPC,IAAEXC,IREF_AL,IREF_BE,
+lucia_gencc.f:     &     (NCA(IACT_SPC).NE.0.OR.NAB(IACT_SPC).NE.0))I_EXCLUDE = 1
+lucia_gencc.f:     &     (NCB(IACT_SPC).NE.0.OR.NAA(IACT_SPC).NE.0))I_EXCLUDE = 1
+lucia_gencc.f:      SUBROUTINE MAP_EXSTR(IOP,IAC,NOP,IREFOC,IX,SX,NK,IBX,SCLFAC)
+lucia_gencc.f:      INTEGER IOP(NGAS),IAC(NGAS), IREFOC(NGAS)
+lucia_gencc.f:C     MAP_EXSTR(IOP,IAC,NOP,IREFOC,IX,SX,NK,IB,SCLFAC)
+lucia_gencc.f:        CALL IWRTMA(IAC,1,NOP,1,NOP)
+lucia_gencc.f:       JAC  = IAC(JOP)
+lucia_gencc.f:C    &                    IAC)
+lucia_gencc.f:         IF(IAC(JOP).EQ.1) THEN
+lucia_gencc.f:      INTEGER IAC_AR(100)
+lucia_gencc.f:         IAC_AR(JOP) = 1
+lucia_gencc.f:C           MAP_EXSTR(IOP,IAC,NOP,IREFOC,IX,SX,NK,IB,SCLFAC)
+lucia_gencc.f:       CALL MAP_EXSTR(ICA_EXP,IAC_AR,NCA_OP,IAOC,I1,XI1S,
+lucia_gencc.f:       CALL MAP_EXSTR(ICB_EXP,IAC_AR,NCB_OP,IBOC,I2,XI2S,
+lucia_gencc.f:       CALL MAP_EXSTR(IAA_EXP,IAC_AR,NAA_OP,JAOC,I3,XI3S,
+lucia_gencc.f:       CALL MAP_EXSTR(IAB_EXP,IAC_AR,NAB_OP,JBOC,I4,XI4S,
+lucia_gencc.f:      SUBROUTINE CCEX_OCC_OCC(INOCC,IOUTOCC,NGAS,IAC,ICCEXC,IZERO)
+lucia_gencc.f:        IF(IAC.EQ.1) THEN
+lucia_gencc.f:        IF(IAC.EQ.1) THEN
+lucia_gencc.f:      IACT_SPC = 0
+lucia_gencc.f:          IACT_SPC = IGAS
+lucia_gencc.f:C?        WRITE(6,*) ' IANNI(IACT_SPC), ICREA(IACT_SPC) ',
+lucia_gencc.f:C?   &                 IANNI(IACT_SPC), ICREA(IACT_SPC) 
+lucia_gencc.f:          IF(IANNI(IACT_SPC)+ICREA(IACT_SPC)+2.LE.MX_AAEXC.AND.
+lucia_gencc.f:            ICREA(IACT_SPC)  = ICREA(IACT_SPC) + 1
+lucia_gencc.f:            IANNI(IACT_SPC)  = IANNI(IACT_SPC) + 1
+lucia_gencc.f:              IF (JGAS.NE.IACT_SPC.AND.ICREA(JGAS).NE.0) IPAA=0
+lucia_gencc.f:              IF (JGAS.NE.IACT_SPC.AND.IANNI(JGAS).NE.0) IPAA=0
+lucia_gencc.f:            IF (JGAS.NE.IACT_SPC) 
+lucia_gencc2.f:      IACT_SPC = 0
+lucia_gencc2.f:          IACT_SPC = IGAS
+lucia_gencc2.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,IPRCC,IDUMMY,
+lucia_gencc2.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,
+lucia_gencc2.f:      IACT_SPC = 0
+lucia_gencc2.f:          IACT_SPC = IGAS
+lucia_gencc2.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,IPRCC,IDUMMY,
+lucia_gencc2.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,
+lucia_gencc3.f:C     INTEGER IAC_AR(MXPLCCOP),IOP_AR(MXPLCCOP)
+lucia_hf.f:        IAC_E = IOFFSM(IANNI_SM) -1  
+lucia_hf.f:C?      WRITE(6,*) ' IAC_E, ICA_E = ', IAC_E, ICA_E
+lucia_hf.f:          KAPPAE(IAC_E) = -KAPPAP(IEX)
+lucia_hf.f:        IAC_E = IOFFSM(IANNI_SM) -1  
+lucia_hf.f:C?      WRITE(6,*) ' IAC_E, ICA_E = ', IAC_E, ICA_E
+lucia_hf.f:          KAPPAE(IAC_E) = SIGN*KAPPAP(IEX)
+lucia_ic.f:C     ORBOP_ACCOCC(IORBOP,IACC_IN,IACC_OUT,NGAS,MXPNGAS)
+lucia_ic.f:C     OVLAP_ACC_MINMAX(IACC1,IACC2,NGAS,MXPNGAS,IOVERLAP)
+lucia_ic.f:      SUBROUTINE ORBOP_ACCOCC(IORBOP,IACC_IN,IACC_OUT,NGAS,MXPNGAS)
+lucia_ic.f:      INTEGER IORBOP(NGAS,2), IACC_IN(MXPNGAS,2) 
+lucia_ic.f:      INTEGER IACC_OUT(MXPNGAS,2)
+lucia_ic.f:        IACC_OUT(IGAS,1) = MAX(0,IACC_IN(IGAS,1) + IDEL)
+lucia_ic.f:        IACC_OUT(IGAS,2) = MAX(0,IACC_IN(IGAS,2) + IDEL)
+lucia_ic.f:        CALL IWRTMA(IACC_IN,NGAS,2,MXPNGAS,2)
+lucia_ic.f:        CALL IWRTMA(IACC_OUT,NGAS,2,MXPNGAS,2)
+lucia_ic.f:      SUBROUTINE OVLAP_ACC_MINMAX(IACC1,IACC2,NGAS,MXPNGAS,IOVERLAP)
+lucia_ic.f:      INTEGER IACC1(MXPNGAS,2), IACC2(MXPNGAS,2)
+lucia_ic.f:        IMIN_12 = MAX(IACC1(IGAS,1),IACC2(IGAS,1))
+lucia_ic.f:        IMAX_12 = MIN(IACC1(IGAS,2),IACC2(IGAS,2))
+lucia_ic.f:CE      IF(.NOT.( (IACC2(IGAS,1).GE.IACC1(IGAS,1).AND.
+lucia_ic.f:CE   &      IACC2(IGAS,1).LE.IACC1(IGAS,2)     ) .OR.
+lucia_ic.f:CE   &     (IACC2(IGAS,2).GE.IACC1(IGAS,1).AND.
+lucia_ic.f:CE   &      IACC2(IGAS,2).LE.IACC1(IGAS,2))    )       ) THEN 
+lucia_ic.f:        CALL IWRTMA(IACC1,NGAS,2,MXPNGAS,2)
+lucia_ic.f:        CALL IWRTMA(IACC2,NGAS,2,MXPNGAS,2)
+lucia_ic.f:C     ORBOP_ACCOCC(IORBOP,IACC_IN,IACC_OUT,NGAS,MXPNGAS)
+lucia_ic.f:C     OVLAP_ACC_MINMAX(IACC1,IACC2,NGAS,MXPNGAS,IOVERLAP)
+lucia_ic.f:C            TCOM_H_N(T,LUINI,LUUT,NCOMMU,IREFSPC,ITREFSPC,IT2REFSPC,IAC)
+lucia_ic.f:     &           IT2REFSPC,IAC)
+lucia_ic.f:* IAC = 1 : Add results to LUUT
+lucia_ic.f:* IAC = 2 : copy result to LUUT
+lucia_ic.f:        WRITE(6,'(A,3I3)') ' TCOM.., IREFSPC, IT2REFSPC, IAC = ',  
+lucia_ic.f:     &                               IREFSPC, IT2REFSPC, IAC
+lucia_ic.f:          IF(IAC.EQ.2) THEN
+lucia_ic.f:      IACT_SPC = 0
+lucia_ic.f:     &     NOBPT,0,IZERO,IAAEXC_TYP,IACT_SPC,IPRCC,IDUMMY,
+lucia_ic.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,IPRCC,
+lucia_ic.f:C            TCOM_H_N(T,LUINI,LUUT,NCOMMU,IREFSPC,ITREFSPC,IT2REFSPC,IAC)
+lucia_ic.f:*. Coefficient for constant part of expansion (independent of T(IACT))
+lucia_ic.f:          IACTSPC = IGAS
+lucia_ic.f:       CALL GEN_IC_IN_ORBSPC(1,NOBEX_TP,IDUMMY,ICUMULA,IACTSPC)
+lucia_ic.f:       CALL GEN_IC_IN_ORBSPC(2,NOBEX_TP,WORK(KLOBEX),ICUMULA,IACTSPC)
+lucia_ic.f:      IACT_SPC = 0
+lucia_ic.f:     &     NOBPT,0,IZERO ,IAAEXC_TYP,IACT_SPC,IPRCC,IDUMMY,
+lucia_ic.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,IPRCC,
+lucia_ic.f:      IACT_SPC = 0
+lucia_ic.f:     &     NOBPT,0,IZERO ,IAAEXC_TYP,IACT_SPC,IPRSTR,IDUM,
+lucia_ic.f:     &     NOBPT,0,MSCOMB_CC,IAAEXC_TYP,IACT_SPC,IPRSTR,
+lucia_ic.f:C     GET_GICCI_DELTA(KTEXG,IACT,TACT,LUC,LUOUT,LUSC2,
+lucia_ic.f:C     CALL GET_GICCI_DELTA(KTEX_FOR_IEX,IACT,TACT,LUC,LUSC1,
+lucia_ic.f:C     GET_GICCI_DELTA(KTEXG,IACT,TACT,LUC,LUOUT,LUSC2,
+lucia_ic.f:      SUBROUTINE GET_GICCI_DELTA(KTEXG,IACT,TACT,LUC,LUOUT,LUSC2,
+lucia_ic.f:* |GICCI> = Delta*(C_0|ref> + O_1|ref> + ... O_(IACT-1)... O_2 O_1|ref> )
+lucia_ic.f:*         + O_IACT O_(IACT-1)....O_1|ref>
+lucia_ic.f:*         + O_(IACT+1) O_IACT .... O_1|ref>
+lucia_ic.f:*. For O(I, I.NE. IACT) the coefficients in WORK(KTEXG) are used
+lucia_ic.f:*  whereas Delta and O(IACT) are defined by TACT
+lucia_ic.f:        WRITE(6,*) ' Active excitation ', IACT
+lucia_ic.f:        IF(IEX.EQ.IACT) THEN
+lucia_ic.f:*. Scale (C_0 + O_1 + O_2O_1 + ... O_(IACT-1)... O(1))|ref> with delta
+lucia_ic.f:          DELTA = TACT(NSPA_FOR_IEX(IACT))
+lucia_ic.f:        IF(IEX.NE.IACT) THEN
+lucia_ic.f:          IF(IEX.NE.IACT) THEN
+lucia_ic2.f:C     ORBOP_ACCOCC(IORBOP,IACC_IN,IACC_OUT,NGAS,MXPNGAS)
+lucia_ic2.f:C     OVLAP_ACC_MINMAX(IACC1,IACC2,NGAS,MXPNGAS,IOVERLAP)
+lucia_icei.f:     &     NOBPT,0,IZERO ,IAAEXC_TYP,IACT_SPC,IPRCC,IDUMMY,
+lucia_icei.f:     &     NOBPT,0,0,IAAEXC_TYP,IACT_SPC,
+lucia_icei.f:       IACT_GAS = 0
+lucia_icei.f:         IF(IHPVGAS(IGAS).EQ.3) IACT_GAS = IGAS
+lucia_icei.f:       IF(NTEST.GE.1000) WRITE(6,*) ' The active GASpace ', IACT_GAS
+lucia_icei.f:         IF(IGAS.GE.IACT_GAS) THEN
+lucia_icei.f:      IACT_GAS = 0
+lucia_icei.f:        IF(IHPVGAS(IGAS).EQ.3) IACT_GAS = IGAS
+lucia_icei.f:C?    WRITE(6,*) ' The active GASpace ', IACT_GAS
+lucia_icei.f:        IF(IGAS.GE.IACT_GAS) THEN
+lucia_mcscf.f:          IACTIVE = 0
+lucia_mcscf.f:            IF(ISUBTP(JSUBTP).EQ.ITARGET) IACTIVE = 1
+lucia_mcscf.f:C?        WRITE(6,*) ' ITARGET, IACTIVE = ', ITARGET,IACTIVE
+lucia_mcscf.f:          IF(IACTIVE.EQ.1) THEN
+lucia_mcscf.f:      SUBROUTINE FLAG_ACT_INTLIST(IACT_LIST)
+lucia_mcscf.f:* Flag that only the integral arrays of integral list IACT_LIST is active
+lucia_mcscf.f:          IF(IE2LIST.EQ.IACT_LIST) THEN
+lucia_mcscf.f:        WRITE(6,*) ' Integral list to be flagged positive ', IACT_LIST
+lucia_nortci.f:C              CSDTVC_CONF(C_SD,C_CSF,NOPEN,ISIGN,IAC,IWAY)
+lucia_nortci.f:C              CSDTVC_CONF(C_SD,C_CSF,NOPEN,ISIGN,IAC,IWAY)
+lucia_nortci.f:C         REFORM_CONF_ACCOCC(IACOCC,IOCC,IWAY,NORB)
+lucia_nortci.f:          IN_OUT = IS_IACC_CONF_IN_MINMAX_SPC(IOCC3,
+lucia_nortci.f:      FUNCTION IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
+lucia_nortci.f:      IS_IACC_CONF_IN_MINMAX_SPC = INBOUND
+lucia_nortci.f:C             CSDTVC_CONF(C_SD,C_CSF,NOPEN,ISIGN,IAC,IWAY)
+lucia_prodexp.f:C     GET_PAC_FROM_INI_AC(IPAC,NAT,NOBAT,IACFAT)
+lucia_prodexp.f:      SUBROUTINE GET_PAC_FROM_INI_AC(IPAC,NAT,NOBAT,IACFAT)
+lucia_prodexp.f:* IACFAT(I) : Select Initial AT IACFAT(I) for atom I
+lucia_prodexp.f:      INTEGER IACFAT(NAT), NOBAT(NAT)
+lucia_supsym.f:      IACOB = 0
+lucia_supsym.f:* Orbital IORB is active orbital IACOB in general sym order
+lucia_supsym.f:              IACOB = IACOB + 1
+lucia_supsym.f:              IACOB_STA = IREOST(IORB)-NINOB
+lucia_supsym.f:C?            WRITE(6,*) ' IACOB, IACOB_STA '
+lucia_supsym.f:              IREO_GNSYM_TO_TS(IACOB) = IACOB_STA
+lucia_supsym.f:      SUBROUTINE GET_IACT_TO_GENSM_REO(IACT_TO_GENSM_REO,
+lucia_supsym.f:      INTEGER IACT_TO_GENSM_REO(NTOOB)
+lucia_supsym.f:*. Combine IACT_TO_GENSM_REO(I) = MO_STA_TO_ACT_REO(ISTA_TO_GENSM_REO((I))
+lucia_supsym.f:      CALL COMB_TWO_REO(IACT_TO_GENSM_REO, 
+lucia_supsym.f:        WRITE(6,*) ' IACT_TO_GENSM_REO array '
+lucia_supsym.f:        CALL IWRTMA3(IACT_TO_GENSM_REO,1,NTOOB,1,NTOOB)
+lucia_supsym.f:C    &           NOOFSS,IBOOFSS,IOOFSS,IFLAG,IACT_TO_STA,ISHL_FOR_STA)
+lucia_supsym.f:C    &           NOOFSS,IBOOFSS,IOOFSS,IFLAG,IACT_TO_STA,ISHL_FOR_STA)
+lucia_supsym.f:     &           NOOFSS,IBOOFSS,IOOFSS,IFLAG,IACT_TO_STA,ISHL_FOR_STA)
+lucia_supsym.f:      INTEGER IACT_TO_STA(*)
+lucia_supsym.f:        IORB = IACT_TO_STA(IIORB)
+lucia_supsym.f:        JORB = IACT_TO_STA(JJORB)
+lucia_supsym.f:         IORB = IACT_TO_STA(IIORB)
+lucia_supsym.f:         JORB = IACT_TO_STA(JJORB)
+luciaw.f:      DIMENSION IACC_CONF(MXPORB)
+luciaw.f:C                IAIB_TO_ACCCONF(IA,IB,NAEL,NBEL,IACC,NACOB,NINOB)
+luciaw.f:     &           IACC_CONF,NACOB,NINOB)
+luciaw.f:            IM_IN = IS_IACC_CONF_IN_MINMAX_SPC 
+luciaw.f:     &              (IACC_CONF,MINAC,MAXAC,NACOB)
+luciaw.f:C                   IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
+luciaw.f:      SUBROUTINE IAIB_TO_ACCCONF(IA,IB,NAEL,NBEL,IACC,NACOB,NINOB)
+luciaw.f:      INTEGER IACC(NACOB)
+luciaw.f:      CALL ISETVC(IACC,IZERO,NACOB)
+luciaw.f:         IACC(JORB) = IACC(JORB) + 1
+luciaw.f:         IACC(JORB) = IACC(JORB) + 1
+luciaw.f:       CALL IWRTMA(IACC,1,NACOB,1,NACOB)
+luciaw.f:      DIMENSION IACC_CONF(MXPORB)
+optcont_orbopt.f:          ludia_c   = iopen_nus('DIACMD')
+rsbb2b_m.f:      INTEGER IACIA(20),IPAIA(20),IACIB(20),IPAIB(20)
+rsbb2b_m.f:      INTEGER IACJA(20),IPAJA(20),IACJB(20),IPAJB(20)
+rsbb2b_m.f:      INTEGER NIPAAB(20),NIACAB(20) 
+rsbb2b_m.f:         IAC = 2
+rsbb2b_m.f:         IAC = 1
+rsbb2b_m.f:     &              IJ_TYP,NACJA,IACJA,NJAAC_S,NJAPA_S,
+rsbb2b_m.f:     &              KL_TYP,NACJB,IACJB,NJBAC_S,NJBPA_S,
+rsbb2b_m.f:     &              IJ_TYP,NACIA,IACIA,NIAAC_S,NIAPA_S,
+rsbb2b_m.f:     &            KL_TYP,NACIB,IACIB,NIBAC_S,NIBPA_S,
+rsbb2b_m.f:           CALL ACOP_SPGRP(NACJA,IACJA,JAC,JTYP,KACGRP,IJCODE)
+rsbb2b_m.f:     &                 NIPAAB,NIACAB,IBSPA,IBSPA2,LEN_S,I12ORD,NOREO_S)
+rsbb2b_m.f:     &         NACIA,IACIA,NACIB,IACIB,NACJA,IACJA,NACJB,IACJB,
+rsbb2b_m.f:C    &           NACIA,IACIA,NACIB,IACIB,NACJA,IACJA,NACJB,IACJB,
+rsbb2b_m.f:              CALL ADAST_GAS(IJSM,JTYP,NACJA,IACJA,JASM,
+rsbb2b_m.f:              CALL ADAST_GAS(IJSM,ITYP,NACIA,IACIA,IASM,
+rsbb2b_m.f:                   CALL ADAST_GAS(LSM,LTYP,NACJB,IACJB,
+rsbb2b_m.f:                   CALL ADAST_GAS(KSM,KTYP,NACIB,IACIB,
+rsbb2b_m.f:     &           ISSM,SIGNIAB,NIPAAB,NIACAB,IBSPA,IBSPA2,LEN_S,I12ORD,
+rsbb2ben.f:      INTEGER IACIA(20),IPAIA(20),IACIB(20),IPAIB(20)
+rsbb2ben.f:      INTEGER IACJA(20),IPAJA(20),IACJB(20),IPAJB(20)
+rsbb2ben.f:      INTEGER NIPAAB(20),NIACAB(20) 
+rsbb2ben.f:         IAC = 2
+rsbb2ben.f:         IAC = 1
+rsbb2ben.f:     &              IJ_TYP,NACJA,IACJA,NJAAC_S,NJAPA_S,
+rsbb2ben.f:     &              KL_TYP,NACJB,IACJB,NJBAC_S,NJBPA_S,
+rsbb2ben.f:     &              IJ_TYP,NACIA,IACIA,NIAAC_S,NIAPA_S,
+rsbb2ben.f:     &            KL_TYP,NACIB,IACIB,NIBAC_S,NIBPA_S,
+rsbb2ben.f:           CALL ACOP_SPGRP(NACJA,IACJA,JAC,JTYP,KACGRP,IJCODE)
+rsbb2ben.f:     &                 NIPAAB,NIACAB,IBSPA,IBSPA2,LEN_S,I12ORD,
+rsbb2ben.f:     &         NACIA,IACIA,NACIB,IACIB,NACJA,IACJA,NACJB,IACJB,
+rsbb2ben.f:C    &           NACIA,IACIA,NACIB,IACIB,NACJA,IACJA,NACJB,IACJB,
+rsbb2ben.f:              CALL ADAST_GAS(IJSM,JTYP,NACJA,IACJA,JASM,
+rsbb2ben.f:              CALL ADAST_GAS(IJSM,ITYP,NACIA,IACIA,IASM,
+rsbb2ben.f:                   CALL ADAST_GAS(LSM,LTYP,NACJB,IACJB,
+rsbb2ben.f:                   CALL ADAST_GAS(KSM,KTYP,NACIB,IACIB,
+rsbb2ben.f:     &           ISSM,SIGNIAB,NIPAAB,NIACAB,IBSPA,IBSPA2,LEN_S,I12ORD) 
+rsbb2ben.f:      SUBROUTINE ACOP_SPGRP(NNGRP,IGRP_IN,IAC,IGAS,IGRP_OUT,ICODE)
+rsbb2ben.f:        WRITE(6,*) ' IGAS, IAC, NNGRP ', IGAS,IAC, NNGRP
+rsbb2ben.f:      IACGRP = 0
+rsbb2ben.f:       IF(IGSFGP(IGRP_IN(JGRP)).EQ.IGAS) IACGRP = JGRP
+rsbb2ben.f:      IF(IACGRP.EQ.0) THEN
+rsbb2ben.f:      IEL_IN = NELFGP(IGRP_IN(IACGRP))
+rsbb2ben.f:      IF(IAC.EQ.1) THEN
+rsbb2ben.f:      ELSE IF(IAC.EQ.2)  THEN
+rsbb2ben.f:        WRITE(6,*) ' Unknown value of IAC = ', IAC
+rsbb2ben.f:        STOP 'ACOP : Unknown value of IAC ' 
+rsbb2ben.f:C?    WRITE(6,*) ' ACOP : IACGRP, IAC,IEL_IN, IEL_OUT',
+rsbb2ben.f:C?   &                    IACGRP, IAC,IEL_IN, IEL_OUT
+rsbb2ben.f:        WRITE(6,*) '  IAC, NNGRP ', IAC, NNGRP
+rsbb2ben.f:      IGRP_OUT(IACGRP) = JGRP_OUT
+rsbb2ben.f:     &           NACIA,IACIA,NACIB,IACIB,NACJA,IACJA,NACJB,IACJB,
+rsbb2ben.f:      INTEGER IACIA(NACIA),IACIB(NACIB),IACJA(NACJA),IACJB(NACJB)
+rsbb2ben.f:      INTEGER IACKA(2),IACKB(2)
+rsbb2ben.f:      CALL ACOP_SPGRP(NACJA,IACJA,1,JTYP,IACKA,IJCODE)
+rsbb2ben.f:      CALL ACOP_SPGRP(NACJB,IACJB,1,LTYP,IACKB,KLCODE)
+rsbb2ben.f:          CALL NST_SPGRP2(NACJA,IACKA,KASM,NSMST,NKASTR,NKADIST)
+rsbb2ben.f:          CALL NST_SPGRP2(NACJB,IACKB,KBSM,NSMST,NKBSTR,NKADIST)
+rsbb2ben.f:     &         NACJA,IACJA,NACJB,IACJB,LACJA,LACJB)
+rsbb2ben.f:C    &          NACJA,IACJA,NACJB,IACJB,LACJA,LACJB)
+rsbb2ben.f:     &         NACIA,IACIA,NACIB,IACIB,LACIA,LACIB)
+rsbb2ben.f:     &           NACJA,IACJA,NACJB,IACJB,LACJA,LACJB)
+rsbb2ben.f:      INTEGER IACJA(NACJA),IACJB(NACJB)
+rsbb2ben.f:      INTEGER IACKA(2),IACKB(2)
+rsbb2ben.f:       WRITE(6,*) ' IACJA, IACJB :'
+rsbb2ben.f:       CALL IWRTMA(IACJA,1,NACJA,1,NACJA)
+rsbb2ben.f:       CALL IWRTMA(IACJB,1,NACJB,1,NACJB)
+rsbb2ben.f:      CALL ACOP_SPGRP(NACJA,IACJA,1,JTYP,IACKA,JCODE)
+rsbb2ben.f:      CALL ACOP_SPGRP(NACJB,IACJB,1,LTYP,IACKB,LCODE)
+rsbb2ben.f:        IF(JTYP.EQ.IGSFGP(IACKA(1))) THEN
+rsbb2ben.f:         SIGNJL = (-1)**(NELFGP(IACKA(1)))
+rsbb2ben.f:        IF(LTYP.EQ.IGSFGP(IACKB(2))) THEN
+rsbb2ben.f:         SIGNJL = SIGNJL*(-1)**(NELFGP(IACKB(1)))
+rsbb2ben.f:        KA1TP = IACKA(1)
+rsbb2ben.f:        KA2TP = IACKA(2)
+rsbb2ben.f:        KB1TP = IACKB(1)
+rsbb2ben.f:        KB2TP = IACKB(2)
+rsbb2ben.f:      IF(IGSFGP(IACJA(1)).EQ.JTYP) THEN
+rsbb2ben.f:      IF(IGSFGP(IACJB(1)).EQ.LTYP) THEN
+rsbb2ben.f:      KAGRP_ACT = IACKA(JACT_12)
+rsbb2ben.f:      JAGRP_ACT = IACJA(JACT_12)
+rsbb2ben.f:      KBGRP_ACT = IACKB(LACT_12)
+rsbb2ben.f:      JBGRP_ACT = IACJB(LACT_12)
+rsbb2ben.f:      IF(JPAS_12.NE.0) KAGRP_PAS = IACJA(JPAS_12)
+rsbb2ben.f:      IF(LPAS_12.NE.0) KBGRP_PAS = IACJB(LPAS_12)
+rsbb2ben.f:      JA1TP = IACJA(1)
+rsbb2ben.f:        JA2TP = IACJA(2)
+rsbb2ben.f:      JB1TP = IACJB(1)
+rsbb2ben.f:        JB2TP = IACJB(2)
+vg.f:      IACT_SPC = 0
+vg.f:     &     NOBPT,MS2_RL,IZERO    ,IAAEXC_TYP,IACT_SPC,IPRCIX,IDUMMY,
+vg.f:     &     NOBPT,MS2_RL,IZERO    ,IAAEXC_TYP,IACT_SPC,IPRCIX,
+vg.f:      INTEGER IAC_AR(100)
+vg.f:         IAC_AR(JOP) = 1
+vg.f:C           MAP_EXSTR(IOP,IAC,NOP,IREFOC,IX,SX,NK,IB,SCLFAC)
+vg.f:       CALL MAP_EXSTR(ICA_EXP,IAC_AR,NCA_OP,IAOC,I1,XI1S,
+vg.f:       CALL MAP_EXSTR(ICB_EXP,IAC_AR,NCB_OP,IBOC,I2,XI2S,
+vg.f:       CALL MAP_EXSTR(IAA_EXP,IAC_AR,NAA_OP,JAOC,I3,XI3S,
+vg.f:       CALL MAP_EXSTR(IAB_EXP,IAC_AR,NAB_OP,JBOC,I4,XI4S,

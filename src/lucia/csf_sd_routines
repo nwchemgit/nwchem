@@ -1,0 +1,22 @@
+CSF_ROUTINES
+
+Prototype info
+
+PROTO_CSF_DIM: 
+---------------
+
+1: PROTO_CONF_DIM: Info on proto_type_configurations.
+   -PROTO_CONF_DIM 
+   -DIM_PROTO_ARRAYS
+2: CSDTMT_GAS
+   Constructs the actual prototype dets, csfs, and transformation matrices 
+
+3: Number of configurations:  GET_DIM_MINMAX_SPACE
+
+Configurations
+
+4: GEN_CONF_FOR_MINMAX_SPC (generate SD's in config order and generate reo array)
+
+5: NPARA_FOR_MINMAX_SPC
+
+6: CNFORD2 (reorder array for dets)
