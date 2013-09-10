@@ -25,30 +25,23 @@ if [[ $status != 0 ]]; then
 fi
 date
 ./runtests.mpi.unix procs $np h2o_opt c2h4
-./runtests.mpi.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
+./runtests.mpi.unix procs $np autosym dft_he2+ h2o hess_h2o prop_h2o
 ./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne rimp2_he scf_feco5 small_intchk tagcheck testtab
 ./runtests.mpi.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.mpi.unix procs $np cosmo_na cosmo_cl cosmo_nacl
-./runtests.mpi.unix procs $np cosmo_h2o_dft cosmo_h2o_bq be dft_s12gh
-./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse bsse_dft_trimer c4h4_wfn
+./runtests.mpi.unix procs $np cosmo_h2o_dft cosmo_h2o_bq be 
+./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse c4h4_wfn
 ./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp
-./runtests.mpi.unix procs $np cosmo_h3co cosmo_h3co_ecp cosmo_h2cco2na cosmo_h3co_gp
-./runtests.mpi.unix procs $np dplot dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
-./runtests.mpi.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
-./runtests.mpi.unix procs $np h2o_diag_to_cg h2o_cg_to_diag 
+./runtests.mpi.unix procs $np cosmo_h3co
+./runtests.mpi.unix procs $np dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
+./runtests.mpi.unix procs $np et_zn_dimer sad_ch3hf
+./runtests.mpi.unix procs $np h2o_cg_to_diag 
 ./runtests.mpi.unix procs $np h2o_diag_opt h2o_cg_opt h2o_diag_opt_ub3lyp h2o_cg_opt_ub3lyp h2o_cg_opt_rob3lyp
 ./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
-#
-#---   small tests that should fail!
-echo ' '
-echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
-./runtests.mpi.unix procs $np oh2
 #
 #---   medium tests
 ./runtests.mpi.unix procs $np dft_feco5 
 ./runtests.mpi.unix procs $np dft_siosi3
-./runtests.mpi.unix procs $np dft_cr2
-./runtests.mpi.unix procs $np dft_x
 ./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
@@ -56,10 +49,7 @@ echo 'Please check the final values for the last optimized structure.'
 echo 'The intermediate energy values for the numerical gradient '
 echo 'test may cause some differences.'
 echo 'Please check the final gradient values for correctness.'
-./runtests.mpi.unix procs $np grad_ozone
-./runtests.mpi.unix procs $np dft_ozone 
 ./runtests.mpi.unix procs $np hess_c6h6
-./runtests.mpi.unix procs $np hess_nh3_ub3lyp
 ./runtests.mpi.unix procs $np intchk
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
@@ -70,23 +60,17 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np uo2_sodft_grad
 ./runtests.mpi.unix procs $np si2cl6_gc
 ./runtests.mpi.unix procs $np pspw
-./runtests.mpi.unix procs $np pspw_SiC
 ./runtests.mpi.unix procs $np pspw_md
-./runtests.mpi.unix procs $np paw
 ./runtests.mpi.unix procs $np pspw_polarizability
-./runtests.mpi.unix procs $np pspw_stress
 ./runtests.mpi.unix procs $np band
 ./runtests.mpi.unix procs $np tddft_h2o
 ./runtests.mpi.unix procs $np tddft_h2o_uhf
-./runtests.mpi.unix procs $np tddft_h2o_mxvc20
-./runtests.mpi.unix procs $np tddft_h2o_uhf_mxvc20
 ./runtests.mpi.unix procs $np tddft_n2+
 ./runtests.mpi.unix procs $np tddft_ac_co
 ./runtests.mpi.unix procs $np tce_h2o
 ./runtests.mpi.unix procs $np tce_h2o_dipole
 ./runtests.mpi.unix procs $np tce_h2o_eomcc
 ./runtests.mpi.unix procs $np tce_uhf_uccsd
-./runtests.mpi.unix procs $np tce_cr_eom_t_ch_rohf
 ./runtests.mpi.unix procs $np tce_cr_eom_t_ozone
 ./runtests.mpi.unix procs $np tce_active_ccsdt
 ./runtests.mpi.unix procs $np tce_lr_ccsd_t
