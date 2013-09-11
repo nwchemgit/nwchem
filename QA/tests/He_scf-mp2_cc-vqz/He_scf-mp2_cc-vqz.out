@@ -1,3 +1,4 @@
+All connections between all procs tested: SUCCESS
  argument  1 = He_scf-mp2_cc-vqz.nw
 
 
@@ -70,7 +71,7 @@ task rimp2 energy
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.3
               ------------------------------------------------------
 
 
@@ -78,7 +79,7 @@ task rimp2 energy
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2010
+                              Copyright (c) 1994-2013
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -103,19 +104,21 @@ task rimp2 energy
            Job information
            ---------------
 
-    hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Tue Oct 26 20:11:58 2010
+    hostname        = arcen
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
+    date            = Tue Sep 10 19:37:40 2013
 
-    compiled      = Tue_Oct_26_14:47:56_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
-    nwchem branch = Development
-    input         = He_scf-mp2_cc-vqz.nw
-    prefix        = He_scf-mp2_cc-vqz.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.db
-    status        = startup
-    nproc         =        4
-    time left     =     -1s
+    compiled        = Tue_Sep_10_14:29:07_2013
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
+    nwchem branch   = Development
+    nwchem revision = 24566
+    ga revision     = 10418
+    input           = He_scf-mp2_cc-vqz.nw
+    prefix          = He_scf-mp2_cc-vqz.
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
 
 
 
@@ -133,8 +136,8 @@ task rimp2 energy
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
 
 
 
@@ -179,8 +182,8 @@ task rimp2 energy
  geometry
  He                    0.00000000     0.00000000     0.00000000
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
   
 
 
@@ -242,7 +245,7 @@ task rimp2 energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -255,7 +258,7 @@ task rimp2 energy
 
 
 
- Forming initial guess at       0.1s
+ Forming initial guess at       1.1s
 
 
       Superposition of Atomic Density Guess
@@ -273,7 +276,7 @@ task rimp2 energy
  LUMO         =       0.496529
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       1.1s
 
 
 
@@ -289,9 +292,9 @@ task rimp2 energy
  #quartets = 1.540D+03 #integrals = 1.511D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20842
+ Max. records in memory =      2        Max. records in file   =   7770
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -334,79 +337,78 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        -------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-9.178488D-01
-              MO Center= -4.1D-19, -1.8D-17,  8.5D-18, r^2= 3.3D-01
+              MO Center=  7.6D-19,  5.9D-18, -1.3D-17, r^2= 3.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.453050  1 He s                  2      0.308472  1 He s          
      4      0.238885  1 He s                  1      0.160025  1 He s          
 
  Vector    2  Occ=0.000000D+00  E= 4.965287D-01
-              MO Center=  9.2D-17, -4.0D-18, -1.1D-17, r^2= 1.8D+00
+              MO Center=  3.3D-19, -1.2D-16, -1.4D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.690392  1 He s                  3     -1.345015  1 He s          
 
  Vector    3  Occ=0.000000D+00  E= 1.089885D+00
-              MO Center= -2.4D-17,  2.2D-17,  1.8D-17, r^2= 6.9D-01
+              MO Center= -2.7D-17,  8.2D-18, -9.4D-19, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.058165  1 He py                13     -0.313429  1 He pz         
-     9     -0.168345  1 He py         
+    11      1.103341  1 He px                 8     -0.175532  1 He px         
 
  Vector    4  Occ=0.000000D+00  E= 1.089885D+00
-              MO Center= -1.6D-16,  1.6D-17,  3.1D-17, r^2= 6.9D-01
+              MO Center= -1.7D-17, -5.1D-17,  1.4D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.084357  1 He px                13     -0.200331  1 He pz         
-     8     -0.172512  1 He px         
+    13      1.102780  1 He pz                10     -0.175443  1 He pz         
 
  Vector    5  Occ=0.000000D+00  E= 1.089885D+00
-              MO Center= -2.9D-17, -6.5D-17, -6.8D-17, r^2= 6.9D-01
+              MO Center=  7.0D-18,  1.6D-16, -6.3D-17, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.039106  1 He pz                12      0.310239  1 He py         
-    11      0.205237  1 He px                10     -0.165313  1 He pz         
+    12      1.102448  1 He py                 9     -0.175390  1 He py         
 
  Vector    6  Occ=0.000000D+00  E= 2.783494D+00
-              MO Center= -1.7D-17,  1.3D-17, -7.2D-17, r^2= 7.4D-01
+              MO Center= -1.7D-17, -7.1D-17,  4.5D-17, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      2.658864  1 He s                  2     -1.797183  1 He s          
      4     -1.115477  1 He s          
 
  Vector    7  Occ=0.000000D+00  E= 3.887939D+00
-              MO Center=  8.2D-18,  1.6D-17,  7.0D-18, r^2= 4.2D-01
+              MO Center=  5.5D-17, -8.6D-18, -5.3D-18, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.755795  1 He d -1              19      0.684551  1 He d -2       
-    23     -0.234161  1 He d  2       
+    22      0.787984  1 He d  1              21      0.389140  1 He d  0       
+    20      0.352083  1 He d -1              19      0.344782  1 He d -2       
+    23     -0.305919  1 He d  2       
 
  Vector    8  Occ=0.000000D+00  E= 3.887939D+00
-              MO Center= -1.3D-17, -1.2D-16,  3.0D-17, r^2= 4.2D-01
+              MO Center=  5.5D-17,  1.4D-17,  4.5D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.021190  1 He d  1              19     -0.235175  1 He d -2       
+    20      0.966541  1 He d -1              23      0.260445  1 He d  2       
+    22     -0.245363  1 He d  1              19     -0.215001  1 He d -2       
 
  Vector    9  Occ=0.000000D+00  E= 3.887939D+00
-              MO Center= -5.6D-18, -2.6D-17, -4.8D-17, r^2= 4.2D-01
+              MO Center= -2.2D-17, -4.5D-17,  1.4D-16, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      0.763570  1 He d -2              20     -0.635874  1 He d -1       
-    23      0.282756  1 He d  2              22      0.202693  1 He d  1       
+    19      0.864112  1 He d -2              21     -0.561435  1 He d  0       
 
  Vector   10  Occ=0.000000D+00  E= 3.887939D+00
-              MO Center=  8.2D-17, -9.2D-17, -3.1D-17, r^2= 4.2D-01
+              MO Center=  1.1D-16,  1.7D-16,  2.8D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.900364  1 He d  2              21     -0.429877  1 He d  0       
-    20      0.321593  1 He d -1       
+    23      0.934685  1 He d  2              21      0.375809  1 He d  0       
+    19      0.181253  1 He d -2              22      0.175630  1 He d  1       
+    20     -0.173795  1 He d -1       
 
  Vector   11  Occ=0.000000D+00  E= 3.887939D+00
-              MO Center=  2.7D-18, -2.8D-17, -3.9D-17, r^2= 4.2D-01
+              MO Center=  2.4D-17,  8.7D-18, -5.6D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.961037  1 He d  0              23      0.397846  1 He d  2       
-    20      0.155644  1 He d -1       
+    21      0.707525  1 He d  0              22     -0.617876  1 He d  1       
+    19      0.405129  1 He d -2              23     -0.249249  1 He d  2       
 
 
  center of mass
@@ -470,13 +472,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   local mem=  6.55D+07
  global mem=  6.55D+07
  local disk=  5.37D+08
-   1 passes of   1:         707528                       1908                      4271.
+   1 passes of   1:         736083                       1908                      4271.
 
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        0.2s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        1.2s
 Node 0 wrote      0.0 Mb in      0.0 s     Agg I/O rate:     0.0 Mb/s
- Done moints_semi at        0.2s
- Done maket at        0.2s
- Done multipass loop at        0.2s
+ Done moints_semi at        1.3s
+ Done maket at        1.3s
+ Done multipass loop at        1.3s
 
 
           -------------------------------------------
@@ -487,24 +489,36 @@ Node 0 wrote      0.0 Mb in      0.0 s     Agg I/O rate:     0.0 Mb/s
           Total MP2 energy            -2.896992231568
           -------------------------------------------
 
+
+
+          ---------------------------------------------------
+                    Spin Component Scaled (SCS) MP2
+          Same spin pairs                      0.000000000000
+          Same spin scaling factor             0.333333333333
+          Opposite spin pairs                 -0.035478004329
+          Opposite spin scaling fact.          1.200000000000
+          SCS-MP2 correlation energy          -0.042573605195
+          Total SCS-MP2 energy                -2.904087832434
+          ---------------------------------------------------
+
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  4.00D-07 seconds/call
+ Timer overhead =  3.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   3.40E-2 3.57E-2 3.70E-2  3.82E-2 3.84E-2 3.84E-2 3.84E-2   0.0     0.0     0.0   
-mp2: make     1     1     1   1.00E-3 2.50E-3 3.00E-3  2.46E-3 2.46E-3 2.47E-3 2.47E-3   0.0     0.0     0.0   
-mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9.10E-2   0.0     0.0     0.0   
+mp2: moin     1     1     1   2.70E-2 3.20E-2 3.60E-2  4.16E-2 4.18E-2 4.18E-2 4.18E-2   0.0     0.0     0.0   
+mp2: make     1     1     1   1.00E-3 1.00E-3 1.00E-3  1.40E-3 1.41E-3 1.42E-3 1.42E-3   0.0     0.0     0.0   
+mp2: tota     1     1     1   7.20E-2 7.72E-2 8.50E-2  0.10    0.10    0.10    0.10      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 1.20D-06s
+ with a timing overhead of 9.00D-07s
 
 
- Task  times  cpu:        0.2s     wall:        0.2s
+ Task  times  cpu:        0.2s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -523,8 +537,8 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -548,7 +562,7 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
           Block length:                          32
           Active occupied range:           1 -    1
           Active virtual range:            2 -   30
-          MO coefficients read from:  /home/d3y133/nwchem-relea
+          MO coefficients read from:  /home/d3y133/nwchem-dev/n
           Operator matrices in core:              1
           AO passes required:                     1
           Use AO Integral blocking
@@ -566,15 +580,15 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
 
           Total MP2 time:           0.04
 
- Task  times  cpu:        0.0s     wall:        0.0s
+ Task  times  cpu:        0.0s     wall:        0.1s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
   
                       Basis "cc-pVQZ-RI" -> "" (spherical)
                       -----
@@ -631,8 +645,8 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -655,7 +669,7 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
 
 
  SCF Reference Information:
-            File: '/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/He_scf-mp2_cc-vqz.movecs'
+            File: '/home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/He_scf-mp2_cc-vqz.movecs'
            Title: ''
     Size (AOxMO):     30 x     30
        Total Occ:               2.00
@@ -674,12 +688,12 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
     Type of storage for MO integrals 'EAF library'
 
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Tue Oct 26 20:11:59 2010
+ XForm_3cInts: Completed     1:    1 pass.             @Tue Sep 10 19:37:40 2013
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Tue Oct 26 20:11:59 2010
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Tue Oct 26 20:11:59 2010
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Tue Oct 26 20:11:59 2010
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Tue Oct 26 20:11:59 2010
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Tue Sep 10 19:37:40 2013
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Tue Sep 10 19:37:40 2013
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Tue Sep 10 19:37:40 2013
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Tue Sep 10 19:37:40 2013
 
 
           -------------------------------------------
@@ -692,31 +706,35 @@ mp2: tota     1     1     1   8.40E-2 8.62E-2 8.90E-2  9.09E-2 9.10E-2 9.10E-2 9
  Performance information
  -----------------------
 
- Timer overhead =  5.00D-07 seconds/call
+ Timer overhead =  3.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   2.90E-2 3.30E-2 3.60E-2  3.59E-2 3.59E-2 3.60E-2 3.60E-2   0.0     0.0     0.0   
-3c integr     1     1     1   4.00E-3 5.25E-3 6.00E-3  6.18E-3 6.20E-3 6.22E-3 6.22E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0    5.00E-4 1.00E-3  9.55E-4 9.56E-4 9.57E-4 9.57E-4   0.0     0.0     0.0   
-3c integr     1     1     1   3.00E-3 4.00E-3 6.00E-3  2.78E-3 3.91E-3 5.80E-3 5.80E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     2.22E-5 3.41E-5 4.79E-5 1.60E-5   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0     0.0     0.0     7.20E-5 7.27E-5 7.30E-5 7.30E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     3.10E-5 3.31E-5 3.41E-5 3.41E-5   0.0     0.0     0.0   
-Read 3c i     1     1     1    0.0     0.0     0.0     1.00E-5 1.16E-5 1.31E-5 1.31E-5   0.0     0.0     0.0   
-Fitting b     1     1     1   2.00E-3 2.50E-3 3.00E-3  2.28E-3 2.28E-3 2.28E-3 2.28E-3   0.0     0.0     0.0   
-Schwarz i     1     1     1   3.00E-3 4.25E-3 5.00E-3  4.94E-3 4.96E-3 4.98E-3 4.98E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     6.48E-5 6.64E-5 6.79E-5 6.79E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     2.00E-5 2.10E-5 2.19E-5 2.19E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     3.10E-6 4.29E-6 5.01E-6 5.01E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     3.81E-6 5.48E-6 6.91E-6 6.91E-6   0.0     0.0     0.0   
+Overall       1     1     1   2.00E-2 2.35E-2 3.00E-2  4.90E-2 4.92E-2 4.98E-2 4.98E-2   0.0     0.0     0.0   
+3c integr     1     1     1   3.00E-3 4.75E-3 7.00E-3  7.49E-3 7.52E-3 7.55E-3 7.55E-3   0.0     0.0     0.0   
+Energy        1     1     1    0.0    1.00E-3 3.00E-3  3.68E-3 3.68E-3 3.68E-3 3.68E-3   0.0     0.0     0.0   
+3c integr     1     1     1   3.00E-3 4.75E-3 7.00E-3  3.03E-3 4.47E-3 6.40E-3 6.40E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     2.53E-5 3.71E-5 5.10E-5 1.70E-5   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     2.77E-4 2.77E-4 2.78E-4 2.78E-4   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     4.60E-5 5.15E-5 5.51E-5 5.51E-5   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     6.91E-6 7.75E-6 8.11E-6 8.11E-6   0.0     0.0     0.0   
+Fitting b     1     1     1    0.0     0.0     0.0     2.99E-3 2.99E-3 3.00E-3 3.00E-3   0.0     0.0     0.0   
+Schwarz i     1     1     1    0.0    1.25E-3 5.00E-3  6.69E-3 6.71E-3 6.73E-3 6.73E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0    2.50E-4 9.99E-4  2.60E-4 2.61E-4 2.61E-4 2.61E-4   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     3.83E-4 3.86E-4 3.88E-4 3.88E-4   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     5.01E-6 2.03E-5 6.60E-5 6.60E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     1.11E-4 1.34E-4 1.70E-4 1.70E-4   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 8.00D-06s
+ with a tim  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+ing overhead of 4.80D-06s
 
 
- Task  times  cpu:        0.0s     wall:        0.0s
+ Task  times  cpu:        0.0s     wall:        0.1s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -727,10 +745,10 @@ Pair Ener     1     1     1    0.0     0.0     0.0     3.81E-6 5.48E-6 6.91E-6 6
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:   79       79      865      602      590        0        0       67     
-number of processes/call 1.04e+00 1.11e+00 1.03e+00 0.00e+00 0.00e+00
-bytes total:             5.47e+05 2.21e+05 4.89e+04 0.00e+00 0.00e+00 5.36e+02
-bytes remote:            9.21e+04 7.07e+04 1.02e+04 0.00e+00 0.00e+00 0.00e+00
+calls:   79       79      889      621      560        1        0       69     
+number of processes/call 1.04e+00 1.12e+00 1.02e+00 1.00e+00 0.00e+00
+bytes total:             5.79e+05 3.40e+05 8.66e+04 1.80e+03 0.00e+00 5.52e+02
+bytes remote:            1.11e+05 6.68e+04 1.72e+04 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 65760 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -745,7 +763,6 @@ MA usage statistics:
 	maximum total bytes		   1057936	  22509568
 	maximum total K-bytes		      1058	     22510
 	maximum total M-bytes		         2	        23
-  #avail    536870912.000000     
 
 
                                 NWChem Input Module
@@ -770,18 +787,21 @@ MA usage statistics:
 
                               AUTHORS & CONTRIBUTORS
                               ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
+        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
+     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
+       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
+        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
+   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
        D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
         K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
+        B. Meng,T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
+      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
+                                     Z.Zhang.
 
- Total times  cpu:        0.2s     wall:        0.3s
+ Total times  cpu:        0.2s     wall:        1.4s

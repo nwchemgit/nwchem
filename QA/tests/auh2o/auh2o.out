@@ -1,3 +1,4 @@
+All connections between all procs tested: SUCCESS
  argument  1 = auh2o.nw
 
 
@@ -43,7 +44,7 @@ task mp2         # Perform a single point MP2
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.3
               ------------------------------------------------------
 
 
@@ -51,7 +52,7 @@ task mp2         # Perform a single point MP2
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2010
+                              Copyright (c) 1994-2013
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -76,29 +77,31 @@ task mp2         # Perform a single point MP2
            Job information
            ---------------
 
-    hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Mon Oct 25 15:20:59 2010
+    hostname        = arcen
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
+    date            = Tue Sep 10 14:39:36 2013
 
-    compiled      = Mon_Oct_25_14:31:37_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
-    nwchem branch = Development
-    input         = auh2o.nw
-    prefix        = Au+(H2O)2.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Au+(H2O)2.db
-    status        = startup
-    nproc         =        4
-    time left     =     -1s
+    compiled        = Tue_Sep_10_14:29:07_2013
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
+    nwchem branch   = Development
+    nwchem revision = 24566
+    ga revision     = 10418
+    input           = auh2o.nw
+    prefix          = Au+(H2O)2.
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/Au+(H2O)2.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =   16384001 doubles =    125.0 Mbytes
-    stack    =   16384001 doubles =    125.0 Mbytes
-    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
-    total    =   65536002 doubles =    500.0 Mbytes
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -106,8 +109,8 @@ task mp2         # Perform a single point MP2
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
 
 
 
@@ -257,8 +260,8 @@ task mp2         # Perform a single point MP2
 
 
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
   
 
  **** WARNING Zero Coefficient **** on atom "              Au"
@@ -341,8 +344,8 @@ task mp2         # Perform a single point MP2
  O                           6-31g                   5        9   3s2p
 
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
   
                  ECP       "ecp basis" -> "" (spherical)
                 -----
@@ -396,7 +399,7 @@ task mp2         # Perform a single point MP2
   charge          =   1.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Au+(H2O)2.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/Au+(H2O)2.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -417,24 +420,24 @@ task mp2         # Perform a single point MP2
         b          23
 
 
- Forming initial guess at       0.1s
+ Forming initial guess at       1.1s
 
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
- Sum of atomic energies:        -268.11660703
+ Sum of atomic energies:        -310.11795317
 
  Renormalizing density from      39.00 to     38
 
       Non-variational initial energy
       ------------------------------
 
- Total energy =    -249.706158
- 1-e energy   =    -583.320362
- 2-e energy   =     208.720348
- HOMO         =      -1.439826
- LUMO         =      -1.396047
+ Total energy =    -283.136277
+ 1-e energy   =    -674.798283
+ 2-e energy   =     266.768149
+ HOMO         =      -0.779413
+ LUMO         =      -0.432040
 
 
       Symmetry analysis of molecular orbitals - initial
@@ -447,14 +450,14 @@ task mp2         # Perform a single point MP2
   Orbital symmetries:
 
      1 a           2 b           3 a           4 b           5 a       
-     6 b           7 a           8 b           9 a          10 a       
-    11 b          12 a          13 b          14 a          15 b       
-    16 a          17 b          18 a          19 b          20 a       
-    21 a          22 b          23 b          24 a          25 b       
-    26 b          27 a          28 a          29 a       
+     6 b           7 a           8 b           9 a          10 b       
+    11 a          12 b          13 a          14 b          15 a       
+    16 b          17 a          18 b          19 a          20 a       
+    21 b          22 a          23 b          24 a          25 a       
+    26 b          27 b          28 a          29 b       
 
 
- Starting SCF solution at       0.2s
+ Starting SCF solution at       1.3s
 
 
 
@@ -467,13 +470,13 @@ task mp2         # Perform a single point MP2
  ----------------------------------------------
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Au+(H2O)2.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/Au+(H2O)2.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =  20851
+ Max. records in memory =      5        Max. records in file   =   7798
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- #quartets = 2.821D+04 #integrals = 2.431D+05 #direct =  0.0% #cached =100.0%
+ #quartets = 2.821D+04 #integrals = 2.405D+05 #direct =  0.0% #cached =100.0%
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
@@ -481,23 +484,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -282.3004291602  6.35D+00  2.88D+00      0.3
-                 2     -285.7346887903  3.35D+00  1.62D+00      0.3
-                 3     -286.0224613598  2.40D+00  1.42D+00      0.3
-                 4     -286.2820724451  5.67D-01  2.03D-01      0.3
-                 5     -286.3111730400  3.14D-01  1.88D-01      0.3
-                 6     -286.3156769057  5.13D-02  2.09D-02      0.3
-                 7     -286.3161818066  2.76D-03  1.13D-03      0.4
-                 8     -286.3161840148  6.14D-06  1.91D-06      0.4
-                 9     -286.3161840148  9.65D-08  3.26D-08      0.4
+                 1     -286.0971995849  1.83D+00  4.69D-01      0.3
+                 2     -286.3040194726  3.26D-01  1.11D-01      0.3
+                 3     -286.3149010145  1.18D-01  2.82D-02      0.3
+                 4     -286.3161694816  8.10D-03  2.18D-03      0.3
+                 5     -286.3161840147  2.53D-05  6.87D-06      0.4
+                 6     -286.3161840148  9.74D-08  2.08D-08      0.4
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -286.316184014786
-      One-electron energy =   -688.128036912047
-      Two-electron energy =    276.917996332190
+         Total SCF energy =   -286.316184014787
+      One-electron energy =   -688.128036787217
+      Two-electron energy =    276.917996207359
  Nuclear repulsion energy =    124.893856565071
 
         Time for solution =      0.3s
@@ -558,35 +558,35 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        -------------------------------------
 
  Vector    9  Occ=2.000000D+00  E=-9.761670D-01  Symmetry=b
-              MO Center= -2.9D-17,  2.6D-15, -6.1D-02, r^2= 5.4D+00
+              MO Center= -6.0D-15, -3.2D-13, -6.1D-02, r^2= 5.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     27      0.304781  2 O  pz                36     -0.304781  3 O  pz         
-    34     -0.208142  3 O  px                25     -0.208142  2 O  px         
+    25     -0.208142  2 O  px                34     -0.208142  3 O  px         
     31      0.181368  2 O  pz                40     -0.181368  3 O  pz         
-    43      0.168638  5 H  s                 41     -0.168638  4 H  s          
+    41     -0.168638  4 H  s                 43      0.168638  5 H  s          
     45      0.166832  6 H  s                 47     -0.166832  7 H  s          
 
  Vector   10  Occ=2.000000D+00  E=-9.743670D-01  Symmetry=a
-              MO Center= -1.1D-13,  1.3D-13, -6.1D-02, r^2= 5.4D+00
+              MO Center= -1.6D-14,  3.3D-13, -6.1D-02, r^2= 5.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      0.297591  3 O  pz                27      0.297591  2 O  pz         
-    34      0.221342  3 O  px                25     -0.221342  2 O  px         
-    40      0.177367  3 O  pz                31      0.177367  2 O  pz         
+    27      0.297591  2 O  pz                36      0.297591  3 O  pz         
+    25     -0.221342  2 O  px                34      0.221342  3 O  px         
+    31      0.177367  2 O  pz                40      0.177367  3 O  pz         
     45      0.170128  6 H  s                 47      0.170128  7 H  s          
     41     -0.168031  4 H  s                 43     -0.168031  5 H  s          
 
  Vector   11  Occ=2.000000D+00  E=-9.182115D-01  Symmetry=a
-              MO Center=  4.6D-15, -1.7D-14,  3.0D-03, r^2= 3.9D+00
+              MO Center=  2.2D-15, -4.4D-14,  3.0D-03, r^2= 3.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35      0.344197  3 O  py                26     -0.344197  2 O  py         
-    17     -0.272638  1 Au d  2              30     -0.250308  2 O  py         
-    39      0.250308  3 O  py                15     -0.156849  1 Au d  0       
+    26      0.344197  2 O  py                35     -0.344197  3 O  py         
+    17      0.272638  1 Au d  2              30      0.250308  2 O  py         
+    39     -0.250308  3 O  py                15      0.156849  1 Au d  0       
 
  Vector   12  Occ=2.000000D+00  E=-8.550244D-01  Symmetry=b
-              MO Center=  5.1D-15,  2.2D-14,  4.8D-02, r^2= 4.5D+00
+              MO Center=  2.1D-15, -3.7D-15,  4.8D-02, r^2= 4.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     26      0.316171  2 O  py                35      0.316171  3 O  py         
@@ -595,112 +595,112 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     28     -0.157263  2 O  s                 37      0.157263  3 O  s          
 
  Vector   13  Occ=2.000000D+00  E=-8.044526D-01  Symmetry=a
-              MO Center=  1.4D-14,  6.4D-14,  4.7D-02, r^2= 4.3D+00
+              MO Center=  6.9D-15,  1.1D-15,  4.7D-02, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.298475  2 O  px                34     -0.298475  3 O  px         
-    13      0.298039  1 Au d -2              36      0.237726  3 O  pz         
-    27      0.237726  2 O  pz                38     -0.221275  3 O  px         
-    29      0.221275  2 O  px                40      0.174999  3 O  pz         
-    31      0.174999  2 O  pz         
+    13      0.298039  1 Au d -2              25      0.298475  2 O  px         
+    34     -0.298475  3 O  px                27      0.237726  2 O  pz         
+    36      0.237726  3 O  pz                29      0.221275  2 O  px         
+    38     -0.221275  3 O  px                31      0.174999  2 O  pz         
+    40      0.174999  3 O  pz         
 
  Vector   14  Occ=2.000000D+00  E=-7.837530D-01  Symmetry=b
-              MO Center= -1.3D-14, -3.6D-14, -5.1D-03, r^2= 4.5D+00
+              MO Center= -5.5D-14,  7.9D-14, -5.1D-03, r^2= 4.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     25      0.286094  2 O  px                34      0.286094  3 O  px         
-    35      0.271509  3 O  py                26      0.271509  2 O  py         
-    14      0.225625  1 Au d -1              30      0.216474  2 O  py         
-    39      0.216474  3 O  py                29      0.215802  2 O  px         
-    38      0.215802  3 O  px                36     -0.179068  3 O  pz         
+    26      0.271509  2 O  py                35      0.271509  3 O  py         
+    14      0.225625  1 Au d -1              29      0.215802  2 O  px         
+    30      0.216474  2 O  py                38      0.215802  3 O  px         
+    39      0.216474  3 O  py                27      0.179068  2 O  pz         
 
  Vector   15  Occ=2.000000D+00  E=-6.649548D-01  Symmetry=b
-              MO Center=  2.6D-15,  1.4D-14,  2.1D-02, r^2= 1.1D+00
+              MO Center= -2.1D-14, -3.5D-15,  2.1D-02, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14      0.712907  1 Au d -1              16      0.559996  1 Au d  1       
 
  Vector   16  Occ=2.000000D+00  E=-6.637600D-01  Symmetry=a
-              MO Center= -7.9D-16,  2.9D-16,  4.6D-03, r^2= 8.5D-01
+              MO Center=  1.0D-13,  2.9D-13,  4.6D-03, r^2= 8.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      0.789803  1 Au d  0              17     -0.462314  1 Au d  2       
 
  Vector   17  Occ=2.000000D+00  E=-6.628184D-01  Symmetry=b
-              MO Center= -9.3D-15,  9.3D-15,  9.1D-04, r^2= 9.8D-01
+              MO Center=  5.3D-14, -3.2D-14,  9.1D-04, r^2= 9.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.736537  1 Au d  1              14     -0.546198  1 Au d -1       
 
  Vector   18  Occ=2.000000D+00  E=-6.566101D-01  Symmetry=a
-              MO Center=  7.9D-15,  1.0D-14,  2.4D-02, r^2= 1.4D+00
+              MO Center= -1.6D-14, -1.9D-13,  2.4D-02, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     13      0.875296  1 Au d -2              25     -0.162167  2 O  px         
     34      0.162167  3 O  px                15     -0.151666  1 Au d  0       
 
  Vector   19  Occ=2.000000D+00  E=-5.911129D-01  Symmetry=a
-              MO Center= -1.0D-14, -9.7D-15, -1.9D-02, r^2= 1.6D+00
+              MO Center=  6.5D-15, -6.6D-14, -1.9D-02, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      0.680989  1 Au d  2               3      0.384526  1 Au s          
     15      0.384203  1 Au d  0               2      0.231375  1 Au s          
 
  Vector   20  Occ=0.000000D+00  E=-9.014866D-02  Symmetry=b
-              MO Center=  5.9D-15, -4.0D-15, -1.4D-02, r^2= 1.3D+01
+              MO Center=  1.5D-14, -8.3D-15, -1.4D-02, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.785536  1 Au py                10     -0.635845  1 Au px         
-    37      0.223864  3 O  s                 28     -0.223864  2 O  s          
+    28     -0.223864  2 O  s                 37      0.223864  3 O  s          
 
  Vector   21  Occ=0.000000D+00  E=-8.941501D-02  Symmetry=a
-              MO Center=  1.7D-14,  1.1D-13, -8.2D-01, r^2= 7.0D+00
+              MO Center= -3.2D-14, -3.9D-14, -8.2D-01, r^2= 7.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      0.583866  1 Au pz                 3     -0.515524  1 Au s          
-    37      0.389219  3 O  s                 28      0.389219  2 O  s          
+    28      0.389219  2 O  s                 37      0.389219  3 O  s          
     17      0.292531  1 Au d  2              46     -0.212966  6 H  s          
     48     -0.212966  7 H  s                 42     -0.200551  4 H  s          
     44     -0.200551  5 H  s                  2     -0.190076  1 Au s          
 
  Vector   22  Occ=0.000000D+00  E=-7.664431D-02  Symmetry=a
-              MO Center=  1.6D-14,  4.4D-14,  8.0D-01, r^2= 7.9D+00
+              MO Center=  3.0D-14, -6.2D-14,  8.0D-01, r^2= 7.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      0.687435  1 Au pz                 3      0.449174  1 Au s          
-    37     -0.350906  3 O  s                 28     -0.350906  2 O  s          
+    28     -0.350906  2 O  s                 37     -0.350906  3 O  s          
     17     -0.259850  1 Au d  2              46      0.197733  6 H  s          
     48      0.197733  7 H  s                 42      0.192609  4 H  s          
     44      0.192609  5 H  s                  2      0.176733  1 Au s          
 
  Vector   23  Occ=0.000000D+00  E=-7.009797D-02  Symmetry=b
-              MO Center= -4.0D-14, -7.7D-14, -6.0D-02, r^2= 1.2D+01
+              MO Center= -3.9D-15, -9.8D-16, -6.0D-02, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.729531  1 Au py                10      0.646310  1 Au px         
-    37      0.225929  3 O  s                 28     -0.225929  2 O  s          
+    28     -0.225929  2 O  s                 37      0.225929  3 O  s          
      7      0.159475  1 Au px         
 
  Vector   24  Occ=0.000000D+00  E= 5.213552D-02  Symmetry=a
-              MO Center=  1.1D-14, -7.2D-14, -2.9D-01, r^2= 8.0D+00
+              MO Center= -6.0D-15, -8.4D-15, -2.9D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      1.210330  1 Au pz                12     -0.751212  1 Au pz         
     42      0.463883  4 H  s                 44      0.463883  5 H  s          
-     3     -0.211833  1 Au s                  6     -0.199409  1 Au pz         
+     3     -0.211832  1 Au s                  6     -0.199409  1 Au pz         
     28     -0.159896  2 O  s                 37     -0.159896  3 O  s          
 
  Vector   25  Occ=0.000000D+00  E= 5.975317D-02  Symmetry=b
-              MO Center=  3.8D-14, -2.9D-14, -1.4D-02, r^2= 8.3D+00
+              MO Center= -4.6D-15, -6.6D-14, -1.4D-02, r^2= 8.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.263815  1 Au px                10     -0.817550  1 Au px         
-    48     -0.340246  7 H  s                 46      0.340246  6 H  s          
+    46      0.340246  6 H  s                 48     -0.340246  7 H  s          
     42     -0.219065  4 H  s                 44      0.219065  5 H  s          
      4     -0.204488  1 Au px         
 
  Vector   26  Occ=0.000000D+00  E= 7.493517D-02  Symmetry=a
-              MO Center= -3.0D-15,  4.2D-15,  2.0D-01, r^2= 7.8D+00
+              MO Center=  6.1D-16, -8.1D-15,  2.0D-01, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     46      0.865356  6 H  s                 48      0.865356  7 H  s          
@@ -710,80 +710,80 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     39      0.370682  3 O  py                 9     -0.280156  1 Au pz         
 
  Vector   27  Occ=0.000000D+00  E= 1.019272D-01  Symmetry=b
-              MO Center= -5.5D-15, -4.7D-14, -5.4D-01, r^2= 1.0D+01
+              MO Center=  6.6D-15,  4.0D-15, -5.4D-01, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    44      1.203838  5 H  s                 42     -1.203838  4 H  s          
-    11      0.686927  1 Au py                37     -0.456682  3 O  s          
-    28      0.456682  2 O  s                 31     -0.453548  2 O  pz         
-    40      0.453548  3 O  pz                10      0.327258  1 Au px         
-    46      0.326105  6 H  s                 48     -0.326105  7 H  s          
+    42      1.203838  4 H  s                 44     -1.203838  5 H  s          
+    11     -0.686927  1 Au py                28     -0.456682  2 O  s          
+    37      0.456682  3 O  s                 31      0.453548  2 O  pz         
+    40     -0.453548  3 O  pz                10     -0.327258  1 Au px         
+     7      0.324877  1 Au px                46     -0.326105  6 H  s          
 
  Vector   28  Occ=0.000000D+00  E= 1.144729D-01  Symmetry=b
-              MO Center=  4.9D-14, -4.6D-14,  2.1D-01, r^2= 1.2D+01
+              MO Center=  2.2D-15,  3.1D-15,  2.1D-01, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    48      1.154439  7 H  s                 46     -1.154439  6 H  s          
-    11      1.081646  1 Au py                37     -0.770424  3 O  s          
-    28      0.770424  2 O  s                  8     -0.614348  1 Au py         
+    46     -1.154439  6 H  s                 48      1.154439  7 H  s          
+    11      1.081646  1 Au py                28      0.770424  2 O  s          
+    37     -0.770424  3 O  s                  8     -0.614348  1 Au py         
     10     -0.402727  1 Au px                29     -0.332258  2 O  px         
     38     -0.332258  3 O  px                 7      0.287996  1 Au px         
 
  Vector   29  Occ=0.000000D+00  E= 1.160144D-01  Symmetry=a
-              MO Center= -1.8D-15,  3.7D-16, -3.4D-01, r^2= 9.9D+00
+              MO Center= -1.3D-15, -1.4D-15, -3.4D-01, r^2= 9.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    44      0.997416  5 H  s                 42      0.997416  4 H  s          
+    42      0.997416  4 H  s                 44      0.997416  5 H  s          
     46     -0.784229  6 H  s                 48     -0.784229  7 H  s          
     12      0.623474  1 Au pz                 9     -0.494019  1 Au pz         
-    40      0.463327  3 O  pz                31      0.463327  2 O  pz         
+    31      0.463327  2 O  pz                40      0.463327  3 O  pz         
     29     -0.286051  2 O  px                38      0.286051  3 O  px         
 
  Vector   30  Occ=0.000000D+00  E= 2.198113D-01  Symmetry=b
-              MO Center=  5.0D-15, -2.1D-14, -3.4D-02, r^2= 5.4D+00
+              MO Center= -1.4D-14,  2.2D-15, -3.4D-02, r^2= 5.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.973913  1 Au py                48      0.551102  7 H  s          
-    46     -0.551102  6 H  s                 30      0.511778  2 O  py         
-    39      0.511778  3 O  py                44      0.491464  5 H  s          
-    42     -0.491464  4 H  s                 26      0.184836  2 O  py         
+     8      1.973913  1 Au py                46     -0.551102  6 H  s          
+    48      0.551102  7 H  s                 30      0.511778  2 O  py         
+    39      0.511778  3 O  py                42     -0.491464  4 H  s          
+    44      0.491464  5 H  s                 26      0.184836  2 O  py         
     35      0.184836  3 O  py                28     -0.162017  2 O  s          
 
  Vector   31  Occ=0.000000D+00  E= 3.369610D-01  Symmetry=b
-              MO Center= -1.0D-14, -2.5D-14,  5.1D-02, r^2= 3.7D+00
+              MO Center= -5.7D-14,  1.5D-14,  5.1D-02, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     21      1.074226  1 Au d  1              16     -0.575008  1 Au d  1       
-    48      0.216006  7 H  s                 46     -0.216006  6 H  s          
+    46     -0.216006  6 H  s                 48      0.216006  7 H  s          
 
  Vector   32  Occ=0.000000D+00  E= 3.399435D-01  Symmetry=a
-              MO Center= -1.6D-15,  4.9D-15,  1.2D-02, r^2= 3.7D+00
+              MO Center= -4.1D-14,  3.8D-15,  1.2D-02, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     20      0.960879  1 Au d  0              15     -0.506662  1 Au d  0       
     22     -0.505710  1 Au d  2              17      0.279462  1 Au d  2       
-    44     -0.194237  5 H  s                 42     -0.194237  4 H  s          
+    42     -0.194237  4 H  s                 44     -0.194237  5 H  s          
     46      0.157482  6 H  s                 48      0.157482  7 H  s          
 
  Vector   33  Occ=0.000000D+00  E= 3.793633D-01  Symmetry=b
-              MO Center=  2.4D-14,  1.2D-14,  3.4D-02, r^2= 3.7D+00
+              MO Center= -1.1D-14,  3.2D-13,  3.4D-02, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     19      1.191349  1 Au d -1              14     -0.576391  1 Au d -1       
 
  Vector   34  Occ=0.000000D+00  E= 3.840890D-01  Symmetry=a
-              MO Center=  1.3D-14,  8.7D-15,  8.8D-03, r^2= 3.7D+00
+              MO Center=  5.4D-14, -2.2D-13,  8.8D-03, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     18      1.208056  1 Au d -2              13     -0.574338  1 Au d -2       
 
  Vector   35  Occ=0.000000D+00  E= 6.198679D-01  Symmetry=a
-              MO Center= -5.0D-14,  2.7D-13,  6.7D-02, r^2= 4.0D+00
+              MO Center= -5.1D-15, -1.0D-14,  6.7D-02, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     22      2.137415  1 Au d  2               3     -1.364555  1 Au s          
-    20      1.199490  1 Au d  0              37      0.884314  3 O  s          
-    28      0.884314  2 O  s                 30     -0.764175  2 O  py         
+    20      1.199490  1 Au d  0              28      0.884314  2 O  s          
+    37      0.884314  3 O  s                 30     -0.764175  2 O  py         
     39      0.764175  3 O  py                 2     -0.433522  1 Au s          
     42      0.426968  4 H  s                 44      0.426968  5 H  s          
 
@@ -855,25 +855,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  3.28D+07
- global mem=  3.28D+07
- local disk=  1.44D+09
-   1 passes of  17:         353937                      13746                    157539.
+  local mem=  1.15D+07
+ global mem=  2.62D+07
+ local disk=  1.09D+07
+   1 passes of  17:         374537                      13746                    157539.
 
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        0.6s
-Node 0 wrote      1.2 Mb in      0.0 s     Agg I/O rate:  3092.3 Mb/s
- Done moints_semi at        1.1s
- Done maket at        1.1s
- Done multipass loop at        1.1s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        2.0s
+Node 0 wrote      1.2 Mb in      0.0 s     Agg I/O rate:  2682.3 Mb/s
+ Done moints_semi at        2.5s
+ Done maket at        2.5s
+ Done multipass loop at        2.5s
 
 
           -------------------------------------------
-          SCF energy                -286.316184014786
-          Correlation energy          -0.325513508317
-          Singlet pairs               -0.200377324403
-          Triplet pairs               -0.125136183914
-          Total MP2 energy          -286.641697523103
+          SCF energy                -286.316184014787
+          Correlation energy          -0.325513508281
+          Singlet pairs               -0.200377324669
+          Triplet pairs               -0.125136183612
+          Total MP2 energy          -286.641697523068
           -------------------------------------------
+
+
+
+          ---------------------------------------------------
+                    Spin Component Scaled (SCS) MP2
+          Same spin pairs                     -0.083424122408
+          Same spin scaling factor             0.333333333333
+          Opposite spin pairs                 -0.242089385873
+          Opposite spin scaling fact.          1.200000000000
+          SCS-MP2 correlation energy          -0.318315303850
+          Total SCS-MP2 energy              -286.634499318637
+          ---------------------------------------------------
 
  -----------------------
  Performance information
@@ -884,15 +896,15 @@ Node 0 wrote      1.2 Mb in      0.0 s     Agg I/O rate:  3092.3 Mb/s
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.44    0.44    0.44     0.45    0.45    0.45    0.45      0.0     0.0     0.0   
-mp2: make     1     1     1   2.20E-2 2.87E-2 3.40E-2  3.61E-2 3.61E-2 3.61E-2 3.61E-2   0.0     0.0     0.0   
-mp2: tota     1     1     1   0.51    0.51    0.52     0.57    0.57    0.57    0.57      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.44    0.45    0.46     0.49    0.49    0.49    0.49      0.0     0.0     0.0   
+mp2: make     1     1     1   2.10E-2 2.30E-2 2.60E-2  2.98E-2 2.98E-2 2.99E-2 2.99E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.49    0.50    0.51     0.57    0.57    0.57    0.57      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
  with a timing overhead of 1.20D-06s
 
 
- Task  times  cpu:        0.9s     wall:        1.1s
+ Task  times  cpu:        0.9s     wall:        1.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -903,11 +915,11 @@ mp2: tota     1     1     1   0.51    0.51    0.52     0.57    0.57    0.57    0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  580      580     1.31e+04 7309     1.23e+04    0        0      645     
-number of processes/call 1.10e+00 1.65e+00 1.02e+00 0.00e+00 0.00e+00
-bytes total:             8.54e+06 3.99e+06 1.93e+06 0.00e+00 0.00e+00 5.16e+03
-bytes remote:            3.29e+06 1.35e+06 9.05e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 1097224 bytes
+calls:  476      476     1.21e+04 7053     1.09e+04    0        0      528     
+number of processes/call 1.15e+00 1.65e+00 1.03e+00 0.00e+00 0.00e+00
+bytes total:             6.88e+06 4.01e+06 2.36e+06 0.00e+00 0.00e+00 4.22e+03
+bytes remote:            2.91e+06 1.18e+06 1.12e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 118024 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -945,18 +957,21 @@ MA usage statistics:
 
                               AUTHORS & CONTRIBUTORS
                               ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
+        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
+     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
+       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
+        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
+   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
        D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
         K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
+        B. Meng,T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
+      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
+                                     Z.Zhang.
 
- Total times  cpu:        0.9s     wall:        1.1s
+ Total times  cpu:        0.9s     wall:        2.5s
