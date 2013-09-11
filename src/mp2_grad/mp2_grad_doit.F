@@ -332,7 +332,7 @@ c
      $           ('mp2_grad: could not alloc t_eps_b',1, MA_ERR)
 c     
             call pstat_on(ps_pijab)
-            call mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,
+            call mp2_pijab_uhf(rtdb,nva_lo,nva_hi,sym_lo_oa,
      $           sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
      $           nir,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
@@ -349,7 +349,7 @@ c
             end if
 c     
             call pstat_on(ps_wijab)
-            call mp2_wijab_uhf(nir,nva_lo,nva_hi,
+            call mp2_wijab_uhf(rtdb,nir,nva_lo,nva_hi,
      $           sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
      $           sym_hi_vb,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
      $           num_oa,num_ob,num_va,num_vb,
@@ -426,7 +426,7 @@ c
      &       MA_ERR)
 c     
             call pstat_on(ps_lai)
-            call mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
+            call mp2_lai_uhf(rtdb,nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $           sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
      $           sym_lo_foa,sym_hi_foa,num_foa,
