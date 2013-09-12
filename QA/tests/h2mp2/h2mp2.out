@@ -1,3 +1,4 @@
+All connections between all procs tested: SUCCESS
  argument  1 = h2mp2.nw
 
 
@@ -37,7 +38,7 @@ task mp2 gradient numerical
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.3
               ------------------------------------------------------
 
 
@@ -45,7 +46,7 @@ task mp2 gradient numerical
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2010
+                              Copyright (c) 1994-2013
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -70,29 +71,31 @@ task mp2 gradient numerical
            Job information
            ---------------
 
-    hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Mon Oct 25 15:21:07 2010
+    hostname        = arcen
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
+    date            = Wed Sep 11 13:11:40 2013
 
-    compiled      = Mon_Oct_25_14:31:37_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
-    nwchem branch = Development
-    input         = h2mp2.nw
-    prefix        = h2o.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.db
-    status        = startup
-    nproc         =        4
-    time left     =     -1s
+    compiled        = Wed_Sep_11_13:06:02_2013
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
+    nwchem branch   = Development
+    nwchem revision = 24566
+    ga revision     = 10418
+    input           = h2mp2.nw
+    prefix          = h2o.
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =   16384001 doubles =    125.0 Mbytes
-    stack    =   16384001 doubles =    125.0 Mbytes
-    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
-    total    =   65536002 doubles =    500.0 Mbytes
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -100,8 +103,8 @@ task mp2 gradient numerical
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
 
 
 
@@ -173,8 +176,8 @@ task mp2 gradient numerical
  H                     0.00000000     0.00000000    -0.89903128
  H                     0.00000000     0.00000000     0.89903128
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -237,7 +240,7 @@ task mp2 gradient numerical
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -265,7 +268,7 @@ task mp2 gradient numerical
         eu          0
 
 
- Forming initial guess at       0.0s
+ Forming initial guess at       1.0s
 
 
       Superposition of Atomic Density Guess
@@ -296,7 +299,7 @@ task mp2 gradient numerical
      1 a1g         2 a2u         3 a2u         4 a1g     
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       1.1s
 
 
 
@@ -312,9 +315,9 @@ task mp2 gradient numerical
  #quartets = 3.700D+01 #integrals = 3.700D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
+ Max. records in memory =      2        Max. records in file   =   7797
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -324,7 +327,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
                  1       -0.9463575246  3.14D-03  3.14D-03      0.0
-                 2       -0.9463585479  2.00D-07  2.00D-07      0.0
+                 2       -0.9463585479  2.00D-07  2.00D-07      0.1
 
 
        Final RHF  results 
@@ -364,32 +367,32 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        -------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-3.995809D-01  Symmetry=a1g
-              MO Center=  0.0D+00,  0.0D+00,  2.8D-17, r^2= 1.6D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.451664  1 H  s                  4      0.451664  2 H  s          
-     3      0.225752  2 H  s                  1      0.225752  1 H  s          
+     1      0.225752  1 H  s                  3      0.225752  2 H  s          
 
  Vector    2  Occ=0.000000D+00  E= 3.428911D-03  Symmetry=a2u
-              MO Center=  0.0D+00,  0.0D+00,  1.1D-16, r^2= 2.1D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.689058  1 H  s                  4     -0.689058  2 H  s          
-     3     -0.227896  2 H  s                  1      0.227896  1 H  s          
+     1      0.227896  1 H  s                  3     -0.227896  2 H  s          
 
  Vector    3  Occ=0.000000D+00  E= 1.015587D+00  Symmetry=a2u
-              MO Center=  0.0D+00,  0.0D+00, -1.1D-14, r^2= 2.3D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      1.003340  1 H  s                  4     -1.003340  2 H  s          
-     1     -0.928020  1 H  s                  3      0.928020  2 H  s          
+     2     -1.003340  1 H  s                  4      1.003340  2 H  s          
+     1      0.928020  1 H  s                  3     -0.928020  2 H  s          
 
  Vector    4  Occ=0.000000D+00  E= 1.033669D+00  Symmetry=a1g
-              MO Center=  0.0D+00,  0.0D+00,  1.1D-14, r^2= 1.8D+00
+              MO Center=  0.0D+00,  0.0D+00, -1.9D-16, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.922298  2 H  s                  1      0.922298  1 H  s          
-     4     -0.673609  2 H  s                  2     -0.673609  1 H  s          
+     1      0.922298  1 H  s                  3      0.922298  2 H  s          
+     2     -0.673609  1 H  s                  4     -0.673609  2 H  s          
 
 
  center of mass
@@ -454,21 +457,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  3.28D+07
- global mem=  3.28D+07
- local disk=  1.44D+09
-   1 passes of   1:         933224                         29                        29.
+  local mem=  1.15D+07
+ global mem=  2.62D+07
+ local disk=  1.09D+07
+   1 passes of   1:         943923                         29                        29.
 
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        0.2s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        1.2s
 Node 0 wrote      0.0 Mb in      0.0 s     Agg I/O rate:     0.0 Mb/s
- Done moints_semi at        0.2s
- Done maket at        0.2s
- Done pijab at        0.2s
- Done wijab at        0.2s
- Done lai at        0.2s
-  The energy from the two PDM is   3.852572588593053E-002
- Done nonsep at        0.2s
- Done multipass loop at        0.2s
+ Done moints_semi at        1.2s
+ Done maket at        1.2s
+ Done pijab at        1.2s
+ Done wijab at        1.2s
+ Done lai at        1.2s
+  The energy from the two PDM is   3.852572588593052E-002
+ Done nonsep at        1.3s
+ Done multipass loop at        1.3s
 
 
           -------------------------------------------
@@ -478,6 +481,18 @@ Node 0 wrote      0.0 Mb in      0.0 s     Agg I/O rate:     0.0 Mb/s
           Triplet pairs                0.000000000000
           Total MP2 energy            -0.984884273828
           -------------------------------------------
+
+
+
+          ---------------------------------------------------
+                    Spin Component Scaled (SCS) MP2
+          Same spin pairs                      0.000000000000
+          Same spin scaling factor             0.333333333333
+          Opposite spin pairs                 -0.038525725885
+          Opposite spin scaling fact.          1.200000000000
+          SCS-MP2 correlation energy          -0.046230871062
+          Total SCS-MP2 energy                -0.992589419005
+          ---------------------------------------------------
 
                                 NWChem CPHF Module
                                 ------------------
@@ -494,22 +509,23 @@ Node 0 wrote      0.0 Mb in      0.0 s     Agg I/O rate:     0.0 Mb/s
  #quartets = 3.700D+01 #integrals = 3.700D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
+ Max. records in memory =      2        Max. records in file   =   7797
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
+ SCF residual:   2.003256477367543E-007
 
             ----- linear solve (tol: 1.0E-04 prod-acc: 3.1E-09) -----
 
                iter nbas    rnorm     rnorm-scal   ratio     time
                ---- ---- ----------- ----------- --------- -------
-                  1    1  2.2417E-17  4.1425E-16    0.0000     0.1
+                  1    1  1.2558E-17  2.3207E-16    0.0000     0.1
 
- CPHF converged to   4.1D-16 in    1 iters
+ CPHF converged to   2.3D-16 in    1 iters
 
 
  Parallel integral file used       4 records with       0 large values
@@ -532,7 +548,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     3    0.0006
     4    0.0002
 
-  MP2 natural orbitals output to /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.mp2nos
+  MP2 natural orbitals output to /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.mp2nos
 
   Using symmetry
 
@@ -555,29 +571,29 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Performance information
  -----------------------
 
- Timer overhead =  3.00D-07 seconds/call
+ Timer overhead =  4.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   2.00E-3 3.00E-3 4.00E-3  2.95E-3 3.08E-3 3.13E-3 3.13E-3   0.0     0.0     0.0   
-mp2: make     1     1     1   1.00E-3 1.00E-3 1.00E-3  1.30E-3 1.37E-3 1.47E-3 1.47E-3   0.0     0.0     0.0   
-mp2: pija     1     1     1    0.0     0.0     0.0     3.79E-5 7.85E-5 9.30E-5 9.30E-5   0.0     0.0     0.0   
-mp2: wija     1     1     1    0.0     0.0     0.0     3.60E-5 8.18E-5 9.70E-5 9.70E-5   0.0     0.0     0.0   
-mp2: lai      1     1     1    0.0    7.50E-4 1.00E-3  4.60E-5 8.64E-5 9.99E-5 9.99E-5   0.0     0.0     0.0   
-mp2: back     1     1     1    0.0     0.0     0.0     1.03E-4 1.04E-4 1.06E-4 1.06E-4   0.0     0.0     0.0   
-mp2: nons     1     1     1    0.0     0.0     0.0     4.66E-4 4.70E-4 4.77E-4 4.77E-4   0.0     0.0     0.0   
-mp2: laif     1     1     1   3.00E-3 3.00E-3 3.00E-3  2.93E-3 2.93E-3 2.93E-3 2.93E-3   0.0     0.0     0.0   
-mp2: cphf     1     1     1   2.10E-2 2.30E-2 2.50E-2  6.56E-2 6.57E-2 6.57E-2 6.57E-2   0.0     0.0     0.0   
-mp2: wijf     1     1     1   2.00E-3 2.25E-3 3.00E-3  3.08E-3 3.08E-3 3.08E-3 3.08E-3   0.0     0.0     0.0   
-mp2: sep      1     1     1   4.00E-3 4.50E-3 5.00E-3  5.25E-3 5.25E-3 5.25E-3 5.25E-3   0.0     0.0     0.0   
-mp2: tota     1     1     1   6.40E-2 6.42E-2 6.50E-2  0.15    0.15    0.15    0.15      0.0     0.0     0.0   
+mp2: moin     1     1     1   1.00E-3 2.00E-3 3.00E-3  4.56E-3 4.69E-3 4.73E-3 4.73E-3   0.0     0.0     0.0   
+mp2: make     1     1     1    0.0     0.0     0.0     9.99E-4 1.01E-3 1.01E-3 1.01E-3   0.0     0.0     0.0   
+mp2: pija     1     1     1    0.0     0.0     0.0     1.66E-4 2.08E-4 2.23E-4 2.23E-4   0.0     0.0     0.0   
+mp2: wija     1     1     1    0.0     0.0     0.0     1.69E-4 2.18E-4 2.36E-4 2.36E-4   0.0     0.0     0.0   
+mp2: lai      1     1     1    0.0     0.0     0.0     1.76E-4 2.17E-4 2.32E-4 2.32E-4   0.0     0.0     0.0   
+mp2: back     1     1     1    0.0     0.0     0.0     2.18E-4 2.21E-4 2.24E-4 2.24E-4   0.0     0.0     0.0   
+mp2: nons     1     1     1    0.0    7.50E-4 1.00E-3  5.50E-4 5.55E-4 5.62E-4 5.62E-4   0.0     0.0     0.0   
+mp2: laif     1     1     1   2.00E-3 3.00E-3 4.00E-3  1.15E-2 1.15E-2 1.15E-2 1.15E-2   0.0     0.0     0.0   
+mp2: cphf     1     1     1   1.60E-2 1.80E-2 2.00E-2  9.86E-2 9.86E-2 9.86E-2 9.86E-2   0.0     0.0     0.0   
+mp2: wijf     1     1     1   2.00E-3 2.75E-3 3.00E-3  1.06E-2 1.06E-2 1.06E-2 1.06E-2   0.0     0.0     0.0   
+mp2: sep      1     1     1   4.00E-3 5.00E-3 6.00E-3  1.20E-2 1.20E-2 1.20E-2 1.20E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   4.40E-2 5.05E-2 5.50E-2  0.18    0.18    0.18    0.18      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.20D+01
- with a timing overhead of 3.60D-06s
+ with a timing overhead of 4.80D-06s
 
 
- Task  times  cpu:        0.1s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.4s
 
 
                                 NWChem Input Module
@@ -594,7 +610,7 @@ mp2: tota     1     1     1   6.40E-2 6.42E-2 6.50E-2  0.15    0.15    0.15    0
 
 
  Saving state for mp2 with suffix numg
-        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.movecs
+        /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.movecs
 
  Finite difference step  3.00000D-02
  Use five point formula T
@@ -616,10 +632,10 @@ mp2: tota     1     1     1   6.40E-2 6.42E-2 6.50E-2  0.15    0.15    0.15    0
 
 
  Deleting state for mp2 with suffix numg
-        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o.movecs
+        /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/h2o.movecs
 
 
- Task  times  cpu:        0.2s     wall:        1.1s
+ Task  times  cpu:        0.2s     wall:        0.8s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -630,10 +646,10 @@ mp2: tota     1     1     1   6.40E-2 6.42E-2 6.50E-2  0.15    0.15    0.15    0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  748      748     2174      928      930        0        0      141     
-number of processes/call 1.13e+00 1.21e+00 1.04e+00 0.00e+00 0.00e+00
-bytes total:             1.23e+05 4.67e+04 2.56e+04 0.00e+00 0.00e+00 1.13e+03
-bytes remote:            7.31e+03 5.08e+03 6.08e+02 0.00e+00 0.00e+00 0.00e+00
+calls:  774      774     2212     1091     1420        0        0      188     
+number of processes/call 1.41e+00 1.19e+00 1.45e+00 0.00e+00 0.00e+00
+bytes total:             1.45e+05 6.29e+04 6.35e+04 0.00e+00 0.00e+00 1.50e+03
+bytes remote:            2.65e+04 5.18e+03 1.98e+04 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 2080 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -672,18 +688,21 @@ MA usage statistics:
 
                               AUTHORS & CONTRIBUTORS
                               ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
+        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
+     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
+       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
+        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
+   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
        D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
         K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
+        B. Meng,T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
+      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
+                                     Z.Zhang.
 
- Total times  cpu:        0.4s     wall:        1.4s
+ Total times  cpu:        0.3s     wall:        2.2s
