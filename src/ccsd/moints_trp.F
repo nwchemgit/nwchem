@@ -52,7 +52,7 @@ c                  ab
 c
 c
 
-       subroutine moints_trp( basis, ohalf,
+       subroutine moints_trp( rtdb, basis, ohalf,
      $                        occ_start, mo1_lo, mo1_hi,
      $                        mo2_lo, mo2_hi,
      $                        g_coul, ocoul,
@@ -66,10 +66,12 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "schwarz.fh"
+#include "rtdb.fh"
 #include "msgids.fh"
 c
 c Arguments
 c
+       integer rtdb
        integer basis                          ! Basis handle
        logical ohalf                          ! Toggle alternative algorithm for half-ints intermediates
        integer occ_start                      ! Offset from frozen core
@@ -105,7 +107,7 @@ c
        integer nmo
        double precision scale, schw_ij, q2
 *       double precision d1, d2
-       logical status, osym, odoit, oblk, st
+       logical status, osym, odapt,odoit, oblk, st
 c
        integer moints_numgr, gr_len, nxtask
        external moints_numgr, gr_len, nxtask
@@ -131,7 +133,14 @@ c
 c     
 c  Symmetry adapt the MOs and renumber irreps to start at zero
 c     
-       osym = (sym_number_ops(geom).gt.0)
+      if (.not.rtdb_get(rtdb, 'scf:adapt',MT_LOG, 1, osym)) then
+         osym = sym_number_ops(geom) .gt. 0
+      endif
+c
+c Check if point group is abelian, if not turn off symmetry
+c
+       osym = osym.and.sym_abelian_group(geom)
+       if(ga_nodeid().eq.0) write(6,*) ' symmetry use ',osym
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_trp: no memory for syms?',0, MA_ERR)
@@ -140,7 +149,7 @@ c
      $      call errquit('moints_trp: cannot ga_create tmp',0, GA_ERR)
           if (ga_nodeid() .eq. 0) call ga_put(g_tmp,1,nbf,1,nmo,cmo,nbf)
 	  call ga_sync
-          call sym_movecs_adapt( basis, 1d-6, g_tmp,
+          call sym_movecs_adapt( basis, 1d-8, g_tmp,
      $                            int_mb(k_sym), nmixed )
           call ga_get(g_tmp,1,nbf,1,nmo,cmo,nbf)
           if (.not.ga_destroy(g_tmp))
@@ -158,10 +167,6 @@ c
  888        format(16i3)
           endif
        endif
-c
-c Check if point group is abelian, if not turn off symmetry
-c
-       osym = (sym_number_ops(geom).gt.0).and.sym_abelian_group(geom)
 c
 c  Integrals allocation
 c
@@ -427,7 +432,7 @@ c  Clean up
 c
        if (.not. ma_pop_stack(l_hlp))
      $     call errquit('moints: failed to pop', l_hlp, MA_ERR)
-       if (sym_number_ops(geom).gt.0) then
+       if (osym) then
           if (.not. ma_pop_stack(l_sym))
      $         call errquit('moints_trp: memory corrupt',0, MA_ERR)
        endif

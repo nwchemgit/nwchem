@@ -727,7 +727,7 @@ c
          tx(1)=tcgtime()
          if (iam.eq.0)write(*,846)nvpass,tx(1)
  846     format(' commencing integral evaluation ',i8,' at ',f14.2)
-         call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
+         call moints_trp(rtdb,basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
      &      g_coul, ocoul, g_exch, oexch,
      &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
