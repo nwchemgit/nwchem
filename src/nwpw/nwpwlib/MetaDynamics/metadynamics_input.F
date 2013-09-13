@@ -1521,11 +1521,11 @@ c
       if (.not. value) call errquit(
      >'metadynamics_input:failed writing bond',0,RTDB_ERR)
 
+      end if
+      end if
+      end if
 
-
-      end if
-      end if
-      end if
+      goto 10
 
 
 
