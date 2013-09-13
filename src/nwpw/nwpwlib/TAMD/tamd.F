@@ -456,6 +456,18 @@ c     **********************************************
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
+
+            else if (ntype.eq.10) then
+             write(luout,'(A,
+     >                /6x,A,3I4,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >       "   - Bond_Difference2 Parameters =  ",
+     >           'bond indexes=',(int_mb(indxmeta(1)+s1+j),j=1,3),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1)
             end if
 
          end do
@@ -785,6 +797,30 @@ c     **** n-plane ****
       else if (ntype.eq.9) then
          f =  psp_ld_trace(indx(2),indx(4),ispin,ne,psi1)
      >     -  psp_ld_trace(indx(3),indx(4),ispin,ne,psi1)
+
+*     *** bond_difference2 ****
+      else if (ntype.eq.10) then
+         x1 = ion_rion(1,indx(2))
+         y1 = ion_rion(2,indx(2))
+         z1 = ion_rion(3,indx(2))
+         x2 = ion_rion(1,indx(3))
+         y2 = ion_rion(2,indx(3))
+         z2 = ion_rion(3,indx(3))
+         x3 = ion_rion(1,indx(4))
+         y3 = ion_rion(2,indx(4))
+         z3 = ion_rion(3,indx(4))
+         dx1 = x2-x1
+         dy1 = y2-y1
+         dz1 = z2-z1
+         call lattice_min_difference(dx1,dy1,dz1)
+         r1 = (dx1**2 + dy1**2 + dz1**2)
+         dx2 = x3-x1
+         dy2 = y3-y1
+         dz2 = z3-z1
+         call lattice_min_difference(dx2,dy2,dz2)
+         r2 = (dx2**2 + dy2**2 + dz2**2)
+         f = r1 - r2
+
 
       end if
 
@@ -1157,6 +1193,43 @@ c     **** ld_trace2diff ***
      >                                 .false.,param,
      >                                 (dv),fmeta_psi1,
      >                                 move,fmeta)
+
+c     **** bond_difference2 ****
+      else if (ntype.eq.10) then
+         x1 = ion_rion(1,indx(2))
+         y1 = ion_rion(2,indx(2))
+         z1 = ion_rion(3,indx(2))
+         x2 = ion_rion(1,indx(3))
+         y2 = ion_rion(2,indx(3))
+         z2 = ion_rion(3,indx(3))
+         x3 = ion_rion(1,indx(4))
+         y3 = ion_rion(2,indx(4))
+         z3 = ion_rion(3,indx(4))
+         dx1 = x2-x1
+         dy1 = y2-y1
+         dz1 = z2-z1
+         call lattice_min_difference(dx1,dy1,dz1)
+         r1 = (dx1**2 + dy1**2 + dz1**2)
+         dx2 = x3-x1
+         dy2 = y3-y1
+         dz2 = z3-z1
+         call lattice_min_difference(dx2,dy2,dz2)
+         r2 = (dx2**2 + dy2**2 + dz2**2)
+         !f = r1 - r2
+         df1 =  1
+         df2 = -1
+         fmeta(1,indx(2)) = fmeta(1,indx(2)) +2.0d0*(dx1*df1+dx2*df2)*dv
+         fmeta(2,indx(2)) = fmeta(2,indx(2)) +2.0d0*(dy1*df1+dy2*df2)*dv
+         fmeta(3,indx(2)) = fmeta(3,indx(2)) +2.0d0*(dz1*df1+dz2*df2)*dv
+
+         fmeta(1,indx(3)) = fmeta(1,indx(3)) - (2.0d0*dx1*df1)*dv
+         fmeta(2,indx(3)) = fmeta(2,indx(3)) - (2.0d0*dy1*df1)*dv
+         fmeta(3,indx(3)) = fmeta(3,indx(3)) - (2.0d0*dz1*df1)*dv
+
+         fmeta(1,indx(4)) = fmeta(1,indx(4)) - (2.0d0*dx2*df2)*dv
+         fmeta(2,indx(4)) = fmeta(2,indx(4)) - (2.0d0*dy2*df2)*dv
+         fmeta(3,indx(4)) = fmeta(3,indx(4)) - (2.0d0*dz2*df2)*dv
+
       end if
 
 *     ***** move = .false. ******
