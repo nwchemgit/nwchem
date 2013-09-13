@@ -20,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 19)
+      parameter (num_dirs = 20)
       character*18 dirs(num_dirs)
       data dirs / 'update',
      >            'print',
@@ -40,6 +40,7 @@ c
      >            'sn2-surface',
      >            '2bonds',
      >            'ld_trace2diff',
+     >            'bond_difference2',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -148,7 +149,7 @@ c
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 120,150, 200, 300, 400, 500, 600, 701,702,703, 800,
-     >       900,1000,1100,1200,1300,1400,
+     >       900,1000,1100,1200,1300,1400,1500,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
