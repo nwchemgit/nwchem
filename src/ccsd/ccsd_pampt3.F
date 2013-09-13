@@ -22,6 +22,7 @@ C     $Id$
 #include "schwarz.fh"
 #include "ccsd_debug.fh"
 #include "ccsdps.fh"
+#include "ccsd_data.fh"
 C
       integer l_snsi,k_snsi,l_sisn,k_sisn,l_eri1,k_eri1,
      &        l_eri2,k_eri2,l_scre,k_scre,l_t1ao,k_t1ao,
@@ -29,13 +30,20 @@ C
      &        l_sc3,k_sc3,l_sc4,k_sc4,intblk,kscr,
      &        maxbfsh,max1e,mem1,max2e,mem2,lscr,lssni,
      &        g_x,g_c,g_st2,g_sht2,l_sch,k_sch,l_ish,k_ish,nrints,
-     &        l_shinf,k_shinf
+     &        l_shinf,k_shinf,nsz_st2
       logical stat
       integer max_sht2_blk
       integer ilo,ihi,jlo,jhi,nbfdim,ish,jsh,nfi,nfj
+      double precision, allocatable :: a_st2(:,:)
+      integer alloc_stat, lnoo, i, recsize
+      character*255 st2file
+      double precision tstart, tused
+      double precision util_wallsec
+      external util_wallsec
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
+      lnoo = nocc * nocc
 c
       if (iam.eq.0.and.iprt.gt.5)print *,' ccsd_vvvv '
       stat = bas_numcont(basis,nsh)
@@ -90,6 +98,38 @@ c ------------------------------------------------------------
       if (.not.stat)call errquit('ma_get ccsd_t2pm ',0, MA_ERR)
       call ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
      &               t1,dbl_mb(k_sc1),dbl_mb(k_sc2),nbfdim)
+
+
+      if (use_inmem_st2) then
+c     show how much memory g_st2 (a_st2) needs
+      if(iam.eq.0) then
+        nsz_st2 = lnoo * nbfdim
+        write(*,'(a,i8,a)') " g_st2 size:",
+     &    nsz_st2 * ma_sizeof(MT_DBL,1,MT_BYTE) / 1024 / 1024 + 1, " MB"
+      endif
+
+      tstart = util_wallsec()
+c       use node-replicated a_st2 instead of g_st2
+        allocate(a_st2(lnoo,nbfdim),stat=alloc_stat)
+        if (alloc_stat /= 0) call errquit('a_st2 fail',0, GA_ERR)
+        if(iam.eq.0) write(*,'(a)') 
+     &    "Memory based method: ST2 is allocated"
+c
+c         compute ST2 in parallel: expect network congestion
+        if(ga_nodeid().eq.0)
+     G       call ga_get(g_st2, 1,lnoo, 1,nbfdim, a_st2,lnoo)
+        call ga_brdcst(65537, a_st2, 
+     G       MA_sizeof(MT_DBL,1,MT_BYTE)*lnoo*nbfdim, 0)
+
+        tused = util_wallsec() - tstart
+        if (iam.eq.0) then
+          write(6,'(a,f9.2,a)') " ST2 array is replicated ",tused,"s"
+          call util_flush(6)
+        endif
+
+
+      endif
+
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
@@ -138,7 +178,8 @@ c
      &              mem2,max2e,dbl_mb(k_eri1),
      &              dbl_mb(k_eri2),t1,cmo,dbl_mb(k_t1ao),dbl_mb(k_sc1),
      &              dbl_mb(k_sc2),lscr,kscr,tol2e,iprt,tklst,nrints,
-     &              int_mb(k_ish),int_mb(k_shinf),max_sht2_blk)
+     &              int_mb(k_ish),int_mb(k_shinf),max_sht2_blk,
+     &              nbfdim,a_st2)
       stat=stat.and.ma_pop_stack(l_eri2)
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_ish)
@@ -151,8 +192,14 @@ c
       if (.not.stat)
      &   call errquit('ccsd_pampt3: ma_pop_stack ccsd_sxy ',0, MA_ERR)
 c
-      if (.not.ga_destroy(g_st2))
+      if (use_inmem_st2 ) then
+        deallocate(a_st2,stat=alloc_stat)
+          if (.not.ga_destroy(g_st2))
+     &      call errquit('ga_dest g_st2 fail',0, GA_ERR)
+      else
+        if (.not.ga_destroy(g_st2))
      &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
+      endif
 c ------------------------------------------------------------
 c - Change ht2+/- with 2 ao and 2 occ indices into normal ht2
 c ------------------------------------------------------------
@@ -468,7 +515,7 @@ c
       end     
       subroutine t2eri(idim,idx,jlo,jhi,nfj,llo,lhi,nfl,nsh,eri1,eri2,
      &                 t2,ht2,lnoo,nocc,offsh,nbf,g_st2,
-     &                 shinf,max_st2_blk,snsi,sisn,t1ao)
+     &                 shinf,max_st2_blk,snsi,sisn,t1ao,nbfdim,a_st2)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -480,13 +527,14 @@ c
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
+#include "ccsd_data.fh"
 #define NBGET 1
 c
 #ifdef CRAYXT
 c#warning undefining NBGET
 #undef NBGET
 #endif
-      integer idim,jlo,jhi,nsh,llo,lhi,lnoo,nocc
+      integer idim,jlo,jhi,nsh,llo,lhi,lnoo,nocc,nbfdim
       integer idx(idim)
       integer nbf,g_st2,max_st2_blk
       integer offsh(nsh,nsh,2),shinf(nsh,3)
@@ -497,9 +545,9 @@ c#warning undefining NBGET
      &                 ht2(lnoo,(lhi-llo+1),(jhi-jlo+1)),
      &                 snsi(nbf,nfj,nfl,nocc),
      &                 sisn(nbf,nfl,nfj,nocc),
-     &                 t1ao(nbf,nocc)
+     &                 t1ao(nbf,nocc), a_st2(lnoo,nbfdim)
 c
-      integer i,j,k,l,kmax,lmax,ik,ad1
+      integer i,j,k,l,kmax,lmax,ik,ad1,ptr
       integer ipp,imm,ippp,ict,off1,off2,off3
       integer mlkj,mkl,mkj,ii,jj
       integer blk1,blk2,ikin,ik0
@@ -509,6 +557,8 @@ c
 #endif
       double precision gp,gm
       logical keqi,jeql
+      integer szt
+      szt = 2 * max_st2_blk - 1
 c
       if (occsdps) then
          call pstat_on(ps_t2eri)
@@ -558,11 +608,14 @@ c
       ilo=shinf(ish,2)
       ihi=shinf(ish,3)
       ad1=offsh(ish,ksh,2)
+      ptr = ad1 + 1
       blk1=0
       blk2=max_st2_blk
 #ifdef NBGET
       nbhandle=4321+ga_nodeid()
-      call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
+      if (.not.use_inmem_st2) then
+          call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
+      endif
 c
 c Now loop over remaining blocks
 c
@@ -590,8 +643,10 @@ c
         imhi=shinf(imsh,3)
         ad1=offsh(imsh,kmsh,2)
 c       call pstat_on(ps_t2erin)
-        call ga_nbget(g_st2,1,lnoo,ad1+1,ad1+nmfi*nmfk,t2(blk2),lnoo,
-     &                nbhandle)
+        if (.not.use_inmem_st2) then
+            call ga_nbget(g_st2,1,lnoo,ad1+1,ad1+nmfi*nmfk,t2(blk2),
+     &                lnoo,nbhandle)
+        endif
 #else
         ksh=(idx(ik)-1)/nsh+1
         ish=idx(ik)-(ksh-1)*nsh
@@ -602,7 +657,11 @@ c       call pstat_on(ps_t2erin)
         ilo=shinf(ish,2)
         ihi=shinf(ish,3)
         ad1=offsh(ish,ksh,2)
-        call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
+        if (use_inmem_st2) then
+          ptr = ad1 + 1
+        else
+            call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
+        endif
 #endif
 c       call pstat_off(ps_t2erin)
 c
@@ -616,18 +675,35 @@ c
           call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
      &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
         endif
-        if (keqi.and.jeql) then
+
+        if (use_inmem_st2) then
+          if (keqi.and.jeql) then
+           call t2eri_wrk_aleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+          elseif (keqi) then
+           call t2eri_wrk_ikeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+          elseif (jeql) then
+           call t2eri_wrk_jleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+          else
+           call t2eri_wrk_noeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+          endif
+        else
+          if (keqi.and.jeql) then
            call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-        elseif (keqi) then
+          elseif (keqi) then
            call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-        elseif (jeql) then
+          elseif (jeql) then
            call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-        else
+          else
            call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+          endif
         endif
 c
 c Increase offset of integral block to next ik block
@@ -649,7 +725,11 @@ c
         klo=kmlo
         ihi=imhi
         khi=kmhi
-        call ga_nbwait(nbhandle)
+        if (use_inmem_st2) then
+          ptr = ad1 + 1
+        else
+          call ga_nbwait(nbhandle)
+        endif
         blk1=-blk1+max_st2_blk
         blk2=-blk2+max_st2_blk
 #else
@@ -671,18 +751,35 @@ c
          call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
      &                       nfl,nocc,nbf,ilo,ihi,klo,khi)
       endif
-      if (keqi.and.jeql) then
+
+      if (use_inmem_st2) then
+        if (keqi.and.jeql) then
+         call t2eri_wrk_aleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+        elseif (keqi) then
+         call t2eri_wrk_ikeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+        elseif (jeql) then
+         call t2eri_wrk_jleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+        else
+         call t2eri_wrk_noeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+        endif
+      else
+        if (keqi.and.jeql) then
          call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-      elseif (keqi) then
+        elseif (keqi) then
          call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-      elseif (jeql) then
+        elseif (jeql) then
          call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-      else
+        else
          call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+        endif
       endif
 #endif
 c
@@ -802,3 +899,5 @@ c
       enddo
       return
       end
+
+

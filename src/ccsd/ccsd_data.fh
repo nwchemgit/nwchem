@@ -1,5 +1,6 @@
 C     $Id$
-      logical repeat, use_disk
+      logical repeat, use_disk, use_inmem_st2
       integer sxy_hl 
       double precision store_avail
-      common/ccsd_data/ store_avail,repeat,use_disk,sxy_hl
+      common/ccsd_data/ store_avail,repeat,use_disk,sxy_hl,
+     & use_inmem_st2

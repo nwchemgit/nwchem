@@ -286,18 +286,18 @@ c
      &                    g_sht2,g_c,g_x,offsh,snsi,sisn,lssni,scre,
      &                    mem2,max2e,eri1,eri2,t1,cmo,t1ao,scra,
      &                    scrb,lscr,kscr,tol2e,iprt,tklst,maxints,
-     &                    ish_idx,shinf,max_sht2_blk)
+     &                    ish_idx,shinf,max_sht2_blk,nbfdim,a_st2)
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &        g_c,g_x,lssni,
-     &        mem2,max2e,lscr,kscr,iprt,max_sht2_blk
+     &        mem2,max2e,lscr,kscr,iprt,max_sht2_blk,nbfdim
       integer offsh(nsh,nsh,2),tklst(nsh*(nsh+1)/2,2),maxints
       integer ish_idx(nsh*nsh+2),shinf(nsh,3)
       double precision tol2e,eri1(maxints),eri2(maxints),scre(mem2),
      &                 t1(nocc*nvir),cmo(nbf,nbf),scra(kscr),
      &                 scrb(lscr),snsi(lssni),sisn(lssni),
-     &                 t1ao(nocc*nbf),tx(2)
+     &                 t1ao(nocc*nbf),tx(2),a_st2(nocc*nocc,nbfdim)
       logical schwarz1,schwarz2
 
 #include "mafdecls.fh"
@@ -451,7 +451,7 @@ c
             call qexit('r_read',0)
             call t2eri(ish_idx(1),ish_idx,jlo,jhi,nfj,llo,lhi,nfl,nsh,
      &                 eri1,eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
-     &                 shinf,max_sht2_blk,snsi,sisn,t1ao)
+     &                 shinf,max_sht2_blk,snsi,sisn,t1ao,nbfdim,a_st2)
          enddo
          ad1=offsh(jsh,lsh,1)
          call ga_put(g_sht2,1,lnoo,ad1+1,ad1+nfj*nfl,scrb,lnoo)
@@ -598,7 +598,8 @@ c
                    call t2eri(kcount,ish_idx,jlo,jhi,nfj,llo,lhi,nfl,
      &                        nsh,eri1,
      &                        eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
-     &                        shinf,max_sht2_blk,snsi,sisn,t1ao)
+     &                        shinf,max_sht2_blk,snsi,sisn,t1ao,
+     &                        nbfdim,a_st2)
 c     
 c Reset some indices
 c
