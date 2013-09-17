@@ -2659,7 +2659,7 @@ c     **** ouput xyz format ****
 
         write(unit,1240) 
         write(unit,1241) 
-        write(unit,1242)   ! causing problems with mercury??
+c        write(unit,1242)   ! causing problems with mercury??
         write(unit,1243) 
         write(unit,1244) 
         write(unit,1245) 
@@ -2674,7 +2674,8 @@ c     **** ouput xyz format ****
            frac(3) = b(1,3)*ion_rion(1,ii)
      >             + b(2,3)*ion_rion(2,ii)
      >             + b(3,3)*ion_rion(3,ii) + 0.5
-           WRITE(unit,1250) ion_aname_nocarat(ii),ii,frac
+c           WRITE(unit,1250) ion_aname_nocarat(ii),ii,frac
+           WRITE(unit,1250) ion_aname_nocarat(ii),frac
 
         end do
       end if
@@ -2701,7 +2702,7 @@ c     **** ouput xyz format ****
 
         write(unit,1240)
         write(unit,1241)
-        write(unit,1242)   ! causing problems with mercury??
+c        write(unit,1242)   ! causing problems with mercury??
         write(unit,1243)
         write(unit,1244)
         write(unit,1245)
@@ -2716,7 +2717,8 @@ c     **** ouput xyz format ****
            frac(3) = b(1,3)*ion_rion(1,ii)
      >             + b(2,3)*ion_rion(2,ii)
      >             + b(3,3)*ion_rion(3,ii) 
-           WRITE(unit,1250) ion_aname_nocarat(ii),ii,frac
+           !WRITE(unit,1250) ion_aname_nocarat(ii),ii,frac
+           WRITE(unit,1250) ion_aname_nocarat(ii),frac
 
         end do
       end if
@@ -2746,7 +2748,8 @@ c     **** ouput xyz format ****
  1244 FORMAT('_atom_site_fract_y')
  1245 FORMAT('_atom_site_fract_z')
  
- 1250 FORMAT(A2,6X,I4,3x,3F14.6)
+c 1250 FORMAT(A2,6X,I4,3x,3F14.6)
+ 1250 FORMAT(A2,6X,3F14.6)
       end
 
 *     ********************************
