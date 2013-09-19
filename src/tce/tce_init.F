@@ -1247,7 +1247,7 @@ c
           write(LuOut,*) '2eorb does not work with ',ctype
         endif
         call errquit('tce_init: method incompatible with 2eorb',
-                     0,CALC_ERR)
+     +                0,CALC_ERR)
       endif
 c
 c     -------------------------------------
