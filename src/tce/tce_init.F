@@ -68,7 +68,8 @@ c
 ckbn mrcc-r-1 -3
       integer imrcc
 #endif
-
+c     true if 2eorb works (e.g. CCSD), false for the rest (e.g. CCSDT)
+      logical nointorb
 c
 c
       nodezero=(ga_nodeid().eq.0)
@@ -976,6 +977,7 @@ c     Determine calculation type
 c     --------------------------
 c
       activecalc = .false.
+      nointorb   = .false.
 c
       if (reference.eq.0) then
         if (xc_gotxc()) write(LuOut,9500)
@@ -1006,6 +1008,7 @@ c
      3    call errquit('tce_init: ucc/ulccd module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'multi') then
+        nointorb=.true.
         ctype='Multiple CCSD-like methods'
         if (module.ne.'tce')
      1    call errquit('tce_init: ucc/ulccd module overridden',0,
@@ -1112,6 +1115,7 @@ c         endif
      3    call errquit('tce_init: ucc/uccsdt module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'ccsdt') then
+        nointorb=.true.
         ctype='Coupled-cluster singles, doubles, & triples'
         if (perturbative.eq.'2_q') then
           ctype='Coupled-cluster through triples w/ perturbation'
@@ -1135,6 +1139,7 @@ c ccsd_act/eomccsd_act
      3    call errquit('tce_init: ucc/uccsdt module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'ccsdtq') then
+        nointorb=.true.
         ctype='Coupled-cluster singles, doubles, triples, & quadruples'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
@@ -1171,6 +1176,7 @@ c ccsd_act/eomccsd_act
      3    call errquit('tce_init: uci/ucisd module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'cisdt') then
+        nointorb=.true.
         ctype='Configuration interaction singles, doubles, & triples'
         if ((module.ne.'tce').and.
      1      (module.ne.'uci').and.
@@ -1178,6 +1184,7 @@ c ccsd_act/eomccsd_act
      3    call errquit('tce_init: uci/ucisdt module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'cisdtq') then
+        nointorb=.true.
         ctype='Configuration interaction singles through quadruples'
         if ((module.ne.'tce').and.
      1      (module.ne.'uci').and.
@@ -1231,6 +1238,16 @@ ckbn mrcc-r-1 -3
 #endif
       else
         call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
+      endif
+c
+c     PREVENT "hashv2: key not found" errors
+c
+      if(intorb.and.nointorb) then
+        if(nodezero) then
+          write(LuOut,*) '2eorb does not work with ',ctype
+        endif
+        call errquit('tce_init: method incompatible with 2eorb',
+                     0,CALC_ERR)
       endif
 c
 c     -------------------------------------
