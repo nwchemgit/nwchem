@@ -665,14 +665,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_dihedral_spring:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,4,
      >               int_mb(indx_dihedral_spring(1)+ndindxsize)))
      >               int_mb(indx_dihedral_spring(1)+ndindxsize) = 0
                   ndindxsize = ndindxsize + 4
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral_spring:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
      >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size))) 
      >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size) = 0.0d0
                   ndKr0size = ndKr0size + 2
@@ -704,17 +704,17 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_dihedral:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,4,
      >               int_mb(indx_dihedral(1)+nddindxsize)))
      >               int_mb(indx_dihedral(1)+nddindxsize) = 0
                   nddindxsize = nddindxsize + 4
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
      >               dbl_mb(Kr0_dihedral(1)+nddKr0size)))      
      >               dbl_mb(Kr0_dihedral(1)+nddKr0size) = 0.0d0
-                  nddKr0size = nddKr0size + 3
+                  nddKr0size = nddKr0size + 2
 
                end do
             end do
