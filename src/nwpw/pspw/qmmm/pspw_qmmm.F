@@ -711,10 +711,10 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
      >               dbl_mb(Kr0_dihedral(1)+nddKr0size)))      
      >               dbl_mb(Kr0_dihedral(1)+nddKr0size) = 0.0d0
-                  nddKr0size = nddKr0size + 2
+                  nddKr0size = nddKr0size + 3
 
                end do
             end do
