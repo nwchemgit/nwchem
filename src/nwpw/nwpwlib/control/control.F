@@ -5064,5 +5064,30 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *        control_ke_gdecay        *
+*     *                                 *
+*     ***********************************
+      real*8 function control_ke_gdecay()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 g
+
+      if (.not.rtdb_get(rtdb,'nwpw:ke_decay',mt_dbl,1,g))
+     >   g = -1.0d0
+
+      control_ke_gdecay = g
+      return
+      end
+
+
 
 
