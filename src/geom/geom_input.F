@@ -1,3 +1,11 @@
+C> \ingroup geom
+C> @{
+C>
+C> \brief Process a geometry input block
+C>
+C> Reads the input block of a geometry and stores the data on the
+C> runtime database.
+C>
       subroutine geom_input(rtdb)
 C     $Id$
       implicit none
@@ -10,7 +18,7 @@ C     $Id$
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "util.fh"
-      integer rtdb              ! [input]
+      integer rtdb              !< [Input] The RTDB handle
 c     
       character*255 field       ! for character input
       character*255 name        ! for name of geometry
@@ -5173,8 +5181,8 @@ C
                C3(I,IAT)=C(I,IAT)
                C2(I,IAT)=C(I,IAT)
                C1(I,IAT)=C(I,IAT)
-               V3(I,IAT)=C(I,IAT)
-               V2(I,IAT)=C(I,IAT)
+               V3(I,IAT)=V(I,IAT)
+               V2(I,IAT)=V(I,IAT)
             ENDDO
          ENDDO
       ENDIF
@@ -5428,6 +5436,80 @@ C
  9976 FORMAT(/,17X,'ORIGINAL -VEL-',22X,' FINAL  -VEL-')
  9975 FORMAT(1X,I5,3F12.8,' ( ',3F12.8,' ) ')
       END
+C>
+C> \brief Canonicalize the moments of inertial axes
+C>
+C> The new axes for the re-oriented molecule are determined as the
+C> eigenvectors of the moments of inertia. These eigenvectors have
+C> arbitrary signs and degenerate eigenvectors may appear in arbitrary
+C> order. This leads to a certain amount of arbitrariness in the
+C> choice of the final orientation which is a pain for testing the code.
+C>
+C> This subroutine fixes the sign of the axes as well as the order
+C> in which degenerate axes come out. For the sign we enforce that
+C> \f{eqnarray*}{
+C>    \sum_{i=1}^{N} (N-i+1)a_i \ge 0
+C> \f}
+C> where \f$ a \f$ is the new axis in terms of the old coordinate
+C> system.
+C>
+C> For the ordering of the degenerate axes we count the number of nodes
+C> as the number of sign changes, and re-order the axes such that the
+C> ones with the fewest number of nodes comes first. I.e. a node is
+C> counted every time
+C> \f{eqnarray*}{
+C>    a_i*a_{i+1} < 0
+C> \f}
+C>
+      subroutine geom_canon_axes(eig,axs,thresh)
+      implicit none
+      double precision thresh !< [Input] The threshold for degeneracy
+      double precision eig(3) !< [Input] The moments of inertia
+      double precision axs(3,3) !< [In/Output] The axes
+c
+      integer i,j,k        ! Counters
+      integer nodes(3)     ! The number of nodes in an axis
+      double precision sum ! Accumulator
+      double precision t   ! Temporary
+c
+c     Canonicalize the signs of the axes
+c
+      do i=1,3
+        nodes(i) = 0
+        if (axs(1,i)*axs(2,i).lt.0.0d0) nodes(i)=nodes(i)+1
+        if (axs(2,i)*axs(3,i).lt.0.0d0) nodes(i)=nodes(i)+1
+        sum=0.0d0
+        do j=1,3
+          sum=sum+(4-j)*axs(j,i)
+        enddo
+        if (sum.lt.0.0d0) then
+          do j=1,3
+            axs(j,i)=-axs(j,i)
+          enddo
+        endif
+      enddo
+c
+c     Canonicalize the order of the degenerate axes
+c
+      do i=1,2
+        do j=i+1,3
+          if (ABS(EIG(j)-EIG(i)).LT.thresh) then
+            if (nodes(j).lt.nodes(i)) then
+              t = eig(i) 
+              eig(i) = eig(j)
+              eig(j) = t
+              do k=1,3
+                t = axs(k,i)
+                axs(k,i) = axs(k,j)
+                axs(k,j) = t
+              enddo
+            endif
+          endif
+        enddo
+      enddo
+c
+      end
+c
       SUBROUTINE HND_MOLSMB(MIRRYZ,MIRRZX,MIRRXY,
      1                     SYMC2X,SYMC2Y,SYMINV,
      2                     PROPRX,PROPRY,PROPRZ,
@@ -5764,7 +5846,7 @@ C
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLAXS-'/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
-      DATA CONV   /1.0D-10/
+      DATA CONV   /1.0D-04/
 C
       IF(N.EQ.3.AND.NDIM.EQ.3) GO TO 10
          WRITE(IW,9999)
@@ -5791,6 +5873,7 @@ C
       EIG(1)=-EIG(1)
       EIG(2)=-EIG(2)
       EIG(3)=-EIG(3)
+      call geom_canon_axes(eig,vec,conv)
 C
 C     ----- CHECK FOR RIGHT HANDEDNESS, CORRECT IF NOT -----
 C
@@ -7186,3 +7269,4 @@ c
  
       return
       end
+C> @}

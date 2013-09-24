@@ -1,3 +1,5 @@
+C> \ingroup geom
+C> @{
       subroutine geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter,isys,
      ,     name,tags,
@@ -87,6 +89,14 @@ c
 c
          return
          end
+C>
+C> \brief Establish symmetry related transformations and unique atom
+C> lists
+C>
+C> Establishes the symmetry related transformation and the unique atom
+C> list. The molecule might be re-oriented along the moments of 
+C> inertia. The data in the geometry is updated as a result.
+C>
       subroutine geom_getsym(rtdb,geom,name)
       implicit none
 #include "nwc_const.fh"
@@ -95,10 +105,11 @@ c
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "inp.fh"
-      integer rtdb,geom
+      integer rtdb !< [Input] The RTDB handle
+      integer geom !< [Input] The geometry handle
 c
       double precision threquiv,scale
-      character*(*) name        ! for name of geometry
+      character*(*) name !< [Input] The name of the geometry
       logical geom_get_user_scale,oautosym,s
       external geom_get_user_scale
       character*256 tmp
@@ -132,3 +143,4 @@ c
       s = s .and. rtdb_cput(rtdb, tmp, 1, group_name(geom))
       return
       end
+C> @}
