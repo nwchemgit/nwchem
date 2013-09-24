@@ -1,28 +1,43 @@
 *
 * $Id$
 *
+
+
+*     **************************************
+*     *                                    *
+*     *             ke_init                *
+*     *                                    *
+*     **************************************
       subroutine ke_init()
       implicit none 
+
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
       integer npack1,nfft3d,G(3)
       integer i
-      real*8  gg
+      real*8  gg,g1,Gcut
       logical value
  
-      integer tmp1(2)
+      integer tmp1(2),tmp2(2)
 
 *     **** external functions ****
 c     real*8 G(nfft3d,3)
       integer  G_indx
       external G_indx
+      real*8   lattice_wggcut,control_ke_gdecay
+      external lattice_wggcut,control_ke_gdecay
+      
 
 *     **** common block used for ke.F ****
 c     real*8 tg(nfft3d)
       integer tg_indx,tg_hndl
       common / tg_block / tg_indx,tg_hndl
+
+      real*8  Gdecay
+      integer fanddf(2)
+      common / tg2_block / Gdecay,fanddf
 
 
       call D3dB_nfft3d(1,nfft3d)
@@ -33,31 +48,66 @@ c     real*8 tg(nfft3d)
 
       value = MA_alloc_get(mt_dbl,npack1,
      >                     'tg',tg_hndl,tg_indx)
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,npack1,
+     >                     'fanddf',fanddf(2),fanddf(1))
       if (.not. value) 
      > call errquit('ke_init:out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('ke_init:out of stack memory',0, MA_ERR)
 
 
-      do i = 1,nfft3d
+      do i=1,nfft3d
          gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
-         dbl_mb(tmp1(1)+i-1) = -0.5d0*gg
+         dbl_mb(tmp1(1)+i-1) = -0.5d0*gg 
       end do
-
       call Pack_t_pack(1,dbl_mb(tmp1(1)))
       call Pack_t_Copy(1,dbl_mb(tmp1(1)),dbl_mb(tg_indx))
+
+
+*     **** Funny decay added to stabalize unitcell optimization and pressures ****
+      Gdecay = control_ke_gdecay()
+      if (Gdecay.gt.0.00001d0) then
+         Gcut = dsqrt(lattice_wggcut()) - Gdecay*11.52d0*0.5d0
+         
+         do i=1,nfft3d
+            gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
+            g1 = dsqrt(gg)
+            dbl_mb(tmp1(1)+i-1) = (0.5d0*dtanh((Gcut-g1)/Gdecay)+0.5d0)
+            dbl_mb(tmp2(1)+i-1) = -0.25d0*(g1/Gdecay)
+     >                           *(1.0d0/dcosh((Gcut-g1)/Gdecay)**2)
+         end do
+         call Pack_t_pack(1,dbl_mb(tmp1(1)))
+         call Pack_t_pack(1,dbl_mb(tmp2(1)))
+         call Pack_tt_Sum(dbl_mb(tmp1(1)),
+     >                    dbl_mb(tmp2(1)), 
+     >                    dbl_mb(fanddf(1)))
+         call Pack_tt_Mul2(1,dbl_mb(tmp1(1)),
+     >                       dbl_mb(tg_indx))
+      end if
       
 
-      value = MA_pop_stack(tmp1(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('ke_init:popping stack memory',0, MA_ERR)
       return
       end
 
+
+*     ****************************************
+*     *                                      *
+*     *               ke_end                 *
+*     *                                      *
+*     ****************************************
       subroutine ke_end()
       implicit none 
 
@@ -78,6 +128,11 @@ c     real*8 tg(nfft3d)
       end
 
 
+*     ****************************************
+*     *                                      *
+*     *               ke                     *
+*     *                                      *
+*     ****************************************
       subroutine ke(ispin,ne,psi1,psi2)
       implicit none
       integer    ispin,ne(2)
@@ -105,6 +160,11 @@ c     real*8 tg(nfft3d)
       return 
       end
 
+*     ****************************************
+*     *                                      *
+*     *               ke_add                 *
+*     *                                      *
+*     ****************************************
       subroutine ke_add(ispin,ne,psi1,psi2)
       implicit none
       integer    ispin,ne(2)
@@ -134,6 +194,11 @@ c     real*8 tg(nfft3d)
       end
 
 
+*     ****************************************
+*     *                                      *
+*     *               ke_ave                 *
+*     *                                      *
+*     ****************************************
       subroutine ke_ave(ispin,ne,psi1,ave,fractional,occ)
       implicit none
       integer ispin,ne(2)
@@ -203,18 +268,26 @@ c     complex*16 tmp1(nfft3d)
 
 
 
-
+*     ****************************************
+*     *                                      *
+*     *               ke_euv                 *
+*     *                                      *
+*     ****************************************
       subroutine ke_euv(ispin,ne,psi,euv)
 *
 * $Id$
 *
       implicit none 
-#include "errquit.fh"
       integer ispin,ne(2)
       complex*16 psi(*)
       real*8 euv(3,3)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+
+      real*8  Gdecay
+      integer fanddf(2)
+      common / tg2_block / Gdecay,fanddf
 
 *     **** local variables ****
       integer npack1,nfft3d,G(2,3)
@@ -268,11 +341,13 @@ c     real*8 G(nfft3d,3)
      >                     'G3',G(2,3),G(1,3))
       if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
 
+
       value = MA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
 
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1,1)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(1,2)),1)
@@ -288,6 +363,10 @@ c     real*8 G(nfft3d,3)
         call Pack_tt_Mul(1,dbl_mb(G(1,u)),
      >                     dbl_mb(G(1,s)),
      >                     dbl_mb(tmp1(1)))
+
+        if (Gdecay.gt.0.01d0) 
+     >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
+     
         ave = 0.0d0
         do ms=1,ispin
         do n=n1(ms),n2(ms)    
@@ -335,7 +414,11 @@ c     real*8 G(nfft3d,3)
       end
 
 
-
+*     ****************************************
+*     *                                      *
+*     *               ke_Precondition        *
+*     *                                      *
+*     ****************************************
       subroutine ke_Precondition(npack,neall,psi,gradk)
       implicit none
       integer npack,neall
@@ -452,7 +535,11 @@ c      if (.not. value) call errquit('error popping stack memory',0)
 
 
 
-
+*     ****************************************
+*     *                                      *
+*     *               ke_Precondition2       *
+*     *                                      *
+*     ****************************************
       subroutine ke_Precondition2(npack,neall,residual,Kresidual)
       implicit none
       integer npack,neall
