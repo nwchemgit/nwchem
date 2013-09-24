@@ -2277,7 +2277,21 @@ ifndef USE_I4FLAGS
 endif
 
         # linking ESSL is painful with gfortran
-        CORE_LIBS +=  -llapack  -lblas 
+        CORE_LIBS +=  -llapack $(BLASOPT) -lblas
+
+        # Here is an example for ALCF:
+        # IBMCMP_ROOT=${IBM_MAIN_DIR}
+        # BLAS_LIB=/soft/libraries/alcf/current/xl/BLAS/lib
+        # LAPACK_LIB=/soft/libraries/alcf/current/xl/LAPACK/lib
+        # ESSL_LIB=/soft/libraries/essl/current/essl/5.1/lib64
+        # XLF_LIB=${IBMCMP_ROOT}/xlf/bg/14.1/bglib64
+        # XLSMP_LIB=${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64
+        # XLMASS_LIB=${IBMCMP_ROOT}/xlmass/bg/7.3/bglib64
+        # MATH_LIBS="-L${XLMASS_LIB} -lmass -L${LAPACK_LIB} -llapack \
+                     -L${ESSL_LIB} -lesslsmpbg -L${XLF_LIB} -lxlf90_r \
+                     -L${XLSMP_LIB} -lxlsmp -lxlopt -lxlfmath -lxl \
+                     -Wl,--allow-multiple-definition"
+        # Note that ESSL _requires_ USE_64TO32 on Blue Gene
     endif
 
     ifeq ($(FC),mpixlf77_r)
@@ -2289,17 +2303,32 @@ endif
 
         # EXT_INT means 64-bit integers are used
         DEFINES   += -DEXT_INT 
-ifdef USE_I4FLAGS
-        FOPTIONS  = -qintsize=4
-else
-        FOPTIONS  = -qintsize=8 
-endif
 
+        ifdef USE_I4FLAGS
+            FOPTIONS = -qintsize=4
+            ifeq ($(BLAS_SIZE),8)
+                @echo "You cannot use BLAS with 64b integers when"
+                @echo "the compiler generates 32b integers (USE_I4FLAGS)!"
+                @exit 1
+            endif # BLAS_SIZE
+        else
+            FOPTIONS = -qintsize=8 
+            ifeq ($(BLAS_SIZE),4)
+                ifneq ($(USE_64TO32),y)
+                    @echo "You cannot use BLAS with 32b integers when"
+                    @echo "the compiler generates 64b integers unless"
+                    @echo "you do the 64-to-32 conversion!"
+                    @exit 1
+                endif # USE_64TO32
+            endif # BLAS_SIZE
+        endif # USE_I4FLAGS
+
+        FDEBUG     = -g -qstrict -O3
         FOPTIONS  += -g -qEXTNAME -qxlf77=leadzero
-        FOPTIONS  += -g -qstrict -qthreaded -qnosave
-        FOPTIMIZE += -g -O3 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt
-#        FOPTIMIZE += -qhot=level=0 
-        FDEBUG    = -g -qstrict -O3
+        FOPTIONS  += -qthreaded -qnosave # -qstrict
+#        FOPTIMIZE += -g -O3 -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt
+        FOPTIMIZE += -O3 -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes #-qnoipa
+        FOPTIMIZE += -qreport -qsource -qlistopt -qlist # verbose compiler output
 
         # ESSL dependencies should be provided by XLF linker
         CORE_LIBS +=  -llapack $(BLASOPT) -lblas
