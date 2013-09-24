@@ -333,7 +333,11 @@ ifeq ($(ARMCI_NETWORK),MPI-TS)
 endif # MPI-TS
 
 ifeq ($(ARMCI_NETWORK),ARMCI) 
+    ifdef EXTERNAL_ARMCI_PATH
+        MAYBE_ARMCI = --with-armci=$(EXTERNAL_ARMCI_PATH)
+    else
         MAYBE_ARMCI = --with-armci
+    endif
 endif # ARMCIARMCI
 
 ifeq ($(ARMCI_NETWORK),OFA) 
