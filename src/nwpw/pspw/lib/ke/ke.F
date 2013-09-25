@@ -15,7 +15,7 @@
 
 *     **** parameters - filter ****
       real*8 eps,ncut
-      parameter (eps=1.0d-10,ncut=10.0d0)
+      parameter (eps=1.0d-10,ncut=15.0d0)
 
 *     **** local variables ****
       integer npack1,nfft3d,G(3)
