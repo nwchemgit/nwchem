@@ -1,3 +1,4 @@
+All connections between all procs tested: SUCCESS
  argument  1 = sadsmall.nw
 
 
@@ -35,7 +36,7 @@ task scf saddle
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.3
               ------------------------------------------------------
 
 
@@ -43,7 +44,7 @@ task scf saddle
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2010
+                              Copyright (c) 1994-2013
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -68,29 +69,31 @@ task scf saddle
            Job information
            ---------------
 
-    hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Mon Oct 25 15:36:35 2010
+    hostname        = arcen
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
+    date            = Tue Sep 24 14:37:13 2013
 
-    compiled      = Mon_Oct_25_14:31:37_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
-    nwchem branch = Development
-    input         = sadsmall.nw
-    prefix        = sadsmall.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.db
-    status        = startup
-    nproc         =        4
-    time left     =     -1s
+    compiled        = Tue_Sep_24_14:15:10_2013
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
+    nwchem branch   = Development
+    nwchem revision = 24582
+    ga revision     = 10418
+    input           = sadsmall.nw
+    prefix          = sadsmall.
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =   16384001 doubles =    125.0 Mbytes
-    stack    =   16384001 doubles =    125.0 Mbytes
-    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
-    total    =   65536002 doubles =    500.0 Mbytes
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -98,8 +101,8 @@ task scf saddle
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
 
 
 
@@ -108,8 +111,8 @@ task scf saddle
                                 -------------------
 
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -241,11 +244,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.01640926     0.68121229     0.00000000
-    2 o                    8.0000     0.05762644    -0.79693477     0.00000000
-    3 h                    1.0000    -1.30637889     0.13717335     0.00000000
-    4 h                    1.0000     0.47191146     1.07551552     0.87890150
-    5 h                    1.0000     0.47191146     1.07551552    -0.87890150
+    1 c                    6.0000     0.01640926     0.68121229     0.00000000
+    2 o                    8.0000    -0.05762644    -0.79693477     0.00000000
+    3 h                    1.0000     1.30637889     0.13717335     0.00000000
+    4 h                    1.0000    -0.47191146     1.07551552    -0.87890150
+    5 h                    1.0000    -0.47191146     1.07551552     0.87890150
 
       Atomic Mass 
       ----------- 
@@ -300,11 +303,11 @@ task scf saddle
             -------------------
      5
  geometry
- c                    -0.01640926     0.68121229     0.00000000
- o                     0.05762644    -0.79693477     0.00000000
- h                    -1.30637889     0.13717335     0.00000000
- h                     0.47191146     1.07551552     0.87890150
- h                     0.47191146     1.07551552    -0.87890150
+ c                     0.01640926     0.68121229     0.00000000
+ o                    -0.05762644    -0.79693477     0.00000000
+ h                     1.30637889     0.13717335     0.00000000
+ h                    -0.47191146     1.07551552    -0.87890150
+ h                    -0.47191146     1.07551552     0.87890150
 
  ==============================================================================
                                 internuclear distances
@@ -394,11 +397,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.01640926     0.68121229     0.00000000
-    2 o                    8.0000     0.05762644    -0.79693477     0.00000000
-    3 h                    1.0000    -1.30637889     0.13717335     0.00000000
-    4 h                    1.0000     0.47191146     1.07551552     0.87890150
-    5 h                    1.0000     0.47191146     1.07551552    -0.87890150
+    1 c                    6.0000     0.01640926     0.68121229     0.00000000
+    2 o                    8.0000    -0.05762644    -0.79693477     0.00000000
+    3 h                    1.0000     1.30637889     0.13717335     0.00000000
+    4 h                    1.0000    -0.47191146     1.07551552    -0.87890150
+    5 h                    1.0000    -0.47191146     1.07551552     0.87890150
 
       Atomic Mass 
       ----------- 
@@ -444,15 +447,15 @@ task scf saddle
   charge          =   0.00
   wavefunction    = UHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       0.0s
+ Forming initial guess at       1.1s
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       1.1s
 
 
 
@@ -460,8 +463,8 @@ task scf saddle
        ------------------ 
 
          Total SCF energy =   -113.706031585359
-      One electron energy =   -220.055731561898
-      Two electron energy =     73.681865369210
+      One electron energy =   -220.055731561900
+      Two electron energy =     73.681865369211
  Nuclear repulsion energy =     32.667834607329
 
                        Sz =      0.5000
@@ -480,17 +483,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.031009   1.287305   0.000000    0.045859   0.087218   0.000000
-   2 o       0.108898  -1.505988   0.000000   -0.034981   0.005264   0.000000
-   3 h      -2.468698   0.259220   0.000000   -0.054894  -0.080807   0.000000
-   4 h       0.891783   2.032430   1.660883    0.022008  -0.005837  -0.006884
-   5 h       0.891783   2.032430  -1.660883    0.022008  -0.005837   0.006884
+   1 c       0.031009   1.287305   0.000000   -0.045859   0.087218   0.000000
+   2 o      -0.108898  -1.505988   0.000000    0.034981   0.005264   0.000000
+   3 h       2.468698   0.259220   0.000000    0.054894  -0.080807   0.000000
+   4 h      -0.891783   2.032430  -1.660883   -0.022008  -0.005837   0.006884
+   5 h      -0.891783   2.032430   1.660883   -0.022008  -0.005837  -0.006884
 
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0    -113.70603159  0.0D+00  0.08198  0.03537  0.00000  0.00000      0.4
-                                                       ok       ok  
+@    0    -113.70603159  0.0D+00  0.08198  0.03537  0.00000  0.00000      2.0
+                                                                    
 
 
 
@@ -549,11 +552,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.00964542     0.69364914     0.00000000
-    2 o                    8.0000     0.04205942    -0.78544741     0.00000000
-    3 h                    1.0000    -1.32755320     0.10503018     0.00000000
-    4 h                    1.0000     0.48690021     1.07962500     0.87798923
-    5 h                    1.0000     0.48690021     1.07962500    -0.87798923
+    1 c                    6.0000     0.00964542     0.69364914     0.00000000
+    2 o                    8.0000    -0.04205942    -0.78544741     0.00000000
+    3 h                    1.0000     1.32755320     0.10503018     0.00000000
+    4 h                    1.0000    -0.48690021     1.07962500    -0.87798923
+    5 h                    1.0000    -0.48690021     1.07962500     0.87798923
 
       Atomic Mass 
       ----------- 
@@ -569,7 +572,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.1420129144     0.2694669486     0.0000000000
+     0.1420129144     0.2694669486     0.0000000000
 
       Symmetry information
       --------------------
@@ -598,16 +601,16 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       0.4s
+ Forming initial guess at       2.0s
 
 
- Starting SCF solution at       0.4s
+ Starting SCF solution at       2.0s
 
 
 
@@ -635,16 +638,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.018227   1.310807   0.000000    0.040788   0.084290   0.000000
-   2 o       0.079481  -1.484280   0.000000   -0.030289   0.004700   0.000000
-   3 h      -2.508712   0.198478   0.000000   -0.054950  -0.076191   0.000000
-   4 h       0.920108   2.040195   1.659159    0.022226  -0.006399  -0.007376
-   5 h       0.920108   2.040195  -1.659159    0.022226  -0.006399   0.007376
+   1 c       0.018227   1.310807   0.000000   -0.040788   0.084290   0.000000
+   2 o      -0.079481  -1.484280   0.000000    0.030289   0.004700   0.000000
+   3 h       2.508712   0.198478   0.000000    0.054950  -0.076191   0.000000
+   4 h      -0.920108   2.040195  -1.659159   -0.022226  -0.006399   0.007376
+   5 h      -0.920108   2.040195   1.659159   -0.022226  -0.006399  -0.007376
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1    -113.69417407  1.2D-02  0.08124  0.03435  0.02443  0.06000      0.7
+@    1    -113.69417407  1.2D-02  0.08124  0.03435  0.02443  0.06000      2.8
                                                                     
 
 
@@ -709,11 +712,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.00354658     0.69480232     0.00000000
-    2 o                    8.0000     0.00375062    -0.78760000     0.00000000
-    3 h                    1.0000    -1.29308940     0.08717762     0.00000000
-    4 h                    1.0000     0.48222670     1.08905099     0.88266437
-    5 h                    1.0000     0.48222670     1.08905099    -0.88266437
+    1 c                    6.0000    -0.00354658     0.69480232     0.00000000
+    2 o                    8.0000    -0.00375062    -0.78760000     0.00000000
+    3 h                    1.0000     1.29308940     0.08717762     0.00000000
+    4 h                    1.0000    -0.48222670     1.08905099    -0.88266437
+    5 h                    1.0000    -0.48222670     1.08905099     0.88266437
 
       Atomic Mass 
       ----------- 
@@ -729,7 +732,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5241184656     0.2518881712     0.0000000000
+     0.5241184656     0.2518881712     0.0000000000
 
       Symmetry information
       --------------------
@@ -758,16 +761,16 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       0.7s
+ Forming initial guess at       2.8s
 
 
- Starting SCF solution at       0.7s
+ Starting SCF solution at       2.8s
 
 
 
@@ -775,9 +778,9 @@ task scf saddle
        ------------------ 
 
          Total SCF energy =   -113.692437271784
-      One electron energy =   -220.095298781442
+      One electron energy =   -220.095298781446
       Two electron energy =     73.703605444269
- Nuclear repulsion energy =     32.699256065389
+ Nuclear repulsion energy =     32.699256065392
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -795,16 +798,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.006702   1.312986   0.000000    0.037987   0.075364   0.000000
-   2 o       0.007088  -1.488348   0.000000   -0.028484   0.002442   0.000000
-   3 h      -2.443585   0.164742   0.000000   -0.047627  -0.069530   0.000000
-   4 h       0.911276   2.058008   1.667994    0.019062  -0.004138  -0.006521
-   5 h       0.911276   2.058008  -1.667994    0.019062  -0.004138   0.006521
+   1 c      -0.006702   1.312986   0.000000   -0.037987   0.075364   0.000000
+   2 o      -0.007088  -1.488348   0.000000    0.028484   0.002442   0.000000
+   3 h       2.443585   0.164742   0.000000    0.047627  -0.069530   0.000000
+   4 h      -0.911276   2.058008  -1.667994   -0.019062  -0.004138   0.006521
+   5 h      -0.911276   2.058008   1.667994   -0.019062  -0.004138  -0.006521
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2    -113.69243727  1.7D-03  0.07263  0.03058  0.02836  0.07205      1.0
+@    2    -113.69243727  1.7D-03  0.07263  0.03058  0.02836  0.07205      3.5
                                                                     
 
 
@@ -870,11 +873,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.02998580     0.69027622     0.00000000
-    2 o                    8.0000    -0.03583212    -0.78767718     0.00000000
-    3 h                    1.0000    -1.24803551     0.07786366     0.00000000
-    4 h                    1.0000     0.46627152     1.09600961     0.89610828
-    5 h                    1.0000     0.46627152     1.09600961    -0.89610828
+    1 c                    6.0000    -0.02998580     0.69027622     0.00000000
+    2 o                    8.0000     0.03583212    -0.78767718     0.00000000
+    3 h                    1.0000     1.24803551     0.07786366     0.00000000
+    4 h                    1.0000    -0.46627152     1.09600961    -0.89610828
+    5 h                    1.0000    -0.46627152     1.09600961     0.89610828
 
       Atomic Mass 
       ----------- 
@@ -890,7 +893,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.7979078512     0.2081018423     0.0000000000
+     0.7979078513     0.2081018424     0.0000000000
 
       Symmetry information
       --------------------
@@ -919,26 +922,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       1.0s
+ Forming initial guess at       3.6s
 
 
- Starting SCF solution at       1.0s
+ Starting SCF solution at       3.6s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.692918644305
-      One electron energy =   -220.419604145428
-      Two electron energy =     73.848086714165
- Nuclear repulsion energy =     32.878598786958
+         Total SCF energy =   -113.692918644306
+      One electron energy =   -220.419604145546
+      Two electron energy =     73.848086714221
+ Nuclear repulsion energy =     32.878598787020
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -956,16 +959,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.056665   1.304433   0.000000    0.039830   0.063446   0.000000
-   2 o      -0.067713  -1.488494   0.000000   -0.026307   0.000815   0.000000
-   3 h      -2.358445   0.147141   0.000000   -0.039937  -0.059588   0.000000
-   4 h       0.881125   2.071158   1.693399    0.013207  -0.002337  -0.004210
-   5 h       0.881125   2.071158  -1.693399    0.013207  -0.002337   0.004210
+   1 c      -0.056665   1.304433   0.000000   -0.039830   0.063446   0.000000
+   2 o       0.067713  -1.488494   0.000000    0.026307   0.000815   0.000000
+   3 h       2.358445   0.147141   0.000000    0.039937  -0.059588   0.000000
+   4 h      -0.881125   2.071158  -1.693399   -0.013207  -0.002337   0.004210
+   5 h      -0.881125   2.071158   1.693399   -0.013207  -0.002337  -0.004210
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -113.69291864 -4.8D-04  0.06176  0.02550  0.03522  0.08394      1.2
+@    3    -113.69291864 -4.8D-04  0.06176  0.02550  0.03522  0.08394      4.2
                                                                     
 
 
@@ -1030,11 +1033,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.06193520     0.67905726     0.00000000
-    2 o                    8.0000    -0.07603959    -0.78330001     0.00000000
-    3 h                    1.0000    -1.20012029     0.07126828     0.00000000
-    4 h                    1.0000     0.44644294     1.10272820     0.90829326
-    5 h                    1.0000     0.44644294     1.10272820    -0.90829326
+    1 c                    6.0000    -0.06193520     0.67905726     0.00000000
+    2 o                    8.0000     0.07603959    -0.78330001     0.00000000
+    3 h                    1.0000     1.20012029     0.07126828     0.00000000
+    4 h                    1.0000    -0.44644294     1.10272820    -0.90829326
+    5 h                    1.0000    -0.44644294     1.10272820     0.90829326
 
       Atomic Mass 
       ----------- 
@@ -1044,13 +1047,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      33.1820183378
+ Effective nuclear repulsion energy (a.u.)      33.1820183379
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.0278974060     0.1599995025     0.0000000000
+     1.0278974063     0.1599995025     0.0000000000
 
       Symmetry information
       --------------------
@@ -1079,26 +1082,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       1.2s
+ Forming initial guess at       4.2s
 
 
- Starting SCF solution at       1.2s
+ Starting SCF solution at       4.2s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693314710932
-      One electron energy =   -220.982605069729
-      Two electron energy =     74.107272020979
- Nuclear repulsion energy =     33.182018337818
+         Total SCF energy =   -113.693314710934
+      One electron energy =   -220.982605069812
+      Two electron energy =     74.107272021012
+ Nuclear repulsion energy =     33.182018337866
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1116,16 +1119,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.117041   1.283232   0.000000    0.040067   0.045722   0.000000
-   2 o      -0.143694  -1.480222   0.000000   -0.021908   0.000835   0.000000
-   3 h      -2.267898   0.134678   0.000000   -0.032131  -0.045856   0.000000
-   4 h       0.843655   2.083854   1.716425    0.006986  -0.000350  -0.002603
-   5 h       0.843655   2.083854  -1.716425    0.006986  -0.000350   0.002603
+   1 c      -0.117041   1.283232   0.000000   -0.040067   0.045722   0.000000
+   2 o       0.143694  -1.480222   0.000000    0.021908   0.000835   0.000000
+   3 h       2.267898   0.134678   0.000000    0.032131  -0.045856   0.000000
+   4 h      -0.843655   2.083854  -1.716425   -0.006986  -0.000350   0.002603
+   5 h      -0.843655   2.083854   1.716425   -0.006986  -0.000350  -0.002603
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    4    -113.69331471 -4.0D-04  0.04885  0.01933  0.03787  0.08887      1.5
+@    4    -113.69331471 -4.0D-04  0.04885  0.01933  0.03787  0.08887      4.8
                                                                     
 
 
@@ -1190,11 +1193,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.07160303     0.68116786     0.00000000
-    2 o                    8.0000    -0.11062422    -0.76611851     0.00000000
-    3 h                    1.0000    -1.15040288     0.05934639     0.00000000
-    4 h                    1.0000     0.43404264     1.09904309     0.91880741
-    5 h                    1.0000     0.43404264     1.09904309    -0.91880741
+    1 c                    6.0000    -0.07160303     0.68116786     0.00000000
+    2 o                    8.0000     0.11062422    -0.76611851     0.00000000
+    3 h                    1.0000     1.15040288     0.05934639     0.00000000
+    4 h                    1.0000    -0.43404264     1.09904309    -0.91880741
+    5 h                    1.0000    -0.43404264     1.09904309     0.91880741
 
       Atomic Mass 
       ----------- 
@@ -1204,13 +1207,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      33.5681808383
+ Effective nuclear repulsion energy (a.u.)      33.5681808384
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.3940380333     0.4072201819     0.0000000000
+     1.3940380334     0.4072201817     0.0000000000
 
       Symmetry information
       --------------------
@@ -1239,26 +1242,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       1.5s
+ Forming initial guess at       4.8s
 
 
- Starting SCF solution at       1.5s
+ Starting SCF solution at       4.9s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693310514649
-      One electron energy =   -221.710297794077
-      Two electron energy =     74.448806441123
- Nuclear repulsion energy =     33.568180838305
+         Total SCF energy =   -113.693310514650
+      One electron energy =   -221.710297794194
+      Two electron energy =     74.448806441170
+ Nuclear repulsion energy =     33.568180838374
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1276,16 +1279,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.135310   1.287221   0.000000    0.025698   0.030826   0.000000
-   2 o      -0.209049  -1.447754   0.000000   -0.012799   0.001358   0.000000
-   3 h      -2.173946   0.112148   0.000000   -0.020759  -0.029431   0.000000
-   4 h       0.820222   2.076890   1.736294    0.003930  -0.001376  -0.000856
-   5 h       0.820222   2.076890  -1.736294    0.003930  -0.001376   0.000856
+   1 c      -0.135310   1.287221   0.000000   -0.025698   0.030826   0.000000
+   2 o       0.209049  -1.447754   0.000000    0.012799   0.001358   0.000000
+   3 h       2.173946   0.112148   0.000000    0.020759  -0.029431   0.000000
+   4 h      -0.820222   2.076890  -1.736294   -0.003930  -0.001376   0.000856
+   5 h      -0.820222   2.076890   1.736294   -0.003930  -0.001376  -0.000856
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5    -113.69331051  4.2D-06  0.03185  0.01232  0.03363  0.09360      1.7
+@    5    -113.69331051  4.2D-06  0.03185  0.01232  0.03363  0.09360      5.4
                                                                     
 
 
@@ -1349,11 +1352,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.07792154     0.68159314     0.00000000
-    2 o                    8.0000    -0.14601820    -0.75220204     0.00000000
-    3 h                    1.0000    -1.10317211     0.04546718     0.00000000
-    4 h                    1.0000     0.42496499     1.09881182     0.92421516
-    5 h                    1.0000     0.42496499     1.09881182    -0.92421516
+    1 c                    6.0000    -0.07792154     0.68159314     0.00000000
+    2 o                    8.0000     0.14601820    -0.75220204     0.00000000
+    3 h                    1.0000     1.10317211     0.04546718     0.00000000
+    4 h                    1.0000    -0.42496499     1.09881182    -0.92421516
+    5 h                    1.0000    -0.42496499     1.09881182     0.92421516
 
       Atomic Mass 
       ----------- 
@@ -1363,13 +1366,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      33.9344403375
+ Effective nuclear repulsion energy (a.u.)      33.9344403377
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.8025311785     0.5953266894     0.0000000000
+     1.8025311786     0.5953266894     0.0000000000
 
       Symmetry information
       --------------------
@@ -1398,16 +1401,16 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       1.7s
+ Forming initial guess at       5.5s
 
 
- Starting SCF solution at       1.7s
+ Starting SCF solution at       5.5s
 
 
 
@@ -1415,9 +1418,9 @@ task scf saddle
        ------------------ 
 
          Total SCF energy =   -113.693413071183
-      One electron energy =   -222.389903307584
-      Two electron energy =     74.762049898854
- Nuclear repulsion energy =     33.934440337547
+      One electron energy =   -222.389903307863
+      Two electron energy =     74.762049898983
+ Nuclear repulsion energy =     33.934440337696
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1435,16 +1438,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.147250   1.288024   0.000000    0.006017   0.014772   0.000000
-   2 o      -0.275934  -1.421456   0.000000   -0.003384  -0.002317   0.000000
-   3 h      -2.084693   0.085921   0.000000   -0.006680  -0.009550   0.000000
-   4 h       0.803067   2.076453   1.746513    0.002024  -0.001453  -0.000197
-   5 h       0.803067   2.076453  -1.746513    0.002024  -0.001453   0.000197
+   1 c      -0.147250   1.288024   0.000000   -0.006017   0.014772   0.000000
+   2 o       0.275934  -1.421456   0.000000    0.003384  -0.002317   0.000000
+   3 h       2.084693   0.085921   0.000000    0.006680  -0.009550   0.000000
+   4 h      -0.803067   2.076453  -1.746513   -0.002024  -0.001453   0.000197
+   5 h      -0.803067   2.076453   1.746513   -0.002024  -0.001453  -0.000197
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    6    -113.69341307 -1.0D-04  0.01041  0.00424  0.03137  0.08898      2.0
+@    6    -113.69341307 -1.0D-04  0.01041  0.00424  0.03137  0.08898      6.1
                                                                     
 
 
@@ -1505,11 +1508,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.08933667     0.67075638     0.00000000
-    2 o                    8.0000    -0.16319131    -0.74767906     0.00000000
-    3 h                    1.0000    -1.07963321     0.04477962     0.00000000
-    4 h                    1.0000     0.41607453     1.10231249     0.92481235
-    5 h                    1.0000     0.41607453     1.10231249    -0.92481235
+    1 c                    6.0000    -0.08933667     0.67075638     0.00000000
+    2 o                    8.0000     0.16319131    -0.74767906     0.00000000
+    3 h                    1.0000     1.07963321     0.04477962     0.00000000
+    4 h                    1.0000    -0.41607453     1.10231249    -0.92481235
+    5 h                    1.0000    -0.41607453     1.10231249     0.92481235
 
       Atomic Mass 
       ----------- 
@@ -1519,13 +1522,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      34.1886479632
+ Effective nuclear repulsion energy (a.u.)      34.1886479631
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.9218411184     0.5527644995     0.0000000000
+     1.9218411184     0.5527644995     0.0000000000
 
       Symmetry information
       --------------------
@@ -1554,16 +1557,16 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       2.0s
+ Forming initial guess at       6.1s
 
 
- Starting SCF solution at       2.0s
+ Starting SCF solution at       6.1s
 
 
 
@@ -1571,9 +1574,9 @@ task scf saddle
        ------------------ 
 
          Total SCF energy =   -113.693635151307
-      One electron energy =   -222.862137152898
-      Two electron energy =     74.979854038441
- Nuclear repulsion energy =     34.188647963151
+      One electron energy =   -222.862137152894
+      Two electron energy =     74.979854038440
+ Nuclear repulsion energy =     34.188647963147
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1591,16 +1594,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.168822   1.267546   0.000000   -0.001019   0.001563   0.000000
-   2 o      -0.308387  -1.412909   0.000000   -0.001275  -0.000125   0.000000
-   3 h      -2.040211   0.084621   0.000000    0.001121  -0.001371   0.000000
-   4 h       0.786267   2.083069   1.747642    0.000586  -0.000033  -0.000302
-   5 h       0.786267   2.083069  -1.747642    0.000586  -0.000033   0.000302
+   1 c      -0.168822   1.267546   0.000000    0.001019   0.001563   0.000000
+   2 o       0.308387  -1.412909   0.000000    0.001275  -0.000125   0.000000
+   3 h       2.040211   0.084621   0.000000   -0.001121  -0.001371   0.000000
+   4 h      -0.786267   2.083069  -1.747642   -0.000586  -0.000033   0.000302
+   5 h      -0.786267   2.083069   1.747642   -0.000586  -0.000033  -0.000302
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    7    -113.69363515 -2.2D-04  0.00193  0.00073  0.01743  0.04419      2.2
+@    7    -113.69363515 -2.2D-04  0.00193  0.00073  0.01743  0.04419      6.7
                                                                     
 
 
@@ -1661,11 +1664,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.09571187     0.66776521     0.00000000
-    2 o                    8.0000    -0.16353784    -0.74743781     0.00000000
-    3 h                    1.0000    -1.08155894     0.04538889     0.00000000
-    4 h                    1.0000     0.41402306     1.10338281     0.92597705
-    5 h                    1.0000     0.41402306     1.10338281    -0.92597705
+    1 c                    6.0000    -0.09571187     0.66776521     0.00000000
+    2 o                    8.0000     0.16353784    -0.74743781     0.00000000
+    3 h                    1.0000     1.08155894     0.04538889     0.00000000
+    4 h                    1.0000    -0.41402306     1.10338281    -0.92597705
+    5 h                    1.0000    -0.41402306     1.10338281     0.92597705
 
       Atomic Mass 
       ----------- 
@@ -1681,7 +1684,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.8661881506     0.5276933288     0.0000000000
+     1.8661881505     0.5276933289     0.0000000000
 
       Symmetry information
       --------------------
@@ -1710,26 +1713,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       2.2s
+ Forming initial guess at       6.7s
 
 
- Starting SCF solution at       2.2s
+ Starting SCF solution at       6.7s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693646997691
-      One electron energy =   -222.879775495848
-      Two electron energy =     74.989953345539
- Nuclear repulsion energy =     34.196175152618
+         Total SCF energy =   -113.693646997692
+      One electron energy =   -222.879775495833
+      Two electron energy =     74.989953345533
+ Nuclear repulsion energy =     34.196175152608
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1747,16 +1750,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.180869   1.261893   0.000000    0.000300  -0.000393   0.000000
-   2 o      -0.309042  -1.412453   0.000000    0.000116  -0.000287   0.000000
-   3 h      -2.043850   0.085773   0.000000   -0.000458   0.000102   0.000000
-   4 h       0.782390   2.085091   1.749843    0.000021   0.000289  -0.000069
-   5 h       0.782390   2.085091  -1.749843    0.000021   0.000289   0.000069
+   1 c      -0.180869   1.261893   0.000000   -0.000300  -0.000393   0.000000
+   2 o       0.309042  -1.412453   0.000000   -0.000116  -0.000287   0.000000
+   3 h       2.043850   0.085773   0.000000    0.000458   0.000102   0.000000
+   4 h      -0.782390   2.085091  -1.749843   -0.000021   0.000289   0.000069
+   5 h      -0.782390   2.085091   1.749843   -0.000021   0.000289  -0.000069
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    8    -113.69364700 -1.2D-05  0.00036  0.00022  0.00400  0.01203      2.4
+@    8    -113.69364700 -1.2D-05  0.00036  0.00022  0.00400  0.01203      7.2
                                      ok       ok                    
 
 
@@ -1817,11 +1820,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.09444424     0.66854585     0.00000000
-    2 o                    8.0000    -0.16318888    -0.74676050     0.00000000
-    3 h                    1.0000    -1.08082618     0.04554218     0.00000000
-    4 h                    1.0000     0.41411601     1.10257720     0.92616738
-    5 h                    1.0000     0.41411601     1.10257720    -0.92616738
+    1 c                    6.0000    -0.09444424     0.66854585     0.00000000
+    2 o                    8.0000     0.16318888    -0.74676050     0.00000000
+    3 h                    1.0000     1.08082618     0.04554218     0.00000000
+    4 h                    1.0000    -0.41411601     1.10257720    -0.92616738
+    5 h                    1.0000    -0.41411601     1.10257720     0.92616738
 
       Atomic Mass 
       ----------- 
@@ -1837,7 +1840,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.8735494726     0.5440287673     0.0000000000
+     1.8735494725     0.5440287673     0.0000000000
 
       Symmetry information
       --------------------
@@ -1866,16 +1869,16 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       2.5s
+ Forming initial guess at       7.3s
 
 
- Starting SCF solution at       2.5s
+ Starting SCF solution at       7.3s
 
 
 
@@ -1883,9 +1886,9 @@ task scf saddle
        ------------------ 
 
          Total SCF energy =   -113.693648659652
-      One electron energy =   -222.898117999690
-      Two electron energy =     74.998622151587
- Nuclear repulsion energy =     34.205847188451
+      One electron energy =   -222.898117999688
+      Two electron energy =     74.998622151586
+ Nuclear repulsion energy =     34.205847188450
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1903,16 +1906,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.178474   1.263368   0.000000   -0.000024  -0.000146   0.000000
-   2 o      -0.308382  -1.411173   0.000000   -0.000074   0.000212   0.000000
-   3 h      -2.042465   0.086062   0.000000   -0.000037  -0.000175   0.000000
-   4 h       0.782566   2.083569   1.750203    0.000067   0.000055  -0.000044
-   5 h       0.782566   2.083569  -1.750203    0.000067   0.000055   0.000044
+   1 c      -0.178474   1.263368   0.000000    0.000024  -0.000146   0.000000
+   2 o       0.308382  -1.411173   0.000000    0.000074   0.000212   0.000000
+   3 h       2.042465   0.086062   0.000000    0.000037  -0.000175   0.000000
+   4 h      -0.782566   2.083569  -1.750203   -0.000067   0.000055   0.000044
+   5 h      -0.782566   2.083569   1.750203   -0.000067   0.000055  -0.000044
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    9    -113.69364866 -1.7D-06  0.00020  0.00009  0.00106  0.00240      2.6
+@    9    -113.69364866 -1.7D-06  0.00020  0.00009  0.00106  0.00240      7.7
                                      ok       ok       ok           
 
 
@@ -1973,11 +1976,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.09466377     0.66868922     0.00000000
-    2 o                    8.0000    -0.16331977    -0.74675620     0.00000000
-    3 h                    1.0000    -1.08060988     0.04556461     0.00000000
-    4 h                    1.0000     0.41396354     1.10249214     0.92638809
-    5 h                    1.0000     0.41396354     1.10249214    -0.92638809
+    1 c                    6.0000    -0.09466377     0.66868922     0.00000000
+    2 o                    8.0000     0.16331977    -0.74675620     0.00000000
+    3 h                    1.0000     1.08060988     0.04556461     0.00000000
+    4 h                    1.0000    -0.41396354     1.10249214    -0.92638809
+    5 h                    1.0000    -0.41396354     1.10249214     0.92638809
 
       Atomic Mass 
       ----------- 
@@ -1993,7 +1996,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.8732066394     0.5454403843     0.0000000000
+     1.8732066394     0.5454403843     0.0000000000
 
       Symmetry information
       --------------------
@@ -2022,26 +2025,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sadsmall.movecs
+  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       2.7s
+ Forming initial guess at       7.7s
 
 
- Starting SCF solution at       2.7s
+ Starting SCF solution at       7.7s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693648756115
-      One electron energy =   -222.894756201772
-      Two electron energy =     74.997058592676
- Nuclear repulsion energy =     34.204048852982
+         Total SCF energy =   -113.693648756114
+      One electron energy =   -222.894756201769
+      Two electron energy =     74.997058592675
+ Nuclear repulsion energy =     34.204048852980
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -2059,16 +2062,16 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c       0.178889   1.263639   0.000000   -0.000034  -0.000034   0.000000
-   2 o      -0.308630  -1.411165   0.000000   -0.000023   0.000046   0.000000
-   3 h      -2.042057   0.086105   0.000000   -0.000004  -0.000051   0.000000
-   4 h       0.782278   2.083408   1.750620    0.000030   0.000019  -0.000007
-   5 h       0.782278   2.083408  -1.750620    0.000030   0.000019   0.000007
+   1 c      -0.178889   1.263639   0.000000    0.000034  -0.000034   0.000000
+   2 o       0.308630  -1.411165   0.000000    0.000023   0.000046   0.000000
+   3 h       2.042057   0.086105   0.000000    0.000004  -0.000051   0.000000
+   4 h      -0.782278   2.083408  -1.750620   -0.000030   0.000019   0.000007
+   5 h      -0.782278   2.083408   1.750620   -0.000030   0.000019  -0.000007
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   10    -113.69364876 -9.6D-08  0.00005  0.00003  0.00026  0.00042      2.8
+@   10    -113.69364876 -9.6D-08  0.00005  0.00003  0.00026  0.00042      8.1
                                      ok       ok       ok       ok  
 
 
@@ -2099,7 +2102,7 @@ task scf saddle
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   10    -113.69364876 -9.6D-08  0.00005  0.00003  0.00026  0.00042      2.8
+@   10    -113.69364876 -9.6D-08  0.00005  0.00003  0.00026  0.00042      8.1
                                      ok       ok       ok       ok  
 
 
@@ -2131,11 +2134,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.09466377     0.66868922     0.00000000
-    2 o                    8.0000    -0.16331977    -0.74675620     0.00000000
-    3 h                    1.0000    -1.08060988     0.04556461     0.00000000
-    4 h                    1.0000     0.41396354     1.10249214     0.92638809
-    5 h                    1.0000     0.41396354     1.10249214    -0.92638809
+    1 c                    6.0000    -0.09466377     0.66868922     0.00000000
+    2 o                    8.0000     0.16331977    -0.74675620     0.00000000
+    3 h                    1.0000     1.08060988     0.04556461     0.00000000
+    4 h                    1.0000    -0.41396354     1.10249214    -0.92638809
+    5 h                    1.0000    -0.41396354     1.10249214     0.92638809
 
       Atomic Mass 
       ----------- 
@@ -2151,7 +2154,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.8732066394     0.5454403843     0.0000000000
+     1.8732066394     0.5454403843     0.0000000000
 
       Symmetry information
       --------------------
@@ -2218,7 +2221,7 @@ task scf saddle
 
 
 
- Task  times  cpu:        2.2s     wall:        2.8s
+ Task  times  cpu:        2.3s     wall:        7.1s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -2229,10 +2232,10 @@ task scf saddle
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 8386     8386     7.40e+04 8973     2.09e+04 1115        0     5173     
-number of processes/call 1.14e+00 1.45e+00 1.30e+00 1.70e+00 0.00e+00
-bytes total:             2.69e+07 1.07e+07 5.84e+06 2.19e+05 0.00e+00 4.14e+04
-bytes remote:            6.09e+06 1.91e+06 3.08e+06 -2.38e+05 0.00e+00 0.00e+00
+calls: 8386     8386     7.56e+04 9730     2.38e+04 1115        0     6388     
+number of processes/call 1.15e+00 1.42e+00 1.31e+00 1.70e+00 0.00e+00
+bytes total:             2.83e+07 1.41e+07 8.41e+06 2.19e+05 0.00e+00 5.11e+04
+bytes remote:            7.05e+06 1.91e+06 4.29e+06 -2.38e+05 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 57032 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -2271,18 +2274,21 @@ MA usage statistics:
 
                               AUTHORS & CONTRIBUTORS
                               ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
+        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
+     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
+       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
+        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
+   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
        D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
         K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
+        B. Meng,T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
+      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
+                                     Z.Zhang.
 
- Total times  cpu:        2.2s     wall:        2.8s
+ Total times  cpu:        2.3s     wall:        8.1s
