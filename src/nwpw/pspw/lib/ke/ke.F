@@ -14,22 +14,25 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
+*     **** parameters - filter ****
+      real*8 eps,ncut
+      parameter (eps=1.0d-10,ncut=10.0d0)
+
 *     **** local variables ****
-      real*8 eps
-      parameter (eps=1.0d-10)
       integer npack1,nfft3d,G(3)
       integer i
-      real*8  gg,g1,Gcut,ncut
+      real*8  gg,g1,Gcut
       logical value
  
       integer tmp1(2),tmp2(2)
 
 *     **** external functions ****
-c     real*8 G(nfft3d,3)
+      logical  control_kbpp_filter
+      external control_kbpp_filter
       integer  G_indx
       external G_indx
-      real*8   lattice_wggcut,control_ke_damp_ncut
-      external lattice_wggcut,control_ke_damp_ncut
+      real*8   lattice_wggcut
+      external lattice_wggcut
       
 
 *     **** common block used for ke.F ****
@@ -37,9 +40,9 @@ c     real*8 tg(nfft3d)
       integer tg_indx,tg_hndl
       common / tg_block / tg_indx,tg_hndl
 
-      real*8  Gdecay
+      logical filter
       integer fanddf(2)
-      common / tg2_block / Gdecay,fanddf
+      common / tg2_block / fanddf,filter
 
 
       call D3dB_nfft3d(1,nfft3d)
@@ -74,8 +77,13 @@ c     real*8 tg(nfft3d)
 
 
 *     **** Funny decay added to stabalize unitcell optimization and pressures ****
-      ncut = control_ke_damp_ncut()
-      if (ncut.gt.0.0d0) then
+      filter = control_kbpp_filter()
+      if (filter) then
+         value = MA_alloc_get(mt_dbl,npack1,
+     >                     'fanddf',fanddf(2),fanddf(1))
+         if (.not. value) 
+     >       call errquit('ke_init:out of heap memory',3, MA_ERR)
+
          Gcut = dsqrt(lattice_wggcut()) 
      >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
          
@@ -125,9 +133,14 @@ c     real*8 tg(nfft3d)
       integer tg_indx,tg_hndl
       common / tg_block / tg_indx,tg_hndl
 
+      logical filter
+      integer fanddf(2)
+      common / tg2_block / fanddf,filter
+
       logical value
 
       value = MA_free_heap(tg_hndl)
+      if (filter) value = value.and.MA_free_heap(fanddf(2))
       if (.not. value) 
      >   call errquit('ke_end:error freeing heap',0, MA_ERR)
       return
@@ -291,9 +304,9 @@ c     complex*16 tmp1(nfft3d)
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      real*8  Gdecay
+      logical filter
       integer fanddf(2)
-      common / tg2_block / Gdecay,fanddf
+      common / tg2_block / fanddf,filter
 
 *     **** local variables ****
       integer npack1,nfft3d,G(2,3)
@@ -370,7 +383,7 @@ c     real*8 G(nfft3d,3)
      >                     dbl_mb(G(1,s)),
      >                     dbl_mb(tmp1(1)))
 
-        if (Gdecay.gt.0.01d0) 
+        if (filter)
      >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
      
         ave = 0.0d0
