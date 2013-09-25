@@ -5069,7 +5069,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     *        control_ke_gdecay        *
 *     *                                 *
 *     ***********************************
-      real*8 function control_ke_gdecay()
+      real*8 function control_ke_damp_ncut()
       implicit none
 
 #include "mafdecls.fh"
@@ -5081,10 +5081,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 g
 
-      if (.not.rtdb_get(rtdb,'nwpw:ke_decay',mt_dbl,1,g))
+      if (.not.rtdb_get(rtdb,'nwpw:ke_damp_ncut',mt_dbl,1,g))
      >   g = -1.0d0
 
-      control_ke_gdecay = g
+      control_ke_damp_ncut = g
       return
       end
 
