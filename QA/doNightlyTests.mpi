@@ -37,7 +37,7 @@ date
 ./runtests.mpi.unix procs $np et_zn_dimer sad_ch3hf
 ./runtests.mpi.unix procs $np h2o_cg_to_diag 
 ./runtests.mpi.unix procs $np h2o_diag_opt h2o_cg_opt h2o_diag_opt_ub3lyp h2o_cg_opt_ub3lyp h2o_cg_opt_rob3lyp
-./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
+./runtests.mpi.unix procs $np h2o_cg_to_diag_ub3lyp
 #
 #---   medium tests
 ./runtests.mpi.unix procs $np dft_feco5 
@@ -59,7 +59,6 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np uo2_sodft
 ./runtests.mpi.unix procs $np uo2_sodft_grad
 ./runtests.mpi.unix procs $np si2cl6_gc
-./runtests.mpi.unix procs $np pspw
 ./runtests.mpi.unix procs $np pspw_md
 ./runtests.mpi.unix procs $np pspw_polarizability
 ./runtests.mpi.unix procs $np band
