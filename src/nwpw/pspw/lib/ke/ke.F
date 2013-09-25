@@ -15,7 +15,7 @@
 
 *     **** parameters - filter ****
       real*8 eps,ncut
-      parameter (eps=1.0d-10,ncut=15.0d0)
+      parameter (eps=1.0d-12,ncut=15.0d0)
 
 *     **** local variables ****
       integer npack1,nfft3d,G(3)
@@ -52,9 +52,6 @@ c     real*8 tg(nfft3d)
 
       value = MA_alloc_get(mt_dbl,npack1,
      >                     'tg',tg_hndl,tg_indx)
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,npack1,
-     >                     'fanddf',fanddf(2),fanddf(1))
       if (.not. value) 
      > call errquit('ke_init:out of heap memory',0, MA_ERR)
 
@@ -83,9 +80,12 @@ c     real*8 tg(nfft3d)
          if (.not. value) 
      >      call errquit('ke_init:out of heap memory',3,MA_ERR)
 
-         Gcut = dsqrt(lattice_wggcut()) 
-     >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
+c         Gcut = dsqrt(lattice_wggcut()) 
+c     >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
          
+         Gcut = dsqrt(lattice_wggcut()) 
+
+         !write(*,*) "Gcut==",Gcut
          do i=1,nfft3d
             gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
@@ -100,9 +100,9 @@ c     real*8 tg(nfft3d)
          end do
          call Pack_t_pack(1,dbl_mb(tmp1(1)))
          call Pack_t_pack(1,dbl_mb(tmp2(1)))
-         call Pack_tt_Sum(dbl_mb(tmp1(1)),
-     >                    dbl_mb(tmp2(1)), 
-     >                    dbl_mb(fanddf(1)))
+         call Pack_tt_Sum(1,dbl_mb(tmp1(1)),
+     >                      dbl_mb(tmp2(1)), 
+     >                      dbl_mb(fanddf(1)))
          call Pack_tt_Mul2(1,dbl_mb(tmp1(1)),
      >                       dbl_mb(tg_indx))
       end if
@@ -382,8 +382,8 @@ c     real*8 G(nfft3d,3)
      >                     dbl_mb(G(1,s)),
      >                     dbl_mb(tmp1(1)))
 
-        if (filter)
-     >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
+c        if (filter)
+c     >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
      
         ave = 0.0d0
         do ms=1,ispin
