@@ -15,9 +15,11 @@
 #include "errquit.fh"
 
 *     **** local variables ****
+      real*8 eps
+      parameter (eps=1.0d-10)
       integer npack1,nfft3d,G(3)
       integer i
-      real*8  gg,g1,Gcut
+      real*8  gg,g1,Gcut,ncut
       logical value
  
       integer tmp1(2),tmp2(2)
@@ -26,8 +28,8 @@
 c     real*8 G(nfft3d,3)
       integer  G_indx
       external G_indx
-      real*8   lattice_wggcut,control_ke_gdecay
-      external lattice_wggcut,control_ke_gdecay
+      real*8   lattice_wggcut,control_ke_damp_ncut
+      external lattice_wggcut,control_ke_damp_ncut
       
 
 *     **** common block used for ke.F ****
@@ -72,18 +74,22 @@ c     real*8 tg(nfft3d)
 
 
 *     **** Funny decay added to stabalize unitcell optimization and pressures ****
-      Gdecay = control_ke_gdecay()
-      if (Gdecay.gt.0.00001d0) then
-         Gcut = dsqrt(lattice_wggcut()) - Gdecay*11.52d0*0.5d0
+      ncut = control_ke_damp_ncut()
+      if (ncut.gt.0.0d0) then
+         Gcut = dsqrt(lattice_wggcut()) 
+     >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
          
          do i=1,nfft3d
             gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
             g1 = dsqrt(gg)
-            dbl_mb(tmp1(1)+i-1) = (0.5d0*dtanh((Gcut-g1)/Gdecay)+0.5d0)
-            dbl_mb(tmp2(1)+i-1) = -0.25d0*(g1/Gdecay)
-     >                           *(1.0d0/dcosh((Gcut-g1)/Gdecay)**2)
+            dbl_mb(tmp1(1)+i-1) = 1.0d0
+     >                          -(1.0d0-dexp(-(g1/Gcut)**ncut))**ncut
+            dbl_mb(tmp2(1)+i-1) = -((1.0d0-dexp(-(g1/Gcut)**ncut))**ncut
+     >                              *ncut**2 
+     >                              *(g1/Gcut)**ncut)
+     >                             /(2.0d0*(-1.0d0+dexp(g1/Gcut)**ncut))
          end do
          call Pack_t_pack(1,dbl_mb(tmp1(1)))
          call Pack_t_pack(1,dbl_mb(tmp2(1)))
