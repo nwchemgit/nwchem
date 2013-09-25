@@ -20,4 +20,8 @@ cosmo
   maxbem 4
 end
 
+driver
+  tight
+end
+
 task scf optimize
