@@ -145,12 +145,13 @@
       double precision V_ray(*)
 
 *     **** local variables ****
-      integer ncut
-      parameter (ncut=15)
+      real*8 ncut,eps
+      parameter (eps=1.0d-10,ncut=15.0d0)
       integer i
       double precision g,qmax,fac
 
       qmax = dsqrt(ecut+ecut)
+     >      /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
       do i=1,nray
          g = G_ray(i)
          if (g.gt.qmax) then
