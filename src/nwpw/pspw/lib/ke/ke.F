@@ -2,7 +2,6 @@
 * $Id$
 *
 
-
 *     **************************************
 *     *                                    *
 *     *             ke_init                *
@@ -82,7 +81,7 @@ c     real*8 tg(nfft3d)
          value = MA_alloc_get(mt_dbl,npack1,
      >                     'fanddf',fanddf(2),fanddf(1))
          if (.not. value) 
-     >       call errquit('ke_init:out of heap memory',3, MA_ERR)
+     >      call errquit('ke_init:out of heap memory',3,MA_ERR)
 
          Gcut = dsqrt(lattice_wggcut()) 
      >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
