@@ -156,10 +156,10 @@ c     >      /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
       !write(*,*) "qmax=",qmax
       do i=1,nray
          g = G_ray(i)
-         !if (g.gt.qmax) then
+         if (g.gt.qmax) then
             fac = 1.0d0 - (1.0d0-exp(-(g/qmax)**ncut))**ncut
             V_ray(i) = V_ray(i)*fac
-         !end if
+         end if
       end do
       return
       end
