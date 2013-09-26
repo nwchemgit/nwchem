@@ -556,8 +556,10 @@ ifeq ($(CC),ecc)
 	endif
 	endif
 
+ifeq ($(_CPU),aarch64)
+	peigs_CPU  = PENTIUM
+endif
 ifeq ($(_CPU),x86_64)
-#ia64 with /tcgmsg
 	peigs_CPU  = PENTIUM
 ifeq ($(FC),pgf90)
 	peigs_FC  +=  -Kieee
