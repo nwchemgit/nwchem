@@ -74,6 +74,7 @@ c     real*8 tg(nfft3d)
 
 *     **** Funny decay added to stabalize unitcell optimization and pressures ****
       filter = control_kbpp_filter()
+      filter = .false.
       if (filter) then
          value = MA_alloc_get(mt_dbl,npack1,
      >                     'fanddf',fanddf(2),fanddf(1))
@@ -382,8 +383,8 @@ c     real*8 G(nfft3d,3)
      >                     dbl_mb(G(1,s)),
      >                     dbl_mb(tmp1(1)))
 
-c        if (filter)
-c     >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
+        if (filter)
+     >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
      
         ave = 0.0d0
         do ms=1,ispin
