@@ -1910,6 +1910,9 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       LOGICAL CONV_F
       EXTERNAL MV7
@@ -2104,10 +2107,11 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
 *
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
-     &     WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
-     &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &     WORK(KCIBT),
-     &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &     dbl_mb(KCIOIO),dbl_mb(KCBLTP),NCOCCLS_ACT,
+     &     dbl_mb(KCIOCCLS_ACT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &     int_mb(KCIBT),
+     &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 C?    WRITE(6,*) ' WORK(KCI1BT)(1) '
 C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
 *
@@ -2120,10 +2124,11 @@ C    &           IBOCCLS_BAT,ILTEST)
 *. And for the Sigma vector
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NSBLOCK,NSBATCH,
-     &     WORK(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
-     &     WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
-     &     WORK(KSIBT),
-     &     WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
+     &     dbl_mb(KSIOIO),dbl_mb(KSBLTP),NSOCCLS_ACT,
+     &     dbl_mb(KSIOCCLS_ACT),
+     &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
+     &     int_mb(KSIBT),
+     &     int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
 *. Number of BLOCKS
       NBLOCK = NCBLOCK
       NBATCH = NCBATCH
@@ -2142,19 +2147,19 @@ C?    WRITE(6,*) ' TEST: NCBATCH, NSBATCH = ', NCBATCH, NSBATCH
 *. Generate the configurations and order them according
 *. to number of open orbitals
 *
-        CALL GEN_CONF_FOR_CISPC(WORK(KCIOCCLS_ACT),NCOCCLS_ACT,ISM,
-     &       WORK(KIOCCLS))
+        CALL GEN_CONF_FOR_CISPC(dbl_mb(KCIOCCLS_ACT),NCOCCLS_ACT,ISM,
+     &       int_mb(KIOCCLS))
 *. The output are delivered in pointers set in GEN_CONF_FOR_CISPC
 *         Occupations: KICONF_OCC(ISYM)
 *         Reorder arrays: KICONF_REO(1) (independent of symmetry)
 *. And then the reordering of the SD's
 *. The reordering arrays for the SD's are stored in KSDREO_I((ISM)
 C       WRITE(6,*) ' KSDREO_I(ISM) = ', KSDREO_I(ISM)
-        CALL CNFORD_GAS(WORK(KCIOCCLS_ACT),NCOCCLS_ACT,WORK(KIOCCLS),
-     &       ISM,PSSIGN,
-     &       IPRCSF,WORK(KICONF_OCC(ISM)),WORK(KICONF_REO(1)),
-     &       WORK(KSDREO_I(ISM)),WORK(KSDREO_S(ISM)),
-     &       WORK(KCBLTP),WORK(KCIBT),NCBLOCK)
+        CALL CNFORD_GAS(dbl_mb(KCIOCCLS_ACT),NCOCCLS_ACT,
+     &       int_mb(KIOCCLS),ISM,PSSIGN,
+     &       IPRCSF,int_mb(KICONF_OCC(ISM)),int_mb(KICONF_REO(1)),
+     &       int_mb(KSDREO_I(ISM)),int_mb(KSDREO_S(ISM)),
+     &       dbl_mb(KCBLTP),int_mb(KCIBT),NCBLOCK)
 C?      WRITE(6,*) ' IBLTP after CNFORD '
 C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
       END IF ! all Conformation should be set up
@@ -2175,21 +2180,21 @@ C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
 C?      WRITE(6,*) ' MAXA1 1', MAXA1
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB,MXSTBL0)
@@ -2205,7 +2210,7 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      CALL MXRESCPH(WORK(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(dbl_mb(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSTFSMSPGP,MXPNSMST,
      &            NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &            NELFSPGP,
@@ -2226,11 +2231,13 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
       IF(IPRCIX.GE.2) 
      &WRITE(6,*) ' Space for two resolution matrices ',2*LSCR2
       LSCR12 = MAX(LBLOCK,2*LSCR2)  
+CBERT VECTOR DOUBLES!!! LOCAL
       CALL MEMMAN(KVEC3,LSCR12,'ADDL  ',2,'KC2   ')
       IF(IPRCIX.GE.3) WRITE(6,'(A,3(2X, I9))')
      &  'MXCJ,MXCIJA,MXCIJB,MXCIJAB = ',
      &   MXCJ,MXCIJA,MXCIJB,MXCIJAB
 *
+CBERT VECTOR DOUBLES!!! LOCAL
       CALL MEMMAN(KVEC1,LBLOCK,'ADDL  ',2,'VEC1  ')
       CALL MEMMAN(KVEC2,LBLOCK,'ADDL  ',2,'VEC2  ')
       KVEC1P = KVEC1
@@ -2238,6 +2245,7 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
 * 
       IF(ICISTR.EQ.1) THEN
 *. Allocate space for two complete vectors of variables
+CBERT VECTOR DOUBLES!!! GLOBAL
        CALL MEMMAN(KCOMVEC1,NVAR_MAX,'ADDL  ',2,'COMVC1')
        CALL MEMMAN(KCOMVEC2,NVAR_MAX,'ADDL  ',2,'COMVC2')
       END IF
@@ -2252,10 +2260,12 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
       IF(NOCSF.EQ.0) THEN
        IF(ICNFBAT.EQ.1) THEN
 *. For CSF's: Two vectors over CM's of Strings, all symmetries for generality
+CBERT VECTOR DOUBLES!!! NOT USED
          CALL MEMMAN(KCOMVEC1_SD,NDET_MAX,'ADDL  ',2,'CMVC1D')
          CALL MEMMAN(KCOMVEC2_SD,NDET_MAX,'ADDL  ',2,'CMVC2D')
        ELSE
 *. Memory for two blocks of combinations
+CBERT VECTOR DOUBLES!!! NOT USED
          CALL MEMMAN(
      &   KCOMVEC1_SD,N_CMAB_PER_OCCLS_MAX,'ADDL  ',2,'CMVC1D')
          CALL MEMMAN(
@@ -2265,6 +2275,7 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
 * 
       IF(I_DO_COMHAM.EQ.1) THEN
          WRITE(6,*) ' Complete Hamiltonian matrix will be constructed '
+CBERT VECTOR DOUBLES!!! NOT USED
          CALL MEMMAN(KLHMAT,NVAR*NVAR,'ADDL  ',2,'HMAT  ')
 C COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
          ECOREL = 0.0D0
@@ -2276,13 +2287,14 @@ C COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
 *. CSFs: occlass blocks
 *. Number of CSFs per occlass
            CALL MEMMAN(KLNCS_FOR_OCCLS,NCOCCLS_ACT,'ADDL  ',1,'NCS_OC')
-           CALL GET_NCSF_PER_OCCLS_FOR_CISPACE(ISM,WORK(KCIOCCLS_ACT),
-     &          NCOCCLS_ACT,WORK(KNCS_FOR_OCCLS),
-     &          WORK(KLNCS_FOR_OCCLS))
+           CALL GET_NCSF_PER_OCCLS_FOR_CISPACE(ISM,dbl_mb(KCIOCCLS_ACT),
+     &          NCOCCLS_ACT,int_mb(KNCS_FOR_OCCLS),
+     &          int_mb(KLNCS_FOR_OCCLS))
 C          GET_NCSF_PER_OCCLS_FOR_CISPACE(ISYM,IOCCLS_ACT,
 C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
            CALL COMHAM(WORK(KLHMAT),NVAR,NCOCCLS_ACT,
-     &          WORK(KLNCS_FOR_OCCLS),WORK(KPVEC1),WORK(KPVEC2),ECOREL) 
+     &          int_mb(KLNCS_FOR_OCCLS),WORK(KPVEC1),WORK(KPVEC2),
+     &          ECOREL) 
          END IF
          STOP ' Enforced stop after COMHAM'
       END IF
@@ -2314,6 +2326,7 @@ C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
           SHIFT = ECORE
         ELSE
           SHIFT = ECORE_ORIG-ECORE
+CBERT DOUBLE INTEGRALS
           CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
         END IF
 *
@@ -2322,7 +2335,7 @@ C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
 *
 C       CALL GASDIAT(WORK(KPVEC1),LUDIA,SHIFT,ICISTR,I12,
         CALL GASDIAT(WORK(KPDIA_SD),LUDIA,SHIFT,ICISTR,I12,
-     &               WORK(KCBLTP),NBLOCK,WORK(KCIBT),IUSE_EXP)
+     &               int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
 C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
         IF(IUSE_EXP.NE.1) THEN
           CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
@@ -2334,9 +2347,9 @@ C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
 C?       WRITE(6,*) ' IH0_CSF = ', IH0_CSF
          CALL CSDIAG(WORK(KPVEC2),WORK(KPDIA_SD),
      &        NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
-     &        WORK(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
-     &        ICNFBAT,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
-     &        WORK(KCLBT),LUDIA,LUSC52)
+     &        int_mb(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
+     &        ICNFBAT,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &        int_mb(KCLBT),LUDIA,LUSC52)
 C        CSDIAG(CSFDIA,DETDIA,NCNFTP,MAXOP,ISM,
 C    &         ICTSDT,NPCMCNF,NPCSCNF,IPRCSF,
 C    &         ICNFBAT,NOCCLS_ACT,IOCCLS_ACT,
@@ -2354,8 +2367,8 @@ C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
 C?       WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 C?       WRITE(6,*) ' KPDIA_SD = ', KPDIA_SD
          CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,ISM),
-     &        WORK(KICONF_OCC(ISM)),WORK(KPDIA_SD),ECORE,
-     &        LUDIA,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM)
+     &        int_mb(KICONF_OCC(ISM)),WORK(KPDIA_SD),ECORE,
+     &        LUDIA,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM)
 C        GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,ECORE,
 C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
        END IF
@@ -2371,7 +2384,7 @@ C?     WRITE(6,*) ' WORK(KPDIA_SD) before TODSC =', WORK(KPDIA_SD)
 *. Diagonal with F
          CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
          CALL GASDIAT(WORK(KVEC1),LUSC52,SHIFT,ICISTR,1,
-     &              WORK(KCBLTP),NBLOCK,WORK(KCIBT),IUSE_EXP)
+     &              dbl_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
          CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
 *. diag of (1-Lambda) F + Lambda H
          FAC1 = 1.0D0 - XLAMBDA
@@ -2489,13 +2502,14 @@ C    &           EIGVAL, EIGVEC)
         CALL MEMMAN(KLCBASC,NOCCLS,'ADDL  ',2,'CBASC ')
 *. alphasupergroup, betasupergroup=> class
         CALL MEMMAN(KLSPSPCL,NOCTPA*NOCTPB,'ADDL  ',1,'SPSPCL')
-        CALL SPSPCLS(WORK(KLSPSPCL),WORK(KIOCCLS),NOCCLS)
+        CALL SPSPCLS(int_mb(KLSPSPCL),int_mb(KIOCCLS),NOCCLS)
 *. Class of each block
         CALL MEMMAN(KLBLKCLS,NBLOCK,'ADDL  ',1,'BLKCLS')
         CALL MEMMAN(KLCLSL,NOCCLS,'ADDL  ',1,'CLSL  ')
         CALL MEMMAN(KLCLSLR,NOCCLS,'ADDL  ',2,'CLSL_R')
-        CALL BLKCLS(WORK(KCIBT),NBLOCK,WORK(KLBLKCLS),WORK(KLSPSPCL),
-     &              NOCCLS,WORK(KLCLSL),NOCTPA,NOCTPB,WORK(KLCLSLR))
+        CALL BLKCLS(int_mb(KCIBT),NBLOCK,int_mb(KLBLKCLS),
+     &              int_mb(KLSPSPCL),
+     &              NOCCLS,int_mb(KLCLSL),NOCTPA,NOCTPB,WORK(KLCLSLR))
 *. Allocate space for additinal arrays used for class selection
         CALL MEMMAN(KLCLSC,NOCCLS,'ADDL  ',2,'CLSC  ')
         CALL MEMMAN(KLCLSE,NOCCLS,'ADDL  ',2,'CLSE  ')
@@ -2545,16 +2559,18 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
      & NPRDET,WORK(KH0),WORK(KLH0_SUBDT),
      & NP1,NP2,NQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,WORK(KVEC3),THRES_E,NBATCH,
-     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),WORK(KCIBT),
-     & WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),WORK(KSIBT),
+     & int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     & int_mb(KCIBT),
+     & int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
+     & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
-     & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS_MAX,
-     & WORK(KLCLSC),WORK(KLCLSE), WORK(KLCLSCT),WORK(KLCLSET),
-     & WORK(KLCLSA),WORK(KLCLSL),WORK(KLCLSLR),WORK(KLBLKA),
-     & WORK(KLCLSD),WORK(KLCLSDT),WORK(KLCLSG),WORK(KLCLSGT),
-     & ISKIPEI,WORK(KC2B),WORK(KLCLSA2),
-     & LBLOCK,IROOT_SEL,WORK(KBASSPC),WORK(KLEBASC),
-     & WORK(KLCBASC),NCMBSPC,MULSPCA,IPAT,LPAT,ISPC,NCNV_RT,
+     & E_CONV,C_CONV,ICLSSEL,int_mb(KLBLKCLS),NOCCLS_MAX,
+     & dbl_mb(KLCLSC),dbl_mb(KLCLSE),dbl_mb(KLCLSCT),dbl_mb(KLCLSET),
+     & dbl_mb(KLCLSA),int_mb(KLCLSL),dbl_mb(KLCLSLR),int_mb(KLBLKA),
+     & dbl_mb(KLCLSD),dbl_mb(KLCLSDT),dbl_mb(KLCLSG),dbl_mb(KLCLSGT),
+     & ISKIPEI,int_mb(KC2B),dbl_mb(KLCLSA2),
+     & LBLOCK,IROOT_SEL,int_mb(KBASSPC),dbl_mb(KLEBASC),
+     & dbl_mb(KLCBASC),NCMBSPC,MULSPCA,IPAT,LPAT,ISPC,NCNV_RT,
      & IPRECOND,IIUSEH0P,MPORENP_E,RNRM,CONV_F,ISBSPPR_ACT,
      & ILAST)
 *
@@ -2640,24 +2656,24 @@ C?        END IF
 *
           IF(IPRNT.GT.2) THEN
            IF(NOCSF.EQ.1) THEN
-            CALL GASANA(WORK(KPVEC1),NBLOCK,WORK(KCIBT),WORK(KCBLTP),
-     &                  LUC,ICISTR)
+            CALL GASANA(WORK(KPVEC1),NBLOCK,int_mb(KCIBT),
+     &                  int_mb(KCBLTP),LUC,ICISTR)
            ELSE
             THRES = 0.1D0
             MAXTRM = 100
             IOUT = 6
 C                ANACSF(CIVEC,ICONF_OCC,NCONF_FOR_OPEN,IPROCS,THRES,MAXTRM,IOUT)
             IF(ICNFBAT.EQ.1) THEN
-              CALL ANACSF(WORK(KPVEC1),WORK(KICONF_OCC(ISM)),
-     &                    NCONF_PER_OPEN(1,ISM),WORK(KCFTP),
+              CALL ANACSF(WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
+     &                    NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),
      &                    THRES,MAXTRM,IOUT)
             ELSE
             THRES = 0.1D0
             MAXTRM = 100
               IOUT = 6
-              CALL ANACSF2(LUC,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM,
-     &             WORK(KPVEC1),WORK(KICONF_OCC(ISM)),
-     &             NCONF_PER_OPEN(1,ISM),WORK(KCFTP),THRES,
+              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+     &             WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
+     &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
      &             MAXTRM,IOUT)
 C      ANACSF2(LUC,NOCCLS_SPC,IOCCLS_SPC,
 C     &           CIVEC,ICONF_OCC,NCONF_FOR_OPEN,IPROCS,THRES,
@@ -2707,29 +2723,29 @@ C?        END IF
            IF(NROOT.GT.1) THEN
             CALL REWINO(LUSC1)
             IF(NOCSF.EQ.1) THEN
-              CALL GASANA(WORK(KVEC1),NBLOCK,WORK(KCIBT),WORK(KCBLTP),
-     &                    LUSC1,ICISTR)
+              CALL GASANA(WORK(KVEC1),NBLOCK,int_mb(KCIBT),
+     &                    int_mb(KCBLTP),LUSC1,ICISTR)
             ELSE
               IOUT = 6
               THRES = 0.1D0
               MAXTRM = 100
-              CALL ANACSF2(LUC,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM,
-     &             WORK(KPVEC1),WORK(KICONF_OCC(ISM)),
-     &             NCONF_PER_OPEN(1,ISM),WORK(KCFTP),THRES,
+              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+     &             WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
+     &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
      &             MAXTRM,IOUT)
             END IF
            ELSE 
             CALL REWINO(LUC)
             IF(NOCSF.EQ.1) THEN
-              CALL GASANA(WORK(KVEC1),NBLOCK,WORK(KCIBT),WORK(KCBLTP),
-     &                    LUC,ICISTR)
+              CALL GASANA(WORK(KVEC1),NBLOCK,int_mb(KCIBT),
+     &                    int_mb(KCBLTP),LUC,ICISTR)
             ELSE
               IOUT = 6
               THRES = 0.1D0
               MAXTRM = 100
-              CALL ANACSF2(LUC,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM,
-     &             WORK(KPVEC1),WORK(KICONF_OCC(ISM)),
-     &             NCONF_PER_OPEN(1,ISM),WORK(KCFTP),THRES,
+              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+     &             WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
+     &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
      &             MAXTRM,IOUT)
             END IF !NOCSF switch
            END IF !Nroot switch
@@ -12414,7 +12430,7 @@ C                MATSM2(SB,SB,CB,NIA,NIB,2)
 *
       RETURN
       END
-      SUBROUTINE MEMMAN(KBASE,KADD,TASK,IR,IDENT)
+      SUBROUTINE MEMMAN_ORG(KBASE,KADD,TASK,IR,IDENT)
 *
 * Memory manager routine
 *
@@ -12435,7 +12451,7 @@ C                MATSM2(SB,SB,CB,NIA,NIB,2)
 *         = MARK  : Set a mark at current free adress
 *         = FLUSM : Flush local memory to previous mark
 *         = PRINT : Print memory map
-* IR    : 1 => integer , 2 => real,
+* IR    : 1 => integer , 2 => real, 
 *         ratio between integer and real is IRAT
 * IDENT : identifier of memory slice,Character*6
 *  
@@ -12855,6 +12871,178 @@ c      IF(ISTOP.NE.0) STOP ' Error observed by  memory manager '
       IF(ISTOP.NE.0) THEN
         CALL QTRACE
         STOP ' Error observed by  memory manager '
+      END IF
+      RETURN
+      END
+      SUBROUTINE MEMMAN(KBASE,KADD,TASK,IR,IDENT)
+*
+* Memory manager routine
+*
+* Last modification; Oct. 15, 2012; Jeppe Olsen, modified output from for FREE
+*
+* KBASE: New base address
+*         If TASK = INI, KBASE is offset for memory to be controlled
+*         by MEMMAN
+* KADD : Dimension of array to be added
+*         If TASK = INI, KADD is total length of array
+* TASK : = INI : Initialize                 Character*6
+*         = ADDS : Add static memory
+*         = ADDL : Add Local memory
+*         = FLUSH : Flush local memory
+*         = CHECK : Check memory paddings
+*         = FREE  : Return first Free word in KBASE, and amoung of memory
+*                   in KADD
+*         = MARK  : Set a mark at current free adress
+*         = FLUSM : Flush local memory to previous mark
+*         = PRINT : Print memory map
+* IR    : 1 => integer , 2 => real, 
+*         ratio between integer and real is IRAT
+* IDENT : identifier of memory slice,Character*6
+*  
+* Local Memory not flushed before allocation of additional static memory
+* is tranferred to static memory
+*  
+c      IMPLICIT REAL*8(A-H,O-Z)
+c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      INCLUDE 'wrkspc.inc'
+      INCLUDE 'crun.inc'
+      CHARACTER*6 TASK,IDENT,IIDENT,MARKC,MAX_BLKC,MARK_ACT
+*
+      PARAMETER(NPAD = 1 )
+      PARAMETER(MAXLVL = 10000)
+      PARAMETER(MAXMRK = 10000)
+*
+      COMMON/CMEMO/NWORD,KFREES,KFREEL,NS,NL,NM,IBASEL(MAXLVL),
+     &             IBASES(MAXLVL),LENGTH(MAXLVL),IIDENTS(MAXLVL),
+     &             IIDENTL(MAXLVL),
+     &             IMARK(MAXMRK),MARKL(MAXMRK),MARKS(MAXMRK),
+     &             MARKC(MAXMRK),MAX_MEM,MAX_BLK,MAX_BLKC,MARK_ACT, 
+     &             KFREELT
+*. Two real*8 words, one added NPAD times before each array, another
+*. added NPAD times after each array
+      DATA PAD1/0.123456789D0/
+      DATA PAD2/0.987654321D0/
+*
+      INCLUDE 'irat.inc'
+*. Info from matml7  
+      COMMON/MATMLST/XNFLOP,XNCALL,XLCROW,XLCCOL,XLCROWCOL,TMULT
+*. Info from copvec
+      COMMON/COPVECST/XNCALL_COPVEC, XNMOVE_COPVEC
+*
+      INTEGER*8 IMEM
+      LOGICAL   success
+*
+      ISTOP = 0                                                         
+*
+      IF (TASK(1:4).EQ.'FREE') THEN
+         KADD = ma_inquire_stack(mt_dbl)
+*
+**. Static memory
+*
+      ELSE IF(TASK(1:4).EQ.'ADDS') THEN
+        if (ir.eq.1) then
+           success=ma_alloc_get(mt_int,KADD,IDENT,LBASE,KBASE)
+        else
+           success=ma_alloc_get(mt_dbl,KADD,IDENT,LBASE,KBASE)
+        endif
+        if (.not. success) then
+          WRITE(6,*) ' Error allocating: identifier,offset,  length'
+          WRITE(6,'(22X,A,2I12)')IDENT,KBASE,KADD
+          call errquit('MEMMAN: ma alloc failed', KADD, MA_ERR)
+        endif
+
+        IF(NS.GT.MAXLVL) THEN
+          WRITE(6,*) ' Too many levels in MEMMAN '
+          WRITE(6,*) ' Increase MAXLVL from ', MAXLVL
+          call errquit('MEMMAN: ma alloc failed', 911, MA_ERR)
+        END IF
+        NS = NS + 1
+        IIDENTS(NS) = IDENT
+        IBASES(NS) = LBASE
+*
+**. Local memory
+*
+      ELSE IF(TASK(1:4).EQ.'ADDL') THEN
+        if (ir.eq.1) then
+           success=ma_push_get(mt_int,KADD,IDENT,LBASE,KBASE)
+        else 
+           success=ma_push_get(mt_dbl,KADD,IDENT,LBASE,KBASE)
+        endif
+        if (.not. success) then
+          WRITE(6,*) ' Error allocating: identifier,offset,  length'
+          WRITE(6,'(22X,A,2I12)')IDENT,KBASE,KADD
+          call errquit('MEMMAN: ma push failed', KADD, MA_ERR)
+        endif
+
+        NL =  NL + 1
+        IF(NS.GT.MAXLVL) THEN
+          WRITE(6,*) ' Too many levels in MEMMAN '
+          WRITE(6,*) ' Increase MAXLVL from ', MAXLVL
+          call errquit('MEMMAN: ma alloc failed', 911, MA_ERR)
+        END IF
+        IIDENTL(NL) = IDENT
+        IBASEL(NL) = LBASE
+*
+** Flush local memory
+*
+      ELSE IF(TASK(1:5).EQ.'FLUSH') THEN
+        if (.not. ma_chop_stack(IBASEL(1))) call
+     $      errquit('MEMMAN: ma flush failed', 911, MA_ERR)
+        NL = 0
+*. Flush output unit
+        LU6 = 6
+        CALL GFLUSH(LU6)
+      ELSE IF(TASK(1:4).EQ.'MARK') THEN
+*. Set a mark at current free address
+        NM = NM + 1
+        IF(NM.GT.MAXMRK) THEN
+          WRITE(6,*) ' Too many marks  in MEMMAN '
+          WRITE(6,*) ' Increase MAXMRK from ', MAXMRK
+          call errquit('MEMMAN: ma alloc failed', 911, MA_ERR)
+        END IF
+        MARKC(NM) = IDENT 
+        MARK_ACT = IDENT
+        IMARK(NM) = LBASE  
+        MARKL(NM) = NL
+        MARKS(NM) = NS
+      ELSE IF (TASK(1:5).EQ.'FLUSM') THEN
+*. Flush memory to current MARK and eliminate mark
+        IF(IDENT(1:6).NE.MARK_ACT(1:6)) THEN
+          WRITE(6,*) ' Error in Flushing:  MARKS not consistent '
+          WRITE(6,'(A,A,3X,A)') 
+     &    ' Actual MARK and MARK to be flushed ',IDENT,MARK_ACT
+          call errquit('MEMMAN: ma alloc failed', 911, MA_ERR)
+        END IF
+*
+        if (NL.gt.MARKL(NM)) then
+           if (.not. ma_chop_stack(IBASEL(MARKL(NM)+1))) call
+     $      errquit('MEMMAN: ma heap flush mark failed', 911, MA_ERR)
+        endif
+        if (NS.gt.MARKS(NM)) then
+           if (.not. ma_chop_stack(IBASES(MARKS(NM)+1))) call
+     $      errquit('MEMMAN: ma heap flush mark failed', 911, MA_ERR)
+        endif
+        NL = MARKL(NM)
+        NS = MARKS(NM)
+        NM = NM - 1
+*. Flush output unit
+        LU6 = 6
+        CALL GFLUSH(LU6)
+      ELSE IF( TASK(1:5).EQ.'CHECK') THEN
+        if (.not. ma_verify_allocator_stuff()) call 
+     &      errquit('MEMMAN: ma verify failed',911, MA_ERR)
+      ELSE IF( TASK(1:5).EQ.'PRINT') THEN
+        call ma_summarize_allocated_blocks()
+      ELSE IF( TASK(1:5).EQ.'STATI') THEN
+        call ma_print_stats(.true.)
+      ELSE 
+          WRITE(6,'(A,A6)') ' MEMMAN: Unknown task parameter ',TASK
+          WRITE(6,'(A,A6)') ' MEMMAN: Corresponding IDENT ', IDENT
+          WRITE(6,*) ' Too confused to continue  '
+          call errquit('MEMMAN: ma alloc failed', 911, MA_ERR)
       END IF
       RETURN
       END
@@ -29667,4 +29855,5 @@ C
       END IF
 C
       RETURN
+C
       END
