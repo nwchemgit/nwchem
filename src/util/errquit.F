@@ -30,6 +30,12 @@ c
       write(LuOut, 2) string, icode
  2    format(1x,a,i9)
  3    format(/)
+      write(LuOut,1)
+      call inp_errout
+      write(LuOut,1)
+      write(LuOut,*) ' current input line : '
+      call inp_outrec
+      write(LuOut,1)
 c
 c       categorization of errors
 c     
@@ -114,12 +120,6 @@ c
 c
       if (errcode .eq. INT_ERR) then
          write(LuOut,*) 'An error occured while computing integrals'
-        write(LuOut,1)
-        call inp_errout
-        write(LuOut,1)
-        write(LuOut,*) ' current input line : '
-        call inp_outrec
-        write(LuOut,1)
       endif
 c
       if (errcode .eq. DISK_ERR) then
