@@ -1693,18 +1693,42 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
       ifeq ($(FC),ifort)
        _FC=ifort
       endif
+      ifeq ($(FC),gfortran)
+       _FC=gfortran
+      endif
       ifndef _FC
       FC=gfortran
       _FC=gfortran
       endif
       FOPTIMIZE  = -O2 
-      ifeq ($(FC),gfortran)
-        FOPTIONS   = -m64
-        COPTIONS   = -m64
+      ifeq ($(_FC),gfortran)
+       ifeq ($(_CPU),aarch64)
+         DONTHAVEM64OPT=Y
+       endif
+       ifneq ($(DONTHAVEM64OPT),Y)
+         FOPTIONS   = -m64
+         COPTIONS   = -m64
+       endif
         FOPTIONS   += -ffast-math #-Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
-       _FC=gfortran
-       DEFINES  += -DGFORTRAN
+        DEFINES  += -DGFORTRAN
+        DEFINES  += -DCHKUNDFLW -DGCC4
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
+        ifdef GNUMAJOR
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
+        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
+        endif
+        ifeq ($(GNU_GE_4_6),true)
+          DEFINES  += -DGCC46
+        endif
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
+          FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FOPTIONS += -Warray-bounds
+	  else
+          FOPTIONS   += -Wextra -Wuninitialized #-Wunused
+        endif
       endif
       ifeq ($(_FC),gfortran)
         ifdef USE_I4FLAGS
@@ -1964,23 +1988,6 @@ endif
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
           FOPTIONS +=  -ff2c -fno-second-underscore
-        endif
-        DEFINES  += -DCHKUNDFLW -DGCC4
-        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
-        ifdef GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
-        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
-        endif
-        ifeq ($(GNU_GE_4_6),true)
-          DEFINES  += -DGCC46
-        endif
-        ifeq ($(GNU_GE_4_8),true)
-          FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
-          FOPTIMIZE +=-fno-aggressive-loop-optimizations
-          FOPTIONS += -Warray-bounds
-	  else
-          FOPTIONS   += -Wextra -Wuninitialized #-Wunused
         endif
         ifeq ($(GNU_GE_4_6),true) 
           FOPTIMIZE += -march=native -mtune=native
