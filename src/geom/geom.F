@@ -2169,7 +2169,9 @@ c
 c     compute effective nuclear repulsion energy, dipole and
 c     interaction with external fields
 c
-      call geom_compute_values(geom)
+c ***** commented  out by EJB, Please do not uncomment w/o talking to Eric ******
+c      call geom_compute_values(geom)
+c ***** commented  out by EJB, Please do not uncomment w/o talking to Eric ******
 c
       end
 c
