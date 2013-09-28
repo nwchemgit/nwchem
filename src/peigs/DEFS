@@ -705,17 +705,19 @@ ifeq ($(peigs_TARGET),BGQ)
      peigs_CPU = RS6000
      peigs_CODEOBJ=DBLE
      peigs_CC +=  -DSTD_DBL -g -O2
-     # GNU
-     #peigs_FC += -fdefault-integer-8 -g -O2 -funderscoring
-     #peigs_FC += -Iinclude -DTCGMSG -DSTD_DBL -DSTD_INT -DRS6000 -D$(peigs_COMM)
-     #peigs_BLASLIB   = -lblas 
-     #peigs_LAPACKLIB = -llapack 
-     # XL
-     peigs_FC += -qintsize=8 -g -O2 -qEXTNAME
-     ifdef USE_INTEGER4
-      peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+     # Jeff: This needs serious cleanup and care to be consistent w.r.t. config/makefile.h
+     ifeq ($(FC),mpif77)
+         #peigs_FC += -fdefault-integer-8 -g -O2 -funderscoring
+         peigs_FC += -Iinclude -DTCGMSG -DSTD_DBL -DSTD_INT -DRS6000 -D$(peigs_COMM)
+         peigs_BLASLIB   = -lblas 
+         peigs_LAPACKLIB = -llapack 
      else
-      peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DRS6000,-D$(peigs_COMM)
+         #peigs_FC += -qintsize=8 -g -O2 -qEXTNAME
+         ifdef USE_INTEGER4
+          peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+         else
+          peigs_FC += -WF,-Iinclude,-DTCGMSG,-DSTD_DBL,-DRS6000,-D$(peigs_COMM)
+         endif
      endif
      peigs_BLASLIB   = -lblas -lesslbg
      peigs_LAPACKLIB = -llapack -lesslbg
