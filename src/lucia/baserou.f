@@ -4238,7 +4238,7 @@ C
 *          variational method
 *
        IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-       DIMENSION VEC1(*),VEC2(*)
+       integer VEC1(2*NROOT),VEC2(2*NROOT),VEC3(2)
        REAL * 8   INPROD
        DIMENSION RNRM(MAXIT,NROOT),EIG(MAXIT,NROOT)
        DIMENSION APROJ(*),AVEC(*),WORK(*)
@@ -4292,19 +4292,19 @@ C
        CALL REWINO( LU2 )
        DO 10 IVEC = 1,NINVEC
 C?       WRITE(6,*) ' Before FRMDSC, NVAR = ', NVAR
-         CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
 C?       WRITE(6,*) ' Testing: initial vector'
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
-         CALL MV7(VEC1,VEC2,0,0,0,0)
-         CALL TODSC(VEC2,NVAR,-1  ,LU2)
+         CALL MV7(VEC1(IVEC),VEC2(IVEC),0,0,0,0)
+CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
 *        PROJECTED MATRIX
-         CALL REWINO( LU1)
+CNW      CALL REWINO( LU1)
          DO 8 JVEC = 1, IVEC
-           CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNV        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
            IJ = IVEC*(IVEC-1)/2 + JVEC
-           APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
+           APROJ(IJ) = INPROD(VEC1(JVEC),VEC2(IVEC),NVAR)
     8    CONTINUE
    10  CONTINUE
 *
@@ -4344,28 +4344,35 @@ C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
        IADD = 0
        CONVER = .TRUE.
        DO 100 IROOT = 1, NROOT
-         CALL SETVEC(VEC1,0.0D0,NVAR)
-*
-         CALL REWINO( LU2)
+CNW      CALL SETVEC(VEC1,0.0D0,NVAR)
+         call ga_zero(VEC3)
+*   
+CNW      CALL REWINO( LU2)
          DO 60 IVEC = 1, NVEC
-           CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
+CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
            FACTOR = AVEC((IROOT-1)*NVEC+IVEC)
-           CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+           call ga_add(FACTOR,VEC2(IVEC),1.0D0,VEC3(1),VEC3(1))
+CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
-*
+*        for Olson correction, avoid duplicate work
+         call ga_copy(VEC3(1),VEC3(2))
+   
          EIGAPR = EIG(ITER-1,IROOT)
-         CALL REWINO( LU1)
+CNW      CALL REWINO( LU1)
          DO 50 IVEC = 1, NVEC
-           CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
            FACTOR = -EIGAPR*AVEC((IROOT-1)*NVEC+ IVEC)
-           CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+           call ga_add(FACTOR,VEC2(IVEC),1.0D0,VEC3(1),VEC3(1))
+CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    50    CONTINUE
            IF ( IPRT  .GE.600 ) THEN
              WRITE(6,*) '  ( HX - EX ) '
-             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+             call ga_print(VEC3(1))
+CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
-         RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
+CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
+         RNORM = SQRT( ga_ddot(VEC3(1),VEC3(1)))
          RNRM(ITER-1,IROOT) = RNORM
          IF(RNORM.LT. TEST ) THEN
             RTCNV(IROOT) = .TRUE.
@@ -4377,45 +4384,58 @@ C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *.  1.2 : MULTIPLY WITH INVERSE HESSIAN APROXIMATION TO GET NEW DIRECTIO
          IF( .NOT. RTCNV(IROOT) ) THEN
            IADD = IADD + 1
-           CALL REWINO( LUDIA)
-           CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-           CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
+CNW        CALL REWINO( LUDIA)
+CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
+CNW        CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
+CNW  &                 H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
+CNW  &                 IPRT)
+           CALL H0M1TV(VECDIA,VEC3(1),VEC3(1),NVAR,NPRDIM,IPNTR,
      &                 H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
      &                 IPRT)
            IF ( IPRT  .GE. 600) THEN
              WRITE(6,*) '  (D-E)-1 *( HX - EX ) '
-             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+             call ga_print(VEC3(1))
+CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *
            IF(IOLSTM .NE. 0 ) THEN
 * add Olsen correction if neccessary
-              CALL REWINO(LU3)
-              CALL TODSC(VEC1,NVAR,-1,LU3)
+CNW           CALL REWINO(LU3)
+CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
 * Current eigen vector
-              CALL REWINO( LU1)
-              CALL SETVEC(VEC1,0.0D0,NVAR)
-              DO 59 IVEC = 1, NVEC
-                CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
-                FACTOR = AVEC((IROOT-1)*NVEC+ IVEC)
-                CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
-   59         CONTINUE
-              IF ( IPRT  .GE. 600 ) THEN
-                WRITE(6,*) ' And X  '
-                CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-              END IF
-              CALL TODSC(VEC1,NVAR,-1,LU3)
+CNW           CALL REWINO( LU1)
+CNW           CALL SETVEC(VEC1,0.0D0,NVAR)
+CNW           DO 59 IVEC = 1, NVEC
+CNW             CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW             FACTOR = AVEC((IROOT-1)*NVEC+ IVEC)
+CNW             CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+CNW59         CONTINUE
+CNW           IF ( IPRT  .GE. 600 ) THEN
+CNW             WRITE(6,*) ' And X  '
+CNW             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+CNW           END IF
+CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
 * (H0 - E )-1  * X
-              CALL REWINO( LUDIA)
-              CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-              CALL H0M1TV(VEC2,VEC1,VEC2,NVAR,NPRDIM,IPNTR,
+CNW           CALL REWINO( LUDIA)
+CNW           CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
+CNW           CALL H0M1TV(VEC2,VEC1,VEC2,NVAR,NPRDIM,IPNTR,
+              CALL H0M1TV(VECDIA,VEC3(2),VEC3(3),NVAR,NPRDIM,IPNTR,
      &                   H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
      &                 IPRT)
-              CALL TODSC(VEC2,NVAR,-1,LU3)
+CNW           CALL TODSC(VEC2,NVAR,-1,LU3)
 * Gamma = X(T) * (H0 - E) ** -1 * X
-              GAMMA = INPROD(VEC2,VEC1,NVAR)
+CNW           GAMMA = INPROD(VEC2,VEC1,NVAR)
+              GAMMA = ga_ddot(VEC3(3),VEC3(2))
+
+CBERT: H0M1TV and subsequent DDOT can be combined as we don't need
+CVEC3(2) anymore after we're done
+
 * is X an eigen vector for (H0 - 1 ) - 1
-              CALL VECSUM(VEC2,VEC1,VEC2,GAMMA,-1.0D0,NVAR)
-              VNORM = SQRT(MAX(0.0D0,INPROD(VEC2,VEC2,NVAR)))
+              call ga_add(FACTOR,VEC3(2),1.0D0,VEC3(3),VEC3(3))
+CNW           CALL VECSUM(VEC2,VEC1,VEC2,GAMMA,-1.0D0,NVAR)
+              VNORM = SQRT(MAX(0.0D0,ga_ddot(VEC3(3),VEC3(3))))
+CNW           VNORM = SQRT(MAX(0.0D0,INPROD(VEC2,VEC2,NVAR)))
+
               IF(VNORM .GT. 1.0D-7 ) THEN
                 IOLSAC = 1
               ELSE
@@ -4423,34 +4443,39 @@ C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
               END IF
               IF(IOLSAC .EQ. 1 ) THEN
                 IF(IPRT.GE.10) WRITE(6,*) ' Olsen Correction active '
-                CALL REWINO(LU3)
-                CALL FRMDSC(VEC2,NVAR,-1,LU3,IMZERO,IAMPACK)
-                DELTA = INPROD(VEC1,VEC2,NVAR)
-                CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
-                CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
+CNW             CALL REWINO(LU3)
+CNW             CALL FRMDSC(VEC2,NVAR,-1,LU3,IMZERO,IAMPACK)
+CNW             DELTA = INPROD(VEC1,VEC2,NVAR)
+                DELTA = ga_ddot(VEC3(3),VEC3(1))
+CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
+CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
                 FACTOR = -DELTA/GAMMA
                 IF(IPRT.GE.10) WRITE(6,*) ' DELTA,GAMMA,FACTOR'
                 IF(IPRT.GE.10) WRITE(6,*)   DELTA,GAMMA,FACTOR
-                CALL VECSUM(VEC1,VEC1,VEC2,FACTOR,1.0D0,NVAR)
+CNW             CALL VECSUM(VEC1,VEC1,VEC2,FACTOR,1.0D0,NVAR)
+                call ga_add(FACTOR,VEC3(1),1.0D0,VEC3(3),VEC3(1))
                 IF(IPRT.GE.600) THEN
                   WRITE(6,*) '  Modified new trial vector '
-                  CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+CNW               CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+                  call ga_print(VEC3(1))
                 END IF
               ELSE
                 IF(IPRT.GT.0) WRITE(6,*) 
      &          ' Inverse correction switched of'
-                CALL REWINO(LU3)
-                CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
+CNW             CALL REWINO(LU3)
+CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
               END IF
             END IF
 *. 1.3 ORTHOGONALIZE TO ALL PREVIOUS VECTORS
-           XNRMI =    INPROD(VEC1,VEC1,NVAR)
-           CALL REWINO( LU1 )
+           XNRMI = ga_ddot(VEC3(1),VEC3(1))
+CNW        XNRMI =    INPROD(VEC1,VEC1,NVAR)
+CNW        CALL REWINO( LU1 )
  
            DO 80 IVEC = 1,NVEC+IADD-1
-             CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
-             OVLAP = INPROD(VEC1,VEC2,NVAR)
-             CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
+CNW          CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW          OVLAP = INPROD(VEC1,VEC2,NVAR)
+CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
+             OVLAP = ga_ddot(VEC3(1),VEC1(IVEC))
    80      CONTINUE
 *. 1.4 Normalize vector and check for linear dependency
            SCALE = INPROD(VEC1,VEC1,NVAR)
