@@ -145,18 +145,19 @@
       double precision V_ray(*)
 
 *     **** local variables ****
-      real*8 ncut,eps
-      parameter (eps=1.0d-12,ncut=15.0d0)
+      !real*8 ncut,eps
+      !parameter (eps=1.0d-12,ncut=15.0d0)
+      integer ncut
+      parameter (ncut=15)
       integer i
       double precision g,qmax,fac
 
 c      qmax = dsqrt(ecut+ecut)
 c     >      /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
-      qmax = dsqrt(ecut+ecut)
-      !write(*,*) "qmax=",qmax
+      qmax = dsqrt(ecut+ecut) 
       do i=1,nray
          g = G_ray(i)
-         if (g.gt.qmax) then
+         if (g.gt.(qmax-0.2d0)) then
             fac = 1.0d0 - (1.0d0-exp(-(g/qmax)**ncut))**ncut
             V_ray(i) = V_ray(i)*fac
          end if
