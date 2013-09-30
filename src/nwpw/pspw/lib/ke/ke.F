@@ -15,7 +15,7 @@
 
 *     **** parameters - filter ****
       real*8 eps,ncut
-      parameter (eps=1.0d-12,ncut=15.0d0)
+      parameter (eps=1.0d-12,ncut=151.0d0)
 
 *     **** local variables ****
       integer npack1,nfft3d,G(3)
@@ -84,7 +84,7 @@ c     real*8 tg(nfft3d)
 c         Gcut = dsqrt(lattice_wggcut()) 
 c     >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
          
-         Gcut = dsqrt(lattice_wggcut()) 
+         Gcut = dsqrt(lattice_wggcut()) - 0.10d0
 
          !write(*,*) "Gcut==",Gcut
          do i=1,nfft3d
@@ -92,12 +92,17 @@ c     >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
      >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
             g1 = dsqrt(gg)
+            if (g1.gt.Gcut) then
             dbl_mb(tmp1(1)+i-1) = 1.0d0
      >                          -(1.0d0-dexp(-(g1/Gcut)**ncut))**ncut
             dbl_mb(tmp2(1)+i-1) = -((1.0d0-dexp(-(g1/Gcut)**ncut))**ncut
      >                              *ncut**2 
      >                              *(g1/Gcut)**ncut)
      >                             /(2.0d0*(-1.0d0+dexp(g1/Gcut)**ncut))
+            else
+               dbl_mb(tmp1(1)+i-1) = 1.0d0
+               dbl_mb(tmp2(1)+i-1) = 0.0d0
+            end if
          end do
          call Pack_t_pack(1,dbl_mb(tmp1(1)))
          call Pack_t_pack(1,dbl_mb(tmp2(1)))
