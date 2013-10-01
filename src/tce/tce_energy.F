@@ -7617,7 +7617,7 @@ c === jaguar ===
         do ivec=1,nroots
         dbl_mb(k_omegax+ivec-1)=eom_excit(ivec)
         if(nodezero) then
-         write(6,*)'read excitation energy: ',dbl_mb(k_omegax+ivec-1)
+         write(LuOut,*)'read excit. energy: ',dbl_mb(k_omegax+ivec-1)
          call util_flush(6)
         end if
         enddo
@@ -7876,7 +7876,7 @@ c
 c === jaguar ===
         if(eom_start) then
         if(nodezero) then
-         write(LuOut)'INI.EOMCCSD READ IN nroot_reduced=',nroots_reduced
+         write(LuOut,*)'IN.EOMSD READ IN nroot_reduced=',nroots_reduced
          call util_flush(LuOut)
         end if
         nroots_reduced=nroots
