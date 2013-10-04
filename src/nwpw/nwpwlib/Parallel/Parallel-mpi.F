@@ -701,6 +701,7 @@ c     implicit none
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
+      if (.not.value) call errquit('dealloc stack memory',0,MA_ERR)
 
       end if
       call nwpw_timing_end(2)
