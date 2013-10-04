@@ -623,6 +623,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call Cram_r_Copy(0,tmp2,dvl)
 
 *     **** read in dvnl 3d blocks ****
+      if (lmmax.gt.0) then
       dvnl_tag = cpsp_projector_alloc(brillioun_nbrillq(),
      >                                3*lmmax,npack1)
       do nb=1,brillioun_nbrillioun()
@@ -637,6 +638,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          end do
       end do
+      end if
 
 *     **** read in semicore density block ****
       if (semicore) then
@@ -775,6 +777,9 @@ c         !nproj = psp_lmmax(ia)
               if (taskid.eq.MASTER) then
               write(6,*) "pseudopotential is not correctly formatted:",
      >                    fname
+              end if
+              if (nproj.gt.0) then
+                 call cpsp_projector_dealloc(int_mb(dvnl(1)+ia-1))
               end if
            end if
            if (correct_box) found = .true.

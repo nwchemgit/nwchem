@@ -16,6 +16,7 @@ c $Id$
 
 *     **** local variables ****
       logical value
+      integer ltag
 
 *     **** external functions ****
       logical  control_brillioun_ondisk
@@ -37,8 +38,14 @@ c $Id$
      >                               indx_prj(2),indx_prj(1))
       value = value.and.MA_alloc_get(mt_int,npsp,'hndl_prj',
      >                               hndl_prj(2),hndl_prj(1))
+      value = value.and.MA_alloc_get(mt_int,npsp,'list_prj',
+     >                               list_prj(2),list_prj(1))
       if (.not.value) 
      > call errquit('cpsp_projector_init: out of heap memory',0,MA_ERR)
+
+      do ltag=0,npsp-1
+         int_mb(list_prj(1)+ltag) = ltag
+      end do
 
       return
       end
@@ -61,7 +68,7 @@ c $Id$
       logical value
       integer tag,hndl,indx
 
-      tag    = tagmax 
+      tag    = int_mb(list_prj(1)+tagmax)
       int_mb(nbrill_prj(1)+tag) = nbrill
       int_mb(nprj_prj(1)+tag)   = nprj
       int_mb(nsize_prj(1)+tag)  = nsize
@@ -77,6 +84,45 @@ c $Id$
       tagmax = tagmax + 1
 
       cpsp_projector_alloc = tag
+      return
+      end
+
+*     ************************************************
+*     *                                              *
+*     *             cpsp_projector_dealloc           *
+*     *                                              *
+*     ************************************************
+
+      subroutine cpsp_projector_dealloc(tagin)
+      implicit none
+      integer tagin
+
+#include "mafdecls.fh"
+#include "cpsp_projector.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer ltagin,taglast,hndl
+               
+      hndl = int_mb(hndl_prj(1)+tagin)
+      if (.not.MA_free_heap(hndl))
+     >call errquit('cpsp_projector_dealloc:error freeing heap',0,MA_ERR)
+               
+      tagmax  = tagmax - 1
+      taglast = int_mb(list_prj(1)+tagmax)
+               
+*     **** swap list_prj(tagin) with list_prj(tagmax) ***
+      if (tagin.ne.taglast) then
+         !*** find where tagin is in the list ****
+         ltagin = 0 
+         do while (int_mb(list_prj(1)+ltagin).ne.tagin)
+             ltagin = ltagin + 1
+         end do
+         if (ltagin.gt.tagmax)
+     > call errquit('cpsp_projector_dealloc:cannot find tagin',tagin,0)
+         int_mb(list_prj(1) + ltagin) = int_mb(list_prj(1) + tagmax)
+         int_mb(list_prj(1) + tagmax) = tagin
+      end if
       return
       end
 
@@ -96,10 +142,11 @@ c $Id$
 
 *     ***** local variables ****
       logical value
-      integer tag,hndl,indx
+      integer tag,ltag,hndl,indx
 
       value = .true.
-      do tag=0,tagmax-1
+      do ltag=0,tagmax-1
+         tag  = int_mb(list_prj(1)+ltag)
          hndl = int_mb(hndl_prj(1)+tag)
          value = value.and.MA_free_heap(hndl)
       end do
@@ -108,6 +155,7 @@ c $Id$
       value = value.and.MA_free_heap(nsize_prj(2))
       value = value.and.MA_free_heap(indx_prj(2))
       value = value.and.MA_free_heap(hndl_prj(2))
+      value = value.and.MA_free_heap(list_prj(2))
       if (.not.value) 
      > call errquit('cpsp_projector_end:error freeing heap',0,MA_ERR)
 
