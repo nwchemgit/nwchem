@@ -710,11 +710,11 @@ c       close(11)
       nbrill = brillioun_nbrillioun()
 
 ccc corrected to complex by pjn 11-7-06
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = MA_push_get(mt_dcpl,(2*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) 
      > call errquit('cpsp_stress_readall:out of stack memory',0,MA_ERR)
 
-      value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('cpsp_stress_readall:out of stack memory',0,MA_ERR)
 
