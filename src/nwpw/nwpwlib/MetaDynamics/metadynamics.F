@@ -1815,7 +1815,7 @@ c               close(53)
            write(54,'(A,I8)') "#metarayshift ",metarayshift
            write(54,'(A,I8)') "#metaraycount ",metaraycount
            write(54,'(A,I8)') "#maxmetaprintcount ",maxmetaprintcount
-           write(54,'(A)') "# (r(i),i=1,n),(sigma(i),i=1,n),w,",
+           write(54,'(2A)') "# (r(i),i=1,n),(sigma(i),i=1,n),w,",
      >                     "E(2)-E(31)+E(32),E(3),E(4),E(31),E(32)"
          end if
       end if
