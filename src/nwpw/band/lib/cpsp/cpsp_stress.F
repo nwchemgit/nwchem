@@ -778,7 +778,7 @@ c         !nproj = psp_lmmax(ia)
               write(6,*) "pseudopotential is not correctly formatted:",
      >                    fname
               end if
-              if (nproj.gt.0) then
+              if ((ierr.eq.0).and.(nproj.gt.0)) then
                  call cpsp_projector_dealloc(int_mb(dvnl(1)+ia-1))
               end if
            end if
