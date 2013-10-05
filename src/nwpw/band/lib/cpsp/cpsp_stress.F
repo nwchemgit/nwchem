@@ -543,8 +543,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer dvnl_tag
       logical semicore
       real*8 dncore(*)
-      complex*16 tmp(*)
-      real*8     tmp2(*)
+      real*8 tmp(*)
+      real*8 tmp2(*)
       integer ierr
 
 #ifdef MPI
@@ -630,7 +630,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          call K1dB_ktoqp(nb,nbq,pk)
          do n=1,lmmax
          do i=1,3
-            call C3dB_r_Read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
                call cpsp_projector_add(dvnl_tag,nbq,(3*(n-1)+i),tmp2)
@@ -712,11 +712,11 @@ c       close(11)
       nbrill = brillioun_nbrillioun()
 
 ccc corrected to complex by pjn 11-7-06
-      value = MA_push_get(mt_dcpl,(2*nfft3d),'tmp',tmp(2),tmp(1))
+      value = MA_push_get(mt_dbl,(4*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) 
      > call errquit('cpsp_stress_readall:out of stack memory',0,MA_ERR)
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dbl,(4*nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('cpsp_stress_readall:out of stack memory',0,MA_ERR)
 
@@ -747,7 +747,7 @@ c         !nproj = psp_lmmax(ia)
      >                  int_mb(dvnl(1)+ia-1),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(ncore(1) + npack0 + (ia-1)*5*npack0),
-     >                  dcpl_mb(tmp(1)),dbl_mb(tmp2(1)),
+     >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
 
