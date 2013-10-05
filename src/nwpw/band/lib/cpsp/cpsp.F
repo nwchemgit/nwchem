@@ -1938,7 +1938,7 @@ cccccccccccccccccccc
               write(luout,*) 
      >        "pseudopotential is not correctly formatted:",fname
               end if
-              if (int_mb(nprj(1)+ia-1).gt.0) then
+              if ((ierr.eq.0).and.(int_mb(nprj(1)+ia-1).gt.0)) then
                  call cpsp_projector_dealloc(int_mb(vnl(1)+ia-1))
                  if ((int_mb(psp_type(1)+ia-1).eq.7)
      >               .or.(do_spin_orbit)) then
