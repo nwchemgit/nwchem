@@ -11691,12 +11691,12 @@ C       WRITE(6,*) ' ILTEST, ISIMSYM =  ', ILTEST, ISIMSYM
 *. The active occupation classes
       IF(ISPC.LE.NCMBSPC) THEN
         CALL OCCLS_IN_CISPACE(NOCCLS_ACT,IOCCLS_ACT,
-     &       NOCCLS_MAX,WORK(KIOCCLS),NGAS,
+     &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(ISPC),ICMBSPC(1,ISPC),IGSOCCX,ISPC)
 *. Number of configurations per number of open orbitals
         IF(NOCSF.EQ.0) THEN
           CALL GET_NCONF_PER_OPEN_FOR_SUM_OCCLS(NCONF_PER_OPEN(1,ISM),
-     &         MAXOP,NOCCLS_ACT,IOCCLS_ACT,ISM,WORK(KNCN_PER_OP_SM),
+     &         MAXOP,NOCCLS_ACT,IOCCLS_ACT,ISM,int_mb(KNCN_PER_OP_SM),
      &         NIRREP)
 *. And offsets
           CALL INFO_CONF_LIST(ISM,LENGTH_LIST_LOC, NCONF_TOT_LOC)
@@ -11711,12 +11711,12 @@ C       WRITE(6,*) ' ILTEST, ISIMSYM =  ', ILTEST, ISIMSYM
       CALL MEMCHK2('Z_BEPA')
       IF(NOCSF.EQ.0.AND.I_DO_BLOCKS.EQ.1) THEN
         CALL PART_CIV_OCC(IDC, IBLTP,ISM,NSMST,
-     &       LBLOCK,ISMOST(1,ISM),WORK(KNSTSO(IATP)),
-     &       WORK(KNSTSO(IBTP)),
+     &       LBLOCK,ISMOST(1,ISM),int_mb(KNSTSO(IATP)),
+     &       int_mb(KNSTSO(IBTP)),
      &       NOCCLS_ACT,IOCCLS_ACT,
-     &       WORK(KNABSPGP_FOR_OCCLS),WORK(KIBABSPGP_FOR_OCCLS),
-     &       WORK(KIABSPGP_FOR_OCCLS),
-     %       WORK(KNSD_FOR_OCCLS),
+     &       dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
+     &       dbl_mb(KIABSPGP_FOR_OCCLS),
+     %       int_mb(KNSD_FOR_OCCLS),
      &       NBATCH,NBLK_PER_BATCH,NELMNT_PER_BATCH,
      &       IB_FOR_BATCH, IBLOCKFO,ICOMP,
      &       NOCCLS_BAT,IBOCCLS_BAT)
@@ -11729,8 +11729,8 @@ C    &           NCM_PER_OCCLS,
 C    &           NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP,
 C    &           NOCCLS_BAT,IB_OCCLS_BAT)
       ELSE
-        CALL PART_CIV2(IDC,IBLTP,WORK(KNSTSO(IATP)),
-     &       WORK(KNSTSO(IBTP)),
+        CALL PART_CIV2(IDC,IBLTP,int_mb(KNSTSO(IATP)),
+     &       int_mb(KNSTSO(IBTP)),
      &       NOCTPA,NOCTPB,NSMST,LBLOCK,IOIO,
      &       ISMOST(1,ISM),
      &       NBATCH,NBLK_PER_BATCH,NELMNT_PER_BATCH,
