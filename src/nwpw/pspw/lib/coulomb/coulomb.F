@@ -325,8 +325,8 @@ c     >                                   dbl_mb(tmp2(1)))
 *     **** external functions ****
       integer  G_indx,ion_nion
       external G_indx,ion_nion
-      real*8   lattice_omega,ion_rion,util_erfc
-      external lattice_omega,ion_rion,util_erfc
+      real*8   lattice_omega,ion_rion
+      external lattice_omega,ion_rion
 
       pi = 4.0d0*datan(1.0d0)
       sqrt_pi  = dsqrt(pi)

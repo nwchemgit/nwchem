@@ -1,6 +1,6 @@
 *     *************************************  
 *     *                                   *
-*     *         coulomb2_init              *
+*     *        coulomb2_init              *
 *     *                                   *
 *     *************************************  
 *
@@ -48,6 +48,8 @@ c     **** local variables  ****
       integer index1,p,taskid
 
 c     **** external functions ****
+      logical  control_fast_erf
+      external control_fast_erf
       real*8   lattice_unita,util_erf
       external lattice_unita,util_erf
 
@@ -147,6 +149,71 @@ c    >                 + (q-1)*(nx/2+1)*ny
 
 *     **** long-range part of Greens function ****
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(glr(1)),1)
+
+      if (control_fast_erf()) then
+
+      do k = 1, nz
+         k1=k-1
+         if (k1 .gt. nz/2) k1 = k1-nz
+
+         do j = 1, ny
+            j1=j-1
+            if (j1 .gt. ny/2) j1 = j1-ny
+
+            do i = 1, nx
+               i1=i-1
+               if (i1 .gt. nx/2) i1 = i1-nx
+
+               call D3dB_ijktoindex2p(2,i,j,k,index1,p)
+               if (p.eq.taskid) then
+               x = i1*dunita(1,1)/dble(nx)
+     >           + j1*dunita(1,2)/dble(ny)
+     >           + k1*dunita(1,3)/dble(nz)
+               y = i1*dunita(2,1)/dble(nx)
+     >           + j1*dunita(2,2)/dble(ny)
+     >           + k1*dunita(2,3)/dble(nz)
+               z = i1*dunita(3,1)/dble(nx)
+     >           + j1*dunita(3,2)/dble(ny)
+     >           + k1*dunita(3,3)/dble(nz)
+
+c              x = i1*dunita(1,1)/dble(nx)
+c    >           + k1*dunita(1,2)/dble(ny)
+c    >           + j1*dunita(1,3)/dble(nz)
+c              y = i1*dunita(2,1)/dble(nx)
+c    >           + k1*dunita(2,2)/dble(ny)
+c    >           + j1*dunita(2,3)/dble(nz)
+c              z = i1*dunita(3,1)/dble(nx)
+c    >           + k1*dunita(3,2)/dble(ny)
+c    >           + j1*dunita(3,3)/dble(nz)
+
+
+               temp = dsqrt(x*x + y*y + z*z)
+               if (temp .gt. 1.0d-15) then
+
+                  xerf=EPSILON*temp
+                  yerf = (1.0d0
+     >                 + xerf*(c1 + xerf*(c2
+     >                 + xerf*(c3 + xerf*(c4
+     >                 + xerf*(c5 + xerf*c6))))))**4
+                  yerf = (1.0d0 - 1.0d0/yerf**4)
+                  temp = yerf/temp
+
+c                  temp = util_erf(EPSILON*temp)/temp
+               else
+                  temp = 2.0d0*EPSILON/dsqrt(PI)
+               end if
+
+               !index1 = i + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+               dbl_mb(glr(1)+index1-1) = temp*dV
+
+               end if
+            end do
+         end do
+      end do
+
+
+      else
+
       do k = 1, nz
          k1=k-1
          if (k1 .gt. nz/2) k1 = k1-nz
@@ -204,6 +271,8 @@ c                 temp = yerf/temp
             end do
          end do
       end do
+
+      end if
 
 *     **** Put glr in k-space ****
       call D3dB_rc_fft3f(2,dbl_mb(glr(1)))
