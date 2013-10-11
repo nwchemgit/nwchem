@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 104)
+      parameter (num_dirs = 105)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -119,6 +119,7 @@ c
      >            'use_grid_cmp',
      >            'lcao_mask',
      >            'tamd',
+     >             'fast_erf',
      >            'end'/
 
       double precision kb
@@ -184,6 +185,7 @@ c
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
+     >       7700,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1639,6 +1641,19 @@ c
  7600 call tamd_input(rtdb)
       goto 10
 
+c
+c  fast_erf
+c
+ 7700 if (inp_a(zone_name)) then
+         move = .true.
+         move = nwpw_parse_boolean(zone_name,move)
+      else
+         move = .true. 
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:fast_erf',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',7700,RTDB_ERR)
+
+      goto 10
 
 
 
