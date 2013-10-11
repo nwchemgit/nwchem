@@ -136,6 +136,7 @@ C Some routines added for configurations, spin and CSF's
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cgas.inc'
@@ -198,7 +199,7 @@ C     CALL MEMMAN(KLZ,NOCOB*NELEC*2,'ADDL  ',1,'Z     ')
      & WRITE(6,*) ' NCONF_AS in GEN_CONF... =', NCONF_AS
       M1 = -1
 C?    WRITE(6,*) ' KICONF_REO(1) = ', KICONF_REO(1)
-      CALL ISETVC(WORK(KICONF_REO(ISPC)),M1,NCONF_AS)
+      CALL ISETVC(int_mb(KICONF_REO(ISPC)),M1,NCONF_AS)
 *
 * Set up the configurations 
 *
@@ -208,10 +209,12 @@ C?    WRITE(6,*) ' KICONF_REO(1) = ', KICONF_REO(1)
         JOCCLS = IOCCLS(JJOCCLS)
 *. Save offset to current occupation class 
 C             ITOR(WORK,IROFF,IVAL,IELMNT)
-        CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
+c.. dongxia: now we use int_mb, does not switch pointers.
+c       CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
+        int_mb(kib_occls(isym)+joccls-1)=ib_occls
 *.Max and min arrays for strings
 C            MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,MINOP,NTESTG)
-        CALL MXMNOC_OCCLS(WORK(KLOCMIN),WORK(KLOCMAX),NGAS,
+        CALL MXMNOC_OCCLS(int_mb(KLOCMIN),int_mb(KLOCMAX),NGAS,
      &      NOBPT,IOCCLS_LIST(1,JOCCLS),MINOP,NTEST)
 C            CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 *. the arcweights
@@ -219,8 +222,8 @@ C            CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
           WRITE(6,*) ' KLOCMIN, KLOCMAX, KZCONF, KLZSCR',
      &                 KLOCMIN, KLOCMAX, KZCONF, KLZSCR
         END IF
-        CALL CONF_GRAPH(WORK(KLOCMIN),WORK(KLOCMAX),NACOB,
-     &        NELEC,WORK(KZCONF),NCONF_P,WORK(KLZSCR))
+        CALL CONF_GRAPH(int_mb(KLOCMIN),int_mb(KLOCMAX),NACOB,
+     &        NELEC,int_mb(KZCONF),NCONF_P,int_mb(KLZSCR))
 *
          IF(JJOCCLS.EQ.1) THEN
             INITIALIZE_CONF_COUNTERS = 1
@@ -246,8 +249,8 @@ C?         WRITE(6,*) ' IB_OCCLS before GEN_CONF', IB_OCCLS
      &        NGAS,ISYM,MINOP,MAXOP,NSMST,0,NACOB,
      &        NOBPT,NCONF_PER_OPEN(1,ISYM),NCONF_OCCLSL,
      &        IB_CN_OPEN,IB_CNOCC_OPEN,
-     &        WORK(KICONF_OCC(ISYM)),IDOREO,WORK(KZCONF),
-     &        WORK(KICONF_REO(1)),NCONF_ALL_SYM,IB_ORB,
+     &        int_mb(KICONF_OCC(ISYM)),IDOREO,int_mb(KZCONF),
+     &        int_mb(KICONF_REO(1)),NCONF_ALL_SYM,IB_ORB,
      &        NCONF_OCCLS_ALLSYM)
           IB_OCCLS = IB_OCCLS + NCONF_OCCLS_ALLSYM
           NCONF_CISPC = NCONF_CISPC + NCONF_OCCLSL
@@ -270,21 +273,21 @@ C?         WRITE(6,*) ' IB_OCCLS before GEN_CONF', IB_OCCLS
           END IF
 *
           CALL GEN_OCCONF_FOR_OCCLS_FROM_OCSBCLS(
-     &         IOCCLS_LIST(1,JOCCLS),ISYM,WORK(KICONF_OCC(ISYM)),
+     &         IOCCLS_LIST(1,JOCCLS),ISYM,int_mb(KICONF_OCC(ISYM)),
      &         IB_CNOCC_OPEN,IB_CN_OPEN,NCONF_PER_OPEN(1,ISYM),
-     &         MINOP, MAXOP,WORK(KKOCSBCNF),
-     &         WORK(KNSBCNF),WORK(KIBSBCNF))
+     &         MINOP, MAXOP,dbl_mb(KKOCSBCNF),
+     &         dbl_mb(KNSBCNF),dbl_mb(KIBSBCNF))
 *
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NCONF_PER_OPEN after GEN_OCCONF'
             CALL IWRTMA(NCONF_PER_OPEN(1,ISYM),1,MAXOP+1,1,MAXOP+1)
           END IF
 *. And the mapping from lexical number (+offset) to actual number
-          CALL REO_FOR_CONFS(WORK(KICONF_OCC(ISYM)),
+          CALL REO_FOR_CONFS(int_mb(KICONF_OCC(ISYM)),
      &         MAXOP,NSMOB,NCONF_OPP,NCONF_PER_OPEN(1,ISYM),
-     &         IB_CN_OPEN,IB_CNOCC_OPEN,IB_OCCLS,WORK(KZCONF),
+     &         IB_CN_OPEN,IB_CNOCC_OPEN,IB_OCCLS,int_mb(KZCONF),
      &         NACOB,NELEC,
-     &         WORK(KICONF_REO(1)))
+     &         int_mb(KICONF_REO(1)))
 C              REO_FOR_CONFS(IOCC,IBCONF,MAXOP,NSMOB,
 C    &             NCONF_OP1,NCONF_OP2,IBCONF_OP,IBOCCCONF_OP,IB_OCCLS,
 C    &             IZCONF,NORBT,NELEC,IREO)
@@ -320,12 +323,12 @@ C?    CALL IWRTMA(WORK(KICONF_REO(1)),1,1,1,1)
       IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Final list of configurations: '
           CALL WRT_CONF_LIST2(
-     &    WORK(KICONF_OCC(ISYM)),IB_CNOCC_OPEN,
+     &    int_mb(KICONF_OCC(ISYM)),IB_CNOCC_OPEN,
      &    NCONF_PER_OPEN(1,ISYM),MAXOP,NCONF_CISPC,NELEC)
 C         WRT_CONF_LIST2
 C    &    (ICONF,IB_CONF_OCC,NCONF_FOR_OPEN,MAXOP,NCONF,NELEC)
           WRITE(6,*) ' Final reordering of confs, Lex=>Act:'
-          CALL IWRTMA(WORK(KICONF_REO(1)),
+          CALL IWRTMA(int_mb(KICONF_REO(1)),
      &         1,NCONF_ALL_SYM,1,NCONF_ALL_SYM)
       END IF
 
@@ -8264,9 +8267,10 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *
 *. Jeppe Olsen, Feb. 2012
 *
+#include "madecls.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc-static.inc'
+c     INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'spinfo.inc'  
       INCLUDE 'lucinp.inc'
@@ -8303,7 +8307,7 @@ C          GET_OCCLS_OCC_FOR_NUMB(IOCCLS_OCC,IOCCLS_NUM)
       IOCCLS_ADD = (IOCCLS_NUM-1)*NIRREP*(MAXOP+1)
      &            +(ISYM-1)*(MAXOP+1) + 1
 C?    WRITE(6,*) ' IOCCLS_ADD = ', IOCCLS_ADD
-      CALL ICOPVE2(WORK(KNCN_PER_OP_SM),IOCCLS_ADD,MAXOP+1,
+      CALL ICOPVE2(int_mb(KNCN_PER_OP_SM),IOCCLS_ADD,MAXOP+1,
      &             NCN_FOR_OC_OP_ACT)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' NCN_FOR_OC_OP_ACT '
@@ -8334,7 +8338,7 @@ C     NCNF_TO_NCOMP_PER_OP(MAXOP,NCONF_PER_OPEN,NCOMP_PER_OPEN,NCOMP)
         WRITE(6,*) ' IB_CM_OPEN '
         CALL IWRTMA(IB_CM_OPEN,1,MAXOP+1,1,MAXOP+1)
       END IF
-      CALL ICOPVE2(WORK(KNCN_ALLSYM_FOR_OCCLS),IOCCLS_NUM,1,
+      CALL ICOPVE2(int_mb(KNCN_ALLSYM_FOR_OCCLS),IOCCLS_NUM,1,
      &     NCONF_ALL_SYM_GN(1))
 *
       IATP = 1
@@ -8353,12 +8357,12 @@ C     ZIB_CONFOCC(N_CONF_FOR_OP,NEL,IB_CONF_FOR_OP,MAXOP)
 * Occupation of Configuration: KICONF_OCC(ISYM)
 * Reorder array of configurations: KICONF_REO
 C          GEN_CONF_FOR_CISPC(IOCCLS,NOCCLS,ISYM)
-      CALL GEN_CONF_FOR_CISPC(IOCCLS_NUM,1,ISYM,WORK(KIOCCLS))
+      CALL GEN_CONF_FOR_CISPC(IOCCLS_NUM,1,ISYM,int_mb(KIOCCLS))
 *  
 *. Reorder array of determinants betweeen conf and string order
 * =============================================================
       IF(IDOSDREO.EQ.1) THEN
-        CALL REO_SD_FOR_OCCLS(IOCCLS_NUM,ISYM,WORK(KSDREO_I(ISYM)))   
+        CALL REO_SD_FOR_OCCLS(IOCCLS_NUM,ISYM,int_mb(KSDREO_I(ISYM)))   
       END IF
 *
       CALL QEXIT('GTCNF')
@@ -8388,6 +8392,7 @@ C          GEN_CONF_FOR_CISPC(IOCCLS,NOCCLS,ISYM)
 *.Input
 * =====
 *
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strbas.inc'
@@ -8508,66 +8513,66 @@ C          GEN_CONF_FOR_CISPC(IOCCLS,NOCCLS,ISYM)
       CALL MEMMAN(KLBLTP,NSMST,'ADDL   ',1,'BLTP  ')
 *. 
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,WORK(KLBLTP),WORK(KSVST))
-      NCMB_CN = IFRMR(WORK,KNCM_FOR_OCCLS,(IOCCLS_NUM-1)*NSMST+ISYM)
+      CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,int_mb(KLBLTP),int_mb(KSVST))
+      NCMB_CN = int_mb(KNCM_FOR_OCCLS+(IOCCLS_NUM-1)*NSMST+ISYM-1)
 C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
       ILCHK = -2303
       IF(INEW_OR_OLD.EQ.2) THEN
         CALL REO_SD_FOR_OCCLS_S(IOCCLS_NUM,ISYM,IREO,
-     &       NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,NAEL,NBEL,
+     &       NOCTPA,NOCTPB,IOCTPA,IOCTPB,NAEL,NBEL,
      &       NSMST,NGAS,IB_ORB,NACOB,NOCOB,PSSIGN,MINOP,
-     &       NTOOB,NOBPT,WORK(KLBLTP),ISMOST(1,ISYM),
-     &       WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &       WORK(KICONF_REO(1)),WORK(KZCONF),
-     &       NPCMCNF,WORK(KDFTP),
-     &       WORK,KZ_PTDT,KREO_PTDT,
+     &       NTOOB,NOBPT,int_mb(KLBLTP),ISMOST(1,ISYM),
+     &       int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &       int_mb(KICONF_REO(1)),int_mb(KZCONF),
+     &       NPCMCNF,int_mb(KDFTP),
+     &       KZ_PTDT,KREO_PTDT,
      &       IB_CN_OPEN, IB_CM_OPEN,
-     &       WORK(KNABSPGP_FOR_OCCLS),WORK(KIBABSPGP_FOR_OCCLS),
-     &       WORK(KIABSPGP_FOR_OCCLS),
-     &       WORK(KLASTR),WORK(KLBSTR),
-     &       WORK(KLDET_OC),WORK(KLDET_MS),WORK(KLDET_VC),ILCHK)
+     &       dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
+     &       dbl_mb(KIABSPGP_FOR_OCCLS),
+     &       int_mb(KLASTR),int_mb(KLBSTR),
+     &       int_mb(KLDET_OC),int_mb(KLDET_MS),int_mb(KLDET_VC),ILCHK)
       ELSE
        IF(INEW_OR_SUPERNEW.EQ.1) THEN
        CALL REO_SD_FOR_OCCLS_SN(IOCCLS_NUM,ISYM,IREO,
-     &        NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,NAEL,NBEL,
+     &        NOCTPA,NOCTPB,IOCTPA,IOCTPB,NAEL,NBEL,
      &        NSMST,NGAS,IB_ORB,NACOB,NOCOB,PSSIGN,MINOP,
-     &        NTOOB,NOBPT,WORK(KLBLTP),ISMOST(1,ISYM),
-     &        WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &        WORK(KICONF_REO(1)),WORK(KZCONF),
-     &        NPCMCNF,WORK(KDFTP),
-     &        WORK,KZ_PTDT,KREO_PTDT,
+     &        NTOOB,NOBPT,int_mb(KLBLTP),ISMOST(1,ISYM),
+     &        int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &        int_mb(KICONF_REO(1)),int_mb(KZCONF),
+     &        NPCMCNF,int_mb(KDFTP),
+     &        KZ_PTDT,KREO_PTDT,
      &        IB_CN_OPEN, IB_CM_OPEN,
-     &        WORK(KNABSPGP_FOR_OCCLS),WORK(KIBABSPGP_FOR_OCCLS),
-     &        WORK(KIABSPGP_FOR_OCCLS),
-     &        WORK(KLASTR),WORK(KLBSTR),
-     &        WORK(KLDET_OC),WORK(KLDET_MS),WORK(KLDET_VC),ILCHK)
+     &        dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
+     &        dbl_mb(KIABSPGP_FOR_OCCLS),
+     &        int_mb(KLASTR),int_mb(KLBSTR),
+     &        int_mb(KLDET_OC),int_mb(KLDET_MS),int_mb(KLDET_VC),ILCHK)
        ELSE 
 *. The supernew approach
        CALL REO_SD_FOR_OCCLS_SSN(IOCCLS_NUM,ISYM,IREO,
      &        NOCTPA,NOCTPB,IOCTPA,IOCTPB,NAEL,NBEL,
      &        NSMST,NGAS,IB_ORB,NACOB,NOCOB,PSSIGN,MINOP,
-     &        NTOOB,NOBPT,WORK(KLBLTP),ISMOST(1,ISYM),
-     &        WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &        WORK(KISTSO(IATP)),WORK(KISTSO(IBTP)),
-     &        WORK(KICONF_REO(1)),WORK(KZCONF),
-     &        NPCMCNF,WORK(KDFTP),
-     &        WORK,KZ_PTDT,KREO_PTDT,
+     &        NTOOB,NOBPT,int_mb(KLBLTP),ISMOST(1,ISYM),
+     &        int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &        int_mb(KISTSO(IATP)),int_mb(KISTSO(IBTP)),
+     &        int_mb(KICONF_REO(1)),int_mb(KZCONF),
+     &        NPCMCNF,int_mb(KDFTP),
+     &        KZ_PTDT,KREO_PTDT,
      &        IB_CN_OPEN, IB_CM_OPEN,
-     &        WORK(KNABSPGP_FOR_OCCLS),WORK(KIBABSPGP_FOR_OCCLS),
-     &        WORK(KIABSPGP_FOR_OCCLS),
-     &        WORK(KLASTRP),WORK(KLBSTRP),
-     &        WORK(KLDET_OC),WORK(KLDET_MS),WORK(KLDET_VC),
-     &        WORK(KLDET_MS_AB),
+     &        dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
+     &        dbl_mb(KIABSPGP_FOR_OCCLS),
+     &        int_mb(KLASTRP),int_mb(KLBSTRP),
+     &        int_mb(KLDET_OC),int_mb(KLDET_MS),int_mb(KLDET_VC),
+     &        int_mb(KLDET_MS_AB),
      &        ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),
-     &        WORK(KNSTSGP(1)),WORK(KISTSGP(1)),
-     &        WORK(KLCNSTSTP), WORK(KLCNSTSTL), WORK(KLSMSMP), 
-     &        WORK(KLSMSML),WORK(KLCNOCSTSTL),
-     &        WORK(KLCNOCSTSTL_AB),
-     &        WORK(KLCNSTSTL_AB), WORK(KLNALSTSTL_AB),
-     &        WORK(KLNOPSTSTP),WORK(KLNOPSTSTL),
-     &        WORK(KLNALSTSTP),WORK(KLNALSTSTL),
-     &        WORK(KLIADOPSTSTP),WORK(KLABSWITCHP),
-     &        WORK(KLABSWITCHL),
+     &        int_mb(KNSTSGP(1)),int_mb(KISTSGP(1)),
+     &        int_mb(KLCNSTSTP), int_mb(KLCNSTSTL), int_mb(KLSMSMP), 
+     &        int_mb(KLSMSML),int_mb(KLCNOCSTSTL),
+     &        int_mb(KLCNOCSTSTL_AB),
+     &        int_mb(KLCNSTSTL_AB), int_mb(KLNALSTSTL_AB),
+     &        int_mb(KLNOPSTSTP),int_mb(KLNOPSTSTL),
+     &        int_mb(KLNALSTSTP),int_mb(KLNALSTSTL),
+     &        int_mb(KLIADOPSTSTP),int_mb(KLABSWITCHP),
+     &        int_mb(KLABSWITCHL),
      &        MAXOP,NCMB_CN,IDC,ILCHK)
        END IF ! Switch between new and supernew
       END IF !Switch between new or old
@@ -8578,14 +8583,14 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
       RETURN
       END
       SUBROUTINE REO_SD_FOR_OCCLS_S(IOCCLS_NUM,ISYM,IREO,
-     &           NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,
+     &           NOCTPA,NOCTPB,IOCTPA,IOCTPB,
      &           NAEL,NBEL,
      &           NSMST,NGAS,IB_ORB,NACOB,NOCOB,PSSIGN,MINOP,
      &           NTOOB,NOBPT,IBLTP,ISMOST,
      &           NSSOA,NSSOB,
      &           ICONF_REO,IZCONF,
      &           NPCMCNF,DFTP,
-     &           WORK,KZ_PTDT,KREO_PTDT,
+     &           KZ_PTDT,KREO_PTDT,
      &           IB_CN_OPEN, IB_CM_OPEN,
      &           NABSPGP_FOR_OCCLS,IBABSPGP_FOR_OCCLS,
      &           IABSPGP_FOR_OCCLS,
@@ -8597,7 +8602,9 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
 * for determinants in OCClass IOCCLS
 * Reorder array created is Conf-order => AB-order 
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+c     IMPLICIT REAL*8(A-H,O-Z)
+      include 'wrkspc.inc'
+#include "mafdecls.fh"
 *. General input
 *.---------------
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)  
@@ -8621,7 +8628,6 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
       INTEGER IASPGPOC(MXPNGAS,*), IBSPGPOC(MXPNGAS,*)
 *
 *. The work array used for WORK(KZ_PTDET()),WORK(KREO_PTDT())
-      DIMENSION WORK(*)
 *. Scratch space 
 *. --------------
       INTEGER IASTR(NAEL,*),IBSTR(NBEL,*)
@@ -8741,7 +8747,7 @@ C                 EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 *. Address of this spinprojection pattern   
 C  IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
              IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,
-     &                WORK(KZ_PTDT(NOPEN+1)),WORK(KREO_PTDT(NOPEN+1)),
+     &              int_mb(KZ_PTDT(NOPEN+1)),int_mb(KREO_PTDT(NOPEN+1)),
      &              1)
              ISIGNP = 1
              IF(IPTDT.EQ.0) THEN
@@ -8755,8 +8761,8 @@ C  IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
 *. Spinprojections of open orbitals
                 CALL EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_VC,NEL)
                 IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,
-     &                  WORK(KZ_PTDT(NOPEN+1)),WORK(KREO_PTDT(NOPEN+1)),
-     &               1)
+     &                  int_mb(KZ_PTDT(NOPEN+1)),
+     &                  int_mb(KREO_PTDT(NOPEN+1)),1)
                 IF(PSSIGN.EQ.-1.0D0) ISIGNP = -1
               ELSE 
 *. Prototype determinant was not found in list
@@ -8840,15 +8846,17 @@ C?             CALL XFLUSH(6)
 *
 *. Jeppe Olsen, Febr. 2012
 *
+#include "mafdecls.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc-static.inc'
+c     INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cgas.inc'
 *
       NTEST = 00
 *
-      CALL ICOPVE2(WORK(KIOCCLS),(IOCCLS_NUM-1)*NGAS+1,NGAS,IOCCLS_OCC)
+      CALL ICOPVE2(int_mb(KIOCCLS),(IOCCLS_NUM-1)*NGAS+1,
+     $             NGAS,IOCCLS_OCC)
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' Occupation of occupation class ', IOCCLS_NUM  
@@ -11630,6 +11638,7 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
       INCLUDE 'gasstr.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "mafdecls.fh"
 *
 *. Output
 *
@@ -12948,6 +12957,7 @@ C              OCCLSDIM_FROM_OCSBCLSDIM(IOCCLS, IOCCLSDIM)
 *
 *. Jeppe Olsen, April3, 2013
 *
+#include "mafdecls.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -13037,7 +13047,7 @@ C    &             MINOPGAS_FOR_OCCLS,MINOP,NOBPT)
         END IF
 *
         CALL ADD_CNFS_TO_LIST(IOCC,NOPSML,IBOPSML,
-     &       WORK(IBOCSBCNF(ISBCLS1)),
+     &       int_mb(IBOCSBCNF(ISBCLS1)),
      &       NSBCNF(1,1,ISBCLS1),IBSBCNF(1,1,ISBCLS1),
      &       MAXOP,ISM,NSMOB,NEL)
 C     ADD_CNFS_TO_LIST(IOCCOUT,NCONFOUT,IBCONFOUT, 
@@ -13069,55 +13079,59 @@ C       NCONF_OCCLS(NOBPSP,NELPSP,NSPC,MINOP,NCONF,LOCC)
           IF(IGAS.EQ.2) THEN
 *. The configurations of GAS1... IGAS-1 are those of GAS1, 
             ISBCLS1 = ISBCLS(1)
-            CALL ICOPVE(NSBCNF(1,1,ISBCLS1),WORK(KLNSB1),
+            CALL ICOPVE(NSBCNF(1,1,ISBCLS1),int_mb(KLNSB1),
      &           (MAXOP+1)*NSMOB)
-            CALL ICOPVE(IBSBCNF(1,1,ISBCLS1),WORK(KLIBSB1),
+            CALL ICOPVE(IBSBCNF(1,1,ISBCLS1),int_mb(KLIBSB1),
      &           (MAXOP+1)*NSMOB)
 C IFRMR(WORK,IROFF,IELMNT)
-            LLOCC = IFRMR(WORK,KLSBCNF,ISBCLS1)
-            CALL ICOPVE(WORK(IBOCSBCNF(ISBCLS1)),WORK(KLOCCSB1),LLOCC)
+c.. dongxia replaced ifrmr
+c           LLOCC = IFRMR(WORK,KLSBCNF,ISBCLS1)
+            llocc = int_mb(klsbcnf + isbcls1 -1)
+            CALL ICOPVE(int_mb(IBOCSBCNF(ISBCLS1)),
+     &                  int_mb(KLOCCSB1),LLOCC)
           END IF
 *. Info for GAS IGAS
           NEL_IG = IOCCLS(IGAS)
           ISBCLSI = ISBCLS(IGAS)
           IF(IGAS.NE.NGAS) THEN
 *. Prepare dimension array for configs for space 1 - IGAS, in KLNSB2
-            CALL DIM_PROD_OCSBCNF(WORK(KLNSB2),WORK(KLNSB1),
+            CALL DIM_PROD_OCSBCNF(int_mb(KLNSB2),int_mb(KLNSB1),
      &           NSBCNF(1,1,ISBCLSI),MAXOP+1,MAXOP)
 C     DIM_PROD_OCSBCNF(I12DIM,I1DIM,I2DIM,NROW2,IOPEN_OUT_DIM)
 *. Offset array for configurations for space 1 - IGAS, in KLIBSB2
-            CALL GEN_IBOCC_SBCNF(WORK(KLNSB2),WORK(KLIBSB2),MAXOP,
+            CALL GEN_IBOCC_SBCNF(int_mb(KLNSB2),int_mb(KLIBSB2),MAXOP,
      &         NSMOB,NEL_IGM1+NEL_IG)
 *. And obtain the configurations in space 1 - IGAS in KLOCCSB2
 *. Zero dimension for products - reconstructed in PROD_SBCNF
             IZERO = 0
-            CALL ISETVC(WORK(KLNSB2),IZERO,(MAXOP+1)*NSMOB)
+            CALL ISETVC(int_mb(KLNSB2),IZERO,(MAXOP+1)*NSMOB)
             IF(NTEST.GE.1000) WRITE(6,*) ' NEL_IGM1, NEL_IG = ',
      &                   NEL_IGM1, NEL_IG
-            CALL PROD_SBCNF(WORK(KLOCCSB2),WORK(KLNSB2),WORK(KLIBSB2),
-     &                      WORK(KLNSB1),NSBCNF(1,1,ISBCLSI),
-     &                      WORK(KLIBSB1), IBSBCNF(1,1,ISBCLSI),
-     &                      WORK(KLOCCSB1),
-     &                      WORK(IBOCSBCNF(ISBCLSI)),0,MAXOP,0,
+            CALL PROD_SBCNF(int_mb(KLOCCSB2),int_mb(KLNSB2),
+     &                      int_mb(KLIBSB2),int_mb(KLNSB1),
+     &                      NSBCNF(1,1,ISBCLSI),
+     &                      int_mb(KLIBSB1), IBSBCNF(1,1,ISBCLSI),
+     &                      int_mb(KLOCCSB1),
+     &                      int_mb(IBOCSBCNF(ISBCLSI)),0,MAXOP,0,
      &                      NSMOB,NEL_IGM1,NEL_IG)
 C                PROD_SBCNF(IOCC12,NCONF12,IBCONF12, NCONF1, NCONF2,
 C    &           IBCONF1, IBCONF2, IOCC1, IOCC2, MINOP, MAXOP,ISM12,
 C    &           NSMOB,NEL1,NEL2)
 *. Copy the new configurations to *1 arrays
             LOCC2 = 
-     &      LOCC_SBCNF(WORK(KLNSB2),MAXOP,NSMOB,NEL_IGM1 + NEL_IG)
+     &      LOCC_SBCNF(int_mb(KLNSB2),MAXOP,NSMOB,NEL_IGM1 + NEL_IG)
 C           LOCC_SBCNF(NOPSM,NOPEN_MAX,NSMOB,NELEC)
 *. Could be done simpler by just switching pointers, but for initial debugging
-            CALL ICOPVE(WORK(KLOCCSB2),WORK(KLOCCSB1),LOCC2)
-            CALL ICOPVE(WORK(KLNSB2),WORK(KLNSB1),(MAXOP+1)*NSMOB)
-            CALL ICOPVE(WORK(KLIBSB2),WORK(KLIBSB1),(MAXOP+1)*NSMOB)
+            CALL ICOPVE(int_mb(KLOCCSB2),int_mb(KLOCCSB1),LOCC2)
+            CALL ICOPVE(int_mb(KLNSB2),int_mb(KLNSB1),(MAXOP+1)*NSMOB)
+            CALL ICOPVE(int_mb(KLIBSB2),int_mb(KLIBSB1),(MAXOP+1)*NSMOB)
           ELSE
 * IGAS  = NGAS, the final time around, obtain only configurations of the specified symmetry
             CALL PROD_SBCNF(IOCC,NOPSML,IBOPSML,
-     &                      WORK(KLNSB1),NSBCNF(1,1,ISBCLSI),
-     &                      WORK(KLIBSB1),IBSBCNF(1,1,ISBCLSI),
-     &                      WORK(KLOCCSB1),
-     &                      WORK(IBOCSBCNF(ISBCLSI)),MINOP,MAXOP,ISM,
+     &                      int_mb(KLNSB1),NSBCNF(1,1,ISBCLSI),
+     &                      int_mb(KLIBSB1),IBSBCNF(1,1,ISBCLSI),
+     &                      int_mb(KLOCCSB1),
+     &                      int_mb(IBOCSBCNF(ISBCLSI)),MINOP,MAXOP,ISM,
      &                      NSMOB,NEL_IGM1,NEL_IG)
           END IF
           NEL_IGM1 = NEL_IGM1 + IOCCLS(IGAS)
@@ -13790,14 +13804,14 @@ C         ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
       RETURN
       END
       SUBROUTINE REO_SD_FOR_OCCLS_SN(IOCCLS_NUM,ISYM,IREO,
-     &           NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,
+     &           NOCTPA,NOCTPB,IOCTPA,IOCTPB,
      &           NAEL,NBEL,
      &           NSMST,NGAS,IB_ORB,NACOB,NOCOB,PSSIGN,MINOP,
      &           NTOOB,NOBPT,IBLTP,ISMOST,
      &           NSSOA,NSSOB,
      &           ICONF_REO,IZCONF,
      &           NPCMCNF,DFTP,
-     &           WORK,KZ_PTDT,KREO_PTDT,
+     &           KZ_PTDT,KREO_PTDT,
      &           IB_CN_OPEN, IB_CM_OPEN,
      &           NABSPGP_FOR_OCCLS,IBABSPGP_FOR_OCCLS,
      &           IABSPGP_FOR_OCCLS,
@@ -13812,7 +13826,9 @@ C         ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
 * for determinants in OCClass IOCCLS
 * Reorder array created is Conf-order => AB-order 
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+c     IMPLICIT REAL*8(A-H,O-Z)
+#include "mafdecls.fh"
+      include 'wrkspc.inc'
 *. General input
 *.---------------
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)  
@@ -13833,7 +13849,7 @@ C         ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
 *. open orbitals
       INTEGER KZ_PTDT(*), KREO_PTDT(*)
 *. The work array used for WORK(KZ_PTDET()),WORK(KREO_PTDT())
-      DIMENSION WORK(*)
+c     DIMENSION WORK(*)
 *. Scratch space 
 *. --------------
       INTEGER IASTR(NAEL,*),IBSTR(NBEL,*)
@@ -13943,7 +13959,7 @@ C                      IREO,IB_OCCLS)
 *. Address of spinprojection pattern   
 C                    IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
              IPTDT = IZNUM_PTDT(IDET_MS,NOP,NOP_AL,
-     &                WORK(KZ_PTDT(NOP+1)),WORK(KREO_PTDT(NOP+1)),
+     &                int_mb(KZ_PTDT(NOP+1)),int_mb(KREO_PTDT(NOP+1)),
      &              1)
              ISIGNP = 1
              IF(IPTDT.EQ.0) THEN
@@ -13956,7 +13972,7 @@ C                    IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
      &                           IDET_OC,IDET_MS,ISIGN,
      &                           ISUB,NOP,NOP_AL,NOC,IOP1)
                 IPTDT = IZNUM_PTDT(IDET_MS,NOP,NOP_AL,
-     &                  WORK(KZ_PTDT(NOP+1)),WORK(KREO_PTDT(NOP+1)),
+     &                  int_mb(KZ_PTDT(NOP+1)),int_mb(KREO_PTDT(NOP+1)),
      &               1)
                 IF(PSSIGN.EQ.-1.0D0) ISIGNP = -1
               ELSE 
@@ -14161,7 +14177,7 @@ C          ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
      &           NSSOA,NSSOB,IBSSOA,IBSSOB,
      &           ICONF_REO,IZCONF,
      &           NPCMCNF,DFTP,
-     &           WORK,KZ_PTDT,KREO_PTDT,
+     &           KZ_PTDT,KREO_PTDT,
      &           IB_CN_OPEN, IB_CM_OPEN,
      &           NABSPGP_FOR_OCCLS,IBABSPGP_FOR_OCCLS,
      &           IABSPGP_FOR_OCCLS,
@@ -14196,8 +14212,10 @@ C          ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
 *
 * So an alpha string is alpha = alphap * alphal
 *
+#include "mafdecls.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
+      include 'wrkspc-static.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'multd2h.inc'
@@ -14223,7 +14241,7 @@ C   NGPSTR(IGAS) IBGPSTR(IGAS)
 *. open orbitals
       INTEGER KZ_PTDT(*), KREO_PTDT(*)
 *. The work array used for WORK(KZ_PTDET()),WORK(KREO_PTDT())
-      DIMENSION WORK(*)
+c     DIMENSION WORK(*)
 *. Groups of the supergroups
       INTEGER IASPGPGP(MXPNGAS,*),IBSPGPGP(MXPNGAS,*)
 *. Number of strings per symmetry and group and their offsets
@@ -14457,7 +14475,7 @@ C?   &                         IB_SMSMP(IASM,IBSM)
 *. contribution to lexical address of proto-type det
                  IADOPSTSTP(IPDET) = IZNUM_PTDT2(
      &           IDET_MS,MAXOP,NOP,1,0,1,NOP_AL,
-     &           WORK(KZ_PTDT(MAXOP+1)),IDUM,0)
+     &           int_mb(KZ_PTDT(MAXOP+1)),IDUM,0)
 C              IZNUM_PTDT2(IAB,NOPEN_DIM,NOPEN,IOPEN1,IALPHA1,IZ1,
 C    &         NALPHA,Z,NEWORD,IREORD)
 C               IPTDT = IZNUM_PTDT(IDET_MS,NOP,NOP_AL,
@@ -14502,9 +14520,9 @@ C            IWRTMATMAT(IAA,NBLR,NBLC,LBLR,LBLC,IB)
 *
 *. L-strings in integer arrays
 *
-              CALL ICOPVE2(WORK(KOCSTR(IALTP)),IBLA,
+              CALL ICOPVE2(int_mb(KOCSTR(IALTP)),IBLA,
      &             NALEL,IASTRF) 
-              CALL ICOPVE2(WORK(KOCSTR(IBLTP)),IBLB,
+              CALL ICOPVE2(int_mb(KOCSTR(IBLTP)),IBLB,
      &             NBLEL,IBSTRF) 
 *
 *. Reform L strings from AB to CONF form
@@ -14701,7 +14719,7 @@ C            IWRTMATMAT(IAA,NBLR,NBLC,LBLR,LBLC,IB)
      &             ISIGNN = -ISIGNN
                    IPTDTN = IZNUM_PTDT2(ICNOCSTSTL((IABL-1)*NLEL+1),
      &             MAXOP,NOPT,NOPP+1,NALPHAP,IZP,NALPHAL,
-     &             WORK(KZ_PTDT(MAXOP+1)),WORK(KREO_PTDT(NOPT+1)),1)
+     &             int_mb(KZ_PTDT(MAXOP+1)),int_mb(KREO_PTDT(NOPT+1)),1)
 C                  IZNUM_PTDT2(IAB,NOPEN_DIM,NOPEN,IOPEN1,IALPHA1,IZ1,
 C    &             NALPHA,Z,NEWORD,IREORD)
                   ELSE
@@ -14719,7 +14737,7 @@ C    &             NALPHA,Z,NEWORD,IREORD)
      &             ISIGNN = -ISIGNN
                    IPTDTN = IZNUM_PTDT2(ICNOCSTSTL_AB((IABL-1)*NLEL+1),
      &             MAXOP,NOPT,NOPP+1,NALPHAP,IZP,NALPHAL,
-     &             WORK(KZ_PTDT(MAXOP+1)),WORK(KREO_PTDT(NOPT+1)),1)
+     &             int_mb(KZ_PTDT(MAXOP+1)),int_mb(KREO_PTDT(NOPT+1)),1)
                   END IF ! I_DO_AB_SWITCH
                   IF(NTEST.GE.10000) THEN
                     WRITE(6,*) ' New: '
@@ -14753,7 +14771,7 @@ C    &             NALPHA,Z,NEWORD,IREORD)
                  CALL ICOPVE(IAPSTR(IADR),IASTRF,NAPEL)
                  IF(NTEST.GE.10000) WRITE(6,*) ' IADR, IAPSTR(1) = ',
      &           IADR, IAPSTR(1)
-                 CALL ICOPVE2(WORK(KOCSTR(IALTP)),
+                 CALL ICOPVE2(int_mb(KOCSTR(IALTP)),
      &           (IBSTSGP(IALSM,IALTP)+IAL-1-1)*NALEL+1,
      &           NALEL,IASTRF(1+NAPEL))
                  IF(NTEST.GE.1000) THEN
@@ -14767,7 +14785,7 @@ C    &             NALPHA,Z,NEWORD,IREORD)
                  CALL ICOPVE(IBPSTR(1+(IBBPSTR(IBPSM)+IBP-1-1)*NBPEL),
      &                       IBSTRF,NBPEL)
 C ICOPVE2(IIN,IOFF,NDIM,IOUT)
-                 CALL ICOPVE2(WORK(KOCSTR(IBLTP)),
+                 CALL ICOPVE2(int_mb(KOCSTR(IBLTP)),
      &                (IBSTSGP(IBLSM,IBLTP)+IBL-1-1)*NBLEL+1,
      &                NBLEL,IBSTRF(1+NBPEL))
                  IF(NTEST.GE.1000) THEN
@@ -14813,7 +14831,8 @@ C                            IDOREO,IREO,IB_OCCLS)
 *. Address of spinprojection pattern   
 C                         IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
                   IPTDT = IZNUM_PTDT(IDET_MS,NOP,NOP_AL,
-     &                    WORK(KZ_PTDT(NOP+1)),WORK(KREO_PTDT(NOP+1)),1)
+     &                    int_mb(KZ_PTDT(NOP+1)),
+     &                    int_mb(KREO_PTDT(NOP+1)),1)
                   ISIGNC = 1
                   IF(IPTDT.EQ.0) THEN
                    IF(PSSIGN.NE.0) THEN
@@ -14827,8 +14846,8 @@ C                         IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
      &                    IDET_OC,IDET_MS,ISIGN,
      &                    ISUB,NOP,NOP_AL,NOC,IOP1)
                      IPTDT = IZNUM_PTDT(IDET_MS,NOP,NOP_AL,
-     &                       WORK(KZ_PTDT(NOP+1)),
-     &                       WORK(KREO_PTDT(NOP+1)),1)
+     &                       int_mb(KZ_PTDT(NOP+1)),
+     &                       int_mb(KREO_PTDT(NOP+1)),1)
                      IF(PSSIGN.EQ.-1.0D0) ISIGNC = -1
                    ELSE 
 *. Prototype determinant was not found in list
