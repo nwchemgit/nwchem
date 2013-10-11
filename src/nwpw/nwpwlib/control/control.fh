@@ -24,7 +24,7 @@
       integer     est_finish_time,est_step_time
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
       logical     rotation,translation,balance,spin_orbit
-      logical     two_comp_ppot,frozen,pio
+      logical     two_comp_ppot,frozen,pio,fast_erf
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number,minimizer
       common / control_block / unita,unita_frozen,tolerances,
@@ -44,7 +44,7 @@
      >                         move,frac_coord,SA,fei,fei_quench,
      >                         gram_schmidt,rotation,translation,
      >                         balance,spin_orbit,
-     >                         two_comp_ppot,frozen,pio
+     >                         two_comp_ppot,frozen,pio,fast_erf
       common / control_blkchar / boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,

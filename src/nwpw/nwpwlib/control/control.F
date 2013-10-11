@@ -130,6 +130,11 @@
          pio = pio.and.(np_dimensions(2).gt.1)
       end if
 
+*     **** get fast_erf ****
+      if (.not.rtdb_get(rtdb,'nwpw:fast_erf',mt_log,1,fast_erf)) then
+         fast_erf = .false.
+      end if
+
 
 *     *********************************
 *     **** cpsd and band_sd: stuff ****
@@ -4320,6 +4325,22 @@ c      end
       control_spin_orbit = spin_orbit
       return
       end
+
+*     ************************************
+*     *                                  *
+*     *         control_fast_erf         *
+*     *                                  *
+*     ************************************
+
+      logical function control_fast_erf()
+      implicit none
+
+#include "control.fh"
+
+      control_fast_erf = fast_erf
+      return
+      end
+
 
 
 *     *****************************
