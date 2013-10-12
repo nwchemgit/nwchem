@@ -191,7 +191,6 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       pawexist = .false.
       use_grid_cmp = control_use_grid_cmp()
 
-
       return
       end
 
@@ -1091,11 +1090,13 @@ c     psp_rc = rc(i,ia)
 
 *     **** Error function parameters ****
       real*8  yerf,verf
+
 c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
-c     parameter (c1=0.07052307840d0,c2=0.04228201230d0)
-c     parameter (c3=0.00927052720d0)
-c     parameter (c4=0.00015201430d0,c5=0.00027656720d0)
-c     parameter (c6=0.00004306380d0)
+      real*8 c1,c2,c3,c4,c5,c6,fterf
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
 
 *     **** local variables ****
       integer ftmp(2)
@@ -1104,8 +1105,10 @@ c     parameter (c6=0.00004306380d0)
       real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
 
 *     **** external functions ****
+      logical  control_fast_erf
       integer  ion_nion,ion_katm
       real*8   lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      external control_fast_erf
       external ion_nion,ion_katm
       external lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
 
@@ -1128,6 +1131,51 @@ c     parameter (c6=0.00004306380d0)
      > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+
+      if (control_fast_erf()) then
+
+      do j=1,nion
+         if (mod(j-1,np_j).eq.taskid_j) then
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d
+               rx = x - r_grid(1,i)
+               ry = y - r_grid(2,i)
+               rz = z - r_grid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+                 fterf = (1.0d0
+     >                 + yerf*(c1 + yerf*(c2
+     >                 + yerf*(c3 + yerf*(c4
+     >                 + yerf*(c5 + yerf*c6))))))**4
+                 verf = (1.0d0 - 1.0d0/fterf**4)
+c                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+
+               fx = fx + rho(i)*rx*v
+               fy = fy + rho(i)*ry*v
+               fz = fz + rho(i)*rz*v
+            end do
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+         end if
+      end do
+
+      else
+
       do j=1,nion
          if (mod(j-1,np_j).eq.taskid_j) then
             x = ion_rion(1,j)
@@ -1179,6 +1227,8 @@ c         fion(3,j) = fion(3,j) - fz*dv
          end if
       end do
 
+      end if
+
       call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
@@ -1212,10 +1262,11 @@ c         fion(3,j) = fion(3,j) - fz*dv
 *     **** Error function parameters ****
       real*8 xerf,yerf
 c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
-c     parameter (c1=0.07052307840d0,c2=0.04228201230d0)
-c     parameter (c3=0.00927052720d0)
-c     parameter (c4=0.00015201430d0,c5=0.00027656720d0)
-c     parameter (c6=0.00004306380d0)
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
 
 *     **** local variables ****
       integer taskid_j,np_j
@@ -1223,8 +1274,10 @@ c     parameter (c6=0.00004306380d0)
       real*8 x,y,z,q,c,r,sqrt_pi
 
 *     **** external functions ****
+      logical  control_fast_erf
       integer  ion_nion,ion_katm
       real*8   ion_rion,psp_rlocal,psp_zv,util_erf
+      external control_fast_erf
       external ion_nion,ion_katm
       external ion_rion,psp_rlocal,psp_zv,util_erf
 
@@ -1235,6 +1288,39 @@ c     parameter (c6=0.00004306380d0)
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
+
+      if (control_fast_erf()) then
+
+      do j=1,ion_nion()
+         if (mod(j-1,np_j).eq.taskid_j) then
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+
+            do i=1,n2ft3d
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r .gt. 1.0d-15) then
+                 xerf=r*c
+                 yerf = (1.0d0
+     >                 + xerf*(c1 + xerf*(c2
+     >                 + xerf*(c3 + xerf*(c4
+     >                 + xerf*(c5 + xerf*c6))))))**4
+                 yerf = (1.0d0 - 1.0d0/yerf**4)
+c                 yerf = util_erf(xerf)
+                 vlr_out(i) = vlr_out(i) + (q/r)*yerf
+               else
+                 vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
+               end if
+            end do
+
+         end if
+      end do
+
+      else
 
       do j=1,ion_nion()
          if (mod(j-1,np_j).eq.taskid_j) then
@@ -1265,6 +1351,8 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
          end if
       end do
+
+      end if
       if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d,vlr_out)
 
       call nwpw_timing_end(5)
