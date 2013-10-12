@@ -755,14 +755,14 @@ c
 c
 c check initialization and shells
 c
-      if (.not.int_chk_init('int_1eov'))
-     &       call errquit('int_1eov: int_init was not called' ,0,
+      if (.not.int_chk_init('int_1eefc'))
+     &       call errquit('int_1eefc: int_init was not called' ,0,
      &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1eov: invalid contraction/shell',0,
+     &       call errquit('int_1eefc: invalid contraction/shell',0,
      &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
@@ -795,7 +795,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911, INT_ERR)
+     &      'int_1eefc: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -825,7 +825,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911, INT_ERR)
+     &      'int_1eefc: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -849,7 +849,7 @@ c
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
         write(luout,*)
-     &      'int_1eov: WARNING: possible geometry inconsistency'
+     &      'int_1eefc: WARNING: possible geometry inconsistency'
         write(luout,*)'i_basis geometry handle:',i_geom
         write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
@@ -931,7 +931,7 @@ c
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &      scr,lscr)
       else
-        call errquit('int_1eov: could not do hnd, sp or nw integrals',
+        call errquit('int_1eefc: could not do hnd, sp or nw integrals',
      &                0, INT_ERR)
       endif
 c
@@ -1003,7 +1003,7 @@ c
      &      .false.)
       else
         call errquit(
-     &      'int_1eov: should never reach transform blocked else',911,
+     &      'int_1eefc: should never reach transform blocked else',911,
      &          INT_ERR)
       endif
       return
@@ -1130,14 +1130,14 @@ c
 c
 c check initialization and shells
 c
-      if (.not.int_chk_init('int_1eov'))
-     &       call errquit('int_1eov: int_init was not called' ,0,
+      if (.not.int_chk_init('int_1eefc1'))
+     &       call errquit('int_1eefc1: int_init was not called' ,0,
      &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1eov: invalid contraction/shell',0,
+     &       call errquit('int_1eefc1: invalid contraction/shell',0,
      &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
@@ -1170,7 +1170,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911, INT_ERR)
+     &      'int_1eefc1: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -1200,7 +1200,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911, INT_ERR)
+     &      'int_1eefc1: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -1224,7 +1224,7 @@ c
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
         write(luout,*)
-     &      'int_1eov: WARNING: possible geometry inconsistency'
+     &      'int_1eefc1: WARNING: possible geometry inconsistency'
         write(luout,*)'i_basis geometry handle:',i_geom
         write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
@@ -1234,8 +1234,8 @@ c     ----- current cosmo restriction ... -----
 c
       if(i_geom.ne.j_geom) then
          write(luout,*) 'i_geom andr j_geom is noteq'
-         call errquit('int_1eefc: i_geom and j_geom must be the same',0,
-     &         INT_ERR)
+         call errquit('int_1eefc1: i_geom and j_geom must be the same',
+     &                0,INT_ERR)
       endif
 
       ohnd_ok = cando_hnd_1e(i_basis,ish,0)
@@ -1249,12 +1249,12 @@ c
 c     get external charges here (MV)
 c     ------------------------------
       if(.not.geom_extbq_on())
-     >   call errquit('int_1eefc:no active bqs',0,0) 
+     >   call errquit('int_1eefc1:no active bqs',0,0) 
       bq_ncent = geom_extbq_ncenter()
       i_cbq = geom_extbq_coord()
       i_qbq = geom_extbq_charge()
       if(.not.ma_push_get(mt_dbl,bq_ncent,'xbq',h_xbq0,i_xbq0))
-     +     call errquit( 'int_1eefc',0,0)
+     +     call errquit( 'int_1eefc1',0,0)
       call dfill(bq_ncent,0.d0,dbl_mb(i_xbq0),1)
 c
       if (orel) then
@@ -1300,7 +1300,7 @@ c     &        geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &        dbl_mb(i_cbq),dbl_mb(i_qbq),
      &        dbl_mb(i_xbq0),bq_ncent,
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &        scr,lscr,'int_1eefc')
+     &        scr,lscr,'int_1eefc1')
       elseif (onw_ok) then
         call hf1(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
@@ -1314,12 +1314,12 @@ c     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &      scr,lscr)
       else
-        call errquit('int_1eov: could not do hnd, sp or nw integrals',
+        call errquit('int_1eefc1: could not do hnd, sp or nw integrals',
      &                0, INT_ERR)
       endif
 c
       if(.not.ma_pop_stack(h_xbq0))
-     +     call errquit( 'int_1eefc',0,0)
+     +     call errquit( 'int_1eefc1',0,0)
 c
 *     We now have the cartesian integral block(s)  (jlo:jhi,ilo:ihi)
 *      
@@ -1389,7 +1389,7 @@ c
      &      .false.)
       else
         call errquit(
-     &      'int_1eov: should never reach transform blocked else',911,
+     &      'int_1eefc1: should never reach transform blocked else',911,
      &          INT_ERR)
       endif
       return
