@@ -311,8 +311,10 @@ C-------------------------parameters--------------------------------
 
       logical oskel   ! symmetry?
 c
-      double precision dielec, screen, rsolv
-      common/hnd_cospar/dielec, screen ,rsolv
+      double precision dielec, screen, rsolv, zeta
+      double precision adiag, dsurf, dvol, srfmol, volmol, ptspatm
+      common/hnd_cospar/dielec, screen, rsolv, zeta
+      common/hnd_cosdat/adiag, dsurf, dvol, srfmol, volmol, ptspatm
 
 C-------------------------local variables--------------------------
 
@@ -326,15 +328,22 @@ C-------------------------local variables--------------------------
       integer nefc        ! the number of COSMO charges
       integer l_efciat    ! the handle of the COSMO charge-atom map
       integer k_efciat    ! the index of the COSMO charge-atom map
+      integer l_rad       ! the handle of the atom radii
+      integer k_rad       ! the index of the atom radii
       integer nefcl       ! the number of COSMO charge for a given atom
       integer iefc        ! counter over COSMO charges
       integer iefc_c      ! memory index for COSMO charge coordinates
       integer iefc_q      ! memory index for COSMO charges
 
       double precision dE, qfac, fact, dx, dy, dz, rr
-      double precision invscreen
+      double precision invscreen, bohr, pi
+      double precision zeta1, zeta2, zeta12
+      parameter (bohr=0.529177249d0)
 
       logical status, pointforce
+
+      double precision util_erf
+      external util_erf
 
       integer nxtask, task_size
       external nxtask
@@ -342,6 +351,7 @@ C-------------------------local variables--------------------------
 c     ---- -cosmo- gradient term -----
       logical odbug
 
+      pi = acos(-1.0d0)
       odbug=.false.
       if(odbug) then
          write(Luout,*) 'in -grad1_hnd_cos- ...'
@@ -367,6 +377,17 @@ c
       if (.not.bq_index_charge(cosmo_bq_efc,iefc_q))
      $   call errquit('grad_hnd_cos: could not get charge index Bq',
      $                cosmo_bq_efc,MA_ERR)
+c
+      if (.not.ma_push_get(MT_DBL,nat,"rad",l_rad,k_rad))
+     $  call errquit("grad_hnd_cos: could not allocate rad",
+     $               ma_sizeof(MT_BYTE,nat,MT_DBL),MA_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
+     $                 dbl_mb(k_rad)))
+     $   call errquit('grad_hnd_cos: rtdb get failed for rad',915,
+     $                rtdb_err)
+      do iat1=0,nat-1
+        dbl_mb(k_rad+iat1) = dbl_mb(k_rad+iat1)/bohr
+      enddo
 c
       if (.not.ma_push_get(MT_INT,nefc,"efciat",l_efciat,k_efciat))
      $  call errquit("grad_hnd_cos: could not allocate efciat",
@@ -568,7 +589,14 @@ c       Do cosmo charge - cosmo charge interaction
 c
         invscreen = 1.0d0/(1.0d0*screen)
         do ich1 = 1, nefc
-          do ich2 = 1, ich1-1
+          zeta1 = zeta*sqrt(ptspatm)
+     $          / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
+     $             * sqrt(2.0d0*pi))
+          do ich2 = 1, nefc
+            zeta2 = zeta*sqrt(ptspatm)
+     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich2-1)-1)
+     $               * sqrt(2.0d0*pi))
+            zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
             if (ich1.ne.ich2) then
               dx = dbl_mb(0+3*(ich1-1)+iefc_c)
      $           - dbl_mb(0+3*(ich2-1)+iefc_c)
@@ -577,12 +605,14 @@ c
               dz = dbl_mb(2+3*(ich1-1)+iefc_c)
      $           - dbl_mb(2+3*(ich2-1)+iefc_c)
               rr = sqrt(dx*dx+dy*dy+dz*dz)
-              if (rr.lt.1.0d-10) then
+              if (rr.lt.1.0d-6) then
                 fact = 0.0d0
               else
-                fact = -invscreen*dbl_mb(iefc_q+ich1-1)
-     $               * dbl_mb(iefc_q+ich2-1) / 
-     $                 rr**3
+                fact = +0.5d0*invscreen*dbl_mb(iefc_q+ich1-1)
+     $               * dbl_mb(iefc_q+ich2-1) 
+     $               * (2.0d0*zeta12/sqrt(pi)/(rr**2)
+     $                  * exp(-(zeta12*rr)**2)
+     $                  - util_erf(zeta12*rr)/(rr**3))
               endif
               dE = dx * fact
               frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
@@ -606,6 +636,9 @@ c
 c
       if (.not.ma_pop_stack(l_efciat))
      $   call errquit("grad_hnd_cos: could not deallocate l_efciat",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_rad))
+     $   call errquit("grad_hnd_cos: could not deallocate l_rad",
      $                0,MA_ERR)
       if (.not.bq_destroy(cosmo_bq_efc))
      $   call errquit("grad_hnd_cos: bq_destroy on cosmo failed",

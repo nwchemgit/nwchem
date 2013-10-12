@@ -1,8 +1,8 @@
 C> \brief Read the COSMO input section
 C>
 C> COSMO is a dielectric continuum solvation model proposed by
-C> Klamt et al. [1]. This routine reads the input section and
-C> stores the data in the RTDB.
+C> Klamt et al. [1] and extended by York et al. [2]. This routine reads
+C> the input section and stores the data in the RTDB.
 C>
 C> ### References ###
 C>
@@ -12,6 +12,13 @@ C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
 C>     <a href="http://dx.doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
+C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp9920971">
+C>     10.1021/jp9920971</a>.
 C>
       subroutine cosmo_input(rtdb)
 *
@@ -29,10 +36,12 @@ c
       integer iat, nfield, nrad, irad 
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer l_rad, k_rad
-      double precision dielec, rsolv, rad
+      double precision dielec, rsolv, rad, zeta
       character*255 field
       logical do_cosmo
       logical do_gasphase
+      double precision bohr
+      parameter  (bohr=0.529177249d+00)
 c
 c     ----- defaults -----
 c
@@ -44,9 +53,11 @@ c
       maxbem   =4
       ificos   =0
       lineq    =1
-      rsolv    =0.5d+00
+      rsolv    =0.00d+00
+      zeta     =1.00d+00 ! apparently for Lebedev grids zeta=4.9
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
-     & call errquit('cosmo_input malloc k_rad failed',911,MA_ERR)
+     & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
+     &              MA_ERR)
       do iat=1,nw_max_atom
          dbl_mb(k_rad+iat-1)=0.0d+00
       enddo
@@ -77,13 +88,15 @@ c
       else if(inp_compare(.false.,'off',field)) then
          do_cosmo=.false.
 c
-c   --- rsolv
+c   --- rsolv !!! Obsolete in York and Karplus approach
 c
       else if(inp_compare(.false.,'rsolv',field)) then
          if(.not. inp_f(rsolv))
      $        call errquit('cosmo_input: rsolv',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         write(LuOut,*)"Keyword RSOLV is obsolete and ignored "//
+     $        "(see York, Karplus, doi:10.1021/jp9920971)"
 c
 c   --- radius
 c
@@ -120,13 +133,15 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:iscren',mt_int,1,iscren))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- ifscrn
+c   --- ifscrn !!! Obsolete in York and Karplus approach
 c
       else if(inp_compare(.false.,'ifscrn',field)) then
          if(.not. inp_i(ifscrn))
      $        call errquit('cosmo_input: ifscrn',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         write(LuOut,*)"Keyword IFSCRN is obsolete and ignored "//
+     $        "(see York, Karplus, doi:10.1021/jp9920971)"
 c
 c   --- minbem
 c
@@ -174,6 +189,20 @@ c
      $                     911, RTDB_ERR)
          endif
 c
+c   --- zeta ! the exponent of the Gaussian charge distributions
+c            ! that represent the surface charges
+c
+      else if(inp_compare(.false.,'zeta',field)) then
+         if (.not. inp_f(zeta))
+     $      call errquit('cosmo_input: zeta not a floating point '
+     $                   //'number',911,INPUT_ERR)
+         if (zeta.le.0.0d0)
+     $      call errquit('cosmo_input: zeta must be a positive '
+     $                   //'number',911,INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:zeta',mt_dbl,1,zeta))
+     $      call errquit('cosmo_input: put zeta failed',
+     $                   911, RTDB_ERR)
+c
       else
          if (ga_nodeid().eq.0) then
            write(LuOut,*)'cosmo_input: read unknown keyword: ',field
@@ -208,7 +237,7 @@ C> Initialize the COSMO data structures, in particular this involves
 C> computing the positions of the COSMO charges.
 c
       subroutine cosmo_initialize(rtdb,geom,basis,oprint)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
@@ -230,33 +259,39 @@ c
       logical status
       logical cosmo
 c
-      integer iat, nrad
-      integer iscren, ifscrn, minbem, maxbem, ificos, lineq
+      integer iat, nrad, iscren
       integer l_rad, k_rad, l_costag, k_costag, l_coszan, k_coszan
       integer l_coscoor, k_coscoor
+      integer invnuc, nat, nefc, nmap
 c
       logical odbug, osome
       integer me
 c
-      common/hnd_cospar/dielec,screen,rsolv
+      double precision dielec,screen,rsolv,zeta
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      integer          lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision vdwr(102)
       double precision vander(102)
 c
       integer i
       integer atn(203)
-      double precision arad(203)
+      double precision arad(203),rad
       character*16 aname,symb,elem
       integer fn,gn
       character*255 map
       logical util_io_unit
       external util_io_unit
 c
+      double precision zero, one, pt5, radtol, def, bohr
+      integer          mxpass
       data zero   /0.0d+00/
       data one    /1.0d+00/
       data pt5    /0.5d+00/
       data radtol /0.1d+00/
+      data bohr   /0.529177249d+00/
       data mxpass /6/
 C
 C     ----- van der waals radii in angstroms	-----
@@ -464,7 +499,8 @@ c
       maxbem   =4
       ificos   =0
       lineq    =1
-      rsolv    =0.5d+00
+      rsolv    =0.00d+00
+      zeta     =1.00d+00 ! apparently for Lebedev grids zeta=4.9
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
@@ -475,12 +511,20 @@ c
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
+      status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       nrad = 0
       if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
       if (nrad.gt.nat) call 
      &   errquit('cosmo_init:nr radii gt nr atoms?',911,MA_ERR)
       if (nrad.gt.0) then
          status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
+      endif
+      if (nrad.eq.0.or..not.status) then
+         if (.not.rtdb_put(rtdb,'cosmo:nrrad',mt_int,1,nat))
+     &       call errquit("failed to write cosmo:nrrad",nat,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'cosmo:radius',mt_dbl,nat,
+     &                     dbl_mb(k_rad)))
+     &       call errquit("failed to write cosmo:radius",nat,RTDB_ERR)
       endif
 c
 c     ----- checks ... -----
@@ -541,6 +585,7 @@ c
             write(luout,9989)
          endif
          write(luout,9994) rsolv
+         write(luout,9980) zeta
          write(luout,9988)
       endif
       do iat=1,nat
@@ -600,23 +645,24 @@ c
      1       /,10x,'-cosmo- solvent',
      2       /,10x,15(1h-))
  9998 format(' no -cosmo- solvent.')
- 9997 format(' dielectric constant -eps-  = ',f6.2)
- 9996 format(' screen = (eps-1)/(eps+1/2) = ',f9.5)
- 9995 format(' screen = (eps-1)/(eps    ) = ',f9.5)
- 9994 format(' solvent radius (ang.)      = ',f7.3)
- 9993 format(' -lineq- algorithm          = ',i3)
- 9992 format(' -bem- high level           = ',i3)
- 9991 format(' -bem- low  level           = ',i3)
+ 9997 format(' dielectric constant -eps-     = ',f6.2)
+ 9996 format(' screen = (eps-1)/(eps+1/2)    = ',f9.5)
+ 9995 format(' screen = (eps-1)/(eps    )    = ',f9.5)
+ 9994 format(' solvent radius (ang.)         = ',f7.3)
+ 9993 format(' -lineq- algorithm             = ',i3)
+ 9992 format(' -bem- high level              = ',i3)
+ 9991 format(' -bem- low  level              = ',i3)
  9990 format(' -bem- from -octahedral-')
  9989 format(' -bem- from -icosahedral-')
  9988 format(' atomic radii = ',/,' --------------')
  9987 format(i5,2f7.3)
  9986 format(' ...... end of -cosmo- initialization ......')
  9985 format(/)
- 9984 format(' screen =  one              = ',f9.5)
- 9983 format(' charge screening approach  = ',i3)
+ 9984 format(' screen =  one                 = ',f9.5)
+ 9983 format(' charge screening approach     = ',i3)
  9982 format(' processing cosmo map from ',a)
- 9981 format(a16,4x,f9.5)
+ 9981 format(a19,4x,f9.5)
+ 9980 format(' gaussian surface charge width = ',f9.5)
       end
 c
 C> \brief Tidy up COSMO data structures
@@ -644,7 +690,7 @@ c
 C> \brief Setup the COSMO cavity surface
 C>
       subroutine hnd_cosset(rtdb,nat,c,radius)
-      implicit double precision (a-h,o-z)
+      implicit none
 c
 c              ----- starting from -icosahedron- -----
 c
@@ -672,20 +718,35 @@ c
 #include "nwc_const.fh"
 #include "stdio.fh"
 c
-      integer rtdb
-      integer nat
-      double precision c(3,nat)
-      double precision radius(nat)
+      integer rtdb                 !< [Input] The RTDB handle
+      integer nat                  !< [Input] The number of atoms
+      double precision c(3,nat)    !< [Input] The atomic coordinates
+      double precision radius(nat) !< [Input] The atomic radii
 c
-      common/hnd_cospar/dielec,screen,rsolv
+      double precision dielec,screen,rsolv,zeta
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      integer          lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
+      integer   mxface, mxapex
       parameter (mxface=43688)
       parameter (mxapex=16386)
-      logical     dbug
-      dimension x(1)
-      equivalence (x(1),dbl_mb(1))
+      logical     dbug, stat
+      integer l_i10,  i10
+      integer l_i20,  i20
+      integer l_i30,  i30
+      integer l_i40,  i40
+      integer l_i50,  i50
+      integer l_i60,  i60
+      integer l_i70,  i70
+      integer l_i80,  i80
+      integer l_i90,  i90
+      integer l_i100, i100
+      integer l_i110, i110
+      integer l_i120, i120
+      integer need
 c
       dbug=.false.
       if(dbug.and.ga_nodeid().eq.0) then
@@ -706,33 +767,52 @@ c
 c
 c     ----- allocate memory block -----
 c
-      if(.not.ma_push_get(mt_dbl,need,'mem init:cosmo:hnd_cosset:1',
-     &    i_init,init))
-     & call errquit('hnd_cosset, malloc of init  failed',911,MA_ERR)
+c     if(.not.ma_push_get(mt_dbl,need,'mem init:cosmo:hnd_cosset:1',
+c    &    i_init,init))
+c    & call errquit('hnd_cosset, malloc of init  failed',911,MA_ERR)
 c
-      i10 =init                    ! xyzatm(3,nat)
-      i20 =i10 +3*nat              !   ratm(  nat)
-      i30 =i20 +  nat              !   nspa(  nat)
-      i40 =i30 +  nat              !   nppa(  nat)
-      i50 =i40 +  nat              ! ijkfac(3,mxface)
-      i60 =i50 +3*mxface             ! xyzseg(3,mxface)
-      i70 =i60 +3*mxface             ! ijkseg(  mxface)
-      i80 =i70 +  mxface             ! insseg(  mxface,nat)
-      i90 =i80 +  mxface*nat         ! xyzspa(3,mxface,nat)
-      i100=i90 +3*mxface*nat         ! ijkspa(  mxface,nat)
-      i110=i100+  mxface*nat         ! numpps(  mxface,nat)
-      i120=i110+  mxface*nat         ! apex(3,mxapex)
+      stat = .true.
+      stat = stat.and.ma_push_get(mt_dbl,3*nat,"xyzatm",l_i10,i10)
+      stat = stat.and.ma_push_get(mt_dbl,  nat,"ratm",l_i20,i20)
+      stat = stat.and.ma_push_get(mt_int,  nat,"nspa",l_i30,i30)
+      stat = stat.and.ma_push_get(mt_int,  nat,"nppa",l_i40,i40)
+      stat = stat.and.ma_push_get(mt_int,3*mxface,"ijkfac",l_i50,i50)
+      stat = stat.and.ma_push_get(mt_dbl,3*mxface,"xyzseg",l_i60,i60)
+      stat = stat.and.ma_push_get(mt_int,  mxface,"ijkseg",l_i70,i70)
+      stat = stat.and.ma_push_get(mt_log,  mxface*nat,"insseg",
+     &                                                l_i80,i80)
+      stat = stat.and.ma_push_get(mt_dbl,3*mxface*nat,"xyzspa",
+     &                                                l_i90,i90)
+      stat = stat.and.ma_push_get(mt_int,  mxface*nat,"ijkspa",
+     &                                                l_i100,i100)
+      stat = stat.and.ma_push_get(mt_int,  mxface*nat,"numpps",
+     &                                                l_i110,i110)
+      stat = stat.and.ma_push_get(mt_dbl,3*mxapex    ,"apex",
+     &                                                l_i120,i120)
+c     i10 =init                    ! xyzatm(3,nat)
+c     i20 =i10 +3*nat              !   ratm(  nat)
+c     i30 =i20 +  nat              !   nspa(  nat)
+c     i40 =i30 +  nat              !   nppa(  nat)
+c     i50 =i40 +  nat              ! ijkfac(3,mxface)
+c     i60 =i50 +3*mxface             ! xyzseg(3,mxface)
+c     i70 =i60 +3*mxface             ! ijkseg(  mxface)
+c     i80 =i70 +  mxface             ! insseg(  mxface,nat)
+c     i90 =i80 +  mxface*nat         ! xyzspa(3,mxface,nat)
+c     i100=i90 +3*mxface*nat         ! ijkspa(  mxface,nat)
+c     i110=i100+  mxface*nat         ! numpps(  mxface,nat)
+c     i120=i110+  mxface*nat         ! apex(3,mxapex)
 c
 c     ----- get -cosmo- surface -----
 c
       call hnd_cossrf(nat,c,radius,nat,mxface,mxapex,
-     1                x(i10),x(i20),x(i30),x(i40),
-     2                x(i50),x(i60),x(i70),
-     3                x(i80),x(i90),x(i100),x(i110),x(i120),rtdb)
+     1                dbl_mb(i10),dbl_mb(i20),int_mb(i30),int_mb(i40),
+     2                int_mb(i50),dbl_mb(i60),int_mb(i70),
+     3                log_mb(i80),dbl_mb(i90),int_mb(i100),int_mb(i110),
+     4                dbl_mb(i120),rtdb)
 c
 c     ----- release memory block -----
 c
-      if(.not.ma_pop_stack(i_init)) call
+      if(.not.ma_chop_stack(l_i10)) call
      &  errquit('hnd_cosset, ma_pop_stack of init failed',911,MA_ERR)
 c
       return
@@ -776,9 +856,9 @@ c
       logical    more
       logical    dbug
       logical    insseg
-      common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       dbug=.false.
       more=.false.
@@ -800,6 +880,7 @@ c
       call hnd_cossph(nseg,nfac,ndiv,
      1                ijkfac,xyzseg,ijkseg,mxfac,apex,mxapx,
      2                dsurf,dvol,adiag)
+      ptspatm = dble(nseg)
 c
 c     ----- debug printing -----
 c
@@ -834,7 +915,7 @@ c
          if(radius(iat).eq.0.0d0) then
             ratm(iat)=0.0d0
          else
-            ratm(iat)=(radius(iat)+rsolv)/bohr
+            ratm(iat)=radius(iat)/bohr
          endif
       enddo
 c
@@ -899,11 +980,18 @@ C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
 C>     <a href="http://dx.doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp9920971">
+C>     10.1021/jp9920971</a>.
+C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
-     1                  nspa,nppa,xyzspa,ijkspa,
-     2                  nseg,nfac,xyzseg,ijkseg,insseg,
-     3                  numpps,mxface,rtdb)
-      implicit double precision (a-h,o-z)
+     1                      nspa,nppa,xyzspa,ijkspa,
+     2                      nseg,nfac,xyzseg,ijkseg,insseg,
+     3                      numpps,mxface,rtdb)
+      implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -912,32 +1000,57 @@ C>
 #include "bq.fh"
 #include "prop.fh"
 c
-      integer rtdb
+      integer rtdb    !< [Input] The RTDB handle
+      integer nat     !< [Input] The actual number of atoms
+      integer mxface  !< [Input] The maximum number of faces
+      integer mxatom  !< [Input] The maximum number of atoms
+      integer nseg    !< [Input] The actual number of segments
+      integer nfac    !< [Input] The actual number of faces
 c
+      double precision bohr
       parameter  (bohr=0.529177249d+00)
       logical     dbug
-      logical     insseg
-      common/hnd_cospar/dielec,screen,rsolv
+      double precision dielec,screen,rsolv,zeta
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      integer lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
-      dimension xyzatm(3,mxatom)
-      dimension   ratm(  mxatom)
-      dimension   nspa(  mxatom)
-      dimension   nppa(  mxatom)
-      dimension xyzseg(3,mxface)
-      dimension ijkseg(  mxface)
-      dimension insseg(  mxface,mxatom)
-      dimension xyzspa(3,mxface,mxatom)
-      dimension ijkspa(  mxface,mxatom)
-      dimension numpps(  mxface,mxatom)
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      double precision xyzatm(3,mxatom) !< [Input] The atom positions
+      double precision   ratm(  mxatom) !< [Input] The atom radii
+      integer            nspa(  mxatom) !< [Output] The number of
+                                        !< segments remaining for
+                                        !< each atom
+      integer            nppa(  mxatom) !< [Output] The number of faces
+                                        !< remaining for each atom
+      double precision xyzseg(3,mxface) !< [Input] The coordinates of 
+                                        !< the segment and face points
+                                        !< on the unit sphere
+      integer          ijkseg(  mxface) !< [Input] List for every
+                                        !< face what the corresponding
+                                        !< segment is, if ijkseg(ii) is
+                                        !< 0 then face ii should be 
+                                        !< ignored (has been eliminated)
+      logical          insseg(  mxface,mxatom) !< [Output] If .false.
+                                               !< keep the segment or
+                                               !< face, discard it
+                                               !< otherwise
+      double precision xyzspa(3,mxface,mxatom)
+      integer          ijkspa(  mxface,mxatom)
+      integer          numpps(  mxface,mxatom)
+      double precision zero
       data zero    /0.0d+00/
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
-      double precision ratm_real
+      double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
+      integer m,mfac,mseg
+      integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
 c
+      double precision dist, xi, yi, zi, xj, yj, zj
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
 c
       dbug=.false.
+      pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
          write(luout,9999)
@@ -950,7 +1063,7 @@ c
          do iat=1,nat
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
-     2                    (ratm(iat)*bohr-rsolv)
+     2                    (ratm(iat)*bohr)
          enddo
       endif
 c
@@ -972,7 +1085,8 @@ c
             do iseg=1,nseg
                ijkspa(iseg,iat)=ijkseg(iseg)
                do m=1,3
-               xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)+xyzatm(m,iat)
+                  xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)
+     1                              +xyzatm(m,iat)
                enddo
             enddo
             do ifac=1,nfac
@@ -1107,7 +1221,7 @@ c
       ief   =0
       do iat=1,nat
          if(ratm(iat).ne.zero) then
-            ratm_real=ratm(iat)-rsolv/bohr
+            ratm_real=ratm(iat)
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
@@ -1115,8 +1229,19 @@ c
                      dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
      1                          +xyzseg(i,iseg)*ratm_real
                   enddo
+c
+c                 --- eval eq.(67) from [2] ---
+c                 Modifications: No switching function used, instead
+c                 we stick with the screening from [1].
+c
                   ipp=numpps(iseg,iat)
-                  dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
+                  dum=4.00d0**(maxbem-minbem)
+                  zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
+                  zetaii=zetai/sqrt(2.0d0)
+                  dbl_mb(k_efcs+ief-1) = (dum/dble(ipp))
+     1                                 * 2.0d0*zetaii/sqrt(pi)
+c    1                                 * zeta * sqrt(nseg*dum)
+c    2                                 / (sqrt(8.0d0)*pi*ratm_real)
                   srfmol   = srfmol + dble(ipp)*dsurf*ratm_real**2
                   volmol   = volmol + dble(ipp)*dvol *ratm_real**3
                   int_mb(k_efciat+ief-1)=iat
@@ -1174,6 +1299,13 @@ c
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
      &       rtdb_err)
 c
+c     ----- reset cosmo:rawt to avoid trouble in cosmo charge 
+c           calculation -----
+c
+      if(.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,  nefc,dbl_mb(k_efcz)))
+     $   call errquit('hnd_cossas: rtdb put failed for rawt  ',915,
+     &       rtdb_err)
+c
 c     We will need the next bit of information to calculate the analytic
 c     COSMO gradients. This table describes the relationship between
 c     the COSMO charges and the associated atoms. So we better save this
@@ -1181,10 +1313,10 @@ c     info.
 c
       if(.not.rtdb_put(rtdb,'cosmo:efciat',mt_int,nefc,
      $                 int_mb(k_efciat)))
-     $   call errquit('hnd_cossas: rtdb put failed for iatefc',915,
+     $   call errquit('hnd_cossas: rtdb put failed for iatefc',916,
      &       rtdb_err)
 c     if(.not.rtdb_cput(rtdb,'char variable',nefc,byte_mb(k_efclb)))
-c    $   call errquit('hnd_cossas: rtdb put failed for efclab',916,
+c    $   call errquit('hnd_cossas: rtdb put failed for efclab',917,
 c    &       rtdb_err)
 c
       if(.not.ma_pop_stack(l_efclb)) call
@@ -1219,7 +1351,7 @@ c
  9984 format(' molecular surface = ',f10.3,' angstrom**2')
  9983 format(' molecular volume  = ',f10.3,' angstrom**3')
  9981 format(' G(cav/disp)       = ',f10.3,' kcal/mol')
-      enD
+      end
 c
 C> \brief Triangulate a sphere using the Boundary Element Method (BEM)
 C>
@@ -1328,7 +1460,7 @@ c
       dimension ijkseg(  *)
       dimension xyzseg(3,*)
 c
-      common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
 c
       parameter (mxpass=    7)
@@ -2007,6 +2139,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "global.fh"
+#include "geom.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "mafdecls.fh"
@@ -2035,17 +2168,22 @@ c
       character*8 scfruntyp
 c
       double precision dielec,screen,rsolv,adiag,dsurf,dvol
-      double precision srfmol,volmol
+      double precision srfmol,volmol,zeta,ptspatm
       integer lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
-      integer l_efcrad, k_efcrad
+      integer l_efciat, k_efciat
+      integer l_rad,  k_rad,  nrad
       integer l_occ,  k_occ
-      integer nefc, ief, i
+      integer nefc, ief, i, nat
       integer g_dens(3),ndens,nvirt(2)
+      logical stat
+c
+      double precision bohr
+      parameter (bohr=0.529177249d+00)
 c
       dbug=.false..and.ga_nodeid().eq.0
       out =.false..and.ga_nodeid().eq.0
@@ -2060,6 +2198,11 @@ c
          write(luout,*) 'in cosmo_charges ... geom = ',geom
       endif
 c
+c     ----- retrieve the number of atoms from -geom- -----
+c
+      if (.not.geom_ncent(geom,nat))
+     &   call errquit("cosmo_charges: geom_ncent failed",0,UERR)
+c
 c     ----- read -efc- coordinates from -rtdb- -----
 c
       if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
@@ -2069,11 +2212,15 @@ c
 c     ----- allocate memory for efc's -----
 c
       if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
-     & call errquit('cosmo_cossas malloc k_efcc failed',911,MA_ERR)
+     & call errquit('cosmo_charges malloc k_efcc failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcs',l_efcs,k_efcs))
-     & call errquit('cosmo_cossas malloc k_efcs failed',911,MA_ERR)
+     & call errquit('cosmo_charges malloc k_efcs failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
-     & call errquit('cosmo_cossas malloc k_efcz failed',911,MA_ERR)
+     & call errquit('cosmo_charges malloc k_efcz failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_int,nefc,'cosmo efciat',l_efciat,k_efciat))
+     & call errquit('cosmo_charges malloc k_efciat failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo rad',l_rad,k_rad))
+     & call errquit('cosmo_charges malloc k_rad failed',nat,MA_ERR)
 c
       if(.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,dbl_mb(k_efcc)))
      &   call errquit('cosmo_charges: rtdb get failed for efcc  ',912,
@@ -2084,6 +2231,16 @@ c
       if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      &   call errquit('cosmo_charges: rtdb get failed for efcs  ',914,
      &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efciat',
+     &                 mt_int,nefc,int_mb(k_efciat)))
+     &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
+     &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad)))
+     &   call errquit('cosmo_charges: rtdb get failed for radius ',914,
+     &       RTDB_ERR)
+      do i = 0, nat-1
+        dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/bohr
+      enddo
 c
       if(out) then
          write(luout,*) 'in cosmo_charges, nefc = ',nefc
@@ -2159,14 +2316,15 @@ c
 c
 c     ----- get -cosmo- charges -----
 c
-      call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,dbl_mb(k_efcc),
-     &                dbl_mb(k_efcs),dbl_mb(k_efcz),ecos)
+      call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
+     &                dbl_mb(k_efcc),dbl_mb(k_efcs),dbl_mb(k_efcz),
+     &                int_mb(k_efciat),dbl_mb(k_rad),ecos)
 c
 c     ----- release memory block -----
 c
       do i = 1, ndens
          if (.not.ga_destroy(g_dens(i))) call
-     &       errquit('hnd_coschg: ga_destroy failed g_dens',0,GA_ERR)
+     &       errquit('cosmo_charges: ga_destroy failed g_dens',0,GA_ERR)
       enddo
       if(.not.ma_chop_stack(l_efcc))
      & call errquit('cosmo_charges, ma_chop_stack of l_efcc failed',911,
@@ -2342,17 +2500,44 @@ C> problematic as the expression still contains singularities at
 C> \f$r_{ij} = 0\f$ that can only be avoided by taking limits.
 C> Therefore special care must be taken when using it.
 C>
-C> Similar problems with singular potentials also arise in other
-C> application areas in chemistry. One such area is charge equilibration
-C> where the shielded Coulomb interaction is approximated with the
-C> Ohno formula [8]
+C> Considering the use of the potential above in more detail we have
 C> \f{eqnarray*}{
-C>   A(r_i,r_j) &=& \frac{1}{\left(a_{ij}^2 + r_{ij}^2\right)^{1/2}}
+C>   A(r_i,r_j) &=& \frac{\mathrm{erf}(\zeta_{ij}r_{ij})}{r_{ij}} \\\\
+C>   A(r_i,r_i) &=& \lim_{r_{ij}\to 0}\frac{\mathrm{erf}(\zeta_{ii}r_{ij})}{r_{ij}} \\\\
+C>              &=& \zeta_i\sqrt{2/\pi} \\\\
+C>   \zeta_{ij} &=& \frac{\zeta_i\zeta_j}{
+C>                        \left(\zeta_i^2+\zeta_j^2\right)^{1/2}} \\\\
+C>   \zeta_i    &=& \frac{\zeta}{R_I\sqrt{w_i}} \\\\
+C>              &=& \frac{\zeta}{\sqrt{|S_i|}} \\\\
+C>              &=& \frac{\zeta\sqrt{M}}{R_I\sqrt{2\pi}}
 C> \f}
-C> This equation has the advantage that it is analytic everywhere
-C> and with an appropriate choice for \f$a_{ij}\f$ it can easily be
-C> mapped onto the original equations suggested by Klamt and 
-C> Sch&uuml;&uuml;rmann [1].
+C> where \f$R_I\f$ is the radius of the cavity around atom \f$I\f$,
+C> \f$w_i\f$ is the weight of point \f$i\f$ on the unit sphere, hence 
+C> \f$R_I\sqrt{w_i}\f$ is equivalent to the surface \f$|S_i|\f$ of the
+C> point, \f$\zeta\f$ is a width parameter for the Gaussian distribution
+C> that has been optimized to reproduce the Born solvation energy,
+C> \f$M\f$ is the number of discretization points on the sphere.
+C> In [4] Table 1 it is shown that
+C> \f$\zeta\f$ is essentially \f$4.90\f$.
+C> From this the limit of two point charges approaching eachother can
+C> be established as
+C> \f{eqnarray*}{
+C>   \lim_{r_j \to r_i} A(r_i,r_j) &=& \zeta_{ij}\frac{2}{\sqrt{\pi}}
+C> \f}
+C> When two point charges come so close together that \f$r_{ij} < C\f$
+C> then this last expression has to be used, otherwise the regular
+C> expression for \f$A(r_i,r_j)\f$ should be used.
+C>
+C> The gradient of this expression is given by
+C> \f{eqnarray*}{
+C>   \nabla_M A(r_i,r_j)
+C>   &=& -\left(\mathrm{erf}(\zeta_{ij}r_{ij})-
+C>        \frac{2\zeta_{ij}}{\sqrt{\pi}}
+C>        e^{-\zeta_{ij}^2r_{ij}^2}\right)
+C>        \frac{\nabla_M r_{ij}}{r_{ij}^2} \\\\
+C>   \nabla_M A(r_i,r_i)
+C>   &=& 0
+C> \f}
 C>
 C> ### References ###
 C>
@@ -2403,16 +2588,9 @@ C>   <i>J. Chem. Phys.</i> (2010) <b>133</b>, 244111, DOI:
 C>   <a href="http://dx.doi.org/10.1063/1.3511297">
 C>   10.1063/1.3511297</a>.
 C>
-C>   [8] R.F. Nalewajski, J. Korchowiec, Z. Zhou,
-C>   "Molecular hardness and softness parameters and their use in
-C>    chemistry", <i>Int. J. Quant. Chem. Symp.</i> (1988),
-C>   <b>22</b>, pp 349-366, DOI:
-C>   <a href="http://dx.doi.org/10.1002/qua.560340840">
-C>   10.1002/qua.560340840</a>.
-C>
 c
-      subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,
-     &                      efcc,efcs,efcz,ecos)
+      subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
+     &                      efcc,efcs,efcz,efciat,ratm,ecos)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -2431,6 +2609,7 @@ c
       integer rtdb          !< [Input] the RTDB handle
       integer geom          !< [Input] the molecular geometry handle
       integer basis         !< [Input] the molecular basis set handle
+      integer nat           !< [Input] the number of atoms
       integer nefc          !< [Input] the number of COSMO charges
 c
       double precision efcc(3,nefc) !< [Input] the COSMO charge
@@ -2439,6 +2618,9 @@ c
                                     !< surface area
 c
       double precision efcz(nefc)   !< [Output] the COSMO charges
+      integer          efciat(nefc) !< [Input] the atom associated
+                                    !< with each surface charge
+      double precision ratm(nat)    !< [Input] the atom radii
       double precision ecos !< [Output] the energy contribution due to
                             !< the COSMO charges
       logical  status
@@ -2452,11 +2634,21 @@ c
       integer maxbem 
       integer ificos ! 0 use octahedron, 1 use icosahedron tesselation
       integer ifscrn ! do screening/correction?
-      integer nat ! the number of atoms
       integer iat ! counter over atoms
       integer jef ! counter over COSMO charges
-      integer i10, i11, i12, i20, i21, i22      ! memory offsets
-      integer i30, i40, i50, i60, i70, i80, i90 ! memory offsets
+      integer l_i10, i10
+      integer l_i11, i11
+      integer l_i12, i12
+      integer l_i20, i20
+      integer l_i21, i21
+      integer l_i22, i22
+      integer l_i30, i30
+      integer l_i40, i40
+      integer l_i50, i50
+      integer l_i60, i60
+      integer l_i70, i70
+      integer l_i80, i80
+      integer l_i90, i90
       integer i,ipt,ief ! counters
       integer i_init ! number of ints in memory requirement vector
       integer init ! memory requirement vector
@@ -2476,9 +2668,11 @@ c
       double precision dielec ! dielectric constant
       double precision screen ! dielectric screening factor
       double precision rsolv
+      double precision zeta
+      double precision ptspatm
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
-      common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      common/hnd_cospar/dielec,screen,rsolv,zeta
       double precision charge ! the total QM region charge
       double precision chgfac ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
@@ -2500,6 +2694,7 @@ c
       double precision rr ! distance
       double precision solnrg ! solvation energy
       double precision dlambda ! lambda (surface charge correction)
+      double precision pi
       double precision x(1)
       equivalence (x(1),dbl_mb(1))
       double precision zero, pt5, one, two ! constants
@@ -2507,17 +2702,22 @@ c
       data pt5    /0.5d+00/
       data one    /1.0d+00/
       data two    /2.0d+00/
+      double precision zetai, zetaj, zetaij
       double precision bohr
       parameter (bohr=0.529177249d0)
+      logical stat
 c
+      double precision util_erf
       logical util_io_unit
-      external util_io_unit
+      external util_io_unit, util_erf
 c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
       out =.false.
       out =out.or.dbug
+c
+      pi = acos(-1.0d0)
 c
       dbug=dbug.and.ga_nodeid().eq.0
       more=more.and.ga_nodeid().eq.0
@@ -2527,39 +2727,17 @@ c
       all=.false.
       ecos=zero
 c
-c     ----- allocate memory block -----
-c
-      if(lineq.ne.1) then
-         need=12*nefc+nefc*nefc
-         if(.not.ma_push_get(mt_dbl,need,
-     &      'mem init:cosmo:hnd_coschg:1',i_init,init)) then
-            need=12*nefc
-            lineq=1
-            if(.not.ma_push_get(mt_dbl,need,
-     &         'mem init:cosmo:hnd_coschg:1',i_init,init))
-     &         call errquit(
-     &              'hnd_coschg, malloc of init  failed',911,MA_ERR)
-         endif
-      else
-         need=12*nefc
-         if(.not.ma_push_get(mt_dbl,need,
-     &      'mem init:cosmo:hnd_coschg:2',i_init,init))
-     &    call errquit('hnd_coschg, malloc of init  failed',912,MA_ERR)
-         lineq=1
-      endif
-      if(out) then
-         if(lineq.eq.1) then
-            write(luout,*) 'use iterative method for -lineq-'
-         else
-            write(luout,*) 'use in-memory method for -lineq-'
-         endif
-      endif
-c
 c     ----- get electrostatic potential at surface points -----
 c
-      i10=init      ! total field
-      i11=i10+nefc  ! nuclear field
-      i12=i11+nefc  ! electron field
+c     --- total field
+      if (.not.ma_push_get(mt_dbl,nefc,"hnd_coschg:i10",l_i10,i10))
+     &   call errquit("hnd_coschg: malloc i10 failed",913,MA_ERR)
+c     --- nuclear field
+      if (.not.ma_push_get(mt_dbl,nefc,"hnd_coschg:i11",l_i11,i11))
+     &   call errquit("hnd_coschg: malloc i11 failed",914,MA_ERR)
+c     --- electron field
+      if (.not.ma_push_get(mt_dbl,nefc,"hnd_coschg:i12",l_i12,i12))
+     &   call errquit("hnd_coschg: malloc i12 failed",914,MA_ERR)
 c
 c     ----- calculate electronic contribution at all points -----
 c
@@ -2603,17 +2781,58 @@ c
 c     ----- get surface charges -----
 c
       if(lineq.eq.0) then
-         i10=init
-         i11=i10+nefc
-         i12=i11+nefc
-         i20=i12+nefc
-         i21=i20+nefc
-         i22=i21+nefc
-         i30=i22+nefc
-         i40=i30+nefc*nefc
-         i50=i40+nefc
-         i80=i50+nefc
-         i90=i80+nefc
+        stat = .true.
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i20",
+     &                                l_i20,i20)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i21",
+     &                                l_i21,i21)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i22",
+     &                                l_i22,i22)
+        stat = stat .and. ma_push_get(mt_dbl,nefc*nefc,"hnd_coschg i30",
+     &                                l_i30,i30)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i40",
+     &                                l_i40,i40)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i50",
+     &                                l_i50,i50)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i80",
+     &                                l_i80,i80)
+        if (.not.stat) then
+          lineq = 1
+          stat = ma_chop_stack(l_i20)
+        endif
+      endif
+      if (lineq.eq.1) then
+        stat = .true.
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i20",
+     &                                l_i20,i20)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i21",
+     &                                l_i21,i21)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i22",
+     &                                l_i22,i22)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i30",
+     &                                l_i30,i30)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i40",
+     &                                l_i40,i40)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i50",
+     &                                l_i50,i50)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i60",
+     &                                l_i60,i60)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i70",
+     &                                l_i70,i70)
+        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i80",
+     &                                l_i80,i80)
+        if (.not.stat) then
+          call errquit("hnd_coschg: out of memory",950,MA_ERR)
+        endif
+      endif
+      if(out) then
+         if(lineq.eq.1) then
+            write(luout,*) 'use iterative method for -lineq-'
+         else
+            write(luout,*) 'use in-memory method for -lineq-'
+         endif
+      endif
+      if(lineq.eq.0) then
 c
 c     ----- in memory -----
 c
@@ -2629,7 +2848,7 @@ c
             x(ief+i20-1)=x(ief+iep-1)
          enddo
 
-         call hnd_cosmata(nefc,efcc,efcs,x(i30))
+         call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
 c
          nodcmp=1
          call hnd_linequ(x(i30),nefc,x(i20),nefc,
@@ -2641,26 +2860,13 @@ c
             x(ief+i80-1)=one
          enddo
 
-         call hnd_cosmata(nefc,efcc,efcs,x(i30))
+         call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
 c
          nodcmp=1
          call hnd_linequ(x(i30),nefc,x(i80),nefc,
      1                   x(i40),x(i50),deta,ierr,nodcmp)
 c
       else
-         i10=init
-         i11=i10+nefc
-         i12=i11+nefc
-         i20=i12+nefc
-         i21=i20+nefc
-         i22=i21+nefc
-         i30=i22+nefc
-         i40=i30+nefc
-         i50=i40+nefc
-         i60=i50+nefc
-         i70=i60+nefc
-         i80=i70+nefc
-         i90=i80+nefc
 c
 c     ----- iterative -----
 c
@@ -2685,9 +2891,9 @@ c     ----- solve ... -----
 c
          iep=i10
 
-         call hnd_cosequ(x(iep),x(i20),x(i30),nefc,
+         call hnd_cosequ(nat,x(iep),x(i20),nefc,
      1                   x(i40),x(i50),x(i60),x(i70),
-     2                   efcc,efcs)
+     2                   efcc,efcs,efciat,ratm)
 c
          if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
             call errquit('hnd_coschg: could not store raw COSMO charge',
@@ -2714,9 +2920,9 @@ c
          enddo
          iep=i21
 
-         call hnd_cosequ(x(iep),x(i80),x(i30),nefc,
+         call hnd_cosequ(nat,x(iep),x(i80),nefc,
      1                   x(i40),x(i50),x(i60),x(i70),
-     2                   efcc,efcs)
+     2                   efcc,efcs,efciat,ratm)
 c
          if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
             call errquit('hnd_coschg: could not store raw A^{-1}1',
@@ -2726,28 +2932,28 @@ c
 c
 c     ----- debug check -----
 c
-      if(more) then
-         do jef=1,nefc
-            xj=efcc(1,jef)
-            yj=efcc(2,jef)
-            zj=efcc(3,jef)
-            dum=zero
-            do ief=1,nefc
-               if(ief.eq.jef) then
-                  aii=adiag/sqrt(efcs(ief))
-                  dum=dum+aii*x(ief+i20-1)      
-               else
-                  xi=efcc(1,ief)
-                  yi=efcc(2,ief)
-                  zi=efcc(3,ief)
-                  dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                  aij=one/dij
-                  dum=dum+aij*x(ief+i20-1)      
-               endif
-            enddo
-            write(luout,9992) jef,dum
-         enddo
-      endif
+c     if(more) then
+c        do jef=1,nefc
+c           xj=efcc(1,jef)
+c           yj=efcc(2,jef)
+c           zj=efcc(3,jef)
+c           dum=zero
+c           do ief=1,nefc
+c              if(ief.eq.jef) then
+c                 aii=adiag/sqrt(efcs(ief))
+c                 dum=dum+aii*x(ief+i20-1)      
+c              else
+c                 xi=efcc(1,ief)
+c                 yi=efcc(2,ief)
+c                 zi=efcc(3,ief)
+c                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+c                 aij=one/dij
+c                 dum=dum+aij*x(ief+i20-1)      
+c              endif
+c           enddo
+c           write(luout,9992) jef,dum
+c        enddo
+c     endif
 c
 c     ----- correct the COSMO charges ... -----
 c
@@ -2791,8 +2997,10 @@ c
 c
 c     ----- apply screening factor -----
 c
+      chgcos=zero
       do ief=1,nefc
          x(ief+i20-1)=-chgfac*x(ief+i20-1)
+         chgcos=chgcos+x(ief+i20-1)
       enddo
 c
 c     ----- store effective charges in -efcz- ... -----
@@ -2832,6 +3040,7 @@ c
          yj=efcc(2,jef)
          zj=efcc(3,jef)
          qj=efcz(  jef)
+         zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
 c
          allefc=allefc+qj*x(jef+i10-1)
 c
@@ -2846,15 +3055,21 @@ c
          enddo
 c
          do ief=1,nefc
+            zetai=zeta*sqrt(ptspatm)/(ratm(efciat(ief))*sqrt(2.0d0*pi))
             xi=efcc(1,ief)
             yi=efcc(2,ief)
             zi=efcc(3,ief)
             qi=efcz(  ief)
             if(ief.eq.jef) then
-               aij=adiag/sqrt(efcs(ief))
+               aij=efcs(ief)
             else
                dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               aij=one/dij
+               zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
+               if (dij.lt.1.0d-6) then
+                 aij=2.0d0*zetaij/sqrt(pi)
+               else
+                 aij=util_erf(zetaij*dij)/dij
+               endif
             endif
             efcefc=efcefc+qi*aij*qj
          enddo
@@ -2888,7 +3103,8 @@ c
          elcefc=elcefc+qj*x(jef+i12-1)
       enddo
       solnrg= pt5* allefc
-      ecos  = pt5*(atmefc-elcefc)
+c     no idea what the following line is supposed to mean
+c     ecos  = pt5*(atmefc-elcefc)
       if (out) then
          write(luout,9991) atmefc
          write(luout,9990) elcefc
@@ -2965,7 +3181,7 @@ c
 c
 c     ----- release memory block -----
 c
-      if(.not.ma_chop_stack(i_init)) call
+      if(.not.ma_chop_stack(l_i10)) call
      &  errquit('hnd_coschg, ma_pop_stack of init failed',911,MA_ERR)
 c
       return
@@ -2994,34 +3210,55 @@ C>
 C> Compute matrix `A` as needed for the in-memory COSMO
 C> charge fitting.
 C>
-      subroutine hnd_cosmata(nefc,efcc,efcs,a)
+      subroutine hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,a)
       implicit none
+      integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
       double precision efcs(nefc)   !< [Input] The surface areas
+      integer          efciat(nat)  !< [Input] The atom of a surface 
+                                    !< charge
+      double precision ratm(nat)    !< [Input] The atom radii
       double precision a(nefc,nefc) !< [Output] Matrix `A`
 c
       integer jef, ief
       double precision aii, xi, xj, yi, yj, zi, zj, dij, one
+      double precision zetai, zetaj, zetaij
       parameter (one = 1.0d0)
 c
-      double precision adiag,dsurf,dvol,srfmol,volmol
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      double precision dielec,screen,rsolv,zeta
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+c
+      double precision util_erf
+      external util_erf
+c
+      double precision pi
+      pi = acos(-1.0d0)
 c
       do jef=1,nefc
+         zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
          xj=efcc(1,jef)
          yj=efcc(2,jef)
          zj=efcc(3,jef)
          do ief=1,nefc
             if(ief.eq.jef) then
-               aii=adiag/sqrt(efcs(ief))
+               aii=efcs(ief)
                a(ief,jef)=aii
             else
+               zetai=zeta*sqrt(ptspatm) /
+     &               (ratm(efciat(ief))*sqrt(2.0d0*pi))
+               zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
                xi=efcc(1,ief)
                yi=efcc(2,ief)
                zi=efcc(3,ief)
                dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               a(ief,jef)=one/dij
+               if (dij.lt.1.0d-6) then
+                 a(ief,jef)=2.0d0*zetaij*sqrt(1.0d0/pi)
+               else
+                 a(ief,jef)=util_erf(zetaij*dij)/dij
+               endif
             endif
          enddo
       enddo
@@ -3035,39 +3272,70 @@ C> for the charge vector using a dot-product based algorithm. The matrix
 C> is generated on the fly. For performance reasons the routine is
 C> replicated data parallel.
 C>
-      subroutine hnd_cosaxd(a,x,ax,n,efcc,efcs)
-      implicit real*8 (a-h,o-z)
+      subroutine hnd_cosaxd(nat,x,ax,nefc,efcc,efcs,efciat,ratm)
+      implicit none
 #include "global.fh"
 #include "msgids.fh"
+c
+      integer          nat  !< [Input] The number of atoms
+      integer          nefc !< [Input] The number of surface charges
+      double precision efcc(3,nefc) !< [Input] The surface charge coords
+      double precision efcs(nefc)   !< [Input] The surface areas
+      integer          efciat(nefc) !< [Input] The atom of a surface 
+                                    !< charge
+      double precision ratm(nat)    !< [Input] The atom radii
+      double precision x(nefc)      !< [Input] Vector `x`
+      double precision ax(nefc)     !< [Output] Matrix-vector product
+                                    !< `Ax`
+c
+      double precision zetai, zetaj, zetaij, pi, aij, dij, dum, xj
+      double precision zero, one
       parameter (zero=0.0d+00, one=1.0d+00)
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
-      dimension efcc(3,n), efcs(n)
-      dimension a(n),x(n),ax(n)
+c
+      double precision dielec,screen,rsolv,zeta
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+c
+      double precision util_erf
+      external util_erf
 c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
 c
+      double precision r
+      integer i, j
       r (i,j)=sqrt((efcc(1,i)-efcc(1,j))**2+
      1             (efcc(2,i)-efcc(2,j))**2+
      2             (efcc(3,i)-efcc(3,j))**2)
-      d (i  )=adiag/sqrt(efcs(i))
+c     d (i  )=adiag/sqrt(efcs(i))
 c
-      call dfill(n,0.0d0,ax,1)
-      do i=ga_nodeid()+1,n,ga_nnodes()
+      pi=acos(-1.0d0)
+      call dfill(nefc,0.0d0,ax,1)
+      do i=ga_nodeid()+1,nefc,ga_nnodes()
+         zetai=zeta*sqrt(ptspatm) /
+     &         (ratm(efciat(i))*sqrt(2.0d0*pi))
          dum=zero
-         do j=1,n
+         do j=1,nefc
             if(j.eq.i) then
-               aij=d(i)
+               aij=efcs(i)
             else
-               bij=r(i,j)
-               aij=one/bij
+               zetaj=zeta*sqrt(ptspatm) /
+     &               (ratm(efciat(j))*sqrt(2.0d0*pi))
+               zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
+               dij=r(i,j)
+               if (dij.lt.1.0d-6) then
+                 aij=2.0d0*zetaij*sqrt(1.0d0/pi)
+               else
+                 aij=util_erf(zetaij*dij)/dij
+               endif
             endif
-             xj=x(j)
+            xj=x(j)
             dum=dum+aij*xj
          enddo
          ax(i)=dum
       enddo
-      call ga_dgop(msg_cosaxd,ax,n,'+')
+      call ga_dgop(msg_cosaxd,ax,nefc,'+')
 c
       return
       end
@@ -3076,40 +3344,23 @@ C> \brief On the fly vector-matrix multiplication
 C>
 C> This routine multiplies the current guess for the COSMO charges
 C> with the matrix. The routine is replicated data parallel.
+C> The matrix `A` is symmetric so we simply call the matrix-vector
+C> product.
 C>
-      subroutine hnd_cosxad(a,x,xa,n,efcc,efcs)
-      implicit real*8 (a-h,o-z)
-#include "global.fh"
-#include "msgids.fh"
-      parameter (zero=0.0d+00, one=1.0d+00)
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
-      dimension efcc(3,n), efcs(n)
-      dimension a(n),x(n),xa(n)
+      subroutine hnd_cosxad(nat,x,xa,nefc,efcc,efcs,efciat,ratm)
+      implicit none
+      integer          nat  !< [Input] The number of atoms
+      integer          nefc !< [Input] The number of surface charges
+      double precision efcc(3,nefc) !< [Input] The surface charge coords
+      double precision efcs(nefc)   !< [Input] The surface areas
+      integer          efciat(nefc) !< [Input] The atom of a surface 
+                                    !< charge
+      double precision ratm(nat)    !< [Input] The atom radii
+      double precision x(nefc)      !< [Input] Vector `x`
+      double precision xa(nefc)     !< [Output] Vector-matrix product
+                                    !< `xA`
 c
-c     Introduced a trivial replicated data parallelization of this
-c     matrix-vector multiplication
-c
-      r (i,j)=sqrt((efcc(1,i)-efcc(1,j))**2+
-     1             (efcc(2,i)-efcc(2,j))**2+
-     2             (efcc(3,i)-efcc(3,j))**2)
-      d (i  )=adiag/sqrt(efcs(i))
-c
-      call dfill(n,0.0d0,xa,1)
-      do i=ga_nodeid()+1,n,ga_nnodes()
-         dum=zero
-         do j=1,n
-            if(j.eq.i) then
-               aij=d(i)
-            else
-               bij=r(i,j)
-               aij=one/bij
-            endif
-            xj=x(j)
-            dum=dum+aij*xj
-         enddo
-         xa(i)=dum
-      enddo
-      call ga_dgop(msg_cosxad,xa,n,'+')
+      call hnd_cosaxd(nat,x,xa,nefc,efcc,efcs,efciat,ratm)
 c
       return
       end
@@ -3134,8 +3385,9 @@ C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
 C>     <a href="http://dx.doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
-      subroutine hnd_cosequ(b,x,a,n,g,h,xi,xj,efcc,efcs)
-      implicit real*8 (a-h,o-z)
+      subroutine hnd_cosequ(nat,b,x,nefc,g,h,xi,xj,efcc,efcs,efciat,
+     &                      ratm)
+      implicit none
 c
 c     ----- solve a * x = b , using an iterative procedure       -----
 c
@@ -3146,41 +3398,57 @@ c
 #include "stdio.fh"
 c
       logical     dbug
-      double precision efcc(3,n),efcs(n)
-      dimension   a(n),x(n),b(n)
-      dimension   g(n),h(n),xi(n),xj(n)
+      integer          nat  !< [Input] The number of atoms
+      integer          nefc !< [Input] The number of surface charges
+      double precision efcc(3,nefc) !< [Input] The surface charge coords
+      double precision efcs(nefc)   !< [Input] The surface areas
+      integer          efciat(nefc) !< [Input] The atom of a surface 
+                                    !< charge
+      double precision ratm(nat)    !< [Input] The atom radii
+      double precision b(nefc)      !< [Input] The RHS of Ax=b
+      double precision x(nefc)      !< [Output] The solution of Ax=b
+c
+      double precision g(nefc) !< [Scratch]
+      double precision h(nefc) !< [Scratch]
+      double precision xi(nefc) !< [Scratch]
+      double precision xj(nefc) !< [Scratch]
+c
+      double precision rp, bsq, anum, aden, rsq, gg, dgg, gam
+      double precision zero, eps, eps2
       data zero   /0.0d+00/
       data eps    /1.0d-07/
+c
+      integer i, j, irst, iter
 c
       dbug=.false.
       if(dbug) then
          write(luout,*) 'in -cosequ-'
-         do i=1,n
+         do i=1,nefc
             write(luout,9999) i,b(i)
          enddo
       endif
 c
-      eps2=n*eps*eps
+      eps2=nefc*eps*eps
       irst=0
    10 irst=irst+1
-      call hnd_cosaxd(a,x,xi,n,efcc,efcs)
+      call hnd_cosaxd(nat,x,xi,nefc,efcc,efcs,efciat,ratm)
       rp=zero
       bsq=zero
-      do j=1,n
+      do j=1,nefc
          bsq=bsq+b(j)*b(j)
          xi(j)=xi(j)-b(j)
          rp=rp+xi(j)*xi(j)
       enddo ! j
-      call hnd_cosxad(a,xi,g,n,efcc,efcs)
-      do j=1,n
+      call hnd_cosxad(nat,xi,g,nefc,efcc,efcs,efciat,ratm)
+      do j=1,nefc
          g(j)=-g(j)
          h(j)= g(j)
       enddo ! j
-      do iter=1,10*n
-         call hnd_cosaxd(a,h,xi,n,efcc,efcs)
+      do iter=1,10*nefc
+         call hnd_cosaxd(nat,h,xi,nefc,efcc,efcs,efciat,ratm)
          anum=zero
          aden=zero
-         do j=1,n
+         do j=1,nefc
             anum=anum+g(j)*h(j)
             aden=aden+xi(j)*xi(j)
          enddo ! j
@@ -3189,35 +3457,35 @@ c
             call errquit('hnd_cosequ: singular matrix',911,UERR)
          endif
          anum=anum/aden
-         do j=1,n
+         do j=1,nefc
             xi(j)=x(j)
             x(j)=x(j)+anum*h(j)
          enddo ! j
-         call hnd_cosaxd(a,x,xj,n,efcc,efcs)
+         call hnd_cosaxd(nat,x,xj,nefc,efcc,efcs,efciat,ratm)
          rsq=zero
-         do j=1,n
+         do j=1,nefc
             xj(j)=xj(j)-b(j)
             rsq=rsq+xj(j)*xj(j)
          enddo ! j
          if(rsq.eq.rp.or.rsq.le.bsq*eps2) return
          if(rsq.gt.rp) then
-            do j=1,n
+            do j=1,nefc
                x(j)=xi(j)
             enddo ! j
             if(irst.ge.3) return
             go to 10
          endif
          rp=rsq
-         call hnd_cosxad(a,xj,xi,n,efcc,efcs)
+         call hnd_cosxad(nat,xj,xi,nefc,efcc,efcs,efciat,ratm)
          gg=zero
          dgg=zero
-         do j=1,n
+         do j=1,nefc
             gg=gg+g(j)*g(j)
             dgg=dgg+(xi(j)+g(j))*xi(j)
          enddo ! j
          if(gg.eq.zero) return
          gam=dgg/gg
-         do j=1,n
+         do j=1,nefc
             g(j)=-xi(j)
             h(j)=g(j)+gam*h(j)
          enddo ! j
