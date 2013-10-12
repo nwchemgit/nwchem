@@ -44,6 +44,7 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
+      logical fast_erf
       integer lcount,task_count,nfft3d
       integer k1,k2,k3,i,l
       double precision pi,twopi,forpi
@@ -52,18 +53,22 @@
 
 *     **** Error function parameters ****
       real*8 yerf,xerf
-c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
-c     parameter (c1=0.07052307840d0,c2=0.04228201230d0)
-c     parameter (c3=0.00927052720d0)
-c     parameter (c4=0.00015201430d0,c5=0.00027656720d0)
-c     parameter (c6=0.00004306380d0)
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
 
 *     **** external functions ****
+      logical          control_fast_erf
+      external         control_fast_erf
       double precision dsum,simp,util_erf
       external         dsum,simp,util_erf
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+
+      fast_erf = control_fast_erf()
 
       nfft3d = (nfft1/2+1)*nfft2*nfft3
       pi=4.0d0*datan(1.0d0)
@@ -271,18 +276,23 @@ c           vnl(k1,k2,k3,lcount)=P*GZ
         end if
 
         if (version.eq.4) then
-        DO I=1,NRHO
-
-          xerf=RHO(I)/rlocal
-*         yerf = (1.0d0
-*    >           + xerf*(c1 + xerf*(c2
-*    >           + xerf*(c3 + xerf*(c4
-*    >           + xerf*(c5 + xerf*c6))))))**4
-*         yerf = (1.0d0 - 1.0d0/yerf**4)
-          yerf = util_erf(xerf)
-          F(I)=(RHO(I)*VP(I,locp)+ZV*yerf)*SN(I)
-c         F(I)=(RHO(I)*VP(I,locp)+ZV*ERF(RHO(I)/RC(locp)))*SN(I)
-        END DO
+        if (fast_erf) then
+           do I=1,NRHO
+             xerf=RHO(I)/rlocal
+             yerf = (1.0d0
+     >            + xerf*(c1 + xerf*(c2
+     >            + xerf*(c3 + xerf*(c4
+     >            + xerf*(c5 + xerf*c6))))))**4
+             yerf = (1.0d0 - 1.0d0/yerf**4)
+             F(I)=(RHO(I)*VP(I,locp)+ZV*yerf)*SN(I)
+           end do
+        else
+           do I=1,NRHO
+             xerf=RHO(I)/rlocal
+             yerf = util_erf(xerf)
+             F(I)=(RHO(I)*VP(I,locp)+ZV*yerf)*SN(I)
+           end do
+        end if
         vl(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q
         end if
 
@@ -319,17 +329,23 @@ c         F(I)=(RHO(I)*VP(I,locp)+ZV*ERF(RHO(I)/RC(locp)))*SN(I)
       end if
 
       if (version.eq.4) then
-      DO I=1,NRHO
-        xerf=RHO(I)/rlocal
-c       yerf = (1.0d0
-c    >         + xerf*(c1 + xerf*(c2
-c    >         + xerf*(c3 + xerf*(c4
-c    >         + xerf*(c5 + xerf*c6))))))**4
-c       yerf = (1.0d0 - 1.0d0/yerf**4)
-        yerf = util_erf(xerf)
-        F(I)=(VP(I,locp)*RHO(I)+ZV*yerf)*RHO(I)
-c       F(I)=(VP(I,locp)*RHO(I)+ZV*ERF(RHO(I)/RC(locp)))*RHO(I)
-      END DO
+      if (fast_erf) then
+         do I=1,NRHO
+           xerf=RHO(I)/rlocal
+           yerf = (1.0d0
+     >          + xerf*(c1 + xerf*(c2
+     >          + xerf*(c3 + xerf*(c4
+     >          + xerf*(c5 + xerf*c6))))))**4
+           yerf = (1.0d0 - 1.0d0/yerf**4)
+           F(I)=(VP(I,locp)*RHO(I)+ZV*yerf)*RHO(I)
+         end do
+      else
+         do I=1,NRHO
+           xerf=RHO(I)/rlocal
+           yerf = util_erf(xerf)
+           F(I)=(VP(I,locp)*RHO(I)+ZV*yerf)*RHO(I)
+         end do
+      end if
       vl(1,1,1)=FORPI*SIMP(NRHO,F,DRHO)
       end if
 

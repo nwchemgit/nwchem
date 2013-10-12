@@ -67,9 +67,9 @@
       integer indx(5,0:3)
 
 *     **** external functions ****
-      double precision dsum,simp,util_erf,control_ecut,control_wcut
+      double precision dsum,simp,control_ecut,control_wcut
       double precision nwpw_splint
-      external         dsum,simp,util_erf,control_ecut,control_wcut
+      external         dsum,simp,control_ecut,control_wcut
       external         nwpw_splint
 
 *     **** set up indx(n,l) --> to wp ****

@@ -58,8 +58,8 @@
       double precision T,dTdux,dTduy,dTduz
 
 *     **** external functions ****
-      double precision dsum,simp,util_erf
-      external         dsum,simp,util_erf
+      double precision dsum,simp
+      external         dsum,simp
 
       if (version.ne.3) then
          call errquit('integrate_stress - unit cell is aperiodic',0,

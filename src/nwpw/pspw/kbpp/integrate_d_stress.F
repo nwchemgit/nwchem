@@ -60,8 +60,8 @@
       double precision T,dTdux,dTduy,dTduz
 
 *     **** external functions ****
-      double precision dsum,simp,util_erf
-      external         dsum,simp,util_erf
+      double precision dsum,simp
+      external         dsum,simp
       double precision tollz
       parameter(tollz=1d-16)
 
