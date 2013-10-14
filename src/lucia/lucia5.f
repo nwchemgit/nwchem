@@ -16675,6 +16675,7 @@ C             LJ = L*(L-1)/2 + J
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'clunit.inc'
       INCLUDE 'crun.inc'
@@ -16710,16 +16711,16 @@ c      INCLUDE 'mxpdim.inc'
        WRITE(6,*) ' Generating column = ', I
 *. Create i'th unit vector
        ZERO = 0.0D0
-       CALL SETVEC(WORK(KLVEC1),ZERO,NVAR)
-       WORK(KLVEC1-1+I) = 1.0D0
+       CALL SETVEC(dbl_mb(KLVEC1),ZERO,NVAR)
+       dbl_mb(KLVEC1-1+I) = 1.0D0
 *. Transfer to disc in TTS blocked form 
        IF(ICISTR.GT.1) THEN
          CALL REWINO(LUSC1)
-         CALL TODSCN(WORK(KLVEC1),NBLOCK,LBLOCK,-1,LUSC1)
+         CALL TODSCN(dbl_mb(KLVEC1),NBLOCK,LBLOCK,-1,LUSC1)
 C             TODSCN(VEC,NREC,LREC,LBLK,LU)
          CALL ITODS(-1,1,-1,LUSC1)
        ELSE
-         CALL COPVEC(WORK(KLVEC1),VEC1,NVAR)
+         CALL COPVEC(dbl_mb(KLVEC1),VEC1,NVAR)
        END IF
 *. H * LUSC1 => LUHC
        CALL MV7(VEC1,VEC2,LUSC1,LUHC,0,0)
