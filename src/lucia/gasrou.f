@@ -4703,6 +4703,7 @@ C    &                   ISMOST,NSSOA,NSSOB)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. General input
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'cgas.inc'
@@ -4793,7 +4794,7 @@ C?        write(6,*) ' before call to add_str_group '
 *
           CALL ADD_STR_GROUP(NSTI,
      &          IBSTFGS(IGAS),
-     &          WORK(KOCSTR(ITPFGS(IGAS))),
+     &          int_mb(KOCSTR(ITPFGS(IGAS))),
      &          NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
 *. Loop over strings in IGAS 
         END IF
@@ -5014,6 +5015,7 @@ C?        write(6,*) ' before call to add_str_group '
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *. Input
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
@@ -5066,9 +5068,9 @@ c      INCLUDE 'mxpdim.inc'
       IF(NTEST.GE.200) WRITE(6,*) ' NGASL = ', NGASL
 *. Number of strings per GAS space and offsets for strings of given sym
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
-        CALL ICOPVE2(WORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))
       END DO
 *
@@ -10811,6 +10813,7 @@ C    &            INB_IN,INB_OUT,JNB_IN,JNB_OUT)
 * Jeppe Olsen, April 2013
 *
 *. Input
+#include "mafdecls.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -10873,9 +10876,9 @@ C     GET_DIM_GNSPGP(NGRPA,IGRPA,NSTPSM,IBSTPSM)
       DO IGRP = 1, NGRPA
 C?      WRITE(6,*) ' (IGRPA(IGRP)-1)*NSMST+1 = ',
 C?   &               (IGRPA(IGRP)-1)*NSMST+1
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRPA(IGRP)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(IGRPA(IGRP)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGRP))
-        CALL ICOPVE2(WORK(KISTSGP(1)),(IGRPA(IGRP)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KISTSGP(1)),(IGRPA(IGRP)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGRP))
       END DO
 *
