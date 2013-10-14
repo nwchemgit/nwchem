@@ -7653,6 +7653,8 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
  
 *.GLobal pointers
@@ -7665,6 +7667,9 @@ CINA  CALL GT1DIS(H1DIA,IREOTS(1+NINOB),WORK(KPINT1),WORK(KINT1),
 CINA &            ISMFTO,IBSO,NACOB)
 COLD  CALL GT1DIS(H1DIA,IREOTS(1),WORK(KPINT1),WORK(KINT1O),
 COLD &            ISMFTO,IBSO,NTOOB)
+c..dongxia
+c..  work(kpint1) and work(kint1) are static arrays about integrals
+c..  may need to convert to GA. Leave here for the time being.
       CALL GT1DIS(H1DIA,IREOTS(1),WORK(KPINT1),WORK(KINT1),
      &            ISMFTO,IBSO,NTOOB)
 *
@@ -8544,18 +8549,18 @@ C?          WRITE(6,*) ' IM_IN, INCLUDE = ', IM_IN, INCLUDE
 *
       RETURN
       END
-      FUNCTION IFRMR(WORK,IROFF,IELMNT)
+      FUNCTION IFRMR(int_mb,IROFF,IELMNT)
 *
 * An integer array is stored in real array WORK,
 * starting from WORK(IROFF). Obtain element
 * IELMNT of this array
 *
-      INTEGER WORK(*)
+      INTEGER int_mb(*)
 *
       INCLUDE 'irat.inc'
 *. offset when work is integer array
       IIOFF = 1 + IRAT * (IROFF-1)
-      IFRMR = WORK(IIOFF-1+IELMNT)
+      IFRMR = int_mb(IIOFF-1+IELMNT)
 *
       RETURN
       END
@@ -8870,6 +8875,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *./ORBINP/: NACOB used
 *
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -8932,8 +8938,8 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLISCR,NTOOB,   'ADDL  ',1,'KLISCR ')
       CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')
 *. Space for blocks of strings
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
-      MAXB = IMNMX(WORK(KNSTSO(IBTP)),NSMST*NOCTPB,2)
+      MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXB = IMNMX(int_mb(KNSTSO(IBTP)),NSMST*NOCTPB,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')
       CALL MEMMAN(KLASTR,MAXA*NAEL,'ADDL  ',1,'KLASTR')
       CALL MEMMAN(KLBSTR,MAXB*NBEL,'ADDL  ',1,'KLBSTR')
@@ -8949,27 +8955,28 @@ c      INCLUDE 'mxpdim.inc'
 **. Diagonal of one-body integrals and coulomb and exchange integrals
 *   One-body integrals stored in KINT1 are used
 *
-      CALL GT1DIA(WORK(KLH1D))
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
+      CALL GT1DIA(dbl_mb(KLH1D))
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *
       IF( LUDIA .GT. 0 ) CALL REWINO(LUDIA)
       IF(IEXP_PH.EQ.0) THEN
 *. Good old version where PH is not used for diagonal
-        CALL GASDIAS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &       NACOB,DIAG,NSMST,WORK(KLH1D),
-     &       WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &       WORK(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+        CALL GASDIAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
+     &       NACOB,DIAG,NSMST,dbl_mb(KLH1D),
+     &       dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),dbl_mb(KLJ),
+     &       dbl_mb(KLK),int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &       LUDIA,ECORE,PLSIGN,PSSIGN,IPRDIA,NTOOB,ICISTR,
-     &       WORK(KLRJKA),I12,IBLTP,NBLOCK,IBLKFO)
+     &       dbl_mb(KLRJKA),I12,IBLTP,NBLOCK,IBLKFO)
       ELSE
 *. use also ph in diagonal construction
-        CALL GASDIAS_PH(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &       NACOB,DIAG,NSMST,WORK(KLH1D),
-     &       WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &       WORK(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+        CALL GASDIAS_PH(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
+     &       NACOB,DIAG,NSMST,dbl_mb(KLH1D),
+     &       dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),dbl_mb(KLJ),
+     &       dbl_mb(KLK),int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &       LUDIA,ECORE,PLSIGN,PSSIGN,IPRDIA,NTOOB,ICISTR,
-     &       WORK(KLRJKA),I12,IBLTP,NBLOCK,IBLKFO,IPHGAS,ITPFTO,
-     &       WORK(KLPHSTR),NPHELFSPGP,IOCTPA,IOCTPB,NINOB,WORK(KLISCR))
+     &       dbl_mb(KLRJKA),I12,IBLTP,NBLOCK,IBLKFO,IPHGAS,ITPFTO,
+     &       int_mb(KLPHSTR),NPHELFSPGP,IOCTPA,IOCTPB,NINOB,
+     &       int_mb(KLISCR))
       END IF
 
 *.Flush local memory
