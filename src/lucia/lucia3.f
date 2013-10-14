@@ -2578,6 +2578,7 @@ C                   IF(MXPKA .GT. 0 .AND. MXKB .GT. MXPKA) MXKB= MXPKA
 *
 c      IMPLICIT REAL*8(A-H,O-Z) 
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
 *. Input
       INTEGER ITPOP(*),IACOP(*)
@@ -2592,7 +2593,7 @@ c      INCLUDE 'mxpdim.inc'
       INEW_OR_OLD = 1
       IF(INEW_OR_OLD.EQ.1) THEN
         CALL NEWTYPS(INSPGP,IACOP,ITPOP,NOP,
-     &       NGAS,WORK(KSPGPAN),WORK(KSPGPCR),OUTSPGP)
+     &       NGAS,int_mb(KSPGPAN),itn_mb(KSPGPCR),OUTSPGP)
 C     NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
       ELSE IF(INEW_OR_OLD.EQ.2) THEN
 *. Number of electrons in AS1,AS2, .... for input supergroup
