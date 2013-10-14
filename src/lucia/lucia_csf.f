@@ -2970,6 +2970,7 @@ C?    WRITE(6,*) ' CONF_GRAPH, NORB, NEL = ', NORB, NEL
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'cgas.inc'
@@ -2989,7 +2990,7 @@ C  IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
       CALL IVCSUM(IABOCC,NELFSPGP(1,IATP_ABS),NELFSPGP(1,IBTP_ABS),
      &            IONE,IONE,NGAS)
 *. And the address of this occupation class 
-      CALL CMP_IVEC_ILIST(IABOCC,WORK(KIOCCLS),NGAS,NMXOCCLS,INUM)
+      CALL CMP_IVEC_ILIST(IABOCC,int_mb(KIOCCLS),NGAS,NMXOCCLS,INUM)
 *
       IOC = INUM
 *
@@ -3021,6 +3022,7 @@ c      INCLUDE 'implicit.inc'
 * =====
 *
 c      INCLUDE 'mxpdim.inc'
+#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strbas.inc'
@@ -3082,17 +3084,18 @@ c      INCLUDE 'mxpdim.inc'
 *. labels starting with 1, whereas strings are stored
 *. with orbitals starting with NINOB+1. Provide offset  
       IB_ORB = NINOB+1
-      CALL REO_GASDET_S(IREO,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &            NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,
+      CALL REO_GASDET_S(IREO,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &            NOCTPA,NOCTPB,IOCTPA,IOCTPB,
      &            NBLOCK,IBLOCK,
-     &            NAEL,NBEL,WORK(KLASTR),WORK(KLBSTR),IBLTP,NSMST,
+     &            NAEL,NBEL,int_mb(KLASTR),int_mb(KLBSTR),IBLTP,NSMST,
      &            NELFSPGP,NMXOCCLS,NGAS,      
-     &            WORK(KIOCCLS),NTOOB,NOBPT,
-     &            WORK(KZCONF),WORK(KDFTP),
-     &            WORK(KIB_OCCLS(ISYM)),IB_CN_OPEN, 
-     &            WORK(KICONF_REO(1)),IB_CM_OPEN,
-     &            WORK(KLZSCR),WORK(KLZ),WORK(KLOCMIN),WORK(KLOCMAX),
-     &            WORK(KLDET_OC),WORK(KLDET_MS),WORK(KLDET_VC),WORK,
+     &            int_mb(KIOCCLS),NTOOB,NOBPT,
+     &            int_mb(KZCONF),int_mb(KDFTP),
+     &            int_mb(KIB_OCCLS(ISYM)),IB_CN_OPEN, 
+     &            int_mb(KICONF_REO(1)),IB_CM_OPEN,
+     &            int_mb(KLZSCR),int_mb(KLZ),int_mb(KLOCMIN),
+     &            int_mb(KLOCMAX),int_mb(KLDET_OC),int_mb(KLDET_MS),
+     &            int_mb(KLDET_VC),
      &            KZ_PTDT,KREO_PTDT,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,
      &            IB_ORB,NACOB,NOCOB,PSSIGN,NPCMCNF)
 C IB_CN_OPEN
@@ -3103,7 +3106,7 @@ C IB_CN_OPEN
       RETURN
       END
       SUBROUTINE REO_GASDET_S(IREO,NSSOA,NSSOB,NOCTPA,NOCTPB,
-     &                 MXPNGAS,IOCTPA,IOCTPB,NBLOCK,IBLOCK,
+     &                 IOCTPA,IOCTPB,NBLOCK,IBLOCK,
      &                 NAEL,NBEL,
      &                 IASTR,IBSTR,IBLTP,NSMST,
      &                 NELFSPGP,NOCCLS,NGAS,
@@ -3112,14 +3115,15 @@ C IB_CN_OPEN
      &                 IB_CONF_OCCLS,IB_CONF_OPEN, ICONF_REO,
      &                 IB_CM_OPEN,
      &                 IZSCR,IZ,IOCMIN,IOCMAX,IDET_OC,IDET_MS,
-     &                 IDET_VC,WORK,KZ_PTDT,KREO_PTDT,MINOP,
+     &                 IDET_VC,KZ_PTDT,KREO_PTDT,MINOP,
      &                 IBCONF_ALL_SYM_FOR_OCCLS,IB_ORB,
      &                 NACOB,NOCOB,PSSIGN,NPCMCNF)
 *
 * Reorder determinants in GAS space from det to configuration order
 * Reorder array created is Conf-order => AB-order 
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+#include "mafdecls.fh"
+      include 'wrkspc.inc'
 *. General input
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)  
       DIMENSION IBLTP(*)
@@ -3139,7 +3143,7 @@ C IB_CN_OPEN
 *. open orbitals
       INTEGER KZ_PTDT(*), KREO_PTDT(*)
 *. The work array containing used for WORK(KZ_PTDET()),WORK(KREO_PTDT())
-      DIMENSION WORK(*)
+c     DIMENSION WORK(*)
 *. Specific input
       DIMENSION IBLOCK(8,NBLOCK)
 *. Scratch space 
@@ -3269,8 +3273,8 @@ C                 EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 *. Address of this spinprojection pattern   
 C  IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
              IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,
-     &                WORK(KZ_PTDT(NOPEN+1)),WORK(KREO_PTDT(NOPEN+1)),
-     &              1)
+     &               int_mb(KZ_PTDT(NOPEN+1)),
+     &               int_mb(KREO_PTDT(NOPEN+1)),1)
              ISIGNP = 1
              IF(IPTDT.EQ.0) THEN
 C?            IF(IRESTR2 .EQ. 1) THEN
@@ -3284,8 +3288,8 @@ C?            IF(IRESTR2 .EQ. 1) THEN
 *. Spinprojections of open orbitals
                 CALL EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_VC,NEL)
                 IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,
-     &                  WORK(KZ_PTDT(NOPEN+1)),WORK(KREO_PTDT(NOPEN+1)),
-     &               1)
+     &                  int_mb(KZ_PTDT(NOPEN+1)),
+     &                  int_mb(KREO_PTDT(NOPEN+1)),1)
                 IF(PSSIGN.EQ.-1.0D0) ISIGNP = -1
               ELSE 
 *. Prototype determinant was not found in list
