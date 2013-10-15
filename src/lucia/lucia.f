@@ -2010,6 +2010,11 @@ C?      WRITE(6,*) ' MPORENP_E = ', MPORENP_E
 *
        END IF
 * 
+      IF(NOCSF.EQ.0.AND.ICNFBAT.EQ.2) THEN
+*. Test generate all CNF info
+        CALL TEST_CNF_INFO_FOR_OCCLS
+      END IF
+*
       IF(IPRNT.GT.1) WRITE(6,*)
       NDET = XISPSM(ISM,ISPC)
 *. Largest number of dets, any symmetry
@@ -2049,8 +2054,23 @@ C?      WRITE(6,*) ' MPORENP_E = ', MPORENP_E
       IB_A = IBSPGPFTP(IATP)
       IB_B = IBSPGPFTP(IBTP)
 *
-      NVAR = NDET
-      NVAR_MAX = NDET_MAX
+      IF(NOCSF.EQ.1) THEN
+        NVAR = NDET
+        NVAR_MAX = NDET_MAX
+      ELSE
+        NCONF = NCONF_PER_SYM_GN(ISM, ISPC)
+        NCSF =  NCSF_PER_SYM_GN(ISM, ISPC)
+        NCCM_CONF = NCM_PER_SYM_GN(ISM, ISPC)
+        NSCM_CONF = NCCM_CONF
+        NDET = NSD_PER_SYM_GN(ISM, ISPC)
+        NVAR = NCSF
+*. There is pt only the single symmetry for CSFs, so
+        NVAR_MAX = NCSF
+        WRITE(6,'(A,2(2X,I9))')
+     &  ' Number of CONF determinants/combinations in S, C',
+     &    NCCM_CONF, NSCM_CONF
+C?      WRITE(6,*) ' NCONF, NCSF, NSD = ', NCONF, NCSF, NSD
+      END  IF
 *
       NCVAR = NVAR
       NSVAR = NVAR
@@ -2059,7 +2079,15 @@ C?      WRITE(6,*) ' MPORENP_E = ', MPORENP_E
 *. Allocate memory for diagonalization
 *
 *. Block for storing complete or partial CI-vector
-      LBLOCK = MXSOOB
+      IF(ISIMSYM.EQ.1.OR.ICISTR.EQ.2) THEN
+        LBLOCK = MXSOOB_AS
+      ELSE
+        LBLOCK = MXSOOB
+      END IF
+      IF(NOCSF.EQ.0.OR.ICNFBAT.EQ.-2) THEN
+CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
+        LBLOCK  = MAX(N_SDAB_PER_OCCLS_MAX,LBLOCK)
+      END IF
       LBLOCK = MAX(LBLOCK,LCSBLK)
       IF(NTEST.GE.1000) WRITE(6,*) ' TEST: LBLOCK = ', LBLOCK
 * 
@@ -2107,6 +2135,28 @@ C?    WRITE(6,*) ' TEST: NCBATCH, NSBATCH = ', NCBATCH, NSBATCH
 * ===========================
 * Info on configurations, etc
 * ===========================
+*
+      IF(NOCSF.EQ.0.AND.ICNFBAT.EQ.1) THEN
+*
+*. Generate the configurations and order them according
+*. to number of open orbitals
+*
+        CALL GEN_CONF_FOR_CISPC(WORK(KCIOCCLS_ACT),NCOCCLS_ACT,ISM,
+     &       WORK(KIOCCLS))
+*. The output are delivered in pointers set in GEN_CONF_FOR_CISPC
+*         Occupations: KICONF_OCC(ISYM)
+*         Reorder arrays: KICONF_REO(1) (independent of symmetry)
+*. And then the reordering of the SD's
+*. The reordering arrays for the SD's are stored in KSDREO_I((ISM)
+C       WRITE(6,*) ' KSDREO_I(ISM) = ', KSDREO_I(ISM)
+        CALL CNFORD_GAS(WORK(KCIOCCLS_ACT),NCOCCLS_ACT,WORK(KIOCCLS),
+     &       ISM,PSSIGN,
+     &       IPRCSF,WORK(KICONF_OCC(ISM)),WORK(KICONF_REO(1)),
+     &       WORK(KSDREO_I(ISM)),WORK(KSDREO_S(ISM)),
+     &       WORK(KCBLTP),WORK(KCIBT),NCBLOCK)
+C?      WRITE(6,*) ' IBLTP after CNFORD '
+C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
+      END IF ! all Conformation should be set up
 *
       MXSTBL0 = MXNSTR           
 *. type of alpha and beta strings
@@ -2187,23 +2237,76 @@ CBERT VECTOR DOUBLES!!! LOCAL
       KVEC1P = KVEC1
       KVEC2P = KVEC2
 * 
+      IF(ICISTR.EQ.1) THEN
 *. Allocate space for two complete vectors of variables
-      if ( .not. ga_create( mt_dbl, nvar_max, 1, 'CONVC1',
-     $   0,0, KCOMVEC1) ) call errquit(
-      if ( .not. ga_create( mt_dbl, nvar_max, 1, 'CONVC2',
-     $   0,0, KCOMVEC2) ) call errquit(
-     $   'GASCI: ga_create kcomvec2 failed', nvar_max , GA_ERR)
+        if ( .not. ga_create( mt_dbl, nvar_max, 1, 'CONVC1',
+     $     0,0, KCOMVEC1) ) call errquit(
+        if ( .not. ga_create( mt_dbl, nvar_max, 1, 'CONVC2',
+     $     0,0, KCOMVEC2) ) call errquit(
+     $     'GASCI: ga_create kcomvec2 failed', nvar_max , GA_ERR)
 CNW    CALL MEMMAN(KCOMVEC1,NVAR_MAX,'ADDL  ',2,'COMVC1')
 CNW    CALL MEMMAN(KCOMVEC2,NVAR_MAX,'ADDL  ',2,'COMVC2')
+      ENDIF
 *. Pointers to vectors holding complete or partial vector over variables
-      KPVEC1 = KCOMVEC1
-      KPVEC2 = KCOMVEC2
+      IF(ICISTR.EQ.1) THEN
+       KPVEC1 = KCOMVEC1
+       KPVEC2 = KCOMVEC2
+      ELSE
+       KPVEC1 = KVEC1
+       KPVEC2 = KVEC2
+      END IF
+      IF(NOCSF.EQ.0) THEN
+       IF(ICNFBAT.EQ.1) THEN
+*. For CSF's: Two vectors over CM's of Strings, all symmetries for
+*generality
+         CALL MEMMAN(KCOMVEC1_SD,NDET_MAX,'ADDL  ',2,'CMVC1D')
+         CALL MEMMAN(KCOMVEC2_SD,NDET_MAX,'ADDL  ',2,'CMVC2D')
+       ELSE
+*. Memory for two blocks of combinations
+         CALL MEMMAN(
+     &   KCOMVEC1_SD,N_CMAB_PER_OCCLS_MAX,'ADDL  ',2,'CMVC1D')
+         CALL MEMMAN(
+     &   KCOMVEC2_SD,N_CMAB_PER_OCCLS_MAX,'ADDL  ',2,'CMVC2D')
+       END IF
+      END IF
 * 
-      LBLK = NVAR
+      IF(I_DO_COMHAM.EQ.1) THEN
+         WRITE(6,*) ' Complete Hamiltonian matrix will be constructed '
+         CALL MEMMAN(KLHMAT,NVAR*NVAR,'ADDL  ',2,'HMAT  ')
+C COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
+         ECOREL = 0.0D0
+         IF(NOCSF.EQ.1) THEN
+*. Determinants: TTSS blocks
+           CALL COMHAM(WORK(KLHMAT),NVAR,NBLOCK,WORK(KCLBLK),
+     &                 WORK(KPVEC1),WORK(KPVEC2),ECOREL)
+         ELSE
+*. CSFs: occlass blocks
+*. Number of CSFs per occlass
+           CALL MEMMAN(KLNCS_FOR_OCCLS,NCOCCLS_ACT,'ADDL  ',1,'NCS_OC')
+           CALL GET_NCSF_PER_OCCLS_FOR_CISPACE(ISM,WORK(KCIOCCLS_ACT),
+     &          NCOCCLS_ACT,WORK(KNCS_FOR_OCCLS),
+     &          WORK(KLNCS_FOR_OCCLS))
+C          GET_NCSF_PER_OCCLS_FOR_CISPACE(ISYM,IOCCLS_ACT,
+C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
+           CALL COMHAM(WORK(KLHMAT),NVAR,NCOCCLS_ACT,
+     &          WORK(KLNCS_FOR_OCCLS),WORK(KPVEC1),WORK(KPVEC2),ECOREL)
+         END IF
+         STOP ' Enforced stop after COMHAM'
+      END IF
+*
+      IF(ICISTR.EQ.1) THEN
+        LBLK = NVAR
+      ELSE
+        LBLK = - 1
+      END IF
 *
 *. CI diagonal - if required
 * 
-      KPDIA_SD = KPVEC1
+      IF(NOCSF.EQ.0) THEN
+        KPDIA_SD = KCOMVEC1_SD
+      ELSE
+        KPDIA_SD = KPVEC1
+      END IF
 *
       I_DO_PRECOND = 1
       IF(IDIAG.EQ.2.AND.IRESTR.EQ.1) I_DO_PRECOND = 0
@@ -2234,9 +2337,42 @@ C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
         END IF
        END IF ! determinant diagonal should be calculated
 *
-       CALL REWINO(LUDIA)
+       IF(NOCSF.EQ.0.AND.IH0_CSF.EQ.1) THEN
+*. Average of determinant diagonal in each conf
+C?       WRITE(6,*) ' IH0_CSF = ', IH0_CSF
+         CALL CSDIAG(WORK(KPVEC2),WORK(KPDIA_SD),
+     &        NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
+     &        WORK(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
+     &        ICNFBAT,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &        WORK(KCLBT),LUDIA,LUSC52)
+C        CSDIAG(CSFDIA,DETDIA,NCNFTP,MAXOP,ISM,
+C    &         ICTSDT,NPCMCNF,NPCSCNF,IPRCSF,
+C    &         ICNFBAT,NOCCLS_ACT,IOCCLS_ACT,
+C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
+*
+         IF(ICNFBAT.EQ.1) THEN
+           CALL COPVEC(WORK(KPVEC2),WORK(KPDIA_SD),NVAR)
+         ELSE
+           CALL COPVCD(LUSC52,LUDIA,WORK(KPVEC2),1,-1)
+         END IF
+       END IF
+*
+       IF(NOCSF.EQ.0.AND.IH0_CSF.GE.2) THEN
+*. Use exact diagonal or blocks
+C?       WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
+C?       WRITE(6,*) ' KPDIA_SD = ', KPDIA_SD
+         CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,ISM),
+     &        WORK(KICONF_OCC(ISM)),WORK(KPDIA_SD),ECORE,
+     &        LUDIA,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM)
+C        GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,ECORE,
+C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
+       END IF
+*
+       IF(ICISTR.EQ.1) THEN
+         CALL REWINO(LUDIA)
 C?     WRITE(6,*) ' WORK(KPDIA_SD) before TODSC =', WORK(KPDIA_SD)
-       CALL TODSC(KPDIA_SD,NVAR,NVAR,LUDIA)
+         CALL TODSC(WORK(KPDIA_SD),NVAR,NVAR,LUDIA)
+       END IF
 *
        IF(IIUSEH0P.EQ.1) THEN
 *. Is pt not reprogrammed for CSF's and ICISTR = 1
@@ -2338,7 +2474,11 @@ C    &           EIGVAL, EIGVEC)
         INICI = -1
       END IF
 *
-      LBLK = NVAR
+      IF(ICISTR.EQ.1) THEN
+        LBLK = NVAR
+      ELSE
+        LBLK = - 1
+      END IF
 *. This is a CI and not a perturbation calculation 
 *. ( what about B-W perturbation theory ???? ) 
       IPERTOP = 0
@@ -2466,24 +2606,25 @@ C?    CALL MEMCHK
      &  ' **************************************************'
         WRITE(6,*)
         END IF
-        CALL FRMDSC(WORK(KPVEC1),NVAR,-1,LUC,IMZERO,IAMPACK)
-        CALL COPVEC(WORK(KPVEC1),WORK(KPVEC2),NVAR)
+        IF(ICISTR.EQ.1) THEN
+          CALL FRMDSC(WORK(KPVEC1),NVAR,-1,LUC,IMZERO,IAMPACK)
+          CALL COPVEC(WORK(KPVEC1),WORK(KPVEC2),NVAR)
 *
 C?      WRITE(6,*) ' Testing: CI vector read in '
 C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
 *
-        IF(IDENSI.EQ.1) THEN
-          KRHO2 = 1
-        END IF
-        IF(IDENSI.GE.1)
-     &  CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
-     &       WORK(KPVEC1),WORK(KPVEC2),0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
-     &       WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
-        IF(IDENSI.EQ.2) THEN
+          IF(IDENSI.EQ.1) THEN
+            KRHO2 = 1
+          END IF
+          IF(IDENSI.GE.1)
+     &    CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+     &         WORK(KPVEC1),WORK(KPVEC2),0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
+     &         WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
+          IF(IDENSI.EQ.2) THEN
 *. Test calculation of energy
-          CALL EN_FROM_DENS(ENERGY,2,0)
-          WRITE(6,*) ' Energy from density ', ENERGY
-        END IF
+            CALL EN_FROM_DENS(ENERGY,2,0)
+            WRITE(6,*) ' Energy from density ', ENERGY
+          END IF
 *
 C?      IF(I_DO_LZ2.EQ.1) THEN
 C?          CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
@@ -2491,33 +2632,118 @@ C?          WORK(KLZEXP-1+JROOT) = RLZEFF
 C?          WORK(KL2EXP-1+JROOT) = RL2EFF
 C?      END IF
 *
-        IF(IPRNT.GT.2) THEN
-         IF(NOCSF.EQ.1) THEN
-          CALL GASANA(WORK(KPVEC1),NBLOCK,int_mb(KCIBT),
-     &                int_mb(KCBLTP),LUC,ICISTR)
-         ELSE
-          THRES = 0.1D0
-          MAXTRM = 100
-          IOUT = 6
-C              ANACSF(CIVEC,ICONF_OCC,NCONF_FOR_OPEN,IPROCS,THRES,MAXTRM,IOUT)
-          IF(ICNFBAT.EQ.1) THEN
-            CALL ANACSF(WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
-     &                  NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),
-     &                  THRES,MAXTRM,IOUT)
-          ELSE
+          IF(IPRNT.GT.2) THEN
+           IF(NOCSF.EQ.1) THEN
+            CALL GASANA(WORK(KPVEC1),NBLOCK,int_mb(KCIBT),
+     &                  int_mb(KCBLTP),LUC,ICISTR)
+           ELSE
             THRES = 0.1D0
             MAXTRM = 100
             IOUT = 6
-            CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
-     &           WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
-     &           NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
-     &           MAXTRM,IOUT)
+C              ANACSF(CIVEC,ICONF_OCC,NCONF_FOR_OPEN,IPROCS,THRES,MAXTRM,IOUT)
+            IF(ICNFBAT.EQ.1) THEN
+              CALL ANACSF(WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
+     &                    NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),
+     &                    THRES,MAXTRM,IOUT)
+            ELSE
+              THRES = 0.1D0
+              MAXTRM = 100
+              IOUT = 6
+              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+     &             WORK(KPVEC1),int_mb(KICONF_OCC(ISM)),
+     &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
+     &             MAXTRM,IOUT)
 C    ANACSF2(LUC,NOCCLS_SPC,IOCCLS_SPC,
 C   &           CIVEC,ICONF_OCC,NCONF_FOR_OPEN,IPROCS,THRES,
 C   &           MAXTRM,IOUT)
-            END IF ! CNF batch switch
-         END IF! CSF switch
-        END IF ! IPRNT > 2
+              END IF ! CNF batch switch
+           END IF! CSF switch
+          END IF ! IPRNT > 2
+        ELSE ! ICISTR switch
+          IF(IDENSI.GE.1.OR.NROOT.GT.1) THEN
+             CALL REWINO(LUSC1)
+             CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
+             CALL COPVCD(LUSC1,LUHC,WORK(KVEC1),1,LBLK)
+          END IF
+          IF(IDENSI.GE.1)
+     &    CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+     &          WORK(KVEC1),WORK(KVEC2),LUSC1,LUHC,EXPS2,
+     &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
+     &          WORK(KRHO2BB),1 )
+          IF(IPRNT.GT.1.AND.IDENSI.EQ.2)
+     &    WRITE(6,*) ' Expectation value of S2', EXPS2
+          IF(IDENSI.EQ.2) THEN
+*. Test calculation of energy
+            CALL EN_FROM_DENS(ENERGY,2,0)
+            WRITE(6,*) ' Energy from density ', ENERGY
+          END IF
+*
+C?        IF(I_DO_LZ2.EQ.1) THEN
+C?            IF(NROOT.EQ.1) THEN
+C?              LUCEFF = LUC
+C?            ELSE
+C?              LUCEFF = LUSC1
+C?            END IF
+C?            WRITE(6,*) ' EXP_LZ2 will be called '
+C?            CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,
+C?   &              LUCEFF)
+C?            WORK(KLZEXP-1+JROOT) = RLZEFF
+C?            WORK(KL2EXP-1+JROOT) = RL2EFF
+C?        END IF
+*
+          IF(ISPC.EQ.1.AND.JROOT.EQ.IH0ROOT) THEN
+*. Calculate inactive Fock matrix for reference root in first space 
+             CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
+             CALL FIFAM(WORK(KFIZ))
+          END IF
+*
+          IF(IPRNT.GT.2) THEN
+           IF(NROOT.GT.1) THEN
+            CALL REWINO(LUSC1)
+            IF(NOCSF.EQ.1) THEN
+              CALL GASANA(WORK(KVEC1),NBLOCK,WORK(KCIBT),WORK(KCBLTP),
+     &                    LUSC1,ICISTR)
+            ELSE
+              IOUT = 6
+              THRES = 0.1D0
+              MAXTRM = 100
+              CALL ANACSF2(LUC,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM,
+     &             WORK(KPVEC1),WORK(KICONF_OCC(ISM)),
+     &             NCONF_PER_OPEN(1,ISM),WORK(KCFTP),THRES,
+     &             MAXTRM,IOUT)
+            END IF
+           ELSE
+            CALL REWINO(LUC)
+            IF(NOCSF.EQ.1) THEN
+              CALL GASANA(WORK(KVEC1),NBLOCK,WORK(KCIBT),WORK(KCBLTP),
+     &                    LUC,ICISTR)
+            ELSE
+              IOUT = 6
+              THRES = 0.1D0
+              MAXTRM = 100
+              CALL ANACSF2(LUC,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM,
+     &             WORK(KPVEC1),WORK(KICONF_OCC(ISM)),
+     &             NCONF_PER_OPEN(1,ISM),WORK(KCFTP),THRES,
+     &             MAXTRM,IOUT)
+            END IF !NOCSF switch
+           END IF !Nroot switch
+          END IF !IPRNT .gt. 2
+C?        WRITE(6,*) ' Back from GASANA ' 
+*
+          IF(IPRNCIV.EQ.1) THEN
+             WRITE(6,*)
+             WRITE(6,*) ' ======================'
+             WRITE(6,*) ' Complete CI expansion '
+             WRITE(6,*) ' ======================'
+             WRITE(6,*)
+             IF(NROOT.EQ.1) THEN
+               CALL WRTVCD(WORK(KVEC1),LUC  ,1,LBLK)
+             ELSE
+               CALL WRTVCD(WORK(KVEC1),LUSC1,1,LBLK)
+             END IF
+*         ^ End if print of CI vector
+        END IF
+*       ^ End of ICISTR switch
       END DO
 *     ^ End of loop over roots
 *
@@ -2561,15 +2787,25 @@ C    &           NVAR, ICISTR,ICOPY)
 *. Obtain densities etc for chosen reference root
 *
       IF(ISROOT.NE.NROOT.AND.IDENSI.GE.1) THEN
-          CALL REWINO(LUC)
-          CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
-          CALL COPVEC(KPVEC1,KPVEC2,NVAR)
-          IF(IDENSI.EQ.1) THEN
-            KRHO2 = 1
-          END IF
-          CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
-     &    KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
-     &    WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
+          IF(ICISTR.EQ.1) THEN
+            CALL REWINO(LUC)
+            CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
+            CALL COPVEC(KPVEC1,KPVEC2,NVAR)
+            IF(IDENSI.EQ.1) THEN
+              KRHO2 = 1
+            END IF
+            CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+     &      KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
+     &      WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
+          ELSE
+            CALL REWINO(LUSC1)
+            CALL REWINO(LUC)
+            CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
+            CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+     &          WORK(KVEC1),WORK(KVEC2),LUC,LUSC1,EXPS2,
+     &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
+     &          WORK(KRHO2BB),1 )
+          END IF ! ICISTR switch
       END IF ! densities should be calculated
 *
 *. Supersymmetry
@@ -2682,13 +2918,27 @@ C?     write(6,*) ' IRFROOT and NROOT ',IRFROOT, NROOT
 *. Position vectors 
          CALL REWINO(LUC)
          DO JROOT = 1, IH0ROOT
-           CALL FRMDSC(dbl_mb(KVEC1),NVAR,-1,LUC,IMZERO,IAMPACK)
+           IF(ICISTR.EQ.1) THEN
+             CALL FRMDSC(KVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
+           ELSE
+             CALL REWINO(LUSC1)
+             CALL COPVCD(LUC,LUSC1,KVEC1,0,LBLK)
+           END IF
          END DO
-         CALL COPVEC(dbl_mb(KVEC1),dbl_mb(KVEC2),NVAR)
-         CALL DENSI2(1,WORK(KRHO1),WORK(KRHO2),
-     &        dbl_mb(KVEC1),dbl_mb(KVEC2),0,0,EXPS2,
-     &        ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
-     &        WORK(KRHO2BB),1 )           
+         IF(ICISTR.EQ.1) THEN
+           CALL COPVEC(KVEC1,KVEC2,NVAR)
+           CALL DENSI2(1,WORK(KRHO1),WORK(KRHO2),
+     &          KVEC1,KVEC2,0,0,EXPS2,
+     &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
+     &          WORK(KRHO2BB),1 )
+         ELSE
+           CALL REWINO(LUSC1)
+           CALL COPVCD(LUSC1,LUSC2,WORK(KVEC1),1,LBLK)
+             CALL DENSI2(1,WORK(KRHO1),WORK(KRHO2),
+     &            KVEC1,KVEC2,LUSC1,LUSC2,EXPS2,ISPNDEN,
+     &            WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
+     &            WORK(KRHO2BB),1)
+         END IF
        END IF
 *
        IF(IEXTKOP.EQ.1) THEN
