@@ -26,10 +26,27 @@ c
       double precision energy
       logical oprint
       character*255 name, ri_trans
+      character*180 filename
 c
-      integer nbf_per_ir(20)
+      integer nbf_per_ir(20),i,j
+      integer k,l,ij,kl,ijkl,ni,nj,nk,nl,nij,nkl,nijkl
+      integer ism_lu,jsm_lu,ksm_lu,lsm_lu,smij,smkl,ijsm_lu,klsm_lu
+      integer fn
+      double precision int1e,int2e,enrep
       integer natoms, Nff, molo, mohi
       integer g_dens(2) ! dummy global array handles for initial guess
+      integer maxireps
+      parameter (maxireps=20)
+      integer nop,nir,class_dim(maxireps)
+      integer ipnt(maxireps),ipnt2(maxireps)
+      character*8 zir(maxireps),zclass(maxireps)
+      character*8 zname
+      double precision chars(maxireps*maxireps)
+      integer ioff(maxireps),icount(maxireps)
+      integer irs,reord
+c     integer k_reord,l_reord,k_reord2,l_reord2
+      integer g_moreo,l_veci,k_veci
+      integer g_hcore,noper,g_coul,g_exch
       logical rohf, uhf, riscf_init, movecs_converged
       external rohf, uhf, riscf_init, movecs_converged
       logical int_normalize
@@ -37,9 +54,20 @@ c
       logical cphf_poliz, do_poliz
       external cphf_poliz
       integer necp,itype
+      integer blen
+      integer minchunk
+      parameter (minchunk = -1)
 c
+      integer ga_create
+      external ga_create
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      integer ga_create_JKblocked
+      external ga_create_JKblocked
+      logical util_io_unit
+      external util_io_unit
+c
+      data blen/25/
 c
 c     Make sure database is parallel, 
 c     and initialize performance statistics
@@ -332,6 +360,205 @@ c
      $        dbl_mb(k_occ), int_mb(k_irs),
      $        g_movecs(1), scftype, ' ')
       endif
+c.. dongxia added June 2013, transform AO ints to MO ints
+c.. 
+c..  reorder 
+       if(.not.ma_push_get(mt_int,nbf,'reord',l_reord,k_reord))
+     $    call errquit('scf:memory?',nbf,MA_ERR)
+c..
+       if(.not.ma_push_get(mt_int,nbf,'reord2',l_reord2,k_reord2))
+     $    call errquit('scf:memory?',nbf,MA_ERR)
+c..
+      if (ga_nodeid().eq.0) then
+       call ifill(nir,0,ipnt,1)
+       call ifill(nir,0,ipnt2,1)
+       call ifill(maxireps,0,ioff,1)
+       call ifill(maxireps,0,icount,1)
+       call sym_group_name(geom,zname)
+       if(.not.sym_mol(zname,nop,nir,class_dim,zir,zclass,chars,ipnt))
+     $    call errquit('scf: no char table available ',geom,unknown_err)
+       do i=1,nir
+         ipnt2(ipnt(i))=i
+         write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
+       end do
+       ioff(1)=1
+       do i=2,nir
+         ioff(i) = ioff(i-1)+nbf_per_ir(ipnt2(i-1))
+       end do
+       do i=1,nmo
+         irs=ipnt(int_mb(k_irs+i-1))
+         write(6,*)'irs',ga_nodeid(),irs
+         icount(irs)=icount(irs)+1
+         reord = ioff(irs)+icount(irs)-1
+         int_mb(k_reord+i-1)=reord
+         int_mb(K_reord2+reord-1)=i
+       end do
+         write(6,*)'reorder arrays:'
+         do i=1,nmo
+          write(6,*)int_mb(k_reord+i-1),int_mb(k_reord2+i-1)
+         end do
+       call util_flush(6)
+      end if
+c..
+c.. reorder movecs and save to g_moreo
+c..
+        g_moreo = ga_create_atom_blocked(geom,basis,'reorder MO')
+        call ga_zero(g_moreo)
+        call ga_zero(g_moreo)
+        if(.not. ma_push_get(mt_dbl,nbf,'reo',l_veci,k_veci))
+     $    call errquit('scf reo: no scratch space',nbf,MA_ERR)
+c..
+      if(ga_nodeid().eq.0)then
+        do i=1,nmo
+         call ga_get(g_movecs(1),1,nbf,i,i,dbl_mb(k_veci),1)
+         j=int_mb(k_reord+i-1)
+         write(6,*)'new index:',j
+         call ga_put(g_moreo,1,nbf,j,j,dbl_mb(k_veci),1)
+        end do
+      endif
+        call ga_print(g_moreo)
+c       call util_flush(6)
+c..
+        if(.not.ma_pop_stack(l_veci))
+     $    call errquit('scf: ma pop failed',0,0)
+c..
+       if(.not.ma_pop_stack(l_reord2))
+     $    call errquit('scf: ma pop failed',0,0)
+c..
+       if(.not.ma_pop_stack(l_reord))
+     $    call errquit('scf: ma pop failed',0,0)
+c..  open file to write
+       fn = 90
+       filename = 'moints'
+       if(.not.util_io_unit(90,99,fn))
+     &    call errquit("cannot get io unit",0,0)
+       call util_file_name_resolve(filename,.false.)
+       open(fn,file=filename,form='formatted',status='unknown')
+       rewind (fn)
+c!!! note!!!
+c.. dimension. Need to find all the arguments used below. Not done yet.
+c.. nsxfsm and ndxfsm are functions in lucia.f.
+         nint1 = nsxfsm(nsmob,mxpobs,ntoobs,ntoobs,itssx,adsxa,1,iprnt)
+         nint2 = ndxfsm(nsmob,nsmsx,mxpobs,ntoobs,ntoobs,ntoobs,ntoobs,
+     &           itsdx,adsxa,sxdxsx,i12s,i34s,i1234s,iprnt)
+c.. generate GA to store 1-e ints for LUCIA
+         if(.not.ga_create(mt_dbl,1,nint1,'lucia_1e',minchunk,1,g_lu1e))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,1,nint2,'lucia_2e',minchunk,1,g_lu2e))
+     &       call errquit('scf: cannot create lucia_2e',0,GA_ERR)
+c..  1-e integrals
+         g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
+         call ga_zero(g_hcore)
+         call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
+         call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
+         call moints_1e(nbf, basis, g_moreo, g_hcore)
+         call ga_print(g_hcore)
+c..  2-e integrals
+         noper = nbf*(nbf+1)/2
+         g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
+         g_exch = ga_create_JKblocked(noper,nbf,nbf,'Exch Oper')
+         call ga_zero(g_coul)
+         call ga_zero(g_exch)
+         call moints_build_2x(basis,.true.,oskel,1,1,nbf,1,nbf,
+     $        g_moreo,g_coul,.true.,g_exch,.true.,blen,.true.)
+c        call ga_print(g_coul)
+         call util_flush(6)
+c        call ga_print(g_exch)
+c.. To write in LUCIA format
+         if(ga_nodeid().eq.0)then
+c.. 1e ints
+         ind1e=0
+         ind2e=0
+         do ism_lu=1,nir
+          ni = nbf_per_ir(ipnt2(ism_lu))
+          nij = ni*(ni+1)/2
+          do ij = 1,nij
+           ind1e = ind1e + 1
+           i = int(sqrt(2.0*ij)+0.5)
+           j = ij - i*(i-1)/2
+c.. add offset
+           i = i + ioff(ism_lu) -1
+           j = j + ioff(ism_lu) -1
+         call ga_get(g_hcore,i,i,j,j,int1e,1)
+c        write(6,'(E22.15)')int1e
+c        write(fn,'(E22.15)')int1e
+         call ga_put(g_lu1e,1,1,ind1e,ind1e,int1e,1)
+          end do
+         end do 
+c.. 2e ints
+         do ism_lu=1,nir
+          do jsm_lu=1,ism_lu
+           smij=(ism_lu-1)*nir+jsm_lu
+           ijsm_lu=ieor(ism_lu-1,jsm_lu-1)+1
+           do ksm_lu=1,ism_lu
+            do lsm_lu=1,ksm_lu
+             smkl=(ksm_lu-1)*nir+lsm_lu
+             klsm_lu=ieor(ksm_lu-1,lsm_lu-1)+1
+             if ((ijsm_lu.eq.klsm_lu).and.(smij.ge.smkl)) then
+              ni = nbf_per_ir(ipnt2(ism_lu))
+              nj = nbf_per_ir(ipnt2(jsm_lu))
+              nk = nbf_per_ir(ipnt2(ksm_lu))
+              nl = nbf_per_ir(ipnt2(lsm_lu))
+              if(ism_lu.eq.jsm_lu)then
+               nij = ni*(ni+1)/2
+               nkl = nk*(nk+1)/2
+              else
+               nij = ni*nj
+               nkl = nk*nl
+              endif
+              nijkl = nij*nkl
+              if (smij.eq.smkl) nijkl = nij*(nij+1)/2  
+              do ijkl =1, nijkl
+               ind2e = ind2e + 1
+               if(smij.eq.smkl)then
+                 kl = nkl+1-int(sqrt(2.0*(nijkl-ijkl+1))+0.5)
+                 ij = ijkl + kl*(kl-1)/2 -nij*(kl-1)       
+               else
+                 kl = int((ijkl-0.5)/nij)+1
+                 ij = ijkl-(kl-1)*nij 
+               end if
+               if(ism_lu.eq.jsm_lu)then
+                 k = int(sqrt(2.0*kl)+0.5) 
+                 l = kl - k*(k-1)/2 
+                 i = int(sqrt(2.0*ij)+0.5) 
+                 j = ij - i*(i-1)/2 
+               else
+c.. tra_rou = 1
+c                k = int((kl-0.5)/nl)+1
+c                l = kl - (k-1)*nl 
+c                i = int((ij-0.5)/nj)+1
+c                j = ij - (i-1)*nj 
+c.. tra_rou = 2
+                 l = int((kl-0.5)/nk)+1
+                 k = kl - (l-1)*nk 
+                 j = int((ij-0.5)/ni)+1
+                 i = ij - (j-1)*ni 
+               end if      
+c.. add on the offset for each irep
+                 i = i+ioff(ism_lu)-1
+                 j = j+ioff(jsm_lu)-1
+                 k = k+ioff(ksm_lu)-1
+                 l = l+ioff(lsm_lu)-1
+c.. look for index in ga_coul
+                  ij = (j-1)*nbf+i 
+                  kl = k*(k-1)/2 + l
+         call ga_get(g_coul,ij,ij,kl,kl,int2e,1)
+c        write(6,'(E22.15)')int2e
+c        write(fn,'(E22.15)')int2e
+         call ga_put(g_lu2e,1,1,ind2e,ind2e,int2e,1)
+               call util_flush(6)
+              end do
+             endif
+            end do
+           end do
+          end do
+         end do
+      if (.not. geom_nuc_rep_energy(geom, enrep))
+     $  call errquit('unable to get nuclear rep energy',geom, GEOM_ERR)
+         write(fn,'(E22.15)')enrep
+         end if
+         close(fn)
+c..
 c
 c     terminate integrals 
 c
