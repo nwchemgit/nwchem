@@ -265,7 +265,7 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
 *
 *. Nonredundant type-type excitations
       CALL MEMMAN(KLTTACT,(NGAS+2)**2,'ADDL  ',1,'TTACT ')
-      CALL NONRED_TT_EXC(WORK(KLTTACT),IREFSPC_MCSCF,0)
+      CALL NONRED_TT_EXC(int_mb(KLTTACT),IREFSPC_MCSCF,0)
 *. Nonredundant orbital excitations
 *.. Number : 
       KLOOEXC = 1
@@ -276,8 +276,8 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
       ELSE 
         I_RESTRICT_SUPSYM = 0
       END IF
-      CALL NONRED_OO_EXC2(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &     1,WORK(KLTTACT),I_RESTRICT_SUPSYM,WORK(KMO_SUPSYM),
+      CALL NONRED_OO_EXC2(NOOEXC,int_mb(KLOOEXC),int_mb(KLOOEXCC),
+     &     1,int_mb(KLTTACT),I_RESTRICT_SUPSYM,int_mb(KMO_SUPSYM),
      &     N_INTER_EXC,N_INTRA_EXC,1)
 *
       IF(NOOEXC.EQ.0) THEN
@@ -290,8 +290,8 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
 *. Allow these parameters to be known outside
       KIOOEXC = KLOOEXC
       KIOOEXCC = KLOOEXCC
-      CALL NONRED_OO_EXC2(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &     1,WORK(KLTTACT),I_RESTRICT_SUPSYM,WORK(KMO_SUPSYM),
+      CALL NONRED_OO_EXC2(NOOEXC,int_mb(KLOOEXC),int_mb(KLOOEXCC),
+     &     1,int_mb(KLTTACT),I_RESTRICT_SUPSYM,int_mb(KMO_SUPSYM),
      &     N_INTER_EXC,N_INTRA_EXC,2)
 *. Memory for gradient 
       CALL MEMMAN(KLE1,NOOEXC,'ADDL  ',2,'E1_MC ')
@@ -321,7 +321,7 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
       IF(I_USE_SUPSYM.EQ.1) THEN
 *. Obtain nonredundant shell excitations - output is in pointers defined in NONRED_SS
 C            NONRED_SS_EXC(NOOEX,IOOEXC,NSSEX)
-        CALL NONRED_SS_EXC(NOOEXC,WORK(KIOOEXCC), NSSEX)
+        CALL NONRED_SS_EXC(NOOEXC,int_mb(KIOOEXCC), NSSEX)
       END IF
 *
       
@@ -387,7 +387,7 @@ C    &               I_DO_CI_IN_INNER_ACT
 *. Define envelope for used orbital Hessian - pt complete
 * is constructed so
         IONE = 1
-        CALL ISETVC(WORK(KLIBENV),IONE,NOOEXC)
+        CALL ISETVC(dbl_mb(KLIBENV),IONE,NOOEXC)
       END IF
 *
 *. Loop over outer iterations
@@ -483,16 +483,16 @@ C       WRITE(6,*) ' TESTY, NROOT(b) = ', NROOT
         MAXIT = MAXIT_SAVE
         WRITE(6,*) ' Energy and residual from CI :', 
      &  EREF,ERROR_NORM_FINAL
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
         EOLD = EREF
         ENEW = EREF
 *. (Sic)
 *
         IF(IOUT.GT.1) THEN
 *. Check for convergence
-          DELTA_E = WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
-     &              WORK(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4)
+          DELTA_E = dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
+     &              dbl_mb(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4)
           IF(IPRNT.GE.2) WRITE(6,'(A,E9.3)') 
      &    '  Change of energy between outer iterations = ', DELTA_E
           IF(ABS(DELTA_E).LE.THRES_E) CONVER = .TRUE.
@@ -522,11 +522,11 @@ C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
         IOOSM = 1
 C            ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
         IF(IOOE2_APR.EQ.1) THEN
-          CALL ORBHES(WORK(KLE2),WORK(KLOOEXC),NOOEXC,IOOSM,
-     &         WORK(KLTTACT))
+          CALL ORBHES(dbl_mb(KLE2),int_mb(KLOOEXC),NOOEXC,IOOSM,
+     &         int_mb(KLTTACT))
           IF(NTEST.GE.1000) THEN
            WRITE(6,*) ' The orbital Hessian '
-           CALL PRSYM(WORK(KLE2),NOOEXC)
+           CALL PRSYM(dbl_mb(KLE2),NOOEXC)
           END IF
         END IF
 *
@@ -604,7 +604,7 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
         END IF
 *       ^ End of finite difference check
 *. Initialize sum of steps for outer iteration
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 0.0D0
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 0.0D0
 *. Loop over Inner iterations, where orbitals are optimized
 *. Initialize Kappa as zero
         IF(IRESET_KAPPA_IN_OR_OUT.EQ.2) THEN
@@ -691,7 +691,7 @@ C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
 *
           E1NRM = SQRT(INPROD(WORK(KLE1),WORK(KLE1),NOOEXC))
           IF(IPRNT.GE.2) WRITE(6,*) ' Norm of orbital gradient ', E1NRM
-          WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
+          dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
 *
 * ==========================
 * Two step Newton procedure
@@ -720,8 +720,8 @@ C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
             I_CLOSE_TO_MAX = 0 
             IF(0.8D0.LE.XNORM_STEP/STEP_MAX) I_CLOSE_TO_MAX  = 1
 *
-            WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
-     &      WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
+            dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
+     &      dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
             IF(IPRNT.GE.2) WRITE(6,'(A,2(2X,E12.5))')
      &      ' Norm of step and predicted energy change = ',
      &       XNORM_STEP, DELTA_E_PRED
@@ -1025,7 +1025,7 @@ C           WRITE(6,*) ' Number of CI-iterations reduced to 1 '
                CALL WRTMAT(WORK(KLKAPPA),1,NOOEXC,1,NOOEXC)
             END IF
             XNORM_IT = INPROD(WORK(KLKAPPA),WORK(KLKAPPA),NOOEXC)
-            WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = XNORM_IT
+            dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = XNORM_IT
           END IF ! Update method
 *
 *=======================================
@@ -1233,7 +1233,7 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
      &     NACOBS,NACOBS)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *. Print summary
-      CALL PRINT_MCSCF_CONV_SUMMARY(WORK(KL_SUMMARY),NOUTIT)
+      CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)
       WRITE(6,'(A,F20.12)') ' Final energy = ', EFINAL
       WRITE(6,'(A,F20.12)') ' Final norm of orbital gradient = ', 
      &                        E1NRM_ORB
@@ -1882,19 +1882,19 @@ C     INTEGER I2ELIST_INUSE(MXP2EIARR),IOCOBTP_INUSE(MXP2EIARR)
 *
 *. Nonredundant type-type excitations
       CALL MEMMAN(KLTTACT,(NGAS+2)**2,'ADDL  ',1,'TTACT ')
-      CALL NONRED_TT_EXC(WORK(KLTTACT),IREFSPC_MCSCF,0)
+      CALL NONRED_TT_EXC(int_mb(KLTTACT),IREFSPC_MCSCF,0)
 *. Nonredundant orbital excitations
 *.. Number : 
       KLOOEXC = 1
       KLOOEXCC= 1
       CALL NONRED_OO_EXC(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &                   1,WORK(KLTTACT),1)
+     &                   1,int_mb(KLTTACT),1)
 *.. And excitations
       CALL MEMMAN(KLOOEXC,NTOOB*NTOOB,'ADDL  ',1,'OOEXC ')
       CALL MEMMAN(KLOOEXCC,2*NOOEXC,'ADDL  ',1,'OOEXCC')
 *. Amd space for orbital gradient
       CALL NONRED_OO_EXC(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &                   1,WORK(KLTTACT),2)
+     &                   1,int_mb(KLTTACT),2)
 *. Memory for gradient 
       CALL MEMMAN(KLE1,NOOEXC,'ADDL  ',2,'E1_MC ')
 *. Memory for gradient and orbital-Hessian - if  required
@@ -2024,13 +2024,13 @@ C  FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
         MAXIT = MAXIT_SAVE
         WRITE(6,*) ' Energy and residual from CI :', 
      &  EREF,ERROR_NORM_FINAL
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
 *
         IF(IOUT.GT.1) THEN
 *. Check for convergence
-          DELTA_E = ABS(WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
-     &                  WORK(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4))
+          DELTA_E = ABS(dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
+     &                  dbl_mb(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4))
           IF(DELTA_E.LE.THRES_E) CONVER = .TRUE.
         END IF
         IF(CONVER) THEN
@@ -2069,12 +2069,12 @@ C       CALL EN_FROM_DENS(ENERGY,2,0)
      &                 NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
         E1NRM = SQRT(INPROD(WORK(KLE1),WORK(KLE1),NOOEXC))
         IF(NTEST.GE.2) WRITE(6,*) ' Norm of orbital gradient ', E1NRM
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
 *
         IOOSM = 1
 C            ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
         CALL ORBHES(WORK(KLE2),WORK(KLOOEXC),NOOEXC,IOOSM,
-     &       WORK(KLTTACT))
+     &       int_mb(KLTTACT))
 *
 *. Finite difference check
 *
@@ -2146,7 +2146,7 @@ C XMNMX(VEC,NDIM,MINMAX)
          CALL SOLVE_SHFT_NR_IN_DIAG_BASIS(WORK(KLE1),WORK(KLE2VL),
      &        NOOEXC,STEP_MAX,TOLER,WORK(KLKAPPA),ALPHA)
          XNORM_STEP = SQRT(INPROD(WORK(KLKAPPA),WORK(KLKAPPA),NOOEXC))
-         WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = XNORM_STEP
+         dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = XNORM_STEP
          IF(NTEST.GE.2) WRITE(6,*) ' Norm of step = ', XNORM_STEP
 *. transform step to original basis
          CALL MATVCC(WORK(KLE2F),WORK(KLKAPPA),WORK(KLE2SC),
@@ -2244,7 +2244,7 @@ C GET_EXP_MKAPPA(EXPMK,KAPPAP,IOOEXC,NOOEXC)
         CALL PRINT_CMOAO(WORK(KLMO2))
       END IF
 *. Print summary
-      CALL PRINT_MCSCF_CONV_SUMMARY(WORK(KL_SUMMARY),NOUTIT)
+      CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)
       WRITE(6,'(A,F20.12)') ' Final energy = ', EFINAL
       WRITE(6,'(A,F20.12)') ' Final norm of orbital gradient = ', 
      &                        E1NRM_ORB
@@ -4954,7 +4954,7 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
 *
 *. Nonredundant type-type excitations
       CALL MEMMAN(KLTTACT,(NGAS+2)**2,'ADDL  ',1,'TTACT ')
-      CALL NONRED_TT_EXC(WORK(KLTTACT),IREFSPC_MCSCF,0)
+      CALL NONRED_TT_EXC(int_mb(KLTTACT),IREFSPC_MCSCF,0)
 *. Nonredundant orbital excitations
 *.. Number : 
       KLOOEXC = 1
@@ -4966,7 +4966,7 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
         I_RESTRICT_SUPSYM = 0
       END IF
       CALL NONRED_OO_EXC2(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &     1,WORK(KLTTACT),I_RESTRICT_SUPSYM,WORK(KMO_SUPSYM),
+     &     1,int_mb(KLTTACT),I_RESTRICT_SUPSYM,int_mb(KMO_SUPSYM),
      &     N_INTER_EXC,N_INTRA_EXC,1)
 *
       IF(NOOEXC.EQ.0) THEN
@@ -4981,7 +4981,7 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
       KIOOEXCC = KLOOEXCC
 *. And space for orbital gradient
       CALL NONRED_OO_EXC2(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &     1,WORK(KLTTACT),I_RESTRICT_SUPSYM,WORK(KMO_SUPSYM),
+     &     1,int_mb(KLTTACT),I_RESTRICT_SUPSYM,int_mb(KMO_SUPSYM),
      &     N_INTER_EXC,N_INTRA_EXC,2)
 *. Memory for gradient 
       CALL MEMMAN(KLE1,NOOEXC,'ADDL  ',2,'E1_MC ')
@@ -5146,16 +5146,16 @@ C       MAXIT = MAXMIC
         MAXIT = MAXIT_SAVE
         WRITE(6,*) ' Energy and residual from CI :', 
      &  EREF,ERROR_NORM_FINAL
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
         EOLD = EREF
         ENEW = EREF
 *. (Sic)
 *
         IF(IOUT.GT.1) THEN
 *. Check for convergence
-          DELTA_E = WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
-     &              WORK(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4)
+          DELTA_E = dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
+     &              dbl_mb(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4)
           IF(IPRNT.GE.2) WRITE(6,'(A,E9.3)') 
      &    '  Change of energy between outer iterations = ', DELTA_E
           IF(ABS(DELTA_E).LE.THRES_E) CONVER = .TRUE.
@@ -5192,7 +5192,7 @@ C       CALL EN_FROM_DENS(ENERGY,2,0)
 C            ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
         IF(IOOE2_APR.EQ.1) THEN
           CALL ORBHES(WORK(KLE2),WORK(KLOOEXC),NOOEXC,IOOSM,
-     &         WORK(KLTTACT))
+     &         int_mb(KLTTACT))
           IF(NTEST.GE.1000) THEN
            WRITE(6,*) ' The orbital Hessian '
            CALL PRSYM(WORK(KLE2),NOOEXC)
@@ -5273,7 +5273,7 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
         END IF
 *       ^ End of finite difference check
 *. Initialize sum of steps for outer iteration
-        WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 0.0D0
+        dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 0.0D0
 *. Loop over Inner iterations, where orbitals are optimized
 *. Initialize Kappa as zero
         IF(IRESET_KAPPA_IN_OR_OUT.EQ.2) THEN
@@ -5368,7 +5368,7 @@ C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
 *
           E1NRM = SQRT(INPROD(WORK(KLE1),WORK(KLE1),NOOEXC))
           IF(IPRNT.GE.2) WRITE(6,*) ' Norm of orbital gradient ', E1NRM
-          WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
+          dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
 *
 * ==========================
 * Two step Newton procedure
@@ -5395,8 +5395,8 @@ C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
             I_CLOSE_TO_MAX = 0 
             IF(0.8D0.LE.XNORM_STEP/STEP_MAX) I_CLOSE_TO_MAX  = 1
 *
-            WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
-     &      WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
+            dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
+     &      dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
             IF(IPRNT.GE.2) WRITE(6,'(A,2(2X,E12.5))')
      &      ' Norm of step and predicted energy change = ',
      &       XNORM_STEP, DELTA_E_PRED
@@ -5570,8 +5570,8 @@ C    &                  DISCH,LUHFIL)
              CALL SCALVE(WORK(KLSTEP),ONEM,NOOEXC)
             END IF
             XNORM_STEP = SQRT(INPROD(WORK(KLSTEP),WORK(KLSTEP),NOOEXC))
-            WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
-     &      WORK(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
+            dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
+     &      dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
             IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)')
      &      '  Norm of step  = ', XNORM_STEP
 *
@@ -5891,7 +5891,7 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
      &     NACOBS,NACOBS)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *. Print summary
-      CALL PRINT_MCSCF_CONV_SUMMARY(WORK(KL_SUMMARY),NOUTIT)
+      CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)
       WRITE(6,'(A,F20.12)') ' Final energy = ', EFINAL
       WRITE(6,'(A,F20.12)') ' Final norm of orbital gradient = ', 
      &                        E1NRM_ORB

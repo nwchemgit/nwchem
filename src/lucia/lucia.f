@@ -29605,13 +29605,13 @@ C?      CALL WRTMAT(WORK(KLLSUP),1,6,1,6)
 *
 C            FIND_XVAL_WITH_THRES(A,THRES, XVAL, NDIM,IVAL)
         CALL FIND_XVAL_WITH_THRES
-     &       (WORK(KLLSUP),THRES, XVAL,NROOT_ACT,IVAL)
+     &       (dbl_mb(KLLSUP),THRES, XVAL,NROOT_ACT,IVAL)
         IF(IVAL.EQ.0) THEN
           WRITE(6,*) 
      &  ' No root with correct supersymmetry determined'
          WRITE(6,*) ' Supersymmetry, threshold ', XVAL,THRES
          WRITE(6,*) ' Supersymmetry of states: '
-         CALL WRTMAT(WORK(KLLSUP),1,NROOT_ACT,1,NROOT_ACT)
+         CALL WRTMAT(dbl_mb(KLLSUP),1,NROOT_ACT,1,NROOT_ACT)
          STOP ' No root with correct supersymmetry determined'
         END IF
         ISROOT = IVAL
