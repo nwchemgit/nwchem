@@ -17,8 +17,8 @@ C> [2] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp9920971">
-C>     10.1021/jp9920971</a>.
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
 C>
       subroutine cosmo_input(rtdb)
 *
@@ -36,7 +36,7 @@ c
       integer iat, nfield, nrad, irad 
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer l_rad, k_rad
-      double precision dielec, rsolv, rad, zeta
+      double precision dielec, rsolv, rad, zeta, gammas, swtol
       character*255 field
       logical do_cosmo
       logical do_gasphase
@@ -55,6 +55,9 @@ c
       lineq    =1
       rsolv    =0.00d+00
       zeta     =1.00d+00 ! apparently for Lebedev grids zeta=4.9
+      gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
+      swtol    =1.00d-04 ! switching tolerance, see York, Karplus
+                         ! Eq.62-88.
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
      &              MA_ERR)
@@ -96,7 +99,7 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
          write(LuOut,*)"Keyword RSOLV is obsolete and ignored "//
-     $        "(see York, Karplus, doi:10.1021/jp9920971)"
+     $        "(see York, Karplus, doi:10.1021/jp992097l)"
 c
 c   --- radius
 c
@@ -133,15 +136,13 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:iscren',mt_int,1,iscren))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- ifscrn !!! Obsolete in York and Karplus approach
+c   --- ifscrn
 c
       else if(inp_compare(.false.,'ifscrn',field)) then
          if(.not. inp_i(ifscrn))
      $        call errquit('cosmo_input: ifscrn',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
-         write(LuOut,*)"Keyword IFSCRN is obsolete and ignored "//
-     $        "(see York, Karplus, doi:10.1021/jp9920971)"
 c
 c   --- minbem
 c
@@ -151,13 +152,15 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:minbem',mt_int,1,minbem))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- maxbem
+c   --- maxbem !!! Obsolete in York, Karplus approach
 c
       else if(inp_compare(.false.,'maxbem',field)) then
          if(.not. inp_i(maxbem))
      $        call errquit('cosmo_input: maxbem',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:maxbem',mt_int,1,maxbem))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         write(LuOut,*)"Keyword MAXBEM is obsolete and ignored "//
+     $        "(see York, Karplus, doi:10.1021/jp992097l)"
 c
 c   --- ificos
 c
@@ -201,6 +204,38 @@ c
      $                   //'number',911,INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:zeta',mt_dbl,1,zeta))
      $      call errquit('cosmo_input: put zeta failed',
+     $                   911, RTDB_ERR)
+c
+c   --- gamma_s ! the degree of switching
+c
+      else if(inp_compare(.false.,'gamma_s',field)) then
+         if (.not.inp_f(gammas))
+     $      call errquit('cosmo_input: gamma_s not a floating point '
+     $                   //'number',911,INPUT_ERR)
+         if (gammas.lt.0.0d0) 
+     $      call errquit('cosmo_input: gamma_s must be >= 0',911,
+     $                   INPUT_ERR)
+         if (gammas.gt.1.0d0) 
+     $      call errquit('cosmo_input: gamma_s must be =< 1',911,
+     $                   INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas))
+     $      call errquit('cosmo_input: put cosmo:gamma_s failed',
+     $                   911, RTDB_ERR)
+c
+c   --- sw_tol ! the switching tolerance
+c
+      else if(inp_compare(.false.,'sw_tol',field)) then
+         if (.not.inp_f(swtol))
+     $      call errquit('cosmo_input: sw_tol not a floating point '
+     $                   //'number',911,INPUT_ERR)
+         if (swtol.lt.0.0d0) 
+     $      call errquit('cosmo_input: sw_tol must be >= 0',911,
+     $                   INPUT_ERR)
+         if (swtol.gt.1.0d0) 
+     $      call errquit('cosmo_input: sw_tol must be =< 1',911,
+     $                   INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol))
+     $      call errquit('cosmo_input: put cosmo:sw_tol failed',
      $                   911, RTDB_ERR)
 c
       else
@@ -267,10 +302,10 @@ c
       logical odbug, osome
       integer me
 c
-      double precision dielec,screen,rsolv,zeta
+      double precision dielec,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer          lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision vdwr(102)
@@ -501,6 +536,9 @@ c
       lineq    =1
       rsolv    =0.00d+00
       zeta     =1.00d+00 ! apparently for Lebedev grids zeta=4.9
+      gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
+      swtol    =1.00d-04 ! switching tolerance, see York, Karplus
+                         ! Eq.62-88.
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
@@ -512,6 +550,8 @@ c
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
+      status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
+      status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
       nrad = 0
       if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
       if (nrad.gt.nat) call 
@@ -567,10 +607,10 @@ c
          minbem=2
       endif
       if(maxbem.lt.1.or.maxbem.gt.mxpass) then
-         maxbem=4
+         maxbem=2
       endif
       if(maxbem.lt.minbem) then
-         maxbem=min(mxpass,minbem+2)
+         maxbem=min(mxpass,minbem)
       endif
 c
       ificos=abs(ificos)
@@ -586,6 +626,8 @@ c
          endif
          write(luout,9994) rsolv
          write(luout,9980) zeta
+         write(luout,9979) gammas
+         write(luout,9978) swtol
          write(luout,9988)
       endif
       do iat=1,nat
@@ -663,6 +705,8 @@ c
  9982 format(' processing cosmo map from ',a)
  9981 format(a19,4x,f9.5)
  9980 format(' gaussian surface charge width = ',f9.5)
+ 9979 format(' degree of switching           = ',f9.5)
+ 9978 format(' switching function tolerance  = ',f9.5)
       end
 c
 C> \brief Tidy up COSMO data structures
@@ -723,10 +767,10 @@ c
       double precision c(3,nat)    !< [Input] The atomic coordinates
       double precision radius(nat) !< [Input] The atomic radii
 c
-      double precision dielec,screen,rsolv,zeta
+      double precision dielec,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer          lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
@@ -746,6 +790,7 @@ c
       integer l_i100, i100
       integer l_i110, i110
       integer l_i120, i120
+      integer l_i130, i130
       integer need
 c
       dbug=.false.
@@ -763,7 +808,7 @@ c
 c
 c     ----- partition memory -----
 c
-      need = 6*nat + 7*mxface + 6*mxface*nat + 3*mxapex
+      need = 6*nat + 7*mxface + 7*mxface*nat + 3*mxapex
 c
 c     ----- allocate memory block -----
 c
@@ -789,6 +834,8 @@ c
      &                                                l_i110,i110)
       stat = stat.and.ma_push_get(mt_dbl,3*mxapex    ,"apex",
      &                                                l_i120,i120)
+      stat = stat.and.ma_push_get(mt_dbl,  mxface*nat,"xyzff",
+     &                                                l_i130,i130)
 c     i10 =init                    ! xyzatm(3,nat)
 c     i20 =i10 +3*nat              !   ratm(  nat)
 c     i30 =i20 +  nat              !   nspa(  nat)
@@ -808,7 +855,7 @@ c
      1                dbl_mb(i10),dbl_mb(i20),int_mb(i30),int_mb(i40),
      2                int_mb(i50),dbl_mb(i60),int_mb(i70),
      3                log_mb(i80),dbl_mb(i90),int_mb(i100),int_mb(i110),
-     4                dbl_mb(i120),rtdb)
+     4                dbl_mb(i120),dbl_mb(i130),rtdb)
 c
 c     ----- release memory block -----
 c
@@ -826,8 +873,8 @@ C>
       subroutine hnd_cossrf(nat,c,radius,mxatm,mxfac,mxapx,
      1                  xyzatm,ratm,nspa,nppa,
      2                  ijkfac,xyzseg,ijkseg,insseg,
-     3                  xyzspa,ijkspa,numpps,apex,rtdb)
-      implicit double precision (a-h,o-z)
+     3                  xyzspa,ijkspa,numpps,apex,xyzff,rtdb)
+      implicit none
 c
 #include "nwc_const.fh"
 #include "rtdb.fh"
@@ -835,30 +882,40 @@ c
 #include "stdio.fh"
 c
       integer rtdb, nat
-      dimension      c(3,nat  )
-      dimension radius(    nat)
-      dimension xyzatm(3,mxatm)
-      dimension   ratm(  mxatm)
-      dimension   nspa(  mxatm)
-      dimension   nppa(  mxatm)
-      dimension ijkfac(3,mxfac)
-      dimension xyzseg(3,mxfac)
-      dimension ijkseg(  mxfac)
-      dimension insseg(  mxfac,mxatm)
-      dimension xyzspa(3,mxfac,mxatm)
-      dimension ijkspa(  mxfac,mxatm)
-      dimension numpps(  mxfac,mxatm)
-      dimension   apex(3,mxapx)
+      integer mxatm
+      integer mxfac
+      integer mxapx
+      double precision      c(3,nat  )
+      double precision radius(    nat)
+      double precision xyzatm(3,mxatm)
+      double precision   ratm(  mxatm)
+      integer            nspa(  mxatm)
+      integer            nppa(  mxatm)
+      integer          ijkfac(3,mxfac)
+      double precision xyzseg(3,mxfac)
+      integer          ijkseg(  mxfac)
+      logical          insseg(  mxfac,mxatm)
+      double precision xyzspa(3,mxfac,mxatm)
+      integer          ijkspa(  mxfac,mxatm)
+      integer          numpps(  mxfac,mxatm)
+      double precision   apex(3,mxapx)
+      double precision  xyzff(  mxfac,mxatm)
 c
+      double precision bohr
       parameter (bohr=0.529177249d+00)
       logical    some
       logical    out
       logical    more
       logical    dbug
-      logical    insseg
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      integer          lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+c
+      integer i, iat, lfac, lseg, ndiv, nfac, nseg
+      integer mfac
 c
       dbug=.false.
       more=.false.
@@ -924,7 +981,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,mxfac,rtdb)
+     3                numpps,xyzff,mxfac,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -938,6 +995,12 @@ c
 C>
 C> \brief Construct the Solvent Accessible Surface (SAS) from the
 C> triangulated spheres
+C>
+C> ## The legacy of Klamt and Sch&uuml;&uuml;rmann ##
+C>
+C> This subroutine was originally written to implement the algorithm
+C> to construct the Solvent Accessible Surface as proposed by 
+C> Klamt and Sch&uuml;&uuml;rmann [1]. This algorithm worked as follows:
 C>
 C> If two spheres partially overlap then parts of the surface need
 C> to be eliminated. Segments that are contained entirely within the
@@ -971,6 +1034,21 @@ C> triangles of the original polyhedron `minbem` times. The faces have
 C> generated by partitioning the segments an additional `maxbem-minbem`
 C> times.
 C>
+C> ## The new smooth approach of York and Karplus ##
+C>
+C> The approach by Klamt and Sch&uuml;&uuml;rmann [1] led to problems
+C> because the corresponding potential energy surface was not 
+C> continuous. York and Karplus [2] proposed a method that provides
+C> a smooth potential energy surface and this subroutine was changed
+C> to implement this new approach. This meant that some things stayed
+C> the same as before (for example minbem still works the same way
+C> to generate the surface charge positions), other things changed
+C> significantly (maxbem and rsolve are now entirely obsolete and not
+C> used anymore, also the elimination of point charges is no longer
+C> based on reducing the segment surface area until it vanishes, instead
+C> the surface charge of a segment is quenched with a switching function
+C> to eliminate the contribution of a surface point).
+C>
 C> ### References ###
 C>
 C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
@@ -984,13 +1062,13 @@ C> [2] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp9920971">
-C>     10.1021/jp9920971</a>.
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
 C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,mxface,rtdb)
+     3                      numpps,xyzff,mxface,rtdb)
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -1010,10 +1088,10 @@ c
       double precision bohr
       parameter  (bohr=0.529177249d+00)
       logical     dbug
-      double precision dielec,screen,rsolv,zeta
+      double precision dielec,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
@@ -1038,16 +1116,25 @@ c
       double precision xyzspa(3,mxface,mxatom)
       integer          ijkspa(  mxface,mxatom)
       integer          numpps(  mxface,mxatom)
-      double precision zero
+      double precision  xyzff(  mxface,mxatom)
+      double precision zero, one
       data zero    /0.0d+00/
+      data one     /1.0d+00/
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
 c
-      double precision dist, xi, yi, zi, xj, yj, zj
+      double precision cosff
+      external         cosff
+c
+      double precision dist, xi, yi, zi, xj, yj, zj, rin, rout, alphai
+      parameter (alphai = 0.5d0)
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
+      rin(iat)=ratm(iat)*(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
+      rout(iat)=ratm(iat)*(1.0d0+(1.0d0-alphai)*gammas*
+     &                     sqrt(0.25d0**minbem))
 c
       dbug=.false.
       pi = acos(-1.0d0)
@@ -1073,6 +1160,7 @@ c
          do i=1,mxface
             ijkspa(i,iat)=0
             numpps(i,iat)=0
+            xyzff(i,iat)=zero
          enddo
       enddo
 c
@@ -1084,6 +1172,7 @@ c
          if(ratm(iat).ne.zero) then
             do iseg=1,nseg
                ijkspa(iseg,iat)=ijkseg(iseg)
+               xyzff(iseg,iat)=one
                do m=1,3
                   xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)
      1                              +xyzatm(m,iat)
@@ -1107,17 +1196,17 @@ c
      3                  xyzatm(1,jat),
      4                  xyzatm(2,jat),
      5                  xyzatm(3,jat))
-               if(jat.ne.iat.and.(dij.lt.(ratm(iat)+ratm(jat)))) then
-                  do ifac=1,nfac
-                     dum=dist(xyzspa(1,ifac+nseg,iat),
-     1                        xyzspa(2,ifac+nseg,iat),
-     2                        xyzspa(3,ifac+nseg,iat),
+               if((jat.ne.iat).and.(ratm(jat).ne.zero)
+     1                        .and.(dij.lt.(ratm(iat)+rout(jat)))) then
+                  do iseg=1,nseg
+                     dum=dist(xyzspa(1,iseg,iat),
+     1                        xyzspa(2,iseg,iat),
+     2                        xyzspa(3,iseg,iat),
      3                        xyzatm(1,jat),
      4                        xyzatm(2,jat),
      5                        xyzatm(3,jat))
-                     if(dum.lt.ratm(jat)) then
-                        ijkspa(ifac+nseg,iat)=0
-                     endif
+                     xyzff(iseg,iat) = xyzff(iseg,iat) *
+     1                 cosff((dum-rin(jat))/(rout(jat)-rin(jat)))
                   enddo
                endif
             enddo
@@ -1128,40 +1217,20 @@ c
 c
 c     ----- check segments belonging to -sas- -----
 c
-            do ifac=1,nseg+nfac
-               insseg(ifac,iat)=.true.
-            enddo
-            do ifac=1,nfac
-               iseg=ijkspa(ifac+nseg,iat)
-               if(iseg.ne.0) then
-                  insseg(ifac+nseg,iat)=.false.
-                  insseg(     iseg,iat)=.false.
-               endif
+            do iseg=1,nseg
+               insseg(iseg,iat)=.not.(xyzff(iseg,iat).ge.swtol)
             enddo
             if(dbug.and.ga_nodeid().eq.0) then
                write(luout,9994) iat
-               write(luout,9993) (insseg(ifac,iat),ifac=1,nseg+nfac)
+               write(luout,9993) (insseg(iseg,iat),iseg=1,nseg)
             endif
             mseg=0
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) mseg=mseg+1
             enddo
             mfac=0
-            do ifac=1,nfac
-               if(.not.insseg(ifac+nseg,iat)) mfac=mfac+1
-            enddo
             nspa(iat)=mseg
             nppa(iat)=mfac
-c
-c     ----- surface area of segments -----
-c
-            do iseg=1,nseg
-               numpps(iseg,iat)=0
-            enddo
-            do ifac=1,nfac
-               iseg=ijkspa(ifac+nseg,iat)
-               if(iseg.ne.0) numpps(iseg,iat)=numpps(iseg,iat)+1
-            enddo
 c
          endif
 c
@@ -1231,19 +1300,15 @@ c
                   enddo
 c
 c                 --- eval eq.(67) from [2] ---
-c                 Modifications: No switching function used, instead
-c                 we stick with the screening from [1].
 c
                   ipp=numpps(iseg,iat)
                   dum=4.00d0**(maxbem-minbem)
                   zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
                   zetaii=zetai/sqrt(2.0d0)
-                  dbl_mb(k_efcs+ief-1) = (dum/dble(ipp))
+                  dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
      1                                 * 2.0d0*zetaii/sqrt(pi)
-c    1                                 * zeta * sqrt(nseg*dum)
-c    2                                 / (sqrt(8.0d0)*pi*ratm_real)
-                  srfmol   = srfmol + dble(ipp)*dsurf*ratm_real**2
-                  volmol   = volmol + dble(ipp)*dvol *ratm_real**3
+                  srfmol   = srfmol + xyzff(iseg,iat)*dsurf*ratm_real**2
+                  volmol   = volmol + xyzff(iseg,iat)*dvol *ratm_real**3
                   int_mb(k_efciat+ief-1)=iat
                endif
             enddo
@@ -1460,7 +1525,7 @@ c
       dimension ijkseg(  *)
       dimension xyzseg(3,*)
 c
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
 c
       parameter (mxpass=    7)
@@ -1726,6 +1791,7 @@ c
 c
 c     ----- calculate -dsurf dvol- for the -cosmo- theory -----
 c
+      nfac =nseg
       ndiv =nfac/nseg
       dsurf=srf/dble(nfac)
       dvol =vol/dble(nfac)
@@ -2168,9 +2234,9 @@ c
       character*8 scfruntyp
 c
       double precision dielec,screen,rsolv,adiag,dsurf,dvol
-      double precision srfmol,volmol,zeta,ptspatm
+      double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
       integer lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
@@ -2357,6 +2423,11 @@ C> is evaluated using Eq.(B1). This done in two steps in that the
 C> this quantity is evaluated for the unit sphere in `hnd_cossph`, any
 C> remaining scale factors are applied in the evaluation of \f$A\f$.
 C>
+C> The original COSMO approach has problems when charge approach each
+C> other and the interaction becomes singular. Therefore we have 
+C> replaced this with a model where the interactions are smooth [4]
+C> which is outlined below.
+C>
 C> ## Surface charges satisfying Gauss's theorem ##
 C>
 C> Solving these equations gives the "raw" COSMO charges \f$ x \f$.
@@ -2407,14 +2478,15 @@ C> and \f$\lambda\f$ the gradient expression only involves derivatives
 C> of \f$A\f$, \f$B\f$ and \f$C\f$ just like the original COSMO
 C> gradients [1].
 C>
-C> Previously this correction was implemented by scaling the raw COSMO
-C> charges. However, this led to complications with neutral molecules
+C> Previously the surface charge correction was implemented by scaling
+C> the raw COSMO charges.
+C> However, this led to complications with neutral molecules
 C> where the correct integrated surface charge is 0. Hence the 
 C> correction factor would be 0 as well, eliminating the COSMO charges
 C> and hence all solvation effects. This problem had been patched by
 C> calculating the COSMO charges for the nucleii and the electrons 
 C> separately. This led to a cumbersome and expensive algorithm. So
-C> shifting the use of a Lagrange constraint is a solution that is
+C> the use of a Lagrange constraint is a solution that is
 C> preferred over scaling the charges. The difference between the two
 C> approaches should be small provided the discretization is fine
 C> enough.
@@ -2458,7 +2530,7 @@ C> reduces the compute cost per processor to \f$ k*O(N^2)/N_{proc} \f$.
 C> Furthermore if we start the iterative solver in each SCF cycle with
 C> the solution from the previous iteration rather than \f$ x=0 \f$ then
 C> \f$ k \f$ may be reduced as well. In practice \f$ k \f$ does not
-C> depend strongly on the initial value of \f$ x \f$, reduction by at
+C> depend strongly on the initial value of \f$ x \f$, reductions by at
 C> most a factor 2 are seen when the SCF is nearly converged.
 C>
 C> ## Singularity free surface charge self-interaction ##
@@ -2497,14 +2569,14 @@ C> Karplus more closely and applied this approximation only to
 C> matrix \f$A\f$ and not to the surface charge-electron interaction.
 C> However, even applying this interaction just for \f$A\f$ is 
 C> problematic as the expression still contains singularities at
-C> \f$r_{ij} = 0\f$ that can only be avoided by taking limits.
-C> Therefore special care must be taken when using it.
+C> \f$r_{ij} = 0\f$ that have to be handled explicitly to avoid floating
+C> point exceptions.
 C>
 C> Considering the use of the potential above in more detail we have
 C> \f{eqnarray*}{
 C>   A(r_i,r_j) &=& \frac{\mathrm{erf}(\zeta_{ij}r_{ij})}{r_{ij}} \\\\
-C>   A(r_i,r_i) &=& \lim_{r_{ij}\to 0}\frac{\mathrm{erf}(\zeta_{ii}r_{ij})}{r_{ij}} \\\\
-C>              &=& \zeta_i\sqrt{2/\pi} \\\\
+C>   A(r_i,r_i) &=& \lim_{r_{ij}\to 0}\frac{\mathrm{erf}(\zeta_{ii}r_{ij})}{r_{ij}}(F(r_i))^{-1} \\\\
+C>              &=& \zeta_i\sqrt{2/\pi}(F(r_i))^{-1} \\\\
 C>   \zeta_{ij} &=& \frac{\zeta_i\zeta_j}{
 C>                        \left(\zeta_i^2+\zeta_j^2\right)^{1/2}} \\\\
 C>   \zeta_i    &=& \frac{\zeta}{R_I\sqrt{w_i}} \\\\
@@ -2517,8 +2589,10 @@ C> \f$R_I\sqrt{w_i}\f$ is equivalent to the surface \f$|S_i|\f$ of the
 C> point, \f$\zeta\f$ is a width parameter for the Gaussian distribution
 C> that has been optimized to reproduce the Born solvation energy,
 C> \f$M\f$ is the number of discretization points on the sphere.
-C> In [4] Table 1 it is shown that
-C> \f$\zeta\f$ is essentially \f$4.90\f$.
+C> In [4] Table 1 it is shown that \f$\zeta\f$ is essentially
+C> \f$4.90\f$ for Lebedev grids (for the Boundary Element Mesh we
+C> use it is \f$1.00\f$). Finally \f$F_i\f$ is the switching function
+C> defined below.
 C> From this the limit of two point charges approaching eachother can
 C> be established as
 C> \f{eqnarray*}{
@@ -2536,8 +2610,65 @@ C>        \frac{2\zeta_{ij}}{\sqrt{\pi}}
 C>        e^{-\zeta_{ij}^2r_{ij}^2}\right)
 C>        \frac{\nabla_M r_{ij}}{r_{ij}^2} \\\\
 C>   \nabla_M A(r_i,r_i)
-C>   &=& 0
+C>   &=& -A(r_i,r_i)\sum_B\frac{\partial F}{\partial R_B}\nabla_M r_i
 C> \f}
+C>
+C> ## Continuous switching functions ##
+C>
+C> In order to obtain a smooth function wrt the nuclear coordinates
+C> it is necessary that when the atoms move the surface areas associated
+C> with a point charge change smoothly. The approach suggested by 
+C> York and Karplus [4] proposes to use multiple radii around an atom. 
+C> Each atom has an inner radius \f$R_{in}\f$ and an outer radius
+C> \f$R_{out}\f$. The difference between them is the switching radius 
+C> \f$R_{sw} = R_{out} - R_{in}\f$. The areas of cavity surface points
+C> are multiplied with a weighting factor based on their relative
+C> position. In practice the diagonal elements of \f$A\f$ are scaled 
+C> by the inverse of the surface areas generating corresponding weights
+C> as
+C> \f{eqnarray*}{
+C>   r_{A,i} - R_B \ge R_{out},&& W_{Ai,B} = 1 \\\\
+C>   r_{A,i} - R_B \le R_{in}, && W_{Ai,B} = \infty \\\\
+C>   R_{in} < r_{A,i}-R_B < R_{out},
+C>      && W_{Ai,B} = 1/f\left(\frac{r_{A,i}-R_B-R_{in}}{R_{SW}}\right)
+C> \f}
+C> where the function \f$f(r)\f$ is given by
+C> \f{eqnarray*}{
+C>   f(r) &=& r^3\left(10-15r+6r^2\right) \\\\
+C>   \frac{\partial f(r)}{\partial r} &=& 30r^2(r-1)^2
+C> \f}
+C> The weighting function overall is given by
+C> \f{eqnarray*}{
+C>    F_{Ai} = \prod_{B\neq A} W_{Ai,B}
+C> \f}
+C> It can be shown that if \f$F_{Ai}\f$ is close to \f$0\f$ then
+C> the corresponding point will not contribute to the energy
+C> expression and can be eliminated. This is most easily shown by
+C> considering the energy expression and substituting the surface
+C> charge expression. If \f$F_{Ai}\f$ goes to 0 then the diagonal
+C> element \f$A(r_i,r_i)\f$ approaches infinity. This means that the
+C> corresponding row and column in \f$A^{-1}\f$ goes to zero, and
+C> the energy expression depends only on \f$A^{-1}\f$ hence the 
+C> corresponding point will not contribute to the energy.
+C>
+C> One interesting observation is that matrix \f$A\f$ is used in
+C> linear system of equations \f$Aq = BQ\f$. The condition number of
+C> the matrix \f$A\f$ determines the ratio of the relative error in
+C> \f$x\f$ and the relative error in \f$BQ\f$. In particular, the 
+C> larger the condition number the larger the relative error in \f$x\f$
+C> for a given relative error in \f$BQ\f$. The condition number
+C> is given by
+C> \f{eqnarray*}{
+C>    K(A) = \left|\frac{\lambda_{\mathrm{max}}(A)}{
+C>                       \lambda_{\mathrm{min}}(A)}\right|
+C> \f}
+C> where \f$\lambda_{\mathrm{max}}(A)\f$ is the maximum eigenvalue, 
+C> and \f$\lambda_{\mathrm{min}}(A)\f$ is the minimal eigenvalue of 
+C> \f$A\f$. The approach by York and Karplus for eliminating surface
+C> charges is based on raising the condition number to infinity, at
+C> which point the vector \f$q\f$ must become very inaccurate. Hence
+C> the cutoff for eliminating charges must be chosen carefully to
+C> limit the condition number of the remaining part of \f$A\f$.
 C>
 C> ### References ###
 C>
@@ -2588,7 +2719,6 @@ C>   <i>J. Chem. Phys.</i> (2010) <b>133</b>, 244111, DOI:
 C>   <a href="http://dx.doi.org/10.1063/1.3511297">
 C>   10.1063/1.3511297</a>.
 C>
-c
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,efcz,efciat,ratm,ecos)
       implicit none
@@ -2668,11 +2798,11 @@ c
       double precision dielec ! dielectric constant
       double precision screen ! dielectric screening factor
       double precision rsolv
-      double precision zeta
+      double precision zeta,gammas,swtol
       double precision ptspatm
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       double precision charge ! the total QM region charge
       double precision chgfac ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
@@ -2929,31 +3059,6 @@ c
      1                   nefc,RTDB_ERR)
          endif
       endif
-c
-c     ----- debug check -----
-c
-c     if(more) then
-c        do jef=1,nefc
-c           xj=efcc(1,jef)
-c           yj=efcc(2,jef)
-c           zj=efcc(3,jef)
-c           dum=zero
-c           do ief=1,nefc
-c              if(ief.eq.jef) then
-c                 aii=adiag/sqrt(efcs(ief))
-c                 dum=dum+aii*x(ief+i20-1)      
-c              else
-c                 xi=efcc(1,ief)
-c                 yi=efcc(2,ief)
-c                 zi=efcc(3,ief)
-c                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-c                 aij=one/dij
-c                 dum=dum+aij*x(ief+i20-1)      
-c              endif
-c           enddo
-c           write(luout,9992) jef,dum
-c        enddo
-c     endif
 c
 c     ----- correct the COSMO charges ... -----
 c
@@ -3226,9 +3331,9 @@ c
       double precision zetai, zetaj, zetaij
       parameter (one = 1.0d0)
 c
-      double precision dielec,screen,rsolv,zeta
+      double precision dielec,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       double precision util_erf
@@ -3292,9 +3397,9 @@ c
       double precision zero, one
       parameter (zero=0.0d+00, one=1.0d+00)
 c
-      double precision dielec,screen,rsolv,zeta
+      double precision dielec,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,screen,rsolv,zeta
+      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       double precision util_erf
@@ -3396,6 +3501,7 @@ c          w.h.press, b.p.flannery, s.a.teukolsky, w.t.vetterling
 c
 #include "errquit.fh"
 #include "stdio.fh"
+#include "global.fh"
 c
       logical     dbug
       integer          nat  !< [Input] The number of atoms
@@ -3467,6 +3573,12 @@ c
             xj(j)=xj(j)-b(j)
             rsq=rsq+xj(j)*xj(j)
          enddo ! j
+         if (iter.gt.10*nefc-min(10,nefc/10)) then
+           if (ga_nodeid().eq.0) then
+             write(luout,'(" hnd_cosequ: it,residue,thresh = ",
+     &                     i5,2f12.5)')iter,rsq,bsq*eps2
+           endif
+         endif
          if(rsq.eq.rp.or.rsq.le.bsq*eps2) return
          if(rsq.gt.rp) then
             do j=1,nefc
@@ -3618,6 +3730,67 @@ c
          endif
    19 continue
       if(a(n,n).eq.zero) a(n,n)=tiny
+      return
+      end
+C>
+C> \brief Compute the function \f$f(r)\f$
+C>
+C> Computes the function \f$f(r)\f$ as discussed with function
+C> `hnd_coschg`. This function is Eq.(64) in [1].
+C>
+C> ### References ###
+C>
+C> [1] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
+      double precision function cosff(r)
+      implicit none
+#include "errquit.fh"
+      double precision r !< [Input] penetration fraction
+c
+      if (r.lt.0.0d0) then
+        cosff = 0.0d0
+      else if (r.gt.1.0d0) then
+        cosff = 1.0d0
+      else
+        cosff = r**3*(10.0d0-15.0d0*r+6.0d0*r**2)
+      endif
+c
+      return
+      end
+C>
+C> \brief Compute the function \f$\frac{\partial f(r)}{\partial r}\f$
+C>
+C> Computes the function \f$\frac{\partial f(r)}{\partial r}\f$ as
+C> discussed with function `hnd_coschg`. This function is the 
+C> derivative of Eq.(64) in [1].
+C>
+C> ### References ###
+C>
+C> [1] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
+      double precision function cosdff(r)
+      implicit none
+#include "errquit.fh"
+      double precision r !< [Input] penetration fraction
+c
+      if (r.lt.0.0d0) then
+        cosdff = 0.0d0
+      else if (r.gt.1.0d0) then
+        cosdff = 0.0d0
+      else
+        cosdff = 30.0d0*(r**2)*((1.0d0-r)**2)
+      endif
+c
       return
       end
 

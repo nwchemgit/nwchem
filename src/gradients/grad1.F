@@ -252,6 +252,33 @@ c
 c
 C> \brief calculate the gradient terms due to the interaction with the 
 C> COSMO charges
+C>
+C> Evaluate the gradient contributions from the COSMO embedding. The
+C> original part is from Klamt and Sch&uuml;&uuml;rmann [1] 
+C> (see Eqs.(13-16)). The derivatives of matrix \f$A\f$ have been 
+C> modified by York and Karplus [2] (see Eqs.(73-76)) to obtain smooth
+C> potential energy surfaces. York and Karplus also modified matrix
+C> \f$B\f$ which is easy to do in their classical force field code.
+C> In an ab-initio code this not so easy to do and as it is not 
+C> required to eliminate singularities the original expression from [1]
+C> for \f$B\f$ is used here.
+C>
+C> ### References ###
+C>
+C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
+C>     "COSMO: a new approach to dielectric screening in solvents with
+C>      explicit expressions for the screening energy and its gradient",
+C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
+C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     10.1039/P29930000799</a>.
+C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
       subroutine grad_hnd_cos ( H, lbuf, scr, lscr, 
      $                   dens, frc_cos_nucq, frc_cos_elq,
      $                   frc_cos_qq, 
@@ -311,10 +338,12 @@ C-------------------------parameters--------------------------------
 
       logical oskel   ! symmetry?
 c
-      double precision dielec, screen, rsolv, zeta
+      double precision dielec, screen, rsolv, zeta, gammas, swtol
       double precision adiag, dsurf, dvol, srfmol, volmol, ptspatm
-      common/hnd_cospar/dielec, screen, rsolv, zeta
+      integer          lineq, minbem, maxbem, ificos, ifscrn
+      common/hnd_cospar/dielec, screen, rsolv, zeta, gammas, swtol
       common/hnd_cosdat/adiag, dsurf, dvol, srfmol, volmol, ptspatm
+      common/hnd_cosmod/lineq, minbem, maxbem, ificos, ifscrn
 
 C-------------------------local variables--------------------------
 
@@ -342,11 +371,19 @@ C-------------------------local variables--------------------------
 
       logical status, pointforce
 
-      double precision util_erf
-      external util_erf
+      double precision util_erf, cosff, cosdff
+      external         util_erf, cosff, cosdff
 
       integer nxtask, task_size
       external nxtask
+c
+      double precision rin, rout, alphai, xyzff
+      integer iat
+      parameter (alphai = 0.5d0)
+      rin(iat)=dbl_mb(k_rad-1+iat)
+     &        *(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
+      rout(iat)=dbl_mb(k_rad-1+iat)
+     &         *(1.0d0+(1.0d0-alphai)*gammas*sqrt(0.25d0**minbem))
 
 c     ---- -cosmo- gradient term -----
       logical odbug
@@ -357,7 +394,6 @@ c     ---- -cosmo- gradient term -----
          write(Luout,*) 'in -grad1_hnd_cos- ...'
       endif
 c
-
       task_size = 1
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -562,14 +598,50 @@ c
       if (ga_nodeid().eq.0) then
 c
 c       Do the Nuclear - Cosmo charge part
+c       - 1. The derivative of matrix B (i.e. the Coulomb interaction
+c            between the nuclear charge and the surface charge).
+c       - 2. The derivative due to the change in the switching
+c            function (see [2] Eq.(74)).
 c
-        do iat1 = 1, nat
-          do ich1 = 1, nefc
+        invscreen = 1.0d0/(1.0d0*screen)
+        do ich1 = 1, nefc
+          zeta1 = zeta*sqrt(ptspatm)
+     $          / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
+     $             * sqrt(2.0d0*pi))
+          xyzff = 1.0d0
+          do iat1 = 1, nat
+            if (iat1.ne.int_mb(k_efciat+ich1-1)) then
+              dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
+              dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
+              dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
+              rr = sqrt(dx*dx+dy*dy+dz*dz)
+              if (rr.lt.rout(iat1)) then
+                xyzff = xyzff
+     $                * cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
+              endif
+            endif
+          enddo
+          do iat1 = 1, nat
             dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
             dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
             dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
+            rr = sqrt(dx*dx+dy*dy+dz*dz)
+c
+c           - term 1.
+c
             fact = -charge(iat1,geom)*dbl_mb(iefc_q+ich1-1) / 
-     $             sqrt(dx*dx+dy*dy+dz*dz)**3
+     $              rr**3
+c
+c           - term 2.
+c
+            if (iat1.ne.int_mb(k_efciat+ich1-1)) then
+              fact = fact - 2.0d0*zeta1*sqrt(2.0d0/pi)*invscreen
+     $             * dbl_mb(iefc_q+ich1-1)**2
+     $             * cosdff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
+     $             / (rr*xyzff*(rout(iat1)-rin(iat1))
+     $                *cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1))))
+            endif
+c
             dE = dx * fact
             frc_cos_nucq(1,iat1) = frc_cos_nucq(1,iat1) + dE
             frc_cos_nucq(1,int_mb(k_efciat+ich1-1)) 
