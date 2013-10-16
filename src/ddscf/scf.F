@@ -348,65 +348,6 @@ c
      $        dbl_mb(k_occ), int_mb(k_irs),
      $        g_movecs(1), scftype, ' ')
       endif
-c.. dongxia added June 2013, transform AO ints to MO ints
-c.. 
-c..  reorder 
-       if(.not.ma_push_get(mt_int,nbf,'reord',l_reord,k_reord))
-     $    call errquit('scf:memory?',nbf,MA_ERR)
-c..
-       if(.not.ma_push_get(mt_int,nbf,'reord2',l_reord2,k_reord2))
-     $    call errquit('scf:memory?',nbf,MA_ERR)
-c..
-      if (ga_nodeid().eq.0) then
-       call ifill(nir,0,ipnt,1)
-       call sym_group_name(geom,zname)
-       if(.not.sym_mol(zname,nop,nir,class_dim,zir,zclass,chars,ipnt))
-     $    call errquit('scf: no char table available ',geom,unknown_err)
-       call ifill(nir,0,icount,1)
-       do i=1,nir
-         write(6,*)'MOLCAS pointer',ipnt(i)
-       end do
-       ioff(1)=1
-       do i=2,nir
-         ioff(i) = ioff(i-1)+nbf_per_ir(i-1)
-       end do
-       do i=1,nbf
-         irs=int_mb(k_irs+i-1)
-         icount(irs)=icount(irs)+1
-         reord = ioff(irs)+icount(irs)-1
-         int_mb(k_reord+i-1)=reord
-         int_mb(K_reord2+reord-1)=i
-       end do
-         write(6,*)'reorder arrays:'
-         do i=1,nbf
-          write(6,*)int_mb(k_reord+i-1),int_mb(k_reord2+i-1)
-         end do
-       call util_flush(6)
-      endif
-c..
-       if(.not.ma_pop_stack(l_reord2))
-     $    call errquit('scf: ma pop failed',0,0)
-c..
-       if(.not.ma_pop_stack(l_reord))
-     $    call errquit('scf: ma pop failed',0,0)
-c..  1-e integrals
-         g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
-         call ga_zero(g_hcore)
-         call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
-         call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
-         call moints_1e(nbf, basis, g_movecs(1), g_hcore)
-         call ga_print(g_hcore)
-         if(.not.ga_destroy(g_hcore))
-     $       call errquit('scf: cannot destroy 1e integral',0,GA_ERR)
-c..  2-e integrals
-         noper = nbf*(nbf+1)/2
-         g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
-         g_exch = ga_create_JKblocked(noper,nbf,nbf,'Exch Oper')
-         call moints_build_2x(basis,.true.,oskel,1,1,nbf,1,nbf,
-     $        g_movecs,g_coul,.true.,g_exch,.true.,blen,.true.)
-         call ga_print(g_coul)
-         call ga_print(g_exch)
-
 c
 c     terminate integrals 
 c
