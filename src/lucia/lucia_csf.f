@@ -6787,7 +6787,7 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
 *
 *. Obtain J(I,J) = (II!JJ), K(I,J) = (IJ!JI)
 *
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,XDUM,IREOTS)
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,XDUM,IREOTS)
 *
       IF(ICNFBAT.EQ.1) THEN 
 *
@@ -6820,18 +6820,19 @@ C?      WRITE(6,*) ' IONLY_DIAG set to 0 '
 C                CNHCN_CSF_BLK(ICNL,IOPL,ICNR,IOPR,CNHCNM,IADOB,
 C    &                         IPRODT,DTOC,I12OP,ISCR,SCR,ECORE)
             CALL CNHCN_CSF_BLK(ICONF_OCC(IB_OCC),IOPEN,
-     &      ICONF_OCC(IB_OCC),IOPEN,WORK(KLCSFHCSF),NINOB,WORK(KDFTP),
-     &      WORK(KDTOC),2,WORK(KLISCR),WORK(KLRSCR),ECORE,IONLY_DIAG,
-     &      ISYMG,WORK(KLJ),WORK(KLK))
+     &      ICONF_OCC(IB_OCC),IOPEN,dbl_mb(KLCSFHCSF),NINOB,
+     &      int_mb(KDFTP),dbl_mb(KDTOC),2,int_mb(KLISCR),
+     &      dbl_mb(KLRSCR),ECORE,IONLY_DIAG,
+     &      ISYMG,dbl_mb(KLJ),dbl_mb(KLK))
 *. Transfer block
             IF(IH0_CSF.EQ.2) THEN
 *.Extract diagonal
-              CALL COPDIA(WORK(KLCSFHCSF),H0(IB_H0),NCSF,0)
+              CALL COPDIA(dbl_mb(KLCSFHCSF),H0(IB_H0),NCSF,0)
 C                  COPDIA(A,VEC,NDIM,IPACK)
               IB_H0 = IB_H0 + NCSF
             ELSE
 *. Keep complete block
-              CALL COPVEC(WORK(KLCSFHCSF),H0(IB_H0),NCSF**2)
+              CALL COPVEC(dbl_mb(KLCSFHCSF),H0(IB_H0),NCSF**2)
               IB_H0 = IB_H0 + NCSF**2
             END IF
             IB_OCC = IB_OCC + IORB
@@ -6902,9 +6903,10 @@ C                  COPDIA(A,VEC,NDIM,IPACK)
               CALL IWRTMA(ICONF_OCC(IB_OCC),1,IORB,1,IORB)
             END IF
             CALL CNHCN_CSF_BLK(ICONF_OCC(IB_OCC),IOPEN,
-     &      ICONF_OCC(IB_OCC),IOPEN,WORK(KLCSFHCSF),NINOB,WORK(KDFTP),
-     &      WORK(KDTOC),2,WORK(KLISCR),WORK(KLRSCR),ECORE,
-     &      IONLY_DIAG,ISYMG,WORK(KLJ),WORK(KLK))
+     &      ICONF_OCC(IB_OCC),IOPEN,dbl_mb(KLCSFHCSF),NINOB,
+     &      int_mb(KDFTP),
+     &      dbl_mb(KDTOC),2,int_mb(KLISCR),dbl_mb(KLRSCR),ECORE,
+     &      IONLY_DIAG,ISYMG,dbl_mb(KLJ),dbl_mb(KLK))
 C              CNHCN_CSF_BLK(ICNL,IOPL,ICNR,IOPR,CNHCNM,IADOB,
 C    &           IPRODT,DTOC,I12OP,ISCR,SCR,ECORE,IONLY_DIAG,ISYMG,
 C    &           RJ, RK)
@@ -6913,14 +6915,14 @@ C    &           RJ, RK)
 *. Transfer block
             IF(IH0_CSF.EQ.2) THEN
 *.Extract diagonal
-              CALL COPDIA(WORK(KLCSFHCSF),H0(IB_H0),NCSF,0)
+              CALL COPDIA(dbl_mb(KLCSFHCSF),H0(IB_H0),NCSF,0)
 C                  COPDIA(A,VEC,NDIM,IPACK)
 C?            WRITE(6,*) ' Added elements, IB_H0, NCSF = ', IB_H0, NCSF
 C?            CALL WRTMAT(H0(IB_H0),1,NSCF,1,NCSF)
               IB_H0 = IB_H0 + NCSF
             ELSE
 *. Keep complete block
-              CALL COPVEC(WORK(KLCSFHCSF),H0(IB_H0),NCSF**2)
+              CALL COPVEC(dbl_mb(KLCSFHCSF),H0(IB_H0),NCSF**2)
               IB_H0 = IB_H0 + NCSF**2
             END IF
             CALL MEMCHK2('AFCOPX')
