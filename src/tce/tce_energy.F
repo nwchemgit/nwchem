@@ -168,9 +168,11 @@ c - intermediates reuse --
       integer rec_d_7,rec_d_8,rec_d_9
 c - new restarts and eom iter.control ---------
       integer unitn,recforio
+      integer xmem
       logical res_log
       logical active_log
       logical eom_start
+      logical slice
       double precision r0xx
       double precision eom_excit(4),eom_r0(4)
       double precision thresh_l,aux_x
@@ -729,6 +731,13 @@ c
          ccsd_var='ic'
        end if
 c
+       slice=.false.
+       if (.not.rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem)) then
+         continue
+       else
+         slice=.true. 
+       end if
+c
        if(nodezero) then
         write(LuOut,*)'TCE RESTART OPTIONS'
         write(LuOut,*)'READ_INT:  ',read_int
@@ -739,6 +748,8 @@ c
         write(LuOut,*)'WRITE_XA:  ',write_xa
         write(LuOut,*)'READ_IN3:  ',read_in3
         write(LuOut,*)'WRITE_IN3: ',write_in3
+        write(LuOut,*)'SLICE:     ',slice
+        write(LuOut,*)'XMEM:      ',xmem
         call util_flush(6)
        end if
 
@@ -8781,6 +8792,7 @@ c
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
       if(perturbative.eq.'creom_(t)') then
+      if(.not.slice) then
       call cr_eomccsd_t(xc1(ivec),k_x1_offset,xc2(ivec),k_x2_offset,
      1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
      2                        d_f1,k_f1_offset,d_v2,k_v2_offset,
@@ -8791,6 +8803,18 @@ c
      7                        d_c2,k_c2_offset,size_c2,
      8                        excit,pt3_6,pt3_5,size_t1,size_x1,
      9                        r0xx)
+      else
+      call cr_eomccsd_t_6dts(xc1(ivec),k_x1_offset,xc2(ivec),
+     1                        k_x2_offset,
+     1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
+     2                        d_f1,k_f1_offset,d_v2,k_v2_offset,
+     3                        d_e,k_e_offset,
+     4                        d_ex1,k_ex1_offset,size_ex1,
+     5                        d_ex2,k_ex2_offset,size_ex2,
+     6                        d_c1,k_c1_offset,size_c1,
+     7                        d_c2,k_c2_offset,size_c2,
+     8        excit,pt3_6,pt3_5,size_t1,size_x1,r0xx,xmem)
+      end if
                     call gatodra(xc2(ivec))
                     call gatodra(xc1(ivec))
       elseif(perturbative.eq.'emb1') then
