@@ -238,7 +238,10 @@ c
       if (rtdb_get(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) then
         call ga_zero(g_hcore)
         call int_1e_ga(basis, basis, g_hcore, 'bq_pot', oskel)
-        Ebq = ga_ddot(g_adens,g_hcore)+ga_ddot(g_bdens,g_hcore)
+        Ebq = ga_ddot(g_cdens,g_hcore)
+        if (nopen.gt.0) then
+          Ebq = Ebq + ga_ddot(g_odens,g_hcore)
+        endif
         if (.not. rtdb_put(rtdb,'dft:bq_energy',mt_dbl,1,Ebq))
      $     call errquit('dft_roks_fock: writing bq_energy failed',
      $     0, RTDB_ERR)
