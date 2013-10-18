@@ -173,6 +173,7 @@ c - new restarts and eom iter.control ---------
       logical active_log
       logical eom_start
       logical slice
+      logical d4d5
       double precision r0xx
       double precision eom_excit(4),eom_r0(4)
       double precision thresh_l,aux_x
@@ -738,6 +739,13 @@ c
          slice=.true. 
        end if
 c
+       d4d5=.false.
+       if (.not.rtdb_get(rtdb,'tce:d4d5',mt_log,1,d4d5)) then
+         continue
+       else
+         d4d5=.true.
+       end if
+c
        if(nodezero) then
         write(LuOut,*)'TCE RESTART OPTIONS'
         write(LuOut,*)'READ_INT:  ',read_int
@@ -750,6 +758,7 @@ c
         write(LuOut,*)'WRITE_IN3: ',write_in3
         write(LuOut,*)'SLICE:     ',slice
         write(LuOut,*)'XMEM:      ',xmem
+        write(LuOut,*)'D4D5:      ',d4d5
         call util_flush(6)
        end if
 
@@ -8804,6 +8813,7 @@ c
      8                        excit,pt3_6,pt3_5,size_t1,size_x1,
      9                        r0xx)
       else
+      if(.not.d4d5) then
       call cr_eomccsd_t_6dts(xc1(ivec),k_x1_offset,xc2(ivec),
      1                        k_x2_offset,
      1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -8814,6 +8824,19 @@ c
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
      8        excit,pt3_6,pt3_5,size_t1,size_x1,r0xx,xmem)
+      else
+      call cr_eomccsd_t_6dts_d4d5_parallel(xc1(ivec),
+     1                        k_x1_offset,xc2(ivec),
+     1                        k_x2_offset,
+     1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
+     2                        d_f1,k_f1_offset,d_v2,k_v2_offset,
+     3                        d_e,k_e_offset,
+     4                        d_ex1,k_ex1_offset,size_ex1,
+     5                        d_ex2,k_ex2_offset,size_ex2,
+     6                        d_c1,k_c1_offset,size_c1,
+     7                        d_c2,k_c2_offset,size_c2,
+     8        excit,pt3_6,pt3_5,size_t1,size_x1,r0xx,xmem)
+      end if
       end if
                     call gatodra(xc2(ivec))
                     call gatodra(xc1(ivec))
