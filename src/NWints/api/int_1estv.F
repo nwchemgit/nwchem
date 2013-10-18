@@ -269,7 +269,7 @@ c
      &      S,T,V,lstv,doS,doT,doV,scr,lscr)
 c
       elseif (onw1e_ok) then
-          call int_hf1sp(
+        call int_hf1sp(
      &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &        dbl_mb(mb_exndcf(i_icfp,ibas)),
      &        i_prim, i_gen, Li, i_cent,
@@ -1300,7 +1300,7 @@ c     &        geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &        dbl_mb(i_cbq),dbl_mb(i_qbq),
      &        dbl_mb(i_xbq0),bq_ncent,
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &        scr,lscr,'int_1eefc1')
+     &        scr,lscr,'int_1eefc')
       elseif (onw_ok) then
         call hf1(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
