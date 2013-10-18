@@ -91,12 +91,9 @@ c
 99498          format(6E13.5)
             enddo
             else
-            Sum = 0.d0
             Do i = 1, nGrid
-               Sum = Sum + values(i)
                Write(Out_Unit,'(f15.10)')values(i)
             End Do
-            AppCh = Sum*Volume
          endif
          If (What.eq.'VIEW') Then
             write(Out_unit,19498)
@@ -104,8 +101,15 @@ c
          endif
 c
          If (What.eq.'DENSITY') Then
+            Sum = 0.d0
+            Do i = 1, nGrid
+               Sum = Sum + values(i)
+            End Do
+            AppCh = Sum*Volume
             Write(LuOut,*)
-            Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',AppCh
+            Write(LuOut,'(a,f30.5)')'  Sum of elements      = ',sum
+            Write(LuOut,'(a,f30.5)')'  Integration volume   = ',volume
+            Write(LuOut,'(a,f30.5)')'  Integrated Charge    = ',AppCh
          End If
       End If
       return
