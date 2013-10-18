@@ -3,6 +3,7 @@
      ,     cooto,coofrom,ngridxyz)
       implicit none
 #include "errquit.fh"
+#include "util_params.fh"
       double precision volume
       double precision angle(3),spread(3),step(3)
       integer const_m(3),const_p(3)
@@ -13,7 +14,7 @@ c
       double precision scale,frac_p
 c
       Volume = 1.0d0
-      Scale  = 1d0/0.52917715D+0
+      Scale  = 1d0/cau2ang
 c
       Do i = 1, 3
          Angle(i)  = 90.0d0

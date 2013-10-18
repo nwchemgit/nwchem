@@ -9,6 +9,7 @@
 *
 ************************************************************************
 #include "stdio.fh"
+#include "util.fh"
 ************************************************************************
 *
 *---- Arguments of a Get_Grid call
@@ -28,7 +29,7 @@
 *
 ************************************************************************
 *
-      DeBug = .False.
+      DeBug = util_print('dplot', print_high)
 *
       nRejected = 0
       call  dplot_defgrid(volume,angle,
@@ -168,21 +169,9 @@
 *     If (iProc.eq.0) Write(*,*)' nGrid = ', nGrid
 *
       If (DeBug . and . iProc.eq.0) Then
-         InRow  = 10
-         nTimes = nGrid/InRow
-         LeftNo = nGrid - nTimes*InRow
-         iOff   = 1
-         nLoop  = nTimes
-         If (LeftNo.gt.0) nLoop = nTimes + 1
          Write(LuOut,*)' Grid Points:'
-         Do iTimes = 1, nLoop
-            Length = InRow
-            If (iTimes.gt.nTimes) Length = LeftNo
-            Do j = 1, 3
-               Write(LuOut,'(20f8.2)')(Grid(j,iOff+i),i=0,Length-1)
-            End Do
-            Write(LuOut,*)
-            iOff = iOff + InRow
+         Do iTimes = 1, ngrid
+               Write(LuOut,'(3f10.6)')(Grid(j,itimes),j=1,3)
          End Do
       End If
 *
