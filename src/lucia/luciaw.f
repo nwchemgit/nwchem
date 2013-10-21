@@ -7,6 +7,9 @@
 *
 *. Jeppe Olsen, July 3, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc' 
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -75,10 +78,10 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
       ILTEST = 3006
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     NTEST,NCBLOCK,NCBATCH,
-     &     WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
-     &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &     WORK(KCIBT),
-     &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &   int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &     int_mb(KCIBT),
+     &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 *. Space for strings
       IF(NOCSF.EQ.1) THEN
         CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
@@ -91,21 +94,21 @@ C    &           NAEL,NBEL,
 C    &           IASTR,IBSTR,IBLTP,NSMST,
 C    &           NGAS,NORB,NACOB,NINOB)
         CALL GET_MINMAX_ADR_IN_CISPACE_SD(
-     &           IADR,NELMNT,MINAC,MAXAC,MINMAX_ORB,WORK(KNSTSO(IATP)),
-     &           WORK(KNSTSO(IBTP)),
-     &           NOCTPA,NOCTPB,IOCTPA,IOCTPB,NCBLOCK,WORK(KCIBT),
-     &           NAEL,NBEL,
-     &           WORK(KLASTR),WORK(KLBSTR),WORK(KCBLTP),NSMST,
-     &           NGAS,NTOOB,NACOB,NINOB) 
+     &         IADR,NELMNT,MINAC,MAXAC,MINMAX_ORB,int_mb(KNSTSO(IATP)),
+     &         int_mb(KNSTSO(IBTP)),
+     &         NOCTPA,NOCTPB,IOCTPA,IOCTPB,NCBLOCK,int_mb(KCIBT),
+     &         NAEL,NBEL,
+     &         int_mb(KLASTR),int_mb(KLBSTR),int_mb(KCBLTP),NSMST,
+     &         NGAS,NTOOB,NACOB,NINOB) 
       ELSE
 C        GET_MINMAX_ADR_IN_CISPACE_CSF(IADR,NELMNT,MINAC,MAXAC,MINMAX_ORB,
 C    &           NOCCLS_SPC,IOCCLS_SPC,ISYM,ICONF_OCC,NCONF_FOR_OPEN,
 C    &           INCLUDE_CONFS,ICONF_OCC_SEL,NOP_CONF_SEL,NCONF_OCC_SEL)
 C?       WRITE(6,*) ' NCONF_SUB(1) = ', NCONF_SUB
          CALL GET_MINMAX_ADR_IN_CISPACE_CSF(IADR,NELMNT,MINAC,MAXAC,
-     &        MINMAX_ORB,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),ISM,
-     &        WORK(KICONF_OCC(ISM)),NCONF_PER_OPEN(1,ISM),1,
-     &        WORK(KSBCNFOCC),WORK(KSBCNFOP),NCONF_SUB)
+     &        MINMAX_ORB,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+     &        itn_mb(KICONF_OCC(ISM)),NCONF_PER_OPEN(1,ISM),1,
+     &        int_mb(KSBCNFOCC),int_mb(KSBCNFOP),NCONF_SUB)
 
       END IF
 *
@@ -297,6 +300,9 @@ C                   IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
 *. Jeppe Olsen, July 4, 2013 (my old man would have turned 86 today...)
 *
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc' 
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -368,20 +374,21 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
         ILTEST = 3006
         CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,
-     &       WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
-     &       WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &       WORK(KCIBT),
-     &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
+     &       dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &       int_mb(KCIBT),
+     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 *. Space for strings
         CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
         CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
 *. 
         CALL GET_IAIB_FOR_SEL_DETS_IN(
-     &           ISEL,NSEL,IA,IB,WORK(KNSTSO(IATP)),
-     &           WORK(KNSTSO(IBTP)),
-     &           NOCTPA,NOCTPB,IOCTPA,IOCTPB,NCBLOCK,WORK(KCIBT),
+     &           ISEL,NSEL,IA,IB,int_mb(KNSTSO(IATP)),
+     &           int_mb(KNSTSO(IBTP)),
+     &           NOCTPA,NOCTPB,IOCTPA,IOCTPB,NCBLOCK,int_mb(KCIBT),
      &           NAEL,NBEL,
-     &           WORK(KLASTR),WORK(KLBSTR),WORK(KCBLTP),NSMST,
+     &           int_mb(KLASTR),int_mb(KLBSTR),int_mb(KCBLTP),NSMST,
      &           NGAS,NTOOB,NACOB,NINOB) 
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'GTSLDT')
@@ -514,6 +521,9 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
 *
 *. Jeppe Olsen, July 4, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -574,8 +584,8 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
         WRITE(6,*) ' MXDM, KL1, KL2, KL3 = ', KL1, KL2, KL3
         LBLK = -1
 *. And determine total subspace space 
-        CALL FNDMND(LUDIA,LBLK,CBLK,MXDM,NPRDET,WORK(KL1),
-     &              WORK(KL2),ISEL,WORK(KL3),NTEST )
+        CALL FNDMND(LUDIA,LBLK,CBLK,MXDM,NPRDET,int_mb(KL1),
+     &              dbl_mb(KL2),ISEL,dbl_mb(KL3),NTEST )
 
 *
 * Check for boundaries between P1, P2, and Q
@@ -584,7 +594,7 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
         IF(MXP1 .GT. 0 ) THEN
           IIDET = MXP1
  101      CONTINUE
-          IF(ABS(WORK(KL3-1+IIDET+1)-WORK(KL3-1+IIDET))
+          IF(ABS(dbl_mb(KL3-1+IIDET+1)-dbl_mb(KL3-1+IIDET))
      &         .LE. 0.000001D0) THEN
             IIDET = IIDET - 1
             GOTO 101
@@ -602,7 +612,7 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
           ELSE
             IIDET = MXP1 + MXP2
  102        CONTINUE
-            IF( ABS(WORK(KL3-1+IIDET+1)-WORK(KL3-1+IIDET))
+            IF( ABS(dbl_mb(KL3-1+IIDET+1)-dbl_mb(KL3-1+IIDET))
      &         .LE. 0.0000001) THEN
                IIDET = IIDET - 1
                GOTO 102
@@ -626,8 +636,8 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
         NPRVAR = NP1 + NP2 + NQ
 *. The determinants/CSFs should be delivered in ascending order, so sort
 * ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
-        CALL ORDINT(ISEL,WORK(KL1),NP1,WORK(KL2),0)
-        CALL ICOPVE(WORK(KL1),ISEL,NP1)
+        CALL ORDINT(ISEL,int_mb(KL1),NP1,dbl_mb(KL2),0)
+        CALL ICOPVE(int_mb(KL1),ISEL,NP1)
 *. Should add for P2 and Q space when and if relevant
       ELSE IF (ISBSPC_SEL.EQ.2) THEN
 *
@@ -705,6 +715,9 @@ C       GET_MINMAX_ADR_IN_CISPACE(MINAC,MAXAC,ISM,ISPC,IADR,NELMNT)
 *
 *. Jeppe Olsen, July 4, 2013, last change July 22, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -778,7 +791,7 @@ COLD &           NGAS,NORB,NACOB,NINOB)
         CALL MEMMAN(KLIBSTR,NPRVAR*NBEL,'ADDL  ',1,'IBSTR ')
 C       GET_IAIB_FOR_SEL_DETS(ISM,ISPC,ISEL,NSEL,IA,IB)
         CALL GET_IAIB_FOR_SEL_DETS(ISM,ISPC,ISEL,NPRVAR,
-     &        WORK(KLIASTR),WORK(KLIBSTR))
+     &        int_mb(KLIASTR),int_mb(KLIBSTR))
 *
 *. And obtain the corresponding Hamilton matrix
 *
@@ -806,14 +819,14 @@ C    &   NTOOB,RJ,RK)
         ELSE
           CALL MEMMAN(KLJASTR,NPRVAR*NAEL,'ADDL  ',1,'LJASTR')
           CALL MEMMAN(KLJBSTR,NPRVAR*NBEL,'ADDL  ',1,'LJBSTR')
-          CALL ICOPVE(WORK(KLIASTR),WORK(KLJASTR),NPRVAR*NAEL)
-          CALL ICOPVE(WORK(KLIBSTR),WORK(KLJBSTR),NPRVAR*NBEL)
+          CALL ICOPVE(int_mb(KLIASTR),int_mb(KLJASTR),NPRVAR*NAEL)
+          CALL ICOPVE(int_mb(KLIBSTR),int_mb(KLJBSTR),NPRVAR*NBEL)
         END IF
 *
         CALL DIHDJ2_LUCIA_CONF(
-     &       WORK(KLIASTR),WORK(KLIBSTR),NPRVAR,
-     &       WORK(KLJASTR),WORK(KLJBSTR),NPRVAR,NAEL,NBEL,0,NTOOB,
-     &       1, H0,XDUM,XDUM,WORK(KLSCR),ISM,ECORE,ICOMBI_L,PSSIGN,
+     &       int_mb(KLIASTR),int_mb(KLIBSTR),NPRVAR,
+     &       int_mb(KLJASTR),int_mb(KLJBSTR),NPRVAR,NAEL,NBEL,0,NTOOB,
+     &       1, H0,XDUM,XDUM,int_mb(KLSCR),ISM,ECORE,ICOMBI_L,PSSIGN,
      &       NTERMS, NDIF0,NDIF1,NDIF2,2,0,IDUM,NTOOB,XRJ,XRK)
       ELSE
 *
@@ -823,7 +836,7 @@ C            CNHCN_FOR_CNLIST(ICNOCC,ICNOP,NCN,HCSF,ISCR,SCR,RJ,RK)
 *
 * Scratch
 *
-        NOP_MAX = IMNMX(WORK(KSBCNFOP),NCONF_SUB,2)
+        NOP_MAX = IMNMX(int_mb(KSBCNFOP),NCONF_SUB,2)
         NPDT_MAX = NPDTCNF(NOP_MAX+1)
         WRITE(6,*) ' NOP_MAX, NPDT_MAX = ',  NOP_MAX, NPDT_MAX
         LISCR = 2*NPDT_MAX*NACTEL + NPDT_MAX + 6*NACOB
@@ -831,8 +844,8 @@ C            CNHCN_FOR_CNLIST(ICNOCC,ICNOP,NCN,HCSF,ISCR,SCR,RJ,RK)
         CALL MEMMAN(KLISCR,LISCR,'ADDL  ',1,'CNISCR')
         CALL MEMMAN(KLRSCR,LRSCR,'ADDL  ',2,'CNRSCR')
 C?      WRITE(6,*) ' NCONF_SUB(2) = ', NCONF_SUB
-        CALL CNHCN_FOR_CNLIST(WORK(KSBCNFOCC),WORK(KSBCNFOP),NCONF_SUB,
-     &       H0,WORK(KLISCR),WORK(KLRSCR),XRJ,XRK)
+        CALL CNHCN_FOR_CNLIST(int_mb(KSBCNFOCC),int_mb(KSBCNFOP),
+     &       NCONF_SUB,H0,int_mb(KLISCR),dbl_mb(KLRSCR),XRJ,XRK)
 C            CNHCN_FOR_CNLIST(ICNOCC,ICNOP,NCN,HCSF,ISCR,SCR,RJ,RK)
       END IF! Dets of CSFs are in use
 *
@@ -849,7 +862,7 @@ C          TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 *. and diagonalize
       CALL MEMMAN(KLSCRVEC,NSEL,'ADDL  ',2,'SCRVEC')
 C          DIAG_SYMMAT_EISPACK(A,EIGVAL,SCRVEC,NDIM,IRETURN)
-      CALL DIAG_SYMMAT_EISPACK(EIGVEC,EIGVAL,WORK(KLSCRVEC),NPRVAR,
+      CALL DIAG_SYMMAT_EISPACK(EIGVEC,EIGVAL,dbl_mb(KLSCRVEC),NPRVAR,
      &     IRETURN)
 *
       IF(NTEST.GE.100) THEN
@@ -930,6 +943,9 @@ C KNCN_PER_OP_SM
 *
 *. Jeppe Olsen, July 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -997,14 +1013,14 @@ C             CNHCN_CSF_BLK(ICNL,IOPL,ICNR,IOPR,CNHCNM,IADOB,
 C    &                     IPRODT,DTOC,I12OP,ISCR,SCR,ECORE,IONLY_DIAG,ISYMG,
 C    &                     RJ, RK)
           CALL CNHCN_CSF_BLK(ICNOCC(IB_OCL),IOPL,ICNOCC(IB_OCR),IOPR,
-     &                       WORK(KLHCNF),NINOB,WORK(KDFTP),WORK(KDTOC),
-     &                       2,ISCR,SCR,ECORE,0,ISYMG,RJ,RK)
+     &                 dbl_mb(KLHCNF),NINOB,int_mb(KDFTP),int_mb(KDTOC),
+     &                 2,ISCR,SCR,ECORE,0,ISYMG,RJ,RK)
 *. Expand to complete matrix
 C     EXTR_OR_CP_MAT(ABIG,LRBIG,LCBIG,ISYMBIG,
 C    &                          ASMA,LRSMA,LCSMA,ISYMSMA,
 C    &                          IOFFR,IOFFC,IEC)
           CALL EXTR_OR_CP_MAT(HCSF,NCSF_T,NCSF_T,1,
-     &         WORK(KLHCNF),NCSFL,NCSFR,ISYMG,IB_CSL,IB_CSR,2)
+     &         dbl_mb(KLHCNF),NCSFL,NCSFR,ISYMG,IB_CSL,IB_CSR,2)
 
 *. Update pointers
           IB_OCR = IB_OCR + IOCR

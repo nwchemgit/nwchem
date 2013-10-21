@@ -8273,7 +8273,9 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *
 *. Jeppe Olsen, Feb. 2012
 *
+#include "errquit.fh"
 #include "madecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
 c     INCLUDE 'wrkspc-static.inc'
@@ -10771,6 +10773,9 @@ C           MULT_MAT_SPMAT_MAT(AOUT,AIN,X,NAOUT_R,NAOUT_C,NX_C,IAINPAK )
 * IF ISYM = 1, only the lower half of the matrix is explicitly 
 * calculated
 *
+#include 'errquit.fh'
+#include 'mafdecls.fh'
+#include 'global.fh'
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'priunit.inc'
@@ -10855,10 +10860,10 @@ C     CNFSTRN(ICONF,NOB_CONF,IOP,IASTR,IBSTR,IPDET_LIST,ISCR)
 CTIME CALL QENTER('CNFSTR')
 * 3* NELEC is used for scratch in CNFSTRN
       CALL CNFSTRN(ICNL,NOBL,IOPL,ISCR(KLDTLA),ISCR(KLDTLB),
-     &     WORK(KDFTP),ISCR(KLFREE))
+     &     int_mb(KDFTP),ISCR(KLFREE))
 *
       CALL CNFSTRN(ICNR,NOBR,IOPR,ISCR(KLDTRA),ISCR(KLDTRB),
-     &     WORK(KDFTP),ISCR(KLFREE))
+     &     int_mb(KDFTP),ISCR(KLFREE))
 CTIME CALL QEXIT('CNFSTR')
 *
 *
@@ -11630,6 +11635,9 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
 *
 * Jeppe Olsen, Cleaning a bit up in Feb. 2012, Geneva
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
@@ -11644,7 +11652,6 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
       INCLUDE 'gasstr.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'wrkspc-static.inc'
-#include "mafdecls.fh"
 *
 *. Output
 *
@@ -15832,6 +15839,9 @@ C         IF(IREO(JOC_IN).EQ.ABS(ICONFP_IN(JOB))) THEN
 * Jeppe Olsen, July 15, 2013
 * Last modification; July 23, 2013; Jeppe Olsen; MINMAX_ORB added
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
