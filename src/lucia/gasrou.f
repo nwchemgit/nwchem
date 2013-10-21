@@ -5015,7 +5015,9 @@ C?        write(6,*) ' before call to add_str_group '
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *. Input
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
