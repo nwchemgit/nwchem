@@ -5860,6 +5860,9 @@ C    &             IPLACE,IPRNT)
 *
 * Jeppe Olsen, June 2011
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
@@ -5891,8 +5894,8 @@ C    &             IPLACE,IPRNT)
        IF(NTEST.GE.10) WRITE(6,*) ' NCMB, NCSF = ', NCMB, NCSF
 *. No reordering
        IDO_REO = 0
-       CALL CSDTVCB(CSFVEC,DETVEC,IWAY,WORK(KDTOC),
-     &      WORK(KICONF_REO_GN(ISYM,ISPC)),NCMB,NCMB,NCSF,
+       CALL CSDTVCB(CSFVEC,DETVEC,IWAY,dbl_mb(KDTOC),
+     &      int_mb(KICONF_REO_GN(ISYM,ISPC)),NCMB,NCMB,NCSF,
      &      NCONF_PER_OPEN_GN(1,ISYM,ISPC),
      &      ICOPY,IDO_REO,NTEST)
 C     CSDTVCB(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,
@@ -5907,14 +5910,14 @@ C    &                  ICOPY,IDO_REO,NTEST)
        IF(IWAY.EQ.1) THEN
 *. CSF => SD transformation
         CALL COPVEC(CSFVEC,SCR,NCSF)
-        CALL CSDTVCB(SCR,DETVEC,IWAY,WORK(KDTOC),
-     &       WORK(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
+        CALL CSDTVCB(SCR,DETVEC,IWAY,dbl_mb(KDTOC),
+     &       int_mb(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
      &       NCONF_PER_OPEN(1,ISYM),
      &       ICOPY,IDO_REO,NTEST)
        ELSE
 *. SD => CSF transformation
-        CALL CSDTVCB(SCR,DETVEC,IWAY,WORK(KDTOC),
-     &       WORK(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
+        CALL CSDTVCB(SCR,DETVEC,IWAY,dbl_mb(KDTOC),
+     &       int_mb(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
      &       NCONF_PER_OPEN(1,ISYM),
      &       ICOPY,IDO_REO,NTEST)
         CALL COPVEC(SCR,CSFVEC,NCSF)
@@ -8993,6 +8996,9 @@ c     INCLUDE 'wrkspc-static.inc'
 *. Last modification; May 17, 2013; Jeppe Olsen;  Distinction between NCM_CN, NCM_ST
 *                     for INFBAT = 2
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+$include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
@@ -9035,8 +9041,8 @@ c     INCLUDE 'wrkspc-static.inc'
         IF(NTEST.GE.100) WRITE(6,*) ' NCMB, NCSF = ', NCMB, NCSF
 *. No reordering
         IDO_REO = 0
-        CALL CSDTVCB(CSFVEC,DETVEC,IWAY,WORK(KDTOC),
-     &       WORK(KICONF_REO_GN(ISYM,ISPC)),NCMB,NCMB,NCSF,
+        CALL CSDTVCB(CSFVEC,DETVEC,IWAY,dbl_mb(KDTOC),
+     &       int_mb(KICONF_REO_GN(ISYM,ISPC)),NCMB,NCMB,NCSF,
      &       NCONF_PER_OPEN_GN(1,ISYM,ISPC),
      &       ICOPY,IDO_REO,NTEST)
 C     CSDTVCB(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,
@@ -9051,14 +9057,14 @@ C    &                  ICOPY,IDO_REO,NTEST)
         IF(IWAY.EQ.1) THEN
 *. CSF => SD transformation
          CALL COPVEC(CSFVEC,SCR,NCSF)
-         CALL CSDTVCB(SCR,DETVEC,IWAY,WORK(KDTOC),
-     &        WORK(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
+         CALL CSDTVCB(SCR,DETVEC,IWAY,dbl_mb(KDTOC),
+     &        int_mb(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
      &        NCONF_PER_OPEN(1,ISYM),
      &        ICOPY,IDO_REO,NTEST)
         ELSE
 *. SD => CSF transformation
-         CALL CSDTVCB(SCR,DETVEC,IWAY,WORK(KDTOC),
-     &        WORK(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
+         CALL CSDTVCB(SCR,DETVEC,IWAY,dbl_mb(KDTOC),
+     &        int_mb(KSDREO_I(ISYM)),NCCM_CONF,NCCM_STRING,NCSF,
      &        NCONF_PER_OPEN(1,ISYM),
      &        ICOPY,IDO_REO,NTEST)
          CALL COPVEC(SCR,CSFVEC,NCSF)
@@ -9082,15 +9088,16 @@ C    &                  ICOPY,IDO_REO,NTEST)
         CALL GEN_CNF_INFO_FOR_OCCLS(IOCCLS,1,ISYM)
         NCSF_OCCLS = IELSUM(NCS_FOR_OC_OP_ACT,MAXOP+1)
         NCM_OCCLS = IELSUM(NCM_FOR_OC_OP_ACT,MAXOP+1)
-        NCM_OCCLS_AB = 
-     &  IFRMR(WORK,KNCMAB_FOR_OCCLS,(IOCCLS-1)*NSMST+ISYM)
+        ncm_occls_ab=int_mb(kncman_for_occls+(ioccls-1)*nsmst+isym-1)
+c       NCM_OCCLS_AB = 
+c    &  IFRMR(WORK,KNCMAB_FOR_OCCLS,(IOCCLS-1)*NSMST+ISYM)
 C?      WRITE(6,*) ' TESTY, NCM_OCCLS_AB = ', NCM_OCCLS_AB
         IF(IWAY.EQ.1) THEN
 *. CSF => SD transformation
 *. Obtain CSF- coefficients
          CALL FRMDSCN(SCR,1,-1,LU_CSF)
-         CALL CSDTVCB(SCR,DETVEC,IWAY,WORK(KDTOC),
-     &        WORK(KSDREO_I(ISYM)),NCM_OCCLS,NCM_OCCLS_AB,
+         CALL CSDTVCB(SCR,DETVEC,IWAY,dbl_mb(KDTOC),
+     &        int_mb(KSDREO_I(ISYM)),NCM_OCCLS,NCM_OCCLS_AB,
      &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
      &        ICOPY,IDO_REO,NTEST)
          IF(NTEST.GE.1000) WRITE(6,*) ' Home from CSDTVCB '
@@ -9108,8 +9115,8 @@ C?      WRITE(6,*) ' TESTY, NCM_OCCLS_AB = ', NCM_OCCLS_AB
 *. SD => CSF transformation
 *. Read determinant blocks in
          CALL FRMDSCN(DETVEC,NBLK,-1,LU_DET)
-         CALL CSDTVCB(SCR,DETVEC,IWAY,WORK(KDTOC),
-     &        WORK(KSDREO_I(ISYM)),NCM_OCCLS,NCM_OCCLS_AB,
+         CALL CSDTVCB(SCR,DETVEC,IWAY,dbl_mb(KDTOC),
+     &        int_mb(KSDREO_I(ISYM)),NCM_OCCLS,NCM_OCCLS_AB,
      &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
      &        ICOPY,IDO_REO,NTEST)
 *. Write CSF coefs to disc
