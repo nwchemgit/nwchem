@@ -1737,7 +1737,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
         DO IGRP = 1, NSPGPFTP(ITP)
           IGRPABS = IGRP-1 + IBSPGPFTP(ITP)
           CALL NSTPTP_GAS_NEW(NGAS,ISPGPFTP(1,IGRPABS),
-     &                    WORK(KNSTSGP(1)),NSMST,
+     &                    int_mb(KNSTSGP(1)),NSMST,
      &                    WORK(KNSTSO(ITP)),IGRP,MXNSTRFSG,
      &                    NSMCLS,NSMCLSE,NSMCLSE1,NSTR_AS)
 *
@@ -6690,13 +6690,13 @@ C?    END IF
    
 *. Number of strings per symmetry for each symmetry
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
       END DO
 *. Offset and dimension for active group in I strings
-      CALL ICOPVE2(WORK(KISTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(int_mb(KISTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
      &               IACIST)
-      CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
      &               NACIST)
 C?     WRITE(6,*) ' IACIST and NACIST arrays '
 C?     CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
@@ -6786,9 +6786,9 @@ CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
       KACGRP = ITPFGS(IOBTP)
 *. Number of strings per symmetry distribution      
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
-        CALL ICOPVE2(WORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))
       END DO
 *
@@ -10995,7 +10995,7 @@ CT      CALL QEXIT('GASSM')
       NSTPSM(1) = 1
 *
       DO IGRP = 1, NGRPA
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRPA(IGRP)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(IGRPA(IGRP)-1)*NSMST+1,NSMST,
      &               NSTFTP)
         CALL ICOPVE(NSTPSM,NSTFTP2,NSMST)
         CALL DIM_PROD_TWO_STGRPS(NSTPSM,NSTFTP2,NSTFTP,NSMST)
