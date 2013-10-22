@@ -1240,6 +1240,9 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'glbbas.inc'
@@ -1336,16 +1339,16 @@ C     SYM_FOR_OP(OPER,IXYX,ISYM)
           IWVRFSM = MULTD2H(IWSM,IVRFSM)
 *. Obtain property integrals
           CALL GET_PROP_PERMSM(RESP_OP(1,ICALC),IPERMSM)
-          CALL GET_PROPINT(WORK(KINTOP1),IWSM,RESP_OP(1,ICALC),
-     &                     WORK(KLSCR),NTOOBS,NTOOBS,NSMOB,1,IPERMSM )
+          CALL GET_PROPINT(dbl_mb(KINTOP1),IWSM,RESP_OP(1,ICALC),
+     &                     dbl_mb(KLSCR),NTOOBS,NTOOBS,NSMOB,1,IPERMSM )
           CALL GET_PROP_PERMSM(RESP_OP(2,ICALC),IPERMSM)
-          CALL GET_PROPINT(WORK(KINTOP2),IVSM,RESP_OP(2,ICALC),
-     &                     WORK(KLSCR),NTOOBS,NTOOBS,NSMOB,1,IPERMSM ) 
+          CALL GET_PROPINT(dbl_mb(KINTOP2),IVSM,RESP_OP(2,ICALC),
+     &                     dbl_mb(KLSCR),NTOOBS,NTOOBS,NSMOB,1,IPERMSM )
           DO I_AVE_OP = 1, N_AVE_OP
             KINTAV2 = KINTAV + (I_AVE_OP-1)*NTOOB**2
             CALL GET_PROP_PERMSM(AVE_OP(I_AVE_OP),IPERMSM)
-            CALL GET_PROPINT(WORK(KINTAV2),IAVE_SYM(I_AVE_OP),
-     &           AVE_OP(I_AVE_OP),WORK(KLSCR),NTOOBS,NTOOBS,NSMOB,1,
+            CALL GET_PROPINT(dbl_mb(KINTAV2),IAVE_SYM(I_AVE_OP),
+     &           AVE_OP(I_AVE_OP),dbl_mb(KLSCR),NTOOBS,NTOOBS,NSMOB,1,
      &           IPERMSM ) 
           END DO
 *
@@ -1358,21 +1361,21 @@ C?        WRITE(6,*) ' MAXW, MAXV ', MAXW,MAXV
           IF(FREQ.EQ.0.0D0) THEN
 *. Static perturbation
             ZERO = 0.0D0
-            CALL GNDBPTFREQ(WORK(KINTOP2),WORK(KINTOP1),IRFSM,
+            CALL GNDBPTFREQ(dbl_mb(KINTOP2),dbl_mb(KINTOP1),IRFSM,
      &           ENOT,LUC, ! LUHI0, ????
      &           IVRFSM,MAXV,IWRFSM,MAXW,IWVRFSM,IVSM,IWSM,
      &           LUN,VEC1,VEC2,LU1,LU2,LU3,LU4,LU5,LU6,LU7,
-     &           LUDIA,ZERO,WORK(KLENM),
-     &           N_AVE_OP,AVE_OP,WORK(KINTAV),NTOOB2,IAVE_SYM,
+     &           LUDIA,ZERO,dbl_mb(KLENM),
+     &           N_AVE_OP,AVE_OP,dbl_mb(KINTAV),NTOOB2,IAVE_SYM,
      &           IPRRSP)
           ELSE
 *. Frequency dependent perturbation
-            CALL GNDBPTFREQ(WORK(KINTOP2),WORK(KINTOP1),IRFSM,
+            CALL GNDBPTFREQ(dbl_mb(KINTOP2),dbl_mb(KINTOP1),IRFSM,
      &           ENOT,LUC, ! LUHI0, ????
      &           IVRFSM,MAXV,IWRFSM,MAXW,IWVRFSM,IVSM,IWSM,
      &           LUN,VEC1,VEC2,LU1,LU2,LU3,LU4,LU5,LU6,LU7,
-     &           LUDIA,FREQ,WORK(KLENM),
-     &           N_AVE_OP,AVE_OP,WORK(KINTAV),NTOOB2,IAVE_SYM,
+     &           LUDIA,FREQ,dbl_mb(KLENM),
+     &           N_AVE_OP,AVE_OP,dbl_mb(KINTAV),NTOOB2,IAVE_SYM,
      &           IPRRSP)
         END IF
 *       ^ End of switch between static/dynamic perturbation
