@@ -4647,6 +4647,9 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 * ECORE added, June 2010
 *
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       CHARACTER*6 ITASK
 *
@@ -4743,39 +4746,39 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       CALL MEMMAN(KCONSPB,NOCTPB**2,'ADDL  ',1,'CONSPB')
 C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
       CALL SPGRPCON(IOCTPA,NOCTPA,NGAS,MXPNGAS,NELFSPGP,
-     &              WORK(KCONSPA),IPRCIX)
+     &              int_mb(KCONSPA),IPRCIX)
       CALL SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,
-     &              WORK(KCONSPB),IPRCIX)
+     &              int_mb(KCONSPB),IPRCIX)
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
       CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')
       CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')
-      CALL STSTSM(WORK(KSTSTS),WORK(KSTSTD),NSMST)
+      CALL STSTSM(dbl_mb(KSTSTS),dbl_mb(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. Largest number of strings of given symmetry and type
       MAXA = 0
-      MAXA0 = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
+      MAXA0 = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
       MAXA = MAX(MAXA,MAXA0)
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
 *
       MAXB = 0
-      MAXB0 = IMNMX(WORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXB0 = IMNMX(int_mb(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
       MAXB = MAX(MAXB,MAXB0)
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -4824,7 +4827,7 @@ C?    WRITE(6,*) ' MXTSOB = ', MXTSOB
          KSCIOIO = KCIOIO
       END IF
       IPRCIXL = 0
-      CALL MXRESCPH(WORK(KSCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(int_mb(KSCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSTFSMSPGP,MXPNSMST,
      &            NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIXL,MAXK,
      &            NELFSPGP,
@@ -4873,7 +4876,7 @@ C  I assume memory was allocated for blocks, so
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
@@ -5004,11 +5007,11 @@ C     END IF
 *. reform 
         CALL RFTTS(HCB,CB,IBLOCK(1,IBOFF),NBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,1,NTEST)
 *. scale
         CALL SCDTTS(HCB,IBLOCK(1,IBOFF),NBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,1,NTEST)
       END IF
 *
