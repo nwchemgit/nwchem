@@ -4238,7 +4238,7 @@ C
 *          variational method
 *
        IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-       integer VEC1(2*NROOT),VEC2(2*NROOT),VEC3(2)
+       integer VEC1,VEC2
        REAL * 8   INPROD
        DIMENSION RNRM(MAXIT,NROOT),EIG(MAXIT,NROOT)
        DIMENSION APROJ(*),AVEC(*),WORK(*)
@@ -4288,23 +4288,31 @@ C
 *
 *.   INITAL ITERATION
        ITER = 1
-       CALL REWINO( LU1 )
-       CALL REWINO( LU2 )
+CNW    CALL REWINO( LU1 )
+CNW    CALL REWINO( LU2 )
        DO 10 IVEC = 1,NINVEC
 C?       WRITE(6,*) ' Before FRMDSC, NVAR = ', NVAR
 CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+         if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
 *
 C?       WRITE(6,*) ' Testing: initial vector'
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
-         CALL MV7(VEC1(IVEC),VEC2(IVEC),0,0,0,0)
+         CALL MV7(VEC1,VEC2,0,0,0,0)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
+         if (.not.dra_write_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+         
 *        PROJECTED MATRIX
 CNW      CALL REWINO( LU1)
          DO 8 JVEC = 1, IVEC
-CNV        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+           if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU1,1,NVAR,JVEC,JVEC)) call errquit('dra error',911)
            IJ = IVEC*(IVEC-1)/2 + JVEC
-           APROJ(IJ) = INPROD(VEC1(JVEC),VEC2(IVEC),NVAR)
+CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
+           APROJ(IJ) = ga_ddot(VEC1,VEC2)
     8    CONTINUE
    10  CONTINUE
 *
@@ -4313,6 +4321,7 @@ CNV        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
          CALL PRSYM(APROJ,NINVEC)
        END IF
 *  DIAGONALIZE INITIAL PROJECTED MATRIX
+CBERT TODO
        CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
        CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
@@ -4345,34 +4354,36 @@ CNV        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
        CONVER = .TRUE.
        DO 100 IROOT = 1, NROOT
 CNW      CALL SETVEC(VEC1,0.0D0,NVAR)
-         call ga_zero(VEC3)
+         call ga_zero(VEC1)
 *   
 CNW      CALL REWINO( LU2)
          DO 60 IVEC = 1, NVEC
-CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
+CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
+           if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
            FACTOR = AVEC((IROOT-1)*NVEC+IVEC)
-           call ga_add(FACTOR,VEC2(IVEC),1.0D0,VEC3(1),VEC3(1))
+           call ga_add(FACTOR,VEC2,1.0D0,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
-*        for Olson correction, avoid duplicate work
-         call ga_copy(VEC3(1),VEC3(2))
    
          EIGAPR = EIG(ITER-1,IROOT)
 CNW      CALL REWINO( LU1)
          DO 50 IVEC = 1, NVEC
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+           if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
            FACTOR = -EIGAPR*AVEC((IROOT-1)*NVEC+ IVEC)
-           call ga_add(FACTOR,VEC2(IVEC),1.0D0,VEC3(1),VEC3(1))
+           call ga_add(FACTOR,VEC2,1.0D0,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    50    CONTINUE
            IF ( IPRT  .GE.600 ) THEN
              WRITE(6,*) '  ( HX - EX ) '
-             call ga_print(VEC3(1))
+             call ga_print(VEC1)
 CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
 CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
-         RNORM = SQRT( ga_ddot(VEC3(1),VEC3(1)))
+         RNORM = SQRT( ga_ddot(VEC1,VEC1))
          RNRM(ITER-1,IROOT) = RNORM
          IF(RNORM.LT. TEST ) THEN
             RTCNV(IROOT) = .TRUE.
@@ -4386,15 +4397,14 @@ CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
            IADD = IADD + 1
 CNW        CALL REWINO( LUDIA)
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-CNW        CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
-CNW  &                 H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
-CNW  &                 IPRT)
-           CALL H0M1TV(VECDIA,VEC3(1),VEC3(1),NVAR,NPRDIM,IPNTR,
+           if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LUDIA,1,NVAR,1,1)) call errquit('dra error',911)
+           CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
      &                 H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
      &                 IPRT)
            IF ( IPRT  .GE. 600) THEN
              WRITE(6,*) '  (D-E)-1 *( HX - EX ) '
-             call ga_print(VEC3(1))
+             call ga_print(VEC1)
 CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *
@@ -4402,38 +4412,49 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 * add Olsen correction if neccessary
 CNW           CALL REWINO(LU3)
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
+              if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &           LU3,1,NVAR,1,1)) call errquit('dra error',911)
 * Current eigen vector
 CNW           CALL REWINO( LU1)
 CNW           CALL SETVEC(VEC1,0.0D0,NVAR)
-CNW           DO 59 IVEC = 1, NVEC
+              call ga_zero(VEC1)
+              DO 59 IVEC = 1, NVEC
 CNW             CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
-CNW             FACTOR = AVEC((IROOT-1)*NVEC+ IVEC)
+               if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &            LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+                FACTOR = AVEC((IROOT-1)*NVEC+ IVEC)
 CNW             CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
-CNW59         CONTINUE
-CNW           IF ( IPRT  .GE. 600 ) THEN
-CNW             WRITE(6,*) ' And X  '
+                call ga_add(FACTOR,VEC2,1.0D0,VEC1)
+   59         CONTINUE
+              IF ( IPRT  .GE. 600 ) THEN
+                WRITE(6,*) ' And X  '
 CNW             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-CNW           END IF
+              END IF
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
+              if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &           LU3,1,NVAR,2,2)) call errquit('dra error',911)
 * (H0 - E )-1  * X
 CNW           CALL REWINO( LUDIA)
 CNW           CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-CNW           CALL H0M1TV(VEC2,VEC1,VEC2,NVAR,NPRDIM,IPNTR,
-              CALL H0M1TV(VECDIA,VEC3(2),VEC3(3),NVAR,NPRDIM,IPNTR,
+              if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &           LUDIA,1,NVAR,1,1)) call errquit('dra error',911)
+              CALL H0M1TV(VEC2,VEC1,VEC2,NVAR,NPRDIM,IPNTR,
      &                   H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
-     &                 IPRT)
+     &                   IPRT)
 CNW           CALL TODSC(VEC2,NVAR,-1,LU3)
+              if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &           LU3,1,NVAR,3,3)) call errquit('dra error',911)
 * Gamma = X(T) * (H0 - E) ** -1 * X
 CNW           GAMMA = INPROD(VEC2,VEC1,NVAR)
-              GAMMA = ga_ddot(VEC3(3),VEC3(2))
+              GAMMA = ga_ddot(VEC2,VEC1)
 
 CBERT: H0M1TV and subsequent DDOT can be combined as we don't need
 CVEC3(2) anymore after we're done
 
 * is X an eigen vector for (H0 - 1 ) - 1
-              call ga_add(FACTOR,VEC3(2),1.0D0,VEC3(3),VEC3(3))
+              call ga_add(GAMMA,VEC1,-1.0D0,VEC2,VEC2)
 CNW           CALL VECSUM(VEC2,VEC1,VEC2,GAMMA,-1.0D0,NVAR)
-              VNORM = SQRT(MAX(0.0D0,ga_ddot(VEC3(3),VEC3(3))))
+              VNORM = SQRT(MAX(0.0D0,ga_ddot(VEC2,VEC2)))
 CNW           VNORM = SQRT(MAX(0.0D0,INPROD(VEC2,VEC2,NVAR)))
 
               IF(VNORM .GT. 1.0D-7 ) THEN
@@ -4445,40 +4466,50 @@ CNW           VNORM = SQRT(MAX(0.0D0,INPROD(VEC2,VEC2,NVAR)))
                 IF(IPRT.GE.10) WRITE(6,*) ' Olsen Correction active '
 CNW             CALL REWINO(LU3)
 CNW             CALL FRMDSC(VEC2,NVAR,-1,LU3,IMZERO,IAMPACK)
+                if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &             LU3,1,NVAR,1,1)) call errquit('dra error',911)
 CNW             DELTA = INPROD(VEC1,VEC2,NVAR)
-                DELTA = ga_ddot(VEC3(3),VEC3(1))
+                DELTA = ga_ddot(VEC1,VEC2)
 CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
 CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
+                if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &             LU3,1,NVAR,3,3)) call errquit('dra error',911)
                 FACTOR = -DELTA/GAMMA
                 IF(IPRT.GE.10) WRITE(6,*) ' DELTA,GAMMA,FACTOR'
                 IF(IPRT.GE.10) WRITE(6,*)   DELTA,GAMMA,FACTOR
 CNW             CALL VECSUM(VEC1,VEC1,VEC2,FACTOR,1.0D0,NVAR)
-                call ga_add(FACTOR,VEC3(1),1.0D0,VEC3(3),VEC3(1))
+                call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
                 IF(IPRT.GE.600) THEN
                   WRITE(6,*) '  Modified new trial vector '
 CNW               CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-                  call ga_print(VEC3(1))
+                  call ga_print(VEC1)
                 END IF
               ELSE
                 IF(IPRT.GT.0) WRITE(6,*) 
      &          ' Inverse correction switched of'
 CNW             CALL REWINO(LU3)
 CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
+                if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &             LU3,1,NVAR,1,1)) call errquit('dra error',911)
               END IF
             END IF
 *. 1.3 ORTHOGONALIZE TO ALL PREVIOUS VECTORS
-           XNRMI = ga_ddot(VEC3(1),VEC3(1))
+           XNRMI = ga_ddot(VEC1,VEC1)
 CNW        XNRMI =    INPROD(VEC1,VEC1,NVAR)
 CNW        CALL REWINO( LU1 )
  
            DO 80 IVEC = 1,NVEC+IADD-1
 CNW          CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+             if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &          LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
 CNW          OVLAP = INPROD(VEC1,VEC2,NVAR)
+             OVLAP = ga_ddot(VEC1,VEC2)
 CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
-             OVLAP = ga_ddot(VEC3(1),VEC1(IVEC))
+             call ga_add(-OVLAP,VEC2,1.0D0,VEC1,VEC1)
    80      CONTINUE
 *. 1.4 Normalize vector and check for linear dependency
-           SCALE = INPROD(VEC1,VEC1,NVAR)
+CNW        SCALE = INPROD(VEC1,VEC1,NVAR)
+           SCALE = ga_ddot(VEC1,VEC1,NVAR)
            IF(ABS(SCALE)/XNRMI .LT. 1.0D-10) THEN
 *. Linear dependency
              IADD = IADD - 1
@@ -4488,12 +4519,17 @@ CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
            ELSE
              C1NRM = SQRT(SCALE)
              FACTOR = 1.0D0/SQRT(SCALE)
-             CALL SCALVE(VEC1,FACTOR,NVAR)
+CNW          CALL SCALVE(VEC1,FACTOR,NVAR)
+             call ga_scale(VEC1,FACTOR)
 *
-             CALL TODSC(VEC1,NVAR,-1  ,LU1)
+CNW          CALL TODSC(VEC1,NVAR,-1  ,LU1)
+             if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &          LU1,1,NVAR,NVEC+IADD,NVEC+IADD)) 
+     &          call errquit('dra error',911)
              IF ( IPRT  .GE.600 ) THEN
                WRITE(6,*) 'ORTHONORMALIZED (D-E)-1 *( HX - EX ) '
-               CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+CNW            CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
+               call ga_print(VEC1)
              END IF
            END IF
 *
@@ -4508,27 +4544,37 @@ CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
 **  2 : OPTIMAL COMBINATION OF NEW AND OLD DIRECTION
 *
 *  2.1: MULTIPLY NEW DIRECTION WITH MATRIX
-       CALL REWINO( LU1)
-       CALL REWINO( LU2)
-       DO 110 IVEC = 1, NVEC
-         CALL FRMDSC(VEC1,NVAR,-1,LU1,IMZERO,IAMPACK)
-         CALL FRMDSC(VEC1,NVAR,-1,LU2,IMZERO,IAMPACK)
-  110  CONTINUE
+CNW    CALL REWINO( LU1)
+CNW    CALL REWINO( LU2)
+CNW    DO 110 IVEC = 1, NVEC
+CNW      CALL FRMDSC(VEC1,NVAR,-1,LU1,IMZERO,IAMPACK)
+CNW      CALL FRMDSC(VEC1,NVAR,-1,LU2,IMZERO,IAMPACK)
+CNW  110  CONTINUE
 *
       DO 150 IVEC = 1, IADD
-        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+        if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &     LU1,1,NVAR,NVEC+IVEC,NVEC+IVEC)) 
+     &     call errquit('dra error',911)
         CALL MV7(VEC1,VEC2,0,0,0,0)
-        CALL TODSC(VEC2,NVAR,-1  ,LU2)
+CNW     CALL TODSC(VEC2,NVAR,-1  ,LU2)
+        if (.not.dra_write_section(.false.,VEC2,1,NVAR,1,1,
+     &     LU2,1,NVAR,NVEC+IVEC,NVEC+IVEC))
+     &     call errquit('dra error',911)
 *   AUGMENT PROJECTED MATRIX
-        CALL REWINO( LU1)
+CNW     CALL REWINO( LU1)
         DO 140 JVEC = 1, NVEC+IVEC
           IJ = (IVEC+NVEC)*(IVEC+NVEC-1)/2 + JVEC
-          CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
-          APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
+CNW       CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+          if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU1,1,NVAR,JVEC,JVEC)) call errquit('dra error',911)
+CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
+          APROJ(IJ) = ga_ddot(VEC1,VEC2)
   140   CONTINUE
   150 CONTINUE
 *  DIAGONALIZE PROJECTED MATRIX
       NVEC = NVEC + IADD
+CBERT TO DO
       CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
       CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
 *. Select if required the roots to be followed
@@ -4589,19 +4635,27 @@ C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
      &   .AND. .NOT.CONVER) THEN
 * Save trial vectors : 1 -- current trial vector
 *                      2 -- previous trial vector orthogonalized
-        CALL REWINO( LU3)
-        CALL REWINO( LU1)
+CNW     CALL REWINO( LU3)
+CNW     CALL REWINO( LU1)
 *. Current trial vector
-        CALL SETVEC(VEC1,0.0D0,NVAR)
+CNW     CALL SETVEC(VEC1,0.0D0,NVAR)
+        call ga_zero(VEC1)
         DO 2200 IVEC = 1, NVEC
-          CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW       CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+          if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &     LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
           FACTOR =  AVEC(IVEC)
-         CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+CNW       CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+          call ga_add(FACTOR,VEC2,1.0d0,VEC1,VEC1)
  2200   CONTINUE
-        SCALE = INPROD(VEC1,VEC1,NVAR)
+CNW     SCALE = INPROD(VEC1,VEC1,NVAR)
+        SCALE = ga_ddot(VEC1,VEC1)
         SCALE  = 1.0D0/SQRT(SCALE)
-        CALL SCALVE(VEC1,SCALE,NVAR)
-        CALL TODSC(VEC1,NVAR,-1  ,LU3)
+CNW     CALL SCALVE(VEC1,SCALE,NVAR)
+        call ga_scale(VEC1,SCALE)
+CNW     CALL TODSC(VEC1,NVAR,-1  ,LU3)
+        if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &     LU3,1,NVAR,1,1) call errquit('dra error',911)
 * Previous trial vector orthonormalized
         CALL REWINO(LU1)
         CALL FRMDSC(VEC2,NVAR,-1,LU1,IMZERO,IAMPACK)
