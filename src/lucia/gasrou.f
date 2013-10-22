@@ -8457,6 +8457,9 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdelcs.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
@@ -8490,15 +8493,15 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLIBSTRFSPLT,(NAEL+1)*(NAEL+1),'ADDL  ',1,'BSFSPL')
       CALL MEMMAN(KLISTRFSPLT ,NOCTPA   ,'ADDL  ',1,'ISFSPL')
       CALL GROUP_STRTP(NELFSPGP(1,IOCTPA),NOCTPA,NGAS,NAEL,ISPLIT1,
-     &     ISPLIT2,WORK(KLNSTRFSPLT),WORK(KLIBSTRFSPLT),
-     &     WORK(KLISTRFSPLT),MXPNGAS)
+     &     ISPLIT2,int_mb(KLNSTRFSPLT),int_mb(KLIBSTRFSPLT),
+     &     int_mb(KLISTRFSPLT),MXPNGAS)
 C     GROUP_STRTP(ISTRTP,NSTRTP,NGAS,NEL,ISPLIT1,ISPLIT2,
 C    &           NSTRFSPLT,IBSTRFSPLT,ISTRFSPLT)
       CALL SPSPCLS_GAS(NOCTPA,NOCTPB,
      &            ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),
      &            NELFGP,NGAS,ISPSPCLS,ICLS,NCLS,IPRDIA,ISPLIT1,
-     &            ISPLIT2,NAEL,WORK(KLNSTRFSPLT),WORK(KLIBSTRFSPLT),
-     &            WORK(KLISTRFSPLT))
+     &            ISPLIT2,NAEL,int_mb(KLNSTRFSPLT),int_mb(KLIBSTRFSPLT),
+     &            int_mb(KLISTRFSPLT))
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'SPSPCL')
       RETURN
