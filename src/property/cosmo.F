@@ -42,6 +42,9 @@ c
       logical do_gasphase
       double precision bohr
       parameter  (bohr=0.529177249d+00)
+      character*(rtdb_max_file) geom_geom  ! The "geometry" value
+      character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
+                                           ! parameters were set
 c
 c     ----- defaults -----
 c
@@ -58,6 +61,37 @@ c
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
+c
+c     Check whether the geometry for which COSMO parameters were defined
+c     matches the current geometry. If not we need to delete the atom radii
+c     as they are wrong.
+c
+      if (rtdb_cget(rtdb,"cosmo:geom",1,cosmo_geom)) then
+        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
+          if (cosmo_geom(1:inp_strlen(cosmo_geom)).ne.
+     &        geom_geom(1:inp_strlen(geom_geom))) then
+            if (rtdb_delete(rtdb,'cosmo:nrrad')) then
+            endif
+            if (rtdb_delete(rtdb,'cosmo:radius')) then
+            endif
+            cosmo_geom = geom_geom
+            if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
+     $        call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+          endif
+        else
+          if (rtdb_delete(rtdb,'cosmo:nrrad')) then
+          endif
+          if (rtdb_delete(rtdb,'cosmo:radius')) then
+          endif
+        endif
+      else
+        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
+          cosmo_geom = geom_geom
+          if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
+     $      call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+        endif
+      endif
+c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
      &              MA_ERR)
@@ -317,6 +351,9 @@ c
       character*16 aname,symb,elem
       integer fn,gn
       character*255 map
+      character*(rtdb_max_file) geom_geom  ! The "geometry" value
+      character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
+                                           ! parameters were set
       logical util_io_unit
       external util_io_unit
 c
@@ -412,6 +449,36 @@ c
       do i=1,102
          vdwr(i)=vander(i)*1.d0 
       enddo
+c
+c     Check whether the geometry for which COSMO parameters were defined
+c     matches the current geometry. If not we need to delete the atom radii
+c     as they are wrong.
+c
+      if (rtdb_cget(rtdb,"cosmo:geom",1,cosmo_geom)) then
+        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
+          if (cosmo_geom(1:inp_strlen(cosmo_geom)).ne.
+     &        geom_geom(1:inp_strlen(geom_geom))) then
+            if (rtdb_delete(rtdb,'cosmo:nrrad')) then
+            endif
+            if (rtdb_delete(rtdb,'cosmo:radius')) then
+            endif
+            cosmo_geom = geom_geom
+            if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
+     $        call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+          endif
+        else
+          if (rtdb_delete(rtdb,'cosmo:nrrad')) then
+          endif
+          if (rtdb_delete(rtdb,'cosmo:radius')) then
+          endif
+        endif
+      else
+        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
+          cosmo_geom = geom_geom
+          if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
+     $      call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+        endif
+      endif
 c
 c     start processing cosmo map
 c     --------------------------
