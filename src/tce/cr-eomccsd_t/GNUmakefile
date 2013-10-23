@@ -117,7 +117,8 @@ q3rexpt2_6dts.o\
 creomccsd_t_n2_mem_6dts.o\
 cr_eomccsd_t_6dts.o\
 cr_ccsd_t_N_6dts.o\
-cr_ccsd_t_E_6dts.o
+cr_ccsd_t_E_6dts.o\
+cr_eomccsd_t_6dts_d4d5_parallel.o
 
 LIB_INCLUDES = -I../include
 
@@ -199,7 +200,8 @@ q3rexpt2_6dts.F\
 creomccsd_t_n2_mem_6dts.F\
 cr_eomccsd_t_6dts.F\
 cr_ccsd_t_N_6dts.F\
-cr_ccsd_t_E_6dts.F
+cr_ccsd_t_E_6dts.F\
+cr_eomccsd_t_6dts_d4d5_parallel.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT
