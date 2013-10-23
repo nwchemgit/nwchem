@@ -264,7 +264,7 @@ cxxxx if(mmax.eq.2) then
         do 102 i=1,nbls1
         xpqr(1,i)=xpqr(1,i)*bl(if11+i) + txxr(1,i)*bl(if00+i)
         xpqr(2,i)=xpqr(2,i)*bl(if11+i) + txxr(2,i)*bl(if00+i)
-        xpqr(3,i)=xpqr(2,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
+        xpqr(3,i)=xpqr(3,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
  102    continue
       else if (ktyp.gt.1) then
         do 103 i=1,nbls1
