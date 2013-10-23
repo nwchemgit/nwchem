@@ -61,17 +61,17 @@ task scf energy
            ---------------
 
     hostname        = arcen
-    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
-    date            = Tue Oct 15 15:05:43 2013
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/../bin/LINUX64/nwchem
+    date            = Wed Oct 23 14:01:54 2013
 
-    compiled        = Tue_Oct_15_14:55:44_2013
-    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
+    compiled        = Wed_Oct_23_13:57:40_2013
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16
     nwchem branch   = Development
-    nwchem revision = 24582
-    ga revision     = 10418
+    nwchem revision = 24691
+    ga revision     = 10432
     input           = cosmo_nacl.nw
     prefix          = cosmo_nacl_dat.
-    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/cosmo_nacl_dat.db
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/cosmo_nacl_dat.db
     status          = startup
     nproc           =        4
     time left       =     -1s
@@ -92,8 +92,8 @@ task scf energy
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir
 
 
 
@@ -185,7 +185,7 @@ task scf energy
 
 
   library name resolved from: environment
-  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/../src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -295,7 +295,7 @@ task scf energy
  -bem- high level              =   4
  -bem- from -octahedral-
  solvent radius (ang.)         =   0.500
- gaussian surface charge width =   1.00000
+ gaussian surface charge width =   0.98000
  degree of switching           =   1.00000
  switching function tolerance  =   0.00010
  atomic radii = 
@@ -338,7 +338,7 @@ task scf energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/cosmo_nacl_dat.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/cosmo_nacl_dat.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -409,13 +409,13 @@ task scf energy
 
      COSMO gas phase
 
- Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/cosmo_nacl_dat.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   =   7215
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
  #quartets = 3.037D+04 #integrals = 2.139D+05 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/cosmo_nacl_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      3        Max. records in file   =   5743
+ No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
@@ -423,38 +423,38 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -621.3886708353  5.84D-01  1.85D-01      0.4
-                 2     -621.4204581535  1.20D-01  3.64D-02      0.4
+                 1     -621.3886708353  5.84D-01  1.91D-01      0.4
+                 2     -621.4204581535  1.20D-01  3.76D-02      0.4
                  3     -621.4212218217  4.45D-03  1.54D-03      0.5
                  4     -621.4212241875  1.43D-05  6.46D-06      0.5
      COSMO solvation phase
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -621.4902489272  1.83D-01  7.24D-02      0.6
-                 2     -621.4978508777  4.02D-02  1.68D-02      0.6
-                 3     -621.4982306104  7.80D-03  3.02D-03      0.7
-                 4     -621.4982418900  1.40D-03  5.66D-04      0.8
-                 5     -621.4982422543  2.53D-04  1.03D-04      0.9
-                 6     -621.4982422662  4.57D-05  1.84D-05      0.9
+                 1     -621.4912467713  1.85D-01  7.33D-02      0.5
+                 2     -621.4990439412  4.11D-02  1.73D-02      0.6
+                 3     -621.4994401041  8.10D-03  3.14D-03      0.7
+                 4     -621.4994522521  1.47D-03  5.98D-04      0.7
+                 5     -621.4994526565  2.70D-04  1.10D-04      0.8
+                 6     -621.4994526701  4.96D-05  2.00D-05      0.9
  
                   COSMO solvation results
                   -----------------------
  
                  gas phase energy =      -621.4212241875
-                 sol phase energy =      -621.4982422662
- (electrostatic) solvation energy =         0.0770180787 (   48.33 kcal/mol)
+                 sol phase energy =      -621.4994526701
+ (electrostatic) solvation energy =         0.0782284826 (   49.09 kcal/mol)
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -621.498242266225
-      One-electron energy =   -938.795777174863
-      Two-electron energy =    280.427450826029
+         Total SCF energy =   -621.499452670071
+      One-electron energy =   -938.797302831973
+      Two-electron energy =    280.426840736174
  Nuclear repulsion energy =     36.745900884648
 
-        Time for solution =      0.7s
+        Time for solution =      0.6s
 
 
 
@@ -470,212 +470,214 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1 a1          2 a1          3 a1          4 a1          5 e       
      6 e           7 a1          8 a1          9 e          10 e       
     11 a1         12 a1         13 e          14 e          15 a1      
-    16 e          17 e          18 a1         19 a1         20 e       
+    16 a1         17 e          18 e          19 a1         20 e       
     21 e          22 a1         23 a1         24 e       
 
              Final eigenvalues
              -----------------
 
               1      
-    1 -104.7465
-    2  -40.4681
-    3  -10.4724
-    4   -7.9396
-    5   -7.9394
-    6   -7.9394
-    7   -2.7762
-    8   -1.4985
-    9   -1.4985
-   10   -1.4985
-   11   -0.9848
-   12   -0.4082
-   13   -0.4002
-   14   -0.4002
-   15    0.0354
-   16    0.0615
-   17    0.0615
-   18    0.0617
-   19    0.1364
-   20    0.1472
-   21    0.1472
-   22    0.1702
-   23    0.2332
-   24    0.2537
+    1 -104.7474
+    2  -40.4667
+    3  -10.4733
+    4   -7.9405
+    5   -7.9403
+    6   -7.9403
+    7   -2.7748
+    8   -1.4971
+    9   -1.4971
+   10   -1.4971
+   11   -0.9857
+   12   -0.4091
+   13   -0.4012
+   14   -0.4012
+   15    0.0360
+   16    0.0618
+   17    0.0619
+   18    0.0619
+   19    0.1359
+   20    0.1466
+   21    0.1466
+   22    0.1711
+   23    0.2328
+   24    0.2548
 
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
 
- Vector    5  Occ=2.000000D+00  E=-7.939399D+00  Symmetry=e
-              MO Center=  1.2D-16, -8.8D-16, -1.1D+00, r^2= 5.7D-02
+ Vector    5  Occ=2.000000D+00  E=-7.940307D+00  Symmetry=e
+              MO Center=  1.3D-16, -1.1D-16, -1.1D+00, r^2= 5.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      1.218267  2 Cl py                30      0.323849  2 Cl py         
-    26     -0.176466  2 Cl px         
+    26      1.078294  2 Cl px                27     -0.593798  2 Cl py         
+    29      0.286640  2 Cl px                30     -0.157848  2 Cl py         
 
- Vector    6  Occ=2.000000D+00  E=-7.939399D+00  Symmetry=e
-              MO Center= -8.4D-16, -1.2D-16, -1.1D+00, r^2= 5.7D-02
+ Vector    6  Occ=2.000000D+00  E=-7.940307D+00  Symmetry=e
+              MO Center= -1.0D-17, -3.4D-17, -1.1D+00, r^2= 5.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.218267  2 Cl px                29      0.323849  2 Cl px         
-    27      0.176466  2 Cl py         
+    27      1.078294  2 Cl py                26      0.593798  2 Cl px         
+    30      0.286640  2 Cl py                29      0.157848  2 Cl px         
 
- Vector    7  Occ=2.000000D+00  E=-2.776180D+00  Symmetry=a1
-              MO Center= -5.0D-16, -1.3D-16,  1.6D+00, r^2= 2.1D-01
+ Vector    7  Occ=2.000000D+00  E=-2.774772D+00  Symmetry=a1
+              MO Center= -1.8D-16, -1.5D-16,  1.6D+00, r^2= 2.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      1.028101  1 Na s                  1     -0.245828  1 Na s          
+     2      1.028102  1 Na s                  1     -0.245828  1 Na s          
 
- Vector    8  Occ=2.000000D+00  E=-1.498499D+00  Symmetry=a1
-              MO Center=  6.0D-16,  5.6D-17,  1.6D+00, r^2= 2.3D-01
+ Vector    8  Occ=2.000000D+00  E=-1.497122D+00  Symmetry=a1
+              MO Center=  3.5D-16,  2.3D-16,  1.6D+00, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.998454  1 Na pz         
+     5      0.998449  1 Na pz         
 
- Vector    9  Occ=2.000000D+00  E=-1.498477D+00  Symmetry=e
-              MO Center=  1.1D-17,  1.5D-16,  1.6D+00, r^2= 2.3D-01
+ Vector    9  Occ=2.000000D+00  E=-1.497058D+00  Symmetry=e
+              MO Center=  3.3D-17, -6.9D-18,  1.6D+00, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.998571  1 Na py         
+     4      0.995414  1 Na py         
 
- Vector   10  Occ=2.000000D+00  E=-1.498477D+00  Symmetry=e
-              MO Center= -2.0D-16,  3.7D-17,  1.6D+00, r^2= 2.3D-01
+ Vector   10  Occ=2.000000D+00  E=-1.497058D+00  Symmetry=e
+              MO Center= -2.2D-17, -6.7D-18,  1.6D+00, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.998571  1 Na px         
+     3      0.995414  1 Na px         
 
- Vector   11  Occ=2.000000D+00  E=-9.847853D-01  Symmetry=a1
-              MO Center=  1.9D-15,  4.7D-15, -1.0D+00, r^2= 8.5D-01
+ Vector   11  Occ=2.000000D+00  E=-9.857444D-01  Symmetry=a1
+              MO Center= -2.0D-15,  3.6D-15, -1.0D+00, r^2= 8.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.588654  2 Cl s                 24      0.578480  2 Cl s          
-    23     -0.394892  2 Cl s                 22     -0.209920  2 Cl s          
+    25      0.588742  2 Cl s                 24      0.578450  2 Cl s          
+    23     -0.394899  2 Cl s                 22     -0.209915  2 Cl s          
 
- Vector   12  Occ=2.000000D+00  E=-4.082393D-01  Symmetry=a1
-              MO Center= -1.1D-14,  7.3D-15, -1.0D+00, r^2= 1.4D+00
+ Vector   12  Occ=2.000000D+00  E=-4.091243D-01  Symmetry=a1
+              MO Center=  1.0D-15, -2.5D-16, -1.0D+00, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    37      0.545306  2 Cl pz                40      0.408447  2 Cl pz         
-    28     -0.318411  2 Cl pz                34      0.226647  2 Cl pz         
+    37      0.545353  2 Cl pz                40      0.409214  2 Cl pz         
+    28     -0.318481  2 Cl pz                34      0.226719  2 Cl pz         
 
- Vector   13  Occ=2.000000D+00  E=-4.001569D-01  Symmetry=e
-              MO Center= -8.0D-16, -3.9D-16, -1.1D+00, r^2= 1.4D+00
+ Vector   13  Occ=2.000000D+00  E=-4.011665D-01  Symmetry=e
+              MO Center= -5.6D-15, -8.1D-16, -1.1D+00, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35      0.531815  2 Cl px                38      0.412530  2 Cl px         
-    26     -0.311998  2 Cl px                32      0.223457  2 Cl px         
+    35      0.538874  2 Cl px                38      0.418375  2 Cl px         
+    26     -0.316180  2 Cl px                32      0.226453  2 Cl px         
 
- Vector   14  Occ=2.000000D+00  E=-4.001569D-01  Symmetry=e
-              MO Center=  7.5D-15, -3.4D-14, -1.1D+00, r^2= 1.4D+00
+ Vector   14  Occ=2.000000D+00  E=-4.011665D-01  Symmetry=e
+              MO Center=  1.8D-15, -1.2D-14, -1.1D+00, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      0.531815  2 Cl py                39      0.412530  2 Cl py         
-    27     -0.311998  2 Cl py                33      0.223457  2 Cl py         
+    36      0.538874  2 Cl py                39      0.418375  2 Cl py         
+    27     -0.316180  2 Cl py                33      0.226453  2 Cl py         
 
- Vector   15  Occ=0.000000D+00  E= 3.539773D-02  Symmetry=a1
-              MO Center=  2.2D-15,  1.6D-15,  2.3D+00, r^2= 1.2D+01
+ Vector   15  Occ=0.000000D+00  E= 3.603966D-02  Symmetry=a1
+              MO Center= -4.6D-15, -5.0D-15,  2.2D+00, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.800878  1 Na s                  6     -0.950574  1 Na s          
-    41     -0.343223  2 Cl s                 44     -0.301253  2 Cl pz         
-    14      0.190819  1 Na dxx               17      0.190819  1 Na dyy        
-    19      0.184364  1 Na dzz                2     -0.180222  1 Na s          
+    10      1.821539  1 Na s                  6     -0.961890  1 Na s          
+    41     -0.357006  2 Cl s                 44     -0.313656  2 Cl pz         
+    14      0.192644  1 Na dxx               17      0.192644  1 Na dyy        
+    19      0.186167  1 Na dzz                2     -0.180049  1 Na s          
 
- Vector   16  Occ=0.000000D+00  E= 6.147898D-02  Symmetry=e
-              MO Center= -1.3D-13,  1.0D-13,  2.0D+00, r^2= 1.5D+01
+ Vector   16  Occ=0.000000D+00  E= 6.175051D-02  Symmetry=a1
+              MO Center=  6.7D-15,  4.7D-15,  1.3D+00, r^2= 1.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.952614  1 Na px                12     -0.743083  1 Na py         
+    13      1.584959  1 Na pz                41      1.117223  2 Cl s          
+    10     -0.979949  1 Na s                 44      0.712498  2 Cl pz         
+    40     -0.262280  2 Cl pz         
 
- Vector   17  Occ=0.000000D+00  E= 6.147898D-02  Symmetry=e
-              MO Center= -5.2D-13, -6.7D-13,  2.0D+00, r^2= 1.5D+01
+ Vector   17  Occ=0.000000D+00  E= 6.190441D-02  Symmetry=e
+              MO Center=  5.0D-15,  1.4D-15,  2.0D+00, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.952614  1 Na py                11      0.743083  1 Na px         
+    11      1.180558  1 Na px                12      0.253944  1 Na py         
+     7     -0.175968  1 Na px                42     -0.173403  2 Cl px         
 
- Vector   18  Occ=0.000000D+00  E= 6.170517D-02  Symmetry=a1
-              MO Center=  6.8D-13,  5.6D-13,  1.2D+00, r^2= 1.9D+01
+ Vector   18  Occ=0.000000D+00  E= 6.190441D-02  Symmetry=e
+              MO Center= -3.5D-15,  1.6D-14,  2.0D+00, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.590039  1 Na pz                41      1.136364  2 Cl s          
-    10     -1.016503  1 Na s                 44      0.711038  2 Cl pz         
-    40     -0.257425  2 Cl pz         
+    12      1.180558  1 Na py                11     -0.253944  1 Na px         
+     8     -0.175968  1 Na py                43     -0.173403  2 Cl py         
 
- Vector   19  Occ=0.000000D+00  E= 1.364000D-01  Symmetry=a1
-              MO Center=  8.0D-14,  4.2D-13, -1.5D+00, r^2= 1.2D+01
+ Vector   19  Occ=0.000000D+00  E= 1.359219D-01  Symmetry=a1
+              MO Center=  5.3D-13,  2.7D-13, -1.5D+00, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    44      1.501848  2 Cl pz                41     -0.928735  2 Cl s          
-    40     -0.830688  2 Cl pz                13     -0.699508  1 Na pz         
-    25      0.393903  2 Cl s                 10      0.360103  1 Na s          
-     6     -0.281329  1 Na s          
+    44      1.499126  2 Cl pz                41     -0.942817  2 Cl s          
+    40     -0.826738  2 Cl pz                13     -0.711080  1 Na pz         
+    10      0.398229  1 Na s                 25      0.397690  2 Cl s          
+     6     -0.331514  1 Na s          
 
- Vector   20  Occ=0.000000D+00  E= 1.472066D-01  Symmetry=e
-              MO Center=  2.9D-13, -3.3D-13, -1.1D+00, r^2= 1.2D+01
+ Vector   20  Occ=0.000000D+00  E= 1.466466D-01  Symmetry=e
+              MO Center= -1.0D-12, -3.5D-13, -1.1D+00, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    43      1.432682  2 Cl py                42     -1.265125  2 Cl px         
-    39     -0.723763  2 Cl py                38      0.639117  2 Cl px         
-    12     -0.457745  1 Na py                11      0.404210  1 Na px         
+    42      1.806288  2 Cl px                38     -0.911268  2 Cl px         
+    43      0.624903  2 Cl py                11     -0.580730  1 Na px         
+    39     -0.315262  2 Cl py                12     -0.200909  1 Na py         
 
- Vector   21  Occ=0.000000D+00  E= 1.472066D-01  Symmetry=e
-              MO Center= -3.8D-13, -3.3D-13, -1.1D+00, r^2= 1.2D+01
+ Vector   21  Occ=0.000000D+00  E= 1.466466D-01  Symmetry=e
+              MO Center=  2.9D-14, -8.4D-14, -1.1D+00, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    42      1.432682  2 Cl px                43      1.265125  2 Cl py         
-    38     -0.723763  2 Cl px                39     -0.639117  2 Cl py         
-    11     -0.457745  1 Na px                12     -0.404210  1 Na py         
+    43      1.806288  2 Cl py                39     -0.911268  2 Cl py         
+    42     -0.624903  2 Cl px                12     -0.580730  1 Na py         
+    38      0.315262  2 Cl px                11      0.200909  1 Na px         
 
- Vector   22  Occ=0.000000D+00  E= 1.702347D-01  Symmetry=a1
-              MO Center=  6.7D-15,  2.5D-13,  1.9D+00, r^2= 1.1D+01
+ Vector   22  Occ=0.000000D+00  E= 1.710899D-01  Symmetry=a1
+              MO Center=  5.4D-13,  2.0D-13,  1.9D+00, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      4.005007  1 Na s                 10     -2.588281  1 Na s          
-    41      1.076583  2 Cl s                 19     -0.733950  1 Na dzz        
-    14     -0.688746  1 Na dxx               17     -0.688746  1 Na dyy        
-    25     -0.487050  2 Cl s                  9      0.292726  1 Na pz         
-    13      0.230592  1 Na pz         
+     6      3.997579  1 Na s                 10     -2.589865  1 Na s          
+    41      1.087243  2 Cl s                 19     -0.734236  1 Na dzz        
+    14     -0.689473  1 Na dxx               17     -0.689473  1 Na dyy        
+    25     -0.491239  2 Cl s                  9      0.290455  1 Na pz         
+    13      0.233909  1 Na pz         
 
- Vector   23  Occ=0.000000D+00  E= 2.331638D-01  Symmetry=a1
-              MO Center= -9.7D-14,  8.6D-14,  3.5D-02, r^2= 1.2D+01
+ Vector   23  Occ=0.000000D+00  E= 2.328164D-01  Symmetry=a1
+              MO Center= -1.1D-13, -3.5D-14,  3.7D-02, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    41      3.958864  2 Cl s                  6     -2.255564  1 Na s          
-    44      2.010305  2 Cl pz                25     -1.402855  2 Cl s          
-    13      1.379976  1 Na pz                10     -1.267674  1 Na s          
-    40     -0.405766  2 Cl pz                14      0.369075  1 Na dxx        
-    17      0.369075  1 Na dyy               19      0.261709  1 Na dzz        
+    41      3.964634  2 Cl s                  6     -2.292155  1 Na s          
+    44      2.015945  2 Cl pz                25     -1.399660  2 Cl s          
+    13      1.378921  1 Na pz                10     -1.256028  1 Na s          
+    40     -0.401660  2 Cl pz                14      0.374422  1 Na dxx        
+    17      0.374422  1 Na dyy               19      0.267313  1 Na dzz        
 
- Vector   24  Occ=0.000000D+00  E= 2.536765D-01  Symmetry=e
-              MO Center=  1.8D-13, -7.4D-14,  1.7D+00, r^2= 6.7D+00
+ Vector   24  Occ=0.000000D+00  E= 2.548199D-01  Symmetry=e
+              MO Center=  1.1D-13,  1.2D-13,  1.7D+00, r^2= 6.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.264696  1 Na px                11     -0.751961  1 Na px         
-     8     -0.515921  1 Na py                12      0.306756  1 Na py         
-     3     -0.200691  1 Na px         
+     8      1.029595  1 Na py                 7      0.896979  1 Na px         
+    12     -0.610618  1 Na py                11     -0.531968  1 Na px         
+     4     -0.163454  1 Na py         
 
- Vector   25  Occ=0.000000D+00  E= 2.536765D-01  Symmetry=e
-              MO Center=  4.2D-15,  6.2D-15,  1.7D+00, r^2= 6.7D+00
+ Vector   25  Occ=0.000000D+00  E= 2.548199D-01  Symmetry=e
+              MO Center=  4.7D-14, -4.1D-14,  1.7D+00, r^2= 6.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.264696  1 Na py                12     -0.751961  1 Na py         
-     7      0.515921  1 Na px                11     -0.306756  1 Na px         
-     4     -0.200691  1 Na py         
+     7      1.029595  1 Na px                 8     -0.896979  1 Na py         
+    11     -0.610618  1 Na px                12      0.531968  1 Na py         
+     3     -0.163454  1 Na px         
 
- Vector   26  Occ=0.000000D+00  E= 3.112722D-01  Symmetry=a1
-              MO Center= -1.3D-13,  2.3D-14,  1.0D+00, r^2= 6.9D+00
+ Vector   26  Occ=0.000000D+00  E= 3.119363D-01  Symmetry=a1
+              MO Center= -1.7D-13, -1.1D-13,  1.0D+00, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      2.006579  1 Na s                  9     -2.007360  1 Na pz         
-    41     -1.658082  2 Cl s                 44     -0.889993  2 Cl pz         
-    40     -0.654257  2 Cl pz                13      0.270176  1 Na pz         
-    14     -0.203176  1 Na dxx               17     -0.203176  1 Na dyy        
-     5      0.198908  1 Na pz                19     -0.183701  1 Na dzz        
+     9     -2.008153  1 Na pz                 6      1.980211  1 Na s          
+    41     -1.639198  2 Cl s                 44     -0.874306  2 Cl pz         
+    40     -0.661602  2 Cl pz                13      0.275223  1 Na pz         
+     5      0.199506  1 Na pz                14     -0.199361  1 Na dxx        
+    17     -0.199361  1 Na dyy               19     -0.175806  1 Na dzz        
 
- Vector   27  Occ=0.000000D+00  E= 5.179962D-01  Symmetry=b2
-              MO Center= -5.0D-16, -1.5D-15,  1.6D+00, r^2= 2.8D+00
+ Vector   27  Occ=0.000000D+00  E= 5.194490D-01  Symmetry=b2
+              MO Center= -7.6D-16, -8.9D-16,  1.6D+00, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.731308  1 Na dxy        
+    15      1.731303  1 Na dxy        
 
 
  center of mass
@@ -694,7 +696,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     Atom       Charge   Shell Charges
  -----------   ------   -------------------------------------------------------
     1 Na  11    10.08   2.00  2.00  5.99  0.02  0.03  0.01  0.01  0.02
-    2 Cl  17    17.92   0.78  1.19  0.91  1.07  0.92  1.07  7.41 -1.49  1.01  3.05  2.02  0.01 -0.07  0.04
+    2 Cl  17    17.92   0.78  1.19  0.91  1.07  0.92  1.07  7.41 -1.49  1.01  3.05  2.03  0.02 -0.07  0.04
 
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
@@ -705,20 +707,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
-     1   0 0 1      4.953526      0.000000      0.000000
+     1   0 0 1      4.960977      0.000000      0.000000
 
-     2   2 0 0    -14.410178      0.000000      0.000000
+     2   2 0 0    -14.409784      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
-     2   0 2 0    -14.410178      0.000000      0.000000
+     2   0 2 0    -14.409784      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
-     2   0 0 2     -8.408175      0.000000    172.961319
+     2   0 0 2     -8.427695      0.000000    172.961319
 
 
- Parallel integral file used       8 records with       0 large values
+ Parallel integral file used       7 records with       0 large values
 
 
- Task  times  cpu:        0.9s     wall:        1.5s
+ Task  times  cpu:        0.9s     wall:        1.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -729,10 +731,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  713      713     6282     2167     3743        0        0      154     
+calls:  713      713     6248     2167     3639        0        0      139     
 number of processes/call 1.52e+00 1.31e+00 1.15e+00 0.00e+00 0.00e+00
-bytes total:             1.05e+07 3.50e+06 4.79e+06 0.00e+00 0.00e+00 1.23e+03
-bytes remote:            6.23e+06 9.59e+05 2.95e+06 0.00e+00 0.00e+00 0.00e+00
+bytes total:             1.03e+07 3.47e+06 4.03e+06 0.00e+00 0.00e+00 1.11e+03
+bytes remote:            6.03e+06 9.59e+05 2.21e+06 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 82392 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -788,4 +790,4 @@ MA usage statistics:
       G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
                                      Z.Zhang.
 
- Total times  cpu:        1.0s     wall:        2.5s
+ Total times  cpu:        0.9s     wall:        2.5s

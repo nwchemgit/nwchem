@@ -57,40 +57,10 @@ c
       ificos   =0
       lineq    =1
       rsolv    =0.00d+00
-      zeta     =0.85d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
-c
-c     Check whether the geometry for which COSMO parameters were defined
-c     matches the current geometry. If not we need to delete the atom radii
-c     as they are wrong.
-c
-      if (rtdb_cget(rtdb,"cosmo:geom",1,cosmo_geom)) then
-        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
-          if (cosmo_geom(1:inp_strlen(cosmo_geom)).ne.
-     &        geom_geom(1:inp_strlen(geom_geom))) then
-            if (rtdb_delete(rtdb,'cosmo:nrrad')) then
-            endif
-            if (rtdb_delete(rtdb,'cosmo:radius')) then
-            endif
-            cosmo_geom = geom_geom
-            if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
-     $        call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
-          endif
-        else
-          if (rtdb_delete(rtdb,'cosmo:nrrad')) then
-          endif
-          if (rtdb_delete(rtdb,'cosmo:radius')) then
-          endif
-        endif
-      else
-        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
-          cosmo_geom = geom_geom
-          if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
-     $      call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
-        endif
-      endif
 c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
@@ -299,12 +269,145 @@ c
 c
       return
       end
+C>
+C> \brief Load the COSMO default atom radii
+C>
+C> Set the default atom radii values for the COSMO model. Currently
+C> the radii are returned in the unit Angstrom.
+C>
+      subroutine cosmo_def_radii(geom,nat,radius)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
 c
+      integer geom !< [Input] The geometry handle
+      integer nat  !< [Input] The number of atoms
+c
+      double precision radius(nat) !< [Output] The atom radii
+c
+      integer mxelm
+      parameter(mxelm = 102)
+      double precision vander(mxelm)
+      double precision rad
+      integer l_coszan, k_coszan
+      integer l_costag, k_costag
+      integer l_coscoor, k_coscoor
+      integer gn, iat
+      character*16 symb,elem
+C
+C     ----- van der waals radii in angstroms	-----
+C
+      double precision def, zero
+      data def  /1.80D+00/
+      data zero /0.00D+00/
+c
+c      data vdwr /
+c     1   0.80,0.49,0.00,0.00,0.00,1.65,1.55,1.50,1.50,0.00,
+c     2   2.30,1.70,2.05,2.10,1.85,1.80,1.80,0.00,2.80,2.75,
+c     3   0.00,0.00,1.20,0.00,0.00,0.00,2.70,0.00,0.00,0.00,
+c     4   0.00,0.00,0.00,1.90,1.90,0.00,0.00,0.00,0.00,1.55,
+c     5   0.00,1.64,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+c     6   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+c     7   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+c     8   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+c     9   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+c     1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
+c     2   0.00,0.00,0.00/
+c
+c    default radii provided by Andreas Klamt (Cosmologic)
+c    vdw radii: 1.17 (+/- 0.02) * Bondi radius 
+c    (Bondi, J. Phys. Chem., 68, 441, 1964)
+c
+c    optimal vdw radii for H, C, N, O, F, S, Cl, Br, I
+c    (Klamt et al, J. Phys. Chem. A, 102, 5074 (1998)
+c
+c    for heavy elements: 1.17*1.9
+c
+      data (vander(iat),iat=1,mxelm)
+     1 / 1.300,1.638,1.404,1.053,2.0475,2.00,
+     2   1.830,1.720,1.720,1.8018,1.755,1.638,
+     3   1.404,2.457,2.106,2.160,2.05,2.223,
+     4   2.223,2.223,2.223,2.223,2.223,2.223,
+     5   2.223,2.223,2.223,2.223,2.223,2.223,
+     6   2.223,2.223,2.223,2.223,2.160,2.223,
+     7   2.223,2.223,2.223,2.223,2.223,2.223,
+     8   2.223,2.223,2.223,2.223,2.223,2.223,
+     9   2.223,2.223,2.223,2.223,2.320,2.223,
+     1   2.223,2.223,2.223,2.223,2.223,2.223,
+     2   2.223,2.223,2.223,2.223,2.223,2.223,
+     3   2.223,2.223,2.223,2.223,2.223,2.223,
+     4   2.223,2.223,2.223,2.223,2.223,2.223,
+     5   2.223,2.223,2.223,2.223,2.223,2.223,
+     6   2.223,2.223,2.223,2.223,2.223,2.223,
+     7   2.223,2.223,2.223,2.223,2.223,2.223,
+     7   2.223,2.223,2.223,2.223,2.223,2.223/
+c
+c     vdw radii from Merz/Kollman/Singh
+c
+c      data (vander(i),i=1,36)
+c     1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
+c     2 1.45D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,1.30D+00,
+c     3 1.57D+00,1.36D+00,1.24D+00,1.17D+00,1.80D+00,1.75D+00,
+c     4 1.70D+00,19*0.0D+00/
+c
+c     VDW RADII FROM GAVEZZOTTI (J.AM.CHEM.SOC. 105, 5220 (1983))
+c     SUPPLEMENTED BY VALUES FOR BORON AND THIRD AND FOURTH ROWS
+c     FROM M.A.SPACKMAN (J.CHEM.PHYS. 85, 6579 (1986))
+c
+c     DATA (VANDER(I),I=1,36)
+c    1                  /1.20D+00,0.00D+00,0.00D+00,0.00D+00,
+c    2 1.85D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,0.00D+00,
+c    3 0.00D+00,0.00D+00,2.07D+00,2.05D+00,1.96D+00,1.89D+00,
+c    4 1.80D+00,19*0.0D+00/
+c
+c     VDW RADII FROM BRENEMAN & WIBERG
+c
+c     DATA (VANDER(I),I=1,36)
+c    1                  /1.45D+00,1.45D+00,1.50D+00,1.50D+00,
+c    2 1.50D+00,1.50D+00,1.70D+00,1.70D+00,1.70D+00,1.70D+00,
+c    3 2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,
+c    4 2.00D+00,19*0.0D+00/
+c
+      if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
+     & call errquit('cosmo_def_radii malloc k_coscoor failed',
+     &              911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo z',l_coszan,k_coszan)) call
+     &  errquit('cosmo_def_radii malloc k_coszan failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_byte,nat*16,'tags',l_costag,k_costag)) call
+     &  errquit('cosmo_def_radii malloc k_costag failed',911,MA_ERR)
+c
+      if(.not.geom_cart_get(geom,nat,byte_mb(k_costag),
+     &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
+     $    (' cosmo_def_radii: geom_cart_get failed.',911, GEOM_ERR)
+c
+      do iat=1,nat
+         rad=vander(nint(dbl_mb(k_coszan+iat-1)))
+         if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
+            if (.not.geom_tag_to_element(byte_mb(k_costag+16*(iat-1)), 
+     &         symb, elem, gn))
+     &          call errquit('cosmo_def_radii:geom_tag_to_element',0,0)
+            rad=vander(gn)
+         endif
+         if(rad.eq.zero) then
+            rad=def
+         endif
+         radius(iat)=rad
+      enddo
+      if(.not.ma_pop_stack(l_costag)) call
+     &  errquit('cosmo_def_radii dealloc k_costag failed',911,MA_ERR)
+      if(.not.ma_pop_stack(l_coszan)) call
+     &  errquit('cosmo_def_radii dealloc k_coszan failed',911,MA_ERR)
+      if(.not.ma_pop_stack(l_coscoor)) call
+     &  errquit('cosmo_def_radii dealloc k_coscoor failed',911,MA_ERR)
+c
+      end
+C>
 C> \brief Initialize COSMO data structures
-c
+C>
 C> Initialize the COSMO data structures, in particular this involves
 C> computing the positions of the COSMO charges.
-c
+C>
       subroutine cosmo_initialize(rtdb,geom,basis,oprint)
       implicit none
 #include "errquit.fh"
@@ -365,77 +468,6 @@ c
       data radtol /0.1d+00/
       data bohr   /0.529177249d+00/
       data mxpass /6/
-C
-C     ----- van der waals radii in angstroms	-----
-C
-      data def  /1.80D+00/
-
-c      data vdwr /
-c     1   0.80,0.49,0.00,0.00,0.00,1.65,1.55,1.50,1.50,0.00,
-c     2   2.30,1.70,2.05,2.10,1.85,1.80,1.80,0.00,2.80,2.75,
-c     3   0.00,0.00,1.20,0.00,0.00,0.00,2.70,0.00,0.00,0.00,
-c     4   0.00,0.00,0.00,1.90,1.90,0.00,0.00,0.00,0.00,1.55,
-c     5   0.00,1.64,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
-c     6   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
-c     7   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
-c     8   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
-c     9   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
-c     1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
-c     2   0.00,0.00,0.00/
-c
-c    default radii provided by Andreas Klamt (Cosmologic)
-c    vdw radii: 1.17 (+/- 0.02) * Bondi radius 
-c    (Bondi, J. Phys. Chem., 68, 441, 1964)
-c
-c    optimal vdw radii for H, C, N, O, F, S, Cl, Br, I
-c    (Klamt et al, J. Phys. Chem. A, 102, 5074 (1998)
-c
-c    for heavy elements: 1.17*1.9
-c
-      data (vander(i),i=1,102)
-     1 / 1.300,1.638,1.404,1.053,2.0475,2.00,
-     2   1.830,1.720,1.720,1.8018,1.755,1.638,
-     3   1.404,2.457,2.106,2.160,2.05,2.223,
-     4   2.223,2.223,2.223,2.223,2.223,2.223,
-     5   2.223,2.223,2.223,2.223,2.223,2.223,
-     6   2.223,2.223,2.223,2.223,2.160,2.223,
-     7   2.223,2.223,2.223,2.223,2.223,2.223,
-     8   2.223,2.223,2.223,2.223,2.223,2.223,
-     9   2.223,2.223,2.223,2.223,2.320,2.223,
-     1   2.223,2.223,2.223,2.223,2.223,2.223,
-     2   2.223,2.223,2.223,2.223,2.223,2.223,
-     3   2.223,2.223,2.223,2.223,2.223,2.223,
-     4   2.223,2.223,2.223,2.223,2.223,2.223,
-     5   2.223,2.223,2.223,2.223,2.223,2.223,
-     6   2.223,2.223,2.223,2.223,2.223,2.223,
-     7   2.223,2.223,2.223,2.223,2.223,2.223,
-     7   2.223,2.223,2.223,2.223,2.223,2.223/
-c
-c     vdw radii from Merz/Kollman/Singh
-c
-c      data (vander(i),i=1,36)
-c     1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
-c     2 1.45D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,1.30D+00,
-c     3 1.57D+00,1.36D+00,1.24D+00,1.17D+00,1.80D+00,1.75D+00,
-c     4 1.70D+00,19*0.0D+00/
-c
-c     VDW RADII FROM GAVEZZOTTI (J.AM.CHEM.SOC. 105, 5220 (1983))
-c     SUPPLEMENTED BY VALUES FOR BORON AND THIRD AND FOURTH ROWS
-c     FROM M.A.SPACKMAN (J.CHEM.PHYS. 85, 6579 (1986))
-c
-c     DATA (VANDER(I),I=1,36)
-c    1                  /1.20D+00,0.00D+00,0.00D+00,0.00D+00,
-c    2 1.85D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,0.00D+00,
-c    3 0.00D+00,0.00D+00,2.07D+00,2.05D+00,1.96D+00,1.89D+00,
-c    4 1.80D+00,19*0.0D+00/
-c
-c     VDW RADII FROM BRENEMAN & WIBERG
-c
-c     DATA (VANDER(I),I=1,36)
-c    1                  /1.45D+00,1.45D+00,1.50D+00,1.50D+00,
-c    2 1.50D+00,1.50D+00,1.70D+00,1.70D+00,1.70D+00,1.70D+00,
-c    3 2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,
-c    4 2.00D+00,19*0.0D+00/
 c
       me=ga_nodeid()
 c
@@ -444,40 +476,6 @@ c
 c
       if(odbug.and.me.eq.0) then
          write(Luout,*) 'in cosmo_initialize ...'
-      endif
-c
-      do i=1,102
-         vdwr(i)=vander(i)*1.d0 
-      enddo
-c
-c     Check whether the geometry for which COSMO parameters were defined
-c     matches the current geometry. If not we need to delete the atom radii
-c     as they are wrong.
-c
-      if (rtdb_cget(rtdb,"cosmo:geom",1,cosmo_geom)) then
-        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
-          if (cosmo_geom(1:inp_strlen(cosmo_geom)).ne.
-     &        geom_geom(1:inp_strlen(geom_geom))) then
-            if (rtdb_delete(rtdb,'cosmo:nrrad')) then
-            endif
-            if (rtdb_delete(rtdb,'cosmo:radius')) then
-            endif
-            cosmo_geom = geom_geom
-            if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
-     $        call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
-          endif
-        else
-          if (rtdb_delete(rtdb,'cosmo:nrrad')) then
-          endif
-          if (rtdb_delete(rtdb,'cosmo:radius')) then
-          endif
-        endif
-      else
-        if (rtdb_cget(rtdb,"geometry",1,geom_geom)) then
-          cosmo_geom = geom_geom
-          if (.not.rtdb_cput(rtdb,"cosmo:geom",1,cosmo_geom))
-     $      call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
-        endif
       endif
 c
 c     start processing cosmo map
@@ -566,6 +564,9 @@ c
 c
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_init malloc k_rad failed',911,MA_ERR)
+c
+      call cosmo_def_radii(geom,nat,dbl_mb(k_rad))
+c
       if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
      & call errquit('cosmo_init malloc k_coscoor failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nat,'cosmo z',l_coszan,k_coszan)) call
@@ -576,20 +577,6 @@ c
       if(.not.geom_cart_get(geom,nat,byte_mb(k_costag),
      &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
      $    (' cosmo_initialize: geom_cart_get failed.',911, GEOM_ERR)
-c
-      do iat=1,nat
-         rad=vdwr(nint(dbl_mb(k_coszan+iat-1)))
-         if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
-            if (.not.geom_tag_to_element(byte_mb(k_costag+16*(iat-1)), 
-     &         symb, elem, gn))
-     &          call errquit('cosmo_init:geom_tag_to_element',0,0)
-            rad=vdwr(gn)
-         endif
-         if(rad.eq.zero) then
-            rad=def
-         endif
-         dbl_mb(k_rad+iat-1)=rad
-      enddo
 c
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
@@ -602,7 +589,7 @@ c
       ificos   =0
       lineq    =1
       rsolv    =0.00d+00
-      zeta     =0.85d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
@@ -625,13 +612,6 @@ c
      &   errquit('cosmo_init:nr radii gt nr atoms?',911,MA_ERR)
       if (nrad.gt.0) then
          status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
-      endif
-      if (nrad.eq.0.or..not.status) then
-         if (.not.rtdb_put(rtdb,'cosmo:nrrad',mt_int,1,nat))
-     &       call errquit("failed to write cosmo:nrrad",nat,RTDB_ERR)
-         if (.not.rtdb_put(rtdb,'cosmo:radius',mt_dbl,nat,
-     &                     dbl_mb(k_rad)))
-     &       call errquit("failed to write cosmo:radius",nat,RTDB_ERR)
       endif
 c
 c     ----- checks ... -----
@@ -2297,7 +2277,7 @@ c
                             !< interaction energy
 
       logical some !< [Input] Do you want "some" additional output?
-      logical dbug, out
+      logical dbug, out, status
       character*8 scfruntyp
 c
       double precision dielec,screen,rsolv,adiag,dsurf,dvol
@@ -2368,9 +2348,8 @@ c
      &                 mt_int,nefc,int_mb(k_efciat)))
      &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
      &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad)))
-     &   call errquit('cosmo_charges: rtdb get failed for radius ',914,
-     &       RTDB_ERR)
+      call cosmo_def_radii(geom,nat,dbl_mb(k_rad))
+      status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
       do i = 0, nat-1
         dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/bohr
       enddo

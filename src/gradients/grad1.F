@@ -417,10 +417,9 @@ c
       if (.not.ma_push_get(MT_DBL,nat,"rad",l_rad,k_rad))
      $  call errquit("grad_hnd_cos: could not allocate rad",
      $               ma_sizeof(MT_BYTE,nat,MT_DBL),MA_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
-     $                 dbl_mb(k_rad)))
-     $   call errquit('grad_hnd_cos: rtdb get failed for rad',915,
-     $                rtdb_err)
+      call cosmo_def_radii(geom,nat,dbl_mb(k_rad))
+      status = rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
+     $                  dbl_mb(k_rad))
       do iat1=0,nat-1
         dbl_mb(k_rad+iat1) = dbl_mb(k_rad+iat1)/bohr
       enddo

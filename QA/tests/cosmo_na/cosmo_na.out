@@ -58,19 +58,19 @@ task scf energy
            ---------------
 
     hostname        = arcen
-    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
-    date            = Fri Oct 11 15:21:12 2013
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/../bin/LINUX64/nwchem
+    date            = Wed Oct 23 14:01:50 2013
 
-    compiled        = Fri_Oct_11_15:20:05_2013
-    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
+    compiled        = Wed_Oct_23_13:57:40_2013
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16
     nwchem branch   = Development
-    nwchem revision = 24582
-    ga revision     = 10418
+    nwchem revision = 24691
+    ga revision     = 10432
     input           = cosmo_na.nw
     prefix          = cosmo_na_dat.
-    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/cosmo_na_dat.db
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/cosmo_na_dat.db
     status          = startup
-    nproc           =        1
+    nproc           =        4
     time left       =     -1s
 
 
@@ -89,8 +89,8 @@ task scf energy
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir
 
 
 
@@ -138,7 +138,7 @@ task scf energy
  na                    0.00000000     0.00000000     0.00000000
 
   library name resolved from: environment
-  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/../src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -202,7 +202,9 @@ task scf energy
  -bem- high level              =   4
  -bem- from -octahedral-
  solvent radius (ang.)         =   0.000
- gaussian surface charge width =   1.00000
+ gaussian surface charge width =   0.98000
+ degree of switching           =   1.00000
+ switching function tolerance  =   0.00010
  atomic radii = 
  --------------
     1 11.000  1.755
@@ -213,14 +215,14 @@ task scf energy
  ---------- ATOMIC COORDINATES (A.U.) ------------ VDWR(ANG.) --
      1    0.00000000    0.00000000    0.00000000     1.755
  number of segments per atom =         32
- number of   points per atom =        640
+ number of   points per atom =         32
  atom (   nspa,  nppa )
  ----------------------
-    1 (     32,   512 )     512
+    1 (     32,     0 )       0
  number of -cosmo- surface points =       32
- molecular surface =     30.964 angstrom**2
- molecular volume  =     18.114 angstrom**3
- G(cav/disp)       =      1.015 kcal/mol
+ molecular surface =     38.705 angstrom**2
+ molecular volume  =     22.642 angstrom**3
+ G(cav/disp)       =      1.054 kcal/mol
  ...... end of -cosmo- initialization ......
 
 
@@ -240,7 +242,7 @@ task scf energy
   charge          =   1.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/cosmo_na_dat.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/cosmo_na_dat.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -253,7 +255,7 @@ task scf energy
 
 
 
- Forming initial guess at       0.0s
+ Forming initial guess at       1.1s
 
 
       Superposition of Atomic Density Guess
@@ -273,7 +275,7 @@ task scf energy
  LUMO         =      -0.357699
 
 
- Starting SCF solution at       0.2s
+ Starting SCF solution at       1.1s
 
 
 
@@ -290,42 +292,45 @@ task scf energy
  #quartets = 6.660D+02 #integrals = 3.754D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/cosmo_na_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/cosmo_na_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  28991
+ Max. records in memory =      2        Max. records in file   =   5743
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -161.6427062969  4.80D-01  2.07D-01      0.3
-                 2     -161.6591185611  4.89D-02  1.94D-02      0.3
-                 3     -161.6592883162  8.44D-04  3.21D-04      0.3
-                 4     -161.6592883670  9.05D-07  5.74D-07      0.3
+                 1     -161.6427062969  4.80D-01  2.07D-01      0.1
+                 2     -161.6591185611  4.89D-02  1.76D-02      0.1
+                 3     -161.6592883162  8.44D-04  3.23D-04      0.1
+                 4     -161.6592883670  9.05D-07  5.74D-07      0.2
      COSMO solvation phase
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -161.8092565904  2.35D-03  1.22D-03      0.3
-                 2     -161.8092570513  2.10D-06  1.22D-06      0.3
+                 1     -161.8103045023  2.35D-03  9.73D-04      0.2
+                 2     -161.8103049632  2.10D-06  1.22D-06      0.2
  
                   COSMO solvation results
                   -----------------------
  
                  gas phase energy =      -161.6592883670
-                 sol phase energy =      -161.8092570513
- (electrostatic) solvation energy =         0.1499686843 (   94.11 kcal/mol)
+                 sol phase energy =      -161.8103049632
+ (electrostatic) solvation energy =         0.1510165962 (   94.76 kcal/mol)
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -161.809257051289
+         Total SCF energy =   -161.810304963240
       One-electron energy =   -221.768241319448
       Two-electron energy =     63.085727263471
  Nuclear repulsion energy =      0.000000000000
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
              Final eigenvalues
@@ -352,31 +357,31 @@ task scf energy
                        -------------------------------------
 
  Vector    2  Occ=2.000000D+00  E=-2.787102D+00
-              MO Center=  1.0D-16,  2.2D-16, -8.8D-17, r^2= 2.1D-01
+              MO Center= -1.2D-16, -7.4D-16,  1.4D-15, r^2= 2.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      1.028271  1 Na s                  1     -0.245818  1 Na s          
 
  Vector    3  Occ=2.000000D+00  E=-1.509446D+00
-              MO Center= -4.1D-18, -1.4D-16,  2.1D-16, r^2= 2.3D-01
+              MO Center= -6.3D-18,  8.0D-16, -4.4D-16, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.785764  1 Na pz                 4     -0.606802  1 Na py         
+     4      0.859660  1 Na py                 5     -0.506209  1 Na pz         
 
  Vector    4  Occ=2.000000D+00  E=-1.509446D+00
-              MO Center=  2.6D-17, -1.8D-16, -8.0D-17, r^2= 2.3D-01
+              MO Center= -2.2D-17, -2.0D-16, -3.8D-16, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.793394  1 Na py                 5      0.599334  1 Na pz         
+     5      0.860722  1 Na pz                 4      0.503380  1 Na py         
 
  Vector    5  Occ=2.000000D+00  E=-1.509446D+00
-              MO Center= -8.9D-17, -5.0D-18, -2.6D-18, r^2= 2.3D-01
+              MO Center=  1.8D-17, -1.3D-18,  1.7D-18, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.988204  1 Na px         
+     3      0.995859  1 Na px         
 
  Vector    6  Occ=0.000000D+00  E= 3.051388D-02
-              MO Center= -1.3D-15,  1.9D-15,  1.7D-15, r^2= 1.1D+01
+              MO Center=  2.6D-15,  3.6D-16, -4.0D-15, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.583403  1 Na s                  6     -1.057817  1 Na s          
@@ -384,25 +389,28 @@ task scf energy
     17      0.204996  1 Na dyy               19      0.204996  1 Na dzz        
 
  Vector    7  Occ=0.000000D+00  E= 5.804728D-02
-              MO Center=  1.1D-15,  2.6D-16,  3.5D-17, r^2= 1.5D+01
+              MO Center=  4.7D-16,  1.4D-15,  2.5D-15, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.103951  1 Na px                 7     -0.180330  1 Na px         
+    13      0.953902  1 Na pz                12      0.548310  1 Na py         
+    11      0.173024  1 Na px                 9     -0.155820  1 Na pz         
 
  Vector    8  Occ=0.000000D+00  E= 5.804728D-02
-              MO Center=  3.2D-16, -2.3D-15, -3.1D-18, r^2= 1.5D+01
+              MO Center= -8.2D-16, -2.7D-15,  1.8D-15, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.104074  1 Na py                 8     -0.180350  1 Na py         
+    12      0.900623  1 Na py                13     -0.574766  1 Na pz         
+    11      0.314692  1 Na px         
 
  Vector    9  Occ=0.000000D+00  E= 5.804728D-02
-              MO Center= -1.3D-16, -7.1D-17, -1.2D-15, r^2= 1.5D+01
+              MO Center= -2.2D-15,  7.4D-16, -7.7D-17, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.113413  1 Na pz                 9     -0.181876  1 Na pz         
+    11      1.054297  1 Na px                12     -0.358808  1 Na py         
+     7     -0.172219  1 Na px         
 
  Vector   10  Occ=0.000000D+00  E= 1.573475D-01
-              MO Center= -1.1D-16, -5.8D-16,  1.5D-15, r^2= 1.1D+01
+              MO Center=  2.5D-15, -1.8D-15, -3.2D-15, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      4.222902  1 Na s                 10     -2.228397  1 Na s          
@@ -410,39 +418,43 @@ task scf energy
     19     -0.757796  1 Na dzz        
 
  Vector   11  Occ=0.000000D+00  E= 2.556728D-01
-              MO Center= -6.0D-16,  8.7D-16,  6.7D-16, r^2= 6.8D+00
+              MO Center=  7.8D-16, -8.0D-16,  1.5D-15, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.364746  1 Na py                12     -0.774969  1 Na py         
-     4     -0.215297  1 Na py         
+     9      1.251907  1 Na pz                13     -0.710893  1 Na pz         
+     8     -0.499031  1 Na py                12      0.283374  1 Na py         
+     7     -0.234159  1 Na px                 5     -0.197496  1 Na pz         
 
  Vector   12  Occ=0.000000D+00  E= 2.556728D-01
-              MO Center=  6.8D-16,  6.4D-16,  6.9D-16, r^2= 6.8D+00
+              MO Center=  6.3D-16,  9.7D-16,  7.0D-16, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.365298  1 Na px                11     -0.775282  1 Na px         
-     3     -0.215384  1 Na px         
+     8      1.102823  1 Na py                12     -0.626236  1 Na py         
+     7      0.593139  1 Na px                 9      0.550545  1 Na pz         
+    11     -0.336813  1 Na px                13     -0.312626  1 Na pz         
+     4     -0.173977  1 Na py         
 
  Vector   13  Occ=0.000000D+00  E= 2.556728D-01
-              MO Center=  2.1D-16, -6.1D-16, -1.8D-15, r^2= 6.8D+00
+              MO Center= -1.8D-15,  8.1D-16, -2.9D-16, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.366291  1 Na pz                13     -0.775846  1 Na pz         
-     5     -0.215540  1 Na pz         
+     7      1.210161  1 Na px                11     -0.687188  1 Na px         
+     8     -0.637089  1 Na py                12      0.361770  1 Na py         
+     3     -0.190910  1 Na px         
 
- Vector   14  Occ=0.000000D+00  E= 5.202808D-01
-              MO Center=  1.3D-15,  1.4D-15, -1.3D-15, r^2= 2.8D+00
+ Vector   14  Occ=0.000000D+00  E= 5.202791D-01
+              MO Center= -2.0D-15, -8.5D-16,  4.4D-16, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.190996  1 Na dxz               18      0.931786  1 Na dyz        
-    15     -0.844572  1 Na dxy        
+    16      1.370141  1 Na dxz               15     -0.930349  1 Na dxy        
+    18      0.507115  1 Na dyz        
 
- Vector   15  Occ=0.000000D+00  E= 5.202808D-01
-              MO Center= -4.2D-16,  6.7D-16, -1.5D-15, r^2= 2.8D+00
+ Vector   15  Occ=0.000000D+00  E= 5.202791D-01
+              MO Center= -4.3D-16,  7.1D-16,  4.8D-16, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.217121  1 Na dxz               18     -1.146757  1 Na dyz        
-    15      0.451182  1 Na dxy        
+    18      1.424252  1 Na dyz               16     -0.857340  1 Na dxz        
+    15     -0.486288  1 Na dxy        
 
 
  center of mass
@@ -481,10 +493,10 @@ task scf energy
      2   0 0 2     -2.153342      0.000000      0.000000
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.3s     wall:        0.4s
+ Task  times  cpu:        0.2s     wall:        0.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -495,11 +507,11 @@ task scf energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  198      198     1566      894      794        0        0       36     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             7.84e+05 4.97e+05 1.23e+05 0.00e+00 0.00e+00 2.88e+02
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 39432 bytes
+calls:  198      198     1010      518      742        0        0       10     
+number of processes/call 1.08e+00 1.17e+00 1.04e+00 0.00e+00 0.00e+00
+bytes total:             7.09e+05 4.10e+05 1.18e+05 0.00e+00 0.00e+00 8.00e+01
+bytes remote:            3.30e+04 2.49e+04 4.58e+03 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 32200 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -554,4 +566,4 @@ MA usage statistics:
       G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
                                      Z.Zhang.
 
- Total times  cpu:        0.3s     wall:        0.4s
+ Total times  cpu:        0.2s     wall:        1.4s
