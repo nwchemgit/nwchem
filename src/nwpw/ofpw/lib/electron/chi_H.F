@@ -50,7 +50,7 @@
 
 *     **** local variables ****
       logical dosic,dohfx
-      integer ms,n,n1(2),n2(2)
+      integer ms,n,n1(2),n2(2),nne(2)
       integer nx,ny,nz
       real*8  scal1,scal2
 
@@ -94,7 +94,15 @@ c     complex*16 vpsi(nfft3d)
       n2(2) = ne(1) + ne(2)
 
 
-      call dcopy(2*ispin*npack1,0.0d0,0,Hpsi_k,1)
+
+*     *********************************************************
+*     **** add kinetic energy - Hpsi_k = Ke*psi_k ****
+*     *********************************************************
+      !call dcopy(2*ispin*npack1,0.0d0,0,Hpsi_k,1)
+      nne(1) = 1
+      nne(2) = ispin-1
+      call ke(ispin,nne,psi_k,Hpsi_k)
+
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****

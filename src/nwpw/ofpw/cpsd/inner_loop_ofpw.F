@@ -34,13 +34,14 @@
 *     **** local variables ****
       logical move,sic,hfx
       integer n2ft3d,np_i,np_j
-      integer i,n,n1(2),n2(2),it,ms,nn,ierr
+      integer i,n,n1(2),n2(2),it,ms,nn,ierr,nne(2)
       integer nx,ny,nz
       integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  A,B,C,x,lmbda(2)
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  etf,etf2,ptf,ptf2
+      real*8  evw
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
       real*8  e_lj, e_q, e_spring
@@ -135,6 +136,7 @@ c     real*8     fion(3,natmx)
 
       value = value.and.
      >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
+       call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
       value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
       value = value.and.
@@ -162,8 +164,6 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        MA_push_get(mt_dbl,(ispin),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
 
       call nwpw_timing_end(12)
      
@@ -474,7 +474,7 @@ c        !end do
       pxc = pxc*dv
         
   
-*     ***** average Kohn-Sham kinetic energy ****
+*     ***** Thomas-Fermi kinetic energy ****
       call D3dB_rr_dot(1,dbl_mb(dnall(1)),dbl_mb(e_tf(1)),etf)
       call D3dB_rr_dot(1,dn(1,1),dbl_mb(v_tf(1)),ptf)
       if (ispin.eq.1) then
@@ -489,6 +489,12 @@ c        !end do
       end if
       etf = etf*dv
       ptf = ptf*dv
+
+
+*     ***** von-Weizsacker kinetic energy ****
+      nne(1) = 1
+      nne(2) = ispin-1
+      call ke_ave(ispin,nne,psi1,evw,.false.,n1)
 
 
 *     **** average Kohn-Sham v_local energy ****
@@ -520,12 +526,13 @@ c        !end do
       E(3) = ehartr
       E(4) = exc
       E(5) = eion
-      E(6) = etf
+      E(6) = evw
       E(7) = elocal
       E(8) = enlocal
       E(9) = 2.0d0*ehartr
       E(10) = pxc
-      E(14) = ptf
+      E(14) = etf
+      E(15) = ptf
 
       if (pspw_qmmm_found()) then
          e_lj     = pspw_qmmm_LJ_E()

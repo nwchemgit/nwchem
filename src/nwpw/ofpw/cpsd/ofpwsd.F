@@ -232,7 +232,7 @@
       if (psp_semicore(0)) call semicore_check()
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
-      !call ke_init()
+      call ke_init()
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
@@ -645,12 +645,13 @@ c
      >                    (E(1)-E(11))/ion_nion()
          end if
          write(6,1440) E(2),E(2)/n2(ispin)
-         write(6,1445) E(6),E(6)/n2(ispin)
+         write(6,1445) E(14),E(14)/n2(ispin)
+         write(6,1446) E(6),E(6)/n2(ispin)
          write(6,1450) E(3),E(3)/n2(ispin)
          write(6,1460) E(4),E(4)/n2(ispin)
          write(6,1470) E(5),E(5)/ion_nion()
 
-         write(6,1480) E(14),E(14)/n2(ispin)
+         write(6,1480) E(15),E(15)/n2(ispin)
          write(6,1490) E(7),E(7)/n2(ispin)
          write(6,1495) E(8),E(8)/n2(ispin)
          write(6,1496) E(9),E(9)/n2(ispin)
@@ -714,7 +715,7 @@ c      end if
       call strfac_end()
       if (control_version().eq.3) call coulomb_end()
       if (control_version().eq.4) call coulomb2_end()
-      !call ke_end()
+      call ke_end()
       call mask_end()
       call Pack_end()
       call G_end()
@@ -858,24 +859,41 @@ c      end if
  1400 FORMAT(I3,3E18.8/3X,3E18.8)
  1410 FORMAT(10X,'=============  summary of results  =================')
  1420 FORMAT( ' final position of ions:')
- 1430 FORMAT(//' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1430 FORMAT(//' total     energy              :',E19.10,
+     >         ' (',E15.5,'/ion)')
  1431 FORMAT(/' QM Energies')
  1432 FORMAT( '------------')
- 1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
- 1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
- 1445 FORMAT( ' kinetic   energy    :',E19.10,' (',E15.5,'/electron)')
- 1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
- 1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
- 1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
- 1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
- 1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
- 1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
- 1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
- 1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
- 1495 FORMAT( ' K.S. V_nl energy    :',E19.10,' (',E15.5,'/electron)')
- 1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
- 1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
- 1498 FORMAT( ' Virial Coefficient  :',E19.10)
+ 1433 FORMAT( ' total  QM energy              :',E19.10,
+     >        ' (',E15.5,'/ion)')
+ 1440 FORMAT( ' total orbital energy          :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1445 FORMAT( ' Thomas-Fermi kinetic energy   :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1446 FORMAT( ' von Weizsacker kinetic energy :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1450 FORMAT( ' hartree   energy              :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1455 FORMAT( ' SIC-hartree energy            :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1456 FORMAT( ' SIC-exc-corr energy           :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1457 FORMAT( ' HF exchange energy            :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1460 FORMAT( ' exc-corr  energy              :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1470 FORMAT( ' ion-ion   energy              :',E19.10,
+     >' (',E15.5,'/ion)')
+ 1480 FORMAT(/' K.S. Thomas-Fermi kinetic     :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1490 FORMAT( ' K.S. V_l  energy              :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1495 FORMAT( ' K.S. V_nl energy              :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1496 FORMAT( ' K.S. V_Hart energy            :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1497 FORMAT( ' K.S. V_xc energy              :',E19.10,
+     >' (',E15.5,'/electron)')
+ 1498 FORMAT( ' Virial Coefficient            :',E19.10)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
@@ -885,7 +903,7 @@ c      end if
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
- 1600 FORMAT(/' Total OFPW energy   :',E19.10)
+ 1600 FORMAT(/' Total OFPW energy             :',E19.10)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
