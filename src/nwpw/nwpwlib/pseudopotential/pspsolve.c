@@ -602,7 +602,6 @@ void FATR pspsolve_
   free(rl);
   free(rhol);
   end_Linear();
-  fflush(stdout);
 
   end_Psp();
   end_Atom();

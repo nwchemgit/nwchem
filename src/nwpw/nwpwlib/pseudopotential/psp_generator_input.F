@@ -747,7 +747,6 @@ c        *** revPBE ***
      >        psp_out(1:k),k,
      >        atom(1:ka),ka)
 
-
       !*** QMMM format ***
       else if (psp_type.eq.5) then
          debug = 0
@@ -755,6 +754,20 @@ c        *** revPBE ***
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
          call qmmm_parse(debug,    
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+      !*** CARTER pseudopotential format ***
+      else if (psp_type.eq.6) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call carter_parse(debug,    
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,
@@ -888,6 +901,19 @@ c
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
          call paw_atom_driver(debug,
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+      else if (psp_type.eq.6) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call carter_parse(debug,
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,

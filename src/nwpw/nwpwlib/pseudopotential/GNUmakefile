@@ -9,6 +9,7 @@
                 hgh_parse.o \
                 cpi_parse.o \
                 teter_parse.o \
+                carter_parse.o \
                 qmmm_parse.o \
                 get_word.o name.o\
                 loggrid.o pred_cor.o spline.o grids.o atom.o  \
