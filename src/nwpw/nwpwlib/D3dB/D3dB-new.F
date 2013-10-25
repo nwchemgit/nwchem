@@ -2669,6 +2669,24 @@ c      end
       return
       end
 
+      subroutine D3dB_r_Power1(nb,pow,A)
+      implicit none
+      integer nb
+      real*8  pow
+      real*8 A(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         A(i) = A(i)**pow
+      end do
+      return
+      end
+
+
+
 
 
 *     ***********************************
