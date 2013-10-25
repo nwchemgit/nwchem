@@ -145,12 +145,11 @@
 *     *              wgc_v                   *
 *     *                                      *
 *     ****************************************
-      subroutine wgc_v(tune,ispin,dn,v_out)
+      subroutine wgc_v(ispin,dn,v_out)
       implicit none
-      real*8  tune
       integer ispin
       real*8  dn(*)
-      complex*16 v_out(*)
+      real*8  v_out(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -163,17 +162,71 @@
       common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
      >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
-      integer nx,ny,nz
-      real*8  ss,scal1
+      integer nfft3d,n2ft3d
+      
 
       call nwpw_timing_start(7)
+      call D3dB_nfft3d(1,nfft3d)
+      call D3dB_n2ft3d(1,n2ft3d)
 
-      call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
-      call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
-      call D3dB_r_SMul1(1,scal1,dcpl_mb(rho(1)))
-      call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
-      call Pack_c_pack(0,dcpl_mb(rho(1)))
-      call Pack_tc_Mul(0,dbl_mb(wgc_indx),dcpl_mb(rho(1)),v_out)
+      if (.not. MA_push_get(mt_dcpl,nfft3d,'rho',rho(2),rho(1))) then
+         call errquit('wgc_v:out of stack',0,MA_ERR)
+      end if
+      if (.not. MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))) then
+         call errquit('wgc_v:out of stack',1,MA_ERR)
+      end if
+
+      !**** alpha==beta ****
+      if (wgc_eq_tune) then
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
+         call Pack_c_SMul1(0,dcpl_mb(rho(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
+         call Pack_c_pack(0,dcpl_mb(rho(1)))
+
+         call Pack_tc_Mul(0,dbl_mb(wgc_indx),dcpl_mb(rho(1)),v_out)
+         call Pack_c_SMul1(0,2.0d0*wgc_tune1,v_out)
+         call Pack_c_unpack(0,v_out)
+         call D3dB_cr_fft3f(1,v_out)
+
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
+         call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
+
+      !**** alpha!=beta ****
+      else
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
+         call Pack_c_SMul1(0,dcpl_mb(rho(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
+         call Pack_c_pack(0,dcpl_mb(rho(1)))
+         call Pack_tc_Mul(0,dbl_mb(wgc_indx),
+     >                      dcpl_mb(rho(1)),
+     >                      v_out)
+         call Pack_c_SMul1(0,wgc_tune2,v_out)
+         call Pack_c_unpack(0,v_out)
+         call D3dB_cr_fft3f(1,v_out)
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_r_Power1(1,(wgc_tune2-1.0d0),dcpl_mb(rho(1)))
+         call D3dB_rr_Multiply1(1,dcpl_mb(rho(1)),v_out)
+
+
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho(1)))
+         call Pack_c_SMul1(0,dcpl_mb(rho(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
+         call Pack_c_pack(0,dcpl_mb(rho(1)))
+         call Pack_tc_Mul(0,dbl_mb(wgc_indx),
+     >                      dcpl_mb(rho(1)),
+     >                      dcpl_mb(tmp(1)))
+         call Pack_c_SMul1(0,wgc_tune1,dcpl_mb(tmp(1)))
+         call Pack_c_unpack(0,dcpl_mb(tmp(1)))
+         call D3dB_cr_fft3f(1,dcpl_mb(tmp(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
+         call D3dB_rrr_MultiplyAdd(1,dcpl_mb(rho(1)),dcpl_mb(tmp(1)),
+     >                             v_out)
+      end if
 
       call nwpw_timing_end(7)
 
