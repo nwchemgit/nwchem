@@ -1166,7 +1166,7 @@ endif
     _FC=gfortran
 #gcc version 4.2.0 200512 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra #-Wunused #-ffast-math
+        FOPTIONS   = #-Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
@@ -1297,7 +1297,7 @@ endif
     _FC=gfortran
 #gcc version 
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra #-Wunused #-ffast-math
+        FOPTIONS   = #-Wextra #-Wunused #-ffast-math
         FOPTIONS += -fdefault-integer-8
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
        DEFINES  += -DGFORTRAN -DGCC4
@@ -1382,7 +1382,7 @@ endif
 
       FOPTIMIZE  = -O2 
       ifeq ($(FC),gfortran)
-        FOPTIONS   = -Wextra -ffast-math #-Wunused  
+        FOPTIONS   = # -Wextra -Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
         _FC=gfortran
         DEFINES  += -DGFORTRAN
@@ -1523,7 +1523,7 @@ endif
       ifeq ($(_FC),gfortran)
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra -ffast-math #-Wunused  
+        FOPTIONS   =  #-ffast-math # -Wextra -Wunused  
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
@@ -1727,7 +1727,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
 	  else
-          FOPTIONS   += -Wextra -Wuninitialized #-Wunused
+          FOPTIONS   += -Wuninitialized # -Wextra -Wunused
         endif
       endif
       ifeq ($(_FC),gfortran)
