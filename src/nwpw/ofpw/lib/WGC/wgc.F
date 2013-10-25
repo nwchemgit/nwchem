@@ -7,9 +7,9 @@
 *     *              wgc_init                *
 *     *                                      *
 *     ****************************************
-      subroutine wgc_init(rho0,tune1,tune2)
+      subroutine wgc_init(rho0)
       implicit none 
-      real*8 rho0,tune1,tune2
+      real*8 rho0
 
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -17,14 +17,15 @@
 *     **** common block used for coulomb.f ****
       real*8  wgc_rho0,wgc_tune1,wgc_tune2
       integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
       common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
 *     **** local variables ****
       real*8 one3rd
       parameter (one3rd=1.0d0/3.0d0)
       double precision toll
-      parameter (toll=1d-16)
+      parameter (toll=1.0d-16)
 
       integer npack0,nfft3d,G(3)
       integer i,j,k
@@ -37,6 +38,9 @@
 *     **** external functions ****
       integer  G_indx
       external G_indx
+      real*8   control_wgc_alphabeta
+      external control_wgc_alphabeta
+ 
 
       call nwpw_timing_start(7)
       call Parallel2d_taskid_i(taskid)
@@ -52,10 +56,13 @@
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/(nx*ny*nz)
 
-      ss = scal1/(2.0d0*tune1*tune2*rho0**(tune1+tune2-2.0d0))
       wgc_rho0  = rho0
-      wgc_tune1 = tune1
-      wgc_tune2 = tune2
+      wgc_tune1 = control_wgc_alphabeta(1)
+      wgc_tune2 = control_wgc_alphabeta(2)
+      wgc_eq_tune = (dabs(wgc_tune1-wgc_tune2).lt.1.0d-6)
+
+      ss = scal1/(2.0d0*wgc_tune1*wgc_tune2
+     >                 *rho0**(wgc_tune1+wgc_tune2-2.0d0))
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'wgc',wgc_hndl,wgc_indx)
@@ -123,8 +130,9 @@
 *     **** common block used for coulomb.f ****
       real*8  wgc_rho0,wgc_tune1,wgc_tune2
       integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
       common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
       if (.not.MA_free_heap(wgc_hndl))
          call errquit('wgc_end:freeing heap',0,MA_ERR)
@@ -151,8 +159,9 @@
 *     **** common block used for coulomb.f ****
       real*8  wgc_rho0,wgc_tune1,wgc_tune2
       integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
       common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
       integer nx,ny,nz
       real*8  ss,scal1
@@ -184,10 +193,11 @@
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
-      real*8  wgc_rho0
+      real*8  wgc_rho0,wgc_tune1,wgc_tune2
       integer wgc_indx,wgc_hndl
-      common / wgc_block / wgc_rho0,wgc_indx,wgc_hndl
-
+      logical wgc_eq_tune
+      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
 *     **** local variables ****
       integer npack0
@@ -234,10 +244,11 @@ c     real*8  tmp1(*)
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
-      real*8  wgc_rho0
+      real*8  wgc_rho0,wgc_tune1,wgc_tune2
       integer wgc_indx,wgc_hndl
-      common / wgc_block / wgc_rho0,wgc_indx,wgc_hndl
-
+      logical wgc_eq_tune
+      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
 *     **** local variables ****
       integer npack0,nfft3d,G(2,3)
