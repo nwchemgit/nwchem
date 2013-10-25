@@ -1232,7 +1232,7 @@ endif
     ifeq ($(CC),xlc)
       COPTIONS  +=  -qlanglvl=extended
     else
-      COPTIONS   = -Wall -no-cpp-precomp
+      COPTIONS   = -Wall #-no-cpp-precomp
       COPTIMIZE  = -g -O2
     endif
     ifdef  USE_GPROF
