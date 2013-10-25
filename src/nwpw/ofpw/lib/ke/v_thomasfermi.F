@@ -20,12 +20,13 @@
 
 
       integer ms,k
+      real*8  n,nup,ndn,eta,f
 
-      real*8 two3rd,five3rd,twotwothirds,CTF,CTP,dncut
+      real*8 two3rd,five3rd,twotwothirds,CTF,ffac,dncut
       parameter (two3rd=2.0d0/3.0d0,five3rd=5.0d0/3.0d0)
       parameter (twotwothirds=1.587401052d0)
       parameter (CTF=2.871234d0)
-      parameter (CTP=3.174802103936399d0*CTF)
+      parameter (ffac=0.851207191959658d0)
       parameter (dncut=1.0d-30)
 
 
@@ -39,9 +40,14 @@
          end do
       else
          do k=1,n2ft3d
-            xce(k) = xce(k) + CTF*(dn(k,1) +dn(k,ispin))**two3rd
-            xcp(k,1) = CTF*five3rd*(dn(k,1)+dn(k,ispin))**two3rd
-            xcp(k,2) = CTF*five3rd*(dn(k,1)+dn(k,ispin))**two3rd
+            nup = dn(k,1)+0.5d0*dncut
+            ndn = dn(k,2)+0.5d0*dncut
+            n = nup+ndn
+            eta = (nup-ndn)/n
+            f = ffac*((1.0d0+eta)**five3rd+(1.0d0-eta)**five3rd-2.0d0)
+            xce(k) = xce(k)+(1.0d0+f*(twotwothirds-1.0d0))*CTF*n**two3rd
+            xcp(k,1) = twotwothirds*CTF*five3rd*nup**two3rd
+            xcp(k,2) = twotwothirds*CTF*five3rd*ndn**two3rd
          end do
       end if
 
