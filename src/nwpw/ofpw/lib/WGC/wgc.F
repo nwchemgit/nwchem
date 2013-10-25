@@ -30,8 +30,8 @@
       integer npack0,nfft3d,G(3)
       integer i,j,k
       integer zero,qzero,pzero,taskid
-      integer nx,ny
-      real*8  pi,gg,scal1,ss
+      integer nx,ny,nz
+      real*8  pi,gg,scal1,ss,aa1,aa2,tf,kf,lind,eta1,eta2,eta,vw
       logical value
       integer tmp1(2)
 
@@ -135,7 +135,7 @@
      >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
       if (.not.MA_free_heap(wgc_hndl))
-         call errquit('wgc_end:freeing heap',0,MA_ERR)
+     >   call errquit('wgc_end:freeing heap',0,MA_ERR)
 
       return
       end
@@ -162,25 +162,22 @@
       common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
      >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
+      logical value
       integer nfft3d,n2ft3d
-      
+      integer rho(2),tmp(2)
 
       call nwpw_timing_start(7)
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
 
-      if (.not. MA_push_get(mt_dcpl,nfft3d,'rho',rho(2),rho(1))) then
-         call errquit('wgc_v:out of stack',0,MA_ERR)
-      end if
-      if (.not. MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))) then
-         call errquit('wgc_v:out of stack',1,MA_ERR)
-      end if
+      value =      MA_push_get(mt_dcpl,nfft3d,'rho',rho(2),rho(1))
+     >        .and.MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      if (.not.value) call errquit('wgc_v:out of stack',0,MA_ERR)
 
       !**** alpha==beta ****
       if (wgc_eq_tune) then
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
-         call Pack_c_SMul1(0,dcpl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
          call Pack_c_pack(0,dcpl_mb(rho(1)))
 
@@ -189,15 +186,14 @@
          call Pack_c_unpack(0,v_out)
          call D3dB_cr_fft3f(1,v_out)
 
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
          call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
 
       !**** alpha!=beta ****
       else
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
-         call Pack_c_SMul1(0,dcpl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
          call Pack_c_pack(0,dcpl_mb(rho(1)))
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),
@@ -206,12 +202,12 @@
          call Pack_c_SMul1(0,wgc_tune2,v_out)
          call Pack_c_unpack(0,v_out)
          call D3dB_cr_fft3f(1,v_out)
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune2-1.0d0),dcpl_mb(rho(1)))
-         call D3dB_rr_Multiply1(1,dcpl_mb(rho(1)),v_out)
+         call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
 
 
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho(1)))
          call Pack_c_SMul1(0,dcpl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
@@ -222,25 +218,31 @@
          call Pack_c_SMul1(0,wgc_tune1,dcpl_mb(tmp(1)))
          call Pack_c_unpack(0,dcpl_mb(tmp(1)))
          call D3dB_cr_fft3f(1,dcpl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
          call D3dB_rrr_MultiplyAdd(1,dcpl_mb(rho(1)),dcpl_mb(tmp(1)),
      >                             v_out)
       end if
 
+      value =      MA_pop_stack(tmp(2))
+     >        .and.MA_pop_stack(rho(2))
+      if (.not.value) call errquit('wgc_v:popping stack',1,MA_ERR)
+
       call nwpw_timing_end(7)
 
       return 
       end
+
 
 *     ****************************************
 *     *                                      *
 *     *              wgc_e                   *
 *     *                                      *
 *     ****************************************
-      real*8 function wgc_e(dng)
+      real*8 function wgc_e(ispin,dn)
       implicit none
-      complex*16 dng(*)
+      integer ispin
+      real*8  dn(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -253,159 +255,48 @@
      >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
 *     **** local variables ****
-      integer npack0
+      logical value
+      integer npack0,nfft3d,n2ft3d
       real*8 ec
 
-c     real*8  tmp1(*)
-      integer tmp1(2)
-      logical value
-
-*     **** external functions ****
-      real*8 lattice_omega
-      external lattice_omega
+      integer tmp1(2),rho1(2),rho2(2)
 
       call nwpw_timing_start(7)
+      call D3dB_nfft3d(1,nfft3d)
+      call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(0,npack0)
-      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      
-      call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
-      call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
-       
-      ec = 0.5d0*ec*lattice_omega()
 
-      value = MA_pop_stack(tmp1(2))
+      value =      MA_push_get(mt_dcpl,nfft3d,'rho1',rho1(2),rho1(1))
+     >        .and.MA_push_get(mt_dcpl,nfft3d,'rho2',rho2(2),rho2(1))
+     >        .and.MA_push_get(mt_dbl, npack0,'tmp1',tmp1(2),tmp1(1))
+      if (.not.value) call errquit('wgc_e:out of stack',0,MA_ERR)
+
+      call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho1(1)))
+      call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho1(1)))
+      call D3dB_rc_fft3f(1,dcpl_mb(rho1(1)))
+      call Pack_c_pack(0,dcpl_mb(rho1(1)))
+      if (wgc_eq_tune) then
+         call Pack_ct_Sqr(0,dcpl_mb(rho1(1)),dbl_mb(tmp1(1)))
+      else
+         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho2(1)))
+         call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho2(1)))
+         call D3dB_rc_fft3f(1,dcpl_mb(rho2(1)))
+         call Pack_c_pack(0,dcpl_mb(rho2(1)))
+         call Pack_cct_conjgMul(0,dcpl_mb(rho1(1)),
+     >                            dcpl_mb(rho2(1)),
+     >                            dbl_mb(tmp1(1)))
+      end if
+      call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(wgc_indx),ec)
+       
+
+      value =      MA_pop_stack(tmp1(2))
+     >        .and.MA_pop_stack(rho2(2))
+     >        .and.MA_pop_stack(rho1(2))
+      if (.not.value) call errquit('wgc_e:popping stack',1,MA_ERR)
+
       call nwpw_timing_end(7)
 
       wgc_e = ec
       return 
-      end
-
-
-
-*     ****************************************
-*     *                                      *
-*     *              wgc_euv                 *
-*     *                                      *
-*     ****************************************
-      subroutine wgc_euv(dng,euv)
-      implicit none 
-      complex*16 dng(*)
-      real*8 euv(3,3)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
-
-*     **** local variables ****
-      integer npack0,nfft3d,G(2,3)
-      integer i,j
-      integer u,v,s
-      logical value
-
-      real*8 pi,fourpi,scal,ss,sum
-      real*8 hm(3,3),Bus(3,3),ecoul 
-      integer tmp1(2),tmp2(2)
-
-*     **** external functions ****
-c     real*8 G(nfft3d,3)
-      integer  G_indx
-      external G_indx
-
-      real*8   lattice_unitg,lattice_omega,coulomb_e
-      external lattice_unitg,lattice_omega,coulomb_e
-
-
-
-      pi     = 4.0d0*datan(1.0d0)
-      fourpi = 4.0d0*pi
-      scal   = 1.0d0/(2.0d0*pi)
-
-*     *** define hm ****
-      do j=1,3
-      do i=1,3
-         hm(i,j) = scal*lattice_unitg(i,j)
-      end do
-      end do      
-
-
-      call D3dB_nfft3d(1,nfft3d)
-      call Pack_npack(0,npack0)
-
-      value = MA_push_get(mt_dbl,nfft3d,
-     >                     'G1',G(2,1),G(1,1))
-      if (.not. value) call errquit('wgc_euv:out of stack',0, MA_ERR)
-      value = MA_push_get(mt_dbl,nfft3d,
-     >                     'G2',G(2,2),G(1,2))
-      if (.not. value) call errquit('wgc_euv:out of stack',0, MA_ERR)
-      value = MA_push_get(mt_dbl,nfft3d,
-     >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('wgc_euv:out of stack',0, MA_ERR)
-
-      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('wgc_euv:out of stack',0, MA_ERR)
-
-      value = MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('wgc_euv:out of stack',0, MA_ERR)
-
-      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1,1)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(1,2)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(G(1,3)),1)
-      call Pack_t_pack(0,dbl_mb(G(1,1)))
-      call Pack_t_pack(0,dbl_mb(G(1,2)))
-      call Pack_t_pack(0,dbl_mb(G(1,3)))
-
-*     **** tmp2(G) = (n(G)**2) * (4*pi/G**2)**2  ****
-      call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
-      call Pack_tt_Mul(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),
-     >                                   dbl_mb(tmp2(1)))
-c      call Pack_tt_Mul(0,dbl_mb(tmp2(1)),dbl_mb(vc_indx),
-c     >                                   dbl_mb(tmp2(1)))
-      call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp2(1)))
-
-
-*     **** Bus = Sum(G) (omega/4*pi)*tmp2(G)*Gu*Gs ****
-      call dcopy(9,0.0d0,0,Bus,1)
-      ss     = lattice_omega()/fourpi
-      do u=1,3
-      do s=u,3
-        call Pack_tt_Mul(0,dbl_mb(G(1,u)),
-     >                     dbl_mb(G(1,s)),
-     >                     dbl_mb(tmp1(1)))
-        call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),sum)
-
-        Bus(u,s) = ss*sum
-      end do
-      end do
-      do u=1,3
-      do s=u+1,3
-         Bus(s,u) = Bus(u,s)
-      end do
-      end do
-
-      ecoul = coulomb_e(dng)
-      do v=1,3
-      do u=1,3
-         euv(u,v) = -ecoul*hm(u,v)
-         do s=1,3
-            euv(u,v) = euv(u,v) + Bus(u,s)*hm(s,v)
-         end do
-      end do
-      end do
- 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(G(2,3)) 
-      value = value.and.MA_pop_stack(G(2,2)) 
-      value = value.and.MA_pop_stack(G(2,1))
-      if (.not. value) call errquit('wgc_euv:popping stack',0,MA_ERR)
-
-      return
       end
 
