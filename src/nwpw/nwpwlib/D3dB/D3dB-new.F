@@ -3805,6 +3805,52 @@ c      call Parallel2d_np_i(np)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          D3dB_rr_Multiply2      *       
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_rr_Multiply2(nb,A,B)
+      implicit none 
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = B(i)*A(i)
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       D3dB_rrr_MultiplyAdd      *       
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_rr_MultiplyAdd(nb,A,B,C)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+      real*8  C(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         C(i) = C(i) + B(i)*A(i)
+      end do
+
+      return
+      end
 
 
 
