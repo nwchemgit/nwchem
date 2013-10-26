@@ -3834,7 +3834,7 @@ c      call Parallel2d_np_i(np)
 *     *       D3dB_rrr_MultiplyAdd      *       
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_rr_MultiplyAdd(nb,A,B,C)
+      subroutine D3dB_rrr_MultiplyAdd(nb,A,B,C)
       implicit none
       integer nb
       real*8  A(*)
