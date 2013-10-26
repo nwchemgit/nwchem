@@ -41,7 +41,7 @@
       real*8  A,B,C,x,lmbda(2)
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  etf,etf2,ptf,ptf2
-      real*8  evw
+      real*8  evw,ewgc,pwgc
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
       real*8  e_lj, e_q, e_spring
@@ -65,7 +65,7 @@ c     real*8     fion(3,natmx)
       integer vl(2),vc(2),dng(2)
       integer vlr_l(2),rho(2),r_grid(2)
       integer v_field(2),v_tmp(2)
-      integer xcp(2),xce(2),dnall(2),v_tf(2),e_tf(2)
+      integer xcp(2),xce(2),dnall(2),v_tf(2),e_tf(2),v_wgc(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
       integer npack0
@@ -153,6 +153,8 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(4*nfft3d),'v_tf',v_tf(2), v_tf(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nfft3d),'e_tf',e_tf(2), e_tf(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'v_wgc',v_wgc(2), v_wgc(1))
 
       value = value.and.
      >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
@@ -322,9 +324,11 @@ c        !end do
 *       **** generate Kinetic  potentials            ****
 *       *************************************************
        call v_thomasfermi(n2ft3d,ispin,
-     >                    dbl_mb(dnall(1)),
+     >                    dn,
      >                    dbl_mb(v_tf(1)),
      >                    dbl_mb(e_tf(1)))
+
+       call wgc_v(ispin,dn,dbl_mb(v_wgc(1)))
 
      
 *       *******************************************
@@ -367,7 +371,8 @@ c        !end do
      >     call chi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),dbl_mb(v_tf(1)),
+     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),
+     >             dbl_mb(v_tf(1)),dbl_mb(v_wgc(1)),
      >             Hpsi,
      >             move,dbl_mb(fion(1)))
 
@@ -496,6 +501,10 @@ c        !end do
       nne(2) = ispin-1
       call ke_ave(ispin,nne,psi1,evw,.false.,n1)
 
+*     ***** WGC kinetic energy ****
+      ewgc = 0.0d0
+      pwgc = 0.0d0
+
 
 *     **** average Kohn-Sham v_local energy ****
       call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
@@ -533,6 +542,8 @@ c        !end do
       E(10) = pxc
       E(14) = etf
       E(15) = ptf
+      E(16) = ewgc
+      E(17) = pwgc
 
       if (pspw_qmmm_found()) then
          e_lj     = pspw_qmmm_LJ_E()
@@ -587,6 +598,7 @@ c        !end do
       value = value.and.MA_pop_stack(ftest(2))
       value = value.and.MA_pop_stack(fion(2))
       value = value.and.MA_pop_stack(dnall(2))
+      value = value.and.MA_pop_stack(v_wgc(2))
       value = value.and.MA_pop_stack(e_tf(2))
       value = value.and.MA_pop_stack(v_tf(2))
       value = value.and.MA_pop_stack(v_tmp(2))
