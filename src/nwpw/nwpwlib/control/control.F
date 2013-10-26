@@ -5086,6 +5086,37 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *        control_wgc_alphabeta    *
+*     *                                 *
+*     ***********************************
+      real*8 function control_wgc_alphabeta(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (i.eq.1) then
+         if (.not.rtdb_get(rtdb,'nwpw:wgc_alpha',mt_dbl,1,value))
+     >      value = 5.0d0/6.0d0
+      else
+         if (.not.rtdb_get(rtdb,'nwpw:wgc_beta',mt_dbl,1,value))
+     >      value = 5.0d0/6.0d0
+      end if
+
+      control_wgc_alphabeta = value
+      return
+      end
+
+
 
 
 
