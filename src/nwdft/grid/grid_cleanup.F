@@ -17,10 +17,10 @@ c
 c
 c     case of pure HF X
 c
+      call grid_closecache
+c
       if(.not.xc_gotxc().or.(.not.file_opened)) return
 c
-c
-      call grid_closecache
       if(.not.largenode) then
          if(.not.grid_file_close(okeep)) call
      .        errquit(' grclup: file_close failed',0, DISK_ERR)

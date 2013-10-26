@@ -155,7 +155,7 @@ c
             grid_file_open = .false.
             return
          endif
-         l_cache = -1
+c        l_cache = -1
          k_cache = -1
          n_rec_in_file = 0
          grid_file_open = .true.
@@ -289,7 +289,7 @@ c
             call util_flush(LuOut)
          end if
 c
-      l_cache = -1
+c     l_cache = -1
       file_opened = .false.
       cur_rec = 0
       n_rec_in_file = 0
