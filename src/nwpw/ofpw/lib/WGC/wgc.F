@@ -140,6 +140,67 @@
       return
       end
 
+
+*     ****************************************
+*     *                                      *
+*     *              wgc_rho                 *
+*     *                                      *
+*     ****************************************
+      real*8 function wgc_rho()
+      implicit none
+
+*     **** common block used for coulomb.f ****
+      real*8  wgc_rho0,wgc_tune1,wgc_tune2
+      integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
+      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+
+      wgc_rho = wgc_rho0
+      return
+      end
+
+
+*     ****************************************
+*     *                                      *
+*     *              wgc_alpha               *
+*     *                                      *
+*     ****************************************
+      real*8 function wgc_alpha()
+      implicit none
+
+*     **** common block used for coulomb.f ****
+      real*8  wgc_rho0,wgc_tune1,wgc_tune2
+      integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
+      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+
+      wgc_alpha = wgc_tune1
+      return
+      end
+
+
+*     ****************************************
+*     *                                      *
+*     *              wgc_beta                *
+*     *                                      *
+*     ****************************************
+      real*8 function wgc_beta()
+      implicit none
+
+*     **** common block used for coulomb.f ****
+      real*8  wgc_rho0,wgc_tune1,wgc_tune2
+      integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
+      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+
+      wgc_beta = wgc_tune2
+      return
+      end
+
+
 *     ****************************************
 *     *                                      *
 *     *              wgc_v                   *
@@ -184,7 +245,7 @@
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),dcpl_mb(rho(1)),v_out)
          call Pack_c_SMul1(0,2.0d0*wgc_tune1,v_out)
          call Pack_c_unpack(0,v_out)
-         call D3dB_cr_fft3f(1,v_out)
+         call D3dB_cr_fft3b(1,v_out)
 
          call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
@@ -201,7 +262,7 @@
      >                      v_out)
          call Pack_c_SMul1(0,wgc_tune2,v_out)
          call Pack_c_unpack(0,v_out)
-         call D3dB_cr_fft3f(1,v_out)
+         call D3dB_cr_fft3b(1,v_out)
          call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune2-1.0d0),dcpl_mb(rho(1)))
          call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
@@ -217,7 +278,7 @@
      >                      dcpl_mb(tmp(1)))
          call Pack_c_SMul1(0,wgc_tune1,dcpl_mb(tmp(1)))
          call Pack_c_unpack(0,dcpl_mb(tmp(1)))
-         call D3dB_cr_fft3f(1,dcpl_mb(tmp(1)))
+         call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
          call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
          call D3dB_rrr_MultiplyAdd(1,dcpl_mb(rho(1)),dcpl_mb(tmp(1)),
