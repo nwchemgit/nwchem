@@ -20,7 +20,8 @@
 *           v_field,field_exist - external fields (e.g. QM/MM)
 *           vc                  - coulomb potential in k-space
 *           xcp                 - xc potential in r-space
-*           v_tf                - TF kinetic energy potential in r-space
+*           v_tf                - TF kinetic potential in r-space
+*           v_wgc               - WGC kinetic potential in r-space
 *           move                - flag to compute ionic forces
 *   Exit - Hpsi_k - gradient in k-space
 *          fion   - ionic forces
@@ -29,7 +30,7 @@
      >                 psi_k,psi_r,
      >                 vl,
      >                 v_field,field_exist,
-     >                 vc,xcp,v_tf,Hpsi_k,
+     >                 vc,xcp,v_tf,v_wgc,Hpsi_k,
      >                 move,fion)
       implicit none
       integer    ispin,ne(2)
@@ -41,6 +42,7 @@
       complex*16 vc(*)
       real*8     xcp(*)
       real*8     v_tf(*)
+      real*8     v_wgc(*)
       complex*16 Hpsi_k(*)
       logical    move
       real*8     fion(3,*)
@@ -121,6 +123,12 @@ c     complex*16 vpsi(nfft3d)
 *     ******************************
       if (field_exist)
      >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
+
+
+*     ****************************
+*     **** add v_wgc to vall  ****
+*     ****************************
+      call D3dB_rr_Sum2(1,v_wgc,dcpl_mb(vall(1)))
 
 
 *     **************************************************************
