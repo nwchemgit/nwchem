@@ -41,7 +41,7 @@
       real*8  A,B,C,x,lmbda(2)
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  etf,etf2,ptf,ptf2
-      real*8  evw,ewgc,pwgc
+      real*8  evw,ewgc,pwgc,pwgc2
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
       real*8  e_lj, e_q, e_spring
@@ -88,8 +88,8 @@ c     real*8     fion(3,natmx)
       real*8   ion_ion_e
       external ion_ion_e
 
-      double precision Dneall_m_trace
-      external         Dneall_m_trace
+      double precision Dneall_m_trace,wgc_e
+      external         Dneall_m_trace,wgc_e
       logical  Dneall_m_push_get_block,Dneall_m_pop_stack
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
@@ -501,9 +501,18 @@ c        !end do
       nne(2) = ispin-1
       call ke_ave(ispin,nne,psi1,evw,.false.,n1)
 
+
 *     ***** WGC kinetic energy ****
-      ewgc = 0.0d0
-      pwgc = 0.0d0
+      call D3dB_rr_dot(1,dn(1,1),dbl_mb(v_wgc(1)),pwgc)
+      if (ispin.eq.1) then
+         pwgc = pwgc + pwgc
+      else
+         call D3dB_rr_dot(1,dn(1,2),dbl_mb(v_wgc(1)),pwgc2)
+         pwgc = pwgc + pwgc2
+      end if
+      pwgc = pwgc*dv
+      ewgc = wgc_e(ispin,dn)
+      
 
 
 *     **** average Kohn-Sham v_local energy ****
@@ -530,7 +539,7 @@ c        !end do
 *     **** total energy ****
       Eold=E(1)
       !E(1) = elocal + eion + exc + etf + ehartr 
-      E(1) = eorbit + eion + exc + etf - ehartr - pxc - ptf
+      E(1) = eorbit + eion +exc+etf+ewgc-ehartr-pxc-ptf-pwgc
       E(2) = eorbit
       E(3) = ehartr
       E(4) = exc
