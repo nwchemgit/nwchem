@@ -13,13 +13,8 @@
 
 #include "errquit.fh"
 #include "mafdecls.fh"
+#include "wgc.fh"
 
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
 *     **** local variables ****
       real*8 one3rd
@@ -31,7 +26,7 @@
       integer i,j,k
       integer zero,qzero,pzero,taskid
       integer nx,ny,nz
-      real*8  pi,gg,scal1,ss,aa1,aa2,tf,kf,lind,eta1,eta2,eta,vw
+      real*8  pi,gg,ss,aa1,aa2,tf,kf,lind,eta1,eta2,eta,vw
       logical value
       integer tmp1(2)
 
@@ -54,14 +49,19 @@
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-      scal1 = 1.0d0/(nx*ny*nz)
+      wgc_scal1 = 1.0d0/(nx*ny*nz)
 
       wgc_rho0  = rho0
       wgc_tune1 = control_wgc_alphabeta(1)
       wgc_tune2 = control_wgc_alphabeta(2)
       wgc_eq_tune = (dabs(wgc_tune1-wgc_tune2).lt.1.0d-6)
 
-      ss = scal1/(2.0d0*wgc_tune1*wgc_tune2
+      !*******************************************************************************
+      !**** An extra scaling of 1/(N1*N2*N3) is done to the WGG_kernel(G) so that ****
+      !**** the rho(G) does not need to be scaled by 1/(N1*N2*N3)                 ****
+      !**** Might want to scal rho(G) properly to make the code more transparent  ****
+      !*******************************************************************************
+      ss = wgc_scal1/(2.0d0*wgc_tune1*wgc_tune2
      >                 *rho0**(wgc_tune1+wgc_tune2-2.0d0))
 
 *     **** allocate vc memory ****
@@ -106,15 +106,15 @@
       end do
       call Pack_t_pack(0,dbl_mb(tmp1(1)))
       call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(wgc_indx))
+      call Pack_tt_dot(0,dbl_mb(wgc_indx),dbl_mb(wgc_indx),aa1)
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) call errquit('wgc_init:popping stack',3,MA_ERR)
 
       call nwpw_timing_end(7)
-
-
       return
       end
+
 
 *     ****************************************
 *     *                                      *
@@ -126,13 +126,8 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "wgc.fh"
 
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
       if (.not.MA_free_heap(wgc_hndl))
      >   call errquit('wgc_end:freeing heap',0,MA_ERR)
@@ -149,17 +144,11 @@
       real*8 function wgc_rho()
       implicit none
 
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+#include "wgc.fh"
 
       wgc_rho = wgc_rho0
       return
       end
-
 
 *     ****************************************
 *     *                                      *
@@ -169,17 +158,11 @@
       real*8 function wgc_alpha()
       implicit none
 
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+#include "wgc.fh"
 
       wgc_alpha = wgc_tune1
       return
       end
-
 
 *     ****************************************
 *     *                                      *
@@ -189,17 +172,11 @@
       real*8 function wgc_beta()
       implicit none
 
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+#include "wgc.fh"
 
       wgc_beta = wgc_tune2
       return
       end
-
 
 *     ****************************************
 *     *                                      *
@@ -214,15 +191,9 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "wgc.fh"
 
-
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
-
+*     **** local variables ****
       logical value
       integer nfft3d,n2ft3d
       integer rho(2),tmp(2)
@@ -237,8 +208,11 @@
 
       !**** alpha==beta ****
       if (wgc_eq_tune) then
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
+
+         !**** the rho^alpha(G) is not beinge scaled by 1/(N1*N2*N3) ****
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
+         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
          call Pack_c_pack(0,dcpl_mb(rho(1)))
 
@@ -247,14 +221,17 @@
          call Pack_c_unpack(0,v_out)
          call D3dB_cr_fft3b(1,v_out)
 
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
+         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
          call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
 
       !**** alpha!=beta ****
       else
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
+         !**** the rho^alpha(G) is not being scaled by 1/(N1*N2*N3) ****
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
+         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
          call Pack_c_pack(0,dcpl_mb(rho(1)))
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),
@@ -263,14 +240,15 @@
          call Pack_c_SMul1(0,wgc_tune2,v_out)
          call Pack_c_unpack(0,v_out)
          call D3dB_cr_fft3b(1,v_out)
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune2-1.0d0),dcpl_mb(rho(1)))
          call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
 
 
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
+         !**** the rho^beta(G) is not being scaled by 1/(N1*N2*N3) ****
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho(1)))
-         call Pack_c_SMul1(0,dcpl_mb(rho(1)))
+         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
          call Pack_c_pack(0,dcpl_mb(rho(1)))
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),
@@ -279,11 +257,13 @@
          call Pack_c_SMul1(0,wgc_tune1,dcpl_mb(tmp(1)))
          call Pack_c_unpack(0,dcpl_mb(tmp(1)))
          call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
          call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
+          call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
          call D3dB_rrr_MultiplyAdd(1,dcpl_mb(rho(1)),dcpl_mb(tmp(1)),
      >                             v_out)
       end if
+      call D3dB_r_Zero_Ends(1,v_out)
 
       value =      MA_pop_stack(tmp(2))
      >        .and.MA_pop_stack(rho(2))
@@ -307,13 +287,8 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "wgc.fh"
 
-*     **** common block used for coulomb.f ****
-      real*8  wgc_rho0,wgc_tune1,wgc_tune2
-      integer wgc_indx,wgc_hndl
-      logical wgc_eq_tune
-      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,
-     >                     wgc_indx,wgc_hndl,wgc_eq_tune
 
 *     **** local variables ****
       logical value
@@ -321,6 +296,10 @@
       real*8 ec
 
       integer tmp1(2),rho1(2),rho2(2)
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
 
       call nwpw_timing_start(7)
       call D3dB_nfft3d(1,nfft3d)
@@ -332,15 +311,18 @@
      >        .and.MA_push_get(mt_dbl, npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('wgc_e:out of stack',0,MA_ERR)
 
-      call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho1(1)))
+      !**** the rho^alpha(G) is not being scaled by 1/(N1*N2*N3) ****
+      call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho1(1)))
       call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho1(1)))
+      call D3dB_r_Zero_Ends(1,dcpl_mb(rho1(1)))
       call D3dB_rc_fft3f(1,dcpl_mb(rho1(1)))
       call Pack_c_pack(0,dcpl_mb(rho1(1)))
       if (wgc_eq_tune) then
          call Pack_ct_Sqr(0,dcpl_mb(rho1(1)),dbl_mb(tmp1(1)))
       else
-         call D3dB_rr_Sum(1,dn,dn(n2ft3d*(ispin-1)),dcpl_mb(rho2(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho2(1)))
          call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho2(1)))
+         call D3dB_r_Zero_Ends(1,dcpl_mb(rho2(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(rho2(1)))
          call Pack_c_pack(0,dcpl_mb(rho2(1)))
          call Pack_cct_conjgMul(0,dcpl_mb(rho1(1)),
@@ -348,6 +330,14 @@
      >                            dbl_mb(tmp1(1)))
       end if
       call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(wgc_indx),ec)
+
+      !**************************************************************************************************
+      !**** Note the energy is really omega*Sum(G) conj(rho^alpha(G))*rho^beta(G)|^2 * WGC_kernel(G) ****
+      !**** This funny form is because rho(G) is not scaled 1/(N1*N2*N3) and an                      ****
+      !**** extra scaling of 1/(N1*N2*N3) is done to the WGG_kernel(G)                               ****
+      !**** Might want to scal rho^alpha/beta(G) properly to make the code more transparent          ****
+      !**************************************************************************************************
+      ec = ec*lattice_omega()*wgc_scal1  
        
 
       value =      MA_pop_stack(tmp1(2))

@@ -1,0 +1,12 @@
+*
+* $Id: wgc.fh 24638 2013-10-11 23:57:35Z bylaska $
+*
+
+
+*     **** common block used for WGC.F ****
+      real*8  wgc_rho0,wgc_tune1,wgc_tune2,wgc_scal1
+      integer wgc_indx,wgc_hndl
+      logical wgc_eq_tune
+      common / wgc_block / wgc_rho0,wgc_tune1,wgc_tune2,wgc_scal1,
+     >                     wgc_indx,wgc_hndl,wgc_eq_tune
+
