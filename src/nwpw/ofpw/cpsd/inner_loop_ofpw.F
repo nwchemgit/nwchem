@@ -580,7 +580,7 @@ c     real*8     fion(3,natmx)
       do n=1,ispin
          if (dbl_mb(sumi(1)+n-1).gt.deltac) deltac=dbl_mb(sumi(1)+n-1)
       end do
-      deltac = deltac/dte
+      deltac = deltac/dte *(ne(1)+ne(2))
 
 
 *     *** deltar ***
