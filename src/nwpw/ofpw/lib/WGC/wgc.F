@@ -196,83 +196,89 @@
 *     **** local variables ****
       logical value
       integer nfft3d,n2ft3d
-      integer rho(2),tmp(2)
+      integer rho1(2),tmp1(2)
 
       call nwpw_timing_start(7)
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
 
-      value =      MA_push_get(mt_dcpl,nfft3d,'rho',rho(2),rho(1))
-     >        .and.MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value =      MA_push_get(mt_dbl,2*n2ft3d,'rho1',rho1(2),rho1(1))
+     >        .and.MA_push_get(mt_dbl,2*n2ft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('wgc_v:out of stack',0,MA_ERR)
 
       !**** alpha==beta ****
       if (wgc_eq_tune) then
 
          !**** the rho^alpha(G) is not beinge scaled by 1/(N1*N2*N3) ****
-         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
-         call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
-         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
-         !call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
-         call D3dB_rc_pfft3f(1,0,dcpl_mb(rho(1)))
-         call Pack_c_pack(0,dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dbl_mb(rho1(1)))
+         call D3dB_r_notZero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_r_Power1(1,wgc_tune1,dbl_mb(rho1(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(rho1(1)))
+         !call D3dB_rc_fft3f(1,dbl_mb(rho1(1)))
+         call D3dB_rc_pfft3f(1,0,dbl_mb(rho1(1)))
+         call Pack_c_pack(0,dbl_mb(rho1(1)))
 
-         call Pack_tc_Mul(0,dbl_mb(wgc_indx),dcpl_mb(rho(1)),v_out)
+         call Pack_tc_Mul(0,dbl_mb(wgc_indx),dbl_mb(rho1(1)),v_out)
          call Pack_c_SMul1(0,2.0d0*wgc_tune1,v_out)
          call Pack_c_unpack(0,v_out)
          !call D3dB_cr_fft3b(1,v_out)
          call D3dB_cr_pfft3b(1,0,v_out)
 
-         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
-         call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
-         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
-         call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dbl_mb(rho1(1)))
+         call D3dB_r_notZero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dbl_mb(rho1(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_rr_Multiply2(1,dbl_mb(rho1(1)),v_out)
 
       !**** alpha!=beta ****
       else
          !**** the rho^alpha(G) is not being scaled by 1/(N1*N2*N3) ****
-         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
-         call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho(1)))
-         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
-         !call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
-         call D3dB_rc_pfft3f(1,0,dcpl_mb(rho(1)))
-         call Pack_c_pack(0,dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dbl_mb(rho1(1)))
+         call D3dB_r_notZero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_r_Power1(1,wgc_tune1,dbl_mb(rho1(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(rho1(1)))
+         !call D3dB_rc_fft3f(1,dbl_mb(rho1(1)))
+         call D3dB_rc_pfft3f(1,0,dbl_mb(rho1(1)))
+         call Pack_c_pack(0,dbl_mb(rho1(1)))
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),
-     >                      dcpl_mb(rho(1)),
+     >                      dbl_mb(rho1(1)),
      >                      v_out)
          call Pack_c_SMul1(0,wgc_tune2,v_out)
          call Pack_c_unpack(0,v_out)
          !call D3dB_cr_fft3b(1,v_out)
          call D3dB_cr_pfft3b(1,0,v_out)
-         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
-         call D3dB_r_Power1(1,(wgc_tune2-1.0d0),dcpl_mb(rho(1)))
-         call D3dB_rr_Multiply2(1,dcpl_mb(rho(1)),v_out)
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dbl_mb(rho1(1)))
+         call D3dB_r_notZero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_r_Power1(1,(wgc_tune2-1.0d0),dbl_mb(rho1(1)))
+         call D3dB_rr_Multiply2(1,dbl_mb(rho1(1)),v_out)
 
 
          !**** the rho^beta(G) is not being scaled by 1/(N1*N2*N3) ****
-         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
-         call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho(1)))
-         call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
-         !call D3dB_rc_fft3f(1,dcpl_mb(rho(1)))
-         call D3dB_rc_pfft3f(1,0,dcpl_mb(rho(1)))
-         call Pack_c_pack(0,dcpl_mb(rho(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dbl_mb(rho1(1)))
+         call D3dB_r_notZero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_r_Power1(1,wgc_tune2,dbl_mb(rho1(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(rho1(1)))
+         !call D3dB_rc_fft3f(1,dbl_mb(rho1(1)))
+         call D3dB_rc_pfft3f(1,0,dbl_mb(rho1(1)))
+         call Pack_c_pack(0,dbl_mb(rho1(1)))
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),
-     >                      dcpl_mb(rho(1)),
-     >                      dcpl_mb(tmp(1)))
-         call Pack_c_SMul1(0,wgc_tune1,dcpl_mb(tmp(1)))
-         call Pack_c_unpack(0,dcpl_mb(tmp(1)))
-         !call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
-         call D3dB_cr_pfft3b(1,0,dcpl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho(1)))
-         call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dcpl_mb(rho(1)))
-          call D3dB_r_Zero_Ends(1,dcpl_mb(rho(1)))
-         call D3dB_rrr_MultiplyAdd(1,dcpl_mb(rho(1)),dcpl_mb(tmp(1)),
+     >                      dbl_mb(rho1(1)),
+     >                      dbl_mb(tmp1(1)))
+         call Pack_c_SMul1(0,wgc_tune1,dbl_mb(tmp1(1)))
+         call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+         !call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+         call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
+         call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dbl_mb(rho1(1)))
+         call D3dB_r_notZero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_r_Power1(1,(wgc_tune1-1.0d0),dbl_mb(rho1(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(rho1(1)))
+         call D3dB_rrr_MultiplyAdd(1,dbl_mb(rho1(1)),dbl_mb(tmp1(1)),
      >                             v_out)
       end if
       call D3dB_r_Zero_Ends(1,v_out)
 
-      value =      MA_pop_stack(tmp(2))
-     >        .and.MA_pop_stack(rho(2))
+      value =      MA_pop_stack(tmp1(2))
+     >        .and.MA_pop_stack(rho1(2))
       if (.not.value) call errquit('wgc_v:popping stack',1,MA_ERR)
 
       call nwpw_timing_end(7)
@@ -319,6 +325,7 @@
 
       !**** the rho^alpha(G) is not being scaled by 1/(N1*N2*N3) ****
       call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho1(1)))
+      call D3dB_r_notZero_Ends(1,dcpl_mb(rho1(1)))
       call D3dB_r_Power1(1,wgc_tune1,dcpl_mb(rho1(1)))
       call D3dB_r_Zero_Ends(1,dcpl_mb(rho1(1)))
       !call D3dB_rc_fft3f(1,dcpl_mb(rho1(1)))
@@ -328,6 +335,7 @@
          call Pack_ct_Sqr(0,dcpl_mb(rho1(1)),dbl_mb(tmp1(1)))
       else
          call D3dB_rr_Sum(1,dn,dn(1+n2ft3d*(ispin-1)),dcpl_mb(rho2(1)))
+         call D3dB_r_notZero_Ends(1,dcpl_mb(rho2(1)))
          call D3dB_r_Power1(1,wgc_tune2,dcpl_mb(rho2(1)))
          call D3dB_r_Zero_Ends(1,dcpl_mb(rho2(1)))
          !call D3dB_rc_fft3f(1,dcpl_mb(rho2(1)))
