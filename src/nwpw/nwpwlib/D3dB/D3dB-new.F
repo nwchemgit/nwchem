@@ -2669,18 +2669,37 @@ c      end
       return
       end
 
-      subroutine D3dB_r_Power1(nb,pow,A)
+      subroutine D3dB_r_Power1(nb,y,A)
       implicit none
       integer nb
-      real*8  pow
+      real*8  y
       real*8 A(*)
+
+#include "D3dB.fh"
+
+      integer ii
+
+      do ii=1,n2ft3d_map(nb)
+         A(ii) = A(ii)**y
+      end do
+      
+      return
+      end
+
+
+      subroutine D3dB_rr_Power(nb,y,A,B)
+      implicit none
+      integer nb
+      real*8  y
+      real*8 A(*)
+      real*8 B(*)
 
 #include "D3dB.fh"
 
       integer i
 
       do i=1,n2ft3d_map(nb)
-         A(i) = A(i)**pow
+         B(i) = A(i)**y
       end do
       return
       end
@@ -4132,6 +4151,55 @@ CDIR$ NOVECTOR
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_r_notZero_Ends    *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_r_notZero_Ends(nb,A)
+      integer nb
+      real*8 A(*) 
+
+#include "D3dB.fh"
+
+      integer j,k,q,index,taskid,p
+
+      !**** slab mapping ****
+      if (mapping.eq.1) then
+      do q=1,nq(nb)
+         do j=1,ny(nb)
+            index = (nx(nb)+1) + (j-1)*(nx(nb)+2)
+     >                         + (q-1)*(nx(nb)+2)*(ny(nb))
+            A(index)   = 1.0d0
+            A(index+1) = 1.0d0
+         end do
+      end do
+
+
+      !**** hilbert mapping ****
+      else
+        call Parallel2d_taskid_i(taskid)
+        do k=1,nz(nb)
+        do j=1,ny(nb)
+
+         call D3dB_ijktoindex2p(nb,(nx(nb)+1),j,k,index,p)
+         if (p.eq.taskid) A(index) = 1.0d0
+
+         call D3dB_ijktoindex2p(nb,(nx(nb)+2),j,k,index,p)
+         if (p.eq.taskid) A(index) = 1.0d0
+
+        end do
+        end do
+      end if
+
+      return
+      end
+
+
 
 
 *     ***********************************
