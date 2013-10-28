@@ -207,13 +207,7 @@ c     real*8     fion(3,natmx)
            call Pack_c_unpack(1,psi_r(1,n))
            call D3dB_cr_pfft3b(1,1,psi_r(1,n))
         end do
-c        do n=1,ispin
-c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
-c        end do
-c        call Grsm_gh_fftb(nfft3d,ispin,psi_r)
-c        !do n=1,ispin
-c        !   call D3dB_r_Zero_Ends(1,psi_r(1,n))
-c        !end do
+
 
 
 
@@ -233,7 +227,8 @@ c        !end do
 *       **********************
         call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
         call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dcpl_mb(tmp1(1)))
-        call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+        !call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+        call D3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
 
