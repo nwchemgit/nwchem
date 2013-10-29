@@ -155,6 +155,7 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(2*nfft3d),'e_tf',e_tf(2), e_tf(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'v_wgc',v_wgc(2), v_wgc(1))
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_wgc(1)),1)
 
       value = value.and.
      >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
@@ -197,6 +198,8 @@ c     real*8     fion(3,natmx)
 *       **** generate phaze factors ****
 *       ********************************
         call phafac()
+        if (control_version().eq.3) call ewald_phafac()
+
 
         call nwpw_timing_start(11)
 *       *******************
@@ -322,7 +325,6 @@ c     real*8     fion(3,natmx)
      >                    dn,
      >                    dbl_mb(v_tf(1)),
      >                    dbl_mb(e_tf(1)))
-
        call wgc_v(ispin,dn,dbl_mb(v_wgc(1)))
 
      
@@ -348,20 +350,6 @@ c     real*8     fion(3,natmx)
 *       ******************
 *       **** get Hchi ****
 *       ******************
-        !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
-        !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
-
-        !call daxpy(2*n2ft3d,1.0d0,dbl_mb(xcp(1)),1,dbl_mb(v_tf(1)),1)
-        !call daxpy(n2ft3d,  1.0d0,dbl_mb(xce(1)),1,dbl_mb(e_tf(1)),1)
-
-        !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(v_tf(1)),1)
-        !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(e_tf(1)),1)
-        !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-        !call dcopy(n2ft3d,  0.0d0,0,dbl_mb(xce(1)),1)
-        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vc(1)),1)
-        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
-
-
         if (control_version().eq.3) 
      >     call chi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
@@ -375,7 +363,9 @@ c     real*8     fion(3,natmx)
      >     call chi_Hv4(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
      >             dbl_mb(v_field(1)),field_exist,
-     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),
+     >             dbl_mb(v_tf(1)),dbl_mb(v_wgc(1)),
+     >             Hpsi,
      >             move,dbl_mb(fion(1)))
 
         
@@ -440,6 +430,7 @@ c     real*8     fion(3,natmx)
       end if
       eorbit = -eorbit
 
+
 *     **** get ewald energy ****
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()
@@ -493,8 +484,17 @@ c     real*8     fion(3,natmx)
 
 *     ***** von-Weizsacker kinetic energy ****
       nne(1) = 1
-      nne(2) = ispin-1
-      call ke_ave(ispin,nne,psi1,evw,.false.,n1)
+      nne(2) = 0
+      if (ispin.eq.1) then
+         call ke_ave(ispin,nne,psi1,evw,.false.,n1)
+         evw = evw*ne(1)
+      else
+         call ke_ave(ispin,nne,psi1,evw,.false.,n1)
+         evw = evw*ne(1)
+         call ke_ave(ispin,nne,psi1(1,2),ewgc,.false.,n1)
+         evw = evw + ewgc*ne(2)
+      end if
+      
 
 
 *     ***** WGC kinetic energy ****
@@ -507,7 +507,9 @@ c     real*8     fion(3,natmx)
       end if
       pwgc = pwgc*dv
       ewgc = wgc_e(ispin,dn)
-      
+      !ewgc = 0.0d0
+      !pwgc = 0.0d0
+
 
 
 *     **** average Kohn-Sham v_local energy ****
