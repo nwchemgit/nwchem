@@ -884,6 +884,9 @@ COLD    END IF
 * Jan. 98 : SHIFT_DIA added
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       REAL*8 INPROD , INPRDD
       LOGICAL CONVER
@@ -934,17 +937,17 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       NTTS = MXNTTS
-      CALL MEMMAN(KLCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
-      CALL MEMMAN(KLCLEBT ,NTTS  ,'ADDL  ',1,'CLEBT ')
-      CALL MEMMAN(KLCI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')
-      CALL MEMMAN(KLCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
+      CALL MEMMAN(KLCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')    !done
+      CALL MEMMAN(KLCLEBT ,NTTS  ,'ADDL  ',1,'CLEBT ')   !done
+      CALL MEMMAN(KLCI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')    !done
+      CALL MEMMAN(KLCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')    !done
 *
-      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL IAIBCM(ISSPC,WORK(KLCIOIO))
+      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')   !done
+      CALL IAIBCM(ISSPC,dbl_mb(KLCIOIO))
 *
-      CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
+      CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')   !done
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,WORK(KLCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),WORK(KSVST))
 *. Allocate memory for diagonalization
       IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
@@ -953,18 +956,18 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       END IF
       LBLOCK = MAX(LBLOCK,LCSBLK)
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,WORK(KLCBLTP),WORK(KNSTSO(IATP)),
+      CALL PART_CIV2(IDC,dbl_mb(KLCBLTP),WORK(KNSTSO(IATP)),
      &              WORK(KNSTSO(IBTP)),
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,WORK(KLCIOIO),
-     &              ISMOST(1,ISSM),NBATCH,WORK(KLCLBT),
-     &              WORK(KLCLEBT),WORK(KLCI1BT),WORK(KLCIBT),0,
+     &              NOCTPA,NOCTPB,NSMST,LBLOCK,dbl_mb(KLCIOIO),
+     &              ISMOST(1,ISSM),NBATCH,int_mb(KLCLBT),
+     &              int_mb(KLCLEBT),int_mb(KLCI1BT),int_mb(KLCIBT),0,
      &              ISIMSYM)
 *. Number of BLOCKS
-        NBLOCK = IFRMR(WORK(KLCI1BT),1,NBATCH)
-     &         + IFRMR(WORK(KLCLBT),1,NBATCH) - 1
+        NBLOCK = IFRMR(int_mb(KLCI1BT),1,NBATCH)
+     &         + IFRMR(int_mb(KLCLBT),1,NBATCH) - 1
 C?      WRITE(6,*) ' HINTV : Number of blocks ', NBLOCK
         CALL GASDIAT(VECIN,LUSC3,ECOREX,ICISTR,I12,
-     &               WORK(KLCBLTP),NBLOCK,WORK(KLCIBT))
+     &               dbl_mb(KLCBLTP),NBLOCK,int_mb(KLCIBT))
 C      CALL GASDIAT(VECIN,ISSM,ISSPC,LUSC3,ECOREX,ICISTR,I12)
 *. Clean up time
        IF(IH0INSPC(1).EQ.1.OR.IH0INSPC(1).EQ.3) THEN
@@ -1098,6 +1101,9 @@ C?      WRITE(6,*) ' HINTV : MXIT_LOC ',MXIT_LOC
 * Jeppe Olsen, February 1996
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       DIMENSION VEC1(*),VEC2(*)
 *
@@ -1594,6 +1600,9 @@ C?    WRITE(6,*) ' GET_SEC : FACTOR ', FACTOR
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *
 * =====
@@ -1659,9 +1668,9 @@ C?    WRITE(6,*) ' LUC in SBLOCK ', LUC
       NBEL = NELEC(IBTP)
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')
-      CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')
-      CALL STSTSM(WORK(KSTSTS),WORK(KSTSTD),NSMST)
+      CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')   !done
+      CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')   !done
+      CALL STSTSM(dbl_mb(KSTSTS),dbl_mb(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. Largest number of strings of given symmetry and type
@@ -1731,7 +1740,7 @@ C     CALL MEMMAN(KXI4S,MAXIK*MXTSOB,'ADDL  ',2,'XI4S  ')
       INTSCR = MXTSOB ** 4
       IF(IPRCIX.GE.2)
      &WRITE(6,*) ' Integral scratch space ',INTSCR
-      CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')
+      CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')   !done
 *. Arrays giving allowed type combinations 
       CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
       CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'SIOIO ')
@@ -1746,8 +1755,8 @@ C          IAIBCM(ICISPC,IAIB)
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-        CALL SIGVST(WORK(KSVST),NSMST)
+        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')  !done
+        CALL SIGVST(dbl_mb(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF
@@ -1773,7 +1782,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       IF(IPRCIX.GE.2)  WRITE(6,*) ' LSCR2 = ', LSCR2
 *
       LSCR12 = MAX(LSCR1,2*LSCR2)  
-      CALL MEMMAN(KC2,LSCR12,'ADDL  ',2,'KC2   ')
+      CALL MEMMAN(KC2,LSCR12,'ADDL  ',2,'KC2   ')   !done
       KCJRES = KC2
       KSIRES = KC2 + LSCR2
 *
@@ -1784,28 +1793,28 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       MAXIK = MAX(MAXI,MAXK)
 *. I1 and Xi1s must also be able to hold largest st block
       LSCR3 = MAX(MXADKBLK,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
-      CALL MEMMAN(KI1  ,LSCR3,'ADDL  ',1,'I1    ')
-      CALL MEMMAN(KXI1S,LSCR3,'ADDL  ',2,'XI1S  ')
+      CALL MEMMAN(KI1  ,LSCR3,'ADDL  ',1,'I1    ')   !done
+      CALL MEMMAN(KXI1S,LSCR3,'ADDL  ',2,'XI1S  ')   !done
 *
-      CALL MEMMAN(KI2  ,LSCR3,'ADDL  ',1,'I2    ')
-      CALL MEMMAN(KXI2S,LSCR3,'ADDL  ',2,'XI2S  ')
+      CALL MEMMAN(KI2  ,LSCR3,'ADDL  ',1,'I2    ')   !done
+      CALL MEMMAN(KXI2S,LSCR3,'ADDL  ',2,'XI2S  ')   !done
 *
-      CALL MEMMAN(KI3  ,LSCR3,'ADDL  ',1,'I3    ')
-      CALL MEMMAN(KXI3S,LSCR3,'ADDL  ',2,'XI3S  ')
+      CALL MEMMAN(KI3  ,LSCR3,'ADDL  ',1,'I3    ')   !done
+      CALL MEMMAN(KXI3S,LSCR3,'ADDL  ',2,'XI3S  ')   !done
 *
-      CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')
-      CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')
+      CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')   !done
+      CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')   !done
 *
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),WORK(KSVST))
 *.Some TTS arrays 
       NOOS = NSMCI*NOCTPA*NOCTPB   
       NTTS = MXNTTS
 *
-      CALL MEMMAN(KOOS1,NOOS,'ADDL  ',2,'OOS1  ')
-      CALL MEMMAN(KOOS2,NOOS,'ADDL  ',2,'OOS2  ')
-      CALL MEMMAN(KOOS3,NOOS,'ADDL  ',2,'OOS3  ')
-      CALL MEMMAN(KOOS4,NOOS,'ADDL  ',2,'OOS4  ')
-      CALL MEMMAN(KOOS5,NOOS,'ADDL  ',2,'OOS5  ')
+      CALL MEMMAN(KOOS1,NOOS,'ADDL  ',2,'OOS1  ')   !done
+      CALL MEMMAN(KOOS2,NOOS,'ADDL  ',2,'OOS2  ')   !done
+      CALL MEMMAN(KOOS3,NOOS,'ADDL  ',2,'OOS3  ')   !done
+      CALL MEMMAN(KOOS4,NOOS,'ADDL  ',2,'OOS4  ')   !done
+      CALL MEMMAN(KOOS5,NOOS,'ADDL  ',2,'OOS5  ')   !done
 *. Space for four blocks of string occupations and arrays of 
 *. reordering arrays
       LZSCR = (MAX(NAEL,NBEL)+1)*(NOCOB+1) + 2 * NOCOB
@@ -1834,33 +1843,34 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
      &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
 *. reform
-        CALL RFTTS(CB,WORK(KC2),IRBLOCK(1,IROFF),NRBLOCK,
+        CALL RFTTS(CB,dbl_mb(KC2),IRBLOCK(1,IROFF),NRBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
      &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
-        CALL RFTTS(HCB,WORK(KC2),ILBLOCK(1,ILOFF),NLBLOCK,
+        CALL RFTTS(HCB,dbl_mb(KC2),ILBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
      &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
       END IF
 *
       CALL SBLOCKS2(NLBLOCK,ILBLOCK(1,ILOFF),NRBLOCK,IRBLOCK(1,IROFF),
-     &            CB,HCB,WORK(KC2),
+     &            CB,HCB,dbl_mb(KC2),
      &            WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
      &            NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,
      &            IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &            ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &            LSCR1,WORK(KINSCR),WORK(KCSCR),WORK(KSSCR),
-     &            SXSTSM,WORK(KSTSTS),WORK(KSTSTD),SXDXSX,
+     &            LSCR1,dbl_mb(KINSCR),WORK(KCSCR),WORK(KSSCR),
+     &            SXSTSM,dbl_mb(KSTSTS),WORK(KSTSTD),SXDXSX,
      &            ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &            WORK(KOOS1),WORK(KOOS2),WORK(KOOS3),WORK(KOOS4),
-     &            WORK(KOOS5),WORK(KI1),WORK(KXI1S),
-     &            WORK(KI2),WORK(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
+     &            dbl_mb(KOOS1),dbl_mb(KOOS2),dbl_mb(KOOS3),
+     $            dbl_mb(KOOS4),
+     &            dbl_mb(KOOS5),int_mb(KI1),dbl_mb(KXI1S),
+     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
      &            PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
-     &            WORK(KSIRES),WORK(KI3),WORK(KXI3S),
-     &            WORK(KI4),WORK(KXI4S),MXSXST,MXSXBL,
+     &            WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &            int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &            MOCAA,MOCAB,IAPR,IRESTRICT)
 *
       IF(IDC.EQ.2) THEN    
@@ -1906,6 +1916,9 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *
 * =====
@@ -1968,9 +1981,9 @@ C?    WRITE(6,*) ' LUC in SBLOCK ', LUC
       NBEL = NELEC(IBTP)
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')
-      CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')
-      CALL STSTSM(WORK(KSTSTS),WORK(KSTSTD),NSMST)
+      CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')  !done
+      CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')  !done
+      CALL STSTSM(dbl_(KSTSTS),dbl_mb(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. Largest number of strings of given symmetry and type
@@ -2039,7 +2052,7 @@ C     CALL MEMMAN(KXI4S,MAXIK*MXTSOB,'ADDL  ',2,'XI4S  ')
       INTSCR = MXTSOB ** 4
       IF(IPRCIX.GE.2)
      &WRITE(6,*) ' Integral scratch space ',INTSCR
-      CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')
+      CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')   !done
 *. Arrays giving allowed type combinations 
       CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
       CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'SIOIO ')
@@ -2054,8 +2067,8 @@ C          IAIBCM(ICISPC,IAIB)
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-        CALL SIGVST(WORK(KSVST),NSMST)
+        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')  !done
+        CALL SIGVST(dbl_mb(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF
@@ -2081,7 +2094,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       IF(IPRCIX.GE.2)  WRITE(6,*) ' LSCR2 = ', LSCR2
 *
       LSCR12 = MAX(LSCR1,2*LSCR2)  
-      CALL MEMMAN(KC2,LSCR12,'ADDL  ',2,'KC2   ')
+      CALL MEMMAN(KC2,LSCR12,'ADDL  ',2,'KC2   ')   !done
       KCJRES = KC2
       KSIRES = KC2 + LSCR2
 *
@@ -2092,27 +2105,27 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       MAXIK = MAX(MAXI,MAXK)
 *. I1 and Xi1s must also be able to hold largest st block
       LSCR3 = MAX(MXADKBLK,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
-      CALL MEMMAN(KI1  ,LSCR3,'ADDL  ',1,'I1    ')
-      CALL MEMMAN(KXI1S,LSCR3,'ADDL  ',2,'XI1S  ')
+      CALL MEMMAN(KI1  ,LSCR3,'ADDL  ',1,'I1    ')  !done
+      CALL MEMMAN(KXI1S,LSCR3,'ADDL  ',2,'XI1S  ')  !done
 *
-      CALL MEMMAN(KI2  ,LSCR3,'ADDL  ',1,'I2    ')
-      CALL MEMMAN(KXI2S,LSCR3,'ADDL  ',2,'XI2S  ')
+      CALL MEMMAN(KI2  ,LSCR3,'ADDL  ',1,'I2    ')  !done
+      CALL MEMMAN(KXI2S,LSCR3,'ADDL  ',2,'XI2S  ')  !done
 *
-      CALL MEMMAN(KI3  ,LSCR3,'ADDL  ',1,'I3    ')
-      CALL MEMMAN(KXI3S,LSCR3,'ADDL  ',2,'XI3S  ')
+      CALL MEMMAN(KI3  ,LSCR3,'ADDL  ',1,'I3    ')  !done
+      CALL MEMMAN(KXI3S,LSCR3,'ADDL  ',2,'XI3S  ')  !done
 *
-      CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')
-      CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),WORK(KSVST))
+      CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')  !done
+      CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')  !done
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),dbl_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NSMCI*NOCTPA*NOCTPB
       NTTS = MXNTTS
 *
-      CALL MEMMAN(KOOS1,NOOS,'ADDL  ',2,'OOS1  ')
-      CALL MEMMAN(KOOS2,NOOS,'ADDL  ',2,'OOS2  ')
-      CALL MEMMAN(KOOS3,NOOS,'ADDL  ',2,'OOS3  ')
-      CALL MEMMAN(KOOS4,NOOS,'ADDL  ',2,'OOS4  ')
-      CALL MEMMAN(KOOS5,NOOS,'ADDL  ',2,'OOS5  ')
+      CALL MEMMAN(KOOS1,NOOS,'ADDL  ',2,'OOS1  ')  !done
+      CALL MEMMAN(KOOS2,NOOS,'ADDL  ',2,'OOS2  ')  !done
+      CALL MEMMAN(KOOS3,NOOS,'ADDL  ',2,'OOS3  ')  !done
+      CALL MEMMAN(KOOS4,NOOS,'ADDL  ',2,'OOS4  ')  !done
+      CALL MEMMAN(KOOS5,NOOS,'ADDL  ',2,'OOS5  ')  !done
 *. Space for four blocks of string occupations and arrays of 
 *. reordering arrays
       LZSCR = (MAX(NAEL,NBEL)+1)*(NOCOB+1) + 2 * NOCOB
@@ -2142,11 +2155,11 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
      &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
 *. reform 
-        CALL RFTTS(CB,WORK(KC2),IBLOCK(1,IROFF),NRBLOCK,
+        CALL RFTTS(CB,dbl_mb(KC2),IBLOCK(1,IROFF),NRBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
      &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
-        CALL RFTTS(HCB,WORK(KC2),IBLOCK(1,ILOFF),NLBLOCK,
+        CALL RFTTS(HCB,dbl_mb(KC2),IBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
      &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
@@ -2163,22 +2176,23 @@ C    &                  NSMST,NOCTPA,NOCTPB,
 C    &                  NSASO,NSBSO,IDC,IWAY,IPRNT)
 *
       CALL SBLOCKS2(NLBLOCK,IBLOCK(1,ILOFF),NRBLOCK,IBLOCK(1,IROFF),
-     &            CB,HCB,WORK(KC2),
+     &            CB,HCB,dbl_mb(KC2),
      &            WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
      &            NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,
      &            IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &            ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &            LSCR1,WORK(KINSCR),WORK(KCSCR),WORK(KSSCR),
+     &            LSCR1,dbl_mb(KINSCR),WORK(KCSCR),WORK(KSSCR),
      &            SXSTSM,WORK(KSTSTS),WORK(KSTSTD),SXDXSX,
      &            ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &            WORK(KOOS1),WORK(KOOS2),WORK(KOOS3),WORK(KOOS4),
-     &            WORK(KOOS5),WORK(KI1),WORK(KXI1S),
-     &            WORK(KI2),WORK(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
+     &            dbl_mb(KOOS1),dbl_mb(KOOS2),dbl_mb(KOOS3),
+     &            dbl_mb(KOOS4),
+     &            dbl_mb(KOOS5),int_mb(KI1),dbl_mb(KXI1S),
+     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
      &            PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
-     &            WORK(KSIRES),WORK(KI3),WORK(KXI3S),
-     &            WORK(KI4),WORK(KXI4S),MXSXST,MXSXBL,
+     &            WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &            int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &            MOCAA,MOCAB,IAPR,IRESTRICT)
 *
       IF(IDC.EQ.2) THEN    
@@ -2187,7 +2201,7 @@ C       CALL SCDTTS(HCB,IBLOCK,NBLOCK,NSMST,NOCTPA,NOCTPB,
 C    &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
 C    &              IDC,1,NTEST)
 *. reform 
-        CALL RFTTS(HCB,WORK(KC2),IBLOCK(1,ILOFF),NLBLOCK,
+        CALL RFTTS(HCB,dbl_mb(KC2),IBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
      &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
      &             IDC,PSSIGN,1,NTEST)
@@ -2988,6 +3002,9 @@ C?        WRITE(6,*) ' CLASS_PROD : XTERM = ', XTERM
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -3059,19 +3076,19 @@ c      INCLUDE 'mxpdim.inc'
       IF(NTEST.GE.10)WRITE(6,*) ' I12, IPERTOP',I12,IPERTOP
 
 *. A bit of scracth 
-      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')
-      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')
-      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')
-      CALL MEMMAN(KLXA  ,NTOOB,   'ADDL  ',2,'KLXA  ')
-      CALL MEMMAN(KLXB  ,NTOOB,   'ADDL  ',2,'KLXB  ')
-      CALL MEMMAN(KLSCR ,2*NTOOB, 'ADDL  ',2,'KLSCR ')
-      CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')
+      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')  !done
+      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')  !done
+      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')  !done
+      CALL MEMMAN(KLXA  ,NTOOB,   'ADDL  ',2,'KLXA  ')  !done
+      CALL MEMMAN(KLXB  ,NTOOB,   'ADDL  ',2,'KLXB  ')  !done
+      CALL MEMMAN(KLSCR ,2*NTOOB, 'ADDL  ',2,'KLSCR ')  !done
+      CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')  !done
 *. Space for blocks of strings
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
-      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-      CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')
+      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
+      CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')  !done
       MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
-      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')
+      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFIO),WORK(KINT1),NINT1)
       IF(IUSE_PH.EQ.1) THEN
@@ -3079,7 +3096,7 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
         ECORE_SAVE = ECORE
         ECORE = ECORE_INA
       END IF
-      CALL GT1DIA(WORK(KLH1D))
+      CALL GT1DIA(dbl_mb(KLH1D))
       IF(IUSE_PH.EQ.1) THEN
         CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
       END IF
@@ -3087,7 +3104,7 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       WRITE(6,*) ' DIA0TRM_GAS : IPERTOP ', IPERTOP
 *
       IF(I12.EQ.2) 
-     &CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
+     &CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *. Interchange 
       IF(ITASK.EQ.1) THEN
         JTASK = 2
@@ -3100,41 +3117,43 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
 *
       NTTS = MXNTTS                
       NOOS = NOCTPA*NOCTPB*NSMCI
-      CALL MEMMAN(KLVIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'VIOIO ')
-      CALL MEMMAN(KLVBLTP,NSMST,'ADDL  ',2,'VBLTP ')
+      CALL MEMMAN(KLVIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'VIOIO ')  !done
+      CALL MEMMAN(KLVBLTP,NSMST,'ADDL  ',2,'VBLTP ')  !done
 *
-      CALL IAIBCM(ISPC,WORK(KLVIOIO))
+      CALL IAIBCM(ISPC,dbl_mb(KLVIOIO))
       KSVST = 0
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,WORK(KLVBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLVBLTP),WORK(KSVST))
 *
 *. Space for partitioning of vectors
       NTTS = MXNTTS              
-      CALL MEMMAN(KLVLBT ,NTTS  ,'ADDL  ',1,'VLBT  ')
-      CALL MEMMAN(KLVLEBT ,NTTS  ,'ADDL  ',1,'VLEBT ')
-      CALL MEMMAN(KLVI1BT,NTTS  ,'ADDL  ',1,'VI1BT ')
-      CALL MEMMAN(KLVIBT ,8*NTTS,'ADDL  ',1,'VIBT  ')
+      CALL MEMMAN(KLVLBT ,NTTS  ,'ADDL  ',1,'VLBT  ')  !done
+      CALL MEMMAN(KLVLEBT ,NTTS  ,'ADDL  ',1,'VLEBT ')  !done
+      CALL MEMMAN(KLVI1BT,NTTS  ,'ADDL  ',1,'VI1BT ')  !done
+      CALL MEMMAN(KLVIBT ,8*NTTS,'ADDL  ',1,'VIBT  ')  !done
 *
       LSCR1 = 0
-      CALL PART_CIV2(IDC,WORK(KLVBLTP),WORK(KNSTSO(IATP)),
+      CALL PART_CIV2(IDC,dbl_mb(KLVBLTP),WORK(KNSTSO(IATP)),
      &               WORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,
-     &               NSMST,LSCR1,WORK(KLVIOIO),ISMOST(1,ISM),
-     &               NXBATCH,WORK(KLVLBT),WORK(KLVLEBT),
-     &               WORK(KLVI1BT),WORK(KLVIBT),1,
+     &               NSMST,LSCR1,dbl_mb(KLVIOIO),ISMOST(1,ISM),
+     &               NXBATCH,int_mb(KLVLBT),int_mb(KLVLEBT),
+     &               int_mb(KLVI1BT),int_mb(KLVIBT),1,
      &               ISIMSYM)
      &               
-      NBLOCKT = IFRMR(WORK(KLVLBT),1,1)
+c     NBLOCKT = IFRMR(WORK(KLVLBT),1,1)
+      NBLOCKT = int_mb(KLVLBT)
 C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
 
       ECORES = ECORE
       WRITE(6,*) ' ECORE, FACTOR = ', ECORE, FACTOR
-      CALL DIATERMS_GAS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &             NTOOB,VEC,NSMST,WORK(KLH1D),
-     &             IDC,WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &             WORK(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+      CALL DIATERMS_GAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
+     &             NTOOB,VEC,NSMST,dbl_mb(KLH1D),
+     &             IDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
+     &             dbl_mb(KLJ),
+     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &             ECORES,LUIN,LUOUT,
      &             IPRDIA,NTOOB,
-     &             WORK(KLRJKA),
-     &             I12,WORK(KLVIBT),NBLOCKT,JTASK,FACTOR,0,0)
+     &             dbl_mb(KLRJKA),
+     &             I12,int_mb(KLVIBT),NBLOCKT,JTASK,FACTOR,0,0)
 *. Clean up
       IF(IUSE_PH.EQ.1) THEN
         ECORE = ECORE_SAVE 
@@ -3145,7 +3164,7 @@ C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
 *
       IF(NTEST.GE.100.AND.LUOUT.EQ.0) THEN
         WRITE(6,*)  ' output vector from DIA0TRM '
-        CALL WRTTTS(VEC,WORK(KLVIBT),NBLOCKT,
+        CALL WRTTTS(VEC,int_mb(KLVIBT),NBLOCKT,
      &              NSMST,NOCTPA,NOCTPB,
      &              WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC)
       END IF
@@ -3170,6 +3189,9 @@ C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -3236,45 +3258,46 @@ C     END IF
         WRITE(6,*) ' JPERT,IPART,J12,IPERTOP',JPERT,IPART,J12,IPERTOP
       END IF
 *. A bit of scracth 
-      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')
-      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')
-      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')
-      CALL MEMMAN(KLXA  ,NTOOB,   'ADDL  ',2,'KLXA  ')
-      CALL MEMMAN(KLXB  ,NTOOB,   'ADDL  ',2,'KLXB  ')
-      CALL MEMMAN(KLSCR ,2*NTOOB, 'ADDL  ',2,'KLSCR ')
-      CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')
+      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')  !done
+      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')  !done
+      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')  !done
+      CALL MEMMAN(KLXA  ,NTOOB,   'ADDL  ',2,'KLXA  ')  !done
+      CALL MEMMAN(KLXB  ,NTOOB,   'ADDL  ',2,'KLXB  ')  !done
+      CALL MEMMAN(KLSCR ,2*NTOOB, 'ADDL  ',2,'KLSCR ')  !done
+      CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')  !done
 *. Space for blocks of strings
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
-      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-      CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')
+      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR') !done
+      CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR') !done
       MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
-      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')
+      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IUSE_PH.EQ.1) THEN
         CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
         ECORE_SAVE = ECORE
         ECORE = ECORE_INA
       END IF
-      CALL GT1DIA(WORK(KLH1D))
+      CALL GT1DIA(dbl_mb(KLH1D))
       IF(IUSE_PH.EQ.1) THEN
         CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
       END IF
       IF(J12.EQ.2)
-     &CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
+     &CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *. Core energy not included 
       ECOREP = 0.0D0
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
 *
-      CALL DIATERMS_GAS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &             NTOOB,VEC,NSMST,WORK(KLH1D),
-     &             JDC,WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &             WORK(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+      CALL DIATERMS_GAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
+     &             NTOOB,VEC,NSMST,dbl_mb(KLH1D),
+     &             JDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
+     &             dbl_mb(KLJ),
+     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &             ECOREP,0,0,
      &             IPRDIA,NTOOB,
-     &             WORK(KLRJKA),
+     &             dbl_mb(KLRJKA),
      &             J12,IBLOCK(1,IOFF),NBLOCK,ITASK,FACTORX,0,0)
 C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)    
 *. Clean up
@@ -3313,6 +3336,9 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -3379,19 +3405,19 @@ c      INCLUDE 'mxpdim.inc'
         WRITE(6,*) ' JPERT,IPART,I12,IPERTOP',JPERT,IPART,I12,IPERTOP
       END IF
 *. A bit of scracth 
-      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')
-      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')
-      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')
-      CALL MEMMAN(KLXA  ,NTOOB,   'ADDL  ',2,'KLXA  ')
-      CALL MEMMAN(KLXB  ,NTOOB,   'ADDL  ',2,'KLXB  ')
-      CALL MEMMAN(KLSCR ,2*NTOOB, 'ADDL  ',2,'KLSCR ')
-      CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')
+      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')  !done
+      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')  !done
+      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ') !done
+      CALL MEMMAN(KLXA  ,NTOOB,   'ADDL  ',2,'KLXA  ')  !done
+      CALL MEMMAN(KLXB  ,NTOOB,   'ADDL  ',2,'KLXB  ')  !done
+      CALL MEMMAN(KLSCR ,2*NTOOB, 'ADDL  ',2,'KLSCR ')  !done
+      CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')  !done
 *. Space for blocks of strings
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
-      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-      CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')
+      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
+      CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')  !done
       MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
-      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')
+      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
       IF(IUSE_PH.EQ.1) THEN
@@ -3399,30 +3425,31 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
         ECORE_SAVE = ECORE
         ECORE = ECORE_INA
       END IF
-      CALL GT1DIA(WORK(KLH1D))
+      CALL GT1DIA(dbl_mb(KLH1D))
       IF(IUSE_PH.EQ.1) THEN
         CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
       END IF
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Diagonal of 1-el ints '
-        CALL WRTMAT(WORK(KLH1D),1,NTOOB,1,NTOOB)
+        CALL WRTMAT(dbl_mb(KLH1D),1,NTOOB,1,NTOOB)
       END IF
       IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
       IF(I12.EQ.2)
-     &CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
+     &CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
       IF(NTEST.GE.10 ) THEN
         WRITE(6,*) ' ECORE and FACTOR', ECORE,FACTOR
 C       WRITE(6,*) ' ECORE_ORIG, ECORE', ECORE_ORIG,ECORE
       END IF
 *
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
-      CALL DIATERMS_GAS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &             NTOOB,VEC,NSMST,WORK(KLH1D),
-     &             IDC,WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &             WORK(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
+      CALL DIATERMS_GAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
+     &             NTOOB,VEC,NSMST,dbl_mb(KLH1D),
+     &             IDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
+     &             dbl_mb(KLJ),
+     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &             ECORE,0,0,
      &             IPRDIA,NTOOB,
-     &             WORK(KLRJKA),
+     &             dbl_mb(KLRJKA),
      &             I12,IBLOCK(1,IOFF),NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)    
       IF(IUSE_PH.EQ.1) THEN
         ECORE = ECORE_SAVE
@@ -4742,8 +4769,8 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 *
 *. connection matrices for supergroups
 *
-      CALL MEMMAN(KCONSPA,NOCTPA**2,'ADDL  ',1,'CONSPA')
-      CALL MEMMAN(KCONSPB,NOCTPB**2,'ADDL  ',1,'CONSPB')
+      CALL MEMMAN(KCONSPA,NOCTPA**2,'ADDL  ',1,'CONSPA')  !done
+      CALL MEMMAN(KCONSPB,NOCTPB**2,'ADDL  ',1,'CONSPB')  !done
 C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
       CALL SPGRPCON(IOCTPA,NOCTPA,NGAS,MXPNGAS,NELFSPGP,
      &              int_mb(KCONSPA),IPRCIX)
@@ -4752,8 +4779,8 @@ C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')
-      CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')
+      CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')  !done
+      CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')  !done
       CALL STSTSM(dbl_mb(KSTSTS),dbl_mb(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
@@ -4811,8 +4838,8 @@ C?    WRITE(6,*) ' MXTSOB = ', MXTSOB
       INTSCR = MAX(MXTSOB ** 4, NTOOB**2)
       IF(IPRCIX.GE.5)
      &WRITE(6,*) ' Integral scratch space ',INTSCR
-      CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')
-      CALL MEMMAN(KINSCR2,INTSCR,'ADDL  ',2,'INSCR2')
+      CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')  !done
+      CALL MEMMAN(KINSCR2,INTSCR,'ADDL  ',2,'INSCR2')  !done
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
@@ -4864,24 +4891,24 @@ C  I assume memory was allocated for blocks, so
 *. I1 and Xi1s must also be able to hold largest st block
       LSCR3 = MAX(MXADKBLK,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
       IF(ISIMSYM.EQ.1) LSCR3 = MAX(LSCR3,NSMST*MXADKBLK)
-      CALL MEMMAN(KI1  ,LSCR3,'ADDL  ',1,'I1    ')
-      CALL MEMMAN(KXI1S,LSCR3,'ADDL  ',2,'XI1S  ')
+      CALL MEMMAN(KI1  ,LSCR3,'ADDL  ',1,'I1    ')  !done
+      CALL MEMMAN(KXI1S,LSCR3,'ADDL  ',2,'XI1S  ')  !done
 *
-      CALL MEMMAN(KI2  ,LSCR3,'ADDL  ',1,'I2    ')
-      CALL MEMMAN(KXI2S,LSCR3,'ADDL  ',2,'XI2S  ')
+      CALL MEMMAN(KI2  ,LSCR3,'ADDL  ',1,'I2    ')  !done
+      CALL MEMMAN(KXI2S,LSCR3,'ADDL  ',2,'XI2S  ')  !done
 *
-      CALL MEMMAN(KI3  ,LSCR3,'ADDL  ',1,'I3    ')
-      CALL MEMMAN(KXI3S,LSCR3,'ADDL  ',2,'XI3S  ')
+      CALL MEMMAN(KI3  ,LSCR3,'ADDL  ',1,'I3    ')  !done
+      CALL MEMMAN(KXI3S,LSCR3,'ADDL  ',2,'XI3S  ')  !done
 *
-      CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')
-      CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')
+      CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')  !done
+      CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')  !done
       KSVST = 1
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
 *. For scaling for each TTS block
-      CALL MEMMAN(KLSCLFAC ,NTTS,'ADDL  ',2,'SCLFAC')
+      CALL MEMMAN(KLSCLFAC ,NTTS,'ADDL  ',2,'SCLFAC')  !done
 
 *. Space for four blocks of string occupations and arrays of 
 *. reordering arrays
@@ -4902,12 +4929,14 @@ C     DO I1234 = 1, 2
 * 4 arrays containing all strings of given sym. Dimension can  be 
 *   reduced to largest number of strings in alpha or beta.
 C?    WRITE(6,*) ' SBLOCKS : MAX_STR_SPGP = ', MAX_STR_SPGP
-      IF(ISIMSYM.NE.0) THEN
-        CALL MEMMAN(KLREOJA,MAX_STR_SPGP,'ADDL  ',1,'REOJA ')
-        CALL MEMMAN(KLREOJB,MAX_STR_SPGP,'ADDL  ',1,'REOJB ')
-        CALL MEMMAN(KLREOIA,MAX_STR_SPGP,'ADDL  ',1,'REOIA ')
-        CALL MEMMAN(KLREOIB,MAX_STR_SPGP,'ADDL  ',1,'REOIB ')
-      END IF
+c..dongxia: the following 4 arrays ar not used anywhere currently
+c     IF(ISIMSYM.NE.0) THEN
+c       CALL MEMMAN(KLREOJA,MAX_STR_SPGP,'ADDL  ',1,'REOJA ')
+c       CALL MEMMAN(KLREOJB,MAX_STR_SPGP,'ADDL  ',1,'REOJB ')
+c       CALL MEMMAN(KLREOIA,MAX_STR_SPGP,'ADDL  ',1,'REOIA ')
+c       CALL MEMMAN(KLREOIB,MAX_STR_SPGP,'ADDL  ',1,'REOIB ')
+c     END IF
+c..
 *
       I_PRINT_MEM_MAP = 0
       IF(I_PRINT_MEM_MAP.EQ.1) THEN
@@ -4933,10 +4962,10 @@ CINSERT_START
 *
 C     IF(IPERTOP.NE.0) THEN
 *. Matrix specifying partiotioned spaces
-        CALL MEMMAN(KLH0SPC,NOCTPA*NOCTPB,'ADDL  ',2,'H0SPC ')
+        CALL MEMMAN(KLH0SPC,NOCTPA*NOCTPB,'ADDL  ',2,'H0SPC ')  !done
         CALL H0INTSPC(IH0SPC,NPTSPC,IOCPTSPC,NOCTPA,NOCTPB,
      &                ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),
-     &                NGAS,MXPNGAS,WORK(KLH0SPC),NELFGP)
+     &                NGAS,MXPNGAS,dbl_mb(KLH0SPC),NELFGP)
 C       IF(IH0SPC.EQ.0) THEN
 *. Form of perturbation in subspace has not been defined,
 *. Use current IPART
@@ -4959,20 +4988,20 @@ C     IF(ISIMSYM.EQ.0) THEN
      &     IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &     NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &     ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &     LSCR1,WORK(KINSCR),WORK(KCSCR),WORK(KSSCR),
-     &     SXSTSM,WORK(KSTSTS),WORK(KSTSTD),SXDXSX,
+     &     LSCR1,dbl_mb(KINSCR),WORK(KCSCR),WORK(KSSCR),
+     &     SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &     ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &     WORK(KI1),WORK(KXI1S),
-     &     WORK(KI2),WORK(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
+     &     int_mb(KI1),dbl_mb(KXI1S),
+     &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
      &     PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
-     &     WORK(KSIRES),WORK(KI3),WORK(KXI3S),
-     &     WORK(KI4),WORK(KXI4S),MXSXST,MXSXBL,
+     &     WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &     MOCAA,MOCAB,IAPR,
      &     WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),WORK(KCIBT),
-     &     IRESTRICT,WORK(KCONSPA),WORK(KCONSPB),WORK(KLSCLFAC),
-     &     LUCBLK,IPERTOP,IH0INSPC,WORK(KLH0SPC),
+     &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),dbl_mb(KLSCLFAC),
+     &     LUCBLK,IPERTOP,IH0INSPC,dbl_mb(KLH0SPC),
      &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
-     &     IUSE_PA,WORK(KCJPA),WORK(KSIPA),ISIMSYM,WORK(KINSCR2),
+     &     IUSE_PA,WORK(KCJPA),WORK(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
      &     MXADKBLK,ICISTR,CV,ECORE,NCBATCH,ITASK)
 C     ELSE
 C     CALL SBLOCKSN(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
@@ -6405,6 +6434,9 @@ C     INTEGER IACOC(MXPNGAS)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'crun.inc'
@@ -6453,13 +6485,13 @@ c      INCLUDE 'mxpdim.inc'
 *. The occupation classes in compound space have already been calculated and stored in 
 *. KIOCCLS (dimension: NOCCLS_MAX)
 *. What classes of compound space are active in input and output space
-      CALL MEMMAN(KLACCLI,NOCCLS_MAX,'ADDL  ',1,'ACCLI ')
-      CALL MEMMAN(KLACCLO,NOCCLS_MAX,'ADDL  ',1,'ACCLO ')
+      CALL MEMMAN(KLACCLI,NOCCLS_MAX,'ADDL  ',1,'ACCLI ')  !done
+      CALL MEMMAN(KLACCLO,NOCCLS_MAX,'ADDL  ',1,'ACCLO ')  !done
 *          OCCLS_IN_CI(NOCCLS_MAX,IOCCLS,ICISPC,NINCCLS,INCCLS)
       CALL OCCLS_IN_CI(NOCCLS_MAX,WORK(KIOCCLS),INSPC,NACTI,
-     &     WORK(KLACCLI))
+     &     int_mb(KLACCLI))
       CALL OCCLS_IN_CI(NOCCLS_MAX,WORK(KIOCCLS),IUTSPC,NACTO,
-     &     WORK(KLACCLO))
+     &     int_mb(KLACCLO))
 *
 *
 *. Space for saving results : S11 : <1!1> in different classes
@@ -6468,10 +6500,10 @@ c      INCLUDE 'mxpdim.inc'
 *                             E2    : Second order energy contributions 
 *                                     from different classes
 *
-      CALL  MEMMAN(KLS11,NOCCLS_MAX,'ADDL  ',2,'KLS11 ')
-      CALL  MEMMAN(KLS01,NOCCLS_MAX,'ADDL  ',2,'KLS01 ')
-      CALL  MEMMAN(KLRES0,NOCCLS_MAX,'ADDL  ',2,'KLRES0')
-      CALL  MEMMAN(KLE2 ,NOCCLS_MAX,'ADDL  ',2,'KLE2  ')
+      CALL  MEMMAN(KLS11,NOCCLS_MAX,'ADDL  ',2,'KLS11 ')  !done
+      CALL  MEMMAN(KLS01,NOCCLS_MAX,'ADDL  ',2,'KLS01 ')  !done
+      CALL  MEMMAN(KLRES0,NOCCLS_MAX,'ADDL  ',2,'KLRES0')  !done
+      CALL  MEMMAN(KLE2 ,NOCCLS_MAX,'ADDL  ',2,'KLE2  ')  !done
 *. Some terms defining perturbation
       WRITE(6,*) ' DIRDIR: MPORENP = ', MPORENP
       IF(MPORENP.EQ.1) THEN
@@ -6496,9 +6528,9 @@ C         ECORE = ECORE_ORIG + ECCP
 
       
         CALL DIRDIR1N(E0,ECORE,INSPC,IUTSPC,ISM,LUIN,
-     &       WORK(KLS11),WORK(KLS01),WORK(KLRES0),WORK(KLE2),
-     &       NOCCLS_MAX,WORK(KIOCCLS),NACTI,WORK(KLACCLI),
-     &       NACTO,WORK(KLACCLO),LUSCR,LUSCR2,LEVEL,LU1,EOUT)
+     &       dbl_mb(KLS11),dbl_mb(KLS01),dbl_mb(KLRES0),dbl_mb(KLE2),
+     &       NOCCLS_MAX,WORK(KIOCCLS),NACTI,int_mb(KLACCLI),
+     &       NACTO,int_mb(KLACCLO),LUSCR,LUSCR2,LEVEL,LU1,EOUT)
 *
       RETURN
       END
@@ -7769,6 +7801,9 @@ C    &              NBLOCKIO,IBLCKIO,VECIO )
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cintfo.inc'
@@ -8489,6 +8524,9 @@ C?      CALL WRTMAT(VEC(IOFF),1,LREC(IREC),1,LREC(IREC))
 *
 c     IMPLICIT REAL*8(A-H,O-Z)
 c     INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       DIMENSION C(*)
       DIMENSION IBLOCK(8,*)
@@ -10717,6 +10755,9 @@ C                  WRITE(6,*) ' Core energy added = ', ECORE
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -10775,21 +10816,21 @@ C     END IF
         WRITE(6,*) ' JPERT,IPART,J12,IPERTOP',JPERT,IPART,J12,IPERTOP
       END IF
 *. A bit of scracth 
-      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')
-      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')
-      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')
-      CALL MEMMAN(KLXA  ,NACOB,   'ADDL  ',2,'KLXA  ')
-      CALL MEMMAN(KLXB  ,NACOB,   'ADDL  ',2,'KLXB  ')
-      CALL MEMMAN(KLSCR ,2*NACOB, 'ADDL  ',2,'KLSCR ')
+      CALL MEMMAN(KLJ   ,NTOOB**2,'ADDL  ',2,'KLJ   ')  !done
+      CALL MEMMAN(KLK   ,NTOOB**2,'ADDL  ',2,'KLK   ')  !done
+      CALL MEMMAN(KLSCR2,2*NTOOB**2,'ADDL  ',2,'KLSC2 ')  !done
+      CALL MEMMAN(KLXA  ,NACOB,   'ADDL  ',2,'KLXA  ')  !done
+      CALL MEMMAN(KLXB  ,NACOB,   'ADDL  ',2,'KLXB  ')  !done
+      CALL MEMMAN(KLSCR ,2*NACOB, 'ADDL  ',2,'KLSCR ')  !done
       CALL MEMMAN(KLH1D ,NTOOB,   'ADDL  ',2,'KLH1D ')
 *. Space for blocks of strings
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
-      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-      CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
+      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
+      CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')  !done
       IATP = 1
       NOCTPA = NOCTYP(IATP)
       MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
-      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')
+      CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
 C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
@@ -10798,23 +10839,24 @@ C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
         ECORE_SAVE = ECORE
         ECORE = ECORE_ORIG
       END IF
-      CALL GT1DIA(WORK(KLH1D))
+      CALL GT1DIA(dbl_mb(KLH1D))
 C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS)
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *
 
       ECOREP = ECORE
       FACTORX = 0.0D0
 C?    WRITE(6,*) ' ECOREP = ',  ECOREP
 *
-      CALL ADDDIA_TERMS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &             NACOB,CVEC,SVEC,NSMST,WORK(KLH1D),
-     &             IDC,WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &             WORK(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+      CALL ADDDIA_TERMS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
+     &             NACOB,CVEC,SVEC,NSMST,dbl_mb(KLH1D),
+     &             IDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
+     &             dbl_mb(KLJ),
+     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &             ECOREP,
      &             IPRDIA,NTOOB,
-     &             WORK(KLRJKA),
+     &             dbl_mb(KLRJKA),
      &             IASPGP,IASM,IBSPGP,IBSM,FACTORX,I12)
 C     SUBROUTINE ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,
 C    &                  NORB,CVEC,SVEC,NSMST,H,
