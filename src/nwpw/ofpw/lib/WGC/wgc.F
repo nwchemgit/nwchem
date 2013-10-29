@@ -33,8 +33,8 @@
 *     **** external functions ****
       integer  G_indx
       external G_indx
-      real*8   control_wgc_alphabeta
-      external control_wgc_alphabeta
+      real*8   control_wgc_alphabetalambda
+      external control_wgc_alphabetalambda
  
 
       call nwpw_timing_start(7)
@@ -51,9 +51,10 @@
       call D3dB_nz(1,nz)
       wgc_scal1 = 1.0d0/(nx*ny*nz)
 
-      wgc_rho0  = rho0
-      wgc_tune1 = control_wgc_alphabeta(1)
-      wgc_tune2 = control_wgc_alphabeta(2)
+      wgc_rho0    = rho0
+      wgc_tune1   = control_wgc_alphabetalambda(1)
+      wgc_tune2   = control_wgc_alphabetalambda(2)
+      wgc_lmd     = control_wgc_alphabetalambda(3)
       wgc_eq_tune = (dabs(wgc_tune1-wgc_tune2).lt.1.0d-6)
 
       !*******************************************************************************
@@ -61,8 +62,8 @@
       !**** the rho(G) does not need to be scaled by 1/(N1*N2*N3)                 ****
       !**** Might want to scal rho(G) properly to make the code more transparent  ****
       !*******************************************************************************
-      ss = wgc_scal1/(2.0d0*wgc_tune1*wgc_tune2
-     >                 *rho0**(wgc_tune1+wgc_tune2-2.0d0))
+      ss = wgc_lmd*wgc_scal1/(2.0d0*wgc_tune1*wgc_tune2
+     >                       *rho0**(wgc_tune1+wgc_tune2-2.0d0))
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'wgc',wgc_hndl,wgc_indx)
@@ -177,6 +178,22 @@
       wgc_beta = wgc_tune2
       return
       end
+
+
+*     ****************************************
+*     *                                      *
+*     *              wgc_lambda              *
+*     *                                      *
+*     ****************************************
+      real*8 function wgc_lambda()
+      implicit none
+
+#include "wgc.fh"
+
+      wgc_lambda = wgc_lmd
+      return
+      end
+
 
 *     ****************************************
 *     *                                      *
