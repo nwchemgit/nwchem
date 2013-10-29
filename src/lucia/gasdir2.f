@@ -4689,7 +4689,8 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 *. Sigma blocks require
       INTEGER IBLOCK(8,*)
 *. Input (if ICISTR = 1) 
-      DIMENSION CV(*)
+CNW   DIMENSION CV(*)
+      integer CV
 *
 *./ORBINP/ : NACOB used
       INCLUDE 'orbinp.inc'
@@ -4981,6 +4982,7 @@ C     IF(ISIMSYM.EQ.0) THEN
        KSIPA = 0
        KCJPA = 0
 *. June 30 : I will try to use go through the normal route with ISIMSYM :
+CBERT HERE I AM NOW
       CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
      &     WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
      &     NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
@@ -5132,7 +5134,8 @@ C     END IF
 *. Specific input
       INTEGER ISBLOCK(8,*)
 * (if ICISTR = 1) 
-      DIMENSION CV(*)
+CNW   DIMENSION CV(*)
+      integer CV
 *.General input
       INTEGER ICOCOC(NOCTPA,NOCTPB)
       INTEGER ICSMOS(NSMST)
@@ -9692,7 +9695,8 @@ c      INCLUDE 'mxpdim.inc'
 *. Sigma blocks require
       INTEGER IBLOCK(8,*)
 *. Input (if ICISTR = 1) 
-      DIMENSION CV(*)
+CNW   DIMENSION CV(*)
+      integer CV
 *
 *./ORBINP/ : NACOB used
       INCLUDE 'orbinp.inc'
@@ -10142,7 +10146,8 @@ C     END IF
 *. Specific input
       INTEGER ISBLOCK(8,*)
 * (if ICISTR = 1) 
-      DIMENSION CV(*)
+CNW   DIMENSION CV(*)
+      integer CV
 *.General input
       INTEGER ICOCOC(NOCTPA,NOCTPB)
       INTEGER ICSMOS(NSMST)

@@ -13390,6 +13390,9 @@ C        ISM = (IPARI-1)*NML + MNML - 1
 * Last modification; Oct. 30, 2012; Jeppe Olsen; call to Z_BLKFO changed
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *
 * =====
@@ -13501,8 +13504,8 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
 *
       IF(ISFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
-     &       NTEST,NSBLOCK,NSBATCH,
-     &       dbl_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,dbl_mb(KSIOCCLS_ACT),
+     &       NTEST,NSBLOCK,NSBATCH,dbl_mb(KSIOIO),int_mb(KSBLTP),
+     &       NSOCCLS_ACT,dbl_mb(KSIOCCLS_ACT),
      &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
      &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -13510,8 +13513,8 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
       END IF
       IF(ICFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
-     &       NTEST,NCBLOCK,NCBATCH,
-     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
+     &       NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -13585,17 +13588,17 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
 *. ICISTR = 1, CB, HCB are the complete vectors
         IF(NOCSF.EQ.1) THEN
 *. CB and HCB on input are the complete vectors
-          CALL RASSG3(WORK(KVEC1P),WORK(KVEC2P),NSBATCH,
+          CALL RASSG3(dbl_mb(KVEC1P),dbl_mb(KVEC2P),NSBATCH,
      &         int_mb(KSLBT),int_mb(KSLEBT),
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,CB,HCB,ECORE,
      &         CMV7TASK)
 *. Input is in KCOMVEC1_SD, construct output in KCOMVEC2_SD
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
-            CALL WRTMAT(WORK(KVEC2P),1,NSVAR,1,NSVAR)
+            CALL WRTMAT(dbl_mb(KVEC2P),1,NSVAR,1,NSVAR)
           END IF
         ELSE
-          CALL RASSG3(WORK(KVEC1P),WORK(KVEC2P),NSBATCH,
+          CALL RASSG3(dbl_mb(KVEC1P),dbl_mb(KVEC2P),NSBATCH,
      &         int_mb(KSLBT),int_mb(KSLEBT),
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,
      &         WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),ECORE,
@@ -13616,7 +13619,7 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
        ELSE
         CALL CSDTVCMN(HCB,CB,WORK(KVEC3),
      &       2,0,ISSM,ISSPC,2,2,LU_SDET,LUHC,NSOCCLS_ACT,
-     &       dbl_mb(KSIOCCLS_ACT),WORK(KSIBT),int_mb(KSLBT))
+     &       dbl_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
        END IF
       END IF
 *
@@ -15545,7 +15548,8 @@ C         IBASE = ICOOSC(IBTP,IATP,IASM)
 *.Scratch
       DIMENSION SB(*),CB(*)
 *. Input/output if ICISTR = 1
-      DIMENSION SV(*),CV(*)
+CNW   DIMENSION SV(*),CV(*)
+      integer SV,CV
       CHARACTER*6 ITASK
 *
       CALL QENTER('RASSG')
@@ -15586,7 +15590,7 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             IOFF_S = IOFF_S + LEN
           END IF
         END DO
-      END DO
+CBERT: CB, SB are local blocks, SV and CV are GAs
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
       IF(NTEST.GE.100) THEN

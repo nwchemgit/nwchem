@@ -4321,7 +4321,6 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
          CALL PRSYM(APROJ,NINVEC)
        END IF
 *  DIAGONALIZE INITIAL PROJECTED MATRIX
-CBERT TODO
        CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
        CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
@@ -4574,7 +4573,6 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
   150 CONTINUE
 *  DIAGONALIZE PROJECTED MATRIX
       NVEC = NVEC + IADD
-CBERT TO DO
       CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
       CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
 *. Select if required the roots to be followed
@@ -4657,45 +4655,74 @@ CNW     CALL TODSC(VEC1,NVAR,-1  ,LU3)
         if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
      &     LU3,1,NVAR,1,1) call errquit('dra error',911)
 * Previous trial vector orthonormalized
-        CALL REWINO(LU1)
-        CALL FRMDSC(VEC2,NVAR,-1,LU1,IMZERO,IAMPACK)
-        OVLAP = INPROD(VEC1,VEC2,NVAR)
-        CALL VECSUM(VEC2,VEC2,VEC1,1.0D0,-OVLAP,NVAR)
-        SCALE2 = INPROD(VEC2,VEC2,NVAR)
+CNW     CALL REWINO(LU1)
+CNW     CALL FRMDSC(VEC2,NVAR,-1,LU1,IMZERO,IAMPACK)
+        if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &     LU1,1,NVAR,1,1)) call errquit('dra error',911)
+CNW     OVLAP = INPROD(VEC1,VEC2,NVAR)
+        OVLAP = ga_ddot(VEC1,VEC2)
+CNW     CALL VECSUM(VEC2,VEC2,VEC1,1.0D0,-OVLAP,NVAR)
+        call ga_add(-OVLAP,VEC1,1.0d0,VEC2,VEC2)
+CNW     SCALE2 = INPROD(VEC2,VEC2,NVAR)
+        SCALE2 = ga_ddot(VEC2,VEC2)
         SCALE2 = 1.0D0/SQRT(SCALE2)
-        CALL SCALVE(VEC2,SCALE2,NVAR)
-        CALL TODSC(VEC2,NVAR,-1,LU3)
+CNW     CALL SCALVE(VEC2,SCALE2,NVAR)
+        call ga_scale(VEC2,SCALE2)
+CNW     CALL TODSC(VEC2,NVAR,-1,LU3)
+        if (.not.dra_write_section(.false.,VEC2,1,NVAR,1,1,
+     &     LU3,1,NVAR,2,2) call errquit('dra error',911)
 *
-        CALL REWINO( LU1)
-        CALL REWINO( LU3)
+CNW     CALL REWINO( LU1)
+CNW     CALL REWINO( LU3)
         DO 2411 IVEC = 1,2
-          CALL FRMDSC(VEC1,NVAR,-1  ,LU3,IMZERO,IAMPACK)
-          CALL TODSC (VEC1,NVAR,-1,  LU1)
+          if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU3,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+          if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU1,1,NVAR,IVEC,IVEC) call errquit('dra error',911)
+CNW       CALL FRMDSC(VEC1,NVAR,-1  ,LU3,IMZERO,IAMPACK)
+CNW       CALL TODSC (VEC1,NVAR,-1,  LU1)
  2411   CONTINUE
 *. Corresponding sigma vectors
-        CALL REWINO ( LU3)
-        CALL REWINO( LU2)
-        CALL SETVEC(VEC1,0.0D0,NVAR)
+CNW     CALL REWINO ( LU3)
+CNW     CALL REWINO( LU2)
+CNW     CALL SETVEC(VEC1,0.0D0,NVAR)
+        call ga_zero(VEC1)
         DO 2250 IVEC = 1, NVEC
-          CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
+          if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+CNW       CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
           FACTOR =  AVEC(IVEC)
-          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+CNW       CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+          call ga_add(FACTOR,VEC2,1.0d0,VEC1,VEC1)
  2250   CONTINUE
 *
-        CALL SCALVE(VEC1,SCALE,NVAR)
-        CALL TODSC(VEC1,NVAR,-1,  LU3)
+CNW     CALL SCALVE(VEC1,SCALE,NVAR)
+        call ga_scale(VEC1,SCALE)
+CNW     CALL TODSC(VEC1,NVAR,-1,  LU3)
+        if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &     LU3,1,NVAR,1,1) call errquit('dra error',911)
 * Sigma vector corresponding to second vector on LU1
-        CALL REWINO(LU2)
-        CALL FRMDSC(VEC2,NVAR,-1,LU2,IMZERO,IAMPACK)
-        CALL VECSUM(VEC2,VEC2,VEC1,1.0D0,-OVLAP,NVAR)
-        CALL SCALVE(VEC2,SCALE2,NVAR)
-        CALL TODSC(VEC2,NVAR,-1,LU3)
+CNW     CALL REWINO(LU2)
+CNW     CALL FRMDSC(VEC2,NVAR,-1,LU2,IMZERO,IAMPACK)
+        if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &     LU2,1,NVAR,1,1)) call errquit('dra error',911)
+CNW     CALL VECSUM(VEC2,VEC2,VEC1,1.0D0,-OVLAP,NVAR)
+        call ga_add(-OVLAP,VEC1,1.0d0,VEC2,VEC2)
+CNW     CALL SCALVE(VEC2,SCALE2,NVAR)
+        call ga_scale(VEC2,SCALE2)
+CNW     CALL TODSC(VEC2,NVAR,-1,LU3)
+        if (.not.dra_write_section(.false.,VEC2,1,NVAR,1,1,
+     &     LU3,1,NVAR,2,2) call errquit('dra error',911)
 *
-        CALL REWINO( LU2)
-        CALL REWINO( LU3)
+CNW     CALL REWINO( LU2)
+CNW     CALL REWINO( LU3)
         DO 2400 IVEC = 1,2
-          CALL FRMDSC(VEC2,NVAR,-1  ,LU3,IMZERO,IAMPACK)
-          CALL TODSC (VEC2,NVAR,-1  ,LU2)
+          if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU3,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+          if (.not.dra_write_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC) call errquit('dra error',911)
+CNW       CALL FRMDSC(VEC2,NVAR,-1  ,LU3,IMZERO,IAMPACK)
+CNW       CALL TODSC (VEC2,NVAR,-1  ,LU2)
  2400   CONTINUE
         NVEC = 2
 *
@@ -4704,59 +4731,87 @@ CNW     CALL TODSC(VEC1,NVAR,-1  ,LU3)
           AVEC((IROOT-1)*NVEC+IROOT) = 1.0D0
  2410   CONTINUE
 *.Projected hamiltonian
-       CALL REWINO( LU1 )
+CNW    CALL REWINO( LU1 )
        DO 2010 IVEC = 1,NVEC
-         CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
-         CALL REWINO( LU2)
+         if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+CNW      CALL REWINO( LU2)
          DO 2008 JVEC = 1, IVEC
-           CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
+CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
+           if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
            IJ = IVEC*(IVEC-1)/2 + JVEC
-           APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
+           APROJ(IJ) = ga_ddot(VEC1,VEC2)
+CNW        APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
  2008    CONTINUE
  2010  CONTINUE
       END IF
       IF(NVEC+NROOT.GT.MAXVEC .OR. CONVER .OR. MAXIT .EQ.ITER)THEN
-        CALL REWINO( LU3)
+CNW     CALL REWINO( LU3)
         DO 320 IROOT = 1, NROOT
-          CALL REWINO( LU1)
-          CALL SETVEC(VEC1,0.0D0,NVAR)
+CNW       CALL REWINO( LU1)
+CNW       CALL SETVEC(VEC1,0.0D0,NVAR)
+          call ga_zero(VEC1)
           DO 200 IVEC = 1, NVEC
-            CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+            if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU1,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+CNW         CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
             FACTOR =  AVEC((IROOT-1)*NVEC+IVEC)
-            CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+CNW         CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+            call ga_add(FACTOR,VEC2,1.0d0,VEC1,VEC1)
   200     CONTINUE
 *
-          SCALE = INPROD(VEC1,VEC1,NVAR)
+CNW       SCALE = INPROD(VEC1,VEC1,NVAR)
+          SCALE = ga_ddot(VEC1,VEC1)
           SCALE  = 1.0D0/SQRT(SCALE)
-          CALL SCALVE(VEC1,SCALE,NVAR)
-          CALL TODSC(VEC1,NVAR,-1  ,LU3)
+CNW       CALL SCALVE(VEC1,SCALE,NVAR)
+          call ga_scale(VEC1,SCALE)
+CNW       CALL TODSC(VEC1,NVAR,-1  ,LU3)
+          if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU3,1,NVAR,IROOT,IROOT) call errquit('dra error',911)
   320   CONTINUE
-        CALL REWINO( LU1)
-        CALL REWINO( LU3)
+CNW     CALL REWINO( LU1)
+CNW     CALL REWINO( LU3)
         DO 411 IVEC = 1,NROOT
-          CALL FRMDSC(VEC1,NVAR,-1  ,LU3,IMZERO,IAMPACK)
-          CALL TODSC (VEC1,NVAR,-1,  LU1)
+          if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU3,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+          if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU1,1,NVAR,IVEC,IVEC) call errquit('dra error',911)
+CNW       CALL FRMDSC(VEC1,NVAR,-1  ,LU3,IMZERO,IAMPACK)
+CNW       CALL TODSC (VEC1,NVAR,-1,  LU1)
   411   CONTINUE
 * CORRESPONDING SIGMA VECTOR
-        CALL REWINO ( LU3)
+CNW     CALL REWINO ( LU3)
         DO 329 IROOT = 1, NROOT
-          CALL REWINO( LU2)
-          CALL SETVEC(VEC1,0.0D0,NVAR)
+CNW       CALL REWINO( LU2)
+CNW       CALL SETVEC(VEC1,0.0D0,NVAR)
+          call ga_zero(VEC1)
           DO 250 IVEC = 1, NVEC
-            CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
+            if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+CNW         CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPACK)
             FACTOR =  AVEC((IROOT-1)*NVEC+IVEC)
-            CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+CNW         CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
+            call ga_add(FACTOR,VEC2,1.0d0,VEC1,VEC1)
   250     CONTINUE
 *
-          CALL SCALVE(VEC1,SCALE,NVAR)
-          CALL TODSC(VEC1,NVAR,-1,  LU3)
+CNW       CALL SCALVE(VEC1,SCALE,NVAR)
+          call ga_scale(VEC1,SCALE)
+CNW       CALL TODSC(VEC1,NVAR,-1,  LU3)
+          if (.not.dra_write_section(.false.,VEC1,1,NVAR,1,1,
+     &       LU3,1,NVAR,IROOT,IROOT) call errquit('dra error',911)
   329   CONTINUE
 * PLACE C IN LU1 AND HC IN LU2
-        CALL REWINO( LU2)
-        CALL REWINO( LU3)
+CNW     CALL REWINO( LU2)
+CNW     CALL REWINO( LU3)
         DO 400 IVEC = 1,NROOT
-          CALL FRMDSC(VEC2,NVAR,-1  ,LU3,IMZERO,IAMPACK)
-          CALL TODSC (VEC2,NVAR,-1  ,LU2)
+          if (.not.dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU3,1,NVAR,IVEC,IVEC)) call errquit('dra error',911)
+          if (.not.dra_write_section(.false.,VEC2,1,NVAR,1,1,
+     &       LU2,1,NVAR,IVEC,IVEC) call errquit('dra error',911)
+CNW       CALL FRMDSC(VEC2,NVAR,-1  ,LU3,IMZERO,IAMPACK)
+CNW       CALL TODSC (VEC2,NVAR,-1  ,LU2)
   400   CONTINUE
         NVEC = NROOT
 *
@@ -4776,11 +4831,11 @@ C     IF( ITER .LT. MAXIT .AND. .NOT. CONVER) GOTO 1000
       IF( ITER .LE. MAXIT .AND. .NOT. CONVER) GOTO 1000
  1001 CONTINUE
 *. Place first eigenvector in vec1
-      CALL REWINO(LU1)
-      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
- 
- 
- 
+CNW   CALL REWINO(LU1)
+CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+      if (.not.dra_read_section(.false.,VEC1,1,NVAR,1,1,
+     &   LU1,1,NVAR,1,1)) call errquit('dra error',911)
+
 * ( End of loop over iterations )
 *
 *
