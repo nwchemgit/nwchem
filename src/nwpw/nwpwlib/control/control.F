@@ -5088,10 +5088,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     ***********************************
 *     *                                 *
-*     *        control_wgc_alphabeta    *
+*     *  control_wgc_alphabetalambda    *
 *     *                                 *
 *     ***********************************
-      real*8 function control_wgc_alphabeta(i)
+      real*8 function control_wgc_alphabetalambda(i)
       implicit none
       integer i
 
@@ -5107,12 +5107,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (i.eq.1) then
          if (.not.rtdb_get(rtdb,'nwpw:wgc_alpha',mt_dbl,1,value))
      >      value = 5.0d0/6.0d0
-      else
+      else if (i.eq.2) then
          if (.not.rtdb_get(rtdb,'nwpw:wgc_beta',mt_dbl,1,value))
      >      value = 5.0d0/6.0d0
+      else 
+         if (.not.rtdb_get(rtdb,'nwpw:wgc_lambda',mt_dbl,1,value))
+     >      value = 1.0d0
       end if
 
-      control_wgc_alphabeta = value
+      control_wgc_alphabetalambda = value
       return
       end
 
