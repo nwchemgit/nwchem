@@ -47,9 +47,8 @@
     
 
 *     ***** energy variables ****
-      real*8  E(30)
+      real*8  E(30),hml(2),lmd(2)
 
-      integer eig(2),hml(2),lmd(2)
 
 
 
@@ -523,7 +522,7 @@ c*     *****  read psi2 wavefunctions ****
          call inner_loop_ofpw(ispin,ne,
      >             npack1,nfft3d,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
-     >             it_in,E,deltae,deltac,deltar,
+     >             it_in,E,deltae,deltac,deltar,hml,lmd,
      >             dbl_mb(psir(1)),dcpl_mb(Hpsi(1)))
 
          if (taskid.eq.MASTER) then 
@@ -577,46 +576,28 @@ c*     *****  read psi2 wavefunctions ****
          write(17,1320) (en(ms),ms=1,ispin)
       end if
 
-c*     **** comparison between hamiltonian an lambda matrix ****
-c      if (taskid.eq.MASTER) write(17,1330)
-c      do ms=1,ispin
-c         do j=1,ne(ms)
-c         do i=1,ne(ms)
-c            w      = Dneall_m_value(0,ms,i,j,dbl_mb(hml(1)))
-c            virial = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
-c
-c            if (taskid.eq.MASTER)
-c     >      write(17,1340) ms,i,j,w,virial,w-virial
-c         end do
-c         end do
-c      end do
-c
-c
-c*     **** check orthonormality ****
-c      if (taskid.eq.MASTER) then
-c         write(17,1350)
-c      end if
-c      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
-c     >                           dcpl_mb(psi1(1)),npack1,
-c     >                           dbl_mb(lmd(1)))
-c      do ms=1,ispin
-c         do j=1,ne(ms)
-c         do i=j,ne(ms)
-c            w  = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
-c            if (taskid.eq.MASTER) write(17,1360) ms,i,j,w
-c         end do
-c         end do
-c      end do
-c
+*     **** comparison between hamiltonian an lambda matrix ****
+      if (taskid.eq.MASTER) write(17,1330)
+      do ms=1,ispin
+         if (taskid.eq.MASTER)
+     >   write(17,1340) ms,hml(ms),lmd(ms),hml(ms)-lmd(ms)
+      end do
+
+
+*     **** check normality ****
+      if (taskid.eq.MASTER) then
+         write(17,1350)
+      end if
+      do ms=1,ispin
+         call Pack_cc_dot(1,dcpl_mb(psi1(1)),dcpl_mb(psi1(1)),w)
+         if (taskid.eq.MASTER) write(17,1360) ms,w
+      end do
 
 *     **** close check file ****
       if (taskid.eq.MASTER) then
          close(17)
       end if
 
-*     ***** do not diagonalize the hamiltonian matrix *****
-
-*     ***** diagonalize the hamiltonian matrix ****
 
 *                |***************************|
 ****************** report summary of results **********************
@@ -679,6 +660,14 @@ c
 
 
 *        **** write out diagonal <psi|H|psi> matrix ****
+         write(luout,1500)
+         EV=27.2116d0
+         if (ispin.eq.1) then
+           write(luout,1510) hml(1),hml(1)*EV
+         else
+           write(luout,1510) hml(1),hml(1)*EV,hml(2),hml(2)*EV
+         end if
+
 
 *        ***** extra energy output for QA test ****
          write(6,1600) E(1)
@@ -861,10 +850,9 @@ c      end if
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
- 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
- 1341 FORMAT(I3,2I3,' H=',E16.6)
- 1350 FORMAT(/' orthonormality')
- 1360 FORMAT(I3,2I3,E18.7)
+ 1340 FORMAT(I3,' H=',E20.7,', L=',E20.7,', H-L=',E20.7)
+ 1350 FORMAT(/' normality')
+ 1360 FORMAT(I3,E18.7)
  1370 FORMAT(I3)
  1380 FORMAT(' ''',a,'''',I4)
  1390 FORMAT(I3)
@@ -917,8 +905,7 @@ c      end if
  1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
- 1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
+ 1510 FORMAT(2(E18.7,' (',F12.3,'eV)'))
  1600 FORMAT(/' Total OFPW energy             :',E19.10)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')

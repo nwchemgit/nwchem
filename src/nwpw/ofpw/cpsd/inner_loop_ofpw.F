@@ -11,6 +11,7 @@
      >                      npack1,nfft3d,
      >                      psi1,psi2,dn,
      >                      it_in,E,deltae,deltac,deltar,
+     >                      hml,lmd,
      >                      psi_r,Hpsi)
       implicit none
       integer    ispin,ne(2)
@@ -21,6 +22,7 @@
       integer    it_in
       real*8     E(*)
       real*8     deltae,deltac,deltar
+      real*8     hml(*),lmd(*)
 
 *     **** very big workspace variables ****
       real*8     psi_r(2*nfft3d,ispin)
@@ -38,7 +40,7 @@
       integer nx,ny,nz
       integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
-      real*8  A,B,C,x,lmbda(2)
+      real*8  A,B,C,x
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  etf,etf2,ptf,ptf2
       real*8  evw,ewgc,pwgc,pwgc2
@@ -408,7 +410,7 @@ c     real*8     fion(3,natmx)
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-        call chi_lmbda(ispin,npack1,psi1,psi2,dte,lmbda,ierr)
+        call chi_lmbda(ispin,npack1,psi1,psi2,dte,lmd,ierr)
 
 
       end do
@@ -422,8 +424,10 @@ c     real*8     fion(3,natmx)
 
 *     *** get orbital energies ****
       call Pack_cc_dot(1,psi1(1,1),Hpsi(1,1),eorbit)
+      hml(1) = -eorbit
       if (ispin.eq.2) then
          call Pack_cc_dot(1,psi1(1,2),Hpsi(1,2),sum)
+         hml(2) = -sum
          eorbit = eorbit + sum
       else
          eorbit = eorbit + eorbit
