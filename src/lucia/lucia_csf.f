@@ -136,7 +136,9 @@ C Some routines added for configurations, spin and CSF's
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cgas.inc'
@@ -188,10 +190,10 @@ c      INCLUDE 'mxpdim.inc'
 *. Scratch memory for setting up configurations 
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GEN_CO')
 C?    WRITE(6,*) ' Test: NELEC, NOCOB = ', NELEC, NOCOB
-      CALL MEMMAN(KLZSCR,(NOCOB+1)*(NELEC+1),'ADDL  ',1,'ZSCR  ')
+      CALL MEMMAN(KLZSCR,(NOCOB+1)*(NELEC+1),'ADDL  ',1,'ZSCR  ')  !done
 C     CALL MEMMAN(KLZ,NOCOB*NELEC*2,'ADDL  ',1,'Z     ')
-      CALL MEMMAN(KLOCMIN,NOCOB,'ADDL  ',1,'OCMIN ')
-      CALL MEMMAN(KLOCMAX,NOCOB,'ADDL  ',1,'OCMAX ')
+      CALL MEMMAN(KLOCMIN,NOCOB,'ADDL  ',1,'OCMIN ')  !done
+      CALL MEMMAN(KLOCMAX,NOCOB,'ADDL  ',1,'OCMAX ')  !done
 *. The KICONF_REO is from lexical to actual order and is therefore
 *. common for all symmetries, start by setting to -1
       NCONF_AS = NCONF_ALL_SYM_GN(ISPC)
@@ -2234,6 +2236,9 @@ C             IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
 *.
 *. Last modification; Oct. 13, 2012; Jeppe Olsen, correcting for lowspin
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'spinfo.inc'
       INCLUDE 'cstate.inc'
@@ -2258,7 +2263,7 @@ C             IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
       IF(NTEST.GE.100) WRITE(6,*) ' Size of largest scratch block ',
      &MAX_SCR
       LSCR = MAX_SCR
-      CALL MEMMAN(KLSCR1,LSCR,'ADDL  ',2,'SCR_CS')
+      CALL MEMMAN(KLSCR1,LSCR,'ADDL  ',2,'SCR_CS')  !done
 *
 *
 * .. Set up combinations and upper determinants
@@ -2326,7 +2331,7 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
           LSCR = MAX(L,LSCR)
         END IF
       END DO
-      CALL MEMMAN(KLSCR2,LSCR,'ADDL  ',1,'KLSCR2')
+      CALL MEMMAN(KLSCR2,LSCR,'ADDL  ',1,'KLSCR2')  !done
 *
       IDTBS = 1
       DO IOPEN = MINOP, MAXOP
@@ -2348,7 +2353,7 @@ COLD    IB_SD_OPEN(IOPEN+1) = IDTBS
 C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
         CALL REO_PTDET(IOPEN,IALPHA,WORK(KZ_PTDT(ITP)),
      &                 WORK(KREO_PTDT(ITP)),IPDTCNF(IDTBS),
-     &                 IDET,WORK(KLSCR2) )
+     &                 IDET,int_mb(KLSCR2) )
 C?     WRITE(6,*) ' Z array as delivered by REO_PTDET'
 C?     CALL IWRTMA(WORK(KZ_PTDT(ITP)),IOPEN,IALPHA,IOPEN,IALPHA)
 C     REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,
@@ -2393,7 +2398,7 @@ C       IF(NPCMCNF(ITP)*NPCSCNF(ITP).EQ.0) GOTO 30
         ELSE
           CALL CSFDET_LUCIA(IOPEN,IPDTCNF(IDTBS),NPCMCNF(ITP),
      &               IPCSCNF(ICSBS),NPCSCNF(ITP),DTOC(ICDCBS),
-     &               WORK(KLSCR1),PSSIGN,IPRCSF)
+     &               dbl_mb(KLSCR1),PSSIGN,IPRCSF)
 C              CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,WORK,PSSIGN,
 C    &                IPRCSF)
         END IF
@@ -2449,6 +2454,9 @@ C       DO IOPEN = 0, MAXOP
 *             Dec. 2011, cleaned and shaved
 *
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'spinfo.inc'
       INCLUDE 'glbbas.inc'
@@ -2474,10 +2482,12 @@ C       DO IOPEN = 0, MAXOP
       NELEC = IELSUM(IOCCLS_LIST(1,IOCCLS(1)),NGAS)
 C 
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'CNFORD')
-      CALL MEMMAN(KLZSCR,(NOCOB+1)*(NELEC+1),'ADDL  ',1,'ZSCR  ')
-      CALL MEMMAN(KLZ,NOCOB*NELEC*2,'ADDL  ',1,'Z     ')
-      CALL MEMMAN(KLOCMIN,NOCOB,'ADDL  ',1,'OCMIN ')
-      CALL MEMMAN(KLOCMAX,NOCOB,'ADDL  ',1,'OCMAX ')
+c..dongxia: the following arrays are not used. comment off
+c     CALL MEMMAN(KLZSCR,(NOCOB+1)*(NELEC+1),'ADDL  ',1,'ZSCR  ')
+c     CALL MEMMAN(KLZ,NOCOB*NELEC*2,'ADDL  ',1,'Z     ')
+c     CALL MEMMAN(KLOCMIN,NOCOB,'ADDL  ',1,'OCMIN ')
+c     CALL MEMMAN(KLOCMAX,NOCOB,'ADDL  ',1,'OCMAX ')
+c..
 *
 * Reorder Determinants from configuration order to ab-order
 *
@@ -2970,7 +2980,9 @@ C?    WRITE(6,*) ' CONF_GRAPH, NORB, NEL = ', NORB, NEL
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'cgas.inc'
@@ -3022,7 +3034,9 @@ c      INCLUDE 'implicit.inc'
 * =====
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strbas.inc'
@@ -3068,17 +3082,17 @@ c      INCLUDE 'mxpdim.inc'
 *
 *
 *Space for alpha and beta strings
-      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-      CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
+      CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
+      CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')  !done
 *. Space for constructing arc weights for configurations 
-      CALL MEMMAN(KLZSCR,(NOCOB+1)*(NEL+1),'ADDL  ',1,'ZSCR  ')
-      CALL MEMMAN(KLZ,NOCOB*NEL*2,'ADDL  ',1,'Z     ')
-      CALL MEMMAN(KLOCMIN,NOCOB,'ADDL  ',1,'OCMIN ')
-      CALL MEMMAN(KLOCMAX,NOCOB,'ADDL  ',1,'OCMAX ')
+      CALL MEMMAN(KLZSCR,(NOCOB+1)*(NEL+1),'ADDL  ',1,'ZSCR  ') !done
+      CALL MEMMAN(KLZ,NOCOB*NEL*2,'ADDL  ',1,'Z     ')  !done
+      CALL MEMMAN(KLOCMIN,NOCOB,'ADDL  ',1,'OCMIN ')  !done
+      CALL MEMMAN(KLOCMAX,NOCOB,'ADDL  ',1,'OCMAX ')  !done
 *. Occupation and projections of a given determinant
-      CALL MEMMAN(KLDET_OC,NAEL+NBEL,'ADDL  ',1,'CONF_O')
-      CALL MEMMAN(KLDET_MS,NAEL+NBEL,'ADDL  ',1,'CONF_M')
-      CALL MEMMAN(KLDET_VC,NOCOB,'ADDL  ',1,'CONF_M')
+      CALL MEMMAN(KLDET_OC,NAEL+NBEL,'ADDL  ',1,'CONF_O') !done
+      CALL MEMMAN(KLDET_MS,NAEL+NBEL,'ADDL  ',1,'CONF_M') !done
+      CALL MEMMAN(KLDET_VC,NOCOB,'ADDL  ',1,'CONF_M')  !done
 
 *. Configurations are constructed and stored with orbitals
 *. labels starting with 1, whereas strings are stored
@@ -3122,7 +3136,9 @@ C IB_CN_OPEN
 * Reorder determinants in GAS space from det to configuration order
 * Reorder array created is Conf-order => AB-order 
 *
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       include 'wrkspc.inc'
 *. General input
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)  
@@ -5021,6 +5037,9 @@ C?    WRITE(6,*) ' TEST: NORB = ', NORB
 * Jeppe Olsen, June 2011
 * Last modification; May 30, 2013; Jeppe Olsen; IREO_MNMX_OB_NO added
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cgas.inc'
@@ -5111,13 +5130,13 @@ C    &                                 NPCSCNF)
       CALL MEMMAN(KZ_GN(ISPC),NORBL*NELEC*2,'ADDL  ',1,'Z     ')
 *. Scratch memory for setting up configurations 
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GEN_CO')
-      CALL MEMMAN(KLZSCR,(NORBL+1)*(NELEC+1),'ADDL  ',1,'ZSCR  ')
+      CALL MEMMAN(KLZSCR,(NORBL+1)*(NELEC+1),'ADDL  ',1,'ZSCR  ')  !done
 *
 * Set up the configurations 
 *
 *. Arcweights
       CALL CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORBL,
-     &     NELEC,WORK(KZ_GN(ISPC)),NCONF_P,WORK(KLZSCR))
+     &     NELEC,WORK(KZ_GN(ISPC)),NCONF_P,int_mb(KLZSCR))
 *
       INITIALIZE_CONF_COUNTERS = 1
       IDOREO = 1
@@ -5351,6 +5370,9 @@ C
 * orbital having index 1.
 * The orbitals in the preceeding GASpaces are assumed to be doubly occupied
 * and this is preceeded by IB_ORB-1 orbitals, all 
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -5454,11 +5476,11 @@ C     SET_IARR_LIN_FUNC(IARR,IA,IB,NDIM)
       CALL OCCLS(1,NOCCLS,IOCCLS,NEL,NGAS,
      &           IGSOCC(1,1),IGSOCC(1,2),0,0,NOBPT)
 *. and the occupation classes
-      CALL MEMMAN(KLOCCLS,NGAS*NOCCLS,'ADDL  ',1,'KLOCCL')
-      CALL MEMMAN(KLBASSPC,NOCCLS,'ADDL  ',1,'BASSPC')
+      CALL MEMMAN(KLOCCLS,NGAS*NOCCLS,'ADDL  ',1,'KLOCCL')  !done
+      CALL MEMMAN(KLBASSPC,NOCCLS,'ADDL  ',1,'BASSPC')  !done
       IWAY = 2
-      CALL OCCLS(2,NOCCLS,WORK(KLOCCLS),NEL,NGAS,
-     &           IGSOCC(1,1),IGSOCC(1,2),1,WORK(KLBASSPC),NOBPT)
+      CALL OCCLS(2,NOCCLS,int_mb(KLOCCLS),NEL,NGAS,
+     &           IGSOCC(1,1),IGSOCC(1,2),1,int_mb(KLBASSPC),NOBPT)
 *. String-block structure of the CI expansion
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
@@ -5466,46 +5488,47 @@ C     SET_IARR_LIN_FUNC(IARR,IA,IB,NDIM)
       NTTS = MXNTTS
 C?    WRITE(6,*) ' GASCI : NTTS = ', NTTS
 *. 
-      CALL MEMMAN(KLCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
-      CALL MEMMAN(KLCLEBT ,NTTS  ,'ADDL  ',1,'CLEBT ')
-      CALL MEMMAN(KLCI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')
-      CALL MEMMAN(KLCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
-      CALL MEMMAN(KLC2B  ,  NTTS,'ADDL  ',1,'C2BT  ')
-      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
+      CALL MEMMAN(KLCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')  !done
+      CALL MEMMAN(KLCLEBT ,NTTS  ,'ADDL  ',1,'CLEBT ')  !done
+      CALL MEMMAN(KLCI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')  !done
+      CALL MEMMAN(KLCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')  !done
+c.. dongxia: klc2b is not used. comment off
+c     CALL MEMMAN(KLC2B  ,  NTTS,'ADDL  ',1,'C2BT  ')
+c..
+      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')  !done
+      CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')  !done
 *. Matrix giving allowed combination of alpha- and beta-strings
-      CALL IAIBCM(ICISPC,WORK(KLCIOIO))
+      CALL IAIBCM(ICISPC,dbl_mb(KLCIOIO))
 *. option KSVST not active so
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,WORK(KLCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLCBLTP),WORK(KSVST))
 *. Blocks of  CI vector, using a single batch for complete  expansion
       ICOMP = 1
       ISIMSYM = 1
-      CALL PART_CIV2(IDC,WORK(KLCBLTP),WORK(KNSTSO(IATP)),
+      CALL PART_CIV2(IDC,dbl_mb(KLCBLTP),WORK(KNSTSO(IATP)),
      &              WORK(KNSTSO(IBTP)),
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,WORK(KLCIOIO),
+     &              NOCTPA,NOCTPB,NSMST,LBLOCK,dbl_mb(KLCIOIO),
      &              ISMOST(1,ISM),
-     &              NBATCH,WORK(KLCLBT),WORK(KLCLEBT),
-     &              WORK(KLCI1BT),WORK(KLCIBT),ICOMP,ISIMSYM)
+     &              NBATCH,int_mb(KLCLBT),int_mb(KLCLEBT),
+     &              int_mb(KLCI1BT),int_mb(KLCIBT),ICOMP,ISIMSYM)
 *. Number of BLOCKS
-        NBLOCK = IFRMR(WORK(KLCI1BT),1,NBATCH)
-     &         + IFRMR(WORK(KLCLBT),1,NBATCH) - 1
+        NBLOCK = int_mb(KLCI1BT+nbatch-1)+int_mb(KLCLBT+nbatch-1)-1
         IF(NTEST.GE.1000) WRITE(6,*) ' Number of blocks ', NBLOCK
 * and back to the configurations: 
 *.the blocks in the CI vector with the given supergroups
 C     OFFSETS_FOR_ALBESPGP(IBLOCK,NBLOCK,IALSPGP,IBESPGP,
 C    &                                  IBLOCK_FOR_SPGP)
-      CALL OFFSETS_FOR_ALBESPGP(WORK(KLCIBT),NBLOCK,
+      CALL OFFSETS_FOR_ALBESPGP(int_mb(KLCIBT),NBLOCK,
      &     ISPGP_AL,ISPGP_BE,IB_FOR_ALSM)
 *
 * Loop over configurations and generate determinants, split these to
 * strings and determine their symmetry and type
 *
 *. Space for storing determinants of a configuration 
-      CALL MEMMAN(KLDET1,NEL_CONF,'ADDL  ',1,'CNFDET')
-      CALL MEMMAN(KLAL,NEL_CONF,'ADDL  ',1,'CNFAL ')
-      CALL MEMMAN(KLBE,NEL_CONF,'ADDL  ',1,'CNFBE ')
-      CALL MEMMAN(KLSCR,NEL_CONF,'ADDL  ',1,'CNFSCR')
+      CALL MEMMAN(KLDET1,NEL_CONF,'ADDL  ',1,'CNFDET')  !done
+      CALL MEMMAN(KLAL,NEL_CONF,'ADDL  ',1,'CNFAL ')  !done
+      CALL MEMMAN(KLBE,NEL_CONF,'ADDL  ',1,'CNFBE ')  !done
+      CALL MEMMAN(KLSCR,NEL_CONF,'ADDL  ',1,'CNFSCR')  !done
 *
       IB_OCC = 1
       IDET_CONF = 0
@@ -5526,29 +5549,29 @@ C    &                                  IBLOCK_FOR_SPGP)
 C               GETDET_FOR_CONF(IOCC,NOCOB,NOPEN,NELEC,JPDET,IPDET,IDET,
 C               IDOREO,IREO)
            CALL GETDET_FOR_CONF(ICONF_OCC(IB_OCC),NOCOBL,
-     &          IOPEN,NEL_CONF,JPDT,IDFTP(IB_PDT),WORK(KLDET1),1,
+     &          IOPEN,NEL_CONF,JPDT,IDFTP(IB_PDT),int_mb(KLDET1),1,
      &          IREO_SPCP_OB_ON)
 *. Divide string into alpha- and beta-parts
 C              DETSTR(IDET,IASTR,IBSTR,NAEL,NBEL,ISIGN,IWORK)
-           CALL DETSTR(WORK(KLDET1),WORK(KLAL),WORK(KLBE),
-     &                NAEL_CONF,NBEL_CONF,ISIGN,WORK(KLSCR),
+           CALL DETSTR(int_mb(KLDET1),int_mb(KLAL),int_mb(KLBE),
+     &                NAEL_CONF,NBEL_CONF,ISIGN,int_mb(KLSCR)
      &                NTEST)
 *. Symmetry of strings in configuration
 *. Modify orbital indeces so they correspond to absolute orbital numbers
            IADD = IORB_IB - 1
 C               ADD_C_TO_INTVEC(INTVEC,IC,NDIM)
-           CALL ADD_C_TO_INTVEC(WORK(KLAL),IADD,NAEL_CONF)
-           CALL ADD_C_TO_INTVEC(WORK(KLBE),IADD,NBEL_CONF)
-           IAL_SYM_CONF = ISYMST(WORK(KLAL),NAEL_CONF)
-           IBE_SYM_CONF = ISYMST(WORK(KLBE),NBEL_CONF)
+           CALL ADD_C_TO_INTVEC(int_mb(KLAL),IADD,NAEL_CONF)
+           CALL ADD_C_TO_INTVEC(int_mb(KLBE),IADD,NBEL_CONF)
+           IAL_SYM_CONF = ISYMST(int_mb(KLAL),NAEL_CONF)
+           IBE_SYM_CONF = ISYMST(int_mb(KLBE),NBEL_CONF)
 *. Number of alpha-strings with this symmetry in group
            NAL_STR_CONF = NSTFSMGP(IAL_SYM_CONF,IGRP_AL)
 *. Address of alpha- and beta- configuration strings
 C                  ISTRNM2(IOCC,NORB,NEL,Z,NEWORD,IOFFSETS,IREORD,IRELNUM)
-           IALNM = ISTRNM2(WORK(KLAL),NOCOB,NAEL_CONF,
+           IALNM = ISTRNM2(int_mb(KLAL),NOCOB,NAEL_CONF,
      &             WORK(KZ(IGRP_AL)),WORK(KSTREO(IGRP_AL)),
      &             ISTFSMGP(1,IGRP_AL),1,1)
-           IBENM = ISTRNM2(WORK(KLBE),NOCOB,NBEL_CONF,
+           IBENM = ISTRNM2(int_mb(KLBE),NOCOB,NBEL_CONF,
      &             WORK(KZ(IGRP_BE)),WORK(KSTREO(IGRP_BE)),
      &             ISTFSMGP(1,IGRP_BE),1,1)
 *. Symmetry of complete strings including core
@@ -6129,6 +6152,9 @@ C
 *. Jeppe Olsen, July 2011, generalization to multiple spaces
 *  
 *. General input
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -6734,6 +6760,9 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
 *
 *. Jeppe Olsen, Jan. 2012, some speed up in June 2012
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
@@ -6780,13 +6809,13 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
      &WRITE(6,*) ' NPDT_NAX, NPCS_MAX = ', NPDT_MAX, NPCS_MAX
       LISCR = 2*NPDT_MAX*NEL + NPDT_MAX + 6*NACOB
       LRSCR = 2*NPDT_MAX**2
-      CALL MEMMAN(KLISCR,LISCR,'ADDL  ',1,'IS_CHC')
-      CALL MEMMAN(KLRSCR,LRSCR,'ADDL  ',2,'RS_CHC')
+      CALL MEMMAN(KLISCR,LISCR,'ADDL  ',1,'IS_CHC')  !done
+      CALL MEMMAN(KLRSCR,LRSCR,'ADDL  ',2,'RS_CHC')  !done
       LCSFHCSF = NPCS_MAX**2
-      CALL MEMMAN(KLCSFHCSF,LCSFHCSF,'ADDL  ',2,'CSHCS ')
+      CALL MEMMAN(KLCSFHCSF,LCSFHCSF,'ADDL  ',2,'CSHCS ')  !done
 *
-      CALL MEMMAN(KLJ,NTOOB**2,'ADDL  ',2,'IIJJ  ')
-      CALL MEMMAN(KLK,NTOOB**2,'ADDL  ',2,'IJJI  ')
+      CALL MEMMAN(KLJ,NTOOB**2,'ADDL  ',2,'IIJJ  ')  !done
+      CALL MEMMAN(KLK,NTOOB**2,'ADDL  ',2,'IJJI  ')  !done
 *
 *. Obtain J(I,J) = (II!JJ), K(I,J) = (IJ!JI)
 *
@@ -7507,6 +7536,9 @@ C               CHECK_IS_OCC_IN_ENGSOCC(IGSOCCL,ISPC,IM_IN)
 *  Latest modification; May 17 2013; Jeppe Olsen; Info on AB SDs and AB CMs added
 *
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
@@ -8200,6 +8232,9 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *
 *. Jeppe Olsen, Feb. 2012
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
@@ -8403,7 +8438,9 @@ C          GEN_CONF_FOR_CISPC(IOCCLS,NOCCLS,ISYM)
 *.Input
 * =====
 *
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strbas.inc'
@@ -8471,39 +8508,39 @@ C          GEN_CONF_FOR_CISPC(IOCCLS,NOCCLS,ISYM)
 *. For alpha and beta strings
       IF(INEW_OR_SUPERNEW.NE.2) THEN
 *. Allocate strings of given sym and type
-        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
+        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
+        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')  !done
       ELSE
 *
 *. Allocate arrays for occupations of symmetries for P and L strings,
 *. Could be reduced a lot- as it is not complete strings
 *. we need to store
-       CALL MEMMAN(KLASTRP,MXNSTRP_AS*NAEL,'ADDL  ',1,'ASTP  ')
-       CALL MEMMAN(KLBSTRP,MXNSTRP_AS*NBEL,'ADDL  ',1,'BSTP  ')
-       CALL MEMMAN(KLASTRL,MXNSTRL_AS*NAEL,'ADDL  ',1,'ASTL  ')
-       CALL MEMMAN(KLBSTRL,MXNSTRL_AS*NBEL,'ADDL  ',1,'BSTL  ')
+       CALL MEMMAN(KLASTRP,MXNSTRP_AS*NAEL,'ADDL  ',1,'ASTP  ')  !done
+       CALL MEMMAN(KLBSTRP,MXNSTRP_AS*NBEL,'ADDL  ',1,'BSTP  ')  !done
+       CALL MEMMAN(KLASTRL,MXNSTRL_AS*NAEL,'ADDL  ',1,'ASTL  ')  !nu
+       CALL MEMMAN(KLBSTRL,MXNSTRL_AS*NBEL,'ADDL  ',1,'BSTL  ')  !nu
 *. Contribution to adress of P-configurations
-       CALL MEMMAN(KLCNSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSAP  ')
+       CALL MEMMAN(KLCNSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSAP  ')  !done
 *. Occupation of L-strings
-       CALL MEMMAN(KLCNOCSTSTL,MXNSTRSTRLOC_AS,'ADDL  ',1,'LCNOC ')
+       CALL MEMMAN(KLCNOCSTSTL,MXNSTRSTRLOC_AS,'ADDL  ',1,'LCNOC ') !d.
 *. Contribution to adress of L-configurations
-       CALL MEMMAN(KLCNSTSTL,MXNSTRSTRL_AS,'ADDL  ',1,'SSAL  ')
+       CALL MEMMAN(KLCNSTSTL,MXNSTRSTRL_AS,'ADDL  ',1,'SSAL  ') !done
 *. Number of open orbitals in P and L-strings
-       CALL MEMMAN(KLNOPSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSNOPP')
-       CALL MEMMAN(KLNOPSTSTL,MXNSTRSTRL_AS,'ADDL  ',1,'SSNOPL')
+       CALL MEMMAN(KLNOPSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSNOPP') !done
+       CALL MEMMAN(KLNOPSTSTL,MXNSTRSTRL_AS,'ADDL  ',1,'SSNOPL') !done
 *. Number of open alpha-electrons in P-and L-strings
-       CALL MEMMAN(KLNALSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSNALP')
-       CALL MEMMAN(KLNALSTSTL,MXNSTRSTRL_AS,'ADDL  ',1,'SSNALP')
+       CALL MEMMAN(KLNALSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSNALP') !done
+       CALL MEMMAN(KLNALSTSTL,MXNSTRSTRL_AS,'ADDL  ',1,'SSNALP') !done
 *. P-contribution to address of spin-combination
        CALL MEMMAN(KLIADOPSTSTP,MXNSTRSTRP_AS,'ADDL  ',1,'SSIOPP')
 *. Are P-combinations AB switched
        IF(PSSIGN.NE.0.0D0) THEN
-         CALL MEMMAN(KLABSWITCHP,MXNSTRSTRP_AS,'ADDL  ',1,'SSAPSW')
-         CALL MEMMAN(KLABSWITCHL,MXNSTRSTRL_AS,'ADDL  ',1,'SSALSW')
-         CALL MEMMAN(KLNOPSTSTL_AB,MXNSTRSTRL_AS,'ADDL  ',1,'SSNOPL')
+         CALL MEMMAN(KLABSWITCHP,MXNSTRSTRP_AS,'ADDL  ',1,'SSAPSW') !d
+         CALL MEMMAN(KLABSWITCHL,MXNSTRSTRL_AS,'ADDL  ',1,'SSALSW') !d
+         CALL MEMMAN(KLNOPSTSTL_AB,MXNSTRSTRL_AS,'ADDL  ',1,'SSNOPL')!nu
          CALL MEMMAN(KLCNOCSTSTL_AB,MXNSTRSTRLOC_AS,'ADDL  ',1,'LCNOC ')
-         CALL MEMMAN(KLCNSTSTL_AB,MXNSTRSTRL_AS,'ADDL  ',1,'SSAL  ')
-         CALL MEMMAN(KLNALSTSTL_AB,MXNSTRSTRL_AS,'ADDL  ',1,'SSNALP')
+         CALL MEMMAN(KLCNSTSTL_AB,MXNSTRSTRL_AS,'ADDL  ',1,'SSAL  ') !d
+         CALL MEMMAN(KLNALSTSTL_AB,MXNSTRSTRL_AS,'ADDL  ',1,'SSNALP') !d
        ELSE
          KLABSWITCHP = 1
          KLABSWITCHL = 1
@@ -8513,15 +8550,15 @@ C          GEN_CONF_FOR_CISPC(IOCCLS,NOCCLS,ISYM)
          KLNALSTSTL_AB = 1
        END IF
 *. Offsets in STRSTR arrays to combinations with given symmetries
-       CALL MEMMAN(KLSMSMP,NSMST**2,'ADDL  ',1,'SMSMP ')
-       CALL MEMMAN(KLSMSML,NSMST**2,'ADDL  ',1,'SMSML ')
+       CALL MEMMAN(KLSMSMP,NSMST**2,'ADDL  ',1,'SMSMP ')  !done
+       CALL MEMMAN(KLSMSML,NSMST**2,'ADDL  ',1,'SMSML ')  !done
       END IF
 *. For Occupation and projections of a given determinant
-      CALL MEMMAN(KLDET_OC,NAEL+NBEL,'ADDL  ',1,'CONF_O')
-      CALL MEMMAN(KLDET_MS,NAEL+NBEL,'ADDL  ',1,'CONF_M')
-      CALL MEMMAN(KLDET_MS_AB,NAEL+NBEL,'ADDL  ',1,'CONF_M')
-      CALL MEMMAN(KLDET_VC,NOCOB,'ADDL  ',1,'CONF_M')
-      CALL MEMMAN(KLBLTP,NSMST,'ADDL   ',1,'BLTP  ')
+      CALL MEMMAN(KLDET_OC,NAEL+NBEL,'ADDL  ',1,'CONF_O')  !done
+      CALL MEMMAN(KLDET_MS,NAEL+NBEL,'ADDL  ',1,'CONF_M')  !done
+      CALL MEMMAN(KLDET_MS_AB,NAEL+NBEL,'ADDL  ',1,'CONF_M')  !done
+      CALL MEMMAN(KLDET_VC,NOCOB,'ADDL  ',1,'CONF_M')  !done
+      CALL MEMMAN(KLBLTP,NSMST,'ADDL   ',1,'BLTP  ')  !done
 *. 
       KSVST = 1
       CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,int_mb(KLBLTP),int_mb(KSVST))
@@ -8614,8 +8651,10 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
 * Reorder array created is Conf-order => AB-order 
 *
 c     IMPLICIT REAL*8(A-H,O-Z)
-      include 'wrkspc.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+      include 'wrkspc.inc'
 *. General input
 *.---------------
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)  
@@ -8857,7 +8896,9 @@ C?             CALL XFLUSH(6)
 *
 *. Jeppe Olsen, Febr. 2012
 *
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
 c     INCLUDE 'wrkspc-static.inc'
@@ -9549,6 +9590,9 @@ C                 TODSCN(VEC,NREC,LREC,LBLK,LU)
 *
 *. Jeppe Olsen, Febr. 2012
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -10283,6 +10327,9 @@ C RESTORE ORDER !!!
 *
 * Jeppe Olsen, July 2011
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
@@ -10446,6 +10493,9 @@ C?   &     NCONF_PER_OPEN_GN(IOPEN+1,ISYM,ISPC), IB_REL
 *
 *. Jeppe Olsen, July 2011
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
@@ -11097,8 +11147,8 @@ C            DETSTR(IDET,IASTR,IBSTR,NAEL,NBEL,ISIGN,IWORK,IPRNT)
 *
       RETURN
       END
-      SUBROUTINE GET_DIM_MINMAX_SPACE(MIN_OCC,MAX_OCC,MINMAX_ORB,NORB,ISYM,
-     &           NCONF,NCSF,NSD,NCM,LCONFOCC,NCONF_AS)
+      SUBROUTINE GET_DIM_MINMAX_SPACE(MIN_OCC,MAX_OCC,MINMAX_ORB,NORB,
+     &           ISYM,NCONF,NCSF,NSD,NCM,LCONFOCC,NCONF_AS)
 * 
 * Find Number of configurations, CSF's, SDs, CMs for a MINMAX expansion
 * defined by MIN_OCC, MAX_OCC
@@ -12349,6 +12399,9 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
 *
 *. Jeppe Olsen, March 22, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
@@ -12582,7 +12635,7 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
       INCLUDE 'lucinp.inc'
       INCLUDE 'spinfo.inc'
       INCLUDE 'orbinp.inc'
-      INCLUDE 'wrkspc-static.inc'
+c      INCLUDE 'wrkspc-static.inc'
 *. Input
       INTEGER IOGOCSBCLS(2,NOCSBCLST)
       INTEGER MINOPFSBCLS(NOCSBCLST)
@@ -12651,6 +12704,9 @@ C?       WRITE(6,*) ' IBOB = ' , IBOB
 *. Jeppe Olsen, Mar. 26, 2013
 *
 *. General input
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -12673,13 +12729,13 @@ C?      WRITE(6,*) ' IOPEN_OUT_DIM = ', IOPEN_OUT_DIM
       CALL MEMMAN(IDUM,IDUM,'MARK  ', IDUM, 'OCSBDM')
 *. Two local arrays holding symmetry and number of open orbitals
       LDIM = (IOPEN_OUT_DIM+1)*NSMOB
-      CALL MEMMAN(KLOS1,LDIM,'ADDL  ',1,'LO_S1 ')
-      CALL MEMMAN(KLOCSBCLS,NGAS,'ADDL  ',1,'OCSBCL')
+      CALL MEMMAN(KLOS1,LDIM,'ADDL  ',1,'LO_S1 ')  !done
+      CALL MEMMAN(KLOCSBCLS,NGAS,'ADDL  ',1,'OCSBCL')  !done
 *. The occupation sub classes corresponding to the occupation class
-      CALL OCC_TO_SBCLS_FOR_OCCLS(IOCCLS,WORK(KLOCSBCLS))
+      CALL OCC_TO_SBCLS_FOR_OCCLS(IOCCLS,int_mb(KLOCSBCLS))
 *. 
-      CALL OCCLSDIM_FROM_OCSBCLSDIM_IN(WORK(KLOCSBCLS),WORK(KNSBCNF),
-     &     WORK(KLOS1),IOCCLSDIM,IOPEN_OUT_DIM)
+      CALL OCCLSDIM_FROM_OCSBCLSDIM_IN(int_mb(KLOCSBCLS),WORK(KNSBCNF),
+     &     int_mb(KLOS1),IOCCLSDIM,IOPEN_OUT_DIM)
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ', IDUM, 'OCSBDM')
       RETURN
@@ -12853,6 +12909,9 @@ C         IOCCLSDIM(IOPEN_OUT_DIM+1,NSMOB)
 *
 *. Jeppe Olsen, March 26, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
@@ -12877,16 +12936,16 @@ C         IOCCLSDIM(IOPEN_OUT_DIM+1,NSMOB)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'DMCISB')
 *
       WRITE(6,*) ' NOCCLS_MAX = ', NOCCLS_MAX
-      CALL MEMMAN(KLOCCLS_ACT,NOCCLS_MAX,'ADDL  ',1,'OCCLAC')
-      CALL MEMMAN(KLNCNFOPSM2,(MXPOPORB+1)*MXPCSM,'ADDL  ',1,'CNOPSM')
+      CALL MEMMAN(KLOCCLS_ACT,NOCCLS_MAX,'ADDL  ',1,'OCCLAC')  !done
+      CALL MEMMAN(KLNCNFOPSM2,(MXPOPORB+1)*MXPCSM,'ADDL  ',1,'CNOPSM')!d
 *
 *. Find the occupation classes that are active for this CI space
 C          OCCLS_IN_CI(NOCCLS,IOCCLS,ICISPC,NINCCLS,INCCLS)
       CALL OCCLS_IN_CI(NOCCLS_MAX,WORK(KIOCCLS),ICISPC,NACTCLS,
-     &     WORK(KLOCCLS_ACT))
-      CALL DIM_CISPACE_FROM_SBCNF_IN(WORK(KLOCCLS_ACT),
+     &     int_mb(KLOCCLS_ACT))
+      CALL DIM_CISPACE_FROM_SBCNF_IN(int_mb(KLOCCLS_ACT),
      &     NOCCLS_MAX,
-     &     WORK(KIOCCLS),NCNFOPSM, WORK(KLNCNFOPSM2),NGAS,
+     &     WORK(KIOCCLS),NCNFOPSM, int_mb(KLNCNFOPSM2),NGAS,
      &     WORK(KNSBCNF),
      &     MINOP,NOPEN_MAX,MXPOPORB,NSMOB)
 *
@@ -12977,7 +13036,9 @@ C              OCCLSDIM_FROM_OCSBCLSDIM(IOCCLS, IOCCLSDIM)
 *
 *. Jeppe Olsen, April3, 2013
 *
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -13084,13 +13145,13 @@ C    &           IOCCADD, NCONFADD,IBCONFADD,MAXOP,ISM,NSMOB,NEL)
 C       NCONF_OCCLS(NOBPSP,NELPSP,NSPC,MINOP,NCONF,LOCC)
         CALL NCONF_OCCLS(NOBPT,IOCCLS,NGAS-1,MINOPGASL,NCONFM1,LOCCM1)
 *. Space for two such lists of occupations 
-        CALL MEMMAN(KLOCCSB1,LOCCM1,'ADDL  ',1,'OCCM11')
-        CALL MEMMAN(KLOCCSB2,LOCCM1,'ADDL  ',1,'OCCM12')
+        CALL MEMMAN(KLOCCSB1,LOCCM1,'ADDL  ',1,'OCCM11')  !done
+        CALL MEMMAN(KLOCCSB2,LOCCM1,'ADDL  ',1,'OCCM12')  !done
 *. And for two sets of dimension and offsets
-        CALL MEMMAN(KLIBSB1,(MAXOP+1)*NSMOB,'ADDL  ',1,'IBSB1 ')
-        CALL MEMMAN(KLIBSB2,(MAXOP+1)*NSMOB,'ADDL  ',1,'IBSB2 ')
-        CALL MEMMAN(KLNSB1 ,(MAXOP+1)*NSMOB,'ADDL  ',1,'NSB1  ')
-        CALL MEMMAN(KLNSB2 ,(MAXOP+1)*NSMOB,'ADDL  ',1,'NSB2  ')
+        CALL MEMMAN(KLIBSB1,(MAXOP+1)*NSMOB,'ADDL  ',1,'IBSB1 ') !d
+        CALL MEMMAN(KLIBSB2,(MAXOP+1)*NSMOB,'ADDL  ',1,'IBSB2 ') !d
+        CALL MEMMAN(KLNSB1 ,(MAXOP+1)*NSMOB,'ADDL  ',1,'NSB1  ')  !d
+        CALL MEMMAN(KLNSB2 ,(MAXOP+1)*NSMOB,'ADDL  ',1,'NSB2  ')  !d
 *
         NEL_IGM1 = IOCCLS(1)
         DO IGAS = 2, NGAS
@@ -13354,6 +13415,9 @@ C                   CHECK_NEL_IN_CONF(ICONF,NOC,NEL)
 *
 *. Jeppe Olsen, April 4, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
@@ -13847,7 +13911,9 @@ C         ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
 * Reorder array created is Conf-order => AB-order 
 *
 c     IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       include 'wrkspc.inc'
 *. General input
 *.---------------
@@ -14232,7 +14298,9 @@ C          ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
 *
 * So an alpha string is alpha = alphap * alphal
 *
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       include 'wrkspc-static.inc'
