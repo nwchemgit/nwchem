@@ -218,6 +218,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. input  
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
+c..dongxia there's no WORK and MEMMAN involved.
       INCLUDE 'strbas.inc'
       INCLUDE 'cgas.inc'
 *. Input and Output ( NELFSPGP(MXPNGAS,MXPSTT) )
@@ -1548,6 +1549,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Input
 *     (and /LUCINP/ not occuring here )
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cgas.inc'
@@ -2223,6 +2227,9 @@ C    &             INUMAP(MXPSTT),INDMAP(MXPSTT)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strbas.inc'
@@ -2712,6 +2719,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 * ===================
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'cstate.inc'
@@ -2745,14 +2755,14 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
 *.Local memory
-      CALL MEMMAN(KLBLTP,NSMST,'ADDL  ',2,'KLBLTP')
+      CALL MEMMAN(KLBLTP,NSMST,'ADDL  ',2,'KLBLTP') !done
       IF(IDC.EQ.3 .OR. IDC .EQ. 4 )
-     &CALL MEMMAN(KLCVST,NSMST,'ADDL  ',2,'KLCVST')
-      CALL MEMMAN(KLIOIO,NOCTPA*NOCTPB,   'ADDL  ',2,'KLIOIO')
+     &CALL MEMMAN(KLCVST,NSMST,'ADDL  ',2,'KLCVST') !done
+      CALL MEMMAN(KLIOIO,NOCTPA*NOCTPB,   'ADDL  ',2,'KLIOIO') !d
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
       IF(IDC.EQ.3.OR.IDC.EQ.4)
-     &CALL SIGVST(WORK(KLCVST),NSMST)
+     &CALL SIGVST(dbl_mb(KLCVST),NSMST)
  
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry
@@ -2766,17 +2776,18 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
       XMXSOOB_AS = 0.0D0
       DO 100 ICI = 1, NICISP
 *. allowed combination of types
-      CALL IAIBCM(ICI,WORK(KLIOIO))
+      CALL IAIBCM(ICI,dbl_mb(KLIOIO))
 
       DO  50 ISYM = 1, NSMCI
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,WORK(KLBLTP),WORK(KLCVST))
+          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,dbl_mb(KLBLTP),
+     $               dbl_mb(KLCVST))
           CALL NGASDT(IGSOCCX(1,1,ICI),IGSOCCX(1,2,ICI),NGAS,ISYM,
      &                NSMST,NOCTPA,NOCTPB,WORK(KNSTSO(IATP)),
      &                WORK(KNSTSO(IBTP)),
      &                ISPGPFTP(1,IBSPGPFTP(IATP)),
      &                ISPGPFTP(1,IBSPGPFTP(IBTP)),MXPNGAS,NELFGP,
      &                NCOMB,XNCOMB,MXS,MXSOO,WORK(KLBLTP),NTTSBL,
-     &                LCOL,WORK(KLIOIO),MXSOO_AS,XMXSOO,XMXSOO_AS)
+     &                LCOL,dbl_mb(KLIOIO),MXSOO_AS,XMXSOO,XMXSOO_AS)
       
           XISPSM(ISYM,ICI) = XNCOMB
           MXSOOB = MAX(MXSOOB,MXSOO)
@@ -3281,6 +3292,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 * =====
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strbas.inc'
@@ -3351,28 +3365,28 @@ CM    ELSE
      &             IGSOCC(1,1),IGSOCC(1,2),
      &             0,0,NOBPT)
 *. and then the occupation classes 
-        CALL MEMMAN(KLOCCLS,NGAS*NOCCLS,'ADDL  ',1,'KLOCCL')
+        CALL MEMMAN(KLOCCLS,NGAS*NOCCLS,'ADDL  ',1,'KLOCCL') !d
         IWAY = 2
-        CALL OCCLS(IWAY,NOCCLS,WORK(KLOCCLS),NEL,NGAS,
+        CALL OCCLS(IWAY,NOCCLS,int_mb(KLOCCLS),NEL,NGAS,
      &             IGSOCC(1,1),IGSOCC(1,2),
      &             0,0,NOBPT)
 *
-        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
+        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR') !d
+        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR') !d
 *
         LENGTH = NOCCLS*10
-        CALL MEMMAN(KNCPMT,LENGTH,'ADDL  ',1,'KNCPMT')
-        CALL MEMMAN(KWCPMT,LENGTH,'ADDL  ',2,'KWCPMT')
+        CALL MEMMAN(KNCPMT,LENGTH,'ADDL  ',1,'KNCPMT') !done
+        CALL MEMMAN(KWCPMT,LENGTH,'ADDL  ',2,'KWCPMT') !done
 *
 *. Occupation of strings of given sym and supergroup
         CALL GASANAS(C,LUC,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &       NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,
      &       NBLOCK,IBLOCK,
      &       THRES,MAXTRM,NAEL,NBEL,
-     &       WORK(KLASTR),WORK(KLBSTR),
+     &       int_mb(KLASTR),int_mb(KLBSTR),
      &       IBLTP,NSMST,IUSLAB,
-     &       IDUMMY,WORK(KNCPMT),WORK(KWCPMT),NELFSPGP,      
-     &       NOCCLS,NGAS,WORK(KLOCCLS),ICISTR,NTOOB,NINOB,IPRNCIV)
+     &       IDUMMY,int_mb(KNCPMT),dbl_mb(KWCPMT),NELFSPGP,      
+     &       NOCCLS,NGAS,int_mb(KLOCCLS),ICISTR,NTOOB,NINOB,IPRNCIV)
 CM    END IF !Switch between CSF's and SD's
    
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'GASANA')
@@ -4300,6 +4314,9 @@ C!    stop ' enforrced stop in RSBBD1 '
 * Jeppe Olsen, February 1994
 * GAS version August 1995
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'crun.inc'
@@ -4371,8 +4388,8 @@ C?      WRITE(6,*) ' EXPCIV: NCOMBI, NCOMBU = ',  NCOMBI, NCOMBU
       END IF
 *
 C?    WRITE(6,*) ' ICISTR,  MXSOOB = ',ICISTR,  MXSOOB
-      CALL MEMMAN(KLBLI,LENGTHI,'ADDL  ',2,'KLBLI ')
-      CALL MEMMAN(KLBLU,LENGTHU,'ADDL  ',2,'KLBLU ')
+      CALL MEMMAN(KLBLI,LENGTHI,'ADDL  ',2,'KLBLI ') !done
+      CALL MEMMAN(KLBLU,LENGTHU,'ADDL  ',2,'KLBLU ') !done
 *
 *. and now : Let another subroutine complete the taks
 *
@@ -4387,10 +4404,10 @@ C?    WRITE(6,*) ' ICISTR,  MXSOOB = ',ICISTR,  MXSOOB
         DO IROOT = 1, NROOT
           WRITE(6,*) ' Root number ', IROOT 
           IF(ICISTR.EQ.1) THEN
-            CALL FRMDSC(WORK(KLBLI),NCOMBI,-1,LUIN,IMZERO,IAMPACK)
-            CALL WRTMAT(WORK(KLBLI),1,NCOMBI,1,NCOMBI)
+            CALL FRMDSC(dbl_mb(KLBLI),NCOMBI,-1,LUIN,IMZERO,IAMPACK)
+            CALL WRTMAT(dbl_mb(KLBLI),1,NCOMBI,1,NCOMBI)
           ELSE
-            CALL WRTVCD(WORK(KLBLI),LUIN,0,-1)
+            CALL WRTVCD(dbl_mb(KLBLI),LUIN,0,-1)
           END IF
         END DO
         CALL REWINO(LUIN)
@@ -4406,10 +4423,10 @@ C?    WRITE(6,*) ' ICISTR,  MXSOOB = ',ICISTR,  MXSOOB
           DO JROOT = 1, IROOT
             CALL REWINO(LUSCR)
             IF(ICISTR.EQ.1) THEN
-              CALL FRMDSC(WORK(KLBLI),NCOMBI,-1,LUIN,IMZERO,IAMPACK)
-              CALL  TODSC(WORK(KLBLI),NCOMBI,-1,LUSCR)
+              CALL FRMDSC(dbl_mb(KLBLI),NCOMBI,-1,LUIN,IMZERO,IAMPACK)
+              CALL  TODSC(dbl_mb(KLBLI),NCOMBI,-1,LUSCR)
             ELSE
-              CALL COPVCD(LUIN,LUSCR,WORK(KLBLI),0,-1)
+              CALL COPVCD(LUIN,LUSCR,dbl_mb(KLBLI),0,-1)
             END IF
           END DO
           CALL REWINO(LUSCR)
@@ -4427,9 +4444,9 @@ C?     WRITE(6,*) ' IAMPACK in EXPCIV ', IAMPACK
 C?     WRITE(6,*) ' ISMOST before EXPCIVS for ISM = ', ISM
 C?     CALL IWRTMA(ISMOST(1,ISM),1,NSMST,1,NSMST)
 
-        CALL EXPCIVS(LLUIN,WORK(KLBLI),NCOMBI,
+        CALL EXPCIVS(LLUIN,dbl_mb(KLBLI),NCOMBI,
      &       WORK(KCIOIO),NOCTPA,NOCTPB,WORK(KCBLTP),
-     &       LUUT,WORK(KLBLU),NCOMBU,
+     &       LUUT,dbl_mb(KLBLU),NCOMBU,
      &       WORK(KSIOIO),
      &       WORK(KSBLTP),
      &       ICISTR,IDC,NSMST,
@@ -4450,10 +4467,10 @@ C    &                   ISMOST,NSSOA,NSSOB)
         CALL REWINO(LUUT)
         DO IROOT = 1, NROOT
           IF(ICISTR.EQ.1) THEN
-            CALL FRMDSC(WORK(KLBLU),NCOMBU,-1,LUUT,IMZERO,IAMPACK)
-            CALL  TODSC(WORK(KLBLU),NCOMBU,-1,LUIN)
+            CALL FRMDSC(dbl_mb(KLBLU),NCOMBU,-1,LUUT,IMZERO,IAMPACK)
+            CALL  TODSC(dbl_mb(KLBLU),NCOMBU,-1,LUIN)
           ELSE
-            CALL COPVCD(LUUT,LUIN,WORK(KLBLU),0,-1)
+            CALL COPVCD(LUUT,LUIN,dbl_mb(KLBLU),0,-1)
           END IF
         END DO
       END IF
@@ -4469,14 +4486,14 @@ C    &                   ISMOST,NSSOA,NSSOB)
 *
         IF(ICISTR.EQ.1) THEN
           IF(ICOPY.EQ.0) THEN
-            CALL FRMDSC(WORK(KLBLU),NCOMBU,-1,LUUT,IMZERO,IAMPACK)
-            CALL WRTMAT(WORK(KLBLU),1,NCOMBU,1,NCOMBUT)
+            CALL FRMDSC(dbl_mb(KLBLU),NCOMBU,-1,LUUT,IMZERO,IAMPACK)
+            CALL WRTMAT(dbl_mb(KLBLU),1,NCOMBU,1,NCOMBUT)
           ELSE
-            CALL FRMDSC(WORK(KLBLU),NCOMBU,-1,LUIN,IMZERO,IAMPACK)
-            CALL WRTMAT(WORK(KLBLU),1,NCOMBU,1,NCOMBUT)
+            CALL FRMDSC(dbl_mb(KLBLU),NCOMBU,-1,LUIN,IMZERO,IAMPACK)
+            CALL WRTMAT(dbl_mb(KLBLU),1,NCOMBU,1,NCOMBUT)
           END IF
         ELSE
-          CALL WRTVCD(WORK(KLBLU),LUUT,0,-1)
+          CALL WRTVCD(dbl_mb(KLBLU),LUUT,0,-1)
           END IF
         END DO
       END IF
@@ -4703,7 +4720,9 @@ C    &                   ISMOST,NSSOA,NSSOB)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. General input
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'cgas.inc'
@@ -5218,6 +5237,9 @@ CT       CALL QEXIT('GASSM')
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. General input
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'cgas.inc'
@@ -5767,6 +5789,9 @@ C???  WRITE(6,*) ' NTEST, NTESTG = ', NTEST, NTESTG
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *./ORBINP/
       INCLUDE 'orbinp.inc'
@@ -6124,6 +6149,9 @@ C?            END IF
 *./BIGGY
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
