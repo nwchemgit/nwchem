@@ -166,24 +166,24 @@
 
 *     ***** print out header ****
       if (taskid.eq.MASTER) then
-         write(6,1000)
-         write(6,1010)
-         write(6,1020)
-         write(6,1010)
-         write(6,1030)
-         write(6,1010)
-         write(6,1035)
-         write(6,1010)
-         write(6,1040)
-         write(6,1010)
-         write(6,1041)
-         write(6,1042)
-         write(6,1043)
-         write(6,1044)
-         write(6,1010)
-         write(6,1000)
+         write(luout,1000)
+         write(luout,1010)
+         write(luout,1020)
+         write(luout,1010)
+         write(luout,1030)
+         write(luout,1010)
+         write(luout,1035)
+         write(luout,1010)
+         write(luout,1040)
+         write(luout,1010)
+         write(luout,1041)
+         write(luout,1042)
+         write(luout,1043)
+         write(luout,1044)
+         write(luout,1010)
+         write(luout,1000)
          call nwpw_message(1)
-         write(6,1110)
+         write(luout,1110)
       end if
       
       value = control_read(1,rtdb)
@@ -526,12 +526,13 @@ c*     *****  read psi2 wavefunctions ****
      >             dbl_mb(psir(1)),dcpl_mb(Hpsi(1)))
 
          if (taskid.eq.MASTER) then 
-           write(6,1310) icount*it_in,E(1),deltae,deltac,deltar
-           call util_flush(6)
+           write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
+           call util_flush(luout)
          end if
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** Energy going up.  iteration terminated.'
+     >         write(luout,*)
+     >         ' *** Energy going up.  iteration terminated.'
             !go to 2
          end if
          deltae = dabs(deltae)
@@ -539,12 +540,14 @@ c*     *****  read psi2 wavefunctions ****
      >       (deltac.lt.control_tolc()).and.
      >       (deltar.lt.control_tolr())) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** tolerance ok.     iteration terminated.'
+     >         write(luout,*)
+     >         ' *** tolerance ok.     iteration terminated.'
             go to 2
          end if
       if (icount.lt.it_out) go to 1
       if (taskid.eq.MASTER) 
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+     >   write(luout,*)
+     >   '*** arived at the Maximum iiteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
@@ -606,56 +609,56 @@ c*     *****  read psi2 wavefunctions ****
       call center_mass(gx,gy,gz)
 
       if (taskid.eq.MASTER) then
-         write(6,1300)
-         write(6,1410)
-         write(6,1420)
+         write(luout,1300)
+         write(luout,1410)
+         write(luout,1420)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else
-           write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            end if
          end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
 
 
-         write(6,*)
-         write(6,1320) en(1),en(ispin),' (real space)'
+         write(luout,*)
+         write(luout,1320) en(1),en(ispin),' (real space)'
 
-         write(6,1430) E(1),E(1)/ion_nion()
+         write(luout,1430) E(1),E(1)/ion_nion()
          if (pspw_qmmm_found()) then
-            write(6,1431) 
-            write(6,1432) 
-            write(6,1433) (E(1)-E(11)),
+            write(luout,1431) 
+            write(luout,1432) 
+            write(luout,1433) (E(1)-E(11)),
      >                    (E(1)-E(11))/ion_nion()
          end if
-         write(6,1440) E(2),E(2)/n2(ispin)
-         write(6,1445) E(14),E(14)/n2(ispin)
-         write(6,1446) E(6),E(6)/n2(ispin)
-         write(6,1447) E(16),E(16)/n2(ispin)
-         write(6,1450) E(3),E(3)/n2(ispin)
-         write(6,1460) E(4),E(4)/n2(ispin)
-         write(6,1470) E(5),E(5)/ion_nion()
+         write(luout,1440) E(2),E(2)/n2(ispin)
+         write(luout,1445) E(14),E(14)/n2(ispin)
+         write(luout,1446) E(6),E(6)/n2(ispin)
+         write(luout,1447) E(16),E(16)/n2(ispin)
+         write(luout,1450) E(3),E(3)/n2(ispin)
+         write(luout,1460) E(4),E(4)/n2(ispin)
+         write(luout,1470) E(5),E(5)/ion_nion()
 
-         write(6,1480) E(15),E(15)/n2(ispin)
-         write(6,1481) E(17),E(17)/n2(ispin)
-         write(6,1490) E(7),E(7)/n2(ispin)
-         write(6,1495) E(8),E(8)/n2(ispin)
-         write(6,1496) E(9),E(9)/n2(ispin)
-         write(6,1497) E(10),E(10)/n2(ispin)
+         write(luout,1480) E(15),E(15)/n2(ispin)
+         write(luout,1481) E(17),E(17)/n2(ispin)
+         write(luout,1490) E(7),E(7)/n2(ispin)
+         write(luout,1495) E(8),E(8)/n2(ispin)
+         write(luout,1496) E(9),E(9)/n2(ispin)
+         write(luout,1497) E(10),E(10)/n2(ispin)
 
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(6,1498) virial
+         write(luout,1498) virial
  
       if (pspw_qmmm_found()) then
-            write(6,1700)
-            write(6,1701)
-            write(6,1702) E(11)
-            write(6,1703) E(12)
-            write(6,1704) E(13)
+            write(luout,1700)
+            write(luout,1701)
+            write(luout,1702) E(11)
+            write(luout,1703) E(12)
+            write(luout,1704) E(13)
         end if
 
 
@@ -670,7 +673,7 @@ c*     *****  read psi2 wavefunctions ****
 
 
 *        ***** extra energy output for QA test ****
-         write(6,1600) E(1)
+         write(luout,1600) E(1)
       end if
 
 *                |***************************|
@@ -750,15 +753,15 @@ c      end if
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(icount*it_in)
-         write(6,*)
-         write(6,*) '-----------------'
-         write(6,*) 'cputime in seconds'
-         write(6,*) 'prologue    : ',T1
-         write(6,*) 'main loop   : ',T2
-         write(6,*) 'epilogue    : ',T3
-         write(6,*) 'total       : ',T4
-         write(6,*) 'cputime/step: ',AV
-         write(6,*)
+         write(luout,*)
+         write(luout,*) '-----------------'
+         write(luout,*) 'cputime in seconds'
+         write(luout,*) 'prologue    : ',T1
+         write(luout,*) 'main loop   : ',T2
+         write(luout,*) 'epilogue    : ',T3
+         write(luout,*) 'total       : ',T4
+         write(luout,*) 'cputime/step: ',AV
+         write(luout,*)
          call nwpw_timing_print_final(.true.,(icount*it_in))
          CALL nwpw_MESSAGE(4)
       end if 
@@ -918,7 +921,7 @@ c      end if
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
- 9000 if (taskid.eq.MASTER) write(6,9010) ierr
+ 9000 if (taskid.eq.MASTER) write(luout,9010) ierr
       call Parallel_Finalize()
 
       ofpwsd = value
