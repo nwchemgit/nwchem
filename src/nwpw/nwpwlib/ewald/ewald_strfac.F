@@ -35,7 +35,7 @@ cccccccc exec
          value=value.and.
      >         MA_alloc_get(mt_int,npack,'j_indxe',j_indx(2),j_indx(1))
          value=value.and.
-     >          MA_alloc_get(mt_int,npack,'k_indxe',k_indx(2),k_indx(1))
+     >         MA_alloc_get(mt_int,npack,'k_indxe',k_indx(2),k_indx(1))
       end if
       if (.not.value) 
      >  call errquit("EWALD_STRUCTFACTOR_INIT: OUT OF HEAP MEMORY",0,
@@ -155,6 +155,7 @@ ccccccc start of code
         dcpl_mb(ewx3(1)+nzh+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)  
       end do 
       call nwpw_timing_end(8)
+
       return 
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

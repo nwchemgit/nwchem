@@ -758,7 +758,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy  = 0.5d0*energy/lattice_omega() + cewald
 
-      
+
 *     *** made parallel  ****
       dutask = 0
       etmp = 0.0d0
