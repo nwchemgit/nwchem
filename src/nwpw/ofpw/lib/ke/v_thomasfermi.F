@@ -35,7 +35,7 @@
       call dcopy(n2ft3d,0.0d0,0,xce,1)
       if (ispin.eq.1) then
          do k=1,n2ft3d
-            xcp(k,1) = 2.0d0*CTF*five3rd*(dn(k,1)+dn(k,ispin))**two3rd
+            xcp(k,1) = CTF*five3rd*(dn(k,1)+dn(k,ispin))**two3rd
             xce(k)   = xce(k) + CTF*(dn(k,1)+dn(k,ispin))**two3rd
          end do
       else

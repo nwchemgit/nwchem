@@ -104,6 +104,9 @@ c     complex*16 vpsi(nfft3d)
       nne(1) = 1
       nne(2) = ispin-1
       call ke(ispin,nne,psi_k,Hpsi_k)
+      do ms=1,ispin
+         call dscal(2*npack1,dble(ne(ms)),Hpsi_k(1+(ms-1)*npack1),1)
+      end do
 
 
 *     **********************************************************

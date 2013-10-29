@@ -33,10 +33,9 @@
      >                 psi_k,psi_r,
      >                 vsr_l,vlr_l,
      >                 v_field,field_exist,
-     >                 vc,xcp,Hpsi_k,
+     >                 vc,xcp,v_tf,v_wgc,Hpsi_k,
      >                 move,fion)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
@@ -46,14 +45,17 @@
       logical    field_exist
       real*8     vc(*)
       real*8     xcp(*)
+      real*8     v_tf(*)
+      real*8     v_wgc(*)
       complex*16 Hpsi_k(*)
       logical    move
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
-      integer ms,n,n1(2),n2(2)
+      integer ms,n,n1(2),n2(2),nne(2)
       integer nx,ny,nz
       real*8  scal1,scal2
 
@@ -66,7 +68,7 @@
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed
       logical  pspw_HFX,pspw_HFX_relaxed
-      real*8   lattice_omega
+      real*8   lattice_omega 
       external pspw_SIC,pspw_SIC_relaxed
       external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
@@ -100,7 +102,10 @@
 *     **** add kinetic energy ****
 *     ****************************
       !call ke(ispin,ne,psi_k,Hpsi_k)
-      call dcopy(ispin*npack1,0.0d0,0,Hpsi_k,1)
+      nne(1) = 1
+      nne(2) = ispin-1
+      call ke(ispin,nne,psi_k,Hpsi_k)
+
 
 
 *     **********************************************************
@@ -119,6 +124,7 @@
 *     *******************************************
       call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vlr_l,dcpl_mb(vall(1)))
       call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vc,   dcpl_mb(vall(1)))
+      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_wgc,dcpl_mb(vall(1)))
       if (field_exist)
      >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
 
@@ -132,15 +138,13 @@
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(ms-1)*n2ft3d),
+            call D3dB_rr_Sum2(1,v_tf(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-
-
-*           **** vpsi_r = vpsi_r + Hpsi_r ****
+            call D3dB_rr_Mul2(1,psi_r(1+(ms-1)*n2ft3d),
+     >                          dcpl_mb(vpsi(1)))
 
 *           **** get vpsi_r in k-space ****
-            call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            call D3dB_rc_pfft3f(1,1,dcpl_mb(vpsi(1)))
             call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****

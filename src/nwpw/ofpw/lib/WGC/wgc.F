@@ -220,6 +220,7 @@
 
          call Pack_tc_Mul(0,dbl_mb(wgc_indx),dbl_mb(rho1(1)),v_out)
          call Pack_c_SMul1(0,2.0d0*wgc_tune1,v_out)
+         !call Pack_c_SMul1(0,wgc_tune1,v_out)
          call Pack_c_unpack(0,v_out)
          !call D3dB_cr_fft3b(1,v_out)
          call D3dB_cr_pfft3b(1,0,v_out)
@@ -353,7 +354,7 @@
       !**** extra scaling of 1/(N1*N2*N3) is done to the WGG_kernel(G)                               ****
       !**** Might want to scal rho^alpha/beta(G) properly to make the code more transparent          ****
       !**************************************************************************************************
-      ec = ec*lattice_omega()*wgc_scal1  
+      ec = ec*lattice_omega()*wgc_scal1
        
 
       value =      MA_pop_stack(tmp1(2))
