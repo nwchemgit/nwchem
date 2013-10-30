@@ -139,8 +139,8 @@
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
 
-      real*8   Dneall_m_value,wgc_alpha,wgc_beta,wgc_rho
-      external Dneall_m_value,wgc_alpha,wgc_beta,wgc_rho
+      real*8   Dneall_m_value,wgc_alpha,wgc_beta,wgc_lambda,wgc_rho
+      external Dneall_m_value,wgc_alpha,wgc_beta,wgc_lambda,wgc_rho
       character*9 ion_amm
       external    ion_amm
 
@@ -428,7 +428,7 @@ c*     *****  read psi2 wavefunctions ****
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
-         write(luout,1133) wgc_alpha(),wgc_beta(),wgc_rho()
+         write(luout,1133) wgc_alpha(),wgc_beta(),wgc_lambda(),wgc_rho()
          write(luout,1140)
 
 
@@ -799,7 +799,7 @@ c      end if
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
  1133 FORMAT(/5x,' WGC parameteters: alpha= ',F6.4,' beta= ',F6.4, 
-     >          ' rho0= ',F8.5)
+     >          ' lambda =', F6.4, ' rho0= ',F8.5)
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
