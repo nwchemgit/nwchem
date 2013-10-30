@@ -22,6 +22,8 @@ end
 
 driver
   tight
+  xmax 0.00180
+  xrms 0.00120
 end
 
 task scf optimize
