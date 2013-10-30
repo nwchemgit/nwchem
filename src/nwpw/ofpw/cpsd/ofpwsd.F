@@ -799,7 +799,7 @@ c      end if
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
  1133 FORMAT(/5x,' WGC parameteters: alpha= ',F6.4,' beta= ',F6.4, 
-     >          ' lambda =', F6.4, ' rho0= ',F8.5)
+     >          ' lambda = ', F6.4, ' rho0= ',F8.5)
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
