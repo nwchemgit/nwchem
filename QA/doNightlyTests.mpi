@@ -32,7 +32,6 @@ date
 ./runtests.mpi.unix procs $np cosmo_h2o_dft cosmo_h2o_bq be 
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse c4h4_wfn
 ./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp
-./runtests.mpi.unix procs $np cosmo_h3co
 ./runtests.mpi.unix procs $np dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
 ./runtests.mpi.unix procs $np et_zn_dimer sad_ch3hf
 ./runtests.mpi.unix procs $np h2o_cg_to_diag 
