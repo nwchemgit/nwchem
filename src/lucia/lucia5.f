@@ -20,50 +20,6 @@ C EXP_BL_MAT
 *
       RETURN
       END
-      SUBROUTINE GET_D1_SMBLK(D1,ISM,JSM)
-*.
-*. Obtain  complete symmetry block of Rho1
-*
-*. Jeppe Olsen, Dec.4 2000
-*
-c      INCLUDE 'implicit.inc'
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'glbbas.inc'
-*. Output
-      DIMENSION D1(*)
-*. Loop over orbitals in symmetry order
-      NI = NTOOBS(ISM)
-      NJ = NTOOBS(JSM)
-* 
-      IB = IBSO(ISM)
-      JB = IBSO(JSM)
-*
-      IJ = 0
-      DO J = JB, JB + NJ - 1
-       DO I = IB, IB + NI - 1
-*
-         IREO = IREOST(I)
-         JREO = IREOST(J)
-         IJREO = (JREO-1)*NTOOB + IREO
-*
-         IJ = IJ + 1
-         D1(IJ) = WORK(KRHO1-1+IJREO)
-*
-       END DO
-      END DO
-*
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Rho1 block for ISM JSM =',
-     &               ISM,JSM
-        CALL WRTMAT(D1,NI,NJ,NI,NJ)
-      END IF
-*
-      RETURN
-      END 
       SUBROUTINE GET_D2_SMBLK(D2,ISM,JSM,KSM,LSM)
 *.
 *. Obtain  complete symmetry block of D2
@@ -441,6 +397,9 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'crun.inc'
@@ -468,8 +427,8 @@ c      INCLUDE 'mxpdim.inc'
       KKVEC1 = KVEC1
       KKVEC2 = KVEC2 
 *
-      CALL MEMMAN(KLZINT,NTOOB**2,'ADDL  ',2,'LZINT ')
-      CALL MEMMAN(KLSCR,3*NTOOB**2,'ADDL  ',2,'LSCR  ')
+      CALL MEMMAN(KLZINT,NTOOB**2,'ADDL  ',2,'LZINT ') !done
+      CALL MEMMAN(KLSCR,3*NTOOB**2,'ADDL  ',2,'LSCR  ') !done
 *
 * CI OR density matrix approach:
       I_DO_CI_LI = 1
@@ -534,7 +493,7 @@ C?    WRITE(6,*) ' IPERMSM from GET_PROP_PERMSM =', IPERMSM
 *. (Well I know IPERMSM should be -1, here just testing )
 C     GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW,IPERMSM)
       LABEL(1:8) = 'ZANGMOM '
-      CALL GET_PROPINT(WORK(KLZINT),LZ_SYM,LABEL,WORK(KLSCR),NTOOBS,
+      CALL GET_PROPINT(dbl_mb(KLZINT),LZ_SYM,LABEL,dbl_mb(KLSCR),NTOOBS,
      &             NTOOBS,NSMOB,0,IPERMSM)
 *
       IF(I_DO_CI_LI.EQ.1) THEN
@@ -553,7 +512,7 @@ C     GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW,IPERMSM)
         END IF
         IF(NTEST.GE.100) WRITE(6,*) ' ISSM = ', ISSM
 C            BVEC(B,IBSM,LUC,LUB,WORK(VEC1),WORK(VEC2))
-        CALL BVEC(WORK(KLZINT),LZ_SYM,LUC2,LUHC,
+        CALL BVEC(dbl_mb(KLZINT),LZ_SYM,LUC2,LUHC,
      &       WORK(KKVEC1),WORK(KKVEC2))
 *
         IH1FORM = IH1FORM_SAVE
@@ -580,7 +539,8 @@ C?      WRITE(6,*) ' EXPV_LZ2 = ', EXPV_LZ2
 *
 C       ABEXP(A,IASM,B,IBSM,AB)
 C       CALL ABEXP(WORK(KLZINT),LZ_SYM,WORK(KLZINT),LZ_SYM,EXP_LZ2)
-        CALL ABEXP2(WORK(KLZINT),LZ_SYM,WORK(KLZINT),LZ_SYM,EXPV_LZ2)
+        CALL ABEXP2(dbl_mb(KLZINT),LZ_SYM,dbl_mb(KLZINT),
+     &              LZ_SYM,EXPV_LZ2)
 *. Well, the LZ integrals are without the imaginary i, so
 *. multiply with -1
         EXPV_LZ2 = -EXPV_LZ2
@@ -601,7 +561,7 @@ C       CALL ABEXP(WORK(KLZINT),LZ_SYM,WORK(KLZINT),LZ_SYM,EXP_LZ2)
       CALL GET_PROP_PERMSM(LABEL,IPERMSM)
 *. (Well I know IPERMSM should be -1, here just testing )
       LABEL(1:8) = 'XANGMOM '
-      CALL GET_PROPINT(WORK(KLZINT),LX_SYM,LABEL,WORK(KLSCR),NTOOBS,
+      CALL GET_PROPINT(dbl_mb(KLZINT),LX_SYM,LABEL,dbl_mb(KLSCR),NTOOBS,
      &               NTOOBS,NSMOB,0,IPERMSM)
 *. and the expectation value
       IF(I_DO_CI_LI.EQ.1) THEN
@@ -620,7 +580,7 @@ C       CALL ABEXP(WORK(KLZINT),LZ_SYM,WORK(KLZINT),LZ_SYM,EXP_LZ2)
         END IF
         IF(NTEST.GE.100) WRITE(6,*) ' ISSM = ', ISSM
 C            BVEC(B,IBSM,LUC,LUB,WORK(VEC1),WORK(VEC2))
-        CALL BVEC(WORK(KLZINT),LX_SYM,LUC2,LUHC,
+        CALL BVEC(dbl_mb(KLZINT),LX_SYM,LUC2,LUHC,
      &       WORK(KKVEC1),WORK(KKVEC2))
         IH1FORM = IH1FORM_SAVE
         ISSM = IREFSM
@@ -631,7 +591,8 @@ C            BVEC(B,IBSM,LUC,LUB,WORK(VEC1),WORK(VEC2))
           EXPV_LX2 = INPRDD(WORK(KKVEC1),WORK(KKVEC2),LUHC,LUHC,1,-1)
         END IF
       ELSE
-        CALL ABEXP2(WORK(KLZINT),LX_SYM,WORK(KLZINT),LX_SYM,EXPV_LX2)
+        CALL ABEXP2(dbl_mb(KLZINT),LX_SYM,dbl_mb(KLZINT),LX_SYM,
+     &              EXPV_LX2)
         EXPV_LX2 = -EXPV_LX2
 C?      WRITE(6,*) ' Expectation value of Lx^2 from Densi:', EXPV_LX2
       END IF
@@ -645,8 +606,8 @@ C?      WRITE(6,*) ' Expectation value of Lx^2 from Densi:', EXPV_LX2
         CALL GET_PROP_PERMSM(LABEL,IPERMSM)
 *. (Well I know IPERMSM should be -1, here just testing )
         LABEL(1:8) = 'YANGMOM '
-        CALL GET_PROPINT(WORK(KLZINT),LY_SYM,LABEL,WORK(KLSCR),NTOOBS,
-     &               NTOOBS,NSMOB,0,IPERMSM)
+        CALL GET_PROPINT(dbl_mb(KLZINT),LY_SYM,LABEL,dbl_mb(KLSCR),
+     &               NTOOBS,NTOOBS,NSMOB,0,IPERMSM)
 *. and the expectation value
       IF(I_DO_CI_LI.EQ.1) THEN
 * Ly * First vector on LUC
@@ -664,7 +625,7 @@ C?      WRITE(6,*) ' Expectation value of Lx^2 from Densi:', EXPV_LX2
         END IF
         IF(NTEST.GE.100) WRITE(6,*) ' ISSM = ', ISSM
 C            BVEC(B,IBSM,LUC,LUB,WORK(VEC1),WORK(VEC2))
-        CALL BVEC(WORK(KLZINT),LY_SYM,LUC2,LUHC,
+        CALL BVEC(dbl_mb(KLZINT),LY_SYM,LUC2,LUHC,
      &       WORK(KKVEC1),WORK(KKVEC2))
         IH1FORM = IH1FORM_SAVE
         ISSM = IREFSM
@@ -676,7 +637,8 @@ C            BVEC(B,IBSM,LUC,LUB,WORK(VEC1),WORK(VEC2))
         END IF
         RLYEFF  = SQRT((ABS(EXPV_LY2)))
       ELSE
-        CALL ABEXP2(WORK(KLZINT),LY_SYM,WORK(KLZINT),LY_SYM,EXPV_LY2)
+        CALL ABEXP2(dbl_mb(KLZINT),LY_SYM,dbl_mb(KLZINT),LY_SYM,
+     &              EXPV_LY2)
 *. Well, the Ly integrals are without the imaginary i, so
 *. multiply with -1
         EXPV_LY2 = -EXPV_LY2
@@ -1082,1336 +1044,6 @@ C     DIMENSION NSTSGP(NSMST,*)
 *
       RETURN 
       END
-      SUBROUTINE RSBB2BVN(IASM,IATP,IBSM,IBTP,NIA,NIB,
-     &                   JASM,JATP,JBSM,JBTP,NJA,NJB,
-     &                   IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,
-     &                   SB,CB,ADSXA,STSTSX,MXPNGASX,
-     &                   NOBPTS,       MAXK,
-     &                   SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
-     &                   XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBSX,IUSEAB,
-     &                   CJRES,SIRES,SCLFAC,NTESTG,
-     &                   NSEL2E,ISEL2E,IUSE_PH,IPHGAS,
-     &                   SIRESPA,CJRESPA)
-*
-* Combined alpha-beta double excitation
-* contribution from given C block to given S block
-*. If IUSAB only half the terms are constructed
-* =====
-* Input
-* =====
-*
-* IASM,IATP : Symmetry and type of alpha  strings in sigma
-* IBSM,IBTP : Symmetry and type of beta   strings in sigma
-* JASM,JATP : Symmetry and type of alpha  strings in C
-* JBSM,JBTP : Symmetry and type of beta   strings in C
-* NIA,NIB : Number of alpha-(beta-) strings in sigma
-* NJA,NJB : Number of alpha-(beta-) strings in C
-* IAGRP : String group of alpha strings
-* IBGRP : String group of beta strings
-* IAEL1(3) : Number of electrons in RAS1(3) for alpha strings in sigma
-* IBEL1(3) : Number of electrons in RAS1(3) for beta  strings in sigma
-* JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
-* JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
-* CB   : Input C block
-* ADSXA : sym of a+, a+a => sym of a
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-* NTSOB  : Number of orbitals per type and symmetry
-* IBTSOB : base for orbitals of given type and symmetry
-* IBORB  : Orbitals of given type and symmetry
-* NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
-*       single excitations
-* MAXK   : Largest number of inner resolution strings treated at simult.
-*
-*
-* ======
-* Output
-* ======
-* SB : updated sigma block
-*
-* =======
-* Scratch
-* =======
-*
-* SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-*              largest number of orbital pairs of given symmetries and
-*              types.
-* I1, XI1S   : at least MXSTSO : Largest number of strings of given
-*              type and symmetry
-* I2, XI2S   : at least MXSTSO : Largest number of strings of given
-*              type and symmetry
-* XINT  : Space for two electron integrals
-*
-* Jeppe Olsen, Winter of 1991
-*
-* Feb 92 : Loops restructured ; Generation of I2,XI2S moved outside
-* October 1993 : IUSEAB added
-* January 1994 : Loop restructured + CJKAIB introduced
-* February 1994 : Fetching and adding to transposed blocks 
-* October 96 : New routines for accessing annihilation information
-*             Cleaned and shaved, only IROUTE = 3 option active
-* October   97 : allowing for N-1/N+1 switch
-* March 98   : Allows for splitting of strings into active and passive groups
-*
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-*
-      INCLUDE 'mxpdim.inc'
-*. General input
-      INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
-      INTEGER NOBPTS(MXPNGAS,*)
-*
-      INTEGER ISEL2E(*)
-*.Input
-      DIMENSION CB(*)
-*.Output
-      DIMENSION SB(*)
-*.Scratch
-      DIMENSION SSCR(*),CSCR(*)
-      DIMENSION I1(*),XI1S(*),I2(*),XI2S(*)
-      DIMENSION I3(*),XI3S(*),I4(*),XI4S(*)
-      DIMENSION XINT(*)
-      DIMENSION CJRES(*),SIRES(*)
-*
-      DIMENSION H(MXPTSOB*MXPTSOB)
-*.Local arrays
-      DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
-      DIMENSION IOP_TYP(2),IOP_AC(2),IOP_REO(2)
-*
-      DIMENSION IJ_TYP(2),IJ_DIM(2),IJ_REO(2),IJ_AC(2),IJ_SYM(2)
-      DIMENSION KL_TYP(2),KL_DIM(2),KL_REO(2),KL_AC(2),KL_SYM(2)
-*
-      DIMENSION IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
-*. Arrays for reorganization 
-      DIMENSION NADDEL(6),IADDEL(4,6),IADOP(4,6),ADSIGN(6)
-*. Arrays for active/passive division
-      INTEGER IACIA(20),IPAIA(20),IACIB(20),IPAIB(20)
-      INTEGER IACJA(20),IPAJA(20),IACJB(20),IPAJB(20)
-*
-C     IBSPGP,NGAS,IBSM,NIB,2,KL_TYP,NIBAC_S,NIBPA_S,IREO_IB,IBREO_IB)
-      INTEGER NIBAC_S(8),NIBPA_S(8),IBREO_IB(8)
-      INTEGER NJBAC_S(8),NJBPA_S(8),IBREO_JB(8)
-*. Dimension ^ : Number of string symmetries
-*. The following must be moved outside !
-      INTEGER IREO_IB(20000),IREO_JB(20000)
-*.    ^ Dimension  : Largest number of strings of given sym
-C     DIMENSION SIRESPA(10000),CJRESPA(10000)
-      DIMENSION SIRESPA(*),CJRESPA(*)
-*     ^ Dimension : Same as SIRES and CJRES
-     
-      INCLUDE 'comjep.inc'
-      CALL QENTER('RS2B ')
-      NTESTL = 0
-      NTEST = MAX(NTESTL,NTESTG)
-      IF(NTEST.GE.500) THEN
-        WRITE(6,*) ' ================= '
-        WRITE(6,*) ' RSBB2BVN speaking '
-        WRITE(6,*) ' ================= '
-      END IF
-*. A few constants
-      IONE = 1
-      ZERO = 0.0D0
-      ONE = 1.0D0
-*. Use passive/active splitting ?
-      IUSE_PA = 1
-*. Groups defining each supergroup
-      CALL GET_SPGP_INF(IATP,IAGRP,IASPGP)
-      CALL GET_SPGP_INF(JATP,IAGRP,JASPGP)
-      CALL GET_SPGP_INF(IBTP,IBGRP,IBSPGP)
-      CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
-*
-      IF(IUSE_PA .EQ. 0 ) THEN
-*. No use of active/passive division
-        NPAIA = 0
-        NPAJA = 0
-        NPAIB = 0
-        NPAJB = 0
-*
-        NACIA = NGAS
-        NACJA = NGAS
-        NACIB = NGAS
-        NACJB = NGAS
-*
-        DO IGAS = 1, NGAS
-         IACIA(IGAS) = IASPGP(IGAS)
-         IACIB(IGAS) = IBSPGP(IGAS)
-         IACJA(IGAS) = JASPGP(IGAS)
-         IACJB(IGAS) = JBSPGP(IGAS)
-        END DO
-      END IF
-*. Symmetry of allowed excitations
-      IJSM = STSTSX(IASM,JASM)
-      KLSM = STSTSX(IBSM,JBSM)
-      IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
-      IF(NTEST.GE.600) THEN
-        write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
-        write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
-      END IF
-*.Types of SX that connects the two strings
-      CALL SXTYP2_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC,IPHGAS)
-      CALL SXTYP2_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC,IPHGAS)           
-      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
-      DO 2001 IJTYP = 1, NIJTYP
-*
-        ITYP = ITP(IJTYP)
-        JTYP = JTP(IJTYP)
-        DO 1940 ISM = 1, NSMOB
-          JSM = ADSXA(ISM,IJSM)
-          IF(JSM.EQ.0) GOTO 1940
-          KAFRST = 1
-          NI = NOBPTS(ITYP,ISM)
-          NJ = NOBPTS(JTYP,JSM)
-          IF(NI.EQ.0.OR.NJ.EQ.0) GOTO 1940
-*. Should N-1 or N+1 projection be used for alpha strings
-          IJ_TYP(1) = ITYP
-          IJ_TYP(2) = JTYP
-          IJ_AC(1)  = 2
-          IJ_AC(2) =  1
-          NOP = 2
-          IF(IUSE_PH.EQ.1) THEN
-            CALL ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TYP,IJ_AC,IJ_REO,
-     &           SIGNIJ)
-          ELSE
-*. Enforced a+ a
-            IJ_REO(1) = 1
-            IJ_REO(2) = 2
-            SIGNIJ = 1.0D0
-          END IF
-*. Two choices here :
-*  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> ( good old creation mapping)
-*  2 :-<Ia!a  ja!Ka><Ja!a  ia!Ka>  + delta(i,j)                   
-          IF(IJ_REO(1).EQ.1.AND.IJ_REO(2).EQ.2) THEN
-*. Business as usual i.e. creation map
-            IJAC = 2
-            SIGNIJ2 = SCLFAC
-*
-            IJ_DIM(1) = NI
-            IJ_DIM(2) = NJ
-            IJ_SYM(1) = ISM
-            IJ_SYM(2) = JSM
-            IJ_TYP(1) = ITYP
-            IJ_TYP(2) = JTYP
-*
-            NOP1   = NI
-            IOP1SM = ISM
-            IOP1TP = ITYP
-            NOP2   = NJ
-            IOP2SM = JSM
-            IOP2TP = JTYP
-          ELSE
-*. Terra Nova, annihilation map 
-            IJAC = 1
-            SIGNIJ2 = -SCLFAC
-*
-            IJ_DIM(1) = NJ
-            IJ_DIM(2) = NI
-            IJ_SYM(1) = JSM
-            IJ_SYM(2) = ISM
-            IJ_TYP(1) = JTYP
-            IJ_TYP(2) = ITYP
-*
-            NOP1   = NJ
-            IOP1SM = JSM
-            IOP1TP = JTYP
-            NOP2   = NI
-            IOP2SM = ISM
-            IOP2TP = ITYP
-          END IF
-*
-*. Generate creation- or annihilation- mappings for all Ka strings
-*
-*. For operator connecting to |Ka> and |Ja> i.e. operator 2
-          CALL ADAST_GAS(IJ_SYM(2),IJ_TYP(2),NGAS,JASPGP,JASM,
-     &         I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SIGNIJ2,IJAC)
-*. For operator connecting |Ka> and |Ia>, i.e. operator 1
-          CALL ADAST_GAS(IJ_SYM(1),IJ_TYP(1),NGAS,IASPGP,IASM,
-     &         I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJAC)
-*. Compress list to common nonvanishing elements
-          IDOCOMP = 1
-          IF(IDOCOMP.EQ.1) THEN
-              CALL COMPRS2LST(I1,XI1S,IJ_DIM(2),I3,XI3S,IJ_DIM(1),
-     &                        NKASTR,NKAEFF)
-          ELSE 
-              NKAEFF = NKASTR
-          END IF
-            
-*. Loop over batches of KA strings
-          NKABTC = NKAEFF/MAXK   
-          IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
-*
-          DO 1801 IKABTC = 1, NKABTC
-            KABOT = (IKABTC-1)*MAXK + 1
-            KATOP = MIN(KABOT+MAXK-1,NKAEFF)
-            LKABTC = KATOP-KABOT+1
-*. Obtain C(ka,J,JB) for Ka in batch
-            DO JJ = 1, IJ_DIM(2)
-              CALL GET_CKAJJB(CB,IJ_DIM(2),NJA,CJRES,LKABTC,NJB,
-     &             JJ,I1(KABOT+(JJ-1)*NKASTR),
-     &             XI1S(KABOT+(JJ-1)*NKASTR))
-            END DO
-*
-            MXACJ=MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
-C           IF(IUSE_PA.EQ.0) THEN
-              CALL SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
-C           END IF
-C           IF(IUSE_PA.EQ.1) THEN
-C             CALL SETVEC(SIRESPA,ZERO,NIB*LKABTC*IJ_DIM(1))
-C           END IF
-            FACS = 1.0D0
-*
-            DO 2000 KLTYP = 1, NKLTYP
-              KTYP = KTP(KLTYP)
-              LTYP = LTP(KLTYP)
-              IF(NTEST.GE.500) THEN
-                WRITE(6,*) ' KTYP, LTYP', KTYP, LTYP 
-              END IF
-*. Should this group of excitations be included 
-              IF(NSEL2E.NE.0) THEN
-               IAMOKAY=0
-               IF(ITYP.EQ.JTYP.AND.ITYP.EQ.KTYP.AND.ITYP.EQ.LTYP)THEN
-                 DO JSEL2E = 1, NSEL2E
-                   IF(ISEL2E(JSEL2E).EQ.ITYP)IAMOKAY = 1
-                 END DO
-               END IF
-               IF(IAMOKAY.EQ.0) GOTO 2000
-              END IF
-*
-              KL_TYP(1) = KTYP
-              KL_TYP(2) = LTYP
-              KL_AC(1)  = 2
-              KL_AC(2) =  1
-              NOP = 2
-              IF(IUSE_PH.EQ.1) THEN
-                CALL ALG_ROUTERX(IBOC,JBOC,NOP,KL_TYP,KL_AC,KL_REO,
-     &               SIGNKL)
-              ELSE
-*. Enforced a+ a
-                KL_REO(1) = 1
-                KL_REO(2) = 2
-                SIGNKL = 1.0D0
-              END IF
-                IF(IUSE_PA.GT.0) THEN
-*. Split IB strings into active/passive part
-                  CALL REO_STR_SPGRP3(IBSPGP,NGAS,IBSM,NIB,2,KL_TYP,
-     &                 NACIB,IACIB,NIBAC_S,NIBPA_S,IBREO_IB,IREO_IB,
-     &                 SIGNPAI)
-*. Split JB strings into active/passive part
-                  CALL REO_STR_SPGRP3(JBSPGP,NGAS,JBSM,NJB,2,KL_TYP,
-     &                 NACJB,IACJB,NJBAC_S,NJBPA_S,IBREO_JB,IREO_JB,
-     &                 SIGNPAJ)
-*. Reorganize C(Ka,j,Jb) to C(Ka,Jb_pa,j,Jb_pa)
-                  XDUM = 0.0D0
-                  IDUM = 1
-                  CALL CKAJJB_PA(CJRES,CJRESPA,1,LKABTC,IJ_DIM(2),NJB,
-     &                           IREO_JB,NJBPA_S,NJBAC_S,NSMST,XDUM,
-     &                           IDUM)
-                  CALL SETVEC(SIRESPA,ZERO,NIB*LKABTC*IJ_DIM(1))
-                  I_ADD_COPY = 2 
-                END IF
-*
-              DO 1930 KSM = 1, NSMOB
-*
-                IFIRST = 1
-                LSM = ADSXA(KSM,KLSM)
-                IF(NTEST.GE.500) THEN
-                  WRITE(6,*) ' KSM, LSM', KSM, LSM 
-                END IF
-                IF(LSM.EQ.0) GOTO 1930
-                NK = NOBPTS(KTYP,KSM)
-                NL = NOBPTS(LTYP,LSM)
-*
-                IF(KL_REO(1).EQ.1.AND.KL_REO(2).EQ.2) THEN
-*. Business as usual i.e. creation map
-                  KLAC = 2
-                  KL_DIM(1) = NK
-                  KL_DIM(2) = NL
-                  KL_SYM(1) = KSM
-                  KL_SYM(2) = LSM
-                  KL_TYP(1) = KTYP
-                  KL_TYP(2) = LTYP
-                ELSE
-*. Terra Nova, annihilation map 
-                  KLAC = 1
-                  KL_DIM(1) = NL
-                  KL_DIM(2) = NK
-                  KL_SYM(1) = LSM
-                  KL_SYM(2) = KSM
-                  KL_TYP(1) = LTYP
-                  KL_TYP(2) = KTYP
-                END IF
-*
-*
-*. If IUSEAB is used, only terms with i.ge.k will be generated so
-                IKORD = 0  
-                IF(IUSEAB.EQ.1.AND.ISM.GT.KSM) GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.LT.KTYP)
-     &          GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.EQ.KTYP)
-     &          IKORD = 1
-*
-                IF(NK.EQ.0.OR.NL.EQ.0) GOTO 1930
-*. Loop over symmetries of active strings
-                IF(IUSE_PA.EQ.0) THEN
-                  JBSMMN = JBSM
-                  JBSMMX = JBSM
-                ELSE
-                  JBSMMN = 1
-                  JBSMMX = NSMST
-                END IF
-                DO JBSM_AC = JBSMMN,JBSMMX
-                  IF(NTEST.GE.1000) WRITE(6,*) 'JBSM_AC=',JBSM_AC
-                  IF(IUSE_PA.EQ.1) THEN
-*. Symmetry of active part of I_b string
-                    DO IIBSM_AC = 1, NSMST
-                      IF(STSTSX(IIBSM_AC,JBSM_AC).EQ.KLSM)
-     &                IBSM_AC = IIBSM_AC
-                    END DO 
-*. Block in C(Ka,Jb_pa,j,Jb_ac)
-                    IF(JBSM_AC.EQ.1) THEN
-                      ICK_OFF = 1
-                    ELSE
-                      ICK_OFF = ICK_OFF 
-     &              + LKABTC*IJ_DIM(2)*
-     &                NJBPA_S(JBSM_AC-1)*NJBAC_S(JBSM_AC-1)
-                    END IF
-*. Offset in S(Ka,Ib_pa,i,Ib_ac)
-                    ISK_OFF = 1
-                    DO IIBSM_AC = 1, IBSM_AC-1
-                      ISK_OFF = ISK_OFF  
-     &              + LKABTC*IJ_DIM(1)
-     &              *NIBPA_S(IIBSM_AC)*NIBAC_S(IIBSM_AC)
-                    END DO
-                    IF(NTEST.GE.1000) THEN
-                      WRITE(6,*) ' JBSM_AC,IBSM_AC', JBSM_AC,IBSM_AC
-                      WRITE(6,*) ' ISK_OFF = ', ISK_OFF
-                    END IF
-                  IF(NIBPA_S(IBSM_AC)*NIBAC_S(IBSM_AC).EQ.0)GOTO 1912
-                  IF(NJBPA_S(JBSM_AC)*NJBAC_S(JBSM_AC).EQ.0)GOTO 1912
-*
-                  END IF
-
-                IF(IUSE_PA.EQ.0) THEN
-                CALL ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,JBSM,
-     &               I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,SIGNKL,KLAC)
-                ELSE
-                CALL ADAST_GAS(KL_SYM(2),KL_TYP(2),NACJB,IACJB,JBSM_AC,
-     &               I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,SIGNKL,KLAC)
-                END IF
-                IF(NTEST.GE.2000) WRITE(6,*) ' NKBSTR = ', NKBSTR
-                IF(NKBSTR.EQ.0) GOTO 1912
-*. Obtain all connections a+k!Kb> = +/-/0!Ib>
-                IF(IUSE_PA.EQ.0) THEN
-                CALL ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,
-     &               I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE,KLAC)
-                ELSE 
-                CALL ADAST_GAS(KL_SYM(1),KL_TYP(1),NACIB,IACIB,IBSM_AC,
-     &               I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE,KLAC)
-                END IF
-*
-* Fetch Integrals as (iop2 iop1 |  k l )
-*
-                IXCHNG = 0
-                ICOUL = 1
-                ONE = 1.0D0
-                CALL GETINT(XINT,IJ_TYP(2),IJ_SYM(2),
-     &               IJ_TYP(1),IJ_SYM(1),
-     &               KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,
-     &               0,0,ICOUL,ONE,ONE)
-*
-* S(Ka,j,Ib) = sum(k,l,Jb)<Ib!a+kba lb!Jb>C(Ka,j,Jb)*(ji!kl)
-*
-                IROUTE = 3
-                IF(IUSE_PA.EQ.0) THEN
-                  CALL SKICKJ(SIRES,CJRES,LKABTC,NIB,NJB,
-     &                 NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),
-     &                 KL_DIM(1),KL_DIM(2),
-     &                 NKBSTR,I4,XI4S,I2,XI2S,IKORD,
-     &                 FACS,IROUTE )
-                ELSE
-                  CALL SKICKJ(SIRESPA(ISK_OFF),CJRESPA(ICK_OFF),
-     &                 LKABTC*NJBPA_S(JBSM_AC),
-     &                 NIBAC_S(IBSM_AC),NJBAC_S(JBSM_AC),
-     &                 NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),
-     &                 KL_DIM(1),KL_DIM(2),
-     &                 NKBSTR,I4,XI4S,I2,XI2S,IKORD,
-     &                 FACS,IROUTE )
-                END IF
-*               ^ End of switch IUSE_PA
- 1912         CONTINUE
-              END DO
-*             ^ End of loop over JBSM_AC
- 1930         CONTINUE
-*             ^ End of loop over KSM
-              IF(IUSE_PA.EQ.1) THEN
-                SIGNPA = SIGNPAI*SIGNPAJ
-C?              WRITE(6,*) SIGNPA
-                CALL CKAJJB_PA(SIRES,SIRESPA,2,LKABTC,IJ_DIM(1),
-     &                      NIB,IREO_IB,
-     &                      NIBPA_S,NIBAC_S,NSMST,SIGNPA,I_ADD_COPY)
-                I_ADD_COPY = 1
-              END IF
- 2000       CONTINUE
-*           ^ End of loop over KLTYP
-*. Scatter out from s(Ka,i,Ib)
-*
-            IF(NTEST.GE.1000) THEN
-              WRITE(6,*) ' S(Ka,i,Ib) as S(Kai,Ibi)'
-              CALL WRTMAT(SIRES,LKABTC*IJ_DIM(1),NIB,
-     &                          LKABTC*IJ_DIM(1),NIB)
-            END IF
-*
-            DO II = 1, IJ_DIM(1)
-              CALL ADD_SKAIIB(SB,IJ_DIM(1),NIA,SIRES,LKABTC,NIB,II,
-     &             I3(KABOT+(II-1)*NKASTR),
-     &             XI3S(KABOT+(II-1)*NKASTR))
-            END DO
- 1801     CONTINUE
-*.        ^End of loop over partitioning of alpha strings
- 1940   CONTINUE
-*       ^ End of loop over ISM
- 2001 CONTINUE
-*     ^ End of loop over IJTYP
-*
- 9999 CONTINUE
-*
-*
-      CALL QEXIT('RS2B ')
-      RETURN
-      END
-*
-* Testing new routines with active/passive divisions
-*                          Jeppe, sept. 20 97
-*
-* Splitting the strings into active and passive parts allow us to
-* write the a b loop  as
-*
-* Sigma(I_pa_a,I_pa_b,I_ac_a,I_ac_b) =
-* sum(ijkl) <I_ac_a!Ea(ij)!J_ac_b><I_ac_b!Eb(kl)!I_ac_b>(ij!kl)
-*           C(J_pa_a,J_pa_b,I_ac_a,I_pa_b)
-*. One possibility is to use the above directly, and vectorize 
-*  over the passive strings.
-*
-* Another possibility is to use N-1 resolution in the alpha space
-* as 
-*   1) Construct C(Ka_a,I_pa_a,I_pa_b,j,J_ac_b) 
-*   2) Obtain    S(Ka_a,I_pa_a,I_pa_b,I,I_ac_b) =
-*      Sum(kl)   <I_ac_b!Eb(kl)!J_ac_b> Sum(ij)(ij!kl)
-*      C(Ka_a,I_Pa_a,I_Pa_b,j,J_ac_b)
-*
-* The latter is the straightforward extension of LUCILLE's normal route.
-*
-* About reorganization of strings
-*
-* I will construct an array IREO(IA,IP)=I, that for given active
-* and passive parts gives original number.
-* Invoking symmetry :
-* We are reordering strings of given supergroup and symmetry.
-* The readressing goes thus as
-* Loop over symmetry of active part => symmetry of passive part
-*   Obtain offset for reordered strings
-*          Number of active and passive strings of appropriate sym
-*          Reorder array.
-* 
-      SUBROUTINE REO_STR_SPGRP3(ISPGP,NIGRP,ISPGPSM,NSTR,NACTE,IACTE,
-     &                          NACT,IACTGP,NAST_S,NPST_S,IBREO,IREO,
-     &                          SIGNPA,NACACEL,NOREO)
-*
-* Reorder strings of supergroup with given symmetry
-* so passive groups are placed before active groups
-*
-* The division of into active and passive parts is based upon 
-* IACTE that give gasspaces of an operator.
-*
-* Output order
-* Loop over Symmetry of active groups => Symmetry of passive groups
-*   Loop over symmetry distributions of active groups
-*   (generated by NEXTNUM2)
-*     Loop over active strings of this symmetry distribution
-*      Loop over symmetry distributions of passive groups
-*      (generated by NEXTNUM2)
-*        Loop over passive strings os this distribution
-*        End of loop over passive strings 
-*      End of loop over symmetry distributions of passive groups
-*     End of loop over active strings
-*   End of loop over symmetrydistributions of active groups
-* End of loop over symmetry of active group 
-*
-* The reordered supergroup is thus organized as  a sequence of
-* matrices C(p,a):
-*
-* Jeppe Olsen, September 1997  
-*
-* ======
-*. Input
-* ======
-*   ISPGP   : Groups defining supergroup
-*   NISPGP  : Number of groups in supergroup
-*   ISPGPSM : Symmetry of supergroup
-*   NSTR    : Number of strings of this group
-*   NACTE    : Number of active orbital spaces(needs not all be distinct)
-*   IACTE    : The active gas orbital spaces (needs not all be distinct)
-*
-* ======
-* Output
-* ======
-*
-*    NAST_S : Number of active strings per symmetry
-*    NPST_S : Number of passive strings per symmetry
-*    IBREO  : Start of reorder loop for active strings of given sym
-*    IREO   : The reorder array
-*    NACT   : Number of active groups
-*    IACT   : The active groups
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-*. Specific Input
-      DIMENSION IACTE(NACTE)
-      DIMENSION ISPGP(NIGRP)
-*. General Input
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'csm.inc'
-*. Output
-*. Number of active strings per symmetry
-      DIMENSION NAST_S(NSMST)
-*. Number of passive strings per symmetry 
-      DIMENSION NPST_S(NSMST)
-*. The active groups
-      DIMENSION IACTGP(*)
-*. Offsets for reordered strings with active strings of given sym
-      DIMENSION IBREO(NSMST)
-*. Reorder array : Note : New order to old order !
-      DIMENSION IREO(NSTR)
-*
-*  ==============
-*. Local scratch
-*  ==============
-*
-      INTEGER ITPFGS(MXPNGAS)
-* 
-      INTEGER IPAS(MXPNGAS)
-      INTEGER IACT(MXPNGAS),IPASGP(MXPNGAS)
-      
-*
-      INTEGER MXVL(MXPNGAS),MNVL(MXPNGAS)
-*
-      INTEGER NST_ACT(MXPNGAS),NST_PAS(MXPNGAS),NST_TOT(MXPNGAS)
-*
-      INTEGER N2STSMGP(MXPOBS,MXPNGAS)
-      INTEGER IREOGS(MXPNGAS)
-      INTEGER ISMTO(MXPNGAS)
-      INTEGER ISTRAC(MXPNGAS),ISTPA(MXPNGAS),ISTTO(MXPNGAS)
-*
-*. Temporary solution ( for once )
-      PARAMETER(LOFF=8*8*8*8)
-      DIMENSION IOFF(LOFF)
-      DIMENSION IDIST_ACT(MXPNGAS*LOFF), LDIST_ACT(LOFF)
-      DIMENSION IDIST_PAS(MXPNGAS*LOFF), LDIST_PAS(LOFF)
-*
-CT    CALL QENTER('REO_PA')
-*
-      NTEST = 000
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' ========================== '
-        WRITE(6,*) ' REO_STR_SPGRP3 in service '
-        WRITE(6,*) ' ========================== '
-        WRITE(6,*)
-        WRITE(6,*) '   Symmetry    Groups '
-        WRITE(6,*) ' =============================================='
-        WRITE(6,*) 
-C       WRITE(6,*)
-        WRITE(6,'(A,3X,I4,3X,16(1X,I2))') 
-     & '     ',ISPGPSM,(ISPGP(II),II=1,NIGRP)
-        WRITE(6,*) ' Number of operators ', NACTE
-        WRITE(6,*) ' Gaspaces of operators ', (IACTE(I),I=1,NACTE)
-      END IF
-*
-      ISTOP = 0
-   1  CONTINUE
-*. Info on Active operators : There can be several operators in
-*  a active space. Obtain distinct active spaces
-      IZERO = 0
-      CALL ISETVC(IACTGP,IZERO,MXPNGAS)
-      DO JACT = 1, NACTE
-        IACTGP(IACTE(JACT)) = 1
-      END DO
-      NACT = 0
-*. indeces of active groups 
-      DO JGRP = 1, NIGRP
-        IF(IACTGP(IGSFGP(ISPGP(JGRP))).EQ.1) THEN
-          NACT = NACT + 1
-          IACT(NACT) = JGRP
-        END IF
-      END DO
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Number of active groups ', NACT
-        WRITE(6,*) 
-     &  ' Active gasspaces(index in IGRP) : ', (IACT(JACT),JACT=1,NACT)
-      END IF
-*
-*. Info about supergroups
-*
-*. Number of strings per sym and type
-      NGASL = 1
-      DO IIGRP = 1, NIGRP
-       IGAS = IGSFGP(ISPGP(IIGRP))
-       IF( NELFGP(ISPGP(IIGRP)).GT.0) NGASL = IGAS
-       CALL ICOPVE(NSTFSMGP(1,ISPGP(IIGRP)),N2STSMGP(1,IGAS),NSMST)
-      END DO
-*. For the moment
-C     NGASL = NIGRP
-*
-      IF(NTEST.GE.1000) THEN
-       WRITE(6,*) ' NGASL',NGASL
-       WRITE(6,*) ' N2STSMGP '
-       CALL IWRTMA(N2STSMGP,NSMST,NGAS,MXPOBS,NGAS)
-      END IF
-*
-* A supergroup contains a number of 
-* symmetry blocks, with each block defined by  given symmetries
-* in the GAS SPACE. Obtain offsets to given symmetry combinations
-*
-      CALL TS_SYM_PNT2(ISPGP,NIGRP,MXVL,MNVL,ISPGPSM,IOFF,LOFF)
-*. passive groups (we know these types)
-      NPAS  = NIGRP - NACT
-      JACT = 1
-      JPAS = 0
-      DO JGRP = 1, NIGRP
-        IF(JGRP.EQ.IACT(JACT)) THEN
-          IF (JACT.LT.NACT) JACT = JACT + 1
-        ELSE
-          JPAS = JPAS + 1
-          IPAS(JPAS) = JGRP
-        END IF
-      END DO
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Number of passive types ',NPAS
-        WRITE(6,*) ' Passive indeces in IGRP'
-        CALL IWRTMA(IPAS,1,NPAS,1,NPAS)
-      END IF
-*
-CE    IF(NPAS.EQ.0) THEN 
-CE      NOREO = 1
-CE    ELSE
-CE      NOREO = 0
-CE    END IF
-*
-CCC*. Reorder array, old order of spaces to new order of 
-*. Reorder array, new order of indeces to old order  
-      JPAS = 1
-      JACT = 1
-      DO INDEX = 1, NIGRP
-          IF(IACT(JACT).EQ.INDEX) THEN
-            IREOGS(JACT+NPAS)  = INDEX     
-            IF(JACT.LT.NACT) JACT = JACT + 1
-          ELSE IF(IPAS(JPAS).EQ.INDEX) THEN
-            IREOGS(JPAS) = INDEX     
-            IF(JPAS.LT.NPAS) JPAS = JPAS + 1
-          END IF
-      END DO
-*. Actual groups constituting active and passive parts
-      JACT = 1
-      JPAS = 1
-      DO IIGRP = 1, NIGRP
-        IF(IGSFGP(ISPGP(IIGRP)).EQ.IACT(JACT)) THEN
-          IACTGP(JACT) = ISPGP(IIGRP)
-          IF(JACT.LT.NACT) JACT = JACT + 1
-        ELSE IF ( IGSFGP(ISPGP(IIGRP)).EQ.IPAS(JPAS) ) THEN
-          IPASGP(JPAS) = ISPGP(IIGRP)
-          IF(JPAS.LT.NPAS) JPAS = JPAS + 1
-        END IF
-      END DO
-*. Sign for separating Active and passive groups, taken 
-*  as sign to bring passive strings in front.
-      SIGNPA = 1.0D0
-      DO JACTGP = 1, NACT
-        JJACTGP = IACTGP(JACTGP)
-        JJACTEL = NELFGP(JJACTGP)
-        DO JPASGP = 1, NPAS
-*
-          JJPASGP = IPASGP(JPASGP)
-          JJPASEL = NELFGP(JJPASGP)
-          IF(JJPASGP.GT.JJACTGP) THEN 
-            SIGNPA = SIGNPA*(-1) **(JJPASEL*JJACTEL)
-          END IF
-        END DO
-      END DO
-*
-*. Number of active electrons in active string part
-      NACACEL = 0
-      DO JJACT = 1, NACT
-       NACACEL = NACACEL + NELFGP(IACTGP(JJACT))
-      END DO
-*
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Reordering of gasspaces, new  => old '
-        CALL IWRTMA(IREOGS,1,NIGRP,1,NIGRP)
-*
-        WRITE(6,*) ' Groups constituting active parts '
-        CALL IWRTMA(IACTGP,1,NACT,1,NACT)
-*
-        WRITE(6,*) ' Number of active active electrons', NACACEL
-*
-        WRITE(6,*) ' Groups constituting passive parts '
-        CALL IWRTMA(IPASGP,1,NPAS,1,NPAS)
-      END IF
-*. Last active and passive group with nonvanishing number of elecs  
-C     NPASL = 1
-      NPASL = 0
-      DO JPAS = 1, NPAS
-        IF(NELFGP(IPASGP(JPAS)).NE.0) NPASL = JPAS
-      END DO
-*
-      I_REO = 1
-*. Loop over symmetries of active strings
-      DO ISMAC_T = 1, NSMST
-*. Symmetry of passive strings
-        CALL SYMCOM(2,0,ISMAC_T,ISMPA_T,ISPGPSM)
-        IF(NTEST.GE.1000) THEN
-          WRITE(6,*) 
-     &    ' ISPGPSM ISMAC_T ISMPA_T',ISPGPSM,ISMAC_T,ISMPA_T 
-        END IF
-        IBREO(ISMAC_T) = I_REO
-*. Obtain symmetry distributions of active strings
-        MXDIST = LOFF
-        CALL SYM_DIST_FOR_SPGRP(IACTGP,NACT,ISMAC_T,
-     &       NDIST_ACT,IDIST_ACT,LDIST_ACT,LEN_ACT,MXDIST)
-        NAST_S(ISMAC_T) = LEN_ACT
-*. And of passive strings
-          CALL SYM_DIST_FOR_SPGRP(IPASGP,NPAS ,ISMPA_T,
-     &         NDIST_PAS,IDIST_PAS,LDIST_PAS,LEN_PAS,MXDIST)
-          NPST_S(ISMPA_T) = LEN_PAS
-          IF(LEN_ACT*LEN_PAS.NE.0) THEN
-*. Note : NPST_S is NOW ordered after symmetry of PASSIVE  strings
-*. Loop over active strings : two loops 1)distributions 2)strings of this dist
-        DO JDIST_ACT = 1, NDIST_ACT
-          IF(NTEST.GE.1000) THEN 
-            WRITE(6,*) ' Active distribution ', JDIST_ACT
-            WRITE(6,*) ' Symmetry distribution '
-            CALL IWRTMA(IDIST_ACT((JDIST_ACT-1)*NACT+1),
-     &                  1,NACT,1,NACT)
-          END IF
-*. Number of strings in each active GAS space
-         DO JACT = 1, NACT
-           NST_ACT(JACT) = 
-     &     N2STSMGP(IDIST_ACT(JACT+(JDIST_ACT-1)*NACT),IACT(JACT))
-         END DO
-*. Loop over active strings of given distribution
-         DO ISTR_ACT = 1, LDIST_ACT(JDIST_ACT)
-           IF(NTEST.GE.1000) WRITE(6,*) ' ISTR_ACT =', ISTR_ACT
-*. Obtain next active string 
-           IF(ISTR_ACT.EQ.1) THEN
-            DO JACT = 1, NACT
-             ISTRAC(JACT) = 1
-            END DO
-           ELSE
-            CALL NXTNUM2_REV(ISTRAC,NACT,1,NST_ACT,NONEW_ACT)
-            IF(NONEW_ACT.NE.0) THEN
-              WRITE(6,*) ' Ran out of active strings !!'
-            END IF
-           END IF
-*. Loop over distributions of passive strings
-          DO JDIST_PAS = 1, NDIST_PAS
-           IF(NTEST.GE.1000) THEN 
-             WRITE(6,*) ' JDIST_PAS = ',JDIST_PAS
-             WRITE(6,*) ' Symmetry distribution '
-             CALL IWRTMA(IDIST_PAS((JDIST_PAS-1)*NPAS+1),
-     &                  1,NPASL,1,NPASL)
-           END IF
-*. Number of strings in each passive GAS space
-           DO JPAS = 1, NPASL
-             NST_PAS(JPAS) = 
-     &       N2STSMGP(IDIST_PAS(JPAS+(JDIST_PAS-1)*NPAS),IPAS(JPAS))
-           END DO
-           DO JPAS = NPASL+1,NPAS
-             NST_PAS(JPAS) = 1
-           END DO
-*. Offset to this distribution in original order
-           DO JACT = 1, NACT
-             ISMTO(IREOGS(NPAS+JACT)) 
-     &     = IDIST_ACT(JACT+(JDIST_ACT-1)*NACT)
-           END DO
-           DO JPAS = 1, NPASL
-             ISMTO(IREOGS(JPAS)) 
-     &       = IDIST_PAS(JPAS+(JDIST_PAS-1)*NPAS)
-           END DO
-           DO JPAS = NPASL+1,NPAS
-             ISMTO(IREOGS(JPAS)) = 1
-           END DO
-           IF(NTEST.GE.1000) THEN
-             WRITE(6,*) ' ISMTO '
-             CALL IWRTMA(ISMTO,1,NGASL,1,NGASL)
-           END IF
-           I_ORIG_BASE = IOFF_SYM_DIST(ISMTO,NGASL,IOFF,MXVL,MNVL)
-*. Number of strings, original order
-           DO JGAS = 1, NGAS
-            NST_TOT(JGAS) = N2STSMGP(ISMTO(JGAS),JGAS)
-           END DO
-C?         WRITE(6,*) ' NST_TOT  array '
-C?         CALL IWRTMA(NST_TOT,1,NGAS,1,NGAS)
-*. Loop over passive strings belonging to passive dist
-           DO ISTR_PAS = 1, LDIST_PAS(JDIST_PAS)
-           IF(NTEST.GE.1000) 
-     &     write(6,*) ' Passive string ', ISTR_PAS
-            IF(ISTR_PAS.EQ.1) THEN
-             DO JPAS = 1, NPASL
-              ISTPA(JPAS) = 1
-             END DO
-            ELSE
-             CALL NXTNUM2_REV(ISTPA,NPASL,1,NST_PAS,NONEW_PAS)
-            END IF
-*. Obtain original address of this string 
-*.. a : Original order of indeces
-            DO JACT = 1, NACT
-             ISTTO(IREOGS(JACT+NPAS)) = ISTRAC(JACT)
-            END DO
-            DO JPAS = 1, NPASL
-             ISTTO(IREOGS(JPAS)) = ISTPA(JPAS)
-            END DO
-            DO JPAS = NPASL+1,NPAS
-             ISTTO(IREOGS(JPAS)) = 1
-            END DO
-*
-            IF(NTEST.GE.1000) THEN
-              WRITE(6,*) ' Active part of string '
-              CALL IWRTMA(ISTRAC,1,NACT,1,NACT)
-              WRITE(6,*) ' passive part of string '
-              CALL IWRTMA(ISTPA,1,NPASL,1,NPASL)
-              WRITE(6,*) ' Complete string original order '
-              CALL IWRTMA(ISTTO,1,NIGRP,1,NIGRP)
-            END IF
-*. and offset in original order
-* The strings are generated as
-* loop over GAS1
-*   Loop over GAS2
-*     ...
-*       Loop over GASN       
-*       End of Loop over GASN       
-*     ...
-*   End of Loop over GAS2
-* End of loop over GAS1
-* So address of string I1,I2, ..., In is
-* (I1-1)*NI2*NI3*...NIN +
-* (I2-1)*    NI3*...NIN + ...
-*  NIN
-            I_ORIG_REL = 0
-            DO IGAS = 1, NIGRP-1
-              I_ORIG_REL = (I_ORIG_REL + ISTTO(IGAS)-1)*NST_TOT(IGAS+1)
-            END DO
-            I_ORIG_REL = I_ORIG_REL + ISTTO(NIGRP)
-            I_ORIG = I_ORIG_BASE+I_ORIG_REL - 1
-*. And mapping
-            IREO(I_REO) = I_ORIG
-            IF(NTEST.GE.1000) THEN
-              WRITE(6,*) ' I_ORIG_REL and I_ORIG_BASE', 
-     &                     I_ORIG_REL,I_ORIG_BASE
-              WRITE(6,*) ' I_REO and I_ORIG' ,I_REO,I_ORIG 
-            END IF
-*. And update pointer, new order
-            I_REO = I_REO + 1
-           END DO
-*          ^ End of loop over passive strings of given dist
-          END DO
-*         ^ End of loop over distributions of passive strings
-        END DO
-*       ^ End of loop over active strings of given dist
-       END DO
-*      ^ ENd of loop over distributions of active strings
-      END IF
-*     ^ End of given symmetry comb of active ans passsivr is active 
-      END DO
-*     ^ End of loop over symmetries of active strings
-      N_REO = I_REO-1
-*
-      IF(ISTOP.EQ.1) THEN
-        WRITE(6,*) ' Enforced stop in REO... '
-        STOP '  Enforced stop in REO... '
-      END IF
-*
-*. Check : IREO should contain numbers from 1 - N_REO 
-      IISUM = 0
-      NOREO = 1
-      DO KST = 1, N_REO
-        IISUM = IISUM + IREO(KST)
-        IF(KST.NE.IREO(KST)) NOREO = 0
-      END DO
-C     NOREO = 1
-      NPST_TOT = 0
-      DO JSM = 1, NSMST
-        NPST_TOT = NPST_TOT + NPST_S(JSM) 
-      END DO
-      IF(NPST_TOT.NE.1) NOREO = 0
-      IF(.NOT.(NPAS.EQ.1.AND.IPAS(1).EQ.1)) NOREO = 0
-      IF(IISUM.NE.N_REO*(N_REO+1)/2) THEN
-        WRITE(6,*) ' PROBLEM in REO, not correct sum '
-        ISTOP = 1 
-        NTEST = 1000
-        WRITE(6,*)
-        WRITE(6,*) '   Symmetry    Groups '
-        WRITE(6,*) ' =============================================='
-        WRITE(6,*) 
-C       WRITE(6,*)
-        WRITE(6,'(A,3X,I4,3X,16(1X,I2))') 
-     & '     ',ISPGPSM,(ISPGP(II),II=1,NIGRP)
-        WRITE(6,*) ' Number of operators ', NACTE
-        WRITE(6,*) ' Gaspaces of operators ', (IACTE(I),I=1,NACTE)
-*
-        WRITE(6,*) ' NSTR = ', NSTR 
-      END IF
-*
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*) ' Number of elements in reordered array', N_REO
-        WRITE(6,*) ' Reordering array : '
-        CALL IWRTMA(IREO,1,N_REO,1,N_REO)
-*
-        WRITE(6,*) ' Offsets to blocks with given sym of active '
-        CALL IWRTMA(IBREO,1,NSMST,1,NSMST)
-        WRITE(6,*) ' Number of active per symmetry '
-        CALL IWRTMA(NAST_S,1,NSMST,1,NSMST)
-        WRITE(6,*) ' Number of passive per symmetry '
-        CALL IWRTMA(NPST_S,1,NSMST,1,NSMST)
-        WRITE(6,*) ' Sign change ', SIGNPA
-*    
-      END IF
-*
-      IF(ISTOP.EQ.1) THEN
-        WRITE(6,*) ' I will take another turn '
-        GOTO 1 
-      END IF
-*
-CT    CALL QEXIT('REO_PA')
-      RETURN
-      END
-      SUBROUTINE REO_STR_SPGRP2(ITP,ISPGPSM,ISPGP,NSTR,
-     &                       NACT,IACT,NAST_S,NPST_S,IBREO,
-     &                       IREO)
-*
-* Reorder strings of supergroup with given symmetry
-* so passive groups are placed before active groups
-*
-* Output order
-* Loop over Symmetry of active groups => Symmetry of passive groups
-*   Loop over symmetry distributions of active groups
-*   (generated by NEXTNUM2)
-*     Loop over active strings of this symmetry distribution
-*      Loop over symmetry distributions of passive groups
-*      (generated by NEXTNUM2)
-*        Loop over passive strings os this distribution
-*        End of loop over passive strings 
-*      End of loop over symmetry distributions of passive groups
-*     End of loop over active strings
-*   End of loop over symmetrydistributions of active groups
-* End of loop over symmetry of active group 
-*
-* The reordered supergroup is thus organized as  a sequence of
-* matrices C(p,a):
-*
-* Jeppe Olsen, September 1997  
-*
-* ======
-*. Input
-* ======
-*   ITP  : Type of supergroup    
-*   ISPGPSM : Symmetry of supergroup
-*   ISPGP   : Super group number
-*   NSTR    : Number of strings of this group
-*   NACT    : Number of active groups
-*   IACT    : The active groups ( active gas spaces )
-*
-* ======
-* Output
-* ======
-*
-*    NAST_S : Number of active strings per symmetry
-*    NPST_S : Number of passive strings per symmetry
-*    IBREO  : Start of reorder loop for active strings of given sym
-*    IREO   : The reorder array
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-*. Specific Input
-      DIMENSION IACT(NACT)
-*. General Input
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'csm.inc'
-*. Output
-*. Number of active strings per symmetry
-      DIMENSION NAST_S(NSMST)
-*. Number of passive strings per symmetry 
-      DIMENSION NPST_S(NSMST)
-*. Offsets for reordered strings with active strings of given sym
-      DIMENSION IBREO(NSMST)
-*. Reorder array : Note : New order to old order !
-      DIMENSION IREO(NSTR)
-*
-*  ==============
-*. Local scratch
-*  ==============
-*
-      INTEGER ITPFGS(MXPNGAS)
-* 
-      INTEGER IPAS(MXPNGAS)
-      INTEGER IACTGP(MXPNGAS),IPASGP(MXPNGAS)
-      
-*
-      INTEGER MXVL(MXPNGAS),MNVL(MXPNGAS)
-*
-      INTEGER NST_ACT(MXPNGAS),NST_PAS(MXPNGAS),NST_TOT(MXPNGAS)
-*
-      INTEGER NSTSMGP(MXPOBS,MXPNGAS)
-C     INTEGER NSTGP(MXPNGAS),IREOGS(MXPNGAS)
-      INTEGER IREOGS(MXPNGAS)
-*
-C     INTEGER ISMAC(MXPNGAS),ISMPA(MXPNGAS),ISMTO(MXPNGAS)
-      INTEGER ISMTO(MXPNGAS)
-      INTEGER ISTRAC(MXPNGAS),ISTPA(MXPNGAS),ISTTO(MXPNGAS)
-*
-*. Temporary solution ( for once )
-      PARAMETER(LOFF=8*8*8*8)
-      DIMENSION IOFF(LOFF)
-      DIMENSION IDIST_ACT(MXPNGAS,LOFF), LDIST_ACT(LOFF)
-      DIMENSION IDIST_PAS(MXPNGAS,LOFF), LDIST_PAS(LOFF)
-*
-CT     CALL QENTER('ADSTN ')
-*
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' ========================== '
-        WRITE(6,*) ' REO_STR_SPGRP2 in service '
-        WRITE(6,*) ' ========================== '
-        WRITE(6,*)
-        WRITE(6,*) '                 Type    Symmetry    Supergroup'
-        WRITE(6,*) ' =============================================='
-        WRITE(6,*) 
-        WRITE(6,'(A,3X,I4,5X,I4,5X,I4)') 
-     & '               ',ITP,ISPGPSM,ISPGP
-        WRITE(6,*) ' Number of active spaces ', NACT
-        WRITE(6,*) ' Active spaces ', (IACT(I),I=1,NACT)
-      END IF
-*
-*. Info about supergroups
-*
-*. Absolute supergroup number 
-      ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
-*. Number of strings per sym and type
-      NGASL = 1
-      DO IGAS = 1, NGAS
-       ITPFGS(IGAS) = ISPGPFTP(IGAS,ISPGPABS)
-       IF( NELFGP(ITPFGS(IGAS)).GT.0) NGASL = IGAS
-       CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
-     &               NSTSMGP(1,IGAS))
-      END DO
-      IF(NTEST.GE.1000) THEN
-       WRITE(6,*) ' NGASL',NGASL
-       WRITE(6,*) ' NSTSMGP '
-       CALL IWRTMA(NSTSMGP,NSMST,NGAS,MXPOBS,NGAS)
-      END IF
-*
-* A supergroup contains a number of 
-* symmetry blocks, with each block defined by  given symmetries
-* in the GAS SPACE. Obtain offsets to given symmetry combinations
-*
-      CALL TS_SYM_PNT(ITP,ISPGPSM,ISPGP,MXVL,MNVL,IOFF,LOFF)
-*. passive types  
-      NPAS  = NGAS - NACT
-      IPST = 0
-      DO IGAS = 1, NGAS
-        IACTIVE = 0
-        DO JACT = 1, NACT
-          IF(IACT(JACT).EQ.IGAS) IACTIVE = 1
-        END DO
-        IF(IACTIVE.EQ.0) THEN
-         IPST = IPST + 1
-         IPAS(IPST) = IGAS 
-        END IF
-      END DO
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Number of passive alpha types ',NPAS
-        WRITE(6,*) ' Passive alpha types '
-        CALL IWRTMA(IPAS,1,NPAS,1,NPAS)
-      END IF
-*. Reorder array, old order of spaces to new order of 
-      JPAS = 1
-      JACT = 1
-      DO IGAS = 1, NGAS
-        IF(IACT(JACT).EQ.IGAS) THEN
-          IREOGS(IGAS) = JACT+NPAS
-          JACT = JACT + 1
-        ELSE IF(IPAS(JPAS).EQ.IGAS) THEN
-          IREOGS(IGAS) = JPAS
-          JPAS = JPAS + 1
-        END IF
-      END DO
-*. Actual groups constituting active and passive parts
-      DO JACT = 1, NACT
-        IACTGP(JACT) = ITPFGS(IACT(JACT))
-      END DO
-      DO JPAS = 1, NPAS
-        IPASGP(JPAS) = ITPFGS(IPAS(JPAS))
-      END DO
-*
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Reordering of gasspaces, orig => new '
-        CALL IWRTMA(IREOGS,1,NGAS,1,NGAS)
-*
-        WRITE(6,*) ' Groups constituting active parts '
-        CALL IWRTMA(IACTGP,1,NACT,1,NACT)
-*
-        WRITE(6,*) ' Groups constituting passive parts '
-        CALL IWRTMA(IPASGP,1,NPAS,1,NPAS)
-      END IF
-*
-*
-      I_REO = 1
-*. Loop over symmetries of active strings
-      DO ISMAC_T = 1, NSMST
-*. Symmetry of passive strings
-        CALL SYMCOM(2,0,ISMAC_T,ISMPA_T,ISPGPSM)
-        IF(NTEST.GE.1000) THEN
-          WRITE(6,*) 
-     &    ' ISPGPSM ISMAC_T ISMPA_T',ISPGPSM,ISMAC_T,ISMPA_T 
-        END IF
-        IBREO(ISMAC_T) = I_REO
-*. Obtain symmetry distributions of active strings
-        MXDIST = LOFF
-        CALL SYM_DIST_FOR_SPGRP(IACTGP,NACT,ISMAC_T,
-     &       NDIST_ACT,IDIST_ACT,LDIST_ACT,LEN_ACT,MXDIST)
-        NAST_S(ISMAC_T) = LEN_ACT
-*. And of passive strings
-        CALL SYM_DIST_FOR_SPGRP(IPASGP,NPAS,ISMPA_T,
-     &       NDIST_PAS,IDIST_PAS,LDIST_PAS,LEN_PAS,MXDIST)
-        NPST_S(ISMPA_T) = LEN_PAS
-C            SYM_DIST_FOR_SPGRP(IGRP,NIGRP,ISM,NDIST,
-C    &       IDIST,LDIST,LENGTH,MXDIST)
-*. Loop over active strings : two loops 1)distributions 2)strings of this dist
-        DO JDIST_ACT = 1, NDIST_ACT
-C?        WRITE(6,*) ' Active distribution ', JDIST_ACT
-*. Number of strings in each active GAS space
-         DO JACT = 1, NACT
-           NST_ACT(JACT) = 
-     &     NSTSMGP(IDIST_ACT(JACT,JDIST_ACT),IACT(JACT))
-         END DO
-*. Loop over active strings of given distribution
-         DO ISTR_ACT = 1, LDIST_ACT(JDIST_ACT)
-C?         WRITE(6,*) ' Active string ', ISTR_ACT
-*. Obtain next active string 
-           IF(ISTR_ACT.EQ.1) THEN
-            DO JACT = 1, NACT
-             ISTRAC(JACT) = 1
-            END DO
-           ELSE
-            CALL NXTNUM2(ISTRAC,NACT,1,NST_ACT,NONEW_ACT)
-            IF(NONEW_ACT.NE.0) THEN
-              WRITE(6,*) ' Ran out of active strings !!'
-            END IF
-           END IF
-*. Loop over distributions of passive strings
-          DO JDIST_PAS = 1, NDIST_PAS
-C?        write(6,*) ' Passive distribution ', JDIST_PAS
-*. Number of strings in each passive GAS space
-           DO JPAS = 1, NPAS
-             NST_PAS(JPAS) = 
-     &       NSTSMGP(IDIST_PAS(JPAS,JDIST_PAS),IPAS(JPAS))
-C    &       NSTSMGP(IDIST_PAS(JPAS+(JDIST_PAS-1)*NPAS),IPAS(JPAS))
-           END DO
-*. Offset to this distribution in original order
-           DO JACT = 1, NACT
-             ISMTO(IACT(JACT)) = IDIST_ACT(JACT,JDIST_ACT)
-           END DO
-           DO JPAS = 1, NPAS
-             ISMTO(IPAS(JPAS)) = IDIST_PAS(JPAS,JDIST_PAS)
-           END DO
-C                    IOFF_SYM_DIST(ISYM,NGASL,IOFF,MAXVAL,MINVAL)
-           I_ORIG_BASE = IOFF_SYM_DIST(ISMTO,NGASL,IOFF,MXVL,MNVL)
-*. Number of strings, original order
-           DO JGAS = 1, NGAS
-            NST_TOT(JGAS) = NSTSMGP(ISMTO(JGAS),JGAS)
-           END DO
-C?         WRITE(6,*) ' NST_TOT  array '
-C?         CALL IWRTMA(NST_TOT,1,NGAS,1,NGAS)
-*. Loop over passive strings belonging to passive dist
-           DO ISTR_PAS = 1, LDIST_PAS(JDIST_PAS)
-C?         write(6,*) ' Passive string ', ISTR_PAS
-            IF(ISTR_PAS.EQ.1) THEN
-             DO JPAS = 1, NPAS
-              ISTPA(JPAS) = 1
-             END DO
-            ELSE
-             CALL NXTNUM2(ISTPA,NPAS,1,NST_PAS,NONEW_PAS)
-            END IF
-*. Obtain original address of this string 
-*.. a : Original order of indeces
- 
-
-            DO JACT = 1, NACT
-             ISTTO(IACT(JACT)) = ISTRAC(JACT)
-            END DO
-            DO JPAS = 1, NPAS
-             ISTTO(IPAS(JPAS)) = ISTPA(JPAS)
-            END DO
-*
-            IF(NTEST.GE.1000) THEN
-              WRITE(6,*) ' Active part of string '
-              CALL IWRTMA(ISTRAC,1,NACT,1,NACT)
-              WRITE(6,*) ' passive part of string '
-              CALL IWRTMA(ISTPA,1,NPAS,1,NPAS)
-              WRITE(6,*) ' Complete string original order '
-              CALL IWRTMA(ISTTO,1,NGAS,1,NGAS)
-            END IF
-*. and offset in original order
-            MULT = 1
-            I_ORIG_REL = 1
-            DO IGAS = 1, NGAS
-              I_ORIG_REL = I_ORIG_REL + (ISTTO(IGAS)-1)*MULT
-              MULT = MULT*NST_TOT(IGAS)
-            END DO
-            I_ORIG = I_ORIG_BASE+I_ORIG_REL - 1
-*. And mapping
-            IREO(I_REO) = I_ORIG
-C?          WRITE(6,*) ' I_REO and I_ORIG' ,I_REO,I_ORIG
-*. And update pointer, new order
-            I_REO = I_REO + 1
-           END DO
-*          ^ End of loop over passive strings of given dist
-          END DO
-*         ^ End of loop over distributions of passive strings
-        END DO
-*       ^ End of loop over active strings of given dist
-       END DO
-*      ^ ENd of loop over distributions of active strings
-      END DO
-*     ^ End of loop over symmetries of active strings
-      N_REO = I_REO-1
-*
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Number of elements in reordered array', N_REO
-        WRITE(6,*) ' Reordering array : '
-        CALL IWRTMA(IREO,1,N_REO,1,N_REO)
-*
-        WRITE(6,*) ' Offsets to blocks with given sym of active '
-        CALL IWRTMA(IBREO,1,NSMST,1,NSMST)
-        WRITE(6,*) ' Number of active per symmetry '
-        CALL IWRTMA(NAST_S,1,NSMST,1,NSMST)
-        WRITE(6,*) ' Number of passive per symmetry '
-        CALL IWRTMA(NPST_S,1,NSMST,1,NSMST)
-*    
-      END IF
-*
-CT    CALL QEXIT('ADSTN ')
-      RETURN
-      END
       SUBROUTINE REPART_NORD_MAT(N,L,NR,IR,NC,IC,IREO)
 *
 *. Repartion a NORD matrix into a normal two index matrix
@@ -2515,80 +1147,6 @@ C         CALL NXTNUM2(INUM,NORD,1,LEN,NONEW)
 *
       RETURN
       END
-      SUBROUTINE TESTNEW
-*
-* Test new string routines for active/passive division of strings
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'gasstr.inc'
-*. Local scratch
-      INTEGER NAST_S(8), NPSP_S(8), IREO(1000)
-      INTEGER IACT(MXPNGAS)
-      DIMENSION CIN(10000),COUT(10000),IAREO(100),IBREO(100) 
-*
-      DIMENSION IB_AC_AB(MXPNSMST,MXPNSMST)
-      DIMENSION L_AC_A_TOT(8),L_AC_B_TOT(8) 
-      DIMENSION L_PA_A_TOT(8),L_PA_B_TOT(8)
-*
-      DIMENSION IGRP1(MXPNGAS),I1(10000),XI1S(10000)
-
-
-
-      WRITE(6,*) ' ================ '
-      WRITE(6,*) ' Entering TESTNEW '
-      WRITE(6,*) ' ================ '
-* test 1 : Make group 1 active for alpha supergroups
-      MX_SPGP_ALP = 0
-      NACT = 1
-      IACT(1) = 1
-      ITP = 1
-      ISPGPSM = 1
-      DO ISPGP_ALP = 1, MX_SPGP_ALP
-*. Number of strings of this super group and symmetry
-        ISPGP_ABS = ISPGP_ALP + IBSPGPFTP(ITP) - 1
-        NSTR = NSTFSMSPGP(ISPGPSM,ISPGP_ABS)
-      END DO
-*. Test : Reorder matrix so first index become first
-      IATP = 1
-      IBTP = 2
-*
-      IASPGP = 2
-      IBSPGP = 3
-      IASM   = 2
-      IBSM   = 1
-      NASTR = NSTFSMSPGP(IASM,IASPGP)
-      NBSTR = NSTFSMSPGP(IBSM,IBSPGP)
-*
-C     IWAY = 1
-C     WRITE(6,*) ' Callin REO_TTS_BLOCK'
-C     DO I = 1, 100
-C       CIN(I) = I
-C     END DO
-C     CALL REO_TTS_BLOCK2(CIN,COUT,NACT,IACT,NACT,IACT,
-C    &     IATP,IASPGP,IASM,IBTP,IBSPGP,IBSM,
-C    &     IB_AC_AB,NASTR,NBSTR,
-C    &     L_AC_A_TOT,L_AC_B_TOT,L_PA_A_TOT,L_PA_B_TOT,IWAY)
-C     WRITE(6,*) ' Home from REO_TTS_BLOCK'
-*. Test new ADAST 
-      IGRP1(1) = 2
-      IGRP1(2) = 5
-      IOBSM = 1
-      IOBTP = 2
-      NIGRP = 2
-      ISPGPSM = 1
-      SCLFAC = 1.0D0
-      IAC = 1
-      WRITE(6,*) ' Calling ADAST_GAS'
-      CALL ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP1,ISPGPSM,
-     &               I1,XI1S,NKSTR,IEND,IFRST,KFRST,KACT,SCLFAC,
-     &               IAC)
-*
-      STOP ' Enforced stop at end of TESTNEW'
-      RETURN
-      END
       SUBROUTINE MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDIST)
 *
 * A combination of NIGRP groups are given (IGRP)
@@ -2601,6 +1159,9 @@ C     WRITE(6,*) ' Home from REO_TTS_BLOCK'
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. Include blocks     
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'cgas.inc'
@@ -2665,211 +1226,6 @@ C     END DO
       END IF
 *
       IF(NTEST.GE.1000) WRITE(6,*) ' >> Leaving MINMAX_... <<'
-*
-      RETURN
-      END
-      SUBROUTINE SYM_DIST_FOR_SPGRP(IGRP,NIGRP,ISM,NDIST,
-     &           IDIST,LDIST,LENGTH,MXDIST)
-*
-* Symmetry distributions of a combination of groups
-*
-*
-*. Input
-* ======
-*    IGRP  : The groups of the supergroup
-*    NIGRP : Number of groups in the supergroup
-*    ISM   : Required total symmetry
-*    MXDIST: Largest allowed number of distributions
-*
-*. Output
-* =======
-*    NDIST : Number of symmetry distributions
-*    IDIST : The symmetry distributions
-*    LDIST : Length of each distribution
-*    LENGTH: Total length of distributions with the given sym
-*
-* Jeppe Olsen, Sept. 97
-*
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-*
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'csm.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'strbas.inc'
-*. Specific Input
-      DIMENSION IGRP(NIGRP)
-*. Local scratch
-      DIMENSION MXVAL(MXPNGAS),MNVAL(MXPNGAS),JDIST(MXPNGAS)
-      DIMENSION LSMGP(MXPOBS,MXPNGAS)
-*. Output
-      DIMENSION IDIST(NIGRP,MXDIST),LDIST(MXDIST)
-*. Max and Min arrays for symmetries
-*
-      NTEST = 00
-      IF(NIGRP.EQ.0) THEN
-*. Trivial zero supergroup, seperately handled to avoid infinite loops
-       IF(ISM.EQ.1) THEN
-         NDIST = 1
-         LDIST(1) = 1
-         LENGTH = 1
-       ELSE
-         NDIST = 0
-         LENGTH = 0
-       END IF
-      ELSE
-*. Nontrivial distributions
-      CALL MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDISTX)
-*
-      IF(NTEST.GE.1000) WRITE(6,*) ' >> Entering SYM_DIST ... <<'
-*. Dimensions of given group and symmetry
-      DO JGRP = 1, NIGRP
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRP(JGRP)-1)*NSMST+1,
-     &               NSMST,LSMGP(1,JGRP))
-      END DO
-      IF(NTEST.GE.2000) THEN
-        WRITE(6,*) ' LSMGP : '
-        CALL IWRTMA(LSMGP,NSMST,NIGRP,MXPOBS,NIGRP)
-      END IF
-*. And generate symmetry distributions
-      IFIRST = 1
-      NDIST = 0
-      LENGTH = 0
- 1000 CONTINUE
-C       NEXT_SYM_DISTR(NGAS,MINVAL,MAXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
-        CALL NEXT_SYM_DISTR(NIGRP,MNVAL,MXVAL,
-     &       JDIST,ISM,IFIRST,NONEW)
-        IF(NONEW.EQ.0) THEN
-           NDIST = NDIST + 1
-           IF(NDIST.GT.MXDIST) THEN
-             WRITE(6,*) 'SYM_DIST_FOR_SPGRP in problems '
-             WRITE(6,*) ' NDIST .gt. MXDIST '
-             WRITE(6,*) ' NDIST, MXDIST = ',NDIST,',',MXDIST
-             STOP 'SYM_DIST_FOR_SPGRP Increase MXDIST'
-           END IF
-           LDIM = 1
-           DO JGRP = 1, NIGRP
-            LDIM = LDIM*LSMGP(JDIST(JGRP),JGRP)
-            IDIST(JGRP,NDIST) = JDIST(JGRP)
-           END DO
-           LDIST(NDIST) = LDIM
-           LENGTH = LENGTH + LDIM
-           
-         END IF
-      IF(NONEW.EQ.0) GOTO 1000
-      END IF
-*     ^ Switch for nontrivial/trivial distribution
-*
-      IF(NTEST.GE.100) THEN
-*
-        WRITE(6,*) ' Symmetry distributions generated for : '
-        WRITE(6,*) '    Total symmetry :  ', ISM
-        WRITE(6,'(A,10I3,(10I3))') 
-     &             '     Groups         : ', (IGRP(JGRP),JGRP=1,NIGRP)
-        WRITE(6,*)
-        WRITE(6,*) '    Number of symmetry distributions ', NDIST
-        WRITE(6,*) '    Total dimension                  ',LENGTH
-        WRITE(6,*)
-        WRITE(6,*) ' Number, Length, Symmetry distributions '
-        WRITE(6,*) ' ======================================='
-        DO KDIST = 1, NDIST
-          WRITE(6,'(I5,I7,4X,10I3,(16X,10I3))')
-     &    KDIST,LDIST(KDIST),(IDIST(JGRP,KDIST),JGRP=1,NIGRP)
-        END DO
-      END IF
-*
-      IF(NTEST.GE.1000) WRITE(6,*) ' >> Leaving SYM_DIST ... << '
-*
-      RETURN
-      END
-      SUBROUTINE NSTR_FOR_COMB_GRP(NACT,IGRP,ISYM,NSTR)
-*
-* A combination of groups is defined :
-*   NACT : Number of active gasspaces
-*   IGRP : The active groups in each GAS
-*   ISYM : Symmetry of group product 
-*
-* Find corresponding number of strings
-*
-* Jeppe Olsen, Sept 97
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'csm.inc'
-*. Specific input
-      INTEGER IGRP(NACT)
-*. Local scratch
-      INTEGER MXVAL(MXPNGAS),MNVAL(MXPNGAS)
-      INTEGER ISMFGS(MXPNGAS)
-      INTEGER N2STFSMGP(MXPOBS,MXPNGAS)
-*. Number of strings per sym and gasspace
-      DO IGAS = 1, NACT
-        JGRP = IGRP(IGAS)
-        CALL ICOPVE2(WORK(KNSTSO(1)),(JGRP-1)*NSMST+1,
-     &               NSMST,N2STFSMGP(1,IGAS))
-      END DO
-*. Max and min sym in each gas
-      DO IGAS = 1, NACT
-*
-        IMAX = 1
-        DO ISM=1, NSMST
-          IF(N2STFSMGP(ISM,IGAS).GT.0) IMAX = ISM
-        END DO
-        MXVAL(IGAS) = IMAX
-*
-        IMIN = NSMST
-        DO ISM = NSMST,1,-1
-         IF(N2STFSMGP(ISM,IGAS).GT.0) IMIN = ISM
-        END DO
-        MNVAL(IGAS) = IMIN
-      END DO
-*. Number of symmetry combinations of first NACT-1 spaces
-      NCOMB = 1
-      DO JGAS = 1, NACT-1
-        NCOMB = NCOMB*(MXVAL(JGAS)-MNVAL(JGAS)+1)
-      END DO
-*. Loop over symmetrycombinations of first NACT-1 spaces
-      NSTR = 0
-      DO ICOMB = 1, NCOMB
-        IF(ICOMB.EQ.1) THEN
-*. Initialize
-          DO IGAS = 1, NACT-1
-            ISMFGS(IGAS) = MNVAL(IGAS)
-          END DO
-        ELSE
-*. Next number
-          CALL NXTNUM(ISMFGS,NACT-1,MNVAL,MXVAL,NONEW)
-        END IF
-*. Required symmetry of last space
-        JSM = 1
-        DO IGAS = 1, NACT - 1
-          CALL SYMCOM(3,0,JSM,ISMFGS(IGAS),KSM)
-          JSM = KSM
-        END DO
-        CALL SYMCOM(2,0,JSM,ILSM,ISYM)
-        ISMFGS(NACT) = ILSM
-*. Number of strings of this combination
-        LSTR = 1
-        DO IGAS = 1, NGAS
-          LSTR = LSTR*N2STFSMGP(ISMFGS(IGAS),IGAS)
-        END DO
-        NSTR = NSTR + LSTR
-      END DO
-*
-      NTEST = 0
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) ' Number of active GASpaces', NACT
-       WRITE(6,*) ' Corresponding Groups: '
-       CALL IWRTMA(IGRP,1,NACT,1,NACT)
-       WRITE(6,*) ' Required symmetry ', ISYM
-       WRITE(6,*) ' Number of strings ', NSTR
-      END IF
 *
       RETURN
       END
@@ -3032,335 +1388,6 @@ C         NXTNUM2(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
       RETURN
       END  
 *
-      SUBROUTINE REO_STR_SPGRP(ITP,ISPGPSM,ISPGP,NSTR,
-     &                       NACT,IACT,NAST_S,NPST_S,IBREO,
-     &                       IREO)
-*
-* Reorder strings of supergroup with given symmetry
-* so passive groups are placed before active groups
-*
-* Output order
-* Loop over Symmetry of active groups => Symmetry of passive groups
-*   Loop over symmetry distributions of active groups
-*   (generated by NEXTNUM2)
-*     Loop over symmetry distributions of passive groups
-*     (generated by NEXTNUM2)
-*       Loop over elements
-*       End of loop over elements
-*     End of loop over symmetry distributions of passive groups
-*   End of loop over symmetrydistributions of active groups
-* End of loop over symmetry of active group 
-*
-* The reordered supergroup is thus organized as a usual supergroup
-*  
-*
-*
-* Jeppe Olsen, September 1997  
-*
-* ======
-*. Input
-* ======
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-*. Specific Input
-      DIMENSION IACT(NACT)
-*. General Input
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'csm.inc'
-*. Output
-*. Number of active strings per symmetry
-      DIMENSION NAST_S(NSMST)
-*. Number of passive strings per symmetry 
-      DIMENSION NPST_S(NSMST)
-*. Offsets for reordered strings with active strings of given sym
-      DIMENSION IBREO(NSMST)
-*. Reorder array : Note : New order to old order !
-      DIMENSION IREO(NSTR)
-*
-*  ==============
-*. Local scratch
-*  ==============
-*
-C     INTEGER NELFGS(MXPNGAS), ISMFGS(MXPNGAS),ITPFGS(MXPNGAS)
-      INTEGER ITPFGS(MXPNGAS)
-* 
-      INTEGER IPAS(MXPNGAS)
-*
-      INTEGER MXVL(MXPNGAS)
-      INTEGER MNVL(MXPNGAS)
-      INTEGER MXVLAC(MXPNGAS)
-      INTEGER MNVLAC(MXPNGAS)
-      INTEGER MXVLPA(MXPNGAS)
-      INTEGER MNVLPA(MXPNGAS)
-*
-      INTEGER NSTSMGP(MXPOBS,MXPNGAS)
-      INTEGER NSTGP(MXPNGAS),IREOGS(MXPNGAS)
-*
-      INTEGER ISMAC(MXPNGAS),ISMPA(MXPNGAS),ISMTO(MXPNGAS)
-C     INTEGER IAAC(MXPNGAS),IBAC(MXPNGAS)
-C     INTEGER IAPS(MXPNGAS),IBPS(MXPNGAS)
-C     INTEGER ISMA(MXPNGAS),ISMB(MXPNGAS)
-*
-C     INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
-*. Temporary solution ( for once )
-      PARAMETER(LOFF=8*8*8*8*8)
-      DIMENSION IOFF(LOFF)
-*
-CT     CALL QENTER('ADSTN ')
-*
-      NTEST = 0200
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' ========================== '
-        WRITE(6,*) ' REO_STR_SPGRP in service '
-        WRITE(6,*) ' ========================== '
-        WRITE(6,*)
-        WRITE(6,*) '                 Type    Symmetry    Supergroup'
-        WRITE(6,*) ' =============================================='
-        WRITE(6,*) 
-        WRITE(6,'(A,3X,I4,5X,I4,5X,I4)') 
-     & '               ',ITP,ISPGPSM,ISPGP
-        WRITE(6,*) ' Number of active spaces ', NACT
-        WRITE(6,*) ' Active spaces ', (IACT(I),I=1,NACT)
-      END IF
-*
-*. Info about supergroups
-*
-*. Absolute supergroup number 
-      ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
-*. Number of strings per sym and type
-      NGASL = 1
-      DO IGAS = 1, NGAS
-       ITPFGS(IGAS) = ISPGPFTP(IGAS,ISPGPABS)
-       IF( NELFGP(ITPFGS(IGAS)).GT.0) NGASL = IGAS
-       CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
-     &               NSTSMGP(1,IGAS))
-      END DO
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) ' NGASL',NGASL
-       WRITE(6,*) ' NSTSMGP '
-       CALL IWRTMA(NSTSMGP,NSMST,NGAS,MXPOBS,NGAS)
-      END IF
-*
-* A supergroup contains a number of 
-* symmetry blocks, with each block defined by  given symmetries
-* in the GAS SPACE. Obtain offsets to given symmetry combinations
-*
-C          TS_SYM_PNT(ITP,ISYM,ISPGP,MAXVAL,MINVAL,IPNT,LPNT)
-      CALL TS_SYM_PNT(ITP,ISPGPSM,ISPGP,MXVL,MNVL,IOFF,LOFF)
-*. passive types  
-      NPAS  = NGAS - NACT
-      IPST = 0
-      DO IGAS = 1, NGAS
-        IACTIVE = 0
-        DO JACT = 1, NACT
-          IF(IACT(JACT).EQ.IGAS) IACTIVE = 1
-        END DO
-        IF(IACTIVE.EQ.0) THEN
-         IPST = IPST + 1
-         IPAS(IPST) = IGAS 
-        END IF
-      END DO
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Number of passive alpha types ',NPAS
-        WRITE(6,*) ' Passive alpha types '
-        CALL IWRTMA(IPAS,1,NPAS,1,NPAS)
-      END IF
-*. Reorder array, old order of spaces to new order of 
-      JPAS = 1
-      JACT = 1
-      DO IGAS = 1, NGAS
-        IF(IACT(JACT).EQ.IGAS) THEN
-C         IREOGS(IGAS) = JACT
-          IREOGS(IGAS) = JACT+NPAS
-          JACT = JACT + 1
-        ELSE IF(IPAS(JPAS).EQ.IGAS) THEN
-          IREOGS(IGAS) = JPAS
-          JPAS = JPAS + 1
-        END IF
-      END DO
-*
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Reordering of gasspaces, orig => new '
-        CALL IWRTMA(IREOGS,1,NGAS,1,NGAS)
-      END IF
-*
-      NGSLAC = 1
-      DO IGAS = 1, NACT
-        IF( NELFGP(IACT(IGAS)).GT.0) NGSLAC = IGAS
-        DO ISMST = 1, NSMST
-          IF(NSTSMGP(ISMST,IACT(IGAS)).GT.0)MXVLAC(IGAS)=ISMST
-        END DO
-        DO ISMST = NSMST,1,-1
-          IF(NSTSMGP(ISMST,IACT(IGAS)).GT.0) MNVLAC(IGAS) = ISMST
-        END DO
-      END DO
-*
-      IF(NTEST.GE.200) THEN
-        WRITE(6,*) ' NGSLAC = ', NGSLAC
-        WRITE(6,*) ' MNVLAC MXVLAC '
-        CALL IWRTMA(MNVLAC,1,NACT,1,NACT)
-        CALL IWRTMA(MXVLAC,1,NACT,1,NACT)
-      END IF
-       
-
-*
-      NGSLPA = 1
-      DO IGAS = 1, NPAS
-        IF( NELFGP(IPAS(IGAS)).GT.0) NGSLPA = IGAS
-        DO ISMST = 1, NSMST
-          IF(NSTSMGP(ISMST,IPAS(IGAS)).GT.0)MXVLPA(IGAS)=ISMST
-        END DO
-        DO ISMST = NSMST,1,-1
-          IF(NSTSMGP(ISMST,IPAS(IGAS)).GT.0) MNVLPA(IGAS) = ISMST
-        END DO
-      END DO
-*
-      IF(NTEST.GE.200) THEN
-        WRITE(6,*) ' NGSLPA = ', NGSLPA
-        WRITE(6,*) ' MNVLPA MXVLPA '
-        CALL IWRTMA(MNVLPA,1,NACT,1,NACT)
-        CALL IWRTMA(MXVLPA,1,NACT,1,NACT)
-      END IF
-*
-*. Loop over symmetries of active strings
-      DO 2000 ISMAC_T = 1, NSMST
-*. Symmetry of passive strings
-C  SYMCOM(ITASK,IOBJ,I1,I2,I12)
-        CALL SYMCOM(2,0,ISMAC_T,ISMPA_T,ISPGPSM)
-        IF(NTEST.GE.100) THEN
-          WRITE(6,*) ' ISPGPSM ISMAC_T ISMPA_T',
-     &                 ISPGPSM,ISMAC_T,ISMPA_T 
-        END IF
-*
-*. Loop over symmetry combinations of active strings
-*
-        IOFF_REO = 1
-        IFRSTAC=1 
-        NACSTR_S = 0
- 1004   CONTINUE
-          IF(IFRSTAC .EQ. 1 ) THEN
-           DO IGAS = 1, NGSLAC - 1
-            ISMAC(IGAS) = MNVLAC(IGAS)
-           END DO
-           IFRSTAC = 0
-           IF(NGSLAC.LE.1) NONEWAC = 1
-          ELSE
-           CALL NXTNUM3(ISMAC,NGSLAC-1,MNVLAC,MXVLAC,NONEWAC)
-           IF(NONEWAC.NE.0) GOTO 2004
-          END IF
-*. Symmetry of last active space
-           ISM = 1
-           DO IGAS = 1, NGSLAC -1
-             CALL  SYMCOM(3,1,ISM,ISMAC(IGAS),JSM)
-             ISM = JSM         
-           END DO
-           CALL SYMCOM(2,1,ISM,ISML,ISMAC_T)
-           ISMAC(NGSLAC) = ISML   
-*. Number of active strings of this symmetry distribution
-           LACST = 1
-           DO JACT= 1, NACT
-             LACST = LACST*NSTSMGP(ISMAC(JACT),IACT(JACT))
-           END DO
-           NACSTR_S = NACSTR_S + LACST
-*. Loop over symmetry combinations  of passive strings
-           IFRSTPA=1 
-           NPASTR_S = 0
- 1002      CONTINUE
-             IF(IFRSTPA .EQ. 1 ) THEN
-              DO IGAS = 1, NGSLPA  - 1
-               ISMPA(IGAS) = MNVLPA(IGAS)
-              END DO
-              IFRSTPA = 0
-              IF(NGSLPA.LE.1) NONEWPA  = 1
-             ELSE
-              CALL NXTNUM3(ISMPA,NGSLPA-1,MNVLPA,MXVLPA,NONEWPA)
-              IF(NONEWPA.NE.0) GOTO 2002
-             END IF 
-*. Symmetry of last passive space
-             ISM = 1
-             DO IGAS = 1, NGSLPA -1
-               CALL  SYMCOM(3,1,ISM,ISMPA(IGAS),JSM)
-               ISM = JSM         
-             END DO
-             CALL SYMCOM(2,1,ISM,ISML,ISMPA_T)
-             ISMPA(NGSLPA) = ISML   
-*. Number of passive strings with this symmetry contribution
-             LPAST = 1
-             DO JPAS = 1, NPAS
-               LPAST = LPAST*NSTSMGP(ISMPA(JPAS),IPAS(JPAS))
-             END DO
-             NPASTR_S= NPASTR_S + LPAST
-*. Symmetry block in original ordering 
-              DO IGAS = 1, NACT
-                ISMTO(IACT(IGAS)) = ISMAC(IGAS)
-              END DO
-              DO IGAS = 1, NPAS 
-                ISMTO(IPAS(IGAS)) = ISMPA(IGAS)
-              END DO
-*. And dimensions of this block
-              DO IGAS = 1, NGAS    
-                NSTGP(IGAS)=NSTSMGP(ISMTO(IGAS),IGAS)
-              END DO
-*
-              IF(NTEST.GE.100) THEN
-                WRITE(6,*)
-                WRITE(6,*) 
-     &          ' Info on active, passive and complete strings'
-                WRITE(6,*) 
-     &          ' ============================================'
-                WRITE(6,*)
-                WRITE(6,'(A,20I3)') 
-     &          ' Active  : ',(ISMAC(IGAS),IGAS=1,NACT)
-                WRITE(6,'(A,20I3)') 
-     &          ' Passive : ',(ISMPA(IGAS),IGAS=1,NPAS)
-                 WRITE(6,'(A,20I3)') 
-     &          ' Total   : ',(ISMTO(IGAS),IGAS=1,NGAS )
-                WRITE(6,'(A,20I3)') 
-     &          ' Dimens. : ',(NSTGP(IGAS),IGAS=1,NGAS )
-                
-              END IF
-*. Offset for this symmetrycombination in complete list
-C     IOFF_SYM_DIST(ISYM,NGASL,IOFF,MAXVAL,MINVAL)
-                IOFF_ORIG = IOFF_SYM_DIST(ISMTO,NGASL,IOFF,MXVL,MNVL)
-C     REO_NORD_MAT(NORD,LEN,IREO,IREO_ARRAY)
-                CALL REO_NORD_MAT(NGAS,NSTGP,IREOGS,IREO(IOFF_REO))
-*. Add offset to start of this symmetry distribution
-            NELM = LACST*LPAST
-            WRITE(6,*) ' LACST, LPAST ', LACST,LPAST
-            DO IELM = IOFF_REO,IOFF_REO-1+NELM
-              IREO(IELM) = IREO(IELM) + IOFF_ORIG-1  
-            END DO
-*. Update offset
-            IOFF_REO = IOFF_REO+ NELM
-            GOTO 1002
- 2002       CONTINUE
-*           ^ End of loop over symmetris of active blocks 
-        GOTO 1004 
- 2004   CONTINUE
-*       ^ End of loop over symmetries of passive blocks
-
- 2000   CONTINUE
-*       ^ End of loop over symmetries of active part
-*
-      NELM_REO = IOFF_REO-1
-*
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Number of elements in reordered array', NELM_REO
-        WRITE(6,*) ' Reordering array : '
-        CALL IWRTMA(IREO,1,NELM_REO,1,NELM_REO)
-      END IF
-*
-CT    CALL QEXIT('ADSTN ')
-      RETURN
-      END
       FUNCTION IOFF_SYM_DIST(ISYM,NGASL,IOFF,MAXVAL,MINVAL)
 *
 * A ts block of string is given and the individual 
@@ -3435,6 +1462,9 @@ C       write(6,*) ' igas i imult ',igas,i,imult
 *
 * Version 2 : Uses IGRP and NIGRP to define supergroup
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
@@ -3599,6 +1629,9 @@ C        CALL NXTNUM3(ISMFGS,NGRP_AC-1,MINVAL_AC,MAXVAL_AC,NONEW)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
@@ -3816,6 +1849,9 @@ C     NNSTSGP(MXPNSMST,MXPNGAS)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'clunit.inc'
       INCLUDE 'crun.inc'
@@ -3837,12 +1873,12 @@ c      INCLUDE 'mxpdim.inc'
 C          GET_3BLKS(KVEC1,KVEC2,KC2)
       CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 
-*. MO-MO transformation matrix : 
+*. MO-MO transformation matrix :
       CALL MEMMAN(KLCMOMO,NTOOB**2,'ADDL  ',2,'CMOMO ')
 *. Copy of one-electron integrals
-      CALL MEMMAN(KLH1SAVE,NTOOB**2,'ADDL  ',2,'H1SAVE')
+      CALL MEMMAN(KLH1SAVE,NTOOB**2,'ADDL  ',2,'H1SAVE') !done
 *. We are going to mess with the one-electron integrals, take a copy
-      CALL COPVEC(WORK(KINT1),WORK(KLH1SAVE),NTOOB*NTOOB)
+      CALL COPVEC(WORK(KINT1),dbl_mb(KLH1SAVE),NTOOB*NTOOB)
 *. Set up block structure of CI space
       IATP = 1
       IBTP = 2
@@ -3892,7 +1928,7 @@ C            TRACI(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
       END IF
 *
 *. clean up time : copy 1-e integrals back in place                  
-      CALL COPVEC(WORK(KLH1SAVE),WORK(KINT1),NTOOB*NTOOB)
+      CALL COPVEC(dbl_mb(KLH1SAVE),WORK(KINT1),NTOOB*NTOOB)
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRACIC')
 *
       RETURN
@@ -3912,6 +1948,9 @@ C            TRACI(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
@@ -4041,6 +2080,9 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -4067,11 +2109,11 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Memory allocation
 * for a matrix T
-      CALL MEMMAN(KLT,NTOOB**2,'ADDL  ',2,'TMAT  ')
-      CALL MEMMAN(KLTB,NTOOB**2,'ADDL  ',2,'TMATBL')
+      CALL MEMMAN(KLT,NTOOB**2,'ADDL  ',2,'TMAT  ') !done
+cNW     CALL MEMMAN(KLTB,NTOOB**2,'ADDL  ',2,'TMATBL')
 *. Scratch in PAMTMT
       LSCR = NTOOB**2 +NTOOB*(NTOOB+1)/2
-      CALL MEMMAN(KLSCR,LSCR,'ADDL  ',2,'KLSCR ')
+      CALL MEMMAN(KLSCR,LSCR,'ADDL  ',2,'KLSCR ') !done
 *. Obtain T matrix used for transformation, for each symmetry separately
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN 
@@ -4080,11 +2122,12 @@ c      INCLUDE 'mxpdim.inc'
           IOFF = IOFF + NTOOBS(ISM-1)**2
         END IF
         IF(NTOOBS(ISM).GT.0) 
-     &  CALL PAMTMT(X(IOFF),WORK(KLT-1+IOFF),WORK(KLSCR),NTOOBS(ISM))
+     &  CALL PAMTMT(X(IOFF),dbl_mb(KLT-1+IOFF),dbl_mb(KLSCR),
+     &             NTOOBS(ISM))
       END DO
       LENT = IOFF + NTOOBS(NSMOB)**2 - 1
 *. Save Malmqvist matrix
-      CALL COPVEC(WORK(KLT),WORK(KTPAM),LENT)
+      CALL COPVEC(dbl_mb(KLT),WORK(KTPAM),LENT)
 *. Transform CI-vector
       ICSPC = IXSPC
       ICSM  = ICSM
@@ -4094,7 +2137,7 @@ c      INCLUDE 'mxpdim.inc'
       I_STAND_OR_BLKDIA = 2
       IF(I_STAND_OR_BLKDIA.EQ.1.OR.NGAS.GT.1) THEN
 *. No assumption about the expansion
-        CALL TRACID(WORK(KLT),LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,
+        CALL TRACID(dbl_mb(KLT),LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,
      &              VEC1,VEC2)
       ELSE 
 *. Special version for block diagonal expansions
@@ -4130,6 +2173,9 @@ c      INCLUDE 'mxpdim.inc'
 * each transformation is 
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       REAL*8 INPROD
       INCLUDE 'glbbas.inc'
@@ -4491,6 +2537,9 @@ C
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'orbinp.inc'
@@ -4530,14 +2579,14 @@ c      INCLUDE 'mxpdim.inc'
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
 *
-      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
+      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ') !done
+      CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ') !done
 *
       ISPC = MAX(ICSPC,ISSPC)
       ISM  = ISSM
-      CALL IAIBCM(ISPC,WORK(KLCIOIO))
+      CALL IAIBCM(ISPC,dbl_mb(KLCIOIO))
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,WORK(KLCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),WORK(KSVST))
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. alpha and beta strings with an electron removed
@@ -4576,7 +2625,7 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Scratch space for CJKAIB resolution matrices
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
-      CALL MXRESCPH(WORK(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(dbl_mb(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &              NSMST,NSTFSMSPGP,MXPNSMST,
      &              NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &              NELFSPGP,
@@ -4699,19 +2748,19 @@ c      INCLUDE 'mxpdim.inc'
       NOCTPB = NOCTYP(IBTP)
 *. Pointers to output arrays
       NTTS = MXNTTS
-      CALL MEMMAN(KPCLBT ,MXNTTS,'ADDL  ',1,'CLBT  ')
-      CALL MEMMAN(KPCLEBT,MXNTTS,'ADDL  ',1,'CLEBT ')
-      CALL MEMMAN(KPCI1BT,MXNTTS,'ADDL  ',1,'CI1BT ')
-      CALL MEMMAN(KPCIBT ,8*MXNTTS,'ADDL  ',1,'CIBT  ')
-      CALL MEMMAN(KPCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
+      CALL MEMMAN(KPCLBT ,MXNTTS,'ADDL  ',1,'CLBT  ') !done
+      CALL MEMMAN(KPCLEBT,MXNTTS,'ADDL  ',1,'CLEBT ') !done
+      CALL MEMMAN(KPCI1BT,MXNTTS,'ADDL  ',1,'CI1BT ') !done
+      CALL MEMMAN(KPCIBT ,8*MXNTTS,'ADDL  ',1,'CIBT  ') !done
+      CALL MEMMAN(KPCBLTP,NSMST,'ADDL  ',2,'CBLTP ') !done
 *.    ^ These should be preserved after exit so put mark for flushing here
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'Z_BLKF')
 *. Info needed for generation of block info
-      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL IAIBCM(ISPC,WORK(KLCIOIO))
+      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ') !done
+      CALL IAIBCM(ISPC,dbl_mb(KLCIOIO))
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,WORK(KPCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KPCBLTP),WORK(KSVST))
 *. Allowed length of each batch
       IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
@@ -4726,21 +2775,21 @@ c      INCLUDE 'mxpdim.inc'
       END IF
 *
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,WORK(KPCBLTP),WORK(KNSTSO(IATP)),
+      CALL PART_CIV2(IDC,dbl_mb(KPCBLTP),WORK(KNSTSO(IATP)),
      &              WORK(KNSTSO(IBTP)),
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,WORK(KLCIOIO),
+     &              NOCTPA,NOCTPB,NSMST,LBLOCK,dbl_mb(KLCIOIO),
      &              ISMOST(1,ISM),
-     &              NBATCH,WORK(KPCLBT),WORK(KPCLEBT),
-     &              WORK(KPCI1BT),WORK(KPCIBT),0,ISIMSYM)
+     &              NBATCH,int_mb(KPCLBT),int_mb(KPCLEBT),
+     &              int_mb(KPCI1BT),int_mb(KPCIBT),0,ISIMSYM)
 *. Number of BLOCKS
-      NBLOCK = IFRMR(WORK(KPCI1BT),1,NBATCH)
-     &       + IFRMR(WORK(KPCLBT),1,NBATCH) - 1
+      NBLOCK = IFRMR(int_mb(KPCI1BT),1,NBATCH)
+     &       + IFRMR(int_mb(KPCLBT),1,NBATCH) - 1
       IF(NTEST.GE.1) THEN
          WRITE(6,*) ' Number of batches', NBATCH
          WRITE(6,*) ' Number of blocks ', NBLOCK
       END IF
 *. Length of each block
-      CALL EXTRROW(WORK(KPCIBT),8,8,NBLOCK,WORK(KPCI1BT))
+      CALL EXTRROW(int_mb(KPCIBT),8,8,NBLOCK,int_mb(KPCI1BT))
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'Z_BLKF')
       RETURN
@@ -6657,6 +4706,9 @@ C         IOP_REO(4) = 2
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *./BIGGY
       INCLUDE 'wrkspc.inc'
 *./ORBINP/
@@ -7414,6 +5466,9 @@ C?            END IF
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *. Input
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
@@ -8264,6 +6319,9 @@ C?    WRITE(6,'(A)') ' CHARACTER INPUT ', CHAR_X
 *./BIGGY
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
@@ -9012,544 +7070,6 @@ C         TI(IROW,ISTRIN ) = -IORB
 *
       RETURN
       END
-      SUBROUTINE REO_TTS_BLOCK2(C_ORIG,C_REO,NACA,IACA,NACB,IACB,
-     &           IATP,IASPGP,IASM,IBTP,IBSPGP,IBSM,
-     &           IB_AC_AB,NASTR,NBSTR,
-     &           L_AC_A_TOT,L_AC_B_TOT,L_PA_A_TOT,L_PA_B_TOT,IWAY)
-*
-* Reorder coefficients of TTS block
-* CORIG : Original standard order 
-* CREO  : Reordered form
-*
-* IWAY = 1 : Orig order => Passive/Active order
-*            C(Ia,Ib) => C(Ipa,Ipb,Iaa,Iab)
-* IWAY = 2 : Passive/Active order => orig order
-*
-*
-* The passive/active ordering goes as follows
-*
-* Loop over symmetries of active alpha*beta strings
-*  Loop over symmetries of active alpha strings
-*  => Sym of passive alpha string
-*  => Sym of passive beta string
-*       Loop over active alpha strings of this sym
-*        Loop over active beta strings of this sym
-*         Loop over passive alpha strings of this sym
-*          Loop over passive beta strings of this sym
-*          End of loop over passive beta strings
-*         End of loop over passive alphastrings
-*        End of loop over active betastrings
-*       End of loop over active alphastrings
-*  End of loop over symmetries of active alpha part
-* End of loop over symmetries of active alpha*beta part
-*
-* Jeppe Olsen, Sept 97
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'csm.inc'
-*. Specific Input
-      DIMENSION IACA(*),IACB(*)
-*. Output
-*. Offset to block in C_REO with given symmetries of active strings
-      INTEGER IB_AC_AB(MXPNSMST,MXPNSMST)
-*.. Length of : 1 : active alpha
-      INTEGER L_AC_A_TOT(MXPNSMST)
-*               2 : active beta
-      INTEGER L_AC_B_TOT(MXPNSMST)
-*               3 : passive alpha
-      INTEGER L_PA_A_TOT(MXPNSMST)
-*               4 : passive beta 
-      INTEGER L_PA_B_TOT(MXPNSMST)
-*. Input and output
-      DIMENSION C_ORIG(*),C_REO(*) 
-
-*. Local scratch
-      PARAMETER(LOFF=8*8*8*8)
-      DIMENSION IREO_A(LOFF),IREO_B(LOFF)
-      DIMENSION IB_REO_A(MXPNSMST),IB_REO_B(MXPNSMST)
-*
-      NTEST = 000
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' *************************** '
-        WRITE(6,*) ' * ENTERING REO_TTS_BLOCK2 * '
-        WRITE(6,*) ' *************************** '
-        WRITE(6,*)
-        WRITE(6,*) ' alpha strings : sym, supergroup and type ',
-     &  IASM,IASPGP,IATP  
-        WRITE(6,*) ' Beta  strings : sym, supergroup and type ',
-     &  IBSM,IBSPGP,IBTP  
-      END IF
-*
-*. Obtain reorder arrays for alpha and beta strings
-*
-      CALL REO_STR_SPGRP2(IATP,IASM,IASPGP,NASTR,
-     &                    NACA,IACA,L_AC_A_TOT,L_PA_A_TOT,
-     &                    IB_REO_A,IREO_A)
-*
-      CALL REO_STR_SPGRP2(IBTP,IBSM,IBSPGP,NBSTR,
-     &                    NACB,IACB,L_AC_B_TOT,L_PA_B_TOT,
-     &                    IB_REO_B,IREO_B)
-
-*. Loop over symmetries of active alpha beta strings
-      I_REO=0
-      DO ISM_AC_AB = 1, NSMST
-        DO ISM_AC_A = 1, NSMST
-      
-*. sym of remaining  strings
-          CALL SYMCOM(2,0,ISM_AC_A,ISM_AC_B,ISM_AC_AB)
-          CALL SYMCOM(2,0,ISM_AC_A,ISM_PA_A,IASM)
-          CALL SYMCOM(2,0,ISM_AC_B,ISM_PA_B,IBSM)
-*. Offset for block with given symmetries of active strings
-          IB_AC_AB(ISM_AC_A,ISM_AC_B) = I_REO + 1
-          IF(NTEST.GE.1000) THEN
-             WRITE(6,*) ' ISM_AC_A,ISM_AC_B,ISM_PA_A,ISM_PA_B',
-     &                    ISM_AC_A,ISM_AC_B,ISM_PA_A,ISM_PA_B
-          END IF
-*. We will now collect the matrix C(Ipa,Ipb,Iaa,Iab)
-          L_AC_A = L_AC_A_TOT(ISM_AC_A)
-          L_AC_B = L_AC_B_TOT(ISM_AC_B)
-          L_PA_A = L_PA_A_TOT(ISM_PA_A)
-          L_PA_B = L_PA_B_TOT(ISM_PA_B)
-          DO I_AC_B = 1, L_AC_B
-           DO I_AC_A = 1, L_AC_A
-            DO I_PA_B = 1, L_PA_B
-             DO I_PA_A = 1, L_PA_A
-              I_REO = I_REO+1
-*. Address in original order
-              I_ORIG_B = 
-     &        IREO_B(IB_REO_B(ISM_AC_B)-1 + (I_AC_B-1)*L_PA_B + I_PA_B)
-              I_ORIG_A = 
-     &        IREO_A(IB_REO_A(ISM_AC_A)-1 + (I_AC_A-1)*L_PA_A + I_PA_A)
-              I_ORIG = (I_ORIG_B-1)*NASTR + I_ORIG_A
-*
-              IF(NTEST.GE.1000) THEN
-                WRITE(6,*) 'I_REO and I_ORIG ', I_REO,I_ORIG
-                WRITE(6,*) ' I_AC_A, I_PA_A', I_AC_A,I_PA_A
-                WRITE(6,*) ' I_AC_B, I_PA_B', I_AC_B,I_PA_B
-              END IF
-*
-              IF(IWAY.EQ.1) THEN
-               C_REO(I_REO) = C_ORIG(I_ORIG)
-              ELSE
-               C_ORIG(I_ORIG) = C_REO(I_REO)
-              END IF
-             END DO
-*            ^ End of loop over I_PA_A
-            END DO
-*           ^ End of loop over I_PA_B
-           END DO
-*          ^ End of loop over I_AC_A
-          END DO 
-*         ^ End of loop over I_AC_B
-        END DO
-*       ^ End of loop over ISM_AC_A
-      END DO
-*     ^ End of loop over ISM_AC_AB
-*
-      IF(NTEST.GE.100) THEN
-        LBLOCK = NASTR*NBSTR
-        WRITE(6,*) ' ORIG and REO TTS blocks '
-        CALL WRTMAT(C_ORIG,1,LBLOCK,1,LBLOCK)
-        CALL WRTMAT(C_REO,1,LBLOCK,1,LBLOCK)
-      END IF
-      RETURN
-      END
-      SUBROUTINE REO_TTS_BLOCK(CORIG,CREO,NACA,IACA,NACB,IACB,IAREO,
-     &           IBREO,IATP,IASPGP,IASM,IBTP,IBSPGP,IBSM,
-     &           IB_AC_AB,
-     &           L_AC_A_TOT,L_AC_B_TOT,L_PA_A_TOT,L_PA_B_TOT,IWAY)
-*
-* Reorder coefficients of TTS block
-* CORIG : Original standard order 
-* CREO  : Reordered form
-*
-* IWAY = 1 : Orig order => Passive/Active order
-*            C(Ia,Ib) => C(Ipa,Ipb,Iaa,Iab)
-* IWAY = 2 : Passive/Active order => orig order
-*
-*
-* The passive/active ordering goes as follows
-*
-* Loop over symmetries of active alpha*beta strings
-*  Loop over symmetries of active alpha strings
-*  => Sym of passive alpha string
-*  => Sym of passive beta string
-*       Loop over active alpha strings of this sym
-*        Loop over active beta strings of this sym
-*         Loop over passive alpha strings of this sym
-*          Loop over passive beta strings of this sym
-*          End of loop over passive beta strings
-*         End of loop over passive alphastrings
-*        End of loop over active betastrings
-*       End of loop over active alphastrings
-*  End of loop over symmetries of active alpha part
-* End of loop over symmetries of active alpha*beta part
-*
-* Jeppe Olsen, Sept 97
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'csm.inc'
-C     COMMON/GASSTR/MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),
-C    &              IBGPSTR(MXPNGAS),NELFGP(MXPSTT),IGSFGP(MXPSTT),
-C    &              NSTFGP(MXPSTT),MNELFGP(MXPNGAS),MXELFGP(MXPNGAS),
-C    &              NELFTP(MXPSTT),NSPGPFTP(MXPSTT),IBSPGPFTP(MXPSTT),
-C    &              ISPGPFTP(MXPNGAS,MXPSTT),NELFSPGP(MXPNGAS,MXPSTT),
-C    &              NSTFSMSPGP(MXPNSMST,MXPSTT),
-C    &              NGRP,NSTTP,MXNSTR,NTSPGP,MAX_STR_SPGP,
-C    &              MAX_STR_OC_BLK,MXSMCLS,MXSMCLSE,MXSMCLSE1
-C     COMMON/CGAS/IDOGAS,NGAS,NGSSH(MXPIRR,MXPNGAS),
-C    &            NGSOB(MXPOBS,MXPNGAS),
-C    &            NGSOBT(MXPNGAS),IGSOCC(MXPNGAS,2),IGSINA,IGSDEL,
-C    &            IGSOCCX(MXPNGAS,2,MXPICI),NCISPC,
-C    &            NCMBSPC, LCMBSPC(MXPICI),ICMBSPC(MXPSTT,MXPICI),
-C    &            NMXOCCLS
-*. Specific Input
-      DIMENSION IACA(*),IACB(*)
-*. Output
-*.. offset to block with given symmetry of active alpha, beta
-      INTEGER IB_AB(MXPNSMST,MXPNSMST)
-*.. Length of : 1 : active alpha
-      INTEGER L_AC_A_TOT(MXPNSMST)
-*               2 : active beta
-      INTEGER L_AC_B_TOT(MXPNSMST)
-*               3 : passive alpha
-      INTEGER L_PA_A_TOT(MXPNSMST)
-*               4 : passive beta 
-      INTEGER L_PA_B_TOT(MXPNSMST)
-*. Input and output
-      DIMENSION CORIG(*),CREO(*) 
-
-*. Local scratch
-      DIMENSION ITPFGSA(MXPNGAS),ITPFGSB(MXPNGAS)
-      DIMENSION NASTSMGP(MXPOBS,MXPNGAS),NBSTSMGP(MXPOBS,MXPNGAS)
-      DIMENSION IPAB(MXPNGAS),IPAA(MXPNGAS)
-      DIMENSION IPAGPA(MXPNGAS),IPAGPB(MXPNGAS)
-      DIMENSION IACGPA(MXPNGAS),IACGPB(MXPNGAS)
-      PARAMETER(LOFF=8*8*8*8)
-      DIMENSION L_AC_A(LOFF),L_AC_B(LOFF) 
-      DIMENSION L_PA_A(LOFF),L_PA_B(LOFF)
-      DIMENSION IOFFA(LOFF),IOFFB(LOFF)
-      DIMENSION IDIST_AC_A(MXPNGAS*LOFF),IDIST_AC_B(MXPNGAS*LOFF)
-      DIMENSION IDIST_PA_A(MXPNGAS*LOFF),IDIST_PA_B(MXPNGAS*LOFF)
-      DIMENSION IREO_A(LOFF),IREO_B(LOFF)
-      DIMENSION IAORIG(MXPNGAS),IBORIG(MXPNGAS)
-      DIMENSION MXVL_A(MXPNGAS),MNVL_A(MXPNGAS)
-      DIMENSION MXVL_B(MXPNGAS),MNVL_B(MXPNGAS)
-      DIMENSION LACGPA(MXPNGAS),LACGPB(MXPNGAS)
-      DIMENSION LPAGPA(MXPNGAS),LPAGPB(MXPNGAS)
-      DIMENSION LA_DIST(MXPNGAS)
-      DIMENSION LB_DIST(MXPNGAS)
-*
-      NTEST = 2000
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' ************************** '
-        WRITE(6,*) ' * ENTERING REO_TTS_BLOCK * '
-        WRITE(6,*) ' ************************** '
-      END IF
-*
-*. Info on supergroups
-*
-*. Absolute supergroup number 
-      IASPGPABS = IBSPGPFTP(IATP)-1+IASPGP
-      IBSPGPABS = IBSPGPFTP(IBTP)-1+IBSPGP
-*. Number of strings per sym and type
-      NGASLA = 1
-      DO IGAS = 1, NGAS
-       ITPFGSA(IGAS) = ISPGPFTP(IGAS,IASPGPABS)
-       IF( NELFGP(ITPFGSA(IGAS)).GT.0) NGASLA = IGAS
-       CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGSA(IGAS)-1)*NSMST+1,NSMST,
-     &               NASTSMGP(1,IGAS))
-      END DO
-*. Offset for symmetry distributions in supergroups
-      CALL TS_SYM_PNT(IATP,IASM,IASPGP,MXVL_A,MNVL_A,IOFFA,LOFF)
-      CALL TS_SYM_PNT(IBTP,IBSM,IBSPGP,MXVL_B,MNVL_B,IOFFB,LOFF)
-*. Length of supergroups with given sym
-      NASTR = NSTFSMSPGP(IASM,IASPGPABS)
-      NBSTR = NSTFSMSPGP(IBSM,IBSPGPABS)
-*
-      IF(NTEST.GE.100) THEN 
-        WRITE(6,*) ' Number of alpha strings ',NASTR
-        WRITE(6,*) ' Number of beta  strings ',NBSTR
-      END IF
-*
-      NGASLB = 1
-      DO IGAS = 1, NGAS
-       ITPFGSB(IGAS) = ISPGPFTP(IGAS,IBSPGPABS)
-       IF( NELFGP(ITPFGSB(IGAS)).GT.0) NGASLB = IGAS
-       CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGSB(IGAS)-1)*NSMST+1,NSMST,
-     &               NBSTSMGP(1,IGAS))
-      END DO
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) ' NGASLA, NGASLB',NGASLA,NGASLB
-       WRITE(6,*) ' NASTSMGP '
-       CALL IWRTMA(NASTSMGP,NSMST,NGAS,MXPOBS,NGAS)
-       WRITE(6,*) ' NBSTSMGP '
-       CALL IWRTMA(NBSTSMGP,NSMST,NGAS,MXPOBS,NGAS)
-      END IF
-*. The passive groups
-      WRITE(6,*) ' IACA '
-      CALL IWRTMA(IACA,1,NACA,1,NACA)
-      JACA = 1
-      JPAA = 0
-      DO IGAS = 1, NGAS
-        IF(IACA(JACA).NE.IGAS) THEN
-          JPAA = JPAA + 1
-          IPAA(JPAA) = IGAS
-        ELSE
-           JACA = JACA + 1
-        END IF
-      END DO
-      NPAA = JPAA
-*
-      JACB = 1
-      JPAB = 0
-      DO IGAS = 1, NGAS
-        IF(IACB(JACB).NE.IGAS) THEN
-          JPAB = JPAB + 1
-          IPAB(JPAB) = IGAS
-        ELSE
-           JACB = JACB + 1
-        END IF
-      END DO
-      NPAB = JPAB
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Number of passive alpha groups ', NPAA
-        WRITE(6,*) ' passive alpha groups : '
-        CALL IWRTMA(IPAA,1,NPAA,1,NPAA)
-        WRITE(6,*)
-        WRITE(6,*) ' Number of passive beta groups ', NPAB
-        WRITE(6,*) ' passive beta groups : '
-        CALL IWRTMA(IPAB,1,NPAB,1,NPAB)
-      END IF
-*. The active and passive groups
-      DO JACA = 1, NACA
-        IACGPA(JACA) = ITPFGSA(IACA(JACA))
-      END DO
-      DO JACB = 1, NACB
-        IACGPB(JACB) = ITPFGSB(IACB(JACB))
-      END DO
-      DO JPAA = 1, NPAA
-        IPAGPA(JPAA) = ITPFGSA(IPAA(JPAA))
-      END DO
-      DO JPAB = 1, NPAB
-        IPAGPB(JPAB) = ITPFGSB(IPAB(JPAB))
-      END DO
-*
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) ' The active alpha groups '
-       CALL IWRTMA(IACGPA,1,NACA,1,NACA)
-       WRITE(6,*) ' The active beta groups '
-       CALL IWRTMA(IACGPB,1,NACB,1,NACB)
-       WRITE(6,*) ' The passive alpha groups '
-       CALL IWRTMA(IPAGPA,1,NPAA,1,NPAA)
-       WRITE(6,*) ' The passive beta groups '
-       CALL IWRTMA(IPAGPB,1,NPAB,1,NPAB)
-      END IF
-*. groups for active and passive parts
-*. Loop over symmetries of active alpha and beta strings
-*. Offset in passive passive active active order
-      IB_REO = 1
-      DO ISM_AC_AB = 1, NSMST
-        DO ISM_AC_A = 1, NSMST
-*. sym of remaining  strings
-          CALL SYMCOM(2,0,ISM_AC_A,ISM_AC_B,ISM_AC_AB)
-          CALL SYMCOM(2,0,ISM_AC_A,ISM_PA_A,IASM)
-          CALL SYMCOM(2,0,ISM_AC_B,ISM_PA_B,IBSM)
-          IF(NTEST.GE.100) THEN
-             WRITE(6,*) ' ISM_AC_A,ISM_AC_B,ISM_PA_A,ISM_PA_B',
-     &                    ISM_AC_A,ISM_AC_B,ISM_PA_A,ISM_PA_B
-          END IF
-*. Symmetry distributions of active and passive strings
-C              SYM_DIST_FOR_SPGRP(IGRP,NGRP,ISM,NDIST,IDIST,LDIST,LENGTH,MXDIST)
-          CALL SYM_DIST_FOR_SPGRP(IACGPA,NACA,ISM_AC_A,NDIST_AC_A,
-     &         IDIST_AC_A,L_AC_A,LTOT_AC_A,LOFF)
-          CALL SYM_DIST_FOR_SPGRP(IACGPB,NACB,ISM_AC_B,NDIST_AC_B,
-     &         IDIST_AC_B,L_AC_B,LTOT_AC_B,LOFF)
-          CALL SYM_DIST_FOR_SPGRP(IPAGPA,NPAA,ISM_PA_A,NDIST_PA_A,
-     &         IDIST_PA_A,L_PA_A,LTOT_PA_A,LOFF)
-          CALL SYM_DIST_FOR_SPGRP(IPAGPB,NPAB,ISM_PA_B,NDIST_PA_B,
-     &         IDIST_PA_B,L_PA_B,LTOT_PA_B,LOFF)
-       WRITE(6,*) ' NBSTSMGP2 '
-       CALL IWRTMA(NBSTSMGP,NSMST,NGAS,MXPOBS,NGAS)
-*. Total dimensions for the active/passive strings with given sym
-          L_AC_A_TOT(ISM_AC_A) = LTOT_AC_A
-          L_AC_B_TOT(ISM_AC_B) = LTOT_AC_B
-          L_PA_A_TOT(ISM_AC_A) = LTOT_PA_A
-          L_PA_B_TOT(ISM_AC_B) = LTOT_PA_B
-*. Loop over symmetry distributions  of active parts
-          DO JDIST_AC_A = 1, NDIST_AC_A
-*. Length and offset for distribution relative to start of TS block
-            IF(JDIST_AC_A .EQ.1 ) THEN
-              IB_AC_A = 1
-            ELSE
-              IB_AC_A = IB_AC_A + L_AC_A(JDIST_AC_A-1)
-            END IF
-            N_AC_A = L_AC_A(JDIST_AC_A)
-*
-            DO JDIST_AC_B = 1, NDIST_AC_A
-*. Length and offset for distribution relative to start of TS block
-              IF(JDIST_AC_B .EQ.1 ) THEN
-                IB_AC_B = 1
-              ELSE
-                IB_AC_B = IB_AC_B + L_AC_B(JDIST_AC_B-1)
-              END IF
-              N_AC_B = L_AC_B(JDIST_AC_B)
-*. And passive 
-              DO JDIST_PA_A = 1, NDIST_PA_A
-*. Length and offset for distribution relative to start of TS block
-                IF(JDIST_PA_A .EQ.1 ) THEN
-                  IB_PA_A = 1
-                ELSE
-                  IB_PA_A = IB_PA_A + L_AC_A(JDIST_PA_A-1)
-                END IF
-                N_PA_A = L_AC_A(JDIST_PA_A)
-                DO JDIST_PA_B = 1, NDIST_PA_B
-*. Length and offset for distribution relative to start of TS block
-                  IF(JDIST_PA_B .EQ.1 ) THEN
-                    IB_PA_B = 1
-                  ELSE
-                    IB_PA_B = IB_PA_B + L_AC_B(JDIST_PA_B-1)
-                  END IF
-                  N_PA_B = L_AC_A(JDIST_PA_B)
-*. Offset in original unsorted strings - and lengths  
-       WRITE(6,*) ' NBSTSMGP3 '
-       CALL IWRTMA(NBSTSMGP,NSMST,NGAS,MXPOBS,NGAS)
-       WRITE(6,*) 'NBSTSMGP(1,1) = ' , NBSTSMGP(1,1)
-                  DO J_AC_A = 1, NACA
-                    IAORIG(IACA(J_AC_A))= 
-     &              IDIST_AC_A((JDIST_AC_A-1)*NACA+J_AC_A)
-                    LA_DIST(IACA(J_AC_A)) = 
-     &              NASTSMGP(IAORIG(IACA(J_AC_A)),IACA(J_AC_A))
-                  END DO
-                  DO J_PA_A = 1, NPAA
-                    IAORIG(IPAA(J_PA_A))= 
-     &              IDIST_PA_A((JDIST_PA_A-1)*NPAA+J_PA_A)
-                    LA_DIST(IPAA(J_PA_A)) = 
-     &              NASTSMGP(IAORIG(IPAA(J_PA_A)),IPAA(J_PA_A))
-                  END DO
-       WRITE(6,*) '2 : NBSTSMGP(1,1) = ' , NBSTSMGP(1,1)
-                  DO J_AC_B = 1, NACB
-                    IBORIG(IACB(J_AC_B))= 
-     &              IDIST_PA_B((JDIST_AC_B-1)*NACB+J_AC_B)
-                    LB_DIST(IACB(J_AC_B)) = 
-     &              NBSTSMGP(IBORIG(IACB(J_AC_B)),IACB(J_AC_B))
-                    write(6,*) ' IBORIG IACB NBSTSMGP '
-                    WRITE(6,*) IBORIG(IACB(J_AC_B)),IACB(J_AC_B),
-     &              NBSTSMGP(IBORIG(IACB(J_AC_B)),IACB(J_AC_B))
-                  END DO
-                  DO J_PA_B = 1, NPAB
-                    IBORIG(IPAA(J_PA_B))= 
-     &              IDIST_PA_B((JDIST_PA_B-1)*NPAB+J_PA_B)
-                    LB_DIST(IPAB(J_PA_B)) = 
-     &              NBSTSMGP(IBORIG(IPAB(J_PA_B)),IPAB(J_PA_B))
-                    write(6,*) ' IBORIG IPAB NBSTSMGP '
-                    WRITE(6,*) IBORIG(IPAB(J_PA_B)),IPAB(J_PA_B),
-     &              NBSTSMGP(IBORIG(IPAB(J_PA_B)),IPAB(J_PA_B))
-                  END DO
-       WRITE(6,*) '3 : NBSTSMGP(1,1) = ' , NBSTSMGP(1,1)
-*
-                  IF(NTEST.GE.100) THEN
-                    WRITE(6,*) ' JDIST_AC_A, JDIST_AC_B',
-     &                           JDIST_AC_A, JDIST_AC_B
-                    WRITE(6,*) ' JDIST_PA_A, JDIST_PA_B',
-     &                           JDIST_PA_A, JDIST_PA_B
-                    
-                    WRITE(6,*) ' IAORIG : '
-                    CALL IWRTMA(IAORIG,1,NGAS,1,NGAS)
-                    WRITE(6,*) ' IBORIG : '
-                    CALL IWRTMA(IBORIG,1,NGAS,1,NGAS)
-*
-                    WRITE(6,*) ' LA_DIST and LB_DIST'
-                    CALL IWRTMA(LA_DIST,1,NGAS,1,NGAS)
-                    CALL IWRTMA(LB_DIST,1,NGAS,1,NGAS)
-                  END IF
-*. Offsets to these distributions in original order
-                  IIB_ORIG_A =   IOFF_SYM_DIST
-     &                           (IAORIG,NGASLA,IOFFA,MXVL_A,MNVL_A)
-                  IIB_ORIG_B =   IOFF_SYM_DIST
-     &                           (IBORIG,NGASLB,IOFFB,MXVL_B,MNVL_B)
-*. Obtain reordering of strings, reordered order => Original order
-                  CALL REPART_NORD_MAT(NGAS,LA_DIST,NPAA,IPAA,
-     &                                 NACA,IACA,IREO_A)
-                  CALL REPART_NORD_MAT(NGAS,LB_DIST,NPAB,IPAB,
-     &                                 NACB,IACB,IREO_B)
-*
-*. And loop over strings
-*. This follwoing is not correct, but I do not want to think about this pt
-                  I_AC_B_ABS = 0
-                  I_AC_A_ABS = 0
-                  I_PA_A_ABS = 0
-                  I_PA_B_ABS = 0
-*
-                  DO I_AC_B = 1, L_AC_B(JDIST_AC_B)
-                   I_AC_B_ABS = I_AC_B_ABS + IB_AC_B
-                   DO I_AC_A = 1, L_AC_A(JDIST_AC_A)
-                    I_AC_A_ABS = I_AC_A_ABS + IB_AC_A
-                    DO I_PA_B = 1, L_PA_B(JDIST_PA_B)
-                     I_PA_B_ABS = I_PA_B_ABS + IB_PA_B
-                     DO I_PA_A = 1, L_PA_A(JDIST_PA_A)
-                      I_PA_A_ABS = I_PA_A_ABS + IB_PA_A
-*. reordered: C(I_PA_A,I_PA_B,I_AC_A,I_AC_B)
-                      I_REO_ADR= I_PA_A  
-     &                         + (I_PA_B-1)*N_PA_A
-     &                         + (I_AC_A-1)*N_PA_A*N_PA_B
-     &                         + (I_AC_B-1)*N_PA_A*N_PA_B*N_AC_A 
-     &                         + IB_REO - 1
-*. Offset in original order
-                      IORIG_A = IREO_A((I_AC_A-1)*N_PA_A+I_PA_A)
-     &                        + IIB_ORIG_A-1
-                      IORIG_B = IREO_B((I_AC_B-1)*N_PA_B+I_PA_B)
-     &                        + IIB_ORIG_B-1
-                      I_ORIG_ADR = (IORIG_B-1)*NASTR + IORIG_A
-*
-                      IF(IWAY.EQ.1) THEN
-                       CREO(I_REO_ADR) = CORIG(I_ORIG_ADR)
-                      ELSE
-                       CORIG(I_ORIG_ADR) = CREO(I_ORIG_ADR)
-                      END IF
-*
-                     END DO
-*                    ^ End of loop over I_PA_A
-                    END DO
-*                   ^ End of loop over I_PA_B
-                   END DO
-*                  ^ End of loop over I_AC_A        
-                  END DO
-*                 ^ End of loop over I_AC_B
-                END DO
-*               ^ End of loop over distributions of passive beta strings
-              END DO
-*             ^ End of loop over distributions of passive alpha strings
-            END DO
-*           ^ End of loop over distributions of active beta strings
-          END DO
-*         ^ End of loop over distributions of active alpha strings
-        END DO
-*       ^ End of loop over symmetry of active alpha strings
-*       \/ Update pointer to start of given symmetry blocks of reordered matrix
-      END DO
-*     ^ End of loop over symmetry of active alpha*active beta
-                
-                   
- 
-      RETURN
-      END
       SUBROUTINE EXCCLS2(NCLS,IACTIN,IACTOUT,IEXC,
      &                   IBASSPC_MX,IBASSPC)
 * A set of classes ICLS are given with the active
@@ -9567,6 +7087,9 @@ C              SYM_DIST_FOR_SPGRP(IGRP,NGRP,ISM,NDIST,IDIST,LDIST,LENGTH,MXDIST)
 *
 *. Last modification; Nov. 3, 2012; Jeppe Olsen, Aligning with current code
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *. Input
       DIMENSION IACTIN(NCLS)
@@ -9664,31 +7187,6 @@ C        CALL IWRTMA(IACTOUT,NCLS,1,NCLS,1)
       END IF
 *
       RETURN
-      END
-      SUBROUTINE EXCCLS(NCLS,IACTIN,IACTOUT,IEXC)
-* A set of classes ICLS are given with the active
-* classes indicated by nonvanishing elements in IACTIN.
-*
-* Obtain classes that can be obtained by atmost IEXC excitations
-*
-* Master routine
-*
-* Jeppe Olsen, June 1997
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-*. Input
-      DIMENSION IACTIN(NCLS)
-*. Output
-      DIMENSION IACTOUT(NCLS)
-*. From the common blocks
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'cgas.inc'
-*
-      CALL EXCCLS_S(NGAS,WORK(KLOCCLS),NCLS,IACTIN,IACTOUT,IEXC)
-*
-      RETURN 
       END
 *
       SUBROUTINE EXCCLS_S(NGAS,ICLS,NCLS,IACTIN,IACTOUT,IEXC)      
@@ -10121,104 +7619,6 @@ C?    write(6,*) ' FRMDSCN3: Number of records to be read', NREC
 *
       RETURN
       END 
-      SUBROUTINE GET_H1AO_LUCIA(LABEL,H1,LUH)
-*
-*
-* Obtain property integrals with LABEL LABEL from LU91,
-* LUCIA format
-*
-* Jeppe Olsen, Feb.98 
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'crun.inc'
-C     CHARACTER*1 XYZ(3)
-C     DATA XYZ/'X','Y','Z'/
-      CHARACTER*8 LABEL, LABEL2, LABELX
-*. Output
-      DIMENSION H1(*)
-*
-* Structure of file 
-* 1 : Number of syms
-* 2 : NMO's per sym
-* 3 : NAO's per SYM
-* 4 : Number of elements in CMOAO
-* 4 : CMOAO-expansion matrix (in symmetry packed form)
-* 5 : Number of property AO lists 
-*     Loop over number of properties
-*     Label, offset and length of each proprty list
-*
-*     Property integrals for prop1,prop2 ...
-*
-* Note : CMOAO and property integrals written in form 
-*     given by ONEEL_MAT_DISC
-*
-* Jeppe Olsen, Feb. 98
-*
-      IDUM = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GETH1A')
-*
-*. DIPOLE => DIPLEN
-      IF(LABEL(1:6).EQ.'DIPOLE') THEN
-        LABELX = 'DIPLEN  '
-      ELSE
-        LABELX = LABEL
-      END IF
-*
-      CALL REWINO(LUH)
-*. Skip Number of orbital symmetries
-      READ (LUH,*) NSMOB
-*. Skip Number of MO's per symmetry
-      READ (LUH,*) (NMOS_ENV(ISM),ISM=1,NSMOB)
-*. Skip Number of AO's per symmetry
-      READ (LUH,*) (NAOS_ENV(ISM),ISM=1,NSMOB)
-*. Length of CMO-AO expansion
-      READ(LUH,*) LENGTH
-*. And skip 
-      DO IJ = 1, LENGTH
-        READ(LUH,'(E22.15)') 
-      END DO
-*. Total number of properties ( 3 for each rank1, 6 for each rank 2)
-      READ(LUH,*) NPROP_COMP
-      IFOUND = 0
-C     WRITE(6,*) ' NPROP_COMP = ', NPROP_COMP
-      DO IPROP_COM = 1, NPROP_COMP
-        READ(LUH,'(A,I6,I6)') LABEL2,IOFF,LENGTH
-        IF(LABEL2.EQ.LABELX) THEN
-          IOFFA = IOFF
-          LENGTHA = LENGTH
-          IFOUND = 1
-        END IF
-      END DO
-      IF(IFOUND.EQ.0) THEN
-        WRITE(6,*) ' Label not found on file 91'
-        WRITE(6,'(A,A)' ) ' Label = ', LABELX
-        STOP ' Label not found on file 91'
-      END IF
-*. Skip to start of integrals
-C     WRITE(6,*) ' IOFFA, LENGTHA ', IOFFA,LENGTHA
-      DO IJ = 1, IOFFA - 1
-        READ(LUH,*)
-      END DO
-*. and read
-      CALL SYM_FOR_OP(LABEL,IXYZSYM,IOPSM)
-      CALL ONEEL_MAT_DISC(H1,IOPSM,NSMOB,
-     &                    NAOS_ENV,NAOS_ENV,LUH,1)
-C          ONEEL_MAT_DISC(H,IHSM,NSM,NRPSM,NCPSM,LUH,IFT)
-*
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Property integrals read in '
-        CALL PRHONE(H1,NAOS_ENV,IOPSM,NSMOB,0)
-C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
-      END IF
-*
-      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'GETH1A')
-      RETURN
-      END 
 *
 * Obtain property integrals with LABEL LABEL from LU91,
 * LUCIA format
@@ -10238,6 +7638,9 @@ C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'orbinp.inc'
@@ -10250,8 +7653,8 @@ c      INCLUDE 'mxpdim.inc'
 *
       IF(ENVIRO(1:6).EQ.'DALTON'.OR.ENVIRO(1:5).EQ.'LUCIA') THEN 
         LSCR = NTOOB**2
-        CALL MEMMAN(KLSCR,LSCR,'ADDL  ',2,'GTH1SC')
-        CALL GET_H1AO_DALTON(LABEL,H1AO,IHSM,WORK(KLSCR),NBAS,NSMOB,
+        CALL MEMMAN(KLSCR,LSCR,'ADDL  ',2,'GTH1SC') !done
+        CALL GET_H1AO_DALTON(LABEL,H1AO,IHSM,dbl_mb(KLSCR),NBAS,NSMOB,
      &                       IPERMSM)
 C            GET_H1AO_DALTON(LABEL,H1AO,IHSM,SCR,NBAS,NSM,IPERMSM)
 C!!   ELSE IF (ENVIRO(1:5).EQ.'LUCIA') THEN 
@@ -10353,6 +7756,9 @@ C       WRITE(6,*) ' IHSM,IRSM,ICSM', IHSM,IRSM,ICSM
 *. It is assumed that overlap matrix over AO's are in WORK(KSAO)
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -10389,9 +7795,9 @@ c      INCLUDE 'mxpdim.inc'
 C?    WRITE(6,*) ' Entering DUMP_1EL_INFO '
 *. A scratch block of length NTOOB ** 2
       LSCR = NTOOB ** 2
-      CALL MEMMAN(KLSCR,LSCR,'ADDL  ',2,'DUMPSC')
+      CALL MEMMAN(KLSCR,LSCR,'ADDL  ',2,'DUMPSC') !done
 *. An additional scratch block
-      CALL MEMMAN(KLSCR2,3*LSCR,'ADDL  ',2,'DMPSC2')
+      CALL MEMMAN(KLSCR2,3*LSCR,'ADDL  ',2,'DMPSC2') !done
 *
       CALL REWINO(LUH)
 *. Number of orbital symmetries
@@ -10475,10 +7881,10 @@ C             GET_PROP_RANK(PROPER,IRANK)
          LABEL = PROPER(IPROP)//'  '
          IF(IRANK.EQ.0) THEN
 CE         CALL GET_H1AO(LABEL,WORK(KLSCR),1,NAOS_ENV)
-           CALL GET_PROPINT(WORK(KLSCR),1,LABEL,WORK(KLSCR2),
+           CALL GET_PROPINT(dbl_mb(KLSCR),1,LABEL,dbl_mb(KLSCR2),
      &                      NMOS_ENV,NAOS_ENV,NSMOB,0,IPERMSM) 
 C               GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW)
-           CALL ONEEL_MAT_DISC(WORK(KLSCR),1,NSMOB,NAOS_ENV,
+           CALL ONEEL_MAT_DISC(dbl_mb(KLSCR),1,NSMOB,NAOS_ENV,
      &          NAOS_ENV,LUH,2)
          ELSE IF(IRANK.EQ.1) THEN
            DO ICOMP = 1, 3
@@ -10490,10 +7896,10 @@ C               GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW)
              END IF
              CALL SYM_FOR_OP(LABEL,IXYZSYM,IOPSM)
 CE           CALL GET_H1AO(LABEL,WORK(KLSCR),IOPSM,NAOS_ENV)
-             CALL GET_PROPINT(WORK(KLSCR),IOPSM,LABEL,WORK(KLSCR2),
+             CALL GET_PROPINT(dbl_mb(KLSCR),IOPSM,LABEL,dbl_mb(KLSCR2),
      &                        NMOS_ENV,NAOS_ENV,NSMOB,0,IPERMSM)
 C            GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW)
-             CALL ONEEL_MAT_DISC(WORK(KLSCR),IOPSM,NSMOB,
+             CALL ONEEL_MAT_DISC(dbl_mb(KLSCR),IOPSM,NSMOB,
      &            NAOS_ENV,NAOS_ENV,LUH,2)
            END DO
          ELSE IF (IRANK.EQ.2) THEN
@@ -10502,10 +7908,10 @@ C            GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW)
                LABEL = XYZ(JCOMP)//XYZ(ICOMP)//PROPER(IPROP)
                CALL SYM_FOR_OP(LABEL,IXYZSYM,IOPSM)
 C     GET_PROPINT(H,IHSM,LABEL,SCR,NMO,NBAS,NSM,ILOW)
-           CALL GET_PROPINT(WORK(KLSCR),IOPSM,LABEL,WORK(KLSCR2),
+           CALL GET_PROPINT(dbl_mb(KLSCR),IOPSM,LABEL,dbl_mb(KLSCR2),
      &                      NMOS_ENV,NAOS_ENV,NSMOB,0,IPERMSM)
 CE             CALL GET_H1AO(LABEL,WORK(KLSCR),IOPSM,NAOS_ENV)
-               CALL ONEEL_MAT_DISC(WORK(KLSCR),IOPSM,NSMOB,
+               CALL ONEEL_MAT_DISC(dbl_mb(KLSCR),IOPSM,NSMOB,
      &              NAOS_ENV,NAOS_ENV,LUH,2)
              END DO
            END DO
@@ -11091,6 +8497,9 @@ C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'multd2h.inc'
@@ -11121,18 +8530,18 @@ c      INCLUDE 'mxpdim.inc'
       LHONE = NTOOB * NTOOB
       IF(NTEST.GE.100)
      & WRITE(6,*) ' Max size of one-electron operator',LHONE
-      CALL MEMMAN(KLHONE,LHONE,'ADDL  ',2,'KLHONE') 
-      CALL MEMMAN(KLCMO,LHONE,'ADDL  ',2,'KLCMO ') 
-      CALL MEMMAN(KLRHO1S,LHONE,'ADDL  ',2,'LRHO1S') 
-      CALL MEMMAN(KLSCR,4*LHONE,'ADDL  ',2,'KLCMO ') 
+      CALL MEMMAN(KLHONE,LHONE,'ADDL  ',2,'KLHONE') !done
+      CALL MEMMAN(KLCMO,LHONE,'ADDL  ',2,'KLCMO ') !nu
+      CALL MEMMAN(KLRHO1S,LHONE,'ADDL  ',2,'LRHO1S') !done
+      CALL MEMMAN(KLSCR,4*LHONE,'ADDL  ',2,'KLCMO ') !done
 *. Natural orbital expansion
-      CALL MEMMAN(KLXNAT,LHONE,'ADDL  ',2,'XNAT  ')
+      CALL MEMMAN(KLXNAT,LHONE,'ADDL  ',2,'XNAT  ') !done
 *. Integrals in natural orbital basis
-      CALL MEMMAN(KLHNAT,LHONE,'ADDL  ',2,'HNAT  ')
+      CALL MEMMAN(KLHNAT,LHONE,'ADDL  ',2,'HNAT  ') !done
 *. Diagonal of integrals in natorb basis
-      CALL MEMMAN(KLHDIA,NTOOB,'ADDL  ',2,'HDIA  ')
+      CALL MEMMAN(KLHDIA,NTOOB,'ADDL  ',2,'HDIA  ') !done
 *. Occupation numbers
-      CALL MEMMAN(KLOCC,NTOOB,'ADDL  ',2,'OCCNUM')
+      CALL MEMMAN(KLOCC,NTOOB,'ADDL  ',2,'OCCNUM') !done
 *
 *
 *. Assumed symmetry for one-electron density- 
@@ -11140,7 +8549,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IRHO1SM = 1
 *. Extract symmetry blocks from complete one-electron density 
-      CALL REORHO1(WORK(KRHO1),WORK(KLRHO1S),IRHO1SM,1)
+      CALL REORHO1(WORK(KRHO1),dbl_mb(KLRHO1S),IRHO1SM,1)
 *. Number of elements in symmetry blocks of integrals and density
       LRHO1S = 0
       DO ISM = 1, NSMOB
@@ -11153,9 +8562,9 @@ c      INCLUDE 'mxpdim.inc'
 *. Natural orbitals
       IF(I_EXP_OR_TRA.EQ.1.AND.IPRPRO.GE.5) THEN
         CALL NATORB(WORK(KRHO1),NSMOB,NTOOBS,NACOBS,NINOBS,
-     &              IREOST,WORK(KLXNAT),
-     &              WORK(KLHNAT),WORK(KLOCC),NACOB,
-     &              WORK(KLSCR),IPRDEN)
+     &              IREOST,dbl_mb(KLXNAT),
+     &              dbl_mb(KLHNAT),dbl_mb(KLOCC),NACOB,
+     &              dbl_mb(KLSCR),IPRDEN)
       END IF
 C     WRITE(6,*) ' memchk 1 '
 C     CALL MEMCHK
@@ -11191,8 +8600,8 @@ C       GET_PROP_PERMSM(PROPER,IPERMSM)
               IF(NTEST.GE.100)
      & WRITE(6,'(A,A)') ' Label ', LABEL
 *. Obtain one-electron integrals
-              CALL GET_PROPINT(WORK(KLHONE),IRHO1SM,LABEL,
-     &             WORK(KLSCR),NTOOBS,NTOOBS,NSMOB,0,IPERMSM)
+              CALL GET_PROPINT(dbl_mb(KLHONE),IRHO1SM,LABEL,
+     &             dbl_mb(KLSCR),NTOOBS,NTOOBS,NSMOB,0,IPERMSM)
 *. Testing Hartree-Fock response
               IIITEST = 0
               IF(IIITEST.EQ.1) THEN 
@@ -11202,16 +8611,16 @@ C       GET_PROP_PERMSM(PROPER,IPERMSM)
                 WRITE(6,*) ' Hartree-Fock Linear Response '
                 WRITE(6,*) ' Hartree-Fock Linear Response '
                 WRITE(6,*) ' Hartree-Fock Linear Response '
-                CALL LIN_RESP(WORK(KLHONE),1,WORK(KLHONE),1)
+                CALL LIN_RESP(dbl_mb(KLHONE),1,dbl_mb(KLHONE),1)
               END IF
 *
 
 *. and then : Expectation value
-              EXPVAL = INPROD(WORK(KLRHO1S),WORK(KLHONE),LRHO1S)
+              EXPVAL = INPROD(dbl_mb(KLRHO1S),dbl_mb(KLHONE),LRHO1S)
               WRITE(6,'(A,A,E22.14)')
      &        ' Expectation value of ',LABEL,  EXPVAL
               IF(IIRELAX.EQ.1) THEN
-                RELAVAL = INPROD(RELDEN,WORK(KLHONE),LRHO1S)
+                RELAVAL = INPROD(RELDEN,dbl_mb(KLHONE),LRHO1S)
                 WRITE(6,'(A,A,E22.14)')
      &          ' Expectation + relaxation term of ',LABEL,  
      &          EXPVAL+RELAVAL 
@@ -11220,12 +8629,13 @@ C       GET_PROP_PERMSM(PROPER,IPERMSM)
               IF(I_EXP_OR_TRA.EQ.1.AND.IPRPRO.GE.5) THEN
 *. Analysis in terms of natural orbitals
 *. Transform  integrals to nat orb basis
-               CALL TRAN_SYM_BLOC_MAT2(WORK(KLHONE),WORK(KLXNAT),
-     &              NSMOB,NTOOBS,WORK(KLHNAT),WORK(KLSCR),0)
+               CALL TRAN_SYM_BLOC_MAT2(dbl_mb(KLHONE),dbl_mb(KLXNAT),
+     &              NSMOB,NTOOBS,dbl_mb(KLHNAT),dbl_mb(KLSCR),0)
 *. Extract diagonal integrals
-               CALL GET_DIAG_BLOC_MAT(WORK(KLHNAT),WORK(KLHDIA),
+               CALL GET_DIAG_BLOC_MAT(dbl_mb(KLHNAT),dbl_mb(KLHDIA),
      &              NSMOB,NTOOBS,0)
-               CALL PROP_NATORB(WORK(KLHDIA),WORK(KLOCC),NTOOBS,NSMOB)
+               CALL PROP_NATORB(dbl_mb(KLHDIA),dbl_mb(KLOCC),NTOOBS,
+     &              NSMOB)
               END IF
 *
             END IF
@@ -11245,24 +8655,24 @@ C       GET_PROP_PERMSM(PROPER,IPERMSM)
 *. Obtain one-electron integrals
 C               WRITE(6,*) ' memchk 2'
 C               CALL MEMCHK
-                CALL GET_PROPINT(WORK(KLHONE),IRHO1SM,LABEL,
-     &               WORK(KLSCR),NTOOBS,NTOOBS,NSMOB,0,IPERMSM)
+                CALL GET_PROPINT(dbl_mb(KLHONE),IRHO1SM,LABEL,
+     &               dbl_mb(KLSCR),NTOOBS,NTOOBS,NSMOB,0,IPERMSM)
 *. and then : Expectation value
-                EXPVAL = INPROD(WORK(KLRHO1S),WORK(KLHONE),LRHO1S)
+                EXPVAL = INPROD(dbl_mb(KLRHO1S),dbl_mb(KLHONE),LRHO1S)
                 WRITE(6,'(A,A,E22.14)')
      &          ' Expectation value of ',LABEL,  EXPVAL
 *
                 IF(I_EXP_OR_TRA.EQ.1.AND.IPRPRO.GE.5) THEN
 *. Analysis in terms of natural orbitals
 *. Transform  integrals to nat orb basis
-                 CALL TRAN_SYM_BLOC_MAT2(WORK(KLHONE),WORK(KLXNAT),
-     &                NSMOB,NTOOBS,WORK(KLHNAT),WORK(KLSCR),0)
+                 CALL TRAN_SYM_BLOC_MAT2(dbl_mb(KLHONE),dbl_mb(KLXNAT),
+     &                NSMOB,NTOOBS,dbl_mb(KLHNAT),dbl_mb(KLSCR),0)
 C                WRITE(6,*) ' memchk 3'
 C                CALL MEMCHK
 *. Extract diagonal integrals
-                 CALL GET_DIAG_BLOC_MAT(WORK(KLHNAT),WORK(KLHDIA),
+                 CALL GET_DIAG_BLOC_MAT(dbl_mb(KLHNAT),dbl_mb(KLHDIA),
      &                NSMOB,NTOOBS,0)
-                 CALL PROP_NATORB(WORK(KLHDIA),WORK(KLOCC),
+                 CALL PROP_NATORB(dbl_mb(KLHDIA),dbl_mb(KLOCC),
      &                NTOOBS,NSMOB)
                 END IF
 *
@@ -11296,6 +8706,9 @@ C               CALL MEMCHK
       IMPLICIT REAL*8(A-H,O-Z)
 *. Input
       DIMENSION NMO(*),NBAS(*)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'multd2h.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
@@ -11713,6 +9126,7 @@ C    &             NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
       RETURN
       END
       SUBROUTINE TRADEN(I12,RHO1,RHO2,NL,NR,LUL,LUR)
+c..dongxia: currently this subroutine is not used.
 *
 * Transition density matrices between the NL states stored on LUL
 * and the NR states stored on LUR
@@ -12158,7 +9572,9 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *                            - GSBBD2A
 *                            - GSBBD2B
 
-
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc' 
       REAL*8 INPRDD
 *
@@ -12256,18 +9672,20 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       IF(ISFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTEST,NSBLOCK,NSBATCH,
-     &       WORK(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
-     &       WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
-     &       WORK(KSIBT),
-     &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
+     &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
+     $       dbl_mb(KSIOCCLS_ACT),
+     &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
+     &       int_mb(KSIBT),
+     &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
       END IF
       IF(ICFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,
-     &       WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
-     &       WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &       WORK(KCIBT),
-     &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
+     &       dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &       int_mb(KCIBT),
+     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
       END IF
 *
 *
@@ -18660,118 +16078,6 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
 *
 *
       CALL QEXIT('GSD2B')
-      RETURN
-      END
-      SUBROUTINE ABEXP(A,IASM,B,IBSM,AB)
-*
-* Evaluate expectation value of product of 
-* two one-electron operators 
-*
-* <0!AB!0> = sym(ijkl) A(ij)B(kl) d(ijkl) + sum(ij) rho1(ij) (AB)(ij)
-*
-* Jeppe Olsem Dec. 4, 2000 in Helsingfors 
-*
-      INCLUDE 'implicit.inc'
-      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc-static.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'multd2h.inc'
-      REAL*8 INPROD
-*
-*. Input, A and B are required to be in symmetrypacked 
-*. complete  form
-      DIMENSION A(*),B(*) 
-*
-      NTEST = 100
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Info from ABEXP '
-        WRITE(6,*) ' =============== '
-      END IF
-*
-      IDUM = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'ABEXP ')
-*. Largest number of orbitals of given sym
-      MXSOB = IMNMX(NTOOBS,NSMOB,2)
-*. Allocate memory     
-      LB_RHO2 = MXSOB**4
-      CALL MEMMAN(KLRHO2B,LB_RHO2,'ADDL  ',2,'RHO2B ')
-      L_VEC = NTOOB**2
-      CALL MEMMAN(KLVEC,L_VEC,'ADDL  ',2,'VEC   ')
-*
-*. Two-electron contributions
-*
-      AB2 = 0.0D0
-      DO ISM = 1,  NSMOB
-        JSM = MULTD2H(ISM,IASM)
-        NI = NTOOBS(ISM)
-        NJ = NTOOBS(JSM)  
-        NIJ = NI*NJ
-*. Offset for symmetryblock A(ISM,JSM)
-        IA_OFF = 1
-        DO IISM = 1, ISM-1 
-          JJSM = MULTD2H(IASM,IISM)
-          IA_OFF = IA_OFF + NTOOBS(IISM)*NTOOBS(JJSM)
-        END DO
-        DO KSM = 1, NSMOB
-          LSM = MULTD2H(KSM,IBSM)
-          NK = NTOOBS(KSM)
-          NL = NTOOBS(LSM)
-          NKL = NK*NL
-*. Offset for symmetryblock B(KSM,LSM)
-          IB_OFF = 1
-          DO KKSM = 1, KSM - 1
-            LLSM = MULTD2H(IBSM,KKSM)
-            IB_OFF = IB_OFF + NTOOBS(KKSM)*NTOOBS(LLSM)
-          END DO 
-*. Fetch RHO2(ISM,JSM,KSM,LSM)
-C         GETD2(RHO2B,ISM,IGAS,JSM,JGAS,KSM,KGAS,LSM,LGAS,ICOUL)
-          CALL GET_D2_SMBLK(WORK(KLRHO2B),ISM,JSM,KSM,LSM)
-* sum(kl) RHO2(ij,kl) B(kl)
-          FACTORC = 0.0D0
-          FACTORAB = 1.0D0
-          ZERO = 0.0D0
-          CALL SETVEC(WORK(KLVEC),ZERO,NIJ)
-          CALL MATML7(WORK(KLVEC),WORK(KLRHO2B),B(IB_OFF),NIJ,1,
-     &                NIJ,NKL,NKL,1,FACTORC,FACTORAB,0)
-*. sum(ij) (A(ij) (sum(kl) RHO2(ij,kl)B(kl) )
-          WRITE(6,*) ' KLVEC: '
-          CALL WRTMAT(WORK(KLVEC),1,NIJ,1,NIJ)
-          AB2 = AB2 + INPROD(A(IA_OFF),WORK(KLVEC),NIJ)
-          WRITE(6,'(A,4I4,E20.12)') 
-     &    ' Two-electron contribution after ISM, JSM, KSM, LSM = ',
-     *    ISM, JSM, KSM, LSM, AB2
-        END DO
-      END DO
-      IF(NTEST.GE.100)
-     &WRITE(6,*) ' Two-electron contribution to <0!AB!0> ', AB2
-*
-*. One-electron part
-*
-* AB(IJ) RHO1(IJ)
-C     MULT_H1H2(H1,IH1SM,H2,IH2SM,H12,IH12SM)
-*. Yes there is space for a matrix in KLVEC
-      CALL MULT_H1H2(A,IASM,B,IBSM,WORK(KLVEC),IABSM)
-      AB1 = 0.0D0
-      DO ISM = 1, NSMOB
-        JSM = MULTD2H(ISM,IABSM)
-        NI = NTOOBS(ISM) 
-        NJ = NTOOBS(JSM)
-        NIJ = NI*NJ
-*. Obtain density RHO1(ISM,JSM)
-        CALL GET_D1_SMBLK(WORK(KLRHO2B),ISM,JSM)
-        IH12_OF = IB_H1(ISM,IABSM,NTOOBS,NTOOBS)
-C                 IB_H1(ISM,IHSM,NR,NC) 
-        AB1 = AB1 + INPROD(WORK(KLRHO2B),
-     &                     WORK(KLVEC-1+IH12_OF),NIJ)
-      END DO
-      IF(NTEST.GE.100)
-     &WRITE(6,*) ' One-electron contribution to <0!AB!0> ', AB1
-*
-      AB = AB1 + AB2
-      IF(NTEST.GE.100) WRITE(6,*) ' <0!AB!0> = ', AB
-*
-      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'ABEXP ')
       RETURN
       END
       SUBROUTINE ADVICE_SIGMA3(IAOCC,IBOCC,JAOCC,JBOCC,ITERM,LADVICE,
