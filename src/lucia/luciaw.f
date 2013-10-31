@@ -84,8 +84,8 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
      &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 *. Space for strings
       IF(NOCSF.EQ.1) THEN
-        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
+        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR') !done
+        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR') !done
 *. 
 C       GET_MINMAX_ADR_IN_CISPACE_SD(
 C    &           IADR,NDET_UT,MINAC,MAXAC,MINMAX_ORB,NSSOA,NSSOB,NOCTPA,NOCTPB,
@@ -380,8 +380,8 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 *. Space for strings
-        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')
-        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')
+        CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR') !done
+        CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR') !done
 *. 
         CALL GET_IAIB_FOR_SEL_DETS_IN(
      &           ISEL,NSEL,IA,IB,int_mb(KNSTSO(IATP)),
@@ -578,9 +578,9 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
 *. Obtain subspace from lowest elements of CI diagonal
 *
 *. Local scratch
-        CALL MEMMAN(KL1,3*(MXDM+1),'ADDL  ',1,'KL1   ')
-        CALL MEMMAN(KL2,2*(MXDM+1),'ADDL  ',2,'KL2   ')
-        CALL MEMMAN(KL3,2*(MXDM+1),'ADDL  ',2,'KL3   ')
+        CALL MEMMAN(KL1,3*(MXDM+1),'ADDL  ',1,'KL1   ')  !done
+        CALL MEMMAN(KL2,2*(MXDM+1),'ADDL  ',2,'KL2   ')  !done
+        CALL MEMMAN(KL3,2*(MXDM+1),'ADDL  ',2,'KL3   ')  !done
         WRITE(6,*) ' MXDM, KL1, KL2, KL3 = ', KL1, KL2, KL3
         LBLK = -1
 *. And determine total subspace space 
@@ -787,8 +787,8 @@ COLD &           IASTR,IBSTR,IBLTP,NSMST,
 COLD &           NGAS,NORB,NACOB,NINOB)
       IF(NOCSF.EQ.1) THEN
 *. Obtain alpha and beta-strings for the selected determinants
-        CALL MEMMAN(KLIASTR,NPRVAR*NAEL,'ADDL  ',1,'IASTR ')
-        CALL MEMMAN(KLIBSTR,NPRVAR*NBEL,'ADDL  ',1,'IBSTR ')
+        CALL MEMMAN(KLIASTR,NPRVAR*NAEL,'ADDL  ',1,'IASTR ') !done
+        CALL MEMMAN(KLIBSTR,NPRVAR*NBEL,'ADDL  ',1,'IBSTR ') !done
 C       GET_IAIB_FOR_SEL_DETS(ISM,ISPC,ISEL,NSEL,IA,IB)
         CALL GET_IAIB_FOR_SEL_DETS(ISM,ISPC,ISEL,NPRVAR,
      &        int_mb(KLIASTR),int_mb(KLIBSTR))
@@ -807,7 +807,7 @@ C    &   NTOOB,RJ,RK)
         ELSE
           ICOMBI_L = 0
         END IF
-        CALL MEMMAN(KLSCR,LSCR,'ADDL  ',1,'LSCR  ')
+        CALL MEMMAN(KLSCR,LSCR,'ADDL  ',1,'LSCR  ')  !done
         XRJ = -1.0D0
         XRK = -1.0D0
 *. In DIHDJ2 it is assumed that the I-and J-strings are in different 
@@ -817,8 +817,8 @@ C    &   NTOOB,RJ,RK)
           KLJASTR = KLIASTR
           KLJBSTR = KLIBSTR
         ELSE
-          CALL MEMMAN(KLJASTR,NPRVAR*NAEL,'ADDL  ',1,'LJASTR')
-          CALL MEMMAN(KLJBSTR,NPRVAR*NBEL,'ADDL  ',1,'LJBSTR')
+          CALL MEMMAN(KLJASTR,NPRVAR*NAEL,'ADDL  ',1,'LJASTR') !done
+          CALL MEMMAN(KLJBSTR,NPRVAR*NBEL,'ADDL  ',1,'LJBSTR') !done
           CALL ICOPVE(int_mb(KLIASTR),int_mb(KLJASTR),NPRVAR*NAEL)
           CALL ICOPVE(int_mb(KLIBSTR),int_mb(KLJBSTR),NPRVAR*NBEL)
         END IF
@@ -841,8 +841,8 @@ C            CNHCN_FOR_CNLIST(ICNOCC,ICNOP,NCN,HCSF,ISCR,SCR,RJ,RK)
         WRITE(6,*) ' NOP_MAX, NPDT_MAX = ',  NOP_MAX, NPDT_MAX
         LISCR = 2*NPDT_MAX*NACTEL + NPDT_MAX + 6*NACOB
         LRSCR = 2*NPDT_MAX**2
-        CALL MEMMAN(KLISCR,LISCR,'ADDL  ',1,'CNISCR')
-        CALL MEMMAN(KLRSCR,LRSCR,'ADDL  ',2,'CNRSCR')
+        CALL MEMMAN(KLISCR,LISCR,'ADDL  ',1,'CNISCR') !done
+        CALL MEMMAN(KLRSCR,LRSCR,'ADDL  ',2,'CNRSCR') !done
 C?      WRITE(6,*) ' NCONF_SUB(2) = ', NCONF_SUB
         CALL CNHCN_FOR_CNLIST(int_mb(KSBCNFOCC),int_mb(KSBCNFOP),
      &       NCONF_SUB,H0,int_mb(KLISCR),dbl_mb(KLRSCR),XRJ,XRK)
@@ -860,7 +860,7 @@ C            CNHCN_FOR_CNLIST(ICNOCC,ICNOP,NCN,HCSF,ISCR,SCR,RJ,RK)
       CALL TRIPAK(EIGVEC,H0,2,NPRVAR,NPRVAR)
 C          TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 *. and diagonalize
-      CALL MEMMAN(KLSCRVEC,NSEL,'ADDL  ',2,'SCRVEC')
+      CALL MEMMAN(KLSCRVEC,NSEL,'ADDL  ',2,'SCRVEC') !done
 C          DIAG_SYMMAT_EISPACK(A,EIGVAL,SCRVEC,NDIM,IRETURN)
       CALL DIAG_SYMMAT_EISPACK(EIGVEC,EIGVAL,dbl_mb(KLSCRVEC),NPRVAR,
      &     IRETURN)
@@ -983,7 +983,7 @@ C KNCN_PER_OP_SM
       NCSF_MAX = NPCSCNF(IOP_MAX+1)
 *. Local memory for a H-matrix over a conf
       LHCNF = NCSF_MAX**2
-      CALL MEMMAN(KLHCNF,LHCNF,'ADDL  ',2,'HCNF  ')
+      CALL MEMMAN(KLHCNF,LHCNF,'ADDL  ',2,'HCNF  ') !done
 *
       IB_OCL = 1
       IB_CSL = 1
