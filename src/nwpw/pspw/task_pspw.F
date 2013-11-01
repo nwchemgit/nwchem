@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 21)
+      parameter (num_dirs = 22)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -34,14 +34,15 @@ c
      >            'pspw_dplot',
      >            'stress',
      >            'noit_energy',
-     > 		  'wannier',
+     >            'wannier',
      >            'expand_cell',
      >            'ionize',
      >            'convert_restricted',
      >            'Born-Oppenheimer',
      >            'rdf',
      >            'lcao',
-     >            'pspw_et'/
+     >            'pspw_et',
+     >            'Monte-Carlo'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
@@ -49,11 +50,13 @@ c     *** define external functions ****
       logical  pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       logical  pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
+      logical  cgmontecarlov1
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       external pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
+      external cgmontecarlov1
 c
 c
       value = .false.
@@ -67,7 +70,7 @@ c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
      >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     >       1900, 2000, 2100 ) ind
+     >       1900, 2000, 2100, 2200 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -366,6 +369,29 @@ c
       value = pspw_et(rtdb)
       call ga_sync()
       goto 9999
+
+c
+c  Monte-Carlo
+c
+ 2200 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - Monte-Carlo <<<<"
+      end if
+
+      value = .true.
+      value = rtdb_parallel(.true.)
+      if (.not.rtdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
+     >   md_only = .false.
+
+      if (md_only) then
+         !value = mmmdv1(rtdb,0)
+         value = .false.
+      else
+         value = cgmontecarlov1(rtdb,0)
+      end if
+
+      call ga_sync()
+      goto 9999
+
 
 
  9999 continue
