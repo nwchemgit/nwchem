@@ -9,6 +9,7 @@
 		pspw_bq_gradient.o \
 		pspw_stress.o \
 		cgsdv5.o \
+		cgmontecarlov1.o \
 		cgmdv5.o \
 		mmmdv1.o \
 		cgsd_noit_energy.o \
@@ -32,7 +33,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = cgsdv5.F cgmdv5.F cgsd_energy.F bybminimize.F bybminimize2.F pspw_bq_gradient.F \
+    USES_BLAS = cgsdv5.F cgmdv5.F cgmontecarlov1.F cgsd_energy.F bybminimize.F bybminimize2.F pspw_bq_gradient.F \
             cgminimize.F mmmdv1.F bfgsminimize2.F bfgsminimize3.F md_energy.F \
             cgminimize2.F cgsd_noit_energy.F bfgsminimize.F 
 
