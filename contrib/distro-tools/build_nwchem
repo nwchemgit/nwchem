@@ -1262,7 +1262,7 @@ if [ ${#OLD_GA} -eq 0 ] ; then
         # us run the mpi_threads tests which might happen on a computer service).
         if [ "x${EXP_GA}" != "x" ] ; then
           # use two-sided over MPI
-          export ARMCI_NETWORK="MPI_TS"
+          export ARMCI_NETWORK="MPI-TS"
         else
           # hope and pray...
           export ARMCI_NETWORK="MPI-MT"
@@ -1277,7 +1277,7 @@ if [ ${#OLD_GA} -eq 0 ] ; then
     rm -f ./mpi_threads$$.x ./mpi_threads$$.c
   fi
 # else
-#   OLD_GA is set but GA-4-3 does not implement MPI-MT or MPI_TS
+#   OLD_GA is set but GA-4-3 does not implement MPI-MT or MPI-TS
 fi
 #
 # Below we have to realize that EXPORT is a command. Hence if we use
