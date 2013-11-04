@@ -6203,6 +6203,9 @@ C?      WRITE(6,*) ' GETH1EX, new route '
 * total symmetry of the operator
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
@@ -6221,11 +6224,11 @@ c      INCLUDE 'mxpdim.inc'
 C?        WRITE(6,*) ' GETH1E, old route '
             IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
               GETH1E =
-     &           GTH1ES(IREOTS,WORK(KPINT1),WORK(KINT1),IBSO,MXPNGAS,
+     &           GTH1ES(IREOTS,dbl_mb(KPINT1),WORK(KINT1),IBSO,MXPNGAS,
      &           IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,NINOB)
             ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
               GETH1E =
-     &           GTH1ES(IREOTS,WORK(KPINT1),WORK(KINT1B),IBSO,MXPNGAS,
+     &           GTH1ES(IREOTS,dbl_mb(KPINT1),WORK(KINT1B),IBSO,MXPNGAS,
      &           IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,NINOB)
             ELSE
               WRITE(6,*) 'Impossible I_UNRORB/ISPCAS combination: ',
@@ -6235,14 +6238,14 @@ C?        WRITE(6,*) ' GETH1E, old route '
           ELSE
             IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
               GETH1E =
-     &             GTH1ES(IREOTS,WORK(KPGINT1(IJSM)),WORK(KINT1),IBSO,
+     &             GTH1ES(IREOTS,dbl_mb(KPGINT1(IJSM)),WORK(KINT1),IBSO,
      &             MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,
      &             NINOB)
             ELSE  IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
               GETH1E =
-     &             GTH1ES(IREOTS,WORK(KPGINT1(IJSM)),WORK(KINT1B),IBSO,
-     &             MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,
-     &             NINOB)
+     &             GTH1ES(IREOTS,dbl_mb(KPGINT1(IJSM)),WORK(KINT1B),
+     &             IBSO,MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,
+     &             JTP,JSM,1,NINOB)
             ELSE
               WRITE(6,*) 'Impossible I_UNRORB/ISPCAS combination: ',
      &             I_UNRORB,ISPCAS
@@ -6253,12 +6256,12 @@ C?        WRITE(6,*) ' GETH1E, old route '
 *. Integrals are in full blocked form
           IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
             GETH1E =
-     &      GTH1ES(IREOTS,WORK(KPGINT1A(IJSM)),WORK(KINT1),IBSO,
+     &      GTH1ES(IREOTS,dbl_mb(KPGINT1A(IJSM)),WORK(KINT1),IBSO,
      &         MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,0,
      &         NINOB)
           ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
             GETH1E =
-     &      GTH1ES(IREOTS,WORK(KPGINT1A(IJSM)),WORK(KINT1B),IBSO,
+     &      GTH1ES(IREOTS,dbl_mb(KPGINT1A(IJSM)),WORK(KINT1B),IBSO,
      &           MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,0,
      &         NINOB)
           ELSE
@@ -7903,6 +7906,7 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       INCLUDE 'wrkspc.inc'
@@ -7920,7 +7924,7 @@ COLD &            ISMFTO,IBSO,NTOOB)
 c..dongxia
 c..  work(kpint1) and work(kint1) are static arrays about integrals
 c..  may need to convert to GA. Leave here for the time being.
-      CALL GT1DIS(H1DIA,IREOTS(1),WORK(KPINT1),WORK(KINT1),
+      CALL GT1DIS(H1DIA,IREOTS(1),dbl_mb(KPINT1),WORK(KINT1),
      &            ISMFTO,IBSO,NTOOB)
 *
       RETURN
@@ -8015,49 +8019,6 @@ C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
         WRITE(6,'(A,5I4)') ' JABS, JREO, JORB, JTP, JSM',
      &                       JABS, JREO, JORB, JTP, JSM
         WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,H(IJ)
-      END IF
-*
-      RETURN
-      END
-      FUNCTION GTIJKL_OLD(I,J,K,L)
-*
-* Obtain  integral (I J ! K L )
-* where I,J,K and l refers to active orbitals in
-* Type ordering
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'crun.inc'
-      INCLUDE 'oper.inc'
-*
-      XIJKL = 0.0D0
-      IF(INTIMP .EQ. 2 ) THEN
-*. LUCAS ordering
-        I12S = 0
-        I34S = 0
-        I1234S = 1
-        XIJKL = GIJKLL(IREOTS(1),WORK(KPINT2),WORK(KLSM2),
-     &           WORK(KINT2),
-     &           ISMFTO,IBSO,NACOB,NSMOB,NOCOBS,I,J,K,L)
-      ELSE IF (INTIMP.EQ.1.OR.INTIMP.EQ.5) THEN
-*. MOLCAS OR SIRIUS IMPORT ( I hope integrals are in core !! )
-          IF(I_USE_SIMTRH.EQ.0) THEN
-            XIJKL = GMIJKL(I,J,K,L,WORK(KINT2),WORK(KPINT2))
-          ELSE IF(I_USE_SIMTRH.EQ.1) THEN
-            IADR =  I2EAD_NOCCSYM(IREOTS(I),IREOTS(J),
-     &              IREOTS(K),IREOTS(L),0)
-            XIJKL = WORK(KINT2_SIMTRH-1+IADR)
-          END IF
-      END IF
-      GTIJKL_OLD = XIJKL
-*
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Integral for I,J,K,L = ', I,J,K,L, ' is ', XIJKL
       END IF
 *
       RETURN
@@ -8303,11 +8264,14 @@ cGLM                  Call DaFile(LuTr2,0,Scr,2*lTr2Rec,iDisk)
 * Find adress of integral in LUCIA order 
 *
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
 *
 *
-      I2EAD = I2EADS(IORB,JORB,KORB,LORB,WORK(KPINT2))
+      I2EAD = I2EADS(IORB,JORB,KORB,LORB,dbl_mb(KPINT2))
 *
       RETURN
       END
@@ -9678,6 +9642,9 @@ C              CSUB_FROM_C(C,CSUB,LENSUBS,NSUBTP,ISUBTP,IONLY_DIM)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
@@ -9699,8 +9666,8 @@ c      INCLUDE 'mxpdim.inc'
 *
 *.: Pointers for symmetry blocks of integrals
 *
-      CALL INTPNT(WORK(KPINT1),WORK(KLSM1),
-     &            WORK(KPINT2),WORK(KLSM2))
+      CALL INTPNT(dbl_mb(KPINT1),dbl_mb(KLSM1),
+     &            dbl_mb(KPINT2),dbl_mb(KLSM2))
 *. Pointer for orbital indeces for symmetry blocked matrices
       CALL ORBINH1(WORK(KINH1),WORK(KINH1_NOCCSYM),NTOOBS,NTOOB,NSMOB)
 *
@@ -9720,7 +9687,7 @@ c      INCLUDE 'mxpdim.inc'
         ZERO = 0.0D0
         CALL SETVEC(WORK(KINT1), ZERO, NINT1)
         CALL SETVEC(WORK(KINT2), ZERO, NINT2)
-        CALL GET_QD_INTS(WORK(KINT1),WORK(KINT2),WORK(KPINT1))
+        CALL GET_QD_INTS(WORK(KINT1),WORK(KINT2),dbl_mb(KPINT1))
         INTIMP = 1
        ELSE IF(IDOQD.EQ.0.AND.INTIMP.EQ.1) THEN
 *
@@ -10227,6 +10194,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 * =====
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
@@ -10251,12 +10221,12 @@ c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
 *.0: Pointers to one-integrals, all symmetries, Lower half matrices
       DO ISM = 1, NSMOB
         CALL PNT2DM(1,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
-     &       ISM  ,ISL1,WORK(KPGINT1(ISM)),MXPOBS)
+     &       ISM  ,ISL1,dbl_mb(KPGINT1(ISM)),MXPOBS)
       END DO
 *.0.5: Pointers to one-electron integrals, all symmetries, complete form
       DO ISM = 1, NSMOB
         CALL PNT2DM(0,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
-     &       ISM  ,ISL1,WORK(KPGINT1A(ISM)),MXPOBS)
+     &       ISM  ,ISL1,dbl_mb(KPGINT1A(ISM)),MXPOBS)
       END DO
 *.1: Number of one-electron integrals
       CALL PNT2DM(1,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
@@ -26328,6 +26298,9 @@ C     CHARACTER LINE*80,FMT*40
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'orbinp.inc'
@@ -26346,7 +26319,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLINT2,NINT2,'ADDL  ',2,'LINT2 ')
 C     REO_2INT(XIN,XOUT,IREO_ORB,IJKLOF)
       CALL REO_2INT(WORK(KINT2),WORK(KLINT2),WORK(KLIREO_ORB),
-     &              WORK(KPINT2))
+     &              dbl_mb(KPINT2))
       CALL COPVEC(WORK(KLINT2),WORK(KINT2),NINT2)
 *
 * Reorder one-electron integrals 
@@ -27635,6 +27608,9 @@ C?   &               ISM, NMOS, NAOS, NBLOCK
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -27674,24 +27650,24 @@ c      INCLUDE 'mxpdim.inc'
           IF (I12S.EQ.1.AND.I34S.EQ.1) THEN
             CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                    IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                    WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                    dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
           ELSE
             CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
           END IF
         ELSE IF (I_UNRORB.EQ.0) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.1) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2BB),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.3) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2AB),
