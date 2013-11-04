@@ -1691,6 +1691,9 @@ C?                WRITE(6,*) ' IINT 6 = ', IINT
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. General input
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -1764,7 +1767,7 @@ C             WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
      &        C(IOFF),NI,C(JOFF),NJ,C(KOFF),NK,C(LOFF),NL,WORK(KLBL2))
 *. Transfer symmetry block to integral list
               CALL PUTINT(WORK(KLBL1),0,ISM,0,JSM,0,KSM,0,LSM,
-     &                    0,0,X2INTOUT,WORK(KPINT2))
+     &                    0,0,X2INTOUT,dbl_mb(KPINT2))
 C     PUTINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &                  NOCCSYM,NO12SYM,XOUT)
             END IF
@@ -1960,6 +1963,9 @@ C          WRITE_H1_WITH_INDEX(H1,NSMOB,NOBPSM,LUOUT)
 * The pointers to the MO-AO transformation matrices are in KLC*, so the
 * first transformation matrix is in WORK(KLCI)
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -2067,7 +2073,7 @@ CM   &                     IOFF, JOFF, KOFF, LOFF
               END IF
               ONE = 1.0D0
               CALL GET_2EBLK(WORK(KLBL1),ISM,JSM,KSM,LSM,
-     &        WORK(KPINT2))
+     &        dbl_mb(KPINT2))
 *. Number of output blocks originating from this input block
               CALL PERM_SYM_SSSSBLK(ISM,JSM,KSM,LSM,I12S,I34S,I1234S,
      &                              I12S_A,I34S_A,I1234S_A,NPERM_SSSS,
