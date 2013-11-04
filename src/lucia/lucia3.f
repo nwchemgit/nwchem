@@ -2578,7 +2578,9 @@ C                   IF(MXPKA .GT. 0 .AND. MXKB .GT. MXPKA) MXKB= MXPKA
 *
 c      IMPLICIT REAL*8(A-H,O-Z) 
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *. Input
       INTEGER ITPOP(*),IACOP(*)
@@ -2688,7 +2690,7 @@ C      CALL GTSTTP(KCLS,KEL1,KEL3,KTYPE)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *. Generel input
 c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
+      INCLUDE 'wrkspc.inc' !dma: wrkspc not used.
       INCLUDE 'strbas.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'cgas.inc'
@@ -2731,161 +2733,6 @@ C    &            IGSOCCX(MXPNGAS,2,MXPICI),NCISPC
         WRITE(6,*) ' Output from GTSPGP '
         WRITE(6,*) 
      &   ' IWAY ISPGP IEL ', IWAY,ISPGP,(IEL(IGAS),IGAS = 1, NGAS)
-      END IF
-*
-      RETURN
-      END
-      SUBROUTINE EXTYPM(NCREA,NANNI,LGRP,LTYP,RGRP,RTYP,
-     &                  IORD,IPRNT,NEXTP,IOBTP)
-*
-* Find excitations connecting given type of Left string and 
-* Right Strings. 
-*
-* Group and type of L strings : LGRP,LTYP
-* Group and type of R strings : RGRP,RTYP
-*
-* Interface routine for EXTYP
-* See EXTYP for further definitions of input
-*
-* Jeppe Olsen, 1994
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INTEGER RTYP,RGRP
-      INCLUDE 'strbas.inc'
-*
-C     COMMON/STRBAS/KSTINF,KOCSTR(MXPSTT),KNSTSO(MXPSTT),KISTSO(MXPSTT),
-C    &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
-C    &              KSTREO(MXPSTT),KSTSM(MXPSTT),KSTCL(MXPSTT),
-C    &              KEL1(MXPSTT),KEL3(MXPSTT),KEL123(MXPSTT),
-C    &              KACTP(MXPSTT),
-C    &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
-C    &              KNDMAP(MXPSTT),KNUMAP(MXPSTT)
-*
-      CALL EXTYP(NCREA,NANNI,LTYP,RTYP,WORK(KEL123(LGRP)),
-     &           WORK(KEL123(RGRP)),NOBTP,IORD,IPRNT,
-     &           NEXTP,IOBTP)
-*
-      RETURN
-      END
-      SUBROUTINE EXTYP(NCREA,NANNI,LTYP,RTYP,LEL,REL,
-     &                 NOBTP,IORD,IPRNT,NEXTP,IOBTP)
-*
-* A left string with LEL(I,LTYP) electrons in orbital space I
-* and a right string with REL(I,RTYP) electrons in orbital space 
-* I are given. 
-* These strings should be connected by 
-* an operator string containing first NCREA creation operators and then 
-* NANNI annihilation operators. 
-* Find allowed types of creation and annihilation
-* operators in this operator string
-*
-* =====
-* Input
-* =====
-*
-* NCREA : Number of creation operators in string
-* NANNI : Number of annihilation operators in string
-* LTYP : Type of Left string
-* LEL(I) : Number of electrons in orbital space I in left string
-* RTYP : Type of Right string
-* REL(I) : Number of electrons in orbital space I in Right string
-* NOBTP  : Number of orbital types 
-* IORD   : .NE. 0 => require numbers to be in ascending order 
-*
-* ========
-*  Output
-* ========
-* NEXTP : Number of excitation types generated 
-* IOBTP(IOP,ITP) : Type of orbital in operator I in type ITP
-*
-* Jeppe Olsen, September 1993
-*
-* Never tested, not working !!! ( Se call to NXTNUM)
-*
-      INTEGER RTYP
-      INTEGER LEL(NOBTP,*),REL(NOBTP,*)
-*. Output 
-      INTEGER IOBTP(NCREA+NANNI,*)
-*. Local scratch
-      PARAMETER(MXLOP=20)
-      DIMENSION ISCR(MXLOP),MINVAL(MXLOP),MAXVAL(MXLOP)
-*
-      NOP = NCREA + NANNI
-*
-      NTEST = 0
-      NTEST = MAX(NTEST,IPRNT)
-*
-      IF(NOP.GT.MXLOP) THEN
-        WRITE(6,*) ' Waw, you are advanced !! '
-        WRITE(6,*) ' Unfortunately I ( subroutine EXTYP )'
-        WRITE(6,*) ' Can only handle operators cantaining upto', MXLOP
-        WRITE(6,*) ' operators ' 
-        WRITE(6,*)
-        WRITE(6,*) ' Increase PARAMETER MXLOP in EXTYP'
-        WRITE(6,*) ' until then I stop '
-        STOP' Increase PARAMETER MXLOP in EXTYP'
-      END IF
-
-*. Allowed range of types
-      CALL ISETVC(MINVAL,1,NOP)
-      CALL ISETVC(MAXVAL,NOBTP,NOP)
-*    
-      IFIRST = 1
-      NEXTP = 0
-*. Loop over arrays containing numbers 1 to NOBTP 
- 1000 CONTINUE
-        IF(IFIRST.EQ.1) THEN
-          CALL ISETVC(ISCR,1,NOP)
-        ELSE
-C       NXTNUM(INUM,NELMNT,MINVAL,MAXVAL,IORD,NONEW)
-          IF(IORD.EQ.1) THEN
-            WRITE(6,*) ' WRITE nxtnum for ordered numbers '
-            STOP       ' WRITE nxtnum for ordered numbers '
-          END IF
-          CALL NXTNUM(ISCR,NOP,MINVAL,MAXVAL,NONEW)
-          IF(NONEW.EQ.1) GOTO 1001
-        END IF
-*. A new number has been generated, does it connect the two strings
-        IAMOK = 1
-        DO 100 ISPC = 1, NOBTP
-          LCREA = 0
-          DO 10 I = 1, NCREA
-           IF(ISCR(I).EQ.ISPC) LCREA = LCREA + 1
-   10     CONTINUE
-          LANNI = 0
-          DO 20 I = 1, NANNI 
-            IF(ISCR(NCREA+I).EQ.ISPC) LANNI = LANNI + 1
-   20     CONTINUE 
-          IF(LCREA-LANNI.NE.REL(ISPC,RTYP)-LEL(ISPC,LTYP) .OR.
-     &       LANNI.GT.REL(ISPC,RTYP)) IAMOK = 0
-          IF(IAMOK.EQ.0) GOTO 101
-  100   CONTINUE
-  101   CONTINUE
-        IF(IAMOK.EQ.1) THEN
-*. type is allowed
-           NEXTP = NEXTP + 1
-           CALL ICOPVE(ISCR,IOBTP(1,NEXTP),NOP)
-        END IF
-*
-      GOTO 1000
- 1001 CONTINUE
-*
-      IF(NTEST.NE.0) THEN
-        WRITE(6,'(A)') ' EXTYP reporting, LEL and REL '
-        CALL IWRTMA(LEL(1,LTYP),1,NOBTP,1,NOBTP)
-        WRITE(6,*)
-        CALL IWRTMA(REL(1,RTYP),1,NOBTP,1,NOBTP)
-        WRITE(6,*)
-        WRITE(6,*) 
-     &  ' Number of annihilation and creation operators',
-     &    NANNI,NCREA
-        WRITE(6,*) ' Number of connecting string types ', NEXTP
-        WRITE(6,*) 
-        WRITE(6,*) ' The connecting types '
-        WRITE(6,*) ' ===================='
-        CALL IWRTMA(IOBTP,NOP,NEXTP,NOP,NEXTP)
       END IF
 *
       RETURN
@@ -4364,6 +4211,9 @@ C!    STOP' Enforced stop in RSBB1E '
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. a few include blocks
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
@@ -4632,150 +4482,6 @@ C            WRITE(6,*) XIJKK2, XIJKK(KORB,IJEFF)
            WRITE(6,*)
          END DO
       END IF
-*
-      RETURN
-      END
-      SUBROUTINE SXSTRO(ISTRSM,ISTRTP,ISTRGP,
-     &                  IOBSM,IOBTP,JOBSM,JOBTP,MXSXST,
-     *                  ISXSTR,JSXSTR,IEXSTR,FACSTR,NEX,
-     &                  IOFFDG,NTESTG)
-*                                                                       
-* Obtain all excitations from a set of strings of given sym, type,
-* and group that can be obtained by applying 
-* single excitations where each operator has a given sym and type
-*
-* IF IOFFDG .ne. 0 , only excitation a+i a j with i.ne.j are generated
-*
-*
-* =====                                                             
-* Input                                                             
-* =====                                                             
-*
-
-*    ISTRSM,ISTTP,ISTRGP :  symmetry, type and group  of input string 
-*
-*   IOBSM,IOBTP : symmetry and type of orbital i
-*   JOBSM,JOBTP : symmetry and type of orbital j
-*   MXSXST      : Max number of single excitations for given string
-*                                                                       
-* ======                                                            
-* Output                                                            
-* ======                                                            
-*     ISXSTR(IEX,ISTR) : I orbital indeces of SX
-*     JSXSTR(IEX,ISTR) : J orbital indeces of SX
-*     IEXSTR(IEX,ISTR) : Number of excited string ( relative to offset )
-*     NEX(ISTR)        : Number of excitations
-*     FACSTR(ISTR)     : Phase factor of excitation.
-*                                                                       
-*     Jeppe Olsen, March 1994, LUCIA version 
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-*. a few include blocks
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-C     COMMON/ORBINP/NINOB,NACOB,NDEOB,NOCOB,NTOOB,
-C    &              NORB0,NORB1,NORB2,NORB3,NORB4,
-C    &              NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR),
-C    &              NINOBS(MXPOBS),NR0OBS(1,MXPOBS),NRSOBS(MXPOBS,3),
-C    &              NR4OBS(MXPOBS,MXPR4T),NACOBS(MXPOBS),NOCOBS(MXPOBS),
-C    &              NTOOBS(MXPOBS),NDEOBS(MXPOBS),NRS4TO(MXPR4T),
-C    &              IREOTS(MXPORB),IREOST(MXPORB),ISMFTO(MXPORB),
-C    &              ITPFSO(MXPORB),IBSO(MXPOBS),
-C    &              NTSOB(3,MXPOBS),IBTSOB(3,MXPOBS),ITSOB(MXPORB),
-C    &              NOBPTS(6+MXPR4T,MXPOBS),IOBPTS(6+MXPR4T,MXPOBS),
-C    &              ITOOBS(MXPOBS),ITPFTO(MXPORB),ISMFSO(MXPORB)
-C     COMMON/STRINP/NSTTYP,MNRS1(MXPSTT),MXRS1(MXPSTT),
-C    &              MNRS3(MXPSTT),MXRS3(MXPSTT),NELEC(MXPSTT),
-C    &              IZORR(MXPSTT),IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),
-C    &              NZSTTP,NRSTTP,ISTTP(MXPSTT)
-C     COMMON/STINF/ISTAC(MXPSTT,2),NOCTYP(MXPSTT),NSTFTP(MXPSTT),
-C     &             INUMAP(MXPSTT),INDMAP(MXPSTT)
-C     COMMON/STRBAS/KSTINF,KOCSTR(MXPSTT),KNSTSO(MXPSTT),KISTSO(MXPSTT),
-C    &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
-C    &              KSTREO(MXPSTT),KSTSM(MXPSTT),KSTCL(MXPSTT),
-C    &              KEL1(MXPSTT),KEL3(MXPSTT),KACTP(MXPSTT),
-C    &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX
-C    &             ,KNDMAP(MXPSTT),KNUMAP(MXPSTT)
-*. A bit of local scratch
-      DIMENSION IACAR(2),ITPAR(2)
-*
-      NTESTL = 000
-      NTEST = MAX(NTESTG,NTESTL)
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' ***************** '
-        WRITE(6,*) ' Output from SXSTR '
-        WRITE(6,*) ' ***************** '
-      END IF
-*
-*. Number of orbitals and offsets
-      NI   = NOBPTS(IOBTP,IOBSM)
-      IOFF = IBTSOB(IOBTP,IOBSM)
-*
-      NJ   = NOBPTS(JOBTP,JOBSM)
-      JOFF = IBTSOB(JOBTP,JOBSM)
-C     write(6,*) ' iobtp,iobsm,jobtp,jobsm',
-C    &             iobtp,iobsm,jobtp,jobsm
-C     write(6,*) ' NI NJ IOFF JOFF ', NI,NJ,IOFF,JOFF
-*
-*. Offset for input string
-C     IFRMR(WORK,IROFF,IELMNT)
-C     WRITE(6,*) ' ISTRGP NOCTYP(ISTRGP)',
-C    &             ISTRGP, NOCTYP(ISTRGP)
-C     WRITE(6,*) ' ISTRSM ISTRTP ', ISTRSM,ISTRTP
-      ISTROF = IFRMR(WORK,KISTSO(ISTRGP),
-     &         (ISTRSM-1)*NOCTYP(ISTRGP)+ISTRTP)
-C     WRITE(6,*) ' Off set for input strings ', ISTROF
-*. Number of input strings  
-      NIST = IFRMR(WORK,KNSTSO(ISTRGP),
-     &         (ISTRSM-1)*NOCTYP(ISTRGP)+ISTRTP)
-C     WRITE(6,*) ' Number of output strings ', NIST
-*. Group of output strings
-      IACAR(1) = 2
-      IACAR(2) = 1
-*
-      ITPAR(1) = IOBTP
-      ITPAR(2) = JOBTP
-      CALL NEWTYP(ISTRTP,IACAR,ITPAR,2,KSTRTP)
-C     write(6,*) ' NEWTYP says : KSTRTP = ',KSTRTP
-C     NEWTYP(INCLS,INTP,IACOP,ITPOP,NOP,OUTCLS,OUTTP)
-*. Symmetry of output strings
-      CALL SYMCOM(3,0,IOBSM,JOBSM,IJSXSM)
-C     write(6,*) ' IOBSM JOBSM IJSXSM = ', IOBSM,JOBSM,IJSXSM
-      CALL SYMCOM(3,0,ISTRSM,IJSXSM,KSTRSM)
-C     WRITE(6,*) ' ISTRSM,IJSXSM KSTRSM',ISTRSM,IJSXSM,KSTRSM
-C     SYMCOM(ITASK,IOBJ,I1,I2,I12)
-*. Offset for output strings
-      KSTROF = IFRMR(WORK,KISTSO(ISTRGP),
-     &         (KSTRSM-1)*NOCTYP(ISTRGP)+KSTRTP)
-C     WRITE(6,*) ' off set for output strings ', KSTROF
-*
-*. Type of mappings
-*
-*. Nel => Nel - 1 electrons
-      IF(ISTAC(ISTRGP,1).NE.0.AND.ISTAC(ISTRGP,2).NE.0) THEN
-*. full list
-        IM1FUL = 1
-        LM1    = NACOB
-      ELSE
-*. Truncated list
-        IM1FUL = 0
-        LM1 = NELEC(ISTRGP)
-      END IF
-*. Nel -1 => Nel mapping, must contain creation so
-      IP1FUL = 1
-      LP1 = NACOB
-      CALL  SXSTRSO(ISTROF,NIST,KSTROF,             
-     &              NI,IOFF,NJ,JOFF,
-     &              WORK(KSTSTM(ISTRGP,1)),WORK(KSTSTM(ISTRGP,2)),
-     &              LM1,IM1FUL,
-     &              WORK(KSTSTM(ISTRGP+1,1)),WORK(KSTSTM(ISTRGP+1,2)),
-     &              LP1,IP1FUL,
-     &              MXSXST,ISXSTR,JSXSTR,IEXSTR,FACSTR,NEX,IOFFDG,
-     &              NTEST)
 *
       RETURN
       END
