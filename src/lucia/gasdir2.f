@@ -942,12 +942,12 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       CALL MEMMAN(KLCI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')    !done
       CALL MEMMAN(KLCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')    !done
 *
-      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')   !done
-      CALL IAIBCM(ISSPC,dbl_mb(KLCIOIO))
+      CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'CIOIO ')   !done
+      CALL IAIBCM(ISSPC,int_mb(KLCIOIO))
 *
       CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')   !done
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),dbl_mb(KSVST))
 *. Allocate memory for diagonalization
       IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
@@ -956,9 +956,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       END IF
       LBLOCK = MAX(LBLOCK,LCSBLK)
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,dbl_mb(KLCBLTP),WORK(KNSTSO(IATP)),
-     &              WORK(KNSTSO(IBTP)),
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,dbl_mb(KLCIOIO),
+      CALL PART_CIV2(IDC,dbl_mb(KLCBLTP),int_mb(KNSTSO(IATP)),
+     &              int_mb(KNSTSO(IBTP)),
+     &              NOCTPA,NOCTPB,NSMST,LBLOCK,int_mb(KLCIOIO),
      &              ISMOST(1,ISSM),NBATCH,int_mb(KLCLBT),
      &              int_mb(KLCLEBT),int_mb(KLCI1BT),int_mb(KLCIBT),0,
      &              ISIMSYM)
@@ -1742,15 +1742,15 @@ C     CALL MEMMAN(KXI4S,MAXIK*MXTSOB,'ADDL  ',2,'XI4S  ')
      &WRITE(6,*) ' Integral scratch space ',INTSCR
       CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')   !done
 *. Arrays giving allowed type combinations 
-      CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'SIOIO ')
+      CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'CIOIO ')
+      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'SIOIO ')
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
 *. sigma needed for MXRESC
 C          IAIBCM(ICISPC,IAIB)
-      CALL IAIBCM(ISSPC,WORK(KSIOIO))
-      CALL IAIBCM(ICSPC,WORK(KCIOIO))
+      CALL IAIBCM(ISSPC,int_mb(KSIOIO))
+      CALL IAIBCM(ICSPC,int_mb(KCIOIO))
 *. Arrays giving block type
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
@@ -1765,7 +1765,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
 *. Scratch space for CJKAIB resolution matrices
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
-      CALL MXRESC(WORK(KSIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESC(int_mb(KSIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSTFSMSPGP,MXPNSMST,
      &            NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &            NELFSPGP,
@@ -1805,7 +1805,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')   !done
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')   !done
 *
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NSMCI*NOCTPA*NOCTPB   
       NTTS = MXNTTS
@@ -1855,7 +1855,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
       CALL SBLOCKS2(NLBLOCK,ILBLOCK(1,ILOFF),NRBLOCK,IRBLOCK(1,IROFF),
      &            CB,HCB,dbl_mb(KC2),
-     &            WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
+     &            int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
      &            NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,
      &            IOCTPA,IOCTPB,NOCTPA,NOCTPB,
@@ -2054,15 +2054,15 @@ C     CALL MEMMAN(KXI4S,MAXIK*MXTSOB,'ADDL  ',2,'XI4S  ')
      &WRITE(6,*) ' Integral scratch space ',INTSCR
       CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')   !done
 *. Arrays giving allowed type combinations 
-      CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'SIOIO ')
+      CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'CIOIO ')
+      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'SIOIO ')
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
 *. sigma needed for MXRESC
 C          IAIBCM(ICISPC,IAIB)
-      CALL IAIBCM(ISSPC,WORK(KSIOIO))
-      CALL IAIBCM(ICSPC,WORK(KCIOIO))
+      CALL IAIBCM(ISSPC,int_mb(KSIOIO))
+      CALL IAIBCM(ICSPC,int_mb(KCIOIO))
 *. Arrays giving block type
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
@@ -2077,7 +2077,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
 *. Scratch space for CJKAIB resolution matrices
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
-      CALL MXRESC(WORK(KSIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESC(int_mb(KSIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSTFSMSPGP,MXPNSMST,
      &            NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &            NELFSPGP,
@@ -2116,7 +2116,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')  !done
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')  !done
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NSMCI*NOCTPA*NOCTPB
       NTTS = MXNTTS
@@ -2177,7 +2177,7 @@ C    &                  NSASO,NSBSO,IDC,IWAY,IPRNT)
 *
       CALL SBLOCKS2(NLBLOCK,IBLOCK(1,ILOFF),NRBLOCK,IBLOCK(1,IROFF),
      &            CB,HCB,dbl_mb(KC2),
-     &            WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
+     &            int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
      &            NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,
      &            IOCTPA,IOCTPB,NOCTPA,NOCTPB,
@@ -3117,10 +3117,10 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
 *
       NTTS = MXNTTS                
       NOOS = NOCTPA*NOCTPB*NSMCI
-      CALL MEMMAN(KLVIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'VIOIO ')  !done
+      CALL MEMMAN(KLVIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'VIOIO ')  !done
       CALL MEMMAN(KLVBLTP,NSMST,'ADDL  ',2,'VBLTP ')  !done
 *
-      CALL IAIBCM(ISPC,dbl_mb(KLVIOIO))
+      CALL IAIBCM(ISPC,int_mb(KLVIOIO))
       KSVST = 0
       CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLVBLTP),WORK(KSVST))
 *
@@ -3134,7 +3134,7 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       LSCR1 = 0
       CALL PART_CIV2(IDC,dbl_mb(KLVBLTP),WORK(KNSTSO(IATP)),
      &               WORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,
-     &               NSMST,LSCR1,dbl_mb(KLVIOIO),ISMOST(1,ISM),
+     &               NSMST,LSCR1,int_mb(KLVIOIO),ISMOST(1,ISM),
      &               NXBATCH,int_mb(KLVLBT),int_mb(KLVLEBT),
      &               int_mb(KLVI1BT),int_mb(KLVIBT),1,
      &               ISIMSYM)
@@ -4904,7 +4904,7 @@ C  I assume memory was allocated for blocks, so
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')  !done
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')  !done
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
@@ -4982,28 +4982,27 @@ C     IF(ISIMSYM.EQ.0) THEN
        KSIPA = 0
        KCJPA = 0
 *. June 30 : I will try to use go through the normal route with ISIMSYM :
-CBERT HERE I AM NOW
-      CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
-     &     WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
-     &     NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+      CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,dbl_mb(KC2),
+     &     int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
+     &     NACOB,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &     NAEL,IATP,NBEL,IBTP,
      &     IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &     NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &     ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &     LSCR1,dbl_mb(KINSCR),WORK(KCSCR),WORK(KSSCR),
+     &     LSCR1,dbl_mb(KINSCR),dbl_mb(KCSCR),dbl_mb(KSSCR),
      &     SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &     ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &     int_mb(KI1),dbl_mb(KXI1S),
-     &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
-     &     PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
+     &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,int_mb(KSVST),
+     &     PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
      &     WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &     MOCAA,MOCAB,IAPR,
-     &     WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),WORK(KCIBT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),int_mb(KCIBT),
      &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),dbl_mb(KLSCLFAC),
      &     LUCBLK,IPERTOP,IH0INSPC,dbl_mb(KLH0SPC),
      &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
-     &     IUSE_PA,WORK(KCJPA),WORK(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
+     &     IUSE_PA,int_mb(KCJPA),int_mb(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
      &     MXADKBLK,ICISTR,CV,ECORE,NCBATCH,ITASK)
 C     ELSE
 C     CALL SBLOCKSN(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
@@ -5234,8 +5233,9 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
         IF(ICISTR.NE.1) THEN 
           CALL WRTVCD(CB,LUC,1,-1)
         ELSE
-          WRITE(6,*) ' First element of C '
-          CALL WRTMAT(CV,1,1,1,1)
+          call ga_get(CV,1,1,1,1,cfirst,1)
+          WRITE(6,*) ' First element of C ',cfirst
+CNW       CALL WRTMAT(CV,1,1,1,1)
 *. Print using ICLBLOCK
         END IF
       END IF
@@ -6222,7 +6222,7 @@ C START
 *. redundant..
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTEST,NSBLOCK,NSBATCH,
-     &       WORK(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
+     &       int_mb(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
      &       WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &       WORK(KSIBT),IDUM,IDUM,ILTEST)
       END IF
@@ -6235,11 +6235,11 @@ C START
       ICFIRST = 1
       IF(ICFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
-     &       NTEST,NCBLOCK,NCBATCH,
-     &       WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
-     &       WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &       WORK(KCIBT),
-     &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
+     &       NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &       int_mb(KCIBT),
+     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
       END IF
       NMBLOCK = MAX(NCBLOCK,NSBLOCK)
       CALL MEMMAN(KLISCR,NMBLOCK,'ADDL  ',2,'ISCR  ')
@@ -6254,7 +6254,7 @@ C KLXIBT, KLXISCR, KLXISC2
 *. Blocks and scratch for sigma
       IF(LEVEL.LE.2) THEN
         IPRCIXL = 0
-        CALL MXRESCPH(WORK(KSIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+        CALL MXRESCPH(int_mb(KSIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &              NSMST,NSTFSMSPGP,MXPNSMST,
      &              NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIXL,MAXK,
      &              NELFSPGP,
@@ -6435,7 +6435,7 @@ C     stop ' Enforced stop in DIRDIR1N'
         CALL GET_BATCH_OF_FIRST
      &       (NBLOCK,IBLOCK_OFF,NELMNT,WORK(KSIBT),ISM,IUTSPC,
      &        E0,E1T,SIN,LUC,IDC,
-     &        WORK(KCIOIO),NOCTPA,NOCTPB,NSMST,
+     &        int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
      &        WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &        NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
      &        WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -6542,7 +6542,7 @@ C              EXTRROW2(INMAT,IROW,ICOLOFF,NROW,NCOL,IOUTVEC)
               CALL GET_BATCH_OF_FIRST
      &             (NRBLOCK,IROFF,NRELMNT,WORK(KSIBT),ISM,IUTSPC,
      &              E0,E1T,SIN   ,LUC,IDC,
-     &              WORK(KCIOIO),NOCTPA,NOCTPB,NSMST,
+     &              int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
      &              WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &              NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
      &              WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -6619,7 +6619,7 @@ C           CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
             CALL GET_BATCH_OF_FIRST
      &           (NLBLOCK,ILOFF,NLELMNT,WORK(KSIBT),ISM,IUTSPC,
      &            E0,E1T,SIN,LUC,IDC,
-     &            WORK(KCIOIO),NOCTPA,NOCTPB,NSMST,
+     &            int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
      &            WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
      &            WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -6755,7 +6755,7 @@ C     END IF
           CALL GET_BATCH_OF_FIRST
      &         (NBLOCK,IBLOCK_OFF,NELMNT,WORK(KSIBT),ISM,IUTSPC,
      &          E0,E1T,ALPHA1,LUC,IDC,
-     &          WORK(KCIOIO),NOCTPA,NOCTPB,NSMST,
+     &          int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
      &          WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &          NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
      &          WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -6834,7 +6834,7 @@ C         IRMAX = NSBATCH
             CALL GET_BATCH_OF_FIRST
      &           (NRBLOCK,IROFF,NRELMNT,WORK(KSIBT),ISM,IUTSPC,
      &            E0,E1T,ALPHA1,LUC,IDC,
-     &            WORK(KCIOIO),NOCTPA,NOCTPB,NSMST,
+     &            int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
      &            WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
      &            WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -6926,7 +6926,7 @@ C    &                  ECORE,ITASK)
           CALL GET_BATCH_OF_FIRST
      &         (NLBLOCK,ILOFF,NLELMNT,WORK(KSIBT),ISM,IUTSPC,
      &          E0,E1T,ALPHA1,LUC,IDC,
-     &          WORK(KCIOIO),NOCTPA,NOCTPB,NSMST,
+     &          int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
      &          WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &          NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
      &          WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -7090,7 +7090,7 @@ C         HAPR01TX = 0.0D0
      &         ISM,ISPC1,
      &         NBATCHC,WORK(KLCLBT),WORK(KLCIBT),ISPC0,
      &         E0,E1T,E2T,ALPHA1,LUC,LUSCR2,IDC,
-     &         WORK(KLCIOIO),NOCTPA,NOCTPB,NSMST,
+     &         int_mb(KLCIOIO),NOCTPA,NOCTPB,NSMST,
      &         WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &         WORK(KLIBT),WORK(KLISCR),WORK(KLISCR2),
      &         WORK(KLB),WORK(KCB),WORK(KSB),SOUT,HAPR01T,LU1,
@@ -7130,7 +7130,7 @@ C    &                     ISM,ISPC,ECORE,I12)
             CALL GET_BATCH_OF_FIRST
      &           (NBLOCK1,IOFF1,NELMNT1,WORK(KLSIBT),ISM,ISPC1,
      &            E0,E1T,ALPHA1,LUC,IDC,
-     &            WORK(KLCIOIO),NOCTPA,NOCTPB,NSMST,
+     &            int_mb(KLCIOIO),NOCTPA,NOCTPB,NSMST,
      &            WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &            NTBLOCKC,WORK(KLCIBT),WORK(KLIBT),WORK(KLI1BT),
      &            WORK(KLISCR),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
@@ -9304,20 +9304,20 @@ C?    WRITE(6,*) ' MXTSOB = ', MXTSOB
       CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ')
       CALL MEMMAN(KINSCR2,INTSCR,'ADDL  ',2,'INSCR2')
 *. Arrays giving allowed type combinations 
-      CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
-      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'SIOIO ')
+      CALL MEMMAN(KCIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'CIOIO ')
+      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',1,'SIOIO ')
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
 *. sigma needed for MXRESC
-      CALL IAIBCM(ISSPC,WORK(KSIOIO))
-      CALL IAIBCM(ICSPC,WORK(KCIOIO))
+      CALL IAIBCM(ISSPC,int_mb(KSIOIO))
+      CALL IAIBCM(ICSPC,int_mb(KCIOIO))
 *. Arrays giving block type
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
         CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-        CALL SIGVST(WORK(KSVST),NSMST)
+        CALL SIGVST(dbl_mb(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF
@@ -9331,7 +9331,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       ELSE
          KSCIOIO = KCIOIO
       END IF
-      CALL MXRESCPH(WORK(KSCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(int_mb(KSCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSTFSMSPGP,MXPNSMST,
      &            NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &            NELFSPGP,
@@ -9379,7 +9379,7 @@ C  I assume memory was allocated for blocks, so
 *
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
@@ -9463,7 +9463,7 @@ C     IF(ISIMSYM.EQ.0) THEN
       KSIPA = 0
       KCJPA = 0
       CALL SIGDEN4_CI(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
-     &     WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
+     &     int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
      &     NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
      &     NAEL,IATP,NBEL,IBTP,
      &     IOCTPA,IOCTPB,NOCTPA,NOCTPB,

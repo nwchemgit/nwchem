@@ -3541,8 +3541,9 @@ C?       WRITE(6,*) ' Variational  solver '
          STOP 20
        END IF
 *
-       KAPROJ = 1
-       KFREE = KAPROJ+ MAXVEC*(MAXVEC+1)/2
+       CALL MEMMAN(KAPROJ,MAXVEC*(MAXVEC+1)/2,'ADDL  ',2,'KAPROJ')
+CNW    KAPROJ = 1
+CNW    KFREE = KAPROJ+ MAXVEC*(MAXVEC+1)/2
        TEST = 1.0D-8
        CONVER = .FALSE.
 *
@@ -3575,10 +3576,10 @@ C             COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
          CALL PRSYM(APROJ,NINVEC)
        END IF
 *. Diagonalize initial projected matrix
-       CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
+       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
+       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
-         EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
+         EIG(1,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
 *
        IF(IPRT .GE. 3 ) THEN
@@ -3768,10 +3769,10 @@ C                    VECSMD(VEC1,VEC2,1.0D0,FACTOR,LU4,LU1,LU5,0,LBLK)
   150 CONTINUE
 *. Diagonalize projected matrix
       NVEC = NVEC + IADD
-      CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
+      CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
+      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
-        E0VAR = WORK(KAPROJ)
+        E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
         C1VAR = AVEC(2)
 *. overwrite with pert solution
@@ -3781,13 +3782,13 @@ C                    VECSMD(VEC1,VEC2,1.0D0,FACTOR,LU4,LU1,LU5,0,LBLK)
         E0PERT = AVEC(1)**2*APROJ(1)
      &         + 2.0D0*AVEC(1)*AVEC(2)*APROJ(2)
      &         + AVEC(2)**2*APROJ(3)
-        WORK(KAPROJ) = E0PERT
+        dbl_mb(KAPROJ) = E0PERT
         WRITE(6,*) ' Var and Pert solution, energy and coefficients'
         WRITE(6,'(4X,3E15.7)') E0VAR,C0VAR,C1VAR
         WRITE(6,'(4X,3E15.7)') E0PERT,AVEC(1),AVEC(2)
       END IF
       DO 160 IROOT = 1, NROOT
-        EIG(ITER,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2)
+        EIG(ITER,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2)
  160  CONTINUE
 *
        IF(IPRT .GE. 3 ) THEN
@@ -4281,8 +4282,9 @@ C
          MAXVEC = 2*NROOT
        END IF
 *
-       KAPROJ = 1
-       KFREE = KAPROJ+ MAXVEC*(MAXVEC+1)/2
+       CALL MEMMAN(KAPROJ,MAXVEC*(MAXVEC+1)/2,'ADDL  ',2,'KAPROJ')
+CNW    KAPROJ = 1
+CNW    KFREE = KAPROJ+ MAXVEC*(MAXVEC+1)/2
        CONVER = .FALSE.
        DO 1234 MACRO = 1,1
 *
@@ -4321,10 +4323,10 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
          CALL PRSYM(APROJ,NINVEC)
        END IF
 *  DIAGONALIZE INITIAL PROJECTED MATRIX
-       CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
+       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
+       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
-         EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
+         EIG(1,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
 *
        IF( IPRT  .GE. 3 ) THEN
@@ -4573,8 +4575,8 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
   150 CONTINUE
 *  DIAGONALIZE PROJECTED MATRIX
       NVEC = NVEC + IADD
-      CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
+      CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
+      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
 *. Select if required the roots to be followed
       IF(IROOT_SEL.NE.0) THEN
         ISEL_MET = IROOT_SEL 
@@ -4587,13 +4589,13 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
           CALL WRTMAT(AVEC,NVEC,NVEC,NVEC,NVEC)
         END IF
 C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
-        CALL SEL_ROOT(AVEC,WORK(KAPROJ),ISEL_MET,NVEC,NROOT,LU1,VEC1)
+        CALL SEL_ROOT(AVEC,dbl_mb(KAPROJ),ISEL_MET,NVEC,NROOT,LU1,VEC1)
       END IF
 
         
      
       IF(IPICO.NE.0) THEN
-        E0VAR = WORK(KAPROJ)
+        E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
         C1VAR = AVEC(2)
 *. overwrite with pert solution
@@ -4602,13 +4604,13 @@ C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
         E0PERT = AVEC(1)**2*APROJ(1)
      &         + 2.0D0*AVEC(1)*AVEC(2)*APROJ(2)
      &         + AVEC(2)**2*APROJ(3)
-        WORK(KAPROJ) = E0PERT
+        dbl_mb(KAPROJ) = E0PERT
         WRITE(6,*) ' Var and Pert solution, energy and coefficients'
         WRITE(6,'(4X,3E15.7)') E0VAR,C0VAR,C1VAR
         WRITE(6,'(4X,3E15.7)') E0PERT,AVEC(1),AVEC(2)
       END IF
       DO 160 IROOT = 1, NROOT
-        EIG(ITER,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2)
+        EIG(ITER,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2)
  160  CONTINUE
 *
       IF(IPRT .GE. 3 ) THEN

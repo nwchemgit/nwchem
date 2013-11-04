@@ -7268,7 +7268,9 @@ C     call iwrtma(icls,ngas,ncls,ngas,ncls)
       REAL*8
      &INPROD
 *. Input
-      DIMENSION VEC(*), IBLOCK(8,NBLOCK)
+      integer VEC
+      DIMENSION IBLOCK(8,NBLOCK)
+CNW   DIMENSION VEC(*), IBLOCK(8,NBLOCK)
 *. Output
       DIMENSION BLK_A(NBLOCK)
 *
@@ -7277,7 +7279,9 @@ C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
       DO IBLK = 1, NBLOCK
         LEN = IBLOCK(8,IBLK)
 C?      WRITE(6,*) ' IBLK, LEN = ', IBLK, LEN
-        XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
+        XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN,1,1,
+     &                       VEC,'N',IOFF,IOFF+LEN,1,1)
+CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
         IF(XBLK.NE.0.0D0) THEN
           BLK_A(IBLK) = 1.0D0
         ELSE

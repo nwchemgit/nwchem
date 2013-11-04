@@ -2152,7 +2152,7 @@ C       WRITE(6,*) ' KSDREO_I(ISM) = ', KSDREO_I(ISM)
         CALL CNFORD_GAS(dbl_mb(KCIOCCLS_ACT),NCOCCLS_ACT,
      &       int_mb(KIOCCLS),ISM,PSSIGN,
      &       IPRCSF,int_mb(KICONF_OCC(ISM)),int_mb(KICONF_REO(1)),
-     &       int_mb(KSDREO_I(ISM)),WORK(KSDREO_S(ISM)),
+     &       int_mb(KSDREO_I(ISM)),int_mb(KSDREO_S(ISM)),
      &       int_mb(KCBLTP),int_mb(KCIBT),NCBLOCK)
 C?      WRITE(6,*) ' IBLTP after CNFORD '
 C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
@@ -2241,6 +2241,7 @@ CBERT VECTOR DOUBLES!!! LOCAL
 *. Allocate space for two complete vectors of variables
         if ( .not. ga_create( mt_dbl, nvar_max, 1, 'CONVC1',
      $     0,0, KCOMVEC1) ) call errquit(
+     $     'GASCI: ga_create kcomvec1 failed', nvar_max , GA_ERR)
         if ( .not. ga_create( mt_dbl, nvar_max, 1, 'CONVC2',
      $     0,0, KCOMVEC2) ) call errquit(
      $     'GASCI: ga_create kcomvec2 failed', nvar_max , GA_ERR)
@@ -2259,8 +2260,14 @@ CNW    CALL MEMMAN(KCOMVEC2,NVAR_MAX,'ADDL  ',2,'COMVC2')
        IF(ICNFBAT.EQ.1) THEN
 *. For CSF's: Two vectors over CM's of Strings, all symmetries for
 *generality
-         CALL MEMMAN(KCOMVEC1_SD,NDET_MAX,'ADDL  ',2,'CMVC1D')
-         CALL MEMMAN(KCOMVEC2_SD,NDET_MAX,'ADDL  ',2,'CMVC2D')
+        if ( .not. ga_create( mt_dbl, ndet_max, 1, 'CONVC1SD',
+     $     0,0, KCOMVEC1_SD) ) call errquit(
+     $     'GASCI: ga_create kcomvec1_sd failed', ndet_max , GA_ERR)
+        if ( .not. ga_create( mt_dbl, ndet_max, 1, 'CONVC2SD',
+     $     0,0, KCOMVEC2_SD) ) call errquit(
+     $     'GASCI: ga_create kcomvec2_sd failed', ndet_max , GA_ERR)
+CNW      CALL MEMMAN(KCOMVEC1_SD,NDET_MAX,'ADDL  ',2,'CMVC1D')
+CNW      CALL MEMMAN(KCOMVEC2_SD,NDET_MAX,'ADDL  ',2,'CMVC2D')
        ELSE
 *. Memory for two blocks of combinations
          CALL MEMMAN(
@@ -2272,12 +2279,15 @@ CNW    CALL MEMMAN(KCOMVEC2,NVAR_MAX,'ADDL  ',2,'COMVC2')
 * 
       IF(I_DO_COMHAM.EQ.1) THEN
          WRITE(6,*) ' Complete Hamiltonian matrix will be constructed '
-         CALL MEMMAN(KLHMAT,NVAR*NVAR,'ADDL  ',2,'HMAT  ')
+        if ( .not. ga_create( mt_dbl, nvar*nvar, 1, 'KLHMAT',
+     $     0,0, KLHMAT) ) call errquit(
+     $     'GASCI: ga_create klhmat failed', nvar*nvar , GA_ERR)
+CNW      CALL MEMMAN(KLHMAT,NVAR*NVAR,'ADDL  ',2,'HMAT  ')
 C COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
          ECOREL = 0.0D0
          IF(NOCSF.EQ.1) THEN
 *. Determinants: TTSS blocks
-           CALL COMHAM(WORK(KLHMAT),NVAR,NBLOCK,int_mb(KCLBLK),
+           CALL COMHAM(KLHMAT,NVAR,NBLOCK,int_mb(KCLBLK),
      &                 KPVEC1,KPVEC2,ECOREL)
          ELSE
 *. CSFs: occlass blocks
@@ -2288,7 +2298,7 @@ C COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
      &          int_mb(KLNCS_FOR_OCCLS))
 C          GET_NCSF_PER_OCCLS_FOR_CISPACE(ISYM,IOCCLS_ACT,
 C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
-           CALL COMHAM(WORK(KLHMAT),NVAR,NCOCCLS_ACT,
+           CALL COMHAM(KLHMAT,NVAR,NCOCCLS_ACT,
      &          int_mb(KLNCS_FOR_OCCLS),KPVEC1,KPVEC2,ECOREL)
          END IF
          STOP ' Enforced stop after COMHAM'
@@ -2340,7 +2350,7 @@ C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
        IF(NOCSF.EQ.0.AND.IH0_CSF.EQ.1) THEN
 *. Average of determinant diagonal in each conf
 C?       WRITE(6,*) ' IH0_CSF = ', IH0_CSF
-         CALL CSDIAG(KPVEC2,WORK(KPDIA_SD),
+         CALL CSDIAG(KPVEC2,KPDIA_SD,
      &        NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
      &        int_mb(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
      &        ICNFBAT,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
@@ -2351,7 +2361,8 @@ C    &         ICNFBAT,NOCCLS_ACT,IOCCLS_ACT,
 C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
 *
          IF(ICNFBAT.EQ.1) THEN
-           CALL COPVEC(KPVEC2,WORK(KPDIA_SD),NVAR)
+CBERT Can be MA or GA at this point
+           CALL COPVEC(KPVEC2,KPDIA_SD,NVAR)  
          ELSE
            CALL COPVCD(LUSC52,LUDIA,KPVEC2,1,-1)
          END IF
@@ -2362,7 +2373,7 @@ C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
 C?       WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 C?       WRITE(6,*) ' KPDIA_SD = ', KPDIA_SD
          CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,ISM),
-     &        int_mb(KICONF_OCC(ISM)),WORK(KPDIA_SD),ECORE,
+     &        int_mb(KICONF_OCC(ISM)),KPDIA_SD,ECORE,
      &        LUDIA,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM)
 C        GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,ECORE,
 C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
@@ -2371,7 +2382,8 @@ C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
        IF(ICISTR.EQ.1) THEN
          CALL REWINO(LUDIA)
 C?     WRITE(6,*) ' WORK(KPDIA_SD) before TODSC =', WORK(KPDIA_SD)
-         CALL TODSC(WORK(KPDIA_SD),NVAR,NVAR,LUDIA)
+         CALL TODSC(KPDIA_SD,NVAR,NVAR,LUDIA)
+CBERT Need to write to GA disk resident array
        END IF
 *
        IF(IIUSEH0P.EQ.1) THEN
@@ -2549,7 +2561,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRNT,WORK(KLH0_EIGVEC),
      & NPRDET,WORK(KH0),WORK(KLH0_SUBDT),
      & NP1,NP2,NQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
-     & IDIAG,dbl_mb(KVEC3),THRES_E,NBATCH,
+     & IDIAG,KVEC3,THRES_E,NBATCH,
      & int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      & int_mb(KCIBT),
      & int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
@@ -4675,7 +4687,8 @@ C    &     NBATCH,WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
 *
       IMPLICIT REAL*8(A-H,O-Z)
       LOGICAL CONVER
-      DIMENSION VEC1(*),VEC2(*)
+      integer VEC1, VEC2, VEC3
+CNW   DIMENSION VEC1(*),VEC2(*)
 C     DIMENSION INIDET(100)
       PARAMETER( LLWRK =180000 )
       COMMON/SCR/SCR1(LLWRK),ISCR1(LLWRK)
@@ -13392,7 +13405,8 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'mv7task.inc'
       COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
 *. Two blocks of C or Sigma (for ICISTR .gt. 2)
-      DIMENSION CB(*),HCB(*)
+      integer CB,HCB
+CNW   DIMENSION CB(*),HCB(*)
 *. Two vectors of C or Sigma (for ICISTR = 1)
 COLD  DIMENSION C(*),HC(*)
 *
@@ -13414,9 +13428,10 @@ COLD  DIMENSION C(*),HC(*)
         WRITE(6,*) ' Input vector to MV7 '
         WRITE(6,*) ' ==================='
         IF(ICISTR.GT.1) THEN
-          CALL WRTVCD(CB,LUC,1,-1)
+          CALL WRTVCD(dbl_mb(CB),LUC,1,-1)
         ELSE
-          CALL WRTMAT(CB,1,NCVAR,1,NCVAR)
+          call ga_print(CB)
+CNW       CALL WRTMAT(CB,1,NCVAR,1,NCVAR)
         END IF
       END IF
 C?    WRITE(6,*) ' Ecore (MV7) = ', ECORE
@@ -13510,6 +13525,7 @@ C?      WRITE(6,*) ' Number of blocks ', NBLOCK
       IF(NOCSF.EQ.0.AND.ICNFBAT.GE.2) THEN
 *. Obtain scratch files for saving combination forms of C and Sigma
 C             FILEMAN_MINI(IFILE,ITASK)
+CBERT TO DO
          CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
          CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
          IF(NTEST.GE.1000)  THEN
@@ -13536,14 +13552,14 @@ C             FILEMAN_MINI(IFILE,ITASK)
       IF(NOCSF.EQ.0) THEN
        IF(ICNFBAT.EQ.1) THEN
 *. In core
-         CALL CSDTVCM(CB,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
+         CALL CSDTVCM(CB,KCOMVEC1_SD,KCOMVEC2_SD,
      &                1,0,ICSM,ICSPC,2)
        ELSE
 *. Not in core- write determinant expansion on LU_CDET 
 C       CSDTVCMN(CSFVEC,DETVEC,SCR,IWAY,ICOPY,ISYM,ISPC,
 C    &           IMAXMIN_OR_GAS,ICNFBAT,LU_DET,LU_CSF,NOCCLS_ACT,
 C    &           IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)  
-        CALL CSDTVCMN(CB,HCB,WORK(KVEC3),
+        CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &       1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
      &       dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
        END IF
@@ -13551,7 +13567,8 @@ C    &           IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)
 *
 C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
       IF(ICISTR.GE.2) THEN
-        CALL RASSG3(CB,HCB,NSBATCH,int_mb(KSLBT),int_mb(KSLEBT),
+        CALL RASSG3(dbl_mb(CB),dbl_mb(HCB),NSBATCH,int_mb(KSLBT),
+     &       int_mb(KSLEBT),
      &       int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,XDUM,XDUM,ECORE,
      &       CMV7TASK)
       ELSE
@@ -13571,7 +13588,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
           CALL RASSG3(dbl_mb(KVEC1P),dbl_mb(KVEC2P),NSBATCH,
      &         int_mb(KSLBT),int_mb(KSLEBT),
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,
-     &         WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),ECORE,
+     &         KCOMVEC1_SD,KCOMVEC2_SD,ECORE,
      &        CMV7TASK)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
@@ -13584,10 +13601,10 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
 * Transform sigma vector in KCOMVEC2_SD to CSF basis
        IF(ICNFBAT.EQ.1) THEN
 C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
-         CALL CSDTVCM(HCB,WORK(KCOMVEC2_SD),WORK(KCOMVEC1_SD),
+         CALL CSDTVCM(HCB,KCOMVEC2_SD,KCOMVEC1_SD,
      &        2,0,ISSM,ISSPC,2)
        ELSE
-        CALL CSDTVCMN(HCB,CB,WORK(KVEC3),
+        CALL CSDTVCMN(HCB,CB,dbl_mb(KVEC3),
      &       2,0,ISSM,ISSPC,2,2,LU_SDET,LUHC,NSOCCLS_ACT,
      &       dbl_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
        END IF
@@ -13602,9 +13619,10 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
         WRITE(6,*) ' Output vector from MV7 '
         WRITE(6,*) ' ===================== '
         IF(ICISTR.GT.1) THEN
-          CALL WRTVCD(CB,LUHC,1,-1)
+          CALL WRTVCD(dbl_mb(CB),LUHC,1,-1)
         ELSE 
-          CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
+          cal ga_print(HCB)
+CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
         END IF
       END IF
 *
@@ -15554,13 +15572,14 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
 C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
           IF(ICISTR.NE.1) THEN
             CALL ITODS(LEN,1,-1,LUHC)
+CBERT TO DO
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
+            call ga_put(SV,IOFF_S,IOFF_S+LEN,1,1,SB(IOFF),LEN)
+CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
           END IF
         END DO
-CBERT: CB, SB are local blocks, SV and CV are GAs
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
       IF(NTEST.GE.100) THEN
@@ -15570,7 +15589,8 @@ CBERT: CB, SB are local blocks, SV and CV are GAs
         ELSE
           LEN_S = IOFF_S - 1
           WRITE(6,*) ' Final S-vector'
-          CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
+          call ga_print(SV)
+CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
         END IF
       END IF
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving RASSG3'
