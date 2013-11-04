@@ -182,8 +182,8 @@ c?    print *,' ijpairs,klpairs',ijpairs,klpairs
 *
       i2addr = ibloff-1+ijkl
       if( ntest .ge. 100 ) then
-	write(6,*) 'i j k l ', i,j,k,l
-	write(6,*) ' ibloff ijkl ',ibloff,ijkl
+      write(6,*) 'i j k l ', i,j,k,l
+      write(6,*) ' ibloff ijkl ',ibloff,ijkl
         write(6,*) ' i2addr  = ', i2addr
       end if
 *
@@ -534,8 +534,8 @@ c?    print *,' ijpairs,klpairs',ijpairs,klpairs
 *
       i2addr2 = ibloff-1+ijkl
       if( ntest .ge. 100 ) then
-	write(6,*) 'i j k l ', i,j,k,l
-	write(6,*) ' ibloff ijkl ',ibloff,ijkl
+      write(6,*) 'i j k l ', i,j,k,l
+      write(6,*) ' ibloff ijkl ',ibloff,ijkl
         write(6,*) ' i2addr2  = ', i2addr2
       end if
 *
@@ -601,6 +601,9 @@ c
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
@@ -688,6 +691,9 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
@@ -1002,8 +1008,8 @@ c?    print *,' ijpairs,klpairs',ijpairs,klpairs
 *
       I2ADDR_GN = ibloff-1+ijkl
       if( ntest .ge. 100 ) then
-	write(6,*) 'i j k l ', i,j,k,l
-	write(6,*) ' ibloff ijkl ',ibloff,ijkl
+      write(6,*) 'i j k l ', i,j,k,l
+      write(6,*) ' ibloff ijkl ',ibloff,ijkl
         write(6,*) ' I2ADDR_GN  = ', I2ADDR_GN
       end if
 *
