@@ -53,9 +53,9 @@ c
      +, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, 
      +E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, 
      +R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
-     +T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sand
-     +rone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, 
-     +Z.Zhang.'/
+     + T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. San
+     +drone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, 
+     +Z. Zhang.'/
 c
 c     == default ==
       write(luout,*)
