@@ -7937,7 +7937,7 @@ COLD &            ISMFTO,IBSO,NTOOB)
 c..dongxia
 c..  work(kpint1) and work(kint1) are static arrays about integrals
 c..  may need to convert to GA. Leave here for the time being.
-      CALL GT1DIS(H1DIA,IREOTS(1),dbl_mb(KPINT1),WORK(KINT1),
+      CALL GT1DIS(H1DIA,IREOTS(1),dbl_mb(KPINT1),KINT1,
      &            ISMFTO,IBSO,NTOOB)
 *
       RETURN
@@ -7949,7 +7949,9 @@ c..  may need to convert to GA. Leave here for the time being.
       IMPLICIT REAL*8(A-H,O-Z)
 *.Input
       INTEGER IREOTS(*),IPNT(*),ISMFTO(*),IBSO(*)
-      DIMENSION H(*)
+CNW   DIMENSION H(*)
+      integer H
+      integer mypt
 *.Output
       DIMENSION H1DIA(*)
 *
@@ -7959,7 +7961,9 @@ c..  may need to convert to GA. Leave here for the time being.
         IOBREL = IOB-IBSO(ISM)+1
 C?      WRITE(6,*) ' IIOB IOB ISM IOBREL '
 C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
-        H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
+CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
+        mypt = IPNT(ISM)-1+IOBREL*(IOBREL+1)/2
+        call = ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
 *
       NTEST = 00
@@ -7985,7 +7989,8 @@ C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
 *.Input
       INTEGER IREOTS(*),IPNT(*),IBTSOB_GN(0:MXPNGAS,*),IBSO(*)
       INTEGER NTOOBS(*)
-      DIMENSION H(*)
+CNW   DIMENSION H(*)
+      integer H
 *
       NTEST = 0
 *
@@ -8022,7 +8027,8 @@ C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
          IJ = IPNT(ISM)-1+(JREO-IBSO(JSM))*NI+IREO-IBSO(ISM)+1
       END IF
 *
-      GTH1ES = H(IJ)
+CNW   GTH1ES = H(IJ)
+      call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
 *
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' One electron integral from GTH1ES '
@@ -8031,7 +8037,8 @@ C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
      &                       IABS, IREO, IORB, ITP, ISM
         WRITE(6,'(A,5I4)') ' JABS, JREO, JORB, JTP, JSM',
      &                       JABS, JREO, JORB, JTP, JSM
-        WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,H(IJ)
+CNW     WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,H(IJ)
+        WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,GTH1ES
       END IF
 *
       RETURN
