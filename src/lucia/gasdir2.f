@@ -921,6 +921,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
          IF(IH0INSPC(1).EQ.1.OR.IH0INSPC(1).EQ.3) THEN
 *. Mp operator
            I12 = 1
+CBERT: Just swapping of pointers would do
            CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
            CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
          ELSE IF (IH0INSPC(1).EQ.2.OR.IH0INSPC(1).EQ.4) THEN
@@ -972,6 +973,7 @@ C      CALL GASDIAT(VECIN,ISSM,ISSPC,LUSC3,ECOREX,ICISTR,I12)
 *. Clean up time
        IF(IH0INSPC(1).EQ.1.OR.IH0INSPC(1).EQ.3) THEN
 *. MP operator
+CBERT: Just swapping of pointers would do
          CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
          CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
        END IF
@@ -10050,7 +10052,7 @@ C                  WRITE(6,*) ' Core energy added = ', ECORE
                      IDOSRHO2 = 0
                      NDACTOB = NACOB
                    
-                     CALL GSDNBB2(I12_L,WORK(KRHO1_A),WORK(KRHO2_A),
+                     CALL GSDNBB2(I12_L,dbl_mb(KRHO1_A),dbl_mb(KRHO2_A),
      &                    IIASM,IIATP,IIBSM,IIBTP,
      &                    JASM,JATP,JBSM,JBTP,NGAS,
      &                    NELFSPGP(1,IOCTPA-1+IIATP),

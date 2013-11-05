@@ -2272,14 +2272,15 @@ c      ImplICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
 *
-      DIMENSION FIFA(*)
+CNW   DIMENSION FIFA(*)
+      integer FIFA
 *
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
 *
 *
-      CALL FIFAMS(FIFA,WORK(KRHO1),IBSO,NSMOB,
+      CALL FIFAMS(FIFA,dbl_mb(KRHO1),IBSO,NSMOB,
      &            NTOOBS,NACOB,NTOOB,IREOST)
 *
       RETURN
@@ -2294,7 +2295,9 @@ c      INCLUDE 'mxpdim.inc'
 * Jeppe Olsen
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FIFA(*),RHO1(NACOB,NACOB)
+CNW   DIMENSION FIFA(*),RHO1(NACOB,NACOB)
+      DIMENSION RHO1(NACOB,NACOB)
+      integer FIFA
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
 *
       NTEST = 00
@@ -2305,6 +2308,7 @@ c      INCLUDE 'mxpdim.inc'
        WRITE(6,*) ' ======================='
        WRITE(6,*) 
        ISYM = 1
+CBERT FIFA is GA, needs different writing strategy
        CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 *
@@ -2319,14 +2323,19 @@ c      INCLUDE 'mxpdim.inc'
               IP = ISTOB(I)
               JP = ISTOB(J)
                IJ= IJ + 1
+               FIVAL = 0.0d0
                DO IA = 1, NACOB
                  DO IB = 1, NACOB
+CNW  &             FIFA(IJ) = FIFA(IJ) 
+CNW  &           + RHO1(IA,IB)
+CNW  &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                    IF(RHO1(IA,IB).NE.0.0D0)        
-     &             FIFA(IJ) = FIFA(IJ) 
-     &           + RHO1(IA,IB)
+     &             FIVAL=FIVAL + RHO1(IA,IB)
      &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                  END DO
                END DO
+CBERT should do this is in blocks
+               call ga_acc(FIFA,ij,ij,1,1,FIVAL,1)
             END DO
           END DO
         END IF
@@ -2416,7 +2425,8 @@ c      ImplICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
 *
-      DIMENSION FIMAT(*)
+CNW   DIMENSION FIMAT(*)
+      integer FIMAT
 *
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
@@ -2462,7 +2472,8 @@ c      INCLUDE 'mxpdim.inc'
 * Aug 2000
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
       INTEGER ITPFSO(*), IPHGAS(*)
 *. To get rid of annoying and incorrect compiler warnings
@@ -2485,6 +2496,7 @@ c      INCLUDE 'mxpdim.inc'
         DO I = 1, LEN                           
           II = IIOFF -1 + (I-1)*LEN + I 
           IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2) 
+CBERT FI is GA in compact form 1D
      &    ECC = ECC + 2*FI(II)
         END DO
       END DO
@@ -2532,6 +2544,7 @@ C?            END IF
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
+CBERT FI is a GA
                     IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
      &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                   END DO
@@ -2571,7 +2584,8 @@ C?            END IF
 * June 2010: Inactive orbitals flagged by type = 0 added.
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
       INTEGER ITPFSO(*), IPHGAS(*)
 *. To get rid of annoying and incorrect compiler warnings
@@ -2610,6 +2624,7 @@ C?            END IF
 C?        WRITE(6,*) ' I, I_INACTIVE = ', I,I_INACTIVE
           IF(I_INACTIVE.EQ.1) THEN
 C?          WRITE(6,*) ' Contribution to ECC from I =', I
+CBERT FI is a GA maybe a gather into value would be better
             ECC = ECC + 2*FI(II)
 C?          WRITE(6,*) ' Updated ECC = ', ECC
           END IF
@@ -2677,6 +2692,7 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
                     END IF
                     IF(ITPFSO(K).EQ.0) K_INACTIVE = 1
                     KP = ISTOB(K)
+CBERT FI is a GA
                     IF(K_INACTIVE.EQ.1) FI(IJ) = FI(IJ) 
      &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                   END DO
@@ -2715,7 +2731,8 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
 * Dec 97
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
       INTEGER ITPFSO(*), IPHGAS(*)
 *. To get rid of annoying and incorrect compiler warnings
@@ -2740,6 +2757,7 @@ C?    CALL IWRTMA(ITPFSO,1,3,1,3)
         II = IIOFF-1
         DO I = IOBSM(ISM),IOBSM(ISM)+LOBSM(ISM)-1
           II = II + (I-IOBSM(ISM)+1) 
+CBERT FI is a GA
           IF(IPHGAS(ITPFSO(I)).EQ.2) ECC = ECC + 2*FI(II)
         END DO
       END DO
@@ -2780,6 +2798,7 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
+CBERT FI is a GA
                     IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
      &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                   END DO
@@ -2830,7 +2849,8 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 * Last revision, Nov. 2012;  Jeppe Olsen; Back to Ini-integrals
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*),NINOBS(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
@@ -2851,6 +2871,7 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
         II = IIOFF-1
         DO I = 1, NINOBS(ISM)
           II = II + I
+CBERT FI is GA
           ECC = ECC + 2*FI(II)
         END DO
       END DO
@@ -2889,6 +2910,7 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
               DO KSYM = 1, NSMOB
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
+CBERT FI is GA
                   FI(IJ) = FI(IJ) 
      &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
                 END DO
@@ -2936,7 +2958,8 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 * Last revision, Aug. 28 2012, Jeppe Olsen, updated to modern times
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      integre FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*),NINOBS(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
@@ -2957,6 +2980,7 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
         II = IIOFF-1
         DO I = 1, NINOBS(ISM)
           II = II + I
+CBERT FI is GA
           ECC = ECC + 2*FI(II)
         END DO
       END DO
@@ -2995,6 +3019,7 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
               DO KSYM = 1, NSMOB
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
+CBERT FI is GA
                   FI(IJ) = FI(IJ) 
      &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
                 END DO
