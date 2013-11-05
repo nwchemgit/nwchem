@@ -9803,11 +9803,11 @@ c..
         do i=1,nmo
          call ga_get(g_movecs(1),1,nbf,i,i,dbl_mb(k_veci),1)
          j=int_mb(k_reord+i-1)
-         write(6,*)'new index:',j
+c        write(6,*)'new index:',j
          call ga_put(g_moreo,1,nbf,j,j,dbl_mb(k_veci),1)
         end do
       endif
-        call ga_print(g_moreo)
+c       call ga_print(g_moreo)
 c       call util_flush(6)
 c..
         if(.not.ma_pop_stack(l_veci))
@@ -9837,7 +9837,7 @@ c..  1-e integrals
          call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
          call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
          call moints_1e(nbf, basis, g_moreo, g_hcore)
-         call ga_print(g_hcore)
+c        call ga_print(g_hcore)
 c..  2-e integrals
          noper = nbf*(nbf+1)/2
          g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
@@ -9847,7 +9847,7 @@ c..  2-e integrals
          call moints_build_2x(basis,.true.,oskel,1,1,nbf,1,nbf,
      $        g_moreo,g_coul,.true.,g_exch,.true.,blen,.true.)
 c        call ga_print(g_coul)
-         call util_flush(6)
+c        call util_flush(6)
 c        call ga_print(g_exch)
 c.. To write in LUCIA format
          if(ga_nodeid().eq.0)then

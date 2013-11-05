@@ -1742,7 +1742,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           IGRPABS = IGRP-1 + IBSPGPFTP(ITP)
           CALL NSTPTP_GAS_NEW(NGAS,ISPGPFTP(1,IGRPABS),
      &                    int_mb(KNSTSGP(1)),NSMST,
-     &                    WORK(KNSTSO(ITP)),IGRP,MXNSTRFSG,
+     &                    int_mb(KNSTSO(ITP)),IGRP,MXNSTRFSG,
      &                    NSMCLS,NSMCLSE,NSMCLSE1,NSTR_AS)
 *
           MXSMCLS   = MAX(MXSMCLS,NSMCLS)
@@ -1757,11 +1757,11 @@ C     DIMENSION IOCTYP(MXPNGAS)
      &                 MXNSTR, MXNSTR_AS  
         END IF
 *        
-        CALL ICOPMT(WORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
+        CALL ICOPMT(int_mb(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
      &              NSTFSMSPGP(1,IBSPGPFTP(ITP)),MXPNSMST,NSPGPFTP(ITP))
 *. Corresponding offset array : Each supergroup is generated individually
 *. so each supergroup starts with offset 1 !
-        CALL ZSPGPIB(WORK(KNSTSO(ITP)),WORK(KISTSO(ITP)),
+        CALL ZSPGPIB(int_mb(KNSTSO(ITP)),int_mb(KISTSO(ITP)),
      &                NSPGPFTP(ITP),NSMST)
 *
         IF(NTEST.GE.5) THEN
@@ -1770,7 +1770,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           IF(NTEST.GE.10) THEN
           WRITE(6,*) 
      &    ' Number of strings per sym (row) and supergroup(column)' 
-          CALL IWRTMA(WORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
+          CALL IWRTMA(int_mb(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
      &                NSMST,NSPGPFTP(ITP))
           END IF
           WRITE(6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',
@@ -1879,8 +1879,8 @@ COLD &           0,0,NOBPT)
 C?    WRITE(6,*) ' IBSPGPFTP: '
 C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP) 
       IZERO = 0
-      CALL ISETVC(WORK(KSPGPCR),IZERO,NGAS*NTSPGP)
-      CALL ISETVC(WORK(KSPGPAN),IZERO,NGAS*NTSPGP)
+      CALL ISETVC(int_mb(KSPGPCR),IZERO,NGAS*NTSPGP)
+      CALL ISETVC(int_mb(KSPGPAN),IZERO,NGAS*NTSPGP)
 *
       CALL QENTER('SPGPA')
       DO ISTTYP = 1,NSTTYP
@@ -1906,7 +1906,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
         IF(ISTTYPC.GE.1.AND.NSPGPFTP(ISTTYPC).GT.0) THEN
            CALL SPGP_AC(NELFSPGP(1,1), NSPGPFTP(ISTTYP),
      &                  NELFSPGP(1,1),NSPGPFTP(ISTTYPC),
-     &                  NGAS,MXPNGAS,2,WORK(KSPGPCR),
+     &                  NGAS,MXPNGAS,2,int_mb(KSPGPCR),
      &                  IBSPGPFTP(ISTTYP),IBSPGPFTP(ISTTYPC))
         END IF
 *
@@ -1925,7 +1925,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
         IF(ISTTYPA.GE.1 .AND.NSPGPFTP(ISTTYPA).GT.0) THEN
            CALL SPGP_AC(NELFSPGP(1,1), NSPGPFTP(ISTTYP),
      &                  NELFSPGP(1,1),NSPGPFTP(ISTTYPA),
-     &                  NGAS,MXPNGAS,1,WORK(KSPGPAN),
+     &                  NGAS,MXPNGAS,1,int_mb(KSPGPAN),
      &                  IBSPGPFTP(ISTTYP),IBSPGPFTP(ISTTYPA))
         END IF
       END IF ! type has a nonvanishing number of strings
@@ -1935,9 +1935,9 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
         NSPGP_TOT = IELSUM(NSPGPFTP,NSTTYP)
         WRITE(6,*) ' NSPGP_TOT = ', NSPGP_TOT
         WRITE(6,*) ' Annihilation mappings of supergroups: '
-        CALL IWRTMA(WORK(KSPGPAN),NSPGP_TOT,1,NSPGP_TOT,1)
+        CALL IWRTMA(int_mb(KSPGPAN),NSPGP_TOT,1,NSPGP_TOT,1)
         WRITE(6,*) ' Creation mappings of supergroups: '
-        CALL IWRTMA(WORK(KSPGPCR),NSPGP_TOT,1,NSPGP_TOT,1)
+        CALL IWRTMA(int_mb(KSPGPCR),NSPGP_TOT,1,NSPGP_TOT,1)
       END IF
 *
       CALL QEXIT('SPGPA')

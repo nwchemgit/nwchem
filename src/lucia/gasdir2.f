@@ -1676,20 +1676,20 @@ C?    WRITE(6,*) ' LUC in SBLOCK ', LUC
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB,MXSTBL0)
@@ -1837,39 +1837,39 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       IF(IDC.EQ.2) THEN
 *. scale
         CALL SCDTTS(CB,IRBLOCK(1,IROFF),NRBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
         CALL SCDTTS(HCB,ILBLOCK(1,ILOFF),NLBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
 *. reform
         CALL RFTTS(CB,dbl_mb(KC2),IRBLOCK(1,IROFF),NRBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
         CALL RFTTS(HCB,dbl_mb(KC2),ILBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
       END IF
 *
       CALL SBLOCKS2(NLBLOCK,ILBLOCK(1,ILOFF),NRBLOCK,IRBLOCK(1,IROFF),
      &            CB,HCB,dbl_mb(KC2),
      &            int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
-     &            NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &            NACOB,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,
      &            IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &            ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &            LSCR1,dbl_mb(KINSCR),WORK(KCSCR),WORK(KSSCR),
-     &            SXSTSM,dbl_mb(KSTSTS),WORK(KSTSTD),SXDXSX,
+     &            LSCR1,dbl_mb(KINSCR),dbl_mb(KCSCR),dbl_mb(KSSCR),
+     &            SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &            ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &            dbl_mb(KOOS1),dbl_mb(KOOS2),dbl_mb(KOOS3),
      $            dbl_mb(KOOS4),
      &            dbl_mb(KOOS5),int_mb(KI1),dbl_mb(KXI1S),
-     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
-     &            PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
-     &            WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
+     &            PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
+     &            dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &            int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &            MOCAA,MOCAB,IAPR,IRESTRICT)
 *
@@ -1877,11 +1877,11 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. reform 
         CALL RFTTS(HCB,CB,ILBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,1,NTEST)
 *. scale
         CALL SCDTTS(HCB,ILBLOCK(1,ILOFF),NLBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,1,NTEST)
       END IF
 
@@ -1989,20 +1989,20 @@ C?    WRITE(6,*) ' LUC in SBLOCK ', LUC
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -2149,19 +2149,19 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       IF(IDC.EQ.2) THEN    
 *. scale
         CALL SCDTTS(CB,IBLOCK(1,IROFF),NRBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
         CALL SCDTTS(HCB,IBLOCK(1,ILOFF),NLBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
 *. reform 
         CALL RFTTS(CB,dbl_mb(KC2),IBLOCK(1,IROFF),NRBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
         CALL RFTTS(HCB,dbl_mb(KC2),IBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,2,NTEST)
       END IF
 C?    WRITE(6,*) ' HCB before call to SBLOCKS2'
@@ -2178,20 +2178,20 @@ C    &                  NSASO,NSBSO,IDC,IWAY,IPRNT)
       CALL SBLOCKS2(NLBLOCK,IBLOCK(1,ILOFF),NRBLOCK,IBLOCK(1,IROFF),
      &            CB,HCB,dbl_mb(KC2),
      &            int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
-     &            NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &            NACOB,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,
      &            IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &            NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &            ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &            LSCR1,dbl_mb(KINSCR),WORK(KCSCR),WORK(KSSCR),
-     &            SXSTSM,WORK(KSTSTS),WORK(KSTSTD),SXDXSX,
+     &            LSCR1,dbl_mb(KINSCR),dbl_mb(KCSCR),dbl_mb(KSSCR),
+     &            SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &            ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &            dbl_mb(KOOS1),dbl_mb(KOOS2),dbl_mb(KOOS3),
      &            dbl_mb(KOOS4),
      &            dbl_mb(KOOS5),int_mb(KI1),dbl_mb(KXI1S),
      &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
-     &            PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
-     &            WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &            PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
+     &            dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &            int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &            MOCAA,MOCAB,IAPR,IRESTRICT)
 *
@@ -2203,11 +2203,11 @@ C    &              IDC,1,NTEST)
 *. reform 
         CALL RFTTS(HCB,dbl_mb(KC2),IBLOCK(1,ILOFF),NLBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,1,NTEST)
 *. scale
         CALL SCDTTS(HCB,IBLOCK(1,ILOFF),NLBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,1,NTEST)
       END IF
 C     RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,
@@ -3087,7 +3087,7 @@ c      INCLUDE 'mxpdim.inc'
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
       CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')  !done
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFIO),WORK(KINT1),NINT1)
@@ -3122,7 +3122,7 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
 *
       CALL IAIBCM(ISPC,int_mb(KLVIOIO))
       KSVST = 0
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLVBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLVBLTP),dbl_mb(KSVST))
 *
 *. Space for partitioning of vectors
       NTTS = MXNTTS              
@@ -3132,8 +3132,8 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL MEMMAN(KLVIBT ,8*NTTS,'ADDL  ',1,'VIBT  ')  !done
 *
       LSCR1 = 0
-      CALL PART_CIV2(IDC,dbl_mb(KLVBLTP),WORK(KNSTSO(IATP)),
-     &               WORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,
+      CALL PART_CIV2(IDC,dbl_mb(KLVBLTP),int_mb(KNSTSO(IATP)),
+     &               int_mb(KNSTSO(IBTP)),NOCTPA,NOCTPB,
      &               NSMST,LSCR1,int_mb(KLVIOIO),ISMOST(1,ISM),
      &               NXBATCH,int_mb(KLVLBT),int_mb(KLVLEBT),
      &               int_mb(KLVI1BT),int_mb(KLVIBT),1,
@@ -3148,8 +3148,8 @@ C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
       CALL DIATERMS_GAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
      &             NTOOB,VEC,NSMST,dbl_mb(KLH1D),
      &             IDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
-     &             dbl_mb(KLJ),
-     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &             dbl_mb(KLJ),dbl_mb(KLK),
+     &             int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &             ECORES,LUIN,LUOUT,
      &             IPRDIA,NTOOB,
      &             dbl_mb(KLRJKA),
@@ -3166,7 +3166,7 @@ C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
         WRITE(6,*)  ' output vector from DIA0TRM '
         CALL WRTTTS(VEC,int_mb(KLVIBT),NBLOCKT,
      &              NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC)
+     &              int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),IDC)
       END IF
 *
       RETURN
@@ -3269,7 +3269,7 @@ C     END IF
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR') !done
       CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR') !done
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IUSE_PH.EQ.1) THEN
@@ -3293,8 +3293,8 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL DIATERMS_GAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
      &             NTOOB,VEC,NSMST,dbl_mb(KLH1D),
      &             JDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
-     &             dbl_mb(KLJ),
-     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &             dbl_mb(KLJ),dbl_mb(KLK),
+     &             int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &             ECOREP,0,0,
      &             IPRDIA,NTOOB,
      &             dbl_mb(KLRJKA),
@@ -3312,7 +3312,7 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
         WRITE(6,*)  ' output vector from DIATRM '
         CALL WRTTTS(VEC,IBLOCK(1,IOFF),NBLOCK,
      &              NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC)
+     &              int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),IDC)
       END IF
 *
       RETURN
@@ -3416,7 +3416,7 @@ c      INCLUDE 'mxpdim.inc'
 C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL MEMMAN(KLASTR,MXNSTR*NAEL,'ADDL  ',1,'KLASTR')  !done
       CALL MEMMAN(KLBSTR,MXNSTR*NAEL,'ADDL  ',1,'KLBSTR')  !done
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
@@ -3445,8 +3445,8 @@ C       WRITE(6,*) ' ECORE_ORIG, ECORE', ECORE_ORIG,ECORE
       CALL DIATERMS_GAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
      &             NTOOB,VEC,NSMST,dbl_mb(KLH1D),
      &             IDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
-     &             dbl_mb(KLJ),
-     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &             dbl_mb(KLJ),dbl_mb(KLK),
+     &             int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &             ECORE,0,0,
      &             IPRDIA,NTOOB,
      &             dbl_mb(KLRJKA),
@@ -3462,7 +3462,7 @@ C       WRITE(6,*) ' ECORE_ORIG, ECORE', ECORE_ORIG,ECORE
         WRITE(6,*)  ' output vector from DIATRM '
         CALL WRTTTSC(VEC,IBLOCK(1,IOFF),NBLOCK,
      &              NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC,
+     &              int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),IDC,
      &              I0CHK,I0BLK)
       END IF
 *
@@ -4995,7 +4995,7 @@ C     IF(ISIMSYM.EQ.0) THEN
      &     int_mb(KI1),dbl_mb(KXI1S),
      &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,int_mb(KSVST),
      &     PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
-     &     WORK(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &     dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &     MOCAA,MOCAB,IAPR,
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),int_mb(KCIBT),
@@ -5021,7 +5021,7 @@ C    &     PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
 C    &     WORK(KSIRES),WORK(KI3),WORK(KXI3S),
 C    &     WORK(KI4),WORK(KXI4S),MXSXST,MXSXBL,
 C    &     MOCAA,MOCAB,IAPR,
-C    &     WORK(KLLBT),WORK(KLLEBT),WORK(KLI1BT),WORK(KLIBT),
+C    &     WORK(KLLBT),WORK(KLLEBT),WORK(KLI1BT),int_mb(KLIBT),
 C    &     IRESTRICT,WORK(KCONSPA),WORK(KCONSPB),WORK(KLSCLFAC),
 C    &     LUCBLK,IPERTOP,IH0INSPC,WORK(KLH0SPC),
 C    &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
@@ -5956,9 +5956,9 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLACCLI,NOCCLS_MAX,'ADDL  ',1,'ACCLI ')  !done
       CALL MEMMAN(KLACCLO,NOCCLS_MAX,'ADDL  ',1,'ACCLO ')  !done
 *          OCCLS_IN_CI(NOCCLS_MAX,IOCCLS,ICISPC,NINCCLS,INCCLS)
-      CALL OCCLS_IN_CI(NOCCLS_MAX,WORK(KIOCCLS),INSPC,NACTI,
+      CALL OCCLS_IN_CI(NOCCLS_MAX,int_mb(KIOCCLS),INSPC,NACTI,
      &     int_mb(KLACCLI))
-      CALL OCCLS_IN_CI(NOCCLS_MAX,WORK(KIOCCLS),IUTSPC,NACTO,
+      CALL OCCLS_IN_CI(NOCCLS_MAX,int_mb(KIOCCLS),IUTSPC,NACTO,
      &     int_mb(KLACCLO))
 *
 *
@@ -5997,7 +5997,7 @@ C         ECORE = ECORE_ORIG + ECCP
       
         CALL DIRDIR1N(E0,ECORE,INSPC,IUTSPC,ISM,LUIN,
      &       dbl_mb(KLS11),dbl_mb(KLS01),dbl_mb(KLRES0),dbl_mb(KLE2),
-     &       NOCCLS_MAX,WORK(KIOCCLS),NACTI,int_mb(KLACCLI),
+     &       NOCCLS_MAX,int_mb(KIOCCLS),NACTI,int_mb(KLACCLI),
      &       NACTO,int_mb(KLACCLO),LUSCR,LUSCR2,LEVEL,LU1,EOUT)
 *
       RETURN
@@ -6170,20 +6170,20 @@ C START
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -6222,9 +6222,10 @@ C START
 *. redundant..
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTEST,NSBLOCK,NSBATCH,
-     &       int_mb(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
-     &       WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
-     &       WORK(KSIBT),IDUM,IDUM,ILTEST)
+     &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
+     &       dbl_mb(KSIOCCLS_ACT),
+     &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
+     &       int_mb(KSIBT),IDUM,IDUM,ILTEST)
       END IF
 * KSLBT: Number of blocks per batch
 * KSLEBT: Number of elements per batch
@@ -6309,8 +6310,8 @@ CT      CALL Z_BLKFO_FOR_CISPACE(ISPC2,ISSM,LBLOCK,ICOMP,
 CT   &       NTEST,NC2BLOCK,NC2BATCH,
 CT   &       WORK(KLIOIO2),WORK(KLBLTP2),NC2OCCLS_ACT,
 CT   &       WORK(KC2IOCCLS_ACT),
-CT   &       WORK(KLC2LBT),WORK(KLLEBT2),WORK(KSLBLK),WORK(KSI1BT),
-CT   &       WORK(KSIBT),
+CT   &       WORK(KLC2LBT),WORK(KLLEBT2),int_mb(KSLBLK),int_mb(KSI1BT),
+CT   &       int_mb(KSIBT),
 CT   &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
 *
 CT      CALL IAIBCM(ISPC2,WORK(KLIOIO2))
@@ -6372,13 +6373,13 @@ CT     END IF! Level = 3
 *. H(apr) |0>
       ZERO = 0.0D0
       IPART = MPORENP
-      CALL DIA0TRM_GAS(1,LUC,LUSCR,WORK(KCB),WORK(KSB),ZERO)
+      CALL DIA0TRM_GAS(1,LUC,LUSCR,dbl_mb(KCB),dbl_mb(KSB),ZERO)
 *. <0|H(apr)|0>
       ONE = 1.0D0
-      HAPR00 = INPRDD(WORK(KCB),WORK(KSB),LUC,LUSCR,1,LBLK)
-      CALL VECSMD(WORK(KCB),WORK(KSB),ONE,-HAPR00,
+      HAPR00 = INPRDD(dbl_mb(KCB),dbl_mb(KSB),LUC,LUSCR,1,LBLK)
+      CALL VECSMD(dbl_mb(KCB),dbl_mb(KSB),ONE,-HAPR00,
      &            LUSCR,LUC,LUSCR2,1,LBLK)
-      XNORM = INPRDD(WORK(KCB),WORK(KSB),LUSCR2,LUSCR2,1,LBLK)
+      XNORM = INPRDD(dbl_mb(KCB),dbl_mb(KSB),LUSCR2,LUSCR2,1,LBLK)
 *
       IF(ABS(XNORM/HAPR00) .LE. 1.0D-12) THEN
        IHAPREIG = 1
@@ -6396,8 +6397,8 @@ CT     END IF! Level = 3
       HAPRM100 = 0.0D0
       IF(IHAPREIG.EQ.0) THEN
 *<0!(H(apr)-E0)**-1 |0>
-        CALL DIA0TRM_GAS(2,LUC,LUSCR,WORK(KCB),WORK(KSB),-E0)
-        HAPRM100  = INPRDD(WORK(KCB),WORK(KSB),LUC,LUSCR,1,LBLK)
+        CALL DIA0TRM_GAS(2,LUC,LUSCR,dbl_mb(KCB),dbl_mb(KSB),-E0)
+        HAPRM100  = INPRDD(dbl_mb(KCB),dbl_mb(KSB),LUC,LUSCR,1,LBLK)
         WRITE(6,*) ' HAPRM100', HAPRM100
       ENDIF
 *. First order energy 
@@ -6424,21 +6425,21 @@ C     stop ' Enforced stop in DIRDIR1N'
           CALL GFLUSH(6)
         END IF
 *. Information about this batch 
-        NBLOCK = IFRMR(WORK(KSLBT),1,IBATCH)
-        NELMNT = IFRMR(WORK(KSLEBT),1,IBATCH)
-        IBLOCK_OFF = IFRMR(WORK(KSI1BT),1,IBATCH)
+        NBLOCK = IFRMR(int_mb(KSLBT),1,IBATCH)
+        NELMNT = IFRMR(int_mb(KSLEBT),1,IBATCH)
+        IBLOCK_OFF = IFRMR(int_mb(KSI1BT),1,IBATCH)
         IF(NTEST.GE.100) THEN
           WRITE(6,*) ' NBLOCK, NELMNT = ', NBLOCK, NELMNT
         END IF
 *. Obtain blocks of first order corrections 
         SIN = 0.0D0
         CALL GET_BATCH_OF_FIRST
-     &       (NBLOCK,IBLOCK_OFF,NELMNT,WORK(KSIBT),ISM,IUTSPC,
+     &       (NBLOCK,IBLOCK_OFF,NELMNT,int_mb(KSIBT),ISM,IUTSPC,
      &        E0,E1T,SIN,LUC,IDC,
      &        int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
-     &        WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &        NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
-     &        WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &        int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &        NTBLOCKC,int_mb(KCIBT),int_mb(KLXIBT),int_mb(KLXISCR),
+     &        int_mb(KLXISC2),dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),SOUT,
      &        HAPR01,0,NTBLOCKS)
 C KLXIBT, KLXISCR, KLXISC2
 C     GET_BATCH_OF_FIRST
@@ -6453,25 +6454,25 @@ C    &            HAPR01,LU1,N1BLOCKT )
         IF(IC1DSC.EQ.1) THEN
 *. Save batch of first order corrections on DISC '
 C              EXTRROW2(INMAT,IROW,ICOLOFF,NROW,NCOL,IOUTVEC)
-          CALL EXTRROW2(WORK(KSIBT),8,IBLOCK_OFF,8,
-     &                  NBLOCK,WORK(KLISCR))
-          CALL TODSCN(WORK(KLB),NBLOCK,WORK(KLISCR),LBLK,LU1)
+          CALL EXTRROW2(int_mb(KSIBT),8,IBLOCK_OFF,8,
+     &                  NBLOCK,dbl_mb(KLISCR))
+          CALL TODSCN(dbl_mb(KLB),NBLOCK,dbl_mb(KLISCR),LBLK,LU1)
         END IF
 *
         S01T = S01T + SOUT
 *. Find contributions to 
 *. 1 : norm of nonorthogonalized first order correction vector
-        CALL CLASS_PROD(WORK(KLB),WORK(KLB),NOCTPA,NOCTPB,
+        CALL CLASS_PROD(dbl_mb(KLB),dbl_mb(KLB),NOCTPA,NOCTPB,
      &                  IBLOCK_OFF,NBLOCK,
-     &                  WORK(KSIBT),NOCCLS,IOCCLS,S11)
+     &                  int_mb(KSIBT),NOCCLS,IOCCLS,S11)
 *. 2 : norm of residual vector
-        CALL CLASS_PROD(WORK(KSB),WORK(KSB),NOCTPA,NOCTPB,
+        CALL CLASS_PROD(dbl_mb(KSB),dbl_mb(KSB),NOCTPA,NOCTPB,
      &                  IBLOCK_OFF,NBLOCK,
-     &                  WORK(KSIBT),NOCCLS,IOCCLS,RES0)
+     &                  int_mb(KSIBT),NOCCLS,IOCCLS,RES0)
 *. 3 :  contributions to second order energy correction
-        CALL CLASS_PROD(WORK(KSB),WORK(KLB),NOCTPA,NOCTPB,
+        CALL CLASS_PROD(dbl_mb(KSB),dbl_mb(KLB),NOCTPA,NOCTPB,
      &                  IBLOCK_OFF,NBLOCK,
-     &                  WORK(KSIBT),NOCCLS,IOCCLS,E2)
+     &                  int_mb(KSIBT),NOCCLS,IOCCLS,E2)
       END DO
 *. To put an end of to first order correction file  
       IF(IC1DSC.EQ.1) THEN
@@ -6523,29 +6524,30 @@ C              EXTRROW2(INMAT,IROW,ICOLOFF,NROW,NCOL,IOUTVEC)
 *. Loop over left batches, i.e.  batches of H(apr)!1>
         DO ILBATCH = 1, NSBATCH
           WRITE(6,*) ' Starting outer loop for left  batch ', ILBATCH
-          NLBLOCK = IFRMR(WORK(KSLBT),1,ILBATCH)
-          NLELMNT = IFRMR(WORK(KSLEBT),1,ILBATCH)
-          ILOFF = IFRMR(WORK(KSI1BT),1,ILBATCH)
+          NLBLOCK = IFRMR(int_mb(KSLBT),1,ILBATCH)
+          NLELMNT = IFRMR(int_mb(KSLEBT),1,ILBATCH)
+          ILOFF = IFRMR(int_mb(KSI1BT),1,ILBATCH)
 *. Loop over right batches, i.e.  batches of !1>
           DO IRBATCH  = 1, ILBATCH 
             WRITE(6,*) 
      &      '     Information about batches (left and right)',
      &      ILBATCH,IRBATCH
-            NRBLOCK = IFRMR(WORK(KSLBT),1,IRBATCH)
-            NRELMNT = IFRMR(WORK(KSLEBT),1,IRBATCH)
-            IROFF = IFRMR(WORK(KSI1BT),1,IRBATCH)
+            NRBLOCK = IFRMR(int_mb(KSLBT),1,IRBATCH)
+            NRELMNT = IFRMR(int_mb(KSLEBT),1,IRBATCH)
+            IROFF = IFRMR(int_mb(KSI1BT),1,IRBATCH)
 *
 * Obtain first order correction |1'> in IRBATCH 
 *
             IF(IC1DSC.EQ.0) THEN
               SIN = 0.0D0
               CALL GET_BATCH_OF_FIRST
-     &             (NRBLOCK,IROFF,NRELMNT,WORK(KSIBT),ISM,IUTSPC,
+     &             (NRBLOCK,IROFF,NRELMNT,int_mb(KSIBT),ISM,IUTSPC,
      &              E0,E1T,SIN   ,LUC,IDC,
      &              int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
-     &              WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &              NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
-     &              WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &              int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &              NTBLOCKC,int_mb(KCIBT),int_mb(KLXIBT),
+     &              int_mb(KLXISCR),int_mb(KLXISC2),
+     &              dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),SOUT,
      &              HAPR01,0,NTBLOCKS)
 C KLXIBT, KLXISCR, KLXISC2
 C     GET_BATCH_OF_FIRST
@@ -6557,16 +6559,16 @@ C    &            HAPR01,LU1,N1BLOCKT )
             ELSE
 *. Read in from DISC
               CALL GET_BLOCKS_FROM_DISC
-     &        (LU1,NRBLOCK,IROFF,WORK(KSIBT),NTBLOCKS,WORK(KLB),1)
+     &        (LU1,NRBLOCK,IROFF,int_mb(KSIBT),NTBLOCKS,dbl_mb(KLB),1)
             END IF 
 *
 *. Transfer batch of first order correction to  LUSCR2 
 *  ( Sblock/Sblocks assumes that blocks are  on disc)
 C              EXTRROW2(INMAT,IROW,ICOLOFF,NROW,NCOL,IOUTVEC)
-          CALL EXTRROW2(WORK(KSIBT),8,IROFF,8,
-     &                  NRBLOCK,WORK(KLXISCR))
+          CALL EXTRROW2(int_mb(KSIBT),8,IROFF,8,
+     &                  NRBLOCK,int_mb(KLXISCR))
           CALL REWINO(LUSCR2)
-          CALL TODSCNP(WORK(KLB),NRBLOCK,WORK(KLXISCR),-1,LUSCR2)
+          CALL TODSCNP(dbl_mb(KLB),NRBLOCK,int_mb(KLXISCR),-1,LUSCR2)
           CALL ITODS(-1,1,-1,LUSCR2)
 C         CALL ITODS(LREC(IREC),1,LBLK,LU)
 *
@@ -6579,7 +6581,8 @@ C           CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
 
             ICSPC = IUTSPC
             ISSPC = IUTSPC
-            CALL SBLOCK(NLBLOCK,WORK(KSIBT),ILOFF,WORK(KCB),WORK(KSB),
+            CALL SBLOCK(NLBLOCK,int_mb(KSIBT),ILOFF,dbl_mb(KCB),
+     &                  dbl_mb(KSB),
      &                  LUSCR2,IRESTR,0,1,IRBATCH,IRBATCH,0.0D0,ECORE,
      &                  CTASK)
 C     SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
@@ -6590,14 +6593,14 @@ C    &                  LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END)
 *. Add to previous obtained contributions to left batch of H apr !1>
             IF(IRBATCH.NE.1) THEN
               CALL REWINO(LUSCR)
-              CALL FRMDSC(WORK(KLB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
+              CALL FRMDSC(dbl_mb(KLB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
               ONE = 1.0D0
-              CALL VECSUM(WORK(KSB),WORK(KSB),WORK(KLB),ONE,ONE,
+              CALL VECSUM(dbl_mb(KSB),dbl_mb(KSB),dbl_mb(KLB),ONE,ONE,
      &                    NLELMNT)
             END IF
 *. And transfer to disc to save for future generations
             CALL REWINO(LUSCR)
-            CALL TODSC(WORK(KSB),NLELMNT,-1,LUSCR)
+            CALL TODSC(dbl_mb(KSB),NLELMNT,-1,LUSCR)
 *. Restore usual one-electron integrals
 C           CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
           END DO
@@ -6605,9 +6608,9 @@ C           CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
 *. Left Batch of H apr |1'> is now completed 
           IF(NTEST.GE.100) THEN
             WRITE(6,*) ' Batch of H0 |1> '
-            CALL WRTTTS2(WORK(KSB),WORK(KSIBT),NLBLOCK,ILOFF,
+            CALL WRTTTS2(dbl_mb(KSB),int_mb(KSIBT),NLBLOCK,ILOFF,
      &                  NSMST,NOCTPA,NOCTPB,
-     &                  WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC)
+     &                  int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),IDC)
           END IF
 *
 *. Obtain left batch of first order corrections
@@ -6617,12 +6620,13 @@ C           CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
           IF(IC1DSC.EQ.0) THEN
             SIN = 0.0D0
             CALL GET_BATCH_OF_FIRST
-     &           (NLBLOCK,ILOFF,NLELMNT,WORK(KSIBT),ISM,IUTSPC,
+     &           (NLBLOCK,ILOFF,NLELMNT,int_mb(KSIBT),ISM,IUTSPC,
      &            E0,E1T,SIN,LUC,IDC,
      &            int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
-     &            WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &            NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
-     &            WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &            int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &            NTBLOCKC,int_mb(KCIBT),int_mb(KLXIBT),int_mb(KLXISCR),
+     &            int_mb(KLXISC2),dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),
+     &            SOUT,
      &            HAPR01,0,NTBLOCKS)
 C KLXIBT, KLXISCR, KLXISC2
 C     GET_BATCH_OF_FIRST
@@ -6635,12 +6639,12 @@ C    &            HAPR01,LU1,N1BLOCKT )
           ELSE
 *. Read in from DISC
               CALL GET_BLOCKS_FROM_DISC
-     &        (LU1,NLBLOCK,ILOFF,WORK(KSIBT),NTBLOCKS,WORK(KLB),1)
+     &        (LU1,NLBLOCK,ILOFF,int_mb(KSIBT),NTBLOCKS,dbl_mb(KLB),1)
           END IF 
 *. Obtain saved sigma block 
           CALL REWINO(LUSCR)
-          CALL FRMDSC(WORK(KSB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
-          H011 = H011 + INPROD(WORK(KLB),WORK(KSB),NLELMNT)
+          CALL FRMDSC(dbl_mb(KSB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
+          H011 = H011 + INPROD(dbl_mb(KLB),dbl_mb(KSB),NLELMNT)
         END DO
 *       ^ End of loop over left batches
 *
@@ -6748,17 +6752,18 @@ C     END IF
             WRITE(6,*) ' Information about sigma BATCH ', IBATCH
           END IF
 *. Information about this batch
-          NBLOCK = IFRMR(WORK(KSLBT),1,IBATCH)
-          NELMNT = IFRMR(WORK(KSLEBT),1,IBATCH)
-          IBLOCK_OFF = IFRMR(WORK(KSI1BT),1,IBATCH)
+          NBLOCK = IFRMR(int_mb(KSLBT),1,IBATCH)
+          NELMNT = IFRMR(int_mb(KSLEBT),1,IBATCH)
+          IBLOCK_OFF = IFRMR(int_mb(KSI1BT),1,IBATCH)
 *. Obtain blocks of first order corrections
           CALL GET_BATCH_OF_FIRST
-     &         (NBLOCK,IBLOCK_OFF,NELMNT,WORK(KSIBT),ISM,IUTSPC,
+     &         (NBLOCK,IBLOCK_OFF,NELMNT,int_mb(KSIBT),ISM,IUTSPC,
      &          E0,E1T,ALPHA1,LUC,IDC,
      &          int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
-     &          WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &          NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
-     &          WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &          int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &          NTBLOCKC,int_mb(KCIBT),int_mb(KLXIBT),int_mb(KLXISCR),
+     &          int_mb(KLXISC2),dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),
+     &          SOUT,
      &          HAPR01,0,NTBLOCKS)
 C KLXIBT, KLXISCR, KLXISC2
 C     GET_BATCH_OF_FIRST
@@ -6768,12 +6773,12 @@ C    &            IOIO0,NOCTPA,NOCTPB,NSMST,NSASO,NSBSO,
 C    &            N0BLOCK,I0BLOCK,IXBLOCK,IX1,IX2,SB,CB,XB,SOUT,
 C    &            HAPR01,LU1,N1BLOCKT )
 *. On output : LB : Batch of first order correction
-          S11T = S11T + INPROD(WORK(KLB),WORK(KLB),NELMNT)
+          S11T = S11T + INPROD(dbl_mb(KLB),dbl_mb(KLB),NELMNT)
           HAPR01T = HAPR01T + HAPR01
 *. Save batch of first order corrections on DISC '
-          CALL EXTRROW2(WORK(KSIBT),8,IBLOCK_OFF,8,
-     &                  NBLOCK,WORK(KLXISCR))
-          CALL TODSCN(WORK(KLB),NBLOCK,WORK(KLXISCR),LBLK,LU1)
+          CALL EXTRROW2(int_mb(KSIBT),8,IBLOCK_OFF,8,
+     &                  NBLOCK,int_mb(KLXISCR))
+          CALL TODSCN(dbl_mb(KLB),NBLOCK,int_mb(KLXISCR),LBLK,LU1)
         END DO
       END IF
 
@@ -6808,9 +6813,9 @@ CTEST   WRITE(6,*) ' Restriction of batches removed for test '
         DO ILBATCH = 1, NSBATCH
           WRITE(6,*) ' Starting outer loop for left  batch ', ILBATCH
 *. Construct this batch of first order corrections and store in LUSCR
-          NLBLOCK = IFRMR(WORK(KSLBT),1,ILBATCH)
-          NLELMNT = IFRMR(WORK(KSLEBT),1,ILBATCH)
-          ILOFF = IFRMR(WORK(KSI1BT),1,ILBATCH)
+          NLBLOCK = IFRMR(int_mb(KSLBT),1,ILBATCH)
+          NLELMNT = IFRMR(int_mb(KSLEBT),1,ILBATCH)
+          ILOFF = IFRMR(int_mb(KSI1BT),1,ILBATCH)
 *
           IF(IRESTRICT.EQ.1) THEN
             IRMAX = ILBATCH
@@ -6825,19 +6830,20 @@ C         IRMAX = NSBATCH
      &      ILBATCH,IRBATCH
             CALL GFLUSH(6)
 *
-            NRBLOCK = IFRMR(WORK(KSLBT),1,IRBATCH)
-            NRELMNT = IFRMR(WORK(KSLEBT),1,IRBATCH)
-            IROFF = IFRMR(WORK(KSI1BT),1,IRBATCH)
+            NRBLOCK = IFRMR(int_mb(KSLBT),1,IRBATCH)
+            NRELMNT = IFRMR(int_mb(KSLEBT),1,IRBATCH)
+            IROFF = IFRMR(int_mb(KSI1BT),1,IRBATCH)
 * calculate first order corrections in R batch 
             ICSPC = INSPC
             ISSPC = IUTSPC
             CALL GET_BATCH_OF_FIRST
-     &           (NRBLOCK,IROFF,NRELMNT,WORK(KSIBT),ISM,IUTSPC,
+     &           (NRBLOCK,IROFF,NRELMNT,int_mb(KSIBT),ISM,IUTSPC,
      &            E0,E1T,ALPHA1,LUC,IDC,
      &            int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
-     &            WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &            NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
-     &            WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &            int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &            NTBLOCKC,int_mb(KCIBT),int_mb(KLXIBT),int_mb(KLXISCR),
+     &            int_mb(KLXISC2),dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),
+     &            SOUT,
      &            HAPR01,LU1,NTBLOCKS)
 C KLXIBT, KLXISCR, KLXISC2
 *. calculate those blocks of H |1(right_batch)> that resides in 
@@ -6846,10 +6852,10 @@ C KLXIBT, KLXISCR, KLXISC2
 *. Transfer batch of first order correction to  LUSCR2 
 *  ( Sblock/Sblocks assumes that blocks are  on disc)
 C                EXTRROW2(INMAT,IROW,ICOLOFF,NROW,NCOL,IOUTVEC)
-            CALL EXTRROW2(WORK(KSIBT),8,IROFF,8,
-     &                    NRBLOCK,WORK(KLXISCR))
+            CALL EXTRROW2(int_mb(KSIBT),8,IROFF,8,
+     &                    NRBLOCK,int_mb(KLXISCR))
             CALL REWINO(LUSCR2)
-            CALL TODSCNP(WORK(KLB),NRBLOCK,WORK(KLXISCR),-1,LUSCR2)
+            CALL TODSCNP(dbl_mb(KLB),NRBLOCK,int_mb(KLXISCR),-1,LUSCR2)
             CALL ITODS(-1,1,-1,LUSCR2)
 *
 *. Obtain (left) batch of H  |1(right_batch>  
@@ -6881,7 +6887,8 @@ C                EXTRROW2(INMAT,IROW,ICOLOFF,NROW,NCOL,IOUTVEC)
 C?          WRITE(6,*) ' < Left batch !H! Right batch > '
 *. We are only constructing half of the sigma, add Ecore later to avoid problems
             ECOREX = 0.0D0
-            CALL SBLOCK(NLBLOCK,WORK(KSIBT),ILOFF,WORK(KCB),WORK(KSB),
+            CALL SBLOCK(NLBLOCK,int_mb(KSIBT),ILOFF,dbl_mb(KCB),
+     &                  dbl_mb(KSB),
      &                  LUSCR2,IRESTRICT,0,1,IRBATCH,IRBATCH,0.0D0,
      &                  ECOREX, CTASK )
 C     SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
@@ -6899,65 +6906,66 @@ C    &                  ECORE,ITASK)
 *. Add to previous obtained contributions to left batch of H !1>
             IF(IRBATCH.NE.1) THEN
               CALL REWINO(LUSCR)
-              CALL FRMDSC(WORK(KLB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
+              CALL FRMDSC(dbl_mb(KLB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
               ONE = 1.0D0
-              CALL VECSUM(WORK(KSB),WORK(KSB),WORK(KLB),ONE,ONE,
+              CALL VECSUM(dbl_mb(KSB),dbl_mb(KSB),dbl_mb(KLB),ONE,ONE,
      &                    NLELMNT)
             END IF
 *. In last final batch, multiply with two to obtain full term
             IF(IRESTRICT.EQ.1.AND.IRBATCH.EQ.IRMAX) THEN
               TWO = 2.0D0
-              CALL SCALVE(WORK(KSB),TWO,NLELMNT)
+              CALL SCALVE(dbl_mb(KSB),TWO,NLELMNT)
             END IF
 *. And transfer to disc to save for future generations
             CALL REWINO(LUSCR)
-            CALL TODSCP(WORK(KSB),NLELMNT,-1,LUSCR)
+            CALL TODSCP(dbl_mb(KSB),NLELMNT,-1,LUSCR)
           END DO
 *         ^ End of loop over right batches
           IF(NTEST.GE.100) THEN
             WRITE(6,*) ' Batch of H |1> '
-            CALL WRTTTS2(WORK(KSB),WORK(KSIBT),NLBLOCK,ILOFF,
+            CALL WRTTTS2(dbl_mb(KSB),int_mb(KSIBT),NLBLOCK,ILOFF,
      &                  NSMST,NOCTPA,NOCTPB,
-     &                  WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC)
+     &                  int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),IDC)
           END IF
 *. construct left batch of first order corrections
           ICSPC = INSPC
           ISSPC = IUTSPC
           CALL GET_BATCH_OF_FIRST
-     &         (NLBLOCK,ILOFF,NLELMNT,WORK(KSIBT),ISM,IUTSPC,
+     &         (NLBLOCK,ILOFF,NLELMNT,int_mb(KSIBT),ISM,IUTSPC,
      &          E0,E1T,ALPHA1,LUC,IDC,
      &          int_mb(KCIOIO),NOCTPA,NOCTPB,NSMST,
-     &          WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &          NTBLOCKC,WORK(KCIBT),WORK(KLXIBT),WORK(KLXISCR),
-     &          WORK(KLXISC2),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &          int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &          NTBLOCKC,int_mb(KCIBT),int_mb(KLXIBT),int_mb(KLXISCR),
+     &          int_mb(KLXISC2),dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),
+     &          SOUT,
      &          HAPR01,LU1,NTBLOCKS)
 C KLXIBT, KLXISCR, KLXISC2
           IF(NTEST.GE.100) THEN
             WRITE(6,*) ' Left Batch of first order correction'
-            CALL WRTTTS2(WORK(KLB),WORK(KSIBT),NLBLOCK,ILOFF,
+            CALL WRTTTS2(dbl_mb(KLB),int_mb(KSIBT),NLBLOCK,ILOFF,
      &                   NSMST,NOCTPA,NOCTPB,
-     &                   WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),IDC)
+     &                   int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),IDC)
           END IF
 
           IF(IC1DSC.EQ.0)  HAPR01T = HAPR01T + HAPR01
-          S11T = S11T + INPROD(WORK(KLB),WORK(KLB),NLELMNT)
+          S11T = S11T + INPROD(dbl_mb(KLB),dbl_mb(KLB),NLELMNT)
 * <1|H0!1>
-          CALL COPVEC(WORK(KLB),WORK(KSB),NLELMNT)
+          CALL COPVEC(dbl_mb(KLB),dbl_mb(KSB),NLELMNT)
           FACTOR = 0.0D0
           ITASK = 2
           JPERT = 1
-          CALL DIATERM_GAS(FACTOR,ITASK,WORK(KSB),NLBLOCK,
-     &         WORK(KSIBT),ILOFF,JPERT,0,0)
-          H011 = H011 + INPROD(WORK(KLB),WORK(KSB),NLELMNT)
+          CALL DIATERM_GAS(FACTOR,ITASK,dbl_mb(KSB),NLBLOCK,
+     &         int_mb(KSIBT),ILOFF,JPERT,0,0)
+          H011 = H011 + INPROD(dbl_mb(KLB),dbl_mb(KSB),NLELMNT)
 *. <1|H|1>
           CALL REWINO(LUSCR)
-          CALL FRMDSC(WORK(KSB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
+          CALL FRMDSC(dbl_mb(KSB),NLELMNT,-1,LUSCR,IMZERO,IAMPACK)
 *. Update H11
-          H11 = H11 + INPROD(WORK(KLB),WORK(KSB),NLELMNT)
+          H11 = H11 + INPROD(dbl_mb(KLB),dbl_mb(KSB),NLELMNT)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' LB and SB vectors to H11 '
-            CALL WRTMAT(WORK(KLB),1,NLELMNT,1,NLELMNT)
-            CALL WRTMAT(WORK(KSB),1,NLELMNT,1,NLELMNT)
+            CALL WRTMAT(dbl_mb(KLB),1,NLELMNT,1,NLELMNT)
+            CALL WRTMAT(dbl_mb(KSB),1,NLELMNT,1,NLELMNT)
           END IF
         END DO
 *. Normalize to unit norm of first order correction 
@@ -7075,9 +7083,9 @@ C       E3T = (H11-E1T)*S11T - H011
         DO IBATCH2 = 1, NBATCH2
           WRITE(6,*) ' Starting outer loop for batch ', IBATCH2
 *. Construct this batch of first order corrections and store in LUSCR
-          NBLOCK2 = IFRMR(WORK(KLLBT2) ,1,IBATCH2)
-          NELMNT2 = IFRMR(WORK(KLLEBT2),1,IBATCH2)
-          IOFF2 = IFRMR(WORK(KLI1BT2)  ,1,IBATCH2)
+          NBLOCK2 = IFRMR(int_mb(KLLBT2) ,1,IBATCH2)
+          NELMNT2 = IFRMR(int_mb(KLLEBT2),1,IBATCH2)
+          IOFF2 = IFRMR(int_mb(KLI1BT2)  ,1,IBATCH2)
           write(6,*) ' NBLOCK2 NELMNT2 IOFF2 ',
      &                 NBLOCK2,NELMNT2,IOFF2
 *
@@ -7085,34 +7093,34 @@ C       E3T = (H11-E1T)*S11T - H011
 *
 C         HAPR01TX = 0.0D0
           CALL GET_BATCH_OF_SECOND
-     &         (NBLOCK2,IOFF2,NELMNT2,WORK(KLIBT2),ISM,ISPC2,
-     &         NSBATCH,WORK(KLSLBT),WORK(KLSLEBT),WORK(KLSIBT),
+     &         (NBLOCK2,IOFF2,NELMNT2,int_mb(KLIBT2),ISM,ISPC2,
+     &         NSBATCH,int_mb(KLSLBT),int_mb(KLSLEBT),int_mb(KLSIBT),
      &         ISM,ISPC1,
-     &         NBATCHC,WORK(KLCLBT),WORK(KLCIBT),ISPC0,
+     &         NBATCHC,int_mb(KLCLBT),int_mb(KLCIBT),ISPC0,
      &         E0,E1T,E2T,ALPHA1,LUC,LUSCR2,IDC,
      &         int_mb(KLCIOIO),NOCTPA,NOCTPB,NSMST,
-     &         WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &         WORK(KLIBT),WORK(KLISCR),WORK(KLISCR2),
-     &         WORK(KLB),WORK(KCB),WORK(KSB),SOUT,HAPR01T,LU1,
+     &         int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &         int_mb(KLIBT),dbl_mb(KLISCR),dbl_mb(KLISCR2),
+     &         dbl_mb(KLB),dbl_mb(KCB),dbl_mb(KSB),SOUT,HAPR01T,LU1,
      &         NTBLOCKS)
-          S22U = S22U + INPROD(WORK(KSB),WORK(KSB),NELMNT2)
+          S22U = S22U + INPROD(dbl_mb(KSB),dbl_mb(KSB),NELMNT2)
           S02T = S02T + SOUT
 *. Well now we have the second order correction in SB , save it !
           CALL REWINO(LUSCR)
-          CALL TODSC(WORK(KSB),NELMNT2,-1,LUSCR)
+          CALL TODSC(dbl_mb(KSB),NELMNT2,-1,LUSCR)
 *. The term <2|H0-E0|2>
 * (H0-E0)|2>
-          CALL COPVEC(WORK(KSB),WORK(KLB),NELMNT2)
+          CALL COPVEC(dbl_mb(KSB),dbl_mb(KLB),NELMNT2)
           FACTOR = - E0   
           ITASK = 2
           ECOREX = 0.0D0
           IUTSPC = ISPC2
           JPERT = 1
-          CALL DIATERM_GAS(FACTOR,ITASK,WORK(KLB),NBLOCK2,
-     &         WORK(KLIBT2),IOFF2,JPERT,0,0)
+          CALL DIATERM_GAS(FACTOR,ITASK,dbl_mb(KLB),NBLOCK2,
+     &         int_mb(KLIBT2),IOFF2,JPERT,0,0)
 C         DIATERM_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,
 C    &                     ISM,ISPC,ECORE,I12)
-          H022 = H022 + INPROD(WORK(KLB),WORK(KSB),NELMNT2)
+          H022 = H022 + INPROD(dbl_mb(KLB),dbl_mb(KSB),NELMNT2)
 *. The terms E2<1|2> and <1|V|2> : Loop over batches of first correction 
           IF(IWAY.NE.3) THEN
           DO IBATCH1 = 1, NSBATCH
@@ -7121,50 +7129,51 @@ C    &                     ISM,ISPC,ECORE,I12)
      &      '     Information about batches (First - and second order)',
      &      IBATCH1,IBATCH2
 *
-            NBLOCK1 = IFRMR(WORK(KLSLBT),1,IBATCH1)
-            NELMNT1 = IFRMR(WORK(KLSLEBT),1,IBATCH1)
-            IOFF1 = IFRMR(WORK(KLSI1BT),1,IBATCH1)
+            NBLOCK1 = IFRMR(int_mb(KLSLBT),1,IBATCH1)
+            NELMNT1 = IFRMR(int_mb(KLSLEBT),1,IBATCH1)
+            IOFF1 = IFRMR(int_mb(KLSI1BT),1,IBATCH1)
 * calculate first order corrections in batch
             ICSPC = ISPC0
             ISSPC = ISPC1
             CALL GET_BATCH_OF_FIRST
-     &           (NBLOCK1,IOFF1,NELMNT1,WORK(KLSIBT),ISM,ISPC1,
+     &           (NBLOCK1,IOFF1,NELMNT1,int_mb(KLSIBT),ISM,ISPC1,
      &            E0,E1T,ALPHA1,LUC,IDC,
      &            int_mb(KLCIOIO),NOCTPA,NOCTPB,NSMST,
-     &            WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &            NTBLOCKC,WORK(KLCIBT),WORK(KLIBT),WORK(KLI1BT),
-     &            WORK(KLISCR),WORK(KSB),WORK(KCB),WORK(KLB),SOUT,
+     &            int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &            NTBLOCKC,int_mb(KLCIBT),int_mb(KLIBT),int_mb(KLI1BT),
+     &            dbl_mb(KLISCR),dbl_mb(KSB),dbl_mb(KCB),dbl_mb(KLB),
+     &            SOUT,
      &            HAPR01,LU1,NTBLOCKS)
 *. First order correction is now in WORK(KLB)
 *. save on LUSCR after second order batch
 *. Position
             CALL REWINO(LUSCR)
-            CALL FRMDSC(WORK(KCB),NELMNT2,-1,LUSCR,IMZERO,IAMPACK)
+            CALL FRMDSC(dbl_mb(KCB),NELMNT2,-1,LUSCR,IMZERO,IAMPACK)
 *
-            CALL TODSC(WORK(KLB),NELMNT1,-1,LUSCR)
+            CALL TODSC(dbl_mb(KLB),NELMNT1,-1,LUSCR)
 *<2|H|1>
 *
             ICSPC = ISPC1
             ISSPC = ISPC2
 *
             ZERO = 0.0D0
-            CALL SETVEC(WORK(KCB),ZERO,NELMNT2)
+            CALL SETVEC(dbl_mb(KCB),ZERO,NELMNT2)
             I12 = 2
             IREST = 0
             CALL  SBATCH2_FROM_CBATCH(NBLOCK2,IOFF2,NBLOCK1,IOFF1,
-     &                                 WORK(KLIBT2),WORK(KLSIBT),
-     &                                 WORK(KLB),WORK(KCB),IREST)
+     &                                 int_mb(KLIBT2),int_mb(KLSIBT),
+     &                                 dbl_mb(KLB),dbl_mb(KCB),IREST)
 *. Result is in in KCB
 *. read second order batch into KSB
             CALL REWINO(LUSCR)
-            CALL FRMDSC(WORK(KSB),NELMNT2,-1,LUSCR,IMZERO,IAMPACK)
+            CALL FRMDSC(dbl_mb(KSB),NELMNT2,-1,LUSCR,IMZERO,IAMPACK)
 *
-            V12 = V12 + INPROD(WORK(KSB),WORK(KCB),NELMNT2)
+            V12 = V12 + INPROD(dbl_mb(KSB),dbl_mb(KCB),NELMNT2)
 *. Obtain <1|H0-E1|2> and subtract
 *. Second order blocks that are in first order  batch :
-            CALL GET_TTS_BLK_IN_VECTOR(NBLOCK2,WORK(KLIBT2),IOFF2,
-     &           WORK(KSB),NBLOCK1,WORK(KLSIBT),IOFF1,
-     &           NBLOCK12,NELMNT12,WORK(KLIBT),WORK(KLB))
+            CALL GET_TTS_BLK_IN_VECTOR(NBLOCK2,int_mb(KLIBT2),IOFF2,
+     &           dbl_mb(KSB),NBLOCK1,int_mb(KLSIBT),IOFF1,
+     &           NBLOCK12,NELMNT12,int_mb(KLIBT),dbl_mb(KLB))
 C           GET_TTS_BLK_IN_VECTOR
 C    &             (NBLOCKI,IBLOCKI,IOFFI,VECI,
 C    &              NBLOCKO,IBLOCKO,IOFFO,
@@ -7175,17 +7184,17 @@ C    &              NBLOCKIO,IBLCKIO,VECIO )
             ITASK = 2
             ECOREX = 0.0D0
             JPERT = 1
-            CALL DIATERM_GAS(FACTOR,ITASK,WORK(KLB),NBLOCK12,
-     &           WORK(KLIBT),1,JPERT,0,0)
+            CALL DIATERM_GAS(FACTOR,ITASK,dbl_mb(KLB),NBLOCK12,
+     &           int_mb(KLIBT),1,JPERT,0,0)
 *. extract the corresponding first order blocks
 *. Read in first order corrections in KCB
-            CALL FRMDSC(WORK(KCB),NELMNT1,-1,LUSCR,IMZERO,IAMPACK)
+            CALL FRMDSC(dbl_mb(KCB),NELMNT1,-1,LUSCR,IMZERO,IAMPACK)
 *. And extract the common blocks
-            CALL GET_TTS_BLK_IN_VECTOR(NBLOCK1,WORK(KLSIBT),IOFF1,
-     &           WORK(KCB),NBLOCK12,WORK(KLIBT),1,
-     &           NBLOCK12A,NELMNT12A,WORK(KLIBT),WORK(KSB))
+            CALL GET_TTS_BLK_IN_VECTOR(NBLOCK1,int_mb(KLSIBT),IOFF1,
+     &           dbl_mb(KCB),NBLOCK12,int_mb(KLIBT),1,
+     &           NBLOCK12A,NELMNT12A,int_mb(KLIBT),dbl_mb(KSB))
 *. Common   first order blocks are now in KSB
-            V12 = V12 - INPROD(WORK(KLB),WORK(KSB),NELMNT12)
+            V12 = V12 - INPROD(dbl_mb(KLB),dbl_mb(KSB),NELMNT12)
           END DO
           END IF
 *.End of loop over batches of first order corrections
@@ -8032,12 +8041,12 @@ CM    IREW = 1
         END IF
         CALL GET_TTS_BATCH(C,NBLOCK,IBLOCK(1,IOFF),NBLOCKT,IBLOCK,
      &                     NOCTPA,NOCTPB,NSMST,
-     &                     WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &                     int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &                     IDC,LU,ISCR,IREW,ISCAL)
       ELSE
         CALL GET_TTS_BATCHN(C,NBLOCK,IBLOCK(1,IOFF),NBLOCKT,IBLOCK,
      &                     NOCTPA,NOCTPB,NSMST,
-     &                     WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &                     int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &                     IDC,LU,IREW,ISCAL)
       END IF
       
@@ -9236,39 +9245,39 @@ C?    WRITE(6,*) ' I12 in SBLOCK = ', I12
       CALL MEMMAN(KCONSPB,NOCTPB**2,'ADDL  ',1,'CONSPB')
 C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
       CALL SPGRPCON(IOCTPA,NOCTPA,NGAS,MXPNGAS,NELFSPGP,
-     &              WORK(KCONSPA),IPRCIX)
+     &              int_mb(KCONSPA),IPRCIX)
       CALL SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,
-     &              WORK(KCONSPB),IPRCIX)
+     &              int_mb(KCONSPB),IPRCIX)
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
       CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')
       CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')
-      CALL STSTSM(WORK(KSTSTS),WORK(KSTSTD),NSMST)
+      CALL STSTSM(dbl_mb(KSTSTS),dbl_mb(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. Largest number of strings of given symmetry and type
       MAXA = 0
-      MAXA0 = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
+      MAXA0 = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
       MAXA = MAX(MAXA,MAXA0)
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
 *
       MAXB = 0
-      MAXB0 = IMNMX(WORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXB0 = IMNMX(int_mb(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
       MAXB = MAX(MAXB,MAXB0)
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -9438,7 +9447,7 @@ C     IF(IPERTOP.NE.0) THEN
         CALL MEMMAN(KLH0SPC,NOCTPA*NOCTPB,'ADDL  ',2,'H0SPC ')
         CALL H0INTSPC(IH0SPC,NPTSPC,IOCPTSPC,NOCTPA,NOCTPB,
      &                ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),
-     &                NGAS,MXPNGAS,WORK(KLH0SPC),NELFGP)
+     &                NGAS,MXPNGAS,dbl_mb(KLH0SPC),NELFGP)
 C       IF(IH0SPC.EQ.0) THEN
 *. Form of perturbation in subspace has not been defined,
 *. Use current IPART
@@ -9450,11 +9459,11 @@ C     END IF
 *. reform 
         CALL RFTTS(HCB,CB,IBLOCK(1,IBOFF),NBLOCK,
      &             2,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,1,NTEST)
 *. scale
         CALL SCDTTS(HCB,IBLOCK(1,IBOFF),NBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,2,NTEST)
       END IF
 *
@@ -9462,27 +9471,27 @@ C     IF(ISIMSYM.EQ.0) THEN
 *. June 30 : I will try to use go through the normal route with ISIMSYM :
       KSIPA = 0
       KCJPA = 0
-      CALL SIGDEN4_CI(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
+      CALL SIGDEN4_CI(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,dbl_mb(KC2),
      &     int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
-     &     NACOB,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &     NACOB,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &     NAEL,IATP,NBEL,IBTP,
      &     IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &     NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &     ITSOB,MAXIJ,MAXK,MAXI,INSCR,LSCR1,
-     &     LSCR1,WORK(KINSCR),WORK(KCSCR),WORK(KSSCR),
-     &     SXSTSM,WORK(KSTSTS),WORK(KSTSTD),SXDXSX,
+     &     LSCR1,dbl_mb(KINSCR),dbl_mb(KCSCR),dbl_mb(KSSCR),
+     &     SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &     ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &     WORK(KI1),WORK(KXI1S),
-     &     WORK(KI2),WORK(KXI2S),IDOH2,MXPOBS,WORK(KSVST),
-     &     PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
-     &     WORK(KSIRES),WORK(KI3),WORK(KXI3S),
-     &     WORK(KI4),WORK(KXI4S),MXSXST,MXSXBL,
+     &     int_mb(KI1),dbl_mb(KXI1S),
+     &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
+     &     PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
+     &     dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
+     &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,XSXBL,
      &     MOCAA,MOCAB,IAPR,
-     &     WORK(KLLBT),WORK(KLLEBT),WORK(KLI1BT),WORK(KLIBT),
-     &     IRESTRICT,WORK(KCONSPA),WORK(KCONSPB),WORK(KLSCLFAC),
-     &     LUCBLK,IPERTOP,IH0INSPC,WORK(KLH0SPC),
+     &     int_mb(KLLBT),int_mb(KLLEBT),int_mb(KLI1BT),int_mb(KLIBT),
+     &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),dbl_mb(KLSCLFAC),
+     &     LUCBLK,IPERTOP,IH0INSPC,dbl_mb(KLH0SPC),
      &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
-     &     IUSE_PA,WORK(KCJPA),WORK(KSIPA),ISIMSYM,WORK(KINSCR2),
+     &     IUSE_PA,int_mb(KCJPA),int_mb(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
      &     MXADKBLK,ICISTR,CV,ECORE)
 C     ELSE
 C     CALL SBLOCKSN(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
@@ -9501,7 +9510,7 @@ C    &     PSSIGN,IPRDIA,LUC,ICJKAIB,WORK(KCJRES),
 C    &     WORK(KSIRES),WORK(KI3),WORK(KXI3S),
 C    &     WORK(KI4),WORK(KXI4S),MXSXST,MXSXBL,
 C    &     MOCAA,MOCAB,IAPR,
-C    &     WORK(KLLBT),WORK(KLLEBT),WORK(KLI1BT),WORK(KLIBT),
+C    &     WORK(KLLBT),WORK(KLLEBT),WORK(KLI1BT),int_mb(KLIBT),
 C    &     IRESTRICT,WORK(KCONSPA),WORK(KCONSPB),WORK(KLSCLFAC),
 C    &     LUCBLK,IPERTOP,IH0INSPC,WORK(KLH0SPC),
 C    &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
@@ -9515,11 +9524,11 @@ C     END IF
 *. reform 
         CALL RFTTS(HCB,CB,IBLOCK(1,IBOFF),NBLOCK,
      &             1,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &             IDC,PSSIGN,1,NTEST)
 *. scale
         CALL SCDTTS(HCB,IBLOCK(1,IBOFF),NBLOCK,NSMST,NOCTPA,NOCTPB,
-     &              WORK(KNSTSO(IATP)), WORK(KNSTSO(IBTP)),
+     &              int_mb(KNSTSO(IATP)), int_mb(KNSTSO(IBTP)),
      &              IDC,1,NTEST)
       END IF
 *
@@ -10299,13 +10308,13 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL MEMMAN(KLBSTR,MXNSTR*NBEL,'ADDL  ',1,'KLBSTR')  !done
       IATP = 1
       NOCTPA = NOCTYP(IATP)
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
 C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KH),WORK(KINT1),NINT1)
+        CALL SWAPVE(dbl_mb(KH),WORK(KINT1),NINT1)
         ECORE_SAVE = ECORE
         ECORE = ECORE_ORIG
       END IF
@@ -10322,8 +10331,8 @@ C?    WRITE(6,*) ' ECOREP = ',  ECOREP
       CALL ADDDIA_TERMS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
      &             NACOB,CVEC,SVEC,NSMST,dbl_mb(KLH1D),
      &             IDC,dbl_mb(KLXA),dbl_mb(KLXB),dbl_mb(KLSCR),
-     &             dbl_mb(KLJ),
-     &             dbl_mb(KLK),WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &             dbl_mb(KLJ),dbl_mb(KLK),
+     &             int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &             ECOREP,
      &             IPRDIA,NTOOB,
      &             dbl_mb(KLRJKA),
