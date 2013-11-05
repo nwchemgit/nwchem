@@ -73,7 +73,7 @@ c#include "rtdb.fh"
 
 
 *     **** set the minimizer ****
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(40,0.0d0,0,E,1)
       minimizer = control_minimizer()
 
 *     **** generate phaze factors and local psp and core density ****
