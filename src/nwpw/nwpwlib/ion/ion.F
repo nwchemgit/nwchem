@@ -1842,7 +1842,9 @@ c      end do
 #include "ion.fh"
 
 *     **** local variables ****
-      integer i
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      integer i,ii
       double precision dt,h
 
 *     *** external functions ****
@@ -1851,31 +1853,26 @@ c      end do
       external         control_rotation,control_translation
       external         control_ion_time_step,ion_amass
 
-
-      dt = control_ion_time_step()   !** not really needed, but used to make r2 = r1 + v*dt 
-      h = 1.0d0/(dt)                 !** for rotation removal.
-
+      call Parallel_taskid(taskid)
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
 
-*     **** do a MC step put MC step into r2 temporarilly ***
-      i = int(util_random(0)*nion) + 1
+*     **** do a MC step put MC step into r1 temporarilly ***
+      if (taskid.eq.MASTER) then
+         i = int(util_random(0)*3*nion)
+         if (i.ge.(3*nion-1)) i = 3*nion-1
+      end if
+      call Parallel_Brdcst_ivalue(MASTER,i)
+      !ii = (i/3) + 1
+      h = alpha/dsqrt(1822.89d0)
+      dbl_mb(r1(1)+i) = dbl_mb(r0(1)+i) 
+     >                + (2.0d0*util_random(0)-1.0d0)*h
 
-c only update z direction for dimer test
-c      dbl_mb(r1(1)+(i-1)*3)   = dbl_mb(r0(1)+(i-1)*3) 
-c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
-c      dbl_mb(r1(1)+(i-1)*3+1) = dbl_mb(r0(1)+(i-1)*3+1) 
-c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
-      dbl_mb(r1(1)+(i-1)*3+2) = dbl_mb(r0(1)+(i-1)*3+2) 
-     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
-
-      
 
       call ion_same_FixIon(dbl_mb(r0(1)),dbl_mb(r1(1))) !** Stupid IBM **
 
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r1(1)), dbl_mb(r0(1)))
-
 
 
 *     **** make sure ions are in cell ***
@@ -1890,10 +1887,6 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
      > call remove_center_mass(dbl_mb(r1(1)),dbl_mb(r0(1)))
 
 *     **** remove rotation? ***
-         !r1 = r0 + v*dt = r0+rand_alpha
-         !v = rand_alpha/dt = (r1-r0)/dt = h*(r1-r0)
-         !v = h*(r1-r0)
-         !r0 = r1 - (v/h) = r1 - (h*(r1-r0)/h) = r1 - r1 + r0 = r0
       if (.not.control_rotation()) 
      > call ion_remove_rotation(h,nion,
      >                          dbl_mb(r0(1)),
