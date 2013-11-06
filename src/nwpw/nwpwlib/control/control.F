@@ -5122,4 +5122,81 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
+*     ***********************************
+*     *                                 *
+*     *        control_mc_aratio        *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_aratio()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_aratio',mt_dbl,1,value))
+     >  value = 0.234d0
+
+      control_mc_aratio = value
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_mc_Temperature   *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_Temperature()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_temperature',mt_dbl,1,value))
+     >  value = 298.15d0
+
+      control_mc_Temperature = value
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_mc_seed          *
+*     *                                 *
+*     ***********************************
+      integer function control_mc_seed()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer ivalue
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_seed',mt_int,1,ivalue))
+     >  ivalue =  9484821943
+
+      control_mc_seed = ivalue
+      return
+      end
+
+
 
