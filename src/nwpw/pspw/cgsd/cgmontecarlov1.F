@@ -59,10 +59,10 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,calc_pressure,nose,bo_cpmd,vverlet
+      logical verlet,mulliken,SA,calc_pressure
       logical oprint,lprint,hprint,qmmm,found,notfirststep,found_bak
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt,fmass,dte
+      real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
       real*8  sum,w,emotion_time_shift,wa,wr
       real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr,E25,E26
       real*8  ratio,aratio
@@ -151,27 +151,21 @@
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
-      logical  pspw_bqext,control_bo_cpmd
-      external pspw_bqext,control_bo_cpmd
+      logical  pspw_bqext
+      external pspw_bqext
 
       integer  control_bo_steps_in,control_bo_steps_out
-      integer  control_bo_algorithm
+      integer  control_bo_algorithm,control_mc_seed
       real*8   control_bo_time_step,control_rti,ion_ke,ion_Temperature
       external control_bo_steps_in,control_bo_steps_out 
-      external control_bo_algorithm
+      external control_bo_algorithm,control_mc_seed
       external control_bo_time_step,control_rti,ion_ke,ion_Temperature
-      real*8   ion_com_Temperature
-      external ion_com_Temperature
-      logical  control_Nose,control_SA,control_pressure,Nose_restart
-      real*8   control_Nose_Te,control_Nose_Tr,control_SA_decay,Nose_ssr
-      real*8   Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
-      real*8   Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
-      integer  Nose_Mchain,Nose_Nchain
-      external control_Nose,control_SA,control_pressure,Nose_restart
-      external control_Nose_Te,control_Nose_Tr,control_SA_decay,Nose_ssr
-      external Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
-      external Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
-      external Nose_Mchain,Nose_Nchain
+      real*8   control_mc_aratio,control_mc_Temperature
+      external control_mc_aratio,control_mc_Temperature
+      logical  control_SA,control_pressure
+      external control_SA,control_pressure
+      real*8   control_SA_decay
+      external control_SA_decay
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
 
@@ -295,7 +289,6 @@
 *     **** read in wavefunctions and initialize psi ****
       value = psi_initialize()
 
-
       !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
 
 *     **** electron and geodesic data structures ****
@@ -354,28 +347,18 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 
 *     **** Initialize thermostats ****
-      nose = control_Nose()
-      if (nose) call Nose_Init((ne(1)+ne(2)),0.01d0)
 
 *     **** Initialize simulated annealing ****
       SA       = .false.
       Tr_init  = 0.0d0
       sa_alpha(2) = 1.0d0
       if (control_SA()) then
-         if (nose) then
-            SA          = .true.
-            sa_decay(2) = control_SA_decay(2)
-            Tr_init     = control_Nose_Tr()
-         else
-            dt = control_bo_time_step()
-            SA          = .false.
-            sa_decay(2) = control_SA_decay(2)
-            sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) )
-         end if
+         dt = control_bo_time_step()
+         SA          = .false.
+         sa_decay(2) = control_SA_decay(2)
+         sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) )
       end if
 
-      bo_cpmd = control_bo_cpmd()
-      vverlet = (control_bo_algorithm().eq.1)
 
 
 *                |**************************|
@@ -587,39 +570,19 @@ c         end if
          write(luout,1310)
          if (.not.control_translation()) write(luout,1271)
          if (.not.control_rotation())    write(luout,1272)
-         if (.not.bo_cpmd) then
-            write(luout,1320) control_bo_time_step(),
-     >       control_bo_steps_in()*control_bo_steps_out(),
-     >       control_bo_steps_in(),control_bo_steps_out() 
-         else
-            write(luout,1321) control_bo_time_step(),
-     >       control_bo_fake_mass(),
-     >       control_bo_steps_in()*control_bo_steps_out(),
-     >       control_bo_steps_in(),control_bo_steps_out() 
-        end if
+         
+         write(luout,1320) control_bo_time_step(),
+     >    control_bo_steps_in()*control_bo_steps_out(),
+     >    control_bo_steps_in(),control_bo_steps_out() 
 
-         if(control_bo_algorithm().eq.0) write(6,1330) "Position Verlet"
-         if(control_bo_algorithm().eq.1) write(6,1330) "Velocity Verlet"
-         if(control_bo_algorithm().eq.2) write(6,1330) "Leap Frog"
 
          write(luout,1340) control_rti()
          write(luout,1222) eki0,ekg
          write(luout,1223) eki1
          write(luout,1224) (eki1-eki0)
-         if (nose) then
-           write(luout,1395)
-           if (Nose_restart()) then
-              write(luout,*) "    thermostats resused"
-           else
-              write(luout,*) "    thermostats initialized"
-           end if
-           do i=1,Nose_Nchain()
-             write(luout,1398) i,control_Nose_Tr(),Nose_Qr(i),
-     >                   Nose_Pr(i),Nose_Er0(i)
-           end do
-         else
-           write(luout,1394)
-         end if
+
+         write(luout,1394)
+       
         if (calc_pressure) write(luout,1393)
          if (control_SA()) then
            write(luout,1396) sa_decay(2)
@@ -630,11 +593,11 @@ c         end if
       end if
 
 *                |***************************|
-******************     simple MD loop        **********************
+******************  simple Monte-Carlo loop  **********************
 *                |***************************|
       if (taskid.eq.MASTER) call current_second(cpu2)
       if ((taskid.eq.MASTER).and.(.not.calc_pressure)) 
-     >   call nwpw_message(10)
+     >   call nwpw_message(12)
       if ((taskid.eq.MASTER).and.(calc_pressure)) 
      >   call nwpw_message(11)
 
@@ -645,10 +608,10 @@ c         end if
 
 
 *     *** fei io ****
-      call fei_init(rtdb)
+      !call fei_init(rtdb)
 
 *     **** ecce print ****
-      call ecce_print_module_entry('task Born-Oppenheimer')
+      call ecce_print_module_entry('task pspw Monte-Carlo')
       !call ecce_print_module_entry('driver')
       call movecs_ecce_print_off()
 
@@ -732,27 +695,31 @@ c         end if
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
-      if (vverlet) then
-         value = value.and.MA_push_get(mt_dbl,(3*nion),
-     >                                'fion1',fion1(2),fion1(1))
-      end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
-*     ***** do a simple md loop ***
+*     *******************************
+*     ***** do a simple mc loop *****
+*     *******************************
       notfirststep = .false.
-      dt = control_bo_time_step()
-      fmass = control_bo_fake_mass()
-      dte = dt*dt/fmass
+      dr = control_bo_time_step()
+
+      aratio = 0.234d0
+      aratio = control_mc_aratio()
+      beta = util_random(control_mc_seed()) !**seed the random number generator
+      beta = 1.0d0/(kb*control_mc_Temperature())
+
+      wa    = 0.0d0
+      wr    = 0.0d0
+      esum1 = 0.0d0
+      esum2 = 0.0d0
+      eave  = 0.0d0
+      evar  = 0.0d0
+
+
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
-      call cgsd_energy_gradient_md(dbl_mb(fion(1)))
-      eki1 = ion_ke()
-
-      r = 1.0d0
-      if (nose) r =  (1.0d0-0.5d0*dt*Nose_dXr())
-      call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r) 
-      if (nose) call Nose_Newton_Step(0.01d0,eki1)
+      !call cgsd_energy_gradient_md(dbl_mb(fion(1)))
 
       call xyz_write()
 
@@ -767,95 +734,58 @@ c         end if
 
 c       **** inner loop ****
         do i=1,it_in
-           if (vverlet) then
-              call dcopy(3*nion,dbl_mb(fion(1)),1,dbl_mb(fion1(1)),1)
-              call ion_shift21() 
+
+           call ion_MC_step(dr)
+           EV0 = cgsd_energy(.false.)
+           !call cgsd_energy_gradient_md(dbl_mb(fion(1)))
+           w = dexp(-beta*(EV0-EV))
+           alpha = util_random(0)
+
+
+           !*** accept the sequence ***
+           if (alpha.lt.w) then
+              EV = EV0
+              wa = wa + 1.0d0
+
+           !*** reject the sequence ***
            else
-              call ion_shift() 
-              if (nose) call Nose_shift()
+              call ion_MC_reject_step()
+              wr = wr + 1.0d0
            end if
 
-           if (bo_cpmd) then
-              if (notfirststep) then
-                 call psi_cpmd_step(dte)
-              else
-                 notfirststep = .true.
-                 call psi_cpmd_step(0.5d0*dte)
-              end if
+           esum1 = esum1 + EV
+           esum2 = esum2 + EV*EV
+           eave = esum1/(wa+wr)
+           evar = esum2/(wa+wr)
+           evar = evar - eave*eave
+           ratio = wa/(wa+wr)
+
+           if (oprint) then
+              write(luout,1350) (icount-1)*it_in+i,eave,EV,evar,
+     >                           ratio,aratio,wa,wr,dr
+              write(31,1360) ((icount-1)*it_in+i)*dt+emotion_time_shift,
+     >                      eave,EV,evar,ratio,wa,wr
+              call util_flush(luout)
+              call util_flush(31)
            end if
+           !call fei_output(EV,dbl_mb(fion(1)))
+           call xyz_write()
+           call MOTION_write(((icount-1)*it_in+i)*dt)
 
-           EV = cgsd_energy(.false.)
-           call cgsd_energy_gradient_md(dbl_mb(fion(1)))
-
-
-           eki1 = ion_ke()
-           if (nose) then
-              ssr = Nose_ssr()
-              call ion_nose_step(ssr,dbl_mb(fion(1)))
-              call Nose_Verlet_Step(0.01d0,eki1)
-           else if (vverlet) then
-              call ion_vverlet_step(dbl_mb(fion(1)),
-     >                              dbl_mb(fion1(1)))  
-              call ion_vshift()  
-              call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
-           else
-              call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
-           end if
         end do
-        eki1 = ion_ke()
+
+*       **** adjust MC steplength ****
+        dr = dr*(ratio/aratio)
+        !if (ratio.lt.aratio) dr = dr*0.95d0
+        !if (ratio.gt.aratio) dr = dr*1.05d0
+
         E25 = E25 + EV
         E26 = E26 + EV*EV
-
-
-        if (calc_pressure) then
-           call psi_1pressure_stress(pressure,p1,p2,stress)
-        end if
-
-        if (oprint) then
-           if (calc_pressure) then
-             if (nose) then
-             write(luout,1350) icount*it_in,EV+eki1+Nose_r_energy(),
-     >                         EV,eki1,ion_Temperature(),
-     >                         pressure*autoatm
-             write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                      EV+eki1+Nose_r_energy(),
-     >                      EV,eki1,ion_Temperature(),
-     >                      pressure*autoatm
-             else
-             write(luout,1350) icount*it_in,EV+eki1,EV,eki1,
-     >                         ion_Temperature(),
-     >                         pressure*autoatm
-             write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                      EV+eki1,EV,eki1,ion_Temperature(),
-     >                      pressure*autoatm
-             end if
-           else
-             if (nose) then
-             write(luout,1350) icount*it_in,EV+eki1+Nose_r_energy(),
-     >                         EV,eki1,ion_Temperature()
-             write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                      EV+eki1+Nose_r_energy(),
-     >                      EV,eki1,ion_Temperature()
-             else
-             write(luout,1350) icount*it_in,EV+eki1,EV,eki1,
-     >                         ion_Temperature()
-             write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                      EV+eki1,EV,eki1,ion_Temperature()
-             end if
-           end if
-           call util_flush(6)
-           call util_flush(31)
-        end if
-
-        call fei_output(EV,dbl_mb(fion(1)))
-        call xyz_write()
-        call MOTION_write(icount*it_in*dt)
 
 *        **** update thermostats using SA decay ****
          if (SA) then
            tt2 = icount*it_in*dt/sa_decay(2)
            Tr_new = Tr_init*dexp(-tt2)
-           call Nose_reset_T(Tr_new,Tr_new)
          end if
 
 *        **** exit early ****
@@ -873,7 +803,6 @@ c       **** inner loop ****
 
   102 continue
   
-      if (bo_cpmd) call psi_cpmd_end()
 
 *     **** close xyz and MOTION files ****
       call xyz_end()
@@ -891,7 +820,7 @@ c       **** inner loop ****
       end if
 
 *     *** close fei io ****
-      call fei_end()
+      !call fei_end()
 
 
 
@@ -1004,7 +933,6 @@ c      call control_up_print()
 *       **** write out Temperatures ****
          eki0 = ion_Temperature()
          write(luout,1480) eki0
-         write(luout,1490) ion_com_Temperature()
 
          eave = E25/dble(icount+icount_shift)
          evar = E26/dble(icount+icount_shift)
@@ -1128,7 +1056,6 @@ c      call control_up_print()
 c      call frac_occ_end()
       call meta_finalize(rtdb)
 
-      if (nose) call Nose_end()
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
@@ -1180,8 +1107,8 @@ c      call frac_occ_end()
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*                  PSPW Monte-Carlo                *')
- 1030 FORMAT(10X,'*     [    NVT and NPT Monte-Carlo simulation ]    *')
+ 1020 FORMAT(10X,'*               NWPW PSPW Calculation              *')
+ 1030 FORMAT(10X,'*     [  NVT and NPT Monte-Carlo simulation   ]    *')
  1035 FORMAT(10x,'*     [  NorthWest Chemistry implementation   ]    *')
  1040 FORMAT(10X,'*            version #1.00   07/18/06              *')
  1041 FORMAT(10X,'*    This code was developed by Eric J. Bylaska.   *')
