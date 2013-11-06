@@ -739,9 +739,9 @@ c       **** inner loop ****
            EV0 = cgsd_energy(.false.)
            !call cgsd_energy_gradient_md(dbl_mb(fion(1)))
            w = dexp(-beta*(EV0-EV))
-           alpha = util_random(0)
-
-
+           if (taskid.eq.MASTER) alpha = util_random(0)
+           call Parallel_Brdcst_value(MASTER,alpha)
+        
            !*** accept the sequence ***
            if (alpha.lt.w) then
               EV = EV0
@@ -778,6 +778,7 @@ c       **** inner loop ****
         dr = dr*(ratio/aratio)
         !if (ratio.lt.aratio) dr = dr*0.95d0
         !if (ratio.gt.aratio) dr = dr*1.05d0
+        call Parallel_Brdcst_value(MASTER,dr)
 
         E25 = E25 + EV
         E26 = E26 + EV*EV
