@@ -8,7 +8,7 @@
       interface
         subroutine utilc_nwchem_srcdir(string,length) bind(C)
           use, intrinsic                  :: ISO_C_BINDING
-          character (KIND=C_CHAR,LEN=256) :: string
+          character (KIND=C_CHAR)         :: string(256)
           integer (C_INT)                 :: length
         end subroutine
       end interface
