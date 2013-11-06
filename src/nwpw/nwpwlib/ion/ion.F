@@ -1858,14 +1858,13 @@ c      end do
 
 *     **** do a MC step put MC step into r1 temporarilly ***
       if (taskid.eq.MASTER) then
+         h = (2.0d0*util_random(0)-1.0d0)*alpha/dsqrt(1822.89d0)
          i = int(util_random(0)*3*nion)
          if (i.ge.(3*nion-1)) i = 3*nion-1
       end if
       call Parallel_Brdcst_ivalue(MASTER,i)
-      !ii = (i/3) + 1
-      h = alpha/dsqrt(1822.89d0)
-      dbl_mb(r1(1)+i) = dbl_mb(r0(1)+i) 
-     >                + (2.0d0*util_random(0)-1.0d0)*h
+      call Parallel_Brdcst_value(MASTER,h)
+      dbl_mb(r1(1)+i) = dbl_mb(r0(1)+i) + h
 
 
       call ion_same_FixIon(dbl_mb(r0(1)),dbl_mb(r1(1))) !** Stupid IBM **
