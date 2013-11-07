@@ -1844,8 +1844,8 @@ c      end do
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      integer i,ii
-      double precision dt,h
+      integer ii
+      double precision h(3)
 
 *     *** external functions ****
       logical          control_rotation,control_translation
@@ -1859,14 +1859,20 @@ c      end do
 
 *     **** do a MC step put MC step into r1 temporarilly ***
       if (taskid.eq.MASTER) then
-         h = (1.0d0*util_random(0)-0.5d0)*alpha
-         i = int(util_random(0)*3*nion)
-         if (i.ge.(3*nion-1)) i = 3*nion-1
+         h(1) = (1.0d0*util_random(0)-0.5d0)*alpha
+         h(2) = (1.0d0*util_random(0)-0.5d0)*alpha
+         h(3) = (1.0d0*util_random(0)-0.5d0)*alpha
+         ii = int(util_random(0)*nion)
+         if (ii.ge.(nion-1)) ii = nion-1
       end if
-      call Parallel_Brdcst_ivalue(MASTER,i)
-      call Parallel_Brdcst_value(MASTER,h)
-      dbl_mb(r1(1)+i) = dbl_mb(r2(1)+i) + h
-      dbl_mb(r0(1)+i) = h/alpha
+      call Parallel_Brdcst_ivalue(MASTER,ii)
+      call Parallel_Brdcst_values(MASTER,3,h)
+      dbl_mb(r1(1)+3*ii)   = dbl_mb(r2(1)+3*ii)   + h(1)
+      dbl_mb(r1(1)+3*ii+1) = dbl_mb(r2(1)+3*ii+1) + h(2)
+      dbl_mb(r1(1)+3*ii+2) = dbl_mb(r2(1)+3*ii+2) + h(3)
+      dbl_mb(r0(1)+3*ii)   = h(1)/alpha
+      dbl_mb(r0(1)+3*ii+1) = h(2)/alpha
+      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
 
 
       call ion_same_FixIon(dbl_mb(r2(1)),dbl_mb(r1(1))) !** Stupid IBM **

@@ -5172,6 +5172,30 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *        control_mc_ddx           *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_ddx()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_ddx',mt_dbl,1,value))
+     >  value = 0.d0
+
+      control_mc_ddx = value
+      return
+      end
+
 
 
 *     ***********************************
