@@ -861,7 +861,7 @@ c     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
 
  
 c check if gdisp yields same energy as edisp
-      if(abs((disp-gdsp)/disp).gt.1.d-8) then
+      if(abs((disp-gdsp)/disp).gt.1.d-3) then
          write(*,*) disp,gdsp
          call stoprun('internal error')
       endif !sanitycheck
