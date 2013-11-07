@@ -1,16 +1,37 @@
+C> \ingroup selci
+C> @{
+C>
+C> \brief The configuration generator
+C>
+C> A crude version of a configuration generator.
+C>
       subroutine selci_conf(rtdb, q, lword)
+      implicit none
 *
 * $Id$
 *
-#include "implicit.fh"
+*include "implicit.fh"
 #include "cconf.fh"
 #include "mptr.fh"
 #include "cselcifiles.fh"
 #include "rtdb.fh"
 #include "global.fh"
-      integer rtdb
-      dimension q(lword)
+c
+      integer rtdb  !< [Input] The RTDB handle
+      integer lword !< [Input] The length of the main memory array
+      double precision q(lword) !< [Scratch] Work space
+c
+      integer mdtoi, mitod
+      external mdtoi, mitod
       external data_selci_conf  ! For T3D to link block data
+c
+c     Local
+c
+      integer junk
+      integer indxci, irefo, jrefo
+c
+      double precision startc, startw
+      double precision endc,   endw
 c
 c     Crude version of a configuration generation program
 c     Needs much doing to it to be very useful
@@ -68,6 +89,9 @@ c
       endif
 c
       end
+C>
+C> \brief Construct the configuration table
+C>
       subroutine selci_start(rtdb,title, irefo)
 #include "implicit.fh"
 #include "errquit.fh"
@@ -257,6 +281,9 @@ c
          call selci_pkcon(norbs, iocc, irefo, nintpo, nbitpi)
          nref = 1
       endif
+cDEBUG
+      write(*,*)'*** selci: no. conf = ',nref
+cDEBUG
 c
 c     Determine state symmetry from the first conf
 c
@@ -647,3 +674,5 @@ c
      $     inttyp/-1/
 c
       end
+C>
+C> @}

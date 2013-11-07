@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_select(q, lword, nroot_arg, iwpt_arg, 
      $     thresh_arg, oupdate, energies)
 *
@@ -248,3 +251,5 @@ c
       call ga_sync()
 c
       end
+C>
+C> @}

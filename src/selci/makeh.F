@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_makeh(h,g,int12,int34,w1,w2,ioconf,indxci,hd,
      $     work1, work2, work3, f)
 *
@@ -127,3 +130,5 @@ c     if running in parallel need to get all the diags together
       close(iflham, status='keep')
 c
       end
+C>
+C> @}

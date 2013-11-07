@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_icopy(n,x,ix,y,iy)
       implicit integer (a-z)
 *
@@ -15,3 +18,5 @@ c
 c
       return
       end
+C>
+C> @}

@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_check(node)
 *
 * $Id$
@@ -14,5 +17,5 @@
          endif
       enddo
       end
-
-            
+C>
+C> @}

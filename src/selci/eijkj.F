@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_eijkj(e,i,k,j,ns,indbar,iocc,
      $     w1,w2,work,numf,numf2)
 *
@@ -104,3 +107,5 @@ c
       return
 c
       end
+C>
+C> @}

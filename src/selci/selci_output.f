@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_output(z,rowlow,rowhi,collow,colhi,rowdim,coldim,
      $     nctl)
 *
@@ -61,3 +64,5 @@ c.......................................................................
  1000 format (/1h ,16x,3(a6,i4,7x),(a6,i4))
  2000 format (a1,3hrow,i4,2x,4f17.11)
       end
+C>
+C> @}

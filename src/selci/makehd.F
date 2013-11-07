@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_makehd(hii,odonly,
      $     ns,nd,indbar,iocc,lists,listd,w1,w2,
      $              work1,work2,f,h,g,int12,int34,numf)
@@ -79,3 +82,5 @@ c
       endif
 c
       end
+C>
+C> @}

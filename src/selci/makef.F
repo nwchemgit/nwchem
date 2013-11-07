@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_makef(f,h,g,int12,int34,iocc,listd,lists,ns,nd,
      $     odonly)
 *
@@ -76,4 +79,5 @@ c
  10   continue
 c     
       end
-
+C>
+C> @}

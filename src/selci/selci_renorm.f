@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_renorm(n,a,ia,anorm)
 *
 * $Id$
@@ -18,3 +21,5 @@ c
       endif
 c
       end
+C>
+C> @}

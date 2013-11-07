@@ -1,7 +1,7 @@
-C> \defgroup selci Selected Configuration Interaction
-C>
 C> \file selci.F
 C> The main driver for the selected CI module
+C>
+C> \defgroup selci Selected Configuration Interaction
 C>
 C> \brief The Selected Configuration Interaction Module
 C>
@@ -10,7 +10,7 @@ C> Argonne [1].
 C>
 C> [1] R.J. Harrison, "Approximating full configuration interaction
 C>     with selected configuration interaction and perturbation theory",
-C>     J. Chem. Phys. <b>94</b> (1991), 5021,
+C>     J. Chem. Phys. <b>94</b> (1991), 5021-5031,
 C>     <a href="http://dx.doi.org/10.1063/1.460537">
 C>     10.1063/1.460537</a>.
 

@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_eijil(e,i,j,l,ns,indbar,iocc,
      $     w1,w2,work,numf,numf2)
 *
@@ -93,3 +96,5 @@ c
       numf2 = numf2m
 c
       end
+C>
+C> @}

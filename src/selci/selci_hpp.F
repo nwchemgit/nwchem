@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_hpp(rtdb, hpp,nbig,npvec,energy)
 c
 c     modified from sigma.F
@@ -108,4 +111,6 @@ c         call ga_dgop (99, si(1, iroot), nci, '+')
 c 1010 continue
 c     
       end
+C>
+C> @}
 c $Id$

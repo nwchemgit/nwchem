@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_eij(e,i,j,ns,indbar,iocc,w1,w2)
 *
 * $Id$
@@ -160,3 +163,5 @@ c     $     numf,numf2,numf)
       return
 c     
       end
+C>
+C> @}

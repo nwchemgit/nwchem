@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_makhdb(hij,ind,icase,ns,indbar,iocc,
      $     w1,w2,work1,work2,g,int12,int34,numf,numf2)
 *
@@ -79,3 +82,5 @@ c
       call daxpy(numf*numf2,gg,work2,1,hij,1)
 c
       end
+C>
+C> @}

@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_yacobi(a,u,n,big,jb)
       implicit real*8(a-h,o-z)
 *
@@ -152,3 +155,5 @@ c
 10    continue
       return
       end
+C>
+C> @}

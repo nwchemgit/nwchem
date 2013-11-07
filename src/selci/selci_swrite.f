@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_swrite(itape,a,n)
 *
 * $Id$
@@ -22,3 +25,5 @@ c
       write(itape) a
 c
       end
+C>
+C> @}

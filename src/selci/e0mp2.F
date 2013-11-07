@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_brdeig
 *
 * $Id$
@@ -106,3 +109,5 @@ c
       call selci_output(erefmp, 1, nroot, 1, 1, nroot, 1, 1)
 c
       end
+C>
+C> @}

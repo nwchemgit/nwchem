@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_eijeji(e,odonly,i,j,ns,indbar,iocc,w1,w2,work)
 *
 * $Id$
@@ -59,3 +62,5 @@ c
       endif
 c
       end
+C>
+C> @}

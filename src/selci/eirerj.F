@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_eirerj(e,i,ir,j,ns,indbar,iocc,w1,w2,work)
 *
 * $Id$
@@ -136,3 +139,5 @@ c     same as 30 except for last mxma
       return
 c
       end
+C>
+C> @}

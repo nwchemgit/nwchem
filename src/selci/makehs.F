@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_makehs(hij,i,j,ns,indbar,iocc,lists,
      $     w1,w2,work1,work2,f,g,int12,int34,numf,numf2)
 *
@@ -46,3 +49,5 @@ c
       endif
 c
       end
+C>
+C> @}

@@ -39,7 +39,11 @@ c     indxci = csf index into ci vector from orbital conf
 
 c
 *      parameter (nrefmx = 10000) ... now dynamically determined
+      integer ngenmx
       parameter (ngenmx=10)
+      integer nrefmx,nelec,multi,norbs,nref,ngen,nsym,issss,nnsmax
+      integer nintpo,nbitpi,nelpi,nci,iexcit,inttyp,nbpsy,isym
+      integer iocc,igen,nigen,nf,nsneed
       common/selci_cconf/
      $     nrefmx,
      $     nelec,multi,norbs,nref,ngen,nsym,issss,nnsmax,

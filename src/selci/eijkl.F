@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_eijkl(e,i,j,k,l,ns,indbar,iocc,w1,w2,
      $     work,numf,numf2)
 *
@@ -82,3 +85,5 @@ c
       call selci_axb(work,numf,temp,numfin,e,numf,numf,numfin,numf2)
 c
       end
+C>
+C> @}
