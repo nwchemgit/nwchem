@@ -1,3 +1,9 @@
+C> \file davids.F
+C> The Davidson diagonalizer
+C>
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
 * $Id$
@@ -568,3 +574,5 @@ c
       endif
 c
       end
+C>
+C> @}
