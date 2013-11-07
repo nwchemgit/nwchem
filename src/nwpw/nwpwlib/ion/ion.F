@@ -1830,7 +1830,7 @@ c      end do
 *   This routine replaces r1 with a Monte-Carlo
 * step from r1, and r0 is set to the initial r1. 
 *  On exit
-*      r0 = old r1
+*      r2 = old r1
 *      r1 = MC step (r1)
 *
       subroutine ion_MC_step(alpha)
@@ -1854,24 +1854,26 @@ c      end do
       external         control_ion_time_step,ion_amass
 
       call Parallel_taskid(taskid)
-      call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
+      call dcopy((3*nion),0.0d0,0,dbl_mb(r0(1)),1)
+      call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
 
 *     **** do a MC step put MC step into r1 temporarilly ***
       if (taskid.eq.MASTER) then
-         h = (2.0d0*util_random(0)-1.0d0)*alpha/dsqrt(1822.89d0)
+         h = (1.0d0*util_random(0)-0.5d0)*alpha
          i = int(util_random(0)*3*nion)
          if (i.ge.(3*nion-1)) i = 3*nion-1
       end if
       call Parallel_Brdcst_ivalue(MASTER,i)
       call Parallel_Brdcst_value(MASTER,h)
-      dbl_mb(r1(1)+i) = dbl_mb(r0(1)+i) + h
+      dbl_mb(r1(1)+i) = dbl_mb(r2(1)+i) + h
+      dbl_mb(r0(1)+i) = h/alpha
 
 
-      call ion_same_FixIon(dbl_mb(r0(1)),dbl_mb(r1(1))) !** Stupid IBM **
+      call ion_same_FixIon(dbl_mb(r2(1)),dbl_mb(r1(1))) !** Stupid IBM **
 
 
 *     ***** impose molecular constraints ***
-      call molecular_fix(dbl_mb(r1(1)), dbl_mb(r0(1)))
+      call molecular_fix(dbl_mb(r1(1)), dbl_mb(r2(1)))
 
 
 *     **** make sure ions are in cell ***
@@ -1883,13 +1885,13 @@ c      end do
 
 *     **** remove translation? ***
       if (.not.control_translation())
-     > call remove_center_mass(dbl_mb(r1(1)),dbl_mb(r0(1)))
+     > call remove_center_mass(dbl_mb(r1(1)),dbl_mb(r2(1)))
 
 *     **** remove rotation? ***
       if (.not.control_rotation()) 
      > call ion_remove_rotation(h,nion,
-     >                          dbl_mb(r0(1)),
-     >                          dbl_mb(r0(1)),
+     >                          dbl_mb(r2(1)),
+     >                          dbl_mb(r2(1)),
      >                          dbl_mb(r1(1)))
 
       return
@@ -1901,7 +1903,7 @@ c      end do
 *     *                         *
 *     ***************************
 
-*  If the step is rejected than copy r0 back to r1.
+*  If the step is rejected than copy r2 back to r1; and zero velocity
 *
       subroutine ion_MC_reject_step()
       implicit none
@@ -1909,7 +1911,8 @@ c      end do
 #include "mafdecls.fh"
 #include "ion.fh"
 
-      call dcopy((3*nion),dbl_mb(r0(1)),1,dbl_mb(r1(1)),1)
+      call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
+      call dcopy((3*nion),0.0d0,0,dbl_mb(r0(1)),1)
       return
       end
 
