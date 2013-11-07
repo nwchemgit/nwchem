@@ -42,7 +42,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
-      real*8  a,b,c,alpha,beta,gamma
+      real*8  a,b,c,alpha,beta,gamma,mc_beta
     
 
 *     ***** energy variables ****
@@ -366,8 +366,8 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
       ddx         = control_mc_ddx()
       seed        = control_mc_seed()
       temperature = control_mc_Temperature()
-      beta = util_random(control_mc_seed()) !**seed the random number generator
-      beta = 1.0d0/(kb*control_mc_Temperature())
+      mc_beta = util_random(control_mc_seed()) !**seed the random number generator
+      mc_beta = 1.0d0/(kb*temperature)
 
       dA = 1.0d0/(aratio*aratio-aratio)
       c0 = 1.0d0-ddx
@@ -592,7 +592,7 @@ c         end if
      >    control_bo_steps_in()*control_bo_steps_out(),
      >    control_bo_steps_in(),control_bo_steps_out() 
 
-         write(luout,1322) temperature,seed
+         write(luout,1322) temperature,mc_beta,seed
          write(luout,1323) aratio,ddx,c0,c1,c2
 
          write(luout,1340) control_rti()
@@ -725,11 +725,6 @@ c         end if
       notfirststep = .false.
 
 
-      dA = 1.0d0/(aratio*aratio-aratio)
-      c0 = 1.0d0-ddx
-      c1 = (aratio*aratio*(2*ddx) - (ddx))*dA
-      c2 = (-aratio      *(2*ddx) + (ddx))*dA
-      
 
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
@@ -754,7 +749,7 @@ c       **** inner loop ****
            call ion_MC_step(dr)
            EV0 = cgsd_energy(.false.)
 
-           w = dexp(-beta*(EV0-EV))
+           w = dexp(-mc_beta*(EV0-EV))
            if (taskid.eq.MASTER) alpha = util_random(0)
            call Parallel_Brdcst_value(MASTER,alpha)
         
@@ -1223,7 +1218,7 @@ c      call frac_occ_end()
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1322 FORMAT(5X, ' temperature='F10.3,5x,' seed=',I10)
+ 1322 FORMAT(5X, ' temperature='F10.3,5x,' beta=',E10.3,' seed=',I10)
  1323 FORMAT(5X, ' targeted accept.=',F10.3,5X,
      >           ' ddx=',F10.3,' c0=',F10.3,' c1=',F10.3,' c2=',F10.3)
  1330 FORMAT(5X, ' integration algorithm=   ',A)
