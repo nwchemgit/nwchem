@@ -68,9 +68,9 @@
       real*8  ratio,aratio
       real*8  icharge,cv
       real*8  sa_alpha(2),sa_decay(2),tt1,tt2,ssr,r,p1,p2,pressure
-      real*8 Te_new,Tr_new,Te_init,Tr_init
+      real*8 Te_new,Tr_new,Te_init,Tr_init,temperature
       integer i,k,ia,nion,minimizer,mapping,icount
-      integer nbq,mapping1d,it_in,it_out
+      integer nbq,mapping1d,it_in,it_out,seed
 
       character*50 filename
       character*255 full_filename,full_bak
@@ -160,8 +160,8 @@
       external control_bo_steps_in,control_bo_steps_out 
       external control_bo_algorithm,control_mc_seed
       external control_bo_time_step,control_rti,ion_ke,ion_Temperature
-      real*8   control_mc_aratio,control_mc_Temperature
-      external control_mc_aratio,control_mc_Temperature
+      real*8   control_mc_aratio,control_mc_Temperature,control_mc_ddx
+      external control_mc_aratio,control_mc_Temperature,control_mc_ddx
       logical  control_SA,control_pressure
       external control_SA,control_pressure
       real*8   control_SA_decay
@@ -358,6 +358,23 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
          sa_decay(2) = control_SA_decay(2)
          sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) )
       end if
+
+
+
+*     **** Initialize Monte-Carlo Parameters ****
+      aratio      = control_mc_aratio()
+      ddx         = control_mc_ddx()
+      seed        = control_mc_seed()
+      temperature = control_mc_Temperature()
+      beta = util_random(control_mc_seed()) !**seed the random number generator
+      beta = 1.0d0/(kb*control_mc_Temperature())
+
+      dA = 1.0d0/(aratio*aratio-aratio)
+      c0 = 1.0d0-ddx
+      c1 = (aratio*aratio*(2*ddx) - (ddx))*dA
+      c2 = (-aratio      *(2*ddx) + (ddx))*dA
+
+
 
 
 
@@ -575,6 +592,8 @@ c         end if
      >    control_bo_steps_in()*control_bo_steps_out(),
      >    control_bo_steps_in(),control_bo_steps_out() 
 
+         write(luout,1322) temperature,seed
+         write(luout,1323) aratio,ddx,c0,c1,c2
 
          write(luout,1340) control_rti()
          write(luout,1222) eki0,ekg
@@ -705,18 +724,12 @@ c         end if
 *     *******************************
       notfirststep = .false.
 
-      aratio = 0.234d0
-      aratio = control_mc_aratio()
-      ddx = 0.5
 
       dA = 1.0d0/(aratio*aratio-aratio)
       c0 = 1.0d0-ddx
       c1 = (aratio*aratio*(2*ddx) - (ddx))*dA
       c2 = (-aratio      *(2*ddx) + (ddx))*dA
       
-      beta = util_random(control_mc_seed()) !**seed the random number generator
-      beta = 1.0d0/(kb*control_mc_Temperature())
-
 
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
@@ -1204,12 +1217,15 @@ c      call frac_occ_end()
      >           ' (',I4,' outer)')
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
- 1310 FORMAT(/' molecular dynamics parameters:')
- 1320 FORMAT(5X, ' time step=',F10.2,5X,' iterations=',I10,
+ 1310 FORMAT(/' Monte-Carlo parameters:')
+ 1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1322 FORMAT(5X, ' temperature='F10.3,5x,' seed=',I10)
+ 1323 FORMAT(5X, ' targeted accept.=',F10.3,5X,
+     >           ' ddx=',F10.3,' c0=',F10.3,' c1=',F10.3,' c2=',F10.3)
  1330 FORMAT(5X, ' integration algorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
  1350 FORMAT(I8,3E19.10,E14.5,2F8.3,3E19.10,2F8.4)
