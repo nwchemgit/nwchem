@@ -52,7 +52,7 @@
       real*8  stress(3,3),lstress(6)
 
 *     **** gradient variables ****
-      integer fion(2),fion1(2)
+      integer fion(2)
 
 *     **** error variables ****
       logical value,newpsi
@@ -61,7 +61,7 @@
 *     **** local variables ****
       logical verlet,mulliken,SA,calc_pressure
       logical oprint,lprint,hprint,qmmm,found,notfirststep,found_bak
-      real*8  gx,gy,gz,cx,cy,cz
+      real*8  gx,gy,gz,cx,cy,cz,ddx,c0,c1,c2,dA
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
       real*8  sum,w,emotion_time_shift,wa,wr
       real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr,E25,E26
@@ -69,7 +69,7 @@
       real*8  icharge,cv
       real*8  sa_alpha(2),sa_decay(2),tt1,tt2,ssr,r,p1,p2,pressure
       real*8 Te_new,Tr_new,Te_init,Tr_init
-      integer i,k,ia,nion,minimizer,mapping,icount_shift,icount
+      integer i,k,ia,nion,minimizer,mapping,icount
       integer nbq,mapping1d,it_in,it_out
 
       character*50 filename
@@ -151,8 +151,8 @@
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
-      logical  pspw_bqext
-      external pspw_bqext
+      logical  pspw_bqext,control_Fei
+      external pspw_bqext,control_Fei
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm,control_mc_seed
@@ -608,7 +608,7 @@ c         end if
 
 
 *     *** fei io ****
-      !call fei_init(rtdb)
+      call fei_init(rtdb)
 
 *     **** ecce print ****
       call ecce_print_module_entry('task pspw Monte-Carlo')
@@ -629,7 +629,9 @@ c         end if
 *     **** open EMOTION file ****
       E25 = 0.0d0
       E26 = 0.0d0
-      icount_shift = 0
+      wa  = 0.0d0
+      wr  = 0.0d0
+      dr  = control_bo_time_step()
       if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
@@ -654,16 +656,16 @@ c         end if
          end if
 
          emotion_time_shift = 0.0d0
-         icount_shift       = 0
          inquire(file=full_filename,exist=found)
          if (found) then
            open(unit=31,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-           read(31,*,end=100) emotion_time_shift,w,sum
-           E25 = E25 + sum   !*** take care of running sums ***
-           E26 = E26 + sum*sum
-           icount_shift = icount_shift + 1
+           read(31,*,end=100) emotion_time_shift,
+     >                        EV,EV0,eave,evar,ratio,wa,wr,dr
+
+           E25 = E25 + EV   !*** take care of running sums ***
+           E26 = E26 + EV*EV
            end do
   100      continue
 #if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
@@ -702,24 +704,24 @@ c         end if
 *     ***** do a simple mc loop *****
 *     *******************************
       notfirststep = .false.
-      dr = control_bo_time_step()
 
       aratio = 0.234d0
       aratio = control_mc_aratio()
+      ddx = 0.5
+
+      dA = 1.0d0/(aratio*aratio-aratio)
+      c0 = 1.0d0-ddx
+      c1 = (aratio*aratio*(2*ddx) - (ddx))*dA
+      c2 = (-aratio      *(2*ddx) + (ddx))*dA
+      
       beta = util_random(control_mc_seed()) !**seed the random number generator
       beta = 1.0d0/(kb*control_mc_Temperature())
-
-      wa    = 0.0d0
-      wr    = 0.0d0
-      esum1 = 0.0d0
-      esum2 = 0.0d0
-      eave  = 0.0d0
-      evar  = 0.0d0
 
 
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
-      !call cgsd_energy_gradient_md(dbl_mb(fion(1)))
+      if (control_Fei())
+     >   call cgsd_energy_gradient_md(dbl_mb(fion(1)))
 
       call xyz_write()
 
@@ -735,9 +737,10 @@ c         end if
 c       **** inner loop ****
         do i=1,it_in
 
+           !*** compute the trial energy ****
            call ion_MC_step(dr)
            EV0 = cgsd_energy(.false.)
-           !call cgsd_energy_gradient_md(dbl_mb(fion(1)))
+
            w = dexp(-beta*(EV0-EV))
            if (taskid.eq.MASTER) alpha = util_random(0)
            call Parallel_Brdcst_value(MASTER,alpha)
@@ -746,6 +749,8 @@ c       **** inner loop ****
            if (alpha.lt.w) then
               EV = EV0
               wa = wa + 1.0d0
+              if (control_Fei())
+     >           call cgsd_energy_gradient_md(dbl_mb(fion(1)))
 
            !*** reject the sequence ***
            else
@@ -753,35 +758,41 @@ c       **** inner loop ****
               wr = wr + 1.0d0
            end if
 
-           esum1 = esum1 + EV
-           esum2 = esum2 + EV*EV
-           eave = esum1/(wa+wr)
-           evar = esum2/(wa+wr)
+           E25 = E25 + EV
+           E26 = E26 + EV*EV
+           eave = E25/(wa+wr)
+           evar = E26/(wa+wr)
            evar = evar - eave*eave
            ratio = wa/(wa+wr)
 
            if (oprint) then
-              write(luout,1350) (icount-1)*it_in+i,eave,EV,evar,
+             write(luout,1350) (icount-1)*it_in+i,EV,EV0,eave,evar,
      >                           ratio,aratio,wa,wr,dr
-              write(31,1360) ((icount-1)*it_in+i)*dt+emotion_time_shift,
-     >                      eave,EV,evar,ratio,wa,wr
-              call util_flush(luout)
-              call util_flush(31)
+             write(31,1360) dble((icount-1)*it_in+i)+emotion_time_shift,
+     >                        EV,EV0,eave,evar,ratio,wa,wr,dr
+             call util_flush(luout)
+             call util_flush(31)
            end if
-           !call fei_output(EV,dbl_mb(fion(1)))
+           call fei_output(EV,dbl_mb(fion(1)))
            call xyz_write()
-           call MOTION_write(((icount-1)*it_in+i)*dt)
+           call MOTION_write(dble((icount-1)*it_in+i)
+     >                       +emotion_time_shift)
 
         end do
 
 *       **** adjust MC steplength ****
-        dr = dr*(ratio/aratio)
+        dr = dr*(c0 + c1*ratio + c2*ratio*ratio)
+        !if ((ratio/aratio).gt.1.05d0) then
+        !   dr = dr*(1.05d0)
+        !else if ((ratio/aratio).lt.0.95d0) then
+        !   dr = dr*(0.95d0)
+        !else
+        !   dr = dr*(ratio/aratio)
+        !end if
         !if (ratio.lt.aratio) dr = dr*0.95d0
         !if (ratio.gt.aratio) dr = dr*1.05d0
         call Parallel_Brdcst_value(MASTER,dr)
 
-        E25 = E25 + EV
-        E26 = E26 + EV*EV
 
 *        **** update thermostats using SA decay ****
          if (SA) then
@@ -821,7 +832,7 @@ c       **** inner loop ****
       end if
 
 *     *** close fei io ****
-      !call fei_end()
+      call fei_end()
 
 
 
@@ -915,12 +926,6 @@ c      call control_up_print()
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
-
-         write(luout,1421)
-         write(luout,1192) (I,ion_aname(I),
-     >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
-         write(luout,1200) vcx,vcy,vcz
-         write(luout,1210) vgx,vgy,vgz
          write(luout,1211) ion_nconstraints(),ion_ndof()
       end if
 
@@ -928,16 +933,8 @@ c      call control_up_print()
 
       if (oprint) then
 
-         write(luout,1300)
-         write(luout,1472) ion_ke(),ion_ke()/ion_nion()
 
 *       **** write out Temperatures ****
-         eki0 = ion_Temperature()
-         write(luout,1480) eki0
-
-         eave = E25/dble(icount+icount_shift)
-         evar = E26/dble(icount+icount_shift)
-         evar = evar - eave*eave
          cv = (evar)/(kb*ion_Temperature()**2)
          cv = cv/dble(ion_nion())
          write(luout,1492) eave
@@ -1000,7 +997,6 @@ c      call control_up_print()
      >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
-      value = value.and.MA_pop_stack(fion1(2))
       value = value.and.MA_pop_stack(fion(2))
       if (.not. value) 
      > call errquit('cgmontecarlov1: error writing rtdb',0,
@@ -1216,7 +1212,7 @@ c      call frac_occ_end()
      >           ' ( ',I4,' inner ',I6,' outer )')
  1330 FORMAT(5X, ' integration algorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
- 1350 FORMAT(I8,2E19.10,E14.5,4F14.2,2E19.10,2F8.4)
+ 1350 FORMAT(I8,3E19.10,E14.5,2F8.3,3E19.10,2F8.4)
  1360 format(100e19.10)
 
  1393 format(/' Pressure Output Generated         ')
