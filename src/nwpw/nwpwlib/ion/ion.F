@@ -1870,6 +1870,7 @@ c      end do
       dbl_mb(r1(1)+3*ii)   = dbl_mb(r2(1)+3*ii)   + h(1)
       dbl_mb(r1(1)+3*ii+1) = dbl_mb(r2(1)+3*ii+1) + h(2)
       dbl_mb(r1(1)+3*ii+2) = dbl_mb(r2(1)+3*ii+2) + h(3)
+
       dbl_mb(r0(1)+3*ii)   = h(1)/alpha
       dbl_mb(r0(1)+3*ii+1) = h(2)/alpha
       dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
