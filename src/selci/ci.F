@@ -1,3 +1,11 @@
+C> \file ci.F
+C> Initialize CI module
+C>
+C> \ingroup selci
+C> @{
+C>
+C> \brief CI initialization
+C>
       subroutine selci_ci(q, lword)
 *
 * $Id$
@@ -9,7 +17,8 @@
 #include "global.fh"
       character *80 title
 c
-      dimension q(lword)
+      integer lword !< [Input] The available amount of memory
+      double precision q(lword) !< [Scratch] The main memory array
 c
 c     data initialization
 c
@@ -96,3 +105,5 @@ c
       call ga_sync()
 c
       end
+C>
+C> @}

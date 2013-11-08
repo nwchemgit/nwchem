@@ -1,3 +1,6 @@
+C> \file selci_icopy.f
+C> Integer copy
+C>
 C> \ingroup selci
 C> @{
 C>

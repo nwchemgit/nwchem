@@ -1,8 +1,29 @@
+C> \file iodiff.F
+C> Routines to compute orbital occupation differences
+C>
+C> \ingroup selci
+C> @{
+C>
+C> \brief Compute the number of differences between orbital occupations.
+C>
+C> Use IEOR and POPCNT to compute the occupation difference between
+C> configurations I and J, where their occupations are represented as
+C> bit patterns. 
+C>
+C> If the orbital occupations are the same the result will be 0, if
+C> one electron has been moved then the result is 2, if 2 electrons
+C> have been moved the result is 4, and so on. Obviously configurations
+C> that differ by more than 2 electron substitutions do not interact
+C> over the Hamiltonian.
+C>
       integer function selci_iodiff(ioconf,joconf,nintpo)
 *
 * $Id$
 *
-      integer ioconf(*),joconf(*), selci_popcnt32
+      integer nintpo !< [Input] The number of integers per configuration
+      integer ioconf(*) !< [Input] The occupation of configuration I
+      integer joconf(*) !< [Input] The occupation of configuration J
+      integer selci_popcnt32
 #include "bitops.fh"
 c
 c     use ieor and popcnt to compute the occupation difference
@@ -92,3 +113,5 @@ c
       enddo
 c
       end
+C>
+C> @}

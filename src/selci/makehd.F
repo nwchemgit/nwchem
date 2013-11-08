@@ -1,5 +1,16 @@
+C> \file makehd.F
+C> Make diagonal block of Hamiltonian
+C>
 C> \ingroup selci
 C> @{
+C>
+C> \brief Make diagonal block of Hamiltonian
+C>
+C> Form the hamiltonian matrix within a spin block for fixed
+C> orbital occupancy ... full square is generated in hii
+C>
+C> If odonly is true then only the actual diagonal of hii
+C> is generated ... to optimize select
 C>
       subroutine selci_makehd(hii,odonly,
      $     ns,nd,indbar,iocc,lists,listd,w1,w2,

@@ -1,3 +1,14 @@
+C> \file upkcon.F
+C> Unpack configuration
+C>
+C> \ingroup selci
+C> @{
+C>
+C> \brief Unpack a configuration
+C>
+C> Unpacks a configuration and stores the orbital occupations in an
+C> integer array `iocc`.
+C>
       subroutine selci_upkcon(norbs, iocc, mocc, nintpo, nbitpi)
 #include "errquit.fh"
 *
@@ -34,3 +45,5 @@ c
 c
 
       end
+C>
+C> @}
