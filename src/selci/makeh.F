@@ -1,5 +1,18 @@
+C> \file makeh.F
+C> The Hamiltonian generator
+C>
 C> \ingroup selci
 C> @{
+C>
+C> \brief Compute the Hamiltonian matrix
+C>
+C> This routine computes the Hamiltonian matrix using a rather
+C> naive approach.
+C>
+C> For each orbital configuration I as many interactions
+C> as possible are accumulated in hbuf. When this is full
+C> or we start processing another I value this buffer is flushed
+C> into the I/O buffer proper.
 C>
       subroutine selci_makeh(h,g,int12,int34,w1,w2,ioconf,indxci,hd,
      $     work1, work2, work3, f)

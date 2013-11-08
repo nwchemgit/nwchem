@@ -1,10 +1,31 @@
+C> \file minit.F
+C> Memory management routines
+C>
+C> \ingroup selci
+C> @{
+C>
+C> \brief Initialize memory administration
+C>
+C> This routine sets the maximum amount of memory the selected CI
+C> code is allowed to use. Obviously this whole memory system could
+C> be implemented in terms of the usual MA capabilities, but for 
+C> some reason that has not been done.
+C>
       integer function selci_minit(llword)
 *
 * $Id$
 *
 csw   1
-      implicit integer (a-z)
+c     implicit integer (a-z)
+      implicit none
+      integer llword !< [Input] The maximum number of words
+c
 #include "errquit.fh"
+c
+      integer lword, ltop, lmax, lmin, junk, nword, iad, mfr
+c
+      integer selci_mptr, selci_mleft, selci_mfree, selci_mstats
+c
       common /selci_corep/ lword, ltop, lmax, lmin
       save /selci_corep/
 c
@@ -68,3 +89,5 @@ c
       return
 c
       end
+C>
+C> @}

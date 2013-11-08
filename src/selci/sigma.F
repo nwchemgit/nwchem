@@ -1,3 +1,16 @@
+C> \file sigma.F
+C> Multiplies Hamiltonian with CI vectors
+C>
+C> \ingroup selci
+C> @{
+C>
+C> \brief Multiply the Hamiltonian matrix with CI vectors
+C>
+C> The algorithm has different nodes read part of the Hamiltonian
+C> and multiply it with CI vectors. The CI vectors and the 
+C> matrix vector products are replicated. The routine uses some
+C> loop unrolling for the cases where nroot equals 2 or 3.
+C>
       subroutine selci_sigma(iflham,nci,nroot,hd,ci,si)
 *
 * $Id$
@@ -5,7 +18,16 @@
       implicit real*8 (a-h,o-z)
 #include "cbuff.fh"
 #include "global.fh"
-      dimension hd(nci),ci(nci,nroot),si(nci,nroot)
+      integer iflham !< [Input] The unit number of the Hamiltonian file
+      integer nci    !< [Input] The number of CI configurations
+      integer nroot  !< [Input] The number of roots
+c
+      double precision hd(nci) !< [Input] The diagonal of the
+                               !< Hamiltonian (only on the root process)
+      double precision ci(nci,nroot) !< [Input] The CI vectors
+      double precision si(nci,nroot) !< [Output] The sigma vectors, i.e.
+                                     !< the Hamiltonian times the CI
+                                     !< vectors
 c
 c     compute sigma vectors for each root
 c     
@@ -84,3 +106,5 @@ c
 1010  continue
 c
       end
+C>
+C> @}

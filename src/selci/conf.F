@@ -281,9 +281,6 @@ c
          call selci_pkcon(norbs, iocc, irefo, nintpo, nbitpi)
          nref = 1
       endif
-cDEBUG
-      write(*,*)'*** selci: no. conf = ',nref
-cDEBUG
 c
 c     Determine state symmetry from the first conf
 c
