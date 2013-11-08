@@ -1,10 +1,31 @@
+C> \file axbt.f
+C> Matrix multiply
+C>
+C> \ingroup selci
+C> @{
+C>
+C> \brief Matrix multiply
+C>
+C> Performs the matrix-matrix multiplication
+C> \f{eqnarray*}{
+C>   C &=& A * B^T
+C> \f}
+C>
       subroutine selci_axbt(a,mrowa,b,mrowb,c,mrowc,ncol,nlink,nrow)
 *
 * $Id$
 *
       implicit real*8 (a-h,o-z)
+      integer mrowa !< [Input] The number of rows in A
+      integer mrowb !< [Input] The number of rows in B
+      integer mrowc !< [Input] The number of rows in C
+      integer ncol  !< [Input] The length of a column in C
+      integer nrow  !< [Input] The length of a row in C
+      integer nlink !< [Input] The length of the contraction
       parameter (zero=0.0d0)
-      dimension a(mrowa,nlink),c(mrowc,nrow),b(mrowb,nlink)
+      double precision a(mrowa,nlink) !< [Input] Matrix A
+      double precision b(mrowb,nlink) !< [Input] Matrix B
+      double precision c(mrowc,nrow)  !< [Output] Matrix C
 c     
 c     matrix multiply c = a*bt
 c     
@@ -98,3 +119,5 @@ c
 *     *     b, mrowb, 0.0d0, c, mrowc )
 c     
       end
+C>
+C> @}
