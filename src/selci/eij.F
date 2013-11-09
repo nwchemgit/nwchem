@@ -1,5 +1,45 @@
+C> \file eij.F
+C> Coupling coefficients eij
+C>
 C> \ingroup selci
 C> @{
+C>
+C> \brief Coupling coefficients involving single excitations
+C>    
+C> Calculate coupling coefficients [1,2]
+C> \f{eqnarray*}{
+C>    e(u,v) &=& <Iu|E_{ij}|Jv>
+C> \f}
+C> where u, v label the spin functions
+C> and the orbital occupation of I is specified by ns, iocc
+C> and indbar. Only for i.ne.j.
+C>    
+C> \f{eqnarray*}{
+C>    <Iu|Eij|Jv> &=& \sum_q <Iu|E_{ia}|Sq><Sq|E_{aj}|Jv>
+C> \f}
+C>    
+C> possible cases are:
+C>    
+C> iocc(i) | iocc(j) | case
+C> --------|---------|-----
+C> 1       |  0      | 1
+C> 1       |  1      | 2
+C> 3       |  0      | 3
+C> 3       |  1      | 4
+C>
+C> ### References ###
+C>
+C> [1] P.J. Knowles, H.-J. Werner, "An efficient method for the 
+C>     evaluation of coupling coefficients in configuration interaction
+C>     calculations", Chem. Phys. Lett. <b>145</b> (1988) 514-522, doi:
+C>     <a href="http://dx.doi.org/10.1016/0009-2614(88)87412-8">
+C>     10.1016/0009-2614(88)87412-8</a>.
+C>
+C> [2] P.E.M. Siegbahn, "A new direct CI method for large CI expansions
+C>     in a small orbital space", Chem. Phys. Lett. <b>109</b> (1984)
+C>     417-423, doi: 
+C>     <a href="http://dx.doi.org/10.1016/0009-2614(84)80336-X">
+C>     10.1016/0009-2614(84)80336-X</a>.
 C>
       subroutine selci_eij(e,i,j,ns,indbar,iocc,w1,w2)
 *
