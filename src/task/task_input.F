@@ -151,8 +151,8 @@ c            oembed = .true.
      >                        'Born-Oppenheimer')) then
             operation='Born-Oppenheimer'
          else if (inp_compare(.false.,test,
-     >                        'Monte-Carlo')) then
-            operation='Monte-Carlo'
+     >                        'Metropolis')) then
+            operation='Metropolis'
          else if (inp_compare(.false.,test,
      >                        'conjugate_gradient')) then
             operation='conjugate_gradient'
