@@ -42,7 +42,7 @@ c
      >            'rdf',
      >            'lcao',
      >            'pspw_et',
-     >            'Monte-Carlo'/
+     >            'Metropolis'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
@@ -371,10 +371,10 @@ c
       goto 9999
 
 c
-c  Monte-Carlo
+c  Metropolis
 c
  2200 if (ga_nodeid().eq.MASTER) then
-        write(*,*)  ">>>> PSPW Parallel Module - Monte-Carlo <<<<"
+        write(*,*)  ">>>> PSPW Parallel Module - Metropolis <<<<"
       end if
 
       value = .true.
