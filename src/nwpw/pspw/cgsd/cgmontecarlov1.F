@@ -64,13 +64,16 @@
       real*8  gx,gy,gz,cx,cy,cz,ddx,c0,c1,c2,dA
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
       real*8  sum,w,emotion_time_shift,wa,wr
-      real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr,E25,E26
+      real*8  EV,EV0,pi,esum1,esum2,eave,evar,E25,E26
+      real*8  mc_dr,mc_atom_direction(3)
       real*8  ratio,aratio
       real*8  icharge,cv
       real*8  sa_alpha(2),sa_decay(2),tt1,tt2,ssr,r,p1,p2,pressure
       real*8 Te_new,Tr_new,Te_init,Tr_init,temperature
       integer i,k,ia,nion,minimizer,mapping,icount
       integer nbq,mapping1d,it_in,it_out,seed
+      integer mc_napply,mc_ngroups,mc_group_size
+      integer mc_group_start(2),mc_group_end(2),mc_group(2)
 
       character*50 filename
       character*255 full_filename,full_bak
@@ -156,10 +159,10 @@
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm,control_mc_seed
-      real*8   control_bo_time_step,control_rti,ion_ke,ion_Temperature
+      real*8   control_mc_step_size,control_rti,ion_ke,ion_Temperature
       external control_bo_steps_in,control_bo_steps_out 
       external control_bo_algorithm,control_mc_seed
-      external control_bo_time_step,control_rti,ion_ke,ion_Temperature
+      external control_mc_step_size,control_rti,ion_ke,ion_Temperature
       real*8   control_mc_aratio,control_mc_Temperature,control_mc_ddx
       external control_mc_aratio,control_mc_Temperature,control_mc_ddx
       logical  control_SA,control_pressure
@@ -353,7 +356,7 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
       Tr_init  = 0.0d0
       sa_alpha(2) = 1.0d0
       if (control_SA()) then
-         dt = control_bo_time_step()
+         dt = 1.0d0
          SA          = .false.
          sa_decay(2) = control_SA_decay(2)
          sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) )
@@ -362,6 +365,46 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 
 *     **** Initialize Monte-Carlo Parameters ****
+      mc_dr  = control_mc_step_size()
+      call control_mc_atom_direction(mc_atom_direction)
+      call control_mc_ngroups(mc_napply,mc_ngroups,mc_group_size)
+      if (mc_ngroups.lt.1) then
+      
+         value = MA_alloc_get(mt_int,1,
+     >                    'mc_group_start',
+     >                     mc_group_start(2),
+     >                     mc_group_start(1))
+         value = value.and.MA_alloc_get(mt_int,1,
+     >                    'mc_group_end',
+     >                     mc_group_end(2),
+     >                     mc_group_end(1))
+         value = value.and.MA_alloc_get(mt_int,1,
+     >                    'mc_group',
+     >                     mc_group(2),
+     >                     mc_group(1))
+         if (.not.value) 
+     >     call errquit('cgmontecarlov1:out of heap memory',0,MA_ERR)
+      else
+         value = MA_alloc_get(mt_int,mc_ngroups,
+     >                    'mc_group_start',
+     >                     mc_group_start(2),
+     >                     mc_group_start(1))
+         value = value.and.MA_alloc_get(mt_int,mc_ngroups,
+     >                    'mc_group_end',
+     >                     mc_group_end(2),
+     >                     mc_group_end(1))
+         value = value.and.MA_alloc_get(mt_int,mc_group_size,
+     >                    'mc_group',
+     >                     mc_group(2),
+     >                     mc_group(1))
+         if (.not.value) 
+     >      call errquit('cgmontecarlov1:out of heap memory',1,MA_ERR)
+         call control_mc_groups(int_mb(mc_group_start(1)),
+     >                          int_mb(mc_group_end(1)),
+     >                          int_mb(mc_group(1)))
+      end if
+
+
       aratio      = control_mc_aratio()
       ddx         = control_mc_ddx()
       seed        = control_mc_seed()
@@ -588,12 +631,14 @@ c         end if
          if (.not.control_translation()) write(luout,1271)
          if (.not.control_rotation())    write(luout,1272)
          
-         write(luout,1320) control_bo_time_step(),
+         write(luout,1320) mc_dr,
      >    control_bo_steps_in()*control_bo_steps_out(),
      >    control_bo_steps_in(),control_bo_steps_out() 
 
          write(luout,1322) temperature,mc_beta,seed
          write(luout,1323) aratio,ddx,c0,c1,c2
+         write(luout,1324) mc_napply,mc_atom_direction
+         write(luout,1325) mc_ngroups
 
          write(luout,1340) control_rti()
          write(luout,1222) eki0,ekg
@@ -650,7 +695,6 @@ c         end if
       E26 = 0.0d0
       wa  = 0.0d0
       wr  = 0.0d0
-      dr  = control_bo_time_step()
       if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
@@ -681,7 +725,7 @@ c         end if
      >          status='old')
            do while (found)
            read(31,*,end=100) emotion_time_shift,
-     >                        EV,EV0,eave,evar,ratio,wa,wr,dr
+     >                        EV,EV0,eave,evar,ratio,wa,wr,mc_dr
 
            E25 = E25 + EV   !*** take care of running sums ***
            E26 = E26 + EV*EV
@@ -746,7 +790,13 @@ c       **** inner loop ****
         do i=1,it_in
 
            !*** compute the trial energy ****
-           call ion_MC_step(dr)
+           call ion_MC_step(mc_dr,
+     >                      mc_atom_direction,
+     >                      mc_napply,
+     >                      mc_ngroups,
+     >                      int_mb(mc_group_start(1)),
+     >                      int_mb(mc_group_end(1)),
+     >                      int_mb(mc_group(1)))
            EV0 = cgsd_energy(.false.)
 
            w = dexp(-mc_beta*(EV0-EV))
@@ -775,9 +825,9 @@ c       **** inner loop ****
 
            if (oprint) then
              write(luout,1350) (icount-1)*it_in+i,EV,EV0,eave,evar,
-     >                           ratio,aratio,wa,wr,dr
+     >                           ratio,aratio,wa,wr,mc_dr
              write(31,1360) dble((icount-1)*it_in+i)+emotion_time_shift,
-     >                        EV,EV0,eave,evar,ratio,wa,wr,dr
+     >                        EV,EV0,eave,evar,ratio,wa,wr,mc_dr
              call util_flush(luout)
              call util_flush(31)
            end if
@@ -789,7 +839,7 @@ c       **** inner loop ****
         end do
 
 *       **** adjust MC steplength ****
-        dr = dr*(c0 + c1*ratio + c2*ratio*ratio)
+        mc_dr = mc_dr*(c0 + c1*ratio + c2*ratio*ratio)
         !if ((ratio/aratio).gt.1.05d0) then
         !   dr = dr*(1.05d0)
         !else if ((ratio/aratio).lt.0.95d0) then
@@ -799,7 +849,7 @@ c       **** inner loop ****
         !end if
         !if (ratio.lt.aratio) dr = dr*0.95d0
         !if (ratio.gt.aratio) dr = dr*1.05d0
-        call Parallel_Brdcst_value(MASTER,dr)
+        call Parallel_Brdcst_value(MASTER,mc_dr)
 
 
 *        **** update thermostats using SA decay ****
@@ -844,62 +894,6 @@ c       **** inner loop ****
 
 
 
-c*     ***** do a simple mc loop ***
-c      call control_reduce_print()
-c      dr = 0.08d0
-c      aratio = 0.5d0
-c      wa = 0.0d0
-c      wr = 0.0d0
-c      esum1 = 0.0d0
-c      esum2 = 0.0d0
-c      eave = 0.0d0
-c      evar = 0.0d0
-c      beta = util_random(39) !**seed the random number generator
-c      beta = 1.0d0/(kb*298.15)
-c      call xyz_write()
-c      EV0 = cgsd_energy(newpsi)
-c      do it=1,control_bo_steps()
-c
-c        call ion_MC_step(dr)
-c        EV = cgsd_energy(.false.)
-c        w = dexp(-beta*(EV-EV0))
-c        alpha = util_random(0)
-c
-c        !*** accept the sequence ***
-c        if (alpha.lt.w) then
-c          EV0 = EV
-c          !write(6,*) "   ----ACCEPTED----"
-c          if (taskid.eq.MASTER)  then
-c             write(6,1350) it,EV,EV0,w,alpha,wa,wr,eave,evar,dr
-c             call util_flush(6)
-c          end if
-c          call xyz_write()
-c          call MOTION_write(it*dt)
-c          wa = wa + 1.0d0
-c          esum1 = esum1 + EV
-c          esum2 = esum2 + EV*EV
-c          eave = esum1/wa
-c          evar = esum2/wa
-c          evar = evar - eave*eave
-c
-c        !*** reject the sequence ***
-c        else
-c           call ion_MC_reject_step()
-c          !write(6,*) "   ----REJECTED----"
-c          wr = wr + 1.0d0
-c        end if
-c
-c        !*** adjust ***
-c        if (mod(it,10).eq.0) then
-c            ratio = wa/(wa+wr)
-c            dr = dr*(ratio/aratio)
-c            !if (ratio.lt.aratio) dr = dr*0.95d0
-c            !if (ratio.gt.aratio) dr = dr*1.05d0
-c        end if
-c
-c      end do
-c
-c      call control_up_print()
 
 *                |***************************|
 ******************     simple MD loop        **********************
@@ -1037,6 +1031,12 @@ c      call control_up_print()
 
 
 *     **** deallocate heap memory ****
+      value =           MA_free_heap(mc_group_start(2))
+      value = value.and.MA_free_heap(mc_group_end(2))
+      value = value.and.MA_free_heap(mc_group(2))
+      if (.not. value) 
+     >  call errquit('cgmontecarlov1:freeing heap',3,MA_ERR)
+
       call electron_finalize()
       if ((minimizer.eq.4).or.(minimizer.eq.7)) then
         call geodesic2_finalize()
@@ -1221,6 +1221,10 @@ c      call frac_occ_end()
  1322 FORMAT(5X, ' temperature='F10.3,5x,' beta=',E10.3,' seed=',I10)
  1323 FORMAT(5X, ' targeted accept.=',F10.3,5X,
      >           ' ddx=',F10.3,' c0=',F10.3,' c1=',F10.3,' c2=',F10.3)
+ 1324 FORMAT(5X, ' number atom changes = 'I10,
+     >           ' change vector = <',3F10.3'>')
+ 1325 FORMAT(5X, ' number of groups = 'I10)
+
  1330 FORMAT(5X, ' integration algorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
  1350 FORMAT(I8,3E19.10,E14.5,2F8.3,3E19.10,2F8.4)
