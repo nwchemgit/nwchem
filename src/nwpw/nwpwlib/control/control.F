@@ -5121,6 +5121,32 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
+*     ***********************************
+*     *                                 *
+*     *        control_mc_step_size     *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_step_size()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_step_size',mt_dbl,1,value))
+     >  value = 0.50d0
+
+      control_mc_step_size = value
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *
@@ -5223,4 +5249,106 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *    control_mc_atom_direction    *
+*     *                                 *
+*     ***********************************
+      subroutine control_mc_atom_direction(mc_atom_direction)
+      implicit none
+      real*8 mc_atom_direction(3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_atom_direction',
+     >                  mt_dbl,3,mc_atom_direction)) then
+         mc_atom_direction(1) = 1.0d0
+         mc_atom_direction(2) = 1.0d0
+         mc_atom_direction(3) = 1.0d0
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       control_mc_ngroups        *
+*     *                                 *
+*     ***********************************
+      subroutine control_mc_ngroups(mc_napply,mc_ngroups,mc_group_size)
+      implicit none
+      integer mc_napply,mc_ngroups,mc_group_size
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_napply',
+     >                  mt_int,1,mc_napply)) then
+         mc_napply = 1
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:mc_ngroups',
+     >                  mt_int,1,mc_ngroups)) then
+         mc_ngroups = 0
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:mc_group_size',
+     >                  mt_int,1,mc_group_size)) then
+         mc_group_size = 0
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       control_mc_groups        *
+*     *                                 *
+*     ***********************************
+      subroutine control_mc_groups(mc_group_start,
+     >                             mc_group_end,
+     >                             mc_group)
+      implicit none
+      integer mc_group_start(*)
+      integer mc_group_end(*)
+      integer mc_group(*)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer ng,ngs
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_ngroups',mt_int,1,ng)) ng=1
+      if (.not.rtdb_get(rtdb,'nwpw:mc_group_size',mt_int,1,ngs)) ngs=1
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_group_start',
+     >                  mt_int,ng,mc_group_start)) then
+         call icopy(ng,0,1,mc_group_start,1)
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:mc_group_end',
+     >                  mt_int,ng,mc_group_end)) then
+         call icopy(ng,0,1,mc_group_end,1)
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:mc_group',
+     >                  mt_int,ngs,mc_group)) then
+         call icopy(ngs,0,1,mc_group,1)
+      end if
+
+      return
+      end
 
