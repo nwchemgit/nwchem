@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mkvc(q, h,g,int12,int34,w1,w2,ioconf,indxci,
      $     iexv,iconf,ncold,ci,vc,iocc,ipack,numf,work1)
 *
@@ -88,3 +90,4 @@ c
       junk = selci_mfree(iwork2)
 c
       end
+C> @}

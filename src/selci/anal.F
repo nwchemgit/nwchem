@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_anal(irange, roots, ept, ptnorm, enew, ncinew,
      &           ptnorm_mp, ept_mp)
 *
@@ -68,3 +70,4 @@ c
      $ 20(:f15.8,2x,f15.8,2x,f15.8/))
 c
       end
+C> @}

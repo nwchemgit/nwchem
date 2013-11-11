@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_rdhcon(iflcon, title, multi, nelec, issss, norbs,
      &     nnsmax, nci, noconf, nintpo, nbitpi, nbpsy, isym, nsym,
      &     inttyp, nsneed)
@@ -14,3 +16,4 @@ c
      &     nsneed
 c
       end
+C> @}

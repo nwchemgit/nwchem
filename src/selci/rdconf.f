@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_rdconf(iflcon,ioconf,indxci,nintpo,noconf)
 *
 * $Id$
@@ -10,3 +12,4 @@ c
       read (iflcon) indxci
 c
       end
+C> @}

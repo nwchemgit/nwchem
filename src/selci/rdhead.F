@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_rdhead(title,type)
 *
 * $Id$
@@ -56,3 +58,4 @@ c
       endif
 c
       end
+C> @}

@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_gettim(cpud,elapsd)
 *
 * $Id$
@@ -18,3 +21,5 @@
       timediff = util_cpusec() - elast
       cpud = dble(timediff)
       end
+C>
+C> @}

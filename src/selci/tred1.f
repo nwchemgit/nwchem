@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_tred1(nm,n,a,d,e,e2)
 *
 * $Id$
@@ -136,4 +138,4 @@ c
 c
       return
       end
-
+C> @}

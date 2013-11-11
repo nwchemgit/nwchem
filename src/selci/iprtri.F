@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_iprtri(id,n)
 *
 * $Id$
@@ -31,3 +33,4 @@ c
  8028 format(6x,8(2x,i5,2x))
  8048 format(i5,1x,8i9)
       end
+C> @}

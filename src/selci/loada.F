@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_loada(h, g, int12, int34)
 *
 * $Id$
@@ -70,3 +72,4 @@ c
       close(iflint,status='keep')
 c
       end
+C> @}

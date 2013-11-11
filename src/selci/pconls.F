@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_pconls(ioconf)
 *
 * $Id$
@@ -13,3 +15,4 @@ c
  10   continue
 c
       end
+C> @}

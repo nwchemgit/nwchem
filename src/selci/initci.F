@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_initci(title, type)
 *
 * $Id$
@@ -82,3 +84,4 @@ c
      &       ' no. of orbitals per sym   ',8i5/)
  5    format(' symmetry of the orbitals'//10(26i3/:))
       end
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_inicij(w1,w2)
 *
 * $Id$
@@ -82,3 +84,4 @@ c
  50   continue
 c
       end
+C> @}

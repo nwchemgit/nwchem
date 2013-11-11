@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_wthcon(iflcon, title, multi, nelec, issss,
      $     norbs, 
      &     nnsmax, nci, noconf, nintpo, nbitpi, nbpsy, isym, nsym,
@@ -20,3 +22,4 @@ c      write(6,*) title
 c      write(6,*) multi, nelec, issss, norbs, nnsmax, nci, noconf,
 c     &     nintpo, nbitpi, nbpsy, isym, inttyp, nsneed
       end
+C> @}

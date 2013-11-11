@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_restin(iconf,ept,ept_mp,enew,ptnorm,ptnorm_mp,
      &                  nroot,irange,nrange,iwpt,
      &                  noconf,ioconf,nintpo,nconmx,ncold)
@@ -84,3 +86,4 @@ c
       close(unit=irest,status='keep')
       goto 90000
       end
+C> @}

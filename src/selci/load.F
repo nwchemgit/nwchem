@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_load(h, g, int12, int34)
 *
 * $Id$
@@ -64,3 +66,4 @@ c 30   continue
 c
 c      write(6,*) ' ngot in load ',ngot
       end
+C> @}

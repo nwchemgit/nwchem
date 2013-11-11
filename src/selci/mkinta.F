@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mkinta(int12, int34)
 *
 * $Id$
@@ -37,3 +39,4 @@ c
       numint = ipt + int34(kl)
 c
       end
+C> @}

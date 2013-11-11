@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_putinb(iflham,ibase,numf,hbuf,ninhb,jbuf,ninjb)
 *
 * $Id$
@@ -75,3 +77,4 @@ c
       ninjb = 0
 c
       end
+C> @}

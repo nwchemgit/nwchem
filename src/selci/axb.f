@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       subroutine selci_axb(a,mrowa,b,mrowb,c,mrowc,ncol,nlink,nrow)
 *
 * $Id$
@@ -87,3 +90,5 @@ c
       enddo
 c
       end
+C>
+C> @}

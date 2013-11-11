@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       logical function selci_ointer(noconf,ioconf,joconf,nintpo)
 *
 * $Id$
@@ -95,3 +97,4 @@ c
       selci_ointer = .false.
 c     
       end
+C> @}

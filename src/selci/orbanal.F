@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_orbanal(noconf, ioconf, nintpo, nbitpi, norbs,
      $     map)
       implicit none
@@ -114,3 +116,4 @@ c
       enddo
 c
       end
+C> @}

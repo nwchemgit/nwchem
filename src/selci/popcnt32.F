@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       integer function selci_popcnt32(i)
 *
 * $Id$
@@ -391,3 +393,4 @@ c
 *c
 *      end
 *mdc*endif
+C> @}

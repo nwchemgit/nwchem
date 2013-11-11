@@ -1,9 +1,11 @@
 *
 * $Id$
 *
-c
-c     routines to read columbus integrals
-c
+C> \ingroup selci
+C> @{
+C>
+C> \brief Routines to read columbus integrals
+C>
       subroutine selci_rd1(iflint,h,norbs)
       implicit real*8 (a-h,o-z)
       parameter(lenbuf=2047, n1eabf=1636, n2eabf=1364)
@@ -282,3 +284,4 @@ c        ...big-endian.
 *mdc*endif
       return
       end
+C> @}

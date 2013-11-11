@@ -1,3 +1,6 @@
+C> \ingroup selci
+C> @{
+C>
       integer function selci_idmin(n,a,ia)
 *
 * $Id$
@@ -19,3 +22,5 @@ c
 c
       selci_idmin = ind
       end
+C>
+C> @}

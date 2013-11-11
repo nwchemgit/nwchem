@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_loadg(g,int12,int34)
 *
 * $Id$
@@ -77,3 +79,4 @@ c
 c      write(nlist,'(1x,1p5e15.7)')sum
       call util_flush(6)
       end
+C> @}

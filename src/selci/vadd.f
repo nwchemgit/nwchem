@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_vadd(n,a,ia,b,ib,c,ic)
 *
 * $Id$
@@ -11,3 +13,4 @@ C
  10   continue
 c
       end
+C> @}

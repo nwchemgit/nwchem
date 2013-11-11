@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine restk
 *
 * $Id$
@@ -39,3 +41,4 @@ c
 c
       return
       end
+C> @}

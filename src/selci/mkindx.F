@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mkindx(ioconf,indxci,ncinew,nnsmax)
 *
 * $Id$
@@ -45,3 +47,4 @@ c$doit asis
       indxci(noconf+1) = ncinew
 c
       end
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mxmb(a,mcola,mrowa,b,mcolb,mrowb,
      1     r,mcolr,mrowr, ncol,nlink,nrow)
 *
@@ -29,3 +31,4 @@ c
  50   continue
 c
       end
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_slect(q,h,g,int12,int34,w1,w2,ioconf,indxci,
      $     roots,ci,nconmx,ncold,thresh,ept,enew,irange, ptnorm,
      &     ptnorm_mp,ept_mp,roots_mp,min2c)
@@ -154,3 +156,4 @@ c
            junk = selci_mfree(ivc)
 c     
            end
+C> @}

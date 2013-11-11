@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mxma(a,iac,iar, b,ibc,ibr, c,icc,icr,
      $     nar,nac,nbc)
 *
@@ -52,3 +54,4 @@ c
 c
       return
       end
+C> @}

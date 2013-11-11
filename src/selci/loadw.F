@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_loadw(iflwmt, w1, w2, nfmax, nfmax2, nsmax)
 *
 * $Id$
@@ -25,3 +27,4 @@ c         call selci_output(w2(1,1,i),1,nfmax2,1,nfmax,nfmax2,nfmax,1)
 c 20   continue
 c
       end
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_ptidy(ioconf, nintpo, noconf, ncold, nconmx,
      $     nroot, ept, enew, irange, ptnorm, ptnorm_mp, ept_mp)
 *
@@ -98,3 +100,4 @@ c        call util_flush(6)
       endif
 c
       end
+C> @}

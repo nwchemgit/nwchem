@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_gtijkl(ind,ioconf,joconf,nintpo,nbitpi,
      $     iocc,icase)
 *
@@ -76,3 +78,4 @@ c        endif
       endif
 c
       end
+C> @}

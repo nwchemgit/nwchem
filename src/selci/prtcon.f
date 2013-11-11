@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_prtcon(ifllog, norbs, ioconf, nintpo, nbitpi)
 *
 * $Id$
@@ -8,3 +10,4 @@ c
       call selci_wrtcon(ifllog, iocc, norbs)
 c
       end
+C> @}

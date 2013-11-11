@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine setinp(ir,iw)
 *
 * $Id$
@@ -363,3 +365,4 @@ c     in jbuf and transferred to junke
  2    locatc=i
       return
       end
+C> @}

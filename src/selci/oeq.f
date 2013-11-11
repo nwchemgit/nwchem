@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       logical function selci_oeq(noconf,ioconf,joconf,nintpo)
 *
 * $Id$
@@ -46,3 +48,4 @@ c
       selci_oeq = .false.
 c     
       end
+C> @}

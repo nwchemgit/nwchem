@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_stool(iconf,ept,ept_mp,enew,ptnorm,ptnorm_mp,
      &     nroot,irange,nrange,iwpt,
      &     noconfi,ioconf,nintpo,nconmx,ncold)
@@ -164,3 +166,4 @@ c
 90912 call errquit('stool: error opening restart file',0, DISK_ERR)
 c     
       end
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       integer function selci_isum(n,m,im)
 *
 * $Id$
@@ -14,3 +16,4 @@ c
       selci_isum = is
 c
       end
+C> @}

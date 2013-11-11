@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       double precision function selci_fcidim(nelec, multi, issss,
      $     norbs, isym)
 *
@@ -104,3 +106,4 @@ c
       selci_fcidim = r1(0,0,0)
 c
       end
+C> @}

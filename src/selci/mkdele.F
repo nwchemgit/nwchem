@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mkdele(numf, nroot, deltae, vc, roots,
      $     diag, nfmax, dnorm)
 *
@@ -23,3 +25,4 @@ c
  10   continue
 c
       end
+C> @}

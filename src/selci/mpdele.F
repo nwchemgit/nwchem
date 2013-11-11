@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mpdele(numf, nroot, deltae_mp, vc,
      $     roots_mp, nfmax, dnorm_mp,iocc)
 *
@@ -28,3 +30,4 @@ c:old            deltae_mp(ir) = deltae_mp(ir) - vc(i,ir)*coeff
  10   continue
 c
       end
+C> @}

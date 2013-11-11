@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_wrtcon(ifllog,iocc,norbs)
 *
 * $Id$
@@ -29,6 +31,7 @@ c
       endif
 c
       end
+C> @}
 
             
       

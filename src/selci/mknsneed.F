@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_mknsneed(ioconf,noconf,nintpo,nbitpi,
      $     norbs,nsneed)
 *
@@ -51,4 +53,4 @@ c
       enddo
 c
       end
-
+C> @}

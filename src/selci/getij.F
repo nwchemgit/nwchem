@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_getij(i,j,ioconf,joconf,nintpo,nbitpi,iocc)
 *
 * $Id$
@@ -48,3 +50,4 @@ c
       endif
 c
       end
+C> @}

@@ -1,10 +1,51 @@
+C> \ingroup selci
+C> @{
+C>
+C> \brief Find the eigenvalues of a symmetric tridiagonal matrix
+C>
+C>
+C> This subroutine is a translation of the algol procedure
+C> tqlrat [1].
+C>
+C> This subroutine finds the eigenvalues of a symmetric
+C> tridiagonal matrix by the rational ql method.
+C>
+C> Calls pythag for  dsqrt(a*a + b*b) .
+C>
+C> Questions and comments should be directed to Burton S. Garbow,
+C> mathematics and computer science div, argonne national laboratory
+C>
+C> This version dated august 1983.
+C>
+C>
+C> ### References ###
+C>
+C> [1] C.H. Reinsch, "Algorithm 464: eigenvalues of a real, symmetric,
+C>     tridiagonal matrix [F2]", Comm. ACM. <b>16</b> (1973) 689,
+C>     doi: <a href="http://dx.doi.org/10.1145/355611.362539">
+C>     10.1145/355611.362539</a>.
+C>
       subroutine selci_tqlrat(n,d,e2,ierr)
 *
 * $Id$
 *
 c
-      integer i,j,l,m,n,ii,l1,mml,ierr
-      double precision d(n),e2(n)
+      integer n !< [Input] The order of the matrix
+      double precision d(n) !< [In/Output] The diagonal of the matrix
+                            !< - On input: the diagonal of the 
+                            !<   tridiagonal matrix
+                            !< - On output: the eigenvalues of the 
+                            !<   matrix
+      double precision e2(n) !< [In/Output] The off diagonal elements
+                             !< - On input: the squares of the 
+                             !<   subdiagonal elements of the input 
+                             !<   matrix in the positions 2:n,
+                             !<   element e2(1) is arbitrary
+                             !< - On output: destroyed
+      integer ierr !< [Output] Error flag
+                   !< - 0: routine completed successfully
+                   !< - j: Eigenvalue j and further are not converged
+      integer i,j,l,m,ii,l1,mml
       double precision b,c,f,g,h,p,r,s,t,selci_epslon,selci_pythag
 c
 c     this subroutine is a translation of the algol procedure tqlrat,
@@ -187,4 +228,5 @@ c
    20 selci_pythag = p
       return
       end
-
+C>
+C> @}

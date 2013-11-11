@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_rdhwmt(iflwmt,mmulti, nsmax, nf, nfmax, nfmax2)
 *
 * $Id$
@@ -11,3 +13,4 @@ c
       nfmax2 = nf(nsmax-2)
 c
       end
+C> @}

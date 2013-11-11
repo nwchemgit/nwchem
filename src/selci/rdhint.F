@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,
      $     inttyp, moints)
 *
@@ -79,3 +81,4 @@ c
       endif
 c
       end
+C> @}

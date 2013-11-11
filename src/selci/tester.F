@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_tester(q,h, g, int12, int34, w1, w2, ioconf,
      $     indxci,
      $     roots, ci, nconmx, thresh, ept, enew, iconf, ncold,
@@ -125,3 +127,4 @@ c
       junk = selci_mfree(iwork1)
 c
       end
+C> @}

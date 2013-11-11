@@ -1,3 +1,5 @@
+C> \ingroup selci
+C> @{
       subroutine selci_wtconf(ifl,irefo,nn,indxci,mm)
 *
 * $Id$
@@ -8,3 +10,4 @@ c
       write(1) indxci
 c
       end
+C> @}
