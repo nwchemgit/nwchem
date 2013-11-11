@@ -799,11 +799,11 @@ c*     **** debug ****
 c     call dscal(3*nion,(-1.0d0),G1,1)
 
       return
- 1190 FORMAT(5X, I4, A5,  ' (',3F11.5,' )')
- 1191 FORMAT(5X, I4, A5,  ' (',3F11.5,' ) - fixed')
- 1192 FORMAT(5X, I4, A5,  ' (',3F11.5,' ) q=',F8.3)
- 1193 FORMAT(5X, I4, A5,  ' (',3F11.5,' ) q=',F8.3,' - fixed')
- 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5,  ' (',3F12.6,' )')
+ 1191 FORMAT(5X, I4, A5,  ' (',3F12.6,' ) - fixed')
+ 1192 FORMAT(5X, I4, A5,  ' (',3F12.6,' ) q=',F8.3)
+ 1193 FORMAT(5X, I4, A5,  ' (',3F12.6,' ) q=',F8.3,' - fixed')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F12.6,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(//'== Gradient Calculation ==')
  1302 FORMAT(  '========================')
