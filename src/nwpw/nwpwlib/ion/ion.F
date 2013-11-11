@@ -1833,9 +1833,21 @@ c      end do
 *      r2 = old r1
 *      r1 = MC step (r1)
 *
-      subroutine ion_MC_step(alpha)
+      subroutine ion_MC_step(alpha,
+     >                       mc_atom_direction,
+     >                       mc_napply,
+     >                       mc_ngroups,
+     >                       mc_group_start,
+     >                       mc_group_end,
+     >                       mc_group)
       implicit none
       double precision alpha
+      double precision mc_atom_direction(3)
+      integer mc_napply
+      integer mc_ngroups
+      integer mc_group_start(*)
+      integer mc_group_end(*)
+      integer mc_group(*)
 
 #include "util.fh"
 #include "mafdecls.fh"
@@ -1844,7 +1856,7 @@ c      end do
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      integer ii
+      integer i,ii,iistart,iistride,g,gg,ggstart,ggstride
       double precision h(3)
 
 *     *** external functions ****
@@ -1857,23 +1869,105 @@ c      end do
       call dcopy((3*nion),0.0d0,0,dbl_mb(r0(1)),1)
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
 
-*     **** do a MC step put MC step into r1 temporarilly ***
-      if (taskid.eq.MASTER) then
-         h(1) = (1.0d0*util_random(0)-0.5d0)*alpha
-         h(2) = (1.0d0*util_random(0)-0.5d0)*alpha
-         h(3) = (1.0d0*util_random(0)-0.5d0)*alpha
-         ii = int(util_random(0)*nion)
-         if (ii.ge.(nion-1)) ii = nion-1
-      end if
-      call Parallel_Brdcst_ivalue(MASTER,ii)
-      call Parallel_Brdcst_values(MASTER,3,h)
-      dbl_mb(r1(1)+3*ii)   = dbl_mb(r2(1)+3*ii)   + h(1)
-      dbl_mb(r1(1)+3*ii+1) = dbl_mb(r2(1)+3*ii+1) + h(2)
-      dbl_mb(r1(1)+3*ii+2) = dbl_mb(r2(1)+3*ii+2) + h(3)
 
-      dbl_mb(r0(1)+3*ii)   = h(1)/alpha
-      dbl_mb(r0(1)+3*ii+1) = h(2)/alpha
-      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
+*     *******************************************************
+*     **** do a MC step put MC step into r1 temporarilly ****
+*     *******************************************************
+
+*     **** no groups, update atoms ****
+      if  (mc_ngroups.lt.1) then
+
+         if (taskid.eq.MASTER) then
+            iistart  = int(util_random(0)*nion)
+            iistride = int(util_random(0)*(nion-1))
+            if (iistart .ge.(nion-1)) iistart  = nion-1
+            if (iistride.ge.(nion-2)) iistride = nion-2
+            iistride = iistride + 1
+         end if
+         call Parallel_Brdcst_ivalue(MASTER,iistart)
+         call Parallel_Brdcst_ivalue(MASTER,iistride)
+
+         do i=0,mc_napply-1
+            ii = mod(iistart+i*iistride,nion)
+            if (taskid.eq.MASTER) then
+               h(1) = (1.0d0*util_random(0)-0.5d0)
+     >                *alpha*mc_atom_direction(1)
+               h(2) = (1.0d0*util_random(0)-0.5d0)
+     >                *alpha*mc_atom_direction(2)
+               h(3) = (1.0d0*util_random(0)-0.5d0)
+     >                *alpha*mc_atom_direction(3)
+            end if
+            call Parallel_Brdcst_values(MASTER,3,h)
+            dbl_mb(r1(1)+3*ii)   = dbl_mb(r2(1)+3*ii)   + h(1)
+            dbl_mb(r1(1)+3*ii+1) = dbl_mb(r2(1)+3*ii+1) + h(2)
+            dbl_mb(r1(1)+3*ii+2) = dbl_mb(r2(1)+3*ii+2) + h(3)
+
+            dbl_mb(r0(1)+3*ii)   = h(1)/alpha
+            dbl_mb(r0(1)+3*ii+1) = h(2)/alpha
+            dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
+         end do
+
+
+*     **** update groups ****
+      else
+         if (mc_napply.ge.mc_ngroups) then
+            ggstart  = 0
+            ggstride = 1
+         else
+            if (taskid.eq.MASTER) then
+               ggstart  = int(util_random(0)*mc_ngroups)
+               ggstride = int(util_random(0)*(mc_ngroups-1))
+               if (ggstart .ge.(mc_ngroups-1)) ggstart  = mc_ngroups-1
+               if (ggstride.ge.(mc_ngroups-2)) ggstride = mc_ngroups-2
+               ggstride = ggstride+1
+            end if
+            call Parallel_Brdcst_ivalue(MASTER,ggstart)
+            call Parallel_Brdcst_ivalue(MASTER,ggstride)
+         end if
+
+         do g=1,mc_napply
+            gg = mod(ggstart+(g-1)*ggstride,mc_ngroups)+1
+            do i=mc_group_start(gg),mc_group_end(gg)
+               ii = mc_group(i)-1
+               if (taskid.eq.MASTER) then
+                  h(1) = (1.0d0*util_random(0)-0.5d0)
+     >                   *alpha*mc_atom_direction(1)
+                  h(2) = (1.0d0*util_random(0)-0.5d0)
+     >                   *alpha*mc_atom_direction(2)
+                  h(3) = (1.0d0*util_random(0)-0.5d0)
+     >                   *alpha*mc_atom_direction(3)
+               end if
+               call Parallel_Brdcst_values(MASTER,3,h)
+
+               dbl_mb(r1(1)+3*ii)   = dbl_mb(r2(1)+3*ii)   + h(1)
+               dbl_mb(r1(1)+3*ii+1) = dbl_mb(r2(1)+3*ii+1) + h(2)
+               dbl_mb(r1(1)+3*ii+2) = dbl_mb(r2(1)+3*ii+2) + h(3)
+
+               dbl_mb(r0(1)+3*ii)   = h(1)/alpha
+               dbl_mb(r0(1)+3*ii+1) = h(2)/alpha
+               dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
+            end do
+         end do
+      end if
+
+
+c*     **** do a MC step put MC step into r1 temporarilly ***
+c      if (taskid.eq.MASTER) then
+c         h(1) = (1.0d0*util_random(0)-0.5d0)*alpha
+c         h(2) = (1.0d0*util_random(0)-0.5d0)*alpha
+c         h(3) = (1.0d0*util_random(0)-0.5d0)*alpha
+c         ii = int(util_random(0)*nion)
+c         if (ii.ge.(nion-1)) ii = nion-1
+c      end if
+c      call Parallel_Brdcst_ivalue(MASTER,ii)
+c      call Parallel_Brdcst_values(MASTER,3,h)
+c      dbl_mb(r1(1)+3*ii)   = dbl_mb(r2(1)+3*ii)   + h(1)
+c      dbl_mb(r1(1)+3*ii+1) = dbl_mb(r2(1)+3*ii+1) + h(2)
+c      dbl_mb(r1(1)+3*ii+2) = dbl_mb(r2(1)+3*ii+2) + h(3)
+c
+c      dbl_mb(r0(1)+3*ii)   = h(1)/alpha
+c      dbl_mb(r0(1)+3*ii+1) = h(2)/alpha
+c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
 
 
       call ion_same_FixIon(dbl_mb(r2(1)),dbl_mb(r1(1))) !** Stupid IBM **
