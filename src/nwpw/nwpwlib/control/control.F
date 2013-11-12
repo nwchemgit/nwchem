@@ -5251,6 +5251,33 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     ***********************************
 *     *                                 *
+*     *      control_mc_algorithm       *
+*     *                                 *
+*     ***********************************
+      integer function control_mc_algorithm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer ivalue
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_algorithm',mt_int,1,ivalue))
+     >  ivalue =  1
+
+      control_mc_algorithm = ivalue
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *    control_mc_atom_direction    *
 *     *                                 *
 *     ***********************************
