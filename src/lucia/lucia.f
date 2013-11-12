@@ -2118,7 +2118,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
 *. And for the Sigma vector
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NSBLOCK,NSBATCH,
-     &     dbl_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
+     &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &     dbl_mb(KSIOCCLS_ACT),
      &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &     int_mb(KSIBT),
@@ -13496,7 +13496,7 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
 *
       IF(ISFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
-     &       NTEST,NSBLOCK,NSBATCH,dbl_mb(KSIOIO),int_mb(KSBLTP),
+     &       NTEST,NSBLOCK,NSBATCH,int_mb(KSIOIO),int_mb(KSBLTP),
      &       NSOCCLS_ACT,dbl_mb(KSIOCCLS_ACT),
      &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
@@ -16603,14 +16603,6 @@ c read in parameters -- preliminary values
          GOTO 999
        END IF
 * ====================================================================
-* 44: Use Minimal operatioon count method for alpha-alpha and beta-beta
-* ====================================================================
-       IF(CARD(2:6).EQ.'MOCAA') THEN
-         ISETKW(44) = 1
-         MOCAA = 1
-         GOTO 999
-       END IF
-* ====================================================================
 * 45: Use Minimal operatioon count method for alpha-beta               
 * ====================================================================
        IF(CARD(2:6).EQ.'MOCAB') THEN
@@ -16647,70 +16639,6 @@ c read in parameters -- preliminary values
          READ(LUIN,*) ECORE
          GOTO 999
        END IF
-*
-* =====================================================================
-* 47: Use Perturbation theory for zero order space
-* =====================================================================
-*
-       IF(CARD(2:6).EQ.'PERTU') THEN
-*
-*. Perturbation theory: Three parameters to be specified:
-*
-*      1: Max order of correction vectors required
-*      2: Type of partitioning ( H0 ) 
-*          Current choices: MP, EN, H0READ 
-*      3: zero order energy: E0=EX ( use exact energy of reference state )
-*                              E0=AV ( Use expectation value of H0 )
-*                              E0=RE ; Readin zero order energy in
-         ISETKW(47) = 1
-         IPERT = 1
-*. Number of correction vectors
-         READ(LUIN,*) NPERT
-*. Moeller-Plesset or Epstein-Nesbet partitioning
-         READ(LUIN,'(A)') CARD1
-         CALL LFTPOS(CARD1,MXPLNC)
-         CALL UPPCAS(CARD1,MXPLNC)
-C?       WRITE(6,'(A)') CARD1
-*
-         IF(CARD1(1:2) .EQ. 'MP' ) THEN
-           MPORENP = 1
-           IPART = 1
-         ELSE  IF(CARD1(1:2) .EQ. 'EN' ) THEN
-           MPORENP = 2
-           IPART = 2
-         ELSE IF(CARD1(1:6).EQ.'H0READ' ) THEN
-*. Read in one body hamiltonian
-           MPORENP = 0
-           IPART = 3
-*.
-         ELSE
-           WRITE(LUOUT,*) ' Unknown partitioning '
-          WRITE(LUOUT,'(1H ,A)') CARD1
-          NERROR = NERROR + 1
-         END IF
-* Zero order energy:
-         READ(LUIN,'(A)') CARD1
-         CALL LFTPOS(CARD1,MXPLNC)
-         CALL UPPCAS(CARD1,MXPLNC)
-C?       WRITE(6,'(A)') CARD1
-*
-         IF(CARD1(1:5).EQ.'E0=AV') THEN
-           IE0AVEX = 1
-         ELSE IF(CARD1(1:5).EQ.'E0=EX') THEN
-           IE0AVEX = 2
-         ELSE IF(CARD1(1:5).EQ.'E0=RE') THEN
-           IE0AVEX = 3
-           READ(LUIN,*) E0READ
-           WRITE(6,*) ' Zero order energy =',E0READ
-         ELSE   
-           WRITE(6,*) ' Unknown form of zero order energy '
-           WRITE(LUOUT,'(1H ,A)') CARD1
-           NERROR = NERROR + 1
-         END IF
-*
-         GOTO 999
-       END IF
-
 *
 * =====================================================================
 * 48: Approximate Hamiltonian in reference space 
@@ -23096,105 +23024,6 @@ C    &  '        Allowed number of iterations    ',MAXIT
       END IF
 C     END IF
 *
-      IF(IPERT.NE.0) THEN
-        WRITE(LUOUT,'(1H ,A)')
-     &    '     Perturbation calculation'
-        WRITE(LUOUT,'(1H ,A)')
-     &  '     ======================= '
-        WRITE(6,*)
-     &  '        Root Choosen as zero order state ', IRFROOT
-        WRITE(6,*)
-     &  '        Root used for zero order operator ', IH0ROOT
-COLD    IF(MPORENP.EQ.1) THEN
-COLD    WRITE(6,*)
-COLD &  '        Moller Plesset partitioning '
-COLD    ELSE IF (MPORENP.EQ.2) THEN
-COLD    WRITE(6,*)
-COLD &  '        Epstein-Nesbet partitioning '
-COLD    ELSE IF  (MPORENP.EQ.0) THEN
-COLD    WRITE(6,*)
-COLD &  '        One-body Hamiltonian readin '
-COLD    END IF
-        IF(IE0AVEX.EQ.1) THEN
-          WRITE(6,*) 
-     &  '        Expectation value of H0 used as zero order energy '
-        ELSE IF( IE0AVEX.EQ.2) THEN
-          WRITE(6,*) 
-     &  '        Exact energy of reference used as zero order energy'
-        END IF
-        WRITE(6,*)
-     &  '        Correction vectors obtained through  order ', NPERT
-        IF(IH0SPC.EQ.0) THEN
-        WRITE(6,*)
-     &  '        No restrictions on perturbation interactions '      
-        ELSE
-        WRITE(6,*) 
-     &  '        Perturbation restricted to interactions in subspaces'
-        END IF
-*
-        IF(IH0SPC.NE.0) THEN
-        WRITE(6,*)
-        WRITE(6,*) 
-     &  '        Number of perturbation subspaces ', NPTSPC
-        WRITE(6,*)
-        WRITE(6,*)
-     &  '        ======================== '
-        WRITE(6,*) 
-     &  '        Perturbation subspaces: '
-        WRITE(6,*) 
-     &  '        ======================== '
-        DO JPTSPC = 1, NPTSPC
-COLD      WRITE(LUOUT,'(A)')
-COLD &     ' ====================================================== '
-          WRITE(LUOUT,'(A)')
-          WRITE(LUOUT,'(7X,A)') '         Min. occ    Max. occ '
-          WRITE(LUOUT,'(7X,A)') '         ========    ======== '
-          DO IGAS = 1, NGAS
-            WRITE(LUOUT,'(7X,A,I2,3X,I3,9X,I3)')
-     &      '   GAS',IGAS,IOCPTSPC(1,IGAS,JPTSPC)
-     &                   ,IOCPTSPC(2,IGAS,JPTSPC)
-          END DO
-        END DO
-*    
-        WRITE(6,*) 
-        WRITE(6,'(7X,A)') ' ========================================'
-        WRITE(6,'(7X,A)') ' Approximate Hamiltonian in CI subspaces '
-        WRITE(6,'(7X,A)') ' ========================================'
-        WRITE(6,'(7X,A)') 
-        WRITE(6,'(7X,A)') '    Subspace          H(apr)   '
-        WRITE(6,'(7X,A)') '  ============================='
-        WRITE(6,'(7X,A)')
-        DO JPTSPC = 1, NPTSPC
-          IF(IH0INSPC(JPTSPC).EQ.1) THEN
-            WRITE(LUOUT,'(12X,I3,8X,A)')
-     &      JPTSPC, ' Diagonal Fock operator '
-          ELSE IF(IH0INSPC(JPTSPC).EQ.2) THEN
-            WRITE(LUOUT,'(12X,I3,8X,A)')
-     &      JPTSPC, ' Epstein-Nesbet operator'
-          ELSE IF(IH0INSPC(JPTSPC).EQ.3) THEN
-            WRITE(LUOUT,'(12X,I3,8X,A)')
-     &      JPTSPC, ' Nondiagonal Fock operator '
-          ELSE IF(IH0INSPC(JPTSPC).EQ.4) THEN
-            WRITE(LUOUT,'(12X,I3,8X,A)')
-     &      JPTSPC, ' Complete Hamiltonian  '
-          ELSE IF(IH0INSPC(JPTSPC).EQ.5) THEN
-            WRITE(LUOUT,'(12X,I3,8X,A)')
-     &      JPTSPC, ' Mix of Fock and Exact operator '
-          END IF
-         END DO
-         IF(ISETKW(61).GT.0) THEN
-           WRITE(6,*)
-           WRITE(6,'(7X,A)') 
-     &     ' Orbital subspaces where exact Hamiltonian is used: '
-           WRITE(6,'(7X,A)')
-     &      '===================================================='
-           WRITE(6,*)
-           WRITE(LUOUT,'(10X,10(2X,I3))') (IH0EXSPC(I),I=1, NH0EXSPC)
-           WRITE(6,*) 
-         END IF
-*      
-       END IF
-       END IF
 *
        I_AM_DOING_BK = 0
        IF(I_AM_GIOVANNI.EQ.1) THEN
@@ -27913,228 +27742,6 @@ C     STOP ' Jeppe forced me to stop in GETINT '
 *
       RETURN
       END
-      SUBROUTINE SIGDEN_CI_ORIG(CB,HCB,LUC,LUHC,C,HC,ISIGDEN)
-*
-* Outer routine for common sigma vector generation(ISIGDEN=1) or 
-* density matrix construction(ISIGDEN=2)
-* GAS version 
-*
-* Jeppe Olsen, April 2011, from MV7
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-*
-* =====
-*.Input
-* =====
-*
-*.Definition of c and sigma
-      INCLUDE 'cands.inc'
-*
-*./ORBINP/: NACOB used
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'cicisp.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'cstate.inc' 
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'csm.inc'
-      INCLUDE 'crun.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'cprnt.inc'
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'oper.inc'
-      INCLUDE 'cecore.inc'
-      COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
-*. Two blocks of C or Sigme
-      DIMENSION CB(*),HCB(*)
-*. Two vectors of C or Sigma (for ICISTR = 1)
-      DIMENSION C(*),HC(*)
-*
-      CALL QENTER('SIDEC')
-      IDUM = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SIDEC ')
-*
-      MAXK1_MX = 0
-      LSCMAX_MX = 0
-      IF(ISSPC.LE.NCMBSPC) THEN
-        IATP = 1
-        IBTP = 2
-      ELSE
-        IATP = IALTP_FOR_GAS(ISSPC)
-        IBTP = IBETP_FOR_GAS(ISSPC)
-      END IF
-*
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
-*. Offset for supergroups 
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
-*
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
-*. Arrays giving allowed type combinations 
-      CALL MEMMAN(KSIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'SIOIO ')
-      CALL IAIBCM(ISSPC,dbl_mb(KSIOIO))
-*. Arrays for additional symmetry operation
-      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-        CALL SIGVST(WORK(KSVST),NSMST)
-      ELSE
-         KSVST = 1
-      END IF
-*. Arrays giving block type
-      CALL MEMMAN(KSBLTP,NSMST,'ADDL  ',1,'SBLTP ')
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,int_mb(KSBLTP),WORK(KSVST))
-*. Arrays for partitioning of sigma  
-      NTTS = MXNTTS
-      CALL MEMMAN(KLSLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
-      CALL MEMMAN(KLSLEBT ,NTTS  ,'ADDL  ',1,'CLEBT ')
-      CALL MEMMAN(KLSI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')
-      CALL MEMMAN(KLSIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
-*. Batches  of C vector
-      IF (ISIMSYM.EQ.0) THEN
-        LBLOCK = MXSOOB
-      ELSE
-        LBLOCK = MXSOOB_AS
-      END IF
-      LBLOCK = MAX(LBLOCK,LCSBLK)
-C     WRITE(6,*) ' ECORE in MV7 =', ECORE
-      CALL PART_CIV2(IDC,int_mb(KSBLTP),int_mb(KNSTSO(IATP)),
-     &     int_mb(KNSTSO(IBTP)),NOCTPA,NOCTPB,NSMST,LBLOCK,
-     &     dbl_mb(KSIOIO),ISMOST(1,ISSM),
-     &     NBATCH,int_mb(KLSLBT),int_mb(KLSLEBT),
-     &     int_mb(KLSI1BT),int_mb(KLSIBT),0,ISIMSYM)
-*. Number of BLOCKS
-        NBLOCK = IFRMR(int_mb(KLSI1BT),1,NBATCH)
-     &         + IFRMR(int_mb(KLSLBT),1,NBATCH) - 1
-C?      WRITE(6,*) ' Number of blocks ', NBLOCK
-
-      IF(I12.EQ.2) THEN
-        IDOH2 = 1
-      ELSE
-        IDOH2 = 0
-      END IF
-*
-      IF(ICISTR.EQ.1) THEN
-       LLUC = 0
-       LLUHC = 0
-      ELSE 
-       LLUC = LUC
-       LLUHC = LUHC
-      END IF
-*
-        CALL SIGDEN2_CI(CB,HCB,NBATCH,WORK(KLSLBT),WORK(KLSLEBT),
-     &       WORK(KLSI1BT),WORK(KLSIBT),LLUC,LLUHC,C,HC,ECORE,ISIGDEN)
-*. Eliminate local memory
-      CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'SIDEC ')
-*
-      CALL QEXIT('SIDEC')
-*
-      RETURN
-      END
-      SUBROUTINE SIGDEN2_CI(CB,SB,NBATS,LBATS,LEBATS,I1BATS,IBATS,
-     &           LUC,LUHC,CV,SV,ECORE,ISIGDEN)
-*
-* Common routine for Sigma vector/density matrix construction
-*
-*
-* Jeppe Olsen   April 2011, form RASSG3
-*
-* =====
-* Input
-* =====
-*
-
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'crun.inc'
-      INCLUDE 'cprnt.inc'
-*. Batches of sigma
-      INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*)
-*.Scratch
-      DIMENSION SB(*),CB(*)
-*. Input/output if ICISTR = 1
-      DIMENSION SV(*),CV(*)
-*
-      CALL QENTER('SIDE2')
-      NTEST = 0
-      NTEST = MAX(NTEST,IPRCIX)
-      IF(NTEST.GE.20) THEN
-        WRITE(6,*) ' ======================'
-        WRITE(6,*) ' SIGDEN2_CI speaking:'
-        WRITE(6,*) ' ======================'
-        WRITE(6,*) ' NBATS = ',NBATS
-      END IF
-*
-      IF(LUHC.GT.0) CALL REWINO(LUHC)
-* Loop over batches over sigma blocks
-      IOFF_S = 1
-      DO JBATS = 1, NBATS
-*. Read current batch of sigma (left hand vector) if density is constructed
-        IF(ISIGDEN.EQ.2) THEN
-*. Transfer S block from  disc
-         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-          IATP = IBATS(1,ISBLK)
-          IBTP = IBATS(2,ISBLK)
-          IASM = IBATS(3,ISBLK)
-          IBSM = IBATS(4,ISBLK)
-          IOFF = IBATS(6,ISBLK)
-          LEN  = IBATS(8,ISBLK)
-C?        write(6,*) 'SIGDEN2_CI: IOFF, SB(IOFF)',IOFF,SB(IOFF)
-          IF(ICISTR.NE.1) THEN
-            CALL IFRMDS(LEN2,1,-1,LUHC)
-            CALL FRMDSCN(SB(IOFF),LEN,-1,LUHC)
-          ELSE
-            CALL COPVEC(SV(IOFF_S),SB(IOFF),LEN)
-            IOFF_S = IOFF_S + LEN
-          END IF
-         END DO
-        END IF! End if Sigma generation
-*. Obtain sigma or density for batch of sigma blocks
-        CALL SIGDEN3_CI(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
-     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ISIGDEN)
-*
-        IF(ISIGDEN.EQ.1) THEN
-*. Transfer S block to permanent storage
-         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-          IATP = IBATS(1,ISBLK)
-          IBTP = IBATS(2,ISBLK)
-          IASM = IBATS(3,ISBLK)
-          IBSM = IBATS(4,ISBLK)
-          IOFF = IBATS(6,ISBLK)
-          LEN  = IBATS(8,ISBLK)
-C?        write(6,*) 'SIGDEN2_CI: IOFF, SB(IOFF)',IOFF,SB(IOFF)
-          IF(ICISTR.NE.1) THEN
-            CALL ITODS(LEN,1,-1,LUHC)
-            CALL TODSC(SB(IOFF),LEN,-1,LUHC)
-          ELSE
-            CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
-            IOFF_S = IOFF_S + LEN
-          END IF
-         END DO
-        END IF! End if Sigma generation
-*
-       END DO
-*
-      IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
-      IF(NTEST.GE.100) THEN
-        IF(ICISTR.NE.1) THEN
-          WRITE(6,*) ' Final S-vector on disc'
-          CALL WRTVCD(SB,LUHC,1,-1)
-        ELSE
-          LEN_S = IOFF_S - 1
-          WRITE(6,*) ' Final S-vector'
-          CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
-        END IF
-      END IF
-      IF(NTEST.GE.100) WRITE(6,*) ' Leaving SIGDEN2_CI'
-*
-      CALL QEXIT('SIDE2')
-      RETURN
-      END
       SUBROUTINE Z_ACT_INTLISTS
 *
 * Define active lists of two-electron integrals including pointers
@@ -28868,7 +28475,8 @@ C?    WRITE(6,*) ' TEST, MV7: LCSBLK, LBLOCK = ', LCSBLK, LBLOCK
       IF(ISFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTEST,NSBLOCK,NSBATCH,
-     &       dbl_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,dbl_mb(KSIOCCLS_ACT),
+     &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
+     &       dbl_mb(KSIOCCLS_ACT),
      &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
      &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -28876,7 +28484,8 @@ C?    WRITE(6,*) ' TEST, MV7: LCSBLK, LBLOCK = ', LCSBLK, LBLOCK
       IF(ICFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,
-     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
+     &       dbl_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
