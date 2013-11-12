@@ -13,6 +13,9 @@
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       DIMENSION S(*),H0(*),V(*)
 *
@@ -67,54 +70,54 @@ c      INCLUDE 'mxpdim.inc'
       I_SYM_OR_MGS = 2
 *. Metric in complete matrix form
       WRITE(6,*) ' Input S matrix '
-      CALL TRIPAK(WORK(KLMAT5),S,2,NDIM,NDIM)
-      CALL WRTMAT(WORK(KLMAT5),NDIM,NDIM,NDIM,NDIM)
+      CALL TRIPAK(dbl_mb(KLMAT5),S,2,NDIM,NDIM)
+      CALL WRTMAT(dbl_mb(KLMAT5),NDIM,NDIM,NDIM,NDIM)
       IF( I_SYM_OR_MGS .EQ.1 ) THEN
 *. S**(-1/2)
 C           SQRTMT(A,NDIM,ITASK,ASQRT,AMSQRT,SCR)      
-        CALL SQRTMT(WORK(KLMAT5),NDIM,2,WORK(KLMAT2),
-     &             WORK(KLMAT1),WORK(KLMAT3))
+        CALL SQRTMT(dbl_mb(KLMAT5),NDIM,2,dbl_mb(KLMAT2),
+     &             dbl_mb(KLMAT1),dbl_mb(KLMAT3))
         IF(NTEST.GE.5) THEN
           WRITE(6,*) ' S-1/2 matrix '
-          CALL WRTMAT(WORK(KLMAT1),NDIM,NDIM,NDIM,NDIM)
+          CALL WRTMAT(dbl_mb(KLMAT1),NDIM,NDIM,NDIM,NDIM)
         END IF
        ELSE
 *. Modified Gram-Schmidt
-         CALL MGS3(WORK(KLMAT1),WORK(KLMAT5),NDIM,WORK(KLMAT2))
+         CALL MGS3(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NDIM,dbl_mb(KLMAT2))
        END IF
 *. Transform H0 and V to orthogonal basis
 C          TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
-      CALL TRAN_SYM_BLOC_MAT(H0,WORK(KLMAT1),1,NDIM,WORK(KLMAT2),
-     &                       WORK(KLMAT3))
+      CALL TRAN_SYM_BLOC_MAT(H0,dbl_mb(KLMAT1),1,NDIM,dbl_mb(KLMAT2),
+     &                       dbl_mb(KLMAT3))
       CALL COPVEC(WORK(KLMAT2),H0,NDIM*(NDIM+1)/2)
-      CALL TRAN_SYM_BLOC_MAT(V ,WORK(KLMAT1),1,NDIM,WORK(KLMAT2),
-     &                       WORK(KLMAT3))
-      CALL COPVEC(WORK(KLMAT2),V ,NDIM*(NDIM+1)/2)
+      CALL TRAN_SYM_BLOC_MAT(V ,dbl_mb(KLMAT1),1,NDIM,dbl_mb(KLMAT2),
+     &                       dbl_mb(KLMAT3))
+      CALL COPVEC(dbl_mb(KLMAT2),V ,NDIM*(NDIM+1)/2)
 *
       WRITE(6,*) ' H0 in orthonormal basis '
       CALL PRSYM (H0,NDIM)
       WRITE(6,*) ' V  in orthonormal basis '
       CALL PRSYM (V ,NDIM)
 *. Find Metrix in orthonormal basis to check for inaccuracies
-      CALL TRAN_SYM_BLOC_MAT(S ,WORK(KLMAT1),1,NDIM,
-     &                       WORK(KLMAT2),WORK(KLMAT3))
+      CALL TRAN_SYM_BLOC_MAT(S ,dbl_mb(KLMAT1),1,NDIM,
+     &                       dbl_mb(KLMAT2),dbl_mb(KLMAT3))
       WRITE(6,*) ' S in orthonormal basis '
-      CALL PRSYM(WORK(KLMAT2),NDIM)
+      CALL PRSYM(dbl_mb(KLMAT2),NDIM)
       
 *. Find basis where H0 is diagonal and transform
 *. Diagonalize H0, eigenvectors in MAT2
-      CALL EIGEN(H0,WORK(KLMAT2),NDIM,0,1)
-      CALL COPDIA(H0,WORK(KLMAT3),NDIM,1)
+      CALL EIGEN(H0,dbl_mb(KLMAT2),NDIM,0,1)
+      CALL COPDIA(H0,dbl_mb(KLMAT3),NDIM,1)
 *. And put back
       ZERO = 0.0D0
       CALL SETVEC(H0,ZERO,NDIM*(NDIM+1)/2)
       DO I = 1, NDIM
-        H0(I*(I+1)/2) = WORK(KLMAT3-1+I)
+        H0(I*(I+1)/2) = dbl_mb(KLMAT3-1+I)
       END DO
 *. Transform  V to basis that diagonalizes H0
-      CALL TRAN_SYM_BLOC_MAT(V ,WORK(KLMAT2),1,NDIM,WORK(KLMAT4),
-     &                       WORK(KLMAT3))
-      CALL COPVEC(WORK(KLMAT4),V,NDIM*(NDIM+1)/2)
+      CALL TRAN_SYM_BLOC_MAT(V ,dbl_mb(KLMAT2),1,NDIM,dbl_mb(KLMAT4),
+     &                       dbl_mb(KLMAT3))
+      CALL COPVEC(dbl_mb(KLMAT4),V,NDIM*(NDIM+1)/2)
 *
       WRITE(6,*) ' H0 in basis of sub space zero order states '
       WRITE(6,*) ' ========================================== '
@@ -126,25 +129,25 @@ C          TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
       CALL PRSYM(V,NDIM)
 *. Eigenvalues H = H0+V, eigenvectors in MAT4
       ONE = 1.0D0
-      CALL VECSUM(WORK(KLMAT3),H0,V,ONE,ONE,NDIM*(NDIM+1)/2)
-      CALL EIGEN(WORK(KLMAT3),WORK(KLMAT4),NDIM,1,1)
-      CALL COPDIA(WORK(KLMAT3),WORK(KLVEC1),NDIM,1)
+      CALL VECSUM(dbl_mb(KLMAT3),H0,V,ONE,ONE,NDIM*(NDIM+1)/2)
+      CALL EIGEN(dbl_mb(KLMAT3),dbl_mb(KLMAT4),NDIM,1,1)
+      CALL COPDIA(dbl_mb(KLMAT3),dbl_mb(KLVEC1),NDIM,1)
       DO I = 1, NDIM
-        WORK(KLVEC1-1+I) = WORK(KLVEC1-1+I) + ECORE 
+        dbl_mb(KLVEC1-1+I) = dbl_mb(KLVEC1-1+I) + ECORE 
       END DO
 *.
       WRITE(6,*)
       WRITE(6,*) ' Eigenvalues of H (with core-energy)in subspace '
       WRITE(6,*) ' =============================================== '
       WRITE(6,*)
-      CALL WRTMAT(WORK(KLVEC1),NDIM,1,NDIM,1)
+      CALL WRTMAT(dbl_mb(KLVEC1),NDIM,1,NDIM,1)
 *
 *. Perturbation expansion in subspace 
 *
 *. Expand H0 and V  to complete matrices
 C       TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
-      CALL TRIPAK(WORK(KLMAT5),H0,2,NDIM,NDIM)
-      CALL TRIPAK(WORK(KLMAT6),V ,2,NDIM,NDIM)
+      CALL TRIPAK(dbl_mb(KLMAT5),H0,2,NDIM,NDIM)
+      CALL TRIPAK(dbl_mb(KLMAT6),V ,2,NDIM,NDIM)
 *
       MAXORD = 500
       LEN = NDIM*(1+MAXORD)
@@ -152,12 +155,12 @@ C       TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
       CALL MEMMAN(KLEN,MAXORD+1,'ADDL  ',2,'KLC   ')
 *. Zero order state
       ZERO = 0.0D0
-      CALL SETVEC(WORK(KLC),ZERO,NDIM)
+      CALL SETVEC(dbl_mb(KLC),ZERO,NDIM)
       WORK(KLC) = ONE
 C          MATPERT(H0,V,NDIM,NORD,EN,C,VEC1,VEC2,VEC3)
-      CALL MATPERT(WORK(KLMAT5),WORK(KLMAT6),NDIM,MAXORD,
-     &             WORK(KLEN),WORK(KLC),WORK(KLVEC1),WORK(KLVEC2),
-     &             WORK(KLVEC3),ECORE )
+      CALL MATPERT(dbl_mb(KLMAT5),dbl_mb(KLMAT6),NDIM,MAXORD,
+     &             dbl_mb(KLEN),dbl_mb(KLC),dbl_mb(KLVEC1),
+     &             dbl_mb(KLVEC2),dbl_mb(KLVEC3),ECORE )
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'PERT_S')
 *
@@ -2561,6 +2564,7 @@ CBERT FI is a GA
        WRITE(6,*) ' ============================'
        WRITE(6,*) 
        ISYM = 0
+CBERT FI is a GA
        CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 * 
@@ -2709,6 +2713,7 @@ CBERT FI is a GA
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
+CBERT FI is a GA
        CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 * 
@@ -2815,6 +2820,7 @@ CBERT FI is a GA
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
+CBERT FI is a GA
        CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 * 
@@ -2926,6 +2932,7 @@ CBERT FI is GA
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
+CBERT FI is a GA
        CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 * 
@@ -3035,6 +3042,7 @@ CBERT FI is GA
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
+CBERT FI is a GA
        CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 * 
@@ -4258,8 +4266,8 @@ C?       WRITE(6,*) ' Variational  solver '
          CALL PRSYM(APROJ,NINVEC)
        END IF
 *. Diagonalize initial projected matrix
-       CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
+       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
+       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -4480,10 +4488,10 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
   150 CONTINUE
 *. Diagonalize projected matrix
       NVEC = NVEC + IADD
-      CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
+      CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
+      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
-        E0VAR = WORK(KAPROJ)
+        E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
         C1VAR = AVEC(2)
         C1NRM = SQRT(C0VAR**2+C1VAR**2)
@@ -4493,13 +4501,13 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
         E0PERT = AVEC(1)**2*APROJ(1)
      &         + 2.0D0*AVEC(1)*AVEC(2)*APROJ(2)
      &         + AVEC(2)**2*APROJ(3)
-        WORK(KAPROJ) = E0PERT
+        dbl_mb(KAPROJ) = E0PERT
         WRITE(6,*) ' Var and Pert solution, energy and coefficients'
         WRITE(6,'(4X,3E15.7)') E0VAR,C0VAR,C1VAR
         WRITE(6,'(4X,3E15.7)') E0PERT,AVEC(1),AVEC(2)
       END IF
       DO 160 IROOT = 1, NROOT
-        EIG(ITER,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2)
+        EIG(ITER,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2)
  160  CONTINUE
 *
        IF(IPRT .GE. 3 ) THEN
@@ -4751,8 +4759,8 @@ C?       WRITE(6,*) ' Variational  solver '
          CALL PRSYM(APROJ,NINVEC)
        END IF
 *. Diagonalize initial projected matrix
-       CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
+       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
+       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -4973,10 +4981,10 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
   150 CONTINUE
 *. Diagonalize projected matrix
       NVEC = NVEC + IADD
-      CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
+      CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
+      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
-        E0VAR = WORK(KAPROJ)
+        E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
         C1VAR = AVEC(2)
         C1NRM = SQRT(C0VAR**2+C1VAR**2)
@@ -4986,13 +4994,13 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
         E0PERT = AVEC(1)**2*APROJ(1)
      &         + 2.0D0*AVEC(1)*AVEC(2)*APROJ(2)
      &         + AVEC(2)**2*APROJ(3)
-        WORK(KAPROJ) = E0PERT
+        dbl_mb(KAPROJ) = E0PERT
         WRITE(6,*) ' Var and Pert solution, energy and coefficients'
         WRITE(6,'(4X,3E15.7)') E0VAR,C0VAR,C1VAR
         WRITE(6,'(4X,3E15.7)') E0PERT,AVEC(1),AVEC(2)
       END IF
       DO 160 IROOT = 1, NROOT
-        EIG(ITER,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2)
+        EIG(ITER,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2)
  160  CONTINUE
 *
        IF(IPRT .GE. 3 ) THEN
@@ -5025,6 +5033,7 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
           XNORM = INPRDD(VEC1,VEC1,LU3,LU3,1,LBLK)
           CALL REWINE(LU3,LBLK)
           SCALE  = 1.0D0/SQRT(XNORM)
+CBERT Weird offset
           WORK(IROOT) = SCALE
           CALL SCLVCD(LU3,LU5,SCALE,VEC1,0,LBLK)
   320   CONTINUE

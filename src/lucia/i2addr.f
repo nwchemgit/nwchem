@@ -656,11 +656,11 @@ c      INCLUDE 'mxpdim.inc'
       IF (.NOT.(I_UNRORB.EQ.1.AND.ISPCAS.EQ.4)) THEN
         IADR = I2ADDR(IREOTS(I),IREOTS(J),
      &              IREOTS(K),IREOTS(L),
-     &              WORK(KP2ADR),NOCCSYM,NO12SYM)
+     &              dbl_mb(KP2ADR),NOCCSYM,NO12SYM)
       ELSE
         IADR = I2ADDR(IREOTS(K),IREOTS(L),
      &              IREOTS(I),IREOTS(J),
-     &              WORK(KP2ADR),NOCCSYM,NO12SYM)
+     &              dbl_mb(KP2ADR),NOCCSYM,NO12SYM)
       END IF
 
       IF (IADR.GT.0) THEN
@@ -739,11 +739,11 @@ c      INCLUDE 'mxpdim.inc'
       IF (.NOT.(I_UNRORB.EQ.1.AND.ISPCAS.EQ.4)) THEN
         IADR = I2ADDR(IREOTS(I),IREOTS(J),
      &              IREOTS(K),IREOTS(L),
-     &              WORK(KP2ADR),NOCCSYM,NO12SYM)
+     &              dbl_mb(KP2ADR),NOCCSYM,NO12SYM)
       ELSE
         IADR = I2ADDR(IREOTS(K),IREOTS(L),
      &              IREOTS(I),IREOTS(J),
-     &              WORK(KP2ADR),NOCCSYM,NO12SYM)
+     &              dbl_mb(KP2ADR),NOCCSYM,NO12SYM)
       END IF
 
       IF (IADR.GT.0) THEN
@@ -787,7 +787,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IST = 2
       I2ADDR = I2ADDR_GN(IORB,JORB,KORB,LORB,
-     &         WORK(KPINT2_LA),IST)
+     &         dbl_mb(KPINT2_LA),IST)
 *
       IF(I2ADDR.GT.0) THEN
         XINT = WORK(KINT2_LA-1+I2ADDR)
