@@ -59,7 +59,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,calc_pressure
+      logical verlet,mulliken,SA,calc_pressure,change_volume
       logical oprint,lprint,hprint,qmmm,found,notfirststep,found_bak
       real*8  gx,gy,gz,cx,cy,cz,ddx,c0,c1,c2,dA
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
@@ -72,6 +72,7 @@
       real*8 Te_new,Tr_new,Te_init,Tr_init,temperature
       integer i,k,ia,nion,minimizer,mapping,icount
       integer nbq,mapping1d,it_in,it_out,seed
+      integer mc_algorithm
       integer mc_napply,mc_ngroups,mc_group_size
       integer mc_group_start(2),mc_group_end(2),mc_group(2)
 
@@ -158,10 +159,10 @@
       external pspw_bqext,control_Fei
 
       integer  control_bo_steps_in,control_bo_steps_out
-      integer  control_bo_algorithm,control_mc_seed
+      integer  control_bo_algorithm,control_mc_seed,control_mc_algorithm
       real*8   control_mc_step_size,control_rti,ion_ke,ion_Temperature
       external control_bo_steps_in,control_bo_steps_out 
-      external control_bo_algorithm,control_mc_seed
+      external control_bo_algorithm,control_mc_seed,control_mc_algorithm
       external control_mc_step_size,control_rti,ion_ke,ion_Temperature
       real*8   control_mc_aratio,control_mc_Temperature,control_mc_ddx
       external control_mc_aratio,control_mc_Temperature,control_mc_ddx
@@ -366,6 +367,7 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 *     **** Initialize Monte-Carlo Parameters ****
       mc_dr  = control_mc_step_size()
+      mc_algorithm  = control_mc_algorithm()
       call control_mc_atom_direction(mc_atom_direction)
       call control_mc_ngroups(mc_napply,mc_ngroups,mc_group_size)
       if (mc_ngroups.lt.1) then
@@ -628,6 +630,16 @@ c         end if
            write(luout,1301) control_kerker_g0()
          end if
          write(luout,1310)
+         if (mc_algorithm.eq.0) then
+            write(luout,1311) 'NVE Microcanonical Ensemble - ',
+     >                        'HyperVolume Monte Carlo Algorithm'
+         else if (mc_algorithm.eq.0) then
+            write(luout,1311) 'NVT Canonical Ensemble - ',
+     >                        'Metropolis Algorithm'
+         else if (mc_algorithm.eq.2) then
+            write(luout,1311) 'NPT Canonical Ensemble - ',
+     >                        'Metropolis Algorithm'
+         end if
          if (.not.control_translation()) write(luout,1271)
          if (.not.control_rotation())    write(luout,1272)
          
@@ -783,6 +795,7 @@ c         end if
       if (it_out.lt.1) goto 102
 
 
+      change_volume = .false.
   101 continue
          icount = icount + 1
 
@@ -790,13 +803,24 @@ c       **** inner loop ****
         do i=1,it_in
 
            !*** compute the trial energy ****
-           call ion_MC_step(mc_dr,
-     >                      mc_atom_direction,
-     >                      mc_napply,
-     >                      mc_ngroups,
-     >                      int_mb(mc_group_start(1)),
-     >                      int_mb(mc_group_end(1)),
-     >                      int_mb(mc_group(1)))
+           if (mc_algorithm.eq.2) then
+              if (taskid.eq.MASTER) alpha = util_random(0)
+              call Parallel_Brdcst_value(MASTER,alpha)
+              change_volume = alpha.le.(1.0d0/dble(ion_nion()))
+           end if
+
+           if (change_volume) then
+           !#....do a bunch of stuff
+              write(*,*) "change_volume here"
+           else
+              call ion_MC_step(mc_dr,
+     >                         mc_atom_direction,
+     >                         mc_napply,
+     >                         mc_ngroups,
+     >                         int_mb(mc_group_start(1)),
+     >                         int_mb(mc_group_end(1)),
+     >                         int_mb(mc_group(1)))
+           end if
            EV0 = cgsd_energy(.false.)
 
            w = dexp(-mc_beta*(EV0-EV))
@@ -1213,6 +1237,7 @@ c      call frac_occ_end()
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1310 FORMAT(/' Monte-Carlo parameters:')
+ 1311 FORMAT(5X, ' MC Algorithm=',A)
  1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
