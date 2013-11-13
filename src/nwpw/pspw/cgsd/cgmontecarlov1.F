@@ -20,6 +20,7 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "geom.fh"
 #include "stdio.fh"
 
 #include "nwpw_timing.fh"
@@ -41,12 +42,12 @@
       real*8   t1,t2,t3,t4,av
 
 *     **** lattice variables ****
-      integer ngrid(3),nwave,nfft3d,n2ft3d
-      real*8  a,b,c,alpha,beta,gamma,mc_beta
+      integer ngrid(3)
+      real*8  a,b,c,alpha,beta,gamma,mc_beta,mc_pressure
     
 
 *     ***** energy variables ****
-      integer ne(2),ms,ispin
+      integer ms,ispin
       real*8  E(40),en(2)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
@@ -61,12 +62,14 @@
 *     **** local variables ****
       logical verlet,mulliken,SA,calc_pressure,change_volume
       logical oprint,lprint,hprint,qmmm,found,notfirststep,found_bak
-      real*8  gx,gy,gz,cx,cy,cz,ddx,c0,c1,c2,dA
+      real*8  gx,gy,gz,cx,cy,cz,ddx,c0,c1,c2,dA,ddv,v0,v1,v2
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
-      real*8  sum,w,emotion_time_shift,wa,wr
+      real*8  sum,w,emotion_time_shift,wa,wr,wa_r,wr_r,wa_v,wr_v
       real*8  EV,EV0,pi,esum1,esum2,eave,evar,E25,E26
-      real*8  mc_dr,mc_atom_direction(3)
-      real*8  ratio,aratio
+      real*8  mc_unita1(3,3),mc_unita2(3,3)
+      real*8  mc_dr,mc_dV,mc_atom_direction(3)
+      real*8  ratio,ratio_v,ratio_r,aratio,omega1,omega2
+      real*8  omega_all,omega_all2,omega_ave,omega_var
       real*8  icharge,cv
       real*8  sa_alpha(2),sa_decay(2),tt1,tt2,ssr,r,p1,p2,pressure
       real*8 Te_new,Tr_new,Te_init,Tr_init,temperature
@@ -75,6 +78,7 @@
       integer mc_algorithm
       integer mc_napply,mc_ngroups,mc_group_size
       integer mc_group_start(2),mc_group_end(2),mc_group(2)
+      integer vcount,geom1,frac1(2),nion1
 
       character*50 filename
       character*255 full_filename,full_bak
@@ -166,12 +170,14 @@
       external control_mc_step_size,control_rti,ion_ke,ion_Temperature
       real*8   control_mc_aratio,control_mc_Temperature,control_mc_ddx
       external control_mc_aratio,control_mc_Temperature,control_mc_ddx
+      real*8   control_mc_ddv,control_mc_volume_step
+      external control_mc_ddv,control_mc_volume_step
       logical  control_SA,control_pressure
       external control_SA,control_pressure
       real*8   control_SA_decay
       external control_SA_decay
-      integer  ion_nconstraints,ion_ndof
-      external ion_nconstraints,ion_ndof
+      integer  ion_nconstraints,ion_ndof,ion_rion_ptr
+      external ion_nconstraints,ion_ndof,ion_rion_ptr
 
 
 *                            |************|
@@ -227,7 +233,6 @@
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
-      nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
 
@@ -235,95 +240,14 @@
       call psi_data_init(20)
 
 
-
-*     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      call D3dB_nfft3d(1,nfft3d)
-      n2ft3d = 2*nfft3d
-
-*     ***** Initialize double D3dB data structure ****
-      if (control_version().eq.4)
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
-
- 
-*     **** initialize lattice data structure ****
-      call lattice_init()
-      call G_init()
-      call mask_init()
-      call Pack_init()
-      call D3dB_pfft_init()
-      call ga_sync()
-
-*     **** read ions ****
-      value = ion_init(rtdb)
-
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
-
-*     **** allocate psp data structure and read in psedupotentials into it ****
-      call psp_init()
-      call psp_readall()
-      if (psp_semicore(0)) call semicore_check()
-
-*     **** initialize G,mask,ke,coulomb,and ewald data structures ****
-      call ke_init()
-      if (control_version().eq.3) call coulomb_init()
-      if (control_version().eq.4) call coulomb2_init()
-      call strfac_init()
-      call phafac()
-      if (control_version().eq.3) then
-         call ewald_init()
-         call ewald_phafac()
-       end if
-
-*     **** read in wavefunctions and initialize psi ****
-      if (.not.control_check_charge_multiplicity()) then
-        call psi_new()
-        newpsi = .true.
-      else
-        newpsi = .false.
-      end if
-
-*     **** Initialize 1d mappings for ne spaces ****
-      call psi_get_ne(ispin,ne)
-      mapping1d   = control_mapping1d()
-      call Dne_init(ispin,ne,mapping1d)
-
-
-*     **** read in wavefunctions and initialize psi ****
-      value = psi_initialize()
-
-      !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
-
-*     **** electron and geodesic data structures ****
-      call electron_init()
-      if ((minimizer.eq.4).or.(minimizer.eq.7)) then  !debug
-        call geodesic2_init()
-      else
-         call geodesic_init()
-      end if
-
-*     **** initialize QM/MM ****
-      call pspw_init_APC(rtdb)
-      call pspw_qmmm_init(rtdb)
-      call pspw_charge_init(rtdb)
-
-*     **** initialize SIC and HFX ****
-      ne(1) = psi_ne(1)
-      ne(2) = psi_ne(2)
-      call pspw_init_SIC(rtdb,ne)
-      call pspw_init_HFX(rtdb,psi_ispin(),ne)
+*     **** initialize a bunch of stuff ***
+      call cgmontecarlo_start(rtdb,newpsi)
 
 *     **** initialize DFT+U ****
       call psp_U_init()
 
-*     **** initialize Meta GGA ****
-      call nwpw_meta_gga_init()
-
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
-
-
 
 
 *     **** initialize pressure ****
@@ -331,14 +255,6 @@
       pressure      = 0.0d0
       p1            = 0.0d0
       p2            = 0.0d0
-      if (calc_pressure) then
-         call psp_stress_init()
-         call psp_stress_readall()
-      end if
-
-
-*     **** initialize frac_occ data structure ****
-c      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 *     **** initialize linesearching ****
       call linesearch_init()
@@ -349,8 +265,6 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
 *     ******************************
       call ion_init_ke(ekg,eki0,eki1)
 
-
-*     **** Initialize thermostats ****
 
 *     **** Initialize simulated annealing ****
       SA       = .false.
@@ -367,6 +281,7 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 *     **** Initialize Monte-Carlo Parameters ****
       mc_dr  = control_mc_step_size()
+      mc_dV  = control_mc_volume_step()
       mc_algorithm  = control_mc_algorithm()
       call control_mc_atom_direction(mc_atom_direction)
       call control_mc_ngroups(mc_napply,mc_ngroups,mc_group_size)
@@ -407,18 +322,25 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
       end if
 
 
-      aratio      = control_mc_aratio()
-      ddx         = control_mc_ddx()
       seed        = control_mc_seed()
       temperature = control_mc_Temperature()
       mc_beta = util_random(control_mc_seed()) !**seed the random number generator
       mc_beta = 1.0d0/(kb*temperature)
 
-      dA = 1.0d0/(aratio*aratio-aratio)
-      c0 = 1.0d0-ddx
-      c1 = (aratio*aratio*(2*ddx) - (ddx))*dA
-      c2 = (-aratio      *(2*ddx) + (ddx))*dA
+      aratio      = control_mc_aratio()
 
+      ddx = control_mc_ddx()
+      dA  = 1.0d0/(aratio*aratio-aratio)
+      c0  = 1.0d0-ddx
+      c1  = (aratio*aratio*(2*ddx) - (ddx))*dA
+      c2  = (-aratio      *(2*ddx) + (ddx))*dA
+
+      if (mc_algorithm.eq.2) then
+         ddv = control_mc_ddv()
+         v0  = 1.0d0-ddv
+         v1  = (aratio*aratio*(2*ddv) - (ddv))*dA
+         v2  = (-aratio      *(2*ddv) + (ddv))*dA
+      end if
 
 
 
@@ -630,18 +552,18 @@ c         end if
            write(luout,1301) control_kerker_g0()
          end if
          write(luout,1310)
+         if (.not.control_translation()) write(luout,1271)
+         if (.not.control_rotation())    write(luout,1272)
          if (mc_algorithm.eq.0) then
             write(luout,1311) 'NVE Microcanonical Ensemble - ',
      >                        'HyperVolume Monte Carlo Algorithm'
-         else if (mc_algorithm.eq.0) then
+         else if (mc_algorithm.eq.1) then
             write(luout,1311) 'NVT Canonical Ensemble - ',
      >                        'Metropolis Algorithm'
          else if (mc_algorithm.eq.2) then
             write(luout,1311) 'NPT Canonical Ensemble - ',
      >                        'Metropolis Algorithm'
          end if
-         if (.not.control_translation()) write(luout,1271)
-         if (.not.control_rotation())    write(luout,1272)
          
          write(luout,1320) mc_dr,
      >    control_bo_steps_in()*control_bo_steps_out(),
@@ -657,7 +579,7 @@ c         end if
          write(luout,1223) eki1
          write(luout,1224) (eki1-eki0)
 
-         write(luout,1394)
+c         write(luout,1394)
        
         if (calc_pressure) write(luout,1393)
          if (control_SA()) then
@@ -692,11 +614,6 @@ c         end if
       call movecs_ecce_print_off()
 
 
-*     **** finalize pressure ****
-      if (calc_pressure) then
-         call psp_stress_end()
-      end if
-
 
 *     ************************************
 *     **** open up other MOTION files ****
@@ -707,6 +624,10 @@ c         end if
       E26 = 0.0d0
       wa  = 0.0d0
       wr  = 0.0d0
+      wa_r  = 0.0d0
+      wr_r  = 0.0d0
+      wa_v  = 0.0d0
+      wr_v  = 0.0d0
       if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
@@ -795,6 +716,8 @@ c         end if
       if (it_out.lt.1) goto 102
 
 
+      omega1 = lattice_omega()
+      vcount = 0
       change_volume = .false.
   101 continue
          icount = icount + 1
@@ -809,9 +732,38 @@ c       **** inner loop ****
               change_volume = alpha.le.(1.0d0/dble(ion_nion()))
            end if
 
+*          **** change volume ****
            if (change_volume) then
-           !#....do a bunch of stuff
-              write(*,*) "change_volume here"
+              vcount = vcount + 1
+              omega1 = lattice_omega()
+
+              !*** rion --> frac1  ***
+              call lattice_r1_to_frac(nion,
+     >                                dbl_mb(ion_rion_ptr()),
+     >                                dbl_mb(frac1(1)))
+              call control_get_unita(mc_unita1)
+              call cgmontecarlo_end(rtdb,flag)
+
+*             **** volume change to unita1 --> unita2 ****
+              if (taskid.eq.MASTER) alpha = (1.0d0*util_random(0)-0.5d0)
+              call Parallel_Brdcst_value(MASTER,alpha)
+              alpha = dexp(alpha*mc_dV/3.0d0)
+              call dcopy(9,mc_unita1,1,mc_unita2)
+              call dscal(9,alpha,mc_unita2,1)
+
+
+*             **** change unitcell and reinitialize ****
+              call control_set_unita(mc_unita2)
+              call cgmontecarlo_start(rtdb,newpsi)
+
+              !*** frac1 -- > rion ***
+              call lattice_frac_to_r1(nion,
+     >                                dbl_mb(frac1(1)),
+     >                                dbl_mb(ion_rion_ptr()))
+              omega2 = lattice_omega()
+
+
+*          **** change atom positions ****
            else
               call ion_MC_step(mc_dr,
      >                         mc_atom_direction,
@@ -823,20 +775,44 @@ c       **** inner loop ****
            end if
            EV0 = cgsd_energy(.false.)
 
-           w = dexp(-mc_beta*(EV0-EV))
+           if (change_volume) then
+              w = dexp(-mc_beta*(EV0-EV) 
+     >                 -mc_beta*mc_pressure*(omega2-omega1) 
+     >                 +(ion_nion()+1)*dlog(omega2/omega1))
+           else
+              w = dexp(-mc_beta*(EV0-EV))
+           end if
+
            if (taskid.eq.MASTER) alpha = util_random(0)
            call Parallel_Brdcst_value(MASTER,alpha)
         
            !*** accept the sequence ***
            if (alpha.lt.w) then
               EV = EV0
+              if (change_volume) then
+                 wa_v = wa_v + 1.0d0
+                 omega1 = omega2
+              else
+                 wa_r = wa_r + 1.0d0
+              end if
               wa = wa + 1.0d0
               if (control_Fei())
      >           call cgsd_energy_gradient_md(dbl_mb(fion(1)))
 
            !*** reject the sequence ***
            else
-              call ion_MC_reject_step()
+              if (change_volume) then
+                 call cgmontecarlo_end(rtdb,flag)
+                 call control_set_unita(mc_unita1)
+                 call cgmontecarlo_start(rtdb,newpsi)
+                 call lattice_frac_to_r1(nion,
+     >                                   dbl_mb(frac1(1)),
+     >                                   dbl_mb(ion_rion_ptr()))
+                 wr_v = wr_v + 1.0d0
+              else
+                 call ion_MC_reject_step()
+                 wr_r = wr_r + 1.0d0
+              end if
               wr = wr + 1.0d0
            end if
 
@@ -845,13 +821,27 @@ c       **** inner loop ****
            eave = E25/(wa+wr)
            evar = E26/(wa+wr)
            evar = evar - eave*eave
+           ratio_r = wa_r/(wa_r+wr_r)
            ratio = wa/(wa+wr)
+
+           if (mc_algorithm.eq.2) then
+              omega_all  = omega_all  + omega1
+              omega_all2 = omega_all2 + omega1*omega1
+              omega_ave  = omega_all/(wa+wr)
+              omega_var  = omega_all2/(wa+wr)
+              omega_var  = omega_var - omega_ave*omega_ave
+              ratio_v = wa_v/(wa_v+wr_v)
+           end if
 
            if (oprint) then
              write(luout,1350) (icount-1)*it_in+i,EV,EV0,eave,evar,
      >                           ratio,aratio,wa,wr,mc_dr
              write(31,1360) dble((icount-1)*it_in+i)+emotion_time_shift,
-     >                        EV,EV0,eave,evar,ratio,wa,wr,mc_dr
+     >                        EV,EV0,eave,evar,
+     >                        omega1,omega_ave,omega_var,
+     >                        ratio,wa,wr,
+     >                        ratio_r,wa_r,wr_r,
+     >                        ratio_v,wa_v,wr_v,mc_dr,mc_dv
              call util_flush(luout)
              call util_flush(31)
            end if
@@ -863,7 +853,7 @@ c       **** inner loop ****
         end do
 
 *       **** adjust MC steplength ****
-        mc_dr = mc_dr*(c0 + c1*ratio + c2*ratio*ratio)
+        mc_dr = mc_dr*(c0 + c1*ratio_r + c2*ratio_r*ratio_r)
         !if ((ratio/aratio).gt.1.05d0) then
         !   dr = dr*(1.05d0)
         !else if ((ratio/aratio).lt.0.95d0) then
@@ -875,6 +865,13 @@ c       **** inner loop ****
         !if (ratio.gt.aratio) dr = dr*1.05d0
         call Parallel_Brdcst_value(MASTER,mc_dr)
 
+        if (mc_algorithm.eq.2) then
+           if (vcount.ge.it_in) then
+              mc_dV = mc_dV*(v0 + v1*ratio_v + v2*ratio_v*ratio_v)
+              call Parallel_Brdcst_value(MASTER,mc_dV)
+              vcount = 0
+           end if
+        end if
 
 *        **** update thermostats using SA decay ****
          if (SA) then
@@ -1039,19 +1036,8 @@ c       **** inner loop ****
 
 
 
-
-*     **** calculate Mulliken Populations ***
-
-*     **** write wavefunctions to file and finalize psi ****
-      if (flag.eq.-1) then
-        value = psi_finalize(.false.)
-      else
-        value = psi_finalize(.true.)
-      end if
-
-*     **** write geometry to rtdb ****
-      call pspw_charge_write(rtdb)
-      call ion_write(rtdb)
+*     **** deallocate memory and data structures ****
+      call cgmontecarlo_end(rtdb,flag)
 
 
 *     **** deallocate heap memory ****
@@ -1061,38 +1047,8 @@ c       **** inner loop ****
       if (.not. value) 
      >  call errquit('cgmontecarlov1:freeing heap',3,MA_ERR)
 
-      call electron_finalize()
-      if ((minimizer.eq.4).or.(minimizer.eq.7)) then
-        call geodesic2_finalize()
-      else
-        call geodesic_finalize()
-      end if
-      if (control_version().eq.3) call ewald_end()
-      call strfac_end()
-      if (control_version().eq.3) call coulomb_end()
-      if (control_version().eq.4) call coulomb2_end()
-      call ke_end()
-      call mask_end()
-      call Pack_end()
-      call G_end()
-      call psp_U_end()
-      call nwpw_meta_gga_end()
-      call pspw_end_SIC()
-      call pspw_end_HFX()
-      call pspw_end_APC()
-      call pspw_charge_end()
-      call pspw_qmmm_end()
-c      call frac_occ_end()
       call meta_finalize(rtdb)
-
-      call ion_end()
-      call psp_end()
-      call ion_end_FixIon()
-      !call D3dB_n_fft_end(1)
-      call D3dB_pfft_end()
-      call D3dB_end(1)
-      if (control_version().eq.4) call D3dB_end(2)
-      call Dne_end()
+      call psp_U_end()
       call psi_data_end()
 
 
@@ -1237,7 +1193,7 @@ c      call frac_occ_end()
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1310 FORMAT(/' Monte-Carlo parameters:')
- 1311 FORMAT(5X, ' MC Algorithm=',A)
+ 1311 FORMAT(5X, ' MC Algorithm= ',A,A)
  1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
@@ -1299,3 +1255,204 @@ c      call frac_occ_end()
       cgmontecarlov1 = value
       return
       END
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *             cgmontecarlo_start              *
+*     *                                             *
+*     ***********************************************
+
+      subroutine cgmontecarlo_start(rtdb,newpsi)
+      implicit none
+      integer rtdb
+      logical newpsi
+
+*     **** local variables ****
+      logical value,calc_pressure
+      integer minimizer,mapping,mapping1d,ngrid(3),ne(2),ispin
+
+*     **** external functions ****
+      logical  control_pressure,control_check_charge_multiplicity
+      logical  psp_semicore,ion_init,psi_initialize
+      integer  control_version,control_ngrid,control_minimizer
+      integer  control_mapping,control_mapping1d,psi_ne,psi_ispin
+      external control_pressure,control_check_charge_multiplicity
+      external psp_semicore,ion_init,psi_initialize
+      external control_version,control_ngrid,control_minimizer
+      external control_mapping,control_mapping1d,psi_ne,psi_ispin
+
+
+
+      ngrid(1) = control_ngrid(1)
+      ngrid(2) = control_ngrid(2)
+      ngrid(3) = control_ngrid(3)
+      minimizer = control_minimizer()
+      mapping   = control_mapping()
+      calc_pressure = control_pressure().and.(control_version().eq.3)
+
+*     **** initialize D3dB data structure ****
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+
+*     ***** Initialize double D3dB data structure ****
+      if (control_version().eq.4)
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
+
+*     **** initialize lattice data structure ****
+      call lattice_init()
+      call G_init()
+      call mask_init()
+      call Pack_init()
+      call D3dB_pfft_init()
+      call ga_sync()
+
+*     **** read ions ****
+      value = ion_init(rtdb)
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
+*     **** allocate psp data structure and read in psedupotentials into it ****
+      call psp_init()
+      call psp_readall()
+      if (psp_semicore(0)) call semicore_check()
+
+*     **** initialize G,mask,ke,coulomb,and ewald data structures ****
+      call ke_init()
+      if (control_version().eq.3) call coulomb_init()
+      if (control_version().eq.4) call coulomb2_init()
+      call strfac_init()
+      call phafac()
+      if (control_version().eq.3) then
+         call ewald_init()
+         call ewald_phafac()
+       end if
+
+*     **** read in wavefunctions and initialize psi ****
+      if (.not.control_check_charge_multiplicity()) then
+        call psi_new()
+        newpsi = .true.
+      else
+        newpsi = .false.
+      end if
+
+*     **** Initialize 1d mappings for ne spaces ****
+      call psi_get_ne(ispin,ne)
+      mapping1d   = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+
+
+*     **** read in wavefunctions and initialize psi ****
+      value = psi_initialize()
+
+      !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
+
+*     **** electron and geodesic data structures ****
+      call electron_init()
+      if ((minimizer.eq.4).or.(minimizer.eq.7)) then  !debug
+        call geodesic2_init()
+      else
+         call geodesic_init()
+      end if
+
+*     **** initialize QM/MM ****
+      call pspw_init_APC(rtdb)
+      call pspw_qmmm_init(rtdb)
+      call pspw_charge_init(rtdb)
+
+*     **** initialize SIC and HFX ****
+      ne(1) = psi_ne(1)
+      ne(2) = psi_ne(2)
+      call pspw_init_SIC(rtdb,ne)
+      call pspw_init_HFX(rtdb,psi_ispin(),ne)
+
+*     **** initialize Meta GGA ****
+      call nwpw_meta_gga_init()
+
+
+      if (calc_pressure) then
+         call psp_stress_init()
+         call psp_stress_readall()
+      end if
+
+      return
+      end
+
+
+*     ***********************************************
+*     *                                             *
+*     *             cgmontecarlo_end                *
+*     *                                             *
+*     ***********************************************
+
+      subroutine cgmontecarlo_end(rtdb,flag)
+      implicit none
+      integer rtdb
+      integer flag
+
+*     **** local variables ****
+      logical value,calc_pressure
+      integer minimizer
+
+
+*     **** external functions ****
+      logical  control_pressure,psi_finalize
+      integer  control_minimizer,control_version
+      external control_pressure,psi_finalize
+      external control_minimizer,control_version
+
+
+      minimizer     = control_minimizer()
+      calc_pressure = control_pressure().and.(control_version().eq.3)
+
+*     **** finalize pressure ****
+      if (calc_pressure) then
+         call psp_stress_end()
+      end if
+
+*     **** write wavefunctions to file and finalize psi ****
+      if (flag.eq.-1) then
+        value = psi_finalize(.false.)
+      else
+        value = psi_finalize(.true.)
+      end if
+
+*     **** write geometry to rtdb ****
+      call pspw_charge_write(rtdb)
+      call ion_write(rtdb)
+
+
+      call electron_finalize()
+      if ((minimizer.eq.4).or.(minimizer.eq.7)) then
+        call geodesic2_finalize()
+      else
+        call geodesic_finalize()
+      end if
+      if (control_version().eq.3) call ewald_end()
+      call strfac_end()
+      if (control_version().eq.3) call coulomb_end()
+      if (control_version().eq.4) call coulomb2_end()
+      call ke_end()
+      call mask_end()
+      call Pack_end()
+      call G_end()
+      call nwpw_meta_gga_end()
+      call pspw_end_SIC()
+      call pspw_end_HFX()
+      call pspw_end_APC()
+      call pspw_charge_end()
+      call pspw_qmmm_end()
+c      call frac_occ_end()
+
+      call ion_end()
+      call psp_end()
+      call ion_end_FixIon()
+      !call D3dB_n_fft_end(1)
+      call D3dB_pfft_end()
+      call D3dB_end(1)
+      if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
+
+      return
+      end
