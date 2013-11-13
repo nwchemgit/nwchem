@@ -4845,27 +4845,27 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *.. Generate information about I strings
 *. Arc weights for ISPGP
         NTEST2 = NTEST
-        CALL WEIGHT_SPGP(WORK(KLLZ),NGAS,
+        CALL WEIGHT_SPGP(int_mb(KLLZ),NGAS,
      &                  NELFSPGP(1,ISPGPABS),
-     &                  NOBPT,WORK(KLZSCR),NTEST2)
+     &                  NOBPT,dbl_mb(KLZSCR),NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,
-     &                         WORK(KLLOC),NOCOB,
-     &                         1,WORK(KLLZ),WORK(KLLREO))
+     &                         int_mb(KLLOC),NOCOB,
+     &                         1,int_mb(KLLZ),int_mb(KLLREO))
         IF(NTEST.GE.1000) THEN
          write(6,*) ' Info on I strings generated '
          write(6,*) ' NSTRI = ', NSTRI
          WRITE(6,*) ' REORDER array '
-         CALL IWRTMA(WORK(KLLREO),1,NSTRI,1,NSTRI)
+         CALL IWRTMA(int_mb(KLLREO),1,NSTRI,1,NSTRI)
        END IF
        NSTRIA(I12) = NSTRI
 *
       END IF
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) ' REORDER array for I STRINGS'
-       CALL IWRTMA(WORK(KLLREO),1,NSTRI,1,NSTRI)
+       CALL IWRTMA(int_mb(KLLREO),1,NSTRI,1,NSTRI)
       END IF
 *
       IF(ITRIVIAL.EQ.1) GOTO 9999
@@ -4885,7 +4885,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *. Generate occupation of K STRINGS
 
        CALL GETSTR2_TOTSM_SPGP(KGRP,NGAS,KSM,NELK,NSTRK,
-     &                        WORK(KLLOC),NOCOB,
+     &                        int_mb(KLLOC),NOCOB,
      &                        0,ISUM,IDUM)
 C     GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,
 C    &                              NORBT,IDOREO,IZ,IREO)
@@ -4893,7 +4893,7 @@ C    &                              NORBT,IDOREO,IZ,IREO)
        IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' K strings generated '
          WRITE(6,*) ' Reorder array after generation of K strings'
-         CALL IWRTMA(WORK(KLLREO),1,NSTRI,1,NSTRI)
+         CALL IWRTMA(int_mb(KLLREO),1,NSTRI,1,NSTRI)
        END IF
       END IF
 *
@@ -4909,12 +4909,12 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
 *
       CALL ADAADAS1_GAS(NK,I1,XI1S,LI1,
      &          IIOB,NIOB,IAC,JJOB,NJOB,JAC,
-     &          WORK(KLLOC),NELK,NSTRK,WORK(KLLREO),WORK(KLLZ),
+     &          int_mb(KLLOC),NELK,NSTRK,int_mb(KLLREO),int_mb(KLLZ),
      &          NOCOB,KMAX,KMIN,IEND,SCLFAC,NSTRIA(I12))
 *
        IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' Reorder array after ADAADAS1'                  
-         CALL IWRTMA(WORK(KLLREO),1,NSTRI,1,NSTRI)
+         CALL IWRTMA(int_mb(KLLREO),1,NSTRI,1,NSTRI)
        END IF
  9999 CONTINUE
 *
@@ -13983,15 +13983,15 @@ c      INCLUDE 'mxpdim.inc'
       CALL QENTER('HCONF')
 *. Fetch K matrix
 C     CALL GTJK(XDUM1       ,H,NTOOB,XDUM3       ,IREOTS)
-      CALL GTJK(WORK(KLZSCR),H,NTOOB,WORK(KLZSCR),IREOTS)
+      CALL GTJK(dbl_mb(KLZSCR),H,NTOOB,dbl_mb(KLZSCR),IREOTS)
 *
       CALL HCONFDIA_BBS(NAEL,NBEL,IJAGRP,IJBGRP,
      &           IASM,IATP,IAOC,NIA,IBSM,IBTP,IBOC,NIB,
      &           JASM,JATP,JAOC,NJA,JBSM,JBTP,JBOC,NJB,
-     &           NTOOB,H,IOBPTS,NOBPT,IREOTS,WORK(KLZ(1)),
-     &           WORK(KLZ(2)),WORK(KLZSCR),ISMFTO,NGAS,
-     &           WORK(KLOCSTR(1)),WORK(KLOCSTR(2)),
-     &           WORK(KLREO(1)),WORK(KLREO(2)),CB,SB) 
+     &           NTOOB,H,IOBPTS,NOBPT,IREOTS,int_mb(KLZ(1)),
+     &           int_mb(KLZ(2)),dbl_mb(KLZSCR),ISMFTO,NGAS,
+     &           int_mb(KLOCSTR(1)),int_mb(KLOCSTR(2)),
+     &           int_mb(KLREO(1)),int_mb(KLREO(2)),CB,SB) 
       CALL QEXIT('HCONF')
 *
       RETURN
