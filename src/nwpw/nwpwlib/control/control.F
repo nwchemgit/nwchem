@@ -2020,6 +2020,74 @@ c         mtensor(3,3) = z
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         control_set_unita       *
+*     *                                 *
+*     ***********************************
+      subroutine control_set_unita(unita_in)
+      implicit none
+      real*8 unita_in(*)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** local variables ****
+      integer l
+      character*50 rtdb_unita
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+
+      call dcopy(9,unita_in,1,unita,1)
+
+*     **** put unita on the rtdb ****
+      l = index(cell_name,' ') - 1
+      rtdb_unita = cell_name(1:l)//':unita'
+      if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
+     >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         control_get_unita       *
+*     *                                 *
+*     ***********************************
+      subroutine control_get_unita(unita_out)
+      implicit none
+      real*8 unita_out(*)
+
+#include "control.fh"
+
+      call dcopy(9,unita,1,unita_out,1)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    control_set_unita_frozen     *
+*     *                                 *
+*     ***********************************
+      subroutine control_set_unita_frozen(unita_in)
+      implicit none
+      real*8 unita_in(*)
+
+#include "control.fh" 
+
+      call dcopy(9,unita_in,1,unita_frozen,1)
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *		control_unita_frozen	*
@@ -2696,11 +2764,10 @@ c      end
 *     ****************************
       logical function control_Mulliken()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
-
+#include "errquit.fh"
 #include "control.fh"
 
 *     **** control_rtdb common block ****
@@ -2841,10 +2908,10 @@ c      end
 *     ****************************
       integer function control_num_kvectors()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5150,6 +5217,33 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     ***********************************
 *     *                                 *
+*     *     control_mc_volume_step      *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_volume_step()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_volume_step',mt_dbl,1,value))
+     >  value = 0.10d0
+
+      control_mc_volume_step = value
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *        control_mc_aratio        *
 *     *                                 *
 *     ***********************************
@@ -5216,9 +5310,34 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 value
 
       if (.not.rtdb_get(rtdb,'nwpw:mc_ddx',mt_dbl,1,value))
-     >  value = 0.d0
+     >  value = 0.0d0
 
       control_mc_ddx = value
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_mc_ddv           *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_ddv()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_ddv',mt_dbl,1,value))
+     >  value = 0.0d0
+
+      control_mc_ddv = value
       return
       end
 
