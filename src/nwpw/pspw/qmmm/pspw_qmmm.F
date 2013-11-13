@@ -56,11 +56,11 @@ c
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
       integer     ewald_nshl3d,ewald_rcell_ptr,ion_rion_ptr
       character*7 c_index_name
-      real*8      lattice_unita
+      real*8      lattice_unita,ion_TotalCharge,ion_TotalCharge_qm
       external    ion_nion,ion_nion_qm,ion_nion_mm,control_version
       external    ewald_nshl3d,ewald_rcell_ptr,ion_rion_ptr
       external    c_index_name
-      external    lattice_unita
+      external    lattice_unita,ion_TotalCharge,ion_TotalCharge_qm
 
       rtdb_name = 'pspw_qmmm_auxon'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,value)) value = .false.
@@ -1132,6 +1132,8 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
              end do
 
            end do
+           write(luout,'(A,F8.3)') "MM total charge",
+     >          ion_TotalCharge()- ion_TotalCharge_qm()
         end if
 
  999    continue
