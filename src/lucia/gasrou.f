@@ -4358,8 +4358,8 @@ C!    stop ' enforrced stop in RSBBD1 '
 *. Allowed combinations of strings types for input and output
 *. spaces
 *
-      CALL IAIBCM(ISPCIN,WORK(KCIOIO))
-      CALL IAIBCM(ISPCUT,WORK(KSIOIO))
+      CALL IAIBCM(ISPCIN,int_mb(KCIOIO))
+      CALL IAIBCM(ISPCUT,int_mb(KSIOIO))
 *
 * type of each symmetry block ( full, lower diagonal, absent )
 *
@@ -4445,9 +4445,9 @@ C?     WRITE(6,*) ' ISMOST before EXPCIVS for ISM = ', ISM
 C?     CALL IWRTMA(ISMOST(1,ISM),1,NSMST,1,NSMST)
 
         CALL EXPCIVS(LLUIN,dbl_mb(KLBLI),NCOMBI,
-     &       WORK(KCIOIO),NOCTPA,NOCTPB,WORK(KCBLTP),
+     &       int_mb(KCIOIO),NOCTPA,NOCTPB,WORK(KCBLTP),
      &       LUUT,dbl_mb(KLBLU),NCOMBU,
-     &       WORK(KSIOIO),
+     &       int_mb(KSIOIO),
      &       WORK(KSBLTP),
      &       ICISTR,IDC,NSMST,
      &       LBLK,IAMPACK,ISMOST(1,ISM),
@@ -5876,21 +5876,21 @@ C?    END IF
 *.. Generate information about I strings
 *. Arc weights for ISPGP
         NTEST2 = NTEST
-        CALL WEIGHT_SPGP(WORK(KLLZ),NGAS,
+        CALL WEIGHT_SPGP(int_mb(KLLZ),NGAS,
      &                  NELFSPGP(1,ISPGPABS),
-     &                  NOBPT,WORK(KLZSCR),NTEST2)
+     &                  NOBPT,dbl_mb(KLZSCR),NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,
-     &                         WORK(KLLOC),NOCOB,
-     &                         1,WORK(KLLZ),WORK(KLLREO))
+     &                         int_mb(KLLOC),NOCOB,
+     &                         1,int_mb(KLLZ),int_mb(KLLREO))
       END IF
       NELK = NELIS(I12) - 2
       IF(KFRST.NE.0) THEN
 *. Generate occupation of K STRINGS
        CALL GETSTR_TOTSM_SPGP(1,KSPGPABS,KSM,NELK,NSTRK,
-     &                        WORK(KLLOC),NOCOB,
+     &                        int_mb(KLLOC),NOCOB,
      &                        0,IDUM,IDUM)
        NSTRKS(K12) = NSTRK
       END IF
@@ -5900,7 +5900,7 @@ C?    END IF
       IIOB = IOBPTS(IOBTP,IOBSM) + IOB - 1
       JJOB = IOBPTS(JOBTP,JOBSM) + JOB - 1
       CALL ADADS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,JJOB,NJOB,
-     &          WORK(KLLOC),NELK,NSTRK,WORK(KLLREO),WORK(KLLZ),
+     &          int_mb(KLLOC),NELK,NSTRK,int_mb(KLLREO),int_mb(KLLZ),
      &          NOCOB,KMAX,KMIN,IEND,SCLFAC)
 *
       RETURN
@@ -6214,16 +6214,16 @@ C?    END IF
         IF(IFRST.NE.0) THEN
 *. Arc weights for ISPGP
           NTEST2 = NTEST
-          CALL WEIGHT_SPGP(WORK(KLLZ),NGAS,
+          CALL WEIGHT_SPGP(int_mb(KLLZ),NGAS,
      &                     NELFSPGP(1,ISPGPABS),
-     &                     NOBPT,WORK(KLZSCR),NTEST2)
+     &                     NOBPT,dbl_mb(KLZSCR),NTEST2)
 *. Reorder array for I strings
          NELI = NELFTP(ITP)
          NELIS(I12) = NELI
 C?       CALL QENTER('GENSTR')
          CALL GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,
-     &                          WORK(KLLOC),NOCOB,
-     &                          1,WORK(KLLZ),WORK(KLLREO))
+     &                          int_mb(KLLOC),NOCOB,
+     &                          1,int_mb(KLLZ),int_mb(KLLREO))
 C?       CALL QEXIT('GENSTR')
        END IF
        NELK = NELIS(I12) - 1
@@ -6231,7 +6231,7 @@ C?       CALL QEXIT('GENSTR')
 *. Occupation of K strings
 CT       CALL QENTER('GENSTR')
          CALL GETSTR_TOTSM_SPGP(1,KSPGPABS,KSM,NELK,NSTRK,
-     &                         WORK(KLLOC),NOCOB,
+     &                         int_mb(KLLOC),NOCOB,
      &                         0,IDUM,IDUM)
 CT       CALL QEXIT('GENSTR')
          NSTRKS(K12) = NSTRK
@@ -6239,7 +6239,7 @@ CT       CALL QEXIT('GENSTR')
 *. a+i !kstr> = +/- !istr>
       NSTRK = NSTRKS(K12)
       CALL ADS1_GAS(NK,I1,XI1S,LI1,IORB,NORB,
-     &          WORK(KLLOC),NELK,NSTRK,WORK(KLLREO),WORK(KLLZ),
+     &          int_mb(KLLOC),NELK,NSTRK,int_mb(KLLREO),int_mb(KLLZ),
      &          NOCOB,KMAX,KMIN,IEND,KACT,SCLFAC)
 *
 C     SAVE NELK , NSTRK
