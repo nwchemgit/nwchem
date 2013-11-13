@@ -8454,30 +8454,6 @@ C?    print *,' ijPairs,klPairs',ijPairs,klPairs
 *
       RETURN
       END 
-      FUNCTION IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,
-     &                ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,
-     &                IPRNT)
-*
-* Encapsulation routine for IABNUS
-*
-c      IMPLICIT REAL*8           (A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      DIMENSION IASTR(*),IBSTR(*)
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'strbas.inc'
-*
-      IABNUM = IABNUS(IASTR,NELEC(IAGRP),WORK(KSTREO(IAGRP)),
-     &         WORK(KSTCL(IAGRP)),WORK(KSTSM(IAGRP)),NOCTYP(IAGRP),
-     &         WORK(KZ(IAGRP)),WORK(KISTSO(IAGRP)),int_mb(KNSTSO(IAGRP)),
-     &                IBSTR,NELEC(IBGRP),WORK(KSTREO(IBGRP)),
-     &         WORK(KSTCL(IBGRP)),WORK(KSTSM(IBGRP)),NOCTYP(IBGRP),
-     &         WORK(KZ(IBGRP)),WORK(KISTSO(IBGRP)),int_mb(KNSTSO(IBGRP)),
-     &         IOOS,NORB,IGENSG,ISGNA,ISGNAB,ISGNAB,PSSIGN,IPSFAC,
-     &         IPRNT)
-      RETURN
-      END
       FUNCTION IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,
      &                ISSOA,NSSOA,
      &                IBSTR,NBEL,IBORD,ITPFSB,ISMFSB,NOCTPB,ZB,
