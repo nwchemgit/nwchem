@@ -421,40 +421,14 @@
          write(luout,1140)
          do ia = 1,ion_nkatm()
             call psp_print(ia)
-c           write(luout,1150) ia,ion_atom(ia),
-c     >                    psp_zv(ia),psp_lmax(ia)
-c           comment = psp_comment(ia)
-c           i = inp_strlen(comment)
-c           write(luout,1157) comment(1:i)
-c           write(luout,1158) psp_psp_type(ia)
-c           write(luout,1152) psp_lmax(ia)
-c           write(luout,1153) psp_locp(ia)
-c           write(luout,1154) psp_nprj(ia)
-c           if (control_version().eq.4) write(luout,1156) psp_rlocal(ia)
-c           if (psp_semicore(ia))
-c     >         write(luout,1155) psp_rcore(ia),psp_ncore(ia)
-c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
-c           write(luout,*)
          end do
 
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
          en(1)     = psi_ne(1)
          en(psi_ispin()) = psi_ne(psi_ispin())
 
-c         if (fractional) then
-c            icharge = 0
-c            do ms=1,psi_ispin()
-c            en(ms) =0.0
-c            do i=1,ne(ms)
-c              k = fweight(1)+(i-1)+(ms-1)*ne(1)
-c              icharge = icharge - (3-psi_ispin())*dbl_mb(k)
-c              en(ms) = en(ms) + dbl_mb(k)
-c            end do
-c            end do
-c         end if
          icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
-
          write(luout,1160)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          !if (hprint) then
@@ -594,8 +568,14 @@ c         write(luout,1394)
 ******************  simple Monte-Carlo loop  **********************
 *                |***************************|
       if (taskid.eq.MASTER) call current_second(cpu2)
-      if ((taskid.eq.MASTER).and.(.not.calc_pressure)) 
-     >   call nwpw_message(12)
+      if ((taskid.eq.MASTER).and.(.not.calc_pressure))  then
+         if (mc_algorithm.lt.2) then
+            call nwpw_message(12)
+         else
+            call nwpw_message(13)
+         end if
+      end if
+
       if ((taskid.eq.MASTER).and.(calc_pressure)) 
      >   call nwpw_message(11)
 
@@ -834,14 +814,25 @@ c       **** inner loop ****
            end if
 
            if (oprint) then
-             write(luout,1350) (icount-1)*it_in+i,EV,EV0,eave,evar,
-     >                           ratio,aratio,wa,wr,mc_dr
-             write(31,1360) dble((icount-1)*it_in+i)+emotion_time_shift,
-     >                        EV,EV0,eave,evar,
-     >                        omega1,omega_ave,omega_var,
-     >                        ratio,wa,wr,
-     >                        ratio_r,wa_r,wr_r,
-     >                        ratio_v,wa_v,wr_v,mc_dr,mc_dv
+             if (mc_algorithm.lt.2) then
+                write(luout,1350) (icount-1)*it_in+i,EV,EV0,eave,
+     >                              ratio,mc_dr
+                write(31,1360) 
+     >                dble((icount-1)*it_in+i)+emotion_time_shift,
+     >                EV,EV0,eave,evar,ratio,wa,wr,mc_dr
+             else
+                write(luout,1350) (icount-1)*it_in+i,
+     >                        EV,EV0,eave,
+     >                        omega1,omega_ave,
+     >                        ratio,wa,wr,mc_dr,
+     >                        ratio_v,wa_v,wr_v,mc_dv
+                write(31,1360) 
+     >                dble((icount-1)*it_in+i)+emotion_time_shift,
+     >                EV,EV0,eave,evar,ratio,wa,wr,mc_dr,
+     >                ratio_r,wa_r,wr_r,
+     >                omega1,omega_ave,omega_var,
+     >                ratio_v,wa_v,wr_v,mc_dv
+             end if
              call util_flush(luout)
              call util_flush(31)
            end if
@@ -1208,7 +1199,7 @@ c       **** inner loop ****
 
  1330 FORMAT(5X, ' integration algorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
- 1350 FORMAT(I8,3E19.10,E14.5,2F8.3,3E19.10,2F8.4)
+ 1350 FORMAT(I8,3E19.10,F16.3,F10.3,3E19.10,2F8.4)
  1360 format(100e19.10)
 
  1393 format(/' Pressure Output Generated         ')
