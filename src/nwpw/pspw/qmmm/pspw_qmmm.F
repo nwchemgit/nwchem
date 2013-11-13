@@ -1132,7 +1132,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
              end do
 
            end do
-           write(luout,'(A,F8.3)') "MM total charge",
+           write(luout,'(/1x,A,F8.3)') "MM total charge",
      >          ion_TotalCharge()- ion_TotalCharge_qm()
         end if
 
