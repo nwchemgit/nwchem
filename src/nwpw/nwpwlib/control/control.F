@@ -5294,6 +5294,38 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     ***********************************
 *     *                                 *
+*     *        control_mc_pressure      *
+*     *                                 *
+*     ***********************************
+      real*8 function control_mc_pressure()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** local variables ****
+      real*8 autoMbar,autoGPa,autoatm
+      parameter (autoMbar=294.214239071d0)
+      parameter (autoGPa=autoMbar*100.0d0)
+      parameter (autoatm =290.360032539d6)
+
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:mc_pressure',mt_dbl,1,value))
+     >  value = 1.0d0/autoatm
+
+      control_mc_pressure = value
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
 *     *        control_mc_ddx           *
 *     *                                 *
 *     ***********************************
