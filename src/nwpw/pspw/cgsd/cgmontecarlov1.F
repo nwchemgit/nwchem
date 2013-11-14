@@ -43,7 +43,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3)
-      real*8  a,b,c,alpha,beta,gamma,mc_beta,mc_pressure
+      real*8  a,b,c,alpha,beta,gamma,mc_beta
     
 
 *     ***** energy variables ****
@@ -72,7 +72,7 @@
       real*8  omega_all,omega_all2,omega_ave,omega_var
       real*8  icharge,cv
       real*8  sa_alpha(2),sa_decay(2),tt1,tt2,ssr,r,p1,p2,pressure
-      real*8 Te_new,Tr_new,Te_init,Tr_init,temperature
+      real*8 Te_new,Tr_new,Te_init,Tr_init,mc_temperature,mc_pressure
       integer i,k,ia,nion,minimizer,mapping,icount
       integer nbq,mapping1d,it_in,it_out,seed
       integer mc_algorithm
@@ -172,6 +172,8 @@
       external control_mc_aratio,control_mc_Temperature,control_mc_ddx
       real*8   control_mc_ddv,control_mc_volume_step
       external control_mc_ddv,control_mc_volume_step
+      real*8   control_mc_pressure
+      external control_mc_pressure
       logical  control_SA,control_pressure
       external control_SA,control_pressure
       real*8   control_SA_decay
@@ -322,10 +324,11 @@
       end if
 
 
-      seed        = control_mc_seed()
-      temperature = control_mc_Temperature()
+      seed           = control_mc_seed()
+      mc_temperature = control_mc_Temperature()
+      mc_pressure    = control_mc_pressure()
       mc_beta = util_random(control_mc_seed()) !**seed the random number generator
-      mc_beta = 1.0d0/(kb*temperature)
+      mc_beta = 1.0d0/(kb*mc_temperature)
 
       aratio      = control_mc_aratio()
 
@@ -543,7 +546,10 @@ c         end if
      >    control_bo_steps_in()*control_bo_steps_out(),
      >    control_bo_steps_in(),control_bo_steps_out() 
 
-         write(luout,1322) temperature,mc_beta,seed
+         write(luout,1322) mc_temperature,mc_beta,seed
+         if (mc_algorithm.eq.2) 
+     >      write(luout,1326) mc_pressure,mc_pressure*autoatm,
+     >                        ddv,v0,v1,v2
          write(luout,1323) aratio,ddx,c0,c1,c2
          write(luout,1324) mc_napply,mc_atom_direction
          write(luout,1325) mc_ngroups
@@ -728,7 +734,7 @@ c       **** inner loop ****
               if (taskid.eq.MASTER) alpha = (1.0d0*util_random(0)-0.5d0)
               call Parallel_Brdcst_value(MASTER,alpha)
               alpha = dexp(alpha*mc_dV/3.0d0)
-              call dcopy(9,mc_unita1,1,mc_unita2)
+              call dcopy(9,mc_unita1,1,mc_unita2,1)
               call dscal(9,alpha,mc_unita2,1)
 
 
@@ -821,11 +827,11 @@ c       **** inner loop ****
      >                dble((icount-1)*it_in+i)+emotion_time_shift,
      >                EV,EV0,eave,evar,ratio,wa,wr,mc_dr
              else
-                write(luout,1350) (icount-1)*it_in+i,
+                write(luout,1351) (icount-1)*it_in+i,
      >                        EV,EV0,eave,
      >                        omega1,omega_ave,
-     >                        ratio,wa,wr,mc_dr,
-     >                        ratio_v,wa_v,wr_v,mc_dv
+     >                        ratio,mc_dr,mc_dv,
+     >                        ratio_v,wa,wr,wa_v,wr_v
                 write(31,1360) 
      >                dble((icount-1)*it_in+i)+emotion_time_shift,
      >                EV,EV0,eave,evar,ratio,wa,wr,mc_dr,
@@ -1196,10 +1202,13 @@ c       **** inner loop ****
  1324 FORMAT(5X, ' number atom changes = 'I10,
      >           ' change vector = <',3F10.3'>')
  1325 FORMAT(5X, ' number of groups = 'I10)
+ 1326 FORMAT(5X, ' pressure='E10.3,' (',F10.3,' atm)',
+     >           ' ddv=',F10.3,' v0=',F10.3,' v1=',F10.3,' v2=',F10.3)
 
  1330 FORMAT(5X, ' integration algorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
  1350 FORMAT(I8,3E19.10,F16.3,F10.3,3E19.10,2F8.4)
+ 1351 FORMAT(I8,3E19.10,F10.2,3x,F10.2,4x,F8.3,2x,F8.3,3x,F8.3,9E19.10)
  1360 format(100e19.10)
 
  1393 format(/' Pressure Output Generated         ')
