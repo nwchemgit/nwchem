@@ -65,7 +65,7 @@ c     complex*16 tmp(*)
          com_p = 0
       end if
 
-      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
+      lprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
