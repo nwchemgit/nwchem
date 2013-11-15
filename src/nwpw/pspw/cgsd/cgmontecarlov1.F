@@ -652,7 +652,7 @@ c         write(luout,1394)
               read(31,*,end=100) emotion_time_shift,
      >                EV,EV0,eave,evar,ratio,wa,wr,
      >                mc_dr,ratio_r,wa_r,wr_r,
-     >                mc_dv,ratio_v,wa_v,wr_v,
+     >                mc_dV,ratio_v,wa_v,wr_v,
      >                omega1,omega_ave,omega_var
               omega_all  = omega_all  + omega1
               omega_all2 = omega_all2 + omega1*omega1
@@ -669,6 +669,21 @@ c         write(luout,1394)
            open(unit=31,file=full_filename,form='formatted',
      >          status='new')
          end if
+      end if
+      call Parallel_Brdcst_value(MASTER,mc_dr)
+      call Parallel_Brdcst_value(MASTER,E25)
+      call Parallel_Brdcst_value(MASTER,E26)
+      call Parallel_Brdcst_value(MASTER,wa)
+      call Parallel_Brdcst_value(MASTER,wr)
+      call Parallel_Brdcst_value(MASTER,wa_r)
+      call Parallel_Brdcst_value(MASTER,wr_r)
+
+      if (mc_algorithm.eq.2) then
+         call Parallel_Brdcst_value(MASTER,mc_dV)
+         call Parallel_Brdcst_value(MASTER,omega_all)
+         call Parallel_Brdcst_value(MASTER,omega_all2)
+         call Parallel_Brdcst_value(MASTER,wa_v)
+         call Parallel_Brdcst_value(MASTER,wr_v)
       end if
 
 *     **** open EIGMOTION file ****
@@ -748,10 +763,12 @@ c       **** inner loop ****
               alpha = dexp(alpha*mc_dV/3.0d0)
               call dcopy(9,mc_unita1,1,mc_unita2,1)
               call dscal(9,alpha,mc_unita2,1)
+              call Parallel_Brdcst_values(MASTER,9,mc_unita2)
 
 
 *             **** change unitcell and reinitialize ****
               call control_set_unita(mc_unita2)
+              call control_set_unita_frozen(mc_unita2)
               call cgmontecarlo_start(rtdb,newpsi)
 
               !*** frac1 -- > rion ***
@@ -801,7 +818,9 @@ c       **** inner loop ****
            else
               if (change_volume) then
                  call cgmontecarlo_end(rtdb,flag)
+                 call Parallel_Brdcst_values(MASTER,9,mc_unita1)
                  call control_set_unita(mc_unita1)
+                 call control_set_unita_frozen(mc_unita1)
                  call cgmontecarlo_start(rtdb,newpsi)
                  call lattice_frac_to_r1(nion,
      >                                   dbl_mb(frac1(1)),
@@ -828,7 +847,11 @@ c       **** inner loop ****
               omega_ave  = omega_all/(wa+wr)
               omega_var  = omega_all2/(wa+wr)
               omega_var  = omega_var - omega_ave*omega_ave
-              ratio_v = wa_v/(wa_v+wr_v)
+              if ((wa_v+wr_v).gt.1.0d-6) then
+                 ratio_v = wa_v/(wa_v+wr_v)
+              else
+                 ratio_v = 0.0d0
+              end if
            end if
 
            if (oprint) then
