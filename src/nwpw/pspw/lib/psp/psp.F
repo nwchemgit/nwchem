@@ -3641,6 +3641,7 @@ c     logocal semicore(0:nkatmx)
      >         "pseudopotential is not correctly formatted:",fname
               end if
 
+
 *             *** deallocate memory ***
               if (int_mb(nprj(1)+ia-1).gt.0) then
               call psi_data_dealloc(int_mb(vnl(1)+ia-1))
@@ -3664,6 +3665,7 @@ c     logocal semicore(0:nkatmx)
                call psi_data_dealloc(int_mb(r3_matrix(1)+ia-1))
                end if
               end if
+
 
            end if
            if (correct_box) found = .true.
