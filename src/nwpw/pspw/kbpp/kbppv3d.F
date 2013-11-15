@@ -85,6 +85,7 @@ c      call Parallel_Init()
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       oprint = (oprint_in.or.hprint)
 
+
       value = .false.
       ihasae = 0
   
@@ -115,6 +116,7 @@ c      call Parallel_Init()
       call Parallel_Brdcst_ivalue(MASTER,lmax1)
       call Parallel_Brdcst_ivalue(MASTER,locp1)
       call Parallel_Brdcst_ivalue(MASTER,ihasae)
+
 
 
       msglen = lmax0+1
@@ -258,6 +260,7 @@ c      call Parallel_Init()
         call kbpp_generate_G_ray(nfft1,nfft2,nfft3,
      >                         unita,
      >                         dbl_mb(G_ray_indx))
+
         call integrate_kbppv3d_new(version,rlocal,
      >                      nrho,drho,lmax,locp,zv,
      >                                dbl_mb(vp_indx),
@@ -286,6 +289,7 @@ c      call Parallel_Init()
      >                                dbl_mb(tmp_ray_indx),
      >                                filter,
      >                      ierr)
+      
         value = MA_free_heap(tmp_ray_hndl)
         value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
         value = value.and.MA_free_heap(vnl_ray_hndl)
