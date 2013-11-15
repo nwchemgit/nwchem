@@ -671,7 +671,7 @@ cc      call band_kp_structure(rtdb)
  1020 FORMAT(10X,
      > '*                   NWPW BAND Calculation                *')
  1030 FORMAT(10X,
-     > '*  [(bundled Grassman/Stiefel manifold implementation)]  *')
+     > '*  [(bundled Grassmann/Stiefel manifold implementation)] *')
  1035 FORMAT(10x,
      > '*         [ NorthWest Chemistry implementation ]         *')
  1040 FORMAT(10X,
