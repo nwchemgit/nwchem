@@ -608,6 +608,8 @@ c         write(luout,1394)
 *     **** open EMOTION file ****
       E25 = 0.0d0
       E26 = 0.0d0
+      omega_all  = 0.0d0
+      omega_all2 = 0.0d0
       wa  = 0.0d0
       wr  = 0.0d0
       wa_r  = 0.0d0
@@ -643,8 +645,18 @@ c         write(luout,1394)
            open(unit=31,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-           read(31,*,end=100) emotion_time_shift,
+           if (mc_algorithm.lt.2) then
+              read(31,*,end=100) emotion_time_shift,
      >                        EV,EV0,eave,evar,ratio,wa,wr,mc_dr
+           else
+              read(31,*,end=100) emotion_time_shift,
+     >                EV,EV0,eave,evar,ratio,wa,wr,
+     >                mc_dr,ratio_r,wa_r,wr_r,
+     >                mc_dv,ratio_v,wa_v,wr_v,
+     >                omega1,omega_ave,omega_var
+              omega_all  = omega_all  + omega1
+              omega_all2 = omega_all2 + omega1*omega1
+           end if
 
            E25 = E25 + EV   !*** take care of running sums ***
            E26 = E26 + EV*EV
@@ -808,7 +820,7 @@ c       **** inner loop ****
            evar = E26/(wa+wr)
            evar = evar - eave*eave
            ratio_r = wa_r/(wa_r+wr_r)
-           ratio = wa/(wa+wr)
+           ratio   = wa/(wa+wr)
 
            if (mc_algorithm.eq.2) then
               omega_all  = omega_all  + omega1
@@ -830,14 +842,14 @@ c       **** inner loop ****
                 write(luout,1351) (icount-1)*it_in+i,
      >                        EV,EV0,eave,
      >                        omega1,omega_ave,
-     >                        ratio,mc_dr,mc_dv,
-     >                        ratio_v,wa,wr,wa_v,wr_v
+     >                        ratio,mc_dr,mc_dv
+c     >                        ratio_v,wa,wr,wa_v,wr_v
                 write(31,1360) 
      >                dble((icount-1)*it_in+i)+emotion_time_shift,
-     >                EV,EV0,eave,evar,ratio,wa,wr,mc_dr,
-     >                ratio_r,wa_r,wr_r,
-     >                omega1,omega_ave,omega_var,
-     >                ratio_v,wa_v,wr_v,mc_dv
+     >                EV,EV0,eave,evar,ratio,wa,wr,
+     >                mc_dr,ratio_r,wa_r,wr_r,
+     >                mc_dv,ratio_v,wa_v,wr_v,
+     >                omega1,omega_ave,omega_var
              end if
              call util_flush(luout)
              call util_flush(31)
