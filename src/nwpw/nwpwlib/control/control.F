@@ -18,7 +18,10 @@
 #include "control.fh"
 #include "nwxc.fh"
 
-      logical value,np_default
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value,np_default,value2
       integer ispin0,ne(2),nbrill,np1,np2
       integer nmult(5)
       real*8  error,thresh
@@ -46,8 +49,10 @@
       logical  control_allow_translation
       external control_allow_translation
 
+      value = .true.
+      call Parallel_taskid(taskid)
       call nwpw_timing_start(50)
-      value = rtdb_parallel(.true.)
+      value2 = rtdb_parallel(.true.)
       code = code_in
       trtdb = rtdb
 
@@ -938,8 +943,12 @@ c         return
       if (frozen) then
          if (.not.rtdb_get(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)) then
             call dcopy(9,unita,1,unita_frozen,1)
-            value = value.and.
-     >              rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+            value2 = rtdb_parallel(.false.)
+            if (taskid.eq.MASTER) then
+               value = value.and.
+     >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+            end if
+            value2 = rtdb_parallel(.true.)
          else
             if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice:thresh',
      >                        mt_dbl,1,thresh)) thresh = 0.05d0
@@ -952,8 +961,12 @@ c         return
             error = dsqrt(error)
             if (error.gt.thresh) then
                call dcopy(9,unita,1,unita_frozen,1)
-               value = value.and.
+               value2 = rtdb_parallel(.false.)
+               if (taskid.eq.MASTER) then
+                  value = value.and.
      >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+               end if
+               value2 = rtdb_parallel(.true.)
             end if
          end if
       else
@@ -1248,6 +1261,8 @@ c      end if
 #include "errquit.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       logical value,box_orient
       integer geom,box_type,l
       real*8  box_delta
@@ -1295,9 +1310,14 @@ c      end if
      >                           unita)
 
 *          *** write unita to rtdb  - should happen only once during a simulation ***
+           call Parallel_taskid(taskid)
+           value = rtdb_parallel(.false.)
+           if (taskid.eq.MASTER) then
            if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita)) then
              call errquit('cannot write unita to rtdb',0,0)
            end if
+           end if
+           value = rtdb_parallel(.true.)
 
            !unita(1,1) = 20.0d0
            !unita(2,1) =  0.0d0
@@ -2036,6 +2056,9 @@ c         mtensor(3,3) = z
 #include "control.fh"
 
 *     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      logical value
       integer l
       character*50 rtdb_unita
 
@@ -2049,8 +2072,14 @@ c         mtensor(3,3) = z
 *     **** put unita on the rtdb ****
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
-      if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
+
+      call Parallel_taskid(taskid)
+      value=rtdb_parallel(.false.)
+      if (taskid.eq.MASTER) then
+         if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
      >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
+      end if
+      value=rtdb_parallel(.true.)
       return
       end
 
@@ -2081,9 +2110,35 @@ c         mtensor(3,3) = z
       implicit none
       real*8 unita_in(*)
 
-#include "control.fh" 
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      logical value
+      integer l
+      character*50 rtdb_unita
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
 
       call dcopy(9,unita_in,1,unita_frozen,1)
+
+*     **** put unita_frozen on the rtdb ****
+      l = index(cell_name,' ') - 1
+      rtdb_unita = cell_name(1:l)//':unita_frozen'
+
+      call Parallel_taskid(taskid)
+      value=rtdb_parallel(.false.)
+      if (taskid.eq.MASTER) then
+         if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
+     >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
+      end if
+      value=rtdb_parallel(.true.)
       return
       end
 
