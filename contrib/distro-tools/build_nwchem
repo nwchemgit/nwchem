@@ -69,6 +69,13 @@ function usage()
                       the ISO_C_BINDING module from the Fortran 2008 standard
                       which might not work with all Fortran compilers.
 
+ NWCHEM_FSCHECK    -- If set to "Y" build NWChem to include code to test the
+                      available disk space. This implies that every NWChem
+                      process will write a file called junk.*. This action has
+                      caused serious problems in the past including very long
+                      start up times, and failures of the file system.
+                      Therefore the default setting is "N".
+
  ARMCI_NETWORK     -- The communication infra-structure the ARMCI library in
                       the GA should use. 
                       Examples: DCMFMPI, GEMINI, PORTALS, OPENIB, MPI-MT.
@@ -962,6 +969,22 @@ if [ ${#RELEASE} -ne 0 ] ; then
   fi
 fi
 #
+# Deal with the FSCHECK. This file system check tries to figure out how much
+# disk space we have. As part of this it will trigger junk files to be written
+# from every process. In the past this has caused major problems like hangs and
+# code crashes. Therefore the default is now to turn this FSCHECK mechanism
+# off.
+#
+if [ ${#NWCHEM_FSCHECK} -eq 0 ] ; then
+  export USE_NOFSCHECK=Y
+elif [ ${NWCHEM_FSCHECK} == "Y" ] ; then
+  if [ ${#USE_NOFSCHECK} -ne 0 ] ; then
+    unset USE_NOFSCHECK
+  fi
+else
+  export USE_NOFSCHECK=Y
+fi
+#
 # See if we can detect which platform we are on.
 # This is most relevant to the various BlueGene platforms as they are a complete
 # package, i.e. if you know you are on a BlueGene/P then all required settings
@@ -1678,6 +1701,9 @@ echo "NWCHEM_TARGET     =" ${NWCHEM_TARGET}
 echo "NWCHEM_MODULES    =" ${NWCHEM_MODULES}
 if [ ${#NWCHEM_LONG_PATHS} -ne 0 ] ; then
   echo "NWCHEM_LONG_PATHS =" ${NWCHEM_LONG_PATHS}
+fi
+if [ ${#NWCHEM_FSCHECK} -ne 0 ] ; then
+  echo "NWCHEM_FSCHECK    =" ${NWCHEM_FSCHECK}
 fi
 if [ ${#OBJECT_MODE} -ne 0 ] ; then
   echo "OBJECT_MODE       =" ${OBJECT_MODE}
