@@ -56,7 +56,7 @@ c     integer i2_start(NFFT3+1)
       integer i
       integer proc_to,proc_from,it
       integer msgtype,source
-      integer msglen,type
+      integer msglen
       integer request(2),reqcnt
       integer taskid,np
       integer mpierr
@@ -101,9 +101,8 @@ c     integer i2_start(NFFT3+1)
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+         msgtype = 9
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nb)+it+2-1) 
      >          -  int_mb(i2_start(1,nb)+it+1-1))
          
@@ -139,7 +138,7 @@ c     integer i2_start(NFFT3+1)
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(i1_start(1,nb)+it+2-1)
      >              - int_mb(i1_start(1,nb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 9
       
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -234,7 +233,7 @@ c     integer i2_start(NFFT3+1)
       logical value
       integer it
       integer source
-      integer msglen,msgtype,type
+      integer msglen,msgtype
       integer proc_from,proc_to
       integer request(2),reqcnt
       integer taskid,np
@@ -277,9 +276,8 @@ c     integer i2_start(NFFT3+1)
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np)
 
-         msgtype = 1
+         msgtype = 19
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nb)+it+2-1)
      >          -  int_mb(i2_start(1,nb)+it+1-1))
 
@@ -316,7 +314,7 @@ c     integer i2_start(NFFT3+1)
          proc_to   = mod((taskid)+it, np)
          msglen    = (int_mb(i1_start(1,nb)+it+2-1)
      >              - int_mb(i1_start(1,nb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 19
 
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -418,7 +416,7 @@ c     integer i2_start(NFFT3+1)
       integer i,nnfft3d
       integer proc_to,proc_from,it
       integer msgtype,source
-      integer msglen,type
+      integer msglen
       integer request(2),reqcnt
       integer taskid,np
       integer mpierr
@@ -463,9 +461,8 @@ c     integer i2_start(NFFT3+1)
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+         msgtype = 29
          source=proc_from
-         type   = 1
          msglen = (int_mb(h_i2_start(1,op,nb)+it+2-1) 
      >          -  int_mb(h_i2_start(1,op,nb)+it+1-1))
          
@@ -501,7 +498,7 @@ c     integer i2_start(NFFT3+1)
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(h_i1_start(1,op,nb)+it+2-1)
      >              - int_mb(h_i1_start(1,op,nb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 29
       
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -602,7 +599,7 @@ c     integer i2_start(NFFT3+1)
       integer msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
-      integer msglen,type
+      integer msglen
 c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer request(2),reqcnt
       integer taskid,np
@@ -648,9 +645,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+         msgtype = 39
          source=proc_from
-         type   = 1
          msglen = (int_mb(h_i2_start(1,op,nb)+it+2-1) 
      >          -  int_mb(h_i2_start(1,op,nb)+it+1-1))
          
@@ -686,7 +682,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(h_i1_start(1,op,nb)+it+2-1)
      >              - int_mb(h_i1_start(1,op,nb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 39
       
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -1012,7 +1008,7 @@ c     implicit none
       integer msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
-      integer msglen,type
+      integer msglen
 c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer request(2),reqcnt
       integer taskid,np
@@ -1052,9 +1048,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+         msgtype = 49
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
      >          -  int_mb(i2_start(1,nbb)+it+1-1))
          
@@ -1063,7 +1058,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
 #ifdef MPI4
             stupid_msglen = msglen
-            stupid_type   = type
+            stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    stupid_msglen,stupid_complex,
@@ -1076,7 +1071,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,Parallel_comm_world(),
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -1090,7 +1085,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
      >              - int_mb(i1_start(1,nbb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 49
       
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -1180,7 +1175,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       logical value
       integer proc_to,proc_from,it
       integer msgtype,source
-      integer msglen,type
+      integer msglen
       integer request(2),reqcnt
       integer taskid,np
       integer mpierr,n1,n2
@@ -1218,9 +1213,8 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+         msgtype = 59
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
      >          -  int_mb(i2_start(1,nbb)+it+1-1))
          
@@ -1229,7 +1223,7 @@ c     **** external functions ****
             reqcnt = reqcnt + 1
 #ifdef MPI4
             stupid_msglen = msglen
-            stupid_type   = type
+            stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    stupid_msglen,stupid_complex,
@@ -1242,7 +1236,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,Parallel_comm_world(),
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -1256,7 +1250,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
      >              - int_mb(i1_start(1,nbb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 59
       
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -1353,7 +1347,7 @@ c     **** external functions ****
       integer n1,n2,n3
       integer proc_to,proc_from,it
       integer msgtype,source
-      integer msglen,type
+      integer msglen
       integer request(2),reqcnt
       integer taskid,np
       integer mpierr
@@ -1396,9 +1390,8 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+         msgtype = 69
          source=proc_from
-         type   = 1
          msglen = (int_mb(h_i2_start(1,op,nbb)+it+2-1) 
      >          -  int_mb(h_i2_start(1,op,nbb)+it+1-1))
          
@@ -1434,7 +1427,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(h_i1_start(1,op,nbb)+it+2-1)
      >              - int_mb(h_i1_start(1,op,nbb)+it+1-1))
-         msgtype   = 1
+         msgtype   = 69
       
          if (msglen.gt.0) then
 #ifdef MPI4
@@ -2646,7 +2639,7 @@ c         jend   = jcol
                   call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)/2+1)*ny(nb)
-                  msgtype = 1
+                  msgtype = 79
 c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -2675,7 +2668,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
             if (p_here.eq.taskid_i) then
 
                msglen  = (nx(nb)/2+1)*ny(nb)
-               msgtype = 1
+               msgtype = 79
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -2725,7 +2718,7 @@ c     >                  source,rcv_proc,1)
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
                else
                   msglen  = (nx(nb)/2+1)
-                  msgtype = 1
+                  msgtype = 79
 cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -2757,7 +2750,7 @@ cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
             !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid_i) then
                msglen = (nx(nb)/2+1)
-               msgtype = 1
+               msgtype = 79
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -2894,7 +2887,7 @@ c     >                  source,rcv_proc,1)
                   call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)/2+1)*ny(nb)
-                  msgtype = 1
+                  msgtype = 89
 c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -2922,7 +2915,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
             if (p_here.eq.taskid) then
 
                msglen  = (nx(nb)/2+1)*ny(nb)
-               msgtype = 1
+               msgtype = 89
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -2971,7 +2964,7 @@ c     >                  source,rcv_proc,1)
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
                else
                   msglen  = (nx(nb)/2+1)
-                  msgtype = 1
+                  msgtype = 89
 cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3002,7 +2995,7 @@ cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
                msglen = (nx(nb)/2+1)
-               msgtype = 1
+               msgtype = 89
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -3143,7 +3136,7 @@ c     **** allocate status memory ****
                   end do
                else
                   msglen = (nx(nb))*ny(nb)
-                  msgtype = 1
+                  msgtype = 99
 c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3173,7 +3166,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             if (p_here.eq.taskid_i) then
 
                msglen  = (nx(nb))*ny(nb)
-               msgtype = 1
+               msgtype = 99
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -3230,7 +3223,7 @@ c     >                       source,rcv_proc,1)
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
                else
                   msglen  = (nx(nb)+2)
-                  msgtype = 1
+                  msgtype = 99
 c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3263,7 +3256,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid_i) then
                msglen  = (nx(nb)+2)
-               msgtype = 1
+               msgtype = 99
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -3385,7 +3378,7 @@ c     **** allocate status memory ****
                   end do
                else
                   msglen = (nx(nb))*ny(nb)
-                  msgtype = 1
+                  msgtype = 109
 c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3414,7 +3407,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             if (p_here.eq.taskid) then
 
                msglen  = (nx(nb))*ny(nb)
-               msgtype = 1
+               msgtype = 109
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -3470,7 +3463,7 @@ c     >                       source,rcv_proc,1)
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
                else
                   msglen  = (nx(nb)+2)
-                  msgtype = 1
+                  msgtype = 109
 c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3502,7 +3495,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
                msglen  = (nx(nb)+2)
-               msgtype = 1
+               msgtype = 109
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -3622,7 +3615,7 @@ c         jend   = jcol
                  call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
               else
                  msglen = (nx(nb)/2+1)*ny(nb)
-                 msgtype = 1
+                 msgtype = 119
 c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                  stupid_msglen = msglen
@@ -3651,7 +3644,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid_i) then
                msglen  = (nx(nb)/2+1)*ny(nb)
-               msgtype = 1
+               msgtype = 119
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -3701,7 +3694,7 @@ c     >                       source,rcv_proc,1)
                   call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
                else
                   msglen  = (nx(nb)/2+1)
-                  msgtype = 1
+                  msgtype = 119
 c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3733,7 +3726,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid_i) then
                msglen  = (nx(nb)/2+1)
-               msgtype = 1
+               msgtype = 119
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -3865,7 +3858,7 @@ c     >                  source,rcv_proc,1)
                  call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
               else
                  msglen = (nx(nb)/2+1)*ny(nb)
-                 msgtype = 1
+                 msgtype = 129
 c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                  stupid_msglen = msglen
@@ -3893,7 +3886,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
                msglen  = (nx(nb)/2+1)*ny(nb)
-               msgtype = 1
+               msgtype = 129
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -3942,7 +3935,7 @@ c     >                       source,rcv_proc,1)
                   call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
                else
                   msglen  = (nx(nb)/2+1)
-                  msgtype = 1
+                  msgtype = 129
 c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 #ifdef MPI4
                   stupid_msglen = msglen
@@ -3973,7 +3966,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
                msglen  = (nx(nb)/2+1)
-               msgtype = 1
+               msgtype = 129
                source  = MASTER
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                  source,rcv_proc,1)
@@ -4105,10 +4098,10 @@ c     >                  source,rcv_proc,1)
             else
                dum        = 99
                msglen     = (nx(nb)/2+1)*ny(nb)
-               msgtype    = 1
+               msgtype    = 139
                source     = p_from
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 239
 c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4156,10 +4149,10 @@ c     >                       source,rcv_proc,1)
                call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
 
                msglen     = (nx(nb)/2+1)*ny(nb)
-               msgtype    = 1
+               msgtype    = 139
                dest       = MASTER
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 239
 c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
 c     >                       dest,rcv_proc,1)
 c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
@@ -4239,10 +4232,10 @@ c      call ga_sync()
             else
                dum         = 99
                msglen      = (nx(nb)/2+1)
-               msgtype     = 1
+               msgtype     = 139
                source      = p_from
                dum_msglen  = 1
-               dum_msgtype = 2
+               dum_msgtype = 239
 c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4292,10 +4285,10 @@ c     >                       source,rcv_proc,1)
                call dcopy((nx(nb)+2),A(index),1,tmp,1)
 
                msglen     = (nx(nb)/2+1)
-               msgtype    = 1
+               msgtype    = 139
                dest       = MASTER
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 239
 c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
 c     >                       dest,rcv_proc,1)
 c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
@@ -4410,10 +4403,10 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
             else
                dum        = 99
                msglen     = (nx(nb)/2+1)*ny(nb)
-               msgtype    = 1
+               msgtype    = 149
                source     = p_from
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 249
 c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4460,10 +4453,10 @@ c     >                       source,rcv_proc,1)
                call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
 
                msglen     = (nx(nb)/2+1)*ny(nb)
-               msgtype    = 1
+               msgtype    = 149
                dest       = MASTER
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 249
 c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
 c     >                       dest,rcv_proc,1)
 c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
@@ -4542,10 +4535,10 @@ c      call ga_sync()
             else
                dum         = 99
                msglen      = (nx(nb)/2+1)
-               msgtype     = 1
+               msgtype     = 149
                source      = p_from
                dum_msglen  = 1
-               dum_msgtype = 2
+               dum_msgtype = 249
 c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 c               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4594,10 +4587,10 @@ c     >                       source,rcv_proc,1)
                call dcopy((nx(nb)+2),A(index),1,tmp,1)
 
                msglen     = (nx(nb)/2+1)
-               msgtype    = 1
+               msgtype    = 149
                dest       = MASTER
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 249
 c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
 c     >                       dest,rcv_proc,1)
 c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
@@ -4705,7 +4698,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 
             else
                msglen  = (nx(nb))*ny(nb)
-               msgtype = 1
+               msgtype = 159
                source  = p_from
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4746,7 +4739,7 @@ c     >                       source,rcv_proc,1)
                end do
 
                msglen  = (nx(nb))*ny(nb)
-               msgtype = 1
+               msgtype = 159
                dest    = MASTER
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 #ifdef MPI4
@@ -4787,7 +4780,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
             else
                msglen  = (nx(nb))
-               msgtype = 1
+               msgtype = 159
                source  = p_from
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4829,7 +4822,7 @@ c     >                       source,rcv_proc,1)
                call dcopy(nx(nb),A(index),1,tmp,1)
 
                msglen  = nx(nb)
-               msgtype = 1
+               msgtype = 159
                dest    = MASTER
 
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
@@ -4924,10 +4917,10 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
             else
                dum        = 99
                msglen     = (nx(nb)/2+1)*ny(nb)
-               msgtype    = 1
+               msgtype    = 169
                source     = p_from
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 269
 c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -4976,10 +4969,10 @@ c     >                       source,rcv_proc,1)
                call dcopy((nx(nb)/2+1)*ny(nb),A(index),1,tmp,1)
 
                msglen     = (nx(nb)/2+1)*ny(nb)
-               msgtype    = 1
+               msgtype    = 169
                dest       = MASTER
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 269
 c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
 c     >                       dest,rcv_proc,1)
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
@@ -5058,10 +5051,10 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
                dum         = 99
                msglen      = (nx(nb)/2+1)
-               msgtype     = 1
+               msgtype     = 169
                source      = p_from
                dum_msglen  = 1
-               dum_msgtype = 2
+               dum_msgtype = 269
 c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -5113,10 +5106,10 @@ c     >                       source,rcv_proc,1)
                call dcopy((nx(nb)/2+1),A(index),1,tmp,1)
 
                msglen     = (nx(nb)/2+1)
-               msgtype    = 1
+               msgtype    = 169
                dest       = MASTER
                dum_msglen = 1
-               dum_msgtype= 2
+               dum_msgtype= 269
 c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
 c     >                       dest,rcv_proc,1)
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
@@ -5223,7 +5216,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
             else
                msglen  = (nx(nb))*ny(nb)
-               msgtype = msglen
+               msgtype = 179
                source  = p_from
 
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
@@ -5268,7 +5261,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
                end do
 
                msglen  = (nx(nb))*ny(nb)
-               msgtype = 1
+               msgtype = 179
                dest    = MASTER
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 #ifdef MPI4
@@ -5313,7 +5306,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
             else
                msglen  = (nx(nb))
-               msgtype = 1
+               msgtype = 179
                source  = p_from
 c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
 c     >                       source,rcv_proc,1)
@@ -5356,7 +5349,7 @@ c     >                       source,rcv_proc,1)
                call dcopy(nx(nb),A(index),1,tmp,1)
 
                msglen  = nx(nb)
-               msgtype = 1
+               msgtype = 179
                dest    = MASTER
 
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
@@ -5447,7 +5440,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                  tmp(k) = A(index)
               else
                  msglen  = 1
-                 msgtype = 1
+                 msgtype = 189
                  source  = p_from
 
 c                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
@@ -5500,7 +5493,7 @@ c     >                         source,rcv_proc,1)
                  tmp(1) = A(index)
 
                  msglen  = 1
-                 msgtype = 1
+                 msgtype = 189
                  dest    = MASTER
 c                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
 c     >                         dest,rcv_proc,1)
@@ -5553,7 +5546,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                  tmp(k) = A(index)
               else
                  msglen  = 1
-                 msgtype = 1
+                 msgtype = 189
                  source  = p_from
 c                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
 c                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
@@ -5601,7 +5594,7 @@ c     >                         source,rcv_proc,1)
                  tmp(1) = A(index)
 
                  msglen  = 1
-                 msgtype = 1
+                 msgtype = 189
                  dest    = MASTER
 c                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
 c     >                         dest,rcv_proc,1)
@@ -5703,7 +5696,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
             else
 
                msglen  = (nx(nb))
-               msgtype = 1
+               msgtype = 199
                status  = msglen
                source  = p_from
 
@@ -5749,7 +5742,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 
                msglen  = (nx(nb))
-               msgtype = 1
+               msgtype = 199
                dest    = MASTER
 c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 #ifdef MPI4
