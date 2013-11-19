@@ -48,7 +48,7 @@ c
       integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
-      integer n2ft3d
+      integer n2ft3d,n2ft3d_map
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8 e_lj,e_q,e_spring
@@ -141,6 +141,7 @@ c
       sd_count          = 0
 
       call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
 
 *     **** allocate rho_in and rho_out ****
       value = MA_push_get(mt_dbl,2*n2ft3d,
@@ -156,6 +157,10 @@ c
      >                     'rho_in',rho_in(2),rho_in(1))
       if (.not. value) 
      >   call errquit('bybminimize:out of stack memory',0,0)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_in(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_out(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_junk(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
 
 *     **** ion-ion energy ****
       eion = 0.0d0
@@ -216,14 +221,14 @@ c
       call electron_get_vall(dbl_mb(vall_in(1)))
 
 *     **** compute deltaV ****
-      call dcopy(ispin*n2ft3d,
+      call dcopy(ispin*n2ft3d_map,
      >           dbl_mb(vall_in(1)),1,
      >           dbl_mb(vall_junk(1)),1)
-      call daxpy(ispin*n2ft3d,
+      call daxpy(ispin*n2ft3d_map,
      >              (-1.0d0),
      >              dbl_mb(vall_out(1)),1,
      >              dbl_mb(vall_junk(1)),1)
-      deltav = ddot(ispin*n2ft3d,
+      deltav = ddot(ispin*n2ft3d_map,
      >                 dbl_mb(vall_junk(1)),1,
      >                 dbl_mb(vall_junk(1)),1)
       call D3dB_SumAll(deltav)
