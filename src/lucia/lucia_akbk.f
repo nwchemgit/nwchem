@@ -8,6 +8,9 @@
 *                    Oct. 30, 2012; Jeppe Olsen; call to Z_BLKFO changed
 * Last modification; July 2013; Jeppe Olsen; AKSIGMA2 path added
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -95,7 +98,7 @@
 *
       CALL MEMMAN(KLOCCLS_P,NOCCLS_MAX,'ADDL  ',1,'POCCLS')
       CALL OCCLS_IN_CISPACE(NOCCLS_P,WORK(KLOCCLS_P),
-     &       NOCCLS_MAX,WORK(KIOCCLS),NGAS,
+     &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(IPSPC),ICMBSPC(1,IPSPC),IGSOCCX,IPSPC)
       NCOCCLS = NOCCLS_P
 *
@@ -103,7 +106,7 @@
 *
       CALL MEMMAN(KLOCCLS_Q,NOCCLS_MAX,'ADDL  ',1,'QOCCLS')
       CALL OCCLS_IN_CISPACE(NOCCLS_Q,WORK(KLOCCLS_Q),
-     &       NOCCLS_MAX,WORK(KIOCCLS),NGAS,
+     &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(IQSPC),ICMBSPC(1,IQSPC),IGSOCCX,IQSPC)
       NSOCCLS = NOCCLS_Q
 *. Well the Q-classes may contain terms that are not connected
@@ -116,7 +119,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       WRITE(6,*) ' Max excitation level beween P and Q set to',
      &            MAX_EXCIT
       CALL EXCIT_OCCLS_TO_OCCLS(NOCCLS_P,WORK(KLOCCLS_P),
-     &    NOCCLS_Q,WORK(KLOCCLS_Q),WORK(KIOCCLS),NGAS,MAX_EXCIT,
+     &    NOCCLS_Q,WORK(KLOCCLS_Q),int_mb(KIOCCLS),NGAS,MAX_EXCIT,
      &    NRCONNECT,WORK(KLRCONNECT))
       IF(NRCONNECT.LT.NOCCLS_Q) THEN
         WRITE(6,*) ' Q-space reduced to interacting occlasses'
@@ -138,7 +141,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       CALL ICOPVE(WORK(KLOCCLS_P),WORK(KCIOCCLS_ACT),NGAS*NOCCLS_P)
       CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
-     &     WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
      &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &     WORK(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
@@ -155,7 +158,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       ILTEST = 3006
       CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &     IPRNT,NSBLOCK,NSBATCH,
-     &     int_mb(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
+     &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
      &     WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &     WORK(KSIBT),
      &     WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
@@ -221,7 +224,7 @@ C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
         SHIFT = ECORE
         IUSE_EXP = 1
         CALL GASDIAT(WORK(KVEC2),LUDIA,SHIFT,ICISTR,I12,
-     &               WORK(KCBLTP),NCBLOCK,WORK(KCIBT),IUSE_EXP)
+     &               int_mb(KCBLTP),NCBLOCK,WORK(KCIBT),IUSE_EXP)
         CALL FILEMAN_MINI(LUSC,'ASSIGN')
         CALL CSDIAG(WORK(KVEC1P),WORK(KVEC1P),
      &       NCONF_PER_OPEN(1,IREFSM),MAXOP,IREFSM,
@@ -698,7 +701,7 @@ C?    STOP ' Jeppe forced me to stop.... '
         IF(NTEST.GE.1000)
      &  WRITE(6,*) ' NCBLK, NSBLK, NXBLOCK = ', NCBLK, NSBLK, NXBLOCK
         CALL GASDIAT(VECSCR,LUSC,SHIFT,ICISTR,I12,
-     &               WORK(KXBLTP),NXBLOCK,WORK(KXIBT),IUSE_EXP)
+     &               int_mb(KXBLTP),NXBLOCK,WORK(KXIBT),IUSE_EXP)
 *
 * Average diagonal in each configuration
 *
@@ -894,6 +897,9 @@ C SCLVCD(LUIN,LUOUT,SCALE,SEGMNT,IREW,LBLK)
 *
 *. Jeppe Olsen, Aug. 23, 2012 in Minneapolis
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -955,7 +961,7 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
       
       CALL Z_BLKFO_FOR_CISPACE(IQSPC,ICSM,LBLOCK,ICOMP,
      &     NTEST,NQBLOCK,NQBATCH,
-     &     WORK(KCIOIO),WORK(KCBLTP),NQOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,WORK(KCIOCCLS_ACT),
      &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &     WORK(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),0,ILTEST)
@@ -966,7 +972,7 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
 *
 * 3: Generate diagonal contribitions to the density
 *
-      CALL DIAG_DET_TO_DENSI(CB,LUQ1,WORK(KCBLTP),
+      CALL DIAG_DET_TO_DENSI(CB,LUQ1,int_mb(KCBLTP),
      &     NQBLOCK,WORK(KCIBT),RHO1_QQ, RHO2_QQ,I12)
 C     DIAG_DET_TO_DENSI(CB,LUC,IBLTP,NBLOCK,IBLKFO,
 C    &                             RHO1D,RHO2D,I12)
@@ -1049,13 +1055,13 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *
       IDUM = 0
 *. Space for blocks of strings
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
-      MAXB = IMNMX(WORK(KNSTSO(IBTP)),NSMST*NOCTPB,2)
+      MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXB = IMNMX(int_mb(KNSTSO(IBTP)),NSMST*NOCTPB,2)
       CALL MEMMAN(KLASTR,MAXA*NAEL,'ADDL  ',1,'KLASTR')
       CALL MEMMAN(KLBSTR,MAXB*NBEL,'ADDL  ',1,'KLBSTR')
 *
       CALL DIAG_DET_TO_DENSIS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
-     &       NACOB,CB,NSMST,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &       NACOB,CB,NSMST,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &       LUC,IPRDIA,ICISTR,IBLTP,NBLOCK,IBLKFO,RHO1D,RHO2D,I12)
 
 *.Flush local memory
@@ -1274,6 +1280,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *             + Delta(ij)delta(kl)  <0^Q!E_iiE_kk - \delta(jk)E_ik!0^Q>
 *
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -2145,6 +2154,9 @@ C MATVCC(A,VIN,VOUT,NROW,NCOL,ITRNS)
 *   1) MOAOUT   - as it is the output matrix
 *   2) MOAO_ACT - as it is the active matrix
 *   3) MOAOIN   - as the integrals are in this basis ...
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cgas.inc'
@@ -2653,7 +2665,7 @@ C       CALL EN_FROM_DENS(ENERGY,2,0)
         KINT2_FSAVE = KINT2_A(IE2ARR_F)
         KINT2_A(IE2ARR_F) = KINT2_INI
         CALL FA_FROM_INIINT
-     &       (WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &       (WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
 *. Clean up
         KINT2 = KINT_2EMO
         KINT2_A(IE2ARR_F) = KINT2_FSAVE
@@ -2820,7 +2832,7 @@ C             FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
      &                    ECORE_ORIG, ECORE_HEX, ECORE
            END IF
            CALL FA_FROM_INIINT
-     &     (WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &     (WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
 *. and   redirect integral fetcher back to actual integrals
            KINT2 = KINT_2EMO
            KINT2_A(IE2ARR_F) = KINT2_FSAVE
@@ -3207,7 +3219,7 @@ C                FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
      &                      ECORE_HEX,3)
             ECORE = ECORE_ORIG + ECORE_HEX
             CALL FA_FROM_INIINT
-     &      (WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &      (WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
 *. Clean up
             KINT2_A(IE2ARR_F) = KINT2_FSAVE
 *. Diagonalize FI+FA and save in KLMO2
@@ -3298,7 +3310,7 @@ C                FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
         KINT2_A(IE2ARR_F) = KINT2_INI
       END IF
       CALL FA_FROM_INIINT
-     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
       IF(IPRNT.GE.100) WRITE(6,*) ' FA constructed '
       KINT2 = KINT_2EMO
       IF(ITRA_ROUTE.EQ.2) KINT2_A(IE2ARR_F) = KINT2_FSAVE
@@ -3401,6 +3413,9 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
 *. Jeppe Olsen, Aarhus, July 2013
 *. Last revision; Aug. 2013; Jeppe Olsen; H0_CSF = 1 included
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -3502,7 +3517,8 @@ C Block for storing complete or partial CI-vector
       IF(ISFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTESTL,NSBLOCK,NSBATCH,
-     &       int_mb(KSIOIO),WORK(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
+     &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
+     &       WORK(KSIOCCLS_ACT),
      &       WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &       WORK(KSIBT),
      &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
@@ -3511,7 +3527,8 @@ C Block for storing complete or partial CI-vector
       IF(ICFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTESTL,NCBLOCK,NCBATCH,
-     &       WORK(KCIOIO),WORK(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
+     &       WORK(KCIOCCLS_ACT),
      &       WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &       WORK(KCIBT),
      &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
