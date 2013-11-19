@@ -1216,6 +1216,9 @@ c      INCLUDE 'mxpdim.inc'
 *
 * If no mo-ao trans is present, only, MOMO matrix is returned
 
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
@@ -1284,7 +1287,7 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
       CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NMSOB,1)
       END IF
       CALL FA_FROM_INIINT
-     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
@@ -1317,7 +1320,7 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
       IF(IMO.EQ.1.OR.IMO.EQ.3.OR.IMO.EQ.5) THEN
 *. Symmetry ordered density matrix  over active orbitals
 C       REORHO1(RHO1I,RHO1O,IRHO1SM,IWAY)
-        CALL REORHO1(WORK(KRHO1),WORK(KLMAT2),1,1)
+        CALL REORHO1(dbl_mb(KRHO1),WORK(KLMAT2),1,1)
 COLD    CALL EXTR_SYMBLK_ACTMAT(WORK(KRHO1),WORK(KLMAT2),1)
 COLD    CALL TYPE_TO_SYM_REO_MAT(WORK(KRHO1),WORK(KLMAT2))
 *. Pack to triangular form
@@ -2629,7 +2632,7 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
             KRHO2 = 1
           END IF
           IF(IDENSI.GE.1)
-     &    CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
      &         KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
      &         WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
           IF(IDENSI.EQ.2) THEN
@@ -2678,7 +2681,7 @@ C   &           MAXTRM,IOUT)
              CALL COPVCD(LUSC1,LUHC,dbl_mb(KVEC1),1,LBLK)
           END IF
           IF(IDENSI.GE.1)
-     &    CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUHC,EXPS2,
      &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &          WORK(KRHO2BB),1 )
@@ -2806,14 +2809,14 @@ C    &           NVAR, ICISTR,ICOPY)
             IF(IDENSI.EQ.1) THEN
               KRHO2 = 1
             END IF
-            CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+            CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
      &      KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
      &      WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
           ELSE
             CALL REWINO(LUSC1)
             CALL REWINO(LUC)
             CALL COPVCD(LUC,LUSC1,dbl_mb(KVEC1),0,LBLK)
-            CALL DENSI2(IDENSI,WORK(KRHO1),WORK(KRHO2),
+            CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUC,LUSC1,EXPS2,
      &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &          WORK(KRHO2BB),1 )
@@ -2872,7 +2875,7 @@ C                SKPVCD(LU,NVEC,SEGMNT,IREW,LBLK)
             IPRDEN_SAVE = IPRDEN
             IPRDEN = 0
             XDUM = 0
-            CALL DENSI2(1     ,WORK(KRHO1),WORK(KRHO2),
+            CALL DENSI2(1     ,dbl_mb(KRHO1),WORK(KRHO2),
      &           dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUHC,EXPS2,
      &           0,XDUM,XDUM,XDUM,XDUM,1)
             IPRDEN = IPRDEN_SAVE
@@ -2939,14 +2942,14 @@ C?     write(6,*) ' IRFROOT and NROOT ',IRFROOT, NROOT
          END DO
          IF(ICISTR.EQ.1) THEN
            CALL COPVEC(dbl_mb(KVEC1),dbl_mb(KVEC2),NVAR)
-           CALL DENSI2(1,WORK(KRHO1),WORK(KRHO2),
+           CALL DENSI2(1,dbl_mb(KRHO1),WORK(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),0,0,EXPS2,
      &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &          WORK(KRHO2BB),1 )
          ELSE
            CALL REWINO(LUSC1)
            CALL COPVCD(LUSC1,LUSC2,dbl_mb(KVEC1),1,LBLK)
-             CALL DENSI2(1,WORK(KRHO1),WORK(KRHO2),
+             CALL DENSI2(1,dbl_mb(KRHO1),WORK(KRHO2),
      &            dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUSC2,EXPS2,ISPNDEN,
      &            WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &            WORK(KRHO2BB),1)
@@ -28277,24 +28280,6 @@ C?   &                          NSMOB*(MAXOP+1)*NOCSBCLST
 *
       RETURN
       END
-      SUBROUTINE CHECK_ICBLTP
-*
-* Routine for locating ICLBTP problem
-*
-      INCLUDE 'implicit.inc'
-      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc-static.inc'
-      INCLUDE 'glbbas.inc'
-      WRITE(6,*)  ' KCBLTP = ', KCBLTP
-      WRITE(6,*)  ' WORK(KCBLTP) as integers:'
-      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
-*
-      RETURN
-      END
-C     GET_NCONF_PER_OPEN_FOR_SUM_OCCLS(NCONF_PER_OPEN(1,ISM),
-C    &     MAXOP,NOCCLS_ACT,IOCCLS_ACT,ISM,WORK(KNCN_PER_OP_SM),
-C    &     NIRREP)
-
       SUBROUTINE GET_NCONF_PER_OPEN_FOR_SUM_OCCLS(NCONF_PER_OPEN_ACT,
      &           MAXOP,NOCCLS_ACT,IOCCLS_ACT,ISM,
      &           NCN_PER_OP_SM,NIRREP)
@@ -28337,243 +28322,6 @@ C    &     NIRREP)
         WRITE(6,*) ' NCONF_PER_OPEN_ACT array (output) '
         CALL IWRTMA(NCONF_PER_OPEN_ACT,1,MAXOP+1,1,MAXOP+1)
       END IF
-*
-      RETURN
-      END
-      SUBROUTINE SIGDEN_CIGEN(CB,HCB,LUC,LUHC,ITASK)
-*
-* Outer routine for sigma, traci, densi  generation
-* GAS version 
-*
-* IF ICISTR.gt.1, then CB, HCB are two blocks holding a batch
-* IF ICISTR .eq. 1, then CB, HCB are two vectors holding a vector over
-* parameters. Parameters are CSF's if required
-*
-* IF CSF's are active (NOCSF = 0), then three vectors over SD's 
-* must be available (KCOMVECX_SD, X = 1, 2, 3)
-*
-*
-* A new start, March 23, 2012
-*
-* Last modification; Oct. 30, 2012; Jeppe Olsen; changed call to Z_BLKFO
-      INCLUDE 'wrkspc.inc'
-      CHARACTER*6 ITASK
-*
-* =====
-*.Input
-* =====
-*
-*.Definition of c and sigma
-      INCLUDE 'cands.inc'
-*
-*./ORBINP/: NACOB used
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'cicisp.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'cstate.inc' 
-      INCLUDE 'strinp.inc'
-      INCLUDE 'stinf.inc'
-      INCLUDE 'csm.inc'
-      INCLUDE 'crun.inc'
-      INCLUDE 'gasstr.inc'
-      INCLUDE 'cgas.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'cprnt.inc'
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'oper.inc'
-      INCLUDE 'cecore.inc'
-      INCLUDE 'spinfo.inc'
-      COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
-*. Two blocks of C or Sigma (for ICISTR .gt. 2)
-      DIMENSION CB(*),HCB(*)
-*. Two vectors of C or Sigma (for ICISTR = 1)
-*
-      CALL QENTER('SGDEGN')
-*
-      
-      NTEST = 010
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*) 
-        WRITE(6,*) 'SIGDEN_CIGEN speaking '
-        WRITE(6,*) '===================== '
-        WRITE(6,*) 
-        WRITE(6,'(A,A6)') ' ITASK = ', ITASK
-      END IF 
-*
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Input to SIGDEN_CIGEN '
-        WRITE(6,*) ' ======================='
-        IF(ICISTR.GT.1) THEN
-          CALL WRTVCD(CB,LUC,1,-1)
-        ELSE
-          CALL WRTMAT(CB,1,NCVAR,1,NCVAR)
-        END IF
-      END IF
-C?    WRITE(6,*) ' Ecore = ', ECORE
-        
-      IDUM = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SGDEGN')
-*. For the moment
-      ICFIRST = 1
-      ISFIRST = 1
-*
-      MAXK1_MX = 0
-      LSCMAX_MX = 0
-      IF(ISSPC.LE.NCMBSPC) THEN
-        IATP = 1
-        IBTP = 2
-      ELSE
-        IATP = IALTP_FOR_GAS(ISSPC)
-        IBTP = IBETP_FOR_GAS(ISSPC)
-      END IF
-*
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
-*. Offset for supergroups 
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
-*
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
-*. Block for storing complete or partial CI-vector
-      IF(ISIMSYM.EQ.0) THEN
-        LBLOCK = MXSOOB
-      ELSE
-        LBLOCK = MXSOOB_AS
-      END IF
-      IF(NOCSF.EQ.0) THEN
-        LBLOCK  = NSD_FOR_OCCLS_MAX
-      END IF
-      LBLOCK = MAX(LBLOCK,LCSBLK)
-C?    WRITE(6,*) ' TEST, MV7: LCSBLK, LBLOCK = ', LCSBLK, LBLOCK
-      ICOMP = 0
-      ILTEST = -3006
-      IF(ISFIRST.EQ.1) THEN
-        CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
-     &       NTEST,NSBLOCK,NSBATCH,
-     &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
-     &       dbl_mb(KSIOCCLS_ACT),
-     &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
-     &       int_mb(KSIBT),
-     &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
-      END IF
-      IF(ICFIRST.EQ.1) THEN
-        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
-     &       NTEST,NCBLOCK,NCBATCH,
-     &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),
-     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
-     &       int_mb(KCIBT),
-     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
-      END IF
-C     WRITE(6,*) ' ECORE in MV7 =', ECORE
-*. Number of BLOCKS
-        NBLOCK = NSBLOCK
-C?      WRITE(6,*) ' Number of blocks ', NBLOCK
-
-      IF(I12.EQ.2) THEN
-        IDOH2 = 1
-      ELSE
-        IDOH2 = 0
-      END IF
-*
-      IF(NOCSF.EQ.0.AND.ICNFBAT.GE.2) THEN
-*. Obtain scratch files for saving combination forms of C and Sigma
-C             FILEMAN_MINI(IFILE,ITASK)
-         CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
-         CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
-C?       WRITE(6,*) ' Test: LU_CDET, LU_SDET: ',
-C?   &                      LU_CDET, LU_SDET
-* ITASK = ASSIGN => Find a free superscratchfile, reserve, set IFILE to 
-* ITASK = FREE   => Free superscratchfile IFILE
-      END IF
-*
-      IF(ICISTR.EQ.1) THEN
-       LLUC = 0
-       LLUHC = 0
-      ELSE 
-       IF(NOCSF.EQ.1) THEN
-        LLUC = LUC
-        LLUHC = LUHC
-       ELSE
-        LLUC = LU_CDET
-        LLUHC = LU_SDET
-       END IF
-      END IF
-
-      IF(NOCSF.EQ.0) THEN
-       IF(ICNFBAT.EQ.1) THEN
-*. In core
-         CALL CSDTVCM(CB,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
-     &                1,0,ICSM,ICSPC,2)
-       ELSE
-*. Not in core- write determinant expansion on LU_CDET 
-C       CSDTVCMN(CSFVEC,DETVEC,SCR,IWAY,ICOPY,ISYM,ISPC,
-C    &           IMAXMIN_OR_GAS,ICNFBAT,LU_DET,LU_CSF,NOCCLS_ACT,
-C    &           IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)  
-        CALL CSDTVCMN(CB,HCB,WORK(KVEC3),
-     &       1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
-     &       WORK(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
-       END IF
-      END IF
-*
-C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
-      IF(ICISTR.GE.2) THEN
-        CALL RASSG3(CB,HCB,NSBATCH,int_mb(KSLBT),int_mb(KSLEBT),
-     &       int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,XDUM,XDUM,ECORE,
-     &       ITASK)
-      ELSE
-*. ICISTR = 1, CB, HCB are the complete vectors
-        IF(NOCSF.EQ.1) THEN
-*. CB and HCB on input are the complete vectors
-          CALL RASSG3(WORK(KVEC1P),WORK(KVEC2P),NSBATCH,
-     &         int_mb(KSLBT),int_mb(KSLEBT),
-     &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,CB,HCB,ECORE,
-     &         ITASK)
-*. Input is in KCOMVEC1_SD, construct output in KCOMVEC2_SD
-        ELSE
-          CALL RASSG3(WORK(KVEC1P),WORK(KVEC2P),NSBATCH,
-     &         int_mb(KSLBT),int_mb(KSLEBT),
-     &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,
-     &         WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),ECORE,
-     &         ITASK)
-        END IF ! CSF switch
-      END IF ! ICISTR switch
-*
-      IF(NOCSF.EQ.0) THEN
-* Transform sigma vector in KCOMVEC2_SD to CSF basis
-       IF(ICNFBAT.EQ.1) THEN
-C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
-         CALL CSDTVCM(HCB,WORK(KCOMVEC2_SD),WORK(KCOMVEC1_SD),
-     &        2,0,ISSM,ISSPC,2)
-       ELSE
-        CALL CSDTVCMN(HCB,CB,WORK(KVEC3),
-     &       2,0,ISSM,ISSPC,2,2,LU_SDET,LUHC,NSOCCLS_ACT,
-     &       WORK(KSIOCCLS_ACT),WORK(KSIBT),int_mb(KSLBT))
-       END IF
-      END IF
-*
-      IF(NOCSF.EQ.0.AND.ICNFBAT.GE.2) THEN
-        CALL FILEMAN_MINI(LU_CDET,'FREE  ')
-        CALL FILEMAN_MINI(LU_SDET,'FREE  ')
-      END IF
-*
-      IF(NTEST.GE.1000) THEN
-        IF(ITASK(1:5).EQ.'SIGMA'. OR. ITASK(1:5).EQ.'TRACI') THEN
-         WRITE(6,*) ' Output vector from SGDEGN '
-         WRITE(6,*) ' ========================= '
-         IF(ICISTR.GT.1) THEN
-           CALL WRTVCD(CB,LUHC,1,-1)
-         ELSE 
-           CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
-         END IF
-        END IF
-      END IF
-*
-*. Eliminate local memory
-      CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'SGDEGN')
-*
-      CALL QEXIT('SGDEGN')
 *
       RETURN
       END
@@ -28857,6 +28605,9 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
 *. Note: In case of super-symmetry one has to destinguish between two ways 
 *. of having the orbitals arranged for a given standard symmetry: the actual/gas
 *. order or standard order. The routine returns the MO coefficients in actual/gas order
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
@@ -28966,7 +28717,7 @@ C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
       IF(I_USE_SUPSYM.EQ.1) THEN
 *. Bring first density to form with supersymmetry blocks
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
-        CALL REFORM_RHO1_TO_GNSM(WORK(KRHO1),WORK(KLMAT2),1,
+        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),1,
      &       WORK(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Reformed density matrix '
@@ -28977,12 +28728,12 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
         CALL AVE_SUPSYM_MAT(WORK(KLMAT2),NACOB_GS,0)
 *. And reform back to standard form of density
         ZERO = 0.0D0
-        CALL SETVEC(WORK(KRHO1),ZERO,NACOB**2)
-        CALL REFORM_RHO1_TO_GNSM(WORK(KRHO1),WORK(KLMAT2),2,
+        CALL SETVEC(dbl_mb(KRHO1),ZERO,NACOB**2)
+        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),2,
      &       WORK(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.0000) THEN
          WRITE(6,*) ' Supersymmetry averaged density '
-         CALL  WRTMAT(WORK(KRHO1),NACOB,NACOB,NACOB,NACOB)
+         CALL  WRTMAT(dbl_mb(KRHO1),NACOB,NACOB,NACOB,NACOB)
         END IF
       END IF
 *
@@ -29002,7 +28753,7 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
         CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
       END IF
       CALL FA_FROM_INIINT
-     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
@@ -29079,7 +28830,7 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *. Obtain and diagonalize symmetry ordered density matrix 
 *. over active orbitals
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
-        CALL REFORM_RHO1_TO_GNSM(WORK(KRHO1),WORK(KLMAT2),1,
+        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),1,
      &       WORK(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Reformed density matrix '
