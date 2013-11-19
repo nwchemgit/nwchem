@@ -36,6 +36,8 @@
      >                     'tau',tau(2),tau(1))
          if (.not.ok)
      >      call errquit('nwpw_meta_gga_init:out of heap',0,MA_ERR)
+         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dfdtau(1)),1)
+         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tau(1)),1)
       end if
       return
       end
@@ -126,6 +128,7 @@
 *     **** allocate stack memory ****
       if (.not.MA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
@@ -214,6 +217,7 @@
 *     **** allocate stack memory ****
       if (.not.MA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
@@ -309,6 +313,7 @@
 *     **** allocate stack memory ****
       if (.not.MA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)

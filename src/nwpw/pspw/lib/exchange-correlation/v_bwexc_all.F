@@ -29,6 +29,7 @@
          if (.not.MA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
      >                        tmp1(2),tmp1(1)))
      >      call errquit('v_bwexc_all: out of stack memory',0,MA_ERR)
+         call dcopy(ispin*n2ft3d,0.0d0,dbl_mb(tmp1(1)),1)
 
          call vxc(n2ft3d,ispin,dn,xcp,xce,dbl_mb(tmp1(1)))
 
