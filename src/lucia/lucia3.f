@@ -4249,11 +4249,10 @@ C    &              KSBIA,KSBIB,KVEC3,KPNIJ,KIJKK
       END IF
 *
 *. Offset for input string
-      ISTROF = IFRMR(WORK,KISTSO(ISTRGP),
-     &         (ISTRSM-1)*NOCTYP(ISTRGP)+ISTRTP)
+      ISTROF =int_mb(KISTSO(ISTRGP)+(ISTRSM-1)*NOCTYP(ISTRGP)+ISTRTP-1)
 *. Number of input strings  
-      NIST = IFRMR(WORK,KNSTSO(ISTRGP),
-     &         (ISTRSM-1)*NOCTYP(ISTRGP)+ISTRTP)
+      NIST = int_mb(KNSTSO(ISTRGP)
+     &        + (ISTRSM-1)*NOCTYP(ISTRGP)+ISTRTP-1)
 *. Group of output strings
       IACAR(1) = 2
       IACAR(2) = 1
@@ -4268,8 +4267,7 @@ C     NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
 C     WRITE(6,*) ' ISTRSM,IJSXSM KSTRSM',ISTRSM,IJSXSM,KSTRSM
 C     SYMCOM(ITASK,IOBJ,I1,I2,I12)
 *. Offset for output strings
-      KSTROF = IFRMR(WORK,KISTSO(ISTRGP),
-     &         (KSTRSM-1)*NOCTYP(ISTRGP)+KSTRTP)
+      KSTROF = int_mb(KISTSO(ISTRGP)+(KSTRSM-1)*NOCTYP(ISTRGP)+KSTRTP-1)
 C     WRITE(6,*) ' off set for output strings ', KSTROF
 *
 *. Type of mappings
@@ -4289,14 +4287,14 @@ C     WRITE(6,*) ' off set for output strings ', KSTROF
       LP1 = NACOB
       NIEL = NELEC(ISTRGP)
       CALL  H1STRSO(H,ISTROF,NIST,KSTROF,             
-     &              NI,IOFF,NJ,JOFF,
-     &              WORK(KSTSTM(ISTRGP,1)),WORK(KSTSTM(ISTRGP,2)),
-     &              LM1,IM1FUL,
-     &              WORK(KSTSTM(ISTRGP+1,1)),WORK(KSTSTM(ISTRGP+1,2)),
-     &              LP1,IP1FUL,
-     &              MXSXST,IEXSTR,FACSTR,NEX,IH2TRM,WORK(KPNIJ),
-     &              WORK(KIJKK),WORK(KOCSTR(ISTRGP)),NIEL,
-     &              NTOOB,NTEST)
+     &            NI,IOFF,NJ,JOFF,
+     &            int_mb(KSTSTM(ISTRGP,1)),int_mb(KSTSTM(ISTRGP,2)),
+     &            LM1,IM1FUL,
+     &            int_mb(KSTSTM(ISTRGP+1,1)),int_mb(KSTSTM(ISTRGP+1,2)),
+     &            LP1,IP1FUL,
+     &            MXSXST,IEXSTR,FACSTR,NEX,IH2TRM,WORK(KPNIJ),
+     &            WORK(KIJKK),int_mb(KOCSTR(ISTRGP)),NIEL,
+     &            NTOOB,NTEST)
 
 *
       RETURN
