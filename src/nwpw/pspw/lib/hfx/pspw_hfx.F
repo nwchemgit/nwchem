@@ -175,6 +175,8 @@ c     **** define extra psi and Hpsi  ****
      >                       Hpsi_r_replicated(1))
         if (.not. value)   
      >    call errquit('pspw_init_HFX: out of heap memory',3,MA_ERR)
+         call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
+         call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
       end if
    
       return
@@ -573,6 +575,9 @@ c     **** nothing to do ****
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -773,6 +778,10 @@ c***************** sub/replicated routines *****************************
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp2(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1051,6 +1060,8 @@ c     >                           Hpsi_r(index2))
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1171,6 +1182,7 @@ c     >                                   dbl_mb(dn(1)))
         !call D3dB_n2ft3d(1,n2ft3d)
         value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
         if (.not. value) call errquit('out of stack memory',0,MA_ERR)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1295,6 +1307,10 @@ c     >                                   dbl_mb(dn(1)))
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp2(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1442,6 +1458,9 @@ c        call D1dB_SumAll(ph)
      >        MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('pspw_potential_HFX_sub: out of stack',0,MA_ERR)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
 
       scal1 = 1.0d0/dble(n1*n2*n3)
       scal2 = 1.0d0/lattice_omega()
@@ -1813,6 +1832,8 @@ c     **** nothing to do ****
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
