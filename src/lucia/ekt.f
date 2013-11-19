@@ -276,6 +276,9 @@ C     XDIAXT(XDX,X,DIA,NDIM,SCR)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'orbinp.inc'
@@ -346,7 +349,7 @@ COLD  CALL SCALVE(WORK(KFOCK),TWO,NTOOB**2)
              IOBP = IREOST(IOB)
              JOBP = IREOST(JOB)
              WORK(KDEN1SM-1+IOFFM-1+(JOB-IOFFO)*LOB+IOB-IOFFO+1)
-     &     = WORK(KRHO1-1+(IOBP-1)*NTOOB+JOBP)
+     &     = dbl_mb(KRHO1-1+(IOBP-1)*NTOOB+JOBP)
            END DO
         END DO
         WRITE(6,*) ' Symmetry packed one body density matrix '
@@ -375,7 +378,7 @@ C       CALL TRIPAK(WORK(KLFEXP),WORK(KFOCK-1+IBASE2P),2,N,N)
 *. Solve FC = eSC with Ct S C = 1 as F'C' = e S'C'( S is one body density)
 * with F' = S-(1/2)F S(-1/2), C' = S(1/2)C
 *. S(-1/2),S(1/2)
-        CALL SQRTMT(WORK(KRHO1+IBASE2-1),N,2,WORK(KLSSQ),WORK(KLSSQI),
+        CALL SQRTMT(dbl_mb(KRHO1+IBASE2-1),N,2,WORK(KLSSQ),WORK(KLSSQI),
      &              WORK(KLSCR))
         write(6,*) ' S-1/2 matrix '
         call wrtmat(work(klssqi),n,n,n,n)
