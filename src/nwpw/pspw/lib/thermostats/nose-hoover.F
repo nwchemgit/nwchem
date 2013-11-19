@@ -212,7 +212,9 @@ c        Er0 = 0.5d0*(1)*kb*Tr
 
 
       !**** local variables ****
-      logical value
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical value,value2
       integer rtdb,m,n
       real*8  dt
 
@@ -234,7 +236,10 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       end do
 
 *     **** save restart information to rtdb ****
+      call Parallel_taskid(taskid)
       rtdb  = control_rtdb()
+      value2 = rtdb_parallel(.false.)
+      if (taskid.eq.MASTER) then
       value = rtdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
      >   .and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,Mchain) 
      >   .and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,Nchain) 
@@ -247,6 +252,8 @@ c        Er0 = 0.5d0*(1)*kb*Tr
      >   .and.rtdb_put(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))
      >   .and.rtdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
      >   .and.rtdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
+      end if
+      value2 = rtdb_parallel(.true.)
       if (.not.value)
      >  call errquit(
      >       'Nose_End: error writing to rtdb', 0, RTDB_ERR)
