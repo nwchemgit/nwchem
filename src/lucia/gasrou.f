@@ -2786,7 +2786,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
      &                int_mb(KNSTSO(IBTP)),
      &                ISPGPFTP(1,IBSPGPFTP(IATP)),
      &                ISPGPFTP(1,IBSPGPFTP(IBTP)),MXPNGAS,NELFGP,
-     &                NCOMB,XNCOMB,MXS,MXSOO,WORK(KLBLTP),NTTSBL,
+     &                NCOMB,XNCOMB,MXS,MXSOO,dbl_mb(KLBLTP),NTTSBL,
      &                LCOL,dbl_mb(KLIOIO),MXSOO_AS,XMXSOO,XMXSOO_AS)
       
           XISPSM(ISYM,ICI) = XNCOMB
@@ -4363,8 +4363,8 @@ C!    stop ' enforrced stop in RSBBD1 '
 *
 * type of each symmetry block ( full, lower diagonal, absent )
 *
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,WORK(KCBLTP),IDUMMY)
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,WORK(KSBLTP),IDUMMY)
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,int_mb(KCBLTP),IDUMMY)
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,int_mb(KSBLTP),IDUMMY)
 
 *
 *. Number of dets etc per TTS block
@@ -4445,10 +4445,10 @@ C?     WRITE(6,*) ' ISMOST before EXPCIVS for ISM = ', ISM
 C?     CALL IWRTMA(ISMOST(1,ISM),1,NSMST,1,NSMST)
 
         CALL EXPCIVS(LLUIN,dbl_mb(KLBLI),NCOMBI,
-     &       int_mb(KCIOIO),NOCTPA,NOCTPB,WORK(KCBLTP),
+     &       int_mb(KCIOIO),NOCTPA,NOCTPB,int_mb(KCBLTP),
      &       LUUT,dbl_mb(KLBLU),NCOMBU,
      &       int_mb(KSIOIO),
-     &       WORK(KSBLTP),
+     &       int_mb(KSBLTP),
      &       ICISTR,IDC,NSMST,
      &       LBLK,IAMPACK,ISMOST(1,ISM),
      &       int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
@@ -5321,7 +5321,7 @@ c      INCLUDE 'mxpdim.inc'
         DO IGAS = 1, IGASL-1
           NELI = NELFGP(ITPFGS(IGAS))
 C         ICOPVE2(IIN,IOFF,NDIM,IOUT)
-          CALL ICOPVE2(WORK(KOCSTR(ITPFGS(IGAS))),
+          CALL ICOPVE2(int_mb(KOCSTR(ITPFGS(IGAS))),
      &                 (ISTRNM(IGAS)+IBSTFGS(IGAS)-2)*NELI+1,
      &                 NELI,ISTROC(IBEL,ISTR))
 C         DO JEL = 1, NELI
@@ -5343,7 +5343,7 @@ C         END DO
           END DO
         END DO
 *. Add IGASL strings 
-        CALL COPSTR(WORK(KOCSTR(ITPFGS(IGASL))),IBGASL,NELL,NEL,1,
+        CALL COPSTR(int_mb(KOCSTR(ITPFGS(IGASL))),IBGASL,NELL,NEL,1,
      &                 NELML+1,NELL,NSTRGASL,ISTROC(1,ISTR))
 C     COPSTR(INSTR,IBSTR,NELI,NELO,IBELI,IBELO,NELAD,
 C    &                  NSTR,IOUSTR)
@@ -6915,9 +6915,9 @@ C?   &               nstb,nsta,niac,nkac
         NKACT = NSTFGP(KACGRP)
 C?      write(6,*) ' KACGRP ', KACGRP
         CALL ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,   
-     &                 WORK(KSTSTM(KACGRP,1)),WORK(KSTSTM(KACGRP,2)),
-     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
-     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC)
+     &          int_mb(KSTSTM(KACGRP,1)),int_mb(KSTSTM(KACGRP,2)),
+     &          IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+     &          NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC)
         KSTRBS = KSTRBS + NKSD     
         IF(NGASL-1.GT.0) GOTO 1000
  1001 CONTINUE
@@ -7524,8 +7524,8 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
 *. Allocate scratch space for 2-electron integrals and 
 *. two-electron densities
       MX4IBLK = MXTSOB ** 4
-      CALL MEMMAN(KLINT,MX4IBLK,'ADDL  ',2,'KLINT ')
-      CALL MEMMAN(KLDEN,MX4IBLK,'ADDL  ',2,'KLDEN ')
+      CALL MEMMAN(KLINT,MX4IBLK,'ADDL  ',2,'KLINT ') !done
+      CALL MEMMAN(KLDEN,MX4IBLK,'ADDL  ',2,'KLDEN ') !done
 *. And a block of F
       MX2IBLK = MXTSOB ** 2
       CALL MEMMAN(KLFBLK,MX2IBLK,'ADDL  ',2,'KLFBL ')
@@ -7569,13 +7569,13 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
 *. block F(ijsm,igas,jgas)
 *  =======================
 *
-            CALL SETVEC(WORK(KLFBLK),ZERO,NI*NJ)
+            CALL SETVEC(dbl_mb(KLFBLK),ZERO,NI*NJ)
 * 1 : One-electron part 
             DO KGAS = 1, NGAS
               KSM = IJSM
               NK = NOBPTS(KGAS,KSM)
 *. blocks of one-electron integrals and one-electron density
-              CALL GETD1(WORK(KLDEN),JSM,JGAS,KSM,KGAS,IJSPIN)
+              CALL GETD1(dbl_mb(KLDEN),JSM,JGAS,KSM,KGAS,IJSPIN)
               ISPCAS = IJSPIN
               CALL GETH1(dbl_mb(KLINT),ISM,IGAS,KSM,KGAS)
               IF(NTEST.GE.1000) THEN
@@ -7584,22 +7584,22 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
                 CALL WRTMAT(dbl_mb(KLINT),NI,NK,NI,NK)
                 WRITE(6,*) 
      &          ' 1-e densi for ISM JGAS KGAS ',ISM,JGAS,KGAS
-                CALL WRTMAT(WORK(KLDEN),NJ,NK,NJ,NK)
+                CALL WRTMAT(dbl_mb(KLDEN),NJ,NK,NJ,NK)
               END IF
 *. And then a matrix multiply( they are pretty much in fashion 
 *. these days )
-              CALL MATML7(WORK(KLFBLK),dbl_mb(KLINT),WORK(KLDEN),
+              CALL MATML7(dbl_mb(KLFBLK),dbl_mb(KLINT),dbl_mb(KLDEN),
      &                    NI,NJ,NI,NK,NJ,NK,ONE,ONE,2)
                IF(NTEST.GE.1000) THEN
                  WRITE(6,*) ' Updated block '
-                 CALL WRTMAT(WORK(KLFBLK),NI,NJ,NI,NJ)
+                 CALL WRTMAT(dbl_mb(KLFBLK),NI,NJ,NI,NJ)
                END IF
  
             END DO
             IF(NTEST.GE.1000) THEN
               WRITE(6,*) ' One-electron contributions'
               WRITE(6,*) ' =========================='
-              CALL WRTMAT(WORK(KLFBLK),NI,NJ,NI,NJ)
+              CALL WRTMAT(dbl_mb(KLFBLK),NI,NJ,NI,NJ)
             END IF
             IF(I12L.EQ.2) THEN
 *. 2 : Two-electron part
@@ -7630,14 +7630,14 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
                 CALL GETH2(dbl_mb(KLINT),
      &               KSM,KGAS,LSM,LGAS,ISM,IGAS,MSM,MGAS,ISPC)
                 
-                CALL GETD2 (WORK(KLDEN),
+                CALL GETD2 (dbl_mb(KLDEN),
      &               KSM,KGAS,LSM,LGAS,JSM,JGAS,MSM,MGAS,ISPC)
                 NKL = NK*NL
                 DO M = 1, NM
                   IIOFF = KLINT + (M-1)*NKL*NI
                   IDOFF = KLDEN + (M-1)*NKL*NJ
-                  CALL MATML7(WORK(KLFBLK),WORK(IIOFF),WORK(IDOFF),
-     &                        NI,NJ,NKL,NI,NKL,NJ,ONE,ONE,1)
+                  CALL MATML7(dbl_mb(KLFBLK),dbl_mb(IIOFF),
+     &                  dbl_mb(IDOFF),NI,NJ,NKL,NI,NKL,NJ,ONE,ONE,1)
                 END DO
               END DO
               END DO
@@ -7654,7 +7654,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
      &             WRITE(6,*) '  (alpha spin)'
               IF (NSPIN.EQ.2.AND.IJSPIN.EQ.2)
      &             WRITE(6,*) '  (beta spin)'
-              CALL WRTMAT(WORK(KLFBLK),NI,NJ,NI,NJ)
+              CALL WRTMAT(dbl_mb(KLFBLK),NI,NJ,NI,NJ)
             END IF
 *. Block has been constructed , transfer to -complete- 
 *. symmetry blocked Fock matrix
@@ -7664,7 +7664,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
 C?              WRITE(6,*) 'IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1',
 C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
                 F(ISPOFF+IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1 ) = 
-     &          WORK(KLFBLK-1+(J-1)*NI+I)
+     &          dbl_mb(KLFBLK-1+(J-1)*NI+I)
               END DO
             END DO
 *
@@ -7704,6 +7704,9 @@ C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. Input
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -7734,7 +7737,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
       CALL MEMMAN(KLDEN,MX4IBLK,'ADDL  ',2,'KLDEN ') !done
 *. And a block of F
       MX2IBLK = MXTSOB ** 2
-      CALL MEMMAN(KLFBLK,MX2IBLK,'ADDL  ',2,'KLFBL ')
+      CALL MEMMAN(KLFBLK,MX2IBLK,'ADDL  ',2,'KLFBL ') !done
 *. 
 *
       ONE = 1.0D0
@@ -7780,18 +7783,18 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
               NK = NOBPTS(KGAS,KSM)
 *. blocks of one-electron integrals and one-electron density
               CALL GETD1(dbl_mb(KLDEN),JSM,JGAS,KSM,KGAS,1)
-              CALL GETH1(WORK(KLINT),ISM,IGAS,KSM,KGAS)
+              CALL GETH1(dbl_mb(KLINT),ISM,IGAS,KSM,KGAS)
               IF(NTEST.GE.1000) THEN
                 WRITE(6,*) 
      &          ' 1-e ints for ISM IGAS KGAS ',ISM,IGAS,KGAS
-                CALL WRTMAT(WORK(KLINT),NI,NK,NI,NK)
+                CALL WRTMAT(dbl_mb(KLINT),NI,NK,NI,NK)
                 WRITE(6,*) 
      &          ' 1-e densi for ISM JGAS KGAS ',ISM,JGAS,KGAS
                 CALL WRTMAT(dbl_mb(KLDEN),NJ,NK,NJ,NK)
               END IF
 *. And then a matrix multiply( they are pretty much in fashion 
 *. these days )
-              CALL MATML7(dbl_mb(KLFBLK),WORK(KLINT),dbl_mb(KLDEN),
+              CALL MATML7(dbl_mb(KLFBLK),dbl_mb(KLINT),dbl_mb(KLDEN),
      &                    NI,NJ,NI,NK,NJ,NK,ONE,ONE,2)
                IF(NTEST.GE.1000) THEN
                  WRITE(6,*) ' Updated block '
@@ -7825,7 +7828,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
                 IXCHNG = 0
                 ICOUL  = 1
                 ONE = 1.0D0
-                CALL GETINT(WORK(KLINT),
+                CALL GETINT(dbl_mb(KLINT),
      &               KGAS,KSM,LGAS,LSM,IGAS,ISM,MGAS,MSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
                 
@@ -7837,8 +7840,8 @@ C    &                     LTYP,LSM,IXCHNG,0,0,ICOUL)
                 DO M = 1, NM
                   IIOFF = KLINT + (M-1)*NKL*NI
                   IDOFF = KLDEN + (M-1)*NKL*NJ
-                  CALL MATML7(dbl_mb(KLFBLK),WORK(IIOFF),WORK(IDOFF),
-     &                        NI,NJ,NKL,NI,NKL,NJ,ONE,ONE,1)
+                  CALL MATML7(dbl_mb(KLFBLK),dbl_mb(IIOFF),
+     &                   dbl_mb(IDOFF),NI,NJ,NKL,NI,NKL,NJ,ONE,ONE,1)
                 END DO
               END DO
               END DO
@@ -8065,7 +8068,7 @@ c      INCLUDE 'mxpdim.inc'
           IABS = I-1+II
           JABS = J-1+IJ
           IJABS = (JABS-1)*NACOB + IABS
-          RHO1B((J-1)*NI+I) = WORK(KRHO1-1+IOFF+IJABS)
+          RHO1B((J-1)*NI+I) = dbl_mb(KRHO1-1+IOFF+IJABS)
         END DO
       END DO
 *
@@ -8110,7 +8113,7 @@ c      INCLUDE 'mxpdim.inc'
       IABS = IORB-1+II
       JABS = JORB-1+JJ
       IJABS = (JABS-1)*NTOOB + IABS
-      GETD1E = WORK(KRHO1-1+IOFF+IJABS)
+      GETD1E = dbl_mb(KRHO1-1+IOFF+IJABS)
 
       RETURN
       END
@@ -9443,7 +9446,8 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
                   DO M = 1, NM
                     IIOFF = KLINT + (M-1)*NKL*NI
                     IDOFF = KLDEN + (M-1)*NKL*NJ
-                    CALL MATML7(dbl_mb(KLFBLK),WORK(IDOFF),WORK(IIOFF),
+                    CALL MATML7(dbl_mb(KLFBLK),dbl_mb(IDOFF),
+     &                          dbl_mb(IIOFF),
      &                          NJ,NI,NKL,NJ,NKL,NI,ONE,XFACTOR,1)
                   END DO
                  ELSE
@@ -10546,18 +10550,18 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       CALL MEMMAN(KLRHO1_SAVE,LEN_R,'ADDL  ',2,'RHO1S ') !done
       CALL MEMMAN(KLCBIOA,LEN_R,'ADDL  ',2,'CBIOAC') !done
 *
-      CALL COPVEC(WORK(KRHO1),dbl_mb(KLRHO1_SAVE),LEN_R)
+      CALL COPVEC(dbl_mb(KRHO1),dbl_mb(KLRHO1_SAVE),LEN_R)
 *.  Obtain, in KLCBIOA, CBIO over active orbitals only
       CALL EXTR_OR_CP_ACT_BLKS_FROM_ORBMAT
      &     (WORK(KCBIO),dbl_mb(KLCBIOA),1)
 *. Obtain rho1 in symmetry block form
 C            REORHO1(RHO1I,RHO1O,IRHO1SM)
-      CALL REORHO1(WORK(KRHO1),dbl_mb(KLRHO1),1,1)
+      CALL REORHO1(dbl_mb(KRHO1),dbl_mb(KLRHO1),1,1)
 *. transform RHO1 to bio-actual MO basis
       CALL TR_BIOMAT(dbl_mb(KLRHO1),dbl_mb(KLRHO1B),dbl_mb(KLCBIOA),
      &               NACOBS,1,2,1,1)
 *. Transfer back to full matrix over active orbitals
-      CALL REORHO1(WORK(KRHO1),dbl_mb(KLRHO1B),1,2)
+      CALL REORHO1(dbl_mb(KRHO1),dbl_mb(KLRHO1B),1,2)
 *
       CALL COPVEC(FI,WORK(KINT1),LEN_F)
 *
@@ -10826,7 +10830,7 @@ C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
         END DO
       END DO
 *. Clean up
-      CALL COPVEC(dbl_mb(KLRHO1_SAVE),WORK(KRHO1),LEN_R)
+      CALL COPVEC(dbl_mb(KLRHO1_SAVE),dbl_mb(KRHO1),LEN_R)
 *
       IF(NTEST.GE.1000) THEN
         WRITE(6,*)
@@ -11216,7 +11220,7 @@ C?        write(6,*) ' before call to add_str_group '
 *
           CALL ADD_STR_GROUP(NSTI,
      &          IBSTFGS(IGRP),
-     &          WORK(KOCSTR(ITPFGS(IGRP))),
+     &          int_mb(KOCSTR(ITPFGS(IGRP))),
      &          NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
 *. Loop over strings in IGRP 
         END IF
