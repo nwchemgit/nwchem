@@ -6643,6 +6643,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                          dbl_mb(tmp(1)))
                call Pack_cc_dot(1,
      >                          dcpl_mb(psii_ptr),
+     >                          dbl_mb(tmp(1)),
      >                          vv(3))
    
 
