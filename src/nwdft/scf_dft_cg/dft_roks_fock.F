@@ -105,6 +105,7 @@ c     Local variables
 c     
       double precision eone_closed, eone_open, etwo_closed, etwo_open
       double precision errmax, dum, Ebq
+      double precision time1_2e, time2_2e, time1_xc, time2_xc
       integer nset
       parameter(nset=7)
       integer g_cdens, g_odens, g_cfock, g_hcore, g_ocoul, g_oexch
@@ -309,6 +310,9 @@ c
          nfock = 3
       endif
 c
+      if(util_print('dft timings', print_high))
+     &      time1_2e=util_cpusec()   ! start 2e build time
+c
 C     don't do it if RI HESSIAN is active
       call do_riscf (.false.)
 C     Dyalls method for RHF
@@ -393,15 +397,39 @@ c
       end if
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_vecs)
+      if(util_print('dft timings', print_high))
+     &      time2_2e=util_cpusec()   ! end 2e build time
+c
+c     print fock_2e build time
+c
+      if(util_print('dft timings', print_high)) then
+       if (ga_nodeid().eq.0) then
+         write(*,"(4x,'Fock_2e Build Time:',F13.1,'s')")
+     &              time2_2e-time1_2e
+       endif
+      end if
 c
 c     do DFT stuff
 c
+      if(util_print('dft timings', print_high))
+     &      time1_xc=util_cpusec()   ! start xc build time
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       if (xc_gotxc()) then
         call fock_xc(geom, nbf, basis, nfockxc, iv_dens(4), iv_fock(4),
      +               Exc, nExc)
       endif
+      if(util_print('dft timings', print_high))
+     &      time2_xc=util_cpusec()   ! end xc build time
+c
+c     print fock_xc build time
+c
+      if(util_print('dft timings', print_high)) then
+        if (ga_nodeid().eq.0) then
+          write(*,"(4x,'Fock_xc Build Time:',F13.1,'s')")
+     &              time2_xc-time1_xc
+        endif
+      end if
 c
 c     enddo DFT stuff
 c     

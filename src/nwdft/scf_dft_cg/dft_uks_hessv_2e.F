@@ -1,6 +1,7 @@
       subroutine dft_uks_hessv_2e(acc, g_x, g_ax, nvec)
       implicit none
 #include "errquit.fh"
+#include "util.fh"
 #include "cuhf.fh"
 #include "cscf.fh"
 #include "cscfps.fh"
@@ -37,6 +38,7 @@ c
       integer g_dens(4,max_nvec), g_fock(4,max_nvec), g_d, g_j, g_k
       double precision jfac(4,max_nvec), kfac(4,max_nvec)
       double precision tol2e_local
+      double precision time1_2e, time2_2e, time1_xc, time2_xc
 c
       integer dims(3), chnk(3)
       integer alo(3), ahi(3)
@@ -187,14 +189,29 @@ c
 c
       nfock = 4*nvec
 c
+      if(util_print('dft timings', print_high))
+     &      time1_2e=util_cpusec()   ! start 2e build time
       call fock_2e(geom, basis, nfock, jfac, kfac,
      $     tol2e_local, oskel_local, g_dens, g_fock, .false.)
+      if(util_print('dft timings', print_high))
+     &      time2_2e=util_cpusec()   ! end 2e build time
+c
+c     print fock_2e build time
+c
+      if(util_print('dft timings', print_high)) then
+       if (ga_nodeid().eq.0) then
+         write(*,"(4x,'Fock_2e Build Time:',F13.1,'s')")
+     &              time2_2e-time1_2e
+       endif
+      end if
 c
 c     Calculate the DFT parts
 c
       Exc(1) = zero
       Exc(2) = zero
       nExc   = 2
+      if(util_print('dft timings', print_high))
+     &      time1_xc=util_cpusec()   ! start xc build time
       if (xc_gotxc()) then
         rtdb = bgj_get_rtdb_handle()
         if (.not.rtdb_get(rtdb,'fock_xc:calc_type',MT_INT,1,calc_type))
@@ -237,6 +254,17 @@ c
      +      call errquit('dft_uks_hessv_2e: could not destroy g_ff',
      $                   0,GA_ERR)
       endif
+      if(util_print('dft timings', print_high))
+     &      time2_xc=util_cpusec()   ! end xc build time
+c
+c     print fock_xc build time
+c
+      if(util_print('dft timings', print_high)) then
+        if (ga_nodeid().eq.0) then
+          write(*,"(4x,'Fock_xc Build Time:',F13.1,'s')")
+     &                time2_xc-time1_xc
+        endif
+      end if
 c
 c     Again, note that this is NOT what you want except for
 c     a totally symmetric input vector

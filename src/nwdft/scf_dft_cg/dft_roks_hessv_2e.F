@@ -35,6 +35,7 @@ c
 c
       integer g_dcv,  g_dcp,  g_dpv
       double precision tol2e
+      double precision time1_2e, time2_2e, time1_xc, time2_xc
       logical odebug
 c
       integer dims(3), chnk(3)
@@ -249,11 +250,27 @@ c
          call ga_zero(iv_fock(ifock))
       enddo
 c
+      if(util_print('dft timings', print_high))
+     &      time1_2e=util_cpusec()   ! start 2e build time
       call fock_2e( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, iv_dens, iv_fock,.false.)
+      if(util_print('dft timings', print_high))
+     &      time2_2e=util_cpusec()   ! end 2e build time
+c
+c     print fock_2e build time
+c
+      if(util_print('dft timings', print_high)) then
+       if (ga_nodeid().eq.0) then
+         write(*,"(4x,'Fock_2e Build Time:',F13.1,'s')")
+     &              time2_2e-time1_2e
+       endif
+      end if
+c
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       nExc = 2
+      if(util_print('dft timings', print_high))
+     &      time1_xc=util_cpusec()   ! start xc build time
       if (xc_gotxc()) then
 c
 c       Swap the calc_type to get fock_xc to do the CPHF LHS at this
@@ -343,6 +360,17 @@ c
      +    call errquit('dft_roks_hessv_2e: could not destroy g_ff',
      +                 0,GA_ERR)
       endif
+      if(util_print('dft timings', print_high))
+     &      time2_xc=util_cpusec()   ! end xc build time
+c
+c     print fock_xc build time
+c
+      if(util_print('dft timings', print_high)) then
+        if (ga_nodeid().eq.0) then
+          write(*,"(4x,'Fock_xc Build Time:',F13.1,'s')")
+     &                time2_xc-time1_xc
+        endif
+      end if
 c     
       if (oskel) then
          if (oscfps) call pstat_on(ps_sym_sym)

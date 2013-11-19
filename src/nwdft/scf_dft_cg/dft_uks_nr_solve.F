@@ -41,6 +41,7 @@ c
       double precision tlastwrite,ttest ! time last wrote the MO vectors
       double precision step     ! Step to take in search direction
       double precision time_iter_start
+      double precision time1_rot, time2_rot
       integer time_prev_iter
 c
       double precision gnorm    ! measures for convergence
@@ -143,7 +144,21 @@ c           Apply the rotation and check for overall convergence.
 c           The current fock matrices and energy correspond to the
 c           updated MO coefficients.
 c     
+            if (util_print('dft timings', print_high))
+     &         time1_rot=util_cpusec()   ! start rotation time
             call uhf_rotate_movecs(step, g_search)
+            if (util_print('dft timings', print_high))
+     &         time2_rot=util_cpusec()   ! end rotation time
+c
+c           print rotation time
+c
+            if(util_print('dft timings', print_high)) then
+              if (ga_nodeid().eq.0) then
+                write(*,"(4x,'Rotation Time:',F13.1,'s')")
+     &                      time2_rot-time1_rot
+              endif
+            end if
+c
             converged = gnorm .lt. gnorm_tol
             time_prev_iter = util_wallsec() - time_iter_start
             time_iter_start = util_wallsec()
