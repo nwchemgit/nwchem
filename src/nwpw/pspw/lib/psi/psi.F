@@ -4240,6 +4240,7 @@ c    >                            dcpl_mb(dng1(1)))
      >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
          if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+          call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
 
           call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
      >                       dbl_mb(rho1(1)+(ispin-1)*2*nfft3d),
@@ -4306,6 +4307,7 @@ c    >                            dcpl_mb(dng1(1)))
      >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
          if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+          call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
 
           call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
      >                       dbl_mb(rho1(1)+(ispin-1)*2*nfft3d),
