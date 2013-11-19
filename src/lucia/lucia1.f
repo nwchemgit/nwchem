@@ -1,26 +1,3 @@
-      SUBROUTINE GTSTOC(INUM,IGRP,IOCC)
-*
-* Obtain occupation of string INUM in GROUP IGRP
-*
-c      IMPLICIT REAL*8 (A-H,O-Z)
-*
-*. General Input
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'strbas.inc'
-      INCLUDE 'strinp.inc'
-C     COMMON/STRINP/NSTTYP,MNRS1(MXPSTT),MXRS1(MXPSTT),
-C    &              MNRS3(MXPSTT),MXRS3(MXPSTT),NELEC(MXPSTT),
-C    &              IZORR(MXPSTT),IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),
-C    &              NZSTTP,NRSTTP,ISTTP(MXPSTT)
-*. Output
-      INTEGER IOCC(*)
-*
-      NEL = NELEC(IGRP)
-      CALL ICOPVE2(WORK(KOCSTR(IGRP)),(INUM-1)*NEL+1,NEL,IOCC)
-*
-      RETURN
-      END
       SUBROUTINE ICOPVE2(IIN,IOFF,NDIM,IOUT)
 *
 * IOUT(I) = IIN(IOFF-1+I),I = 1, NDIM
@@ -2940,6 +2917,9 @@ C
 *
 c      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
 *. Specific input
       DIMENSION IDET(*)
@@ -2960,8 +2940,8 @@ c      INCLUDE 'mxpdim.inc'
       NOCTPB = NOCTYP(IBTP)
 *
        CALL STFDT3(NSBDET,IDET,IASTR2,IBSTR2,NSMST,NOCTPA,NOCTPB,
-     &             WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
-     &             WORK(KISTSO(IATP)),WORK(KISTSO(IBTP)),
+     &             int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
+     &             int_mb(KISTSO(IATP)),int_mb(KISTSO(IBTP)),
      &             IOCOC,JSMOST,ICOMBI)
 *
       RETURN
