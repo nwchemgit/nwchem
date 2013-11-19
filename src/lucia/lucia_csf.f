@@ -5505,8 +5505,8 @@ c..
 *. Blocks of  CI vector, using a single batch for complete  expansion
       ICOMP = 1
       ISIMSYM = 1
-      CALL PART_CIV2(IDC,dbl_mb(KLCBLTP),WORK(KNSTSO(IATP)),
-     &              WORK(KNSTSO(IBTP)),
+      CALL PART_CIV2(IDC,dbl_mb(KLCBLTP),int_mb(KNSTSO(IATP)),
+     &              int_mb(KNSTSO(IBTP)),
      &              NOCTPA,NOCTPB,NSMST,LBLOCK,dbl_mb(KLCIOIO),
      &              ISMOST(1,ISM),
      &              NBATCH,int_mb(KLCLBT),int_mb(KLCLEBT),
@@ -7554,7 +7554,7 @@ C?    WRITE(6,*) ' GEN_INFO_FOR_ALL.., I_DO_SBCNF = ', I_DO_SBCNF
 *
 *. Call the slaves to do the work (avoid real/integer problems)
 *
-      CALL GEN_INFO_FOR_ALL_OCCLS_S(WORK(KIOCCLS),NOCCLS_MAX,
+      CALL GEN_INFO_FOR_ALL_OCCLS_S(int_mb(KIOCCLS),NOCCLS_MAX,
      &     MINOP,MAXOP,NIRREP,NINOB,NGAS,NOBPT,
      &     WORK(KNCN_PER_OP_SM),WORK(KNCN_ALLSYM_FOR_OCCLS),
      &     WORK(KNCN_FOR_OCCLS),
@@ -7589,7 +7589,7 @@ C    &           NABSPGP_PER_OCCLS,IABSPGP_PER_OCCLS,
 C    &           N_SDAB_PER_OCCLS,N_CMAB_PER_OCCLS,
 C                N_SDAB_PER_OCCLS_MAX,N_CMAB_PER_OCCLS_MAX)
       CALL GEN_NSDAB_FOR_ALL_OCCLS(
-     &     WORK(KNABSPGP_FOR_OCCLS),WORK(KIABSPGP_FOR_OCCLS),
+     &     dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIABSPGP_FOR_OCCLS),
      &     WORK(KNSDAB_FOR_OCCLS),WORK(KNCMAB_FOR_OCCLS),
      &     N_SDAB_PER_OCCLS_MAX, N_CMAB_PER_OCCLS_MAX) 
 *
@@ -7608,7 +7608,7 @@ C    &           IOCCLS_ACT)
 *
 *. Length of configuration expansions
 *
-      NELL = IELSUM(WORK(KIOCCLS),NGAS)
+      NELL = IELSUM(int_mb(KIOCCLS),NGAS)
 C     FUNCTION LEN_OCCLIST(NCONF_PER_OPEN, MAXOP, NELEC)
       DO ISPC = 1, NCISPC
        DO ISM = 1, NSMOB
@@ -8255,7 +8255,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
       DO ICISPC = 1, NCMBSPC
 *. Set up in IOCCLS_ACT an array giving allowed occ classes for this CI space
           CALL OCCLS_IN_CISPACE(NOCCLS_ACT,IOCCLS_ACT,
-     &         NOCCLS_MAX,WORK(KIOCCLS),NGAS,
+     &         NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &         LCMBSPC(ICISPC),ICMBSPC(1,ICISPC),IGSOCCX,ICISPC)
        DO ISM = 1, NIRREP
         NCM_PER_SYM_GN(ISM,ICISPC) = 0
@@ -12436,7 +12436,7 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
 C     GEN_OCSBCLS(MNGSOC, MXGSOC, NGAS, IOGSBCLS)
 *
 *. The occupation sub classes of each occupation class
-      CALL OCSBCLS_OF_OCCLS(WORK(KIOCCLS),NOCCLS_MAX, NGAS,
+      CALL OCSBCLS_OF_OCCLS(int_mb(KIOCCLS),NOCCLS_MAX, NGAS,
      &     IBOCSBCLS,MNGSOC,WORK(KOCSBCLS_OF_OCCLS),
      &     WORK(KMINOPGAS_FOR_OCCLS),MINOP,NOBPT)
 C          OCSBCLS_OF_OCCLS(IOCCLS,NOCCLS,NGAS,
@@ -12941,11 +12941,11 @@ C         IOCCLSDIM(IOPEN_OUT_DIM+1,NSMOB)
 *
 *. Find the occupation classes that are active for this CI space
 C          OCCLS_IN_CI(NOCCLS,IOCCLS,ICISPC,NINCCLS,INCCLS)
-      CALL OCCLS_IN_CI(NOCCLS_MAX,WORK(KIOCCLS),ICISPC,NACTCLS,
+      CALL OCCLS_IN_CI(NOCCLS_MAX,int_mb(KIOCCLS),ICISPC,NACTCLS,
      &     int_mb(KLOCCLS_ACT))
       CALL DIM_CISPACE_FROM_SBCNF_IN(int_mb(KLOCCLS_ACT),
      &     NOCCLS_MAX,
-     &     WORK(KIOCCLS),NCNFOPSM, int_mb(KLNCNFOPSM2),NGAS,
+     &     int_mb(KIOCCLS),NCNFOPSM, int_mb(KLNCNFOPSM2),NGAS,
      &     WORK(KNSBCNF),
      &     MINOP,NOPEN_MAX,MXPOPORB,NSMOB)
 *
@@ -15111,6 +15111,9 @@ C                 IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGNC
 *
 *. Jeppe Olsen, May 7, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'strbas.inc'
@@ -15127,8 +15130,8 @@ C                 IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGNC
       IB_B = IBSPGPFTP(IBTP)
 *
       CALL GET_DIM_PLSTRING_S(
-     &     NOCCLS_MAX,WORK(KNABSPGP_FOR_OCCLS),
-     &     WORK(KIABSPGP_FOR_OCCLS),
+     &     NOCCLS_MAX,dbl_mb(KNABSPGP_FOR_OCCLS),
+     &     dbl_mb(KIABSPGP_FOR_OCCLS),
      &     NELFSPGP(1,IB_A),NELFSPGP(1,IB_B))
 *
       RETURN
@@ -15516,6 +15519,9 @@ C    &                      NSMCLS,NSMCLSE,NSMCLSE1,NSTR_AS)
 *.
 *. Jeppe Olsen; May 16, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'csm.inc'
@@ -15567,7 +15573,7 @@ C    &                      NSMCLS,NSMCLSE,NSMCLSE1,NSTR_AS)
      &    WRITE(6,*) ' JABSPGP, JASPGP, JBSPGP = ',
      &                 JABSPGP, JASPGP, JBSPGP
           CALL DIM_ABSPGP(JASPGP,JBSPGP,NSMST,
-     &         WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &         int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &         IBLTP,ISMOST(1,ISM),NSDL,NCML)
 C     DIM_ABSPGP(IASPGP,IBSPGP,NSMST,
 C    &           NSSOA,NSSOB,IBLTP,ISMOST,NSDL,NCML)
