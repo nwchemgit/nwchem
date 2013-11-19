@@ -88,9 +88,12 @@
      >                     'xce',xce(2),xce(1))
       if (.not. value) 
      >  call errquit('electron_init: out of heap memory',0, MA_ERR)
+      call dcopy(n2ft3d*(neq(1)+neq(2)),0.0d0,0,dbl_mb(psi_r(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(vl_lr(1)),1)
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xce(1)),1)
-
 
       return
       end
