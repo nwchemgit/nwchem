@@ -1101,7 +1101,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
 *     **** local variables ****
       integer ftmp(2)
       integer taskid_j,np_j
-      integer i,j,np1,np2,np3,n2ft3d,nion
+      integer i,j,np1,np2,np3,n2ft3d_map,nion
       real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
 
 *     **** external functions ****
@@ -1115,7 +1115,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
-      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
       nion = ion_nion()
 
 *     **** constants ****
@@ -1144,7 +1144,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
             fx = 0.0d0
             fy = 0.0d0
             fz = 0.0d0
-            do i=1,n2ft3d
+            do i=1,n2ft3d_map
                rx = x - r_grid(1,i)
                ry = y - r_grid(2,i)
                rz = z - r_grid(3,i)
@@ -1186,7 +1186,7 @@ c                 verf = util_erf(yerf)
             fx = 0.0d0
             fy = 0.0d0
             fz = 0.0d0
-            do i=1,n2ft3d
+            do i=1,n2ft3d_map
                rx = x - r_grid(1,i)
                ry = y - r_grid(2,i)
                rz = z - r_grid(3,i)
@@ -1270,7 +1270,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
 *     **** local variables ****
       integer taskid_j,np_j
-      integer i,j,n2ft3d
+      integer i,j,n2ft3d,n2ft3d_map
       real*8 x,y,z,q,c,r,sqrt_pi
 
 *     **** external functions ****
@@ -1285,6 +1285,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
@@ -1299,7 +1300,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             q = -psp_zv(ion_katm(j))
             c = 1.0d0/psp_rlocal(ion_katm(j))
 
-            do i=1,n2ft3d
+            do i=1,n2ft3d_map
                r = dsqrt( (r_grid(1,i)-x)**2
      >                  + (r_grid(2,i)-y)**2
      >                  + (r_grid(3,i)-z)**2)
@@ -1330,17 +1331,12 @@ c                 yerf = util_erf(xerf)
             q = -psp_zv(ion_katm(j))
             c = 1.0d0/psp_rlocal(ion_katm(j))
 
-            do i=1,n2ft3d
+            do i=1,n2ft3d_map
                r = dsqrt( (r_grid(1,i)-x)**2
      >                  + (r_grid(2,i)-y)**2
      >                  + (r_grid(3,i)-z)**2)
                if (r .gt. 1.0d-15) then
                  xerf=r*c
-c                yerf = (1.0d0
-c    >                 + xerf*(c1 + xerf*(c2
-c    >                 + xerf*(c3 + xerf*(c4
-c    >                 + xerf*(c5 + xerf*c6))))))**4
-c                yerf = (1.0d0 - 1.0d0/yerf**4)
                  yerf = util_erf(xerf)
                  vlr_out(i) = vlr_out(i) + (q/r)*yerf
 c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
@@ -1353,7 +1349,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       end do
 
       end if
-      if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d,vlr_out)
+      if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d_map,vlr_out)
 
       call nwpw_timing_end(5)
 
