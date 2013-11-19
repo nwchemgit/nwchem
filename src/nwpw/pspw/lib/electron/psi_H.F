@@ -100,6 +100,8 @@ c     complex*16 vpsi(nfft3d)
       end if
       if (.not. value) call errquit('psi_H:out of stack memory',0,
      &       MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
       call nwpw_timing_end(12)
       
 
@@ -335,6 +337,7 @@ c     >                         dcpl_mb(vpsi(1)))
       end if
       if (.not. value) 
      >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
       call nwpw_timing_end(12)
       
 
@@ -504,6 +507,7 @@ c     >                      dcpl_mb(vpsi(1)))
       end if
       if (.not. value) 
      >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
       call nwpw_timing_end(12)
       
       if (ms.eq.1) then
@@ -669,6 +673,8 @@ c     complex*16 vpsi(nfft3d)
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('psi_H:out of stack memory',0,
      &       MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
       call nwpw_timing_end(12)
       
 
