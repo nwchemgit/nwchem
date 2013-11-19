@@ -534,6 +534,26 @@ c     p = p_map(k)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         C3dB_nfft3d_map         *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_nfft3d_map(nb,nfft3d_out)
+      implicit none
+      integer nb
+      integer nfft3d_out
+
+#include "C3dB.fh"
+
+      nfft3d_out = nfft3d_map(nb)
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	        C3dB_n2ft3d		*
@@ -550,6 +570,25 @@ c     p = p_map(k)
       n2ft3d_out = n2ft3d(nb)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *         C3dB_n2ft3d_map         *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_n2ft3d_map(nb,n2ft3d_out)
+      implicit none
+      integer nb
+      integer n2ft3d_out
+
+#include "C3dB.fh"
+
+      n2ft3d_out = n2ft3d_map(nb)
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *
