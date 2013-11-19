@@ -284,7 +284,6 @@ c      end if
       nfft3d_map(nb) = nz(nb)*nq3(nb)
       n2ft3d_map(nb) = (nx(nb)+2)*nq1(nb)
 
-
       
       end if
 
@@ -566,10 +565,28 @@ c     p = p_map(k)
 
 #include "D3dB.fh"
 
-
       nfft3d_out = nfft3d(nb)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_nfft3d_map         *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_nfft3d_map(nb,nfft3d_out)
+      implicit none
+      integer nb
+      integer nfft3d_out
+
+#include "D3dB.fh"
+
+      nfft3d_out = nfft3d_map(nb)
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -584,8 +601,25 @@ c     p = p_map(k)
 
 #include "D3dB.fh"
 
-
       n2ft3d_out = n2ft3d(nb)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_n2ft3d_map         *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_n2ft3d_map(nb,n2ft3d_out)
+      implicit none
+      integer nb
+      integer n2ft3d_out
+
+#include "D3dB.fh"
+
+      n2ft3d_out = n2ft3d_map(nb)
       return
       end
 
