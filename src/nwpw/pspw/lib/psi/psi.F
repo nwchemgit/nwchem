@@ -3038,6 +3038,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
      >     'rho_1Fcharge: out of stack memory',0, MA_ERR)
+      call dcopy(3*n2ft3d,0.0d0,dbl_mb(rho(1)),1)
 
 
 *     **** Get r_grid and rho ****
@@ -5048,8 +5049,8 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       real*8   lattice_omega
       external lattice_omega
 
-      call D3dB_nfft3d(1,n2ft3d)
-      n2ft3d = 2*n2ft3d
+      call D3dB_n2ft3d(1,n2ft3d)
+      !n2ft3d = 2*n2ft3d
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
