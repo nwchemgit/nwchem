@@ -69,6 +69,9 @@ c      parameter (EPSILON=1.0d0)
       value = value.and.
      >        MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
+      call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(glr(1)),1)
 
 
       call D3dB_nz(1,nz)
@@ -825,6 +828,11 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       value = value.and.
      >        MA_push_get(mt_dbl,n2ft3d,'dgr',dgr(2),dgr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,dcpl_mb(gk(1)),1)
+      call dcopy(2*nfft3d,0.0d0,dcpl_mb(dgk(1)),1)
+      call dcopy(nfft3d,0.0d0,dbl_mb(gk2(1)),1)
+      call dcopy(n2ft3d,0.0d0,dbl_mb(gr(1)),1)
+      call dcopy(n2ft3d,0.0d0,dbl_mb(dgr(1)),1)
 
 
       call D3dB_nz(1,nz)

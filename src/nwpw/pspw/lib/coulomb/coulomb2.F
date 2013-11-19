@@ -62,6 +62,8 @@ c     **** external functions ****
 
       value = MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(nfft3d,0.0d0,0,dbl_mb(gk(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(glr(1)),1)
 
 
       call Parallel2d_taskid_i(taskid)
@@ -350,6 +352,7 @@ c                 temp = yerf/temp
       call D3dB_nfft3d(2,nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'tmpx',tmpx(2),tmpx(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(tmpx(1)),1)
 
       call D3dB_nx(2,nx)
       call D3dB_ny(2,ny)
