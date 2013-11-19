@@ -1660,7 +1660,7 @@ C     INTEGER IISTSGP(MXPNSMST,MXPNGAS)
        NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
        IF(NELFGS(IGAS).GT.0) NGASL = IGAS
 *. Number of strings per symmetry in each gasspace  
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
       END DO
 C?    WRITE(6,*) ' NNSTSGP'
@@ -1898,7 +1898,7 @@ C    &              KPCI1BT,KPCIBT,KPCBLTP,NBATCH,NBLOCK)
         CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
         CALL COPVCD(LUSC1,LUSC2,WORK(KVEC1),1,LBLK)
         XDUM = 0.0D0
-        CALL DENSI2(1,WORK(KRHO1),WORK(KRHO2),
+        CALL DENSI2(1,dbl_mb(KRHO1),WORK(KRHO2),
      &        WORK(KVEC1),WORK(KVEC2),LUSC1,LUSC2,EXPS2,
      &        0,XDUM,XDUM,XDUM,XDUM,1)
 *. Obtain MO-MO transformation matrix 
@@ -2599,20 +2599,20 @@ c      INCLUDE 'mxpdim.inc'
 *. Largest number of strings of given symmetry and type
       MAXA = MXNSTR
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -2727,6 +2727,9 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'stinf.inc'
@@ -2776,8 +2779,8 @@ c      INCLUDE 'mxpdim.inc'
       END IF
 *
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,dbl_mb(KPCBLTP),WORK(KNSTSO(IATP)),
-     &              WORK(KNSTSO(IBTP)),
+      CALL PART_CIV2(IDC,dbl_mb(KPCBLTP),int_mb(KNSTSO(IATP)),
+     &              int_mb(KNSTSO(IBTP)),
      &              NOCTPA,NOCTPB,NSMST,LBLOCK,dbl_mb(KLCIOIO),
      &              ISMOST(1,ISM),
      &              NBATCH,int_mb(KPCLBT),int_mb(KPCLEBT),
@@ -2815,6 +2818,9 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'  
       INCLUDE 'strinp.inc'
       INCLUDE 'orbinp.inc'
@@ -2855,7 +2861,8 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
 *. Orbital K in type ordering
       KKORB = IREOST(KORB)
       CALL T_TO_NK_VECS
-     &  (T,KKORB,C,LUCIN,LUCOUT,WORK(KNSTSO(IATP)),WORK(KNSTSO(IBTP)),
+     &  (T,KKORB,C,LUCIN,LUCOUT,int_mb(KNSTSO(IATP)),
+     &      int_mb(KNSTSO(IBTP)),
      &      NBLOCK,WORK(KLCIBT),
      &      NAEL,NBEL,WORK(KLASTR),WORK(KLBSTR),
      &      WORK(KLCBLTP),NSMST,
@@ -5522,7 +5529,7 @@ C?    CALL QENTER('GETST')
       IF(NGASL.EQ.0) NGASL = 1
 *. Number of strings per GAS space and offsets for strings of given sym
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
         CALL ICOPVE2(WORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))
@@ -6455,7 +6462,7 @@ C     CALL SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
       CALL ICOPVE(IGRP,KGRP,NIGRP)
       KGRP(IACGRP) = KACGRP
 *. Number of strings and symmetry distributions of K strings
-      CALL NST_SPGRP(NIGRP,KGRP,KSM,WORK(KNSTSGP(1)),
+      CALL NST_SPGRP(NIGRP,KGRP,KSM,int_mb(KNSTSGP(1)),
      &               NSMST,NKSTR,NKDIST)
 C          NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
       IF(NTEST.GE.1000) WRITE(6,*) 
@@ -6465,7 +6472,7 @@ C          NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
       NGASL = 1
       DO JGRP = 1, NIGRP
        IF(NELFGP(KGRP(JGRP)).GT.0) NGASL = JGRP
-       CALL ICOPVE2(WORK(KNSTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
+       CALL ICOPVE2(int_mb(KNSTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              NNSTSGP(1,JGRP))
        CALL ICOPVE2(WORK(KISTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              IISTSGP(1,JGRP))
@@ -6491,7 +6498,7 @@ C     NGASL = NIGRP
 C?    WRITE(6,*) ' IACIST for IACGRP,IGRP = ', IACGRP,IGRP(IACGRP)
 C?    CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
 *
-      CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(int_mb(KNSTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               NACIST)
 *. Number of I strings per group and sym
 COLD  DO IGAS = 1, NIGRP
@@ -6590,10 +6597,10 @@ C         LROW_IN = NORBTS
 C     COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
         IF(NSTA*NSTB*NIAC*NKAC.NE.0)
      &  CALL ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,   
-     &                 WORK(KSTSTM(KACGRP,1)),WORK(KSTSTM(KACGRP,2)),
-     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
-     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
-     &                 LROW_IN,IEC)
+     &            int_mb(KSTSTM(KACGRP,1)),int_mb(KSTSTM(KACGRP,2)),
+     &            IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+     &            NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
+     &            LROW_IN,IEC)
         KSTRBS = KSTRBS + NKSD     
 C       IF(NGASL-1.GT.0) GOTO 1000
         GOTO 1000
@@ -7100,7 +7107,7 @@ C         TI(IROW,ISTRIN ) = -IORB
       INCLUDE 'glbbas.inc'
       INCLUDE 'cgas.inc'
 *
-      CALL EXCCLS2_S(NGAS,WORK(KIOCCLS),NCLS,IACTIN,IACTOUT,IEXC,
+      CALL EXCCLS2_S(NGAS,int_mb(KIOCCLS),NCLS,IACTIN,IACTOUT,IEXC,
      &               IBASSPC_MX,IBASSPC)
 *
       RETURN 
@@ -8554,7 +8561,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IRHO1SM = 1
 *. Extract symmetry blocks from complete one-electron density 
-      CALL REORHO1(WORK(KRHO1),dbl_mb(KLRHO1S),IRHO1SM,1)
+      CALL REORHO1(dbl_mb(KRHO1),dbl_mb(KLRHO1S),IRHO1SM,1)
 *. Number of elements in symmetry blocks of integrals and density
       LRHO1S = 0
       DO ISM = 1, NSMOB
@@ -8566,7 +8573,7 @@ c      INCLUDE 'mxpdim.inc'
      &LRHO1S
 *. Natural orbitals
       IF(I_EXP_OR_TRA.EQ.1.AND.IPRPRO.GE.5) THEN
-        CALL NATORB(WORK(KRHO1),NSMOB,NTOOBS,NACOBS,NINOBS,
+        CALL NATORB(dbl_mb(KRHO1),NSMOB,NTOOBS,NACOBS,NINOBS,
      &              IREOST,dbl_mb(KLXNAT),
      &              dbl_mb(KLHNAT),dbl_mb(KLOCC),NACOB,
      &              dbl_mb(KLSCR),IPRDEN)
@@ -9523,26 +9530,26 @@ C?     WRITE(6,*) ' DENSI2 : IATP, IBTP = ', IATP, IBTP
       CALL SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,
      &              int_mb(KCONSPB),IPRCIX)
 *. Largest block of strings in zero order space
-      MAXA0 = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(WORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXA0 = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
+      MAXB0 = IMNMX(int_mb(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
       MXSTBL0 = MXNSTR          
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(WORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(int_mb(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(WORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(int_mb(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MAXA = MAX(MAXA,MAXA0)   
@@ -9623,8 +9630,8 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       CALL MEMMAN(KXI3S,LSCR3       ,'ADDL  ',2,'XI3S  ') !done
       CALL MEMMAN(KXI4S,LSCR3       ,'ADDL  ',2,'XI4S  ') !done
 *
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,WORK(KSBLTP),WORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,WORK(KCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,int_mb(KSBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),WORK(KSVST))
 *.0 OOS arrayy
       NOOS = NOCTPA*NOCTPB*NSMST
 * scratch space containing active one body
@@ -9679,9 +9686,9 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
 *. Out of core version
         CALL GASDN2(I12,RHO1,RHO2,L,R,WORK(KC2),
      &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),WORK(KCBLTP),WORK(KSBLTP),NACOB,
-     &       WORK(KNSTSO(IATP)),WORK(KISTSO(IATP)),
-     &       WORK(KNSTSO(IBTP)),WORK(KISTSO(IBTP)),
+     &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
+     &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
+     &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,      
      &       MAXK,MAXI,LSCR1,LSCR1,WORK(KCSCR),WORK(KSSCR),
@@ -9711,9 +9718,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
        IF(NOCSF.EQ.1) THEN
         CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),WORK(KC2),
      &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),WORK(KCBLTP),WORK(KSBLTP),NACOB,
-     &       WORK(KNSTSO(IATP)),WORK(KISTSO(IATP)),
-     &       WORK(KNSTSO(IBTP)),WORK(KISTSO(IBTP)),
+     &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
+     &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
+     &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,      
      &       MAXK,MAXI,LSCR1,LSCR1,WORK(KCSCR),WORK(KSSCR),
@@ -9741,9 +9748,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
 *. CSF's in use
         CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),WORK(KC2),
      &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),WORK(KCBLTP),WORK(KSBLTP),NACOB,
-     &       WORK(KNSTSO(IATP)),WORK(KISTSO(IATP)),
-     &       WORK(KNSTSO(IBTP)),WORK(KISTSO(IBTP)),
+     &       ISMOST(1,ISSM),int_mb(KCBLTP),WORK(KSBLTP),NACOB,
+     &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
+     &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,      
      &       MAXK,MAXI,LSCR1,LSCR1,WORK(KCSCR),WORK(KSSCR),
@@ -13497,10 +13504,10 @@ C       IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
         MXAADST = MAX(MXAADST,NKSTR*NORBTS)
         IF(NSTA*NSTB*NIAC*NKAC.NE.0)
      &  CALL ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,   
-     &                 WORK(KSTSTM(KACGRP,1)),WORK(KSTSTM(KACGRP,2)),
-     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
-     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
-     &                 LROW_IN,IEC)
+     &            int_mb(KSTSTM(KACGRP,1)),int_mb(KSTSTM(KACGRP,2)),
+     &            IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+     &            NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
+     &            LROW_IN,IEC)
         KSTRBS = KSTRBS + NKSD     
         GOTO 1000
  1001 CONTINUE
