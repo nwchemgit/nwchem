@@ -204,7 +204,9 @@ c      end if
 
 
       !**** local variables ****
-      logical value
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical value,value2
       integer rtdb,m,n
       real*8  dt
 
@@ -227,7 +229,11 @@ c      end if
 
 *     **** save restart information to rtdb ****
       rtdb  = control_rtdb()
-      value = rtdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
+      call Parallel_taskid(taskid)
+      value2 = rtdb_parallel(.false.)
+      value = .true.
+      if (taskid.eq.MASTER) then
+      value = value.and.rtdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
      >   .and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,Mchain) 
      >   .and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,Nchain) 
      >   .and.rtdb_put(rtdb,'cpmd:Ne_chain',mt_dbl,1,Ne_chain) 
@@ -240,6 +246,8 @@ c      end if
      >   .and.rtdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
      >   .and.rtdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
      >   .and.rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,.true.)
+      end if
+      value2 = rtdb_parallel(.true.)
       if (.not.value)
      >  call errquit(
      >       'Nose_End: error writing to rtdb', 0, RTDB_ERR)
