@@ -5013,7 +5013,7 @@ c ++++++++++++++++++
           val_zim=dimag(dcpl_mb(k_z+j-1))
           val_cmplx=dcmplx(val_zre+scl*dbl_mb(k_xreim+j-1),val_zim)
           j1=ioff+j-1
-          call ga_put(g_z,j1,j1,ivec1,ivec1,val_cmplx)
+          call ga_put(g_z,j1,j1,ivec1,ivec1,val_cmplx,1)
         enddo ! end-loop-j
        enddo ! end-loop-i
       else if (indrm.eq.2) then ! updating only IMAG part
@@ -5027,7 +5027,7 @@ c ++++++++++++++++++
           val_zim=dimag(dcpl_mb(k_z+j-1))
           val_cmplx=dcmplx(val_zre,val_zim+scl*dbl_mb(k_xreim+j-1))
           j1=ioff+j-1
-          call ga_put(g_z,j1,j1,ivec1,ivec1,val_cmplx)
+          call ga_put(g_z,j1,j1,ivec1,ivec1,val_cmplx,1)
         enddo ! end-loop-j
        enddo ! end-loop-i
       endif ! end-if-indrm
