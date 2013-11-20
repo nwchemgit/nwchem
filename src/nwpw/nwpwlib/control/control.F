@@ -874,7 +874,7 @@ c         return
          if (.not.rtdb_cget(rtdb,'band_dplot:wavefunction_filename',
      >                  1,input_wavefunction_filename))
      >     call util_file_prefix('movecs',input_wavefunction_filename)
-         call psi_get_header(i,ngrid,unita,ispin0,ne,nbrill)
+         call cpsi_get_header(i,ngrid,unita,ispin0,ne,nbrill)
          call dcopy(9,unita,1,unita_frozen,1)
          if (i.eq.5) boundry = 'periodic'
 
