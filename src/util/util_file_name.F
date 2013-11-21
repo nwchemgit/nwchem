@@ -778,6 +778,8 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       nattpt=0
+      avail0=0
+      avail1=0
 #ifdef NOFSCHECK
       avail0=10**8
       nuse=ga_nnodes()
@@ -813,10 +815,10 @@ c
         if(oprint.and.ga_nodeid().eq.0) write(luout,*) ' negative nuse'
         nattpt=nattpt+1
         if(nattpt.gt.3) then
-        if(oprint.and.ga_nodeid().eq.0) then
-          write(luout,*)'utilscravail: too many attempts',nattpt
-          write(luout,*)'utilscravail:  set nuse = ga_nnodes'
-        endif
+           if(oprint.and.ga_nodeid().eq.0) then
+              write(luout,*)'utilscravail: too many attempts',nattpt
+              write(luout,*)'utilscravail:  set nuse = ga_nnodes'
+           endif
 c
 c    something wrong with filesystem: go for upper bound, ie nuse=nproc
 c
