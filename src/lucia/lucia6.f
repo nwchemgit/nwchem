@@ -1196,7 +1196,8 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
       INCLUDE 'wrkspc.inc'
-      DIMENSION B(*),VEC1(*),VEC2(*)
+      DIMENSION B(*)
+      integer kvec1,kvec2
       INCLUDE 'glbbas.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'oper.inc'
