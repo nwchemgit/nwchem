@@ -445,8 +445,8 @@ c      INCLUDE 'mxpdim.inc'
         IF(NOCSF.EQ.0) THEN
          IF(ICNFBAT.EQ.1) THEN
 *. In core
-           CALL CSDTVCM(WORK(KKVEC1),
-     &          WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),1,0,ICSM,ICSPC,2)
+           CALL CSDTVCM(KKVEC1,
+     &          KCOMVEC1_SD,KCOMVEC2_SD,1,0,ICSM,ICSPC,2)
 *. Final vector in now in KCOMVEC1_SD and we need sigma in the SD basis, so
 *. use 
            KKVEC1 = KCOMVEC1_SD
@@ -454,8 +454,8 @@ c      INCLUDE 'mxpdim.inc'
          ELSE
 *. Not in core  write determinant expansion on scratch unit LUC_SD
           CALL FILEMAN_MINI(LUC_SD,'ASSIGN')
-          CALL REWINO(LUC_SD) 
-          CALL REWINO(LUCEFF)
+cnw       CALL REWINO(LUC_SD) 
+cnw       CALL REWINO(LUCEFF)
 C         CSDTVCMN(CSFVEC,DETVEC,SCR,IWAY,ICOPY,ISYM,ISPC,
 C    &             IMAXMIN_OR_GAS,ICNFBAT,LUC_DET,LU_CSF,NOCCLS_ACT,
 C    &             IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)
@@ -465,9 +465,9 @@ C?        WRITE(6,*) ' NCOCCLS == ', NCOCCLS
 C?        WRITE(6,*) ' KCLBT, WORK(KCLBT) = ', KCLBT
 C?        CALL IWRTMA(WORK(KCLBT),1,1,1,1)
 *
-          CALL CSDTVCMN(WORK(KKVEC1),WORK(KKVEC2),WORK(KVEC3),
+          CALL CSDTVCMN(KKVEC1,KKVEC2,KVEC3,
      &         1,0,ICSM,ICSPC,2,2,LUC_SD,LUCEFF,NCOCCLS,
-     &         WORK(KCIOCCLS_ACT),WORK(KCIBT),WORK(KCLBT))
+     &         dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
           LUC2 = LUC_SD
 C?        WRITE(6,*) ' After CSDTVCMN '
          END IF
@@ -1898,7 +1898,7 @@ C    &              KPCI1BT,KPCIBT,KPCBLTP,NBATCH,NBLOCK)
         CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
         CALL COPVCD(LUSC1,LUSC2,WORK(KVEC1),1,LBLK)
         XDUM = 0.0D0
-        CALL DENSI2(1,dbl_mb(KRHO1),WORK(KRHO2),
+        CALL DENSI2(1,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &        WORK(KVEC1),WORK(KVEC2),LUSC1,LUSC2,EXPS2,
      &        0,XDUM,XDUM,XDUM,XDUM,1)
 *. Obtain MO-MO transformation matrix 
@@ -9393,13 +9393,13 @@ C    &           IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)
 *. KCIBT have been constructed
         CALL CSDTVCMN(L,R,WORK(KVEC3),
      &       1,0,ICSM,ICSPC,2,2,LU_RDET,LUR,NCOCCLS_ACT,
-     &       WORK(KCIOCCLS_ACT),WORK(KCIBT),WORK(KCLBT))
+     &       dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
 *. 
         CALL REWINO(LUL)
         CALL REWINO(LU_LDET)
         CALL CSDTVCMN(L,R,WORK(KVEC3),
      &       1,0,ISSM,ISSPC,2,2,LU_LDET,LUL,NSOCCLS_ACT,
-     &       WORK(KSIOCCLS_ACT),WORK(KSIBT),WORK(KSLBT))
+     &       dbl_mb(KSIOCCLS_ACT),WORK(KSIBT),WORK(KSLBT))
        END IF ! Incore 
       END IF ! CSFs are in use
 
@@ -9702,7 +9702,7 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
      &       NBATCHL,WORK(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
      &       WORK(KSIBT),
      &       NBATCHR,WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
-     &       WORK(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
+     &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &       NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,
@@ -9734,7 +9734,7 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       NBATCHL,WORK(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
      &       WORK(KSIBT),
      &       NBATCHR,WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
-     &       WORK(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
+     &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &       NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,
@@ -9764,7 +9764,7 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       NBATCHL,WORK(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
      &       WORK(KSIBT),
      &       NBATCHR,WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
-     &       WORK(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
+     &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &       NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,NINOB,
