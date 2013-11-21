@@ -89,7 +89,7 @@ C           SQRTMT(A,NDIM,ITASK,ASQRT,AMSQRT,SCR)
 C          TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
       CALL TRAN_SYM_BLOC_MAT(H0,dbl_mb(KLMAT1),1,NDIM,dbl_mb(KLMAT2),
      &                       dbl_mb(KLMAT3))
-      CALL COPVEC(WORK(KLMAT2),H0,NDIM*(NDIM+1)/2)
+      CALL COPVEC(dbl_mb(KLMAT2),H0,NDIM*(NDIM+1)/2)
       CALL TRAN_SYM_BLOC_MAT(V ,dbl_mb(KLMAT1),1,NDIM,dbl_mb(KLMAT2),
      &                       dbl_mb(KLMAT3))
       CALL COPVEC(dbl_mb(KLMAT2),V ,NDIM*(NDIM+1)/2)
@@ -156,7 +156,7 @@ C       TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 *. Zero order state
       ZERO = 0.0D0
       CALL SETVEC(dbl_mb(KLC),ZERO,NDIM)
-      WORK(KLC) = ONE
+      dbl_mb(KLC) = ONE
 C          MATPERT(H0,V,NDIM,NORD,EN,C,VEC1,VEC2,VEC3)
       CALL MATPERT(dbl_mb(KLMAT5),dbl_mb(KLMAT6),NDIM,MAXORD,
      &             dbl_mb(KLEN),dbl_mb(KLC),dbl_mb(KLVEC1),
@@ -331,7 +331,6 @@ C?      CALL WRTMAT(C(1,IORD+1),1,NDIM,1,NDIM)
 *
       RETURN
       END
-*
       SUBROUTINE SXSTRS(ISTROF,NIST,KSTROF,
      &                   NI,IOFF,NJ,JOFF,
      &                   IAMAPO,IAMAPS,LAMAP,IAMPFL,
@@ -812,8 +811,8 @@ C     COMMON/OPER/I12,IPERTOP
 ** Info on block structure of internal state
 *
       IF(IDC.EQ.3.OR.IDC.EQ.4)
-     &CALL SIGVST(WORK(KLSVST),NSMST)
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,WORK(KLBLTP),WORK(KLSVST))
+     &CALL SIGVST(int_mb(KLSVST),NSMST)
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,int_mb(KLBLTP),int_mb(KLSVST))
       STOP ' Update call to IAIBCM_GAS'
       CALL IAIBCM_GAS(MNRS1C,MXRS3C,NOCTPA,NOCTPB,
      &     WORK(KEL1(IAGP)),WORK(KEL3(IAGP)),
@@ -1548,7 +1547,6 @@ CNW   DIMENSION FIFA(*)
 *
       RETURN
       END
-*
       SUBROUTINE FIFAMS(FIFA,RHO1,IOBSM,NSMOb,lOBSM,NACOB,
      &            NORBt,ISTOb)
 *
@@ -1715,7 +1713,6 @@ CNW   DIMENSION FIMAT(*)
 *
       RETURN
       END
-*
       SUBROUTINE FIHA(FI,ECC,IOBSM,NSMOB,ITPFSO,IPHGAS,LOBSM,NORBT,
      &               ISTOB,IDOH2)
 *
@@ -2680,13 +2677,10 @@ C?     WRITE(6,*) ' APROJ(2),APROJ(3)',APROJ(2),APROJ(3)
 * ( End of loop over iterations )
  1001 CONTINUE
       ITER = ITERP 
-*
-C?    WRITE(6,*) ' ITER, ITERP, MAXIT=', ITER,ITERP,MAXIT
       DO IROOT = 1, NROOT
        RNRM_CNV(IROOT) = RNRM(ITER,IROOT)
        FINEIG(IROOT) = EIG(ITER,IROOT) + EIGSHF
       END DO
-*
       IF( .NOT. CONVER ) THEN
 *        CONVERGENCE WAS NOT OBTAINED
          IF(IPRT .GE. 2 )
@@ -2698,7 +2692,6 @@ C?    WRITE(6,*) ' ITER, ITERP, MAXIT=', ITER,ITERP,MAXIT
      &   WRITE(6,1180) ITER
  1180    FORMAT(1H0,' Convergence was obtained in ',I3,' iterations')
         END IF
-*
       IF ( IPRT .GT. 1 ) THEN
         CALL REWINO(LU1)
         DO 1600 IROOT = 1, NROOT
@@ -2726,7 +2719,6 @@ C?    WRITE(6,*) ' ITER, ITERP, MAXIT=', ITER,ITERP,MAXIT
  1340     FORMAT(1H ,6X,I4,8X,F20.13,2X,E12.5)
  1600   CONTINUE
       END IF
-*
       IF(IPRT .EQ. 1 ) THEN
         DO 1607 IROOT = 1, NROOT
           WRITE(6,'(A,2I3,E13.6,2E10.3)')
@@ -2744,6 +2736,7 @@ C     CALL COPVCD(LU3,LU4,VEC1,1,LBLK)
  1030 FORMAT(1H0,2X,7F15.8,/,(1H ,2X,7F15.8))
  1120 FORMAT(1H0,2X,I3,7F15.8,/,(1H ,5X,7F15.8))
       END
+	  
       SUBROUTINE VC3SMD(VEC1,VEC2,FAC1,FAC2,FAC3,
      &                  LU1,LU2,LU3,LU4,IREW,LBLK)
 *
@@ -2766,7 +2759,6 @@ C     CALL COPVCD(LU3,LU4,VEC1,1,LBLK)
 * LOOP OVER BLOCKS OF VECTOR
 *
  1000 CONTINUE
-*
         IF( LBLK .GT. 0 ) THEN
           NBL1 = LBLK
           NBL2 = LBLK
@@ -2782,12 +2774,13 @@ C     CALL COPVCD(LU3,LU4,VEC1,1,LBLK)
           CALL IFRMDS( NBL3,1,-1,LU3)
           CALL ITODS ( NBL1,1,-1,LU4)
         END IF
+		
         IF( NBL1 .NE. NBL2.OR.NBL2.NE.NBL3 ) THEN
-        WRITE(6,'(A,3I5)') 'DIFFERENT BLOCKSIZES IN VC3SMD ',
-     &  NBL1,NBL2,NBL3
-        STOP ' INCOMPATIBLE BLOCKSIZES IN VC3SMD '
-      END IF
-C
+         WRITE(6,'(A,3I5)') 'DIFFERENT BLOCKSIZES IN VC3SMD ',
+     &   NBL1,NBL2,NBL3
+         STOP ' INCOMPATIBLE BLOCKSIZES IN VC3SMD '
+        END IF
+
       IF(NBL1 .GE. 0 ) THEN
           IF(LBLK .GE.0 ) THEN
             KBLK = NBL1
@@ -2804,11 +2797,10 @@ C
      &  CALL VECSUM(VEC1,VEC1,VEC2,ONE,FAC3,NBL1)
         CALL TODSC(VEC1,NBL1,KBLK,LU4)
       END IF
-C
       IF(NBL1.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
-C
       RETURN
       END
+	  
       SUBROUTINE MICGCG(MV8,LU1,LU2,LU3,LU4,LU5,LUDIA,VEC1,VEC2,
      &                  MAXIT,CONVER,TEST,W,ERROR,NVAR,
      &                  LUPROJ,LUPROJ2,VFINAL,IPRT)
@@ -3023,7 +3015,6 @@ C?           WRITE(6,*) ' Updated overlap of trial vector ', OVLAP2
       ELSE
         VFINAL = ERROR(MAXIT+1)
       END IF
-*
       IF(NTEST .GT. 0 ) THEN
 *
       IF(CONVER) THEN
@@ -3037,7 +3028,6 @@ C?           WRITE(6,*) ' Updated overlap of trial vector ', OVLAP2
       END IF
 *
       END IF
-*
       IF(NTEST.GE. 50 ) THEN
        WRITE(6,1025)
  1025  FORMAT(1H0,' solution to set of linear equations')
@@ -3046,7 +3036,6 @@ C?     write(6,*) ' Matrix times solutiom through another cal to MV 8'
 C?     CALL MV8(VEC1,VEC2,0,0)
 C?     call wrtmat(vec2,1,nvar,1,nvar)
       END IF
-C
       IF(NTEST.GT.0) THEN
       WRITE(6,1040)
  1040 FORMAT(1H0,10X,'iteration point     norm of residual')
@@ -3056,10 +3045,10 @@ C
  1050  FORMAT(1H ,12X,I5,13X,E15.8)
   350 CONTINUE
       END IF
-*
       CALL QEXIT('MICGC')
       RETURN
       END 
+	  
       SUBROUTINE PROP_PERT(LU0,LUN,N,ISM,ISPC)
 *
 * Perturbation expansion of one-electron properties       
@@ -4397,69 +4386,7 @@ C
  1030 FORMAT(1H0,2X,7F15.8,/,(1H ,2X,7F15.8))
  1120 FORMAT(1H0,2X,I3,7F15.8,/,(1H ,5X,7F15.8))
       END
-      SUBROUTINE H0TVMP(VEC1,VEC2,LLUC,LLUHC)
-*
-* Outer routine for zero order operator + shift times vector
-* 
-*. Input  vector : on LLUC
-*. Output fector : on LLUHC
-*
-* Jeppe Olsen, February 1996
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'clunit.inc'
-      DIMENSION VEC1(*),VEC2(*)
-C
-*. Transfer of zero order energy
-      COMMON/CENOT/E0
-*. Transfer of shift 
-      INCLUDE 'cshift.inc'
-*. Default block parameter
-      LBLK = -1 
-*.  Zero order vector is assumed on LUSC51
-      IF(IPROJ.EQ.0) THEN
-       LU0 = 0
-      ELSE IF (IPROJ.EQ.1) THEN
-       LU0 = LUSC51
-      ELSE
-       WRITE(6,*)  ' H0TVM, Unknown IPROJ = ', IPROJ
-       STOP ' H0TVM, Unknown IPROJ  '
-      END IF
-      LUSCR1 = LUSC40
-*
-      NTEST = 0
-      IF(NTEST.GE.1) THEN
-        WRITE(6,*)
-        WRITE(6,*) '============== '
-        WRITE(6,*) ' H0TVM entered '
-        WRITE(6,*) '============== '
-        WRITE(6,*)
-        WRITE(6,*) ' LLUC LLUHC LU0 and LUSCR1 ',
-     &               LLUC,LLUHC,LU0,LUSCR1
-        WRITE(6,*) ' E0 , Shift : ', E0 , SHIFT 
-      END IF
-*. A scratch file not used by linear solver in SIMPRT : LUSCR1
-      IF(SHIFT.EQ.0.0D0) THEN
-        CALL H0TVF(VEC1,VEC2,LLUC,LLUHC,LU0,LUSCR1,E0,LBLK) 
-      ELSE
-*. H0TV on LUSCR1
-        CALL H0TVF(VEC1,VEC2,LLUC,LUSCR1,LU0,LLUHC,E0,LBLK) 
-*. Add shift and save on LLUHC
-        ONE = 1.0D0
-        CALL VECSMD(VEC1,VEC2,ONE,SHIFT,LUSCR1,LLUC,LLUHC,1,LBLK)
-      END IF
-*
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Input and output vectors from H0TVM '
-        CALL WRTVCD(VEC1,LLUC,1,LBLK)
-        WRITE(6,*)
-        CALL WRTVCD(VEC1,LLUHC,1,LBLK)
-      END IF
-*
-      RETURN
-      END 
+	  
       SUBROUTINE H0TVF(VEC1,VEC2,LUC,LUHC,LU0,LUSCR1,E0,LBLK)
 *
 * Multiply vector in LUC with H0 where H0 is defined as 
@@ -4540,6 +4467,7 @@ CSEPT29 CALL COPVCD(LUSCR1,LUHC,VEC1,1,LBLK)
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'clunit.inc'
       INCLUDE 'crun.inc'
@@ -4927,6 +4855,9 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
 *           =3: Explicitly declared inactive + active
 *               hole-orbitals
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -4955,22 +4886,22 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 *. And a scratch matrix 
       CALL MEMMAN(KLSCR,LENM,'ADDL  ',2,'SCRM  ')
 *. Obtain density matrix in initial basis
-      CALL GET_D_INI_FROM_C(WORK(KLDINI),C,IHOLETP)
+      CALL GET_D_INI_FROM_C(dbl_mb(KLDINI),C,IHOLETP)
 *. Contract with two-electron integrals
       FACC = 1.0D0
       FACE = 0.5D0
 C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
       CALL MEMCHK2('BE_TWO')
-      CALL TWOINT_D_TERM_F(F2,WORK(KLDINI),FACC,FACE)
+      CALL TWOINT_D_TERM_F(F2,dbl_mb(KLDINI),FACC,FACE)
       CALL MEMCHK2('AF_TWO')
 *. Transform from initial to current basis
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
       CALL TRAN_SYM_BLOC_MAT4(F2,C,C,NSMOB,NTOOBS,NTOOBS,
-     &     WORK(KLSCR),WORK(KLDINI),0)
+     &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
       CALL MEMCHK2('AF_TRA')
-      CALL COPVEC(WORK(KLSCR),F2,LEN_F)
+      CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from GET_2E_TERMS '
@@ -5094,6 +5025,9 @@ C?             WRITE(6,*) 'ISM, J,KORB,CJK = ', ISM,J,KORB,CJK
 *  (Growing up in public?- Heading towards efficient treatment of 
 *                inactive orbitals)
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -5140,17 +5074,17 @@ C     GET_2E_TERMS_TO_FI(F2,C_MOINI,IHOLETP)
       CALL GET_2E_TERMS_TO_FI(FI,CINI,IHOLETP)
 *. Pack to lower half form
 C     TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
-      CALL TRIPAK_BLKM(FI,WORK(KLBLF),1,NTOOBS,NSMOB)
+      CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB)
 *. Contribution to inactive energy from two-electron interaction
 C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
-       CALL GET_INA_TERM_TO_1EEXP(WORK(KLBLF),E_2E,IHOLETP,1)
+       CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,1)
        E_2E = 0.5D0*E_2E
 *. Contribution to inactive energy from one-electron interaction
        CALL GET_INA_TERM_TO_1EEXP(H,E_1E,IHOLETP,1)
        EINAC = E_2E + E_1E
 *. And add to one-electron Hamiltonian
        ONE = 1.0D0
-       CALL VECSUM(FI,H,WORK(KLBLF),ONE,ONE,LEN_FP)
+       CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_FP)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT: '
@@ -5177,6 +5111,9 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
 *. Jeppe Olsen, October 2010
 *
 *. General input
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
@@ -5273,14 +5210,14 @@ C    &                  IJSM,ISM2,IPNTR,MXPOBS)
           FACC = 0.0D0
           FACE = 1.0D0
         END IF
-        CALL GETINT(WORK(KL2EBLK),-1,IALSM,-1,IBESM,-1,IGASM,-1,IDESM,
+        CALL GETINT(dbl_mb(KL2EBLK),-1,IALSM,-1,IBESM,-1,IGASM,-1,IDESM,
      &              IXCHNG,IKSM,JLSM,ICOUL,FACC,FACE)
         IF(NTEST.GE.1000.AND.IALSM.EQ.1.AND.IBESM.EQ.1.AND.
      &    IGASM.EQ.1.AND.IDESM.EQ.1) THEN
           WRITE(6,*) ' IALSM, IBESM, IGASM, IDESM = ',
      &                 IALSM, IBESM, IGASM, IDESM 
           WRITE(6,*) ' Integrals from GETINT as (AL BE, GA DE)'
-          CALL WRTMAT(WORK(KL2EBLK),NALOB*NBEOB,NGAOB*NDEOBL,
+          CALL WRTMAT(dbl_mb(KL2EBLK),NALOB*NBEOB,NGAOB*NDEOBL,
      &                              NALOB*NBEOB,NGAOB*NDEOBL )
         END IF
 C       GETINT_ORIG(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
@@ -5289,7 +5226,7 @@ C    &                  IXCHNG,IKSM,JLSM,ICOUL)
         FACC = 1.0D0
         FACAB = 1.0D0
 C?      WRITE(6,*) ' IFOFF, IDOFF,KL2EBLK = ', IFOFF, IDOFF,KL2EBLK
-        CALL MATML7(F2(IFOFF),WORK(KL2EBLK),DINI(IDOFF),
+        CALL MATML7(F2(IFOFF),dbl_mb(KL2EBLK),DINI(IDOFF),
      &              NALOB*NBEOB,1,NALOB*NBEOB,NGAOB*NDEOBL,
      &              NGAOB*NDEOBL,1,FACC,FACAB,0)
 C     MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,
@@ -5398,6 +5335,9 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 *  (Growing up in public?- Heading towards efficient treatment of 
 *                inactive orbitals)
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -5446,43 +5386,44 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 C     EXTR_SYMBLK_ACTMAT(AIN,AOUT,IJSM)
 CERR  CALL EXTR_SYMBLK_ACTMAT(D,WORK(KLDBLK),1)
 C          REORHO1(RHO1I,RHO1O,IRHO1SM,IWAY)
-      CALL REORHO1(D,WORK(KLDBLK),1,1)
+      CALL REORHO1(D,dbl_mb(KLDBLK),1,1)
 *
 *. Obtain density matrix contravariantly transformed to initial basis
 *.  DINI = C_act D CB_act(T)
 *
 *. Extract active MO's from C and CB and save in KLSCR
 *. (NACOBS is overwritten- but unchanged)
-      CALL CSUB_FROM_C(CINIB,WORK(KLSCR),NACOBS,NOBPTS_L,1,NGAS,0)
-      CALL TRP_BLK_MAT(WORK(KLSCR),WORK(KLCBT),NSMOB,NTOOBS,NACOBS)
-      CALL CSUB_FROM_C(CINI,WORK(KLSCR),NACOBS,NOBPTS_L,1,NGAS,0)
-      CALL TRP_BLK_MAT(WORK(KLSCR),WORK(KLCT),NSMOB,NTOOBS,NACOBS)
+      CALL CSUB_FROM_C(CINIB,dbl_mb(KLSCR),NACOBS,NOBPTS_L,1,NGAS,0)
+      CALL TRP_BLK_MAT(dbl_mb(KLSCR),dbl_mb(KLCBT),NSMOB,NTOOBS,NACOBS)
+      CALL CSUB_FROM_C(CINI,dbl_mb(KLSCR),NACOBS,NOBPTS_L,1,NGAS,0)
+      CALL TRP_BLK_MAT(dbl_mb(KLSCR),dbl_mb(KLCT),NSMOB,NTOOBS,NACOBS)
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
-      CALL TRAN_SYM_BLOC_MAT4(WORK(KLDBLK),WORK(KLCT),WORK(KLCBT),NSMOB,
-     &     NACOBS,NTOOBS,WORK(KLDINI),WORK(KLSCR),0)
+      CALL TRAN_SYM_BLOC_MAT4(dbl_mb(KLDBLK),dbl_mb(KLCT),dbl_mb(KLCBT),
+     &							  NSMOB,
+     &     NACOBS,NTOOBS,dbl_mb(KLDINI),dbl_mb(KLSCR),0)
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) ' Density matrix over active orbitals, initial basis'
-       CALL APRBLM2(WORK(KLDINI),NTOOBS,NTOOBS,NSMOB,0)
+       CALL APRBLM2(dbl_mb(KLDINI),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 *. Two-electron terms to the active Fock-matrix
       FACC = 1.0D0
       FACE = 0.5D0
-      CALL TWOINT_D_TERM_F(FA,WORK(KLDINI),FACC,FACE)
+      CALL TWOINT_D_TERM_F(FA,dbl_mb(KLDINI),FACC,FACE)
 *. Transform to current basis- and save result in KLCT
       CALL TRAN_SYM_BLOC_MAT4(FA,CINI,CINIB,NSMOB,NTOOBS,NTOOBS,
-     &                        WORK(KLCT),WORK(KLSCR),0)
+     &                        dbl_mb(KLCT),dbl_mb(KLSCR),0)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' FA in initial basis'
-        CALL APRBLM2(WORK(KLCT),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KLCT),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *. Pack to lower half form
       IF(IPACK.NE.0) THEN
-        CALL TRIPAK_BLKM(WORK(KLCT),FA,1,NTOOBS,NSMOB)
+        CALL TRIPAK_BLKM(dbl_mb(KLCT),FA,1,NTOOBS,NSMOB)
 C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
       ELSE
-        CALL COPVEC(WORK(KLCT),FA,LEN_F)
+        CALL COPVEC(dbl_mb(KLCT),FA,LEN_F)
       END IF
 *
        IF(NTEST.GE.100) THEN
@@ -5493,6 +5434,7 @@ C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'FAFRIN')
       RETURN
       END
+	  
       SUBROUTINE FI_FROM_INIINT_G(FI,CINI,CINIB,H,EINAC,IHOLETP,IPACK)
 *
 * A MOAO transformation CINI and its biorthogonal tranformation CINIB
@@ -5519,7 +5461,9 @@ C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 *
 *. Jeppe Olsen, July 2011
 
-*
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -5557,14 +5501,14 @@ C     GET_2E_TERMS_TO_FI_G(F2,C_MOINI,C_MOINIB,IHOLETP)
       CALL GET_2E_TERMS_TO_FI_G(FI,CINI,CINIB,IHOLETP)
 *. Pack to lower half form is required
       IF(IPACK.EQ.1) THEN
-        CALL TRIPAK_BLKM(FI,WORK(KLBLF),1,NTOOBS,NSMOB)
+        CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB)
 C            TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
       ELSE
-        CALL COPVEC(FI,WORK(KLBLF),LEN_F)
+        CALL COPVEC(FI,dbl_mb(KLBLF),LEN_F)
        END IF
 *. Contribution to inactive energy from two-electron interaction
 C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
-       CALL GET_INA_TERM_TO_1EEXP(WORK(KLBLF),E_2E,IHOLETP,IPACK)
+       CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,IPACK)
        E_2E = 0.5D0*E_2E
 *. Contribution to inactive energy from one-electron interaction
        CALL GET_INA_TERM_TO_1EEXP(H,E_1E,IHOLETP,IPACK)
@@ -5576,7 +5520,7 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
        ELSE
          LEN_MAT = LEN_FP
        END IF
-       CALL VECSUM(FI,H,WORK(KLBLF),ONE,ONE,LEN_MAT)
+       CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT_G: '
@@ -5591,6 +5535,8 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'FIFRIN')
       RETURN
       END
+	  
+	  
       SUBROUTINE GET_2E_TERMS_TO_FI_G(F2,C,CB,IHOLETP)
 *
 *. Obtain standard or bioorthogonal
@@ -5610,7 +5556,9 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
 *              which are not inactive orbitals
 *           =3: Explicitly declared inactive + active
 *               hole-orbitals
-*
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -5639,22 +5587,22 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 *. And a scratch matrix 
       CALL MEMMAN(KLSCR,LENM,'ADDL  ',2,'SCRM  ')
 *. Obtain density matrix in initial basis
-      CALL GET_D_INI_FROM_C_G(WORK(KLDINI),C,CB,IHOLETP)
+      CALL GET_D_INI_FROM_C_G(dbl_mb(KLDINI),C,CB,IHOLETP)
 *. Contract with two-electron integrals
       FACC = 1.0D0
       FACE = 0.5D0
 C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
       CALL MEMCHK2('BE_TWO')
-      CALL TWOINT_D_TERM_F(F2,WORK(KLDINI),FACC,FACE)
+      CALL TWOINT_D_TERM_F(F2,dbl_mb(KLDINI),FACC,FACE)
       CALL MEMCHK2('AF_TWO')
 *. Transform from initial to current basis
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
       CALL TRAN_SYM_BLOC_MAT4(F2,C,CB,NSMOB,NTOOBS,NTOOBS,
-     &     WORK(KLSCR),WORK(KLDINI),0)
+     &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
       CALL MEMCHK2('AF_TRA')
-      CALL COPVEC(WORK(KLSCR),F2,LEN_F)
+      CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) 
@@ -5838,7 +5786,9 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 * IORT is given in symmetry-type order
 *
 *. Jeppe Olsen, June 2012
-*
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -5867,7 +5817,7 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       LEN = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
 C                     (IHSM,NRPSM,NCPSM,NSM,IPACK)
       CALL MEMMAN(KLSAOE,LEN,'ADDL  ',2,'SAOE  ')
-      CALL TRIPAK_BLKM(WORK(KLSAOE),WORK(KSAO),2,NTOOBS,NSMOB)
+      CALL TRIPAK_BLKM(dbl_mb(KLSAOE),WORK(KSAO),2,NTOOBS,NSMOB)
 C          TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 *
 *. Scratch vector for MO of given sym
@@ -5886,7 +5836,7 @@ C          TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
        N = NTOOBS(ISYM)
 C      ORTH_TO_SELECT_VECTOR(X,IORTVC,S,NDIM,SCR1)
        CALL ORTH_TO_SELECT_VECTOR(CMOAO(IOFF),IREL,
-     &      WORK(KLSAOE+IOFF-1),N,WORK(KLMO))
+     &      dbl_mb(KLSAOE+IOFF-1),N,dbl_mb(KLMO))
       END DO
 *
       IF(NTEST.GE.100) THEN
@@ -5903,7 +5853,9 @@ C      ORTH_TO_SELECT_VECTOR(X,IORTVC,S,NDIM,SCR1)
 * Orthogonalize orbitals to the frozen orbitals
 *
 *. Jeppe Olsen, June 2012
-*
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -5927,16 +5879,16 @@ C      ORTH_TO_SELECT_VECTOR(X,IORTVC,S,NDIM,SCR1)
       DO IFRZ_T = 1, NFRZ_ORB
         IFRZ_S = IREOTS(IFRZ_ORB(IFRZ_T))
 C            ICOPVE3(IIN,IOFFIN,IOUT,IOFFOUT,NDIM)
-        CALL ICOPVE3(IFRZ_S,1,WORK(KLFRZS),IFRZ_T,1)
+        CALL ICOPVE3(IFRZ_S,1,int_mb(KLFRZS),IFRZ_T,1)
       END DO
 *
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Frozen orbitals in symmetry numbering '
-        CALL IWRTMA(WORK(KLFRZS),1,NFRZ_ORB,1,NFRZ_ORB)
+        CALL IWRTMA(int_mb(KLFRZS),1,NFRZ_ORB,1,NFRZ_ORB)
       END IF
 *. And orthonormalize
 C     ORT_MOS_TO_SELECTED_MOS(CMOAO,NORT,IORT)
-      CALL ORT_MOS_TO_SELECTED_MOS(CMOAO,NFRZ_ORB,WORK(KLFRZS))
+      CALL ORT_MOS_TO_SELECTED_MOS(CMOAO,NFRZ_ORB,int_mb(KLFRZS))
 *
       IF(NTEST.GE.100) THEN 
         WRITE(6,*) ' Orbitals orthogonalized to frozen '
