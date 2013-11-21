@@ -138,12 +138,13 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       ICSPC = IPSPC
       ICSM = IREFSM
       ILTEST = 3006
-      CALL ICOPVE(WORK(KLOCCLS_P),WORK(KCIOCCLS_ACT),NGAS*NOCCLS_P)
+      CALL ICOPVE(WORK(KLOCCLS_P),dbl_mb(KCIOCCLS_ACT),NGAS*NOCCLS_P)
       CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
-     &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
+     &     dbl_mb(KCIOCCLS_ACT),
      &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &     WORK(KCIBT),
+     &     int_mb(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
       NBLOCK_P = NCBLOCK
       NBATCH_P = NCBATCH
@@ -158,7 +159,8 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       ILTEST = 3006
       CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &     IPRNT,NSBLOCK,NSBATCH,
-     &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,WORK(KSIOCCLS_ACT),
+     &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
+     &     dbl_mb(KSIOCCLS_ACT),
      &     WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &     WORK(KSIBT),
      &     WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
@@ -224,12 +226,12 @@ C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
         SHIFT = ECORE
         IUSE_EXP = 1
         CALL GASDIAT(WORK(KVEC2),LUDIA,SHIFT,ICISTR,I12,
-     &               int_mb(KCBLTP),NCBLOCK,WORK(KCIBT),IUSE_EXP)
+     &               int_mb(KCBLTP),NCBLOCK,int_mb(KCIBT),IUSE_EXP)
         CALL FILEMAN_MINI(LUSC,'ASSIGN')
         CALL CSDIAG(WORK(KVEC1P),WORK(KVEC1P),
      &       NCONF_PER_OPEN(1,IREFSM),MAXOP,IREFSM,
      &       WORK(KSDREO_I(IREFSM)),NPCMCNF,NPCSCNF,IPRCSF,
-     &       ICNFBAT,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &       ICNFBAT,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
      &       WORK(KCLBT),LUDIA,LUSC)
         CALL COPVCD(LUSC,LUDIA,WORK(KVEC2P),1,-1)
         CALL FILEMAN_MINI(LUSC,'FREE  ')
@@ -245,7 +247,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 *
         CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,IREFSM),
      &        WORK(KICONF_OCC(IREFSM)),WORK(KVEC1P),ECORE,
-     &        LUDIA,NCOCCLS_ACT,WORK(KCIOCCLS_ACT),IREFSM)
+     &        LUDIA,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),IREFSM)
 C      GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,
 C     &           ECORE,LUDIA,NOCCLS_SPC,IOCCLS_SPC,ISYM)
 
@@ -311,7 +313,7 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,WORK(KVEC3),THRES_E,
      & NBATCH,
-     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),WORK(KCIBT),
+     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),int_mb(KCIBT),
      & WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),WORK(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
@@ -331,7 +333,7 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,WORK(KVEC3),THRES_E,
      & NBATCH,
-     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),WORK(KCIBT),
+     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),int_mb(KCIBT),
      & WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),WORK(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
@@ -474,6 +476,9 @@ C?    END IF
 *
 *. Jeppe Olsen, Geneva, Febr. 2012 (20 hours before take-off)
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -530,7 +535,7 @@ C?    END IF
       CALL MEMMAN(KLLOCCLS_SM,NOCCLS_MAX,'ADDL  ',1,'OC_LSM')
       IF(NTEST.GE.1000) WRITE(6,*) ' ISSM, NIRREP = ', ISSM, NIRREP
 C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
-      CALL EXTRROW(WORK(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
+      CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
      &             WORK(KLLOCCLS_SM))
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Number of CSF of right sym per occls'
@@ -635,6 +640,9 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
 * Incore requires: ICISTR = 1 + ICNFBAT = 1
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -701,7 +709,7 @@ C?    STOP ' Jeppe forced me to stop.... '
         IF(NTEST.GE.1000)
      &  WRITE(6,*) ' NCBLK, NSBLK, NXBLOCK = ', NCBLK, NSBLK, NXBLOCK
         CALL GASDIAT(VECSCR,LUSC,SHIFT,ICISTR,I12,
-     &               int_mb(KXBLTP),NXBLOCK,WORK(KXIBT),IUSE_EXP)
+     &               int_mb(KXBLTP),NXBLOCK,int_mb(KXIBT),IUSE_EXP)
 *
 * Average diagonal in each configuration
 *
@@ -722,7 +730,7 @@ C?    STOP ' Jeppe forced me to stop.... '
         CALL CSDIAG(VECUT,VECSCR,
      &       NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
      &       WORK(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
-     &       ICNFBAT,NXIOCCLS_ACT,WORK(KXIOCCLS_ACT),
+     &       ICNFBAT,NXIOCCLS_ACT,dbl_mb(KXIOCCLS_ACT),
      &       WORK(KXLBT),LUSC,LUDIA_A)
         IF(ICISTR.NE.1) CALL FILEMAN_MINI(LUSC,'FREE  ')
       ELSE
@@ -742,7 +750,7 @@ C?    STOP ' Jeppe forced me to stop.... '
 C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
         CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,ISM),
      &        WORK(KICONF_OCC(ISM)),VECUT,ECORE,
-     &        LUDIA_A,NXIOCCLS_ACT,WORK(KXIOCCLS_ACT),ISM)
+     &        LUDIA_A,NXIOCCLS_ACT,dbl_mb(KXIOCCLS_ACT),ISM)
       END IF! IH0_CSF switch
       CALL QEXIT('CSDIAM')
 *
@@ -757,6 +765,9 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 *
 * Jeppe Olsen, Aug. 23, 2012, in Minneapolis
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -816,7 +827,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
       CALL MEMMAN(KLLOCCLS_SM,NOCCLS_MAX,'ADDL  ',1,'OC_LSM')
       IF(NTEST.GE.1000) WRITE(6,*) ' ISSM, NIRREP = ', ISSM, NIRREP
 C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
-      CALL EXTRROW(WORK(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
+      CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
      &             WORK(KLLOCCLS_SM))
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Number of CSF of right sym per occls'
@@ -961,19 +972,20 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
       
       CALL Z_BLKFO_FOR_CISPACE(IQSPC,ICSM,LBLOCK,ICOMP,
      &     NTEST,NQBLOCK,NQBATCH,
-     &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,WORK(KCIOCCLS_ACT),
+     &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,
+     &     dbl_mb(KCIOCCLS_ACT),
      &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &     WORK(KCIBT),
+     &     int_mb(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),0,ILTEST)
 
       CALL CSDTVCMN(CB,HCB,WORK(KVEC3),
      &     1,0,ICSM,IQSPC,2,2,LUQ1,LUQ,NQOCCLS_ACT,
-     &     WORK(KCIOCCLS_ACT),WORK(KCIBT),WORK(KCLBT))
+     &     dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
 *
 * 3: Generate diagonal contribitions to the density
 *
       CALL DIAG_DET_TO_DENSI(CB,LUQ1,int_mb(KCBLTP),
-     &     NQBLOCK,WORK(KCIBT),RHO1_QQ, RHO2_QQ,I12)
+     &     NQBLOCK,int_mb(KCIBT),RHO1_QQ, RHO2_QQ,I12)
 C     DIAG_DET_TO_DENSI(CB,LUC,IBLTP,NBLOCK,IBLKFO,
 C    &                             RHO1D,RHO2D,I12)
 *
@@ -3518,7 +3530,7 @@ C Block for storing complete or partial CI-vector
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTESTL,NSBLOCK,NSBATCH,
      &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
-     &       WORK(KSIOCCLS_ACT),
+     &       dbl_mb(KSIOCCLS_ACT),
      &       WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &       WORK(KSIBT),
      &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
@@ -3528,9 +3540,9 @@ C Block for storing complete or partial CI-vector
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTESTL,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &       WORK(KCIOCCLS_ACT),
+     &       dbl_mb(KCIOCCLS_ACT),
      &       WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
-     &       WORK(KCIBT),
+     &       int_mb(KCIBT),
      &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
         NCOCCLS = NCOCCLS_ACT
       END IF
@@ -3589,13 +3601,13 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
 *. Not in core- write determinant expansion on LU_CDET
        CALL CSDTVCMN(CB,HCB,WORK(KVEC3),
      &      1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
-     &      WORK(KCIOCCLS_ACT),WORK(KCIBT),WORK(KCLBT))
+     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
       END IF
 * 2: HPP CP (in and out in SD/CM), save on LU_SDET
       ICSPC = IPSPC
       ISSPC = IQSPC
       CALL RASSG3(CB,HCB,NCBATCH,WORK(KCLBT),WORK(KCLEBT),
-     &     WORK(KCI1BT),WORK(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
+     &     WORK(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
      &     ITASK)
 *
 * and next the Q-contributions
@@ -3606,11 +3618,11 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
       IBSBLOCK_BAT = 1
       DO IQBAT = 1, NSBATCH
 C                  IFRMR(WORK,IROFF,IELMNT)
-        IQ_OCCLS = IFRMR(WORK,KSIOCCLS_ACT,IQBAT)
+        IQ_OCCLS = dbl_mb(KSIOCCLS_ACT + IQBAT - 1)
         NSBLOCK_BAT = IFRMR(WORK,KSLBT,IQ_OCCLS)
 *. Is this occupation in P-space
 C IS_IVEC_IN_LIST(IVEC,NELMNT,LIST,LLIST)
-        IQINP = IS_IVEC_IN_LIST(IQ_OCCLS,1,WORK(KCIOCCLS_ACT),
+        IQINP = IS_IVEC_IN_LIST(IQ_OCCLS,1,dbl_mb(KCIOCCLS_ACT),
      &          NCOCCLS_ACT)
         IF(NTEST.GE.200) THEN
            WRITE(6,*)
@@ -3664,7 +3676,8 @@ C                ICOPVE2(IIN,IOFF,NDIM,IOUT)
             CALL ICOPVE2(WORK(KSIBT),(IBSBLOCK_BAT-1)*8+1,
      &           8*NSBLOCK_BAT,WORK(KEIBT))
             CALL ICOPVE2(WORK(KSLBT),IQBAT,1,WORK(KELBT))
-            CALL ICOPVE2(WORK(KSIOCCLS_ACT),IQBAT,1,WORK(KEIOCCLS_ACT))
+            CALL ICOPVE2(dbl_mb(KSIOCCLS_ACT),IQBAT,1,
+     &                   int_mb(KEIOCCLS_ACT))
             ICISTR_SAVE = ICISTR
             ICNFBAT_SAVE = ICNFBAT
             ICISTR = 1
@@ -3821,7 +3834,7 @@ C              FRMDSCN(VEC,NREC,LBLK,LU)
 *. Not in core- write determinant expansion on LU_CDET
        CALL CSDTVCMN(HCB,CB,WORK(KVEC3),
      &      2,0,ICSM,ICSPC,2,2,LU_SDET,LUHC,NCOCCLS_ACT,
-     &      WORK(KCIOCCLS_ACT),WORK(KCIBT),WORK(KCLBT))
+     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
       END IF
       IF(NTEST.GE.1000) WRITE(6,*) ' Home from CSDTVCMN '
 *
