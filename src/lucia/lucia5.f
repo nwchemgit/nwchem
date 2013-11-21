@@ -465,9 +465,9 @@ C?        WRITE(6,*) ' NCOCCLS == ', NCOCCLS
 C?        WRITE(6,*) ' KCLBT, WORK(KCLBT) = ', KCLBT
 C?        CALL IWRTMA(WORK(KCLBT),1,1,1,1)
 *
-          CALL CSDTVCMN(KKVEC1,KKVEC2,KVEC3,
+          CALL CSDTVCMN(KKVEC1,KKVEC2,dbl_mb(KVEC3),
      &         1,0,ICSM,ICSPC,2,2,LUC_SD,LUCEFF,NCOCCLS,
-     &         dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
+     &         dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
           LUC2 = LUC_SD
 C?        WRITE(6,*) ' After CSDTVCMN '
          END IF
@@ -9368,18 +9368,22 @@ C?   &                      LU_LDET, LU_RDET
 *. Obtain L and R in SD/Combination basis in vector KCOMVEC1_SD, KCOMVEC2_SD
 *. A scratch file is used to allow calc to be done with two complete vectors
 *L(SD)
-         CALL CSDTVCM(L,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
+         CALL CSDTVCM(L,KCOMVEC1_SD,KCOMVEC2_SD,
      &        1,0,ISSM,ISSPC,2)
          CALL FILEMAN_MINI(LUSCX,'ASSIGN')
 *. Save result in LUSCX
-         CALL REWINO(LUSCX)
-         CALL TODSC(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX)
+cnw      CALL REWINO(LUSCX)
+cnw      CALL TODSC(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX)
+         if(.not.dra_write_section(.false.,KCOMVEC1_SD,1,NSVAR,1,1,
+     &      LUSCX,1,NSVAR,1,1)) call errquit('dra err',911)
 *R(SD)
-         CALL CSDTVCM(R,WORK(KCOMVEC2_SD),WORK(KCOMVEC1_SD),
+         CALL CSDTVCM(R,KCOMVEC2_SD,KCOMVEC1_SD,
      &        1,0,ICSM,ICSPC,2)
 *Retrieve L(SD) from scratch 
-         CALL REWINO(LUSCX)
-         CALL FRMDSCO(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX,IMZERO)
+cnw      CALL REWINO(LUSCX)
+cnw      CALL FRMDSCO(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX,IMZERO)
+         if (.not.dra_read_section(.false.,KCOMVEC2_SD,1,NSVAR,1,1,
+     &       LUSCX,1,NSVAR,1,1)) call errquit('dra err',911)
          CALL FILEMAN_MINI(LUSCX,'FREE  ')
        ELSE
 *. Not in core
@@ -9387,19 +9391,19 @@ C       CSDTVCMN(CSFVEC,DETVEC,SCR,IWAY,ICOPY,ISYM,ISPC,
 C    &           IMAXMIN_OR_GAS,ICNFBAT,LU_DET,LU_CSF,NOCCLS_ACT,
 C    &           IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)
 *. 
-        CALL REWINO(LUR)
-        CALL REWINO(LU_RDET)
+cnw     CALL REWINO(LUR)
+cnw     CALL REWINO(LU_RDET)
 *. It is assumed that routines defining expansions, for ex.
 *. KCIBT have been constructed
-        CALL CSDTVCMN(L,R,WORK(KVEC3),
+        CALL CSDTVCMN(L,R,dbl_mb(KVEC3),
      &       1,0,ICSM,ICSPC,2,2,LU_RDET,LUR,NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
+     &       dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
 *. 
         CALL REWINO(LUL)
         CALL REWINO(LU_LDET)
-        CALL CSDTVCMN(L,R,WORK(KVEC3),
+        CALL CSDTVCMN(L,R,dbl_mb(KVEC3),
      &       1,0,ISSM,ISSPC,2,2,LU_LDET,LUL,NSOCCLS_ACT,
-     &       dbl_mb(KSIOCCLS_ACT),WORK(KSIBT),WORK(KSLBT))
+     &       dbl_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
        END IF ! Incore 
       END IF ! CSFs are in use
 
@@ -9684,14 +9688,14 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       ILTEST = -3006
       IF(ICISTR.GE.2) THEN
 *. Out of core version
-        CALL GASDN2(I12,RHO1,RHO2,L,R,WORK(KC2),
+        CALL GASDN2(I12,RHO1,RHO2,L,R,dbl_mb(KC2),
      &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,      
-     &       MAXK,MAXI,LSCR1,LSCR1,WORK(KCSCR),WORK(KSSCR),
+     &       MAXK,MAXI,LSCR1,LSCR1,dbl_mb(KCSCR),dbl_mb(KSSCR),
      &       SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &       ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &       int_mb(KI1),dbl_mb(KXI1S),int_mb(KI2),dbl_mb(KXI2S),
@@ -9699,9 +9703,9 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),LLUL,LLUR,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,WORK(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
-     &       WORK(KSIBT),
-     &       NBATCHR,WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
+     &       NBATCHL,int_mb(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
+     &       int_mb(KSIBT),
+     &       NBATCHR,int_mb(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9716,14 +9720,14 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
       ELSE
 *, In core version
        IF(NOCSF.EQ.1) THEN
-        CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),WORK(KC2),
+        CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),dbl_mb(KC2),
      &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,      
-     &       MAXK,MAXI,LSCR1,LSCR1,WORK(KCSCR),WORK(KSSCR),
+     &       MAXK,MAXI,LSCR1,LSCR1,dbl_mb(KCSCR),dbl_mb(KSSCR),
      &       SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &       ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &       int_mb(KI1),dbl_mb(KXI1S),int_mb(KI2),dbl_mb(KXI2S),
@@ -9731,9 +9735,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),-1,-1,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,WORK(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
-     &       WORK(KSIBT),
-     &       NBATCHR,WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
+     &       NBATCHL,int_mb(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
+     &       int_mb(KSIBT),
+     &       NBATCHR,int_mb(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9746,14 +9750,14 @@ C    &       WORK(KSIBT),
 C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
        ELSE
 *. CSF's in use
-        CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),WORK(KC2),
+        CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),dbl_mb(KC2),
      &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),WORK(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,      
-     &       MAXK,MAXI,LSCR1,LSCR1,WORK(KCSCR),WORK(KSSCR),
+     &       MAXK,MAXI,LSCR1,LSCR1,dbl_mb(KCSCR),dbl_mb(KSSCR),
      &       SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &       ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &       int_mb(KI1),dbl_mb(KXI1S),int_mb(KI2),dbl_mb(KXI2S),
@@ -9761,9 +9765,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),-1,-1,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,WORK(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
-     &       WORK(KSIBT),
-     &       NBATCHR,WORK(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
+     &       NBATCHL,int_mb(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
+     &       int_mb(KSIBT),
+     &       NBATCHR,int_mb(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
