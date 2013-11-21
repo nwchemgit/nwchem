@@ -143,7 +143,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
      &     dbl_mb(KCIOCCLS_ACT),
-     &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &     int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &     int_mb(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
       NBLOCK_P = NCBLOCK
@@ -161,8 +161,8 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      &     IPRNT,NSBLOCK,NSBATCH,
      &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &     dbl_mb(KSIOCCLS_ACT),
-     &     WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
-     &     WORK(KSIBT),
+     &     int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     &     int_mb(KSIBT),
      &     WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
       NBLOCK_Q = NSBLOCK
       NBATCH_Q = NSBATCH
@@ -232,7 +232,7 @@ C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
      &       NCONF_PER_OPEN(1,IREFSM),MAXOP,IREFSM,
      &       WORK(KSDREO_I(IREFSM)),NPCMCNF,NPCSCNF,IPRCSF,
      &       ICNFBAT,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
-     &       WORK(KCLBT),LUDIA,LUSC)
+     &       int_mb(KCLBT),LUDIA,LUSC)
         CALL COPVCD(LUSC,LUDIA,WORK(KVEC2P),1,-1)
         CALL FILEMAN_MINI(LUSC,'FREE  ')
       ELSE
@@ -311,10 +311,12 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRDIA,WORK(KSBEVC),
      & NPRDET,WORK(KH0),WORK(KSBIDT),
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
-     & IDIAG,WORK(KVEC3),THRES_E,
+     & IDIAG,dbl_mb(KVEC3),THRES_E,
      & NBATCH,
-     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),int_mb(KCIBT),
-     & WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),WORK(KSIBT),
+     & int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     & int_mb(KCIBT),
+     & int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
      & WORK(KLCLSC),WORK(KLCLSE), WORK(KLCLSCT),WORK(KLCLSET),
@@ -331,10 +333,12 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRDIA,WORK(KSBEVC),
      & NPRDET,WORK(KH0),WORK(KSBIDT),
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
-     & IDIAG,WORK(KVEC3),THRES_E,
+     & IDIAG,dbl_mb(KVEC3),THRES_E,
      & NBATCH,
-     & WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),int_mb(KCIBT),
-     & WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),WORK(KSIBT),
+     & int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     & int_mb(KCIBT),
+     & int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
      & WORK(KLCLSC),WORK(KLCLSE), WORK(KLCLSCT),WORK(KLCLSET),
@@ -731,7 +735,7 @@ C?    STOP ' Jeppe forced me to stop.... '
      &       NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
      &       WORK(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
      &       ICNFBAT,NXIOCCLS_ACT,dbl_mb(KXIOCCLS_ACT),
-     &       WORK(KXLBT),LUSC,LUDIA_A)
+     &       int_mb(KXLBT),LUSC,LUDIA_A)
         IF(ICISTR.NE.1) CALL FILEMAN_MINI(LUSC,'FREE  ')
       ELSE
 *
@@ -974,13 +978,13 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
      &     NTEST,NQBLOCK,NQBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,
      &     dbl_mb(KCIOCCLS_ACT),
-     &     WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &     int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &     int_mb(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),0,ILTEST)
 
-      CALL CSDTVCMN(CB,HCB,WORK(KVEC3),
+      CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &     1,0,ICSM,IQSPC,2,2,LUQ1,LUQ,NQOCCLS_ACT,
-     &     dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
+     &     dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
 *
 * 3: Generate diagonal contribitions to the density
 *
@@ -3531,8 +3535,8 @@ C Block for storing complete or partial CI-vector
      &       NTESTL,NSBLOCK,NSBATCH,
      &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &       dbl_mb(KSIOCCLS_ACT),
-     &       WORK(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
-     &       WORK(KSIBT),
+     &       int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     &       int_mb(KSIBT),
      &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
         NSOCCLS = NSOCCLS_ACT
       END IF
@@ -3541,7 +3545,7 @@ C Block for storing complete or partial CI-vector
      &       NTESTL,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
      &       dbl_mb(KCIOCCLS_ACT),
-     &       WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &       int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &       int_mb(KCIBT),
      &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
         NCOCCLS = NCOCCLS_ACT
@@ -3585,7 +3589,7 @@ C Block for storing complete or partial CI-vector
       LCSFHCSF = NPCS_MAX**2
       CALL MEMMAN(KLCSFHCSF,LCSFHCSF,'ADDL  ',2,'CSHCS ')
 *. For holding info on largest batch = occupation class
-      NBLK_BAT_MAX = IMNMX(WORK(KSLBT),NSBATCH,2)
+      NBLK_BAT_MAX = IMNMX(int_mb(KSLBT),NSBATCH,2)
       CALL MEMMAN(KEIBT,8*NBLK_BAT_MAX,'ADDL  ',2,'EBT   ')
       CALL MEMMAN(KELBT,1,'ADDL ',2,'ELBT  ')
       CALL MEMMAN(KEIOCCLS_ACT,1,'ADDL  ',2,'EIOCCL')
@@ -3599,14 +3603,14 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
      &               1,0,ICSM,ICSPC,2)
       ELSE
 *. Not in core- write determinant expansion on LU_CDET
-       CALL CSDTVCMN(CB,HCB,WORK(KVEC3),
+       CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &      1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
-     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
+     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
       END IF
 * 2: HPP CP (in and out in SD/CM), save on LU_SDET
       ICSPC = IPSPC
       ISSPC = IQSPC
-      CALL RASSG3(CB,HCB,NCBATCH,WORK(KCLBT),WORK(KCLEBT),
+      CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),WORK(KCLEBT),
      &     WORK(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
      &     ITASK)
 *
@@ -3619,7 +3623,7 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
       DO IQBAT = 1, NSBATCH
 C                  IFRMR(WORK,IROFF,IELMNT)
         IQ_OCCLS = dbl_mb(KSIOCCLS_ACT + IQBAT - 1)
-        NSBLOCK_BAT = IFRMR(WORK,KSLBT,IQ_OCCLS)
+        NSBLOCK_BAT = int_mb(KSLBT+IQ_OCCLS-1)
 *. Is this occupation in P-space
 C IS_IVEC_IN_LIST(IVEC,NELMNT,LIST,LLIST)
         IQINP = IS_IVEC_IN_LIST(IQ_OCCLS,1,dbl_mb(KCIOCCLS_ACT),
@@ -3643,7 +3647,7 @@ C IS_IVEC_IN_LIST(IVEC,NELMNT,LIST,LLIST)
 C         SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
 C    &           LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
 C    &           ECORE,ITASK)
-          CALL SBLOCK(NSBLOCK_BAT,WORK(KSIBT),IBSBLOCK_BAT,CB,HCB,
+          CALL SBLOCK(NSBLOCK_BAT,int_mb(KSIBT),IBSBLOCK_BAT,CB,HCB,
      &         LU_CDET,0,0,0,0,0,CV,ECORE,ITASK)
 *. The batch of HQP CP is returned in HCB
 *
@@ -3673,16 +3677,16 @@ C    &           ECORE,ITASK)
             KEBLTP = KCBLTP
             NEBLK = NSBLOCK_BAT
 C                ICOPVE2(IIN,IOFF,NDIM,IOUT)
-            CALL ICOPVE2(WORK(KSIBT),(IBSBLOCK_BAT-1)*8+1,
-     &           8*NSBLOCK_BAT,WORK(KEIBT))
-            CALL ICOPVE2(WORK(KSLBT),IQBAT,1,WORK(KELBT))
+            CALL ICOPVE2(int_mb(KSIBT),(IBSBLOCK_BAT-1)*8+1,
+     &           8*NSBLOCK_BAT,int_mb(KEIBT))
+            CALL ICOPVE2(int_mb(KSLBT),IQBAT,1,WORK(KELBT))
             CALL ICOPVE2(dbl_mb(KSIOCCLS_ACT),IQBAT,1,
      &                   int_mb(KEIOCCLS_ACT))
             ICISTR_SAVE = ICISTR
             ICNFBAT_SAVE = ICNFBAT
             ICISTR = 1
             ICNFBAT = 1
-            CALL CSDIAGM(IREFSM,3,-1,HCB,WORK(KVEC3))
+            CALL CSDIAGM(IREFSM,3,-1,HCB,dbl_mb(KVEC3))
 C                CSDIAGM(ISM,ICS,LUDIA_A,VECUT,VECSCR)
             ICISTR =ICISTR_SAVE
             ICNFBAT = ICNFBAT_SAVE
@@ -3773,12 +3777,12 @@ C              SWAP_CS_TTSSARRAYS
           IP_B_BLK = 1
           IP_B_CM  = 1
           DO IP_BATCH = 1, NPBATCH
-           NP_BLK_BAT = IFRMR(WORK,KSLBT,IP_BATCH)
+           NP_BLK_BAT = int_mb(KSLBT+IP_BATCH-1)
            NP_CM_BAT  = IFRMR(WORK,KSLEBT,IP_BATCH)
            IF(NTEST.GE.1000)
      &     WRITE(6,*) ' IP_BATCH, NP_BLK_BAT, NP_CM_BAT = ',
      &                  IP_BATCH, NP_BLK_BAT, NP_CM_BAT
-           CALL SBLOCK(NP_BLK_BAT,WORK(KSIBT),IP_B_BLK,CB,
+           CALL SBLOCK(NP_BLK_BAT,int_mb(KSIBT),IP_B_BLK,CB,
      &          HCB(IP_B_CM),
      &          -1,0,0,1,IQBAT,IQBAT,WORK(KVEC4),ECORE,ITASK)
 C               SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
@@ -3832,9 +3836,9 @@ C              FRMDSCN(VEC,NREC,LBLK,LU)
      &               2,0,ICSM,ICSPC,2)
       ELSE
 *. Not in core- write determinant expansion on LU_CDET
-       CALL CSDTVCMN(HCB,CB,WORK(KVEC3),
+       CALL CSDTVCMN(HCB,CB,dbl_mb(KVEC3),
      &      2,0,ICSM,ICSPC,2,2,LU_SDET,LUHC,NCOCCLS_ACT,
-     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),WORK(KCLBT))
+     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
       END IF
       IF(NTEST.GE.1000) WRITE(6,*) ' Home from CSDTVCMN '
 *
