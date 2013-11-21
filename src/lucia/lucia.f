@@ -2593,9 +2593,11 @@ C?    CALL MEMCHK
 *
       IF(I_DO_LZ2.EQ.1) THEN
 *
-       CALL REWINO(LUC)
+cnw    CALL REWINO(LUC)
        DO JROOT = 1, NROOT
-        CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
+cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
+        if(.not.dra_read_section(.false.,KPVEC1,1,NVAR,1,1,
+     &     LUC,1,NVAR,JROOT,JROOT)) call errquit('dra error',911)
         CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
         dbl_mb(KLZEXP-1+JROOT) = RLZEFF
         dbl_mb(KL2EXP-1+JROOT) = RL2EFF
@@ -2632,7 +2634,7 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
             KRHO2 = 1
           END IF
           IF(IDENSI.GE.1)
-     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
+     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &         KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
      &         WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
           IF(IDENSI.EQ.2) THEN
@@ -2681,7 +2683,7 @@ C   &           MAXTRM,IOUT)
              CALL COPVCD(LUSC1,LUHC,dbl_mb(KVEC1),1,LBLK)
           END IF
           IF(IDENSI.GE.1)
-     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
+     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUHC,EXPS2,
      &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &          WORK(KRHO2BB),1 )
@@ -2809,14 +2811,14 @@ C    &           NVAR, ICISTR,ICOPY)
             IF(IDENSI.EQ.1) THEN
               KRHO2 = 1
             END IF
-            CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
+            CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &      KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
      &      WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
           ELSE
             CALL REWINO(LUSC1)
             CALL REWINO(LUC)
             CALL COPVCD(LUC,LUSC1,dbl_mb(KVEC1),0,LBLK)
-            CALL DENSI2(IDENSI,dbl_mb(KRHO1),WORK(KRHO2),
+            CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUC,LUSC1,EXPS2,
      &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &          WORK(KRHO2BB),1 )
@@ -2875,7 +2877,7 @@ C                SKPVCD(LU,NVEC,SEGMNT,IREW,LBLK)
             IPRDEN_SAVE = IPRDEN
             IPRDEN = 0
             XDUM = 0
-            CALL DENSI2(1     ,dbl_mb(KRHO1),WORK(KRHO2),
+            CALL DENSI2(1     ,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &           dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUHC,EXPS2,
      &           0,XDUM,XDUM,XDUM,XDUM,1)
             IPRDEN = IPRDEN_SAVE
@@ -2942,14 +2944,14 @@ C?     write(6,*) ' IRFROOT and NROOT ',IRFROOT, NROOT
          END DO
          IF(ICISTR.EQ.1) THEN
            CALL COPVEC(dbl_mb(KVEC1),dbl_mb(KVEC2),NVAR)
-           CALL DENSI2(1,dbl_mb(KRHO1),WORK(KRHO2),
+           CALL DENSI2(1,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),0,0,EXPS2,
      &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &          WORK(KRHO2BB),1 )
          ELSE
            CALL REWINO(LUSC1)
            CALL COPVCD(LUSC1,LUSC2,dbl_mb(KVEC1),1,LBLK)
-             CALL DENSI2(1,dbl_mb(KRHO1),WORK(KRHO2),
+             CALL DENSI2(1,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &            dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUSC2,EXPS2,ISPNDEN,
      &            WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
      &            WORK(KRHO2BB),1)
@@ -9813,9 +9815,9 @@ c..  open file to write
        open(fn,file=filename,form='formatted',status='unknown')
        rewind (fn)
 c.. generate GA to store 1-e ints for LUCIA
-         if(.not.ga_create(mt_dbl,1,nint1,'lucia_1e',minchunk,1,g_lu1e))
+         if(.not.ga_create(mt_dbl,1,nint1,'int1e',minchunk,1,KINT1))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
-         if(.not.ga_create(mt_dbl,1,nint2,'lucia_2e',minchunk,1,g_lu2e))
+         if(.not.ga_create(mt_dbl,1,nint2,'int2e',minchunk,1,KINT2))
      &       call errquit('scf: cannot create lucia_2e',0,GA_ERR)
 c..  1-e integrals
          g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
@@ -9853,7 +9855,7 @@ c.. add offset
          call ga_get(g_hcore,i,i,j,j,int1e,1)
 c        write(6,'(E22.15)')int1e
 c        write(fn,'(E22.15)')int1e
-         call ga_put(g_lu1e,1,1,ind1e,ind1e,int1e,1)
+         call ga_put(KINT1,1,1,ind1e,ind1e,int1e,1)
           end do
          end do 
 c.. 2e ints
@@ -9915,7 +9917,7 @@ c.. look for index in ga_coul
                   kl = k*(k-1)/2 + l
          call ga_get(g_coul,ij,ij,kl,kl,int2e,1)
 c        write(fn,'(E22.15)')int2e
-         call ga_put(g_lu2e,1,1,ind2e,ind2e,int2e,1)
+         call ga_put(KINT2,1,1,ind2e,ind2e,int2e,1)
                call util_flush(6)
               end do
              endif
@@ -9928,7 +9930,7 @@ c        write(fn,'(E22.15)')int2e
          write(fn,'(E22.15)')enrep
          end if
          close(fn)
-c.. Now that the integrals are in g_lu1e and g_lu2e, fully packed. 
+c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
        ELSE IF (INTIMP .EQ. 5) THEN
 *
