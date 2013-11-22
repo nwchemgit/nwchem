@@ -9703,9 +9703,9 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),LLUL,LLUR,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),WORK(KSI1BT),
+     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSI1BT),
      &       int_mb(KSIBT),
-     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),WORK(KCI1BT),
+     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9720,7 +9720,8 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
       ELSE
 *, In core version
        IF(NOCSF.EQ.1) THEN
-        CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),dbl_mb(KC2),
+        CALL GASDN2(I12,RHO1,RHO2,dbl_mb(KVEC1P),dbl_mb(KVEC2P),
+     &       dbl_mb(KC2),
      &       int_mb(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
@@ -9735,9 +9736,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),-1,-1,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),WORK(KSI1BT),
+     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSI1BT),
      &       int_mb(KSIBT),
-     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),WORK(KCI1BT),
+     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9750,9 +9751,10 @@ C    &       WORK(KSIBT),
 C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
        ELSE
 *. CSF's in use
-        CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),dbl_mb(KC2),
+        CALL GASDN2(I12,RHO1,RHO2,dbl_mb(KVEC1P),dbl_mb(KVEC2P),
+     &       dbl_mb(KC2),
      &       int_mb(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),int_mb(KCBLTP),WORK(KSBLTP),NACOB,
+     &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
@@ -9765,9 +9767,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),-1,-1,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),WORK(KSI1BT),
+     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSI1BT),
      &       int_mb(KSIBT),
-     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),WORK(KCI1BT),
+     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9826,7 +9828,7 @@ C    &                  SCR,IPRDEN)
 C         NATORB3_GS(RHO1,XNAT,RHO1SM,OCCNUM,SCR,IREO_GS_TO_TS,IPRDEN)
           CALL NATORB3_GS(RHO1,dbl_mb(KXNATO),dbl_mb(KRHO1SM),
      &         dbl_mb(KOCCSM),
-     &         dbl_mb(KRHO1P),WORK(KIREO_GNSYM_TO_TS_ACOB),IPRDEN)
+     &         dbl_mb(KRHO1P),int_mb(KIREO_GNSYM_TO_TS_ACOB),IPRDEN)
          END IF !old_or_new switch
        END IF ! natural orbitals requested
 *
