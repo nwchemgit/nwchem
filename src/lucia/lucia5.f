@@ -1916,7 +1916,7 @@ C            TRACI(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
        WRITE(6,*) ' Analysis of rotated state number ', JROOT
        WRITE(6,*) ' ====================================='
        WRITE(6,*)
-       CALL GASANA(WORK(KVEC1),NBLOCK,WORK(KLCIBT),WORK(KLCBLTP),
+       CALL GASANA(WORK(KVEC1),NBLOCK,int_mb(KLCIBT),dbl_mb(KLCBLTP),
      &                LUSC1,ICISTR)
       END DO
 *     ^ End of loop over roots
@@ -2128,7 +2128,7 @@ cNW     CALL MEMMAN(KLTB,NTOOB**2,'ADDL  ',2,'TMATBL')
       END DO
       LENT = IOFF + NTOOBS(NSMOB)**2 - 1
 *. Save Malmqvist matrix
-      CALL COPVEC(dbl_mb(KLT),WORK(KTPAM),LENT)
+      CALL COPVEC(dbl_mb(KLT),dbl_mb(KTPAM),LENT)
 *. Transform CI-vector
       ICSPC = IXSPC
       ICSM  = ICSM
@@ -2587,7 +2587,7 @@ c      INCLUDE 'mxpdim.inc'
       ISM  = ISSM
       CALL IAIBCM(ISPC,dbl_mb(KLCIOIO))
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),int_mb(KSVST))
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. alpha and beta strings with an electron removed
@@ -2764,7 +2764,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ') !done
       CALL IAIBCM(ISPC,dbl_mb(KLCIOIO))
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KPCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KPCBLTP),int_mb(KSVST))
 *. Allowed length of each batch
       IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
@@ -2863,10 +2863,10 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
       CALL T_TO_NK_VECS
      &  (T,KKORB,C,LUCIN,LUCOUT,int_mb(KNSTSO(IATP)),
      &      int_mb(KNSTSO(IBTP)),
-     &      NBLOCK,WORK(KLCIBT),
-     &      NAEL,NBEL,WORK(KLASTR),WORK(KLBSTR),
-     &      WORK(KLCBLTP),NSMST,
-     &      ICISTR,NTOOB,WORK(KLKAOC),WORK(KLKBOC))
+     &      NBLOCK,int_mb(KLCIBT),
+     &      NAEL,NBEL,int_mb(KLASTR),int_mb(KLBSTR),
+     &      dbl_mb(KLCBLTP),NSMST,
+     &      ICISTR,NTOOB,int_mb(KLKAOC),int_mb(KLKBOC))
    
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'T_TO_N')
 *
@@ -5531,7 +5531,7 @@ C?    CALL QENTER('GETST')
       DO IGAS = 1, NGAS
         CALL ICOPVE2(int_mb(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
-        CALL ICOPVE2(WORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(int_mb(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))
       END DO
 *
@@ -6474,7 +6474,7 @@ C          NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
        IF(NELFGP(KGRP(JGRP)).GT.0) NGASL = JGRP
        CALL ICOPVE2(int_mb(KNSTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              NNSTSGP(1,JGRP))
-       CALL ICOPVE2(WORK(KISTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
+       CALL ICOPVE2(int_mb(KISTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              IISTSGP(1,JGRP))
       END DO
 C     NGASL = NIGRP
@@ -6493,7 +6493,7 @@ C     NGASL = NIGRP
       CALL TS_SYM_PNT2(IGRP,NIGRP,MXVLI,MNVLI,ISPGPSM,
      &                 IOFFI,LOFFI)
 *. Offset and dimension for active group in I strings
-      CALL ICOPVE2(WORK(KISTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(int_mb(KISTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               IACIST)
 C?    WRITE(6,*) ' IACIST for IACGRP,IGRP = ', IACGRP,IGRP(IACGRP)
 C?    CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
@@ -9598,9 +9598,9 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       CALL MEMMAN(KINSCR,INTSCR,'ADDL  ',2,'INSCR ') !done
 *
       CALL IAIBCM(ISSPC,int_mb(KSIOIO))
-      CALL IAIBCM(ISSPC,WORK(KCIOIO))
+      CALL IAIBCM(ISSPC,int_mb(KCIOIO))
 *. Scratch space for CJKAIB resolution matrices
-      CALL MXRESCPH(WORK(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(int_mb(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &     NSMST,NSTFSMSPGP,MXPNSMST,
      &     NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &     NELFSPGP,
@@ -9634,8 +9634,8 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       CALL MEMMAN(KXI3S,LSCR3       ,'ADDL  ',2,'XI3S  ') !done
       CALL MEMMAN(KXI4S,LSCR3       ,'ADDL  ',2,'XI4S  ') !done
 *
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,int_mb(KSBLTP),WORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,int_mb(KSBLTP),int_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.0 OOS arrayy
       NOOS = NOCTPA*NOCTPB*NSMST
 * scratch space containing active one body
@@ -9689,7 +9689,7 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       IF(ICISTR.GE.2) THEN
 *. Out of core version
         CALL GASDN2(I12,RHO1,RHO2,L,R,dbl_mb(KC2),
-     &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
+     &       int_mb(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
@@ -9703,9 +9703,9 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),LLUL,LLUR,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,int_mb(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
+     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),WORK(KSI1BT),
      &       int_mb(KSIBT),
-     &       NBATCHR,int_mb(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
+     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),WORK(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9721,7 +9721,7 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
 *, In core version
        IF(NOCSF.EQ.1) THEN
         CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),dbl_mb(KC2),
-     &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
+     &       int_mb(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),int_mb(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
@@ -9735,9 +9735,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),-1,-1,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,int_mb(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
+     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),WORK(KSI1BT),
      &       int_mb(KSIBT),
-     &       NBATCHR,int_mb(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
+     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),WORK(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -9751,7 +9751,7 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
        ELSE
 *. CSF's in use
         CALL GASDN2(I12,RHO1,RHO2,WORK(KVEC1P),WORK(KVEC2P),dbl_mb(KC2),
-     &       WORK(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
+     &       int_mb(KCIOIO),int_mb(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),int_mb(KCBLTP),WORK(KSBLTP),NACOB,
      &       int_mb(KNSTSO(IATP)),int_mb(KISTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),int_mb(KISTSO(IBTP)),
@@ -9765,9 +9765,9 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       dbl_mb(KINSCR),
      &       MXPOBS,IPRDEN,dbl_mb(KRHO1S),-1,-1,
      &       PSSIGN,PSSIGN,dbl_mb(KRHO1P),dbl_mb(KXNATO),
-     &       NBATCHL,int_mb(KSLBT),WORK(KSLEBT),WORK(KSI1BT),
+     &       NBATCHL,int_mb(KSLBT),int_mb(KSLEBT),WORK(KSI1BT),
      &       int_mb(KSIBT),
-     &       NBATCHR,int_mb(KCLBT),WORK(KCLEBT),WORK(KCI1BT),
+     &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),WORK(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
      &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
@@ -15547,7 +15547,7 @@ C     CALL EXTR_OR_CP_ACT_BLKS_FROM_ORBMAT(
 C    &     WORK(KTPAM),TPAM,1)
 *
       LENT = LEN_BLMAT(NSMOB,NTOOBS,NTOOBS,0)
-      CALL COPVEC(WORK(KTPAM),TPAM,LENT)
+      CALL COPVEC(dbl_mb(KTPAM),TPAM,LENT)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' TPAM as copied '
