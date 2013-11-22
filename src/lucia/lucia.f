@@ -2237,6 +2237,7 @@ CBERT VECTOR DOUBLES!!! LOCAL
 CBERT VECTOR DOUBLES!!! LOCAL
       CALL MEMMAN(KVEC1,LBLOCK,'ADDL  ',2,'VEC1  ')
       CALL MEMMAN(KVEC2,LBLOCK,'ADDL  ',2,'VEC2  ')
+C...dongxia  so KVEC1P and KVEC2P also local
       KVEC1P = KVEC1
       KVEC2P = KVEC2
 * 
@@ -11171,7 +11172,7 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
         END DO
         CALL ICOPVE(ISMFSO,WORK(KMO_GNSYM),NTOOB)
         CALL REO_ACT_ORB_TO_GNSM(
-     &     WORK(KMO_GNSYM),WORK(KIREO_GNSYM_TO_TS_ACOB))
+     &     WORK(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
       END IF! Supersymmetry
 *
       IF(I_USE_SUPSYM.EQ.1) THEN
@@ -11208,7 +11209,7 @@ C           SUPSYM_FROM_CMOAO(CMOAO,ISUPSYM_FOR_BAS,ISUPSYM_FOR_MOS)
        END DO
 *. Mapping of active orbitals from general symmetry to type order
        CALL REO_ACT_ORB_TO_GNSM(
-     &      WORK(KMO_GNSYM),WORK(KIREO_GNSYM_TO_TS_ACOB))
+     &      WORK(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
 *. Reordering array from actual to supersymmetry-blocked order.
 C       GET_IACT_TO_GENSM_REO(IACT_TO_GENSM_REO,
 C    &  ISTA_TO_GENSM_REO, MO_STA_TO_ACT_REO, NTOOB)
@@ -28720,7 +28721,7 @@ C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
 *. Bring first density to form with supersymmetry blocks
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),1,
-     &       WORK(KIREO_GNSYM_TO_TS_ACOB))
+     &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Reformed density matrix '
           CALL APRBLM2(WORK(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
@@ -28732,7 +28733,7 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
         ZERO = 0.0D0
         CALL SETVEC(dbl_mb(KRHO1),ZERO,NACOB**2)
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),2,
-     &       WORK(KIREO_GNSYM_TO_TS_ACOB))
+     &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.0000) THEN
          WRITE(6,*) ' Supersymmetry averaged density '
          CALL  WRTMAT(dbl_mb(KRHO1),NACOB,NACOB,NACOB,NACOB)
@@ -28833,7 +28834,7 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *. over active orbitals
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),1,
-     &       WORK(KIREO_GNSYM_TO_TS_ACOB))
+     &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Reformed density matrix '
           CALL APRBLM2(WORK(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
