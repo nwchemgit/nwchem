@@ -5501,7 +5501,7 @@ c..
       CALL IAIBCM(ICISPC,dbl_mb(KLCIOIO))
 *. option KSVST not active so
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLCBLTP),WORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLCBLTP),int_mb(KSVST))
 *. Blocks of  CI vector, using a single batch for complete  expansion
       ICOMP = 1
       ISIMSYM = 1
