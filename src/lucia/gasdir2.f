@@ -948,7 +948,7 @@ CBERT: Just swapping of pointers would do
 *
       CALL MEMMAN(KLCBLTP,NSMST,'ADDL  ',2,'CBLTP ')   !done
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,dbl_mb(KLCBLTP),int_mb(KSVST))
 *. Allocate memory for diagonalization
       IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
@@ -1757,8 +1757,8 @@ C          IAIBCM(ICISPC,IAIB)
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')  !done
-        CALL SIGVST(dbl_mb(KSVST),NSMST)
+        CALL MEMMAN(KSVST,NSMST,'ADDL  ',1,'SVST  ')  !done
+        CALL SIGVST(int_mb(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF
@@ -1807,7 +1807,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')   !done
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')   !done
 *
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NSMCI*NOCTPA*NOCTPB   
       NTTS = MXNTTS
@@ -1869,7 +1869,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
      &            dbl_mb(KOOS1),dbl_mb(KOOS2),dbl_mb(KOOS3),
      $            dbl_mb(KOOS4),
      &            dbl_mb(KOOS5),int_mb(KI1),dbl_mb(KXI1S),
-     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
+     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,int_mb(KSVST),
      &            PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
      &            dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &            int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
@@ -2069,8 +2069,8 @@ C          IAIBCM(ICISPC,IAIB)
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')  !done
-        CALL SIGVST(dbl_mb(KSVST),NSMST)
+        CALL MEMMAN(KSVST,NSMST,'ADDL  ',1,'SVST  ')  !done
+        CALL SIGVST(int_mb(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF
@@ -2118,7 +2118,7 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')  !done
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')  !done
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NSMCI*NOCTPA*NOCTPB
       NTTS = MXNTTS
@@ -2191,7 +2191,7 @@ C    &                  NSASO,NSBSO,IDC,IWAY,IPRNT)
      &            dbl_mb(KOOS1),dbl_mb(KOOS2),dbl_mb(KOOS3),
      &            dbl_mb(KOOS4),
      &            dbl_mb(KOOS5),int_mb(KI1),dbl_mb(KXI1S),
-     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
+     &            int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,int_mb(KSVST),
      &            PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
      &            dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &            int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
@@ -3124,7 +3124,7 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
 *
       CALL IAIBCM(ISPC,int_mb(KLVIOIO))
       KSVST = 0
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLVBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,dbl_mb(KLVBLTP),int_mb(KSVST))
 *
 *. Space for partitioning of vectors
       NTTS = MXNTTS              
@@ -4906,7 +4906,7 @@ C  I assume memory was allocated for blocks, so
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')  !done
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')  !done
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
@@ -9327,8 +9327,8 @@ C?    WRITE(6,*) ' MXTSOB = ', MXTSOB
 COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-        CALL SIGVST(dbl_mb(KSVST),NSMST)
+        CALL MEMMAN(KSVST,NSMST,'ADDL  ',1,'SVST  ')
+        CALL SIGVST(int_mb(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF
@@ -9390,7 +9390,7 @@ C  I assume memory was allocated for blocks, so
 *
       CALL MEMMAN(KI4  ,LSCR3,'ADDL  ',1,'I4    ')
       CALL MEMMAN(KXI4S,LSCR3,'ADDL  ',2,'XI4S  ')
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),dbl_mb(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,int_mb(KCBLTP),int_mb(KSVST))
 *.Some TTS arrays 
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
@@ -9484,7 +9484,7 @@ C     IF(ISIMSYM.EQ.0) THEN
      &     SXSTSM,dbl_mb(KSTSTS),dbl_mb(KSTSTD),SXDXSX,
      &     ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &     int_mb(KI1),dbl_mb(KXI1S),
-     &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,dbl_mb(KSVST),
+     &     int_mb(KI2),dbl_mb(KXI2S),IDOH2,MXPOBS,int_mb(KSVST),
      &     PSSIGN,IPRDIA,LUC,ICJKAIB,dbl_mb(KCJRES),
      &     dbl_mb(KSIRES),int_mb(KI3),dbl_mb(KXI3S),
      &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,XSXBL,
