@@ -97,7 +97,7 @@
 *. identify and save thise
 *
       CALL MEMMAN(KLOCCLS_P,NOCCLS_MAX,'ADDL  ',1,'POCCLS')
-      CALL OCCLS_IN_CISPACE(NOCCLS_P,WORK(KLOCCLS_P),
+      CALL OCCLS_IN_CISPACE(NOCCLS_P,int_mb(KLOCCLS_P),
      &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(IPSPC),ICMBSPC(1,IPSPC),IGSOCCX,IPSPC)
       NCOCCLS = NOCCLS_P
@@ -105,7 +105,7 @@
 *. And the initial identification of the classes in the Q-space
 *
       CALL MEMMAN(KLOCCLS_Q,NOCCLS_MAX,'ADDL  ',1,'QOCCLS')
-      CALL OCCLS_IN_CISPACE(NOCCLS_Q,WORK(KLOCCLS_Q),
+      CALL OCCLS_IN_CISPACE(NOCCLS_Q,int_mb(KLOCCLS_Q),
      &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(IQSPC),ICMBSPC(1,IQSPC),IGSOCCX,IQSPC)
       NSOCCLS = NOCCLS_Q
@@ -118,14 +118,14 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       MAX_EXCIT = 117
       WRITE(6,*) ' Max excitation level beween P and Q set to',
      &            MAX_EXCIT
-      CALL EXCIT_OCCLS_TO_OCCLS(NOCCLS_P,WORK(KLOCCLS_P),
-     &    NOCCLS_Q,WORK(KLOCCLS_Q),int_mb(KIOCCLS),NGAS,MAX_EXCIT,
-     &    NRCONNECT,WORK(KLRCONNECT))
+      CALL EXCIT_OCCLS_TO_OCCLS(NOCCLS_P,int_mb(KLOCCLS_P),
+     &    NOCCLS_Q,int_mb(KLOCCLS_Q),int_mb(KIOCCLS),NGAS,MAX_EXCIT,
+     &    NRCONNECT,int_mb(KLRCONNECT))
       IF(NRCONNECT.LT.NOCCLS_Q) THEN
         WRITE(6,*) ' Q-space reduced to interacting occlasses'
         WRITE(6,*) ' Original and new number of Q occlasses ',
      &               NOCCLS_Q, NRCONNECT
-        CALL ICOPVE(WORK(KLRCONNECT),WORK(KLOCCLS_P),NRCONNECT)
+        CALL ICOPVE(int_mb(KLRCONNECT),int_mb(KLOCCLS_P),NRCONNECT)
 *. Should also be copied to Sigma occ classes?
       END IF
 *
@@ -138,18 +138,18 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       ICSPC = IPSPC
       ICSM = IREFSM
       ILTEST = 3006
-      CALL ICOPVE(WORK(KLOCCLS_P),dbl_mb(KCIOCCLS_ACT),NGAS*NOCCLS_P)
+      CALL ICOPVE(int_mb(KLOCCLS_P),dbl_mb(KCIOCCLS_ACT),NGAS*NOCCLS_P)
       CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
      &     dbl_mb(KCIOCCLS_ACT),
-     &     int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &     int_mb(KCIBT),
-     &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
       NBLOCK_P = NCBLOCK
       NBATCH_P = NCBATCH
       NCBLK = NCBLOCK
-      NCM_P = IELSUM(WORK(KCLBLK),NBLOCK_P)
+      NCM_P = IELSUM(int_mb(KCLBLK),NBLOCK_P)
       WRITE(6,*) ' NCM_P = ', NCM_P
 *
       NSOCCLS = NOCCLS_Q
@@ -161,9 +161,9 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      &     IPRNT,NSBLOCK,NSBATCH,
      &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &     dbl_mb(KSIOCCLS_ACT),
-     &     int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &     int_mb(KSIBT),
-     &     WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
+     &     int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
       NBLOCK_Q = NSBLOCK
       NBATCH_Q = NSBATCH
       NSBLK = NSBLOCK
@@ -204,7 +204,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
          CALL MEMMAN(KLHMAT,NVAR*NVAR,'ADDL  ',2,'HMAT  ')
          ECOREL = 0.0D0
 C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
-         CALL COMHAM(WORK(KLHMAT),NVAR,NCBLOCK,WORK(KCLBLK),
+         CALL COMHAM(WORK(KLHMAT),NVAR,NCBLOCK,int_mb(KCLBLK),
      &               WORK(KVEC1P),WORK(KVEC2P),ECOREL)
          STOP ' Enforced stop after COMHAM'
       END IF
@@ -313,9 +313,9 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,dbl_mb(KVEC3),THRES_E,
      & NBATCH,
-     & int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     & int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      & int_mb(KCIBT),
-     & int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     & int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
@@ -335,9 +335,9 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,dbl_mb(KVEC3),THRES_E,
      & NBATCH,
-     & int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     & int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      & int_mb(KCIBT),
-     & int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     & int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
@@ -546,8 +546,8 @@ C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
         CALL IWRTMA(WORK(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
       END IF
 *
-      CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,WORK(KLOCCLS_P),
-     &                LU_Q1,NOCCLS_Q,WORK(KLOCCLS_Q),
+      CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
+     &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
      &                WORK(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
 *
 C     EXP_BLKVEC(LU_IN,NBLK_IN, IBLK_IN,
@@ -838,8 +838,8 @@ C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
         CALL IWRTMA(WORK(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
       END IF
 *
-      CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,WORK(KLOCCLS_P),
-     &                LU_Q1,NOCCLS_Q,WORK(KLOCCLS_Q),
+      CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
+     &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
      &                WORK(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
 *
 C     EXP_BLKVEC(LU_IN,NBLK_IN, IBLK_IN,
@@ -978,9 +978,9 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
      &     NTEST,NQBLOCK,NQBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,
      &     dbl_mb(KCIOCCLS_ACT),
-     &     int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &     int_mb(KCIBT),
-     &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),0,ILTEST)
+     &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),0,ILTEST)
 
       CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &     1,0,ICSM,IQSPC,2,2,LUQ1,LUQ,NQOCCLS_ACT,
@@ -3535,9 +3535,9 @@ C Block for storing complete or partial CI-vector
      &       NTESTL,NSBLOCK,NSBATCH,
      &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &       dbl_mb(KSIOCCLS_ACT),
-     &       int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
-     &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
+     &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
         NSOCCLS = NSOCCLS_ACT
       END IF
       IF(ICFIRST.EQ.1) THEN
@@ -3545,9 +3545,9 @@ C Block for storing complete or partial CI-vector
      &       NTESTL,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
      &       dbl_mb(KCIOCCLS_ACT),
-     &       int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
-     &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
+     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
         NCOCCLS = NCOCCLS_ACT
       END IF
 *
@@ -3555,7 +3555,7 @@ C Block for storing complete or partial CI-vector
       NPBATCH = NCBATCH
       IF(NTEST.GE.1000)
      &WRITE(6,*) '  NCOCCLS, NPBLK = ', NCOCCLS, NPBLK
-      NPSD = IELSUM(WORK(KCLBLK),NPBLK)
+      NPSD = IELSUM(int_mb(KCLBLK),NPBLK)
 *
       IF(I12.EQ.2) THEN
         IDOH2 = 1
@@ -3611,7 +3611,7 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
       ICSPC = IPSPC
       ISSPC = IQSPC
       CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),int_mb(KCLEBT),
-     &     WORK(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
+     &     int_mb(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
      &     ITASK)
 *
 * and next the Q-contributions
@@ -3813,7 +3813,7 @@ C              FRMDSCN(VEC,NREC,LBLK,LU)
           ONEM =  -1.0D0
           CALL VECSUM(CB,CB,HCB,ONE,ONEM,NPSD)
           CALL REWINO(LU_SDET)
-          CALL TODSCN2(CB,NPBLK,WORK(KCLBLK),LBLK,LU_SDET,1) 
+          CALL TODSCN2(CB,NPBLK,int_mb(KCLBLK),LBLK,LU_SDET,1) 
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' Updated LU_SDET '
             CALL WRTVCD_EP(CB,LU_SDET,1,LBLK)
