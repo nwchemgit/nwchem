@@ -143,7 +143,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
      &     dbl_mb(KCIOCCLS_ACT),
-     &     int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &     int_mb(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
       NBLOCK_P = NCBLOCK
@@ -161,7 +161,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      &     IPRNT,NSBLOCK,NSBATCH,
      &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &     dbl_mb(KSIOCCLS_ACT),
-     &     int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     &     int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &     int_mb(KSIBT),
      &     WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
       NBLOCK_Q = NSBLOCK
@@ -313,9 +313,9 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,dbl_mb(KVEC3),THRES_E,
      & NBATCH,
-     & int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     & int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      & int_mb(KCIBT),
-     & int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     & int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
@@ -335,9 +335,9 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & MXP1,MXP2,MXQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,dbl_mb(KVEC3),THRES_E,
      & NBATCH,
-     & int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     & int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      & int_mb(KCIBT),
-     & int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     & int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
      & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
@@ -978,7 +978,7 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
      &     NTEST,NQBLOCK,NQBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,
      &     dbl_mb(KCIOCCLS_ACT),
-     &     int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &     int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &     int_mb(KCIBT),
      &     WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),0,ILTEST)
 
@@ -3535,7 +3535,7 @@ C Block for storing complete or partial CI-vector
      &       NTESTL,NSBLOCK,NSBATCH,
      &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
      &       dbl_mb(KSIOCCLS_ACT),
-     &       int_mb(KSLBT),WORK(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
+     &       int_mb(KSLBT),int_mb(KSLEBT),WORK(KSLBLK),WORK(KSI1BT),
      &       int_mb(KSIBT),
      &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),ILTEST)
         NSOCCLS = NSOCCLS_ACT
@@ -3545,7 +3545,7 @@ C Block for storing complete or partial CI-vector
      &       NTESTL,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
      &       dbl_mb(KCIOCCLS_ACT),
-     &       int_mb(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
      &       int_mb(KCIBT),
      &       WORK(KCNOCCLS_BAT),WORK(KCIBOCCLS_BAT),ILTEST)
         NCOCCLS = NCOCCLS_ACT
@@ -3610,7 +3610,7 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
 * 2: HPP CP (in and out in SD/CM), save on LU_SDET
       ICSPC = IPSPC
       ISSPC = IQSPC
-      CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),WORK(KCLEBT),
+      CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),int_mb(KCLEBT),
      &     WORK(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
      &     ITASK)
 *
@@ -3778,7 +3778,7 @@ C              SWAP_CS_TTSSARRAYS
           IP_B_CM  = 1
           DO IP_BATCH = 1, NPBATCH
            NP_BLK_BAT = int_mb(KSLBT+IP_BATCH-1)
-           NP_CM_BAT  = IFRMR(WORK,KSLEBT,IP_BATCH)
+           NP_CM_BAT  = int_mb(KSLEBT+IP_BATCH-1)
            IF(NTEST.GE.1000)
      &     WRITE(6,*) ' IP_BATCH, NP_BLK_BAT, NP_CM_BAT = ',
      &                  IP_BATCH, NP_BLK_BAT, NP_CM_BAT
