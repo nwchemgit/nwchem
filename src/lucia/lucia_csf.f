@@ -5569,10 +5569,10 @@ C               ADD_C_TO_INTVEC(INTVEC,IC,NDIM)
 *. Address of alpha- and beta- configuration strings
 C                  ISTRNM2(IOCC,NORB,NEL,Z,NEWORD,IOFFSETS,IREORD,IRELNUM)
            IALNM = ISTRNM2(int_mb(KLAL),NOCOB,NAEL_CONF,
-     &             WORK(KZ(IGRP_AL)),WORK(KSTREO(IGRP_AL)),
+     &             int_mb(KZ(IGRP_AL)),int_mb(KSTREO(IGRP_AL)),
      &             ISTFSMGP(1,IGRP_AL),1,1)
            IBENM = ISTRNM2(int_mb(KLBE),NOCOB,NBEL_CONF,
-     &             WORK(KZ(IGRP_BE)),WORK(KSTREO(IGRP_BE)),
+     &             int_mb(KZ(IGRP_BE)),int_mb(KSTREO(IGRP_BE)),
      &             ISTFSMGP(1,IGRP_BE),1,1)
 *. Symmetry of complete strings including core
            IAL_SYM = MULTD2H(IAL_SYM_CONF,ISYM_CORE_STRING)
