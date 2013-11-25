@@ -57,8 +57,8 @@ C    &              ITOOBS(MXPOBS)
 CJO-DEC  
 C     ISTRN = ISTRNM(STRING,NACOB,NELEC,WORK(KZ(IGROUP)),
 C    &               WORK(KSTREO(IGROUP)),1)
-      ISTRN = ISTRNM(STRING,NACOB,NEL,WORK(KZ(IGROUP)),
-     &               WORK(KSTREO(IGROUP)),1)
+      ISTRN = ISTRNM(STRING,NACOB,NEL,int_mb(KZ(IGROUP)),
+     &               int_mb(KSTREO(IGROUP)),1)
 CJO-DEC
 
 *
