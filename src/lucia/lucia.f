@@ -10740,6 +10740,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
 c      INCLUDE 'mxpdim.inc'
 *.Memory
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       LOGICAL CONV_F
 *.File numbers
@@ -11182,25 +11185,25 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
         CALL ICOPVE(WORK(KISUPSYM_FOR_BAS),WORK(KMO_STA_SUPSYM),NTOOB)
 *. b. Info on supersymmetry of actual orbitals 
         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOIN),WORK(KISUPSYM_FOR_BAS),
-     &                         WORK(KMO_SUPSYM))
+     &                         int_mb(KMO_SUPSYM))
 C           SUPSYM_FROM_CMOAO(CMOAO,ISUPSYM_FOR_BAS,ISUPSYM_FOR_MOS)
-        CALL ICOPVE(WORK(KMO_SUPSYM),WORK(KMO_GNSYM),NTOOB)
-        CALL ICOPVE(WORK(KMO_SUPSYM),WORK(KMO_ACT_SUPSYM),NTOOB)
+        CALL ICOPVE(int_mb(KMO_SUPSYM),WORK(KMO_GNSYM),NTOOB)
+        CALL ICOPVE(int_mb(KMO_SUPSYM),WORK(KMO_ACT_SUPSYM),NTOOB)
         IF(IPRORB.GE.5) THEN
           WRITE(6,*) ' Actual supersymmetry of initial orbitals '
-          CALL IWRTMA3(WORK(KMO_SUPSYM),1,NTOOB,1,NTOOB)
+          CALL IWRTMA3(int_mb(KMO_SUPSYM),1,NTOOB,1,NTOOB)
         END IF
        ELSE
 * Hartree-Fock: The MO's will start out with the supersymmetry of 
 * the basis functions
-        CALL ICOPVE(WORK(KISUPSYM_FOR_BAS),WORK(KMO_SUPSYM),NTOOB)
+        CALL ICOPVE(WORK(KISUPSYM_FOR_BAS),int_mb(KMO_SUPSYM),NTOOB)
        END IF ! Hartree-Fock will not be called
 *
 * c. Info on REQUIRED supersymmetry order of the orbitals and various
 *    reorder arrays
 *
        CALL ORDER_GAS_SUPSYM_ORBITALS
-       CALL ICOPVE(WORK(KMO_SUPSYM),WORK(KMO_GNSYM),NTOOB)
+       CALL ICOPVE(int_mb(KMO_SUPSYM),WORK(KMO_GNSYM),NTOOB)
 *. Supersymmetry in occupation order
         CALL GET_OCC_ORDER_SUPSYM(WORK(KMO_OCC_SUPSYM))
 *. And save in general symmetry arrays
@@ -11234,7 +11237,7 @@ C    &  ISTA_TO_GENSM_REO, MO_STA_TO_ACT_REO, NTOOB)
      &   '    Input molecular orbitals are in standard super-sym order'
 C                IS_I1_EQ_I2(I1,I2,NDIM)
          IDENT = IS_I1_EQ_I2(WORK(KISUPSYM_FOR_BAS),
-     &                       WORK(KMO_SUPSYM),NTOOB)
+     &                       int_mb(KMO_SUPSYM),NTOOB)
          IF(IDENT.EQ.0) THEN
            WRITE(6,*) ' Error: Input orbitals are not in expected order'
            WRITE(6,*) ' Required standard supersymmetry-order '
@@ -11253,20 +11256,20 @@ C                IS_I1_EQ_I2(I1,I2,NDIM)
          CALL REFORM_CMO(WORK(KMOAOIN),2,WORK(KMOAOUT),1)
 *. Determine symmetry
          CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),WORK(KISUPSYM_FOR_BAS),
-     &                         WORK(KMO_SUPSYM))
+     &                         int_mb(KMO_SUPSYM))
 *. Compare
          IDENT = IS_I1_EQ_I2(WORK(KISUPSYM_FOR_BAS),
-     &                       WORK(KMO_SUPSYM),NTOOB)
+     &                       int_mb(KMO_SUPSYM),NTOOB)
          IF(IDENT.EQ.0) THEN
            WRITE(6,*) ' Error: Input orbitals are not in expected order'
            WRITE(6,*) ' Obtained symmetry of reordered orbitals '
-           CALL IWRTMA3(WORK(KMO_SUPSYM),1,NTOOB,1,NTOOB)
+           CALL IWRTMA3(int_mb(KMO_SUPSYM),1,NTOOB,1,NTOOB)
            WRITE(6,*) ' Required order of basis functions '
            CALL IWRTMA3(WORK(KISUPSYM_FOR_BAS),1,NTOOB,1,NTOOB)
            STOP ' Error: Input orbitals are not in expected order'
          END IF
 *. Restore
-         CALL ICOPVE(WORK(KMO_GNSYM),WORK(KMO_SUPSYM),NTOOB)
+         CALL ICOPVE(WORK(KMO_GNSYM),int_mb(KMO_SUPSYM),NTOOB)
 *
         ELSE 
 *
