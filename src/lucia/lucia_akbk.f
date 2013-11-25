@@ -318,13 +318,13 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
-     & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
-     & WORK(KLCLSC),WORK(KLCLSE), WORK(KLCLSCT),WORK(KLCLSET),
-     & WORK(KLCLSA),WORK(KLCLSL),WORK(KLCLSLR),WORK(KLBLKA),
-     & WORK(KLCLSD),WORK(KLCLSDT),WORK(KLCLSG),WORK(KLCLSGT),
-     & ISKIPEI,WORK(KC2B),WORK(KLCLSA2),
-     & LBLOCK,IROOT_SEL,WORK(KBASSPC),WORK(KLEBASC),
-     & WORK(KLCBASC),NCMBSPC,MULSPCA,IPAT,LPAT,ISPC,NCNV_RT,
+     & E_CONV,C_CONV,ICLSSEL,int_mb(KLBLKCLS),NOCCLS,
+     & dbl_mb(KLCLSC),dbl_mb(KLCLSE), dbl_mb(KLCLSCT),dbl_mb(KLCLSET),
+     & int_mb(KLCLSA),int_mb(KLCLSL),dbl_mb(KLCLSLR),int_mb(KLBLKA),
+     & dbl_mb(KLCLSD),dbl_mb(KLCLSDT),dbl_mb(KLCLSG),dbl_mb(KLCLSGT),
+     & ISKIPEI,int_mb(KC2B),int_mb(KLCLSA2),
+     & LBLOCK,IROOT_SEL,int_mb(KBASSPC),dbl_mb(KLEBASC),
+     & dbl_mb(KLCBASC),NCMBSPC,MULSPCA,IPAT,LPAT,ISPC,NCNV_RT,
      & IPRECOND,IIUSEH0P,MPORENP_E,RNRM,CONV_LOCAL,ISBSPPR_ACT,
      & ILAST)
       ELSE
@@ -340,13 +340,13 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      & int_mb(KSIBT),
      & INIDEG,E_THRE,C_THRE,
-     & E_CONV,C_CONV,ICLSSEL,WORK(KLBLKCLS),NOCCLS,
-     & WORK(KLCLSC),WORK(KLCLSE), WORK(KLCLSCT),WORK(KLCLSET),
-     & WORK(KLCLSA),WORK(KLCLSL),WORK(KLCLSLR),WORK(KLBLKA),
-     & WORK(KLCLSD),WORK(KLCLSDT),WORK(KLCLSG),WORK(KLCLSGT),
-     & ISKIPEI,WORK(KC2B),WORK(KLCLSA2),
-     & LBLOCK,IROOT_SEL,WORK(KBASSPC),WORK(KLEBASC),
-     & WORK(KLCBASC),NCMBSPC,MULSPCA,IPAT,LPAT,ISPC,NCNV_RT,
+     & E_CONV,C_CONV,ICLSSEL,int_mb(KLBLKCLS),NOCCLS,
+     & dbl_mb(KLCLSC),dbl_mb(KLCLSE), dbl_mb(KLCLSCT),dbl_mb(KLCLSET),
+     & int_mb(KLCLSA),int_mb(KLCLSL),dbl_mb(KLCLSLR),int_mb(KLBLKA),
+     & dbl_mb(KLCLSD),dbl_mb(KLCLSDT),dbl_mb(KLCLSG),dbl_mb(KLCLSGT),
+     & ISKIPEI,int_mb(KC2B),int_mb(KLCLSA2),
+     & LBLOCK,IROOT_SEL,int_mb(KBASSPC),dbl_mb(KLEBASC),
+     & dbl_mb(KLCBASC),NCMBSPC,MULSPCA,IPAT,LPAT,ISPC,NCNV_RT,
      & IPRECOND,IIUSEH0P,MPORENP_E,RNRM,CONV_LOCAL,ISBSPPR_ACT,
      & ILAST)
       END IF
@@ -355,8 +355,8 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
        EREF = EROOT(NROOT)
        WRITE(6,'(A,F22.12)') '   Energy: ', EREF
        ERROR_NORM_FINAL = RNRM(NROOT)
-       WORK(KL_SUMMARY-1+(IMAC-1)*NITEM+1) = ERROR_NORM_FINAL
-       WORK(KL_SUMMARY-1+(IMAC-1)*NITEM+2) = EREF
+       dbl_mb(KL_SUMMARY-1+(IMAC-1)*NITEM+1) = ERROR_NORM_FINAL
+       dbl_mb(KL_SUMMARY-1+(IMAC-1)*NITEM+2) = EREF
        WRITE(6,'(A,E8.3)') '   Residual norm ',
      & ERROR_NORM_FINAL
 *
@@ -382,8 +382,8 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
       WRITE(6,*)
      & ' ==============================='
       DO IT = 1, NIT
-        ENER =  WORK(KL_SUMMARY-1+(IT-1)*NITEM+2) 
-        RNRMI =  WORK(KL_SUMMARY-1+(IT-1)*NITEM+1) 
+        ENER =  dbl_mb(KL_SUMMARY-1+(IT-1)*NITEM+2) 
+        RNRMI =  dbl_mb(KL_SUMMARY-1+(IT-1)*NITEM+1) 
         WRITE(6,'(1X,I3,4X,E8.3,F20.12)') IT, RNRMI, ENER
       END DO
 *
@@ -540,15 +540,15 @@ C?    END IF
       IF(NTEST.GE.1000) WRITE(6,*) ' ISSM, NIRREP = ', ISSM, NIRREP
 C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
       CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
-     &             WORK(KLLOCCLS_SM))
+     &             int_mb(KLLOCCLS_SM))
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Number of CSF of right sym per occls'
-        CALL IWRTMA(WORK(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
+        CALL IWRTMA(int_mb(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
       END IF
 *
       CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
      &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
-     &                WORK(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
+     &                int_mb(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
 *
 C     EXP_BLKVEC(LU_IN,NBLK_IN, IBLK_IN,
 C    &                      LU_OUT,NBLK_OUT,IBLK_OUT,
@@ -832,15 +832,15 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
       IF(NTEST.GE.1000) WRITE(6,*) ' ISSM, NIRREP = ', ISSM, NIRREP
 C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
       CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
-     &             WORK(KLLOCCLS_SM))
+     &             int_mb(KLLOCCLS_SM))
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Number of CSF of right sym per occls'
-        CALL IWRTMA(WORK(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
+        CALL IWRTMA(int_mb(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
       END IF
 *
       CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
      &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
-     &                WORK(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
+     &                int_mb(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
 *
 C     EXP_BLKVEC(LU_IN,NBLK_IN, IBLK_IN,
 C    &                      LU_OUT,NBLK_OUT,IBLK_OUT,
@@ -1076,7 +1076,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       CALL MEMMAN(KLASTR,MAXA*NAEL,'ADDL  ',1,'KLASTR')
       CALL MEMMAN(KLBSTR,MAXB*NBEL,'ADDL  ',1,'KLBSTR')
 *
-      CALL DIAG_DET_TO_DENSIS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
+      CALL DIAG_DET_TO_DENSIS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
      &       NACOB,CB,NSMST,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
      &       LUC,IPRDIA,ICISTR,IBLTP,NBLOCK,IBLKFO,RHO1D,RHO2D,I12)
 
@@ -1354,26 +1354,26 @@ C     GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
       ISSPC = IPSPC
       ICSPC = IQSPC
       WRITE(6,*) ' DENSI2 will be called for PQ density '
-      CALL DENSI2(I12,WORK(KLRHO1),WORK(KLRHO2),L,R,LUSC1,LUP,EXPS2,0,
-     &     XDUM,XDUM,XDUM,XDUM,0)
+      CALL DENSI2(I12,dbl_mb(KLRHO1),dbl_mb(KLRHO2),L,R,LUSC1,LUP,EXPS2,
+     &     0,XDUM,XDUM,XDUM,XDUM,0)
       ONE = 1.0D0
-      CALL VECSUM(RHO1,RHO1,WORK(KLRHO1),ONE,ONE,LRHO1)
+      CALL VECSUM(RHO1,RHO1,dbl_mb(KLRHO1),ONE,ONE,LRHO1)
       IF(I12.EQ.2)
-     &CALL VECSUM(RHO2,RHO2,WORK(KLRHO2),ONE,ONE,LRHO2)
+     &CALL VECSUM(RHO2,RHO2,dbl_mb(KLRHO2),ONE,ONE,LRHO2)
 *
 * Obtain Q-P densities - from  P-Q densities
 *
-      CALL TRPMAT(WORK(KLRHO1),NACOB,NACOB,WORK(KLRHO1B))
-      CALL VECSUM(RHO1,RHO1,WORK(KLRHO1B),ONE,ONE,LRHO1)
+      CALL TRPMAT(dbl_mb(KLRHO1),NACOB,NACOB,dbl_mb(KLRHO1B))
+      CALL VECSUM(RHO1,RHO1,dbl_mb(KLRHO1B),ONE,ONE,LRHO1)
       IF(I12.EQ.2) THEN
-        CALL CONJ_RHO2(NACOB,WORK(KLRHO2),WORK(KLRHO2B))
-        CALL VECSUM(RHO2,RHO2,WORK(KLRHO2B),ONE,ONE,LRHO2)
+        CALL CONJ_RHO2(NACOB,dbl_mb(KLRHO2),dbl_mb(KLRHO2B))
+        CALL VECSUM(RHO2,RHO2,dbl_mb(KLRHO2B),ONE,ONE,LRHO2)
       END IF
 *
 * And then to the interesting: the Q-Q density
 *
 C     GET_APPROX_DEN_AKBK_QQ(RHO1_QQ, RHO2_QQ,LUP,E,CB,HCB,I12) 
-      CALL GET_APPROX_DEN_AKBK_QQ(WORK(KLRHO1),WORK(KLRHO2),LUP,E,
+      CALL GET_APPROX_DEN_AKBK_QQ(dbl_mb(KLRHO1),dbl_mb(KLRHO2),LUP,E,
      &    L,R,I12)
 *
       IF(NTEST.GE.1000) THEN
@@ -2436,12 +2436,12 @@ C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
 *
 *. The number of e-excitations
       CALL MEMMAN(KLTTACT,(NGAS+2)**2,'ADDL  ',1,'TTACT ')
-      CALL NONRED_TT_EXC(WORK(KLTTACT),IREFSPC_MCSCF,1)
+      CALL NONRED_TT_EXC(int_mb(KLTTACT),IREFSPC_MCSCF,1)
 *. Number of Nonredundant orbital excitations
       KLOOEXC = 1
       KLOOEXCC= 1
-      CALL NONRED_OO_EXC2(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &     1,WORK(KLTTACT),I_RESTRICT_SUPSYM,WORK(KMO_SUPSYM),
+      CALL NONRED_OO_EXC2(NOOEXC,int_mb(KLOOEXC),int_mb(KLOOEXCC),
+     &     1,int_mb(KLTTACT),I_RESTRICT_SUPSYM,int_mb(KMO_SUPSYM),
      &     N_INTER_EXC,N_INTRA_EXC,1)
       NEOOEXC = N_INTER_EXC
       NCOOEXC = N_INTRA_EXC
@@ -2456,8 +2456,8 @@ C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
 *. Allow these parameters to be known outside
       KIOOEXC = KLOOEXC
       KIOOEXCC = KLOOEXCC
-      CALL NONRED_OO_EXC2(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &     1,WORK(KLTTACT),I_RESTRICT_SUPSYM,WORK(KMO_SUPSYM),
+      CALL NONRED_OO_EXC2(NOOEXC,int_mb(KLOOEXC),int_mb(KLOOEXCC),
+     &     1,int_mb(KLTTACT),I_RESTRICT_SUPSYM,int_mb(KMO_SUPSYM),
      &     N_INTER_EXC,N_INTRA_EXC,2)
 *
 * =========================================================================
@@ -2696,8 +2696,8 @@ C       CALL EN_FROM_DENS(ENERGY,2,0)
         IOOSM = 1
 C            ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
         IF(IOOE2_APR.EQ.1) THEN
-          CALL ORBHES(WORK(KLE2),WORK(KLOOEXC),NOOEXC,IOOSM,
-     &         WORK(KLTTACT))
+          CALL ORBHES(WORK(KLE2),int_mb(KLOOEXC),NOOEXC,IOOSM,
+     &         int_mb(KLTTACT))
           IF(NTEST.GE.1000) THEN
            WRITE(6,*) ' The orbital Hessian '
            CALL PRSYM(WORK(KLE2),NOOEXC)
@@ -2766,8 +2766,8 @@ C         WRITE(6,*) ' NOOEXC before CLSKHE = ', NOOEXC
         IF(I_DO_FDCHECK.EQ.1) THEN
 *. First: Analytic gradient from Fock matrix - As kappa = 0, Brillouin vector
 * = gradient
-          CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,WORK(KLOOEXC),
-     &                   WORK(KLOOEXCC),
+          CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,int_mb(KLOOEXC),
+     &                   int_mb(KLOOEXCC),
      &                   NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
 *
           CALL MEMMAN(KLE1FD,NOOEXC,'ADDL  ',2,'E1_FD ')
@@ -2862,8 +2862,8 @@ C             FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
           XKAPPA_NORM = SQRT(INPROD(WORK(KLKAPPA),WORK(KLKAPPA),NOOEXC))
           IF(I_USE_BR_OR_E1.EQ.1.OR.XKAPPA_NORM.EQ.0.0D0) THEN
 *. Brillouin vector from Fock matrix is used
-           CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,WORK(KLOOEXC),
-     &                   WORK(KLOOEXCC),
+           CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,int_mb(KLOOEXC),
+     &                   int_mb(KLOOEXCC),
      &                   NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
           ELSE
 *. Calculate gradient at non-vanishing Kappa
@@ -3143,7 +3143,7 @@ C    &                  DISCH,LUHFIL)
           CALL MEMCHK2('BE_NWM')
 C              GET_EXP_MKAPPA(EXPMK,KAPPAP,IOOEXC,NOOEXC)
           CALL GET_EXP_MKAPPA(WORK(KLMO1),WORK(KLKAPPA),
-     &                        WORK(KLOOEXCC),NOOEXC)
+     &                        int_mb(KLOOEXCC),NOOEXC)
           CALL MEMCHK2('AF_EMK')
 *. And new MO-coefficients
           CALL MULT_BLOC_MAT(WORK(KLMO2),WORK(KMOREF),WORK(KLMO1),
@@ -3333,8 +3333,8 @@ C                FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
 *
       CALL FOCK_MAT_STANDARD(WORK(KF),2,WORK(KINT1),WORK(KFA))
       IF(IPRNT.GE.100) WRITE(6,*) ' F constructed '
-      CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,WORK(KLOOEXC),
-     &               WORK(KLOOEXCC),
+      CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,int_mb(KLOOEXC),
+     &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
       E1NRM_ORB = SQRT(INPROD(WORK(KLE1),WORK(KLE1),NOOEXC))
       VNFINAL = E1NRM_ORB + ERROR_NORM_FINAL_CI
