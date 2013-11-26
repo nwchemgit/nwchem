@@ -26,6 +26,13 @@ c
       else
         nsets = 1
       endif
+c
+c     == needed for dftmp2 ==
+      if (.not. rtdb_cput(rtdb,'scf:scftype', 1, scftype))
+     &   call errquit('dft_scf: rtdb_cput scftype failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'scf:nclosed', mt_int, 1, nclosed))
+     &   call errquit('dft_scf: rtdb_put nclosed failed', 0, RTDB_ERR)
+
 c     if (.not. rtdb_put(rtdb,'uhf:coulomb', mt_dbl, 1, Ecoul)) call
 c    $     errquit('uhf: writing ecoul failed', 0, RTDB_ERR)
 c
