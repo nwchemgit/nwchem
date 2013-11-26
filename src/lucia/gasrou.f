@@ -10216,7 +10216,7 @@ C     WRITE(6,*) ' IAMPACK in EXPCIV ', IAMPACK
 * Number of CSF's per occ class for given symmetry
 *
        IF(NTEST.GE.1000) WRITE(6,*) ' ISM, NIRREP = ', ISM, NIRREP
-       CALL EXTRROW(WORK(KNCS_FOR_OCCLS),ISM,NIRREP,NOCCLS_MAX,
+       CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISM,NIRREP,NOCCLS_MAX,
      &              int_mb(KLLOCCLS_SM))
        IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' Number of CSF of right sym per occls'
@@ -10254,7 +10254,7 @@ C    &              LBLK,ITASK,VEC,VEC_OUT,IREW,ICISTR)
 C   NCN_PER_OP_SM(MAXOP+1,NIRREP,NOCCLS_MAX)
            IROW = (ISM-1)*(MAXOP+1) + IOPEN + 1
            NROW = NIRREP*(MAXOP+1)
-           CALL EXTRROW(WORK(KNCN_PER_OP_SM),IROW,NROW,NOCCLS_MAX,
+           CALL EXTRROW(int_mb(KNCN_PER_OP_SM),IROW,NROW,NOCCLS_MAX,
      &                int_mb(KLLOCCLS_SM))
 *. Number of CSFs per occupation class for this IOPEN
            NCSF_PER_CONF = NPCSCNF(IOPEN+1)
