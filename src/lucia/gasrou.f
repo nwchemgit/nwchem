@@ -8358,7 +8358,7 @@ c      INCLUDE 'mxpdim.inc'
         IJKL = (IJ-1)*NACOB*NACOB+KL        
       END IF
 *
-      X = WORK(KRHO2-1+IOFF+IJKL)
+      X = dbl_mb(KRHO2-1+IOFF+IJKL)
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
