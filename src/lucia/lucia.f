@@ -3825,6 +3825,9 @@ C           MATCG(CIN,COUT,NROWI,NROWO,NROW1I, NGCOL,IGAT,GATSGN )
 *. Input
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -3890,20 +3893,20 @@ c      INCLUDE 'mxpdim.inc'
          CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
       END IF
 *. Pointers to symmetry block of integrals
-      CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',2,'PINT1 ')
-      CALL MEMMAN(KPINT2,NBINT2,'ADDS  ',2,'PINT2 ')
+      CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',2,'PINT1 ')  !done
+      CALL MEMMAN(KPINT2,NBINT2,'ADDS  ',2,'PINT2 ')  !done
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB
 *. triangular packed
-        CALL MEMMAN(KPGINT1(ISM),NSMOB,'ADDS  ',2,'PGINT1')
+        CALL MEMMAN(KPGINT1(ISM),NSMOB,'ADDS  ',2,'PGINT1')  !done
 *. no packing
-        CALL MEMMAN(KPGINT1A(ISM),NSMOB,'ADDS  ',2,'PGIN1A')
+        CALL MEMMAN(KPGINT1A(ISM),NSMOB,'ADDS  ',2,'PGIN1A')  !done
       END DO
 *. Symmetry of last index as a function of initial index
-      CALL MEMMAN(KLSM1,NBINT1,'ADDS  ',2,'LSM1   ')
-      CALL MEMMAN(KLSM2,NBINT2,'ADDS  ',2,'LSM2   ')
+      CALL MEMMAN(KLSM1,NBINT1,'ADDS  ',2,'LSM1   ')  !done
+      CALL MEMMAN(KLSM2,NBINT2,'ADDS  ',2,'LSM2   ')  !done
 *.3 One-body density   
-      CALL MEMMAN(KRHO1,NACOB ** 2,'ADDS  ',2,'RHO1  ')
+      CALL MEMMAN(KRHO1,NACOB ** 2,'ADDS  ',2,'RHO1  ')  !done
 *.3.1: One-body spin density
       IF(ISPNDEN.GE.1) THEN
         CALL MEMMAN(KSRHO1,NACOB **2, 'ADDS  ',2,'SRHO1 ')
@@ -4203,7 +4206,8 @@ C* Symmetry for reorder of determinants for reference symmetry
 C IFRMR(WORK,IROFF,IELMNT)
          DO JOCSBCLS = 1, NOCSBCLST
 C?         WRITE(6,*) ' JOCSBCLS = ', JOCSBCLS
-           LOCC = IFRMR(dbl_mb(KLSBCNF),1,JOCSBCLS)
+C          LOCC = IFRMR(dbl_mb(KLSBCNF),1,JOCSBCLS)
+           LOCC = int_mb(KLSBCNF + JOCSBCLS -1)
 C?         WRITE(6,*) ' LOCC = ', LOCC
            CALL MEMMAN(LPOINT,LOCC,'ADDL  ',1,'OCSBCN')
 C?         WRITE(6,*) ' LPOINT = ', LPOINT
@@ -7096,6 +7100,9 @@ C?              print '(7i6)',ijkl,ij,kl,i,j,k,l
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -7155,27 +7162,27 @@ C     END IF
           IF (I12S.EQ.1.AND.I34S.EQ.1) THEN
             CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                    IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                    WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                    dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
           ELSE
             CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
           END IF
         ELSE IF (I_UNRORB.EQ.0) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.1) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2BB),
-     &                  WORK(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.3) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
@@ -10979,7 +10986,7 @@ C                DIM_CISPACE_FROM_SBCNF(ICISPC,NCNFOPSM)
 *. Set up the basespace for the various occupation classes
 C          Z_BASSPC_FOR_ALL_OCCLS(IOCCLS,NOCCLS,IBASSPC)
       CALL Z_BASSPC_FOR_ALL_OCCLS(int_mb(KIOCCLS),NOCCLS_MAX,
-     &      WORK(KBASSPC))
+     &      int_mb(KBASSPC))
 *. Dimensions for all occupation classes
 
 *
