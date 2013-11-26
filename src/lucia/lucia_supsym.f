@@ -9,6 +9,9 @@
 *
 * Last modified July 8, 2012 (Jeppe)
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -29,8 +32,8 @@
       END IF
 * Labels for the basis functions
       CALL GET_SUPSYM_LABELS_FOR_ORBITALS
-     &(WORK(KCSUPSYM_FOR_ORB),WORK(KLVAL_FOR_ORB),WORK(KMLVAL_FOR_ORB),
-     &WORK(KPA_FOR_ORB))
+     &(int_mb(KCSUPSYM_FOR_ORB),int_mb(KLVAL_FOR_ORB),
+     & int_mb(KMLVAL_FOR_ORB),int_mb(KPA_FOR_ORB))
 *. Relation between supersymmetry and irreps
       CALL SYM_AND_IRREP_FOR_SUPSYM(
      & WORK(KL_FOR_SUPSYM),WORK(KML_FOR_SUPSYM),
@@ -604,8 +607,8 @@ C    &      WORK(KIBAS_FOR_IRREP))
       NTEST = 100
 *
       CALL GET_SUPSYM_FOR_BASIS_S(ISUPSYM_FOR_BAS,
-     &     WORK(KLVAL_FOR_ORB),WORK(KMLVAL_FOR_ORB),
-     &     WORK(KPA_FOR_ORB),NTOOB)
+     &     int_mb(KLVAL_FOR_ORB),int_mb(KMLVAL_FOR_ORB),
+     &     int_mb(KPA_FOR_ORB),NTOOB)
 *
 *
       IZERO = 0
