@@ -2564,7 +2564,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRNT,WORK(KLH0_EIGVEC),
      & NPRDET,WORK(KH0),WORK(KLH0_SUBDT),
-     & NP1,NP2,NQ,WORK(KH0SCR),EADD,ICISTR,LBLK,
+     & NP1,NP2,NQ,dbl_mb(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,dbl_mb(KVEC3),THRES_E,NBATCH,
      & int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      & int_mb(KCIBT),
@@ -2636,8 +2636,8 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
           END IF
           IF(IDENSI.GE.1)
      &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
-     &         KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
-     &         WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
+     &         KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,dbl_mb(KSRHO1),
+     &         dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),dbl_mb(KRHO2BB),1)
           IF(IDENSI.EQ.2) THEN
 *. Test calculation of energy
             CALL EN_FROM_DENS(ENERGY,2,0)
@@ -2686,8 +2686,8 @@ C   &           MAXTRM,IOUT)
           IF(IDENSI.GE.1)
      &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUHC,EXPS2,
-     &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
-     &          WORK(KRHO2BB),1 )
+     &          ISPNDEN,dbl_mb(KSRHO1),dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),
+     &          dbl_mb(KRHO2BB),1 )
           IF(IPRNT.GT.1.AND.IDENSI.EQ.2)
      &    WRITE(6,*) ' Expectation value of S2', EXPS2
           IF(IDENSI.EQ.2) THEN
@@ -2813,16 +2813,16 @@ C    &           NVAR, ICISTR,ICOPY)
               KRHO2 = 1
             END IF
             CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
-     &      KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,WORK(KSRHO1),
-     &      WORK(KRHO2AA),WORK(KRHO2AB),WORK(KRHO2BB),1)
+     &      KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,dbl_mb(KSRHO1),
+     &      dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),dbl_mb(KRHO2BB),1)
           ELSE
             CALL REWINO(LUSC1)
             CALL REWINO(LUC)
             CALL COPVCD(LUC,LUSC1,dbl_mb(KVEC1),0,LBLK)
             CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUC,LUSC1,EXPS2,
-     &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
-     &          WORK(KRHO2BB),1 )
+     &          ISPNDEN,dbl_mb(KSRHO1),dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),
+     &          dbl_mb(KRHO2BB),1 )
           END IF ! ICISTR switch
       END IF ! densities should be calculated
 *
@@ -2947,15 +2947,15 @@ C?     write(6,*) ' IRFROOT and NROOT ',IRFROOT, NROOT
            CALL COPVEC(dbl_mb(KVEC1),dbl_mb(KVEC2),NVAR)
            CALL DENSI2(1,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),0,0,EXPS2,
-     &          ISPNDEN,WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
-     &          WORK(KRHO2BB),1 )
+     &          ISPNDEN,dbl_mb(KSRHO1),dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),
+     &          dbl_mb(KRHO2BB),1 )
          ELSE
            CALL REWINO(LUSC1)
            CALL COPVCD(LUSC1,LUSC2,dbl_mb(KVEC1),1,LBLK)
              CALL DENSI2(1,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &            dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUSC2,EXPS2,ISPNDEN,
-     &            WORK(KSRHO1),WORK(KRHO2AA),WORK(KRHO2AB),
-     &            WORK(KRHO2BB),1)
+     &            dbl_mb(KSRHO1),dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),
+     &            dbl_mb(KRHO2BB),1)
          END IF
        END IF
 *
@@ -3909,17 +3909,17 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KRHO1,NACOB ** 2,'ADDS  ',2,'RHO1  ')  !done
 *.3.1: One-body spin density
       IF(ISPNDEN.GE.1) THEN
-        CALL MEMMAN(KSRHO1,NACOB **2, 'ADDS  ',2,'SRHO1 ')
+        CALL MEMMAN(KSRHO1,NACOB **2, 'ADDS  ',2,'SRHO1 ')  !done
       ELSE 
         KSRHO1 = 1
       END IF
       IF(ISPNDEN.GE.2) THEN
 *. Two-body spin-density matrices
         LENSS = (NACOB*(NACOB+1)/2) ** 2
-        CALL MEMMAN(KRHO2AA,LENSS,'ADDS  ',2,'RHO2AA')
+        CALL MEMMAN(KRHO2AA,LENSS,'ADDS  ',2,'RHO2AA')  !done
         LENAB = NACOB**4
-        CALL MEMMAN(KRHO2AB,LENAB,'ADDS  ',2,'RHO2AB')
-        CALL MEMMAN(KRHO2BB,LENSS,'ADDS  ',2,'RHO2AA')
+        CALL MEMMAN(KRHO2AB,LENAB,'ADDS  ',2,'RHO2AB')  !done
+        CALL MEMMAN(KRHO2BB,LENSS,'ADDS  ',2,'RHO2AA')  !done
       ELSE
         KRHO2AA = 1
         KROH2AB = 1
@@ -3928,17 +3928,17 @@ c      INCLUDE 'mxpdim.inc'
 *.4  Two-body density matrix
       LRHO2 = NACOB**2*(NACOB**2+1)/2
       IF(IDENSI.EQ.2.AND.ISVMEM.EQ.0) 
-     &CALL MEMMAN(KRHO2,LRHO2     ,'ADDS  ',2,'RHO2  ')
+     &CALL MEMMAN(KRHO2,LRHO2     ,'ADDS  ',2,'RHO2  ')  !done
 C     IF(IDENSI.GE.1.OR.ISPNDEN.GE.1) THEN
 C       WRITE(6,*) 
 C    &  'Space for density matrices over all orbital-spaces allocated'
 C      END IF
 *. Array for giving the orbital spaces in which density should be calculated
-       CALL MEMMAN(KDENSSPC,NGAS,'ADDL  ',1,'DENSPC')
+       CALL MEMMAN(KDENSSPC,NGAS,'ADDL  ',1,'DENSPC')  !done
 *. Arrays for going between complete ST ordered orbitals and ST ordering 
 *. of the orbitals in the densities
-       CALL MEMMAN(KDTFREORD,NTOOB,'ADDL  ',2,'DTFREO')
-       CALL MEMMAN(KFTDREORD,NTOOB,'ADDL  ',2,'FTDREO')
+       CALL MEMMAN(KDTFREORD,NTOOB,'ADDL  ',2,'DTFREO')  !done
+       CALL MEMMAN(KFTDREORD,NTOOB,'ADDL  ',2,'FTDREO')  !done
 *.4. Integrals (ij!kk) -(ik!kj), pointer and space
 CJO   CALL MEMMAN(KPNIJ,NTOOB ** 2,'ADDS  ',1,'KPNIJ ')
 CJO   CALL MEMMAN(KIJKK,NTOOB**2 *(NTOOB+1) / 2, 'ADDS  '
@@ -3955,16 +3955,17 @@ C       NSBDET = MXP1 + MXP2 + MXQ
         NSBDETP = MAX(NSBDET,IPROCC)
         MXP = MXP1 + MXP2
 *. Space for complete diagonalization
-        CALL MEMMAN(KSBEVC,NSBDET**2,'ADDS  ',2,'KSBEVC')
-        CALL MEMMAN(KSBEVL,NSBDET,'ADDS  ',2,'KSBEVL')
+C..dongxia explicit hamiltonian should be for a small space. local.
+        CALL MEMMAN(KSBEVC,NSBDET**2,'ADDS  ',2,'KSBEVC')  !done
+        CALL MEMMAN(KSBEVL,NSBDET,'ADDS  ',2,'KSBEVL')  !done
 *. KSBIDT must be able to hold list of subspace dets / print dets
         LSCR = NSBDETP+1
-        CALL MEMMAN(KSBIDT,LSCR,'ADDS  ',1,'KSBIDT')
+        CALL MEMMAN(KSBIDT,LSCR,'ADDS  ',1,'KSBIDT')  !done
 *. ( NSBDET + 1 elements allocated since NSBDET+1 values are 
 * obtained in order to check for degenerencies )
-        CALL MEMMAN(KSBCNF,LSCR        ,'ADDS  ',1,'KSBCNF')
-        CALL MEMMAN(KSBIA ,LSCR        ,'ADDS  ',1,'KSBIA ')
-        CALL MEMMAN(KSBIB ,LSCR        ,'ADDS  ',1,'KSBIB ')
+        CALL MEMMAN(KSBCNF,LSCR        ,'ADDS  ',1,'KSBCNF')  !done
+        CALL MEMMAN(KSBIA ,LSCR        ,'ADDS  ',1,'KSBIA ')  !done
+        CALL MEMMAN(KSBIB ,LSCR        ,'ADDS  ',1,'KSBIB ')  !done
 *. Note: KH0 is dimensioned so, that it may hold matrix, eigvalues and 
 *. eigenvectors
         LH0 = MXP*(MXP+1)/2 + MXP1*MXQ + MXQ + NSBDETP+1 + 
@@ -3974,11 +3975,11 @@ C       NSBDET = MXP1 + MXP2 + MXQ
         LH0SCR = 
      &  MAX(6*NSBDETP,4*NSBDETP+4*NOCOB,
      &      MXP1*(MXP1+1)/2+MXP1**2)
-        CALL MEMMAN(KH0SCR,LH0SCR      ,'ADDS  ',2,'KH0SCR')
+        CALL MEMMAN(KH0SCR,LH0SCR      ,'ADDS  ',2,'KH0SCR')  !done
 *. For subspace configurations
         IF(NOCSF.EQ.0) THEN
-          CALL MEMMAN(KSBCNFOCC,LOCC_SUB,'ADDL  ',1,'SBCNOC')
-          CALL MEMMAN(KSBCNFOP,NCONF_SUB,'ADDL  ',1,'SBCNOP')
+          CALL MEMMAN(KSBCNFOCC,LOCC_SUB,'ADDL  ',1,'SBCNOC')  !done
+          CALL MEMMAN(KSBCNFOP,NCONF_SUB,'ADDL  ',1,'SBCNOP')  !done
         ELSE
          KSBCNFOCC = 0
          KSBCNFOP = 0
@@ -3995,8 +3996,8 @@ C       NSBDET = MXP1 + MXP2 + MXQ
       END IF ! ISBSPC_SEL .ne. 0
 *. Space for LZ and L2  for all roots of a CI
         MXLROOT = MAX(NROOT,INI_NROOT)
-        CALL MEMMAN(KLZEXP,MXLROOT,'ADDL  ',2,'LZEXP ')
-        CALL MEMMAN(KL2EXP,MXLROOT,'ADDL  ',2,'L2EXP ')
+        CALL MEMMAN(KLZEXP,MXLROOT,'ADDL  ',2,'LZEXP ')  !done
+        CALL MEMMAN(KL2EXP,MXLROOT,'ADDL  ',2,'L2EXP ')  !done
 *
 *. indeces for pair of orbitals symmetry ordered
 *. Lower half packed
@@ -4091,11 +4092,11 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
 *. Supersymmetry info
       IF(I_USE_SUPSYM.EQ.1) THEN
 *. Character labels
-        CALL MEMMAN(KCSUPSYM_FOR_ORB,4*NTOOB,'ADDL  ',1,'CSUPSM')
+        CALL MEMMAN(KCSUPSYM_FOR_ORB,4*NTOOB,'ADDL  ',1,'CSUPSM')  !done
 *. L values
-        CALL MEMMAN(KLVAL_FOR_ORB ,NTOOB,'ADDL  ',1,'L_OB  ')
-        CALL MEMMAN(KMLVAL_FOR_ORB,NTOOB,'ADDL  ',1,'ML_OB ')
-        CALL MEMMAN(KPA_FOR_ORB,NTOOB,'ADDL  ',1,'PA_OB ')
+        CALL MEMMAN(KLVAL_FOR_ORB ,NTOOB,'ADDL  ',1,'L_OB  ')  !done
+        CALL MEMMAN(KMLVAL_FOR_ORB,NTOOB,'ADDL  ',1,'ML_OB ')  !done
+        CALL MEMMAN(KPA_FOR_ORB,NTOOB,'ADDL  ',1,'PA_OB ')  !done
 *. Tables for going between irrep and symmetries
 *. Max number of irreps is based on ATOMIC or LINEAR supersymmetry
         NSUPSYM_MAX = MXPL + 1 + MXPL*(MXPL+1)
