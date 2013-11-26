@@ -246,7 +246,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
         NBEL = NELFTP(2)  
 *
         CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,IREFSM),
-     &        WORK(KICONF_OCC(IREFSM)),WORK(KVEC1P),ECORE,
+     &        int_mb(KICONF_OCC(IREFSM)),WORK(KVEC1P),ECORE,
      &        LUDIA,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),IREFSM)
 C      GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,
 C     &           ECORE,LUDIA,NOCCLS_SPC,IOCCLS_SPC,ISYM)
@@ -753,7 +753,7 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
 C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
         CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,ISM),
-     &        WORK(KICONF_OCC(ISM)),VECUT,ECORE,
+     &        int_mb(KICONF_OCC(ISM)),VECUT,ECORE,
      &        LUDIA_A,NXIOCCLS_ACT,dbl_mb(KXIOCCLS_ACT),ISM)
       END IF! IH0_CSF switch
       CALL QEXIT('CSDIAM')
@@ -3663,7 +3663,7 @@ C    &           ECORE,ITASK)
      &    int_mb(KNCMAB_FOR_OCCLS+(IQ_OCCLS-1)*NSMST+IREFSM-1)
 *. HQP CP batch in CB
           NTESTL = 0
-          CALL CSDTVCB(CB,HCB,2,WORK(KDTOC),
+          CALL CSDTVCB(CB,HCB,2,dbl_mb(KDTOC),
      &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
      &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
      &        0,1,NTESTL)
@@ -3709,15 +3709,15 @@ COLD          NCONF = NCONF_FOR_OPEN(IOPEN+1)
               DO  ICONF = 1, NCONF
 *. Occupation
                CALL ICOPVE2(
-     &              WORK(KICONF_OCC(IREFSM)),IB_OCC,IORB,ICONF_OCC)
+     &              int_mb(KICONF_OCC(IREFSM)),IB_OCC,IORB,ICONF_OCC)
                IF(NTEST.GE.10000) THEN
                  WRITE(6,*) ' Occupation of next conf '
                  CALL IWRTMA(ICONF_OCC,1,IORB,1,IORB)
                END IF
 *. Diagonal elements (delivered as diagonal elements of complete matrix even if ISYMG=1)
                CALL CNHCN_CSF_BLK(ICONF_OCC,IOPEN,
-     &         ICONF_OCC,IOPEN,WORK(KLCSFHCSF),NINOB,WORK(KDFTP),
-     &         WORK(KDTOC),2,WORK(KLISCR),WORK(KLRSCR),ECORE,
+     &         ICONF_OCC,IOPEN,WORK(KLCSFHCSF),NINOB,int_mb(KDFTP),
+     &         dbl_mb(KDTOC),2,WORK(KLISCR),WORK(KLRSCR),ECORE,
      &         IONLY_DIAG,ISYMG,WORK(KLJ),WORK(KLK))
 *. Extract diagonal elements 
                CALL COPDIA(WORK(KLCSFHCSF),HCB(IB_H0),NCSF,0)
@@ -3750,7 +3750,7 @@ C?        WRITE(6,*)  ' Shift = ', Shift
 *
           CALL QEXIT('AKBKH0')
           NTESTL = 000
-          CALL CSDTVCB(CB,WORK(KVEC4),1,WORK(KDTOC),
+          CALL CSDTVCB(CB,WORK(KVEC4),1,dbl_mb(KDTOC),
      &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
      &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
      &        0,1,NTESTL)
