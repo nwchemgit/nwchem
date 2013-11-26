@@ -36,27 +36,27 @@
      & int_mb(KMLVAL_FOR_ORB),int_mb(KPA_FOR_ORB))
 *. Relation between supersymmetry and irreps
       CALL SYM_AND_IRREP_FOR_SUPSYM(
-     & WORK(KL_FOR_SUPSYM),WORK(KML_FOR_SUPSYM),
-     & WORK(KPA_FOR_SUPSYM),WORK(KIRREP_FOR_SUPSYM),
-     & WORK(KNSUPSYM_FOR_IRREP), WORK(KIBSUPSYM_FOR_IRREP),
-     & WORK(KISUPSYM_FOR_IRREP) )
+     & int_mb(KL_FOR_SUPSYM),int_mb(KML_FOR_SUPSYM),
+     & int_mb(KPA_FOR_SUPSYM),int_mb(KIRREP_FOR_SUPSYM),
+     & int_mb(KNSUPSYM_FOR_IRREP), int_mb(KIBSUPSYM_FOR_IRREP),
+     & int_mb(KISUPSYM_FOR_IRREP) )
 C     SYM_AND_IRREP_FOR_SUPSYM
 C    &           (L_FOR_SUPSYM,ML_FOR_SUPSYM,IPA_FOR_SUPSYM,IRREP_FOR_SUPSYM,
 C    &           NSUPSYM_FOR_IRREP, IBSUPSYM_FOR_IRREP,ISUPSYM_FOR_IRREP)
 *
 *. Info on the supersymmetry of the basis set
 *
-      CALL GET_SUPSYM_FOR_BASIS(WORK(KISUPSYM_FOR_BAS),
-     &     WORK(KNBAS_FOR_SUP_STA_SYM),WORK(KIBBAS_FOR_SUP_STA_SYM),
-     &     WORK(KIBAS_FOR_SUP_STA_SYM),WORK(KISHELL_FOR_BAS), 
-     &     WORK(KNBAS_FOR_SHELL),WORK(KIBBAS_FOR_SHELL),
-     &     WORK(KIBAS_FOR_SHELL),
-     &     WORK(KNSUPSYM_FOR_IRREP),WORK(KIBSUPSYM_FOR_IRREP),
-     &     WORK(KISUPSYM_FOR_IRREP))
+      CALL GET_SUPSYM_FOR_BASIS(int_mb(KISUPSYM_FOR_BAS),
+     &     int_mb(KNBAS_FOR_SUP_STA_SYM),int_mb(KIBBAS_FOR_SUP_STA_SYM),
+     &     int_mb(KIBAS_FOR_SUP_STA_SYM),int_mb(KISHELL_FOR_BAS), 
+     &     int_mb(KNBAS_FOR_SHELL),int_mb(KIBBAS_FOR_SHELL),
+     &     int_mb(KIBAS_FOR_SHELL),
+     &     int_mb(KNSUPSYM_FOR_IRREP),int_mb(KIBSUPSYM_FOR_IRREP),
+     &     int_mb(KISUPSYM_FOR_IRREP))
 *
 * Obtain mappings from standard to super symmetry components
 * simply by reading info in NBAS_FOR_SUP_STA_SYM
-      CALL SUP_TO_STASYM(WORK(KNBAS_FOR_SUP_STA_SYM))
+      CALL SUP_TO_STASYM(int_mb(KNBAS_FOR_SUP_STA_SYM))
 *. Number, offsets and actual numbers of orbitals of 
 *. given symmetry
 *
@@ -486,6 +486,9 @@ C?    IF(NTEST.GE.100) WRITE(6,*) ' Lmax = ', LMAX
 *. Jeppe Olsen, May 2012
 *               June 2012: parity added
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
@@ -496,9 +499,9 @@ C?    IF(NTEST.GE.100) WRITE(6,*) ' Lmax = ', LMAX
       NTEST = 00
 *
       CALL SYM_AND_IRREP_FOR_LMLPA_S(L,ML,IPA,ISYM,IRREP,
-     &     CSUPSYM,WORK(KL_FOR_SUPSYM),WORK(KML_FOR_SUPSYM),
-     &     WORK(KPA_FOR_SUPSYM),
-     &     WORK(KIRREP_FOR_SUPSYM),N_SUPSYM)
+     &     CSUPSYM,int_mb(KL_FOR_SUPSYM),int_mb(KML_FOR_SUPSYM),
+     &     int_mb(KPA_FOR_SUPSYM),
+     &     int_mb(KIRREP_FOR_SUPSYM),N_SUPSYM)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from  SYM_AND_IRREP_FOR_LML '
@@ -1130,6 +1133,9 @@ C?     WRITE(6,*) ' NSTA and updated IJB_SYM = ', NSTA, IJB_SYM
 *
 *. Jeppe Olsen, May 23, 2012
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -1150,9 +1156,9 @@ C?     WRITE(6,*) ' NSTA and updated IJB_SYM = ', NSTA, IJB_SYM
       CALL N_SUPSYM_IRREP_TO_SUPSYM_S(
      &     N_PER_IRREP,N_PER_SUPSYM,
      &     N_SUPSYM_IRREP, N_SUPSYM,
-     &     WORK(KNSUPSYM_FOR_IRREP),
-     &     WORK(KIBSUPSYM_FOR_IRREP),
-     &     WORK(KISUPSYM_FOR_IRREP)  )
+     &     int_mb(KNSUPSYM_FOR_IRREP),
+     &     int_mb(KIBSUPSYM_FOR_IRREP),
+     &     int_mb(KISUPSYM_FOR_IRREP)  )
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Number of shells per supsym irrep '
@@ -1769,6 +1775,9 @@ C          IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 *
 * Jeppe Olsen, May 26
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -1795,11 +1804,11 @@ C          IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' GA-spaces over supersymmetries '
-	WRITE(6,*) ' ==============================='
+        WRITE(6,*) ' ==============================='
         WRITE(6,*)
         CALL IWRTMA3(NGAS_SUPSYM,N_SUPSYM,NGAS+2,MXP_NSUPSYM,NGAS+2)
         WRITE(6,*) ' GA-spaces over standard symmetries '
-	WRITE(6,*) ' ==================================='
+        WRITE(6,*) ' ==================================='
         WRITE(6,*)
         CALL IWRTMA3(NGAS_STASYM,NSMOB,NGAS+2,MXPOBS,NGAS+2)
       END IF
@@ -1807,12 +1816,12 @@ C          IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 * Obtain the reordering for this set of orbitals
 *
       CALL ORDER_SUPSYM_ORBITALS(NGAS+2,NGAS_SUPSYM,
-     &     WORK(KMO_SUPSYM),WORK(KMO_STA_TO_ACT_REO),
-     &     WORK(KISUPSYM_FOR_BAS)                )
+     &     int_mb(KMO_SUPSYM),int_mb(KMO_STA_TO_ACT_REO),
+     &     int_mb(KISUPSYM_FOR_BAS)                )
 *
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Super-symmetry reordering of orbitals, GAS '
-        CALL IWRTMA3(WORK(KMO_STA_TO_ACT_REO),1,NTOOB,1,NTOOB)
+        CALL IWRTMA3(int_mb(KMO_STA_TO_ACT_REO),1,NTOOB,1,NTOOB)
       END IF
 *
       RETURN
@@ -2463,6 +2472,9 @@ C     COMB_TWO_REO(IREO3,IREO2,IREO1,NDIM)
 *
 *. Jeppe Olsen, March 5, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -2472,8 +2484,8 @@ C     COMB_TWO_REO(IREO3,IREO2,IREO1,NDIM)
 * IWAY = 2: Shell-order to super-symmetry order
 *
       CALL REFORM_CMO_SUP_SHL_IN(CMO_SUP,CMO_SHL,IWAY,
-     &     WORK(KNSUPSYM_FOR_IRREP),WORK(KIBSUPSYM_FOR_IRREP),
-     &     WORK(KISUPSYM_FOR_IRREP))
+     &     int_mb(KNSUPSYM_FOR_IRREP),int_mb(KIBSUPSYM_FOR_IRREP),
+     &     int_mb(KISUPSYM_FOR_IRREP))
 *
       RETURN
       END
@@ -2591,6 +2603,9 @@ C?        WRITE(6,'(A,2I4)') ' IB_SHL, IB_SUP = ', IB_SHL, IB_SUP
 *. Outer part
 *. Jeppe Olsen, March 5, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -2599,8 +2614,8 @@ C?        WRITE(6,'(A,2I4)') ' IB_SHL, IB_SUP = ', IB_SHL, IB_SUP
 *. Input
       DIMENSION CSHELL(*)
 *
-      CALL PRINT_CSHELLIN(CSHELL,WORK(KNSUPSYM_FOR_IRREP),
-     &                    WORK(KIBSUPSYM_FOR_IRREP))
+      CALL PRINT_CSHELLIN(CSHELL,int_mb(KNSUPSYM_FOR_IRREP),
+     &                    int_mb(KIBSUPSYM_FOR_IRREP))
 *
       RETURN
       END
@@ -2679,6 +2694,9 @@ C?   &                        NDEG, NSHELL, IB
 *
 *. Jeppe Olsen, March 6, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -2694,16 +2712,17 @@ C?   &                        NDEG, NSHELL, IB
       CALL MEMMAN(KLACT_TO_STA,NTOOB,'ADDL  ',1,'REACST')
 *. Obtain mapping from actual to standard mapping of orbitals from inverse
 C     INVERT_MAP(MAP,MAPINV,NELMNT)
-      CALL INVERT_MAP(WORK(KMO_STA_TO_ACT_REO),WORK(KLACT_TO_STA),NTOOB)
+      CALL INVERT_MAP(int_mb(KMO_STA_TO_ACT_REO),int_mb(KLACT_TO_STA),
+     &                NTOOB)
 
 * 
 *. Obtain the number of shell-shell excitations
 *
 C     GET_SSEXC(NOOEX,IOOEXC,NSSEX,ISSEXE,ISSEXC,
 C    &           NOOFSS,IBOOFSS,IOOFSS,IFLAG,IACT_TO_STA,ISHL_FOR_STA)
-      CALL GET_SSEXC(NOOEX,IOOEXC,NSSEX,WORK(KLSSEXE),
+      CALL GET_SSEXC(NOOEX,IOOEXC,NSSEX,int_mb(KLSSEXE),
      &                IDUM,IDUM,IDUM,IDUM,1,
-     &                WORK(KLACT_TO_STA),WORK(KISHELL_FOR_BAS))
+     &                int_mb(KLACT_TO_STA),int_mb(KISHELL_FOR_BAS))
 *. Allocate space for the shell excitations
       CALL MEMMAN(KISSEXC,2*NSSEX,'ADDL  ',1,'ISSEXC')
       CALL MEMMAN(KNOOFSS,NSSEX,'ADDL  ',1,'NOOFSS')
@@ -2714,10 +2733,10 @@ C    &           NOOFSS,IBOOFSS,IOOFSS,IFLAG,IACT_TO_STA,ISHL_FOR_STA)
 *
 C     GET_SSEXC(NOOEX,IOOEXC,NSSEX,ISSEXE,ISSEXC,
 C    &           NOOFSS,IBOOFSS,IOOFSS,IFLAG,IACT_TO_STA,ISHL_FOR_STA)
-      CALL GET_SSEXC(NOOEX,IOOEXC,NSSEX,WORK(KLSSEXE),
-     &                WORK(KISSEXC),WORK(KNOOFSS),WORK(KIBOOFSS),
-     &                WORK(KIOOFSS),2,
-     &                WORK(KLACT_TO_STA),WORK(KISHELL_FOR_BAS))
+      CALL GET_SSEXC(NOOEX,IOOEXC,NSSEX,int_mb(KLSSEXE),
+     &                int_mb(KISSEXC),int_mb(KNOOFSS),int_mb(KIBOOFSS),
+     &                int_mb(KIOOFSS),2,
+     &                int_mb(KLACT_TO_STA),int_mb(KISHELL_FOR_BAS))
 *
       RETURN
       END
@@ -2954,6 +2973,9 @@ C?      CALL IWRTMA3(IBOOFSS,1,ISSEX,1,ISSEX)
 *
 *. Jeppe Olsen, March 8, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -2966,8 +2988,8 @@ C?      CALL IWRTMA3(IBOOFSS,1,ISSEX,1,ISSEX)
       DIMENSION RHO1AVE(NACOB,NACOB)
 *
       CALL AVE_DENS_OVER_SUBSHELLS_IN(RHO1,RHO1VE,NSHTO,NACOB,
-     &     WORK(KNBAS_FOR_SHELL),WORK(KIBBAS_FOR_SHELL),
-     &     WORK(KIBAS_FOR_SHELL),ITPFSO,NGAS)
+     &     int_mb(KNBAS_FOR_SHELL),int_mb(KIBBAS_FOR_SHELL),
+     &     int_mb(KIBAS_FOR_SHELL),ITPFSO,NGAS)
 *
       RETURN
       END
@@ -3075,6 +3097,9 @@ C?      CALL IWRTMA3(IBOOFSS,1,ISSEX,1,ISSEX)
 *
 *. Jeppe Olsen, March 9, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'  
@@ -3087,8 +3112,8 @@ C?      CALL IWRTMA3(IBOOFSS,1,ISSEX,1,ISSEX)
       DIMENSION ASUP(*)
 *
       CALL AVE_SUPSYM_MAT_IN(ASUP,NOBPSPSM,IPACK,
-     &     N_SUPSYM_IRREP,N_SUPSYM,WORK(KNSUPSYM_FOR_IRREP),
-     &     WORK(KIBSUPSYM_FOR_IRREP),WORK(KISUPSYM_FOR_IRREP))
+     &     N_SUPSYM_IRREP,N_SUPSYM,int_mb(KNSUPSYM_FOR_IRREP),
+     &     int_mb(KIBSUPSYM_FOR_IRREP),int_mb(KISUPSYM_FOR_IRREP))
 *
       RETURN
       END
@@ -3212,6 +3237,9 @@ C?      WRITE(6,*) ' FACTOR = ', FACTOR
 *
 *. Jeppe Olsen, March 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -3229,11 +3257,11 @@ C?      WRITE(6,*) ' FACTOR = ', FACTOR
 *
 *. Reform to shell format 
 *
-      CALL REFORM_CMO(CMO,IFORM,WORK(KLMO1),4)
+      CALL REFORM_CMO(CMO,IFORM,dbl_mb(KLMO1),4)
 *
 *. And print
 *
-      CALL PRINT_CSHELL(WORK(KLMO1))
+      CALL PRINT_CSHELL(dbl_mb(KLMO1))
 *
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'PR_SHL')
@@ -3251,6 +3279,9 @@ C?      WRITE(6,*) ' FACTOR = ', FACTOR
 *
 *. Jeppe Olsen, March 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'lucinp.inc'
@@ -3278,16 +3309,16 @@ C?      WRITE(6,*) ' FACTOR = ', FACTOR
 *. Reform from input form to standard form
 *
 C REFORM_CMO_TO_STANDARD(CMO,CMOST,IFORM,IWAY)
-      CALL REFORM_CMO_TO_STANDARD(C_IN,WORK(KLMO1),IFORM_IN,1)
+      CALL REFORM_CMO_TO_STANDARD(C_IN,dbl_mb(KLMO1),IFORM_IN,1)
 *
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Intermediate CMO in standard form '
-        CALL APRBLM2(WORK(KLMO1),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KLMO1),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
 *. Reform from standard to output form
 *
-      CALL REFORM_CMO_TO_STANDARD(C_OUT,WORK(KLMO1),IFORM_OUT,2)
+      CALL REFORM_CMO_TO_STANDARD(C_OUT,dbl_mb(KLMO1),IFORM_OUT,2)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Input CMO to REFORM_CMO: '
@@ -3317,6 +3348,9 @@ C REFORM_CMO_TO_STANDARD(CMO,CMOST,IFORM,IWAY)
 *
 *. Jeppe Olsen, March 9, 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -3356,19 +3390,19 @@ C              PRINT_CMO_ARBFORM(CMO,IFORM)
         IF(IFORM.EQ.4) THEN
 *. Shell in CMO => supersymmetry form in KLMO1
 C              REFORM_CMO_SUP_SHL(CMO_SUP,CMO_SHL,IWAY)
-          CALL REFORM_CMO_SUP_SHL(WORK(KLMO1),CMO,2)
+          CALL REFORM_CMO_SUP_SHL(dbl_mb(KLMO1),CMO,2)
         END IF
 *
         IF (IFORM.GE.3) THEN
-          IF(IFORM.EQ.3) CALL COPVEC(CMO,WORK(KLMO1),LCMO)
+          IF(IFORM.EQ.3) CALL COPVEC(CMO,dbl_mb(KLMO1),LCMO)
 *. Supersymmetry in KLMO1 => standard in CMOST
 C                REFORM_CMO_STA_GEN(CMO_STA,CMO_GEN,IDO_REORDER,IREO,IWAY)
-           CALL  REFORM_CMO_STA_GEN(CMOST,WORK(KLMO1),0,0,2)
+           CALL  REFORM_CMO_STA_GEN(CMOST,dbl_mb(KLMO1),0,0,2)
         ELSE IF (IFORM.EQ.2) THEN
 *. Actual => standard
 C               REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
            CALL REO_CMOAO(CMO,CMOST,
-     &          WORK(KMO_STA_TO_ACT_REO),0,2)
+     &          int_mb(KMO_STA_TO_ACT_REO),0,2)
         ELSE IF(IFORM.EQ.1) THEN
 *. Easy living, just copy
           CALL COPVEC(CMO,CMOST,LCMO)
@@ -3382,17 +3416,17 @@ C               REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
            CALL REFORM_CMO_STA_GEN(CMOST,CMO,0,0,1)
          END IF
          IF(IFORM.EQ.4) THEN
-           CALL COPVEC(CMO,WORK(KLMO1),LCMO)
+           CALL COPVEC(CMO,dbl_mb(KLMO1),LCMO)
 *. Supersymmetry to shell
 C               REFORM_CMO_SUP_SHL(CMO_SUP,CMO_SHL,IWAY)
-           CALL REFORM_CMO_SUP_SHL(WORK(KLMO1),CMO,1)
+           CALL REFORM_CMO_SUP_SHL(dbl_mb(KLMO1),CMO,1)
          END IF
 *
          IF(IFORM.EQ.2) THEN
 *. Standard => Actual/gas ordered 
 C               REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
            CALL REO_CMOAO(CMOST,CMO,
-     &          WORK(KMO_STA_TO_ACT_REO),0,1)
+     &          int_mb(KMO_STA_TO_ACT_REO),0,1)
          ELSE IF(IFORM.EQ.1) THEN
 *. Standard => standard
            CALL COPVEC(CMOST,CMO,LCMO)
@@ -3573,6 +3607,9 @@ C              PRINT_CMO_ARBFORM(CMO,IFORM)
 *
 *. Jeppe Olsen, March 2013
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -3590,17 +3627,17 @@ C              PRINT_CMO_ARBFORM(CMO,IFORM)
 *
 *. Reform to shell format 
 *
-      CALL REFORM_CMO(CMO,IFORM,WORK(KLMO1),4)
+      CALL REFORM_CMO(CMO,IFORM,dbl_mb(KLMO1),4)
 *
 *. And analyze /align
 *
-      CALL ANA_SUBSHELLS_CMO_IN(WORK(KLMO1),
-     &     WORK(KNSUPSYM_FOR_IRREP),WORK(KIBSUPSYM_FOR_IRREP),
+      CALL ANA_SUBSHELLS_CMO_IN(dbl_mb(KLMO1),
+     &     int_mb(KNSUPSYM_FOR_IRREP),int_mb(KIBSUPSYM_FOR_IRREP),
      &     XMAX,MAXIRR,MAXSHL,IALIGN)
 *
       IF(IALIGN.EQ.1) THEN
 *. Pump aligned MOs back in CMO
-        CALL REFORM_CMO(WORK(KLMO1),4,CMO,IFORM)
+        CALL REFORM_CMO(dbl_mb(KLMO1),4,CMO,IFORM)
       END IF
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'AN_SHL')
