@@ -2351,8 +2351,8 @@ COLD    IB_SD_OPEN(IOPEN+1) = IDTBS
         IALPHA = (IOPEN+MS2)/2
         IDET = NPCMCNF(IOPEN+1)
 C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
-        CALL REO_PTDET(IOPEN,IALPHA,WORK(KZ_PTDT(ITP)),
-     &                 WORK(KREO_PTDT(ITP)),IPDTCNF(IDTBS),
+        CALL REO_PTDET(IOPEN,IALPHA,int_mb(KZ_PTDT(ITP)),
+     &                 int_mb(KREO_PTDT(ITP)),IPDTCNF(IDTBS),
      &                 IDET,int_mb(KLSCR2) )
 C?     WRITE(6,*) ' Z array as delivered by REO_PTDET'
 C?     CALL IWRTMA(WORK(KZ_PTDT(ITP)),IOPEN,IALPHA,IOPEN,IALPHA)
@@ -10526,7 +10526,7 @@ C?   &     NCONF_PER_OPEN_GN(IOPEN+1,ISYM,ISPC), IB_REL
 *
       IF(IWAY.EQ.1) THEN
 C            MATVCC2(A,VIN,VOUT,NROW,NCOL,ITRNS,FACIN)
-        CALL MATVCC2(WORK(KDTOC + IOFFCD -1),C_CSF,C_SD,NPSD,NPCSF,
+        CALL MATVCC2(dbl_mb(KDTOC + IOFFCD -1),C_CSF,C_SD,NPSD,NPCSF,
      &                0,FACTORC)
 *
         IF(NTEST.GE.10000) THEN
@@ -10542,7 +10542,7 @@ C?      WRITE(6,*) ' ISIGN: '
 C?      CALL IWRTMA(ISIGN,1,NPSD,1,NPSD)
 C?      WRITE(6,*) ' Result after ISIGN '
 C?      CALL WRTMAT(C_SD,1,NPSD,1,NPSD)
-        CALL MATVCC2(WORK(KDTOC + IOFFCD -1),C_SD,C_CSF,NPSD,NPCSF,
+        CALL MATVCC2(dbl_mb(KDTOC + IOFFCD -1),C_SD,C_CSF,NPSD,NPCSF,
      &               1,FACTORC)
       END IF
 *
@@ -10567,7 +10567,7 @@ C?      CALL WRTMAT(C_SD,1,NPSD,1,NPSD)
         WRITE(6,*) 
         WRITE(6,*) ' IOPEN, IOFFCD = ',IOPEN, IOFFCD
         WRITE(6,*) ' The DTOC array '
-        CALL WRTMAT(WORK(KDTOC + IOFFCD -1),NPSD,NPCSF,
+        CALL WRTMAT(dbl_mb(KDTOC + IOFFCD -1),NPSD,NPCSF,
      &  NPSD, NPCSF)
       END IF
 *
