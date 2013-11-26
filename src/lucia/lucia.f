@@ -4101,26 +4101,26 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
 *. Max number of irreps is based on ATOMIC or LINEAR supersymmetry
         NSUPSYM_MAX = MXPL + 1 + MXPL*(MXPL+1)
         NIRREP_MAX  = 2*MXPL + 1
-        CALL MEMMAN(KL_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'L_SPSM')
-        CALL MEMMAN(KML_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'M_SPSM')
-        CALL MEMMAN(KPA_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'P_SPSM')
-        CALL MEMMAN(KIRREP_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'I_SPSM')
-        CALL MEMMAN(KNSUPSYM_FOR_IRREP,NIRREP_MAX,'ADDL  ',1,'N_SPSM')
-        CALL MEMMAN(KIBSUPSYM_FOR_IRREP,NIRREP_MAX,'ADDL  ',1,'B_SPSM')
-        CALL MEMMAN(KISUPSYM_FOR_IRREP,NIRREP_MAX,'ADDL  ',1,'ISM_IR')
+        CALL MEMMAN(KL_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'L_SPSM') !done
+        CALL MEMMAN(KML_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'M_SPSM') !d
+        CALL MEMMAN(KPA_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'P_SPSM') !d
+        CALL MEMMAN(KIRREP_FOR_SUPSYM,NSUPSYM_MAX,'ADDL  ',1,'I_SPSM')!d
+        CALL MEMMAN(KNSUPSYM_FOR_IRREP,NIRREP_MAX,'ADDL  ',1,'N_SPSM')!d
+        CALL MEMMAN(KIBSUPSYM_FOR_IRREP,NIRREP_MAX,'ADDL  ',1,'B_SPSM')!
+        CALL MEMMAN(KISUPSYM_FOR_IRREP,NIRREP_MAX,'ADDL  ',1,'ISM_IR')!d
 *. Supersymmetry for basis function
-        CALL MEMMAN(KISUPSYM_FOR_BAS,NTOOB,'ADDL  ',1,'ISP_BS')
+        CALL MEMMAN(KISUPSYM_FOR_BAS,NTOOB,'ADDL  ',1,'ISP_BS') !done
 *. Info on orbitals with given super and standard symmetry
         CALL MEMMAN(KNBAS_FOR_SUP_STA_SYM,NSUPSYM_MAX*NSMOB,'ADDL  ',1,
-     &       'NB_SSS')
+     &       'NB_SSS') !done
         CALL MEMMAN(KIBBAS_FOR_SUP_STA_SYM,NSUPSYM_MAX*NSMOB,'ADDL  ',1,
-     &       'BB_SSS')
-        CALL MEMMAN(KIBAS_FOR_SUP_STA_SYM, NTOOB,'ADDL  ',1,'IB_SSS')
+     &       'BB_SSS') !done
+        CALL MEMMAN(KIBAS_FOR_SUP_STA_SYM, NTOOB,'ADDL  ',1,'IB_SSS') !d
 *. Info for going between irreps and symmetry-ordered orbitals
-        CALL MEMMAN(KISHELL_FOR_BAS,NTOOB,'ADDL  ',1,'IR_BAS')
-        CALL MEMMAN(KNBAS_FOR_SHELL,NTOOB,'ADDL  ',1,'NB_IRR')
-        CALL MEMMAN(KIBBAS_FOR_SHELL,NTOOB,'ADDL  ',1,'IB_IRR')
-        CALL MEMMAN(KIBAS_FOR_SHELL,NTOOB,'ADDL  ',1,'I_IRR ')
+        CALL MEMMAN(KISHELL_FOR_BAS,NTOOB,'ADDL  ',1,'IR_BAS') !done
+        CALL MEMMAN(KNBAS_FOR_SHELL,NTOOB,'ADDL  ',1,'NB_IRR') !done
+        CALL MEMMAN(KIBBAS_FOR_SHELL,NTOOB,'ADDL  ',1,'IB_IRR')!done
+        CALL MEMMAN(KIBAS_FOR_SHELL,NTOOB,'ADDL  ',1,'I_IRR ') !done
       ELSE
         KCSUPSYM_FOR_ORB = -1
         KLVAL_FOR_ORB = -1
@@ -4143,15 +4143,15 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
         KIBAS_FOR_SHELL = -1
 *
       END IF
-      CALL MEMMAN(KMO_STA_TO_ACT_REO,NTOOB,'ADDL  ',1,'MOSTSP') 
-      CALL MEMMAN(KMO_SUPSYM,NTOOB,'ADDL  ',1,'MOSPSM') 
-      CALL MEMMAN(KMO_GNSYM ,NTOOB,'ADDL  ',1,'MOGNSM') 
+      CALL MEMMAN(KMO_STA_TO_ACT_REO,NTOOB,'ADDL  ',1,'MOSTSP') !d
+      CALL MEMMAN(KMO_SUPSYM,NTOOB,'ADDL  ',1,'MOSPSM')  !done
+      CALL MEMMAN(KMO_GNSYM ,NTOOB,'ADDL  ',1,'MOGNSM')  !done
       CALL MEMMAN(KIREO_GNSYM_TO_TS_ACOB,NTOOB,'ADDL  ',1,
-     &            'REOGAC')
-      CALL MEMMAN(KMO_STA_SUPSYM,NTOOB,'ADDL  ',1,'STSPSM')
-      CALL MEMMAN(KMO_OCC_SUPSYM,NTOOB,'ADDL  ',1,'OCSPSM')
-      CALL MEMMAN(KMO_ACT_SUPSYM,NTOOB,'ADDL  ',1,'ACSPSM')
-      CALL MEMMAN(KIREO_INI_OCC, NTOOB,'ADDL  ',1,'INOCRE')
+     &            'REOGAC')  !done
+      CALL MEMMAN(KMO_STA_SUPSYM,NTOOB,'ADDL  ',1,'STSPSM') !done
+      CALL MEMMAN(KMO_OCC_SUPSYM,NTOOB,'ADDL  ',1,'OCSPSM') !done
+      CALL MEMMAN(KMO_ACT_SUPSYM,NTOOB,'ADDL  ',1,'ACSPSM') !done
+      CALL MEMMAN(KIREO_INI_OCC, NTOOB,'ADDL  ',1,'INOCRE') !done
 *. Some arrays allowing hiding the use of super-symmetry
       IF(I_USE_SUPSYM.EQ.0) THEN
         NGENSMOB = NSMOB
@@ -4166,9 +4166,9 @@ COLD    NGENSMOB = NSMOB*NSUPSYM_MAX
       IF(NOCSF.EQ.0) THEN
 *. Memory for prototype info on configs and CSF's
 *. And allocate memory for prototype info
-       CALL MEMMAN(KDFTP,LPDT_OCC,'ADDL  ',1,'DFTP  ')
-       CALL MEMMAN(KCFTP,LPCS_OCC,'ADDL  ',1,'CFTP  ')
-       CALL MEMMAN(KDTOC,LPDTOC,'ADDL  ',2,'D_TO_C')
+       CALL MEMMAN(KDFTP,LPDT_OCC,'ADDL  ',1,'DFTP  ') !done
+       CALL MEMMAN(KCFTP,LPCS_OCC,'ADDL  ',1,'CFTP  ') !done
+       CALL MEMMAN(KDTOC,LPDTOC,'ADDL  ',2,'D_TO_C')  !done
 * Arrays for addressing prototype determinants for each prototype-config
        DO IOPEN = MINOP, MAXOP
          ITYP = IOPEN + 1
@@ -4176,8 +4176,8 @@ COLD    NGENSMOB = NSMOB*NSUPSYM_MAX
          IALPHA = (IOPEN+MS2)/2
          LZ = IOPEN*IALPHA        
          LPTDT = IBION(IOPEN,IALPHA)
-         CALL MEMMAN(KZ_PTDT(ITYP),LZ,'ADDL  ',1,'Z_PTDT')
-         CALL MEMMAN(KREO_PTDT(ITYP),LPTDT,'ADDL  ',1,'RE_PTD')
+         CALL MEMMAN(KZ_PTDT(ITYP),LZ,'ADDL  ',1,'Z_PTDT') !done
+         CALL MEMMAN(KREO_PTDT(ITYP),LPTDT,'ADDL  ',1,'RE_PTD') !done
        END DO
 *
 *. Info on vectors to be stored:
@@ -4194,7 +4194,7 @@ COLD    NGENSMOB = NSMOB*NSUPSYM_MAX
          NNCM_MAX = NCM_FOR_OCCLS_MAX
        END IF
 *
-       CALL MEMMAN(KZCONF,NOCOB*NACTEL*2,'ADDL  ',1,'ZCONF ')
+       CALL MEMMAN(KZCONF,NOCOB*NACTEL*2,'ADDL  ',1,'ZCONF ') !done
        CALL MEMMAN(KICONF_OCC(IREFSM),LLCONFOCC_MAX,'ADDL  ',1,'CNFOCC')
 *. Reorder array for configurations
        CALL MEMMAN(KICONF_REO(1),NNCONF_AS_MAX,'ADDL  ',1,'CNFREO')
@@ -11065,7 +11065,8 @@ C GET_NSD_MINMAX_SPACE(MIN_OCC,MAX_OCC,ISYM,MS2X,MULTSX, NSD,NCM,NCSF,NCONF)
 *
       IF(NOCSF.EQ.0) THEN 
 *. The prototype information
-        CALL CSDTMT_GAS(int_mb(KDFTP),int_mb(KCFTP),dbl_mb(KDTOC),IPRCSF)
+        CALL CSDTMT_GAS(int_mb(KDFTP),int_mb(KCFTP),dbl_mb(KDTOC),
+     &                  IPRCSF)
       END IF
       IF(NOCSF.EQ.0.AND.I_DO_SBCNF.EQ.1) THEN
 *. Construct the occupations of the various subconfigurations
@@ -11181,22 +11182,23 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
           NGAS_GNSYM(ISYM,IGAS) = NOBPTS_GN(IGAS,ISYM)
          END DO
         END DO
-        CALL ICOPVE(ISMFSO,WORK(KMO_GNSYM),NTOOB)
+        CALL ICOPVE(ISMFSO,int_mb(KMO_GNSYM),NTOOB)
         CALL REO_ACT_ORB_TO_GNSM(
-     &     WORK(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
+     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
       END IF! Supersymmetry
 *
       IF(I_USE_SUPSYM.EQ.1) THEN
        IF(I_DO_HF.EQ.0) THEN
 *
 *. save super symmetry order for standard
-        CALL ICOPVE(WORK(KISUPSYM_FOR_BAS),WORK(KMO_STA_SUPSYM),NTOOB)
+        CALL ICOPVE(int_mb(KISUPSYM_FOR_BAS),int_mb(KMO_STA_SUPSYM),
+     &              NTOOB)
 *. b. Info on supersymmetry of actual orbitals 
-        CALL SUPSYM_FROM_CMOAO(WORK(KMOAOIN),WORK(KISUPSYM_FOR_BAS),
+        CALL SUPSYM_FROM_CMOAO(WORK(KMOAOIN),int_mb(KISUPSYM_FOR_BAS),
      &                         int_mb(KMO_SUPSYM))
 C           SUPSYM_FROM_CMOAO(CMOAO,ISUPSYM_FOR_BAS,ISUPSYM_FOR_MOS)
-        CALL ICOPVE(int_mb(KMO_SUPSYM),WORK(KMO_GNSYM),NTOOB)
-        CALL ICOPVE(int_mb(KMO_SUPSYM),WORK(KMO_ACT_SUPSYM),NTOOB)
+        CALL ICOPVE(int_mb(KMO_SUPSYM),int_mb(KMO_GNSYM),NTOOB)
+        CALL ICOPVE(int_mb(KMO_SUPSYM),int_mb(KMO_ACT_SUPSYM),NTOOB)
         IF(IPRORB.GE.5) THEN
           WRITE(6,*) ' Actual supersymmetry of initial orbitals '
           CALL IWRTMA3(int_mb(KMO_SUPSYM),1,NTOOB,1,NTOOB)
@@ -11204,28 +11206,28 @@ C           SUPSYM_FROM_CMOAO(CMOAO,ISUPSYM_FOR_BAS,ISUPSYM_FOR_MOS)
        ELSE
 * Hartree-Fock: The MO's will start out with the supersymmetry of 
 * the basis functions
-        CALL ICOPVE(WORK(KISUPSYM_FOR_BAS),int_mb(KMO_SUPSYM),NTOOB)
+        CALL ICOPVE(int_mb(KISUPSYM_FOR_BAS),int_mb(KMO_SUPSYM),NTOOB)
        END IF ! Hartree-Fock will not be called
 *
 * c. Info on REQUIRED supersymmetry order of the orbitals and various
 *    reorder arrays
 *
        CALL ORDER_GAS_SUPSYM_ORBITALS
-       CALL ICOPVE(int_mb(KMO_SUPSYM),WORK(KMO_GNSYM),NTOOB)
+       CALL ICOPVE(int_mb(KMO_SUPSYM),int_mb(KMO_GNSYM),NTOOB)
 *. Supersymmetry in occupation order
-        CALL GET_OCC_ORDER_SUPSYM(WORK(KMO_OCC_SUPSYM))
+        CALL GET_OCC_ORDER_SUPSYM(int_mb(KMO_OCC_SUPSYM))
 *. And save in general symmetry arrays
        DO IGAS = 0, NGAS + 1
         CALL ICOPVE(NGAS_SUPSYM(1,IGAS),NGAS_GNSYM(1,IGAS),N_SUPSYM)
        END DO
 *. Mapping of active orbitals from general symmetry to type order
        CALL REO_ACT_ORB_TO_GNSM(
-     &      WORK(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
+     &      int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
 *. Reordering array from actual to supersymmetry-blocked order.
 C       GET_IACT_TO_GENSM_REO(IACT_TO_GENSM_REO,
 C    &  ISTA_TO_GENSM_REO, MO_STA_TO_ACT_REO, NTOOB)
         CALL GET_IACT_TO_GENSM_REO(IACT_TO_GENSM_REO,
-     &  ISTA_TO_GENSM_REO, WORK(KMO_STA_TO_ACT_REO),NTOOB)
+     &  ISTA_TO_GENSM_REO, int_mb(KMO_STA_TO_ACT_REO),NTOOB)
 *
        IF(I_DO_HF.EQ.0) THEN
 *
@@ -11244,12 +11246,12 @@ C    &  ISTA_TO_GENSM_REO, MO_STA_TO_ACT_REO, NTOOB)
          WRITE(6,*) 
      &   '    Input molecular orbitals are in standard super-sym order'
 C                IS_I1_EQ_I2(I1,I2,NDIM)
-         IDENT = IS_I1_EQ_I2(WORK(KISUPSYM_FOR_BAS),
+         IDENT = IS_I1_EQ_I2(int_mb(KISUPSYM_FOR_BAS),
      &                       int_mb(KMO_SUPSYM),NTOOB)
          IF(IDENT.EQ.0) THEN
            WRITE(6,*) ' Error: Input orbitals are not in expected order'
            WRITE(6,*) ' Required standard supersymmetry-order '
-           CALL IWRTMA3(WORK(KISUPSYM_FOR_BAS),1,NTOOB,1,NTOOB)
+           CALL IWRTMA3(int_mb(KISUPSYM_FOR_BAS),1,NTOOB,1,NTOOB)
            STOP ' Error: Input orbitals are not in expected order'
          END IF
          WRITE(6,*) ' Input orbitals tested and were in correct order'
@@ -11263,21 +11265,21 @@ C                IS_I1_EQ_I2(I1,I2,NDIM)
 *. Reform 
          CALL REFORM_CMO(WORK(KMOAOIN),2,WORK(KMOAOUT),1)
 *. Determine symmetry
-         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),WORK(KISUPSYM_FOR_BAS),
+         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),int_mb(KISUPSYM_FOR_BAS),
      &                         int_mb(KMO_SUPSYM))
 *. Compare
-         IDENT = IS_I1_EQ_I2(WORK(KISUPSYM_FOR_BAS),
+         IDENT = IS_I1_EQ_I2(int_mb(KISUPSYM_FOR_BAS),
      &                       int_mb(KMO_SUPSYM),NTOOB)
          IF(IDENT.EQ.0) THEN
            WRITE(6,*) ' Error: Input orbitals are not in expected order'
            WRITE(6,*) ' Obtained symmetry of reordered orbitals '
            CALL IWRTMA3(int_mb(KMO_SUPSYM),1,NTOOB,1,NTOOB)
            WRITE(6,*) ' Required order of basis functions '
-           CALL IWRTMA3(WORK(KISUPSYM_FOR_BAS),1,NTOOB,1,NTOOB)
+           CALL IWRTMA3(int_mb(KISUPSYM_FOR_BAS),1,NTOOB,1,NTOOB)
            STOP ' Error: Input orbitals are not in expected order'
          END IF
 *. Restore
-         CALL ICOPVE(WORK(KMO_GNSYM),int_mb(KMO_SUPSYM),NTOOB)
+         CALL ICOPVE(int_mb(KMO_GNSYM),int_mb(KMO_SUPSYM),NTOOB)
 *
         ELSE 
 *
@@ -11285,17 +11287,17 @@ C                IS_I1_EQ_I2(I1,I2,NDIM)
 *
 *. Obtain array going from input orbitals to expected output order
 C             REO_2SUPSYM_ORDERS(ISUPSYM1,ISUPSYM2,IREO12)
-         CALL REO_2SUPSYM_ORDERS(WORK(KMO_OCC_SUPSYM),
-     &        WORK(KMO_ACT_SUPSYM),WORK(KIREO_INI_OCC))
+         CALL REO_2SUPSYM_ORDERS(int_mb(KMO_OCC_SUPSYM),
+     &        int_mb(KMO_ACT_SUPSYM),int_mb(KIREO_INI_OCC))
 *. Reform MOMO and MOAO to OCC order
 C        CALL REO_CMOAO(WORK(KMOMO),WORK(KMOAO_ACT),
 C    &        WORK(KIREO_INI_OCC),1,1)
 C        CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAO_ACT),
 C    &        WORK(KIREO_INI_OCC),1,1)
          CALL REO_CMOAO(WORK(KMOMO),WORK(KMOAO_ACT),
-     &        WORK(KIREO_INI_OCC),1,2)
+     &        int_mb(KIREO_INI_OCC),1,2)
          CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAO_ACT),
-     &        WORK(KIREO_INI_OCC),1,2)
+     &        int_mb(KIREO_INI_OCC),1,2)
          LEN_C =  LEN_BLMAT(NSMOB,NTOOBS,NTOOBS,0)
          CALL COPVEC(WORK(KMOAO_ACT),WORK(KMOAOUT),LEN_C)
 *. Update the MO-MO transformation matrix
@@ -11304,17 +11306,17 @@ CERR &        WORK(KIREO_INI_OCC))
 *. Check that orbitals now are in occ order
 *. Determine symmetry
          WRITE(6,*) ' Supersymmetry of reordered MOs: '
-         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),WORK(KISUPSYM_FOR_BAS),
-     &                         WORK(KMO_ACT_SUPSYM))
+         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),int_mb(KISUPSYM_FOR_BAS),
+     &                         int_mb(KMO_ACT_SUPSYM))
 *. Compare
-         IDENT = IS_I1_EQ_I2(WORK(KMO_OCC_SUPSYM),
-     &                       WORK(KMO_ACT_SUPSYM),NTOOB)
+         IDENT = IS_I1_EQ_I2(int_mb(KMO_OCC_SUPSYM),
+     &                       int_mb(KMO_ACT_SUPSYM),NTOOB)
          IF(IDENT.EQ.0) THEN
            WRITE(6,*) ' Error: Reordered orbitals are not in occ order'
            WRITE(6,*) ' Obtained symmetry of reordered orbitals '
-           CALL IWRTMA3(WORK(KMO_ACT_SUPSYM),1,NTOOB,1,NTOOB)
+           CALL IWRTMA3(int_mb(KMO_ACT_SUPSYM),1,NTOOB,1,NTOOB)
            WRITE(6,*) ' Required order '
-           CALL IWRTMA3(WORK(KMO_OCC_SUPSYM),1,NTOOB,1,NTOOB)
+           CALL IWRTMA3(int_mb(KMO_OCC_SUPSYM),1,NTOOB,1,NTOOB)
            STOP ' Error: Reordered orbitals are not in expected order'
          END IF
          CMO_ORD = 'OCC'
@@ -11325,12 +11327,12 @@ CERR &        WORK(KIREO_INI_OCC))
 *. Reorder to OCC if standard form
 *
          CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAO_ACT),
-     &        WORK(KMO_STA_TO_ACT_REO),1,1)
+     &        int_mb(KMO_STA_TO_ACT_REO),1,1)
          LEN_C =  LEN_BLMAT(NSMOB,NTOOBS,NTOOBS,0)
          CALL COPVEC(WORK(KMOAO_ACT),WORK(KMOAOIN),LEN_C)
 *. Update the MO-MO transformation matrix
          CALL BLK_SET_REORDER_XMAT(WORK(KMOMO),NSMOB,NTOOBS,
-     &        WORK(KMO_STA_TO_ACT_REO))
+     &        int_mb(KMO_STA_TO_ACT_REO))
          CMO_ORD = 'OCC'
         END IF
 *
@@ -12235,9 +12237,9 @@ C           MAXIT = MAXIT_MIC
 *. Reorder back to standard order
 C              REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
           CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAOUT),
-     &         WORK(KMO_STA_TO_ACT_REO),0,2)
+     &         int_mb(KMO_STA_TO_ACT_REO),0,2)
           CALL REO_CMOAO(WORK(KMOMO),WORK(KMOAO_ACT),
-     &         WORK(KMO_STA_TO_ACT_REO),1,2)
+     &         int_mb(KMO_STA_TO_ACT_REO),1,2)
           WRITE(6,*) ' Orbitals reordered to standard order '
           IIFORM = 1
         END IF
