@@ -3342,8 +3342,14 @@ ckbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR)
 #else
               if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
               if (nodezero) call util_flush(LuOut)
+              if(.not.slice) then
               call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+              else
+              if (nodezero) write(LuOut,*) 'Using sliced CCSD(T) code'
+              call ccsd_t_6dts(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,xmem)
+              end if
 #endif
 
             endif
