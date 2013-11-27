@@ -276,9 +276,6 @@ C     XDIAXT(XDX,X,DIA,NDIM,SCR)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'orbinp.inc'
@@ -294,6 +291,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'oper.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 
 
 *

@@ -884,9 +884,6 @@ COLD    END IF
 * Jan. 98 : SHIFT_DIA added
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       REAL*8 INPROD , INPRDD
       LOGICAL CONVER
@@ -903,6 +900,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       INCLUDE 'cstate.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'csm.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Max number of iterations is picked from MAXCIT in crun
       EXTERNAL H0TVM
       DIMENSION ERROR(100)
@@ -1103,10 +1103,10 @@ C?      WRITE(6,*) ' HINTV : MXIT_LOC ',MXIT_LOC
 * Jeppe Olsen, February 1996
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       DIMENSION VEC1(*),VEC2(*)
 *
       INCLUDE 'clunit.inc'
@@ -1602,10 +1602,10 @@ C?    WRITE(6,*) ' GET_SEC : FACTOR ', FACTOR
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
 *
 * =====
 *.Input
@@ -1918,10 +1918,10 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
 *
 * =====
 *.Input
@@ -3004,9 +3004,6 @@ C?        WRITE(6,*) ' CLASS_PROD : XTERM = ', XTERM
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -3025,6 +3022,9 @@ c      INCLUDE 'mxpdim.inc'
 *
       INCLUDE 'cintfo.inc'
       INCLUDE 'cands.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 
 *
       DIMENSION VEC(*)
@@ -3191,9 +3191,6 @@ C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -3211,6 +3208,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
 *
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       INTEGER IBLOCK(8,*)
 *
@@ -3338,9 +3338,6 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -3358,6 +3355,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
 *
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       INTEGER IBLOCK(8,*)
 *
@@ -4676,10 +4676,10 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 * ECORE added, June 2010
 *
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       CHARACTER*6 ITASK
 *
 * =====
@@ -5904,9 +5904,6 @@ C     INTEGER IACOC(MXPNGAS)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'crun.inc'
@@ -5918,6 +5915,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'cecore.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       IDUM  = 0
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DIRDI')
@@ -7280,12 +7280,12 @@ C    &              NBLOCKIO,IBLCKIO,VECIO )
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       IF((IABSPC.NE.JABSPC).OR.
      &   (IABSPC.EQ.JABSPC.AND.(IABOP.EQ.1.OR.IABOP.EQ.2).AND.
@@ -8003,9 +8003,6 @@ C?      CALL WRTMAT(VEC(IOFF),1,LREC(IREC),1,LREC(IREC))
 *
 c     IMPLICIT REAL*8(A-H,O-Z)
 c     INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       DIMENSION C(*)
       DIMENSION IBLOCK(8,*)
@@ -8014,6 +8011,9 @@ c     INCLUDE 'mxpdim.inc'
       INCLUDE 'cstate.inc'
       INCLUDE 'csm.inc'
       INCLUDE 'stinf.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
 *. Local Scratch
 *. Should be uncommented if NEW_OR_OLD is set to 2
@@ -10236,9 +10236,6 @@ C                  WRITE(6,*) ' Core energy added = ', ECORE
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -10255,6 +10252,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       INCLUDE 'cecore.inc'
 *
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION CVEC(*)
 *. Output
