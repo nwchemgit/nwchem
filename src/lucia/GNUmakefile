@@ -24,13 +24,13 @@
 
 HEADERS = akbk.inc cands.inc cc_exc.inc ceblk.inc cecore.inc cei.inc cfinal_e.inc \
 	cgas.inc chktyp.inc cicisp.inc cintfo.inc clunit.inc comjep.inc constants.inc \
-	corbex.inc cprnt.inc crun.inc csfbas.inc csfbas_old.inc cshift.inc csm.inc \
+	corbex.inc cprnt.inc crun.inc csfbas.inc cshift.inc csm.inc \
 	csmprd.inc cstate.inc ctcc.inc ctl.inc cxpt.inc dbgsym.inc extbas.inc fio.inc \
 	fragmol.inc freeunits.inc frorbs.inc gasstr.inc gicci.inc glbbas.inc glstate.inc \
 	gtbce.inc implicit.inc intform.inc ioparm.inc irat.inc kprdwvf.inc lorr.inc \
 	lucinp.inc machine.inc multd2h.inc mv7task.inc MxFile.inc mxpdim.inc newccp.inc \
 	oper.inc opti.inc orbinp.inc prdwvf.inc priunit.inc proto_sp_mat.inc rou_stat.inc \
-	spinfo.inc spinfo_old.inc stinf.inc strbas.inc strinp.inc switch.inc symrdc.inc \
+	spinfo.inc stinf.inc strbas.inc strinp.inc switch.inc symrdc.inc \
 	vb.inc wrkspc.inc wrkspc-static.inc
 
 include ../config/makefile.h
