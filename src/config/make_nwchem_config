@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop \
         property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq cons\
-        perfm dntmc transport smd nbo dangchang leps ccca
+        perfm dntmc transport smd nbo dangchang leps ccca lucia
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -34,7 +34,8 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lnwxc -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
-                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca
+                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca\
+                    -llucia
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -242,6 +243,7 @@ MOD_LIBS := $(patsubst dangchang,-ldangchang,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst leps,-lleps,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ccca,-lccca,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst lucia,-llucia,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
