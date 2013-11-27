@@ -119,6 +119,16 @@ c
       if(disp.or.xc_chkdispauto())
      &      call xc_vdw(rtdb,geom,Edisp,dum,'energy')
 c
+c     == needed for dftmp2 ==
+      if (.not. rtdb_cput(rtdb,'scf:scftype', 1, scftype))
+     &   call errquit(pname//'rtdb_cput scftype failed',
+     &                0, RTDB_ERR)
+      if (.not.dft_cscf_equals_scftype("UHF")) then
+        if (.not.rtdb_put(rtdb,'scf:nclosed',mt_int,1,noc))
+     &     call errquit(pname//'Error putting occupancies',
+     &                  0,RTDB_ERR)
+      endif
+c
 c     == Do quasi-Newton-Raphson DFT ==
       call dft_cg_init(rtdb)
       call dft_cg_guess(rtdb)

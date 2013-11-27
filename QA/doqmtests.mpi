@@ -189,6 +189,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np He_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $np Ar_scf-mp2_cc-vqz
 ./runtests.mpi.unix procs $np Ar_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np h2o_dftmp2_cgmin h2o_udftmp2_cgmin
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd

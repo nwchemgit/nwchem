@@ -1,0 +1,19 @@
+start test
+title "Test B2PLYP with cgmin"
+
+geometry units angstrom
+   O      0.00000000     0.00000000     0.11726921
+   H      0.75698224     0.00000000    -0.46907685
+   H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library cc-pvdz
+end
+
+dft
+  xc pbe96 HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+  dftmp2 semidirect
+end
+
+task dft energy
