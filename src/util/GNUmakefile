@@ -161,6 +161,9 @@ ifneq ($(OLD_GA),)
   EXTRA_OBJ += ga_zgop.o
 endif
 
+LIB_DEFINES += -I$(MPI_INCLUDE)
+
+
        BLAS = dfill.o ifill.o  mabyte_fill.o 
 
    LIB_TARGETS = testsolve testecce
@@ -217,7 +220,7 @@ endif
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
               util_dra_test.o util_eaf_test.o util_sf_test.o \
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
-	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o\
+	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o util_mygabcast.o\
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
