@@ -18,11 +18,11 @@ C     $Id$
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "geom.fh"
-#include "rtdb.fh"
 #include "schwarz.fh"
 #include "ccsd_debug.fh"
 #include "ccsdps.fh"
 #include "ccsd_data.fh"
+#include "util.fh"
 C
       integer l_snsi,k_snsi,l_sisn,k_sisn,l_eri1,k_eri1,
      &        l_eri2,k_eri2,l_scre,k_scre,l_t1ao,k_t1ao,
@@ -35,17 +35,12 @@ C
       integer max_sht2_blk
       integer ilo,ihi,jlo,jhi,nbfdim,ish,jsh,nfi,nfj
       integer mem_ava,mem_left
-#if 0
-      double precision, allocatable :: a_st2(:,:)
-      integer alloc_stat
-#else
       integer k_ast2,l_ast2
-#endif
       integer lnoo, i
       character*255 st2file
       double precision tstart, tused
-      double precision util_wallsec
-      external util_wallsec
+      logical dorep
+      integer g_st2rep,g_st2keep,dorep_glob,gmem0
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
@@ -107,68 +102,48 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
-
       if (use_inmem_st2) then
 c     show how much memory g_st2 (a_st2) needs
-      if(iam.eq.0) then
-        nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
-        mem_ava=ma_inquire_avail(MT_DBL)
-        write(*,'(a,i8,a)') " g_st2 size:",
-     &    max(nsz_st2/1024/1024,1), " MB",
-     &  " mem. avail ",max(mem_ava/1024/1024,1)," MB"
-
-      endif
-
-      tstart = util_wallsec()
+         nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
+         mem_ava=ma_inquire_avail(MT_BYTE)
+         if(iam.eq.0) then
+            write(*,'(a,i8,a)') " g_st2 size:",
+     &           max(nsz_st2/1024/1024,1), " MB",
+     &           " mem. avail ",max(mem_ava/1024/1024,1)," MB"
+            
+         endif
+         tstart = util_wallsec()
 c       use node-replicated a_st2 instead of g_st2
-#if 0
-        allocate(a_st2(lnoo,nbfdim),stat=alloc_stat)
-        if (alloc_stat /= 0) call errquit('a_st2 fail',0, GA_ERR)
-        if(iam.eq.0) write(*,'(a)') 
-     &    "Memory based method: ST2 is allocated"
-c
-c         compute ST2 in parallel: expect network congestion
-        if(ga_nodeid().eq.0)
-     G       call ga_get(g_st2, 1,lnoo, 1,nbfdim, a_st2,lnoo)
-        call ga_brdcst(65537, a_st2, 
-     G       MA_sizeof(MT_DBL,1,MT_BYTE)*lnoo*nbfdim, 0)
-
-#else
 c     lets grab 80% of available memory
-        mem_left=mem_ava*80/100-nsz_st2
-        if(mem_left.gt.0) then
-           use_inmem_st2 = ma_push_get(MT_DBL,lnoo*nbfdim,
-     A          'ast2',l_ast2,k_ast2)
-        else
-           if(iam.eq.0) write(*,'(a,I10)')
-     &          "Not enough mem for st2. Increase MA by",
-     M          -mem_left/1024/1024," MB"
-           use_inmem_st2 = .false.
-
-        endif
-        if(use_inmem_st2) then
-           if(iam.eq.0) write(*,'(a)') 
-     &          "Memory based method: ST2 is allocated"
+         mem_left=mem_ava*80/100-nsz_st2
+         if(mem_left.gt.0) then
+            use_inmem_st2 = ma_push_get(MT_DBL,lnoo*nbfdim,
+     A           'ast2',l_ast2,k_ast2)
+         else
+            if(iam.eq.0) write(*,'(a,I10)')
+     &           "Not enough mem for st2. Increase MA by",
+     M           -mem_left/1024/1024," MB"
+            use_inmem_st2 = .false.
+         endif
+         if(use_inmem_st2) then
+            if(iam.eq.0) write(*,'(a)') 
+     &           "Memory based method: ST2 is allocated"
 c     
 c     compute ST2 in parallel: expect network congestion
-           if(ga_nodeid().eq.0)
-     G          call ga_get(g_st2, 1,lnoo, 1,nbfdim,dbl_mb(k_ast2),lnoo)
-           call ga_brdcst(65537, dbl_mb(k_ast2), 
-     G          MA_sizeof(MT_DBL,1,MT_BYTE)*lnoo*nbfdim, 0)
-        else
-           if(iam.eq.0) write(*,'(a)') 
-     &          "Not Enough Memory to keep ST2 in local mem"
-        endif
+            call util_mygabcast(g_st2,lnoo,nbfdim,dbl_mb(k_ast2),lnoo)
+         else
+            if(iam.eq.0) write(*,'(a)') 
+     &           "Not Enough Memory to keep ST2 in local mem"
+         endif
 
-        
-#endif
-        tused = util_wallsec() - tstart
-        if (iam.eq.0) then
-          write(6,'(a,f9.2,a)') " ST2 array is replicated ",tused,"s"
-          call util_flush(6)
-        endif
-
-
+         
+         tused = util_wallsec() - tstart
+         if (iam.eq.0.and.use_inmem_st2) then
+            write(6,'(a,f9.2,a)') " ST2 array is replicated ",tused,"s"
+            call util_flush(6)
+         endif
+         
+      else
       endif
 
 c ------------------------------------------------------------
@@ -217,11 +192,7 @@ c
      &              dbl_mb(k_eri2),t1,cmo,dbl_mb(k_t1ao),dbl_mb(k_sc1),
      &              dbl_mb(k_sc2),lscr,kscr,tol2e,iprt,tklst,nrints,
      &              int_mb(k_ish),int_mb(k_shinf),max_sht2_blk,
-#if 0
-     &              nbfdim,a_st2)
-#else
      &              nbfdim,dbl_mb(k_ast2))
-#endif
       stat=stat.and.ma_pop_stack(l_eri2)
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_ish)
@@ -234,6 +205,7 @@ c
       if (.not.stat)
      &   call errquit('ccsd_pampt3: ma_pop_stack ccsd_sxy ',0, MA_ERR)
 c
+
         if (.not.ga_destroy(g_st2))
      &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
 
@@ -253,15 +225,11 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_shinf)
       stat=stat.and.ma_pop_stack(l_offsh)
       if (use_inmem_st2 ) then
-#if 0         
-        deallocate(a_st2,stat=alloc_stat)
-#else
       if(.not.ma_pop_stack(l_ast2)) then
          call ma_summarize_allocated_blocks()
          call
      E       errquit('ccsdmampt3: ma pop stack fails ',11,MA_ERR)
          endif
-#endif
       endif
 c ------------------------------------------------------------
 c other terms using B intermediate
@@ -305,7 +273,6 @@ c
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "geom.fh"
-#include "rtdb.fh"
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
@@ -571,7 +538,6 @@ c
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "geom.fh"
-#include "rtdb.fh"
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
