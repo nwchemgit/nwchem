@@ -5448,7 +5448,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer ivalue
 
       if (.not.rtdb_get(rtdb,'nwpw:mc_seed',mt_int,1,ivalue))
-     >  ivalue =  9484821943
+     >  ivalue =  9484943
 
       control_mc_seed = ivalue
       return
