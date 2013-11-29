@@ -604,7 +604,6 @@ c         write(luout,1394)
 *     ************************************
 *     **** open up other MOTION files ****
 *     ************************************
-       
 *     **** open EMOTION file ****
       E25 = 0.0d0
       E26 = 0.0d0
@@ -1478,7 +1477,6 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
       call pspw_end_APC()
       call pspw_charge_end()
       call pspw_qmmm_end()
-c      call frac_occ_end()
 
       call ion_end()
       call psp_end()
