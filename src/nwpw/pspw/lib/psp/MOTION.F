@@ -144,10 +144,10 @@
       implicit none
       real*8 time
 
-      integer   MASTER
+      integer   MASTER,taskid
       parameter (MASTER=0)
 
-      integer taskid,i
+      integer i
 
 *     **** external functions ***
       integer     ion_nion
