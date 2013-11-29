@@ -808,7 +808,8 @@ c
      >        value = .true.
            if (value) then
               call Parallel_taskid(taskid)
-              if (taskid.eq.MASTER) then
+             oprint=((taskid.eq.MASTER).and.control_print(print_medium))
+              if (oprint) then
                  write(luout,*) 
      >           "Making sure that fragments are connnected"
                  write(luout,*) " - to turn this option off: ",
