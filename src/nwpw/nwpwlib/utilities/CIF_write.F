@@ -57,23 +57,23 @@ c     $Id$
 
 *           **** CIF FILE already exists - parse to EOF ****
             if (found) then
-              open(unit=19,file=full_filename,form='formatted',
+              open(unit=20,file=full_filename,form='formatted',
      >             status='old')
               do while(.true.)
-                read(19,*,ERR=30,END=30) ch_tmp
+                read(20,*,ERR=30,END=30) ch_tmp
               end do
  30           continue
 #if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
-              backspace 19
+              backspace 20
 #endif
 
 *           **** CIF FILE does not exist ****
             else
-              open(unit=19,file=full_filename,form='formatted')
+              open(unit=20,file=full_filename,form='formatted')
             end if
 
-            call ion_Print_CIF(19,shift_cell)
-            close(19)
+            call ion_Print_CIF(20,shift_cell)
+            close(20)
          end if
       end if
 
