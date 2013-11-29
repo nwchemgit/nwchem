@@ -15,10 +15,11 @@ c
 #include "rtdb.fh"
 #include "pspw_LJ.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"
 
 *     **** local variables
-      logical value
+      logical value,oprint
       integer taskid
       integer MASTER
       parameter(MASTER=0)
@@ -29,9 +30,11 @@ c
       character*50 rtdbname
 
 *     **** external functions ****
+      logical     control_print
       character*4 ion_atom
       integer     ion_nkatm,ion_nkatm_qm
       integer     ion_katm
+      external    control_print
       external    ion_atom
       external    ion_nkatm,ion_nkatm_qm
       external    ion_katm
@@ -98,7 +101,8 @@ c
       
       
       call Parallel_taskid(taskid)
-      if (taskid.eq.MASTER) then
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+      if (oprint) then
           write(luout,*)
           write(luout,*) 'Ion LJ Parameters:'
           if (include_qm)
