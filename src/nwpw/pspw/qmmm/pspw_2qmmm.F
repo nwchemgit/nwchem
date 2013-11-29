@@ -16,13 +16,14 @@ c
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "pspw_2qmmm.fh"
 
 
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value
+      logical value,oprint
       integer i,j,ii,jj,kk,ll,mm,ia,ja,ni,nj
       integer frag_size,shake_ptr,indx_ptr
       real*8  volume,f
@@ -41,10 +42,12 @@ c
       character*255 namespace,tag
 
 *     **** external functions ****
+      logical     control_print
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
       integer     ion_rion_ptr,inp_strlen
       character*7 c_index_name
       real*8      lattice_unita
+      external    control_print
       external    ion_nion,ion_nion_qm,ion_nion_mm,control_version
       external    ion_rion_ptr,inp_strlen
       external    c_index_name
@@ -754,7 +757,8 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
-        if (taskid.eq.MASTER) then
+        oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+        if (oprint) then
            write(luout,*)
            write(luout,'(1x,A)') "Auxiliary Potential Parameters:"
            write(luout,'(2x,"fragments start (index_start) =",10I5)')

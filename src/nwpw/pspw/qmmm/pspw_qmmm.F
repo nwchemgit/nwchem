@@ -32,13 +32,14 @@ c
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "pspw_qmmm.fh"
 
 
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value
+      logical value,oprint
       integer i,j,ii,jj,kk,ll,ia,ja,ni,nj,frag_size,shake_ptr,indx_ptr
       integer mm
       real*8  volume
@@ -53,10 +54,12 @@ c
       integer ncnindxsize0,ncnindxsize1,ncnindxsize2,ncnKr0size,n1,n2
 
 *     **** external functions ****
+      logical     control_print
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
       integer     ewald_nshl3d,ewald_rcell_ptr,ion_rion_ptr
       character*7 c_index_name
       real*8      lattice_unita,ion_TotalCharge,ion_TotalCharge_qm
+      external    control_print
       external    ion_nion,ion_nion_qm,ion_nion_mm,control_version
       external    ewald_nshl3d,ewald_rcell_ptr,ion_rion_ptr
       external    c_index_name
@@ -819,7 +822,8 @@ c
 
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
-        if (taskid.eq.MASTER) then
+        oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+        if (oprint) then
            write(luout,*)
            write(luout,'(1x,A)') "QM/MM Potential Parameters:"
            write(luout,'(2x,"fragments start (index_start) =",10I5)')
