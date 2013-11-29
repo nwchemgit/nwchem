@@ -2633,6 +2633,24 @@ c      end
       end
 
 
+     subroutine D3dB_c_SMul1(nb,scale,A)
+      implicit none 
+      integer    nb
+      real*8     scale
+      complex*16 A(*)
+      
+#include "D3dB.fh"
+
+      integer i
+      
+      do i=1,nfft3d_map(nb)
+         A(i) = scale*A(i)
+      end do 
+      return 
+      end
+
+
+
       subroutine D3dB_r_SMul(nb,scale,A,C)     
       implicit none 
       integer nb
