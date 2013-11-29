@@ -2633,7 +2633,7 @@ c      end
       end
 
 
-     subroutine D3dB_c_SMul1(nb,scale,A)
+      subroutine D3dB_c_SMul1(nb,scale,A)
       implicit none 
       integer    nb
       real*8     scale
