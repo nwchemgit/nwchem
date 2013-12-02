@@ -121,7 +121,7 @@ c
 c
 c     This subroutine groups atoms into blocks such that
 c     1. no block contains more than 10 atoms
-c     2. no block contains more that task_bf basis functions
+c     2. no block contains more than task_bf basis functions
 c     3. no block starts or ends with atoms without basis functions
 c        (e.g. point charges)
 c     4. all blocks contain at least 1 basis function
