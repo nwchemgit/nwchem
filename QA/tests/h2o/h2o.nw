@@ -1,5 +1,5 @@
 echo
-start h2o
+start h2o-dat
 
 memory global 40 mb stack 23 mb heap 5 mb
 
