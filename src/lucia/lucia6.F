@@ -1192,10 +1192,10 @@ C?           WRITE(6,*) ' FAC1, FAC2, NCOMB ',FAC1,FAC2, NCOMB
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       DIMENSION B(*)
       integer kvec1,kvec2
       INCLUDE 'glbbas.inc'
@@ -1244,10 +1244,10 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'

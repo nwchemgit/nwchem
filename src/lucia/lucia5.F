@@ -397,10 +397,10 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'orbinp.inc'
@@ -1159,10 +1159,10 @@ C         CALL NXTNUM2(INUM,NORD,1,LEN,NONEW)
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. Include blocks     
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
@@ -1462,10 +1462,10 @@ C       write(6,*) ' igas i imult ',igas,i,imult
 *
 * Version 2 : Uses IGRP and NIGRP to define supergroup
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'stinf.inc'
@@ -1629,10 +1629,10 @@ C        CALL NXTNUM3(ISMFGS,NGRP_AC-1,MINVAL_AC,MAXVAL_AC,NONEW)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'stinf.inc'
@@ -1849,10 +1849,10 @@ C     NNSTSGP(MXPNSMST,MXPNGAS)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'clunit.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'cstate.inc'  
@@ -1948,10 +1948,10 @@ C            TRACI(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -2081,10 +2081,10 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'clunit.inc'
@@ -2174,10 +2174,10 @@ cNW     CALL MEMMAN(KLTB,NTOOB**2,'ADDL  ',2,'TMATBL')
 * each transformation is 
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       REAL*8 INPROD
       INCLUDE 'glbbas.inc'
       INCLUDE 'oper.inc'
@@ -2538,10 +2538,10 @@ C
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'clunit.inc'
@@ -2727,10 +2727,10 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'cstate.inc'
@@ -2818,10 +2818,10 @@ c      INCLUDE 'mxpdim.inc'
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'  
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'  
       INCLUDE 'strinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -4714,11 +4714,11 @@ C         IOP_REO(4) = 2
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+*./BIGGY
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-*./BIGGY
-      INCLUDE 'wrkspc.inc'
 *./ORBINP/
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
@@ -5474,10 +5474,10 @@ C?            END IF
 c      IMPLICIT REAL*8 (A-H,O-Z)
 *. Input
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'strbas.inc'
@@ -6327,10 +6327,10 @@ C?    WRITE(6,'(A)') ' CHARACTER INPUT ', CHAR_X
 *./BIGGY
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'stinf.inc'
@@ -7095,10 +7095,10 @@ C         TI(IROW,ISTRIN ) = -IORB
 *
 *. Last modification; Nov. 3, 2012; Jeppe Olsen, Aligning with current code
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
 *. Input
       DIMENSION IACTIN(NCLS)
 *. Output
@@ -7650,10 +7650,10 @@ C?    write(6,*) ' FRMDSCN3: Number of records to be read', NREC
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -7768,10 +7768,10 @@ C       WRITE(6,*) ' IHSM,IRSM,ICSM', IHSM,IRSM,ICSM
 *. It is assumed that overlap matrix over AO's are in WORK(KSAO)
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'crun.inc'
@@ -8509,10 +8509,10 @@ C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'glbbas.inc'
@@ -9236,10 +9236,10 @@ C    &             NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 *                            - GSBBD2A
 *                            - GSBBD2B
 
+      INCLUDE 'wrkspc.inc' 
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc' 
       REAL*8 INPRDD
 *
 * =====
@@ -9374,16 +9374,16 @@ C?   &                      LU_LDET, LU_RDET
 *. Save result in LUSCX
 cnw      CALL REWINO(LUSCX)
 cnw      CALL TODSC(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX)
-         if(.not.dra_write_section(.false.,KCOMVEC1_SD,1,NSVAR,1,1,
-     &      LUSCX,1,NSVAR,1,1)) call errquit('dra err',911)
+         if(dra_write_section(.false.,KCOMVEC1_SD,1,NSVAR,1,1,
+     &      LUSCX,1,NSVAR,1,1).ne.0) call errquit('dra err',911)
 *R(SD)
          CALL CSDTVCM(R,KCOMVEC2_SD,KCOMVEC1_SD,
      &        1,0,ICSM,ICSPC,2)
 *Retrieve L(SD) from scratch 
 cnw      CALL REWINO(LUSCX)
 cnw      CALL FRMDSCO(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX,IMZERO)
-         if (.not.dra_read_section(.false.,KCOMVEC2_SD,1,NSVAR,1,1,
-     &       LUSCX,1,NSVAR,1,1)) call errquit('dra err',911)
+         if (dra_read_section(.false.,KCOMVEC2_SD,1,NSVAR,1,1,
+     &       LUSCX,1,NSVAR,1,1).ne.0) call errquit('dra err',911)
          CALL FILEMAN_MINI(LUSCX,'FREE  ')
        ELSE
 *. Not in core
@@ -11589,10 +11589,10 @@ C?      WRITE(6,*) ' IB_A, IB_B, IB_AB =', IB_A,IB_B,IB_AB
 *
 * Jeppe Olsen Dec. 4, 2000 in Helsingfors 
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'multd2h.inc'
@@ -13255,10 +13255,10 @@ C               END IF
 *./BIGGY
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'stinf.inc'
@@ -13655,10 +13655,10 @@ C             LJ = L*(L-1)/2 + J
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'clunit.inc'
       INCLUDE 'crun.inc'
 *. Input
@@ -13985,10 +13985,10 @@ C?    CALL IWRTMA(ISTR_OUT,1,NEL,1,NEL)
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cgas.inc'
       COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
@@ -14258,10 +14258,10 @@ C?   &                         VECIN(JASTR,JBSTR)
 * Jeppe Olsen, May 1999           
 * 
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'clunit.inc'
@@ -15531,10 +15531,10 @@ C     WRITE(6,*) ' MEMCHECK passed '
 *
 *. Jeppe Olsen, Amsterdam Airport, May 30
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'

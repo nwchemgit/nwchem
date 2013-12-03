@@ -2917,10 +2917,10 @@ C
 *
 c      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
 *. Specific input
       DIMENSION IDET(*)
 *. General Input
