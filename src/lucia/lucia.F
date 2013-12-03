@@ -1216,10 +1216,10 @@ c      INCLUDE 'mxpdim.inc'
 *
 * If no mo-ao trans is present, only, MOMO matrix is returned
 
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
@@ -1913,10 +1913,10 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       LOGICAL CONV_F
       EXTERNAL MV7
       INCLUDE 'cicisp.inc'
@@ -2597,8 +2597,8 @@ C?    CALL MEMCHK
 cnw    CALL REWINO(LUC)
        DO JROOT = 1, NROOT
 cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
-        if(.not.dra_read_section(.false.,KPVEC1,1,NVAR,1,1,
-     &     LUC,1,NVAR,JROOT,JROOT)) call errquit('dra error',911)
+        if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,
+     &     LUC,1,NVAR,JROOT,JROOT).ne.0) call errquit('dra error',911)
         CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
         dbl_mb(KLZEXP-1+JROOT) = RLZEFF
         dbl_mb(KL2EXP-1+JROOT) = RL2EFF
@@ -2759,6 +2759,7 @@ C?        WRITE(6,*) ' Back from GASANA '
              ELSE
                CALL WRTVCD(dbl_mb(KVEC1),LUSC1,1,LBLK)
              END IF
+          END IF
 *         ^ End if print of CI vector
         END IF
 *       ^ End of ICISTR switch
@@ -3825,10 +3826,10 @@ C           MATCG(CIN,COUT,NROWI,NROWO,NROW1I, NGCOL,IGAT,GATSGN )
 *. Input
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cstate.inc'
@@ -6227,10 +6228,10 @@ C?      WRITE(6,*) ' GETH1EX, new route '
 * total symmetry of the operator
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -7101,10 +7102,10 @@ C?              print '(7i6)',ijkl,ij,kl,i,j,k,l
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'csm.inc'
@@ -7933,10 +7934,10 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
  
 *.GLobal pointers
 C     COMMON/GLBBAS/KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1
@@ -7977,7 +7978,7 @@ C?      WRITE(6,*) ' IIOB IOB ISM IOBREL '
 C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
 CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         mypt = IPNT(ISM)-1+IOBREL*(IOBREL+1)/2
-        call = ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
+        call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
 *
       NTEST = 00
@@ -8298,10 +8299,10 @@ cGLM                  Call DaFile(LuTr2,0,Scr,2*lTr2Rec,iDisk)
 * Find adress of integral in LUCIA order 
 *
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
 *
 *
@@ -9099,8 +9100,8 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *./ORBINP/: NACOB used
 *
 c      INCLUDE 'mxpdim.inc'
-#include "mafdecls.fh"
       INCLUDE 'wrkspc.inc'
+#include "mafdecls.fh"
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'strbas.inc'
@@ -9652,10 +9653,10 @@ C              CSUB_FROM_C(C,CSUB,LENSUBS,NSUBTP,ISUBTP,IONLY_DIM)
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'clunit.inc'
@@ -10204,10 +10205,10 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 * =====
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
@@ -10748,10 +10749,10 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
 c      INCLUDE 'mxpdim.inc'
 *.Memory
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       LOGICAL CONV_F
 *.File numbers
       INCLUDE 'clunit.inc'
@@ -13073,10 +13074,10 @@ c      IF(ISTOP.NE.0) STOP ' Error observed by  memory manager '
 *  
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       CHARACTER*6 TASK,IDENT,IIDENT,MARKC,MAX_BLKC,MARK_ACT
 *
@@ -13375,10 +13376,10 @@ C        ISM = (IPARI-1)*NML + MNML - 1
 * Last modification; Oct. 30, 2012; Jeppe Olsen; call to Z_BLKFO changed
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
 *
 * =====
 *.Input
@@ -26149,10 +26150,10 @@ C     CHARACTER LINE*80,FMT*40
 *
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cintfo.inc'
@@ -27459,10 +27460,10 @@ C?   &               ISM, NMOS, NAOS, NBLOCK
 c      IMPLICIT REAL*8(A-H,O-Z)
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'csm.inc'
@@ -28621,10 +28622,10 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
 *. Note: In case of super-symmetry one has to destinguish between two ways 
 *. of having the orbitals arranged for a given standard symmetry: the actual/gas
 *. order or standard order. The routine returns the MO coefficients in actual/gas order
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
