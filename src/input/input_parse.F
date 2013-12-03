@@ -152,8 +152,8 @@ c
                call input_unset(rtdb)
             else if (inp_compare(.false.,test,'mcscf')) then
                call mcscf_input(rtdb)
-            else if (inp_compare(.false.,test,'plnwv')) then
-               call plnwv_input(rtdb)
+c           else if (inp_compare(.false.,test,'plnwv')) then
+c              call plnwv_input(rtdb)
             else if (inp_compare(.false.,test,'bq')) then
                call bq_input(rtdb)
             else if (inp_compare(.false.,test,'constraints')) then
