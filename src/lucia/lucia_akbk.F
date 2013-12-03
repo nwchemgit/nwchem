@@ -8,10 +8,10 @@
 *                    Oct. 30, 2012; Jeppe Olsen; call to Z_BLKFO changed
 * Last modification; July 2013; Jeppe Olsen; AKSIGMA2 path added
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'crun.inc'
@@ -480,10 +480,10 @@ C?    END IF
 *
 *. Jeppe Olsen, Geneva, Febr. 2012 (20 hours before take-off)
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
@@ -644,10 +644,10 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
 * Incore requires: ICISTR = 1 + ICNFBAT = 1
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
@@ -769,10 +769,10 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 *
 * Jeppe Olsen, Aug. 23, 2012, in Minneapolis
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
@@ -912,10 +912,10 @@ C SCLVCD(LUIN,LUOUT,SCALE,SEGMNT,IREW,LBLK)
 *
 *. Jeppe Olsen, Aug. 23, 2012 in Minneapolis
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'orbinp.inc'
@@ -1296,10 +1296,10 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *             + Delta(ij)delta(kl)  <0^Q!E_iiE_kk - \delta(jk)E_ik!0^Q>
 *
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
@@ -2170,10 +2170,10 @@ C MATVCC(A,VIN,VOUT,NROW,NCOL,ITRNS)
 *   1) MOAOUT   - as it is the output matrix
 *   2) MOAO_ACT - as it is the active matrix
 *   3) MOAOIN   - as the integrals are in this basis ...
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
@@ -3429,10 +3429,10 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
 *. Jeppe Olsen, Aarhus, July 2013
 *. Last revision; Aug. 2013; Jeppe Olsen; H0_CSF = 1 included
 *
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
