@@ -3848,14 +3848,14 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
 *.1: One electron integrals( Complete matrix allocated )
 c     CALL MEMMAN(KINT1,NTOOB ** 2,'ADDS  ',2,'INT1  ')
-         if(.not.ga_create(mt_dbl,1,nint1,'INT1   ',minchunk,1,KINT1))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'INT1 ',minchunk,1,KINT1))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
          if(.not.ga_create(mt_dbl,1,nint2,'INT2   ',minchunk,1,KINT2))
      &       call errquit('scf: cannot create lucia_2e',0,GA_ERR)
       
 *. A copy of the original UNMODIFIED 1-elecs ints
 c     CALL MEMMAN(KINT1O,NTOOB ** 2,'ADDS  ',2,'INT1O ')
-         if(.not.ga_create(mt_dbl,1,nint1,'INT1O',minchunk,1,KINT1O))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'INT1O',minchunk,1,KINT1O))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Zero to avoid problems with elements that will not 
 *. be initialized
@@ -3864,61 +3864,63 @@ c     CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
       call ga_zero(kint1)
 *. Raw 1-electron integrals in input MO basis
 c     CALL  MEMMAN(KH,NTOOB**2,'ADDS  ',2,'H1    ')
-         if(.not.ga_create(mt_dbl,1,nint1,'H1    ',minchunk,1,KH))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'H1    ',minchunk,1,KH))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. 1-electron integrals with contribution  from two-electron terms from
 *  explicitly declared inactive orbitals
 c     CALL MEMMAN(KHINA,NTOOB**2,'ADDS ',2,'H1INA ')
-         if(.not.ga_create(mt_dbl,1,nint1,'H1INA ',minchunk,1,KHINA))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'H1INA ',minchunk,1,KHINA))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Overlap matrix in AO basis
 c     CALL MEMMAN(KSAO,NTOOB**2,'ADDS ',2,'SAO   ')  
-         if(.not.ga_create(mt_dbl,1,nint1,'SAO   ',minchunk,1,KSAO))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'SAO   ',minchunk,1,KSAO))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *
 c     CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
       call ga_zero(KINT1O)
 *.1.1: Inactive fock matrix
 c     CALL MEMMAN(KFI  ,NTOOB ** 2,'ADDS  ',2,'FI    ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FI    ',minchunk,1,KFI))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FI    ',minchunk,1,KFI))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 c     CALL MEMMAN(KFIO ,NTOOB ** 2,'ADDS  ',2,'FIO   ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FIO   ',minchunk,1,KFIO))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FIO   ',minchunk,1,KFIO))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *.1.2 Inactive Fock matrx in zero order space 
 c     CALL MEMMAN(KFIZ,NTOOB **2, 'ADDS  ',2,'FIZ    ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FIZ   ',minchunk,1,KFIZ))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FIZ   ',minchunk,1,KFIZ))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *.1.3 Inactive Fock matrix for alpha and beta - spin
 c     CALL MEMMAN(KFI_AL,NTOOB**2, 'ADDS  ',2,'FI_AL ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FI_AL ',minchunk,1,KFI_AL))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FI_AL',minchunk,1,KFI_AL))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 c     CALL MEMMAN(KFI_BE,NTOOB**2, 'ADDS  ',2,'FI_BE ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FI_BE ',minchunk,1,KFI_BE))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FI_BE',minchunk,1,KFI_BE))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Inactive + active Fock matrix
 c     CALL MEMMAN(KFIFA,NTOOB**2, 'ADDS  ',2,'FIFA  ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FIFA  ',minchunk,1,KFIFA))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FIFA  ',minchunk,1,KFIFA))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Active Fock matrix
 c     CALL MEMMAN(KFA,NTOOB**2,'ADDS  ',2,'FA    ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FA    ',minchunk,1,KFA))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FA    ',minchunk,1,KFA))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Fock matrix
 c     CALL MEMMAN(KF,NTOOB**2,'ADDS  ',2,'FOCK  ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FOCK  ',minchunk,1,KF))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FOCK  ',minchunk,1,KF))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *
       IF(I_DO_NORTCI.EQ.1) THEN
 *. Also space for the extra Fock-matrix for the biorthonormal expansion
 c       CALL MEMMAN(KF2,NTOOB**2,'ADDS  ',2,'FOCK2 ')
-         if(.not.ga_create(mt_dbl,1,nint1,'FOCK2 ',minchunk,1,KF2))
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'FOCK2 ',minchunk,1,KF2))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
       END IF
 
 
 *. Malmqvist transformation matrix
-      CALL MEMMAN(KTPAM,NTOOB**2,'ADDS  ',2,'TPAM  ')
+c     CALL MEMMAN(KTPAM,NTOOB**2,'ADDS  ',2,'TPAM  ')
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'TPAM  ',minchunk,1,KTPAM))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *.2: Two electron integrals
       IF(NOINT.EQ.0.AND.INCORE.EQ.1.AND.ISVMEM.EQ.0) THEN
          CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
@@ -4034,9 +4036,14 @@ C..dongxia explicit hamiltonian should be for a small space. local.
 *
 *. indeces for pair of orbitals symmetry ordered
 *. Lower half packed
-      CALL MEMMAN(KINH1,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
+c     CALL MEMMAN(KINH1,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'KINH1 ',minchunk,1,KINH1))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Complete form
-      CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
+c     CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'KINH1 ',minchunk,1,
+     &       KINH1_NOCCSYM))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *
 *. Length of MO-MO and MO_AO expansion file
       LMOMO = 0
@@ -4069,7 +4076,10 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
         IF(IREFTYP.NE.2) THEN        
 *. Set up a single set of integrals, assuming that 
 *. alpha and beta parts of T1 are identical
-         CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
+c        CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'SIMTR1',minchunk,1,
+     &       KINT1_SIMTRH))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
          IF(ISVMEM.EQ.0) THEN 
            LEN =  NINT2_NO_CCSYM
@@ -4088,8 +4098,14 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
         ELSE 
 *. High spin single determinant is reference, T1 has 
 *. different alpha and beta components.
-         CALL MEMMAN(KINT1_SIMTRH_A,NTOOB**2, 'ADDL  ',2,'SMTHA ')
-         CALL MEMMAN(KINT1_SIMTRH_B,NTOOB**2, 'ADDL  ',2,'SMTHB ')
+c        CALL MEMMAN(KINT1_SIMTRH_A,NTOOB**2, 'ADDL  ',2,'SMTHA ')
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'SMTHA ',minchunk,1,
+     &       KINT1_SIMTRH_A))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+c         CALL MEMMAN(KINT1_SIMTRH_B,NTOOB**2, 'ADDL  ',2,'SMTHB ')
+         if(.not.ga_create(mt_dbl,1,ntoob**2,'SMTHB ',minchunk,1,
+     &       KINT1_SIMRTH_B)
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
 *
          IF (ISVMEM.EQ.0) THEN
