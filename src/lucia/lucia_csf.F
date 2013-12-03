@@ -8320,7 +8320,7 @@ c     INCLUDE 'wrkspc-static.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'cgas.inc'
 #include "errquit.fh"
-#include "madecls.fh"
+#include "mafdecls.fh"
 #include "global.fh"
 *. Scratch
       DIMENSION  IOCCLS_OCC(MXPNGAS)
@@ -9047,7 +9047,7 @@ c     INCLUDE 'wrkspc-static.inc'
       INCLUDE 'csm.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
-$include "global.fh"
+#include "global.fh"
 *. For ICNFBAT = 2:
       INTEGER IOCCLS_ACT(NOCCLS_ACT), IBLOCK(8,*), NBLK_PER_BATCH(*)
 *. Input and output
@@ -10838,9 +10838,9 @@ C           MULT_MAT_SPMAT_MAT(AOUT,AIN,X,NAOUT_R,NAOUT_C,NX_C,IAINPAK )
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'wrkspc-static.inc'
-#include 'errquit.fh'
-#include 'mafdecls.fh'
-#include 'global.fh'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
 * IADOB is start of orbitals in configurations - correcting
 * for that inactive orbitals may preceed these
