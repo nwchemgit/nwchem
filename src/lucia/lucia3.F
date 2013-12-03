@@ -2578,10 +2578,10 @@ C                   IF(MXPKA .GT. 0 .AND. MXKB .GT. MXPKA) MXKB= MXPKA
 *
 c      IMPLICIT REAL*8(A-H,O-Z) 
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
 *. Input
       INTEGER ITPOP(*),IACOP(*)
 *. Number of active spaces  (NGAS )
@@ -4211,10 +4211,10 @@ C!    STOP' Enforced stop in RSBB1E '
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. a few include blocks
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'stinf.inc'
