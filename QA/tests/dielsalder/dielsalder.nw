@@ -1,5 +1,5 @@
 echo
-start
+start diels-alder-dat
 
 title "parent diels-alder - constrained geometry optimization + saddle search"
 
@@ -33,7 +33,7 @@ basis
   h library 3-21g
 end
 
-scf; print low; thresh 1e-6; end
+scf; print low; thresh 1e-8; end
 
 geometry adjust  # move to guess geometry & apply constraints
   zcoord
