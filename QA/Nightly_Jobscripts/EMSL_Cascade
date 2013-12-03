@@ -1,0 +1,22 @@
+#!/bin/bash
+#MSUB -A mscfops
+#MSUB -l "walltime=8:00:00"
+#MSUB -l "nodes=2:ppn=4"
+#MSUB -m ae
+#MSUB -o doNightlyTests.out
+#MSUB -e doNightlyTests.err
+#MSUB -N doNightlyTests
+#
+source /etc/profile.d/modules.bash
+#source /home/scicons/bin/set_modulepath.sh
+module purge
+module load pnnl_env
+module load micsetup
+module load intel
+module load impi
+module load nwchem/6.3
+export NWCHEM_TOP=`pwd`/..
+bcastf $NWCHEM_TOP/bin/LINUX64/nwchem /scratch/nwchem
+export NONSTD_MPI=y
+export MPIRUN_PATH="srun --kill-on-bad-exit -n 8 -N 2 --ntasks-per-node=4"
+./doNightlyTests.mpi
