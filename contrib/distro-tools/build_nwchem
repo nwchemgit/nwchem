@@ -1104,17 +1104,7 @@ if [ ${#NWCHEM_TOP} -eq 0 ] ; then
   export NWCHEM_TOP=`pwd`
 fi
 if [ ${#NWCHEM_MODULES} -eq 0 ] ; then
-  # export NWCHEM_MODULES="all"
-  # 
-  # For now ALL means everything except "lucia" as that code is currently in
-  # such a hopeless state that there is no hope of compiling it successfully. 
-  # Hopefully that will soon change.
-  export NWCHEM_MODULES="NWints atomscf ddscf gradients moints nwdft \
-        nwxc rimp2 stepper driver optim cphf ccsd vib mcscf prepar \
-        esp hessian selci dplot mp2_grad qhop \
-        property nwpw fft rimp2_grad argos analyz nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd etrans tce geninterface bq cons \
-        perfm dntmc transport smd dangchang leps ccca"
+  export NWCHEM_MODULES="all"
 fi
 if [ ${#LARGE_FILES} -eq 0 ] ; then
   # Apparently LARGE_FILES is important so that the code can use files that

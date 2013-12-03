@@ -68,7 +68,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana transport nbo rism,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana transport nbo rism lucia,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -88,8 +88,8 @@ EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian \
           ccsd vib property mp2_grad geninterface bq cons
 # Need bq in front of cons?
-EXP_qmmm_valiev = $(filter-out argos leps transport nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc ,$(KNOWN_MODULE_SUBDIRS) )
-EXP_rism = $(filter-out argos leps transport nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc ,$(KNOWN_MODULE_SUBDIRS) )
+EXP_qmmm_valiev = $(filter-out argos leps transport nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
+EXP_rism = $(filter-out argos leps transport nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
 
