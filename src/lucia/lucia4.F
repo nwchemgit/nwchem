@@ -13,10 +13,10 @@
 *
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       DIMENSION S(*),H0(*),V(*)
 *
 *
@@ -729,10 +729,10 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *./ORBINP/ : NACOB used
 *
 c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'strbas.inc'
@@ -2223,7 +2223,7 @@ CBERT FI is a GA
 *
       IMPLICIT REAL*8(A-H,O-Z)
 CNW   DIMENSION FI(*)
-      integre FI
+      integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*),NINOBS(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
@@ -3442,6 +3442,7 @@ CTOBE     END IF
 *
 *
        IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
        DIMENSION VEC1(*),VEC2(*)
        REAL * 8   INPROD
        DIMENSION RNRM(MAXIT,NROOT),EIG(MAXIT,NROOT)
@@ -3936,6 +3937,7 @@ C
 *
 *
        IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
        DIMENSION VEC1(*),VEC2(*)
        REAL * 8   INPROD
        DIMENSION RNRM(MAXIT,NROOT),EIG(MAXIT,NROOT)
@@ -4855,10 +4857,10 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
 *           =3: Explicitly declared inactive + active
 *               hole-orbitals
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
@@ -5025,10 +5027,10 @@ C?             WRITE(6,*) 'ISM, J,KORB,CJK = ', ISM,J,KORB,CJK
 *  (Growing up in public?- Heading towards efficient treatment of 
 *                inactive orbitals)
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'multd2h.inc'
@@ -5111,10 +5113,10 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
 *. Jeppe Olsen, October 2010
 *
 *. General input
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  	  
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -5335,10 +5337,10 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 *  (Growing up in public?- Heading towards efficient treatment of 
 *                inactive orbitals)
 *
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'multd2h.inc'
@@ -5461,10 +5463,10 @@ C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 *
 *. Jeppe Olsen, July 2011
 
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'multd2h.inc'
@@ -5556,10 +5558,10 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
 *              which are not inactive orbitals
 *           =3: Explicitly declared inactive + active
 *               hole-orbitals
+      INCLUDE 'wrkspc.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
@@ -5786,10 +5788,10 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 * IORT is given in symmetry-type order
 *
 *. Jeppe Olsen, June 2012
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
@@ -5853,10 +5855,10 @@ C      ORTH_TO_SELECT_VECTOR(X,IORTVC,S,NDIM,SCR1)
 * Orthogonalize orbitals to the frozen orbitals
 *
 *. Jeppe Olsen, June 2012
+      INCLUDE 'implicit.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"	  
-      INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'wrkspc-static.inc'
