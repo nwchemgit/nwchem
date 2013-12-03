@@ -1755,9 +1755,13 @@ CNW   DIMENSION FI(*)
         LEN = LOBSM(ISM)
         DO I = 1, LEN                           
           II = IIOFF -1 + (I-1)*LEN + I 
-          IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2) 
 CBERT FI is GA in compact form 1D
-     &    ECC = ECC + 2*FI(II)
+CNW       IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2) 
+CNW  &    ECC = ECC + 2*FI(II)
+          IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2) THEN
+            call ga_get(FI,II,II,1,1,FIVAL,1)
+            ECC = ECC + 2*FIVAL
+          ENDIF
         END DO
       END DO
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
@@ -1805,8 +1809,13 @@ C?            END IF
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
 CBERT FI is a GA
-                    IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
-     &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
+CNW                 IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
+CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
+                    IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
+                      FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
+     &                            GTIJKL(IP,KP,KP,JP)
+                      call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+                    ENDIF
                   END DO
                 END DO
               END DO
@@ -1886,7 +1895,10 @@ C?        WRITE(6,*) ' I, I_INACTIVE = ', I,I_INACTIVE
           IF(I_INACTIVE.EQ.1) THEN
 C?          WRITE(6,*) ' Contribution to ECC from I =', I
 CBERT FI is a GA maybe a gather into value would be better
-            ECC = ECC + 2*FI(II)
+CNW         ECC = ECC + 2*FI(II)
+            call ga_get(FI,II,II,1,1,FIVAL,1)
+            ECC = ECC + 2*FIVAL  
+            
 C?          WRITE(6,*) ' Updated ECC = ', ECC
           END IF
         END DO
@@ -1954,8 +1966,13 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
                     IF(ITPFSO(K).EQ.0) K_INACTIVE = 1
                     KP = ISTOB(K)
 CBERT FI is a GA
-                    IF(K_INACTIVE.EQ.1) FI(IJ) = FI(IJ) 
-     &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
+CNW                 IF(K_INACTIVE.EQ.1) FI(IJ) = FI(IJ) 
+CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
+                    IF(K_INACTIVE.EQ.1) THEN
+                      FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
+     &                            GTIJKL(IP,KP,KP,JP)
+                      call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+                    ENDIF
                   END DO
                 END DO
               END DO
@@ -2020,7 +2037,11 @@ C?    CALL IWRTMA(ITPFSO,1,3,1,3)
         DO I = IOBSM(ISM),IOBSM(ISM)+LOBSM(ISM)-1
           II = II + (I-IOBSM(ISM)+1) 
 CBERT FI is a GA
-          IF(IPHGAS(ITPFSO(I)).EQ.2) ECC = ECC + 2*FI(II)
+CNW       IF(IPHGAS(ITPFSO(I)).EQ.2) ECC = ECC + 2*FI(II)
+          IF(IPHGAS(ITPFSO(I)).EQ.2) THEN
+            call ga_get(FI,II,II,1,1,FIVAL,1)
+            ECC = ECC + 2*FIVAL  
+          ENDIF
         END DO
       END DO
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
@@ -2061,8 +2082,13 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
 CBERT FI is a GA
-                    IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
-     &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
+CNW                 IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
+CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
+                    IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
+                      FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
+     &                            GTIJKL(IP,KP,KP,JP)
+                     call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+                    ENDIF
                   END DO
                 END DO
               END DO
@@ -2135,7 +2161,9 @@ CNW   DIMENSION FI(*)
         DO I = 1, NINOBS(ISM)
           II = II + I
 CBERT FI is GA
-          ECC = ECC + 2*FI(II)
+CNW       ECC = ECC + 2*FI(II)
+          call ga_get(FI,II,II,1,1,FIVAL,1)
+          ECC = ECC + 2*FIVAL
         END DO
       END DO
       EONE = ECC
@@ -2174,8 +2202,11 @@ CBERT FI is GA
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
 CBERT FI is GA
-                  FI(IJ) = FI(IJ) 
-     &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
+CNW               FI(IJ) = FI(IJ) 
+CNW  &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
+                  FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
+     &                        GTIJKL(IP,KP,KP,JP)
+                  call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                 END DO
               END DO
             END DO
@@ -2245,7 +2276,9 @@ CNW   DIMENSION FI(*)
         DO I = 1, NINOBS(ISM)
           II = II + I
 CBERT FI is GA
-          ECC = ECC + 2*FI(II)
+CNW       ECC = ECC + 2*FI(II)
+          call ga_get(FI,II,II,1,1,FIVAL,1)
+          ECC = ECC + 2*FIVAL
         END DO
       END DO
       EONE = ECC
@@ -2284,8 +2317,11 @@ CBERT FI is GA
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
 CBERT FI is GA
-                  FI(IJ) = FI(IJ) 
-     &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
+CNW               FI(IJ) = FI(IJ) 
+CNW  &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
+                  FIVAL = 2.0D0*GTIJKL_GN(IP,JP,KP,KP)-
+     &                          GTIJKL_GN(IP,KP,KP,JP)
+                  call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                 END DO
               END DO
             END DO
@@ -4284,7 +4320,6 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
           XNORM = INPRDD(VEC1,VEC1,LU3,LU3,1,LBLK)
           CALL REWINE(LU3,LBLK)
           SCALE  = 1.0D0/SQRT(XNORM)
-CBERT Weird offset
           WORK(IROOT) = SCALE
           CALL SCLVCD(LU3,LU5,SCALE,VEC1,0,LBLK)
   320   CONTINUE

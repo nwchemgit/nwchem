@@ -5405,19 +5405,19 @@ C?     CALL MEMCHK2('CHECAE')
 *         ^ Checking was only done for nonvanishing blocks
 *
           ISCALE = 0
-          IF(NTEST.GE.10000) WRITE(6,*) ' Interactl = ', INTERACTL
+CNW       IF(NTEST.GE.10000) WRITE(6,*) ' Interactl = ', INTERACTL
           IF(INTERACTL.EQ.1) THEN
-            IF(NTEST.GE.1000) THEN
-            WRITE(6,*) 
-     &      ' GSTTBL will be called for JATP, JBTP, JASM, JBSM = ',
-     &                                  JATP, JBTP, JASM, JBSM 
-            WRITE(6,*) ' IOFF_C_BLOCK = ', IOFF_C_BLOCK
-            END IF
-            CALL GSTTBL(CV(IOFF_C_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
-     &                  ICOCOC,
-     &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
-     &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
-             IF(NTEST.GE.10000)  WRITE(6,*) ' GSTTBL was called '
+CNW         IF(NTEST.GE.1000) THEN
+CNW         WRITE(6,*) 
+CNW  &      ' GSTTBL will be called for JATP, JBTP, JASM, JBSM = ',
+CNW  &                                  JATP, JBTP, JASM, JBSM 
+CNW         WRITE(6,*) ' IOFF_C_BLOCK = ', IOFF_C_BLOCK
+CNW         END IF
+CNW         CALL GSTTBL(CV(IOFF_C_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
+CNW  &                  ICOCOC,
+CNW  &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
+CNW  &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
+CNW          IF(NTEST.GE.10000)  WRITE(6,*) ' GSTTBL was called '
 *. Note in GSTTBL : ICOOSC only used for CI vectors in core, 
           ELSE
 *. not relevant
