@@ -199,8 +199,10 @@ c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
-      logical  scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
+      logical  scf, rimp2, direct_mp2, ccsd, mcscf, selci
+      external scf, rimp2, direct_mp2, ccsd, mcscf, selci
+c     logical  oimp2
+c     external oimp2
       logical semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
       external semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
       logical dft_energy, sodft_energy, tddft_energy
@@ -358,8 +360,8 @@ c
          status = rimp2(rtdb)
       else if (theory .eq. 'rimp2_grad') then
          status = rimp2g(rtdb)
-      else if (theory .eq. 'oimp2') then
-         status = oimp2(rtdb)
+c     else if (theory .eq. 'oimp2') then
+c        status = oimp2(rtdb)
       else if (theory .eq. 'direct_mp2') then
 cedo         prefix = 'mp2'
          status = direct_mp2(rtdb)
