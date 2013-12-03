@@ -3846,15 +3846,22 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'gasstr.inc'
 *.Output
       INCLUDE 'glbbas.inc'
-      
 *.1: One electron integrals( Complete matrix allocated )
-      CALL MEMMAN(KINT1,NTOOB ** 2,'ADDS  ',2,'INT1  ')
+c     CALL MEMMAN(KINT1,NTOOB ** 2,'ADDS  ',2,'INT1  ')
+         if(.not.ga_create(mt_dbl,1,nint1,'int1e',minchunk,1,KINT1))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,1,nint2,'int2e',minchunk,1,KINT2))
+     &       call errquit('scf: cannot create lucia_2e',0,GA_ERR)
+      
 *. A copy of the original UNMODIFIED 1-elecs ints
-      CALL MEMMAN(KINT1O,NTOOB ** 2,'ADDS  ',2,'INT1O ')
+c     CALL MEMMAN(KINT1O,NTOOB ** 2,'ADDS  ',2,'INT1O ')
+         if(.not.ga_create(mt_dbl,1,nint1,'int1e',minchunk,1,KINT1O))
+     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 *. Zero to avoid problems with elements that will not 
 *. be initialized
       ZERO = 0.0D0
-      CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
+c     CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
+      call ga_zero(kint1)
 *. Raw 1-electron integrals in input MO basis
       CALL  MEMMAN(KH,NTOOB**2,'ADDS  ',2,'H1    ')
 *. 1-electron integrals with contribution  from two-electron terms from
@@ -9824,11 +9831,6 @@ c..  open file to write
        call util_file_name_resolve(filename,.false.)
        open(fn,file=filename,form='formatted',status='unknown')
        rewind (fn)
-c.. generate GA to store 1-e ints for LUCIA
-         if(.not.ga_create(mt_dbl,1,nint1,'int1e',minchunk,1,KINT1))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
-         if(.not.ga_create(mt_dbl,1,nint2,'int2e',minchunk,1,KINT2))
-     &       call errquit('scf: cannot create lucia_2e',0,GA_ERR)
 c..  1-e integrals
          g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
          call ga_zero(g_hcore)
