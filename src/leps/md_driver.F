@@ -33,7 +33,7 @@
       logical forward,backward
       logical mc_data_get_forward,mc_data_get_backward,mc_data_get_ifirc
       integer i, iw, iwtr
-      logical dbug
+      logical dbug, status
       dbug=.false.
       iwtr=12
       iw=6
