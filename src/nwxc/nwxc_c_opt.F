@@ -118,7 +118,7 @@ c
               Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA)
      +                          + Amatl(ii+1,D1_RA) + Amatl(ii+1,D1_RB)
               Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + 0.5d0*(Cmatl(ii+1,D1_GAA) 
+     +                           + (2.0d0/3.0d0)*(Cmatl(ii+1,D1_GAA) 
      +                           + 2*Cmatl(ii+1,D1_GAB)
      +                           + Cmatl(ii+1,D1_GBB))
            enddo
