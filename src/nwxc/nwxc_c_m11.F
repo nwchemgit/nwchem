@@ -568,7 +568,7 @@ c        Ec = Ec+ (E1+E2)*qwght(n)
            Amat(n,D1_RB) = Amat(n,D1_RB) + (dE1dRB+dE2dRB)*wght
          endif
          if (ipol.eq.1) then
-           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + (dE2dGAA+dE2dGAB)*wght
+           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + (dE2dGAA+dE2dGAB/2)*wght
          else
            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dE2dGAA*wght
            Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dE2dGAB*wght
