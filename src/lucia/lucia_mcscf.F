@@ -32,6 +32,9 @@
       INCLUDE 'crun.inc'
       INCLUDE 'cecore.inc'
       INCLUDE 'cstate.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Some indirect transfer - for communicating with EMCSCF_FROM_KAPPA
       COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI, IREFSPC_MCSCFL,
      &               IPRDIALL,IIUSEH0PL,MPORENP_EL,
@@ -1820,6 +1823,9 @@ C?    WRITE(6,*) ' PREPARE.. IH1FORM, IH2FORM = ', IH1FORM, IH2FORM
       INCLUDE 'cintfo.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'cecore.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Some indirect transfer
       COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI
 *
@@ -4760,6 +4766,9 @@ C GET_DIAG_BLMAT(A,DIAG,NBLK,LBLK,ISYM)
       INCLUDE 'cintfo.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'cecore.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Some indirect transfer
       COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI
 * A bit of local scratch
