@@ -5554,7 +5554,7 @@ C               IDOREO,IREO)
 *. Divide string into alpha- and beta-parts
 C              DETSTR(IDET,IASTR,IBSTR,NAEL,NBEL,ISIGN,IWORK)
            CALL DETSTR(int_mb(KLDET1),int_mb(KLAL),int_mb(KLBE),
-     &                NAEL_CONF,NBEL_CONF,ISIGN,int_mb(KLSCR)
+     &                NAEL_CONF,NBEL_CONF,ISIGN,int_mb(KLSCR),
      &                NTEST)
 *. Symmetry of strings in configuration
 *. Modify orbital indeces so they correspond to absolute orbital numbers
@@ -12734,7 +12734,8 @@ C?      WRITE(6,*) ' IOPEN_OUT_DIM = ', IOPEN_OUT_DIM
 *. The occupation sub classes corresponding to the occupation class
       CALL OCC_TO_SBCLS_FOR_OCCLS(IOCCLS,int_mb(KLOCSBCLS))
 *. 
-      CALL OCCLSDIM_FROM_OCSBCLSDIM_IN(int_mb(KLOCSBCLS),dbl_mb(KNSBCNF),
+      CALL OCCLSDIM_FROM_OCSBCLSDIM_IN(int_mb(KLOCSBCLS),
+     &     dbl_mb(KNSBCNF),
      &     int_mb(KLOS1),IOCCLSDIM,IOPEN_OUT_DIM)
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ', IDUM, 'OCSBDM')
