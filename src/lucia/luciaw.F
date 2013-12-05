@@ -7,9 +7,6 @@
 *
 *. Jeppe Olsen, July 3, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc' 
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -23,6 +20,9 @@
       INCLUDE 'gasstr.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'strinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER MINAC(*), MAXAC(*), MINMAX_ORB(*)
 *. Output
@@ -300,9 +300,6 @@ C                   IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
 *. Jeppe Olsen, July 4, 2013 (my old man would have turned 86 today...)
 *
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc' 
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -316,6 +313,9 @@ C                   IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
       INCLUDE 'gasstr.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'strinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER ISEL(NSEL)
 *. Output
@@ -521,9 +521,6 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
 *
 *. Jeppe Olsen, July 4, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -538,6 +535,9 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
       INCLUDE 'cstate.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'stinf.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Scratch holding a block of CI vector
       DIMENSION CBLK(*)
 *. Output
@@ -715,9 +715,6 @@ C       GET_MINMAX_ADR_IN_CISPACE(MINAC,MAXAC,ISM,ISPC,IADR,NELMNT)
 *
 *. Jeppe Olsen, July 4, 2013, last change July 22, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -734,6 +731,9 @@ C       GET_MINMAX_ADR_IN_CISPACE(MINAC,MAXAC,ISM,ISPC,IADR,NELMNT)
       INCLUDE 'stinf.inc'
       INCLUDE 'spinfo.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Output
       DIMENSION H0(*), ISEL(*), EIGVAL(*), EIGVEC(*)
 *
@@ -943,9 +943,6 @@ C KNCN_PER_OP_SM
 *
 *. Jeppe Olsen, July 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
@@ -954,6 +951,9 @@ C KNCN_PER_OP_SM
       INCLUDE 'spinfo.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cecore.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input
       INTEGER ICNOCC(*), ICNOP(*)
       DIMENSION RJ(*), RK(*)

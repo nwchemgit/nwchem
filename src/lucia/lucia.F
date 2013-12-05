@@ -4104,7 +4104,7 @@ c        CALL MEMMAN(KINT1_SIMTRH_A,NTOOB**2, 'ADDL  ',2,'SMTHA ')
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
 c         CALL MEMMAN(KINT1_SIMTRH_B,NTOOB**2, 'ADDL  ',2,'SMTHB ')
          if(.not.ga_create(mt_dbl,1,ntoob**2,'SMTHB ',minchunk,1,
-     &       KINT1_SIMRTH_B)
+     &       KINT1_SIMRTH_B))
      &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
 *
