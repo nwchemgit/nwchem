@@ -1691,14 +1691,14 @@ C?                WRITE(6,*) ' IINT 6 = ', IINT
 c      IMPLICIT REAL*8(A-H,O-Z)
 *. General input
 c      INCLUDE 'mxpdim.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'glbbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input
       DIMENSION C(*)
 *. Output
@@ -1963,15 +1963,15 @@ C          WRITE_H1_WITH_INDEX(H1,NSMOB,NOBPSM,LUOUT)
 * The pointers to the MO-AO transformation matrices are in KLC*, so the
 * first transformation matrix is in WORK(KLCI)
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Output
       DIMENSION X2INTOUT(*)
 *. Input array
