@@ -1,9 +1,9 @@
 # $Id: GNUmakefile $
 
 
-  OBJ_OPTIMIZE = 
+  OBJ = 
 
-  OBJ = aixopn.o aixrd.o baserou.o cdafile.o crop_simple.o \
+  OBJ_OPTIMIZE = aixopn.o aixrd.o baserou.o cdafile.o crop_simple.o \
 	daname.o daname_main.o dblas.o ddafile.o densi2_ab.o determinant.o \
 	dgeev_collect.o diis.o diis_simple.o dim_pa.o dummies.o \
 	eispack.o ekt.o filehand.o gasdir2.o gasrou.o gucc_fock.o i2addr.o \
