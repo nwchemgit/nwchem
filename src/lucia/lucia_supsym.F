@@ -9,9 +9,6 @@
 *
 * Last modified July 8, 2012 (Jeppe)
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
@@ -20,6 +17,9 @@
       INCLUDE 'lucinp.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'cgas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GTSPSM')
@@ -486,15 +486,15 @@ C?    IF(NTEST.GE.100) WRITE(6,*) ' Lmax = ', LMAX
 *. Jeppe Olsen, May 2012
 *               June 2012: parity added
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       NTEST = 00
 *
@@ -1133,14 +1133,14 @@ C?     WRITE(6,*) ' NSTA and updated IJB_SYM = ', NSTA, IJB_SYM
 *
 *. Jeppe Olsen, May 23, 2012
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER N_PER_IRREP(*)
 * Output
@@ -1775,9 +1775,6 @@ C          IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 *
 * Jeppe Olsen, May 26
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
@@ -1785,6 +1782,9 @@ C          IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
       INCLUDE 'cgas.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       
 *
       NTEST = 100
@@ -2472,13 +2472,13 @@ C     COMB_TWO_REO(IREO3,IREO2,IREO1,NDIM)
 *
 *. Jeppe Olsen, March 5, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
 * IWAY = 1: Super-symmetry to shell order
 * IWAY = 2: Shell-order to super-symmetry order
@@ -2603,14 +2603,14 @@ C?        WRITE(6,'(A,2I4)') ' IB_SHL, IB_SUP = ', IB_SHL, IB_SUP
 *. Outer part
 *. Jeppe Olsen, March 5, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION CSHELL(*)
 *
@@ -2694,14 +2694,14 @@ C?   &                        NDEG, NSHELL, IB
 *
 *. Jeppe Olsen, March 6, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER IOOEXC(2,NOOEX)
 *
@@ -2973,15 +2973,15 @@ C?      CALL IWRTMA3(IBOOFSS,1,ISSEX,1,ISSEX)
 *
 *. Jeppe Olsen, March 8, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cgas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input 
       DIMENSION RHO1(NACOB,NACOB)
 *. Output
@@ -3097,14 +3097,14 @@ C?      CALL IWRTMA3(IBOOFSS,1,ISSEX,1,ISSEX)
 *
 *. Jeppe Olsen, March 9, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'  
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
 *. Input
       DIMENSION NOBPSPSM(*)
@@ -3237,15 +3237,15 @@ C?      WRITE(6,*) ' FACTOR = ', FACTOR
 *
 *. Jeppe Olsen, March 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION CMO(*)
 *
@@ -3279,14 +3279,14 @@ C?      WRITE(6,*) ' FACTOR = ', FACTOR
 *
 *. Jeppe Olsen, March 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION C_IN(*)
 *. Output
@@ -3348,15 +3348,15 @@ C REFORM_CMO_TO_STANDARD(CMO,CMOST,IFORM,IWAY)
 *
 *. Jeppe Olsen, March 9, 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input or output
       DIMENSION CMO(*), CMOST(*)
 *
@@ -3607,15 +3607,15 @@ C              PRINT_CMO_ARBFORM(CMO,IFORM)
 *
 *. Jeppe Olsen, March 2013
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION CMO(*)
 *
