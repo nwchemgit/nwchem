@@ -350,6 +350,28 @@ C
              param(5) = nwxc_cam_gamma
              call nwxc_x_campbe(param,nwxc_rho_tol,ipol,nq,
      +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_CAMS12G)
+             param(1) = 1.03323556d0
+             param(2) = 0.757d0
+             param(3) = 0.00417251d0
+             param(4) = 0.00115216d0
+             param(5) = 0.00706184d0
+             param(6) = nwxc_cam_alpha
+             param(7) = nwxc_cam_beta
+             param(8) = nwxc_cam_gamma
+             call nwxc_x_cams12(param,nwxc_rho_tol,ipol,nq,
+     +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_CAMS12H)
+             param(1) = 1.02149642d0
+             param(2) = 0.757d0
+             param(3) = 0.00825905d0
+             param(4) = 0.00235804d0
+             param(5) = 0.00654977d0
+             param(6) = nwxc_cam_alpha
+             param(7) = nwxc_cam_beta
+             param(8) = nwxc_cam_gamma
+             call nwxc_x_cams12(param,nwxc_rho_tol,ipol,nq,
+     +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_DLDF)
              call nwxc_x_dldf(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
@@ -637,6 +659,22 @@ c            parameters D
            case (NWXCP_X_PKZB)
              call nwxc_x_pkzb99(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                          rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_S12G)
+             param(1) = 1.03842032d0
+             param(2) = 0.757d0
+             param(3) = 0.00403198d0
+             param(4) = 0.00104596d0
+             param(5) = 0.00594635d0
+             call nwxc_x_s12(param,nwxc_rho_tol,ipol,nq,
+     +                       nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_S12H)
+             param(1) = 1.02543951d0
+             param(2) = 0.757d0
+             param(3) = 0.00761554d0
+             param(4) = 0.00211063d0
+             param(5) = 0.00604672d0
+             call nwxc_x_s12(param,nwxc_rho_tol,ipol,nq,
+     +                       nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_TPSS)
              call nwxc_x_tpss03(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                          rho,gamma,tau,f,dfdr,dfdg,dfdt)

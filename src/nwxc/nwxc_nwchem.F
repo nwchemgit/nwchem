@@ -116,12 +116,19 @@ C>
 #include "inp.fh"
 #include "global.fh"
 #include "errquit.fh"
+#include "nwxc_param.fh"
 #include "nwxcP.fh"
 c
-      double precision wght !< The functional weight
-      character*255 term    !< The functional term details
-      integer iterm         !< The functional identifier
-      integer ientry        !< Counter
+      double precision wght  !< The functional weight
+      character*255 term     !< The functional term details
+      integer iterm          !< The functional identifier
+      integer ientry         !< Counter
+      integer dispid         !< Dipersion type ID
+      double precision s6    !< The C6 coefficient
+      double precision s8    !< The C8 coefficient
+      double precision sr6   !< The Cr,6 coefficient
+      double precision sr8   !< The Cr,8 coefficient
+      double precision alpha !< The damping parameter
 c
 c     Functions
 c
@@ -168,13 +175,33 @@ c         endif
 c       endif
         if (nwxc_has_disp()) then
           if (ga_nodeid().eq.0) then
-            write(luout,*)"must think about DISP"
+            call nwxc_get_disp(dispid,s6,s8,sr6,sr8,alpha)
+            select case (dispid)
+              case (NWXC_DISP_D1)
+                write(luout,1010)"GRIMME D1","Correction type"
+                write(luout,1000)s6,"C6 coefficient"
+                write(luout,1000)alpha,"Alpha damping parameter"
+              case (NWXC_DISP_D2)
+                write(luout,1010)"GRIMME D2","Correction type"
+                write(luout,1000)s6,"C6 coefficient"
+                write(luout,1000)alpha,"Alpha damping parameter"
+              case (NWXC_DISP_D3)
+                write(luout,1010)"GRIMME D3","Correction type"
+                write(luout,1000)s6,"C6 coefficient"
+                write(luout,1000)s8,"C8 coefficient"
+                write(luout,1000)sr6,"Cr,6 coefficient"
+                write(luout,1000)sr8,"Cr,8 coefficient"
+                write(luout,1000)alpha,"Alpha damping parameter"
+              case default
+                call errquit("illegal dispersion correction",
+     +                       dispid,UERR)
+            end select
           endif
-          call errquit("must think about DISP",0,UERR)
         endif
       endif
 c
  1000 format(1x,f14.8,"  ",a)
+ 1010 format(1x,a14,"  ",a)
       end
 C>
 C> \brief Store the density functional on the RTDB
@@ -594,7 +621,7 @@ c         call errquit("must think about CAM",0,UERR)
           write(luout,1000)nwxc_cam_gamma,"NWXC_CAM_GAMMA"
         endif
         if (nwxc_has_disp()) then
-          call errquit("must think about DISP",0,UERR)
+c         call errquit("must think about DISP",0,UERR)
         endif
         call util_flush(luout)
       endif

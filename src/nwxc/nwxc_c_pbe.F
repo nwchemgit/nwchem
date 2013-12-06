@@ -237,7 +237,7 @@ c
          endif
          if (rhoval.le.tol_rho) goto 20
          if (ipol.eq.1) then
-            gammaval = rgamma(n,G_AA)
+            gammaval = rgamma(n,G_TT)
          else
             gammaval = rgamma(n,G_AA)
      &               + rgamma(n,G_BB)

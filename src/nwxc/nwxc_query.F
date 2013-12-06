@@ -404,6 +404,14 @@ c
            cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
      +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"
      +             //" doi:10.1063/1.2723119)"
+         case (NWXCP_X_CAMS12G)
+           cdata = "CAM-S12g Exchange (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_X_CAMS12H)
+           cdata = "CAM-S12h Exchange (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_X_DLDF)
            cdata = "DLDF Exchange (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
@@ -479,6 +487,14 @@ c
            cdata = "PKZB Exchange (JP Perdew, S Kurth, A Zupan, "
      +             //"P Blaha, Phys.Rev.Lett. 82, "
      +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
+         case (NWXCP_X_S12G)
+           cdata = "S12g Exchange (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_X_S12H)
+           cdata = "S12h Exchange (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_X_TPSS)
            cdata = "TPSS Exchange (J Tao, JP Perdew, VN Staveroverov, "
      +             //"GE Scuseria, Phys.Rev.Lett. 91, 146401 (2003) "
@@ -495,6 +511,14 @@ c
            cdata = "B95 Correlation (AD Becke, "
      +             //"J.Chem.Phys. 104, 1040 (1996)"
      +             //" doi:10.1063/1.4708298)"
+         case (NWXCP_C_CAMS12G)
+           cdata = "CAM-S12g Correlation (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_C_CAMS12H)
+           cdata = "CAM-S12h Correlation (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_C_DLDF)
            cdata = "DLDF Correlation (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
@@ -577,6 +601,14 @@ c
            cdata = "PKZB Correlation (JP Perdew, S Kurth, A Zupan, "
      +             //"P Blaha, Phys.Rev.Lett. 82, "
      +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
+         case (NWXCP_C_S12G)
+           cdata = "S12g Correlation (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_C_S12H)
+           cdata = "S12h Correlation (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_C_TPSS)
            cdata = "TPSS Correlation (J Tao, JP Perdew, VN "
      +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "
@@ -614,6 +646,14 @@ c
            cdata = "BLYP"
          case (NWXCP_B0LYP)
            cdata = "B0LYP (ACM0 variant of BLYP)"
+         case (NWXCP_CAMS12G)
+           cdata = "CAM-S12g (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_CAMS12H)
+           cdata = "CAM-S12h (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_DLDF)
            cdata = "DLDF (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
@@ -696,6 +736,14 @@ c
            cdata = "PKZB (JP Perdew, S Kurth, A Zupan, "
      +             //"P Blaha, Phys.Rev.Lett. 82, "
      +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
+         case (NWXCP_S12G)
+           cdata = "S12g (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_S12H)
+           cdata = "S12h (M Swart, "
+     +             //"Chem.Phys.Lett. (2013)"
+     +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_TPSS)
            cdata = "TPSS (J Tao, JP Perdew, VN "
      +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "

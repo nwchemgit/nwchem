@@ -78,13 +78,13 @@ cDEBUG
       write(*,*)'nwxc_vdw: after nwxc_get_disp: s6,s8,sr6,sr8=',
      &          s6,s8,sr6,sr8
 cDEBUG
-      if (.not.rtdb_get(rtdb,'dft:vdwalpha',MT_DBL,1,alpha))
-     &      alpha = 20.0d0
-      if (ivdw.eq.3) alpha = 14.0d0
+c     if (.not.rtdb_get(rtdb,'dft:vdwalpha',MT_DBL,1,alpha))
+c    &      alpha = 20.0d0
+c     if (ivdw.eq.3) alpha = 14.0d0
 c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
-      stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
+c     stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
 cc    if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
 cc     &    call get_scaling_fac(s6,s8,sr6,sr8)
 cc   &      call nwxc_get_disp(ivdw,s6,s8,alpha)
