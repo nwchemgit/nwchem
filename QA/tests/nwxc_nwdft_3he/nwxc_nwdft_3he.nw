@@ -586,12 +586,16 @@ end
 task dft energy
 
 dft
+  direct
   mult 3
   odft
   vectors input atomic
   xc m11
 end
 task dft energy
+
+set dft:cam_exch F
+set dft:direct   F
 
 dft 
   mult 3

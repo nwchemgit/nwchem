@@ -462,6 +462,9 @@ dft
 end
 task dft energy
 
+set dft:cam_exch F
+set dft:direct   F
+
 dft
   vectors input atomic
   xc s12g
