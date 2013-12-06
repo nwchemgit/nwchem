@@ -5511,8 +5511,8 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
 *. the complex conjugation symmetry of the one-electron integrals
         IPACK_F = IE1_CCSM_G(IE2LIST_IN)
 *
-        CALL FI_FROM_INIINT_G(WORK(KFI),WORK(KKCMO_I),WORK(KKCMO_J),
-     &                      WORK(KINT1),ECORE_HEX,3,IPACK_F)
+        CALL FI_FROM_INIINT_G(KFI,WORK(KKCMO_I),WORK(KKCMO_J),
+     &                        KINT1,ECORE_HEX,3,IPACK_F)
         ECORE = ECORE_ORIG + ECORE_HEX
         IF(NTEST.GE.100)
      &  WRITE(6,*) ' Updated core energy =  ', ECORE

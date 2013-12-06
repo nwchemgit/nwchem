@@ -350,8 +350,10 @@ C KLRANK2, KLUPDVEC, KLCLKSCR,KLE1PREV,KLKPPREV
       CALL MEMMAN(KLKAPPA,NOOEXC,'ADDL  ',2,'KAPPA ')
       CALL MEMMAN(KLSTEP, NOOEXC,'ADDL  ',2,'STEP  ')
 *. Save the initial set of MO integrals 
-      CALL COPVEC(WORK(KINT1O),WORK(KINT1_INI),NINT1)
-      CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
+CNW   CALL COPVEC(WORK(KINT1O),WORK(KINT1_INI),NINT1)
+CNW   CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
+      call ga_copy(KINT1O,KINT1_INI)
+      call ga_copy(KINT_2EMO,KINT2_INI)
 *. Print will be reduced for densities
       IPRDEN_SAVE = IPRDEN
       IPRDEN = 0
@@ -422,8 +424,10 @@ C    &               I_DO_CI_IN_INNER_ACT
 *
 * Save initial integrals 
 *
-        CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
-        CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
+CNW     CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
+CNW     CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
+        call ga_copy(KINT1_INI,KINT1O)
+        call ga_copy(KINT2_INI,KINT_2EMO)
 *
 *. Transform integrals to current set of MO's
 *
@@ -440,7 +444,8 @@ C    &               I_DO_CI_IN_INNER_ACT
 *. Perform integral transformation and construct inactive Fock matrix
 C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
         CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
-        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+        call ga_copy(KFI,KINT1)
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' MCSCF: ECORE_ORIG, ECORE_HEX, ECORE(2) ',
      &                 ECORE_ORIG, ECORE_HEX, ECORE

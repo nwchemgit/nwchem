@@ -664,6 +664,8 @@ c      INCLUDE 'mxpdim.inc'
         write(6,*) 'LUCIA env!'
 *. Lucia: core energy is obtained from 2-e file
         CALL GETOBS_LUCIA(NAOS_ENV,NMOS_ENV)
+      ELSE IF(ENVIRO(1:6).EQ.'NWCHEM') THEN
+        CALL GETOBS_NWCHEM(ECORE_ENV,NAOS_ENV,NMOS_ENV)
       ELSE IF(ENVIRO(1:4).EQ.'QDOT' ) THEN
         write(6,*) 'QDOT env!'
           CALL GETOBS_LUCIA(NAOS_ENV,NMOS_ENV)
@@ -1217,15 +1219,15 @@ c      INCLUDE 'mxpdim.inc'
 * If no mo-ao trans is present, only, MOMO matrix is returned
 
       INCLUDE 'wrkspc.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       NTEST = 10
       IF(NTEST.GE.10) THEN
@@ -1820,6 +1822,9 @@ C     END IF
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'crun.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION NTOOBS(NSMOB)
 *. output
@@ -3848,15 +3853,12 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
 *.1: One electron integrals( Complete matrix allocated )
 c     CALL MEMMAN(KINT1,NTOOB ** 2,'ADDS  ',2,'INT1  ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'INT1 ',minchunk,1,KINT1))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
-         if(.not.ga_create(mt_dbl,1,nint2,'INT2   ',minchunk,1,KINT2))
-     &       call errquit('scf: cannot create lucia_2e',0,GA_ERR)
-      
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'INT1 ',0,1,KINT1))
+     &       call errquit('cannot create lucia_1e: kint1',0,GA_ERR)
 *. A copy of the original UNMODIFIED 1-elecs ints
 c     CALL MEMMAN(KINT1O,NTOOB ** 2,'ADDS  ',2,'INT1O ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'INT1O',minchunk,1,KINT1O))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'INT1O',0,1,KINT1O))
+     &       call errquit('cannot create lucia_1e: kint1o',0,GA_ERR)
 *. Zero to avoid problems with elements that will not 
 *. be initialized
       ZERO = 0.0D0
@@ -3864,68 +3866,72 @@ c     CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
       call ga_zero(kint1)
 *. Raw 1-electron integrals in input MO basis
 c     CALL  MEMMAN(KH,NTOOB**2,'ADDS  ',2,'H1    ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'H1    ',minchunk,1,KH))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'H1    ',0,1,KH))
+     &       call errquit('cannot create lucia_1e: kh',0,GA_ERR)
 *. 1-electron integrals with contribution  from two-electron terms from
 *  explicitly declared inactive orbitals
 c     CALL MEMMAN(KHINA,NTOOB**2,'ADDS ',2,'H1INA ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'H1INA ',minchunk,1,KHINA))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'H1INA ',0,1,KHINA))
+     &       call errquit('cannot create lucia_1e: kh1ina',0,GA_ERR)
 *. Overlap matrix in AO basis
 c     CALL MEMMAN(KSAO,NTOOB**2,'ADDS ',2,'SAO   ')  
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'SAO   ',minchunk,1,KSAO))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob,ntoob,'SAO   ',0,1,KSAO))
+     &       call errquit('cannot create lucia_1e: ksao',0,GA_ERR)
 *
 c     CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
       call ga_zero(KINT1O)
 *.1.1: Inactive fock matrix
 c     CALL MEMMAN(KFI  ,NTOOB ** 2,'ADDS  ',2,'FI    ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FI    ',minchunk,1,KFI))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI    ',0,1,KFI))
+     &       call errquit('cannot create lucia_1e: kfi',0,GA_ERR)
 c     CALL MEMMAN(KFIO ,NTOOB ** 2,'ADDS  ',2,'FIO   ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FIO   ',minchunk,1,KFIO))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIO   ',0,1,KFIO))
+     &       call errquit('cannot create lucia_1e: kfio',0,GA_ERR)
 *.1.2 Inactive Fock matrx in zero order space 
 c     CALL MEMMAN(KFIZ,NTOOB **2, 'ADDS  ',2,'FIZ    ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FIZ   ',minchunk,1,KFIZ))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIZ   ',0,1,KFIZ))
+     &       call errquit('cannot create lucia_1e: kfiz',0,GA_ERR)
+
 *.1.3 Inactive Fock matrix for alpha and beta - spin
 c     CALL MEMMAN(KFI_AL,NTOOB**2, 'ADDS  ',2,'FI_AL ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FI_AL',minchunk,1,KFI_AL))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_AL',0,1,KFI_AL))
+     &       call errquit('cannot create lucia_1e: kfi_al',0,GA_ERR)
 c     CALL MEMMAN(KFI_BE,NTOOB**2, 'ADDS  ',2,'FI_BE ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FI_BE',minchunk,1,KFI_BE))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_BE',0,1,KFI_BE))
+     &       call errquit('cannot create lucia_1e: fi_be',0,GA_ERR)
 *. Inactive + active Fock matrix
 c     CALL MEMMAN(KFIFA,NTOOB**2, 'ADDS  ',2,'FIFA  ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FIFA  ',minchunk,1,KFIFA))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIFA  ',0,1,KFIFA))
+     &       call errquit('cannot create lucia_1e: kfifa',0,GA_ERR)
 *. Active Fock matrix
 c     CALL MEMMAN(KFA,NTOOB**2,'ADDS  ',2,'FA    ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FA    ',minchunk,1,KFA))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FA    ',0,1,KFA))
+     &       call errquit('cannot create lucia_1e: kfa',0,GA_ERR)
 *. Fock matrix
 c     CALL MEMMAN(KF,NTOOB**2,'ADDS  ',2,'FOCK  ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FOCK  ',minchunk,1,KF))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK  ',0,1,KF))
+     &       call errquit('cannot create lucia_1e: kf',0,GA_ERR)
 *
       IF(I_DO_NORTCI.EQ.1) THEN
 *. Also space for the extra Fock-matrix for the biorthonormal expansion
 c       CALL MEMMAN(KF2,NTOOB**2,'ADDS  ',2,'FOCK2 ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'FOCK2 ',minchunk,1,KF2))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK2 ',0,1,KF2))
+     &       call errquit('cannot create lucia_1e: kf2',0,GA_ERR)
       END IF
-
 
 *. Malmqvist transformation matrix
 c     CALL MEMMAN(KTPAM,NTOOB**2,'ADDS  ',2,'TPAM  ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'TPAM  ',minchunk,1,KTPAM))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'TPAM  ',0,1,KTPAM))
+     &       call errquit('cannot create lucia_1e: ktpam',0,GA_ERR)
 *.2: Two electron integrals
       IF(NOINT.EQ.0.AND.INCORE.EQ.1.AND.ISVMEM.EQ.0) THEN
-         CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
+CNW      CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
+         if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EMO))
+     &       call errquit('cannot create lucia_2e: kint_2emo',0,GA_ERR)
 *. For initial set of integrals
-         CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
+CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
+         if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EINI))
+     &       call errquit('cannot create lucia_2e: kint_2eini',0,GA_ERR)
       END IF
 *. Pointers to symmetry block of integrals
       CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',2,'PINT1 ')  !done
@@ -4037,13 +4043,13 @@ C..dongxia explicit hamiltonian should be for a small space. local.
 *. indeces for pair of orbitals symmetry ordered
 *. Lower half packed
 c     CALL MEMMAN(KINH1,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'KINH1 ',minchunk,1,KINH1))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob,ntoob,'KINH1 ',0,0,KINH1))
+     &       call errquit('cannot create lucia_1e: kinh1',0,GA_ERR)
 *. Complete form
 c     CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'KINH1 ',minchunk,1,
-     &       KINH1_NOCCSYM))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob,ntoob,'KINH1 ',0,0,
+     &       KINH1_NOCCSYM)) call
+     &       errquit('cannot create lucia_1e: kinh1_noccsym',0,GA_ERR)
 *
 *. Length of MO-MO and MO_AO expansion file
       LMOMO = 0
@@ -4077,9 +4083,9 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
 *. Set up a single set of integrals, assuming that 
 *. alpha and beta parts of T1 are identical
 c        CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'SIMTR1',minchunk,1,
-     &       KINT1_SIMTRH))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SIMTR1',0,1,
+     &       KINT1_SIMTRH)) call
+     &       errquit('cannot create lucia_1e: kint1_simtrh',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
          IF(ISVMEM.EQ.0) THEN 
            LEN =  NINT2_NO_CCSYM
@@ -4099,13 +4105,13 @@ c        CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
 *. High spin single determinant is reference, T1 has 
 *. different alpha and beta components.
 c        CALL MEMMAN(KINT1_SIMTRH_A,NTOOB**2, 'ADDL  ',2,'SMTHA ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'SMTHA ',minchunk,1,
-     &       KINT1_SIMTRH_A))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHA ',0,1,
+     &       KINT1_SIMTRH_A)) call
+     &       errquit('cannot create lucia_1e: kint_simtrh_a',0,GA_ERR)
 c         CALL MEMMAN(KINT1_SIMTRH_B,NTOOB**2, 'ADDL  ',2,'SMTHB ')
-         if(.not.ga_create(mt_dbl,1,ntoob**2,'SMTHB ',minchunk,1,
-     &       KINT1_SIMRTH_B))
-     &       call errquit('scf: cannot create lucia_1e',0,GA_ERR)
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHB ',0,1,
+     &       KINT1_SIMRTH_B)) call
+     &       errquit('cannot create lucia_1e: kint1_simrth_b',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
 *
          IF (ISVMEM.EQ.0) THEN
@@ -9702,9 +9708,6 @@ C              CSUB_FROM_C(C,CSUB,LENSUBS,NSUBTP,ISUBTP,IONLY_DIM)
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'clunit.inc'
@@ -9716,6 +9719,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cecore.inc'
       INCLUDE 'cstate.inc'
       INCLUDE 'intform.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9728,7 +9734,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL INTPNT(dbl_mb(KPINT1),dbl_mb(KLSM1),
      &            dbl_mb(KPINT2),dbl_mb(KLSM2))
 *. Pointer for orbital indeces for symmetry blocked matrices
-      CALL ORBINH1(WORK(KINH1),WORK(KINH1_NOCCSYM),NTOOBS,NTOOB,NSMOB)
+      CALL ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 *
 *  ----------------------------------------------------------------
 *. Read integrals in according to the specification of environment
@@ -9744,9 +9750,11 @@ c      INCLUDE 'mxpdim.inc'
 *
         WRITE(6,*) ' GET_QD_INTS will be called '
         ZERO = 0.0D0
-        CALL SETVEC(WORK(KINT1), ZERO, NINT1)
-        CALL SETVEC(WORK(KINT2), ZERO, NINT2)
-        CALL GET_QD_INTS(WORK(KINT1),WORK(KINT2),dbl_mb(KPINT1))
+CNW     CALL SETVEC(WORK(KINT1), ZERO, NINT1)
+CNW     CALL SETVEC(WORK(KINT2), ZERO, NINT2)
+        call ga_zero(KINT1)
+        call ga_zero(KINT2)
+        CALL GET_QD_INTS(KINT1,KINT2,dbl_mb(KPINT1))
         INTIMP = 1
        ELSE IF(IDOQD.EQ.0.AND.INTIMP.EQ.1) THEN
 *
@@ -9796,10 +9804,9 @@ c.. dongxia add format for NWChem
 * NWCHEM FORMAT
 *===============
 c.. dongxia added June 2013, transform AO ints to SCF MO ints
-c.. --------------------------------------------
-c.. To generate GA arrays to keep 1e and 2e ints
-c.. --------------------------------------------
 c..  reorder 
+CBERT Where does nbf come from? Needed to set dimension. 
+CBERT What is this called in lucia?
        if(.not.ma_push_get(mt_int,nbf,'reord',l_reord,k_reord))
      $    call errquit('scf:memory?',nbf,MA_ERR)
 c..
@@ -9807,34 +9814,40 @@ c..
      $    call errquit('scf:memory?',nbf,MA_ERR)
 c..
       if (ga_nodeid().eq.0) then
+CBERT You use nir before it is defined. Should just use maxireps.
+CBERT Where do you get maxireps? Not defined anywhere.
        call ifill(nir,0,ipnt,1)
        call ifill(nir,0,ipnt2,1)
        call ifill(maxireps,0,ioff,1)
        call ifill(maxireps,0,icount,1)
+CBERT zname is a character string, should be properly defined as such.
+CBERT zclass and chars are also character strings or arrays of chars.
+CBERT Where does geom come from? Has not been read in!
        call sym_group_name(geom,zname)
        if(.not.sym_mol(zname,nop,nir,class_dim,zir,zclass,chars,ipnt))
      $    call errquit('scf: no char table available ',geom,unknown_err)
        do i=1,nir
          ipnt2(ipnt(i))=i
-         write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
+c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
        end do
        ioff(1)=1
        do i=2,nir
          ioff(i) = ioff(i-1)+nbf_per_ir(ipnt2(i-1))
        end do
+CBERT Where does k_irs come from?
        do i=1,nmo
          irs=ipnt(int_mb(k_irs+i-1))
-         write(6,*)'irs',ga_nodeid(),irs
+c        write(6,*)'irs',ga_nodeid(),irs
          icount(irs)=icount(irs)+1
          reord = ioff(irs)+icount(irs)-1
          int_mb(k_reord+i-1)=reord
          int_mb(K_reord2+reord-1)=i
        end do
-         write(6,*)'reorder arrays:'
-         do i=1,nmo
-          write(6,*)int_mb(k_reord+i-1),int_mb(k_reord2+i-1)
-         end do
-       call util_flush(6)
+c        write(6,*)'reorder arrays:'
+c        do i=1,nmo
+c         write(6,*)int_mb(k_reord+i-1),int_mb(k_reord2+i-1)
+c        end do
+c      call util_flush(6)
       end if
 c..
 c.. reorder movecs and save to g_moreo
@@ -9845,6 +9858,10 @@ c..
         if(.not. ma_push_get(mt_dbl,nbf,'reo',l_veci,k_veci))
      $    call errquit('scf reo: no scratch space',nbf,MA_ERR)
 c..
+CBERT Where does g_movecs come from all of a sudden. Needs to be created.
+CBERT You will have to read in the MO file name from the rtdb.
+CBERT If you read the movecs_header (see ddscf/vectors.F) you can also
+CBERT get the nbf variable, see vectors.F.
       if(ga_nodeid().eq.0)then
         do i=1,nmo
          call ga_get(g_movecs(1),1,nbf,i,i,dbl_mb(k_veci),1)
@@ -9864,14 +9881,6 @@ c..
 c..
        if(.not.ma_pop_stack(l_reord))
      $    call errquit('scf: ma pop failed',0,0)
-c..  open file to write
-       fn = 90
-       filename = 'moints'
-       if(.not.util_io_unit(90,99,fn))
-     &    call errquit("cannot get io unit",0,0)
-       call util_file_name_resolve(filename,.false.)
-       open(fn,file=filename,form='formatted',status='unknown')
-       rewind (fn)
 c..  1-e integrals
          g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
          call ga_zero(g_hcore)
@@ -9891,6 +9900,10 @@ c        call ga_print(g_coul)
 c        call util_flush(6)
 c        call ga_print(g_exch)
 c.. To write in LUCIA format
+CBERT Are you assuming g_hcore is symmetry blocked? 
+CBERT This is not the case. Basis functions are not ordered according
+CBERT to symmetry, no symmetry is assumed in the one-electron matrix.
+CBERT Same holds for 2e integrals.
          if(ga_nodeid().eq.0)then
 c.. 1e ints
          ind1e=0
@@ -9906,8 +9919,6 @@ c.. add offset
            i = i + ioff(ism_lu) -1
            j = j + ioff(ism_lu) -1
          call ga_get(g_hcore,i,i,j,j,int1e,1)
-c        write(6,'(E22.15)')int1e
-c        write(fn,'(E22.15)')int1e
          call ga_put(KINT1,1,1,ind1e,ind1e,int1e,1)
           end do
          end do 
@@ -9969,20 +9980,16 @@ c.. look for index in ga_coul
                   ij = (j-1)*nbf+i 
                   kl = k*(k-1)/2 + l
          call ga_get(g_coul,ij,ij,kl,kl,int2e,1)
-c        write(fn,'(E22.15)')int2e
          call ga_put(KINT2,1,1,ind2e,ind2e,int2e,1)
-               call util_flush(6)
               end do
              endif
             end do
            end do
           end do
          end do
+CBERT Do you need the nuclear repulsion energy?
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $  call errquit('unable to get nuclear rep energy',geom, GEOM_ERR)
-         write(fn,'(E22.15)')enrep
-         end if
-         close(fn)
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
        ELSE IF (INTIMP .EQ. 5) THEN
@@ -11134,11 +11141,11 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *
       LMOMO = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
       IF(NOMOFL.EQ.0) THEN
-        CALL GET_CMOAO_ENV(WORK(KMOAOIN))
-        CALL COPVEC(WORK(KMOAOIN),WORK(KMOAO_ACT),LMOMO)
+        CALL GET_CMOAO_ENV(dbl_mb(KMOAOIN))
+        CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAO_ACT),LMOMO)
 *. And as long as nothing else has happened, it is also
 *. the output MO's
-        CALL COPVEC(WORK(KMOAOIN),WORK(KMOAOUT),LMOMO)
+        CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAOUT),LMOMO)
       END IF
 * Part 2
 * The set of starting MOs: MO-AO expansion and MOMO expansion.
@@ -11158,7 +11165,7 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *. Expansion of starting MOs in AOs in WORK(KMOAOUT)
 *  Expansion of starting MOs in initial MOs in MOMO
         XDUM = 2810.1979
-        CALL GET_HSAO(XDUM,WORK(KSAO),0,1)
+        CALL GET_HSAO(XDUM,KSAO,0,1)
         CALL GET_CMOINI_GEN(WORK(KMOAOUT),WORK(KMOMO),WORK(KMOAOIN))
 *. Let the starting orbitals be the orbitals in action
         CALL COPVEC(WORK(KMOAOUT),WORK(KMOAOIN),LMOMO)
