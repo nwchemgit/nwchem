@@ -51,8 +51,11 @@ c
       integer NWXCP_X_DLDF       !< The DLDF exchange functional
       parameter (NWXCP_X_DLDF = NWXCP_X_CAMS12H + 1)
 c
+      integer NWXCP_X_GILL       !< The GILL exchange functional
+      parameter (NWXCP_X_GILL = NWXCP_X_DLDF + 1)
+c
       integer NWXCP_X_M05        !< The M05 exchange functional
-      parameter (NWXCP_X_M05 = NWXCP_X_DLDF + 1)
+      parameter (NWXCP_X_M05 = NWXCP_X_GILL + 1)
 c
       integer NWXCP_X_M05_2X     !< The M05-2X exchange functional
       parameter (NWXCP_X_M05_2X = NWXCP_X_M05 + 1)

@@ -375,6 +375,9 @@ C
            case (NWXCP_X_DLDF)
              call nwxc_x_dldf(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_GILL)
+             call nwxc_x_gill(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_M05)
              param( 1) =    0.08151d0
              param( 2) =   -0.43956d0

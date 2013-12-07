@@ -233,6 +233,8 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
         nwxc_cam_srhfex = .false.
       else if (dfname.eq."xdldf") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_DLDF,dfweight)
+      else if (dfname.eq."xgill".or.dfname.eq."gill96") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_GILL,dfweight)
       else if (dfname.eq."xm05") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_M05,dfweight)
       else if (dfname.eq."xm05-2x") then

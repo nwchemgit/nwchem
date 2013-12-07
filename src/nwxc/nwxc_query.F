@@ -416,6 +416,10 @@ c
            cdata = "DLDF Exchange (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
      +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
+         case (NWXCP_X_GILL)
+           cdata = "GILL Exchange (PMW Gill, "
+     +             //"Mol.Phys. 89, 433 (1996) "
+     +             //"doi:10.1080/002689796173813)"
          case (NWXCP_X_M05)
            cdata = "M05 Exchange (Y Zhao, NE Schultz, DG Truhlar, "
      +             //"J.Chem.Phys. 123, 161103 (2005)"
