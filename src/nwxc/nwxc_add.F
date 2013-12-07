@@ -317,6 +317,13 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
      &                nwxc_add_func(NWXCP_X_S12H,dfweight*
      &                              0.75d0)
         nwxc_wght_hf= nwxc_wght_hf + 0.25d0*dfweight
+      else if (dfname.eq."xsogga") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_SOGGA,dfweight)
+      else if (dfname.eq."xsogga11") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_SOGGA11,dfweight)
+      else if (dfname.eq."xsogga11-x") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_SOGGA11_X,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.4015d0*dfweight
       else if (dfname.eq."xtpss03") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_TPSS,dfweight)
       else if (dfname.eq."xwpbe") then
@@ -406,6 +413,10 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_disp_sr6   = 1.07735222d0
         nwxc_disp_sr8   = 0.0d0
         nwxc_disp_alpha = 14.0d0
+      else if (dfname.eq."csogga11") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_SOGGA11,dfweight)
+      else if (dfname.eq."csogga11-x") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_SOGGA11_X,dfweight)
       else if (dfname.eq."ctpss03") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_TPSS,dfweight)
       else if (dfname.eq."cvs98") then
@@ -704,6 +715,25 @@ c       In the NWChem DFT code RPBE does not include correlation
         nwxc_disp_sr6   = 1.07735222d0
         nwxc_disp_sr8   = 0.0d0
         nwxc_disp_alpha = 14.0d0
+      else if (dfname.eq."sogga") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_SOGGA,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SOGGA,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PBE,dfweight)
+      else if (dfname.eq."sogga11") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_SOGGA11,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SOGGA11,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_SOGGA11,dfweight)
+      else if (dfname.eq."sogga11-x") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_SOGGA11_X,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SOGGA11_X,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_SOGGA11_X,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.4015d0*dfweight
       else if (dfname.eq."tpss03".or.dfname.eq."tpss") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_TPSS,dfweight)
         nwxc_add_df = nwxc_add_df .and.
