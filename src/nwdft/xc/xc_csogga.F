@@ -290,6 +290,8 @@ C
       F1o9 = F1/F9
       F4o27= F4/F27
 c
+      OMZ3   = F0
+      OPZ3   = F0
       GZet   = F0
       dGZdz  = F0
       d2GZdz = F0
@@ -299,16 +301,20 @@ c
       OPZ = F1+Zeta
       OMZ2 = OMZ**2
       OPZ2 = OPZ**2
-      OMZ3 = OMZ**(-F1o3)
+      if (OMZ.gt.0.0d0) then 
+        OMZ3 = OMZ**(-F1o3)
+        d2GZdz = d2GZdz-OMZ3/OMZ
+        d3GZdz = d3GZdz-OMZ3/OMZ2
+      endif
       GZet = GZet+OMZ*OMZ3
       dGZdz = dGZdz-OMZ3
-      d2GZdz = d2GZdz-OMZ3/OMZ
-      d3GZdz = d3GZdz-OMZ3/OMZ2
-      OPZ3 = OPZ**(-F1o3)
+      if (OPZ.gt.0.0d0) then 
+        OPZ3 = OPZ**(-F1o3)
+        d2GZdz = d2GZdz-OPZ3/OPZ
+        d3GZdz = d3GZdz+OPZ3/OPZ2
+      endif
       GZet = GZet+OPZ*OPZ3
       dGZdz = dGZdz+OPZ3
-      d2GZdz = d2GZdz-OPZ3/OPZ
-      d3GZdz = d3GZdz+OPZ3/OPZ2
 c
       GZet   = GZet/F2
       dGZdz  = dGZdz*F1o3
