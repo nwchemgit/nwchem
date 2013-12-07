@@ -478,6 +478,24 @@ end
 task dft energy
 
 dft
+  vectors input atomic
+  xc sogga
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc sogga11
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc sogga11-x
+end
+task dft energy
+
+dft
   direct
   vectors input atomic
   xc hse03

@@ -620,7 +620,30 @@ dft
 end
 task dft energy
 
-  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc sogga
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc sogga11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc sogga11-x
+end
+task dft energy
+
 dft
   direct
   mult 4
