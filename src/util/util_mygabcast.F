@@ -10,7 +10,7 @@ c
       integer*4 ierr,len,ierr2
       integer*8 bigint,len8,nsteps,istart,end8
 cold      parameter (bigint=1.999999*2.**30)
-      parameter (bigint=2.**30)
+      parameter (bigint=2.**29/8)
       character*(MPI_MAX_ERROR_STRING) errstr
 c
       if(ga_nodeid().eq.0)
@@ -32,9 +32,19 @@ c     F           dble(len8)/dble(bigint)
                   end8=len8-istart+1
                   len=end8
                endif
-
+#ifdef DBG
+               if(ga_nodeid().eq.0) then
+                  write(6,'(A,I10,A,I10,A,I10,A,I10)') 
+     P                 ' istart ',istart,'len ',len,
+     I                 ' is+len-1 ',istart+len-1, 
+     L                 ' len8 ',len8
+               endif
+#endif
                call MPI_Bcast(a(istart), len, MPI_DOUBLE_PRECISION, 0, 
      G              MPI_COMM_WORLD, ierr)
+#ifdef DBG
+               call ga_sync()
+#endif
                istart=istart+len
             enddo
         endif
