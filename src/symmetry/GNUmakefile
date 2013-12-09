@@ -46,7 +46,8 @@ OBJ =     dosymops.o \
           wrcell.o \
           dctr.o \
           sym_irrepname.o \
-          sym_abelian.o
+          sym_abelian.o \
+          sym_mol.o
 
 OBJ_OPTIMIZE = sym_sym.o \
                sym_mo_ap_op.o sym_bas_op.o
