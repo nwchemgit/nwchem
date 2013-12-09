@@ -1607,6 +1607,7 @@ CBERT should do this is in blocks
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
+CBERT FIFA is GA, needs different writing strategy
        CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
       END IF
 * 

@@ -590,24 +590,24 @@ C         WRITE(6,*) ' NOOEXC before CLSKHE = ', NOOEXC
         IF(I_DO_FDCHECK.EQ.1) THEN
 *. First: Analytic gradient from Fock matrix - As kappa = 0, Brillouin vector
 * = gradient
-          CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,WORK(KLOOEXC),
-     &                   WORK(KLOOEXCC),
+          CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
+     &                   int_mb(KLOOEXCC),
      &                   NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
 *
           CALL MEMMAN(KLE1FD,NOOEXC,'ADDL  ',2,'E1_FD ')
           LE2 = NOOEXC*NOOEXC
           CALL MEMMAN(KLE2FD,LE2,   'ADDL  ',2,'E2_FD ')
           CALL SETVEC(WORK(KLE2VL),ZERO,NOOEXC)
-          CALL GENERIC_GRA_HES_FD(E0,WORK(KLE1FD),WORK(KLE2FD),
-     &         WORK(KLE2VL),NOOEXC,EMCSCF_FROM_KAPPA)
+          CALL GENERIC_GRA_HES_FD(E0,dbl_mb(KLE1FD),dbl_mb(KLE2FD),
+     &         dbl_mb(KLE2VL),NOOEXC,EMCSCF_FROM_KAPPA)
 C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
 *. Compare gradients
           ZERO = 0.0D0
-          CALL CMP2VC(WORK(KLE1FD),WORK(KLE1),NOOEXC,ZERO)
+          CALL CMP2VC(dbl_mb(KLE1FD),dbl_mb(KLE1),NOOEXC,ZERO)
 *. transform Finite difference Hessian to packed form
-          CALL TRIPAK(WORK(KLE2FD),WORK(KLE2F),1,NOOEXC,NOOEXC)
+          CALL TRIPAK(dbl_mb(KLE2FD),dbl_mb(KLE2F),1,NOOEXC,NOOEXC)
           LEN = NOOEXC*(NOOEXC+1)/2
-          CALL CMP2VC(WORK(KLE2),WORK(KLE2F),LEN,ZERO)
+          CALL CMP2VC(dbl_mb(KLE2),dbl_mb(KLE2F),LEN,ZERO)
               STOP ' Enforced stop after FD check'
         END IF
 *       ^ End of finite difference check
@@ -616,10 +616,10 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
 *. Loop over Inner iterations, where orbitals are optimized
 *. Initialize Kappa as zero
         IF(IRESET_KAPPA_IN_OR_OUT.EQ.2) THEN
-          CALL SETVEC(WORK(KLKAPPA),ZERO,NOOEXC)
+          CALL SETVEC(dbl_mb(KLKAPPA),ZERO,NOOEXC)
         END IF
 *. Save MO's from start of each outer iteration
-        CALL COPVEC(WORK(KMOMO),WORK(KMOREF),LEN_CMO)
+        CALL COPVEC(dbl_mb(KMOMO),dbl_mb(KMOREF),LEN_CMO)
 *. Convergence Threshold for inner iterations
 *. At the moment just chosen as the total convergence threshold
         THRES_E_INNER = THRES_E
@@ -637,7 +637,7 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
           END IF
 *
           IF(IRESET_KAPPA_IN_OR_OUT.EQ.1) THEN
-            CALL SETVEC(WORK(KLKAPPA),ZERO,NOOEXC)
+            CALL SETVEC(dbl_mb(KLKAPPA),ZERO,NOOEXC)
           END IF
           E_INNER_OLD = EREF
           EOLD = ENEW
@@ -671,23 +671,23 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
           XKAPPA_NORM = SQRT(INPROD(WORK(KLKAPPA),WORK(KLKAPPA),NOOEXC))
           IF(I_USE_BR_OR_E1.EQ.1.OR.XKAPPA_NORM.EQ.0.0D0) THEN
 *. Brillouin vector from Fock matrix is used
-           CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,WORK(KLOOEXC),
-     &                   WORK(KLOOEXCC),
+           CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
+     &                   int_mb(KLOOEXCC),
      &                   NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
           ELSE
 *. Calculate gradient at non-vanishing Kappa
 *. Complete Brillouin matrix
 C              GET_BRT_FROM_F(BRT,F)
-          CALL GET_BRT_FROM_F(WORK(KLBR),WORK(KF))
+          CALL GET_BRT_FROM_F(dbl_mb(KLBR),KF)
 C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
-          CALL E1_MCSCF_FOR_GENERAL_KAPPA(WORK(KLE1),WORK(KLBR),
-     &         WORK(KLKAPPA))
+          CALL E1_MCSCF_FOR_GENERAL_KAPPA(dbl_mb(KLE1),dbl_mb(KLBR),
+     &         dbl_mb(KLKAPPA))
           END IF
           IF(I_AVERAGE_ORBEXC.EQ.1) THEN
 *. Average over orbital excitations belonging to a given shell excitation
 C                SHELL_AVERAGE_ORBEXC(VECIN,NSSEX,NOOFSS,IBOOFSS,
 C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
-            CALL SHELL_AVERAGE_ORBEXC(WORK(KLE1),NSSEX,WORK(KNOOFSS),
+            CALL SHELL_AVERAGE_ORBEXC(dbl_mb(KLE1),NSSEX,WORK(KNOOFSS),
      &           WORK(KIBOOFSS),WORK(KIOOFSS),WORK(KLEXCSCR),NOOEXC,1) 
           END IF
 
@@ -1212,9 +1212,9 @@ C           WRITE(6,*) ' Number of CI-iterations reduced to 1 '
       CALL MEMMAN(KLCOCC_INI,LEN_CMO,'ADDL  ',2,'COCC_IN')
       CALL MEMMAN(KLCOCC_FIN,LEN_CMO,'ADDL  ',2,'COCC_FI')
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,
-      CALL CSUB_FROM_C(WORK(KMOAOIN),WORK(KLCOCC_INI),NOCOBS,ISCR_NTS,
-     &                 2,ISCR,0)
-      CALL CSUB_FROM_C(WORK(KLMO2),WORK(KLCOCC_FIN),NOCOBS,ISCR_NTS,
+      CALL CSUB_FROM_C(dbl_mb(KMOAOIN),dbl_mb(KLCOCC_INI),NOCOBS,
+     &                 ISCR_NTS,2,ISCR,0)
+      CALL CSUB_FROM_C(dbl_mb(KLMO2),dbl_mb(KLCOCC_FIN),NOCOBS,ISCR_NTS,
      &                 2,ISCR,0)
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
       WRITE(6,*) 
@@ -1230,9 +1230,9 @@ C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
       CALL MEMMAN(KLCOCC_INI,LEN_CMO,'ADDL  ',2,'COCC_IN')
       CALL MEMMAN(KLCOCC_FIN,LEN_CMO,'ADDL  ',2,'COCC_FI')
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,
-      CALL CSUB_FROM_C(WORK(KMOAOIN),WORK(KLCOCC_INI),NACOBS,ISCR_NTS,
-     &                 1,ISCR,0)
-      CALL CSUB_FROM_C(WORK(KLMO2),WORK(KLCOCC_FIN),NACOBS,ISCR_NTS,
+      CALL CSUB_FROM_C(dbl_mb(KMOAOIN),dbl_mb(KLCOCC_INI),NACOBS,
+     &                 ISCR_NTS,1,ISCR,0)
+      CALL CSUB_FROM_C(dbl_mb(KLMO2),dbl_mb(KLCOCC_FIN),NACOBS,ISCR_NTS,
      &                 1,ISCR,0)
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
       WRITE(6,*) 
@@ -2193,18 +2193,21 @@ C GET_EXP_MKAPPA(EXPMK,KAPPAP,IOOEXC,NOOEXC)
 *
 *
 *. Expansion of final orbitals in AO basis, pt in KLMO2
-      CALL MULT_BLOC_MAT(WORK(KLMO2),WORK(KMOAOIN),WORK(KMOMO),
+      CALL MULT_BLOC_MAT(dbl_mb(KLMO2),dbl_mb(KMOAOIN),WORK(KMOMO),
      &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
 *. Integral transformation
       KINT2 = KINT_2EMO
-      CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
-      CALL COPVEC(WORK(KINT2_INI),WORK(KINT2),NINT2)
+CNW   CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
+CNW   CALL COPVEC(WORK(KINT2_INI),WORK(KINT2),NINT2)
+      call ga_copy(KINT1_INI,KINT1O)
+      call ga_copy(KINT2_INI,KINT2)
       KKCMO_I = KMOMO
       KKCMO_J = KMOMO
       KKCMO_K = KMOMO
       KKCMO_L = KMOMO
       CALL TRAINT
-      CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+CNW   CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+      call ga_copy(KINT1,KH)
 *. Calculate inactive Fockmatrix -
       KINT2 = KINT2_INI
       IF(ITRA_ROUTE.EQ.2) THEN
@@ -2212,10 +2215,11 @@ C GET_EXP_MKAPPA(EXPMK,KAPPAP,IOOEXC,NOOEXC)
         KINT2_FSAVE = KINT2_A(IE2ARR_F)
         KINT2_A(IE2ARR_F) = KINT2_INI
       END IF
-      CALL FI_FROM_INIINT(WORK(KFI),WORK(KMOMO),WORK(KH),
+      CALL FI_FROM_INIINT(KFI,dbl_mb(KMOMO),KH,
      &                    ECORE_HEX,3)
       IF(ITRA_ROUTE.EQ.2) KINT2_A(IE2ARR_F) = KINT2_FSAVE
-      CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+CNW   CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+      call ga_copy(KFI,KINT1)
       ECORE = ECORE_ORIG + ECORE_HEX
       KINT2 = KINT_2EMO
 *. And 0 CI iterations with new integrals
@@ -2237,12 +2241,12 @@ C GET_EXP_MKAPPA(EXPMK,KAPPAP,IOOEXC,NOOEXC)
         KINT2_A(IE2ARR_F) = KINT2_INI
       END IF
       CALL FA_FROM_INIINT
-     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),WORK(KRHO1),1)
+     &(KFA,dbl_mb(KMOMO),dbl_mb(KMOMO),dbl_mb(KRHO1),1)
       KINT2 = KINT_2EMO
       IF(ITRA_ROUTE.EQ.2) KINT2_A(IE2ARR_F) = KINT2_FSAVE
 *
-      CALL FOCK_MAT_STANDARD(WORK(KF),2,WORK(KINT1),WORK(KFA))
-      CALL E1_FROM_F(WORK(KLE1),WORK(KF),1,WORK(KLOOEXC),
+      CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
+      CALL E1_FROM_F(WORK(KLE1),KF,1,WORK(KLOOEXC),
      &               WORK(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
       E1NRM_ORB = SQRT(INPROD(WORK(KLE1),WORK(KLE1),NOOEXC))

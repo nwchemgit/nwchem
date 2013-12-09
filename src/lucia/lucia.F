@@ -1258,7 +1258,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' Initial MOMO matrix '
-       CALL APRBLM2(WORK(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
+       CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
@@ -1282,77 +1282,78 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
       KINT2_A(IE2ARR_F) = KINT_2EINI
       KINT2_A(IE2ARR_F) = KINT_2EMO
 *
-      CALL FI_FROM_INIINT(WORK(KFI),WORK(KMOMO),WORK(KH),
+      CALL FI_FROM_INIINT(KFI,dbl_mb(KMOMO),KH,
      &                      ECORE_HEX,1)
       IF(NTEST.GE.100) THEN
       WRITE(6,*) ' Inactive Fock matrix '
-      CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NMSOB,1)
+CNW   CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NMSOB,1)
+      call ga_print(KFI)
       END IF
       CALL FA_FROM_INIINT
-     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
+     &(KFA,dbl_mb(KMOMO),dbl_mb(KMOMO),dbl_mb(KRHO1),1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
-      CALL VECSUM(WORK(KLMAT1),WORK(KFI),WORK(KFA),ONE,ONE,NINT1)
-      IF(IMO.EQ.5) CALL COPVEC(WORK(KLMAT1),WORK(KLMAT5),NINT1)
+      CALL VECSUM(dbl_mn(KLMAT1),WORK(KFI),WORK(KFA),ONE,ONE,NINT1)
+      IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' FIFA matrix '
-        CALL APRBLM2(WORK(KLMAT1),NTOOBS,NTOOBS,NSMOB,1)
+        CALL APRBLM2(dbl_mb(KLMAT1),NTOOBS,NTOOBS,NSMOB,1)
       END IF
       IF(IMO.EQ.2) THEN
 * Diagonalize symmetry blocks of FIFA to obtain canonical orbitals
-        CALL DIAG_GASBLKS(WORK(KLMAT1),WORK(KLMAT2C),1,1,NTOOBS,
-     &                       WORK(KLMAT3),WORK(KLMAT4),3)
+        CALL DIAG_GASBLKS(dbl_mb(KLMAT1),dbl_mb(KLMAT2C),1,1,NTOOBS,
+     &                       dbl_mb(KLMAT3),dbl_mb(KLMAT4),3)
         IF(NTEST.GE.10) THEN
           WRITE(6,*) ' Canonical orbital energies'
-          CALL PRINT_SCALAR_PER_ORB(WORK(KLMAT1),NTOOBS)
+          CALL PRINT_SCALAR_PER_ORB(dbl_mb(KLMAT1),NTOOBS)
         END IF
       ELSE
 *. Diagonize symmetry-type blocks of FIFA to obtain pseudo canonical
 *. orbitals
-      CALL DIAG_GASBLKS(WORK(KLMAT1),WORK(KLMAT2C),IDUM,IDUM,IDUM,
-     &                     WORK(KLMAT3),WORK(KLMAT4),2)
+      CALL DIAG_GASBLKS(dbl_mb(KLMAT1),dbl_mb(KLMAT2C),IDUM,IDUM,IDUM,
+     &                     dbl_mb(KLMAT3),dbl_mb(KLMAT4),2)
       END IF
       IF(NTEST.GE.100) THEN
        WRITE(6,*)  ' Expansion of final orbitals, canonical part'
-       CALL APRBLM2(WORK(KLMAT2C),NTOOBS,NTOOBS,NSMOB,0)
+       CALL APRBLM2(dbl_mb(KLMAT2C),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
       IF(IMO.EQ.1.OR.IMO.EQ.3.OR.IMO.EQ.5) THEN
 *. Symmetry ordered density matrix  over active orbitals
 C       REORHO1(RHO1I,RHO1O,IRHO1SM,IWAY)
-        CALL REORHO1(dbl_mb(KRHO1),WORK(KLMAT2),1,1)
+        CALL REORHO1(dbl_mb(KRHO1),dbl_mb(KLMAT2),1,1)
 COLD    CALL EXTR_SYMBLK_ACTMAT(WORK(KRHO1),WORK(KLMAT2),1)
 COLD    CALL TYPE_TO_SYM_REO_MAT(WORK(KRHO1),WORK(KLMAT2))
 *. Pack to triangular form
 C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
-        CALL TRIPAK_BLKM(WORK(KLMAT2),WORK(KLMAT1),1,
+        CALL TRIPAK_BLKM(dbl_mb(KLMAT2),dbl_mb(KLMAT1),1,
      &       NACOBS,NSMOB)
         LEN_AC = NDIM_1EL_MAT(1,NACOBS,NACOBS,NSMOB,1)
         ONEM = -1.0D0
-        CALL SCALVE(WORK(KLMAT1),ONEM,LEN_AC)
+        CALL SCALVE(dbl_mb(KLMAT1),ONEM,LEN_AC)
         IF(NTEST.GE.100) THEN
           WRITE(6,*) ' Packed density matrix ( times - 1 )'
-          CALL APRBLM2(WORK(KLMAT1),NACOBS,NACOBS,NSMOB,1)
+          CALL APRBLM2(dbl_mb(KLMAT1),NACOBS,NACOBS,NSMOB,1)
         END IF
 *
         IF (IMO.EQ.1.OR.IMO.EQ.5) THEN
 *. Diagonalize symmetryblocks of density matrix over active orbitals  
 *  - mixes different  spaces
-         CALL DIAG_GASBLKS(WORK(KLMAT1),WORK(KLMAT2),1,1,NACOBS,
-     &                  WORK(KLMAT3),WORK(KLMAT4),3)
+         CALL DIAG_GASBLKS(dbl_mb(KLMAT1),dbl_mb(KLMAT2),1,1,NACOBS,
+     &                  dbl_mb(KLMAT3),dbl_mb(KLMAT4),3)
         ELSE IF (IMO.EQ.3) THEN
 *. Diagonalize type-symmetry blocks of density matrix over active blocks
-         CALL DIAG_GASBLKS(WORK(KLMAT1),WORK(KLMAT2),IDUM,IDUM,IDUM,
-     &                  WORK(KLMAT3),WORK(KLMAT4),1)
+         CALL DIAG_GASBLKS(dbl_mb(KLMAT1),dbl_mb(KLMAT2),IDUM,IDUM,IDUM,
+     &                  dbl_mb(KLMAT3),dbl_mb(KLMAT4),1)
 C             DIAG_GASBLKS(A,X,IGASL_INI,IGASL_FIN,NOBPTS_L,SCR1,SCR2,IFORM)
 *. WORK(KLMAT2) contains eigenvector expansions
         END IF
 *
         IF(NTEST.GE.100) THEN
          WRITE(6,*)  ' Expansion of (pseudo-natural) orbitals'
-         CALL APRBLM2(WORK(KLMAT2),NACOBS,NACOBS,NSMOB,0)
+         CALL APRBLM2(dbl_mb(KLMAT2),NACOBS,NACOBS,NSMOB,0)
         END IF
 *
 *. pseudo-natural-canonical orbitals
@@ -1363,32 +1364,35 @@ C             DIAG_GASBLKS(A,X,IGASL_INI,IGASL_FIN,NOBPTS_L,SCR1,SCR2,IFORM)
 C              EXT_CP_AC_GASBLKS(NSMOB,NGAS,NOBPTS_GN,MXPNGAS,
 C    &           IEORC,NTOOBS, NACOBS,AACT,AALL)
           CALL EXT_CP_AC_GASBLKS(NSMOB,NGAS,NOBPTS_GN,MXPNGAS,
-     &         1,NTOOBS,NACOBS,WORK(KLMAT2),WORK(KLMAT5))
+     &         1,NTOOBS,NACOBS,dbl_mb(KLMAT2),dbl_mb(KLMAT5))
 C         TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
-          CALL TRAN_SYM_BLOC_MAT(WORK(KLMAT4),WORK(KLMAT2),NSMOB,NACOBS,
-     &                         WORK(KLMAT3),WORK(KLMAT5))
+          CALL TRAN_SYM_BLOC_MAT(dbl_mb(KLMAT4),dbl_mb(KLMAT2),NSMOB,
+     &                         NACOBS,
+     &                         dbl_mb(KLMAT3),dbl_mb(KLMAT5))
 *. Transformed FIFA is now in WORK(KLMAT3)
 *. Diagonalize
 C              DIAG_GASBLKS(A,X,IGASL_INI,IGASL_FIN,NOBPTS_L,SCR1,SCR2,IFORM)
-          CALL DIAG_GASBLKS(WORK(KLMAT3),WORK(KLMAT5),1,NPSSPC,NPSSH,
-     &                 WORK(KLMAT1),WORK(KLMAT2),3)
+          CALL DIAG_GASBLKS(dbl_mb(KLMAT3),dbl_mb(KLMAT5),1,NPSSPC,
+     &                 NPSSH,
+     &                 dbl_mb(KLMAT1),dbl_mb(KLMAT2),3)
 *. Second transformation matrix is now in WORK(KLMAT5)
 *. Obtain total transformation matrix
 C         MULT_BLOC_MAT(C,A,B,NBLOCK,LCROW,LCCOL,LAROW,LACOL,LBROW,LBCOL,ITRNSP)
-          CALL MULT_BLOC_MAT(WORK(KLMAT4),WORK(KLMAT2),WORK(KLMAT5),NSMOB,
+          CALL MULT_BLOC_MAT(dbl_mb(KLMAT4),dbl_mb(KLMAT2),
+     &                     dbl_mb(KLMAT5),NSMOB,
      &                     NACOBS,NACOBS,NACOBS,NACOBS,NACOBS,NACOBS,0)
 *. We now have the transformation for the active orbitals in KLMAT4
-          CALL COPVEC(WORK(KLMAT4),WORK(KLMAT2),LACAC)
+          CALL COPVEC(dbl_mb(KLMAT4),dbl_mb(KLMAT2),LACAC)
         END IF ! (IMO=5)
 *       ^ End if PS_NatCan orbital
 *. Add the act-act transformation to the total MOMO transformation matrix
 C           EXT_CP_AC_GASBLKS(NSMOB,NGAS,NOBPTS_GN,MXPNGAS,
 C    &           IEORC,NTOOBS, NACOBS,AACT,AALL)
        CALL EXT_CP_AC_GASBLKS(NSMOB,NGAS,NOBPTS_GN,MXPNGAS,
-     &      2,NTOOBS,NACOBS,WORK(KLMAT2),WORK(KLMAT2C))
+     &      2,NTOOBS,NACOBS,dbl_mb(KLMAT2),dbl_mb(KLMAT2C))
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' MOMO transformation with natural part copied in'
-         CALL APRBLM2(WORK(KLMAT2C),NTOOBS,NTOOBS,NSMOB,0)
+         CALL APRBLM2(dbl_mb(KLMAT2C),NTOOBS,NTOOBS,NSMOB,0)
        END IF
       END IF
 *     ^ end if some kind of natural orbitals were involved
@@ -1396,28 +1400,28 @@ C    &           IEORC,NTOOBS, NACOBS,AACT,AALL)
 * Obtain total MOMO transformation and save in MOMO
 *
 *. And new MO-coefficients
-      CALL MULT_BLOC_MAT(WORK(KLMAT2),WORK(KMOMO),WORK(KLMAT2C),
+      CALL MULT_BLOC_MAT(dbl_mb(KLMAT2),dbl_mb(KMOMO),dbl_mb(KLMAT2C),
      &     NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
-      CALL COPVEC(WORK(KLMAT2),WORK(KMOMO),LMOMO)
+      CALL COPVEC(dbl_mb(KLMAT2),dbl_mb(KMOMO),LMOMO)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' MO-MO transformation matrix MOMO '
-        CALL APRBLM2(WORK(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
       IF(NOMOFL.EQ.0) THEN
 *
 *. Obtain input MO-AO transformation matrix in KMOAOUT
 C?    CALL GET_CMOAO_ENV(WORK(KMOAOIN))
-      CALL MULT_BLOC_MAT(WORK(KMOAOUT),WORK(KMOAOIN),WORK(KMOMO),
+      CALL MULT_BLOC_MAT(dbl_mb(KMOAOUT),dbl_mb(KMOAOIN),dbl_mb(KMOMO),
      &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
 *
-      CALL COPVEC(WORK(KMOAOUT),WORK(KMOAO_ACT),LMOMO)
+      CALL COPVEC(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),LMOMO)
       IF(NTEST.GE.1) THEN
          WRITE(6,*) ' Output set of MO''s in required form'
-         CALL PRINT_CMOAO(WORK(KMOAOUT))
+         CALL PRINT_CMOAO(dbl_mb(KMOAOUT))
       END IF
 *. Save on file LUMOUT
-      CALL PUTMOAO(WORK(KMOAOUT))
+      CALL PUTMOAO(dbl_mb(KMOAOUT))
       END IF
 *     ^ End if MOAO file is present 
 *
@@ -1544,7 +1548,8 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cintfo.inc'
 *
-      CALL SCALVE(WORK(KINT2),XLAMBDA,NINT2)
+CNW   CALL SCALVE(WORK(KINT2),XLAMBDA,NINT2)
+      call ga_scale(KINT2,XLAMBDA)
 *
       RETURN
       END 
@@ -10037,9 +10042,11 @@ c.. Now that the integrals are in KINT1 and KINT2, fully packed.
 * recent board meeting of the board for LUCIA has decided that
 * KH is the right place for the MO 1 electron integrals
       IF(NOINT.EQ.0) THEN 
-        CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+CNW     CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+        call ga_copy(KINT1,KH)
 *. and to KINT1O for backwards compatibility
-        CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
+CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
+        call ga_copy(KINT1,KINT1O)
        END IF
 *
       IF (ISVMEM.EQ.0) THEN
@@ -28784,19 +28791,19 @@ C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
       IF(I_USE_SUPSYM.EQ.1) THEN
 *. Bring first density to form with supersymmetry blocks
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
-        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),1,
+        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),1,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Reformed density matrix '
-          CALL APRBLM2(WORK(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
+          CALL APRBLM2(dbl_mb(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
         END IF
 *. Average components density
 C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
-        CALL AVE_SUPSYM_MAT(WORK(KLMAT2),NACOB_GS,0)
+        CALL AVE_SUPSYM_MAT(dbl_mb(KLMAT2),NACOB_GS,0)
 *. And reform back to standard form of density
         ZERO = 0.0D0
         CALL SETVEC(dbl_mb(KRHO1),ZERO,NACOB**2)
-        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),2,
+        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),2,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.0000) THEN
          WRITE(6,*) ' Supersymmetry averaged density '
@@ -28813,30 +28820,33 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
       KINT2_A(IE2ARR_F) = KINT_2EINI
       KINT2_A(IE2ARR_F) = KINT_2EMO
 *
-      CALL FI_FROM_INIINT(WORK(KFI),WORK(KMOMO),WORK(KH),
+      CALL FI_FROM_INIINT(KFI,dbl_mb(KMOMO),KH,
      &                      ECORE_HEX,1)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Inactive Fock matrix '
-        CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
+CNW     CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
+        call ga_print(KFI)
       END IF
+CBERT ALSO USED GA TO GA
       CALL FA_FROM_INIINT
-     &(WORK(KFA),WORK(KMOMO),WORK(KMOMO),dbl_mb(KRHO1),1)
+     &(KFA,dbl_mb(KMOMO),dbl_mb(KMOMO),dbl_mb(KRHO1),1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
+CBERT TWO GAs INTO MA
       CALL VECSUM(WORK(KLMAT1),WORK(KFI),WORK(KFA),ONE,ONE,NINT1)
       IF(IMO.EQ.5) CALL COPVEC(WORK(KLMAT1),WORK(KLMAT5),NINT1)
 *
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' FIFA matrix in standard symmetry'
-        CALL APRBLM2(WORK(KLMAT1),NTOOBS,NTOOBS,NSMOB,1)
+        CALL APRBLM2(dbl_mb(KLMAT1),NTOOBS,NTOOBS,NSMOB,1)
       END IF
 * Reform FIFA to general symmetry
 C          REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
-      CALL REFORM_MAT_STA_GEN(WORK(KLMAT1),WORK(KLFIFA_GS),1,1)
+      CALL REFORM_MAT_STA_GEN(dbl_mb(KLMAT1),dbl_mb(KLFIFA_GS),1,1)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' FIFA matrix in general symmetry '
-        CALL APRBLM2(WORK(KLFIFA_GS),NTOOB_GS,NTOOB_GS,NGENSMOB,1)
+        CALL APRBLM2(dbl_mb(KLFIFA_GS),NTOOB_GS,NTOOB_GS,NGENSMOB,1)
       END IF
 *
 * Obtain canonical or pseudo canonical orbitals by diagonalization of FIFA
@@ -28845,18 +28855,18 @@ C          REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
       IF(IMO.EQ.2) THEN
 *. Diagonalize symmetry blocks
 C           DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
-       CALL DIAG_BLK_SYMMAT(WORK(KLFIFA_GS),NGENSMOB,
-     &      NTOOB_GS,WORK(KLMAT2C),WORK(KLMAT1),
-     &      WORK(KLMAT4),1)
+       CALL DIAG_BLK_SYMMAT(dbl_mb(KLFIFA_GS),NGENSMOB,
+     &      NTOOB_GS,dbl_mb(KLMAT2C),dbl_mb(KLMAT1),
+     &      dbl_mb(KLMAT4),1)
       ELSE
 *. Diagonalize symmetry-type blocks 
 *. Obtain in KLMAT4 type-symmetry blocks of FIFA
 C           EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
        CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
-     &      WORK(KLFIFA_GS),WORK(KLMAT4),2,0,NGAS+1,1)
-       CALL DIAG_BLK_SYMMAT(WORK(KLMAT4),NGAS_GS_BLKS,
-     &       WORK(KLLEN_GASGS_BLK),WORK(KLMAT2C),WORK(KLMAT1),
-     &       WORK(KLMAT4),1)
+     &      dbl_mb(KLFIFA_GS),dbl_mb(KLMAT4),2,0,NGAS+1,1)
+       CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT4),NGAS_GS_BLKS,
+     &       dbl_mb(KLLEN_GASGS_BLK),dbl_mb(KLMAT2C),dbl_mb(KLMAT1),
+     &       dbl_mb(KLMAT4),1)
       END IF !MO = 2 switch
 *
 * So in output, the expansion of the MO's are in KLMAT2C
@@ -28865,7 +28875,7 @@ C           EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *
       IF(NTEST.GE.56) THEN
          WRITE(6,*) ' Canonical orbital energies'
-         CALL PRINT_SCALAR_PER_ORB2(WORK(KLMAT1),NTOOB_GS,NGENSMOB)
+         CALL PRINT_SCALAR_PER_ORB2(dbl_mb(KLMAT1),NTOOB_GS,NGENSMOB)
       END IF
       IF(NTEST.GE.100) THEN
         WRITE(6,*)  ' Expansion of final orbitals, canonical part'
@@ -28875,7 +28885,7 @@ C           EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
           IS_OR_SG = 2
         END IF
 C            WRT_SG_MAT(A,IS_OR_SG,IGAS_F,IGAS_L,IPAK,IEXT)
-        CALL WRT_SG_MAT(WORK(KLMAT2C),IS_OR_SG,0,NGAS+1,0,1)
+        CALL WRT_SG_MAT(dbl_mb(KLMAT2C),IS_OR_SG,0,NGAS+1,0,1)
       END IF
 *
       IF(IMO.EQ.4) THEN
@@ -28884,10 +28894,10 @@ C            WRT_SG_MAT(A,IS_OR_SG,IGAS_F,IGAS_L,IPAK,IEXT)
 *. Expand KLMAT2C to full symmetry blocks
 C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
         ZERO = 0.0D0
-        CALL SETVEC(WORK(KLMAT4),ZERO,LMOMO_GS)
+        CALL SETVEC(dbl_mb(KLMAT4),ZERO,LMOMO_GS)
         CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
-     &       WORK(KLMAT4),WORK(KLMAT2C),1,0,NGAS+1,0)
-        CALL COPVEC(WORK(KLMAT4),WORK(KLMAT2C),LMOMO_GS)
+     &       dbl_mb(KLMAT4),dbl_mb(KLMAT2C),1,0,NGAS+1,0)
+        CALL COPVEC(dbl_mb(KLMAT4),dbl_mb(KLMAT2C),LMOMO_GS)
       END IF
 *
 * 2: Natural or Pseudo natural orbitals for the active orbitals
@@ -28897,48 +28907,48 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *. Obtain and diagonalize symmetry ordered density matrix 
 *. over active orbitals
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
-        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),WORK(KLMAT2),1,
+        CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),1,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Reformed density matrix '
-          CALL APRBLM2(WORK(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
+          CALL APRBLM2(dbl_mb(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
         END IF
 *. Pack to triangular form
 C            TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
-        CALL TRIPAK_BLKM(WORK(KLMAT2),WORK(KLMAT1),1,
+        CALL TRIPAK_BLKM(dbl_mb(KLMAT2),dbl_mb(KLMAT1),1,
      &       NACOB_GS,NGENSMOB)
         ONEM = -1.0D0
-        CALL SCALVE(WORK(KLMAT1),ONEM,LACAC_GS)
+        CALL SCALVE(dbl_mb(KLMAT1),ONEM,LACAC_GS)
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Packed density matrix ( times - 1 )'
-          CALL APRBLM2(WORK(KLMAT1),NACOB_GS,NACOB_GS,NGENSMOB,1)
+          CALL APRBLM2(dbl_mb(KLMAT1),NACOB_GS,NACOB_GS,NGENSMOB,1)
         END IF
         IF (IMO.EQ.1.OR.IMO.EQ.5) THEN
 *. Diagonalize symmetryblocks of density matrix over active orbitals 
 *  and save eigenvectors in KLMAT2
            WRITE(6,*) ' NGENSMOB(1) = ', NGENSMOB
 C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
-         CALL DIAG_BLK_SYMMAT(WORK(KLMAT1),NGENSMOB,NACOB_GS,
-     &        WORK(KLMAT2),WORK(KLMAT3),WORK(KLMAT4),1)
+         CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT1),NGENSMOB,NACOB_GS,
+     &        dbl_mb(KLMAT2),dbl_mb(KLMAT3),dbl_mb(KLMAT4),1)
          IF(NTEST.GE.100) THEN
            WRITE(6,*)  ' Expansion of (pseudo-natural) orbitals'
-           CALL APRBLM2(WORK(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
+           CALL APRBLM2(dbl_mb(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
          END IF
         ELSE IF (IMO.EQ.3) THEN
 *. Extract type-symmetry blocks of RHO1
 C             EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
          CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
-     &        WORK(KLMAT1),WORK(KLMAT4),2,1,NGAS,1)
+     &        dbl_mb(KLMAT1),dbl_mb(KLMAT4),2,1,NGAS,1)
 *. Diagonalize type-symmetry blocks of density matrix over active blocks
 C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
-         CALL DIAG_BLK_SYMMAT(WORK(KLMAT4),NGAS*NGENSMOB,
-     &        WORK(KLLEN_GASGS_AC_BLK),WORK(KLMAT2),WORK(KLMAT3),
-     &        WORK(KLMAT5),1)
+         CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT4),NGAS*NGENSMOB,
+     &        dbl_mb(KLLEN_GASGS_AC_BLK),dbl_mb(KLMAT2),dbl_mb(KLMAT3),
+     &        dbl_mb(KLMAT5),1)
 *. WORK(KLMAT2) contains eigenvector expansions
          IF(NTEST.GE.100) THEN
            WRITE(6,*)  ' Expansion of (pseudo-natural) orbitals'
-           CALL APRBLM2(WORK(KLMAT2),WORK(KLLEN_GASGS_AC_BLK),
-     &          WORK(KLLEN_GASGS_AC_BLK),NGAS*NGENSMOB,0)
+           CALL APRBLM2(dbl_mb(KLMAT2),dbl_mb(KLLEN_GASGS_AC_BLK),
+     &          dbl_mb(KLLEN_GASGS_AC_BLK),NGAS*NGENSMOB,0)
          END IF
         END IF ! End if/else MO = 1, 5
 *
@@ -28967,69 +28977,72 @@ C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
 *. Expand KLMAT2C to full symmetry blocks
 C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
         CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
-     &       WORK(KLMAT4),WORK(KLMAT2C),1,0,NGAS+1,0)
+     &       dbl_mb(KLMAT4),dbl_mb(KLMAT2C),1,0,NGAS+1,0)
 *. And insert the natural orbitals
 C ADD_ACTOB_TO_GAS_GNSYM_MAT(ATOT,AACT,IC_OR_E)
-        CALL ADD_ACTOB_TO_GAS_GNSYM_MAT(WORK(KLMAT4),WORK(KLMAT2),1)
-        CALL COPVEC(WORK(KLMAT4),WORK(KLMAT2C),LMOMO_GS)
+        CALL ADD_ACTOB_TO_GAS_GNSYM_MAT(dbl_mb(KLMAT4),dbl_mb(KLMAT2),1)
+        CALL COPVEC(dbl_mb(KLMAT4),dbl_mb(KLMAT2C),LMOMO_GS)
       ELSE IF (IMO.EQ.3) THEN
 *
 *. KLMAT2C contains canonical eigenvectors over TS-blocks,
 *. KLMAT2 contains natural orbitals over TS blocks
 *. Insert active-active blocks from KLMAT2 into KLMAT2C
-        CALL ADD_ACTOB_TO_GAS_GNSYM_MAT(WORK(KLMAT2C),WORK(KLMAT2),1)
+        CALL ADD_ACTOB_TO_GAS_GNSYM_MAT(dbl_mb(KLMAT2C),
+     &                                  dbl_mb(KLMAT2),1)
 *. Expand KLMAT2C to full symmetry blocks and save in KLMAT4
         ZERO = 0.0D0
-        CALL SETVEC(WORK(KLMAT4),ZERO,LMOMO_GS)
+        CALL SETVEC(dbl_mb(KLMAT4),ZERO,LMOMO_GS)
 C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
         CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
-     &       WORK(KLMAT4),WORK(KLMAT2C),1,0,NGAS+1,0)
-        CALL COPVEC(WORK(KLMAT4),WORK(KLMAT2C),LMOMO_GS)
+     &       dbl_mb(KLMAT4),dbl_mb(KLMAT2C),1,0,NGAS+1,0)
+        CALL COPVEC(dbl_mb(KLMAT4),dbl_mb(KLMAT2C),LMOMO_GS)
       END IF
 *
        IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' Final transformation of MO-coefficients'
-         CALL APRBLM2(WORK(KLMAT2C),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
+         CALL APRBLM2(dbl_mb(KLMAT2C),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
        END IF
 *. And new MO-coefficients in general symmetry
-      CALL MULT_BLOC_MAT(WORK(KLMAT2),WORK(KLMOMO_GN),WORK(KLMAT2C),
+      CALL MULT_BLOC_MAT(dbl_mb(KLMAT2),dbl_mb(KLMOMO_GN),
+     &     dbl_mb(KLMAT2C),
      &     NGENSMOB,NTOOB_GS,NTOOB_GS,NTOOB_GS,NTOOB_GS,NTOOB_GS,
      &     NTOOB_GS,0)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Updated MO-MO matrix(general symmetry) '
-        CALL APRBLM2(WORK(KLMAT2),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
+        CALL APRBLM2(dbl_mb(KLMAT2),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
       END IF
 *. And reform to standard symmetry, actual order
 C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
-      CALL REFORM_MAT_STA_GEN(WORK(KMOMO),WORK(KLMAT2),0,2)
+      CALL REFORM_MAT_STA_GEN(dbl_mb(KMOMO),dbl_mb(KLMAT2),0,2)
 *. Clean up
       CALL ISWPVE(IACT_TO_GENSM_REO, ISTA_TO_GENSM_REO, NTOOB)
 
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' MO-MO transformation matrix MOMO(standard sym) '
-        CALL APRBLM2(WORK(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
       IF(NOMOFL.EQ.0) THEN
 *
 *. Obtain input MO-AO transformation matrix in KMOAOUT
 C?      CALL GET_CMOAO_ENV(WORK(KMOAOIN))
-        CALL MULT_BLOC_MAT(WORK(KMOAOUT),WORK(KMOAOIN),WORK(KMOMO),
+        CALL MULT_BLOC_MAT(dbl_mb(KMOAOUT),dbl_mb(KMOAOIN),
+     &         dbl_mb(KMOMO),
      &         NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
 *
-        CALL COPVEC(WORK(KMOAOUT),WORK(KMOAO_ACT),LMOMO)
+        CALL COPVEC(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),LMOMO)
         IF(NTEST.GE.10) THEN
            WRITE(6,*) ' Output set of MO''s in required form'
-           CALL PRINT_CMOAO(WORK(KMOAOUT))
+           CALL PRINT_CMOAO(dbl_mb(KMOAOUT))
         END IF
         IF(I_USE_SUPSYM.EQ.1.AND.IPRORB.GE.5) THEN
           WRITE(6,*) ' Output MO''s over shells '
 C              PRINT_CMO_AS_SHELLS(CMO,IFORM)
-          CALL PRINT_CMO_AS_SHELLS(WORK(KMOAO_ACT),2)
+          CALL PRINT_CMO_AS_SHELLS(dbl_mb(KMOAO_ACT),2)
         END IF
 
 *. Save on file LUMOUT
-        CALL PUTMOAO(WORK(KMOAOUT))
+        CALL PUTMOAO(dbl_mb(KMOAOUT))
       END IF
 *     ^ End if MOAO file is present 
 *
