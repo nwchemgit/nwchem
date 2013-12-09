@@ -9727,6 +9727,10 @@ c      INCLUDE 'mxpdim.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "sym.fh"
+      character*8 zname
+      integer ipnt(mxpirr),ipnt2(maxirr)
+      integer ioff(mxpirr),icount(maxirr)
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9819,24 +9823,22 @@ c..
      $    call errquit('scf:memory?',nbf,MA_ERR)
 c..
       if (ga_nodeid().eq.0) then
-CBERT You use nir before it is defined. Should just use maxireps.
-CBERT Where do you get maxireps? Not defined anywhere.
-       call ifill(nir,0,ipnt,1)
-       call ifill(nir,0,ipnt2,1)
-       call ifill(maxireps,0,ioff,1)
-       call ifill(maxireps,0,icount,1)
-CBERT zname is a character string, should be properly defined as such.
+       call ifill(nirrep,0,ipnt,1)
+       call ifill(nirrep,0,ipnt2,1)
+       call ifill(mxpirr,0,ioff,1)
+       call ifill(mxpirr,0,icount,1)
 CBERT zclass and chars are also character strings or arrays of chars.
 CBERT Where does geom come from? Has not been read in!
        call sym_group_name(geom,zname)
-       if(.not.sym_mol(zname,nop,nir,class_dim,zir,zclass,chars,ipnt))
+       if(.not.sym_mol(zname,nop,nirrep,class_dim,zir,zclass,chars,
+     &                 ipnt))
      $    call errquit('scf: no char table available ',geom,unknown_err)
-       do i=1,nir
+       do i=1,nirrep
          ipnt2(ipnt(i))=i
 c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
        end do
        ioff(1)=1
-       do i=2,nir
+       do i=2,nirrep
          ioff(i) = ioff(i-1)+nbf_per_ir(ipnt2(i-1))
        end do
 CBERT Where does k_irs come from?
@@ -9913,7 +9915,7 @@ CBERT Same holds for 2e integrals.
 c.. 1e ints
          ind1e=0
          ind2e=0
-         do ism_lu=1,nir
+         do ism_lu=1,nirrep
           ni = nbf_per_ir(ipnt2(ism_lu))
           nij = ni*(ni+1)/2
           do ij = 1,nij
@@ -9928,13 +9930,13 @@ c.. add offset
           end do
          end do 
 c.. 2e ints
-         do ism_lu=1,nir
+         do ism_lu=1,nirrep
           do jsm_lu=1,ism_lu
-           smij=(ism_lu-1)*nir+jsm_lu
+           smij=(ism_lu-1)*nirrep+jsm_lu
            ijsm_lu=ieor(ism_lu-1,jsm_lu-1)+1
            do ksm_lu=1,ism_lu
             do lsm_lu=1,ksm_lu
-             smkl=(ksm_lu-1)*nir+lsm_lu
+             smkl=(ksm_lu-1)*nirrep+lsm_lu
              klsm_lu=ieor(ksm_lu-1,lsm_lu-1)+1
              if ((ijsm_lu.eq.klsm_lu).and.(smij.ge.smkl)) then
               ni = nbf_per_ir(ipnt2(ism_lu))
