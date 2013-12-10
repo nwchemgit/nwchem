@@ -9739,6 +9739,8 @@ c      INCLUDE 'mxpdim.inc'
       integer rtdb
       integer g_scfmo,g_moreo
       double precision occ(mxporb),evals(mxporb)
+      external geom_nuc_rep_energy
+      logical geom_nuc_rep_energy
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9822,7 +9824,6 @@ c.. dongxia add format for NWChem
 *===============
 c.. dongxia added June 2013, transform AO ints to SCF MO ints
 c..  reorder 
-CBERT What is this called in lucia?
        if(.not.ma_push_get(mt_int,norbt,'reord',l_reord,k_reord))
      $    call errquit('scf:memory?',norbt,MA_ERR)
 c..
@@ -9834,12 +9835,10 @@ c..
        call ifill(nirrep,0,ipnt2,1)
        call ifill(mxpirr,0,ioff,1)
        call ifill(mxpirr,0,icount,1)
-CBERT zclass and chars are also character strings or arrays of chars.
 CBERT Where does geom come from? Has not been read in!
        call sym_group_name(geom,zname)
-       if(.not.sym_mol(zname,nop,nirrep,class_dim,zir,zclass,chars,
-     &                 ipnt))
-     $    call errquit('scf: no char table available ',geom,unknown_err)
+       call sym_mol(zname,nop,nirrep,class_dim,zir,zclass,chars,
+     &                 ipnt)
        do i=1,nirrep
          ipnt2(ipnt(i))=i
 c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
@@ -9848,8 +9847,6 @@ c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
        do i=2,nirrep
          ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
        end do
-CBERT Where does k_irs come from?
-Canswer: k_irs replaced by kirs(mxporb), read from rtdb
        call setvec(kirs,0.0d0,mxporb) 
        if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,norbt,kirs))
      &   call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
@@ -9857,9 +9854,9 @@ Canswer: k_irs replaced by kirs(mxporb), read from rtdb
          irs=ipnt(kirs(i))
 c        write(6,*)'irs',ga_nodeid(),irs
          icount(irs)=icount(irs)+1
-         reord = ioff(irs)+icount(irs)-1
-         int_mb(k_reord+i-1)=reord
-         int_mb(K_reord2+reord-1)=i
+         ireord = ioff(irs)+icount(irs)-1
+         int_mb(k_reord+i-1)=ireord
+         int_mb(K_reord2+ireord-1)=i
        end do
 c        write(6,*)'reorder arrays:'
 c        do i=1,nmo
@@ -9877,10 +9874,6 @@ c..
         if(.not. ma_push_get(mt_dbl,norbt,'reo',l_veci,k_veci))
      $    call errquit('scf reo: no scratch space',norbt,MA_ERR)
 c..
-CBERT Where does g_movecs come from all of a sudden. Needs to be created.
-CBERT You will have to read in the MO file name from the rtdb.
-CBERT If you read the movecs_header (see ddscf/vectors.F) you can also
-CBERT get the nbf variable, see vectors.F.
       if(ga_nodeid().eq.0)then
         if(.not.rtdb_cget(rtdb,'scf:output vectors',1,scfmo))
      &    call errquit('lucia: fail to get scfmo in rtdb',0,RTDB_ERR)
@@ -10010,6 +10003,7 @@ c.. look for index in ga_coul
            end do
           end do
          end do
+       endif
 CBERT Do you need the nuclear repulsion energy?
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $  call errquit('unable to get nuclear rep energy',geom, GEOM_ERR)
@@ -13154,7 +13148,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
       INCLUDE 'crun.inc'
-      CHARACTER*6 TASK,IDENT,IIDENT,MARKC,MAX_BLKC,MARK_ACT
+      CHARACTER*6 TASK,IDENT,IIDENTS,IIDENTL,MARKC,MAX_BLKC,MARK_ACT
 *
       PARAMETER(NPAD = 1 )
       PARAMETER(MAXLVL = 10000)
@@ -13699,7 +13693,7 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
         IF(ICISTR.GT.1) THEN
           CALL WRTVCD(dbl_mb(CB),LUHC,1,-1)
         ELSE 
-          cal ga_print(HCB)
+          call ga_print(HCB)
 CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
         END IF
       END IF
@@ -15658,6 +15652,7 @@ CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
           END IF
         END DO
+      END DO
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
       IF(NTEST.GE.100) THEN
