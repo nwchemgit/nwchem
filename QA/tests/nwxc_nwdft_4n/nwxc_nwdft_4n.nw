@@ -368,14 +368,6 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc hfexch csogga
-end
-task dft energy
-
-dft
-  mult 4
-  odft
-  vectors input atomic
   xc hfexch csogga11
 end
 task dft energy

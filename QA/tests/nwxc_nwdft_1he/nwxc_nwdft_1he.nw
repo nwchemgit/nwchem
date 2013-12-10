@@ -288,12 +288,6 @@ task dft energy
 
 dft
   vectors input atomic
-  xc hfexch csogga
-end
-task dft energy
-
-dft
-  vectors input atomic
   xc hfexch csogga11
 end
 task dft energy
