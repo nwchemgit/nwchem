@@ -385,7 +385,9 @@ c
 c
  1000 continue
 c
-c     Analyze localization of each mo
+c     Analyze localization of each mo:
+c     per lmo, a list of atomic populations is printed
+c     in decreasing magnitude, with the polulations in parentheses. 
 c
       if (ga_nodeid() .eq. 0) then
          write(6,*)

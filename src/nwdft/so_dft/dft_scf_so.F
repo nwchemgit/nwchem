@@ -92,6 +92,9 @@ c     vdw contrib
       external xc_chkdispauto
       logical disp
 c
+c     misc
+      double precision tanalyze
+c
 c     
       Logical movecs_write_so, movecs_converged
       External movecs_write_so, movecs_converged
@@ -245,6 +248,12 @@ c     do average fractional occupation by default
       do_avg_fon = .true.
       if (.not.rtdb_get(rtdb,'dft:avg_fon',mt_log,1,do_avg_fon))
      &     do_avg_fon = .true.
+c
+c     read MO analysis threshold
+      tanalyze = 0.15d0
+      if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
+     &   tanalyze = 0.15d0
+
 c
 c     do average occupation starting with core orbitals
       do_core_fon = .false.
@@ -2226,7 +2235,10 @@ c
             ilo = 1
             ihi = nbf_mo
          endif
-         call movecs_anal_so(ao_bas_han, ilo, ihi, 0.15d0, 
+c ... jochen: changed 0.15d0 print threshold to something that
+c             can be read from input
+c         call movecs_anal_so(ao_bas_han, ilo, ihi, 0.15d0, 
+         call movecs_anal_so(ao_bas_han, ilo, ihi, tanalyze, 
      &        g_moso, 
      &        'DFT Final Molecular Orbital Analysis', 
      &        .true., dbl_mb(k_eval(1)), oadapt, 

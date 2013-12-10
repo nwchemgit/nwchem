@@ -203,6 +203,9 @@ c     for Gaussian Nuclear Model
       external dft_nonzvecs
 c -----FA: 04-21-11: for Gaussian Nuclear Model --- END
 
+c ... jochen: MO analysis print threshold
+      double precision tanalyze
+
 c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
@@ -307,6 +310,13 @@ c     check for FON in rtdb:
          fon=.false.
          debug_fon = .false.
       endif
+
+c     read MO analysis threshold
+      tanalyze = 0.15d0
+      if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
+     &   tanalyze = 0.15d0
+
+
 c
       if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
      &   reorth))reorth=.false.
@@ -1791,7 +1801,10 @@ c
             else
                blob='DFT Final Beta Molecular Orbital Analysis' 
             endif
-            call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+c ... jochen: replaced 0.15 at the end of the line with 'tanalyze'
+c             which can be read from input
+c            call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+            call movecs_print_anal(ao_bas_han, ilo, ihi, tanalyze, 
      &           g_movecs(ispin), 
      &           blob, 
      &           .true., dbl_mb(k_eval(ispin)), oadapt, 

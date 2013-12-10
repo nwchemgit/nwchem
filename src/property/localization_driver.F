@@ -12,7 +12,9 @@ c              basis   - basis set handle
 c              geom    - geometry handle
 c              loctype - localization type
 c                        1: Pipek-Mezey
-c                        2: Boys
+c                        2: Boys (not yet interfaced with this driver)
+c
+c     driver witten by by J. Autschbach, jochena@buffalo.edu
 
 c     ==================================================================
 
@@ -202,7 +204,10 @@ c        localize core and occupied orbitals
          do i = 1, nclosed(1)
             iloc(i) = i
          end do
-         nloc = nclosed(1)
+ 0       nloc = nclosed(1)
+c        jochen: comment:
+c        the localization routines were already available
+c        in nwchem
          call localizePM(basis, dbl_mb(k_c), dbl_mb(k_sc), 
      $        nloc, iloc, nbf, nmo, g_movecs, g_sc)
 
