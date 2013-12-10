@@ -83,11 +83,13 @@ svn revert ${target}/src/config/make_nwchem_config
 pushd ${target}/src
 export USE_RISKYFC=yes
 export NWCHEM_MODULES=all
-make -j 1 nwchem_config                                     2>&1 > /dev/null
-make -j 1 realclean                                         2>&1 > /dev/null
-if [ $? -ne 0 ] ; then
-  echo "Make failed. Aborting..."
-  exit 1
+if [ -f config/nwchem_config.h ] ; then
+  make -j 1 nwchem_config                                     2>&1 > /dev/null
+  make -j 1 realclean                                         2>&1 > /dev/null
+  if [ $? -ne 0 ] ; then
+    echo "Make failed. Aborting..."
+    exit 1
+  fi
 fi
 unset NWCHEM_MODULES
 popd
