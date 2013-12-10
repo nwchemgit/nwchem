@@ -416,6 +416,10 @@ c
            cdata = "DLDF Exchange (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
      +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
+         case (NWXCP_X_FT97)
+           cdata = "FT97 B Exchange (M Filatov, W Thiel, "
+     +             //"Mol.Phys. 91, "
+     +             //"847 (1997) doi:10.1080/002689797170950)"
          case (NWXCP_X_GILL)
            cdata = "GILL Exchange (PMW Gill, "
      +             //"Mol.Phys. 89, 433 (1996) "
@@ -539,6 +543,10 @@ c
            cdata = "DLDF Correlation (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
      +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
+         case (NWXCP_C_FT97)
+           cdata = "FT97 Correlation (M Filatov, W Thiel, "
+     +             //"Int.J.Quant.Chem. 62, 603 (1997) doi:10.1002/(SIC"
+     +             //"I)1097-461X(1997)62:6<603::AID-QUA4>3.0.CO;2-#)"
          case (NWXCP_C_OPT)
            cdata = "OPT Correlation (NC Handy, AJ Cohen, "
      +             //"Mol.Phys. 99, 607 (2001)"
@@ -682,6 +690,10 @@ c
            cdata = "DLDF (K Pernal, R Podeszwa, "
      +             //"K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, "
      +             //"263201 (2009) doi:10.1103/PhysRevLett.103.263201)"
+         case (NWXCP_FT97)
+           cdata = "FT97 (M Filatov, W Thiel, "
+     +             //"Mol.Phys. 91, "
+     +             //"847 (1997) doi:10.1080/002689797170950)"
          case (NWXCP_LDA)
            cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"

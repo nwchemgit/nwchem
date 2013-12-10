@@ -51,8 +51,11 @@ c
       integer NWXCP_X_DLDF       !< The DLDF exchange functional
       parameter (NWXCP_X_DLDF = NWXCP_X_CAMS12H + 1)
 c
+      integer NWXCP_X_FT97       !< The FT97 exchange functional
+      parameter (NWXCP_X_FT97 = NWXCP_X_DLDF + 1)
+c
       integer NWXCP_X_GILL       !< The GILL exchange functional
-      parameter (NWXCP_X_GILL = NWXCP_X_DLDF + 1)
+      parameter (NWXCP_X_GILL = NWXCP_X_FT97 + 1)
 c
       integer NWXCP_X_M05        !< The M05 exchange functional
       parameter (NWXCP_X_M05 = NWXCP_X_GILL + 1)
@@ -144,8 +147,11 @@ c
       integer NWXCP_C_DLDF       !< The DLDF correlation functional
       parameter (NWXCP_C_DLDF = NWXCP_C_CAMS12H + 1)
 c
+      integer NWXCP_C_FT97       !< The FT97 correlation functional
+      parameter (NWXCP_C_FT97 = NWXCP_C_DLDF + 1)
+c
       integer NWXCP_C_LYP        !< The LYP correlation functional
-      parameter (NWXCP_C_LYP = NWXCP_C_DLDF + 1)
+      parameter (NWXCP_C_LYP = NWXCP_C_FT97 + 1)
 c
       integer NWXCP_C_M05        !< The M05 correlation functional
       parameter (NWXCP_C_M05 = NWXCP_C_LYP + 1)
@@ -265,9 +271,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_DLDF = NWXCP_CAMS12H + 1)
 c
+      integer NWXCP_FT97         !< The FT97 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_FT97 = NWXCP_DLDF + 1)
+c
       integer NWXCP_LDA          !< The LDA functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_LDA = NWXCP_DLDF + 1)
+      parameter (NWXCP_LDA = NWXCP_FT97 + 1)
 c
       integer NWXCP_M05          !< The M05 functional 
                                  !< (exchange and correlation)

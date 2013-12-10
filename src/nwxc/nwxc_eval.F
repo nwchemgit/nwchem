@@ -375,6 +375,9 @@ C
            case (NWXCP_X_DLDF)
              call nwxc_x_dldf(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_FT97)
+             call nwxc_x_ft97(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_GILL)
              call nwxc_x_gill(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,f,dfdr,dfdg)
@@ -747,6 +750,9 @@ c            parameters D
            case (NWXCP_C_DLDF)
              call nwxc_c_dldf(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_FT97)
+             call nwxc_c_ft97(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_M05)
              param( 1) =   1.00000d0
              param( 2) =   3.78569d0
