@@ -7555,7 +7555,7 @@ C
 C
       NTEST = 00
       IF ( NTEST .GE. 10 ) THEN
-	 WRITE(6,*) ' GETOBSS entered '
+       WRITE(6,*) ' GETOBSS entered '
       END IF
 *       
       OPEN(ITAP,STATUS='OLD',FORM='UNFORMATTED',FILE='SIRIFC')
@@ -9728,9 +9728,17 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
 #include "sym.fh"
+#include "rtdb.fh"
       character*8 zname
-      integer ipnt(mxpirr),ipnt2(maxirr)
-      integer ioff(mxpirr),icount(maxirr)
+      integer ipnt(mxpirr),ipnt2(mxpirr),class_dim(mxpirr)
+      integer ioff(mxpirr),icount(mxpirr)
+      character*8 zir(mxpirr),zclass(mxpirr)
+      double precision chars(mxpirr,mxpirr)
+      integer kirs(mxporb)
+      character*255 scfmo
+      integer rtdb
+      integer g_scfmo,g_moreo
+      double precision occ(mxporb),evals(mxporb)
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9814,13 +9822,12 @@ c.. dongxia add format for NWChem
 *===============
 c.. dongxia added June 2013, transform AO ints to SCF MO ints
 c..  reorder 
-CBERT Where does nbf come from? Needed to set dimension. 
 CBERT What is this called in lucia?
-       if(.not.ma_push_get(mt_int,nbf,'reord',l_reord,k_reord))
-     $    call errquit('scf:memory?',nbf,MA_ERR)
+       if(.not.ma_push_get(mt_int,norbt,'reord',l_reord,k_reord))
+     $    call errquit('scf:memory?',norbt,MA_ERR)
 c..
-       if(.not.ma_push_get(mt_int,nbf,'reord2',l_reord2,k_reord2))
-     $    call errquit('scf:memory?',nbf,MA_ERR)
+       if(.not.ma_push_get(mt_int,norbt,'reord2',l_reord2,k_reord2))
+     $    call errquit('scf:memory?',norbt,MA_ERR)
 c..
       if (ga_nodeid().eq.0) then
        call ifill(nirrep,0,ipnt,1)
@@ -9839,11 +9846,15 @@ c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
        end do
        ioff(1)=1
        do i=2,nirrep
-         ioff(i) = ioff(i-1)+nbf_per_ir(ipnt2(i-1))
+         ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
        end do
 CBERT Where does k_irs come from?
+Canswer: k_irs replaced by kirs(mxporb), read from rtdb
+       call setvec(kirs,0.0d0,mxporb) 
+       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,norbt,kirs))
+     &   call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
        do i=1,nmo
-         irs=ipnt(int_mb(k_irs+i-1))
+         irs=ipnt(kirs(i))
 c        write(6,*)'irs',ga_nodeid(),irs
          icount(irs)=icount(irs)+1
          reord = ioff(irs)+icount(irs)-1
@@ -9859,22 +9870,27 @@ c      call util_flush(6)
 c..
 c.. reorder movecs and save to g_moreo
 c..
+        g_scfmo = ga_create_atom_blocked(geom,basis,'SCF MOvecs')
         g_moreo = ga_create_atom_blocked(geom,basis,'reorder MO')
+        call ga_zero(g_scfmo)
         call ga_zero(g_moreo)
-        call ga_zero(g_moreo)
-        if(.not. ma_push_get(mt_dbl,nbf,'reo',l_veci,k_veci))
-     $    call errquit('scf reo: no scratch space',nbf,MA_ERR)
+        if(.not. ma_push_get(mt_dbl,norbt,'reo',l_veci,k_veci))
+     $    call errquit('scf reo: no scratch space',norbt,MA_ERR)
 c..
 CBERT Where does g_movecs come from all of a sudden. Needs to be created.
 CBERT You will have to read in the MO file name from the rtdb.
 CBERT If you read the movecs_header (see ddscf/vectors.F) you can also
 CBERT get the nbf variable, see vectors.F.
       if(ga_nodeid().eq.0)then
+        if(.not.rtdb_cget(rtdb,'scf:output vectors',1,scfmo))
+     &    call errquit('lucia: fail to get scfmo in rtdb',0,RTDB_ERR)
+        if(.not.movecs_read(scfmo,1,occ,evals,g_scfmo))
+     &    call errquit('lucia: read rtdb failed',0,DISK_ERR)
         do i=1,nmo
-         call ga_get(g_movecs(1),1,nbf,i,i,dbl_mb(k_veci),1)
+         call ga_get(g_scfmo,1,norbt,i,i,dbl_mb(k_veci),1)
          j=int_mb(k_reord+i-1)
 c        write(6,*)'new index:',j
-         call ga_put(g_moreo,1,nbf,j,j,dbl_mb(k_veci),1)
+         call ga_put(g_moreo,1,norbt,j,j,dbl_mb(k_veci),1)
         end do
       endif
 c       call ga_print(g_moreo)
@@ -9893,15 +9909,15 @@ c..  1-e integrals
          call ga_zero(g_hcore)
          call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
          call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
-         call moints_1e(nbf, basis, g_moreo, g_hcore)
+         call moints_1e(norbt, basis, g_moreo, g_hcore)
 c        call ga_print(g_hcore)
 c..  2-e integrals
-         noper = nbf*(nbf+1)/2
-         g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
-         g_exch = ga_create_JKblocked(noper,nbf,nbf,'Exch Oper')
+         noper = norbt*(norbt+1)/2
+         g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
+         g_exch = ga_create_JKblocked(noper,norbt,norbt,'Exch Oper')
          call ga_zero(g_coul)
          call ga_zero(g_exch)
-         call moints_build_2x(basis,.true.,oskel,1,1,nbf,1,nbf,
+         call moints_build_2x(basis,.true.,oskel,1,1,norbt,1,norbt,
      $        g_moreo,g_coul,.true.,g_exch,.true.,blen,.true.)
 c        call ga_print(g_coul)
 c        call util_flush(6)
@@ -9916,7 +9932,7 @@ c.. 1e ints
          ind1e=0
          ind2e=0
          do ism_lu=1,nirrep
-          ni = nbf_per_ir(ipnt2(ism_lu))
+          ni = ntoobs(ipnt2(ism_lu))
           nij = ni*(ni+1)/2
           do ij = 1,nij
            ind1e = ind1e + 1
@@ -9939,10 +9955,10 @@ c.. 2e ints
              smkl=(ksm_lu-1)*nirrep+lsm_lu
              klsm_lu=ieor(ksm_lu-1,lsm_lu-1)+1
              if ((ijsm_lu.eq.klsm_lu).and.(smij.ge.smkl)) then
-              ni = nbf_per_ir(ipnt2(ism_lu))
-              nj = nbf_per_ir(ipnt2(jsm_lu))
-              nk = nbf_per_ir(ipnt2(ksm_lu))
-              nl = nbf_per_ir(ipnt2(lsm_lu))
+              ni = ntoobs(ipnt2(ism_lu))
+              nj = ntoobs(ipnt2(jsm_lu))
+              nk = ntoobs(ipnt2(ksm_lu))
+              nl = ntoobs(ipnt2(lsm_lu))
               if(ism_lu.eq.jsm_lu)then
                nij = ni*(ni+1)/2
                nkl = nk*(nk+1)/2
@@ -9984,7 +10000,7 @@ c.. add on the offset for each irep
                  k = k+ioff(ksm_lu)-1
                  l = l+ioff(lsm_lu)-1
 c.. look for index in ga_coul
-                  ij = (j-1)*nbf+i 
+                  ij = (j-1)*norbt+i 
                   kl = k*(k-1)/2 + l
          call ga_get(g_coul,ij,ij,kl,kl,int2e,1)
          call ga_put(KINT2,1,1,ind2e,ind2e,int2e,1)
