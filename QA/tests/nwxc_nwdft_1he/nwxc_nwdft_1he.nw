@@ -74,6 +74,12 @@ set dft:direct   F
 
 dft
   vectors input atomic
+  xc xft97
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc gill96
 end
 task dft energy
@@ -276,6 +282,12 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hfexch cft97
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc hfexch cpbe96
 end
 task dft energy
@@ -422,6 +434,12 @@ task dft energy
 dft
   vectors input atomic
   xc dldf
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc ft97
 end
 task dft energy
 
