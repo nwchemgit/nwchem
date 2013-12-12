@@ -3871,62 +3871,62 @@ c     CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
       call ga_zero(kint1)
 *. Raw 1-electron integrals in input MO basis
 c     CALL  MEMMAN(KH,NTOOB**2,'ADDS  ',2,'H1    ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'H1    ',0,1,KH))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'H1    ',0,0,KH))
      &       call errquit('cannot create lucia_1e: kh',0,GA_ERR)
 *. 1-electron integrals with contribution  from two-electron terms from
 *  explicitly declared inactive orbitals
 c     CALL MEMMAN(KHINA,NTOOB**2,'ADDS ',2,'H1INA ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'H1INA ',0,1,KHINA))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'H1INA ',0,0,KHINA))
      &       call errquit('cannot create lucia_1e: kh1ina',0,GA_ERR)
 *. Overlap matrix in AO basis
 c     CALL MEMMAN(KSAO,NTOOB**2,'ADDS ',2,'SAO   ')  
-         if(.not.ga_create(mt_dbl,ntoob,ntoob,'SAO   ',0,1,KSAO))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SAO   ',0,0,KSAO))
      &       call errquit('cannot create lucia_1e: ksao',0,GA_ERR)
 *
 c     CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
       call ga_zero(KINT1O)
 *.1.1: Inactive fock matrix
 c     CALL MEMMAN(KFI  ,NTOOB ** 2,'ADDS  ',2,'FI    ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI    ',0,1,KFI))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI    ',0,0,KFI))
      &       call errquit('cannot create lucia_1e: kfi',0,GA_ERR)
 c     CALL MEMMAN(KFIO ,NTOOB ** 2,'ADDS  ',2,'FIO   ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIO   ',0,1,KFIO))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIO   ',0,0,KFIO))
      &       call errquit('cannot create lucia_1e: kfio',0,GA_ERR)
 *.1.2 Inactive Fock matrx in zero order space 
 c     CALL MEMMAN(KFIZ,NTOOB **2, 'ADDS  ',2,'FIZ    ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIZ   ',0,1,KFIZ))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIZ   ',0,0,KFIZ))
      &       call errquit('cannot create lucia_1e: kfiz',0,GA_ERR)
 
 *.1.3 Inactive Fock matrix for alpha and beta - spin
 c     CALL MEMMAN(KFI_AL,NTOOB**2, 'ADDS  ',2,'FI_AL ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_AL',0,1,KFI_AL))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_AL',0,0,KFI_AL))
      &       call errquit('cannot create lucia_1e: kfi_al',0,GA_ERR)
 c     CALL MEMMAN(KFI_BE,NTOOB**2, 'ADDS  ',2,'FI_BE ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_BE',0,1,KFI_BE))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_BE',0,0,KFI_BE))
      &       call errquit('cannot create lucia_1e: fi_be',0,GA_ERR)
 *. Inactive + active Fock matrix
 c     CALL MEMMAN(KFIFA,NTOOB**2, 'ADDS  ',2,'FIFA  ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIFA  ',0,1,KFIFA))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FIFA  ',0,0,KFIFA))
      &       call errquit('cannot create lucia_1e: kfifa',0,GA_ERR)
 *. Active Fock matrix
 c     CALL MEMMAN(KFA,NTOOB**2,'ADDS  ',2,'FA    ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FA    ',0,1,KFA))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FA    ',0,0,KFA))
      &       call errquit('cannot create lucia_1e: kfa',0,GA_ERR)
 *. Fock matrix
 c     CALL MEMMAN(KF,NTOOB**2,'ADDS  ',2,'FOCK  ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK  ',0,1,KF))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK  ',0,0,KF))
      &       call errquit('cannot create lucia_1e: kf',0,GA_ERR)
 *
       IF(I_DO_NORTCI.EQ.1) THEN
 *. Also space for the extra Fock-matrix for the biorthonormal expansion
 c       CALL MEMMAN(KF2,NTOOB**2,'ADDS  ',2,'FOCK2 ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK2 ',0,1,KF2))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK2 ',0,0,KF2))
      &       call errquit('cannot create lucia_1e: kf2',0,GA_ERR)
       END IF
 
 *. Malmqvist transformation matrix
 c     CALL MEMMAN(KTPAM,NTOOB**2,'ADDS  ',2,'TPAM  ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'TPAM  ',0,1,KTPAM))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'TPAM  ',0,0,KTPAM))
      &       call errquit('cannot create lucia_1e: ktpam',0,GA_ERR)
 *.2: Two electron integrals
       IF(NOINT.EQ.0.AND.INCORE.EQ.1.AND.ISVMEM.EQ.0) THEN
@@ -4048,11 +4048,11 @@ C..dongxia explicit hamiltonian should be for a small space. local.
 *. indeces for pair of orbitals symmetry ordered
 *. Lower half packed
 c     CALL MEMMAN(KINH1,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
-         if(.not.ga_create(mt_dbl,ntoob,ntoob,'KINH1 ',0,0,KINH1))
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'KINH1 ',0,0,KINH1))
      &       call errquit('cannot create lucia_1e: kinh1',0,GA_ERR)
 *. Complete form
 c     CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
-         if(.not.ga_create(mt_dbl,ntoob,ntoob,'KINH1 ',0,0,
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'KINH1 ',0,0,
      &       KINH1_NOCCSYM)) call
      &       errquit('cannot create lucia_1e: kinh1_noccsym',0,GA_ERR)
 *
@@ -4064,17 +4064,31 @@ c     CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
         LMOAO = LMOAO + NMOS_ENV(ISM)*NAOS_ENV(ISM)
       END DO
 C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
-      CALL MEMMAN(KMOMO  ,LMOMO ,'ADDS  ',2,'MOMO  ')
-      CALL MEMMAN(KMOREF ,LMOMO ,'ADDS  ',2,'MOREF ')
+CNW   CALL MEMMAN(KMOMO  ,LMOMO ,'ADDS  ',2,'MOMO  ')
+CNW   CALL MEMMAN(KMOREF ,LMOMO ,'ADDS  ',2,'MOREF ')
+      if(.not.ga_create(mt_dbl,LMOMO,1,'MOMO ',0,1,KMOMO))
+     &  call errquit('cannot create lucia_1e: kmomo',0,GA_ERR)
+      if(.not.ga_create(mt_dbl,LMOMO,1,'MOREF',0,1,KMOREF))
+     &  call errquit('cannot create lucia_1e: kmoref',0,GA_ERR)
 *
-      CALL MEMMAN(KMOAOIN,LMOAO ,'ADDS  ',2,'MOAOIN')
-      CALL MEMMAN(KMOAOUT,LMOAO ,'ADDS  ',2,'MOAOUT')
-      CALL MEMMAN(KMOAO_ACT,LMOAO ,'ADDS  ',2,'MOAOUT')
+CNW   CALL MEMMAN(KMOAOIN,LMOAO ,'ADDS  ',2,'MOAOIN')
+CNW   CALL MEMMAN(KMOAOUT,LMOAO ,'ADDS  ',2,'MOAOUT')
+CNW   CALL MEMMAN(KMOAO_ACT,LMOAO ,'ADDS  ',2,'MOAOUT')
+      if(.not.ga_create(mt_dbl,LMOMO,1,'MOAOIN',0,1,KMOAOIN))
+     &  call errquit('cannot create lucia_1e: kmoaoin',0,GA_ERR)
+      if(.not.ga_create(mt_dbl,LMOMO,1,'MOAOOUT',0,1,KMOAOUT))
+     &  call errquit('cannot create lucia_1e: kmoaoout',0,GA_ERR)
+      if(.not.ga_create(mt_dbl,LMOMO,1,'MOAOACT',0,1,KMOAO_ACT))
+     &  call errquit('cannot create lucia_1e: kmoao_act',0,GA_ERR)
 *
 *. Space for bioorthonormal orbitals in terms of AO's
-        CALL MEMMAN(KCBIO,LMOAO ,'ADDS  ',2,'CBIO  ')
+CNW     CALL MEMMAN(KCBIO,LMOAO ,'ADDS  ',2,'CBIO  ')
+        if(.not.ga_create(mt_dbl,LMOMO,1,'CBIO   ',0,1,KCBIO))
+     &  call errquit('cannot create lucia_1e: kcbio',0,GA_ERR)
 *. Space for bioorthonormal orbitals in terms of the current MO's
-        CALL MEMMAN(KCBIO2,LMOAO ,'ADDS  ',2,'CBIO2 ')
+CNW     CALL MEMMAN(KCBIO2,LMOAO ,'ADDS  ',2,'CBIO2 ')
+        if(.not.ga_create(mt_dbl,LMOMO,1,'CBIO2  ',0,1,KCBIO2))
+     &  call errquit('cannot create lucia_1e: kcbio2',0,GA_ERR)
 
 
 *. And the MO
@@ -4088,7 +4102,7 @@ C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
 *. Set up a single set of integrals, assuming that 
 *. alpha and beta parts of T1 are identical
 c        CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'SIMTR1',0,1,
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SIMTR1',0,0,
      &       KINT1_SIMTRH)) call
      &       errquit('cannot create lucia_1e: kint1_simtrh',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
@@ -4110,11 +4124,11 @@ c        CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
 *. High spin single determinant is reference, T1 has 
 *. different alpha and beta components.
 c        CALL MEMMAN(KINT1_SIMTRH_A,NTOOB**2, 'ADDL  ',2,'SMTHA ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHA ',0,1,
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHA ',0,0,
      &       KINT1_SIMTRH_A)) call
      &       errquit('cannot create lucia_1e: kint_simtrh_a',0,GA_ERR)
 c         CALL MEMMAN(KINT1_SIMTRH_B,NTOOB**2, 'ADDL  ',2,'SMTHB ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHB ',0,1,
+         if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHB ',0,0,
      &       KINT1_SIMRTH_B)) call
      &       errquit('cannot create lucia_1e: kint1_simrth_b',0,GA_ERR)
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
