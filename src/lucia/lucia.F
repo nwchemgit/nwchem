@@ -401,11 +401,18 @@ c      INCLUDE 'mxpdim.inc'
 *
       IF(IE0AVEX.EQ.1) THEN
 *. Obtain <0!f|0>
-        CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
-        CALL FIFAM(WORK(KFI))
-        CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
+CNW     CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
+        call ga_copy(KINT1O,KFI)
+        CALL FIFAM(KFI)
+        KSWAP = KFI
+        KINT1 = KFI
+        FKI = KSWAP
+CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
         CALL EN_FROM_DENS(E0,1,0)
-        CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
+        KSWAP = KFI
+        KINT1 = KFI
+        FKI = KSWAP
+CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       ELSE IF(IE0AVEX.EQ.2) THEN
         E0 = EREF
       ELSE IF(IE0AVEX.EQ.3) THEN
@@ -1294,7 +1301,8 @@ CNW   CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NMSOB,1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
-      CALL VECSUM(dbl_mn(KLMAT1),WORK(KFI),WORK(KFA),ONE,ONE,NINT1)
+CBERT WEAREHERE
+      CALL VECSUM(dbl_mn(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
       IF(NTEST.GE.10) THEN
@@ -1583,6 +1591,7 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Construct FIFA in WORK(KFI)
 *
+CBERT SKIPPED AS IT WON'T BE CALLED
       IF(IPART.NE.3) THEN
 *. Normal M-P Partitioning
         WRITE(6,*) 'Normal MP partitioning'
@@ -1593,7 +1602,7 @@ c      INCLUDE 'mxpdim.inc'
         CALL COPVEC(WORK(KFI),WORK(KFIO),NINT1)
         ECORE_H = 0.0D0
         IF(IUSE_PH.EQ.1) THEN
-          CALL FI(WORK(KFI),ECORE_H,0)
+          CALL FI(KFI,ECORE_H,0)
           ECORE = ECORE_ORIG + ECORE_H 
         END IF
 *. And write to disc
@@ -2345,8 +2354,10 @@ C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
           SHIFT = ECORE
         ELSE
           SHIFT = ECORE_ORIG-ECORE
-CBERT DOUBLE INTEGRALS
-          CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
+CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
+          KSWAP = KINT1
+          KINT1 = KINT1O
+          KINT1O = KSWAP
         END IF
 *
 C?      WRITE(6,*) ' IBLTP  before call to GASDIAT'
@@ -2357,7 +2368,10 @@ C       CALL GASDIAT(WORK(KPVEC1),LUDIA,SHIFT,ICISTR,I12,
      &               int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
 C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
         IF(IUSE_EXP.NE.1) THEN
-          CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
+CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
+          KSWAP = KINT1
+          KINT1 = KINT1O
+          KINT1O = KSWAP
         END IF
        END IF ! determinant diagonal should be calculated
 *
@@ -2375,7 +2389,7 @@ C    &         ICNFBAT,NOCCLS_ACT,IOCCLS_ACT,
 C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
 *
          IF(ICNFBAT.EQ.1) THEN
-CBERT Can be MA or GA at this point
+CBERT Can be MA or GA at this point?
            CALL COPVEC(KPVEC2,KPDIA_SD,NVAR)  
          ELSE
            CALL COPVCD(LUSC52,LUDIA,KPVEC2,1,-1)
@@ -2467,7 +2481,7 @@ CBERT Need to write to GA disk resident array
 C       GET_SUBSPC_PRECOND_SPC(ISPC,ISM,ISEL,NSEL,
 C     &           CBLK)
         KLH0_SUBDT = KH0
-        CALL GET_SUBSPC_PRECOND_SPC(ISPC,ISM,WORK(KLH0_SUBDT),NH0DIM,
+        CALL GET_SUBSPC_PRECOND_SPC(ISPC,ISM,dbl_mb(KLH0_SUBDT),NH0DIM,
      &       dbl_mb(KVEC1))
         NPRDET = NH0DIM
         NP1 = NPRDET
@@ -2486,9 +2500,9 @@ C     &           CBLK)
 C       GET_SUBSPC_PRECOND_MAT(ISPC,ISM,H0,ISEL,NSEL,
 C    &           EIGVAL, EIGVEC)
 * (NP1, NP2, NQ transferred through common) CRUN
-        CALL GET_SUBSPC_PRECOND_MAT(ISPC,ISM,WORK(KLH0_MAT),
-     &       WORK(KLH0_SUBDT),NH0DIM,WORK(KLH0_EIGVAL),
-     &       WORK(KLH0_EIGVEC))
+        CALL GET_SUBSPC_PRECOND_MAT(ISPC,ISM,dbl_mb(KLH0_MAT),
+     &       dbl_mb(KLH0_SUBDT),NH0DIM,dbl_mb(KLH0_EIGVAL),
+     &       dbl_mb(KLH0_EIGVEC))
       END IF
 *
 *. Transfer control to optimization routine
@@ -2572,8 +2586,8 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
       ILAST = -3006
       CALL CIEIG5(MV7,INICI,EROOT,KPVEC1,KPVEC2,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
-     & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRNT,WORK(KLH0_EIGVEC),
-     & NPRDET,WORK(KH0),WORK(KLH0_SUBDT),
+     & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRNT,dbl_mb(KLH0_EIGVEC),
+     & NPRDET,dbl_mb(KH0),dbl_mb(KLH0_SUBDT),
      & NP1,NP2,NQ,dbl_mb(KH0SCR),EADD,ICISTR,LBLK,
      & IDIAG,dbl_mb(KVEC3),THRES_E,NBATCH,
      & int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
@@ -3879,9 +3893,7 @@ c     CALL MEMMAN(KHINA,NTOOB**2,'ADDS ',2,'H1INA ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'H1INA ',0,0,KHINA))
      &       call errquit('cannot create lucia_1e: kh1ina',0,GA_ERR)
 *. Overlap matrix in AO basis
-c     CALL MEMMAN(KSAO,NTOOB**2,'ADDS ',2,'SAO   ')  
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'SAO   ',0,0,KSAO))
-     &       call errquit('cannot create lucia_1e: ksao',0,GA_ERR)
+      CALL MEMMAN(KSAO,NTOOB**2,'ADDS ',2,'SAO   ')  
 *
 c     CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
       call ga_zero(KINT1O)
@@ -4064,31 +4076,17 @@ c     CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
         LMOAO = LMOAO + NMOS_ENV(ISM)*NAOS_ENV(ISM)
       END DO
 C     WRITE(6,*) ' LMOMO LMOAO ', LMOMO,LMOAO
-CNW   CALL MEMMAN(KMOMO  ,LMOMO ,'ADDS  ',2,'MOMO  ')
-CNW   CALL MEMMAN(KMOREF ,LMOMO ,'ADDS  ',2,'MOREF ')
-      if(.not.ga_create(mt_dbl,LMOMO,1,'MOMO ',0,1,KMOMO))
-     &  call errquit('cannot create lucia_1e: kmomo',0,GA_ERR)
-      if(.not.ga_create(mt_dbl,LMOMO,1,'MOREF',0,1,KMOREF))
-     &  call errquit('cannot create lucia_1e: kmoref',0,GA_ERR)
+      CALL MEMMAN(KMOMO  ,LMOMO ,'ADDS  ',2,'MOMO  ')
+      CALL MEMMAN(KMOREF ,LMOMO ,'ADDS  ',2,'MOREF ')
 *
-CNW   CALL MEMMAN(KMOAOIN,LMOAO ,'ADDS  ',2,'MOAOIN')
-CNW   CALL MEMMAN(KMOAOUT,LMOAO ,'ADDS  ',2,'MOAOUT')
-CNW   CALL MEMMAN(KMOAO_ACT,LMOAO ,'ADDS  ',2,'MOAOUT')
-      if(.not.ga_create(mt_dbl,LMOMO,1,'MOAOIN',0,1,KMOAOIN))
-     &  call errquit('cannot create lucia_1e: kmoaoin',0,GA_ERR)
-      if(.not.ga_create(mt_dbl,LMOMO,1,'MOAOOUT',0,1,KMOAOUT))
-     &  call errquit('cannot create lucia_1e: kmoaoout',0,GA_ERR)
-      if(.not.ga_create(mt_dbl,LMOMO,1,'MOAOACT',0,1,KMOAO_ACT))
-     &  call errquit('cannot create lucia_1e: kmoao_act',0,GA_ERR)
+      CALL MEMMAN(KMOAOIN,LMOAO ,'ADDS  ',2,'MOAOIN')
+      CALL MEMMAN(KMOAOUT,LMOAO ,'ADDS  ',2,'MOAOUT')
+      CALL MEMMAN(KMOAO_ACT,LMOAO ,'ADDS  ',2,'MOAOUT')
 *
 *. Space for bioorthonormal orbitals in terms of AO's
-CNW     CALL MEMMAN(KCBIO,LMOAO ,'ADDS  ',2,'CBIO  ')
-        if(.not.ga_create(mt_dbl,LMOMO,1,'CBIO   ',0,1,KCBIO))
-     &  call errquit('cannot create lucia_1e: kcbio',0,GA_ERR)
+        CALL MEMMAN(KCBIO,LMOAO ,'ADDS  ',2,'CBIO  ')
 *. Space for bioorthonormal orbitals in terms of the current MO's
-CNW     CALL MEMMAN(KCBIO2,LMOAO ,'ADDS  ',2,'CBIO2 ')
-        if(.not.ga_create(mt_dbl,LMOMO,1,'CBIO2  ',0,1,KCBIO2))
-     &  call errquit('cannot create lucia_1e: kcbio2',0,GA_ERR)
+        CALL MEMMAN(KCBIO2,LMOAO ,'ADDS  ',2,'CBIO2 ')
 
 
 *. And the MO
@@ -10078,20 +10076,22 @@ CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
       IF (ISVMEM.EQ.0) THEN
         IF(NOINT.EQ.0) THEN
 *. Inactive Fock matrix with contributions from explicitly declared inactive orbitals
-            CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
-            CALL FISM_OLD(WORK(KHINA),ECC)
+CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
+            call ga_copy(KINT1,KHINA)
+            CALL FISM_OLD(KHINA,ECC)
             ECORE_INA = ECORE + ECC
             WRITE(6,*) ' ECORE_INA = ', ECORE_INA
 *. One-electron integrals with contributions from inactive orbitals and 
 *  particle-hole reorganization
-            CALL FI(WORK(KINT1),ECORE_HEX,1)
-            CALL COPVEC(WORK(KINT1),WORK(KFI),NINT1)
+            CALL FI(KINT1,ECORE_HEX,1)
+CNW         CALL COPVEC(WORK(KINT1),WORK(KFI),NINT1)
+            call ga_copy(KINT1,FKI)
             ECORE_FI = ECORE_HEX
 C?          WRITE(6,*) ' First element in FI and H in INTIM=',
 C?   &      WORK(KFI), WORK(KINT1O)
         END IF
 *. Calculate the FI-alpha and FI-beta matrices
-        CALL FI_HS(WORK(KINT1O),WORK(KFI_AL),WORK(KFI_BE),ECORE_AB,1)
+        CALL FI_HS(KINT1O,KFI_AL,KFI_BE,ECORE_AB,1)
 *
         ECORE_INI = ECORE
         ECORE_ORIG = ECORE
@@ -10335,13 +10335,13 @@ c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
         if (isvmem.eq.1) stop 'intpnt!!!!'
 
         CALL PNT2DM(0,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
-     &         1  ,ISL1,WORK(KPINT1_SIMTRH),MXPOBS)
+     &         1  ,ISL1,dbl_mb(KPINT1_SIMTRH),MXPOBS)
         I12 = 0
         I34 = 0
         I1234 = 1
         CALL PNT4DM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,
      &              ITSDX,ADSXA,SXDXSX,I12,I34,I1234,
-     &              WORK(KPINT2_SIMTRH),ISL2,ADASX,NINT4D)
+     &              dbl_mb(KPINT2_SIMTRH),ISL2,ADASX,NINT4D)
 *. Pointers for open shell 2e A B integrals
         IF(IREFTYP.EQ.2) THEN
           I12 = 0
@@ -10349,7 +10349,7 @@ c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
           I1234 = 0
           CALL PNT4DM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,
      &         ITSDX,ADSXA,SXDXSX,I12,I34,I1234,
-     &         WORK(KPINT2_SIMTRH_AB),ISL2,ADASX,NINT4D)
+     &         dbl_mb(KPINT2_SIMTRH_AB),ISL2,ADASX,NINT4D)
         END IF
       END IF
 C?    write(6,*) ' Memory check INTPNT 2 '
@@ -11034,12 +11034,12 @@ C                DIM_CISPACE_FROM_SBCNF(ICISPC,NCNFOPSM)
           LCONFOCC_MAX = 0
           DO ICISPC = 1, NCISPC
 *. Max/min for orbitals
-            CALL MXMNOC_GAS(WORK(KLMINOCC),WORK(KLMAXOCC),NGAS,NOBPT,
-     &                     IGSOCCX(1,1,ICISPC),IGSOCCX(1,2,ICISPC),
+            CALL MXMNOC_GAS(int_mb(KLMINOCC),int_mb(KLMAXOCC),NGAS,NOBPT
+     &                     ,IGSOCCX(1,1,ICISPC),IGSOCCX(1,2,ICISPC),
      &                     IPRCSF)
 *. Number of parameters for this Max/min space
             CALL GET_DIM_MINMAX_SPACE(
-     &           WORK(KLMINOCC),WORK(KLMAXOCC),
+     &           int_mb(KLMINOCC),int_mb(KLMAXOCC),
      &           NACOB,IREFSM, NCONF_L, NCSF_L, NSD_L,NCM_L,LCONFOCC_L,
      &           NCONF_AS_L)
             IF(NTEST.GE.10) THEN
@@ -11079,6 +11079,7 @@ C          Z_BASSPC_FOR_ALL_OCCLS(IOCCLS,NOCCLS,IBASSPC)
 * Construct the information on the strings 
 * =========================================
 *
+CBERT WEAREHERE
       CALL STRINF_GAS(WORK,IPRSTR)
 *
 *. Dimensions for all occupation classes
@@ -11192,24 +11193,25 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *. Well, the starting MOs are the initial MOs, so the corresponding transformation matrix 
 *  is just the unit matrix 
         ONE = 1.0D0
-        CALL SETDIA_BLM(WORK(KMOMO),ONE,NSMOB,NTOOBS,0)
+        CALL SETDIA_BLM(dbl_mb(KMOMO),ONE,NSMOB,NTOOBS,0)
       ELSE
 *. Extended form for starting orbitals:
 *. Expansion of starting MOs in AOs in WORK(KMOAOUT)
 *  Expansion of starting MOs in initial MOs in MOMO
         XDUM = 2810.1979
-        CALL GET_HSAO(XDUM,KSAO,0,1)
-        CALL GET_CMOINI_GEN(WORK(KMOAOUT),WORK(KMOMO),WORK(KMOAOIN))
+        CALL GET_HSAO(XDUM,dbl_mb(KSAO),0,1)
+        CALL GET_CMOINI_GEN(dbl_mb(KMOAOUT),dbl_mb(KMOMO),
+     &                      dbl_mb(KMOAOIN))
 *. Let the starting orbitals be the orbitals in action
-        CALL COPVEC(WORK(KMOAOUT),WORK(KMOAOIN),LMOMO)
-        CALL COPVEC(WORK(KMOAOUT),WORK(KMOAO_ACT),LMOMO)
+        CALL COPVEC(dbl_mb(KMOAOUT),dbl_mb(KMOAOIN),LMOMO)
+        CALL COPVEC(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),LMOMO)
 *. Test Orthonormality of starting orbitals
 *.a) Overlap matrix in lower half form
         CALL MEMMAN(KLSMO,LMOMO,'ADDL  ',2,'SMO_L  ')
-        CALL GET_SMO(WORK(KMOAOIN),WORK(KLSMO),0)
+        CALL GET_SMO(dbl_mb(KMOAOIN),dbl_mb(KLSMO),0)
 *.b) Check deviation from unit matrix
 C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
-        CALL BLK_CHECK_UNI_MAT(WORK(KLSMO),NSMOB,NTOOBS,
+        CALL BLK_CHECK_UNI_MAT(dbl_mb(KLSMO),NSMOB,NTOOBS,
      &       XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
         WRITE(6,*) ' Deviation of SMO from unit matrix: '
         WRITE(6,'(A,6X,E8.3)') 
@@ -11228,14 +11230,15 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
 *. 2-electron integrals are saved in KINT_2EMO
         CALL INTIM(IPRORB)
 *. copy to list of initial 2 e integrals
-        CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
+CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
+        call ga_copy(KINT_2EMO,KINT_2EINI)
       ELSE
         WRITE(6,*) ' No integrals imported '
       END IF
 *. Print MO-coefs (after INTIM for getting labels)
       IF(NOMOFL.EQ.0.AND.IPRORB.GE.1) THEN
         WRITE(6,*) ' MO-AO transformation matrix of starting orbitals'
-        CALL PRINT_CMOAO(WORK(KMOAOIN))
+        CALL PRINT_CMOAO(dbl_mb(KMOAOIN))
       END  IF
 *
 * ============================================================================
@@ -11278,7 +11281,7 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
         CALL ICOPVE(int_mb(KISUPSYM_FOR_BAS),int_mb(KMO_STA_SUPSYM),
      &              NTOOB)
 *. b. Info on supersymmetry of actual orbitals 
-        CALL SUPSYM_FROM_CMOAO(WORK(KMOAOIN),int_mb(KISUPSYM_FOR_BAS),
+        CALL SUPSYM_FROM_CMOAO(dbl_mb(KMOAOIN),int_mb(KISUPSYM_FOR_BAS),
      &                         int_mb(KMO_SUPSYM))
 C           SUPSYM_FROM_CMOAO(CMOAO,ISUPSYM_FOR_BAS,ISUPSYM_FOR_MOS)
         CALL ICOPVE(int_mb(KMO_SUPSYM),int_mb(KMO_GNSYM),NTOOB)
@@ -11347,10 +11350,10 @@ C                IS_I1_EQ_I2(I1,I2,NDIM)
      &   '    Input molecular orbitals are in GAS supersym order'
 *. Reorder the orbitals to standard order and check that this order is correct
 *. Reform 
-         CALL REFORM_CMO(WORK(KMOAOIN),2,WORK(KMOAOUT),1)
+         CALL REFORM_CMO(dbl_mb(KMOAOIN),2,dbl_mb(KMOAOUT),1)
 *. Determine symmetry
-         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),int_mb(KISUPSYM_FOR_BAS),
-     &                         int_mb(KMO_SUPSYM))
+         CALL SUPSYM_FROM_CMOAO(dbl_mb(KMOAOUT),int_mb(KISUPSYM_FOR_BAS)
+     &                         ,int_mb(KMO_SUPSYM))
 *. Compare
          IDENT = IS_I1_EQ_I2(int_mb(KISUPSYM_FOR_BAS),
      &                       int_mb(KMO_SUPSYM),NTOOB)
@@ -11378,20 +11381,20 @@ C        CALL REO_CMOAO(WORK(KMOMO),WORK(KMOAO_ACT),
 C    &        WORK(KIREO_INI_OCC),1,1)
 C        CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAO_ACT),
 C    &        WORK(KIREO_INI_OCC),1,1)
-         CALL REO_CMOAO(WORK(KMOMO),WORK(KMOAO_ACT),
+         CALL REO_CMOAO(dbl_mb(KMOMO),dbl_mb(KMOAO_ACT),
      &        int_mb(KIREO_INI_OCC),1,2)
-         CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAO_ACT),
+         CALL REO_CMOAO(dbl_mb(KMOAOIN),dbl_mb(KMOAO_ACT),
      &        int_mb(KIREO_INI_OCC),1,2)
          LEN_C =  LEN_BLMAT(NSMOB,NTOOBS,NTOOBS,0)
-         CALL COPVEC(WORK(KMOAO_ACT),WORK(KMOAOUT),LEN_C)
+         CALL COPVEC(dbl_mb(KMOAO_ACT),dbl_mb(KMOAOUT),LEN_C)
 *. Update the MO-MO transformation matrix
 CERR     CALL BLK_SET_REORDER_XMAT(WORK(KMOMO),NSMOB,NTOOBS,
 CERR &        WORK(KIREO_INI_OCC))
 *. Check that orbitals now are in occ order
 *. Determine symmetry
          WRITE(6,*) ' Supersymmetry of reordered MOs: '
-         CALL SUPSYM_FROM_CMOAO(WORK(KMOAOUT),int_mb(KISUPSYM_FOR_BAS),
-     &                         int_mb(KMO_ACT_SUPSYM))
+         CALL SUPSYM_FROM_CMOAO(dbl_mb(KMOAOUT),int_mb(KISUPSYM_FOR_BAS)
+     &                         ,int_mb(KMO_ACT_SUPSYM))
 *. Compare
          IDENT = IS_I1_EQ_I2(int_mb(KMO_OCC_SUPSYM),
      &                       int_mb(KMO_ACT_SUPSYM),NTOOB)
@@ -11410,12 +11413,12 @@ CERR &        WORK(KIREO_INI_OCC))
 *
 *. Reorder to OCC if standard form
 *
-         CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAO_ACT),
+         CALL REO_CMOAO(dbl_mb(KMOAOIN),dbl_mb(KMOAO_ACT),
      &        int_mb(KMO_STA_TO_ACT_REO),1,1)
          LEN_C =  LEN_BLMAT(NSMOB,NTOOBS,NTOOBS,0)
-         CALL COPVEC(WORK(KMOAO_ACT),WORK(KMOAOIN),LEN_C)
+         CALL COPVEC(dbl_mb(KMOAO_ACT),dbl_mb(KMOAOIN),LEN_C)
 *. Update the MO-MO transformation matrix
-         CALL BLK_SET_REORDER_XMAT(WORK(KMOMO),NSMOB,NTOOBS,
+         CALL BLK_SET_REORDER_XMAT(dbl_mb(KMOMO),NSMOB,NTOOBS,
      &        int_mb(KMO_STA_TO_ACT_REO))
          CMO_ORD = 'OCC'
         END IF
@@ -11423,27 +11426,27 @@ CERR &        WORK(KIREO_INI_OCC))
         IF(IPRORB.GE.2) THEN
            WRITE(6,*) 
      &     ' Input orbitals reordered to requested super-symmetry order'
-           CALL PRINT_CMOAO(WORK(KMOAOIN))
+           CALL PRINT_CMOAO(dbl_mb(KMOAOIN))
          END IF
 *
          IF(IPRORB.GE.5) THEN
            WRITE(6,*) ' MO-MO transformation matrix '
-           CALL APRBLM2(WORK(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
+           CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
          END IF 
        END IF !I_DO_HF = 0
 *
        IF(IPRORB.GE.5) THEN
          WRITE(6,*) ' Input orbitals in shell form '
-         CALL PRINT_CMO_AS_SHELLS(WORK(KMOAOIN),2)
+         CALL PRINT_CMO_AS_SHELLS(dbl_mb(KMOAOIN),2)
 C             PRINT_CMO_AS_SHELLS(CMO,IFORM)
        END IF
 *. Analyze and align eqivalent components of deg irreps
 C            ANA_SUBSHELLS_CMO(CMO,IFORM,XMAX,MAXIRR,MAXSHL,
 C    &                              IALIGN)
-        CALL ANA_SUBSHELLS_CMO(WORK(KMOAOIN),2,XMAXDF,MAXIRRDF,
+        CALL ANA_SUBSHELLS_CMO(dbl_mb(KMOAOIN),2,XMAXDF,MAXIRRDF,
      &       MAXSHLDF,1)
         WRITE(6,*) ' Test analyze of aligned orbitals '
-        CALL ANA_SUBSHELLS_CMO(WORK(KMOAOIN),2,XMAXDF,MAXIRRDF,
+        CALL ANA_SUBSHELLS_CMO(dbl_mb(KMOAOIN),2,XMAXDF,MAXIRRDF,
      &       MAXSHLDF,0)
 
 *
@@ -11472,13 +11475,17 @@ C    &                              IALIGN)
      &  WRITE(6,*) ' TEST: IE2ARR_F = ', IE2ARR_F
         NINT2_F = NINT2_G(IE2ARR_F)
         KINT2_F = KINT2_A(IE2ARR_F)
-        CALL COPVEC(WORK(KINT_2EINI),WORK(KINT2_F),NINT2_F)
+CNW     CALL COPVEC(WORK(KINT_2EINI),WORK(KINT2_F),NINT2_F)
+        call ga_copy_patch('n',KINT_2EINI,1,NINT2_F,1,1,
+     &                         KINT2_F,1,NINT2_F,1,1)
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) 
      &    ' Full integral list copied to WORK(KINT2(IE2ARR_F))'
           WRITE(6,*) ' TEST: KINT2_F, NINT2_F = ', KINT2_F, NINT2_F
-          WRITE(6,*) ' WORK(KINT_2EINI),WORK(KINT2_F)',
-     &                 WORK(KINT_2EINI),WORK(KINT2_F)
+CNW       WRITE(6,*) ' WORK(KINT_2EINI),WORK(KINT2_F)',
+CNW  &                 WORK(KINT_2EINI),WORK(KINT2_F)
+          call ga_print_patch(KINT_2EINI,1,NINT2_F,1,1,0)
+          call ga_print_patch(KINT2_F,1,NINT2_F,1,1,0)
         END IF
 * Tell program to work with full two-electron integral list (until further notice)
         IE2LIST_A = IE2LIST_FULL
@@ -11520,24 +11527,30 @@ C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
         IE2ARR_F = IE2LIST_I(IE2LIST_IB(IE2LIST_FULL))
         NINT2_F = NINT2_G(IE2ARR_F)
         KINT2_F = KINT2_A(IE2ARR_F)
-        CALL COPVEC(WORK(KINT2_F),WORK(KINT_2EMO),NINT2_F)
+CNW     CALL COPVEC(WORK(KINT2_F),WORK(KINT_2EMO),NINT2_F)
+        call ga_copy_patch('n',KINT2_F,1,NINT2_F,1,1,
+     &                         KINT_2EMO,1,NINT2_F,1,1)
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' NINT2_F = ', NINT2_F
           WRITE(6,*) ' Integrals transformed to KINT_2EMO'
-          CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
+CNW       CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
+          call ga_print_patch(KINT_2EMO,1,NINT2_F,1,1,0)
         END IF
 *. one-electron integrals to KINT1O
         CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
+CNW     call ga_copy(KINT1,KINT1O)
 *. And to KH
-        CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+CNW     CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+        call ga_copy(KINT1,KH)
         IF(IPRORB.GE.100) THEN
           WRITE(6,*) ' One-electron integrals after transf'
-          CALL APRBLM2(WORK(KH),NTOOBS,NTOOBS,NSMOB,1)
+CNW       CALL APRBLM2(WORK(KH),NTOOBS,NTOOBS,NSMOB,1)
+          call ga_print(KH)
         END IF
 *. The integrals corresponds now to the new initial orbitals, reset MOMO
 *. matrix to one
         ONE = 1.0D0
-        CALL SETDIA_BLM(WORK(KMOMO),ONE,NSMOB,NTOOBS,0)
+        CALL SETDIA_BLM(dbl_mb(KMOMO),ONE,NSMOB,NTOOBS,0)
 *
 * ================================
 *. Construct inactive Fock matrix
@@ -11547,9 +11560,10 @@ C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
         KINT2_FSAVE = KINT2_A(IE2ARR_F)
         KINT2_A(IE2ARR_F) = KINT_2EMO
 C            FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
-        CALL FI_FROM_INIINT(WORK(KFI),WORK(KMOMO),WORK(KH),
+        CALL FI_FROM_INIINT(KFI,dbl_mb(KMOMO),KH,
      &                      ECORE_HEX,3)
-        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+        call ga_copy(FKI,KINT1)
         ECORE = ECORE_ORIG + ECORE_HEX
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' ECORE_ORIG, ECORE_HEX, ECORE(2) ',
@@ -11614,7 +11628,7 @@ C            FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
         CALL REWINO(LUC)
         CALL REWINO(LUSC39)
         DO JROOT = 1, NROOT
-          CALL COPVCD(LUC,LUSC39,WORK(KVEC1),0,LBLK)
+          CALL COPVCD(LUC,LUSC39,dbl_mb(KVEC1),0,LBLK)
         END DO
         CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
       END IF
@@ -11721,7 +11735,7 @@ CMO       END IF
           CALL REWINO(LUC)
           CALL REWINO(LUSC39)
           DO JROOT = 1, NROOT
-            CALL COPVCD(LUSC39,LUC,WORK(KVEC1),0,LBLK)
+            CALL COPVCD(LUSC39,LUC,dbl_mb(KVEC1),0,LBLK)
           END DO
           CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
 *. No expansion should follow
@@ -11879,8 +11893,8 @@ C           WRITE(6,*) ' Vectors will be expanded '
               CALL REWINO(LUC)
               CALL REWINO(LUSC51)
               LBLK = -1
-              CALL SKPVCD(LUC,IH0ROOT-1,WORK(KVEC1),1,LBLK) 
-              CALL COPVCD(LUC,LUSC51,WORK(KVEC1),0,LBLK)
+              CALL SKPVCD(LUC,IH0ROOT-1,dbl_mb(KVEC1),1,LBLK) 
+              CALL COPVCD(LUC,LUSC51,dbl_mb(KVEC1),0,LBLK)
 C?            WRITE(6,*) ' First vector copied to LUSC51'
 C?            CALL WRTVCD(WORK(KVEC1),LUSC51,1,LBLK)
               CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
@@ -12011,11 +12025,11 @@ C                  PROP_PERT(LU0,LUN,N,ISM,ISPC)
               CALL REWINO(LUC)
               CALL REWINO(LUSC51)
               LBLK = -1
-              CALL SKPVCD(LUC,IRFROOT-1,WORK(KVEC1),1,LBLK) 
-              CALL COPVCD(LUC,LUSC51,WORK(KVEC1),0,LBLK)
+              CALL SKPVCD(LUC,IRFROOT-1,dbl_mb(KVEC1),1,LBLK) 
+              CALL COPVCD(LUC,LUSC51,dbl_mb(KVEC1),0,LBLK)
               CALL REWINO(LUC)
               CALL REWINO(LUSC51)
-              CALL COPVCD(LUSC51,LUC,WORK(KVEC1),0,LBLK)
+              CALL COPVCD(LUSC51,LUC,dbl_mb(KVEC1),0,LBLK)
               CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
             END IF
 *
@@ -12172,10 +12186,10 @@ c     &                JCMBSPC,ISEQCI(JSEQ,JCMBSPC))
              IF(I_USE_SUPSYM.EQ.1) THEN
                 IF(IPRORB.GE.5) THEN
                   WRITE(6,*) ' Input orbitals in shell form '
-                  CALL PRINT_CMO_AS_SHELLS(WORK(KMOAO_ACT),2)
+                  CALL PRINT_CMO_AS_SHELLS(dbl_mb(KMOAO_ACT),2)
                 END IF
 *. Analyze eqivalence of components
-                 CALL ANA_SUBSHELLS_CMO(WORK(KMOAO_ACT),2,XMAXDF,
+                 CALL ANA_SUBSHELLS_CMO(dbl_mb(KMOAO_ACT),2,XMAXDF,
      &                MAXIRRDF,MAXSHLDF,0)
              END IF
 *
@@ -12320,9 +12334,9 @@ C           MAXIT = MAXIT_MIC
         IF(I_NEGLECT_SUPSYM_FINAL_MO.EQ.0) THEN
 *. Reorder back to standard order
 C              REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
-          CALL REO_CMOAO(WORK(KMOAOIN),WORK(KMOAOUT),
+          CALL REO_CMOAO(dbl_mb(KMOAOIN),dbl_mb(KMOAOUT),
      &         int_mb(KMO_STA_TO_ACT_REO),0,2)
-          CALL REO_CMOAO(WORK(KMOMO),WORK(KMOAO_ACT),
+          CALL REO_CMOAO(dbl_mb(KMOMO),dbl_mb(KMOAO_ACT),
      &         int_mb(KMO_STA_TO_ACT_REO),1,2)
           WRITE(6,*) ' Orbitals reordered to standard order '
           IIFORM = 1
@@ -12331,10 +12345,10 @@ C              REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
         IF(I_USE_SUPSYM.EQ.1) THEN
           IF(IPRORB.GE.5) THEN
             WRITE(6,*) ' Orbitals in shell form after MOROT'
-            CALL PRINT_CMO_AS_SHELLS(WORK(KMOAOUT),IIFORM)
+            CALL PRINT_CMO_AS_SHELLS(dbl_mb(KMOAOUT),IIFORM)
           END IF
 *. Analyze eqivalence of components
-          CALL ANA_SUBSHELLS_CMO(WORK(KMOAOUT),IIFORM,XMAXDF,
+          CALL ANA_SUBSHELLS_CMO(dbl_mb(KMOAOUT),IIFORM,XMAXDF,
      &         MAXIRRDF,MAXSHLDF,0)
         END IF
       END IF
@@ -12370,7 +12384,7 @@ C?   &               WORK(KINT1), WORK(KINT2)
       IF(NOMOFL.EQ.0) KMOAO = KMOAOUT
       IF(IPRORB.GE.1) THEN
         WRITE(6,*) ' Final, final, final orbitals: '
-        CALL PRINT_CMOAO(WORK(KMOAOUT))
+        CALL PRINT_CMOAO(dbl_mb(KMOAOUT))
       END IF
 *
       CALL DUMP_1EL_INFO(LU91)
@@ -13678,7 +13692,8 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
      &        CMV7TASK)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
-            CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
+CNW         CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
+            call ga_print(KCOMVEC2_SD)
           END IF
         END IF ! CSF switch
       END IF ! ICISTR switch
@@ -26245,10 +26260,11 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Obtain reorder array: IREO(N) is orig number of new orbital N
 *
+CBERT SHOULD NOT BE CALLED
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'REO_IN')
 *
       CALL MEMMAN(KLIREO_ORB,NTOOB,'ADDL  ',1,'REO_OR')
-      CALL SET_REO_ORB_ARRAY(WORK(KLIREO_ORB))
+      CALL SET_REO_ORB_ARRAY(dbl_mb(KLIREO_ORB))
 *
 * Reorder two-electron integral matrix
 *
@@ -28769,7 +28785,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) 
      & ' Initial MOMO matrix over blocks of standard symmetry'
-       CALL APRBLM2(WORK(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
+       CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
@@ -28792,9 +28808,9 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
 C LEN_BLMAT(NBLK,LROW,LCOL,IPACK)
 *. Number and length of gas- general symmetry blocks
 C  LEN_GAS_GS_BLOCKS(LEN_GAS_GS,N_GAS_GS)
-      CALL LEN_GAS_GS_BLOCKS(WORK(KLLEN_GASGS_BLK),NGAS_GS_BLKS,
+      CALL LEN_GAS_GS_BLOCKS(int_mb(KLLEN_GASGS_BLK),NGAS_GS_BLKS,
      &                       0,NGAS+1)
-      CALL LEN_GAS_GS_BLOCKS(WORK(KLLEN_GASGS_AC_BLK),NGAS_GS_AC_BLKS,
+      CALL LEN_GAS_GS_BLOCKS(int_mb(KLLEN_GASGS_AC_BLK),NGAS_GS_AC_BLKS,
      &                       1,NGAS)
 *
 C?    WRITE(6,*) ' LMOMO, LACAC = ', LMOMO, LACAC
@@ -28806,10 +28822,10 @@ C     NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 *
 * Obtain MOMO over general symmetry
 C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
-      CALL REFORM_MAT_STA_GEN(WORK(KMOMO),WORK(KLMOMO_GN),0,1)
+      CALL REFORM_MAT_STA_GEN(dbl_mb(KMOMO),dbl_mb(KLMOMO_GN),0,1)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Initial MOMO over general symmetry '
-        CALL APRBLM2(WORK(KLMOMO_GN),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
+        CALL APRBLM2(dbl_mb(KLMOMO_GN),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
       END IF
 *
 * If supersymmetry is active, then average the density matrix over components 
@@ -28860,9 +28876,9 @@ CBERT ALSO USED GA TO GA
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
-CBERT TWO GAs INTO MA
-      CALL VECSUM(WORK(KLMAT1),WORK(KFI),WORK(KFA),ONE,ONE,NINT1)
-      IF(IMO.EQ.5) CALL COPVEC(WORK(KLMAT1),WORK(KLMAT5),NINT1)
+CBERT TWO GAs INTO MA WHAREHERE
+      CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+      IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' FIFA matrix in standard symmetry'
@@ -28892,7 +28908,7 @@ C           EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
        CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
      &      dbl_mb(KLFIFA_GS),dbl_mb(KLMAT4),2,0,NGAS+1,1)
        CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT4),NGAS_GS_BLKS,
-     &       dbl_mb(KLLEN_GASGS_BLK),dbl_mb(KLMAT2C),dbl_mb(KLMAT1),
+     &       int_mb(KLLEN_GASGS_BLK),dbl_mb(KLMAT2C),dbl_mb(KLMAT1),
      &       dbl_mb(KLMAT4),1)
       END IF !MO = 2 switch
 *
@@ -28969,13 +28985,13 @@ C             EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *. Diagonalize type-symmetry blocks of density matrix over active blocks
 C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
          CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT4),NGAS*NGENSMOB,
-     &        dbl_mb(KLLEN_GASGS_AC_BLK),dbl_mb(KLMAT2),dbl_mb(KLMAT3),
+     &        int_mb(KLLEN_GASGS_AC_BLK),dbl_mb(KLMAT2),dbl_mb(KLMAT3),
      &        dbl_mb(KLMAT5),1)
 *. WORK(KLMAT2) contains eigenvector expansions
          IF(NTEST.GE.100) THEN
            WRITE(6,*)  ' Expansion of (pseudo-natural) orbitals'
-           CALL APRBLM2(dbl_mb(KLMAT2),dbl_mb(KLLEN_GASGS_AC_BLK),
-     &          dbl_mb(KLLEN_GASGS_AC_BLK),NGAS*NGENSMOB,0)
+           CALL APRBLM2(dbl_mb(KLMAT2),int_mb(KLLEN_GASGS_AC_BLK),
+     &          int_mb(KLLEN_GASGS_AC_BLK),NGAS*NGENSMOB,0)
          END IF
         END IF ! End if/else MO = 1, 5
 *
