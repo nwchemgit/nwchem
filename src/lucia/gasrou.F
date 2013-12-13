@@ -9253,9 +9253,11 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      DIMENSION FI(*), FA(*)
+CNW   DIMENSION FI(*), FA(*)
+      integer FI,FA
 *. Output
-      DIMENSION F(*)
+CNW   DIMENSION F(*)
+      integer F
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -9267,9 +9269,11 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       END IF
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Input inactive and active Fock matrices '
-        CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,1)
+CNW     CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,1)
+        call ga_print(FI)
         WRITE(6,*)
-        CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,1)
+CNW     CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,1)
+        call ga_print(FA)
       END IF
 *
       ONE = 1.0D0
@@ -9277,9 +9281,11 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'FOO   ')
 *
-      CALL COPVEC(FI,WORK(KINT1),NINT1)
+CNW   CALL COPVEC(FI,WORK(KINT1),NINT1)
+      call ga_copy(FI,KINT1)
       LEN_F =  NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
-      CALL SETVEC(F,ZERO,LEN_F)
+CNW   CALL SETVEC(F,ZERO,LEN_F)
+      call ga_zero(F)
 *. Largest set of orbitals with given symmetry and type
       MXTSOB_AC = 0
       MXTSOB    = 0
@@ -9366,8 +9372,11 @@ c      IMPLICIT REAL*8(A-H,O-Z)
                IJMAX = MAX(I+II-1,J+IJ-1)
                IJMIN = MIN(I+II-1,J+IJ-1)
                IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN
-               dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*
-     &         (FI(IFOFFS-1+IJSYM)+FA(IFOFFS-1+IJSYM))
+CNW            dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*
+CNW  &         (FI(IFOFFS-1+IJSYM)+FA(IFOFFS-1+IJSYM))
+               call ga_get(FI,IFOFFS-1+IJSYM,IFOFFS-1+IJSYM,1,1,FIVAL,1)
+               call ga_get(FA,IFOFFS-1+IJSYM,IFOFFS-1+IJSYM,1,1,FAVAL,1)
+               dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*(FIVAL+FAVAL)
 C?             WRITE(6,*) ' IJSM, I, J, FI(IJ), FA(IJ), F(IJ) =',
 C?   &         IJSM,I,J,FI(IFOFFS-1+IJSYM), FA(IFOFFS-1+IJSYM),
 C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
@@ -9491,8 +9500,12 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
               DO I = 1, NI
 C?              WRITE(6,*) 'IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1',
 C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
-                F(IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1 ) = 
-     &          dbl_mb(KLFBLK-1+(I-1)*NJ+J)
+CBERT IS A SCATTER, REPLACE WITH FIND ALL ELEMENTS I OWN AND PUT
+                IINDX = IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1
+                call ga_put(F,IINDX,IINDX,1,1,
+     &                      dbl_mb(KLFBLK-1+(I-1)*NJ+J),1)
+CNW             F(IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1 ) = 
+CNW  &          dbl_mb(KLFBLK-1+(I-1)*NJ+J)
               END DO
             END DO
 *
@@ -9505,7 +9518,8 @@ C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
         WRITE(6,*)
         WRITE(6,*) ' Final F from FOCK_MAT_STANDARD '
         WRITE(6,*) ' =============================='
-        CALL APRBLM2(F,NTOOBS,NTOOBS,NSMOB,0)
+CNW     CALL APRBLM2(F,NTOOBS,NTOOBS,NSMOB,0)
+        call ga_print(F)
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'FOO   ')

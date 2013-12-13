@@ -1534,13 +1534,12 @@ c      INCLUDE 'mxpdim.inc'
 CNW   DIMENSION FIFA(*)
       integer FIFA
 *
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
-*
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       CALL FIFAMS(FIFA,dbl_mb(KRHO1),IBSO,NSMOB,
      &            NTOOBS,NACOB,NTOOB,IREOST)
@@ -1556,6 +1555,10 @@ CNW   DIMENSION FIFA(*)
 * Jeppe Olsen
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 CNW   DIMENSION FIFA(*),RHO1(NACOB,NACOB)
       DIMENSION RHO1(NACOB,NACOB)
       integer FIFA
@@ -1569,8 +1572,8 @@ CNW   DIMENSION FIFA(*),RHO1(NACOB,NACOB)
        WRITE(6,*) ' ======================='
        WRITE(6,*) 
        ISYM = 1
-CBERT FIFA is GA, needs different writing strategy
-       CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FIFA)
       END IF
 *
 *.  Assume spatial symmetric fock matrix
@@ -1595,8 +1598,7 @@ CNW  &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
      &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                  END DO
                END DO
-CBERT should do this is in blocks
-               call ga_acc(FIFA,ij,ij,1,1,FIVAL,1)
+               call ga_put(FIFA,ij,ij,1,1,FIVAL,1)
             END DO
           END DO
         END IF
@@ -1607,8 +1609,8 @@ CBERT should do this is in blocks
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
-CBERT FIFA is GA, needs different writing strategy
-       CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FIFA)
       END IF
 * 
       RETURN
@@ -1695,6 +1697,9 @@ CNW   DIMENSION FIMAT(*)
       INCLUDE 'lucinp.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'oper.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
 *
       NTEST = 00
@@ -1733,6 +1738,9 @@ CNW   DIMENSION FIMAT(*)
 * Aug 2000
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 CNW   DIMENSION FI(*)
       integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
@@ -1815,10 +1823,10 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
                       FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
      &                            GTIJKL(IP,KP,KP,JP)
-                      call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                     ENDIF
                   END DO
                 END DO
+                call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
               END DO
             END DO
           END IF
@@ -1831,8 +1839,8 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
        WRITE(6,*) ' ============================'
        WRITE(6,*) 
        ISYM = 0
-CBERT FI is a GA
-       CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FI)
       END IF
 * 
       RETURN
@@ -1855,6 +1863,9 @@ CBERT FI is a GA
 * June 2010: Inactive orbitals flagged by type = 0 added.
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 CNW   DIMENSION FI(*)
       integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
@@ -1870,7 +1881,8 @@ CNW   DIMENSION FI(*)
        WRITE(6,*) ' ================================================'
        WRITE(6,*) 
        ISYM = 1
-       CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FI)
       END IF
 *
 * Core-Core energy 
@@ -1967,15 +1979,17 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
                     IF(ITPFSO(K).EQ.0) K_INACTIVE = 1
                     KP = ISTOB(K)
 CBERT FI is a GA
+CBERT GET THE BLOCK I OWN, WHEN IJ FITS DO THE WORK AND THEN PUT IT BACK
+CINSTEAD OF ACC
 CNW                 IF(K_INACTIVE.EQ.1) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(K_INACTIVE.EQ.1) THEN
                       FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
      &                            GTIJKL(IP,KP,KP,JP)
-                      call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                     ENDIF
                   END DO
                 END DO
+                call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
               END DO
             END DO
           END IF
@@ -1988,8 +2002,8 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
-CBERT FI is a GA
-       CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FI)
       END IF
 * 
       RETURN
@@ -2011,6 +2025,9 @@ CBERT FI is a GA
 * Dec 97
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 CNW   DIMENSION FI(*)
       integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*)
@@ -2083,15 +2100,16 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
 CBERT FI is a GA
+CBERT REPLACE WITH GET BLOCK, ADD and the PUT
 CNW                 IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
                       FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
      &                            GTIJKL(IP,KP,KP,JP)
-                     call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                     ENDIF
                   END DO
                 END DO
+                call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
               END DO
             END DO
           END IF
@@ -2104,8 +2122,8 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
-CBERT FI is a GA
-       CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FI)
       END IF
 * 
       RETURN
@@ -2139,6 +2157,9 @@ CBERT FI is a GA
 * Last revision, Nov. 2012;  Jeppe Olsen; Back to Ini-integrals
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 CNW   DIMENSION FI(*)
       integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*),NINOBS(*)
@@ -2203,13 +2224,14 @@ CNW       ECC = ECC + 2*FI(II)
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
 CBERT FI is GA
+CBERT REPLACE WITH GET, ADD, PUT
 CNW               FI(IJ) = FI(IJ) 
 CNW  &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
                   FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
      &                        GTIJKL(IP,KP,KP,JP)
-                  call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                 END DO
               END DO
+              call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
             END DO
           END DO
         END IF
@@ -2221,8 +2243,8 @@ CNW  &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
-CBERT FI is a GA
-       CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FI)
       END IF
 * 
       RETURN
@@ -2254,6 +2276,9 @@ CBERT FI is a GA
 * Last revision, Aug. 28 2012, Jeppe Olsen, updated to modern times
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 CNW   DIMENSION FI(*)
       integer FI
       INTEGER IOBSM(*),LOBSM(*),ISTOB(*),NINOBS(*)
@@ -2318,13 +2343,14 @@ CNW       ECC = ECC + 2*FI(II)
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
 CBERT FI is GA
+CBERT REPLACE WITH GET, ADD, PUT
 CNW               FI(IJ) = FI(IJ) 
 CNW  &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
                   FIVAL = 2.0D0*GTIJKL_GN(IP,JP,KP,KP)-
      &                          GTIJKL_GN(IP,KP,KP,JP)
-                  call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
                 END DO
               END DO
+              call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
             END DO
           END DO
         END IF
@@ -2336,8 +2362,8 @@ CNW  &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 1
-CBERT FI is a GA
-       CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
+       call ga_print(FI)
       END IF
 * 
       RETURN
@@ -4563,14 +4589,18 @@ C VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
 * Jeppe Olsen, July 2010
       INCLUDE 'wrkspc.inc'
 *
-      DIMENSION FA(*)
+CNW   DIMENSION FA(*)
+      integer FA
 *
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
 *
-      CALL FAS(FA,WORK(KRHO1),IBSO,NSMOB,NTOOBS,NACOB,NINOB,
+      CALL FAS(FA,dbl_mb(KRHO1),IBSO,NSMOB,NTOOBS,NACOB,NINOB,
      &         IREOST)
 *
       RETURN
@@ -4585,7 +4615,12 @@ C VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
 * Jeppe Olsen
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION FA(*),RHO1(NACOB,NACOB)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+CNW   DIMENSION FA(*),RHO1(NACOB,NACOB)
+      DIMENSION RHO1(NACOB,NACOB)
+      integer FA
       INTEGER IBSO(*),NTOOBS(*),ISTOB(*)
 *
       NTEST = 00
@@ -4613,15 +4648,17 @@ C VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
               IP = ISTOB(I)
               JP = ISTOB(J)
                IJ= IJ + 1
-               FA(IJ) = 0.0D0
+               FAVAL = 0.0D0
+CNW            FA(IJ) = 0.0D0
                DO IA = NINOB+1, NACOB+NINOB
                  DO IB = NINOB+1, NACOB+NINOB
                    IF(RHO1(IA-NINOB,IB-NINOB).NE.0.0D0)        
-     &             FA(IJ) = FA(IJ) 
+     &             FAVAL = FAVAL + 
      &           + RHO1(IA-NINOB,IB-NINOB)
      &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                  END DO
                END DO
+               call ga_put(FA,IJ,IJ,1,1,FAVAL,1)
             END DO
           END DO
         END IF
@@ -4632,7 +4669,8 @@ C VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
        WRITE(6,*) ' ============================'
        WRITE(6,*) 
        ISYM = 1
-       CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,ISYM)
+CNW    CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,ISYM)
+       call ga_print(FA)
       END IF
 * 
       RETURN
@@ -4894,16 +4932,17 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
 *               hole-orbitals
 *
       INCLUDE 'wrkspc.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"	  
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
 *. Input
       DIMENSION C(*)
 *. Output
-      DIMENSION F2(*)
+CNW   DIMENSION F2(*)
+      integer F2
 *
       NTEST = 0
 *
@@ -4936,15 +4975,17 @@ C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
-      CALL TRAN_SYM_BLOC_MAT4(F2,C,C,NSMOB,NTOOBS,NTOOBS,
+      CALL TRAN_SYM_BLOC_MAT4b(F2,C,C,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
       CALL MEMCHK2('AF_TRA')
-      CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
+CNW   CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
+      call ga_put(F2,1,LEN_F,1,1,dbl_mb(KLSCR),LEN_F)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from GET_2E_TERMS '
         WRITE(6,*) ' ========================='
-        CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
+CNW     CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
+        call ga_print(F2)
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'2ETOFI')
@@ -5064,26 +5105,29 @@ C?             WRITE(6,*) 'ISM, J,KORB,CJK = ', ISM,J,KORB,CJK
 *                inactive orbitals)
 *
       INCLUDE 'wrkspc.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"	  
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'cprnt.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
 *
 *. Input: 
 *. =====
 * H: one-electron integrals in current MO basis, lower half of symmetry blocks
 * IHOLETP: As above
 * CINI: Current set of mo's expanded in initial set of orbitals
-      DIMENSION H(*), CINI(*)
+CNW   DIMENSION H(*), CINI(*)
+      integer H
+      dimension CINI(*)
 *
 *. Output:
 *. ======
 * FI:  Inactive Fock matrix in current basis, lower half of symmetry blocks
 * EINAC: contribution to core energy from inactive/hole-orbitals
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      dimension FI
 *
       IF(IPRINTEGRAL.GE.100) NTEST = 100
       NTEST = 00
@@ -5111,25 +5155,26 @@ C?             WRITE(6,*) 'ISM, J,KORB,CJK = ', ISM,J,KORB,CJK
 C     GET_2E_TERMS_TO_FI(F2,C_MOINI,IHOLETP)
       CALL GET_2E_TERMS_TO_FI(FI,CINI,IHOLETP)
 *. Pack to lower half form
-C     TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
-      CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB)
+      CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
 *. Contribution to inactive energy from two-electron interaction
-C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
        CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,1)
        E_2E = 0.5D0*E_2E
 *. Contribution to inactive energy from one-electron interaction
-       CALL GET_INA_TERM_TO_1EEXP(H,E_1E,IHOLETP,1)
+       CALL GET_INA_TERM_TO_1EEXPb(H,E_1E,IHOLETP,1)
        EINAC = E_2E + E_1E
 *. And add to one-electron Hamiltonian
        ONE = 1.0D0
-       CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_FP)
+CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_FP)
+       call ga_copy(H,FI)
+       call ga_acc(FI,1,LEN_FP,1,1,dbl_mb(KLBLF),LEN_FP,1.0d0)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT: '
          WRITE(6,*) ' One- and two-electron contributions to E_INAC=',
      &               E_1E,E_2E
          WRITE(6,*) ' The inactive Fock matrix'
-         CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,1)
+CNW      CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,1)
+         call ga_print(FI)
        END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'FIFRIN')
@@ -5163,7 +5208,8 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
       INTEGER IDPNT(MXPOBS)
       INTEGER IDSMOS(MXPOBS)
 *. Output
-      DIMENSION F2(*)
+CNW   DIMENSION F2(*)
+      integer F2
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'F2EINI')
@@ -5186,7 +5232,9 @@ C    &                  IJSM,ISM2,IPNTR,MXPOBS)
      &            IDENSM,IDSMOS,IDPNT,MXPOBS)
 *. Length of largest 2e-int symmetry-block- stored in core!
       LBLOCK = 0
+      LBLKMX = 0
       DO ISM = 1, NSMOB
+       LBLKMX = MAX(LBLKMX,NTOOBS(ISM))
        DO JSM = 1, NSMOB
         IJSM = MULTD2H(ISM,JSM)
         DO KSM = 1, NSMOB
@@ -5203,6 +5251,7 @@ C    &                  IJSM,ISM2,IPNTR,MXPOBS)
       END DO
 *
       CALL MEMMAN(KL2EBLK,LBLOCK,'ADDL  ',2,'E2BLK ')
+      CALL MEMMAN(KFI2BLK,LBLKMX*LBLKMX,'ADDL  ',2,'FI2BLK ')
 *
 * FI2(IAL,IBE) = SUM(IGA,IDE) ((IAL,IBE!IGA, IDE)-0.5(IAL,IDE!IGA,IBE))
 *                             * D(IGA,IDE)
@@ -5221,7 +5270,8 @@ C    &                  IJSM,ISM2,IPNTR,MXPOBS)
        NALOB = NTOOBS(IALSM)
        NBEOB = NTOOBS(IBESM)
        ZERO = 0.0D0
-       CALL SETVEC(F2(IFOFF),ZERO,NALOB*NBEOB)
+CNW    CALL SETVEC(F2(IFOFF),ZERO,NALOB*NBEOB)
+       CALL SETVEC(dbl_mb(KFI2BLK),ZERO,LBLKMX*LBLKMX)
 *
        DO IGASM = 1, NSMOB
         IABGSM = MULTD2H(IABSM,IGASM)
@@ -5264,9 +5314,12 @@ C    &                  IXCHNG,IKSM,JLSM,ICOUL)
         FACC = 1.0D0
         FACAB = 1.0D0
 C?      WRITE(6,*) ' IFOFF, IDOFF,KL2EBLK = ', IFOFF, IDOFF,KL2EBLK
-        CALL MATML7(F2(IFOFF),dbl_mb(KL2EBLK),DINI(IDOFF),
+CNW     CALL MATML7(F2(IFOFF),dbl_mb(KL2EBLK),DINI(IDOFF),
+        CALL MATML7(dbl_mb(KFI2BLK),dbl_mb(KL2EBLK),DINI(IDOFF),
      &              NALOB*NBEOB,1,NALOB*NBEOB,NGAOB*NDEOBL,
      &              NGAOB*NDEOBL,1,FACC,FACAB,0)
+        call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB,1,1,dbl_mb(KFI2BLK),
+     &              NALOB*NBEOB)
 C     MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,
 C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 
@@ -5278,7 +5331,8 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
        WRITE(6,*) ' Output from TWOINT_D_TERM_F'
        WRITE(6,*) ' ============================'
        WRITE(6,*) ' Contraction of 2e ints and 1e density'
-       CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
+CNW    CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
+       call ga_print(F2)
       END IF
 *
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving TWOINT_D_TERM_F '
@@ -5322,6 +5376,87 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
           IIOFF = 1
+        ELSE
+          IF(ISYM.EQ.1) THEN
+            IIOFF = IIOFF + NTOOBS(ISM-1)*(NTOOBS(ISM-1)+1)/2
+          ELSE
+            IIOFF = IIOFF + NTOOBS(ISM-1)**2
+          END IF
+        END IF
+        II = IIOFF-1
+        DO I = IBSO(ISM),IBSO(ISM)+NTOOBS(ISM)-1
+          IF(ISYM.EQ.1) THEN
+            II = II + (I-IBSO(ISM)+1)
+           ELSE
+            II = IIOFF -1 + (I-IBSO(ISM))*NTOOBS(ISM) + (I-IBSO(ISM)+1)
+           END IF
+          I_INACTIVE = 0
+          IF(ITPFSO(I).GT.0.AND.ITPFSO(I).LE.NGAS) THEN
+           IF (IHOLETP.GE.2.AND.IPHGAS(ITPFSO(I)).EQ.2) I_INACTIVE = 1
+          END IF
+          IF((IHOLETP.EQ.1.OR.IHOLETP.EQ.3).
+     &       AND.ITPFSO(I).EQ.0) I_INACTIVE = 1
+          IF(NTEST.GE.1000)
+     &    WRITE(6,*) ' I, I_INACTIVE,II = ', I,I_INACTIVE,II
+          IF(I_INACTIVE.EQ.1) THEN
+            IF(NTEST.GE.1000)
+     &      WRITE(6,*) ' Contribution to ECC from I =', I
+            EXPEC_INA = EXPEC_INA + 2*F(II)
+            IF(NTEST.GE.1000)
+     &      WRITE(6,*) ' Updated EXPEC_INAC =', EXPEC_INA
+          END IF
+        END DO
+      END DO
+*
+      IF(NTEST.GE.10) THEN
+        WRITE(6,*) ' Output from GET_INA_TERM_TO_1EEXP '
+        WRITE(6,*)
+        WRITE(6,*) ' EXPEC_INA = ', EXPEC_INA
+      END IF
+*
+      RETURN
+      END
+
+      SUBROUTINE GET_INA_TERM_TO_1EEXPb(F,EXPEC_INA,IHOLETP,ISYM)
+* 
+* Contribution from inactive terms in matrix F to one-electron
+* expectation value
+*
+*  EXPEC = 2*sum_k F_kk, where the sum over k is over inactive/hole
+*          orbitals according to IHOLETP
+* F is stored in standard integral mode (symmetryblocked)
+*
+*. Jeppe Olsen, October 2010
+*
+*. General input
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'cgas.inc'
+      INCLUDE 'multd2h.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+*. Specific input
+CNW   DIMENSION F(*)
+      integer F
+*
+      NTEST = 0
+      IF(NTEST.GE.1000) THEN
+        WRITE(6,*)
+        WRITE(6,*) ' ==================================='
+        WRITE(6,*) ' Output from  GET_INA_TERM_TO_1EEXP '
+        WRITE(6,*) ' ==================================='
+        WRITE(6,*)
+      END IF
+*
+      EXPEC_INA = 0.0D0
+      IJSM = 1
+*. One-electron part 
+      DO ISM = 1, NSMOB
+        IF(ISM.EQ.1) THEN
+          IIOFF = 1
         ELSE 
           IF(ISYM.EQ.1) THEN
             IIOFF = IIOFF + NTOOBS(ISM-1)*(NTOOBS(ISM-1)+1)/2
@@ -5347,7 +5482,8 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
           IF(I_INACTIVE.EQ.1) THEN
             IF(NTEST.GE.1000)
      &      WRITE(6,*) ' Contribution to ECC from I =', I
-            EXPEC_INA = EXPEC_INA + 2*F(II)
+            call ga_get(F,II,II,1,1,FVAL,1)
+            EXPEC_INA = EXPEC_INA + 2*FVAL
             IF(NTEST.GE.1000)
      &      WRITE(6,*) ' Updated EXPEC_INAC =', EXPEC_INA
           END IF
@@ -5393,7 +5529,8 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 *. Output:
 *. ======
 * FA:  Inactive Fock matrix in current basis, lower half of symmetry blocks
-      DIMENSION FA(*)
+CNW   DIMENSION FA(*)
+      integer FA
 *. Local scratch
       DIMENSION NOBPTS_L(0:6+MXPR4T,MXPOBS)
 *
@@ -5450,7 +5587,7 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       FACE = 0.5D0
       CALL TWOINT_D_TERM_F(FA,dbl_mb(KLDINI),FACC,FACE)
 *. Transform to current basis- and save result in KLCT
-      CALL TRAN_SYM_BLOC_MAT4(FA,CINI,CINIB,NSMOB,NTOOBS,NTOOBS,
+      CALL TRAN_SYM_BLOC_MAT4b(FA,CINI,CINIB,NSMOB,NTOOBS,NTOOBS,
      &                        dbl_mb(KLCT),dbl_mb(KLSCR),0)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' FA in initial basis'
@@ -5458,15 +5595,16 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       END IF
 *. Pack to lower half form
       IF(IPACK.NE.0) THEN
-        CALL TRIPAK_BLKM(dbl_mb(KLCT),FA,1,NTOOBS,NSMOB)
-C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
+        CALL TRIPAK_BLKM(dbl_mb(KLCT),FA,1,NTOOBS,NSMOB,3)
       ELSE
-        CALL COPVEC(dbl_mb(KLCT),FA,LEN_F)
+CNW     CALL COPVEC(dbl_mb(KLCT),FA,LEN_F)
+        call ga_get(FA,1,LEN_F,1,1,dbl_mb(KLCT),LEN_F)
       END IF
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' The active Fock matrix'
-         CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,IPACK)
+CNW      CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,IPACK)
+         call ga_print(FA)
        END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'FAFRIN')
@@ -5514,14 +5652,17 @@ C       TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 * IHOLETP: As above
 * CINI: Current set of mo's expanded in initial set of orbitals
 * CINIB: Current set of bioorthogonal mo's expanded in initial set of orbitals
-      DIMENSION H(*), CINI(*), CINIB(*)
+CNW   DIMENSION H(*), CINI(*), CINIB(*)
+      DIMENSION CINI(*), CINIB(*)
+      integer H
 *
 *. Output:
 *. ======
 * FI:  Inactive Fock matrix in current basis, packed according to IPACK
 *      
 * EINAC: contribution to core energy from inactive/hole-orbitals
-      DIMENSION FI(*)
+CNW   DIMENSION FI(*)
+      integer FI
 *
       NTEST = 00
       IDUM = 0
@@ -5539,17 +5680,17 @@ C     GET_2E_TERMS_TO_FI_G(F2,C_MOINI,C_MOINIB,IHOLETP)
       CALL GET_2E_TERMS_TO_FI_G(FI,CINI,CINIB,IHOLETP)
 *. Pack to lower half form is required
       IF(IPACK.EQ.1) THEN
-        CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB)
-C            TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
+        CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
       ELSE
-        CALL COPVEC(FI,dbl_mb(KLBLF),LEN_F)
+CNW     CALL COPVEC(FI,dbl_mb(KLBLF),LEN_F)
+        call ga_get(FI,1,LEN_F,1,1,dbl_mb(KLBLF),LEN_F)
        END IF
 *. Contribution to inactive energy from two-electron interaction
 C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
        CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,IPACK)
        E_2E = 0.5D0*E_2E
 *. Contribution to inactive energy from one-electron interaction
-       CALL GET_INA_TERM_TO_1EEXP(H,E_1E,IHOLETP,IPACK)
+       CALL GET_INA_TERM_TO_1EEXPb(H,E_1E,IHOLETP,IPACK)
        EINAC = E_2E + E_1E
 *. And add to one-electron Hamiltonian
        ONE = 1.0D0
@@ -5558,7 +5699,9 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
        ELSE
          LEN_MAT = LEN_FP
        END IF
-       CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
+CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
+       call ga_copy(H,FI)
+       call ga_acc(FI,1,LEN_MAT,1,1,dbl_mb(KLBLF),LEN_MAT,1.0d0)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT_G: '
@@ -5595,16 +5738,17 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
 *           =3: Explicitly declared inactive + active
 *               hole-orbitals
       INCLUDE 'wrkspc.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"	  
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"	  
 *. Input
       DIMENSION C(*), CB(*)
 *. Output
-      DIMENSION F2(*)
+CNW   DIMENSION F2(*)
+      integer F2
 *
       NTEST = 0
 *
@@ -5637,7 +5781,7 @@ C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
-      CALL TRAN_SYM_BLOC_MAT4(F2,C,CB,NSMOB,NTOOBS,NTOOBS,
+      CALL TRAN_SYM_BLOC_MAT4b(F2,C,CB,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
       CALL MEMCHK2('AF_TRA')
       CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
@@ -5855,8 +5999,7 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       LEN = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
 C                     (IHSM,NRPSM,NCPSM,NSM,IPACK)
       CALL MEMMAN(KLSAOE,LEN,'ADDL  ',2,'SAOE  ')
-      CALL TRIPAK_BLKM(dbl_mb(KLSAOE),WORK(KSAO),2,NTOOBS,NSMOB)
-C          TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
+      CALL TRIPAK_BLKM(dbl_mb(KLSAOE),KSAO,2,NTOOBS,NSMOB,3)
 *
 *. Scratch vector for MO of given sym
       NMAX = IMNMX(NTOOBS,NSMOB,2)

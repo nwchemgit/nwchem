@@ -1342,8 +1342,12 @@ C          ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
       INTEGER IOOEXC(NTOOB,NTOOB), IOOEXCC(2,NOOEXC)
       INTEGER NTOOBS(NSMOB),IBSO(NSMOB), IREOST(*)
       INCLUDE 'multd2h.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input
-      DIMENSION F(*)
+CNW   DIMENSION F(*)
+      integer F
 *. Output
       DIMENSION E1(*)
 *
@@ -1372,11 +1376,15 @@ C?      WRITE(6,*) ' ISM,JSM,NI,NJ,IB,JB ', ISM,JSM,NI,NJ,IB,JB
             IJEXC = IOOEXC(IORBABS_T,JORBABS_T)
             IF(NTEST.GE.100)
      &      WRITE(6,*) ' IORB,JORB,IJEXC', IORB,JORB,IJEXC
+            IINDX = IOFF-1+(JORB-1)*NI+IORB
+            call ga_get(F,IINDX,IINDX,1,1,FVAL,1)
             IF(IJEXC.GT.0) THEN
-              E1(IJEXC) = E1(IJEXC) + 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
+CNW           E1(IJEXC) = E1(IJEXC) + 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
+              E1(IJEXC) = E1(IJEXC) + 2.0D0*FVAL                        
 C?            WRITE(6,*) ' Updated E1 = ',  E1(IJEXC)
             ELSE IF(IJEXC.LT.0) THEN
-              E1(-IJEXC) = E1(-IJEXC) - 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
+CNW           E1(-IJEXC) = E1(-IJEXC) - 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
+              E1(-IJEXC) = E1(-IJEXC) - 2.0D0*FVAL
 C?            WRITE(6,*) ' Updated E1 = ',  E1(-IJEXC)
             END IF
           END DO

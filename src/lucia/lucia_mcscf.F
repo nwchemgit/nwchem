@@ -4085,8 +4085,12 @@ C
       INCLUDE 'cgas.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
-      DIMENSION F(*)
+CNW   DIMENSION F(*)
+      integer F
 *. Output
       DIMENSION BRT(*)
 *
@@ -4098,12 +4102,21 @@ C
          IOFF = IOFF + NTOOBS(ISM-1)**2
         END IF
         NOB = NTOOBS(ISM)
+        call ga_get(F,IOFF-1,IOFF-1+(IS-1)*NOB+IR,1,1,
+     &              BRT(IOFF-1),NOB*NOB)
         DO IR = 1, NOB
-        DO IS = 1, NOB
-          BRT(IOFF-1+(IS-1)*NOB + IR) = 2.0D0*
-     &   (F(IOFF-1+(IS-1)*NOB + IR)-F(IOFF-1+(IR-1)*NOB + IS))
-        END DO
-        END DO
+        DO IS = 1, NOB 
+           call ga_get(F,IOFF-1+(IR-1)*NOB+IS,IOFF-1+(IR-1)*NOB+IS,1,1,
+     &                 BRT(IOFF-1+(IS-1)*NOB+IR),1)
+           BRT(IOFF-1+(IS-1)*NOB+IR) = 2.0D0*BRT(IOFF-1+(IS-1)*NOB+IR)
+        ENDDO
+        ENDDO
+CNW     DO IR = 1, NOB
+CNW     DO IS = 1, NOB
+CNW       BRT(IOFF-1+(IS-1)*NOB + IR) = 2.0D0*
+CNW  &   (F(IOFF-1+(IS-1)*NOB + IR)-F(IOFF-1+(IR-1)*NOB + IS))
+CNW     END DO
+CNW     END DO
       END DO
 *
       NTEST = 00

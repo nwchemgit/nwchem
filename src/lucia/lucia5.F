@@ -2662,7 +2662,7 @@ c      INCLUDE 'mxpdim.inc'
       RETURN
       END
 *
-      SUBROUTINE TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
+      SUBROUTINE TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK,INFO)
 *
 * Switch between packed and unpacked form of a blocked matrix
 *

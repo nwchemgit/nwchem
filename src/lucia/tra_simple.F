@@ -1221,6 +1221,100 @@ C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
 *
       RETURN
       END
+      SUBROUTINE TRAN_SYM_BLOC_MAT4b
+     &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
+*
+* Transform a blocked matrix AIN with blocked matrices XL, XR
+*  X to yield blocked matrix AOUT
+*
+*
+* ISYM = 1 => Input and output are     triangular packed
+*      else=> Input and Output are not triangular packed
+*
+* Aout = XL(transposed) A XR
+*
+* Jeppe Olsen
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+*. Input
+      DIMENSION LX_ROW(NBLOCK),LX_COL(NBLOCK)
+      DIMENSION XL(*),XR(*)
+      integer AIN
+*. Output 
+      DIMENSION AOUT(*)
+*. Scratch : At least twice the length of largest block 
+      DIMENSION SCR(*)
+*
+*. To get rid of annoying and incorrect compiler warnings
+      IOFFP_IN = 0
+      IOFFC_IN = 0
+      IOFFP_OUT = 0 
+      IOFFC_OUT = 0
+      IOFFX = 0
+*
+      DO IBLOCK = 1, NBLOCK
+       IF(IBLOCK.EQ.1) THEN
+         IOFFP_IN = 1
+         IOFFC_IN = 1
+         IOFFP_OUT= 1
+         IOFFC_OUT= 1
+         IOFFX = 1
+       ELSE
+         IOFFP_IN = IOFFP_IN + LX_ROW(IBLOCK-1)*(LX_ROW(IBLOCK-1)+1)/2
+         IOFFC_IN = IOFFC_IN + LX_ROW(IBLOCK-1) ** 2                     
+         IOFFP_OUT= IOFFP_OUT+ LX_COL(IBLOCK-1)*(LX_COL(IBLOCK-1)+1)/2
+         IOFFC_OUT= IOFFC_OUT+ LX_COL(IBLOCK-1) ** 2                     
+         IOFFX = IOFFX + LX_ROW(IBLOCK-1)*LX_COL(IBLOCK-1)
+       END IF
+       LXR = LX_ROW(IBLOCK)
+       LXC = LX_COL(IBLOCK)
+       K1 = 1
+       K2 = 1 + MAX(LXR,LXC) ** 2
+*. Unpack block of A
+       SIGN = 1.0D0
+       IF(ISYM.EQ.1) THEN
+         CALL TRIPAK(SCR(K1),AIN(IOFFP_IN),2,LXR,LXR)
+C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
+       ELSE
+         call ga_get(AIN,IOFFC_IN,IOFFC_IN+LXR*LXR,1,1,SCR(K1),LXR*LXR)
+       END IF
+*. XL(T)(IBLOCK)A(IBLOCK)
+       ZERO = 0.0D0
+       ONE  = 1.0D0
+       CALL SETVEC(SCR(K2),ZERO,LXR*LXC)
+C?     WRITE(6,*) ' TEST : K2, IOFFX, K1, LXC, LXR ',
+C?   &                     K2, IOFFX, K1, LXC, LXR
+       CALL MATML7(SCR(K2),XL(IOFFX),SCR(K1),LXC,LXR,LXR,LXC,LXR,LXR,
+     &             ZERO,ONE,1)
+C?     WRITE(6,*) ' Half transformed matrix '
+C?     CALL WRTMAT(SCR(K2),LXC,LXR,LXC,LXR)
+
+*. XL(T) (IBLOCK) A(IBLOCK) XR(IBLOCK)
+       CALL SETVEC(SCR(K1),ZERO,LXC*LXC)
+       CALL MATML7(SCR(K1),SCR(K2),XR(IOFFX),LXC,LXC,LXC,LXR,LXR,LXC,
+     &             ZERO,ONE,0)
+C?     WRITE(6,*) ' Transformed matrix '
+C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
+*. Pack and transfer
+       IF(ISYM.EQ.1) THEN
+         CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
+       ELSE
+         CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
+       END IF
+*
+      END DO
+*
+      NTEST = 00
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*)
+        WRITE(6,*) ' output matrix TRAN_SYM_BLOC_MAT '
+        WRITE(6,*) ' ==============================='
+        WRITE(6,*)
+        CALL APRBLM2(AOUT,LX_COL,LX_COL,NBLOCK,ISYM)      
+      END IF
+*
+      RETURN
+      END
       FUNCTION I2EAD_NOCCSYM(IORB,JORB,KORB,LORB,NO12SYM)
 *
 * Find adress of integral in integral list without 

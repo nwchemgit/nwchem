@@ -1591,15 +1591,16 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Construct FIFA in WORK(KFI)
 *
-CBERT SKIPPED AS IT WON'T BE CALLED
       IF(IPART.NE.3) THEN
 *. Normal M-P Partitioning
         WRITE(6,*) 'Normal MP partitioning'
         WRITE(6,*) 'Normal MP partitioning'
         WRITE(6,*) 'Normal MP partitioning'
-        CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
-        CALL FIFAM(WORK(KFI))
-        CALL COPVEC(WORK(KFI),WORK(KFIO),NINT1)
+CNW     CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
+        call ga_copy(KINT1O,KFI)
+        CALL FIFAM(KFI)
+CNW     CALL COPVEC(WORK(KFI),WORK(KFIO),NINT1)
+        call ga_copy(KFI,KFIO)
         ECORE_H = 0.0D0
         IF(IUSE_PH.EQ.1) THEN
           CALL FI(KFI,ECORE_H,0)
@@ -4943,102 +4944,21 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
            STOP ' insufficient memory in cieig5 '
        END IF
 *
-       IF(IUSEH0P.EQ.1) THEN
-         WRITE(6,*) ' Special routine for H0 with projection '
-         WRITE(6,*) ' Special routine for H0 with projection '
-         WRITE(6,*) ' Special routine for H0 with projection '
-         WRITE(6,*) ' Special routine for H0 with projection '
-         WRITE(6,*) ' Special routine for H0 with projection '
-         CALL MICDV4_H0LVP(VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
-     &              EROOT     ,MXCIIT,NDIM,LU3,LU4,LU5,LUDIA,NROOT,
-     &              MAXVEC,NROOT,SCR1(KAPROJ),SCR1(KAVEC),
-     &              SCR1(KWORK) ,IPRT,
-     &              NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,LBLK,EIGSHF,
-     &              THRES_E)
-       ELSE IF (MPORENP_E.EQ.2) THEN
-         WRITE(6,*) ' Special routine for EN-Lambda calc   '
-         WRITE(6,*) ' Special routine for EN-Lambda calc   '
-         WRITE(6,*) ' Special routine for EN-Lambda calc   '
-         WRITE(6,*) ' Special routine for EN-Lambda calc   '
-         WRITE(6,*) ' Special routine for EN-Lambda calc   '
-         CALL MICDV4_ENLMD(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
-     &              EROOT     ,MXCIIT,NDIM,LU3,LU4,LU5,LUDIA,NROOT,
-     &              MAXVEC,NROOT,SCR1(KAPROJ),SCR1(KAVEC),
-     &              SCR1(KWORK) ,IPRT,
-     &              NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,LBLK,EIGSHF,
-     &              THRES_E)
-       ELSE
-       IF(IDIAG.EQ.1.AND.ICISTR.EQ.1) THEN
 *. Routine using two complete vectors in core
-         IOLSEN = 1
-         IPICO = 0
-         IF(MXCIIT.NE.0) THEN
+       IOLSEN = 1
+       IPICO = 0
+       IF(MXCIIT.NE.0) THEN
          CALL MINDV4(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
      &              EROOT     ,MXCIIT,NDIM,LU3,LUDIA,NROOT,
      &              MAXVEC,NROOT,SCR1(KAPROJ),SCR1(KAVEC),
      &              SCR1(KWORK) ,IPRT,
      &              NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,EIGSHF,
      &              IOLSEN,IPICO,CONVER,RNRM_CNV,IROOT_SEL)
-         ELSE 
+       ELSE 
 *. No iterations, set energy to 0
-           DO IROOT = 1, NROOT
-             EROOT(IROOT) = 0.0D0
-           END DO
-         END IF
-*. Routine with normal H0 operator
-       ELSE IF(IDIAG.EQ.1.AND.ICISTR.GE.2) THEN
-*
-*. Routines using two blocks in core and numerous vectors
-*
-        IF(NROOT.EQ.1.AND.MAXVEC.EQ.2) THEN
-*. Special routine for one root, 2 vectors
-         CALL MICDV5(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
-     &              EROOT     ,MXCIIT,NDIM,LU3,LU4,LU5,LUDIA,NROOT,
-     &              MAXVEC,NROOT,SCR1(KAPROJ),SCR1(KAVEC),
-     &              SCR1(KWORK) ,IPRT,
-     &              NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,LBLK,EIGSHF,
-     &              THRES_E,CONVER,RNRM_CNV)
-        ELSE IF ( MAXVEC.LE.3*NROOT) THEN 
-         CALL MICDV6(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
-     &              EROOT,MXCIIT,NDIM,LU3,LU4,LU5,LU6,LU7,LU8,
-     &              LUDIA,NROOT,
-     &              MAXVEC,NROOT,SCR1(KAPROJ),SCR1(KAVEC),
-     &              SCR1(KWORK) ,IPRT,
-     &              NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,LBLK,EIGSHF,
-     &              THRES_E,IROOT_SEL,NCNV_RT,SCR1(KLRTCNV),
-     &              IPRECOND,CONVER,RNRM_CNV,ISBSPPR_ACT)
-        ELSE IF(MAXVEC.GT.3*NROOT) THEN
-*. General diag
-C        WRITE(6,*) ' MICDV4 called '
-         CALL MICDV4(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
-     &              EROOT     ,MXCIIT,NDIM,LU3,LU4,LU5,LUDIA,NROOT,
-     &              MAXVEC,NROOT,SCR1(KAPROJ),SCR1(KAVEC),
-     &              SCR1(KWORK) ,IPRT,
-     &              NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,LBLK,EIGSHF,
-     &              THRES_E,CONVER,RNRM_CNV,ISBSPPR_ACT)
-         END IF
-       ELSE IF(IDIAG.EQ.2)  THEN
-*.Routine using two vector segments and three files
-         NSUB = 0
-         WRITE(6,*) ' ISKIPEI set to zero in CIEIG5'
-         ISKIPEI = 0
-         CALL PICO4(VEC1,VEC2,LU1,LU2,LU3,LU4,SCR1(KRNRM),
-     &        SCR1(KEIG),
-     &        EROOT,MXCIIT,NBATCH,
-     &        ICBLBT,ICLEBT,ICLBLK,ICI1BT,ICBLOCK,
-     &        ISBLBT,ISLEBT,ISLBLK,ISI1BT,ISBLOCK,
-     &        IPRT,
-     &        NPRDET,H0,IPNTR,NP1,NP2,NQ,H0SCR,LBLK,EIGSHF,
-     &        THRES_E,E_THRE,C_THRE,E_CONV,C_CONV,ICLSSEL,
-     &        IBLK_TO_CLS,NCLS,CLS_C,CLS_E,CLS_CT,CLS_ET,
-     &        CLS_A,ICLS_L,RCLS_L,BLKS_A,CLS_DEL,CLS_DELT,
-     &        CLS_GAMMA,CLS_GAMMAT,
-     &        ISKIPEI,I2BLK,VEC3,
-     &        ICLS_A2,MXLNG,IBASSPC,EBASC,CBASC,NSPC,
-     &        MULSPC,IPAT,LPAT,ISPC,CONVER,RNRM_CNV)
-
-
-       END IF
+         DO IROOT = 1, NROOT
+           EROOT(IROOT) = 0.0D0
+         END DO
        END IF
 *
        ENOT = SCR1(KFIN)
@@ -10812,7 +10732,7 @@ C 200 CONTINUE
       RETURN
       END
       
-      PROGRAM LUCIA
+      LOGICAL FUNCTION LUCIA
 *
 * L U C I A 
 *
@@ -11079,12 +10999,11 @@ C          Z_BASSPC_FOR_ALL_OCCLS(IOCCLS,NOCCLS,IBASSPC)
 * Construct the information on the strings 
 * =========================================
 *
-CBERT WEAREHERE
+CBERT THIS NEEDS TO BE ADDRESSED. ACCESS WITHOUT ALLOCATION
       CALL STRINF_GAS(WORK,IPRSTR)
 *
 *. Dimensions for all occupation classes
       IF(NOCSF.EQ.0) THEN 
-C?      CALL GEN_INFO_FOR_ALL_OCSBLS
         CALL GEN_INFO_FOR_ALL_OCCLS(I_DO_SBCNF)
       END IF
 *
@@ -11705,12 +11624,6 @@ C    &  ' Number of calculation in this CI space ', NSEQCI(JCMBSPC)
           WRITE(6,*) '   Modified operator will be used'
           WRITE(6,*) '   Modified operator will be used'
           WRITE(6,*) ' =================================='
-CMO       IF(JCMBSPC.EQ.2) THEN
-*. Obtain modified operator for lambda calculations
-CMO         WRITE(6,*) ' Operator will be modified '
-CMO         CALL GENH1(XLAMBDA)
-CMO         CALL SCLH2(XLAMBDA)
-CMO       END IF
         END IF
 *
         IF(JCMBSPC.EQ.2.AND.IRESTR_ORIG.EQ.1.AND.XLAMBDA.NE.1.0D0)  THEN
@@ -11821,358 +11734,7 @@ C           WRITE(6,*) ' Vectors will be expanded '
      &                  -1,LUSC53,
      &                  1,1,IDC,IPRDIA)
             END IF
-* ==
-* CI        
-* ==
-          IF(CARD(1:2).EQ.'CI') THEN
-            IF(JSEQ.EQ.1.AND.JCMBSPC.EQ.2.AND.IRST2.EQ.0) THEN
-*. No restart from previous vectors - IRST2 has been set to zero
-              IRESTR = 0
-              WRITE(6,*) ' No restart from previous vectors'
-            END IF
-*. Good old normal CI !!!!
-*. do CI in space JCMBPSC
-            MAXIT_SAVE = MAXIT
-            MAXIT = ISEQCI(JSEQ,JCMBSPC)
-            IROOT_SEL_SAVE = IROOT_SEL
-            IF(IRESTR.EQ.0) THEN
-*. Root selection is not used in  iterative procedure
-              IROOT_SEL = 0
-*. Initial CI, should a larger number of roots be used
-              NROOT_SAVE = NROOT
-              MXCIV_SAVE = MXCIV
-              NROOT = INI_NROOT
-              MXCIV = MAX(3*NROOT,MXCIV_SAVE)
-              NCNV_RT_SAVE = NCNV_RT
-              NCNV_RT = INI_NROOT
-              WRITE(6,*) ' INI_*ROOT option in action '
-            END IF ! special setting for initial CI
-*
-            CALL GASCI(IREFSM,JCMBSPC,IPRDIA,IIUSEH0P,
-     &                 MPORENP_E,
-     &                 EREF,ERROR_NORM_FINAL,CONV_F)
-*. If special settings has used modify and reset
-            IROOT_SEL = IROOT_SEL_SAVE 
-            IF(IRESTR.EQ.0) THEN
-*. Reset parameters
-              NROOT = NROOT_SAVE
-              MXCIV = MXCIV_SAVE
-              NCNV_RT = NCNV_RT_SAVE
-            END IF
-*
-            I_HAVE_DONE_GAS = 1
-*. A CI calculation has been performed, the default is 
-* now to restart following calcs from this
-            IRESTR = 1
-            EREF_CI = EREF
-*
-            E_FINAL_T(JSEQ,JCMBSPC) = EREF
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = ERROR_NORM_FINAL
-            CONV_T(JSEQ,JCMBSPC) = CONV_F
-*
-            MAXIT = MAXIT_SAVE
-*. Transform CI coefficients to CC form
-            IF(I_DO_CI_TO_CC.EQ.1.AND.JCMBSPC.GT.1) THEN
-              CALL CI_TO_CC_REFRM(LU_CC_FROM_CI,LUC,JCMBSPC,IREFSM)
-            END IF
-*. Modified one-electron operator in first it
-            IF(XLAMBDA.NE.1.0D0 .AND.JCMBSPC.EQ.1) THEN      
-*. 
-              IF(IUSEH0P.EQ.1) THEN
-*. Perturbation operator will be of type PFP + E0|0><0|,
-*. obtain E0 and save |0>
-              CALL GET_E0(E0,EREF)
-              WRITE(6,*) ' zero-order energy =', E0
-*. Prepare for perturbation calculation 
-              SHIFT = 0.0D0
-              IPROJ = 1
-              CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'VCSAVE')
-              LBLOCK = MXSOOB
-              CALL MEMMAN(KVEC1,LBLOCK,'ADDS  ',2,'VEC1  ')
-*. Copy vectors from LUC to LUSC51
-              CALL REWINO(LUC)
-              CALL REWINO(LUSC51)
-              LBLK = -1
-              CALL SKPVCD(LUC,IH0ROOT-1,dbl_mb(KVEC1),1,LBLK) 
-              CALL COPVCD(LUC,LUSC51,dbl_mb(KVEC1),0,LBLK)
-C?            WRITE(6,*) ' First vector copied to LUSC51'
-C?            CALL WRTVCD(WORK(KVEC1),LUSC51,1,LBLK)
-              CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
-              IIUSEH0P = 1
-             END IF
-             IF(IUSEH0P.EQ.0.AND.MPORENP.EQ.1) THEN
-*. Obtain modified operator for lambda calculations
-                WRITE(6,*) ' Operator will be modified '
-                CALL GENH1(XLAMBDA)
-                CALL SCLH2(XLAMBDA)
-              END IF
-            END IF
-*. Transform CI coeffficients
-            IF(ITRACI.NE.0) THEN
-              WRITE(6,*) ' Control will be transferred to TRACI_CTL'
-              CALL TRACI_CTL
-            END IF
-*. Last space where vectors were stored
-            ISTOSPC = JCMBSPC
-*. Test orbital Hessian routines
-C            CALL TEST_E12
-*
-* =======================
-* Vector free Calculation
-* =======================
-*
-          ELSE IF (CARD(1:7).EQ. 'VECFREE'     ) THEN
-         
-            WRITE(6,'(A,I3)') ' Vector free calculation at level ',
-     &                          -ISEQCI(JSEQ,JCMBSPC)
-            LEVEL =  -ISEQCI(JSEQ,JCMBSPC)
-*. Should the first order correction be explicitly constructed ?
-            IF(IC1DSC.LE.0) THEN
-              LU1EFF = 0
-            ELSE
-              LU1EFF = LUHC
-            END IF
-            WRITE(6,*) ' LU1EFF in MAIN ', LU1EFF
-*
-            CALL DIRDIR(JCMBSPC-1,JCMBSPC,IREFSM,LUC,LEVEL,EREF,
-     &                  LUSC2,LUSC3,LU1EFF,EOUT)
-            E_FINAL_T(JSEQ,JCMBSPC) = EOUT
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = 0.0D0
-            CONV_T(JSEQ,JCMBSPC) = .TRUE.
-*
-* ================================
-* General perturbation calculation
-* ================================
-*
-          ELSE IF (CARD(1:5).EQ.'PERTU'      ) THEN 
-            WRITE(6,'(A)') ' Perturbation calculation '
-            CALL PERTCTL(IREFSM,JCMBSPC,EREF,EFINAL)
-            E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = 0.0D0
-            CONV_T(JSEQ,JCMBSPC) = .TRUE.
-
-            IF( NPROP.GT.0) THEN
-*. Perturbation expansion of properties 
-              CALL PROP_PERT(LUC,LUSC36,NPERT,IREFSM,JCMBSPC)
-C                  PROP_PERT(LU0,LUN,N,ISM,ISPC)
-            END IF
-            IF(IPTFOCK.NE.0) THEN
-              CALL PTFOCK(LUC,LUSC36,NPERT,IREFSM,JCMBSPC)
-            END IF
-*. also perturbation expansion of EKT ??
-            IF(IPTEKT.EQ.1) THEN
-              WRITE(6,*) ' Perturbation expansion of EKT '
-              WRITE(6,*) ' ============================= '
-              CALL PTEKT(LUC,LUSC36,NPERT,IREFSM,JCMBSPC)
-            END IF
-          ELSE IF(CARD(1:2).EQ.'CC' .OR. 
-     &            CARD(1:6).EQ.'GEN_CC'.OR.
-     &            CARD(1:3).EQ.'TCC'.OR.
-     &            CARD(1:3).EQ.'ECC'.OR.
-     &            CARD(1:3).EQ.'VCC'.OR.
-     &            CARD(1:3).EQ.'UCC'    ) THEN
-*
-* ============================
-* Coupled Cluster calculation 
-* ============================
-*
-            MAXIT_SAVE = MAXIT
-            MAXIT = ISEQCI(JSEQ,JCMBSPC)
-*
-            IF(I_HAVE_DONE_CC.EQ.1.OR.IRES_EXC.EQ.1) THEN
-             II_RES_EXC   = 1
-            ELSE
-             II_RES_EXC   = 0
-            END IF
-*
-            IF(I_HAVE_DONE_CC.EQ.1.OR.I_RESTRT_CC.EQ.1) THEN
-             II_RESTRT_CC = 1
-            ELSE
-             II_RESTRT_CC = 0
-            END IF
-*. Transfer expanded cc wf to LUC in the last CC calc
-            IF(I_DO_CC_TO_CI.EQ.1.AND.
-     &         JCMBSPC.EQ.LAST_CC_SPC.AND.JSEQ.EQ.LAST_CC_RUN) THEN
-              I_TRANS_WF = 1
-            ELSE
-              I_TRANS_WF = 0
-            END IF
-*. If CMPCCI has been specified, comparison between CC vector expanded 
-*  in the actual CI space and a CI vector on LU17 is 
-*  done in the last space where 
-            IF(JCMBSPC.EQ.LAST_CC_SPC.AND.JSEQ.EQ.LAST_CC_RUN.AND.
-     &        I_DO_CMPCCI.EQ.1) THEN
-              I_TRANS_WF = 1
-              II_DO_CMPCCI = 1
-            ELSE
-              II_DO_CMPCCI = 0
-            END IF
-       
-            WRITE(6,*) ' LAST_CC_SPC, LAST_CC_RUN = ',
-     &                   LAST_CC_SPC, LAST_CC_RUN 
-            WRITE(6,*) ' JCMBSPC, JSEQ, I_TRANS_WF = ', 
-     &                   JCMBSPC, JSEQ, I_TRANS_WF
-            WRITE(6,*) ' I_DO_CMPCCI, II_DO_CMPCCI = ',
-     &                   I_DO_CMPCCI, II_DO_CMPCCI
-*
-            IF(I_HAVE_DONE_CC.EQ.0.AND.IRFROOT.NE.1) THEN
-*. In initial CI, the reference root was an excited root, 
-*. obtain this state as first root on LUC
-              CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'VCSAVE')
-              LBLOCK = MXSOOB
-              CALL MEMMAN(KVEC1,LBLOCK,'ADDS  ',2,'VEC1  ')
-*. Copy vectors from LUC to LUSC51
-              CALL REWINO(LUC)
-              CALL REWINO(LUSC51)
-              LBLK = -1
-              CALL SKPVCD(LUC,IRFROOT-1,dbl_mb(KVEC1),1,LBLK) 
-              CALL COPVCD(LUC,LUSC51,dbl_mb(KVEC1),0,LBLK)
-              CALL REWINO(LUC)
-              CALL REWINO(LUSC51)
-              CALL COPVCD(LUSC51,LUC,dbl_mb(KVEC1),0,LBLK)
-              CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
-            END IF
-*
-COLD        IF(CARD(1:2).EQ.'CC') THEN
-COLD          CALL LUCIA_CC(IREFSM,JCMBSPC,IPRDIA,EREF,II_RESTRT_CC,
-COLD &                      I_TRANS_WF)
-            IF( CARD(1:2) .EQ. 'CC' .OR. CARD(1:6).EQ.'GEN_CC'.OR.
-     &          CARD(1:3).EQ.'TCC'.OR.
-     &          CARD(1:3).EQ.'ECC'.OR.
-     &          CARD(1:3).EQ.'VCC'.OR.
-     &          CARD(1:3).EQ.'UCC'    ) THEN
-*. From Febr 2003, The use of CC implies that the newer codes are used, 
-*   where the T space equals the CISPACE so 
-              IF(CARD(1:2) .EQ. 'CC') THEN
-                ITSPC = JCMBSPC
-              ELSE 
-                ITSPC  = ISEQCI2(JSEQ,JCMBSPC)
-              END IF
-              CCFORM_REM(1:3) = CCFORM(1:3)
-              CCFORM(4:6) = '   '
-              I_DO_NEWCCV_REM = I_DO_NEWCCV
-              ISIMTRH_REM     = ISIMTRH
-              IUSE_PH_REM     = IUSE_PH
-              IF (CARD(1:4).EQ.'UCC2'.OR.
-     &            (CARD(1:3).EQ.'ECC'.AND.
-     &             CARD(4:4).NE.' '.AND.
-     &             CARD(4:4).NE.'-')) THEN
-                CCFORM(1:4) = CARD(1:4)
-                ! optimized orbitals?
-                IF (CARD(5:6).EQ.'-O') THEN
-                  I_OOCC = 1
-                ELSE
-                  I_OOCC = 0
-                END IF
-                IF (CARD(5:6).EQ.'-H') THEN
-                  I_OBCC = 1  ! triggering OO/Brueckner-hybrid
-                ELSE
-                  I_OBCC = 0
-                END IF
-                ! brueckner orbitals?
-                IF (CARD(5:6).EQ.'-B') THEN
-                  I_BCC = 1
-                ELSE
-                  I_BCC = 0
-                END IF
-              ELSE IF (CARD(1:3).EQ.'TCC'.OR.
-     &            CARD(1:3).EQ.'ECC'.OR.
-     &            CARD(1:3).EQ.'VCC'.OR.
-     &            CARD(1:3).EQ.'UCC'    ) THEN
-                CCFORM(1:3) = CARD(1:3)
-                ! optimized orbitals?
-                IF (CARD(4:5).EQ.'-O') THEN
-                  I_OOCC = 1
-                ELSE
-                  I_OOCC = 0
-                END IF
-                IF (CARD(4:5).EQ.'-H') THEN
-                  I_OBCC = 1  ! triggering OO/Brueckner-hybrid
-                  IF (CARD(1:3).EQ.'VCC') THEN
-                    WRITE(6,*)
-     &                   'VCC-H makes no sense, changing to VCC-O!'
-                    I_OBCC=0
-                    I_OOCC=1
-                  END IF
-                ELSE
-                  I_OBCC = 0
-                END IF
-                ! brueckner orbitals?
-                IF (CARD(4:5).EQ.'-B') THEN
-                  I_BCC = 1
-                ELSE
-                  I_BCC = 0
-                END IF
-              END IF
-              IF (
-     &            CARD(1:3).EQ.'VCC'.OR.
-     &            CARD(1:3).EQ.'UCC'    ) THEN
-                CCFORM(1:3) = CARD(1:3)
-                I_DO_NEWCCV = 0
-                ISIMTRH = 0
-                IUSE_PH = 0
-              END IF
-
-              CALL LUCIA_GENCC(IREFSM,ITSPC,JCMBSPC,IPRDIA,
-     &                         II_RESTRT_CC,I_TRANS_WF,II_RES_EXC,
-     &                         II_DO_CMPCCI,LTARGET,
-     &                         E_FINAL,ERROR_NORM_FINAL,CONV_F)
-              I_HAVE_DONE_GAS = 1
-*
-              E_FINAL_T(JSEQ,JCMBSPC) = E_FINAL
-              ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = ERROR_NORM_FINAL
-              CONV_T(JSEQ,JCMBSPC) = CONV_F
-*
-              MAXIT = MAXIT_SAVE 
-              CCFORM(1:3) = CCFORM_REM(1:3)
-              I_DO_NEWCCV = I_DO_NEWCCV_REM
-              ISIMTRH     = ISIMTRH_REM
-              IUSE_PH     = IUSE_PH_REM
-            END IF
-            I_HAVE_DONE_CC = 1
-*
-* ==========================================
-* Internal contracted CI, PT or CC calculation 
-* ==========================================
-*
-          ELSE IF(CARD(1:2).EQ.'IC') THEN
-*. reference energy is energy of previous reference state CI-calculation-
-            EREF = EREF_CI
-            IF(IEI_VERSION .EQ. 0) THEN 
-              CALL LUCIA_IC(ISTOSPC,JCMBSPC,CARD,EREF,0,
-     &                      EFINAL,CONV_F,VNFINAL)
-            ELSE
-              CALL LUCIA_IC_EI(ISTOSPC,JCMBSPC,CARD,EREF,0,
-     &                         EFINAL,CONV_F,VNFINAL)
-            END IF
-            E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
-            CONV_T(JSEQ,JCMBSPC) = CONV_F
-          ELSE IF(CARD(1:3).EQ.'GIC') THEN
-*. Generalized internal contraction....
-*. Assumed no EI first time around
-            CALL LUCIA_GIC(CARD,EREF,EFINAL,CONV_F,VNFINAL)
-            E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
-            CONV_T(JSEQ,JCMBSPC) = CONV_F
-          ELSE IF(CARD(1:6).EQ.'CUMULA') THEN
-*
-* ==========================================
-* Calculation of cumulant matrices 
-* ==========================================
-*
-            CALL LUCIA_IC(JCMBSPC,JCMBSPC,CARD,EREF,1,
-     &                    EFINAL,CONVER,VNFINAL)
-   
-          ELSE IF(CARD(1:7).EQ.'TWOBODY') THEN
-c            CALL LUCIA_LSQUARE(ISEQCI2(JSEQ,JCMBSPC),
-c     &                JCMBSPC,ISEQCI(JSEQ,JCMBSPC))
-            CALL LUCIA_GTBCE(ISEQCI2(JSEQ,JCMBSPC),
-     &                JCMBSPC,ISEQCI(JSEQ,JCMBSPC))
-          ELSE IF(CARD(1:6).EQ.'SP_MCL' ) THEN
-             WRITE(6,*) ' Next stop: SP_MCLR '
-             CALL SP_MCLR(IREFSM,JCMBSPC)
-          ELSE IF(CARD(1:5).EQ.'MCSCF'  ) THEN
+          IF(CARD(1:5).EQ.'MCSCF'  ) THEN
 *
 * ===================
 *. MCSCF calculation
@@ -12198,90 +11760,6 @@ c     &                JCMBSPC,ISEQCI(JSEQ,JCMBSPC))
              ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
              CONV_T(JSEQ,JCMBSPC) = CONV_F
              ISTOSPC = JCMBSPC
-          ELSE IF(CARD(1:6).EQ.'NORTCI' ) THEN
-*
-* ==========================================
-* Nonorthogonal CI calculations 
-* ==========================================
-*
-            MAXIT = ISEQCI(JSEQ,JCMBSPC)
-            IVBGNSP = ISEQCI2(JSEQ,JCMBSPC)
-            I_DO_NONORT_MCSCF = 0
-*. Forced cold start for test
-COLD        IRESTR = 0
-            CALL LUCIA_NORT(I_DO_NONORT_MCSCF,
-     &           JCMBSPC,EFINAL,CONV_F,VNFINAL,INI_NORT,IVBGNSP,
-     &           IVBGNSP_PREV)
-            INI_NORT = 0
-            E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
-            CONV_T(JSEQ,JCMBSPC) = CONV_F
-*. Allow restart for CI in given combination space
-             IRESTR = 1
-             IVBGNSP_PREV = IVBGNSP
-          ELSE IF(CARD(1:6).EQ.'NORTMC' ) THEN
-*
-* ==========================================
-* Nonorthogonal MCSCF calculations 
-* ==========================================
-*
-            MAXIT_MAC = ISEQCI(JSEQ,JCMBSPC)
-            MAXIT_MIC = ISEQCI2(JSEQ,JCMBSPC)
-C           MAXIT = MAXIT_MIC
-            IVBGNSP = 0
-            I_DO_NONORT_MCSCF = 1
-            CALL LUCIA_NORT(I_DO_NONORT_MCSCF,
-     &           JCMBSPC,EFINAL,CONV_F,VNFINAL,INI_NORT,IVBGNSP)
-            INI_NORT = 0
-            E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
-            CONV_T(JSEQ,JCMBSPC) = CONV_F
-*. Allow restart for CI in given combination space
-             IRESTR = 1
-             IVBGNSP_PREV = IVBGNSP
-
-          ELSE IF (CARD(1:2).EQ.'HF') THEN
-*
-* =========================
-* Hartree-Fock calculation 
-* =========================
-*
-            MAXIT_HF = ISEQCI(JSEQ,JCMBSPC)
-            WRITE(6,*) ' MAXIT_HF = ', MAXIT_HF
-            CALL LUCIA_HF(IREFSM,JCMBSPC,MAXIT_HF,
-     &            E_HF,E1_FINAL,CONV_F)
-            E_FINAL_T(JSEQ,JCMBSPC) = E_HF
-            CONV_T(JSEQ,JCMBSPC) = CONV_F
-            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = -1.0D0
-          ELSE IF(CARD(1:6).EQ.'AKBKCI') THEN
-*
-* ================
-* AKBKCI calculation 
-* ================
-*
-            write(6,*) 'I am entering AKBK'
-            CALL AKBKCI(JCMBSPC,IPRDIA,
-     &                 EREF,ERROR_NORM_FINAL,CONV_F)
-             E_FINAL_T(JSEQ,JCMBSPC) = EREF
-             ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = 
-     &       ERROR_NORM_FINAL
-             CONV_T(JSEQ,JCMBSPC) = CONV_F
-          ELSE IF(CARD(1:6).EQ.'AKBKMC') THEN
-*
-* ======================
-* AKBKMCSCF calculation 
-* ======================
-*
-             MAXMAC = ISEQCI(JSEQ,JCMBSPC)
-             MAXMIC = ISEQCI2(JSEQ,JCMBSPC)
-             CALL LUCIA_AKMCSCF(IREFSM,JCMBSPC,MAXMAC,MAXMIC,
-     &                        EFINAL,CONV_F,VNFINAL)
-             I_HAVE_DONE_GAS = 1
-             E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
-             ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
-             CONV_T(JSEQ,JCMBSPC) = CONV_F
-             ISTOSPC = JCMBSPC
-   
           END IF
 *         ^ End of switch between types of calculations
         END DO
@@ -28870,13 +28348,12 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
 CNW     CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
         call ga_print(KFI)
       END IF
-CBERT ALSO USED GA TO GA
       CALL FA_FROM_INIINT
      &(KFA,dbl_mb(KMOMO),dbl_mb(KMOMO),dbl_mb(KRHO1),1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
-CBERT TWO GAs INTO MA WHAREHERE
+CBERT TWO GAs SUMMED INTO MA TODO
       CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
