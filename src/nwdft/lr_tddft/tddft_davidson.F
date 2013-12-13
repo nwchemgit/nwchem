@@ -209,13 +209,13 @@ c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
         if (.not.tda) 
      1    g_qd(i)=ga_create_atom_blocked
      2      (geom,ao_bas_han,'B product density')
-        if (.not.ga_create(mt_dbl,nov(i),nresiduals,
+        if (.not.ga_create(mt_dbl,max(1,nov(i)),nresiduals,
      1    'residual vectors 1',-1,nresiduals,g_residuals_1(i)))
      2    call errquit
      3    ('tddft_davidson: failed to create g_residuals_1',0, GA_ERR)
         call ga_zero(g_residuals_1(i))
         if (.not.tda) then
-          if (.not.ga_create(mt_dbl,nov(i),nresiduals,
+          if (.not.ga_create(mt_dbl,max(1,nov(i)),nresiduals,
      1      'residual vectors 2',-1,nresiduals,g_residuals_2(i)))
      2      call errquit
      3      ('tddft_davidson: failed to create g_residuals_2',0, GA_ERR)

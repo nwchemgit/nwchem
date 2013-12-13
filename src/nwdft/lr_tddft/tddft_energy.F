@@ -155,7 +155,7 @@ c ----------------------------------------------------
 c
       if ((algorithm.eq.1).or.(algorithm.eq.2)) then
         do i=1,ipol
-          if (.not.ga_create(mt_dbl,nov(i),maxvecs,
+          if (.not.ga_create(mt_dbl,max(1,nov(i)),maxvecs,
      1      'trial vectors',-1,maxvecs,g_trials(i)))
      2      call errquit('tddft_energy: failed to create g_trials',0,
      &       GA_ERR)
@@ -177,7 +177,7 @@ c -----------------------------------------------------------
 c
       else if ((algorithm.eq.3).or.(algorithm.eq.4)) then
         do i=1,ipol
-          if (.not.ga_create(mt_dbl,nov(i),1,
+          if (.not.ga_create(mt_dbl,max(1,nov(i)),1,
      1      'buffer vector 1',-1,1,g_buffer1(i)))
      2      call errquit('tddft_energy: failed to create g_buffer1',0,
      &       GA_ERR)
