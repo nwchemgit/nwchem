@@ -624,7 +624,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 #include "stdio.fh"
 #include "util.fh"
 
-      logical allow_translation,lprint,mprint
+      logical allow_translation,lprint,mprint,dprint,debug
       integer MASTER
       parameter (MASTER=0)
       integer i,k,taskid,nion,nion1
@@ -657,31 +657,37 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
 
+      call Parallel_taskid(taskid)
+      debug  = control_print(print_debug)
+      dprint = ((taskid.eq.MASTER).and.control_print(print_debug))
+      mprint = ((taskid.eq.MASTER).and.control_print(print_high))
+      lprint = ((taskid.eq.MASTER).and.control_print(print_medium))
+
 c*     **** debug ****
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      call psi_1force_local(G1)
-c      call write_force(nion,G1,"local")
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      call psi_1force_nonlocal(G1)
-c      call write_force(nion,G1,"nonlocal")
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      if (psp_semicore(0)) call electron_semicoreforce(G1)
-c      call write_force(nion,G1,"xc")
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      if (control_version().eq.3) call ewald_f(G1)
-c      if (control_version().eq.4) call ion_ion_f(G1)
-c      call write_force(nion,G1,"ewald ")
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      if (pspw_qmmm_found()) call pspw_qmmm_LJ_fion(G1)
-c      call write_force(nion,G1,"LJ ")
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      if (pspw_qmmm_found()) call pspw_qmmm_Q_fion(G1)
-c      call write_force(nion,G1,"Q ")
-
-c      call dcopy(3*nion,0.0d0,0,G1,1)
-c      call psi_1force_psp_U_v_nonlocal(G1)
-c      call write_force(nion,G1,"psp_U_v_nonlocal")
-
+       if (debug) then
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          call psi_1force_local(G1)
+          if (dprint) call write_force(nion,G1,"local")
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          call psi_1force_nonlocal(G1)
+          if (dprint) call write_force(nion,G1,"nonlocal")
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          if (psp_semicore(0)) call electron_semicoreforce(G1)
+          if (dprint) call write_force(nion,G1,"xc")
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          if (control_version().eq.3) call ewald_f(G1)
+          if (control_version().eq.4) call ion_ion_f(G1)
+          if (dprint) call write_force(nion,G1,"ewald ")
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          if (pspw_qmmm_found()) call pspw_qmmm_LJ_fion(G1)
+          if (dprint) call write_force(nion,G1,"LJ ")
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          if (pspw_qmmm_found()) call pspw_qmmm_Q_fion(G1)
+          if (dprint) call write_force(nion,G1,"Q ")
+          call dcopy(3*nion,0.0d0,0,G1,1)
+          call psi_1force_psp_U_v_nonlocal(G1)
+          if (dprint) call write_force(nion,G1,"psp_U_v_nonlocal")
+       end if
 c*     **** debug ****
       
       call dcopy(3*nion,0.0d0,0,G1,1)
@@ -693,6 +699,7 @@ c*     **** debug ****
       if (control_version().eq.4) call ion_ion_f(G1)
       if (pspw_qmmm_found()) call pspw_qmmm_fion(G1)
       if (ion_disp_on()) call ion_disp_force(G1)
+
 
       if (pspw_charge_found()) then
         if(pspw_bqext()) then
@@ -727,9 +734,6 @@ c*     **** debug ****
          if (fatom.gt.fmax)  fmax = fatom
       end do
 
-      call Parallel_taskid(taskid)
-      mprint = ((taskid.eq.MASTER).and.control_print(print_high))
-      lprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
       if (taskid.eq.MASTER) then
         if (mprint) then
