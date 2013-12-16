@@ -2791,7 +2791,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *     *** local variables ***
       integer G(3),npack1,nion,nu
-      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart,ll1
+      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart,ll1,jjp
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
@@ -2903,11 +2903,12 @@ c     **** define Gx,Gy and Gz in packed space ****
       call dscal(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
 
 *     **** apply the sw2 to psi ****
-      jp  = 0
+      jjp  = 0
       do iip=1,nion_prj_indx,nprj_mult 
+         l1  = 0
+         ll1 = 0
 
          swstart = int_mb(swstart_prj_indx(1)+iip-1)
-         l1      = 0
          iipmax  = (iip+nprj_mult-1)
          if (iipmax.gt.nion_prj_indx) iipmax = nion_prj_indx
 
@@ -2920,10 +2921,10 @@ c     **** define Gx,Gy and Gz in packed space ****
             call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
             do l=1,nproj
-               shift       = int_mb(shift_prj_indx(1)+jp)
-               l_prj       = int_mb(l_prj_prj_indx(1)+jp)
-               sd_function = log_mb(sd_function_prj_indx(1)+jp)
-               jp = jp + 1
+               shift       = int_mb(shift_prj_indx(1)+jjp)
+               l_prj       = int_mb(l_prj_prj_indx(1)+jjp)
+               sd_function = log_mb(sd_function_prj_indx(1)+jjp)
+               jjp = jjp + 1
 
 *              **** phase factor does not matter therefore ****
 *              **** (-i)^l is the same as (i)^l in the     ****
@@ -2960,7 +2961,6 @@ c     **** define Gx,Gy and Gz in packed space ****
          end do
 
 
-         ll1 = 0
          do ip=iip,iipmax
             ii    = int_mb(ii_prj_indx(1)+ip-1)
             ia    = int_mb(ia_prj_indx(1)+ip-1)
@@ -2983,12 +2983,12 @@ c     **** define Gx,Gy and Gz in packed space ****
 
                !**** fractional weighting ****
                if (fractional) then
-                do n=1,nn
+               do n=1,nn
                 call Dneall_qton(n,i)
                 dbl_mb(tsum(1)+     n-1)=dbl_mb(tsum(1)+     n-1)*occ(i)
                 dbl_mb(tsum(1)+  nn+n-1)=dbl_mb(tsum(1)+  nn+n-1)*occ(i)
                 dbl_mb(tsum(1)+2*nn+n-1)=dbl_mb(tsum(1)+2*nn+n-1)*occ(i)
-                end do
+               end do
                end if
  
                ff(1)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
@@ -2998,13 +2998,14 @@ c     **** define Gx,Gy and Gz in packed space ****
                ff(3)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
      >                             dbl_mb(tsum(1)+2*nn),1)
 
+               call D1dB_Vector_SumAll(3,ff)
+               fion(1,ii) = fion(1,ii) + ff(1)*(3-ispin)
+               fion(2,ii) = fion(2,ii) + ff(2)*(3-ispin)
+               fion(3,ii) = fion(3,ii) + ff(3)*(3-ispin)
+
                ll1 = ll1 + 1
             end do !** l **
 
-            call D1dB_Vector_SumAll(3,ff)
-            fion(1,ii) = fion(1,ii) + ff(1)*(3-ispin)
-            fion(2,ii) = fion(2,ii) + ff(2)*(3-ispin)
-            fion(3,ii) = fion(3,ii) + ff(3)*(3-ispin)
          end do !** ip **
 
       end do !** iip **
