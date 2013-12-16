@@ -2793,9 +2793,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       integer G(3),npack1,nion,nu
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
       integer k,shift,l_prj,nproj,Gijl_indx
-      real*8  omega,scal
+      real*8  omega,scal,ff(3)
       complex*16 ctmp
-      integer exi(2),xtmp(2),tsum(2),ff(2)
+      integer exi(2),xtmp(2),tsum(2)
       logical value,sd_function
       real*8 vmm(50)
       integer ld_ptr
@@ -2823,11 +2823,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       value = value.and.MA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
       value = value.and.MA_push_get(mt_dbl,3*nn,'tsum',tsum(2),tsum(1))
-      value = value.and.MA_push_get(mt_dbl,3*nion,'ff',ff(2),ff(1))
       if (.not.value) 
      >  call errquit('f_vnonlocal:out of stack',0, MA_ERR)
       call dcopy(3*nn,0.0d0,0,dbl_mb(tsum(1)),1)
-      call dcopy(3*nion,0.0d0,0,dbl_mb(ff(1)),1)
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
@@ -2961,6 +2959,7 @@ c     **** define Gx,Gy and Gz in packed space ****
             end do
          end do
 
+
          l1 = 0
          do ip=iip,iipmax
             ii    = int_mb(ii_prj_indx(1)+ip-1)
@@ -2992,26 +2991,25 @@ c     **** define Gx,Gy and Gz in packed space ****
                 end do
                end if
  
-               dbl_mb(ff(1)+3*(ii-1)) =
-     >                2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
-     >                              dbl_mb(tsum(1)),1)
-               dbl_mb(ff(1)+3*(ii-1)+1) = 
-     >                 2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
-     >                              dbl_mb(tsum(1)+nn),1)
-               dbl_mb(ff(1)+3*(ii-1)+2) =
-     >                2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
-     >                              dbl_mb(tsum(1)+2*nn),1)
+               ff(1)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+     >                             dbl_mb(tsum(1)),1)
+               ff(2)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+     >                             dbl_mb(tsum(1)+nn),1)
+               ff(3)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+     >                             dbl_mb(tsum(1)+2*nn),1)
 
                l1 = l1 + 1
             end do !** l **
+
+            call D1dB_Vector_SumAll(3,ff)
+            fion(1,ii) = fion(1,ii) + ff(1)*(3-ispin)
+            fion(2,ii) = fion(2,ii) + ff(2)*(3-ispin)
+            fion(3,ii) = fion(3,ii) + ff(3)*(3-ispin)
          end do !** ip **
 
       end do !** iip **
-      call D1dB_Vector_SumAll(3*nion,dbl_mb(ff(1)))
-      call daxpy(3*nion,dble(3-ispin),dbl_mb(ff(1)),1,fion,1)
 
-      value =           MA_pop_stack(ff(2))
-      value = value.and.MA_pop_stack(tsum(2))
+      value =           MA_pop_stack(tsum(2))
       value = value.and.MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('f_vnonlocal: popping stack',3,
