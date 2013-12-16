@@ -15,6 +15,7 @@ module load micsetup
 module load intel
 module load impi
 module load nwchem/6.3
+unset PYTHONHOME
 export NWCHEM_TOP=`pwd`/..
 bcastf $NWCHEM_TOP/bin/LINUX64/nwchem /scratch/nwchem
 export NONSTD_MPI=y
