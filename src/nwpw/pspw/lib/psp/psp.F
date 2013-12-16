@@ -1454,16 +1454,14 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
            end if
 
            if (move) then
-ccccccc#ifndef CRAY
-ccccccc!DIR$ ivdep
-ccccccc#endif
-c             do i=1,npack0
-c                dbl_mb(xtmp(1)+i-1) 
-c     >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
-c     >           - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
-c             end do
-            call Pack_cct_iconjgMul(0,dcpl_mb(vtmp(1)),dng,
-     >                                dbl_mb(xtmp(1)))
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+             do i=1,npack0
+                dbl_mb(xtmp(1)+i-1) 
+     >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
+     >           - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
+             end do
             call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
             call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
             call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
@@ -1566,16 +1564,14 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                      dcpl_mb(exi(1)),
      >                      dcpl_mb(vtmp(1)))
 
-c#ifndef CRAY
-c!DIR$ ivdep
-c#endif
-c            do i=1,npack0
-c              dbl_mb(xtmp(1)+i-1) 
-c     >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
-c     >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
-c           end do
-           call Pack_cct_iconjgMul(0,dcpl_mb(vtmp(1)),dng,
-     >                               dbl_mb(xtmp(1)))
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+            do i=1,npack0
+              dbl_mb(xtmp(1)+i-1) 
+     >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
+     >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
+           end do
            call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
            call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
            call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
@@ -2791,11 +2787,11 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *     *** local variables ***
       integer G(3),npack1,nion,nu
-      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart,ll1,jjp
+      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
-      integer exi(2),xtmp(2),tsum(2)
+      integer exi(2),xtmp(2),sum(2)
       logical value,sd_function
       real*8 vmm(50)
       integer ld_ptr
@@ -2822,10 +2818,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       value = MA_push_get(mt_dcpl,npack1,'exi',exi(2), exi(1))
       value = value.and.MA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-      value = value.and.MA_push_get(mt_dbl,3*nn,'tsum',tsum(2),tsum(1))
+      value = value.and.MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       if (.not.value) 
      >  call errquit('f_vnonlocal:out of stack',0, MA_ERR)
-      call dcopy(3*nn,0.0d0,0,dbl_mb(tsum(1)),1)
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
@@ -2903,12 +2898,11 @@ c     **** define Gx,Gy and Gz in packed space ****
       call dscal(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
 
 *     **** apply the sw2 to psi ****
-      jjp  = 0
+      jp  = 0
       do iip=1,nion_prj_indx,nprj_mult 
-         l1  = 0
-         ll1 = 0
 
          swstart = int_mb(swstart_prj_indx(1)+iip-1)
+         l1      = 0
          iipmax  = (iip+nprj_mult-1)
          if (iipmax.gt.nion_prj_indx) iipmax = nion_prj_indx
 
@@ -2921,10 +2915,10 @@ c     **** define Gx,Gy and Gz in packed space ****
             call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
             do l=1,nproj
-               shift       = int_mb(shift_prj_indx(1)+jjp)
-               l_prj       = int_mb(l_prj_prj_indx(1)+jjp)
-               sd_function = log_mb(sd_function_prj_indx(1)+jjp)
-               jjp = jjp + 1
+               shift       = int_mb(shift_prj_indx(1)+jp)
+               l_prj       = int_mb(l_prj_prj_indx(1)+jp)
+               sd_function = log_mb(sd_function_prj_indx(1)+jp)
+               jp = jp + 1
 
 *              **** phase factor does not matter therefore ****
 *              **** (-i)^l is the same as (i)^l in the     ****
@@ -2960,7 +2954,7 @@ c     **** define Gx,Gy and Gz in packed space ****
             end do
          end do
 
-
+         l1 = 0
          do ip=iip,iipmax
             ii    = int_mb(ii_prj_indx(1)+ip-1)
             ia    = int_mb(ia_prj_indx(1)+ip-1)
@@ -2969,48 +2963,50 @@ c     **** define Gx,Gy and Gz in packed space ****
             do l=1,nproj
                do n=1,nn
                   call Pack_cct_iconjgMul(1,
-     >                               dcpl_mb(prjtmp(1)+ll1*npack1),
+     >                               dcpl_mb(prjtmp(1)+l1*npack1),
      >                               psi1(1+(n-1)*npack1),
      >                               dbl_mb(xtmp(1)))
-                  call Pack_tt_idot(1,dbl_mb(G(1)),dbl_mb(xtmp(1)),
-     >                                dbl_mb(tsum(1)+     n-1))
-                  call Pack_tt_idot(1,dbl_mb(G(2)),dbl_mb(xtmp(1)),
-     >                                dbl_mb(tsum(1)+  nn+n-1))
-                  call Pack_tt_idot(1,dbl_mb(G(3)),dbl_mb(xtmp(1)),
-     >                                dbl_mb(tsum(1)+2*nn+n-1))
+                 call Pack_tt_idot(1,dbl_mb(G(1)),dbl_mb(xtmp(1)),
+     >                             dbl_mb(sum(1)+3*(n-1)))
+                 call Pack_tt_idot(1,dbl_mb(G(2)),dbl_mb(xtmp(1)),
+     >                             dbl_mb(sum(1)+1+3*(n-1)))
+                 call Pack_tt_idot(1,dbl_mb(G(3)),dbl_mb(xtmp(1)),
+     >                             dbl_mb(sum(1)+2+3*(n-1)))
+
                end do
-               call D3dB_Vector_SumAll(3*nn,dbl_mb(tsum(1)))
+               call D3dB_Vector_SumAll(3*(nn),dbl_mb(sum(1)))
 
                !**** fractional weighting ****
                if (fractional) then
-               do n=1,nn
-                call Dneall_qton(n,i)
-                dbl_mb(tsum(1)+     n-1)=dbl_mb(tsum(1)+     n-1)*occ(i)
-                dbl_mb(tsum(1)+  nn+n-1)=dbl_mb(tsum(1)+  nn+n-1)*occ(i)
-                dbl_mb(tsum(1)+2*nn+n-1)=dbl_mb(tsum(1)+2*nn+n-1)*occ(i)
-               end do
+                do n=1,nn
+                 call Dneall_qton(n,i)
+                 dbl_mb(sum(1)+3*(n-1))  
+     >              =dbl_mb(sum(1)  +3*(n-1))*occ(i)
+                 dbl_mb(sum(1)+1+3*(n-1))
+     >              =dbl_mb(sum(1)+1+3*(n-1))*occ(i)
+                 dbl_mb(sum(1)+2+3*(n-1))
+     >              =dbl_mb(sum(1)+2+3*(n-1))*occ(i)
+                end do
                end if
  
-               ff(1)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
-     >                             dbl_mb(tsum(1)),1)
-               ff(2)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
-     >                             dbl_mb(tsum(1)+nn),1)
-               ff(3)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
-     >                             dbl_mb(tsum(1)+2*nn),1)
-
+               ff(1) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+     >                              dbl_mb(sum(1)),3)
+               ff(2) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+     >                              dbl_mb(sum(1)+1),3)
+               ff(3) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+     >                              dbl_mb(sum(1)+2),3)
                call D1dB_Vector_SumAll(3,ff)
-               fion(1,ii) = fion(1,ii) + ff(1)*(3-ispin)
-               fion(2,ii) = fion(2,ii) + ff(2)*(3-ispin)
-               fion(3,ii) = fion(3,ii) + ff(3)*(3-ispin)
+               fion(1,ii) = fion(1,ii)  + ff(1)*(3-ispin)
+               fion(2,ii) = fion(2,ii)  + ff(2)*(3-ispin)
+               fion(3,ii) = fion(3,ii)  + ff(3)*(3-ispin)
 
-               ll1 = ll1 + 1
+               l1 = l1 + 1
             end do !** l **
-
          end do !** ip **
 
       end do !** iip **
 
-      value =           MA_pop_stack(tsum(2))
+      value =           MA_pop_stack(sum(2))
       value = value.and.MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('f_vnonlocal: popping stack',3,
