@@ -41,6 +41,48 @@ task dft energy
 
 dft
   vectors input atomic
+  xc xbecke97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xbecke97-1
+end
+task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97-2
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97-3
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97-d
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke98
+#end
+#task dft energy
+
+dft
+  vectors input atomic
   xc optx
 end
 task dft energy
@@ -263,6 +305,48 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hfexch cbecke97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch cbecke97-1
+end
+task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97-2
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97-3
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97-d
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke98
+#end
+#task dft energy
+
+dft
+  vectors input atomic
   xc hfexch lyp
 end
 task dft energy
@@ -418,6 +502,48 @@ end
 task dft energy
 
 # GGA exchange-correlation
+
+dft
+  vectors input atomic
+  xc becke97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-1
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-2
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-3
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-d
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97gga1
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke98
+end
+task dft energy
 
 dft
   vectors input atomic
