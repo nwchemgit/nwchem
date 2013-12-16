@@ -2791,7 +2791,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *     *** local variables ***
       integer G(3),npack1,nion,nu
-      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
+      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart,ll1
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
@@ -2960,7 +2960,7 @@ c     **** define Gx,Gy and Gz in packed space ****
          end do
 
 
-         l1 = 0
+         ll1 = 0
          do ip=iip,iipmax
             ii    = int_mb(ii_prj_indx(1)+ip-1)
             ia    = int_mb(ia_prj_indx(1)+ip-1)
@@ -2969,7 +2969,7 @@ c     **** define Gx,Gy and Gz in packed space ****
             do l=1,nproj
                do n=1,nn
                   call Pack_cct_iconjgMul(1,
-     >                               dcpl_mb(prjtmp(1)+l1*npack1),
+     >                               dcpl_mb(prjtmp(1)+ll1*npack1),
      >                               psi1(1+(n-1)*npack1),
      >                               dbl_mb(xtmp(1)))
                   call Pack_tt_idot(1,dbl_mb(G(1)),dbl_mb(xtmp(1)),
@@ -2991,14 +2991,14 @@ c     **** define Gx,Gy and Gz in packed space ****
                 end do
                end if
  
-               ff(1)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+               ff(1)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
      >                             dbl_mb(tsum(1)),1)
-               ff(2)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+               ff(2)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
      >                             dbl_mb(tsum(1)+nn),1)
-               ff(3)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
+               ff(3)=2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+ll1)*nn),1,
      >                             dbl_mb(tsum(1)+2*nn),1)
 
-               l1 = l1 + 1
+               ll1 = ll1 + 1
             end do !** l **
 
             call D1dB_Vector_SumAll(3,ff)
