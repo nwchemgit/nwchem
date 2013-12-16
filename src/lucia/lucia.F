@@ -1301,8 +1301,17 @@ CNW   CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NMSOB,1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
-CBERT WEAREHERE
-      CALL VECSUM(dbl_mn(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+CNW   CALL VECSUM(dbl_mn(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+      call ga_distribution(KFI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(KFI, ilo, ihi, 1, 1, ikfi, idum)
+      call ga_access(KFA, ilo, ihi, 1, 1, ikfa, idum)
+      do i = 0, NINT1-1
+         dbl_mb(KLMAT1+i) = dbl_mb(ikfi+i) + dbl_mb(ikfa+i)
+      enddo
+      call ga_release(KFI,ilo,ihi,1,1)
+      call ga_release(KFA,ilo,ihi,1,1)
+      call ga_dgop(1, dbl_mb(KLMAT1), NINT1, '+')
+*
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
       IF(NTEST.GE.10) THEN
@@ -2248,13 +2257,11 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
       IF(IPRCIX.GE.2) 
      &WRITE(6,*) ' Space for two resolution matrices ',2*LSCR2
       LSCR12 = MAX(LBLOCK,2*LSCR2)  
-CBERT VECTOR DOUBLES!!! LOCAL
       CALL MEMMAN(KVEC3,LSCR12,'ADDL  ',2,'KC2   ')
       IF(IPRCIX.GE.3) WRITE(6,'(A,3(2X, I9))')
      &  'MXCJ,MXCIJA,MXCIJB,MXCIJAB = ',
      &   MXCJ,MXCIJA,MXCIJB,MXCIJAB
 *
-CBERT VECTOR DOUBLES!!! LOCAL
       CALL MEMMAN(KVEC1,LBLOCK,'ADDL  ',2,'VEC1  ')
       CALL MEMMAN(KVEC2,LBLOCK,'ADDL  ',2,'VEC2  ')
 C...dongxia  so KVEC1P and KVEC2P also local
@@ -2412,7 +2419,7 @@ C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
          CALL REWINO(LUDIA)
 C?     WRITE(6,*) ' WORK(KPDIA_SD) before TODSC =', WORK(KPDIA_SD)
          CALL TODSC(KPDIA_SD,NVAR,NVAR,LUDIA)
-CBERT Need to write to GA disk resident array
+CBERT SHOULD NOT BE CALLED                     
        END IF
 *
        IF(IIUSEH0P.EQ.1) THEN
@@ -10999,8 +11006,9 @@ C          Z_BASSPC_FOR_ALL_OCCLS(IOCCLS,NOCCLS,IBASSPC)
 * Construct the information on the strings 
 * =========================================
 *
-CBERT THIS NEEDS TO BE ADDRESSED. ACCESS WITHOUT ALLOCATION
-      CALL STRINF_GAS(WORK,IPRSTR)
+CBERT PASSING WORK IS WEIRD AS IT IS INCLUDED IN THE ROUTINE
+CNW   CALL STRINF_GAS(WORK,IPRSTR)
+      CALL STRINF_GAS(IPRSTR)
 *
 *. Dimensions for all occupation classes
       IF(NOCSF.EQ.0) THEN 
@@ -11878,7 +11886,8 @@ C?   &               WORK(KINT1), WORK(KINT2)
       IDUM=0
       CALL MEMMAN(IDUM,IDUM,'STATI',IDUM,'END   ')
 C?    CALL RELEASE_WRKSPC()
-      STOP ' I am home from  the loops '
+      LUCIA = .TRUE.
+      RETURN
       END
       SUBROUTINE MATCAS(CIN,COUT,NROWI,NROWO,IROWO1,NGCOL,ISCA,SCASGN)
 *
@@ -12764,10 +12773,10 @@ c      INCLUDE 'mxpdim.inc'
 *
         if (NL.gt.MARKL(NM)) then
            if (.not. ma_chop_stack(IBASEL(MARKL(NM)+1))) call
-     $      errquit('MEMMAN: ma heap flush mark failed', 911, MA_ERR)
+     $      errquit('MEMMAN: ma stack flush mark failed', 911, MA_ERR)
         endif
         if (NS.gt.MARKS(NM)) then
-           if (.not. ma_chop_stack(IBASES(MARKS(NM)+1))) call
+           if (.not. ma_free_heap(IBASES(MARKS(NM)+1))) call
      $      errquit('MEMMAN: ma heap flush mark failed', 911, MA_ERR)
         endif
         NL = MARKL(NM)
@@ -13103,7 +13112,7 @@ C?      WRITE(6,*) ' Number of blocks ', NBLOCK
       IF(NOCSF.EQ.0.AND.ICNFBAT.GE.2) THEN
 *. Obtain scratch files for saving combination forms of C and Sigma
 C             FILEMAN_MINI(IFILE,ITASK)
-CBERT TO DO
+CBERT SHOULD NOT BE CALLED
          CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
          CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
          IF(NTEST.GE.1000)  THEN
@@ -15151,7 +15160,7 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
 C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
           IF(ICISTR.NE.1) THEN
             CALL ITODS(LEN,1,-1,LUHC)
-CBERT TO DO
+CBERT SHOULD NOT BE CALLED
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
             call ga_put(SV,IOFF_S,IOFF_S+LEN,1,1,SB(IOFF),LEN)
@@ -28353,8 +28362,17 @@ CNW     CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
       KINT2_A(IE2ARR_F)  = KINT2_FSAVE
 *
       ONE = 1.0D0
-CBERT TWO GAs SUMMED INTO MA TODO
-      CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+CNW   CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+      call ga_distribution(KFI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(KFI, ilo, ihi, 1, 1, ikfi, idum)
+      call ga_access(KFA, ilo, ihi, 1, 1, ikfa, idum)
+      do i = 0, NINT1-1
+         dbl_mb(KLMAT1+i) = dbl_mb(ikfi+i) + dbl_mb(ikfa+i)
+      enddo
+      call ga_release(KFI,ilo,ihi,1,1)
+      call ga_release(KFA,ilo,ihi,1,1)
+      call ga_dgop(1, dbl_mb(KLMAT1), NINT1, '+')
+*
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
       IF(NTEST.GE.1000) THEN
