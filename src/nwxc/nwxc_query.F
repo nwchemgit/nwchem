@@ -452,6 +452,34 @@ c
            cdata = "GILL Exchange (PMW Gill, "
      +             //"Mol.Phys. 89, 433 (1996) "
      +             //"doi:10.1080/002689796173813)"
+         case (NWXCP_X_HCTH)
+           cdata = "HCTH Exchange (FA Hamprecht, A Cohen, "
+     +             //"DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)"
+     +             //" doi:10.1063/1.477267)"
+         case (NWXCP_X_HCTH120)
+           cdata = "HCTH120 Exchange (AD Boese, NL Doltsinis, "
+     +             //"NC Handy, M Sprik, J.Chem.Phys. 112, 1670 (2000)"
+     +             //" doi:10.1063/1.480732)"
+         case (NWXCP_X_HCTH147)
+           cdata = "HCTH147 Exchange (AD Boese, NL Doltsinis, "
+     +             //"NC Handy, M Sprik, J.Chem.Phys. 112, 1670 (2000)"
+     +             //" doi:10.1063/1.480732)"
+         case (NWXCP_X_HCTH407)
+           cdata = "HCTH407 Exchange (AD Boese, "
+     +             //"NC Handy, J.Chem.Phys. 114, 5497 (2001)"
+     +             //" doi:10.1063/1.1347371)"
+         case (NWXCP_X_HCTH407P)
+           cdata = "HCTH407P Exchange (AD Boese, A Chandra, JML Martin,"
+     +             //" D Marx, J.Chem.Phys. 119, 5965 (2003)"
+     +             //" doi:10.1063/1.1599338)"
+         case (NWXCP_X_HCTH_A)
+           cdata = "HCTH(AC) Exchange (DJ Tozer, NC Handy, "
+     +             //"J.Chem.Phys. 109, 10180 (1998)"
+     +             //" doi:10.1063/1.477711)"
+         case (NWXCP_X_HCTHP14)
+           cdata = "HCTHP14 Exchange (G Menconi, PJ Wilson, "
+     +             //"DJ Tozer, J.Chem.Phys. 114, 3958 (2001)"
+     +             //" doi:10.1063/1.1342776)"
          case (NWXCP_X_M05)
            cdata = "M05 Exchange (Y Zhao, NE Schultz, DG Truhlar, "
      +             //"J.Chem.Phys. 123, 161103 (2005)"
@@ -603,6 +631,34 @@ c
            cdata = "FT97 Correlation (M Filatov, W Thiel, "
      +             //"Int.J.Quant.Chem. 62, 603 (1997) doi:10.1002/(SIC"
      +             //"I)1097-461X(1997)62:6<603::AID-QUA4>3.0.CO;2-#)"
+         case (NWXCP_C_HCTH)
+           cdata = "HCTH Correlation (FA Hamprecht, A Cohen, "
+     +             //"DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)"
+     +             //" doi:10.1063/1.477267)"
+         case (NWXCP_C_HCTH120)
+           cdata = "HCTH120 Correlation (AD Boese, NL Doltsinis, "
+     +             //"NC Handy, M Sprik, J.Chem.Phys. 112, 1670 (2000)"
+     +             //" doi:10.1063/1.480732)"
+         case (NWXCP_C_HCTH147)
+           cdata = "HCTH147 Correlation (AD Boese, NL Doltsinis, "
+     +             //"NC Handy, M Sprik, J.Chem.Phys. 112, 1670 (2000)"
+     +             //" doi:10.1063/1.480732)"
+         case (NWXCP_C_HCTH407)
+           cdata = "HCTH407 Correlation (AD Boese, "
+     +             //"NC Handy, J.Chem.Phys. 114, 5497 (2001)"
+     +             //" doi:10.1063/1.1347371)"
+         case (NWXCP_C_HCTH407P)
+           cdata = "HCTH407P Correlation (AD Boese, A Chandra, "
+     +             //"JML Martin, D Marx, J.Chem.Phys. 119, 5965 (2003)"
+     +             //" doi:10.1063/1.1599338)"
+         case (NWXCP_C_HCTH_A)
+           cdata = "HCTH(AC) Correlation (DJ Tozer, NC Handy, "
+     +             //"J.Chem.Phys. 109, 10180 (1998)"
+     +             //" doi:10.1063/1.477711)"
+         case (NWXCP_C_HCTHP14)
+           cdata = "HCTHP14 Correlation (G Menconi, PJ Wilson, "
+     +             //"DJ Tozer, J.Chem.Phys. 114, 3958 (2001)"
+     +             //" doi:10.1063/1.1342776)"
          case (NWXCP_C_OPT)
            cdata = "OPT Correlation (NC Handy, AJ Cohen, "
      +             //"Mol.Phys. 99, 607 (2001)"
@@ -778,6 +834,34 @@ c
            cdata = "FT97 (M Filatov, W Thiel, "
      +             //"Mol.Phys. 91, "
      +             //"847 (1997) doi:10.1080/002689797170950)"
+         case (NWXCP_HCTH)
+           cdata = "HCTH (FA Hamprecht, A Cohen, "
+     +             //"DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)"
+     +             //" doi:10.1063/1.477267)"
+         case (NWXCP_HCTH120)
+           cdata = "HCTH120 (AD Boese, NL Doltsinis, "
+     +             //"NC Handy, M Sprik, J.Chem.Phys. 112, 1670 (2000)"
+     +             //" doi:10.1063/1.480732)"
+         case (NWXCP_HCTH147)
+           cdata = "HCTH147 (AD Boese, NL Doltsinis, "
+     +             //"NC Handy, M Sprik, J.Chem.Phys. 112, 1670 (2000)"
+     +             //" doi:10.1063/1.480732)"
+         case (NWXCP_HCTH407)
+           cdata = "HCTH407 (AD Boese, "
+     +             //"NC Handy, J.Chem.Phys. 114, 5497 (2001)"
+     +             //" doi:10.1063/1.1347371)"
+         case (NWXCP_HCTH407P)
+           cdata = "HCTH407P (AD Boese, A Chandra, "
+     +             //"JML Martin, D Marx, J.Chem.Phys. 119, 5965 (2003)"
+     +             //" doi:10.1063/1.1599338)"
+         case (NWXCP_HCTH_A)
+           cdata = "HCTH(AC) (DJ Tozer, NC Handy, "
+     +             //"J.Chem.Phys. 109, 10180 (1998)"
+     +             //" doi:10.1063/1.477711)"
+         case (NWXCP_HCTHP14)
+           cdata = "HCTHP14 (G Menconi, PJ Wilson, "
+     +             //"DJ Tozer, J.Chem.Phys. 114, 3958 (2001)"
+     +             //" doi:10.1063/1.1342776)"
          case (NWXCP_LDA)
            cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
