@@ -3373,6 +3373,8 @@ c
        lcfac(6)  = .true.
         cfac(6)  = 1.0d0
 c
+      goto 10
+c
 c     kt1: Keal-Tozer functional nr. 2
 c
  4701 xccomb(47) = .true.
