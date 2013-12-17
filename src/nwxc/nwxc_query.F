@@ -388,6 +388,34 @@ c
            cdata = "Becke88 Exchange (AD Becke, "
      +             //"Phys.Rev.A 38, 3098 (1988)"
      +             //" doi:10.1103/PhysRevA.38.3098)"
+         case (NWXCP_X_B97)
+           cdata = "B97 Exchange (AD Becke, "
+     +             //"J.Chem.Phys. 107, 8554 (1997)"
+     +             //" doi:10.1063/1.475007)"
+         case (NWXCP_X_B97_1)
+           cdata = "B97-1 Exchange (FA Hamprecht, A Cohen, DJ Tozer, "
+     +             //"NC Handy, J.Chem.Phys. 109, 6264 (1998)"
+     +             //" doi:10.1063/1.477267)"
+         case (NWXCP_X_B97_2)
+           cdata = "B97-2 Exchange (PJ Wilson, TJ Bradley, DJ Tozer, "
+     +             //"J.Chem.Phys. 115, 9233 (2001)"
+     +             //" doi:10.1063/1.1412605)"
+         case (NWXCP_X_B97_3)
+           cdata = "B97-3 Exchange (TW Keal, DJ Tozer, "
+     +             //"J.Chem.Phys. 123, 121103 (2005)"
+     +             //" doi:10.1063/1.2061227)"
+         case (NWXCP_X_B97_D)
+           cdata = "B97-D Exchange (S Grimme, "
+     +             //"J.Comp.Chem. 27, 1787 (2006)"
+     +             //" doi:10.1002/jcc.20495)"
+         case (NWXCP_X_B97_G)
+           cdata = "B97-GGA1 Exchange (AJ Cohen, NC Handy, "
+     +             //"Chem.Phys.Lett. 316, 160 (2000)"
+     +             //" doi:10.1016/S0009-2614(99)01273-7)"
+         case (NWXCP_X_B98)
+           cdata = "B98 Exchange (HL Schmider, AD Becke, "
+     +             //"J.Chem.Phys. 108, 9624 (1998)"
+     +             //" doi:10.1063/1.476438)"
          case (NWXCP_X_BNL)
            cdata = "BNL Exchange (R Baer, D Neuhauser, E Livshits, "
      +             //"Phys.Chem.Chem.Phys. 9, 2932 (2007)"
@@ -531,6 +559,34 @@ c
            cdata = "B95 Correlation (AD Becke, "
      +             //"J.Chem.Phys. 104, 1040 (1996)"
      +             //" doi:10.1063/1.4708298)"
+         case (NWXCP_C_B97)
+           cdata = "B97 Correlation (AD Becke, "
+     +             //"J.Chem.Phys. 107, 8554 (1997)"
+     +             //" doi:10.1063/1.475007)"
+         case (NWXCP_C_B97_1)
+           cdata = "B97-1 Correlation (FA Hamprecht, A Cohen, "
+     +             //"DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)"
+     +             //" doi:10.1063/1.477267)"
+         case (NWXCP_C_B97_2)
+           cdata = "B97-2 Correlation (PJ Wilson, TJ Bradley, "
+     +             //"DJ Tozer, J.Chem.Phys. 115, 9233 (2001)"
+     +             //" doi:10.1063/1.1412605)"
+         case (NWXCP_C_B97_3)
+           cdata = "B97-3 Correlation (TW Keal, DJ Tozer, "
+     +             //"J.Chem.Phys. 123, 121103 (2005)"
+     +             //" doi:10.1063/1.2061227)"
+         case (NWXCP_C_B97_D)
+           cdata = "B97-D Correlation (S Grimme, "
+     +             //"J.Comp.Chem. 27, 1787 (2006)"
+     +             //" doi:10.1002/jcc.20495)"
+         case (NWXCP_C_B97_G)
+           cdata = "B97-GGA1 Correlation (AJ Cohen, NC Handy, "
+     +             //"Chem.Phys.Lett. 316, 160 (2000)"
+     +             //" doi:10.1016/S0009-2614(99)01273-7)"
+         case (NWXCP_C_B98)
+           cdata = "B98 Correlation (HL Schmider, AD Becke, "
+     +             //"J.Chem.Phys. 108, 9624 (1998)"
+     +             //" doi:10.1063/1.476438)"
          case (NWXCP_C_CAMS12G)
            cdata = "CAM-S12g Correlation (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"
@@ -678,6 +734,34 @@ c
            cdata = "BLYP"
          case (NWXCP_B0LYP)
            cdata = "B0LYP (ACM0 variant of BLYP)"
+         case (NWXCP_B97)
+           cdata = "B97 (AD Becke, "
+     +             //"J.Chem.Phys. 107, 8554 (1997)"
+     +             //" doi:10.1063/1.475007)"
+         case (NWXCP_B97_1)
+           cdata = "B97-1 (FA Hamprecht, A Cohen, "
+     +             //"DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)"
+     +             //" doi:10.1063/1.477267)"
+         case (NWXCP_B97_2)
+           cdata = "B97-2 (PJ Wilson, TJ Bradley, "
+     +             //"DJ Tozer, J.Chem.Phys. 115, 9233 (2001)"
+     +             //" doi:10.1063/1.1412605)"
+         case (NWXCP_B97_3)
+           cdata = "B97-3 (TW Keal, DJ Tozer, "
+     +             //"J.Chem.Phys. 123, 121103 (2005)"
+     +             //" doi:10.1063/1.2061227)"
+         case (NWXCP_B97_D)
+           cdata = "B97-D (S Grimme, "
+     +             //"J.Comp.Chem. 27, 1787 (2006)"
+     +             //" doi:10.1002/jcc.20495)"
+         case (NWXCP_B97_G)
+           cdata = "B97-GGA1 (AJ Cohen, NC Handy, "
+     +             //"Chem.Phys.Lett. 316, 160 (2000)"
+     +             //" doi:10.1016/S0009-2614(99)01273-7)"
+         case (NWXCP_B98)
+           cdata = "B98 (HL Schmider, AD Becke, "
+     +             //"J.Chem.Phys. 108, 9624 (1998)"
+     +             //" doi:10.1063/1.476438)"
          case (NWXCP_CAMS12G)
            cdata = "CAM-S12g (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"

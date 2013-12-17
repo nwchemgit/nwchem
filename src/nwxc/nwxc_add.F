@@ -182,6 +182,35 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_B88,0.75d0*dfweight)
         nwxc_wght_hf = nwxc_wght_hf + 0.25d0*dfweight
+      else if (dfname.eq."xbecke97") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B97,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.1943d0*dfweight
+      else if (dfname.eq."xbecke97-1") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B97_1,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_1,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.2100d0*dfweight
+      else if (dfname.eq."xbecke97-2") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B97_2,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_2,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.2100d0*dfweight
+      else if (dfname.eq."xbecke97-3") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B97_3,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_3,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.269288d0*dfweight
+      else if (dfname.eq."xbecke97-d") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_B97_D,dfweight)
+      else if (dfname.eq."xbecke97gga1") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_B97_G,dfweight)
+      else if (dfname.eq."xbecke98") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B98,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B98,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.219847d0*dfweight
       else if (dfname.eq."optx") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_OPT,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -347,6 +376,20 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_cam_srhfex = .false.
       else if (dfname.eq."xvs98") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_VS98,dfweight)
+      else if (dfname.eq."cbecke97") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97,dfweight)
+      else if (dfname.eq."cbecke97-1") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_1,dfweight)
+      else if (dfname.eq."cbecke97-2") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_2,dfweight)
+      else if (dfname.eq."cbecke97-3") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_3,dfweight)
+      else if (dfname.eq."cbecke97-d") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_D,dfweight)
+      else if (dfname.eq."cbecke97gga1") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_G,dfweight)
+      else if (dfname.eq."cbecke98") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_B98,dfweight)
       else if (dfname.eq."ccams12g".or.dfname.eq."ccam-s12g") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_C_CAMS12G,dfweight)
         nwxc_add_df = nwxc_add_df .and. 
@@ -494,6 +537,53 @@ c    &                nwxc_add_func(NWXCP_C_VWN5,0.19d0*dfweight)
 c       nwxc_add_df = nwxc_add_df .and.
 c    &                nwxc_add_func(NWXCP_C_PW91,0.81d0*dfweight)
 c       nwxc_wght_hf    = 0.20d0
+      else if (dfname.eq."becke97") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B97,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B97,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.1943d0*dfweight
+      else if (dfname.eq."becke97-1") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B97_1,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_1,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B97_1,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.2100d0*dfweight
+      else if (dfname.eq."becke97-2") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B97_2,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_2,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B97_2,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.2100d0*dfweight
+      else if (dfname.eq."becke97-3") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B97_3,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_3,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B97_3,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.269288d0*dfweight
+      else if (dfname.eq."becke97-d") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_B97_D,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_D,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B97_D,dfweight)
+      else if (dfname.eq."becke97gga1") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_B97_G,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B97_G,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B97_G,dfweight)
+      else if (dfname.eq."becke98") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B98,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B98,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_B98,dfweight)
+        nwxc_wght_hf = nwxc_wght_hf + 0.219847d0*dfweight
       else if (dfname.eq."cams12g".or.dfname.eq."cam-s12g") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_CAMS12G,dfweight)
         nwxc_add_df = nwxc_add_df .and.

@@ -326,6 +326,57 @@ C
            case (NWXCP_X_B88)
              call nwxc_x_b88(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B97)
+             param(1) = 2.0d0
+             param(2) = 0.80940d+00
+             param(3) = 0.50730d+00
+             param(4) = 0.74810d+00
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B97_1)
+             param(1) = 2.0d0
+             param(2) = 0.789518d+00
+             param(3) = 0.573805d+00
+             param(4) = 0.660975d+00
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B97_2)
+             param(1) = 2.0d0
+             param(2) = 0.827642D+00
+             param(3) = 0.478400D-01
+             param(4) = 0.176125D+01
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B97_3)
+             param(1) = 4.0d0
+             param(2) = 7.334648D-01
+             param(3) = 2.925270D-01
+             param(4) = 3.338789D+00
+             param(5) =-1.051158D+01
+             param(6) = 1.060907D+01
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B97_D)
+             param(1) = 2.0d0
+             param(2) = 1.086620d+0
+             param(3) =-0.521270d+00
+             param(4) = 3.254290d+00
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B97_G)
+             param(1) = 2.0d0
+             param(2) = 1.1068d0
+             param(3) =-0.8765d0
+             param(4) = 4.2639d0
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_B98)
+             param(1) = 2.0d0
+             param(2) = 0.790194d00
+             param(3) = 0.400271d00
+             param(4) = 0.832857d00
+             call nwxc_x_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_BNL)
              param(1) = nwxc_cam_gamma
              call nwxc_x_bnl(param,nwxc_rho_tol,ipol,nq,
@@ -747,6 +798,80 @@ c            parameters D
              param(2) = 0.038d0
              call nwxc_c_b95(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_B97)
+             param(1) = 2.0d0
+             param(2) = 0.17370d+00
+             param(3) = 0.94540d+00
+             param(4) = 0.23487d+01
+             param(5) = 0.74710d+00
+             param(6) =-0.24868d+01
+             param(7) =-0.45961d+01
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_B97_1)
+             param(1) = 2.0d0
+             param(2) = 0.820011d-01
+             param(3) = 0.955689d+00
+             param(4) = 0.271681d+01
+             param(5) = 0.788552d+00
+             param(6) =-0.287103d+01
+             param(7) =-0.547869d+01
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_B97_2)
+             param(1) = 2.0d0
+             param(2) = 0.585808D+00
+             param(3) = 0.999849D+00
+             param(4) =-0.691682D+00
+             param(5) = 0.140626D+01
+             param(6) = 0.394796D+00
+             param(7) =-0.744060D+01
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_B97_3)
+             param(1)  = 4.0d0
+             param(2)  = 5.623649D-01
+             param(3)  = 1.133830D+00
+             param(4)  =-1.322980D+00
+             param(5)  =-2.811967D+00
+             param(6)  = 6.359191D+00
+             param(7)  = 7.431302D+00
+             param(8)  =-7.464002D+00
+             param(9)  =-1.969342D+00
+             param(10) = 1.827082D+00
+             param(11) =-1.174423D+01
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_B97_D)
+             param(1) = 2.0d0
+             param(2) = 0.22340d+00
+             param(3) = 0.690410d+00
+             param(4) =-1.562080d+00
+             param(5) = 6.302700d00
+             param(6) = 1.942930d+0
+             param(7) =-14.97120d+00
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_B97_G)
+             param(1) = 2.0d0
+             param(2) = 0.4883d0
+             param(3) = 0.7961d0
+             param(4) =-2.117d0
+             param(5) = 5.7060d0
+             param(6) = 2.3235d0
+             param(7) =-14.9820d0
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_C_B98)
+             param(1) = 2.0d0
+             param(2) =-0.120163d00
+             param(3) = 0.934715d00
+             param(4) = 2.82332d0
+             param(5) = 1.14105d0
+             param(6) =-2.59412d0
+             param(7) =-5.33398d0
+             call nwxc_c_b97(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_DLDF)
              call nwxc_c_dldf(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)

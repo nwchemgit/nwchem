@@ -30,8 +30,29 @@ c
       integer NWXCP_X_B0         !< The B0 exchange functional
       parameter (NWXCP_X_B0 = NWXCP_X_B88 + 1)
 c
+      integer NWXCP_X_B97        !< The B97 exchange functional 
+      parameter (NWXCP_X_B97 = NWXCP_X_B0 + 1)
+c
+      integer NWXCP_X_B97_1      !< The B97-1 exchange functional 
+      parameter (NWXCP_X_B97_1 = NWXCP_X_B97 + 1)
+c
+      integer NWXCP_X_B97_2      !< The B97-2 exchange functional 
+      parameter (NWXCP_X_B97_2 = NWXCP_X_B97_1 + 1)
+c
+      integer NWXCP_X_B97_3      !< The B97-3 exchange functional 
+      parameter (NWXCP_X_B97_3 = NWXCP_X_B97_2 + 1)
+c
+      integer NWXCP_X_B97_D      !< The B97-D exchange functional 
+      parameter (NWXCP_X_B97_D = NWXCP_X_B97_3 + 1)
+c
+      integer NWXCP_X_B97_G      !< The B97-G exchange functional 
+      parameter (NWXCP_X_B97_G = NWXCP_X_B97_D + 1)
+c
+      integer NWXCP_X_B98        !< The B98 exchange functional 
+      parameter (NWXCP_X_B98 = NWXCP_X_B97_G + 1)
+c
       integer NWXCP_X_BNL        !< The BNL 2007  exchange functional
-      parameter (NWXCP_X_BNL = NWXCP_X_B0 + 1)
+      parameter (NWXCP_X_BNL = NWXCP_X_B98 + 1)
 c
       integer NWXCP_X_CAMB88     !< The CAM-B88 exchange functional
       parameter (NWXCP_X_CAMB88 = NWXCP_X_BNL + 1)
@@ -138,8 +159,29 @@ c
       integer NWXCP_C_B95        !< The B95 correlation functional
       parameter (NWXCP_C_B95 = NWXCP_X_VS98 + 1)
 c
+      integer NWXCP_C_B97        !< The B97 correlation functional 
+      parameter (NWXCP_C_B97 = NWXCP_C_B95 + 1)
+c
+      integer NWXCP_C_B97_1      !< The B97-1 correlation functional 
+      parameter (NWXCP_C_B97_1 = NWXCP_C_B97 + 1)
+c
+      integer NWXCP_C_B97_2      !< The B97-2 correlation functional 
+      parameter (NWXCP_C_B97_2 = NWXCP_C_B97_1 + 1)
+c
+      integer NWXCP_C_B97_3      !< The B97-3 correlation functional 
+      parameter (NWXCP_C_B97_3 = NWXCP_C_B97_2 + 1)
+c
+      integer NWXCP_C_B97_D      !< The B97-D correlation functional 
+      parameter (NWXCP_C_B97_D = NWXCP_C_B97_3 + 1)
+c
+      integer NWXCP_C_B97_G      !< The B97-G correlation functional 
+      parameter (NWXCP_C_B97_G = NWXCP_C_B97_D + 1)
+c
+      integer NWXCP_C_B98        !< The B98 correlation functional 
+      parameter (NWXCP_C_B98 = NWXCP_C_B97_G + 1)
+c
       integer NWXCP_C_CAMS12G    !< The CAM-S12G correlation functional
-      parameter (NWXCP_C_CAMS12G = NWXCP_C_B95 + 1)
+      parameter (NWXCP_C_CAMS12G = NWXCP_C_B98 + 1)
 c
       integer NWXCP_C_CAMS12H    !< The CAM-S12H correlation functional
       parameter (NWXCP_C_CAMS12H = NWXCP_C_CAMS12G + 1)
@@ -255,9 +297,37 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_B0LYP = NWXCP_B3PW91 + 1)
 c
+      integer NWXCP_B97          !< The B97 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97 = NWXCP_B0LYP + 1)
+c
+      integer NWXCP_B97_1        !< The B97-1 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_1 = NWXCP_B97 + 1)
+c
+      integer NWXCP_B97_2        !< The B97-2 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_2 = NWXCP_B97_1 + 1)
+c
+      integer NWXCP_B97_3        !< The B97-3 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_3 = NWXCP_B97_2 + 1)
+c
+      integer NWXCP_B97_D        !< The B97-D functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_D = NWXCP_B97_3 + 1)
+c
+      integer NWXCP_B97_G        !< The B97-G functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_G = NWXCP_B97_D + 1)
+c
+      integer NWXCP_B98          !< The B98 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B98 = NWXCP_B97_G + 1)
+c
       integer NWXCP_BLYP         !< The BLYP functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_BLYP = NWXCP_B0LYP + 1)
+      parameter (NWXCP_BLYP = NWXCP_B98 + 1)
 c
       integer NWXCP_CAMS12G      !< The CAM-S12G functional 
                                  !< (exchange and correlation)
