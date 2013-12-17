@@ -571,6 +571,42 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hcth
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth120
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth147
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth407
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth407p
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcthp14
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc xpkzb99 cpkzb99
 end
 task dft energy
