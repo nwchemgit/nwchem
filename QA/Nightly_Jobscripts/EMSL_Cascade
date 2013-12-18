@@ -19,5 +19,5 @@ unset PYTHONHOME
 export NWCHEM_TOP=`pwd`/..
 bcastf $NWCHEM_TOP/bin/LINUX64/nwchem /scratch/nwchem
 export NONSTD_MPI=y
-export MPIRUN_PATH="srun --kill-on-bad-exit -n 8 -N 1 --ntasks-per-node=8"
+export MPIRUN_PATH="srun --kill-on-bad-exit -n 8 -N 1 --ntasks-per-node=8 --mpi=pmi2"
 ./doNightlyTests.mpi
