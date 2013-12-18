@@ -1404,6 +1404,8 @@ c     ccccccccccccccccccccccccccccccccccc
 #include "Pneb.fh"
 
 c     *** local variables ***
+      integer MASTER
+      parameter (MASTER=0)
       logical value
       integer nb,nb1,nb2,ms,ms1,ms2,i,j,k
       integer rwork(2),work(2),lwork,ierr
@@ -1454,6 +1456,7 @@ c     **** get temp memory from stack ****
         sindex=sindex + ne(ms)       
       end do
       end do
+      call Parallel_Brdcst_values(MASTER,(vindex-1),V)
 
 c     ***** pop stack memory *****
       value=          MA_pop_stack(work(2))
@@ -1484,6 +1487,8 @@ c     ccccccccccccccccccccccccccccccccccc
 #include "Pneb.fh"
 
 c     *** local variables ***
+      integer MASTER
+      parameter (MASTER=0)
       logical value
       integer nb,nb1,nb2,ms,ms1,ms2
       integer rwork(2),work(2),lwork,ierr
@@ -1533,6 +1538,7 @@ c     **** get temp memory from stack ****
         sindex=sindex + nein(ms)       
       end do
       end do
+      call Parallel_Brdcst_values(MASTER,(vindex-1),V)
              
 
 c     ***** pop stack memory *****
