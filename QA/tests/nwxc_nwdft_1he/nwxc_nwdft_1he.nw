@@ -724,6 +724,12 @@ end
 task dft energy
 
 dft
+  vectors input atomic
+  xc ssb-d
+end
+task dft energy
+
+dft
   direct
   vectors input atomic
   xc hse03

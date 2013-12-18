@@ -941,6 +941,14 @@ dft
 end
 task dft energy
 
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc ssb-d
+end
+task dft energy
+
 dft
   direct
   mult 3
