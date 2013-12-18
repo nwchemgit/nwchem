@@ -862,6 +862,14 @@ c
            cdata = "HCTHP14 (G Menconi, PJ Wilson, "
      +             //"DJ Tozer, J.Chem.Phys. 114, 3958 (2001)"
      +             //" doi:10.1063/1.1342776)"
+         case (NWXCP_KT1)
+           cdata = "KT1 (TW Keal, "
+     +             //"DJ Tozer, J.Chem.Phys. 119, 3015 (2003)"
+     +             //" doi:10.1063/1.1590634)"
+         case (NWXCP_KT2)
+           cdata = "KT2 (TW Keal, "
+     +             //"DJ Tozer, J.Chem.Phys. 119, 3015 (2003)"
+     +             //" doi:10.1063/1.1590634)"
          case (NWXCP_LDA)
            cdata = "LDA SVWN5 (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
@@ -960,6 +968,10 @@ c
            cdata = "SOGGA11-X (R Peverati, DG Truhlar, "
      +             //"J.Chem.Phys. 135, 191102 (2011)"
      +             //" doi:10.1063/1.3663871)"
+         case (NWXCP_SSB_D)
+           cdata = "SSB-D (M Swart, M Sola, FM Bickelhaupt, "
+     +             //"J.Chem.Phys. 131, 094103 (2009)"
+     +             //" doi:10.1063/1.3213193)"
          case (NWXCP_TPSS)
            cdata = "TPSS (J Tao, JP Perdew, VN "
      +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "

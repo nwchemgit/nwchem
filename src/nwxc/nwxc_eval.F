@@ -1392,6 +1392,9 @@ c            parameters B
            case (NWXCP_C_VWN5)
              call nwxc_c_vwn5(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,f,dfdr)
+           case (NWXCP_KT1)
+             call nwxc_xc_kt1(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
            case default
 c            call errquit("nwxc_eval_df: invalid functional",
 c    +                    nwxc_ids(it),UERR)

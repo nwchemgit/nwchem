@@ -703,6 +703,22 @@ c    &                nwxc_add_func(NWXCP_C_HCTH_A,dfweight)
      &                nwxc_add_func(NWXCP_X_HCTHP14,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_HCTHP14,dfweight)
+      else if (dfname.eq."kt1") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_KT1,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PW91LDA,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_KT1,dfweight)
+      else if (dfname.eq."kt2") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_KT2,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,1.07173d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PW91LDA,0.576727d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_KT1,dfweight)
       else if (dfname.eq."lda") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_LDA,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -912,6 +928,14 @@ c       In the NWChem DFT code RPBE does not include correlation
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_SOGGA11_X,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.4015d0*dfweight
+c     else if (dfname.eq."ssb-d") then
+c       nwxc_add_df = nwxc_usr_add_func(NWXCP_SSB_D,dfweight)
+c       nwxc_add_df = nwxc_add_df .and.
+c    &                nwxc_add_func(NWXCP_X_SLATER,1.079966d0*dfweight)
+c       nwxc_add_df = nwxc_add_df .and.
+c    &                nwxc_add_func(NWXCP_C_PW91LDA,dfweight)
+c       nwxc_add_df = nwxc_add_df .and.
+c    &                nwxc_add_func(NWXCP_KT1,0.358830d0*dfweight)
       else if (dfname.eq."tpss03".or.dfname.eq."tpss") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_TPSS,dfweight)
         nwxc_add_df = nwxc_add_df .and.
