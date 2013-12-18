@@ -35,7 +35,7 @@ function usage()
  ---------------------
 
  The script will not override any user set environment variables. This allows
- you to specify setting by hand that the script guesses wrong. Below is a list
+ you to specify settings by hand that the script guesses wrong. Below is a list
  of the environment variables the script tries to guess and what they 
  control:
 
@@ -75,6 +75,15 @@ function usage()
                       caused serious problems in the past including very long
                       start up times, and failures of the file system.
                       Therefore the default setting is "N".
+
+ NWCHEM_MPIF_WRAP  -- The name of the MPI Fortran compiler wrapper script.
+                      Example: mpif90.
+
+ NWCHEM_MPIC_WRAP  -- The name of the MPI C compiler wrapper script.
+                      Example: mpicc.
+
+ NWCHEM_MPICXX_WRAP-- The name of the MPI C++ compiler wrapper script.
+                      Example: mpicxx.
 
  ARMCI_NETWORK     -- The communication infra-structure the ARMCI library in
                       the GA should use. 
@@ -144,6 +153,84 @@ export LIST_COMPFLAGS
 declare -a LIST_LINLIBS
 LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto2' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
 export LIST_LINLIBS
+declare -a LIST_MPIFWRAP
+LIST_MPIFWRAP=( 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif90' 'mpif77' )
+export LIST_MPIFWRAP
+declare -a LIST_MPICWRAP
+LIST_MPICWRAP=( 'mpiicc' 'mpixlc_r' 'mpixlc' 'mpigcc' 'mpicc' )
+export LIST_MPICWRAP
+declare -a LIST_MPICXXWRAP
+LIST_MPICXXWRAP=( 'mpiicpc' 'mpixlcxx_r' 'mpixlcxx' 'mpigxx' 'mpicxx' 'mpic++' 'mpiCC' )
+export LIST_MPICXXWRAP
+function get_mpi_fortran_wrapper()
+{
+   # Apparently it is too easy to call the MPI Fortran compiler wrapper mpif90.
+   # So now there is a variety of such scripts which may or may not be available
+   # on your machine. This function tries to find a Fortran compiler wrapper
+   # from a given list and returns the first one it finds.
+   lib=""
+   length=${#LIST_MPIFWRAP[*]}
+   indx=0
+   while [ "${indx}" -lt "${length}" ] ; do
+     candidate="${LIST_MPIFWRAP[${indx}]}"
+     ((indx++))
+     if [ ${#wrapper} -eq 0 ] ; then
+       wrapper=`which ${candidate} 2> /dev/null`
+     fi
+   done
+   if [ ${#wrapper} -eq 0 ] ; then
+     # We have not found anything suitable
+     echo ${wrapper}
+     return 1
+   fi
+   echo ${wrapper}
+}
+function get_mpi_c_wrapper()
+{
+   # Apparently it is too easy to call the MPI C compiler wrapper mpicc.
+   # So now there is a variety of such scripts which may or may not be available
+   # on your machine. This function tries to find a C compiler wrapper
+   # from a given list and returns the first one it finds.
+   lib=""
+   length=${#LIST_MPICWRAP[*]}
+   indx=0
+   while [ "${indx}" -lt "${length}" ] ; do
+     candidate="${LIST_MPICWRAP[${indx}]}"
+     ((indx++))
+     if [ ${#wrapper} -eq 0 ] ; then
+       wrapper=`which ${candidate} 2> /dev/null`
+     fi
+   done
+   if [ ${#wrapper} -eq 0 ] ; then
+     # We have not found anything suitable
+     echo ${wrapper}
+     return 1
+   fi
+   echo ${wrapper}
+}
+function get_mpi_cxx_wrapper()
+{
+   # Apparently it is too easy to call the MPI C++ compiler wrapper mpicxx.
+   # So now there is a variety of such scripts which may or may not be available
+   # on your machine. This function tries to find a C++ compiler wrapper
+   # from a given list and returns the first one it finds.
+   lib=""
+   length=${#LIST_MPICXXWRAP[*]}
+   indx=0
+   while [ "${indx}" -lt "${length}" ] ; do
+     candidate="${LIST_MPICXXWRAP[${indx}]}"
+     ((indx++))
+     if [ ${#wrapper} -eq 0 ] ; then
+       wrapper=`which ${candidate} 2> /dev/null`
+     fi
+   done
+   if [ ${#wrapper} -eq 0 ] ; then
+     # We have not found anything suitable
+     echo ${wrapper}
+     return 1
+   fi
+   echo ${wrapper}
+}
 function get_mpi_include ()
 {
    # This shell function extracts the MPI include file directories
@@ -152,24 +239,24 @@ function get_mpi_include ()
    #
    # Most support -show
    #
-   inlist="`mpif90 -show`"
+   inlist="`${NWCHEM_MPIF_WRAP} -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpif90 -showme`"
+     inlist="`${NWCHEM_MPIF_WRAP} -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # MPICH2 and MVAPICH2 support -link-info
      #
-     inlist="`mpif90 -link-info`"
+     inlist="`${NWCHEM_MPIF_WRAP} -link-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     echo "ERROR: cannot get compile info from mpif90" > /dev/stderr
+     echo "ERROR: cannot get compile info from ${NWCHEM_MPIF_WRAP}" > /dev/stderr
      exit 1
    fi
    outlist=""
@@ -193,24 +280,24 @@ function get_mpi_link ()
    #
    # most support -show
    #
-   inlist="`mpif90 -show`"
+   inlist="`${NWCHEM_MPIF_WRAP} -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpif90 -showme`"
+     inlist="`${NWCHEM_MPIF_WRAP} -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # Otherwise try -link-info
      #
-     inlist="`mpif90 -link-info`"
+     inlist="`${NWCHEM_MPIF_WRAP} -link-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     echo "ERROR: cannot get link info from mpif90" > /dev/stderr
+     echo "ERROR: cannot get link info from ${NWCHEM_MPIF_WRAP}" > /dev/stderr
      exit 1
    fi
    outlist=""
@@ -234,24 +321,24 @@ function get_mpi_lib ()
    #
    # Most support -show
    #
-   inlist="`mpif90 -show`"
+   inlist="`${NWCHEM_MPIF_WRAP} -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpif90 -showme`"
+     inlist="`${NWCHEM_MPIF_WRAP} -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # MPICH2 and MVAPICH2 support -link-info
      #
-     inlist="`mpif90 -link-info`"
+     inlist="`${NWCHEM_MPIF_WRAP} -link-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     echo "ERROR: cannot get library info from mpif90" > /dev/stderr
+     echo "ERROR: cannot get library info from ${NWCHEM_MPIF_WRAP}" > /dev/stderr
      exit 1
    fi
    outlist=""
@@ -271,24 +358,24 @@ function get_mpi_fortran ()
    #
    # Most support -show
    #
-   inlist="`mpif90 -show`"
+   inlist="`${NWCHEM_MPIF_WRAP} -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpif90 -showme`"
+     inlist="`${NWCHEM_MPIF_WRAP} -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # MPICH2 and MVAPICH2 support -compile-info
      #
-     inlist="`mpif90 -compile-info`"
+     inlist="`${NWCHEM_MPIF_WRAP} -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     echo "ERROR: cannot get compile info from mpif90" > /dev/stderr
+     echo "ERROR: cannot get compile info from ${NWCHEM_MPIF_WRAP}" > /dev/stderr
      exit 1
    fi
    outlist=""
@@ -328,24 +415,24 @@ function get_mpi_cc ()
    #
    # Most support -show
    #
-   inlist="`mpicc -show`"
+   inlist="`${NWCHEM_MPIC_WRAP} -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpicc -showme`"
+     inlist="`${NWCHEM_MPIC_WRAP} -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # MPICH2 and MVAPICH2 support -compile-info
      #
-     inlist="`mpicc -compile-info`"
+     inlist="`${NWCHEM_MPIC_WRAP} -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     echo "ERROR: cannot get compile info from mpicc" > /dev/stderr
+     echo "ERROR: cannot get compile info from ${NWCHEM_MPIC_WRAP}" > /dev/stderr
      exit 1
    fi
    outlist=""
@@ -390,57 +477,28 @@ function get_mpi_cxx ()
    #
    # Most support -show
    #
-   inlist="`mpicxx -show`"
+   inlist="`${NWCHEM_MPICXX_WRAP} -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
-     inlist="`mpic++ -show`"
+     inlist="`${NWCHEM_MPICXX_WRAP} -show`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpicxx -showme`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
-     inlist="`mpic++ -showme`"
+     inlist="`${NWCHEM_MPICXX_WRAP} -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      #
      # MPICH2 and MVAPICH2 support -compile-info
      #
-     inlist="`mpicxx -compile-info`"
+     inlist="`${NWCHEM_MPICXX_WRAP} -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     inlist="`mpic++ -compile-info`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
-     #
-     # Most support -show
-     #
-     inlist="`mpiCC -show`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
-     #
-     # OPENMPI supports -showme
-     #
-     inlist="`mpiCC -showme`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
-     #
-     # MPICH2 and MVAPICH2 support -compile-info
-     #
-     inlist="`mpiCC -compile-info`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
-     echo "ERROR: cannot get compile info from mpiCC" > /dev/stderr
+     echo "ERROR: cannot get compile info from ${NWCHEM_MPICXX_WRAP}" > /dev/stderr
      exit 1
    fi
    outlist=""
@@ -1229,6 +1287,24 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
     export IB_LIB_NAME="-libverbs"
   fi
 fi
+if [ ${#NWCHEM_MPIF_WRAP} -eq 0 ] ; then
+  NWCHEM_MPIF_WRAP=`get_mpi_fortran_wrapper`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_MPIF_WRAP
+  fi
+fi
+if [ ${#NWCHEM_MPIC_WRAP} -eq 0 ] ; then
+  NWCHEM_MPIC_WRAP=`get_mpi_c_wrapper`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_MPIC_WRAP
+  fi
+fi
+if [ ${#NWCHEM_MPICXX_WRAP} -eq 0 ] ; then
+  NWCHEM_MPICXX_WRAP=`get_mpi_cxx_wrapper`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_MPICXX_WRAP
+  fi
+fi
 if [ ${#OLD_GA} -eq 0 ] ; then
   if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     echo "#include \"stdio.h\""                                         >  ./mpi_threads$$.c
@@ -1696,65 +1772,68 @@ else
   echo "==============="
   echo
 fi
-echo "NWCHEM_TOP        =" ${NWCHEM_TOP}
-echo "NWCHEM_TARGET     =" ${NWCHEM_TARGET}
-echo "NWCHEM_MODULES    =" ${NWCHEM_MODULES}
+echo "NWCHEM_TOP         =" ${NWCHEM_TOP}
+echo "NWCHEM_TARGET      =" ${NWCHEM_TARGET}
+echo "NWCHEM_MODULES     =" ${NWCHEM_MODULES}
+echo "NWCHEM_MPIF_WRAP   =" ${NWCHEM_MPIF_WRAP}
+echo "NWCHEM_MPIC_WRAP   =" ${NWCHEM_MPIC_WRAP}
+echo "NWCHEM_MPICXX_WRAP =" ${NWCHEM_MPICXX_WRAP}
 if [ ${#NWCHEM_LONG_PATHS} -ne 0 ] ; then
-  echo "NWCHEM_LONG_PATHS =" ${NWCHEM_LONG_PATHS}
+  echo "NWCHEM_LONG_PATHS  =" ${NWCHEM_LONG_PATHS}
 fi
 if [ ${#NWCHEM_FSCHECK} -ne 0 ] ; then
-  echo "NWCHEM_FSCHECK    =" ${NWCHEM_FSCHECK}
+  echo "NWCHEM_FSCHECK     =" ${NWCHEM_FSCHECK}
 fi
 if [ ${#OBJECT_MODE} -ne 0 ] ; then
-  echo "OBJECT_MODE       =" ${OBJECT_MODE}
+  echo "OBJECT_MODE        =" ${OBJECT_MODE}
 fi
-echo "USE_MPI           =" ${USE_MPI}
+echo "USE_MPI            =" ${USE_MPI}
 if [ ${#USE_MPIF} -ne 0 ] ; then
-  echo "USE_MPIF          =" ${USE_MPIF}
+  echo "USE_MPIF           =" ${USE_MPIF}
 fi
 if [ ${#USE_MPIF4} -ne 0 ] ; then
-  echo "USE_MPIF4         =" ${USE_MPIF4}
+  echo "USE_MPIF4          =" ${USE_MPIF4}
 fi
-echo "MPI_INCLUDE       =" ${MPI_INCLUDE}
-echo "MPI_LIB           =" ${MPI_LIB}
-echo "LIBMPI            =" ${LIBMPI}
-echo "MPI_F90           =" ${MPI_F90}
-echo "MPI_CC            =" ${MPI_CC}
-echo "MPI_CXX           =" ${MPI_CXX}
-echo "ARMCI_NETWORK     =" ${ARMCI_NETWORK}
-echo "MSG_COMMS         =" ${MSG_COMMS}
+echo "MPI_INCLUDE        =" ${MPI_INCLUDE}
+echo "MPI_LIB            =" ${MPI_LIB}
+echo "LIBMPI             =" ${LIBMPI}
+echo "MPI_F90            =" ${MPI_F90}
+echo "MPI_CC             =" ${MPI_CC}
+echo "MPI_CXX            =" ${MPI_CXX}
+echo "ARMCI_NETWORK      =" ${ARMCI_NETWORK}
+echo "MSG_COMMS          =" ${MSG_COMMS}
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
-  echo "IB_INCLUDE        =" ${IB_INCLUDE}
+  echo "IB_INCLUDE         =" ${IB_INCLUDE}
 fi
 if [ ${#IB_LIB} -ne 0 ] ; then
-  echo "IB_LIB            =" ${IB_LIB}
+  echo "IB_LIB             =" ${IB_LIB}
 fi
 if [ ${#IB_LIB_NAME} -ne 0 ] ; then
-  echo "IB_LIB_NAME       =" ${IB_LIB_NAME}
+  echo "IB_LIB_NAME        =" ${IB_LIB_NAME}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
-  echo "BLASOPT           =" ${BLASOPT} 
+  echo "BLASOPT            =" ${BLASOPT} 
 fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
-  echo "BLAS_LIB          =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
+  echo "BLAS_LIB           =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
 fi
 if [ ${#LAPACK_LIB} -ne 0 ] ; then
-  echo "LAPACK_LIB        =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
+  echo "LAPACK_LIB         =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
-  echo "SCALAPACK_LIB     =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
+  echo "SCALAPACK_LIB      =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
 fi
 if [ ${#CUDA} -ne 0 ] ; then
-  echo "CUDA              =" ${CUDA}
+  echo "CUDA               =" ${CUDA}
 fi
 if [ ${#CUDA_INCLUDE} -ne 0 ] ; then
-  echo "CUDA_INCLUDE      =" ${CUDA_INCLUDE}
+  echo "CUDA_INCLUDE       =" ${CUDA_INCLUDE}
 fi
 if [ ${#CUDA_LIBS} -ne 0 ] ; then
-  echo "CUDA_LIBS         =" ${CUDA_LIBS}
+  echo "CUDA_LIBS          =" ${CUDA_LIBS}
 fi
 if [ ${#MRCC_METHODS} -ne 0 ] ; then
-  echo "MRCC_METHODS      =" ${MRCC_METHODS}
+  echo "MRCC_METHODS       =" ${MRCC_METHODS}
 fi
 #
 # Stop if we find essential information missing.
