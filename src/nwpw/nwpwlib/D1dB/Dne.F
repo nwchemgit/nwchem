@@ -1538,6 +1538,8 @@ c     *        Dneall_m_diagonalize         *
 c     *                                      *
 c     ****************************************
 
+*   This routine diagonalizes hml = v*eig*v'.  On exit hml is replaced by v.
+
       subroutine Dneall_m_diagonalize(mb,hml,eig,assending)
       implicit none
       integer    mb
@@ -1715,6 +1717,9 @@ c     *        Dneall_m_SVD                 *
 c     *                                      *
 c     ****************************************
 
+*
+*    Computes the SVD decomposition of A = U*S*V', where A is an neall x neall matrix.
+
       subroutine Dneall_m_SVD(mb,A,U,S,V)
       implicit none
       integer    mb
@@ -1782,6 +1787,9 @@ c     *                                      *
 c     *        Dneall_f_SVD                 *
 c     *                                      *
 c     ****************************************
+
+*   This routine computes the SVD decomposition of A = U*S*V'
+*  where A has a dimension of A(npack1,neall)
 
       subroutine Dneall_f_SVD(mb,A,U,npack1,S,V)
       implicit none
