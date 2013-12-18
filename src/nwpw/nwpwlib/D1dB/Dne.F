@@ -1549,6 +1549,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     ***** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       logical value
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
       integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
@@ -1682,12 +1684,18 @@ c     ****************************************
      >                 ierr)
 
             if (.not.assending)
-     >       call eigsrt(eig(shift1),
+     >         call eigsrt(eig(shift1),
      >                   hml(shift2),
      >                   ne(ms),ne(ms))
 
-  30       continue
+  30        continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,ne(1)*ne(1)+ne(2)*ne(2),
+     >                                  hml)
+         else
+            call Parallel_Brdcst_values(MASTER,ne(mb)*ne(mb),hml)
+         end if
 
          value = MA_pop_stack(tmp1(2))
          if (.not. value) 
@@ -5938,6 +5946,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     ***** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       logical value
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
       integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
@@ -6145,6 +6155,12 @@ c     ****************************************
 
   30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nein(1)*nein(1)+nein(2)*nein(2),hml)
+         else
+            call Parallel_Brdcst_values(MASTER,nein(mb)*nein(mb),hml)
+         end if
 
          value = MA_pop_stack(tmp1(2))
          if (.not. value) 
