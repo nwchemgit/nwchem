@@ -805,6 +805,22 @@ dft
   mult 3
   odft
   vectors input atomic
+  xc kt1
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc kt2
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
   xc m05
 end
 task dft energy

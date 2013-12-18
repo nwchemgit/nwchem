@@ -619,6 +619,18 @@ task dft energy
 
 dft
   vectors input atomic
+  xc kt1
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc kt2
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc m05
 end
 task dft energy
