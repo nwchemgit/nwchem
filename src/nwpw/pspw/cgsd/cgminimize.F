@@ -141,7 +141,6 @@ c      complex*16 G1(nfft3d,nemax)
      >                   dcpl_mb(G1(1)),sum1)
       call D1dB_SumAll(sum1)
 
-c     write(*,*) "sum1a,Estart,:",sum1,Estart
       call Grsm_gg_Copy(npack1,neall,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
