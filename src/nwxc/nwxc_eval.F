@@ -1318,6 +1318,9 @@ c            parameters B
            case (NWXCP_C_PZ81)
              call nwxc_c_perdew81(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                            rho,f,dfdr)
+           case (NWXCP_C_P86)
+             call nwxc_c_perdew86(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                            rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_P91)
              call nwxc_c_p91(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)

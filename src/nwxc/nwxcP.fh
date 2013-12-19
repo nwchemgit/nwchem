@@ -276,8 +276,11 @@ c
       integer NWXCP_C_PZ81        !< The PZ81 correlation functional
       parameter (NWXCP_C_PZ81 = NWXCP_C_OPT + 1)
 c
+      integer NWXCP_C_P86        !< The P86 correlation functional
+      parameter (NWXCP_C_P86 = NWXCP_C_PZ81 + 1)
+c
       integer NWXCP_C_P91        !< The P91 correlation functional
-      parameter (NWXCP_C_P91 = NWXCP_C_PZ81 + 1)
+      parameter (NWXCP_C_P91 = NWXCP_C_P86 + 1)
 c
       integer NWXCP_C_PW6B95     !< The PW6B95 correlation functional
       parameter (NWXCP_C_PW6B95 = NWXCP_C_P91 + 1)

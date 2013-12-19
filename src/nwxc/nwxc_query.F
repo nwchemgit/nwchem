@@ -671,6 +671,10 @@ c
            cdata = "Perdew81 Correlation (JP Perdew, A Zunger, "
      +             //"Phys.Rev. B 23, 5048 (1981)"
      +             //" doi:10.1103/PhysRevB.23.5048)"
+         case (NWXCP_C_P86)
+           cdata = "Perdew86 Correlation (JP Perdew, "
+     +             //"Phys.Rev. B 33, 8822 (1986)"
+     +             //" doi:10.1103/PhysRevB.33.8822)"
          case (NWXCP_C_P91)
            cdata = "Perdew91 Correlation (JP Perdew, JA Chevary, "
      +             //"SH Vosko, KA Jackson, MR Pederson, DJ Singh, "

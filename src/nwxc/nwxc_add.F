@@ -508,6 +508,10 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VS98,dfweight)
       else if (dfname.eq."perdew81".or.dfname.eq."cperdew81") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PZ81,dfweight)
+      else if (dfname.eq."perdew86".or.dfname.eq."cperdew86") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_P86,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PZ81,dfweight)
       else if (dfname.eq."perdew91") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_C_P91,dfweight)
         nwxc_add_df = nwxc_add_df .and.
