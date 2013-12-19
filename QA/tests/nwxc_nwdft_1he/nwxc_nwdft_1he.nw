@@ -353,6 +353,12 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hfexch perdew81
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc hfexch perdew91
 end
 task dft energy
