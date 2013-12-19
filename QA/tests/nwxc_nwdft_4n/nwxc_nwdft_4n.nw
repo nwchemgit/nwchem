@@ -472,6 +472,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc hfexch perdew86
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc hfexch perdew91
 end
 task dft energy
