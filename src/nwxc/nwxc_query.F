@@ -667,6 +667,10 @@ c
            cdata = "OPT Correlation (NC Handy, AJ Cohen, "
      +             //"Mol.Phys. 99, 607 (2001)"
      +             //" doi:10.1080/00268970010023435)"
+         case (NWXCP_C_PZ81)
+           cdata = "Perdew81 Correlation (JP Perdew, A Zunger, "
+     +             //"Phys.Rev. B 23, 5048 (1981)"
+     +             //" doi:10.1103/PhysRevB.23.5048)"
          case (NWXCP_C_P91)
            cdata = "Perdew91 Correlation (JP Perdew, JA Chevary, "
      +             //"SH Vosko, KA Jackson, MR Pederson, DJ Singh, "
