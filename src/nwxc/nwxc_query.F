@@ -571,6 +571,10 @@ c
            cdata = "SOGGA11-X Exchange (R Peverati, DG Truhlar, "
      +             //"J.Chem.Phys. 135, 191102 (2011)"
      +             //" doi:10.1063/1.3663871)"
+         case (NWXCP_X_SSB_D)
+           cdata = "SSB-D Exchange (M Swart, M Sola, FM Bickelhaupt, "
+     +             //"J.Chem.Phys. 131, 094103 (2009)"
+     +             //" doi:10.1063/1.3213193)"
          case (NWXCP_X_TPSS)
            cdata = "TPSS Exchange (J Tao, JP Perdew, VN Staveroverov, "
      +             //"GE Scuseria, Phys.Rev.Lett. 91, 146401 (2003) "
@@ -745,6 +749,10 @@ c
            cdata = "S12h Correlation (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"
      +             //" doi:10.1016/j.cplett.2013.06.045)"
+         case (NWXCP_C_SPBE)
+           cdata = "SSB-D PBE Correlation (M Swart, M Sola, "
+     +             //"FM Bickelhaupt, J.Chem.Phys. 131, 094103 (2009)"
+     +             //" doi:10.1063/1.3213193)"
          case (NWXCP_C_SOGGA11)
            cdata = "SOGGA11 Correlation (R Peverati, Y Zhao, "
      +             //"DG Truhlar, J.Phys.Chem.Lett. 2, 1991 (2011)"

@@ -142,7 +142,8 @@ c
       external         nwxc_wght_mp2c, nwxc_wght_hfx
 
 c
-      if (ga_nodeid().eq.0) then
+      nwxc_oroot = ga_nodeid().eq.0
+      if (nwxc_oroot) then
         write(luout,*)" =================================="
         write(luout,*)" === Current Density Functional ==="
         write(luout,*)" =================================="
@@ -505,7 +506,8 @@ c
 
 c
  20   format(1x,a20,i4)
-      if (ga_nodeid().eq.0) then
+      nwxc_oroot = ga_nodeid().eq.0
+      if (nwxc_oroot) then
         call util_flush(luout)
         write(luout,*)" =================================="
         write(luout,*)" === Current Density Functional ==="
@@ -662,7 +664,8 @@ c
       external         nwxc_wght_mp2c, nwxc_wght_hfx
 
 c
-      if (ga_nodeid().eq.0) then
+      nwxc_oroot = ga_nodeid().eq.0
+      if (nwxc_oroot) then
         write(luout,*)
         write(luout,*)"     exchange correlation = "
         if (nwxc_has_hfx()) then

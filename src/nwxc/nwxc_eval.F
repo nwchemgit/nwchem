@@ -838,6 +838,9 @@ c            parameters D
              param(12) =  3.96613d+00
              call nwxc_x_sogga(param,nwxc_rho_tol,ipol,nq,
      +                         nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_SSB_D)
+             call nwxc_x_ssbD_1(nwxc_rho_tol,ipol,nq,
+     +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_TPSS)
              call nwxc_x_tpss03(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                          rho,gamma,tau,f,dfdr,dfdg,dfdt)
@@ -1326,6 +1329,9 @@ c            parameters B
            case (NWXCP_C_PKZB)
              call nwxc_c_pkzb99(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                          rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_SPBE)
+             call nwxc_c_spbe(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                        rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_SOGGA11)
              param(1)  =  5.00000d-01
              param(2)  = -4.62334D+00
@@ -1396,9 +1402,12 @@ c            parameters B
              call nwxc_xc_kt1(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,f,dfdr,dfdg)
            case default
-c            call errquit("nwxc_eval_df: invalid functional",
-c    +                    nwxc_ids(it),UERR)
-             write(*,*)"nwxc_eval_df: invalid functional",nwxc_ids(it)
+             if (nwxc_oroot) then
+               write(*,*)"nwxc_eval_df: invalid functional",nwxc_ids(it)
+             endif
+             call nwxc_printP()
+             call errquit("nwxc_eval_df: invalid functional",
+     +                    nwxc_ids(it),0)
          end select
        enddo
 C

@@ -168,8 +168,11 @@ c
       integer NWXCP_X_SOGGA11_X  !< The SOGGA11-X exchange functional
       parameter (NWXCP_X_SOGGA11_X = NWXCP_X_SOGGA11 + 1)
 c
+      integer NWXCP_X_SSB_D      !< The SSB_D exchange functional
+      parameter (NWXCP_X_SSB_D = NWXCP_X_SOGGA11_X + 1)
+c
       integer NWXCP_X_TPSS       !< The TPSS exchange functional
-      parameter (NWXCP_X_TPSS = NWXCP_X_SOGGA11_X + 1)
+      parameter (NWXCP_X_TPSS = NWXCP_X_SSB_D + 1)
 c
       integer NWXCP_X_WPBE       !< The WPBE screened exchange functional
       parameter (NWXCP_X_WPBE = NWXCP_X_TPSS + 1)
@@ -297,8 +300,11 @@ c
       integer NWXCP_C_S12H       !< The S12H correlation functional
       parameter (NWXCP_C_S12H = NWXCP_C_S12G + 1)
 c
+      integer NWXCP_C_SPBE       !< The SSB-D PBE correlation functional
+      parameter (NWXCP_C_SPBE = NWXCP_C_S12H + 1)
+c
       integer NWXCP_C_SOGGA11    !< The SOGGA11 correlation functional
-      parameter (NWXCP_C_SOGGA11 = NWXCP_C_S12H + 1)
+      parameter (NWXCP_C_SOGGA11 = NWXCP_C_SPBE + 1)
 c
       integer NWXCP_C_SOGGA11_X  !< The SOGGA11-X correlation functional
       parameter (NWXCP_C_SOGGA11_X = NWXCP_C_SOGGA11 + 1)
@@ -563,6 +569,7 @@ C
                                     !< density gradient?
       logical nwxc_depends_on_tau   !< Does the functional depend on the
                                     !< kinetic energy density?
+      logical nwxc_oroot            !< Is this the root process?
       integer NWXC_MAX_F !< The maximum number of terms in a functional
       parameter (NWXC_MAX_F = 50)
       integer          nwxc_num_f             !< The actual number of
@@ -624,7 +631,7 @@ c
      +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
      +       nwxc_disp_id,nwxc_usr_ids,nwxc_cam_srhfex,
      +       nwxc_depends_on_rho,nwxc_depends_on_gamma,
-     +       nwxc_depends_on_tau
+     +       nwxc_depends_on_tau,nwxc_oroot
      +      ,nwxc_on
 C
 C  @}
