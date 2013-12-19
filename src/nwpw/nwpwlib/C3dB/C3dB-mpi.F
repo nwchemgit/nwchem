@@ -2422,6 +2422,7 @@ c      integer rcv_len,rcv_proc
       integer taskid_j,np_j
       integer taskid_k,np_k
       integer ii,jj,kk,jstart,jend,kstart,kend
+      integer mpierr
 
 *     **** external functions ****
       integer  Parallel3d_convert_taskid_ijk,Parallel_comm_world
@@ -2686,6 +2687,7 @@ c      integer rcv_len,rcv_proc
       integer ii,jj,kk,jstart,jend,kstart,kend,status(2)
       integer msgtype
       real*8 dum
+      integer mpierr
 c      integer mpierr,mstatus(MPI_STATUS_SIZE)
 
 *     **** external functions ****
@@ -2945,6 +2947,7 @@ c      integer rcv_len,rcv_proc
       integer dest,source,msglen,msgtype
       integer dum,dum_msglen,dum_msgtype
       integer tmp1(2),tmp2(2),status(2)
+      integer mpierr
 
       integer ii,taskid_j,taskid_k
 
@@ -3240,6 +3243,7 @@ c      integer rcv_len,rcv_proc
       integer p_from, p_here,q
       integer j,k,index,index2
       integer dest,source,status(2),msglen,msgtype
+      integer mpierr
 
       integer ii,taskid_j,taskid_k
 
