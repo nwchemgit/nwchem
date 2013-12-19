@@ -563,18 +563,29 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
      &                nwxc_add_func(NWXCP_C_VWN1_RPA,0.19d0*dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_LYP,0.81d0*dfweight)
-        nwxc_wght_hf    = 0.20d0
-c     else if (dfname.eq."b3pw91") then ! alias
-c       nwxc_add_df = nwxc_usr_add_func(NWXCP_B3PW91,dfweight)
-c       nwxc_add_df = nwxc_add_df .and.
-c    &                nwxc_add_func(NWXCP_X_SLATER,0.80d0*dfweight)
-c       nwxc_add_df = nwxc_add_df .and.
-c    &                nwxc_add_func(NWXCP_X_B88,0.72d0*dfweight)
-c       nwxc_add_df = nwxc_add_df .and.
-c    &                nwxc_add_func(NWXCP_C_VWN5,0.19d0*dfweight)
-c       nwxc_add_df = nwxc_add_df .and.
-c    &                nwxc_add_func(NWXCP_C_PW91,0.81d0*dfweight)
-c       nwxc_wght_hf    = 0.20d0
+        nwxc_wght_hf= nwxc_wght_hf + 0.20d0*dfweight
+      else if (dfname.eq."b3p86") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B3P86,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,0.80d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B88,0.72d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_VWN1_RPA,1.00d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_P86,0.81d0*dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.20d0*dfweight
+      else if (dfname.eq."b3pw91") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_B3PW91,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,0.80d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B88,0.72d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PW91LDA,1.00d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_P91,0.81d0*dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.20d0*dfweight
       else if (dfname.eq."becke97") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_B97,dfweight)
         nwxc_add_df = nwxc_add_df .and.

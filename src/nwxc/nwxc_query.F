@@ -799,11 +799,12 @@ c
            cdata = "B3LYP (PJ Stephens, FJ Devlin, CF Chabalowski, "
      +             //"MJ Frisch, J.Phys.Chem. 98, 11623 (1994) "
      +             //"doi:10.1021/j100096a001)"
+         case (NWXCP_B3P86)
+           cdata = "B3P86 (unpublished analog of B3LYP)"
          case (NWXCP_B3PW91)
-           cdata = "B3PW91 (AD Becke, J.Chem.Phys. 98, 5648 (1993) "
-     +             //"doi:10.1063/1.464913)"
+           cdata = "B3PW91 (unpublished analog of B3LYP)"
          case (NWXCP_BLYP)
-           cdata = "BLYP"
+           cdata = "BLYP (unpublished)"
          case (NWXCP_B0LYP)
            cdata = "B0LYP (ACM0 variant of BLYP)"
          case (NWXCP_B97)
