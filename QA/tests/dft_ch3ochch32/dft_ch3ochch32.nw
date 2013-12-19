@@ -47,6 +47,7 @@ basis
 end
 
 dft
+direct
 vectors input atomic
 xc xm06-2x cm06-2x 
 end
@@ -57,6 +58,7 @@ task dft
 
 set geometry ch3o
 dft
+direct
 vectors input atomic
 mult 2
 end
