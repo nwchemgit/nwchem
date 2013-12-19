@@ -14524,16 +14524,19 @@ C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
       INCLUDE 'lucinp.inc'
       INCLUDE 'cintfo.inc'
 *. Integral list
-      Real * 8 Intlst(*)
+CNW   Real * 8 Intlst(*)
+      integer Intlst
       Dimension IJKLof(NsmOB,NsmOb,NsmOB)
 *. Pair of orbital indeces ( symmetry ordered ) => address in symmetry packed 
 *. matrix ( not active pt)
-      Dimension I2INDX(*)
+CNW   Dimension I2INDX(*)
+      integer I2INDX
 *.Output
       DIMENSION XINT(*)
 *. Local scratch      
       DIMENSION IJARR(MXPORB)
 *
+CBERT TODO
       NTEST = 000
 *. FUSKING
 C?    IF(ISM.EQ.2.AND.JSM.EQ.1.AND.KSM.EQ.1.AND.LSM.EQ.2.AND.
@@ -14772,7 +14775,9 @@ C?    END IF
      &                         I_ABS, J_ABS, K_ABS, L_ABS
                 END IF
 *
-                XINT(IINT) = CFAC*INTLST(IJKL)   
+                call ga_get(INTLST,IJKL,IJKL,1,1,XVAL,1)
+                XINT(IINT) = CFAC*XVAL             
+CNW             XINT(IINT) = CFAC*INTLST(IJKL)   
                 IF(NTEST.GE.10000)
      &          WRITE(6,*) ' IINT, XINT = ', IINT, XINT(IINT)
               END DO
@@ -14809,7 +14814,10 @@ C                 IJKL=IJ+(KL-1)*NIJS-KLOFF
                   WRITE(6,'(A,4I4)') ' I_ABS, J_ABS, K_ABS, L_ABS = ', 
      &                         I_ABS, J_ABS, K_ABS, L_ABS
                 END IF
-                XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
+                call ga_get(INTLST,IBLOFF-1+IJKL,IBLOFF-1+IJKL,
+     &                      1,1,XVAL,1)
+                XINT(IINT) = CFAC*XVAL 
+CNW             XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
                 IF(NTEST.GE.10000)
      &          WRITE(6,*) ' IINT, XINT = ', IINT, XINT(IINT)
               END DO
@@ -14834,7 +14842,9 @@ C                 IJKL=IJ+(KL-1)*NIJS-KLOFF
                   WRITE(6,*) ' I_ABS, J_ABS, IJ = ', I_ABS, J_ABS, IJ
                   WRITE(6,*) ' IINT, IJKL = ', IINT, IJKL
                 END IF
-                XINT(IINT) = CFAC*INTLST(IJKL)
+                call ga_get(INTLST,IJKL,IJKL,1,1,XVAL,1)
+                XINT(IINT) = CFAC*XVAL        
+CNW             XINT(IINT) = CFAC*INTLST(IJKL)
                 IF(NTEST.GE.10000) THEN
                   WRITE(6,*) ' Updated integral = ', XINT(IINT)
                 END IF
@@ -14994,7 +15004,9 @@ CER  &               + (L-1)      *NI
                   END IF
                   ILKJ = ILKJ0 + IL
                   IINT=IINT+1
-                  XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
+                  call ga_get(INTLST,ILKJ,ILKJ,1,1,XVAL,1)
+                  XINT(IINT)=XINT(IINT)-EFAC*XVAL
+CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
                   IF(NTEST.GE.10000) THEN 
                     WRITE(6,*) 
      &            ' IINT, ILKJ, INTLST(ILKJ), XINT(IINT) =',
@@ -15033,7 +15045,10 @@ C                     ILKJ = IL + (KJ-1)*NILS - KJ*(KJ-1)/2
                    WRITE(6,*) ' IINT, ILKJ = ', IINT, ILKJ
                   END IF
 *
-                  XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
+                  call ga_get(INTLST,IBLOFF-1+ILKJ,IBLOFF-1+ILKJ,
+     &                      1,1,XVAL,1)
+                  XINT(IINT)=XINT(IINT)-EFAC*XVAL
+CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
                   IF(NTEST.GE.10000)
      &            WRITE(6,*) ' updated integral ', XINT(IINT)
                 END DO
@@ -15050,7 +15065,9 @@ C                     ILKJ = IL + (KJ-1)*NILS - KJ*(KJ-1)/2
                   END IF
                   ILKJ = ILKJ0 + IL*NKJS
                   IINT = IINT + 1
-                  XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
+                  call ga_get(INTLST,ILKJ,ILKJ,1,1,XVAL,1)
+                  XINT(IINT)=XINT(IINT)-EFAC*XVAL
+CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
                 END DO
               END IF
 *

@@ -7299,8 +7299,8 @@ C       GETINCN2_A(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &             IXCHNG,IKSM,JLSM,INTLST,IJKLOF,I2INDX,
 C    &             ICOUL,CFAC,EFAC)
          CALL GETINCN2_A(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                    IXCHNG,IKSM,JLSM,WORK(KINT2_LA),
-     &                    WORK(KPINT2_LA),WORK(KINH1),ICOUL,CFAC,
+     &                    IXCHNG,IKSM,JLSM,KINT2_LA,
+     &                    dbl_mb(KPINT2_LA),KINH1,ICOUL,CFAC,
      &                    EFAC)
       END IF! End of ITRA_ROUTE switch
 *
@@ -9855,10 +9855,6 @@ c        call ga_print(g_coul)
 c        call util_flush(6)
 c        call ga_print(g_exch)
 c.. To write in LUCIA format
-CBERT Are you assuming g_hcore is symmetry blocked? 
-CBERT This is not the case. Basis functions are not ordered according
-CBERT to symmetry, no symmetry is assumed in the one-electron matrix.
-CBERT Same holds for 2e integrals.
          if(ga_nodeid().eq.0)then
 c.. 1e ints
          ind1e=0
@@ -9943,7 +9939,6 @@ c.. look for index in ga_coul
           end do
          end do
        endif
-CBERT Do you need the nuclear repulsion energy?
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $  call errquit('unable to get nuclear rep energy',geom, GEOM_ERR)
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
@@ -10739,7 +10734,7 @@ C 200 CONTINUE
       RETURN
       END
       
-      LOGICAL FUNCTION LUCIA
+      LOGICAL FUNCTION LUCIA(rtdb)
 *
 * L U C I A 
 *
@@ -10764,6 +10759,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
       LOGICAL CONV_F
+       integer rtdb
 *.File numbers
       INCLUDE 'clunit.inc'
 *.Print flags
