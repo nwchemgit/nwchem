@@ -9,7 +9,7 @@
      8                        excit,energy1,energy2,size_t1,size_x1,
      8                        r0xx,xmem)
 C
-C     $Id: cr_eomccsd_t.F,v 1.4 2008/07/17 21:48:12 marat Exp $
+C     $Id$
 C 
 c from this point on we assume that corresponding one- and two-
 c body components of R(d_x1,d_x2) and T(d_t1,d_t2) operators,

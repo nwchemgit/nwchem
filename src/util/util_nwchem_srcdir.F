@@ -36,4 +36,4 @@ C>
 #endif
       pathname = compiled_name
       end
-c $Id: $
+c $Id$

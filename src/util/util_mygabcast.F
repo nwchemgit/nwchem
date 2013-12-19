@@ -56,4 +56,4 @@ c     F           dble(len8)/dble(bigint)
       endif
       return
       end
-c $Id: $
+c $Id$

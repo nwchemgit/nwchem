@@ -1,5 +1,5 @@
       subroutine dft_printinfo()
-C$Id: scf.F 22292 2012-04-10 00:42:16Z niri $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

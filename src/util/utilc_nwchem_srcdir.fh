@@ -1,4 +1,4 @@
-! $Id: $
+! $Id$
 !
 !     Interface block to bind to the C-function below in a standard way.
 !     More comments on this can be found in util_nwchem_srcdir.c.

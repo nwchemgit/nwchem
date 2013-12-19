@@ -1,4 +1,4 @@
-c $Id: tamd.fh 22366 2012-05-03 16:40:07Z bylaska $
+c $Id$
 
       logical tamdfound
       integer metacount,maxmetacount

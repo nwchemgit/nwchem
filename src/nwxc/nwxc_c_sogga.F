@@ -38,7 +38,7 @@ C>
       subroutine nwxc_c_sogga(param, tol_rho, ipol, nq, wght, rho, 
      &                        rgamma, ffunc, Amat, Cmat)
 c
-c$Id: xc_csogga.F 22503 2012-05-20 06:58:57Z d3y133 $
+c$Id$
 c
 c
 c**********************************************************************c

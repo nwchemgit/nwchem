@@ -1,5 +1,5 @@
 /*
-$Id: basis.doc 19708 2010-10-29 18:04:21Z d3y133 $
+$Id$
 
 This file contains only Doxygen documentation and no code at all.
 The contents of this file is constructed from various bits of documentation 

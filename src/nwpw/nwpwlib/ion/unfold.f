@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_unfold.f 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id$
 *
 
       subroutine nwpw_unfold(ni,unita,r1,r2)

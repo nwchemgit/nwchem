@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_cprmd.F 24487 2013-08-08 20:11:40Z bylaska $
+* $Id$
 *
       subroutine inner_loop_cprmd(verlet,sa_alpha,
      >                      ispin,ne,neq,

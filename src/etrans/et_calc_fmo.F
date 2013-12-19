@@ -278,4 +278,4 @@ c
       et_calc_fmo=.true.
       return
       end
-c $Id: $
+c $Id$

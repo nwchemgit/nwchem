@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t_6dts(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1            d_v2,k_v2_offset,energy1,energy2,size_t1,xmem)
 C
-C     $Id: ccsd_t.F 23617 2013-02-22 19:31:06Z kowalski $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"

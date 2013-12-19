@@ -1,5 +1,5 @@
 c
-c$Id: xc_hcth.F 24408 2013-07-16 22:49:35Z edo $
+c$Id$
 c
       integer limpow,n
       PARAMETER(limpow = 4)

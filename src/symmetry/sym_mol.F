@@ -2,7 +2,7 @@
       logical function sym_mol(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars, ipntmol)
 c     
-C$Id: sym_char_tab.F 21541 2011-11-18 19:22:14Z d3p852 $
+C$Id$
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)

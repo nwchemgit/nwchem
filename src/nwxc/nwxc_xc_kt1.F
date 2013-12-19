@@ -45,7 +45,7 @@ C>
      &                          func, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
-C$Id: xc_kt1.F 22114 2012-03-09 07:49:44Z niri $
+C$Id$
 c
       implicit none
 c      

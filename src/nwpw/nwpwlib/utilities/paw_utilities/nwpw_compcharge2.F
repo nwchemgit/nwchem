@@ -273,4 +273,4 @@ c            indx1 = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
       end
 
 
-c $Id: $
+c $Id$

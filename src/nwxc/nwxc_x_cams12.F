@@ -34,7 +34,7 @@ C>
      &                            Cmat2)
 #endif
 c
-C$Id: xc_cams12x.F 24359 2013-07-02 07:01:17Z d3y133 $
+C$Id$
 c
       implicit none
 c      

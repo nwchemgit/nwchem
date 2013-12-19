@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F 19696 2010-10-29 16:53:42Z d3y133 $
+c$Id$
 c
 C> \ingroup nwxc
 C> @{

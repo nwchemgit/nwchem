@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile 24447 2013-07-27 00:39:06Z bylaska $
+# $Id$
 #
 
   OBJ_OPTIMIZE = wgc.o

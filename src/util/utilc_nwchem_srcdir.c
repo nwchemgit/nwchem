@@ -1,5 +1,5 @@
 /** 
-$Id: $
+$Id$
 
 \brief Return the pathname of NWCHEM_SRCDIR
 
