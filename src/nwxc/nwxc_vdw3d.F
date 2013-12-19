@@ -35848,3 +35848,4 @@ c read file
       enddo
       endif
       end subroutine copyc6
+c $Id: $

@@ -1588,3 +1588,4 @@ c     Input Geometry sanity check (to avoid au/Angtstrom mixups) S.E. 16.3.2012
       
       end subroutine checktype
 
+c $Id: $

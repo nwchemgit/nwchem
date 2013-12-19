@@ -703,3 +703,4 @@ void dft_xckernel_xb97_(double *rho_a,double *rho_b, double *ScalGGAXin,
 
 }
 
+/* $Id: $ */

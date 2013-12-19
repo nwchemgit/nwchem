@@ -89,3 +89,4 @@ c     XX=1, XY=YX=2, XZ=ZX=3, YY=4, YZ=ZY=5, ZZ=6
 
       return
       end
+c $Id: $

@@ -1579,3 +1579,4 @@ cgraveyardc
 cgraveyardc itypes
 cgraveyardc     /'l','s', 'p', 'd', 'f', 'g', 'h', 'i', 'k'/
 cgraveyardc      -1   0    1    2    3    4    5
+c $Id: $
