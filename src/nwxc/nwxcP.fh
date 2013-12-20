@@ -129,11 +129,17 @@ c
       integer NWXCP_X_M11_L      !< The M11-L exchange functional
       parameter (NWXCP_X_M11_L = NWXCP_X_M11 + 1)
 c
+      integer NWXCP_X_MPW91       !< The MPW91 exchange functional
+      parameter (NWXCP_X_MPW91 = NWXCP_X_M11_L + 1)
+c
       integer NWXCP_X_OPT        !< The OPT exchange functional
-      parameter (NWXCP_X_OPT = NWXCP_X_M11_L + 1)
+      parameter (NWXCP_X_OPT = NWXCP_X_MPW91 + 1)
+c
+      integer NWXCP_X_PW91       !< The PW91 exchange functional
+      parameter (NWXCP_X_PW91 = NWXCP_X_OPT + 1)
 c
       integer NWXCP_X_PBE        !< The PBE exchange functional
-      parameter (NWXCP_X_PBE = NWXCP_X_OPT + 1)
+      parameter (NWXCP_X_PBE = NWXCP_X_PW91 + 1)
 c
       integer NWXCP_X_PBE0       !< The PBE0 exchange functional
       parameter (NWXCP_X_PBE0 = NWXCP_X_PBE + 1)

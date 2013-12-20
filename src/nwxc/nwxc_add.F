@@ -211,6 +211,10 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_B98,dfweight)
         nwxc_wght_hf = nwxc_wght_hf + 0.219847d0*dfweight
+      else if (dfname.eq."mpw91".or.dfname.eq."xmpw91") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_MPW91,dfweight)
+      else if (dfname.eq."xperdew91".or.dfname.eq."xpw91") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_PW91,dfweight)
       else if (dfname.eq."optx") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_OPT,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -512,7 +516,7 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_P86,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PZ81,dfweight)
-      else if (dfname.eq."perdew91") then
+      else if (dfname.eq."perdew91".or.dfname.eq."cperdew91") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_C_P91,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PW91LDA,dfweight)

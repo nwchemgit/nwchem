@@ -520,10 +520,19 @@ c
            cdata = "M11-L Exchange (R Peverati, DG Truhlar, "
      +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
      +             //" doi:10.1021/jz201170d)"
+         case (NWXCP_X_MPW91)
+           cdata = "MPW91 Exchange (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem.A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
          case (NWXCP_X_OPT)
            cdata = "OPT Exchange (NC Handy, AJ Cohen, "
      +             //"Mol.Phys. 99, 403 (2001)"
      +             //" doi:10.1080/00268970010018431)"
+         case (NWXCP_X_PW91)
+           cdata = "PW91 Exchange (JP Perdew, JA Chevary, "
+     +             //"SH Vosko, KA Jackson, MR Pederson, DJ Singh, "
+     +             //"C. Fiolhais, Phys.Rev. B 46, 6671 (1992)"
+     +             //" doi:10.1021/jp050536c)"
          case (NWXCP_X_PBE)
            cdata = "PBE Exchange (JP Perdew, K Burke, M Ernzerhof, "
      +             //"Phys.Rev.Lett. 77, 3865 (1996)"
