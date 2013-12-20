@@ -557,6 +557,9 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       ELSE IF(ENVIRO(1:6).EQ.'MOLCAS') THEN
 *. Readin from LUMORB file
         CALL GETMOAO_MOLCAS(CMO,LUMOIN)
+      ELSE IF(ENVIRO(1:6).EQ.'NWCHEM' ) THEN
+*. Obtain from NWChem environment     
+        CALL GET_CMOAO_NWCHEM(CMO)
       ELSE IF(ENVIRO(1:5).EQ.'LUCIA' ) THEN
 *. Read in from LUCIA 1e file: unit 91
         LU91 = 91
@@ -577,6 +580,22 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
         CALL APRBLM2(CMO,NMOS_ENV,NMOS_ENV,NSMOB,0)
       END IF
 *
+      RETURN
+      END
+      SUBROUTINE GETOBS_DALTON(ECORE_ENV,NAOS_ENV,NMOS_ENV)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "nwchem_data.inc"
+*. Output
+      DIMENSION NAOS_ENV(*), NMOS_ENV(*)
+      
+      do i = 1, nirrep
+         NAOS_ENV(i) = 0
+         NMOS_ENV(i) = 0
+      enddo
+      do i = 1, nirrep
+         NAOS_ENV(i) = NAOS_ENV(i) +
+         NMOS_ENV(i) = NMOS_ENV(i) +
+      enddo
       RETURN
       END
       SUBROUTINE GETOBS_DALTON(ECORE_ENV,NAOS_ENV,NMOS_ENV)
@@ -672,7 +691,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Lucia: core energy is obtained from 2-e file
         CALL GETOBS_LUCIA(NAOS_ENV,NMOS_ENV)
       ELSE IF(ENVIRO(1:6).EQ.'NWCHEM') THEN
-        CALL GETOBS_NWCHEM(ECORE_ENV,NAOS_ENV,NMOS_ENV)
+        CALL GETOBS_NWCHEM(NAOS_ENV,NMOS_ENV)
       ELSE IF(ENVIRO(1:4).EQ.'QDOT' ) THEN
         write(6,*) 'QDOT env!'
           CALL GETOBS_LUCIA(NAOS_ENV,NMOS_ENV)
@@ -9815,8 +9834,8 @@ c.. look for index in ga_coul
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
      &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
-      if (.not. geom_nuc_rep_energy(geom, enrep))
-     $  call errquit('unable to get nuclear rep energy',geom, GEOM_ERR)
+      if (.not. geom_nuc_rep_energy(geom, ecore)) call
+     $  errquit('unable to get nuclear rep energy',luciageom, GEOM_ERR)
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
        ELSE IF (INTIMP .EQ. 5) THEN
@@ -10592,26 +10611,26 @@ C     CALL TEST_DEC15
      $       scftype, luciaao, nsets, luciamo, 2) ) call errquit(
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
 c..  reorder 
-      if (ga_nodeid().eq.0) then
-       call ifill(nirrep,0,ipnt,1)
-       call sym_mol(luciasymname,ipnt)
-       do i=1,nirrep
-         ipnt2(ipnt(i))=i
-c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
-       end do
-       ioff(1)=1
-       do i=2,nirrep
-         ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
-       end do
-       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
-     &   call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
-       do i=1,luciamo(1)
-         irs=ipnt(kirs(i))
-         icount(irs)=icount(irs)+1
-         ireord = ioff(irs)+icount(irs)-1
-         reord(i)=ireord
-       end do
-      end if
+      call ifill(nirrep,0,ipnt,1)
+      call sym_mol(luciasymname,ipnt)
+      call sym_bas_irrep_id(basis,.true.,mxorb,mxpirr,
+     &                      nwchem_id,nwchem_sc)
+      do i=1,nirrep
+        ipnt2(ipnt(i))=i
+c       write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
+      end do
+      ioff(1)=1
+      do i=2,nirrep
+        ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
+      end do
+      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
+     &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
+      do i=1,luciamo(1)
+        irs=ipnt(kirs(i))
+        icount(irs)=icount(irs)+1
+        ireord = ioff(irs)+icount(irs)-1
+        reord(i)=ireord
+      end do
 * ======================================================
 * 1: .Read input,insert defaults and cross check input
 * ======================================================
