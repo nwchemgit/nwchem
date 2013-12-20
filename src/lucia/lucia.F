@@ -9622,7 +9622,6 @@ c      INCLUDE 'mxpdim.inc'
 #include "bas.fh"
 #include "sym.fh"
 #include "rtdb.fh"
-#include "mxpdim.inc"
 #include "nwchem_data.inc"
       integer g_moreo
       logical geom_nuc_rep_energy
