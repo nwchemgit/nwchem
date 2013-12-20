@@ -83,7 +83,19 @@ task dft energy
 
 dft
   vectors input atomic
+  xc mpw91
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc optx
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xperdew91
 end
 task dft energy
 
