@@ -848,6 +848,12 @@ c
            cdata = "B98 (HL Schmider, AD Becke, "
      +             //"J.Chem.Phys. 108, 9624 (1998)"
      +             //" doi:10.1063/1.476438)"
+         case (NWXCP_BHANDH)
+           cdata = "BECKEHANDH (AD Becke, "
+     +             //"J.Chem.Phys. 98, 1372 (1993)"
+     +             //" doi:10.1063/1.464304)"
+         case (NWXCP_BHLYP)
+           cdata = "BHLYP (BHANDHLYP, Gaussian inc.)"
          case (NWXCP_CAMS12G)
            cdata = "CAM-S12g (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"

@@ -393,9 +393,17 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_B98 = NWXCP_B97_G + 1)
 c
+      integer NWXCP_BHANDH       !< The Becke half and half functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BHANDH = NWXCP_B98 + 1)
+c
+      integer NWXCP_BHLYP        !< The Becke 1/2 and 1/2 LYP functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BHLYP = NWXCP_BHANDH + 1)
+c
       integer NWXCP_BLYP         !< The BLYP functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_BLYP = NWXCP_B98 + 1)
+      parameter (NWXCP_BLYP = NWXCP_BHLYP + 1)
 c
       integer NWXCP_CAMS12G      !< The CAM-S12G functional 
                                  !< (exchange and correlation)

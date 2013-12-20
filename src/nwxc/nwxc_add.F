@@ -540,6 +540,22 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PW6B95,dfweight)
       else if (dfname.eq."cpwb6k") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_PWB6K,dfweight)
+      else if (dfname.eq."beckehandh") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_BHANDH,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,0.5d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_PW91LDA,0.5d0*dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.5d0*dfweight
+      else if (dfname.eq."bhlyp") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_BHLYP,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,0.5d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B88,0.5d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_LYP,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.5d0*dfweight
       else if (dfname.eq."blyp") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_BLYP,dfweight)
         nwxc_add_df = nwxc_add_df .and.
