@@ -1651,6 +1651,8 @@ c      end do
 #include "ion.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer i
       double precision scale
 
@@ -1676,6 +1678,8 @@ c      end do
          call incell1(nion_qm,dbl_mb(r2(1)))
          call pspw_qmmm_incell1(dbl_mb(r2(1)))
       end if
+
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r2(1)))
 
       return
       end
@@ -1717,6 +1721,8 @@ c      end do
      >               ke_total,kg_total,ke_count
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer i
       double precision scale,dt,h
       double precision vgx,vgy,vgz
@@ -1777,6 +1783,7 @@ c      end do
      >                          dbl_mb(r1(1)),
      >                          dbl_mb(r2(1)))
 
+
 *     **** make r0 the velocity - note that the velocity is deleted ****
 *     **** after an ion_shift call                                  ****
 c      do i=1,nion
@@ -1788,6 +1795,10 @@ c         dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
 c     >                               - dbl_mb(r0(1)+(i-1)*3+2))
 c      end do
       call ion_vel_sub(nion,h,dbl_mb(r0(1)),dbl_mb(r2(1)))
+
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r2(1)))
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r1(1)))
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r0(1)))
 
 
 *     **** determine current kinetic energy and add to running average ****
@@ -2222,6 +2233,8 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
       
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer i
       double precision scale,dt
       double precision vgx,vgy,vgz
@@ -2268,6 +2281,9 @@ c      end do
       if (.not.control_translation()) 
      > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r2(1)))
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r1(1)))
+
 *     **** determine current kinetic energy and add to running average ***
       eki1 = 0.0d0
       do i=1,nion
@@ -2281,6 +2297,7 @@ c      end do
       ke_total = ke_total + eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
+
 
       return
       end
@@ -2322,6 +2339,8 @@ c      end do
      >               ke_total,kg_total,ke_count
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer i
       double precision scale,dt,h
       double precision vgx,vgy,vgz,smr
@@ -2390,6 +2409,10 @@ c         dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
 c     >                               - dbl_mb(r0(1)+(i-1)*3+2))
 c      end do
       call ion_vel_sub(nion,h,dbl_mb(r0(1)),dbl_mb(r2(1)))
+
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r2(1)))
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r1(1)))
+      call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r0(1)))
 
 
 *     **** determine current kinetic energy and add to running average ****
