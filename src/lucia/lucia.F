@@ -9630,6 +9630,7 @@ c      INCLUDE 'mxpdim.inc'
       logical movecs_read
       external movecs_read
       integer blen
+      double precision occ(mxporb),evals(mxporb)
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -10570,7 +10571,6 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'vb.inc'
 *. Added dec. 2011
       INCLUDE 'spinfo.inc'
-      INCLUDE 'mxpdim.inc'
       INCLUDE 'nwchem_data.inc'
       COMMON/CENOT/E0
       LOGICAL LTARGET
