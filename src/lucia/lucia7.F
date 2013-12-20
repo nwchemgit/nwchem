@@ -1,37 +1,6 @@
 *
 * Codes for Hessian and orbital optimization
 * 
-      SUBROUTINE LN0_RHS(NORD,DEN1K,FK,LFOCK,XLK0,RHSN,SKL,
-     &                  IOOEXC,IOOEXCC,NOOEXC)
-*
-* Obtain rhs for lambda N0 ( zero order lagrangian for N'th order MP)
-*
-* The RHS  for n'th order 
-*     -(F{n} ( <= n'th order correction to Fock matrix 
-*               +sum_{k=1,n-1} <k!(d/d kappa_tj) (H0(x) - E0(x))!n-k>
-*               -sum_{k=1,n-2}sum_{m=1,n-k-1) L00(k) <m!n-k-m> 
-* Jeppe Olsen, April 99
-*
-c      INCLUDE 'implicit.inc'
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'orbinp.inc'
-*. Input
-      DIMENSION FK(LFOCK,*),DEN1K(LFOCK),XLK0(NOOEXC,*), SKL(*)
-*. Output 
-      DIMENSION XLN0(NOOEXC)
-*
-      IDUM = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'LN0_RH')
-*. Scratch allocation  
-      
-*. 1 : Contribution from Fock matrix
-C     F_TO_E1(F,E1,IEXCSM,IOOEXCC,NOOEXC,IMODE)
-      KLFN = 1 + (NORD+1-1)*LFOCK
-      CALL F_TO_E1(WORK(KLFN),RHSN,1,IOOEXCC,NOOEXC,0)
-*. 2 = 2[Fi, (Den1N-Sum(k=1,n-1) <k!n-k>Den10)
-      RETURN
-      END
       SUBROUTINE LIN_RESP(V1,IV1SM,V2,IV2SM)
 *
 * Calculate static linear response due to one-body perturbations
@@ -54,6 +23,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input : Integrals, not triangular packed
       DIMENSION V1(*),V2(*)
 *
@@ -64,131 +36,27 @@ c      INCLUDE 'mxpdim.inc'
 *. V1 integrals triangular packed
       CALL MEMMAN(KLV1P,NINT1,'ADDL  ',2,'V1PACK')
 C  TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
-      CALL TRIPAK_BLKM(V1,WORK(KLV1P),1,NTOOBS,NSMOB)
+      CALL TRIPAK_BLKM(V1,dbl_mb(KLV1P),1,NTOOBS,NSMOB)
 *. Fock matrix corresponding to V1
       LFOCK = 0
       DO ISM = 1, NSMOB
         LFOCK = LFOCK + NTOOBS(ISM)*NTOOBS(ISM)
       END DO
       CALL MEMMAN(KLFV1,LFOCK,'ADDL  ',2,'V1FOCK')
-      CALL SWAPVE(WORK(KLV1P),WORK(KINT1),NINT1)
-      CALL FOCK_MAT(WORK(KLFV1),1)
-      CALL SWAPVE(WORK(KLV1P),WORK(KINT1),NINT1)
+      CALL SWAPVE(dbl_mb(KLV1P),KINT1,NINT1)
+      CALL FOCK_MAT(dbl_mb(KLFV1),1)
+      CALL SWAPVE(dbl_mb(KLV1P),KINT1,NINT1)
 *. Response density corresponding to this Fock matrix
       CALL MEMMAN(KLR1RS,LFOCK,'ADDL  ',2,'R1RS  ')
-      CALL RESPDEN_FROM_F(WORK(KLFV1),WORK(KLR1RS))
+      CALL RESPDEN_FROM_F(dbl_mb(KLFV1),dbl_mb(KLR1RS))
 *. And polarizability as expectation value
-      ALPHA = INPROD(V2,WORK(KLR1RS),LFOCK)
+      ALPHA = INPROD(V2,dbl_mb(KLR1RS),LFOCK)
       WRITE(6,*) ' Polarizability ', ALPHA
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'LIN_RE')
 *
       RETURN
       END 
-      SUBROUTINE RESPDEN_FROM_F_OLD(FOCK,RESPDEN)
-*
-* Obtain Response contribution to density for method based upon Hartree-Fock 
-* orbitals using a general Fock matrix. 
-*
-* Output response contribution to density is delivered in RESPDEN 
-* as symmetrypacked block diagonal matrix. Both upper and lower halfs 
-* are included.
-*     Jeppe Olsen, Spring of 99
-*
-c      INCLUDE 'implicit.inc'
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'cgas.inc'
-*. Input 
-      DIMENSION FOCK(*)
-*. Output
-      DIMENSION RESPDEN(*)
-*
-      IDUM = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'RESPD_')
-* 
-*. Non-redundant orbital excitations
-*
-*. Nonredundant type-type excitations
-      CALL MEMMAN(KLTTACT,NGAS*NGAS,'ADDL  ',1,'TTACT ')
-      CALL NONRED_TT_EXC(WORK(KLTTACT),1,0)
-*. Nonredundant orbital excitations
-      CALL MEMMAN(KLOOEXC,NTOOB*NTOOB,'ADDL  ',1,'OOEXC ')
-      CALL MEMMAN(KLOOEXCC,2*NTOOB*NTOOB,'ADDL  ',1,'OOEXCC')
-      CALL NONRED_OO_EXC(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &                   1,WORK(KLTTACT),2)
-*. Gradient from Fock matrix 
-      CALL MEMMAN(KLE1,NOOEXC,'ADDL  ',2,'E1    ')
-      CALL F_TO_E1(FOCK,WORK(KLE1),1,WORK(KLOOEXCC),NOOEXC,0)
-*. Construct orbital Hessian
-C          E2_FUSK(ORBHES,NOOEXC,IOOEXCC)  
-      CALL MEMMAN(KLE2,NOOEXC*(NOOEXC+1)/2,'ADDL  ',2,'E2    ')
-      CALL E2_FUSK(WORK(KLE2),NOOEXC,WORK(KLOOEXCC),0) 
-*. Find inverted Hessian 
-      CALL MEMMAN(KLE2_EXP,NOOEXC*NOOEXC,'ADDL  ',2,'E2_EXP') 
-      CALL MEMMAN(KLSCR   ,NOOEXC*NOOEXC,'ADDL  ',2,'E2_SCR') 
-      CALL TRIPAK(WORK(KLE2_EXP),WORK(KLE2),2,NOOEXC,NOOEXC)
-      CALL INVMAT(WORK(KLE2_EXP),WORK(KLSCR),NOOEXC,NOOEXC,ISING)
-*. Kappa = -E[2]**(-1) V[1]
-      CALL MEMMAN(KLKAP,NOOEXC,'ADDL  ',2,'KAPPA ')
-      CALL MATVCB(WORK(KLE2_EXP),WORK(KLE1),WORK(KLKAP),
-     &            NOOEXC,NOOEXC,0)
-      ONEM = -1.0D0
-      CALL SCALVE(WORK(KLKAP),ONEM,NOOEXC)
-*. Response density is now [Kappa(T),Den1] = [Den1,Kappa]
-*
-*. For Hartree-Fock we simply have that for each nonvanisking excitation 
-* below diagonal we obtain an element +2*kappa
-      CALL MEMMAN(KLKAP1,NTOOB**2,'ADDL  ',2,'KAP1  ')
-*. Expand kappa to complete lower half form
-C     REFRM_KAPPA(XKAP_CMP,XKAP_FULL,IWAY,IVSM,
-C    &                       IOOEXC,IOOEXCC,NOOEXC)
-C?    WRITE(6,*) ' WORK(KLKAP) before REFRM '
-C?    CALL WRTMAT(WORK(KLKAP),1,NOOEXC,1,NOOEXC)
-      CALL REFRM_KAPPA(WORK(KLKAP),WORK(KLKAP1),1,1,
-     &                 WORK(KLOOEXC),WORK(KLOOEXCC),NOOEXC)
-*. Expand to complete matrix
-C         TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
-      CALL TRIPAK_BLKM(RESPDEN,WORK(KLKAP1),2,NTOOBS,NSMOB)
-*. And multiply with 2
-      TWO = 2.0D0
-      LENGTH = 0
-      DO ISM = 1, NSMOB
-        LENGTH = LENGTH + NTOOBS(ISM) ** 2
-      END DO
-      CALL SCALVE(RESPDEN,TWO,LENGTH)
-*
-* For general, not tested 
-*. Extract symmetry blocks from complete one-electron density 
-C     CALL MEMMAN(KLRHO1S,NTOOB**2,'ADDL  ','RHO1  ')
-C     I RHO1SM = 1
-C     CALL REORHO1(WORK(KRHO1),WORK(KLRHO1S),IRHO1SM)
-*. Expand kappa to complete matrix
-C     LENGTH = 0
-C     DO ISM = 1, NSMOB
-C       LENGTH = LENGTH + NTOOBS(ISM) ** 2
-C     END DO
-C     CALL MEMMAN(KLBLM1,LENGTH,'ADDL  ',2,'KLM1  ')
-C     CALL MEMMAN(KLBLM2,LENGTH,'ADDL  ',2,'KLM2  ')
-C     CALL MULT_BLOC_MAT(WORK(KLBLM1),WORK(
-C      MULT_BLOC_MAT(C,A,B,NBLOCK,LCROW,LCCOL,
-C    &                         LAROW,LACOL,LBROW,LBCOL,ITRNSP)
-*
-      NTEST = 00
-      IF(NTEST.GE.100) THEN 
-        WRITE(6,*)
-        WRITE(6,*) ' Orbital relaxation term to density '
-        WRITE(6,*) ' ================================== '
-        WRITE(6,*)
-        CALL APRBLM2(RESPDEN,NTOOBS,NTOOBS,NSMOB,0)
-      END IF
-*
-      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'RESPD_')
-      RETURN
-      END
       SUBROUTINE RESPDEN_FROM_F(FOCK,RESPDEN)
 *
 * Obtain Response contribution to density for method based upon Hartree-Fock 
@@ -206,6 +74,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'cgas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input 
       DIMENSION FOCK(*)
 *. Output
@@ -218,24 +89,24 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Nonredundant type-type excitations
       CALL MEMMAN(KLTTACT,NGAS*NGAS,'ADDL  ',1,'TTACT ')
-      CALL NONRED_TT_EXC(WORK(KLTTACT),1,0)
+      CALL NONRED_TT_EXC(int_mb(KLTTACT),1,0)
 *. Nonredundant orbital excitations
       CALL MEMMAN(KLOOEXC,NTOOB*NTOOB,'ADDL  ',1,'OOEXC ')
       CALL MEMMAN(KLOOEXCC,2*NTOOB*NTOOB,'ADDL  ',1,'OOEXCC')
-      CALL NONRED_OO_EXC(NOOEXC,WORK(KLOOEXC),WORK(KLOOEXCC),
-     &                   1,WORK(KLTTACT),2)
+      CALL NONRED_OO_EXC(NOOEXC,int_mb(KLOOEXC),int_mb(KLOOEXCC),
+     &                   1,int_mb(KLTTACT),2)
 *. Find inactive/active rotations (e.g. frozen core approximations)
 *. and sort them to the end of OOEXCC array; return number of these
 *. rotations on NCANCON
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'CANCON')
       CALL MEMMAN(KLICC,2*NOOEXC,'ADDL  ',1,'ICANCN')
-      CALL GET_NCANCON(NOOEXC,WORK(KLOOEXCC),WORK(KLOOEXC),
-     &                 NCANCON,WORK(KLICC))
+      CALL GET_NCANCON(NOOEXC,int_mb(KLOOEXCC),int_mb(KLOOEXC),
+     &                 NCANCON,int_mb(KLICC))
       CALL MEMMAN(IDUM,IDUM,'FLUSM  ',IDUM,'CANCON')
 
 *. Gradient from Fock matrix 
       CALL MEMMAN(KLE1,NOOEXC,'ADDL  ',2,'E1    ')
-      CALL F_TO_E1(FOCK,WORK(KLE1),1,WORK(KLOOEXCC),NOOEXC,0)
+      CALL F_TO_E1(FOCK,dbl_mb(KLE1),1,int_mb(KLOOEXCC),NOOEXC,0)
 *. If additional canonical conditions of frozen orbital have to be
 *. applied: calculate here there contribution to the response density
 *. (divide by orbital denominator) and modify the gradient accordingly
