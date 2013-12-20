@@ -922,8 +922,14 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Mp operator
            I12 = 1
 CBERT: Just swapping of pointers would do
-           CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
-           CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
+cnw        CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+cnw        CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
+           ktmp = kint1
+           kint1 = kfi
+           kfi = ktmp
+           ktmp = kint1o
+           kint1o = kfio
+           kfio = kint1o
          ELSE IF (IH0INSPC(1).EQ.2.OR.IH0INSPC(1).EQ.4) THEN
 *. EN diagonal
            I12 = 2
@@ -974,8 +980,14 @@ C      CALL GASDIAT(VECIN,ISSM,ISSPC,LUSC3,ECOREX,ICISTR,I12)
        IF(IH0INSPC(1).EQ.1.OR.IH0INSPC(1).EQ.3) THEN
 *. MP operator
 CBERT: Just swapping of pointers would do
-         CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
-         CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
+           ktmp = kint1
+           kint1 = kfi
+           kfi = ktmp
+           ktmp = kint1o
+           kint1o = kfio
+           kfio = kint1o
+cnw      CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+cnw      CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
        END IF
 *
 * 2 : Solve linear set of equations
@@ -1834,7 +1846,11 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
         IDOH2 = 0
       END IF
 *. Place perturbation integrals over one body integrals
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+      IF(IPERTOP.NE.0) then !CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+        ktmp=kint1
+        kint1 = kfi
+        kfi = ktmp
+      end if
 *. Scale and reformat
       IF(IDC.EQ.2) THEN
 *. scale
@@ -1888,7 +1904,11 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
       END IF
 
 *. restore order
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+      IF(IPERTOP.NE.0) then !CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+        ktmp=kint1
+        kint1 = kfi
+        kfi = ktmp
+      end if
 *. Eliminate local memory
       IDUM = 0
       CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBFCB ')
@@ -2145,7 +2165,12 @@ COLD  CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',2,'CBLTP ')
         IDOH2 = 0
       END IF
 *. Place perturbation integrals over one body integrals
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+      IF(IPERTOP.NE.0) then !CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+        ktmp=kint1
+        kint1 = kfi
+        kfi = ktmp
+      end if
+c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
 *. Scale and reformat
       NTEST = 0
       IF(IDC.EQ.2) THEN    
@@ -2220,7 +2245,12 @@ C    &                  NSMST,NOCTPA,NOCTPB,
 C    &                  NSASO,NSBSO,IDC,IWAY,IPRNT)
 
 *. restore order
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+      IF(IPERTOP.NE.0) then !CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+        ktmp=kint1
+        kint1 = kfi
+        kfi = ktmp
+      end if
+c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
 *. Eliminate local memory
       IDUM = 0
       CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBFCB ')
@@ -3092,17 +3122,33 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFIO),WORK(KINT1),NINT1)
+c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFIO),WORK(KINT1),NINT1)
+      IF(IPERTOP.NE.0) then !CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+        ktmp=kint1
+        kint1 = kfi
+        kfi = ktmp
+      end if
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+        ktmp = khina
+        khina = kint1
+        kint1 = ktmp
         ECORE_SAVE = ECORE
         ECORE = ECORE_INA
       END IF
       CALL GT1DIA(dbl_mb(KLH1D))
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+        ktmp = khina
+        khina = kint1
+        kint1 = ktmp
       END IF
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFIO),WORK(KINT1),NINT1)
+c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFIO),WORK(KINT1),NINT1)
+      if(ipertop.ne.0) then
+        ktmp = kfio
+        kfio = kint1
+        kint1 = ktmp
+      end if
       WRITE(6,*) ' DIA0TRM_GAS : IPERTOP ', IPERTOP
 *
       IF(I12.EQ.2) 
@@ -3275,13 +3321,19 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+        ktmp = khina
+        khina = kint1
+        kint1 = ktmp
         ECORE_SAVE = ECORE
         ECORE = ECORE_INA
       END IF
       CALL GT1DIA(dbl_mb(KLH1D))
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+        ktmp = khina
+        khina = kint1
+        kint1 = ktmp
       END IF
       IF(J12.EQ.2)
      &CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
@@ -3421,21 +3473,37 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
       MAXA = IMNMX(int_mb(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL MEMMAN(KLRJKA,MAXA,'ADDL  ',2,'KLRJKA')  !done
 *. Diagonal of one-body integrals and coulomb and exchange integrals
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+      IF(IPERTOP.NE.0) THEN
+        ktmp = kfi
+        kfi = kint1o
+        kint1o = ktmp
+      ENDIF
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+        ktmp = khina
+        khina = kint1
+        kint1 = ktmp
         ECORE_SAVE = ECORE
         ECORE = ECORE_INA
       END IF
       CALL GT1DIA(dbl_mb(KLH1D))
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KHINA),WORK(KINT1),NINT1)
+        ktmp = khina
+        khina = kint1
+        kint1 = ktmp
       END IF
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Diagonal of 1-el ints '
         CALL WRTMAT(dbl_mb(KLH1D),1,NTOOB,1,NTOOB)
       END IF
-      IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+      if(ipertop.ne.0) then
+        ktmp = kfio
+        kfio = kint1
+        kint1 = ktmp
+      end if
       IF(I12.EQ.2)
      &CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
       IF(NTEST.GE.10 ) THEN
@@ -5986,12 +6054,18 @@ c      INCLUDE 'mxpdim.inc'
 *. Calculate FI+FA if required
       IF(MPORENP.EQ.1) THEN
         WRITE(6,*) ' M-P Hamiltonian will be constructed '
-        CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
-        CALL FIFAM(WORK(KFI)) 
-        CALL COPVEC(WORK(KFI),WORK(KFIO),NINT1)
+c       CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
+        ktmp = kfi
+        kfi = kint1o
+        kint1o = ktmp
+        CALL FIFAM(KFI) 
+c       CALL COPVEC(WORK(KFI),WORK(KFIO),NINT1)
+        ktmp = kfi
+        kfi = kfio
+        kfio = ktmp
         ECORE_H = 0.0D0
         IF(IUSE_PH.EQ.1) THEN
-          CALL FI(WORK(KFI),ECORE_H,0)
+          CALL FI(KFI,ECORE_H,0)
 C         ECORE = ECORE_ORIG + ECCP 
         END IF
       END IF
@@ -7319,8 +7393,14 @@ C       IDOH2 = JDOH2
 *. Put MP integrals in place ( Or put good old one-electron integrals 
 *. back where they belong
       IF(IMP.EQ.1) THEN
-        CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
-        CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
+c       CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
+        ktmp = kint1
+        kint1 = kfi
+        kfi = ktmp
+c       CALL SWAPVE(WORK(KINT1O),WORK(KFIO),NINT1)
+        ktmp = kint1o
+        kint1o = kfio
+        kfio = ktmp
       END IF
 *
       NTEST = 00
@@ -10316,7 +10396,10 @@ C     WRITE(6,*) ' MXNSTR in DIATERM', MXNSTR
 *. Integrals assumed in place so :
 C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       IF(IUSE_PH.EQ.1) THEN
-        CALL SWAPVE(WORK(KH),WORK(KINT1),NINT1)
+c       CALL SWAPVE(WORK(KH),WORK(KINT1),NINT1)
+        ktmp = kh
+        kh = kint1
+        kint1 = ktmp
         ECORE_SAVE = ECORE
         ECORE = ECORE_ORIG
       END IF
