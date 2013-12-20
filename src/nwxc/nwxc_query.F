@@ -804,6 +804,10 @@ c
          case (NWXCP_C_VWN5)
            cdata = "VWN5 Correlation (SH Vosko, L Wilk, M Nusair, "
      +             //"Can.J.Phys. 58, 1200 (1980) doi:10.1139/p80-159)"
+         case (NWXCP_ACM)
+           cdata = "ACM (AD Becke, "
+     +             //"J.Chem.Phys. 98, 5648 (1993) "
+     +             //"doi:10.1063/1.464913)"
          case (NWXCP_B3LYP)
            cdata = "B3LYP (PJ Stephens, FJ Devlin, CF Chabalowski, "
      +             //"MJ Frisch, J.Phys.Chem. 98, 11623 (1994) "
