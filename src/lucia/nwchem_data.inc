@@ -4,8 +4,8 @@
       integer ipnt(mxpirr),ipnt2(mxpirr)
       integer ioff(mxpirr),icount(mxpirr)
       integer kirs(mxporb),reord(mxporb)
-      integer nwchem_id(mxorb,mxpirr)
-      double precision nwchem_sc(mxorb,mxpirr)
+      integer nwchem_id(mxporb,mxpirr)
+      double precision nwchem_sc(mxporb,mxpirr)
       integer luciaao,luciamo(2)
       COMMON/NWCHEM_DATAI/luciageom,luciabasis,
      &                    ipnt,ipnt2,ioff,icouno,kirs,

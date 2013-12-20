@@ -7733,6 +7733,54 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 *
       RETURN
       END 
+      SUBROUTINE GET_CMOAO_NWCHEM(CMO,NMOS,NAOS)
+*
+* Obtain CMOAO expansion matrix from LUCIA formatted file LUH
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+#include "mxpdim.inc"
+#include "lucinp.inc"
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "sym.fh"
+#include "rtdb.fh"
+#include "nwchem_data.inc"
+*. Input
+      INTEGER NMOS(*),NAOS(*)
+*. Output  
+      DIMENSION CMO(*)
+      double precision ctmp(mxporb)
+*
+      g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
+     &                                 'LUCIA movecs')
+      if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord,dum,dum,
+     &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
+      icounter=1
+      do nir = 1, nirrep
+         do i = 1, luciamo(1)
+            if (kirs(i).eq.nir) then
+               call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
+               do j = 1, luciaao
+                  if (nbf_sc(j,i).gt.0.0d0) then
+                     cmo(icounter) = ctmp(j)*nbf_sc(j,i)
+                     icounter = icounter + 1
+                  endif
+               enddo
+            endif
+         enddo
+      enddo
+
+      NTEST = 000
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' MO-AO transformation read in '
+        CALL PRHONE(CMO,NMOS,1,NSMOB,0)
+C            PRHONE(C,NFUNC,M,NSM,IPACK)
+      END IF
+*
+      RETURN
+      END 
       FUNCTION NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 *
 * Length of one-electron matrix with symmetry IHSM
