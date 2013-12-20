@@ -1,11 +1,15 @@
       logical function sym_mol(zname, ipntmol)
 c     
-      implicit double precision (a-h,p-w)
+c     implicit double precision (a-h,p-w)
+      implicit none
 #include "errquit.fh"
 #include "util.fh"
 c     
+      character*8 zname
+      character*8 zgroup
+      integer maxireps
       parameter (maxireps=20)
-      dimension ipntmol(maxireps)
+      integer ipntmol(maxireps)
 c
       zgroup = zname
       call inp_lcase(zgroup)
