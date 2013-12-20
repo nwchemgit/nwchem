@@ -9609,8 +9609,10 @@ c      INCLUDE 'mxpdim.inc'
       integer rtdb
       integer g_scfmo,g_moreo
       double precision occ(mxporb),evals(mxporb)
-      external geom_nuc_rep_energy
       logical geom_nuc_rep_energy
+      external geom_nuc_rep_energy
+      logical movecs_read
+      external movecs_read
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -10350,123 +10352,6 @@ C
        IVEC2(I) = IBUF
   100 CONTINUE
 C
-      RETURN
-      END
-      FUNCTION ISYMC1(ICL,IOP,NCL,NOPEN)
-*
-* Symmmetry of configuration, D2H version
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input
-      INCLUDE 'mxpdim.inc'
-      INCLUDE 'orbinp.inc'
-*
-      INTEGER SYMPRO(8,8)
-      DATA  SYMPRO/1,2,3,4,5,6,7,8,
-     &             2,1,4,3,6,5,8,7,
-     &             3,4,1,2,7,8,5,6,
-     &             4,3,2,1,8,7,6,5,
-     &             5,6,7,8,1,2,3,4,
-     &             6,5,8,7,2,1,4,3,
-     &             7,8,5,6,3,4,1,2,
-     &             8,7,6,5,4,3,2,1 /
-*. Specific input
-      INTEGER ICL(*),IOP(*)
-*
-      ISYM = 1
-      DO 100 IEL = 1, NOPEN
-        ISYM = SYMPRO(ISYM,ISMFTO(IOP(IEL)))
-  100 CONTINUE
-*
-      ISYMC1 = ISYM
-*
-      NTEST = 00
-      IF(NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' ISYMC1, configuration and symmetry '
-        CALL IWRTMA(ICL,1,NCL,1,NCL)
-        CALL IWRTMA(IOP,1,NOPEN,1,NOPEN)
-        WRITE(6,*) ISYM
-      END IF
-*
-      RETURN
-      END
-      FUNCTION ISYMC2(ICL,IOP,NCL,NOP)
-*
-* Symmetry of configuration ICONF, D inf h, C inf v, O3 version
-*
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-      INCLUDE 'mxpdim.inc'
-      INCLUDE 'orbinp.inc'
-*./NONAB/
-      LOGICAL INVCNT
-      COMMON/NONAB/ INVCNT,NIG,NORASM(MXPOBS),
-     &              MNMLOB,MXMLOB,NMLOB,
-     &              MXMLST,MNMLST,NMLST,
-     &              NMLSX ,MNMLSX,MXMLSX,
-     &              MNMLCI,MXMLCI,NMLCI,
-     &              MXMLDX,MNMLDX,NMLDX
-*
-      INTEGER  ICL(*),IOP(*)
-*. ML and parity of string
-      ML = 0
-      IPARI = 1
-*. Doubly occupied part
-      DO 10 IEL = 1, NCL
-        IF(ISMFTO(ICL(IEL)).LE.NMLOB) THEN
-          ML = ML + 2*(ISMFTO(ICL(IEL))-1+MNMLOB)
-        ELSE
-          ML = ML + 2*(ISMFTO(ICL(IEL))-1+MNMLOB-NMLOB)
-        END IF
-   10 CONTINUE
-*. singly occupied part
-      DO 20 IEL = 1, NOP
-        IF(ISMFTO(IOP(IEL)).LE.NMLOB) THEN
-          ML = ML + ISMFTO(IOP(IEL))-1+MNMLOB
-        ELSE
-          ML = ML + ISMFTO(IOP(IEL))-1+MNMLOB-NMLOB
-          IPARI = - IPARI
-        END IF
-   20 CONTINUE
-*
-      IF(IPARI.EQ.-1) IPARI = 2
-      ISYM  = (IPARI-1) * NMLCI+ ML - MNMLCI + 1
-      ISYMC2 = ISYM
-*
-      NTEST = 00
-      IF( NTEST .GE. 1 ) THEN
-        WRITE(6,*) ' ISYMC2, configuration and symmetry '
-        CALL IWRTMA(ICL,1,NCL,1,NCL)
-        CALL IWRTMA(IOP,1,NOP,1,NOP)
-        WRITE(6,'(A,3I3)') ' ML, IPARI ISYMC2 ', ML,IPARI,ISYMC2
-      END IF
-*
-      RETURN
-      END
-      FUNCTION ISYMCN(ICL,IOP,NCL,NOPEN)
-*
-* Master routine for symmetry of configuration
-* with NCL doubly occupied orbitals and NOPEN singly occupied shells
-*
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input ( PNTGRP is used )
-      INCLUDE 'mxpdim.inc'
-      INCLUDE 'lucinp.inc'
-*. Specific input
-      INTEGER ICL(*),IOP(*)
-      IF(PNTGRP.EQ.1) THEN
-*.D2h
-        ISYMCN = ISYMC1(ICL,IOP,NCL,NOPEN)
-      ELSE IF(PNTGRP.GE.2.AND.PNTGRP.LE.4) THEN
-*.Cinfv Dinfh O3
-        ISYMCN = ISYMC2(ICL,IOP,NCL,NOPEN)
-      ELSE
-        WRITE(6,*) ' Sorry PNTGRP option not programmed ', PNTGRP
-        WRITE(6,*) ' Enforced stop in ISYMCN '
-        STOP 5
-      END IF
-*
       RETURN
       END
       FUNCTION ISYMS1(STRING,NEL)
