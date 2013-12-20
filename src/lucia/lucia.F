@@ -1570,82 +1570,6 @@ CNW   CALL SCALVE(WORK(KINT2),XLAMBDA,NINT2)
 *
       RETURN
       END 
-      SUBROUTINE GENH1(XLAMBDA_X)
-*
-* Construct the general one-electron operator
-*
-* H = XLAMBDA*H(NORMAL) + (1-XLAMBDA)FIFA
-*
-*
-* Where H(Normal) is the normal one-electron operator
-* and FIFA is the sum of the inactive and active Fock matrices 
-* used in CASPTN theory
-*
-* The correct one-electron density is assumed in place
-*
-* Jeppe Olsen, March 1996
-*
-*. Note: Correct Lambda is transferred through CRUN as of Feb. 98
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'oper.inc'
-      INCLUDE 'crun.inc'
-      INCLUDE 'cintfo.inc'
-      INCLUDE 'cecore.inc'
-*
-*. Construct FIFA in WORK(KFI)
-*
-      IF(IPART.NE.3) THEN
-*. Normal M-P Partitioning
-        WRITE(6,*) 'Normal MP partitioning'
-        WRITE(6,*) 'Normal MP partitioning'
-        WRITE(6,*) 'Normal MP partitioning'
-CNW     CALL COPVEC(WORK(KINT1O),WORK(KFI),NINT1)
-        call ga_copy(KINT1O,KFI)
-        CALL FIFAM(KFI)
-CNW     CALL COPVEC(WORK(KFI),WORK(KFIO),NINT1)
-        call ga_copy(KFI,KFIO)
-        ECORE_H = 0.0D0
-        IF(IUSE_PH.EQ.1) THEN
-          CALL FI(KFI,ECORE_H,0)
-          ECORE = ECORE_ORIG + ECORE_H 
-        END IF
-*. And write to disc
-        LU18 = IGETUNIT(18)
-        REWIND (LU18)
-        WRITE(6,*) ' H0 written to disc '
-        CALL TODSC(WORK(KFI),NINT1,-1,LU18)
-      ELSE IF(IPART.EQ.3) THEN
-        WRITE(6,*) ' Zero-order Hamiltonian readin '
-        WRITE(6,*) ' Zero-order Hamiltonian readin '
-        WRITE(6,*) ' Zero-order Hamiltonian readin '
-        WRITE(6,*) ' Zero-order Hamiltonian readin '
-        LU18 = IGETUNIT(18)
-        REWIND (LU18)
-        CALL FRMDSC(WORK(KFI),NINT1,-1,LU18,IMZERO,IAMPACK)
-      END IF
-*
-*. And obtain modified operator in KINT1 ( No return !! )
-*
-      FAC2 = 1.0D0 - XLAMBDA
-      CALL VECSUM(WORK(KINT1),WORK(KINT1),WORK(KFI),XLAMBDA,FAC2,
-     &            NINT1)
-*
-      CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) 'Modified matrix as delivered by GENH1 '
-       WRITE(6,*) '======================================'
-       CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,1)
-      END IF
-*
-      RETURN
-      END 
       SUBROUTINE MIXHONE(H1,H2,NREPTP,IREPTP,NOBTP,NSMOB)
 *
 * Replace selected type blocks of H1 with the corresponding blocks 
@@ -2425,10 +2349,16 @@ CBERT SHOULD NOT BE CALLED
        IF(IIUSEH0P.EQ.1) THEN
 *. Is pt not reprogrammed for CSF's and ICISTR = 1
 *. Diagonal with F
-         CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+         kswap = kfi
+         kfi = kint1o
+         kint1o = kswap
+cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
          CALL GASDIAT(dbl_mb(KVEC1),LUSC52,SHIFT,ICISTR,1,
      &              int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
-         CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+         kswap = kfi
+         kfi = kint1o
+         kint1o = kswap
+cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
 *. diag of (1-Lambda) F + Lambda H
          FAC1 = 1.0D0 - XLAMBDA
          FAC2 = XLAMBDA
@@ -2743,8 +2673,9 @@ C?        END IF
 *
           IF(ISPC.EQ.1.AND.JROOT.EQ.IH0ROOT) THEN
 *. Calculate inactive Fock matrix for reference root in first space 
-             CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
-             CALL FIFAM(WORK(KFIZ))
+             call ga_copy(KINT1,KFIZ)
+cnw          CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
+             CALL FIFAM(KFIZ)
           END IF
 *
           IF(IPRNT.GT.2) THEN
@@ -2928,17 +2859,17 @@ C                SKPVCD(LU,NVEC,SEGMNT,IREW,LBLK)
 *. Include orbital relaxation: 1) Fock matrix 2) Response density
               WRITE(6,*) ' Construct fock matrix '
               CALL MEMMAN(KLFOO,NTOOB**2,'ADDL  ',2,'FOO   ')
-              CALL FOCK_MAT(WORK(KLFOO),2)
+              CALL FOCK_MAT(dbl_mb(KLFOO),2)
 C             WRITE(6,*) ' Fock matrix'
 C             CALL APRBLM2(WORK(KLFOO),NTOOBS,NTOOBS,NSMOB,0)
               CALL MEMMAN(KLRESP_DEN,NTOOB**2,'ADDL  ',2,'RESP_D')
               IRELAX_LOC = 1
-              CALL RESPDEN_FROM_F(WORK(KLFOO),WORK(KLRESP_DEN))
+              CALL RESPDEN_FROM_F(dbl_mb(KLFOO),dbl_mb(KLRESP_DEN))
 C                  RESPDEN_FROM_F(FOCK,RESPDEN)
             END IF
 *
             IF(NPROP.GT.0) 
-     &      CALL ONE_EL_PROP(I_EXP_OR_TRA,IRELAX_LOC,WORK(KLRESP_DEN))
+     &      CALL ONE_EL_PROP(I_EXP_OR_TRA,IRELAX_LOC,dbl_mb(KLRESP_DEN))
 *
 C           IF(IROOT1.EQ.IROOT2.AND.I_DO_LZ2.EQ.1) THEN
 C             CALL EXP_LZ2(WORK(KVEC1),WORK(KVEC2),RLZEFF,RL2EFF)
@@ -2957,9 +2888,9 @@ C           END IF
      &   ' Energy from EN_FROM_DEN',ENERGY 
          WRITE(6,*) ' Construct fock matrix '
          CALL MEMMAN(KLFOO,NTOOB**2,'ADDL  ',2,'FOO   ')
-         CALL FOCK_MAT(WORK(KLFOO),2)
+         CALL FOCK_MAT(dbl_mb(KLFOO),2)
          WRITE(6,*) ' Fock matrix'
-         CALL APRBLM2(WORK(KLFOO),NTOOBS,NTOOBS,NSMOB,0)
+         CALL APRBLM2(dbl_mb(KLFOO),NTOOBS,NTOOBS,NSMOB,0)
        END IF
 *
 *. Regenerate densities for reference root
