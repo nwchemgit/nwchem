@@ -512,20 +512,20 @@ task dft energy
 
 # GGA exchange + GGA correlation 
 
-dft
-  vectors input atomic
-  xc pbe96
-end
-task dft energy
-
-dft
-  odft
-  vectors input atomic
-  xc optx optc
-end
-task dft energy
-
 # GGA exchange-correlation
+
+dft
+  vectors input atomic
+  xc acm
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc b3lyp
+end
+task dft energy
+
 
 dft
   vectors input atomic
@@ -578,6 +578,18 @@ task dft energy
 dft
   vectors input atomic
   xc becke98
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc optx optc
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc pbe96
 end
 task dft energy
 

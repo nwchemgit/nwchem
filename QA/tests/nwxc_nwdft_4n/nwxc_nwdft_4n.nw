@@ -676,6 +676,22 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc acm
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3lyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc b3p86
 end
 task dft energy
