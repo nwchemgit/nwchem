@@ -1224,7 +1224,7 @@ c      INCLUDE 'mxpdim.inc'
         STOP       ' Inconsistent symmetries in BVEC'
       END IF
 *. Get integrals in place
-      CALL SWAPVE(B,WORK(KINT1),NTOOB**2)
+      CALL SWAPVE(B,KINT1,NTOOB**2)
 *. Just one-electron operator
       I12 = 1
 *. No additional approximations
@@ -1233,7 +1233,7 @@ c      INCLUDE 'mxpdim.inc'
 *. And : DO IT
       CALL MV7(VEC1,VEC2,LUC,LUB,0,0)
 *. Restore order
-      CALL SWAPVE(B,WORK(KINT1),NTOOB**2)
+      CALL SWAPVE(B,KINT1,NTOOB**2)
 *
       RETURN
       END
