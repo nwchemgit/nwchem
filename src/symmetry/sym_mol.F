@@ -4,6 +4,7 @@ c
 #include "errquit.fh"
 #include "util.fh"
 c     
+      parameter (maxireps=20)
       dimension ipntmol(maxireps)
 c
       zgroup = zname
