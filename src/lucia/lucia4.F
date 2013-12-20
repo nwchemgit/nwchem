@@ -5127,7 +5127,7 @@ CNW   DIMENSION H(*), CINI(*)
 * FI:  Inactive Fock matrix in current basis, lower half of symmetry blocks
 * EINAC: contribution to core energy from inactive/hole-orbitals
 CNW   DIMENSION FI(*)
-      dimension FI
+      integer FI
 *
       IF(IPRINTEGRAL.GE.100) NTEST = 100
       NTEST = 00
