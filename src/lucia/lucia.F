@@ -582,8 +582,9 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
 *
       RETURN
       END
-      SUBROUTINE GETOBS_DALTON(ECORE_ENV,NAOS_ENV,NMOS_ENV)
+      SUBROUTINE GETOBS_NWCHEM(NAOS_ENV,NMOS_ENV)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mxpdim.inc"
 #include "nwchem_data.inc"
 *. Output
       DIMENSION NAOS_ENV(*), NMOS_ENV(*)
@@ -593,8 +594,10 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
          NMOS_ENV(i) = 0
       enddo
       do i = 1, nirrep
-         NAOS_ENV(i) = NAOS_ENV(i) +
-         NMOS_ENV(i) = NMOS_ENV(i) +
+         do j = 1, luciamo(1)
+            NAOS_ENV(i) = NAOS_ENV(i) + nwchem_id(j,reord(i))
+         enddo
+         NMOS_ENV(i) = NAOS_ENV(i) 
       enddo
       RETURN
       END
@@ -9619,6 +9622,8 @@ c      INCLUDE 'mxpdim.inc'
 #include "bas.fh"
 #include "sym.fh"
 #include "rtdb.fh"
+#include "mxpdim.inc"
+#include "nwchem_data.inc"
       integer g_moreo
       logical geom_nuc_rep_energy
       external geom_nuc_rep_energy
@@ -10565,6 +10570,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'vb.inc'
 *. Added dec. 2011
       INCLUDE 'spinfo.inc'
+      INCLUDE 'mxpdim.inc'
       INCLUDE 'nwchem_data.inc'
       COMMON/CENOT/E0
       LOGICAL LTARGET
