@@ -275,76 +275,59 @@ C          FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GETHSA')
-C?    WRITE(6,*) ' IGET_HAO, IGET_SAO = ', IGET_HAO,IGET_SAO
-C?    WRITE(6,'(A,6A)') ' ENVIRO = ', ENVIRO
-      IF(ENVIRO(1:6).EQ.'DALTON') THEN 
-        IF(IGET_HAO.EQ.1) THEN
-           CALL GETHAO_DALTON(HAO)
-        END IF
-        IF(IGET_SAO.EQ.1) THEN
-           CALL GETSAO_DALTON(SAO)
-        END IF
-*
-* Lucia Environment
-*
-      ELSE IF(ENVIRO(1:5).EQ.'LUCIA') THEN
 *. We only have information on the MO basis, CMO**(-1) will be generated
 *. to transform to the AO basis
+C                 NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
+      LEN_H = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
+      CALL MEMMAN(KLH1,LEN_H,'ADDL  ',2,'H1AO  ')
+      CALL MEMMAN(KLH2,LEN_H,'ADDL  ',2,'H2AO  ')
+      CALL MEMMAN(KLH3,2*LEN_H,'ADDL  ',2,'H3AO  ')
+      CALL MEMMAN(KLH4,LEN_H,'ADDL  ',2,'H4AO  ')
+*
+      IF(IGET_HAO.EQ.1) THEN
+*. C ** -1 in KLH2
+        CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KLH1),LEN_H)
+C            INV_BLKMT(A,AINV,SCR,NBLK,LBLK,IPROBLEM)
+        CALL INV_BLKMT(dbl_mb(KLH1),dbl_mb(KLH2),dbl_mb(KLH3),
+     &       NSMOB,NTOOBS,IPROBLEM)
+        IF(IPROBLEM.NE.0) THEN
+          WRITE(6,*) ' GET_HSAO: Warning: problem in block-inverse '
+        END IF
+*. Read integrals in MO basis in HAO
+        REWIND LU2INT
+        READ(LU2INT,'(E22.15)') (dbl_mb(KLH1-1+INT1),INT1=1,NINT1)
+*. Obtain HAO = C** -1(T) HMO C** -1, in packed form 
+C            TRAN_SYM_BLOC_MAT3(AIN,X,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
+        CALL TRAN_SYM_BLOC_MAT3(dbl_mb(KLH1),dbl_mb(KLH2),
+     &       NSMOB,NTOOBS,NTOOBS,HAO,dbl_mb(KLH3),1)
+      END IF
+*
+      IF(IGET_SAO.EQ.1) THEN
+*. Obtain SAO as ( C CT) ** -1
 C                 NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
         LEN_H = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
         CALL MEMMAN(KLH1,LEN_H,'ADDL  ',2,'H1AO  ')
         CALL MEMMAN(KLH2,LEN_H,'ADDL  ',2,'H2AO  ')
         CALL MEMMAN(KLH3,2*LEN_H,'ADDL  ',2,'H3AO  ')
-        CALL MEMMAN(KLH4,LEN_H,'ADDL  ',2,'H4AO  ')
-*
-        IF(IGET_HAO.EQ.1) THEN
-*. C ** -1 in KLH2
-          CALL COPVEC(WORK(KMOAOIN),WORK(KLH1),LEN_H)
-C              INV_BLKMT(A,AINV,SCR,NBLK,LBLK,IPROBLEM)
-          CALL INV_BLKMT(WORK(KLH1),WORK(KLH2),WORK(KLH3),
-     &         NSMOB,NTOOBS,IPROBLEM)
-          IF(IPROBLEM.NE.0) THEN
-            WRITE(6,*) ' GET_HSAO: Warning: problem in block-inverse '
-          END IF
-*. Read integrals in MO basis in HAO
-          REWIND LU2INT
-          READ(LU2INT,'(E22.15)') (WORK(KLH1-1+INT1),INT1=1,NINT1)
-*. Obtain HAO = C** -1(T) HMO C** -1, in packed form 
-C              TRAN_SYM_BLOC_MAT3(AIN,X,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
-          CALL TRAN_SYM_BLOC_MAT3(WORK(KLH1),WORK(KLH2),
-     &         NSMOB,NTOOBS,NTOOBS,HAO,WORK(KLH3),1)
+        IF(NTEST.GE.1000) THEN
+        WRITE(6,*) ' Input C matrix '
+          CALL APRBLM2(dbl_mb(KMOAOIN),NTOOBS,NTOOBS,NSMOB,0)
         END IF
-*
-        IF(IGET_SAO.EQ.1) THEN
-*. Obtain SAO as ( C CT) ** -1
-C                 NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
-          LEN_H = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
-          CALL MEMMAN(KLH1,LEN_H,'ADDL  ',2,'H1AO  ')
-          CALL MEMMAN(KLH2,LEN_H,'ADDL  ',2,'H2AO  ')
-          CALL MEMMAN(KLH3,2*LEN_H,'ADDL  ',2,'H3AO  ')
-          IF(NTEST.GE.1000) THEN
-            WRITE(6,*) ' Input C matrix '
-            CALL APRBLM2(WORK(KMOAOIN),NTOOBS,NTOOBS,NSMOB,0)
-          END IF
 * C CT in H1
 C              MULT_BLOC_MAT(C,A,B,NBLOCK,LCROW,LCCOL,
 C    &         LAROW,LACOL,LBROW,LBCOL,ITRNSP)
-          CALL MULT_BLOC_MAT(WORK(KLH1),WORK(KMOAOIN),WORK(KMOAOIN),
-     &         NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,2)
+        CALL MULT_BLOC_MAT(dbl_mb(KLH1),dbl_mb(KMOAOIN),dbl_mb(KMOAOIN),
+     &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,2)
 * ( C CT) ** -1 in H2
 C              INV_BLKMT(A,AINV,SCR,NBLK,LBLK,IPROBLEM)
-          CALL INV_BLKMT(WORK(KLH1),WORK(KLH2),WORK(KLH3),
-     &         NSMOB,NTOOBS,IPROBLEM)
-          IF(IPROBLEM.NE.0) THEN
-            WRITE(6,*) ' Warning: GET_HSAO, problem in block-inverse '
-          END IF
+        CALL INV_BLKMT(dbl_mb(KLH1),dbl_mb(KLH2),dbl_mb(KLH3),
+     &       NSMOB,NTOOBS,IPROBLEM)
+        IF(IPROBLEM.NE.0) THEN
+          WRITE(6,*) ' Warning: GET_HSAO, problem in block-inverse '
+        END IF
 *.pack to lower half
 C               TRIPAK_AO_MAT(AUTPAK,APAK,IWAY)
-           CALL TRIPAK_AO_MAT(WORK(KLH2),SAO,1)
-        END IF
-      ELSE 
-        WRITE(6,'(A,A)') ' Unknown environment in GET_HSAO ', ENVIRO
-        STOP  ' Unknown environment in GET_HSAO '
+        CALL TRIPAK_AO_MAT(dbl_mb(KLH2),SAO,1)
       END IF
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'GETHSA')
 *
