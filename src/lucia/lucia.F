@@ -6178,7 +6178,7 @@ c      INCLUDE 'mxpdim.inc'
 C?        WRITE(6,*) ' GETH1E, old route '
             IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
               GETH1E =
-     &           GTH1ES(IREOTS,dbl_mb(KPINT1),WORK(KINT1),IBSO,MXPNGAS,
+     &           GTH1ES(IREOTS,dbl_mb(KPINT1),KINT1,IBSO,MXPNGAS,
      &           IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,NINOB)
             ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
               GETH1E =
@@ -6192,7 +6192,7 @@ C?        WRITE(6,*) ' GETH1E, old route '
           ELSE
             IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
               GETH1E =
-     &             GTH1ES(IREOTS,dbl_mb(KPGINT1(IJSM)),WORK(KINT1),IBSO,
+     &             GTH1ES(IREOTS,dbl_mb(KPGINT1(IJSM)),KINT1,IBSO,
      &             MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,
      &             NINOB)
             ELSE  IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
@@ -6210,7 +6210,7 @@ C?        WRITE(6,*) ' GETH1E, old route '
 *. Integrals are in full blocked form
           IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
             GETH1E =
-     &      GTH1ES(IREOTS,dbl_mb(KPGINT1A(IJSM)),WORK(KINT1),IBSO,
+     &      GTH1ES(IREOTS,dbl_mb(KPGINT1A(IJSM)),KINT1,IBSO,
      &         MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,0,
      &         NINOB)
           ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
@@ -9955,6 +9955,7 @@ C?   &      WORK(KFI), WORK(KINT1O)
       END IF
 *
 C?    WRITE(6,*) ' IDMPIN ', IDMPIN
+c.. dongxia: let's assume we would not dump integrals
       IF (IDMPIN.EQ.1 ) THEN
         WRITE(6,*)
      &   ' Integrals written formatted (E22.15) on unit 90'
@@ -25661,6 +25662,7 @@ C     CHARACTER LINE*80,FMT*40
 * Jeppe Olsen, June 2002
 *
 *
+* dongxia: it is called only when ENV=FUSK, not worry about it for now
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
@@ -26957,197 +26959,6 @@ C?   &               ISM, NMOS, NAOS, NBLOCK
         IOFF_MOAO = IOFF_MOAO + NMOS*NAOS
       END DO
 *
-      RETURN
-      END
-      SUBROUTINE GETINT_ORIG(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,ICOUL)
-*
-*
-* Outer routine for accessing integral block
-*
-* if we have unrestricted spin-orbitals (I_UNRORB.EQ.1), this is important:
-* ISPCAS: 1 -- alpha alpha
-* ISPCAS: 2 -- beta  beta
-* ISPCAS: 3 -- alpha beta (i.e. IJ alpha, KL beta)
-* ISPCAS: 4 -- beta  alpha(i.e. IJ beta,  KL alpha)
-*
-c      IMPLICIT REAL*8(A-H,O-Z)
-*
-c      INCLUDE 'mxpdim.inc'
-      INCLUDE 'wrkspc.inc'
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-      INCLUDE 'lucinp.inc'
-      INCLUDE 'orbinp.inc'
-      INCLUDE 'csm.inc'
-      INCLUDE 'cc_exc.inc'
-      INCLUDE 'crun.inc'
-      INCLUDE 'glbbas.inc'
-      INCLUDE 'oper.inc'
-      INCLUDE 'cintfo.inc'
-      INCLUDE 'cgas.inc'
-*
-      CALL QENTER('GETIN')
-      NTEST = 000
-*
-      IF(NTEST.GE.1) THEN
-       WRITE(6,*) ' I_USE_SIMTRH in GETINT =', I_USE_SIMTRH
-       WRITE(6,*) ' I_UNRORB in GETINT =', I_UNRORB
-       WRITE(6,*) ' GETINT: ICC_EXC and ICOUL = ', ICC_EXC, ICOUL
-       WRITE(6,*)       'ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM: ' 
-       WRITE(6,'(8I4)')  ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM
-      END IF
-*
-*. Modified July 2010: ITP = -1 now indicated all orbitals
-*                          =  0 indicates inactive
-*                          =  NGAS + 1 indicates secondary
-
-      IF (ISPCAS.EQ.4) STOP 'STILL A BUG FOR ISPCAS.EQ.4!'
-*
-      IF(ICC_EXC.EQ.0.AND.I_USE_SIMTRH.EQ.0) THEN
-*
-* =======================
-* Usual/Normal  integrals
-* =======================
-*
-*. Integrals in core in internal LUCIA format
-        IF(ICOUL.NE.2.AND.I_UNRORB.EQ.0) THEN
-          IF (I12S.EQ.1.AND.I34S.EQ.1) THEN
-            CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                    IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                    dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
-          ELSE
-            CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
-          END IF
-        ELSE IF (I_UNRORB.EQ.0) THEN
-          CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
-        ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.1) THEN
-          CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
-        ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
-          CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2BB),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
-        ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.3) THEN
-          CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2AB),
-     &                  WORK(KPINT2AB),NSMOB,WORK(KINH1),ICOUL,1)
-        ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.4) THEN
-          CALL GETINCN2(XINT,KTP,KSM,LTP,LSM,ITP,ISM,JTP,JSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2AB),
-     &                  WORK(KPINT2AB),NSMOB,WORK(KINH1),ICOUL,1)
-        ELSE
-          WRITE(6,*) 'WRONG ISPCAS IN GETINT (',ISPCAS,')'
-          STOP 'getint'
-        END IF
-      ELSE IF (ICC_EXC.EQ.1.AND.I_USE_SIMTRH.EQ.0) THEN
-*
-* ============================
-* Coupled Cluster coefficients 
-* ============================
-* 
-        IF(ICOUL.EQ.1) THEN
-          IKLJ = 0 
-          IJ_TRNSP = 1
-        ELSE
-          IKLJ = 1
-          IJ_TRNSP = 0
-        END IF
-*. IJ_TRNSP: RSBB2BN requires blocks for e(ijkl) in the form C(ji,kl)
-*. Amplitudes fetched from KCC1, KCC2 used as scratch 
-        CALL GET_DX_BLK(ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,WORK(KCC1+NSXE),
-     &                  XINT,1,IXCHNG,IKLJ,IKSM,JLSM,WORK(KCC2),
-     &                  IJ_TRNSP )
-C            GET_DX_BLK(IGAS,ISM,JGAS,JSM,KGAS,KSM,LGAS,LSM, 
-C    &                  C,CBLK,IEXP,IXCHNG,IKLJ,IKSM,JLSM,SCR)
-      ELSE IF( I_USE_SIMTRH.EQ.1) THEN
-*. Use similarity transformed integrals
-        IF(I_UNRORB.EQ.0) THEN
-C          IF(ICOUL.NE.2) THEN
-            CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2_SIMTRH),
-     &                  WORK(KPINT2_SIMTRH),NSMOB,WORK(KINH1_NOCCSYM),
-     &                  ICOUL,0)
-C          ELSE
-C            CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-C     &                  IXCHNG,IKSM,JLSM,WORK(KINT2_SIMTRH),
-C     &                  WORK(KPINT2_SIMTRH),NSMOB,WORK(KINH1_NOCCSYM),
-C     &                  ICOUL,0)
-C          END IF
-
-        ELSE
-          IF(ISPCAS.EQ.1) THEN
-            CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2_SIMTRH_AA),
-     &                  WORK(KPINT2_SIMTRH),NSMOB,WORK(KINH1_NOCCSYM),
-     &                  ICOUL,0)
-          ELSE IF(ISPCAS.EQ.2) THEN
-            CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,WORK(KINT2_SIMTRH_BB),
-     &                  WORK(KPINT2_SIMTRH),NSMOB,WORK(KINH1_NOCCSYM),
-     &                  ICOUL,0)
-          ELSE IF(ISPCAS.EQ.3) THEN
-            CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                 IXCHNG,IKSM,JLSM,WORK(KINT2_SIMTRH_AB),
-     &                 WORK(KPINT2_SIMTRH_AB),NSMOB,WORK(KINH1_NOCCSYM),
-     &                 ICOUL,1)
-          ELSE IF(ISPCAS.EQ.4) THEN
-            CALL GETINCN2_NOCCSYM(XINT,KTP,KSM,LTP,LSM,ITP,ISM,JTP,JSM,
-     &                 IXCHNG,IKSM,JLSM,WORK(KINT2_SIMTRH_AB),
-     &                 WORK(KPINT2_SIMTRH_AB),NSMOB,WORK(KINH1_NOCCSYM),
-     &                 ICOUL,1)
-          ELSE
-            WRITE(6,*) 'WRONG ISPCAS IN GETINT (',ISPCAS,')'
-            STOP 'getint'
-          END IF
-        END IF
-
-      END IF
-*
-      IF(NTEST.GE.100) THEN
-        NI = NOBPTS_GN(ITP,ISM)
-        NK = NOBPTS_GN(KTP,KSM)
-*
-        IF(IKSM.EQ.0) THEN
-          NIK = NI * NK
-        ELSE
-          NIK = NI*(NI+1)/2
-        END IF
-*
-        NJ = NOBPTS_GN(JTP,JSM)
-        NL = NOBPTS_GN(LTP,LSM)
-*
-        IF(JLSM.EQ.0) THEN
-          NJL = NJ * NL
-        ELSE
-          NJL = NJ*(NJ+1)/2
-        END IF
-        WRITE(6,*) ' 2 electron integral block for TS blocks '
-        WRITE(6,*) ' Icoul :', ICOUL
-        WRITE(6,*) ' Ixchng:', IXCHNG
-        WRITE(6,*) ' ISPCAS:', ISPCAS
-        WRITE(6,*) ' Integrals from GETINT:'
-        IF(ICOUL.EQ.0) THEN
-          WRITE(6,'(1H ,4(A,I2,A,I2,A))')
-     &    '(',ITP,',',ISM,')','(',KTP,',',KSM,')',
-     &    '(',JTP,',',JSM,')','(',LTP,',',LSM,')'
-          CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
-        ELSE
-          WRITE(6,'(1H ,4(A,I2,A,I2,A))')
-     &    '(',ITP,',',ISM,')','(',JTP,',',JSM,')',
-     &    '(',KTP,',',KSM,')','(',LTP,',',LSM,')'
-          CALL WRTMAT(XINT,NI*NJ,NK*NL,NI*NJ,NK*NL)
-        END IF
-      END IF
-*
-      CALL QEXIT('GETIN')
-C     STOP ' Jeppe forced me to stop in GETINT '
       RETURN
       END
       SUBROUTINE EXT_CP_AC_GASBLKS(NSMOB,NGAS,NOBPTS_GN,MXPNGAS,
