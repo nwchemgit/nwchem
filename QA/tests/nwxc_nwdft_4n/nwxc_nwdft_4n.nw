@@ -764,6 +764,22 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc beckehandh
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc bhlyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc optx optc
 end
 task dft energy

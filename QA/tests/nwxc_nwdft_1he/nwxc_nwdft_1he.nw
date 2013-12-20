@@ -583,6 +583,18 @@ task dft energy
 
 dft
   vectors input atomic
+  xc beckehandh
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc bhlyp
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc optx optc
 end
 task dft energy
