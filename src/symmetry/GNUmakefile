@@ -50,7 +50,7 @@ OBJ =     dosymops.o \
           sym_mol.o
 
 OBJ_OPTIMIZE = sym_sym.o \
-               sym_mo_ap_op.o sym_bas_op.o
+               sym_mo_ap_op.o sym_bas_op.o sym_bs_ir_id.o
 
 ifneq ($(TARGET),LINUX)
 OBJ_OPTIMIZE += sym_sh_pair.o
