@@ -9597,22 +9597,15 @@ c      INCLUDE 'mxpdim.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "bas.fh"
 #include "sym.fh"
 #include "rtdb.fh"
-      character*8 zname
-      integer ipnt(mxpirr),ipnt2(mxpirr),class_dim(mxpirr)
-      integer ioff(mxpirr),icount(mxpirr)
-      character*8 zir(mxpirr),zclass(mxpirr)
-      double precision chars(mxpirr,mxpirr)
-      integer kirs(mxporb)
-      character*255 scfmo
-      integer rtdb
-      integer g_scfmo,g_moreo
-      double precision occ(mxporb),evals(mxporb)
+      integer g_moreo
       logical geom_nuc_rep_energy
       external geom_nuc_rep_energy
       logical movecs_read
       external movecs_read
+      integer blen
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9695,98 +9688,22 @@ c.. dongxia add format for NWChem
 * NWCHEM FORMAT
 *===============
 c.. dongxia added June 2013, transform AO ints to SCF MO ints
-c..  reorder 
-       if(.not.ma_push_get(mt_int,norbt,'reord',l_reord,k_reord))
-     $    call errquit('scf:memory?',norbt,MA_ERR)
 c..
-       if(.not.ma_push_get(mt_int,norbt,'reord2',l_reord2,k_reord2))
-     $    call errquit('scf:memory?',norbt,MA_ERR)
+c.. get reordered movecs and save to g_moreo
 c..
-      if (ga_nodeid().eq.0) then
-       call ifill(nirrep,0,ipnt,1)
-       call ifill(nirrep,0,ipnt2,1)
-       call ifill(mxpirr,0,ioff,1)
-       call ifill(mxpirr,0,icount,1)
-CBERT Where does geom come from? Has not been read in!
-       call sym_group_name(geom,zname)
-       call sym_mol(zname,nop,nirrep,class_dim,zir,zclass,chars,
-     &                 ipnt)
-       do i=1,nirrep
-         ipnt2(ipnt(i))=i
-c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
-       end do
-       ioff(1)=1
-       do i=2,nirrep
-         ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
-       end do
-       call setvec(kirs,0.0d0,mxporb) 
-       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,norbt,kirs))
-     &   call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
-       do i=1,nmo
-         irs=ipnt(kirs(i))
-c        write(6,*)'irs',ga_nodeid(),irs
-         icount(irs)=icount(irs)+1
-         ireord = ioff(irs)+icount(irs)-1
-         int_mb(k_reord+i-1)=ireord
-         int_mb(K_reord2+ireord-1)=i
-       end do
-c        write(6,*)'reorder arrays:'
-c        do i=1,nmo
-c         write(6,*)int_mb(k_reord+i-1),int_mb(k_reord2+i-1)
-c        end do
-c      call util_flush(6)
-      end if
-c..
-c.. reorder movecs and save to g_moreo
-c..
-        g_scfmo = ga_create_atom_blocked(geom,basis,'SCF MOvecs')
-        g_moreo = ga_create_atom_blocked(geom,basis,'reorder MO')
-        call ga_zero(g_scfmo)
-        call ga_zero(g_moreo)
-        if(.not. ma_push_get(mt_dbl,norbt,'reo',l_veci,k_veci))
-     $    call errquit('scf reo: no scratch space',norbt,MA_ERR)
-c..
-      if(ga_nodeid().eq.0)then
-        if(.not.rtdb_cget(rtdb,'scf:output vectors',1,scfmo))
-     &    call errquit('lucia: fail to get scfmo in rtdb',0,RTDB_ERR)
-        if(.not.movecs_read(scfmo,1,occ,evals,g_scfmo))
-     &    call errquit('lucia: read rtdb failed',0,DISK_ERR)
-        do i=1,nmo
-         call ga_get(g_scfmo,1,norbt,i,i,dbl_mb(k_veci),1)
-         j=int_mb(k_reord+i-1)
-c        write(6,*)'new index:',j
-         call ga_put(g_moreo,1,norbt,j,j,dbl_mb(k_veci),1)
-        end do
-      endif
-c       call ga_print(g_moreo)
+      g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
+     &                                 'LUCIA movecs')
+      norbt = luciamo(1)
+      if(.not.movecs_gather(luciascfmo,1,norbt,reord,occ,evals,
+     &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
 c       call util_flush(6)
-c..
-        if(.not.ma_pop_stack(l_veci))
-     $    call errquit('scf: ma pop failed',0,0)
-c..
-       if(.not.ma_pop_stack(l_reord2))
-     $    call errquit('scf: ma pop failed',0,0)
-c..
-       if(.not.ma_pop_stack(l_reord))
-     $    call errquit('scf: ma pop failed',0,0)
 c..  1-e integrals
          g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
          call ga_zero(g_hcore)
-         call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
-         call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
+         call int_1e_ga(basis, basis, g_hcore, 'kinetic', .false.)
+         call int_1e_ga(basis, basis, g_hcore, 'potential', .false.)
          call moints_1e(norbt, basis, g_moreo, g_hcore)
 c        call ga_print(g_hcore)
-c..  2-e integrals
-         noper = norbt*(norbt+1)/2
-         g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
-         g_exch = ga_create_JKblocked(noper,norbt,norbt,'Exch Oper')
-         call ga_zero(g_coul)
-         call ga_zero(g_exch)
-         call moints_build_2x(basis,.true.,oskel,1,1,norbt,1,norbt,
-     $        g_moreo,g_coul,.true.,g_exch,.true.,blen,.true.)
-c        call ga_print(g_coul)
-c        call util_flush(6)
-c        call ga_print(g_exch)
 c.. To write in LUCIA format
          if(ga_nodeid().eq.0)then
 c.. 1e ints
@@ -9806,6 +9723,28 @@ c.. add offset
          call ga_put(KINT1,1,1,ind1e,ind1e,int1e,1)
           end do
          end do 
+         endif
+         if(.not.ga_destroy(g_hcore)) call 
+     &     errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
+c..  2-e integrals
+         noper = norbt*(norbt+1)/2
+         g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
+         call ga_zero(g_coul)
+c
+c Get Block-length
+c
+         if (.not. bas_nbf_cn_max(luciabasis,maxbfsh))
+     $      call errquit('intim: cannot get basis info',0,BASIS_ERR)
+         if (.not.rtdb_get(rtdb,'fourindex:blk',MT_INT,1,blen)) blen=16
+         blen = max(blen,maxbfsh)
+c
+c Do four-index
+c
+         call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,
+     $        1,norbt,g_moreo,g_coul,.true.,g_exch,.false.,blen,.true.)
+c        call ga_print(g_coul)
+c.. To write in LUCIA format
+         if(ga_nodeid().eq.0)then
 c.. 2e ints
          do ism_lu=1,nirrep
           do jsm_lu=1,ism_lu
@@ -9872,6 +9811,10 @@ c.. look for index in ga_coul
           end do
          end do
        endif
+      if(.not.ga_destroy(g_coul)) call 
+     &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
+      if(.not.ga_destroy(g_moreo)) call 
+     &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $  call errquit('unable to get nuclear rep energy',geom, GEOM_ERR)
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
@@ -10575,6 +10518,9 @@ c      INCLUDE 'mxpdim.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
       LOGICAL CONV_F
        integer rtdb
 *.File numbers
@@ -10600,11 +10546,14 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'vb.inc'
 *. Added dec. 2011
       INCLUDE 'spinfo.inc'
+      INCLUDE 'nwchem_data.inc'
       COMMON/CENOT/E0
       LOGICAL LTARGET
 *.Scratch: A character line 
       CHARACTER*72 CARD
       CHARACTER*3  CCFORM_REM
+      character*255 title,basis
+      character*20 scftype
 *. A temp block for locating the SETVEC use/misuse
       COMMON/XXTEST/ISETVECOPS(10)
 *
@@ -10625,10 +10574,48 @@ C     CALL TEST_DEC15
       CALL DISKUN
 *. Header
       CALL WRTHD(LUOUT)
+* =======================================================
+* 0: .Set up basis, geometry and mo vector file from rtdb
+* =======================================================
+      if (.not. geom_create(luciageom, 'geometry'))
+     $     call errquit('lucia: geom_create?', 0, GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, luciageom, 'geometry'))
+     $     call errquit('lucia: no geometry ', 0, RTDB_ERR)
+      if (.not. bas_create(luciabasis, 'ao basis'))
+     $     call errquit('lucia: bas_create?', 0, BASIS_ERR)
+      if (.not. bas_rtdb_load(rtdb, luciageom, luciabasis, 'ao basis'))
+     $        call errquit('lucia: no ao basis set', 0, RTDB_ERR)
+       call sym_group_name(luciageom,luciasymname)
+       if (.not.rtdb_cget(rtdb,'scf:output vectors',1,luciascfmo))
+     $        call errquit('lucia: reading mo vecs', 0, RTDB_ERR)
+       if ( .not. movecs_read_header(luciascfmo, title, basis,
+     $       scftype, luciaao, nsets, luciamo, 2) ) call errquit(
+     $       'intim: failed to read movecs file', 1, INPUT_ERR)
+c..  reorder 
+      if (ga_nodeid().eq.0) then
+       call ifill(nirrep,0,ipnt,1)
+       call sym_mol(luciasymname,ipnt)
+       do i=1,nirrep
+         ipnt2(ipnt(i))=i
+c        write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
+       end do
+       ioff(1)=1
+       do i=2,nirrep
+         ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
+       end do
+       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
+     &   call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
+       do i=1,luciamo(1)
+         irs=ipnt(kirs(i))
+         icount(irs)=icount(irs)+1
+         ireord = ioff(irs)+icount(irs)-1
+         reord(i)=ireord
+       end do
+      end if
 * ======================================================
 * 1: .Read input,insert defaults and cross check input
 * ======================================================
-      CALL INPCTL(LUIN,LUOUT)
+      CALL INPCTL(rtdb,LUOUT)
 *. Static memory, initialize
       KBASE = 1
       KADD = MAXMEM
@@ -15030,6 +15017,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
 *
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
+      integer rtdb
 *
 COLD  PARAMETER(MXPLNC = 72 )
       CHARACTER*102 TITLEC

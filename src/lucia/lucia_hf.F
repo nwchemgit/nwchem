@@ -260,6 +260,9 @@ C          FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
       INCLUDE 'lucinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       DIMENSION HAO(*), SAO(*)
 *
