@@ -522,10 +522,15 @@ task dft energy
 
 dft
   vectors input atomic
-  xc b3lyp
+  xc b2plyp
 end
 task dft energy
 
+dft
+  vectors input atomic
+  xc b3lyp
+end
+task dft energy
 
 dft
   vectors input atomic
