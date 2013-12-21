@@ -808,6 +808,10 @@ c
            cdata = "ACM (AD Becke, "
      +             //"J.Chem.Phys. 98, 5648 (1993) "
      +             //"doi:10.1063/1.464913)"
+         case (NWXCP_B2PLYP)
+           cdata = "B2PLYP (S Grimme, "
+     +             //"J.Chem.Phys. 124, 034108 (2006) "
+     +             //"doi:10.1063/1.2148954)"
          case (NWXCP_B3LYP)
            cdata = "B3LYP (PJ Stephens, FJ Devlin, CF Chabalowski, "
      +             //"MJ Frisch, J.Phys.Chem. 98, 11623 (1994) "

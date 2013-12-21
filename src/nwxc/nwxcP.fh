@@ -349,9 +349,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_ACM = NWXCP_C_VWN5 + 1)
 c
+      integer NWXCP_B2PLYP       !< The B2PLYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B2PLYP = NWXCP_ACM + 1)
+c
       integer NWXCP_B3LYP        !< The B3LYP functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_B3LYP = NWXCP_ACM + 1)
+      parameter (NWXCP_B3LYP = NWXCP_B2PLYP + 1)
 c
       integer NWXCP_B3P86        !< The B3P86 functional 
                                  !< (exchange and correlation)
