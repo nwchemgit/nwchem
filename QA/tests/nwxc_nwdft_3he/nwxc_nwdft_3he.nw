@@ -781,6 +781,30 @@ dft
   mult 3
   odft
   vectors input atomic
+  xc mpw1k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc mpw1b95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc mpwb1k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
   xc optx optc
 end
 task dft energy
