@@ -10618,15 +10618,19 @@ C     CALL TEST_DEC15
       if (.not. bas_rtdb_load(rtdb, luciageom, luciabasis, 'ao basis'))
      $        call errquit('lucia: no ao basis set', 0, RTDB_ERR)
        call sym_group_name(luciageom,luciasymname)
+       print*,'moname'
        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,luciascfmo))
      $        call errquit('lucia: reading mo vecs', 0, RTDB_ERR)
+       print*,'header'
        if ( .not. movecs_read_header(luciascfmo, title, basis,
      $       scftype, luciaao, nsets, luciamo, 2) ) call errquit(
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
 c..  reorder 
       call ifill(nirrep,0,ipnt,1)
+      print*,'sym_mol'
       call sym_mol(luciasymname,ipnt)
-      call sym_bas_irrep_id(basis,.true.,mxorb,mxpirr,
+      print*,'sym_bas'
+      call sym_bas_irrep_id(luciabasis,.false.,mxporb,mxpirr,
      &                      nwchem_id,nwchem_sc)
       do i=1,nirrep
         ipnt2(ipnt(i))=i
@@ -10636,6 +10640,7 @@ c       write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
       do i=2,nirrep
         ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
       end do
+      print*,'kirs'
       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
      &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
       do i=1,luciamo(1)
@@ -10651,7 +10656,7 @@ c       write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
 *. Static memory, initialize
       KBASE = 1
       KADD = MAXMEM
-      CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY ')
+CNW   CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY ')
 *. Ratio beteeen real and integer word length
       CALL  ZIRAT
 *. From shells to orbitals
