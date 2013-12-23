@@ -99,7 +99,7 @@
                   end do
   100             continue
 #if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)|| defined(GCC46)
-                  backspace 31
+                  backspace 51
 #endif
                else
                   open(unit=51,file=full_filename,form='formatted',
@@ -280,8 +280,10 @@
             end if
          end do
          if (gabprint) then
-            if (mod(gabiter,gabmod).eq.0) 
-     >         write(51,'(100e19.10)') (gabs(m),m=1,msize)
+            if (mod(gabiter,gabmod).eq.0)  then
+               write(51,'(100e19.10)') (gabs(m),m=1,msize)
+               call util_flush(51)
+            end if
             gabiter=gabiter+1
          end if
       end if
@@ -496,18 +498,18 @@
                x2 = rion(1,indxa(2))-rion(1,indxa(3))
                y2 = rion(2,indxa(2))-rion(2,indxa(3))
                z2 = rion(3,indxa(2))-rion(3,indxa(3))
-               f1a = x1*fion(1,indxa(1)) 
-     >             + y1*fion(2,indxa(1)) 
-     >             + z1*fion(3,indxa(1))
-               f1b = x1*fion(1,indxa(3)) 
-     >             + y1*fion(2,indxa(3)) 
-     >             + z1*fion(3,indxa(3))
-               f2a = x2*fion(1,indxa(2)) 
-     >             + y2*fion(2,indxa(2)) 
-     >             + z2*fion(3,indxa(2))
-               f2b = x2*fion(1,indxa(3)) 
-     >             + y2*fion(2,indxa(3)) 
-     >             + z2*fion(3,indxa(3))
+               rr1 = x1**2 + y1**2 + z1**2 
+               rr2 = x2**2 + y2**2 + z2**2 
+               ff = fion(1,indxa(1))*( x1/rr1 + x2/rr2)
+     >            + fion(2,indxa(1))*( y1/rr1 + y2/rr2)
+     >            + fion(3,indxa(1))*( z1/rr1 + z2/rr2)
+     >            + fion(1,indxa(2))*(-x1/rr1 - x2/rr2)
+     >            + fion(2,indxa(2))*(-y1/rr1 - y2/rr2)
+     >            + fion(3,indxa(2))*(-z1/rr1 - z2/rr2)
+     >            + fion(1,indxa(3))*(-x1/rr1 + x2/rr2)
+     >            + fion(2,indxa(3))*(-y1/rr1 + y2/rr2)
+     >            + fion(3,indxa(3))*(-z1/rr1 + z2/rr2)
+               ff = ff/8.0d0
             else
                x1 = rion(1,indxa(1))-rion(1,indxa(2))
                y1 = rion(2,indxa(1))-rion(2,indxa(2))
@@ -515,25 +517,22 @@
                x2 = rion(1,indxa(3))-rion(1,indxa(4))
                y2 = rion(2,indxa(3))-rion(2,indxa(4))
                z2 = rion(3,indxa(3))-rion(3,indxa(4))
-               f1a = x1*fion(1,indxa(1)) 
-     >             + y1*fion(2,indxa(1)) 
-     >             + z1*fion(3,indxa(1))
-               f1b = x1*fion(1,indxa(2)) 
-     >             + y1*fion(2,indxa(2)) 
-     >             + z1*fion(3,indxa(2))
-               f2a = x2*fion(1,indxa(3)) 
-     >             + y2*fion(2,indxa(3)) 
-     >             + z2*fion(3,indxa(3))
-               f2b = x2*fion(1,indxa(4)) 
-     >             + y2*fion(2,indxa(4)) 
-     >             + z2*fion(3,indxa(4))
+               rr1 = x1**2 + y1**2 + z1**2 
+               rr2 = x2**2 + y2**2 + z2**2 
+               ff = fion(1,indxa(1))*( x1/rr1)
+     >            + fion(2,indxa(1))*( y1/rr1)
+     >            + fion(3,indxa(1))*( z1/rr1)
+     >            + fion(1,indxa(2))*(-x1/rr1)
+     >            + fion(2,indxa(2))*(-y1/rr1)
+     >            + fion(3,indxa(2))*(-z1/rr1)
+     >            + fion(1,indxa(3))*(-x2/rr2)
+     >            + fion(2,indxa(3))*(-y2/rr2)
+     >            + fion(3,indxa(3))*(-z2/rr2)
+     >            + fion(1,indxa(4))*( x2/rr2)
+     >            + fion(2,indxa(4))*( y2/rr2)
+     >            + fion(3,indxa(4))*( z2/rr2)
+               ff = ff/8.0d0
             end if
-
-            rr1 = x1**2 + y1**2 + z1**2 
-            rr2 = x2**2 + y2**2 + z2**2 
-            ff1 = 0.5d0*(f1a-f1b)/rr1
-            ff2 = 0.5d0*(f2a-f2b)/rr2
-            ff = 0.5d0*(ff1-ff2)
 
             af(indx)  = af(indx)  + ff
             af2(indx) = af2(indx) + ff*ff
