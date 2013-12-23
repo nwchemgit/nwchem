@@ -80,6 +80,7 @@ c     logical embed_init
       logical cons_active
       logical task_property
       logical task_ccca
+      logical lucia
 c
 c      logical task_pes
 c      external task_pes
@@ -110,6 +111,7 @@ c
       external task_et
       external task_property
       external task_ccca
+      external lucia
 c
       logical bq_init,bq_end
       external bq_init,bq_end
@@ -331,6 +333,8 @@ c
           status=analyz(rtdb)
          elseif(inp_compare(.false.,'diana',theory)) then
           status=diana(rtdb)
+         elseif(inp_compare(.false.,'lucia',theory)) then
+          status=lucia(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
