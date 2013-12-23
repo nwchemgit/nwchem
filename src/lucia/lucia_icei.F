@@ -46,7 +46,7 @@
       DIMENSION VECSCR(*)
 *
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'PROJNR')
-      CALL QENTER('PRJNR')
+      CALL LUCIAQENTER('PRJNR')
 *
       NTEST = 100
      
@@ -74,7 +74,7 @@
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'PROJNR')
-      CALL QEXIT('PRJNR')
+      CALL LUCIAQEXIT('PRJNR')
      
 *
       RETURN
@@ -2743,7 +2743,7 @@ C            FILEMAN_MINI(IFILE,ITASK)
       IB_S = 1
 *
       CALL MEMMAN(IDUM,IDUM,'MARK ',1,'GT_INS')
-      CALL QENTER('GT_INS')
+      CALL LUCIAQENTER('GT_INS')
 *. Scratch space  : Two matrices S(INT1,INT2), where INT1, INT2 runs over 
 *                   internal states with given symmetry 
 *                   belonging to a given type of external state
@@ -3455,7 +3455,7 @@ C            FILEMAN_MINI(IFILE,ITASK)
         CALL FILEMAN_MINI(LUSCR_INT2,'FREE  ')
       END IF
 *
-      CALL QEXIT('GT_INS')
+      CALL LUCIAQEXIT('GT_INS')
       RETURN
       END 
       FUNCTION IMXMN(MAX_OR_MIN,IVEC,NELMNT)
@@ -3576,7 +3576,7 @@ C            FILEMAN_MINI(IFILE,ITASK)
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'LNCISP')
-      CALL QENTER('LCISP')
+      CALL LUCIAQENTER('LCISP')
 *. Obtain types 
       ICISPC1 = ICMBSPC(1,JCMBSPC)
 *. Type of alpha- and beta strings
@@ -3626,7 +3626,7 @@ C            FILEMAN_MINI(IFILE,ITASK)
        WRITE(6,*) ' Number of determinants ', LEN_CISPC
       END IF
 *
-      CALL QEXIT('LCISP')
+      CALL LUCIAQEXIT('LCISP')
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'LNCISP')
 *
       RETURN

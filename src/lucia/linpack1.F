@@ -224,7 +224,7 @@ c
       return
       end
 c----------------------------------------------------------------------
-      subroutine dgedi(a,lda,n,ipvt,det,work,job)
+      subroutine luciadgedi(a,lda,n,ipvt,det,work,job)
 c----------------------------------------------------------------------
       integer lda,n,ipvt(1),job
       double precision a(lda,1),det(2),work(1)
@@ -354,7 +354,7 @@ c
       return
       end
 c-----------------------------------------------------------------------
-      subroutine dgefa(a,lda,n,ipvt,info)
+      subroutine luciadgefa(a,lda,n,ipvt,info)
 c-----------------------------------------------------------------------
       integer lda,n,ipvt(1),info
       double precision a(lda,1)
@@ -892,7 +892,7 @@ c
   140 continue
       return
       end
-      subroutine dpofa(a,lda,n,info)
+      subroutine luciadpofa(a,lda,n,info)
       integer lda,n,info
       double precision a(lda,1)
 c

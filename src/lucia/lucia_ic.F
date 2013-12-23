@@ -3126,7 +3126,7 @@ C --- CHECK IF CONVERGED:                                               00100000
 *. Scratch
       DIMENSION SCRVEC(*)
 *
-      CALL QENTER('EIS_D')
+      CALL LUCIAQENTER('EIS_D')
 *
 * 1 : Bring matrix to tridiagonal form 
 *
@@ -3143,7 +3143,7 @@ C     TQL2(NM,N,D,E,Z,IERR)
         STOP       ' Problem in TQL2 diagonalization '
       END IF
 *
-      CALL QEXIT('EIS_D')
+      CALL LUCIAQEXIT('EIS_D')
       RETURN
       END 
       SUBROUTINE GET_SXLIKE_CAABM(NSXLIKE,ISXLIKE,IWAY,I_SPIN_ADAPT)
@@ -10752,6 +10752,9 @@ C?     CALL WRTMAT(WORK(KL_EXTVEC1),NSPA,1,NSPA,1)
       INCLUDE 'oper.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'cei.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       DIMENSION C_REF(N_REF)
 *. Specific input
       DIMENSION T(*)
@@ -10863,7 +10866,7 @@ C    &WRITE(6,*) ' Energy from external part of vecfnc ', E_EXT+ECORE
         IF(NTEST.GE.10)
      &  WRITE(6,*) ' Internal part of vector-function recalculated'
         CALL HEFF_INT_TV_ICCC(T,N_REF,NCOMMU_E,I_APPROX_HCOM_E,
-     &  WORK(VEC1P),WORK(KVEC2P),IREFSPC,ITREFSPC,IT2REFSPC,
+     &  dbl_mb(VEC1P),dbl_mb(KVEC2P),IREFSPC,ITREFSPC,IT2REFSPC,
      &  0.0D0,C_REF,CCVECFNCI)
       ELSE 
         CALL EXPCIV(IREFSM,IT2REFSPC,LUHC,IREFSPC,LUSC34,-1,

@@ -749,7 +749,7 @@ C?      WRITE(6,*) ' ISMSPGP , NST = ', ISMSPGP , NST
 *. Local scratch
       DIMENSION IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
 *
-      CALL QENTER('STRTY')
+      CALL LUCIAQENTER('STRTY')
 *
       NTESTL = 00
       NTEST = MAX(IPRNT,NTESTL)
@@ -1523,7 +1523,7 @@ C    &           IASPGP,NASPGP,IBSPGP,NBSPGP,
 C    &           NGAS,IGSOCC_MNMX,NELFGP,
 C    &           N_ABSPGP,I_ABSPGP,
 C    &           IONLY_NABSPGP)
-      CALL QEXIT('STRTY')
+      CALL LUCIAQEXIT('STRTY')
 *
       RETURN
       END 
@@ -1571,7 +1571,7 @@ CNW   DIMENSION STIN(*)
 *. A bit of scratch
 C     DIMENSION IOCTYP(MXPNGAS)
 *
-      CALL QENTER('STRIN')
+      CALL LUCIAQENTER('STRIN')
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
@@ -1732,7 +1732,7 @@ CNW   CALL MEMMAN(KFREEL,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
         END IF
       END DO   
 *
-      CALL QENTER('STIN2')
+      CALL LUCIAQENTER('STIN2')
 *
 *. Now to supergroups , i.e. strings of with given number of elecs in 
 *  each GAspace
@@ -1887,7 +1887,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
       CALL ISETVC(int_mb(KSPGPCR),IZERO,NGAS*NTSPGP)
       CALL ISETVC(int_mb(KSPGPAN),IZERO,NGAS*NTSPGP)
 *
-      CALL QENTER('SPGPA')
+      CALL LUCIAQENTER('SPGPA')
       DO ISTTYP = 1,NSTTYP
       IF(NTEST.GE.100) 
      &WRITE(6,*)  ' Info for SPGP_AC for ISTTYP = ', ISTTYP
@@ -1945,7 +1945,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
         CALL IWRTMA(int_mb(KSPGPCR),NSPGP_TOT,1,NSPGP_TOT,1)
       END IF
 *
-      CALL QEXIT('SPGPA')
+      CALL LUCIAQEXIT('SPGPA')
 *.AB supergroups in compound space
       IATP = 1
       IBTP = 2
@@ -2004,8 +2004,8 @@ C    &           MXNSTRL_AS,MXNSTRSTRP_AS,MXNSTRSTRL_AS)
       WRITE(6,*) ' Memory Check at end of STRINF_GAS  '
       CALL MEMCHK
 *
-      CALL QEXIT('STIN2')
-      CALL QEXIT('STRIN')
+      CALL LUCIAQEXIT('STIN2')
+      CALL LUCIAQEXIT('STRIN')
       RETURN
       END
 
@@ -2742,7 +2742,7 @@ c      INCLUDE 'mxpdim.inc'
 * ====================
 *
       INCLUDE 'cicisp.inc'
-      CALL QENTER('LCISP')
+      CALL LUCIAQENTER('LCISP')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'LCISPC')
 *
@@ -2865,7 +2865,7 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
       END DO
       END IF
 *
-      CALL QEXIT('LCISP')
+      CALL LUCIAQEXIT('LCISP')
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'LCISPC')
 *
       RETURN
@@ -2910,7 +2910,7 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
 *. block types
       DIMENSION IBLTP(*)
 *
-      CALL QENTER('NGASD')
+      CALL LUCIAQENTER('NGASD')
       NTEST = 0 
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' NGASDT speaking'
@@ -2995,7 +2995,7 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
      &               NCOMB,XNCOMB,NTTSBL,MXSOOB
       END IF
 *
-      CALL QEXIT('NGASD')
+      CALL LUCIAQEXIT('NGASD')
 *
       RETURN
       END
@@ -3313,7 +3313,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "global.fh"
 *
       DIMENSION IBLOCK(8,NBLOCK),IBLTP(*)
-      CALL QENTER('ANACI')
+      CALL LUCIAQENTER('ANACI')
       CALL MEMMAN(KLOFF,DUMMY,'MARK  ',DUMMY,'GASANA')
 *
 ** Specifications of internal space
@@ -3395,7 +3395,7 @@ CM    ELSE
 CM    END IF !Switch between CSF's and SD's
    
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'GASANA')
-      CALL QEXIT('ANACI')
+      CALL LUCIAQEXIT('ANACI')
 *
 C?    STOP ' Jeppe forced me to stop after INTANA '
       RETURN
@@ -4334,7 +4334,7 @@ C!    stop ' enforrced stop in RSBBD1 '
       
 
 *
-      CALL QENTER('EXPCV')
+      CALL LUCIAQENTER('EXPCV')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'EXPCIV')
 *
       NTESTL = 00
@@ -4504,7 +4504,7 @@ C    &                   ISMOST,NSSOA,NSSOB)
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'EXPCIV')
-      CALL QEXIT('EXPCV')
+      CALL LUCIAQEXIT('EXPCV')
 *
       RETURN
       END 
@@ -5057,7 +5057,7 @@ c      INCLUDE 'mxpdim.inc'
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
 *
       NTEST = 000
-      CALL QENTER('GETST')
+      CALL LUCIAQENTER('GETST')
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' ============================== '
@@ -5156,10 +5156,10 @@ C         SYMCOM(ITASK,IOBJ,I1,I2,I12)
            CALL IWRTMA(ISMFGS,1,NGAS,1,NGAS)
          END IF
 *. Obtain all strings of this symmetry 
-CT       CALL QENTER('GASSM')
+CT       CALL LUCIAQENTER('GASSM')
          CALL GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1,ISTRBS),NSTR,NEL,
      &                          NNSTSGP,IISTSGP)
-CT       CALL QEXIT('GASSM')
+CT       CALL LUCIAQEXIT('GASSM')
 *. Reorder Info : Lexical => actual number 
          IF(IDOREO.NE.0) THEN
 *. Lexical number of NEL electrons
@@ -5202,7 +5202,7 @@ CT       CALL QEXIT('GASSM')
         END IF
       END IF
 *
-      CALL QEXIT('GETST')
+      CALL LUCIAQEXIT('GETST')
       RETURN
       END 
       SUBROUTINE PRTSTR(ISTR,NEL,NSTR)
@@ -6176,7 +6176,7 @@ c      INCLUDE 'mxpdim.inc'
       INTEGER I1(LI1,*)
       DIMENSION XI1S(LI1,*)
 *
-      CALL QENTER('ADST  ')
+      CALL LUCIAQENTER('ADST  ')
       NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -6225,20 +6225,20 @@ C?    END IF
 *. Reorder array for I strings
          NELI = NELFTP(ITP)
          NELIS(I12) = NELI
-C?       CALL QENTER('GENSTR')
+C?       CALL LUCIAQENTER('GENSTR')
          CALL GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,
      &                          int_mb(KLLOC),NOCOB,
      &                          1,int_mb(KLLZ),int_mb(KLLREO))
-C?       CALL QEXIT('GENSTR')
+C?       CALL LUCIAQEXIT('GENSTR')
        END IF
        NELK = NELIS(I12) - 1
        IF(KFRST.NE.0) THEN
 *. Occupation of K strings
-CT       CALL QENTER('GENSTR')
+CT       CALL LUCIAQENTER('GENSTR')
          CALL GETSTR_TOTSM_SPGP(1,KSPGPABS,KSM,NELK,NSTRK,
      &                         int_mb(KLLOC),NOCOB,
      &                         0,IDUM,IDUM)
-CT       CALL QEXIT('GENSTR')
+CT       CALL LUCIAQEXIT('GENSTR')
          NSTRKS(K12) = NSTRK
       END IF
 *. a+i !kstr> = +/- !istr>
@@ -6248,7 +6248,7 @@ CT       CALL QEXIT('GENSTR')
      &          NOCOB,KMAX,KMIN,IEND,KACT,SCLFAC)
 *
 C     SAVE NELK , NSTRK
-      CALL QEXIT('ADST  ')
+      CALL LUCIAQEXIT('ADST  ')
       RETURN
       END
       SUBROUTINE ADS1_GAS(NK,I1,XI1S,LI1,IORB,LORB,
@@ -6658,7 +6658,7 @@ c      INCLUDE 'mxpdim.inc'
 * (NKSTR,*), Where NKSTR is the number of K-strings of 
 *  correct symmetry . Nk is provided by this routine.
 *
-      CALL QENTER('ADSTN ')
+      CALL LUCIAQENTER('ADSTN ')
 *
       IF(NGAS.GT.MXLNGAS) THEN
         WRITE(6,*) ' Ad hoc programming in ADSTN (IOFFI)'
@@ -6944,7 +6944,7 @@ C?      write(6,*) ' KACGRP ', KACGRP
         END IF
       END IF
 *
-      CALL QEXIT('ADSTN ')
+      CALL LUCIAQEXIT('ADSTN ')
       RETURN
       END
       SUBROUTINE ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,
@@ -7166,7 +7166,7 @@ C         END IF
         STOP     ' ABTOR2 : IKORD .NE. 0 '
       END IF
 *
-C     CALL QENTER('ABTOR')
+C     CALL LUCIAQENTER('ABTOR')
 *. Excitations <Ib!Eb(kl)!Jb>
         DO KB = 1, NKB
 *. Number of nonvanishing connections from KB
@@ -7226,7 +7226,7 @@ C                  END IF
        END DO
 *. (end over loop over Kb strings )
 *
-C     CALL QEXIT('ABTOR')
+C     CALL LUCIAQEXIT('ABTOR')
       RETURN
       END
       SUBROUTINE ADTOR2(RHO2,RHO2T,ITYPE,
@@ -7803,7 +7803,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
      &                    NI,NJ,NI,NK,NJ,NK,ONE,ONE,2)
                IF(NTEST.GE.1000) THEN
                  WRITE(6,*) ' Updated block '
-                 CALL WRTMAT(dbl_m(KLFBLK),NI,NJ,NI,NJ)
+                 CALL WRTMAT(dbl_mb(KLFBLK),NI,NJ,NI,NJ)
                END IF
  
             END DO
@@ -7833,7 +7833,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
                 IXCHNG = 0
                 ICOUL  = 1
                 ONE = 1.0D0
-                CALL GETINT(dbl_mb(KLINT),
+                CALL LUCIAGETINT(dbl_mb(KLINT),
      &               KGAS,KSM,LGAS,LSM,IGAS,ISM,MGAS,MSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
                 
@@ -7989,7 +7989,7 @@ C?           WRITE(6,*) ' IJSM IJKSM LSM ',IJSM,IJKSM,IJKLSM
                 IXCHNG = 0
                 ICOUL  = 1
                 ONE = 1.0D0
-                CALL GETINT(dbl_mb(KLINT),
+                CALL LUCIAGETINT(dbl_mb(KLINT),
      &               IGAS,ISM,JGAS,JSM,KGAS,KSM,LGAS,LSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
                 CALL GETD2 (dbl_mb(KLDEN),
@@ -9450,7 +9450,7 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
                   ICOUL  = 1
                   ONE = 1.0D0
 *
-                  CALL GETINT(dbl_mb(KLINT),
+                  CALL LUCIAGETINT(dbl_mb(KLINT),
      &                 KGAS,KSM,LGAS,LSM,IGAS,ISM,MGAS,MSM,
      &                 IXCHNG,0,0,ICOUL,ONE,ONE)
 *
@@ -9471,7 +9471,7 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
                   ICOUL  = 1
                   ONE = 1.0D0
 * Obtain ( L K ! M I)
-                  CALL GETINT(dbl_mb(KLINT),
+                  CALL LUCIAGETINT(dbl_mb(KLINT),
      &                 LGAS,LSM,KGAS,KSM,MGAS,MSM,IGAS,ISM,
      &                 IXCHNG,0,0,ICOUL,ONE,ONE)
 *. Obtain Rho2(L K, M J)
@@ -10117,7 +10117,7 @@ C?        WRITE(6,*) ' IB, EB = ', IB, EB
 #include "mafdecls.fh"
 #include "global.fh"
 *
-      CALL QENTER('EXPCV')
+      CALL LUCIAQENTER('EXPCV')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'EXPCIV')
 *
       NTESTL = 000
@@ -10335,7 +10335,7 @@ C                   IELSUM_IND(IACT,NACT,IVEC)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'EXPCIV')
 C?    STOP ' Enforced stop at end of EXPCIV_CSF '
-      CALL QEXIT('EXPCV')
+      CALL LUCIAQEXIT('EXPCV')
 *
       RETURN
       END 
@@ -10444,7 +10444,7 @@ C?           WRITE(6,*) ' IJSM IJKSM LSM ',IJSM,IJKSM,IJKLSM
                 IXCHNG = 0
                 ICOUL  = 1
                 ONE = 1.0D0
-                CALL GETINT(dbl_mb(KLINT),
+                CALL LUCIAGETINT(dbl_mb(KLINT),
      &               IGAS,ISM,JGAS,JSM,KGAS,KSM,LGAS,LSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
                 CALL GETD2 (dbl_mb(KLDEN),
@@ -10775,7 +10775,7 @@ C            REORHO1(RHO1I,RHO1O,IRHO1SM)
                   ICOUL  = 1
                   ONE = 1.0D0
 * Obtain ( L M ! I K)
-                  CALL GETINT(dbl_mb(KLINT),
+                  CALL LUCIAGETINT(dbl_mb(KLINT),
      &                 LGAS,LSM,MGAS,MSM,IGAS,ISM,KGAS,KSM,
      &                 IXCHNG,0,0,ICOUL,ONE,ONE)
 *. Obtain Rho2(L M, J K)
@@ -10804,7 +10804,7 @@ C            REORHO1(RHO1I,RHO1O,IRHO1SM)
                   ICOUL  = 1
                   ONE = 1.0D0
 * Obtain ( L M ! K I)
-                  CALL GETINT(dbl_mb(KLINT),
+                  CALL LUCIAGETINT(dbl_mb(KLINT),
      &                 LGAS,LSM,MGAS,MSM,KGAS,KSM,IGAS,ISM,
      &                 IXCHNG,0,0,ICOUL,ONE,ONE)
 *. Obtain Rho2(L M, K J)
@@ -10935,7 +10935,7 @@ C    &            INB_IN,INB_OUT,JNB_IN,JNB_OUT)
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
       NTEST = 00
-      CALL QENTER('GTSTAS')
+      CALL LUCIAQENTER('GTSTAS')
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' ============================== '
@@ -11032,14 +11032,14 @@ C?   &               (IGRPA(IGRP)-1)*NSMST+1
           WRITE(6,*) ' Total symmetry = ', ISTSM
         END IF
 *. Obtain all strings of this symmetry distribution
-CT      CALL QENTER('GASSM')
+CT      CALL LUCIAQENTER('GASSM')
         IB = IBSTRPSM(ISTSM)+NSTRPSM(ISTSM)
         CALL GETSTRN_GASSM_GNSPGP(ISMFGS,IGRPA,ISTR(1,IB),NSTR,NEL,
      &                          NNSTSGP,IISTSGP,NGRPA)
         NSTRPSM(ISTSM) = NSTRPSM(ISTSM) + NSTR
 C     GETSTRN_GASSM_GNSPGP(ISMFGS,ITPFGS,ISTROC,NSTR,NEL,
 C    &                          NNSTSGP,IISTSGP,NGRPL)
-CT      CALL QEXIT('GASSM')
+CT      CALL LUCIAQEXIT('GASSM')
 *. ready for next symmetry distribution 
         GOTO 1000
  1001 CONTINUE
@@ -11058,7 +11058,7 @@ CT      CALL QEXIT('GASSM')
        END DO
       END IF
 *
-      CALL QEXIT('GTSTAS')
+      CALL LUCIAQEXIT('GTSTAS')
       RETURN
       END 
       SUBROUTINE GET_DIM_GNSPGP(NGRPA,IGRPA,NSTPSM,IBSTPSM)
@@ -11076,6 +11076,10 @@ CT      CALL QEXIT('GASSM')
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'csm.inc'
       INCLUDE 'strbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *. Input
       INTEGER IGRPA(NGRPA)
 *. Output

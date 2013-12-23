@@ -725,7 +725,7 @@ C?      WRITE(6,*) ' Expectation value of Ly^2 from Densi:', EXPV_LY2
       DIMENSION NJB_PAS(*),NJB_ACT(*),IREO(*)
 *. Output
       DIMENSION CKAJJBPA(*)
-CT    CALL QENTER('CKA_PA')
+CT    CALL LUCIAQENTER('CKA_PA')
 *
       NTEST = 000
 *
@@ -830,7 +830,7 @@ C        WRITE(6,*) ' Offset IOFF_PA', IOFF_PA
        END DO
       END IF
 *
-CT    CALL QEXIT('CKA_PA')
+CT    CALL LUCIAQEXIT('CKA_PA')
       RETURN
       END
       SUBROUTINE NXTNUM2_REV(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
@@ -2096,7 +2096,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       DIMENSION X(*)
 *
-      CALL QENTER('TRACI')
+      CALL LUCIAQENTER('TRACI')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRACI ')
 *
       NTEST = 1000
@@ -2153,7 +2153,7 @@ cNW     CALL MEMMAN(KLTB,NTOOB**2,'ADDL  ',2,'TMATBL')
         CALL WRTVCD(VEC1,LUCOUT,1,-1)
       END IF
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRACI ')
-      CALL QEXIT('TRACI')
+      CALL LUCIAQEXIT('TRACI')
 *
       RETURN
       END
@@ -2498,7 +2498,7 @@ C
       DOUBLE PRECISION  L(*),U(*)
       REAL * 8  INPROD
       INTEGER R
-      CALL QENTER('LULU ') 
+      CALL LUCIAQENTER('LULU ') 
 C
 C
       DO 1000 R = 1, NDIM
@@ -2525,7 +2525,7 @@ C
          CALL PRSYM(U,NDIM)
       END IF
 *
-      CALL QEXIT('LULU ')
+      CALL LUCIAQEXIT('LULU ')
 *
       RETURN
       END
@@ -3270,7 +3270,7 @@ C     WRITE(6,*) ' MEMCHECK passed '
       INCLUDE 'intform.inc'
 *
       DIMENSION IACAR(2),ITPAR(2)
-      CALL QENTER('RS2A') 
+      CALL LUCIAQENTER('RS2A') 
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
       IF(NTEST.GE.1000) THEN
@@ -3328,11 +3328,11 @@ C?      IF(NPTOT.EQ.3) GOTO 2000
         IF(JTYP.EQ.1) NIJKL1 = NIJKL1+1
         IF(KTYP.EQ.1) NIJKL1 = NIJKL1+1
         IF(LTYP.EQ.1) NIJKL1 = NIJKL1+1
-        IF(NIJKL1.EQ.0) CALL QENTER('BB2A0')
-        IF(NIJKL1.EQ.1) CALL QENTER('BB2A1')
-        IF(NIJKL1.EQ.2) CALL QENTER('BB2A2')
-        IF(NIJKL1.EQ.3) CALL QENTER('BB2A3')
-        IF(NIJKL1.EQ.4) CALL QENTER('BB2A4')
+        IF(NIJKL1.EQ.0) CALL LUCIAQENTER('BB2A0')
+        IF(NIJKL1.EQ.1) CALL LUCIAQENTER('BB2A1')
+        IF(NIJKL1.EQ.2) CALL LUCIAQENTER('BB2A2')
+        IF(NIJKL1.EQ.3) CALL LUCIAQENTER('BB2A3')
+        IF(NIJKL1.EQ.4) CALL LUCIAQENTER('BB2A4')
 *. Optimal ordering of operators 
         I4_AC(1) = 2
         I4_AC(2) = 2
@@ -3554,7 +3554,7 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
 *. obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
 *
 *. Obtain all double excitations from this group of K strings
-CT                    CALL QENTER('ADADS')
+CT                    CALL LUCIAQENTER('ADADS')
                       II12 = 1
                       K12 = 1
                       IONE = 1
@@ -3578,13 +3578,13 @@ C?       write(6,*) ' Before ADAADAST '
                       JFRST = 0
                       KFRST = 0
 *
-CT                    CALL QEXIT('ADADS')
+CT                    CALL LUCIAQEXIT('ADADS')
                       IF(NKBTC.EQ.0) GOTO 1930
 *. Loop over jl in TS classes
                       J = 0
                       L = 1
 *
-CT                    CALL QENTER('MATCG')
+CT                    CALL LUCIAQENTER('MATCG')
                       DO  IJL = 1, NJL
                         CALL NXTIJ(J,L,NJ,NL,JLSM,NONEW)
                         I1JL = (L-1)*NJ+J
@@ -3600,7 +3600,7 @@ CT                    CALL QENTER('MATCG')
      &                              NKBTC,I1(1,I1JL),XI1S(1,I1JL))
                         END IF
                       END DO
-CT                    CALL QEXIT ('MATCG')
+CT                    CALL LUCIAQEXIT ('MATCG')
 *
                       JLBOFF = JLBOFF + NJL
                     END DO 
@@ -3654,14 +3654,15 @@ CT                    CALL QEXIT ('MATCG')
                         ONE = 1.0D0
                         IF(IH2FORM.EQ.1) THEN
 *. Full conjugation symmetry, do do not worry
-                        CALL GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,
+                        CALL LUCIAGETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,
      &                              LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
      &                              ONE,ONE)
                         ELSE IF(IH2FORM.EQ.2) THEN
 *. Integrals do not neccessarily have full conjugation symmetry 
                         IF(I4_AC(1).EQ.2) THEN
 * a + a+ a a
-                          CALL GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,
+                          CALL LUCIAGETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,
+     &                                KSM,
      &                                LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
      &                                ONE,ONE)
                         ELSE
@@ -3669,7 +3670,8 @@ CT                    CALL QEXIT ('MATCG')
 C?                        WRITE(6,*) ' Memcheck before GETINT '
 C?                        CALL MEMCHK
 C?                        WRITE(6,*) ' Check passes '
-                          CALL GETINT(XINT2,JTYP,JSM,ITYP,ISM,LTYP,LSM,
+                          CALL LUCIAGETINT(XINT2,JTYP,JSM,ITYP,ISM,LTYP,
+     &                                LSM,
      &                                KTYP,KSM,IXCHNG,JLSM,IKSM,ICOUL,
      &                                ONE,ONE)
 C?                        WRITE(6,*) ' Memcheck before TRPMT3 '
@@ -3743,7 +3745,7 @@ C?                  END IF
                         NIK = NI * NK
                         IKSM = 0
                       END IF
-CT                    CALL QENTER('ADADS')
+CT                    CALL LUCIAQENTER('ADADS')
                       IF(IFRST.EQ.1) KFRST = 1 
                       ONE = 1.0D0
 *
@@ -3758,9 +3760,9 @@ CT                    CALL QENTER('ADADS')
 *
                       IFRST = 0
                       KFRST = 0
-CT                    CALL QEXIT ('ADADS')
+CT                    CALL LUCIAQEXIT ('ADADS')
 *
-CT                    CALL QENTER('MATCS')
+CT                    CALL LUCIAQENTER('MATCS')
                       I = 0
                       K = 1
                       DO IK = 1, NIK
@@ -3774,7 +3776,7 @@ CT                    CALL QENTER('MATCS')
      &                                NKBTC,I1(1,IKOFF),XI1S(1,IKOFF))
                         END IF
                       END DO
-CT                    CALL QEXIT ('MATCS')
+CT                    CALL LUCIAQEXIT ('MATCS')
                       IKBOFF = IKBOFF + NIK
 *
                     END DO
@@ -3884,7 +3886,7 @@ C               JSM = ISCR(I4_REO(4))
 *. obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
 *
 *. Obtain all double excitations from this group of K strings
-CT                  CALL QENTER('ADADS')
+CT                  CALL LUCIAQENTER('ADADS')
                     II12 = 1
                     K12 = 1
                     IONE = 1
@@ -3908,10 +3910,10 @@ C                   KFRST = 1
                     JFRST = 0
                     KFRST = 0
 *
-CT                  CALL QEXIT('ADADS')
+CT                  CALL LUCIAQEXIT('ADADS')
                     IF(NKBTC.EQ.0) GOTO 2801
 *. Loop over jl in TS classes and gather
-CT                  CALL QENTER('MATCG')
+CT                  CALL LUCIAQENTER('MATCG')
                     J = 0
                     L = 1
                     DO  IJL = 1, NJL
@@ -3922,7 +3924,7 @@ CT                  CALL QENTER('MATCG')
                       CALL MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,
      &                         NKBTC,I1(1,I1JL),XI1S(1,I1JL))
                     END DO
-CT                  CALL QEXIT ('MATCG')
+CT                  CALL LUCIAQEXIT ('MATCG')
 *
 *==============================================
 *. SSCR(I,K,ik) = CSR(I,K,jl)*((ij!kl)-(il!jk))
@@ -3964,25 +3966,28 @@ CT                  CALL QEXIT ('MATCG')
                       ONE = 1.0D0
                       IF(ICOUL.EQ.2) THEN
 *. Obtain X2(ik,lj) = (ij!lk)
-                      CALL GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,
+                      CALL LUCIAGETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,
      &                            KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL,
      &                            ONE,ONE)
                       ELSE IF (ICOUL.EQ.1) THEN 
                         IF(I_USE_SIMTRH.EQ.0) THEN
-                        CALL GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,
+                        CALL LUCIAGETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,
+     &                              JSM,
      &                              LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
      &                            ONE,ONE)
                         ELSE
                          IF(I4_AC(1).EQ.2) THEN
 *. a+i ak al a+j (ik|jl) 
 *. obtain integrals (ik!jl) 
-                          CALL GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,
+                          CALL LUCIAGETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,
+     &                                 JSM,
      &                                LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
      &                            ONE,ONE)
                          ELSE IF(I4_AC(1).EQ.1) THEN
 *. a i a+k a+l a j (ki!lj) 
 *. Obtain (ki!lj) and transpose first two and last two indeces 
-                          CALL GETINT(XINT,KTYP,KSM,ITYP,ISM,LTYP,LSM,
+                          CALL LUCIAGETINT(XINT,KTYP,KSM,ITYP,ISM,LTYP,
+     &                              LSM,
      &                                JTYP,JSM,IXCHNG,IKSM,JLSM,ICOUL,
      &                            ONE,ONE)
 C                              TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
@@ -4035,7 +4040,7 @@ C?                  END IF
                     II12 = 2
 *
                     IONE = 1
-CT                  CALL QENTER('ADADS')
+CT                  CALL LUCIAQENTER('ADADS')
                     IF(IFRST.EQ.1) KFRST = 1 
                     ONE = 1.0D0
 *
@@ -4051,9 +4056,9 @@ C                   KFRST = 1
 *
                     IFRST = 0
                     KFRST = 0
-CT                  CALL QEXIT ('ADADS')
+CT                  CALL LUCIAQEXIT ('ADADS')
 *
-CT                  CALL QENTER('MATCS')
+CT                  CALL LUCIAQENTER('MATCS')
                     I = 0
                     K = 1
                     DO IK = 1, NIK
@@ -4064,7 +4069,7 @@ CT                  CALL QENTER('MATCS')
      &                     NKBTC,I1(1,IKOFF),XI1S(1,IKOFF))
                     END DO
 C                   write(6,*) ' first element of updated SB', SB(1)
-CT                  CALL QEXIT ('MATCS')
+CT                  CALL LUCIAQEXIT ('MATCS')
 *
                   IF(KEND.EQ.0) GOTO 2800
 *. End of loop over partitionings of resolution strings
@@ -4081,11 +4086,11 @@ CT                  CALL QEXIT ('MATCS')
         END IF
 *       ^ End of a+ a+ a a/a a a+ a+ versus a+ a a+ a switch
 
-        IF(NIJKL1.EQ.0) CALL QEXIT ('BB2A0')
-        IF(NIJKL1.EQ.1) CALL QEXIT ('BB2A1')
-        IF(NIJKL1.EQ.2) CALL QEXIT ('BB2A2')
-        IF(NIJKL1.EQ.3) CALL QEXIT ('BB2A3')
-        IF(NIJKL1.EQ.4) CALL QEXIT ('BB2A4')
+        IF(NIJKL1.EQ.0) CALL LUCIAQEXIT ('BB2A0')
+        IF(NIJKL1.EQ.1) CALL LUCIAQEXIT ('BB2A1')
+        IF(NIJKL1.EQ.2) CALL LUCIAQEXIT ('BB2A2')
+        IF(NIJKL1.EQ.3) CALL LUCIAQEXIT ('BB2A3')
+        IF(NIJKL1.EQ.4) CALL LUCIAQEXIT ('BB2A4')
  2000 CONTINUE
 *
  2001 CONTINUE
@@ -4094,7 +4099,7 @@ C?      WRITE(6,*) ' Memcheck at end of RSBB2A '
 C?      CALL MEMCHK 
 C?      WRITE(6,*) ' Memcheck passed '
 *
-      CALL QEXIT('RS2A ')
+      CALL LUCIAQEXIT('RS2A ')
       RETURN
       END
       SUBROUTINE GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
@@ -5492,7 +5497,7 @@ c      INCLUDE 'mxpdim.inc'
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
 *
-C?    CALL QENTER('GETST')
+C?    CALL LUCIAQENTER('GETST')
       NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -5590,10 +5595,10 @@ C?    CALL QENTER('GETST')
            CALL IWRTMA(ISMFGS,1,NGAS,1,NGAS)
          END IF
 *. Obtain all strings of this symmetry 
-CT      CALL QENTER('GASSM')
+CT      CALL LUCIAQENTER('GASSM')
          CALL GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1,ISTRBS),NSTR,NEL,
      &                           NNSTSGP,IISTSGP)
-CT       CALL QEXIT('GASSM')
+CT       CALL LUCIAQEXIT('GASSM')
 *. Reorder Info : Lexical => actual number 
          IF(IDOREO.NE.0) THEN
 *. Lexical number of NEL electrons
@@ -5635,7 +5640,7 @@ CT       CALL QEXIT('GASSM')
         END IF
       END IF
 *
-C?    CALL QEXIT('GETST')
+C?    CALL LUCIAQEXIT('GETST')
       RETURN
       END 
       SUBROUTINE RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,
@@ -5742,7 +5747,7 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *
       INCLUDE 'comjep.inc'
       INCLUDE 'oper.inc'
-      CALL QENTER('RS2B ')
+      CALL LUCIAQENTER('RS2B ')
 *
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
@@ -6002,7 +6007,7 @@ C    &               I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE   )
                 ONE = 1.0D0
                 IF(I_USE_SIMTRH .EQ.0 ) THEN
 *. Normal integrals with conjugation symmetry
-                  CALL GETINT(XINT,IJ_TYP(2),IJ_SYM(2),
+                  CALL LUCIAGETINT(XINT,IJ_TYP(2),IJ_SYM(2),
      &                 IJ_TYP(1),IJ_SYM(1),
      &                 KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,
      &                 0,0,ICOUL,ONE,ONE)
@@ -6011,7 +6016,7 @@ C?              WRITE(6,*) ' I_USE_SIMTRH = ', I_USE_SIMTRH
 *. Integrals does not have conjugation symmetry so be careful...
 *. The following is not enough is particle hole symmetry is encountered
 *. Obtain ( i j ! k l )
-                  CALL GETINT(XINT,ITYP,ISM,JTYP,JSM,
+                  CALL LUCIAGETINT(XINT,ITYP,ISM,JTYP,JSM,
      &                             KTYP,KSM,LTYP,LSM,
      &                        IXCHNG,0,0,ICOUL,ONE,ONE)
                   IF(KLAC.EQ.2.AND.IJAC.EQ.2) THEN
@@ -6070,7 +6075,7 @@ C?              WRITE(6,*) ' I_USE_SIMTRH = ', I_USE_SIMTRH
  9999 CONTINUE
 *
 *
-      CALL QEXIT('RS2B ')
+      CALL LUCIAQEXIT('RS2B ')
       RETURN
       END
       SUBROUTINE H1TERMS(SIGMA,C,NR,NK,NI,NJ,MAXK,HIJ,
@@ -6366,7 +6371,7 @@ c      INCLUDE 'mxpdim.inc'
 * (NKSTR,*), Where NKSTR is the number of K-strings of 
 *  correct symmetry . Nk is provided by this routine.
 *
-C!    CALL QENTER('ADAST ')
+C!    CALL LUCIAQENTER('ADAST ')
 *
       NTEST = 000
       IF(NTEST.GE.100) THEN
@@ -6623,7 +6628,7 @@ C       IF(NGASL-1.GT.0) GOTO 1000
         END IF
       END IF
 *
-C!    CALL QEXIT('ADAST ')
+C!    CALL LUCIAQEXIT('ADAST ')
       RETURN
       END
       SUBROUTINE ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,
@@ -7763,8 +7768,8 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
             if (kirs(i).eq.nir) then
                call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
                do j = 1, luciaao
-                  if (nbf_sc(j,i).gt.0.0d0) then
-                     cmo(icounter) = ctmp(j)*nbf_sc(j,i)
+                  if (nwchem_sc(j,i).gt.0.0d0) then
+                     cmo(icounter) = ctmp(j)*nwchem_sc(j,i)
                      icounter = icounter + 1
                   endif
                enddo
@@ -9358,7 +9363,7 @@ C    &             NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
-      CALL QENTER('DENSI')
+      CALL LUCIAQENTER('DENSI')
 *
 *. Some preparations for batching
 *
@@ -9928,7 +9933,7 @@ C             TEST_RHO2S(RHO2,RHO2AA,RHO2AB,RHO2BB,NORB)
 *
 *. Eliminate local memory
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'DENSI ')
-      CALL QEXIT('DENSI')
+      CALL LUCIAQEXIT('DENSI')
 C     WRITE(6,*) ' Leaving DENSI '
       RETURN
       END
@@ -10051,7 +10056,7 @@ C     WRITE(6,*) ' Leaving DENSI '
       DIMENSION RHO2AA(*),RHO2AB(*),RHO2BB(*),SRHO1(*)
       DIMENSION RHO1P(*),XNATO(*)
 *
-      CALL QENTER('GASDN')
+      CALL LUCIAQENTER('GASDN')
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -10378,7 +10383,7 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
 10001 CONTINUE
 *.    ^ End of loop over batches of L blocks
       IF(NTEST.GE.100) WRITE(6,*) ' Returning from GASDN2 '
-      CALL QEXIT('GASDN')
+      CALL LUCIAQEXIT('GASDN')
       RETURN
       END
       SUBROUTINE GSDNBB2(I12,RHO1,RHO2,
@@ -10467,7 +10472,7 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
       DIMENSION  I1(*),XI1S(*),I2(*),XI2S(*),I3(*),XI3S(*),I4(*),XI4S(*)
       DIMENSION C2(*)
 *
-      CALL QENTER('GSDNB')
+      CALL LUCIAQENTER('GSDNB')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
       NTESTO= NTEST
@@ -10650,7 +10655,7 @@ C?    CALL PRSYM(RHO2,NACOB**2)
 C?    WRITE(6,*) ' RHO2 after GSBBD2B '
 C?    CALL PRSYM(RHO2,NACOB**2)
 *
-      CALL QEXIT('GSDNB')
+      CALL LUCIAQEXIT('GSDNB')
       RETURN
       END
       SUBROUTINE GSBBD2A(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
@@ -10828,7 +10833,7 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
                     JLSM = 0
                   END IF
 *. Obtain all double excitations from this group of K strings
-                  CALL QENTER('ADADS')
+                  CALL LUCIAQENTER('ADADS')
                   II12 = 1
                   K12 = 1
                   IONE = 1
@@ -10840,13 +10845,13 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
                   JFRST = 0
                   KFRST = 0
 *
-                  CALL QEXIT('ADADS')
+                  CALL LUCIAQEXIT('ADADS')
                   IF(NKBTC.EQ.0) GOTO 1930
 *. Loop over jl in TS classes
                   J = 0
                   L = 1
 *
-                  CALL QENTER('MATCG')
+                  CALL LUCIAQENTER('MATCG')
                   DO  IJL = 1, NJL
                     CALL NXTIJ(J,L,NJ,NL,JLSM,NONEW)
                     I1JL = (L-1)*NJ+J
@@ -10869,7 +10874,7 @@ C                   JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
      &                            I1(1,I1JL),XI1S(1,I1JL))
                     END IF
                   END DO
-                  CALL QEXIT ('MATCG')
+                  CALL LUCIAQEXIT ('MATCG')
 *
 *
 * =========================================================
@@ -10888,7 +10893,7 @@ C                   JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
                     IKSM = 0
                   END IF
 *. Obtain all double excitations from this group of K strings
-CT                CALL QENTER('ADADS')
+CT                CALL LUCIAQENTER('ADADS')
                   II12 = 2
                   K12 = 1
                   IONE = 1
@@ -10902,13 +10907,13 @@ CT                CALL QENTER('ADADS')
                   IFRST = 0
                   KFRST = 0
 *
-CT                CALL QEXIT('ADADS')
+CT                CALL LUCIAQEXIT('ADADS')
                   IF(NKBTC.EQ.0) GOTO 1930
 *. Loop over jl in TS classes
                   I = 0
                   K = 1
 *
-CT                CALL QENTER('MATCG')
+CT                CALL LUCIAQENTER('MATCG')
                   DO  IIK = 1, NIK
                     CALL NXTIJ(I,K,NI,NK,IKSM,NONEW)
                     I1IK = (K-1)*NI+I
@@ -10931,7 +10936,7 @@ C                   IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
      &                            I1(1,I1IK),XI1S(1,I1IK))
                     END IF
                   END DO
-CT                CALL QEXIT ('MATCG')
+CT                CALL LUCIAQEXIT ('MATCG')
 *
 *
 * =================================================================
@@ -11090,7 +11095,7 @@ C    &                  NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 *.Local arrays
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
 *
-      CALL QENTER('GSD2B')
+      CALL LUCIAQENTER('GSD2B')
       NTESTL = 000
       NTEST = MAX(NTESTL,NTESTG)
       IF(NTEST.GE.500) THEN
@@ -11254,7 +11259,7 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
  9999 CONTINUE
 *
 *
-      CALL QEXIT('GSD2B')
+      CALL LUCIAQEXIT('GSD2B')
       RETURN
       END
       SUBROUTINE GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
@@ -11976,7 +11981,7 @@ C?    WRITE(6,*) ' LU1 LU2 LU3 LU4 = ', LU1,LU2,LU3,LU4
         WRITE(6,*) ' ==============================='      
         WRITE(6,*)
       END IF
-      CALL QENTER('INIIT')
+      CALL LUCIAQENTER('INIIT')
 *. Obtain energy of initial vector
       IF(ISKIPEI.EQ.0) THEN
 *. active classses of initial vector
@@ -12048,7 +12053,7 @@ C    &                  ECORE,ITASK)
      &  ( EIG(1,IROOT),IROOT=1,NROOT)
       END IF
       ITERX = 1
-      CALL QEXIT('INIIT')
+      CALL LUCIAQEXIT('INIIT')
 *
 * ======================
 *. Loop over iterations
@@ -12075,7 +12080,7 @@ C    &                  ECORE,ITASK)
         WRITE(6,*) ' ====================================='      
         WRITE(6,*)
        END IF
-       CALL QENTER('PARTA')
+       CALL LUCIAQENTER('PARTA')
 *. Largest allowed basespace in this iteration in multispace method
        IF(IMULTGR.GT.0) THEN
          IBASSPC_MX = MAX(1,1-IPAT(MOD(ITER-2,LPAT)+1)+IREFSPC)
@@ -12117,11 +12122,11 @@ C    &                  ECORE,ITASK)
         END IF
        IF(IPRT.GE.10) WRITE(6,*) ' Number of batches for C ', NBATCHL
        EIGAPR = E
-       CALL QEXIT('PARTA')
+       CALL LUCIAQEXIT('PARTA')
 * ===============================
 *. Obtain C(T) (H0-E)**-1 C
 * ===============================
-       CALL QENTER('PARTB')
+       CALL LUCIAQENTER('PARTB')
        GAMMA = 0.0D0
        IOFF = 1
        CALL REWINO(LU1)
@@ -12158,7 +12163,7 @@ C    &                  ECORE,ITASK)
          WRITE(6,*) ' Contributions to Gamma from various classes '
          CALL WRTMAT(CLS_GAMMA,1,NCLS,1,NCL)
        END IF
-       CALL QEXIT('PARTB')
+       CALL LUCIAQEXIT('PARTB')
 
 *
 * ===============================
@@ -12174,7 +12179,7 @@ C    &                  ECORE,ITASK)
        WRITE(6,*) ' ========================'
        WRITE(6,*)
 C      EIGAPR = EIG(ITER-1,1)
-       CALL QENTER('PARTC')
+       CALL LUCIAQENTER('PARTC')
        XNELMNT = 0.0D0
        XNZERO = 0.0D0
 *
@@ -12210,7 +12215,7 @@ C      EIGAPR = EIG(ITER-1,1)
          WRITE(6,*) ' Number of batches for S ', NBATCHL
          WRITE(6,*)
        END IF
-       CALL QEXIT('PARTC')
+       CALL LUCIAQEXIT('PARTC')
 *. Loop over batches of H !0>
        DO IBATCH = 1, NBATCHL
          LBATCHB = ISBLBT(IBATCH)
@@ -12221,20 +12226,20 @@ C      EIGAPR = EIG(ITER-1,1)
 * Batch of HC in VEC1
          ZERO = 0.0D0
          CALL SETVEC(VEC1,ZERO,LBATCHE)
-         CALL QENTER('PARTD')
+         CALL LUCIAQENTER('PARTD')
          CALL SBLOCK(LBATCHB,ISBLOCK,IOFF,VEC2,VEC1,LU1,0,0,
      &                0,0,0,0.0D0,EIGSHF,'SIGMA ')
 C     SBLOCK(NBLOCK,ISBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
 C    &                  LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
 C    &                  ECORE,ITASK)
 
-         CALL QEXIT('PARTD')
+         CALL LUCIAQEXIT('PARTD')
          IF(IPRT.GE.500) THEN
            WRITE(6,*) ' Batch of H C '
            CALL WRTBLKN_EP(VEC1,LBATCHB,ISLBLK(IOFF)) 
          END IF
 *. Retrieve Batch of C
-         CALL QENTER('PARTE')
+         CALL LUCIAQENTER('PARTE')
          CALL GET_BLOCKS_FROM_DISC
      &   (LU1,LBATCHB,IOFF,ISBLOCK,NBLOCKT,VEC2,1)
          IF(IPRT.GE.500) THEN
@@ -12285,9 +12290,9 @@ C    &                  ECORE,ITASK)
              XNZERO = XNZERO - 1.0D0
            END IF
          END DO
-         CALL QEXIT('PARTE')
+         CALL LUCIAQEXIT('PARTE')
 *
-         CALL QENTER('PARTF')
+         CALL LUCIAQENTER('PARTF')
          IF(ICLSSEL.EQ.1) THEN
 *. Contributions divided into occupation classes, truncated expansion
 *. Wave function correction
@@ -12321,10 +12326,10 @@ C    &                  ECORE,ITASK)
            CALL WRTBLKN_EP(VEC2,LBATCHB,ISLBLK(IOFF))
          END IF
          IOFF = IOFF + LBATCHB
-         CALL QEXIT('PARTF')
+         CALL LUCIAQEXIT('PARTF')
        END DO
 *      /\ End of loop over batches of correction vector
-         CALL QENTER('PARTG')
+         CALL LUCIAQENTER('PARTG')
          WRITE(6,'(A,E22.15)') 
      &   ' Number of zero elements in delta (before class trunc) ',
      &    XNZERO
@@ -12339,12 +12344,12 @@ C    &                  ECORE,ITASK)
 *. Predicted energy  
        IF(ICLSSEL.EQ.1) THEN
 *. Energy and wave function per base space
-         CALL QENTER('G1   ')
+         CALL LUCIAQENTER('G1   ')
          CALL CLS_TO_BASE(CLS_E,EBASC,CLS_C,CBASC,NCLS,NSPC,
      &                    IBASSPC) 
-         CALL QEXIT('G1   ')
+         CALL LUCIAQEXIT('G1   ')
 *. decide which classes should be truncated
-         CALL QENTER('PARTT')
+         CALL LUCIAQENTER('PARTT')
 C        CALL CLASS_TRUNC(NCLS,ICLS_L,RCLS_L,CLS_CT,CLS_ET,CLS_C,CLS_E,
 C    &                    E_CONV,ICLS_A,N_CLS_TRN,E_CLS_TRN,W_TRN)
 *. Test active classes of Sigma (ICLS_A2)
@@ -12354,7 +12359,7 @@ C    &                    E_CONV,ICLS_A,N_CLS_TRN,E_CLS_TRN,W_TRN)
      &        MXLNG,ICLS_A2,IBLK_TO_CLS,NCLS,NBLOCKT,ISLBLK)
          NSBATCH = NBATCHL
 *. Perfrom the corresponding partitioning of the Sigma-vector
-         CALL QEXIT('PARTT')
+         CALL LUCIAQEXIT('PARTT')
 *. Update corrections for class elimination
          N_ACT_CLS = 0
          CHEDEL = CHEDEL - (-1.0D0) * E_CLS_TRN
@@ -12372,13 +12377,13 @@ C    &                    E_CONV,ICLS_A,N_CLS_TRN,E_CLS_TRN,W_TRN)
 *. And do the truncation 
 *. Truncation of classes => truncation of blocks
          IF(N_CLS_TRN.NE.0) THEN
-           CALL QENTER('G2   ')
+           CALL LUCIAQENTER('G2   ')
            CALL CLS_TO_BLK(NBLOCKT,IBLK_TO_CLS,ICLS_A,IBLKS_A)
-           CALL QEXIT('G2   ')
+           CALL LUCIAQEXIT('G2   ')
 *. from LU2 to LU3 and back to LU2
-           CALL QENTER('G3   ')
+           CALL LUCIAQENTER('G3   ')
            CALL ZAP_BLOCK_VEC(LU2,LBLK,IBLKS_A,VEC2,LU3)
-           CALL QEXIT('G3   ')
+           CALL LUCIAQEXIT('G3   ')
          END IF
        ELSE
          N_CLS_TRN = 0
@@ -12439,7 +12444,7 @@ C    &   ' Number of nonzero terms in delta (before class sel) ',
 C    &    XNELMNT-XNZERO
        ELSE
        END IF
-       CALL QEXIT('PARTG')
+       CALL LUCIAQEXIT('PARTG')
 *
        IF(ICLSSEL.EQ.1) THEN
          IF(N_ACT_CLS .EQ. 0   ) THEN
@@ -12528,7 +12533,7 @@ C             WRTVCD(SEGMNT,LU,IREW,LBLK)
        WRITE(6,*) ' ==================================='
        WRITE(6,*)
 *. Active classes
-        CALL QENTER('PARTH')
+        CALL LUCIAQENTER('PARTH')
         IF(IDYNBATCH.EQ.1) THEN
           CALL FIND_ACTIVE_CLASSES(LU2,LBLK,IBLK_TO_CLS,
      &         ICLS_A,NCLS,VEC1)
@@ -12575,7 +12580,7 @@ C             WRTVCD(SEGMNT,LU,IREW,LBLK)
          DELHDEL = DELHDEL + INPROD(VEC1,VEC2,LBATCHE)
          IOFF = IOFF + LBATCHB
        END DO
-       CALL QEXIT('PARTH')
+       CALL LUCIAQEXIT('PARTH')
        IF(IRESTRICT.EQ.1) DELHDEL = 2.0D0*DELHDEL
 *
 * ===========================================
@@ -12860,7 +12865,7 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *
       COMMON/XXTEST/ISETVECOPS(10)
 *
-      CALL QENTER('RS2B ')
+      CALL LUCIAQENTER('RS2B ')
 *
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
@@ -13160,7 +13165,7 @@ C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
                 ONE = 1.0D0
                 IF(IH2FORM.EQ.1) THEN
 *. Normal integrals with conjugation symmetry
-                  CALL GETINT(XINT,IJ_TYP(2),IJ_SYM(2),
+                  CALL LUCIAGETINT(XINT,IJ_TYP(2),IJ_SYM(2),
      &                 IJ_TYP(1),IJ_SYM(1),
      &                 KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,
      &                 0,0,ICOUL,ONE,ONE)
@@ -13169,7 +13174,7 @@ C?              WRITE(6,*) ' I_USE_SIMTRH = ', I_USE_SIMTRH
 *. Integrals does not have conjugation symmetry so be careful...
 *. The following is not enough is particle hole symmetry is encountered
 *. Obtain ( i j ! k l )
-                  CALL GETINT(XINT,ITYP,ISM,JTYP,JSM,
+                  CALL LUCIAGETINT(XINT,ITYP,ISM,JTYP,JSM,
      &                             KTYP,KSM,LTYP,LSM,
      &                        IXCHNG,0,0,ICOUL,ONE,ONE)
                   IF(KLAC.EQ.2.AND.IJAC.EQ.2) THEN
@@ -13249,7 +13254,7 @@ C               END IF
  9999 CONTINUE
 *
 *
-      CALL QEXIT('RS2B ')
+      CALL LUCIAQEXIT('RS2B ')
       RETURN
       END
       SUBROUTINE ADAST2_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,
@@ -13342,7 +13347,7 @@ C     INTEGER MXVLI(MXPNGAS),MNVLI(MXPNGAS)
 * (NKSTR,*), Where NKSTR is the number of K-strings of 
 *  correct symmetry . Nk is provided by this routine.
 *
-C!    CALL QENTER('ADAST ')
+C!    CALL LUCIAQENTER('ADAST ')
 *
       NTEST = 000
       IF(NTEST.GE.100) THEN
@@ -13603,7 +13608,7 @@ C       IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
         END IF
       END IF
 *
-C!    CALL QEXIT('ADAST ')
+C!    CALL LUCIAQEXIT('ADAST ')
       RETURN
       END
       SUBROUTINE TEST_RHO2S(RHO2,RHO2AA,RHO2AB,RHO2BB,NORB)
@@ -13826,6 +13831,48 @@ C             FRMDSCN(VEC,NREC,LBLK,LU)
 *
       RETURN
       END
+      SUBROUTINE IAIB_TO_ACCOCC(IATP,IAGRP,IBTP,IBGRP,IACCOCC)
+*
+* Numbers of IA and IB to accumulated occupation 
+*
+* Jeppe Olsen, April 2003
+*
+c      INCLUDE 'implicit.inc'
+c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
+      INCLUDE 'gasstr.inc'
+      INCLUDE 'cgas.inc'
+      INCLUDE 'strbas.inc'
+*. Output
+      INTEGER IACCOCC(NGAS)
+C?    WRITE(6,*) ' IATP, IBTP, IAGRP, IBGRP = ',
+C?   &             IATP, IBTP, IAGRP, IBGRP 
+      IATP_ABS = IATP + IBSPGPFTP(IAGRP) - 1
+      IBTP_ABS = IBTP + IBSPGPFTP(IBGRP) - 1
+C?    WRITE(6,*) ' IATP_ABS, IBTP_ABS ', IATP_ABS, IBTP_ABS
+*
+*. Occupation in each GAS space 
+*
+      IONE = 1
+      CALL IVCSUM(IACCOCC,NELFSPGP(1,IATP_ABS),NELFSPGP(1,IBTP_ABS),
+     &            IONE,IONE,NGAS)
+C?    WRITE(6,*) ' Occupation before accumulation '
+C?    CALL IWRTMA(IACCOCC,1,NGAS,1,NGAS)
+*
+*. And accumulated occupation 
+*
+      DO IGAS = 2, NGAS
+        IACCOCC(IGAS) = IACCOCC(IGAS) + IACCOCC(IGAS-1)
+      END DO
+*
+      NTEST = 00
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' Accumulated occupation from IAIB_TO_ACCOCC '
+        CALL IWRTMA(IACCOCC,1,NGAS,1,NGAS)
+      END IF
+*
+      RETURN
+      END
       SUBROUTINE CMP_INFBLK_OCCSPC(INFBLK,NBLOCK,IOCCSPC,IBLK_IN_OCC,
      &                             NGAS,NVAR_IN_OCC,IFLAG)
 *
@@ -14041,7 +14088,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
       COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
 *
-      CALL QENTER('HCONF')
+      CALL LUCIAQENTER('HCONF')
 *. Fetch K matrix
 C     CALL GTJK(XDUM1       ,H,NTOOB,XDUM3       ,IREOTS)
       CALL GTJK(dbl_mb(KLZSCR),H,NTOOB,dbl_mb(KLZSCR),IREOTS)
@@ -14053,7 +14100,7 @@ C     CALL GTJK(XDUM1       ,H,NTOOB,XDUM3       ,IREOTS)
      &           int_mb(KLZ(2)),dbl_mb(KLZSCR),ISMFTO,NGAS,
      &           int_mb(KLOCSTR(1)),int_mb(KLOCSTR(2)),
      &           int_mb(KLREO(1)),int_mb(KLREO(2)),CB,SB) 
-      CALL QEXIT('HCONF')
+      CALL LUCIAQEXIT('HCONF')
 *
       RETURN
       END
@@ -15212,7 +15259,7 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
       DIMENSION IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
 *
-      CALL QENTER('GSD2B')
+      CALL LUCIAQENTER('GSD2B')
       NTESTL = 00
       NTEST = MAX(NTESTL,NTESTG)
       IF(NTEST.GE.500) THEN
@@ -15418,7 +15465,7 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
  9999 CONTINUE
 *
 *
-      CALL QEXIT('GSD2B')
+      CALL LUCIAQEXIT('GSD2B')
       RETURN
       END
       SUBROUTINE ADVICE_SIGMA3(IAOCC,IBOCC,JAOCC,JBOCC,ITERM,LADVICE,

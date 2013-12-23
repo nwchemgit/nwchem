@@ -95,7 +95,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Fetch 2-e integral block (IJ!KL)
 C?            WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
               ONE = 1.0D0
-              CALL GETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
+              CALL LUCIAGETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
      &                     0,0,0,1,ONE,ONE)
 *. (Type = 0  => Complete symmetryblock)
 *. Offsets and dimensions for symmetryblocks in C 
@@ -461,7 +461,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IDUM = 0
       NTEST = 00
-      CALL QENTER('SIMTR')
+      CALL LUCIAQENTER('SIMTR')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'ET1HE ')
 *
       IF(NTEST.GT.0) THEN
@@ -564,7 +564,7 @@ C?    WRITE(6,*) ' ECORE_ORIG, ECORE_HEX =', ECORE_ORIG, ECORE_HEX
      
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'ET1HE ')
-      CALL QEXIT('SIMTR')
+      CALL LUCIAQEXIT('SIMTR')
       RETURN
       END
       SUBROUTINE TRAINT
@@ -592,7 +592,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRACTL')
-      CALL QENTER('TRAIN')
+      CALL LUCIAQENTER('TRAIN')
 *
       IF(NTEST.GE.10) THEN
        WRITE(6,*) ' TRAINT Entered '
@@ -652,7 +652,7 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
        END IF
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRACTL')
-      CALL QEXIT ('TRAIN')
+      CALL LUCIAQEXIT ('TRAIN')
       RETURN
       END
       SUBROUTINE TRA1D_SIMPLE(CCREA,CANNI,HIN,HOUT,ISYM)
@@ -870,7 +870,7 @@ C     WRITE(6,*) ' Two integral blocks allocated '
 *. Fetch 2-e integral block (IJ!KL)
               ONE = 1.0D0
 C?            WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
-              CALL GETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
+              CALL LUCIAGETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
      &                     0,0,0,1,ONE,ONE)
 *. (Type = 0  => Complete symmetryblock)
 *. Offsets and dimensions for symmetryblocks in C 
@@ -1003,7 +1003,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Output
       DIMENSION XOUT(*)
 *
-      CALL QENTER('PUTIN')
+      CALL LUCIAQENTER('PUTIN')
 *. Offset and number of integrals
 *
       I_AM_KIM = 0
@@ -1101,7 +1101,7 @@ C?         WRITE(6,*) ' IOB, JOB, KOB, LOB', IOB,JOB,KOB,LOB
        END DO
       END DO
 *
-      CALL QEXIT('PUTIN')
+      CALL LUCIAQEXIT('PUTIN')
       RETURN
       END
       SUBROUTINE DMPINT(LUINT)
@@ -1829,7 +1829,7 @@ C     WRITE(6,*) ' Two integral blocks allocated '
 *. Fetch 2-e integral block (IJ!KL)
               ONE = 1.0D0
 C             WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
-              CALL GETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
+              CALL LUCIAGETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
      &                     0,0,0,1,ONE,ONE)
 *. (Type = 0  => Complete symmetryblock)
 *. Offsets and dimensions for symmetryblocks in C 

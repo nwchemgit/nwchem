@@ -1148,11 +1148,11 @@ CT    INTEGER ITTOCC(4*MXPNGAS),ITTTOCC(4*MXPNGAS),ITTTTOCC(4*MXPNGAS)
 *. Loop over number of commutators
         DO NCOMMU = NCOM_MIN, NCOM_MAX
 *
-          IF(NCOMMU.EQ.0) CALL QENTER('0_COM')
-          IF(NCOMMU.EQ.1) CALL QENTER('1_COM')
-          IF(NCOMMU.EQ.2) CALL QENTER('2_COM')
-          IF(NCOMMU.EQ.3) CALL QENTER('3_COM')
-          IF(NCOMMU.EQ.4) CALL QENTER('4_COM')
+          IF(NCOMMU.EQ.0) CALL LUCIAQENTER('0_COM')
+          IF(NCOMMU.EQ.1) CALL LUCIAQENTER('1_COM')
+          IF(NCOMMU.EQ.2) CALL LUCIAQENTER('2_COM')
+          IF(NCOMMU.EQ.3) CALL LUCIAQENTER('3_COM')
+          IF(NCOMMU.EQ.4) CALL LUCIAQENTER('4_COM')
 *
           IF(NTEST.GE.100) 
      &    WRITE(6,*) ' Number of commutators : ', NCOMMU
@@ -1403,11 +1403,11 @@ COLD        END IF
           END IF
 *         ^ End of NCOMMU .EQ. 4
 *
-          IF(NCOMMU.EQ.0) CALL QEXIT('0_COM')
-          IF(NCOMMU.EQ.1) CALL QEXIT('1_COM')
-          IF(NCOMMU.EQ.2) CALL QEXIT('2_COM')
-          IF(NCOMMU.EQ.3) CALL QEXIT('3_COM')
-          IF(NCOMMU.EQ.4) CALL QEXIT('4_COM')
+          IF(NCOMMU.EQ.0) CALL LUCIAQEXIT('0_COM')
+          IF(NCOMMU.EQ.1) CALL LUCIAQEXIT('1_COM')
+          IF(NCOMMU.EQ.2) CALL LUCIAQEXIT('2_COM')
+          IF(NCOMMU.EQ.3) CALL LUCIAQEXIT('3_COM')
+          IF(NCOMMU.EQ.4) CALL LUCIAQEXIT('4_COM')
         END DO
 *       ^ End of loop over commutators
       END DO

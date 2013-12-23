@@ -33,7 +33,7 @@
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'AKBKCT')
-      CALL QENTER('AKBKCT')
+      CALL LUCIAQENTER('AKBKCT')
  
       WRITE(6,*) ' **************************************'
       WRITE(6,*) ' *                                    *'
@@ -397,7 +397,7 @@ C            AKBK_DENSITY(RHO1,RHO2,L,R,LUP,E,I12)
 C?    END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'AKBKCT')
-      CALL QEXIT('AKBKCT')
+      CALL LUCIAQEXIT('AKBKCT')
 *
       RETURN
       END
@@ -499,7 +499,7 @@ C?    END IF
 *
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
-      CALL QENTER('AKBKSI')
+      CALL LUCIAQENTER('AKBKSI')
       NTEST = 10
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from AKBKSIGMA'
@@ -628,7 +628,7 @@ C VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
 C?    WRITE(6,*) ' Jeppe forced me to stop.... '
 C?    STOP ' Jeppe forced me to stop.... '
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'AKBKSI')
-      CALL QEXIT('AKBKSI')
+      CALL LUCIAQEXIT('AKBKSI')
 *
       RETURN
       END
@@ -659,7 +659,7 @@ C?    STOP ' Jeppe forced me to stop.... '
       INCLUDE 'cprnt.inc'
       INCLUDE 'ceblk.inc'
 *
-      CALL QENTER('CSDIAM')
+      CALL LUCIAQENTER('CSDIAM')
 *
       NTEST = 000
       IF(NTEST.GE.100) THEN 
@@ -756,7 +756,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
      &        int_mb(KICONF_OCC(ISM)),VECUT,ECORE,
      &        LUDIA_A,NXIOCCLS_ACT,dbl_mb(KXIOCCLS_ACT),ISM)
       END IF! IH0_CSF switch
-      CALL QEXIT('CSDIAM')
+      CALL LUCIAQEXIT('CSDIAM')
 *
       RETURN
       END
@@ -790,7 +790,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 *
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'GET_CQ')
-      CALL QENTER('GET_CQ')
+      CALL LUCIAQENTER('GET_CQ')
       NTEST = 10000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from GET_CQ'
@@ -894,7 +894,7 @@ C SCLVCD(LUIN,LUOUT,SCALE,SEGMNT,IREW,LBLK)
       CALL FILEMAN_MINI(LU_Q3,'FREE')
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'GET_CQ')
-      CALL QEXIT('GET_CQ')
+      CALL LUCIAQEXIT('GET_CQ')
 *
       RETURN
       END
@@ -934,7 +934,7 @@ C SCLVCD(LUIN,LUOUT,SCALE,SEGMNT,IREW,LBLK)
       DIMENSION CB(*), HCB(*)
 *
       CALL MEMMAN(IDUM,IDUM,'MARK ',1,'AKQQDN')
-      CALL QENTER('AKQQCN')
+      CALL LUCIAQENTER('AKQQCN')
 * Some files
       CALL FILEMAN_MINI(LUQ,'ASSIGN')
       CALL FILEMAN_MINI(LUQ1,'ASSIGN')
@@ -997,7 +997,7 @@ C    &                             RHO1D,RHO2D,I12)
       CALL FILEMAN_MINI(LU_Q,'FREE')
       CALL FILEMAN_MINI(LU_Q1,'FREE')
       CALL MEMMAN(IDUM,IDUM,'FLUSM',1,'AKQQDN')
-      CALL QEXIT('AKQQCN')
+      CALL LUCIAQEXIT('AKQQCN')
 *
       RETURN
       END
@@ -1041,7 +1041,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION RHO1D(*), RHO2D(*)
 *
       IDUM = 0
-      CALL QENTER('DIARHO')
+      CALL LUCIAQENTER('DIARHO')
       CALL MEMMAN(IDUM,  IDUM,    'MARK  ',IDUM,'DIARHO')
 *
       NTEST = 1000
@@ -1082,7 +1082,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 
 *.Flush local memory
       CALL MEMMAN(IDUM,  IDUM,    'FLUSM ',IDUM,'DIARHO')
-      CALL QEXIT('DIARHO')
+      CALL LUCIAQEXIT('DIARHO')
 *
       RETURN
       END
@@ -1319,7 +1319,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       END IF
 *
       LBLK = -1
-      CALL QENTER('AKBK_D')
+      CALL LUCIAQENTER('AKBK_D')
       CALL MEMMAN(IDUMMY,IDUMMY,'MARK  ', IDUMMY,'AKBK_D')
 *. Local copies of Rho1 and Rho2
       LRHO1 = NACOB**2
@@ -1391,7 +1391,7 @@ C     GET_APPROX_DEN_AKBK_QQ(RHO1_QQ, RHO2_QQ,LUP,E,CB,HCB,I12)
       END IF
 *
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ', IDUMMY,'AKBK_D')
-      CALL QEXIT('AKBK_D')
+      CALL LUCIAQEXIT('AKBK_D')
 *
       RETURN
       END
@@ -1493,7 +1493,7 @@ C     GET_APPROX_DEN_AKBK_QQ(RHO1_QQ, RHO2_QQ,LUP,E,CB,HCB,I12)
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'F2MAT ')
-      CALL QENTER('F2MAT')
+      CALL LUCIAQENTER('F2MAT')
 *. Dimension of F2
       NR = 0
       NC = 0
@@ -1738,7 +1738,7 @@ C   -(4 (mn!qp) - (mq!pn)-(mp!qn))
       END IF
 *
 
-      CALL QEXIT('F2MAT')
+      CALL LUCIAQEXIT('F2MAT')
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'F2MAT ')
 *
       RETURN
@@ -2204,7 +2204,7 @@ C MATVCC(A,VIN,VOUT,NROW,NCOL,ITRNS)
 
       IDUMMY = 0
       CALL MEMMAN(IDUMMY, IDUMMY, 'MARK ', IDUMMY,'AKMCSC') 
-      CALL QENTER('AKMCS')
+      CALL LUCIAQENTER('AKMCS')
 *
 *. Local parameters defining optimization
 *
@@ -3398,7 +3398,7 @@ C?   &             E1NRM_ORB, ERROR_NORM_FINAL_CI
 C?    WRITE(6,*) ' Final energy = ', EFINAL
 
       CALL MEMMAN(IDUMMY, IDUMMY, 'FLUSM', IDUMMY,'AKMCSC') 
-      CALL QEXIT('AKMCS')
+      CALL LUCIAQEXIT('AKMCS')
       RETURN
       END
       SUBROUTINE AKBKSIGMA2(CB,HCB,LUC,LUHC)
@@ -3463,7 +3463,7 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
 *
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
-      CALL QENTER('AKBKSI')
+      CALL LUCIAQENTER('AKBKSI')
 *
       NTEST = 10
       IF(NTEST.GE.10) THEN
@@ -3672,7 +3672,7 @@ C    &           ECORE,ITASK)
 *. (HQQ - E)**-1 HQP for Q batch
 * ===============================
 *
-          CALL QENTER('AKBKH0')
+          CALL LUCIAQENTER('AKBKH0')
           IF(IH0_CSF.EQ.1) THEN
             KEBLTP = KCBLTP
             NEBLK = NSBLOCK_BAT
@@ -3748,7 +3748,7 @@ C?        WRITE(6,*)  ' Shift = ', Shift
 *
 * Transform (HQQ-E)**-1 HQP CP to SD basis and save in in KVEC4
 *
-          CALL QEXIT('AKBKH0')
+          CALL LUCIAQEXIT('AKBKH0')
           NTESTL = 000
           CALL CSDTVCB(CB,WORK(KVEC4),1,dbl_mb(KDTOC),
      &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
@@ -3853,7 +3853,7 @@ C           WRTVCD(SEGMNT,LU,IREW,LBLK)
       CALL FILEMAN_MINI(LU_SDET,'FREE  ')
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'AKBKSI')
-      CALL QEXIT('AKBKSI')
+      CALL LUCIAQEXIT('AKBKSI')
 *
       RETURN
       END

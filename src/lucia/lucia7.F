@@ -1823,7 +1823,7 @@ c      INCLUDE 'mxpdim.inc'
       END IF
 *
       IDUM = 0
-      CALL QENTER('ORBHE')
+      CALL LUCIAQENTER('ORBHE')
       CALL MEMMAN(IDUM,IDUM,'MARK  ', IDUM,'ORBHES')
 *. Scratch : five four index blocks and the generalized Fock matrix 
 *
@@ -1952,7 +1952,7 @@ C?                WRITE(6,*) ' IPQRS, I2PQRS', IPQRS,I2PQRS
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'ORBHES')
-      CALL QEXIT('ORBHE')
+      CALL LUCIAQEXIT('ORBHE')
 *
       RETURN
       END
@@ -2271,7 +2271,7 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
 *      Y(PQRS) = 8(PQ!RS) - 2(PS!RQ) - 2(PR!QS) 
 *              + 2Delta(P,R)(FI(QS) + FA(QS) - H(QS))
 *. 8(PQ!RS)
-        CALL GETINT(Y,IPTP,IPSM,IQTP,IQSM,IRTP,IRSM,ISTP,ISSM,
+        CALL LUCIAGETINT(Y,IPTP,IPSM,IQTP,IQSM,IRTP,IRSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
         EIGHT = 8.0D0
         CALL SCALVE(Y,EIGHT,NP*NQ*NR*NS)
@@ -2280,7 +2280,7 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
           CALL WRTMAT(Y,NP*NQ,NR*NS,NP*NQ,NR*NS)
         END IF
 *. -2(PS!RQ)
-        CALL GETINT(SCR3,IPTP,IPSM,ISTP,ISSM,IRTP,IRSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR3,IPTP,IPSM,ISTP,ISSM,IRTP,IRSM,IQTP,IQSM,
      &              0,0,0,1,ONE,ONE)
         DO IS = 1, NS
          DO IR = 1, NR
@@ -2306,7 +2306,7 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
           CALL WRTMAT(Y,NP*NQ,NR*NS,NP*NQ,NR*NS)
         END IF
 *-2(PR!QS)
-        CALL GETINT(SCR3,IPTP,IPSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR3,IPTP,IPSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
         DO IS = 1, NS
          DO IR = 1, NR
@@ -2385,13 +2385,13 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
        DO IMTP = 1, NGAS
 *. (MQ!RS) in SCR1
         NM = NOBPTS(IMTP,IMSM)
-        CALL GETINT(SCR1,IMTP,IMSM,IQTP,IQSM,IRTP,IRSM,ISTP,ISSM,
+        CALL lUCIAGETINT(SCR1,IMTP,IMSM,IQTP,IQSM,IRTP,IRSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. (MS!RQ) in SCR2
-        CALL GETINT(SCR2,IMTP,IMSM,ISTP,ISSM,IRTP,IRSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR2,IMTP,IMSM,ISTP,ISSM,IRTP,IRSM,IQTP,IQSM,
      &              0,0,0,1,ONE,ONE)
 *. (MR!QS) in SCR3
-        CALL GETINT(SCR3,IMTP,IMSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR3,IMTP,IMSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. 4(MQ!RS)-(MS!RQ)-(MR!QS) in scr1
         DO IS = 1, NS
@@ -2447,13 +2447,13 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
        DO IMTP = 1, NGAS
         NM = NOBPTS(IMTP,IMSM)
 *. (MS!PQ) in SCR1
-        CALL GETINT(SCR1,IMTP,IMSM,ISTP,ISSM,IPTP,IPSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR1,IMTP,IMSM,ISTP,ISSM,IPTP,IPSM,IQTP,IQSM,
      &              0,0,0,1,ONE,ONE)
 *. (MQ!PS) in SCR2
-        CALL GETINT(SCR2,IMTP,IMSM,IQTP,IQSM,IPTP,IPSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR2,IMTP,IMSM,IQTP,IQSM,IPTP,IPSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. (MP!QS) in SCR3
-        CALL GETINT(SCR3,IMTP,IMSM,IPTP,IPSM,IQTP,IQSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR3,IMTP,IMSM,IPTP,IPSM,IQTP,IQSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. 4(MS!PQ)-(MQ!PS)-(MP!QS) in scr1
         DO IQ = 1, NQ
@@ -2527,7 +2527,7 @@ C?   &                  IOFF_1SPQ, IOFF_1QPS, NM
 * Y(pqrs) <= Sum_(mn) [d(mpnr)+d(mprn)](mq!sn) 
 *
 *. fetch blocks of integrals and integrals
-C      GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+C LUCIAGETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &                  IXCHNG,IKSM,JLSM,ICOUL)
 *. 
 C     GETD2(RHO2B,ISM,IGAS,JSM,JGAS,KSM,KGAS,LSM,LGAS,ICOUL)
@@ -2537,11 +2537,13 @@ C     GETD2(RHO2B,ISM,IGAS,JSM,JGAS,KSM,KGAS,LSM,LGAS,ICOUL)
              CALL GETD2(SCR2(1),IPSM,IPTP,MSM,MTP,NSM,NTP,IRSM,IRTP,0)
              IF(I_OLD_OR_NEW.EQ.1) THEN
 *. (mq!sn)
-               CALL GETINT(SCR3(1),MTP,MSM,IQTP,IQSM,ISTP,ISSM,NTP,NSM,
+               CALL LUCIAGETINT(SCR3(1),MTP,MSM,IQTP,IQSM,ISTP,ISSM,NTP,
+     &                     NSM,
      &                     0,0,0,1,ONE,ONE)
              ELSE
 *. (mq!ns)
-               CALL GETINT(SCR3(1),MTP,MSM,IQTP,IQSM,NTP,NSM,ISTP,ISSM,
+               CALL LUCIAGETINT(SCR3(1),MTP,MSM,IQTP,IQSM,NTP,NSM,ISTP,
+     &                     ISSM,
      &                     0,0,0,1,ONE,ONE)
              END IF
 *
@@ -2580,7 +2582,7 @@ C?            WRITE(6,*) ' Updated Y(1),2', Y(1)
              CALL GETD2(SCR1,MSM,MTP,NSM,NTP,IPSM,IPTP,IRSM,IRTP,0)
 C?           WRITE(6,*) ' Block of D2'
 C?           CALL WRTMAT(SCR1,NM*NN,NP*NR,NM*NN,NP*NR)
-             CALL GETINT(SCR3,MTP,MSM,NTP,NSM,IQTP,IQSM,ISTP,ISSM,
+             CALL LUCIAGETINT(SCR3,MTP,MSM,NTP,NSM,IQTP,IQSM,ISTP,ISSM,
      &                   0,0,0,1,ONE,ONE)
 C?           WRITE(6,*) ' Block of integrals'
 C?           CALL WRTMAT(SCR3,NM*NN,NQ*NS,NM*NN,NQ*NS)
@@ -3935,7 +3937,7 @@ C?   &                    NOOEXC_A,NOOEXC_S
       END IF
 *
       IDUM = 0
-      CALL QENTER('ORBHE')
+      CALL LUCIAQENTER('ORBHE')
       CALL MEMMAN(IDUM,IDUM,'MARK  ', IDUM,'ORBHES')
 *. Scratch : five four index blocks and the generalized Fock matrix 
 *
@@ -4047,7 +4049,7 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'ORBHES')
-      CALL QEXIT('ORBHE')
+      CALL LUCIAQEXIT('ORBHE')
 *
       RETURN
       END
@@ -4116,7 +4118,7 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
 *                - 2(Q'P!QP') 
 *                + 4Delta(QQ')(FI(PP') + FA(PP') - H(PP'))
 *. 8(PQ!Q'P')
-        CALL GETINT(Y,IPTP,IPSM,IQTP,IQSM,IQPTP,IQPSM,IPPTP,IPPSM,
+        CALL LUCIAGETINT(Y,IPTP,IPSM,IQTP,IQSM,IQPTP,IQPSM,IPPTP,IPPSM,
      &              0,0,0,1,ONE,ONE)
         EIGHT = 8.0D0
         CALL SCALVE(Y,EIGHT,NP*NQ*NPP*NQP)
@@ -4125,7 +4127,8 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
           CALL WRTMAT(Y,NP*NQ,NR*NS,NP*NQ,NR*NS)
         END IF
 *. -4(PP'!Q'Q)
-        CALL GETINT(SCR3,IPTP,IPSM,IPPTP,IPPSM,IQPTP,IQPSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR3,IPTP,IPSM,IPPTP,IPPSM,IQPTP,IQPSM,IQTP,
+     &              IQSM,
      &              0,0,0,1,ONE,ONE)
         DO IQ = 1, NS
          DO IQP = 1, NQP
@@ -4152,7 +4155,7 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
         END IF
 *+ 4(PQ! P'Q')
 * HER ER JEG
-        CALL GETINT(SCR3,IPTP,IPSM,IQTP,IQSM,IPTP,IQPSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR3,IPTP,IPSM,IQTP,IQSM,IPTP,IQPSM,IQTP,IQSM,
      &              0,0,0,1,ONE,ONE)
         DO IQ = 1, NS
          DO IQP = 1, NQP
@@ -4178,7 +4181,7 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
           CALL WRTMAT(Y,NP*NQ,NR*NS,NP*NQ,NR*NS)
         END IF
 *-2(PR!QS)
-        CALL GETINT(SCR3,IPTP,IPSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR3,IPTP,IPSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
         DO IS = 1, NS
          DO IR = 1, NR
@@ -4258,13 +4261,13 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
        DO IMTP = 1, NGAS
 *. (MQ!RS) in SCR1
         NM = NOBPTS(IMTP,IMSM)
-        CALL GETINT(SCR1,IMTP,IMSM,IQTP,IQSM,IRTP,IRSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR1,IMTP,IMSM,IQTP,IQSM,IRTP,IRSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. (MS!RQ) in SCR2
-        CALL GETINT(SCR2,IMTP,IMSM,ISTP,ISSM,IRTP,IRSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR2,IMTP,IMSM,ISTP,ISSM,IRTP,IRSM,IQTP,IQSM,
      &              0,0,0,1,ONE,ONE)
 *. (MR!QS) in SCR3
-        CALL GETINT(SCR3,IMTP,IMSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR3,IMTP,IMSM,IRTP,IRSM,IQTP,IQSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. 4(MQ!RS)-(MS!RQ)-(MR!QS) in scr1
         DO IS = 1, NS
@@ -4320,13 +4323,13 @@ C?                WRITE(6,*) ' IPQPQ, I2PQPQ', IPQPQ,I2PQPQ
        DO IMTP = 1, NGAS
         NM = NOBPTS(IMTP,IMSM)
 *. (MS!PQ) in SCR1
-        CALL GETINT(SCR1,IMTP,IMSM,ISTP,ISSM,IPTP,IPSM,IQTP,IQSM,
+        CALL LUCIAGETINT(SCR1,IMTP,IMSM,ISTP,ISSM,IPTP,IPSM,IQTP,IQSM,
      &              0,0,0,1,ONE,ONE)
 *. (MQ!PS) in SCR2
-        CALL GETINT(SCR2,IMTP,IMSM,IQTP,IQSM,IPTP,IPSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR2,IMTP,IMSM,IQTP,IQSM,IPTP,IPSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. (MP!QS) in SCR3
-        CALL GETINT(SCR3,IMTP,IMSM,IPTP,IPSM,IQTP,IQSM,ISTP,ISSM,
+        CALL LUCIAGETINT(SCR3,IMTP,IMSM,IPTP,IPSM,IQTP,IQSM,ISTP,ISSM,
      &              0,0,0,1,ONE,ONE)
 *. 4(MS!PQ)-(MQ!PS)-(MP!QS) in scr1
         DO IQ = 1, NQ
@@ -4400,7 +4403,7 @@ C?   &                  IOFF_1SPQ, IOFF_1QPS, NM
 * Y(pqrs) <= Sum_(mn) [d(mpnr)+d(mprn)](mq!sn) 
 *
 *. fetch blocks of integrals and integrals
-C      GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+C LUCIAGETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &                  IXCHNG,IKSM,JLSM,ICOUL)
 *. 
 C     GETD2(RHO2B,ISM,IGAS,JSM,JGAS,KSM,KGAS,LSM,LGAS,ICOUL)
@@ -4410,11 +4413,13 @@ C     GETD2(RHO2B,ISM,IGAS,JSM,JGAS,KSM,KGAS,LSM,LGAS,ICOUL)
              CALL GETD2(SCR2(1),IPSM,IPTP,MSM,MTP,NSM,NTP,IRSM,IRTP,0)
              IF(I_OLD_OR_NEW.EQ.1) THEN
 *. (mq!sn)
-               CALL GETINT(SCR3(1),MTP,MSM,IQTP,IQSM,ISTP,ISSM,NTP,NSM,
+               CALL LUCIAGETINT(SCR3(1),MTP,MSM,IQTP,IQSM,ISTP,ISSM,NTP,
+     &                     NSM,
      &                     0,0,0,1,ONE,ONE)
              ELSE
 *. (mq!ns)
-               CALL GETINT(SCR3(1),MTP,MSM,IQTP,IQSM,NTP,NSM,ISTP,ISSM,
+               CALL lUCIAGETINT(SCR3(1),MTP,MSM,IQTP,IQSM,NTP,NSM,ISTP,
+     &                     ISSM,
      &                     0,0,0,1,ONE,ONE)
              END IF
 *
@@ -4453,7 +4458,7 @@ C?            WRITE(6,*) ' Updated Y(1),2', Y(1)
              CALL GETD2(SCR1,MSM,MTP,NSM,NTP,IPSM,IPTP,IRSM,IRTP,0)
 C?           WRITE(6,*) ' Block of D2'
 C?           CALL WRTMAT(SCR1,NM*NN,NP*NR,NM*NN,NP*NR)
-             CALL GETINT(SCR3,MTP,MSM,NTP,NSM,IQTP,IQSM,ISTP,ISSM,
+             CALL lUCIAGETINT(SCR3,MTP,MSM,NTP,NSM,IQTP,IQSM,ISTP,ISSM,
      &                   0,0,0,1,ONE,ONE)
 C?           WRITE(6,*) ' Block of integrals'
 C?           CALL WRTMAT(SCR3,NM*NN,NQ*NS,NM*NN,NQ*NS)

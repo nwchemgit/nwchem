@@ -491,9 +491,9 @@ C?      write(6,*) ' ZAP_BLOCK_VEC :  LBLK = ', LBLK
 *. And then copy back to LUIN
 C          COPVCDP(LUIN,LUOUT,SEGMNT,IREW,LBLK)
       IREW = 1
-      CALL QENTER('COPVC')
+      CALL LUCIAQENTER('COPVC')
       CALL COPVCD(LUSCR,LUIN,SEGMNT,IREW,LBLK)
-      CALL QEXIT('COPVC')
+      CALL LUCIAQEXIT('COPVC')
 *
       RETURN
       END
@@ -2005,7 +2005,7 @@ C?    WRITE(6,*) ' LUC in SBLOCK ', LUC
 * string sym, string sym => dx sym
       CALL MEMMAN(KSTSTS,NSMST ** 2,'ADDL  ',2,'KSTSTS')  !done
       CALL MEMMAN(KSTSTD,NSMST ** 2,'ADDL  ',2,'KSTSTD')  !done
-      CALL STSTSM(dbl_(KSTSTS),dbl_mb(KSTSTD),NSMST)
+      CALL STSTSM(dbl_mb(KSTSTS),dbl_mb(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR           
 *. Largest number of strings of given symmetry and type
@@ -2351,7 +2351,7 @@ c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
 *.
       REAL * 8 INPROD
 *
-      CALL QENTER('SBLOC')
+      CALL LUCIAQENTER('SBLOC')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10) THEN
@@ -2601,7 +2601,7 @@ C?              write(6,*) ' checked passed '
 C?    write(6,*) ' Memory check , exit from SBLOCKS2'
 C?    call memchk
 C?    write(6,*) ' checked passed '
-      CALL QEXIT('SBLOC')
+      CALL LUCIAQEXIT('SBLOC')
       RETURN
       END
       FUNCTION SCALAR_PRODUCT_OF_B
@@ -3059,7 +3059,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       DIMENSION VEC(*)
 *
-      CALL QENTER('DIA0T')
+      CALL LUCIAQENTER('DIA0T')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'DIA0TR')
 *
       ISM = ISSM
@@ -3208,7 +3208,7 @@ C     WRITE(6,*) ' NBLOCKT = ', NBLOCKT
       END IF
 *.Flush local memory
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUMMY,'DIA0TR')
-      CALL QEXIT('DIA0T')
+      CALL LUCIAQEXIT('DIA0T')
 *
       IF(NTEST.GE.100.AND.LUOUT.EQ.0) THEN
         WRITE(6,*)  ' output vector from DIA0TRM '
@@ -3262,7 +3262,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       DIMENSION VEC(*)
 *
-      CALL QENTER('DIATR')
+      CALL LUCIAQENTER('DIATR')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'DIATRM')
 *
       NTEST = 000
@@ -3360,7 +3360,7 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
       END IF
 *.Flush local memory
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUMMY,'DIATRM')
-      CALL QEXIT('DIATR')
+      CALL LUCIAQEXIT('DIATR')
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*)  ' output vector from DIATRM '
@@ -3415,7 +3415,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       DIMENSION VEC(*)
 *
-      CALL QENTER('DIATR')
+      CALL LUCIAQENTER('DIATR')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'DIATRM')
 *
       NTEST = 000
@@ -3526,7 +3526,7 @@ C       WRITE(6,*) ' ECORE_ORIG, ECORE', ECORE_ORIG,ECORE
       END IF
 *.Flush local memory
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUMMY,'DIATRM')
-      CALL QEXIT('DIATR')
+      CALL LUCIAQEXIT('DIATR')
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*)  ' output vector from DIATRM '
@@ -5245,7 +5245,7 @@ CNW   DIMENSION CV(*)
 *.
       REAL * 8 INPROD
 *
-      CALL QENTER('SBLOC')
+      CALL LUCIAQENTER('SBLOC')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCS')
 *
@@ -5812,7 +5812,7 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving SBLOCKS'
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'SBLOCS')
-      CALL QEXIT('SBLOC')
+      CALL LUCIAQEXIT('SBLOC')
       RETURN
       END
       SUBROUTINE IAIBCM(ICISPC,IAIB)
@@ -6124,6 +6124,10 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'oper.inc'
 C     COMMON/OPER/I12,IPERTOP,IAPR,MNRS1E,MXRS3E,IPART
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *. 
       DIMENSION IOCCLS(NGAS,*)
       DIMENSION S11(NOCCLS),RES0(NOCCLS),E2(NOCCLS)
@@ -8881,7 +8885,7 @@ CT   &STOP ' Enforced stop at end of RSSBCB2'
 *.
       REAL * 8 INPROD
 *
-      CALL QENTER('SBLOC')
+      CALL LUCIAQENTER('SBLOC')
 *
 C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1) THEN
@@ -9213,7 +9217,7 @@ C?   &            LLATP, LLBTP
      &              NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,1)
       END IF
 *
-      CALL QEXIT('SBLOC')
+      CALL LUCIAQEXIT('SBLOC')
       RETURN
       END
       SUBROUTINE SIGDEN3_CI(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
@@ -9277,6 +9281,10 @@ c     &              ADSXA(MXPOBS,2*MXPOBS),
 c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
       COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SIDE3 ')
@@ -9739,10 +9747,14 @@ CNW   DIMENSION CV(*)
 * part of Hamiltonian
       INCLUDE 'comjep.inc'
       INCLUDE 'chktyp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *.
       REAL * 8 INPROD
 *
-      CALL QENTER('SIDE4')
+      CALL LUCIAQENTER('SIDE4')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SIDE4 ')
 *
@@ -10199,7 +10211,7 @@ C                  WRITE(6,*) ' Core energy added = ', ECORE
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving SIGDEN4_CI'
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'SIDE4 ')
-      CALL QEXIT('SIDE4')
+      CALL LUCIAQEXIT('SIDE4')
       RETURN
       END
       SUBROUTINE CHECK_BLOCKS_FOR_BK_APPROX(
@@ -10340,7 +10352,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Output
       DIMENSION SVEC(*)
 *
-      CALL QENTER('ADDDI')
+      CALL LUCIAQENTER('ADDDI')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'ADDDIA')
 *
       NTEST = 000
@@ -10431,7 +10443,7 @@ C    &                  IPRNT,NTOOB,RJKAA,
 C    &                  IASPGP,IASM,IBSPGP,IBSM,FACTOR,I12)    
 *.Flush local memory
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUMMY,'ADDDIA')
-      CALL QEXIT('ADDDI')
+      CALL LUCIAQEXIT('ADDDI')
 *
       RETURN
       END 
@@ -10670,7 +10682,7 @@ C?       write(6,*) ' IDET,X,SVEC(IDET) ', IDET,X,SVEC(IDET)
 *
       REAL*8 INPROD
 *
-      CALL QENTER('TRADBL')
+      CALL LUCIAQENTER('TRADBL')
 *
       NTESTL = 000
       NTEST = MAX(NTESTL,NTESTG)
@@ -10807,7 +10819,7 @@ C?   &           X2C, X2S
         CALL WRTMAT(SB,NROW,NCOL,NROW,NCOL)
       END IF
 *
-      CALL QEXIT('TRADBL')
+      CALL LUCIAQEXIT('TRADBL')
 *
       RETURN
       END

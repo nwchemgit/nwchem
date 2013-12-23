@@ -27,7 +27,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'ctcc.inc'
       INCLUDE 'cc_exc.inc'
 *
-      CALL QENTER('PRCAA')
+      CALL LUCIAQENTER('PRCAA')
       CALL MEMMAN(KLOFF,DUMMY,'MARK  ',DUMMY,'PRCAAB')
 *
 *. Four blocks of string occupations
@@ -47,7 +47,7 @@ c      INCLUDE 'mxpdim.inc'
      &            NTOOB,IPRNCIV,WORK(KLSOX_TO_OX),MSCOMB_CC)
    
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'PRCAAB')
-      CALL QEXIT('PRCAA')
+      CALL LUCIAQEXIT('PRCAA')
 *
       RETURN
       END
@@ -6697,7 +6697,7 @@ C?            WRITE(6,*) ' IOFF2 ', IOFF2
       COMMON/KKKDUMMY/LEN_C2,LEN_S2
       COMMON/CMXCJ/MXCJ
      
-      CALL QENTER('GENSIG')
+      CALL LUCIAQENTER('GENSIG')
 *
       NTEST = 000 
 C     NTEST = MAX(NTESTL,NTESTG)
@@ -7152,7 +7152,7 @@ C              WRT_TCC_BLK(TCC,ITCC_SM,NCA,NCB,NAA,NAB,NSMST)
 *
  9999 CONTINUE
 *
-      CALL QEXIT('GENSIG')
+      CALL LUCIAQEXIT('GENSIG')
       RETURN
       END
       SUBROUTINE CCEX_OCC_OCC(INOCC,IOUTOCC,NGAS,IAC,ICCEXC,IZERO)
@@ -7543,7 +7543,7 @@ C?    WRITE(6,*) ' N_CC_AMP = ', N_CC_AMP
       INCLUDE 'cands.inc'
 *
       DIMENSION T(*)
-      CALL QENTER('SIGDE')
+      CALL LUCIAQENTER('SIGDE')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SIGDEN')
 *
@@ -7635,7 +7635,7 @@ CM    WRITE(6,*) ' Memcheck passed '
 *. Eliminate local memory
       CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'SIGDEN')
 *
-      CALL QEXIT('SIGDE')
+      CALL LUCIAQEXIT('SIGDE')
 *
       RETURN
       END
@@ -7662,7 +7662,7 @@ CM    WRITE(6,*) ' Memcheck passed '
 *.Scratch
       DIMENSION SB(*),CB(*)
 *
-      CALL QENTER('SIGD2')
+      CALL LUCIAQENTER('SIGD2')
       NTEST = 00
 C     NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -7775,7 +7775,7 @@ C?          CALL WRTMAT(SB(IOFF),1,LEN,1,LEN)
 *
       IF(ISIGDEN.EQ.1) CALL ITODS(-1,1,-1,LUHC)
 *
-      CALL QEXIT('SIGD2')
+      CALL LUCIAQEXIT('SIGD2')
       RETURN
       END
       SUBROUTINE SIGDEN3(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,T,ISIGDEN,
@@ -8063,7 +8063,7 @@ c      INCLUDE 'mxpdim.inc'
       INTEGER  ISPOBEX_AC(*),ISPOBEX_FRZ(*)
 *
 *
-      CALL QENTER('SIGD4')
+      CALL LUCIAQENTER('SIGD4')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SIGDE4')
       IPRNT_ORIG = IPRNT
@@ -8384,7 +8384,7 @@ C                  END IF
 *.    ^End of loop over batches of C blocks
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'SIGDE4')
-      CALL QEXIT('SIGD4')
+      CALL LUCIAQEXIT('SIGD4')
       IF(NTEST.GE.10) WRITE(6,*) ' Leaving SIGDEN4 '
       RETURN
       END
@@ -8468,7 +8468,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'ctcc.inc'
       INCLUDE 'cc_exc.inc'
 *
-      CALL QENTER('ANAGC')
+      CALL LUCIAQENTER('ANAGC')
       CALL MEMMAN(KLOFF,DUMMY,'MARK  ',DUMMY,'ANAGCC')
 *
 *. Four blocks of string occupations
@@ -8509,7 +8509,7 @@ C     WRITE(6,*) ' KISOX_TO_OX before ANA... ', KISOX_TO_OX
      &            NTOOB,IPRNCIV,WORK(KLSOX_TO_OX),MSCOMB_CC)
    
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'ANAGCC')
-      CALL QEXIT('ANAGC')
+      CALL LUCIAQEXIT('ANAGC')
 *
       RETURN
       END
@@ -9876,7 +9876,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Local scratch
       DIMENSION C1(*),C2(*)
 *
-      CALL QENTER('ANADI')
+      CALL LUCIAQENTER('ANADI')
       CALL MEMMAN(KLOFF,DUMMY,'MARK  ',DUMMY,'ANADIF')
 *
 ** Specifications of internal space
@@ -9972,7 +9972,7 @@ COLD  CALL MEMMAN(KSBLTP,NSMST,'ADDL  ',2,'SBLTP ')
      &            WORK(KLDIFF),WORK(KLOVLP),WORK(KLNORM))
    
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ANADIF')
-      CALL QEXIT('ANADI')
+      CALL LUCIAQEXIT('ANADI')
 *
       RETURN
       END

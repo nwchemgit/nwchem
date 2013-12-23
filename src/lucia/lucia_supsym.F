@@ -592,6 +592,9 @@ C    &      WORK(KIBAS_FOR_IRREP))
       INCLUDE 'lucinp.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       
 *. General input
       CHARACTER*4 AO_CENT, AO_TYPE, CHAR4

@@ -1,7 +1,7 @@
 # $Id: GNUmakefile $
 
 
-  OBJ = 
+  OBJ = atim.o cio.o  flush.o
 
   OBJ_OPTIMIZE = aixopn.o aixrd.o baserou.o cdafile.o crop_simple.o \
 	daname.o daname_main.o dblas.o ddafile.o densi2_ab.o determinant.o \
@@ -14,9 +14,10 @@
 	lucia_ic2.o lucia_icci0.o lucia_icei.o lucia_ic.o lucia_mcscf.o \
 	lucia_nortci.o lucia_occ.o lucia_oscc.o lucia_prodexp.o lucia_supsym.o \
 	luciaw.o lucifc.o matml7.o micdv6o.o numint.o optcont.o optcont_lambda.o \
-	optcont_orbopt.o optc_routines.o prtim.o qenter.o rsbb2ben.o \
-	rsbb2b_m.o rsbb2bn_ms.o strnln.o tra_kappa.o tra_simple.o triprt.o \
-	ucc_grad.o vg.o wr_motra_info.o xerbla.o lucia.o
+	optcont_orbopt.o optc_routines.o prtim.o qenter.o \
+	strnln.o tra_kappa.o tra_simple.o triprt.o \
+	ucc_grad.o vg.o wr_motra_info.o xerbla.o lucia.o \
+        rsbb2ben.o rsbb2b_m.o rsbb2bn_ms.o
 
       LIBRARY =	liblucia.a
 

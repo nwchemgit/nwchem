@@ -993,7 +993,7 @@ C           END IF
 *
       INTEGER IJOCC(4*MXPNGAS)
 *
-      CALL QENTER('HEXP_T')
+      CALL LUCIAQENTER('HEXP_T')
       NTEST = 000
       IF (NTEST.GE. 50) THEN
 *
@@ -1226,7 +1226,7 @@ CMO  &' Alternative evaluation of E_CC = ', E_CC2
       END IF
 *
 C     STOP ' Stop at end of H Exp_T '
-      CALL QEXIT('HEXP_T')
+      CALL LUCIAQEXIT('HEXP_T')
       RETURN
       END
       SUBROUTINE H_TF_TERM(NSPOBEX_TP,IBSPOBEX_TP,LSPOBEX_TP,
@@ -3493,7 +3493,7 @@ c      INCLUDE 'mxpdim.inc'
 
 *
       IDUM = 0
-      CALL QENTER('HEXPT ')
+      CALL LUCIAQENTER('HEXPT ')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'HEXPT ')
       LCCBD12 = LCCB
 *
@@ -3681,7 +3681,7 @@ CT    CALL WRT_SPOX_TP(IT2_MAX_ACT,1)
 *
 COLD  CALL TEST_D1
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'HEXPT ')
-      CALL QEXIT('HEXPT ')
+      CALL LUCIAQEXIT('HEXPT ')
 C!    STOP ' Enforced stop at end of EXP_MT ....'
       RETURN
       END
@@ -3771,7 +3771,7 @@ C!    STOP ' Enforced stop at end of EXP_MT ....'
 *
       INTEGER IJOCC(4*MXPNGAS)
 *
-      CALL QENTER('EXP_T ')
+      CALL LUCIAQENTER('EXP_T ')
       NTEST = 00
       IF (NTEST.GE. 50) THEN
 *
@@ -3948,7 +3948,7 @@ C!       END IF
       END IF
 *
 C     STOP ' Stop at end of Exp_T '
-      CALL QEXIT('EXP_T ')
+      CALL LUCIAQEXIT('EXP_T ')
       RETURN
       END
       SUBROUTINE TI_TO_TOK(IOP_CA,LOP_CA,IBOP_CA,IOP_CB,LOP_CB,IBOP_CB,
@@ -5815,7 +5815,7 @@ C?        WRITE(6,*) ' ND1_BAT = ', ND1_BAT
             IK1_OFF = 1
 *
 C?          WRITE(6,*) ' New reformer '
-            CALL QENTER('TOK_A')
+            CALL LUCIAQENTER('TOK_A')
             CALL TI_TO_TOKBN(NSMST,
      &           ISM_CINI_D1,ISM_CAINI_D1,ISM_AAINI_D1,ID1SM,
      &           INM_ABINI_D1,INM_AAINI_D1,INM_CBINI_D1,INM_CAINI_D1,
@@ -5829,7 +5829,7 @@ C?          WRITE(6,*) ' New reformer '
      &           IX1_AB,SX1_AB,IB_D1K1(1,1,4),
      &           NT1(1,1),NT1(1,2),NT1(1,3),NT1(1,4),
      &           TSCR1,T1,IBT1_TCC,1,1,SIGNX,1)                  
-            CALL QEXIT('TOK_A')
+            CALL LUCIAQEXIT('TOK_A')
 *. Matrix multiply OT1(D2,EX,K1) = Sum(D1) OP(D2,EX,D1)T1(D1,K1)
 *. result in TSCR2
             FACTORC = 0.0D0
@@ -5844,7 +5844,7 @@ C           WRITE(6,*) ' OP*T1 => OT1 '
             IF(NTEST.GE.100) THEN
               WRITE(6,*) '  OT1(D2,EX,K1) =>  OT1(D2,L1) reordering'
             END IF
-            CALL QENTER('TOK_B')
+            CALL LUCIAQENTER('TOK_B')
             CALL TI_TO_TOKBN(NSMST,
      &           ISM_CINI_EX,ISM_CAINI_EX,ISM_AAINI_EX,IEXSM,
      &           INM_ABINI_EX,INM_AAINI_EX,INM_CBINI_EX,INM_CAINI_EX,
@@ -5858,7 +5858,7 @@ C           WRITE(6,*) ' OP*T1 => OT1 '
      &           IX2_AB,SX2_AB,IB_EXK1(1,1,4),
      &           NL1(1,1),NL1(1,2),NL1(1,3),NL1(1,4),
      &           TSCR2,TSCR4,IBL1_TCC,2,ID2_BATLEN,SIGN_EXK1,0)
-            CALL QEXIT('TOK_B')
+            CALL LUCIAQEXIT('TOK_B')
            END DO
 *          ^ End of loops over K1 batches
           END DO
@@ -5903,7 +5903,7 @@ C           WRITE(6,*) ' OP*T1 => OT1 '
             END IF
           SIGNX = SIGN_D2K2*SP_D2K2
           IK2_OFF = 1
-            CALL QENTER('TOK_C')
+            CALL LUCIAQENTER('TOK_C')
             CALL TI_TO_TOKBN(NSMST,
      &           ISM_CINI_D2,ISM_CAINI_D2,ISM_AAINI_D2,ID2SM,
      &           INM_ABINI_D2,INM_AAINI_D2,INM_CBINI_D2,INM_CAINI_D2,
@@ -5917,7 +5917,7 @@ C           WRITE(6,*) ' OP*T1 => OT1 '
      &           IX3_AB,SX3_AB,IB_D2K2(1,1,4),
      &           NT2(1,1),NT2(1,2),NT2(1,3),NT2(1,4),
      &           TSCR1,T2,IBT2_TCC,1,1,SIGNX,1)
-            CALL QEXIT('TOK_C')
+            CALL LUCIAQEXIT('TOK_C')
 *. And loop over batches of L1
           IL1SM_NEW = 1
           DO IL1_BAT = 1, NL1_BAT
@@ -5948,7 +5948,7 @@ C?         WRITE(6,*) ' OT1*T2 => OT1T2 '
             END IF
 C         IL1_OFF = IBL1_T(L1SM)-1+IL1_START
           IL1_OFF = 1
-            CALL QENTER('TOK_D')
+            CALL LUCIAQENTER('TOK_D')
             CALL TI_TO_TOKBN(NSMST,
      &           ISM_CINI_L1,ISM_CAINI_L1,ISM_AAINI_L1,L1SM,
      &           INM_ABINI_L1,INM_AAINI_L1,INM_CBINI_L1,INM_CAINI_L1,
@@ -5962,7 +5962,7 @@ C         IL1_OFF = IBL1_T(L1SM)-1+IL1_START
      &           IX4_AB,SX4_AB,IB_L1K2(1,1,4),
      &           NOT1T2(1,1),NOT1T2(1,2),NOT1T2(1,3),NOT1T2(1,4),
      &           TSCR3,OT1T2,IBOT1T2_TCC,2,1,SIGN_L1K2,0)
-            CALL QEXIT('TOK_D')
+            CALL LUCIAQEXIT('TOK_D')
           END DO
 *         ^ End of loop over batches of L1
          END DO
@@ -6270,7 +6270,7 @@ C     INTEGER IKOCC(MXPNGAS*4)
 C??   INTEGER JEPTEST(16)
 *
       INTEGER ICONT1(4,4), ICONT2(4,4)
-C?    CALL QENTER('HT1T2')
+C?    CALL LUCIAQENTER('HT1T2')
 *
       NTEST = 00
 *. Total number of operators in H
@@ -6832,7 +6832,7 @@ C??   END IF
         CALL WRTMAT(HT1T2,1,LHT1T2,1,LHT1T2)
       END IF
 *
-C?    CALL QEXIT('HT1T2')
+C?    CALL LUCIAQEXIT('HT1T2')
       RETURN
       END
       SUBROUTINE T1T2_TO_T12_MAP(I1SPOBEX,I2SPOBEX,I12SPOBEX,

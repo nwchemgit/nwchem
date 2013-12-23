@@ -67,7 +67,7 @@ c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
 *.Output
       DIMENSION RHO1(*),RHO2(*),SRHO1(*)
 *. Before I forget it :
-      CALL QENTER('DENSI')
+      CALL LUCIAQENTER('DENSI')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
       ZERO = 0.0D0
@@ -370,7 +370,7 @@ C?    CALL MEMCHK
 
 *. Eliminate local memory
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'DENSI ')
-      CALL QEXIT('DENSI')
+      CALL LUCIAQEXIT('DENSI')
 C     WRITE(6,*) ' Leaving DENSI '
       RETURN
       END
@@ -475,7 +475,7 @@ C     WRITE(6,*) ' Leaving DENSI '
       DIMENSION RHO1(*),RHO2(*)
       DIMENSION RHO1P(*),XNATO(*)
 *
-      CALL QENTER('GASDN')
+      CALL LUCIAQENTER('GASDN')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -727,7 +727,7 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
 *.      ^ End of loop over batches of R blocks
 10001 CONTINUE
 *.    ^ End of loop over batches of L blocks
-      CALL QEXIT('GASDN')
+      CALL LUCIAQEXIT('GASDN')
       RETURN
       END
       SUBROUTINE GSDNBB2_AB(I12,RHO1,RHO2,
@@ -811,7 +811,7 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
       DIMENSION  I1(*),XI1S(*),I2(*),XI2S(*),I3(*),XI3S(*),I4(*),XI4S(*)
       DIMENSION C2(*)
 *
-      CALL QENTER('GSDNB')
+      CALL LUCIAQENTER('GSDNB')
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       NTESTO= NTEST
@@ -990,7 +990,7 @@ C    &                  CJRES,SIRES,NORB,NTEST)
         CALL COPVEC(C2,SB,NIB*NIA)
       END IF
 *
-      CALL QEXIT('GSDNB')
+      CALL LUCIAQEXIT('GSDNB')
       RETURN
       END
       SUBROUTINE GSBBD2B_AB(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,
@@ -1069,7 +1069,7 @@ C    &                  CJRES,SIRES,NORB,NTEST)
 *.Local arrays
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
 *
-      CALL QENTER('GSD2B')
+      CALL LUCIAQENTER('GSD2B')
       NTESTL = 000
       NTEST = MAX(NTESTL,NTESTG)
       IF(NTEST.GE.500) THEN
@@ -1221,7 +1221,7 @@ C?              call prsym(rho2,NORB*NORB)
  9999 CONTINUE
 *
 *
-      CALL QEXIT('GSD2B')
+      CALL LUCIAQEXIT('GSD2B')
       RETURN
       END
       SUBROUTINE ADTOR2_AB(RHO2,RHO2T,ITYPE,ISEPAB,

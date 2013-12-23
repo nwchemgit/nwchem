@@ -773,6 +773,10 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       NTEST = 000
       IF(NTEST.GE.200) THEN

@@ -465,7 +465,7 @@ C?    WRITE(6,*) 'MXTSOB = ', MXTSOB
                 ICOUL  = 1
 
 *. Blocks of integrals for D1(K L) (K L ! I J) 
-                CALL GETINT(WORK(KLINT),
+                CALL LUCIAGETINT(WORK(KLINT),
      &               KGAS,KSM,LGAS,LSM,IGAS,ISM,JGAS,JSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
  
@@ -487,7 +487,7 @@ c                END IF
 *.  i.e. get (KJ|IL) as XINT(KL,JI)                
                 ICOUL = 2
 
-                CALL GETINT(WORK(KLINT),
+                CALL LUCIAGETINT(WORK(KLINT),
      &               KGAS,KSM,JGAS,JSM,IGAS,ISM,LGAS,LSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
 
@@ -504,7 +504,7 @@ c                END IF
 *.  i.e. get (KI|LJ) as XINT(KL,IJ)                
                 ICOUL = 0
 
-                CALL GETINT(WORK(KLINT),
+                CALL LUCIAGETINT(WORK(KLINT),
      &               KGAS,KSM,IGAS,ISM,LGAS,LSM,JGAS,JSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
 
@@ -545,7 +545,7 @@ c                END IF
 *. Blocks of density matrix and integrals : (K L ! I M),D2(K L, J M)
                 IXCHNG = 0
                 ICOUL  = 1
-                CALL GETINT(WORK(KLINT),
+                CALL LUCIAGETINT(WORK(KLINT),
      &               KGAS,KSM,LGAS,LSM,IGAS,ISM,MGAS,MSM,
      &               IXCHNG,0,0,ICOUL,ONE,ONE)
                 

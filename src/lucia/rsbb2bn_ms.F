@@ -122,7 +122,7 @@ C     INTEGER JASM_MS(8),JBSM_MS(8)
 *
       INCLUDE 'comjep.inc'
       INCLUDE 'oper.inc'
-      CALL QENTER('RS2B ')
+      CALL LUCIAQENTER('RS2B ')
 *
       NTESTL = 00
       NTEST = MAX(NTESTG,NTESTL)
@@ -419,7 +419,7 @@ C?   &                         IASM, IBSM, JASM, JBSM
                   ONE = 1.0D0
                   IF(I_USE_SIMTRH .EQ.0 ) THEN
 *. Normal integrals with conjugation symmetry
-                    CALL GETINT(XINT,IOP2TP,JSM,IOP1TP,ISM,
+                    CALL LUCIAGETINT(XINT,IOP2TP,JSM,IOP1TP,ISM,
      &                   IOP3TP,KSM,IOP4TP,LSM,IXCHNG,0,0,ICOUL,
      &                   ONE,ONE)
                     IF(NTEST.GE.500) THEN
@@ -430,7 +430,7 @@ C?   &                         IASM, IBSM, JASM, JBSM
 *. Integrals does not have conjugation symmetry so be careful...
 *. The following is not enough is particle hole symmetry is encountered
 *. Obtain ( i j ! k l )
-                    CALL GETINT(XINT,IOP1TP,ISM,IOP2TP,JSM,
+                    CALL LUCIAGETINT(XINT,IOP1TP,ISM,IOP2TP,JSM,
      &                               IOP3TP,KSM,IOP4TP,LSM,
      &                          IXCHNG,0,0,ICOUL,
      &                   ONE,ONE)
@@ -497,7 +497,7 @@ C    &                         SIRES,IB_SKAIIB)
  9999 CONTINUE
 *
 *
-      CALL QEXIT('RS2B ')
+      CALL LUCIAQEXIT('RS2B ')
       RETURN
       END
       SUBROUTINE GET_CKAJJB_MS(CB,ICSM,NJA_MS,NJB_MS,IB_C,KABOT,

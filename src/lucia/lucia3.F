@@ -2832,7 +2832,7 @@ C     INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
 *
 *
-      CALL QENTER('RS2B ')
+      CALL LUCIAQENTER('RS2B ')
 C?    NTEST = 0
 C?    IF(SCLFAC.NE.1.0D0) THEN
 C?      WRITE(6,*) ' Warning : RSBB2B, SCLFAC .ne 1 '
@@ -2959,7 +2959,7 @@ C         END IF
                 IXCHNG = 0
                 ICOUL = 1
                 ONE = 1.0D0
-                CALL GETINT(XINT,JTYP,JSM,ITYP,ISM,KTYP,KSM,
+                CALL LUCIAGETINT(XINT,JTYP,JSM,ITYP,ISM,KTYP,KSM,
      &                     LTYP,LSM,IXCHNG,0,0,ICOUL,ONE,ONE)
 *
 * S(Ka,j,Ib) = sum(k,l,Jb)<Ib!a+kba lb!Jb>C(Ka,j,Jb)*(ji!kl)
@@ -2988,7 +2988,7 @@ C         END IF
  9999 CONTINUE
 *
 *
-      CALL QEXIT('RS2B ')
+      CALL LUCIAQEXIT('RS2B ')
       RETURN
       END
       SUBROUTINE SKICKJ(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,
@@ -3029,7 +3029,7 @@ C         END IF
 *
       NTEST =  000
 *
-C     CALL QENTER('SKICK')
+C     CALL LUCIAQENTER('SKICK')
       IF(IROUTE.EQ.3) THEN
 * S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
         DO KB = 1, NKB
@@ -3213,7 +3213,7 @@ C1000 CONTINUE
       END IF
 *. End of IROUTE branchning 
 *
-C     CALL QEXIT('SKICK')
+C     CALL LUCIAQEXIT('SKICK')
       RETURN
       END
       SUBROUTINE GSAXPY(AB,A,B,NABCOL,NACOL,NROW,IABCOL,IACOL)
@@ -3231,7 +3231,7 @@ C     CALL QEXIT('SKICK')
 *. Output
       DIMENSION AB(NROW,NABCOL)
 *
-CT    CALL QENTER('GSAXP')
+CT    CALL LUCIAQENTER('GSAXP')
       IWAY = 2
       IF(IWAY.EQ.1) THEN
 *. Straightforward sequence of SAXPY's
@@ -3330,7 +3330,7 @@ CT    CALL QENTER('GSAXP')
       END IF
 *( End of IWAY branching )
 *
-CT    CALL QEXIT('GSAXP')
+CT    CALL LUCIAQEXIT('GSAXP')
       RETURN
       END
       
@@ -3970,7 +3970,7 @@ C            SYMCOM(ITASK,IOBJ,I1,I2,I12)
 *
       DIMENSION IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
       DIMENSION ISCR(2)
-      CALL QENTER('RS1   ')
+      CALL LUCIAQENTER('RS1   ')
 * Type of single excitations that connects the two column strings
 C     MOC = 1
       NTESTL = 0
@@ -4170,7 +4170,7 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
   900 CONTINUE
  1001 CONTINUE
 *
-      CALL QEXIT('RS1  ')
+      CALL LUCIAQEXIT('RS1  ')
 C!    WRITE(6,*) ' Enforced stop in RSBB1E '
 C!    STOP' Enforced stop in RSBB1E '
       RETURN
@@ -4715,7 +4715,7 @@ C?          WRITE(6,*) 'FACSTR = ',  FACSTR(LEX,ISTR-ISTROF+1)
       INTEGER IEXSTR(*)
       DIMENSION FACSTR(*)
 *
-      CALL QENTER('DXFST')
+      CALL LUCIAQENTER('DXFST')
 *
       NTESTL = 00
       NTEST = MAX(NTESTL,NTESTG)
@@ -4784,7 +4784,7 @@ C         END IF
         END DO
       END IF
 *
-      CALL QEXIT ('DXFST')
+      CALL LUCIAQEXIT ('DXFST')
       RETURN
       END 
       SUBROUTINE MATML7_ORIG(C,A,B,NCROW,NCCOL,NAROW,NACOL,
@@ -4804,7 +4804,7 @@ C
       DIMENSION A(NAROW,NACOL),B(NBROW,NBCOL)
       DIMENSION C(NCROW,NCCOL)
 *
-c     CALL QENTER('MATML')
+c     CALL LUCIAQENTER('MATML')
 *
       NTEST = 00
       IF ( NTEST .NE. 0 ) THEN
@@ -4908,7 +4908,7 @@ C
       CALL WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
       END IF
 C
-c     CALL QEXIT('MATML')
+c     CALL LUCIAQEXIT('MATML')
       RETURN
       END
       SUBROUTINE PR_MATML_STAT
@@ -4983,7 +4983,7 @@ C
       DIMENSION C(NCROW,NCCOL)
       COMMON/MATMLST/XNFLOP,XNCALL,XLCROW,XLCCOL,XLCROWCOL,TMULT
 *
-c     CALL QENTER('MATML')
+c     CALL LUCIAQENTER('MATML')
 *
       NTEST = 00
       IF ( NTEST .NE. 0 ) THEN
@@ -5005,7 +5005,7 @@ c     CALL QENTER('MATML')
       XLCROW = XLCROW + NCROW
       XLCCOL = XLCCOL + NCCOL
       XLCROWCOL = XLCROWCOL + DFLOAT(NCROW)*DFLOAT(NCCOL)
-      T_INI = 0.01*TIMEX()
+      T_INI = 0.01*LTIMEX()
 *
       IF(ITRNSP.EQ.1) THEN
         XNFLOP = XNFLOP + 2*DFLOAT(NCROW)*DFLOAT(NCCOL)*DFLOAT(NAROW)
@@ -5122,10 +5122,10 @@ C
       CALL WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
       END IF
 C
-      T_END = 0.01*TIMEX()
+      T_END = 0.01*LTIMEX()
       TMULT = TMULT + T_END - T_INI 
 C
-C     CALL QEXIT('MATML')
+C     CALL LUCIAQEXIT('MATML')
       RETURN
       END
       SUBROUTINE MICDV6(MV7,VEC1,VEC2,LU1,LU2,RNRM,EIG,FINEIG,

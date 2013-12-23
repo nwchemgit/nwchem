@@ -99,7 +99,7 @@
 *            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
 *     *                                'MSG: seek', ErrTxt)
             STOP 'MSG: seek'
-            Call SysCondMsg('rc < 0', rc, '<', 0)
+*           Call SysCondMsg('rc < 0', rc, '<', 0)
          Else If(rc.ne.pDisk) Then
             if(iErrSkip.eq.1) then
              AixRd=99
@@ -111,7 +111,7 @@
 *            Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
 *     *                                'MSG: seek', ' ')
              STOP 'MSG: seek'
-            Call SysCondMsg('rc != pDisk', rc, '!=', pDisk)
+*           Call SysCondMsg('rc != pDisk', rc, '!=', pDisk)
          End If
       End If
       CtlBlk(pWhere,nFile)=pDisk

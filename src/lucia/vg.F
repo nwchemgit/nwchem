@@ -431,7 +431,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cc_exc.inc'
 *
       DIMENSION T(*)
-      CALL QENTER('SIGDE')
+      CALL LUCIAQENTER('SIGDE')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SIGDEN')
 *
@@ -521,7 +521,7 @@ C?    WRITE(6,*) ' Number of blocks ', NBLOCK
 *. Eliminate local memory
       CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'SIGDEN')
 *
-      CALL QEXIT('SIGDE')
+      CALL LUCIAQEXIT('SIGDE')
 *
       RETURN
       END
@@ -551,7 +551,7 @@ c      INCLUDE 'mxpdim.inc'
 *.Scratch
       DIMENSION SB(*),CB(*)
 *
-      CALL QENTER('SIGD2')
+      CALL LUCIAQENTER('SIGD2')
       NTEST = 00
 C     NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -639,7 +639,7 @@ C     NTEST = MAX(NTEST,IPRNT)
 *
       IF(ISIGDEN.EQ.1) CALL ITODS(-1,1,-1,LUHC)
 *
-      CALL QEXIT('SIGD2')
+      CALL LUCIAQEXIT('SIGD2')
       RETURN
       END
       SUBROUTINE VGSIGDEN3(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,T,ISIGDEN)
@@ -922,7 +922,7 @@ c      INCLUDE 'mxpdim.inc'
       INTEGER  ISPOBEX_AC(*),ISPOBEX_FRZ(*), LSPOBEX_TP(*)
 *
 *
-      CALL QENTER('SIGD4')
+      CALL LUCIAQENTER('SIGD4')
       IPRNT_ORIG = IPRNT
 *
       NTEST = 000
@@ -1189,7 +1189,7 @@ c      INCLUDE 'mxpdim.inc'
 20000 CONTINUE
 *.    ^End of loop over batches of C blocks
 *
-      CALL QEXIT('SIGD4')
+      CALL LUCIAQEXIT('SIGD4')
       RETURN
       END
       SUBROUTINE VGNSIDE(ISD,ICA,ICB,IAA,IAB,
@@ -1288,7 +1288,7 @@ c      INCLUDE 'mxpdim.inc'
       COMMON/KKKDUMMY/LEN_C2,LEN_S2
       COMMON/CMXCJ/MXCJ
      
-      CALL QENTER('GENSIG')
+      CALL LUCIAQENTER('GENSIG')
 *
       NTEST = 500 
 C     NTEST = MAX(NTESTL,NTESTG)
@@ -1707,6 +1707,6 @@ C              WRT_TCC_BLK(TCC,ITCC_SM,NCA,NCB,NAA,NAB,NSMST)
 *
  9999 CONTINUE
 *
-      CALL QEXIT('GENSIG')
+      CALL LUCIAQEXIT('GENSIG')
       RETURN
       END

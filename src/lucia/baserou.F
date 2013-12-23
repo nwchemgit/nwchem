@@ -925,9 +925,9 @@ C
 C
 C...     CHOLESKY FACTORIZATION
 C
-         CALL QENTER('CHOLF')
+         CALL LUCIAQENTER('CHOLF')
          CALL CHLFCB(AL,NDIM,IB,INDEF)
-         CALL QEXIT ('CHOLF')
+         CALL LUCIAQEXIT ('CHOLF')
       END IF
 C
       IF( ITASK .EQ. 2 .OR. ITASK .EQ. 3 ) THEN
@@ -936,11 +936,11 @@ C         IS SOLVED IN TWO STEPS
 C         1 : L Y = B TO GET Y
 C         2 : L(T) X = Y TO GET X
 C
-         CALL QENTER('CHOLS')
+         CALL LUCIAQENTER('CHOLS')
          CALL LXEBB(AL,X,B,NDIM,IB)
          CALL COPVEC(X,B,NDIM)
          CALL LTXEBB(AL,X,B,NDIM,IB)
-         CALL QEXIT('CHOLS')
+         CALL LUCIAQEXIT('CHOLS')
       END IF
 C
       RETURN
@@ -1025,9 +1025,9 @@ C
 C
 C...     CHOLESKY FACTORIZATION
 C
-         CALL QENTER('CHOLF')
+         CALL LUCIAQENTER('CHOLF')
          CALL CHLFCE(AL,NDIM,IB,IALOFF,INDEF)
-         CALL QEXIT ('CHOLF')
+         CALL LUCIAQEXIT ('CHOLF')
 *
          IF(NTEST.GE.100) THEN
            WRITE(6,*) ' Cholesky factorized matrix '
@@ -1045,11 +1045,11 @@ C
            WRITE(6,*) ' The right hand side vector '
            CALL WRTMAT(B,1,NDIM,1,NDIM)
          END IF
-         CALL QENTER('CHOLS')
+         CALL LUCIAQENTER('CHOLS')
          CALL LXEBE(AL,X,B,NDIM,IB,IALOFF)
          CALL COPVEC(X,B,NDIM)
          CALL LTXEBE(AL,X,B,NDIM,IB,IALOFF)
-         CALL QEXIT('CHOLS')
+         CALL LUCIAQEXIT('CHOLS')
          IF(NTEST.GE.100) THEN
            WRITE(6,*) ' The solution vector '
            CALL WRTMAT(X,1,NDIM,1,NDIM)
@@ -2160,7 +2160,7 @@ C?    write(6,*) ' XH0PSX x1 x2 x3 ', XH0PSX,X1,X2,X3
 *
 * This leads to a simple iterative scheme
 *
-      CALL QENTER('H0LNS')
+      CALL LUCIAQENTER('H0LNS')
       NTESTL =  00
       NTEST = MAX(NTESTL,NTESTG)
       IF(NTEST .GE. 5 ) THEN
@@ -2282,7 +2282,7 @@ C             DIAVC3(VECOUT,VECIN,DIAG,SHIFT,NDIM,VDSV)
 *
       END IF
 *
-      CALL QEXIT('H0LNS')
+      CALL LUCIAQEXIT('H0LNS')
       RETURN
       END
       SUBROUTINE H0M1TV(DIAG,VECIN,VECUT,NVAR,NPQDM,IPNTR,
@@ -5479,7 +5479,8 @@ C.......................................................................
 10000 FORMAT (1H0,8X,8(5X,A6,I4))
 20000 FORMAT (A1,4H ROW,I4,8F15.7)
       END
-      SUBROUTINE OUTPUT (MATRIX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,COLDIM,
+      SUBROUTINE LUCIAOUTPUT (MATRIX,ROWLOW,ROWHI,COLLOW,COLHI,ROWDIM,
+     X          COLDIM,
      X          NCTL)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C...........VERSION = 09/16/73/03

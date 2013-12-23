@@ -51,6 +51,6 @@
 *. Allowed number of VB general spaces
       PARAMETER(MXPNVBGNPSC = 10)
 *. Dimension of work 
-      PARAMETER (MXPWRD = 100 000 000)
+      PARAMETER (MXPWRD = 1)
 *
       

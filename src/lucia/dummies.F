@@ -22,10 +22,10 @@ C     END
 C     SUBROUTINE  QSTAT 
 C     RETURN             
 C     END
-C     SUBROUTINE  QEXIT 
+C     SUBROUTINE  LUCIAQEXIT 
 C     RETURN             
 C     END
-C     SUBROUTINE  QENTER
+C     SUBROUTINE  LUCIAQENTER
 C     RETURN             
 C     END
       SUBROUTINE  SQFILE

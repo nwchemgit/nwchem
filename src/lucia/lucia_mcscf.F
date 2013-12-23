@@ -60,7 +60,7 @@ C     INTEGER I2ELIST_INUSE(MXP2EIARR),IOCOBTP_INUSE(MXP2EIARR)
 
       IDUMMY = 0
       CALL MEMMAN(IDUMMY, IDUMMY, 'MARK ', IDUMMY,'MCSCF ') 
-      CALL QENTER('MCSCF')
+      CALL LUCIAQENTER('MCSCF')
 *
 *. Local parameters defining optimization
 *
@@ -1281,7 +1281,7 @@ C?   &             E1NRM_ORB, ERROR_NORM_FINAL_CI
 C?    WRITE(6,*) ' Final energy = ', EFINAL
 
       CALL MEMMAN(IDUMMY, IDUMMY, 'FLUSM', IDUMMY,'MCSCF ') 
-      CALL QEXIT('MCSCF')
+      CALL LUCIAQEXIT('MCSCF')
       RETURN
       END
       SUBROUTINE SETDIA_BLM(B,VAL,NBLK,LBLK,IPCK)
@@ -1345,6 +1345,10 @@ C APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 *       are now required to reside in KMOREF (and not in KMOMO) - Nov. 2011
 *
       INCLUDE 'wrkspc.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
       LOGICAL CONV_FL
 *
       INCLUDE 'orbinp.inc'
@@ -1725,6 +1729,10 @@ C              APRBLM2(A,LROW,LCOL,NBLK,ISYM)
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'intform.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       NTEST = 00
 *
@@ -1856,6 +1864,10 @@ C?    WRITE(6,*) ' PREPARE.. IH1FORM, IH2FORM = ', IH1FORM, IH2FORM
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc' 
       INCLUDE 'crun.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *. Input
       REAL*8 KAPPA(*), BRT(*)
 *. Output
@@ -1982,6 +1994,10 @@ C    &           NSMOB,NOCOBS,NTOOBS,NTOOB,IBSO,IREOST)
 * E1 : Gradient E1(NORB,NOCC)
 *
       INCLUDE 'wrkspc.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
 C     REAL*8 INPROD
       REAL*8 KAPPA(NORB,NOCC)
@@ -3866,9 +3882,6 @@ C
   200   CONTINUE
   300 CONTINUE
 C
-      NTEST = 0
-      IF( NTEST .NE. 0) CALL APRBLM(AB,NINBL,NINBL,NBLK)
-C
       RETURN
       END
       SUBROUTINE CTRN_MAT(XAXR,XAXI,XR,XI,AR,AI,NXR,NXC,NAR,NAC,SCR)
@@ -4142,6 +4155,9 @@ CNW     END DO
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input:
 *. Dimension  of orbital sets
       INTEGER NMO1PSM(NSMOB),NMO2PSM(NSMOB)

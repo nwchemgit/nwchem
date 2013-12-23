@@ -35,7 +35,7 @@ c      INCLUDE 'mxpdim.inc'
       IDUM = 0
       CCTYPE(1:6) = 'GEN_CC'
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'CICCRF')
-      CALL QENTER('CI_CC ')
+      CALL LUCIAQENTER('CI_CC ')
 *
       WRITE(6,*) ' CI => CC transformation of coefficients '
 *. Space for CI behind the curtain
@@ -330,7 +330,7 @@ C     END DO
       CALL REWINO(LU_CC_FROM_CI)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'CICCRF')
-      CALL QEXIT('CI_CC ')
+      CALL LUCIAQEXIT('CI_CC ')
       RETURN
       END
       SUBROUTINE ISCASET(IARRAY,IVAL,ISCA,NSCA)

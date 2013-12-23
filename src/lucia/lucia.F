@@ -3101,6 +3101,10 @@ c      INCLUDE 'mxpdim.inc'
 *. Common block for communicating with sigma
       INCLUDE 'cands.inc'
       INCLUDE 'cecore.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'PERTCT')
 
@@ -4866,7 +4870,7 @@ C    &           LUDIA,JPACK)
 * 2:                  Diagonalization
 *                 ========================
 *
-      CALL QENTER('CIEIG')
+      CALL LUCIAQENTER('CIEIG')
 * Inverse iteration modified Davidsom with 2 vectorsin core
       IF(IPRT .GE. 5 ) THEN
          WRITE(6,*)
@@ -4922,7 +4926,7 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
        END IF
 *
        ENOT = SCR1(KFIN)
-       CALL QEXIT('CIEIG')
+       CALL LUCIAQEXIT('CIEIG')
 *
       RETURN
       END
@@ -6031,6 +6035,10 @@ COLD  Character*4 Name(2,400)
 c      Implicit Real*8 (A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       Parameter (LUONE = 19)
 *
@@ -6639,7 +6647,7 @@ C?              print '(7i6)',ijkl,ij,kl,i,j,k,l
 *.Output
       DIMENSION XINT(*)
 *
-      CALL QENTER('GETIN')
+      CALL LUCIAQENTER('GETIN')
       NI = NTSOB(ITP,ISM)
       NJ = NTSOB(JTP,JSM)
       NK = NTSOB(KTP,KSM)
@@ -6689,7 +6697,7 @@ C    &    - GTIJKL(IABS,LABS,KABS,JABS)
         CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
       END IF
 *
-      CALL QEXIT('GETIN')
+      CALL LUCIAQEXIT('GETIN')
       RETURN
       END
       SUBROUTINE GETINM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
@@ -7038,7 +7046,7 @@ C?              print '(7i6)',ijkl,ij,kl,i,j,k,l
 *
       Return
       End
-      SUBROUTINE GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+      SUBROUTINE LUCIAGETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,ICOUL,CFACX,EFACX)
 *
 *
@@ -7068,7 +7076,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
 *. Local scratch: 
 *
-      CALL QENTER('GETIN')
+      CALL LUCIAQENTER('GETIN')
       NTEST = 00
 C     IF(ISM.EQ.2.AND.JSM.EQ.5.AND.KSM.EQ.1.AND.LSM.EQ.6) THEN
 C        NTEST = 100
@@ -7312,7 +7320,7 @@ C    &             ICOUL,CFAC,EFAC)
         END IF
       END IF
 *
-      CALL QEXIT('GETIN')
+      CALL LUCIAQEXIT('GETIN')
 COLD  STOP ' Jeppe forced me to stop in GETINT '
       RETURN
       END
@@ -9073,7 +9081,7 @@ c      INCLUDE 'mxpdim.inc'
 * ======
       DIMENSION DIAG(*)
 *
-      CALL QENTER('CIDIA')
+      CALL LUCIAQENTER('CIDIA')
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRDIA)
@@ -9157,7 +9165,7 @@ c      INCLUDE 'mxpdim.inc'
 
 *.Flush local memory
       CALL MEMMAN(IDUM,  IDUM,    'FLUSM ',IDUM,'GASDIA')
-      CALL QEXIT('CIDIA')
+      CALL LUCIAQEXIT('CIDIA')
 *
       RETURN
       END
@@ -10589,7 +10597,7 @@ c      INCLUDE 'mxpdim.inc'
 * 3 => RSBB2A 
 *.
 C     CALL TEST_DEC15 
-      CALL QENTER('REST ')
+      CALL LUCIAQENTER('REST ')
 *. Initialize counters for kernel routines 
       CALL KERNEL_ROU_STAT_INI
 *.    No floating point underflow
@@ -11327,7 +11335,7 @@ CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 *
       IF(NOINT.EQ.1.OR.ENVIRO(1:4).EQ.'NONE') THEN
         WRITE(6,*) ' End of calculation without integrals'
-        CALL QSTAT 
+        CALL LUCIAQSTAT 
         STOP' End of calculation without integrals'
       END IF
 *
@@ -11705,8 +11713,8 @@ C?   &               WORK(KINT1), WORK(KINT2)
 *. Print info on  counters for kernel routines 
       CALL KERNEL_ROU_STAT_PRINT
 *
-      CALL QEXIT('REST ')
-      CALL QSTAT
+      CALL LUCIAQEXIT('REST ')
+      CALL LUCIAQSTAT
       IDUM=0
       CALL MEMMAN(IDUM,IDUM,'STATI',IDUM,'END   ')
 C?    CALL RELEASE_WRKSPC()
@@ -11810,7 +11818,7 @@ C
       DIMENSION A(NAROW,NACOL),B(NBROW,NBCOL)
       DIMENSION C(NCROW,NCCOL)
 *
-CT    CALL QENTER('MATML')
+CT    CALL LUCIAQENTER('MATML')
 *
       NTEST = 0
       IF ( NTEST .NE. 0 ) THEN
@@ -11919,7 +11927,7 @@ C
         CALL WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
       END IF
 C
-CT    CALL QEXIT('MATML')
+CT    CALL LUCIAQEXIT('MATML')
       RETURN
       END
 C                MATSM2(SB,SB,CB,NIA,NIB,2)
@@ -12821,7 +12829,7 @@ CNW   DIMENSION CB(*),HCB(*)
 *. Two vectors of C or Sigma (for ICISTR = 1)
 COLD  DIMENSION C(*),HC(*)
 *
-      CALL QENTER('MV7  ')
+      CALL LUCIAQENTER('MV7  ')
 *
       NTEST = 000
       NTEST = MAX(NTEST, IPRCIX)
@@ -13041,7 +13049,7 @@ CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
 *. Eliminate local memory
       CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'MV7   ')
 *
-      CALL QEXIT('MV7  ')
+      CALL LUCIAQEXIT('MV7  ')
 *
       RETURN
       END
@@ -14952,7 +14960,7 @@ CNW   DIMENSION SV(*),CV(*)
       integer SV,CV
       CHARACTER*6 ITASK
 *
-      CALL QENTER('RASSG')
+      CALL LUCIAQENTER('RASSG')
       NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20) THEN
@@ -15008,7 +15016,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
       END IF
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving RASSG3'
 *
-      CALL QEXIT('RASSG')
+      CALL LUCIAQEXIT('RASSG')
       RETURN
       END
       SUBROUTINE READIN(LUIN,LUOUT)
@@ -24257,7 +24265,7 @@ CJO-Start
 *
 * Introduce LUCIA
 *
-      CALL PRINTVERSION()
+CNW   CALL PRINTVERSION()
       WRITE(6,'(1H ,8X,A)')
      &'****************************************************************'
       WRITE(6,'(1H ,8X,A)')
@@ -26297,7 +26305,7 @@ C
          RETURN
       ELSE
          WRITE(LUERR,4)A,LU
-         CALL TRACE
+         CALL LUCIATRACE
          STOP 'ERROR (MOLLAB) MOLECULE label not found on file'
       END IF
     4 FORMAT(/' *** ERROR (MOLLAB), MOLECULE label ',A8,
@@ -26308,7 +26316,7 @@ C
          RETURN
       ELSE
          WRITE (LUERR,7) LU,A
-         CALL TRACE
+         CALL LUCIATRACE
          STOP 'ERROR (MOLLAB) error reading file'
       END IF
     7 FORMAT(/' *** ERROR (MOLLAB), error reading unit',I4,
@@ -26423,7 +26431,7 @@ c
       WRITE(6,*) ' Indeces of last integral ', IA,IB,IC,ID
       RETURN
       END
-      SUBROUTINE TRACE
+      SUBROUTINE LUCIATRACE
 C
 C Written 4-Dec-1983 hjaaj
 C
@@ -28349,6 +28357,10 @@ C            WRT_SG_MAT(A,IS_OR_SG,IGAS_F,IGAS_L,IPAK,IEXT)
       INCLUDE 'lucinp.inc'
       INCLUDE 'csmprd.inc'
       INCLUDE 'csm.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *. Output
       INTEGER IPNTR(NSMOB,NSMOB,NSMOB)
       INTEGER ISM4A(NSMOB,NSMOB,NSMOB)
@@ -28374,6 +28386,10 @@ C            WRT_SG_MAT(A,IS_OR_SG,IGAS_F,IGAS_L,IPAK,IEXT)
       INCLUDE 'spinfo.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'glbbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       WRITE(6,*) ' ITG_SUPSYM in SELROT ', ITG_SUPSYM
 *

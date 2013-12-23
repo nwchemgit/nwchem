@@ -30,6 +30,10 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'strbas.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'orbinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *./STRINP/
 C     COMMON/STRINP/NSTTYP,MNRS1(MXPSTT),MXRS1(MXPSTT),
 C    &              MNRS3(MXPSTT),MXRS3(MXPSTT),NELEC(MXPSTT),
@@ -1313,7 +1317,7 @@ C!    STOP ' ENFORCED STOP AT END OF DIHDJ '
 *
       NTESTL = 1  
       NTEST = MAX(NTESTG,NTESTL)
-      CALL QENTER('H0DIA')
+      CALL LUCIAQENTER('H0DIA')
       IF(NTEST .GE. 5 ) THEN
         WRITE(6,*) ' =============== '
         WRITE(6,*) ' H0DIAG speaking '
@@ -1515,8 +1519,8 @@ C    &            0,0,0,DUMMY,0.0D0,1,NPQDM,1,DUMMY)
  1286   CONTINUE
       END IF
 *
-      CALL QEXIT('H0DIA')
-      CALL QSTAT
+      CALL LUCIAQEXIT('H0DIA')
+      CALL lUCIAQSTAT
 *
       RETURN
       END
@@ -1677,7 +1681,7 @@ c      INCLUDE 'mxpdim.inc'
       DIMENSION IA(MXPRDT),IB(MXPRDT)
 *
 *
-      CALL QENTER('EXPHAM')
+      CALL LUCIAQENTER('EXPHAM')
       NTEST = 0
       NTEST = MAX(NTEST,IPRT)
       MXDM1 = MXP1DM + MXP2DM + MXQDM
@@ -1833,7 +1837,7 @@ C         END IF
       KLPHQ = KLPHP + NPDM*(NPDM+1)/2
       KLQHQ = KLPHQ + NP1DM * NQDM
 *. PHP Hamiltonian
-      CALL QENTER('DIHDJ')
+      CALL LUCIAQENTER('DIHDJ')
 *
 * Scratch space for DIHDJ
       LSCR = 4 * NORB
@@ -1858,7 +1862,7 @@ C         END IF
      &           IBSTR,ISTSGN,IASGN,IBSGN,IASGN,IBSGN,
      &           WORK(KLIAST),
      &           WORK(KLIBST),NDIF0,NDIF1,NDIF2,NTEST)
-      CALL QEXIT('DIHDJ')
+      CALL LUCIAQEXIT('DIHDJ')
 *. QHQ Hamiltonian
       IF(LUDIA.LE.0) THEN
         DO 0607 IIDET = NPDM + 1, NPDM+NQDM
@@ -1937,7 +1941,7 @@ C     END IF
 *
  9999 CONTINUE
 *
-      CALL QEXIT('EXPHAM')
+      CALL LUCIAQEXIT('EXPHAM')
       RETURN
       END
        SUBROUTINE HPARTV(PHP,P1HQ,QHQ,NP1,NP2,NQ,VECIN,VECUT,
