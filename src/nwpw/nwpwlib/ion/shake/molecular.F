@@ -498,6 +498,8 @@
                x2 = rion(1,indxa(2))-rion(1,indxa(3))
                y2 = rion(2,indxa(2))-rion(2,indxa(3))
                z2 = rion(3,indxa(2))-rion(3,indxa(3))
+               call lattice_min_difference(x1,y1,z1)
+               call lattice_min_difference(x2,y2,z2)
                rr1 = x1**2 + y1**2 + z1**2 
                rr2 = x2**2 + y2**2 + z2**2 
                ff = fion(1,indxa(1))*( x1/rr1 + x2/rr2)
@@ -517,6 +519,8 @@
                x2 = rion(1,indxa(3))-rion(1,indxa(4))
                y2 = rion(2,indxa(3))-rion(2,indxa(4))
                z2 = rion(3,indxa(3))-rion(3,indxa(4))
+               call lattice_min_difference(x1,y1,z1)
+               call lattice_min_difference(x2,y2,z2)
                rr1 = x1**2 + y1**2 + z1**2 
                rr2 = x2**2 + y2**2 + z2**2 
                ff = fion(1,indxa(1))*( x1/rr1)
@@ -543,6 +547,7 @@
                x = rion(1,indxa(b+1))-rion(1,indxa(b))
                y = rion(2,indxa(b+1))-rion(2,indxa(b))
                z = rion(3,indxa(b+1))-rion(3,indxa(b))
+               call lattice_min_difference(x,y,z)
                rr = dsqrt(x*x + y*y + z*z)
 
                f1 = x*fion(1,indxa(b)) 
@@ -564,6 +569,7 @@
                x = rion(1,indxa(na))-rion(1,indxa(1))
                y = rion(2,indxa(na))-rion(2,indxa(1))
                z = rion(3,indxa(na))-rion(3,indxa(1))
+               call lattice_min_difference(x,y,z)
                f1 = x*fion(1,indxa(1)) 
      >            + y*fion(2,indxa(1)) 
      >            + z*fion(3,indxa(1))
