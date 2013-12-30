@@ -38,8 +38,8 @@ c
       integer itype, nprim, ngen, sphcart, n, irrep_dim
       logical do_spherical
 c
-      double precision sym_trace_bas_op
-      external sym_trace_bas_op
+      double precision sym_trace_bas_op,ddot
+      external sym_trace_bas_op,ddot
 c
 c     Get basis and geom info
 c     

@@ -6,7 +6,7 @@ include ../config/makefile.h
 LIBRARY = libnwcutil.a
 
 USES_BLAS = sym_bs_irrep.F sym_g_sym.F    sym_geom_prj.F sym_mo_adapt.F sym_op_clsfy.F \
-            sym_op_mtab.F  sym_put_geom.F dosymops.F sym_abelian.F
+            sym_op_mtab.F  sym_put_geom.F dosymops.F sym_abelian.F sym_bs_ir_id.F
 
 HEADERS = sym.fh ../NWints/auxil/spcartP.fh
 
