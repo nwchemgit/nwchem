@@ -393,14 +393,13 @@ c ==========================================
          dipole  = 0
       elseif ( inp_compare(.false., 'nbofile', test)) then
          nbofile = 1
-      elseif ( inp_compare(.false., 'aimfile', test)) then
-         aimfile = 1
-      elseif ( inp_compare(.false., 'all', test)) then
 c ... jochen: read an option (integer value) to define 
 c     what NBO options will appear    
           if (inp_i(nboopt)) then 
              continue           ! just read the number
           end if
+      elseif ( inp_compare(.false., 'aimfile', test)) then
+         aimfile = 1
       elseif ( inp_compare(.false., 'efgfile', test)) then
          efgfile = 1
 c ... Fredy: read an option (integer value) to define 
@@ -507,12 +506,12 @@ c
       if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
      $                               nbofile           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'prop:aimfile', mt_int, 1,
-     $                               aimfile           ))
-     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c ... jochen: also write NBO option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:nboopt', mt_int, 1,
      $                               nboopt           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:aimfile', mt_int, 1,
+     $                               aimfile           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c .... Fredy: write efg output for NBO program 04-24-10
       if (.not. rtdb_put(rtdb, 'prop:efgfile', mt_int, 1,
