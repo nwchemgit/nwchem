@@ -230,7 +230,7 @@ c        write(*,*) "Enew:",Enew
          if ( (dabs(deltae).le.(1.0d-2)).and.
      >        (tmin.gt.deltat_min)) then
 
-           if (sum0.gt.1.0d-15) then
+           if (sum0.gt.1.0d-9) then
 c              scale = sum3/sum0
               scale = sum1/sum0
            else
