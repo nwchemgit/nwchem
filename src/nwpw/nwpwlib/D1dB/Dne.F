@@ -2376,6 +2376,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
   
       if (mparallelized) then
@@ -2435,6 +2437,13 @@ c     ****************************************
      >                C(shift2), n)
    30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   ne(1)*ne(1)+ne(2)*ne(2),C)
+         else
+            call Parallel_Brdcst_values(MASTER,ne(mb)*ne(mb),C)
+         end if
+
       end if
 
       return
@@ -2456,6 +2465,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
 
       if (mparallelized) then
@@ -2514,6 +2525,13 @@ c     ****************************************
      >                C(shift2), n)
    30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   ne(1)*ne(1)+ne(2)*ne(2),C)
+         else
+            call Parallel_Brdcst_values(MASTER,ne(mb)*ne(mb),C)
+         end if
+
       end if 
 
       return
@@ -5001,6 +5019,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
   
       if (mparallelized) then
@@ -5061,6 +5081,13 @@ c     ****************************************
      >                C(shift2), n)
    30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,4*ne(mb)*ne(mb),C)
+         end if
+
       end if
 
       return
@@ -5083,6 +5110,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
 
       if (mparallelized) then
@@ -5142,6 +5171,13 @@ c     ****************************************
      >                C(shift2), n)
    30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,4*ne(mb)*ne(mb),C)
+         end if
+
       end if 
 
       return
@@ -5167,6 +5203,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
   
       if (mparallelized) then
@@ -5227,6 +5265,13 @@ c     ****************************************
      >                C(shift2), n)
    30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,4*ne(mb)*ne(mb),C)
+         end if
+
       end if
 
       return
@@ -5570,6 +5615,8 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
   
       if (mparallelized) then
@@ -5629,6 +5676,13 @@ c     ****************************************
      >                C(shift2), n)
    30       continue
          end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   ne(1)*ne(1)+ne(2)*ne(2),C)
+         else
+            call Parallel_Brdcst_values(MASTER,ne(mb)*ne(mb),C)
+         end if
+
       end if
 
       return
