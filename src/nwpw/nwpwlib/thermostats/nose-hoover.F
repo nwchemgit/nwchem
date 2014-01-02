@@ -363,6 +363,8 @@ c      Ee0 = 4.0*kb*Te_new*fmass*dble(ion_nion())/am * eke0_init
 #include "nose-hoover.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer m,n
       real*8 FXe,FXr,dt,a
       real*8 eke_tmp,ekr_tmp
@@ -417,6 +419,9 @@ c      Xr2 = (0.5d0*dt*dt/Qr)*FXr
      >                        + dt*dbl_mb(Xrm(1)+Nchain-1)
      >                        + (0.5d0*dt*dt/dbl_mb(Qr(1)+Nchain-1))*FXr
 
+
+      call Parallel_Brdcst_values(MASTER,Mchain,dbl_mb(Xe2(1)))
+      call Parallel_Brdcst_values(MASTER,Nchain,dbl_mb(Xr2(1)))
       return
       end
 
@@ -434,6 +439,8 @@ c      Xr2 = (0.5d0*dt*dt/Qr)*FXr
 #include "nose-hoover.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
       integer m,n
       real*8 eke_tmp,ekr_tmp
       real*8 FXe,dXe,sse,FXr,dXr,ssr,dt
@@ -508,6 +515,8 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
      >                        + (dt*dt/dbl_mb(Qr(1)+Nchain-1))*FXr
 
 
+      call Parallel_Brdcst_values(MASTER,Mchain,dbl_mb(Xe2(1)))
+      call Parallel_Brdcst_values(MASTER,Nchain,dbl_mb(Xr2(1)))
       return
       end
 
@@ -563,7 +572,9 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
 
 
 *     ***** local variables ****
-      real*8 dXe,dt
+      integer MASTER
+      parameter (MASTER=0)
+      real*8 dXe,dt,tmp
 
 *     **** external functions ****
       real*8   control_time_step
@@ -575,7 +586,10 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
      >              -4.0d0*dbl_mb(Xe0(1))
      >              +      dbl_mb(Xem(1)))/(2.0d0*dt)
 
-      Nose_sse = 1.0d0/(1.0d0+0.5d0*dXe*dt)
+      tmp = 1.0d0/(1.0d0+0.5d0*dXe*dt)
+      call Parallel_Brdcst_value(MASTER,tmp)
+
+      Nose_sse = tmp
       return
       end
 
@@ -592,7 +606,9 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
 #include "nose-hoover.fh"
 
 *     ***** local variables ****
-      real*8 dXr,dt
+      integer MASTER
+      parameter (MASTER=0)
+      real*8 dXr,dt,tmp
 
 *     **** external functions ****
       real*8   control_ion_time_step
@@ -603,7 +619,10 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       dXr         = (3.0d0*dbl_mb(Xr1(1))
      >              -4.0d0*dbl_mb(Xr0(1))
      >              +      dbl_mb(Xrm(1)))/(2.0d0*dt)
-      Nose_ssr = 1.0d0/(1.0d0+0.5d0*dXr*dt)
+      tmp = 1.0d0/(1.0d0+0.5d0*dXr*dt)
+      call Parallel_Brdcst_value(MASTER,tmp)
+
+      Nose_ssr = tmp
       return
       end
 
