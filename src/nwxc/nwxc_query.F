@@ -953,6 +953,18 @@ c
            cdata = "M11-L (R Peverati, DG Truhlar, "
      +             //"J.Phys.Chem.Lett. 2, 2810 (2011)"
      +             //" doi:10.1021/jz201170d)"
+         case (NWXCP_MPW1K)
+           cdata = "MPW1K (BJ Lynch, PL Fast, M Harris, DG Truhlar, "
+     +             //"J.Phys.Chem. A 104, 4811 (2000)"
+     +             //" doi:10.1021/jp000497z)"
+         case (NWXCP_MPW1B95)
+           cdata = "MPW1B95 (AD Becke, "
+     +             //"J.Chem.Phys. 104, 1040 (1996)"
+     +             //" doi:10.1063/1.470829)"
+         case (NWXCP_MPWB1K)
+           cdata = "MPWB1K (AD Becke, "
+     +             //"J.Chem.Phys. 104, 1040 (1996)"
+     +             //" doi:10.1063/1.470829)"
          case (NWXCP_HSE)
            cdata = "HSE (J Heyd, GE Scuseria, M Ernzerhof, "
      +             //"J.Chem.Phys. 118, 8207 (2003)"
