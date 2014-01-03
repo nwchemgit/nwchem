@@ -42,8 +42,8 @@ c
       integer itype, nprim, ngen, sphcart, n, irrep_dim, m, indx
       logical do_spherical
 c
-      double precision sym_trace_bas_op,ddot
-      external sym_trace_bas_op,ddot
+      double precision sym_trace_bas_op
+      external sym_trace_bas_op
  
       integer ncent_unique
       integer centlist(100), jc
