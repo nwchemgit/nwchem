@@ -21,10 +21,15 @@ c
       integer anlo,anhi,amlo,amhi,k_a,adim
       integer bnlo,bnhi,bmlo,bmhi,k_b,bdim
       integer m,oa,ob,alen, k_t1, l_t1, k_t2, l_t2
+      logical doit
       double precision x
 c
       me = ga_nodeid()
       x=0.0d0
+      call ga_distribution(g_a,me,anlo,anhi,amlo,amhi)
+      doit=.not.(anlo.eq.0.and.anhi.eq.-1.and.
+     A     amlo.eq.0.and.amhi.eq.-1)
+      if(doit) then
       if (g_a.eq.g_b) then
          call ga_distribution(g_a,me,anlo,anhi,amlo,amhi)
          adim=anhi-anlo+1
@@ -60,6 +65,7 @@ c
          if (.not.ma_pop_stack(l_t1)) call errquit
      $      ('tga_ddot:failed to deallocate t1',0, MA_ERR)
       endif
+      endif
       call ga_dgop(2123,x,1,'+')
       tga_ddot=x
       return
@@ -93,9 +99,13 @@ c
       integer anlo,anhi,amlo,amhi,k_a,adim
       integer bnlo,bnhi,bmlo,bmhi,k_b,bdim
       integer n,chi,oa,ob,alen, k_t1, l_t1, k_t2, l_t2
+      logical doit
 c
       me = ga_nodeid()
       call ga_distribution(g_a,me,anlo,anhi,amlo,amhi)
+      doit=.not.(anlo.eq.0.and.anhi.eq.-1.and.
+     A     amlo.eq.0.and.amhi.eq.-1)
+      if(doit) then
       call ga_distribution(g_b,me,bnlo,bnhi,bmlo,bmhi)
       adim=anhi-anlo+1
       bdim=bnhi-bnlo+1
@@ -111,6 +121,7 @@ c
      $   ('tga_ddot:failed to deallocate t2',0, MA_ERR)
       if (.not.ma_pop_stack(l_t1)) call errquit
      $   ('tga_ddot:failed to deallocate t1',0, MA_ERR)
+      endif
       return
       end
 c

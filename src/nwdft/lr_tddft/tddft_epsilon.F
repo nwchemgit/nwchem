@@ -55,11 +55,9 @@ c --------------------------------------------------------
 c
       iproc=ga_nodeid()
       call ga_sync()
+      call ga_distribution(g_trials(1),iproc,ilo,ihi,jlo,jhi)
+      if ((jlo.le.ivector).and.(jhi.ge.ivector)) then
       do i=1,ipol
-        call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
-        if ((jlo.gt.ivector).or.(jhi.lt.ivector))
-     1    call errquit('tddft_epsilon: an internal error detected',0,
-     &       GA_ERR)
         do l=ilo,ihi
           if (abs(vshift).gt.0) then
              k=nocc(i)+1+vshift
@@ -89,6 +87,7 @@ c
           call ga_put(g_prod_s(i),l,l,ivector,ivector,p,1)
         enddo
       enddo
+      endif
       call ga_sync()
 c
 c ------

@@ -819,11 +819,10 @@ c
           if (nnewtrials.gt.maxvecs) call errquit
      1      ('tddft_residual: out of memory',nnewtrials, MEM_ERR)
           call ga_sync()
+          call ga_distribution
+     1         (g_residuals_1(1),iproc,ilo,ihi,jlo,jhi)
+          if ((jlo.le.n).and.(jhi.ge.n)) then
           do i=1,ipol
-            call ga_distribution
-     1        (g_residuals_1(i),iproc,ilo,ihi,jlo,jhi)
-            if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
-     1        ('tddft_residual: an internal error detected',0, CALC_ERR)
             do l=ilo,ihi
               if (abs(vshift).gt.0) then
                  k=nocc(i)+1+vshift
@@ -852,6 +851,7 @@ c
               call ga_put(g_residuals_1(i),l,l,n,n,r,1)
             enddo
           enddo
+          endif
           call ga_sync()
 c
 c Schmidt orthogonalize against other trial vectors
@@ -920,11 +920,10 @@ c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
 c
             call ga_sync()
+            call ga_distribution
+     1           (g_residuals_2(1),iproc,ilo,ihi,jlo,jhi)
+            if ((jlo.le.n).and.(jhi.ge.n)) then
             do i=1,ipol
-              call ga_distribution
-     1          (g_residuals_2(i),iproc,ilo,ihi,jlo,jhi)
-              if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
-     1          ('tddft_residual: an internal error detected',0, GA_ERR)
               do l=ilo,ihi
                 if (abs(vshift).gt.0) then
                    k=nocc(i)+1+vshift
@@ -953,6 +952,7 @@ c
                 call ga_put(g_residuals_2(i),l,l,n,n,r,1)
               enddo
             enddo
+            endif
             call ga_sync()
 c
 c Schmidt orthogonalize against other trial vectors

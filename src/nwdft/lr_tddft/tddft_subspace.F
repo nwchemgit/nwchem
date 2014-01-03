@@ -96,11 +96,9 @@ c
           enddo
         enddo
         call ga_sync()
+        call ga_distribution(g_trials(1),iproc,ilo,ihi,jlo,jhi)
+        if ((jlo.le.1).and.(jhi.ge.ntrials)) then
         do i=1,ipol
-          call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
-          if ((jlo.gt.1).or.(jhi.lt.ntrials))
-     1      call errquit('tddft_subspace: an internal error detected',0,
-     &       GA_ERR)
           call ga_get(g_trials(i),ilo,ihi,1,ntrials,
      1      dbl_mb(k_trial),maxnov)
           call ga_get(g_prod_p(i),ilo,ihi,1,ntrials,
@@ -128,6 +126,7 @@ c
             enddo
           endif
         enddo
+        endif
 cold        call ga_sync()
 c
 c -----------------------------------------------------------------
