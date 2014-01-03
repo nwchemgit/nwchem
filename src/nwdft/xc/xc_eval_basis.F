@@ -503,7 +503,7 @@ c
       double precision q(3,nq) !< [Input] The grid point coordinates
       double precision ctr(3)  !< [Input] The atom coordinates
 c
-      integer l2k(0:maxl,0:maxl,0:maxl) !< [Output] Maps the power of
+      integer l2k(0:maxl,0:maxl,0:maxl) !< [Scratch] Maps the power of
                                         !< x, y, and z to the rank of
                                         !< a particular basis function
       double precision ang(nq,*)             !< [Output] The angular
