@@ -167,7 +167,7 @@ c
       call int_1e_cache_ga(basis,oskel)
 c
 c     Get the MO vectors
-
+c
       if(.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
      $     scftype_vecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('cphf: problem with movecs_read_header',1,
@@ -207,6 +207,7 @@ c
       lshift=0.0d0
 c
 c note: the original default value for "tol" was 1d-4
+c
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
@@ -227,6 +228,7 @@ c ... jochen: open second rhs file first and check if it has data
       if (vlen .ne. ncol) 
      $     call errquit('cphf_solve3: vlen != ncol', ncol,
      &       UNKNOWN_ERR)
+c
 c ... jochen: open data file(s) with "imaginary" data
       if (lifetime) then
         if (ncomp.gt.1) then
@@ -245,7 +247,15 @@ c ... jochen: open data file(s) with "imaginary" data
      $     call errquit('cphf_solve3: reading rhs_im 1 info failed?',0,
      &     UNKNOWN_ERR)        
       endif                     ! lifetime
+c
+c      control size of the subspace
+c
+       max_precond_sub = 10*nvec
+      if (.not. rtdb_get(rtdb, 'cphf:maxsub', mt_int, 1,
+     1  max_precond_sub)) max_precond_sub = 10*nvec
+c
 c     allocate g_grad: rhs vector for CPKS
+c
       do ipm=1,ncomp
        if(.not.ga_create(mt_dbl,vlen,nvec,'cphf_solve3: rhs',
      $     0,nvec,g_grad(ipm)))
@@ -258,9 +268,8 @@ c     allocate g_grad: rhs vector for CPKS
      $     call errquit('cphf_solve3: ga_cre grad',vlen, GA_ERR)
        enddo ! end-loop-ipm
       endif 
-
+c
       pflg=2
-      max_precond_sub = 20
       if (oprint) then
          write(luout,170) scftype
  170     format('    scftype = ',a)
@@ -506,18 +515,17 @@ c -------- precond ----------- END
 c         debug=.false. ! to see entering vectors
 
          if (.not.lifetime) then
-           if (debug) write (6,*) 'calling ga_lkain_2cpl3'
+           if (debug) write (6,*) 'calling ga_lkain_2cpl3_ext'
 
 c          if (ga_nodeid().eq.0)
 c    &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_ext'
-
-c           call ga_lkain_2cpl3(
+c
            call ga_lkain_2cpl3_ext(
      &                      rtdb,
      &                      g_work   , g_grad, 
      &                      g_work_im, g_grad_im, 
      &                      uhf_hessv3,uhf_hessv_precond3,
-     $                      precond_tol,10*nvec,maxiter,
+     $                      precond_tol,max_precond_sub,maxiter,
      &                      .false., oprint_solve, 
      &                      omega,
      &                      limag, lifetime, 
@@ -526,7 +534,7 @@ c           call ga_lkain_2cpl3(
 c          if (ga_nodeid().eq.0)
 c    &      write(*,*) 'FA-AFT-uhf-ga_lkain_2cpl3_ext'
 
-           if (debug) write (6,*) 'exiting ga_lkain_2cpl3'
+           if (debug) write (6,*) 'exiting ga_lkain_2cpl3_ext'
          else
            if (debug) write (6,*) 'calling ga_lkain_2cpl3_damp'
 
@@ -586,7 +594,7 @@ c     &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem1'
      &              uhf_hessv3_cmplx1,         ! in: product routine: gen Az
      &              uhf_hessv_precond3_damp,  ! in: routines
      &              precond_tol,
-     &              11*nvec,
+     &              11*nvec,  ! why is this 11*nvec ?
      &              maxiter, 
      &              .false., 
      &              oprint_solve,
@@ -777,7 +785,7 @@ c           call ga_lkain_2cpl3(rtdb,
      &                         g_work   , g_grad, 
      &                         g_work_im, g_grad_im, 
      &                         rohf_hessv3,rohf_hessv_precond3,
-     $                         precond_tol,10*nvec,maxiter,
+     $                         precond_tol,max_precond_sub,maxiter,
      &                         .false., oprint_solve, 
      &                         omega,
      &                         limag, lifetime, 
