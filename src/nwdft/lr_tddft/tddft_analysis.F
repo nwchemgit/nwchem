@@ -1627,7 +1627,7 @@ c tddft_grad:s2 doesn't exist.
      1      call errquit('tddft_analysis: failed to store s2', 0,
      2        RTDB_ERR)
         endif
-      endif
+      endif  ! lcivecs
 c
 c ---------------------------
 c Handle solution vector file
@@ -1640,13 +1640,15 @@ c it is possible that the states reorder.  We can't use the character
 c of singlet and triplet states to identify states since they can be
 c similar.
 c
-       if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
-     1  call errquit('tddft_analysis: failed to read vector',0,
+      if (lcivecs) then
+        if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
+     1   call errquit('tddft_analysis: failed to read vector',0,
      2    RTDB_ERR)
 c
-       len_fn_civecs = inp_strlen(fn_civecs)
-       if (singlet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_singlet"
-       if (triplet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_triplet"
+        len_fn_civecs = inp_strlen(fn_civecs)
+        if (singlet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_singlet"
+        if (triplet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_triplet"
+       endif  ! lcivecs
 c
        if (nodezero.and.lcivecs) then
          write(luout,*) "fn_civecs: ",fn_civecs

@@ -215,15 +215,12 @@ c
           do j=1,ntrials
             a=a+apbvec(j,n)*ambvec(j,n)
           enddo
-          if (a.eq.0.0d0) then
-            call errquit
-     1        ('tddft_diagon: failed to bi-orthonormalize',0, CALC_ERR)
-          else
+          if (a.ne.0.d0) then
             do j=1,ntrials
               apbvec(j,n)=apbvec(j,n)/dsqrt(a)
               ambvec(j,n)=ambvec(j,n)/dsqrt(a)
             enddo
-          endif
+          endif ! a .ne. 0.0
         enddo
       endif
 c           
