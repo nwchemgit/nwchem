@@ -1,0 +1,18 @@
+echo
+
+start h-doublet
+title h-doublet
+
+geometry units atomic
+ h 0 0 0
+end 
+
+basis
+ * library 6-31G(3df,3pd)
+end
+
+dft
+ mult 2
+end
+
+task tddft energy
