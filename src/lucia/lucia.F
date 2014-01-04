@@ -15024,7 +15024,8535 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
       CALL LUCIAQEXIT('RASSG')
       RETURN
       END
-      SUBROUTINE READIN(LUIN,LUOUT)
+      SUBROUTINE READIN(rtdb,LUOUT)
+*
+*
+* File is supposed to be positioned at first record of input
+* The end of the input stream is identified by END OF INPUT
+* Unless MOLCS is specified,
+* All keywords are initiated by a point ., while comments are
+* initiated by a *.
+*
+* The keywords are can broadly be divided into two types
+*  1: Keywords describing CI calculation to be carried out
+*  2: Keywords describing how CI optimization should be performed
+*
+*
+* All input parameter concerning CI space are saved in /LUCIN1/
+* All input concerning actual CI vectors are save in /CSTATE/
+* All input paramters concerning run are saved in /CRUN/
+*
+* Since the keywords are read in from one pass over input file,
+* the keywords must be in logical order.For example, the number
+* of irreducible representations (irreps) must be give before
+* the number of shells per irrep
+*
+* Jeppe Olsen, Initiated spring of 1991
+*
+*. Last modification; Jeppe Olsen; July 8, 2013; Revamping EXPHAM
+*
+*
+      INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+#include "rtdb.fh"
+*
+      integer rtdb
+      CHARACTER*102 TITLEC
+      CHARACTER*101 CARD
+      CHARACTER*102 CARD1
+      CHARACTER*102 LASTCARD
+      CHARACTER*10 CARDX
+      COMMON/CTITLE/ TITLEC
+      CHARACTER*6 KEYWOR
+      PARAMETER(MXPKW = 202)
+      DIMENSION KEYWOR(MXPKW)
+      DIMENSION ISETKW(MXPKW)
+*. Local  scratch for decoding multi-item lines, atmost 32 items per line
+      PARAMETER(MX_ITEM = 40)
+      CHARACTER*102 ITEM(MX_ITEM),  ITEMX 
+      INTEGER INT_ITEM(MX_ITEM)
+      logical d2h_on,cinfv_on,dinfh_on,o3_on
+      logical cas_on,fci_on,ras_on
+      logical metaci_on,teraci_on,restrt_on,incore_on
+      logical noint_on,nocsf_on,dumpint_on,cjkaib_on,mocab
+      logical iniref_on,restrf_on,extkop_on,nomofl_on,echo_on
+      logical clssel_on,norst2_on,skipei_on,rthome_on,useph_on
+      logical advice_on,usepa_on,ptfock_on,rescc_on,trafi_on,train_on
+      logical relax_on,expert_on,simsym_on,usehw_on,use0p_on,lz2_on
+      logical noaaex_on
+      character*102 tag
+*
+      DATA KEYWOR/'TITLE ','PNTGRP','NIRREP','INTSPC','EXTSPC',
+     &            'NACTEL','INACT ','CORE  ','RAS1  ','RAS2  ',
+     &            'RAS3  ','MXSCTP','SECOND','REFSPC','INTSEL',
+     &            'MS2   ','MULTS ','IREFSM','ROOTS ','IDIAG ',
+     &            'MAXIT ','EXPHAM','RESTRT','INTIMP','INCORE',
+     &            'DELETE','MSCOMB','MLCOMB','IPRSTR','IPRCIX',
+     &            'IPRORB','IPRDIA','MXCIV ','CISTOR','NOCSF ',
+     &            'IPRXT ','NOINT ','DMPINT','RESDIM','CJKAIB',
+     &            'INIREF','RESTRF','IPROCC','MOCAA ','MOCAB ',
+     &            'ECORE ','PERTU ','APRREF','APRZER','GASSH ',
+     &            'GASSPC','CMBSPC','CICONV','SEQUEN','EXTKOP',
+     &            'MACHIN','C1DSC ','H0SPC ','H0FRM ','RFROOT',
+     &            'H0EX  ','INIDEG','LAMBDA','LCSBLK','IPRDEN',
+     &            'NOMOFL','ECHO  ','FINORB','E_THRE','C_THRE',
+     &            'E_CONV','C_CONV','CLSSEL','DENSI ','PTEKT ',
+     &            'H0ROOT','NORST2','SKIPEI','XYZSYM','PROPER',
+     &            'TRAPRP','RESPON','MXITLE','IPRRSP','RTHOME',
+     &            'USE_PH','ADVICE','TRACI ','USE_PS','PTFOCK',
+     &            'PRNCIV','RES_CC','TRA_FI','TRA_IN','MUL_SP',
+     &            'RELAX ','EXPERT','CNV_RT','IPRPRO','QDOTS ',
+     &            'RE_MS2','PRECON','SIMSYM','USE_HW','USEH0P',
+     &            'IPRCC ','LZ2   ','CCSOLV','CCN   ','SBSPJA',
+     &            'CCCONV','NHOSPC','CC3   ','CI=>CC','CCFORM',
+     &            'CCEX_E','RES_EX','RESDCC','CMB_CC','SIMTRH',
+     &            'FRZ_CC','CC_EXP','OLDCCV','NEWCCP','MXSPOX',
+     &            'MASKSD','NOAAEX','SPINRS','GENTRD','REO_OR',
+     &            'IC_EXC','CMPCCI','CC=>CI','COMHAM','DMPMRP',
+     &            'VNEWCC','OLDCCV','HF_INI','HFSOLV','SPNDEN',
+     &            'GTBOPT','GTBEAG','GTBFOO','GTBHSS','WRKSPC',
+     &            'SAVMEM','TARGET','CUMULA','RSTRIC','NCOMMU',
+     &            'APRCME','APRCMV','APRCMJ','DENSPC','READSJ',
+     &            'PRDEXP','PRDWVF','PRDEXC','IPRCSF','INC_AA',
+     &            'SINGU ','MXVC_I','MXIT_M','FR_INT','ZS_HAM',
+     &            'NO_EI ','IC_EXO','GIC_EX','IPRMCS','MCSCFA',
+     &            'TRA_RO','NORTIN','VBRFSP','NORT_M','MOFRAG',
+     &            'FRAGOB','INI_MO','INICNF','PRVB'  ,'GIOMET',
+     &            'IPRINT','H0_CSF','CNFBAT','ENSMGS','ENSCON',
+     &            'EQFRAG','SUPSYM','HFD_OC','HFS_OC','GAS_SP',
+     &            'NOSPFI','FRG=LU','FRZORB','SBSPPR','IN_NRO',
+     &            'IN_SRO','RT_SEL','FRZFST','VBGNSP','VBOBOR',
+     &            'VBSCOR','AKBKME'/
+*
+COLD  INTEGER CITYP
+*.Largest allowed number of allowed irreps for orbs
+ 
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'cstate.inc' 
+      INCLUDE 'crun.inc'
+      INCLUDE 'cprnt.inc'
+      INCLUDE 'cgas.inc'
+      INCLUDE 'oper.inc'
+      INCLUDE 'machine.inc'
+      INCLUDE 'cc_exc.inc'
+      INCLUDE 'cecore.inc'
+      INCLUDE 'newccp.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'gtbce.inc'
+      INCLUDE 'opti.inc'
+      INCLUDE 'symrdc.inc'
+      INCLUDE 'prdwvf.inc'
+      INCLUDE 'vb.inc'
+      INCLUDE 'fragmol.inc'
+      INCLUDE 'comjep.inc'
+* Flag for NWChem test
+      inw_lucia = 1
+*. Flag for compatibility with normal MOLCAS input format
+      MOLCS = 1
+*
+      IEXPERT = 0
+      NERROR = 0
+      NWARN = 0
+      EXTSPC = 0
+      IECHO = 0
+      I_DO_MCSCF = 0
+      I_DO_HF = 0
+      I_DO_NORTCI = 0
+      I_DO_NORTMCSCF = 0
+      I_DO_GAS = 0
+      ISPNDEN = 0
+* No cc as default
+      I_DO_CC = 0
+      I_DO_GTBCE = 0
+      I_DO_ICCC = 0
+*. Start out with normal integrals
+      I_USE_SIMTRH = 0
+      I_UNRORB = 0
+      ISPCAS = 0
+*. I do not do EI unless I am told to do it...
+      I_DO_EI = 0
+*. Default is no fragments
+      NFRAG_MOL = 0 
+*
+      I_DO_GIC = 0
+*. Stupid compiler warning 
+      ICI = -3006
+      ISECFILL = 0
+
+*****************************************************************
+*                                                               *
+* Part 1: Read in Keywords and perform some preliminary checks *
+*                                                               *
+*****************************************************************
+*
+*. Defaults for pointgroup and number of irreps must be set here
+*. Default point group D2H
+      PNTGRP = 1
+*. Default number of irreps
+      NIRREP = 8
+*
+      DO ISM = 1, NIRREP
+        NTOOBS(ISM) = 0
+      END DO
+*. Largest allowd number of IRREPS for super-symmetry
+      MAX_SUPSYM_IRREP = 2*MXPL + 1
+      NACT_SUPSYM_IRREP = 0
+*
+      CALL ISETVC(ISETKW,0,MXPKW)
+ 1000 CONTINUE
+
+*. Next potential keyword
+cnw        READ(LUIN,'(A)') CARD
+*. Left-position nonblank characters in CARD
+cnw        CALL LFTPOS(CARD,MXPLNC)
+*. Change to upper case
+C            UPPCAS(LINE,LENGTH)
+cnw        CALL UPPCAS(CARD,MXPLNC)
+cnw        IF(CARD(1:1).EQ.'*'.OR.CARD(1:1).EQ.'!'.OR.
+cnw     &     CARD(1:1).EQ.'#'                        )THEN
+*. Skip comment cards
+cnw          GOTO 999
+*. End of input card
+cnw        ELSE IF(CARD(1:5).EQ.'ENDOF'.OR.CARD(1:6).EQ.'END OF') THEN
+cnw          GOTO 1001
+cnw        ELSE IF(MOLCS.EQ.0.AND.CARD(1:1).NE.'.') THEN
+*. Line out of context
+cnw          WRITE(LUOUT,'(1H ,A)') ' Warning, card out of context: '
+cnw          WRITE(LUOUT,'(1H ,A)') CARD
+cnw          NWARN = NWARN + 1
+cnw        ELSE IF(MOLCS.EQ.1.OR.CARD(1:1).EQ.'.') THEN
+cnw          IF(MOLCS.EQ.1) THEN
+*. Move characters one place to right
+cnw          DO 1286 ICHAR = 7,2,-1
+cnw            CARD(ICHAR:ICHAR) = CARD(ICHAR-1:ICHAR-1)
+cnw 1286       CONTINUE
+cnw            CARD(1:1) = ' '
+cnw          END IF
+*. A keyword has been identified, match with possible keywords
+cnw          IF(CARD(2:6).EQ.'TITLE' ) THEN
+        if(rtdb_cget(rtdb,'lucia:title',1,title))then
+*
+* =========================
+*.Keyword 1:  TITLE cards
+* =========================
+*
+*. title cards
+            ISETKW(1) = 1
+c           DO 20 IC = 1, 3
+c             READ(LUIN,'(A)') TITLEC(IC)
+c  20       CONTINUE
+c           GOTO 999
+        END IF
+*
+*
+*================================================
+*. Keyword 2: <POINTG>: Point group of orbitals
+*================================================
+*
+* Possible point groups: D2H,CINFV,DINFH,O3
+c         IF(CARD(2:4).EQ.'D2H'   .OR.
+c    &       CARD(2:6).EQ.'CINFV' .OR.
+c    &       CARD(2:6).EQ.'DINFH' .OR.
+c    &       CARD(2:3).EQ.'O3'    ) THEN
+        if(rtdb_get(rtdb,'lucia:d2h',mt_log,1,d2h_on)       .or.
+     &     rtdb_get(rtdb,'lucia:cinfv',mt_log,1,cinfv_on)   .or.
+     &     rtdb_get(rtdb,'lucia:dinfh',mt_log,1,dinfh_on)   .or.
+     &     rtdb_get(rtdb,'lucia:o3',mt_log,1,o3_on)) then
+*
+            ISETKW(2) = 1
+cnw           IF(CARD(2:4).EQ.'D2H') THEN
+        if(d2h_on) then
+              PNTGRP = 1
+cnw           ELSE IF(CARD(2:6).EQ.'CINFV') THEN
+        if(cinfv_on) then       
+              PNTGRP = 2
+cnw           ELSE IF(CARD(2:6).EQ.'DINFH') THEN
+        if(dinfh_on) then       
+              PNTGRP = 3
+cnw           ELSE IF(CARD(2:3).EQ.'O3') THEN
+        if(o3_on) then       
+              PNTGRP = 4
+            END IF
+c           GOTO 999
+          END IF
+*
+cnw        IF(CARD(2:7).EQ.'NIRREP') THEN
+        if(rtdb_get(rtdb,'lucia:nirrep',mt_int,1,nirrep))then
+*
+*=====================================================
+*. Keyword 3: <NIRREP>: Number of irreps of orbitals
+*=====================================================
+*
+* Number of irreducible representations in point group
+* D2h             : 1,2,4,8
+* C inf H, D inf H: largest ML
+* O3              : Largest L
+*.D2h or subgroup
+* ===============
+            IF(PNTGRP.EQ.1) THEN
+cnw              READ(LUIN,*) NIRREP
+              NSMCMP = NIRREP
+              NSMOB  = NIRREP
+              ISETKW(3) = 1
+*.Dimensions 3,5,6,7,8 are not allowed
+              IF(NIRREP.EQ.3.OR.(NIRREP.GT.4.AND.NIRREP.LT.8)) THEN
+                 WRITE(LUOUT,*) ' Input error: NIRREP = ', NIRREP
+                 WRITE(LUOUT,*) ' Allowed values of NIRREP:1,2,4,8'
+                 NERROR = NERROR + 1
+                 ISETKW(3) = -1
+              END IF
+*. Zero values used for other pointgroups
+COLD          MAXML  = -1
+COLD          MAXL   = -1
+COLD          INVCNT = -1
+            ELSE IF (PNTGRP.EQ.2) THEN
+*. Cinf V
+* =======
+cnw              READ(LUIN,*) MAXML
+              maxml = nirrep  ! for Cinf V suppose to provide MaxML
+              ISETKW (3) = 1
+              IF(MAXML.LT.0) THEN
+                WRITE(LUOUT,*)
+     &          ' Largest ML values of shells must be atleast be zero '
+                WRITE(LUOUT,*) ' MAXML from input:' ,MAXML
+                NERROR = NERROR + 1
+                ISETKW(3) = -1
+              END IF
+              NIRREP =  MAXML + 1
+              NSMCMP = 2 * MAXML + 1
+              NSMOB = NSMCMP
+COLD          INVCNT = 0
+              MAXL = -1
+            ELSE IF (PNTGRP.EQ.3) THEN
+*. Dinf H
+* =======
+cnw              READ(LUIN,*) MAXML
+              maxml = nirrep
+              ISETKW (3) = 1
+              IF(MAXML.LT.0) THEN
+                WRITE(LUOUT,*)
+     &          ' Largest ML values of shells must be atleast be zero '
+                WRITE(LUOUT,*) ' MAXML from input: ',MAXML
+                NERROR = NERROR + 1
+                ISETKW(3) = -1
+              END IF
+              NIRREP = 2 * ( MAXML + 1)
+              NSMCMP = 2 * ( 2*MAXML + 1 )
+              NSMOB = NSMCMP
+COLD          INVCNT = 1
+              MAXL  = -1
+            ELSE IF (PNTGRP.EQ.4) THEN
+*. O 3
+* =======
+cnw              READ(LUIN,*) MAXL
+              maxl = nirrep
+              ISETKW (3) = 1
+              IF(MAXL.LT.0) THEN
+                WRITE(LUOUT,*)
+     &          ' Largest L values of shells must be atleast be zero '
+                WRITE(LUOUT,*) ' MAXL from input: ' , MAXL
+                NERROR = NERROR + 1
+                ISETKW(3) = -1
+              END IF
+              MAXML = MAXL
+              NIRREP = MAXL + 1
+              NSMCOM = 2 * (2 *MAXML + 1 )
+              NSMOB = NSMCMP
+COLD          INVCNT = 1
+            END IF
+            IF(ISETKW(3).EQ.-1)
+     &      WRITE(LUOUT,*) ' .NIRREP input incorrect !! . '
+cnw           GOTO 999
+          END IF
+*
+* ================================================
+*. Keyword 4: INTSPC: Type of internal CI space
+* ================================================
+*
+c         IF(CARD(2:4).EQ.'CAS'.OR.CARD(2:4).EQ.'FCI'.OR.
+c    &       (CARD(2:4).EQ.'RAS'.AND.CARD(5:5).EQ.' ')) THEN
+        if(rtdb_get(rtdb,'lucia:docas',mt_log,1,cas_on)  .or.
+     &     rtdb_get(rtdb,'lucia:dofci',mt_log,1,fci_on)  .or.
+     &     rtdb_get(rtdb,'lucia:doras',mt_log,1,ras_on) ) then
+            ISETKW(4) = 1
+cnw            IF(CARD(2:4).EQ.'CAS'.OR. CARD(2:4).EQ.'FCI' ) THEN
+              if(cas_on .or. fci_on) then
+              INTSPC = 1
+cnw            ELSE IF (CARD(2:4).EQ.'RAS') THEN
+              else if (ras_on)then
+              INTSPC = 2
+*. Limits on allowed number of electrons in RASI and RAS III
+cnw              READ(LUIN,*) MNRS10,MXRS30
+              if(.not.rtdb_get(rtdb,'lucia:mnrs10',mt_int,1,mnrs10) .or.
+     &           .not.rtdb_get(rtdb,'lucia:mnrs30',mt_int,1,mnrs30))
+     &          call errquit('lucia input: mnrs10 & mnrs30 needed',911)
+            END IF
+cnw           GOTO 999
+          END IF
+*
+*===========================
+* Keyword 5: External space
+*===========================
+*
+cnw         IF(CARD(2:7).EQ.'EXTSPC') THEN
+           if(rtdb_cget(rtdb,'lucia:extspc',1,CARD1))then
+           ISETKW(5) = 1
+cnw          READ(LUIN,'(A)') CARD1
+             CALL LFTPOS(CARD1,MXPLNC)
+             CALL UPPCAS(CARD1,MXPLNC)
+             IF(CARD1(1:4).EQ.'NONE') THEN
+             EXTSPC = 0
+             MXER4 = 0
+             MXHR0 = 0
+           ELSE IF
+     &     (CARD1(1:4).EQ.'CORE'.AND.CARD1(5:10).EQ.'SECOND'. or.
+     &     (CARD1(1:6).EQ.'SECOND'.AND.CARD1(7:10).EQ.'CORE')) THEN
+             EXTSPC = 3
+cnw             READ(LUIN,*) MXHR0,MXER4
+              if(.not.rtdb_get(rtdb,'lucia:mxhr0',mt_int,1,mxhr0) .or.
+     &           .not.rtdb_get(rtdb,'lucia:mxer4',mt_int,1,mxer4))
+     &          call errquit('lucia input: mxhr0 & mxer4 needed',911)
+cnw          ELSE IF
+cnw             EXTSPC = 3
+cnw             READ(LUIN,*) MXER4,MXHR0
+           ELSE IF(CARD1(1:4).EQ.'CORE') THEN
+             EXTSPC = 1
+cnw             READ(LUIN,*) MXHR0
+              if(.not.rtdb_get(rtdb,'lucia:mxhr0',mt_int,1,mxhr0))
+     &          call errquit('lucia input: mxhr0 needed',911)
+           ELSE IF(CARD1(1:6).EQ.'SECOND') THEN
+             EXTSPC = 2
+cnw             READ(LUIN,*) MXER4
+              if(.not.rtdb_get(rtdb,'lucia:mxer4',mt_int,1,mxer4))
+     &          call errquit('lucia input: mxer4 needed',911)
+           ELSE
+             ISETKW(5) = - 1
+             WRITE(6,*) ' Illegal card for EXTSPC: '
+             WRITE(6,'(1H ,A)') CARD1
+             NERROR = NERROR + 1
+           END IF
+cnw           GOTO 999
+         END IF
+*
+* =============================================
+* Keyword 6 NACTEL: Number of active electrons
+* =============================================
+*
+cnw         IF(CARD(2:7).EQ.'NACTEL') THEN
+cnw           READ(LUIN,*)NACTEL
+         if(rtdb_get(rtdb,'lucia:nactel',mt_int,1,nactel)) 
+     $     ISETKW(6) = 1
+           IF(NACTEL.LT.0) THEN
+             WRITE(LUOUT,*)
+     &       ' ERROR: Illegal number of active electrons ', NACTEL
+             ISETKW(6) = -1
+             NERROR = NERROR + 1
+           END IF
+cnw           GOTO 999
+         END IF
+*==================
+* 7: Inactive shells
+*==================
+cnw        IF(CARD(2:7).EQ.'INACTI'.OR.CARD(2:6).EQ.'INASH') THEN
+cnw          READ(LUIN,'(A)') CARD1
+cnw          CALL LFTPOS(CARD1,MXPLNC)
+cnw          CALL UPPCAS(CARD1,MXPLNC)
+*. A line can be one of the following 
+*  NIRREP numbers giving dim of each irrep for this space
+* A character entry:
+*                     NONE => No orbitals in this space
+cnw          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+cnw          ITEMX = ITEM(1)
+cnw          IF(ITEMX(1:4).EQ.'NONE') THEN
+cnw            DO IRREP = 1, NIRREP
+cnw              NINASH(IRREP) = 0
+cnw            END DO
+cnw          ELSE 
+*. I expect that NIRREP integers are given
+cnw            IF(NITEM.NE.NIRREP) THEN
+cnw              WRITE(6,*) ' Erroneous input to INASH: '
+cnw              WRITE(6,'(72A)') CARD1
+cnw              WRITE(6,*) ' Specify either:   NONE '
+cnw              WRITE(6,*) ' Or NIRREP integers  '
+cnw              NERROR = NERROR + 1
+cnw              ISETKW(7) = -1
+cnw            END IF
+*. Well assume NIRREP integers
+cnw            DO IRREP = 1, NIRREP
+cnw              CALL CHAR_TO_INTEGER(ITEM(IRREP),NINASH(IRREP),
+cnw     &             MXPLNC)
+cnw            END DO
+cnw          END IF
+        if(rtdt_get(rtdb,'lucia:inactive',mt_int,nirrep,ninash))then
+*.  Update number of orbitals per symmetry
+          DO IRREP = 1, NIRREP
+            NTOOBS(IRREP) = NTOOBS(IRREP) + NINASH(IRREP)
+          END DO
+          ISETKW(7) = 1
+cnw          GOTO 999
+         END IF
+*=================================
+* 8: Core shells ( = RAS0 shells)
+*==================================
+c        IF(CARD(2:5).EQ.'CORE') THEN
+c          READ(LUIN,*) (NRS0SH(1,IRREP),IRREP = 1, NIRREP)
+         if(rtdb_get(rtdb,'lucia:ras0',mt_int,nirrep,nrs0sh(1,1)))then
+           ISETKW(8) = 1
+           EXTSPC = EXTSPC + 1
+cnw          GOTO 999
+         END IF
+*===========
+* 9: RAS 1
+*===========
+c        IF(CARD(2:5).EQ.'RAS1') THEN
+*.Number of RAS 1 shells per irrep
+c          READ(LUIN,*) (NRSSH(IRREP,1),IRREP = 1, NIRREP)
+*.Smallest allowed number of electrons in RAS 1
+C!         READ(LUIN,*) MNER10
+         if(rtdb_get(rtdb,'lucia:ras1',mt_int,nirrep,nrssh(1,1)))then
+           ISETKW(9) = 1
+cnw           GOTO 999
+         END IF
+*===========
+* 10: RAS 2
+*===========
+cnw         IF(CARD(2:5).EQ.'RAS2'.OR.CARD(2:7).EQ.'ACTIVE') THEN
+cnw           READ(LUIN,*) (NRSSH(IRREP,2),IRREP = 1, NIRREP)
+         if(rtdb_get(rtdb,'lucia:ras1',mt_int,nirrep,nrssh(1,2)))then
+           ISETKW(10) = 1
+cnw           GOTO 999
+         END IF
+*===========
+* 11: RAS 3
+*===========
+cnw         IF(CARD(2:5).EQ.'RAS3') THEN
+         if(rtdb_get(rtdb,'lucia:ras3',mt_int,nirrep,nrssh(1,3)))then
+           ISETKW(11) = 1
+*.Number of RAS 3 shells per irrep
+cnw           READ(LUIN,*) (NRSSH(IRREP,3),IRREP = 1, NIRREP)
+*.Largest allowed number of electrons in RAS III
+C!         READ(LUIN,*) MXER30
+cnw           GOTO 999
+         END IF
+* ==================================================
+* 13: Number of shells in secondary space per type
+* =================================================
+c        IF(CARD(2:7).EQ.'SECOND'.OR.CARD(2:6).EQ.'SECSH') THEN
+c         READ(LUIN,'(A)') CARD1
+         if(rtdb_cget(rtdb,'lucia:second',1,card1)) then
+          CALL LFTPOS(CARD1,MXPLNC)
+          CALL UPPCAS(CARD1,MXPLNC)
+*. A line can be one of the following 
+*  NIRREP numbers giving dim of each irrep for this space
+* A character entry:
+*                     NONE => No orbitals in this space
+*                     ALL  => All remaining orbitals  in this space
+*                     REST => All remaining orbitals  in this space
+*. Note: Only a single space must be defined by ALL or REST
+          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+          ITEMX = ITEM(1)
+          IF(ITEMX(1:4).EQ.'NONE') THEN
+            DO IRREP = 1, NIRREP
+              NSECSH(IRREP) = 0
+            END DO
+          ELSE IF(ITEMX(1:3).EQ.'ALL'.OR.ITEMX(1:4).EQ.'REST') THEN
+*. Only a single space must be defined in this way
+            IF(IGSFILL.NE.0) THEN
+              WRITE(6,*) 
+     &        ' Several shell spaces defined by ALL or REST'
+              WRITE(6,*)
+     &        ' This confuses and upsets me '
+              WRITE(6,*)
+     &        '                                / Lucia '
+              ISETKW(13) = -1
+              NERROR = NERROR + 1
+            END IF
+            ISECFILL = 1
+          ELSE 
+*. I expect that NIRREP integers are given
+            IF(NITEM.NE.NIRREP) THEN
+              WRITE(6,*) ' Erroneous input to SECSH: '
+              WRITE(6,'(72A)') CARD1
+              WRITE(6,*) ' Specify either:   NONE '
+              WRITE(6,*) '                     ALL' 
+              WRITE(6,*) '                    REST' 
+              WRITE(6,*) ' Or NIRREP integers  '
+              NERROR = NERROR + 1
+              ISETKW(50) = -1
+            END IF
+*. Well assume NIRREP integers
+            DO IRREP = 1, NIRREP
+              CALL CHAR_TO_INTEGER(ITEM(IRREP),NSECSH(IRREP),
+     &             MXPLNC)
+            END DO
+          END IF
+*.  Update number of orbitals per symmetry
+          DO IRREP = 1, NIRREP
+            NTOOBS(IRREP) = NTOOBS(IRREP) + NSECSH(IRREP)
+          END DO
+          ISETKW(13) = 1
+cnw          GOTO 999
+         END IF
+* =========================
+* 14: Reference space
+* =========================
+*
+* Reuse of old keyword, august 2002
+*
+* Three forms 
+* Number of entries = Number of Gasspaces => Allowed occupation of each 
+*                                            GAS pace
+* Number of entries = 2 * Number of gasspaces => Accumulated occupation
+* A single entry Auto is given, indicating automatic generation 
+*
+*
+cnw         IF(CARD(2:7).EQ.'REFSPC') THEN
+         if(rtdb_cget(rtdb,'lucia:refspc',1,CARD1)) then
+*. Number of GAS paces, NGAS, must have been defined through keyword GASSH
+cnw          IF(ISETKW(50).EQ.0) THEN 
+          if(.not.rtdb_get(rtdb,'lucia:ngas',mt_int,1,ngas))then
+cnw            WRITE(6,*) 
+cnw     &      ' READIN: Keyword GASSH must be specified before REFSPC '
+            call errquit('lucia input: ngas needed',911)     
+            NERROR = NERROR + 1
+cnw            GOTO 999
+            ISETKW(14) = -1
+          END IF
+cnw          READ(LUIN,'(A)') CARD1
+          CALL LFTPOS(CARD1,MXPLNC)
+          CALL UPPCAS(CARD1,MXPLNC)
+          CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+          IF(NITEM.EQ.1.AND.CARD1(1:1).EQ.'A') THEN
+*. Automatic generation
+*. Has orbital partitionings been specified ?. At the moment, 
+*. only a version with two partiotionings are active in input
+            ISETKW(14) = 1
+          ELSE IF(NITEM.EQ.NGAS) THEN
+*. Specification of occupations
+            ISETKW(14) = 1
+            DO IGAS = 1, NGAS
+              CALL CHAR_TO_INTEGER(ITEM(IGAS),IREFOCC(IGAS),MXPLNC)
+            END DO
+*. Reform to accumulated occupations 
+            NEL = 0
+            DO IGAS = 1, NGAS
+              NEL = NEL + IREFOCC(IGAS)
+              IREFOCC_ACC(IGAS,1) = NEL
+              IREFOCC_ACC(IGAS,2) = NEL
+            END DO
+          ELSE IF ( NITEM.EQ. 2*NGAS) THEN
+            ISETKW(14) = 1
+*. Accumulated occupations 
+            J = 0
+            DO IGAS = 1, NGAS
+              DO IMNMX = 1, 2
+                J = J + 1
+                CALL CHAR_TO_INTEGER(ITEM(J),IREFOCC_ACC(IGAS,IMNMX),
+     &               MXPLNC)
+              END DO
+            END DO
+          ELSE
+            ISETKW(14) = -1
+            WRITE(6,*) 
+     &      ' READIN: Wrong number of entries in REFPSC '
+            WRITE(6,*) 
+     &      '          Use NGAS numbers for occupation '
+            WRITE(6,*) 
+     &      '          or  2*NGAS numbers for acc. occupations'
+            NERROR = NERROR + 1
+          END IF
+cnw          GOTO 999
+         END IF
+*
+* =========================================================
+* 15: selection of active configurations in internal space
+* =========================================================
+*
+c..dongxia: switch this one off for now
+        if (inw_lucia .eq. 0) then
+         IF(CARD(2:7).EQ.'INTSEL' ) THEN
+           ISETKW(15) = 1
+*
+           READ(LUIN,'(A)') CARD1
+           CALL LFTPOS(CARD1,MXPLNC)
+           CALL UPPCAS(CARD1,MXPLNC)
+*
+           IF(CARD1(1:4).EQ.'NONE') THEN
+*. All internals are included
+             INTSEL = 0
+           ELSE IF(CARD1(1:6).EQ.'INDTST') THEN
+*. Include coeffcients larger than CTHRES or having energy contributions
+*. larger than ETHREA
+             INTSEL = 1
+             READ(LUIN,*)  CTHRES,ETHRES
+           ELSE IF(CARD1(1:6).EQ.'TOTTST') THEN
+*. Obtain CTHRES of the total wavefinction and ETHRES of the total
+*. energy
+             INTSEL = 2
+             READ(LUIN,*)  CTHRES,ETHRES
+           ELSE IF(CARD1(1:6).EQ.'INDWCN') THEN
+*. Include all configutations with reference weights larger than
+*. a given threshold in reference CI
+              INTSEL = 3
+              READ(LUIN,*) XWCNF
+           ELSE IF(CARD1(1:6).EQ.'TOTWCN') THEN
+*. Include the largest configurations so all a given fraction
+*. of the Zero order reference is included in the CI
+             INTSEL = 4
+             READ(LUIN,*) XWCNF
+           ELSE
+             WRITE(LUOUT,*) ' Error: Illegal card in INTSEL:'
+             WRITE(LUOUT,'(1H ,A)') CARD1
+             ISETKW(15) = - 1
+             NERROR = NERROR + 1
+           END IF
+           GOTO 999
+         END IF
+        end if
+*===============================
+* 16: Two times spin projection
+* ==============================
+cnw          IF(CARD(2:4).EQ.'MS2') THEN
+        if(rtdb_get(rtdb,'lucia:ms2',mt_int,1,ms2)) then
+            ISETKW(16) = 1
+cnw            READ(LUIN,*) MS2
+cnw            GOTO 999
+          END IF
+*========================
+* 17: spin multiplicity
+* =======================
+cnw          IF(CARD(2:6).EQ.'MULTS') THEN
+        if(rtdb_get(rtdb,'lucia:mults',mt_int,1,mults)) then
+            ISETKW(17) = 1
+cnw            READ(LUIN,*) MULTS
+cnw            GOTO 999
+          END IF
+*========================
+* 18: Reference symmetry
+* =======================
+cnw          IF(CARD(2:7).EQ.'IREFSM') THEN
+        if(rtdb_get(rtdb,'lucia:sym',mt_int,1,isym)) then
+            ISETKW(18) = 1
+            IF(PNTGRP.EQ.1) THEN
+cnw               READ(LUIN,*) IREFSM
+               irefsm = isym
+            ELSE IF(PNTGRP.EQ.2) THEN
+cnw               READ(LUIN,*) IREFML
+               irefml = isym
+            ELSE IF (PNTGRP.EQ.3) THEN
+cnw               READ(LUIN,*) IREFML,IREFPA
+               irefml = isym
+               if(.not.rtdb_get(rtdb,'lucia:irefpa',mt_int,1,irefpa))
+     &          call errquit('Lucia input: irefpa needed',911)
+               IF(IREFPA.EQ.-1) IREFPA = 2
+            ELSE IF (PNTGRP.EQ.4) THEN
+cnw               READ(LUIN,*) IREFL,IREFML,IREFPA
+               irefl = isym
+               if(.not.rtdb_get(rtdb,'lucia:irefml',mt_int,1,irefml).or.
+     &            .not.rtdb_get(rtdb,'lucia:irefpa',mt_int,1,irefpa))
+     &          call errquit('Lucia input: irefml & irefpa needed',911)
+               IF(IREFPA.EQ.-1) IREFPA = 2
+            END IF
+cnw            GOTO 999
+          END IF
+*==========================
+* 19: Roots to be obtained
+* =========================
+cnw          IF(CARD(2:6).EQ.'ROOTS') THEN
+         if(rtdb_get(rtdb,'lucia:nroot',mt_int,1,nroot)) then
+            ISETKW(19) = 1
+cnw            READ(LUIN,*) NROOT
+            DO I = 1, NROOT
+              IROOT(I) = I
+            END DO
+C           READ(LUIN,*) (IROOT(I),I=1,NROOT)
+cnw            GOTO 999
+          END IF
+*===============================
+* 20: Diagonalization algorithm  : .MEGACI , .TERACI
+*===============================
+cnw          IF(CARD(2:7).EQ.'MEGACI') THEN
+          if(rtdb_get(rtdb,'lucia:megaci',mt_log,1,megaci_on)) then
+            ISETKW(20) = 1
+            IDIAG = 1
+cnw            GOTO 999
+cnw          ELSE IF(CARD(2:7).EQ.'TERACI') THEN
+          else if (rtdb_get(rtdb,'lucia:teraci',mt_log,1,teraci_on))then
+            ISETKW(20) = 1
+            IDIAG = 2
+cnw            GOTO 999
+          END IF
+*==================================
+* 21: Explicit hamilton matrix  : MXP1,MXP2,MXQ
+*==================================
+cnw          IF(CARD(2:7).EQ.'EXPHAM') THEN
+*. Construction of explicit Hamiltonian in subspace
+*. Lines: 1: Method for selecting subspace, 
+*         2: Allowed dimension or identification of 
+*            subspace
+cnw            READ(LUIN,*) ISBSPC_SEL
+        if(rtdb_get(rtdb,'lucia:expham',mt_int,1,isbspc_sel))then
+* ISBSPC_SEL = 1: Choose lowest elements of diagonal
+*            = 2: Choose first elements
+*            = 3: Choose a CI-space
+*            = 4: read in a minmax space
+            IF(ISBSPC_SEL.EQ.1.OR.ISPSPC_SEL.EQ.2) THEN
+*. Read in Dimension of lowest space (just a single space)
+cnw              READ(5,*) MXP1
+              if(.not.rtdb_get(rtdb,'lucia:mxp1',mt_int,1,mxp1))
+     &         call errquit('Lucia input: mxp1 needed',911)
+              MXP2 = 0
+              MXQ = 0 
+            ELSE IF (ISBSPC_SEL.EQ.3) THEN
+*. Read in the subspace to be used 
+cnw              READ(5,*) ISBPSC_SPC
+              if(.not.rtdb_get(rtdb,'lucia:isbspc',mt_int,1,isbspc_spc))
+     &         call errquit('Lucia input: isbspc_spc needed',911)
+            ELSE IF(ISBSPC_SEL.EQ.4) THEN
+*. Read Min max occupation of subspace 
+cnw              READ(5,*) NSBSPC_ORB
+cnw              READ(5,*) ( ISBSPC_MINMAX(I,1),I=1, NSBSPC_ORB)
+cnw              READ(5,*) ( ISBSPC_MINMAX(I,2),I=1, NSBSPC_ORB)
+*. And the active orbitals of the MINMAX 
+cnw              READ(5,*) ( ISBSPC_ORB(I),I=1, NSBSPC_ORB)
+           if(.not.rtdb_get(rtdb,'lucia:nsbspc',mt_int,1,nsbspc_orb))
+     &      call errquit('LUCIA input: nsbspc_orb needed',911)
+           if(.not.rtdb_get(rtdb,'lucia:sbspc_min',mt_int,nsbspc_orb,
+     &      isbspc_minmax(1,1)) call errquit('lucia:isbspc_minmax',911)
+           if(.not.rtdb_get(rtdb,'lucia:sbspc_max',mt_int,nsbspc_orb,
+     &      isbspc_minmax(1,2)) call errquit('lucia:isbspc_minmax',911)
+           if(.not.rtdb_get(rtdb,'lucia:isbspc_orb',mt_int,nsbspc_orb,
+     &      isbspc_orb(1,2)) call errquit('lucia:isbspc_orb',911)
+
+            ELSE
+              WRITE(6,*) ' Unknown value of ISBSPC_SEL = ', ISBSPC_SEL
+              NERROR = NERROR + 1
+            END IF
+COLD        READ(LUIN,*) MXP1,MXP2,MXQ
+            ISETKW(21) = 1
+cnw            GOTO 999
+          END IF
+*===================================================
+* 22: Largest allowed number of Iterations per root: MAXIT
+*===================================================
+cnw          IF(CARD(2:6).EQ.'MAXIT') THEN
+         if(rtdb_get(rtdb,'lucia:maxit',mt_int,1,maxit)) then
+            ISETKW(22) = 1
+cnw            READ(LUIN,*) MAXIT
+cnw            GOTO 999
+          END IF
+*====================
+* 23: Restart option
+*====================
+cnw         IF(CARD(2:7).EQ.'RESTRT') THEN
+         if(rtdb_get(rtdb,'lucia:restrt',mt_log,1,restrt_on)) then
+cnw           ISETKW(23) = 1
+           isetkw(23) = 1
+           IRESTR = 1
+cnw           GOTO 999
+         END IF
+*========================================
+* 24 Import of integrals and environment
+*========================================
+      if (inw_lucia = 1) then
+        ido_lipkin = 0
+        intimp = 4
+        isetkw(24) = 1
+        enviro(1:6) = 'NWCHEM'
+      else if (inw_lucia = 0) then
+        IF(CARD(2:7).EQ.'MOLCAS'.OR.CARD(2:7).EQ.'ENV=MO') THEN
+*. Integrals imported from MOLCAS
+          IDO_LIPKIN = 0
+          INTIMP = 1
+          ISETKW(24) = 1
+          ENVIRO(1:6) = 'MOLCAS'
+          GOTO 999
+        ELSE IF(CARD(2:6).EQ.'LUCAS')THEN
+*. Integrals imported from LUCAS
+          IDO_LIPKIN = 0
+          INTIMP = 2
+          ISETKW(24) = 1
+          ENVIRO(1:6) = 'LUCAS '
+          GOTO 999
+        ELSE IF(CARD(2:7).EQ.'FMINSM'.OR.CARD(2:7).EQ.'ENV=FM'
+     &          .OR.CARD(2:7).EQ.'ENV=LU') THEN
+*. Internal LUCIA environment as generated by a previous LUCIA run.
+*
+*. Integrals read formatted in, only integrals differing from
+*. zero by symmetry are  included
+          IDO_LIPKIN = 0
+          INTIMP = 3
+          ISETKW(24) = 1
+          ENVIRO(1:6) = 'LUCIA '
+          GOTO 999
+        ELSE IF(CARD(2:7).EQ.'SIRIUS'.OR.CARD(2:7).EQ.'DALTON'
+     &           .OR.CARD(2:7).EQ.'ENV=DA') THEN
+*. Integrals imported from SIRIUS/DALTON
+          IDO_LIPKIN = 0
+          INTIMP = 5
+C         write(6,*) ' Sirius Flag activated '
+          ISETKW(24) = 1
+          ENVIRO(1:6) = 'DALTON'
+          GOTO 999
+        ELSE IF(CARD(2:7).EQ.'LIPKIN' ) THEN
+*. The Lipkin-Model
+          ENVIRO(1:6) = 'LIPKIN'
+c read in parameters -- preliminary values
+          XLIP_V = 0.3d0
+          XLIP_E = 1.0d0
+          IDO_LIPKIN = 1
+*. and no MO-AO file
+          NOMOFL = 1
+          INTIMP = 8
+          ISETKW(24) = 1
+          GOTO 999
+        ELSE IF(CARD(2:7).EQ.'ENV=NO' ) THEN
+*. No program environment, integrals, coefs will just be set to zero
+          IDO_LIPKIN = 0
+          ENVIRO(1:6) = 'NONE  '
+          INTIMP = 0
+          ISETKW(24) = 1
+          GOTO 999
+*. Fusk environment, integrals will be set to non-vanishing values
+        ELSE IF(CARD(2:7).EQ.'ENV=FU' ) THEN
+          IDO_LIPKIN = 0
+          ENVIRO(1:6) = 'FUSK  '
+          INTIMP = 9
+          ISETKW(24) = 1
+          GOTO 999
+        END IF
+      end if
+*
+* 24: Integral import
+*
+      IF(ISETKW(24).EQ.0) THEN
+        IDO_LIPKIN = 0
+        IF(IDOQD.EQ.0) THEN
+*. Default is - from NOV26: Dalton
+         INTIMP = 5
+         ENVIRO(1:6) = 'DALTON'
+        ELSE
+         ENVIRO(1:6)='QDOT  '
+        END IF
+        ISETKW(24) = 2
+      END IF
+* ===============================
+* 25:INCORE option for integrals
+* ==============================
+cnw        IF(CARD(2:7).EQ.'INCORE') THEN
+        if(rtdb_get(rtdb,'lucia:incore',mt_log,1,incore_on)) then
+          ISETKW(25) = 1
+          INCORE = 1
+cnw          GOTO 999
+        END IF
+* ===================
+* 26: Deleted shells
+* ===================
+cnw        IF(CARD(2:7).EQ.'DELETE') THEN
+        if(rtdb_get(rtdb,'lucia:delete',mt_int,nirrep,ndelsh)) then
+          ISETKW(26) = 1
+cnw          READ(LUIN,*) (NDELSH(IRREP),IRREP= 1, NIRREP)
+cnw          GOTO 999
+        END IF
+* ===================
+* 27: Ms combinations
+* ===================
+cnw        IF(CARD(2:7).EQ.'MSCOMB') THEN
+        if(rtdb_get(rtdb,'lucia:mscomb',mt_int,1,pssign)) then
+          ISETKW(27) = 1
+cnw          READ(LUIN,*) PSSIGN
+          IF(.NOT.(PSSIGN.EQ.-1.0D0.OR.PSSIGN.EQ.1.0D0)) THEN
+            WRITE(LUOUT,*)' Illegal Spin combination factor ',PSSIGN
+            ISETKW(27) = -1
+            NERROR = NERROR + 1
+          END IF
+cnw          GOTO 999
+        END IF
+* ===================
+* 28: Ml combinations
+* ===================
+cnw        IF(CARD(2:7).EQ.'MLCOMB') THEN
+        if(rtdb_get(rtdb,'lucia:mlcomb',mt_int,1,plsign)) then
+          ISETKW(28) = 1
+cnw          READ(LUIN,*) PLSIGN
+          IF(.NOT.(PLSIGN.EQ.-1.0D0.OR.PLSIGN.EQ.1.0D0)) THEN
+            WRITE(LUOUT,*)' Illegal ml combination factor ',PLSIGN
+            NERROR = NERROR + 1
+          END IF
+cnw          GOTO 999
+        END IF
+* ======================================
+* 29: Print flag for string information
+* ======================================
+cnw        IF(CARD(2:7).EQ.'IPRSTR') THEN
+        if(rtdb_get(rtdb,'lucia:iprstr',mt_int,1,iprstr)) then
+          ISETKW(29) = 1
+cnw          READ(LUIN,*) IPRSTR
+cnw          GOTO 999
+        END IF
+* ======================================
+* 30: Print flag for string information
+* ======================================
+cnw        IF(CARD(2:7).EQ.'IPRCIX') THEN
+        if(rtdb_get(rtdb,'lucia:iprcix',mt_int,1,iprcix)) then
+          ISETKW(30) = 1
+cnw          READ(LUIN,*) IPRCIX
+cnw          GOTO 999
+        END IF
+* ======================================
+* 31: Print flag for Orbital information
+* ======================================
+cnw        IF(CARD(2:7).EQ.'IPRORB') THEN
+        if(rtdb_get(rtdb,'lucia:iprorb',mt_int,1,iprorb)) then
+          ISETKW(31) = 1
+cnw          READ(LUIN,*) IPRORB
+cnw          GOTO 999
+        END IF
+* ===============================================
+* 32: Print flag for diagonalization information
+* ===============================================
+cnw        IF(CARD(2:7).EQ.'IPRDIA') THEN
+        if(rtdb_get(rtdb,'lucia:iprdia',mt_int,1,iprdia)) then
+          ISETKW(32) = 1
+cnw          READ(LUIN,*) IPRDIA
+cnw          GOTO 999
+        END IF
+* ===============================================
+* 36: Print flag for Externals 
+* ===============================================
+cnw        IF(CARD(2:6).EQ.'IPRXT') THEN
+        if(rtdb_get(rtdb,'lucia:iprxt',mt_int,1,iprxt)) then
+          ISETKW(36) = 1
+cnw          READ(LUIN,*) IPRXT
+cnw          GOTO 999
+        END IF
+* =====================================
+* 43: Print occupation of lowest Dets 
+* =====================================
+cnw       IF(CARD(2:7).EQ.'IPROCC') THEN
+        if(rtdb_get(rtdb,'lucia:iprocc',mt_int,1,iprocc)) then
+         ISETKW(43) = 1
+cnw         READ(LUIN,*) IPROCC
+cnw         GOTO 999
+       END IF 
+* ====================================
+* 65: Print level for density matrices 
+* ====================================
+cnw       IF(CARD(2:7).EQ.'IPRDEN') THEN
+        if(rtdb_get(rtdb,'lucia:iprden',mt_int,1,iprden)) then
+         ISETKW(65) = 1
+cnw         READ(LUIN,*) IPRDEN
+cnw         GOTO 999
+       END IF 
+* ===========================================
+* 84: Print level for Response calculations
+* ===========================================
+cnw       IF(CARD(2:7).EQ.'IPRRSP') THEN
+        if(rtdb_get(rtdb,'lucia:iprrsp',mt_int,1,iprrsp)) then
+         ISETKW(84) = 1
+cnw         READ(LUIN,*) IPRRSP
+cnw         GOTO 999
+       END IF 
+* ===========================================
+* 99: Print level for Property calculations
+* ===========================================
+cnw       IF(CARD(2:7).EQ.'IPRPRO') THEN
+        if(rtdb_get(rtdb,'lucia:iprpro',mt_int,1,iprpro)) then
+         ISETKW(99) = 1
+cnw         READ(LUIN,*) IPRPRO
+cnw         GOTO 999
+       END IF 
+* =======================================
+* 106: Print level for CC  calculations
+* =======================================
+cnw       IF(CARD(2:6).EQ.'IPRCC') THEN
+        if(rtdb_get(rtdb,'lucia:iprcc',mt_int,1,iprcc)) then
+         ISETKW(106) = 1
+cnw         READ(LUIN,*) IPRCC
+cnw         GOTO 999
+       END IF 
+
+*
+*=========================================================
+* 33: Largest allowed number of Vectors in diagonalization
+*=========================================================
+cnw        IF(CARD(2:6).EQ.'MXCIV') THEN
+        if(rtdb_get(rtdb,'lucia:mxciv',mt_int,1,mxciv)) then
+          ISETKW(33) = 1
+cnw          READ(LUIN,*) MXCIV
+          MXCIVG = MXCIV
+cnw          GOTO 999
+        END IF
+* =============================
+* 34: Storage mode for vectors
+* =============================
+cnw       IF(CARD(2:7).EQ.'CISTOR')THEN
+       if(rtdb_get(rtdb,'lucia:cistor',mt_int,1,cistor)) then
+         ISETKW(34) = 1
+cnw         READ(LUIN,*) ICISTR
+cnw         GOTO 999
+       END IF
+* ================================
+* 35: Do not employ CSF expansion
+* ================================
+cnw       IF(CARD(2:6).EQ.'NOCSF') THEN
+        if(rtdb_get(rtdb,'lucia:nocsf',mt_log,1,nocsf_on)) then
+         ISETKW(35) = 1
+         NOCSF = 1
+cnw         GOTO 999
+       END IF
+* ================================
+* 37: Do not read in integrals   
+* ================================
+cnw       IF(CARD(2:6).EQ.'NOINT') THEN
+       if(rtdb_get(rtdb,'lucia:noint',mt_log,1,noint_on)) then
+         ISETKW(37) = 1
+         NOINT = 1
+cnw         GOTO 999
+       END IF
+* ================================
+* 38: Dump integrals in formatted form on file 90
+* ================================
+cnw       IF(CARD(2:7).EQ.'DMPINT') THEN
+       if(rtdb_get(rtdb,'lucia:dumpint',mt_log,1,dumpint_on)) then
+         ISETKW(38) = 1
+         IDMPIN = 1
+cnw         GOTO 999
+       END IF
+* ================================
+* 39: Define dimension of resolution matrices    
+* ================================
+cnw       IF(CARD(2:7).EQ.'RESDIM') THEN
+       if(rtdb_get(rtdb,'lucia:resdim',mt_int,1,mxinka)) then
+         ISETKW(39) = 1
+cnw         READ(LUIN,*) MXINKA
+cnw         GOTO 999
+       END IF
+* ====================================================================
+* 40: Use CJKAIB matrices as intermediate matrices in alpha-beta-loop
+* ====================================================================
+cnw       IF(CARD(2:7).EQ.'CJKAIB') THEN
+       if(rtdb_get(rtdb,'lucia:cjkaib',mt_log,1,cjkaib_on)) then
+         ISETKW(40) = 1
+         ICJKAIB = 1
+cnw         GOTO 999
+       END IF
+* ====================================================================
+* 45: Use Minimal operatioon count method for alpha-beta               
+* ====================================================================
+cnw       IF(CARD(2:6).EQ.'MOCAB') THEN
+       if(rtdb_get(rtdb,'lucia:mocab',mt_log,1,mocab_on)) then
+         ISETKW(45) = 1
+         MOCAB = 1
+cnw         GOTO 999
+       END IF
+         
+
+* ====================================================================
+* 41: Initial CI in reference space                                   
+* ====================================================================
+cnw       IF(CARD(2:7).EQ.'INIREF') THEN
+       if(rtdb_get(rtdb,'lucia:iniref',mt_log,1,iniref_on)) then
+         ISETKW(41) = 1
+         INIREF  = 1
+cnw         GOTO 999
+       END IF
+* ====================================================================
+* 42: Restart from reference CI expansion                             
+* ====================================================================
+cnw       IF(CARD(2:7).EQ.'RESTRF') THEN
+       if(rtdb_get(rtdb,'lucia:restrf',mt_log,1,restrf_on)) then
+         ISETKW(42) = 1
+         IRESTRF = 1
+*. Flag that restart will be used for zero space calculation
+         ISETKW(23) = 1
+         IRESTR = 1
+cnw         GOTO 999
+       END IF
+* ====================================================================
+* 46: Read in of core energy                                          
+* ====================================================================
+cnw       IF(CARD(2:6).EQ.'ECORE') THEN
+       if(rtdb_get(rtdb,'lucia:ecore',mt_dbl,1,ecore)) then
+         ISETKW(46) = 1
+cnw         READ(LUIN,*) ECORE
+cnw         GOTO 999
+       END IF
+*
+* =====================================================================
+* 48: Approximate Hamiltonian in reference space 
+* =====================================================================
+*
+cnw       IF(CARD(2:7).EQ.'APRREF') THEN
+       if(rtdb_get(rtdb,'lucia:mnrs1re',mt_int,1,mnrs1re) .and.
+     $    rtdb_get(rtdb,'lucia:mxrs3re',mt_int,1,mxrs3re)) then
+         ISETKW(48) = 1
+cnw         READ(LUIN,*)  MNRS1RE,MXRS3RE
+*. Moeller-Plesset or Epstein-Nesbet partitioning
+cnw         READ(LUIN,'(A)') CARD1
+       if(rtdb_cget(rtdb,'lucia:refpartition',1,card1)) then
+         CALL LFTPOS(CARD1,MXPLNC)
+*. Change to upper case
+         CALL UPPCAS(CARD1,MXPLNC)
+*
+         IF(CARD1(1:2) .EQ. 'MP' ) THEN
+           MPORENR = 1
+         ELSE  IF(CARD1(1:2) .EQ. 'EN' ) THEN
+           MPORENR = 2
+         ELSE
+           WRITE(LUOUT) ' Unknown partitioning '
+          WRITE(LUOUT,'(1H ,A)') CARD1
+          NERROR = NERROR + 1
+         END IF
+*
+         IAPRREF = 1
+cnw         GOTO 999
+       END IF
+*
+* =====================================================================
+* 49: Approximate Hamiltonian in zero order space 
+* =====================================================================
+*
+cnw       IF(CARD(2:7).EQ.'APRZER') THEN
+       if(rtdb_get(rtdb,'lucia:mnrs1ze',mt_int,1,mnrs1ze) .and.
+     $    rtdb_get(rtdb,'lucia:mxrs3ze',mt_int,1,mxrs3ze)) then
+         ISETKW(49) = 1
+cnw         READ(LUIN,*)  MNRS1ZE,MXRS3ZE
+*. Moeller-Plesset or Epstein-Nesbet partitioning
+cnw         READ(LUIN,'(A)') CARD1
+       if(rtdb_cget(rtdb,'lucia:zerpartition',1,card1)) then
+         CALL LFTPOS(CARD1,MXPLNC)
+*. Change to upper case
+         CALL UPPCAS(CARD1,MXPLNC)
+*
+         IF(CARD1(1:2) .EQ. 'MP' ) THEN
+           MPORENZ = 1
+         ELSE  IF(CARD1(1:2) .EQ. 'EN' ) THEN
+           MPORENZ = 2
+         ELSE
+           WRITE(LUOUT) ' Unknown partitioning '
+          WRITE(LUOUT,'(1H ,A)') CARD1
+          NERROR = NERROR + 1
+         END IF
+         IAPRZER = 1
+cnw         GOTO 999
+       END IF
+*
+* =====================================================================
+* 50: Generalized active space concept invoked, orbital spaces
+* =====================================================================
+*
+cnw      IF(CARD(2:6).EQ.'GASSH') THEN
+      if(rtdb_get(rtdb,'lucia:ngas',mt_int,1,ngas))then
+*. Generalized active space in use
+        ISETKW(50) = 1
+        IDOGAS = 1
+cnw        READ(LUIN,*) NGAS
+        IGSFILL = 0
+        isize = ngas*nirrep
+        if(.not.rtdb_get(rtdb,'lucia:gassh',mt_int,isize,itmp))
+     &   call errquit('lucia input: gas orbitals wrong',911)
+        do igas = 1,ngas   
+         do irrep = 1,nirrep
+          ngssh(irrep,igas)=itmp((igas-1)*nirrep+irrep)
+         end do
+        end do
+cnw: not to use character entry to NWChem.
+       if(inw_lucia.eq.0)then
+        DO IGAS = 1, NGAS
+          READ(LUIN,'(A)') CARD1
+          CALL LFTPOS(CARD1,MXPLNC)
+          CALL UPPCAS(CARD1,MXPLNC)
+*. A line can be one of the following 
+*  NIRREP numbers giving dim of each irrep for this space
+* A character entry:
+*                     NONE => No orbitals in this space
+*                     ALL  => All remaining orbitals  in this space
+*                     REST => All remaining orbitals  in this space
+*. Note: Only a single space must be defined by ALL or REST
+          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+          ITEMX = ITEM(1)
+          IF(ITEMX(1:4).EQ.'NONE') THEN
+            DO IRREP = 1, NIRREP
+              NGSSH(IRREP,IGAS) = 0
+            END DO
+          ELSE IF(ITEMX(1:3).EQ.'ALL'.OR.ITEMX(1:4).EQ.'REST') THEN
+*. Only a single space must be defined in this way
+            IF(ISECFILL.NE.0.OR.IGSFILL.NE.0) THEN
+              WRITE(6,*) 
+     &        ' Several shell spaces defined by ALL or REST'
+              WRITE(6,*)
+     &        ' This confuses and upsets me '
+              WRITE(6,*)
+     &        '                                / Lucia '
+              ISETKW(50) = -1
+              NERROR = NERROR + 1
+            END IF
+            IGSFILL = IGAS    
+          ELSE 
+*. I expect that NIRREP integers are given
+            IF(NITEM.NE.NIRREP) THEN
+              WRITE(6,*) ' Erroneous input to GASSH: '
+              WRITE(6,'(72A)') CARD1
+              WRITE(6,*) ' Specify either:   NONE '
+              WRITE(6,*) '                     ALL' 
+              WRITE(6,*) '                    REST' 
+              WRITE(6,*) ' Or NIRREP integers '
+              NERROR = NERROR + 1
+              ISETKW(50) = -1
+            END IF
+*. Well assume NIRREP integers
+            DO IRREP = 1, NIRREP
+              CALL CHAR_TO_INTEGER(ITEM(IRREP),NGSSH(IRREP,IGAS),
+     &             MXPLNC)
+            END DO
+          END IF
+*. Number of irreps per GAS 
+C        READ(LUIN,*) (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP)
+        END DO
+       end if
+*. We will under some circumstances need the number of orbitals per subspace already 
+*. in the input so calculate this - assumes again that shells = orbitals.
+        DO IGAS = 1, NGAS
+          NOBPT(IGAS) =  IELSUM(NGSSH(1,IGAS),NIRREP)
+        END DO
+        DO ISYM = 1, NIRREP
+          DO IGAS = 1, NGAS
+            NTOOBS(ISYM) = NTOOBS(ISYM) + NGSSH(ISYM,IGAS)
+          END DO
+        END DO
+cnw        GOTO 999
+       END IF
+*
+* =====================================================================
+* 51: Generalized active space occupation restrictions
+* =====================================================================
+*
+cnw       IF(CARD(2:7).EQ.'GASSPC') THEN
+*. Orbital constraints in gas spaces
+*. GASSH must have been defined before, check this
+       if(rtdb_get(rtdb,'lucia:ncispc',mt_int,ncispc))then
+         IF(ISETKW(50).EQ.0) THEN
+           WRITE(6,*) ' Dear User'
+           WRITE(6,*)
+           WRITE(6,*) ' GASSH must be specified'
+           WRITE(6,*) 
+     &     ' Else I do not know about the number of orbital spaces'
+           WRITE(6,*) ' So I will stop '
+           STOP 'READIN: put GASSH'
+         END IF
+         IDOGAS = 1
+         ISETKW(51) = 1
+*. Number of oribtal spaces
+c        READ(LUIN,*) NCISPC
+         isize=ngas*2*ncispc
+         if (ngas.ne.0) then
+          if(.not.rtdb_get(rtdb,'lucia:gsoccx',mt_int,isize,itmp))
+     &     call errquit('Lucia input: gasspc occupation wrong',911)
+          DO ISPC = 1, NCISPC
+*. Two form of input pt 
+*. 1: Give accumulated input for each GASpace
+*. 2: Give reference plus excitation level 
+*. The two possibilities are distinguished by the latter starting with R
+*
+       
+*. Upper and lower limits for each orbital space
+cnw           IF(NGAS.NE.0) READ(LUIN,*) 
+cnw     &       (IGSOCCX(IGAS,1,ISPC),IGSOCCX(IGAS,2,ISPC),IGAS=1,NGAS)
+           do igas = 1,ngas
+            ioff1 = ngas*2*(ncispc-1)
+            ioff2 = ngas*2*(ncispc-1)+ngas
+            igsoccx(igas,1,ispc)=itmp(ioff1+igas)
+            igsoccx(igas,2,ispc)=itmp(ioff2+igas)
+           end do
+          END DO
+cnw        GOTO 999
+       END IF
+c..dongxia: keyword combspc not finish yet. skip it for now.
+      if (inw_lucia .eq. 0) then
+cnw       IF(CARD(2:7).EQ.'CMBSPC') THEN
+      if(rtdb_get(rtdb,'lucia:ncmbspc',mt_int,1,ncmbspc))then
+*. Calculations will be performed in combination of different GAS spaces
+         IDOGAS = 1
+         ISETKW(52) = 1
+*. Check if SEQUEN have been specified.
+cnw        IF(ISETKW(54).EQ.1) THEN
+cnw          WRITE(6,*) ' Dear user '
+cnw          WRITE(6,*)
+cnw          WRITE(6,*)' SEQUEN flag has been specified before CMBSPC'
+cnw          WRITE(6,*)' This confuses me and makes me wonder what the'
+cnw          WRITE(6,*)' meaning of everything is. '
+cnw          WRITE(6,*)' Please ensure that CMBSPC is given before SEQUEN'
+cnw          WRITE(6,*)
+cnw          WRITE(6,*)'                                  Lucia  '
+cnw          WRITE(6,*) 
+cnw          STOP'READIN: Specify CMBSPC before SEQUEN'
+cnw        END IF
+*. Number of combination spaces
+cnw        READ(LUIN,*) NCMBSPC
+cnw         DO JCMBSPC  = 1, NCMBSPC
+*. Number of gas spaces in this space
+cnw           READ(LUIN,*) LLCMBSPC
+cnw           LCMBSPC(JCMBSPC) = LLCMBSPC
+      if(.not.rtdb_get(rtdb,'lucia:lcmbspc',mt_int,ncmbspc,lcmbspc))
+     & call errquit('lucia input: lcmbspc (combination spaces',911)
+*. Gasspaces included
+cnw           READ(LUIN,*) (ICMBSPC(IGASSPC,JCMBSPC),IGASSPC=1,LLCMBSPC)
+      isize = 0
+      do i = 1, ncmbspc
+       isize = isize + lcmbspc(i)
+      end do
+      if(.not.rtdb_get(rtdb,'lucia:icmbspc',mt_int,isize,itmp))
+     & call errquit('lucia input: icmbspc wrong',911)
+         END DO
+cnw         GOTO 999
+       END IF
+      end if
+*
+       if(rtdb_get(rtdb,'lucia:ciconv',mt_dbl,1,thres_e))then
+cnw       IF(CARD(2:7).EQ.'CICONV') THEN
+*. Energy convergence of CI 
+cnw         READ(LUIN,*) THRES_E
+         ISETKW(53) = 1
+cnw         GOTO 999
+       END IF
+*
+       IF(CARD(2:7).EQ.'SEQUEN') THEN
+         ISETKW(54) = 1
+*
+*. SEQUEN KEYWORD
+*
+* Form of input is
+* 
+* Loop over CI spaces
+*  READ NCALC <= Number of calculations in this space
+*  Loop Over the NCALC calculations
+*    READ type_of_calculation, further info ( remember the comma)(see below)
+*  End of loop over NCALC calulation
+* End of loop over CI spaces
+*
+*. Is total number of CI spaces defined ?
+         IF(ISETKW(52).EQ.0) THEN
+*. Combination spaces were not explicitly defined,
+*. assume each gas space is a conb space
+           NCMBSPC = NCISPC
+         END IF
+*
+         if(.not.rtdb_get(rtdb,'lucia:nseqci',mt_int,ncmbspc,nseqci))
+     &    call errquit('Lucia input: sequence nseqci wrong', 911)
+         DO JCMBSPC = 1, NCMBSPC
+cnw           READ(LUIN,*) NSEQCI(JCMBSPC)
+*. To avoid problem if no calculations were specified
+           ICI = 0
+           DO ICI = 1, NSEQCI(JCMBSPC)
+            tag(1:13)='lucia:seq_1_1'
+            tag(11:11)=char(jcmbspc)
+            tag(13:13)=char(ici)
+*. Read in as character line, and decode
+*. Format: Type of calc, further info
+*. Possible types of calculations:
+* =================================
+*    CI: Normal  CI
+*    APR-CI: CI with approximate Hamiltonian
+*    PERTU : Perturbation theory, high order version with vectors on
+*             disc
+*    VECFREE: Various vector free calculations
+*    CC    : Coupled Cluster calculation using very new routines 
+*    ICCI  : Internal contracted CI   
+*    ICPT  : Internal contracted    PTQ
+*    ICCC  : Internal contracted CC
+*    SP_MCL: Spin MCLR in the Anders-Jeppe Version
+*    CC, GEN_CC: General Coupled Cluster 
+*             CC => The newer codes with the correct scaling is used 
+*                   (OLDCCV flag is not turned on)
+*    MCSCF : MCSCF optimization 
+*    NORTCI: Nonorthogonal CI 
+*    NORTMC: Nonorthogonal MCSCF
+*    HF    : Hartree-Fock
+*    CUMULA: Generate cumulants for the wavefunction 
+*             generated in this space. Should be 
+*             preceeded by a wf-calculation  in this space
+*    AKBKCI : AKBK-CI calculation: must follow a CI calculation
+*             in a smaller space
+*    AKBKMC: AKBK-MCSCF calculation: Must follow a CI calculation in 
+*            a smaller space (P-space)
+*
+c            READ(LUIN,'(A)') CARD1
+             if(.not.rtdb_cget(rtdb,tag,1,card1))
+     &        call errquit('lucia input: sequence wrong',911)
+             CALL LFTPOS(CARD1,MXPLNC)
+             CALL UPPCAS(CARD1,MXPLNC)
+             CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+*. Type of calc:
+             CARDX=ITEM(1)
+             CSEQCI(ICI,JCMBSPC) = ITEM(1)(1:8)
+*
+* CI or CI with approximate hamiltonian
+*
+             IF(CARDX(1:2).EQ.'CI'     .OR.
+     &          CARDX(1:6).EQ.'APR-CI'     ) THEN
+*. CI calculation, second item in line will be max number of its'
+               IF(NITEM.EQ.1) THEN
+*. No second item, use default number of iterations: maybe not 
+*. defined presently, so flag by a minus and insert later
+*
+* At the moment: I want MAXIT as the second entry
+                 WRITE(6,*) 
+     &           ' ERROR:  Number_of_iterations not specified'
+                 WRITE(6,*) 
+     &           ' Required form of CI card is: '
+                 WRITE(6,*) ' CI , Number_of_iterations'
+                 ISEQCI(ICI,JCMBSPC) = -1
+                 NERROR = NERROR + 1
+                 ISETKW(54) = -1
+               ELSE
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 I_DO_GAS = 1
+               END IF
+             ELSE IF(CARDX(1:5).EQ.'PERTU') THEN
+               I_DO_GAS = 1
+*. Perturbation calculation, following items are 
+* Maxord, Ipart, E0 with
+* 1) Maxord: order to which perturbation vectors will be solved 
+* 2) Ipart :  Partitioning of zero order Hamiltonian,
+*              MP-DIAG: Diagonal Moller-Plesset operator
+*              MP-FULL: Full nondiagonal Moller-Plesset operator
+*              EN     : Epstein-Nesbet: Hamiltonian diagonal
+*              GENH0  : General H0, specified by separate keyword
+* 3) E0    :  Definition of zero order energy
+*              E0=EX: Use exact energy of zero order state 
+*              E0=AV: Use average Zero order energy
+*              E0=RE: Read in exact zero .
+*
+* First time around: No extra info, use normal perturbation keyword
+* PERTU to specify perturbation calculation
+*
+             ELSE IF(CARDX(1:7).EQ.'VECFREE') THEN
+               I_DO_GAS = 1
+*
+* ========================
+*. Vector free calculation
+* ========================
+*
+* Three entries: VECFREE, LEVEL, MPORENP
+*
+*. Second entry is level of calculation
+*
+*              LEVEL = 1 => second order perturbation calc
+*              LEVEL = 2 => + 1 CI it + third order calc
+*              LEVEL = 3 => 1 MP4 in current CI space
+*              LEVEL = 4 => Level 2 + MP4 in next space
+*
+               IF(NITEM.LT.3) THEN
+                  WRITE(6,*) 
+     &            ' ERROR:  Level and MPORENP parameter not specified'
+                  WRITE(6,*) 
+     &            ' Required form of VECFREE card is: '
+                  WRITE(6,*) ' VECFREE , LEVEL, MPORENP'
+                  ISEQCI(ICI,JCMBSPC) = -1
+                  NERROR = NERROR + 1
+               ELSE
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+*. Level parameter is traditionally specified by negative number,
+                      ISEQCI(ICI,JCMBSPC) = -ISEQCI(ICI,JCMBSPC)
+                 CALL CHAR_TO_INTEGER(ITEM(3),MPORENP,MXPLNC)
+C?               WRITE(6,*) ' MPORENP = ', MPORENP
+               END IF
+             ELSE IF(CARDX(1:2).EQ.'CC' .OR.
+     &               CARDX(1:3).EQ.'TCC'.OR.
+     &               CARDX(1:3).EQ.'ECC'.OR.
+     &               CARDX(1:3).EQ.'VCC'.OR.
+     &               CARDX(1:3).EQ.'UCC'.OR.
+     &               CARDX(1:4).EQ.'URCC'.OR.
+     &               CARDX(1:6).EQ.'GEN_CC' .OR.
+     &               CARDX(1:3).EQ.'RCC'    ) THEN
+
+*
+* ==============================
+*. Coupled Cluster calculation
+* ==============================
+*
+C              WRITE(6,*) ' CC routines will be called '
+               I_DO_GAS = 1
+               I_DO_CC = 1
+*. Closed shell, unrestricted or restricted form
+               IF(CARDX(1:2).EQ.'CC') THEN
+*, Codes with optimal scaling and HTF approach will be used.
+*. The keyword NEWCCV is turned automatically on 
+                 ICC_CUR = 1
+               ELSE IF( CARDX(1:3).EQ.'URCC') THEN
+                 ICC_CUR = 2
+               ELSE IF( CARDX(1:3).EQ. 'RCC') THEN
+                 ICC_CUR = 3
+               ELSE IF( CARDX(1:6).EQ. 'GEN_CC'.OR.
+     &                  CARDX(1:3).EQ.'TCC'.OR.
+     &                  CARDX(1:3).EQ.'ECC'.OR.
+     &                  CARDX(1:3).EQ.'VCC'.OR.
+     &                  CARDX(1:3).EQ.'UCC'    ) THEN
+*. Using either HTF approach or the first set of generalized CC codes 
+* ( determined by the presence or absence of the OLDCCV keyword)
+                 ICC_CUR = 4
+               END IF
+*. Last calculation which is CC
+               LAST_CC_SPC = JCMBSPC
+               LAST_CC_RUN = ICI
+*
+               IF(CARDX(1:2).EQ.'CC') THEN
+*. The NEWCCV flag should be turned on 
+COLD             ISETKW(123) = 2
+                 IF(NITEM.EQ.1) THEN
+* At the moment: I want MAXIT as the second entry
+                   WRITE(6,*) 
+     &             ' ERROR:  Number_of_iterations not specified'
+                   WRITE(6,*) 
+     &             ' Required form of CC card is: '
+                   WRITE(6,*) ' CC , Number_of_iterations'
+                   ISEQCI(ICI,JCMBSPC) = -1
+                   NERROR = NERROR + 1
+                   ISETKW(54) = -1
+                 ELSE
+                   CALL CHAR_TO_INTEGER(ITEM(2),
+     &                  ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 END IF
+               ELSE IF(CARDX(1:6).EQ.'GEN_CC'.OR.
+     &                 CARDX(1:3).EQ.'TCC'.OR.
+     &                 CARDX(1:3).EQ.'ECC'.OR.
+     &                 CARDX(1:3).EQ.'VCC'.OR.
+     &                 CARDX(1:3).EQ.'UCC'    ) THEN
+* For GEN_CC The inputline should read: GEN_CC, MAXIT, ITSPC
+* Where T space is CI space used to define T-operator space
+               IF(NITEM.NE.3) THEN
+                 WRITE(6,*) 
+     &           ' ERROR:   GEN_CC card does not contain 3 items '
+                 WRITE(6,*) 
+     &           ' Required form of GEN_CC card is: '
+                 WRITE(6,*) ' GEN_CC , MAXIT, ITSPC'
+                 ISEQCI(ICI,JCMBSPC) = -1
+                 NERROR = NERROR + 1
+                 ISETKW(54) = -1
+               ELSE
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 CALL CHAR_TO_INTEGER(ITEM(3),
+     &                ISEQCI2(ICI,JCMBSPC),MXPLNC)
+               END IF
+               END IF
+             ELSE IF(CARDX(1:4).EQ.'ICCI' ) THEN
+* 
+* ==============================
+*. Internal contracted CI calculation
+* ==============================
+*
+               I_DO_GAS = 1
+C              WRITE(6,*) ' ICCI routines will be called '
+             ELSE IF(CARDX(1:5).EQ.'GICCI') THEN
+C              WRITE(6,*) ' GICCI routines will be called'
+               I_DO_GIC = 1
+             ELSE IF(CARDX(1:4).EQ.'ICPT' ) THEN
+               I_DO_GAS = 1
+*
+* ======================================
+*. Internal contracted PT calculation
+* ======================================
+*
+               WRITE(6,*) ' Internal contracted PT '      
+             ELSE IF(CARDX(1:4).EQ.'ICCC' ) THEN
+*
+* =====================================
+*. Internal contracted Coupled cluster
+* =====================================
+*
+               WRITE(6,*) ' Internal contracted CC '      
+               I_DO_ICCC = 1
+               I_DO_GAS = 1
+             ELSE IF(CARDX(1:7).EQ.'TWOBODY' ) THEN
+*
+* ==============================
+*. Generalized TWOBODY cluster expansion
+* ==============================
+*
+               WRITE(6,*)
+     &        ' Generalized TWOBODY cluster expansions will be tested '
+               I_MODE_GTBCE = 1
+               I_DO_GTBCE=1
+               I_DO_GAS = 1
+               ISEQCI2(ICI,JCMBSPC) = 1
+               ISEQCI(ICI,JCMBSPC) = 150
+               IEXTRA = 0
+               DO IITEM = 2, NITEM
+                 IF(ITEM(IITEM)(1:1).NE.' ') THEN
+                   IF(IITEM.EQ.2)
+     &                  CALL CHAR_TO_INTEGER(ITEM(2),
+     &                    ISEQCI(ICI,JCMBSPC),MXPLNC)
+                   IF(IITEM.EQ.3)
+     &                  CALL CHAR_TO_INTEGER(ITEM(3),
+     &                    ISEQCI2(ICI,JCMBSPC),MXPLNC)
+                 END IF
+               END DO
+               
+             ELSE IF(CARDX(1:6).EQ.'SP_MCL') THEN
+               WRITE(6,*) ' Spin-MCLR will be called '
+*
+             ELSE IF(CARDX(1:6).EQ.'SP_MCL') THEN
+               WRITE(6,*) ' Spin-MCLR will be called '
+*
+             ELSE IF (CARDX(1:5).EQ.'MCSCF') THEN
+* 
+* =========================
+*. MCSCF Optimization                
+* =========================
+               I_DO_MCSCF = 1
+               I_DO_GAS = 1
+C?             WRITE(6,*) ' MCSCF optimization will be invoked '
+* For MCSCF the inputline should read: MCSCF, MAXMAC, MAXMIC
+               IF(NITEM.NE.3) THEN
+                 WRITE(6,*) 
+     &           ' ERROR:   MCSCF card does not contain 3 items '
+                 WRITE(6,*) 
+     &           ' Required form of MCSCF card is: '
+                 WRITE(6,*) ' MCSCF, MAXMAC, MAXMIC'
+                 ISEQCI(ICI,JCMBSPC) = -1
+                 NERROR = NERROR + 1
+                 ISETKW(54) = -1
+               ELSE
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 CALL CHAR_TO_INTEGER(ITEM(3),
+     &                ISEQCI2(ICI,JCMBSPC),MXPLNC)
+               END IF
+             ELSE IF (CARDX(1:6).EQ.'NORTCI') THEN
+* ================================
+*. Nonorthogonal CI calculations 
+* ================================
+               I_DO_NORTCI = 1
+               I_DO_GAS = 1
+*. Input line should be: NORTCI   Number_of_ci_iterations 
+*                    or
+*                        NORTCI   Number_of_ci_iterations VBGNSPC
+               IF(NITEM.LT.2 ) THEN
+                  WRITE(6,*) 
+     &            ' ERROR:   NORTCI card does not contain 2 items '
+                  WRITE(6,*) 
+     &            ' Allowed forms of NORTCI card are: '
+                  WRITE(6,*) ' NORTCI   Number_of_ci_iterations'
+                  WRITE(6,*) ' NORTCI   Number_of_ci_iterations IVBGNSP'
+                  ISEQCI(ICI,JCMBSPC) = -1
+                  NERROR = NERROR + 1
+                  ISETKW(54) = -1
+               ELSE  IF (NITEM.EQ.2) THEN
+*. VB calculation is in reference space
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 ISEQCI2(ICI,JCMBSPC) = 0
+               ELSE IF( NITEM.GE.3) THEN
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 CALL CHAR_TO_INTEGER(ITEM(3),
+     &                ISEQCI2(ICI,JCMBSPC),MXPLNC)
+               END IF
+             ELSE IF (CARDX(1:6).EQ.'NORTMC') THEN
+* ================================
+*. Nonorthogonal MCSCF calculations 
+* ================================
+               I_DO_NORTCI = 1
+               I_DO_NORTMCSCF = 1
+               I_DO_GAS = 1
+*. Input line should be: NORTMC, Number of macro It, number of micro it
+               IF(NITEM.NE.3) THEN
+                  WRITE(6,*) 
+     &            ' ERROR:   NORTMC card does not contain 3 items '
+                  WRITE(6,*) 
+     &            ' Required form of NORTMC card is: '
+                  WRITE(6,*) 
+     &            ' NORTMC, Number of macroit, Number of Microit'
+                  ISEQCI(ICI,JCMBSPC) = -1
+                  ISEQCI2(ICI,JCMBSPC) = -1
+                  NERROR = NERROR + 1
+                  ISETKW(54) = -1
+               ELSE 
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 CALL CHAR_TO_INTEGER(ITEM(3),
+     &                ISEQCI2(ICI,JCMBSPC),MXPLNC)
+               END IF
+             ELSE IF (CARDX(1:2).EQ.'HF') THEN
+* ================================
+*. Hartree-Fock optimization
+* ================================
+               I_DO_HF = 1
+               IF(NITEM.NE.2) THEN
+                  WRITE(6,*) 
+     &            ' ERROR:   HF card does not contain 2 items '
+                  WRITE(6,*) 
+     &            ' Required form of HF card is: '
+                  WRITE(6,*) ' HF   Number_of_hf_iterations'
+                  ISEQCI(ICI,JCMBSPC) = -1
+                  NERROR = NERROR + 1
+                  ISETKW(54) = -1
+               ELSE 
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+               END IF
+             ELSE IF(CARDX(1:6).EQ.'CUMULA') THEN
+* ===============================================
+*. Calculate cumulants through the given order 
+* ===============================================
+               WRITE(6,*) ' Calculations of cumulants'
+             ELSE IF (CARDX(1:6).EQ.'AKBKCI') THEN
+* ===============================================
+*. AKBKCI calculation
+* ===============================================
+               I_DO_GAS = 1
+C?             WRITE(6,*) ' AKBKCI calculation '
+             ELSE IF (CARDX(1:6).EQ.'AKBKMC') THEN
+* ===============================================
+*. AKBKMCSCF calculation
+* ===============================================
+               I_DO_GAS = 1
+               I_DO_MCSCF = 1
+               WRITE(6,*) ' AKBKMC calculation '
+* For AKBKMCSCF the inputline should read: AKBKMC, MAXMAC, MAXMIC
+               IF(NITEM.NE.3) THEN
+                 WRITE(6,*) 
+     &           ' ERROR: AKBKMC card does not contain 3 items '
+                 WRITE(6,*) 
+     &           ' Required form of AKBKMC card is: '
+                 WRITE(6,*) ' AKBKMC, MAXMAC, MAXMIC'
+                 ISEQCI(ICI,JCMBSPC) = -1
+                 NERROR = NERROR + 1
+                 ISETKW(54) = -1
+               ELSE
+                 CALL CHAR_TO_INTEGER(ITEM(2),
+     &                ISEQCI(ICI,JCMBSPC),MXPLNC)
+                 CALL CHAR_TO_INTEGER(ITEM(3),
+     &                ISEQCI2(ICI,JCMBSPC),MXPLNC)
+               END IF
+C             END IF
+*. No more check of input pt
+             ELSE
+               WRITE(6,'(A,A)') 
+     &        ' Unknown type of calculation specified in SEQUEN:  ',
+     &         CARDX
+               WRITE(6,*) ' Allowed ENTRIES: '
+               WRITE(6,*) ' ================='
+               WRITE(6,*) '     CI'
+               WRITE(6,*) '     APR_CI'
+               WRITE(6,*) '     PERTU '
+               WRITE(6,*) '     VECFREE'
+               WRITE(6,*) '     CC     '
+               WRITE(6,*) '     ICCI   '
+               WRITE(6,*) '     GICCI  '
+               WRITE(6,*) '     ICPT   '
+               WRITE(6,*) '     TWOBODY'
+               WRITE(6,*) '     SP_MCL '
+               WRITE(6,*) '     GEN_CC '
+               WRITE(6,*) '     MCSCF  '
+               WRITE(6,*) '     NORTCI '
+               WRITE(6,*) '     NORTMC '
+               WRITE(6,*) '     HF     '
+               WRITE(6,*) '     CUMULA '
+               WRITE(6,*) '     AKBKCI '
+               NERROR = NERROR + 1
+               ISETKW(54) = -1
+             END IF
+           END DO
+*          ^ End of loop over calculations for given CI space
+         END DO
+*        ^ End of loop over CI spaces
+*. The old input for the SEQUEN: Short and numeric !:
+C          IF(NSEQCI(JCMBSPC).GT.0)
+C    &     READ(LUIN,*) (ISEQCI(ICI,JCMBSPC),ICI = 1, NSEQCI(JCMBSPC))
+C        END DO
+cnw         GOTO 999
+       END IF
+*
+* =====================================================================
+* Call EXTENDED KOOPMANS' THEOREM ROUTINE
+* =====================================================================
+*
+       if(rtdb_get(rtdb,'lucia:extkop',mt_log,1,extkop_on)then
+cnw       IF(CARD(2:7).EQ.'EXTKOP') THEN
+*. Ih yes, we will do it !
+         IEXTKOP = 1
+         ISETKW(55) = 1
+cnw         GOTO 999
+       END IF
+*
+* ==========================
+* 56: What's your engine ?                            
+* ==========================
+*
+cnw       IF(CARD(2:7).EQ.'MACHIN') THEN
+       if(rtdb_cget(rtdb,'lucia:machine',1,card1))then
+         ISETKW(56) = 1
+cnw         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+*. Change to upper case
+         CALL UPPCAS(CARD1,MXPLNC)
+         MACHINE(1:6) = CARD1(1:6)
+C?       WRITE(6,'(A,A)') ' Machine = ', MACHINE
+cnw         GOTO 999
+       END IF
+*
+* ==========================================================
+* 57: Save first order correction to wavefunction on DISC?  
+* ==========================================================
+*
+* ( For vector free calculations )
+*
+      if(inw_lucia .eq. 0) then
+       IF(CARD(2:6).EQ.'C1DSC') THEN
+         ISETKW(57) = 1
+         IC1DSC = 1
+         GOTO 999
+       END IF
+      end if
+*
+* ==========================================================
+*.58:  Specify subspaces in which perturbation is nonvanishing
+* ==========================================================
+*
+      if(inw_lucia .eq. 0) then
+       IF(CARD(2:6).EQ.'H0SPC') THEN
+*. Ensure that number of GASSPACES have been defined 
+         IF(ISETKW(50).EQ.0) THEN
+           WRITE(6,*) ' Dear User'
+           WRITE(6,*)
+           WRITE(6,*) ' GASSH must be specified before H0SPC'
+           WRITE(6,*) 
+     &     ' Else I do not know about the number of orbital spaces'
+           WRITE(6,*) ' So I will stop '
+           STOP 'READIN: put GASSH before H0SPC '
+         END IF
+         READ(LUIN,*) NPTSPC
+         IF(NPTSPC.GT.MXPPTSPC) THEN
+*
+           WRITE(LUOUT,*) ' To many perturbation spaces '
+           WRITE(LUOUT,*) 
+     &     ' raise MXPPTSPC from ', MXPPTSPC ,' to ',NPTSPC
+           STOP'NPTSPC>MXPPTSPC in READIN '
+         END IF
+* 
+         IH0SPC = 1
+         DO JPTSPC = 1, NPTSPC
+*. Number of occupation spaces in this subspace
+C          DO JGAS = 1, NGAS
+             READ(LUIN,*)
+     &       (IOCPTSPC(1,JGAS,JPTSPC),IOCPTSPC(2,JGAS,JPTSPC),
+     &       JGAS = 1, NGAS)
+C          END DO
+         END DO
+         ISETKW(58) = 2
+         GOTO 999
+       END IF
+      end if
+*
+* ============================================
+*.59:  Specify Type of H0 for each subspace                    
+* ============================================
+*
+      if (inw_lucia .eq. 0) then
+       IF(CARD(2:6).EQ.'H0FRM') THEN
+*. Ensure that number of Perturbation subspaces have been defined 
+         IF(ISETKW(58).EQ.0) THEN
+           WRITE(6,*) ' Dear User'
+           WRITE(6,*)
+           WRITE(6,*) ' H0SPC must be specified before H0FRM'
+           WRITE(6,*) 
+     &     ' Else I do not know about the number of spaces'
+           WRITE(6,*) ' So I will stop '
+           STOP 'READIN: put H0SPC before H0FRM '
+         END IF
+*. Type of perturbation in this subspace
+*
+* 1 => Diagonal MP
+* 2 => EN
+* 3 => Nondiagonal MP
+* 4 => Exact Hamiltonian 
+* 5 => Nondiagonal FI+FA + exact in orbital subspaces
+*
+         DO JPTSPC = 1, NPTSPC
+           READ(LUIN,*) IH0INSPC(JPTSPC)
+         END DO
+         ISETKW(59) = 2
+         GOTO 999
+       END IF
+      end if
+*
+* =============================================
+* 60: Reference root for Perturbation theory          
+* =============================================
+*
+      if (inw_lucia .eq. 0) then
+       IF(CARD(2:7).EQ.'RFROOT') THEN
+         ISETKW(60) = 1
+         READ(LUIN,*) IRFROOT
+C        WRITE(6,*) ' Reference Root = ',IRFROOT 
+         GOTO 999
+       END IF
+      end if
+*
+* ======================================================
+* 61: Orbital spaces in which Exact Hamiltonian is used
+* ======================================================
+*
+cnw       IF(CARD(2:5).EQ.'H0EX') THEN
+       if(rtdb_get(rtdb,'lucia:nh0exspc',mt_int,1,nh0exspc))then
+         ISETKW(61) = 1
+         if(.not.rtdb_get(rtdb,'lucia:ih0exspc',mt_int,nh0expspc,
+     &    ih0expspc)) call errquit('lucia input: ih0exspc',911)
+cnw         READ(LUIN,*)  NH0EXSPC
+cnw         READ(LUIN,*) (IH0EXSPC(I),I=1, NH0EXSPC)
+C?       WRITE(6,*) ' Keyword: H0EX activated '
+C?       WRITE(6,*) '  NH0EXSPC ',  NH0EXSPC
+C?       WRITE(6,*) (IH0EXSPC(I),I=1, NH0EXSPC)
+cnw         GOTO 999
+       END IF
+*
+* ================================================
+* 62: Treatment of degenerencies of initial guess     
+* ================================================
+*
+cnw       IF(CARD(2:7).EQ.'INIDEG') THEN
+       if(rtdb_get(rtdb,'lucia:inideg',mt_int,1,inideg))then
+         ISETKW(62) = 1
+cnw         READ(LUIN,*) INIDEG
+cnw         GOTO 999
+       END IF
+*
+* ========================================================
+* 63: Use modified Hamilton operator in CI optimization
+* ========================================================
+*
+cnw       IF(CARD(2:7).EQ.'LAMBDA') THEN
+       if(rtdb_get(rtdb,'lucia:lambda',mt_dbl,1,xlambda))then
+         ISETKW(63) = 1
+cnw         READ(LUIN,*) XLAMBDA
+cnw         GOTO 999
+       END IF
+*
+* =============================================================
+* 64: Length of smallest block for batch of C an Sigma vectors
+* =============================================================
+*
+cnw       IF(CARD(2:7).EQ.'LCSBLK') THEN
+       if(rtdb_get(rtdb,'lucia:lcsblk',mt_int,1,xlcsblk))then
+         ISETKW(64) = 1
+cnw        READ(LUIN,*) LCSBLK 
+cnw        GOTO 999
+       END IF
+*
+*
+* =============================================================
+* 66: No MO-AO file
+* =============================================================
+*
+cnw       IF(CARD(2:7).EQ.'NOMOFL') THEN
+       if(rtdb_get(rtdb,'lucia:nomofl',mt_log,1,nomofl_on))then
+*. No MO-AO file
+         NOMOFL = 1
+         ISETKW(66) = 1
+cnw         GOTO 999
+       END IF
+*
+*
+* =============================================================
+* 67: ECHO the following keywords
+* =============================================================
+*
+cnw       IF(CARD(2:5).EQ.'ECHO') THEN
+       if(rtdb_get(rtdb,'lucia:echo',mt_log,1,echo_on))then
+         IECHO = 1 
+         ISETKW(67) = 1
+cnw         GOTO 999
+       END IF
+*
+*
+* ====================
+* 68: Final orbitals              
+* ====================
+*
+*. Should be specified after NIRREP, I have not added the 
+* test!!
+cnw       IF(CARD(2:7).EQ.'FINORB') THEN
+       if(rtdb_cget(rtdb,'lucia:finorb',1,card1))then
+*. Type of final orbitals
+         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+*. Change to upper case
+         CALL UPPCAS(CARD1,MXPLNC)
+*
+C?       WRITE(6,'(A,A)') 
+C?   &   ' Type of final orbitals ',CARD1
+         ISETKW(68) = 1
+*
+         IF(CARD1(1:5).EQ.'NATUR') THEN
+*. Natural orbitals
+           IFINMO = 1
+         ELSE IF (CARD1(1:5).EQ.'CANON' ) THEN
+*. Canonical orbitals
+           IFINMO = 2
+         ELSE IF ( CARD1(1:6).EQ.'PS_NAT') THEN
+*. Pseudo natural orbitals
+           IFINMO = 3
+         ELSE IF ( CARD1(1:6) .EQ. 'PS_CAN') THEN
+*. Pseudo canonical orbitals
+           IFINMO = 4
+          ELSE IF (CARD1(1:5) .EQ. 'PS_NC') THEN
+*. Pseudo natural-canonical orbitals
+           IFINMO = 5
+*. requires input of subshells in which to define 
+*. Pseudo-natural orbitals
+cnw           READ(LUIN,*) NPSSPC
+           if(.not.rtdb_get(rtdb,'lucia:npsspc',mt_int,1,npsspc))
+     &      call errquit('lucia: npsspc needed for pseudo-no',911)
+           isize = npsspc * nirrep
+           if(.not.rtdb_get(rtdb,'lucia:npssh',mt_int,isize,itmp))
+     &      call errquit('lucia: npssh needed for pseudo-no',911)
+           DO IPSSPC = 1, NPSSPC
+            do irrep = 1,nirrep
+cnw             READ(LUIN,*) (NPSSH(IRREP,IPSSPC),IRREP=1,NIRREP)
+             npssh(irrep,ipsspc)=itmp((ipsspc-1)*nirrep+irrep)
+            end do
+           END DO
+         ELSE
+*. Unidentified type of final orbitals
+           WRITE(6,*) ' Unidentified type of final orbitals'
+           WRITE(6,'(A,A)') '  you suggested: ', CARD1
+           WRITE(6,*) 
+           WRITE(6,*) ' Allowed types of final orbitals'
+           WRITE(6,*) ' ==============================='
+           WRITE(6,*) 
+           WRITE(6,*) '     NATUR'
+           WRITE(6,*) '     CANON'
+           WRITE(6,*) '     PS_NAT'
+           WRITE(6,*) '     PS_CAN'
+           WRITE(6,*) '     PS_NC'
+           NERROR = NERROR + 1
+           ISETKW(68) = - 1
+         END IF
+cnw         GOTO 999
+*
+       END IF
+*
+*
+* ===================================================================
+* 69: Threshold on second order energy corrections, individual coefs
+* ===================================================================
+*
+      if(inw_lucia .eq. 0) then
+       IF(CARD(2:7).EQ.'E_THRE') THEN
+         READ(LUIN,*) E_THRE
+         ISETKW(69) = 1
+         GOTO 999
+       END IF
+      end if
+*
+*
+* =======================================================================
+* 70: Threshold on first order wavefunction corrections,individual coefs 
+* =======================================================================
+*
+      if(inw_lucia .eq. 0) then
+       IF(CARD(2:7).EQ.'C_THRE') THEN
+         READ(LUIN,*) C_THRE
+         ISETKW(70) = 1
+         GOTO 999
+       END IF
+      end if
+*
+* ===================================================================
+* 71 Threshold on second order energy corrections, Total Threshold 
+* ===================================================================
+*
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'E_CONV') THEN
+         READ(LUIN,*) E_CONV
+         ISETKW(71) = 1
+         GOTO 999
+       END IF
+      end if
+*
+*
+* =======================================================================
+* 72: Threshold on first order wavefunction corrections,Total Threshold  
+* =======================================================================
+*
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'C_CONV') THEN
+         READ(LUIN,*) C_CONV
+         ISETKW(72) = 1
+         GOTO 999
+       END IF
+      endif
+*
+*
+* ===============================
+* 73: Selection of classes     
+* ===============================
+*
+cnw       IF(CARD(2:7).EQ.'CLSSEL') THEN
+       if(rtdb_get(rtdb,'lucia:clssel',mt_log,1,clssel_on))then
+         ICLSSEL = 1
+         ISETKW(73) = 1
+cnw         GOTO 999
+       END IF
+*
+*
+* =====================================
+* 74: Calculation of density matrices 
+* ======================================
+*
+cnw       IF(CARD(2:6).EQ.'DENSI') THEN
+       if(rtdb_get(rtdb,'lucia:idensi',mt_int,1,idensi))then
+cnw         READ(LUIN,*) IDENSI
+*. IDENSI = 0 => No calculation of density matrices
+*  IDENSI = 1 =>  Calculation of one- body density matrix
+*  IDENSI = 2 =>  Calculation of one- and two-body density matrices
+         ISETKW(74) = 1
+cnw         GOTO 999
+       END IF
+*
+*
+*
+* =====================================
+* 75: Perturbation expansion of EKT   
+* ======================================
+*
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:6).EQ.'PTEKT') THEN
+         IPTEKT = 1
+*. Number of EKT to be analyzed, atmost 20
+         READ(LUIN,*)  NPTEKT
+         IF(NPTEKT.GT.20) THEN
+           WRITE(6,*) ' Atmost 20 perturbation expansions'
+           STOP' NPTEKT in .PTEKT to Large '
+         END IF
+*. orbital and symmetry for zero order solution
+         DO JEKT = 1, NPTEKT
+           READ(LUIN,*) LPTEKT(1,JEKT),LPTEKT(2,JEKT) 
+         END DO
+         ISETKW(75) = 1
+C?       WRITE(6,*) ' NPTEKT = ', NPTEKT
+C?       WRITE(6,*) ' LPTEKT = ',LPTEKT(1,1),LPTEKT(2,1)
+         GOTO 999
+       END IF
+      end if
+*
+* =================================================
+* 76: Root used to define Zero order Hamiltonian      
+* =================================================
+*
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'H0ROOT') THEN
+         ISETKW(76) = 1
+         READ(LUIN,*) IH0ROOT
+C        WRITE(6,*) ' Reference Root = ',IH0ROOT 
+         GOTO 999
+       END IF
+      end if
+*
+* ======================================
+* 77: No restart in CI calculation 2                  
+* =====================================
+*
+cnw       IF(CARD(2:7).EQ.'NORST2') THEN
+       if(rtdb_get(rtdb,'lucia:norest2',mt_log,1,norst2_on))then
+         ISETKW(77) = 1
+         IRST2 =  0
+         WRITE(6,*) ' NORST2 flag read '        
+cnw         GOTO 999
+       END IF
+*
+* =====================================================
+* 78: Skip initial evaluation of energy from CI calc 2
+* ====================================================
+*
+cnw       IF(CARD(2:7).EQ.'SKIPEI') THEN
+       if(rtdb_get(rtdb,'lucia:skipei',mt_log,1,skipei_on))then
+         ISETKW(78) = 1
+         ISKIPEI =  1
+         WRITE(6,*) ' SKIPEI flag set  '        
+cnw         GOTO 999
+       END IF
+*
+* =================================================================
+* 79: Symmetry of X, Y and Z - Yes it could be obtained from files
+* ================================================================
+*
+cnw       IF(CARD(2:7).EQ.'XYZSYM') THEN
+       if(rtdb_get(rtdb,'lucia:ixyzsym',mt_int,3,ixyzsym))then
+         ISETKW(79) = 1
+cnw         READ(LUIN,*) (IXYZSYM(I),I=1,3)
+C?       WRITE(6,*) 'IXYZSYM', (IXYZSYM(I),I=1,3)
+cnw         GOTO 999
+       END IF
+*
+* ==============================================
+* 80: One-electron properties to be calculated                    
+* ==============================================
+*
+cnw       IF(CARD(2:7).EQ.'PROPER') THEN
+       if(rtdb_get(rtdb,'lucia:nprop',mt_int,1,nprop))then
+         ISETKW(80) = 1
+cnw         READ(LUIN,*) NPROP              
+         DO IPROP = 1, NPROP
+           tag(1:15)='lucia:prop     '
+           tag(12:12)=char(iprop)
+cnw           READ(LUIN,'(A)') CARD1
+           if(.not.rtdb_cget(rtdb,tag,1,card1))
+     &      call errquit('lucia input: 1e properties needed',911)
+           CALL LFTPOS(CARD1,MXPLNC)
+           CALL UPPCAS(CARD1,MXPLNC)
+           PROPER(IPROP)=CARD1(1:6)
+           IF(IECHO.NE.0) 
+     &     WRITE(6,'(A,A)') ' Property to be calculated ',
+     &     PROPER(IPROP)
+         END DO
+cnw         GOTO 999
+       END IF
+*
+* ==============================================
+* 81: Transition properties                                       
+* ==============================================
+*
+cnw       IF(CARD(2:7).EQ.'TRAPRP') THEN
+       if(rtdb_get(rtdb,'lucia:iexcsym',mt_int,1,iexcsym).and.
+     &    rtdb_get(rtdb,'lucia:nexcstate',mt_int,1,nexcstate))then
+         ISETKW(81) = 1
+*. Number and symmetry of additional states
+cnw         READ(LUIN,*) IEXCSYM, NEXCSTATE
+C        READ(LUIN,*) NEXCSTATE
+         ITRAPRP = 1
+cnw         GOTO 999
+       END IF
+*
+* ================================
+* 82: CI response calculations
+* ================================
+*
+*. Input goes as 
+*
+* Labels for operators for which average values will be calculated ( A-ops)
+* Number of response calculations
+* Loop over calculations
+* Label for pertop1, Label for pertop1, order for op1, order for op2, freq
+* End of loop over calculations
+* The first per operator is static, the second can be dynamic ( freq.ne.0)
+* 
+* Example
+*
+*  XDIPLEN, ZDIPLEN
+*  1
+*  XDIPLEN, YDIPLEN, 2, 2, 0.0D0
+*  Labels of oper
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'RESPON') THEN
+         ISETKW(82) = 1
+*. Yes I will do respons
+         IRESPONS = 1
+         MXNRESP =20
+*. Roots on which response calculations will be carried out
+         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         NRSPST = NITEM
+         IF(NRSPST.GT. MXNRESP) THEN
+           WRITE(6,*) ' READIN: Error for keyword RESPON'
+           WRITE(6,*) ' Specified number of roots = ', NRSPST
+           WRITE(6,*) ' Larger than MAX = ', MXNRESP
+           WRITE(6,*) ' PLEASE reduce NAVE_OP and RETURN '
+           STOP ' READIN, KEYWORD RESPON: NRSPST .gt. 20 '
+         END IF
+         DO JITEM = 1, NITEM
+           CALL CHAR_TO_INTEGER(ITEM(JITEM),IRSPRT(JITEM),MXPLNC)
+         END DO
+*. Labels for operators whose expectation values will be expanded
+         MXNRESP =20
+         DO JCHAR = 1, MXPLNC
+           CARD1(JCHAR:JCHAR) = ' '
+         END DO
+         READ(LUIN,'(A)') CARD1
+         WRITE(6,*) ' Input card with A-ops: '
+         WRITE(6,'(72A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         WRITE(6,*) ' Input card with A-ops after LFTPOS + UPPCAS: '
+         WRITE(6,'(72A)') CARD1
+         CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         N_AVE_OP = NITEM
+         IF(N_AVE_OP.GT. MXNRESP) THEN
+           WRITE(6,*) ' READIN: Error for keyword RESPON'
+           WRITE(6,*) ' Specified number of A ops = ', N_AVE_OP
+           WRITE(6,*) ' Larger than MAX = ', MXNRESP
+           WRITE(6,*) ' PLEASE reduce NAVE_OP and RETURN '
+           STOP ' READIN, KEYWORD RESPON: NAVE_OP .gt. 20 '
+         END IF
+         DO JITEM = 1, NITEM
+C               COP_CHARVEC(CHAR_IN,CHAR_OUT,NCHAR)
+           CALL COP_CHARVEC(ITEM(JITEM),AVE_OP(JITEM),MXPLNC)
+C          AVE_OP(JITEM) = ITEM(JITEM)
+*. And left position 
+           CALL LFTPOS(AVE_OP(JITEM),MXPLNC)
+         END DO
+*. Number of respons calculations to be performed
+         READ(LUIN,*) NRESP
+         IF(NRESP.GT. MXNRESP) THEN
+           WRITE(6,*) ' READIN: Error for keyword RESPON'
+           WRITE(6,*) ' Specified number of calcs = ', NRESP
+           WRITE(6,*) ' Larger than MAX = ', MXNRESP
+           WRITE(6,*) ' PLEASE reduce NRESP and RETURN '
+           STOP ' READIN, KEYWORD RESPON: NRESP .gt. 20 '
+         END IF
+         DO IRESP = 1, NRESP
+*. Operator1, Operator 2, Maxord for op1, Maxord for op2, freq 
+* ( Remember commas in betweeen !!)
+*. Read in as character line, and decode
+           READ(LUIN,'(A)') CARD1
+           CALL LFTPOS(CARD1,MXPLNC)
+           CALL UPPCAS(CARD1,MXPLNC)
+           CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+*. Entries 1 and 2: the operators in character form
+C               COP_CHARVEC(CHAR_IN,CHAR_OUT,NCHAR)
+           CALL COP_CHARVEC(ITEM(1),RESP_OP(1,IRESP),MXPLNC)
+           CALL COP_CHARVEC(ITEM(2),RESP_OP(2,IRESP),MXPLNC)
+*. and left position 
+           CALL LFTPOS(RESP_OP(1,IRESP),MXPLNC)
+           CALL LFTPOS(RESP_OP(2,IRESP),MXPLNC)
+C?         RESP_OP(1,IRESP) = ITEM(1)
+C?         RESP_OP(2,IRESP) = ITEM(2)
+C?         WRITE(6,'(A,A,A)') ' RESP( ,1),RESP( ,2)=  ',
+C?   &     RESP_OP(1,IRESP) , RESP_OP(2,IRESP) 
+*. Entries 3 and 4: integers, maxord
+           CALL CHAR_TO_INTEGER(ITEM(3),MAXORD_OP(1,IRESP),MXPLNC)
+           CALL CHAR_TO_INTEGER(ITEM(4),MAXORD_OP(2,IRESP),MXPLNC)
+           IF(NITEM.EQ.4) THEN
+*. No frequency
+             RESP_W(IRESP) = 0.0
+           ELSE
+             CALL CHAR_TO_REAL(ITEM(5),RESP_W(IRESP),MXPLNC)
+           END IF
+         END DO
+*
+         GOTO 999
+       END IF
+      end if
+*
+* ==============================================
+* 83: Max number of iterations in lin.eq
+* ==============================================
+*
+cnw       IF(CARD(2:7).EQ.'MXITLE') THEN
+       if(rtdb_get(rtdb,'lucia:mxitle',mt_int,1,mxitle))then
+         ISETKW(83) = 1
+*. Number and symmetry of additional states
+cnw         READ(LUIN,*) MXITLE               
+cnw         GOTO 999
+       END IF
+*
+* ==============================================
+* 85: Root homing                          
+* ==============================================
+*
+cnw       IF(CARD(2:7).EQ.'RTHOME') THEN
+       if(rtdb_get(rtdb,'lucia:rthome',mt_log,1,rthome_on))then
+         ISETKW(85) = 1
+         IROOTHOMING = 1
+cnw         GOTO 999
+       END IF
+*
+* ==============================================
+* 86: Allow Particle-hole simplifications 
+* ==============================================
+*
+cnw       IF(CARD(2:7).EQ.'USE_PH') THEN
+       if(rtdb_get(rtdb,'lucia:useph',mt_log,1,useph_on))then
+         ISETKW(86) = 1
+         IUSE_PH = 1      
+cnw         GOTO 999
+       END IF
+*
+* ==============================================
+* 87: Allow the sigma routine to take advice 
+* ==============================================
+*
+cnw       IF(CARD(2:7).EQ.'ADVICE') THEN
+       if(rtdb_get(rtdb,'lucia:advice',mt_log,1,advice_on))then
+         ISETKW(87) = 1
+         IADVICE = 1      
+cnw         GOTO 999
+       END IF
+*
+* ================================================================
+* 88: Transform CI vectors to alternative orbital representation
+* ================================================================
+*
+cnw       IF(CARD(2:6).EQ.'TRACI') THEN
+       if(rtdb_cget(rtdb,'lucia:traci',1,card1))then
+         ITRACI = 1
+         ISETKW(88) = 1
+*. Read Form or orbitals to which expansion should be formed
+*
+* Two pieces of info required:
+*  1: Complete rotations or just rotations internal rotations on GAS space
+*      Keywords: Restrict or complete
+*  2: Form of final orbitals 
+*      Keywords: Canonical or Natural 
+*      As usual the input is written as keyword1, keyword2
+*
+cnw         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         IF(NITEM.LT. 2) THEN
+           WRITE(6,*) ' READIN: Error for keyword TRACI'
+           WRITE(6,*) ' Number of items read ', NITEM
+           WRITE(6,*) 
+     &     ' Form of line should be: complete/restrict, fock/natural'
+         END IF
+*
+         ITRACI_CR=ITEM(1)(1:8)
+         ITRACI_CN=ITEM(2)(1:8)
+         IF(    ITRACI_CR(1:4).NE.'REST'
+     &     .AND.ITRACI_CR(1:4).NE.'COMP') THEN
+           WRITE(6,*) ' Illegal entry under keyword TRACI '
+           WRITE(6,*) ' Your suggestion: ', ITRACI_CR
+           WRITE(6,*) ' Allowed entries: '
+           WRITE(6,*) ' =================='
+           WRITE(6,*)    ' COMPlete '
+           WRITE(6,*)    ' RESTrict'
+           NERROR = NERROR + 1
+           ISETKW(88) = -1
+         END IF
+         IF(    ITRACI_CN(1:4).NE.'CANO'
+     &     .AND.ITRACI_CN(1:4).NE.'NATU') THEN
+           WRITE(6,*) ' Illegal entry under keyword TRACI '
+           WRITE(6,*) ' Your suggestion: ', ITRACI_CN
+           WRITE(6,*) ' Allowed entries '
+           WRITE(6,*) ' =================='
+           WRITE(6,*)    ' CANOnica'
+           WRITE(6,*)    ' NATUral '
+           NERROR = NERROR + 1
+           ISETKW(88) = -1
+         END IF
+cnw         GOTO 999
+       END IF
+*
+* ====================================================
+* 89: Separate strings into active and passive parts
+* ====================================================
+*
+cnw       IF(CARD(2:7).EQ.'USE_PA') THEN
+       if(rtdb_get(rtdb,'lucia:usepa',mt_log,1,usepa_on))then
+         ISETKW(89) = 1
+         IUSE_PA = 1      
+cnw         GOTO 999
+       END IF
+*
+* ==========================================
+* 90: Perturbation expansion of Fock matrix          
+* ===========================================
+*
+cnw       IF(CARD(2:7).EQ.'PTFOCK') THEN
+       if(rtdb_get(rtdb,'lucia:ptfock',mt_log,1,ptfock_on))then
+         ISETKW(90) = 1
+         IPTFOCK = 1      
+cnw         GOTO 999
+       END IF
+*
+* ==============================
+* 91: Print final CI vectors                         
+* ==============================
+*
+cnw       IF(CARD(2:7).EQ.'PRNCIV') THEN
+       if(rtdb_get(rtdb,'lucia:ptfock',mt_log,1,ptfock_on))then
+         ISETKW(91) = 1
+         IPRNCIV = 1      
+cnw         GOTO 999
+       END IF
+*
+* =====================================================
+* 92: Restart CC calculation (with coefs on LU_CCAMP)
+* =====================================================
+*
+cnw       IF(CARD(2:7).EQ.'RES_CC') THEN
+       if(rtdb_get(rtdb,'lucia:rescc',mt_log,1,rescc_on))then
+         ISETKW(92) = 1
+         I_RESTRT_CC = 1
+cnw         GOTO 999
+       END IF
+*
+* =====================================================
+* 93: End calculation with integral transformation
+* =====================================================
+*
+cnw       IF(CARD(2:7).EQ.'TRA_FI') THEN
+       if(rtdb_get(rtdb,'lucia:trafi',mt_log,1,trafi_on))then
+         ISETKW(93) = 1
+         ITRA_FI = 1
+cnw         GOTO 999
+       END IF
+*
+* =========================================================
+* 94: Initialize calculation with integral transformation
+* =========================================================
+*
+cnw       IF(CARD(2:7).EQ.'TRA_IN') THEN
+       if(rtdb_get(rtdb,'lucia:train',mt_log,1,train_on))then
+         ISETKW(94) = 1
+         ITRA_IN = 1
+cnw         GOTO 999
+       END IF
+*
+* =========================================================
+* 95: Use multispace (multigrid method )
+* =========================================================
+*
+cnw       IF(CARD(2:7).EQ.'MUL_SP') THEN
+       if(rtdb_get(rtdb,'lucia:ifmulspc',mt_int,1,ifmulspc).and.
+          rtdb_get(rtdb,'lucia:lpat',mt_int,1,lpat))then
+         ISETKW(95) = 1
+         MULSPC = 1
+*. First space where MULTIspace calculation is active
+cnw         READ(LUIN,*) IFMULSPC
+*. Length of pattern and pattern
+cnw         READ(LUIN,*) LPAT
+cnw         READ(LUIN,*) (IPAT(I),I=1, LPAT)
+        if(.not.rtdb_get(rtdb,'lucia:ipat',mt_int,lpat,ipat))
+     &   call errquit('lucia input: multispace error in ipat',0)
+cnw         GOTO 999
+       END IF
+*
+* =========================================================
+* 96: Use Relaxed densities for properties
+* =========================================================
+*
+cnw       IF(CARD(2:6).EQ.'RELAX') THEN
+       if(rtdb_get(rtdb,'lucia:relax',mt_log,1,relax_on))then
+         ISETKW(96) = 1
+         IRELAX= 1
+cnw         GOTO 999
+       END IF
+*
+* =========================================================
+* 97: Expert mode: Input errors neglected 
+* =========================================================
+*
+cnw       IF(CARD(2:7).EQ.'EXPERT') THEN
+       if(rtdb_get(rtdb,'lucia:expert',mt_log,1,expert_on))then
+         ISETKW(97) = 1
+         IEXPERT= 1
+cnw         GOTO 999
+       END IF
+*
+* ==================================================================================
+* 98: Number of roots to be converged ( i.e. some unconverged roots may be allowed)
+* ==================================================================================
+*
+cnw       IF(CARD(2:7).EQ.'CNV_RT') THEN
+       if(rtdb_get(rtdb,'lucia:ncnv_rt',mt_int,1,ncnv_rt))then
+         ISETKW(98) = 1
+cnw         READ(LUIN,*) NCNV_RT
+cnw         GOTO 999
+       END IF
+*
+* ==================================================================================
+* 100:  Use LUCIA for QDOT calculation
+* ==================================================================================
+*
+      if(inw_lucia .eq. 0)then
+       IF(CARD(2:6) .EQ. 'QDOTS') THEN
+         IDOQD = 1
+         ISETKW(100) = 1
+*. Set environment to QDOTS
+         ENVIRO(1:4) = 'QDOT'
+         GOTO 999
+       END IF
+      end if
+*
+* ==================================================================================
+* 101:  Restrict Ms2 at intermediate gaslevel
+* ==================================================================================
+*
+cnw       IF(CARD(2:7) .EQ. 'RE_MS2') THEN
+       if(rtdb_get(rtdb,'lucia:re_ms2_spc',mt_int,1,i_re_ms2_space).and.
+          rtdb_get(rtdb,'lucia:re_ms2_vl',mt_int,1,i_re_ms2_value))then
+cnw         READ(LUIN,*) I_RE_MS2_SPACE,I_RE_MS2_VALUE
+         ISETKW(101) = 1
+cnw         GOTO 999
+       END IF
+*
+* ==================================================================================
+* 102:  Preconditioner
+* ==================================================================================
+*
+cnw       IF(CARD(2:7) .EQ. 'PRECON') THEN
+       if(rtdb_cget(rtdb,'lucia:precon',1,card1))then
+         ISETKW(102) = 1
+cnw         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         CARDX = ITEM(1)
+         IF(CARDX(1:6).EQ.'SD-DIA') THEN 
+           IPRECOND = 1
+         ELSE IF( CARDX(1:6).EQ.'CN-DIA') THEN
+           IPRECOND = 2
+         ELSE
+           WRITE(6,*) ' Illegal form of preconditioner:'  
+           WRITE(6,'(A,A)') ' Your suggestion: ', CARDX     
+           WRITE(6,*) ' Allowed entries: '
+           WRITE(6,*) ' =================='
+           WRITE(6,*)    'SD-DIA'
+           WRITE(6,*)    'CN-DIA'
+           NERROR = NERROR + 1
+           ISETKW(102) = -1
+         END IF
+cnw         GOTO 999
+       END IF
+*
+* ==================================================================================
+* 103:  Treat all symmetryblocks with given type simultaneously
+* ==================================================================================
+*
+cnw       IF(CARD(2:7) .EQ. 'SIMSYM') THEN
+       if(rtdb_get(rtdb,'lucia:simsym',mt_log,1,simsym_on))then
+         ISIMSYM = 1
+         ISETKW(103) = 1
+cnw         GOTO 999
+       END IF
+*
+* ==================================================================================
+* 104  Use hardwired routines for certain sigma terms  
+* ==================================================================================
+*
+cnw       IF(CARD(2:7) .EQ. 'USE_HW') THEN
+       if(rtdb_get(rtdb,'lucia:usehw',mt_log,1,usehw_on))then
+         IUSE_HW = 1
+         ISETKW(104) = 1
+cnw         GOTO 999
+       END IF
+*
+* ==================================================================================
+* 105:  Use Full H0 including projection operators in Lambda caLCULATIONS
+* ==================================================================================
+*
+cnw       IF(CARD(2:7) .EQ. 'USEH0P') THEN
+       if(rtdb_get(rtdb,'lucia:use0p',mt_log,1,use0p_on))then
+         IUSEH0P = 1
+         ISETKW(105) = 1
+cnw         GOTO 999
+       END IF
+*
+* ==========================================
+* 107: Calculate expectation value of Lz^2
+* ==========================================
+cnw       IF(CARD(2:4).EQ.'LZ2') THEN
+       if(rtdb_get(rtdb,'lucia:lz2',mt_log,1,lz2_on))then
+         ISETKW(107) = 1
+         I_DO_LZ2 = 1
+cnw         GOTO 999
+       END IF 
+*
+* ==========================================
+* 108: Method used for solving CC equations
+* ==========================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'CCSOLV') THEN
+*
+c set default method: DIIS with 8 vectors
+c variational method? we assume no (ivar=0), has to be corrected later
+         ivar = 0               
+         iorder = 1
+         iprecnd = 1
+         isubsp = 2
+         ilsrch = 0
+         icnjgrd = 0
+         mxsp_sbspja = 0
+         isbspjatyp = 0
+         isbspja_start = 2      ! lowest possible iteration is 2
+         thr_sbspja = 1d-1
+         mxsp_diis = 8
+         idiistyp = 2
+         idiis_start = 0
+         thr_diis = 1d-1
+c trust radius: not active
+         trini = 1.5d0
+         trmin = 0.25d0
+         trmax = 2.0d0
+         trthr1l = 0.8d0
+         trthr1u = 1.2d0
+         trthrfac1 = 1.2d0
+         trthr2l = 0.3d0
+         trthr2u = 2.0d0
+         trfac1  = 1.2d0
+         trfac2  = 0.8d0
+         trfac3  = 0.3d0
+
+
+         ISETKW(108) = 1
+         I_SUB_KW = 1
+c scan for sub-keywords
+         DO WHILE(I_SUB_KW.EQ.1)
+           READ(LUIN,'(A)') CARD1
+           CALL LFTPOS(CARD1,MXPLNC)
+           CALL UPPCAS(CARD1,MXPLNC)
+           CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+           IF (NITEM.EQ.0) CYCLE
+           CARDX = ITEM(1)
+c set the basic methods:
+c    PERT: simple perturbation step
+c    ASSJ: approximate subspace jacobian
+c    DIIS: DIIS; can also be specified together with ASSJ (but does
+c          not really improve anything then)
+           IF(CARDX(1:4).EQ.'PERT') THEN 
+c for old version:
+             ICCSOLVE = 1
+c for new version:
+c unset the diis
+             isubsp = 0
+           ELSE IF( CARDX(1:4).EQ.'DIIS') THEN
+c syntax:
+c DIIS,<maxvec>,<startit>,<thresh>,<type>
+             DO IITEM=2,NITEM
+* dimension of DIIS space given?
+               IF (ITEM(IITEM)(1:1).NE.' ') THEN
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_INTEGER(ITEM(2),mxsp_diis,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_INTEGER(ITEM(3),idiis_start,MXPLNC)
+                 IF (IITEM.EQ.4)
+     &                CALL CHAR_TO_REAL(ITEM(4),thr_diis,MXPLNC)
+                 IF (IITEM.EQ.5)
+     &                CALL CHAR_TO_INTEGER(ITEM(5),idiistyp,MXPLNC)
+               END IF
+             END DO
+c             IF (mxsp_diis.LT.1) THEN
+c               WRITE(6,*) 'WARNIG: DIIS space out of bounds (',
+c     &                    mxsp_diis,')'
+c               ISETKW(108) = -1
+c             END IF
+c for old version:
+             ICCSOLVE = 2
+             MAX_DIIS_VEC=mxsp_diis
+           ELSE IF( CARDX(1:4).EQ.'ASSJ') THEN
+c syntax:
+c ASSJ,<maxvec>,<startit>,<thresh>,<type>
+c unset DIIS
+             isubsp = 0
+c set defaults:
+             iprecnd = 2
+             mxsp_sbspja = 8
+             isbspjatyp = 1
+             isbspja_start = 2
+             thr_sbspja = 1d-1
+             
+             DO IITEM = 2, NITEM
+               IF(ITEM(IITEM)(1:1).ne.' ') THEN
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_INTEGER(ITEM(2),mxsp_sbspja,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_INTEGER(ITEM(3),isbspja_start,MXPLNC)
+                 IF (IITEM.EQ.4)
+     &                CALL CHAR_TO_REAL(ITEM(4),thr_sbspja,MXPLNC)
+                 IF (IITEM.EQ.5)
+     &                CALL CHAR_TO_INTEGER(ITEM(5),isbspjatyp,MXPLNC)
+               END IF
+             END DO
+c old version:
+             ICCSOLVE = 1
+             I_DO_SBSPJA = 1
+c max subspace dimension -- unused for the moment
+             MAX_VEC_APRJ = mxsp_sbspja
+c max steplength
+             XMXSTP=0.22d0
+c max steplength to begin with sampling of subspace
+             XMXSTP_APRJ=0.22d0
+           ELSE IF( CARDX(1:6).EQ.'NEWTON') THEN             
+             ! modify defaults for second-order solver
+             iorder = 2
+             iprecnd = 1
+             isubsp = 0
+             trini = 0.5d0
+             trmin = 0.05d0
+             trmax = 1.5d0
+c more detailed settings for experts:
+c  ORDER
+c  PRCND
+c  SUBSP
+c  LNSRCH
+c  CONJGR
+c  _DIIS
+c  _SBSPJ
+c  TRUSTR
+c  MICIMX
+           ELSE IF( CARDX(1:5).EQ.'ORDER') THEN
+c ORDER of method (1st-order, 2nd-order)
+             IF(NITEM.GT.1) THEN
+               CALL CHAR_TO_INTEGER(ITEM(2),iorder,MXPLNC)
+             END IF
+           ELSE IF( CARDX(1:5).EQ.'PRCND') THEN
+c type of preconditioning method (0: no, 1: diag, 2: subspace)
+             IF(NITEM.GT.1) THEN
+               CALL CHAR_TO_INTEGER(ITEM(2),iprecnd,MXPLNC)
+             END IF
+           ELSE IF( CARDX(1:5).EQ.'SUBSP') THEN
+c type of subspace exploitation (0: no, 1: conj. grad.s, 2: DIIS extrap.)
+             IF(NITEM.GT.1) THEN
+               CALL CHAR_TO_INTEGER(ITEM(2),isubsp,MXPLNC)
+             END IF
+           ELSE IF( CARDX(1:6).EQ.'LNSRCH') THEN
+c type of linesearch (0: no, 1: one-point est., 2: two-point est.)
+             IF(NITEM.GT.1) THEN
+               CALL CHAR_TO_INTEGER(ITEM(2),ilsrch,MXPLNC)
+             END IF
+           ELSE IF( CARDX(1:6).EQ.'CONJGR') THEN
+c conj. grad. method (1: orth., 2: Polack-Ribiere, 3: Fletcher-Reeves)
+             IF(NITEM.GT.1) THEN
+               isubsp=1
+               CALL CHAR_TO_INTEGER(ITEM(2),icnjgrd,MXPLNC)
+             END IF
+           ELSE IF( CARDX(1:5).EQ.'_DIIS') THEN
+c expert version without changing other defaults
+c syntax:
+c DIIS,<maxvec>,<startit>,<thresh>,<type>
+             DO IITEM=2,NITEM
+* dimension of DIIS space given?
+               IF (ITEM(IITEM)(1:1).NE.' ') THEN
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_INTEGER(ITEM(2),mxsp_diis,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_INTEGER(ITEM(3),idiis_start,MXPLNC)
+                 IF (IITEM.EQ.4)
+     &                CALL CHAR_TO_REAL(ITEM(4),thr_diis,MXPLNC)
+                 IF (IITEM.EQ.5)
+     &                CALL CHAR_TO_INTEGER(ITEM(5),idiistyp,MXPLNC)
+               END IF
+             END DO
+           ELSE IF( CARDX(1:5).EQ.'_ASSJ') THEN
+c expert version without changing other defaults
+c syntax:
+c ASSJ,<maxvec>,<startit>,<thresh>,<type>
+c set defaults: (but only those controlled by this keyword!)
+             mxsp_sbspja = 8
+             isbspjatyp = 1
+             isbspja_start = 2
+             thr_sbspja = 1d-1
+             
+             DO IITEM = 2, NITEM
+               IF(ITEM(IITEM)(1:1).ne.' ') THEN
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_INTEGER(ITEM(2),mxsp_sbspja,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_INTEGER(ITEM(3),isbspja_start,MXPLNC)
+                 IF (IITEM.EQ.4)
+     &                CALL CHAR_TO_REAL(ITEM(4),thr_sbspja,MXPLNC)
+                 IF (IITEM.EQ.5)
+     &                CALL CHAR_TO_INTEGER(ITEM(5),isbspjatyp,MXPLNC)
+               END IF
+             END DO
+           ELSE IF( CARDX(1:6).EQ.'TRUSTR') THEN
+c syntax:
+c TRUSTR,<tr_ini>,<tr_min>,<tr_max>,<good_fac>
+c                                   <thr1_upper>,<thr1_lower>,<bad_fac1>,
+c                                   <thr2_upper>,<thr2_lower>,<bad_fac2>
+             DO IITEM=2,NITEM
+* dimension of DIIS space given?
+               IF (ITEM(IITEM)(1:1).NE.' ') THEN
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_REAL(ITEM(2),trini,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_REAL(ITEM(3),trmin,MXPLNC)
+                 IF (IITEM.EQ.4)
+     &                CALL CHAR_TO_REAL(ITEM(4),trmax,MXPLNC)
+                 IF (IITEM.EQ.5)
+     &                CALL CHAR_TO_REAL(ITEM(5),trfac1,MXPLNC)
+                 IF (IITEM.EQ.6)
+     &                CALL CHAR_TO_REAL(ITEM(6),trthr1u,MXPLNC)
+                 IF (IITEM.EQ.7)
+     &                CALL CHAR_TO_REAL(ITEM(7),trthr1l,MXPLNC)
+                 IF (IITEM.EQ.8)
+     &                CALL CHAR_TO_REAL(ITEM(8),trfac2,MXPLNC)
+                 IF (IITEM.EQ.9)
+     &                CALL CHAR_TO_REAL(ITEM(9),trthr2u,MXPLNC)
+                 IF (IITEM.EQ.10)
+     &                CALL CHAR_TO_REAL(ITEM(10),trthr2l,MXPLNC)
+                 IF (IITEM.EQ.11)
+     &                CALL CHAR_TO_REAL(ITEM(11),trfac3,MXPLNC)
+               END IF
+             END DO
+             IF (TRMIN.GT.TRMAX.OR.
+     &           TRINI.LT.TRMIN.OR.
+     &           TRINI.GT.TRMAX) THEN
+               WRITE(6,'(/X,A,3(/,X,A,E10.4),/)')
+     &              'ERROR: Inconsistent input for trust radius: ',
+     &              '  min. value  = ',TRMIN,
+     &              '  init. value = ',TRINI,
+     &              '  max. value  = ',TRMAX
+               NERROR = NERROR + 1
+               ISETKW(108) = -1
+             END IF
+           ELSE IF( CARDX(1:4).EQ.'MICIMX') THEN
+c syntax:
+c MICIMX,<micifac>,<micimac>
+* total          max. number of micro-iterations: micifac1*maxiter
+             micifac = 30
+* per macroiter. max. number of micro-iterations: micimac
+             micimac = 60
+
+             DO IITEM=2,NITEM
+               IF (ITEM(IITEM)(1:1).NE.' ') THEN
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_INTEGER(ITEM(2),micifac,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_INTEGER(ITEM(3),micimac,MXPLNC)
+               END IF
+             END DO
+           ELSE
+             ! oops, put the keyword back and let the others look
+             ! at it
+             I_SUB_KW = 0
+             BACKSPACE(LUIN)
+           END IF
+         END DO
+         GOTO 999
+       END IF 
+      end if
+* ==========================================
+* 109: Calculate approximate CCN Jacobian 
+* ==========================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:4).EQ.'CCN') THEN
+         ISETKW(109) = 1
+         I_DO_CCN = 1
+         GOTO 999
+       END IF 
+      end if
+* ==============================================================
+* 110: Calculate Jacobian in subspace to improve CC convergence 
+* ==============================================================
+c deactivated - deactivation deactivated, Oct.09
+       if(inw_lucia.eq.0)then
+        IF(CARD(2:7).EQ.'SBSPJA') THEN
+          ISETKW(110) = 1
+          I_DO_SBSPJA = 1
+          MAX_VEC_APRJ = 8
+          GOTO 999
+        END IF 
+       end if
+* =====================================================================
+* 111: Convergence threshold for Coupled cluster method, norm 
+* of residual.
+* =====================================================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'CCCONV') THEN
+c syntax: <thrgrd>,<thr_de>,<thr_stp>         
+         ISETKW(111) = 1
+c defaults         
+         thrstp  = 1d-6
+         thrgrd  = 1d-6
+         thr_de  = 1d-7
+
+         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         
+         DO IITEM = 1, NITEM
+               IF(ITEM(IITEM)(1:1).ne.' ') THEN
+                 IF (IITEM.EQ.1)
+     &                CALL CHAR_TO_REAL(ITEM(1),thrgrd,MXPLNC)
+                 IF (IITEM.EQ.2)
+     &                CALL CHAR_TO_REAL(ITEM(2),thr_de,MXPLNC)
+                 IF (IITEM.EQ.3)
+     &                CALL CHAR_TO_REAL(ITEM(3),thrstp,MXPLNC)
+               END IF           
+         END DO
+
+         GOTO 999
+       END IF 
+      end if
+*
+* ==============================================================================
+* 112:  Number of gasorbital spaces that corresponds to hole spaces
+* ==============================================================================
+*
+* ( for hole-electron separation in QDOT calculations, 
+*   not for particle-hole simplifations in sigma calcs  
+cnw       IF(CARD(2:7) .EQ. 'NHOSPC') THEN
+       if(rtdb_get(rtdb,'lucia:nhospc',mt_int,1,n_hole_orbspace))then
+         READ(LUIN,*) N_HOLE_ORBSPACE
+         ISETKW(112) = 1
+cnw         GOTO 999
+       END IF
+* ==========================================
+* 113: Specific CC3 implementation        
+* ==========================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:4).EQ.'CC3') THEN
+         ISETKW(113) = 1
+         I_DO_CC3 = 1
+         GOTO 999
+       END IF 
+      end if
+* ==================================================
+* 114: Start CC with reformation of CI coefficients
+* ==================================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'CI=>CC') THEN
+         ISETKW(114) = 1
+         I_DO_CI_TO_CC = 1
+         GOTO 999
+       END IF 
+      end if
+* ==================================================
+* 115: Form of coupled cluster expansion
+* ==================================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'CCFORM') THEN
+         WRITE(6,*) 'WARNING: Keyword CCFORM is obsolete'
+         WRITE(6,*) ' specify the appropriate CC-variant under SEQUEN'
+         ISETKW(115) = 1
+         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         CARDX = ITEM(1)
+         IF(CARDX(1:3).EQ.'TCC') THEN 
+           CCFORM(1:3)  = 'TCC' 
+         ELSE IF( CARDX(1:3).EQ.'VCC') THEN
+           CCFORM(1:3)  = 'VCC' 
+         ELSE
+           WRITE(6,*) ' Illegal form of CCFORM '  
+           WRITE(6,'(A,A)') ' Your suggestion: ', CARDX     
+           WRITE(6,*) ' Allowed entries: '
+           WRITE(6,*) ' =================='
+           WRITE(6,*)    'TCC' 
+           WRITE(6,*)    'VCC' 
+           NERROR = NERROR + 1
+           ISETKW(115) = -1
+         END IF
+         GOTO 999
+       END IF 
+      end if
+*
+* =======================================
+* 116: Calculate CC excitation energies               
+* =======================================
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'CCEX_E') THEN
+         ISETKW(116) = 1
+         I_DO_CC_EXC_E = 1
+*. NIRREP must hav been defined
+         IF(ISETKW(3).EQ.0) THEN
+           WRITE(6,*) ' ERROR: CCEX_E must be specified after NIRREP'
+           NERROR = NERROR + 1
+           ISETKW(116) = -1
+         ELSE
+           I_SUB_KW = 1
+c defaults:
+           NEXC_PER_SYM(1) = 1
+           NEXC_PER_SYM(2:NIRREP) = 0
+           CCEX_CONV = 1D-6
+           ICCEX_SLEQ = 0       ! default is set later
+c scan for sub-keywords
+           DO WHILE(I_SUB_KW.EQ.1)
+             READ(LUIN,'(A)') CARD1
+             CALL LFTPOS(CARD1,MXPLNC)
+             CALL UPPCAS(CARD1,MXPLNC)
+             CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+             IF (NITEM.EQ.0) CYCLE
+             CARDX = ITEM(1)
+             IF (CARDX(1:6).EQ.'NROOTS') THEN
+               DO IITEM = 2, MIN(NITEM,NIRREP+1)
+                 IF (ITEM(IITEM)(1:1).NE.' ') THEN
+                   CALL CHAR_TO_INTEGER(ITEM(IITEM),
+     &                  NEXC_PER_SYM(IITEM-1),MXPLNC)
+                 END IF
+               END DO
+             ELSE IF (CARDX(1:4).EQ.'CONV') THEN
+               IF (ITEM(2)(1:1).NE.' ') THEN
+                 CALL CHAR_TO_REAL(ITEM(2),
+     &                CCEX_CONV,MXPLNC)
+               END IF
+             ELSE IF (CARDX(1:3).EQ.'REQ') THEN
+               ICCEX_SLEQ = IOR(ICCEX_SLEQ,2)
+             ELSE IF (CARDX(1:3).EQ.'LEQ') THEN
+               ICCEX_SLEQ = IOR(ICCEX_SLEQ,1)
+             ELSE
+             ! put the keyword back and let the others look at it
+               I_SUB_KW = 0
+               BACKSPACE(LUIN)
+             END IF
+           END DO
+           ! if nothing was specified: solve right equations:
+           IF(ICCEX_SLEQ.EQ.0) ICCEX_SLEQ = 2
+         END IF
+         GOTO 999
+       END IF 
+      end if
+*
+* 117: Restart first calculation of ccexcitation operators 
+*       
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'RES_EX') THEN
+         ISETKW(117) = 1
+         IRES_EXC = 1          
+         GOTO 999
+       END IF 
+      end if
+*
+* 118: Dimension of resolution strings for CC
+*
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'RESDCC') THEN
+         ISETKW(118) = 1
+         READ(LUIN,*) MXINKA_CC           
+         LCCB = MXINKA_CC
+         GOTO 999
+       END IF 
+      end if
+*
+* 119: Use Combinations for CC expansion 
+*
+      if(inw_lucia.eq.0)then
+       IF(CARD(2:7).EQ.'CMB_CC') THEN
+         MSCOMB_CC = 1
+         ISETKW(119) = 1
+         GOTO 999
+       END IF
+      end if
+*
+* 120: Use similarity transformed Hamiltonian for singles 
+*
+cnw      IF(CARD(2:7).EQ.'SIMTRH') THEN
+      if(rtdb_get(rtdb,'lucia:simtrh',mt_log,1,simtrh_on))then
+        ISIMTRH = 1
+        ISETKW(120) = 1
+cnw        GOTO 999
+      END IF
+*
+* 121: Freeze certain excitation levels in CC calculation
+*
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'FRZ_CC') THEN
+        IFRZ_CC = 1
+        READ(LUIN,*) NFRZ_CC
+        READ(LUIN,*) (IFRZ_CC_AR(I),I=1, NFRZ_CC)
+        ISETKW(121) = 1
+        GOTO 999
+      END IF
+      end if
+*
+* 122: Obtain CC expectaion value of energy
+*
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'CC_EXP') THEN
+        I_DO_CC_EXP = 1
+        ISETKW(122) = 1
+        GOTO 999
+      END IF
+      end if
+*
+* 123: Use old CC vector function routine 
+*
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'OLDCCV') THEN
+        I_DO_NEWCCV = 0
+        ISETKW(123) = 1
+        GOTO 999
+      END IF
+      end if
+*
+* 124: Use new phase convention for CC operators 
+*       (O(ca)O(cb)O(aa)O(Oab), where all strings have occupations 
+*        in ascending order
+*
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'NEWCCP') THEN
+        I_USE_NEWCCP = 1
+        ISETKW(124) = 1
+        GOTO 999
+      END IF
+      end if
+*
+* 125: Impose a largest allowed excitation level 
+*       for the spinorbital excitatations
+cnw      IF(CARD(2:7).EQ.'MXSPOX') THEN
+      if(rtdb_get(rtdb,'lucia:mxspox',mt_int,1,mxspox))then
+cnw        READ(LUIN,*) MXSPOX 
+        ISETKW(125) = 1
+cnw        GOTO 999
+      END IF
+*        
+* 126: Define a mask SD to define hole and annihilation spinorbitals
+*       (used for CAS states)
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'MASKSD') THEN
+        I_DO_MASK_CC = 1
+        DO IAB = 1, 2
+*. line with occupied alpha-electrons
+         READ(LUIN,'(A)') CARD1
+C             DECODE2_LINE(LINE,NCHAR,NENTRY,IENTRY,MXENTRY)
+         CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+C CHAR_TO_INTEGER(CHAR_X,INT_X,L_CHAR_X)
+         IF(IAB.EQ.1) THEN
+          MSK_AEL = NITEM
+         ELSE 
+          MSK_BEL = NITEM
+         END IF
+         DO I = 1, NITEM
+           CALL CHAR_TO_INTEGER(ITEM(I),MASK_SD(I,IAB),MXPLNC)
+         END DO
+        END DO
+        ISETKW(126) = 1
+        WRITE(6,*) ' I_DO_MASK_CC (1) = ', I_DO_MASK_CC
+        GOTO 999
+      END IF
+      end if
+*
+* 127: No only active rotations 
+*
+cnw      IF(CARD(2:7).EQ.'NOAAEX') THEN
+      if(rtdb_get(rtdb,'lucia:noaaex',mt_log,1,noaaex_on))then
+        NOAAEX = 1
+        ISETKW(127) = 1
+cnw        GOTO 999
+      END IF
+*
+* 128: Spin restricted coupled cluster/perturbation theory
+*
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'SPINRS') THEN
+        ISPIN_RESTRICTED = 1
+        ISETKW(128) = 1
+        GOTO 999
+      END IF
+      end if
+*
+* 129: Calculate very general density matrix 
+*
+*
+      if(inw_lucia.eq.0)then
+      IF(CARD(2:7).EQ.'GENTRD') THEN
+*. Calculate very general transition density matrix
+*
+       IGENTRD = 1
+*. Symmetry and MS2 of general state for transition density 
+       READ(LUIN,*) IGST_SM,IGST_MS2
+*. Occupation of general state for transition density 
+*. Should contain fewer particles than reference state!
+       READ(LUIN,*) ((IGST_OCC(ISPC,IMINMAX),IMINMAX=1,2),ISPC=1,NGAS)
+       ISETKW(129) = 1
+       GOTO 999
+      END IF
+      end if
+*
+* 130: Reorder some orbitals before calculations 
+*
+cnw      IF(CARD(2:7).EQ.'REO_OR') THEN
+      if(rtdb_get(rtdb,'lucia:nswitch',mt_int,1,nswitch))then
+*. Orbitals will be reordered compared to input 
+        I_DO_REO_ORB = 1
+*. Reordering is defined as a number of orbital switches
+*. Each switch is defined by a symmetry, old number, new number 
+*. THe orbital numbers are defined as relative to start of 
+*. given orbital symmetry
+cnw        READ(LUIN,*) NSWITCH
+        WRITE(6,*)  ' NSWITCH = ', NSWITCH   
+        isize = 3*nswitch
+        if(.not.rtdb_get(rtdb,'lucia:ireo_orb',mt_int,isize,itmp))
+     &   call errquit('lucia input: reorder orbs ireo_orb wrong',0)
+        DO ISWITCH = 1, NSWITCH
+         do i=1,3
+          ireo_orb(i,iswitch)=itmp((iswitch-1)*3+i)
+cnw          READ(LUIN,*) IREO_ORB(1,ISWITCH), IREO_ORB(2,ISWITCH),
+     &                 IREO_ORB(3,ISWITCH)
+        END DO
+        ISETKW(130) = 1
+cnw       GOTO 999
+      END IF
+*
+* 131: Data for internal contraction
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'IC_EXC') THEN
+*. Min and max rank of orbital excitations, are internal excitations 
+*. allowed ?, and max number of active indeces (added oct 2006) 
+*.
+*. Change of March 2009: Old form eliminated and ICEXC_MAX_SEC added
+*
+        READ(LUIN,*) ICOP_RANK_MAX,
+     &               ICEXC_MAX_ACT,ICEXC_MAX_EXT, ICEXC_INT
+        WRITE(6,*) 
+     &  'Readin: ICOP_RANK_MAX, ICEXC_MAX_ACT,ICEXC_MAX_EXT, ICEXC_INT',
+     &           ICOP_RANK_MAX, ICEXC_MAX_ACT,ICEXC_MAX_EXT, ICEXC_INT
+* ICOP_RANK_MAX: Max number of creation or annihilations in operator
+* ICEXC_MAX_ACT: Max number of active (internal) indeces
+* ICEXC_MAX_EXT: Max number of external (sec + inac) indeces
+* ICEXC_INT = 0 => no creations in inactive or annihilations in secondary
+* 
+* Whether or not pure active excitations are allowed is flagged 
+* by keyword INC_AA (default is no way...)
+* 
+        ISETKW(131) = 1
+        I_HAVE_ICEXC_INFO = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 132: Expand final CC vector in last CC calculation and compare with 
+*       vector on LU17
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'CMPCCI') THEN
+        ISETKW(132) = 1
+        I_DO_CMPCCI = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*. 133: Enforce program to rewrite CC expansion as CI expansion after last 
+*. CC calc. This expansion will always be done if there is a 
+*. CI calculation following the last CC calculation
+*  
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'CC=>CI') THEN
+        I_DO_CC_TO_CI = 1
+        ISETKW(133) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 134: Construct complete Hamiltonian 
+*
+      IF(rtdb_get(rtdb,'lucia:COMHAM',mt_int,1,I_DO_COMHAM)) then
+cglm      IF(CARD(2:7).EQ.'COMHAM') THEN
+cglm        I_DO_COMHAM = 1
+        ISETKW(134) = 1
+cglm        GOTO 999
+       END IF
+*
+*. 135: Dump Complete Hamiltonian for initial MRPT program of Lasse
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'DMPMRP') THEN
+        I_DO_DUMP_FOR_MRPT = 1
+        ISETKW(135) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 136: Use the very new CC codes, started in 2001 - and completed in ???
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'VNEWCC') THEN
+       I_DO_NEWCCV = 2
+       ISETKW(136) = 1
+       GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 137: Use the very old CC codes - with erroneous scaling 
+*     dublicate therefore deactivated
+*
+c      IF(CARD(2:6).EQ.'OLDCCV') THEN
+c       I_DO_NEWCCV = 0
+c       ISETKW(137) = 1
+c       GOTO 999
+c      END IF
+*
+*. 138: Generation of initial orbitals
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'HF_INI') THEN
+         READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         ISETKW(138) = 1
+         IF(CARD1(1:5).EQ.'H1DIA') THEN 
+           INI_HF_MO = 1
+         ELSE IF(CARD1(1:6).EQ.'READIN') THEN
+           INI_HF_MO = 2
+         ELSE 
+           WRITE(6,*) ' Illegal form of HF_INI :'  
+           INI_HF_MO = 0
+           WRITE(6,'(A,A)') ' Your suggestion: ', CARD1     
+           WRITE(6,*) ' Allowed entries: '
+           WRITE(6,*) ' =================='
+           WRITE(6,*)    'H1DIA' 
+           WRITE(6,*)    'READIN' 
+           NERROR = NERROR + 1
+           ISETKW(138) = -1
+         END IF
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'HFSOLV') THEN
+        READ(LUIN,'(A)') CARD1
+        CALL LFTPOS(CARD1,MXPLNC)
+        CALL UPPCAS(CARD1,MXPLNC)
+        ISETKW(139) = 1
+*
+        IF(CARD1(1:3).EQ.'R-H') THEN
+*. Roothaan-Hall procedure
+           IHFSOLVE = 1
+        ELSE IF (CARD1(1:4).EQ.'EOPD') THEN
+           IHFSOLVE = 2
+        ELSE IF (CARD1(1:6).EQ.'ONE-ST') THEN
+           IHFSOLVE = 3
+        ELSE IF (CARD1(1:2).EQ.'NR'.OR.CARD1(1:2).EQ.'QC') THEN
+           IHFSOLVE = 4
+        ELSE
+          WRITE(6,*) ' Illegal form of HFSOLV :'  
+          INI_HF_MO = 0
+          WRITE(6,'(A,A)') ' Your suggestion: ', CARD1     
+          WRITE(6,*) ' Allowed entries: '
+          WRITE(6,*) ' =================='
+          WRITE(6,*)    'R-H' 
+          WRITE(6,*)    'EOPD' 
+          WRITE(6,*)    'ONE-ST' 
+          WRITE(6,*)    'QC',' or ' ,'NR' 
+          NERROR = NERROR + 1
+          ISETKW(139) = -1
+        END IF
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. Calculate one- and two- particle spin density matrices 
+*
+      IF(rtdb_get(rtdb,'lucia:ISPNDEN',mt_int,1,ISPNDEN)) then
+cglm      IF(CARD(2:7).EQ.'SPNDEN') THEN
+*. Read integer telling whether one- or one- and two-particle-spindensity 
+*  should be calculated
+cglm        READ(LUIN,*) ISPNDEN
+* ISPNDEN = 0 => do not calculate any spindensities 
+* ISPNDEN = 1 => calculate one-particle spin-density
+* ISPNDEN = 2 => calculate one- and two-particle spindensity
+        IF(ISPNDEN.NE.0.AND.ISPNDEN.NE.1.AND.ISPNDEN.NE.2) THEN
+          WRITE(6,*) ' Illegal value following KEYWORD SPNDEN '
+          WRITE(6,*) ' ======================================='
+          WRITE(6,*)
+          WRITE(6,*) ' Allowed values are 0,1,2 '
+          WRITE(6,*) ' Given value ', ISPNDEN
+          ISETKW(140) = -1
+        END IF
+        ISETKW(140) = 1
+cglm        GOTO 999
+      END IF
+
+*. 141: specification of the general twobody operators
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'GTBOPS'.OR.
+     &   CARD(2:7).EQ.'GTBOPT'   ) THEN
+        ISETKW(141) = 1
+        IGTBMOD=0
+        IGTB_DISPTT=0
+        IGTB_CLOSED=0
+        IGTB_TEST_H1=0
+        IGTBCS= 0
+        IGTB_PRJOUT=0
+        ISYMMET_G = 0
+        INC_SING(1:3) = 0
+        INC_DOUB(1:5) = 0
+        I_DO_H0=1
+        EXPG_THRSH = 1D-20
+        MXTERM_EXPG=200
+c scan for sub-keywords
+        I_SUB_KW = 1
+        DO WHILE(I_SUB_KW.EQ.1)
+          READ(LUIN,'(A)') CARD1
+          CALL LFTPOS(CARD1,MXPLNC)
+          CALL UPPCAS(CARD1,MXPLNC)
+          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+          IF (NITEM.EQ.0) CYCLE
+c specify single-excitation operators
+c SING,<n(rank +1)>,<n(rank 0)>,<n(rank -1)>
+          IF (ITEM(1)(1:4).EQ.'SING') THEN
+            DO IITEM = 2, NITEM
+              IF(ITEM(IITEM)(1:1).NE.' '.AND.
+     &             IITEM.LE.4) THEN
+                CALL CHAR_TO_INTEGER(ITEM(IITEM),
+     &               INC_SING(IITEM-1),MXPLNC)
+              END IF
+            END DO
+c specify single-excitation operators
+c DOUB,<n(rank +2)>,<n(rank +1)>,<n(rank 0)>,<n(rank -1)>,<n(rank -2)>
+          ELSE IF (ITEM(1)(1:4).EQ.'DOUB') THEN
+            DO IITEM = 2, NITEM
+              IF(ITEM(IITEM)(1:1).NE.' '.AND.
+     &             IITEM.LE.6) THEN
+                CALL CHAR_TO_INTEGER(ITEM(IITEM),
+     &               INC_DOUB(IITEM-1),MXPLNC)
+              END IF
+            END DO
+c specify Hermitian symmetry of operator
+          ELSE IF (ITEM(1)(1:6).EQ.'HERMIT') THEN
+            IGTBCS=+1
+c specify Anti-Hermitian symmetry of operator (exp(G) is unitary then)
+          ELSE IF (ITEM(1)(1:6).EQ.'UNITAR') THEN
+            IGTBCS=-1
+c specify unsymmetric operator (default anyway)
+          ELSE IF (ITEM(1)(1:6).EQ.'UNSYMM') THEN       
+            IGTBCS= 0
+c symmetrize G operator: +1 symmetrize, -1 anti-symmetrize
+          ELSE IF (ITEM(1)(1:6).EQ.'SYM_G') THEN
+            ISYMMET_G = +1
+            DO IITEM = 2, NITEM
+              IF(ITEM(IITEM)(1:1).NE.' '.AND.
+     &             IITEM.LE.2) THEN
+                CALL CHAR_TO_INTEGER(ITEM(IITEM),
+     &               ISYMMET_G,MXPLNC)
+              END IF
+            END DO
+c calculate new H0, or not
+          ELSE IF (ITEM(1)(1:6).EQ.'CALCH0') THEN
+            I_DO_H0 = 1
+            DO IITEM = 2, NITEM
+              IF(ITEM(IITEM)(1:1).NE.' '.AND.
+     &             IITEM.LE.2) THEN
+                CALL CHAR_TO_INTEGER(ITEM(IITEM),
+     &               I_DO_H0,MXPLNC)
+              END IF
+            END DO
+c define accuracy level
+c ACCU,<expg_thrsh>,<mxterm_expg>
+          ELSE IF (ITEM(1)(1:4).EQ.'ACCU') THEN
+            DO IITEM = 2, NITEM
+              IF(ITEM(IITEM)(1:1).NE.' '.AND.
+     &             IITEM.EQ.2) THEN
+                CALL CHAR_TO_REAL(ITEM(IITEM),
+     &               EXPG_THRSH,MXPLNC)
+              END IF
+              IF(ITEM(IITEM)(1:1).NE.' '.AND.
+     &             IITEM.EQ.3) THEN
+                CALL CHAR_TO_INTEGER(ITEM(IITEM),
+     &               MXTERM_EXPG,MXPLNC)
+              END IF
+            END DO
+c reduce paramter space for closed-shell calculations
+          ELSE IF (ITEM(1)(1:6).EQ.'CLOSED'.OR.
+     &             ITEM(1)(1:6).EQ.'SPINAD') THEN
+            IGTB_CLOSED=1
+c dispose T-T coupled part of G:
+          ELSE IF (ITEM(1)(1:4).EQ.'NOTT') THEN
+            IGTB_DISPTT=1
+            IGTB_CLOSED=1
+c project out 0-eigenvalues of S(ij)
+          ELSE IF (ITEM(1)(1:6).EQ.'PRJOUT') THEN
+            IGTB_PRJOUT=1
+c test H1 operator
+          ELSE IF (ITEM(1)(1:6).EQ.'TESTH1') THEN
+            IGTB_TEST_H1=1
+c test exp(G) expansion (default)
+          ELSE IF (ITEM(1)(1:5).EQ.'EXPG ') THEN
+            IGTBMOD=0
+c test exp(G^2) expansion
+          ELSE IF (ITEM(1)(1:5).EQ.'EXPG2') THEN
+            IGTBMOD=1
+c test LL parameterization of G operator
+          ELSE IF (ITEM(1)(1:4).EQ.'G=LL') THEN
+            IGTBMOD=2
+          ELSE IF (ITEM(1)(1:3).EQ.'UOU') THEN
+            IGTBMOD=3
+c set FUSK-level for experiments (Tak, Jeppe, for dette fantastiske ord -- ak)
+          ELSE IF (ITEM(1)(1:4).EQ.'FUSK') THEN
+            DO IITEM = 2, MAX(2,NITEM)
+              IF(ITEM(IITEM)(1:1).NE.' ') THEN
+                CALL CHAR_TO_INTEGER(ITEM(IITEM),IGTBFUSK,MXPLNC)
+              END IF
+            END DO            
+          ELSE
+            I_SUB_KW = 0
+            BACKSPACE(LUIN)
+          END IF  
+        END DO
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+
+*. 142: analysis (Energy along G) of GTB functional
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'GTBEAG') THEN
+        READ(LUIN,*) N_EAG
+        ISETKW(142) = 1
+        IF (N_EAG.GT.MXPANA.OR.N_EAG.LT.1) THEN
+          WRITE(6,*) 'Silly input for GTBEAG! (',N_EAG,')'
+          WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
+          NERROR = NERROR + 1
+          ISETKW(142) = -1
+          GOTO 999
+        END IF
+        DO II = 1, N_EAG
+          READ(LUIN,*) IT_EAG(II)
+        END DO
+        READ(LUIN,*) NN_EAG
+        IF (NN_EAG.GT.MXPANA.OR.NN_EAG.LT.1) THEN
+          WRITE(6,*) 'Silly input for GTBEAG! (',NN_EAG,')'
+          WRITE(6,*) 'The entry should be between 1 AND ',MXPANA
+          NERROR = NERROR + 1
+          ISETKW(142) = -1
+          GOTO 999
+        END IF
+        DO II = 1, NN_EAG
+          READ(LUIN,*) NG_EAG(II), ST_EAG(II), EN_EAG(II), NP_EAG(II)
+        END DO
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+
+*. 143: analysis (First order overlap) of GTB functional
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'GTBFOO') THEN
+        READ(LUIN,*) N_FOO
+        ISETKW(143) = 1
+        IF (N_FOO.GT.MXPANA.OR.N_FOO.LT.1) THEN
+          WRITE(6,*) 'Silly input for GTBFOO! (',N_FOO,')'
+          WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
+          NERROR = NERROR + 1
+          ISETKW(143) = -1
+        END IF
+        DO II = 1, N_FOO
+          READ(LUIN,*) IT_FOO(II)
+        END DO
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+
+*. 144: analysis (Hessian) of GTB functional
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'GTBHSS') THEN
+        READ(LUIN,*) N_HSS
+        ISETKW(144) = 1
+        IF (N_HSS.GT.MXPANA.OR.N_HSS.LT.1) THEN
+          WRITE(6,*) 'Silly input for GTBHSS! (',N_HSS,')'
+          WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
+          NERROR = NERROR + 1
+          ISETKW(144) = -1
+        END IF
+        DO II = 1, N_HSS
+          READ(LUIN,*) IT_HSS(II)
+        END DO
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 145: Hurray, specify the amount of memory you like !!
+      IF(rtdb_get(rtdb,'lucia:MAXMEM',mt_int,1,MAXMEM)) then
+cglm      IF(CARD(2:7).EQ.'WRKSPC') THEN
+cglm        READ(LUIN,*) MAXMEM
+        ISETKW(145) = 1
+        IF (MAXMEM.LE.0) THEN
+          WRITE(6,*) 'Silly input for WRKSPC! (',MAXMEM,')'
+          NERROR = NERROR + 1
+          ISETKW(145) = -1
+        END IF
+cglm        GOTO 999
+      END IF
+*. 146: Experimental switch to avoid the allocation of N^4 arrays
+*.       in the very beginning
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'SAVMEM') THEN
+        ISETKW(146) = 1
+        ISVMEM=1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*. 147: Define the target wave-function model
+*        needed for passing information to subsequent programs
+*        i.pt. for geom. gradient calculations
+*        read one more line containing the space and the number of the
+*        calculation within that space
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'TARGET') THEN
+        ISETKW(147) = 1
+        READ(LUIN,*) ITGSPC,ITGCLC
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 148: Generate cumulant matrices throgh construction of 
+*.       normal density matrices 
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'CUMULA') THEN
+*. Read max order of cumulants to be constructed 
+        READ(5,*) ICUMULA
+        ISETKW(148) = 1
+        GOTO 999
+       END IF
+      end if
+cglm  ^ skipped for NWChem
+*
+*. 149: Restart IC calculation 
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'RSTRIC') THEN
+*. Restart internal contraction calculation 
+        IRESTRT_IC = 1
+        ISETKW(149) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 150: Number of commutators in MRCC calculations
+*        Specify numbers for three types of commutators: 
+*        NCOMMU_E: Number of commutators in energy evaluation and
+*                   reoptimization of internal state
+*        NCOMMU_J: Number of commutators used in 
+*                   approximate Jacobian 
+*        NCOMMU_V: Number of commutators in CC vector function
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'NCOMMU') THEN
+        READ(5,*) NCOMMU_E, NCOMMU_J, NCOMMU_V
+        ISETKW(150) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 151: Approximate higher commutator in MRCC energy function 
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'APRCME') THEN
+        I_APPROX_HCOM_E = 1
+        ISETKW(151) = 1
+        GOTO 999
+       END IF
+      end if
+cglm  ^ skipped for NWChem
+*
+*. 152: Approximate higher commutator in MRCC vector function 
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'APRCMV') THEN
+        I_APPROX_HCOM_V = 1
+        ISETKW(152) = 1
+        GOTO 999
+       END IF
+      end if
+cglm  ^ skipped for NWChem
+*
+*. 153: Approximate higher commutator in Approximate Jacobian
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'APRCMJ') THEN
+        I_APPROX_HCOM_J = 1
+        ISETKW(153) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 154: In which orbital spaces should density be calculated in ?
+
+      IF(rtdb_get(rtdb,'lucia:IDENS_IN', mt_int,1,IDENS_IN ) .and.
+     &   rtdb_get(rtdb,'lucia:IDENS_AC', mt_int,1,IDENS_AC ) .and.
+     &   rtdb_get(rtdb,'lucia:IDENS_SEC',mt_int,1,IDENS_SEC))  then
+cglm      IF(CARD(2:7).EQ.'DENSPC') THEN
+*. Three numbers, IDENS_IN,IDEN_AC,IDENS_SEC
+*. IDENS_IN = 1 => Construct density in inactive space
+*. IDENS_AC = 1 => Construct density in active space 
+*. IDENS_SEC = 1 => Construct density in secondary space 
+cglm        READ(LUIN,*) IDENS_IN, IDENS_AC, IDENS_SEC
+        ISETKW(154) = 1
+cglm        GOTO 999
+      END IF
+*
+*.155:  Read in initial S and J from DISC file LU_SJ
+*
+      IF(rtdb_get(rtdb,'lucia:IREADSJ',mt_int,1,IREADSJ)) then
+cglm      IF(CARD(2:7).EQ.'READSJ') THEN
+cglm        IREADSJ = 1
+        ISETKW(155) = 1
+cglm        GOTO 999
+      END IF
+*
+*. 156: Use product expansion  of wave-functions
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'PRDEXP') THEN
+        I_DO_PRODEXP = 1
+        ISETKW(156) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 157: The wave-functions for each orbital subspace/atom for product wave functions
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'PRDWVF') THEN
+*. Input goes as 
+*. Loop over orbital subspaces
+*.   Read in number of subspace wave functions for this orbital subspace
+*    Loop over the subspace wave functions for this orbital subspace 
+*    Read in occupation and total spin of each subspace wave function
+*.   ( It could be that spin-patterns should also be added)
+*. GASSH should be given before to give the info on the total number of GASpaces 
+*. and the number of orbital in each subspace
+*. Check first whether GASSH has been defined 
+         IF(ISETKW(50).EQ.0) THEN
+           WRITE(6,*) ' Dear User'
+           WRITE(6,*)
+           WRITE(6,*) ' GASSH must be specified before PRDWVF'
+           WRITE(6,*)
+     &     ' Else I do not know about the number of orbital spaces'
+           WRITE(6,*) ' So I will stop '
+           STOP 'READIN: put GASSH before PRDWVF'
+         END IF
+         DO IGAS = 1, NGAS
+           READ(5,*) NWF_PER_SUBSPC(IGAS)
+           DO IWF = 1, NWF_PER_SUBSPC(IGAS)
+             READ(5,*)(ISUBSPCWF_OCC(IORB,IWF,IGAS),IORB=1,NOBPT(IGAS)),
+     &                MULT_FOR_SUBSPCWF(IWF,IGAS)
+           END DO
+         END DO
+         ISETKW(157) = 1
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 158: Max ineratomic excitation level for product wf expansion
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'PRDEXC') THEN
+*. Read in allowed excitation level between different atoms in product wave function expansion  
+        READ(5,*) INTRA_EXC_PRWF
+        ISETKW(158) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 159: Printflag for CSF information
+      IF(rtdb_get(rtdb,'lucia:IPRCSF',mt_int,1,IPRCSF)) then
+cglm      IF(CARD(2:7).EQ.'IPRCSF') THEN
+cglm        READ(5,*) IPRCSF
+        ISETKW(159) = 1
+cglm        GOTO 999
+      END IF
+*
+* 160: Include active-active excitations 
+*
+      IF(rtdb_get(rtdb,'lucia:INC_AA',mt_log,1,INC_AA_on)) then
+cglm      IF(CARD(2:7).EQ.'INC_AA') THEN
+        I_INC_AA = 1
+        ISETKW(160) = 1
+        WRITE(6,*) ' Input: I_INC_AA = ', I_INC_AA
+cglm        GOTO 999
+      ENDIF
+*
+* 161: Threshold for singularities of metric in IN
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:6).EQ.'SINGU') THEN
+        READ(5,*) THRES_SINGU
+        ISETKW(161) = 1
+C?      WRITE(6,*) ' THRES_SINGU = ', THRES_SINGU
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 162: Largest number in initial iterations - for restartinf
+*
+      IF(rtdb_get(rtdb,'lucia:MXVC_I',mt_int,1,MXVC_I)) then
+cglm      IF(CARD(2:7).EQ.'MXVC_I') THEN
+cglm        READ(5,*) MXVC_I
+        ISETKW(162) = 1
+C       WRITE(6,*) ' READIN: MXVC_I = ', MXVC_I
+cglm        GOTO 999
+      END IF
+*
+* 163: Largest number of macro-iterations
+*
+      IF(rtdb_get(rtdb,'lucia:MAXITM',mt_int,1,MAXITM)) then
+cglm      IF(CARD(2:7).EQ.'MXIT_M') THEN
+cglm        READ(5,*) MAXITM
+        ISETKW(163) = 1
+cglm        GOTO 999
+      END IF
+*
+* 164: Freeze internal states in internal contraction calc?
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'FR_INT') THEN
+        I_FIX_INTERNAL = 1
+        ISETKW(164) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 165: Form of Hamiltonian used to define internal zero order states
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'ZS_HAM') THEN
+        READ(5,*) I_INT_HAM
+        ISETKW(165) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 166: Form of Hamiltonian used to define internal zero order states
+*. Use internal contraction without EI-split
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:6).EQ.'NO_EI') THEN
+        I_DO_EI = 0
+        IEI_VERSION = 0
+        ISETKW(166) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 167: Read in excitation information in form appropriate for 
+*      internal contaction CI from f.ex. SD reference
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'IC_EXO') THEN
+         READ(5,*) ICEXC_RANK_MIN,ICEXC_RANK_MAX, ICEXC_INT
+         ISETKW(167) = 1
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 168: General internal contraction operators for GIC
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'GIC_EX') THEN
+*. Number of external T-operators
+         READ(5,*) NTEXC_G
+         DO ITEXC = 1, NTEXC_G
+*. Min exc rank, max exc. ran, are internal allowed, space to be
+*. projected out, space of resulting operator
+           READ(5,*) ICEXC_RANK_MIN_G(ITEXC),ICEXC_RANK_MAX_G(ITEXC),
+     &            ICEXC_INT_G(ITEXC), IPTCSPC_G(ITEXC),ITCSPC_G(ITEXC)
+         END DO
+         ISETKW(168) = 1
+         GOTO 999  
+       END IF
+      end if  
+cglm  ^ skipped for NWChem
+*
+* 169: Print level for MCSCF
+      IF(rtdb_get(rtdb,'lucia:IPRMCSCF',mt_int,1,IPRMCSCF)) then
+cglm       IF(CARD(2:7).EQ.'IPRMCS') THEN
+cglm         READ(5,*)  IPRMCSCF
+         ISETKW(169) = 1
+cglm         GOTO 999
+      END IF
+*
+* 170: Method for optimizing MCSCF wave function
+      IF(rtdb_get(rtdb,'lucia:MCSCFA',mt_log,1,MCSCFA_on)) then
+cglm       IF(CARD(2:7).EQ.'MCSCFA') THEN
+*. New (october 2011: IMCSCF_MET, IOOE2_APR, I_DO_LINSEA_MCSCF
+       IF(rtdb_cget(rtdb,'lucia:CARD1',1,CARD1)) then
+cglm       READ(LUIN,'(A)') CARD1
+        CALL LFTPOS(CARD1,MXPLNC)
+        CALL UPPCAS(CARD1,MXPLNC)
+        CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+*. The three expected input parameters:
+* IMCSCF_MET = 2 => Two-step Newton procedure 
+*            = 1 => One-step Newton procedure (not implemented pt)
+*            = 3 => Two-step Update
+*            = 4 => One-step update
+*
+* IOOE2_APR  = 1 => Construct full orbital Hessian
+*            = 2 => Construct diagonal blocks of orbital Hessian (not implemented)
+*            = 3 => Construct approximate diagonal (not implemented)
+* I_DO_LINSEA_MCSCF = 1 => Perform Line search in orbital optimization
+*                   = 0 => Perform line search if energy increases in
+*                          orbital optimization
+*                   = -1 => Never perform line search
+         IF(NITEM.NE.3) THEN
+           WRITE(6,*) 
+     &     ' 3 entries required in MCSCFA: ',
+     &     ' IMCSCF_MET, IOOE2_APR,I_DO_LINSEA_MCSCF'
+           WRITE(6,*) ' Number of items supplied by you ', NITEM
+           ISETKW(170) = -1
+           NERROR = NERROR + 1
+         ELSE
+*. Three items supplied, proceed as 
+           CALL CHAR_TO_INTEGER(ITEM(1),IMCSCF_MET,MXPLNC)
+           CALL CHAR_TO_INTEGER(ITEM(2),IOOE2_APR,MXPLNC)
+           CALL CHAR_TO_INTEGER(ITEM(3),I_DO_LINSEA_MCSCF,MXPLNC)
+           ISETKW(170) = 1
+           IF(IMCSCF_MET.LT.1.OR.IMCSCF_MET.GT.4) THEN
+             WRITE(6,*) ' Illegal value of IMCSCF_MET = ', IMCSCF_MET
+             ISETKW(170) = -1
+           END IF
+           IF(IOOE2_APR.LT.1.OR.IOOE2_APR.GT.3) THEN
+             WRITE(6,*) ' Illegal value of IOOE2_APR = ', IOOE2_APR
+             ISETKW(170) = -1
+           END IF
+           IF(I_DO_LINSEA_MCSCF.LT.-1.OR.I_DO_LINSEA_MCSCF.GT.1) THEN
+             WRITE(6,*) ' Illegal value of I_DO_LINSEA_MCSCF = ', 
+     &       I_DO_LINSEA_MCSF
+             ISETKW(170) = -1
+           END IF
+         END IF
+cglm         GOTO 999
+       END IF ! GLM Adds
+      END IF
+*
+* 171: Form of storing and transforming two-electron integrals 
+*
+      IF(rtdb_get(rtdb,'lucia:ITRA_ROUTE',mt_int,1,ITRA_ROUTE)) then
+cglm       IF(CARD(2:7).EQ.'TRA_RO') THEN
+cglm         READ(5,*) ITRA_ROUTE
+* ITRA_ROUTE = 1 => Old storage and transformation
+* ITRA_ROUTE = 2 => New storage and transformation
+         IF(ITRA_ROUTE.NE.1.AND.ITRA_ROUTE.NE.2) THEN
+           WRITE(6,*) ' Illegal value of ITRA_ROUTE = ', ITRA_ROUTE
+           WRITE(6,*) ' Allowed values: 1, 2 '
+           ISETKW(171) = -1
+           NERROR = NERROR + 1
+         END IF
+         ISETKW(171) = 1
+cglm         GOTO 999
+      END IF
+*
+* 172: Info in nonorthogonal calculation. Pt calculation is 
+*      required to have NGAS-1 othogonal spaces and one 
+*      nonorthogonal space, NORTCI_SCVB_SPACE.  The CI expansion in the 
+*      nonorthogonal is NORTCI_SCVP_EXCIT excitation out from a 
+*      standard spin-coupled valence bond calculation
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'NORTIN') THEN
+*. Read two numbers: Nonorthogonal space and allowed number of 
+*. excitations out from spin coupled valence bond
+         READ(5,*)  NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT
+C?       WRITE(6,*) ' Test: NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT = ',
+C?   &                      NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT
+         ISETKW(172) = 1 
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'VBRFSP') THEN
+*. Info in valence bond CI reference space
+* Max and min occupation in CI reference space
+*  
+*. requires: NORTCIX: To define Nonoorthogonal orbital space
+*            GASSH - to give info on number of orbitals in space
+         IERROR_LOC = 0
+         IF(ISETKW(172).NE.1) THEN
+           WRITE(6,*) ' NORTCIX keyword must be specified before VBRFSP'
+           NERROR = NERROR + 1
+           IERROR_LOC = 1
+         END IF
+         IF(ISETKW(50).NE.1) THEN
+           WRITE(6,*) ' GASSH keyword must be specified before  VBRFSP'
+           IERROR_LOC = 1
+           NERROR = NERROR + 1
+         END IF
+         IF(IERROR_LOC.EQ.1) THEN
+           ISETKW(173) = -1 
+           GOTO 999
+         ELSE
+           NORBVBSPC = NOBPT(NORTCIX_SCVB_SPACE)
+C?         WRITE(6,*) ' NOBPT(1), NOBPT(2) = ', NOBPT(1), NOBPT(2)
+           WRITE(6,*) ' Test: NORTCIX_SCVB_SPACE, NORBVBSPC = ',
+     &                        NORTCIX_SCVB_SPACE, NORBVBSPC 
+*. Max and min occupation in nonorthogonal CI space
+           READ(5,*) (VB_REFSPC_MIN(IORB),IORB = 1, NORBVBSPC)
+           READ(5,*) (VB_REFSPC_MAX(IORB),IORB = 1, NORBVBSPC)
+           CALL ICOPVE(VB_REFSPC_MIN,VB_REFSPCO_MIN,NORBVBSPC)
+           CALL ICOPVE(VB_REFSPC_MAX,VB_REFSPCO_MAX,NORBVBSPC)
+           ISETKW(173) = 1
+           GOTO 999
+         END IF
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 174: Method for performing Northogonal CI calculation
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'NORT_M') THEN
+* NORT_MET = 1 => Reexpand in full space
+* NORT_MET = 2 => Configuration based approach
+         READ(5,*)  NORT_MET
+         ISETKW(174) = 1
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 175: Information on MO fragments of molecule
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'MOFRAG') THEN
+*. Number of different types of fragments: say number of different 
+*. types of atoms
+         READ(5,*) NFRAG_TP
+*. Characters for the Fragments (Character*3 )
+          READ(5,*) (CFRAG(IFRAG),IFRAG = 1, NFRAG_TP)
+*. Number of fragments making up the molecule, two for a diatomic 
+*  if each atom  is a fragment
+         READ(5,*) NFRAG_MOL
+*. And read in the fragments making up the molecule. 
+*. Should be in the order of the MOLECULE.INP file
+         READ(5,*) (IFRAG_MOL(IFRAG),IFRAG=1, NFRAG_MOL)
+         ISETKW(175) = 1
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 176: Information about mapping of fragment MO's to molecule MO's
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'FRAGOB') THEN
+*. Call routine to readin fragment to orbital info
+         CALL ASSEMBLE_MO_FROM_FRAGMENTS_DEFINE
+         ISETKW(176) = 1
+         GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 177: Information on generation of initial orbitals for nonorthogonal
+*      calculation
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+        IF(CARD(2:7).EQ.'INI_MO') THEN
+          READ(5,*)  INI_MO_TP, INI_MO_ORT, INI_ORT_VBGAS
+          IF(IECHO.EQ.1) THEN
+            WRITE(6,'(A,3I4)') 
+     &      ' READIN: INI_MO_TP, INI_MO_ORT,  INI_ORT_VBGAS  = ',
+     &                INI_MO_TP, INI_MO_ORT,  INI_ORT_VBGAS
+          END IF
+          ISETKW(177) = 1
+*. INI_MO_TP: Construction of the various GAS spaces
+*            = 1 => Use atomic orbitals as orbitals
+*            = 2 => Rotate orbitals in MOAOIN (from DALTON) calc
+*                   so the MOAO matrix is diagonal in VB active space
+*            = 3 => Use MOAOIN orbitals without modifications
+*            = 4 => Built info from fragment information
+*            = 5 => read in from LUCINF_O and orthogonalize 
+*                    as specified by INI_MO_ORT
+* INI_MO_ORT: Othogonalization in Orbital subspaces
+*            = 0 => No orthogonalization
+*            = 1 => Symmetric orthogonalization
+*            = 2 => Diagonalize metric
+* INI_ORT_VBGAS = 1: Orthogonalize GASpace of VB calculation
+*            = 0: No orthogonalization of GASpace for VB calc.
+          IF(INI_MO_TP.LT.1.OR.INI_MO_TP.GT.5) THEN
+            WRITE(6,*) ' INI_MO_TP out of range, value = ', INI_MO_TP
+            ISETKW(177) = -1
+            NERROR = NERROR + 1
+          END IF
+          IF(INI_MO_ORT.LT.0.OR.INI_MO_ORT.GT.2) THEN
+            WRITE(6,*) ' INI_MO_ORT out of range, value = ',INI_MO_ORT
+            ISETKW(177) = -1
+            NERROR = NERROR + 1
+          END IF
+          IF(INI_ORT_VBGAS.LT.0.OR.INI_ORT_VBGAS.GT.1) THEN
+            WRITE(6,*) 
+     &      ' INI_ORT_VBGAS out of range, value = ',INI_ORT_VBGAS
+            ISETKW(177) = -1
+            NERROR = NERROR + 1
+          END IF
+          GOTO 999
+        END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 178: Read in initial configuration: Ascending list of occupied orbitals
+*                                     in active space
+* 2 electrons in orbital 3, 1 electron in orbital 5,
+* 1 electron in orbital 6 is therefore specified as  3 3 5 6
+      IF(rtdb_get(rtdb,'lucia:INICNF',mt_log,1,INICNF_on)) then
+cglm        IF(CARD(2:7).EQ.'INICNF') THEN
+       IF(rtdb_cget(rtdb,'lucia:CARD1',1,CARD1)) then
+cglm       READ(LUIN,'(A)') CARD1
+           CALL LFTPOS(CARD1,MXPLNC)
+           CALL UPPCAS(CARD1,MXPLNC)
+           CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+*. And as integers
+           NELEC_INICONF = NITEM
+           DO IELEC = 1, NELEC_INICONF
+                CALL CHAR_TO_INTEGER(ITEM(IELEC),
+     &               INT_ITEM(IELEC),MXPLNC)
+           END DO
+*. Reform to standard compressed form
+C REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
+           NOCOB_L = 0
+           CALL REFORM_CONF_OCC(INT_ITEM,INI_CONF,
+     &          NELEC_INICONF,NOCOB_L,1)
+           NOB_INI_CONF = NOCOB_L
+           IF(IECHO.EQ.1) THEN
+             WRITE(6,*) '  Initial Configuration: '
+             CALL IWRTMA(INI_CONF,1,NOB_INI_CONF,1,NOB_INI_CONF)
+           END IF
+           ISETKW(178) = 1
+           I_HAVE_INI_CONF = 1
+cglm           GOTO 999
+       END if ! GLM adds
+      END IF
+*
+* 179: Print flag for Valence bond calculation
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+        IF(CARD(2:5).EQ.'PRVB') THEN
+          READ(5,*) IPRVB
+          ISETKW(179) = 1
+          GOTO 999
+        END IF
+      end if
+cglm  ^ skipped for NWChem
+*
+* 180: GIO method: Specify occupation of space
+*      where Hamiltonian is calculated exact
+*
+      IF(rtdb_get(rtdb,'lucia:GIOMET',mt_log,1,GIOMET_on)) then
+cglm        IF(CARD(2:7).EQ.'GIOMET') THEN
+*. Read in min and max for space where Hamiltonian 
+* is calculated exact
+         rtdb_get(rtdb,'IOCCPSPC(1)',mt_int,ngas,ioccpspc(1,1))
+         rtdb_get(rtdb,'IOCCPSPC(2)',mt_int,ngas,ioccpspc(1,2))
+cglm         READ(5,*) (IOCCPSPC(IGAS,1),IGAS=1,NGAS)
+cglm         READ(5,*) (IOCCPSPC(IGAS,2),IGAS=1,NGAS)
+         ISETKW(180) = 1 
+         I_AM_GIOVANNI = 1
+cglm         GOTO 999
+      END IF
+*
+* 181: Print flag for integrals
+*
+      IF(rtdb_get(rtdb,'lucia:IPRINTEGRAL',mt_int,1,IPRINTEGRAL)) then
+cglm        IF(CARD(2:7).EQ.'IPRINT') THEN
+cglm          READ(5,*) IPRINTEGRAL
+          ISETKW(181) = 1
+cglm          GOTO 999
+      END IF
+*
+* 182: Form of preconditioner in CSF basis
+*
+      IF(rtdb_get(rtdb,'lucia:IH0_CSF',mt_int,1,IH0_CSF)) then
+cglm       IF(CARD(2:7).EQ.'H0_CSF') THEN
+* 1 => Averaged determinant diagonal
+* 2 => CSF diagonal
+* 3 => Configuration blocks of H
+cglm        READ(5,*)  IH0_CSF
+        ISETKW(182) = 1
+cglm        GOTO 999
+      END IF
+*
+* 183: Form of batchning of configurations
+*
+      IF(rtdb_get(rtdb,'lucia:ICNFBAT',mt_int,1,ICNFBAT)) then
+cglm    IF(CARD(2:7).EQ.'CNFBAT') THEN
+cglm       READ(5,*) ICNFBAT
+* ICNFBAT = 1 => Complete configuration expansion  stored in memory
+* ICNFBAT = 2 => Configuration info and expansions stored for a 
+*                single OCCLS
+        ISETKW(183) = 1
+cglm    GOTO 999
+      END IF
+*
+*. 184: Combine several GASpaces into ensembles
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'ENSMGS') THEN
+        READ(5,*) NENSGS
+        DO JENSGS = 1, NENSGS
+*. Number of GASpaces in this ensemble
+          READ(5,*) LENSGS(JENSGS)
+*. And the GASpaces of this ensemble
+          READ(5,*) (IENSGS(IGAS,JENSGS),IGAS = 1, LENSGS(JENSGS))
+        END DO
+        ISETKW(184) = 1
+        GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+*. 185: Constraints on occupation in a ensemble space
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'ENSCON') THEN
+*. Constraints are imposed only on Ensemble GAS 1
+*. Requires that the number number of CI spaces have been defined
+        IF(ISETKW(51).EQ.0) THEN
+          WRITE(6,*) 
+     &    ' Keyword ENSCON requires the number of CISPACES'
+          WRITE(6,*) 
+     &    ' Specify GASSPC before ENSCON '
+          ISETKW(185) = -1
+          NERROR = NERROR + 1
+          GOTO 999
+        ELSE
+*. Number of allowed values of electrons in Ensemble gas space 
+          I_CHECK_ENSGS = 1
+          DO ISPC = 1, NCISPC
+            READ(5,*) NELVAL_IN_ENSGS(ISPC)
+            READ(5,*) (IEL_IN_ENSGS(IEL,ISPC),
+     &                 IEL = 1, NELVAL_IN_ENSGS(ISPC))
+          END DO
+          ISETKW(185) = 1
+          GOTO 999
+        END IF
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 186: Symmetry-equivalent groups of fragments
+*
+      if (inw_lucia .eq. 0) then
+cglm  ^ skipped for NWChem
+       IF(CARD(2:7).EQ.'EQFRAG') THEN
+          ISETKW(186) = 1
+*. Read in symmetry-equivalent sets of fragments 
+          READ(5,*) NEQVGRP_FRAG
+          DO IEQV = 1, NEQVGRP_FRAG
+            READ(5,*) LEQVGRP_FRAG(IEQV)
+            READ(5,*) 
+     &      (IEQVGRP_FRAG(IFRAG,IEQV),IFRAG = 1, LEQVGRP_FRAG(IEQV))
+          END DO
+          GOTO 999
+       END IF
+      end if 
+cglm  ^ skipped for NWChem
+*
+* 187: Supersymmetry in use
+*
+      IF(rtdb_get(rtdb,'lucia:SUPSYM',mt_log,1,SUPSYM_on)) then
+cglm  IF(CARD(2:7).EQ.'SUPSYM') THEN
+       ISETKW(187) = 1
+       I_USE_SUPSYM = 1
+*. Read form of supersymmetry
+       IF(rtdb_cget(rtdb,'lucia:CARD1',1,CARD1)) then
+cglm    READ(LUIN,'(A)') CARD1
+        CALL LFTPOS(CARD1,MXPLNC)
+        CALL UPPCAS(CARD1,MXPLNC)
+*
+        IF(CARD1(1:6).EQ.'ATOMIC') THEN
+*. Atomic supersymmetry
+           CSUPSYM(1:6) = 'ATOMIC'
+*. No explicit use of inversion symmetry so
+           INVCNT = 0
+        ELSE IF (CARD1(1:6).EQ.'LINEAR') THEN
+           CSUPSYM(1:6) = 'LINEAR'
+*. For linear there are two possibilities: DinfH or CinfV.
+*. Look on number of irreps to devide whether there is a center of inversion
+           IF(NIRREP.EQ.8) THEN
+            INVCNT = 1
+           ELSE 
+            INVCNT = 0
+           END IF
+        ELSE
+          WRITE(6,*) ' Illegal form of SUPSYM :'  
+          INI_HF_MO = 0
+          WRITE(6,'(A,A)') ' Your suggestion: ', CARD1     
+          WRITE(6,*) ' Allowed entries: '
+          WRITE(6,*) ' =================='
+          WRITE(6,*)    'ATOMIC' 
+          WRITE(6,*)    'LINEAR'
+          NERROR = NERROR + 1
+          ISETKW(187) = -1
+        END IF
+       END IF ! GLM adds  
+cglm    GOTO 999
+      END IF
+*
+* 188 Double occupied super-symmetry irreps for HF
+*     is also used for HF occupations for standard
+*
+      IF(rtdb_get(rtdb,'lucia:HFD_OC',mt_log,1,HFD_OC_on)) then
+cGLM      IF(CARD(2:7).EQ.'HFD_OC') THEN
+C?      WRITE(6,*) ' HFD_OC identified '
+        ISETKW(188) = 1
+*. Read line in, number of irreps not known 
+        IZERO = 0
+        CALL ISETVC(NHFD_IRREP_SUPSYM,IZERO, MAX_SUPSYM_IRREP)
+        IF(rtdb_cget(rtdb,'lucia:CARD1',1,CARD1)) then
+cglm        READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         IF(NITEM.GT.MAX_SUPSYM_IRREP) THEN
+          WRITE(6,*) ' HFD_SP: Number of irreps larger than allowd'
+          WRITE(6,*) ' Actual and MAX: ', NITEM, MAX_SUPSYM_IRREP
+          NERROR = NERROR + 1
+          ISETKW(188) = -1
+*. Reduce temporary number of irreps
+          NITEM = MAX_SUPSYM_IRREP
+         END IF
+         NACT_SUPSYM_IRREP = MAX(NACT_SUPSYM_IRREP,NITEM)
+*. And change into integers and save 
+         DO IRREP = 1, NITEM
+          CALL CHAR_TO_INTEGER(ITEM(IRREP),
+     &         NHFD_IRREP_SUPSYM(IRREP),MXPLNC)
+         END DO
+        END IF !GLM adds 
+cglm        GOTO 999
+      END IF
+*
+* 189 Singly occupied super-symmetry irreps for HF
+*
+      IF(rtdb_get(rtdb,'lucia:HFS_OC',mt_log,1,HFS_OC_on)) then
+cglm      IF(CARD(2:7).EQ.'HFS_OC') THEN
+        ISETKW(189) = 1
+*. Read line in, number of irreps not known 
+        IZERO = 0
+        CALL ISETVC(NHFS_IRREP_SUPSYM,IZERO, MAX_SUPSYM_IRREP)
+        IF(rtdb_cget(rtdb,'lucia:CARD1',1,CARD1)) then
+cglm        READ(LUIN,'(A)') CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+         IF(NITEM.GT.MAX_SUPSYM_IRREP) THEN
+          WRITE(6,*) ' HFS_SP: Number of irreps larger than allowd'
+          WRITE(6,*) ' Actual and MAX: ', NITEM, MAX_SUPSYM_IRREP
+          NERROR = NERROR + 1
+          ISETKW(189) = -1
+*. Reduce temporary number of irreps
+          NITEM = MAX_SUPSYM_IRREP
+         END IF
+         NACT_SUPSYM_IRREP = MAX(NACT_SUPSYM_IRREP,NITEM)
+*. And change into integers and save 
+         DO IRREP = 1, NITEM
+          CALL CHAR_TO_INTEGER(ITEM(IRREP),
+     &         NHFS_IRREP_SUPSYM(IRREP),MXPLNC)
+         END DO
+cglm        GOTO 999
+        END IF ! GLM adds
+      END IF
+*
+* 190 super-symmetry irreps for GAS including inactive and secondary
+*
+      IF(rtdb_get(rtdb,'lucia:GAS_SP',mt_log,1,GAS_SP_on)) then
+cglm      IF(CARD(2:7).EQ.'GAS_SP') THEN
+        ISETKW(190) = 1
+        IZERO = 0
+        DO IGAS = 0, NGAS + 1
+*. Read line in, number of irreps not known 
+          CALL ISETVC(NGAS_IRREP_SUPSYM(1,IGAS),IZERO, MAX_SUPSYM_IRREP)
+          IF(rtdb_cget(rtdb,'lucia:CARD1',1,CARD1)) then
+cglm          READ(LUIN,'(A)') CARD1
+           CALL LFTPOS(CARD1,MXPLNC)
+           CALL UPPCAS(CARD1,MXPLNC)
+           CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+           IF(NITEM.GT.MAX_SUPSYM_IRREP) THEN
+            WRITE(6,*) ' GAS_SP: Number of irreps larger than allowd'
+            WRITE(6,*) ' Actual and MAX: ', NITEM, MAX_SUPSYM_IRREP
+            NERROR = NERROR + 1
+            ISETKW(188) = -1
+*. Reduce temporary number of irreps
+            NITEM = MAX_SUPSYM_IRREP
+           END IF
+           NACT_SUPSYM_IRREP = MAX(NACT_SUPSYM_IRREP,NITEM)
+*. And change into integers and save 
+           DO IRREP = 1, NITEM
+            CALL CHAR_TO_INTEGER(ITEM(IRREP),
+     &           NGAS_IRREP_SUPSYM(IRREP,IGAS),MXPLNC)
+           END DO
+          END IF ! GLM adds 
+        END DO
+cglm        GOTO 999
+      END IF
+*
+*. Final orbitals are not ordered using super-symmetry
+       IF(rtdb_get(rtdb,'lucia:NOSPFI',mt_log,1,NOSPFI_on)) then
+cglm        IF(CARD(2:7).EQ.'NOSPFI') THEN
+         ISETKW(191) = 1
+         I_NEGLECT_SUPSYM_FINAL_MO = 1
+cglm         GOTO 999
+       END IF
+*
+       if (inw_lucia .eq. 0) then
+cglm   ^ skipped for NWChem
+        IF(CARD(2:7).EQ.'FRG=LU') THEN
+*. Fragments are read from LUCIA files - even if normal environment is DALTON
+         ISETKW(192) = 1
+         I_USE_LUCIA_FRAGMENTS = 1
+         GOTO 999
+        END IF
+       end if
+cglm   ^ end IF for skipping command in NWChem env.
+*
+      IF(rtdb_cget(rtdb,'lucia:FRZORB',1,CARD1)) then
+cGLM    IF(CARD(2:7).EQ.'FRZORB') THEN
+*. Orbitals frozen in MCSCF optimization  -are given in Type order
+cglm    READ(LUIN,'(A)') CARD1
+        CALL LFTPOS(CARD1,MXPLNC)
+        CALL UPPCAS(CARD1,MXPLNC)
+        CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+        NFRZ_ORB = NITEM
+        DO IORB = 1, NFRZ_ORB
+          CALL CHAR_TO_INTEGER(ITEM(IORB),IFRZ_ORB(IORB),MXPLNC)
+        END DO
+        ISETKW(193) = 1
+cglm        GOTO 999
+      END IF
+
+      IF(rtdb_get(rtdb,'lucia:ISBSPPR',mt_int,1,ISBSPPR) .and. 
+     & rtdb_get(rtdb,'lucia:ISBSPPR_INI',mt_int,1,ISBSPPR_INI)) then
+*. Subspace in which exact Hamiltonian will be used for preconditioner and 
+*. first space where this will be applied
+cglm      IF(CARD(2:7).EQ.'SBSPPR') THEN
+cglm        READ(5,*)  ISBSPPR, ISBSPPR_INI
+        ISETKW(194) = 1
+cglm        GOTO 999
+      END IF
+*
+*
+*. Number of roots in initial CI
+*
+cglm  IF(CARD(2:7).EQ.'IN_NRO') THEN
+      IF(rtdb_get(rtdb,'lucia:IN_NRO',mt_int,1,IN_NRO)) then
+cGLM       READ(5,*)  INI_NROOT
+       ISETKW(195) = 1
+cglm       GOTO 999
+      END IF
+*
+*. Root to be selected from initial CI
+*
+COLD  IF(CARD(2:7).EQ.'IN_SRO') THEN
+*. Specify a method + value:
+*  SELORD, INI_SROOT => Select root number INI_SROOT
+*  SELSPS , INI_SUPSYM => Select root with super-symmetry INI_SUPSYM
+COLD   READ(5,*)  INI_ROOTM, IVAL
+COLD   WRITE(6,*) ' INI_ROOTM, IVAL = ', INI_ROOTM, IVAL
+COLD   ISETKW(196) = 1
+COLD   INI_SROOT = 0
+COLD   IF(INI_ROOTM(1:6).EQ.'SELORD') THEN
+COLD     INI_SROOT = IVAL
+COLD   ELSE IF (INI_ROOTM(1:6).EQ.'SELSPS') THEN
+COLD     INI_SUPSYM = IVAL
+COLD   ELSE
+COLD     WRITE(6,*) ' Illegal string in IN_SRO ', INI_ROOTM
+COLD     NERROR = NERROR + 1
+COLD     ISETKW(196) = -1
+COLD   END  IF
+COLD   WRITE(6,*) ' From input, INI_SUPSYM = ', INI_SUPSYM
+COLD   GOTO 999
+COLD  END IF
+C
+       if (inw_lucia .eq. 0) then
+cglm   ^ skipped for NWChem
+        IF(CARD(2:7).EQ.'SEL_RT') THEN
+*. Specify a method + value:
+*  SELORD, INI_SROOT => Select root number INI_SROOT
+*  SELSPS , INI_SUPSYM => Select root with super-symmetry INI_SUPSYM
+         READ(5,*)  IROOT_MET, IVAL
+         WRITE(6,*) ' IROOT_MET, IVAL = ', IROOT_MET, IVAL
+         ISETKW(196) = 1
+         ITG_SROOT = 0
+         IF(IROOT_MET(1:6).EQ.'SELORD') THEN
+           ITG_SROOT = IVAL
+         ELSE IF (IROOT_MET(1:6).EQ.'SELSPS') THEN
+           ITG_SUPSYM = IVAL
+         ELSE
+           WRITE(6,*) ' Illegal string in SEL_RT ', IROOT_MET
+           NERROR = NERROR + 1
+           ISETKW(196) = -1
+         END  IF
+         WRITE(6,*) ' From input, ITG_SUPSYM = ', ITG_SUPSYM
+*. Should this root selection be carried out in all calculations or just initial?
+         READ(5,*) CARD1
+         CALL LFTPOS(CARD1,MXPLNC)
+         CALL UPPCAS(CARD1,MXPLNC)
+         IF(CARD1(1:3).EQ.'INI') THEN
+           ISEL_ONLY_INI = 1
+         ELSE IF(CARD1(1:3).EQ.'ALL') THEN
+           ISEL_ONLY_INI = 0
+         ELSE 
+           WRITE(6,*) ' Unknown value for ISEL_ONLY_INI'
+           WRITE(6,*) ' Allowed input: INI ALL '
+           WRITE(6,*) ' Given input ', CARD1
+           NERROR = NERROR + 1
+           ISETKW(196) = -1
+         END IF
+         GOTO 999
+        END IF
+       end if
+cglm   ^ end IF for skipping command in NWChem env.
+
+*
+* Root selection (during optimization sequence)
+*
+cglm  IF(CARD(2:7).EQ.'RT_SEL') THEN
+      IF(rtdb_get(rtdb,'lucia:IROOT_SEL',mt_int,1,IROOT_SEL)) then
+cglm    READ(5,*) IROOT_SEL
+        ISETKW(197) = 1
+cglm    GOTO 999
+      END IF
+*
+* First space where specified orbitals will be frozen
+*
+       if (inw_lucia .eq. 0) then
+cglm   ^ skipped for NWChem
+        IF(CARD(2:7).EQ.'FRZFST') THEN
+         READ(5,*)  IFRZFST
+         ISETKW(198) = 1
+         GOTO 999
+        END IF
+       end if
+cglm   ^ end IF for skipping command in NWChem env.
+*
+* A set of general VB spaces
+*
+       if (inw_lucia .eq. 0) then
+cglm   ^ skipped for NWChem
+        IF(CARD(2:7).EQ.'VBGNSP') THEN
+* Info on additional set of MIN max spaces for nonorthogonal CI
+*. requires: NORTCIX: To define Nonoorthogonal orbital space
+*            GASSH - to give info on number of orbitals in space
+         IERROR_LOC = 0
+         IF(ISETKW(172).NE.1) THEN
+           WRITE(6,*) ' NORTCIX keyword must be specified before VBGNSP'
+           NERROR = NERROR + 1
+           IERROR_LOC = 1
+         END IF
+         IF(ISETKW(50).NE.1) THEN
+           WRITE(6,*) ' GASSH keyword must be specified before  VBGNSP'
+           IERROR_LOC = 1
+           NERROR = NERROR + 1
+         END IF
+         IF(IERROR_LOC.EQ.1) THEN
+           ISETKW(173) = -1 
+           GOTO 999
+         ELSE
+           NORBVBSPC = NOBPT(NORTCIX_SCVB_SPACE)
+*. Number of additional spaces
+           READ(5,*)  NVBGNSP
+           DO IVBGNSP = 1, NVBGNSP
+*. Max and min occupation in nonorthogonal CI space
+             READ(5,*) (VB_GNSPC_MIN(IORB,IVBGNSP),IORB = 1, NORBVBSPC)
+             READ(5,*) (VB_GNSPC_MAX(IORB,IVBGNSP),IORB = 1, NORBVBSPC)
+             ISETKW(199) = 1
+           END DO
+           GOTO 999
+         END IF
+        END IF
+       end if
+cglm   ^ end IF for skipping command in NWChem env.
+*
+       if (inw_lucia .eq. 0) then
+cglm   ^ skipped for NWChem
+        IF(CARD(2:7).EQ.'VBOBOR') THEN
+*. Read in order or active orbitals corresponding to the MINMAX 
+* occupations in VBRFSP, VBGNSP. It is assumed that NORBVBSPC has
+* been determined 
+*. To be precise: The original orbital number of each reordered orbital
+*. is read on
+         READ(5,*)  (IREO_MNMX_OB_NO(IORB), IORB = 1,NORBVBSPC)
+         WRITE(6,*) ' IREO_MNMX_OB_NO: '
+         CALL IWRTMA(IREO_MNMX_OB_NO,1,NORBVBSPC ,1,NORBVBSPC)
+*. And define the reverse ordering from original numbers to new
+         DO IOB = 1, NORBVBSPC 
+          IREO_MNMX_OB_ON(IREO_MNMX_OB_NO(IOB)) = IOB
+         END DO
+         WRITE(6,*) ' IREO_MNMX_OB_ON: '
+         CALL IWRTMA(IREO_MNMX_OB_ON,1,NORBVBSPC ,1,NORBVBSPC)
+         ISETKW(200) = 1
+         GOTO 999
+        END IF
+       end if
+cglm   ^ end IF for skipping command in NWChem env.
+*
+        if (inw_lucia .eq. 0) then
+cglm    ^ skipped for NWChem
+         IF(CARD(2:7).EQ.'VBSCOR') THEN
+*. Read in the order in which the open orbitals should be coupled in the 
+*. Nort calculations
+          READ(5,*)  (IREO_SPCP_OB_NO(IORB), IORB = 1,NORBVBSPC)
+*. And determine the reverse ordering from original numbers to new
+          DO IOB = 1, NORBVBSPC 
+           IREO_SPCP_OB_ON(IREO_SPCP_OB_NO(IOB)) = IOB
+          END DO
+          ISETKW(201) = 1
+          GOTO 999
+         END IF
+        end if
+cglm    ^ end IF for skipping command in NWChem env.
+*
+cGLM   IF(CARD(2:7).EQ.'AKBKME') THEN
+       IF(rtdb_get(rtdb,'lucia:IAKBK_MET',mt_int,1,iakbk_met)) then
+
+*. Readin method for performing AKBK calculations
+*  IAKBK_MET = 1 => Q-vectors in DISC
+*            = 2 => No Q-vectors in DISC
+cGLM     READ(5,*) IAKBK_MET
+         ISETKW(202) = IAKBK_MET
+         IF(IAKBK_MET.NE.1.AND.IAKBK_MET.NE.2) THEN
+           WRITE(6,*) ' Illegal value of IAKBK_MET = ', IAKBK_MET
+           WRITE(6,*) ' Allowed values = 1, 2 '
+           ISETKW(202) = -1
+           NERROR = NERROR + 1
+         END IF
+cGLM     GOTO 999
+       END IF
+*. KEYWORD was not identified
+*
+cnw      WRITE(6,*)
+cnw    & '  ****  Error, unidentified KEYWORD in READIN   **** '
+cnw      WRITE(6,*)
+cnw      WRITE(6,*) ' Last line read  '
+cnw      WRITE(6,*) ' ================'
+cnw      WRITE(LUOUT,'(10X,A)') CARD      
+cnw      WRITE(6,*)
+cnw      WRITE(6,*) ' Preceeding KEYWORD'
+cnw      WRITE(6,*) ' ==================='
+cnw      WRITE(LUOUT,'(10X,A)') LASTCARD      
+cnw      NERROR = NERROR + 1
+*
+cnw      END IF! Card was not eof or comment
+cnw  999  CONTINUE
+cnw       IF(IECHO.EQ.1)
+cnw     & WRITE(6,'(A,A)') ' processed KEYWORD/COMMENT : ', CARD
+*. Save previous keyword
+cnw       LASTCARD(1:72) = CARD(1:72)
+cnw      GOTO 1000
+*.End of loop over KEYWORDS
+cnw 1001 CONTINUE
+*
+ 
+      IF(NERROR.NE.0) THEN
+        WRITE(LUOUT,'(A)')
+     &  ' Run will be aborted due to input errors '
+        WRITE(LUOUT,'(A,I9)')
+     &  ' Number of input errors detected in READIN ', NERROR
+*
+        WRITE(6,*) ' The following keywords were correctly identified'
+        WRITE(6,*) ' ================================================'
+        DO  IENTRY = 1, MXPKW
+          IF(ISETKW(IENTRY).EQ.+1) 
+     &    WRITE(LUOUT,'(10X,A)') KEYWOR(IENTRY)
+        END DO
+        WRITE(6,*)
+*
+        WRITE(6,*) ' ERRORS were detected for the following KEYWORDS'
+        DO IENTRY = 1, MXPKW
+           IF(ISETKW(IENTRY).EQ.-1) WRITE(LUOUT,'(10X,A)')KEYWOR(IENTRY)
+        END DO
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*)
+     &  '     An expert is a man who has made all the mistakes,'
+        WRITE(LUOUT,*)
+     &  '     which can be made, in a very narrow field        '
+        WRITE(LUOUT,*)
+     &  '                                                      '
+        WRITE(LUOUT,*)
+     &  '                                      Niels Bohr      '
+
+        IF(IEXPERT.EQ.0) THEN
+          STOP' Error in input'
+        ELSE
+          WRITE(6,*) ' Program continues (EXPERT mode )'
+        END IF
+      END IF
+*
+**********************************************************************
+*                                                                    *
+* Part 2: Insert defaults for missing optional keywords             *
+*          and print error messages for missing mandatory keywords   *
+*                                                                    *
+**********************************************************************
+*
+      NMISS = 0
+*
+*.1: Default title
+*
+      IF(ISETKW(1).EQ.0) THEN
+        TITLEC(1) =
+     &  ' Some molecule or some atom                                  '
+        TITLEC(2) =
+     &  ' Some type of CI expansion                                  '
+        TITLEC(3) =
+     &  ' Some user who is too lazy to supply a TITLE                 '
+        ISETKW(1) = 2
+      END IF
+*
+*.2  Missing pointgroup ( has actually been defaulted )
+*
+      IF(ISETKW(2).EQ.0) THEN
+        PNTGRP = 1
+        ISETKW(2) = 2
+      END IF
+*
+*.3 Missing number of irreps, allowed for D2h, illegal else
+*
+      IF(ISETKW(3).EQ.0) THEN
+        IF(PNTGRP .EQ.1 ) THEN
+*. Repeat default
+          NIRREP = 8
+          NSMCMP = NIRREP
+          NSMOB  = NIRREP
+          ISETKW(3) = 2
+        ELSE
+*. Number of irreps is mandatory for CINV,DINFH,O3
+          NMISS = NMISS + 1
+          WRITE(LUOUT,*)
+     &    '  Input error ! .NIRREP must be specified for CinV,DinH,O3'
+        END IF
+      END IF
+*
+* 4: Internal CI expansion
+*
+*.Default is CAS 
+      IF(ISETKW(50) .EQ. 0 ) THEN
+*. Well no GASSPACES, may be a Hartree-Fock optimization..
+      NGAS = 0
+C     IF(ISETKW(4).EQ.0) THEN
+C       INTSPC = 1
+C       ISETKW(4) = 2
+*. If a RAS1 or a RAS 3 space has been defined, RAS must have
+*  been specified
+C       IF(ISETKW(9).EQ.1.OR.ISETKW(11).EQ.1) THEN
+C        ISETKW(4) = 0
+C        NMISS = NMISS + 1
+C         WRITE(LUOUT,*)
+C    &    '  Input error ! .RAS must be specified when .RAS1 or .RAS3'
+C         WRITE(LUOUT,*)
+C    &    '                 has been activated '
+C
+C       END IF
+C     END IF
+C     ELSE IF (ISETKW(50) .EQ. 0 ) THEN
+*. FCI expansion
+C       INTSPC = 3
+      END IF
+*
+* 6: Number of active electrons
+*
+*. Mandatory
+      IF(ISETKW(6).EQ.0) THEN
+        NMISS = NMISS + 1
+          WRITE(LUOUT,*)
+     &    '  Input error ! .NACTEL must be specified '
+      END IF
+*
+* 7: Inactive orbitals
+*
+      IF(ISETKW(7).EQ.0) THEN
+        CALL ISETVC(NINASH,0,NIRREP)
+        ISETKW(7) = 0
+      END IF
+*
+* 8: Core orbitals, only of interest if EXTSPC .ne. 0
+*
+      IF(ISETKW(8).EQ.0) THEN
+        CALL ISETVC(NRS0SH,0,NIRREP)
+        MNHR0 = 0
+        IF(EXTSPC.EQ.0) THEN
+          ISETKW(8) = 3
+        ELSE
+          ISETKW(8) = 2
+        END IF
+      END IF
+*
+* 9: RAS 1 orbitals
+*
+      IF(ISETKW(9).EQ.0) THEN
+        CALL ISETVC(NRSSH(1,1),0,NIRREP)
+        IF(INTSPC.EQ.1) THEN
+          ISETKW(9) = 3
+        ELSE
+          ISETKW(9) = 2
+        END IF
+      END IF
+*
+* 10: RAS 2 orbitals
+*
+      IF(ISETKW(10).EQ.0) THEN
+        CALL ISETVC(NRSSH(1,2),0,NIRREP)
+        ISETKW(10) = 2
+      END IF
+*
+* 11: RAS 3 orbitals
+*
+      IMLCR3 = 0
+      IF(ISETKW(11).EQ.0) THEN
+        CALL ISETVC(NRSSH(1,3),0,NIRREP)
+        IF(MOLCS.EQ.1.AND.INTSPC.EQ.2) THEN
+*. Use information from one-electron integral file to obtain
+* default 
+          IMLCR3 = 1
+        END IF
+        IF(INTSPC.EQ.1) THEN
+          ISETKW(11) = 3
+        ELSE
+          ISETKW(11) = 2
+        END IF
+      END IF
+*
+* 12: Partitioning of secondary space ( default 1 set in SECOND)
+*
+C     IF(ISETKW(12).EQ.0.OR.ISETKW(12).EQ.2) THEN
+C       MXR4TP = 1
+C       IF(EXTSPC.EQ.0) THEN
+C         ISETKW(12) = 3
+C       ELSE
+C         ISETKW(12) = 2
+C       END IF
+C     END IF
+*
+* 13: Secondary space
+*
+      IF(ISETKW(13).EQ.0) THEN
+        DO IRREP = 1,  NIRREP 
+          NSECSH(IRREP) = 0
+        END DO
+        ISETKW(13) = 2
+      END IF
+*
+* 14: occupation restrictions for Reference space
+*
+      IF(ISETKW(14).EQ.0) THEN
+          ISETKW(14) = 2
+      END IF
+*
+* 15: Selection of active configurations
+*
+      IF(ISETKW(15).EQ.0) THEN
+*. Standard is no selection
+        INTSEL = 0
+      END IF
+*
+* 16: Two times spin projection
+*
+      IF(ISETKW(16).EQ.0) THEN
+        WRITE(LUOUT,*)
+     &  '  Input error ! .MS2 must be specified '
+        NMISS = NMISS + 1
+      END IF
+*
+* 17: Spin multiplicity
+*
+*. Spin multiplicities: May be unspecified if NOCSF has been flagged,
+*. this is tested later 
+      IF(ISETKW(17).EQ.0) THEN
+        ISETKW(17) = 2
+        MULTSP = 0
+      END IF
+*
+* 18: Reference symmetry
+*
+      IF(ISETKW(18).EQ.0) THEN
+        WRITE(LUOUT,*)
+     &  '  Input error ! .IREFSM must be specified '
+        NMISS = NMISS + 1
+      END IF
+*
+* 19: Roots to be optimized
+*
+      IF(ISETKW(19).EQ.0) THEN
+        WRITE(LUOUT,*)
+     &  '  Input error ! .ROOTS must be specified '
+        NMISS = NMISS + 1
+      END IF
+*
+* 20: Diagonalization routine
+*
+      IF(ISETKW(20).EQ.0) THEN
+*. Standard is currently MICDV*
+        IDIAG = 1
+        ISETKW(20) = 2
+      END IF
+*
+* 21: Explicit Hamiltonian
+*
+      IF(ISETKW(21).EQ.0) THEN
+*. Default is no explicit Hamiltonian
+        MXP1 = 0
+        MXP2 = 0
+        MXQ  = 0
+        ISPSPC_SEL = 0
+        ISETKW(21) = 2
+      END IF
+*
+* 22: Largest allowed number of CI iterations per root
+*
+      IF(ISETKW(22).EQ.0) THEN
+*. Default is 20 ( not active I expect )
+        MAXIT = 20
+        ISETKW(22) = 2
+      END IF
+*
+* 23: Restart option
+*
+      IF(ISETKW(23).EQ.0) THEN
+*. Default is no explicit Hamiltonian
+        IRESTR = 0
+        ISETKW(23) = 3
+      END IF
+*
+* 24: Integral import
+*
+      IF(ISETKW(24).EQ.0) THEN
+*. Default is - from NOV26: Dalton
+        INTIMP = 5
+        ENVIRO(1:6) = 'DALTON'
+        ISETKW(24) = 2
+      END IF
+*
+* 25: INCORE option for integrals
+*
+      IF(ISETKW(25).EQ.0) THEN
+        IF(EXTSPC.EQ.0 ) THEN
+          INCORE = 1
+        ELSE
+          INCORE = 0
+        END IF
+        ISETKW(25) = 2
+C  
+C       IF(INTEXP.EQ.0) THEN
+C         ISETKW(25) = 3
+C       ELSE
+C         ISETKW(25) = 3
+C       END IF
+
+      END IF
+*
+* 26: DELETEd shells
+*
+      IF(ISETKW(26) .EQ. 0 ) THEN
+*. If CAS + Active have been set or RAS + Ras3 have been set,
+*. obtain for MOLCAS Interface from number of basis functions
+        IF(INTSPC.EQ.1.OR.
+     &    (INTSPC.EQ.2.AND.ISETKW(11).EQ.1)) THEN
+          IMLCR3 = 2
+        ELSE
+          CALL ISETVC(NDELSH,0,NIRREP)
+        END IF
+        ISETKW(26) = 2
+      END IF
+*
+* 27: Ms combinations
+*
+      IF(ISETKW(27).EQ.0) THEN
+        PSSIGN = 0.0D0
+        ISETKW(27) = 2
+      ELSE IF(MS2.NE.0) THEN
+        WRITE(LUOUT,*) ' Spin combinations only allowed with MS2 = 0'
+        WRITE(LUOUT,*) ' Your value of MS2 = ',MS2, ' differs from zero'
+        WRITE(LUOUT,*) ' LUCIA will neglect your nice suggestion '
+        WRITE(LUOUT,*)  ' to use spin combinations '
+        PSSIGN = 0.0D0
+        ISETKW(27) = 2
+      END IF
+*
+* 28: Ml combinations
+*
+      IF(ISETKW(28).EQ.0) THEN
+        PLSIGN = 0.0D0
+        ISETKW(28) = 2
+      ELSE IF(PNTGRP.EQ.1) THEN
+        WRITE(LUOUT,*) ' Ml combinations not allowed with d2h '
+        WRITE(LUOUT,*) ' LUCIA will neglect your nice suggestion '
+        WRITE(LUOUT,*)  ' to use ML combinations '
+        PLSIGN = 0.0D0
+        ISETKW(28) = 2
+      ELSE IF(IREFML.NE.0) THEN
+        WRITE(LUOUT,*) ' ML combinations only allowed with ML = 0'
+        WRITE(LUOUT,*) 
+     &  ' Your value of IREFML = ',IREFML, ' differs from zero'
+        WRITE(LUOUT,*) ' LUCIA will neglect your nice suggestion '
+        WRITE(LUOUT,*)  ' to use ML combinations '
+        PLSIGN = 0.0D0
+        ISETKW(28) = 2
+      END IF
+      IF(PSSIGN.EQ.0.0D0.AND.PLSIGN.EQ.0.0D0) THEN
+        IDC = 1
+      ELSE IF(PSSIGN.NE.0.0D0.AND.PLSIGN.EQ.0.0D0) THEN
+        IDC = 2
+      ELSE IF(PSSIGN.EQ.0.0D0.AND.PLSIGN.NE.0.0D0) THEN
+        IDC = 3
+      ELSE IF(PSSIGN.NE.0.0D0.AND.PLSIGN.NE.0.0D0) THEN
+        IDC = 4
+      END IF
+C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
+*     
+* 29: print flag for string information
+*     
+      IF(ISETKW(29).EQ.0) THEN
+        IPRSTR = 0
+        ISETKW(29) = 2
+      END IF
+*
+* 30: print flag for string information
+*
+      IF(ISETKW(30).EQ.0) THEN
+        IPRCIX = 0
+        ISETKW(30) = 2
+      END IF
+*
+* 31: print flag for orbital information
+*
+      IF(ISETKW(31).EQ.0) THEN
+        IPRORB = 1
+        ISETKW(31) = 2
+      END IF
+*
+* 32: print flag for diagonalization information
+*
+      IF(ISETKW(32).EQ.0) THEN
+        IPRDIA = 3
+        ISETKW(32) = 2
+      END IF
+*
+* 36: print flag for External blocks 
+*
+      IF(ISETKW(36).EQ.0) THEN
+        IPRXT  = 0
+        ISETKW(36) = 2
+      END IF
+*
+* 43: Print occupation of lowest SD's / configurations
+*
+      IF(ISETKW(43).EQ.0) THEN
+        IPROCC = 0
+        ISETKW(43) = 2
+      END IF
+*
+* 65: Print level for densities, default is to print  
+*      natural occupation numbers only 
+*
+      IF(ISETKW(65).EQ.0) THEN
+        IPRDEN = 1
+        ISETKW(65) = 2
+      END IF
+*
+* 84: Print level for response, default is to print  
+*      final response functions as well as contributions
+*
+      IF(ISETKW(84).EQ.0) THEN
+        IPRRSP = 3
+        ISETKW(84) = 2
+      END IF
+*
+* 99: Print level for Property: Default is to  print  
+*      final values and nat.  occ decomposition
+*      reduce to 1 to print only final values
+*
+      IF(ISETKW(99).EQ.0) THEN
+        IPRPRO = 5
+        ISETKW(99) = 2
+      END IF
+*
+* 106: Print level for Coupled Cluster     
+*
+      IF(ISETKW(106).EQ.0) THEN
+        IPRCC = 2
+        ISETKW(106) = 2
+      END IF
+*
+* 33: Number of Ci vectors in subspace
+*
+      IF(ISETKW(33).EQ.0) THEN
+* default is 3/2 vectors per root
+        IF(IDIAG.EQ.1) THEN
+          MXCIV = 3 * NROOT
+        ELSE 
+          MXCIV = 2 * NROOT
+        END IF
+        ISETKW(33) = 2
+      END IF
+*
+      MXCIV_ORIG = MXCIV
+      IF(ISETKW(33).EQ.1.AND.MXCIV .LT.2*NROOT) THEN
+        WRITE(LUOUT,*)
+     &  '   The number of vectors is increased to 2*NROOT = ',2*NROOT
+        MXCIV = 2 * NROOT
+      END IF
+*
+      IF(IDIAG.EQ.2 .AND. MXCIV.GT.2 ) THEN
+        MXCIV = 2
+        NWARN = NWARN + 1
+        WRITE(6,*) ' Warning: You have specified TERACI '
+        WRITE(6,*) '           I allow myself to set MXCIV = 2 '
+        WRITE(6,*)              
+        WRITE(6,*) '                   Best Wishes    '
+        WRITE(6,*) '                      Lucia       '
+      END IF
+     
+*
+* 34: CI storage mode
+*
+      IF(ISETKW(34).EQ.0) THEN
+*. Default is three type-type-symmetry blocks
+        ICISTR = 3
+        ISETKW(34) = 2
+      END IF
+      IF(ICISTR.EQ.1.AND.ISETKW(183).EQ.1) THEN
+*. Batching of CSF's in use, batch therefore also SD's
+       IF(ICNFBAT.EQ.2) THEN
+         ICISTR = 2
+         WRITE(6,*) ' CSF batching in use '
+         WRITE(6,*) ' SD batching is therefore enforced '  
+         WRITE(6,*) ' ICISTR raised to 2 '
+       END IF
+      END IF
+COLD  IF(ICISTR.EQ.1) THEN
+*. complete vectors should not be used together with PICO
+COLD  WRITE(LUOUT,*)
+COLD &'    You have suggested the use of two complete vectors in core'
+COLD  WRITE(LUOUT,*)
+COLD &'    Although this could be an interesting suggestion '
+COLD  WRITE(LUOUT,*)
+COLD &'    I allow myself to reduce the storage mode to 3 sym. blocks '
+COLD  ICISTR = 2
+COLD  END IF
+*
+* 35: Employ CSF expansion ?
+*
+*. Default is no: Should be changed, but not here to 
+*. ensure old input are working 
+*. 
+      IF(ISETKW(35).EQ.0) THEN
+*. If multiplicity was defined use CSF's
+        IF(ISETKW(17).EQ.1) THEN
+          NOCSF = 0
+        ELSE 
+          NOCSF = 1
+          ICNFBAT = 0
+        END IF
+        ISETKW(35) = 2
+      END IF
+      IF(ISETKW(35).EQ.1.AND.ISETKW(17).EQ.1) THEN
+*. Both multiplicity and NOCSF was flagged, MULTS has priority
+          WRITE(6,*) ' MULTS and NOCSF both specified'
+          WRITE(6,*) ' NOCSF will be discarded '
+          NOCSF = 0
+          NWARN = NWARN + 1
+      END IF
+*
+*. Note: Currently the absence of NOCSF and MULTS 
+*. will result in a run without CSF's without warnings
+*. should maybe be changed
+*
+* CSF expansion must only be used when two vectors are stored in CORE
+      IF(NOCSF.EQ.0.AND.ICISTR.EQ.1.AND.ICNFBAT.EQ.2) THEN
+        WRITE(LUOUT,*)
+     &  ' Batched CSF calculation was specified by ICNFBAT .ge. 2 '
+        WRITE(LUOUT,*)
+     &  '   This requires batching of determinants '
+        WRITE(LUOUT,*)
+     &  '   I will set CISTOR(ICISTR) to 2 '
+        ICISTR = 2
+      END IF
+*
+* 37: Avoid any readin of integrals ( useful for obtaining
+*      size of CI expansion etc.
+*
+      IF(ISETKW(37).EQ.0 ) THEN
+        NOINT = 0
+        ISETKW(37) = 2
+      END IF
+*
+* 38: Dump integrals in formatted form: Default is No
+*
+      IF(ISETKW(38).EQ.0) THEN
+        IDMPIN = 0
+        ISETKW(38) = 2
+      END IF
+*. If import is from LUCIA, dumping of integrals is disabled
+*. Disabling is disabled (sic): To allow for final integraltrans
+C     IF(IDMPIN.EQ.1.AND.ENVIRO(1:5).EQ.'LUCIA') THEN
+C       IDMPIN = 0
+C       WRITE(6,*) 'Warning: Dump to LUCIA format disabled'
+C       WRITE(6,*) '(input format is LUCIA !              )'
+C       WRITE(6,*)
+C       WRITE(6,*) '                     /Lucia            '
+C     END IF
+
+*
+* 39: Explicitly dimension of dimension of block of resolution strings
+*
+      IF(ISETKW(39).EQ.0) THEN
+        MXINKA = 100
+        ISETKW(39) = 2
+      END IF
+*
+* 40: Use CJKAKB intermediate matrices in alpha-beta loop,
+*      Default is  YES !!!!!
+*
+      IF(ISETKW(40).EQ.0) THEN
+        ICJKAIB = 1
+        ISETKW(40) = 2
+      END IF
+*
+*  41: Initial CI in reference space, default is: No
+*
+      IF(ISETKW(41).EQ.0) THEN
+         ISETKW(41) = 2
+         INIREF = 0
+      END IF
+*
+*  42: Restart with CI in reference space             
+*
+      IF(ISETKW(42).EQ.0) THEN
+         ISETKW(42) = 2
+         IRESTRF = 0
+      END IF
+*
+*  44: Use MOC method for alpha-alpha loop, default is NO !
+*
+      IF(ISETKW(44).EQ.0) THEN
+         ISETKW(44) = 2
+         MOCAA = 0
+      END IF
+*
+*  45: Use MOC method for alpha-beta loop, default is NO !
+*
+      IF(ISETKW(45).EQ.0) THEN
+         ISETKW(45) = 2
+         MOCAB = 0
+      END IF
+*
+* Core energy: Default is 0 / MOLCAS: Value read in !
+*
+      IF(ISETKW(46).EQ.0) THEN
+         ISETKW(46) = 2
+         ECORE = 0.0D0
+      END IF
+*
+*. Use perturbation theory for zero order space . def is no !
+*
+      IF(ISETKW(47).EQ.0) THEN
+        IPERT = 0
+        NPERT = 0
+        ISETKW(47) = 2 
+*. Else ensure that a CI in reference space is performed
+      ELSE
+        INIREF = 1
+      END IF
+*
+*
+*. 48: Approximate Hamiltonian in reference space: NO !!
+*
+      IF(ISETKW(48).EQ.0) THEN
+        IAPRREF = 0
+        MNRS1RE = MNRS1R
+        MXRS3RE = MXRS3R
+        ISETKW(48) = 2 
+      END IF
+*
+*. 49: Approximate Hamiltonian in zero order space: NO !!
+*
+      IF(ISETKW(49).EQ.0) THEN
+        IAPRZER = 0
+        MNRS1ZE = MNRS10 
+        MXRS3ZE = MXRS30 
+        ISETKW(49) = 2 
+      END IF
+*
+* 50: GAS shells must be defined 
+*
+      IF(ISETKW(50).EQ.0) THEN
+        WRITE(6,*) ' GASSH must be defined '
+        NERROR = NERROR + 1
+        IGSFILL = 0
+        ISETKW(50) = -1
+      END IF
+*
+* 52: Combination of gasspaces: Default is just to take each  space
+*      By itself
+*
+      IF(ISETKW(52).EQ.0) THEN
+        NCMBSPC = NCISPC
+        DO ICISPC = 1, NCISPC
+          LCMBSPC(ICISPC) = 1
+          ICMBSPC(1,ICISPC) = ICISPC
+        END DO
+        ISETKW(52) = 2
+      END IF
+*
+* 53: Convergence threshold for CI                                  
+*
+      IF(ISETKW(53).EQ.0) THEN
+        THRES_E = 1.0D-10
+        ISETKW(53) = 2
+      END IF
+*
+* 54: General sequencer: default is just straight sequence 
+*      of CI with default number of iterations
+      IF(ISETKW(54).EQ.0) THEN
+        DO JCMBSPC = 1, NCMBSPC
+          NSEQCI(JCMBSPC) = 1
+          CSEQCI(1,JCMBSPC) = 'CI'
+          ISEQCI(1,JCMBSPC) = MAXIT 
+        END DO
+        ISETKW(54) = 2
+      END IF
+*
+* 55: EKT calculation: Default is no
+*
+      IF(ISETKW(55).EQ.0) THEN
+        IEXTKOP = 0
+        ISETKW(55) = 2
+      END IF
+*
+*. 56: Default Machine: Good old BIM machine
+*
+      IF(ISETKW(56).EQ.0) THEN
+        MACHINE(1:3) = 'IBM'
+        ISETKW(56) = 2
+      END IF
+*
+* 57: Allow first order correction to be saved on DISC
+*     (For vector free calculations )
+*     Default is: NO !!
+      IF(ISETKW(57).EQ.0) THEN
+        IC1DSC = 0
+        ISETKW(57) = 2
+      END IF
+*
+* 58: Restrictions on interactions of perturbation
+*
+*. Default is: no 
+      IF(ISETKW(58).EQ.0) THEN
+        NPTSPC = 0
+        IH0SPC = 0
+        ISETKW(58) = 2
+      END IF
+*
+* 59: Type of perturbation in subspaces spaces
+*
+* Default is specified by IPART from keyword PERTU
+      IF(ISETKW(59).EQ.0) THEN
+       ISETKW(59) = 2
+       IF(IH0SPC.NE.0) THEN
+         DO JPTSPC = 1, NPTSPC
+           IH0INSPC(JPTSPC) = IPART
+         END DO
+       END IF
+      END IF
+*
+* 60: Reference Root, default is NROOT
+*
+*. Should be less or equal to NROOT
+      IF(ISETKW(60).EQ.1) THEN
+        IF(IRFROOT.GT.NROOT) THEN
+          WRITE(6,*) ' Reference root (RFROOT) larger '
+          WRITE(6,*) ' than total number of roots (NROOT) '
+          WRITE(6,*) ' CHANGE NROOT or RFROOT '
+          NMISS = NMISS + 1
+        END IF
+      END IF
+
+      IF(ISETKW(60).EQ.0) THEN
+       ISETKW(60) = 2
+       IRFROOT = NROOT
+      END IF
+*
+* 61: H0EX: Orbital spaces in which exaxt Hamiltonian is used
+*      No default
+*.
+*. Is H0EX required ( Has H0FRM = 5 been used )
+      IUSED = 0
+      IF(ISETKW(59).EQ.1) THEN
+         IUSED = 0
+         DO JPTSPC = 1, NPTSPC
+           IF( IH0INSPC(JPTSPC) .EQ. 5 ) IUSED = 1
+         END DO
+       END IF
+       IF(IUSED.EQ.0.AND.ISETKW(61).EQ.0) THEN
+*. No exact spaces included and none have been defined !
+         NH0EXSPC = 0
+         IH0EXSPC(1) = -1
+       END IF
+       IF(IUSED.EQ.1.AND.ISETKW(61).EQ.0) THEN
+*. Needed, but not supplied
+          WRITE(6,*) ' You have specified that zero order operator'
+          WRITE(6,*) ' Include exact Hamilton operator in subspace'
+          WRITE(6,*) ' You should then also supply Keyword H0EX '
+          NMISS = NMISS + 1
+       END IF
+*
+*. If perturbation theory will be invoked be sure that the 
+*. form of perturbation theory has been specified through 
+* KEYWORD PERTU ( number 47 as you maybe know )
+      IDOPERT = 0
+      DO JCMBSPC = 1, NCMBSPC
+        DO JSEQCI = 1, NSEQCI(JCMBSPC)
+          IF(ISEQCI(JSEQCI,JCMBSPC).EQ.-5 ) IDOPERT = 1
+        END DO
+      END DO
+*
+      IF(IDOPERT.EQ.1 .AND. IPERT.EQ.0) THEN
+        WRITE(6,*) ' Perturbation theory will be used '
+        WRITE(6,*) ' Please specify form through PERTU keyword '
+        NMISS = NMISS + 1   
+      END IF
+*
+*. 62: Default Handling of degenrences of initial CI vectors
+*.      Default is: No action
+*
+      IF(ISETKW(62).EQ.0) THEN
+        INIDEG = 0
+        ISETKW(62) = 2
+      END IF
+*
+*. 63: Use F + Lambda(H-F) as operator instead of H          
+*.      Default is: No i.e Lambda = 1
+*
+      IF(ISETKW(63).EQ.0) THEN
+        XLAMBDA = 1.0D0
+        ISETKW(63) = 2
+      END IF
+*
+*. 64: Smallest block in batch of C and sigma                
+*.      Default is zero                
+*
+      IF(ISETKW(64).EQ.0) THEN
+        LCSBLK = 0       
+        ISETKW(64) = 2
+      END IF
+*
+*. 66: NO MO file: Default is access to MO-AO file          
+*
+      IF(ISETKW(66).EQ.0) THEN
+        NOMOFL = 0
+        ISETKW(66) = 2
+      END IF
+*
+*. 68: Type of Final orbitals, default is no construction
+*
+      IF(ISETKW(68).EQ.0) THEN
+        ISETKW(68) = 2
+        IFINMO = 0
+      END IF
+*
+*. 69: Default Threshold for individual energy correction = 0.0            
+*
+      IF(ISETKW(69).EQ.0) THEN
+        E_THRE = 0.0D0
+        ISETKW(69) = 2
+      END IF
+*
+*. 70: Default Threshold for wave individual function corrections = 0.0 
+*
+      IF(ISETKW(70).EQ.0) THEN
+        C_THRE = 0.0D0
+        ISETKW(70) = 2
+      END IF
+*
+*. 71: Default Threshold for total energy corrections = 0.0 
+*
+      IF(ISETKW(71).EQ.0) THEN
+        E_CONV = 0.0D0
+        ISETKW(71) = 2
+      END IF
+*
+*. 72: Default Threshold for total wave function correction = 0.0            
+*
+      IF(ISETKW(72).EQ.0) THEN
+        C_CONV = 0.0D0
+        ISETKW(72) = 2
+      END IF
+*
+*. 73: Perform Class selection: Default if Yes if TERACI is used      
+*
+      IF(ISETKW(73).EQ.0) THEN
+        IF(IDIAG.EQ.1) THEN  
+          ICLSSEL = 0     
+        ELSE IF (IDIAG.EQ.2) THEN
+          ICLSSEL = 1
+        END IF
+        ISETKW(73) = 2
+      END IF
+*
+* 74: Calculation of density matrices: Default is 
+*       calculation of one-body density
+*       but not for CC since this is not completely trivial
+*
+      IF(ISETKW(74).EQ.0) THEN
+        IDENSI = 1
+        IF(I_DO_CC.EQ.1) THEN
+          IDENSI = 0
+          WRITE(6,*) ' 1-el. density default disabled for CC'
+        END IF
+        ISETKW(74) = 2
+      END IF
+*. If IDENSI was set to zero and properties were requested
+*  overwrite input to obtain 1-el matrix
+      IF(IDENSI.EQ.0.AND.ISETKW(80).EQ.1) THEN
+        WRITE(6,*) ' You have specified calculation of'
+        WRITE(6,*) ' one-electron properties, and this'
+        WRITE(6,*) ' requires the calculation of the '
+        WRITE(6,*) ' one-electron density. '
+        WRITE(6,*)
+        WRITE(6,*) ' You have, however, specified IDENSI=0'
+        WRITE(6,*) ' corresponding  to no densities'
+        WRITE(6,*)
+        WRITE(6,*) ' I will allow myself to modify your'
+        WRITE(6,*) ' input to allow calculation of the '
+        WRITE(6,*) ' one-electron densities, so property'
+        WRITE(6,*) ' calculation can proceed as planned '
+        WRITE(6,*)
+        WRITE(6,*)                        ' Lucia '
+*. and do it
+        IDENSI = 1
+      END IF
+*. If CC is performed, one- and two- particle densities are
+*  used in current simple-minded implementation. 
+COLD  IF(I_DO_CC .EQ. 1 .AND. IDENSI.LE.1 ) THEN
+COLD    IDENSI = 2
+COLD    WRITE(6,*) ' IDENSI flag raised to two for CC calculation'
+COLD  END IF
+*. Two-electron density also needed for MCSCF
+      IF((I_DO_MCSCF.EQ.1.OR. I_DO_NORTMCSCF.EQ.1)
+     &   .AND. IDENSI.LE. 1) THEN
+        IDENSI = 2
+C       WRITE(6,*) ' IDENSI flag raised to 2 for MCSCF calculation'
+      END IF
+*
+* If spindensities have been requested, calculate also 
+* the corresponding densities 
+      IF(ISPNDEN.GT.IDENSI) THEN
+        IDENSI = ISPNDEN
+        WRITE(6,*) ' DENSI keyword raised to SPNDEN keyword '
+      END IF
+*
+* 75: Perturbation expansion of EKT, default is no 
+*
+      IF(ISETKW(75).EQ.0) THEN
+        IPTEKT = 0
+        ISETKW(75) = 2
+      END IF
+*
+* 76: Root for zero order operator , default is NROOT
+*
+*. Should be less or equal to NROOT
+      IF(ISETKW(76).EQ.1) THEN
+        IF(IH0ROOT.GT.NROOT) THEN
+          WRITE(6,*) ' Zero order operator root (H0ROOT) larger '
+          WRITE(6,*) ' than total number of roots (NROOT) '
+          WRITE(6,*) ' CHANGE NROOT or H0ROOT '
+          NMISS = NMISS + 1
+        END IF
+      END IF
+      IF(ISETKW(76).EQ.0) THEN
+       ISETKW(76) = 2
+       IH0ROOT = NROOT
+      END IF
+*
+* 77: NO restart from previous vectors in calculation 2
+*      Deafault is NO NO, ie. restart in calc 2
+*
+      IF(ISETKW(77).EQ.0) THEN
+        IRST2 = 1
+        ISETKW(77) = 2
+      END IF
+*
+* 78: skip initial energy evaluations - if possible
+*
+      IF(ISETKW(78).EQ.0) THEN
+        ISKIPEI = 1
+        ISETKW(78) = 2
+      END IF
+* 
+* 79: Symmetry of x,y,z - needed for property calculations
+*
+      IF(ISETKW(79).EQ.0) THEN
+*. Problematic if Properties should be calculated
+       IF(ISETKW(80).EQ.1.OR.ISETKW(81).EQ.1.OR.ISETKW(82).EQ.1)
+     & THEN
+         WRITE(6,*) ' Symmetry of X,Y,Z has not been given'
+         WRITE(6,*) ' You have to specify this for property calc'
+         WRITE(6,*) ' Please add KEYWORD XYZSYM '
+         NMISS = NMISS + 1
+         ISETKW(79) = -1
+       ELSE
+*. Is not needed, just supply zeroes
+         DO ICOMP = 1, 3
+           IXYZSYM(ICOMP) = 0
+         END DO
+         ISETKW(79) = 2
+       END IF
+      END IF
+*
+* 80: Property calculation, default is no
+*
+      IF(ISETKW(80).EQ.0) THEN
+        NPROP = 0
+        ISETKW(80) = 2
+      END IF
+*
+* 81: Transition properties , default is no
+*
+      IF(ISETKW(81).EQ.0) THEN
+        ITRAPRP = 0
+        ISETKW(81) = 2
+      END IF
+*
+* 82: Response properties , default is no
+*
+      IF(ISETKW(82).EQ.0) THEN
+        IRESPONS = 0
+        NRSPST = 0
+        ISETKW(82) = 2
+        NRESP = 0
+        N_AVE_OP = 0
+      END IF
+*. Properties should be defined if transition properties are
+*. invoked
+      IF(ITRAPRP.NE.0.AND.NPROP.EQ.0) THEN
+        WRITE(6,*) 
+     &  ' You have specified transition property calculation'
+        WRITE(6,*)
+     &  ' (keyword TRAPRP) but no property labels have been supplied'
+        WRITE(6,*)
+     &  '(Keyword PROPER). Transition densities will be obtained '
+      END IF
+*
+* 83: Max number of iterations in linear equations
+*
+      IF(ISETKW(83).EQ.0) THEN
+        MXITLE = 30
+        ISETKW(83) = 2
+      END IF
+*
+* 85: Root homing, default is no                    
+*
+      IF(ISETKW(85).EQ.0) THEN
+        IROOTHOMING = 0
+        ISETKW(85) = 2
+      END IF
+*
+* 86: Particle hole simplifications, default is no
+*
+      IF(ISETKW(86).EQ.0) THEN
+       IUSE_PH = 0
+       ISETKW(86) = 2
+      END IF
+*
+* 87: Ask advice for route in sigma blocks, default is no
+*      (It is said that programs reflects the minds of their creators)
+*
+      IF(ISETKW(87).EQ.0) THEN
+       IADVICE = 0
+       ISETKW(87) = 2
+      END IF
+*
+* 88: Transform CI vectors at end of each calculation    
+*      default is no
+*
+      IF(ISETKW(88).EQ.0) THEN
+       ITRACI = 0
+       ISETKW(88) = 2
+       ITRACI_CR = 'undefine'
+       ITRACI_CN = 'undefine'
+      END IF
+*
+* 89: Divide strings into active and passive parts
+*      default is no
+*
+      IF(ISETKW(89).EQ.0) THEN
+       IUSE_PA = 0
+       ISETKW(89) = 2
+      END IF
+*
+* 90: Perturbation expansion of Fock matrix: default is no
+*
+      IF(ISETKW(90).EQ.0) THEN
+       IPTFOCK = 0
+       ISETKW(90) = 2
+      END IF
+*
+* 91: Print final CI vectors: default is no
+*
+      IF(ISETKW(91).EQ.0) THEN
+       IPRNCIV = 0
+       ISETKW(91) = 2
+      END IF
+*
+* 92: Restart CC calculation with coefs on LU_CCAMP
+*
+      IF(ISETKW(92).EQ.0) THEN
+       I_RESTRT_CC = 0
+       ISETKW(92) = 2
+      END IF
+*
+* 93: End Calculation with integral transformation 
+*
+      IF(ISETKW(93).EQ.0) THEN
+       ITRA_FI = 0     
+       ISETKW(93) = 2
+      END IF
+*. Requires access to MO-AO file
+      IF(ITRA_FI.EQ.1) THEN
+       IF(NOMOFL.EQ.1) THEN
+         WRITE(6,*) ' Integral transformation required, '
+         WRITE(6,*) ' but no mo-ao file accessible      '
+         WRITE(6,*) ' MO-MO integral transformation '        
+C        WRITE(6,*) ' REMOVE KEWORD NOMOFL '
+C        ISETKW(93) = -1
+C        NERROR = NERROR + 1
+       END IF
+*. Integrals will be written in LUCIA format, so set IDMPIN flag
+       IDMPIN = 1
+C?     WRITE(6,*) ' DMPINT flag set to one '
+      END IF
+*
+* 94: Initialize Calculation with integral transformation 
+*
+      IF(ISETKW(94).EQ.0) THEN
+       ITRA_IN = 0     
+       ISETKW(94) = 2
+      END IF
+*. Requires access to MO-AO file
+       IF(ITRA_IN.EQ.1.AND.NOMOFL.EQ.1) THEN
+         WRITE(6,*) ' Integral transformation required, '
+         WRITE(6,*) ' but no mo-ao file accessible      '
+         WRITE(6,*) ' REMOVE KEWORD NOMOFL '
+         ISETKW(94) = -1
+         NERROR = NERROR + 1
+       END IF
+*
+* 95: Multispace optimization in each run, default is no
+*
+      IF(ISETKW(95).EQ.0) THEN
+        MULSPC = 0
+        IFMULSPC = 0
+        LPAT = 0
+        ISETKW(95) = 2
+      END IF
+*
+* Use relaxed densities for properties: default is no
+*
+      IF(ISETKW(96).EQ.0) THEN
+        IRELAX = 0
+        ISETKW(96) = 2
+      END IF
+*.
+      IF(IRELAX.EQ.1) THEN
+*. To obtain relaxed densities two-elec density must be calc, so
+        IF(IDENSI.LT.2) THEN
+          WRITE(6,*) ' Density matrix flag (IDENSI) raised '
+          WRITE(6,*) ' to allow calculation of 2-elec densities'
+          IDENSI = 2
+        END IF
+      END IF
+*
+* Expert mode ( neglect mistyped keywords ): default is no expert
+*
+      IF(ISETKW(97).EQ.0) THEN
+        IEXPERT = 0
+        ISETKW(97) = 2
+      END IF
+*
+* Number of roots to be converged: default is total number of roots
+*
+      IF(ISETKW(98).EQ.0) THEN
+        NCNV_RT = NROOT
+        ISETKW(98) = 2
+      END IF
+*
+* 100: Do quantum dot calculation, default is no
+*
+      IF(ISETKW(100).EQ.0) THEN
+        IDOQD = 0
+        ISETKW(100) = 2
+      END IF
+*
+* 101: Restrict MS2 at some intermediate level: default is no way
+*
+      IF(ISETKW(101).EQ.0) THEN
+        I_RE_MS2_SPACE = 0
+        I_RE_MS2_VALUE = 0
+        ISETKW(101) = 2
+      END IF
+*
+* 102: Form of preconditioner, default is sd diagonal                
+*
+      IF(ISETKW(102).EQ.0) THEN
+        IPRECOND = 1 
+        ISETKW(102) = 2
+      END IF
+*
+* 103: Treat all TT blocks with given types simultaneously : Default is no
+*
+      IF(ISETKW(103).EQ.0) THEN
+        ISIMSYM = 0
+        ISETKW(103) = 2
+      END IF
+*
+* 104: Use hardwired loops for selected terms: default is no
+*
+      IF(ISETKW(104).EQ.0) THEN
+        IUSE_HW = 0
+        ISETKW(104) = 2
+      END IF
+*
+* 105: Use Full H0 including projection operators for Lambda calculations
+*
+      IF(ISETKW(105).EQ.0) THEN
+        IUSEH0P = 0
+        ISETKW(105) = 2
+      END IF
+*
+* 107: Calculate expectation value of Lz^2: Default is no
+*
+      IF(ISETKW(107).EQ.0) THEN
+        I_DO_LZ2 = 0
+        ISETKW(107) = 2
+      END IF
+*. If LZ2 is to be calculated the symmetry of XYZ must have been 
+*. specified
+      IF(I_DO_LZ2.EQ.1.AND.ISETKW(79).EQ.2) THEN
+        WRITE(6,*) ' For calculating LZ2, please supply XYZSYM'
+        NERROR = NERROR + 1
+      END IF
+*. If Lz2 is to be calculated, two-electron densities must be calculated- no, CI is used
+COLD  IF(I_DO_LZ2.EQ.1.AND.IDENSI.NE.2) THEN
+COLD    IDENSI = 2
+COLD    WRITE(6,*) ' IDENSI has been raised by Lz flag '
+COLD  END IF
+*
+* 108: Method used for solving CC equations, default is DIIS
+*
+      IF(ISETKW(108).EQ.0) THEN
+c set default method: DIIS with 8 vectors
+c variational method? we assume no (ivar=0), has to be corrected later
+        ivar = 0               
+        iorder = 1
+        iprecnd = 1
+        isubsp = 2
+        ilsrch = 0
+        icnjgrd = 0
+        mxsp_sbspja = 0
+        isbspjatyp = 0
+        isbspja_start = 2       ! lowest possible iteration is 2
+        thr_sbspja = 1d-1
+        mxsp_diis = 8
+        idiistyp = 2
+        idiis_start = 0
+        thr_diis = 1d-1
+c trust radius: not active
+        trini = 2.d0
+        trmin = 0.25d0
+        trmax = 2.0d0
+        trthr1l = 0.8d0
+        trthr1u = 1.2d0
+        trthrfac1 = 1.2d0
+        trthr2l = 0.4d0
+        trthr2u = 1.6d0
+        trfac1  = 1.2d0
+        trfac2  = 0.8d0
+        trfac3  = 0.3d0
+c old:
+        ICCSOLVE = 1
+        ISETKW(108) = 2
+      END IF
+*
+* 109: Setup CCN Jacobian: Default is no
+*
+      IF(ISETKW(109).EQ.0) THEN
+        I_DO_CCN = 0
+        ISETKW(109) = 2
+      END IF
+*
+* 110: Use subspace Jacobian to improve correction vectors
+*
+      IF(ISETKW(110).EQ.0) THEN
+        I_DO_SBSPJA = 0
+        ISETKW(110) = 2
+      END IF
+*
+* 111: Convergence Threshold for norm of residual for coupled cluster calcs
+*
+      IF(ISETKW(111).EQ.0) THEN
+c old:
+        CCCONV = 1.0D-6
+        thrstp  = 1d-6
+        thrgrd  = 1d-6
+        thr_de  = 1d-7
+
+        ISETKW(111) = 2
+      END IF
+*
+* 112: Number of hole spaces in QDOT calculations, must be specified
+*
+      IF(ISETKW(112).EQ.0) THEN
+        IF(IDOQD.EQ.1) THEN
+          WRITE(6,*) ' Number of hole-orbital spaces must be specified'
+          WRITE(6,*) ' (QDOT calculation) '
+          ISETKW(112) = -1
+          NERROR = NERROR + 1
+          NMISS = NMISS + 1
+        ELSE
+*. NOT QDOT calculation, just set to zero
+           N_HOLE_ORBSPACE = 0
+           ISETKW(112) = 2
+        END IF
+      END IF
+*
+* 113: Use CC3 approximation for wave function and set up CC3 Jacobian
+*
+      IF(ISETKW(113).EQ.0) THEN
+        I_DO_CC3 = 0
+        ISETKW(113) = 2
+      END IF
+*
+* 114: Start CC by reformatting CI coefficients 
+*
+      IF(ISETKW(114).EQ.0) THEN
+        I_DO_CI_TO_CC = 0
+        ISETKW(114) = 2
+      END IF
+*
+* 115: Form of CC equations, default is traditional CC 
+*
+      IF(ISETKW(115).EQ.0) THEN
+        CCFORM(1:3) = 'TCC' 
+        ISETKW(115) = 2
+      END IF
+*
+* 116: Calculate CC excitation energies after CC: Default is no
+*
+      IF(ISETKW(116).EQ.0) THEN
+        I_DO_CC_EXC_E  = 0
+        ISETKW(116) = 2
+      END IF
+*
+* 117: Restart CC excitation energies: Default is no
+*
+      IF(ISETKW(117).EQ.0) THEN
+        IRES_EXC = 0             
+        ISETKW(117) = 2
+      END IF
+*
+*
+* 118: Dimension of resolutions strings for CC
+*
+      IF(ISETKW(118).EQ.0) THEN
+        MXINKA_CC = 100
+        LCCB = MXINKA_CC
+        ISETKW(118) = 2
+      END IF
+*
+* 119: Use spincombination for CC expansion, default is p.t. no 
+*
+      IF(ISETKW(119).EQ.0) THEN
+         MSCOMB_CC = 0
+         ISETKW(119) = 2
+      END IF
+*
+* 120: Use similarity transformed Hamiltonian to include singles in CC
+*       default is no pt
+*
+      IF(ISETKW(120).EQ.0) THEN
+        ISIMTRH = 0
+        ISETKW(120) = 2
+      END IF
+*
+* 121: Freeze selected excitation levels in CC: Default is no
+*
+      IF(ISETKW(121).EQ.0) THEN
+        IFRZ_CC = 0
+        NFRZ_CC = 0
+        ISETKW(121) = 2
+      END IF
+*
+* 122: Calculate expectation value of H in actual space 
+*
+      IF(ISETKW(122).EQ.0) THEN
+        I_DO_CC_EXP = 0
+        ISETKW(122) = 2
+      END IF
+*
+* 123: Form of CC vector function in use: Default is H_EF approach
+*       I_DO_NEWCCV = 0 => Original codes with erroneous scaling
+*       I_DO_NEWCCV = 1 => First set of codes with correct scalin (H_EF approach)
+*       I_DO_NEWCCV = 2 => New commutator based coded 
+*
+*.  
+*. VCC needs old convention
+      IF(ISETKW(115).EQ.1.AND.CCFORM(1:3).EQ.'VCC') THEN
+c        IF(ISETKW(123).EQ.1.OR.ISETKW(124).EQ.1) THEN
+        IF(ISETKW(123).EQ.1) THEN
+          WRITE(6,*) 'NEWCCV and NEWCCP are not compatible with VCC'
+          WRITE(6,*) 'Remove these keywords and I will be fine!'
+          IF(ISETKW(123).EQ.1) ISETKW(123)=-1
+          IF(ISETKW(124).EQ.1) ISETKW(124)=-1
+        ELSE
+          I_DO_NEWCCV = 0
+          ISIMTRH = 0
+          ISETKW(123)=2
+          ISETKW(124)=2
+          ISETKW(136)=2
+        END IF
+      END IF
+      IF(ISETKW(136).EQ.0.AND.ISETKW(123).EQ.0) THEN
+        I_DO_NEWCCV = 1
+        ISETKW(123) = 2
+        ISETKW(136)=2 
+      END IF
+      IF(I_DO_NEWCCV.GE.1.AND.I_DO_CC.EQ.1) THEN 
+*. Enforce use of simtrh to obtain singles contributions
+        ISIMTRH = 1
+*. Spin-combinations are not fully implemented in the 
+*. new codes, ( used for computations not storing), so
+*. turn on IUSE_TR
+        IF(MSCOMB_CC.EQ.1) THEN
+          IUSE_TR = 1
+          MSCOMB_CC = 0
+        END IF
+      END IF
+*. new ccv requires division of orbitals into holes and particles so
+      IF(I_DO_CC.EQ.1.AND.I_DO_NEWCCV.GE.1.AND.IUSE_PH.EQ.0) THEN 
+        IUSE_PH = 1
+        WRITE(6,*) ' NEWCCV keyword enforces IUSE_PH = 1 '
+      END IF
+*
+* 124: Use New phase for CC operators: Default is now yes
+*       (Only relevant for old routines, for new routines
+*       the new convention is built in)
+*
+      IF(ISETKW(124).EQ.0) THEN
+        I_USE_NEWCCP = 1
+C?      WRITE(6,*) ' New phase convention is used for CC'
+        ISETKW(124) = 2
+      END IF
+*
+* 125: Impose a limit on the allowed rank of spin-orbital 
+*       excitation level. Default is now (NOV. 2003) to 
+*       set max. spinorbital excitation level to max. orbital.
+*       excitation level. This is communicated by setting the 
+*       parameter MXSPOX to 0 
+      IF(ISETKW(125).EQ.0) THEN
+         MXSPOX = 0
+         ISETKW(125) = 2
+      END IF
+*
+* 126: Define mask determinant for division of spinorbitals into 
+*       holes and particle
+      IF(ISETKW(126).EQ.0) THEN
+        I_DO_MASK_CC = 0
+        ISETKW(126) = 2
+      END IF
+*
+* 127: Eliminate rotations only in internal space: default is NO
+      IF(ISETKW(127).EQ.0) THEN
+        NOAAEX = 0
+        ISETKW(127) = 2
+      END IF
+*
+* 128: Spin restricted calculations: Default is no 
+*
+      IF(ISETKW(128).EQ.0) THEN
+        ISPIN_RESTRICTED = 0
+        ISETKW(128) = 2
+      END IF
+*. If spin-restricted calculations are prescribed, the multiplicity 
+*. should be specified
+      IF(ISETKW(128).EQ.1.AND.ISETKW(17).EQ.0) THEN
+        WRITE(6,*) ' Spinrestricted calculation specified (SPINRS) '
+        WRITE(6,*) ' But: no multiplicity specified (MULTS) ' 
+        WRITE(6,*) ' Please add MULTS or remove SPINRS '
+        NMISS = NMISS + 1
+      END IF
+*
+* 129: General transition density, default is no WAY
+*
+      IF(ISETKW(129).EQ.0) THEN
+        IGENTRD = 0
+        ISETKW(129) = 2
+      END IF
+*
+* 130: Reorder orbitals: Default is no
+*
+      IF(ISETKW(130).EQ.0) THEN
+        I_DO_REO_ORB = 0
+        NSWITCH = 0
+        ISETKW(130) = 2
+      END IF
+*
+* 131: Information on internal contraction excitation operators 
+*       Set all operators to zero 
+*
+      IF(ISETKW(131).EQ.0.AND.ISETKW(167).EQ.0) THEN
+        ICEXC_RANK_MIN = 0
+        ICEXC_RANK_MAX = 0
+        ICEXC_INT = 0
+        I_HAVE_ICEXC_INFO = 0
+      END IF
+*
+* 132: Comparison of CC and CI in last CC calc, default is no
+*
+      IF(ISETKW(132).EQ.0) THEN
+        I_DO_CMPCCI = 0
+        ISETKW(132) = 2
+      END IF
+*
+* 133: Expand CC to CI expansion after last CC calc, default is no.
+      IF(ISETKW(133).EQ.0) THEN
+        I_DO_CC_TO_CI = 0
+        ISETKW(133) = 2 
+      END IF
+*
+*. 134: Construct complete Hamiltonian matrix. Dafault is no
+*        as this became rather unfashionable three decades ago
+      IF(ISETKW(134).EQ.0) THEN
+        I_DO_COMHAM = 0
+        ISETKW(134) = 2
+      END IF
+*
+*. 135: Dump H-matrices in form readable for initial MRPT program , Def is no
+*
+       IF(ISETKW(135).EQ.0) THEN
+        I_DO_DUMP_FOR_MRPT = 0
+        ISETKW(135) = 2
+       ELSE 
+*. Will H will be dumped made sure that refspace has been defined and
+*  COMHAM has been set 
+        IF(ISETKW(14).NE.1) THEN
+           WRITE(6,*) 
+     &    ' Error: Dump of H0 and V-matrices requested(Keyword DMPMRP)'
+           WRITE(6,*) ' But P-space is not defined ( use REFSPC ) '
+           NMISS = NMISS + 1
+           ISETKW(14) = -1
+        END IF
+        IF(ISETKW(134).EQ.0) THEN
+*. Activate comham
+          I_DO_COMHAM = 1
+          WRITE(6,*) ' DMPMRP keywords activated COMHAM '
+        END IF
+       END IF
+*
+* 136: Use very new CC codes (2001-2003)
+*
+       IF(ISETKW(136).EQ.0) THEN
+         I_DO_VERY_NEW_CC = 0
+         ISETKW(136) = 2
+       END IF
+
+*. Enforce use of simtrh to obtain singles contributions
+       IF(ISETKW(136).EQ.1) THEN
+         ISIMTRH = 1
+         IUSE_PH = 1
+         IF(MSCOMB_CC.EQ.1) THEN
+c           IUSE_TR = 1
+           WRITE(6,*) 'CMB_CC deactivated for new CC-vectorfunction'
+           MSCOMB_CC = 0
+         END IF
+       END IF
+*
+* 138: Initial guess to MO's, default is diagonalization of H1
+      IF(ISETKW(138).EQ.0) THEN
+         INI_HF_MO = 1
+         ISETKW(138) = 2
+       END IF
+*
+* 139: Optimization procedure for HF: Default is simple Roothaan-Hall
+*
+      IF(ISETKW(139).EQ.0) THEN
+        IHFSOLVE = 1
+        ISETKW(139) = 2
+      END IF
+*
+* 140: Spin-densities: default is none
+*
+      IF(ISETKW(140).EQ.0) THEN
+*. (Was actually given as default at start of this routine
+*   but it is better to make the same def twice not forget it ..
+        ISPNDEN = 0
+        ISETKW(140) = 2
+      END IF
+* 141: Specification of general two-body operators
+      IF (ISETKW(141).EQ.0) THEN
+        INC_SING(1:3) = 0
+        INC_DOUB(1:5) = 1
+        IGTBCS = 0
+        IGTBMOD=0
+        ISYMMET_G = 0
+        ISETKW(141)=2
+      END IF
+* 141: Unused
+c      IF (ISETKW(141).EQ.0) THEN
+c        ISETKW(141)=2
+c      END IF
+* 142: Specification of general two-body operators
+      IF (ISETKW(142).EQ.0) THEN
+        N_EAG = 0
+        ISETKW(142)=2
+      END IF
+* 143: Specification of general two-body operators
+      IF (ISETKW(143).EQ.0) THEN
+        N_FOO = 0
+        ISETKW(143)=2
+      END IF
+* 144: Specification of general two-body operators
+      IF (ISETKW(144).EQ.0) THEN
+        N_HSS = 0
+        ISETKW(144)=2
+      END IF
+* 145: Specification of core memory
+      IF (ISETKW(145).EQ.0) THEN
+        MAXMEM = MXPWRD
+        ISETKW(145)=2
+      END IF
+* 146: Specification of memory saving version
+      IF (ISETKW(146).EQ.0) THEN
+        ISVMEM = 0 ! default is: business as usual
+        ISETKW(146)=2
+      END IF
+* 147: Specification of target wave-function model
+      IF (ISETKW(147).EQ.0) THEN
+        ITGSPC = 0  ! default is: no target model
+        ITGCLC = 0
+        ISETKW(147)=2
+      END IF
+*. 148: Calculate cumulants: Default is still no ( Sorry Werner)
+      IF(ISETKW(148).EQ.0) THEN
+        ISETKW(148) = 2
+        ICUMULA = 0
+      END IF
+*. 149: Restart IC calculation, Default is no 
+       IF(ISETKW(149).EQ.0) THEN
+        IRESTRT_IC = 0
+        ISETKW(149) = 2
+       END IF
+*. 150: Number of commutators employed in various parts of MRCC
+       IF(ISETKW(150).EQ.0) THEN
+*. Defaults corresponds to simple Jacobian approximation,
+*  and no approximations for energy and vectorfunction for MRCCSD
+        NCOMMU_E = 4
+        NCOMMU_J = 1
+        NCOMMU_V = 8
+        ISETKW(150) = 2
+       END IF
+*
+*.151:  Use approximate Hamiltonian in highest commutator for energy-function, default is zero
+*
+        IF(ISETKW(151).EQ.0) THEN
+          I_APPROX_HCOM_E = 0
+          ISETKW(151) = 2
+        END IF
+*
+*.152:  Use approximate Hamiltonian in highest commutator for energy-function, default is zero
+*
+        IF(ISETKW(152).EQ.0) THEN
+          I_APPROX_HCOM_V = 0
+          ISETKW(152) = 2
+        END IF
+*
+*.153:  Use approximate Hamiltonian in highest commutator for energy-function, default is zero
+*
+        IF(ISETKW(153).EQ.0) THEN
+          I_APPROX_HCOM_J = 0
+          ISETKW(153) = 2
+        END IF
+*
+*.154:  Define orbital spaces in which density should be calculated in 
+*
+       IF(ISETKW(154).EQ.0) THEN
+*. Default is pt all spaces 
+         IDENS_IN = 1
+         IDENS_AC = 1
+         IDENS_SEC = 1
+         ISETKW(154) = 2
+       END IF
+*
+*. 155: Read in S and J for MRCC calculations, Default is no
+*
+       IF(ISETKW(155).EQ.0) THEN
+          IREADSJ = 0
+          ISETKW(155) = 2
+       END IF
+*
+*. 156: Product expansions of wavefunction, default is still no
+*
+      IF(ISETKW(156).EQ.0) THEN
+        I_DO_PRODEXP = 0
+        ISETKW(156) = 2
+      END IF
+*
+*. 157: Subspace wavefunctions included
+*
+      IF(I_DO_PRODEXP.EQ.1.AND.ISETKW(157).EQ.0) THEN
+       WRITE(6,*) ' No subspace wave functions included '
+       WRITE(6,*) ' This is required - no default pt '
+       NERROR = NERROR + 1
+       ISETKW(157) = -1
+      END IF
+*
+*. 158: Max intersubspace excitation level for product wave functions, default is 0
+*
+      IF(I_DO_PRODEXP.EQ.1.AND.ISETKW(158).EQ.0) THEN
+       INTRA_EXC_PRWF = 0
+       ISETKW(158) = 2
+      END IF
+*
+*. 159: Printflag for CSF information, default is zero
+*
+      IF(ISETKW(159).EQ.0) THEN
+        IPRCSF = 0
+        ISETKW(159) = 2
+      END IF
+*. 160: Include active-active excitation(without external part)
+*.      Default is no way..
+        IF(ISETKW(160).EQ.0) THEN
+          I_INC_AA = 0
+          ISETKW(160) = 2
+        END IF
+*
+* 161 Threshold for singularities
+*
+      IF(ISETKW(161).EQ.0) THEN
+        THRES_SINGU = 1.0D-6
+        ISETKW(161) = 2
+      END IF
+*
+* 162: Largest initial number of vectors in iterative subspace
+*
+      IF(ISETKW(162).EQ.0) THEN
+        MXVC_I = MXCIVG
+        ISETKW(162) = 2
+      END IF
+*
+* 163: Largest number of macroiterations
+*
+      IF(ISETKW(163).EQ.0) THEN
+        MAXITM = 3
+        ISETKW(163) = 2
+      END IF
+*
+* 164: Fix internal in internal contraction calc: default is no way
+*
+      IF(ISETKW(164).EQ.0) THEN
+        I_FIX_INTERNAL = 0
+        ISETKW(164) = 2
+      END IF
+*
+* 165: Form of Hamiltonian for internal zero-order states: Default is 1-body op
+*
+      IF(ISETKW(165).EQ.0) THEN
+        I_INT_HAM = 1
+        ISETKW(165) = 2
+      END IF
+*
+*. 166: Use EI-approach for internal: default is yes
+*
+      IF(ISETKW(166).EQ.0) THEN
+        I_DO_EI = 1
+        IEI_VERSION = 1
+        ISETKW(166) = 2
+      END IF
+*
+*. 167: Excitation in old form. Required for CI SD(TQ) etc.
+*
+      IF(ISETKW(167).EQ.0.AND.I_DO_EI.EQ.0) THEN
+        WRITE(6,*) 
+     &  ' Error: exc. info should be supplied in old form for NO_EI'
+        NERROR = NERROR + 1
+        NMISS = NMISS + 1
+        ISETKW(167) = -1 
+       END IF
+*
+*. 168: Information for general(multiop) internal contraction
+*       must have been defined if GICCI will be called
+*
+      IF(I_DO_GIC .EQ. 1.AND.ISETKW(168).EQ.0) THEN
+        WRITE(6,*) ' GICCI will be called, requires keyword GIC_EX'
+        NERROR = NERROR + 1
+        NMISS = NMISS + 1
+        ISETKW(168) = -1
+      END IF
+*
+*. 169: Default print level for MCSCF
+*
+      IF(ISETKW(169).EQ.0) THEN
+        IPRMCSCF = 2
+        ISETKW(169) = 2
+      END IF
+* 
+*. 170: Method for MCSCF optimization
+*
+      IF(ISETKW(170).EQ.0) THEN
+* IMCSCF_MET = 2 => Two step procedure 
+         IMCSCF_MET = 2
+*. Orbital E2 is constructed 
+         IOOE2_APR = 1
+*. Linesearch will be performed
+         I_DO_LINSEA_MCSCF = 1
+*
+         ISETKW(170) = 2
+       END IF
+*
+*. 171: Method for storing and transforming two-eletron integrals
+*
+       IF(ISETKW(171).EQ.0) THEN
+*. Default is New form
+          ITRA_ROUTE = 2
+         ISETKW(171) = 2
+       END IF
+*. Well, if old method was specified, but Nonorthogonal CI is 
+* in action, switch to new approach
+       IF(ISETKW(171).EQ.1.AND.ITRA_ROUTE.EQ.1.AND.
+     &    I_DO_NORTCI.EQ.1) THEN
+          ITRA_ROUTE = 2
+          WRITE(6,*) 
+     &    ' New approach for storing integrals will be used'
+          WRITE(6,*) 
+     &    ' since non-orthogonal CI calculation will be done '
+          WRITE(6,*) '                  Best Wishes '
+          WRITE(6,*) '                     Lucia    '
+       END IF
+*
+* 172: Info on nonorthogonal CI space: No defaults
+*
+       IF(ISETKW(172).EQ.0.AND.I_DO_NORTCI.EQ.1) THEN
+         WRITE(6,*) ' Input error: Keyword NORTIN is missing '
+         NERROR = NERROR + 1
+         ISETKW(172) = -1
+       END IF
+*
+* 173: Info in reference CI space for non-orthogonal CI: No defaults
+*
+       IF(ISETKW(173).EQ.0.AND.I_DO_NORTCI.EQ.1) THEN
+         WRITE(6,*) ' Input error: Keyword VBRFSP is missing '
+         NERROR = NERROR + 1
+         ISETKW(173) = -1
+       END IF
+*
+* 174: ALgorithm for non-orthogonal CI: Default is reexpand in full space
+*
+      IF(ISETKW(174).EQ.0) THEN
+       NORT_MET = 1
+       ISETKW(174) = 2
+      END IF
+*
+* 175: Read in information on fragment MO's: Default is no way
+*
+      IF(ISETKW(175).EQ.0) THEN
+       NFRAG_TP = 0
+       ISETKW(175) = 2
+      END IF
+*
+* 176: Fragment to Molecule MO's: Should be given in fragment calc
+*
+      IF(ISETKW(176).EQ.0.AND.ISETKW(175).EQ.1) THEN
+        WRITE(6,*) ' Fragment basis specified, but no FRAGOB keyword'
+        WRITE(6,*) ' Specify FRAGOB'
+        NERROR = NERROR + 1
+        ISETKW(176) = -1
+       END IF
+*
+* 177: Choice of Initial set of orbitals
+*      Should be defined if Non-orthogonal CI calculation is in action
+      IF(ISETKW(177).EQ.0) THEN
+        IF(I_DO_NORTCI.EQ.1) THEN
+          WRITE(6,*) 
+     &    ' Keyword INI_MO should be specified for nonort. calc'
+          ISETKW(177) = -1
+          NERROR = NERROR + 1
+        ELSE
+*. Default is read in from environment, no orthogonalization
+          INI_MO_TP = 3
+          INI_MO_ORT = 0
+          INI_ORT_VBGAS = 0
+          ISETKW(177) = 2
+        END IF
+      END IF
+*
+* 178: Initial Configuration: No default
+*
+      IF(ISETKW(178).EQ.0) THEN
+        I_HAVE_INI_CONF = 0
+        ISETKW(178) = - 1
+      END IF
+*
+* 179: Print flag for VB calculation
+*
+      IF(ISETKW(179).EQ.0) THEN
+        IPRVB = 2
+        ISETKW(179) = -1
+      END IF
+*
+* 180: Giovannis BK-like CI
+*
+      IF(ISETKW(180).EQ.0) THEN
+        I_AM_GIOVANNI = 0
+        ISETKW(180) = 2
+      END IF
+*
+* 181: Print flag for integrals
+*
+      IF(ISETKW(181).EQ.0) THEN
+       IPRINTEGRAL = 0
+       ISETKW(181) = 2
+      END IF
+*
+* 182: Preconditioner in CSF basis
+*
+      IF(ISETKW(182).EQ.0) THEN
+*. Default is averaged determinant diagonal
+       IH0_CSF = 1
+       ISETKW(182) = 2
+      END IF
+*
+* 183: Storage mode for CNF's info and expansions
+*      Default is initially storage for all occupation classes
+*
+      IF(ISETKW(183).EQ.0) THEN
+        ICNFBAT = 1
+        ISETKW(183) = 2
+      END IF
+*
+* 184: Ensembles of Gaspaces: Default is no
+*
+      IF(ISETKW(184).EQ.0) THEN
+        NENSGS = 0
+        ISETKW(184) = 2
+      END IF
+*
+* 185: Constraints on the number of electron in ensemble GAS 1: 
+*      default is no (flagged by  I_CHECK_ENSGS = 0)
+*
+      IF(ISETKW(185).EQ.0) THEN
+        I_CHECK_ENSGS = 0
+        DO ISPC = 1, NCISPC
+          NELVAL_IN_ENSGS(ISPC) = -1
+        END DO
+        ISETKW(185) = 2
+      END IF
+*
+* 186: Equivalent groups of fragments, default is all fragments are separate groups
+*
+      IF(ISETKW(186).EQ.0) THEN
+        ISETKW(186) = 2
+        NEQVGRP_FRAG = NFRAG_MOL
+        DO IFRAG = 1, NFRAG_MOL
+          LEQVGRP_FRAG(IFRAG) = 1
+          IEQVGRP_FRAG(1,IFRAG) = IFRAG
+        END DO
+      END IF
+*
+* 187: Supersymmetry, default is no way
+*
+      IF(ISETKW(187).EQ.0) THEN
+        ISETKW(187) = 2 
+        I_USE_SUPSYM = 0
+        CSUPSYM(1:6) = '      '
+      END IF
+*
+* 188: Specification of Doubly occupied irreps for HF with super symmetry
+*
+      IF(ISETKW(188).EQ.0) THEN
+        ISETKW(188) = 2
+        IZERO = 0
+        CALL ISETVC(NHFD_IRREP_SUPSYM,IZERO,MAX_SUPSYM_IRREP)
+      END IF
+*
+* 189: Specification of Singly occupied irreps for HF with super symmetry
+*
+      IF(ISETKW(189).EQ.0) THEN
+        ISETKW(189) = 2
+        IZERO = 0
+        CALL ISETVC(NHFS_IRREP_SUPSYM,IZERO,MAX_SUPSYM_IRREP)
+*. If Hartree-Fock calculation will be performed, but neither
+*. singly or doubly occupied orbitals have been specified, 
+*. we have an error
+        IF(ISETKW(188).EQ.2.AND.I_DO_HF.EQ.1) THEN
+          NERROR = NERROR + 1
+          WRITE(6,*) ' HF calculation specified '
+          WRITE(6,*)
+     &    ' but neither singly or doubly occupied orbitals specified'
+        END IF
+      END IF
+*
+* 190: Specification of irreps of the GASpaces, including 0 and NGAS + 1
+*       Must pt be read in if supersymmetry is active
+*
+      IF(ISETKW(190).EQ.0) THEN
+        ISETKW(190) = 2
+        IF(I_USE_SUPSYM.EQ.1) THEN
+          WRITE(6,*) ' GAS_SP must be specified for supersymmetry'
+          NERROR = NERROR + 1
+          NMISS = NMISS + 1
+          ISETKW(190) = -1
+        END IF
+        IZERO = 0
+        DO IGAS = 0, NGAS + 1
+         CALL ISETVC(NGAS_IRREP_SUPSYM(1,IGAS),IZERO,MAX_SUPSYM_IRREP)
+        END DO
+      END IF
+*
+* 191: Neglect reordering to standard supersymmetry order in final orbitals: Default is NO
+*
+      IF(ISETKW(191).EQ.0) THEN
+        I_NEGLECT_SUPSYM_FINAL_MO = 0
+        ISETKW(191) = 2
+      END IF
+*
+* 192: Use LUCIA fragment files even if overall environment is DALTON, default is no
+      IF(ISETKW(192).EQ.0) THEN
+        I_USE_LUCIA_FRAGMENTS = 0
+        ISETKW(192) = 2
+      END IF
+*
+* 193: Freeze orbitals in MCSCF optimization
+*
+      IF(ISETKW(193).EQ.0) THEN
+        NFRZ_ORB = 0
+        ISETKW(193) = 2
+      END IF
+*
+* 194: No CI space where exact Hamiltonian is used in subspace
+*
+       IF(ISETKW(194).EQ.0) THEN
+         ISBSPPR = 0
+         ISBSPPR_INI = 0
+         ISETKW(194) = 2
+       END IF
+*
+* 195: Number of roots to be converged in first CI: default is NROOT
+*     
+       IF(ISETKW(195).EQ.0) THEN
+         INI_NROOT = NROOT
+         ISETKW(195) = 2
+       END IF
+*
+* 196: Roots to be selected from initial CI: Default is root number NROOT
+*
+       IF(ISETKW(196).EQ.0) THEN
+         IROOT_MET(1:6) = 'SELORD'
+         ITG_SROOT = NROOT
+         ISETKW(196) = 2
+*. This is done in all iteration
+         
+       END IF
+*
+* 197: Root selection, Default is no
+*
+       IF(ISETKW(197).EQ.0) THEN
+         IROOT_SEL = 0
+         ISETKW(197) = 2
+       END IF
+*
+* 198: First space where orbitals are frozen: default is the first space
+*
+      IF(ISETKW(198).EQ.0) THEN
+        IFRZFST = 1
+        ISETKW(198) = 2
+      END IF
+*
+* 199: Additional VB orbital spaces, default is not
+*
+      IF(ISETKW(199).EQ.0) THEN
+        NVBGNSP = 0
+        ISETKW(199) = 2
+      END IF
+*
+* 200: Order of orbitals for min max spaces, default is same as input
+*
+      IF(ISETKW(200).EQ.0) THEN
+C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
+        CALL ISTVC2(IREO_MNMX_OB_NO,0,1,NORBVBSPC)
+        CALL ISTVC2(IREO_MNMX_OB_ON,0,1,NORBVBSPC)
+        ISETKW(200) = 2
+      END IF
+*
+* 201: Order for which orbitals are coupled in the nort calculations
+*
+      IF(ISETKW(201).EQ.0) THEN
+C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
+        CALL ISTVC2(IREO_SPCP_OB_NO,0,1,NORBVBSPC)
+        CALL ISTVC2(IREO_SPCP_OB_ON,0,1,NORBVBSPC)
+        ISETKW(201) = 2
+      END IF
+*
+* 202: Method for AKBK, standard is PT disc intensive version
+*
+      IF(ISETKW(202).EQ.0) THEN
+         IAKBK_MET = 1
+         ISETKW(202) = 2
+      END IF
+
+*
+*. Largest number of active irreps in super or normal symmetry
+      IF(I_USE_SUPSYM.EQ.0) THEN
+        NACT_SUPSYM_IRREP = NIRREP
+      END IF
+*
+*. End of reading keywords
+* ==========================
+*
+*. Thresholds only active in connection with IDIAG = 2,
+*. Check and maybe issue a warning
+      IF(IDIAG.EQ.2) THEN
+*. Check to ensure that zero or two thresholds were  set,
+        IF(ISETKW(69).NE.ISETKW(70)) THEN
+          WRITE(LUOUT,*) 
+     &    ' Only a single threshold (E_THRE or C_THRE) '
+          WRITE(LUOUT,*)  
+     &    ' on individual determinants given. '            
+          WRITE(LUOUT,*)  
+     &    ' One of the thresholds vanishes therefore and ' 
+          WRITE(LUOUT,*)  
+     &    ' all determinants will therefore be included  ' 
+          WRITE(LUOUT,*)
+          WRITE(LUOUT,*) '                   Warns '     
+          WRITE(LUOUT,*)
+          WRITE(LUOUT,*) '                   LUCIA  '     
+        END IF
+      ELSE
+*. Good old diagonalization, thrsholds not active
+        IF(ISETKW(69).EQ.1.OR.ISETKW(70).EQ.1) THEN
+          WRITE(LUOUT,*)
+     &    ' Thresholds on selection of individual coefficients '
+          WRITE(LUOUT,*)
+     &    ' are only active in connection with keyword TERACI  '
+          WRITE(LUOUT,*)
+          WRITE(LUOUT,*) '                   Warns '     
+          WRITE(LUOUT,*)
+          WRITE(LUOUT,*) '                   LUCIA  '     
+        END IF
+      END IF
+*
+      IF(ISETKW(156).EQ.0.AND.ISETKW(50).EQ.1.AND. ISETKW(51).EQ.0) THEN
+* Number of GAS shells given but no occupations !!
+*. This is okay if we are playing arounf with product wf (therefore the 155 test), else not
+        WRITE(6,*) ' GAS calculation (GASSH specified)'
+        WRITE(6,*) ' But no Occupation constraints (GASSPC) '
+        WRITE(6,*) 
+        WRITE(6,*) ' Please add GASSPC '
+        NMISS = NMISS + 1
+      END IF
+*
+* 
+*
+      IF(NMISS.NE.0.OR.NERROR.NE.0 ) THEN
+        WRITE(LUOUT,'(1H ,A,I9)')
+     &  ' Number of missing required keyword ', NMISS
+        WRITE(LUOUT,'(1H ,A,I9)')
+     &  ' Number of errors in input ', NERROR
+        WRITE(LUOUT,*)
+     &  ' You have wounded me I give up '
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*)
+     & '     An expert is a man who has made all the mistakes,'
+        WRITE(LUOUT,*)
+     &  '     which can be made, in a very narrow field        '
+        WRITE(LUOUT,*)
+     &  '                                                      '
+        WRITE(LUOUT,*)
+     &  '                                      Niels Bohr      '
+        IF(IEXPERT.EQ.0) THEN
+          STOP
+        ELSE
+          WRITE(6,*) ' Processing continues (EXPERT mode )'
+        END IF
+      END IF
+*. If requested so, we reduce the symmetry at this point
+      IF (SYMRED) THEN
+        IF (NIRREP.NE.NIRREP_OLD) THEN
+          WRITE(6,*) 'LUCIA.SDC does not fit with current run.'
+          WRITE(6,*) 'I dicided to ignore it .....'
+          SYMRED = .FALSE.
+        ELSE
+          ! all info is coming from common /symrdc/
+          NIRREP = NIRREP_NEW
+          NSMOB = NIRREP_NEW
+          NSMCMP = NIRREP_NEW
+          ! inactive and deleted
+          CALL REOSYM(NINASH,NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          CALL REOSYM(NDELSH,NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          ! old RASpaces
+          CALL REOSYM(NRS0SH,NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          CALL REOSYM(NRSSH(1,1),NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          CALL REOSYM(NRSSH(1,2),NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          CALL REOSYM(NRSSH(1,3),NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          CALL REOSYM(NRS4SH,NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT) 
+          ! new GASpaces
+          DO IGAS = 1, NGAS
+            CALL REOSYM(NGSSH(1,IGAS),NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT)
+          END DO
+          IF (IFINMO.EQ.5) THEN
+            DO IPSSPC = 1, NPSSPC
+              CALL REOSYM(NPSSH(1,IPSSPC),NIRREP_NEW,
+     &                                    NIRREP_OLD,IRMAP,NQUOT) 
+            END DO
+          END IF
+          ! for CC excitations
+          IF (I_DO_CC_EXC_E.EQ.1)
+     &       CALL REOSYM(NEXC_PER_SYM,NIRREP_NEW,NIRREP_OLD,IRMAP,NQUOT)
+        END IF
+      END IF
+ 
+*. Open one-electron file to obtain core energy and
+*. Number of MO's and AO's
+      IF(NOINT.EQ.0.AND.
+     &   (ENVIRO(1:4).NE.'NONE'.AND.ENVIRO(1:4).NE.'FUSK')
+     &   .AND.ENVIRO(1:6).NE.'LIPKIN') THEN
+        CALL GET_ORB_DIM_ENV(ECORE_ENV)
+        IF(ISETKW(46).EQ.2) ECORE = ECORE_ENV
+        CALL CHK_ORBDIM(IGSFILL,ISECFILL)
+      ELSE
+        WRITE(6,*) ' GETOBS and CHK_ORBDIM not called '
+        ECORE = 0.0D0
+      END IF
+*. If a minmax subspace has been defined, extend occupations to
+*. all active orbitals
+      IF(ISBSPC_SEL.EQ.4) THEN
+        MINEL_L = ISBSPC_MINMAX(NSBSPC_ORB,1)
+        MAXEL_L = ISBSPC_MINMAX(NSBSPC_ORB,2)
+        DO IORB = NSBSPC_ORB+1, NACOB-1
+          ISBSPC_MINMAX(IORB,1) = MINEL_L
+          ISBSPC_MINMAX(IORB,2) = MAXEL_L
+        END DO
+        ISBSPC_MINMAX(NACOB,1) = NACTEL
+        ISBSPC_MINMAX(NACOB,2) = NACTEL
+*.  And the orbitals: Orbitals following NSBSPC_ORB are not changed
+        DO IOB = 1, NSBSPC_ORB
+         ISBSPC_ORB_INV(ISBSPC_ORB(IOB)) = IOB
+        END DO
+        DO IOB = NSBSPC_ORB + 1, NACOB
+          ISBSPC_ORB(IOB) = IOB
+          ISBSPC_ORB_INV(IOB) = IOB
+        END DO
+      END IF
+
+*. Check to see if there a CI calculation will be called after 
+*. CC, as this will enforce CC=>CI expansion
+      I_DO_CI_AFTER_CC = 0
+      I_HAVE_DONE_CC = 0
+             CARDX=ITEM(1)
+             CSEQCI(ICI,JCMBSPC) = ITEM(1)(1:8)
+*
+      DO JCMBSPC = 1, NCMBSPC
+        DO ICI = 1, NSEQCI(JCMBSPC)
+           CARDX=CSEQCI(ICI,JCMBSPC)
+           
+           IF(CARDX(1:2).EQ.'CC'.OR.CARDX(1:6).EQ.'GEN_CC') THEN
+              I_HAVE_DONE_CC = 1
+           END IF
+           IF(CARDX(1:2).EQ.'CI'.AND.I_HAVE_DONE_CC.EQ.1) THEN
+             I_DO_CI_AFTER_CC = 1
+           END IF
+        END DO
+      END DO
+C?    WRITE(6,*) ' Check,  I_DO_CI_AFTER_CC = ',  I_DO_CI_AFTER_CC
+C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
+      IF( I_DO_CI_AFTER_CC .EQ. 1 ) THEN
+*. Enforce CC => CI expansion
+        I_DO_CC_TO_CI = 1
+      END IF
+*
+*. Initial order of MOs is presently not known
+      CMO_ORD = 'UNK'
+  
+   
+*. Check number of orbitals and insert occupations for ALL/REST
+ 
+************************************************************
+*                                                          *
+* Part 3: Print input                                     *
+*                                                          *
+************************************************************
+*
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) '******************'
+      WRITE(LUOUT,*) '*  Title of run  *'
+      WRITE(LUOUT,*) '******************'
+      WRITE(LUOUT,*)
+      CALL PRTITL(TITLEC)
+      WRITE(LUOUT,*)
+*
+*. Machine in use
+      WRITE(6,'(A,A)') '    Machine in use: ', MACHINE
+*
+*. Core memory
+      WRITE(6,'(A,I20,A)')
+     &                 '    Core memory   : ', MAXMEM,' R*8 words'
+*
+*. Type of reference state
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) '********************************'
+      WRITE(LUOUT,*) '*  Symmetry and spin of states *'
+      WRITE(LUOUT,*) '********************************'
+      WRITE(LUOUT,*)
+*. Point group
+      IF(PNTGRP.EQ.1) THEN
+        IF (NIRREP.EQ.8) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ D2h'
+        ELSE IF (NIRREP.EQ.4) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ C2v/C2h/D2'
+        ELSE IF (NIRREP.EQ.2) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ Cs/Ci/C2'
+        ELSE IF (NIRREP.EQ.1) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ C1'
+        END IF
+      ELSE IF(PNTGRP.EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ C inf v'
+      ELSE IF(PNTGRP.EQ.3) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ D inf h'
+      ELSE IF(PNTGRP.EQ.4) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Point group ............ O3'
+      END IF
+*
+      IF(I_USE_SUPSYM.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,A)')
+     &  '     Super symmetry ......... ', CSUPSYM
+      END IF
+*.Spatial symmetry
+      IF(PNTGRP.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,I1)')
+     &  '     Spatial symmetry ....... ', IREFSM
+      ELSE IF(PNTGRP.EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I1)')
+     &  '     ML value ............... ', IREFML
+      ELSE IF(PNTGRP.EQ.3) THEN
+        WRITE(LUOUT,'(1H ,A,I1)')
+     &  '     ML value ............... ', IREFML
+        IF(IREFPA.EQ.1) WRITE(LUOUT,'(1H ,A)')
+     &  '     Parity   ..............  Gerade'
+        IF(IREFPA.EQ.2) WRITE(LUOUT,'(1H ,A)')
+     &  '     Parity   ..............  Ungerade'
+      ELSE IF(PNTGRP.EQ.4) THEN
+        WRITE(LUOUT,'(1H ,A,I1)')
+     &  '     L  value ............... ', IREFL
+        WRITE(LUOUT,'(1H ,A,I1)')
+     &  '     ML value ............... ', IREFML
+        IF(IREFPA.EQ.1) WRITE(LUOUT,'(1H ,A)')
+     &  '     Parity   ..............  Gerade'
+        IF(IREFPA.EQ.2) WRITE(LUOUT,'(1H ,A)')
+     &  '     Parity   ..............  Ungerade'
+      END IF
+*.Spin
+      WRITE(LUOUT,'(1H ,A,I2)')
+     &  '     2 times spinprojection  ', MS2
+*. Intermediate Spin projection 
+      IF(I_RE_MS2_SPACE.NE.0) THEN
+        WRITE(LUOUT,'(1H ,A,I2,A,I2)')
+     &  '     2*MS2 after orbital space ', I_RE_MS2_SPACE, 
+     &  ' must be ',I_RE_MS2_VALUE
+      END IF
+      IF(NOCSF.EQ.0) WRITE(LUOUT,'(1H ,A,I2)')
+     &  '     Spin multiplicity ....  ', MULTS
+*.Number of active electrons
+      WRITE(LUOUT,'(1H ,A,I2)')
+     &  '     Active electrons .....  ', NACTEL
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) '*********************************************'
+      WRITE(LUOUT,*) '*  Shell spaces and occupation constraints  *'
+      WRITE(LUOUT,*) '********************************************* '
+      WRITE(LUOUT,*)
+*
+      IF(IDOGAS.EQ.0) THEN
+*. Kept because output can lated be used for GAS
+*
+*. NOT a GAS expansion
+*
+*
+      WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '                Irrep ',(I,I = 1,NIRREP)
+      WRITE(LUOUT,'(1H ,A,2X,10A)')
+     &  '                ===== ',('====',I = 1,NIRREP)
+*
+*. Inactive
+      IF(ISETKW(7).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Inactive         ',(NINASH(I),I=1,NIRREP)
+      END IF
+*. Core
+      IF(ISETKW(8).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Core             ',(NRS0SH(I,1),I=1,NIRREP)
+      END IF
+*. RAS1
+      IF(ISETKW(9).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Ras1             ',(NRSSH(I,1),I=1,NIRREP)
+      END IF
+*. RAS2/ACTIVE
+      IF(ISETKW(10).EQ.1) THEN
+        IF(INTSPC.EQ.1) THEN
+          WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Active           ',(NRSSH(I,2),I=1,NIRREP)
+        ELSE IF(INTSPC.EQ.2) THEN
+          WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Ras2             ',(NRSSH(I,2),I=1,NIRREP)
+        END IF
+      END IF
+*. RAS3
+      IF(ISETKW(11).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Ras3             ',(NRSSH(I,3),I=1,NIRREP)
+      END IF
+      IF(INTSPC.EQ.2.AND.IMLCR3.EQ.1) WRITE(LUOUT,'(1H ,A)')
+     &  '     ( RAS 3 space supplied by courtesy of TRAONE )'
+*. Secondary space
+      IF(ISETKW(13).EQ.1) THEN
+        DO 310 ITP = 1,MXR4TP
+          WRITE(LUOUT,'(1H ,A,I2,A,10I4)')
+     &  '     Secondary',ITP,'      ',(NRS4SH(I,ITP),I=1,NIRREP)
+  310   CONTINUE
+      END IF
+*. Deleted space
+      IF(ISETKW(26).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,10I4)')
+     &  '     Deleted          ',(NDELSH(I),I=1,NIRREP)
+      END IF
+      IF(IMLCR3.EQ.2) WRITE(LUOUT,'(1H ,A)')
+     &  '     ( Deleted shells supplied by courtesy of TRAONE )'
+*.Core space
+      WRITE(LUOUT,*)
+      IF(ISETKW(8).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,I2)')
+     &  '     Largest number of excitations out of core .....   ',MXHR0
+      END IF
+*.Secondary space
+      IF(ISETKW(13).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,I2)')
+     &  '     Largest number of excitations to secondary space  ',MXER4
+      END IF
+      ELSE
+*
+*. GAS space
+*
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) ' *************************'
+      WRITE(LUOUT,*) ' Generalized active space '
+      WRITE(LUOUT,*) ' *************************'
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,'(A)') ' Orbital subspaces:'
+      WRITE(LUOUT,'(A)') ' ================== '
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,'(1H ,A,10I4,A)')
+     &  '                Irrep ',(I,I = 1,NIRREP) 
+      WRITE(LUOUT,'(1H ,A,2X,10A,A)')
+     &  '                ===== ',('====',I = 1,NIRREP) 
+      WRITE(LUOUT,'(A,10I4)')
+     &  '        Inactive       ',
+     &   ( NINASH(IRREP),IRREP = 1, NIRREP)
+   
+      DO IGAS = 1, NGAS
+        WRITE(LUOUT,'(A,I2,A,10I4,6X,2I6)')
+     &  '        GAS',IGAS,'          ', 
+     &  (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP) 
+      END DO
+      WRITE(LUOUT,'(A,10I4)')
+     &  '        Secondary      ',
+     &   ( NSECSH(IRREP),IRREP = 1, NIRREP)
+      WRITE(6,*)
+      IF(IGSFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Gas space provided by courtesy of LUCIA:',  IGSFILL 
+      IF(ISECFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Secondary space provided by courtesy of LUCIA '
+*
+      IF(I_USE_SUPSYM.EQ.1) THEN
+        WRITE(6,*)
+        WRITE(6,*) ' Information on supersymmetry irreps '
+        WRITE(6,*) ' ************************************'
+        WRITE(6,*)
+        IF(ISETKW(188).EQ.1) THEN
+          WRITE(6,'(A,15(1X,I2))') 
+     &   ' Doubly occupied irreps in HF: ',
+     &     (NHFD_IRREP_SUPSYM(I), I = 1, NACT_SUPSYM_IRREP)
+        END IF
+        IF(ISETKW(189).EQ.1) THEN
+          WRITE(6,'(A,15(1X,I2))') 
+     &   ' Singly occupied irreps in HF: ',
+     &     (NHFS_IRREP_SUPSYM(I), I = 1, NACT_SUPSYM_IRREP)
+        END IF
+        IF(ISETKW(190).EQ.1) THEN
+         WRITE(6,*)
+     &   ' Irreps in the various GASpaces: '
+         WRITE(6,*) ' Gas, Number of sets per irrep '
+         WRITE(6,*) ' =================================='
+         DO IGAS = 0, NGAS + 1
+           WRITE(6,'(1X,I3,4X,20(1X,I3))')
+     &     IGAS, (NGAS_IRREP_SUPSYM(I,IGAS), I = 1, NACT_SUPSYM_IRREP)
+         END DO
+       END IF
+      END IF
+         
+*
+*
+      IF(IDOQD.EQ.1)   WRITE(6,'(7X,A,I3)')
+     &' Number of orbital spaces used for holes ', N_HOLE_ORBSPACE 
+*
+      IF(I_DO_PRODEXP.EQ.0) THEN
+       WRITE(LUOUT,*)
+       WRITE(LUOUT,*)  '*******************'
+       WRITE(LUOUT,*)  ' Occupation spaces '
+       WRITE(LUOUT,*)  '*******************'
+       WRITE(LUOUT,*)
+       WRITE(LUOUT,'(A,I3)')
+     &  ' Number of Occupation spaces: ',NCISPC
+       WRITE(LUOUT,*)
+       DO ICISPC = 1, NCISPC
+        WRITE(LUOUT,'(A,I3)') 
+     &  ' Bounds on accumulated occupations for space: ',ICISPC
+        WRITE(LUOUT,'(A)')
+     &   ' ====================================================== '
+        WRITE(LUOUT,'(A)')
+        WRITE(LUOUT,'(A)') '         Min. occ    Max. occ '
+        WRITE(LUOUT,'(A)') '         ========    ======== '
+        DO IGAS = 1, NGAS
+          WRITE(LUOUT,'(A,I2,3X,I3,9X,I3)')
+     &    '   GAS',IGAS,IGSOCCX(IGAS,1,ICISPC),IGSOCCX(IGAS,2,ICISPC)
+        END DO
+       END DO
+*
+       IF(ISETKW(14).EQ.1) THEN
+         WRITE(LUOUT,'(A,I3)') 
+     &   ' Bounds on accumulated occupations for reference space '
+         WRITE(LUOUT,'(A)')
+     &    ' ====================================================== '
+         WRITE(LUOUT,'(A)')
+         WRITE(LUOUT,'(A)') '         Min. occ    Max. occ '
+         WRITE(LUOUT,'(A)') '         ========    ======== '
+         DO IGAS = 1, NGAS
+           WRITE(LUOUT,'(A,I2,3X,I3,9X,I3)')
+     &     '   GAS',IGAS,IREFOCC_ACC(IGAS,1),IREFOCC_ACC(IGAS,2)
+         END DO
+       END IF
+       
+      IF(NENSGS.NE.0) THEN
+       WRITE(6,'(7X,A)')
+     & 'Ensembles of GASpaces: '
+       WRITE(6,'(7X,A)')
+     & '====================== '
+       DO JENSGS = 1, NENSGS
+         WRITE(6,'(10X,A,I3)')
+     & ' Ensemble: ', JENSGS
+         N = LENSGS(JENSGS)
+         WRITE(6,'(10X,30(1X,I2))')
+     &   (IENSGS(IGAS,JENSGS),IGAS = 1, N)
+       END DO
+      END IF
+*
+      IF(I_CHECK_ENSGS.EQ.1) THEN
+        DO ISPC = 1, NCISPC
+          WRITE(6,'(10X,A,I3)') 
+     &    ' Allowed numbers of electrons in Ensemble GAS I for space:',
+     &    ISPC 
+          WRITE(6,'(10X,20(1X,I3))')
+     &    (IEL_IN_ENSGS(IVAL,ISPC),IVAL = 1, NELVAL_IN_ENSGS(ISPC))
+        END DO
+      END IF
+*
+       IF(ISETKW(52).EQ.1) THEN
+        WRITE(LUOUT,*)
+        WRITE(LUOUT,*) 
+     &  ' **************************************************'
+        WRITE(LUOUT,*) 
+     &  ' Specification of CI Spaces (combinations of above)'
+        WRITE(LUOUT,*) 
+     &  ' **************************************************'
+        WRITE(LUOUT,*)
+   
+        WRITE(6,*) 
+        WRITE(6,'(A,I3)')
+     &  ' Number of CI spaces included: ', NCMBSPC
+        WRITE(6,*) 
+        DO JCMBSPC = 1, NCMBSPC
+          WRITE(6,*)
+          WRITE(6,'(A,I3)') ' Information about CI space ', JCMBSPC
+          WRITE(6,'(A)')    ' =================================='
+          WRITE(6,'(1H ,3X,A,I3)')
+     &    'Number of occupation spaces included  ',LCMBSPC(JCMBSPC)    
+          WRITE(6,'(A,10I3)') '    Occupation spaces included ', 
+     &    (ICMBSPC(II,JCMBSPC),II=1,LCMBSPC(JCMBSPC))
+*
+        END DO 
+       END IF
+      ELSE
+*. Product type of expansion
+      END IF
+
+*     
+
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) ' ******************************************'
+      WRITE(LUOUT,*) ' Specification of Sequence of calculations '
+      WRITE(LUOUT,*) ' ******************************************'
+      WRITE(LUOUT,*)
+      DO JCMBSPC = 1, NCMBSPC
+        WRITE(6,*)
+        WRITE(6,'(7X,A,I3)') ' Space ', JCMBSPC
+        WRITE(6,'(7X,A)')    ' =============='
+        WRITE(6,*)
+*
+C       WRITE(6,'(A,I3)') ' Number of calculations in this space ',
+C    &  NSEQCI(JCMBSPC)
+C       WRITE(6,'(A)')   '  Calculations in this space '
+C       WRITE(6,'(A)')   '  ==========================='
+        DO JSEQ = 1, NSEQCI(JCMBSPC)
+          CARDX = CSEQCI(JSEQ,JCMBSPC)
+          IF(CARDX(1:7).EQ.'VECFREE') THEN
+            WRITE(6,'(10X,A,I3)') 
+     &      '       Vector free calculation at level ',
+     &      -ISEQCI(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:2).EQ.'CI') THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       Normal CI with max. iterations = ', 
+     &      ISEQCI(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:6).EQ.'APR-CI') THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       CI using approximate H with max. iterations = ', 
+     &      ISEQCI(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:5).EQ.'PERTU') THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       Perturbation calculation '          
+          ELSE IF(CARDX(1:2).EQ.'CC'   ) THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       Coupled Cluster Calculation, max. iterations =',      
+     &      ISEQCI(JSEQ,JCMBSPC)
+            IF(JCMBSPC.EQ.LAST_CC_SPC.AND.JSEQ.EQ.LAST_CC_RUN) THEN
+              WRITE(6,'(10X,A)') 
+     &      '       (Expanded cc wf will be transferred to LUC ) '
+            END IF
+          ELSE IF(CARDX(1:6).EQ.'GEN_CC'.OR.
+     &            CARDX(1:3).EQ.'TCC') THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       General Coupled Cluster, max. iterations =',      
+     &      ISEQCI(JSEQ,JCMBSPC)
+            WRITE(6,'(10X,A,I3)')
+     &      '                                Operator space  =',      
+     &      ISEQCI2(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:3).EQ.'UCC') THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       Unitary Coupled Cluster, max. iterations =',      
+     &      ISEQCI(JSEQ,JCMBSPC)
+            WRITE(6,'(10X,A,I3)')
+     &      '                                Operator space  =',      
+     &      ISEQCI2(JSEQ,JCMBSPC)
+c            STOP 'program adaption not complete'
+          ELSE IF(CARDX(1:3).EQ.'VCC') THEN
+            WRITE(6,'(10X,A,I3)')
+     &      '       Variational Coupled Cluster, max. iterations =',      
+     &      ISEQCI(JSEQ,JCMBSPC)
+            WRITE(6,'(10X,A,I3)')
+     &      '                                Operator space  =',      
+     &      ISEQCI2(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:4).EQ.'ICCI' ) THEN
+            WRITE(6,'(10X,A)') 
+     &      '       Internal Contracted CI calculation '  
+          ELSE IF(CARDX(1:4).EQ.'ICCC' ) THEN
+            WRITE(6,'(10X,A)') 
+     &      '       Internal Contracted CC calculation (aka MRCC) '  
+            IF(IREADSJ.EQ.1) WRITE(6,'(10X,A)') 
+     &      '       Metric and approximate Jacobian will be read in '
+          ELSE IF(CARDX(1:7).EQ.'TWOBODY' ) THEN
+            WRITE(6,'(10X,A,/,2(10X,A,I4,/))') 
+     &      '       Generalized Two-Body operater Cluster expansion',
+     &      '         refspace   = ',ISEQCI2(JSEQ,JCMBSPC),
+     &      '         max. iter. = ',ISEQCI (JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:6).EQ.'SP_MCL' ) THEN
+            WRITE(6,'(10X,A)') 
+     &      '       Spin-restricted MCLR '                 
+          ELSE IF(CARDX(1:5).EQ.'MCSCF' ) THEN
+            WRITE(6,'(10X,A)') 
+     &      '       MCSCF optimization  '                 
+          ELSE IF(CARDX(1:6).EQ.'NORTCI' ) THEN
+            WRITE(6,'(10X,A,I3)') 
+     &      '       Nonorthogonal CI with max. iterations = ',
+     &      ISEQCI(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:6).EQ.'NORTMC' ) THEN
+            WRITE(6,'(10X,A,2I3)') 
+     &      '       Nonorthogonal MCSCF,  max. macro and micro its. = ',
+     &      ISEQCI(JSEQ,JCMBSPC), ISEQCI2(JSEQ,JCMBSPC)
+          ELSE IF(CARDX(1:2).EQ.'HF') THEN
+            WRITE(6,'(10X,A,I3)') 
+     &      '       Hartree-Fock optimization. iterations = ',
+     &      ISEQCI(JSEQ,JCMBSPC)
+            WRITE(6,'(10X,A)') 
+     &      '       Integrals will be transformed to converged orbitals'
+          ELSE IF(CARDX(1:5).EQ.'GICCI') THEN
+            WRITE(6,'(10X,A,I4,2x,I4)') 
+     &      '       GICCI calculation, outer and inner iterations =',
+     &              MAXITM, MAXIT
+          ELSE IF(CARDX(1:4).EQ.'AKBK') THEN
+            WRITE(6,'(10X,A)') 
+     &      '       AKBK aka Split GAS calculation                 ' 
+          END IF
+        END DO
+*       ^ End of loop over spaces in given CI space
+      END DO
+*     ^ End of loop over CI spaces
+      WRITE(6,*) 
+      END IF
+*     ^ End of GAS/NOGAS switch
+*
+      IF(XLAMBDA.NE.1.0D0) THEN
+        WRITE(6,*)
+        WRITE(6,'(A,F13.8)') 
+     &  ' Modified operator H(l) = l*F + l*(H-F) used with l =',XLAMBDA
+        IF(IUSEH0P.EQ.0) THEN
+         WRITE(6,'(A)')  ' Zero-order operator without projection used '
+        ELSE
+         WRITE(6,'(A)')  ' Zero-order operator with projection used '
+        END IF
+        IF(IRESTR.EQ.0) THEN
+        WRITE(6,*)
+     &  ' Notice: This madness starts  in second calculation'
+        ELSE
+         WRITE(6,*) ' You have specified a calculation with modified '
+         WRITE(6,*) ' Hamiltonian (the LAMBDA option) and RESTART '
+         WRITE(6,*) ' so this is what I will do '
+         WRITE(6,*)   
+         WRITE(6,*) '   1:) Perform CI in space 1 to obtain Hamiltonian'
+         WRITE(6,*) '       (no RESTART in this space )'
+         WRITE(6,*) '   2:) CI calculation in space 2  with '
+         WRITE(6,*) '       modified Hamiltonian and RESTART from LU21'
+         WRITE(6,*) ' Space 2 should therefore correspond to the'
+         WRITE(6,*) ' restarted calculation '
+       END IF
+      END IF
+*
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) '***********'
+      WRITE(LUOUT,*) '*  Roots  *'
+      WRITE(LUOUT,*) '*********** '
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,'(1H ,A,I3)')
+     &  '     Number of roots to be included  ', NROOT
+      WRITE(LUOUT,'(1H ,A,(20I3))')
+     &  '     Roots to be obtained ', (IROOT(I),I=1, NROOT )
+      WRITE(LUOUT,'(1H ,A,I3)')
+     &  '     Number of roots to be converged ', NCNV_RT
+      IF(INI_NROOT.NE.NROOT) WRITE(LUOUT,'(1H ,A,I3)')
+     &  '     Number of roots In initial CI ', INI_NROOT
+*
+      IF(IROOT_MET(1:6).EQ.'SELORD') THEN
+         WRITE(LUOUT,'(1H ,A,I3)')
+     &  '     Reference state selected as root ', ITG_SROOT
+      ELSE IF(IROOT_MET(1:6).EQ.'SELSPS') THEN
+         WRITE(LUOUT,'(1H ,A,I3)')
+     &  '     Initial reference state must have supersymmetry ',
+     &        ITG_SUPSYM
+      END IF
+      IF(ISEL_ONLY_INI.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Root selection only in initial calculation '
+      ELSE
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Root selection in ALL  calculations '
+      END IF
+*. The above should be rethought...
+      IF(IROOT_SEL.EQ.1) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    ' In optimization roots will be selected using root homing '
+      ELSE IF (IROOT_SEL.EQ.2) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    ' In optimization roots will be selected using super-symmetry'
+      END IF
+*
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) '**************************'
+      WRITE(LUOUT,*) '*  Run time definitions  *'
+      WRITE(LUOUT,*) '************************** '
+      WRITE(LUOUT,*)
+*. Program environment 
+      WRITE(6,'(A,A6)')  '      Program environment... ', ENVIRO
+*
+      IF(IDOQD.EQ.1) THEN
+        WRITE(6,'(A,A6)')'      Quantum dot calculation'
+      END IF
+*. Integral import
+      IF(NOINT.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     No integrals will be read in       '
+      ELSE IF(NOINT.EQ.0) THEN
+*. Quantum dot calculation ?
+      IF(IDOQD.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Integrals read in QDOT format '
+      ELSE
+        IF(INTIMP.EQ.1) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     Integrals read in in MOLCAS format '
+        ELSE IF(INTIMP.EQ.5) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     Integrals read in in SIRIUS format '
+        ELSE IF(INTIMP.EQ.2) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     Integrals read in in LUCAS format '
+        ELSE IF(INTIMP.EQ.3) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     Integrals read in in formatted form (E22.15) ',
+     &    '      From unit 13'
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     All integrals of correct symmetry combination read in'
+        ELSE IF(INTIMP.EQ.8) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     Integrals supplied for Lipkin-quasispin-model'
+          WRITE(LUOUT,'(1H ,A,E20.10,/,1H ,A,E20.10)')
+     &    '         Parameters: e = ',XLIP_E,
+     &    '                     V = ',XLIP_V
+        ELSE IF(INTIMP.EQ.9) THEN
+          WRITE(LUOUT,'(1H ,A)')
+     &    '     Fusk integrals .... '
+       END IF
+      END IF
+*. Integral storage
+      IF(INCORE.EQ.1) WRITE(LUOUT,'(1H ,A)')
+     &  '     All integrals stored in core'
+      END IF
+      WRITE(LUOUT,*)
+* ( END IF for NOINT 
+*. CSF or SD expansion
+      IF(NOCSF.EQ.0) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     CI optimization performed with CSF''s '
+      ELSE
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     CI optimization performed with SD''s '
+      END IF
+*. Ms,Ml combinations
+      IF(ISETKW(27).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,F8.3)')
+     &  '     Spin combinations used with sign ',PSSIGN
+      END IF
+      IF(ISETKW(28).EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,F8.3)')
+     &  '     ML   combinations used with sign ',PLSIGN
+      END IF
+*. Preconditioner for H in CSF basis
+      IF(NOCSF.EQ.0) THEN
+        IF(IH0_CSF.EQ.1) THEN
+          WRITE(LUOUT,'(1H ,4X,A)')
+     &    ' CI-diagonal: Averaged Determinant diagonal'
+        ELSE IF(IH0_CSF.EQ.2) THEN
+          WRITE(LUOUT,'(1H ,4X,A)')
+     &    ' CI-diagonal: Diagonal of H in CSF basis'
+        ELSE IF(IH0_CSF.EQ.3) THEN
+          WRITE(LUOUT,'(1H ,4X,A)')
+     &    ' CI-diagonal: Diagonal Configuration blocks of H '
+        END IF! Switch over IH0_FORM
+      END IF! NOCSF = 0
+        
+*. Initial approximation to vectors
+      WRITE(LUOUT,*)
+      IF(IRESTR.EQ.1.AND.IRESTRF.EQ.0) THEN
+         WRITE(LUOUT,'(1H ,A)')
+     &  '     Restarted calculation '
+      ELSE IF(IRESTRF.EQ.1) THEN
+         WRITE(LUOUT,'(1H ,A)')
+     &  '     Restarted calculation from REFERENCE space expansion'
+      ELSE
+         IF(ISBSPC_SEL.NE.0) THEN
+           WRITE(LUOUT,'(1H ,A)')
+     &  '     Initial vectors obtained from explicit Hamiltonian'
+         ELSE IF(ISBSPC_SEL.EQ.0) THEN
+           WRITE(LUOUT,'(1H ,A)')
+     &  '     Initial vectors obtained from diagonal'
+         END IF
+      END IF
+      IF(I_RESTRT_CC.EQ.1) THEN
+           WRITE(LUOUT,'(1H ,A)') '     CC calculation restarted '
+      END IF
+*. Handling of degenerencies of initial vectors
+      IF(INIDEG.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Symmetric combination of degenerate initial vectors'
+      ELSE IF (INIDEG.EQ.-1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Antiymmetric combination of degenerate initial vectors'
+      ELSE IF (INIDEG.EQ.0) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     No combination of degenerate initial vectors'
+      END IF
+*. Ms,Ml combinations
+C     IF(ISETKW(27).EQ.1) THEN
+C       WRITE(LUOUT,'(1H ,A,F8.3)')
+C    &  '     Spin combinations used with sign ',PSSIGN
+C     END IF
+C     IF(ISETKW(28).EQ.1) THEN
+C       WRITE(LUOUT,'(1H ,A,F8.3)')
+C    &  '     ML   combinations used with sign ',PLSIGN
+C     END IF
+*. CI storage mode
+      WRITE(6,*)
+      IF(ICISTR.EQ.1) THEN
+        WRITE(6,*)
+     &  '     3 symmetry blocks and two vectors will be held in core '
+      ELSE IF( ICISTR.EQ.2) THEN
+        WRITE(6,*)
+     &  '     3 type-type blocks will be held in core '
+      ELSE IF( ICISTR.EQ.3) THEN
+        IF(ISIMSYM.EQ.0) THEN
+        WRITE(6,*)
+     &  '     3 type-type-symmetry blocks in core '
+        ELSE
+        WRITE(6,*)
+     &  '     3 type-type-symmetry blocks, all symmetries,  in core '
+        END IF
+      END IF
+*
+      IF(NOCSF.EQ.0) THEN
+        IF(ICNFBAT.EQ.1) THEN
+         WRITE(6,*)
+     &  '     All Confs and CSFs treated as a single batch'
+        ELSE IF (ICNFBAT.EQ.2)  THEN
+         WRITE(6,*)
+     &  '     All Confs and CSFs belonging to one occls in a batch'
+        END IF
+      END IF
+*
+      IF(LCSBLK.NE.0) WRITE(6,'(A,I10)') 
+     &  '      Smallest allowed size of sigma- and C-batch ',LCSBLK
+      WRITE(LUOUT,'(1H ,A,I4)')
+     &  '     Dimension of block of resolution strings ', MXINKA
+      IF(IUSE_PH.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Particle-hole separation used '
+      ELSE
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Particle-hole separation not used '
+      END IF
+*
+      IF(IADVICE.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Advice routine call to optimize sigma generation'
+      END IF
+*
+      IF(IUSE_PA.EQ.1.OR.ISIMSYM.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Strings divided into active and passive parts'
+      ELSE
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Strings not divided into active and passive parts'
+      END IF
+      IF(ISIMSYM.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     ALl TTS blocks with given types treated in sigma'
+      END IF
+      IF(IUSE_HW .EQ. 1) THEN
+        WRITE(6,*) ' Hardwired routines in use '
+      END IF
+*
+      WRITE(LUOUT,*)
+      IF(IDENSI.EQ.0) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     No calculation of density matrices  '            
+      ELSE IF(IDENSI.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     One-body density matrix calculated'           
+      ELSE IF(IDENSI.EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     One- and two-body density matrices  calculated'           
+      END IF
+      IF(ISPNDEN.EQ.0) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     No calculation of spin-density matrices  '            
+      ELSE IF(ISPNDEN.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     One-body spin-density matrix calculated'           
+      ELSE IF(ISPNDEN.EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     One- and two-body spin-density matrices  calculated' 
+      END IF
+*
+      IF(IDENSI.GE.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '     Densities will be calculated for active orbitals'
+      END IF
+*
+      IF(ICUMULA.NE.0) THEN
+        WRITE(LUOUT,'(1H ,A,I2)')
+     &  ' Cumulants will be generated through order', ICUMULA
+      END IF
+*
+      WRITE(LUOUT,*)
+C?    IF(MOCAA.NE.0) WRITE(LUOUT,'(1H ,A,I4)')
+C?   &  '     MOC method used for alpha-alpha+beta-beta loop '    
+C?    IF(MOCAB.NE.0) WRITE(LUOUT,'(1H ,A,I4)')
+C?   &  '     MOC method used for alpha-beta loop            '    
+*
+*. Diagonalization information
+      WRITE(LUOUT,'(1H ,A)')
+     &  '     CI diagonalization: '
+      WRITE(LUOUT,'(1H ,A)')
+     &  '     ==================== '
+*
+*. Subspace Hamiltinian
+*
+      IF(ISBSPC_SEL.EQ.0) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &  '        No subspace Hamiltonian '
+      ELSE IF(ISBSPC_SEL.EQ.1) THEN
+        WRITE(LUOUT, '(1H ,A, I4,A)')
+     &  '        Subspace choosen as ', MXP1, 
+     &  ' variables with lowest energy'
+      ELSE IF(ISBSPC_SEL.EQ.2) THEN
+        WRITE(LUOUT, '(1H, A, I4,A)')
+     &  ' Subspace choosen as ', MXP1, ' first variables '
+      ELSE IF(ISBPSC_SEL.EQ.3) THEN
+        WRITE(LUOUT, '(1H, A, I4)')
+     &  ' Subspace chosen as CI-space ', ISBSPC_SPC
+      ELSE IF(ISBSPC_SEL.EQ.4) THEN
+        WRITE(LUOUT, '(1H ,8X, A)') ' Subspace chosen as MINMAX space:'
+        CALL WRT_MINMAX_OCC(ISBSPC_MINMAX(1,1), ISBSPC_MINMAX(1,2),
+     &       NSBSPC_ORB)
+COLD    WRITE(LUOUT,'(1H ,A,3I4)')
+COLD &  '        Dimensions of subspace Hamiltonian ',MXP1,MXP2,MXQ
+      END IF
+*. Diagonalizer
+      IF(IDIAG.EQ.1.AND.ICISTR.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &    '        Diagonalizer: MINDV4 '
+      ELSE IF(IDIAG.EQ.1.AND.ICISTR.GE.2) THEN
+        WRITE(LUOUT,'(1H ,A)')
+     &    '        Diagonalizer: MICDV* '
+      ELSE IF(IDIAG.EQ.2) THEN
+      WRITE(LUOUT,'(1H ,A)')
+     &    '        Diagonalizer: PICO*  '
+      END IF
+COLD  IF(NOCSF.EQ.1) THEN
+COLD  IF(IPRECOND.EQ.1) THEN
+COLD    WRITE(LUOUT,'(1H ,A)')
+COLD &      '        Simple diagonal used as preconditioner  '  
+COLD  ELSE IF(IPRECOND.EQ.2) THEN
+COLD    WRITE(LUOUT,'(1H ,A)')
+COLD &  '        Diagonal configuration blocks used as preconditioner'
+COLD  END IF
+COLD  END IF
+*
+      IF(ISBSPPR.NE.0) THEN
+        WRITE(6,'(A,I2)') 
+     &  ' Preconditioner uses exact Hamiltonian in subspace ', ISBSPPR
+        WRITE(6,'(A,I2)')
+     &  ' Starting from calculations in space ', ISBSPPR_INI
+        WRITE(6,'(A)') ' ( Works only for MICDV6 ) '
+      END IF
+*
+*. Root homing
+      IF(IROOTHOMING.EQ.1) THEN
+      WRITE(LUOUT,'(1H ,A)')
+     &  '        Root homing will be used '                           
+      ELSE
+      WRITE(LUOUT,'(1H ,A)')
+     &  '        No root homing '                                   
+      END IF
+*. No restart in CI calc 2
+      IF(IRST2.EQ.0) THEN
+      WRITE(LUOUT,'(1H ,A)')
+     &  '        No restart from previous vectors in second calc '
+      END IF
+      IF(ISKIPEI.EQ.1) THEN
+      WRITE(LUOUT,'(1H ,A)')
+     &  '        Initial energy evaluations skipped after first calc'
+      WRITE(LUOUT,'(1H ,A)')
+     &  '        (Only active in connection with TERACI )'           
+      END IF
+*. Number of iterations
+C     WRITE(LUOUT,'(1H ,A,I2)')
+C    &  '        Allowed number of iterations    ',MAXIT
+*. Number of CI vectors in subspace
+      WRITE(LUOUT,'(1H ,A,I2)')
+     &  '        Allowed Dimension of CI subspace ',MXCIV
+* 
+      WRITE(LUOUT,'(1H ,A,E11.5)')
+     &  '        Convergence threshold for energy ',THRES_E
+*. Multispace (multigrid info )
+      IF(MULSPC.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A,I3)') 
+     &    '        Multispace method in use from space ',
+     &             IFMULSPC
+        WRITE(6,*) 
+     &    '        Pattern '
+        CALL IWRTMA(IPAT,1,LPAT,1,LPAT)
+      ELSE
+        WRITE(LUOUT,'(1H ,A)') 
+     &    '        No multispace method in use '
+      END IF
+*
+      WRITE(6,*)
+      IF(IDIAG.EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,E11.5)')
+     &   '        Individual second order energy threshold ',E_THRE
+        WRITE(LUOUT,'(1H ,A,E11.5)')
+     &   '        Individual first order wavefunction threshold ',C_THRE
+        IF(ICLSSEL.EQ.1) THEN
+         WRITE(LUOUT,*)
+         WRITE(LUOUT,'(1H ,A)') 
+     &   '         Class selection will be performed: ' 
+         WRITE(LUOUT,'(1H ,A)') 
+     &   '         =================================== ' 
+         WRITE(LUOUT,'(1H ,A,E11.5)')
+     &    '          Total second order energy threshold ',E_CONV
+         WRITE(LUOUT,'(1H ,A,E11.5)')
+     &    '          Total first order wavefunction threshold ',C_CONV
+        ELSE
+         WRITE(LUOUT,'(1H ,A)') 
+     &'            No class selection in iterative procedure '
+        END IF
+      END IF
+      IF(I_DO_COMHAM.EQ.1) THEN
+         WRITE(LUOUT,'(1H ,A)') 
+     &'            Complete Hamiltonian will be constructed in CI '
+      END IF
+      IF(I_DO_DUMP_FOR_MRPT.EQ.1) THEN
+         WRITE(LUOUT,'(1H ,A)') 
+     &'            H0 and V will be dumped for use in MRPT1 program '
+      END IF
+C     END IF
+*
+*
+       I_AM_DOING_BK = 0
+       IF(I_AM_GIOVANNI.EQ.1) THEN
+         WRITE(6,*) ' BK-like approximation in action'
+         WRITE(6,*) ' Min and Max for subspace with exact Hamiltonian'
+         WRITE(6,*) ' ==============================================='
+*
+         WRITE(6,'(A)')
+         WRITE(6,'(A)') '         Min. occ    Max. occ '
+         WRITE(6,'(A)') '         ========    ======== '
+         DO IGAS = 1, NGAS
+           WRITE(6,'(A,I2,3X,I3,9X,I3)')
+     &     '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
+         END DO
+*. For transfer to SBLOCKS
+         I_AM_DOING_BK = 1
+       END IF
+         
+*
+* Coupled cluster calculations
+*
+       IF(I_DO_CC.NE.0) THEN
+        WRITE(LUOUT,'(1H ,A)') '       Coupled cluster calculations'
+        WRITE(LUOUT,'(1H ,A)') '     ================================ '
+        WRITE(LUOUT,*)
+        IF(CCFORM(1:3).EQ.'TCC' ) THEN
+           WRITE(LUOUT,'(1H ,A)') '        Traditional CC (TCC)  '
+        ELSE IF (CCFORM(1:3).EQ.'VCC') THEN
+           WRITE(LUOUT,'(1H ,A)') '        Variational CC (VCC)  '
+        ELSE IF (CCFORM(1:3).EQ.'UCC') THEN
+           WRITE(LUOUT,'(1H ,A)') '        Unitary CC (UCC)  '
+        END IF
+        IF(ISPIN_RESTRICTED.EQ.1) THEN
+           WRITE(LUOUT,'(1H ,A)') '        Spin-restricted calc '
+        END IF
+*
+        IF(I_DO_ICCC.EQ.1) THEN
+          IF(I_APPROX_HCOM_E.EQ.1)   WRITE(LUOUT,'(1H ,A)')  
+     &    '  Approximate Hamiltonian in highest commutator for energy'
+          IF(I_APPROX_HCOM_V.EQ.1)   WRITE(LUOUT,'(1H ,A)')  
+     &    '  Approximate Hamiltonian in highest commutator for vecfnc'
+          IF(I_APPROX_HCOM_J.EQ.1)   WRITE(LUOUT,'(1H ,A)')  
+     &    '  Approximate Hamiltonian in highest commutator for Jacobian'
+        END IF
+*
+        IF(ICCSOLVE.EQ.1) THEN
+           WRITE(LUOUT,'(1H ,A)') '        Solver: simple Pert-exp '
+        ELSE IF(ICCSOLVE.EQ.2) THEN
+           WRITE(LUOUT,'(1H ,A)') '        Solver: DIIS            '
+           WRITE(LUOUT,'(1H ,7X,A,I3)') ' Max dim of subspace =', 
+     &     MAX_DIIS_VEC
+        END IF
+*
+        IF(I_DO_SBSPJA.EQ.1) THEN
+           WRITE(LUOUT,'(1H ,7X,A)') ' Subspace Jacobian used '
+           WRITE(LUOUT,'(1H ,7X,A,I3)') ' Max dim of subspace = ',
+     &          MAX_VEC_APRJ
+           WRITE(LUOUT,'(1H ,7X,A,E8.3)')
+     &          ' Max step length                   = ',XMXSTP
+           WRITE(LUOUT,'(1H ,7X,A,E8.3)')
+     &          ' Max subspace sampling step length = ',XMXSTP
+        END IF
+        I_DO_UPDIA = -2303
+        IF(I_DO_UPDIA.EQ.1) THEN
+           WRITE(LUOUT,'(1H ,7X,A,I3)') ' Diagonal update used '
+        END IF
+*
+        WRITE(LUOUT,'(1H ,7X,A,E15.8)') 
+     &  ' Convergence threshold for norm of vectorfuntion ', CCCONV
+        IF(I_DO_CCN.EQ.1) THEN
+         WRITE(LUOUT,'(1H ,A)')'         CCN Jacobiant constructed'
+        END IF
+*
+        IF(I_DO_CC3.EQ.1) THEN
+         WRITE(LUOUT,'(1H ,A)')'         CC3 approximation for triples'
+         WRITE(LUOUT,'(1H ,A)')'         CC3 Jacobiant constructed'
+        END IF
+* 
+        IF(MXSPOX.NE.0) THEN
+         WRITE(LUOUT,'(1H ,7X,A,I3)')
+     &   ' Largest allowed spin-orbital excitation level ',MXSPOX
+        ELSE 
+         WRITE(LUOUT,'(1H ,A,A)')
+     &   ' Largest allowed spin-orbital excitation level = ',
+     &   ' max. orbital excitation level'
+        END IF
+*
+        IF(IUSE_TR .EQ. 1) THEN
+         WRITE(LUOUT,'(1H ,7X,A)')' Time-reversal used '
+        END IF
+*
+        IF(I_DO_CI_TO_CC.EQ.1) THEN
+          WRITE(6,'(1H ,9X,A)') 
+     &    ' CI to CC transformation, output on unit 93 '
+        END IF
+*
+        IF(I_DO_CC_EXC_E.EQ.1) THEN
+          WRITE(6,'(1H , 7X,A)') 
+     &   ' CC excitation energies will be calculated '
+          WRITE(6,*)
+          WRITE(6,'(1H , 7X,A)') 
+     &    ' Number of excitation energies per symmetry:'
+          WRITE(6,'(12X,10I3)') (NEXC_PER_SYM(ISM),ISM=1,NIRREP)
+*
+          IF(IRES_EXC.EQ.1) THEN
+          WRITE(6,'(1H , 7X,A)') 
+     &    ' Restart in first CC excitation-calculation '
+          END IF
+*
+        END IF
+*       ^ End if CC calculation is to be carried out
+*
+        IF(I_DO_MASK_CC.EQ.1) THEN
+           WRITE(6,*) ' Single determinant used define p/h space: '
+           WRITE(6,'(1H ,20I3)') (MASK_SD(IEL,1),IEL=1, MSK_AEL)
+           WRITE(6,'(1H ,20I3)') (MASK_SD(IEL,2),IEL=1, MSK_BEL)
+        END IF
+        IF(NOAAEX.EQ.1) THEN 
+           WRITE(6,'(1H ,7X,A)')
+     &  ' No pure active-active rotations '
+        END IF
+*
+        WRITE(6,'(1H ,7X,A,I3)') 
+     &  ' Dimension of resolution-strings for CC = ', MXINKA_CC
+*
+        IF(MSCOMB_CC.EQ.1)  WRITE(6,'(1H ,7X,A)') 
+     &  ' Spincombinations used for CC operator '                     
+*
+        IF(ISIMTRH.EQ.1) THEN
+          WRITE(6,'(1H ,8X,A)') 
+     &    'Singles included through similarity transformed Hamiltonian'
+        END IF
+*
+        IF(IFRZ_CC .EQ. 1 ) THEN
+          WRITE(6,'(1H ,7X,A,12I3)') 
+     &    ' Frozen CC excitation levels: ',(IFRZ_CC_AR(I),I=1,NFRZ_CC)
+        END IF
+*
+        IF(I_DO_CC_EXP.EQ.1) THEN
+          WRITE(6,'(1H ,7X,A)') 
+     &    ' Expectation value of H calculated in CI space '             
+        END IF
+*
+        IF(I_DO_NEWCCV.EQ.0) THEN
+          WRITE(6,'(1H ,7X,A)') 
+     &    ' CI approach used for CC vector function '
+        ELSE IF(I_DO_NEWCCV.EQ.1) THEN
+          WRITE(6,'(1H ,7X,A)') 
+     &    ' H_EF approach used for  CC vector function    '             
+        ELSE IF ( I_DO_NEWCCV.EQ.2) THEN 
+          WRITE(6,'(1H ,7X,A)') 
+     &    ' Commutator approach used for CC vector function  '      
+        END IF
+*
+        IF(I_DO_NEWCCV.EQ.0) THEN
+          IF(I_USE_NEWCCP.EQ.0) THEN
+            WRITE(6,*) '        Old phase convention '
+          ELSE IF (I_USE_NEWCCP.GE.1) THEN
+            WRITE(6,*) '        New phase convention '
+          END IF
+        END IF
+        IF(I_DO_CC_TO_CI.EQ.1) THEN
+          WRITE(6,*) 
+     &    '        CC to CI conversion after last CC calculation '
+        END IF
+*
+       END IF
+*      ^ End if I do CC calculations 
+       IF(I_DO_HF.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)') '       Hartree-Fock Calculations      '
+        WRITE(LUOUT,'(1H ,A)') '     ================================ '
+        WRITE(LUOUT,*)
+*
+        WRITE(LUOUT,'(A,15(1X,I2))') 
+     &  '        Doubly occupied irreps: ',
+     &  (NHFD_IRREP_SUPSYM(I), I = 1, NACT_SUPSYM_IRREP)
+*
+        WRITE(LUOUT,'(A,15(1X,I2))') 
+     &  '        Singly occupied irreps: ',
+     &  (NHFS_IRREP_SUPSYM(I), I = 1, NACT_SUPSYM_IRREP)
+*
+*. Guess of initial orbitals/density
+        IF(INI_HF_MO.EQ.1) THEN
+          WRITE(6,*) 
+     &    '       Initial MO''s obtained by diagonalization of H(one)'
+        ELSE IF(INI_HF_MO.EQ.2) THEN
+          WRITE(6,*) 
+     &    '       Initial MO''s readin'
+        END IF
+*. Optimization method used 
+        IF(IHFSOLVE.EQ.1) THEN
+          WRITE(6,*) 
+     &    '       HF wavefunction optimization: Standard Roothaan-Hall'
+        ELSE IF (IHFSOLVE.EQ.2) THEN
+          WRITE(6,*) 
+     &    '       HF wavefunction optimization: EOPD'
+        ELSE IF (IHFSOLVE.EQ.3) THEN
+          WRITE(6,*) 
+     &    '       HF wavefunction optimization: One-step'
+        ELSE IF (IHFSOLVE.EQ.4) THEN
+          WRITE(6,*) 
+     &    '       HF wavefunction optimization: Second order method'
+        END IF
+*
+       END IF
+*      ^ End if HF will be used
+*
+       IF(NPROP.EQ.0) THEN
+       WRITE(6,*)
+C        WRITE(6,*) '     No calculation of properties'
+       ELSE
+         WRITE(6,'(7X,A,I3)')
+     &   ' Number of properties to be calculated', NPROP
+         WRITE(6,*)
+         WRITE(6,'(9X,A)')    ' Properties: '
+         WRITE(6,'(9X,A)')   ' =============' 
+         DO IPROP = 1, NPROP
+           WRITE(6,'(16X,A)') PROPER(IPROP)
+         END DO
+*
+         IF(IRELAX.EQ.0) THEN
+           WRITE(6,'(7X,A)') ' No use of relaxed densities '
+         ELSE
+           WRITE(6,'(7X,A)') 
+     &     ' Relaxed densities used for property evaluation'
+C          WRITE(6,'(7X,A)') ' (implemented only for pert) '
+         END IF
+       END IF
+*       
+       IF(IEXTKOP.EQ.0.AND.IPTEKT.EQ.0) THEN
+C        WRITE(6,'(5X,A)') ' No extended Koopmans'' calculations '
+       ELSE IF(IEXTKOP.NE.0) THEN
+         WRITE(6,'(5X,A)') ' Extended Koopmans'' calculations '
+       ELSE IF(IPTEKT.NE.0) THEN
+         WRITE(6,'(5X,A)') ' Perturbation expansion of EKT equations'
+       END IF
+*
+       IF(IPTFOCK.EQ.1) THEN
+         WRITE(6,*) ' Perturbation expansion of Fock matrix '
+       ELSE
+C        WRITE(6,*) 'No  Perturbation expansion of Fock matrix '
+       END IF
+*
+      IF(ITRAPRP.EQ.0) THEN
+C       WRITE(6,*)
+C       WRITE(6,'(5X,A)') 
+C    &  ' No transition properties will be calculated'
+      ELSE
+        WRITE(6,*)
+        WRITE(6,'(5X,A)') 
+     &  ' Transition properties will be calculated '
+        WRITE(6,*)  ' Symmetry of additional states:', IEXCSYM
+        WRITE(6,*)  ' Number   of additional states:', NEXCSTATE
+        WRITE(6,*)
+      END IF
+*
+      IF(I_DO_LZ2.EQ.1) THEN
+        WRITE(6,*) ' The expectation value of Lz2 will be calculated '
+      END IF
+*
+      IF(IGENTRD.EQ.1) THEN
+        WRITE(6,*) ' General transition density will be calculated' 
+        WRITE(6,*) ' between last state specified in GASOCC and: '
+        WRITE(6,*) ' state with: '
+        WRITE(6,*)
+        WRITE(6,*) '   Symmetry ', IGST_SM
+        WRITE(6,*) '   2 * Ms   ', IGST_MS2
+        WRITE(6,*) '   occupation constraints: '
+        WRITE(6,'(5X,20I3)') ((IGST_OCC(ISPC,IMAXMIN),IMAXMIN=1,2),
+     &                        ISPC = 1, NGAS)
+      END IF
+*
+      IF(IRESPONS.NE.0) THEN
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,*) '**************************'
+      WRITE(LUOUT,*) '*  Response Calculation  *'
+      WRITE(LUOUT,*) '************************** '
+      WRITE(LUOUT,*)
+        WRITE(6,*)  
+     &  ' CI-Response will be called after each CI calculation'
+        WRITE(6,*) 
+     &  ' Root used for response calculations (RFROOT) ',IRFROOT
+        WRITE(6,*)
+C       WRITE(6,*) ' Number of A-operators: ', N_AVE_OP  
+        WRITE(6,*) ' Labels of A-operators '
+        WRITE(6,*) ' ======================='
+        WRITE(6,*)
+        DO IAVE = 1, N_AVE_OP
+          WRITE(6,'(1H , 6X,A)') AVE_OP(IAVE)
+        END DO
+        WRITE(6,*)
+C       WRITE(6,*) ' Number of response calculations ', NRESP
+        WRITE(6,*) ' Perturbations: '
+        WRITE(6,*) ' ================'
+        WRITE(6,*)
+        WRITE(6,*) ' Calc  Op1    Op2    Mxord1     Mxord2    Freq '
+        DO IRESP = 1, NRESP
+          WRITE(6,'(1H ,I2,2X,A,A,3X,I4,3X,I4,2X,F12.7)' )
+     &    IRESP,RESP_OP(1,IRESP),RESP_OP(2,IRESP),MAXORD_OP(1,IRESP),
+     &    MAXORD_OP(2,IRESP),RESP_W(IRESP)
+        END DO
+      END IF
+*
+C     IF(NOMOFL.EQ.0) THEN
+        WRITE(6,*)
+        WRITE(6,'(7X,A)') ' Final orbitals:'
+        WRITE(6,'(7X,A)') ' ==============='
+        WRITE(6,*)
+*
+        IF(I_USE_SUPSYM.EQ.1) THEN
+          IF(I_NEGLECT_SUPSYM_FINAL_MO .EQ. 1) THEN
+           WRITE(6,'(10X,A)')
+     &     ' Orbital will be in occupation supersymmetry  order'
+          ELSE
+           WRITE(6,'(10X,A)')
+     &     ' Orbital will be in standard supersymmetry  order'
+          END IF
+        END IF
+*
+        IF(IFINMO.EQ.0) THEN
+          WRITE(6,'(10X,A)') ' No additional rotations'   
+        ELSE IF(IFINMO.EQ.1) THEN
+          WRITE(6,'(10X,A)') ' Natural orbitals'   
+        ELSE IF(IFINMO.EQ.2) THEN
+          WRITE(6,'(10X,A)') ' Canonical orbitals'   
+        ELSE IF(IFINMO.EQ.3) THEN
+          WRITE(6,'(10X,A)') ' Pseudo-natural orbitals'   
+          WRITE(6,'(10X,A)') 
+     &   ' (Density matrix diagonalized in orbital subspaces )'
+        ELSE IF(IFINMO.EQ.4) THEN
+          WRITE(6,'(10X,A)') ' Pseudo-canonical orbitals'   
+          WRITE(6,'(10X,A)') 
+     &   ' (FI+FA  diagonalized in orbital subspaces )'
+         ELSE IF (IFINMO .EQ. 5 ) THEN
+          WRITE(6,'(10X,A)') 
+     &   ' Pseudo-natural-canonical orbitals (sic)'
+          WRITE(6,'(10X,A)') 
+     &   ' (Pseudo natural orbitals are first obtained'
+          WRITE(6,'(10X,A)') 
+     &   '  by diagonalizing density matrix in orbital subpspaces.'
+          WRITE(6,'(10X,A)') 
+     &   '  FI+FA is transformed to this basis, and the transformed'
+          WRITE(6,'(10X,A)') 
+     &   '  matrix is block diagonalized) '                          
+          WRITE(6,*)
+          WRITE(6,'(10X,A)') 
+     &   ' Orbital spaces in which transformed FIFA is diagonalized'
+          WRITE(6,'(10X,A)') 
+     &   ' ========================================================'
+          DO IPSSPC = 1, NPSSPC
+            WRITE(LUOUT,'(A,I2,A,10I4,6X,2I6)')
+     &      '     SPACE',IPSSPC,'          ', 
+     &     (NPSSH(IRREP,IPSSPC),IRREP = 1, NIRREP) 
+          END DO
+        END IF
+C     END IF
+*. Transformation of CI vectors
+      IF(ITRACI.EQ.0) THEN
+C       WRITE(6,'(5X,A)')  ' No transformation of CI vectors'
+      ELSE
+        WRITE(6,'(5X,A)')   ' CI vectors transformed in each run'
+        WRITE(6,'(7X,A,A)') 
+     &        ' Complete or restricted rotations:',ITRACI_CR
+        WRITE(6,'(7X,A,A)') 
+     &        ' Type of Final orbitals          :',ITRACI_CN
+      END IF
+*
+* Integral Transformations 
+*
+      WRITE(6,*)
+      WRITE(6,*) ' Storage and transformation of integrals '
+      WRITE(6,*) ' ======================================= '
+      WRITE(6,*)
+      IF(ITRA_ROUTE.EQ.1) THEN
+        WRITE(6,*) ' Old form in use '
+      ELSE
+        WRITE(6,*) ' New form in use '
+      END IF
+*
+      IF(ITRA_FI.EQ.1) THEN
+        WRITE(6,*) '      Integrals transformed to final MO''s '
+      END IF
+      IF(ITRA_IN.EQ.1) THEN
+        WRITE(6,*) '      Integrals transformed to initial  MO''s '
+      END IF
+*
+*. Reorder orbitals ?
+*
+      IF(I_DO_REO_ORB.EQ.1) THEN    
+        WRITE(6,*) ' Orbitals will be reordered '
+        WRITE(6,*) ' ==========================='
+        WRITE(6,*)
+        WRITE(6,*) ' Symmetry  Old number   New number '
+        WRITE(6,*) ' =================================='
+        WRITE(6,*)
+        DO ISWITCH = 1, NSWITCH
+          WRITE(6,'(3(2X,I6))') 
+     &    IREO_ORB(1,ISWITCH), IREO_ORB(2,ISWITCH),IREO_ORB(3,ISWITCH)
+        END DO
+      END IF
+*
+* Fragments defining molecule
+*
+      IF(NFRAG_TP.NE.0) THEN
+        WRITE(6,*)
+        WRITE(6,*) ' Molecule is defined in terms of fragments'
+        WRITE(6,*) ' ========================================='
+        WRITE(6,*) 
+        WRITE(6,*) ' Number of fragment types:', NFRAG_TP
+        WRITE(6,*) ' Number of fragments in molecule ', 
+     &             NFRAG_MOL
+        WRITE(6,*)
+        WRITE(6,*) ' Character strings of fragments: '
+        DO IFRAG = 1, NFRAG_TP
+          WRITE(6,'(2X,A3)') CFRAG(IFRAG)
+        END DO
+        WRITE(6,*) ' Molecule in terms of fragment: '
+        WRITE(6,'(40 A3)') 
+     &  (CFRAG(IFRAG_MOL(IFRAG)),IFRAG = 1, NFRAG_MOL)
+*
+        WRITE(6,*)   
+        WRITE(6,*) ' Division of fragments into equivalent groups: '
+        WRITE(6,*)   
+        WRITE(6,*) ' Equivalent group, Dimension, Fragments '
+        WRITE(6,*) ' ======================================='
+        DO IEQV = 1, NEQVGRP_FRAG
+          WRITE(6,'(2X,I2,3X,I2,10(1X,I2))')
+     &    IEQV, LEQVGRP_FRAG(IEQV), 
+     &    (IEQVGRP_FRAG(IFRAG,IEQV),IFRAG=1,LEQVGRP_FRAG(IEQV))
+        END DO
+*
+      END IF
+*
+      WRITE(6,'(A)') ' Initial set of orbitals '
+      WRITE(6,'(A)') ' ======================= '
+*. Form of initial orbitals
+      IF(INI_MO_TP.EQ.1) THEN
+        WRITE(6,'(5X,A)')  ' Atomic orbitals '
+      ELSE IF (INI_MO_TP.EQ.3) THEN
+        WRITE(6,'(5X,A)')  ' Read in from Environment '
+      ELSE IF (INI_MO_TP.EQ.2) THEN
+        WRITE(6,'(5X,A)')  ' Read in from Environment and modified'
+       ELSE IF(INI_MO_TP.EQ.4) THEN
+        WRITE(6,'(5X,A)')  ' Built from fragment orbitals '
+       ELSE IF(INI_MO_TP.EQ.5) THEN
+        WRITE(6,'(5X,A)')  ' Read in from LUCINF_O and orthonormalized'
+       END IF
+*
+       IF(INI_MO_ORT.EQ.1) THEN
+        WRITE(6,'(5X,A)') ' Symmetric orthogonalization '
+       ELSE
+        WRITE(6,'(5X,A)') ' Orthogonalization by diagonalization '
+       END IF
+*
+       IF(I_DO_NORTCI.EQ.1) THEN
+        IF(INI_ORT_VBGAS.EQ.0) THEN
+          WRITE(6,'(5X,A)') ' VB gaspace will not be orthogonalized'
+        ELSE
+          WRITE(6,'(5X,A)') ' VB gaspace will be orthogonalized'
+        END IF
+       END IF
+     
+        
+*
+*
+*. Print levels
+*
+      WRITE(LUOUT,*)
+      WRITE(LUOUT,'(1H ,A)')  '     Print levels: '
+      IF(ISETKW(29).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for string    information = ', IPRSTR
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for string    information = ', IPRSTR
+      END IF
+      IF(ISETKW(30).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for CI space  information = ', IPRCIX
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for CI space  information = ', IPRCIX
+      END IF
+      IF(ISETKW(31).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for orbital   information = ', IPRORB
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for orbital   information = ', IPRORB
+      END IF
+      IF(ISETKW(65).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for density matrix        = ', IPRDEN
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for density matrix        = ', IPRDEN
+      END IF
+      IF(ISETKW(32).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for iterative information = ', IPRDIA
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for iterative information = ', IPRDIA
+      END IF
+      IF(ISETKW(159).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for CSF information       = ', IPRCSF
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for CSF information       = ', IPRCSF
+      END IF
+*
+      IF(ISETKW(169).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for MCSCF information     = ', 
+     &  IPRMCSCF
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for MCSCF information     = ', 
+     &  IPRMCSCF
+      END IF
+*
+      IF(ISETKW(179).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for VB    information     = ', 
+     &  IPRVB   
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Changed print level for VB    information     = ', 
+     &  IPRVB   
+      END IF
+      IF(ISETKW(181).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for integrals             = ', 
+     &  IPRINTEGRAL
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I4)')
+     &  '      Changed print level for Integral information  = ', 
+     &  IPRINTEGRAL
+      END IF
+*
+*
+      IF(NPROP.NE.0) THEN
+        IF(ISETKW(99).EQ.2) THEN
+          WRITE(6,'(1H ,A,I3)') 
+     &  '      Default print level for properties            = ', IPRPRO
+        ELSE
+          WRITE(6,'(1H ,A,I3)') 
+     &  '      Changed print level for properties            = ', IPRPRO
+        END IF
+*
+      END IF
+*
+      IF(IRESPONS.NE.0) THEN
+      IF(ISETKW(84).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for response section      = ', IPRRSP
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Raised  print level for response section      = ', IPRRSP
+      END IF
+      END IF
+*
+      IF(I_DO_CC.EQ.1) THEN
+      IF(ISETKW(84).EQ.2) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Default print level for coupled cluster       = ', IPRCC
+      ELSE
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Raised  print level for  coupled cluster      = ', IPRCC
+      END IF
+      END IF
+*
+      IF(IPROCC.NE.0) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Occupation of SD''s/ configurations           = ',IPROCC
+      END IF
+*
+      IF(IPRNCIV.EQ.1 ) THEN
+        WRITE(LUOUT,'(1H ,A,I3)')
+     &  '      Final CI vectors will be printed '
+      END IF
+*
+      WRITE(6,*)
+C?    IF(MOLCS.EQ.1) WRITE(LUOUT,'(1H ,A,E18.9)') 
+C?   &  '      Core energy: ', ECORE
+*
+      IF(IDMPIN.EQ.1) THEN
+        WRITE(LUOUT,'(1H ,A)')
+        WRITE(6,*) '      Integrals written in formatted form (E22.15)'
+        WRITE(6,*) '      on file 90 '
+      END IF
+*
+C?    WRITE(6,*) ' IPART before leaving READIN = ', IPART
+      RETURN
+      END
+      SUBROUTINE READIN_orig(LUIN,LUOUT)
 *
 *
 * File is supposed to be positioned at first record of input
