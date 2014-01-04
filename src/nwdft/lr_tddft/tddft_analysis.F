@@ -373,16 +373,15 @@ c --------------------------------
 c
       spin(1)='alpha'
       spin(2)='beta '
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
+c
+c Determine the length of the trial vector: Occ*Virt
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
       if (ipol.eq.1) then
-         nov(2)=0
          nocc(2) = 0
          nmo(2) = 0
          nfc(2) = 0
          nfv(2) = 0
-         nov(2) = 0
+         nov(2)=0
       end if
 c
 c -------------------------------------

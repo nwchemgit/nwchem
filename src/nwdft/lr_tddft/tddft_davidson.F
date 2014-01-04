@@ -194,10 +194,8 @@ c -------------------------
 c Allocate density matrices
 c -------------------------
 c
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
+c Determine the length of the trial vector: Occ*Virt
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
 c
 c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
       nresiduals=nroots

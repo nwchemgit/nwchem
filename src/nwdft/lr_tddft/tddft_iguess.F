@@ -92,10 +92,9 @@ c
       parameter (au2ev=27.2113961d0)
 c
       nodezero=(ga_nodeid().eq.0)
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
+c
+c Determine the length of the trial vector: Occ*Virt
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
 c
 c ---------------------------------------
 c Read initial guess from a file (if any)

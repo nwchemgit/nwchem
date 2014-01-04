@@ -50,9 +50,9 @@ c -------------
 c Print vectors
 c -------------
 c
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
+c Determine the length of the trial vector: Occ*Virt
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
+c
       if (ivector.le.ntrials) then
         if ((algorithm.eq.1).or.(algorithm.eq.2)) then
           if (nodezero) then

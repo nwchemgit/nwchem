@@ -77,15 +77,9 @@ c
  9010 format(10x,'Available GA space size is    ',i14,' doubles',/,
      1       10x,'Available MA space size is    ',i14,' doubles')
 c
-c -------------------------------------
-c Determine the length of a trial vector
-c Occ*Virt
-c -------------------------------------
+c Determine the length of the trial vector: Occ*Virt
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
 c
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
       if (nodezero.and.util_print('memory information',
      1  print_default)) then
         if (ipol.eq.1) then
@@ -302,6 +296,42 @@ c
 c ------
 c Return
 c ------
+c
+      return
+      end
+c
+c     ---------------------------------------
+c     Determine the length of a trial vector
+c     ---------------------------------------
+c
+      subroutine tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "sym.fh"
+#include "util.fh"
+#include "msgids.fh"
+#include "stdio.fh"
+c
+      integer ipol             ! =1 (restricted), =2 (unrestricted)
+      integer nocc(2)          ! Number of alpha, beta electrons
+      integer nmo(2)           ! Number of alpha, beta electrons
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
+      integer nov(2)           ! Number of occupied virtual pairs
+c
+      integer i
+c
+      do i=1,ipol
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
+c        write(luout,*) i,nov(i),nocc(i)
+      enddo
+      if (ipol.eq.1) nov(2)=0
 c
       return
       end

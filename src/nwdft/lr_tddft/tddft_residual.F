@@ -102,10 +102,7 @@ c --------------------------------
 c Number of occupied virtual pairs
 c --------------------------------
 c
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
 c
 c ------------------
 c Tamm-Dancoff AX=wX
@@ -819,10 +816,11 @@ c
           if (nnewtrials.gt.maxvecs) call errquit
      1      ('tddft_residual: out of memory',nnewtrials, MEM_ERR)
           call ga_sync()
-          call ga_distribution
-     1         (g_residuals_1(1),iproc,ilo,ihi,jlo,jhi)
-          if ((jlo.le.n).and.(jhi.ge.n)) then
+c
           do i=1,ipol
+           call ga_distribution
+     1         (g_residuals_1(i),iproc,ilo,ihi,jlo,jhi)
+           if ((jlo.le.n).and.(jhi.ge.n)) then
             do l=ilo,ihi
               if (abs(vshift).gt.0) then
                  k=nocc(i)+1+vshift
@@ -850,8 +848,8 @@ c
               r=r/(evl_diff-apbval(n))
               call ga_put(g_residuals_1(i),l,l,n,n,r,1)
             enddo
+           endif ! jlo, jhi check
           enddo
-          endif
           call ga_sync()
 c
 c Schmidt orthogonalize against other trial vectors
@@ -920,10 +918,10 @@ c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
 c
             call ga_sync()
-            call ga_distribution
-     1           (g_residuals_2(1),iproc,ilo,ihi,jlo,jhi)
-            if ((jlo.le.n).and.(jhi.ge.n)) then
             do i=1,ipol
+             call ga_distribution
+     1           (g_residuals_2(i),iproc,ilo,ihi,jlo,jhi)
+             if ((jlo.le.n).and.(jhi.ge.n)) then
               do l=ilo,ihi
                 if (abs(vshift).gt.0) then
                    k=nocc(i)+1+vshift
@@ -951,8 +949,8 @@ c
                 r=r/(evl(k,i)-evl(j,i)-apbval(n))
                 call ga_put(g_residuals_2(i),l,l,n,n,r,1)
               enddo
+             endif ! jlo, jhi check
             enddo
-            endif
             call ga_sync()
 c
 c Schmidt orthogonalize against other trial vectors

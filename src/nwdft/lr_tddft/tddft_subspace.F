@@ -62,10 +62,8 @@ c
       integer i,l,m,n
       integer dummy,request
 c
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
+c     Determine the length of the trial vector
+      call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
 c
 c =================
 c Incore algorithms
@@ -95,10 +93,11 @@ c
             if (.not.tda) amb(m,n)=0.0d0
           enddo
         enddo
+c
         call ga_sync()
-        call ga_distribution(g_trials(1),iproc,ilo,ihi,jlo,jhi)
-        if ((jlo.le.1).and.(jhi.ge.ntrials)) then
         do i=1,ipol
+         call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
+         if ((jlo.le.1).and.(jhi.ge.ntrials)) then
           call ga_get(g_trials(i),ilo,ihi,1,ntrials,
      1      dbl_mb(k_trial),maxnov)
           call ga_get(g_prod_p(i),ilo,ihi,1,ntrials,
@@ -124,10 +123,9 @@ c
                 enddo
               enddo
             enddo
-          endif
+          endif ! .not. tda
+         endif ! jlo,jhi check
         enddo
-        endif
-cold        call ga_sync()
 c
 c -----------------------------------------------------------------
 c Now we accumulate the local contributions to form the full matrix
