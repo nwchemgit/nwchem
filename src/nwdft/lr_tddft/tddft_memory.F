@@ -308,15 +308,6 @@ c
 c
       implicit none
 c
-#include "errquit.fh"
-#include "tcgmsg.fh"
-#include "global.fh"
-#include "bas.fh"
-#include "geom.fh"
-#include "rtdb.fh"
-#include "sym.fh"
-#include "util.fh"
-#include "msgids.fh"
 #include "stdio.fh"
 c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
