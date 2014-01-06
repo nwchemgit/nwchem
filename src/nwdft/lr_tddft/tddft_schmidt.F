@@ -18,11 +18,11 @@ c
         do k=1,n
           a=a+vector(k,i)*vector(k,i)
         enddo
-        if (a.eq.0.0d0) call errquit
-     1    ('tddft_schmidt: unable to normalize',0, CALC_ERR)
-        do k=1,n
-          vector(k,i)=vector(k,i)/dsqrt(a)
-        enddo
+        if (a.ne.0.d0) then
+         do k=1,n
+           vector(k,i)=vector(k,i)/dsqrt(a)
+         enddo
+        endif ! a ne 0.d0
         if (i.ne.n) then
           do j=i+1,n
             a=0.0d0

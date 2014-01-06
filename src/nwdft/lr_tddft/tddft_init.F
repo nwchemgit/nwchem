@@ -492,12 +492,14 @@ c
 c --------------
 c Adjust maxvecs
 c --------------
-      maxvecs=min(maxvecs,(nroots+20)*maxiter*2)
-      j=0
-      do i=1,ipol
-        j=j+(nmo(i)-nocc(i))*nocc(i)
-      enddo
-      maxvecs=min(maxvecs,j)
+       maxvecs=min(maxvecs,(nroots+20)*maxiter*2)
+cng
+c      j=0
+c      do i=1,ipol
+c        j=j+(nmo(i)-nocc(i))*nocc(i)
+c      enddo
+c      maxvecs=min(maxvecs,j)
+cng
 c -------------
 c Printing info
 c -------------
