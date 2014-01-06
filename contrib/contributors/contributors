@@ -1,0 +1,37 @@
+#!/bin/bash
+function usage()
+{
+    cat <<EOF
+ Report NWChem contributors during time interval
+ ===============================================
+
+ DOE regulations require us to report quarterly who contributes to NWChem.
+ This script queries the SVN repository and extracts all the user IDs which
+ checked changes into NWChem. 
+
+ This script should be run providing two dates:
+
+     ./contrib/contributors/contributors oldest-date newest-date
+
+ which will extract the contributors between <oldest-date> and <newest-date>.
+ For example
+
+    ./contrib/contributors/contributors 2013-10-01 2013-12-31
+
+ lists the user IDs of all people who checked changes in between October 1, 2013
+ and December 31, 2013.
+
+ Huub van Dam
+ \$Id$
+EOF
+}
+if [ $# -ne 2 ] ; then
+  usage
+  exit 1
+fi
+date1=$1
+date2=$2
+svn log --revision {${date1}}:{${date2}} > /tmp/contrib.log.$$
+awk '/r..... \|/ { print $3 }' /tmp/contrib.log.$$ > /tmp/contrib.uid.$$
+sort --unique /tmp/contrib.uid.$$ 
+rm /tmp/contrib.log.$$ /tmp/contrib.uid.$$
