@@ -14618,9 +14618,12 @@ C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
       INCLUDE 'cgas.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Integral list
 CNW   Real * 8 Intlst(*)
-      integer Intlst
+      integer INTLST 
       Dimension IJKLof(NsmOB,NsmOb,NsmOB)
 *. Pair of orbital indeces ( symmetry ordered ) => address in symmetry packed 
 *. matrix ( not active pt)
@@ -14651,7 +14654,7 @@ C?    END IF
         WRITE(6,*)
         WRITE(6,'(A,3I3)')  ' I12S_A, I34S_A, I1234S_A = ',
      &                        I12S_A, I34S_A, I1234S_A
-        WRITE(6,*) ' First integral in input block = ', INTLST(1)
+CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
       END IF
 *
 *
@@ -15102,11 +15105,11 @@ CER  &               + (L-1)      *NI
                   call ga_get(INTLST,ILKJ,ILKJ,1,1,XVAL,1)
                   XINT(IINT)=XINT(IINT)-EFAC*XVAL
 CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
-                  IF(NTEST.GE.10000) THEN 
-                    WRITE(6,*) 
-     &            ' IINT, ILKJ, INTLST(ILKJ), XINT(IINT) =',
-     &              IINT, ILKJ, INTLST(ILKJ), XINT(IINT)
-                  END IF
+CNW               IF(NTEST.GE.10000) THEN 
+CNW                 WRITE(6,*) 
+CNW  &            ' IINT, ILKJ, INTLST(ILKJ), XINT(IINT) =',
+CNW  &              IINT, ILKJ, INTLST(ILKJ), XINT(IINT)
+CNW               END IF
                 END DO
               ELSE IF(ILBLK.EQ.KJBLK) THEN
                 ILKJ0 = (KJ-1)*NILS - KJ*(KJ-1)/2

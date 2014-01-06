@@ -10627,9 +10627,7 @@ C     CALL TEST_DEC15
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
 c..  reorder 
       call ifill(nirrep,0,ipnt,1)
-      print*,'sym_mol'
       call sym_mol(luciasymname,ipnt)
-      print*,'sym_bas'
       call sym_bas_irrep_id(luciabasis,.false.,mxporb,mxpirr,
      &                      nwchem_id,nwchem_sc)
       do i=1,nirrep
@@ -10640,7 +10638,6 @@ c       write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
       do i=2,nirrep
         ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
       end do
-      print*,'kirs'
       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
      &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
       do i=1,luciamo(1)
@@ -15054,6 +15051,9 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
 *
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 #include "rtdb.fh"
 *
       integer rtdb
@@ -15062,7 +15062,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
       CHARACTER*102 CARD1
       CHARACTER*102 LASTCARD
       CHARACTER*10 CARDX
-      COMMON/CTITLE/ TITLEC
+      COMMON/CTITLE/ TITLEC(3)
       CHARACTER*6 KEYWOR
       PARAMETER(MXPKW = 202)
       DIMENSION KEYWOR(MXPKW)
@@ -15145,6 +15145,7 @@ COLD  INTEGER CITYP
       INCLUDE 'vb.inc'
       INCLUDE 'fragmol.inc'
       INCLUDE 'comjep.inc'
+      integer itmp(2000)
 * Flag for NWChem test
       inw_lucia = 1
 *. Flag for compatibility with normal MOLCAS input format
@@ -15254,6 +15255,7 @@ c         IF(CARD(2:4).EQ.'D2H'   .OR.
 c    &       CARD(2:6).EQ.'CINFV' .OR.
 c    &       CARD(2:6).EQ.'DINFH' .OR.
 c    &       CARD(2:3).EQ.'O3'    ) THEN
+CBERT: We know the symmetry, so we can check and avoid input
         if(rtdb_get(rtdb,'lucia:d2h',mt_log,1,d2h_on)       .or.
      &     rtdb_get(rtdb,'lucia:cinfv',mt_log,1,cinfv_on)   .or.
      &     rtdb_get(rtdb,'lucia:dinfh',mt_log,1,dinfh_on)   .or.
@@ -15264,13 +15266,13 @@ cnw           IF(CARD(2:4).EQ.'D2H') THEN
         if(d2h_on) then
               PNTGRP = 1
 cnw           ELSE IF(CARD(2:6).EQ.'CINFV') THEN
-        if(cinfv_on) then       
+        elseif(cinfv_on) then       
               PNTGRP = 2
 cnw           ELSE IF(CARD(2:6).EQ.'DINFH') THEN
-        if(dinfh_on) then       
+        elseif(dinfh_on) then       
               PNTGRP = 3
 cnw           ELSE IF(CARD(2:3).EQ.'O3') THEN
-        if(o3_on) then       
+        elseif(o3_on) then       
               PNTGRP = 4
             END IF
 c           GOTO 999
@@ -15440,8 +15442,8 @@ cnw           GOTO 999
 *
 cnw         IF(CARD(2:7).EQ.'NACTEL') THEN
 cnw           READ(LUIN,*)NACTEL
-         if(rtdb_get(rtdb,'lucia:nactel',mt_int,1,nactel)) 
-     $     ISETKW(6) = 1
+         if(rtdb_get(rtdb,'lucia:nactel',mt_int,1,nactel)) then
+           ISETKW(6) = 1
            IF(NACTEL.LT.0) THEN
              WRITE(LUOUT,*)
      &       ' ERROR: Illegal number of active electrons ', NACTEL
@@ -15483,7 +15485,7 @@ cnw              CALL CHAR_TO_INTEGER(ITEM(IRREP),NINASH(IRREP),
 cnw     &             MXPLNC)
 cnw            END DO
 cnw          END IF
-        if(rtdt_get(rtdb,'lucia:inactive',mt_int,nirrep,ninash))then
+        if(rtdb_get(rtdb,'lucia:inactive',mt_int,nirrep,ninash))then
 *.  Update number of orbitals per symmetry
           DO IRREP = 1, NIRREP
             NTOOBS(IRREP) = NTOOBS(IRREP) + NINASH(IRREP)
@@ -15706,7 +15708,7 @@ c..dongxia: switch this one off for now
              ISETKW(15) = - 1
              NERROR = NERROR + 1
            END IF
-           GOTO 999
+cnw        GOTO 999
          END IF
         end if
 *===============================
@@ -15818,11 +15820,11 @@ cnw              READ(5,*) ( ISBSPC_ORB(I),I=1, NSBSPC_ORB)
            if(.not.rtdb_get(rtdb,'lucia:nsbspc',mt_int,1,nsbspc_orb))
      &      call errquit('LUCIA input: nsbspc_orb needed',911)
            if(.not.rtdb_get(rtdb,'lucia:sbspc_min',mt_int,nsbspc_orb,
-     &      isbspc_minmax(1,1)) call errquit('lucia:isbspc_minmax',911)
+     &      isbspc_minmax(1,1))) call errquit('lucia:isbspc_minmax',911)
            if(.not.rtdb_get(rtdb,'lucia:sbspc_max',mt_int,nsbspc_orb,
-     &      isbspc_minmax(1,2)) call errquit('lucia:isbspc_minmax',911)
+     &      isbspc_minmax(1,2))) call errquit('lucia:isbspc_minmax',911)
            if(.not.rtdb_get(rtdb,'lucia:isbspc_orb',mt_int,nsbspc_orb,
-     &      isbspc_orb(1,2)) call errquit('lucia:isbspc_orb',911)
+     &      isbspc_orb(1))) call errquit('lucia:isbspc_orb',911)
 
             ELSE
               WRITE(6,*) ' Unknown value of ISBSPC_SEL = ', ISBSPC_SEL
@@ -15854,26 +15856,26 @@ cnw           GOTO 999
 *========================================
 * 24 Import of integrals and environment
 *========================================
-      if (inw_lucia = 1) then
+      if (inw_lucia .eq. 1) then
         ido_lipkin = 0
         intimp = 4
         isetkw(24) = 1
         enviro(1:6) = 'NWCHEM'
-      else if (inw_lucia = 0) then
+      else if (inw_lucia .eq. 0) then
         IF(CARD(2:7).EQ.'MOLCAS'.OR.CARD(2:7).EQ.'ENV=MO') THEN
 *. Integrals imported from MOLCAS
           IDO_LIPKIN = 0
           INTIMP = 1
           ISETKW(24) = 1
           ENVIRO(1:6) = 'MOLCAS'
-          GOTO 999
+cnw       GOTO 999
         ELSE IF(CARD(2:6).EQ.'LUCAS')THEN
 *. Integrals imported from LUCAS
           IDO_LIPKIN = 0
           INTIMP = 2
           ISETKW(24) = 1
           ENVIRO(1:6) = 'LUCAS '
-          GOTO 999
+cnw       GOTO 999
         ELSE IF(CARD(2:7).EQ.'FMINSM'.OR.CARD(2:7).EQ.'ENV=FM'
      &          .OR.CARD(2:7).EQ.'ENV=LU') THEN
 *. Internal LUCIA environment as generated by a previous LUCIA run.
@@ -15884,7 +15886,7 @@ cnw           GOTO 999
           INTIMP = 3
           ISETKW(24) = 1
           ENVIRO(1:6) = 'LUCIA '
-          GOTO 999
+cnw       GOTO 999
         ELSE IF(CARD(2:7).EQ.'SIRIUS'.OR.CARD(2:7).EQ.'DALTON'
      &           .OR.CARD(2:7).EQ.'ENV=DA') THEN
 *. Integrals imported from SIRIUS/DALTON
@@ -15893,7 +15895,7 @@ cnw           GOTO 999
 C         write(6,*) ' Sirius Flag activated '
           ISETKW(24) = 1
           ENVIRO(1:6) = 'DALTON'
-          GOTO 999
+cnw       GOTO 999
         ELSE IF(CARD(2:7).EQ.'LIPKIN' ) THEN
 *. The Lipkin-Model
           ENVIRO(1:6) = 'LIPKIN'
@@ -15905,21 +15907,21 @@ c read in parameters -- preliminary values
           NOMOFL = 1
           INTIMP = 8
           ISETKW(24) = 1
-          GOTO 999
+cnw       GOTO 999
         ELSE IF(CARD(2:7).EQ.'ENV=NO' ) THEN
 *. No program environment, integrals, coefs will just be set to zero
           IDO_LIPKIN = 0
           ENVIRO(1:6) = 'NONE  '
           INTIMP = 0
           ISETKW(24) = 1
-          GOTO 999
+cnw       GOTO 999
 *. Fusk environment, integrals will be set to non-vanishing values
         ELSE IF(CARD(2:7).EQ.'ENV=FU' ) THEN
           IDO_LIPKIN = 0
           ENVIRO(1:6) = 'FUSK  '
           INTIMP = 9
           ISETKW(24) = 1
-          GOTO 999
+cnw       GOTO 999
         END IF
       end if
 *
@@ -16208,6 +16210,7 @@ cnw         READ(LUIN,'(A)') CARD1
          IAPRREF = 1
 cnw         GOTO 999
        END IF
+       ENDIF
 *
 * =====================================================================
 * 49: Approximate Hamiltonian in zero order space 
@@ -16215,8 +16218,8 @@ cnw         GOTO 999
 *
 cnw       IF(CARD(2:7).EQ.'APRZER') THEN
        if(rtdb_get(rtdb,'lucia:mnrs1ze',mt_int,1,mnrs1ze) .and.
-     $    rtdb_get(rtdb,'lucia:mxrs3ze',mt_int,1,mxrs3ze)) then
-         ISETKW(49) = 1
+     $    rtdb_get(rtdb,'lucia:mxrs3ze',mt_int,1,mxrs3ze))
+     $   ISETKW(49) = 1
 cnw         READ(LUIN,*)  MNRS1ZE,MXRS3ZE
 *. Moeller-Plesset or Epstein-Nesbet partitioning
 cnw         READ(LUIN,'(A)') CARD1
@@ -16404,7 +16407,7 @@ cnw           READ(LUIN,*) (ICMBSPC(IGASSPC,JCMBSPC),IGASSPC=1,LLCMBSPC)
       end do
       if(.not.rtdb_get(rtdb,'lucia:icmbspc',mt_int,isize,itmp))
      & call errquit('lucia input: icmbspc wrong',911)
-         END DO
+cnw      END DO
 cnw         GOTO 999
        END IF
       end if
@@ -16872,7 +16875,7 @@ cnw         GOTO 999
 * Call EXTENDED KOOPMANS' THEOREM ROUTINE
 * =====================================================================
 *
-       if(rtdb_get(rtdb,'lucia:extkop',mt_log,1,extkop_on)then
+       if(rtdb_get(rtdb,'lucia:extkop',mt_log,1,extkop_on)) then
 cnw       IF(CARD(2:7).EQ.'EXTKOP') THEN
 *. Ih yes, we will do it !
          IEXTKOP = 1
@@ -16885,7 +16888,7 @@ cnw         GOTO 999
 * ==========================
 *
 cnw       IF(CARD(2:7).EQ.'MACHIN') THEN
-       if(rtdb_cget(rtdb,'lucia:machine',1,card1))then
+       if(rtdb_cget(rtdb,'lucia:machine',1,card1)) then
          ISETKW(56) = 1
 cnw         READ(LUIN,'(A)') CARD1
          CALL LFTPOS(CARD1,MXPLNC)
@@ -16906,7 +16909,7 @@ cnw         GOTO 999
        IF(CARD(2:6).EQ.'C1DSC') THEN
          ISETKW(57) = 1
          IC1DSC = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -16945,7 +16948,7 @@ C          DO JGAS = 1, NGAS
 C          END DO
          END DO
          ISETKW(58) = 2
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -16977,7 +16980,7 @@ C          END DO
            READ(LUIN,*) IH0INSPC(JPTSPC)
          END DO
          ISETKW(59) = 2
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -16990,7 +16993,7 @@ C          END DO
          ISETKW(60) = 1
          READ(LUIN,*) IRFROOT
 C        WRITE(6,*) ' Reference Root = ',IRFROOT 
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17146,7 +17149,7 @@ cnw         GOTO 999
        IF(CARD(2:7).EQ.'E_THRE') THEN
          READ(LUIN,*) E_THRE
          ISETKW(69) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17159,7 +17162,7 @@ cnw         GOTO 999
        IF(CARD(2:7).EQ.'C_THRE') THEN
          READ(LUIN,*) C_THRE
          ISETKW(70) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17171,7 +17174,7 @@ cnw         GOTO 999
        IF(CARD(2:7).EQ.'E_CONV') THEN
          READ(LUIN,*) E_CONV
          ISETKW(71) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17184,7 +17187,7 @@ cnw         GOTO 999
        IF(CARD(2:7).EQ.'C_CONV') THEN
          READ(LUIN,*) C_CONV
          ISETKW(72) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       endif
 *
@@ -17237,7 +17240,7 @@ cnw         GOTO 999
          ISETKW(75) = 1
 C?       WRITE(6,*) ' NPTEKT = ', NPTEKT
 C?       WRITE(6,*) ' LPTEKT = ',LPTEKT(1,1),LPTEKT(2,1)
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17250,7 +17253,7 @@ C?       WRITE(6,*) ' LPTEKT = ',LPTEKT(1,1),LPTEKT(2,1)
          ISETKW(76) = 1
          READ(LUIN,*) IH0ROOT
 C        WRITE(6,*) ' Reference Root = ',IH0ROOT 
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17437,7 +17440,7 @@ C?   &     RESP_OP(1,IRESP) , RESP_OP(2,IRESP)
            END IF
          END DO
 *
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17613,7 +17616,7 @@ cnw         GOTO 999
 *
 cnw       IF(CARD(2:7).EQ.'MUL_SP') THEN
        if(rtdb_get(rtdb,'lucia:ifmulspc',mt_int,1,ifmulspc).and.
-          rtdb_get(rtdb,'lucia:lpat',mt_int,1,lpat))then
+     &    rtdb_get(rtdb,'lucia:lpat',mt_int,1,lpat)) then
          ISETKW(95) = 1
          MULSPC = 1
 *. First space where MULTIspace calculation is active
@@ -17631,7 +17634,7 @@ cnw         GOTO 999
 * =========================================================
 *
 cnw       IF(CARD(2:6).EQ.'RELAX') THEN
-       if(rtdb_get(rtdb,'lucia:relax',mt_log,1,relax_on))then
+       if(rtdb_get(rtdb,'lucia:relax',mt_log,1,relax_on)) then
          ISETKW(96) = 1
          IRELAX= 1
 cnw         GOTO 999
@@ -17669,7 +17672,7 @@ cnw         GOTO 999
          ISETKW(100) = 1
 *. Set environment to QDOTS
          ENVIRO(1:4) = 'QDOT'
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -17679,9 +17682,10 @@ cnw         GOTO 999
 *
 cnw       IF(CARD(2:7) .EQ. 'RE_MS2') THEN
        if(rtdb_get(rtdb,'lucia:re_ms2_spc',mt_int,1,i_re_ms2_space).and.
-          rtdb_get(rtdb,'lucia:re_ms2_vl',mt_int,1,i_re_ms2_value))then
+     &    rtdb_get(rtdb,'lucia:re_ms2_vl',mt_int,1,i_re_ms2_value))    
+     &    ISETKW(101) = 1
 cnw         READ(LUIN,*) I_RE_MS2_SPACE,I_RE_MS2_VALUE
-         ISETKW(101) = 1
+cnw         ISETKW(101) = 1
 cnw         GOTO 999
        END IF
 *
@@ -18018,7 +18022,7 @@ c MICIMX,<micifac>,<micimac>
              BACKSPACE(LUIN)
            END IF
          END DO
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 * ==========================================
@@ -18028,7 +18032,7 @@ c MICIMX,<micifac>,<micimac>
        IF(CARD(2:4).EQ.'CCN') THEN
          ISETKW(109) = 1
          I_DO_CCN = 1
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 * ==============================================================
@@ -18040,7 +18044,7 @@ c deactivated - deactivation deactivated, Oct.09
           ISETKW(110) = 1
           I_DO_SBSPJA = 1
           MAX_VEC_APRJ = 8
-          GOTO 999
+cnw       GOTO 999
         END IF 
        end if
 * =====================================================================
@@ -18072,7 +18076,7 @@ c defaults
                END IF           
          END DO
 
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 *
@@ -18095,7 +18099,7 @@ cnw         GOTO 999
        IF(CARD(2:4).EQ.'CC3') THEN
          ISETKW(113) = 1
          I_DO_CC3 = 1
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 * ==================================================
@@ -18105,7 +18109,7 @@ cnw         GOTO 999
        IF(CARD(2:7).EQ.'CI=>CC') THEN
          ISETKW(114) = 1
          I_DO_CI_TO_CC = 1
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 * ==================================================
@@ -18135,7 +18139,7 @@ cnw         GOTO 999
            NERROR = NERROR + 1
            ISETKW(115) = -1
          END IF
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 *
@@ -18191,7 +18195,7 @@ c scan for sub-keywords
            ! if nothing was specified: solve right equations:
            IF(ICCEX_SLEQ.EQ.0) ICCEX_SLEQ = 2
          END IF
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 *
@@ -18201,7 +18205,7 @@ c scan for sub-keywords
        IF(CARD(2:7).EQ.'RES_EX') THEN
          ISETKW(117) = 1
          IRES_EXC = 1          
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 *
@@ -18212,7 +18216,7 @@ c scan for sub-keywords
          ISETKW(118) = 1
          READ(LUIN,*) MXINKA_CC           
          LCCB = MXINKA_CC
-         GOTO 999
+cnw      GOTO 999
        END IF 
       end if
 *
@@ -18222,7 +18226,7 @@ c scan for sub-keywords
        IF(CARD(2:7).EQ.'CMB_CC') THEN
          MSCOMB_CC = 1
          ISETKW(119) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if
 *
@@ -18243,7 +18247,7 @@ cnw        GOTO 999
         READ(LUIN,*) NFRZ_CC
         READ(LUIN,*) (IFRZ_CC_AR(I),I=1, NFRZ_CC)
         ISETKW(121) = 1
-        GOTO 999
+cnw     GOTO 999
       END IF
       end if
 *
@@ -18253,7 +18257,7 @@ cnw        GOTO 999
       IF(CARD(2:7).EQ.'CC_EXP') THEN
         I_DO_CC_EXP = 1
         ISETKW(122) = 1
-        GOTO 999
+cnw     GOTO 999
       END IF
       end if
 *
@@ -18263,7 +18267,7 @@ cnw        GOTO 999
       IF(CARD(2:7).EQ.'OLDCCV') THEN
         I_DO_NEWCCV = 0
         ISETKW(123) = 1
-        GOTO 999
+cnw     GOTO 999
       END IF
       end if
 *
@@ -18275,7 +18279,7 @@ cnw        GOTO 999
       IF(CARD(2:7).EQ.'NEWCCP') THEN
         I_USE_NEWCCP = 1
         ISETKW(124) = 1
-        GOTO 999
+cnw     GOTO 999
       END IF
       end if
 *
@@ -18310,7 +18314,7 @@ C CHAR_TO_INTEGER(CHAR_X,INT_X,L_CHAR_X)
         END DO
         ISETKW(126) = 1
         WRITE(6,*) ' I_DO_MASK_CC (1) = ', I_DO_MASK_CC
-        GOTO 999
+cnw     GOTO 999
       END IF
       end if
 *
@@ -18329,7 +18333,7 @@ cnw        GOTO 999
       IF(CARD(2:7).EQ.'SPINRS') THEN
         ISPIN_RESTRICTED = 1
         ISETKW(128) = 1
-        GOTO 999
+cnw     GOTO 999
       END IF
       end if
 *
@@ -18347,7 +18351,7 @@ cnw        GOTO 999
 *. Should contain fewer particles than reference state!
        READ(LUIN,*) ((IGST_OCC(ISPC,IMINMAX),IMINMAX=1,2),ISPC=1,NGAS)
        ISETKW(129) = 1
-       GOTO 999
+cnw    GOTO 999
       END IF
       end if
 *
@@ -18370,7 +18374,8 @@ cnw        READ(LUIN,*) NSWITCH
          do i=1,3
           ireo_orb(i,iswitch)=itmp((iswitch-1)*3+i)
 cnw          READ(LUIN,*) IREO_ORB(1,ISWITCH), IREO_ORB(2,ISWITCH),
-     &                 IREO_ORB(3,ISWITCH)
+cnw  &                 IREO_ORB(3,ISWITCH)
+         enddo
         END DO
         ISETKW(130) = 1
 cnw       GOTO 999
@@ -18401,7 +18406,7 @@ cglm  ^ skipped for NWChem
 * 
         ISETKW(131) = 1
         I_HAVE_ICEXC_INFO = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18414,7 +18419,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'CMPCCI') THEN
         ISETKW(132) = 1
         I_DO_CMPCCI = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18427,7 +18432,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'CC=>CI') THEN
         I_DO_CC_TO_CI = 1
         ISETKW(133) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18448,7 +18453,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'DMPMRP') THEN
         I_DO_DUMP_FOR_MRPT = 1
         ISETKW(135) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18460,7 +18465,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'VNEWCC') THEN
        I_DO_NEWCCV = 2
        ISETKW(136) = 1
-       GOTO 999
+cnw    GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18497,7 +18502,7 @@ cglm  ^ skipped for NWChem
            NERROR = NERROR + 1
            ISETKW(138) = -1
          END IF
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18532,7 +18537,7 @@ cglm  ^ skipped for NWChem
           NERROR = NERROR + 1
           ISETKW(139) = -1
         END IF
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18686,7 +18691,7 @@ c set FUSK-level for experiments (Tak, Jeppe, for dette fantastiske ord -- ak)
             BACKSPACE(LUIN)
           END IF  
         END DO
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18702,7 +18707,7 @@ cglm  ^ skipped for NWChem
           WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
           NERROR = NERROR + 1
           ISETKW(142) = -1
-          GOTO 999
+cnw       GOTO 999
         END IF
         DO II = 1, N_EAG
           READ(LUIN,*) IT_EAG(II)
@@ -18713,12 +18718,12 @@ cglm  ^ skipped for NWChem
           WRITE(6,*) 'The entry should be between 1 AND ',MXPANA
           NERROR = NERROR + 1
           ISETKW(142) = -1
-          GOTO 999
+cnw       GOTO 999
         END IF
         DO II = 1, NN_EAG
           READ(LUIN,*) NG_EAG(II), ST_EAG(II), EN_EAG(II), NP_EAG(II)
         END DO
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18738,7 +18743,7 @@ cglm  ^ skipped for NWChem
         DO II = 1, N_FOO
           READ(LUIN,*) IT_FOO(II)
         END DO
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18758,7 +18763,7 @@ cglm  ^ skipped for NWChem
         DO II = 1, N_HSS
           READ(LUIN,*) IT_HSS(II)
         END DO
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18782,7 +18787,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'SAVMEM') THEN
         ISETKW(146) = 1
         ISVMEM=1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18796,7 +18801,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'TARGET') THEN
         ISETKW(147) = 1
         READ(LUIN,*) ITGSPC,ITGCLC
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18809,7 +18814,7 @@ cglm  ^ skipped for NWChem
 *. Read max order of cumulants to be constructed 
         READ(5,*) ICUMULA
         ISETKW(148) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if
 cglm  ^ skipped for NWChem
@@ -18821,7 +18826,7 @@ cglm  ^ skipped for NWChem
 *. Restart internal contraction calculation 
         IRESTRT_IC = 1
         ISETKW(149) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18838,7 +18843,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'NCOMMU') THEN
         READ(5,*) NCOMMU_E, NCOMMU_J, NCOMMU_V
         ISETKW(150) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18850,7 +18855,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'APRCME') THEN
         I_APPROX_HCOM_E = 1
         ISETKW(151) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if
 cglm  ^ skipped for NWChem
@@ -18862,7 +18867,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'APRCMV') THEN
         I_APPROX_HCOM_V = 1
         ISETKW(152) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if
 cglm  ^ skipped for NWChem
@@ -18873,7 +18878,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'APRCMJ') THEN
         I_APPROX_HCOM_J = 1
         ISETKW(153) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18909,7 +18914,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'PRDEXP') THEN
         I_DO_PRODEXP = 1
         ISETKW(156) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18945,7 +18950,7 @@ cglm  ^ skipped for NWChem
            END DO
          END DO
          ISETKW(157) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18957,7 +18962,7 @@ cglm  ^ skipped for NWChem
 *. Read in allowed excitation level between different atoms in product wave function expansion  
         READ(5,*) INTRA_EXC_PRWF
         ISETKW(158) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -18988,7 +18993,7 @@ cglm  ^ skipped for NWChem
         READ(5,*) THRES_SINGU
         ISETKW(161) = 1
 C?      WRITE(6,*) ' THRES_SINGU = ', THRES_SINGU
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19019,7 +19024,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'FR_INT') THEN
         I_FIX_INTERNAL = 1
         ISETKW(164) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19031,7 +19036,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'ZS_HAM') THEN
         READ(5,*) I_INT_HAM
         ISETKW(165) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19044,7 +19049,7 @@ cglm  ^ skipped for NWChem
         I_DO_EI = 0
         IEI_VERSION = 0
         ISETKW(166) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19057,7 +19062,7 @@ cglm  ^ skipped for NWChem
        IF(CARD(2:7).EQ.'IC_EXO') THEN
          READ(5,*) ICEXC_RANK_MIN,ICEXC_RANK_MAX, ICEXC_INT
          ISETKW(167) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19076,7 +19081,7 @@ cglm  ^ skipped for NWChem
      &            ICEXC_INT_G(ITEXC), IPTCSPC_G(ITEXC),ITCSPC_G(ITEXC)
          END DO
          ISETKW(168) = 1
-         GOTO 999  
+cnw      GOTO 999  
        END IF
       end if  
 cglm  ^ skipped for NWChem
@@ -19173,7 +19178,7 @@ cglm  ^ skipped for NWChem
 C?       WRITE(6,*) ' Test: NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT = ',
 C?   &                      NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT
          ISETKW(172) = 1 
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19199,7 +19204,7 @@ cglm  ^ skipped for NWChem
          END IF
          IF(IERROR_LOC.EQ.1) THEN
            ISETKW(173) = -1 
-           GOTO 999
+cnw        GOTO 999
          ELSE
            NORBVBSPC = NOBPT(NORTCIX_SCVB_SPACE)
 C?         WRITE(6,*) ' NOBPT(1), NOBPT(2) = ', NOBPT(1), NOBPT(2)
@@ -19211,7 +19216,7 @@ C?         WRITE(6,*) ' NOBPT(1), NOBPT(2) = ', NOBPT(1), NOBPT(2)
            CALL ICOPVE(VB_REFSPC_MIN,VB_REFSPCO_MIN,NORBVBSPC)
            CALL ICOPVE(VB_REFSPC_MAX,VB_REFSPCO_MAX,NORBVBSPC)
            ISETKW(173) = 1
-           GOTO 999
+cnw        GOTO 999
          END IF
        END IF
       end if 
@@ -19226,7 +19231,7 @@ cglm  ^ skipped for NWChem
 * NORT_MET = 2 => Configuration based approach
          READ(5,*)  NORT_MET
          ISETKW(174) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19248,7 +19253,7 @@ cglm  ^ skipped for NWChem
 *. Should be in the order of the MOLECULE.INP file
          READ(5,*) (IFRAG_MOL(IFRAG),IFRAG=1, NFRAG_MOL)
          ISETKW(175) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19261,7 +19266,7 @@ cglm  ^ skipped for NWChem
 *. Call routine to readin fragment to orbital info
          CALL ASSEMBLE_MO_FROM_FRAGMENTS_DEFINE
          ISETKW(176) = 1
-         GOTO 999
+cnw      GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19309,7 +19314,7 @@ cglm  ^ skipped for NWChem
             ISETKW(177) = -1
             NERROR = NERROR + 1
           END IF
-          GOTO 999
+cnw       GOTO 999
         END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19353,7 +19358,7 @@ cglm  ^ skipped for NWChem
         IF(CARD(2:5).EQ.'PRVB') THEN
           READ(5,*) IPRVB
           ISETKW(179) = 1
-          GOTO 999
+cnw       GOTO 999
         END IF
       end if
 cglm  ^ skipped for NWChem
@@ -19365,8 +19370,10 @@ cglm  ^ skipped for NWChem
 cglm        IF(CARD(2:7).EQ.'GIOMET') THEN
 *. Read in min and max for space where Hamiltonian 
 * is calculated exact
-         rtdb_get(rtdb,'IOCCPSPC(1)',mt_int,ngas,ioccpspc(1,1))
-         rtdb_get(rtdb,'IOCCPSPC(2)',mt_int,ngas,ioccpspc(1,2))
+         if(.not.rtdb_get(rtdb,'IOCCPSPC(1)',mt_int,ngas,ioccpspc(1,1)))
+     &     call errquit('lucia_readin failed ioccpspc',911)
+         if(.not.rtdb_get(rtdb,'IOCCPSPC(2)',mt_int,ngas,ioccpspc(1,2)))
+     &     call errquit('lucia_readin failed ioccpspc',911)
 cglm         READ(5,*) (IOCCPSPC(IGAS,1),IGAS=1,NGAS)
 cglm         READ(5,*) (IOCCPSPC(IGAS,2),IGAS=1,NGAS)
          ISETKW(180) = 1 
@@ -19419,7 +19426,7 @@ cglm  ^ skipped for NWChem
           READ(5,*) (IENSGS(IGAS,JENSGS),IGAS = 1, LENSGS(JENSGS))
         END DO
         ISETKW(184) = 1
-        GOTO 999
+cnw     GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19438,7 +19445,7 @@ cglm  ^ skipped for NWChem
      &    ' Specify GASSPC before ENSCON '
           ISETKW(185) = -1
           NERROR = NERROR + 1
-          GOTO 999
+cnw       GOTO 999
         ELSE
 *. Number of allowed values of electrons in Ensemble gas space 
           I_CHECK_ENSGS = 1
@@ -19448,7 +19455,7 @@ cglm  ^ skipped for NWChem
      &                 IEL = 1, NELVAL_IN_ENSGS(ISPC))
           END DO
           ISETKW(185) = 1
-          GOTO 999
+cnw       GOTO 999
         END IF
        END IF
       end if 
@@ -19467,7 +19474,7 @@ cglm  ^ skipped for NWChem
             READ(5,*) 
      &      (IEQVGRP_FRAG(IFRAG,IEQV),IFRAG = 1, LEQVGRP_FRAG(IEQV))
           END DO
-          GOTO 999
+cnw       GOTO 999
        END IF
       end if 
 cglm  ^ skipped for NWChem
@@ -19624,7 +19631,7 @@ cglm   ^ skipped for NWChem
 *. Fragments are read from LUCIA files - even if normal environment is DALTON
          ISETKW(192) = 1
          I_USE_LUCIA_FRAGMENTS = 1
-         GOTO 999
+cnw      GOTO 999
         END IF
        end if
 cglm   ^ end IF for skipping command in NWChem env.
@@ -19722,7 +19729,7 @@ cglm   ^ skipped for NWChem
            NERROR = NERROR + 1
            ISETKW(196) = -1
          END IF
-         GOTO 999
+cnw      GOTO 999
         END IF
        end if
 cglm   ^ end IF for skipping command in NWChem env.
@@ -19744,7 +19751,7 @@ cglm   ^ skipped for NWChem
         IF(CARD(2:7).EQ.'FRZFST') THEN
          READ(5,*)  IFRZFST
          ISETKW(198) = 1
-         GOTO 999
+cnw      GOTO 999
         END IF
        end if
 cglm   ^ end IF for skipping command in NWChem env.
@@ -19770,7 +19777,7 @@ cglm   ^ skipped for NWChem
          END IF
          IF(IERROR_LOC.EQ.1) THEN
            ISETKW(173) = -1 
-           GOTO 999
+cnw        GOTO 999
          ELSE
            NORBVBSPC = NOBPT(NORTCIX_SCVB_SPACE)
 *. Number of additional spaces
@@ -19781,7 +19788,7 @@ cglm   ^ skipped for NWChem
              READ(5,*) (VB_GNSPC_MAX(IORB,IVBGNSP),IORB = 1, NORBVBSPC)
              ISETKW(199) = 1
            END DO
-           GOTO 999
+cnw        GOTO 999
          END IF
         END IF
        end if
@@ -19805,7 +19812,7 @@ cglm   ^ skipped for NWChem
          WRITE(6,*) ' IREO_MNMX_OB_ON: '
          CALL IWRTMA(IREO_MNMX_OB_ON,1,NORBVBSPC ,1,NORBVBSPC)
          ISETKW(200) = 1
-         GOTO 999
+cnw      GOTO 999
         END IF
        end if
 cglm   ^ end IF for skipping command in NWChem env.
@@ -19821,7 +19828,7 @@ cglm    ^ skipped for NWChem
            IREO_SPCP_OB_ON(IREO_SPCP_OB_NO(IOB)) = IOB
           END DO
           ISETKW(201) = 1
-          GOTO 999
+cnw       GOTO 999
          END IF
         end if
 cglm    ^ end IF for skipping command in NWChem env.
