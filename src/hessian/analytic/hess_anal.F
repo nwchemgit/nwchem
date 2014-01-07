@@ -194,7 +194,12 @@ c  dump hessian with the final result
 c
       if(ga_nodeid().eq.0) then
          call hess_wrt()
+         call stpr_print_ddipole(dbl_mb(k_dder),
+     P        ' Derivative Dipole ',
+     A       ncent,-1.0d00)
       endif
+
+
 c     
 c  clean up any hessian specific stuff
 c
