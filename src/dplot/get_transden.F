@@ -72,7 +72,7 @@ c
 c        Read header information from civecs file
          if (nodezero) then      
            open(unit=69,file=filename,form='formatted',
-     &          status='unknown',err=1000)
+     &          status='old',err=1000)
             rewind(69)
             read(69,*,err=1001) tda
             read(69,*,err=1001) ipol
@@ -131,7 +131,7 @@ c
 c        Read remainder of the civecs file
          if (nodezero) then      
           open(unit=69,file=filename,form='formatted',
-     &                status='unknown',err=1000)
+     &                status='old',err=1000)
             rewind(69)
             read(69,*,err=1001) tda
             read(69,*,err=1001) ipol
