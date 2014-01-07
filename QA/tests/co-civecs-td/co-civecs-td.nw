@@ -31,26 +31,26 @@ task tddft
 
 # cube file for td 1
 dplot
-  civecs co.civecs_singlet
+  civecs co-civecs-td.civecs_singlet
   root 1
   LimitXYZ
  -4.0 4.0 50
  -4.0 4.0 50
  -4.0 4.0 50
  gaussian
- output co-td_01.cube
+ output co-civecs-td_01.cube
 end
 task dplot
 
 # cube file for td 4
 dplot
-  civecs co.civecs_singlet
+  civecs co-civecs-td.civecs_singlet
   root 4
   LimitXYZ
  -4.0 4.0 50
  -4.0 4.0 50
  -4.0 4.0 50
  gaussian
- output co-td_04.cube
+ output co-civecs-td_04.cube
 end
 task dplot
