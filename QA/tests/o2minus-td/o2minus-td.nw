@@ -1,0 +1,101 @@
+echo
+
+start o2minus-td
+title o2minus-td
+
+memory total 800 stack 400 heap 50 global 350 mb
+
+charge -1
+
+geometry noautosym
+O  0.0000  0.0000  0.7060
+O  0.0000  0.0000  -0.7060
+end
+
+basis spherical
+* library 6-31G*
+end
+
+dft
+  xc b3lyp
+  maxiter 100
+  mult 2
+end
+
+tddft
+ cis
+ nroots 5
+ notriplet
+ civecs
+end
+task tddft energy
+
+dplot
+ civecs o2minus-td.civecs
+ root 1
+ tol_rho 1d-10
+ TITLE TransDens-1
+ LimitXYZ
+ -2.0 2.0 49
+ -2.0 2.0 49
+ -2.0 2.0 49
+ gaussian
+ output o2minus-1.cube
+end
+task dplot
+
+dplot
+ civecs o2minus-td.civecs
+ root 2
+ tol_rho 1d-10
+ TITLE TransDens-2
+ LimitXYZ
+ -2.0 2.0 49
+ -2.0 2.0 49
+ -2.0 2.0 49
+ gaussian
+ output o2minus-2.cube
+end
+task dplot
+
+dplot
+ civecs o2minus-td.civecs
+ root 3
+ tol_rho 1d-10
+ TITLE TransDens-3
+ LimitXYZ
+ -2.0 2.0 49
+ -2.0 2.0 49
+ -2.0 2.0 49
+ gaussian
+ output o2minus-3.cube
+end
+task dplot
+
+dplot
+ civecs o2minus-td.civecs
+ root 4
+ tol_rho 1d-10
+ TITLE TransDens-4
+ LimitXYZ
+ -2.0 2.0 49
+ -2.0 2.0 49
+ -2.0 2.0 49
+ gaussian
+ output o2minus-4.cube
+end
+task dplot
+
+dplot
+ civecs o2minus-td.civecs
+ root 5
+ tol_rho 1d-10
+ TITLE TransDens-5
+ LimitXYZ
+ -2.0 2.0 49
+ -2.0 2.0 49
+ -2.0 2.0 49
+ gaussian
+ output o2minus-5.cube
+end
+task dplot
