@@ -176,7 +176,8 @@ endif
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o \
                  util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
                  ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
-                 util_sgroup.o ga_copy_dz.o dgami.o util_eri_cholesky.o
+                 util_sgroup.o ga_copy_dz.o dgami.o util_eri_cholesky.o \
+                 util_test_cholesky.o 
 
   SUBDIRS = md5
 
@@ -238,7 +239,8 @@ endif
 	      util_params.fh utilc_nwchem_srcdir.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F
+                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \
+		util_test_cholesky.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
