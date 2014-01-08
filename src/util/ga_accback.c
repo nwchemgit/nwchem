@@ -37,6 +37,11 @@
    int i; for(i=0; i< (n); i++)(carr)[n-i-1]=(int64_t)(farr)[i] -1;}
 #define BASE_0
 #endif
+
+/**
+\ingroup util_ga
+@{
+*/
 			     
 /*\ PROVIDE ACCESS TO A PATCH OF A GLOBAL ARRAY WITH CALLBACK AND RELEASE
 \*/
@@ -105,5 +110,9 @@ void FATR nga_access_callback_release_(g_a, ilo, ihi,
     NGA_Release(ag_a, alo, ahi);
   }
 } 
+
+/**
+@}
+*/
 
 /* $Id$ */

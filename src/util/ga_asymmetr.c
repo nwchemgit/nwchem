@@ -11,6 +11,11 @@
 #include "ga.h"
 #include "macdecls.h"
 
+/**
+\ingroup util_ga
+@{
+*/
+
 void FATR
 gai_subtr(int *lo, int *hi, void *a, void *b, DoublePrecision alpha,
           int type, Integer nelem, int ndim) {
@@ -97,3 +102,6 @@ ga_antisymmetrize_(Integer *g_a) {
   }
   GA_Sync();
 }
+/**
+@}
+*/

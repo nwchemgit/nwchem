@@ -1,3 +1,13 @@
+C> \ingroup util_ga
+C> @{
+C>
+C> \brief Anti-symmetrizes the matrix \f$A\f$
+C>
+C> Anti-symmetrizes the matrix \f$A\f$ by computing
+C> \f{eqnarray*}{
+C>    A = \left(A-A^T\right)/2
+C> \f}
+C> 
       subroutine ga_antisymmetrize(g_a) 
 c
 c     Antisymmetrizes matrix A:  A := .5 * (A-A`)
@@ -220,4 +230,6 @@ c
          enddo
       enddo
       END
+C>
+C> @}
 c $Id$
