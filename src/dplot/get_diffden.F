@@ -36,6 +36,8 @@ c
          integer icntr,itmom
          double precision r,cntr(3),tmom(20)
          integer nbf_ao
+         integer naoc(2)     ! the number of active occupied orbitals
+         integer nav(2)      ! the number of active virtual orbitals
 c
          logical nodezero
 c
@@ -46,7 +48,7 @@ c
          integer inntsize,ddblsize,logisize,ok
 c
          character*32 pname
-         pname = 'get_transden: '
+         pname = 'get_diffden: '
 c
 c        preliminaries
          inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
@@ -72,7 +74,7 @@ c
 c        Read header information from civecs file
          if (nodezero) then      
            open(unit=69,file=filename,form='formatted',
-     &          status='unknown',err=1000)
+     &          status='old',err=1000)
             rewind(69)
             read(69,*,err=1001) tda
             read(69,*,err=1001) ipol
@@ -109,6 +111,12 @@ c        broadcast status and variables to other nodes
          call ga_brdcst(Msg_Vec_NMO+MSGINT, nov, inntsize*2, 0)
          call ga_sync()
 c
+c        Get the number of active occupied and virtuals
+         do i = 1,ipol
+            naoc(i)= (nocc(i)-nfc(i))       
+            nav(i) = (nmo(i)-nocc(i)-nfv(i))
+         enddo
+c
 c        Set up memory for X(X+Y), Y(X-Y) vectors
          do i=1,ipol
             if (.not.ga_create(mt_dbl,nov(i),nroots,'X vector',
@@ -126,7 +134,7 @@ c
 c        Read remainder of the civecs file
          if (nodezero) then      
           open(unit=69,file=filename,form='formatted',
-     &                status='unknown',err=1000)
+     &                status='old',err=1000)
             rewind(69)
             read(69,*,err=1001) tda
             read(69,*,err=1001) ipol
@@ -173,9 +181,9 @@ c
          call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
          call ga_sync()
 c
-c        calculate unrelaxed difference density matrix
-         call calc_diffden(tda,iroot,g_x,g_y,
-     &       g_movecs,nbf_ao,nocc,nmo,nfc,nfv,ipol,g_ddens)
+c        calculate unrelaxed difference density matrix T
+         call compute_T(tda,ipol,nbf_ao,nmo,naoc,nav,iroot,g_movecs,
+     &          g_x,g_y,g_ddens)
 c
 c        symmetrize the difference density matrix
          do i = 1,ipol
@@ -212,136 +220,175 @@ c
 c
       end
 c
-c     calculate the unrelaxed difference density 
-      subroutine calc_diffden(tda,iroot,g_xpy,g_xmy,
-     &    g_movecs,nbf_ao,nocc,nmo,nfc,nfv,ipol,g_tao)
+c     Compute the unrelaxed difference density matrix T
+c
+      subroutine compute_T(tda,ipol,nbf_ao,nmo,naoc,nav,iroot,g_movecs,
+     &     g_xpy,g_xmy,g_tao)
+c
+c     Eq. 19: Furche & Ahlrich JCP (2002)
+c     Tijs = -1/2 Sum_a [(X+Y)ias(X+Y)jas+(X-Y)ias(X-Y)jas] (occ-occ part)
+c     Tabs =  1/2 Sum_i [(X+Y)ias(X+Y)ibs+(X-Y)ias(X-Y)ibs] (vir-vir part)
+c     Tias = Tais = 0  (occ-vir = zero for unrelaxed difference density)
 c
       implicit none
 c
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
-#include "bas.fh"
-#include "geom.fh"
-#include "rtdb.fh"
-#include "sym.fh"
-#include "util.fh"
-#include "msgids.fh"
 #include "stdio.fh"
-#include "dra.fh"
+#include "errquit.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "msgids.fh"
 c
-      double precision thresh  ! Threshold for printing
-      parameter (thresh=5.0d-2)
-      double precision au2ev   ! Conversion factor from a.u. to eV
-      parameter (au2ev=27.2113961d0)
-      double precision mijtol  ! Transition moment tolerance
-      parameter (mijtol=1.d-04)
-      double precision au2debye  ! Convert au to debye
-      parameter (au2debye=2.541766d0)
+c     Input:
+      logical tda       ! .true. if Tamm-Dancoff approximation is used
+      integer ipol      ! =1 (restricted), =2 (unrestricted)
+      integer nbf_ao    ! number of ao basis functions
+      integer nmo(2)    ! number of molecular orbitals
+      integer naoc(2)   ! the number of active occupied orbitals
+      integer nav(2)    ! the number of active virtual orbitals
+      integer iroot     ! the root of interest
+      integer g_movecs(2)  ! molecular orbitals
+      integer g_xpy(2)  ! global array handle for (X+Y)
+      integer g_xmy(2)  ! global array handle for (X-Y)
 c
-      logical tda
-      integer iroot          
-      integer g_xpy(2)           ! X+Y
-      integer g_xmy(2)           ! X-Y
-      integer g_movecs(2)        ! mo vectors
-      integer nbf_ao             ! Number of AO basis functions
-      integer nocc(2)            ! Number of occupied orbitals
-      integer nmo(2)             ! Number of orbitals
-      integer nfc(2),nfv(2)      ! Number of frozen cores/virtuals
-      integer ipol               ! =1 (restricted), =2 (unrestricted)
-      integer g_tao(2)           ! GA handle for AO density matrix
+c     Output:
+      integer g_tao(2)   ! global array handle for T
 c
-      integer i
-      integer g_xpy1(2)          ! X+Y for 1 root
-      integer g_xmy1(2)          ! X-Y for 1 root
-      integer g_tmo(2) 
-      integer g_temp             ! temp array
-      integer nov(2)
+c     Local:
+      integer g_tmo(2)  ! global array handle for T
+      integer alo(3)    ! lower chunk limits on A
+      integer ahi(3)    ! upper chunk limits on A
+      integer blo(3)    ! lower chunk limits on B
+      integer bhi(3)    ! upper chunk limits on B
+      integer clo(3)    ! lower chunk limits on C
+      integer chi(3)    ! upper chunk limits on C
+      integer ip        ! counter on polarization
+      logical oroot
+      integer idim(3)   ! dimension array for the nga calls
+      integer ichunk(3) ! chunk size array for the nga calls
+      integer i         ! general index
+      integer g_temp    ! temporary array
+c
       character*32 pname
-      logical nodezero
+      pname = 'compute_T: '
 c
-      double precision zero, one, two, three, half, third
-      parameter (zero = 0d0, one=1d0, two=2d0, three=3d0,
-     &   half=one/two, third=one/three)
-c
-c     Preliminaries
-      nodezero=(ga_nodeid().eq.0)
-      pname="calc_diffden: "
-c
-c     Number of occupied virtual pairs
-      do i=1,ipol
-        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
-      enddo
-      if (ipol.eq.1) nov(2)=0
-c
-c     Set up the memory
-      do i=1,ipol
-        if (.not.ga_create(mt_dbl,nmo(i)-nocc(i)-nfv(i),
-     &      nocc(i)-nfc(i),'X+Y for 1 root',-1,-1,g_xpy1(i))) 
-     &   call errquit(pname//'failed to create g_xpy1',0, GA_ERR)
-        call ga_zero(g_xpy1(i))
-        if (.not.tda) then
-         if (.not.ga_create(mt_dbl,nmo(i)-nocc(i)-nfv(i),
-     &      nocc(i)-nfc(i),'X-Y for 1 root',-1,-1,g_xmy1(i)))
-     &             call errquit
-     &    (pname//'failed to create g_xmy1',0, GA_ERR)
-          call ga_zero(g_xmy1(i))
-        endif
-        if (.not.ga_create(mt_dbl,nmo(i),nmo(i),
-     &      'T in the MO basis',-1,-1,g_tmo(i))) call errquit
-     &    (pname//'failed to create g_tmo',0, GA_ERR)
-        call ga_zero(g_tmo(i))
+c     Create T
+      do i = 1, ipol
+        idim(1)   = 1  ! for one root
+        idim(2)   = naoc(i)+nav(i)
+        idim(3)   = naoc(i)+nav(i)
+        ichunk(1) =  1
+        ichunk(2) = -1
+        ichunk(3) = -1
+        if (.not.nga_create(mt_dbl,3,idim,'T',ichunk,g_tmo(i)))
+     +    call errquit(pname//'failed to create g_tmo',0,GA_ERR)
       enddo
 c
-c     Copy one vector
-      do i=1,ipol
-        call ga_copy_patch('n',g_xpy(i),1,nov(i),iroot,iroot,
-     &    g_xpy1(i),1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i))
-        if (.not.tda) then
-          call ga_copy_patch('n',g_xmy(i),1,nov(i),iroot,iroot,
-     &       g_xmy1(i),1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i))
-        endif
-        call ga_zero(g_tmo(i))
-      enddo ! ipol
+c     Loop over spins
+      do ip = 1, ipol
+        call ga_zero(g_tmo(ip))
 c
-c     Assemble the unrelaxed difference density in MO space
-      do i=1,ipol
+c       Do the occupied-occupied block
+        alo(1) = iroot
+        ahi(1) = iroot
+        alo(2) = 1
+        ahi(2) = naoc(ip)
+        alo(3) = 1
+        ahi(3) = nav(ip)
+        blo(1) = iroot
+        bhi(1) = iroot
+        blo(2) = 1
+        bhi(2) = nav(ip)
+        blo(3) = 1
+        bhi(3) = naoc(ip)
+        clo(1) = iroot
+        chi(1) = iroot
+        clo(2) = 1
+        chi(2) = naoc(ip)
+        clo(3) = 1
+        chi(3) = naoc(ip)
 c
-c         Compute the occupied-occupied block
-          call ga_matmul_patch('t','n',-0.5d0,0.0d0,
-     &         g_xpy1(i),1,nocc(i)-nfc(i),1,nmo(i)-nocc(i)-nfv(i),
-     &         g_xpy1(i),1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i),
-     &         g_tmo(i),nfc(i)+1,nocc(i),nfc(i)+1,nocc(i))
-          if (.not.tda) then
-            call ga_matmul_patch('t','n',-0.5d0,1.0d0,
-     &           g_xmy1(i),1,nocc(i)-nfc(i),1,nmo(i)-nocc(i)-nfv(i),
-     &           g_xmy1(i),1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i),
-     &           g_tmo(i),nfc(i)+1,nocc(i),nfc(i)+1,nocc(i))
-          endif
+        if (tda) then
 c
-c         Compute the virtual-virtual block
-          call ga_matmul_patch('n','t',0.5d0,0.0d0,
-     &         g_xpy1(i),1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i),
-     &         g_xpy1(i),1,nocc(i)-nfc(i),1,nmo(i)-nocc(i)-nfv(i),
-     &         g_tmo(i),nocc(i)+1,nmo(i)-nfv(i),
-     &                nocc(i)+1,nmo(i)-nfv(i))
-          if (.not.tda) then
-            call ga_matmul_patch('n','t',0.5d0,1.0d0,
-     &           g_xmy1(i),1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i),
-     &           g_xmy1(i),1,nocc(i)-nfc(i),1,nmo(i)-nocc(i)-nfv(i),
-     &           g_tmo(i),nocc(i)+1,nmo(i)-nfv(i),
-     &                  nocc(i)+1,nmo(i)-nfv(i))
-          endif
-      enddo ! ipol
+c For CIS, we have:
+c (X+Y)ias = Xias , (X+Y)jas = Xjas
+c (X-Y)ias = Xias , (X-Y)jas = Xjas
+c Tij = - sum_a Xias*Xjas 
 c
-c     Scratch space
-      if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'temp',-1,-1,g_temp))
+            call nga_matmul_patch('n','t',-0.5d0,0.0d0,
+     +                            g_xpy(ip),alo,ahi,
+     +                            g_xpy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+            call nga_matmul_patch('n','t',-0.5d0,1.0d0,
+     +                            g_xpy(ip),alo,ahi,
+     +                            g_xpy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+          else
+c (X+Y)ias(X+Y)jas 
+            call nga_matmul_patch('n','t',-0.5d0,0.0d0,
+     +                            g_xpy(ip),alo,ahi,
+     +                            g_xpy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+c (X-Y)ias(X-Y)jas
+            call nga_matmul_patch('n','t',-0.5d0,1.0d0,
+     +                            g_xmy(ip),alo,ahi,
+     +                            g_xmy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+        endif ! tda
+c
+c       Do the virtual-virtual block
+        alo(1) = iroot
+        ahi(1) = iroot
+        alo(2) = 1
+        ahi(2) = nav(ip)
+        alo(3) = 1
+        ahi(3) = naoc(ip)
+        blo(1) = iroot
+        bhi(1) = iroot
+        blo(2) = 1
+        bhi(2) = naoc(ip)
+        blo(3) = 1
+        bhi(3) = nav(ip)
+        clo(1) = iroot
+        chi(1) = iroot
+        clo(2) = naoc(ip)+1
+        chi(2) = naoc(ip)+nav(ip)
+        clo(3) = naoc(ip)+1
+        chi(3) = naoc(ip)+nav(ip)
+c
+        if (tda) then
+c
+c For CIS, we have:
+c (X+Y)ias = Xias , (X+Y)ibs = Xibs
+c (X-Y)ias = Xias , (X-Y)ibs = Xibs
+c Tab = sum_i Xias*Xibs 
+c
+            call nga_matmul_patch('t','n',0.5d0,0.0d0,
+     +                            g_xpy(ip),alo,ahi,
+     +                            g_xpy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+            call nga_matmul_patch('t','n',0.5d0,1.0d0,
+     +                            g_xpy(ip),alo,ahi,
+     +                            g_xpy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+          else
+c (X+Y)ias(X+Y)ibs 
+            call nga_matmul_patch('t','n',0.5d0,0.0d0,
+     +                            g_xpy(ip),alo,ahi,
+     +                            g_xpy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+c (X-Y)ias(X-Y)ibs 
+            call nga_matmul_patch('t','n',0.5d0,1.0d0,
+     +                            g_xmy(ip),alo,ahi,
+     +                            g_xmy(ip),blo,bhi,
+     +                            g_tmo(ip),clo,chi)
+        endif  ! tda
+      enddo ! ip = 1, ipol
+c
+c     Compute T in the AO basis 
+      if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Temp',-1,-1,g_temp))
      &    call errquit(pname//'failed to create g_temp',0,GA_ERR)
-c
-c     Compute the unrelaxed difference density in the AO basis
       do i=1,ipol
-          call ga_zero(g_temp)
           call ga_matmul_patch('n','t',1.0d0/(3-ipol),0.0d0,
      &         g_tmo(i),1,nmo(i),1,nmo(i),
      &         g_movecs(i),1,nmo(i),1,nbf_ao,
@@ -350,23 +397,14 @@ c     Compute the unrelaxed difference density in the AO basis
      &         g_movecs(i),1,nbf_ao,1,nmo(i),
      &         g_temp,1,nmo(i),1,nbf_ao,
      &         g_tao(i),1,nbf_ao,1,nbf_ao)
-      enddo
+      enddo ! ipol
 c
-c     Delete memory
-      do i=1,ipol
-        if (.not.ga_destroy(g_xpy1(i))) call errquit
-     &    (pname//'failed to destroy g_xpy1',0, GA_ERR)
-        if (.not.tda) then
-         if (.not.ga_destroy(g_xmy1(i))) call errquit
-     &    (pname//'failed to destroy g_xmy1',0, GA_ERR)
-        end if ! tda
-        if (.not.ga_destroy(g_tmo(i))) call errquit
-     &    (pname//'failed to destroy g_tmo',0, GA_ERR)
+c     Clear T,...
+      do i = 1,ipol
+        if (.not.ga_destroy(g_tmo(i)))
+     +    call errquit(pname//'failed to destroy g_tmo',0,GA_ERR)
       enddo
-      if (.not.ga_destroy(g_temp)) call errquit
-     &    (pname//'failed to destroy g_temp',0, GA_ERR)
-      if (nodezero) call util_flush(LuOut)
+      if (.not.ga_destroy(g_temp)) 
+     &    call errquit(pname//'failed to destroy g_temp',0, GA_ERR)
 c
-      return
       end
-c $Id$
