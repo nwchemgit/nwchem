@@ -1,0 +1,10 @@
+/**
+
+@defgroup util_ga Global Array Extensions
+
+\brief Useful extensions of the Global Array Toolkit
+
+A collection of extensions that would have been very useful as part
+of the Global Array Toolkit but for some reason were not included.
+
+*/
