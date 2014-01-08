@@ -1,5 +1,22 @@
 c $Id$
 c
+C> \ingroup nwdft
+C> @{
+C>
+C> \file xc_getv.F
+C> Calculate exchange-correlation energy
+C> 
+C> \brief Calculate the exchange-correlation energy and Fock matrix
+C> contributions
+C>
+C> This driver routine solves for the XC energy and potential (Vxc) via 
+C> numerical quadrature methods. The results are obtained either by
+C> direct numerical integration or by means of a LSQ fit of the Vxc to
+C> a set of Gaussian functions. This fitted function can be used to
+C> evaluate Vxc via a summation of a series of 3-center overlap
+C> integrals (3OIs). The algorithms are formulated in terms of matrix
+C> products. See subsequent subroutines for further explanation.
+C>
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                   wght_GA, rho_n, rdens_atom,
@@ -8,12 +25,31 @@ c
       implicit none
 #include "errquit.fh"
 c      
-      integer nExc
-      integer iVxc_opt
-      integer g_xcinv, g_dens(2), g_vxc(4), g_wght, g_xyz,g_nq
-      integer natoms
-      logical IOLGC, wght_GA
-      integer rtdb
+      integer nExc      !< [Input] The number of energy terms
+                        !< - nExc=1: Exc(1) = exchange + correlation 
+                        !< - nExc=2: Exc(1) = exchange,
+                        !<           Exc(2) = correlation 
+      integer iVxc_opt  !< [Input] If 1 then do density fitting for 
+                        !< exchange
+      integer g_xcinv   !< [Work] GA for the inversion of the fitting
+                        !< matrix
+      integer g_dens(2) !< [Input] The density matrices, if ipol=1
+                        !< g_dens(1)=\f$D^\alpha+D^\beta\f$, else
+                        !< g_dens(1)=\f$D^\alpha\f$ and 
+                        !< g_dens(2)=\f$D^\beta\f$.
+      integer g_vxc(4)  !< [Output] DFT Fock matrix contributions, if
+                        !< ipol=1 g_vxc(1)=\f$F^\alpha+F^\beta\f$, else
+                        !< g_vxc(1)=\f$F^\alpha\f$ and
+                        !< g_vxc(2)=\f$F^\beta\f$.
+      integer g_wght    !< [Work] The grid point weights if wght_GA
+      integer g_xyz     !< [Work] The grid point coordinates if wght_GA
+      integer g_nq      !< [Unused]
+      integer natoms    !< [Input] The number of atoms
+      logical IOLGC     !< [Input] .TRUE. do not use disk for exchange
+                        !< fitting, .FALSE. store data on disk
+      logical wght_GA   !< [Input] .TRUE. store grid points in GA,
+                        !< .FALSE. store grid points on file
+      integer rtdb      !< [Input] The RTDB handle
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -28,8 +64,10 @@ c
 #include "stdio.fh"
 #include "case.fh"
 c
-      integer cetobfr(2,natoms)
-      double precision rho_n, rdens_atom(ipol*natoms*natoms)
+      integer cetobfr(2,natoms) !< [Unused]
+      double precision rho_n    !< [Output] The number of electrons
+                                !< obtained by integrating the density
+      double precision rdens_atom(ipol*natoms*natoms) !< [Unused]
       double precision jfac(4),kfac(4)
       integer g_jk(4), g_d(4)
       logical havehfxc
@@ -40,8 +78,12 @@ c
 c
 c--> XC Energy
 c
-      double precision Exc(2)
-      double precision ecoul ! [output]
+      double precision Exc(2) !< [Output] The energy terms
+                              !< - nExc=1: Exc(1) = exchange +
+                              !<   correlation 
+                              !< - nExc=2: Exc(1) = exchange,
+                              !<           Exc(2) = correlation 
+      double precision ecoul  !< [Output] The Coulomb energy
 c
 c This driver routine solves for the XC energy and potential (Vxc) via 
 c numerical quadrature methods. The results are obtained either by direct 
@@ -405,9 +447,13 @@ c
 c
       if (oprint_intermediate_xc)then
          write(*,*)' Fock XC matrix leaving xc_getv: '
+         call util_flush(6)
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
+         call util_flush(6)
       endif
 c
       return
       end
+C>
+C> @}
