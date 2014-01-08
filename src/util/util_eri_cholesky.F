@@ -88,7 +88,7 @@ C>     J. Chem. Phys. <b>139</b> (2013) 134105, DOI:
 C>     <a href="http://dx.doi.org/10.1063/1.4820484">
 C>     10.1063/1.4820484</a>.
 C>
-      subroutine util_eri_cholesky(rtdb,geom,basis,tol,g_chol)
+      subroutine util_eri_cholesky(rtdb,geom,basis,tol,g_chol,k)
       implicit none
 c
 #include "mafdecls.fh"
@@ -108,12 +108,12 @@ c
 c
       integer g_chol !< [Output] The Cholesky vectors
                      !< \f$B_{[\nu\lambda]}^{1:M}\f$
+      integer k      !< [Output] The number of Cholesky vectors
 c
 c     Local
 c
       integer iproc  !< The rank of this process
 c
-      integer k      !< Counter
       integer kk     !< Counter
       integer g_d    !< GA for the diagonal of the ERI tensor
       integer g_r    !< GA for the residual
