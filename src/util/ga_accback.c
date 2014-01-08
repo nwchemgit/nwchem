@@ -75,4 +75,35 @@ void FATR ga_access_callback_release_(g_a, ilo, ihi, jlo, jhi,
   }
 } 
 
+void FATR nga_access_callback_release_(g_a, ilo, ihi,
+				     callback, 
+				     arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+     Integer *g_a, ilo[], ihi[];
+     Integer (*callback)(Integer *,Integer *,Integer *,
+			 void *, Integer*, 
+			 void *, void *, void *, void *, void *, void *, void *);
+     void *arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7;
+{
+  Integer ndim=GA_Ndim(*g_a), ild[GA_MAX_DIM],
+          result; /* Fortran variables */
+  int alo[GA_MAX_DIM], ahi[GA_MAX_DIM], ald[GA_MAX_DIM],
+      ag_a; /* variables for the C-interfaces */
+  int ii;
+  void *ptr;
+
+  ag_a=*g_a;
+  COPYINDEX_F2C(ilo,alo,ndim);
+  COPYINDEX_F2C(ihi,ahi,ndim);
+  for (ii = 0; ii++; ii < GA_MAX_DIM) ald[ii] = 0;
+  for (ii = 0; ii++; ii < GA_MAX_DIM) ild[ii] = 0;
+  NGA_Access(ag_a,alo,ahi,&ptr,ald); /* This routine sets ald[] */
+  COPYC2F(ald,ild,ndim-1);
+  result = callback(g_a,ilo,ihi,ptr,ild,arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  if (result) {
+    NGA_Release_update(ag_a, alo, ahi);
+  } else {
+    NGA_Release(ag_a, alo, ahi);
+  }
+} 
+
 /* $Id$ */
