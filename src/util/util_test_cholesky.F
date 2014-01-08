@@ -138,7 +138,7 @@ c
       call int_mem_2e4c(max2e, mem2)
 c
       mxbl  = mshlen*mshlen
-      call ga_inquire(g_chol,itype,ndim,dims)
+      call nga_inquire(g_chol,itype,ndim,dims)
       m = dims(3)
 c
       ndim = 4
@@ -221,9 +221,11 @@ c
         endif
       enddo ! ish
 c
+      call int_terminate
+c
 c     Calculate the Cholesky decomposition
 c
-      call util_eri_cholesky(rtdb,geom,basis,g_chol,k)
+      call util_eri_cholesky(rtdb,geom,basis,tol,g_chol,k)
 c
 c     Subtract the reconstituted ERI from the originals
 c
@@ -274,8 +276,6 @@ c
         write(*,*)'*** ERROR: indx_d0 = ',indx_d0(1:4)
         write(*,*)'*** ERROR: val_d0  = ',val_d0
       endif
-c
-      call int_terminate
 c
       if (.not.ma_pop_stack(l_row2))
      &  call errquit(pname//": deallocate Scratch Row2 failed",0,MA_ERR)
