@@ -24,6 +24,29 @@ C>    ({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty}
 C>    g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}
 C>    g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
 C> \f}
+C>
+C> The order of the integrals returned can be specified considering
+C> that the rank of the basis functions in the shells are given by:
+C> - `ibflo` is the lowest rank in `ish`, and `ibfhi` is the highest
+C> - `jbflo` is the lowest rank in `jsh`, and `jbfhi` is the highest
+C> - `kbflo` is the lowest rank in `ksh`, and `kbfhi` is the highest
+C> - `lbflo` is the lowest rank in `lsh`, and `lbfhi` is the highest
+C>
+C> The number of basis functions in each shell is given by:
+C> - `inbf = ibfhi - ibflo + 1`
+C> - `jnbf = jbfhi - jbflo + 1`
+C> - `knbf = kbfhi - kbflo + 1`
+C> - `lnbf = lbfhi - lbflo + 1`
+C>
+C> and further
+C> - `klnbf = knbf * lnbf`
+C> - `jklnbf = jnbf * klnbf`
+C> - `ijklnbf = ijnbf * jklnbf`
+C>
+C> then 
+C> \f$(ij|kl) = \mathrm{eri}((i-ibflo)*jklnbf+(j-jbflo)*klnbf+
+C> (k-kbflo)*lnbf+(l-lbflo)+1)\f$
+C>
 C> At present this routine provides the following algorithms:
 C>
 C> - SP-rotated axis 
