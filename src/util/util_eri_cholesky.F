@@ -156,6 +156,8 @@ c
 c
       integer itype               !< MA data type
       integer ioff                !< Local memory offset
+      integer ijoff               !< Local memory offset
+      integer ijijoff             !< Local memory offset
       integer indx_b              !< Memory offset for Cholesky vectors
       integer indx_r              !< Memory offset for residual
       integer indx_d              !< Memory offset for diag
@@ -177,7 +179,7 @@ c
       integer ijnm  !< The number of i j basis function pairs
       integer ijknm !< The number of i j k basis function triples
 c
-      integer i, j !< Counters
+      integer i, j  !< Counters
 c
       character*(17) pname
       parameter (pname="util_eri_cholesky")
@@ -255,10 +257,27 @@ c
      &         call errquit(pname//": bas_cn2bfr jsh failed",
      &                      jsh,BASIS_ERR)
             if ((lo_d(2).le.jbflo).and.(jbflo.le.hi_d(2))) then
-              call int_2e4c(basis,ish,jsh,basis,ish,jsh,
+              call int_2e4c(basis,jsh,ish,basis,jsh,ish,
      &                      mem2,dbl_mb(k_mem),max2e,dbl_mb(k_eri))
+c
+c             We only need the (i,j|i,j) integrals
+c             so compress the buffer
+c
+              ibfnm = ibfhi-ibflo+1
+              jbfnm = jbfhi-jbflo+1
+              kbfnm = ibfhi-ibflo+1
+              lbfnm = jbfhi-jbflo+1
+              ijnm  = ibfnm*jbfnm
+              ijknm = ijnm*kbfnm
+              do i = 0, ibfnm-1
+                do j = 0, jbfnm-1
+                  ijoff = j*ibfnm+i
+                  ijijoff = ijoff+i*ijnm+j*ijknm
+                  dbl_mb(k_eri+ijoff) = dbl_mb(k_eri+ijijoff)
+                enddo
+              enddo
               call ga_put(g_d,ibflo,ibfhi,jbflo,jbfhi,dbl_mb(k_eri),
-     &                    ibfhi-ibflo+1)
+     &                    ibfnm)
             endif
           enddo ! jsh
         endif
@@ -301,7 +320,7 @@ c
      &           call errquit(pname//": bas_cn2bfr jsh failed",
      &                        jsh,BASIS_ERR)
               if ((lo_r(2).le.jbflo).and.(jbflo.le.hi_r(2))) then
-                call int_2e4c(basis,ish,jsh,basis,ksh,lsh,
+                call int_2e4c(basis,lsh,ksh,basis,jsh,ish,
      &                        mem2,dbl_mb(k_mem),max2e,dbl_mb(k_eri))
                 ibfnm = ibfhi-ibflo+1
                 jbfnm = jbfhi-jbflo+1
@@ -314,8 +333,8 @@ c
                 lo_x(2) = jbflo
                 hi_x(1) = ibfhi
                 hi_x(2) = jbfhi
-                call nga_put(g_r,lo_x,hi_x,dbl_mb(k_eri+ioff),
-     &                       ibfhi-ibflo+1)
+                ld_x(1) = ibfhi-ibflo+1
+                call nga_put(g_r,lo_x,hi_x,dbl_mb(k_eri+ioff),ld_x)
               endif
             enddo ! jsh
           endif

@@ -33,6 +33,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
 c
@@ -196,7 +197,7 @@ c
      &                              lsh,BASIS_ERR)
                     if ((lo_eri(4).le.lbflo).and.(lbflo.le.hi_eri(4)))
      &              then
-                      call int_2e4c(basis,ish,jsh,basis,ksh,lsh,
+                      call int_2e4c(basis,lsh,ksh,basis,jsh,ish,
      &                              mem2,dbl_mb(k_mem),
      &                              max2e,dbl_mb(k_eri))
                       lo_x(1) = ibflo
@@ -226,6 +227,9 @@ c
 c     Calculate the Cholesky decomposition
 c
       call util_eri_cholesky(rtdb,geom,basis,tol,g_chol,k)
+      if (ga_nodeid().eq.0) then
+        write(luout,*)'Number of Cholesky vectors = ',k
+      endif
 c
 c     Subtract the reconstituted ERI from the originals
 c
