@@ -7988,12 +7988,22 @@ c
 c
             iter=1
 c
+ccx             if(iter.eq.1) then
+ccx              do iroot=1,nroots_reduced
+ccx               call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
+ccx               call tce_zero(xc2(iroot),size_x2)
+ccx              enddo
+ccx             endif 
+c
+       if(.not.eom_start) then
              if(iter.eq.1) then
               do iroot=1,nroots_reduced
                call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
                call tce_zero(xc2(iroot),size_x2)
               enddo
-             endif 
+             endif
+       end if
+c
 c
  111         continue  !iter continuation
 c
