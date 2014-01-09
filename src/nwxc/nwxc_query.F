@@ -808,6 +808,10 @@ c
            cdata = "ACM (AD Becke, "
      +             //"J.Chem.Phys. 98, 5648 (1993) "
      +             //"doi:10.1063/1.464913)"
+         case (NWXCP_B1B95)
+           cdata = "B1B95 (AD Becke, "
+     +             //"J.Chem.Phys. 104, 1040 (1996) "
+     +             //"doi:10.1063/1.470829)"
          case (NWXCP_B2PLYP)
            cdata = "B2PLYP (S Grimme, "
      +             //"J.Chem.Phys. 124, 034108 (2006) "
@@ -852,6 +856,10 @@ c
            cdata = "B98 (HL Schmider, AD Becke, "
      +             //"J.Chem.Phys. 108, 9624 (1998)"
      +             //" doi:10.1063/1.476438)"
+         case (NWXCP_BB1K)
+           cdata = "BB1K (AD Becke, "
+     +             //"J.Chem.Phys. 104, 1040 (1996) "
+     +             //"doi:10.1063/1.470829)"
          case (NWXCP_BHANDH)
            cdata = "BECKEHANDH (AD Becke, "
      +             //"J.Chem.Phys. 98, 1372 (1993)"
