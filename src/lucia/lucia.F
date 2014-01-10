@@ -448,7 +448,7 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
 *
-      NTEST = 100
+c     NTEST = 100
 *
       IF(IGSFILL.NE.0) THEN
 *. Fill GAS shell IGSFILL with remaining orbitals
@@ -593,11 +593,10 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
          NAOS_ENV(i) = 0
          NMOS_ENV(i) = 0
       enddo
-      do i = 1, nirrep
-         do j = 1, luciamo(1)
-            NAOS_ENV(i) = NAOS_ENV(i) + nwchem_id(j,reord(i))
-         enddo
-         NMOS_ENV(i) = NAOS_ENV(i) 
+      do j = 1, luciamo(1)
+         irs=ipnt(kirs(j))
+         NAOS_ENV(irs) = NAOS_ENV(irs) + 1
+         NMOS_ENV(irs) = NMOS_ENV(irs) + 1
       enddo
       RETURN
       END
@@ -9631,7 +9630,9 @@ c      INCLUDE 'mxpdim.inc'
 #include "sym.fh"
 #include "rtdb.fh"
 #include "nwchem_data.inc"
-      integer g_moreo
+      integer g_moreo, g_hcore, g_coul, g_exch
+      integer ga_create_atom_blocked, ga_create_JKblocked
+      external ga_create_atom_blocked, ga_create_JKblocked
       logical geom_nuc_rep_energy
       external geom_nuc_rep_energy
       logical movecs_read
@@ -9723,6 +9724,19 @@ c.. dongxia added June 2013, transform AO ints to SCF MO ints
 c..
 c.. get reordered movecs and save to g_moreo
 c..
+      ioff(1)=1
+      icount(1)=0
+      do i=2,nirrep
+        ioff(i) = ioff(i-1)+ntoobs(i-1)
+        icount(i) = 0
+      end do
+      do i=1,luciamo(1)
+        irs=ipnt(kirs(i))
+        icount(irs)=icount(irs)+1
+        ireord = ioff(irs)+icount(irs)-1
+        reord(ireord)=i    
+      end do
+c
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
       norbt = luciamo(1)
@@ -9730,11 +9744,9 @@ c..
      &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
 c       call util_flush(6)
 c..  1-e integrals
-         g_hcore = ga_create_atom_blocked(geom,basis, 'rohf: hcore')
-         call ga_zero(g_hcore)
-         call int_1e_ga(basis, basis, g_hcore, 'kinetic', .false.)
-         call int_1e_ga(basis, basis, g_hcore, 'potential', .false.)
-         call moints_1e(norbt, basis, g_moreo, g_hcore)
+         g_hcore = ga_create_atom_blocked(luciageom,luciabasis, 
+     $                                    'rohf  hcore')
+         call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
 c        call ga_print(g_hcore)
 c.. To write in LUCIA format
          if(ga_nodeid().eq.0)then
@@ -9742,7 +9754,7 @@ c.. 1e ints
          ind1e=0
          ind2e=0
          do ism_lu=1,nirrep
-          ni = ntoobs(ipnt2(ism_lu))
+          ni = ntoobs(ism_lu)
           nij = ni*(ni+1)/2
           do ij = 1,nij
            ind1e = ind1e + 1
@@ -9752,7 +9764,7 @@ c.. add offset
            i = i + ioff(ism_lu) -1
            j = j + ioff(ism_lu) -1
          call ga_get(g_hcore,i,i,j,j,int1e,1)
-         call ga_put(KINT1,1,1,ind1e,ind1e,int1e,1)
+         call ga_put(KINT1,ind1e,ind1e,1,1,int1e,1)
           end do
          end do 
          endif
@@ -9787,10 +9799,10 @@ c.. 2e ints
              smkl=(ksm_lu-1)*nirrep+lsm_lu
              klsm_lu=ieor(ksm_lu-1,lsm_lu-1)+1
              if ((ijsm_lu.eq.klsm_lu).and.(smij.ge.smkl)) then
-              ni = ntoobs(ipnt2(ism_lu))
-              nj = ntoobs(ipnt2(jsm_lu))
-              nk = ntoobs(ipnt2(ksm_lu))
-              nl = ntoobs(ipnt2(lsm_lu))
+              ni = ntoobs(ism_lu)
+              nj = ntoobs(jsm_lu)
+              nk = ntoobs(ksm_lu)
+              nl = ntoobs(lsm_lu)
               if(ism_lu.eq.jsm_lu)then
                nij = ni*(ni+1)/2
                nkl = nk*(nk+1)/2
@@ -9835,7 +9847,7 @@ c.. look for index in ga_coul
                   ij = (j-1)*norbt+i 
                   kl = k*(k-1)/2 + l
          call ga_get(g_coul,ij,ij,kl,kl,int2e,1)
-         call ga_put(KINT2,1,1,ind2e,ind2e,int2e,1)
+         call ga_put(KINT2,ind2e,ind2e,1,1,int2e,1)
               end do
              endif
             end do
@@ -9847,7 +9859,7 @@ c.. look for index in ga_coul
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
      &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
-      if (.not. geom_nuc_rep_energy(geom, ecore)) call
+      if (.not. geom_nuc_rep_energy(luciageom, ecore)) call
      $  errquit('unable to get nuclear rep energy',luciageom, GEOM_ERR)
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
@@ -9897,9 +9909,11 @@ c.. Now that the integrals are in KINT1 and KINT2, fully packed.
 * KH is the right place for the MO 1 electron integrals
       IF(NOINT.EQ.0) THEN 
 CNW     CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
+        print*,'kint1 to kh'
         call ga_copy(KINT1,KH)
 *. and to KINT1O for backwards compatibility
 CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
+        print*,'kint1 to kint1o'
         call ga_copy(KINT1,KINT1O)
        END IF
 *
@@ -9907,6 +9921,7 @@ CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
         IF(NOINT.EQ.0) THEN
 *. Inactive Fock matrix with contributions from explicitly declared inactive orbitals
 CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
+            print*,'kint1 to khina'
             call ga_copy(KINT1,KHINA)
             CALL FISM_OLD(KHINA,ECC)
             ECORE_INA = ECORE + ECC
@@ -9915,9 +9930,11 @@ CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
 *  particle-hole reorganization
             CALL FI(KINT1,ECORE_HEX,1)
 CNW         CALL COPVEC(WORK(KINT1),WORK(KFI),NINT1)
-            call ga_copy(KINT1,FKI)
+            print*,'kint1 to kfi'
+            call ga_copy(KINT1,KFI)
             ECORE_FI = ECORE_HEX
 C?          WRITE(6,*) ' First element in FI and H in INTIM=',
+
 C?   &      WORK(KFI), WORK(KINT1O)
         END IF
 *. Calculate the FI-alpha and FI-beta matrices
@@ -10618,34 +10635,18 @@ C     CALL TEST_DEC15
       if (.not. bas_rtdb_load(rtdb, luciageom, luciabasis, 'ao basis'))
      $        call errquit('lucia: no ao basis set', 0, RTDB_ERR)
        call sym_group_name(luciageom,luciasymname)
-       print*,'moname'
        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,luciascfmo))
      $        call errquit('lucia: reading mo vecs', 0, RTDB_ERR)
-       print*,'header'
        if ( .not. movecs_read_header(luciascfmo, title, basis,
      $       scftype, luciaao, nsets, luciamo, 2) ) call errquit(
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
+      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
+     &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
 c..  reorder 
       call ifill(nirrep,0,ipnt,1)
       call sym_mol(luciasymname,ipnt)
       call sym_bas_irrep_id(luciabasis,.false.,mxporb,mxpirr,
      &                      nwchem_id,nwchem_sc)
-      do i=1,nirrep
-        ipnt2(ipnt(i))=i
-c       write(6,*)'MOLCAS pointer',ipnt(i),ipnt2(i)
-      end do
-      ioff(1)=1
-      do i=2,nirrep
-        ioff(i) = ioff(i-1)+ntoobs(ipnt2(i-1))
-      end do
-      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
-     &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
-      do i=1,luciamo(1)
-        irs=ipnt(kirs(i))
-        icount(irs)=icount(irs)+1
-        ireord = ioff(irs)+icount(irs)-1
-        reord(i)=ireord
-      end do
 * ======================================================
 * 1: .Read input,insert defaults and cross check input
 * ======================================================
@@ -10989,9 +10990,12 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
 *
       IF(NOINT.EQ.0) THEN
 *. 2-electron integrals are saved in KINT_2EMO
+        call int_init(rtdb,1, luciabasis)
         CALL INTIM(IPRORB)
+        call int_terminate
 *. copy to list of initial 2 e integrals
 CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
+        print*,'ga copy 1'
         call ga_copy(KINT_2EMO,KINT_2EINI)
       ELSE
         WRITE(6,*) ' No integrals imported '
@@ -11298,8 +11302,8 @@ CNW       CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
           call ga_print_patch(KINT_2EMO,1,NINT2_F,1,1,0)
         END IF
 *. one-electron integrals to KINT1O
-        CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
-CNW     call ga_copy(KINT1,KINT1O)
+CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
+        call ga_copy(KINT1,KINT1O)
 *. And to KH
 CNW     CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
         call ga_copy(KINT1,KH)
@@ -15536,65 +15540,6 @@ cnw           READ(LUIN,*) (NRSSH(IRREP,3),IRREP = 1, NIRREP)
 C!         READ(LUIN,*) MXER30
 cnw           GOTO 999
          END IF
-* ==================================================
-* 13: Number of shells in secondary space per type
-* =================================================
-c        IF(CARD(2:7).EQ.'SECOND'.OR.CARD(2:6).EQ.'SECSH') THEN
-c         READ(LUIN,'(A)') CARD1
-         if(rtdb_cget(rtdb,'lucia:second',1,card1)) then
-          CALL LFTPOS(CARD1,MXPLNC)
-          CALL UPPCAS(CARD1,MXPLNC)
-*. A line can be one of the following 
-*  NIRREP numbers giving dim of each irrep for this space
-* A character entry:
-*                     NONE => No orbitals in this space
-*                     ALL  => All remaining orbitals  in this space
-*                     REST => All remaining orbitals  in this space
-*. Note: Only a single space must be defined by ALL or REST
-          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
-          ITEMX = ITEM(1)
-          IF(ITEMX(1:4).EQ.'NONE') THEN
-            DO IRREP = 1, NIRREP
-              NSECSH(IRREP) = 0
-            END DO
-          ELSE IF(ITEMX(1:3).EQ.'ALL'.OR.ITEMX(1:4).EQ.'REST') THEN
-*. Only a single space must be defined in this way
-            IF(IGSFILL.NE.0) THEN
-              WRITE(6,*) 
-     &        ' Several shell spaces defined by ALL or REST'
-              WRITE(6,*)
-     &        ' This confuses and upsets me '
-              WRITE(6,*)
-     &        '                                / Lucia '
-              ISETKW(13) = -1
-              NERROR = NERROR + 1
-            END IF
-            ISECFILL = 1
-          ELSE 
-*. I expect that NIRREP integers are given
-            IF(NITEM.NE.NIRREP) THEN
-              WRITE(6,*) ' Erroneous input to SECSH: '
-              WRITE(6,'(72A)') CARD1
-              WRITE(6,*) ' Specify either:   NONE '
-              WRITE(6,*) '                     ALL' 
-              WRITE(6,*) '                    REST' 
-              WRITE(6,*) ' Or NIRREP integers  '
-              NERROR = NERROR + 1
-              ISETKW(50) = -1
-            END IF
-*. Well assume NIRREP integers
-            DO IRREP = 1, NIRREP
-              CALL CHAR_TO_INTEGER(ITEM(IRREP),NSECSH(IRREP),
-     &             MXPLNC)
-            END DO
-          END IF
-*.  Update number of orbitals per symmetry
-          DO IRREP = 1, NIRREP
-            NTOOBS(IRREP) = NTOOBS(IRREP) + NSECSH(IRREP)
-          END DO
-          ISETKW(13) = 1
-cnw          GOTO 999
-         END IF
 * =========================
 * 14: Reference space
 * =========================
@@ -15960,7 +15905,7 @@ cnw          GOTO 999
 * 27: Ms combinations
 * ===================
 cnw        IF(CARD(2:7).EQ.'MSCOMB') THEN
-        if(rtdb_get(rtdb,'lucia:mscomb',mt_int,1,pssign)) then
+        if(rtdb_get(rtdb,'lucia:mscomb',mt_dbl,1,pssign)) then
           ISETKW(27) = 1
 cnw          READ(LUIN,*) PSSIGN
           IF(.NOT.(PSSIGN.EQ.-1.0D0.OR.PSSIGN.EQ.1.0D0)) THEN
@@ -16218,8 +16163,8 @@ cnw         GOTO 999
 *
 cnw       IF(CARD(2:7).EQ.'APRZER') THEN
        if(rtdb_get(rtdb,'lucia:mnrs1ze',mt_int,1,mnrs1ze) .and.
-     $    rtdb_get(rtdb,'lucia:mxrs3ze',mt_int,1,mxrs3ze))
-     $   ISETKW(49) = 1
+     $    rtdb_get(rtdb,'lucia:mxrs3ze',mt_int,1,mxrs3ze)) then
+         ISETKW(49) = 1
 cnw         READ(LUIN,*)  MNRS1ZE,MXRS3ZE
 *. Moeller-Plesset or Epstein-Nesbet partitioning
 cnw         READ(LUIN,'(A)') CARD1
@@ -16240,6 +16185,7 @@ cnw         READ(LUIN,'(A)') CARD1
          IAPRZER = 1
 cnw         GOTO 999
        END IF
+       ENDIF
 *
 * =====================================================================
 * 50: Generalized active space concept invoked, orbital spaces
@@ -16260,60 +16206,6 @@ cnw        READ(LUIN,*) NGAS
           ngssh(irrep,igas)=itmp((igas-1)*nirrep+irrep)
          end do
         end do
-cnw: not to use character entry to NWChem.
-       if(inw_lucia.eq.0)then
-        DO IGAS = 1, NGAS
-          READ(LUIN,'(A)') CARD1
-          CALL LFTPOS(CARD1,MXPLNC)
-          CALL UPPCAS(CARD1,MXPLNC)
-*. A line can be one of the following 
-*  NIRREP numbers giving dim of each irrep for this space
-* A character entry:
-*                     NONE => No orbitals in this space
-*                     ALL  => All remaining orbitals  in this space
-*                     REST => All remaining orbitals  in this space
-*. Note: Only a single space must be defined by ALL or REST
-          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
-          ITEMX = ITEM(1)
-          IF(ITEMX(1:4).EQ.'NONE') THEN
-            DO IRREP = 1, NIRREP
-              NGSSH(IRREP,IGAS) = 0
-            END DO
-          ELSE IF(ITEMX(1:3).EQ.'ALL'.OR.ITEMX(1:4).EQ.'REST') THEN
-*. Only a single space must be defined in this way
-            IF(ISECFILL.NE.0.OR.IGSFILL.NE.0) THEN
-              WRITE(6,*) 
-     &        ' Several shell spaces defined by ALL or REST'
-              WRITE(6,*)
-     &        ' This confuses and upsets me '
-              WRITE(6,*)
-     &        '                                / Lucia '
-              ISETKW(50) = -1
-              NERROR = NERROR + 1
-            END IF
-            IGSFILL = IGAS    
-          ELSE 
-*. I expect that NIRREP integers are given
-            IF(NITEM.NE.NIRREP) THEN
-              WRITE(6,*) ' Erroneous input to GASSH: '
-              WRITE(6,'(72A)') CARD1
-              WRITE(6,*) ' Specify either:   NONE '
-              WRITE(6,*) '                     ALL' 
-              WRITE(6,*) '                    REST' 
-              WRITE(6,*) ' Or NIRREP integers '
-              NERROR = NERROR + 1
-              ISETKW(50) = -1
-            END IF
-*. Well assume NIRREP integers
-            DO IRREP = 1, NIRREP
-              CALL CHAR_TO_INTEGER(ITEM(IRREP),NGSSH(IRREP,IGAS),
-     &             MXPLNC)
-            END DO
-          END IF
-*. Number of irreps per GAS 
-C        READ(LUIN,*) (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP)
-        END DO
-       end if
 *. We will under some circumstances need the number of orbitals per subspace already 
 *. in the input so calculate this - assumes again that shells = orbitals.
         DO IGAS = 1, NGAS
@@ -16369,8 +16261,69 @@ cnw     &       (IGSOCCX(IGAS,1,ISPC),IGSOCCX(IGAS,2,ISPC),IGAS=1,NGAS)
             igsoccx(igas,2,ispc)=itmp(ioff2+igas)
            end do
           END DO
+         endif
 cnw        GOTO 999
        END IF
+* ==================================================
+* 13: Number of shells in secondary space per type
+* =================================================
+c        IF(CARD(2:7).EQ.'SECOND'.OR.CARD(2:6).EQ.'SECSH') THEN
+c         READ(LUIN,'(A)') CARD1
+         if(rtdb_cget(rtdb,'lucia:second',1,card1)) then
+          CALL LFTPOS(CARD1,MXPLNC)
+          CALL UPPCAS(CARD1,MXPLNC)
+*. A line can be one of the following 
+*  NIRREP numbers giving dim of each irrep for this space
+* A character entry:
+*                     NONE => No orbitals in this space
+*                     ALL  => All remaining orbitals  in this space
+*                     REST => All remaining orbitals  in this space
+*. Note: Only a single space must be defined by ALL or REST
+          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
+          ITEMX = ITEM(1)
+          IF(ITEMX(1:4).EQ.'NONE') THEN
+            DO IRREP = 1, NIRREP
+              NSECSH(IRREP) = 0
+            END DO
+          ELSE IF(ITEMX(1:3).EQ.'ALL'.OR.ITEMX(1:4).EQ.'REST') THEN
+*. Only a single space must be defined in this way
+            IF(IGSFILL.NE.0) THEN
+              WRITE(6,*) 
+     &        ' Several shell spaces defined by ALL or REST'
+              WRITE(6,*)
+     &        ' This confuses and upsets me '
+              WRITE(6,*)
+     &        '                                / Lucia '
+              ISETKW(13) = -1
+              NERROR = NERROR + 1
+            END IF
+            ISECFILL = 1
+          ELSE 
+*. I expect that NIRREP integers are given
+            IF(NITEM.NE.NIRREP) THEN
+              WRITE(6,*) ' Erroneous input to SECSH: '
+              WRITE(6,'(72A)') CARD1
+              WRITE(6,*) ' Specify either:   NONE '
+              WRITE(6,*) '                     ALL' 
+              WRITE(6,*) '                    REST' 
+              WRITE(6,*) ' Or NIRREP integers  '
+              NERROR = NERROR + 1
+              ISETKW(50) = -1
+            END IF
+*. Well assume NIRREP integers
+            DO IRREP = 1, NIRREP
+              CALL CHAR_TO_INTEGER(ITEM(IRREP),NSECSH(IRREP),
+     &             MXPLNC)
+            END DO
+          END IF
+*.  Update number of orbitals per symmetry
+          DO IRREP = 1, NIRREP
+            NTOOBS(IRREP) = NTOOBS(IRREP) + NSECSH(IRREP)
+          END DO
+          ISETKW(13) = 1
+cnw          GOTO 999
+         END IF
+*
 c..dongxia: keyword combspc not finish yet. skip it for now.
       if (inw_lucia .eq. 0) then
 cnw       IF(CARD(2:7).EQ.'CMBSPC') THEN
@@ -17687,7 +17640,6 @@ cnw       IF(CARD(2:7) .EQ. 'RE_MS2') THEN
 cnw         READ(LUIN,*) I_RE_MS2_SPACE,I_RE_MS2_VALUE
 cnw         ISETKW(101) = 1
 cnw         GOTO 999
-       END IF
 *
 * ==================================================================================
 * 102:  Preconditioner
