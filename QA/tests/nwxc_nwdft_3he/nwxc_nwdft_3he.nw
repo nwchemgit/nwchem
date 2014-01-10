@@ -957,6 +957,14 @@ dft
   mult 3
   odft
   vectors input atomic
+  xc xctpssh
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
   xc kt1
 end
 task dft energy

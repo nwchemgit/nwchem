@@ -732,6 +732,12 @@ task dft energy
 
 dft
   vectors input atomic
+  xc xctpssh
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc kt1
 end
 task dft energy
