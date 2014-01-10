@@ -383,6 +383,11 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_X_HCTH_A,dfweight)
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_SSB_D,dfweight)
       else if (dfname.eq."xtpss03") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_TPSS,dfweight)
+      else if (dfname.eq."xtpssh") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_TPSSH,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_TPSS,0.90d0*dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.10d0*dfweight
       else if (dfname.eq."xwpbe") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_WPBE,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -1069,6 +1074,13 @@ c       In the NWChem DFT code RPBE does not include correlation
      &                nwxc_add_func(NWXCP_X_TPSS,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_TPSS,dfweight)
+      else if (dfname.eq."xctpssh".or.dfname.eq."tpssh") then ! alias
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_TPSSH,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_TPSS,0.90d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_TPSS,dfweight)
+        nwxc_wght_hf= nwxc_wght_hf + 0.10d0*dfweight
       else if (dfname.eq."vs98") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_VS98,dfweight)
         nwxc_add_df = nwxc_add_df .and.

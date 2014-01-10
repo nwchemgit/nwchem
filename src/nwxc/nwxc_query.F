@@ -588,6 +588,10 @@ c
            cdata = "TPSS Exchange (J Tao, JP Perdew, VN Staveroverov, "
      +             //"GE Scuseria, Phys.Rev.Lett. 91, 146401 (2003) "
      +             //"doi:10.1103/PhysRevLett.91.146401)"
+         case (NWXCP_X_TPSSH)
+           cdata = "TPSSH Exchange (VN Staveroverov, GE Scuseria, "
+     +             //"J Tao, JP Perdew, J.Chem.Phys. 119, "
+     +             //"12129 (2003) doi:10.1063/1.1626543)"
          case (NWXCP_X_WPBE)
            cdata = "WPBE Exchange (E Weintraub, TM Henderson, "
      +             //"GE Scuseria, J.Chem.Theory.Comput. 5, 754 (2009)"
@@ -1052,6 +1056,10 @@ c
            cdata = "TPSS (J Tao, JP Perdew, VN "
      +             //"Staveroverov, GE Scuseria, Phys.Rev.Lett. 91, "
      +             //"146401 (2003) doi:10.1103/PhysRevLett.91.146401)"
+         case (NWXCP_TPSSH)
+           cdata = "TPSSH (VN Staveroverov, GE Scuseria, J Tao, JP "
+     +             //"Perdew, J.Chem.Phys. 119, "
+     +             //"12129 (2003) doi:10.1063/1.1626543)"
          case (NWXCP_VS98)
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"

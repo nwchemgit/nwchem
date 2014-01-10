@@ -180,8 +180,11 @@ c
       integer NWXCP_X_TPSS       !< The TPSS exchange functional
       parameter (NWXCP_X_TPSS = NWXCP_X_SSB_D + 1)
 c
+      integer NWXCP_X_TPSSH      !< The TPSSH exchange functional
+      parameter (NWXCP_X_TPSSH = NWXCP_X_TPSS + 1)
+c
       integer NWXCP_X_WPBE       !< The WPBE screened exchange functional
-      parameter (NWXCP_X_WPBE = NWXCP_X_TPSS + 1)
+      parameter (NWXCP_X_WPBE = NWXCP_X_TPSSH + 1)
 c
       integer NWXCP_X_VS98       !< The VS98 exchange functional
       parameter (NWXCP_X_VS98 = NWXCP_X_WPBE + 1)
@@ -600,9 +603,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_TPSS = NWXCP_SSB_D + 1)
 c
+      integer NWXCP_TPSSH        !< The TPSSH functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_TPSSH = NWXCP_TPSS + 1)
+c
       integer NWXCP_HSE          !< The HSE functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_HSE = NWXCP_TPSS + 1)
+      parameter (NWXCP_HSE = NWXCP_TPSSH + 1)
 c
       integer NWXCP_VS98         !< The VS98 functional 
                                  !< (exchange and correlation)
