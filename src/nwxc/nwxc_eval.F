@@ -285,6 +285,10 @@ C
        integer nd1t(2) !< The number of partial derivatives wrt tau as
                        !< a function of ipol
 C
+       external nwxc_k_dirac
+       external nwxc_k_becke88
+       external nwxc_k_pbe96
+c
        integer max_param
        parameter (max_param = 50)
        double precision param(max_param)
@@ -1304,6 +1308,10 @@ c            parameters B
              param(24) =  0.000000D+00
              call nwxc_c_m11(param,nwxc_rho_tol,ipol,nq,
      +            nwxc_wghts(it),rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_OP)
+             param(1) = 2.3670d0
+             call nwxc_c_op(nwxc_k_becke88,param,nwxc_rho_tol,ipol,nq,
+     +            nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_C_OPT)
              call nwxc_c_opt(nwxc_rho_tol,ipol,nq,
      +            nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
@@ -1414,9 +1422,21 @@ c            parameters B
            case (NWXCP_C_VWN5)
              call nwxc_c_vwn5(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,f,dfdr)
+           case (NWXCP_BOP)
+             param(1) = 2.3670d0
+             call nwxc_c_op(nwxc_k_becke88,param,nwxc_rho_tol,ipol,nq,
+     +            nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_KT1)
              call nwxc_xc_kt1(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                        rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_PBEOP)
+             param(1) = 2.3789d0
+             call nwxc_c_op(nwxc_k_pbe96,param,nwxc_rho_tol,ipol,nq,
+     +            nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_SOP)
+             param(1) = 2.5654d0
+             call nwxc_c_op(nwxc_k_dirac,param,nwxc_rho_tol,ipol,nq,
+     +            nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case default
              if (nwxc_oroot) then
                write(*,*)"nwxc_eval_df: invalid functional",nwxc_ids(it)

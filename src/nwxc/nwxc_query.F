@@ -672,6 +672,10 @@ c
            cdata = "HCTHP14 Correlation (G Menconi, PJ Wilson, "
      +             //"DJ Tozer, J.Chem.Phys. 114, 3958 (2001)"
      +             //" doi:10.1063/1.1342776)"
+         case (NWXCP_C_OP)
+           cdata = "OP Correlation (T Tsuneda, T Suzumura, K Hirao, "
+     +             //"J.Chem.Phys. 110, 10664 (1999)"
+     +             //" doi:10.1063/1.479012)"
          case (NWXCP_C_OPT)
            cdata = "OPT Correlation (NC Handy, AJ Cohen, "
      +             //"Mol.Phys. 99, 607 (2001)"
@@ -866,6 +870,10 @@ c
      +             //" doi:10.1063/1.464304)"
          case (NWXCP_BHLYP)
            cdata = "BHLYP (BHANDHLYP, Gaussian inc.)"
+         case (NWXCP_BOP)
+           cdata = "BOP (T Tsuneda, T Suzumura, K Hirao, "
+     +             //"J.Chem.Phys. 110, 10664 (1999)"
+     +             //" doi:10.1063/1.479012)"
          case (NWXCP_CAMS12G)
            cdata = "CAM-S12g (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"
@@ -989,6 +997,10 @@ c
            cdata = "PBE0 (C Adamo, V Barone, "
      +             //"J.Chem.Phys. 110, 6158 (1999)"
      +             //" doi:10.1063/1.478522)"
+         case (NWXCP_PBEOP)
+           cdata = "PBEOP (T Tsuneda, T Suzumura, K Hirao, "
+     +             //"J.Chem.Phys. 111, 5656 (1999)"
+     +             //" doi:10.1063/1.479954)"
          case (NWXCP_PBESOL)
            cdata = "PBESOL (JP Perdew, A Ruzsinszky, "
      +             //"GI Csonka, et al., "
@@ -1028,6 +1040,10 @@ c
            cdata = "SOGGA11-X (R Peverati, DG Truhlar, "
      +             //"J.Chem.Phys. 135, 191102 (2011)"
      +             //" doi:10.1063/1.3663871)"
+         case (NWXCP_SOP)
+           cdata = "SOP (T Tsuneda, T Suzumura, K Hirao, "
+     +             //"J.Chem.Phys. 111, 5656 (1999)"
+     +             //" doi:10.1063/1.479954)"
          case (NWXCP_SSB_D)
            cdata = "SSB-D (M Swart, M Sola, FM Bickelhaupt, "
      +             //"J.Chem.Phys. 131, 094103 (2009)"

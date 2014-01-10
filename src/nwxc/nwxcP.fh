@@ -276,8 +276,11 @@ c
       integer NWXCP_C_M11_L      !< The M11-L correlation functional
       parameter (NWXCP_C_M11_L = NWXCP_C_M11 + 1)
 c
+      integer NWXCP_C_OP         !< The OP correlation functional
+      parameter (NWXCP_C_OP = NWXCP_C_M11_L + 1)
+c
       integer NWXCP_C_OPT        !< The OPT correlation functional
-      parameter (NWXCP_C_OPT = NWXCP_C_M11_L + 1)
+      parameter (NWXCP_C_OPT = NWXCP_C_OP + 1)
 c
       integer NWXCP_C_PZ81        !< The PZ81 correlation functional
       parameter (NWXCP_C_PZ81 = NWXCP_C_OPT + 1)
@@ -417,9 +420,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_BLYP = NWXCP_BHLYP + 1)
 c
+      integer NWXCP_BOP          !< The BOP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BOP = NWXCP_BLYP + 1)
+c
       integer NWXCP_CAMS12G      !< The CAM-S12G functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_CAMS12G = NWXCP_BLYP + 1)
+      parameter (NWXCP_CAMS12G = NWXCP_BOP + 1)
 c
       integer NWXCP_CAMS12H      !< The CAM-S12H functional 
                                  !< (exchange and correlation)
@@ -537,9 +544,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_PBE0 = NWXCP_PBE + 1)
 c
+      integer NWXCP_PBEOP        !< The PBEOP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBEOP = NWXCP_PBE0 + 1)
+c
       integer NWXCP_PBESOL       !< The PBESOL functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_PBESOL = NWXCP_PBE0 + 1)
+      parameter (NWXCP_PBESOL = NWXCP_PBEOP + 1)
 c
       integer NWXCP_REVPBE       !< The REVPBE functional 
                                  !< (exchange and correlation)
@@ -577,9 +588,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_SOGGA11_X = NWXCP_SOGGA11 + 1)
 c
+      integer NWXCP_SOP          !< The SOP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SOP = NWXCP_SOGGA11_X + 1)
+c
       integer NWXCP_SSB_D        !< The SSB-D functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_SSB_D = NWXCP_SOGGA11_X + 1)
+      parameter (NWXCP_SSB_D = NWXCP_SOP + 1)
 c
       integer NWXCP_TPSS         !< The TPSS functional 
                                  !< (exchange and correlation)

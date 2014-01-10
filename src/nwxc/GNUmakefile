@@ -13,12 +13,12 @@
                    nwxc_c_pbe.o nwxc_c_Mpbe.o nwxc_c_pkzb99.o nwxc_c_tpss03.o \
                    nwxc_c_vs98.o nwxc_c_lsda.o nwxc_c_vwn1.o \
                    nwxc_c_vwn1_rpa.o nwxc_c_vwn2.o nwxc_c_vwn3.o nwxc_c_vwn4.o \
-                   nwxc_c_vwn5.o \
+                   nwxc_c_vwn5.o nwxc_c_op.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
                    nwxc_vdw_util.o nwxc_cs00.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
 		   nwxcP_xc_b97.o nwxc_x_b97.o nwxc_c_b97.o nwxc_xc_kt1.o \
                    nwxc_c_spbe.o nwxc_x_ssbD_1.o nwxc_c_perdew81.o \
-		   nwxc_c_perdew86.o nwxc_x_pw91.o
+		   nwxc_c_perdew86.o nwxc_x_pw91.o 
 
              OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
                    nwxc_vdw_init.o nwxc_vdw3d.o

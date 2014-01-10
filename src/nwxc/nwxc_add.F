@@ -472,6 +472,8 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11,dfweight)
       else if (dfname.eq."cm11-l") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11_L,dfweight)
+      else if (dfname.eq."cop".or.dfname.eq."op") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_OP,dfweight)
       else if (dfname.eq."optc") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_OPT,dfweight)
       else if (dfname.eq."cpbe96") then
@@ -692,6 +694,12 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_B95,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.42d0*dfweight
+      else if (dfname.eq."bop") then ! alias
+        nwxc_add_df = nwxc_all_add_func(NWXCP_BOP,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B88,dfweight)
       else if (dfname.eq."cams12g".or.dfname.eq."cam-s12g") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_CAMS12G,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -942,6 +950,12 @@ c    &                nwxc_add_func(NWXCP_C_PW91LDA,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.25d0*dfweight
+      else if (dfname.eq."pbeop") then ! alias
+        nwxc_add_df = nwxc_all_add_func(NWXCP_PBEOP,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_PBE,dfweight)
       else if (dfname.eq."pbesol") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_PBESOL,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -1035,6 +1049,10 @@ c       In the NWChem DFT code RPBE does not include correlation
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_SOGGA11_X,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.4015d0*dfweight
+      else if (dfname.eq."sop") then ! alias
+        nwxc_add_df = nwxc_all_add_func(NWXCP_SOP,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
       else if (dfname.eq."ssb-d") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_SSB_D,dfweight)
         nwxc_add_df = nwxc_add_df .and.
