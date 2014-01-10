@@ -504,6 +504,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc hfexch op
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc hfexch optc
 end
 task dft energy
@@ -804,6 +812,14 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc bop
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc mpw1k
 end
 task dft energy
@@ -853,6 +869,14 @@ dft
   odft
   vectors input atomic
   xc rpbe cpbe96
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc pbeop
 end
 task dft energy
   
