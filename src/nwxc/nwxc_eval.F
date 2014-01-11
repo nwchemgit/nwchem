@@ -765,6 +765,18 @@ c            parameters D
            case (NWXCP_X_OPT)
              call nwxc_x_opt(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                       rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_PW6B95)
+             param(1) = 0.00538d0
+             param(2) = 1.7382d0
+             param(3) = 3.8901d0
+             call nwxc_x_pw6(param,nwxc_rho_tol,ipol,nq,
+     +                       nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_PWB6K)
+             param(1) = 0.00539d0
+             param(2) = 1.7077d0
+             param(3) = 4.0876d0
+             call nwxc_x_pw6(param,nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
+     +                       rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_PW91)
              param(1) = 4.0d0
              param(2) = 0.0042D0

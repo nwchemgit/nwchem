@@ -528,6 +528,14 @@ c
            cdata = "OPT Exchange (NC Handy, AJ Cohen, "
      +             //"Mol.Phys. 99, 403 (2001)"
      +             //" doi:10.1080/00268970010018431)"
+         case (NWXCP_X_PW6B95)
+           cdata = "PW6B95 Exchange (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem. A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
+         case (NWXCP_X_PWB6K)
+           cdata = "PWB6K Exchange (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem. A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
          case (NWXCP_X_PW91)
            cdata = "PW91 Exchange (JP Perdew, JA Chevary, "
      +             //"SH Vosko, KA Jackson, MR Pederson, DJ Singh, "
@@ -865,9 +873,9 @@ c
      +             //"J.Chem.Phys. 108, 9624 (1998)"
      +             //" doi:10.1063/1.476438)"
          case (NWXCP_BB1K)
-           cdata = "BB1K (AD Becke, "
-     +             //"J.Chem.Phys. 104, 1040 (1996) "
-     +             //"doi:10.1063/1.470829)"
+           cdata = "BB1K (Y Zhao, BJ Lynch, DG Truhlar, "
+     +             //"J.Phys.Chem. A 108, 2715 (2004) "
+     +             //"doi:10.1021/jp049908s)"
          case (NWXCP_BHANDH)
            cdata = "BECKEHANDH (AD Becke, "
      +             //"J.Chem.Phys. 98, 1372 (1993)"
@@ -1024,6 +1032,14 @@ c
            cdata = "PKZB (JP Perdew, S Kurth, A Zupan, "
      +             //"P Blaha, Phys.Rev.Lett. 82, "
      +             //"2544 (1999) doi:10.1103/PhysRevLett.82.2544)"
+         case (NWXCP_PW6B95)
+           cdata = "PW6B95 (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem. A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
+         case (NWXCP_PWB6K)
+           cdata = "PWB6K (Y Zhao, DG Truhlar, "
+     +             //"J.Phys.Chem. A 109, 5656 (2005)"
+     +             //" doi:10.1021/jp050536c)"
          case (NWXCP_S12G)
            cdata = "S12g (M Swart, "
      +             //"Chem.Phys.Lett. (2013)"

@@ -18,7 +18,7 @@
                    nwxc_vdw_util.o nwxc_cs00.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
 		   nwxcP_xc_b97.o nwxc_x_b97.o nwxc_c_b97.o nwxc_xc_kt1.o \
                    nwxc_c_spbe.o nwxc_x_ssbD_1.o nwxc_c_perdew81.o \
-		   nwxc_c_perdew86.o nwxc_x_pw91.o 
+		   nwxc_c_perdew86.o nwxc_x_pw91.o nwxc_x_pw6.o
 
              OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
                    nwxc_vdw_init.o nwxc_vdw3d.o
