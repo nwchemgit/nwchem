@@ -499,7 +499,146 @@ c         end if
       return
       end
 
+*     **************************************
+*     *                                    *
+*     *       Tesseral3_rgrid_lm_rl        *
+*     *                                    *
+*     **************************************
 
+*  Calculates the r**l times the tesseral harmonic for x,y,z such that
+*
+*                                                         {cos(|m|*phi)   m>0
+*      r**l*T_lm(cos_theta,phi)=r**l*rtheta_lm(cos_theta)*{1              m==0
+*                                                         {sin(|m|*phi)   m<0
+*  
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine Tesseral3_rgrid_lm_rl(l,m,nfft3d,rgrid,rTlm)
+      implicit none
+      integer l,m
+      integer nfft3d
+      real*8 rgrid(3,*),rTlm(*)
+
+*     **** local variables ****
+      integer i,k,mod_m
+      real*8 phi,cos_theta,tmp2,r,twopi,coeff
+
+*     **** external functions
+      real*8   rlegendre_lm,rtheta_lm
+      external rlegendre_lm,rtheta_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+
+      mod_m = abs(m)
+      if (mod_m .gt. l)
+     >  write(*,*)
+     >  'parameter out of order in function Tesseral3_vector_lm'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+
+      do k=1,nfft3d
+         r = dsqrt(rgrid(1,k)**2 + rgrid(2,k)**2 + rgrid(3,k)**2)
+         if (r.gt.1.0d-9) then
+            cos_theta = rgrid(3,k)/r
+            phi = datan2(rgrid(2,k),rgrid(1,k))
+
+            if (m.lt.0) then
+               tmp2 = dsin(mod_m*phi)
+            else if (m.gt.0) then
+               tmp2 = dcos(mod_m*phi)
+            else
+               tmp2 = 1.0d0
+            end if
+
+            rTlm(k) = (r**l)*tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)
+         else
+            rTlm(k) = 0.0d0
+         end if
+      end do
+      return
+      end
+
+
+*     **************************************
+*     *                                    *
+*     *     Tesseral3_rgrid_lm_over_rl     *
+*     *                                    *
+*     **************************************
+
+*  Calculates the 1/r**(l+1) times the tesseral harmonic for x,y,z such that
+*
+*                                                                     {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)/r**(l+1)=(1/r**(l+1))*rtheta_lm(cos_theta)*{1              m==0
+*                                                                     {sin(|m|*phi)   m<0
+*  
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine Tesseral3_rgrid_lm_over_rl(l,m,nfft3d,rgrid,rTlm)
+      implicit none
+      integer l,m
+      integer nfft3d
+      real*8 rgrid(3,*),rTlm(*)
+
+*     **** local variables ****
+      integer i,k,mod_m
+      real*8 phi,cos_theta,tmp2,r,twopi,coeff
+
+*     **** external functions
+      real*8   rlegendre_lm,rtheta_lm
+      external rlegendre_lm,rtheta_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+
+      mod_m = abs(m)
+      if (mod_m .gt. l)
+     >  write(*,*)
+     >  'parameter out of order in function Tesseral3_vector_lm'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+
+
+      do k=1,nfft3d
+         r = dsqrt(rgrid(1,k)**2 + rgrid(2,k)**2 + rgrid(3,k)**2)
+         if (r.gt.1.0d-9) then
+            cos_theta = rgrid(3,k)/r
+            phi = datan2(rgrid(2,k),rgrid(1,k))
+
+            if (m.lt.0) then
+               tmp2 = dsin(mod_m*phi)
+            else if (m.gt.0) then
+               tmp2 = dcos(mod_m*phi)
+            else
+               tmp2 = 1.0d0
+            end if
+
+            rTlm(k) = tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)
+     >                /(r**(l+1))
+         else
+            rTlm(k) = 0.0d0
+         end if
+      end do
+      return
+      end
 
 
 
