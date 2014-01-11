@@ -116,4 +116,42 @@ c      end
       return
       end
 
+*     **********************************************
+*     *                                            *
+*     *              FMM_Llm_vlocal                *
+*     *                                            *
+*     **********************************************
+
+      subroutine FMM_Llm_vlocal(lmax,Llm,rgrid,vl)
+      implicit none
+      integer lmax
+      real*8  Llm(*)
+      integer ngrid
+      real*8  rgrid(3,*),vl(*)
+
+*     **** local variables ****
+      integer i,l,m,idx
+      real*8 x,y,z
+
+*     **** external functions ****
+      real*8   Tesseral3_lm_rl
+      external Tesseral3_lm_rl
+
+      do i=1,ngrid
+         x = rgrid(1,i)
+         y = rgrid(2,i)
+         z = rgrid(3,i)
+         vl(i) = 0.0d0
+         idx = 1
+         do l=0,lmax
+         do m=-l,l
+            vl(i) = vl(i) + Llm(idx)*Tesseral3_lm_rl(l,m,x,y,z)
+            idx = idx + 1
+         end do
+         end do
+      end do
+      return
+      end 
+
+
 
