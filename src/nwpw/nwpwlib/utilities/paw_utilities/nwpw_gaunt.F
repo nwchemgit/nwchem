@@ -690,6 +690,51 @@ c         end if
 
 *     **************************************
 *     *                                    *
+*     *       Tesseral3_lm_over_rl         *
+*     *                                    *
+*     **************************************
+
+*  Calculates the tesseral harmonic for x,y,z such that
+*
+*                                               {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                               {sin(|m|*phi)   m<0
+*  
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      double precision function Tesseral3_lm_over_rl(l,m,x,y,z)
+      implicit none
+      integer l,m
+      real*8 x,y,z
+
+*     **** local variables ****
+      integer mod_m
+      real*8 phi,cos_theta,tmp2,r
+
+*     **** external functions
+      real*8   rtheta_lm
+      external rtheta_lm
+
+      r = dsqrt(x*x + y*y + z*z)
+      cos_theta = z/r
+      phi = datan2(y,x)
+
+      mod_m = abs(m)
+      if (m.lt.0) then
+         tmp2 = dsin(mod_m*phi)
+      else if (m.gt.0) then
+         tmp2 = dcos(mod_m*phi)
+      else
+         tmp2 = 1.0d0
+      end if
+
+      Tesseral3_lm_over_rl = rtheta_lm(l,m,cos_theta)*tmp2/(r**(l+1))
+      return
+      end
+
+
+*     **************************************
+*     *                                    *
 *     *           dTesseral3_lm            *
 *     *                                    *
 *     **************************************
