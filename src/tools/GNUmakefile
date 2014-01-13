@@ -391,7 +391,14 @@ ifdef USE_MPI
         MAYBE_MPI = --with-mpi="$(MPI_COMBINED)"
     endif
 else # USE_MPI
-    MAYBE_MPI = --without-mpi
+#old    MAYBE_MPI = --without-mpi
+nompierror:
+	@echo "  "
+	@echo "  " You must set USE_MPI and
+	@echo "  " have a working MPI installation
+	@echo "  "  to compile NWChem
+	@echo
+	@exit 1
 endif # USE_MPI
 
 ifneq ($(CC),)
@@ -588,7 +595,7 @@ cleanF:
 cleanDEP:
 	@echo Not done here
 source:
-	
+
 depend:
 	@echo No dependency analysis here
 sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
