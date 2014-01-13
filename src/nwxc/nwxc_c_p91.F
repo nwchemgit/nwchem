@@ -808,9 +808,9 @@ c    &                        + d2nepscdn2(D2_RB_RB)*wght
 #endif
 c        endif
 c        if (nlfac)then
-            Amat(n,1) = Amat(n,1) + (H0 + H1 +
+            Amat(n,D1_RA) = Amat(n,D1_RA) + (H0 + H1 +
      &         rhoval*dH0dna + rhoval*dH1dna)*wght
-            if (ipol.eq.2) Amat(n,2) = Amat(n,2) + (H0 + H1 +
+            if (ipol.eq.2) Amat(n,D1_RB) = Amat(n,D1_RB) + (H0 + H1 +
      &         rhoval*dH0dnb + rhoval*dH1dnb)*wght
 #ifdef SECOND_DERIV
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
