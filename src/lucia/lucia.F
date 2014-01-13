@@ -4023,14 +4023,14 @@ C..dongxia explicit hamiltonian should be for a small space. local.
 *
 *. indeces for pair of orbitals symmetry ordered
 *. Lower half packed
-c     CALL MEMMAN(KINH1,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'KINH1 ',0,0,KINH1))
-     &       call errquit('cannot create lucia_1e: kinh1',0,GA_ERR)
+      CALL MEMMAN(KINH1,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
+CBERT    if(.not.ga_create(mt_dbl,ntoob**2,1,'KINH1 ',0,0,KINH1))
+CBERT&       call errquit('cannot create lucia_1e: kinh1',0,GA_ERR)
 *. Complete form
-c     CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
-         if(.not.ga_create(mt_dbl,ntoob**2,1,'KINH1 ',0,0,
-     &       KINH1_NOCCSYM)) call
-     &       errquit('cannot create lucia_1e: kinh1_noccsym',0,GA_ERR)
+      CALL MEMMAN(KINH1_NOCCSYM,NTOOB*NTOOB,'ADDS  ',2,'KINH1  ')
+CBERT    if(.not.ga_create(mt_dbl,ntoob**2,1,'KINH1 ',0,0,
+CBERT&       KINH1_NOCCSYM)) call
+CBERT&       errquit('cannot create lucia_1e: kinh1_noccsym',0,GA_ERR)
 *
 *. Length of MO-MO and MO_AO expansion file
       LMOMO = 0
@@ -7121,9 +7121,9 @@ C     END IF
         IF(ICOUL.NE.2.AND.I_UNRORB.EQ.0) THEN
           IF (I12S.EQ.1.AND.I34S.EQ.1) THEN
             CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                    IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                    dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
-     &                    EFAC)
+     &                    IXCHNG,IKSM,JLSM,KINT2,
+     &                    dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,
+     &                    CFAC,EFAC)
           ELSE
             CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
@@ -7132,27 +7132,27 @@ C     END IF
         ELSE IF (I_UNRORB.EQ.0) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                  dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.1) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                  dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2BB),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0,CFAC,
+     &                  dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.3) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2AB),
-     &                  WORK(KPINT2AB),NSMOB,WORK(KINH1),ICOUL,1,CFAC,
+     &                  WORK(KPINT2AB),NSMOB,dbl_mb(KINH1),ICOUL,1,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.4) THEN
           CALL GETINCN2(XINT,KTP,KSM,LTP,LSM,ITP,ISM,JTP,JSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2AB),
-     &                  WORK(KPINT2AB),NSMOB,WORK(KINH1),ICOUL,1,CFAC,
+     &                  WORK(KPINT2AB),NSMOB,dbl_mb(KINH1),ICOUL,1,CFAC,
      &                    EFAC)
         ELSE
           WRITE(6,*) 'WRONG ISPCAS IN GETINT (',ISPCAS,')'
@@ -9651,7 +9651,8 @@ c      INCLUDE 'mxpdim.inc'
       CALL INTPNT(dbl_mb(KPINT1),dbl_mb(KLSM1),
      &            dbl_mb(KPINT2),dbl_mb(KLSM2))
 *. Pointer for orbital indeces for symmetry blocked matrices
-      CALL ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
+      CALL ORBINH1(dbl_mb(KINH1),dbl_mb(KINH1_NOCCSYM),
+     &             NTOOBS,NTOOB,NSMOB)
 *
 *  ----------------------------------------------------------------
 *. Read integrals in according to the specification of environment
@@ -9909,11 +9910,9 @@ c.. Now that the integrals are in KINT1 and KINT2, fully packed.
 * KH is the right place for the MO 1 electron integrals
       IF(NOINT.EQ.0) THEN 
 CNW     CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
-        print*,'kint1 to kh'
         call ga_copy(KINT1,KH)
 *. and to KINT1O for backwards compatibility
 CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
-        print*,'kint1 to kint1o'
         call ga_copy(KINT1,KINT1O)
        END IF
 *
@@ -9921,7 +9920,6 @@ CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
         IF(NOINT.EQ.0) THEN
 *. Inactive Fock matrix with contributions from explicitly declared inactive orbitals
 CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
-            print*,'kint1 to khina'
             call ga_copy(KINT1,KHINA)
             CALL FISM_OLD(KHINA,ECC)
             ECORE_INA = ECORE + ECC
@@ -9930,7 +9928,6 @@ CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
 *  particle-hole reorganization
             CALL FI(KINT1,ECORE_HEX,1)
 CNW         CALL COPVEC(WORK(KINT1),WORK(KFI),NINT1)
-            print*,'kint1 to kfi'
             call ga_copy(KINT1,KFI)
             ECORE_FI = ECORE_HEX
 C?          WRITE(6,*) ' First element in FI and H in INTIM=',
@@ -10995,7 +10992,6 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
         call int_terminate
 *. copy to list of initial 2 e integrals
 CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
-        print*,'ga copy 1'
         call ga_copy(KINT_2EMO,KINT_2EINI)
       ELSE
         WRITE(6,*) ' No integrals imported '
@@ -11328,7 +11324,7 @@ C            FI_FROM_INIINT(FI,CINI,H,EINAC,IHOLETP)
         CALL FI_FROM_INIINT(KFI,dbl_mb(KMOMO),KH,
      &                      ECORE_HEX,3)
 CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
-        call ga_copy(FKI,KINT1)
+        call ga_copy(KFI,KINT1)
         ECORE = ECORE_ORIG + ECORE_HEX
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' ECORE_ORIG, ECORE_HEX, ECORE(2) ',
@@ -12620,6 +12616,7 @@ c      INCLUDE 'mxpdim.inc'
         NL = MARKL(NM)
         NS = MARKS(NM)
         NM = NM - 1
+        MARK_ACT = MARKC(NM)
 *. Flush output unit
         LU6 = 6
         CALL GFLUSH(LU6)
@@ -15001,7 +14998,7 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
 CBERT SHOULD NOT BE CALLED
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            call ga_put(SV,IOFF_S,IOFF_S+LEN,1,1,SB(IOFF),LEN)
+            call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
           END IF
@@ -16325,7 +16322,7 @@ cnw          GOTO 999
          END IF
 *
 c..dongxia: keyword combspc not finish yet. skip it for now.
-      if (inw_lucia .eq. 0) then
+c     if (inw_lucia .eq. 0) then
 cnw       IF(CARD(2:7).EQ.'CMBSPC') THEN
       if(rtdb_get(rtdb,'lucia:ncmbspc',mt_int,1,ncmbspc))then
 *. Calculations will be performed in combination of different GAS spaces
@@ -16363,7 +16360,7 @@ cnw           READ(LUIN,*) (ICMBSPC(IGASSPC,JCMBSPC),IGASSPC=1,LLCMBSPC)
 cnw      END DO
 cnw         GOTO 999
        END IF
-      end if
+c     end if
 *
        if(rtdb_get(rtdb,'lucia:ciconv',mt_dbl,1,thres_e))then
 cnw       IF(CARD(2:7).EQ.'CICONV') THEN
@@ -16373,7 +16370,7 @@ cnw         READ(LUIN,*) THRES_E
 cnw         GOTO 999
        END IF
 *
-       IF(CARD(2:7).EQ.'SEQUEN') THEN
+cnw    IF(CARD(2:7).EQ.'SEQUEN') THEN
          ISETKW(54) = 1
 *
 *. SEQUEN KEYWORD
@@ -16401,9 +16398,6 @@ cnw           READ(LUIN,*) NSEQCI(JCMBSPC)
 *. To avoid problem if no calculations were specified
            ICI = 0
            DO ICI = 1, NSEQCI(JCMBSPC)
-            tag(1:13)='lucia:seq_1_1'
-            tag(11:11)=char(jcmbspc)
-            tag(13:13)=char(ici)
 *. Read in as character line, and decode
 *. Format: Type of calc, further info
 *. Possible types of calculations:
@@ -16434,7 +16428,7 @@ cnw           READ(LUIN,*) NSEQCI(JCMBSPC)
 *            a smaller space (P-space)
 *
 c            READ(LUIN,'(A)') CARD1
-             if(.not.rtdb_cget(rtdb,tag,1,card1))
+             if(.not.rtdb_cget(rtdb,'lucia:seq_1_1',1,card1))
      &        call errquit('lucia input: sequence wrong',911)
              CALL LFTPOS(CARD1,MXPLNC)
              CALL UPPCAS(CARD1,MXPLNC)
@@ -16822,7 +16816,7 @@ C          IF(NSEQCI(JCMBSPC).GT.0)
 C    &     READ(LUIN,*) (ISEQCI(ICI,JCMBSPC),ICI = 1, NSEQCI(JCMBSPC))
 C        END DO
 cnw         GOTO 999
-       END IF
+Cnw    END IF
 *
 * =====================================================================
 * Call EXTENDED KOOPMANS' THEOREM ROUTINE
@@ -18333,62 +18327,6 @@ cnw  &                 IREO_ORB(3,ISWITCH)
 cnw       GOTO 999
       END IF
 *
-* 131: Data for internal contraction
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'IC_EXC') THEN
-*. Min and max rank of orbital excitations, are internal excitations 
-*. allowed ?, and max number of active indeces (added oct 2006) 
-*.
-*. Change of March 2009: Old form eliminated and ICEXC_MAX_SEC added
-*
-        READ(LUIN,*) ICOP_RANK_MAX,
-     &               ICEXC_MAX_ACT,ICEXC_MAX_EXT, ICEXC_INT
-        WRITE(6,*) 
-     &  'Readin: ICOP_RANK_MAX, ICEXC_MAX_ACT,ICEXC_MAX_EXT, ICEXC_INT',
-     &           ICOP_RANK_MAX, ICEXC_MAX_ACT,ICEXC_MAX_EXT, ICEXC_INT
-* ICOP_RANK_MAX: Max number of creation or annihilations in operator
-* ICEXC_MAX_ACT: Max number of active (internal) indeces
-* ICEXC_MAX_EXT: Max number of external (sec + inac) indeces
-* ICEXC_INT = 0 => no creations in inactive or annihilations in secondary
-* 
-* Whether or not pure active excitations are allowed is flagged 
-* by keyword INC_AA (default is no way...)
-* 
-        ISETKW(131) = 1
-        I_HAVE_ICEXC_INFO = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 132: Expand final CC vector in last CC calculation and compare with 
-*       vector on LU17
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'CMPCCI') THEN
-        ISETKW(132) = 1
-        I_DO_CMPCCI = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*. 133: Enforce program to rewrite CC expansion as CI expansion after last 
-*. CC calc. This expansion will always be done if there is a 
-*. CI calculation following the last CC calculation
-*  
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'CC=>CI') THEN
-        I_DO_CC_TO_CI = 1
-        ISETKW(133) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
 *. 134: Construct complete Hamiltonian 
 *
       IF(rtdb_get(rtdb,'lucia:COMHAM',mt_int,1,I_DO_COMHAM)) then
@@ -18397,102 +18335,6 @@ cglm        I_DO_COMHAM = 1
         ISETKW(134) = 1
 cglm        GOTO 999
        END IF
-*
-*. 135: Dump Complete Hamiltonian for initial MRPT program of Lasse
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'DMPMRP') THEN
-        I_DO_DUMP_FOR_MRPT = 1
-        ISETKW(135) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 136: Use the very new CC codes, started in 2001 - and completed in ???
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'VNEWCC') THEN
-       I_DO_NEWCCV = 2
-       ISETKW(136) = 1
-cnw    GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 137: Use the very old CC codes - with erroneous scaling 
-*     dublicate therefore deactivated
-*
-c      IF(CARD(2:6).EQ.'OLDCCV') THEN
-c       I_DO_NEWCCV = 0
-c       ISETKW(137) = 1
-c       GOTO 999
-c      END IF
-*
-*. 138: Generation of initial orbitals
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'HF_INI') THEN
-         READ(LUIN,'(A)') CARD1
-         CALL LFTPOS(CARD1,MXPLNC)
-         CALL UPPCAS(CARD1,MXPLNC)
-         ISETKW(138) = 1
-         IF(CARD1(1:5).EQ.'H1DIA') THEN 
-           INI_HF_MO = 1
-         ELSE IF(CARD1(1:6).EQ.'READIN') THEN
-           INI_HF_MO = 2
-         ELSE 
-           WRITE(6,*) ' Illegal form of HF_INI :'  
-           INI_HF_MO = 0
-           WRITE(6,'(A,A)') ' Your suggestion: ', CARD1     
-           WRITE(6,*) ' Allowed entries: '
-           WRITE(6,*) ' =================='
-           WRITE(6,*)    'H1DIA' 
-           WRITE(6,*)    'READIN' 
-           NERROR = NERROR + 1
-           ISETKW(138) = -1
-         END IF
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'HFSOLV') THEN
-        READ(LUIN,'(A)') CARD1
-        CALL LFTPOS(CARD1,MXPLNC)
-        CALL UPPCAS(CARD1,MXPLNC)
-        ISETKW(139) = 1
-*
-        IF(CARD1(1:3).EQ.'R-H') THEN
-*. Roothaan-Hall procedure
-           IHFSOLVE = 1
-        ELSE IF (CARD1(1:4).EQ.'EOPD') THEN
-           IHFSOLVE = 2
-        ELSE IF (CARD1(1:6).EQ.'ONE-ST') THEN
-           IHFSOLVE = 3
-        ELSE IF (CARD1(1:2).EQ.'NR'.OR.CARD1(1:2).EQ.'QC') THEN
-           IHFSOLVE = 4
-        ELSE
-          WRITE(6,*) ' Illegal form of HFSOLV :'  
-          INI_HF_MO = 0
-          WRITE(6,'(A,A)') ' Your suggestion: ', CARD1     
-          WRITE(6,*) ' Allowed entries: '
-          WRITE(6,*) ' =================='
-          WRITE(6,*)    'R-H' 
-          WRITE(6,*)    'EOPD' 
-          WRITE(6,*)    'ONE-ST' 
-          WRITE(6,*)    'QC',' or ' ,'NR' 
-          NERROR = NERROR + 1
-          ISETKW(139) = -1
-        END IF
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
 *
 *. Calculate one- and two- particle spin density matrices 
 *
@@ -18515,210 +18357,6 @@ cglm        READ(LUIN,*) ISPNDEN
         ISETKW(140) = 1
 cglm        GOTO 999
       END IF
-
-*. 141: specification of the general twobody operators
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'GTBOPS'.OR.
-     &   CARD(2:7).EQ.'GTBOPT'   ) THEN
-        ISETKW(141) = 1
-        IGTBMOD=0
-        IGTB_DISPTT=0
-        IGTB_CLOSED=0
-        IGTB_TEST_H1=0
-        IGTBCS= 0
-        IGTB_PRJOUT=0
-        ISYMMET_G = 0
-        INC_SING(1:3) = 0
-        INC_DOUB(1:5) = 0
-        I_DO_H0=1
-        EXPG_THRSH = 1D-20
-        MXTERM_EXPG=200
-c scan for sub-keywords
-        I_SUB_KW = 1
-        DO WHILE(I_SUB_KW.EQ.1)
-          READ(LUIN,'(A)') CARD1
-          CALL LFTPOS(CARD1,MXPLNC)
-          CALL UPPCAS(CARD1,MXPLNC)
-          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
-          IF (NITEM.EQ.0) CYCLE
-c specify single-excitation operators
-c SING,<n(rank +1)>,<n(rank 0)>,<n(rank -1)>
-          IF (ITEM(1)(1:4).EQ.'SING') THEN
-            DO IITEM = 2, NITEM
-              IF(ITEM(IITEM)(1:1).NE.' '.AND.
-     &             IITEM.LE.4) THEN
-                CALL CHAR_TO_INTEGER(ITEM(IITEM),
-     &               INC_SING(IITEM-1),MXPLNC)
-              END IF
-            END DO
-c specify single-excitation operators
-c DOUB,<n(rank +2)>,<n(rank +1)>,<n(rank 0)>,<n(rank -1)>,<n(rank -2)>
-          ELSE IF (ITEM(1)(1:4).EQ.'DOUB') THEN
-            DO IITEM = 2, NITEM
-              IF(ITEM(IITEM)(1:1).NE.' '.AND.
-     &             IITEM.LE.6) THEN
-                CALL CHAR_TO_INTEGER(ITEM(IITEM),
-     &               INC_DOUB(IITEM-1),MXPLNC)
-              END IF
-            END DO
-c specify Hermitian symmetry of operator
-          ELSE IF (ITEM(1)(1:6).EQ.'HERMIT') THEN
-            IGTBCS=+1
-c specify Anti-Hermitian symmetry of operator (exp(G) is unitary then)
-          ELSE IF (ITEM(1)(1:6).EQ.'UNITAR') THEN
-            IGTBCS=-1
-c specify unsymmetric operator (default anyway)
-          ELSE IF (ITEM(1)(1:6).EQ.'UNSYMM') THEN       
-            IGTBCS= 0
-c symmetrize G operator: +1 symmetrize, -1 anti-symmetrize
-          ELSE IF (ITEM(1)(1:6).EQ.'SYM_G') THEN
-            ISYMMET_G = +1
-            DO IITEM = 2, NITEM
-              IF(ITEM(IITEM)(1:1).NE.' '.AND.
-     &             IITEM.LE.2) THEN
-                CALL CHAR_TO_INTEGER(ITEM(IITEM),
-     &               ISYMMET_G,MXPLNC)
-              END IF
-            END DO
-c calculate new H0, or not
-          ELSE IF (ITEM(1)(1:6).EQ.'CALCH0') THEN
-            I_DO_H0 = 1
-            DO IITEM = 2, NITEM
-              IF(ITEM(IITEM)(1:1).NE.' '.AND.
-     &             IITEM.LE.2) THEN
-                CALL CHAR_TO_INTEGER(ITEM(IITEM),
-     &               I_DO_H0,MXPLNC)
-              END IF
-            END DO
-c define accuracy level
-c ACCU,<expg_thrsh>,<mxterm_expg>
-          ELSE IF (ITEM(1)(1:4).EQ.'ACCU') THEN
-            DO IITEM = 2, NITEM
-              IF(ITEM(IITEM)(1:1).NE.' '.AND.
-     &             IITEM.EQ.2) THEN
-                CALL CHAR_TO_REAL(ITEM(IITEM),
-     &               EXPG_THRSH,MXPLNC)
-              END IF
-              IF(ITEM(IITEM)(1:1).NE.' '.AND.
-     &             IITEM.EQ.3) THEN
-                CALL CHAR_TO_INTEGER(ITEM(IITEM),
-     &               MXTERM_EXPG,MXPLNC)
-              END IF
-            END DO
-c reduce paramter space for closed-shell calculations
-          ELSE IF (ITEM(1)(1:6).EQ.'CLOSED'.OR.
-     &             ITEM(1)(1:6).EQ.'SPINAD') THEN
-            IGTB_CLOSED=1
-c dispose T-T coupled part of G:
-          ELSE IF (ITEM(1)(1:4).EQ.'NOTT') THEN
-            IGTB_DISPTT=1
-            IGTB_CLOSED=1
-c project out 0-eigenvalues of S(ij)
-          ELSE IF (ITEM(1)(1:6).EQ.'PRJOUT') THEN
-            IGTB_PRJOUT=1
-c test H1 operator
-          ELSE IF (ITEM(1)(1:6).EQ.'TESTH1') THEN
-            IGTB_TEST_H1=1
-c test exp(G) expansion (default)
-          ELSE IF (ITEM(1)(1:5).EQ.'EXPG ') THEN
-            IGTBMOD=0
-c test exp(G^2) expansion
-          ELSE IF (ITEM(1)(1:5).EQ.'EXPG2') THEN
-            IGTBMOD=1
-c test LL parameterization of G operator
-          ELSE IF (ITEM(1)(1:4).EQ.'G=LL') THEN
-            IGTBMOD=2
-          ELSE IF (ITEM(1)(1:3).EQ.'UOU') THEN
-            IGTBMOD=3
-c set FUSK-level for experiments (Tak, Jeppe, for dette fantastiske ord -- ak)
-          ELSE IF (ITEM(1)(1:4).EQ.'FUSK') THEN
-            DO IITEM = 2, MAX(2,NITEM)
-              IF(ITEM(IITEM)(1:1).NE.' ') THEN
-                CALL CHAR_TO_INTEGER(ITEM(IITEM),IGTBFUSK,MXPLNC)
-              END IF
-            END DO            
-          ELSE
-            I_SUB_KW = 0
-            BACKSPACE(LUIN)
-          END IF  
-        END DO
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-
-*. 142: analysis (Energy along G) of GTB functional
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'GTBEAG') THEN
-        READ(LUIN,*) N_EAG
-        ISETKW(142) = 1
-        IF (N_EAG.GT.MXPANA.OR.N_EAG.LT.1) THEN
-          WRITE(6,*) 'Silly input for GTBEAG! (',N_EAG,')'
-          WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
-          NERROR = NERROR + 1
-          ISETKW(142) = -1
-cnw       GOTO 999
-        END IF
-        DO II = 1, N_EAG
-          READ(LUIN,*) IT_EAG(II)
-        END DO
-        READ(LUIN,*) NN_EAG
-        IF (NN_EAG.GT.MXPANA.OR.NN_EAG.LT.1) THEN
-          WRITE(6,*) 'Silly input for GTBEAG! (',NN_EAG,')'
-          WRITE(6,*) 'The entry should be between 1 AND ',MXPANA
-          NERROR = NERROR + 1
-          ISETKW(142) = -1
-cnw       GOTO 999
-        END IF
-        DO II = 1, NN_EAG
-          READ(LUIN,*) NG_EAG(II), ST_EAG(II), EN_EAG(II), NP_EAG(II)
-        END DO
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-
-*. 143: analysis (First order overlap) of GTB functional
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'GTBFOO') THEN
-        READ(LUIN,*) N_FOO
-        ISETKW(143) = 1
-        IF (N_FOO.GT.MXPANA.OR.N_FOO.LT.1) THEN
-          WRITE(6,*) 'Silly input for GTBFOO! (',N_FOO,')'
-          WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
-          NERROR = NERROR + 1
-          ISETKW(143) = -1
-        END IF
-        DO II = 1, N_FOO
-          READ(LUIN,*) IT_FOO(II)
-        END DO
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-
-*. 144: analysis (Hessian) of GTB functional
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'GTBHSS') THEN
-        READ(LUIN,*) N_HSS
-        ISETKW(144) = 1
-        IF (N_HSS.GT.MXPANA.OR.N_HSS.LT.1) THEN
-          WRITE(6,*) 'Silly input for GTBHSS! (',N_HSS,')'
-          WRITE(6,*) 'First entry should be between 1 AND ',MXPANA
-          NERROR = NERROR + 1
-          ISETKW(144) = -1
-        END IF
-        DO II = 1, N_HSS
-          READ(LUIN,*) IT_HSS(II)
-        END DO
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
 *
 *. 145: Hurray, specify the amount of memory you like !!
       IF(rtdb_get(rtdb,'lucia:MAXMEM',mt_int,1,MAXMEM)) then
@@ -18732,108 +18370,6 @@ cglm        READ(LUIN,*) MAXMEM
         END IF
 cglm        GOTO 999
       END IF
-*. 146: Experimental switch to avoid the allocation of N^4 arrays
-*.       in the very beginning
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'SAVMEM') THEN
-        ISETKW(146) = 1
-        ISVMEM=1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*. 147: Define the target wave-function model
-*        needed for passing information to subsequent programs
-*        i.pt. for geom. gradient calculations
-*        read one more line containing the space and the number of the
-*        calculation within that space
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'TARGET') THEN
-        ISETKW(147) = 1
-        READ(LUIN,*) ITGSPC,ITGCLC
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 148: Generate cumulant matrices throgh construction of 
-*.       normal density matrices 
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'CUMULA') THEN
-*. Read max order of cumulants to be constructed 
-        READ(5,*) ICUMULA
-        ISETKW(148) = 1
-cnw     GOTO 999
-       END IF
-      end if
-cglm  ^ skipped for NWChem
-*
-*. 149: Restart IC calculation 
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'RSTRIC') THEN
-*. Restart internal contraction calculation 
-        IRESTRT_IC = 1
-        ISETKW(149) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 150: Number of commutators in MRCC calculations
-*        Specify numbers for three types of commutators: 
-*        NCOMMU_E: Number of commutators in energy evaluation and
-*                   reoptimization of internal state
-*        NCOMMU_J: Number of commutators used in 
-*                   approximate Jacobian 
-*        NCOMMU_V: Number of commutators in CC vector function
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'NCOMMU') THEN
-        READ(5,*) NCOMMU_E, NCOMMU_J, NCOMMU_V
-        ISETKW(150) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 151: Approximate higher commutator in MRCC energy function 
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'APRCME') THEN
-        I_APPROX_HCOM_E = 1
-        ISETKW(151) = 1
-cnw     GOTO 999
-       END IF
-      end if
-cglm  ^ skipped for NWChem
-*
-*. 152: Approximate higher commutator in MRCC vector function 
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'APRCMV') THEN
-        I_APPROX_HCOM_V = 1
-        ISETKW(152) = 1
-cnw     GOTO 999
-       END IF
-      end if
-cglm  ^ skipped for NWChem
-*
-*. 153: Approximate higher commutator in Approximate Jacobian
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'APRCMJ') THEN
-        I_APPROX_HCOM_J = 1
-        ISETKW(153) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
 *
 * 154: In which orbital spaces should density be calculated in ?
 
@@ -18859,66 +18395,6 @@ cglm        IREADSJ = 1
 cglm        GOTO 999
       END IF
 *
-*. 156: Use product expansion  of wave-functions
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'PRDEXP') THEN
-        I_DO_PRODEXP = 1
-        ISETKW(156) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 157: The wave-functions for each orbital subspace/atom for product wave functions
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'PRDWVF') THEN
-*. Input goes as 
-*. Loop over orbital subspaces
-*.   Read in number of subspace wave functions for this orbital subspace
-*    Loop over the subspace wave functions for this orbital subspace 
-*    Read in occupation and total spin of each subspace wave function
-*.   ( It could be that spin-patterns should also be added)
-*. GASSH should be given before to give the info on the total number of GASpaces 
-*. and the number of orbital in each subspace
-*. Check first whether GASSH has been defined 
-         IF(ISETKW(50).EQ.0) THEN
-           WRITE(6,*) ' Dear User'
-           WRITE(6,*)
-           WRITE(6,*) ' GASSH must be specified before PRDWVF'
-           WRITE(6,*)
-     &     ' Else I do not know about the number of orbital spaces'
-           WRITE(6,*) ' So I will stop '
-           STOP 'READIN: put GASSH before PRDWVF'
-         END IF
-         DO IGAS = 1, NGAS
-           READ(5,*) NWF_PER_SUBSPC(IGAS)
-           DO IWF = 1, NWF_PER_SUBSPC(IGAS)
-             READ(5,*)(ISUBSPCWF_OCC(IORB,IWF,IGAS),IORB=1,NOBPT(IGAS)),
-     &                MULT_FOR_SUBSPCWF(IWF,IGAS)
-           END DO
-         END DO
-         ISETKW(157) = 1
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 158: Max ineratomic excitation level for product wf expansion
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'PRDEXC') THEN
-*. Read in allowed excitation level between different atoms in product wave function expansion  
-        READ(5,*) INTRA_EXC_PRWF
-        ISETKW(158) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
 * 159: Printflag for CSF information
       IF(rtdb_get(rtdb,'lucia:IPRCSF',mt_int,1,IPRCSF)) then
 cglm      IF(CARD(2:7).EQ.'IPRCSF') THEN
@@ -18936,19 +18412,6 @@ cglm      IF(CARD(2:7).EQ.'INC_AA') THEN
         WRITE(6,*) ' Input: I_INC_AA = ', I_INC_AA
 cglm        GOTO 999
       ENDIF
-*
-* 161: Threshold for singularities of metric in IN
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:6).EQ.'SINGU') THEN
-        READ(5,*) THRES_SINGU
-        ISETKW(161) = 1
-C?      WRITE(6,*) ' THRES_SINGU = ', THRES_SINGU
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
 *
 * 162: Largest number in initial iterations - for restartinf
 *
@@ -18968,75 +18431,6 @@ cglm        READ(5,*) MAXITM
         ISETKW(163) = 1
 cglm        GOTO 999
       END IF
-*
-* 164: Freeze internal states in internal contraction calc?
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'FR_INT') THEN
-        I_FIX_INTERNAL = 1
-        ISETKW(164) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 165: Form of Hamiltonian used to define internal zero order states
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'ZS_HAM') THEN
-        READ(5,*) I_INT_HAM
-        ISETKW(165) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 166: Form of Hamiltonian used to define internal zero order states
-*. Use internal contraction without EI-split
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:6).EQ.'NO_EI') THEN
-        I_DO_EI = 0
-        IEI_VERSION = 0
-        ISETKW(166) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 167: Read in excitation information in form appropriate for 
-*      internal contaction CI from f.ex. SD reference
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'IC_EXO') THEN
-         READ(5,*) ICEXC_RANK_MIN,ICEXC_RANK_MAX, ICEXC_INT
-         ISETKW(167) = 1
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 168: General internal contraction operators for GIC
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'GIC_EX') THEN
-*. Number of external T-operators
-         READ(5,*) NTEXC_G
-         DO ITEXC = 1, NTEXC_G
-*. Min exc rank, max exc. ran, are internal allowed, space to be
-*. projected out, space of resulting operator
-           READ(5,*) ICEXC_RANK_MIN_G(ITEXC),ICEXC_RANK_MAX_G(ITEXC),
-     &            ICEXC_INT_G(ITEXC), IPTCSPC_G(ITEXC),ITCSPC_G(ITEXC)
-         END DO
-         ISETKW(168) = 1
-cnw      GOTO 999  
-       END IF
-      end if  
-cglm  ^ skipped for NWChem
 *
 * 169: Print level for MCSCF
       IF(rtdb_get(rtdb,'lucia:IPRMCSCF',mt_int,1,IPRMCSCF)) then
@@ -19116,161 +18510,6 @@ cglm         READ(5,*) ITRA_ROUTE
 cglm         GOTO 999
       END IF
 *
-* 172: Info in nonorthogonal calculation. Pt calculation is 
-*      required to have NGAS-1 othogonal spaces and one 
-*      nonorthogonal space, NORTCI_SCVB_SPACE.  The CI expansion in the 
-*      nonorthogonal is NORTCI_SCVP_EXCIT excitation out from a 
-*      standard spin-coupled valence bond calculation
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'NORTIN') THEN
-*. Read two numbers: Nonorthogonal space and allowed number of 
-*. excitations out from spin coupled valence bond
-         READ(5,*)  NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT
-C?       WRITE(6,*) ' Test: NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT = ',
-C?   &                      NORTCIX_SCVB_SPACE,NORTCI_SCVB_EXCIT
-         ISETKW(172) = 1 
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'VBRFSP') THEN
-*. Info in valence bond CI reference space
-* Max and min occupation in CI reference space
-*  
-*. requires: NORTCIX: To define Nonoorthogonal orbital space
-*            GASSH - to give info on number of orbitals in space
-         IERROR_LOC = 0
-         IF(ISETKW(172).NE.1) THEN
-           WRITE(6,*) ' NORTCIX keyword must be specified before VBRFSP'
-           NERROR = NERROR + 1
-           IERROR_LOC = 1
-         END IF
-         IF(ISETKW(50).NE.1) THEN
-           WRITE(6,*) ' GASSH keyword must be specified before  VBRFSP'
-           IERROR_LOC = 1
-           NERROR = NERROR + 1
-         END IF
-         IF(IERROR_LOC.EQ.1) THEN
-           ISETKW(173) = -1 
-cnw        GOTO 999
-         ELSE
-           NORBVBSPC = NOBPT(NORTCIX_SCVB_SPACE)
-C?         WRITE(6,*) ' NOBPT(1), NOBPT(2) = ', NOBPT(1), NOBPT(2)
-           WRITE(6,*) ' Test: NORTCIX_SCVB_SPACE, NORBVBSPC = ',
-     &                        NORTCIX_SCVB_SPACE, NORBVBSPC 
-*. Max and min occupation in nonorthogonal CI space
-           READ(5,*) (VB_REFSPC_MIN(IORB),IORB = 1, NORBVBSPC)
-           READ(5,*) (VB_REFSPC_MAX(IORB),IORB = 1, NORBVBSPC)
-           CALL ICOPVE(VB_REFSPC_MIN,VB_REFSPCO_MIN,NORBVBSPC)
-           CALL ICOPVE(VB_REFSPC_MAX,VB_REFSPCO_MAX,NORBVBSPC)
-           ISETKW(173) = 1
-cnw        GOTO 999
-         END IF
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 174: Method for performing Northogonal CI calculation
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'NORT_M') THEN
-* NORT_MET = 1 => Reexpand in full space
-* NORT_MET = 2 => Configuration based approach
-         READ(5,*)  NORT_MET
-         ISETKW(174) = 1
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 175: Information on MO fragments of molecule
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'MOFRAG') THEN
-*. Number of different types of fragments: say number of different 
-*. types of atoms
-         READ(5,*) NFRAG_TP
-*. Characters for the Fragments (Character*3 )
-          READ(5,*) (CFRAG(IFRAG),IFRAG = 1, NFRAG_TP)
-*. Number of fragments making up the molecule, two for a diatomic 
-*  if each atom  is a fragment
-         READ(5,*) NFRAG_MOL
-*. And read in the fragments making up the molecule. 
-*. Should be in the order of the MOLECULE.INP file
-         READ(5,*) (IFRAG_MOL(IFRAG),IFRAG=1, NFRAG_MOL)
-         ISETKW(175) = 1
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 176: Information about mapping of fragment MO's to molecule MO's
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'FRAGOB') THEN
-*. Call routine to readin fragment to orbital info
-         CALL ASSEMBLE_MO_FROM_FRAGMENTS_DEFINE
-         ISETKW(176) = 1
-cnw      GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 177: Information on generation of initial orbitals for nonorthogonal
-*      calculation
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-        IF(CARD(2:7).EQ.'INI_MO') THEN
-          READ(5,*)  INI_MO_TP, INI_MO_ORT, INI_ORT_VBGAS
-          IF(IECHO.EQ.1) THEN
-            WRITE(6,'(A,3I4)') 
-     &      ' READIN: INI_MO_TP, INI_MO_ORT,  INI_ORT_VBGAS  = ',
-     &                INI_MO_TP, INI_MO_ORT,  INI_ORT_VBGAS
-          END IF
-          ISETKW(177) = 1
-*. INI_MO_TP: Construction of the various GAS spaces
-*            = 1 => Use atomic orbitals as orbitals
-*            = 2 => Rotate orbitals in MOAOIN (from DALTON) calc
-*                   so the MOAO matrix is diagonal in VB active space
-*            = 3 => Use MOAOIN orbitals without modifications
-*            = 4 => Built info from fragment information
-*            = 5 => read in from LUCINF_O and orthogonalize 
-*                    as specified by INI_MO_ORT
-* INI_MO_ORT: Othogonalization in Orbital subspaces
-*            = 0 => No orthogonalization
-*            = 1 => Symmetric orthogonalization
-*            = 2 => Diagonalize metric
-* INI_ORT_VBGAS = 1: Orthogonalize GASpace of VB calculation
-*            = 0: No orthogonalization of GASpace for VB calc.
-          IF(INI_MO_TP.LT.1.OR.INI_MO_TP.GT.5) THEN
-            WRITE(6,*) ' INI_MO_TP out of range, value = ', INI_MO_TP
-            ISETKW(177) = -1
-            NERROR = NERROR + 1
-          END IF
-          IF(INI_MO_ORT.LT.0.OR.INI_MO_ORT.GT.2) THEN
-            WRITE(6,*) ' INI_MO_ORT out of range, value = ',INI_MO_ORT
-            ISETKW(177) = -1
-            NERROR = NERROR + 1
-          END IF
-          IF(INI_ORT_VBGAS.LT.0.OR.INI_ORT_VBGAS.GT.1) THEN
-            WRITE(6,*) 
-     &      ' INI_ORT_VBGAS out of range, value = ',INI_ORT_VBGAS
-            ISETKW(177) = -1
-            NERROR = NERROR + 1
-          END IF
-cnw       GOTO 999
-        END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
 * 178: Read in initial configuration: Ascending list of occupied orbitals
 *                                     in active space
 * 2 electrons in orbital 3, 1 electron in orbital 5,
@@ -19303,17 +18542,6 @@ C REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
 cglm           GOTO 999
        END if ! GLM adds
       END IF
-*
-* 179: Print flag for Valence bond calculation
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-        IF(CARD(2:5).EQ.'PRVB') THEN
-          READ(5,*) IPRVB
-          ISETKW(179) = 1
-cnw       GOTO 999
-        END IF
-      end if
-cglm  ^ skipped for NWChem
 *
 * 180: GIO method: Specify occupation of space
 *      where Hamiltonian is calculated exact
@@ -19365,71 +18593,6 @@ cglm       READ(5,*) ICNFBAT
         ISETKW(183) = 1
 cglm    GOTO 999
       END IF
-*
-*. 184: Combine several GASpaces into ensembles
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'ENSMGS') THEN
-        READ(5,*) NENSGS
-        DO JENSGS = 1, NENSGS
-*. Number of GASpaces in this ensemble
-          READ(5,*) LENSGS(JENSGS)
-*. And the GASpaces of this ensemble
-          READ(5,*) (IENSGS(IGAS,JENSGS),IGAS = 1, LENSGS(JENSGS))
-        END DO
-        ISETKW(184) = 1
-cnw     GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-*. 185: Constraints on occupation in a ensemble space
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'ENSCON') THEN
-*. Constraints are imposed only on Ensemble GAS 1
-*. Requires that the number number of CI spaces have been defined
-        IF(ISETKW(51).EQ.0) THEN
-          WRITE(6,*) 
-     &    ' Keyword ENSCON requires the number of CISPACES'
-          WRITE(6,*) 
-     &    ' Specify GASSPC before ENSCON '
-          ISETKW(185) = -1
-          NERROR = NERROR + 1
-cnw       GOTO 999
-        ELSE
-*. Number of allowed values of electrons in Ensemble gas space 
-          I_CHECK_ENSGS = 1
-          DO ISPC = 1, NCISPC
-            READ(5,*) NELVAL_IN_ENSGS(ISPC)
-            READ(5,*) (IEL_IN_ENSGS(IEL,ISPC),
-     &                 IEL = 1, NELVAL_IN_ENSGS(ISPC))
-          END DO
-          ISETKW(185) = 1
-cnw       GOTO 999
-        END IF
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
-*
-* 186: Symmetry-equivalent groups of fragments
-*
-      if (inw_lucia .eq. 0) then
-cglm  ^ skipped for NWChem
-       IF(CARD(2:7).EQ.'EQFRAG') THEN
-          ISETKW(186) = 1
-*. Read in symmetry-equivalent sets of fragments 
-          READ(5,*) NEQVGRP_FRAG
-          DO IEQV = 1, NEQVGRP_FRAG
-            READ(5,*) LEQVGRP_FRAG(IEQV)
-            READ(5,*) 
-     &      (IEQVGRP_FRAG(IFRAG,IEQV),IFRAG = 1, LEQVGRP_FRAG(IEQV))
-          END DO
-cnw       GOTO 999
-       END IF
-      end if 
-cglm  ^ skipped for NWChem
 *
 * 187: Supersymmetry in use
 *
@@ -35477,6 +34640,9 @@ C?   &               ISM, NMOS, NAOS, NBLOCK
 *
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'orbinp.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'crun.inc'
@@ -35553,7 +34719,10 @@ C  I2ELIST_INUSE(MXPI2ARR),IOCOBTP_INUSE(MXPI2ARR)
           NINT2_G(IIARR) = LINT
           INTSM_G(IIARR) = INTSM_A
 C?        WRITE(6,*) ' JEPTEST, LINT = ', LINT
-          CALL MEMMAN(KINT2_A(IIARR),LINT,'ADDL  ',2,'INT2A ')
+CNW       CALL MEMMAN(KINT2_A(IIARR),LINT,'ADDL  ',2,'INT2A ')
+          if ( .not. ga_create( mt_dbl, lint, 1, 'INT2A',
+     $     0,0, KINT2_A(IIARR)) ) call errquit(
+     $     'Z_ACT: ga_create INT2A failed', lint , GA_ERR)
        END DO
       END DO
 *

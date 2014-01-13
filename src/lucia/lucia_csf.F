@@ -3882,9 +3882,11 @@ C
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
 *. Standard 1 electron integrals 
-      DIMENSION H(*)
+cnw   DIMENSION H(*)
+      integer H
 *. Output 
-      DIMENSION FI_AL(*), FI_BE(*)
+cnw   DIMENSION FI_AL(*), FI_BE(*)
+      integer FI_AL, FI_BE
 *
 * Is matrix symmetrically packed or ??? 
       ISYMPACK = 1
@@ -3892,7 +3894,8 @@ C
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' FI_HS : Initial 1 e integral list '
-        CALL APRBLM2(H,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
+cnw     CALL APRBLM2(H,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
+        call ga_print(h)
 
         WRITE(6,*) ' FI_HS: IHPVGAS_AB and ITPFSO '
         CALL IWRTMA(IHPVGAS_AB,NGAS,2,MXPNGAS,2)
@@ -3927,7 +3930,9 @@ C
           IGAS = ITPFSO(I+IBSO(ISM)-1)
           IF(IHPVGAS_AB(IGAS,1).EQ.1) FACTOR = 1.0D0
           IF(IHPVGAS_AB(IGAS,2).EQ.1) FACTOR = FACTOR + 1.0D0
-          ECC = ECC + FACTOR*H(II)
+          call ga_get(h,ii,ii,1,1,hval,1)
+          ECC = ECC + FACTOR*hval
+cnw       ECC = ECC + FACTOR*H(II)
         END DO
       END DO
       IF(NTEST.GE.100) WRITE(6,*) ' one-electron part to ECC ', ECC
@@ -3978,8 +3983,10 @@ C
 *. Number of 1-e integrals
 C  NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
         NINT = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
-        CALL COPVEC(H,FI_AL,NINT)
-        CALL COPVEC(H,FI_BE,NINT)
+cnw     CALL COPVEC(H,FI_AL,NINT)
+cnw     CALL COPVEC(H,FI_BE,NINT)
+        call ga_copy(h,fi_al)
+        call ga_copy(h,fi_be)
         IJSM = 1
 *. ( works for lower half packed only if operator is total sym) 
         IJ = 0
@@ -4003,6 +4010,8 @@ C  NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
                   JREL = J - IBSO(JSM) + 1
                   IJ = IJOFF - 1 + IREL*(IREL-1)/2 + JREL
                 END IF
+                al_val = 0.0d0
+                be_val = 0.0d0
                 DO KSYM = 1, NSMOB
                   DO K = IBSO(KSYM),IBSO(KSYM)-1+NTOOBS(KSYM)
                     KP = IREOST(K)
@@ -4019,21 +4028,27 @@ C  NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
                       FACTOR_E_BE = -1.0D0
                     END IF
                     IF(FACTOR_C.NE.0.0D0) THEN 
-                     FI_AL(IJ) = 
-     &               FI_AL(IJ) + FACTOR_C*GTIJKL(IP,JP,KP,KP)
-                     FI_BE(IJ) = 
-     &               FI_BE(IJ) + FACTOR_C*GTIJKL(IP,JP,KP,KP)
+                     al_val = al_val + FACTOR_C*GTIJKL(IP,JP,KP,KP)
+                     be_val = be_val + FACTOR_C*GTIJKL(IP,JP,KP,KP)
+cnw                  FI_AL(IJ) = 
+cnw  &               FI_AL(IJ) + FACTOR_C*GTIJKL(IP,JP,KP,KP)
+cnw                  FI_BE(IJ) = 
+cnw  &               FI_BE(IJ) + FACTOR_C*GTIJKL(IP,JP,KP,KP)
                     END IF
                     IF(FACTOR_E_AL.NE.0.0D0) THEN 
-                     FI_AL(IJ) = 
-     &               FI_AL(IJ) + FACTOR_E_AL*GTIJKL(IP,KP,KP,JP)
+                     al_val = al_val + FACTOR_E_AL*GTIJKL(IP,KP,KP,JP)
+cnw                  FI_AL(IJ) = 
+cnw  &               FI_AL(IJ) + FACTOR_E_AL*GTIJKL(IP,KP,KP,JP)
                     END IF
                     IF(FACTOR_E_BE.NE.0.0D0) THEN
-                     FI_BE(IJ) = 
-     &               FI_BE(IJ) + FACTOR_E_BE*GTIJKL(IP,KP,KP,JP)
+                     be_val = be_val + FACTOR_E_BE*GTIJKL(IP,KP,KP,JP)
+cnw                  FI_BE(IJ) = 
+cnw  &               FI_BE(IJ) + FACTOR_E_BE*GTIJKL(IP,KP,KP,JP)
                     END IF
                   END DO
                 END DO
+                call ga_acc(fi_al,ij,ij,1,1,al_val,1)
+                call ga_acc(fi_be,ij,ij,1,1,be_val,1)
               END DO
             END DO
           END IF
@@ -4045,12 +4060,14 @@ C  NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
        WRITE(6,*) ' =================================='
        WRITE(6,*) 
        ISYM = 0
-       CALL APRBLM2(FI_AL,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
+cnw    CALL APRBLM2(FI_AL,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
+       call ga_print(fi_al)
        WRITE(6,*) ' FI_beta in Symmetry blocked form '
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
        ISYM = 0
-       CALL APRBLM2(FI_BE,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
+cnw    CALL APRBLM2(FI_BE,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
+       call ga_print(fi_be)
       END IF
 *
       RETURN

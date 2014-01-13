@@ -4971,12 +4971,14 @@ C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
       CALL MEMCHK2('BE_TWO')
       CALL TWOINT_D_TERM_F(F2,dbl_mb(KLDINI),FACC,FACE)
       CALL MEMCHK2('AF_TWO')
+       print*,'f2 after twoint',f2
 *. Transform from initial to current basis
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
       CALL TRAN_SYM_BLOC_MAT4b(F2,C,C,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
+      print*,'f2 after tran_sym',f2
       CALL MEMCHK2('AF_TRA')
 CNW   CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
       call ga_put(F2,1,LEN_F,1,1,dbl_mb(KLSCR),LEN_F)
@@ -5155,7 +5157,7 @@ CNW   DIMENSION FI(*)
 C     GET_2E_TERMS_TO_FI(F2,C_MOINI,IHOLETP)
       CALL GET_2E_TERMS_TO_FI(FI,CINI,IHOLETP)
 *. Pack to lower half form
-      CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
+      CALL TRIPAK_BLKMG(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
 *. Contribution to inactive energy from two-electron interaction
        CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,1)
        E_2E = 0.5D0*E_2E
@@ -5319,7 +5321,7 @@ CNW     CALL MATML7(F2(IFOFF),dbl_mb(KL2EBLK),DINI(IDOFF),
         CALL MATML7(dbl_mb(KFI2BLK),dbl_mb(KL2EBLK),DINI(IDOFF),
      &              NALOB*NBEOB,1,NALOB*NBEOB,NGAOB*NDEOBL,
      &              NGAOB*NDEOBL,1,FACC,FACAB,0)
-        call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB,1,1,dbl_mb(KFI2BLK),
+        call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB-1,1,1,dbl_mb(KFI2BLK),
      &              NALOB*NBEOB)
 C     MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,
 C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
@@ -5596,7 +5598,7 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       END IF
 *. Pack to lower half form
       IF(IPACK.NE.0) THEN
-        CALL TRIPAK_BLKM(dbl_mb(KLCT),FA,1,NTOOBS,NSMOB,3)
+        CALL TRIPAK_BLKMG2(dbl_mb(KLCT),FA,1,NTOOBS,NSMOB,3)
       ELSE
 CNW     CALL COPVEC(dbl_mb(KLCT),FA,LEN_F)
         call ga_get(FA,1,LEN_F,1,1,dbl_mb(KLCT),LEN_F)
@@ -5681,7 +5683,7 @@ C     GET_2E_TERMS_TO_FI_G(F2,C_MOINI,C_MOINIB,IHOLETP)
       CALL GET_2E_TERMS_TO_FI_G(FI,CINI,CINIB,IHOLETP)
 *. Pack to lower half form is required
       IF(IPACK.EQ.1) THEN
-        CALL TRIPAK_BLKM(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
+        CALL TRIPAK_BLKMG(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
       ELSE
 CNW     CALL COPVEC(FI,dbl_mb(KLBLF),LEN_F)
         call ga_get(FI,1,LEN_F,1,1,dbl_mb(KLBLF),LEN_F)
@@ -5711,7 +5713,8 @@ CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
          WRITE(6,*) 
      &   ' Contribution from inactive orbitals to core-energy', EINAC
          WRITE(6,*) ' The inactive Fock matrix'
-         CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,IPACK)
+CNW      CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,IPACK)
+         call ga_print(fi)
        END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'FIFRIN')
@@ -5792,7 +5795,8 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
      &  ' Two-electron terms to inactive Fock matrix in MO basis'
         WRITE(6,*) 
      & ' ======================================================'
-        CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
+CNW     CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
+        call ga_print(f2)
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'2ETOFI')
@@ -6000,7 +6004,7 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       LEN = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
 C                     (IHSM,NRPSM,NCPSM,NSM,IPACK)
       CALL MEMMAN(KLSAOE,LEN,'ADDL  ',2,'SAOE  ')
-      CALL TRIPAK_BLKM(dbl_mb(KLSAOE),KSAO,2,NTOOBS,NSMOB,3)
+      CALL TRIPAK_BLKM(dbl_mb(KLSAOE),dbl_mb(KSAO),2,NTOOBS,NSMOB,3)
 *
 *. Scratch vector for MO of given sym
       NMAX = IMNMX(NTOOBS,NSMOB,2)

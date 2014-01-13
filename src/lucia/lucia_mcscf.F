@@ -356,7 +356,8 @@ C KLRANK2, KLUPDVEC, KLCLKSCR,KLE1PREV,KLKPPREV
 *. Save the initial set of MO integrals 
 CNW   CALL COPVEC(WORK(KINT1O),WORK(KINT1_INI),NINT1)
 CNW   CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
-      call ga_copy(KINT1O,KINT1_INI)
+      call ga_copy_patch('N',KINT1O,1,nint1,1,1,
+     &                   KINT1_INI,1,nint1,1,1)
       call ga_copy(KINT_2EMO,KINT2_INI)
 *. Print will be reduced for densities
       IPRDEN_SAVE = IPRDEN
@@ -430,7 +431,8 @@ C    &               I_DO_CI_IN_INNER_ACT
 *
 CNW     CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
 CNW     CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
-        call ga_copy(KINT1_INI,KINT1O)
+        call ga_copy_patch('N',KINT1_INI,1,nint1,1,1,
+     &                   KINT1O,1,nint1,1,1)
         call ga_copy(KINT2_INI,KINT_2EMO)
 *
 *. Transform integrals to current set of MO's
@@ -447,8 +449,10 @@ CNW     CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
         INTSM_AL = 1
 *. Perform integral transformation and construct inactive Fock matrix
 C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
+        print*,'do orbtra'
         CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+        print*,'copy',kfi,kint1
         call ga_copy(KFI,KINT1)
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' MCSCF: ECORE_ORIG, ECORE_HEX, ECORE(2) ',
@@ -481,6 +485,7 @@ C       MAXIT = MAXMIC
         END IF
         IPRDIA_SAVE = IPRDIA
 C       IPRDIA = 1
+        print*,'gasci'
         CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &             MPORENP_E,EREF,ERROR_NORM_FINAL,CONV_F)  
         IROOT_SEL = IROOT_SEL_SAVE
@@ -1832,10 +1837,11 @@ C?    WRITE(6,*) ' PREPARE.. IH1FORM, IH2FORM = ', IH1FORM, IH2FORM
         IB_IA = IE2LIST_IB(IE2LIST)
         DO II_AR = IB_IA, IB_IA-1+N_IA
           I_AR = IE2LIST_I(II_AR)
+CBERT GA POINTS ARE NEGATIVE, I.E. LOGIC NEEDS TO BE REVERSED
           IF(IE2LIST.EQ.IACT_LIST) THEN
-           KINT2_A(I_AR) = IABS(KINT2_A(I_AR))
-          ELSE
            KINT2_A(I_AR) = -IABS(KINT2_A(I_AR))
+          ELSE
+           KINT2_A(I_AR) = IABS(KINT2_A(I_AR))
           END IF
         END DO
       END DO

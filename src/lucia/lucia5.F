@@ -2662,6 +2662,101 @@ c      INCLUDE 'mxpdim.inc'
       RETURN
       END
 *
+      SUBROUTINE TRIPAK_BLKMG(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK,INFO)
+*
+* Switch between packed and unpacked form of a blocked matrix
+*
+* IWAY = 1 => Unpacked to packed
+* IWAY = 2 => Packed to unpacked 
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+*. Input/output
+      integer AUTPAK
+      DIMENSION APAK(*)
+*. Input
+      DIMENSION LBLOCK(NBLOCK)
+*
+      DO IBLOCK = 1, NBLOCK
+        IF(IBLOCK.EQ.1) THEN
+          IOFFU = 1
+          IOFFP = 1
+        ELSE
+          IOFFU = IOFFU + LBLOCK(IBLOCK-1)**2
+          IOFFP = IOFFP + LBLOCK(IBLOCK-1)*(LBLOCK(IBLOCK-1)+1)/2
+        END IF
+        L = LBLOCK(IBLOCK)
+        IJ = IOFFP
+        IJF = IOFFU
+        DO I = 1,L
+          call ga_get(AUTPAK,IJF,IJF+I-1,1,1,APAK(IJ),1)
+          IJ = IJ + I
+          IJF = IJF + L
+        END DO
+        IBLK = LXC*(LXC+1)/2
+      END DO
+*
+      NTEST = 00
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' Output from TRIPAK_BLKM'
+        WRITE(6,*) 
+        WRITE(6,*) ' Unpacked matrix'
+        WRITE(6,*) ' ==============='
+        call ga_print(autpack)
+        WRITE(6,*) ' Packed matrix '
+        WRITE(6,*) ' =============='
+        CALL APRBLM2(  APAK,LBLOCK,LBLOCK,NBLOCK,1)
+      END IF
+*
+      RETURN
+      END
+*
+      SUBROUTINE TRIPAK_BLKMG2(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK,INFO)
+*
+* Switch between packed and unpacked form of a blocked matrix
+*
+* IWAY = 1 => Unpacked to packed
+* IWAY = 2 => Packed to unpacked 
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+*. Input/output
+      integer APAK
+      DIMENSION AUTPAK(*)
+*. Input
+      DIMENSION LBLOCK(NBLOCK)
+*
+      DO IBLOCK = 1, NBLOCK
+        IF(IBLOCK.EQ.1) THEN
+          IOFFU = 1
+          IOFFP = 1
+        ELSE
+          IOFFU = IOFFU + LBLOCK(IBLOCK-1)**2
+          IOFFP = IOFFP + LBLOCK(IBLOCK-1)*(LBLOCK(IBLOCK-1)+1)/2
+        END IF
+        L = LBLOCK(IBLOCK)
+        IJ = IOFFP
+        IJF = IOFFU
+        DO I = 1,L
+          call ga_put(APAK,IJ,IJ+I-1,1,1,AUTPAK(IJF),1)
+          IJ = IJ + I
+          IJF = IJF + L
+        END DO
+      END DO
+*
+      NTEST = 00
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' Output from TRIPAK_BLKM'
+        WRITE(6,*)
+        WRITE(6,*) ' Unpacked matrix'
+        WRITE(6,*) ' ==============='
+        call ga_print(autpack)
+        WRITE(6,*) ' Packed matrix '
+        WRITE(6,*) ' =============='
+        CALL APRBLM2(  APAK,LBLOCK,LBLOCK,NBLOCK,1)
+      END IF
+*
+      RETURN
+      END
+*
       SUBROUTINE TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK,INFO)
 *
 * Switch between packed and unpacked form of a blocked matrix
@@ -2693,7 +2788,7 @@ C            TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from TRIPAK_BLKM'
-        WRITE(6,*) 
+        WRITE(6,*)
         WRITE(6,*) ' Unpacked matrix'
         WRITE(6,*) ' ==============='
         CALL APRBLM2(AUTPAK,LBLOCK,LBLOCK,NBLOCK,0)
@@ -2705,6 +2800,7 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 *
       RETURN
       END
+*
       SUBROUTINE Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
      &                   KPCI1BT,KPCIBT,KPCBLTP,NBATCH,NBLOCK)
 *
@@ -14634,7 +14730,6 @@ CNW   Dimension I2INDX(*)
 *. Local scratch      
       DIMENSION IJARR(MXPORB)
 *
-CBERT TODO
       NTEST = 000
 *. FUSKING
 C?    IF(ISM.EQ.2.AND.JSM.EQ.1.AND.KSM.EQ.1.AND.LSM.EQ.2.AND.

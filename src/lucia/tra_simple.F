@@ -586,6 +586,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'cecore.inc'
       INCLUDE 'cprnt.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       NTEST = 00
       IF(IPRINTEGRAL.GE.100) NTEST = 100
@@ -607,7 +610,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       IF(NTEST.GE.100.AND.ITRA_ROUTE.EQ.1) THEN
         WRITE(6,*) ' Transformation matrix C '
-        CALL APRBLM2(WORK(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
 C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
       END IF
 
@@ -615,13 +618,13 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 *. Transform 1-electron integrals : 
 *
 *     KINT1O => KINT1
-      CALL TRA1_SIMPLE(WORK(KKCMO_I),WORK(KKCMO_J))
+      CALL TRA1_SIMPLE(dbl_mb(KKCMO_I),dbl_mb(KKCMO_J))
 *
 *. Transform 2-electron integrals
 *
       IF(ITRA_ROUTE.EQ.1) THEN
 *  Integrals in KINT2 => Integrals in KINT2
-        CALL TRA2_SIMPLE(WORK(KMOMO),WORK(KINT2))
+        CALL TRA2_SIMPLE(dbl_mb(KMOMO),KINT2)
       ELSE
 *  Integrals in KINT2 => Integrals in arrays defined by active integral list
 *  permutational symmetry of input integrals is defined by I12S, I34S, I1234S
@@ -637,11 +640,13 @@ C            APRBLM2(A,LROW,LCOL,NBLK,ISYM)
         LU90 = 90
         REWIND LU90   
 *.1 : One-electron integrals
-        WRITE(LU90,'(E22.15)')
-     &   (WORK(KINT1-1+INT1),INT1=1,NINT1)
+CNW     WRITE(LU90,'(E22.15)')
+CNW  &   (WORK(KINT1-1+INT1),INT1=1,NINT1)
+        call ga_print(KINT1)
 *.2 : Two-electron integrals
-        WRITE(LU90,'(E22.15)')
-     &   (WORK(KINT2-1+INT2),INT2=1,NINT2)
+CNW     WRITE(LU90,'(E22.15)')
+CNW  &   (WORK(KINT2-1+INT2),INT2=1,NINT2)
+        call ga_print(KINT2)
 *.3. Core energy 
         WRITE(LU90,'(E22.15)')ECORE_ORIG
 *.4  Rewind to empty buffer
@@ -741,6 +746,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'intform.inc'
       INCLUDE 'cprnt.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific Input
       DIMENSION CI(*), CJ(*)
 *
@@ -760,7 +768,8 @@ c      INCLUDE 'mxpdim.inc'
         WRITE(6,*) ' Largest number of orbitals in sym block ', MXSOB
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Initial set of integrals in KINT1O'
-          CALL APRBLM2(WORK(KINT1O),NTOOBS,NTOOBS,NSMOB,1)
+CNW       CALL APRBLM2(WORK(KINT1O),NTOOBS,NTOOBS,NSMOB,1)
+          call ga_print(KINT1O)
           WRITE(6,*) ' CI transformation matrix '
           CALL APRBLM2(CI, NTOOBS,NTOOBS,NSMOB,0)
           WRITE(6,*) ' CJ transformation matrix '
@@ -789,19 +798,22 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
       CALL MEMMAN(KLSCR,LENSCR,'ADDL   ',2,'H1SCR ')
 *. Unpack input integrals if output integrals will be unpacked
       IF(IPACK_OUT.EQ.0) THEN
+        call errquit('tra1_simple:should not be here')
         CALL TRIPAK_AO_MAT(WORK(KLH1),WORK(KINT1O),2)
       ELSE
-        CALL COPVEC(WORK(KINT1O),WORK(KLH1),LEN_HP)
+CNW     CALL COPVEC(WORK(KINT1O),WORK(KLH1),LEN_HP)
+        call ga_get(KINT1O,1,len_hp,1,1,dbl_mb(klh1),1)
       END IF
 *. and do it
-      CALL TRAN_SYM_BLOC_MAT4(WORK(KLH1),CI,CJ,NSMOB,NTOOBS,NTOOBS,
-     &     WORK(KINT1),WORK(KLSCR),IPACK_OUT)
+      CALL TRAN_SYM_BLOC_MAT4(dbl_mb(KLH1),CI,CJ,NSMOB,NTOOBS,NTOOBS,
+     &     KINT1,dbl_mb(KLSCR),IPACK_OUT)
 C     TRAN_SYM_BLOC_MAT4(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 C?    WRITE(6,*) ' After TRAN_SYM '
 *
       IF(IPRNT_TRAINT.EQ.1.OR.NTEST.GE.100) THEN
        WRITE(6,*) ' Transformed 1e integrals '
-       CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_OUT)
+CNW    CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_OUT)
+       call ga_print(KINT1)
       END IF
 *
 *. Flush memory
@@ -998,10 +1010,14 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'glbbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input
       DIMENSION XINT(*)
 *. Output
-      DIMENSION XOUT(*)
+      integer XOUT
+CNW   DIMENSION XOUT(*)
 *
       CALL LUCIAQENTER('PUTIN')
 *. Offset and number of integrals
@@ -1094,7 +1110,8 @@ c new:
            IF(I_AM_KIM.EQ.1) THEN
              WRITE(LU74,'(4I5,F25.15)') IOB,JOB,KOB,LOB,XINT(INT_IN)
            END IF
-           XOUT(INT_OUT) = XINT(INT_IN) 
+CNW        XOUT(INT_OUT) = XINT(INT_IN) 
+           call ga_put(XOUT,INT_OUT,INT_OUT,1,1,XINT(INT_IN),1)
 C?         WRITE(6,*) ' IOB, JOB, KOB, LOB', IOB,JOB,KOB,LOB
          END DO
         END DO
@@ -1143,11 +1160,15 @@ c      INCLUDE 'mxpdim.inc'
 * Jeppe Olsen
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION AIN(*),LX_ROW(NBLOCK),LX_COL(NBLOCK)
       DIMENSION XL(*),XR(*)
 *. Output 
-      DIMENSION AOUT(*)
+CNW   DIMENSION AOUT(*)
+      integer AOUT
 *. Scratch : At least twice the length of largest block 
       DIMENSION SCR(*)
 *
@@ -1203,9 +1224,23 @@ C?     WRITE(6,*) ' Transformed matrix '
 C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
 *. Pack and transfer
        IF(ISYM.EQ.1) THEN
-         CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
+CNW      CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
+         IJ = 0
+         IJF = 0
+         DO I = 1,LXC 
+           DO J = 1, I
+             SCR(K2+IJ+J-1) = SCR(K1+IJF+J-1)
+           END DO
+           IJ = IJ + I
+           IJF = IJF + LXC
+         END DO
+         IBLK = LXC*(LXC+1)/2
+         call ga_put(AOUT,IOFFC_OUT,IOFFC_OUT+IBLK-1,1,1,
+     &               SCR(K2),IBLK)
        ELSE
-         CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
+CNW      CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
+         call ga_put(AOUT,IOFFC_OUT,IOFFC_OUT+LXC*LXC-1,1,1,
+     &               SCR(K1),LXC*LXC)
        END IF
 *
       END DO
@@ -1216,7 +1251,8 @@ C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
         WRITE(6,*) ' output matrix TRAN_SYM_BLOC_MAT '
         WRITE(6,*) ' ==============================='
         WRITE(6,*)
-        CALL APRBLM2(AOUT,LX_COL,LX_COL,NBLOCK,ISYM)      
+CNW     CALL APRBLM2(AOUT,LX_COL,LX_COL,NBLOCK,ISYM)      
+        call ga_print(AOUT)
       END IF
 *
       RETURN
@@ -1272,13 +1308,25 @@ C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
        K2 = 1 + MAX(LXR,LXC) ** 2
 *. Unpack block of A
        SIGN = 1.0D0
-CBERT ISYM NEVER 1 SO COMMENT OUT
-CNW    IF(ISYM.EQ.1) THEN
+       IF(ISYM.EQ.1) THEN
 CNW      CALL TRIPAK(SCR(K1),AIN(IOFFP_IN),2,LXR,LXR)
+CBERT    STOP, PAcKED TO FULL, IS REVERSE OF BELOW!!!!Z
+         IJ = 0
+         IJF = 0
+         DO I = 1,LXC
+           DO J = 1, I
+             SCR(K2+IJ+J-1) = SCR(K1+IJF+J-1)
+           END DO
+           IJ = IJ + I
+           IJF = IJF + LXC
+         END DO
+         IBLK = LXC*(LXC+1)/2
+         call ga_put(AIN,IOFFC_IN,IOFFC_IN+IBLK-1,1,1,
+     &               SCR(K2),IBLK)
 C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
-CNW    ELSE
+       ELSE
          call ga_get(AIN,IOFFC_IN,IOFFC_IN+LXR*LXR,1,1,SCR(K1),LXR*LXR)
-CNW    END IF
+       END IF
 *. XL(T)(IBLOCK)A(IBLOCK)
        ZERO = 0.0D0
        ONE  = 1.0D0
@@ -1797,7 +1845,8 @@ c      INCLUDE 'mxpdim.inc'
 *. Specific input
       DIMENSION C(*)
 *. Output
-      DIMENSION X2INTOUT(*)
+      integer X2INTOUT
+CNW   DIMENSION X2INTOUT(*)
 *
       NTEST  = 00
 *
@@ -1830,8 +1879,8 @@ C     WRITE(6,*) ' Two integral blocks allocated '
 *. Fetch 2-e integral block (IJ!KL)
               ONE = 1.0D0
 C             WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
-              CALL LUCIAGETINT(WORK(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,LSM,
-     &                     0,0,0,1,ONE,ONE)
+              CALL LUCIAGETINT(dbl_mb(KLBL1),-1,ISM,-1,JSM,-1,KSM,-1,
+     &                         LSM,0,0,0,1,ONE,ONE)
 *. (Type = 0  => Complete symmetryblock)
 *. Offsets and dimensions for symmetryblocks in C 
               IOFF = 1
@@ -1858,10 +1907,10 @@ C             WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
               END DO
               NL = NTOOBS(LSM)
 *. Transform 2-electron integral block
-              CALL TRA_2EL_BLK_SIMPLE(WORK(KLBL1),
-     &        C(IOFF),NI,C(JOFF),NJ,C(KOFF),NK,C(LOFF),NL,WORK(KLBL2))
+              CALL TRA_2EL_BLK_SIMPLE(dbl_mb(KLBL1),
+     &        C(IOFF),NI,C(JOFF),NJ,C(KOFF),NK,C(LOFF),NL,dbl_mb(KLBL2))
 *. Transfer symmetry block to integral list
-              CALL PUTINT(WORK(KLBL1),0,ISM,0,JSM,0,KSM,0,LSM,
+              CALL PUTINT(dbl_mb(KLBL1),0,ISM,0,JSM,0,KSM,0,LSM,
      &                    0,0,X2INTOUT,dbl_mb(KPINT2))
 C     PUTINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &                  NOCCSYM,NO12SYM,XOUT)
@@ -2068,7 +2117,8 @@ C          WRITE_H1_WITH_INDEX(H1,NSMOB,NOBPSM,LUOUT)
 #include "mafdecls.fh"
 #include "global.fh"
 *. Output
-      DIMENSION X2INTOUT(*)
+CNW   DIMENSION X2INTOUT(*)
+      integer X2INTOUT
 *. Input array
       DIMENSION IP2INTOUT(NSMOB,NSMOB,NSMOB)
 *. Local scratch
@@ -2090,10 +2140,10 @@ C          WRITE_H1_WITH_INDEX(H1,NSMOB,NOBPSM,LUOUT)
        IF(NTEST.GE.20) THEN
 *
         WRITE(6,*) ' CI, CJ, CK, CL = '
-        CALL APRBLM2(WORK(KLCI),NTOOBS,NTOOBS,NSMOB,0)
-        CALL APRBLM2(WORK(KLCJ),NTOOBS,NTOOBS,NSMOB,0)
-        CALL APRBLM2(WORK(KLCK),NTOOBS,NTOOBS,NSMOB,0)
-        CALL APRBLM2(WORK(KLCL),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KLCI),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KLCJ),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KLCK),NTOOBS,NTOOBS,NSMOB,0)
+        CALL APRBLM2(dbl_mb(KLCL),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
       IDUM = 0
@@ -2167,7 +2217,7 @@ CM   &                     IOFF, JOFF, KOFF, LOFF
                 WRITE(6,*)
               END IF
               ONE = 1.0D0
-              CALL GET_2EBLK(WORK(KLBL1),ISM,JSM,KSM,LSM,
+              CALL GET_2EBLK(dbl_mb(KLBL1),ISM,JSM,KSM,LSM,
      &        dbl_mb(KPINT2))
 *. Number of output blocks originating from this input block
               CALL PERM_SYM_SSSSBLK(ISM,JSM,KSM,LSM,I12S,I34S,I1234S,
@@ -2290,7 +2340,7 @@ C    &                        I12P,I34P,I1234P)
 *  without permutational symmetry between 12 and 34 indices, but retained
 *  symmetry in 12 and in 34
                IZERO = 0
-               CALL MOD_2E_SSSSBLK(WORK(KLBL1),WORK(KLBL2),
+               CALL MOD_2E_SSSSBLK(dbl_mb(KLBL1),dbl_mb(KLBL2),
      &              NI_BAS,NJ_BAS,NK_BAS,NL_BAS,
      &              I12S_INI,I34S_INI,I1234S_INI,
      &              I12S_I,I34S_I,IZERO,I12P,I34P,I1234P)
@@ -2328,7 +2378,7 @@ C    &                        I12P,I34P,I1234P)
 *
                IF(NTEST.GE.1000) THEN
                  WRITE(6,*) ' Initial integrals as (ij!kl)'
-                 CALL WRTMAT(WORK(KLBL2),NIJ_I,NKL_I,NIJ_I,NKL_I)
+                 CALL WRTMAT(dbl_mb(KLBL2),NIJ_I,NKL_I,NIJ_I,NKL_I)
                END IF
 *
 * First Half transformation ( i' j'!k' l') => ( i j!k' l')
@@ -2357,37 +2407,39 @@ C    &                        I12P,I34P,I1234P)
                  KLCJ_O = KLCJ + JOFF - 1
 *. Obtain (i' j' !k' l') without perm symmetry between i' and j'
                  IF(I12S_I.EQ.0) THEN
-                   CALL COPVEC(WORK(KLOF_IN),WORK(KLINTM1),NIJ_I)
+                   CALL COPVEC(dbl_mb(KLOF_IN),dbl_mb(KLINTM1),NIJ_I)
                  ELSE
 C                       TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
-                   CALL TRIPAK(WORK(KLINTM1),WORK(KLOF_IN),2,NI_BASO,
-     &                         NI_BASO)
+                   CALL TRIPAK(dbl_mb(KLINTM1),dbl_mb(KLOF_IN),2,
+     &                         NI_BASO,NI_BASO)
                  END IF
 *
 *(i' j! k' l' ) = Sum(j') (i' j' !k' l') CJ(j' j)
 *
                  IF(NTEST.GE.10000) WRITE(6,*) ' Transformation of j '
-                 CALL MATML7(WORK(KLINTM2),WORK(KLINTM1),WORK(KLCJ_O),
+                 CALL MATML7(dbl_mb(KLINTM2),dbl_mb(KLINTM1),
+     &           dbl_mb(KLCJ_O),
      &           NI_BASO,NJ_O,NI_BASO,NJ_BASO,NJ_BASO,NJ_O,
      &           FACTORC,FACTORAB,0)
 * ( i j! k' l' ) = sum(i') CI(i',i) (i' j ! k' l')
 *
                  IF(NTEST.GE.10000) WRITE(6,*) ' Transformation of i '
-                 CALL MATML7(WORK(KLINTM1),WORK(KLCI_O),WORK(KLINTM2),
+                 CALL MATML7(dbl_mb(KLINTM1),dbl_mb(KLCI_O),
+     &           dbl_mb(KLINTM2),
      &           NI_O,NJ_O,NI_BASO,NI_O,NI_BASO,NJ_O,
      &           FACTORC,FACTORAB,1)
 * Transfer to KLBL3 and pack IJ if required
                  IF(I12S_O.EQ.0) THEN
-                   CALL COPVEC(WORK(KLINTM1),WORK(KLOF_OUT),NIJ_O)
+                   CALL COPVEC(dbl_mb(KLINTM1),dbl_mb(KLOF_OUT),NIJ_O)
                  ELSE
-                   CALL TRIPAK(WORK(KLINTM1),WORK(KLOF_OUT),1,
+                   CALL TRIPAK(dbl_mb(KLINTM1),dbl_mb(KLOF_OUT),1,
      &                         NI_O,NI_O)
                  END IF
                 END DO
                END DO ! End of K L loops
                IF(NTEST.GE.1000) THEN
                  WRITE(6,*) ' Half transformed integrals as (ij!kp lp)'
-                 CALL WRTMAT(WORK(KLBL3),NIJ_O,NKL_I,NIJ_O,NKL_I)
+                 CALL WRTMAT(dbl_mb(KLBL3),NIJ_O,NKL_I,NIJ_O,NKL_I)
                END IF
                CALL MEMCHK2('IJTRAN')
 *
@@ -2396,7 +2448,7 @@ C                       TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 * =================================================================
 *
 C                   TRPMT3(XIN,NROW,NCOL,XOUT)
-               CALL TRPMT3(WORK(KLBL3),NIJ_O,NKL_I,WORK(KLBL2))
+               CALL TRPMT3(dbl_mb(KLBL3),NIJ_O,NKL_I,dbl_mb(KLBL2))
 C?             WRITE(6,*) ' Transposed matrix (kp lp! i j )'
 C?             CALL WRTMAT(WORK(KLBL2),NKL_I, NIJ_O,NKL_I, NIJ_O)
                CALL MEMCHK2('TRANSP')
@@ -2424,41 +2476,43 @@ C?   &            I, J, IJ, NKL_I, NKL_O
                   KLCL_O = KLCL + LOFF -1
 *. Obtain (k' l' !i j) without perm symmetry between k' and l'
                   IF(I34S_I.EQ.0) THEN
-                    CALL COPVEC(WORK(KLOF_IN),WORK(KLINTM1),NKL_I)
+                    CALL COPVEC(dbl_mb(KLOF_IN),dbl_mb(KLINTM1),NKL_I)
                   ELSE
 C                        TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
-                    CALL TRIPAK(WORK(KLINTM1),WORK(KLOF_IN),2,NK_BASO,
-     &                          NK_BASO)
+                    CALL TRIPAK(dbl_mb(KLINTM1),dbl_mb(KLOF_IN),2,
+     &                          NK_BASO,NK_BASO)
                   END IF
                   IF(NTEST.GE.1000) THEN
                     WRITE(6,*) ' (kp lp ! i j ) for i,j = ', I,J
-                    CALL WRTMAT(WORK(KLINTM1),NK_BASO,NL_BASO,
+                    CALL WRTMAT(dbl_mb(KLINTM1),NK_BASO,NL_BASO,
      &                          NK_BASO,NL_BASO)
                   END IF
 *
 *(k' l! i j) = Sum(l') (k' l' !i j) CL(l' l)
 *
                  IF(NTEST.GE.10000) WRITE(6,*) ' Transformation of l '
-                  CALL MATML7(WORK(KLINTM2),WORK(KLINTM1),WORK(KLCL_O),
+                  CALL MATML7(dbl_mb(KLINTM2),dbl_mb(KLINTM1),
+     &            dbl_mb(KLCL_O),
      &            NK_BASO,NL_O,NK_BASO,NL_BASO,NL_BASO,NL_O,
      &            FACTORC,FACTORAB,0)
                   IF(NTEST.GE.10000) THEN
                     WRITE(6,*) ' (kp l ! i j ) for i,j = ', I,J
-                    CALL WRTMAT(WORK(KLINTM2),NK_BASO,NL_O,
+                    CALL WRTMAT(dbl_mb(KLINTM2),NK_BASO,NL_O,
      &                          NK_BASO,NL_O)
                   END IF
 *
 * ( k l! i j ) = sum(k') CK(k',k) (k' l ! i j)
 *
                  IF(NTEST.GE.10000) WRITE(6,*) ' Transformation of k '
-                  CALL MATML7(WORK(KLINTM1),WORK(KLCK_O),WORK(KLINTM2),
+                  CALL MATML7(dbl_mb(KLINTM1),dbl_mb(KLCK_O),
+     &            dbl_mb(KLINTM2),
      &            NK_O,NL_O,NK_BASO,NK_O,NK_BASO,NL_O,
      &            FACTORC,FACTORAB,1)
 * Transfer to KLBL3 and pack KL if required
                   IF(I34S_O.EQ.0) THEN
-                    CALL COPVEC(WORK(KLINTM1),WORK(KLOF_OUT),NKL_O)
+                    CALL COPVEC(dbl_mb(KLINTM1),dbl_mb(KLOF_OUT),NKL_O)
                   ELSE
-                    CALL TRIPAK(WORK(KLINTM1),WORK(KLOF_OUT),1,
+                    CALL TRIPAK(dbl_mb(KLINTM1),dbl_mb(KLOF_OUT),1,
      &                          NK_O,NK_O)
                   END IF
                 END DO
@@ -2468,7 +2522,7 @@ C                        TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
                IF(NTEST.GE.100) THEN
                  WRITE(6,*) 
      &           ' Final transformed integral block as (kl!ij) '
-                 CALL WRTMAT(WORK(KLBL3),NKL_O,NIJ_O,NKL_O,NIJ_O)
+                 CALL WRTMAT(dbl_mb(KLBL3),NKL_O,NIJ_O,NKL_O,NIJ_O)
                END IF
 *
 *. Save as ( i j ! k l) in packed form
@@ -2479,7 +2533,7 @@ C              MOD_2E_SSSSBLK(XIN,XOUT,NI_IN,NJ_IN,NK_IN,NL_NL_IN,
 C    &                         I12S_IN,I34S_IN,I1234S_IN,
 C    &                         I12S_OUT,I34S_OUT,I1234S_OUT,
 C    &                         I12P,I34P,I1234P)
-               CALL MOD_2E_SSSSBLK(WORK(KLBL3),X2INTOUT(IOFF_BL),
+               CALL MOD_2E_SSSSBLKG(dbl_mb(KLBL3),X2INTOUT,IOFF_BL,
      &              NK_O,NL_O,NI_O,NJ_O,I34S_O,I12S_O,0,
      &              I12S_O,I34S_O,I1234S_O,0,0,1)
 *. Finito !!!
@@ -3157,6 +3211,233 @@ C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
 *
       RETURN
       END
+      SUBROUTINE MOD_2E_SSSSBLKG(XIN,XOUT,IOFF,NI_IN,NJ_IN,NK_IN,NL_IN,
+     &           I12S_IN,I34S_IN,I1234S_IN,
+     &           I12S_OUT,I34S_OUT,I1234S_OUT,
+     &           I12P,I34P,I1234P)
+*
+* Modify permutational symmetry packing of a 2-electron integral block
+*
+* I*S_IN: permutational symmetry of input block
+* I*S_OUT: Permutational symmetry of output block
+* I*P    : Permutations going from input to outputblock
+*
+* NI_IN, NJ_IN, NK_IN, NL_IN are number of orbitals in input block
+*
+*. Jeppe Olsen, The Lucia Growing up campaign, Feb. 2011
+*
+      INCLUDE 'implicit.inc'
+*. Input
+      DIMENSION XIN(*)
+*. Output
+      integer XOUT
+CNW   DIMENSION XOUT(*)
+*
+      NTEST = 000
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' MOD_2E_SSSSBLK reporting:'
+        WRITE(6,*) ' ========================='
+        WRITE(6,*)  
+        WRITE(6,'(A,4I3)') 
+     &  ' Permutational symmetry of input block  (12, 34, 1234) ',
+     &    I12S_IN,I34S_IN,I1234S_IN
+        WRITE(6,'(A,4I3)') 
+     &  ' Permutational symmetry of Output block (12, 34, 1234) ',
+     &    I12S_OUT,I34S_OUT,I1234S_OUT
+        WRITE(6,'(A,4I3)') 
+     &  ' Permutations for going from in to out block (12, 34, 1234)',
+     &    I12P,I34P,I1234P
+        WRITE(6,'(A,4I4)') ' Dimensions: NI_IN, NJ_IN, NK_IN, NL_IN = ',
+     &                                   NI_IN, NJ_IN, NK_IN, NL_IN
+      END IF
+*
+      IF(I12S_IN.EQ.1) THEN
+       NIJ_IN = NI_IN*(NI_IN+1)/2
+      ELSE
+       NIJ_IN = NI_IN*NJ_IN
+      END IF
+*
+      IF(I34S_IN.EQ.1) THEN
+        NKL_IN = NK_IN*(NK_IN+1)/2
+      ELSE
+        NKL_IN = NK_IN*NL_IN
+      END IF
+*. Dimensions of output blocks
+      IF(I12P.EQ.0) THEN
+        NI = NI_IN
+        NJ = NJ_IN
+      ELSE
+        NI = NJ_IN
+        NJ = NI_IN
+      END IF
+      IF(I34P.EQ.0) THEN
+       NK = NK_IN
+       NL = NL_IN
+      ELSE
+       NK = NL_IN
+       NL = NK_IN
+      END IF
+      IF(I1234P.EQ.1) THEN
+       NIX = NK
+       NJX = NL
+       NK = NI
+       NL = NJ
+       NI = NIX
+       NJ = NJX
+      END IF
+*
+      IF(I12S_OUT.EQ.1) THEN
+        NIJ_OUT = NI*(NI+1)/2
+      ELSE
+        NIJ_OUT = NI*NJ
+      END IF
+      IF(I34S_OUT.EQ.1) THEN
+       NKL_OUT = NK*(NK+1)/2
+      ELSE
+       NKL_OUT = NK*NL
+      END IF
+      IF(NTEST.GE.1000) THEN
+        WRITE(6,'(A,6I4)') ' NI, NJ, NK, NK, NIJ_OUT, NKL_OUT = ',
+     &               NI, NJ, NK, NK, NIJ_OUT, NKL_OUT
+      END IF
+*
+*. Loop over indices in output block 
+      DO K = 1, NK
+       IF(I34S_OUT.EQ.1) THEN
+        MAX_L = K
+       ELSE
+        MAX_L = NL
+       END IF
+       DO L = 1, MAX_L
+         IF(I34S_OUT.EQ.1) THEN
+           KL_OUT = K*(K-1)/2 + L
+         ELSE
+           KL_OUT = (L-1)*NK + K
+         END IF
+         DO I = 1, NI
+          IF(I12S_OUT.EQ.1) THEN
+            MAX_J = I
+          ELSE
+            MAX_J = NJ
+          END IF
+          DO J = 1, MAX_J
+           IF(I12S_OUT.EQ.1) THEN
+             IJ_OUT = I*(I-1)/2 + J
+           ELSE
+             IJ_OUT = (J-1)*NI + I
+           END IF
+*. Input orbital indices
+* To go from input to output, we first permute 1/2 3/4 ( if requested)
+* and then permute 12/34 (if requested). To go from input to output 
+* the order should be reversed.
+           IF(I1234P.EQ.0) THEN
+            I_IN = I
+            J_IN = J
+            K_IN = K
+            L_IN = L
+           ELSE
+            I_IN = K
+            J_IN = L
+            K_IN = I
+            L_IN = J
+           END IF
+           IF(I12P.EQ.1) THEN
+            I_INX = I_IN
+            I_IN = J_IN
+            J_IN = I_INX
+           END IF
+           IF(I34P.EQ.1) THEN
+            K_INX = K_IN
+            K_IN = L_IN
+            L_IN = K_INX
+           END IF
+COLD
+COLD       IF(I12P.EQ.0) THEN
+COLD        I_IN = I
+COLD        J_IN = J
+COLD       ELSE
+COLD        I_IN = J
+COLD        J_IN = I
+COLD       END IF
+COLD       IF(I34P.EQ.0) THEN
+COLD        K_IN = K
+COLD        L_IN = L
+COLD       ELSE
+COLD        K_IN = L
+COLD        L_IN = K
+COLD       END IF
+COLD       IF(I1234P.EQ.1) THEN
+COLD        I_INX = I_IN
+COLD        J_INX = J_IN
+COLD        I_IN = K_IN
+COLD        J_IN = L_IN
+COLD        K_IN = I_INX
+COLD        L_IN = J_INX
+COLD       END IF
+           IF(IJ_OUT.GE.KL_OUT.OR.I1234S_OUT.EQ.0) THEN
+*
+            IF(I1234S_OUT.EQ.1) THEN
+              IJKL_OUT = (KL_OUT-1)*NIJ_OUT -KL_OUT*(KL_OUT-1)/2+IJ_OUT
+            ELSE
+              IJKL_OUT = (KL_OUT-1)*NIJ_OUT + IJ_OUT
+            END IF
+*. Input indeces
+            IF(I12S_IN.EQ.1) THEN
+C             IJ_IN = MAX(I,J)*(MAX(I,J)-1)/2 + MIN(I,J)
+              IJ_IN = MAX(I_IN,J_IN)*(MAX(I_IN,J_IN)-1)/2+
+     &                MIN(I_IN,J_IN)
+            ELSE
+              IJ_IN = (J_IN-1)*NI_IN + I_IN
+            END IF 
+            IF(I34S_IN.EQ.1) THEN
+              KL_IN = MAX(K_IN,L_IN)*(MAX(K_IN,L_IN)-1)/2 
+     &              + MIN(K_IN,L_IN)
+            ELSE
+              KL_IN = (L_IN-1)*NK_IN + K_IN
+            END IF 
+*
+            IF(I1234S_IN.EQ.1) THEN
+              IJKL_IN = (MIN(IJ_IN,KL_IN)-1)*NIJ_IN
+     &                -MIN(IJ_IN,KL_IN)*(MIN(IJ_IN,KL_IN)-1)/2
+     &                + MAX(IJ_IN,KL_IN)
+            ELSE
+              IF(I1234P.EQ.1) THEN
+CC              IJKL_IN = (IJ_IN-1)*NKL_IN + KL_IN
+C               IJKL_IN = (IJ_IN-1)*NIJ_IN + KL_IN
+                IJKL_IN = (KL_IN-1)*NIJ_IN + IJ_IN
+              ELSE
+                IJKL_IN = (KL_IN-1)*NIJ_IN + IJ_IN
+              END IF
+            END IF
+*
+            IF(NTEST.GE.10000) THEN
+             WRITE(6,'(A,4I3,2I6,2I8)') 
+     &       'I,J,K,L,IJ_IN,KL_IN, IJKL_IN, IJKL_OUT ',
+     &        I,J,K,L,IJ_IN,KL_IN,IJKL_IN,IJKL_OUT
+            END IF
+*
+CBERT IN PARALLEL THIS WOULD BE A SCATTER
+            call ga_put(XOUT,IOFF+IJKL_OUT-1,IOFF+IJKL_OUT-1,1,1,
+     &                  XIN(IJKL_IN),1)
+CNW         XOUT(IJKL_OUT) = XIN(IJKL_IN)
+CNW         IF(NTEST.GE.10000)
+CNW  &      WRITE(6,*) ' XOUT(IJKL_OUT) = ', XOUT(IJKL_OUT)
+           END IF ! Check of IJ_OUT versus KL_OUT
+          END DO
+         END DO
+       END DO
+      END DO
+*
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*) ' Output symmetry block'
+C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
+        CALL PRINT_2EBLK_G(XOUT,NI,NJ,NK,NL,I12S_OUT,I34S_OUT,
+     &                     I1234S_OUT)
+      END IF
+        
+*
+      RETURN
+      END
       SUBROUTINE GEN_TRA_2EI_LIST
 *
 * Generate transformed two-electron integral list defined by I2ELIST_A,
@@ -3174,6 +3455,10 @@ C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cprnt.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GEN2EI')
@@ -3191,7 +3476,7 @@ C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
      &    IE2LIST_A, IOCOBTP_A, INTSM_A
         WRITE(6,*) ' PNTGRP = ', PNTGRP
         WRITE(6,*) ' WORK(KKCMO_I) '
-        CALL PRINT_CMOAO(WORK(KKCMO_I))
+        CALL PRINT_CMOAO(dbl_mb(KKCMO_I))
       END IF
 *
 * Set up information for integral list IE2LIST_A in *_A variables 
@@ -3246,9 +3531,9 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
      &       NTOOBS_IA,NTOOBS_JA,NTOOBS_KA,NTOOBS_LA,
      &       NOBPTS_GN_A(0,1,1),NOBPTS_GN_A(0,1,2),
      &       NOBPTS_GN_A(0,1,3),NOBPTS_GN_A(0,1,4),
-     &       WORK(KLCI),WORK(KLCJ),WORK(KLCK),WORK(KLCL),
-     &       WORK(KKCMO_I),WORK(KKCMO_J),WORK(KKCMO_K),WORK(KKCMO_L),
-     &       IDIM_ONLY)
+     &       dbl_mb(KLCI),dbl_mb(KLCJ),dbl_mb(KLCK),dbl_mb(KLCL),
+     &       dbl_mb(KKCMO_I),dbl_mb(KKCMO_J),dbl_mb(KKCMO_K),
+     &       dbl_mb(KKCMO_L),IDIM_ONLY)
 C     GET_DIM_AND_C_FOR_ORBS(IOCOBTP,IOGLIST,
 C    &           NIS,NJS,NKS,NLS,
 C    &           NITS,NJTS,NKTS,NLTS,CI,CJ,CK,CL,
@@ -3257,8 +3542,8 @@ C    &           CI_IN, CJ_IN, CK_IN, CL_IN,IDIM_ONLY)
         IF(NTEST.GE.10000)
      &  WRITE(6,*) ' KINT2_A(IIE2ARR) = ', KINT2_A(IIE2ARR) 
         CALL TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,
-     &                     WORK(KPINT2_A(IIE2ARR)),
-     &                     WORK(KINT2_A(IIE2ARR)) )
+     &                     dbl_mb(KPINT2_A(IIE2ARR)),
+     &                     KINT2_A(IIE2ARR) )
 C            TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,IP2INTOUT,X2INTOUT)
 *
         IF(IPRNT_TRAINT.EQ.1.OR.NTEST.GE.10000) THEN
@@ -3268,10 +3553,10 @@ C            TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,IP2INTOUT,X2INTOUT)
           WRITE(6,*) ' ==================================== '
           WRITE(6,*)
 C              PRINT_2EIARR(XINT,I12S,I34S,I1234S,INTSM,NI,NJ,NK,NL,IPNT)
-          CALL PRINT_2EIARR(WORK(KINT2_A(IIE2ARR)), I12S_A, I34S_A, 
-     &         I1234S_A, INTSM_A,
-     &         NTOOBS_IA,NTOOBS_JA,NTOOBS_KA,NTOOBS_LA,
-     &         WORK(KPINT2_A(IIE2ARR)) )
+CNW       CALL PRINT_2EIARR(KINT2_A(IIE2ARR), I12S_A, I34S_A, 
+CNW  &         I1234S_A, INTSM_A,
+CNW  &         NTOOBS_IA,NTOOBS_JA,NTOOBS_KA,NTOOBS_LA,
+CNW  &         dbl_mb(KPINT2_A(IIE2ARR)) )
         END IF
 *
       END DO
@@ -3583,7 +3868,8 @@ C     PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
       IARR_FOUND = 0
       DO IARR = 1, NE2ARR
 *. Is this array active
-        IF(KINT2_A(IARR).GT.0) THEN
+CBERT OPPOSITE LOGIC FOR KINT2_A, MINUS MEANS ACTIVE
+        IF(KINT2_A(IARR).LT.0) THEN
            IOCOBTP = IOCOBTP_G(IARR)
            DO INDEX = 1, 4
              IG = IJKL_GAS(INDEX)

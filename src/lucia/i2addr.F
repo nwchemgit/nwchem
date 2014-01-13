@@ -664,7 +664,8 @@ c      INCLUDE 'mxpdim.inc'
       END IF
 
       IF (IADR.GT.0) THEN
-        XIJKL = WORK(K2ADR-1+IADR)
+CNW     XIJKL = WORK(K2ADR-1+IADR)
+        call ga_get(K2ADR,IADR,IADR,1,1,XIJKL,1)
       ELSE
         XIJKL = 0D0
       END IF

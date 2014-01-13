@@ -5463,6 +5463,10 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
       INCLUDE 'cecore.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       IDUM = 0
       CALL LUCIAQENTER('ORBTR')
@@ -5496,7 +5500,8 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
           WRITE(6,*) ' one-electron transformed integrals'
           WRITE(6,*) ' ================================='
           IPACK_H1 = IE1_CCSM_G(IE2LIST_IN)
-          CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_H1)
+CNW       CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_H1)
+          call ga_print(KINT1)
         END IF
 *
       END IF! Integral transformation should be performed
@@ -5515,14 +5520,16 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
 *. the complex conjugation symmetry of the one-electron integrals
         IPACK_F = IE1_CCSM_G(IE2LIST_IN)
 *
-        CALL FI_FROM_INIINT_G(KFI,WORK(KKCMO_I),WORK(KKCMO_J),
+        print*,'FI_FROM_INIINT_G',kfi,kint1
+        CALL FI_FROM_INIINT_G(KFI,dbl_mb(KKCMO_I),dbl_mb(KKCMO_J),
      &                        KINT1,ECORE_HEX,3,IPACK_F)
         ECORE = ECORE_ORIG + ECORE_HEX
         IF(NTEST.GE.100)
      &  WRITE(6,*) ' Updated core energy =  ', ECORE
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Inactive Fock-matrix '
-          CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,IPACK_F)
+          call ga_print(kfi)
+CNW       CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,IPACK_F)
         END IF
 *. And clean up
         KINT2_A(IE2ARR_F) = KINT2_FSAVE
@@ -5561,30 +5568,31 @@ C            FA_FROM_INIINT(FA,CINI,CINIB,D,IPACK)
           CALL MEMMAN(KLRHO1B,NACOB**2,'ADDL  ',2,'RHO1S ')
           CALL MEMMAN(KLCBIOA,LEN_R,'ADDL  ',2,'CBIOAC')
 C              REORHO1(RHO1I,RHO1O,IRHO1SM)
-          CALL REORHO1(WORK(KRHO1),WORK(KLRHO1),1,1)
+          CALL REORHO1(dbl_mb(KRHO1),dbl_mb(KLRHO1),1,1)
 *.  Obtain CBIO over active orbitals only
 C            EXTR_OR_CP_ACT_BLKS_FROM_ORBMAT(A,AGAS,I_EX_OR_CP)
           CALL EXTR_OR_CP_ACT_BLKS_FROM_ORBMAT
-     &         (WORK(KCBIO),WORK(KLCBIOA),1)
+     &         (dbl_mb(KCBIO),dbl_mb(KLCBIOA),1)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' CBIO in active orbitals '
-            CALL APRBLM2(WORK(KLCBIOA),NACOBS,NACOBS,NSMOB,0)
+            CALL APRBLM2(dbl_mb(KLCBIOA),NACOBS,NACOBS,NSMOB,0)
           END IF
-          CALL TR_BIOMAT(WORK(KLRHO1),WORK(KLRHO1B),WORK(KLCBIOA),
+          CALL TR_BIOMAT(dbl_mb(KLRHO1),dbl_mb(KLRHO1B),dbl_mb(KLCBIOA),
      &                   NACOBS,1,2,1,1)
 *. Transfer back to full matrix over active orbitals
-          CALL REORHO1(WORK(KLRHO1),WORK(KLRHO1B),1,2)
+          CALL REORHO1(dbl_mb(KLRHO1),dbl_mb(KLRHO1B),1,2)
         ELSE
           KLRHO1 = KRHO1
         END IF
 *
-        CALL FA_FROM_INIINT(WORK(KFA),WORK(KKCMO_I),WORK(KKCMO_J),
-     &                      WORK(KLRHO1),IPACK_F)
+        CALL FA_FROM_INIINT(KFA,dbl_mb(KKCMO_I),dbl_mb(KKCMO_J),
+     &                      dbl_mb(KLRHO1),IPACK_F)
 *. And clean up
         KINT2_A(IE2ARR_F) = KINT2_FSAVE
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Active Fock-matrix '
-          CALL APRBLM2(WORK(KFA),NTOOBS,NTOOBS,NSMOB,IPACK_F)
+          call ga_print(kfa)
+CNW       CALL APRBLM2(WORK(KFA),NTOOBS,NTOOBS,NSMOB,IPACK_F)
         END IF
       END IF ! Active Fock matrix should be calculated
 *
