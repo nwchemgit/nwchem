@@ -449,10 +449,8 @@ CNW     CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
         INTSM_AL = 1
 *. Perform integral transformation and construct inactive Fock matrix
 C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
-        print*,'do orbtra'
         CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
-        print*,'copy',kfi,kint1
         call ga_copy(KFI,KINT1)
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' MCSCF: ECORE_ORIG, ECORE_HEX, ECORE(2) ',
@@ -485,7 +483,6 @@ C       MAXIT = MAXMIC
         END IF
         IPRDIA_SAVE = IPRDIA
 C       IPRDIA = 1
-        print*,'gasci'
         CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &             MPORENP_E,EREF,ERROR_NORM_FINAL,CONV_F)  
         IROOT_SEL = IROOT_SEL_SAVE

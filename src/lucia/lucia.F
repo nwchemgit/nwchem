@@ -16223,7 +16223,7 @@ cnw        GOTO 999
 cnw       IF(CARD(2:7).EQ.'GASSPC') THEN
 *. Orbital constraints in gas spaces
 *. GASSH must have been defined before, check this
-       if(rtdb_get(rtdb,'lucia:ncispc',mt_int,ncispc))then
+       if(rtdb_get(rtdb,'lucia:ncispc',mt_int,1,ncispc))then
          IF(ISETKW(50).EQ.0) THEN
            WRITE(6,*) ' Dear User'
            WRITE(6,*)
@@ -16322,7 +16322,7 @@ cnw          GOTO 999
          END IF
 *
 c..dongxia: keyword combspc not finish yet. skip it for now.
-c     if (inw_lucia .eq. 0) then
+      if (inw_lucia .eq. 0) then
 cnw       IF(CARD(2:7).EQ.'CMBSPC') THEN
       if(rtdb_get(rtdb,'lucia:ncmbspc',mt_int,1,ncmbspc))then
 *. Calculations will be performed in combination of different GAS spaces
@@ -16360,7 +16360,7 @@ cnw           READ(LUIN,*) (ICMBSPC(IGASSPC,JCMBSPC),IGASSPC=1,LLCMBSPC)
 cnw      END DO
 cnw         GOTO 999
        END IF
-c     end if
+      end if
 *
        if(rtdb_get(rtdb,'lucia:ciconv',mt_dbl,1,thres_e))then
 cnw       IF(CARD(2:7).EQ.'CICONV') THEN
@@ -16370,7 +16370,7 @@ cnw         READ(LUIN,*) THRES_E
 cnw         GOTO 999
        END IF
 *
-cnw    IF(CARD(2:7).EQ.'SEQUEN') THEN
+CNW    IF(CARD(2:7).EQ.'SEQUEN') THEN
          ISETKW(54) = 1
 *
 *. SEQUEN KEYWORD
