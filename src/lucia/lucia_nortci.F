@@ -5520,7 +5520,6 @@ CNW       CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_H1)
 *. the complex conjugation symmetry of the one-electron integrals
         IPACK_F = IE1_CCSM_G(IE2LIST_IN)
 *
-        print*,'FI_FROM_INIINT_G',kfi,kint1
         CALL FI_FROM_INIINT_G(KFI,dbl_mb(KKCMO_I),dbl_mb(KKCMO_J),
      &                        KINT1,ECORE_HEX,3,IPACK_F)
         ECORE = ECORE_ORIG + ECORE_HEX

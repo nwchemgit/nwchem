@@ -4971,14 +4971,12 @@ C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
       CALL MEMCHK2('BE_TWO')
       CALL TWOINT_D_TERM_F(F2,dbl_mb(KLDINI),FACC,FACE)
       CALL MEMCHK2('AF_TWO')
-       print*,'f2 after twoint',f2
 *. Transform from initial to current basis
 C     TRAN_SYM_BLOC_MAT4
 C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
       CALL TRAN_SYM_BLOC_MAT4b(F2,C,C,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
-      print*,'f2 after tran_sym',f2
       CALL MEMCHK2('AF_TRA')
 CNW   CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
       call ga_put(F2,1,LEN_F,1,1,dbl_mb(KLSCR),LEN_F)
@@ -5788,7 +5786,8 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL TRAN_SYM_BLOC_MAT4b(F2,C,CB,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
       CALL MEMCHK2('AF_TRA')
-      CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
+CNW   CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
+      call ga_put(F2,1,LEN_F,1,1,dbl_mb(KLSCR),1)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) 
