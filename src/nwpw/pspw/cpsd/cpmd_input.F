@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 57)
+      parameter (num_dirs = 59)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -76,6 +76,8 @@ c
      >            'cutoff',
      >            'initial_ion_temperature',
      >            'reset_Temperature',
+     >            'rotation',
+     >            'translation',
      >            'end'/
 
        character*50 cell_name
@@ -94,7 +96,7 @@ c
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut,mchain,nchain
        double precision scaling(2),ecut,wcut
-       logical          nose,nosers
+       logical          nose,nosers,move
        double precision Pe,Te,fe
        double precision Pr,Tr
 
@@ -124,6 +126,7 @@ c      call cpmd_input_default(rtdb)
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
      >       2500,2600,2700,2800,2900,3000,1150,3100,3200,
+     >       3300,3400,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -544,6 +547,32 @@ c
       value = rtdb_delete(rtdb,"nwpw:kg_total")
       value = rtdb_delete(rtdb,"nwpw:ke_count")
       goto 10
+
+
+c
+c  rotation
+c
+ 3300 if (.not.inp_a(zone_name)) goto 3301
+      move = nwpw_parse_boolean(zone_name,.false.)
+      if (.not.rtdb_put(rtdb,'nwpw:rotation',mt_log,1,move))
+     >  call errquit('cpmd_input: error writing to rtdb',3300,RTDB_ERR)
+
+ 3301 continue
+      goto 10
+
+c
+c  translation
+c
+ 3400 if (.not.inp_a(zone_name)) goto 3401
+      move = nwpw_parse_boolean(zone_name,.true.)
+      if (.not.rtdb_put(rtdb,'cgsd:allow_translation',mt_log,1,move))
+     >  call errquit('cpmd_input: error writing to rtdb',3400,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'band:allow_translation',mt_log,1,move))
+     >  call errquit('cpmd_input: error writing to rtdb',3400,RTDB_ERR)
+
+ 3401 continue
+      goto 10
+
 
 
 *     ***** add wavefunction to rtdb ****
