@@ -1,0 +1,55 @@
+#
+# $Id: nwchem.nw 19708 2010-10-29 18:04:21Z d3y133 $
+#
+
+title "Water geometry optimization in cc-pvdz basis set"
+
+start c2h4
+
+charge 0
+geometry autosym units au
+C 0 0 1
+H 1 0 1.8
+symmetry d2h
+end
+
+basis
+  H library cc-pvdz
+  C library cc-pvdz
+end
+
+#scf; print low; end
+
+task scf ignore
+set lucia:nactel 12
+set lucia:ms2 0
+set lucia:sym 1    
+set lucia:nroot 1
+#set lucia:mults 1
+set lucia:ms 0
+set lucia:itra_route 2
+set lucia:mscomb 1.0d0
+set lucia:cistor 2
+set lucia:icnfbat 2
+set lucia:idensi 0
+set lucia:ciconv 1.0d-12
+set lucia:inideg 1
+set lucia:inactive 1 0 0 0 1 0 0 0
+set lucia:ngas 1
+set lucia:gassh 3 2 1 0 3 2 1 0
+set lucia:second "REST"
+set lucia:machine "CRAY"
+set lucia:ncispc 1
+set lucia:nirrep 8
+set lucia:gsoccx 12 12
+set lucia:nseqci 1
+set lucia:seq_1_1 "MCSCF,20,20"
+set lucia:mxciv 20
+set lucia:maxitm 100
+set lucia:resdim 20
+set lucia:nomofl .true.
+set lucia:nocsf .true.
+set lucia:ICNFBAT 1
+task lucia
+
+
