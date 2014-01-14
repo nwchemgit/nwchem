@@ -1657,12 +1657,14 @@ c
       goto 10
 
 c
-c  fmm [true/false... [lmax]]
+c  fmm [true/false... [lmax] [lr]]
 c
  7800 mchain = 10
+      nchain = 1
       if (inp_a(zone_name)) then
          move = nwpw_parse_boolean(zone_name,move)
          if (.not.inp_i(mchain)) mchain = 10
+         if (.not.inp_i(nchain)) nchain = 1
       else
          move = .true.
       end if
@@ -1670,6 +1672,8 @@ c
  7810 if (.not.rtdb_put(rtdb,'nwpw:fmm',mt_log,1,move))
      >  call errquit('nwpw_input: error writing to rtdb',7800,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'nwpw:fmm_lmax',mt_int,1,mchain))
+     >  call errquit('nwpw_input: error writing to rtdb',7800,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'nwpw:fmm_lr',mt_int,1,nchain))
      >  call errquit('nwpw_input: error writing to rtdb',7800,RTDB_ERR)
 
       goto 10
