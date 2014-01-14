@@ -255,11 +255,15 @@ c
       do 10 i = 1,nroot
          itemp(i) = selci_idmin(nci,hd,1)
          temp(i) = hd(itemp(i))
-         hd(itemp(i)) = 0.0d0
+         hd(itemp(i)) = 1.0d20 ! Use a big number so this element will not
+                               ! be found again!
  10   continue
 c
       call dfill(nroot*nci,0.0d0,ci,1)
-      do 20 i = 1,nroot
+c     Running the next loop backwards ensures that the original values
+c     of the diagonal will be restored no matter what! (Including asking
+c     for more roots than there are bound states).
+      do 20 i = nroot,1,-1
          hd(itemp(i)) = temp(i)
          ci(itemp(i),i) = 1.0d0
  20   continue
