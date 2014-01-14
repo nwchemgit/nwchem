@@ -7848,6 +7848,8 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 #include "sym.fh"
 #include "rtdb.fh"
 #include "nwchem_data.inc"
+      logical movecs_gather
+      external movecs_gather
 *. Input
       INTEGER NMOS(*),NAOS(*)
 *. Output  
