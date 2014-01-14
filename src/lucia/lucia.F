@@ -9636,8 +9636,8 @@ c      INCLUDE 'mxpdim.inc'
       external ga_create_atom_blocked, ga_create_JKblocked
       logical geom_nuc_rep_energy
       external geom_nuc_rep_energy
-      logical movecs_read
-      external movecs_read
+      logical movecs_read, movecs_gather
+      external movecs_read, movecs_gather
       integer blen
       double precision occ(mxporb),evals(mxporb)
       CALL MEMCHK
@@ -10604,6 +10604,9 @@ c      INCLUDE 'mxpdim.inc'
       character*20 scftype
 *. A temp block for locating the SETVEC use/misuse
       COMMON/XXTEST/ISETVECOPS(10)
+*
+      external movecs_read_header
+      logical movecs_read_header
 *
       NTEST = 0
 *

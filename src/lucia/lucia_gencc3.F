@@ -508,11 +508,7 @@ C     DIMENSION TI(LDUM,*)
      &             NINNER6,NINNER7,NINNER8,NINNER9,NINNER10
 *
 
-      NTEST = 00
-*!!      \/
-C?    REWIND(7)
-C?    WRITE(7,*) ' ISG = ', ISG
-*!!      /\
+      NTEST = 0
       IF(NTEST.GE.100) 
      &WRITE(6,*) ' TI_TO_TOKBN : SIGNI, LDUM, NOP_BAT, NK_BAT  = ',
      &                           SIGNI, LDUM, NOP_BAT, NK_BAT
@@ -1809,7 +1805,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL INUM_FOR_OCC21(IOCC,INUM,NGAS,WORK(KLSOBEX),
      &                   NSPOBEX_TP,NDIFF)
 *
-      NTEST = 00
+      NTEST = 0
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Coupled cluster operator '
         CALL WRT_SPOX_TP(IOCC,1)
