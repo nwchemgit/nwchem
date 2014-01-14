@@ -16,6 +16,8 @@
 
       logical value
 
+      call FMM_end()
+
       value = MA_free_heap(r2(2))
       value = value.and.MA_free_heap(r1(2))
       value = value.and.MA_free_heap(r0(2))
@@ -364,6 +366,8 @@ c         eki1=0.5d0*eki1
       end if
 
       call ion_check_distances()
+
+      call FMM_start()
 
       call nwpw_timing_end(50)
       ion_init = value
