@@ -3902,7 +3902,7 @@ cnw   DIMENSION FI_AL(*), FI_BE(*)
 * Is matrix symmetrically packed or ??? 
       ISYMPACK = 1
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' FI_HS : Initial 1 e integral list '
 cnw     CALL APRBLM2(H,NTOOBS,NTOOBS,NSMOB,ISYMPACK)

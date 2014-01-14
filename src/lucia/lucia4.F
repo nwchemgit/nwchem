@@ -1748,7 +1748,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 100
+      NTEST = 00
 *
 * Core-Core energy 
 *
@@ -1873,7 +1873,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 1000
+      NTEST = 000
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*) 
@@ -5130,7 +5130,7 @@ CNW   DIMENSION FI(*)
       integer FI
 *
       IF(IPRINTEGRAL.GE.100) NTEST = 100
-      NTEST = 1000
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from FI_FROM_INIINT'
         WRITE(6,*) ' ========================'
@@ -5665,7 +5665,7 @@ CNW   DIMENSION H(*), CINI(*), CINIB(*)
 CNW   DIMENSION FI(*)
       integer FI
 *
-      NTEST = 1000
+      NTEST = 000
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'FIFRIN')
 *. For later generalizations

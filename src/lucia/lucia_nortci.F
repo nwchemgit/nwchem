@@ -5535,6 +5535,7 @@ CNW       CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,IPACK_F)
       END IF !  FI  should be calculated
 *
       IF(IDOFA.EQ.1) THEN
+      print*,'idofa'
 *
 *.      Calculate active Fock matrix in basis defined by  KKCMI, KKCMJ
 *        =============================================================
@@ -5584,6 +5585,7 @@ C            EXTR_OR_CP_ACT_BLKS_FROM_ORBMAT(A,AGAS,I_EX_OR_CP)
           KLRHO1 = KRHO1
         END IF
 *
+        print*,'fa_from_iniint'
         CALL FA_FROM_INIINT(KFA,dbl_mb(KKCMO_I),dbl_mb(KKCMO_J),
      &                      dbl_mb(KLRHO1),IPACK_F)
 *. And clean up
