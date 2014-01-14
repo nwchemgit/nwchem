@@ -78,7 +78,7 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
       ILTEST = 3006
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     NTEST,NCBLOCK,NCBATCH,
-     &   int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &   int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &     int_mb(KCIBT),
      &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -106,7 +106,7 @@ C    &           NOCCLS_SPC,IOCCLS_SPC,ISYM,ICONF_OCC,NCONF_FOR_OPEN,
 C    &           INCLUDE_CONFS,ICONF_OCC_SEL,NOP_CONF_SEL,NCONF_OCC_SEL)
 C?       WRITE(6,*) ' NCONF_SUB(1) = ', NCONF_SUB
          CALL GET_MINMAX_ADR_IN_CISPACE_CSF(IADR,NELMNT,MINAC,MAXAC,
-     &        MINMAX_ORB,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+     &        MINMAX_ORB,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),ISM,
      &        int_mb(KICONF_OCC(ISM)),NCONF_PER_OPEN(1,ISM),1,
      &        int_mb(KSBCNFOCC),int_mb(KSBCNFOP),NCONF_SUB)
 
@@ -375,7 +375,7 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
         CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)

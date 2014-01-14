@@ -138,11 +138,11 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       ICSPC = IPSPC
       ICSM = IREFSM
       ILTEST = 3006
-      CALL ICOPVE(int_mb(KLOCCLS_P),dbl_mb(KCIOCCLS_ACT),NGAS*NOCCLS_P)
+      CALL ICOPVE(int_mb(KLOCCLS_P),int_mb(KCIOCCLS_ACT),NGAS*NOCCLS_P)
       CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &     dbl_mb(KCIOCCLS_ACT),
+     &     int_mb(KCIOCCLS_ACT),
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &     int_mb(KCIBT),
      &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -160,7 +160,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &     IPRNT,NSBLOCK,NSBATCH,
      &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
-     &     dbl_mb(KSIOCCLS_ACT),
+     &     int_mb(KSIOCCLS_ACT),
      &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &     int_mb(KSIBT),
      &     int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -231,7 +231,7 @@ C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
         CALL CSDIAG(WORK(KVEC1P),WORK(KVEC1P),
      &       NCONF_PER_OPEN(1,IREFSM),MAXOP,IREFSM,
      &       WORK(KSDREO_I(IREFSM)),NPCMCNF,NPCSCNF,IPRCSF,
-     &       ICNFBAT,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &       ICNFBAT,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),LUDIA,LUSC)
         CALL COPVCD(LUSC,LUDIA,WORK(KVEC2P),1,-1)
         CALL FILEMAN_MINI(LUSC,'FREE  ')
@@ -247,7 +247,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 *
         CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,IREFSM),
      &        int_mb(KICONF_OCC(IREFSM)),WORK(KVEC1P),ECORE,
-     &        LUDIA,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),IREFSM)
+     &        LUDIA,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),IREFSM)
 C      GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,
 C     &           ECORE,LUDIA,NOCCLS_SPC,IOCCLS_SPC,ISYM)
 
@@ -977,14 +977,14 @@ C         GET_CQ_FROM_CP(LUCP,LUCQ,E,CB,HCB)
       CALL Z_BLKFO_FOR_CISPACE(IQSPC,ICSM,LBLOCK,ICOMP,
      &     NTEST,NQBLOCK,NQBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NQOCCLS_ACT,
-     &     dbl_mb(KCIOCCLS_ACT),
+     &     int_mb(KCIOCCLS_ACT),
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &     int_mb(KCIBT),
      &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),0,ILTEST)
 
       CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &     1,0,ICSM,IQSPC,2,2,LUQ1,LUQ,NQOCCLS_ACT,
-     &     dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+     &     int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
 *
 * 3: Generate diagonal contribitions to the density
 *
@@ -3534,7 +3534,7 @@ C Block for storing complete or partial CI-vector
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTESTL,NSBLOCK,NSBATCH,
      &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
-     &       dbl_mb(KSIOCCLS_ACT),
+     &       int_mb(KSIOCCLS_ACT),
      &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
      &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -3544,7 +3544,7 @@ C Block for storing complete or partial CI-vector
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTESTL,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -3605,7 +3605,7 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
 *. Not in core- write determinant expansion on LU_CDET
        CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &      1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
-     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+     &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
       END IF
 * 2: HPP CP (in and out in SD/CM), save on LU_SDET
       ICSPC = IPSPC
@@ -3622,11 +3622,11 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
       IBSBLOCK_BAT = 1
       DO IQBAT = 1, NSBATCH
 C                  IFRMR(WORK,IROFF,IELMNT)
-        IQ_OCCLS = dbl_mb(KSIOCCLS_ACT + IQBAT - 1)
+        IQ_OCCLS = int_mb(KSIOCCLS_ACT + IQBAT - 1)
         NSBLOCK_BAT = int_mb(KSLBT+IQ_OCCLS-1)
 *. Is this occupation in P-space
 C IS_IVEC_IN_LIST(IVEC,NELMNT,LIST,LLIST)
-        IQINP = IS_IVEC_IN_LIST(IQ_OCCLS,1,dbl_mb(KCIOCCLS_ACT),
+        IQINP = IS_IVEC_IN_LIST(IQ_OCCLS,1,int_mb(KCIOCCLS_ACT),
      &          NCOCCLS_ACT)
         IF(NTEST.GE.200) THEN
            WRITE(6,*)
@@ -3680,7 +3680,7 @@ C                ICOPVE2(IIN,IOFF,NDIM,IOUT)
             CALL ICOPVE2(int_mb(KSIBT),(IBSBLOCK_BAT-1)*8+1,
      &           8*NSBLOCK_BAT,int_mb(KEIBT))
             CALL ICOPVE2(int_mb(KSLBT),IQBAT,1,WORK(KELBT))
-            CALL ICOPVE2(dbl_mb(KSIOCCLS_ACT),IQBAT,1,
+            CALL ICOPVE2(int_mb(KSIOCCLS_ACT),IQBAT,1,
      &                   int_mb(KEIOCCLS_ACT))
             ICISTR_SAVE = ICISTR
             ICNFBAT_SAVE = ICNFBAT
@@ -3838,7 +3838,7 @@ C              FRMDSCN(VEC,NREC,LBLK,LU)
 *. Not in core- write determinant expansion on LU_CDET
        CALL CSDTVCMN(HCB,CB,dbl_mb(KVEC3),
      &      2,0,ICSM,ICSPC,2,2,LU_SDET,LUHC,NCOCCLS_ACT,
-     &      dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+     &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
       END IF
       IF(NTEST.GE.1000) WRITE(6,*) ' Home from CSDTVCMN '
 *

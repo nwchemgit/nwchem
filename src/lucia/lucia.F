@@ -2085,7 +2085,7 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &     dbl_mb(KCIOCCLS_ACT),
+     &     int_mb(KCIOCCLS_ACT),
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &     int_mb(KCIBT),
      &     int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -2096,7 +2096,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NSBLOCK,NSBATCH,
      &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
-     &     dbl_mb(KSIOCCLS_ACT),
+     &     int_mb(KSIOCCLS_ACT),
      &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &     int_mb(KSIBT),
      &     int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -2118,7 +2118,7 @@ C?    WRITE(6,*) ' TEST: NCBATCH, NSBATCH = ', NCBATCH, NSBATCH
 *. Generate the configurations and order them according
 *. to number of open orbitals
 *
-        CALL GEN_CONF_FOR_CISPC(dbl_mb(KCIOCCLS_ACT),NCOCCLS_ACT,ISM,
+        CALL GEN_CONF_FOR_CISPC(int_mb(KCIOCCLS_ACT),NCOCCLS_ACT,ISM,
      &       int_mb(KIOCCLS))
 *. The output are delivered in pointers set in GEN_CONF_FOR_CISPC
 *         Occupations: KICONF_OCC(ISYM)
@@ -2126,7 +2126,7 @@ C?    WRITE(6,*) ' TEST: NCBATCH, NSBATCH = ', NCBATCH, NSBATCH
 *. And then the reordering of the SD's
 *. The reordering arrays for the SD's are stored in KSDREO_I((ISM)
 C       WRITE(6,*) ' KSDREO_I(ISM) = ', KSDREO_I(ISM)
-        CALL CNFORD_GAS(dbl_mb(KCIOCCLS_ACT),NCOCCLS_ACT,
+        CALL CNFORD_GAS(int_mb(KCIOCCLS_ACT),NCOCCLS_ACT,
      &       int_mb(KIOCCLS),ISM,PSSIGN,
      &       IPRCSF,int_mb(KICONF_OCC(ISM)),int_mb(KICONF_REO(1)),
      &       int_mb(KSDREO_I(ISM)),int_mb(KSDREO_S(ISM)),
@@ -2269,7 +2269,7 @@ C COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
 *. CSFs: occlass blocks
 *. Number of CSFs per occlass
            CALL MEMMAN(KLNCS_FOR_OCCLS,NCOCCLS_ACT,'ADDL  ',1,'NCS_OC')
-           CALL GET_NCSF_PER_OCCLS_FOR_CISPACE(ISM,dbl_mb(KCIOCCLS_ACT),
+           CALL GET_NCSF_PER_OCCLS_FOR_CISPACE(ISM,int_mb(KCIOCCLS_ACT),
      &          NCOCCLS_ACT,int_mb(KNCS_FOR_OCCLS),
      &          int_mb(KLNCS_FOR_OCCLS))
 C          GET_NCSF_PER_OCCLS_FOR_CISPACE(ISYM,IOCCLS_ACT,
@@ -2334,7 +2334,7 @@ C?       WRITE(6,*) ' IH0_CSF = ', IH0_CSF
          CALL CSDIAG(KPVEC2,KPDIA_SD,
      &        NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
      &        int_mb(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,
-     &        ICNFBAT,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &        ICNFBAT,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
      &        int_mb(KCLBT),LUDIA,LUSC52)
 C        CSDIAG(CSFDIA,DETDIA,NCNFTP,MAXOP,ISM,
 C    &         ICTSDT,NPCMCNF,NPCSCNF,IPRCSF,
@@ -2355,7 +2355,7 @@ C?       WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 C?       WRITE(6,*) ' KPDIA_SD = ', KPDIA_SD
          CALL GET_CSF_H_PRECOND(NCONF_PER_OPEN(1,ISM),
      &        int_mb(KICONF_OCC(ISM)),KPDIA_SD,ECORE,
-     &        LUDIA,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM)
+     &        LUDIA,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),ISM)
 C        GET_CSF_H_PRECOND(NCONF_FOR_OPEN,ICONF_OCC,H0,ECORE,
 C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
        END IF
@@ -2374,7 +2374,7 @@ CBERT SHOULD NOT BE CALLED
          kfi = kint1o
          kint1o = kswap
 cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
-         CALL GASDIAT(dbl_mb(KVEC1),LUSC52,SHIFT,ICISTR,1,
+         CALL GASDIAT(KVEC1,LUSC52,SHIFT,ICISTR,1,
      &              int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
          kswap = kfi
          kfi = kint1o
@@ -2650,7 +2650,7 @@ C              ANACSF(CIVEC,ICONF_OCC,NCONF_FOR_OPEN,IPROCS,THRES,MAXTRM,IOUT)
               THRES = 0.1D0
               MAXTRM = 100
               IOUT = 6
-              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+              CALL ANACSF2(LUC,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),ISM,
      &             KPVEC1,int_mb(KICONF_OCC(ISM)),
      &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
      &             MAXTRM,IOUT)
@@ -2709,7 +2709,7 @@ cnw          CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
               IOUT = 6
               THRES = 0.1D0
               MAXTRM = 100
-              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+              CALL ANACSF2(LUC,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),ISM,
      &             KPVEC1,int_mb(KICONF_OCC(ISM)),
      &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
      &             MAXTRM,IOUT)
@@ -2723,7 +2723,7 @@ cnw          CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
               IOUT = 6
               THRES = 0.1D0
               MAXTRM = 100
-              CALL ANACSF2(LUC,NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),ISM,
+              CALL ANACSF2(LUC,NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),ISM,
      &             KPVEC1,int_mb(KICONF_OCC(ISM)),
      &             NCONF_PER_OPEN(1,ISM),int_mb(KCFTP),THRES,
      &             MAXTRM,IOUT)
@@ -4251,7 +4251,7 @@ C?         WRITE(6,*) ' LPOINT = ', LPOINT
 C ICOPVE2(IIN,IOFF,NDIM,IOUT)
 C          CALL ICOPVE2(LPOINT,JOCSBCLS,1,WORK(KKSBCNF))
 C               ICOPVE3(IIN,IOFFIN,IOUT,IOFFOUT,NDIM)
-           CALL ICOPVE3(LPOINT,1,dbl_mb(KKOCSBCNF),JOCSBCLS,1)
+           CALL ICOPVE3(LPOINT,1,int_mb(KKOCSBCNF),JOCSBCLS,1)
          END DO
 *
 C?       WRITE(6,*) ' Offset to occ of subconfs: '
@@ -9078,7 +9078,8 @@ c      INCLUDE 'mxpdim.inc'
 * ======
 *.Output
 * ======
-      DIMENSION DIAG(*)
+      integer diag
+CNW   DIMENSION DIAG(*)
 *
       CALL LUCIAQENTER('CIDIA')
 *
@@ -9862,6 +9863,7 @@ c.. look for index in ga_coul
      &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
       if (.not. geom_nuc_rep_energy(luciageom, ecore)) call
      $  errquit('unable to get nuclear rep energy',luciageom, GEOM_ERR)
+       ecore = -ecore
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
        ELSE IF (INTIMP .EQ. 5) THEN
@@ -10710,8 +10712,8 @@ CNW   CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY ')
 * ========================================================
 *
 *. And the occupation subclasses (given number of elecs in given space)
-       CALL GEN_DIM_SBCNF(dbl_mb(KNSBCNF),dbl_mb(KIBSBCNF),
-     &      dbl_mb(KLSBCNF),dbl_mb(KOGOCSBCLS),dbl_mb(KMNOPOCSBCL))
+       CALL GEN_DIM_SBCNF(int_mb(KNSBCNF),int_mb(KIBSBCNF),
+     &      int_mb(KLSBCNF),int_mb(KOGOCSBCLS),int_mb(KMNOPOCSBCL))
 *. Number of CSF's SD, and Confs per configuration type using subconf info
        IF(I_DO_SBCNF.EQ.1) THEN
          DO ICISPC = 1, NCISPC
@@ -10914,8 +10916,8 @@ C GET_NSD_MINMAX_SPACE(MIN_OCC,MAX_OCC,ISYM,MS2X,MULTSX, NSD,NCM,NCSF,NCONF)
       END IF
       IF(NOCSF.EQ.0.AND.I_DO_SBCNF.EQ.1) THEN
 *. Construct the occupations of the various subconfigurations
-       CALL GEN_OCC_SBCNF(dbl_mb(KNSBCNF),dbl_mb(KIBSBCNF),
-     &      dbl_mb(KOGOCSBCLS),dbl_mb(KMNOPOCSBCL),dbl_mb(KKOCSBCNF))
+       CALL GEN_OCC_SBCNF(int_mb(KNSBCNF),int_mb(KIBSBCNF),
+     &      int_mb(KOGOCSBCLS),int_mb(KMNOPOCSBCL),int_mb(KKOCSBCNF))
 C           GEN_OCC_SBCNF(NSBCNF_FOR_OP_SM,IBSBCNF_FOR_OP_SM,
 C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 
@@ -12912,7 +12914,7 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
       IF(ISFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTEST,NSBLOCK,NSBATCH,int_mb(KSIOIO),int_mb(KSBLTP),
-     &       NSOCCLS_ACT,dbl_mb(KSIOCCLS_ACT),
+     &       NSOCCLS_ACT,int_mb(KSIOCCLS_ACT),
      &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
      &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -12921,7 +12923,7 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
       IF(ICFIRST.EQ.1) THEN
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
-     &       NCOCCLS_ACT,dbl_mb(KCIOCCLS_ACT),
+     &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -12983,7 +12985,7 @@ C    &           IMAXMIN_OR_GAS,ICNFBAT,LU_DET,LU_CSF,NOCCLS_ACT,
 C    &           IOCCLS_ACT,IBLOCK,NBLK_PER_BATCH)  
         CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
      &       1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+     &       int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
        END IF
       END IF
 *
@@ -13029,7 +13031,7 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
        ELSE
         CALL CSDTVCMN(HCB,CB,dbl_mb(KVEC3),
      &       2,0,ISSM,ISSPC,2,2,LU_SDET,LUHC,NSOCCLS_ACT,
-     &       dbl_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
+     &       int_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
        END IF
       END IF
 *
@@ -16040,10 +16042,12 @@ cnw         GOTO 999
 * 35: Do not employ CSF expansion
 * ================================
 cnw       IF(CARD(2:6).EQ.'NOCSF') THEN
+        print*,'nocsf'
         if(rtdb_get(rtdb,'lucia:nocsf',mt_log,1,nocsf_on)) then
          ISETKW(35) = 1
          NOCSF = 1
 cnw         GOTO 999
+         print*,'nosf is one'
        END IF
 * ================================
 * 37: Do not read in integrals   
@@ -19453,6 +19457,7 @@ C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
 *
 * 34: CI storage mode
 *
+      ICISTR = 1
       IF(ISETKW(34).EQ.0) THEN
 *. Default is three type-type-symmetry blocks
         ICISTR = 3
@@ -35098,30 +35103,30 @@ C?   &             MAXOP, NOCCLS_MAX, LEN
 *. Number of confs, all sym for an occupation class
       CALL MEMMAN(KNCN_ALLSYM_FOR_OCCLS,NOCCLS_MAX,'ADDS  ',1,'CN_OCC')
 *. Array: AB supergroups => occupation class
-      CALL MEMMAN(KIABSPGP_FOR_OCCLS,N_ABSPGP_MAX*2,'ADDL  ',2,
+      CALL MEMMAN(KIABSPGP_FOR_OCCLS,N_ABSPGP_MAX*2,'ADDL  ',1,
      &            'ABTOOC')
-      CALL MEMMAN(KNABSPGP_FOR_OCCLS,NOCCLS_MAX,'ADDL  ',2,'NABTOC')
-      CALL MEMMAN(KIBABSPGP_FOR_OCCLS,NOCCLS_MAX,'ADDL  ',2,'BABTOC')
+      CALL MEMMAN(KNABSPGP_FOR_OCCLS,NOCCLS_MAX,'ADDL  ',1,'NABTOC')
+      CALL MEMMAN(KIBABSPGP_FOR_OCCLS,NOCCLS_MAX,'ADDL  ',1,'BABTOC')
 *. AB supergroups for compound space
-      CALL MEMMAN(KIABSPGP_FOR_CMPSPC,N_ABSPGP_MAX*2,'ADDL  ',2,
+      CALL MEMMAN(KIABSPGP_FOR_CMPSPC,N_ABSPGP_MAX*2,'ADDL  ',1,
      &            'ABTOCM')
 *. Active occupation classes in a given CI space for Sigma and C
-      CALL MEMMAN(KCIOCCLS_ACT,NOCCLS_MAX,'ADDL  ',2,'S_OCAC')
-      CALL MEMMAN(KSIOCCLS_ACT,NOCCLS_MAX,'ADDL  ',2,'C_OCAC')
+      CALL MEMMAN(KCIOCCLS_ACT,NOCCLS_MAX,'ADDL  ',1,'S_OCAC')
+      CALL MEMMAN(KSIOCCLS_ACT,NOCCLS_MAX,'ADDL  ',1,'C_OCAC')
 *
 * Occupation subclasses
 *
 *. Gas space and occupation of each suboccupation class
-      CALL MEMMAN(KOGOCSBCLS,2*NOCSBCLST,'ADDL  ',2,'OGOCSB')
+      CALL MEMMAN(KOGOCSBCLS,2*NOCSBCLST,'ADDL  ',1,'OGOCSB')
 *. The occupation sub classes of each occupation class
-      CALL MEMMAN(KOCSBCLS_OF_OCCLS,NOCCLS_MAX*MXPNGAS,'ADDL  ',2,
+      CALL MEMMAN(KOCSBCLS_OF_OCCLS,NOCCLS_MAX*MXPNGAS,'ADDL  ',1,
      &            'OC-SBO')
 *. The minumum number of open shells for each occupation subclass in a 
 *. given occupation class
-      CALL MEMMAN(KMINOPGAS_FOR_OCCLS,NOCCLS_MAX*MXPNGAS,'ADDL  ',2,
+      CALL MEMMAN(KMINOPGAS_FOR_OCCLS,NOCCLS_MAX*MXPNGAS,'ADDL  ',1,
      &            'MNGSOC')
 *. And the minimum number of open orbitals for each occupation sub class
-      CALL MEMMAN(KMNOPOCSBCL,NOCSBCLST,'ADDL  ',2,'MNOPSB')
+      CALL MEMMAN(KMNOPOCSBCL,NOCSBCLST,'ADDL  ',1,'MNOPSB')
 *. 
 *. Subconfigurations
 *
@@ -35130,11 +35135,11 @@ C?   &                          NSMOB*(MAXOP+1)*NOCSBCLST
 *. Number of subconfigurations per sym, nopen, and subconftype
 *
       LL = NSMOB*(MAXOP+1)*NOCSBCLST 
-      CALL MEMMAN(KNSBCNF,LL,'ADDL  ',2,' NSBCN')
-      CALL MEMMAN(KLSBCNF,NOCSBCLST,'ADDL  ',2,' LSBCN')
-      CALL MEMMAN(KIBSBCNF,LL,'ADDL  ',2,'IBSBCN')
+      CALL MEMMAN(KNSBCNF,LL,'ADDL  ',1,' NSBCN')
+      CALL MEMMAN(KLSBCNF,NOCSBCLST,'ADDL  ',1,' LSBCN')
+      CALL MEMMAN(KIBSBCNF,LL,'ADDL  ',1,'IBSBCN')
 *. Pointer to pointers for occupation of subconfigurations of given  occupation subclass
-      CALL MEMMAN(KKOCSBCNF,NOCSBCLST,'ADDL  ',2,'KKOCSB')
+      CALL MEMMAN(KKOCSBCNF,NOCSBCLST,'ADDL  ',1,'KKOCSB')
 *
       RETURN
       END

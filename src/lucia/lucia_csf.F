@@ -157,7 +157,7 @@ c      INCLUDE 'mxpdim.inc'
       NELEC = IELSUM(IOCCLS_LIST(1,IOCCLS(1)),NGAS)
 *
       CALL LUCIAQENTER('GENCN')
-      NTEST = 000
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' ============================='
@@ -277,8 +277,8 @@ C?         WRITE(6,*) ' IB_OCCLS before GEN_CONF', IB_OCCLS
           CALL GEN_OCCONF_FOR_OCCLS_FROM_OCSBCLS(
      &         IOCCLS_LIST(1,JOCCLS),ISYM,int_mb(KICONF_OCC(ISYM)),
      &         IB_CNOCC_OPEN,IB_CN_OPEN,NCONF_PER_OPEN(1,ISYM),
-     &         MINOP, MAXOP,dbl_mb(KKOCSBCNF),
-     &         dbl_mb(KNSBCNF),dbl_mb(KIBSBCNF))
+     &         MINOP, MAXOP,int_mb(KKOCSBCNF),
+     &         int_mb(KNSBCNF),int_mb(KIBSBCNF))
 *
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NCONF_PER_OPEN after GEN_OCCONF'
@@ -1298,6 +1298,9 @@ C     ' Occ      : ',(ICONF(I), I=1,L)
 c      INCLUDE 'implicit.inc'
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INTEGER KLZ_FOR_TYPES(MAXOP)
 *
       NTEST = 00
@@ -1327,10 +1330,11 @@ C?    WRITE(6,*) ' MINOP, MAXOP entering GEN_W ...', MINOP, MAXOP
         IF(MOD(IOPEN-MS2,2).EQ.0) THEN
           NAEL = (IOPEN+MS2)/2
           NBEL = (IOPEN-MS2)/2
-          CALL MXMNOC_SPGP(WORK(KLMIN),WORK(KLMAX),1,IOPEN,NAEL,NAEL,
-     &                     NINOB,NTEST)
-          CALL GRAPW(WORK(KLY),WORK(KLZ_FOR_TYPES(IOPEN+1)),WORK(KLMIN),
-     &               WORK(KLMAX),IOPEN,NAEL,NINOB,NTEST)
+          CALL MXMNOC_SPGP(int_mb(KLMIN),int_mb(KLMAX),1,IOPEN,NAEL,
+     &                     NAEL,NINOB,NTEST)
+          CALL GRAPW(int_mb(KLY),int_mb(KLZ_FOR_TYPES(IOPEN+1)),
+     &               int_mb(KLMIN),
+     &               int_mb(KLMAX),IOPEN,NAEL,NINOB,NTEST)
 C     MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),NORBTP,NORBFTP,NELFTP,
 C    &                 NEL,NINOB,NTEST)
 C              CALL GRAPW(ISCR(KW),Z,ISCR(KLMIN),ISCR(KLMAX),NORB,NEL,NTEST)
@@ -1809,6 +1813,10 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cstate.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
 *
       INTEGER ISPOBEX(4*NGAS,*)
       INTEGER ISPOBEX_TO_OCCLS(*), IBSPOBEX_TO_OCCLS(*)
@@ -1838,7 +1846,8 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLMS2,NGAS,'ADDL  ',1,'MS2   ')
       CALL MEMMAN(KLMAXOP,NGAS,'ADDL  ',1,'MAXOP ')
 *          GET_REF_ALBE_OCC(IREFSPC,IREF_AL,IREF_BE)
-      CALL GET_REF_ALBE_OCC(IREFSPC,WORK(KLALREF_OC),WORK(KLBEREF_OC))
+      CALL GET_REF_ALBE_OCC(IREFSPC,int_mb(KLALREF_OC),
+     &                      int_mb(KLBEREF_OC))
 *
 *. Largest number of determinants belonging to a given occls
 *
@@ -1866,23 +1875,23 @@ C    &           ISTR_OUT_OCC,NGAS,IZERO_STR)
          CALL EXOCC_STROCC(
      &        ISPOBEX((1-1)*NGAS+1,ISPOX),
      &        ISPOBEX((3-1)*NGAS+1,ISPOX),
-     &        WORK(KLALREF_OC),WORK(KLAL_OC),NGAS,IZERO)
+     &        int_mb(KLALREF_OC),int_mb(KLAL_OC),NGAS,IZERO)
 *. Excited beta string
          CALL EXOCC_STROCC(
      &        ISPOBEX((2-1)*NGAS+1,ISPOX),
      &        ISPOBEX((4-1)*NGAS+1,ISPOX),
-     &        WORK(KLBEREF_OC),WORK(KLBE_OC),NGAS,IZERO)
+     &        int_mb(KLBEREF_OC),int_mb(KLBE_OC),NGAS,IZERO)
 *. MS2 and number of unpaired electrons per GAS space 
 *     IALBE_TO_MAXOP(IAL,IBE,IMAXOP,IMS2)
-         CALL IALBE_TO_MAXOP(WORK(KLAL_OC),WORK(KLBE_OC),
-     &        WORK(KLMAXOP),WORK(KLMS2) )
+         CALL IALBE_TO_MAXOP(int_mb(KLAL_OC),int_mb(KLBE_OC),
+     &        int_mb(KLMAXOP),int_mb(KLMS2) )
 *. Number of open orbitals 
-         NOP = IELSUM(WORK(KLMAXOP),NGAS)
+         NOP = IELSUM(int_mb(KLMAXOP),NGAS)
          NMX_OP = MAX(NOP,NMX_OP)
 *. Number of SD's with this MAXOP and MS2
          IFLAG = 1
 C             DET_FOR_SPOC(NOP_GAS,IMS_GAS,NGAS,NDET,IDET,IFLAG)
-         CALL DET_FOR_SPOC(WORK(KLMAXOP),WORK(KLMS2),NGAS,NDETL,
+         CALL DET_FOR_SPOC(int_mb(KLMAXOP),int_mb(KLMS2),NGAS,NDETL,
      &                     IDUM,IDUM,IFLAG)
          NDET = NDET + NDETL
         END DO
@@ -1943,23 +1952,23 @@ C     CALL MEMMAN(KLZ,NMX_OP,'ADDL  ',1,'Z_SD  ')
          CALL EXOCC_STROCC(
      &        ISPOBEX((1-1)*NGAS+1,ISPOX),
      &        ISPOBEX((3-1)*NGAS+1,ISPOX),
-     &        WORK(KLALREF_OC),WORK(KLAL_OC),NGAS,IZERO)
+     &        int_mb(KLALREF_OC),int_mb(KLAL_OC),NGAS,IZERO)
 *. Excited beta string
          CALL EXOCC_STROCC(
      &        ISPOBEX((2-1)*NGAS+1,ISPOX),
      &        ISPOBEX((4-1)*NGAS+1,ISPOX),
-     &        WORK(KLBEREF_OC),WORK(KLBE_OC),NGAS,IZERO)
+     &        int_mb(KLBEREF_OC),int_mb(KLBE_OC),NGAS,IZERO)
 *. MS2 and number of unpaired electrons per GAS space 
 *     IALBE_TO_MAXOP(IAL,IBE,IMAXOP,IMS2)
-         CALL IALBE_TO_MAXOP(WORK(KLAL_OC),WORK(KLBE_OC),
-     &        WORK(KLMAXOP),WORK(KLMS2) )
-         NOP = IELSUM(WORK(KLMAXOP),NGAS)
+         CALL IALBE_TO_MAXOP(int_mb(KLAL_OC),int_mb(KLBE_OC),
+     &        int_mb(KLMAXOP),dbl_mb(KLMS2) )
+         NOP = IELSUM(int_mb(KLMAXOP),NGAS)
 *
 *. SD's of this type
 *
          IFLAG = 0
-         CALL DET_FOR_SPOC(WORK(KLMAXOP),WORK(KLMS2),NGAS,NDETL,
-     &                     WORK(KLSD),IBDET,IFLAG)
+         CALL DET_FOR_SPOC(int_mb(KLMAXOP),dbl_mb(KLMS2),NGAS,NDETL,
+     &                     int_mb(KLSD),IBDET,IFLAG)
 C?       CALL MEMCHK2('DET_F1')
          IBDET = IBDET + NDETL
          NDET = NDET + NDETL
@@ -1985,32 +1994,34 @@ C?       CALL MEMCHK2('DET_F1')
 *
 * Obtain reorder array Lexical to actual number 
 *
-         CALL REO_SD(WORK(KLSD),NOP,NOP_AL,NDET,NDET_CNF,
-     &              WORK(KLZ_TYPES(NOP+1)),WORK(KLREO))
+         CALL REO_SD(int_mb(KLSD),NOP,NOP_AL,NDET,NDET_CNF,
+     &              int_mb(KLZ_TYPES(NOP+1)),int_mb(KLREO))
 *. Set up S2 matrix for this set of determinants
 C     S2_MAT_FOR_DETS(IDET,NDET,NOP,MS2,IZ,IREO,S2MAT,
 C    &                           IWORK,XWORK)
-         CALL S2_MAT_FOR_DETS(WORK(KLSD),NDET,NOP,MS2,
-     &      WORK(KLZ_TYPES(NOP+1)),
-     &      WORK(KLREO),WORK(KLS2),WORK(KLSD_OCC_F),WORK(KLSD_F))
+         CALL S2_MAT_FOR_DETS(int_mb(KLSD),NDET,NOP,MS2,
+     &      int_mb(KLZ_TYPES(NOP+1)),
+     &      int_mb(KLREO),dbl_mb(KLS2),int_mb(KLSD_OCC_F),
+     &      dbl_mb(KLSD_F))
 *. Diagonalize S2 matrix 
 C DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
-         CALL DIAG_SYM_MAT(WORK(KLS2),WORK(KLS2),WORK(KLS2P),NDET,0)
+         CALL DIAG_SYM_MAT(dbl_mb(KLS2),dbl_mb(KLS2),dbl_mb(KLS2P),
+     &                     NDET,0)
          WRITE(6,*) ' Eigenvalues of S2 '
-         CALL WRTMAT(WORK(KLS2P),NDET,1,NDET,1)
+         CALL WRTMAT(dbl_mb(KLS2P),NDET,1,NDET,1)
 *. . Find the eigensolutions with spin S
          THRES = 1.0D-10
          DO IEIG = 1, NDET
-           IF(ABS(WORK(KLS2P-1+IEIG)-S*(S+1.0D0)).LE.THRES) THEN
-             WORK(KLSD_F-1+IEIG) = 1.0D0
+           IF(ABS(dbl_mb(KLS2P-1+IEIG)-S*(S+1.0D0)).LE.THRES) THEN
+             dbl_mb(KLSD_F-1+IEIG) = 1.0D0
            ELSE
-             WORK(KLSD_F-1+IEIG) = -1.0D0
+             dbl_mb(KLSD_F-1+IEIG) = -1.0D0
            END IF
          END DO
 *
          IF(NTEST.GE.100) THEN
            WRITE(6,*) ' Vector defining P/Q partitioning '
-           CALL WRTMAT(WORK(KLSD_F),1,NDET,1,NDET)
+           CALL WRTMAT(dbl_mb(KLSD_F),1,NDET,1,NDET)
          END IF
 *
       END DO
@@ -3891,7 +3902,7 @@ cnw   DIMENSION FI_AL(*), FI_BE(*)
 * Is matrix symmetrically packed or ??? 
       ISYMPACK = 1
 *
-      NTEST = 00
+      NTEST = 100
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' FI_HS : Initial 1 e integral list '
 cnw     CALL APRBLM2(H,NTOOBS,NTOOBS,NSMOB,ISYMPACK)
@@ -4655,7 +4666,7 @@ C     END DO
 *. Local scratch
       INTEGER JOCC(2*MXPORB), JACOCC(MXPORB), JACOCC2(MXPORB)
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' ================================='
@@ -5071,7 +5082,7 @@ C?    WRITE(6,*) ' TEST: NORB = ', NORB
 *. Local scratch 
 C     INTEGER ICONF(2*MXPORB)
 *. Local scratch for testing 
-      NTEST = 10
+      NTEST = 0
       IF(NTEST.GE.10) THEN
         WRITE(6,*) 
         WRITE(6,*) ' ===================================='
@@ -5153,7 +5164,7 @@ C    &                                 NPCSCNF)
 *
 *. Arcweights
       CALL CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORBL,
-     &     NELEC,WORK(KZ_GN(ISPC)),NCONF_P,int_mb(KLZSCR))
+     &     NELEC,int_mb(KZ_GN(ISPC)),NCONF_P,int_mb(KLZSCR))
 *
       INITIALIZE_CONF_COUNTERS = 1
       IDOREO = 1
@@ -5161,15 +5172,15 @@ C    &                                 NPCSCNF)
 *. Generate configurations and lexical addressing arrays 
 *. for configurations of this type 
       IZERO = 0
-      CALL ISETVC(WORK(KICONF_REO_GN(ISYM,ISPC)),IZERO,
+      CALL ISETVC(int_mb(KICONF_REO_GN(ISYM,ISPC)),IZERO,
      &            NCONF_ALL_SYM_GN(ISPC))
       CALL GEN_CONF_FOR_MAXMIN_OCC(IOCC_MIN,IOCC_MAX,NORBL,IORB_IB,
      &     INITIALIZE_CONF_COUNTERS,
      &     ISYM,MINOP,MAXOP,NSMST,IONLY_NCONF,
      &     NCONF_PER_OPEN_GN(1,ISYM,ISPC),NCONF,
      &     IB_CONF_REO_GN(1,ISYM,ISPC),IB_CONF_OCC_GN(1,ISYM,ISPC),
-     &     WORK(KICONF_OCC_GN(ISYM,ISPC)),IDOREO,WORK(KZ_GN(ISPC)),
-     &     WORK(KICONF_REO_GN(ISYM,ISPC)),
+     &     int_mb(KICONF_OCC_GN(ISYM,ISPC)),IDOREO,int_mb(KZ_GN(ISPC)),
+     &     int_mb(KICONF_REO_GN(ISYM,ISPC)),
      &     NCONF_ALL_SYM_GN(ISPC),IREO_MNMX_OB_NO)
 *
 C?         WRITE(6,*) ' KICONF_REO_GN(ISYM,ISPC) = ', 
@@ -6197,8 +6208,8 @@ C     ISYM_CONF_G(IOCC,NOCCL,NORBL,IORB_OFF,ICONF_FORM)
      &                  IB_ORB_CONF, ISYM
 *
       ILEX = ILEX_FOR_CONF(ICONF,NOCC_ORB,N_ORB_CONF,N_EL_CONF,
-     &       WORK(KZ_GN(ICONF_SPC)),
-     &       IDOREO,WORK(KICONF_REO_GN(ISYM,ICONF_SPC)))
+     &       int_mb(KZ_GN(ICONF_SPC)),
+     &       IDOREO,int_mb(KICONF_REO_GN(ISYM,ICONF_SPC)))
 *
 C?    WRITE(6,*) ' Test: first three elements of KICONF_REO..'
 C?    CALL IWRTMA(WORK(KICONF_REO_GN(ISYM,ICONF_SPC)),1,3,1,3)
@@ -6408,14 +6419,16 @@ C     ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
 *. Input
-      DIMENSION DETDIA(*)
+      integer DETDIA
+CNW   DIMENSION DETDIA(*)
       DIMENSION NCNFTP(MAXOP+1),NPCMCNF(MAXOP+1),NPCSCNF(MAXOP+1)
       INTEGER ICTSDT(*)
 *. (If ICNFBAT = 2)
       INTEGER IOCCLS_ACT(NOCCLS_ACT)
       INTEGER LBLOCK(NOCCLS_ACT)
 *. Output
-      DIMENSION CSFDIA(*)
+      integer CSFDIA
+CNW   DIMENSION CSFDIA(*)
   
       NTEST = 000
       NTEST = MAX(NTEST,IPRCSF)
@@ -6447,10 +6460,14 @@ C     ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
            JCNABS = JCNABS + 1
            EAVER = 0.0D0
            DO JDET = 1, IDET
-             EAVER = EAVER +DETDIA(ABS(ICTSDT(IDTOFF-1+JDET)))
+             IADD = ABS(ICTSDT(IDTOFF-1+JDET))
+             call ga_get(DETDIA,IADD,IADD,1,1,EVAL,1)
+             EAVER = EAVER + EVAL
+CNW          EAVER = EAVER +DETDIA(ABS(ICTSDT(IDTOFF-1+JDET)))
            END DO
            IF( IDET .NE. 0 )EAVER = EAVER/IDET
-           CALL SETVEC(CSFDIA(ICSOFF),EAVER,ICSF)
+           call ga_fill_patch(CSFDIA,ICSOFF,ICSOFF+ICSF-1,1,1,EAVER)
+CNW        CALL SETVEC(CSFDIA(ICSOFF),EAVER,ICSF)
            ICSOFF = ICSOFF + ICSF
            IDTOFF = IDTOFF + IDET
          END DO !loop over confs
@@ -6464,7 +6481,7 @@ C     ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
        DO IIOCLS = 1, NOCCLS_ACT
 *. Read in the diagonal in det basis for this batch
         NBLK = LBLOCK(IIOCLS)
-        CALL FRMDSCN(DETDIA,NBLK,LBLK,LUDIA_DET)
+CBERT   CALL FRMDSCN(DETDIA,NBLK,LBLK,LUDIA_DET)
 C       FRMDSCN(VEC,NREC,LBLK,LU)
         IOCCLS = IOCCLS_ACT(IIOCLS)
 *. Obtain configurations for this occupation class 
@@ -6485,10 +6502,10 @@ C           GEN_CNF_INFO_FOR_OCCLS(IOCCLS_NUM,IDOSDREO,ISYM)
            JCNABS = JCNABS + 1
            EAVER = 0.0D0
            DO JDET = 1, IDET
-             EAVER = EAVER +DETDIA(ABS(ICTSDT(IDTOFF-1+JDET)))
+CBERT        EAVER = EAVER +DETDIA(ABS(ICTSDT(IDTOFF-1+JDET)))
            END DO
            IF( IDET .NE. 0 )EAVER = EAVER/IDET
-           CALL SETVEC(CSFDIA(ICSOFF),EAVER,ICSF)
+CBERT      CALL SETVEC(CSFDIA(ICSOFF),EAVER,ICSF)
            ICSOFF = ICSOFF + ICSF
            IDTOFF = IDTOFF + IDET
          END DO !loop over confs
@@ -6496,10 +6513,10 @@ C           GEN_CNF_INFO_FOR_OCCLS(IOCCLS_NUM,IDOSDREO,ISYM)
 *. Write to Disc
         NCSF_OCC = ICSOFF - 1
         CALL ITODS(NCSF_OCC,1,-1,LUDIA_CSF)
-        CALL TODSC(CSFDIA,NCSF_OCC,-1,LUDIA_CSF)
+CBERT   CALL TODSC(CSFDIA,NCSF_OCC,-1,LUDIA_CSF)
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Averaged CSF  diagonal for occls '
-          CALL WRTMAT(CSFDIA,1,NCSF_OCC,1,NCSF_OCC)
+CBERT     CALL WRTMAT(CSFDIA,1,NCSF_OCC,1,NCSF_OCC)
         END IF
        END DO! over active occupation classes
 *This is the end...
@@ -6512,13 +6529,15 @@ C           GEN_CNF_INFO_FOR_OCCLS(IOCCLS_NUM,IDOSDREO,ISYM)
         IF(ICNFBAT.EQ.1) THEN
           NCSTOT = ICSOFF-1
           NDTTOT = IDTOFF-1
-          CALL WRTMAT(DETDIA,1,NDTTOT,1,NDTTOT)
+CNW       CALL WRTMAT(DETDIA,1,NDTTOT,1,NDTTOT)
+          call ga_print_patch(DETDIA,1,NCSTOT,1,NCSTOT,1)
           WRITE(6,*)
-          CALL WRTMAT(CSFDIA,1,NCSTOT,1,NCSTOT) 
+CNW       CALL WRTMAT(CSFDIA,1,NCSTOT,1,NCSTOT) 
+          call ga_print_patch(CSFDIA,1,NCSTOT,1,NCSTOT,1)
         ELSE
-          CALL WRTVCD(DETDIA,LUDIA_DET,1,LBLK)
+CNW       CALL WRTVCD(DETDIA,LUDIA_DET,1,LBLK)
           WRITE(6,*)
-          CALL WRTVCD(DETDIA,LUDIA_CSF,1,LBLK)
+CNW       CALL WRTVCD(DETDIA,LUDIA_CSF,1,LBLK)
 C               WRTVCD(SEGMNT,LU,IREW,LBLK)
         END IF
       END IF
@@ -7469,7 +7488,7 @@ C
       INTEGER IOCCLS(NGAS,NOCCLS)
 *
       CALL LUCIAQENTER('GNOCCL')
-      NTEST = 1000
+      NTEST = 00
       IF(NTEST.GE.100) THEN
          WRITE(6,*) '  GEN_OCCLS_FOR_CISPAC in action '
          WRITE(6,*) ' ================================'
@@ -7606,7 +7625,7 @@ C    &           NABSPGP_PER_OCCLS,IABSPGP_PER_OCCLS,
 C    &           N_SDAB_PER_OCCLS,N_CMAB_PER_OCCLS,
 C                N_SDAB_PER_OCCLS_MAX,N_CMAB_PER_OCCLS_MAX)
       CALL GEN_NSDAB_FOR_ALL_OCCLS(
-     &     dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIABSPGP_FOR_OCCLS),
+     &     int_mb(KNABSPGP_FOR_OCCLS),int_mb(KIABSPGP_FOR_OCCLS),
      &     int_mb(KNSDAB_FOR_OCCLS),int_mb(KNCMAB_FOR_OCCLS),
      &     N_SDAB_PER_OCCLS_MAX, N_CMAB_PER_OCCLS_MAX) 
 *
@@ -7618,7 +7637,7 @@ C    &           IOCCLS_ACT)
       CALL OCCLS_TO_SPACE_DIM(int_mb(KNCN_FOR_OCCLS),
      &     int_mb(KNCS_FOR_OCCLS),int_mb(KNCM_FOR_OCCLS),
      &     int_mb(KNSD_FOR_OCCLS),
-     &     int_mb(KNCN_ALLSYM_FOR_OCCLS),dbl_mb(KSIOCCLS_ACT))
+     &     int_mb(KNCN_ALLSYM_FOR_OCCLS),int_mb(KSIOCCLS_ACT))
 *
       WRITE(6,*) ' First 4 elements of WORK(KNCMAB_FOR_OCCLS) '
       CALL IWRTMA(int_mb(KNCMAB_FOR_OCCLS),1,3,1,3)
@@ -7670,7 +7689,7 @@ C     FUNCTION LEN_OCCLIST(NCONF_PER_OPEN, MAXOP, NELEC)
       INTEGER NCN_ALLSYM_FOR_OCCLS(NOCCLS_MAX)
       INTEGER NCN_FOR_OCCLS(NIRREP,NOCCLS_MAX) 
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from GEN_INFO_FOR_ALL_OCCLS_S '
         WRITE(6,*) ' ================================== '
@@ -7764,7 +7783,7 @@ C                  LEN_OCCLIST(NCONF_PER_OPEN, MAXOP, NELEC)
 *. Local scratch
       INTEGER JCONF(2*MXPORB)
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Info from GEN_NCONF_FOR_OCCLS'
         WRITE(6,*) ' ============================ '
@@ -7865,7 +7884,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
      &        NCM_FOR_OCCLS(NIRREP,NOCCLS_MAX),
      &        NSD_FOR_OCCLS(NIRREP,NOCCLS_MAX) 
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) '  Output from GEN_NCSF_ETC_FOR_ALL_OCCLS '
         WRITE(6,*) '  ======================================='
@@ -8592,8 +8611,8 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
      &       NPCMCNF,int_mb(KDFTP),
      &       KZ_PTDT,KREO_PTDT,
      &       IB_CN_OPEN, IB_CM_OPEN,
-     &       dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
-     &       dbl_mb(KIABSPGP_FOR_OCCLS),
+     &       int_mb(KNABSPGP_FOR_OCCLS),int_mb(KIBABSPGP_FOR_OCCLS),
+     &       int_mb(KIABSPGP_FOR_OCCLS),
      &       int_mb(KLASTR),int_mb(KLBSTR),
      &       int_mb(KLDET_OC),int_mb(KLDET_MS),int_mb(KLDET_VC),ILCHK)
       ELSE
@@ -8607,8 +8626,8 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
      &        NPCMCNF,int_mb(KDFTP),
      &        KZ_PTDT,KREO_PTDT,
      &        IB_CN_OPEN, IB_CM_OPEN,
-     &        dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
-     &        dbl_mb(KIABSPGP_FOR_OCCLS),
+     &        int_mb(KNABSPGP_FOR_OCCLS),int_mb(KIBABSPGP_FOR_OCCLS),
+     &        int_mb(KIABSPGP_FOR_OCCLS),
      &        int_mb(KLASTR),int_mb(KLBSTR),
      &        int_mb(KLDET_OC),int_mb(KLDET_MS),int_mb(KLDET_VC),ILCHK)
        ELSE 
@@ -8623,8 +8642,8 @@ C?    WRITE(6,*) ' TESTY, NCMB_CN = ', NCMB_CN
      &        NPCMCNF,int_mb(KDFTP),
      &        KZ_PTDT,KREO_PTDT,
      &        IB_CN_OPEN, IB_CM_OPEN,
-     &        dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
-     &        dbl_mb(KIABSPGP_FOR_OCCLS),
+     &        int_mb(KNABSPGP_FOR_OCCLS),int_mb(KIBABSPGP_FOR_OCCLS),
+     &        int_mb(KIABSPGP_FOR_OCCLS),
      &        int_mb(KLASTRP),int_mb(KLBSTRP),
      &        int_mb(KLDET_OC),int_mb(KLDET_MS),int_mb(KLDET_VC),
      &        int_mb(KLDET_MS_AB),
@@ -8704,7 +8723,7 @@ c     IMPLICIT REAL*8(A-H,O-Z)
 *. ------
       INTEGER IREO(*)
 *
-      NTEST = 10000
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' output from REO_SD_OCCLS_S '
         WRITE(6,*) ' ========================='
@@ -10408,7 +10427,7 @@ C RESTORE ORDER !!!
         IB_INLIST = IB_CONF_OCC_GN(IOPEN+1,ISYM,ISPC)
         IADR_INLIST = IB_INLIST + (INUM_OP-1)*NOCOB_L 
 C            ICOPVE2(IIN,IOFF,NDIM,IOUT)
-        CALL ICOPVE2(WORK(IB_CONFLIST),IADR_INLIST,NOCOB_L,IOCC)
+        CALL ICOPVE2(int_mb(IB_CONFLIST),IADR_INLIST,NOCOB_L,IOCC)
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Next configuration '
           CALL IWRTMA(IOCC,1,NOCOB_L,1,NOCOB_L)
@@ -11810,8 +11829,8 @@ C       WRITE(6,*) ' ILTEST, ISIMSYM =  ', ILTEST, ISIMSYM
      &       LBLOCK,ISMOST(1,ISM),int_mb(KNSTSO(IATP)),
      &       int_mb(KNSTSO(IBTP)),
      &       NOCCLS_ACT,IOCCLS_ACT,
-     &       dbl_mb(KNABSPGP_FOR_OCCLS),dbl_mb(KIBABSPGP_FOR_OCCLS),
-     &       dbl_mb(KIABSPGP_FOR_OCCLS),
+     &       int_mb(KNABSPGP_FOR_OCCLS),int_mb(KIBABSPGP_FOR_OCCLS),
+     &       int_mb(KIABSPGP_FOR_OCCLS),
      %       int_mb(KNSD_FOR_OCCLS),
      &       NBATCH,NBLK_PER_BATCH,NELMNT_PER_BATCH,
      &       IB_FOR_BATCH, IBLOCKFO,ICOMP,
@@ -12449,13 +12468,13 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
 *
 *. The actual occupation subclasses
 *
-      CALL GEN_OCSBCLS(MNGSOC, MXGSOC, NGAS, dbl_mb(KOGOCSBCLS))
+      CALL GEN_OCSBCLS(MNGSOC, MXGSOC, NGAS, int_mb(KOGOCSBCLS))
 C     GEN_OCSBCLS(MNGSOC, MXGSOC, NGAS, IOGSBCLS)
 *
 *. The occupation sub classes of each occupation class
       CALL OCSBCLS_OF_OCCLS(int_mb(KIOCCLS),NOCCLS_MAX, NGAS,
-     &     IBOCSBCLS,MNGSOC,dbl_mb(KOCSBCLS_OF_OCCLS),
-     &     dbl_mb(KMINOPGAS_FOR_OCCLS),MINOP,NOBPT)
+     &     IBOCSBCLS,MNGSOC,int_mb(KOCSBCLS_OF_OCCLS),
+     &     int_mb(KMINOPGAS_FOR_OCCLS),MINOP,NOBPT)
 C          OCSBCLS_OF_OCCLS(IOCCLS,NOCCLS,NGAS,
 C    &           IBOCSBCLS,MNGSOC,IOCSBCLS_OF_OCCLS,
 C    &           MINOPGAS_FOR_OCCLS,MINOP,NOBPT)
@@ -12463,9 +12482,9 @@ C    &           MINOPGAS_FOR_OCCLS,MINOP,NOBPT)
 * The minimum number of open electrons for each occupation 
 * sub classes
 *
-      CALL MINOP_FOR_OCSBCLS(dbl_mb(KMNOPOCSBCL),NGAS,NOCCLS_MAX,
-     &     NOCSBCLST,dbl_mb(KMINOPGAS_FOR_OCCLS),
-     &     dbl_mb(KOCSBCLS_OF_OCCLS)) 
+      CALL MINOP_FOR_OCSBCLS(int_mb(KMNOPOCSBCL),NGAS,NOCCLS_MAX,
+     &     NOCSBCLST,int_mb(KMINOPGAS_FOR_OCCLS),
+     &     int_mb(KOCSBCLS_OF_OCCLS)) 
 C     MINOP_FOR_OCSBCLS(MNOPOCSBCLS,NGAS,NOCCLS,
 C    &           NOCSBCLST,MINOPGAS_FOR_OCCLS,IOCSBCLS_OF_OCCLS)
 *
@@ -12490,7 +12509,7 @@ C    &           NOCSBCLST,MINOPGAS_FOR_OCCLS,IOCSBCLS_OF_OCCLS)
       INTEGER IOCSBCLS_OF_OCCLS(NGAS,NOCCLS)
       INTEGER MINOPGAS_FOR_OCCLS(NGAS,NOCCLS)
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from OCSBCLS_OF_OCCLS '
         WRITE(6,*) ' ========================== '
@@ -12661,7 +12680,7 @@ c      INCLUDE 'wrkspc-static.inc'
       INTEGER IBSBCNF_FOR_OP_SM(NOPEN_MAX+1,NSMOB,NOCSBCLST)
       INTEGER LSBCNF(NOCSBCLST)
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Entering GEN_DIM_SBCNF '
         WRITE(6,*) ' ======================='
@@ -12752,7 +12771,7 @@ C?      WRITE(6,*) ' IOPEN_OUT_DIM = ', IOPEN_OUT_DIM
       CALL OCC_TO_SBCLS_FOR_OCCLS(IOCCLS,int_mb(KLOCSBCLS))
 *. 
       CALL OCCLSDIM_FROM_OCSBCLSDIM_IN(int_mb(KLOCSBCLS),
-     &     dbl_mb(KNSBCNF),
+     &     int_mb(KNSBCNF),
      &     int_mb(KLOS1),IOCCLSDIM,IOPEN_OUT_DIM)
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ', IDUM, 'OCSBDM')
@@ -12964,7 +12983,7 @@ C          OCCLS_IN_CI(NOCCLS,IOCCLS,ICISPC,NINCCLS,INCCLS)
       CALL DIM_CISPACE_FROM_SBCNF_IN(int_mb(KLOCCLS_ACT),
      &     NOCCLS_MAX,
      &     int_mb(KIOCCLS),NCNFOPSM, int_mb(KLNCNFOPSM2),NGAS,
-     &     dbl_mb(KNSBCNF),
+     &     int_mb(KNSBCNF),
      &     MINOP,NOPEN_MAX,MXPOPORB,NSMOB)
 *
       IF(NTEST.GE.100) THEN
@@ -13142,7 +13161,7 @@ C    &             MINOPGAS_FOR_OCCLS,MINOP,NOBPT)
 *
         IF(NTEST.GE.100) THEN
           WRITE(6,*) ' Initial IBOPSML '
-          CALL IWRTMA(IBOPSML,MAXOP+1,1,MAXOP+1)
+          CALL IWRTMA(IBOPSML,MAXOP+1,1,MAXOP+1,1)
         END IF
 *
         CALL ADD_CNFS_TO_LIST(IOCC,NOPSML,IBOPSML,
@@ -13487,7 +13506,7 @@ C                   CHECK_NEL_IN_CONF(ICONF,NOC,NEL)
          CALL GEN_SUBCONF(NEL,NOB,ISMFTO(IBOB),MINOPL,
      &        NSBCNF_FOR_OP_SM(1,1,IOCSBCLS),NSMOB,
      &        IBSBCNF_FOR_OP_SM(1,1,IOCSBCLS),IDUM,
-     &        WORK(KOCSBCNF(IOCSBCLS)),1,NOPEN_MAX,IBOB_MINA)
+     &        int_mb(KOCSBCNF(IOCSBCLS)),1,NOPEN_MAX,IBOB_MINA)
       END DO 
 *
       CALL LUCIAQEXIT('GNOCSB')
@@ -13516,7 +13535,7 @@ C                   CHECK_NEL_IN_CONF(ICONF,NOC,NEL)
 *. Symmetry
       INCLUDE 'multd2h.inc'
 *. 
-      NTEST = 0
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)  ' Info from ADD_CNFS_TO_LIST '
         WRITE(6,*) ' ============================'
@@ -13590,7 +13609,7 @@ C    &           MAXOP,NSMOB,MINSM,MAXSM,NELEC)
 *. Loop over symmetries
 *.  Loop over number of open orbtals
 *
-      NTEST = 100
+      NTEST = 00
 *
       IB = 1
       DO ISM = 1, NSMOB
@@ -13714,7 +13733,7 @@ C         NELEC_IN_CONF(ICONF,NOC)
 *
           IF(NELACT.NE.NELEC) THEN
            WRITE(6,*) ' Configuration with wrong number of electrons'
-           WRITE(6,*) ' Configuration: '
+           WRITE(6,*) ' Configuration: ',IBOCC,NELACT,NELEC
            CALL IWRTMA(IOCC(IBOCC),1,NOC,1,NOC)
            WRITE(6,*) ' IOP, NOC = ', IOP, NOC
            STOP ' Configuration with wrong number of electrons'
@@ -15148,8 +15167,8 @@ C                 IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGNC
       IB_B = IBSPGPFTP(IBTP)
 *
       CALL GET_DIM_PLSTRING_S(
-     &     NOCCLS_MAX,dbl_mb(KNABSPGP_FOR_OCCLS),
-     &     dbl_mb(KIABSPGP_FOR_OCCLS),
+     &     NOCCLS_MAX,int_mb(KNABSPGP_FOR_OCCLS),
+     &     int_mb(KIABSPGP_FOR_OCCLS),
      &     NELFSPGP(1,IB_A),NELFSPGP(1,IB_B))
 *
       RETURN
@@ -15381,7 +15400,7 @@ C    &                      NSMCLS,NSMCLSE,NSMCLSE1,NSTR_AS)
 *. Input:
       INTEGER NELGRP(NGRP), NOBGRP(NGRP)
 *
-      NTEST = 1000
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from NSTR_SPGP_ALLSYM:'
       END IF
@@ -15486,7 +15505,7 @@ C    &                      NSMCLS,NSMCLSE,NSMCLSE1,NSTR_AS)
       INTEGER N_SDAB_PER_OCCLS(NSMST,NOCCLS_MAX)
       INTEGER N_CMAB_PER_OCCLS(NSMST,NOCCLS_MAX)
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' Info from GEN_NSDAB_FOR_ALL_OCCLS '
@@ -15956,7 +15975,7 @@ C         IF(IREO(JOC_IN).EQ.ABS(ICONFP_IN(JOB))) THEN
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GTNDMM')
 *
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' GET_NSD_MINMAX in action '
        WRITE(6,*) ' ========================= '

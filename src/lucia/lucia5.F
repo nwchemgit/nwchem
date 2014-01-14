@@ -467,7 +467,7 @@ C?        CALL IWRTMA(WORK(KCLBT),1,1,1,1)
 *
           CALL CSDTVCMN(KKVEC1,KKVEC2,dbl_mb(KVEC3),
      &         1,0,ICSM,ICSPC,2,2,LUC_SD,LUCEFF,NCOCCLS,
-     &         dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+     &         int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
           LUC2 = LUC_SD
 C?        WRITE(6,*) ' After CSDTVCMN '
          END IF
@@ -9486,7 +9486,7 @@ C    &             NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
         CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &       NTEST,NSBLOCK,NSBATCH,
      &       int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
-     $       dbl_mb(KSIOCCLS_ACT),
+     $       int_mb(KSIOCCLS_ACT),
      &       int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &       int_mb(KSIBT),
      &       int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
@@ -9495,7 +9495,7 @@ C    &             NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,
      &       int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),
+     &       int_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
@@ -9546,13 +9546,13 @@ cnw     CALL REWINO(LU_RDET)
 *. KCIBT have been constructed
         CALL CSDTVCMN(L,R,dbl_mb(KVEC3),
      &       1,0,ICSM,ICSPC,2,2,LU_RDET,LUR,NCOCCLS_ACT,
-     &       dbl_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+     &       int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
 *. 
         CALL REWINO(LUL)
         CALL REWINO(LU_LDET)
         CALL CSDTVCMN(L,R,dbl_mb(KVEC3),
      &       1,0,ISSM,ISSPC,2,2,LU_LDET,LUL,NSOCCLS_ACT,
-     &       dbl_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
+     &       int_mb(KSIOCCLS_ACT),int_mb(KSIBT),int_mb(KSLBT))
        END IF ! Incore 
       END IF ! CSFs are in use
 

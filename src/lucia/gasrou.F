@@ -1955,7 +1955,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
       IB_B = IBSPGPFTP(IBTP)
       CALL ABSPGP_TO_CISPACE(ISPGPFTP(1,IB_A),NASPGP,
      &     ISPGPFTP(1,IB_B),NBSPGP,NGAS,IGSOCC,NELFGP,
-     &     N_ABSPGP_MAX,dbl_mb(KIABSPGP_FOR_CMPSPC),0)
+     &     N_ABSPGP_MAX,int_mb(KIABSPGP_FOR_CMPSPC),0)
 *. Obtain mapping from occupation classes to supergroups
       IATP = 1
       IBTP = 2
@@ -1968,15 +1968,15 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
      &     NGAS,IGSOCC,NELFGP,
      &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
-     &     dbl_mb(KIABSPGP_FOR_OCCLS),dbl_mb(KNABSPGP_FOR_OCCLS),
-     &     dbl_mb(KIBABSPGP_FOR_OCCLS),1)
+     &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
+     &     int_mb(KIBABSPGP_FOR_OCCLS),1)
 *. And then the actual mappings
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
      &     NGAS,IGSOCC,NELFGP,
      &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
-     &     dbl_mb(KIABSPGP_FOR_OCCLS),dbl_mb(KNABSPGP_FOR_OCCLS),
-     &     dbl_mb(KIBABSPGP_FOR_OCCLS),0)
+     &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
+     &     int_mb(KIBABSPGP_FOR_OCCLS),0)
 C?     WRITE(6,*) ' First two elements of KIABSPGP_FOR_OCCLS as int'
 C?     CALL IWRTMA(WORK(KIABSPGP_FOR_OCCLS),1,2,1,2)
 C ABSPGP_TO_OCCLS(
@@ -9625,7 +9625,8 @@ C     REAL * 8  INPROD
       DIMENSION IPHSTR(*)
       DIMENSION RJKAA(*)
 *. Output
-      DIMENSION DIAG(*)
+cnw   DIMENSION DIAG(*)
+      integer diag
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
@@ -9798,9 +9799,12 @@ C?        WRITE(6,*) ' IB, EB = ', IB, EB
                 X = X - XB(-IPHSTR((IA-1)*NPHELA+IEL)) 
               END IF
             END DO
-            DIAG(IDET) = X
+CNW         DIAG(IDET) = X
+CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
+CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
-     &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
+     &         IB.EQ.IA) X = X + XADD
+            call ga_acc(DIAG,IDET,IDET,1,1,X,1)
           END DO
 *         ^ End of loop over alpha strings|
         END DO
