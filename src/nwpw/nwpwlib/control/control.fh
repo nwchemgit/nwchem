@@ -19,12 +19,12 @@
       integer     bo_steps(2),bo_algorithm
       integer     loop(2),ngrid(3),npsp,ncut,mapping,mapping1d
       integer     np_dimensions(3),ewald_grid(3)
-      integer     code,gga
+      integer     code,gga,fmm_lmax,fmm_lr
       integer	  ispin,multiplicity
       integer     est_finish_time,est_step_time
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
       logical     rotation,translation,balance,spin_orbit
-      logical     two_comp_ppot,frozen,pio,fast_erf
+      logical     two_comp_ppot,frozen,pio,fast_erf,fmm
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number,minimizer
       common / control_block / unita,unita_frozen,tolerances,
@@ -34,7 +34,7 @@
      >                         bo_time_step,bo_fake_mass,kerker_g0,
      >                         bo_steps,bo_algorithm,
      >                         mapping,mapping1d,np_dimensions,
-     >                         ncut,gga,
+     >                         ncut,gga,fmm_lmax,fmm_lr,
      >                         loop,ngrid,npsp,ewald_grid,
      >                         code,
      >                         ispin,multiplicity,
@@ -44,7 +44,8 @@
      >                         move,frac_coord,SA,fei,fei_quench,
      >                         gram_schmidt,rotation,translation,
      >                         balance,spin_orbit,
-     >                         two_comp_ppot,frozen,pio,fast_erf
+     >                         two_comp_ppot,frozen,pio,fast_erf,
+     >                         fmm
       common / control_blkchar / boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,

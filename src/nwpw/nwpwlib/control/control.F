@@ -140,6 +140,17 @@
          fast_erf = .false.
       end if
 
+*     **** get fmm ****
+      if (.not.rtdb_get(rtdb,'nwpw:fmm',mt_log,1,fmm)) then
+         fmm = .false.
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fmm_lmax',mt_int,1,fmm_lmax)) then
+         fmm_lmax = 10
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fmm_lr',mt_int,1,fmm_lr)) then
+         fmm_lr = 1
+      end if
+
 
 *     *********************************
 *     **** cpsd and band_sd: stuff ****
@@ -4462,6 +4473,56 @@ c      end
       control_fast_erf = fast_erf
       return
       end
+
+
+
+*     ************************************
+*     *                                  *
+*     *         control_fmm              *
+*     *                                  *
+*     ************************************
+
+      logical function control_fmm()
+      implicit none
+
+#include "control.fh"
+
+      control_fmm = fmm
+      return
+      end
+
+
+*     ************************************
+*     *                                  *
+*     *         control_fmm_lmax         *
+*     *                                  *
+*     ************************************
+
+      integer function control_fmm_lmax()
+      implicit none
+
+#include "control.fh"
+
+      control_fmm_lmax = fmm_lmax
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *         control_fmm_lr           *
+*     *                                  *
+*     ************************************
+
+      integer function control_fmm_lr()
+      implicit none
+
+#include "control.fh"
+
+      control_fmm_lr = fmm_lr
+      return
+      end
+
+
 
 
 
