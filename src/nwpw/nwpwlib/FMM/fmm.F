@@ -22,6 +22,76 @@ c      end
 
 *     **********************************************
 *     *                                            *
+*     *             FMM_start                      *
+*     *                                            *
+*     **********************************************
+*
+      subroutine FMM_start()
+      implicit none
+
+#include "util.fh"
+#include "stdio.fh"
+#include "fmm.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical oprint
+      integer l
+
+*     **** external functions ****
+      logical  control_fmm,control_print
+      integer  control_fmm_lmax,control_fmm_lr,ion_nion,control_version
+      external control_fmm,control_print
+      external control_fmm_lmax,control_fmm_lr,ion_nion,control_version
+
+      fmm      = control_fmm().and.(control_version().eq.4)
+      if (fmm) then
+         fmm_lmax = control_fmm_lmax()
+         fmm_lr   = control_fmm_lr()
+         fmm_levels = idint(dlog(dble(ion_nion()))/dlog(8.0d0)) - fmm_lr
+         fmm_nboxes = 8**fmm_levels
+         fmm_tboxes = 0
+         do l=0,fmm_levels
+            fmm_tboxes = fmm_tboxes + 8**l
+         end  do
+
+         oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+
+         if (oprint) then
+            write(luout,100) fmm_lmax,fmm_lr,
+     >                       fmm_levels,
+     >                       fmm_nboxes,fmm_tboxes
+         end if
+      end if
+      return
+  100 format(/"FMM - Fast Multipole Algorithm",
+     >    /"   - fmm_lmax   =",i3," fmm_lr = ",i3,
+     >    /"   - number of refinement levels = ",i3,
+     >    /"   - nboxes (finest level) = ",i8,      
+     >    /"   - nboxes (total)        = ",i8)      
+      end
+
+
+*     **********************************************
+*     *                                            *
+*     *                FMM_end                     *
+*     *                                            *
+*     **********************************************
+
+      subroutine FMM_end()
+      implicit none
+
+#include "fmm.fh"
+
+      if (fmm) then
+      end if
+      return
+      end
+
+*     **********************************************
+*     *                                            *
 *     *             FMM_Generate_Box               *
 *     *                                            *
 *     **********************************************
@@ -66,92 +136,90 @@ c      end
 
 
 
-*     **********************************************
-*     *                                            *
-*     *              FMM_rion_Llm                  *
-*     *                                            *
-*     **********************************************
-
-      subroutine FMM_rion_Llm(lmax,nion,katm,rion,qatm,rsphere,Llm)
-      implicit none
-      integer lmax
-      integer nion,katm(*)
-      real*8 rion(3,*),qatm(*),rsphere,Llm(*)
-
-*     **** local variables ****
-      integer taskid,np
-      integer ii,l,m,idx
-      real*8 fourpi,r
-
-*     **** external functions ****
-      real*8   Tesseral3_lm_over_rl
-      external Tesseral3_lm_over_rl
-
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
-
-      fourpi = 16.0d0*datan(1.0d0)
-      call dcopy((lmax+1)**2,0.0d0,0,Llm,1)
-      do ii=1,nion
-         if (mod(ii,np).eq.taskid) then
-            r = dsqrt(rion(1,ii)**2+rion(2,ii)**2+rion(3,ii)**2)
-            if (r.ge.rsphere) then
-               idx = 1
-               do l=0,lmax
-               do m=-l,l
-                  Llm(idx) = Llm(idx) 
-     >                     + (fourpi/dble(2*l+1))
-     >                      *qatm(katm(ii))
-     >                      *Tesseral3_lm_over_rl(l,m,rion(1,ii),
-     >                                                rion(2,ii),
-     >                                                rion(3,ii))
-                  idx = idx +1
-               end do
-               end do
-            end if
-         end if
-      end do
-      call Parallel_Vector_SumAll((lmax+1)**2,Llm)
-
-      return
-      end
-
-*     **********************************************
-*     *                                            *
-*     *              FMM_Llm_vlocal                *
-*     *                                            *
-*     **********************************************
-
-      subroutine FMM_Llm_vlocal(lmax,Llm,rgrid,vl)
-      implicit none
-      integer lmax
-      real*8  Llm(*)
-      integer ngrid
-      real*8  rgrid(3,*),vl(*)
-
-*     **** local variables ****
-      integer i,l,m,idx
-      real*8 x,y,z
-
-*     **** external functions ****
-      real*8   Tesseral3_lm_rl
-      external Tesseral3_lm_rl
-
-      do i=1,ngrid
-         x = rgrid(1,i)
-         y = rgrid(2,i)
-         z = rgrid(3,i)
-         vl(i) = 0.0d0
-         idx = 1
-         do l=0,lmax
-         do m=-l,l
-            vl(i) = vl(i) + Llm(idx)*Tesseral3_lm_rl(l,m,x,y,z)
-            idx = idx + 1
-         end do
-         end do
-      end do
-      return
-      end 
-
-
+c*     **********************************************
+c*     *                                            *
+c*     *              FMM_rion_Llm                  *
+c*     *                                            *
+c*     **********************************************
+c
+c      subroutine FMM_rion_Llm(lmax,nion,katm,rion,qatm,rsphere,Llm)
+c      implicit none
+c      integer lmax
+c      integer nion,katm(*)
+c      real*8 rion(3,*),qatm(*),rsphere,Llm(*)
+c
+c*     **** local variables ****
+c      integer taskid,np
+c      integer ii,l,m,idx
+c      real*8 fourpi,r
+c
+c*     **** external functions ****
+c      real*8   Tesseral3_lm_over_rl
+c      external Tesseral3_lm_over_rl
+c
+c      call Parallel_np(np)
+c      call Parallel_taskid(taskid)
+c
+c      fourpi = 16.0d0*datan(1.0d0)
+c      call dcopy((lmax+1)**2,0.0d0,0,Llm,1)
+c      do ii=1,nion
+c         if (mod(ii,np).eq.taskid) then
+c            r = dsqrt(rion(1,ii)**2+rion(2,ii)**2+rion(3,ii)**2)
+c            if (r.ge.rsphere) then
+c               idx = 1
+c               do l=0,lmax
+c               do m=-l,l
+c                  Llm(idx) = Llm(idx) 
+c     >                     + (fourpi/dble(2*l+1))
+c     >                      *qatm(katm(ii))
+c     >                      *Tesseral3_lm_over_rl(l,m,rion(1,ii),
+c     >                                                rion(2,ii),
+c     >                                                rion(3,ii))
+c                  idx = idx +1
+c               end do
+c               end do
+c            end if
+c         end if
+c      end do
+c      call Parallel_Vector_SumAll((lmax+1)**2,Llm)
+c
+c      return
+c      end
+c
+c*     **********************************************
+c*     *                                            *
+c*     *              FMM_Llm_vlocal                *
+c*     *                                            *
+c*     **********************************************
+c
+c      subroutine FMM_Llm_vlocal(lmax,Llm,rgrid,vl)
+c      implicit none
+c      integer lmax
+c      real*8  Llm(*)
+c      integer ngrid
+c      real*8  rgrid(3,*),vl(*)
+c
+c*     **** local variables ****
+c      integer i,l,m,idx
+c      real*8 x,y,z
+c
+c*     **** external functions ****
+c      real*8   Tesseral3_lm_rl
+c      external Tesseral3_lm_rl
+c
+c      do i=1,ngrid
+c         x = rgrid(1,i)
+c         y = rgrid(2,i)
+c         z = rgrid(3,i)
+c         vl(i) = 0.0d0
+c         idx = 1
+c         do l=0,lmax
+c         do m=-l,l
+c            vl(i) = vl(i) + Llm(idx)*Tesseral3_lm_rl(l,m,x,y,z)
+c            idx = idx + 1
+c         end do
+c         end do
+c      end do
+c      return
+c      end 
 
