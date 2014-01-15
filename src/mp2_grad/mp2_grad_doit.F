@@ -93,6 +93,8 @@ c
       double precision k_file_size,t_file_size,p_file_size
       integer inntsize
       logical status
+      integer mp2_eaftype
+      external mp2_eaftype
       character*20 info
 c     
 c...  for texas blocking in moints_semi
@@ -267,16 +269,9 @@ c
      $        call ga_brdcst(135, dbl_mb(k_bmos), nbf*nmo*8, 0)
 c     
 #ifdef EAFHACK
-         if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
-     $        MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
-             if(eaf_size_in_mb.ne.0) then
-                eaftype=1000000+eaf_size_in_mb*1024*1024
-             else
-                eaftype=1000000+(inntsize*max(1024d0,k_file_size)*
-     *          11)/10
-             endif
+         eaftype=mp2_eaftype(rtdb,k_file_size)
 #else
-             eaftype=EAF_RW
+         eaftype=EAF_RW
 #endif
          call util_file_name('kh',.true.,.true.,fnamek)
          if (eaf_open(fnamek, eaftype, kunit).ne.0) 
@@ -484,6 +479,7 @@ c
                call eaf_print_stats(tunita)
                call eaf_print_stats(tunitb)
             end if
+
             if (eaf_close(tunita) .ne. 0) call errquit
      $           ('mp2_grad: error closing ta',0, DISK_ERR)
             if (eaf_close(tunitb) .ne. 0) call errquit
@@ -507,4 +503,41 @@ c
          call util_flush(6)
       end if
 c     
+      end
+      integer function mp2_eaftype(rtdb,
+     D     file_size)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+      integer rtdb
+      double precision file_size
+c
+      integer eaf_size_in_mb
+      integer inntsize
+c     
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
+     $     MT_INT, 1, eaf_size_in_mb)) then
+         mp2_eaftype=inntsize*1024
+      else
+         if(ga_nodeid().eq.0) then
+            write(luout,'(A,I12)')
+     I           ' EAF : eafsizeinmb ',eaf_size_in_mb
+         endif
+         mp2_eaftype=eaf_size_in_mb*1024*1024
+      endif
+
+      mp2_eaftype=1D6+max(mp2_eaftype,
+     I     inntsize*(int(file_size*11./10.)))
+
+      if(ga_nodeid().eq.0) then
+         write(luout,'(A,I12,F12.0)')
+     I        ' EAF : eaftypeinmb filesize',
+     A        mp2_eaftype/1024/1024,
+     C        file_size/1024/1024
+         call util_flush(luout)
+      endif
+      return
       end

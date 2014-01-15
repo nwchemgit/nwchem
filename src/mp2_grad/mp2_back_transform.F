@@ -61,6 +61,8 @@ c
       integer k_scr, l_scr, k_lab, l_lab, k_eri, l_eri, leneri, lenscr
       integer k_bftosh, l_bftosh, k_bftoce, l_bftoce, k_pdm, l_pdm
       integer eaftype,eaf_size_in_mb,inntsize
+      integer mp2_eaftype
+      external mp2_eaftype
       double precision p_file_size
 c
       character*(nw_max_path_len) fname
@@ -142,21 +144,9 @@ c
 c     
       call util_file_name('2pdm', .true., .true., fname)
 #ifdef EAFHACK
-         if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
-     $        MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
-             if(eaf_size_in_mb.ne.0) then
-                eaftype=1000000+eaf_size_in_mb*1024*1024
-             else
-                eaftype=1000000+(inntsize*max(1024d0,p_file_size)*
-     *          11)/10
-             endif
-             if(ga_nodeid().eq.0) then
-                write(6,*)' EAF nonsep ',
-     A            eaf_size_in_mb, eaftype
-                call util_flush(6)
-             endif
+       eaftype=mp2_eaftype(rtdb,p_file_size)
 #else
-             eaftype=eaf_rw
+       eaftype=eaf_rw
 #endif
       if (eaf_open(fname,eaftype,twopdmunit) .ne. 0)
      $     call errquit('mp2: backt: failed to open file',0, DISK_ERR)

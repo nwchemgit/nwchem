@@ -78,6 +78,8 @@ c
        integer moints_lmem
        integer eaftype,eaf_size_in_mb,inntsize
        double precision k_file_size
+       integer mp2_eaftype
+       external mp2_eaftype
        external moints_numgr
        external moints_lmem
        data osym/.false./
@@ -254,21 +256,9 @@ c
        vtmp(4) = pvhi
        call util_file_name('kh', .true.,.true., fnamek)
 #ifdef EAFHACK
-         if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
-     $        MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
-             if(eaf_size_in_mb.ne.0) then
-                eaftype=1000000+eaf_size_in_mb*1024*1024
-             else
-                eaftype=1000000+(inntsize*max(1024d0,k_file_size)*
-     *          11)/10
-             endif
-             if(ga_nodeid().eq.0) then
-                write(6,*)' EAF moints', eaf_size_in_mb, eaftype,
-     C               k_file_size
-                call util_flush(6)
-             endif
+       eaftype=mp2_eaftype(rtdb,k_file_size)
 #else
-             eaftype=EAF_RW
+       eaftype=EAF_RW
 #endif
        if (eaf_open( fnamek, eaftype, kunit).ne.0)
      $   call errquit('moints_semi: failed to open half int file',0,
