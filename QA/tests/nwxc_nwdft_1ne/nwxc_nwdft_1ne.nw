@@ -10,30 +10,31 @@ end
 # Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
 basis
 Ne    S
-   7883.8261000              0.0020375        
-   1184.4055000              0.0155468        
-    269.6730900              0.0759638        
-     75.9416520              0.2511027        
-     24.3210950              0.4804765        
-      8.1832559              0.3251142        
+   7883.8261000              0.0020375
+   1184.4055000              0.0155468
+    269.6730900              0.0759638
+     75.9416520              0.2511027
+     24.3210950              0.4804765
+      8.1832559              0.3251142
 Ne    S
-     17.4495240             -0.0790100        
-      1.5516316              0.5676274        
+     17.4495240             -0.0790100
+      1.5516316              0.5676274
 Ne    S
-      0.4476985              1.0000000        
+      0.4476985              1.0000000
 Ne    P
-     52.9038080              0.0187911        
-     12.1233610              0.1157605        
-      3.5859225              0.3342627        
-      1.0921634              0.4778038        
+     52.9038080              0.0187911
+     12.1233610              0.1157605
+      3.5859225              0.3342627
+      1.0921634              0.4778038
 Ne    P
-      0.2994419              1.0000000        
+      0.2994419              1.0000000
 Ne    D
-      1.2000000              1.0000000 
+      1.2000000              1.0000000
 end
 
 # LDA exchange
 
+set "dft:weight derivatives" T
 dft
   vectors input atomic
   xc slater
@@ -49,9 +50,81 @@ end
 task dft energy
 
 dft
+  vectors input atomic
+  xc xbecke97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xbecke97-1
+end
+task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97-2
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97-3
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97-d
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc xbecke98
+#end
+#task dft energy
+
+dft
+  vectors input atomic
+  xc mpw91
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc optx
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xperdew91
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xpw6b95
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xpwb6k
+end
+task dft energy
+
+dft
   direct
   vectors input atomic
-  xc xbnl07 hfexch
+  xc xbnl07 hfexch 1.00
   cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
@@ -59,7 +132,7 @@ task dft energy
 dft
   direct
   vectors input atomic
-  xc xcamb88 hfexch
+  xc xcamb88 hfexch 1.00
   cam 0.33 cam_alpha 0.19 cam_beta 0.46
 end
 task dft energy
@@ -67,7 +140,7 @@ task dft energy
 dft 
   direct
   vectors input atomic
-  xc xcamlsd hfexch
+  xc xcamlsd hfexch 1.00
   cam 0.3 cam_alpha 0.5 cam_beta 0.5
 end
 task dft energy
@@ -77,7 +150,37 @@ set dft:direct   F
 
 dft
   vectors input atomic
+  xc xft97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc gill96
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc xpbe96
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xsogga
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xsogga11
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xsogga11-x
 end
 task dft energy
 
@@ -90,6 +193,12 @@ task dft energy
 dft
   vectors input atomic
   xc rpbe
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xpkzb99
 end
 task dft energy
 
@@ -149,12 +258,6 @@ task dft energy
 
 dft
   vectors input atomic
-  xc xm11
-end
-task dft energy
-
-dft
-  vectors input atomic
   xc xm11-l
 end
 task dft energy
@@ -162,7 +265,15 @@ task dft energy
 dft
   direct
   vectors input atomic
-  xc xwpbe  1.00 hfexch 1.00
+  xc xm11 hfexch
+  cam 0.25 cam_alpha 0.428 cam_beta 0.572
+end
+task dft energy
+
+dft
+  direct
+  vectors input atomic
+  xc xwpbe 1.00 hfexch 1.00
   cam 0.3 cam_alpha 0.00 cam_beta 1.00
 end
 task dft energy
@@ -228,13 +339,110 @@ task dft energy
 
 dft
   vectors input atomic
+  xc hfexch cbecke97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch cbecke97-1
+end
+task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97-2
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97-3
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97-d
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  vectors input atomic
+#  xc hfexch cbecke98
+#end
+#task dft energy
+
+dft
+  vectors input atomic
   xc hfexch lyp
 end
 task dft energy
 
 dft
   vectors input atomic
+  xc hfexch perdew81
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch perdew86
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch perdew91
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch op
+end
+task dft energy
+
+dft
+  odft
+  vectors input atomic
+  xc hfexch optc
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch cft97
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc hfexch cpbe96
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch cpkzb99
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch csogga11
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hfexch csogga11-x
 end
 task dft energy
 
@@ -304,7 +512,6 @@ dft
 end
 task dft energy
 
-
 # Hartree-Fock exchange + meta-GGA correlation 
 
 dft
@@ -331,7 +538,141 @@ dft
 end
 task dft energy
 
+# GGA exchange + GGA correlation 
+
 # GGA exchange-correlation
+
+dft
+  vectors input atomic
+  xc acm
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc b1b95
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc b2plyp
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc b3lyp
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc b3p86
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc b3pw91
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-1
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-2
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-3
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97-d
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke97gga1
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc becke98
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc bb1k
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc beckehandh
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc bhlyp
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc bop
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc mpw1k
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc mpw1b95
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc mpwb1k
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc optx optc
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc pbe96
+end
+task dft energy
 
 dft
   vectors input atomic
@@ -347,13 +688,97 @@ task dft energy
 
 dft
   vectors input atomic
+  xc pbeop
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc pw6b95
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc pwb6k
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc dldf
 end
 task dft energy
 
 dft
   vectors input atomic
+  xc ft97
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth120
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth147
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth407
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcth407p
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc hcthp14
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xpkzb99 cpkzb99
+end
+task dft energy
+
+dft
+  vectors input atomic
   xc xtpss03 ctpss03
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc xctpssh
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc kt1
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc kt2
 end
 task dft energy
 
@@ -407,12 +832,6 @@ task dft energy
 
 dft
   vectors input atomic
-  xc m11
-end
-task dft energy
-
-dft
-  vectors input atomic
   xc m11-l
 end
 task dft energy
@@ -420,7 +839,67 @@ task dft energy
 dft
   direct
   vectors input atomic
+  xc m11
+end
+task dft energy
+
+set dft:cam_exch F
+set dft:direct   F
+
+dft
+  vectors input atomic
+  xc s12g
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc s12h
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc sogga
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc sogga11
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc sogga11-x
+end
+task dft energy
+
+dft
+  vectors input atomic
+  xc ssb-d
+end
+task dft energy
+
+dft
+  direct
+  vectors input atomic
   xc hse03
+end
+task dft energy
+
+dft
+  direct
+  vectors input atomic
+  xc cam-s12g
+end
+task dft energy
+
+dft
+  direct
+  vectors input atomic
+  xc cam-s12h
 end
 task dft energy
 

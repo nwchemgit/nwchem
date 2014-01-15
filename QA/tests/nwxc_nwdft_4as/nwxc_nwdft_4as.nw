@@ -10,47 +10,47 @@ end
 # Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
 basis
 As    S
- 107365.8600000             -0.0015957        
-  16064.0530000             -0.0122722        
-   3630.6518000             -0.0620362        
-   1014.5283000             -0.2178657        
-    326.0742900             -0.4672108        
-    110.8651900             -0.3805783        
+ 107365.8600000             -0.0015957
+  16064.0530000             -0.0122722
+   3630.6518000             -0.0620362
+   1014.5283000             -0.2178657
+    326.0742900             -0.4672108
+    110.8651900             -0.3805783
 As    S
-    211.6292400             -0.1086048        
-     24.8873120              0.6271180        
-     10.2861900              0.4473011        
+    211.6292400             -0.1086048
+     24.8873120              0.6271180
+     10.2861900              0.4473011
 As    S
-     19.0905140             -0.2270113        
-      3.1202838              0.7137823        
-      1.2751351              0.4180248        
+     19.0905140             -0.2270113
+      3.1202838              0.7137823
+      1.2751351              0.4180248
 As    S
-      2.0202307             -0.1944864        
-      0.3032086              0.6871501        
+      2.0202307             -0.1944864
+      0.3032086              0.6871501
 As    S
-      0.1113256              1.0000000        
+      0.1113256              1.0000000
 As    P
-   1416.2409000              0.0079561        
-    334.2792000              0.0610373        
-    105.5240000              0.2454926        
-     37.8871400              0.5062554        
-     13.9876120              0.3573375        
+   1416.2409000              0.0079561
+    334.2792000              0.0610373
+    105.5240000              0.2454926
+     37.8871400              0.5062554
+     13.9876120              0.3573375
 As    P
-      7.5293458             -0.3275804        
-      2.9610269             -0.5429651        
-      1.1706232             -0.2433757        
+      7.5293458             -0.3275804
+      2.9610269             -0.5429651
+      1.1706232             -0.2433757
 As    P
-      0.1962306             -0.5487952        
-      0.5252210             -0.2795973        
+      0.1962306             -0.5487952
+      0.5252210             -0.2795973
 As    P
-      0.0704748              1.0000000        
+      0.0704748              1.0000000
 As    D
-     49.4288200              0.0636744        
-     13.6481140              0.2927250        
-      4.3052959              0.5233417        
-      1.2466446              0.4142044        
+     49.4288200              0.0636744
+     13.6481140              0.2927250
+      4.3052959              0.5233417
+      1.2466446              0.4142044
 As    D
-      0.2730000              1.0000000        
+      0.2730000              1.0000000
 end
 
 # LDA exchange
@@ -70,6 +70,102 @@ dft
   odft
   vectors input atomic
   xc becke88
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xbecke97
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xbecke97-1
+end
+task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97-2
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97-3
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97-d
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke98
+#end
+#task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc mpw91
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc optx
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xperdew91
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xpw6b95
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xpwb6k
 end
 task dft energy
 
@@ -110,7 +206,47 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc xft97
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc gill96
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc xpbe96
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xsogga
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xsogga11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xsogga11-x
 end
 task dft energy
 
@@ -127,6 +263,14 @@ dft
   odft
   vectors input atomic
   xc rpbe
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xpkzb99
 end
 task dft energy
 
@@ -206,15 +350,17 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc xm11
+  xc xm11-l
 end
 task dft energy
 
 dft
+  direct
   mult 4
   odft
   vectors input atomic
-  xc xm11-l
+  xc xm11 hfexch
+  cam 0.25 cam_alpha 0.428 cam_beta 0.572
 end
 task dft energy
 
@@ -307,6 +453,62 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc hfexch cbecke97
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cbecke97-1
+end
+task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97-2
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97-3
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97-d
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke98
+#end
+#task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc hfexch lyp
 end
 task dft energy
@@ -315,7 +517,79 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc hfexch perdew81
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch perdew86
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch perdew91
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch op
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch optc
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cft97
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
   xc hfexch cpbe96
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch csogga11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch csogga11-x
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cpkzb99
 end
 task dft energy
 
@@ -419,11 +693,11 @@ task dft energy
 
 dft
   mult 4
-  odft
+  odft 
   vectors input atomic
   xc hfexch cpw6b95
 end
-task dft energy 
+task dft energy
   
 dft
   mult 4
@@ -447,10 +721,186 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc revpbe cpbe96
+  xc acm
 end
 task dft energy
 
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b1b95
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b2plyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3lyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3p86
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3pw91
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-1
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-2
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-3
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-d
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97gga1
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke98
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc bb1k
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc beckehandh
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc bhlyp
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc bop
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc mpw1k
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc mpw1b95
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc mpwb1k
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc optx optc
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc pbe96
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc revpbe cpbe96
+end
+task dft energy
+  
 dft
   mult 4
   odft
@@ -463,10 +913,98 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc dldf
+  xc pbeop
 end
 task dft energy
 
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc pw6b95
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc pwb6k
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc dldf
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc ft97
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth120
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth147
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth407
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth407p
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcthp14
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xpkzb99 cpkzb99
+end
+task dft energy
+  
 dft
   mult 4
   odft
@@ -474,7 +1012,31 @@ dft
   xc xtpss03 ctpss03
 end
 task dft energy
-
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xctpssh
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc kt1
+end
+task dft energy
+  
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc kt2
+end
+task dft energy
+  
 dft
   mult 4
   odft
@@ -482,7 +1044,7 @@ dft
   xc m05
 end
 task dft energy
-
+  
 dft
   mult 4
   odft
@@ -490,7 +1052,7 @@ dft
   xc m05-2x
 end
 task dft energy
-
+  
 dft
   mult 4
   odft
@@ -498,7 +1060,7 @@ dft
   xc m06
 end
 task dft energy
-
+  
 dft
   mult 4
   odft
@@ -506,7 +1068,7 @@ dft
   xc m06-l
 end
 task dft energy
-
+  
 dft
   mult 4
   odft
@@ -514,7 +1076,7 @@ dft
   xc m06-2x
 end
 task dft energy
-
+  
 dft
   mult 4
   odft
@@ -543,14 +1105,6 @@ dft
   mult 4
   odft
   vectors input atomic
-  xc m11
-end
-task dft energy
-
-dft
-  mult 4
-  odft
-  vectors input atomic
   xc m11-l
 end
 task dft energy
@@ -560,7 +1114,85 @@ dft
   mult 4
   odft
   vectors input atomic
+  xc m11
+end
+task dft energy
+
+set dft:cam_exch F
+set dft:direct   F
+
+dft
+  mult 4
+  odft 
+  vectors input atomic
+  xc s12g
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc s12h
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc sogga
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc sogga11
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc sogga11-x
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc ssb-d
+end
+task dft energy
+
+dft
+  direct
+  mult 4
+  odft
+  vectors input atomic
   xc hse03
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc cam-s12g
+end
+task dft energy
+
+dft
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc cam-s12h
 end
 task dft energy
 
