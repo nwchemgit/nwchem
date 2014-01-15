@@ -511,7 +511,7 @@ else
     ifdef EXP_GA
         GA_DIR = ga-exp1
     else
-        GA_DIR = ga-5-2
+        GA_DIR = ga-5-3
     endif
 endif
 ifndef ARMCI_NETWORK
