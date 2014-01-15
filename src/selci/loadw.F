@@ -11,8 +11,10 @@ c     read in the coupling coefficients off wmatrx
 c
       read (iflwmt,*) 
      &     (((w1(iu,iv,i),iu=1,nfmax),iv=1,nfmax),i=nsmax,1,-1)
-      read (iflwmt,*)
-     &     (((w2(iu,iv,i),iu=1,nfmax2),iv=1,nfmax),i=1,nsmax-1)
+      if (nfmax2*nfmax*(nsmax-1).gt.0) then
+         read (iflwmt,*)
+     &        (((w2(iu,iv,i),iu=1,nfmax2),iv=1,nfmax),i=1,nsmax-1)
+      endif
 c
 c      write(6,*) ' w1 '
 c      do 10 i = 1,nsmax
