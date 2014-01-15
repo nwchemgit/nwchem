@@ -1287,14 +1287,12 @@ else
    endif
 endif
                _CPU = $(shell machine  )
-                    FC = gfortran
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
              DEFINES =-DMACX
 
       ifeq ($(FC),gfortran)
-    _FC=gfortran
 #gcc version 
         LINK.f = gfortran  $(LDFLAGS) 
         FOPTIONS   = #-Wextra #-Wunused #-ffast-math
@@ -1339,6 +1337,14 @@ else
       CORE_LIBS += -lblas
    endif
 endif
+      ifeq ($(FC),ifort)
+        DEFINES  += -DIFCV8 -DIFCLINUX
+        FOPTIONS += -i8
+        FOPTIONS +=  -w -g
+        FDEBUG    = -O2 -g
+        FOPTIMIZE = -O3 -xHost
+      endif
+
   _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
     ifeq ($(_GCC4),Y) 
 #      EXTRA_LIBS += 
