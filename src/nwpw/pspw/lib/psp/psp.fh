@@ -135,3 +135,16 @@
      >                              sw1a,sw2a,
      >                              n_prj_indx,nion_prj_indx,
      >                              swann,swaset
+
+
+*     **** common block for psp_fmm ****
+      logical psp_fmm
+      integer psp_fmm_lmax
+      integer psp_fmm_rTlm(2),psp_fmm_drTlm(2)
+      real*8  psp_fmm_rmax2
+      common / psp_fmm_block / psp_fmm_rmax2,
+     >                         psp_fmm_rTlm,psp_fmm_drTlm,
+     >                         psp_fmm_lmax,psp_fmm
+
+
+

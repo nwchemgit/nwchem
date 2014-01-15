@@ -22,14 +22,18 @@
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      integer npack1,npack0,nion,i,j,ii
       logical value
+      integer npack1,npack0,nion,i,j,ii,n2ft3d,l,m,lm
+      integer tmp_rgrid(2)
+      real*8  r2
 
 *     **** external functions *****
-      logical  control_pspspin,control_use_grid_cmp
-      external control_pspspin,control_use_grid_cmp
-      integer  ion_nkatm,ion_nion,control_pspnuterms
-      external ion_nkatm,ion_nion,control_pspnuterms
+      logical  control_pspspin,control_use_grid_cmp,FMM_fmm
+      external control_pspspin,control_use_grid_cmp,FMM_fmm
+      integer  ion_nkatm,ion_nion,control_pspnuterms,FMM_lmax
+      external ion_nkatm,ion_nion,control_pspnuterms,FMM_lmax
+      integer  control_version
+      external control_version
  
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
@@ -191,6 +195,52 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       pawexist = .false.
       use_grid_cmp = control_use_grid_cmp()
 
+
+*     **** set FMM variables ****
+      psp_fmm = ((control_version().eq.4).and.FMM_fmm())
+      if (psp_fmm) then
+         psp_fmm_lmax = FMM_lmax()
+         call D3dB_n2ft3d(1,n2ft3d)
+
+         value=MA_alloc_get(mt_dbl,n2ft3d*(psp_fmm_lmax+1)**2,
+     >          'psp_fmm_rTlm',psp_fmm_rTlm(2),psp_fmm_rTlm(1))
+         value=value.and.
+     >         MA_alloc_get(mt_dbl,3*n2ft3d*(psp_fmm_lmax+1)**2,
+     >          'psp_fmm_drTlm',psp_fmm_drTlm(2),psp_fmm_drTlm(1))
+         if (.not.value) 
+     >      call errquit('psp_init:out of heap memory',0, MA_ERR)
+
+         value=MA_push_get(mt_dbl,3*n2ft3d,
+     >          'tmp_rgrid',tmp_rgrid(2),tmp_rgrid(1))
+         if (.not.value) 
+     >      call errquit('psp_init:out of stack memory',0,MA_ERR)
+         call lattice_r_grid(dbl_mb(tmp_rgrid(1)))
+         psp_fmm_rmax2 = 0.0d0
+         do i=1,n2ft3d
+            r2 = dbl_mb(tmp_rgrid(1)+3*(i-1)  )**2
+     >         + dbl_mb(tmp_rgrid(1)+3*(i-1+1))**2
+     >         + dbl_mb(tmp_rgrid(1)+3*(i-1)+2)**2
+            if (r2.gt.psp_fmm_rmax2) psp_fmm_rmax2 = r2
+         end do
+         call Parallel_MaxAll(psp_fmm_rmax2)
+
+         lm = 0
+         do l=0,psp_fmm_lmax
+         do m=-l,l
+            call Tesseral3_rgrid_lm_rl(l,m,
+     >                              n2ft3d,dbl_mb(rgrid(1)),
+     >                              dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d))
+            call dTesseral3_rgrid_lm_rl(l,m,
+     >                            n2ft3d,dbl_mb(rgrid(1)),
+     >                            dbl_mb(psp_fmm_drTlm(1)+lm*3*n2ft3d))
+            lm = lm + 1
+         end do
+         end do
+
+         if (.not.MA_pop_stack(tmp_rgrid(2)))
+     >      call errquit('psp_init:popping stack',0,MA_ERR)
+      end if
+
       return
       end
 
@@ -332,6 +382,14 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       integer ia
 
 *     **** external functions ****
+
+*     **** deallocate FMM data ****
+      if (psp_fmm) then
+         value =           MA_free_heap(psp_fmm_rTlm(2))
+         value = value.and.MA_free_heap(psp_fmm_drTlm(2))
+         if (.not.value)
+     >     call errquit('psp_end:error freeing fmm heap',0,MA_ERR)
+      end if
 
 *     **** deallocate semicore data ****
       call semicore_end()
