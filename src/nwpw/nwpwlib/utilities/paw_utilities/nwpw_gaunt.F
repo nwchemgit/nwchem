@@ -787,6 +787,95 @@ c         end if
       end
 
 
+*     **************************************
+*     *                                    *
+*     *      dTesseral3_rgrid_lm_rl        *
+*     *                                    *
+*     **************************************
+*
+      subroutine dTesseral3_rgrid_lm_rl(l,m,nfft3d,rgrid,drTlm)
+      implicit none
+      integer l,m
+      integer nfft3d
+      real*8 rgrid(3,*)
+      real*8 drTlm(3,*)
+
+*     **** local variables ****
+      integer mod_m,i,k
+      real*8 phi,cos_theta,tmp2,r,f1,f2,Tlm
+      real*8 rl,drl,coeff,twopi
+
+*     **** external functions
+      real*8   rtheta_lm_div,drtheta_lm,rlegendre_lm
+      external rtheta_lm_div,drtheta_lm,rlegendre_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+
+      mod_m = abs(m)
+      if (mod_m .gt. l)
+     >  write(*,*)
+     >  'parameter out of order in function dTesseral3_rgrid_lm_rl'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+
+      do k=1,nfft3d
+         r = dsqrt(rgrid(1,k)**2 + rgrid(2,k)**2 + rgrid(3,k)**2)
+
+         if (r.gt.1.0d-9) then
+            rl = (r**l)
+            if (l.eq.0) then
+               drl = 0.0d0
+            else if (l.eq.1) then
+               drl = 1.0d0
+            else
+               drl = dble(l)*(r**(l-1))
+            end if
+
+            cos_theta = rgrid(3,k)/r
+            phi = datan2(rgrid(2,k),rgrid(1,k))
+
+            if (m.lt.0) then
+               tmp2= dsin(mod_m*phi)
+               f2  = mod_m*dcos(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
+            else if (m.gt.0) then
+               tmp2= dcos(mod_m*phi)
+               f2  = -mod_m*dsin(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
+            else
+               tmp2= 1.0d0
+               f2  = 0.0d0
+            end if
+            Tlm = drl*tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)
+            f1  = drtheta_lm(l,m,cos_theta)*tmp2
+
+            drTlm(1,k) = Tlm*rgrid(1,k)/r
+     >                 + rl*(f1*cos_theta*cos(phi) - f2*sin(phi))
+            drTlm(2,k) = Tlm*rgrid(2,k)/r
+     >                 + rl*(f1*cos_theta*sin(phi) + f2*cos(phi))
+            drTlm(3,k) = Tlm*rgrid(3,k)/r
+     >                 - rl*f1*dsqrt(1.0d0-cos_theta**2)
+         else
+            drTlm(1,k) = 0.0d0
+            drTlm(2,k) = 0.0d0
+            drTlm(3,k) = 0.0d0
+         end if
+
+      end do
+
+      return
+      end
+
+
+
 
 *     **************************************
 *     *                                    *
