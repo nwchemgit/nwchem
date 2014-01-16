@@ -150,8 +150,8 @@
 #endif
 
 
-      logical pspw_bqext
-      external pspw_bqext
+      logical pspw_bqext,control_fast_erf
+      external pspw_bqext,control_fast_erf
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
 
@@ -330,6 +330,7 @@
 
 
 
+
 *                |**************************|
 ******************   summary of input data  **********************
 *                |**************************|
@@ -353,6 +354,7 @@
          else
            write(luout,1124)
          end if
+         if (control_fast_erf()) write(luout,1125)
 
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
@@ -718,6 +720,7 @@ c      call frac_occ_end()
  1122 FORMAT(5X,' qmmm simulation')
  1123 FORMAT( ' parallel io              :        on')
  1124 FORMAT( ' parallel io              :       off')
+ 1125 FORMAT( ' fast erf                 :        on')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
