@@ -694,7 +694,7 @@ c         end if
 *     *                                    *
 *     **************************************
 
-*  Calculates the tesseral harmonic for x,y,z such that
+*  Calculates the tesseral harmonic divided by r**(l+1) for x,y,z such that
 *
 *                                               {cos(|m|*phi)   m>0
 *      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0

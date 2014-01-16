@@ -3,10 +3,10 @@
 
 *     ***** FMM common block ****
       logical fmm
-      integer fmm_lmax,fmm_lr
-      integer fmm_levels,fmm_nboxes,fmm_tboxes
+      integer lmax,lr
+      integer levels,nboxes,tboxes
 
-      common / FMM_nwpw / fmm_lmax,fmm_lr,
-     >                    fmm_levels,fmm_nboxes,fmm_tboxes,
+      common / FMM_nwpw / lmax,lr,
+     >                    levels,nboxes,tboxes,
      >                    fmm
 
