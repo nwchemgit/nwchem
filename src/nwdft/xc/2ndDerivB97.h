@@ -1,3 +1,6 @@
+#if 0
+/* $Id$ */
+#endif
 
 #define _FCLDA_ELEMENTS 9
 #define _FXC_NUMDERI 36
