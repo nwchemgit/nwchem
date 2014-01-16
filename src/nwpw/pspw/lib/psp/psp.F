@@ -1154,6 +1154,7 @@ c     psp_rc = rc(i,ia)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "psp.fh"
 
 *     **** Error function parameters ****
       real*8  yerf,verf
@@ -1168,7 +1169,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
 *     **** local variables ****
       integer ftmp(2)
       integer taskid_j,np_j
-      integer i,j,np1,np2,np3,n2ft3d_map,nion
+      integer i,j,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d
       real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
 
 *     **** external functions ****
@@ -1183,6 +1184,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_n2ft3d_map(1,n2ft3d_map)
+      call D3dB_n2ft3d(1,n2ft3d)
       nion = ion_nion()
 
 *     **** constants ****
@@ -1198,6 +1200,28 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
      > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+      if (psp_fmm) then
+         call dcopy((psp_fmm_lmax+1)**2,0.0d0,0,
+     >              dbl_mb(psp_fmm_Mlm(1)),1)
+         lm = 0
+         do l=0,psp_fmm_lmax
+         do m=-l,l
+            do i=1,n2ft3d_map
+               dbl_mb(psp_fmm_Mlm(1)+lm) = dbl_mb(psp_fmm_Mlm(1)+lm) 
+     >            + dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)*rho(i)
+            end do
+            lm = lm + 1
+         end do
+         end do
+         call D3dB_Vector_SumAll((psp_fmm_lmax+1)**2,
+     >                           dbl_mb(psp_fmm_Mlm(1)))
+c         call FMM_fion_Llm(psp_fmm_lmax,ion_nion(),
+c     >                     int_mb(ion_katm_ptr()),
+c     >                     dbl_mb(ion_rion_ptr()),
+c     >                     dbl_mb(psp_zv_ptr()),
+c     >                     psp_fmm_rmax2,
+
+      end if
 
       if (control_fast_erf()) then
 
@@ -1341,7 +1365,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 *     **** local variables ****
       integer taskid_j,np_j
       integer i,j,n2ft3d,n2ft3d_map,l,m,lm
-      real*8 x,y,z,q,c,r2,r,sqrt_pi
+      real*8 x,y,z,q,c,r,sqrt_pi
 
 *     **** external functions ****
       logical  control_fast_erf
@@ -1369,6 +1393,17 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
      >                     dbl_mb(psp_zv_ptr()),
      >                     psp_fmm_rmax2,
      >                     dbl_mb(psp_fmm_Llm(1)))
+         do i=1,n2ft3d_map
+            lm = 0
+            do l=0,psp_fmm_lmax
+            do m=-l,l
+               vlr_out(i) = vlr_out(i) 
+     >                   - dbl_mb(psp_fmm_Llm(1)+lm)
+     >                    *dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)
+               lm = lm + 1
+            end do
+            end do
+         end do
       end if
 
       if (control_fast_erf()) then
@@ -1378,25 +1413,15 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
             q = -psp_zv(ion_katm(j))
             c = 1.0d0/psp_rlocal(ion_katm(j))
 
             do i=1,n2ft3d_map
-               r2 = (r_grid(1,i)-x)**2
-     >            + (r_grid(2,i)-y)**2
-     >            + (r_grid(3,i)-z)**2
-               r = dsqrt(r2)
-               if (psp_fmm.and.(r2.gt.psp_fmm_rmax2)) then
-                  lm = 0
-                  do l=0,psp_fmm_lmax
-                  do m=-l,l
-                     vlr_out(i) = vlr_out(i) 
-     >                         - dbl_mb(psp_fmm_Llm(1)+lm)
-     >                          *dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)
-                     lm = lm + 1
-                  end do
-                  end do
-               else if (r.gt.1.0d-15) then
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
                  xerf=r*c
                  yerf = (1.0d0
      >                 + xerf*(c1 + xerf*(c2
@@ -1409,6 +1434,7 @@ c                 yerf = util_erf(xerf)
                  vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
                end if
             end do
+            end if
 
          end if
       end do
@@ -1420,25 +1446,15 @@ c                 yerf = util_erf(xerf)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
             q = -psp_zv(ion_katm(j))
             c = 1.0d0/psp_rlocal(ion_katm(j))
 
             do i=1,n2ft3d_map
-               r2 = (r_grid(1,i)-x)**2
-     >            + (r_grid(2,i)-y)**2
-     >            + (r_grid(3,i)-z)**2
-               r = dsqrt(r2)
-               if (psp_fmm.and.(r2.gt.psp_fmm_rmax2)) then
-                  lm = 0
-                  do l=0,psp_fmm_lmax
-                  do m=-l,l
-                     vlr_out(i) = vlr_out(i) 
-     >                         - dbl_mb(psp_fmm_Llm(1)+lm)
-     >                          *dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)
-                     lm = lm + 1
-                  end do
-                  end do
-               else if (r.gt.1.0d-15) then
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
                  xerf=r*c
                  yerf = util_erf(xerf)
                  vlr_out(i) = vlr_out(i) + (q/r)*yerf
@@ -1447,6 +1463,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
                  vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
                end if
             end do
+            end if
 
          end if
       end do
