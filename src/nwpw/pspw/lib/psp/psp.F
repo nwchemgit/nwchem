@@ -207,6 +207,12 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value=value.and.
      >         MA_alloc_get(mt_dbl,3*n2ft3d*(psp_fmm_lmax+1)**2,
      >          'psp_fmm_drTlm',psp_fmm_drTlm(2),psp_fmm_drTlm(1))
+         value=value.and.
+     >         MA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
+     >          'psp_fmm_Llm',psp_fmm_Llm(2),psp_fmm_Llm(1))
+         value=value.and.
+     >         MA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
+     >          'psp_fmm_Mlm',psp_fmm_Mlm(2),psp_fmm_Mlm(1))
          if (.not.value) 
      >      call errquit('psp_init:out of heap memory',0, MA_ERR)
 
@@ -387,6 +393,8 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       if (psp_fmm) then
          value =           MA_free_heap(psp_fmm_rTlm(2))
          value = value.and.MA_free_heap(psp_fmm_drTlm(2))
+         value = value.and.MA_free_heap(psp_fmm_Llm(2))
+         value = value.and.MA_free_heap(psp_fmm_Mlm(2))
          if (.not.value)
      >     call errquit('psp_end:error freeing fmm heap',0,MA_ERR)
       end if
@@ -774,6 +782,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       psp_zv = dbl_mb(zv(1)+ia-1)
       return
       end
+
 
 *     ***********************************
 *     *					*
@@ -1316,6 +1325,9 @@ c         fion(3,j) = fion(3,j) - fz*dv
       real*8     r_grid(3,*)
       real*8     vlr_out(*)
 
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
 
 *     **** Error function parameters ****
       real*8 xerf,yerf
@@ -1328,8 +1340,8 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
 *     **** local variables ****
       integer taskid_j,np_j
-      integer i,j,n2ft3d,n2ft3d_map
-      real*8 x,y,z,q,c,r,sqrt_pi
+      integer i,j,n2ft3d,n2ft3d_map,l,m,lm
+      real*8 x,y,z,q,c,r2,r,sqrt_pi
 
 *     **** external functions ****
       logical  control_fast_erf
@@ -1338,6 +1350,8 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       external control_fast_erf
       external ion_nion,ion_katm
       external ion_rion,psp_rlocal,psp_zv,util_erf
+      integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
 
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
@@ -1347,6 +1361,15 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
+
+      if (psp_fmm) then
+         call FMM_rion_Llm(psp_fmm_lmax,ion_nion(),
+     >                     int_mb(ion_katm_ptr()),
+     >                     dbl_mb(ion_rion_ptr()),
+     >                     dbl_mb(psp_zv_ptr()),
+     >                     psp_fmm_rmax2,
+     >                     dbl_mb(psp_fmm_Llm(1)))
+      end if
 
       if (control_fast_erf()) then
 
@@ -1359,10 +1382,21 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             c = 1.0d0/psp_rlocal(ion_katm(j))
 
             do i=1,n2ft3d_map
-               r = dsqrt( (r_grid(1,i)-x)**2
-     >                  + (r_grid(2,i)-y)**2
-     >                  + (r_grid(3,i)-z)**2)
-               if (r .gt. 1.0d-15) then
+               r2 = (r_grid(1,i)-x)**2
+     >            + (r_grid(2,i)-y)**2
+     >            + (r_grid(3,i)-z)**2
+               r = dsqrt(r2)
+               if (psp_fmm.and.(r2.gt.psp_fmm_rmax2)) then
+                  lm = 0
+                  do l=0,psp_fmm_lmax
+                  do m=-l,l
+                     vlr_out(i) = vlr_out(i) 
+     >                         - dbl_mb(psp_fmm_Llm(1)+lm)
+     >                          *dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)
+                     lm = lm + 1
+                  end do
+                  end do
+               else if (r.gt.1.0d-15) then
                  xerf=r*c
                  yerf = (1.0d0
      >                 + xerf*(c1 + xerf*(c2
@@ -1390,10 +1424,21 @@ c                 yerf = util_erf(xerf)
             c = 1.0d0/psp_rlocal(ion_katm(j))
 
             do i=1,n2ft3d_map
-               r = dsqrt( (r_grid(1,i)-x)**2
-     >                  + (r_grid(2,i)-y)**2
-     >                  + (r_grid(3,i)-z)**2)
-               if (r .gt. 1.0d-15) then
+               r2 = (r_grid(1,i)-x)**2
+     >            + (r_grid(2,i)-y)**2
+     >            + (r_grid(3,i)-z)**2
+               r = dsqrt(r2)
+               if (psp_fmm.and.(r2.gt.psp_fmm_rmax2)) then
+                  lm = 0
+                  do l=0,psp_fmm_lmax
+                  do m=-l,l
+                     vlr_out(i) = vlr_out(i) 
+     >                         - dbl_mb(psp_fmm_Llm(1)+lm)
+     >                          *dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)
+                     lm = lm + 1
+                  end do
+                  end do
+               else if (r.gt.1.0d-15) then
                  xerf=r*c
                  yerf = util_erf(xerf)
                  vlr_out(i) = vlr_out(i) + (q/r)*yerf
