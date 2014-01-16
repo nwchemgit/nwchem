@@ -134,7 +134,7 @@ char *include_directive(FILE *file)
 	return 0;
 
     while ((i = getc(file)) != EOF)  {/* Find first quote */
-	if (i == '"')
+	if (i == '"' || i =='<')
 	    break;
 	if (i == '\n') return 0; /* Don't wrap lines in bad code */
     }
