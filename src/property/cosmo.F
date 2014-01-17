@@ -53,7 +53,7 @@ c
       iscren   =0
       ifscrn   =2 ! surface charge correction adapted for geometry optimzations
       minbem   =2
-      maxbem   =4
+      maxbem   =2 ! used to be 4, is now obsolete anyway
       ificos   =0
       lineq    =1
       rsolv    =0.00d+00
@@ -585,7 +585,7 @@ c
       iscren   =0
       ifscrn   =2 ! surface charge correction adapted for geometry optimzations
       minbem   =2
-      maxbem   =4
+      maxbem   =2 ! used to be 4, is now obsolete anyway
       ificos   =0
       lineq    =1
       rsolv    =0.00d+00
@@ -1350,6 +1350,7 @@ c                 --- eval eq.(67) from [2] ---
 c
                   ipp=numpps(iseg,iat)
                   dum=4.00d0**(maxbem-minbem)
+                  dum=16.0d0 ! MAXBEM is obsolete in York and Karplus approach
                   zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
                   zetaii=zetai/sqrt(2.0d0)
                   dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
