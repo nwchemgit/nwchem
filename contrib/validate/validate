@@ -24,6 +24,17 @@ else
    path="`which \"$0\"`"
    path="`dirname \"$path\"`"
 fi
+if [ ${#VAL_DIFF} -eq 0 ] ; then
+   VAL_DIFF=`which tkdiff`
+fi
+if [ ${#VAL_DIFF} -eq 0 ] ; then
+   VAL_DIFF=`which diff`
+fi
+if [ ${#VAL_DIFF} -eq 0 ] ; then
+   echo "Found no diff program. Giving up..."
+   exit 10
+fi
+export VAL_DIFF
 testlist=`$path/get_tests.bash $1`
 for tcase in $testlist; do
    if [ -f testoutputs/${tcase}.out.nwparse ] ; then
@@ -33,7 +44,7 @@ for tcase in $testlist; do
       stat=$?
       if [ ${stat} -ne 0 ] ; then
          echo " ... failed ... diffing ..."
-         tkdiff testoutputs/${tcase}.ok.out.nwparse testoutputs/${tcase}.out.nwparse
+         ${VAL_DIFF} testoutputs/${tcase}.ok.out.nwparse testoutputs/${tcase}.out.nwparse
       else
          echo " ... OK"
       fi
@@ -45,7 +56,7 @@ for tcase in $testlist; do
          stat=$?
          if [ ${stat} -ne 0 ] ; then
             echo " ... failed ... diffing ..."
-            tkdiff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top
+            ${VAL_DIFF} testoutputs/${tcase}.ok.tst testoutputs/${tcase}.top
          else
             echo " ... OK"
          fi
@@ -55,7 +66,7 @@ for tcase in $testlist; do
          stat=$?
          if [ ${stat} -ne 0 ] ; then
             echo " ... failed ... diffing ..."
-            tkdiff testoutputs/${tcase}.ok.tst testoutputs/${tcase}.tst
+            ${VAL_DIFF} testoutputs/${tcase}.ok.tst testoutputs/${tcase}.tst
          else
             echo " ... OK"
          fi
@@ -63,7 +74,7 @@ for tcase in $testlist; do
    else
       # This is a regular test case that crashed.
       echo "Test:" ${tcase} " ... failed ... diffing ..."
-      tkdiff testoutputs/${tcase}.ok.out testoutputs/${tcase}.out
+      ${VAL_DIFF} testoutputs/${tcase}.ok.out testoutputs/${tcase}.out
    fi
 done
 echo "... All Done ..."
