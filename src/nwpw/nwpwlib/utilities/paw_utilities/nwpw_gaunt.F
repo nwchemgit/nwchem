@@ -389,7 +389,7 @@ c         end if
 !     *** find coefficient ***
       if (mod_m.eq.0) then 
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0 
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -463,7 +463,7 @@ c         end if
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -537,7 +537,7 @@ c         end if
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else 
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -607,7 +607,7 @@ c         end if
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -786,6 +786,87 @@ c         end if
       return
       end
 
+*     **************************************
+*     *                                    *
+*     *           dTesseral3_lm_over_rl    *
+*     *                                    *
+*     **************************************
+*
+*  Calculates the derivative of tesseral harmonic for x,y,z wrt to x,y,z,such that
+*
+*                                                {cos(|m|*phi)   m>0
+*      dT_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                                {sin(|m|*phi)   m<0
+*
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine dTesseral3_lm_over_rl(l,m,x,y,z,dTx,dTy,dTz)
+      implicit none
+      integer l,m
+      real*8 x,y,z
+      real*8 dTx,dTy,dTz
+
+*     **** local variables ****
+      integer mod_m,i
+      real*8 phi,cos_theta,tmp2,r,f1,f2,rl1,drl1,drTlm,coeff,twopi
+
+*     **** external functions
+      real*8   rtheta_lm_div,drtheta_lm,rlegendre_lm
+      external rtheta_lm_div,drtheta_lm,rlegendre_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+      mod_m = abs(m)
+      if (mod_m .gt. l)
+     >  write(*,*)
+     >  'parameter out of order in function dTesseral3_lm_over_rl'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 0.5d0
+      else 
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      end if
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+
+      r = dsqrt(x*x + y*y + z*z)
+      if (r.gt.1.0d-9) then
+         rl1 = 1.0d0/(r**(l+1))
+         drl1 = -dble(l+1)/(r**(l+2))
+
+         cos_theta = z/r
+         phi = datan2(y,x)
+
+
+         if (m.lt.0) then
+            tmp2 = dsin(mod_m*phi)
+            f2   = mod_m *dcos(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
+         else if (m.gt.0) then
+            tmp2 = dcos(mod_m*phi)
+            f2   = -mod_m*dsin(mod_m*phi)*rtheta_lm_div(l,m,cos_theta)
+         else
+            tmp2 = 1.0d0
+            f2   = 0.0d0
+         end if
+         drTlm = tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)*drl1
+         f1 = drtheta_lm(l,m,cos_theta)*tmp2
+
+         dTx = drTlm*x/r + (f1*cos_theta*cos(phi)-f2*sin(phi))*rl1
+         dTy = drTlm*y/r + (f1*cos_theta*sin(phi)+f2*cos(phi))*rl1
+         dTz = drTlm*z/r - f1*dsqrt(1.0d0-cos_theta**2)*rl1
+      else
+         dTx = 0.0d0
+         dTy = 0.0d0
+         dTz = 0.0d0
+      end if
+      return
+      end
+
+
+
 
 *     **************************************
 *     *                                    *
@@ -819,7 +900,7 @@ c         end if
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -1008,7 +1089,7 @@ c      double precision theta_lm !*RESULT*
 !     *** find coefficient ***
       if (mod_m.eq.0) then 
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0 
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -1058,7 +1139,7 @@ c      double precision theta_lm !*RESULT*
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else 
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -1110,7 +1191,7 @@ c!  *************************************************
 !     *** find coefficient ***
       if (mod_m.eq.0) then 
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0 
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -1179,7 +1260,7 @@ c!  *************************************************
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 0.5d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -1250,7 +1331,7 @@ c      double precision theta_lm !*RESULT*
 !     *** find coefficient ***
       if (mod_m.eq.0) then
          coeff= 1.0d0
-      else if (mod_m.gt.0) then
+      else
          coeff= 1.0d0
          do i=1,2*mod_m
             coeff = coeff/dble(l-mod_m+i)
@@ -1400,7 +1481,6 @@ c      end if
 
 
 
-
       DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
       INTEGER L
       INTEGER M
@@ -1420,7 +1500,7 @@ c      end if
      1   'parameter ot of range in legendre_lm',0,0)
  
       IF (MOD_M .GT. L) THEN
-         LEGENDRE_LM = 0d0
+         LEGENDRE_LM = 0.0d0
          RETURN 
       ENDIF
  
