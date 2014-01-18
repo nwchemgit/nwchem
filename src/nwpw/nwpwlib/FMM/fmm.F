@@ -260,6 +260,56 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
       end
 
 
+
+*     **********************************************
+*     *                                            *
+*     *              FMM_fion_Mlm                  *
+*     *                                            *
+*     **********************************************
+*
+      subroutine FMM_fion_Mlm(lmax,nion,katm,rion,qatm,rsphere2,
+     >                        Mlm,fion)
+      implicit none
+      integer lmax
+      integer nion,katm(*)
+      real*8 rion(3,*),qatm(*),rsphere2,Mlm(*),fion(3,*)
+
+*     **** local variables ****
+      integer taskid,np
+      integer ii,l,m,idx
+      real*8 fourpi,r2,coef,dtx,dty,dtz
+
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+      fourpi = 16.0d0*datan(1.0d0)
+      do ii=1,nion
+         if (mod(ii,np).eq.taskid) then
+            r2 = rion(1,ii)**2+rion(2,ii)**2+rion(3,ii)**2
+            if (r2.gt.rsphere2) then
+               idx = 1
+               do l=0,lmax
+                  coef = (fourpi/dble(2*l+1))*qatm(katm(ii))
+                  do m=-l,l
+                     call dTesseral3_lm_over_rl(l,m,rion(1,ii),
+     >                                              rion(2,ii),
+     >                                              rion(3,ii),
+     >                                              dtx,dty,dtz)
+                     fion(1,ii) = fion(1,ii) + dtx*coef*Mlm(idx)
+                     fion(2,ii) = fion(2,ii) + dty*coef*Mlm(idx)
+                     fion(3,ii) = fion(3,ii) + dtz*coef*Mlm(idx)
+                     idx = idx + 1
+                  end do
+               end do
+            end if
+         end if
+      end do
+      return
+      end
+
+
+
 c*     **********************************************
 c*     *                                            *
 c*     *              FMM_rgrid_Mlm                 *
