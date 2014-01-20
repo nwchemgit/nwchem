@@ -653,14 +653,15 @@ c      INCLUDE 'mxpdim.inc'
         END IF
           
       END IF
+      print*,'gtijlk',K2ADR,KP2ADR
       IF (.NOT.(I_UNRORB.EQ.1.AND.ISPCAS.EQ.4)) THEN
         IADR = I2ADDR(IREOTS(I),IREOTS(J),
      &              IREOTS(K),IREOTS(L),
-     &              dbl_mb(KP2ADR),NOCCSYM,NO12SYM)
+     &              int_mb(KP2ADR),NOCCSYM,NO12SYM)
       ELSE
         IADR = I2ADDR(IREOTS(K),IREOTS(L),
      &              IREOTS(I),IREOTS(J),
-     &              dbl_mb(KP2ADR),NOCCSYM,NO12SYM)
+     &              int_mb(KP2ADR),NOCCSYM,NO12SYM)
       END IF
 
       IF (IADR.GT.0) THEN
@@ -672,7 +673,7 @@ CNW     XIJKL = WORK(K2ADR-1+IADR)
 *
       GTIJKL = XIJKL
 *
-      NTEST = 00
+      NTEST = 100
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' 2e integral for I,J,K,L = ', I,J,K,L
         WRITE(6,*) ' is ', XIJKL

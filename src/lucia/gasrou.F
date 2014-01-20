@@ -5486,7 +5486,7 @@ C     REAL * 8  INPROD
 *. Output
       DIMENSION DIAG(*)
 *
-      NTEST = 000
+      NTEST = 1000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -5530,7 +5530,7 @@ C     REAL * 8  INPROD
      &CALL VECSUM(RK,RK,RJ,-1.0D0,+1.0D0,NTOOB **2)
       IDET = 0
       ITDET = 0
-      IF(LUDIA.NE.0) CALL REWINO(LUDIA)
+      IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
       DO IBLK = 1, NBLOCK
 *
@@ -9628,7 +9628,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST = 000
+      NTEST =  000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -9675,7 +9675,7 @@ cnw   DIMENSION DIAG(*)
      &CALL VECSUM(RK,RK,RJ,-1.0D0,+1.0D0,NTOOB **2)
       IDET = 0
       ITDET = 0
-      IF(LUDIA.NE.0) CALL REWINO(LUDIA)
+      IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
       DO IBLK = 1, NBLOCK
 *

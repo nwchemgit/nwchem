@@ -7387,8 +7387,8 @@ C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
       DO IBLK = 1, NBLOCK
         LEN = IBLOCK(8,IBLK)
 C?      WRITE(6,*) ' IBLK, LEN = ', IBLK, LEN
-        XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN,1,1,
-     &                       VEC,'N',IOFF,IOFF+LEN,1,1)
+        XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
+     &                       VEC,'N',IOFF,IOFF+LEN-1,1,1)
 CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
         IF(XBLK.NE.0.0D0) THEN
           BLK_A(IBLK) = 1.0D0
@@ -9525,16 +9525,20 @@ C?   &                      LU_LDET, LU_RDET
 *. Save result in LUSCX
 cnw      CALL REWINO(LUSCX)
 cnw      CALL TODSC(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX)
-         if(dra_write_section(.false.,KCOMVEC1_SD,1,NSVAR,1,1,
-     &      LUSCX,1,NSVAR,1,1).ne.0) call errquit('dra err',911)
+         if(dra_write_section(.false.,KCOMVEC1_SD,1,NSVAR,1,1,LUSCX,
+     &      1,NSVAR,1,1,itask).ne.0) call errquit('dra err',LUSCX,911)
+         if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &       itask,911)
 *R(SD)
          CALL CSDTVCM(R,KCOMVEC2_SD,KCOMVEC1_SD,
      &        1,0,ICSM,ICSPC,2)
 *Retrieve L(SD) from scratch 
 cnw      CALL REWINO(LUSCX)
 cnw      CALL FRMDSCO(WORK(KCOMVEC1_SD),NSVAR,NSVAR,LUSCX,IMZERO)
-         if (dra_read_section(.false.,KCOMVEC2_SD,1,NSVAR,1,1,
-     &       LUSCX,1,NSVAR,1,1).ne.0) call errquit('dra err',911)
+         if (dra_read_section(.false.,KCOMVEC2_SD,1,NSVAR,1,1,LUSCX,
+     &       1,NSVAR,1,1,itask).ne.0) call errquit('dra err',LUSCX,911)
+         if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &       itask,911)
          CALL FILEMAN_MINI(LUSCX,'FREE  ')
        ELSE
 *. Not in core

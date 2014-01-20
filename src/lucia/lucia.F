@@ -1891,6 +1891,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "dra.fh"
       LOGICAL CONV_F
       EXTERNAL MV7
       INCLUDE 'cicisp.inc'
@@ -1922,6 +1923,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       COMMON/H_OCC_CONS/IH_OCC_CONS
 *
+      character*100 nam,fil
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       NTEST = 0
       NTEST = 5
@@ -2320,6 +2322,8 @@ C       CALL GASDIAT(WORK(KPVEC1),LUDIA,SHIFT,ICISTR,I12,
         CALL GASDIAT(KPDIA_SD,LUDIA,SHIFT,ICISTR,I12,
      &               int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
 C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
+        print*,'after gasdiat'
+        call ga_print(kpdia_sd)
         IF(IUSE_EXP.NE.1) THEN
 CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
           KSWAP = KINT1
@@ -2342,7 +2346,6 @@ C    &         ICNFBAT,NOCCLS_ACT,IOCCLS_ACT,
 C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
 *
          IF(ICNFBAT.EQ.1) THEN
-CBERT Can be MA or GA at this point?
            CALL COPVEC(KPVEC2,KPDIA_SD,NVAR)  
          ELSE
            CALL COPVCD(LUSC52,LUDIA,KPVEC2,1,-1)
@@ -2361,10 +2364,13 @@ C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
        END IF
 *
        IF(ICISTR.EQ.1) THEN
-         CALL REWINO(LUDIA)
+C        CALL REWINO(LUDIA)
 C?     WRITE(6,*) ' WORK(KPDIA_SD) before TODSC =', WORK(KPDIA_SD)
-         CALL TODSC(KPDIA_SD,NVAR,NVAR,LUDIA)
-CBERT SHOULD NOT BE CALLED                     
+C        CALL TODSC(KPDIA_SD,NVAR,NVAR,LUDIA)
+         istat = dra_write(kpdia_sd,LUDIA,itask) 
+         if (istat.ne.0) call errquit('ludia dra_write error',istat,911)
+         if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &       itask,911)
        END IF
 *
        IF(IIUSEH0P.EQ.1) THEN
@@ -2580,8 +2586,8 @@ C?    CALL MEMCHK
 cnw    CALL REWINO(LUC)
        DO JROOT = 1, NROOT
 cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
-        if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,
-     &     LUC,1,NVAR,JROOT,JROOT).ne.0) call errquit('dra error',911)
+        if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,NVAR,
+     &     JROOT,JROOT,itask).ne.0) call errquit('dra error',911)
         CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
         dbl_mb(KLZEXP-1+JROOT) = RLZEFF
         dbl_mb(KL2EXP-1+JROOT) = RL2EFF
@@ -3915,8 +3921,8 @@ CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
      &       call errquit('cannot create lucia_2e: kint_2eini',0,GA_ERR)
       END IF
 *. Pointers to symmetry block of integrals
-      CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',2,'PINT1 ')  !done
-      CALL MEMMAN(KPINT2,NBINT2,'ADDS  ',2,'PINT2 ')  !done
+      CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',1,'PINT1 ')  !done
+      CALL MEMMAN(KPINT2,NBINT2,'ADDS  ',1,'PINT2 ')  !done
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB
 *. triangular packed
@@ -3925,8 +3931,8 @@ CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
         CALL MEMMAN(KPGINT1A(ISM),NSMOB,'ADDS  ',2,'PGIN1A')  !done
       END DO
 *. Symmetry of last index as a function of initial index
-      CALL MEMMAN(KLSM1,NBINT1,'ADDS  ',2,'LSM1   ')  !done
-      CALL MEMMAN(KLSM2,NBINT2,'ADDS  ',2,'LSM2   ')  !done
+      CALL MEMMAN(KLSM1,NBINT1,'ADDS  ',1,'LSM1   ')  !done
+      CALL MEMMAN(KLSM2,NBINT2,'ADDS  ',1,'LSM2   ')  !done
 *.3 One-body density   
       CALL MEMMAN(KRHO1,NACOB ** 2,'ADDS  ',2,'RHO1  ')  !done
 *.3.1: One-body spin density
@@ -4774,7 +4780,7 @@ C?        write(6,*) ' CIEIG5 NDIM NROOT ', NDIM,NROOT
           NFINDM = MIN(NDIM,4*NROOT)
           CALL FNDMND(LUDIA,LBLK,VEC1,NFINDM,NFINDA,ISCR1(1+2*NFINDM),
      &                SCR1(1+2*NFINDM),ISCR1,SCR1,IPRT)
-          CALL REWINO(LU1)
+CNW       CALL REWINO(LU1)
           IBASE = 1
           TEST = 1.0D-10
           IWPRNT = 0
@@ -4841,7 +4847,7 @@ C    &           LUDIA,JPACK)
 * =====================================
 *. Initial approximations are in PEIGVC
 * =====================================
-          CALL REWINO(LU1)
+CNW       CALL REWINO(LU1)
           IF(IDIAG.EQ.2) THEN
             JPACK = 1
           ELSE
@@ -5112,6 +5118,13 @@ C
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'clunit.inc'
+      INCLUDE 'cstate.inc'
+      INCLUDE 'cicisp.inc'
+      INCLUDE 'crun.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "dra.fh"
 * =========================
 * Standard input and output
 * =========================
@@ -5124,6 +5137,9 @@ C
 * the aim is to get rid of all fixed assignments below
       NTEST = 00
       CALL FH_INIT(IDUM,0,NTEST)
+      NVAR = XISPSM(IREFSM,1)
+      istat = dra_init(10, NVAR*MXCIV, -1, -1) 
+      if(istat.ne.0) call errquit('DISKUN dra_init failed',istat,911)
 
 * =================
 * Input information
@@ -5147,14 +5163,24 @@ C
 * Internal files
 * =================
 *. CI diagonal
-      LUDIA = IGETUNIT(20)
-      CALL DANAME(LUDIA,'CIDIA')
+CNW   LUDIA = IGETUNIT(20)
+CNW   CALL DANAME(LUDIA,'CIDIA')
+      NVAR = XISPSM(IREFSM,1)
+      istat = dra_create(MT_DBL, NVAR, 1, 'cidia','cidia',DRA_RW,
+     &    NVAR,1,LUDIA)
+      if(istat.ne.0) call errquit('DISKUN dra_create ludia',istat,911)
 *. CI vector
-      LUC = IGETUNIT(21)
-      CALL DANAME(LUC,'LUCVECT')
+CNW   LUC = IGETUNIT(21)
+CNW   CALL DANAME(LUC,'LUCVECT')
+      istat = dra_create(MT_DBL,NVAR,MXCIV,'lucvect','lucvect',DRA_RW,
+     &    NVAR,1,LUC) 
+      if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
 *. Sigma vector file
-      LUHC = IGETUNIT(22)
-      CALL DANAME(LUHC,'HCFILE')
+CNW   LUHC = IGETUNIT(22)
+CNW   CALL DANAME(LUHC,'HCFILE')
+      istat = dra_create(MT_DBL,NVAR,MXCIV,'hcfile','hcfile',DRA_RW,
+     &    NVAR,1,LUHC) 
+      if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
 *** the following unit are deactivated
 *. File collecting CC correction vectors, used for DIIS etc
       LU_CCVEC = -1000
@@ -5169,10 +5195,13 @@ C
 * =================
 * Scratch files
 * =================
-      LUSC1 = IGETUNIT(31)
+      istat = dra_create(MT_DBL,NVAR,3,'lusc1','lusc1',DRA_RW,
+     &    NVAR,1,LUSC1) 
+      if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
+CNW   LUSC1 = IGETUNIT(31)
       LUSC2 = IGETUNIT(32)
       LUSC3 = IGETUNIT(33)
-      CALL DANAME(LUSC1,'LUSC1')
+CNW   CALL DANAME(LUSC1,'LUSC1')
       CALL DANAME(LUSC2,'LUSC2')
       CALL DANAME(LUSC3,'LUSC3')
 *. Scratch space for subspace handling 
@@ -5515,9 +5544,15 @@ C
 *       SUBVAL: VALUE OF SORTED ELEMENTS
  
       IMPLICIT REAL*8           ( A-H,O-Z)
-      DIMENSION SEGMNT(*), ISCAT(*),SUBVAL(*),SCR(*),ISCR(*)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "dra.fh"
+CNW   DIMENSION SEGMNT(*), ISCAT(*),SUBVAL(*),SCR(*),ISCR(*)
+      DIMENSION ISCAT(*),SUBVAL(*),SCR(*),ISCR(*)
+      integer segmnt
 *
-      CALL REWINE(LU,-1)
+CNW   CALL REWINE(LU,-1)
 *
 *.LOOP OVER BLOCKS
 *
@@ -5552,7 +5587,11 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
           ELSE
             KBLK = -1
           END IF
-           CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
+          if (dra_read(SEGMNT,LU,itask).ne.0)
+     &       call errquit('dra error',itask,911)
+          if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &        itask,911)
+CNW        CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
            IF(NTEST.GE.10000) THEN
              WRITE(6,*) ' Elements read in '
              CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
@@ -5562,7 +5601,7 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
              MSUBMX = MIN(NSUBMX,LBL)
 C     SUBROUTINE SORLOW(WRK,STVAL,ISTART,KZVAR,KEXSTV,JEXSTV,IPRT)
              IF(LBL.GE.1) THEN
-               CALL SORLOW(SEGMNT,SCR(1+LSUB),ISCR(1+LSUB),LBL,
+               CALL SORLOWG(SEGMNT,SCR(1+LSUB),ISCR(1+LSUB),LBL,
      &                     MSUBMX,MSUB,NTEST)
 C              WRITE(6,*)
 C    &       ' After SORLOW 1 , Scatter array for combined list '
@@ -6207,11 +6246,11 @@ c      INCLUDE 'mxpdim.inc'
 C?        WRITE(6,*) ' GETH1E, old route '
             IF (I_UNRORB.EQ.0.OR.ISPCAS.EQ.1) THEN
               GETH1E =
-     &           GTH1ES(IREOTS,dbl_mb(KPINT1),KINT1,IBSO,MXPNGAS,
+     &           GTH1ES(IREOTS,int_mb(KPINT1),KINT1,IBSO,MXPNGAS,
      &           IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,NINOB)
             ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
               GETH1E =
-     &           GTH1ES(IREOTS,dbl_mb(KPINT1),WORK(KINT1B),IBSO,MXPNGAS,
+     &           GTH1ES(IREOTS,int_mb(KPINT1),WORK(KINT1B),IBSO,MXPNGAS,
      &           IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,1,NINOB)
             ELSE
               WRITE(6,*) 'Impossible I_UNRORB/ISPCAS combination: ',
@@ -7122,27 +7161,27 @@ C     END IF
           IF (I12S.EQ.1.AND.I34S.EQ.1) THEN
             CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                    IXCHNG,IKSM,JLSM,KINT2,
-     &                    dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,
+     &                    int_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,
      &                    CFAC,EFAC)
           ELSE
             CALL GETINCN2_NOCCSYM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
+     &                  int_mb(KPINT2),NSMOB,WORK(KINH1),ICOUL,0)
           END IF
         ELSE IF (I_UNRORB.EQ.0) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
+     &                  int_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.1) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2),
-     &                  dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
+     &                  int_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,WORK(KINT2BB),
-     &                  dbl_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
+     &                  int_mb(KPINT2),NSMOB,dbl_mb(KINH1),ICOUL,0,CFAC,
      &                    EFAC)
         ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.3) THEN
           CALL GETINCN2(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
@@ -7260,7 +7299,7 @@ C    &             IXCHNG,IKSM,JLSM,INTLST,IJKLOF,I2INDX,
 C    &             ICOUL,CFAC,EFAC)
          CALL GETINCN2_A(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                    IXCHNG,IKSM,JLSM,KINT2_LA,
-     &                    dbl_mb(KPINT2_LA),KINH1,ICOUL,CFAC,
+     &                    int_mb(KPINT2_LA),KINH1,ICOUL,CFAC,
      &                    EFAC)
       END IF! End of ITRA_ROUTE switch
 *
@@ -7910,7 +7949,7 @@ COLD &            ISMFTO,IBSO,NTOOB)
 c..dongxia
 c..  work(kpint1) and work(kint1) are static arrays about integrals
 c..  may need to convert to GA. Leave here for the time being.
-      CALL GT1DIS(H1DIA,IREOTS(1),dbl_mb(KPINT1),KINT1,
+      CALL GT1DIS(H1DIA,IREOTS(1),int_mb(KPINT1),KINT1,
      &            ISMFTO,IBSO,NTOOB)
 *
       RETURN
@@ -7939,7 +7978,7 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
 *
-      NTEST = 00
+      NTEST = 100
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' Diagonal one electron integrals '
         CALL WRTMAT(H1DIA,1,NTOOB,1,NTOOB)
@@ -8060,7 +8099,7 @@ cGLM      CALL GTJKS(RJ,RK,NTOOB)
    50   CONTINUE
   100 CONTINUE
 *
-      NTEST = 0
+      NTEST = 10
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' RJ and RK from GTJK '
         CALL WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
@@ -8264,7 +8303,7 @@ cGLM                  Call DaFile(LuTr2,0,Scr,2*lTr2Rec,iDisk)
       INCLUDE 'glbbas.inc'
 *
 *
-      I2EAD = I2EADS(IORB,JORB,KORB,LORB,dbl_mb(KPINT2))
+      I2EAD = I2EADS(IORB,JORB,KORB,LORB,int_mb(KPINT2))
 *
       RETURN
       END
@@ -9649,8 +9688,8 @@ c      INCLUDE 'mxpdim.inc'
 *
 *.: Pointers for symmetry blocks of integrals
 *
-      CALL INTPNT(dbl_mb(KPINT1),dbl_mb(KLSM1),
-     &            dbl_mb(KPINT2),dbl_mb(KLSM2))
+      CALL INTPNT(int_mb(KPINT1),int_mb(KLSM1),
+     &            int_mb(KPINT2),int_mb(KLSM2))
 *. Pointer for orbital indeces for symmetry blocked matrices
       CALL ORBINH1(dbl_mb(KINH1),dbl_mb(KINH1_NOCCSYM),
      &             NTOOBS,NTOOB,NSMOB)
@@ -9673,7 +9712,7 @@ CNW     CALL SETVEC(WORK(KINT1), ZERO, NINT1)
 CNW     CALL SETVEC(WORK(KINT2), ZERO, NINT2)
         call ga_zero(KINT1)
         call ga_zero(KINT2)
-        CALL GET_QD_INTS(KINT1,KINT2,dbl_mb(KPINT1))
+        CALL GET_QD_INTS(KINT1,KINT2,int_mb(KPINT1))
         INTIMP = 1
        ELSE IF(IDOQD.EQ.0.AND.INTIMP.EQ.1) THEN
 *
@@ -10182,7 +10221,7 @@ c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
         if (isvmem.eq.1) stop 'intpnt!!!!'
 
         CALL PNT2DM(0,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
-     &         1  ,ISL1,dbl_mb(KPINT1_SIMTRH),MXPOBS)
+     &         1  ,ISL1,int_mb(KPINT1_SIMTRH),MXPOBS)
         I12 = 0
         I34 = 0
         I1234 = 1
@@ -10621,8 +10660,6 @@ C     CALL TEST_DEC15
       CALL KERNEL_ROU_STAT_INI
 *.    No floating point underflow
       CALL XUFLOW
-*. Assign diskunits
-      CALL DISKUN
 *. Header
       CALL WRTHD(LUOUT)
 * =======================================================
@@ -10901,6 +10938,9 @@ C GET_NSD_MINMAX_SPACE(MIN_OCC,MAX_OCC,ISYM,MS2X,MULTSX, NSD,NCM,NCSF,NCONF)
       END IF
       WRITE(6,*) ' MXP1_MAX, fresh = ', MXP1_MAX
 
+CBERT MOVED TO GET ADDITIONAL INPUT INFO READY
+*. Assign diskunits
+      CALL DISKUN
 *
 * =========================
 * Allocate static memory 
@@ -16045,12 +16085,10 @@ cnw         GOTO 999
 * 35: Do not employ CSF expansion
 * ================================
 cnw       IF(CARD(2:6).EQ.'NOCSF') THEN
-        print*,'nocsf'
         if(rtdb_get(rtdb,'lucia:nocsf',mt_log,1,nocsf_on)) then
          ISETKW(35) = 1
          NOCSF = 1
 cnw         GOTO 999
-         print*,'nosf is one'
        END IF
 * ================================
 * 37: Do not read in integrals   
@@ -31349,6 +31387,131 @@ C            SYMCOM(ITASK,IOBJ,I1,I2,I12)
 *
       RETURN
       END
+      SUBROUTINE SORLOWG(WRK,STVAL,ISTART,KZVAR,KEXST2,JEXSTV,IPRT)
+C
+C PURPOSE: FIND THE KEXSTV LOWEST VALUES IN WRK(KZVAR)
+C          CHECK IF THE LAST ELEMENTS ARE DEGENERATE
+C          JEXSTV IS THE NUMBER OF SORTED ELEMENTS WHERE
+C          NO DEGENERACIES OCCUR AMONG THE HIGHEST ELEMENTS
+* INPUT
+*======
+* WRK: ARRAY TO BE SORTED
+* KEXST2: NUMBER OF ELEMENTS TO BE OBTAINED  + 1
+* KZVAR: LENGTH OG WRK
+* OUTPUT
+*=======
+* STVAL : STVAL(I) IS VALUES OF SORTED ELEMENT I
+* ISTART: SCATTER POINTER ISTART(I) IS ADRESS IN FULL LIST OF
+*          SORTED ELEMENT I
+* KZVAR: LENGTH OG WRK
+* JEXSTV: NUMBER OF ELEMENTS RETURNED , CAN BE LESS THAN
+*          KEXSTV-1 IF DEGENERNCIES OCCURS  AMONG THE LAST ELEMENTS
+*
+C
+      IMPLICIT REAL*8           (A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "dra.fh"
+      DIMENSION STVAL(*),ISTART(*)
+      integer WRK
+C
+      PARAMETER ( TOLEQL=1.0D-6 )
+      PARAMETER ( D0=0.0D0 , D1=1.0D0 , DM1 = -1.0D0 )
+      LOGICAL FULL
+C
+      IF(KEXST2.GE.KZVAR) THEN
+         FULL = .TRUE.
+         KEXSTV = KZVAR
+      ELSE
+         FULL = .FALSE.
+         KEXSTV = KEXST2+1
+      END IF
+C     write(6,*) ' SORLOW: KZVAR KEXST2 KEXSTV ',
+C    &                      KZVAR,KEXST2,KEXSTV
+*
+      DO 100 K=1,KEXSTV
+         ISTART(K) = K
+CNW      STVAL(K)  = WRK(K)
+ 100  CONTINUE
+      call ga_get(WRK,1,KEXSTV,1,1,STVAL,1)
+      KK=KEXSTV
+C
+      DO 210 I=1,KEXSTV
+         DO 220 J=I+1,KEXSTV
+            IF ((STVAL(J)-STVAL(I)) .LT. D0) THEN
+               X =STVAL(I)
+               II=ISTART(I)
+               STVAL(I) =STVAL(J)
+               ISTART(I)=ISTART(J)
+               STVAL(J) =X
+               ISTART(J)=II
+            ENDIF
+ 220     CONTINUE
+ 210  CONTINUE
+      GO TO 115
+C     REPEAT UNTIL ...
+ 105  CONTINUE
+         DO 110 I = KEXSTV,2,-1
+            J = I - 1
+            IF ((STVAL(J)-STVAL(I)) .GT. D0) THEN
+               X =STVAL(I)
+               II=ISTART(I)
+               STVAL(I) =STVAL(J)
+               ISTART(I)=ISTART(J)
+               STVAL(J) =X
+               ISTART(J)=II
+            ELSE
+               GO TO 115
+            ENDIF
+ 110     CONTINUE
+ 115     CONTINUE
+         STMAX=STVAL(KEXSTV)
+C
+ 125     CONTINUE
+            KK=KK+1
+            IF (KK.LE.KZVAR) THEN
+               call ga_get(wrk,kk,kk,1,1,WRKVAL,1)
+CNW            IF ((STMAX-WRK(KK)).GT.D0) THEN
+               IF ((STMAX-WRKVAL).GT.D0) THEN
+                  ISTART(KEXSTV) = KK
+CNW               STVAL(KEXSTV)  = WRK(KK)
+                  STVAL(KEXSTV)  = WRKVAL 
+                  GO TO 105
+C     ^--------------------
+               ENDIF
+               GO TO 125
+C        ^--------------
+            END IF
+C
+C     Check for degeneracy among diagonal elements
+C
+      I_DO_DEG_CHECK = 0
+      JEXSTV = KEXSTV
+      IF(I_DO_DEG_CHECK.EQ.1) THEN
+      IF(.NOT.FULL) THEN
+ 
+  160   JEXSTV = JEXSTV - 1
+        IF (
+     *  (ABS(STVAL(JEXSTV+1)-STVAL(JEXSTV))).LE.TOLEQL) GO TO 160
+      END IF
+      END IF! degeneracies should be checked
+*
+      IF((IPRT.GT.8).AND.(KEXST2.NE.JEXSTV)) WRITE(6,1600)KEXST2,JEXSTV
+ 
+1600  FORMAT(/' NUMBER OF START VECTORS IS DIMINISHED TO',I5,' FROM',I5)
+      IF (IPRT.GE.1000) THEN
+         WRITE(6,*) '(I,(ISTART(I),STVAL(I)),I=1,JEXSTV)'
+         DO 170 I = 1,JEXSTV
+            WRITE(6,*) I,ISTART(I),STVAL(I)
+  170    CONTINUE
+         WRITE(6,*) 'THE FIRST',JEXSTV,' ELEMENTS ARE SELECTED.'
+      END IF
+C
+C     END OF SORVAL
+C
+      RETURN
+      END
       SUBROUTINE SORLOW(WRK,STVAL,ISTART,KZVAR,KEXST2,JEXSTV,IPRT)
 C
 C PURPOSE: FIND THE KEXSTV LOWEST VALUES IN WRK(KZVAR)
@@ -31858,12 +32021,17 @@ C    &           LUDIA)
 *.Vector is always written in packed form
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "dra.fh"
 *.Input
       DIMENSION IPLAC(*),VAL(*)
 *.Scratch
-      DIMENSION VEC1(*)
+CNW   DIMENSION VEC1(*)
+      integer VEC1
 *
-      NTEST = 10
+      NTEST = 0
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Info from WRSVCD'
         WRITE(6,*) ' ================'
@@ -31880,11 +32048,17 @@ C    &           LUDIA)
 *
       IF(LBLK.GT.0) THEN
 *. Write the vector without markers in one block
-         CALL SETVEC(VEC1,0.0D0,NDIM)
+CNW      CALL SETVEC(VEC1,0.0D0,NDIM)
+         call ga_zero(VEC1)
          DO 100 IEFF = 1, NSCAT
-           VEC1(IPLAC(IEFF)) = VAL(IEFF)
+CNW        VEC1(IPLAC(IEFF)) = VAL(IEFF)
+           call ga_put(VEC1,IPLAC(IEFF),IPLAC(IEFF),1,1,VAL(IEFF),1)
   100    CONTINUE
-         CALL TODSC(VEC1,NDIM,-1,LU)
+CNW      CALL TODSC(VEC1,NDIM,-1,LU)
+         if (dra_write_section(.false.,VEC1,1,NDIM,1,1,LU,1,NDIM,
+     &       1,1,itask).ne.0) call errquit('dra error',itask,911)
+         if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &       itask,911)
       ELSE
 *. Write the vector with the block format of file LUFORM
         CALL REWINO(LUFORM)
@@ -31898,8 +32072,8 @@ C    &           LUDIA)
 C?        write(6,*) ' IBOT, LBL  ',IBOT, LBL  
           CALL SETVEC(VEC1,0.0D0,LBL)
           DO 200 IEFF = 1, NSCAT
-            IF( IPLAC(IEFF).GE.IBOT.AND.IPLAC(IEFF).LE.IBOT+LBL-1) 
-     &      VEC1(IPLAC(IEFF)-IBOT+1) = VAL(IEFF)
+CBERT       IF( IPLAC(IEFF).GE.IBOT.AND.IPLAC(IEFF).LE.IBOT+LBL-1) 
+CBERT&      VEC1(IPLAC(IEFF)-IBOT+1) = VAL(IEFF)
 C?          IF( IPLAC(IEFF).GE.IBOT.AND.IPLAC(IEFF).LE.IBOT+LBL-1) 
 C?   &      write(6,*) ' Catch: IPLAC(IEFF) VAL(IEFF) ',
 C?   &      IPLAC(IEFF),VAL(IEFF)
@@ -33255,7 +33429,7 @@ CBERT SHOULD NOT BE CALLED
       CALL MEMMAN(KLINT2,NINT2,'ADDL  ',2,'LINT2 ')
 C     REO_2INT(XIN,XOUT,IREO_ORB,IJKLOF)
       CALL REO_2INT(WORK(KINT2),WORK(KLINT2),WORK(KLIREO_ORB),
-     &              dbl_mb(KPINT2))
+     &              int_mb(KPINT2))
       CALL COPVEC(WORK(KLINT2),WORK(KINT2),NINT2)
 *
 * Reorder one-electron integrals 
@@ -34721,8 +34895,8 @@ C  I2ELIST_INUSE(MXPI2ARR),IOCOBTP_INUSE(MXPI2ARR)
           IOCOBTP_G(IIARR) = IOCTP_L
           IF(NTEST.GE.1000)
      &    WRITE(6,*) ' ILIST, IARR, IIARR = ', ILIST, IARR, IIARR
-          CALL MEMMAN(KPINT2_A(IIARR),NBINT2,'ADDL  ',2,'PINT2A')
-          CALL MEMMAN(KPLSM2_A(IIARR),NBINT2,'ADDL  ',2,'LSM2A ')
+          CALL MEMMAN(KPINT2_A(IIARR),NBINT2,'ADDL  ',1,'PINT2A')
+          CALL MEMMAN(KPLSM2_A(IIARR),NBINT2,'ADDL  ',1,'LSM2A ')
           LINT = N2INTARR_G(INTSM_A,IIARR,IOCTP_L)
           NINT2_G(IIARR) = LINT
           INTSM_G(IIARR) = INTSM_A

@@ -1803,7 +1803,7 @@ C?    WRITE(6,*) ' PREPARE.. IH1FORM, IH2FORM = ', IH1FORM, IH2FORM
         CALL PNT4DM(NSMOB,NSMSX,MXPOBS,
      &       NOBS_L(1,1),NOBS_L(1,2),NOBS_L(1,3),
      &       NOBS_L(1,4),INTSM_A,ADSXA,SXDXSX,I12S_L,I34S_L,I1234S_L,
-     &       dbl_mb(KPINT2_A(IIARR)), dbl_mb(KPLSM2_A(IIARR)),
+     &       int_mb(KPINT2_A(IIARR)), int_mb(KPLSM2_A(IIARR)),
      &       ADASX,NINT4D)
         IE2ARR_L_A(IIARR) = NINT4D
       END DO

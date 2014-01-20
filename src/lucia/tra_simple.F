@@ -1911,7 +1911,7 @@ C             WRITE(6,*)  'ISM, JSM, KSM, LSM ',ISM,KSM,KSM,LSM
      &        C(IOFF),NI,C(JOFF),NJ,C(KOFF),NK,C(LOFF),NL,dbl_mb(KLBL2))
 *. Transfer symmetry block to integral list
               CALL PUTINT(dbl_mb(KLBL1),0,ISM,0,JSM,0,KSM,0,LSM,
-     &                    0,0,X2INTOUT,dbl_mb(KPINT2))
+     &                    0,0,X2INTOUT,int_mb(KPINT2))
 C     PUTINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &                  NOCCSYM,NO12SYM,XOUT)
             END IF
@@ -2218,7 +2218,7 @@ CM   &                     IOFF, JOFF, KOFF, LOFF
               END IF
               ONE = 1.0D0
               CALL GET_2EBLK(dbl_mb(KLBL1),ISM,JSM,KSM,LSM,
-     &        dbl_mb(KPINT2))
+     &        int_mb(KPINT2))
 *. Number of output blocks originating from this input block
               CALL PERM_SYM_SSSSBLK(ISM,JSM,KSM,LSM,I12S,I34S,I1234S,
      &                              I12S_A,I34S_A,I1234S_A,NPERM_SSSS,
@@ -3542,7 +3542,7 @@ C    &           CI_IN, CJ_IN, CK_IN, CL_IN,IDIM_ONLY)
         IF(NTEST.GE.10000)
      &  WRITE(6,*) ' KINT2_A(IIE2ARR) = ', KINT2_A(IIE2ARR) 
         CALL TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,
-     &                     dbl_mb(KPINT2_A(IIE2ARR)),
+     &                     int_mb(KPINT2_A(IIE2ARR)),
      &                     KINT2_A(IIE2ARR) )
 C            TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,IP2INTOUT,X2INTOUT)
 *

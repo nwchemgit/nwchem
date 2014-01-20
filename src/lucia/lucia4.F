@@ -2035,7 +2035,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 1000
+      NTEST = 000
 C?    WRITE(6,*) ' FIH: IPHGAS and ITPFSO '
 C?    CALL IWRTMA(IPHGAS,1,2,1,2)
 C?    CALL IWRTMA(ITPFSO,1,3,1,3)
@@ -2166,7 +2166,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 1000
+      NTEST = 000
 *
 * Core-Core energy 
 *
