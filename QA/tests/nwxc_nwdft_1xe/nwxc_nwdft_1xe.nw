@@ -181,6 +181,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
 
 dft
   vectors input atomic
@@ -314,6 +315,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
 
 # meta-GGA exchange
 
@@ -879,6 +881,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
 
 dft
   vectors input atomic
@@ -939,3 +942,4 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs

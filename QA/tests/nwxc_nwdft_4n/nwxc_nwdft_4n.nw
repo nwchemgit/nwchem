@@ -180,6 +180,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
 
 dft
   mult 4
@@ -355,6 +356,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
 
 # meta-GGA exchange
 
@@ -1099,6 +1101,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
 
 dft
   mult 4
@@ -1177,3 +1180,4 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
+unset int:cando_txs
