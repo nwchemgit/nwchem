@@ -9785,13 +9785,21 @@ c..
 c
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
+      g_hcore = ga_create_atom_blocked(luciageom,luciabasis, 
+     $                                 'rohf  hcore')
+      if(.not.movecs_read(luciascfmo,1, occ, evals, g_moreo))
+     &   call errquit('intim: read rtdb failed',0,DISK_ERR)
+      print*,'pre reorder'
+      call ga_print(g_moreo)
+      call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
+      call ga_print(g_hcore)
       norbt = luciamo(1)
+      print*,'post reorder'
       if(.not.movecs_gather(luciascfmo,1,norbt,reord,occ,evals,
      &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
+        call ga_print(g_moreo)
 c       call util_flush(6)
 c..  1-e integrals
-         g_hcore = ga_create_atom_blocked(luciageom,luciabasis, 
-     $                                    'rohf  hcore')
          call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
 c        call ga_print(g_hcore)
 c.. To write in LUCIA format
