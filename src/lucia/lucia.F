@@ -2305,6 +2305,7 @@ C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
         IF(ICISTR.GE.2) CALL REWINO(LUDIA)
         I12 = 2
         IUSE_EXP = 1
+        print*,'KINT1 pre',KINT1,KINT1O
         IF(IUSE_EXP.EQ.1) THEN
           SHIFT = ECORE
         ELSE
@@ -2314,6 +2315,9 @@ CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
           KINT1 = KINT1O
           KINT1O = KSWAP
         END IF
+        print*,'KINT1',KINT1,KINT1O
+        call ga_print(KINT1)
+        call ga_print(KINT1O)
 *
 C?      WRITE(6,*) ' IBLTP  before call to GASDIAT'
 C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
@@ -2323,7 +2327,6 @@ C       CALL GASDIAT(WORK(KPVEC1),LUDIA,SHIFT,ICISTR,I12,
      &               int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
 C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
         print*,'after gasdiat'
-        call ga_print(kpdia_sd)
         IF(IUSE_EXP.NE.1) THEN
 CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
           KSWAP = KINT1
@@ -3254,7 +3257,7 @@ C?    WRITE(6,*) ' ICISTR = ', ICISTR
 * 
         CALL MEMMAN(KLCIOIO,NOCTPA*NOCTPB,'ADDL  ',2,'CIOIO ')
         CALL IAIBCM(ISPC,dbl_mb(KLCIOIO))
-        CALL MXRESCPH(dbl_mb(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+        CALL MXRESCPH(int_mb(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &              NSMST,NSTFSMSPGP,MXPNSMST,
      &              NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &              NELFSPGP,
@@ -3919,6 +3922,7 @@ CNW      CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
 CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
          if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EINI))
      &       call errquit('cannot create lucia_2e: kint_2eini',0,GA_ERR)
+         print*,'KINT 2EMO 2EINI',KINT_2EMO,KINT_2EINI
       END IF
 *. Pointers to symmetry block of integrals
       CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',1,'PINT1 ')  !done
@@ -5557,7 +5561,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 0
+      NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100) THEN
@@ -5594,7 +5598,8 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
 CNW        CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
            IF(NTEST.GE.10000) THEN
              WRITE(6,*) ' Elements read in '
-             CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
+CNW          CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
+             call ga_print_patch(SEGMNT,1,LBL,1,1,0)
            END IF
            IF(LBL .GE. 0 ) THEN
 *. LOWEST ELEMENTS IN SEGMNT  ( ADD TO PREVIOUS LIST )
@@ -7978,7 +7983,7 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' Diagonal one electron integrals '
         CALL WRTMAT(H1DIA,1,NTOOB,1,NTOOB)
@@ -8099,7 +8104,7 @@ cGLM      CALL GTJKS(RJ,RK,NTOOB)
    50   CONTINUE
   100 CONTINUE
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' RJ and RK from GTJK '
         CALL WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
@@ -9794,6 +9799,7 @@ c.. To write in LUCIA format
 c.. 1e ints
          ind1e=0
          ind2e=0
+         call ga_print(g_hcore)
          do ism_lu=1,nirrep
           ni = ntoobs(ism_lu)
           nij = ni*(ni+1)/2
@@ -9809,6 +9815,8 @@ c.. add offset
           end do
          end do 
          endif
+         print*,'intim'
+         call ga_print(KINT1)
          if(.not.ga_destroy(g_hcore)) call 
      &     errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
 c..  2-e integrals
@@ -9896,6 +9904,7 @@ c.. look for index in ga_coul
           end do
          end do
        endif
+       call ga_print(KINT2)
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
@@ -21276,6 +21285,7 @@ C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
 *                                                          *
 ************************************************************
 *
+      LUOUT = 6
       WRITE(LUOUT,*)
       WRITE(LUOUT,*) '******************'
       WRITE(LUOUT,*) '*  Title of run  *'
@@ -32031,7 +32041,7 @@ C    &           LUDIA)
 CNW   DIMENSION VEC1(*)
       integer VEC1
 *
-      NTEST = 0
+      NTEST = 100
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Info from WRSVCD'
         WRITE(6,*) ' ================'
@@ -32055,6 +32065,8 @@ CNW        VEC1(IPLAC(IEFF)) = VAL(IEFF)
            call ga_put(VEC1,IPLAC(IEFF),IPLAC(IEFF),1,1,VAL(IEFF),1)
   100    CONTINUE
 CNW      CALL TODSC(VEC1,NDIM,-1,LU)
+         print*,LU,NDIM
+         call ga_print(vec1)
          if (dra_write_section(.false.,VEC1,1,NDIM,1,1,LU,1,NDIM,
      &       1,1,itask).ne.0) call errquit('dra error',itask,911)
          if (dra_wait(itask).ne.0) call errquit('dra read err',

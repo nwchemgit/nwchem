@@ -241,6 +241,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cprnt.inc'
       INCLUDE 'oper.inc'
       INCLUDE 'gasstr.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       INCLUDE 'cgas.inc'
       INCLUDE 'lucinp.inc'
@@ -311,7 +314,7 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Scratch space for CJKAIB resolution matrices
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
-      CALL MXRESCPH(WORK(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(int_mb(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &              NSMST,NSTFSMSPGP,MXPNSMST,
      &              NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &              NELFSPGP,
@@ -2626,7 +2629,7 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Scratch space for CJKAIB resolution matrices
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
-      CALL MXRESCPH(dbl_mb(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(int_mb(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &              NSMST,NSTFSMSPGP,MXPNSMST,
      &              NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &              NELFSPGP,

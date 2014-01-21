@@ -59,6 +59,9 @@ c     &              ADSXA(MXPOBS,2*MXPOBS),
 c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
       INCLUDE 'lucinp.inc'
       INCLUDE 'clunit.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Scratch for string information
       COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
 *. Specific input 
@@ -196,7 +199,7 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       CALL IAIBCM(ISSPC,WORK(KSIOIO))
       CALL IAIBCM(ICSPC,WORK(KCIOIO))
 *. Scratch space for CJKAIB resolution matrices
-      CALL MXRESCPH(WORK(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(int_mb(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &     NSMST,NSTFSMSPGP,MXPNSMST,
      &     NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &     NELFSPGP,

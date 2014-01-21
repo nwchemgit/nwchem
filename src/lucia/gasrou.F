@@ -5484,7 +5484,8 @@ C     REAL * 8  INPROD
       DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
       DIMENSION RJKAA(*)
 *. Output
-      DIMENSION DIAG(*)
+CNW   DIMENSION DIAG(*)
+      integer diag
 *
       NTEST = 1000
       NTEST = MAX(NTEST,IPRNT)
@@ -5612,9 +5613,12 @@ C     REAL * 8  INPROD
             DO IEL = 1, NAEL
               X = X +XB(IASTR(IEL,IA)) 
             END DO
-            DIAG(IDET) = X
+CNW         DIAG(IDET) = X
+CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
+CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
-     &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
+     &         IB.EQ.IA) X = X + XADD
+            call ga_put(DIAG,IDET,IDET,1,1,X,1)
           END DO
 *         ^ End of loop over alpha strings|
         END DO
@@ -5623,7 +5627,8 @@ C     REAL * 8  INPROD
         IF(ICISTR.GE.2) THEN
           IF(NTEST.GE.100) THEN
             write(6,*) ' number of diagonal elements to disc ',IDET
-            CALL WRTMAT(DIAG,1,IDET,1,IDET)
+CNW         CALL WRTMAT(DIAG,1,IDET,1,IDET)
+            call ga_print(DIAG)
           END IF
           CALL ITODS(IDET,1,-1,LUDIA)
           CALL TODSC(DIAG,IDET,-1,LUDIA)
@@ -5636,8 +5641,9 @@ C     REAL * 8  INPROD
      &' Number of diagonal elements generated ',ITDET
 *
       IF(NTEST .GE.100 .AND.ICISTR.LE.1 ) THEN
-        WRITE(6,*) ' CIDIAGONAL '
-        CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
+        WRITE(6,*) ' CIDIAGONAL ',diag
+CNW     CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
+        call ga_print(diag)
       END IF
 *
       IF ( ICISTR.GE.2 ) CALL ITODS(-1,1,-1,LUDIA)
@@ -9628,7 +9634,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST =  000
+      NTEST =  100
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -9636,6 +9642,7 @@ cnw   DIMENSION DIAG(*)
          XADD = 0.0D0
       END IF
       NOCOB = NINOB + NACOB
+      print*,'pssign',pssign,nocob,ninob,nacob
 *
  
       IF( NTEST .GE. 20.OR.IPRINTEGRAL.GE.100 ) THEN
@@ -9677,6 +9684,7 @@ cnw   DIMENSION DIAG(*)
       ITDET = 0
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
+      print*,'nlcok',nblock
       DO IBLK = 1, NBLOCK
 *
         IATP = IBLKFO(1,IBLK)
@@ -9700,7 +9708,10 @@ cnw   DIMENSION DIAG(*)
         IDUM = 0
         CALL GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,
      &                           NOCOB,0,IDUM,IDUM)
-        IOFF =  1                 
+        print*,'IATP',IATP,IASM,NAEL,NASTR1,IASTR(NAEL,1),
+     &                  IASTR(NAEL,10),NORB
+        IOFF =  1
+        print*,'NSSOA',NSSOA(IASM,IATP),NPHELA
         DO IA = 1, NSSOA(IASM,IATP)
 *. Convert to PH form and save in IPHSTR
 C       STR_TO_PHFORM(ISTR, NEL, IPHSTR, IPHGAS,
@@ -9726,13 +9737,13 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
                   JAEL = -IPHSTR((IA-1)*NPHELA+JEL) 
                   SIGNJ = -1.0D0
                 END IF
-C?              WRITE(6,*) ' IAEL, JAEL = ', IAEL, JAEL
+                WRITE(6,*) ' IAEL, JAEL = ', IAEL, JAEL
                 EAA =   EAA + 0.5D0*RK(JAEL,IAEL )*SIGNI*SIGNJ
               END DO   
             END IF
           END DO
           RJKAA(IA-IOFF+1) = EAA 
-C?        WRITE(6,*) ' Alpha string, EAA = ', IA, EAA
+          WRITE(6,*) ' Alpha string, EAA = ', IA, EAA
         END DO
 *. Obtain beta strings of sym IBSM and type IBTP
         CALL GETSTR_TOTSM_SPGP(2,IBTP,IBSM,NBEL,NBSTR1,IBSTR,
@@ -9759,7 +9770,7 @@ C?        WRITE(6,*) ' Alpha string, EAA = ', IA, EAA
               SIGNIB = -1.0D0
             END IF
             HB = HB + H(IBEL)*SIGNIB
-C?          WRITE(6,*) ' IEL, IBEL, HB = ', IEL,IBEL,HB
+            WRITE(6,*) ' IEL, IBEL, HB = ', IEL,IBEL,HB
 *
             IF(I12.EQ.2) THEN
               DO JEL = 1, NPHELB
@@ -9779,7 +9790,7 @@ C?          WRITE(6,*) ' IEL, IBEL, HB = ', IEL,IBEL,HB
             END IF
           END DO
           EB = HB + 0.5D0*RJBB + ECORE
-C?        WRITE(6,*) ' IB, EB = ', IB, EB
+          WRITE(6,*) ' IB, EB = ', IB, EB
 *
           IF(IREST1.EQ.1.AND.IATP.EQ.IBTP) THEN
             IASTRT =  IB
@@ -9792,6 +9803,7 @@ C?        WRITE(6,*) ' IB, EB = ', IB, EB
             IDET = IDET + 1
             ITDET = ITDET + 1
             X = EB + RJKAA(IA-IOFF+1)
+            print*,'idet',x
             DO IEL = 1, NPHELA
               IF(IPHSTR((IA-1)*NPHELA+IEL).GT.0) THEN
                 X = X + XB(IPHSTR((IA-1)*NPHELA+IEL)) 
@@ -9799,12 +9811,13 @@ C?        WRITE(6,*) ' IB, EB = ', IB, EB
                 X = X - XB(-IPHSTR((IA-1)*NPHELA+IEL)) 
               END IF
             END DO
+            print*,'x xadd',x,xadd
 CNW         DIAG(IDET) = X
 CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
 CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
      &         IB.EQ.IA) X = X + XADD
-            call ga_acc(DIAG,IDET,IDET,1,1,X,1)
+            call ga_put(DIAG,IDET,IDET,1,1,X,1)
           END DO
 *         ^ End of loop over alpha strings|
         END DO
@@ -9825,8 +9838,9 @@ CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
      &' Number of diagonal elements generated ',ITDET
 *
       IF(NTEST .GE.100 .AND.ICISTR.LE.1 ) THEN
-        WRITE(6,*) ' CIDIAGONAL '
-        CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
+        WRITE(6,*) ' CIDIAGONAL ',DIAG
+CNW     CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
+        call ga_print(diag)
       END IF
 *
       IF ( ICISTR.GE.2 ) CALL ITODS(-1,1,-1,LUDIA)

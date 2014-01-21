@@ -4306,14 +4306,12 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
          if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LU1,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra read err',itask,911)
-         call ga_print(VEC1)
 *
 C?       WRITE(6,*) ' Testing: initial vector'
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
          CALL MV7(VEC1,VEC2,0,0,0,0)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
-         call ga_print(VEC2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra writ err',itask,911)
@@ -4344,6 +4342,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
 *
        IF( IPRT  .GE. 3 ) THEN
          WRITE(6,'(A,I4)') ' Initial set of eigenvalues '
+         print*,'eig',eig(1,1),eigshf
          WRITE(6,'(5F22.13)')
      &   ( (EIG(ITER,IROOT)+EIGSHF),IROOT=1,NROOT)
        END IF

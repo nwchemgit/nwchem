@@ -2587,7 +2587,8 @@ C!    INCLUDE 'mxpdim.inc'
         WRITE(6,*) ' KINT_2EMO = ', KINT_2EMO
       END IF
 *
-      CALL COPVEC(WORK(KINT2-1+IOFF),XINT,NIJKL)
+CNW   CALL COPVEC(WORK(KINT2-1+IOFF),XINT,NIJKL)
+      call ga_get(KINT2,IOFF,IOFF+NIJKL-1,1,1,XINT,NIJKL)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Symmetry block of integrals, GET_2EBLK'
@@ -3539,6 +3540,7 @@ C    &           NIS,NJS,NKS,NLS,
 C    &           NITS,NJTS,NKTS,NLTS,CI,CJ,CK,CL,
 C    &           CI_IN, CJ_IN, CK_IN, CL_IN,IDIM_ONLY)
 *. We know have the transformation matrices, do it..
+        NTEST = 100000
         IF(NTEST.GE.10000)
      &  WRITE(6,*) ' KINT2_A(IIE2ARR) = ', KINT2_A(IIE2ARR) 
         CALL TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,
