@@ -347,3 +347,209 @@ c      end do
 c      return
 c      end 
 
+*     **********************************************
+*     *                                            *
+*     *              FMM_Translate_Mlm             *
+*     *                                            *
+*     **********************************************
+
+      subroutine FMM_Translate_Mlm(lmax,Olm,Nlm,x,y,z)
+      implicit none
+      integer lmax
+      complex*16 Olm(*)
+      complex*16 Nlm(*)
+      real*8 x,y,z
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer l,m,idx,n
+      integer rYlm(2),A(2),B(2),AB(2)
+
+*     **** external functions ****
+      complex*16 rSphericalHarmonic3
+      external   rSphericalHarmonic3
+
+      n = (2*lmax+2)*(4*lmax+2)
+
+*     **** allocate stack ****
+      value = MA_push_get(mt_dcpl,(lmax+1)**2,'rYlm',rYlm(2),rYlm(1))
+      value=value.and.MA_push_get(mt_dcpl,n,'A',  A(2), A(1))
+      value=value.and.MA_push_get(mt_dcpl,n,'B',  B(2), B(1))
+      value=value.and.MA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
+      if (.not.value)
+     >   call errquit('FMM_Translate_Mlm:out of stack',0,MA_ERR)
+
+      idx = 0
+      do l=0,lmax
+         do m=-l,l
+            dcpl_mb(rYlm(1)+idx) = rSphericalHarmonic3(l,m,x,y,z)
+         end do
+      end do
+
+      call FMM_Translate_Mlm_sub1(lmax,Olm,dcpl_mb(rYlm(1)),
+     >                           dcpl_mb(A(1)),dcpl_mb(B(1)))
+
+      call FMM_Translate_Mlm_sub2(lmax,dcpl_mb(A(1)),dcpl_mb(B(1)),
+     >                           dcpl_mb(AB(1)))
+
+      call FMM_Translate_Mlm_sub3(lmax,dcpl_mb(AB(1)),Nlm)
+            
+
+*     **** deallocate stack ****
+      value = MA_pop_stack(AB(2))
+      value = value.and.MA_pop_stack(B(2))
+      value = value.and.MA_pop_stack(A(2))
+      value = value.and.MA_pop_stack(rYlm(2))
+      if (.not.value)
+     >   call errquit('FMM_Translate_Mlm:popping stack',0,MA_ERR)
+      return
+      end
+
+      
+*     ***************************************
+*     *                                     *
+*     *           FMM_A_over_i              *
+*     *                                     *
+*     ***************************************
+      complex*16 function FMM_A_over_i(l,m)
+      implicit none
+      integer l,m
+
+*     **** local variables ****
+      integer    i,mod_m
+      real*8     A
+      complex*16 img
+       
+ 
+      img  = dcmplx(0.0d0,1.0d0)
+      mod_m = abs(m)
+      A = 1
+      do i=1,(l-mod_m)
+        A = A*dble(i)
+      end do
+      A = A*A
+      do i=(l-mod_m+1),(l+mod_m)
+        A = A*dble(i)
+      end do
+      A = ((-1)**l)/dsqrt(A)
+
+      FMM_A_over_i = A/img**mod_m
+      return
+      end
+
+
+*     ***************************************
+*     *                                     *
+*     *        FMM_Translate_Mlm_sub1       *
+*     *                                     *
+*     ***************************************
+      subroutine FMM_Translate_Mlm_sub1(lmax,Olm,rYlm,A,B)
+      implicit none
+      integer lmax
+      complex*16 Olm(*),rYlm(*)
+      complex*16 A(2*lmax+2,4*lmax+2)
+      complex*16 B(2*lmax+2,4*lmax+2)
+
+
+*     **** local variables ****
+      integer idx,i,j,l,m
+      complex*16 ctmp
+
+*     **** external functions ****
+      complex*16 FMM_A_over_i
+      external   FMM_A_over_i
+
+      call dcopy(2*(2*lmax+2)*(4*lmax+2),0.0d0,0,A,1)
+      call dcopy(2*(2*lmax+2)*(4*lmax+2),0.0d0,0,B,1)
+      idx = 1
+      j   = 1
+      do l=0,lmax
+         i=1
+         do m=-l,l
+            ctmp = FMM_A_over_i(l,m)
+            A(i,j) = Olm(idx) *ctmp
+            B(i,j) = rYlm(idx)*ctmp
+             
+            i = i + 1
+            idx = idx + 1
+         end do
+         j = j + 1
+      end do
+      return
+      end 
+
+*     ***************************************
+*     *                                     *
+*     *        FMM_Translate_Mlm_sub2       *
+*     *                                     *
+*     ***************************************
+      subroutine FMM_Translate_Mlm_sub2(lmax,A,B,AB)
+      implicit none
+      integer lmax
+      complex*16  A(2*lmax+2,4*lmax+2)
+      complex*16  B(2*lmax+2,4*lmax+2)
+      complex*16 AB(2*lmax+2,4*lmax+2)
+
+*     **** local variables ****
+      integer i,j,n
+
+      n = (2*lmax+2)*(4*lmax+2)
+      do j=1,(4*lmax+2)
+         call dcfft(2*lmax+2,A(1,j))
+         call dcfft(2*lmax+2,B(1,j))
+      end do
+      do i=1,(2*lmax+2)
+         call dcfft(4*lmax+2,A(i,1))
+         call dcfft(4*lmax+2,B(i,1))
+      end do
+      do j=1,(4*lmax+2)
+         do i=1,(2*lmax+2)
+            AB(i,j) = A(i,j)*B(i,j)
+         end do
+      end do
+
+      do i=1,(2*lmax+2)
+         call dcffb(4*lmax+2,AB(i,1))
+      end do
+      do j=1,(4*lmax+2)
+         call dcffb(2*lmax+2,AB(1,j))
+      end do
+      call dscal(2*n,1.0d0/dble(n),AB,1)
+
+      return
+      end
+
+*     ***************************************
+*     *                                     *
+*     *        FMM_Translate_Mlm_sub3       *
+*     *                                     *
+*     ***************************************
+      subroutine FMM_Translate_Mlm_sub3(lmax,AB,Mlm)
+      implicit none
+      integer lmax
+      complex*16 AB(2*lmax+2,4*lmax+2)
+      complex*16 Mlm(*)
+
+*     **** local variables ****
+      integer idx,i,j,l,m
+
+*     **** external functions ****
+      complex*16 FMM_A_over_i
+      external   FMM_A_over_i
+
+      do l=0,lmax
+         do m=-l,l
+            Mlm(idx) = AB(i,j)/FMM_A_over_i(l,m)
+            i = i + 1
+            idx = idx + 1
+         end do
+         j = j + 1
+      end do
+      return
+      end
+
+
