@@ -353,6 +353,71 @@ c         end if
 
 *     **************************************
 *     *                                    *
+*     *      rSphericalHarmonic3           *
+*     *                                    *
+*     **************************************
+
+*  Calculates the r*Spherical Harmonic for x,y,z such that
+*
+*                                                                                 {exp(i*|m|*phi)  m>0
+*     rY_lm(cos_theta,phi)=(r**l)*sqrt((l-|m|)!/(l+|m|)!)*rlegendre_lm(cos_theta)*{1               m==0
+*                                                                                 {exp(-i*|m|*phi) m<0
+*  
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+
+      complex*16 function rSphericalHarmonic3(l,m,x,y,z)
+      implicit none
+      integer l,m
+      real*8 x,y,z
+
+*     **** local variables ****
+      integer i,mod_m
+      real*8 r,cos_theta,phi,coeff
+      complex*16 ctmp
+
+*     **** external functions ****
+      real*8   rlegendre_lm
+      external rlegendre_lm
+
+      mod_m = abs(m)
+      if (mod_m .gt. l) 
+     >  write(*,*) 
+     >  'parameter out of order in function rSphericalHarmonic3'
+
+      r = dsqrt(x*x + y*y + z*z)
+      if (r.gt.1.0d-9) then
+            cos_theta = z/r
+            phi = datan2(y,x)
+*        *** find coefficient ***
+         if (mod_m.eq.0) then 
+            coeff= 1.0d0
+            ctmp = dcmplx(1.0d0,0.0d0)
+         else if (mod_m.gt.0) then
+            coeff= 1.0d0 
+            do i=1,2*mod_m
+               coeff = coeff/dble(l-mod_m+i)
+            end do
+            ctmp = dcmplx(dcos(m*phi),dsin(m*phi))
+         end if
+         coeff = dsqrt(coeff)
+         rSphericalHarmonic3 = ctmp*coeff
+     >                        *rlegendre_lm(l,mod_m,cos_theta)
+     >                        *(r**l)
+      else
+         if (l.eq.0) then
+            ctmp = dcmplx(1.0d0,0.0d0)
+         else
+            ctmp = dcmplx(0.0d0,0.0d0)
+         end if
+         rSphericalHarmonic3=ctmp*(r**l)
+      end if
+      return
+      end
+
+
+*     **************************************
+*     *                                    *
 *     *      Tesseral3_vector_lm           *
 *     *                                    *
 *     **************************************
@@ -498,6 +563,7 @@ c         end if
       end do
       return
       end
+
 
 *     **************************************
 *     *                                    *
