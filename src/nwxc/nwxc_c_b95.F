@@ -88,9 +88,9 @@ c
       integer n
 
 c    call to the bc95css subroutine
-      double precision PA,GAA,TA,FA,FPA,FGA,FTA,EUA,EUEGA,ChiA,EUPA
+      double precision PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ChiA,EUPA
      &,ChiAP,ChiAG
-      double precision PB,GBB,TB,FB,FPB,FGB,FTB,EUB,EUEGB,ChiB,EUPB
+      double precision PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ChiB,EUPB
      &,ChiBP,ChiBG
 c
       double precision  sop
@@ -120,7 +120,11 @@ c     endif
       F13 = F1 / F3
 
       do 20 n = 1, nq
-       if (rho(n,R_T).lt.DTol) goto 20
+       if (ipol.eq.1) then
+         if (rho(n,R_T).lt.DTol) goto 20
+       else
+         if (rho(n,R_A)+rho(n,R_B).lt.DTol) goto 20
+       endif
        if (ipol.eq.1) then
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
@@ -152,9 +156,9 @@ c  the tau by 2 here
          ChiBG = ChiAG
 
          func(n)=func(n)+ 2.0d0*FA*wght
-         Amat(n,1)=Amat(n,1)+ FPA*wght
+         Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
          Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + FGA*wght
-         Mmat(n,1)=  Mmat(n,1) + FTA*wght
+         Mmat(n,D1_TA)=  Mmat(n,D1_TA) + FTA*wght
 #if 0
       write (0,'(A,3F20.6)') " Amat Cmat Mmat",FPA,FGA,FTA
 #endif
@@ -183,10 +187,10 @@ c
          Call nwxc_c_b95ss(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                     ChiA,EUPA,ChiAP,ChiAG)
          func(n)=func(n)+ FA*wght
-         Amat(n,1)=Amat(n,1)+ FPA*wght
+         Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
          Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + FGA*wght
 c      2*0.5=1.0 for Mmat
-         Mmat(n,1)=  Mmat(n,1) + FTA*wght
+         Mmat(n,D1_TA)=  Mmat(n,D1_TA) + FTA*wght
 #if 0
       write (0,'(A,3F20.6)') "AAmat Cmat Mmat",FPA,FGA,FTA
 #endif
@@ -209,9 +213,9 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
          Call nwxc_c_b95ss(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                     ChiB,EUPB,ChiBP,ChiBG)
          func(n)=func(n)+ FB*wght
-         Amat(n,2)= Amat(n,2)+ FPB*wght
+         Amat(n,D1_RB)= Amat(n,D1_RB)+ FPB*wght
          Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + FGB*wght
-         Mmat(n,2)=  Mmat(n,2) + FTB*wght
+         Mmat(n,D1_TB)=  Mmat(n,D1_TB) + FTB*wght
 #if 0
       write (0,'(A,3F20.6)') "BAmat Cmat Mmat",FPB,FGB,FTB
 #endif
