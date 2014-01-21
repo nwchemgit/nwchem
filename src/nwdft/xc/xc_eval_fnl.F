@@ -1228,7 +1228,7 @@ c
      &         (.not. do_2nd), kske, Mmat)
       else
          call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, ipol,
-     &         nq, grad, (.not. do_2nd), kske, Mmat2)
+     &         nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
       endif
 c
       return
