@@ -398,7 +398,7 @@ c      end
 *     **** local variables ****
       logical value
       integer l,m,idx,n
-      integer rYlm(2),A(2),B(2),AB(2)
+      integer rYlm(2),A(2),B(2),AB(2),tmp22(2),tmp42(2)
 
 *     **** external functions ****
       complex*16 rSphericalHarmonic3
@@ -411,8 +411,15 @@ c      end
       value=value.and.MA_push_get(mt_dcpl,n,'A',  A(2), A(1))
       value=value.and.MA_push_get(mt_dcpl,n,'B',  B(2), B(1))
       value=value.and.MA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
+      value=value.and.
+     >      MA_push_get(mt_dcpl,(2*lmax+2),'tmp22',tmp22(2),tmp22(1))
+      value=value.and.
+     >      MA_push_get(mt_dcpl,(4*lmax+2),'tmp42',tmp42(2),tmp42(1))
       if (.not.value)
      >   call errquit('FMM_Translate_Mlm:out of stack',0,MA_ERR)
+
+      call dcffti(2*lmax+2,dcpl_mb(tmp22(1)))
+      call dcffti(4*lmax+2,dcpl_mb(tmp42(1)))
 
       idx = 0
       do l=0,lmax
@@ -425,13 +432,16 @@ c      end
      >                           dcpl_mb(A(1)),dcpl_mb(B(1)))
 
       call FMM_Translate_sub2(lmax,dcpl_mb(A(1)),dcpl_mb(B(1)),
-     >                           dcpl_mb(AB(1)))
+     >                        dcpl_mb(AB(1)),
+     >                        dcpl_mb(tmp22(1)),dcpl_mb(tmp42(1)))
 
       call FMM_Translate_Mlm_sub3(lmax,dcpl_mb(AB(1)),Nlm)
             
 
 *     **** deallocate stack ****
-      value = MA_pop_stack(AB(2))
+      value = MA_pop_stack(tmp42(2))
+      value = value.and.MA_pop_stack(tmp22(2))
+      value = value.and.MA_pop_stack(AB(2))
       value = value.and.MA_pop_stack(B(2))
       value = value.and.MA_pop_stack(A(2))
       value = value.and.MA_pop_stack(rYlm(2))
@@ -485,24 +495,25 @@ c      end
 *     *        FMM_Translate_sub2           *
 *     *                                     *
 *     ***************************************
-      subroutine FMM_Translate_sub2(lmax,A,B,AB)
+      subroutine FMM_Translate_sub2(lmax,A,B,AB,tmp22,tmp42)
       implicit none
       integer lmax
       complex*16  A(2*lmax+2,4*lmax+2)
       complex*16  B(2*lmax+2,4*lmax+2)
       complex*16 AB(2*lmax+2,4*lmax+2)
+      complex*16 tmp22(*),tmp42(*)
 
 *     **** local variables ****
       integer i,j,n
 
       n = (2*lmax+2)*(4*lmax+2)
       do j=1,(4*lmax+2)
-         call dcfft(2*lmax+2,A(1,j))
-         call dcfft(2*lmax+2,B(1,j))
+         call dcfftf(2*lmax+2,A(1,j),tmp22)
+         call dcfftf(2*lmax+2,B(1,j),tmp22)
       end do
       do i=1,(2*lmax+2)
-         call dcfft(4*lmax+2,A(i,1))
-         call dcfft(4*lmax+2,B(i,1))
+         call dcfftf(4*lmax+2,A(i,1),tmp42)
+         call dcfftf(4*lmax+2,B(i,1),tmp42)
       end do
       do j=1,(4*lmax+2)
          do i=1,(2*lmax+2)
@@ -511,10 +522,10 @@ c      end
       end do
 
       do i=1,(2*lmax+2)
-         call dcffb(4*lmax+2,AB(i,1))
+         call dcfftb(4*lmax+2,AB(i,1),tmp42)
       end do
       do j=1,(4*lmax+2)
-         call dcffb(2*lmax+2,AB(1,j))
+         call dcfftb(2*lmax+2,AB(1,j),tmp22)
       end do
       call dscal(2*n,1.0d0/dble(n),AB,1)
 
@@ -571,7 +582,7 @@ c      end
 *     **** local variables ****
       logical value
       integer l,m,idx,n
-      integer rYlm(2),A(2),B(2),AB(2)
+      integer rYlm(2),A(2),B(2),AB(2),tmp22(2),tmp42(2)
 
 *     **** external functions ****
       complex*16 rSphericalHarmonic3
@@ -584,9 +595,15 @@ c      end
       value=value.and.MA_push_get(mt_dcpl,n,'A',  A(2), A(1))
       value=value.and.MA_push_get(mt_dcpl,n,'B',  B(2), B(1))
       value=value.and.MA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
+      value=value.and.
+     >      MA_push_get(mt_dcpl,2*lmax+2,'tmp22',tmp22(2),tmp22(1))
+      value=value.and.
+     >      MA_push_get(mt_dcpl,4*lmax+2,'tmp42',tmp42(2),tmp42(1))
       if (.not.value)
      >   call errquit('FMM_Translate_Llm:out of stack',0,MA_ERR)
 
+      call dcffti(2*lmax+2,dcpl_mb(tmp22(1)))
+      call dcffti(4*lmax+2,dcpl_mb(tmp42(1)))
 
       idx = 0
       do l=0,lmax
@@ -599,13 +616,16 @@ c      end
      >                           dcpl_mb(A(1)),dcpl_mb(B(1)))
 
       call FMM_Translate_sub2(lmax,dcpl_mb(A(1)),dcpl_mb(B(1)),
-     >                           dcpl_mb(AB(1)))
+     >                        dcpl_mb(AB(1)),
+     >                        dcpl_mb(tmp22(1)),dcpl_mb(tmp42(1)))
 
       call FMM_Translate_Llm_sub3(lmax,dcpl_mb(AB(1)),Nlm)
 
 
 *     **** deallocate stack ****
-      value = MA_pop_stack(AB(2))
+      value = MA_pop_stack(tmp42(2))
+      value = value.and.MA_pop_stack(tmp22(2))
+      value = value.and.MA_pop_stack(AB(2))
       value = value.and.MA_pop_stack(B(2))
       value = value.and.MA_pop_stack(A(2))
       value = value.and.MA_pop_stack(rYlm(2))
