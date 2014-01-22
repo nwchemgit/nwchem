@@ -23,6 +23,7 @@ basis
 end
 
 tddft
+  cis
   nroots 1
 end
 
