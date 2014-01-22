@@ -3540,7 +3540,7 @@ C    &           NIS,NJS,NKS,NLS,
 C    &           NITS,NJTS,NKTS,NLTS,CI,CJ,CK,CL,
 C    &           CI_IN, CJ_IN, CK_IN, CL_IN,IDIM_ONLY)
 *. We know have the transformation matrices, do it..
-        NTEST = 100000
+        NTEST = 000
         IF(NTEST.GE.10000)
      &  WRITE(6,*) ' KINT2_A(IIE2ARR) = ', KINT2_A(IIE2ARR) 
         CALL TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,

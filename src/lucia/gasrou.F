@@ -9634,7 +9634,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST =  000
+      NTEST =  1000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -9732,7 +9732,6 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
                   JAEL = -IPHSTR((IA-1)*NPHELA+JEL) 
                   SIGNJ = -1.0D0
                 END IF
-                WRITE(6,*) ' IAEL, JAEL = ', IAEL, JAEL
                 EAA =   EAA + 0.5D0*RK(JAEL,IAEL )*SIGNI*SIGNJ
               END DO   
             END IF

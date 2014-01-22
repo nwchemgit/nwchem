@@ -91,10 +91,10 @@ C     INTEGER I2ELIST_INUSE(MXP2EIARR),IOCOBTP_INUSE(MXP2EIARR)
         INCLUDE_ONLY_TOTSYM_SUPSYM = 0
       END IF
 *
-      WRITE(6,*) ' TESTY: I_USE_SUPSYM, I_AVERAGE_ORBEXC =',
-     &                    I_USE_SUPSYM, I_AVERAGE_ORBEXC
-      WRITE(6,*) ' INCLUDE_ONLY_TOTSYM_SUPSYM = ',
-     &             INCLUDE_ONLY_TOTSYM_SUPSYM
+CNW   WRITE(6,*) ' TESTY: I_USE_SUPSYM, I_AVERAGE_ORBEXC =',
+CNW  &                    I_USE_SUPSYM, I_AVERAGE_ORBEXC
+CNW   WRITE(6,*) ' INCLUDE_ONLY_TOTSYM_SUPSYM = ',
+CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
 *
 *. Eliminate restart of CI (put a zero..)
       I_RESTART_OF_CI = 1
@@ -251,7 +251,6 @@ CNW   CALL MEMMAN(KINT2_INI,NINT2,'ADDL  ',2,'INT2_IN')
      &   call errquit('cannot create lucia_mc: kint1_ini',0,GA_ERR)
       if(.not.ga_create(mt_dbl,NINT2,1,'INT2_IN',0,1,KINT2_INI))
      &   call errquit('cannot create lucia_mc: kint2_ini',0,GA_ERR)
-      print*,'mcscf kint2_ini',kint2_ini
 *. And for two extra MO matrices 
       LEN_CMO =  NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
       CALL MEMMAN(KLMO1,LEN_CMO,'ADDL  ',2,'MO1   ')
@@ -359,7 +358,6 @@ CNW   CALL COPVEC(WORK(KINT1O),WORK(KINT1_INI),NINT1)
 CNW   CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
       call ga_copy_patch('N',KINT1O,1,nint1,1,1,
      &                   KINT1_INI,1,nint1,1,1)
-      print*,'before copy',KINT_2EMO,KINT2_INI
       call ga_copy(KINT_2EMO,KINT2_INI)
 *. Print will be reduced for densities
       IPRDEN_SAVE = IPRDEN

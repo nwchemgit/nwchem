@@ -2305,7 +2305,6 @@ C    &           NOCCLS_ACT,NCS_FOR_OCCLS,NCS_FOR_OCCLS_ACT)
         IF(ICISTR.GE.2) CALL REWINO(LUDIA)
         I12 = 2
         IUSE_EXP = 1
-        print*,'KINT1 pre',KINT1,KINT1O
         IF(IUSE_EXP.EQ.1) THEN
           SHIFT = ECORE
         ELSE
@@ -2546,7 +2545,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
         ISBSPPR_ACT = 0
       END IF
 *. An additional file
-      CALL FILEMAN_MINI(LU8,'ASSIGN')
+CNW   CALL FILEMAN_MINI(LU8,'ASSIGN')
       ILAST = -3006
       CALL CIEIG5(MV7,INICI,EROOT,KPVEC1,KPVEC2,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
@@ -2569,7 +2568,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
      & IPRECOND,IIUSEH0P,MPORENP_E,RNRM,CONV_F,ISBSPPR_ACT,
      & ILAST)
 *
-      CALL FILEMAN_MINI(LU8,'FREE  ')
+CNW   CALL FILEMAN_MINI(LU8,'FREE  ')
       EREF = EROOT(NROOT)
       ERROR_NORM_FINAL = RNRM(NROOT)
 C?    WRITE(6,*) ' ERROR_NORM_FINAL on return from CIEIG5',
@@ -2581,6 +2580,7 @@ C?    CALL MEMCHK
 *. ===========================
 *
       IF(I_DO_LZ2.EQ.1) THEN
+      print*,'lz2'
 *
 cnw    CALL REWINO(LUC)
        DO JROOT = 1, NROOT
@@ -2600,7 +2600,7 @@ cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
        END IF
       END IF ! supersymmetry should be calculated
 *. Analyze density and CI-expansion for each ROOT
-      CALL REWINO(LUC)
+      IF (LUC.gt.0) CALL REWINO(LUC)
       DO JROOT = 1, NROOT
         IF(IPRNT.GT.1) THEN
         WRITE(6,*)
@@ -2613,6 +2613,7 @@ cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
         WRITE(6,*)
         END IF
         IF(ICISTR.EQ.1) THEN
+        print*,'ANA'
           CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
           CALL COPVEC(KPVEC1,KPVEC2,NVAR)
 *
@@ -2622,10 +2623,12 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
           IF(IDENSI.EQ.1) THEN
             KRHO2 = 1
           END IF
-          IF(IDENSI.GE.1)
-     &    CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
+          IF(IDENSI.GE.1) THEN
+          print*,'densi2'
+          CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &         KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,dbl_mb(KSRHO1),
      &         dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),dbl_mb(KRHO2BB),1)
+          ENDIF
           IF(IDENSI.EQ.2) THEN
 *. Test calculation of energy
             CALL EN_FROM_DENS(ENERGY,2,0)
@@ -5556,7 +5559,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 000
+      NTESTL = 1000
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100) THEN
@@ -9791,7 +9794,6 @@ c       call util_flush(6)
 c..  1-e integrals
          call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
 c.. To write in LUCIA format
-         call ga_print(g_hcore)
          if(ga_nodeid().eq.0)then
 c.. 1e ints
          ind1e=0
@@ -9811,6 +9813,7 @@ c.. add offset
           end do
          end do 
          endif
+         call ga_print(kint1)
          if(.not.ga_destroy(g_hcore)) call 
      &     errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
 c..  2-e integrals
@@ -9897,6 +9900,7 @@ c.. look for index in ga_coul
           end do
          end do
        endif
+       call ga_print(kint2)
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 

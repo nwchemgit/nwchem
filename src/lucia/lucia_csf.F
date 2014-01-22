@@ -15203,7 +15203,7 @@ C                 IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGNC
       INTEGER IABSPGP_FOR_OCCLS(2,NOCCLS_MAX)
       INTEGER NELFSPGP_A(MXPNGAS,*), NELFSPGP_B(MXPNGAS,*)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from GET_DIM_PLSTRING_S' 
         WRITE(6,*) ' ============================'

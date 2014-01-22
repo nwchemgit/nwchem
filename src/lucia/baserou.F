@@ -1254,6 +1254,7 @@ C
 C
       RETURN
       END
+*
       SUBROUTINE DIAVC2(VECOUT,VECIN,DIAG,SHIFT,NDIM)
 C
 C VECOUT(I)=VECIN(I)/(DIAG(I)+SHIFT)
@@ -1284,6 +1285,7 @@ C
   100 CONTINUE
       RETURN
       END
+*
       SUBROUTINE DIAVC3(VECOUT,VECIN,DIAG,SHIFT,NDIM,VDSV)
 *
 * VECOUT(I)=VECIN(I)/(DIAG(I)+SHIFT)
@@ -1312,9 +1314,53 @@ C
         WRITE(6,'(3E15.8)') VECIN(I),DIAG(I),VECOUT(I)
       END DO
       END IF
-*
       RETURN
       END
+*
+      SUBROUTINE DIAVC3G(VECOUT,VECIN,DIAG,SHIFT,NDIM,VDSV)
+*
+* VECOUT(I)=VECIN(I)/(DIAG(I)+SHIFT)
+*
+* VDSV = SUM(I) VECIN(I) ** 2 /( DIAG(I) + SHIFT )
+
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      integer VECOUT,VECIN,DIAG
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+*
+      THRES=1.0D-10
+      VDSV = 0.0D0
+      call ga_distribution(VECOUT, ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(VECOUT, ilo, ihi, 1, 1, ivecout, idum)
+      call ga_access(VECIN, ilo, ihi, 1, 1, ivecin, idum)
+      call ga_access(DIAG, ilo, ihi, 1, 1, idiag, idum)
+      jlo = ilo - 1
+      jhi = jhi - 1
+      DO 100 I=jlo, jhi    
+*
+        DIVIDE=dbl_mb(idiag+i)+SHIFT
+        IF(ABS(DIVIDE).LE.THRES) DIVIDE=THRES
+*
+        VDSV = VDSV + dbl_mb(ivecin+i) ** 2 /DIVIDE
+        dbl_mb(ivecout+i) = dbl_mb(ivecin+i) / DIVIDE
+*
+  100 CONTINUE
+*
+      NTEST =00
+      IF(NTEST.GE.100) THEN
+      WRITE(6,*) 'DIAVC3 : VECIN, DIAG,VECOUT '
+      DO I = 1, NDIM
+        WRITE(6,'(3E15.8)') dbl_mb(ivecin+i),dbl_mb(idiag+i),
+     &                      dbl_mb(ivecout+i)
+      END DO
+      call ga_release(DIAG,ilo,ihi,1,1)
+      call ga_release(VECIN,ilo,ihi,1,1)
+      call ga_release(VECOUT,ilo,ihi,1,1)
+      END IF
+      RETURN
+      END
+*
       SUBROUTINE DMTVCD_OLD(VEC1,VEC2,LU1,LU2,LU3,FAC,IREW,INV,LBLK)
 C
 C  IF( INV .NE. 0 ) THEN
@@ -2354,9 +2400,13 @@ C             DIAVC3(VECOUT,VECIN,DIAG,SHIFT,NDIM,VDSV)
 * XH0PSX  = X(T)(H0+SHIFT)**(-1)X
 *
       IMPLICIT DOUBLE PRECISION ( A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       REAL * 8  INPROD
 *
-      DIMENSION DIAG(*),VECIN(*),VECUT(*)
+CNW   DIMENSION DIAG(*),VECIN(*),VECUT(*)
+      integer diag, vecin, vecut
       DIMENSION IPNTR(*),H0(*)
       DIMENSION WORK(*)
 *
@@ -2374,16 +2424,18 @@ C?    write(6,*) ' H0M1TV , NPQDM = ', NPQDM
       KLSCR = KLFREE
 *
       IF(NPQDM.NE.0) THEN
-        CALL GATVEC(WORK(KLV1),VECIN,IPNTR,NPQDM)
+CNW     CALL GATVEC(dbl_mb(KLV1),VECIN,IPNTR,NPQDM)
+        call ga_gather(VECIN,dbl_mb(KLV1),IPNTR,NPQDM)
 * X(T)(DIAG+SHIFT)-1 X in subspace, for later subtraction
-        CALL GATVEC(WORK(KLV2),DIAG,IPNTR,NPQDM)
-        CALL DIAVC3(WORK(KLV2),WORK(KLV1),
-     &       WORK(KLV2),SHIFT,NPQDM,X1)
+CNW     CALL GATVEC(dbl_mb(KLV2),DIAG,IPNTR,NPQDM)
+        call ga_gather(DIAG,dbl_mb(KLV2),IPNTR,NPQDM)
+        CALL DIAVC3(dbl_mb(KLV2),dbl_mb(KLV1),
+     &       dbl_mb(KLV2),SHIFT,NPQDM,X1)
        ELSE
          X1 = 0.0D0
        END IF
 *
-      CALL DIAVC3(VECUT,VECIN,DIAG,SHIFT,NVAR,X2)
+      CALL DIAVC3G(VECUT,VECIN,DIAG,SHIFT,NVAR,X2)
 *
       IF(NPQDM .NE. 0 ) THEN
 C                H0LNSL(PHP,PHQ,QHQ,NP1DM,NP2DM,NQDM,
@@ -2394,10 +2446,11 @@ C    &           X,RHS,S,SCR)
 C?     write(6,*) ' KLPHP KLPHQ KLQHQ ',KLPHP,KLPHQ,KLQHQ
 *
          CALL H0LNSL(H0(KLPHP),H0(KLPHQ),H0(KLQHQ),NP1,NP2,NQ,
-     &               WORK(KLV2),WORK(KLV1),SHIFT,WORK(KLSCR),
+     &               dbl_mb(KLV2),dbl_mb(KLV1),SHIFT,dbl_mb(KLSCR),
      &               NTEST )
-         X3 = INPROD(WORK(KLV1),WORK(KLV2),NPQDM)
-         CALL SCAVEC(VECUT,WORK(KLV2),IPNTR,NPQDM)
+         X3 = INPROD(dbl_mb(KLV1),dbl_mb(KLV2),NPQDM)
+CNW      CALL SCAVEC(VECUT,dbl_mb(KLV2),IPNTR,NPQDM)
+         call ga_scatter(VECUT,dbl_mb(KLV2),IPNTR,NPQDM)
       ELSE
          X3 = 0.0D0
       END IF
@@ -2409,7 +2462,8 @@ C?    write(6,*) ' XH0PSX x1 x2 x3 ', XH0PSX,X1,X2,X3
       IF(NTEST.GT. 100 ) THEN
         WRITE(6,*) ' Output vector from H0M1TV '
         WRITE(6,*) ' ========================= '
-        CALL WRTMAT(VECUT,1,NVAR,1,NVAR)
+CNW     CALL WRTMAT(VECUT,1,NVAR,1,NVAR)
+        call ga_print(VECUT)
       END IF
 *
       RETURN
@@ -4370,7 +4424,6 @@ CNW      CALL SETVEC(VEC1,0.0D0,NVAR)
          call ga_zero(VEC1)
 *   
 CNW      CALL REWINO( LU2)
-         print*,'nvec nroot',nvec,nroot
          DO 60 IVEC = 1, NVEC
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
@@ -4382,7 +4435,6 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
    
-         print*,'step 2'
          EIGAPR = EIG(ITER-1,IROOT)
 CNW      CALL REWINO( LU1)
          DO 50 IVEC = 1, NVEC
@@ -4402,7 +4454,6 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
 CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
-         print*,'step 3'
          RNORM = SQRT( ga_ddot(VEC1,VEC1))
          RNRM(ITER-1,IROOT) = RNORM
          IF(RNORM.LT. TEST ) THEN
@@ -4417,7 +4468,6 @@ CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
            IADD = IADD + 1
 CNW        CALL REWINO( LUDIA)
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-         print*,'step 4'
            if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LUDIA,1,NVAR,
      &         1,1,itask).ne.0) call errquit('dra error',itask,911) 
            if (dra_wait(itask).ne.0) call errquit('dra read err',
@@ -4432,7 +4482,6 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *
            IF(IOLSTM .NE. 0 ) THEN
-         print*,'step olsen'
 * add Olsen correction if neccessary
 CNW           CALL REWINO(LU3)
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
@@ -4535,7 +4584,6 @@ CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
               END IF
             END IF
 *. 1.3 ORTHOGONALIZE TO ALL PREVIOUS VECTORS
-           print*,'step ortho'
            XNRMI = ga_ddot(VEC1,VEC1)
 CNW        XNRMI =    INPROD(VEC1,VEC1,NVAR)
 CNW        CALL REWINO( LU1 )
@@ -4555,7 +4603,6 @@ CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
 *. 1.4 Normalize vector and check for linear dependency
 CNW        SCALE = INPROD(VEC1,VEC1,NVAR)
            SCALE = ga_ddot(VEC1,VEC1,NVAR)
-           print*,'step lindep'
            IF(ABS(SCALE)/XNRMI .LT. 1.0D-10) THEN
 *. Linear dependency
              IADD = IADD - 1
@@ -4599,7 +4646,6 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1,LU1,IMZERO,IAMPACK)
 CNW      CALL FRMDSC(VEC1,NVAR,-1,LU2,IMZERO,IAMPACK)
 CNW  110  CONTINUE
 *
-      print*,'step optimal'
       DO 150 IVEC = 1, IADD
 CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
         if (dra_read_section(.false.,VEC1,1,NVAR,1,1,
@@ -4626,7 +4672,6 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
   140   CONTINUE
   150 CONTINUE
 *  DIAGONALIZE PROJECTED MATRIX
-      print*,'step diagonalize'
       NVEC = NVEC + IADD
       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
@@ -4683,7 +4728,6 @@ C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
 *
   901 CONTINUE
 *
-      print*,'step pulay'
       IPULAY = 1
       IF(IPULAY.EQ.1 .AND. MAXVEC.EQ.3 .AND.NVEC.GE.2.
      &   .AND. .NOT.CONVER) THEN

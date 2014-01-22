@@ -1371,7 +1371,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Local scratch 
       INTEGER IOC(MXPNGAS+2), I_IADL(MXPNGAS)
 *
-      NTEST = 100
+      NTEST = 000
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'RED_TT')
 *
@@ -1620,7 +1620,7 @@ C?   &                 IGAS,JGAS,I_IADX(IGAS),I_IADX(JGAS)
 *. Output
       INTEGER IOOEXC(NTOOB,NTOOB), IOOEXCC(2,NTOOB*NTOOB)
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Info from NONRED_OO_EXC2'
         WRITE(6,*) ' ========================'
