@@ -1,0 +1,1190 @@
+# $Id: nwxc_nwdft_4n.nw 25106 2014-01-11 01:54:38Z d3y133 $
+echo
+start nwxc_dat
+
+geometry
+  N 0.0 0.0 0.0
+end
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+basis
+N    S
+   3845.4149000              0.0020186        
+    577.5332300              0.0154078        
+    131.3198300              0.0753714        
+     36.8237810              0.2482122        
+     11.6701150              0.4798274        
+      3.8542604              0.3318012        
+N    S
+      7.8295611             -0.0776669        
+      0.6877351              0.5654598        
+N    S
+      0.2040388              1.0000000        
+N    P
+     26.8098410              0.0154663        
+      6.0681540              0.0964397        
+      1.7676256              0.3083610        
+      0.5466727              0.4911597        
+N    P
+      0.1587289              1.0000000        
+N    D
+      0.7000000              1.0000000
+end
+
+tddft
+  nroots 2
+end
+
+# LDA exchange
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc slater
+end
+task tddft energy
+
+# GGA exchange
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke88
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xbecke97
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xbecke97-1
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97-2
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97-3
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97-d
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke97gga1
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xbecke98
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc mpw91
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc optx
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xperdew91
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xpw6b95
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xpwb6k
+#end
+#task tddft energy
+
+dft
+  direct
+  mult 4
+  odft
+  vectors input atomic
+  xc xbnl07 hfexch
+  cam 0.5 cam_alpha 0.0 cam_beta 1.0
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc xcamb88 hfexch
+  cam 0.33 cam_alpha 0.19 cam_beta 0.46
+end
+task tddft energy
+
+dft 
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc xcamlsd hfexch
+  cam 0.3 cam_alpha 0.5 cam_beta 0.5
+end
+task tddft energy
+
+set dft:cam_exch F
+set dft:direct   F
+unset int:cando_txs
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xft97
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc gill96
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc xpbe96
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xsogga
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xsogga11
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xsogga11-x
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc revpbe
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc rpbe
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xpkzb99
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xtpss03
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm05
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm05-2x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm06
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm06-l
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm06-2x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm06-hf
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm08-hx
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm08-so
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm11-l
+#end
+#task tddft energy
+
+#dft
+#  direct
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xm11  hfexch
+#  cam 0.25 cam_alpha 0.428 cam_beta 0.572
+#end
+#task tddft energy
+
+dft
+  direct
+  mult 4
+  odft
+  vectors input atomic
+  xc xwpbe 1.00 hfexch 1.00
+  cam 0.3 cam_alpha 0.00 cam_beta 1.00
+end
+task tddft energy
+
+set dft:cam_exch F
+set dft:direct   F
+unset int:cando_txs
+
+# meta-GGA exchange
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xvs98
+#end
+#task tddft energy
+
+# Hartree-Fock exchange + VNW_X correlation 
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch vwn_1
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch vwn_1_rpa
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch vwn_2
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch vwn_3
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch vwn_4
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch vwn_5
+end
+task tddft energy
+
+# Hartree-Fock exchange + LDA(PW91) correlation 
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch pw91lda
+end
+task tddft energy
+
+# Hartree-Fock exchange + GGA correlation 
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cbecke97
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cbecke97-1
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97-2
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97-3
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97-d
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke97gga1
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cbecke98
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch lyp
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch perdew81
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch perdew86
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch perdew91
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch op
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch optc
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cft97
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hfexch cpbe96
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cpkzb99
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch csogga11
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch csogga11-x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch ctpss03
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm05
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm05-2x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm06
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm06-l
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm06-2x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm06-hf
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm08-hx
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm08-so
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm11
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cm11-l
+#end
+#task tddft energy
+
+
+# Hartree-Fock exchange + meta-GGA correlation 
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch bc95
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cpw6b95
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cpwb6k
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc hfexch cvs98
+#end
+#task tddft energy
+
+# GGA exchange + GGA correlation 
+
+# GGA exchange-correlation
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc acm
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc b1b95
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b2plyp
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3lyp
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3p86
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc b3pw91
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-1
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-2
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-3
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97-d
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke97gga1
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc becke98
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc bb1k
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc beckehandh
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc bhlyp
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc bop
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc mpw1k
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc mpw1b95
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc mpwb1k
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc optx optc
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc pbe96
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc revpbe cpbe96
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc rpbe cpbe96
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc pbeop
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc pw6b95
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc pwb6k
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc dldf
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc ft97
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth120
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth147
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth407
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcth407p
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc hcthp14
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xpkzb99 cpkzb99
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xtpss03 ctpss03
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc xctpssh
+#end
+#task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc kt1
+end
+task tddft energy
+
+dft
+  mult 4
+  odft
+  vectors input atomic
+  xc kt2
+end
+task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m05
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m05-2x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m06
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m06-l
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m06-2x
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m06-hf
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m08-hx
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m08-so
+#end
+#task tddft energy
+
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m11-l
+#end
+#task tddft energy
+
+#dft
+#  direct
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc m11
+#end
+#task tddft energy
+
+set dft:cam_exch F
+set dft:direct   F
+unset int:cando_txs
+
+dft 
+  mult 4
+  odft
+  vectors input atomic
+  xc s12g
+end
+task tddft energy
+
+dft 
+  mult 4
+  odft
+  vectors input atomic
+  xc s12h
+end
+task tddft energy
+
+#dft 
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc sogga
+#end
+#task tddft energy
+
+#dft 
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc sogga11
+#end
+#task tddft energy
+
+#dft 
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc sogga11-x
+#end
+#task tddft energy
+
+dft 
+  mult 4
+  odft
+  vectors input atomic
+  xc ssb-d
+end
+task tddft energy
+
+dft
+  direct
+  mult 4
+  odft
+  vectors input atomic
+  xc hse03
+end
+task tddft energy
+
+dft 
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc cam-s12g
+end
+task tddft energy
+
+dft 
+  mult 4
+  odft
+  direct
+  vectors input atomic
+  xc cam-s12h
+end
+task tddft energy
+
+set dft:cam_exch F
+set dft:direct   F
+unset int:cando_txs
