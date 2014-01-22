@@ -9811,8 +9811,6 @@ c.. add offset
           end do
          end do 
          endif
-         print*,'intim'
-         call ga_print(KINT1)
          if(.not.ga_destroy(g_hcore)) call 
      &     errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
 c..  2-e integrals

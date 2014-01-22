@@ -9642,7 +9642,6 @@ cnw   DIMENSION DIAG(*)
          XADD = 0.0D0
       END IF
       NOCOB = NINOB + NACOB
-      print*,'pssign',pssign,nocob,ninob,nacob
 *
  
       IF( NTEST .GE. 20.OR.IPRINTEGRAL.GE.100 ) THEN
@@ -9684,7 +9683,6 @@ cnw   DIMENSION DIAG(*)
       ITDET = 0
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
-      print*,'nlcok',nblock
       DO IBLK = 1, NBLOCK
 *
         IATP = IBLKFO(1,IBLK)
@@ -9708,10 +9706,7 @@ cnw   DIMENSION DIAG(*)
         IDUM = 0
         CALL GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,
      &                           NOCOB,0,IDUM,IDUM)
-        print*,'IATP',IATP,IASM,NAEL,NASTR1,IASTR(NAEL,1),
-     &                  IASTR(NAEL,10),NORB
         IOFF =  1
-        print*,'NSSOA',NSSOA(IASM,IATP),NPHELA
         DO IA = 1, NSSOA(IASM,IATP)
 *. Convert to PH form and save in IPHSTR
 C       STR_TO_PHFORM(ISTR, NEL, IPHSTR, IPHGAS,
@@ -9803,7 +9798,6 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
             IDET = IDET + 1
             ITDET = ITDET + 1
             X = EB + RJKAA(IA-IOFF+1)
-            print*,'idet',x
             DO IEL = 1, NPHELA
               IF(IPHSTR((IA-1)*NPHELA+IEL).GT.0) THEN
                 X = X + XB(IPHSTR((IA-1)*NPHELA+IEL)) 
@@ -9811,7 +9805,6 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
                 X = X - XB(-IPHSTR((IA-1)*NPHELA+IEL)) 
               END IF
             END DO
-            print*,'x xadd',x,xadd
 CNW         DIAG(IDET) = X
 CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
 CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
