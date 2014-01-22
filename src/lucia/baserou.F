@@ -4370,6 +4370,7 @@ CNW      CALL SETVEC(VEC1,0.0D0,NVAR)
          call ga_zero(VEC1)
 *   
 CNW      CALL REWINO( LU2)
+         print*,'nvec nroot',nvec,nroot
          DO 60 IVEC = 1, NVEC
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
@@ -4381,6 +4382,7 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
    
+         print*,'step 2'
          EIGAPR = EIG(ITER-1,IROOT)
 CNW      CALL REWINO( LU1)
          DO 50 IVEC = 1, NVEC
@@ -4400,6 +4402,7 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
 CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
+         print*,'step 3'
          RNORM = SQRT( ga_ddot(VEC1,VEC1))
          RNRM(ITER-1,IROOT) = RNORM
          IF(RNORM.LT. TEST ) THEN
@@ -4414,6 +4417,7 @@ CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
            IADD = IADD + 1
 CNW        CALL REWINO( LUDIA)
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
+         print*,'step 4'
            if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LUDIA,1,NVAR,
      &         1,1,itask).ne.0) call errquit('dra error',itask,911) 
            if (dra_wait(itask).ne.0) call errquit('dra read err',
@@ -4428,6 +4432,7 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *
            IF(IOLSTM .NE. 0 ) THEN
+         print*,'step olsen'
 * add Olsen correction if neccessary
 CNW           CALL REWINO(LU3)
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
@@ -4530,6 +4535,7 @@ CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
               END IF
             END IF
 *. 1.3 ORTHOGONALIZE TO ALL PREVIOUS VECTORS
+           print*,'step ortho'
            XNRMI = ga_ddot(VEC1,VEC1)
 CNW        XNRMI =    INPROD(VEC1,VEC1,NVAR)
 CNW        CALL REWINO( LU1 )
@@ -4549,6 +4555,7 @@ CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
 *. 1.4 Normalize vector and check for linear dependency
 CNW        SCALE = INPROD(VEC1,VEC1,NVAR)
            SCALE = ga_ddot(VEC1,VEC1,NVAR)
+           print*,'step lindep'
            IF(ABS(SCALE)/XNRMI .LT. 1.0D-10) THEN
 *. Linear dependency
              IADD = IADD - 1
@@ -4592,6 +4599,7 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1,LU1,IMZERO,IAMPACK)
 CNW      CALL FRMDSC(VEC1,NVAR,-1,LU2,IMZERO,IAMPACK)
 CNW  110  CONTINUE
 *
+      print*,'step optimal'
       DO 150 IVEC = 1, IADD
 CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
         if (dra_read_section(.false.,VEC1,1,NVAR,1,1,
@@ -4618,6 +4626,7 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
   140   CONTINUE
   150 CONTINUE
 *  DIAGONALIZE PROJECTED MATRIX
+      print*,'step diagonalize'
       NVEC = NVEC + IADD
       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
@@ -4674,6 +4683,7 @@ C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
 *
   901 CONTINUE
 *
+      print*,'step pulay'
       IPULAY = 1
       IF(IPULAY.EQ.1 .AND. MAXVEC.EQ.3 .AND.NVEC.GE.2.
      &   .AND. .NOT.CONVER) THEN

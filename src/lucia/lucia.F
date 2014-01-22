@@ -9816,20 +9816,18 @@ c.. add offset
 c..  2-e integrals
          noper = norbt*(norbt+1)/2
          g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
-         call ga_zero(g_coul)
 c
 c Get Block-length
 c
          if (.not. bas_nbf_cn_max(luciabasis,maxbfsh))
      $      call errquit('intim: cannot get basis info',0,BASIS_ERR)
-         if (.not.rtdb_get(rtdb,'fourindex:blk',MT_INT,1,blen)) blen=16
-         blen = max(blen,maxbfsh)
+CBERT    if (.not.rtdb_get(rtdb,'fourindex:blk',MT_INT,1,blen)) nwblen=16
+         nwblen = max(nwblen,maxbfsh)
 c
 c Do four-index
 c
-         g_exch = 1
-         call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,
-     $        1,norbt,g_moreo,g_coul,.true.,g_exch,.false.,blen,.true.)
+         call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,1,
+     $        norbt,g_moreo,g_coul,.true.,g_exch,.false.,nwblen,.true.)
 c        call ga_print(g_coul)
 c.. To write in LUCIA format
          if(ga_nodeid().eq.0)then
@@ -9899,7 +9897,6 @@ c.. look for index in ga_coul
           end do
          end do
        endif
-       call ga_print(KINT2)
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
@@ -11043,7 +11040,9 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
       IF(NOINT.EQ.0) THEN
 *. 2-electron integrals are saved in KINT_2EMO
         call int_init(rtdb,1, luciabasis)
+        call schwarz_init(luciageom,luciabasis)
         CALL INTIM(IPRORB)
+        call schwarz_tidy()
         call int_terminate()
 *. copy to list of initial 2 e integrals
 CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
@@ -32066,8 +32065,6 @@ CNW        VEC1(IPLAC(IEFF)) = VAL(IEFF)
            call ga_put(VEC1,IPLAC(IEFF),IPLAC(IEFF),1,1,VAL(IEFF),1)
   100    CONTINUE
 CNW      CALL TODSC(VEC1,NDIM,-1,LU)
-         print*,LU,NDIM
-         call ga_print(vec1)
          if (dra_write_section(.false.,VEC1,1,NDIM,1,1,LU,1,NDIM,
      &       1,1,itask).ne.0) call errquit('dra error',itask,911)
          if (dra_wait(itask).ne.0) call errquit('dra read err',

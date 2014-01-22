@@ -9634,7 +9634,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST =  100
+      NTEST =  000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -9738,7 +9738,6 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
             END IF
           END DO
           RJKAA(IA-IOFF+1) = EAA 
-          WRITE(6,*) ' Alpha string, EAA = ', IA, EAA
         END DO
 *. Obtain beta strings of sym IBSM and type IBTP
         CALL GETSTR_TOTSM_SPGP(2,IBTP,IBSM,NBEL,NBSTR1,IBSTR,
@@ -9765,7 +9764,6 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
               SIGNIB = -1.0D0
             END IF
             HB = HB + H(IBEL)*SIGNIB
-            WRITE(6,*) ' IEL, IBEL, HB = ', IEL,IBEL,HB
 *
             IF(I12.EQ.2) THEN
               DO JEL = 1, NPHELB
@@ -9785,7 +9783,6 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
             END IF
           END DO
           EB = HB + 0.5D0*RJBB + ECORE
-          WRITE(6,*) ' IB, EB = ', IB, EB
 *
           IF(IREST1.EQ.1.AND.IATP.EQ.IBTP) THEN
             IASTRT =  IB
