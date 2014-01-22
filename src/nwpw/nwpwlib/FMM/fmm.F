@@ -163,6 +163,116 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
       return
       end
 
+*     **********************************************
+*     *                                            *
+*     *             FMM_Setup_Tree                 *
+*     *                                            *
+*     **********************************************
+
+*   This routine generates a box gridding and tree for FMM calculations.
+*
+*   Entry - nion - number of ions
+*           rion - atom positions
+*           levels - number of tree levels
+* 
+*   Exit - a_out  - box length
+*          ion_boxindx - box indexes for the ions
+
+      subroutine FMM_Setup_Tree(nion,rion,levels,a_out,ion_boxindx)
+      implicit none
+      integer nion
+      real*8  rion(3,*)
+      integer levels
+
+      real*8 a_out
+      integer ion_boxindx(3,*)
+
+*     **** local variables ****
+      integer ii,n,n2
+      real*8  aover2
+
+      aover2 = 0.0d0
+      do ii=1,nion
+         if (dabs(rion(1,ii)).gt.aover2) aover2=dabs(rion(1,ii))
+         if (dabs(rion(2,ii)).gt.aover2) aover2=dabs(rion(2,ii))
+         if (dabs(rion(3,ii)).gt.aover2) aover2=dabs(rion(3,ii))
+      end do
+      aover2 = aover2 + 0.5d0
+      a_out = 2*aover2
+
+      n = 2**levels
+      n2 = n*n
+      do ii=1,nion
+         ion_boxindx(1,ii) =  idint(n*(rion(1,ii)+aover2)/a_out)
+         ion_boxindx(2,ii) =  idint(n*(rion(2,ii)+aover2)/a_out)
+         ion_boxindx(3,ii) =  idint(n*(rion(3,ii)+aover2)/a_out)
+      end do
+
+      return
+      end
+
+*     **********************************************
+*     *                                            *
+*     *             FMM_Setup_Mlm                  *
+*     *                                            *
+*     **********************************************
+
+      subroutine FMM_Setup_Mlm(nion,katm,rion,qatm,
+     >                         levels,a,ion_boxindx,
+     >                         lmax,Mlm)
+      implicit none
+      integer nion,katm(*)
+      real*8  rion(3,*)
+      real*8  qatm(*)
+      integer levels
+      real*8  a
+      integer ion_boxindx(3,*)
+      integer lmax
+      complex*16 Mlm((lmax+1)**2,*)
+
+*     **** local variables ****
+      integer taskid,np
+      integer ii,i,j,k,n,n2,ibox,idx,l,m
+      real*8 aover2,da,xc,yc,zc,q
+
+*     **** external functions ****
+      complex*16 rSphericalHarmonic3
+      external   rSphericalHarmonic3
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+      n = 2**levels
+      n2 = n*n
+      da = a/dble(a)
+      aover2 = a/2.0d0
+      call dcopy(2*((lmax+1)**2)*(n*n*n),0.0d0,0,Mlm,1)
+      do ii=1,nion
+         if (mod(ii,np).eq.taskid) then
+            q = qatm(katm(ii))
+            xc = -aover2 + (ion_boxindx(1,ii)+0.5d0)*da
+            yc = -aover2 + (ion_boxindx(2,ii)+0.5d0)*da
+            zc = -aover2 + (ion_boxindx(3,ii)+0.5d0)*da
+            ibox = 1 + ion_boxindx(1,ii) 
+     >           + ion_boxindx(2,ii)*n 
+     >           + ion_boxindx(3,ii)*n2
+            idx = 1
+            do l=0,lmax
+            do m=-l,l
+               Mlm(idx,ibox) = Mlm(idx,ibox) 
+     >                       + q*rSphericalHarmonic3(l,-m,
+     >                                               xc-rion(1,ii),
+     >                                               yc-rion(2,ii),
+     >                                               zc-rion(3,ii))
+               idx = idx + 1
+            end do
+            end do
+         end if
+      end do
+      call Parallel_Vector_SumAll(((lmax+1)**2)*(n*n*n),Mlm)
+
+      return
+      end
 
 *     **********************************************
 *     *                                            *
@@ -424,7 +534,7 @@ c      end
       idx = 0
       do l=0,lmax
          do m=-l,l
-            dcpl_mb(rYlm(1)+idx) = rSphericalHarmonic3(l,m,x,y,z)
+            dcpl_mb(rYlm(1)+idx) = rSphericalHarmonic3(l,-m,x,y,z)
          end do
       end do
 
