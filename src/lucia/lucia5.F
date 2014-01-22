@@ -7861,12 +7861,12 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 *
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
-      if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord,dum,dum,
+      if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord_nw,dum,dum,
      &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
       icounter=1
       do nir = 1, nirrep
          do i = 1, luciamo(1)
-            if (kirs(i).eq.nir) then
+            if (kirs_nw(i).eq.nir) then
                call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
                do j = 1, luciaao
                   if (nwchem_sc(j,i).gt.0.0d0) then

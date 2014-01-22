@@ -594,7 +594,7 @@ c     NTEST = 100
          NMOS_ENV(i) = 0
       enddo
       do j = 1, luciamo(1)
-         irs=ipnt(kirs(j))
+         irs=ipnt_nw(kirs_nw(j))
          NAOS_ENV(irs) = NAOS_ENV(irs) + 1
          NMOS_ENV(irs) = NMOS_ENV(irs) + 1
       enddo
@@ -2315,9 +2315,6 @@ CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
           KINT1 = KINT1O
           KINT1O = KSWAP
         END IF
-        print*,'KINT1',KINT1,KINT1O
-        call ga_print(KINT1)
-        call ga_print(KINT1O)
 *
 C?      WRITE(6,*) ' IBLTP  before call to GASDIAT'
 C?      CALL IWRTMA(WORK(KCBLTP),1,4,1,4)
@@ -2326,7 +2323,6 @@ C       CALL GASDIAT(WORK(KPVEC1),LUDIA,SHIFT,ICISTR,I12,
         CALL GASDIAT(KPDIA_SD,LUDIA,SHIFT,ICISTR,I12,
      &               int_mb(KCBLTP),NBLOCK,int_mb(KCIBT),IUSE_EXP)
 C?      WRITE(6,*) ' WORK(KPDIA_SD) after GASDIAT =', WORK(KPDIA_SD)
-        print*,'after gasdiat'
         IF(IUSE_EXP.NE.1) THEN
 CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
           KSWAP = KINT1
@@ -3922,7 +3918,6 @@ CNW      CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
 CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
          if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EINI))
      &       call errquit('cannot create lucia_2e: kint_2eini',0,GA_ERR)
-         print*,'KINT 2EMO 2EINI',KINT_2EMO,KINT_2EINI
       END IF
 *. Pointers to symmetry block of integrals
       CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',1,'PINT1 ')  !done
@@ -9684,6 +9679,8 @@ c      INCLUDE 'mxpdim.inc'
       external movecs_read, movecs_gather
       integer blen
       double precision occ(mxporb),evals(mxporb)
+      double precision ctmp(mxporb)
+      integer imysym(16)
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9770,44 +9767,35 @@ c.. dongxia added June 2013, transform AO ints to SCF MO ints
 c..
 c.. get reordered movecs and save to g_moreo
 c..
-      ioff(1)=1
-      icount(1)=0
+      ioff_nw(1)=1
+      icount_nw(1)=0
       do i=2,nirrep
-        ioff(i) = ioff(i-1)+ntoobs(i-1)
-        icount(i) = 0
+        ioff_nw(i) = ioff_nw(i-1)+ntoobs(i-1)
+        icount_nw(i) = 0
       end do
       do i=1,luciamo(1)
-        irs=ipnt(kirs(i))
-        icount(irs)=icount(irs)+1
-        ireord = ioff(irs)+icount(irs)-1
-        reord(ireord)=i    
+        irs=ipnt_nw(kirs_nw(i))
+        icount_nw(irs)=icount_nw(irs)+1
+        ireord = ioff_nw(irs)+icount_nw(irs)-1
+        reord_nw(ireord)=i    
       end do
 c
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
       g_hcore = ga_create_atom_blocked(luciageom,luciabasis, 
      $                                 'rohf  hcore')
-      if(.not.movecs_read(luciascfmo,1, occ, evals, g_moreo))
-     &   call errquit('intim: read rtdb failed',0,DISK_ERR)
-      print*,'pre reorder'
-      call ga_print(g_moreo)
-      call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
-      call ga_print(g_hcore)
       norbt = luciamo(1)
-      print*,'post reorder'
-      if(.not.movecs_gather(luciascfmo,1,norbt,reord,occ,evals,
+      if(.not.movecs_gather(luciascfmo,1,norbt,reord_nw,occ,evals,
      &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
-        call ga_print(g_moreo)
 c       call util_flush(6)
 c..  1-e integrals
          call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
-c        call ga_print(g_hcore)
 c.. To write in LUCIA format
+         call ga_print(g_hcore)
          if(ga_nodeid().eq.0)then
 c.. 1e ints
          ind1e=0
          ind2e=0
-         call ga_print(g_hcore)
          do ism_lu=1,nirrep
           ni = ntoobs(ism_lu)
           nij = ni*(ni+1)/2
@@ -9816,8 +9804,8 @@ c.. 1e ints
            i = int(sqrt(2.0*ij)+0.5)
            j = ij - i*(i-1)/2
 c.. add offset
-           i = i + ioff(ism_lu) -1
-           j = j + ioff(ism_lu) -1
+           i = i + ioff_nw(ism_lu) -1
+           j = j + ioff_nw(ism_lu) -1
          call ga_get(g_hcore,i,i,j,j,int1e,1)
          call ga_put(KINT1,ind1e,ind1e,1,1,int1e,1)
           end do
@@ -9841,6 +9829,7 @@ c
 c
 c Do four-index
 c
+         g_exch = 1
          call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,
      $        1,norbt,g_moreo,g_coul,.true.,g_exch,.false.,blen,.true.)
 c        call ga_print(g_coul)
@@ -9896,10 +9885,10 @@ c.. tra_rou = 2
                  i = ij - (j-1)*ni 
                end if      
 c.. add on the offset for each irep
-                 i = i+ioff(ism_lu)-1
-                 j = j+ioff(jsm_lu)-1
-                 k = k+ioff(ksm_lu)-1
-                 l = l+ioff(lsm_lu)-1
+                 i = i+ioff_nw(ism_lu)-1
+                 j = j+ioff_nw(jsm_lu)-1
+                 k = k+ioff_nw(ksm_lu)-1
+                 l = l+ioff_nw(lsm_lu)-1
 c.. look for index in ga_coul
                   ij = (j-1)*norbt+i 
                   kl = k*(k-1)/2 + l
@@ -9919,7 +9908,6 @@ c.. look for index in ga_coul
      &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
       if (.not. geom_nuc_rep_energy(luciageom, ecore)) call
      $  errquit('unable to get nuclear rep energy',luciageom, GEOM_ERR)
-       ecore = -ecore
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
        ELSE IF (INTIMP .EQ. 5) THEN
@@ -10661,8 +10649,11 @@ c      INCLUDE 'mxpdim.inc'
 *. A temp block for locating the SETVEC use/misuse
       COMMON/XXTEST/ISETVECOPS(10)
 *
-      external movecs_read_header
-      logical movecs_read_header
+      external movecs_read_header, movecs_read, int_normalize
+      logical movecs_read_header, movecs_read, int_normalize
+      integer g_moreo, g_hcore, g_coul, g_exch
+      integer ga_create_atom_blocked, ga_create_JKblocked
+      external ga_create_atom_blocked, ga_create_JKblocked
 *
       NTEST = 0
 *
@@ -10690,17 +10681,21 @@ C     CALL TEST_DEC15
      $     call errquit('lucia: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, luciageom, luciabasis, 'ao basis'))
      $        call errquit('lucia: no ao basis set', 0, RTDB_ERR)
+      if (.not. int_normalize(rtdb,luciabasis)) 
+     &    call errquit('lucia:int_normalize failed', 0, INT_ERR)
+c
        call sym_group_name(luciageom,luciasymname)
+c
        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,luciascfmo))
      $        call errquit('lucia: reading mo vecs', 0, RTDB_ERR)
        if ( .not. movecs_read_header(luciascfmo, title, basis,
      $       scftype, luciaao, nsets, luciamo, 2) ) call errquit(
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
-      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),kirs))
+      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),
+     &                 kirs_nw))
      &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
-c..  reorder 
-      call ifill(nirrep,0,ipnt,1)
-      call sym_mol(luciasymname,ipnt)
+      call ifill(nirrep,0,ipnt_nw,1)
+      call sym_mol(luciasymname,ipnt_nw)
       call sym_bas_irrep_id(luciabasis,.false.,mxporb,mxpirr,
      &                      nwchem_id,nwchem_sc)
 * ======================================================
@@ -11051,7 +11046,7 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
 *. 2-electron integrals are saved in KINT_2EMO
         call int_init(rtdb,1, luciabasis)
         CALL INTIM(IPRORB)
-        call int_terminate
+        call int_terminate()
 *. copy to list of initial 2 e integrals
 CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
         call ga_copy(KINT_2EMO,KINT_2EINI)
