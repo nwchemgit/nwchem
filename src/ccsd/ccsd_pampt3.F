@@ -143,7 +143,6 @@ c     compute ST2 in parallel: expect network congestion
             call util_flush(6)
          endif
          
-      else
       endif
 
 c ------------------------------------------------------------

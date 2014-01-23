@@ -464,7 +464,7 @@ c
 c
 c     End reading integrals from disk in repeat iteration
 c     
-      endif
+      endif!!!!if (repeat.and.use_disk) then
 c
       if (.not.repeat.or..not.use_disk.or.icount(2).gt.0) then
 c
@@ -615,10 +615,10 @@ c
                    ish_idx(kcount)=(ksh-1)*nsh+ish
                    if (schwarz1) then
                       if(bnijkl+max2e.gt.maxints) then
-                         write(6,'(I6,A)') ga_nodeid(),
-     W                        ' : increase stack memory '
-cold     W                     (trishel+iamoff-iii+1)*2*max2e*8/1024/1024,
-cold     M                        ' MBytes '
+                         write(6,'(I6,A,I20,A)') ga_nodeid(),
+     W                        ' : increase stack memory ',
+     W                     (trishel+iamoff-iii+1)*2*max2e*8/1024/1024,
+     M                        ' MBytes '
                          call util_flush(6)
                          call errquit(' ccsdsxy: not enough MA',0,0)
                       endif
@@ -674,7 +674,8 @@ c
      &       errquit('ccsd_sxy: write failed',7,DISK_ERR)
       endif
       repeat=.true.
-      endif
+      endif!!!if (.not.repeat.or..not.use_disk.or.icount(2).gt.0)
+cedo
       call ga_sync()
 c sync before 3 and 4 index transformation
       call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,

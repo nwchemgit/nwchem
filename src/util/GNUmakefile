@@ -93,7 +93,7 @@ ifeq ($(TARGET),MACX)
   EXTRA_OBJ += macx_trapfpe.o
 endif
 
-ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGNUS INTERIX))
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGNUS INTERIX LINUX64))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  
   ifeq ($(LINUXCPU),x86)
     ifneq ($(TARGET),INTERIX)
@@ -128,10 +128,10 @@ endif
 endif
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
 ifeq ($(_CPU),ia64)
-  EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o erfc.o
+  EXTRA_OBJ = win32_cpu.o linux_shift.o linux_setfpucw.o erfc.o
 endif
 ifeq ($(_CPU),x86_64)
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o  linux_setfpucw.o linux_printaff.o
+  EXTRA_OBJ = linux_cpu.o linux_shift.o   erfc.o  linux_setfpucw.o linux_printaff.o
   ifeq ($(FC),pathf90)
     EXTRA_OBJ += util_cflush.o
   endif
@@ -300,8 +300,9 @@ endif
 ifdef DISABLE_GAMIRROR
   DEFINES += -DDISABLE_GAMIRROR
 endif
+
 ifdef USE_NOFSCHECK
-  DEFINES += -DNOFSCHECK
+  DEFINES += -DNOIO
 endif
 
 include ../config/makelib.h

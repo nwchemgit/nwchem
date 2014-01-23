@@ -1679,7 +1679,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	  _FC=crayftn
           _CC=craycc
 	  endif
-          DEFINES  += -DCRAYXT -DEAFHACK -DNOFSCHECK
+          DEFINES  += -DCRAYXT -DNOIO
       endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
@@ -2466,6 +2466,10 @@ ifeq ($(LAPACK_LIB),)
 endif
 ifeq ($(BLAS_LIB),)
       CORE_LIBS +=  -lblas 
+endif
+
+ifdef USE_NOIO
+ DEFINES += -DNOIO
 endif
 
 

@@ -268,7 +268,7 @@ c
          if (scftype .eq. 'UHF') 
      $        call ga_brdcst(135, dbl_mb(k_bmos), nbf*nmo*8, 0)
 c     
-#ifdef EAFHACK
+#ifdef NOIO
          eaftype=mp2_eaftype(rtdb,k_file_size)
 #else
          eaftype=EAF_RW

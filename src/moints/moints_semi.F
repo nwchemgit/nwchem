@@ -255,7 +255,7 @@ c
        vtmp(3) = pvlo
        vtmp(4) = pvhi
        call util_file_name('kh', .true.,.true., fnamek)
-#ifdef EAFHACK
+#ifdef NOIO
        eaftype=mp2_eaftype(rtdb,k_file_size)
 #else
        eaftype=EAF_RW
@@ -950,7 +950,7 @@ c
       c2=2.0d0
 c
       call util_file_name('kh',.true.,.true.,fname)
-#ifdef EAFHACK
+#ifdef NOIO
       if (eaf_open(fname, 200, kunit).ne.0)
 #else
       if (eaf_open(fname, EAF_RW, kunit).ne.0)

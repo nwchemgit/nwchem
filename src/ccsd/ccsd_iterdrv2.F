@@ -83,7 +83,7 @@ c
 c - integrals for ccsd_sxy (calculate as much as possible once and read after that)
 c - input switch to avoid using disk
       if (.not. rtdb_get(rtdb, 'ccsd:usedisk', mt_log, 1, use_disk))
-#ifdef CRAYXT
+#ifdef NOIO
 c     direct by default to avoid io
      $   use_disk=.false.
 #else
@@ -112,7 +112,7 @@ c - else check if one can restart
       if (.not.rtdb_get(rtdb, 'ccsd:converged',MT_LOG, 1, oconverged))
      $    oconverged = .false.  ! Not converged yet
       if(.not.rtdb_get(rtdb,'ccsd:useinmemst2',mt_log, 1,use_inmem_st2))
-     $   use_inmem_st2=.false. ! By default keep ST2 in GA
+     $   use_inmem_st2=.true. ! Old default kept ST2 in GA
 
       if (orestart.or.oconverged) then
           orestart = ccsd_read_restart(t2file, g_t2, nvir, lhoov)

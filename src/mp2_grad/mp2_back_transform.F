@@ -143,7 +143,7 @@ c
      &       GA_ERR)
 c     
       call util_file_name('2pdm', .true., .true., fname)
-#ifdef EAFHACK
+#ifdef NOIO
        eaftype=mp2_eaftype(rtdb,p_file_size)
 #else
        eaftype=eaf_rw
