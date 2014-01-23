@@ -451,9 +451,6 @@ CNW     CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
 C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
         CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
-        print*,'after orbtra'
-        call ga_print(kint1)
-        call ga_print(kfi)
         call ga_copy(KFI,KINT1)
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' MCSCF: ECORE_ORIG, ECORE_HEX, ECORE(2) ',

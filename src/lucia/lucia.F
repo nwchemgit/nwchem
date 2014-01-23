@@ -7976,8 +7976,6 @@ CNW   DIMENSION H(*)
 *.Output
       DIMENSION H1DIA(*)
 *
-      print*,'GT1DIS',H,NTOOB
-      call ga_print(H)
       DO 100 IIOB = 1, NTOOB
         IOB = IREOTS(IIOB)
         ISM = ISMFTO(IIOB)
@@ -12898,7 +12896,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 000
+      NTEST = 1000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '

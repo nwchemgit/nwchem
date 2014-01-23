@@ -1710,11 +1710,9 @@ CNW   DIMENSION FIMAT(*)
       END IF
 
       IF(I_USE_SIMTRH.EQ.0) THEN
-        print*,'fih'
         CALL FIH(FIMAT,ECC,IBSO,NSMOB,ITPFSO,IPHGAS,NTOOBS,NTOOB,
      &           IREOST,IDOH2,NGAS)
       ELSE
-        print*,'fiha'
         CALL FIHA(FIMAT,ECC,IBSO,NSMOB,ITPFSO,IPHGAS,NTOOBS,NTOOB,
      &           IREOST,IDOH2)
       END IF
@@ -1750,7 +1748,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 10
+      NTEST = 0
 *
 * Core-Core energy 
 *
@@ -1876,7 +1874,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 1000
+      NTEST = 000
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*) 

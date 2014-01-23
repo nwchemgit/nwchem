@@ -752,7 +752,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Specific Input
       DIMENSION CI(*), CJ(*)
 *
-      NTEST = 1000
+      NTEST = 000
       NTEST = MAX(IPRINTEGRAL,NTEST)
       IPRNT_TRAINT = 0
       IF(IPRINTEGRAL.GE.1000) IPRNT_TRAINT = 1

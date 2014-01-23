@@ -9634,7 +9634,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST =  1000
+      NTEST =  000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0

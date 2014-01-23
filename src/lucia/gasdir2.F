@@ -5253,7 +5253,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 000
+      NTEST = 1000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
         WRITE(6,*) ' ================='
