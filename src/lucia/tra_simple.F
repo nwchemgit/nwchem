@@ -752,7 +752,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Specific Input
       DIMENSION CI(*), CJ(*)
 *
-      NTEST = 00
+      NTEST = 1000
       NTEST = MAX(IPRINTEGRAL,NTEST)
       IPRNT_TRAINT = 0
       IF(IPRINTEGRAL.GE.1000) IPRNT_TRAINT = 1
@@ -802,6 +802,7 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
         CALL TRIPAK_AO_MAT(WORK(KLH1),WORK(KINT1O),2)
       ELSE
 CNW     CALL COPVEC(WORK(KINT1O),WORK(KLH1),LEN_HP)
+        print*,'get',len_hp
         call ga_get(KINT1O,1,len_hp,1,1,dbl_mb(klh1),1)
       END IF
 *. and do it
@@ -1235,7 +1236,7 @@ CNW      CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
            IJF = IJF + LXC
          END DO
          IBLK = LXC*(LXC+1)/2
-         call ga_put(AOUT,IOFFC_OUT,IOFFC_OUT+IBLK-1,1,1,
+         call ga_put(AOUT,IOFFP_OUT,IOFFP_OUT+IBLK-1,1,1,
      &               SCR(K2),IBLK)
        ELSE
 CNW      CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
@@ -1310,18 +1311,19 @@ CNW     CALL APRBLM2(AOUT,LX_COL,LX_COL,NBLOCK,ISYM)
        SIGN = 1.0D0
        IF(ISYM.EQ.1) THEN
 CNW      CALL TRIPAK(SCR(K1),AIN(IOFFP_IN),2,LXR,LXR)
-CBERT    STOP, PAcKED TO FULL, IS REVERSE OF BELOW!!!!Z
          IJ = 0
          IJF = 0
          DO I = 1,LXC
-           DO J = 1, I
-             SCR(K2+IJ+J-1) = SCR(K1+IJF+J-1)
+           SCR(K2+IJF+I-1) = SCR(K1+IJ+I-1)      ! (I,I)
+           DO J = 1, I-1
+             SCR(K2+IJF+J-1) = SCR(K1+IJ+J-1)    ! (I,J)
+             SCR(K2+LXC*J+I-1) = SCR(K1+IJ+J-1)  ! (J,I)
            END DO
            IJ = IJ + I
            IJF = IJF + LXC
          END DO
-         IBLK = LXC*(LXC+1)/2
-         call ga_put(AIN,IOFFC_IN,IOFFC_IN+IBLK-1,1,1,
+         IBLK = LXC*LXC
+         call ga_put(AIN,IOFFP_IN,IOFFP_IN+IBLK-1,1,1,
      &               SCR(K2),IBLK)
 C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
        ELSE

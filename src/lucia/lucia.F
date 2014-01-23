@@ -2580,7 +2580,6 @@ C?    CALL MEMCHK
 *. ===========================
 *
       IF(I_DO_LZ2.EQ.1) THEN
-      print*,'lz2'
 *
 cnw    CALL REWINO(LUC)
        DO JROOT = 1, NROOT
@@ -2613,9 +2612,11 @@ cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
         WRITE(6,*)
         END IF
         IF(ICISTR.EQ.1) THEN
-        print*,'ANA'
-          CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
-          CALL COPVEC(KPVEC1,KPVEC2,NVAR)
+          if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,NVAR,
+     &     JROOT,JROOT,itask).ne.0) call errquit('dra error',911)
+          call ga_copy(KPVEC1,KPVEC2)
+CNW       CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
+CNW       CALL COPVEC(KPVEC1,KPVEC2,NVAR)
 *
 C?      WRITE(6,*) ' Testing: CI vector read in '
 C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
@@ -2643,6 +2644,7 @@ C?      END IF
 *
           IF(IPRNT.GT.2) THEN
            IF(NOCSF.EQ.1) THEN
+            print*,'gasana'
             CALL GASANA(KPVEC1,NBLOCK,int_mb(KCIBT),
      &                  int_mb(KCBLTP),LUC,ICISTR)
            ELSE
@@ -7856,7 +7858,9 @@ C       CALL IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
 * ISCALE, SCLFAC added May 97
 *
       IMPLICIT REAL*8           (A-H,O-Z)
-      DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
+CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
+      integer C
+      DIMENSION CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
       DIMENSION SCR(*)
       REAL*8 INPROD
@@ -7887,7 +7891,8 @@ C?      write(6,*) ' LBL = ', LBL
         END IF
       ELSE
 *. It is assumed pt that vector is nonvanising
-        XNORM = INPROD(C,C,NCMB_IN)
+CNW     XNORM = INPROD(C,C,NCMB_IN)
+        XNORM = ga_ddot_patch(C,'N',1,NCMB_IN,1,1,C,'N',1,NCMB_IN,1,1)
 C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
         IF(XNORM.EQ.0.0D0) THEN
           IMZERO = 1
@@ -7906,6 +7911,7 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
             PLSIGN = 1.0D0
             ISGVST = 1 
             IF(LUC.GT.0) THEN
+              call errquit('sdcmrf using disk',911,GA_ERR)
               CALL SDCMRF(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,
      &             IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
             ELSE
@@ -7970,6 +7976,8 @@ CNW   DIMENSION H(*)
 *.Output
       DIMENSION H1DIA(*)
 *
+      print*,'GT1DIS',H,NTOOB
+      call ga_print(H)
       DO 100 IIOB = 1, NTOOB
         IOB = IREOTS(IIOB)
         ISM = ISMFTO(IIOB)
@@ -7981,7 +7989,7 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
 *
-      NTEST = 00
+      NTEST = 10
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' Diagonal one electron integrals '
         CALL WRTMAT(H1DIA,1,NTOOB,1,NTOOB)
@@ -9813,7 +9821,6 @@ c.. add offset
           end do
          end do 
          endif
-         call ga_print(kint1)
          if(.not.ga_destroy(g_hcore)) call 
      &     errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
 c..  2-e integrals
@@ -9900,7 +9907,6 @@ c.. look for index in ga_coul
           end do
          end do
        endif
-       call ga_print(kint2)
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
@@ -14813,119 +14819,6 @@ C
       WRITE(6,'(A1,A72,A1)') ' *  ',LINES(2),'  *'
       WRITE(6,'(A1,A72,A1)') ' *  ',LINES(3),'  *'
       WRITE(6,'(A)') STARS
-*
-      RETURN
-      END
-      SUBROUTINE PSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,
-     &                  NOCTPA,NOCTPB,NSASO,NSBSO,PSIGN,
-     &                  ICOOSC,IAC,IDC,LUHC,SCR,NSMST)
-*
-* add(IAC = 1) or copy (IAC =2) determinant block (iatp iasm, ibtp ibsm
-* to vector packed in combination format
-* iatp,iasm , ibtp,ibsm is assumed to be allowed combination block
-*
-* Combination type is defined by IDC
-* IAC = 2  does not work for LUHC.NE.0 !
-*. Note ICOOSC has been eliminated and the routine is 
-*. therefore not working for LUHC = 0.
-      IMPLICIT REAL*8           (A-H,O-Z)
-      DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
-      DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
-*
-      DIMENSION SCR(*)
-*
-* ======================
-* Write directly to disc
-* ======================
-*
-*. Assumes complete block in,
-*. copies to lower half, scales  and write out.
-      IF(LUHC.LE.0) THEN
-        WRITE(6,*) 'PSTTBL, LUHC .le. 0 '
-        WRITE(6,*) ' Update routine to eliminate ICOOSC'
-        STOP'PSTTBL: Update routine to eliminate ICOOSC'
-      END IF
-*
-      IF(LUHC.NE.0) THEN
-         NAST = NSASO(IASM,IATP)
-         NBST = NSBSO(IBSM,IBTP) 
-         SCLFAC = 1.0D0
-         PLSIGN = 1.0D0
-         ISGVST = 1
-         CALL SDCMRF(CTT,SCR,1,IATP,IBTP,IASM,IBSM,NAST,NBST,
-     &               IDC,PSIGN,PLSIGN,ISGVST,LDET,LCOMB,
-     &               1,SCLFAC)
-*. Note: PLSIGN and ISGVST missing in order to make it work for IDC=3,4
-         CALL ITODS(LCOMB,1,-1,LUHC)
-         CALL TODSC(SCR,LCOMB,-1,LUHC)
-      ELSE
-* ==================
-* Add to packed list
-* ===================
-      IF(IASM.GT.IBSM.OR.IDC.EQ.1
-     &   .OR.IDC.EQ.3)THEN
-**************
-** IASM > IBSM
-**************
- 
-        IF( IDC .LT. 4 ) THEN
-*.. simple copying
-C         IBASE = ICOOSC(IBTP,IATP,IASM)
-          IBASE = ICOOSC(IATP,IBTP,IASM)
-          NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
-          IF(IAC .EQ. 1 ) THEN
-            CALL VECSUM(C(IBASE),C(IBASE),CTT,1.0D0,1.0D0,NELMNT)
-          ELSE IF(IAC .EQ.2 ) THEN
-            CALL COPVEC(CTT,C(IBASE),NELMNT)
-          END IF
-        ELSE IF ( IDC .EQ. 4 ) THEN
-          IF(IATP.GT.IBTP) THEN
-C           IBASE = ICOOSC(IBTP,IATP,IASM)
-            IBASE = ICOOSC(IATP,IBTP,IASM)
-            NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
-            IF(IAC .EQ. 1 ) THEN
-              CALL VECSUM(C(IBASE),C(IBASE),CTT,1.0D0,1.0D0,NELMNT)
-            ELSE IF(IAC .EQ.2 ) THEN
-              CALL COPVEC(CTT,C(IBASE),NELMNT)
-            END IF
-          ELSE IF( IATP .EQ. IBTP ) THEN
-C           IBASE = ICOOSC(IBTP,IATP,IASM)
-            IBASE = ICOOSC(IATP,IBTP,IASM)
-            NAST = NSASO(IASM,IATP)
-            IF( IAC .EQ. 1 ) THEN
-              CALL PMPLFM(C(IBASE),CTT,NDIM)
-            ELSE
-              CALL TRIPK3(CTT,C(IBASE),1,NAST,NAST,PSIGN)
-            END IF
-          END IF
-        END IF
-      ELSE IF( IASM.EQ.IBSM) THEN
-**************
-** IASM = IBSM
-**************
-        IF(IATP.GT.IBTP) THEN
-*.. simple copying
-C         IBASE = ICOOSC(IBTP,IATP,IASM)
-          IBASE = ICOOSC(IATP,IBTP,IASM)
-          NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
-          IF(IAC .EQ. 1 ) THEN
-            CALL VECSUM(C(IBASE),C(IBASE),CTT,1.0D0,1.0D0,NELMNT)
-          ELSE IF(IAC .EQ.2 ) THEN
-            CALL COPVEC(CTT,C(IBASE),NELMNT)
-          END IF
-        ELSE IF( IATP.EQ.IBTP) THEN
-*.. reform to triangular packed matrix
-C         IBASE = ICOOSC(IBTP,IATP,IASM)
-          IBASE = ICOOSC(IATP,IBTP,IASM)
-          NAST = NSASO(IASM,IATP)
-          IF( IAC .EQ. 1 ) THEN
-            CALL PMPLFM(C(IBASE),CTT,NAST)
-          ELSE
-            CALL TRIPK3(CTT,C(IBASE),1,NAST,NAST,PSIGN)
-          END IF
-        END IF
-      END IF
-      END IF
 *
       RETURN
       END

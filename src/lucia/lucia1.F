@@ -2765,8 +2765,10 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       IF(IWAY.EQ.2) THEN
         IF(IPACK.EQ.1) THEN
 *. Unpack from triangular form
+          print*,'call tripk3'
           CALL TRIPK3(CSD,CCM,2,NA,NA,SIGN)
         ELSE
+           print*,'just copy'
            CALL COPVEC(CCM,CSD,NA*NB)
         END IF
 *. Scale
@@ -2797,9 +2799,11 @@ C     IF(NTEST.NE.0.AND.IWAY.EQ.1) THEN
           WRITE(6,*)
           WRITE(6,*) ' Combination block '
           IF(IPACK.EQ.1) THEN
-            CALL PRSM2(CCM,NA)
+CNW         CALL PRSM2(CCM,NA)
+            call ga_print(ccm)
           ELSE
-            CALL WRTMAT(CCM,NA,NB,NA,NB)
+CNW         CALL WRTMAT(CCM,NA,NB,NA,NB)
+            call ga_print(ccm)
           END IF
         END IF
       END IF

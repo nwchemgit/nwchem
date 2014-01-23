@@ -9428,14 +9428,16 @@ C    &             NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 * IDTFREORD Should give reordering full TS order to Density TS order 
       
 *. Specific input 
-      REAL*8 L, INPROD
-      DIMENSION L(*),R(*)
+CNW   REAL*8 L, INPROD
+      REAL*8 INPROD
+CNW   DIMENSION L(*),R(*)
+      integer L, R
 *.Output
       DIMENSION RHO1(*),RHO2(*),SRHO1(*)
 *
       DIMENSION RHO2AA(*),RHO2AB(*),RHO2BB(*)
 *
-      NTEST = 00
+      NTEST = 100
       NTEST = MAX(NTEST,IPRDEN)
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -10154,8 +10156,9 @@ C     WRITE(6,*) ' Leaving DENSI '
       INTEGER RASM(4),RBSM(4),RATP(4),RBTP(4),RSGN(5),RTRP(5)
       REAL * 8 INPROD
 *. Vectors holding L and R if ICISTR = 1
-      REAL*8
-     & LV(*), RV(*)
+CNW   REAL*8
+CNW  & LV(*), RV(*)
+      integer LV, RV
 *.Output
       DIMENSION RHO1(*),RHO2(*)
       DIMENSION RHO2AA(*),RHO2AB(*),RHO2BB(*),SRHO1(*)
@@ -10229,7 +10232,8 @@ C     WRITE(6,*) ' Leaving DENSI '
           END IF
 
           PLL = 1.0D0
-          CALL GSTTBL(LV(IOFF_L_BLOCK),SB(IOFF),IATP,IASM,IBTP,IBSM,
+CNW       CALL GSTTBL(LV(IOFF_L_BLOCK),SB(IOFF),IATP,IASM,IBTP,IBSM,
+          CALL GSTTBL(LV,IOFF_L_BLOCK,SB(IOFF),IATP,IASM,IBTP,IBSM,
      &         ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,
      &         PLL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
 C?        WRITE(6,*) ' IL, SCLFAC_L(IL) = ', IL, SCLFAC_L(IL)
@@ -10312,7 +10316,8 @@ C?          WRITE(6,*) ' LUR before GSTTBL', LUR
               WRITE(6,*) ' PSR, PLR before GSTTBL for R ',
      &                     PSR, PLR
             END IF
-            CALL GSTTBL(RV(IOFF_R_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
+CNW         CALL GSTTBL(RV(IOFF_R_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
+            CALL GSTTBL(RV,IOFF_R_BLOCK,CB(JOFF),JATP,JASM,JBTP,JBSM,
      &           ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,
      &           PLR,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
 C?        WRITE(6,*) ' IR, SCLFAC_R(IR) = ', IR, SCLFAC_R(IR)

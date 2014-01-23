@@ -1710,9 +1710,11 @@ CNW   DIMENSION FIMAT(*)
       END IF
 
       IF(I_USE_SIMTRH.EQ.0) THEN
+        print*,'fih'
         CALL FIH(FIMAT,ECC,IBSO,NSMOB,ITPFSO,IPHGAS,NTOOBS,NTOOB,
      &           IREOST,IDOH2,NGAS)
       ELSE
+        print*,'fiha'
         CALL FIHA(FIMAT,ECC,IBSO,NSMOB,ITPFSO,IPHGAS,NTOOBS,NTOOB,
      &           IREOST,IDOH2)
       END IF
@@ -1748,7 +1750,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 00
+      NTEST = 10
 *
 * Core-Core energy 
 *
@@ -1814,6 +1816,7 @@ C?            END IF
                 IP = ISTOB(I)
                 JP = ISTOB(J)
                 IJ= IJ + 1
+                FIVAL = 0.0D0
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
@@ -1821,7 +1824,7 @@ CBERT FI is a GA
 CNW                 IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
-                      FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
+                      FIVAL=FIVAL+2.0D0*GTIJKL(IP,JP,KP,KP)-
      &                            GTIJKL(IP,KP,KP,JP)
                     ENDIF
                   END DO
@@ -1873,7 +1876,7 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 000
+      NTEST = 1000
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*) 
@@ -1970,6 +1973,7 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
                 IP = ISTOB(I)
                 JP = ISTOB(J)
                 IJ= IJ + 1
+                FIVAL = 0.0D0
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     K_INACTIVE = 0
@@ -1984,7 +1988,7 @@ CINSTEAD OF ACC
 CNW                 IF(K_INACTIVE.EQ.1) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(K_INACTIVE.EQ.1) THEN
-                      FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
+                      FIVAL=FIVAL+2.0D0*GTIJKL(IP,JP,KP,KP)-
      &                            GTIJKL(IP,KP,KP,JP)
                     ENDIF
                   END DO
@@ -2182,7 +2186,7 @@ CNW   DIMENSION FI(*)
         II = IIOFF-1
         DO I = 1, NINOBS(ISM)
           II = II + I
-CBERT FI is GA
+CBERT FI is GA, local and can be done with ga access
 CNW       ECC = ECC + 2*FI(II)
           call ga_get(FI,II,II,1,1,FIVAL,1)
           ECC = ECC + 2*FIVAL
