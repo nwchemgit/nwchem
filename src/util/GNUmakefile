@@ -94,7 +94,7 @@ ifeq ($(TARGET),MACX)
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGNUS INTERIX LINUX64))
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  
+  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
   ifeq ($(LINUXCPU),x86)
     ifneq ($(TARGET),INTERIX)
       EXTRA_OBJ += linux_setfpucw.o
@@ -104,45 +104,30 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGNUS INTERIX L
   ifeq ($(FC),ifc)
     EXTRA_OBJ += erfc.o
   endif
-#
-# If you want to turn traps on for LINUX uncomment this line. That is it.
-#  EXTRA_OBJ += linux_gnu_trap.o
-#
 endif
 
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
+  ifeq ($(_CPU),ia64)
+    EXTRA_OBJ += win32_cpu.o linux_setfpucw.o 
+  endif
+  ifeq ($(_CPU),x86_64)
+    EXTRA_OBJ  += linux_setfpucw.o
+  endif
+  ifeq ($(FC),pathf90)
+    EXTRA_OBJ += util_cflush.o
+  endif
+endif
 
 ifeq ($(TARGET),HPUX)
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
-#  EXTRA_OBJ = util_hp_extra.o
 endif
 
 ifeq ($(TARGET),DECOSF)
   LIB_DEFINES += -DBYTE_SHORT_PACKING  -D_POSIX_PII_SOCKET
   EXTRA_OBJ = dec_fpe.o
 endif
-ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
-ifeq ($(_CPU),alpha)
-ifeq ($(FC),fort)
-  EXTRA_OBJ += dec_fpe.o
-endif
-endif
-  LIB_DEFINES += -DBYTE_SHORT_PACKING  
-ifeq ($(_CPU),ia64)
-  EXTRA_OBJ = win32_cpu.o linux_shift.o linux_setfpucw.o erfc.o
-endif
-ifeq ($(_CPU),x86_64)
-  EXTRA_OBJ = linux_cpu.o linux_shift.o   erfc.o  linux_setfpucw.o linux_printaff.o
-  ifeq ($(FC),pathf90)
-    EXTRA_OBJ += util_cflush.o
-  endif
-ifeq ($(FC),ftn)
-  EXTRA_OBJ += util_allocga.o
-endif
-endif
-ifeq ($(_CPU),ppc64)
-  EXTRA_OBJ = linux_cpu.o linux_random.o # linux_setfpucw.o
-endif
-endif                                                                           
+ 
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
    LIB_DEFINES += -I/opt/xt-catamount/default/catamount/linux/include/ -I/opt/xt-catamount/default/catamount/linux/include/amd64/
   EXTRA_OBJ += util_allocga.o xt3_dclock.o  util_fullbuff.o util_sigprof.o
