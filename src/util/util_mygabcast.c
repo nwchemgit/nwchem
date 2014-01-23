@@ -49,7 +49,7 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
     if (ierr != MPI_SUCCESS) {
       fprintf(stderr,"util_mygabcast: MPI_Bcast failed\n");
       MPI_Error_string(ierr,err_buffer,&resultlen);
-      fprintf(stderr,err_buffer);
+      fprintf(stderr,"%s\n", err_buffer);
       GA_Error("util_mygabcast error", 0L);
     }
     
