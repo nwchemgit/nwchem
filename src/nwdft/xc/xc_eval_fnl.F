@@ -5,6 +5,24 @@ c     Copied from xc_quadv0_a.
 c
 c     BGJ (8/98)
 c
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \brief the functional evaluation routine
+C>
+C> This routine iterates over the components of the current density
+C> functional and evaluates and accumulates all density dependent 
+C> terms.
+C> At present it will evaluate
+C>
+C> - the exchange-correlation energy
+C>
+C> - the exchange-correlation 1st order partial derivatives
+C>
+C> - the exchange-correlation 2nd order partial derivatives
+C>
+C> as desired.
+C>
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, ttau, kske, Mmat, Mmat2,
@@ -20,12 +38,20 @@ c
 #include "steric.fh"
 c
       integer nq, is12x
-      double precision rho(*), delrho(*)
+      double precision rho(*)    !< [Input] The electron density
+                                 !< \f$\rho^\alpha\f$ and
+                                 !< \f$\rho^\beta\f$.
+      double precision delrho(*) !< [Input] The electron density gradient
+                                 !< \f$\partial\rho^\alpha/\partial r\f$
+                                 !< and
+                                 !< \f$\partial\rho^\beta/\partial r\f$
 c
-      double precision Mmat(*), ttau(*)
+      double precision ttau(*) !< [Input] The kinetic energy density
+      double precision Mmat(*)
 c
       double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*), Mmat2(*)
-      double precision Ex, Ec
+      double precision Ex !< [Output] The exchange energy
+      double precision Ec !< [Output] The correlation energy
       double precision StericEnergy
       double precision qwght(nq), func(nq)
       logical grad, ldew, do_2nd, kske
@@ -1233,3 +1259,5 @@ c
 c
       return
       end
+C>
+C> @}

@@ -5,4 +5,8 @@
 
 The implementation of the Gaussian basis set Density Functional 
 Theory capabilities.
+
+@defgroup nwdft_xc The exchange-correlation code
+   @ingroup nwdft
+
 */

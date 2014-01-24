@@ -6,6 +6,7 @@ C
 C  Overall RT-TDDFT documentation:
 C
 C> @defgroup rt_tddft Real-time TDDFT
+C>    @ingroup nwdft
 C--------------------------------------------------------------------
 
 C--------------------------------------------------------------------
