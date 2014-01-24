@@ -3,6 +3,67 @@ c     Modified to handle second derivatives while reusing code
 c
 c     BGJ - 8/98
 c
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \brief Do clever stuff to the partial derivatives
+C>
+C> The density functionals return plain partial derivatives of the
+C> of the functionals in addition to the energy. This routine modifies
+C> those quantities to get them in a form that is more "convenient"
+C> in the construction of various matrices. 
+C>
+C> In all cases this modification includes multiplying the partial 
+C> derivatives for each grid point with the corresponding quadrature
+C> weight.
+C>
+C> If `xform_Cmat` is set to `.TRUE.` then the 1st derivatives with
+C> respect to the norm of the electron density gradient are replaced
+C> in the closed shell case with
+C> \f{eqnarray*}{
+C>   Cmat(i,1,1) &=& \frac{\partial\rho(r)}{\partial x} \left(
+C>       \frac{\partial f}{\partial\gamma^{\alpha\alpha}} +
+C>       \frac{1}{2}\frac{\partial f}{\partial\gamma^{\alpha\beta}}
+C>       \right) w_i\\\\
+C>   Cmat(i,2,1) &=& \frac{\partial\rho(r)}{\partial y} \left(
+C>       \frac{\partial f}{\partial\gamma^{\alpha\alpha}} +
+C>       \frac{1}{2}\frac{\partial f}{\partial\gamma^{\alpha\beta}}
+C>       \right) w_i\\\\
+C>   Cmat(i,3,1) &=& \frac{\partial\rho(r)}{\partial z} \left(
+C>       \frac{\partial f}{\partial\gamma^{\alpha\alpha}} +
+C>       \frac{1}{2}\frac{\partial f}{\partial\gamma^{\alpha\beta}}
+C>       \right) w_i\\\\
+C> \f}
+C> and in the open shell case with
+C> \f{eqnarray*}{
+C>   Cmat(i,1,1) &=& \left(2\frac{\partial\rho^\alpha(r)}{\partial x}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\alpha}} +
+C>       \frac{\partial\rho^\beta(r)}{\partial x}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\beta}}\right)w_i \\\\
+C>   Cmat(i,2,1) &=& \left(2\frac{\partial\rho^\alpha(r)}{\partial y}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\alpha}} +
+C>       \frac{\partial\rho^\beta(r)}{\partial y}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\beta}}\right)w_i \\\\
+C>   Cmat(i,3,1) &=& \left(2\frac{\partial\rho^\alpha(r)}{\partial z} 
+C>       \frac{\partial f}{\partial\gamma^{\alpha\alpha}} +
+C>       \frac{\partial\rho^\beta(r)}{\partial z}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\beta}}\right)w_i \\\\
+C>   Cmat(i,1,2) &=& \left(2\frac{\partial\rho^\beta(r)}{\partial x}
+C>       \frac{\partial f}{\partial\gamma^{\beta\beta}} +
+C>       \frac{\partial\rho^\alpha(r)}{\partial x}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\beta}}\right)w_i \\\\
+C>   Cmat(i,2,2) &=& \left(2\frac{\partial\rho^\beta(r)}{\partial y}
+C>       \frac{\partial f}{\partial\gamma^{\beta\beta}} +
+C>       \frac{\partial\rho^\alpha(r)}{\partial y}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\beta}}\right)w_i \\\\
+C>   Cmat(i,3,2) &=& \left(2\frac{\partial\rho^\beta(r)}{\partial z} 
+C>       \frac{\partial f}{\partial\gamma^{\beta\beta}} +
+C>       \frac{\partial\rho^\alpha(r)}{\partial z}
+C>       \frac{\partial f}{\partial\gamma^{\alpha\beta}}\right)w_i \\\\
+C> \f}
+C> The grid point is indexed with `i`, the density functional is
+C> referred to with \f$f\f$, and \f$w\f$ is the quadrature weight.
+C>
 #ifndef SECOND_DERIV
       Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
      &            xform_Cmat, kske, Mmat)
@@ -21,29 +82,38 @@ c !!! BGJ test
 #include "bgj.fh"
 c !!! BGJ test
 c
-      integer ipol, nq
-      Logical GRAD, xform_Cmat
+      integer ipol  !< [Input] The number of spin channels
+      integer nq    !< [Input] The number of grid points
+      Logical GRAD  !< [Input] If `.TRUE.` the density functional is
+                    !< a GGA
+      logical xform_Cmat !< [Input] If `.TRUE.` do the elaborate 
+                         !< transformation
 c
 c     Density gradients - used for transforming fnl gamma derivatives
 c
-      double precision delrho(nq,3,ipol)
+      double precision delrho(nq,3,ipol) !< [Input] The gradient of the
+                                         !< density
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol)
-      double precision Cmat(nq,3,ipol)
-      double precision Mmat(nq,ipol)
-      logical kske    
+      double precision Amat(nq,ipol) !< [In/Output] \f$\partial f/\partial\rho^\sigma\f$
+      double precision Cmat(nq,3,ipol) !< [In/Output] \f$\partial f/\partial\gamma^{\sigma\sigma'}\f$
+      double precision Mmat(nq,ipol) !< [In/Output] \f$\partial f/\partial\tau^\sigma\f$
+      logical kske    !< [Input] If `.TRUE.` the density functional is
+                      !< a meta-GGA
 c 
 #ifdef SECOND_DERIV
-      double precision Amat2(nq,NCOL_AMAT2)
-      double precision Cmat2(nq,NCOL_CMAT2)
-      double precision Mmat2(nq,NCOL_MMAT2)
+      double precision Amat2(nq,NCOL_AMAT2) !< [In/Output] Similar to
+      !< `Amat` but 2nd order derivatives
+      double precision Cmat2(nq,NCOL_CMAT2) !< [In/Output] Similar to
+      !< `Cmat` but 2nd order derivatives
+      double precision Mmat2(nq,NCOL_MMAT2) !< [In/Output] Similar to
+      !< `Mmat` but 2nd order derivatives
 #endif
 c
 c     Quadrature Weights
 c
-      double precision qwght(nq)
+      double precision qwght(nq) !< [Input] The quadrature weights
 c
       integer ii, jj
 c
@@ -189,3 +259,4 @@ c     Compile source again for the 2nd derivative case
 c
 #include "setACmat.F"
 #endif
+C> @}
