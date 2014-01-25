@@ -3661,7 +3661,8 @@ CNW  &           ABS(C(IDET)).GT. 10.0D0 ** ( - IPOT )) THEN
               IF(10.0D0 ** (-IPOT+1).GE.ABS(XVAL).AND.
      &           ABS(XVAL).GT. 10.0D0 ** ( - IPOT )) THEN
                  NCPMT(IPOT,JOCCLS)= NCPMT(IPOT,JOCCLS)+ 1  
-                 WCPMT(IPOT,JOCCLS)= WCPMT(IPOT,JOCCLS)+ C(IDET) ** 2
+CNW              WCPMT(IPOT,JOCCLS)= WCPMT(IPOT,JOCCLS)+ C(IDET) ** 2
+                 WCPMT(IPOT,JOCCLS)= WCPMT(IPOT,JOCCLS)+ XVAL ** 2
               END IF
             END DO
 *           ^ End of loop over powers of ten
