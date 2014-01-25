@@ -1897,6 +1897,13 @@ endif
         ifdef USE_OPENMP
            FOPTIONS += -openmp
            DEFINES+= -DUSE_OPENMP
+           ifdef USE_OFFLOAD
+              ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
+              FC = ifort
+              CC = icc
+              AR = xiar
+              EXTRA_LIBS += -loffload
+           endif
         endif
         FOPTIONS += -align -w -g -vec-report1
         DEFINES+= -DIFCV8 -DIFCLINUX
