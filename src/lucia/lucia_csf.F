@@ -12447,7 +12447,7 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
 #include "mafdecls.fh"
 #include "global.fh"
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' ======================='

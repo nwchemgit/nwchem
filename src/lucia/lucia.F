@@ -2584,8 +2584,10 @@ C?    CALL MEMCHK
 cnw    CALL REWINO(LUC)
        DO JROOT = 1, NROOT
 cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
-        if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,NVAR,
+        if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,1,NVAR,
      &     JROOT,JROOT,itask).ne.0) call errquit('dra error',911)
+          if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &        itask,911)
         CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
         dbl_mb(KLZEXP-1+JROOT) = RLZEFF
         dbl_mb(KL2EXP-1+JROOT) = RL2EFF
@@ -2612,8 +2614,10 @@ cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
         WRITE(6,*)
         END IF
         IF(ICISTR.EQ.1) THEN
-          if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,NVAR,
+          if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,1,NVAR,
      &     JROOT,JROOT,itask).ne.0) call errquit('dra error',911)
+          if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &        itask,911)
           call ga_copy(KPVEC1,KPVEC2)
 CNW       CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
 CNW       CALL COPVEC(KPVEC1,KPVEC2,NVAR)
@@ -2625,7 +2629,6 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
             KRHO2 = 1
           END IF
           IF(IDENSI.GE.1) THEN
-          print*,'densi2'
           CALL DENSI2(IDENSI,dbl_mb(KRHO1),dbl_mb(KRHO2),
      &         KPVEC1,KPVEC2,0,0,EXPS2,ISPNDEN,dbl_mb(KSRHO1),
      &         dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),dbl_mb(KRHO2BB),1)
@@ -2644,7 +2647,6 @@ C?      END IF
 *
           IF(IPRNT.GT.2) THEN
            IF(NOCSF.EQ.1) THEN
-            print*,'gasana'
             CALL GASANA(KPVEC1,NBLOCK,int_mb(KCIBT),
      &                  int_mb(KCBLTP),LUC,ICISTR)
            ELSE
@@ -2783,6 +2785,7 @@ CM    END IF
       ISROOT = NROOT
       IF((IRESTR.EQ.0.OR.ISEL_ONLY_INI.EQ.0).AND.
      &    ITG_SROOT.NE.NROOT) THEN
+        call errquit('select ref root not done',911,1)
         WRITE(6,*) ' Before select'
         CALL SELECT_ROOT(NROOT,ISROOT)
 C            SELECT_ROOT(NROOT_ACT,ISROOT)
@@ -2801,9 +2804,14 @@ C    &           NVAR, ICISTR,ICOPY)
 *
       IF(ISROOT.NE.NROOT.AND.IDENSI.GE.1) THEN
           IF(ICISTR.EQ.1) THEN
-            CALL REWINO(LUC)
-            CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
-            CALL COPVEC(KPVEC1,KPVEC2,NVAR)
+CNW         CALL REWINO(LUC)
+CNW         CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
+CNW         CALL COPVEC(KPVEC1,KPVEC2,NVAR)
+            if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,1,NVAR,
+     &         1,1,itask).ne.0) call errquit('dra error',911)
+            if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &         itask,911)
+            call ga_copy(KPVEC1,KPVEC2)
             IF(IDENSI.EQ.1) THEN
               KRHO2 = 1
             END IF
@@ -2929,6 +2937,7 @@ C           END IF
 C?     write(6,*) ' IRFROOT and NROOT ',IRFROOT, NROOT
        IF(IH0ROOT.NE.NROOT) THEN
 *. Position vectors 
+         print*,'regenerate dens form ref root'
          CALL REWINO(LUC)
          DO JROOT = 1, IH0ROOT
            IF(ICISTR.EQ.1) THEN
@@ -4006,7 +4015,7 @@ C..dongxia explicit hamiltonian should be for a small space. local.
 *. Scratch space for manipulating with H0
         LH0SCR = 
      &  MAX(6*NSBDETP,4*NSBDETP+4*NOCOB,
-     &      MXP1*(MXP1+1)/2+MXP1**2)
+     &      MXP1*(MXP1+1)/2+MXP1**2)+NPRDET
         CALL MEMMAN(KH0SCR,LH0SCR      ,'ADDS  ',2,'KH0SCR')  !done
 *. For subspace configurations
         IF(NOCSF.EQ.0) THEN
@@ -5561,7 +5570,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 1000
+      NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100) THEN
@@ -7836,7 +7845,7 @@ C       CALL IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
 *
       RETURN
       END
-      SUBROUTINE GSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,
+      SUBROUTINE GSTTBL(C,ICOFF,CTT,IATP,IASM,IBTP,IBSM,IOCOC,
      &                  NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,
      &                  PLSIGN,LUC,SCR,NSMST,ISCALE,SCLFAC)
 *
@@ -7859,7 +7868,7 @@ C       CALL IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
 *
       IMPLICIT REAL*8           (A-H,O-Z)
 CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
-      integer C
+      integer C, ICOFF
       DIMENSION CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
       DIMENSION SCR(*)
@@ -7892,7 +7901,8 @@ C?      write(6,*) ' LBL = ', LBL
       ELSE
 *. It is assumed pt that vector is nonvanising
 CNW     XNORM = INPROD(C,C,NCMB_IN)
-        XNORM = ga_ddot_patch(C,'N',1,NCMB_IN,1,1,C,'N',1,NCMB_IN,1,1)
+        XNORM = ga_ddot_patch(C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1,
+     &                        C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1) 
 C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
         IF(XNORM.EQ.0.0D0) THEN
           IMZERO = 1
@@ -7915,7 +7925,7 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
               CALL SDCMRF(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,
      &             IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
             ELSE
-              CALL SDCMRF(CTT,C,2,IATP,IBTP,IASM,IBSM,NAST,NBST,
+              CALL SDCMRF(CTT,C,ICOFF,2,IATP,IBTP,IASM,IBSM,NAST,NBST,
      &             IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
             END IF
           ELSE
@@ -7987,7 +7997,7 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
 *
-      NTEST = 10
+      NTEST = 0
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' Diagonal one electron integrals '
         CALL WRTMAT(H1DIA,1,NTOOB,1,NTOOB)
@@ -12896,7 +12906,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 1000
+      NTEST = 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -14913,7 +14923,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 000
+      NTEST = 0000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20) THEN
         WRITE(6,*) ' ================='
@@ -14947,7 +14957,8 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
 CBERT SHOULD NOT BE CALLED
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
+            if (LEN.gt.0)
+     &      call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
           END IF
@@ -31936,7 +31947,7 @@ C    &           LUDIA)
 CNW   DIMENSION VEC1(*)
       integer VEC1
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Info from WRSVCD'
         WRITE(6,*) ' ================'

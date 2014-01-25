@@ -802,7 +802,6 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
         CALL TRIPAK_AO_MAT(WORK(KLH1),WORK(KINT1O),2)
       ELSE
 CNW     CALL COPVEC(WORK(KINT1O),WORK(KLH1),LEN_HP)
-        print*,'get',len_hp
         call ga_get(KINT1O,1,len_hp,1,1,dbl_mb(klh1),1)
       END IF
 *. and do it
@@ -1236,11 +1235,13 @@ CNW      CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
            IJF = IJF + LXC
          END DO
          IBLK = LXC*(LXC+1)/2
-         call ga_put(AOUT,IOFFP_OUT,IOFFP_OUT+IBLK-1,1,1,
+         if (IBLK.gt.0)
+     &   call ga_put(AOUT,IOFFP_OUT,IOFFP_OUT+IBLK-1,1,1,
      &               SCR(K2),IBLK)
        ELSE
 CNW      CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
-         call ga_put(AOUT,IOFFC_OUT,IOFFC_OUT+LXC*LXC-1,1,1,
+         if (LXC.gt.0)
+     &   call ga_put(AOUT,IOFFC_OUT,IOFFC_OUT+LXC*LXC-1,1,1,
      &               SCR(K1),LXC*LXC)
        END IF
 *
@@ -1254,6 +1255,102 @@ CNW      CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
         WRITE(6,*)
 CNW     CALL APRBLM2(AOUT,LX_COL,LX_COL,NBLOCK,ISYM)      
         call ga_print(AOUT)
+      END IF
+*
+      RETURN
+      END
+      SUBROUTINE TRAN_SYM_BLOC_MAT4a
+     &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
+*
+* Transform a blocked matrix AIN with blocked matrices XL, XR
+*  X to yield blocked matrix AOUT
+*
+*
+* ISYM = 1 => Input and output are     triangular packed
+*      else=> Input and Output are not triangular packed
+*
+* Aout = XL(transposed) A XR
+*
+* Jeppe Olsen
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+*. Input
+      DIMENSION AIN(*),LX_ROW(NBLOCK),LX_COL(NBLOCK)
+      DIMENSION XL(*),XR(*)
+*. Output 
+      DIMENSION AOUT(*)
+*. Scratch : At least twice the length of largest block 
+      DIMENSION SCR(*)
+*
+*. To get rid of annoying and incorrect compiler warnings
+      IOFFP_IN = 0
+      IOFFC_IN = 0
+      IOFFP_OUT = 0 
+      IOFFC_OUT = 0
+      IOFFX = 0
+*
+      DO IBLOCK = 1, NBLOCK
+       IF(IBLOCK.EQ.1) THEN
+         IOFFP_IN = 1
+         IOFFC_IN = 1
+         IOFFP_OUT= 1
+         IOFFC_OUT= 1
+         IOFFX = 1
+       ELSE
+         IOFFP_IN = IOFFP_IN + LX_ROW(IBLOCK-1)*(LX_ROW(IBLOCK-1)+1)/2
+         IOFFC_IN = IOFFC_IN + LX_ROW(IBLOCK-1) ** 2                     
+         IOFFP_OUT= IOFFP_OUT+ LX_COL(IBLOCK-1)*(LX_COL(IBLOCK-1)+1)/2
+         IOFFC_OUT= IOFFC_OUT+ LX_COL(IBLOCK-1) ** 2                     
+         IOFFX = IOFFX + LX_ROW(IBLOCK-1)*LX_COL(IBLOCK-1)
+       END IF
+       LXR = LX_ROW(IBLOCK)
+       LXC = LX_COL(IBLOCK)
+       K1 = 1
+       K2 = 1 + MAX(LXR,LXC) ** 2
+*. Unpack block of A
+       SIGN = 1.0D0
+       IF(ISYM.EQ.1) THEN
+         CALL TRIPAK(SCR(K1),AIN(IOFFP_IN),2,LXR,LXR)
+C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
+       ELSE
+         CALL COPVEC(AIN(IOFFC_IN),SCR(K1),LXR*LXR)
+       END IF
+*. XL(T)(IBLOCK)A(IBLOCK)
+       ZERO = 0.0D0
+       ONE  = 1.0D0
+       CALL SETVEC(SCR(K2),ZERO,LXR*LXC)
+C?     WRITE(6,*) ' TEST : K2, IOFFX, K1, LXC, LXR ',
+C?   &                     K2, IOFFX, K1, LXC, LXR
+       CALL MATML7(SCR(K2),XL(IOFFX),SCR(K1),LXC,LXR,LXR,LXC,LXR,LXR,
+     &             ZERO,ONE,1)
+C?     WRITE(6,*) ' Half transformed matrix '
+C?     CALL WRTMAT(SCR(K2),LXC,LXR,LXC,LXR)
+
+*. XL(T) (IBLOCK) A(IBLOCK) XR(IBLOCK)
+       CALL SETVEC(SCR(K1),ZERO,LXC*LXC)
+       CALL MATML7(SCR(K1),SCR(K2),XR(IOFFX),LXC,LXC,LXC,LXR,LXR,LXC,
+     &             ZERO,ONE,0)
+C?     WRITE(6,*) ' Transformed matrix '
+C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
+*. Pack and transfer
+       IF(ISYM.EQ.1) THEN
+         CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
+       ELSE
+         CALL COPVEC(SCR(K1),AOUT(IOFFC_OUT),LXC*LXC)
+       END IF
+*
+      END DO
+*
+      NTEST = 00
+      IF(NTEST.GE.100) THEN
+        WRITE(6,*)
+        WRITE(6,*) ' output matrix TRAN_SYM_BLOC_MAT '
+        WRITE(6,*) ' ==============================='
+        WRITE(6,*)
+        CALL APRBLM2(AOUT,LX_COL,LX_COL,NBLOCK,ISYM)      
       END IF
 *
       RETURN
@@ -1323,11 +1420,13 @@ CNW      CALL TRIPAK(SCR(K1),AIN(IOFFP_IN),2,LXR,LXR)
            IJF = IJF + LXC
          END DO
          IBLK = LXC*LXC
-         call ga_put(AIN,IOFFP_IN,IOFFP_IN+IBLK-1,1,1,
+         if (LXC.gt.0)
+     &   call ga_put(AIN,IOFFP_IN,IOFFP_IN+IBLK-1,1,1,
      &               SCR(K2),IBLK)
 C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
        ELSE
-         call ga_get(AIN,IOFFC_IN,IOFFC_IN+LXR*LXR,1,1,SCR(K1),LXR*LXR)
+         if (LXR.gt.0) call
+     &      ga_get(AIN,IOFFC_IN,IOFFC_IN+LXR*LXR-1,1,1,SCR(K1),LXR*LXR)
        END IF
 *. XL(T)(IBLOCK)A(IBLOCK)
        ZERO = 0.0D0
@@ -2590,7 +2689,8 @@ C!    INCLUDE 'mxpdim.inc'
       END IF
 *
 CNW   CALL COPVEC(WORK(KINT2-1+IOFF),XINT,NIJKL)
-      call ga_get(KINT2,IOFF,IOFF+NIJKL-1,1,1,XINT,NIJKL)
+      if (NIJKL.gt.0)
+     &call ga_get(KINT2,IOFF,IOFF+NIJKL-1,1,1,XINT,NIJKL)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Symmetry block of integrals, GET_2EBLK'

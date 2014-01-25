@@ -2196,7 +2196,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRACID')
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN 
         WRITE(6,*)
         WRITE(6,*) ' ================ '
@@ -9437,7 +9437,7 @@ CNW   DIMENSION L(*),R(*)
 *
       DIMENSION RHO2AA(*),RHO2AB(*),RHO2BB(*)
 *
-      NTEST = 100
+      NTEST = 00
       NTEST = MAX(NTEST,IPRDEN)
       IF(NTEST.GE.100) THEN
         WRITE(6,*)

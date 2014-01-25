@@ -1382,6 +1382,93 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 *
       RETURN
       END
+      SUBROUTINE TRIPK3G(AUTPAK,APAK,ICOFF,IWAY,MATDIM,NDIM,SIGN)
+C
+C
+C.. REFORMATING BETWEEN LOWER TRIANGULAR PACKING
+C   AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
+C
+C   IWAY = 1 : FULL TO PACKED
+C              LOWER HALF OF AUTPAK IS STORED IN APAK
+C   IWAY = 2 : PACKED TO FULL FORM
+C              APAK STORED IN LOWER HALF
+C               SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
+C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
+*
+* Some considerations on cache minimization used for IMET = 2 Loop
+*
+      IMPLICIT REAL*8(A-H,O-Z)
+      DIMENSION AUTPAK(MATDIM,MATDIM)
+      integer APAK,ICOFF
+*. To get rid of annoying and incorrect compiler warnings
+      IOFF = 0
+      JOFF = 0
+*
+*. Packing : No problem with cache misses    
+*
+      IF( IWAY .EQ. 1 ) THEN
+        IJ = ICOFF
+        DO J = 1,NDIM
+CNW       DO I = J , NDIM
+CNW         APAK(IJ+I) = AUTPAK(I,J)
+CNW       END DO
+          call ga_put(APAK,IJ+J,IJ+NDIM,1,1,AUTPAK(J,J),1)
+          IJ = IJ +NDIM-J
+        END DO   
+      END IF
+*
+* Unpacking : cache misses can occur so two routes
+*
+      IF( IWAY .EQ. 2 ) THEN
+*. Blocking
+        LBLK = 40
+        NBLK = MATDIM/LBLK
+        IF(LBLK*NBLK.LT.MATDIM) NBLK = NBLK + 1
+        DO JBLK = 1, NBLK
+          IF(JBLK.EQ.1) THEN
+            JOFF = 1     
+          ELSE 
+            JOFF = JOFF + LBLK
+          END IF
+          JEND = MIN(JOFF+LBLK-1,MATDIM)
+          DO IBLK = JBLK, NBLK
+            IF(IBLK.EQ.JBLK) THEN
+              IOFF = JOFF
+            ELSE
+              IOFF = IOFF + LBLK
+            END IF
+            IEND = MIN(IOFF+LBLK-1,MATDIM)
+              DO J = JOFF,JEND
+                IF(IBLK.EQ.JBLK) THEN
+                  IOFF2 = J
+                ELSE 
+                  IOFF2 = IOFF
+                END IF
+CNW             IJOFF = (J-1)*MATDIM-J*(J-1)/2 
+                IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
+                call ga_get(APAK,IJOFF+IOFF2,IJOFF+IEND,1,1,
+     &                      AUTPAK(IOFF2,J),1)
+                DO I = IOFF2,IEND
+                  IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
+CNW               AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
+CNW               AUTPAK(I,J) = APAK(IJOFF+I)
+                END DO
+              END DO
+*. End of loop over I and J
+            END DO
+          END DO
+*. End of loop over blocks of I and J
+      END IF
+*
+      NTEST = 0
+      IF( NTEST .NE. 0 ) THEN
+        WRITE(6,*) ' AUTPAK AND APAK FROM TRIPK3 '
+        CALL WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+CNW     CALL PRSM2(APAK,NDIM)
+      END IF
+*
+      RETURN
+      END
       SUBROUTINE GATRMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,
      &                  ISCA,SSCA)
 *

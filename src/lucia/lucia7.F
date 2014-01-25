@@ -1248,6 +1248,7 @@ C?      WRITE(6,*) ' ISM,JSM,NI,NJ,IB,JB ', ISM,JSM,NI,NJ,IB,JB
             IF(NTEST.GE.100)
      &      WRITE(6,*) ' IORB,JORB,IJEXC', IORB,JORB,IJEXC
             IINDX = IOFF-1+(JORB-1)*NI+IORB
+CBERT REDO WITH GA ACCESS
             call ga_get(F,IINDX,IINDX,1,1,FVAL,1)
             IF(IJEXC.GT.0) THEN
 CNW           E1(IJEXC) = E1(IJEXC) + 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
@@ -1366,6 +1367,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'strinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Output
       INTEGER ITTACT(0:NGAS+1,0:NGAS+1)
 *. Local scratch 
@@ -1443,14 +1447,14 @@ C    &        I_DO_BASSPC,IBASSPC,NOBPT)
        CALL OCCLSE(1,NOCCLS,IDUM,NEL,ICISPC_ACT,0,IDUM,NOBPT)
 C
        CALL MEMMAN(KLOCCLS,NGAS*NOCCLS,'ADDL  ',1,'OCCLS ')
-       CALL OCCLSE(2,NOCCLS,WORK(KLOCCLS),NEL,ICISPC_ACT,0,IDUM,NOBPT)
+       CALL OCCLSE(2,NOCCLS,int_mb(KLOCCLS),NEL,ICISPC_ACT,0,IDUM,NOBPT)
 *
        DO IGAS_C = 1, NGAS
         DO IGAS_A = 1, IGAS_C-1
          IF(I_IADL(IGAS_C).EQ.2.AND.I_IADL(IGAS_A).EQ.2) THEN
 C                 IS_SX_OP_REDUNDANT(IGAS_C,IGAS_A,NOCCLS,IOCCLS,NGAS)
           IRED =  IS_SX_OP_REDUNDANT(IGAS_C,IGAS_A,NOCCLS,
-     &            WORK(KLOCCLS),NGAS)
+     &            int_mb(KLOCCLS),NGAS)
           IF(IRED.EQ.0) THEN
              ITTACT(IGAS_C,IGAS_A) = 1
              ITTACT(IGAS_A,IGAS_C) = -1
@@ -1807,6 +1811,9 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'glbbas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER IOOEXC(NTOOB,NTOOB)
       INTEGER ITTACT(0:NGAS+1,0:NGAS+1)
@@ -1870,10 +1877,11 @@ C?   &                             IRTP, ISTP, ITTACT(IRTP,ISTP)
                 NR = NOBPTS_GN(IRTP,IRSM)
                 NS = NOBPTS_GN(ISTP,ISSM)
                 IF(NP*NQ*NR*NS.NE.0) THEN
-                  CALL GET_E2BLK(WORK(KLSCR5),NP,IPTP,IPSM,
+                  CALL GET_E2BLK(dbl_mb(KLSCR5),NP,IPTP,IPSM,
      &            NQ,IQTP,IQSM,NR,IRTP,IRSM,NS,ISTP,ISSM,
-     &            WORK(KF),WORK(KFI),WORK(KFA),WORK(KINT1O),
-     &            WORK(KLSCR1),WORK(KLSCR2),WORK(KLSCR3),WORK(KLSCR4))
+     &            KF,KFI,KFA,KINT1O,
+     &            dbl_mb(KLSCR1),dbl_mb(KLSCR2),dbl_mb(KLSCR3),
+     &            dbl_mb(KLSCR4))
                 END IF
 *. Scatter out
 C               IPOFF = IBSO(IPSM)
@@ -1920,7 +1928,7 @@ C?                WRITE(6,*) ' IPQ, IRS = ', IPQ, IRS
      &                    MIN(IPQ,IRS)
                   I2PQRS = ((IS-1)*NR+IR-1)*NP*NQ+(IQ-1)*NP + IP
 C?                WRITE(6,*) ' IPQRS, I2PQRS', IPQRS,I2PQRS
-                  OOHES(IPQRS) = WORK(KLSCR5-1+I2PQRS)
+                  OOHES(IPQRS) = dbl_mb(KLSCR5-1+I2PQRS)
                   END IF
                 END DO
                 END DO
@@ -2237,14 +2245,15 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
       INCLUDE 'lucinp.inc'
       INCLUDE 'multd2h.inc'
       INCLUDE 'cgas.inc'
-      DIMENSION FI(*), FA(*), H(*)
+CNW   DIMENSION FI(*), FA(*), H(*)
+      integer FI, FA, H
 *. Scratch
       DIMENSION SCR1(*),SCR2(*),SCR3(*)
 *.Output
       DIMENSION Y(NP*NQ*NR*NS)
 *. Y delivered as matrix Y(P,Q,R,S) = Y(PQ,RS)
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
        WRITE(6,*)
        WRITE(6,*) ' ===================='
@@ -2355,7 +2364,11 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
            IQS = 
      &     MAX(IQREL,ISREL)*(MAX(IQREL,ISREL)-1)/2 + MIN(IQREL,ISREL)
            IADR = IOFF_H-1+IQS
-           XFACTOR = 2.0D0*(FA(IADR)+FI(IADR)-H(IADR))
+           call ga_get(FA,IADR,IADR,1,1,XVAL1,1)
+           call ga_get(FI,IADR,IADR,1,1,XVAL2,1)
+           call ga_get(H,IADR,IADR,1,1,XVAL3,1)
+CNW        XFACTOR = 2.0D0*(FA(IADR)+FI(IADR)-H(IADR))
+           XFACTOR = 2.0D0*(XVAL1+XVAL2-XVAL3)
 *
            DO IP = 1, NP
             IPQPS = (IS-1)*NP*NQ*NP
@@ -2632,7 +2645,10 @@ C?   &           WRITE(6,*) ' Updated Y(1),3', Y(1)
            IQS = 
      &     MAX(IQREL,ISREL)*(MAX(IQREL,ISREL)-1)/2 + MIN(IQREL,ISREL)
            IADR = IOFF_H-1+IQS
-           XFACTOR = (FI(IADR)-H(IADR))
+           call ga_get(FI,IADR,IADR,1,1,XVAL1,1)
+           call ga_get(H,IADR,IADR,1,1,XVAL2,1)
+           XFACTOR = XVAL1 - XVAL2
+CNW        XFACTOR = (FI(IADR)-H(IADR))
 C          WRITE(6,*) ' XFACTOR = ', XFACTOR
 *
            DO IR = 1, NR
@@ -4571,7 +4587,8 @@ C          WRITE(6,*) ' XFACTOR = ', XFACTOR
       INCLUDE 'cgas.inc'
 *. To access blocks of one-electron integrals
       INCLUDE 'intform.inc'
-      DIMENSION F(*), FI(*), FA(*), H(*)
+CNW   DIMENSION F(*), FI(*), FA(*), H(*)
+      integer F, FI, FA, H
 *. Output 
       DIMENSION E2BLK(NP*NQ*NR*NS)
       INCLUDE 'cintfo.inc'
@@ -4642,7 +4659,8 @@ C          WRITE(6,*) ' XFACTOR = ', XFACTOR
           DO ISM = 1, NSMOB
             LF = LF + NTOOBS(ISM)**2
           END DO
-          CALL COPVEC(F,WORK(KINT1),LF)
+CNW       CALL COPVEC(F,WORK(KINT1),LF)
+          call ga_copy_patch('n',F,1,LF-1,1,1,KINT1,1,LF-1,1,1)
 *. F(pr)
           CALL GETH1(SCR2,IPPSM,IPPTP,IRRSM,IRRTP)
 *. F(rp)
@@ -4691,7 +4709,8 @@ CERR &      - XPQ*XRS*(SCR2((IPP-1)*NRR+IRR)+SCR3((IRR-1)*NPP+IPP))
      &       1.LE.IRRTP.AND.IRRTP.LE.NGAS).OR.
      &        IPPTP.EQ.0.AND.IRRTP.EQ.0       ) ) THEN 
 *.h(qq,ss)
-          CALL COPVEC(H,WORK(KINT1),NINT1)
+CNW       CALL COPVEC(H,WORK(KINT1),NINT1)
+          call ga_copy_patch('n',H,1,NINT1-1,1,1,KINT1,1,NINT1-1,1,1)
           CALL GETH1(SCR2,IQQSM,IQQTP,ISSSM,ISSTP)
 *. D(pp,rr)
           IF(IPPTP.EQ.0.AND.IRRTP.EQ.0) THEN

@@ -528,7 +528,7 @@ C          COPVCDP(LUIN,LUOUT,SEGMNT,IREW,LBLK)
 *                          added to the estmated error arising from
 *                          eliminating small terms
 *
-      NTEST = 20
+      NTEST = 00
       IF(NTEST.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*) ' Welcome to CLASS_TRUNC '
@@ -5253,7 +5253,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 1000
+      NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
         WRITE(6,*) ' ================='
@@ -5485,7 +5485,11 @@ CNW         CALL GSTTBL(CV(IOFF_C_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
 CNW  &                  ICOCOC,
 CNW  &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
 CNW  &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
-CNW          IF(NTEST.GE.10000)  WRITE(6,*) ' GSTTBL was called '
+            CALL GSTTBL(CV,IOFF_C_BLOCK,CB(JOFF),JATP,JASM,JBTP,JBSM,
+     &                  ICOCOC,
+     &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
+     &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
+             IF(NTEST.GE.10000)  WRITE(6,*) ' GSTTBL was called '
 *. Note in GSTTBL : ICOOSC only used for CI vectors in core, 
           ELSE
 *. not relevant
@@ -8635,6 +8639,10 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
           ISPCAS=1 ! alpha alpha
           IF(NTEST.GE.101)
      &    WRITE(6,*) ' I am going to call RSBB1E(alpha)'
+          IF(NTEST.GE.100) THEN
+            WRITE(6,*) ' SB transposed before RSBB1, first element '
+            call wrtmat(sb,1,1    ,nia,nib)
+          END IF
           CALL MEMCHK2('ASI1BE')
           CALL RSBB1E(IASM,IATP,IOCTPA,JASM,JATP,IOCTPA,
      &                     IJAGRP,NIB,
@@ -8675,6 +8683,10 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
           CALL MEMCHK2('SIGAAA')
           END IF
 *
+          IF(NTEST.GE.100) THEN
+            WRITE(6,*) ' SB transposed after RSBB2A, first element '
+            call wrtmat(sb,1,1    ,nia,nib)
+          END IF
           IF(NTEST.GE.200) THEN
             WRITE(6,*) ' SB after RSBB2A(alpha-alpha)'
             call wrtmat(sb,nia,nib,nia,nib)

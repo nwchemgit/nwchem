@@ -1205,14 +1205,19 @@ CBERT depending on what happens above we could just switch pointers
       IRESTR = 1
 *. and normal density print
       IPRDEN = IPRDEN_SAVE 
+      print*,'DO GASCI'
       CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIA,IIUSEH0P,
      &            MPORENP_E,EREF,ERROR_NORM_FINAL_CI,CONV_F)
+      print*,'DONE GASCI'
       EFINAL = EREF
       MAXIT = MAXIT_SAVE
 *. Current orbital gradient
+      print*,'DO DO_ORBTRA'
       CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
+      print*,'DO FOCK_MAT_STANDARD'
       CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
       IF(IPRNT.GE.100) WRITE(6,*) ' F constructed '
+      print*,'DO E1_FROM_F'
       CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
@@ -1402,7 +1407,7 @@ C GET_EXP_MKAPPA(EXPMK,KAPPAP,IOOEXC,NOOEXC)
 CNW   CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
 CNW   CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
       call ga_copy(KINT1,KH)
-      call ga_copy(FKI,KINT1)
+      call ga_copy(KFI,KINT1)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' ECORE_ORIG, ECORE_HEX, ECORE(2) ',
      &               ECORE_ORIG, ECORE_HEX, ECORE
@@ -4118,13 +4123,14 @@ CNW   DIMENSION F(*)
          IOFF = IOFF + NTOOBS(ISM-1)**2
         END IF
         NOB = NTOOBS(ISM)
-        call ga_get(F,IOFF-1,IOFF-1+(IS-1)*NOB+IR,1,1,
-     &              BRT(IOFF-1),NOB*NOB)
+CBERT THIS CAN BE DONE SMARTER WITH GA ACCES AND ga_get of block
         DO IR = 1, NOB
         DO IS = 1, NOB 
            call ga_get(F,IOFF-1+(IR-1)*NOB+IS,IOFF-1+(IR-1)*NOB+IS,1,1,
-     &                 BRT(IOFF-1+(IS-1)*NOB+IR),1)
-           BRT(IOFF-1+(IS-1)*NOB+IR) = 2.0D0*BRT(IOFF-1+(IS-1)*NOB+IR)
+     &                 XVAL1,1)
+           call ga_get(F,IOFF-1+(IS-1)*NOB+IR,IOFF-1+(IS-1)*NOB+IR,1,1,
+     &                 XVAL2,1)
+           BRT(IOFF-1+(IS-1)*NOB+IR) = 2.0D0*(XVAL2-XVAL1)
         ENDDO
         ENDDO
 CNW     DO IR = 1, NOB

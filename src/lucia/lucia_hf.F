@@ -6099,6 +6099,9 @@ c      INCLUDE 'implicit.inc'
       INCLUDE 'wrkspc.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input
       DIMENSION IOOEXC(2,NOOEXC),COLD(*)
       REAL*8 KAPPA(*)
@@ -6145,6 +6148,9 @@ c      INCLUDE 'implicit.inc'
       INCLUDE 'wrkspc.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific Input
       DIMENSION IOOEXC(2,NOOEXC)
       REAL*8 KAPPAP(NOOEXC)
@@ -6164,7 +6170,7 @@ c      INCLUDE 'implicit.inc'
 *. Obtain Kappa matrix in expanded form
       LEN_E =  NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)     
       CALL MEMMAN(KLKAPPAE,LEN_E,'ADDL  ',2,'KAPPAE')
-      CALL REF_AS_KAPPA(KAPPAP,WORK(KLKAPPAE),1,1,IOOEXC,NOOEXC)
+      CALL REF_AS_KAPPA(KAPPAP,dbl_mb(KLKAPPAE),1,1,IOOEXC,NOOEXC)
 C?    WRITE(6,*) ' Kappa in expanded form '
 C?    CALL APRBLM2(WORK(KLKAPPAE),NTOOBS,NTOOBS,NSMOB,0)
 *
@@ -6176,7 +6182,8 @@ C?    CALL APRBLM2(WORK(KLKAPPAE),NTOOBS,NTOOBS,NSMOB,0)
       DO ISM = 1, NSMOB
        IF(ISM.GT.1) IOFF = IOFF + NTOOBS(ISM-1) ** 2
        NOB = NTOOBS(ISM)
-       CALL EXPMA(EXPMK(IOFF),WORK(KLKAPPAE-1+IOFF),NOB,WORK(KLSCR),0)
+       CALL EXPMA(EXPMK(IOFF),dbl_mb(KLKAPPAE-1+IOFF),NOB,
+     &            dbl_mb(KLSCR),0)
 C           EXPMA(EMA,A,NDIM,SCR,ISUB)
       END DO
 *

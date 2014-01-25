@@ -3313,6 +3313,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "global.fh"
 *
       DIMENSION IBLOCK(8,NBLOCK),IBLTP(*)
+      integer C
       CALL LUCIAQENTER('ANACI')
       CALL MEMMAN(KLOFF,DUMMY,'MARK  ',DUMMY,'GASANA')
 *
@@ -3426,7 +3427,8 @@ C?    STOP ' Jeppe forced me to stop after INTANA '
 *. If IUSLAB  differs from zero Character*6 array IOBLAB is used to identify
 *  Orbitals
       IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION C(*)
+CNW   DIMENSION C(*)
+      integer C
 *. General input
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)  
       DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
@@ -3542,12 +3544,16 @@ C?        WRITE(6,*) ' Number of elements readin ',IDET
             IF(ILOOP .EQ. 1 ) NCIVAR = NCIVAR + 1
             IDET = IDET + 1
             ITDET = ITDET + 1
-            IF( XMAX .GE. ABS(C(IDET)) .AND.
-     &      ABS(C(IDET)).GT. XMIN ) THEN
+            call ga_get(C,IDET,IDET,1,1,XVAL,1)
+CNW         IF( XMAX .GE. ABS(C(IDET)) .AND.
+CNW  &      ABS(C(IDET)).GT. XMIN ) THEN
+            IF( XMAX .GE. ABS(XVAL) .AND.
+     &      ABS(XVAL).GT. XMIN ) THEN
               ITRM = ITRM + 1
               IIDET = IIDET + 1
               IF( ITRM .LE. MAXTRM ) THEN
-                CNORM = CNORM + C(IDET) ** 2
+CNW             CNORM = CNORM + C(IDET) ** 2
+                CNORM = CNORM + XVAL ** 2
                 WRITE(6,'(A)')
                 WRITE(6,'(A)')
      &          '                 =================== '
@@ -3557,7 +3563,8 @@ C                WRITE(6,'(A,I8,A,E14.8)')
 C    &          '  Coefficient of combination ',IDET,' is ',
                 WRITE(6,'(A,I8,A,E14.8)')
      &          '  Coefficient of combination ',ITDET,' is ',
-     &          C(IDET)
+     &          XVAL   
+CNW  &          C(IDET)
                 WRITE(6,'(A)')
      &          '  Corresponding alpha - and beta string '
                 IF(IUSLAB.EQ.0) THEN
@@ -3647,9 +3654,12 @@ C    &          '  Coefficient of combination ',IDET,' is ',
           END IF
           DO IA = MINIA,IABAS+NIA-1
             IDET = IDET + 1
+            call ga_get(C,IDET,IDET,1,1,XVAL,1)
             DO IPOT = 1, 10
-              IF(10.0D0 ** (-IPOT+1).GE.ABS(C(IDET)).AND.
-     &           ABS(C(IDET)).GT. 10.0D0 ** ( - IPOT )) THEN
+CNW           IF(10.0D0 ** (-IPOT+1).GE.ABS(C(IDET)).AND.
+CNW  &           ABS(C(IDET)).GT. 10.0D0 ** ( - IPOT )) THEN
+              IF(10.0D0 ** (-IPOT+1).GE.ABS(XVAL).AND.
+     &           ABS(XVAL).GT. 10.0D0 ** ( - IPOT )) THEN
                  NCPMT(IPOT,JOCCLS)= NCPMT(IPOT,JOCCLS)+ 1  
                  WCPMT(IPOT,JOCCLS)= WCPMT(IPOT,JOCCLS)+ C(IDET) ** 2
               END IF
@@ -9634,7 +9644,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST =  000
+      NTEST =  00
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0

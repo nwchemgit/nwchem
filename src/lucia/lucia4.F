@@ -5167,8 +5167,8 @@ C     GET_2E_TERMS_TO_FI(F2,C_MOINI,IHOLETP)
 *. And add to one-electron Hamiltonian
        ONE = 1.0D0
 CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_FP)
-       call ga_copy(H,FI)
-       call ga_acc(FI,1,LEN_FP,1,1,dbl_mb(KLBLF),LEN_FP,1.0d0)
+       call ga_put(FI,1,LEN_FP,1,1,dbl_mb(KLBLF),LEN_FP)
+       call ga_add(1.0d0,H,1.0d0,FI,FI)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT: '
@@ -5321,7 +5321,8 @@ CNW     CALL MATML7(F2(IFOFF),dbl_mb(KL2EBLK),DINI(IDOFF),
         CALL MATML7(dbl_mb(KFI2BLK),dbl_mb(KL2EBLK),DINI(IDOFF),
      &              NALOB*NBEOB,1,NALOB*NBEOB,NGAOB*NDEOBL,
      &              NGAOB*NDEOBL,1,FACC,FACAB,0)
-        call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB-1,1,1,dbl_mb(KFI2BLK),
+        if (NALOB*NBEOB.gt.0)
+     &  call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB-1,1,1,dbl_mb(KFI2BLK),
      &              NALOB*NBEOB)
 C     MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,
 C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
@@ -5576,9 +5577,9 @@ C          REORHO1(RHO1I,RHO1O,IRHO1SM,IWAY)
       CALL CSUB_FROM_C(CINI,dbl_mb(KLSCR),NACOBS,NOBPTS_L,1,NGAS,0)
       CALL TRP_BLK_MAT(dbl_mb(KLSCR),dbl_mb(KLCT),NSMOB,NTOOBS,NACOBS)
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
-      CALL TRAN_SYM_BLOC_MAT4(dbl_mb(KLDBLK),dbl_mb(KLCT),dbl_mb(KLCBT),
-     &							  NSMOB,
-     &     NACOBS,NTOOBS,dbl_mb(KLDINI),dbl_mb(KLSCR),0)
+      CALL TRAN_SYM_BLOC_MAT4a(dbl_mb(KLDBLK),dbl_mb(KLCT),
+     &     dbl_mb(KLCBT),NSMOB,NACOBS,NTOOBS,dbl_mb(KLDINI),
+     &     dbl_mb(KLSCR),0)
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) ' Density matrix over active orbitals, initial basis'
        CALL APRBLM2(dbl_mb(KLDINI),NTOOBS,NTOOBS,NSMOB,0)
@@ -5703,8 +5704,8 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
          LEN_MAT = LEN_FP
        END IF
 CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
-       call ga_copy(H,FI)
-       call ga_acc(FI,1,LEN_MAT,1,1,dbl_mb(KLBLF),LEN_MAT,1.0d0)
+       call ga_put(FI,1,LEN_MAT,1,1,dbl_mb(KLBLF),LEN_MAT)
+       call ga_add(1.0d0,H,1.0d0,FI,FI)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT_G: '

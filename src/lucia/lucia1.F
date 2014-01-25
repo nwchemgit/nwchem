@@ -2674,7 +2674,7 @@ C    &              NP1,NP2,NQ)
 *
       RETURN
       END
-      SUBROUTINE SDCMRF(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,
+      SUBROUTINE SDCMRF(CSD,CCM,ICOFF,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,
      &                  IDC,PS,PL,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
 *
 * Change a block of coefficients bwtween combination format and 
@@ -2700,7 +2700,9 @@ C    &              NP1,NP2,NQ)
 *                   the overall scale factor is returned
 *                   as SCLFAC
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      DIMENSION CSD(*),CCM(*),ISGVST(*)
+CNW   DIMENSION CSD(*),CCM(*),ISGVST(*)
+      DIMENSION CSD(*),ISGVST(*)
+      integer CCM, ICOFF
 *
       NTEST = 00
       IF(NTEST.GE.100)  THEN
@@ -2741,7 +2743,7 @@ C    &              NP1,NP2,NQ)
       IF(IWAY .EQ. 1 ) THEN
         IF(IPACK.EQ.1) THEN                    
 *. Pack to triangular form
-          CALL TRIPK3(CSD,CCM,1,NA,NA,SIGN)
+CNW       CALL TRIPK3(CSD,CCM,1,NA,NA,SIGN)
 C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
         ELSE
           CALL COPVEC(CSD,CCM,NA*NB)
@@ -2765,11 +2767,10 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       IF(IWAY.EQ.2) THEN
         IF(IPACK.EQ.1) THEN
 *. Unpack from triangular form
-          print*,'call tripk3'
-          CALL TRIPK3(CSD,CCM,2,NA,NA,SIGN)
+           CALL TRIPK3G(CSD,CCM,ICOFF,2,NA,NA,SIGN)
         ELSE
-           print*,'just copy'
-           CALL COPVEC(CCM,CSD,NA*NB)
+CNW        CALL COPVEC(CCM,CSD,NA*NB)
+           call ga_copy(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
         END IF
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN

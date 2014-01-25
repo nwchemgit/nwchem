@@ -1336,7 +1336,7 @@ C
       call ga_access(VECIN, ilo, ihi, 1, 1, ivecin, idum)
       call ga_access(DIAG, ilo, ihi, 1, 1, idiag, idum)
       jlo = ilo - 1
-      jhi = jhi - 1
+      jhi = ihi - 1
       DO 100 I=jlo, jhi    
 *
         DIVIDE=dbl_mb(idiag+i)+SHIFT
@@ -2413,24 +2413,30 @@ CNW   DIMENSION DIAG(*),VECIN(*),VECUT(*)
       NTESTL = 1
       NTEST = MAX(NTESTG,NTESTL)
 *
-C?    write(6,*) ' H0M1TV , NPQDM = ', NPQDM
+c?    write(6,*) ' H0M1TV , NPQDM = ', NPQDM
       KLFREE = 1
       KLV1 = KLFREE
       KLFREE = KLV1 + NPQDM
 *
       KLV2 = KLFREE
       KLFREE = KLV2 + NPQDM
+*    
+      KLGA = KLFREE
+      KLFREE = KLGA + NPQDM
 *
       KLSCR = KLFREE
 *
+      DO I = 0, NPQDM-1
+         WORK(KLGA) = 1
+      ENDDO
       IF(NPQDM.NE.0) THEN
 CNW     CALL GATVEC(dbl_mb(KLV1),VECIN,IPNTR,NPQDM)
-        call ga_gather(VECIN,dbl_mb(KLV1),IPNTR,NPQDM)
+        call ga_gather(VECIN,WORK(KLV1),IPNTR,WORK(KLGA),NPQDM)
 * X(T)(DIAG+SHIFT)-1 X in subspace, for later subtraction
 CNW     CALL GATVEC(dbl_mb(KLV2),DIAG,IPNTR,NPQDM)
-        call ga_gather(DIAG,dbl_mb(KLV2),IPNTR,NPQDM)
-        CALL DIAVC3(dbl_mb(KLV2),dbl_mb(KLV1),
-     &       dbl_mb(KLV2),SHIFT,NPQDM,X1)
+        call ga_gather(DIAG,WORK(KLV2),IPNTR,WORK(KLGA),NPQDM)
+        CALL DIAVC3(WORK(KLV2),WORK(KLV1),
+     &       WORK(KLV2),SHIFT,NPQDM,X1)
        ELSE
          X1 = 0.0D0
        END IF
@@ -2446,11 +2452,11 @@ C    &           X,RHS,S,SCR)
 C?     write(6,*) ' KLPHP KLPHQ KLQHQ ',KLPHP,KLPHQ,KLQHQ
 *
          CALL H0LNSL(H0(KLPHP),H0(KLPHQ),H0(KLQHQ),NP1,NP2,NQ,
-     &               dbl_mb(KLV2),dbl_mb(KLV1),SHIFT,dbl_mb(KLSCR),
+     &               WORK(KLV2),WORK(KLV1),SHIFT,WORK(KLSCR),
      &               NTEST )
-         X3 = INPROD(dbl_mb(KLV1),dbl_mb(KLV2),NPQDM)
+         X3 = INPROD(WORK(KLV1),WORK(KLV2),NPQDM)
 CNW      CALL SCAVEC(VECUT,dbl_mb(KLV2),IPNTR,NPQDM)
-         call ga_scatter(VECUT,dbl_mb(KLV2),IPNTR,NPQDM)
+         call ga_scatter(VECUT,WORK(KLV2),IPNTR,WORK(KLGA),NPQDM)
       ELSE
          X3 = 0.0D0
       END IF
@@ -4319,7 +4325,6 @@ C
 *
        EXTERNAL MV7
 *
-       IPRT = 100
        TEST = 1.0D-6
        IF(IPRT.GE.1) THEN
          WRITE(6,*) ' MINDV4 in action '
@@ -4396,7 +4401,6 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
 *
        IF( IPRT  .GE. 3 ) THEN
          WRITE(6,'(A,I4)') ' Initial set of eigenvalues '
-         print*,'eig',eig(1,1),eigshf
          WRITE(6,'(5F22.13)')
      &   ( (EIG(ITER,IROOT)+EIGSHF),IROOT=1,NROOT)
        END IF
@@ -4602,7 +4606,7 @@ CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
    80      CONTINUE
 *. 1.4 Normalize vector and check for linear dependency
 CNW        SCALE = INPROD(VEC1,VEC1,NVAR)
-           SCALE = ga_ddot(VEC1,VEC1,NVAR)
+           SCALE = ga_ddot(VEC1,VEC1)
            IF(ABS(SCALE)/XNRMI .LT. 1.0D-10) THEN
 *. Linear dependency
              IADD = IADD - 1
