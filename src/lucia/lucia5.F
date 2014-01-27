@@ -7853,30 +7853,33 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 #include "nwchem_data.inc"
       logical movecs_gather
       external movecs_gather
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 *. Input
       INTEGER NMOS(*),NAOS(*)
 *. Output  
       DIMENSION CMO(*)
       double precision ctmp(mxporb)
+      integer g_moreo
 *
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
-      if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord_nw,dum,dum,
-     &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
+      if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord_nw,ctmp,ctmp,
+     &     g_moreo)) call errquit('get_cmoao_nwchem failed',0,DISK_ERR)
+      call ga_print(g_moreo)
       icounter=1
-      do nir = 1, nirrep
-         do i = 1, luciamo(1)
-            if (kirs_nw(i).eq.nir) then
-               call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
-               do j = 1, luciaao
-                  if (nwchem_sc(j,i).gt.0.0d0) then
-                     cmo(icounter) = ctmp(j)*nwchem_sc(j,i)
-                     icounter = icounter + 1
-                  endif
-               enddo
-            endif
+      do i = 1, luciamo(1)
+         call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
+         nir = kirs_nw(reord_nw(i))
+         do j = 1, luciaao
+            if (nwchem_sc(j,nir).gt.0.0d0) then
+               cmo(icounter) = ctmp(j)*nwchem_sc(j,nir)
+               icounter = icounter + 1
+             endif
          enddo
       enddo
+      if(.not.ga_destroy(g_moreo)) call 
+     &        errquit('get_cmoao_nwchem destroy',0,GA_ERR)
 
       NTEST = 000
       IF(NTEST.GE.100) THEN

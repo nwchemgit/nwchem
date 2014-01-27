@@ -1205,19 +1205,14 @@ CBERT depending on what happens above we could just switch pointers
       IRESTR = 1
 *. and normal density print
       IPRDEN = IPRDEN_SAVE 
-      print*,'DO GASCI'
       CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIA,IIUSEH0P,
      &            MPORENP_E,EREF,ERROR_NORM_FINAL_CI,CONV_F)
-      print*,'DONE GASCI'
       EFINAL = EREF
       MAXIT = MAXIT_SAVE
 *. Current orbital gradient
-      print*,'DO DO_ORBTRA'
       CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
-      print*,'DO FOCK_MAT_STANDARD'
       CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
       IF(IPRNT.GE.100) WRITE(6,*) ' F constructed '
-      print*,'DO E1_FROM_F'
       CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)

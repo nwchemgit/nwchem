@@ -586,6 +586,8 @@ c     NTEST = 100
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mxpdim.inc"
 #include "nwchem_data.inc"
+      CHARACTER*4 AO_CENT, AO_TYPE
+      COMMON/AOLABELS/AO_CENT(MXPORB),AO_TYPE(MXPORB)
 *. Output
       DIMENSION NAOS_ENV(*), NMOS_ENV(*)
       
@@ -597,6 +599,8 @@ c     NTEST = 100
          irs=ipnt_nw(kirs_nw(j))
          NAOS_ENV(irs) = NAOS_ENV(irs) + 1
          NMOS_ENV(irs) = NMOS_ENV(irs) + 1
+         AO_CENT(j) = "    "
+         AO_TYPE(j) = "    "
       enddo
       RETURN
       END
@@ -11002,6 +11006,19 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *
 * Part 1: Read in from environment
 *
+      ioff_nw(1)=1
+      icount_nw(1)=0
+      do i=2,nirrep
+        ioff_nw(i) = ioff_nw(i-1)+ntoobs(i-1)
+        icount_nw(i) = 0
+      end do
+      do i=1,luciamo(1)
+        irs=ipnt_nw(kirs_nw(i))
+        icount_nw(irs)=icount_nw(irs)+1
+        ireord = ioff_nw(irs)+icount_nw(irs)-1
+        reord_nw(ireord)=i
+      end do
+*
       LMOMO = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
       IF(NOMOFL.EQ.0) THEN
         CALL GET_CMOAO_ENV(dbl_mb(KMOAOIN))
@@ -16001,8 +16018,11 @@ cnw         GOTO 999
 * ================================
 cnw       IF(CARD(2:6).EQ.'NOCSF') THEN
         if(rtdb_get(rtdb,'lucia:nocsf',mt_log,1,nocsf_on)) then
-         ISETKW(35) = 1
-         NOCSF = 1
+         NOCSF = 0
+         if (nocsf_on) then
+            ISETKW(35) = 1
+            NOCSF = 1
+         endif
 cnw         GOTO 999
        END IF
 * ================================
@@ -16962,8 +16982,12 @@ cnw        GOTO 999
 cnw       IF(CARD(2:7).EQ.'NOMOFL') THEN
        if(rtdb_get(rtdb,'lucia:nomofl',mt_log,1,nomofl_on))then
 *. No MO-AO file
-         NOMOFL = 1
-         ISETKW(66) = 1
+         if (nomofl_on) then
+            NOMOFL = 0
+         else
+            ISETKW(66) = 1
+            NOMOFL = 1
+         endif
 cnw         GOTO 999
        END IF
 *
