@@ -7866,7 +7866,6 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
      &                                 'LUCIA movecs')
       if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord_nw,ctmp,ctmp,
      &     g_moreo)) call errquit('get_cmoao_nwchem failed',0,DISK_ERR)
-      call ga_print(g_moreo)
       icounter=1
       do i = 1, luciamo(1)
          call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
