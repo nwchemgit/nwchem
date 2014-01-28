@@ -71,7 +71,6 @@ set lucia:ms2 0
 set lucia:sym 1    
 set lucia:nroot 1
 #set lucia:mults 1
-set lucia:ms 0
 set lucia:itra_route 2
 set lucia:mscomb 1.0d0
 set lucia:cistor 2
