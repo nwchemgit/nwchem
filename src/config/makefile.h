@@ -1900,9 +1900,11 @@ endif
            ifdef USE_OFFLOAD
               ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
               FC = ifort
+              _FC = ifort
               CC = icc
               AR = xiar
               EXTRA_LIBS += -loffload
+              FOPTIONS += -opt-report-phase=offload
            endif
         endif
         FOPTIONS += -align -w -g -vec-report1
@@ -1915,10 +1917,10 @@ endif
         endif
         FDEBUG= -O2 -g
         FOPTIMIZE = -O3 -prefetch  -unroll 
-        FOPTIMIZE +=  -tpp7 -ip 
          ifeq ($(_GOTSSE3),Y) 
           FOPTIMIZE += -xP -no-prec-div
          else
+          FOPTIMIZE +=  -tpp7 -ip 
           FOPTIMIZE += -xW
          endif
          ifeq ($(_IFCV11),Y) 
@@ -1959,7 +1961,7 @@ endif
         COPTIONS   =   -O
       endif
       ifeq ($(_CC),icc)
-        COPTIONS   =   -ftz
+        COPTIONS   =   -xHOST -ftz
 #old        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
         COPTIMIZE =  -O2
       endif
