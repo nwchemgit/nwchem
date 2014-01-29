@@ -1,3 +1,8 @@
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \file xc_eval_basis.F
+C> Evaluate basis functions and derivatives
 C>
 C> \brief Evaluate the basis functions and their derivatives on a grid
 C>
@@ -5,6 +10,9 @@ C> This routine calculates the values of contracted Gaussians on a grid.
 C> Upon request the subroutine can evaluate up to 3rd order derivatives
 C> in addition to the basis function values. In addition the basis 
 C> functions may be Cartesian or spherical harmonic basis functions.
+C>
+C> The derivatives of the basis functions are simple derivatives with
+C> respect to the Cartesian coordinates.
 C>
       subroutine xc_eval_basis(basis_hand, maxder, chi, d1chi, d2chi,
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
@@ -2562,3 +2570,5 @@ c
       endif
       return
       end
+C>
+C> @}
