@@ -5069,7 +5069,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
 
       if (taskid.eq.MASTER) write(*,2300) 
-      if (taskid.eq.MASTER) write(*,2301) upl,upscale
+      if (taskid.eq.MASTER) then
+         if (upm.lt.999) then
+            write(*,2305) upl,upm,upscale
+         else
+            write(*,2301) upl,upscale
+         end if
+      end if
 
       if (rtdb_ma_get(rtdb, 'nwpw:pspspin_upions', ma_type,
      >                nactive_atoms, h_actlist)) then
@@ -5089,7 +5095,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >     'control_set_pspspin:error freeing heap memory',0,MA_ERR)
       end if
 
-      if (taskid.eq.MASTER) write(*,2303) downl,downscale
+      if (taskid.eq.MASTER) then
+         if (downm.lt.999) then
+            write(*,2306) downl,downm,downscale
+         else
+            write(*,2303) downl,downscale
+         end if
+      end if
 
       if (rtdb_ma_get(rtdb, 'nwpw:pspspin_downions', ma_type,
      >                nactive_atoms, h_actlist)) then
@@ -5114,6 +5126,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  2302 format(2x," - pspspin: up    ion indexes  =",10I5)
  2303 format(2x," - pspspin: down  l =",I2,"  scale =",F8.3)
  2304 format(2x," - pspspin: down  ion indexes  =",10I5)
+ 2305 format(2x," - pspspin: up    l =",I2," m=",I2,"  scale =",F8.3)
+ 2306 format(2x," - pspspin: down  l =",I2," m=",I2,"  scale =",F8.3)
       return
       end
 
