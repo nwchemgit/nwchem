@@ -84,14 +84,16 @@
 
 
 *     **** common block for pspspin ****
-      logical pspspin
+      logical pspspin,pspspin_nom
       integer pspspin_upl,pspspin_downl
+      integer pspspin_upm,pspspin_downm
       integer pspspin_upions(2),pspspin_downions(2)
       real*8  pspspin_upscale,pspspin_downscale
       common / pspspin_block / pspspin_upscale,pspspin_downscale,
      >                         pspspin_upions, pspspin_downions,
      >                         pspspin_upl,    pspspin_downl,
-     >                         pspspin
+     >                         pspspin_upm,    pspspin_downm,
+     >                         pspspin, pspspin_nom
 
 *     **** common block for psputerm ****
       logical psputerm
@@ -117,6 +119,7 @@
 *     **** common block for prj_indx ****
       integer shift_prj_indx(2)
       integer l_prj_prj_indx(2)
+      integer m_prj_prj_indx(2)
       integer ii_prj_indx(2)
       integer ia_prj_indx(2)
       integer nproj_prj_indx(2)
@@ -126,7 +129,8 @@
       integer n_prj_indx,nion_prj_indx
       integer swann
       logical swaset
-      common / psp_prj_indx_block / shift_prj_indx,l_prj_prj_indx,
+      common / psp_prj_indx_block / shift_prj_indx,
+     >                              l_prj_prj_indx,m_prj_prj_indx,
      >                              ii_prj_indx,
      >                              ia_prj_indx,
      >                              nproj_prj_indx,
@@ -140,11 +144,11 @@
 *     **** common block for psp_fmm ****
       logical psp_fmm
       integer psp_fmm_lmax
-      integer psp_fmm_rTlm(2),psp_fmm_drTlm(2)
+      integer psp_fmm_rTlm(2)
       integer psp_fmm_Llm(2),psp_fmm_Mlm(2)
       real*8  psp_fmm_rmax2
       common / psp_fmm_block / psp_fmm_rmax2,
-     >                         psp_fmm_rTlm,psp_fmm_drTlm,
+     >                         psp_fmm_rTlm,
      >                         psp_fmm_Llm,psp_fmm_Mlm,
      >                         psp_fmm_lmax,psp_fmm
 

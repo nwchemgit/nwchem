@@ -172,6 +172,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
          call control_set_pspspin(pspspin_upscale,pspspin_downscale,
      >                            pspspin_upl,pspspin_downl,
+     >                            pspspin_upm,pspspin_downm,
      >                            nion,
      >                            log_mb(pspspin_upions(1)),
      >                            log_mb(pspspin_downions(1)))
@@ -205,9 +206,6 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value=MA_alloc_get(mt_dbl,n2ft3d*(psp_fmm_lmax+1)**2,
      >          'psp_fmm_rTlm',psp_fmm_rTlm(2),psp_fmm_rTlm(1))
          value=value.and.
-     >         MA_alloc_get(mt_dbl,3*n2ft3d*(psp_fmm_lmax+1)**2,
-     >          'psp_fmm_drTlm',psp_fmm_drTlm(2),psp_fmm_drTlm(1))
-         value=value.and.
      >         MA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
      >          'psp_fmm_Llm',psp_fmm_Llm(2),psp_fmm_Llm(1))
          value=value.and.
@@ -236,9 +234,6 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
             call Tesseral3_rgrid_lm_rl(l,m,
      >                              n2ft3d,dbl_mb(rgrid(1)),
      >                              dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d))
-            call dTesseral3_rgrid_lm_rl(l,m,
-     >                            n2ft3d,dbl_mb(rgrid(1)),
-     >                            dbl_mb(psp_fmm_drTlm(1)+lm*3*n2ft3d))
             lm = lm + 1
          end do
          end do
@@ -392,7 +387,6 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 *     **** deallocate FMM data ****
       if (psp_fmm) then
          value =           MA_free_heap(psp_fmm_rTlm(2))
-         value = value.and.MA_free_heap(psp_fmm_drTlm(2))
          value = value.and.MA_free_heap(psp_fmm_Llm(2))
          value = value.and.MA_free_heap(psp_fmm_Mlm(2))
          if (.not.value)
@@ -521,7 +515,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
 *     **** local variables ****
       logical value,sd_function
-      integer k,l,ii,ia,nproj,l_prj,count1,count2,shift,nion
+      integer k,l,ii,ia,nproj,l_prj,m_prj,count1,count2,shift,nion
 
 *     **** external functions ****
       integer  ion_nion,ion_katm,psi_data_get_ptr
@@ -560,6 +554,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
      >                     shift_prj_indx(2),shift_prj_indx(1))
       value = MA_alloc_get(mt_int,n_prj_indx,'l_prj_prj_indx',
      >                     l_prj_prj_indx(2),l_prj_prj_indx(1))
+      value = MA_alloc_get(mt_int,n_prj_indx,'m_prj_prj_indx',
+     >                     m_prj_prj_indx(2),m_prj_prj_indx(1))
       value = value.and.
      >        MA_alloc_get(mt_log,n_prj_indx,'sd_function_prj_indx',
      >              sd_function_prj_indx(2),sd_function_prj_indx(1))
@@ -584,6 +580,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
               shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                  + (ia-1)*(nmax_max*lmmax_max))
+              m_prj = int_mb(m_projector(1)+(l-1)
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
 #ifdef GCC4
               k = iand(l_prj,1)
 #else
@@ -593,6 +591,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
               int_mb(shift_prj_indx(1)+count2)       = shift
               int_mb(l_prj_prj_indx(1)+count2)       = l_prj
+              int_mb(m_prj_prj_indx(1)+count2)       = m_prj
               log_mb(sd_function_prj_indx(1)+count2) = sd_function
 
               count2 = count2 + 1
@@ -666,6 +665,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(swstart_prj_indx(2))
       value = value.and.MA_free_heap(shift_prj_indx(2))
       value = value.and.MA_free_heap(l_prj_prj_indx(2))
+      value = value.and.MA_free_heap(m_prj_prj_indx(2))
       value = value.and.MA_free_heap(sd_function_prj_indx(2))
       if (swaset) then
          value = value.and.MA_free_heap(sw1a(2))
@@ -1179,6 +1179,8 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       external control_fast_erf
       external ion_nion,ion_katm
       external lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
 
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
@@ -1215,11 +1217,13 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
          end do
          call D3dB_Vector_SumAll((psp_fmm_lmax+1)**2,
      >                           dbl_mb(psp_fmm_Mlm(1)))
-c         call FMM_fion_Llm(psp_fmm_lmax,ion_nion(),
-c     >                     int_mb(ion_katm_ptr()),
-c     >                     dbl_mb(ion_rion_ptr()),
-c     >                     dbl_mb(psp_zv_ptr()),
-c     >                     psp_fmm_rmax2,
+         call FMM_fion_Mlm(psp_fmm_lmax,ion_nion(),
+     >                     int_mb(ion_katm_ptr()),
+     >                     dbl_mb(ion_rion_ptr()),
+     >                     dbl_mb(psp_zv_ptr()),
+     >                     psp_fmm_rmax2,
+     >                     dbl_mb(psp_fmm_Mlm(1)),
+     >                     dbl_mb(ftmp(1)))
 
       end if
 
@@ -1230,6 +1234,7 @@ c     >                     psp_fmm_rmax2,
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
             q = -psp_zv(ion_katm(j))
             c = 1.0d0/psp_rlocal(ion_katm(j))
             fx = 0.0d0
@@ -1262,6 +1267,7 @@ c                 verf = util_erf(yerf)
             dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
             dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
             dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+            end if
          end if
       end do
 
@@ -1272,6 +1278,7 @@ c                 verf = util_erf(yerf)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
             q = -psp_zv(ion_katm(j))
             c = 1.0d0/psp_rlocal(ion_katm(j))
             fx = 0.0d0
@@ -1315,6 +1322,7 @@ c         fion(1,j) = fion(1,j) - fx*dv
 c         fion(2,j) = fion(2,j) - fy*dv
 c         fion(3,j) = fion(3,j) - fz*dv
 
+            end if
          end if
       end do
 
@@ -1743,7 +1751,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 *     *** local variables ***
       integer G(3),npack1,nion,nu
       integer i,j,ii,ia,l,n,nn
-      integer k,shift,l_prj,nproj,Gijl_indx
+      integer k,shift,l_prj,m_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),xtmp(2),sw1(2),sw2(2),sw3(2),sum(2)
@@ -1811,6 +1819,8 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  + (ia-1)*(nmax_max*lmmax_max))
+           m_prj = int_mb(m_projector(1)+(l-1) 
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
 
 
            !sd_function = .not.and(l_prj,1)
@@ -1848,11 +1858,13 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *           **** nwchem input: pspspin up/down scale l ion_numbers                       ****
             if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
-     >            (l_prj.eq.pspspin_upl))
+     >            (l_prj.eq.pspspin_upl) .and.
+     >            ((m_prj.eq.pspspin_upm).or.(pspspin_upm.gt.999)))
      >            call dscal(ne(1),pspspin_upscale,
      >                       dbl_mb(sw1(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
-     >            (l_prj.eq.pspspin_downl))
+     >            (l_prj.eq.pspspin_downl).and.
+     >            ((m_prj.eq.pspspin_downm).or.(pspspin_downm.gt.999)))
      >            call dscal(ne(2),pspspin_downscale,
      >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
             end if
@@ -2023,7 +2035,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       integer pcount,taskid_j,np_j
       integer G(3),npack0,npack1,nion,nu,mult_l,m,ms
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
-      integer k,shift,l_prj,nproj,Gijl_indx
+      integer k,shift,l_prj,m_prj,nproj,Gijl_indx
       integer nx,ny,nz
       real*8  omega,scal,ff(3),scal1
       complex*16 ctmp
@@ -2389,6 +2401,7 @@ c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
             do l=1,nproj
                shift       = int_mb(shift_prj_indx(1)+jp)
                l_prj       = int_mb(l_prj_prj_indx(1)+jp)
+               m_prj       = int_mb(m_prj_prj_indx(1)+jp)
                sd_function = log_mb(sd_function_prj_indx(1)+jp)
                jp = jp + 1
 
@@ -2413,11 +2426,13 @@ c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
                if (pspspin) then
                   if (log_mb(pspspin_upions(1)+ii-1).and.
-     >               (l_prj.eq.pspspin_upl))
+     >               (l_prj.eq.pspspin_upl).and.
+     >               ((m_prj.eq.pspspin_upm).or.(pspspin_upm.gt.999)))
      >            call dscal(ne(1),pspspin_upscale,
      >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn),1)
                   if (log_mb(pspspin_downions(1)+ii-1).and.
-     >               (l_prj.eq.pspspin_downl))
+     >             (l_prj.eq.pspspin_downl).and.
+     >             ((m_prj.eq.pspspin_downm).or.(pspspin_downm.gt.999)))
      >            call dscal(ne(2),pspspin_downscale,
      >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn+ne(1)),1)
                end if
@@ -2908,7 +2923,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 *     *** local variables ***
       integer G(3),npack1,nion,nu
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
-      integer k,shift,l_prj,nproj,Gijl_indx
+      integer k,shift,l_prj,m_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),xtmp(2),sum(2)
@@ -3037,6 +3052,7 @@ c     **** define Gx,Gy and Gz in packed space ****
             do l=1,nproj
                shift       = int_mb(shift_prj_indx(1)+jp)
                l_prj       = int_mb(l_prj_prj_indx(1)+jp)
+               m_prj       = int_mb(m_prj_prj_indx(1)+jp)
                sd_function = log_mb(sd_function_prj_indx(1)+jp)
                jp = jp + 1
 
@@ -3061,11 +3077,13 @@ c     **** define Gx,Gy and Gz in packed space ****
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
                if (pspspin) then
                   if (log_mb(pspspin_upions(1)+ii-1).and.
-     >               (l_prj.eq.pspspin_upl))
+     >               (l_prj.eq.pspspin_upl).and.
+     >               ((m_prj.eq.pspspin_upm).or.(pspspin_upm.gt.999)))
      >            call dscal(ne(1),pspspin_upscale,
      >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn),1)
                   if (log_mb(pspspin_downions(1)+ii-1).and.
-     >               (l_prj.eq.pspspin_downl))
+     >             (l_prj.eq.pspspin_downl).and.
+     >             ((m_prj.eq.pspspin_downm).or.(pspspin_downm.gt.999)))
      >            call dscal(ne(2),pspspin_downscale,
      >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn+ne(1)),1)
                end if
