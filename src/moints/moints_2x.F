@@ -89,10 +89,13 @@ c
        logical odoit,doloop
 c
 #include "moints_stats.fh"
+#include "moints.fh"
 c
        integer clo, chi, rlo, rhi,nodesloop
-       integer moints_numgr, gr_len, moints_nxttask
-       external moints_numgr, gr_len, moints_nxttask
+c      integer moints_numgr, gr_len, moints_nxttask
+c      external moints_numgr, gr_len, moints_nxttask
+       integer  gr_len
+       external gr_len
        data k_sym/0/
 c
 c     Set accuracy of integrals from required precision
@@ -147,7 +150,7 @@ c
 c
 c  Perpare AO disk caching
 c       
-       call moints_aodisk_prep()
+       status = status .and. moints_aodisk_prep()
 c
 c  Local MO coefficients
 c  Subset of columns                    ( qlo, ...., qhi )
@@ -155,11 +158,12 @@ c  excludes frozen core & virtual
 c
        status = status.and.ma_push_get(MT_DBL,(nbf*nmo),
      $                                 'movecs cols',l_mo,k_mo)
+       call ga_sync()
 #ifdef CRAYXT
-      if(ga_nodeid().eq.0)
+       if(ga_nodeid().eq.0)
      G      call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
-      call ga_brdcst(65537, dbl_mb(k_mo), 
-     G     MA_sizeof(MT_DBL,1,MT_BYTE)*nbf*(qhi-qlo+1), 0)
+       call ga_brdcst(65537, dbl_mb(k_mo), 
+     G      MA_sizeof(MT_DBL,1,MT_BYTE)*nbf*(qhi-qlo+1), 0)
 #else
        call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
 #endif

@@ -1,0 +1,44 @@
+C $Id: $
+C
+C mointdriver.F:       integer function moints_occrange( noper, ostart, ilo, ohi )
+C moints_aodisk.F:      integer function moints_nxttask( numnodes )
+C moints_aodisk.F:      logical function moints_gblk_fromdisk( blkid, ish, jsh, 
+C moints_aodisk.F:      logical function moints_gblk_todisk( blkid, ish, jsh, 
+C moints_aodisk.F:      logical function moints_aodisk_init( odisk, oreuse )
+C moints_aodisk.F:      logical function moints_aodisk_prep( )
+C moints_aodisk.F:      logical function moints_iorec_next( blkid, buidstr )
+C moints_aodisk.F:      logical function moints_aodisk_verifyiorec(ilen, jlen, klen, 
+C moints_full.F:      logical function moints_full(rtdb)
+C moints_gsh1.F:       integer function moints_numgr( basis, blocklen )
+C moints_mem.F:       integer function moints_numoper( basis, algo, nbf, nocc,
+C moints_mp2.F:     $    function moints_epair_eval(vlo, vhi, mo2_lo, mo2_hi,
+C moints_semi.F:       integer function moints_lmem( basis, nocc, nvir, blen )
+C
+      integer          moints_occrange
+      integer          moints_nxttask
+      logical          moints_gblk_fromdisk
+      logical          moints_gblk_todisk
+      logical          moints_aodisk_init
+      logical          moints_aodisk_prep
+      logical          moints_iorec_next
+      logical          moints_aodisk_verifyiorec
+      logical          moints_full
+      integer          moints_numgr
+      integer          moints_numoper
+      double precision moints_epair_eval
+      integer          moints_lmem
+c
+      external         moints_occrange
+      external         moints_nxttask
+      external         moints_gblk_fromdisk
+      external         moints_gblk_todisk
+      external         moints_aodisk_init
+      external         moints_aodisk_prep
+      external         moints_iorec_next
+      external         moints_aodisk_verifyiorec
+      external         moints_full
+      external         moints_numgr
+      external         moints_numoper
+      external         moints_epair_eval
+      external         moints_lmem
+c

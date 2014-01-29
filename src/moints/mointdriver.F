@@ -11,6 +11,7 @@ C$Id$
 #include "schwarz.fh"
 #include "sym.fh"
 #include "util.fh"
+#include "moints.fh"
 c
 c
 c

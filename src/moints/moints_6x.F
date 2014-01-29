@@ -90,11 +90,14 @@ c
        integer tottask
        logical status, st, osym, odoit
 #include "moints_stats.fh"
+#include "moints.fh"
 c
 c
 c
-       integer moints_numgr, gr_len, moints_nxttask
-       external moints_numgr, gr_len, moints_nxttask
+c      integer moints_numgr, gr_len, moints_nxttask
+c      external moints_numgr, gr_len, moints_nxttask
+       integer  gr_len
+       external gr_len
 c
 c
 c
@@ -147,7 +150,7 @@ c
 c
 c  Initialize AO disk caching
 c       
-       call moints_aodisk_prep()
+       status = status .and. moints_aodisk_prep()
 c
 c  Local MO coefficients
 c

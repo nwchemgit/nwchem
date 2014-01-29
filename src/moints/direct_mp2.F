@@ -11,6 +11,7 @@ C$Id$
 #include "sym.fh"
 #include "util.fh"
 #include "msgids.fh"
+#include "moints.fh"
 c
       integer rtdb                     ! [input] database handle
       integer geom, basis
