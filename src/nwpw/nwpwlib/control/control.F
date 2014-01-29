@@ -5021,10 +5021,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     *                                 *
 *     ***********************************
       subroutine control_set_pspspin(upscale,downscale,upl,downl,
+     >                               upm,downm,
      >                               nion,upions,downions)
       implicit none
       real*8 upscale,downscale
-      integer upl,downl,nion
+      integer upl,downl,upm,downm,nion
       logical upions(*),downions(*)
 
 #include "mafdecls.fh"
@@ -5054,6 +5055,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (.not.rtdb_get(rtdb,'nwpw:pspspin_downl',
      >                  mt_int,1,downl))
      >   downl = -1
+
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin_upm',
+     >                  mt_int,1,upm))
+     >   upm = 99999
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin_downm',
+     >                  mt_int,1,downm))
+     >   downm = 99999
 
       do i=1,nion
          upions(i)   = .false.
