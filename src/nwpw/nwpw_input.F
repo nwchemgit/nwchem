@@ -125,7 +125,7 @@ c
 
       double precision kb
       parameter (kb=3.16679d-6)
-      logical      value,move,mulliken_kawai,nose,nosers
+      logical      value,move,mulliken_kawai,nose,nosers,has_m
       character*50 cell_name,zone_name,rtdb_name
       character*50 input_wavefunction_filename
       character*50 output_wavefunction_filename
@@ -1330,6 +1330,12 @@ c
             goto 6810
          end if
 
+*        **** add m options ****
+         has_m = .false.
+         if (inp_compare(.false.,zone_name,'use_m')) then
+            if (inp_i(ny)) has_m = .true.
+         end if
+
          if (inp_compare(.false.,zone_name,'up') .or.
      >       inp_compare(.false.,zone_name,'alpha')) then
             value = rtdb_put(rtdb,'nwpw:pspspin',mt_log,1,.true.)
@@ -1347,6 +1353,9 @@ c
                if (inp_compare(.false.,cell_name,'3')) nx = 3
                value = value.and.
      >         rtdb_put(rtdb,'nwpw:pspspin_upl',mt_int,1,nx)
+               if (has_m) 
+     >            value=value.and.
+     >                  rtdb_put(rtdb,'nwpw:pspspin_upm',mt_int,1,ny)
 
                space_avail = min(100000,ma_inquire_avail(mt_int))
                if (.not.ma_push_get(mt_int,space_avail,'input scratch',
@@ -1383,6 +1392,9 @@ c
                if (inp_compare(.false.,cell_name,'3')) nx = 3
                value = value.and.
      >         rtdb_put(rtdb,'nwpw:pspspin_downl',mt_int,1,nx)
+               if (has_m) 
+     >            value=value.and.
+     >                  rtdb_put(rtdb,'nwpw:pspspin_downm',mt_int,1,ny)
 
                space_avail = min(100000,ma_inquire_avail(mt_int))
                if (.not.ma_push_get(mt_int,space_avail,'input scratch',
