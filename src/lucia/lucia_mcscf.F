@@ -217,7 +217,8 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       END IF
 *
 *. Initial allowed step length 
-      STEP_MAX = 0.75D0
+CBERT STEP_MAX = 0.75D0
+      STEP_MAX = 3.0D0
 C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       TOLER = 1.1D0
       NTEST = 10
@@ -680,6 +681,7 @@ CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
      &                              NOOEXC))
           IF(I_USE_BR_OR_E1.EQ.1.OR.XKAPPA_NORM.EQ.0.0D0) THEN
 *. Brillouin vector from Fock matrix is used
+           print*,'e1_from_f'
            CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &                   int_mb(KLOOEXCC),
      &                   NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
@@ -687,6 +689,7 @@ CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 *. Calculate gradient at non-vanishing Kappa
 *. Complete Brillouin matrix
 C              GET_BRT_FROM_F(BRT,F)
+           print*,'e1_mcscf_for_general_kappa'
           CALL GET_BRT_FROM_F(dbl_mb(KLBR),KF)
 C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
           CALL E1_MCSCF_FOR_GENERAL_KAPPA(dbl_mb(KLE1),dbl_mb(KLBR),
@@ -696,6 +699,7 @@ C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
 *. Average over orbital excitations belonging to a given shell excitation
 C                SHELL_AVERAGE_ORBEXC(VECIN,NSSEX,NOOFSS,IBOOFSS,
 C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
+           print*,'SHELL_AVERAGE_ORBEXC      '
             CALL SHELL_AVERAGE_ORBEXC(dbl_mb(KLE1),NSSEX,
      &           int_mb(KNOOFSS),int_mb(KIBOOFSS),int_mb(KIOOFSS),
      &           dbl_mb(KLEXCSCR),NOOEXC,1) 
@@ -720,6 +724,7 @@ C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
 *. Transform gradient to diagonal basis
 *
 *. (save original gradient)
+           print*,'i do newton'
             CALL COPVEC(dbl_mb(KLE1),dbl_mb(KLE1B),NOOEXC)
             CALL MATVCC(dbl_mb(KLE2F),dbl_mb(KLE1),dbl_mb(KLE2SC),
      &           NOOEXC,NOOEXC,1)

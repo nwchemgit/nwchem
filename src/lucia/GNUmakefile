@@ -5,7 +5,7 @@
 
   OBJ_OPTIMIZE = aixopn.o aixrd.o baserou.o cdafile.o crop_simple.o \
 	daname.o daname_main.o dblas.o ddafile.o densi2_ab.o determinant.o \
-	dgeev_collect.o diis.o diis_simple.o dim_pa.o dummies.o \
+	diis.o diis_simple.o dim_pa.o dummies.o \
 	eispack.o ekt.o filehand.o gasdir2.o gasrou.o gucc_fock.o i2addr.o \
 	idafile_.o idafile.o linpack1.o lsame.o lucia1.o lucia3.o lucia4.o \
 	lucia5.o lucia6.o lucia7.o lucia_akbk.o lucia_anders.o lucia_caspt.o \

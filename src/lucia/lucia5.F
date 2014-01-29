@@ -4958,7 +4958,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
         NTEST2 = NTEST
         CALL WEIGHT_SPGP(int_mb(KLLZ),NGAS,
      &                  NELFSPGP(1,ISPGPABS),
-     &                  NOBPT,dbl_mb(KLZSCR),NTEST2)
+     &                  NOBPT,int_mb(KLZSCR),NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
@@ -10123,6 +10123,9 @@ C     WRITE(6,*) ' Leaving DENSI '
 * 
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *.General input
       INTEGER ICOCOC(NOCTPA,NOCTPB),ISOCOC(NOCTPA,NOCTPB)
       INTEGER ICSMOS(NSMST),ISSMOS(NSMST)
@@ -10471,7 +10474,6 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
                             write(6,*) ' Updated rho1 '
                             call wrtmat(rho1,nacob,nacob,nacob,nacob)
                           END IF
-
 *
                 END IF
                 END IF
@@ -10571,6 +10573,9 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
 * Jeppe Olsen , Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INTEGER  ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX
 *. Input  
       DIMENSION CB(*),SB(*)
@@ -10830,6 +10835,9 @@ C?    CALL PRSYM(RHO2,NACOB**2)
 *              Calculating densities only over selected spaces, Sept. 05
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
      &        STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
@@ -10954,6 +10962,7 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
      &                        ICCTP,ICCSM,IGRP,
      &                        KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,
      &                        JFRST,KFRST,II12,K12,SCLFAC)
+
                   JFRST = 0
                   KFRST = 0
 *
@@ -14203,13 +14212,13 @@ c      INCLUDE 'mxpdim.inc'
       CALL LUCIAQENTER('HCONF')
 *. Fetch K matrix
 C     CALL GTJK(XDUM1       ,H,NTOOB,XDUM3       ,IREOTS)
-      CALL GTJK(dbl_mb(KLZSCR),H,NTOOB,dbl_mb(KLZSCR),IREOTS)
+      CALL GTJK(int_mb(KLZSCR),H,NTOOB,int_mb(KLZSCR),IREOTS)
 *
       CALL HCONFDIA_BBS(NAEL,NBEL,IJAGRP,IJBGRP,
      &           IASM,IATP,IAOC,NIA,IBSM,IBTP,IBOC,NIB,
      &           JASM,JATP,JAOC,NJA,JBSM,JBTP,JBOC,NJB,
      &           NTOOB,H,IOBPTS,NOBPT,IREOTS,int_mb(KLZ(1)),
-     &           int_mb(KLZ(2)),dbl_mb(KLZSCR),ISMFTO,NGAS,
+     &           int_mb(KLZ(2)),int_mb(KLZSCR),ISMFTO,NGAS,
      &           int_mb(KLOCSTR(1)),int_mb(KLOCSTR(2)),
      &           int_mb(KLREO(1)),int_mb(KLREO(2)),CB,SB) 
       CALL LUCIAQEXIT('HCONF')

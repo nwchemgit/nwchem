@@ -2246,7 +2246,7 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Start of string information
       CALL MEMMAN(KSTINF,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
-      NTEST = 1
+      NTEST = 10
       IF(NTEST.GE.10)
      &WRITE(6,*) ' First word with string information',KSTINF
 *
@@ -5900,7 +5900,7 @@ C?    END IF
         NTEST2 = NTEST
         CALL WEIGHT_SPGP(int_mb(KLLZ),NGAS,
      &                  NELFSPGP(1,ISPGPABS),
-     &                  NOBPT,dbl_mb(KLZSCR),NTEST2)
+     &                  NOBPT,int_mb(KLZSCR),NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
@@ -6238,7 +6238,7 @@ C?    END IF
           NTEST2 = NTEST
           CALL WEIGHT_SPGP(int_mb(KLLZ),NGAS,
      &                     NELFSPGP(1,ISPGPABS),
-     &                     NOBPT,dbl_mb(KLZSCR),NTEST2)
+     &                     NOBPT,int_mb(KLZSCR),NTEST2)
 *. Reorder array for I strings
          NELI = NELFTP(ITP)
          NELIS(I12) = NELI

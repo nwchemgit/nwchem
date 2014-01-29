@@ -448,7 +448,7 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       INCLUDE 'orbinp.inc'
       INCLUDE 'lucinp.inc'
 *
-c     NTEST = 100
+      NTEST = 000
 *
       IF(IGSFILL.NE.0) THEN
 *. Fill GAS shell IGSFILL with remaining orbitals
@@ -585,6 +585,7 @@ c     NTEST = 100
       SUBROUTINE GETOBS_NWCHEM(NAOS_ENV,NMOS_ENV)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mxpdim.inc"
+#include "lucinp.inc"
 #include "nwchem_data.inc"
       CHARACTER*4 AO_CENT, AO_TYPE
       COMMON/AOLABELS/AO_CENT(MXPORB),AO_TYPE(MXPORB)
@@ -2590,7 +2591,7 @@ cnw    CALL REWINO(LUC)
 cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
         if(dra_read_section(.false.,KPVEC1,1,NVAR,1,1,LUC,1,NVAR,
      &     JROOT,JROOT,itask).ne.0) call errquit('dra error',911)
-          if (dra_wait(itask).ne.0) call errquit('dra read err',
+        if (dra_wait(itask).ne.0) call errquit('dra read err',
      &        itask,911)
         CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
         dbl_mb(KLZEXP-1+JROOT) = RLZEFF
@@ -4019,7 +4020,7 @@ C..dongxia explicit hamiltonian should be for a small space. local.
 *. Scratch space for manipulating with H0
         LH0SCR = 
      &  MAX(6*NSBDETP,4*NSBDETP+4*NOCOB,
-     &      MXP1*(MXP1+1)/2+MXP1**2)+NPRDET
+     &      MXP1*(MXP1+1)/2+MXP1**2)+NPRVAR
         CALL MEMMAN(KH0SCR,LH0SCR      ,'ADDS  ',2,'KH0SCR')  !done
 *. For subspace configurations
         IF(NOCSF.EQ.0) THEN
@@ -4756,6 +4757,9 @@ C    &     NBATCH,WORK(KCLBT),WORK(KCLEBT),WORK(KCLBLK),WORK(KCI1BT),
 * Last modification; Feb. 12,2013; Jeppe Olsen; IROOT_SEL replacing IROOTHOMING
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       LOGICAL CONVER
       integer VEC1, VEC2, VEC3
 CNW   DIMENSION VEC1(*),VEC2(*)
@@ -12695,12 +12699,16 @@ c      INCLUDE 'mxpdim.inc'
         END IF
 *
         if (NL.gt.MARKL(NM)) then
-           if (.not. ma_chop_stack(IBASEL(MARKL(NM)+1))) call
-     $      errquit('MEMMAN: ma stack flush mark failed', 911, MA_ERR)
+           if (.not. ma_chop_stack(IBASEL(MARKL(NM)+1))) then
+            print*,'Mark: ',IDENT(1:6)
+            call errquit('MEMMAN: ma stack flush failed', 911, MA_ERR)
+           endif
         endif
         if (NS.gt.MARKS(NM)) then
-           if (.not. ma_free_heap(IBASES(MARKS(NM)+1))) call
-     $      errquit('MEMMAN: ma heap flush mark failed', 911, MA_ERR)
+           if (.not. ma_free_heap(IBASES(MARKS(NM)+1))) then
+            print*,'Mark: ',IDENT(1:6)
+            call errquit('MEMMAN: ma heap flush failed', 911, MA_ERR)
+           endif
         endif
         NL = MARKL(NM)
         NS = MARKS(NM)
@@ -15712,6 +15720,7 @@ cnw          IF(CARD(2:7).EQ.'EXPHAM') THEN
 *         2: Allowed dimension or identification of 
 *            subspace
 cnw            READ(LUIN,*) ISBSPC_SEL
+        ISBSPC_SEL = 0
         if(rtdb_get(rtdb,'lucia:expham',mt_int,1,isbspc_sel))then
 * ISBSPC_SEL = 1: Choose lowest elements of diagonal
 *            = 2: Choose first elements
@@ -18857,6 +18866,7 @@ cglm   ^ end IF for skipping command in NWChem env.
 *
 * A set of general VB spaces
 *
+       NORBVBSPC = 0
        if (inw_lucia .eq. 0) then
 cglm   ^ skipped for NWChem
         IF(CARD(2:7).EQ.'VBGNSP') THEN

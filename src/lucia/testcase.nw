@@ -76,7 +76,7 @@ set lucia:mscomb 1.0d0
 set lucia:cistor 2
 set lucia:icnfbat 2
 set lucia:idensi 0
-set lucia:ciconv 1.0d-12
+set lucia:ciconv 1.0d-8
 set lucia:inideg 1
 set lucia:inactive 1 0 0 0 1 0 0 0
 set lucia:ngas 1

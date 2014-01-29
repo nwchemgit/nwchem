@@ -4996,7 +4996,7 @@ C     DO I1234 = 1, 2
         CALL MEMMAN(KLREO(I1234),MAX_STR_SPGP,'ADDL  ',1,'KLREO ')
         CALL MEMMAN(KLZ(I1234),LZ,'ADDL  ',1,'KLZ   ')
       END DO
-      CALL MEMMAN(KLZSCR,LZSCR,'ADDL  ',2,'KLZSCR')
+      CALL MEMMAN(KLZSCR,LZSCR,'ADDL  ',1,'KLZSCR')
 * 4 arrays containing all strings of given sym. Dimension can  be 
 *   reduced to largest number of strings in alpha or beta.
 C?    WRITE(6,*) ' SBLOCKS : MAX_STR_SPGP = ', MAX_STR_SPGP
@@ -8287,6 +8287,9 @@ CM    IREW = 1
       INCLUDE 'mxpdim.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'oper.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Output
       DIMENSION CB(*),SB(*),CBTT(*)
 *. Scratch
@@ -9518,7 +9521,7 @@ C     DO I1234 = 1, 2
         CALL MEMMAN(KLREO(I1234),MAX_STR_SPGP,'ADDL  ',1,'KLREO ')
         CALL MEMMAN(KLZ(I1234),LZ,'ADDL  ',1,'KLZ   ')
       END DO
-      CALL MEMMAN(KLZSCR,LZSCR,'ADDL  ',2,'KLZSCR')
+      CALL MEMMAN(KLZSCR,LZSCR,'ADDL  ',1,'KLZSCR')
 * 4 arrays containing all strings of given sym. Dimension can  be 
 *   reduced to largest number of strings in alpha or beta.
 C?    WRITE(6,*) ' SBLOCKS : MAX_STR_SPGP = ', MAX_STR_SPGP
