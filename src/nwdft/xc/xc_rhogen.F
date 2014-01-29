@@ -3,6 +3,16 @@ c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
 c     BGJ - 8/98
+c
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \file xc_rhogen.F
+C> Evaluate density and derivatives
+C>
+C> \brief Evaluate the density and their derivatives on a grid
+C>
+C> 
       Subroutine xc_rhogen(what,
      T     tol_rho, basis, g_dens, max_at_bf, 
      N     natoms, curatoms, ncuratoms, npert,       
@@ -20,47 +30,54 @@ c     BGJ - 8/98
 #include "dist.fh"
 #include "dft_fdist.fh"
 
-      Logical GRAD         ! true when use grad corrected funct.[input]
-      Logical kske         ! true if tau(kohn-sham KE) used in functional [in]
-      integer what  ![in]
+      Logical GRAD !< [Input] .true. when using gradient corrected
+                   !< functional
+      Logical kske !< [Input] .true. when using kinetic energy density
+                   !< functional
+      integer what !< [Input] What to calculate
+                   !< - what=0: calculate density
+                   !< - what=1: calculate perturbed density (derivative
+                   !<   with respect to electron position)
+                   !< - what=2: calculate derivative with respect to
+                   !<   nuclear coordinates
 c what=0 dens
 c what=1 pert
 c what=2 nucder
-
- 
-      integer basis        ! basis handle           [input]
-      integer ipol         ! no. of spin states     [input]
-      integer ipol2
-      integer nbf          ! no. of basis functions [input]
-      integer mbf          ! "restricted" no. of basis functions [input]
-      integer max_at_bf    ! max no. bf per atom [input]
-      integer nq           ! no. of quadrature points [input]
-      integer natoms       ! no. of atoms [input]
-      double precision wmax ! max weight [in]
-      integer npert        ! number of perturbed densities [input]
-      integer curatoms(*) ! indexing array for "active" atoms [input]
-      integer ncuratoms        ! number of currently active atoms [input]
-      integer g_dens(*) ! GA handle for DM [input]
-      integer ibf(mbf)     ! mapping of nbf_ao -> mbf
-      integer iniz(natoms) ! mapping of nbf_ao -> mbf
-      integer ifin(natoms) ! mapping of nbf_ao -> mbf
-      double precision tol_rho ! accuracy for rho evaluation [input]
-      double precision chi(nq,mbf)     ! function values [input]
-      double precision delchi(nq,3,mbf)! function gradients [input]
-      double precision heschi(nq,6,mbf)! function hessians [input]
+      integer basis        !< [Input] basis set handle
+      integer ipol         !< [Input] no. of spin channels
+      integer ipol2        !< [Input] no. of spin channels in density
+                           !< - 1 if closed shell
+                           !< - 3 if open shell
+      integer nbf          !< [Input] no. of basis functions
+      integer mbf          !< [Input] "restricted" no. of basis functions
+      integer max_at_bf    !< [Input] max no. bf per atom
+      integer nq           !< [Input] no. of quadrature points
+      integer natoms       !< [Input] no. of atoms
+      double precision wmax !< [Input] max weight
+      integer npert        !< [Input] number of perturbed densities
+      integer curatoms(*) !< [Input] indexing array for "active" atoms
+      integer ncuratoms        !< [Input] number of currently active atoms
+      integer g_dens(*) !< [Input] GA handle for DM
+      integer ibf(mbf)     !< [Input] mapping of nbf_ao -> mbf
+      integer iniz(natoms) !< [Input] mapping of nbf_ao -> mbf
+      integer ifin(natoms) !< [Input] mapping of nbf_ao -> mbf
+      double precision tol_rho !< [Input] accuracy for rho evaluation
+      double precision chi(nq,mbf)     !< [Input] function values
+      double precision delchi(nq,3,mbf)!< [Input] function gradients
+      double precision heschi(nq,6,mbf)!< [Input] function hessians
 c
-      double precision ttau(nq,ipol,*)   !  Total Kohn-Sham K.E.density [output]
+      double precision ttau(nq,ipol,*) !< [Output] Total Kohn-Sham K.E.density
 c
-      double precision delrho(nq,3,ipol,*)
-      double precision Pmat(*) ! scratch vector
-      double precision F(max_at_bf*max_at_bf)    ! scratch vector
-      double precision ff(nq,*)   ! scratch array
-      double precision ffd(nq,3,*) ! scratch array
-      double precision rho(nq,ipol2,*)
-      double precision rchi_atom(natoms)
-      double precision rdelchi_atom(natoms)
-      double precision rdens_atom(natoms,natoms,ipol)
-      integer cetobfr(2,natoms)
+      double precision delrho(nq,3,ipol,*) !< [Output] Derivative of density
+      double precision Pmat(*) !< [Scratch] scratch vector
+      double precision F(max_at_bf*max_at_bf) !< [Scratch] scratch vector
+      double precision ff(nq,*)   !< [Scratch] scratch array
+      double precision ffd(nq,3,*) !< [Scratch] scratch array
+      double precision rho(nq,ipol2,*) !< [Output] The density
+      double precision rchi_atom(natoms) !< [Input] Screening parameters
+      double precision rdelchi_atom(natoms) !< [Input] Screening parameters
+      double precision rdens_atom(natoms,natoms,ipol) !< [Input] Screening parameters
+      integer cetobfr(2,natoms) !< [Input] Centers to basis functions
 c
 c     local declarations
 c
@@ -89,8 +106,9 @@ c
 #endif
       call starttimer(monitor_xcrho)
 c
-c     Evaluate the charge density and its gradient at each of the sampling 
-c     points 
+c     Evaluate the charge density and its gradient at each of the
+c     sampling points 
+c
       doffd=(what.eq.2.and.grad).or.(what.eq.0.and.kske).or.
      & (what.eq.1.and.kske)
       
@@ -633,3 +651,5 @@ c     copy offdiag terms (aka transp)
       endif
       return
       end
+C>
+C> @}
