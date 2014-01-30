@@ -2467,7 +2467,7 @@ c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
      >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
-     >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
+     >            (int_mb(pspspin_upm(1)+ii-1).gt.999))) 
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
