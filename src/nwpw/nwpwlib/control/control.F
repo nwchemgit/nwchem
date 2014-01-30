@@ -5145,12 +5145,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
 
  2300 format(/1x,"Antiferromagnetic Pentalty Function Input:")
- 2301 format(2x," - pspspin: up    l =",I2,"  scale =",F8.3)
+ 2301 format(2x," - pspspin: up    l =",I2,10x," scale =",F8.3)
  2302 format(2x," - pspspin: up    ion indexes  =",10I5)
- 2303 format(2x," - pspspin: down  l =",I2,"  scale =",F8.3)
+ 2303 format(2x," - pspspin: down  l =",I2,10x," scale =",F8.3)
  2304 format(2x," - pspspin: down  ion indexes  =",10I5)
- 2305 format(2x," - pspspin: up    l =",I2," not_m=",I2," scale =",F8.3)
- 2306 format(2x," - pspspin: down  l =",I2," not_m=",I2," scale =",F8.3)
+ 2305 format(2x," - pspspin: up    l =",I2," not_m=",I3," scale =",F8.3)
+ 2306 format(2x," - pspspin: down  l =",I2," not_m=",I3," scale =",F8.3)
 
       return
       end
