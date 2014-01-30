@@ -48,12 +48,6 @@ c
       external ga_create_atom_blocked
       integer ga_create_JKblocked
       external ga_create_JKblocked
-      integer moints_numoper
-      external moints_numoper
-      integer moints_occrange
-      external moints_occrange
-      logical moints_aodisk_init
-      external moints_aodisk_init
       logical scf, dft_energy
       external scf, dft_energy
       logical int_normalize

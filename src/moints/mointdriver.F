@@ -54,16 +54,8 @@ c
        external ga_create_atom_blocked
        integer ga_create_JKblocked
        external ga_create_JKblocked
-       integer moints_numoper
-       external moints_numoper
-       integer moints_occrange
-       external moints_occrange
-       integer moints_lmem
-       external moints_lmem
        logical int_normalize
        external int_normalize
-       logical moints_aodisk_init
-       external moints_aodisk_init
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.false./

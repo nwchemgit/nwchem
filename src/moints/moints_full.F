@@ -999,6 +999,7 @@ c
       implicit none
 #include "cmointsbuf.fh"
 #include "mafdecls.fh"
+#include "moints.fh"
       integer moints_unit
       integer n,k
       double precision buf(*)
