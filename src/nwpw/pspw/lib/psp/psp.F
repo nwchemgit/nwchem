@@ -167,13 +167,44 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.
      >   MA_alloc_get(mt_log,nion,'pspspin_downions',
      >                pspspin_downions(2),pspspin_downions(1))
+         value = value.and.
+     >   MA_alloc_get(mt_int,nion,'pspspin_upl',
+     >                pspspin_upl(2),pspspin_upl(1))
+         value = value.and.
+     >   MA_alloc_get(mt_int,nion,'pspspin_downl',
+     >                pspspin_downl(2),pspspin_downl(1))
+         value = value.and.
+     >   MA_alloc_get(mt_int,nion,'pspspin_upm',
+     >                pspspin_upm(2),pspspin_upm(1))
+         value = value.and.
+     >   MA_alloc_get(mt_int,nion,'pspspin_downm',
+     >                pspspin_downm(2),pspspin_downm(1))
+         value = value.and.
+     >   MA_alloc_get(mt_dbl,nion,'pspspin_upscale',
+     >                pspspin_upscale(2),pspspin_upscale(1))
+         value = value.and.
+     >   MA_alloc_get(mt_dbl,nion,'pspspin_downm',
+     >                pspspin_downscale(2),pspspin_downscale(1))
          if (.not. value) 
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
 
-         call control_set_pspspin(pspspin_upscale,pspspin_downscale,
-     >                            pspspin_upl,pspspin_downl,
-     >                            pspspin_upm,pspspin_downm,
-     >                            nion,
+         do ii=1,nion
+            log_mb(pspspin_upions(1)+ii-1)    = .false.
+            log_mb(pspspin_downions(1)+ii-1)  = .false.
+            dbl_mb(pspspin_upscale(1)+ii-1)   = 1.0d0
+            dbl_mb(pspspin_downscale(1)+ii-1) = 1.0d0
+            int_mb(pspspin_upl(1)+ii-1)       = 0
+            int_mb(pspspin_downl(1)+ii-1)     = 0
+            int_mb(pspspin_upm(1)+ii-1)       = 0
+            int_mb(pspspin_downm(1)+ii-1)     = 0
+         end do
+         call control_set_pspspin(nion,
+     >                            dbl_mb(pspspin_upscale(1)),
+     >                            dbl_mb(pspspin_downscale(1)),
+     >                            int_mb(pspspin_upl(1)),
+     >                            int_mb(pspspin_downl(1)),
+     >                            int_mb(pspspin_upm(1)),
+     >                            int_mb(pspspin_downm(1)),
      >                            log_mb(pspspin_upions(1)),
      >                            log_mb(pspspin_downions(1)))
       end if
@@ -484,6 +515,12 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       if (pspspin) then
          value = value.and.MA_free_heap(pspspin_upions(2))
          value = value.and.MA_free_heap(pspspin_downions(2))
+         value = value.and.MA_free_heap(pspspin_upm(2))
+         value = value.and.MA_free_heap(pspspin_downm(2))
+         value = value.and.MA_free_heap(pspspin_upl(2))
+         value = value.and.MA_free_heap(pspspin_downl(2))
+         value = value.and.MA_free_heap(pspspin_upscale(2))
+         value = value.and.MA_free_heap(pspspin_downscale(2))
       end if
 
 
@@ -1858,14 +1895,16 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *           **** nwchem input: pspspin up/down scale l ion_numbers                       ****
             if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
-     >            (l_prj.eq.pspspin_upl) .and.
-     >            ((m_prj.eq.pspspin_upm).or.(pspspin_upm.gt.999)))
-     >            call dscal(ne(1),pspspin_upscale,
+     >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
+     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
+     >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
-     >            (l_prj.eq.pspspin_downl).and.
-     >            ((m_prj.eq.pspspin_downm).or.(pspspin_downm.gt.999)))
-     >            call dscal(ne(2),pspspin_downscale,
+     >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
+     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
+     >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
             end if
         end do
@@ -2425,16 +2464,18 @@ c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
 *              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
                if (pspspin) then
-                  if (log_mb(pspspin_upions(1)+ii-1).and.
-     >               (l_prj.eq.pspspin_upl).and.
-     >               ((m_prj.eq.pspspin_upm).or.(pspspin_upm.gt.999)))
-     >            call dscal(ne(1),pspspin_upscale,
-     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn),1)
-                  if (log_mb(pspspin_downions(1)+ii-1).and.
-     >             (l_prj.eq.pspspin_downl).and.
-     >             ((m_prj.eq.pspspin_downm).or.(pspspin_downm.gt.999)))
-     >            call dscal(ne(2),pspspin_downscale,
-     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn+ne(1)),1)
+               if (log_mb(pspspin_upions(1)+ii-1).and.
+     >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
+     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
+     >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
+     >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
+               if (log_mb(pspspin_downions(1)+ii-1).and.
+     >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
+     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
+     >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
+     >                       dbl_mb(sw2a(1)+(l-1)*nn+ne(1)),1)
                end if
 
                l1 = l1 + 1
@@ -2654,7 +2695,7 @@ cccccccccccc#include "frac_occ.fh"
 
 *     *** local variables ***
       integer G(3),npack1,shift,Gijl_indx
-      integer i,ii,ia,k,l,n,nn,l_prj,nproj
+      integer i,ii,ia,k,l,n,nn,l_prj,m_prj,nproj
       real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),vtmp(2),xtmp(2),sw1(2),sw2(2),sum(2)
@@ -2710,6 +2751,8 @@ c     **** define Gx,Gy and Gz in packed space ****
            shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  +(ia-1)*(nmax_max*lmmax_max))
+           m_prj = int_mb(m_projector(1)+(l-1) 
+     >                                  +(ia-1)*(nmax_max*lmmax_max))
 
            !sd_function = .not.and(l_prj,1)
 #ifdef GCC4
@@ -2746,12 +2789,16 @@ c     **** define Gx,Gy and Gz in packed space ****
 *           **** nwchem input: pspspin up/down scale l ion_numbers                       ****
             if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
-     >            (l_prj.eq.pspspin_upl))
-     >            call dscal(ne(1),pspspin_upscale,
+     >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
+     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
+     >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
-     >            (l_prj.eq.pspspin_downl))
-     >            call dscal(ne(2),pspspin_downscale,
+     >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
+     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
+     >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
             end if
 
@@ -3076,16 +3123,18 @@ c     **** define Gx,Gy and Gz in packed space ****
 *              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
                if (pspspin) then
-                  if (log_mb(pspspin_upions(1)+ii-1).and.
-     >               (l_prj.eq.pspspin_upl).and.
-     >               ((m_prj.eq.pspspin_upm).or.(pspspin_upm.gt.999)))
-     >            call dscal(ne(1),pspspin_upscale,
-     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn),1)
-                  if (log_mb(pspspin_downions(1)+ii-1).and.
-     >             (l_prj.eq.pspspin_downl).and.
-     >             ((m_prj.eq.pspspin_downm).or.(pspspin_downm.gt.999)))
-     >            call dscal(ne(2),pspspin_downscale,
-     >                       dbl_mb(sw2a(1)+(swstart+l-1)*nn+ne(1)),1)
+               if (log_mb(pspspin_upions(1)+ii-1).and.
+     >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
+     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
+     >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
+     >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
+               if (log_mb(pspspin_downions(1)+ii-1).and.
+     >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
+     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
+     >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
+     >                       dbl_mb(sw2a(1)+(l-1)*nn+ne(1)),1)
                end if
 
                l1 = l1 + 1

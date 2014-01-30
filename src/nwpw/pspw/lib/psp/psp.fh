@@ -84,16 +84,16 @@
 
 
 *     **** common block for pspspin ****
-      logical pspspin,pspspin_nom
-      integer pspspin_upl,pspspin_downl
-      integer pspspin_upm,pspspin_downm
-      integer pspspin_upions(2),pspspin_downions(2)
-      real*8  pspspin_upscale,pspspin_downscale
+      logical pspspin
+      integer pspspin_upl(2),    pspspin_downl(2)
+      integer pspspin_upm(2),    pspspin_downm(2)
+      integer pspspin_upions(2), pspspin_downions(2)
+      integer pspspin_upscale(2),pspspin_downscale(2)
       common / pspspin_block / pspspin_upscale,pspspin_downscale,
      >                         pspspin_upions, pspspin_downions,
      >                         pspspin_upl,    pspspin_downl,
      >                         pspspin_upm,    pspspin_downm,
-     >                         pspspin, pspspin_nom
+     >                         pspspin
 
 *     **** common block for psputerm ****
       logical psputerm
