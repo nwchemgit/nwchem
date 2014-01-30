@@ -5149,8 +5149,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  2302 format(2x," - pspspin: up    ion indexes  =",10I5)
  2303 format(2x," - pspspin: down  l =",I2,"  scale =",F8.3)
  2304 format(2x," - pspspin: down  ion indexes  =",10I5)
- 2305 format(2x," - pspspin: up    l =",I2," not m=",I2," scale =",F8.3)
- 2306 format(2x," - pspspin: down  l =",I2," not m=",I2," scale =",F8.3)
+ 2305 format(2x," - pspspin: up    l =",I2," not_m=",I2," scale =",F8.3)
+ 2306 format(2x," - pspspin: down  l =",I2," not_m=",I2," scale =",F8.3)
 
       return
       end
