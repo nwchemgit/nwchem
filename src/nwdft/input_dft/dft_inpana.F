@@ -597,7 +597,7 @@ c
                write(LuOut,9140) 'Delley'
             elseif(lssw) then
                if(whichssw.eq.'ssf ') then
-                  write(LuOut,9140) ' Straatman-Scuseria-Fritsch'
+                  write(LuOut,9140) ' Stratmann-Scuseria-Frisch'
                elseif(whichssw.eq.'erf1') then
                   write(LuOut,9140) ' Erf1'
                elseif(whichssw.eq.'erf2') then
