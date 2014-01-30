@@ -1896,13 +1896,13 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
             if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
-     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
      >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
-     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_downm(1)+ii-1)).or.
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
@@ -2466,13 +2466,13 @@ c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
                if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
-     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
      >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
-     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_downm(1)+ii-1)).or.
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(l-1)*nn+ne(1)),1)
@@ -2790,13 +2790,13 @@ c     **** define Gx,Gy and Gz in packed space ****
             if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
-     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
      >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
-     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_downm(1)+ii-1)).or.
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
@@ -3125,13 +3125,13 @@ c     **** define Gx,Gy and Gz in packed space ****
                if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
-     >           ((m_prj.eq.int_mb(pspspin_upm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
      >            (int_mb(pspspin_upm(1)+ii-1).gt.999)))
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
-     >           ((m_prj.eq.int_mb(pspspin_downm(1)+ii-1)).or.
+     >           ((m_prj.ne.int_mb(pspspin_downm(1)+ii-1)).or.
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(l-1)*nn+ne(1)),1)
