@@ -125,7 +125,7 @@ c
 
       double precision kb
       parameter (kb=3.16679d-6)
-      logical      value,move,mulliken_kawai,nose,nosers,has_m
+      logical      value,move,mulliken_kawai,nose,nosers,not_m
       character*50 cell_name,zone_name,rtdb_name
       character*50 input_wavefunction_filename
       character*50 output_wavefunction_filename
@@ -1338,9 +1338,9 @@ c
          
 
 *        **** add m options ****
-         has_m = .false.
-         if (inp_compare(.false.,zone_name,'use_m')) then
-            if (inp_i(ny)) has_m = .true.
+         not_m = .false.
+         if (inp_compare(.false.,zone_name,'not_m')) then
+            if (inp_i(ny)) not_m = .true.
             if (.not.inp_a(zone_name)) zone_name = "?????"
          end if
 
@@ -1364,7 +1364,7 @@ c
                if (inp_compare(.false.,cell_name,'3')) nx = 3
                rtdb_name = 'nwpw:pspspin_upl:'//c_index_name(nz)
                value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nx)
-               if (has_m) then
+               if (not_m) then
                   rtdb_name = 'nwpw:pspspin_upm:'//c_index_name(nz)
                   value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ny)
                end if
@@ -1406,7 +1406,7 @@ c
                if (inp_compare(.false.,cell_name,'3')) nx = 3
                rtdb_name = 'nwpw:pspspin_downl:'//c_index_name(nz)
                value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nx)
-               if (has_m) then
+               if (not_m) then
                   rtdb_name = 'nwpw:pspspin_downm:'//c_index_name(nz)
                   value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ny)
                end if
