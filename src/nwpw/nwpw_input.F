@@ -1319,29 +1319,40 @@ c
 
          if (inp_compare(.false.,zone_name,'off')) then
             value = rtdb_put(rtdb,'nwpw:pspspin',mt_log,1,.false.)
+            value = rtdb_put(rtdb,'nwpw:pspspin_count',mt_int,1,0)
             goto 6810
          end if
          if (inp_compare(.false.,zone_name,'.false.')) then
             value = rtdb_put(rtdb,'nwpw:pspspin',mt_log,1,.false.)
+            value = rtdb_put(rtdb,'nwpw:pspspin_count',mt_int,1,0)
             goto 6810
          end if
          if (inp_compare(.false.,zone_name,'F')) then
             value = rtdb_put(rtdb,'nwpw:pspspin',mt_log,1,.false.)
+            value = rtdb_put(rtdb,'nwpw:pspspin_count',mt_int,1,0)
             goto 6810
          end if
+
+         if (.not.rtdb_get(rtdb,'nwpw:pspspin_count',mt_int,1,nz)) nz=0
+         nz = nz + 1
+         
 
 *        **** add m options ****
          has_m = .false.
          if (inp_compare(.false.,zone_name,'use_m')) then
             if (inp_i(ny)) has_m = .true.
+            if (.not.inp_a(zone_name)) zone_name = "?????"
          end if
 
          if (inp_compare(.false.,zone_name,'up') .or.
      >       inp_compare(.false.,zone_name,'alpha')) then
             value = rtdb_put(rtdb,'nwpw:pspspin',mt_log,1,.true.)
+            rtdb_name = 'nwpw:pspspin_iamup:'//c_index_name(nz)
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_log,1,.true.)
             if (inp_a(cell_name).and.inp_f(emax)) then
+               rtdb_name = 'nwpw:pspspin_upscale:'//c_index_name(nz)
                value = value.and.
-     >         rtdb_put(rtdb,'nwpw:pspspin_upscale',mt_dbl,1,emax)
+     >         rtdb_put(rtdb,rtdb_name,mt_dbl,1,emax)
                nx = -1
                if (inp_compare(.false.,cell_name,'s')) nx = 0
                if (inp_compare(.false.,cell_name,'p')) nx = 1
@@ -1351,11 +1362,12 @@ c
                if (inp_compare(.false.,cell_name,'1')) nx = 1
                if (inp_compare(.false.,cell_name,'2')) nx = 2
                if (inp_compare(.false.,cell_name,'3')) nx = 3
-               value = value.and.
-     >         rtdb_put(rtdb,'nwpw:pspspin_upl',mt_int,1,nx)
-               if (has_m) 
-     >            value=value.and.
-     >                  rtdb_put(rtdb,'nwpw:pspspin_upm',mt_int,1,ny)
+               rtdb_name = 'nwpw:pspspin_upl:'//c_index_name(nz)
+               value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nx)
+               if (has_m) then
+                  rtdb_name = 'nwpw:pspspin_upm:'//c_index_name(nz)
+                  value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ny)
+               end if
 
                space_avail = min(100000,ma_inquire_avail(mt_int))
                if (.not.ma_push_get(mt_int,space_avail,'input scratch',
@@ -1365,9 +1377,9 @@ c
                if (.not.inp_ilist(space_avail,int_mb(i_values),nx))
      >         call errquit('nwpw_input: failed reading integer list',
      >                      0, INPUT_ERR)
+               rtdb_name = 'nwpw:pspspin_upions:'//c_index_name(nz)
                value = value.and.
-     >         rtdb_put(rtdb,'nwpw:pspspin_upions',mt_int,
-     >                  nx,int_mb(i_values))
+     >         rtdb_put(rtdb,rtdb_name,mt_int,nx,int_mb(i_values))
                if (.not.ma_pop_stack(h_values)) call errquit(
      >         'nwpw_input: unable to deallocate input scratch space',
      >                      0, INPUT_ERR)
@@ -1378,9 +1390,11 @@ c
          if (inp_compare(.false.,zone_name,'down') .or.
      >       inp_compare(.false.,zone_name,'beta')) then
             value = rtdb_put(rtdb,'nwpw:pspspin',mt_log,1,.true.)
+            rtdb_name = 'nwpw:pspspin_iamup:'//c_index_name(nz)
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_log,1,.false.)
             if (inp_a(cell_name).and.inp_f(emax)) then
-               value = value.and.
-     >         rtdb_put(rtdb,'nwpw:pspspin_downscale',mt_dbl,1,emax)
+               rtdb_name = 'nwpw:pspspin_downscale:'//c_index_name(nz)
+               value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,emax)
                nx = -1
                if (inp_compare(.false.,cell_name,'s')) nx = 0
                if (inp_compare(.false.,cell_name,'p')) nx = 1
@@ -1390,11 +1404,12 @@ c
                if (inp_compare(.false.,cell_name,'1')) nx = 1
                if (inp_compare(.false.,cell_name,'2')) nx = 2
                if (inp_compare(.false.,cell_name,'3')) nx = 3
-               value = value.and.
-     >         rtdb_put(rtdb,'nwpw:pspspin_downl',mt_int,1,nx)
-               if (has_m) 
-     >            value=value.and.
-     >                  rtdb_put(rtdb,'nwpw:pspspin_downm',mt_int,1,ny)
+               rtdb_name = 'nwpw:pspspin_downl:'//c_index_name(nz)
+               value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nx)
+               if (has_m) then
+                  rtdb_name = 'nwpw:pspspin_downm:'//c_index_name(nz)
+                  value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ny)
+               end if
 
                space_avail = min(100000,ma_inquire_avail(mt_int))
                if (.not.ma_push_get(mt_int,space_avail,'input scratch',
@@ -1404,15 +1419,17 @@ c
                if (.not.inp_ilist(space_avail,int_mb(i_values),nx))
      >         call errquit('nwpw_input: failed reading integer list', 
      >                      0, INPUT_ERR)
+               rtdb_name = 'nwpw:pspspin_downions:'//c_index_name(nz)
                value = value.and.
-     >         rtdb_put(rtdb,'nwpw:pspspin_downions',mt_int,
-     >                  nx,int_mb(i_values))
+     >         rtdb_put(rtdb,rtdb_name,mt_int,nx,int_mb(i_values))
                if (.not.ma_pop_stack(h_values)) call errquit(
      >         'nwpw_input: unable to deallocate input scratch space',
      >                      0, INPUT_ERR)
 
             end if
          end if
+         value = value.and.
+     >           rtdb_put(rtdb,'nwpw:pspspin_count',mt_int,1,nz)
 
  6810    if (.not.value)
      >    call errquit('nwpw_input: writing ', 6800, RTDB_ERR)
