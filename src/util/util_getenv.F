@@ -28,3 +28,14 @@
 #endif
 *
       end
+      integer function util_nwcnumthreads()
+      implicit none
+      character*20 env_value 
+      integer nnn
+c
+      call getenv('NWC_NUM_THREADS',env_value)
+cdebug      write (0,*) ' val ',env_value
+      read (env_value,'(I20)') nnn
+      util_nwcnumthreads=nnn
+      return
+      end
