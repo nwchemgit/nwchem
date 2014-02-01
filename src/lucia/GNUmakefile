@@ -7,7 +7,7 @@
 	daname.o daname_main.o dblas.o ddafile.o densi2_ab.o determinant.o \
 	diis.o diis_simple.o dim_pa.o dummies.o \
 	eispack.o ekt.o filehand.o gasdir2.o gasrou.o gucc_fock.o i2addr.o \
-	idafile_.o idafile.o linpack1.o lsame.o lucia1.o lucia3.o lucia4.o \
+	idafile_.o idafile.o lsame.o linpack1.o lucia1.o lucia3.o lucia4.o \
 	lucia5.o lucia6.o lucia7.o lucia_akbk.o lucia_anders.o lucia_caspt.o \
 	lucia_cc.o lucia_ccrsp.o lucia_csf.o lucia_gencc2.o lucia_gencc3.o \
 	lucia_gencc4.o lucia_gencc5.o lucia_gencc.o lucia_gtbce.o lucia_hf.o \

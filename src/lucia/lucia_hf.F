@@ -4859,7 +4859,7 @@ C                 TRACE_BLK_MAT(A,NBLK,LBLK,IPAK)
 *. Output 
       DIMENSION X(NDIM)
 *
-      NTEST = 05
+      NTEST = 00
       IF(NTEST.GE.5) THEN
         WRITE(6,*) ' Output from optimizer with step-control '
       END IF
@@ -6622,7 +6622,7 @@ C    &                          ICOLD_IS_UNI)
       DIMENSION REF(NVAR),DIR(NVAR)
       EXTERNAL FUNC
 *
-      NTEST = 200
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Entering LINES_SEARCH_BY_BISECT'
       END IF
@@ -6770,7 +6770,8 @@ C              EXTREMUM_QUADPOL(A,B,C,XEXTR,IMNMX)
 *. Compare X and XOLD to see whether it is worth taking 
 *. another round
        RATIO = ABS(X-XOLD)/X
-       WRITE(6,*) ' X, XOLD, RATIO = ', X,XOLD,RATIO
+       IF (NTEST.GT.10)
+     & WRITE(6,*) ' X, XOLD, RATIO = ', X,XOLD,RATIO
        THRES = 0.0001
 *. A rough estimate is sufficient
        THRES = 0.1D0
@@ -6872,7 +6873,7 @@ C              EXTREMUM_QUADPOL(A,B,C,XEXTR,IMNMX)
         ITYP = 3
       END IF
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,'(A,3(1X,E22.15))') 
      &  ' Analyzing the three function values:',  F1,F2,F3

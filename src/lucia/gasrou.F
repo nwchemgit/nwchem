@@ -702,7 +702,7 @@ C?      WRITE(6,*) ' ISMSPGP , NST = ', ISMSPGP , NST
 *
       END DO
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN 
         WRITE(6,*) 
      &  ' Division of orbitals according to compound CI space'
@@ -793,7 +793,7 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
       CALL MAX_NOPEN_NOCCLS_FOR_CISPAC(IGSOCC(1,1),IGSOCC(1,2),
      &     NOPEN_MAX,NOCCLS_MAX)
 *. Number of AB supergroups in expansion of the compound space
-      IF(NTEST.GE.0) THEN
+      IF(NTEST.GE.5) THEN
         WRITE(6,'(A,I4)') 
      &  ' Max number of unpaired electrons ', NOPEN_MAX
         WRITE(6,'(A,I8)')
@@ -824,7 +824,8 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
       DO IGAS = 1, NGAS
         NOCSBCLST = NOCSBCLST + MXGSOC(IGAS)-MNGSOC(IGAS)+1
       END DO
-      WRITE(6,*) ' Number of occupation subclasses ', NOCSBCLST
+      IF (NTEST.GT.5)
+     &WRITE(6,*) ' Number of occupation subclasses ', NOCSBCLST
 *
 *. Particle and hole spaces  : 
 *  Hole spaces are always more than half occupied
@@ -1442,9 +1443,11 @@ C        IMNMX(IVEC,NDIM,MINMAX)
 *. START OF CHANGE, Jeppe, December 2011
       I_DO_REO = 0
       IF(I_DO_REO.EQ.0) THEN
-        WRITE(6,*) ' No reordering of supergroups'
+        IF (NTEST.GT.2)
+     &  WRITE(6,*) ' No reordering of supergroups'
       ELSE
-       WRITE(6,*) ' Reordering of supergroups'
+       IF (NTEST.GT.2)
+     & WRITE(6,*) ' Reordering of supergroups'
        DO ITYP= 1, NSTTP
          IBTYP = IBSPGPFTP(ITYP)            
          NSPGP = NSPGPFTP(ITYP)
@@ -1715,7 +1718,7 @@ CNW   CALL MEMMAN(KFREEL,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
 *
         IF(ISTAC(IGRP,2).NE.0) THEN
           JGRP = ISTAC(IGRP,2)
-          WRITE(6,*) ' Creation group = ', JGRP
+          IF (NTETS.GT.5) WRITE(6,*) ' Creation group = ', JGRP
           CALL CRESTR_GAS(int_mb(KOCSTR(IGRP)),NSTFGP(IGRP),
      &         NSTFGP(JGRP),IEL,NGSOBP,IGSOB,int_mb(KZ(JGRP)),
      &         int_mb(KSTREO(JGRP)),0,IDUM,IDUM,
@@ -1992,6 +1995,7 @@ C     GET_DIM_PLSTRINGS(MXNSTRP,MXNSTRP_AS,MXNSTRL,
 C    &           MXNSTRL_AS,MXNSTRSTRP_AS,MXNSTRSTRL_AS)
       CALL GET_DIM_PLSTRINGS(MXNSTRP,MXNSTRP_AS,MXNSTRL,
      &           MXNSTRL_AS,MXNSTRSTRP_AS,MXNSTRSTRL_AS)
+      IF (NTEST.GT.10) THEN
       WRITE(6,*) ' Info on PL expansion of strings and CI-space:'
       WRITE(6,'(A,2I6)') ' MXNSTRP,MXNSTRP_AS = ', MXNSTRP,MXNSTRP_AS
       WRITE(6,'(A,2I6)') ' MXNSTRL,MXNSTRL_AS = ', MXNSTRL,MXNSTRL_AS
@@ -2003,6 +2007,7 @@ C    &           MXNSTRL_AS,MXNSTRSTRP_AS,MXNSTRSTRL_AS)
 *
       WRITE(6,*) ' Memory Check at end of STRINF_GAS  '
       CALL MEMCHK
+      ENDIF
 *
       CALL LUCIAQEXIT('STIN2')
       CALL LUCIAQEXIT('STRIN')
@@ -2246,7 +2251,7 @@ c      INCLUDE 'mxpdim.inc'
 *
 *. Start of string information
       CALL MEMMAN(KSTINF,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10)
      &WRITE(6,*) ' First word with string information',KSTINF
 *

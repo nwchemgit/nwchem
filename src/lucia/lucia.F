@@ -1931,7 +1931,6 @@ c      INCLUDE 'mxpdim.inc'
       character*100 nam,fil
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       NTEST = 0
-      NTEST = 5
       NTEST = MAX(NTEST,IPRNT)
       MXACJ = 0
       MXACIJ = 0
@@ -3003,6 +3002,10 @@ c     &                  WORK(KVEC1),WORK(KVEC2),EREF)
 C?      WRITE(6,*) ' Home from CI_RESPONS'
       END DO
 *
+      if (.not. ga_destroy(KCOMVEC2)) call 
+     &     errquit('GASCI: ga_destroy kcomvec1 failed', 0 , GA_ERR)
+      if (.not. ga_destroy(KCOMVEC1)) call 
+     &     errquit('GASCI: ga_destroy kcomvec1 failed', 0 , GA_ERR)
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'GASCI ')
       RETURN
       END
@@ -3858,14 +3861,17 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'gasstr.inc'
 *.Output
       INCLUDE 'glbbas.inc'
+      INCLUDE 'nwchem_data.inc'
 *.1: One electron integrals( Complete matrix allocated )
 c     CALL MEMMAN(KINT1,NTOOB ** 2,'ADDS  ',2,'INT1  ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'INT1 ',0,1,KINT1))
      &       call errquit('cannot create lucia_1e: kint1',0,GA_ERR)
+         igalist(1) = KINT1
 *. A copy of the original UNMODIFIED 1-elecs ints
 c     CALL MEMMAN(KINT1O,NTOOB ** 2,'ADDS  ',2,'INT1O ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'INT1O',0,1,KINT1O))
      &       call errquit('cannot create lucia_1e: kint1o',0,GA_ERR)
+         igalist(2) = KINT1O
 *. Zero to avoid problems with elements that will not 
 *. be initialized
       ZERO = 0.0D0
@@ -3875,11 +3881,13 @@ c     CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
 c     CALL  MEMMAN(KH,NTOOB**2,'ADDS  ',2,'H1    ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'H1    ',0,0,KH))
      &       call errquit('cannot create lucia_1e: kh',0,GA_ERR)
+         igalist(3) = KH    
 *. 1-electron integrals with contribution  from two-electron terms from
 *  explicitly declared inactive orbitals
 c     CALL MEMMAN(KHINA,NTOOB**2,'ADDS ',2,'H1INA ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'H1INA ',0,0,KHINA))
      &       call errquit('cannot create lucia_1e: kh1ina',0,GA_ERR)
+         igalist(4) = KHINA
 *. Overlap matrix in AO basis
       CALL MEMMAN(KSAO,NTOOB**2,'ADDS ',2,'SAO   ')  
 *
@@ -3889,54 +3897,71 @@ c     CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
 c     CALL MEMMAN(KFI  ,NTOOB ** 2,'ADDS  ',2,'FI    ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FI    ',0,0,KFI))
      &       call errquit('cannot create lucia_1e: kfi',0,GA_ERR)
+         igalist(5) = KFI   
 c     CALL MEMMAN(KFIO ,NTOOB ** 2,'ADDS  ',2,'FIO   ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FIO   ',0,0,KFIO))
      &       call errquit('cannot create lucia_1e: kfio',0,GA_ERR)
+         igalist(6) = KFIO
 *.1.2 Inactive Fock matrx in zero order space 
 c     CALL MEMMAN(KFIZ,NTOOB **2, 'ADDS  ',2,'FIZ    ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FIZ   ',0,0,KFIZ))
      &       call errquit('cannot create lucia_1e: kfiz',0,GA_ERR)
+         igalist(7) = KFIZ
 
 *.1.3 Inactive Fock matrix for alpha and beta - spin
 c     CALL MEMMAN(KFI_AL,NTOOB**2, 'ADDS  ',2,'FI_AL ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_AL',0,0,KFI_AL))
      &       call errquit('cannot create lucia_1e: kfi_al',0,GA_ERR)
+         igalist(8) = KFI_AL
 c     CALL MEMMAN(KFI_BE,NTOOB**2, 'ADDS  ',2,'FI_BE ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FI_BE',0,0,KFI_BE))
      &       call errquit('cannot create lucia_1e: fi_be',0,GA_ERR)
+         igalist(9) = KFI_BE
 *. Inactive + active Fock matrix
 c     CALL MEMMAN(KFIFA,NTOOB**2, 'ADDS  ',2,'FIFA  ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FIFA  ',0,0,KFIFA))
      &       call errquit('cannot create lucia_1e: kfifa',0,GA_ERR)
+         igalist(10) = KFIFA
 *. Active Fock matrix
 c     CALL MEMMAN(KFA,NTOOB**2,'ADDS  ',2,'FA    ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FA    ',0,0,KFA))
      &       call errquit('cannot create lucia_1e: kfa',0,GA_ERR)
+         igalist(11) = KFA
 *. Fock matrix
 c     CALL MEMMAN(KF,NTOOB**2,'ADDS  ',2,'FOCK  ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK  ',0,0,KF))
      &       call errquit('cannot create lucia_1e: kf',0,GA_ERR)
+         igalist(12) = KF
+         igalstnr = 12
 *
       IF(I_DO_NORTCI.EQ.1) THEN
 *. Also space for the extra Fock-matrix for the biorthonormal expansion
 c       CALL MEMMAN(KF2,NTOOB**2,'ADDS  ',2,'FOCK2 ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'FOCK2 ',0,0,KF2))
      &       call errquit('cannot create lucia_1e: kf2',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KF2
       END IF
 
 *. Malmqvist transformation matrix
 c     CALL MEMMAN(KTPAM,NTOOB**2,'ADDS  ',2,'TPAM  ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'TPAM  ',0,0,KTPAM))
      &       call errquit('cannot create lucia_1e: ktpam',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KTPAM
 *.2: Two electron integrals
       IF(NOINT.EQ.0.AND.INCORE.EQ.1.AND.ISVMEM.EQ.0) THEN
 CNW      CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
          if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EMO))
      &       call errquit('cannot create lucia_2e: kint_2emo',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KINT_2EMO
 *. For initial set of integrals
 CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
          if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EINI))
      &       call errquit('cannot create lucia_2e: kint_2eini',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KINT_2EINI
       END IF
 *. Pointers to symmetry block of integrals
       CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',1,'PINT1 ')  !done
@@ -4091,6 +4116,8 @@ c        CALL MEMMAN(KINT1_SIMTRH,NTOOB**2, 'ADDL  ',2,'SIMTR1')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'SIMTR1',0,0,
      &       KINT1_SIMTRH)) call
      &       errquit('cannot create lucia_1e: kint1_simtrh',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KINT1_SIMTRH
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
          IF(ISVMEM.EQ.0) THEN 
            LEN =  NINT2_NO_CCSYM
@@ -4113,10 +4140,14 @@ c        CALL MEMMAN(KINT1_SIMTRH_A,NTOOB**2, 'ADDL  ',2,'SMTHA ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHA ',0,0,
      &       KINT1_SIMTRH_A)) call
      &       errquit('cannot create lucia_1e: kint_simtrh_a',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KINT1_SIMTRH_A
 c         CALL MEMMAN(KINT1_SIMTRH_B,NTOOB**2, 'ADDL  ',2,'SMTHB ')
          if(.not.ga_create(mt_dbl,ntoob**2,1,'SMTHB ',0,0,
      &       KINT1_SIMRTH_B)) call
      &       errquit('cannot create lucia_1e: kint1_simrth_b',0,GA_ERR)
+         igalstnr = igalstnr + 1
+         igalist(igalstnr) = KINT1_SIMRTH_B
          CALL MEMMAN(KPINT1_SIMTRH,NSMOB,   'ADDL  ',2,'PSMTR1')
 *
          IF (ISVMEM.EQ.0) THEN
@@ -4935,7 +4966,8 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
        END IF
 *
 *. Routine using two complete vectors in core
-       IOLSEN = 1
+CBERT  IOLSEN = 1
+       IOLSEN = 0
        IPICO = 0
        IF(MXCIIT.NE.0) THEN
          CALL MINDV4(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
@@ -6740,7 +6772,8 @@ C       CALL NXTIJ(L,J,NL,NJ,JLSM,NONEW)
 C         XINT((IK-1)*NJL+JL) = GTIJKL(IABS,JABS,KABS,LABS)
 C         IF(IXCHNG.EQ.1)
 C    &    XINT((IK-1)*NJL+JL) = XINT((IK-1)*NJL+JL)
-C    &    - GTIJKL(IABS,LABS,KABS,JABS)
+C    &    - GTIJKL(IABS,LABS,KABS,JABS
+CBERT THIS SHOULD BE A GATHER OF MANY INTEGRALS
           XINT((JL-1)*NIK+IK) = GTIJKL(IABS,JABS,KABS,LABS)
           IF(IXCHNG.EQ.1)
      &    XINT((JL-1)*NIK+IK) = XINT((JL-1)*NIK+IK)
@@ -8100,8 +8133,8 @@ CNW     WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,H(IJ)
 *.Scratch: Is not needed !!!
       DIMENSION SCR(2)
 *. Call the slave 
-cGLM      CALL GTJKS(RJ,RK,NTOOB)
-      CALL GTJKL(RJ,RK,NTOOB)
+      CALL GTJKS(RJ,RK,NTOOB)
+C     CALL GTJKL(RJ,RK,NTOOB)
       NTEST = 00
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' RJ and RK from GTJK '
@@ -8152,8 +8185,8 @@ cGLM         K(IORB,JORB) = GTIJKL(IORB,JORB,JORB,IORB)
   100   CONTINUE
   200 CONTINUE
 *
-      NTEST = 10
-      IF(NTEST.NE.0) THEN
+      NTEST = 0
+      IF(NTEST.GT.10) THEN
         write(6,*) 'IORB IORB JORB JORB, J(IORB,JORB)'
         DO IORB = 1, NORB
           DO JORB = 1, NORB
@@ -9351,7 +9384,7 @@ c     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
 * Type of orbitals is flagged by an index IOG being 1(occ) or 2(gen)
 *
 *
-      NTEST = 100
+      NTEST = 000
 * ====================
 * Arrays of integrals
 * ====================
@@ -10726,6 +10759,7 @@ c
 *. Static memory, initialize
       KBASE = 1
       KADD = MAXMEM
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'LUCIA')
 CNW   CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY ')
 *. Ratio beteeen real and integer word length
       CALL  ZIRAT
@@ -10969,7 +11003,7 @@ C GET_NSD_MINMAX_SPACE(MIN_OCC,MAX_OCC,ISYM,MS2X,MULTSX, NSD,NCM,NCSF,NCONF)
          MXP1 = MXP1_MAX 
          NP1 = MXP1_MAX
       END IF
-      WRITE(6,*) ' MXP1_MAX, fresh = ', MXP1_MAX
+      IF (NTEST.GT.10) WRITE(6,*) ' MXP1_MAX, fresh = ', MXP1_MAX
 
 CBERT MOVED TO GET ADDITIONAL INPUT INFO READY
 *. Assign diskunits
@@ -11811,6 +11845,15 @@ C?   &               WORK(KINT1), WORK(KINT2)
       CALL LUCIAQEXIT('REST ')
       CALL LUCIAQSTAT
       IDUM=0
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'LUCIA')
+      do i = igalstnr, 1, -1
+         if (.not. ga_destroy(igalist(i))) call errquit
+     $        ('lucia: destroying ga failed', igalist(i), GA_ERR)
+      enddo
+      if (.not. geom_destroy(luciageom)) call errquit
+     $        ('lucia: geom destroy failed', 0, GEOM_ERR)
+      if (.not. bas_destroy(luciabasis)) call errquit
+     $        ('lucia: basis destroy failed',0, BASIS_ERR)
       CALL MEMMAN(IDUM,IDUM,'STATI',IDUM,'END   ')
 C?    CALL RELEASE_WRKSPC()
       LUCIA = .TRUE.
@@ -12705,10 +12748,12 @@ c      INCLUDE 'mxpdim.inc'
            endif
         endif
         if (NS.gt.MARKS(NM)) then
-           if (.not. ma_free_heap(IBASES(MARKS(NM)+1))) then
+           DO I = NS, MARKS(NM)+1, -1
+           if (.not. ma_free_heap(IBASES(I))) then
             print*,'Mark: ',IDENT(1:6)
             call errquit('MEMMAN: ma heap flush failed', 911, MA_ERR)
            endif
+           ENDDO
         endif
         NL = MARKL(NM)
         NS = MARKS(NM)
@@ -13222,7 +13267,7 @@ C 100     CONTINUE
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.10) THEN
          WRITE(6,*) ' Number of double excitations obtained ', MDX
       END IF
 *
@@ -13524,7 +13569,7 @@ C?      WRITE(6,*) ' IO1SM,IO2SM',IO1SM,IO2SM
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
  
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.10) THEN
         WRITE(6,*)
      &  ' Number of single excitations of symmetry ',ISXSM,',',NSXFSM
       END IF
@@ -15933,6 +15978,7 @@ cnw          GOTO 999
 * 31: Print flag for Orbital information
 * ======================================
 cnw        IF(CARD(2:7).EQ.'IPRORB') THEN
+        iprorb = 0
         if(rtdb_get(rtdb,'lucia:iprorb',mt_int,1,iprorb)) then
           ISETKW(31) = 1
 cnw          READ(LUIN,*) IPRORB
@@ -18426,6 +18472,7 @@ cglm        GOTO 999
       END IF
 *
 * 169: Print level for MCSCF
+      IPRMCSCF = 0
       IF(rtdb_get(rtdb,'lucia:IPRMCSCF',mt_int,1,IPRMCSCF)) then
 cglm       IF(CARD(2:7).EQ.'IPRMCS') THEN
 cglm         READ(5,*)  IPRMCSCF
@@ -34780,10 +34827,11 @@ C?   &               ISM, NMOS, NAOS, NBLOCK
       INCLUDE 'crun.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
+      INCLUDE 'nwchem_data.inc'
 *. Local scratch
       INTEGER I2ELIST_INUSE(MXP2EIARR),IOCOBTP_INUSE(MXP2EIARR)
 *
-      NTEST = 100
+      NTEST = 000
 *. Integrals over all active orbitals must always be included
 *. List with zero free indices
       I2ELIST_INUSE(1) = 1
@@ -34855,6 +34903,8 @@ CNW       CALL MEMMAN(KINT2_A(IIARR),LINT,'ADDL  ',2,'INT2A ')
           if ( .not. ga_create( mt_dbl, lint, 1, 'INT2A',
      $     0,0, KINT2_A(IIARR)) ) call errquit(
      $     'Z_ACT: ga_create INT2A failed', lint , GA_ERR)
+          igalstnr = igalstnr + 1
+          igalist(igalstnr) = KINT2_A(IIARR)
        END DO
       END DO
 *

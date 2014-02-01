@@ -4384,7 +4384,8 @@ CNW        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
            if (dra_wait(itask).ne.0) call errquit('read',itask,911)
            IJ = IVEC*(IVEC-1)/2 + JVEC
 CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
-           APROJ(IJ) = ga_ddot(VEC1,VEC2)
+           APROJ(IJ) = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                               VEC2,'N',1,NVAR,1,1)
     8    CONTINUE
    10  CONTINUE
 *
@@ -4458,7 +4459,8 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
            END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
 CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
-         RNORM = SQRT( ga_ddot(VEC1,VEC1))
+         RNORM = SQRT( ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                               VEC1,'N',1,NVAR,1,1))
          RNRM(ITER-1,IROOT) = RNORM
          IF(RNORM.LT. TEST ) THEN
             RTCNV(IROOT) = .TRUE.
@@ -4534,7 +4536,8 @@ CNW           CALL TODSC(VEC2,NVAR,-1,LU3)
      &            itask,911)
 * Gamma = X(T) * (H0 - E) ** -1 * X
 CNW           GAMMA = INPROD(VEC2,VEC1,NVAR)
-              GAMMA = ga_ddot(VEC2,VEC1)
+              GAMMA = ga_ddot_patch(VEC2,'N',1,NVAR,1,1,
+     &                              VEC1,'N',1,NVAR,1,1)
 
 CBERT: H0M1TV and subsequent DDOT can be combined as we don't need
 CVEC3(2) anymore after we're done
@@ -4542,7 +4545,8 @@ CVEC3(2) anymore after we're done
 * is X an eigen vector for (H0 - 1 ) - 1
               call ga_add(GAMMA,VEC1,-1.0D0,VEC2,VEC2)
 CNW           CALL VECSUM(VEC2,VEC1,VEC2,GAMMA,-1.0D0,NVAR)
-              VNORM = SQRT(MAX(0.0D0,ga_ddot(VEC2,VEC2)))
+              VNORM = SQRT(MAX(0.0D0,ga_ddot_patch(VEC2,'N',1,NVAR,1,1,
+     &                                            VEC2,'N',1,NVAR,1,1)))
 CNW           VNORM = SQRT(MAX(0.0D0,INPROD(VEC2,VEC2,NVAR)))
 
               IF(VNORM .GT. 1.0D-7 ) THEN
@@ -4559,7 +4563,8 @@ CNW             CALL FRMDSC(VEC2,NVAR,-1,LU3,IMZERO,IAMPACK)
                 if (dra_wait(itask).ne.0) call errquit('dra read err',
      &              itask,911)
 CNW             DELTA = INPROD(VEC1,VEC2,NVAR)
-                DELTA = ga_ddot(VEC1,VEC2)
+                DELTA = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                                VEC2,'N',1,NVAR,1,1)
 CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
 CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
                 if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LU3,1,NVAR,
@@ -4588,7 +4593,8 @@ CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
               END IF
             END IF
 *. 1.3 ORTHOGONALIZE TO ALL PREVIOUS VECTORS
-           XNRMI = ga_ddot(VEC1,VEC1)
+           XNRMI = ga_ddot_patch(VEC1,'N',1,NVAR,1,1, 
+     &                           VEC1,'N',1,NVAR,1,1)
 CNW        XNRMI =    INPROD(VEC1,VEC1,NVAR)
 CNW        CALL REWINO( LU1 )
  
@@ -4600,13 +4606,15 @@ CNW          CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
              if (dra_wait(itask).ne.0) call errquit('dra read err',
      &           itask,911)
 CNW          OVLAP = INPROD(VEC1,VEC2,NVAR)
-             OVLAP = ga_ddot(VEC1,VEC2)
+             OVLAP = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                             VEC2,'N',1,NVAR,1,1)
 CNW          CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,-OVLAP,NVAR)
              call ga_add(-OVLAP,VEC2,1.0D0,VEC1,VEC1)
    80      CONTINUE
 *. 1.4 Normalize vector and check for linear dependency
 CNW        SCALE = INPROD(VEC1,VEC1,NVAR)
-           SCALE = ga_ddot(VEC1,VEC1)
+           SCALE = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                           VEC1,'N',1,NVAR,1,1)
            IF(ABS(SCALE)/XNRMI .LT. 1.0D-10) THEN
 *. Linear dependency
              IADD = IADD - 1
@@ -4673,7 +4681,8 @@ CNW       CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
           if (dra_wait(itask).ne.0) call errquit('dra read err',
      &        itask,911)
 CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
-          APROJ(IJ) = ga_ddot(VEC1,VEC2)
+          APROJ(IJ) = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                              VEC2,'N',1,NVAR,1,1)
   140   CONTINUE
   150 CONTINUE
 *  DIAGONALIZE PROJECTED MATRIX
@@ -4754,7 +4763,8 @@ CNW       CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
           call ga_add(FACTOR,VEC2,1.0d0,VEC1,VEC1)
  2200   CONTINUE
 CNW     SCALE = INPROD(VEC1,VEC1,NVAR)
-        SCALE = ga_ddot(VEC1,VEC1)
+        SCALE = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                        VEC1,'N',1,NVAR,1,1)
         SCALE  = 1.0D0/SQRT(SCALE)
 CNW     CALL SCALVE(VEC1,SCALE,NVAR)
         call ga_scale(VEC1,SCALE)
@@ -4771,11 +4781,13 @@ CNW     CALL FRMDSC(VEC2,NVAR,-1,LU1,IMZERO,IAMPACK)
         if (dra_wait(itask).ne.0) call errquit('dra read err',
      &      itask,911)
 CNW     OVLAP = INPROD(VEC1,VEC2,NVAR)
-        OVLAP = ga_ddot(VEC1,VEC2)
+        OVLAP = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
+     &                        VEC2,'N',1,NVAR,1,1)
 CNW     CALL VECSUM(VEC2,VEC2,VEC1,1.0D0,-OVLAP,NVAR)
         call ga_add(-OVLAP,VEC1,1.0d0,VEC2,VEC2)
 CNW     SCALE2 = INPROD(VEC2,VEC2,NVAR)
-        SCALE2 = ga_ddot(VEC2,VEC2)
+        SCALE2 = ga_ddot_patch(VEC2,'N',1,NVAR,1,1,
+     &                         VEC2,'N',1,NVAR,1,1)
         SCALE2 = 1.0D0/SQRT(SCALE2)
 CNW     CALL SCALVE(VEC2,SCALE2,NVAR)
         call ga_scale(VEC2,SCALE2)
@@ -4898,7 +4910,7 @@ CNW         CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
   200     CONTINUE
 *
 CNW       SCALE = INPROD(VEC1,VEC1,NVAR)
-          SCALE = ga_ddot(VEC1,VEC1)
+          SCALE = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,VEC1,'N',1,NVAR,1,1)
           SCALE  = 1.0D0/SQRT(SCALE)
 CNW       CALL SCALVE(VEC1,SCALE,NVAR)
           call ga_scale(VEC1,SCALE)

@@ -217,11 +217,10 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       END IF
 *
 *. Initial allowed step length 
-CBERT STEP_MAX = 0.75D0
-      STEP_MAX = 3.0D0
+      STEP_MAX = 0.75D0
 C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       TOLER = 1.1D0
-      NTEST = 10
+      NTEST = 0
       IPRNT= MAX(NTEST,IPRMCSCF)
 *
       I_DO_NEWTON = 0
@@ -368,7 +367,6 @@ CNW   CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
       IIUSEH0P = 0
       MPORENP_E = 0
       IPRDIAL = IPRMCSCF
-      IPRDIAL = 1
 *. Transfer to common block for communicating with EMCSCF
 C     COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI, IREFSPC_MCSCFL,
 C    &               IPRDIALL,IIUSEH0PL,MPORENP_EL,
@@ -681,7 +679,6 @@ CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
      &                              NOOEXC))
           IF(I_USE_BR_OR_E1.EQ.1.OR.XKAPPA_NORM.EQ.0.0D0) THEN
 *. Brillouin vector from Fock matrix is used
-           print*,'e1_from_f'
            CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &                   int_mb(KLOOEXCC),
      &                   NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
@@ -689,7 +686,6 @@ CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 *. Calculate gradient at non-vanishing Kappa
 *. Complete Brillouin matrix
 C              GET_BRT_FROM_F(BRT,F)
-           print*,'e1_mcscf_for_general_kappa'
           CALL GET_BRT_FROM_F(dbl_mb(KLBR),KF)
 C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
           CALL E1_MCSCF_FOR_GENERAL_KAPPA(dbl_mb(KLE1),dbl_mb(KLBR),
@@ -699,7 +695,6 @@ C              E1_MCSCF_FOR_GENERAL_KAPPA(E1,F,KAPPA)
 *. Average over orbital excitations belonging to a given shell excitation
 C                SHELL_AVERAGE_ORBEXC(VECIN,NSSEX,NOOFSS,IBOOFSS,
 C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
-           print*,'SHELL_AVERAGE_ORBEXC      '
             CALL SHELL_AVERAGE_ORBEXC(dbl_mb(KLE1),NSSEX,
      &           int_mb(KNOOFSS),int_mb(KIBOOFSS),int_mb(KIOOFSS),
      &           dbl_mb(KLEXCSCR),NOOEXC,1) 
@@ -724,7 +719,6 @@ C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
 *. Transform gradient to diagonal basis
 *
 *. (save original gradient)
-           print*,'i do newton'
             CALL COPVEC(dbl_mb(KLE1),dbl_mb(KLE1B),NOOEXC)
             CALL MATVCC(dbl_mb(KLE2F),dbl_mb(KLE1),dbl_mb(KLE2SC),
      &           NOOEXC,NOOEXC,1)
@@ -772,7 +766,7 @@ CM           CALL MEMCHK2('AFAVE2')
             E1STEP = INPROD(dbl_mb(KLSTEP),dbl_mb(KLE1B),NOOEXC)
             IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)')
      &      ' < E1!Step> = ', E1STEP
-            IF(E1STEP.GT.0.0D0) THEN
+            IF(E1STEP.GT.0.0D0.AND.IPRNT.GE.2) THEN
              WRITE(6,*) ' Warning: step is in uphill direction '
             END IF
 *. Energy for rotated orbitals
@@ -794,17 +788,17 @@ CM           CALL MEMCHK2('AFAVE2')
      &      DELTA_E_ACT, DELTA_E_PRED,E_RATIO
 *
             IF(E_RATIO.LT.0.0D0) THEN
-             WRITE(6,*) ' Trustradius reduced '
+             IF(IPRNT.GE.2) WRITE(6,*) ' Trustradius reduced '
              RED_FACTOR = 2.0D0
              STEP_MAX = STEP_MAX/RED_FACTOR
-             WRITE(6,*) ' New trust-radius ', STEP_MAX
+             IF(IPRNT.GE.2) WRITE(6,*) ' New trust-radius ', STEP_MAX
             END IF
             IF(IOUT.GT.1.AND.E_RATIO.GT.0.8D0.AND.I_CLOSE_TO_MAX.EQ.1) 
      &      THEN
-             WRITE(6,*) ' Trustradius increased '
+             IF(IPRNT.GE.2) WRITE(6,*) ' Trustradius increased '
              XINC_FACTOR = 1.5D0
              STEP_MAX = STEP_MAX*XINC_FACTOR
-             WRITE(6,*) ' New trust-radius ', STEP_MAX
+             IF(IPRNT.GE.2) WRITE(6,*) ' New trust-radius ', STEP_MAX
             END IF
 C?          WRITE(6,*) ' ABS(E_RATIO-1.0D0) = ', ABS(E_RATIO-1.0D0)
 *
@@ -935,8 +929,10 @@ C    &                  DISCH,LUHFIL)
             IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)')
      &      '  < E1!Step> = ', E1STEP
             IF(E1STEP.GT.0.0D0) THEN
+             IF(IPRNT.GE.2) THEN
              WRITE(6,*) ' Warning: step is in uphill direction '
              WRITE(6,*) ' Sign of step is changed '
+             ENDIF
              ONEM = -1.0D0
              CALL SCALVE(dbl_mb(KLSTEP),ONEM,NOOEXC)
              IIREVERSE = 1
@@ -977,14 +973,14 @@ CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
               IRESTR = 0
               IROOT_SEL_SAVE = IROOT_SEL
               IROOT_SEL = 0
-              WRITE(6,*) ' INI_SROOT, INI_NROOT = ',
+              IF(IPRNT.GE.2) WRITE(6,*) ' INI_SROOT, INI_NROOT = ',
      &                     INI_SROOT, INI_NROOT
               IF(INI_SROOT.NE.INI_NROOT) THEN
                 NROOT_SAVE = NROOT
                 MXCIV_SAVE = MXCIV
                 NROOT = INI_NROOT
                 MXCIV = MAX(2*NROOT,MXCIV_SAVE)
-                WRITE(6,*) ' INI_*ROOT option in action '
+                IF(IPRNT.GE.2) WRITE(6,*) ' INI_*ROOT option in action '
               END IF ! special setting for initial CI
             END IF
 *
@@ -1014,11 +1010,12 @@ CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
      &      ONE,ONE,NOOEXC)
             XNORM2 = SQRT(INPROD(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),
      &                           NOOEXC))
-            WRITE(6,'(A,E12.5)') 
+            IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)') 
      &      '  Norm of total kappa = ', XNORM2
             ENERGY1 = EMCSCF_FROM_KAPPA(dbl_mb(KLKAPPA))
             ENEW = ENERGY1
-            WRITE(6,*) ' Energy for rotated orbitals', ENERGY1
+            IF(IPRNT.GE.2) WRITE(6,*) ' Energy for rotated orbitals', 
+     &                                 ENERGY1
 *. Compare old and new energy to decide with to do
             DELTA_E_ACT = ENEW-EOLD
             IF(IPRNT.GE.2) WRITE(6,'(A,3(2X,E9.3))') 
@@ -1210,7 +1207,7 @@ CBERT depending on what happens above we could just switch pointers
       IRESTR = 1
 *. and normal density print
       IPRDEN = IPRDEN_SAVE 
-      CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIA,IIUSEH0P,
+      CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &            MPORENP_E,EREF,ERROR_NORM_FINAL_CI,CONV_F)
       EFINAL = EREF
       MAXIT = MAXIT_SAVE
@@ -1288,6 +1285,10 @@ C?   &             E1NRM_ORB, ERROR_NORM_FINAL_CI
 C?    WRITE(6,*) ' Final energy = ', EFINAL
 
       CALL MEMMAN(IDUMMY, IDUMMY, 'FLUSM', IDUMMY,'MCSCF ') 
+      if(.not.ga_destroy(KINT1_INI))
+     &   call errquit('cannot destroy: kint1_ini',0,GA_ERR)
+      if(.not.ga_destroy(KINT2_INI))
+     &   call errquit('cannot destroy: kint2_ini',0,GA_ERR)
       CALL LUCIAQEXIT('MCSCF')
       RETURN
       END

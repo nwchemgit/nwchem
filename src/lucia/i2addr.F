@@ -665,12 +665,12 @@ c      INCLUDE 'mxpdim.inc'
 
       IF (IADR.GT.0) THEN
 CNW     XIJKL = WORK(K2ADR-1+IADR)
-        call ga_get(K2ADR,IADR,IADR,1,1,XIJKL,1)
+        call ga_get(K2ADR,IADR,IADR,1,1,GTIJKL,1)
       ELSE
-        XIJKL = 0D0
+        GTIJKL = 0D0
       END IF
 *
-      GTIJKL = XIJKL
+CNW   GTIJKL = XIJKL
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -792,10 +792,11 @@ c      INCLUDE 'mxpdim.inc'
 *
       IST = 2
       I2ADDR = I2ADDR_GN(IORB,JORB,KORB,LORB,
-     &         dbl_mb(KPINT2_LA),IST)
+     &         int_mb(KPINT2_LA),IST)
 *
       IF(I2ADDR.GT.0) THEN
-        XINT = WORK(KINT2_LA-1+I2ADDR)
+        call ga_get(KINT2_LA,I2ADDR,I2ADDR,1,1,GTIJKL_GN,1)
+CNW     XINT = WORK(KINT2_LA-1+I2ADDR)
       ELSE
         WRITE(6,*) ' Negative integral address '
         WRITE(6,*) ' IORB, JORB, KORB, LORB, I2ADDR = ',
@@ -805,14 +806,14 @@ c      INCLUDE 'mxpdim.inc'
         STOP ' Negative integral address '
       END IF
 *
-      GTIJKL_GN = XINT
+CNW   GTIJKL_GN = XINT
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*)  ' Output from GT_IJKL_GN '
        WRITE(6,'(A,4I4)') ' IORB, JORB, KORB, LORB = ',
      &                      IORB, JORB, KORB, LORB   
        WRITE(6,'(A,I8,E15.8)') 
-     & 'Address and value of integral ', I2ADDR, XINT
+     & 'Address and value of integral ', I2ADDR, GTIJKL_GN
       END IF
 *
       RETURN
