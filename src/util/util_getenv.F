@@ -39,3 +39,17 @@ cdebug      write (0,*) ' val ',env_value
       util_nwcnumthreads=nnn
       return
       end
+      logical function offload_master()
+      implicit none
+#include "global.fh"
+      external util_nwcnumthreads
+      integer util_nwcnumthreads
+c                                                                               
+      integer nn
+c                                                                               
+      offload_master=.false.
+      nn=util_nwcnumthreads()
+      if(nn.eq.0) return
+      offload_master=mod(ga_nodeid(),util_nwcnumthreads()).eq.0
+      return
+      end
