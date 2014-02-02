@@ -133,6 +133,8 @@ c
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'diana')) then
                call dia_input(rtdb)
+            else if (inp_compare(.false.,test,'grad')) then
+               call gradients_input(rtdb)
             else if (inp_compare(.false.,test,'gradients')) then
                call gradients_input(rtdb)
             else if (inp_compare(.false.,test,'gradient')) then
