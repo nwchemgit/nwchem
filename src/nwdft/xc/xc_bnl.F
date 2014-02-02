@@ -8,14 +8,18 @@ c     The other relevant publication is:
 c     R. Baer, D. Neuhauser, Phys. Rev. Lett., 94, 043002 (2005)
 c     -----------------------------------------------------------------------
 c
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine xc_bnl(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
      &                    ipol, Ex, qwght, ldew, func)
-#else
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 c     For locations of 2nd derivatives of functionals in array
 #include "dft2drv.fh"
       subroutine xc_bnl_d2(tol_rho, fac, lfac, nlfac, rho, Amat,
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
+#else
+#include "dft3drv.fh"
+      subroutine xc_bnl_d3(tol_rho, fac, lfac, nlfac, rho, Amat,
+     1                Amat2, Amat3, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
       implicit none
@@ -38,13 +42,22 @@ c
       double precision F(nq),RA(nq),RB(nq)
       double precision rhoA, rhoB, rhoTotal, rhoA1, rhoB1
       double precision gamma
-      double precision fA, fB, fpA, fpB, fppA, fppB
+c      double precision fA, fB, fpA, fpB, fppA, fppB
+      double precision fA, fB, fpA, fpB
       double precision EpsX
       double precision EpsXprime
-      double precision EpsTwoXprime
+c      double precision EpsTwoXprime
 c
-#ifdef SECOND_DERIV
-      double precision Amat2(nq,NCOL_AMAT2)               ! partial second derivatives
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
+c      double precision Amat2(nq,*)               ! partial second derivatives
+      double precision Amat2(nq,NCOL_AMAT2)       ! partial second derivatives
+      double precision fppA, fppB
+      double precision EpsTwoXprime
+#endif
+#ifdef THIRD_DERIV
+      double precision Amat3(nq,NCOL_AMAT3)             
+      double precision fpppA, fpppB
+      double precision EpsThreeXprime
 #endif
 c
 c     -----------------------------------------------------------------------
@@ -78,8 +91,8 @@ c
               rhoA1 = rhoA
               rhoB1 = rhoB
             else                   ! spin-unrestricted
-              rhoA1 = rhoA*2.d0
-              rhoB1 = rhoB*2.d0
+              rhoA1 = rhoA*2.0d0
+              rhoB1 = rhoB*2.0d0
             end if
 
             fA   = EpsX(rhoA1,gamma)
@@ -93,20 +106,43 @@ c
               Amat(n,2) = Amat(n,2) + (fpB*rhoB1+fB)*fac
             end if
 
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
             fppA = EpsTwoXprime(rhoA1,gamma)
             fppB = EpsTwoXprime(rhoB1,gamma)
 c
             if (ipol.eq.1) then
-             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) +
+             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
      &         (fppA*rhoA+2.0d0*fpA)*fac*2.0d0
             else
-             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) +
+             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
      &         (fppA*rhoA+fpA)*fac*4.0d0
-c            Guard against case of no beta electrons, e.g. H atom
+c           Guard against case of no beta electrons, e.g. H atom
              if (rho(n,3).gt.tol_rho) then
-                 Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) +
-     &               (fppB*rhoB+fpB)*fac*4.0d0
+c              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
+c     &          ((fppB*rhoB+fpB)*4)*fac
+              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
+     &          (fppB*rhoB+fpB)*fac*4.0d0
+             end if
+            end if
+#endif
+#ifdef THIRD_DERIV
+            fpppA = EpsThreeXprime(rhoA1,gamma)
+            fpppB = EpsThreeXprime(rhoB1,gamma)
+c
+            if (ipol.eq.1) then
+             Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+     1         + ( fpppA*rhoA + 3.0d0*fppA )*fac*4.0d0
+            else
+c             Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+c     1         + ( fpppA*rhoA + 3.0d0*fppA )*fac*4.0d0
+             Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+     1         + ( fpppA*rhoA + 1.5d0*fppA )*fac*8.0d0
+c           Guard against case of no beta electrons, e.g. H atom
+             if (rho(n,3).gt.tol_rho) then
+c              Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB)
+c     &          + ( fpppB*rhoB + 3.0d0*fppB )*fac*4.0d0
+              Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB)
+     &          + ( fpppB*rhoB + 1.5d0*fppB )*fac*8.0d0
              end if
             end if
 #endif
@@ -119,6 +155,7 @@ c            Guard against case of no beta electrons, e.g. H atom
 
       return
       end
+c
 c
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
@@ -416,6 +453,149 @@ c
 
       return
       end
-c
 #endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+#include "xc_bnl.F"
+c
+c
+c     ---------------------------------------------------------------------------------------
+c     Calculate the third derivative of the main function that consititutes the functional
+c     ---------------------------------------------------------------------------------------
+c
+      double precision function HqBNLThreePrime(q)
+
+      implicit none
+#include "xc_params.fh"
+
+      double precision q,OneOverQ
+      double precision q2, q3, q4
+
+      OneOverQ = 1.0d0/q
+      q2 = q*q
+      q3 = q2*q
+      q4 = q3*q
+
+      if (q .lt. 0.1d0) then
+         HqBNLThreePrime = -16.0d0*q
+         return
+      end if
+
+      HqBNLThreePrime = 8.0d0*( exp(-OneOverQ*OneOverQ)
+     1                        + 2.0d0*q2*exp(-OneOverQ*OneOverQ)
+     2                        - 2.0d0*q4
+     3                        + 2.0d0*q4*exp(-OneOverQ*OneOverQ) ) / q3
+
+      return
+      end
+c
+c     ---------------------------------------------------------------------------------------
+c     Calculate the third derivative of the local Fermi vector
+c     ---------------------------------------------------------------------------------------
+c
+      double precision function FermiKThreePrime(den)
+
+      implicit none
+#include "xc_params.fh"
+
+      double precision F13, den
+
+      F13 = 1.0D0/3.0D0
+      FermiKThreePrime =  (10.0d0/9.0d0)*
+     1                  (Pi**2.0d0/(9.0d0*den**8.0d0))**F13
+
+      return
+      end
+c
+c     ---------------------------------------------------------------------------------------
+c     Calculate the third derivative of q    
+c     ---------------------------------------------------------------------------------------
+c
+      double precision function QThreePrime(gamma,kF)
+
+      implicit none
+
+      double precision gamma, kF, FermiK4
+
+      FermiK4 = kF**4.0d0
+      QThreePrime = -(6.0d0*gamma)/FermiK4
+
+      return
+      end
+c
+c     ---------------------------------------------------------------------------------------
+c     Calculate the third derivative of EpsX
+c     ---------------------------------------------------------------------------------------
+c
+      double precision function EpsThreeXprime(Rho,gamma)
+
+      implicit none
+#include "xc_params.fh"
+
+      double precision Rho, gamma
+c Fermi wavevector stuff
+      double precision kF, kFPrim, kF2prim, kF3prim
+      double precision kFPrim2, kFPrim3 
+c q stuff
+      double precision q, qprim, q2prim, q3prim
+      double precision qprim2, qprim3 
+c H(q) stuff
+      double precision g, gprim, g2prim, g3prim
+      double precision Cs
+
+      double precision FermiK
+      double precision FermiKPrime
+      double precision FermiKTwoPrime
+      double precision FermiKThreePrime
+      double precision QPrime
+      double precision QTwoPrime
+      double precision QThreePrime
+      double precision HqBNL
+      double precision HqBNLPrime
+      double precision HqBNLTwoPrime
+      double precision HqBNLThreePrime
+
+      if (Rho.le.0d0) then
+         EpsThreeXprime = 0.0d0
+         return
+      end if
+
+      kF = FermiK(Rho)
+      kFPrim = FermiKPrime(Rho)
+      kF2Prim = FermiKTwoPrime(Rho)
+      kF3Prim = FermiKThreePrime(Rho)
+c
+      kFPrim2 = kFPrim**2.0d0
+      kFPrim3 = kFPrim**3.0d0
+c
+      Cs = -3.0d0/(4.0d0*Pi)
+c
+      q = gamma / kF
+      qprim = QPrime(gamma,kF)
+      q2prim = QTwoPrime(gamma,kF)
+      q3prim = QThreePrime(gamma,kF)
+c
+      qprim2 = qprim**2.0d0
+      qprim3 = qprim**3.0d0
+c
+      g = HqBNL(q)
+      gprim = HqBNLPrime(q)
+      g2prim = HqBNLTwoPrime(q)
+      g3prim = HqBNLThreePrime(q)
+
+      EpsThreeXprime = Cs*kFPrim3*( 3.0d0*qprim2*g2prim
+     1                            + 3.0d0*kF*qprim*g2prim*q2prim
+     2                            + kF*qprim3*g3prim
+     3                            + gprim*( 3.0d0*q2prim
+     4                                    + kF*q3prim ) )
+     5               + 3.0d0*Cs*kFPrim*kF2Prim*( kF*qprim2*g2prim
+     6                                         + gprim*( 2.0d0*qprim
+     7                                                 + kF*q2prim ) )
+     8               + Cs*kF3Prim*( g + kF*gprim*qprim )
+
+      return
+      end
+#endif
+c
 c $Id$

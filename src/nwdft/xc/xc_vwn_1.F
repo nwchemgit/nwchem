@@ -19,6 +19,12 @@ c
             d2dec_rsz(2) = d1dec_rs1*d1fz
             d2dec_rsz(3) = dec_rs1*d2fz
 #endif
+#ifdef THIRD_DERIV
+            d3dec_rsz(1) = d3dec_rs1*fz
+            d3dec_rsz(2) = d2dec_rs1*d1fz
+            d3dec_rsz(3) = d1dec_rs1*d2fz
+            d3dec_rsz(4) = dec_rs1*d3fz
+#endif
 c
 #include "xc_vwn_b.fh"
 c
@@ -26,6 +32,13 @@ c
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "xc_vwn_1.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "xc_vwn_1.F"
 #endif

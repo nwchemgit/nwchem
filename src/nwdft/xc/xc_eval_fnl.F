@@ -26,16 +26,34 @@ C>
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, ttau, kske, Mmat, Mmat2,
-     &                       StericEnergy)
-c
-c     $Id$
+     &                       StericEnergy,
+     &                       do_3rd, Amat3, Cmat3, ldew2)
 c
       implicit none
 c
 #include "cdft.fh"
+c xc-second derivative header file
 #include "dft2drv.fh"
+c xc-third derivative header file
+#include "dft3drv.fh"
 #include "stdio.fh"
 #include "steric.fh"
+c
+c List of functionals with implemented third derivatives.
+c
+c    Exchange:    Slater/Dirac
+c                 PBE 96 (original, RPBE, and revPBE)
+c                 Becke 88
+c                 CAM-Becke 88
+c                 CAM-PBE 96
+c                 BNL 
+c                 LC-wPBE
+c    Correlation: VWN (1-5 and 1 RPA)
+c                 LYP
+c                 PBE 96 
+c                 PW91 LDA (needed for the default local part of PBE)
+c                 Perdew 86 (restricted only at the moment)
+c                 Perdew 81 LDA (needed for the default local part of Perdew 86)
 c
       integer nq, is12x
       double precision rho(*)    !< [Input] The electron density
@@ -46,17 +64,22 @@ c
                                  !< and
                                  !< \f$\partial\rho^\beta/\partial r\f$
 c
+      double precision Amat(*), Cmat(*)    
+      double precision Amat2(*),Cmat2(*)
+      double precision Amat3(*),Cmat3(*)
       double precision ttau(*) !< [Input] The kinetic energy density
-      double precision Mmat(*)
+      double precision Mmat(*), Mmat2(*)
 c
-      double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*), Mmat2(*)
       double precision Ex !< [Output] The exchange energy
       double precision Ec !< [Output] The correlation energy
       double precision StericEnergy
       double precision qwght(nq), func(nq)
-      logical grad, ldew, do_2nd, kske
-      logical dohcth
+      logical grad, kske, dohcth
+c
       character*4 whichf
+
+      logical do_2nd, do_3rd
+      logical ldew, ldew2, ldew3
 c
       double precision eps,dumd
       integer nx,nc,dumi
@@ -72,32 +95,57 @@ c
          if (grad) call dfill(nq*NCOL_CMAT2, 0.d0, Cmat2, 1)
          if (kske) call dfill(nq*NCOL_MMAT2, 0.d0, Mmat2, 1)
       endif
-      if (ldew) call dfill(nq, 0.d0, func, 1)
+c
+c     Initialize the 3rd derivatives.  Note that we may need 
+c     the 2nd derivative matrices in some cases as well, so
+c     those are initialized also.
+      if (do_3rd) then
+         call dfill(nq*NCOL_AMAT2, 0.0d0, Amat2, 1)
+         call dfill(nq*NCOL_AMAT3, 0.0d0, Amat3, 1)
+         if (grad) call dfill(nq*NCOL_CMAT3, 0.0d0, Cmat3, 1)
+         if (grad) call dfill(nq*NCOL_CMAT2, 0.0d0, Cmat2, 1)         
+      endif      
+c
+c     This prevents the XC-kernel from being multiplied
+c     with the quadrature weights in TDDFT gradients. 
+c
+      ldew3 = (do_3rd.and.ldew)
+      if (ldew.or.ldew2.or.ldew3) call dfill(nq, 0.d0, func, 1)
+c      if (ldew.or.ldew3) call dfill(nq, 0.d0, func, 1)
+c      if (ldew) call dfill(nq, 0.d0, func, 1)
 c
 c     warning!! xc_dirac has to be called before all the other
 c     XC routines
 c     
       if (abs(xfac(2)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_dirac(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho, 
-     &           Amat, nq, ipol, Ex, qwght, 
+         if (.not. do_2nd .and. .not. do_3rd) then
+            call xc_dirac(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho,
+     &           Amat, nq, ipol, Ex, qwght,
      &           ldew, func)
+         else if (.not. do_3rd) then
+            call xc_dirac_d2(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho,
+     &           Amat, Amat2, nq, ipol, Ex, qwght,
+     &           .false., func)
          else
-            call xc_dirac_d2(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho, 
-     &           Amat, Amat2, nq, ipol, Ex, qwght, 
+            call xc_dirac_d3(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho,
+     &           Amat, Amat2, Amat3, nq, ipol, Ex, qwght,
      &           .false., func)
          endif
       endif
 c
       if (abs(xfac(3)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and. .not. do_3rd) then
             call xc_becke88(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
-         else
+         else if (.not. do_3rd) then
             call xc_becke88_d2(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
+         else
+            call xc_becke88_d3(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
+     &           rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ex, qwght,ldew,func)
          endif
       endif
 c
@@ -111,7 +159,7 @@ C     hcth , becke97s functionals
 C
       nx = 4       ! take care of compiler warnings
       nc = 13
-
+c
       dohcth=.false.
       if (abs(xfac(4)).gt.eps.or.abs(cfac(13)).gt.eps)then
          whichf='hcth'
@@ -179,7 +227,7 @@ C
          nx=39
          nc=41
       endif
-       if(dohcth) then  
+      if(dohcth) then  
          if (.not. do_2nd) then
             call xc_hcth(tol_rho, xfac(nx), lxfac(nx), nlxfac(nx), 
      ,           cfac(nc), lcfac(nc), nlxfac(nc), rho, 
@@ -190,126 +238,165 @@ C
      ,           cfac(nc), lcfac(nc), nlxfac(nc), rho,
      &           delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex, Ec,
      &           qwght, ldew, func,whichf)
-         endif
-      endif
+         endif  ! do_2nd
+      endif  ! dohctch
 c     
 c     compute partial derivatives of the correlation energy functional.
 c     
       if (abs(cfac(1)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_vwn_5(tol_rho, cfac(1), rho, 
-     &           Amat, nq, ipol, Ec, qwght, 
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_vwn_5(tol_rho, cfac(1), rho,
+     &           Amat, nq, ipol, Ec, qwght,
+     &           ldew, func)
+         else if (.not. do_3rd) then
+            call xc_vwn_5_d2(tol_rho, cfac(1),  rho,
+     &           Amat, Amat2, nq, ipol, Ec, qwght,
      &           ldew, func)
          else
-            call xc_vwn_5_d2(tol_rho, cfac(1),  rho, 
-     &           Amat, Amat2, nq, ipol, Ec, qwght, 
+            call xc_vwn_5_d3(tol_rho, cfac(1),  rho,
+     &           Amat, Amat2, Amat3, nq, ipol, Ec, qwght,
      &           ldew, func)
          endif
       endif
 c     
       if (abs(cfac(7)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_vwn_1_rpa(tol_rho, cfac(7),  
-     &           rho, Amat, nq, ipol, Ec, 
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_vwn_1_rpa(tol_rho, cfac(7),
+     &           rho, Amat, nq, ipol, Ec,
+     &           qwght, ldew, func)
+         else if (.not. do_3rd) then
+            call xc_vwn_1_rpa_d2(tol_rho, cfac(7),
+     &           rho, Amat, Amat2, nq, ipol, Ec,
      &           qwght, ldew, func)
          else
-            call xc_vwn_1_rpa_d2(tol_rho, cfac(7), 
-     &           rho, Amat, Amat2, nq, ipol, Ec, 
+            call xc_vwn_1_rpa_d3(tol_rho, cfac(7),
+     &           rho, Amat, Amat2, Amat3, nq, ipol, Ec,
      &           qwght, ldew, func)
          endif
       endif
 c     
       if (abs(cfac(8)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_vwn_1(tol_rho, cfac(8), rho, 
-     &           Amat, nq, ipol, Ec, qwght, 
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_vwn_1(tol_rho, cfac(8), rho,
+     &           Amat, nq, ipol, Ec, qwght,
+     &           ldew, func)
+         else if (.not. do_3rd) then
+            call xc_vwn_1_d2(tol_rho, cfac(8),  rho,
+     &           Amat, Amat2, nq, ipol, Ec, qwght,
      &           ldew, func)
          else
-            call xc_vwn_1_d2(tol_rho, cfac(8),  rho, 
-     &           Amat, Amat2, nq, ipol, Ec, qwght, 
+            call xc_vwn_1_d3(tol_rho, cfac(8),  rho,
+     &           Amat, Amat2, Amat3, nq, ipol, Ec, qwght,
      &           ldew, func)
          endif
       endif
 c     
       if (abs(cfac(9)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_vwn_2(tol_rho, cfac(9),  rho, 
-     &           Amat, nq, ipol, Ec, qwght, 
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_vwn_2(tol_rho, cfac(9),  rho,
+     &           Amat, nq, ipol, Ec, qwght,
+     &           ldew, func)
+         else if (.not. do_3rd) then
+            call xc_vwn_2_d2(tol_rho, cfac(9),  rho,
+     &           Amat, Amat2, nq, ipol, Ec, qwght,
      &           ldew, func)
          else
-            call xc_vwn_2_d2(tol_rho, cfac(9),  rho, 
-     &           Amat, Amat2, nq, ipol, Ec, qwght, 
+            call xc_vwn_2_d3(tol_rho, cfac(9),  rho,
+     &           Amat, Amat2, Amat3, nq, ipol, Ec, qwght,
      &           ldew, func)
          endif
       endif
 c     
       if (abs(cfac(10)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_vwn_3(tol_rho, cfac(10), 
-     &           rho, Amat, nq, ipol, Ec, qwght, 
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_vwn_3(tol_rho, cfac(10),
+     &           rho, Amat, nq, ipol, Ec, qwght,
+     &           ldew, func)
+         else if (.not. do_3rd) then
+            call xc_vwn_3_d2(tol_rho, cfac(10),
+     &           rho, Amat, Amat2, nq, ipol, Ec, qwght,
      &           ldew, func)
          else
-            call xc_vwn_3_d2(tol_rho, cfac(10), 
-     &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
+            call xc_vwn_3_d3(tol_rho, cfac(10),
+     &           rho, Amat, Amat2, Amat3, nq, ipol, Ec, qwght,
      &           ldew, func)
          endif
       endif
 c     
       if (abs(cfac(11)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_vwn_4(tol_rho, cfac(11), 
-     &           rho, Amat, nq, ipol, Ec, qwght, 
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_vwn_4(tol_rho, cfac(11),
+     &           rho, Amat, nq, ipol, Ec, qwght,
+     &           ldew, func)
+         else if (.not. do_3rd) then
+            call xc_vwn_4_d2(tol_rho, cfac(11),
+     &           rho, Amat, Amat2, nq, ipol, Ec, qwght,
      &           ldew, func)
          else
-            call xc_vwn_4_d2(tol_rho, cfac(11), 
-     &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
+            call xc_vwn_4_d3(tol_rho, cfac(11),
+     &           rho, Amat, Amat2, Amat3, nq, ipol, Ec, qwght,
      &           ldew, func)
          endif
       endif
 c     
       if (abs(cfac(6)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_pw91lda(tol_rho, cfac(6), lcfac(6), nlcfac(6), 
      &           rho, Amat, nq, ipol, Ec, 
      &           qwght, ldew, func)
-         else
+         else if (.not. do_3rd) then
             call xc_pw91lda_d2(tol_rho, cfac(6), lcfac(6), nlcfac(6),
      &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
+     &           ldew, func)
+         else
+            call xc_pw91lda_d3(tol_rho, cfac(6), lcfac(6), nlcfac(6),
+     &           rho, Amat, Amat2, Amat3, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
       endif
 c     
       if (abs(cfac(2)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and. .not. do_3rd) then
             call xc_lyp88(tol_rho, cfac(2), 
      &           rho, delrho, Amat, Cmat, nq, ipol, Ec, 
      &           qwght, ldew, func)
-         else
+         else if (.not. do_3rd) then
             call xc_lyp88_d2(tol_rho, cfac(2), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, Ec, 
      &           qwght, ldew, func)
+         else
+            call xc_lyp88_d3(tol_rho, cfac(2), 
+     &           rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ec, qwght, ldew, func)
          endif
       endif
 c     
       if (abs(cfac(3)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_p81(tol_rho, cfac(3), lcfac(3), nlcfac(3), rho, 
      &           Amat, nq, ipol, Ec, qwght, ldew, func)
-         else
+         else if (.not. do_3rd) then
             call xc_p81_d2(tol_rho, cfac(3), lcfac(3), nlcfac(3), rho, 
      &           Amat, Amat2, nq, ipol, Ec, qwght, ldew, func)
+         else
+            call xc_p81_d3(tol_rho, cfac(3), lcfac(3), nlcfac(3), rho, 
+     &           Amat, Amat2, Amat3, nq, ipol, Ec, qwght, ldew, func)
          endif
       endif
 c     
       if (abs(cfac(4)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_perdew86(tol_rho, cfac(4), lcfac(4), nlcfac(4), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ec, qwght, ldew, func)
-         else
+         else if (.not. do_3rd) then
             call xc_perdew86_d2(tol_rho, cfac(4), lcfac(4), nlcfac(4), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ec, qwght, ldew, func)
+         else 
+            call xc_perdew86_d3(tol_rho, cfac(4), lcfac(4), nlcfac(4),
+     &           rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3, 
+     &           nq, ipol, Ec, qwght, ldew, func)
          endif
       endif
 c     
@@ -332,53 +419,72 @@ c     PBE96 is special in that the GGA part is dependent on
 c     the E(LDA) ... so more info has to be passed in.
 c     
       if (abs(cfac(12)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_cpbe96(tol_rho, cfac, lcfac, nlcfac, rho, 
      &           delrho, Amat, Cmat, nq, ipol, 
      &           Ec, qwght, ldew, func)
-         else
+         else if (.not. do_3rd) then
             call xc_cpbe96_d2(tol_rho, cfac, lcfac, nlcfac, rho, 
      &           delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ec, qwght, ldew, func)
+         else
+            call xc_cpbe96_d3(tol_rho, cfac, lcfac, nlcfac, rho, 
+     &           delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ec, qwght, ldew, func)
          endif
       endif
       if (abs(xfac(7)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_xpbe96('orig',
      T           tol_rho, xfac(7), lxfac(7), nlxfac(7), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
-         else
+         else if (.not. do_3rd) then
             call xc_xpbe96_d2('orig',
      T           tol_rho, xfac(7), lxfac(7), nlxfac(7), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
+         else
+            call xc_xpbe96_d3('orig',
+     T           tol_rho, xfac(7), lxfac(7), nlxfac(7), 
+     &           rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ex, qwght,ldew,func)
          endif
       endif
       if (abs(xfac(30)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_xpbe96('rpbe',
      T           tol_rho, xfac(30), lxfac(30), nlxfac(30), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
-         else
+         else if (.not. do_3rd) then
             call xc_xpbe96_d2('rpbe',
      T           tol_rho, xfac(30), lxfac(30), nlxfac(30), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
+         else
+            call xc_xpbe96_d3('rpbe',
+     T           tol_rho, xfac(30), lxfac(30), nlxfac(30), 
+     &           rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ex, qwght,ldew,func)
          endif
       endif
       if (abs(xfac(31)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
             call xc_xpbe96('revp',
      T           tol_rho, xfac(31), lxfac(31), nlxfac(31), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
-         else
+         else if (.not. do_3rd) then
             call xc_xpbe96_d2('revp',
      T           tol_rho, xfac(31), lxfac(31), nlxfac(31), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
+         else
+            call xc_xpbe96_d3('revp',
+     T           tol_rho, xfac(31), lxfac(31), nlxfac(31), 
+     &           rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3, 
+     &           nq, ipol, Ex, qwght,ldew,func)
          endif
       endif
 c
@@ -991,67 +1097,87 @@ c
 c LC-BNL 2007 Exchange 
 c
       if (abs(xfac(38)).gt.eps)then
-       if (.not. do_2nd) then
-        call xc_bnl(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
-     &    rho, Amat, nq, ipol, Ex, qwght, ldew, func)
-       else
-        call xc_bnl_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
-     &    rho, Amat, Amat2, nq, ipol, Ex, qwght, ldew, func)
-       endif
+        if (.not. do_2nd .and..not. do_3rd) then
+          call xc_bnl(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+     &      rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+        else if (.not. do_3rd) then
+          call xc_bnl_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+     &      rho, Amat, Amat2, nq, ipol, Ex, qwght, ldew, func)
+        else
+          call xc_bnl_d3(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+     &      rho, Amat, Amat2, Amat3, nq, ipol, Ex, qwght, ldew, func)
+        endif
       endif
 c
 c CAM-B88 Exchange
 c
       if (abs(xfac(40)).gt.eps)then
-       if (.not. do_2nd) then
-        call xc_camb88(tol_rho, xfac(40), lxfac(40), nlxfac(40),
-     &    rho, delrho, Amat, Cmat, nq, ipol,
-     &    Ex, qwght,ldew,func)
-       else
-        call xc_camb88_d2(tol_rho, xfac(40), lxfac(40), nlxfac(40),
-     &    rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
-     &    Ex, qwght,ldew,func)
-       endif
+        if (.not. do_2nd .and..not. do_3rd) then
+          call xc_camb88(tol_rho, xfac(40), lxfac(40), nlxfac(40),
+     &      rho, delrho, Amat, Cmat, nq, ipol,
+     &      Ex, qwght,ldew,func)
+        else if (.not. do_3rd) then
+          call xc_camb88_d2(tol_rho, xfac(40), lxfac(40), nlxfac(40),
+     &      rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &      Ex, qwght,ldew,func)
+        else
+          call xc_camb88_d3(tol_rho, xfac(40), lxfac(40), nlxfac(40),
+     &      rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3, 
+     &      nq, ipol, Ex, qwght,ldew,func)
+        endif
       endif
 c
 c CAM-PBE96 Exchange
 c
       if (abs(xfac(41)).gt.eps)then
-       if (.not. do_2nd) then
-        call xc_camxpbe96('orig',
-     T           tol_rho, xfac(41), lxfac(41), nlxfac(41), 
-     &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func)
-       else
-        call xc_camxpbe96_d2('orig',
-     T           tol_rho, xfac(41), lxfac(41), nlxfac(41), 
-     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
-     &           Ex, qwght,ldew,func)
-       endif
+        if (.not. do_2nd .and..not. do_3rd) then
+          call xc_camxpbe96('orig',
+     T             tol_rho, xfac(41), lxfac(41), nlxfac(41), 
+     &             rho, delrho, Amat, Cmat, nq, ipol, 
+     &             Ex, qwght,ldew,func)
+        else if (.not. do_3rd) then
+          call xc_camxpbe96_d2('orig',
+     T             tol_rho, xfac(41), lxfac(41), nlxfac(41), 
+     &             rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &             Ex, qwght,ldew,func)
+        else
+          call xc_camxpbe96_d3('orig',
+     T             tol_rho, xfac(41), lxfac(41), nlxfac(41), 
+     &             rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &             nq, ipol, Ex, qwght,ldew,func)
+        endif
       endif
 c
 c CAM-LSD Exchange
 c
       if (abs(xfac(42)).gt.eps)then
-         if (.not. do_2nd) then
-           call xc_camxlsd(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
-     &         rho, Amat, nq, ipol, Ex, qwght, ldew, func)
-         else
-           call xc_camxlsd_d2(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
-     &         rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
-         endif
+        if (.not. do_2nd .and..not. do_3rd) then
+          call xc_camxlsd(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
+     &        rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+        else if (.not. do_3rd) then
+          call xc_camxlsd_d2(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
+     &        rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+        else
+          call xc_camxlsd_d3(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
+     &        rho, Amat, Amat2, Amat3, nq, ipol, Ex, qwght, .false., 
+     &        func)
+        endif
       endif
 c
 c xwpbe exchange: HSE screened exchange
 c 
       if (abs(xfac(43)).gt.eps)then
-         if (.not. do_2nd) then
+         if (.not. do_2nd .and..not. do_3rd) then
            call xc_xwpbe(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
      &         rho, delrho, Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
-         else
+         else if (.not. do_3rd) then
            call xc_xwpbe_d2(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
      &         rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
      &                        qwght,ldew,func)
+         else
+           call xc_xwpbe_d3(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
+     &         rho, delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3, 
+     &         nq, ipol, Ex, qwght, ldew, func)
          endif
       endif
 c
@@ -1249,12 +1375,28 @@ c
 c
 c     Combine with quadrature weights
 c
-      if (.not. do_2nd) then
-         call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
-     &         (.not. do_2nd), kske, Mmat)
-      else
-         call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, ipol,
-     &         nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
+c Daniel (1-11-13): Added XC-third derivative stuff.  This currently
+c doesn't include any functionality for meta-GGAs.
+c Daniel (1-17-13): Because we need derivatives of the quadrature
+c weights for TDDFT gradients, we don't want to multiply the A 
+c and C matrices with the quadrature weights here (which would be
+c double counting).  This prevents us from multiplying the
+c quadrature weights into the matrices and then dividing them out
+c later, which is prone to numerical problems (and slow). 
+c Daniel (2-4-13): ldew3 is for the dfxc*(X+Y)*(X+Y) term in the TDDFT 
+c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
+      if (.not.(ldew2.or.ldew3)) then
+
+        if (.not. do_2nd .and. .not. do_3rd) then
+           call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
+     &           (.not. do_2nd), kske, Mmat)
+        else if (.not. do_3rd) then
+           call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, 
+     &           ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
+        else
+           call setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
+     &           Cmat3, qwght, ipol, nq, grad, (.not. do_3rd), .false.)
+        endif
       endif
 c
       return

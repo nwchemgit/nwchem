@@ -5,6 +5,7 @@ c     1200 (1980)), functional V.
 * $Id$
 *
 #define FNL_VWN_5
+c xc_vwn_a contains the restricted calculation stuff.
 #include "xc_vwn_a.fh"
 c
 c     Compute the function deltaEc(rs,zeta) function and its derivatives
@@ -19,13 +20,27 @@ c
             d2dec_rsz(2) = d2devwn_rsz(2)
             d2dec_rsz(3) = d2devwn_rsz(3)
 #endif
+#ifdef THIRD_DERIV
+            d3dec_rsz(1) = d3devwn_rsz(1)
+            d3dec_rsz(2) = d3devwn_rsz(2)
+            d3dec_rsz(3) = d3devwn_rsz(3)
+            d3dec_rsz(4) = d3devwn_rsz(4)
+#endif
 c
+c xc_vwn_a contains the unrestricted calculation stuff.
 #include "xc_vwn_b.fh"
 c
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "xc_vwn_5.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "xc_vwn_5.F"
 #endif

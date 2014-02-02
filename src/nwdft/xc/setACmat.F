@@ -64,12 +64,17 @@ C> \f}
 C> The grid point is indexed with `i`, the density functional is
 C> referred to with \f$f\f$, and \f$w\f$ is the quadrature weight.
 C>
-#ifndef SECOND_DERIV
+#if !defined SECOND_DERIV && !defined THIRD_DERIV
       Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
      &            xform_Cmat, kske, Mmat)
-#else
+#elif defined(SECOND_DERIV) && !defined THIRD_DERIV
+c Second derivatives are not yet implemented for the meta-GGAs
       Subroutine setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght,
      &            ipol, nq, GRAD, xform_Cmat, kske, Mmat, Mmat2)
+#else
+c Third derivatives are not yet implemented for the meta-GGAs
+      Subroutine setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
+     &            Cmat3, qwght, ipol, nq, GRAD, xform_Cmat, kske)
 #endif
 c
 C$Id$
@@ -77,6 +82,7 @@ c
       implicit none
 c
 #include "dft2drv.fh"
+#include "dft3drv.fh"
 #include "stdio.fh"
 c !!! BGJ test
 #include "bgj.fh"
@@ -109,6 +115,11 @@ c
       !< `Cmat` but 2nd order derivatives
       double precision Mmat2(nq,NCOL_MMAT2) !< [In/Output] Similar to
       !< `Mmat` but 2nd order derivatives
+#endif
+c
+#ifdef THIRD_DERIV
+      double precision Amat3(nq,NCOL_AMAT3)
+      double precision Cmat3(nq,NCOL_CMAT3)
 #endif
 c
 c     Quadrature Weights
@@ -174,7 +185,7 @@ c
       endif
 #endif
 c
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
       do ii = 1, NCOL_AMAT2
          do jj = 1, nq
             Amat2(jj,ii) = Amat2(jj,ii)*qwght(jj)
@@ -205,10 +216,25 @@ c
       endif
 #endif
 #endif
+c
+#ifdef THIRD_DERIV
+      do ii = 1, NCOL_AMAT3
+         do jj = 1, nq
+            Amat3(jj,ii) = Amat3(jj,ii)*qwght(jj)
+         enddo
+      enddo
+      if (GRAD) then
+         do ii = 1, NCOL_CMAT3
+            do jj = 1, nq
+               Cmat3(jj,ii) = Cmat3(jj,ii)*qwght(jj)
+            enddo
+         enddo
+      endif
+#endif
       return
       end
 c
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 c
 c     Transform Cmat from gamma form to delrho form
 c
@@ -256,6 +282,13 @@ c
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "setACmat.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "setACmat.F"
 #endif
