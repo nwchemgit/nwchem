@@ -39,6 +39,7 @@ c                               !   1 = XC matrices for SCF
 c                               !   2 = XC matrices for CPKS LHS
 c                               !   3 = XC matrices for CPKS RHS
 c                               !   4 = XC matrices for GIAO NMR RHS
+c                               !   5 = XC matrices for third derivatives
       logical l3d               ! true if 3d GA is used
       logical triplet           ! true if triplet excitation energy calc
       double precision StericEnergyTotal
@@ -54,6 +55,7 @@ c
 #include "rtdb.fh"
 #include "dft2drv.fh"
 #include "steric.fh"
+#include "dft3drv.fh"
 c
       logical rtdb_status       
       logical grid_reopen
@@ -95,6 +97,11 @@ c
 c
       logical fon ! fractional occupancy
       double precision pstrace  ! a measure of the total charge
+c
+      logical do_gxc
+      integer l_Amat3, k_Amat3, l_Cmat3, k_Cmat3
+      integer len_Amat3, len_Cmat3
+      logical lcpksl_gxc
 
 #ifdef SOLARIS
 c     needed for -stackvar option
@@ -144,8 +151,9 @@ c
       do_cpks_l = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       do_nmrks_r = calc_type .eq. 4
+      do_gxc = calc_type .eq. 5 ! for 3rd derivatives
       if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r .or. 
-     &    do_nmrks_r)) then
+     &    do_nmrks_r .or. do_gxc)) then
          call errquit('grid_quadv0_gen: illegal calculation type',1,
      &       INPUT_ERR)
       endif
@@ -160,6 +168,8 @@ c
       len_Amat2 = 1
       len_Cmat2 = 1
       len_Mmat2 = 1
+      len_Amat3 = 1
+      len_Cmat3 = 1 
 c
       if (do_scf .or. do_nmrks_r) then
          len_rho = npol*n_per_rec
@@ -178,6 +188,20 @@ c
      &       UNKNOWN_ERR)
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
+c
+      elseif (do_gxc) then
+c Here, len_rho and len_delrho reflect the fact that we have ipol ground
+c state density matrices and ipol*nmat perturbed density matrices, where
+c nmat depends on the number of roots requested.  These should be the
+c correct dimensions.  The extra n_per_rec or 3*n_per_rec accounts for
+c the total ground state density (or gradient) for unrestricted 
+c calculations.
+         len_rho = ipol*n_per_rec*(nmat+1) + n_per_rec
+         len_delrho = 3*ipol*n_per_rec*(nmat+1) + 3*n_per_rec
+         len_Amat2 = n_per_rec*NCOL_AMAT2
+         len_Cmat2 = n_per_rec*NCOL_CMAT2
+         len_Amat3 = n_per_rec*NCOL_AMAT3
+         len_Cmat3 = n_per_rec*NCOL_CMAT3
       endif
       if (.not. geom_ncent(geom, nctrs)) 
      &   call errquit('grid_den: geom_ncent failed',geom, GEOM_ERR)
@@ -272,7 +296,10 @@ c
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce*(nmat+1)
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('grid_den: cannot allocate scr',0, MA_ERR)
-      if(calc_type.eq.2) then
+c Daniel (1-11-13): I think we can stay similar to calc_type = 2 for
+c XC-third derivatives in this portion of the code, since this part
+c doesn't depend on having 3-dimensional GAs.
+      if (calc_type.eq.2.or.calc_type.eq.5) then
          do isp=1,ipol
             call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), 
      A           g_dens(1+(isp-1)*(nmat+1)),  1, 
@@ -300,6 +327,9 @@ c
       if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
      &   call errquit('grid_quadv0: cannot allocate Amat2',0, MA_ERR)
       call dfill(len_Amat2, 0.0d0, dbl_mb(k_Amat2), 1)
+      if (.not.MA_Push_Get(mt_dbl,len_Amat3,'Amat3',l_Amat3,k_Amat3))
+     1  call errquit('grid_quadv0: cannot allocate Amat3', 0, MA_ERR)
+      call dfill(len_Amat3, 0.0d0, dbl_mb(k_Amat3), 1)
 c
       if (.not.MA_Push_Get(
      .     mt_dbl,3*n_per_rec*ipol,'Cmat',lcmat,icmat))
@@ -308,6 +338,9 @@ c
       if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',l_Cmat2,k_Cmat2))
      &   call errquit('grid_quadv0: cannot allocate Cmat2',0, MA_ERR)
       call dfill(len_Cmat2, 0.0d0, dbl_mb(k_Cmat2), 1)
+      if (.not.MA_Push_Get(mt_dbl,len_Cmat3,'Cmat3',l_Cmat3,k_Cmat3))
+     1  call errquit('grid_quadv0: cannot allocate Cmat3', 0, MA_ERR)
+      call dfill(len_Cmat3, 0.0d0, dbl_mb(k_Cmat3), 1)
 c
       if (.not.MA_Push_Get(
      .     mt_dbl,len_mmat,'Mmat',lmmat,immat))
@@ -316,6 +349,10 @@ c
       if (.not.MA_Push_Get(mt_dbl,len_Mmat2,'Mmat2',l_Mmat2,k_Mmat2))
      &   call errquit('grid_quadv0: cannot allocate Mmat2',0, MA_ERR)
       call dfill(len_Mmat2, 0.0d0, dbl_mb(k_Mmat2), 1)
+c Daniel (1-11-13): Eventually we'll need to put stuff here for third order
+c functional derivative arrays of the kinetic energy density, but I'm
+c avoiding these because we don't yet have second derivatives for
+c meta-GGAs (as far as I'm aware).
 c
 c     allocate scratch array for grid compression
 c
@@ -372,7 +409,8 @@ c
       Ex=0d0
       Ec=0d0
       call ga_sync()
-      if(.not.do_cpks_l)
+c
+      if(.not.do_cpks_l.or..not.do_gxc)
      *  call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
      &     nbf_ao,ipol,do_scf.and.(.not.l3d),.false.)
 c      
@@ -404,7 +442,8 @@ c
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
      ,        dbl_mb(ittau), 
-     &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal)
+     &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal,
+     1        do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3))
       else
 c
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
@@ -423,6 +462,11 @@ c
          if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
      &        call errquit('gridv0: cannot allocate qat',5, MA_ERR)
 c
+c Daniel (1-11-13): Added XC-third derivative stuff here also, although
+c it should never be used when we need to construct the grid.  This is
+c needed for preventing odd behavior in calls to the grid_quadv0b and
+c xc_eval_fnl routine later on, when someone implements new functionality
+c down the line for the DFT code.
          call grid_quadvw(rtdb,
      ,        int_mb(iqs),dbl_mb(iaqbuf),
      ,        dbl_mb(irij),int_mb(k_qat),
@@ -442,7 +486,9 @@ c
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
      ,        dbl_mb(ittau), 
-     &        dbl_mb(immat), dbl_mb(k_mmat2))
+     &        dbl_mb(immat), dbl_mb(k_mmat2),
+     1        do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3),
+     2        0, 0.0d0, 0.0d0)
 c
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1, MA_ERR)
@@ -532,8 +578,13 @@ c
          else
             rho_err=abs(rho_int-1d0)
          endif
-         if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
+c Daniel (1-11-13): I changed the logic here to stop the warning from
+c being printed for either the TDDFT solver or TDDFT gradient solver.
+         lcpksl_gxc = (do_cpks_l.or.do_gxc)
+         if(.not.lcpksl_gxc.and.rho_err.gt.job_grid_acc.and.me.eq.0)
      &      write(LuOut,123) rho_int,job_grid_acc
+c         if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
+c     &      write(LuOut,123) rho_int,job_grid_acc
       endif ! oprintw
 
 c     some debug output to check the density integration error:

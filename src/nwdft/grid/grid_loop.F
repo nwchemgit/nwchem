@@ -23,7 +23,10 @@ c
      D     acc_ao_gauss,
      L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,
      I     iandex,max_at_bf,curatoms,g_rhs,
-     I     nbf_ao_mxnbf_ce2,nactive)
+     I     nbf_ao_mxnbf_ce2,nactive,
+     1     do_gxc, Amat3, Cmat3, ngxc,
+     2     rhosave, delrhosave,
+     3     do_tddftvxc)
      
       implicit none
 #include "global.fh"
@@ -81,6 +84,12 @@ c
       integer nqtot,ncubenz,ntot_cube
       integer grid_nxyz,grid_nsub4
       external grid_nxyz,grid_nsub4
+      double precision Amat3(*), Cmat3(*)
+      logical do_gxc
+      integer ngxc
+      double precision rhosave(*)
+      double precision delrhosave(*)
+      logical do_tddftvxc  !dVxc*P contribution to TDDFT grads
 c
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -144,6 +153,7 @@ c     check if radius between rmin and rmax
 c     
                   if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
                      if(dogradient) then
+c Daniel (1-11-13): Added XC-third derivative stuff
                         call dftg_loop(
      ,                    nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
@@ -171,11 +181,15 @@ c
      L                    do_force,do_hess,ldew,gradchi,hesschi,
      L                    der3chi,oactive,
      I                    iandex,max_at_bf,curatoms,g_rhs,
-     I                    nbf_ao_mxnbf_ce2,nactive)
+     I                    nbf_ao_mxnbf_ce2,nactive,
+     1                    do_gxc, Amat3, Cmat3, ngxc,
+     2                    rhosave, delrhosave, triplet,
+     3                    do_tddftvxc)
 c
                         nqtot=nqtotc
                      else
 c
+c Daniel (1-11-13): Added XC-third derivative stuff
                         call grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
      ,                    fnxyz,nxyz,nops,grad,
@@ -197,7 +211,8 @@ c
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
      ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
-     &                    ttau, kske, Mmat, Mmat2)
+     &                    ttau, kske, Mmat, Mmat2,
+     1                    do_gxc, Amat3, Cmat3)
                      endif
                   endif
                enddo            ! end loop over angular shells
@@ -208,6 +223,7 @@ c
                    if(dogradient) then
                    else
                       nq=nqmax
+c Daniel (1-11-13): Added XC-third derivative stuff
                    call grid_quadvc(cube_done,nwrbuf,
      ,                 aqbuf,nq,nq_out,
      ,                 ntot_cube,ictr,qxyz, qwght, 
@@ -223,7 +239,8 @@ c
      ,                 nmat, do_scf, do_cpks_l, do_cpks_r,
      ,                 do_nmrks_r, tmat,l3d,
      ,                 triplet,
-     &                 ttau, kske,Mmat, Mmat2 )
+     &                 ttau, kske,Mmat, Mmat2,
+     1                 do_gxc, Amat3, Cmat3)
                    endif
                   ncubenz=ncubenz+1
                endif

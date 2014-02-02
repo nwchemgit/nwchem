@@ -11,11 +11,14 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     .     l3d,triplet, ttau, Mmat, Mmat2)
+     .     l3d,triplet, ttau, Mmat, Mmat2,
+     1     do_gxc, Amat3, Cmat3,
+     2     td_idum, td_ddum, td_ddum1)
 c
 c$Id$
 c
       implicit none
+c
 #include "errquit.fh"
 #define USE_BP
 #include "cgridfile.fh"
@@ -30,6 +33,7 @@ c
 #include "grid_quad.fh"
 #include "grid_cube.fh"
 #include "msgids.fh"
+c
       integer rtdb ![in]
       integer qsh(3,*)! [in]
       double precision aqbuf(4,*) ! [scr]
@@ -52,6 +56,8 @@ c
       double precision ddum1
       integer idum1
       logical ldum1
+      integer td_idum
+      double precision td_ddum, td_ddum1
 c
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -92,7 +98,11 @@ c
      D     ddum1,
      L     ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,
      I     idum1,idum1,idum1,idum1,
-     I     idum1,idum1,idum1)
+c     I     idum1,idum1,idum1,
+     I     idum1,idum1,
+     1     do_gxc, Amat3, Cmat3,
+     2     td_idum, td_ddum, td_ddum1,
+     3     .false.)   !  false is for the dVxc*P contribution to the TDDFT grads
 c
       return
       end

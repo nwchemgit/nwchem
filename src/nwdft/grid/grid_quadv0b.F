@@ -14,9 +14,8 @@
      &     bas_cent_xinfo,bas_cset_xinfo,
      &     docsetx, 
      &     ttau, kske, Mmat, Mmat2,
-     &     StericEnergy)
-c
-c$Id$
+     &     StericEnergy,
+     &     do_gxc, Amat3, Cmat3)
 c
       implicit none
 #include "errquit.fh"
@@ -42,7 +41,7 @@ c
       double precision acc_AO_gauss, rad, rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
-      integer ldmat,idmat,i, grid_nbfm
+      integer lDmat,iDmat,i, grid_nbfm
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
@@ -56,6 +55,7 @@ c
       integer lemat,iemat,lfmat,ifmat,k_scr,l_scr
       logical do_2nd
       double precision StericEnergy
+      logical do_3rd
 c
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -131,10 +131,10 @@ c
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
      ,     ipol,iscratch)
-         if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
-     &        'Dmat', lDmat,iDmat))
-     &        call errquit('grid_quadv0b: cannot allocate Dmat',0,
-     &       MA_ERR)
+      if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
+     &     'Dmat', lDmat,iDmat))
+     &     call errquit('grid_quadv0b: cannot allocate Dmat',0,
+     &    MA_ERR)
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)
@@ -144,7 +144,7 @@ c
      T        tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
      N        natoms, 1,1,1,
      I        ipol, nqpts, nbf_ao, mbf_ao, grad, (ipol*(ipol+1))/2,
-     F        Fmat, Pmat, Bmat, dbl_mb(idmat),
+     F        Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &        ibf_ao, iniz, ifin, rho, delrho, 
      &        rchi_atom, rdelchi_atom,
@@ -161,12 +161,12 @@ c
      ,        dbl_mb(i_vect1),dbl_mb(idelrho_sig),
      &        ttau, kske)
          endif
-      else  if (do_cpks_l) then
+      else  if (do_cpks_l.or.do_gxc) then
             call xc_rhogen(1,
      T        tol_rho, AO_bas_han, g_dens, nbf_ao_mxnbf_ce, 
      N        natoms, 1,1, nmat+1,
      I        ipol, nqpts, nbf_ao, mbf_ao, grad, ipol,
-     F        Fmat, Pmat, Bmat, dbl_mb(idmat),
+     F        Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &        ibf_ao, iniz, ifin, rho, delrho, 
      &        rchi_atom, rdelchi_atom, 
@@ -192,12 +192,12 @@ c     Set up pointer to the SCF density for the CPS LHS case.
 c
       iscf_rho = 1
       iscf_delrho = 1
-      if (do_cpks_l) then
+      if (do_cpks_l.or.do_gxc) then
           iscf_rho = 1 + nqpts*ipol*nmat
           iscf_delrho = 1 + nqpts*3*ipol*nmat
       endif
 c
-      if(do_cpks_l.and.ipol.eq.2)then
+      if((do_cpks_l.or.do_gxc).and.ipol.eq.2)then
 c     copy beta to 3
          call dcopy(nqpts, rho(iscf_rho+nqpts), 1, 
      &        rho(iscf_rho+2*nqpts), 1)
@@ -211,11 +211,16 @@ c     add beta to 1 to get alpha+beta
 c
       if (odftps) call pstat_on(ps_excf)
       do_2nd = (do_cpks_l .or. do_cpks_r)
+      do_3rd = do_gxc  ! need 3rd derivatives ?
+c Daniel (2-7-13): The last false in this call is used to initiallize
+c ldew2, which is used for TDDFT gradients to prevent weighting of the
+c XC-derivative matrices.
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
      &     Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &     grad, .false., 0d0, do_2nd, 
      &     ttau, kske, Mmat, Mmat2,
-     &     StericEnergy)
+     &     StericEnergy,
+     &     do_3rd, Amat3, Cmat3, .false.)
       if (odftps) call pstat_off(ps_excf)
 c
       if (sic_orb_index.eq.1) then
@@ -299,6 +304,27 @@ c
      &           rdens_atom, cetobfr,
      &           kske, ttau, 0d0)
 c
+c Daniel (1-11-13): Need specific control over contraction for the 
+c XC-third derivatives
+         else if (do_gxc) then
+c Daniel (1-14-13): This routine builds the XC-coefficient matrices,
+c which are products of the 3rd derivatives and the perturbed density
+c from (X+Y) for the gradients.
+            call xc_3rd_deriv(rho, delrho,
+     1        Amat3, Cmat3, Cmat2, delrho(iscf_delrho), nmat, ipol,
+     2        nqpts, grad, triplet)
+c Daniel (1-14-13): Build the XC-third derivative matrix (contracted
+c with perturbed densities).
+            call xc_tabcd(1, l3d,
+     1        tol_rho, Fmat, Pmat, rho, Bmat, delrho, Dbl_MB(iDmat),
+     2        0d0, 0d0, 0d0, 0d0,
+     3        Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
+     4        0d0, 0, nmat,
+     5        ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+     6        grad, AO_bas_han, natoms, iniz, ifin,
+     7        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
+     8        rdens_atom, cetobfr,
+     9        kske, ttau, 0d0)
          else if (do_cpks_r) then
             call errquit('gridquadv0b: what do do for cpks rhs?',0,
      &       CALC_ERR)
@@ -376,7 +402,7 @@ c
       call ifill(mcenters,0,iniz,1)
       call ifill(mcenters,0,ifin,1)
       if(acc_gauss.gt.25d0.or.acc_gauss.lt.3d0) call errquit(
-     + ' grid_nbfm: silly accgauss ',nint(acc_gauss), UNKNOWN_ERR)
+     ' ' grid_nbfm: silly accgauss ',nint(acc_gauss), UNKNOWN_ERR)
       acc_loc=-acc_gauss
 c
       n1 = 0

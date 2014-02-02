@@ -14,9 +14,8 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,     l3d, triplet, ttau, kske, Mmat, Mmat2)
-c
-c$Id$
+     ,     l3d, triplet, ttau, kske, Mmat, Mmat2,
+     1     do_gxc, Amat3, Cmat3)
 c
       implicit none
 c
@@ -96,7 +95,8 @@ c
      ,        Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d, triplet,
-     &        ttau, kske, Mmat, Mmat2)
+     &        ttau, kske, Mmat, Mmat2,
+     1        do_gxc, Amat3, Cmat3)
 c     
 c     now pack this aqbuf into the write buffer 
 c     (write and update task counter as needed)

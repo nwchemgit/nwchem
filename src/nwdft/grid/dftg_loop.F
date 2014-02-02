@@ -22,11 +22,15 @@
      D     acc_ao_gauss,
      L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,
      I     iandex,max_at_bf,curatoms,g_rhs,
-     I     nbf_ao_mxnbf_ce2,nactive)
+     I     nbf_ao_mxnbf_ce2,nactive,
+     1     do_gxc, Amat3, Cmat3, ngxc,
+     2     rhosave, delrhosave, triplet,
+     3     do_tddftvxc)
 c
 c$Id$
 c
       implicit none
+c
 #define USE_BP
 #include "cgridfile.fh"
 #include "stdio.fh"
@@ -39,6 +43,7 @@ c
 #include "bas.fh"
 #include "grid_quad.fh"
 #include "grid_cube.fh"
+c
       double precision rad_sh  ! [in]
       integer irsh,iqsh ! [in]
       logical dosympts ! [in]
@@ -86,6 +91,15 @@ c Qin
       double precision multipliers(max_constr), fact(max_constr)  ! pass to dftg_gridv0b
 c
       save nq_left
+c
+c Daniel (1-16-13): For consistency, we pass the number of perturbed
+c density matrices to this routine, although they should never be
+c used for anything in dftg_gridv0b
+      integer ngxc
+      double precision rhosave(*)
+      double precision delrhosave(*)
+      logical triplet
+      logical do_tddftvxc ! dVxc*P contribution to the TDDFT grads
 c
 c Qin
       ldbw = .false.
@@ -178,7 +192,10 @@ c
      &     nactive, rdens_atom, 
      &     cetobfr,
      &     ttau, kske, Mmat, Mmat2,
-     &     ldbw, fact, dtype, nconstr)  ! Qin
+     &     ldbw, fact, dtype, nconstr,  ! Qin
+     &     do_gxc, Amat3, Cmat3, ngxc,
+     &     rhosave, delrhosave, triplet,
+     &     do_tddftvxc)
 
 c         
          if (.not.MA_Pop_Stack(lbas_cset_info))
