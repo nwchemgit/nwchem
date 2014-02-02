@@ -1,6 +1,4 @@
 C
-C $Id$
-C
       subroutine hess_init(rtdb)
 c
 c  This routine initializes many of the hessian variables and grabs memory
@@ -9,8 +7,8 @@ c  A lot of this could use a consolidation of the SCF and DFT energy
 c  initialization routine.
 c
       implicit none
-#include "errquit.fh"
 c
+#include "errquit.fh"
 #include "bas.fh"
 #include "bgj.fh"
 #include "dra.fh"
@@ -23,8 +21,8 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "xc.fh"
+#include "case.fh"
 c
-c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
       integer dftnoc(2), nbsize
       logical oprint, omp2, odft
@@ -97,6 +95,7 @@ c
          nbasis=2
          basis_list(2)=cd_basis
       endif
+c
       call int_init(rtdb, nbasis, basis_list)
       call schwarz_init(geom, basis)
       call int_terminate()
@@ -185,7 +184,7 @@ c       nopen = nopen + 1
         odft = .true.
         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
      *    mult = 1
-        nopen = abs(mult) - 1
+        nopen = mult - 1
 c
 c     Get information about fitting and scale factors
 c
@@ -228,7 +227,7 @@ c     *     call errquit('hess_init: error getting nmo:', 555)
         else
           nalpha = dftnoc(1)
           nbeta  = dftnoc(2)
-          nclosed = min(nalpha,nbeta)    ! no longer assumes that there are more alphas than betas
+          nclosed = nbeta    ! assumes that there are more alphas than betas
           scftype = 'UHF'
           if (ocdfit) then
             jfac(2) = 0.0d0

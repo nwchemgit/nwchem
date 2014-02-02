@@ -8,6 +8,7 @@ c  the hessian matrix and the RHS.  Part of this is stolen from grad_force
 c  to set up the explicit hessian contributions.
 c
       implicit none
+c
 #include "errquit.fh"
 #include "bas.fh"
 #include "hess_info.fh"
@@ -17,6 +18,8 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "case.fh"
+c
       integer rtdb, i
 c
       integer nshblocks

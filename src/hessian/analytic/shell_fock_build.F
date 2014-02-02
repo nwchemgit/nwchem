@@ -938,7 +938,7 @@ c
       Exc(2) = 0.0d0
       nExc = 1
       call fock_xc(geom, nbf,basis,
-     ,             ndens,  g_dens, g_xc,Exc,nExc)
+     ,             ndens,  g_dens, g_xc,Exc,nExc,.true.)
       call ga_add(1.0d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
       if (oprint) then

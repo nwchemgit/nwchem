@@ -1,8 +1,6 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id$
-c
 c     Wrapper routine for XC hessian without fitting
 c
 c     BGJ - 8/98
@@ -10,7 +8,7 @@ c
       implicit none
 c
       integer geom,rtdb,nbf,basis         ! [in]
-      character *4 scftype    ! [in]
+      character *4 scftype      ! [in]
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
@@ -32,8 +30,6 @@ c
 c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
-c
-c     $Id$
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -62,8 +58,6 @@ c
       subroutine xc_deriv_gen(geom,rtdb,ipol,nbf,basis,
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
-c
-c     $Id$
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -164,10 +158,11 @@ c
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(geom)
-         call dftgh_gridv0(rtdb,geom,basis, ipol,nbf,
+c
+      call dftgh_gridv0(rtdb,geom,basis, ipol,nbf,
      .        g_dens, 0d0, hess, g_rhs, calc_type,
      &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
-     &        int_mb(k_cetobfr))
+     &        int_mb(k_cetobfr), 0, .false.)
 c
 c     Clean up indexing arrays
 c
