@@ -18,7 +18,12 @@ c
 c
 c     GC 2nds use derivs wrt functional invariant parameters
 c
-#define NCOL_CMAT2 33
+c Daniel (3-11-13): Does this need to be nqpts*33?  We only have 12 
+c columns according to this header.  This doesn't cause problems, but
+c it seems silly because this causes the code to allocate more space
+c than necessary for the 2nd derivative matrices.
+c#define NCOL_CMAT2 33
+#define NCOL_CMAT2 12
 c
 #define D2_RA_GAA   1
 #define D2_RB_GAA   2

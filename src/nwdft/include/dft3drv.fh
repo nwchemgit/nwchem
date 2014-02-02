@@ -1,0 +1,122 @@
+#ifndef _FH_DFT3DRV
+#define _FH_DFT3DRV
+c
+c     Macros for DFT 3rd derivatives
+c
+c     This is very similar to the 2nd derivative macros but with 
+c     more things added.
+c
+c     So... First include the 2nd derivative macros just in case
+c     we do not have this yet.
+c
+#include "dft2drv.fh"
+c
+c     Next define the third derivative macros:
+c
+c     - The density only components first
+c
+#define NCOL_AMAT3  4
+c
+#define D3_RA_RA_RA 1
+#define D3_RA_RA_RB 2
+#define D3_RA_RB_RB 3
+#define D3_RB_RB_RB 4
+c
+c     - The GGA components
+c
+#define NCOL_CMAT3  31
+c
+#define D3_RA_RA_GAA 1
+#define D3_RA_RA_GAB 2
+#define D3_RA_RA_GBB 3
+#define D3_RA_RB_GAA 4
+#define D3_RA_RB_GAB 5
+#define D3_RA_RB_GBB 6
+#define D3_RB_RB_GAA 7
+#define D3_RB_RB_GAB 8
+#define D3_RB_RB_GBB 9
+c
+#define D3_RA_GAA_GAA 10
+#define D3_RA_GAA_GAB 11
+#define D3_RA_GAA_GBB 12
+#define D3_RA_GAB_GAB 13
+#define D3_RA_GAB_GBB 14
+#define D3_RA_GBB_GBB 15
+#define D3_RB_GAA_GAA 16
+#define D3_RB_GAA_GAB 17
+#define D3_RB_GAA_GBB 18
+#define D3_RB_GAB_GAB 19
+#define D3_RB_GAB_GBB 20
+#define D3_RB_GBB_GBB 21
+c
+#define D3_GAA_GAA_GAA 22
+#define D3_GAA_GAA_GAB 23
+#define D3_GAA_GAA_GBB 24
+#define D3_GAA_GAB_GAB 25
+#define D3_GAA_GAB_GBB 26
+#define D3_GAA_GBB_GBB 27
+#define D3_GAB_GAB_GAB 28
+#define D3_GAB_GAB_GBB 29
+#define D3_GAB_GBB_GBB 30
+#define D3_GBB_GBB_GBB 31
+c
+c     - The kinetic energy density components
+c
+#define NCOL_MMAT3  16
+c
+#define D3_RA_RA_TA 1
+#define D3_RA_RA_TB 2
+#define D3_RA_RB_TA 3
+#define D3_RA_RB_TB 4
+#define D3_RB_RB_TA 5
+#define D3_RB_RB_TB 6
+#define D3_RA_TA_TA 7
+#define D3_RA_TA_TB 8
+#define D3_RA_TB_TB 9
+#define D3_RB_TA_TA 10
+#define D3_RB_TA_TB 11
+#define D3_RB_TB_TB 12
+#define D3_TA_TA_TA 13
+#define D3_TA_TA_TB 14
+#define D3_TA_TB_TB 15
+#define D3_TB_TB_TB 16
+c
+c     - The GGA and kinetic energy density components
+c
+#define NCOL_CMMAT3  33
+c
+#define D3_RA_GAA_TA 1
+#define D3_RA_GAA_TB 2
+#define D3_RA_GAB_TA 3
+#define D3_RA_GAB_TB 4
+#define D3_RA_GBB_TA 5
+#define D3_RA_GBB_TB 6
+#define D3_RB_GAA_TA 7
+#define D3_RB_GAA_TB 8
+#define D3_RB_GAB_TA 9
+#define D3_RB_GAB_TB 10
+#define D3_RB_GBB_TA 11
+#define D3_RB_GBB_TB 12
+#define D3_GAA_GAA_TA 13
+#define D3_GAA_GAA_TB 14
+#define D3_GAA_GAB_TA 15
+#define D3_GAA_GAB_TB 16
+#define D3_GAA_GBB_TA 17
+#define D3_GAA_GBB_TB 18
+#define D3_GAB_GAB_TA 19
+#define D3_GAB_GAB_TB 20
+#define D3_GAB_GBB_TA 21
+#define D3_GAB_GBB_TB 22
+#define D3_GBB_GBB_TA 23
+#define D3_GBB_GBB_TB 24
+#define D3_GAA_TA_TA 25
+#define D3_GAA_TA_TB 26
+#define D3_GAA_TB_TB 27
+#define D3_GAB_TA_TA 28
+#define D3_GAB_TA_TB 29
+#define D3_GAB_TB_TB 30
+#define D3_GBB_TA_TA 31
+#define D3_GBB_TA_TB 32
+#define D3_GBB_TB_TB 33
+c
+#endif

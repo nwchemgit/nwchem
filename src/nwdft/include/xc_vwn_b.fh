@@ -9,9 +9,14 @@ c     Finish off the unrestricted case:
 c     Assemble the entire functional and its derivatives given the
 c     parameterization-dependent part deltaEc(rs,zeta) and its derivatives
 c
+c Daniel (5-30-12): Actually calculate the correlation energy.
          eps = e(1) + dec_rsz
+c Derivative with respect to rs
          d1ersz(1) = d1e(1) + d1dec_rsz(1)
+c Derivative with respect to zeta
          d1ersz(2) = d1dec_rsz(2)
+c Convert the derivatives to derivatives with respect to the density.
+c 1 = drhoa, 2 = drhob
          d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
          d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
          Ec = Ec + eps*qwght(n)*rhoval*fac
@@ -19,12 +24,14 @@ c
          Amat(n,1) = Amat(n,1) + (eps + rhoval*d1edrho(1))*fac
          if (ipol.eq.2)
      &      Amat(n,2) = Amat(n,2) + (eps + rhoval*d1edrho(2))*fac
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c        1 = rsrs, 2 = rsz, 3 = zz
          d2ersz(1) = d2e(1) + d2dec_rsz(1)
          d2ersz(2) = d2dec_rsz(2)
          d2ersz(3) = d2dec_rsz(3)
 c        1 = aa, 2 = ab, 3 = bb
+c Daniel (5-30-12): rs is independent of spin density, but zeta is by
+c definition dependent on the spin density.
          d2edrho(1) = d2ersz(1)*d1rs*d1rs
      &              + d2ersz(2)*d1rs*d1zeta(1)*2.d0
      &              + d2ersz(3)*d1zeta(1)*d1zeta(1)
@@ -46,6 +53,75 @@ c        1 = aa, 2 = ab, 3 = bb
      &        + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*fac
          Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
      &        + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*fac
+#endif
+c Daniel (5-31-12): Third derivative stuff
+#ifdef THIRD_DERIV
+c Daniel (5-31-12): Note that d3dec_rsz(#) is defined in the routine
+c calling the header file.  It comes from d3devwn_rsz.
+c 1 = rsrsrs, 2 = rsrsz, 3 = rszz, 4 = zzz
+         d3ersz(1) = d3e(1) + d3dec_rsz(1) 
+         d3ersz(2) = d3dec_rsz(2) 
+         d3ersz(3) = d3dec_rsz(3)
+         d3ersz(4) = d3dec_rsz(4)
+c 1 = aaa, 2 = aab, 3 = abb, 4 = bbb
+         d3edrho(1) = d3ersz(1)*d1rs*d1rs*d1rs
+     &              + d2ersz(1)*d1rs*d2rs*3.0d0
+     &              + d3ersz(3)*d1rs*d1zeta(1)*d1zeta(1)*3.0d0
+     &              + d2ersz(2)*d1rs*d2zeta(1)*3.0d0
+     &              + d1ersz(1)*d3rs
+     &              + d2ersz(2)*d1zeta(1)*d2rs*3.0d0
+     &              + d3ersz(2)*d1zeta(1)*d1rs*d1rs*3.0d0
+     &              + d3ersz(4)*d1zeta(1)*d1zeta(1)*d1zeta(1)
+     &              + d2ersz(3)*d1zeta(1)*d2zeta(1)*3.0d0
+     &              + d1ersz(2)*d3zeta(1)
+         d3edrho(2) = d3ersz(1)*d1rs*d1rs*d1rs
+     &              + d2ersz(1)*d1rs*d2rs*3.0d0
+     &              + d3ersz(3)*d1rs*(d1zeta(1)*d1zeta(1)
+     &                              + d1zeta(1)*d1zeta(2)*2.0d0)
+     &              + d2ersz(2)*d1rs*(d2zeta(2)*2.0d0
+     &                              + d2zeta(1))
+     &              + d1ersz(1)*d3rs
+     &              + d2ersz(2)*d2rs*(d1zeta(1)*2.0d0
+     &                              + d1zeta(2))
+     &              + d3ersz(2)*d1rs*d1rs*(d1zeta(2)
+     &                                   + d1zeta(1)*2.0d0)
+     &              + d3ersz(4)*d1zeta(2)*d1zeta(1)*d1zeta(1)
+     &              + d2ersz(3)*(d1zeta(1)*d2zeta(2)*2.0d0
+     &                         + d1zeta(2)*d2zeta(1))
+     &              + d1ersz(2)*d3zeta(2) 
+         d3edrho(3) = d3ersz(1)*d1rs*d1rs*d1rs
+     &              + d2ersz(1)*d1rs*d2rs*3.0d0
+     &              + d3ersz(3)*d1rs*(d1zeta(2)*d1zeta(2) 
+     &                              + d1zeta(2)*d1zeta(1)*2.0d0)
+     &              + d2ersz(2)*d1rs*(d2zeta(2)*2.0d0
+     &                              + d2zeta(3))
+     &              + d1ersz(1)*d3rs
+     &              + d2ersz(2)*d2rs*(d1zeta(2)*2.0d0
+     &                              + d1zeta(1))
+     &              + d3ersz(2)*d1rs*d1rs*(d1zeta(1)
+     &                                   + d1zeta(2)*2.0d0)
+     &              + d3ersz(4)*d1zeta(1)*d1zeta(2)*d1zeta(2)
+     &              + d2ersz(3)*(d1zeta(2)*d2zeta(2)*2.0d0
+     &                         + d1zeta(1)*d2zeta(3))
+     &              + d1ersz(2)*d3zeta(3) 
+         d3edrho(4) = d3ersz(1)*d1rs*d1rs*d1rs
+     &              + d2ersz(1)*d1rs*d2rs*3.0d0
+     &              + d3ersz(3)*d1rs*d1zeta(2)*d1zeta(2)*3.0d0
+     &              + d2ersz(2)*d1rs*d2zeta(3)*3.0d0
+     &              + d1ersz(1)*d3rs
+     &              + d2ersz(2)*d1zeta(2)*d2rs*3.0d0
+     &              + d3ersz(2)*d1zeta(2)*d1rs*d1rs*3.0d0
+     &              + d3ersz(4)*d1zeta(2)*d1zeta(2)*d1zeta(2)
+     &              + d2ersz(3)*d1zeta(2)*d2zeta(3)*3.0d0
+     &              + d1ersz(2)*d3zeta(4)
+         Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+     &        + (3.0d0*d2edrho(1) + rhoval*d3edrho(1))*fac
+         Amat3(n,D3_RA_RA_RB) = Amat3(n,D3_RA_RA_RB)
+     &        + (d2edrho(1) + 2.0d0*d2edrho(2) + rhoval*d3edrho(2))*fac
+         Amat3(n,D3_RA_RB_RB) = Amat3(n,D3_RA_RB_RB)
+     &        + (2.0d0*d2edrho(2) + d2edrho(3) + rhoval*d3edrho(3))*fac
+         Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB)
+     &        + (3.0d0*d2edrho(3) + rhoval*d3edrho(4))*fac
 #endif
   200 continue
 c
