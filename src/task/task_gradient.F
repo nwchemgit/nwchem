@@ -242,8 +242,10 @@ c
       external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       logical semi_dir_mp2, rimp2g, pspw_gradient,band_gradient
       external semi_dir_mp2, rimp2g, pspw_gradient,band_gradient
-      logical dft_energy_gradient, sodft_energy_gradient, tddft_energy
-      external dft_energy_gradient, sodft_energy_gradient, tddft_energy
+      logical dft_energy_gradient, sodft_energy_gradient
+      external dft_energy_gradient, sodft_energy_gradient
+      logical  tddft_energy, tddft_gradient
+      external tddft_energy, tddft_gradient
       logical tce_energy_fragment
       external tce_energy_fragment
       logical  paw_gradient
@@ -372,7 +374,11 @@ c
          prefix = 'ccsd'
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'tddft') then
-         status = task_num_grad(rtdb) ! Only numerical
+         if (numerical) then
+            status = task_num_grad(rtdb) ! Only numerical
+         else
+            status = tddft_gradient(rtdb)
+         endif
       else if (theory .eq. 'tce') then
          status = task_num_grad(rtdb) ! Only numerical
 c         if (numerical) then 
