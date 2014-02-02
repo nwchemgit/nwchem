@@ -184,7 +184,7 @@ c
       Exc(2) = 0.0d0
       nExc = 1
       call fock_xc(geom1, nbf,ao_basis,
-     &             nfock, vg_dens, g_xc,Exc,nExc)
+     &             nfock, vg_dens, g_xc,Exc,nExc,.false.)
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4
