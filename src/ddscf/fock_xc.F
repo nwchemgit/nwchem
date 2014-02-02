@@ -2,7 +2,7 @@ C>
 C> \brief Wrapper for AO-basis XC matrices without fitting
 C>
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
-     &   nfock, g_dens, g_xc, Exc, nExc)
+     &   nfock, g_dens, g_xc, Exc, nExc, l3d)
 c
 c     $Id$
 c
@@ -36,19 +36,20 @@ c                               !<         = 1 XC contrib to Fock
 c                               !<         = 2 XC contrib to CPKS LHS
 c                               !<         = 3 XC contrib to CPKS RHS
 c                               !<         = 4 XC NMR contrib
+c                               !<         = 5 XC third-derivative contrib
       logical l3d               !< [Local] Whether 3-D NGA density
 c                               !<         and fock matrices are used.
-c                               !<         Must be true when and only when 
+c                               !<         Must be true when and only when
 c                               !<         calctype = 2
       logical triplet           !< [Rtdb]  True if TDDFT triplet excitation
 c                               !<         energy calculations from RDFT.
-c                               !<         If not set, then .false. is 
+c                               !<         If not set, then .false. is
 c                               !<         assumed.  For Hessian, this must
 c                               !<         be false (or not set).
 c
       integer nExc              !< [Input]  no. exchange-correlation energy
 c                               !<          components.
-      double precision Exc(nExc)!< [Output] Exchange-correlation energy 
+      double precision Exc(nExc)!< [Output] Exchange-correlation energy
 c                               !<          components
 c
 c     Local declarations
@@ -72,6 +73,8 @@ c
       integer ga_create_atom_blocked,dft_npatch
       external ga_create_atom_blocked
 c
+      integer nroots  !number of roots for the TDDFT gradient calculations
+c
       if(.not.xc_gotxc()) return
       oprint= util_print('fock_xc',print_debug)
 
@@ -82,7 +85,6 @@ c Note that ndens=ipol and is not necessarily
 c equal to No. of density matrices.  "nfock" or "nmat"
 c will be related to No. of density matrices. 
 c
-      l3d = (3.eq.ga_ndim(g_xc))
       ndens=1
       if(xc_getipol().eq.2) ndens=2
       rtdb = bgj_get_rtdb_handle()
@@ -110,6 +112,8 @@ c
       endif
 c
 c     == need a better solution for this == NXG
+c Daniel (2-16-13): This line of code is VERY dangerous.  It caused 
+c difficult to locate problems in the TDDFT gradient routines.
       if (.not.rtdb_get(rtdb, 'dft:cgmin', mt_log, 1, lcgmin))
      &   lcgmin=.false.
 c
@@ -122,8 +126,19 @@ c     for uhf calculations, nmat is 4*nvec. The nmat passed to _quadv0_gen
 c     should be the number of vectors 
 c
       nfock_xc=nfock
+c Daniel (2-13-13): The original way this part was written malfunctions 
+c for third derivatives.  The routine, xc_rhogen, only cares about 
+c whether the calculation is restricted or unrestricted (via ndens/ipol) 
+c and how many Fock matrices we need to build (via nfock_xc).  We
+c therefore need to divide nfock by ndens for 3rd derivatives, since 
+c nfock is set to nroots*ipol in the TDDFT gradient routines.  This
+c is only important for unrestricted calculations.
       if(ndens.eq.2)  then
-         nfock_xc=nfock/4
+        if (calc_type.eq.5) then
+          nfock_xc=nfock/ndens
+        else
+          nfock_xc=nfock/4
+        endif
       endif
       if ((debug.or.oprint).and.ga_nodeid().eq.0) then
          write(luout,*) '--------Entered fock_xc-------------'
@@ -135,13 +150,21 @@ c
          call util_flush(luout)
        endif
 c
+c     assumed l3d true AND calc_type=2
+c
+      if(l3d.and.calc_type.ne.2.or.
+     &   (.not.l3d).and.calc_type.eq.2) then
+        write (luout,*) 'l3d, calc_type =',l3d,calc_type
+        call errquit ('fxc: calc_type-l3d logic wrong ',0, UNKNOWN_ERR)
+      end if
+c
 c     Set up local copies of density matrix handles. The number of 
 c     density matrices needed is ndens*nvec+2. The last two are scf
 c     (unperturbed) density matrices.
 c
 c     g_dens_xc is the density matrix used in the XC routines
 c
-      if(calc_type.eq.2) then
+      if(l3d) then
 c     -------------
 c     calc_type = 2
 c     -------------
@@ -182,6 +205,24 @@ c
      N              nbf_ao,geom,ao_bas_han)
             enddo
          endif
+c Daniel (1-10-13): We will need to do things differently for TDDFT
+c gradients because we are (possibly) feeding in density matrices for 
+c many excited states.
+      elseif (calc_type.eq.5) then
+c     -----------------------
+c     calc_type = 5
+c     -----------------------
+c Daniel (1-10-13): For the moment, I want the calculation to work for
+c a single root.  However, we at this point should have nfock+ndens
+c density matrices (nfock = nroots*ndens, and ndens accounts for the
+c spin-polarization, and hence the number of ground state density 
+c matrices).  I build the MA array anticipating testing the multiple
+c root situation in the future.
+         if (.not.MA_alloc_Get(MT_int,nfock+ndens,'XCDens',lgxcd,igxcd))
+     &      call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+         do i = 1, nfock+ndens
+            int_mb(igxcd+i-1) = g_dens(i)
+         enddo
       else
 c     -----------------------
 c     calc_type = 1 or 3 or 4
@@ -209,6 +250,13 @@ c     -----------------------
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
             call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
          endif
+c Daniel (1-10-13): The SCF density matrix is stored differently than
+c it is for calc_type = 1, 3, or 4
+      elseif (calc_type.eq.5) then
+c Use nroots to determine where the ground state density matrix is.
+         nroots = nfock/ndens
+         g_dens_scf(1) = int_mb(igxcd+nroots)
+         if (ndens.eq.2) g_dens_scf(2) = int_mb(igxcd+2*nroots+1)
       else
          g_dens_scf(1) = int_mb(igxcd)
          if (ndens.eq.2) g_dens_scf(2) = int_mb(igxcd+1)
@@ -241,7 +289,7 @@ c
             write(luout,*) 'g_dens_xc1',int_mb(igxcd)
             call util_flush(luout)
          endif
-         if(calc_type.eq.2) then
+         if(l3d) then
             do i=1,ndens*(nfock_xc+1)
                alo(1)=i
                ahi(1)=i
@@ -250,14 +298,14 @@ c
          else
             call ga_print(int_mb(igxcd))
          endif
-         if(ndens.eq.2.and.(calc_type.ne.2)) then
+         if(ndens.eq.2.and.(.not.l3d)) then
             if(ga_nodeid().eq.0) then
                write(luout,*) 'g_dens_xc2',int_mb(igxcd+1)
                call util_flush(luout)
             endif
             call ga_print(int_mb(igxcd+1))
          endif
-      endif
+      endif  
       call xc_init_index(geom,ndens,nbf_ao,ao_bas_han,
      &   g_dens_scf, l_cntoce, k_cntoce,
      &   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
@@ -266,7 +314,10 @@ c
 c     check if we can get the grid from a file
 c         
 c
-      if (.not.lcgmin) then
+c Daniel (2-18-13): For calc_type = 5, we don't use a 3D global array
+c and therefore don't want l3d to be set equal to true. 
+c      if (.not.lcgmin) then
+      if (.not.lcgmin.and.calc_type.ne.5) then
        call grid_quadv0_gen(rtdb, 
      &     int_mb(igxcd),
      &     g_xc, nexc,
@@ -284,7 +335,7 @@ c
 c
 c     Clean up
 c
-      if(calc_type.eq.2) then
+      if(l3d) then
          do i=1,dims(1)
          if (.not. ga_destroy(int_mb(igxcd+i-1)))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,
