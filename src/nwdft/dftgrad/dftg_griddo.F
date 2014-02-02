@@ -11,7 +11,10 @@
      ,     force, hess, g_rhs, do_force,
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, cetobfr, ttau, 
-     &     Mmat, Mmat2)
+     &     Mmat, Mmat2,
+     1     do_3rd, Amat3, Cmat3, ngxc,
+     2     rhosave, delrhosave,
+     3     do_tddftvxc)
 c      
 c     $Id$
 c     
@@ -108,6 +111,16 @@ c
 c
       logical grid_file_rewind,grid_file_read
       external grid_file_rewind,grid_file_read
+c Daniel (1-11-13): These variables prevent XC-third derivatives from
+c happening and prevent future issues when people add to the code.
+      logical do_3rd
+      double precision Amat3(*), Cmat3(*)
+      double precision ngxc
+      double precision rhosave(*)
+      double precision delrhosave(*)
+c Daniel (2-7-13): Variable for the alternative approach to doing
+c the dVxc*P contribution in TDDFT gradients.
+      logical do_tddftvxc
 c
 c     
       me = ga_nodeid()
@@ -174,6 +187,8 @@ c
       if (.not.MA_Push_Get(mt_dbl,irqlen,'bp',lbp,ibp))
      &     call errquit('grid_quadv0a: cannot allocate bp',4, MA_ERR)
       
+c Daniel (1-11-13): Added XC-third derivative stuff to prevent problems
+c with subroutine calls after this one.
       call grid_loop(.true.,
      ,     nops,
      ,     oprint,grad,g_dens,
@@ -196,7 +211,10 @@ c
      D     acc_ao_gauss,
      L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,
      I     iandex,max_at_bf,curatoms,g_rhs,
-     I     nbf_ao_mxnbf_ce2,nactive)
+     I     nbf_ao_mxnbf_ce2,nactive, 
+     1     do_3rd, Amat3, Cmat3, ngxc,
+     2     rhosave, delrhosave,
+     3     do_tddftvxc)
 c
       if (.not.ma_chop_stack(l_qsh))
      &   call errquit('dftgriddo: cannot pop stack', 3, MA_ERR)

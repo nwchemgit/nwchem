@@ -21,9 +21,15 @@ c
       integer cetobfr(*)
       double precision rdens_atom(*)
 c
+c Daniel (2-27-13): The last 0 in the call is the number of perturbed
+c densities.  Since this routine is a wrapper for doing ground state
+c gradients, there are no perturbed densities in this call.  The false
+c is for consistency because these routines are also used for TDDFT
+c gradients. 
       call dftgh_gridv0(rtdb, geom, ao_bas_han,ipol,nbf_ao,
      .     iga_dens, force, 0d0, 0, 1, natoms,
-     &                  oactive, nactive, rdens_atom, cetobfr)
+     &                  oactive, nactive, rdens_atom, cetobfr,
+     1                  0, .false.)
 c
       return
       end
@@ -34,7 +40,8 @@ c
       Subroutine dftgh_gridv0(rtdb, geom, ao_bas_han,ipol,nbf_ao,
      ,     iga_dens, force, hess, g_rhs,
      &                        calc_type, natoms, oactive, nactive,
-     &                        rdens_atom, cetobfr)
+     &                        rdens_atom, cetobfr,
+     1     ngxc, triplet)
 c      
 c $Id$
 c     
@@ -51,6 +58,10 @@ c
       integer calc_type         ! [input] 1 = XC gradient
                                 !         2 = XC hessian
                                 !         3 = XC CPKS RHS
+                                !         4 = XC kernel gradient
+                                !             (XC-third derivatives)
+                                !         5 = XC potential gradient
+                                !             (XC-second derivatives)
 c
 #include "bas.fh"
 #include "geom.fh"
@@ -63,6 +74,8 @@ c
 #include "cgridfile.fh"
 c
 #include "dft2drv.fh"
+c Daniel (1-14-13): Header file for XC-third derivatives
+#include "dft3drv.fh"
 c
 c
       integer cetobfr(2,natoms)
@@ -105,13 +118,33 @@ c
       integer lscr,iscr
       integer nxtask
       external nxtask
+c Daniel (1-14-13): This is needed for evaluating the gradient of the
+c XC-kernel, which can be directly evaluated from the XC-third
+c derivative multiplied by the gradient of the ground state density.
+      logical do_gxc
+      integer len_Amat3, len_Cmat3
+      integer l_Amat3, k_Amat3, l_Cmat3, k_Cmat3
+      integer ngxc
+      integer len_rho, len_delrho
+      integer l_rho_save, k_rho_save, l_delrho_save, k_delrho_save
+c Daniel (2-6-13): Variable for doing restricted triplet gradients for
+c the XC-kernel term in TDDFT gradients
+      integer triplet
+c Daniel (2-7-13): Variable for the alternative approach to the dVxc*P
+c term in the TDDFT gradients.
+      logical do_tddftvxc
 c
       do_force = calc_type .eq. 1
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
+      do_gxc = calc_type .eq. 4
+      do_tddftvxc = calc_type .eq. 5
 c      write(6,*)'*** Entered dftgh_quadv0, logicals =',do_force,
 c     &     do_hess, do_cpks_r
-      if (.not. (do_force .or. do_hess .or. do_cpks_r)) then
+      if (.not. (do_force .or. do_hess .or. do_cpks_r 
+     1          .or. do_gxc .or. do_tddftvxc)) then
+c      if (.not. (do_force .or. do_hess .or. do_cpks_r 
+c     1          .or. do_gxc)) then
          call errquit('dftg_gridb0: illegal calculation type',0,
      &       INPUT_ERR)
       endif
@@ -207,16 +240,24 @@ c
       len_Amat2 = n_per_rec*NCOL_AMAT2
       len_Cmat2 = n_per_rec*NCOL_CMAT2
       len_Mmat2 = n_per_rec*NCOL_MMAT2
+c Daniel (1-14-13): XC-third derivative matrix lengths.
+      len_Amat3 = n_per_rec*NCOL_AMAT3
+      len_Cmat3 = n_per_rec*NCOL_CMAT3
+c Daniel (1-14-13): Presumably this is here to initialize these
+c variables to avoid compiler warnings if they aren't used...
       k_Amat2 = 0
       k_Cmat2 = 0
       k_Mmat2 = 0
       k_drhonuc = 0
       k_ddelrhonuc = 0
       k_d2scr = 0
+      k_Amat3 = 0
+      k_Cmat3 = 0
 c
       if (.not.MA_Push_Get(mt_dbl,len_Amat,'Amat',lAmat,iAmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',8, MA_ERR)
-      if (do_hess .or. do_cpks_r) then
+c      if (do_hess .or. do_cpks_r) then
+      if (do_hess .or. do_cpks_r .or. do_tddftvxc) then
        if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
      &  call errquit(' exiting in dftg_gridv0: insuff stack',108,MA_ERR)
         if (grad) then
@@ -229,6 +270,22 @@ c
      &     call errquit(' exiting in dftg_gridv0: insuff stack',109,
      &       MA_ERR)
         endif
+c Daniel (1-14-13): We need 3rd derivative matrices here.  Presently we
+c don't initiallize the kinetic-energy density terms, although these 
+c can be added in the future.
+      elseif (do_gxc) then
+       if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
+     &  call errquit(' exiting in dftg_gridv0: insuff stack',110,MA_ERR)
+       if (.not.MA_Push_Get(mt_dbl,len_Amat3,'Amat3',l_Amat3,k_Amat3))
+     &  call errquit(' exiting in dftg_gridv0: insuff stack',111,MA_ERR)
+       if (grad) then
+        if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',l_Cmat2,k_Cmat2))
+     &    call errquit(' exiting in dftg_gridv0: insuff stack',112,
+     &      MA_ERR)
+        if (.not.MA_Push_Get(mt_dbl,len_Cmat3,'Cmat3',l_Cmat3,k_Cmat3))
+     &    call errquit(' exiting in dftg_gridv0: insuff stack',113,
+     &      MA_ERR)
+       endif        
       endif
 c
       if (.not.MA_Push_Get(mt_dbl,len_Cmat,'Cmat',lCmat,iCmat))
@@ -280,14 +337,64 @@ c
       if (.not.MA_Push_Get(mt_dbl,lgthpmat,'DENS',lPmat,iPmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',17,
      &       MA_ERR)
-      if (.not.MA_Push_Get(MT_Dbl,npol*n_per_rec,'rho',lrho,irho))
+c Daniel (1-16-13): Need to account for having the ground state
+c density matrices and perturbed density matrices for the 
+c XC-kernel gradient and XC-potential gradient for TDDFT.
+c      if (do_gxc) then
+      if (do_gxc .or. do_tddftvxc) then
+c        len_rho = npol*n_per_rec*(ngxc+1) + n_per_rec
+        len_rho = ipol*n_per_rec*(ngxc+1) + n_per_rec
+      else
+        len_rho = npol*n_per_rec
+      endif
+      if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',lrho,irho))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
      &       MA_ERR)
+c      if (.not.MA_Push_Get(MT_Dbl,npol*n_per_rec,'rho',lrho,irho))
+c     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+c     &       MA_ERR)
 c
-      nelem = 3*npol*n_per_rec
-      if (.not.MA_Push_Get(MT_Dbl,nelem,'delrho',ldelrho,idelrho))
+c Daniel (1-16-13): Ditto to the above comment for the density gradient
+c      if (do_gxc) then
+      if (do_gxc .or. do_tddftvxc) then
+c        len_delrho = 3*npol*n_per_rec*(ngxc+1) + 3*n_per_rec
+        len_delrho = 3*ipol*n_per_rec*(ngxc+1) + 3*n_per_rec
+      else
+        len_delrho = 3*npol*n_per_rec
+      endif
+      if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho,idelrho))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
      &       MA_ERR)
+c      nelem = 3*npol*n_per_rec
+c      if (.not.MA_Push_Get(MT_Dbl,nelem,'delrho',ldelrho,idelrho))
+c     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+c     &       MA_ERR)
+c
+c Daniel (1-17-13): We need extra matrices for storing the perturbed 
+c electron density and its gradient, because we may overwrite old 
+c matrices with new ones.  For all other calculation types, we don't
+c need these matrices. 
+      k_rho_save = 0
+      k_delrho_save = 0
+c      if (do_gxc) then
+      if (do_gxc .or. do_tddftvxc) then
+c        len_rho = npol*n_per_rec*(ngxc+1) + n_per_rec
+        len_rho = ipol*n_per_rec*(ngxc+1) + n_per_rec
+        if (.not.ma_push_get(mt_dbl, len_rho, 'rho_save', l_rho_save,
+     1    k_rho_save))
+     2    call errquit(
+     3      'dftgh_gridv0: Could not allocate rho_save', 0, MA_ERR)
+      endif
+c
+c      if (do_gxc) then
+      if (do_gxc .or. do_tddftvxc) then
+c        len_delrho = 3*npol*n_per_rec*(ngxc+1) + 3*n_per_rec
+        len_delrho = 3*ipol*n_per_rec*(ngxc+1) + 3*n_per_rec
+        if (.not.ma_push_get(mt_dbl, len_delrho, 'delrho_save',
+     1    l_delrho_save, k_delrho_save))
+     2    call errquit(
+     3      'dftgh_gridv0: Could not allocate delrho_save', 0, MA_ERR)
+      endif
 c
       len_ttau = 1
       if (kske) len_ttau = ipol*n_per_rec
@@ -446,6 +553,8 @@ c
       
 c
       if(grid_written) then
+c Daniel (1-14-13): We need to pass 3rd derivatives information 
+c through here so we can evaluate the gradient of the XC-kernel.
       call dftg_gridv0a(rtdb,iga_dens,ldew,
      &     max_at_bf,
      &     rho_int, nqtot, int_mb(iniz), int_mb(ifin),
@@ -467,11 +576,18 @@ c
      &     do_cpks_r, natoms, oactive, nactive,
      &     rdens_atom,  cetobfr,
      &     dbl_mb(ittau), 
-     &     dbl_mb(iMmat), dbl_mb(k_Mmat2))
+     &     dbl_mb(iMmat), dbl_mb(k_Mmat2),
+     1     do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3), ngxc,
+     2     dbl_mb(k_rho_save), dbl_mb(k_delrho_save), triplet, 
+     3     do_tddftvxc)
       else
        if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
      &     (' dftg_gridv0: insuff stack',12, MA_ERR)
+c Daniel (1-14-13): We need to pass a logical variable relevant to
+c 3rd derivatives through here to prevent them from happening, since
+c some compilers (such as the newer iforts) default logical variables
+c to true.
       call dftg_griddo(rtdb,
      &     iga_dens,ldew,
      &     ncoef_max, max_at_bf,
@@ -493,7 +609,10 @@ c
      &     do_cpks_r, natoms, oactive, nactive,
      &     rdens_atom,  cetobfr,
      &     dbl_mb(ittau), 
-     &     dbl_mb(iMmat), dbl_mb(k_Mmat2))
+     &     dbl_mb(iMmat), dbl_mb(k_Mmat2),
+     1     do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3), 0,
+     2     dbl_mb(k_rho_save), dbl_mb(k_delrho_save),
+     3     do_tddftvxc)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)
       endif
@@ -503,7 +622,24 @@ c
      &   call errquit('dftg_gridv0: cannot chop stack',1, MA_ERR)
       if (.not.ma_chop_stack(lCmat))
      &   call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
-      if (do_hess .or. do_cpks_r) then
+c Daniel (1-14-13): Third derivative stuff
+      if (do_gxc) then
+         if (grad) then
+            if (.not.ma_pop_stack(l_Cmat3))
+     &         call errquit('dftg_gridv0: cannot pop stack Cmat3',0, 
+     &            MA_ERR)
+            if (.not.ma_pop_stack(l_Cmat2))
+     &         call errquit('dftg_gridv0: cannot pop stack Cmat2',0, 
+     &            MA_ERR)
+         endif
+         if (.not.ma_pop_stack(l_Amat3))
+     &      call errquit('dftg_gridv0: cannot pop stack Amat3',0, 
+     &         MA_ERR)
+         if (.not.ma_pop_stack(l_Amat2))
+     &      call errquit('dftg_gridv0: cannot pop stack Amat2',0, 
+     &         MA_ERR)
+c      elseif (do_hess .or. do_cpks_r) then
+      elseif (do_hess .or. do_cpks_r .or. do_tddftvxc) then
          if (grad) then
             if (.not.ma_pop_stack(l_Cmat2))
      &           call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)

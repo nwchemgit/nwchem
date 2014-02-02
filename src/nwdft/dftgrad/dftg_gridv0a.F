@@ -9,7 +9,10 @@
      .            drhonuc,ddelrhonuc,d2scr,nscr,
      ,            force, hess, g_rhs, do_force,
      &            do_hess, do_cpks_r, natoms, oactive,
-     &            nactive, rdens_atom, cetobfr, ttau, Mmat, Mmat2)
+     &            nactive, rdens_atom, cetobfr, ttau, Mmat, Mmat2,
+     1            do_gxc, Amat3, Cmat3, ngxc,
+     2            rhosave, delrhosave, triplet, 
+     3            do_tddftvxc)
 c      
 c     $Id$
 c     
@@ -25,6 +28,8 @@ c
 #include "cgridfile.fh"
 c
 #include "dft2drv.fh"
+c Daniel (1-14-13): Added 3rd derivative matrix header
+#include "dft3drv.fh"
 c !!! BGJ test !!!
 #include "bgj.fh"
 c !!! BGJ test !!!
@@ -109,6 +114,20 @@ c
      &        ldocset, idocset
       logical grid_file_rewind,grid_file_read
       external grid_file_rewind,grid_file_read
+c Daniel (1-11-13): Define XC-3rd derivatives
+      logical do_gxc
+      double precision Amat3(n_per_rec,NCOL_AMAT3)
+      double precision Cmat3(n_per_rec,NCOL_CMAT3)
+      integer ngxc
+c Daniel (1-17-13): Matrices for storing perturbed densities.
+      double precision rhosave(*)
+      double precision delrhosave(*)
+c Daniel (2-6-13): Variable for doing restricted triplet TDDFT
+c gradients from the XC-kernel
+      logical triplet
+c Daniel (2-7-13): Logical variable for doing the dVxc*P contribution
+c to the TDDFT gradients.
+      logical do_tddftvxc
 c
 c Qin
       ldbw = .false.
@@ -242,6 +261,8 @@ c Qin
           enddo
          endif
 c Qin/end
+c Daniel (1-16-13): Thread a variable through here that allows XC-third
+c derivatives to happen.
          call dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
      &     max_at_bf,
      &     rho_int, nqtot, iniz, ifin, rho, delrho,
@@ -259,7 +280,10 @@ c Qin/end
      &     nactive, rdens_atom, 
      &     cetobfr,
      &     ttau, kske, Mmat, Mmat2, ldbw,
-     $     fact, dtype, nconstr)  ! Qin
+     $     fact, dtype, nconstr,  ! Qin
+     1     do_gxc, Amat3, Cmat3, ngxc,
+     2     rhosave, delrhosave, triplet, 
+     3     do_tddftvxc)
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop
