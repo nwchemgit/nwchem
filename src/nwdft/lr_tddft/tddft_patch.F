@@ -30,7 +30,7 @@ c
       doit=.not.(anlo.eq.0.and.anhi.eq.-1.and.
      A     amlo.eq.0.and.amhi.eq.-1)
       if(doit) then
-      if (g_a.eq.g_b) then
+       if (g_a.eq.g_b) then
          call ga_distribution(g_a,me,anlo,anhi,amlo,amhi)
          adim=anhi-anlo+1
          if (.not.ma_push_get(mt_dbl,adim,'Temp1',l_t1,k_t1)) 
@@ -48,7 +48,7 @@ c
          endif
          if (.not.ma_pop_stack(l_t1)) call errquit
      $      ('tga_ddot:failed to deallocate t1',0, MA_ERR)
-      else
+       else
          call ga_distribution(g_a,me,anlo,anhi,amlo,amhi)
          call ga_distribution(g_b,me,bnlo,bnhi,bmlo,bmhi)
          adim=anhi-anlo+1
@@ -64,8 +64,8 @@ c
      $      ('tga_ddot:failed to deallocate t2',0, MA_ERR)
          if (.not.ma_pop_stack(l_t1)) call errquit
      $      ('tga_ddot:failed to deallocate t1',0, MA_ERR)
-      endif
-      endif
+       endif ! g_a.eq.g_b
+      endif ! doit
       call ga_dgop(2123,x,1,'+')
       tga_ddot=x
       return
@@ -106,22 +106,22 @@ c
       doit=.not.(anlo.eq.0.and.anhi.eq.-1.and.
      A     amlo.eq.0.and.amhi.eq.-1)
       if(doit) then
-      call ga_distribution(g_b,me,bnlo,bnhi,bmlo,bmhi)
-      adim=anhi-anlo+1
-      bdim=bnhi-bnlo+1
-      if (.not.ma_push_get(mt_dbl,adim*m,'Temp1',l_t1,k_t1))
-     $   call errquit('tga_ddot:fail allocate t1',0, MA_ERR)
-      if (.not.ma_push_get(mt_dbl,bdim*m,'Temp2',l_t2,k_t2))
-     $   call errquit('tga_ddot:fail allocate t1',0, MA_ERR)
-      call ga_get(g_a,anlo,anhi,k,k+m-1,dbl_mb(k_t1),adim)
-      call ga_get(g_b,bnlo,bnhi,l,l+m-1,dbl_mb(k_t2),bdim)
-      call tga_add_oper(x,dbl_mb(k_t1),dbl_mb(k_t2),adim,m)
-      call ga_put(g_b,bnlo,bnhi,l,l+m-1,dbl_mb(k_t2),bdim)
-      if (.not.ma_pop_stack(l_t2)) call errquit
+        call ga_distribution(g_b,me,bnlo,bnhi,bmlo,bmhi)
+        adim=anhi-anlo+1
+        bdim=bnhi-bnlo+1
+        if (.not.ma_push_get(mt_dbl,adim*m,'Temp1',l_t1,k_t1))
+     $    call errquit('tga_ddot:fail allocate t1',0, MA_ERR)
+        if (.not.ma_push_get(mt_dbl,bdim*m,'Temp2',l_t2,k_t2))
+     $    call errquit('tga_ddot:fail allocate t1',0, MA_ERR)
+        call ga_get(g_a,anlo,anhi,k,k+m-1,dbl_mb(k_t1),adim)
+        call ga_get(g_b,bnlo,bnhi,l,l+m-1,dbl_mb(k_t2),bdim)
+        call tga_add_oper(x,dbl_mb(k_t1),dbl_mb(k_t2),adim,m)
+        call ga_put(g_b,bnlo,bnhi,l,l+m-1,dbl_mb(k_t2),bdim)
+        if (.not.ma_pop_stack(l_t2)) call errquit
      $   ('tga_ddot:failed to deallocate t2',0, MA_ERR)
-      if (.not.ma_pop_stack(l_t1)) call errquit
+        if (.not.ma_pop_stack(l_t1)) call errquit
      $   ('tga_ddot:failed to deallocate t1',0, MA_ERR)
-      endif
+      endif ! doit
       return
       end
 c

@@ -1617,6 +1617,7 @@ c ----------------------------------------------------------------------
 c
       if (lcivecs) then
         lstores2 = .false.
+c
 c Check if <S2> is already in the RTDB. If it is, we don't do anything
 c else.  Otherwise, we write s2_save to the RTDB.  This only happens if
 c tddft_grad:s2 doesn't exist.
