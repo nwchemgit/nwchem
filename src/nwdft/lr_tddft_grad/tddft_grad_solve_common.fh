@@ -1,0 +1,35 @@
+c
+c     $Id: tddft_grad_solve_common.fh,v 1.1 2007/09/11 12:38:52 hvd Exp hvd $
+c
+c     Local common block to pass information from the linear system
+c     solver driver tddft_grad_solve to the matrix vector product
+c     tddft_grad_solve_product and the preconditioner 
+c     tddft_grad_solve_precond. To avoid name clashes all variables are
+c     prepended with tdg_ .
+c
+      double precision tdg_tol2e   ! the 2-electron integral tolerance
+      double precision tdg_kfac    
+c
+      integer tdg_rtdb    ! the runtime database
+      integer tdg_geom    ! the geometry handle
+      integer tdg_bfao    ! the basis set handle
+      integer tdg_ipol    ! =1 (restricted), =2 (unrestricted)
+      integer tdg_nroots  ! the number of roots
+      integer tdg_nao     ! the number of AOs
+      integer tdg_nocc(2) ! the number of occupied orbitals
+      integer tdg_naoc(2) ! the number of active occupied orbitals
+      integer tdg_nav(2)  ! the number of active virtual orbitals
+      integer tdg_nfc(2)  ! the number of frozen core orbitals
+      integer tdg_nfv(2)  ! the number of frozen virtual orbitals
+      integer tdg_nmo(2)  ! the number of molecular orbitals
+      integer tdg_g_mo(2) ! global arrays to the MOs
+      integer tdg_e_mo    ! the orbital energy pointer
+      logical tdg_tda     ! True if Tamm-Dancoff approximation
+      logical tdg_oskel
+      logical tdg_lhashf
+      logical tdg_triplet 
+      common/tddft_grad_solve_common/tdg_tol2e,tdg_kfac,tdg_rtdb,
+     +       tdg_geom,tdg_bfao,tdg_ipol,tdg_nroots,tdg_nao,tdg_nocc,
+     +       tdg_naoc,tdg_nav,tdg_nfc,tdg_nfv,tdg_nmo,
+     +       tdg_g_mo,tdg_e_mo,tdg_tda,
+     +       tdg_oskel,tdg_lhashf,tdg_triplet
