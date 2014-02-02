@@ -1,5 +1,10 @@
-      logical function ao_1prdm_read(nbf,g_vecs)
+c
+c     Read 1-particle reduced density matrix
+c
+      logical function ao_1prdm_read(nbf,g_dens)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -11,17 +16,22 @@
 #include "util.fh"
 #include "stdio.fh"
 c
-      integer g_vecs
+      integer g_dens
 c
       integer nbf               ! No. of functions in basis
       integer ok
-      integer l_vecs, k_vecs
+      integer l_dens, k_dens
       integer i
+c
       integer unitno
       parameter (unitno = 66)
-      integer inntsize
 c
-      l_vecs = -1               ! An invalid MA handle
+      integer inntsize
+      character*32 pname
+c
+c     Preliminaries
+      pname = "ao_1prdm_read: "
+      l_dens = -1               ! An invalid MA handle
 c
       inntsize = MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
@@ -29,20 +39,20 @@ c
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file='ao_1prdm',
      $        err=1000)
-         if (.not. ma_push_get(mt_dbl,nbf,'movecs_read',l_vecs,k_vecs))
+         if (.not. ma_push_get(mt_dbl,nbf,'movecs_read',l_dens,k_dens))
      $        call errquit('movecs_read: ma failed', nbf, MA_ERR)
          do i = 1, nbf
-            call sread(unitno, dbl_mb(k_vecs), nbf)
-            call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
+            call sread(unitno, dbl_mb(k_dens), nbf)
+            call ga_put(g_dens, 1, nbf, i, i, dbl_mb(k_dens), 1)
          enddo
  9       close(unitno,err=1002)
          ok = 1
       endif
 c
  10   continue
-      if (l_vecs .ne. -1) then
-         if (.not. ma_pop_stack(l_vecs)) call errquit
-     $      ('ao_1prdm_read: pop failed', l_vecs, MA_ERR)
+      if (l_dens .ne. -1) then
+         if (.not. ma_pop_stack(l_dens)) call errquit
+     $      ('ao_1prdm_read: pop failed', l_dens, MA_ERR)
       endif
       call ga_sync()
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
