@@ -2656,7 +2656,7 @@ C?          WORK(KLZEXP-1+JROOT) = RLZEFF
 C?          WORK(KL2EXP-1+JROOT) = RL2EFF
 C?      END IF
 *
-          IF(IPRNT.GT.2) THEN
+          IF(IPRNT.GT.2.and.ga_nodeid().eq.0) THEN
            IF(NOCSF.EQ.1) THEN
             CALL GASANA(KPVEC1,NBLOCK,int_mb(KCIBT),
      &                  int_mb(KCBLTP),LUC,ICISTR)
@@ -2723,7 +2723,7 @@ cnw          CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
              CALL FIFAM(KFIZ)
           END IF
 *
-          IF(IPRNT.GT.2) THEN
+          IF(IPRNT.GT.2.and.ga_nodeid().eq.0) THEN
            IF(NROOT.GT.1) THEN
             CALL REWINO(LUSC1)
             IF(NOCSF.EQ.1) THEN
@@ -15045,7 +15045,7 @@ CNW   DIMENSION SV(*),CV(*)
       CALL LUCIAQENTER('RASSG')
       NTEST = 0000
       NTEST = MAX(NTEST,IPRCIX)
-      IF(NTEST.GE.20) THEN
+      IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
         WRITE(6,*) ' RASSG3 speaking:'
         WRITE(6,*) ' ================='
@@ -15074,7 +15074,6 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
 C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
           IF(ICISTR.NE.1) THEN
             CALL ITODS(LEN,1,-1,LUHC)
-CBERT SHOULD NOT BE CALLED
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
             if (LEN.gt.0)
@@ -15088,11 +15087,11 @@ CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
       IF(NTEST.GE.100) THEN
         IF(ICISTR.NE.1) THEN
-          WRITE(6,*) ' Final S-vector on disc'
+          if (ga_nodeid().eq.0) WRITE(6,*) ' Final S-vector on disc'
           CALL WRTVCD(SB,LUHC,1,-1)
         ELSE
           LEN_S = IOFF_S - 1
-          WRITE(6,*) ' Final S-vector'
+          if (ga_nodeid().eq.0) WRITE(6,*) ' Final S-vector'
           call ga_print(SV)
 CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
         END IF

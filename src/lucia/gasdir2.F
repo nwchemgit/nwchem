@@ -5200,6 +5200,9 @@ C     END IF
 
 
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Specific input
       INTEGER ISBLOCK(8,*)
 * (if ICISTR = 1) 
@@ -5250,12 +5253,12 @@ CNW   DIMENSION CV(*)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCS')
 *
 C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
-      IF(IH_OCC_CONS.EQ.1) THEN
+      IF(IH_OCC_CONS.EQ.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.GE.20) THEN
+      IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
         WRITE(6,*) ' SBLOCKS speaking :'
         WRITE(6,*) ' ================='
@@ -5265,7 +5268,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
         WRITE(6,'(A,A6)') ' ITASK = ', ITASK
       END IF
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' TTSS for each ACTIVE sigma block'
         DO IBLOCK = 1, NSBLOCK
           IF(ISBLOCK(1,IBLOCK).GT.0) 
@@ -5298,7 +5301,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
         END IF
       END IF
 *
-      IF(NTEST.GE.500) THEN
+      IF(NTEST.GE.500.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Initial C vector '
         IF(ICISTR.NE.1) THEN 
           CALL WRTVCD(CB,LUC,1,-1)

@@ -9287,7 +9287,7 @@ CNW   DIMENSION F(*)
       integer F
 *
       NTEST = 00
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) 
         WRITE(6,*) ' Output from FOCK_MAT_STANDARD '
@@ -9295,10 +9295,11 @@ CNW   DIMENSION F(*)
         WRITE(6,*)
       END IF
       IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Input inactive and active Fock matrices '
+        if (ga_nodeid().eq.0)
+     &  WRITE(6,*) ' Input inactive and active Fock matrices '
 CNW     CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,1)
         call ga_print(FI)
-        WRITE(6,*)
+        if (ga_nodeid().eq.0) WRITE(6,*)
 CNW     CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,1)
         call ga_print(FA)
       END IF
@@ -9322,7 +9323,7 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
         END DO
         MXTSOB = MAX(MXTSOB,MXTSOB_AC,NINOBS(ISM),NSCOBS(ISM))
       END DO
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' MXTSOB, MXTSOB_AC = ', MXTSOB, MXTSOB_AC
       END IF
 *. Allocate scratch space for 2-electron integrals and 
@@ -9363,7 +9364,7 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
           NJ = NOBPTS(JGAS,IJSM)
          END IF
           DO IGAS = 0, NGAS+1
-           IF(NTEST.GE.1000) THEN
+           IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) 
      &       ' Info for ISM IGAS JGAS',ISM,IGAS,JGAS
            END IF
@@ -9394,21 +9395,26 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
 *
 *. Inactive part
 *
+            call ga_distribution(KFI,ga_nodeid(),ilo,ihi,idum,idum)
+            call ga_access(KFI, ilo, ihi, 1, 1, ikfi, idum)
+            call ga_access(KFA, ilo, ihi, 1, 1, ikfa, idum)
              DO I = 1, NI
               DO J = 1, NJ
                IJMAX = MAX(I+II-1,J+IJ-1)
                IJMIN = MIN(I+II-1,J+IJ-1)
-               IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN
+               IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN + IFOFFSA - ilo
 CNW            dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*
 CNW  &         (FI(IFOFFS-1+IJSYM)+FA(IFOFFS-1+IJSYM))
-               call ga_get(FI,IFOFFS-1+IJSYM,IFOFFS-1+IJSYM,1,1,FIVAL,1)
-               call ga_get(FA,IFOFFS-1+IJSYM,IFOFFS-1+IJSYM,1,1,FAVAL,1)
-               dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*(FIVAL+FAVAL)
+               if (IJSYM.ge.ilo.and.IJSYM.le.ihi)
+     &         dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 
+     &                    2.0D0*(dbl_mb(ikfi+IJSYM)+dbl_mb(ikfa+IJSYM))
 C?             WRITE(6,*) ' IJSM, I, J, FI(IJ), FA(IJ), F(IJ) =',
 C?   &         IJSM,I,J,FI(IFOFFS-1+IJSYM), FA(IFOFFS-1+IJSYM),
 C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
               END DO
              END DO
+            call ga_release(KFI, ilo, ihi, 1, 1)
+            call ga_release(KFA, ilo, ihi, 1, 1)
             ELSE IF(JGAS.LE.NGAS) THEN
 *
 *. Active part
@@ -9420,7 +9426,7 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
 *. blocks of one-electron integrals and one-electron density
               CALL GETD1(dbl_mb(KLDEN),JSM,JGAS,KSM,KGAS,1)
               CALL GETH1(dbl_mb(KLINT),ISM,IGAS,KSM,KGAS)
-              IF(NTEST.GE.1000) THEN
+              IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
                 WRITE(6,*) 
      &          ' 1-e ints for ISM IGAS KGAS ',ISM,IGAS,KGAS
                 CALL WRTMAT(dbl_mb(KLINT),NI,NK,NI,NK)
@@ -9432,13 +9438,13 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
 *. these days )
               CALL MATML7(dbl_mb(KLFBLK),dbl_mb(KLDEN),dbl_mb(KLINT),
      &                    NJ,NI,NJ,NK,NI,NK,ONE,ONE,2)
-               IF(NTEST.GE.1000) THEN
+               IF(NTEST.GE.1000.and. ga_nodeid().eq.0) THEN
                  WRITE(6,*) ' Updated block '
                  CALL WRTMAT(dbl_mb(KLFBLK),NJ,NI,NJ,NI)
                END IF
  
              END DO
-             IF(NTEST.GE.1000) THEN
+             IF(NTEST.GE.1000.and. ga_nodeid().eq.0) THEN
               WRITE(6,*) ' One-electron contributions'
               WRITE(6,*) ' =========================='
               CALL WRTMAT(dbl_mb(KLFBLK),NJ,NI,NJ,NI)
@@ -9465,28 +9471,6 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
                 IF(NM*NK*NL.NE.0) THEN
                
 *. Blocks of density matrix and integrals: D2(K L, J M) (K L ! I M)
-                 I_OLD_OR_NEW = 2
-                 IF(I_OLD_OR_NEW.EQ.1) THEN
-*. Good old form, where we may access (oo!og) integrals as (oo!go)
-                  IXCHNG = 0
-                  ICOUL  = 1
-                  ONE = 1.0D0
-*
-                  CALL LUCIAGETINT(dbl_mb(KLINT),
-     &                 KGAS,KSM,LGAS,LSM,IGAS,ISM,MGAS,MSM,
-     &                 IXCHNG,0,0,ICOUL,ONE,ONE)
-*
-                  CALL GETD2 (dbl_mb(KLDEN),
-     &                 KSM,KGAS,LSM,LGAS,JSM,JGAS,MSM,MGAS,1)
-                  NKL = NK*NL
-                  DO M = 1, NM
-                    IIOFF = KLINT + (M-1)*NKL*NI
-                    IDOFF = KLDEN + (M-1)*NKL*NJ
-                    CALL MATML7(dbl_mb(KLFBLK),dbl_mb(IDOFF),
-     &                          dbl_mb(IIOFF),
-     &                          NJ,NI,NKL,NJ,NKL,NI,ONE,XFACTOR,1)
-                  END DO
-                 ELSE
 *. Modern form where (oo!og) must be accessed with fourth index being
 *. general (why does reorganizations lead to less flexibility ???
                   IXCHNG = 0
@@ -9504,7 +9488,6 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
                   CALL MATML7(dbl_mb(KLFBLK),dbl_mb(KLDEN),
      &                        dbl_mb(KLINT),
      &                        NJ,NI,NKLM,NJ,NKLM,NI,ONE,XFACTOR,1)
-                 END IF ! End of new/old switch
                 END IF !End if nonvanishing block
               END DO
               END DO
@@ -9512,7 +9495,7 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
              END DO
              END DO
              END IF
-             IF(NTEST.GE.1000) THEN
+             IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' One- + two-electron contributions'
               WRITE(6,*) ' ================================='
               CALL WRTMAT(dbl_mb(KLFBLK),NJ,NI,NJ,NI)
@@ -9523,13 +9506,14 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
 *. symmetry blocked Fock matrix
 *
 *
+            call ga_distribution(F,ga_nodeid(),ilo,ihi,idum,idum)
             DO J = 1, NJ
               DO I = 1, NI
 C?              WRITE(6,*) 'IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1',
 C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
-CBERT IS A SCATTER, REPLACE WITH FIND ALL ELEMENTS I OWN AND PUT
                 IINDX = IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1
-                call ga_put(F,IINDX,IINDX,1,1,
+                if (iindx.ge.ilo.and.iindex.le.ihi)
+     &          call ga_put(F,IINDX,IINDX,1,1,
      &                      dbl_mb(KLFBLK-1+(I-1)*NJ+J),1)
 CNW             F(IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1 ) = 
 CNW  &          dbl_mb(KLFBLK-1+(I-1)*NJ+J)
@@ -9542,9 +9526,11 @@ CNW  &          dbl_mb(KLFBLK-1+(I-1)*NJ+J)
       END DO
 *
       IF(NTEST.GE.10) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*)
         WRITE(6,*) ' Final F from FOCK_MAT_STANDARD '
         WRITE(6,*) ' =============================='
+        endif
 CNW     CALL APRBLM2(F,NTOOBS,NTOOBS,NSMOB,0)
         call ga_print(F)
       END IF

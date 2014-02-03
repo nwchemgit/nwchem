@@ -11770,7 +11770,7 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
 *
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Output from Z_BLKFO_FOR_CISPACE '
         WRITE(6,*) ' ================================'
         WRITE(6,*)
@@ -11864,11 +11864,11 @@ C    &                  ISIMSYM)
 *. Extract length of each block
         CALL EXTRROW(IBLOCKFO,8,8,NBLOCK,LEN_PER_BLK)
 *
-        IF(IPRNT.GT.10) THEN 
+        IF(IPRNT.GT.10.and.ga_nodeid().eq.0) THEN 
            WRITE(6,'(A,I9)') ' Number of blocks ', NBLOCK
            WRITE(6,'(A,I9)') ' Number of batches ', NBATCH
         END IF
-        IF(NTEST.GE.100) THEN
+        IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Number of blocks per batch: '
           CALL IWRTMA(NBLK_PER_BATCH,1,NBATCH,1,NBATCH)
         END IF
