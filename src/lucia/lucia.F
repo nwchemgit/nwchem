@@ -10724,7 +10724,7 @@ C     CALL TEST_DEC15
 *.    No floating point underflow
       CALL XUFLOW
 *. Header
-      CALL WRTHD(LUOUT)
+      if (ga_nodeid().eq.0) CALL WRTHD(LUOUT)
 * =======================================================
 * 0: .Set up basis, geometry and mo vector file from rtdb
 * =======================================================
@@ -10756,6 +10756,7 @@ c
 * ======================================================
 * 1: .Read input,insert defaults and cross check input
 * ======================================================
+      call ga_sync()
       CALL INPCTL(rtdb,LUOUT)
 *. Static memory, initialize
       KBASE = 1
@@ -11122,10 +11123,10 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
 CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
         call ga_copy(KINT_2EMO,KINT_2EINI)
       ELSE
-        WRITE(6,*) ' No integrals imported '
+        if (ga_nodeid().eq.0) WRITE(6,*) ' No integrals imported '
       END IF
 *. Print MO-coefs (after INTIM for getting labels)
-      IF(NOMOFL.EQ.0.AND.IPRORB.GE.1) THEN
+      IF(NOMOFL.EQ.0.AND.IPRORB.GE.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' MO-AO transformation matrix of starting orbitals'
         CALL PRINT_CMOAO(dbl_mb(KMOAOIN))
       END  IF
@@ -11175,7 +11176,7 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
 C           SUPSYM_FROM_CMOAO(CMOAO,ISUPSYM_FOR_BAS,ISUPSYM_FOR_MOS)
         CALL ICOPVE(int_mb(KMO_SUPSYM),int_mb(KMO_GNSYM),NTOOB)
         CALL ICOPVE(int_mb(KMO_SUPSYM),int_mb(KMO_ACT_SUPSYM),NTOOB)
-        IF(IPRORB.GE.5) THEN
+        IF(IPRORB.GE.5.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Actual supersymmetry of initial orbitals '
           CALL IWRTMA3(int_mb(KMO_SUPSYM),1,NTOOB,1,NTOOB)
         END IF
@@ -11395,7 +11396,7 @@ CNW  &                 WORK(KINT_2EINI),WORK(KINT2_F)
 *
 C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
       IF(I_DO_NORTCI.EQ.0) THEN
-        WRITE(6,*) 
+        if (ga_nodeid().eq.0) WRITE(6,*) 
      &  ' Integrals will be transformed to new initial orbitals'
 *. Flag type of integral list to be obtained: Pt complete list of integrals
         IE2LIST_A = IE2LIST_FULL
@@ -11410,7 +11411,8 @@ C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
 *. Integrals will be fetched from KINT_2EMO
         KINT2 = KINT_2EMO
         CALL TRAINT
-        WRITE(6,*) ' Integral transformation completed '
+         if (ga_nodeid().eq.0)
+     &      WRITE(6,*) ' Integral transformation completed '
 *. And overwrite two-electron integrals
 *. Move 2e- integrals to KINT_2EMO 
         IE2ARR_F = IE2LIST_I(IE2LIST_IB(IE2LIST_FULL))
@@ -11556,6 +11558,7 @@ CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
      &    ' IRESTR set to zero for first calculation in comb. space'
         END IF
 *
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) 
         WRITE(6,*) 
         WRITE(6,*) 
@@ -11575,6 +11578,7 @@ CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
         WRITE(6,*) 
         WRITE(6,*) 
         WRITE(6,*) 
+        endif
 C       WRITE(6,'(A,I3)')
 C    &  ' Number of calculation in this CI space ', NSEQCI(JCMBSPC)
 *. Special treatment of lambda calc in first calc
@@ -11716,7 +11720,7 @@ C           WRITE(6,*) ' Vectors will be expanded '
      &                        EFINAL,CONV_F,VNFINAL)
 *. Check subshells for supersymmetry
              IF(I_USE_SUPSYM.EQ.1) THEN
-                IF(IPRORB.GE.5) THEN
+                IF(IPRORB.GE.5.and.ga_nodeid().eq.0) THEN
                   WRITE(6,*) ' Input orbitals in shell form '
                   CALL PRINT_CMO_AS_SHELLS(dbl_mb(KMOAO_ACT),2)
                 END IF
@@ -11743,17 +11747,21 @@ C           WRITE(6,*) ' Vectors will be expanded '
 *  ====================================
 *
       IF(ITRAPRP.NE.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Transition properties of final states '
         WRITE(6,*) ' and states on file LUEXC ( unit 17 ) ' 
         WRITE(6,*) ' will now be calculated '
         WRITE(6,*)
+        endif
         CALL TRAPRP
       END IF
       IF(IGENTRD.EQ.1) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' General transition matrix between final state '
         WRITE(6,*) ' and state on file LUEXC ( unit 17 ) ' 
         WRITE(6,*) ' will now be calculated '
         WRITE(6,*)
+        endif
         IVGSIGDEN = 2
         CALL VGSIGDEN_M(IVGSIGDEN)
       END IF
@@ -11764,7 +11772,7 @@ C           WRITE(6,*) ' Vectors will be expanded '
 *
       IF(NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
 *. Create final set of mo's
-        WRITE(6,*) ' I am going to call MOROT '
+        if (ga_nodeid().eq.0) WRITE(6,*) ' I am going to call MOROT '
         KMOAO = KMOAOUT
         INEW = 1
         IF(INEW.EQ.0) THEN
@@ -11786,12 +11794,13 @@ C              REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
      &         int_mb(KMO_STA_TO_ACT_REO),0,2)
           CALL REO_CMOAO(dbl_mb(KMOMO),dbl_mb(KMOAO_ACT),
      &         int_mb(KMO_STA_TO_ACT_REO),1,2)
-          WRITE(6,*) ' Orbitals reordered to standard order '
+          if (ga_nodeid().eq.0)
+     &    WRITE(6,*) ' Orbitals reordered to standard order '
           IIFORM = 1
         END IF
 *. Check subshells for supersymmetry
         IF(I_USE_SUPSYM.EQ.1) THEN
-          IF(IPRORB.GE.5) THEN
+          IF(IPRORB.GE.5.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' Orbitals in shell form after MOROT'
             CALL PRINT_CMO_AS_SHELLS(dbl_mb(KMOAOUT),IIFORM)
           END IF
@@ -11805,7 +11814,8 @@ C              REO_CMOAO(CIN,COUT,IREO,ICOPY,IWAY)
 * Integral transformation
 * ===========================
       IF(ITRA_FI.EQ.1) THEN
-        WRITE(6,*) ' I am going to call TRAINT '
+        if (ga_nodeid().eq.0)
+     &  WRITE(6,*) ' I am going to call TRAINT '
 *. Direct integrals to current MO-integrals (assumed complete)
         KINT2 = KINT_2EMO
         KKCMO_I = KMOMO
@@ -11830,18 +11840,19 @@ C?   &               WORK(KINT1), WORK(KINT2)
       END IF
 *. And the one-electron file - is always written
       IF(NOMOFL.EQ.0) KMOAO = KMOAOUT
-      IF(IPRORB.GE.1) THEN
+      IF(IPRORB.GE.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Final, final, final orbitals: '
         CALL PRINT_CMOAO(dbl_mb(KMOAOUT))
       END IF
 *
-      CALL DUMP_1EL_INFO(LU91)
+      DUMP1E = 0
+      if(DUMP1E.eq.1) CALL DUMP_1EL_INFO(LU91)
 *. Print info on the results(energies of the various calculations
-      CALL E_SUMMARY
+      if (ga_nodeid().eq.0) CALL E_SUMMARY
 *. Print info on matrix multiplier
-      CALL PR_MATML_STAT
+      if (ga_nodeid().eq.0) CALL PR_MATML_STAT
 *. Print info on  counters for kernel routines 
-      CALL KERNEL_ROU_STAT_PRINT
+      if (ga_nodeid().eq.0) CALL KERNEL_ROU_STAT_PRINT
 *
       CALL LUCIAQEXIT('REST ')
       CALL LUCIAQSTAT
@@ -13790,6 +13801,9 @@ COLD  INTEGER CITYP
       INCLUDE 'cgas.inc'
 *
       INCLUDE 'orbinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
@@ -13843,7 +13857,7 @@ COLD  INTEGER CITYP
 * ===============================================
 *. Well, report back
 * ===============================================
-        IF(NTEST.GE.5) THEN
+        IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
           WRITE(LUOUT,*)
           WRITE(LUOUT,*) ' Number of orbitals per symmetry:'
           WRITE(LUOUT,*) ' ================================='
@@ -13871,7 +13885,7 @@ COLD  INTEGER CITYP
           ITOOBS(ISMOB) = ITOOBS(ISMOB-1)+NTOOBS(ISMOB-1)
         END DO
 *
-        IF(NTEST.GE.5) THEN
+        IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Offsets for orbital of given symmetry '
           CALL IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
         END IF
@@ -13952,6 +13966,9 @@ C?    WRITE(6,*) ' MXTSOB,MXTOB from ORBINF = ', MXTSOB,MXTOB
 *              June 2010...
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION NGSOB(MXPOBS,MXPNGAS),NOCOBS(*),NTOOBS(*)
       DIMENSION NGSOBT(MXPNGAS)
@@ -14095,7 +14112,7 @@ C?   &                   IORB, IADD, IBSSM, NPREV, IADD
 *
       NTEST = 00
       NTEST = MAX(IPRNT,NTEST)
-      IF( NTEST .GE. 5 ) THEN
+      IF( NTEST .GE. 5.and.ga_nodeid().eq.0 ) THEN
         WRITE(6,*)
         WRITE(6,*) ' ==================='
         WRITE(6,*) ' Output from ORBORD '
@@ -14226,6 +14243,9 @@ C
 * Jeppe Olsen , Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INTEGER PNTGRP
 *. Output
       DIMENSION NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR)
@@ -14311,7 +14331,7 @@ C
 *
       NTEST = 0
       NTEST = MAX(IPRNT,NTEST)
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' OSPIR speaking '
         WRITE(6,*) ' ================'
         WRITE(6,*)
@@ -15330,8 +15350,10 @@ cnw              READ(LUIN,*) NIRREP
               ISETKW(3) = 1
 *.Dimensions 3,5,6,7,8 are not allowed
               IF(NIRREP.EQ.3.OR.(NIRREP.GT.4.AND.NIRREP.LT.8)) THEN
+                 if (ga_nodeid().eq.0) then 
                  WRITE(LUOUT,*) ' Input error: NIRREP = ', NIRREP
                  WRITE(LUOUT,*) ' Allowed values of NIRREP:1,2,4,8'
+                 endif
                  NERROR = NERROR + 1
                  ISETKW(3) = -1
               END IF
@@ -15346,9 +15368,11 @@ cnw              READ(LUIN,*) MAXML
               maxml = nirrep  ! for Cinf V suppose to provide MaxML
               ISETKW (3) = 1
               IF(MAXML.LT.0) THEN
+                if (ga_nodeid().eq.0) then
                 WRITE(LUOUT,*)
      &          ' Largest ML values of shells must be atleast be zero '
                 WRITE(LUOUT,*) ' MAXML from input:' ,MAXML
+                endif
                 NERROR = NERROR + 1
                 ISETKW(3) = -1
               END IF
@@ -15364,9 +15388,11 @@ cnw              READ(LUIN,*) MAXML
               maxml = nirrep
               ISETKW (3) = 1
               IF(MAXML.LT.0) THEN
+                if (ga_nodeid().eq.0) then
                 WRITE(LUOUT,*)
      &          ' Largest ML values of shells must be atleast be zero '
                 WRITE(LUOUT,*) ' MAXML from input: ',MAXML
+                endif
                 NERROR = NERROR + 1
                 ISETKW(3) = -1
               END IF
@@ -15382,9 +15408,11 @@ cnw              READ(LUIN,*) MAXL
               maxl = nirrep
               ISETKW (3) = 1
               IF(MAXL.LT.0) THEN
+                if (ga_nodeid().eq.0) then
                 WRITE(LUOUT,*)
      &          ' Largest L values of shells must be atleast be zero '
                 WRITE(LUOUT,*) ' MAXL from input: ' , MAXL
+                endif
                 NERROR = NERROR + 1
                 ISETKW(3) = -1
               END IF
@@ -15394,7 +15422,7 @@ cnw              READ(LUIN,*) MAXL
               NSMOB = NSMCMP
 COLD          INVCNT = 1
             END IF
-            IF(ISETKW(3).EQ.-1)
+            IF(ISETKW(3).EQ.-1.and.ga_nodeid().eq.0)
      &      WRITE(LUOUT,*) ' .NIRREP input incorrect !! . '
 cnw           GOTO 999
           END IF
@@ -15477,7 +15505,7 @@ cnw           READ(LUIN,*)NACTEL
          if(rtdb_get(rtdb,'lucia:nactel',mt_int,1,nactel)) then
            ISETKW(6) = 1
            IF(NACTEL.LT.0) THEN
-             WRITE(LUOUT,*)
+             if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &       ' ERROR: Illegal number of active electrons ', NACTEL
              ISETKW(6) = -1
              NERROR = NERROR + 1
@@ -15628,12 +15656,14 @@ cnw          READ(LUIN,'(A)') CARD1
             END DO
           ELSE
             ISETKW(14) = -1
+            if (ga_nodeid().eq.0) then
             WRITE(6,*) 
      &      ' READIN: Wrong number of entries in REFPSC '
             WRITE(6,*) 
      &      '          Use NGAS numbers for occupation '
             WRITE(6,*) 
      &      '          or  2*NGAS numbers for acc. occupations'
+            endif
             NERROR = NERROR + 1
           END IF
 cnw          GOTO 999
@@ -15801,7 +15831,8 @@ cnw              READ(5,*) ( ISBSPC_ORB(I),I=1, NSBSPC_ORB)
      &      isbspc_orb(1))) call errquit('lucia:isbspc_orb',911)
 
             ELSE
-              WRITE(6,*) ' Unknown value of ISBSPC_SEL = ', ISBSPC_SEL
+              if (ga_nodeid().eq.0)
+     &        WRITE(6,*) ' Unknown value of ISBSPC_SEL = ', ISBSPC_SEL
               NERROR = NERROR + 1
             END IF
 COLD        READ(LUIN,*) MXP1,MXP2,MXQ
@@ -15938,7 +15969,8 @@ cnw        IF(CARD(2:7).EQ.'MSCOMB') THEN
           ISETKW(27) = 1
 cnw          READ(LUIN,*) PSSIGN
           IF(.NOT.(PSSIGN.EQ.-1.0D0.OR.PSSIGN.EQ.1.0D0)) THEN
-            WRITE(LUOUT,*)' Illegal Spin combination factor ',PSSIGN
+            if (ga_nodeid().eq.0) 
+     &      WRITE(LUOUT,*)' Illegal Spin combination factor ',PSSIGN
             ISETKW(27) = -1
             NERROR = NERROR + 1
           END IF
@@ -15952,7 +15984,8 @@ cnw        IF(CARD(2:7).EQ.'MLCOMB') THEN
           ISETKW(28) = 1
 cnw          READ(LUIN,*) PLSIGN
           IF(.NOT.(PLSIGN.EQ.-1.0D0.OR.PLSIGN.EQ.1.0D0)) THEN
-            WRITE(LUOUT,*)' Illegal ml combination factor ',PLSIGN
+            if (ga_nodeid().eq.0)
+     &      WRITE(LUOUT,*)' Illegal ml combination factor ',PLSIGN
             NERROR = NERROR + 1
           END IF
 cnw          GOTO 999
@@ -16180,9 +16213,11 @@ cnw         READ(LUIN,'(A)') CARD1
          ELSE  IF(CARD1(1:2) .EQ. 'EN' ) THEN
            MPORENR = 2
          ELSE
+           if (ga_nodeid().eq.0) then
            WRITE(LUOUT) ' Unknown partitioning '
-          WRITE(LUOUT,'(1H ,A)') CARD1
-          NERROR = NERROR + 1
+           WRITE(LUOUT,'(1H ,A)') CARD1
+           endif
+           NERROR = NERROR + 1
          END IF
 *
          IAPRREF = 1
@@ -16211,9 +16246,11 @@ cnw         READ(LUIN,'(A)') CARD1
          ELSE  IF(CARD1(1:2) .EQ. 'EN' ) THEN
            MPORENZ = 2
          ELSE
+           if (ga_nodeid().eq.0) then
            WRITE(LUOUT) ' Unknown partitioning '
-          WRITE(LUOUT,'(1H ,A)') CARD1
-          NERROR = NERROR + 1
+           WRITE(LUOUT,'(1H ,A)') CARD1
+           endif
+           NERROR = NERROR + 1
          END IF
          IAPRZER = 1
 cnw         GOTO 999
@@ -16261,12 +16298,14 @@ cnw       IF(CARD(2:7).EQ.'GASSPC') THEN
 *. GASSH must have been defined before, check this
        if(rtdb_get(rtdb,'lucia:ncispc',mt_int,1,ncispc))then
          IF(ISETKW(50).EQ.0) THEN
+           if (ga_nodeid().eq.0) then
            WRITE(6,*) ' Dear User'
            WRITE(6,*)
            WRITE(6,*) ' GASSH must be specified'
            WRITE(6,*) 
      &     ' Else I do not know about the number of orbital spaces'
            WRITE(6,*) ' So I will stop '
+           endif
            STOP 'READIN: put GASSH'
          END IF
          IDOGAS = 1
@@ -16321,12 +16360,14 @@ c         READ(LUIN,'(A)') CARD1
           ELSE IF(ITEMX(1:3).EQ.'ALL'.OR.ITEMX(1:4).EQ.'REST') THEN
 *. Only a single space must be defined in this way
             IF(IGSFILL.NE.0) THEN
+              if (ga_nodeid().eq.0) then
               WRITE(6,*) 
      &        ' Several shell spaces defined by ALL or REST'
               WRITE(6,*)
      &        ' This confuses and upsets me '
               WRITE(6,*)
      &        '                                / Lucia '
+              endif
               ISETKW(13) = -1
               NERROR = NERROR + 1
             END IF
@@ -16334,12 +16375,14 @@ c         READ(LUIN,'(A)') CARD1
           ELSE 
 *. I expect that NIRREP integers are given
             IF(NITEM.NE.NIRREP) THEN
+              if (ga_nodeid().eq.0) then
               WRITE(6,*) ' Erroneous input to SECSH: '
               WRITE(6,'(72A)') CARD1
               WRITE(6,*) ' Specify either:   NONE '
               WRITE(6,*) '                     ALL' 
               WRITE(6,*) '                    REST' 
               WRITE(6,*) ' Or NIRREP integers  '
+              endif
               NERROR = NERROR + 1
               ISETKW(50) = -1
             END IF
@@ -16483,11 +16526,13 @@ c            READ(LUIN,'(A)') CARD1
 *. defined presently, so flag by a minus and insert later
 *
 * At the moment: I want MAXIT as the second entry
+                 if (ga_nodeid().eq.0) then
                  WRITE(6,*) 
      &           ' ERROR:  Number_of_iterations not specified'
                  WRITE(6,*) 
      &           ' Required form of CI card is: '
                  WRITE(6,*) ' CI , Number_of_iterations'
+                 endif
                  ISEQCI(ICI,JCMBSPC) = -1
                  NERROR = NERROR + 1
                  ISETKW(54) = -1
@@ -16531,11 +16576,13 @@ c            READ(LUIN,'(A)') CARD1
 *              LEVEL = 4 => Level 2 + MP4 in next space
 *
                IF(NITEM.LT.3) THEN
+                  if (ga_nodeid().eq.0) then
                   WRITE(6,*) 
      &            ' ERROR:  Level and MPORENP parameter not specified'
                   WRITE(6,*) 
      &            ' Required form of VECFREE card is: '
                   WRITE(6,*) ' VECFREE , LEVEL, MPORENP'
+                  endif
                   ISEQCI(ICI,JCMBSPC) = -1
                   NERROR = NERROR + 1
                ELSE
@@ -16590,11 +16637,13 @@ C              WRITE(6,*) ' CC routines will be called '
 COLD             ISETKW(123) = 2
                  IF(NITEM.EQ.1) THEN
 * At the moment: I want MAXIT as the second entry
+                   if (ga_nodeid().eq.0) then
                    WRITE(6,*) 
      &             ' ERROR:  Number_of_iterations not specified'
                    WRITE(6,*) 
      &             ' Required form of CC card is: '
                    WRITE(6,*) ' CC , Number_of_iterations'
+                   endif
                    ISEQCI(ICI,JCMBSPC) = -1
                    NERROR = NERROR + 1
                    ISETKW(54) = -1
@@ -16610,11 +16659,13 @@ COLD             ISETKW(123) = 2
 * For GEN_CC The inputline should read: GEN_CC, MAXIT, ITSPC
 * Where T space is CI space used to define T-operator space
                IF(NITEM.NE.3) THEN
+                 if (ga_nodeid().eq.0) then
                  WRITE(6,*) 
      &           ' ERROR:   GEN_CC card does not contain 3 items '
                  WRITE(6,*) 
      &           ' Required form of GEN_CC card is: '
                  WRITE(6,*) ' GEN_CC , MAXIT, ITSPC'
+                 endif
                  ISEQCI(ICI,JCMBSPC) = -1
                  NERROR = NERROR + 1
                  ISETKW(54) = -1
@@ -16643,14 +16694,16 @@ C              WRITE(6,*) ' GICCI routines will be called'
 *. Internal contracted PT calculation
 * ======================================
 *
-               WRITE(6,*) ' Internal contracted PT '      
+               if (ga_nodeid().eq.0) 
+     &            WRITE(6,*) ' Internal contracted PT '      
              ELSE IF(CARDX(1:4).EQ.'ICCC' ) THEN
 *
 * =====================================
 *. Internal contracted Coupled cluster
 * =====================================
 *
-               WRITE(6,*) ' Internal contracted CC '      
+               if (ga_nodeid().eq.0)
+     &         WRITE(6,*) ' Internal contracted CC '      
                I_DO_ICCC = 1
                I_DO_GAS = 1
              ELSE IF(CARDX(1:7).EQ.'TWOBODY' ) THEN
@@ -16659,7 +16712,7 @@ C              WRITE(6,*) ' GICCI routines will be called'
 *. Generalized TWOBODY cluster expansion
 * ==============================
 *
-               WRITE(6,*)
+               if (ga_nodeid().eq.0) WRITE(6,*)
      &        ' Generalized TWOBODY cluster expansions will be tested '
                I_MODE_GTBCE = 1
                I_DO_GTBCE=1
@@ -16679,10 +16732,12 @@ C              WRITE(6,*) ' GICCI routines will be called'
                END DO
                
              ELSE IF(CARDX(1:6).EQ.'SP_MCL') THEN
-               WRITE(6,*) ' Spin-MCLR will be called '
+               if (ga_nodeid().eq.0)
+     &         WRITE(6,*) ' Spin-MCLR will be called '
 *
              ELSE IF(CARDX(1:6).EQ.'SP_MCL') THEN
-               WRITE(6,*) ' Spin-MCLR will be called '
+               if (ga_nodeid().eq.0)
+     &         WRITE(6,*) ' Spin-MCLR will be called '
 *
              ELSE IF (CARDX(1:5).EQ.'MCSCF') THEN
 * 
@@ -16694,11 +16749,13 @@ C              WRITE(6,*) ' GICCI routines will be called'
 C?             WRITE(6,*) ' MCSCF optimization will be invoked '
 * For MCSCF the inputline should read: MCSCF, MAXMAC, MAXMIC
                IF(NITEM.NE.3) THEN
+               if (ga_nodeid().eq.0) then
                  WRITE(6,*) 
      &           ' ERROR:   MCSCF card does not contain 3 items '
                  WRITE(6,*) 
      &           ' Required form of MCSCF card is: '
                  WRITE(6,*) ' MCSCF, MAXMAC, MAXMIC'
+               endif
                  ISEQCI(ICI,JCMBSPC) = -1
                  NERROR = NERROR + 1
                  ISETKW(54) = -1
@@ -16718,12 +16775,14 @@ C?             WRITE(6,*) ' MCSCF optimization will be invoked '
 *                    or
 *                        NORTCI   Number_of_ci_iterations VBGNSPC
                IF(NITEM.LT.2 ) THEN
+               if (ga_nodeid().eq.0) then
                   WRITE(6,*) 
      &            ' ERROR:   NORTCI card does not contain 2 items '
                   WRITE(6,*) 
      &            ' Allowed forms of NORTCI card are: '
                   WRITE(6,*) ' NORTCI   Number_of_ci_iterations'
                   WRITE(6,*) ' NORTCI   Number_of_ci_iterations IVBGNSP'
+                endif
                   ISEQCI(ICI,JCMBSPC) = -1
                   NERROR = NERROR + 1
                   ISETKW(54) = -1
@@ -16747,12 +16806,14 @@ C?             WRITE(6,*) ' MCSCF optimization will be invoked '
                I_DO_GAS = 1
 *. Input line should be: NORTMC, Number of macro It, number of micro it
                IF(NITEM.NE.3) THEN
+               if (ga_nodeid().eq.0) then
                   WRITE(6,*) 
      &            ' ERROR:   NORTMC card does not contain 3 items '
                   WRITE(6,*) 
      &            ' Required form of NORTMC card is: '
                   WRITE(6,*) 
      &            ' NORTMC, Number of macroit, Number of Microit'
+                endif
                   ISEQCI(ICI,JCMBSPC) = -1
                   ISEQCI2(ICI,JCMBSPC) = -1
                   NERROR = NERROR + 1
@@ -16769,11 +16830,13 @@ C?             WRITE(6,*) ' MCSCF optimization will be invoked '
 * ================================
                I_DO_HF = 1
                IF(NITEM.NE.2) THEN
+               if (ga_nodeid().eq.0) then
                   WRITE(6,*) 
      &            ' ERROR:   HF card does not contain 2 items '
                   WRITE(6,*) 
      &            ' Required form of HF card is: '
                   WRITE(6,*) ' HF   Number_of_hf_iterations'
+               endif
                   ISEQCI(ICI,JCMBSPC) = -1
                   NERROR = NERROR + 1
                   ISETKW(54) = -1
@@ -16785,7 +16848,8 @@ C?             WRITE(6,*) ' MCSCF optimization will be invoked '
 * ===============================================
 *. Calculate cumulants through the given order 
 * ===============================================
-               WRITE(6,*) ' Calculations of cumulants'
+               if (ga_nodeid().eq.0)
+     &         WRITE(6,*) ' Calculations of cumulants'
              ELSE IF (CARDX(1:6).EQ.'AKBKCI') THEN
 * ===============================================
 *. AKBKCI calculation
@@ -16798,14 +16862,17 @@ C?             WRITE(6,*) ' AKBKCI calculation '
 * ===============================================
                I_DO_GAS = 1
                I_DO_MCSCF = 1
-               WRITE(6,*) ' AKBKMC calculation '
+               if (ga_nodeid().eq.0)
+     &         WRITE(6,*) ' AKBKMC calculation '
 * For AKBKMCSCF the inputline should read: AKBKMC, MAXMAC, MAXMIC
                IF(NITEM.NE.3) THEN
+               if (ga_nodeid().eq.0) then
                  WRITE(6,*) 
      &           ' ERROR: AKBKMC card does not contain 3 items '
                  WRITE(6,*) 
      &           ' Required form of AKBKMC card is: '
                  WRITE(6,*) ' AKBKMC, MAXMAC, MAXMIC'
+               endif
                  ISEQCI(ICI,JCMBSPC) = -1
                  NERROR = NERROR + 1
                  ISETKW(54) = -1
@@ -16818,6 +16885,7 @@ C?             WRITE(6,*) ' AKBKCI calculation '
 C             END IF
 *. No more check of input pt
              ELSE
+               if (ga_nodeid().eq.0) then
                WRITE(6,'(A,A)') 
      &        ' Unknown type of calculation specified in SEQUEN:  ',
      &         CARDX
@@ -16840,6 +16908,7 @@ C             END IF
                WRITE(6,*) '     HF     '
                WRITE(6,*) '     CUMULA '
                WRITE(6,*) '     AKBKCI '
+               endif
                NERROR = NERROR + 1
                ISETKW(54) = -1
              END IF
@@ -17109,6 +17178,7 @@ cnw             READ(LUIN,*) (NPSSH(IRREP,IPSSPC),IRREP=1,NIRREP)
            END DO
          ELSE
 *. Unidentified type of final orbitals
+           if (ga_nodeid().eq.0) then
            WRITE(6,*) ' Unidentified type of final orbitals'
            WRITE(6,'(A,A)') '  you suggested: ', CARD1
            WRITE(6,*) 
@@ -17120,6 +17190,7 @@ cnw             READ(LUIN,*) (NPSSH(IRREP,IPSSPC),IRREP=1,NIRREP)
            WRITE(6,*) '     PS_NAT'
            WRITE(6,*) '     PS_CAN'
            WRITE(6,*) '     PS_NC'
+           endif
            NERROR = NERROR + 1
            ISETKW(68) = - 1
          END IF
@@ -17264,7 +17335,7 @@ cnw       IF(CARD(2:7).EQ.'SKIPEI') THEN
        if(rtdb_get(rtdb,'lucia:skipei',mt_log,1,skipei_on))then
          ISETKW(78) = 1
          ISKIPEI =  1
-         WRITE(6,*) ' SKIPEI flag set  '        
+         if (ga_nodeid().eq.0) WRITE(6,*) ' SKIPEI flag set  '        
 cnw         GOTO 999
        END IF
 *
@@ -17297,7 +17368,7 @@ cnw           READ(LUIN,'(A)') CARD1
            CALL LFTPOS(CARD1,MXPLNC)
            CALL UPPCAS(CARD1,MXPLNC)
            PROPER(IPROP)=CARD1(1:6)
-           IF(IECHO.NE.0) 
+           IF(IECHO.NE.0.and.ga_nodeid().eq.0) 
      &     WRITE(6,'(A,A)') ' Property to be calculated ',
      &     PROPER(IPROP)
          END DO
@@ -17497,7 +17568,7 @@ cnw         READ(LUIN,'(A)') CARD1
          CALL LFTPOS(CARD1,MXPLNC)
          CALL UPPCAS(CARD1,MXPLNC)
          CALL DECODE_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
-         IF(NITEM.LT. 2) THEN
+         IF(NITEM.LT. 2.and.ga_nodeid().eq.0) THEN
            WRITE(6,*) ' READIN: Error for keyword TRACI'
            WRITE(6,*) ' Number of items read ', NITEM
            WRITE(6,*) 
@@ -17508,23 +17579,27 @@ cnw         READ(LUIN,'(A)') CARD1
          ITRACI_CN=ITEM(2)(1:8)
          IF(    ITRACI_CR(1:4).NE.'REST'
      &     .AND.ITRACI_CR(1:4).NE.'COMP') THEN
+           if (ga_nodeid().eq.0) then
            WRITE(6,*) ' Illegal entry under keyword TRACI '
            WRITE(6,*) ' Your suggestion: ', ITRACI_CR
            WRITE(6,*) ' Allowed entries: '
            WRITE(6,*) ' =================='
            WRITE(6,*)    ' COMPlete '
            WRITE(6,*)    ' RESTrict'
+           endif
            NERROR = NERROR + 1
            ISETKW(88) = -1
          END IF
          IF(    ITRACI_CN(1:4).NE.'CANO'
      &     .AND.ITRACI_CN(1:4).NE.'NATU') THEN
+           if (ga_nodeid().eq.0) then
            WRITE(6,*) ' Illegal entry under keyword TRACI '
            WRITE(6,*) ' Your suggestion: ', ITRACI_CN
            WRITE(6,*) ' Allowed entries '
            WRITE(6,*) ' =================='
            WRITE(6,*)    ' CANOnica'
            WRITE(6,*)    ' NATUral '
+           endif
            NERROR = NERROR + 1
            ISETKW(88) = -1
          END IF
@@ -17692,12 +17767,14 @@ cnw         READ(LUIN,'(A)') CARD1
          ELSE IF( CARDX(1:6).EQ.'CN-DIA') THEN
            IPRECOND = 2
          ELSE
+           if (ga_nodeid().eq.0) then
            WRITE(6,*) ' Illegal form of preconditioner:'  
            WRITE(6,'(A,A)') ' Your suggestion: ', CARDX     
            WRITE(6,*) ' Allowed entries: '
            WRITE(6,*) ' =================='
            WRITE(6,*)    'SD-DIA'
            WRITE(6,*)    'CN-DIA'
+           endif
            NERROR = NERROR + 1
            ISETKW(102) = -1
          END IF
@@ -17977,7 +18054,8 @@ c                                   <thr2_upper>,<thr2_lower>,<bad_fac2>
              IF (TRMIN.GT.TRMAX.OR.
      &           TRINI.LT.TRMIN.OR.
      &           TRINI.GT.TRMAX) THEN
-               WRITE(6,'(/X,A,3(/,X,A,E10.4),/)')
+               if (ga_nodeid().eq.0) 
+     &         WRITE(6,'(/X,A,3(/,X,A,E10.4),/)')
      &              'ERROR: Inconsistent input for trust radius: ',
      &              '  min. value  = ',TRMIN,
      &              '  init. value = ',TRINI,
@@ -18387,11 +18465,13 @@ cglm        READ(LUIN,*) ISPNDEN
 * ISPNDEN = 1 => calculate one-particle spin-density
 * ISPNDEN = 2 => calculate one- and two-particle spindensity
         IF(ISPNDEN.NE.0.AND.ISPNDEN.NE.1.AND.ISPNDEN.NE.2) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Illegal value following KEYWORD SPNDEN '
           WRITE(6,*) ' ======================================='
           WRITE(6,*)
           WRITE(6,*) ' Allowed values are 0,1,2 '
           WRITE(6,*) ' Given value ', ISPNDEN
+          endif
           ISETKW(140) = -1
         END IF
         ISETKW(140) = 1
@@ -18449,7 +18529,7 @@ cglm        GOTO 999
 cglm      IF(CARD(2:7).EQ.'INC_AA') THEN
         I_INC_AA = 1
         ISETKW(160) = 1
-        WRITE(6,*) ' Input: I_INC_AA = ', I_INC_AA
+        if (ga_nodeid().eq.0) WRITE(6,*) ' Input: I_INC_AA = ', I_INC_AA
 cglm        GOTO 999
       ENDIF
 *
@@ -18504,7 +18584,7 @@ cglm       READ(LUIN,'(A)') CARD1
 *                          orbital optimization
 *                   = -1 => Never perform line search
          IF(NITEM.NE.3) THEN
-           WRITE(6,*) 
+           if (ga_nodeid().eq.0) WRITE(6,*) 
      &     ' 3 entries required in MCSCFA: ',
      &     ' IMCSCF_MET, IOOE2_APR,I_DO_LINSEA_MCSCF'
            WRITE(6,*) ' Number of items supplied by you ', NITEM
@@ -18517,15 +18597,18 @@ cglm       READ(LUIN,'(A)') CARD1
            CALL CHAR_TO_INTEGER(ITEM(3),I_DO_LINSEA_MCSCF,MXPLNC)
            ISETKW(170) = 1
            IF(IMCSCF_MET.LT.1.OR.IMCSCF_MET.GT.4) THEN
-             WRITE(6,*) ' Illegal value of IMCSCF_MET = ', IMCSCF_MET
+             if (ga_nodeid().eq.0)
+     &       WRITE(6,*) ' Illegal value of IMCSCF_MET = ', IMCSCF_MET
              ISETKW(170) = -1
            END IF
            IF(IOOE2_APR.LT.1.OR.IOOE2_APR.GT.3) THEN
-             WRITE(6,*) ' Illegal value of IOOE2_APR = ', IOOE2_APR
+             if (ga_nodeid().eq.0)
+     &       WRITE(6,*) ' Illegal value of IOOE2_APR = ', IOOE2_APR
              ISETKW(170) = -1
            END IF
            IF(I_DO_LINSEA_MCSCF.LT.-1.OR.I_DO_LINSEA_MCSCF.GT.1) THEN
-             WRITE(6,*) ' Illegal value of I_DO_LINSEA_MCSCF = ', 
+             if (ga_nodeid().eq.0)
+     &       WRITE(6,*) ' Illegal value of I_DO_LINSEA_MCSCF = ', 
      &       I_DO_LINSEA_MCSF
              ISETKW(170) = -1
            END IF
@@ -18542,8 +18625,10 @@ cglm         READ(5,*) ITRA_ROUTE
 * ITRA_ROUTE = 1 => Old storage and transformation
 * ITRA_ROUTE = 2 => New storage and transformation
          IF(ITRA_ROUTE.NE.1.AND.ITRA_ROUTE.NE.2) THEN
+           if (ga_nodeid().eq.0) then
            WRITE(6,*) ' Illegal value of ITRA_ROUTE = ', ITRA_ROUTE
            WRITE(6,*) ' Allowed values: 1, 2 '
+           endif
            ISETKW(171) = -1
            NERROR = NERROR + 1
          END IF
@@ -18575,7 +18660,7 @@ C REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
      &          NELEC_INICONF,NOCOB_L,1)
            NOB_INI_CONF = NOCOB_L
            IF(IECHO.EQ.1) THEN
-             WRITE(6,*) '  Initial Configuration: '
+             if (ga_nodeid().eq.0) WRITE(6,*) '  Initial Configuration:'
              CALL IWRTMA(INI_CONF,1,NOB_INI_CONF,1,NOB_INI_CONF)
            END IF
            ISETKW(178) = 1
@@ -18662,13 +18747,15 @@ cglm    READ(LUIN,'(A)') CARD1
             INVCNT = 0
            END IF
         ELSE
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Illegal form of SUPSYM :'  
-          INI_HF_MO = 0
           WRITE(6,'(A,A)') ' Your suggestion: ', CARD1     
           WRITE(6,*) ' Allowed entries: '
           WRITE(6,*) ' =================='
           WRITE(6,*)    'ATOMIC' 
           WRITE(6,*)    'LINEAR'
+          endif
+          INI_HF_MO = 0
           NERROR = NERROR + 1
           ISETKW(187) = -1
         END IF
@@ -18692,8 +18779,10 @@ cglm        READ(LUIN,'(A)') CARD1
          CALL UPPCAS(CARD1,MXPLNC)
          CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
          IF(NITEM.GT.MAX_SUPSYM_IRREP) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' HFD_SP: Number of irreps larger than allowd'
           WRITE(6,*) ' Actual and MAX: ', NITEM, MAX_SUPSYM_IRREP
+          endif
           NERROR = NERROR + 1
           ISETKW(188) = -1
 *. Reduce temporary number of irreps
@@ -18723,8 +18812,10 @@ cglm        READ(LUIN,'(A)') CARD1
          CALL UPPCAS(CARD1,MXPLNC)
          CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
          IF(NITEM.GT.MAX_SUPSYM_IRREP) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' HFS_SP: Number of irreps larger than allowd'
           WRITE(6,*) ' Actual and MAX: ', NITEM, MAX_SUPSYM_IRREP
+          endif
           NERROR = NERROR + 1
           ISETKW(189) = -1
 *. Reduce temporary number of irreps
@@ -18755,8 +18846,10 @@ cglm          READ(LUIN,'(A)') CARD1
            CALL UPPCAS(CARD1,MXPLNC)
            CALL DECODE2_LINE(CARD1,MXPLNC,NITEM,ITEM,MX_ITEM)
            IF(NITEM.GT.MAX_SUPSYM_IRREP) THEN
+            if (ga_nodeid().eq.0) then
             WRITE(6,*) ' GAS_SP: Number of irreps larger than allowd'
             WRITE(6,*) ' Actual and MAX: ', NITEM, MAX_SUPSYM_IRREP
+            endif
             NERROR = NERROR + 1
             ISETKW(188) = -1
 *. Reduce temporary number of irreps
@@ -19032,6 +19125,7 @@ cnw 1001 CONTINUE
 *
  
       IF(NERROR.NE.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(LUOUT,'(A)')
      &  ' Run will be aborted due to input errors '
         WRITE(LUOUT,'(A,I9)')
@@ -19060,11 +19154,12 @@ cnw 1001 CONTINUE
      &  '                                                      '
         WRITE(LUOUT,*)
      &  '                                      Niels Bohr      '
-
+        endif
         IF(IEXPERT.EQ.0) THEN
           STOP' Error in input'
         ELSE
-          WRITE(6,*) ' Program continues (EXPERT mode )'
+          if (ga_nodeid().eq.0)
+     &       WRITE(6,*) ' Program continues (EXPERT mode )'
         END IF
       END IF
 *
@@ -19108,7 +19203,7 @@ cnw 1001 CONTINUE
         ELSE
 *. Number of irreps is mandatory for CINV,DINFH,O3
           NMISS = NMISS + 1
-          WRITE(LUOUT,*)
+          if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &    '  Input error ! .NIRREP must be specified for CinV,DinH,O3'
         END IF
       END IF
@@ -19144,7 +19239,7 @@ C       INTSPC = 3
 *. Mandatory
       IF(ISETKW(6).EQ.0) THEN
         NMISS = NMISS + 1
-          WRITE(LUOUT,*)
+          if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &    '  Input error ! .NACTEL must be specified '
       END IF
 *
@@ -19238,7 +19333,7 @@ C     END IF
 * 16: Two times spin projection
 *
       IF(ISETKW(16).EQ.0) THEN
-        WRITE(LUOUT,*)
+        if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &  '  Input error ! .MS2 must be specified '
         NMISS = NMISS + 1
       END IF
@@ -19255,7 +19350,7 @@ C     END IF
 * 18: Reference symmetry
 *
       IF(ISETKW(18).EQ.0) THEN
-        WRITE(LUOUT,*)
+        if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &  '  Input error ! .IREFSM must be specified '
         NMISS = NMISS + 1
       END IF
@@ -19263,7 +19358,7 @@ C     END IF
 * 19: Roots to be optimized
 *
       IF(ISETKW(19).EQ.0) THEN
-        WRITE(LUOUT,*)
+        if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &  '  Input error ! .ROOTS must be specified '
         NMISS = NMISS + 1
       END IF
@@ -19350,10 +19445,12 @@ C       END IF
         PSSIGN = 0.0D0
         ISETKW(27) = 2
       ELSE IF(MS2.NE.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(LUOUT,*) ' Spin combinations only allowed with MS2 = 0'
         WRITE(LUOUT,*) ' Your value of MS2 = ',MS2, ' differs from zero'
         WRITE(LUOUT,*) ' LUCIA will neglect your nice suggestion '
         WRITE(LUOUT,*)  ' to use spin combinations '
+        endif
         PSSIGN = 0.0D0
         ISETKW(27) = 2
       END IF
@@ -19364,17 +19461,21 @@ C       END IF
         PLSIGN = 0.0D0
         ISETKW(28) = 2
       ELSE IF(PNTGRP.EQ.1) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(LUOUT,*) ' Ml combinations not allowed with d2h '
         WRITE(LUOUT,*) ' LUCIA will neglect your nice suggestion '
         WRITE(LUOUT,*)  ' to use ML combinations '
+        endif
         PLSIGN = 0.0D0
         ISETKW(28) = 2
       ELSE IF(IREFML.NE.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(LUOUT,*) ' ML combinations only allowed with ML = 0'
         WRITE(LUOUT,*) 
      &  ' Your value of IREFML = ',IREFML, ' differs from zero'
         WRITE(LUOUT,*) ' LUCIA will neglect your nice suggestion '
         WRITE(LUOUT,*)  ' to use ML combinations '
+        endif
         PLSIGN = 0.0D0
         ISETKW(28) = 2
       END IF
@@ -19477,7 +19578,7 @@ C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
 *
       MXCIV_ORIG = MXCIV
       IF(ISETKW(33).EQ.1.AND.MXCIV .LT.2*NROOT) THEN
-        WRITE(LUOUT,*)
+        if (ga_nodeid().eq.0) WRITE(LUOUT,*)
      &  '   The number of vectors is increased to 2*NROOT = ',2*NROOT
         MXCIV = 2 * NROOT
       END IF
@@ -19485,11 +19586,13 @@ C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
       IF(IDIAG.EQ.2 .AND. MXCIV.GT.2 ) THEN
         MXCIV = 2
         NWARN = NWARN + 1
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Warning: You have specified TERACI '
         WRITE(6,*) '           I allow myself to set MXCIV = 2 '
         WRITE(6,*)              
         WRITE(6,*) '                   Best Wishes    '
         WRITE(6,*) '                      Lucia       '
+        endif
       END IF
      
 *
@@ -19505,9 +19608,11 @@ C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
 *. Batching of CSF's in use, batch therefore also SD's
        IF(ICNFBAT.EQ.2) THEN
          ICISTR = 2
+         if (ga_nodeid().eq.0) then
          WRITE(6,*) ' CSF batching in use '
          WRITE(6,*) ' SD batching is therefore enforced '  
          WRITE(6,*) ' ICISTR raised to 2 '
+         endif
        END IF
       END IF
 COLD  IF(ICISTR.EQ.1) THEN
@@ -19538,8 +19643,10 @@ COLD  END IF
       END IF
       IF(ISETKW(35).EQ.1.AND.ISETKW(17).EQ.1) THEN
 *. Both multiplicity and NOCSF was flagged, MULTS has priority
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' MULTS and NOCSF both specified'
           WRITE(6,*) ' NOCSF will be discarded '
+          endif
           NOCSF = 0
           NWARN = NWARN + 1
       END IF
@@ -19550,12 +19657,14 @@ COLD  END IF
 *
 * CSF expansion must only be used when two vectors are stored in CORE
       IF(NOCSF.EQ.0.AND.ICISTR.EQ.1.AND.ICNFBAT.EQ.2) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(LUOUT,*)
      &  ' Batched CSF calculation was specified by ICNFBAT .ge. 2 '
         WRITE(LUOUT,*)
      &  '   This requires batching of determinants '
         WRITE(LUOUT,*)
      &  '   I will set CISTOR(ICISTR) to 2 '
+        endif
         ICISTR = 2
       END IF
 *
@@ -19751,9 +19860,11 @@ C     END IF
 *. Should be less or equal to NROOT
       IF(ISETKW(60).EQ.1) THEN
         IF(IRFROOT.GT.NROOT) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Reference root (RFROOT) larger '
           WRITE(6,*) ' than total number of roots (NROOT) '
           WRITE(6,*) ' CHANGE NROOT or RFROOT '
+          endif
           NMISS = NMISS + 1
         END IF
       END IF
@@ -19781,9 +19892,11 @@ C     END IF
        END IF
        IF(IUSED.EQ.1.AND.ISETKW(61).EQ.0) THEN
 *. Needed, but not supplied
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' You have specified that zero order operator'
           WRITE(6,*) ' Include exact Hamilton operator in subspace'
           WRITE(6,*) ' You should then also supply Keyword H0EX '
+          endif
           NMISS = NMISS + 1
        END IF
 *
@@ -19798,8 +19911,10 @@ C     END IF
       END DO
 *
       IF(IDOPERT.EQ.1 .AND. IPERT.EQ.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Perturbation theory will be used '
         WRITE(6,*) ' Please specify form through PERTU keyword '
+        endif
         NMISS = NMISS + 1   
       END IF
 *
@@ -19888,13 +20003,15 @@ C     END IF
         IDENSI = 1
         IF(I_DO_CC.EQ.1) THEN
           IDENSI = 0
-          WRITE(6,*) ' 1-el. density default disabled for CC'
+          if (ga_nodeid().eq.0) 
+     &    WRITE(6,*) ' 1-el. density default disabled for CC'
         END IF
         ISETKW(74) = 2
       END IF
 *. If IDENSI was set to zero and properties were requested
 *  overwrite input to obtain 1-el matrix
       IF(IDENSI.EQ.0.AND.ISETKW(80).EQ.1) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' You have specified calculation of'
         WRITE(6,*) ' one-electron properties, and this'
         WRITE(6,*) ' requires the calculation of the '
@@ -19909,6 +20026,7 @@ C     END IF
         WRITE(6,*) ' calculation can proceed as planned '
         WRITE(6,*)
         WRITE(6,*)                        ' Lucia '
+        endif
 *. and do it
         IDENSI = 1
       END IF
@@ -19929,7 +20047,8 @@ C       WRITE(6,*) ' IDENSI flag raised to 2 for MCSCF calculation'
 * the corresponding densities 
       IF(ISPNDEN.GT.IDENSI) THEN
         IDENSI = ISPNDEN
-        WRITE(6,*) ' DENSI keyword raised to SPNDEN keyword '
+        if (ga_nodeid().eq.0)
+     &  WRITE(6,*) ' DENSI keyword raised to SPNDEN keyword '
       END IF
 *
 * 75: Perturbation expansion of EKT, default is no 
@@ -19944,9 +20063,11 @@ C       WRITE(6,*) ' IDENSI flag raised to 2 for MCSCF calculation'
 *. Should be less or equal to NROOT
       IF(ISETKW(76).EQ.1) THEN
         IF(IH0ROOT.GT.NROOT) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Zero order operator root (H0ROOT) larger '
           WRITE(6,*) ' than total number of roots (NROOT) '
           WRITE(6,*) ' CHANGE NROOT or H0ROOT '
+          endif
           NMISS = NMISS + 1
         END IF
       END IF
@@ -19976,9 +20097,11 @@ C       WRITE(6,*) ' IDENSI flag raised to 2 for MCSCF calculation'
 *. Problematic if Properties should be calculated
        IF(ISETKW(80).EQ.1.OR.ISETKW(81).EQ.1.OR.ISETKW(82).EQ.1)
      & THEN
+         if (ga_nodeid().eq.0) then
          WRITE(6,*) ' Symmetry of X,Y,Z has not been given'
          WRITE(6,*) ' You have to specify this for property calc'
          WRITE(6,*) ' Please add KEYWORD XYZSYM '
+         endif
          NMISS = NMISS + 1
          ISETKW(79) = -1
        ELSE
@@ -20016,12 +20139,14 @@ C       WRITE(6,*) ' IDENSI flag raised to 2 for MCSCF calculation'
 *. Properties should be defined if transition properties are
 *. invoked
       IF(ITRAPRP.NE.0.AND.NPROP.EQ.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) 
      &  ' You have specified transition property calculation'
         WRITE(6,*)
      &  ' (keyword TRAPRP) but no property labels have been supplied'
         WRITE(6,*)
      &  '(Keyword PROPER). Transition densities will be obtained '
+        endif
       END IF
 *
 * 83: Max number of iterations in linear equations
@@ -20101,9 +20226,11 @@ C       WRITE(6,*) ' IDENSI flag raised to 2 for MCSCF calculation'
 *. Requires access to MO-AO file
       IF(ITRA_FI.EQ.1) THEN
        IF(NOMOFL.EQ.1) THEN
+        if (ga_nodeid().eq.0) then
          WRITE(6,*) ' Integral transformation required, '
          WRITE(6,*) ' but no mo-ao file accessible      '
          WRITE(6,*) ' MO-MO integral transformation '        
+        endif
 C        WRITE(6,*) ' REMOVE KEWORD NOMOFL '
 C        ISETKW(93) = -1
 C        NERROR = NERROR + 1
@@ -20121,9 +20248,11 @@ C?     WRITE(6,*) ' DMPINT flag set to one '
       END IF
 *. Requires access to MO-AO file
        IF(ITRA_IN.EQ.1.AND.NOMOFL.EQ.1) THEN
+        if (ga_nodeid().eq.0) then
          WRITE(6,*) ' Integral transformation required, '
          WRITE(6,*) ' but no mo-ao file accessible      '
          WRITE(6,*) ' REMOVE KEWORD NOMOFL '
+        endif
          ISETKW(94) = -1
          NERROR = NERROR + 1
        END IF
@@ -20147,8 +20276,10 @@ C?     WRITE(6,*) ' DMPINT flag set to one '
       IF(IRELAX.EQ.1) THEN
 *. To obtain relaxed densities two-elec density must be calc, so
         IF(IDENSI.LT.2) THEN
+        if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Density matrix flag (IDENSI) raised '
           WRITE(6,*) ' to allow calculation of 2-elec densities'
+        endif
           IDENSI = 2
         END IF
       END IF
@@ -20219,7 +20350,8 @@ C?     WRITE(6,*) ' DMPINT flag set to one '
 *. If LZ2 is to be calculated the symmetry of XYZ must have been 
 *. specified
       IF(I_DO_LZ2.EQ.1.AND.ISETKW(79).EQ.2) THEN
-        WRITE(6,*) ' For calculating LZ2, please supply XYZSYM'
+        if (ga_nodeid().eq.0)
+     &  WRITE(6,*) ' For calculating LZ2, please supply XYZSYM'
         NERROR = NERROR + 1
       END IF
 *. If Lz2 is to be calculated, two-electron densities must be calculated- no, CI is used
@@ -20294,8 +20426,10 @@ c old:
 *
       IF(ISETKW(112).EQ.0) THEN
         IF(IDOQD.EQ.1) THEN
+        if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Number of hole-orbital spaces must be specified'
           WRITE(6,*) ' (QDOT calculation) '
+        endif
           ISETKW(112) = -1
           NERROR = NERROR + 1
           NMISS = NMISS + 1
@@ -20390,8 +20524,10 @@ c old:
       IF(ISETKW(115).EQ.1.AND.CCFORM(1:3).EQ.'VCC') THEN
 c        IF(ISETKW(123).EQ.1.OR.ISETKW(124).EQ.1) THEN
         IF(ISETKW(123).EQ.1) THEN
+        if (ga_nodeid().eq.0) then
           WRITE(6,*) 'NEWCCV and NEWCCP are not compatible with VCC'
           WRITE(6,*) 'Remove these keywords and I will be fine!'
+        endif
           IF(ISETKW(123).EQ.1) ISETKW(123)=-1
           IF(ISETKW(124).EQ.1) ISETKW(124)=-1
         ELSE
@@ -20421,7 +20557,8 @@ c        IF(ISETKW(123).EQ.1.OR.ISETKW(124).EQ.1) THEN
 *. new ccv requires division of orbitals into holes and particles so
       IF(I_DO_CC.EQ.1.AND.I_DO_NEWCCV.GE.1.AND.IUSE_PH.EQ.0) THEN 
         IUSE_PH = 1
-        WRITE(6,*) ' NEWCCV keyword enforces IUSE_PH = 1 '
+        if (ga_nodeid().eq.0)
+     &  WRITE(6,*) ' NEWCCV keyword enforces IUSE_PH = 1 '
       END IF
 *
 * 124: Use New phase for CC operators: Default is now yes
@@ -20466,9 +20603,11 @@ C?      WRITE(6,*) ' New phase convention is used for CC'
 *. If spin-restricted calculations are prescribed, the multiplicity 
 *. should be specified
       IF(ISETKW(128).EQ.1.AND.ISETKW(17).EQ.0) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Spinrestricted calculation specified (SPINRS) '
         WRITE(6,*) ' But: no multiplicity specified (MULTS) ' 
         WRITE(6,*) ' Please add MULTS or remove SPINRS '
+        endif
         NMISS = NMISS + 1
       END IF
 *
@@ -20526,16 +20665,19 @@ C?      WRITE(6,*) ' New phase convention is used for CC'
 *. Will H will be dumped made sure that refspace has been defined and
 *  COMHAM has been set 
         IF(ISETKW(14).NE.1) THEN
+        if (ga_nodeid().eq.0) then
            WRITE(6,*) 
      &    ' Error: Dump of H0 and V-matrices requested(Keyword DMPMRP)'
            WRITE(6,*) ' But P-space is not defined ( use REFSPC ) '
+        endif
            NMISS = NMISS + 1
            ISETKW(14) = -1
         END IF
         IF(ISETKW(134).EQ.0) THEN
 *. Activate comham
           I_DO_COMHAM = 1
-          WRITE(6,*) ' DMPMRP keywords activated COMHAM '
+          if (ga_nodeid().eq.0)
+     &    WRITE(6,*) ' DMPMRP keywords activated COMHAM '
         END IF
        END IF
 *
@@ -20552,7 +20694,8 @@ C?      WRITE(6,*) ' New phase convention is used for CC'
          IUSE_PH = 1
          IF(MSCOMB_CC.EQ.1) THEN
 c           IUSE_TR = 1
-           WRITE(6,*) 'CMB_CC deactivated for new CC-vectorfunction'
+           if (ga_nodeid().eq.0) 
+     &     WRITE(6,*) 'CMB_CC deactivated for new CC-vectorfunction'
            MSCOMB_CC = 0
          END IF
        END IF
@@ -20690,8 +20833,10 @@ c      END IF
 *. 157: Subspace wavefunctions included
 *
       IF(I_DO_PRODEXP.EQ.1.AND.ISETKW(157).EQ.0) THEN
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' No subspace wave functions included '
        WRITE(6,*) ' This is required - no default pt '
+       endif
        NERROR = NERROR + 1
        ISETKW(157) = -1
       END IF
@@ -20762,7 +20907,7 @@ c      END IF
 *. 167: Excitation in old form. Required for CI SD(TQ) etc.
 *
       IF(ISETKW(167).EQ.0.AND.I_DO_EI.EQ.0) THEN
-        WRITE(6,*) 
+        if (ga_nodeid().eq.0) WRITE(6,*) 
      &  ' Error: exc. info should be supplied in old form for NO_EI'
         NERROR = NERROR + 1
         NMISS = NMISS + 1
@@ -20773,7 +20918,8 @@ c      END IF
 *       must have been defined if GICCI will be called
 *
       IF(I_DO_GIC .EQ. 1.AND.ISETKW(168).EQ.0) THEN
-        WRITE(6,*) ' GICCI will be called, requires keyword GIC_EX'
+        if (ga_nodeid().eq.0) 
+     &  WRITE(6,*) ' GICCI will be called, requires keyword GIC_EX'
         NERROR = NERROR + 1
         NMISS = NMISS + 1
         ISETKW(168) = -1
@@ -20811,18 +20957,21 @@ c      END IF
        IF(ISETKW(171).EQ.1.AND.ITRA_ROUTE.EQ.1.AND.
      &    I_DO_NORTCI.EQ.1) THEN
           ITRA_ROUTE = 2
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) 
      &    ' New approach for storing integrals will be used'
           WRITE(6,*) 
      &    ' since non-orthogonal CI calculation will be done '
           WRITE(6,*) '                  Best Wishes '
           WRITE(6,*) '                     Lucia    '
+          endif
        END IF
 *
 * 172: Info on nonorthogonal CI space: No defaults
 *
        IF(ISETKW(172).EQ.0.AND.I_DO_NORTCI.EQ.1) THEN
-         WRITE(6,*) ' Input error: Keyword NORTIN is missing '
+         if (ga_nodeid().eq.0)
+     &   WRITE(6,*) ' Input error: Keyword NORTIN is missing '
          NERROR = NERROR + 1
          ISETKW(172) = -1
        END IF
@@ -20830,7 +20979,8 @@ c      END IF
 * 173: Info in reference CI space for non-orthogonal CI: No defaults
 *
        IF(ISETKW(173).EQ.0.AND.I_DO_NORTCI.EQ.1) THEN
-         WRITE(6,*) ' Input error: Keyword VBRFSP is missing '
+         if (ga_nodeid().eq.0)
+     &   WRITE(6,*) ' Input error: Keyword VBRFSP is missing '
          NERROR = NERROR + 1
          ISETKW(173) = -1
        END IF
@@ -20852,8 +21002,10 @@ c      END IF
 * 176: Fragment to Molecule MO's: Should be given in fragment calc
 *
       IF(ISETKW(176).EQ.0.AND.ISETKW(175).EQ.1) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Fragment basis specified, but no FRAGOB keyword'
         WRITE(6,*) ' Specify FRAGOB'
+        endif
         NERROR = NERROR + 1
         ISETKW(176) = -1
        END IF
@@ -20862,7 +21014,7 @@ c      END IF
 *      Should be defined if Non-orthogonal CI calculation is in action
       IF(ISETKW(177).EQ.0) THEN
         IF(I_DO_NORTCI.EQ.1) THEN
-          WRITE(6,*) 
+          if (ga_nodeid().eq.0) WRITE(6,*) 
      &    ' Keyword INI_MO should be specified for nonort. calc'
           ISETKW(177) = -1
           NERROR = NERROR + 1
@@ -20975,9 +21127,11 @@ c      END IF
 *. we have an error
         IF(ISETKW(188).EQ.2.AND.I_DO_HF.EQ.1) THEN
           NERROR = NERROR + 1
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' HF calculation specified '
           WRITE(6,*)
      &    ' but neither singly or doubly occupied orbitals specified'
+          endif
         END IF
       END IF
 *
@@ -20987,7 +21141,8 @@ c      END IF
       IF(ISETKW(190).EQ.0) THEN
         ISETKW(190) = 2
         IF(I_USE_SUPSYM.EQ.1) THEN
-          WRITE(6,*) ' GAS_SP must be specified for supersymmetry'
+          if (ga_nodeid().eq.0)
+     &    WRITE(6,*) ' GAS_SP must be specified for supersymmetry'
           NERROR = NERROR + 1
           NMISS = NMISS + 1
           ISETKW(190) = -1
@@ -21102,7 +21257,7 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
 *. Check and maybe issue a warning
       IF(IDIAG.EQ.2) THEN
 *. Check to ensure that zero or two thresholds were  set,
-        IF(ISETKW(69).NE.ISETKW(70)) THEN
+        IF(ISETKW(69).NE.ISETKW(70).and. ga_nodeid().eq.0) THEN
           WRITE(LUOUT,*) 
      &    ' Only a single threshold (E_THRE or C_THRE) '
           WRITE(LUOUT,*)  
@@ -21118,7 +21273,7 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
         END IF
       ELSE
 *. Good old diagonalization, thrsholds not active
-        IF(ISETKW(69).EQ.1.OR.ISETKW(70).EQ.1) THEN
+        IF(ISETKW(69).EQ.1.OR.ISETKW(70).EQ.1.and.ga_nodeid().eq.0) THEN
           WRITE(LUOUT,*)
      &    ' Thresholds on selection of individual coefficients '
           WRITE(LUOUT,*)
@@ -21133,16 +21288,19 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
       IF(ISETKW(156).EQ.0.AND.ISETKW(50).EQ.1.AND. ISETKW(51).EQ.0) THEN
 * Number of GAS shells given but no occupations !!
 *. This is okay if we are playing arounf with product wf (therefore the 155 test), else not
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' GAS calculation (GASSH specified)'
         WRITE(6,*) ' But no Occupation constraints (GASSPC) '
         WRITE(6,*) 
         WRITE(6,*) ' Please add GASSPC '
+        endif
         NMISS = NMISS + 1
       END IF
 *
 * 
 *
       IF(NMISS.NE.0.OR.NERROR.NE.0 ) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(LUOUT,'(1H ,A,I9)')
      &  ' Number of missing required keyword ', NMISS
         WRITE(LUOUT,'(1H ,A,I9)')
@@ -21160,17 +21318,21 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
      &  '                                                      '
         WRITE(LUOUT,*)
      &  '                                      Niels Bohr      '
+        endif
         IF(IEXPERT.EQ.0) THEN
           STOP
         ELSE
-          WRITE(6,*) ' Processing continues (EXPERT mode )'
+          if (ga_nodeid().eq.0)
+     &    WRITE(6,*) ' Processing continues (EXPERT mode )'
         END IF
       END IF
 *. If requested so, we reduce the symmetry at this point
       IF (SYMRED) THEN
         IF (NIRREP.NE.NIRREP_OLD) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) 'LUCIA.SDC does not fit with current run.'
-          WRITE(6,*) 'I dicided to ignore it .....'
+          WRITE(6,*) 'I decided to ignore it .....'
+          endif
           SYMRED = .FALSE.
         ELSE
           ! all info is coming from common /symrdc/
@@ -21211,7 +21373,8 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
         IF(ISETKW(46).EQ.2) ECORE = ECORE_ENV
         CALL CHK_ORBDIM(IGSFILL,ISECFILL)
       ELSE
-        WRITE(6,*) ' GETOBS and CHK_ORBDIM not called '
+        if (ga_nodeid().eq.0) 
+     &     WRITE(6,*) ' GETOBS and CHK_ORBDIM not called '
         ECORE = 0.0D0
       END IF
 *. If a minmax subspace has been defined, extend occupations to
@@ -21273,6 +21436,7 @@ C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
 *                                                          *
 ************************************************************
 *
+      if (ga_nodeid().eq.0) then
       LUOUT = 6
       WRITE(LUOUT,*)
       WRITE(LUOUT,*) '******************'
@@ -22714,6 +22878,7 @@ C?   &  '      Core energy: ', ECORE
         WRITE(6,*) '      Integrals written in formatted form (E22.15)'
         WRITE(6,*) '      on file 90 '
       END IF
+      endif
 *
 C?    WRITE(6,*) ' IPART before leaving READIN = ', IPART
       RETURN
@@ -31269,6 +31434,9 @@ C?    STOP ' Jeppe forced me to stop in RSSBCB '
 * Jeppe Olsen, Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION NSHPIR(*),NOSPIR(*),IOSPIR(MXPOBS,*)
 *. Output
@@ -31284,7 +31452,7 @@ C?    STOP ' Jeppe forced me to stop in RSSBCB '
   100 CONTINUE
 *
       NTEST = 0
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' SHTOOB Speaking '
          WRITE(6,*) ' =============== '
          WRITE(6,*) ' Number of orbitals obtained ', NOB
