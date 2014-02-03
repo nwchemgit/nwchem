@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # $Id$
 #
@@ -28,8 +28,8 @@ TOOLDIR=`pwd`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
        GA_DEV=ga-dev
-GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-3 # Comment this line out for NWChem releases
-    GA_STABLE=ga-5-3
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-2 # Comment this line out for NWChem releases
+    GA_STABLE=ga-5-2
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/tags/ga-4-3     # For GA release 4.3
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 # Comment this line out for NWChem releases
        GA_OLD=ga-4-3
