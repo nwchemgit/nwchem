@@ -802,16 +802,18 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
         CALL TRIPAK_AO_MAT(WORK(KLH1),WORK(KINT1O),2)
       ELSE
 CNW     CALL COPVEC(WORK(KINT1O),WORK(KLH1),LEN_HP)
-        call ga_get(KINT1O,1,len_hp,1,1,dbl_mb(klh1),1)
+        if (ga_nodeid().eq.0) 
+     &     call ga_get(KINT1O,1,len_hp,1,1,dbl_mb(klh1),1)
       END IF
 *. and do it
-      CALL TRAN_SYM_BLOC_MAT4(dbl_mb(KLH1),CI,CJ,NSMOB,NTOOBS,NTOOBS,
+      if (ga_nodeid().eq.0) 
+     &CALL TRAN_SYM_BLOC_MAT4(dbl_mb(KLH1),CI,CJ,NSMOB,NTOOBS,NTOOBS,
      &     KINT1,dbl_mb(KLSCR),IPACK_OUT)
 C     TRAN_SYM_BLOC_MAT4(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 C?    WRITE(6,*) ' After TRAN_SYM '
 *
       IF(IPRNT_TRAINT.EQ.1.OR.NTEST.GE.100) THEN
-       WRITE(6,*) ' Transformed 1e integrals '
+       if (ga_nodeid().eq.0) WRITE(6,*) ' Transformed 1e integrals '
 CNW    CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_OUT)
        call ga_print(KINT1)
       END IF

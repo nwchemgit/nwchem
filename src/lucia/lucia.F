@@ -1956,7 +1956,7 @@ c      INCLUDE 'mxpdim.inc'
         IH_OCC_CONS = 1
       END IF
 *
-      IF(NTEST.GT.1) THEN
+      IF(NTEST.GT.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
         WRITE(6,*) ' ====================================='
         WRITE(6,*) ' Control has been transferred to GASCI'
@@ -1966,7 +1966,7 @@ c      INCLUDE 'mxpdim.inc'
 C?      WRITE(6,*) ' IIUSEH0P = ', IIUSEH0P
 C?      WRITE(6,*) ' MPORENP_E = ', MPORENP_E
       END IF
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,'(A)') '  A few pertinent data: '
         WRITE(6,*)
         WRITE(6,'(A,I2)') '  CI space         ',ISPC
@@ -1998,7 +1998,7 @@ C?      WRITE(6,*) ' MPORENP_E = ', MPORENP_E
         CALL TEST_CNF_INFO_FOR_OCCLS
       END IF
 *
-      IF(IPRNT.GT.1) WRITE(6,*)
+      IF(IPRNT.GT.1.and.ga_nodeid().eq.0) WRITE(6,*)
       NDET = XISPSM(ISM,ISPC)
 *. Largest number of dets, any symmetry
       NDET_MAX = 0
@@ -2006,20 +2006,23 @@ C?      WRITE(6,*) ' MPORENP_E = ', MPORENP_E
         LLDET = XISPSM(LSM,ISPC)
         NDET_MAX = MAX(NDET_MAX, LLDET)
       END DO
-      WRITE(6,*) ' NDET_MAX, NDET = ', NDET_MAX, NDET
+      IF(IPRNT.GT.1.and.ga_nodeid().eq.0)
+     &   WRITE(6,*) ' NDET_MAX, NDET = ', NDET_MAX, NDET
 *
       NCCM_STRING = XISPSM(ISM,ISPC)
       NSCM_STRIN = NCCM_STRING
       NEL = NELCI(ISPC)
-      IF(IPRNT.GT.1)
+      IF(IPRNT.GT.1.and.ga_nodeid().eq.0)
      &WRITE(6,*) ' Number of STRING determinants/combinations  ',NDET
       IF(NDET.EQ.0) THEN
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' The number of determinants/combinations is zero.'
        WRITE(6,*) ' I am sure that fascinating discussions about '
        WRITE(6,*) ' the energy of such a wave function exists, '
        WRITE(6,*) ' but I am just a dumb program, so I will stop'
        WRITE(6,*)
        WRITE(6,*) ' GASCI: Vanishing number of parameters '
+       endif
        STOP       ' GASCI: Vanishing number of parameters '
       END IF
 *.Transfer to CANDS
@@ -2109,7 +2112,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
 *. Number of BLOCKS
       NBLOCK = NCBLOCK
       NBATCH = NCBATCH
-      IF(IPRNT.GT.1) THEN 
+      IF(IPRNT.GT.1.and.ga_nodeid().eq.0) THEN 
          WRITE(6,'(A,I9)') ' Number of blocks ', NBLOCK
          WRITE(6,'(A,I9)') ' Number of batches ', NBATCH
       END IF
@@ -2194,7 +2197,7 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,
      &            IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,
      &            MXADKBLK_AS,MX_NSPII)
-      IF(IPRCIX.GE.2) THEN
+      IF(IPRCIX.GE.2.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 'GASCI  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',
      &                       MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
         WRITE(6,*) ' MXADKBLK ,MXADKBLK_AS', MXADKBLK, MXADKBLK_AS
@@ -2205,11 +2208,11 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
       END IF
 *. Using hardwired routines, MXCIJAB also used
       LSCR2 = MAX(MXCJ,MXCIJA,MXCIJB,MXCIJAB,MX_NSPII)
-      IF(IPRCIX.GE.2) 
+      IF(IPRCIX.GE.2.and.ga_nodeid().eq.0) 
      &WRITE(6,*) ' Space for two resolution matrices ',2*LSCR2
       LSCR12 = MAX(LBLOCK,2*LSCR2)  
       CALL MEMMAN(KVEC3,LSCR12,'ADDL  ',2,'KC2   ')
-      IF(IPRCIX.GE.3) WRITE(6,'(A,3(2X, I9))')
+      IF(IPRCIX.GE.3.and.ga_nodeid().eq.0) WRITE(6,'(A,3(2X, I9))')
      &  'MXCJ,MXCIJA,MXCIJB,MXCIJAB = ',
      &   MXCJ,MXCIJA,MXCIJB,MXCIJAB
 *
@@ -2260,7 +2263,8 @@ CNW      CALL MEMMAN(KCOMVEC2_SD,NDET_MAX,'ADDL  ',2,'CMVC2D')
       END IF
 * 
       IF(I_DO_COMHAM.EQ.1) THEN
-         WRITE(6,*) ' Complete Hamiltonian matrix will be constructed '
+         if (ga_nodeid().eq.0) 
+     &   WRITE(6,*) ' Complete Hamiltonian matrix will be constructed '
         if ( .not. ga_create( mt_dbl, nvar*nvar, 1, 'KLHMAT',
      $     0,0, KLHMAT) ) call errquit(
      $     'GASCI: ga_create klhmat failed', nvar*nvar , GA_ERR)
@@ -2396,7 +2400,8 @@ cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
          CALL COPVCD(LUSC53,LUDIA,dbl_mb(KVEC1),1,LBLK)
        END IF !IIUSEH0P.EQ.1
 *
-       IF(IPRCIX.GE.2) WRITE(6,*) ' Diagonal constructed  '
+       IF(IPRCIX.GE.2.and.ga_nodeid().eq.0) 
+     &        WRITE(6,*) ' Diagonal constructed  '
 *
        IF(IPRNT.GE.100) THEN
         WRITE(6,*) ' Constructed diagonal '
@@ -2404,7 +2409,7 @@ cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
        END IF
 *
       ELSE
-         WRITE(6,*) ' Diagonal not calculated '
+         if (ga_nodeid().eq.0) WRITE(6,*) ' Diagonal not calculated '
       END IF ! diagonal should be calculated
 *
 *
@@ -2425,7 +2430,8 @@ cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
 *. Reduce
            ISUB = NSBDET - NVAR
            NSBDET = NVAR
-           WRITE(6,*) ' NOTE: NSBDET lowered to ... ',NSBDET
+           if (ga_nodeid().eq.0)
+     &     WRITE(6,*) ' NOTE: NSBDET lowered to ... ',NSBDET
 *
            ISUBQ = MIN(ISUB,MXQ)
            MXQ = MXQ - ISUBQ
@@ -2439,7 +2445,7 @@ cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
            MXP1 = MXP1 - ISUBP1
            ISUB = ISUB - ISUBP1
 *
-           WRITE(6,'(/A,3I5)')
+           if (ga_nodeid().eq.0) WRITE(6,'(/A,3I5)')
      &     ' Modified MXP1,MXP2,MXQ ',MXP1,MXP2,MXQ
         END IF
 *
@@ -2607,7 +2613,7 @@ cnw     CALL FRMDSC(KPVEC1,NVAR,-1,LUC,IMZERO,IAMPACK)
 *. Analyze density and CI-expansion for each ROOT
       IF (LUC.gt.0) CALL REWINO(LUC)
       DO JROOT = 1, NROOT
-        IF(IPRNT.GT.1) THEN
+        IF(IPRNT.GT.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,'(1H ,A,I3)')
      &  ' **************************************************'
@@ -2640,7 +2646,8 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
           IF(IDENSI.EQ.2) THEN
 *. Test calculation of energy
             CALL EN_FROM_DENS(ENERGY,2,0)
-            WRITE(6,*) ' Energy from density ', ENERGY
+            if (ga_nodeid().eq.0)
+     &      WRITE(6,*) ' Energy from density ', ENERGY
           END IF
 *
 C?      IF(I_DO_LZ2.EQ.1) THEN
@@ -2687,12 +2694,13 @@ C   &           MAXTRM,IOUT)
      &          dbl_mb(KVEC1),dbl_mb(KVEC2),LUSC1,LUHC,EXPS2,
      &          ISPNDEN,dbl_mb(KSRHO1),dbl_mb(KRHO2AA),dbl_mb(KRHO2AB),
      &          dbl_mb(KRHO2BB),1 )
-          IF(IPRNT.GT.1.AND.IDENSI.EQ.2)
+          IF(IPRNT.GT.1.AND.IDENSI.EQ.2.and.ga_nodeid().eq.0)
      &    WRITE(6,*) ' Expectation value of S2', EXPS2
           IF(IDENSI.EQ.2) THEN
 *. Test calculation of energy
             CALL EN_FROM_DENS(ENERGY,2,0)
-            WRITE(6,*) ' Energy from density ', ENERGY
+            if (ga_nodeid().eq.0)
+     &         WRITE(6,*) ' Energy from density ', ENERGY
           END IF
 *
 C?        IF(I_DO_LZ2.EQ.1) THEN
@@ -2749,11 +2757,13 @@ cnw          CALL COPVEC(WORK(KINT1),WORK(KFIZ),NINT1)
 C?        WRITE(6,*) ' Back from GASANA ' 
 *
           IF(IPRNCIV.EQ.1) THEN
+             if (ga_nodeid().eq.0) then
              WRITE(6,*)
              WRITE(6,*) ' ======================'
              WRITE(6,*) ' Complete CI expansion '
              WRITE(6,*) ' ======================'
              WRITE(6,*)
+             endif
              IF(NROOT.EQ.1) THEN
                CALL WRTVCD(dbl_mb(KVEC1),LUC  ,1,LBLK)
              ELSE
@@ -4803,8 +4813,8 @@ C     DIMENSION INIDET(100)
       DIMENSION ICBLOCK(*), ISBLOCK(*)
 *. 
       DIMENSION EROOT(NROOT)
-      IF( IPRT.GT.1) WRITE(6,*)
-      IF( IPRT.GT. 1 )  WRITE(6,'(/A)')
+      IF( IPRT.GT.1.and.ga_nodeid().eq.0) WRITE(6,*)
+      IF( IPRT.GT. 1.and.ga_nodeid().eq.0 )  WRITE(6,'(/A)')
      &'          *** information from ci diagonalization  ***'
 C?    WRITE(6,*)
 C?    WRITE(6,*) ' IROOT_SEL in CIEIG5 ', IROOT_SEL
@@ -4851,12 +4861,14 @@ C?          WRITE(6,*) ' IROOT NDEG ', IROOT,NDEG
 *
             IF(INIDEG.EQ.0.AND.NDEG.GT.1) THEN
              IF(IWPRNT.EQ.0) THEN
+              if (ga_nodeid().eq.0) then
               WRITE(6,*) ' WARNING WARNING WARNING WARNING ! '
               WRITE(6,*) ' DEGENERATE INITIAL VECTORS FOR CI '
               WRITE(6,*) ' I AM NOT ALLOWED TO TAKE THIS INTO '
               WRITE(6,*) ' CONSIDERATION SINCE  INIDEG = 0 '
               WRITE(6,*)
               WRITE(6,*) ' I hope you know what you are doing '
+              endif
               IWPRNT = 1
              END IF
              NDEG = 1
@@ -4919,7 +4931,7 @@ CNW       CALL REWINO(LU1)
 *
       IF( INICI .LT. 0 ) THEN
 *. Vectors assumed already in LU1
-        IF(IPRT.GT. 1 )
+        IF(IPRT.GT. 1 .and. ga_nodeid().eq.0)
      &  WRITE(6,*)' Initial CI vector assumed in place '
       END IF
 *
@@ -4929,7 +4941,7 @@ CNW       CALL REWINO(LU1)
 *
       CALL LUCIAQENTER('CIEIG')
 * Inverse iteration modified Davidsom with 2 vectorsin core
-      IF(IPRT .GE. 5 ) THEN
+      IF(IPRT .GE. 5 .and. ga_nodeid().eq.0) THEN
          WRITE(6,*)
          WRITE(6,'(A,I3)')
      &   '  Number of roots to be converged..  ',NROOT
@@ -6186,6 +6198,9 @@ C
 c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *.Global pointers
       INCLUDE 'glbbas.inc'
       INCLUDE 'lucinp.inc'
@@ -6205,6 +6220,7 @@ c      INCLUDE 'mxpdim.inc'
           H(IJ) = GETH1E(I,ITP,ISM,J,JTP,JSM)
         END DO
       END DO
+      call ga_dgop(1, H , IJ, '+')
 *
       NTEST = 00
       IF(NTEST.NE.0) THEN
@@ -7660,7 +7676,7 @@ C           IJKLO = KL*(KL-1)/2+IJ + IPNTR(ISM,JSM,KSM)-1
       NTEST = 0
       IF(NTEST.NE.0) THEN
         WRITE(6,'(A,5I4,3X,E18.12)')
-     &  ' GIJKLL I J K L ,IJKLO,(IJ!KL) ', I,J,K,L,IJKLO,GIJKLL
+     &  ' GIJKLL I J K L ,IJKLO',I,J,K,L,IJKLO,GIJKLL
       END IF
 *
       RETURN
@@ -8019,6 +8035,9 @@ c..  may need to convert to GA. Leave here for the time being.
 * diagonal of one electron integrals over all orbitals in type order
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *.Input
       INTEGER IREOTS(*),IPNT(*),ISMFTO(*),IBSO(*)
 CNW   DIMENSION H(*)
@@ -8027,6 +8046,8 @@ CNW   DIMENSION H(*)
 *.Output
       DIMENSION H1DIA(*)
 *
+      call ga_distribution(H, ga_nodeid(),ilo,ihi,idum,idum)
+      call setvec(H1DIA,ZERO,NTOOB)
       DO 100 IIOB = 1, NTOOB
         IOB = IREOTS(IIOB)
         ISM = ISMFTO(IIOB)
@@ -8035,8 +8056,10 @@ C?      WRITE(6,*) ' IIOB IOB ISM IOBREL '
 C?      WRITE(6,*)   IIOB,IOB,ISM,IOBREL
 CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         mypt = IPNT(ISM)-1+IOBREL*(IOBREL+1)/2
-        call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
+        if (mypt.le.ihi.and.mypt.ge.ilo)
+     &  call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
+      call ga_dgop(1,H1DIA,NTOOB, '+')
 *
       NTEST = 0
       IF(NTEST.NE.0) THEN
@@ -8058,6 +8081,9 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
 * Last Revision January 98 (IJSM added )
 * July 2010: IBTSOB_GN replacing IBTSOB
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *.Input
       INTEGER IREOTS(*),IPNT(*),IBTSOB_GN(0:MXPNGAS,*),IBSO(*)
       INTEGER NTOOBS(*)
@@ -8100,7 +8126,10 @@ CNW   DIMENSION H(*)
       END IF
 *
 CNW   GTH1ES = H(IJ)
-      call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
+      GTH1ES = 0.0d0
+      call ga_distribution(H,ga_nodeid(),ilo,ihi,idum,idum)
+      if (IJ.LE.ihi.and.IJ.GE.ilo)
+     &call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
 *
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' One electron integral from GTH1ES '

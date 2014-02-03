@@ -4326,12 +4326,13 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IF(IPRT.GE.1) THEN
+       IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
        END IF
 *
        IOLSTM = IOLSEN
+       if (ga_nodeid().eq.0) then
        IF(IPRT.GT.1.AND.(IOLSEN.NE.0.AND.IPICO.EQ.0))
      & WRITE(6,*) ' Inverse iteration modified Davidson, Variational'
        IF(IPRT.GT.1.AND.(IOLSEN.NE.0.AND.IPICO.NE.0))
@@ -4340,6 +4341,7 @@ C
      & WRITE(6,*) ' Normal Davidson, Variational '
        IF(IPRT.GT.1.AND.(IOLSEN.EQ.0.AND.IPICO.NE.0))
      & WRITE(6,*) ' Normal Davidson, Perturbational'
+       endif
        IF( MAXVEC .LT. 2 * NROOT ) THEN
          WRITE(6,*) ' Sorry MINDV4 wounded , MAXVEC .LT. 2*NROOT '
          STOP ' Enforced stop in MINDV4'
@@ -4389,7 +4391,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
     8    CONTINUE
    10  CONTINUE
 *
-       IF( IPRT .GE.10 ) THEN
+       IF( IPRT .GE.10 .and. ga_nodeid().eq.0) THEN
          WRITE(6,*) ' INITIAL PROJECTED MATRIX  '
          CALL PRSYM(APROJ,NINVEC)
        END IF
@@ -4400,7 +4402,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
          EIG(1,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
 *
-       IF( IPRT  .GE. 3 ) THEN
+       IF( IPRT  .GE. 3 .and. ga_nodeid().eq.0) THEN
          WRITE(6,'(A,I4)') ' Initial set of eigenvalues '
          WRITE(6,'(5F22.13)')
      &   ( (EIG(ITER,IROOT)+EIGSHF),IROOT=1,NROOT)
@@ -4412,7 +4414,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
 ** LOOP OVER ITERATIONS
 *
  1000 CONTINUE
-      IF(IPRT  .GE. 10 ) THEN
+      IF(IPRT  .GE. 10 .and. ga_nodeid().eq.0) THEN
        WRITE(6,*) ' INFO FORM ITERATION .... ', ITER
       END IF
  
@@ -4572,8 +4574,10 @@ CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
                 if (dra_wait(itask).ne.0) call errquit('dra read err',
      &              itask,911)
                 FACTOR = -DELTA/GAMMA
-                IF(IPRT.GE.10) WRITE(6,*) ' DELTA,GAMMA,FACTOR'
-                IF(IPRT.GE.10) WRITE(6,*)   DELTA,GAMMA,FACTOR
+                IF(IPRT.GE.10.and.ga_nodeid().eq.0) 
+     &            WRITE(6,*) ' DELTA,GAMMA,FACTOR'
+                IF(IPRT.GE.10.and.ga_nodeid().eq.0) 
+     &            WRITE(6,*)   DELTA,GAMMA,FACTOR
 CNW             CALL VECSUM(VEC1,VEC1,VEC2,FACTOR,1.0D0,NVAR)
                 call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
                 IF(IPRT.GE.600) THEN
@@ -4582,7 +4586,7 @@ CNW               CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
                   call ga_print(VEC1)
                 END IF
               ELSE
-                IF(IPRT.GT.0) WRITE(6,*) 
+                IF(IPRT.GT.0.and.ga_nodeid().eq.0) WRITE(6,*) 
      &          ' Inverse correction switched of'
 CNW             CALL REWINO(LU3)
 CNW             CALL FRMDSC(VEC1,NVAR,-1,LU3,IMZERO,IAMPACK)
@@ -4618,7 +4622,7 @@ CNW        SCALE = INPROD(VEC1,VEC1,NVAR)
            IF(ABS(SCALE)/XNRMI .LT. 1.0D-10) THEN
 *. Linear dependency
              IADD = IADD - 1
-             IF ( IPRT  .GE. 10 ) THEN
+             IF ( IPRT  .GE. 10 .and. ga_nodeid().eq.0) THEN
                WRITE(6,*) '  Trial vector linear dependent so OUT !!! '
              END IF
            ELSE
@@ -4692,9 +4696,9 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
 *. Select if required the roots to be followed
       IF(IROOT_SEL.NE.0) THEN
         ISEL_MET = IROOT_SEL 
-        WRITE(6,*) ' I will do root selection '
+        if (ga_nodeid().eq.0) WRITE(6,*) ' I will do root selection '
 *
-        IF(IPRT .GE. 30 ) THEN
+        IF(IPRT .GE. 30 .and. ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Info before selection: '
           WRITE(6,*) ' Projected matrix and eigen vectors '
           CALL PRSYM(APROJ,NVEC)
@@ -4717,21 +4721,23 @@ C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
      &         + 2.0D0*AVEC(1)*AVEC(2)*APROJ(2)
      &         + AVEC(2)**2*APROJ(3)
         dbl_mb(KAPROJ) = E0PERT
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Var and Pert solution, energy and coefficients'
         WRITE(6,'(4X,3E15.7)') E0VAR,C0VAR,C1VAR
         WRITE(6,'(4X,3E15.7)') E0PERT,AVEC(1),AVEC(2)
+        endif
       END IF
       DO 160 IROOT = 1, NROOT
         EIG(ITER,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2)
  160  CONTINUE
 *
-      IF(IPRT .GE. 3 ) THEN
+      IF(IPRT .GE. 3.and.ga_nodeid().eq.0 ) THEN
         WRITE(6,'(A,I4)') ' Eigenvalues of iteration ..', ITER
         WRITE(6,'(5F22.13)')
      &  ( (EIG(ITER,IROOT)+EIGSHF) ,IROOT=1,NROOT)
       END IF
 *
-      IF( IPRT  .GE. 5 ) THEN
+      IF( IPRT  .GE. 5 .and. ga_nodeid().eq.0) THEN
         WRITE(6,*) ' PROJECTED MATRIX AND EIGEN PAIRS '
         CALL PRSYM(APROJ,NVEC)
         WRITE(6,'(2X,E13.7)') (EIG(ITER,IROOT),IROOT = 1, NROOT)
@@ -5005,13 +5011,13 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
       IF( .NOT. CONVER ) THEN
 *        CONVERGENCE WAS NOT OBTAINED
-         IF(IPRT .GE. 2 )
+         IF(IPRT .GE. 2 .and. ga_nodeid().eq.0)
      &   WRITE(6,1170) MAXIT
  1170    FORMAT('0  Convergence was not obtained in ',I3,' iterations')
       ELSE
 *        CONVERGENCE WAS OBTAINED
          ITER = ITER - 1
-         IF (IPRT .GE. 2 )
+         IF (IPRT .GE. 2 .and. ga_nodeid().eq.0)
      &   WRITE(6,1180) ITER
  1180    FORMAT(1H0,' Convergence was obtained in ',I3,' iterations')
         END IF
@@ -5023,6 +5029,7 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
       IF ( IPRT .GT. 1 ) THEN
         DO 1600 IROOT = 1, NROOT
+          if (ga_nodeid().eq.0) then
           WRITE(6,*)
           WRITE(6,'(A,I3)')
      &  ' Information about convergence for root... ' ,IROOT
@@ -5031,6 +5038,7 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
           WRITE(6,*)
           WRITE(6,1190) FINEIG(IROOT)
  1190     FORMAT(' The final approximation to eigenvalue ',F18.10)
+          endif
           IF(IPRT.GE.400) THEN
             WRITE(6,1200)
  1200       FORMAT(1H0,'The final approximation to eigenvector')
@@ -5039,6 +5047,7 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
           END IF
           WRITE(6,1300)
+          if (ga_nodeid().eq.0) then
  1300     FORMAT(1H0,' Summary of iterations ',/,1H
      +          ,' ----------------------')
           WRITE(6,1310)
@@ -5047,12 +5056,13 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
           DO 1330 I=1,ITER
  1330     WRITE(6,1340) I,EIG(I,IROOT)+EIGSHF,RNRM(I,IROOT)
  1340     FORMAT(1H ,6X,I4,8X,F20.13,2X,E12.5)
+          endif
  1600   CONTINUE
       END IF
 *
       IF(IPRT .EQ. 1 ) THEN
         DO 1607 IROOT = 1, NROOT
-          WRITE(6,'(A,2I3,E13.6,2E10.3)')
+          if(ga_nodeid().eq.0) WRITE(6,'(A,2I3,E13.6,2E10.3)')
      &    ' >>> CI-OPT Iter Root E g-norm g-red',
      &                 ITER,IROOT,FINEIG(IROOT),
      &                 RNRM(ITER,IROOT),

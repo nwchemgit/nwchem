@@ -4117,6 +4117,8 @@ CNW   DIMENSION F(*)
       DIMENSION BRT(*)
 *
       IOFF = 1
+      call ga_distribution(F,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(F, ilo, ihi, 1, 1, ikf, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
          IOFF = 1
@@ -4124,14 +4126,16 @@ CNW   DIMENSION F(*)
          IOFF = IOFF + NTOOBS(ISM-1)**2
         END IF
         NOB = NTOOBS(ISM)
-CBERT THIS CAN BE DONE SMARTER WITH GA ACCES AND ga_get of block
         DO IR = 1, NOB
         DO IS = 1, NOB 
-           call ga_get(F,IOFF-1+(IR-1)*NOB+IS,IOFF-1+(IR-1)*NOB+IS,1,1,
-     &                 XVAL1,1)
-           call ga_get(F,IOFF-1+(IS-1)*NOB+IR,IOFF-1+(IS-1)*NOB+IR,1,1,
-     &                 XVAL2,1)
-           BRT(IOFF-1+(IS-1)*NOB+IR) = 2.0D0*(XVAL2-XVAL1)
+           index1 = IOFF-1+(IR-1)*NOB+IS
+           index2 = IOFF-1+(IS-1)*NOB+IR
+           XVAL = 0.0d0
+           if (index1.ge.ilo.and.index1.le.ihi)
+     &     XVAL = XVAL + dbl_mb(ikf+index1-ilo+1)
+           if (index2.ge.ilo.and.index1.le.ihi)
+     &     XVAL = XVAL - dbl_mb(ikf+index2-ilo+1)
+           BRT(IOFF-1+(IS-1)*NOB+IR) = 2.0D0*(XVAL)
         ENDDO
         ENDDO
 CNW     DO IR = 1, NOB
@@ -4141,6 +4145,9 @@ CNW  &   (F(IOFF-1+(IS-1)*NOB + IR)-F(IOFF-1+(IR-1)*NOB + IS))
 CNW     END DO
 CNW     END DO
       END DO
+      IOFF = IOFF + NOB*NOB-1
+      call ga_release(F,ilo,ihi,1,1)
+      call ga_dgop(1, BRT(1), IOFF, '+')
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
