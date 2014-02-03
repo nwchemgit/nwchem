@@ -10069,7 +10069,8 @@ c.. dongxia: let's assume we would not dump integrals
 C       REWIND LU90
 *.   Symmetry info etc to LU91
         IF(NOMOFL.EQ.0) KMOAO = KMOAOIN
-        CALL DUMP_1EL_INFO(LU91)
+        DUMP1E = 0
+        IF(DUMP1E.EQ.1) CALL DUMP_1EL_INFO(LU91)
       END IF
 *
 C?    WRITE(6,*) ' INTIM: First integrals in WORK(KINT1) '
