@@ -417,7 +417,7 @@ c
       Exc(2) = 0.0d0
       if (xc_gotxc()) then
         call fock_xc(geom, nbf, basis, nfockxc, iv_dens(4), iv_fock(4),
-     +               Exc, nExc)
+     +               Exc, nExc,.false.)
       endif
       if(util_print('dft timings', print_high))
      &      time2_xc=util_cpusec()   ! end xc build time

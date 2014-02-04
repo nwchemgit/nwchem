@@ -235,7 +235,8 @@ c
       if(util_print('dft timings', print_high))
      &      time1_xc=util_cpusec()   ! start xc build time
       if (xc_gotxc()) then
-        call fock_xc(geom, nbf, basis, 4*2, d, f(5), Exc, nExc)
+        call fock_xc(geom, nbf, basis, 4*2, d, f(5), Exc, nExc, 
+     &             .false.)
       endif
       if(util_print('dft timings', print_high))
      &      time2_xc=util_cpusec()   ! end xc build time

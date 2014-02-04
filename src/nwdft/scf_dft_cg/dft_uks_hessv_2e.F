@@ -222,7 +222,7 @@ c
 c
 c       include hessian contribution only if second derivatives are available
         if(xc_got2nd()) then
-           call fock_xc(geom,nbf,basis,nfock,g_dd,g_ff,Exc,nExc)
+           call fock_xc(geom,nbf,basis,nfock,g_dd,g_ff,Exc,nExc,.true.)
         end if
 c
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',MT_INT,1,calc_type))
