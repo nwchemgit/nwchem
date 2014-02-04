@@ -9395,14 +9395,14 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
 *
 *. Inactive part
 *
-            call ga_distribution(KFI,ga_nodeid(),ilo,ihi,idum,idum)
-            call ga_access(KFI, ilo, ihi, 1, 1, ikfi, idum)
-            call ga_access(KFA, ilo, ihi, 1, 1, ikfa, idum)
+            call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+            call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
+            call ga_access(FA, ilo, ihi, 1, 1, ikfa, idum)
              DO I = 1, NI
               DO J = 1, NJ
                IJMAX = MAX(I+II-1,J+IJ-1)
                IJMIN = MIN(I+II-1,J+IJ-1)
-               IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN + IFOFFSA
+               IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN + IFOFFS - 1
 CNW            dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*
 CNW  &         (FI(IFOFFS-1+IJSYM)+FA(IFOFFS-1+IJSYM))
                if (IJSYM.ge.ilo.and.IJSYM.le.ihi)
@@ -9413,8 +9413,8 @@ C?   &         IJSM,I,J,FI(IFOFFS-1+IJSYM), FA(IFOFFS-1+IJSYM),
 C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
               END DO
              END DO
-            call ga_release(KFI, ilo, ihi, 1, 1)
-            call ga_release(KFA, ilo, ihi, 1, 1)
+            call ga_release(FI, ilo, ihi, 1, 1)
+            call ga_release(FA, ilo, ihi, 1, 1)
             ELSE IF(JGAS.LE.NGAS) THEN
 *
 *. Active part
@@ -9512,7 +9512,7 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
 C?              WRITE(6,*) 'IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1',
 C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
                 IINDX = IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1
-                if (iindx.ge.ilo.and.iindex.le.ihi)
+                if (iindx.ge.ilo.and.iindx.le.ihi)
      &          call ga_put(F,IINDX,IINDX,1,1,
      &                      dbl_mb(KLFBLK-1+(I-1)*NJ+J),1)
 CNW             F(IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1 ) = 
