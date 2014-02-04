@@ -13,7 +13,7 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   int ierr, len,  resultlen;
   long  len8,  istart, end8;
   int nsteps;
-  Integer lo[1], hi[1];
+  Integer lo[2], hi[2];
   static int bigint = 2147482574;
   char err_buffer[MPI_MAX_ERROR_STRING];
   lo[0]=0;
