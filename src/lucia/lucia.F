@@ -9909,7 +9909,7 @@ c Get Block-length
 c
          if (.not. bas_nbf_cn_max(luciabasis,maxbfsh))
      $      call errquit('intim: cannot get basis info',0,BASIS_ERR)
-CBERT    if (.not.rtdb_get(rtdb,'fourindex:blk',MT_INT,1,blen)) nwblen=16
+         nwblen = 25
          nwblen = max(nwblen,maxbfsh)
 c
 c Do four-index
