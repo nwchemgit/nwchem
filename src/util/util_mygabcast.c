@@ -13,7 +13,7 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   int ierr, len,  resultlen;
   long  len8,  istart, end8;
   int nsteps;
-  Integer lo[2], hi[2];
+  int64_t lo[2], hi[2], *ld64;
   static int bigint = 2147482574;
   char err_buffer[MPI_MAX_ERROR_STRING];
   lo[0]=0;
@@ -21,8 +21,9 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   /* swap column & rows when going from fortran to c */
   hi[1]=*m - 1;
   hi[0]=*n - 1;
+  *ld64=(Integer) *ld;
 
-  if(GA_Nodeid() == 0)  NGA_Get64(*g_a, lo, hi, a, ld);
+  if(GA_Nodeid() == 0)  NGA_Get64(*g_a, lo, hi, a, ld64);
   GA_Sync();
 
   len8= (*m) * (*n);
