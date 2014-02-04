@@ -9402,12 +9402,12 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
               DO J = 1, NJ
                IJMAX = MAX(I+II-1,J+IJ-1)
                IJMIN = MIN(I+II-1,J+IJ-1)
-               IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN + IFOFFSA - ilo
+               IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN + IFOFFSA
 CNW            dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*
 CNW  &         (FI(IFOFFS-1+IJSYM)+FA(IFOFFS-1+IJSYM))
                if (IJSYM.ge.ilo.and.IJSYM.le.ihi)
      &         dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 
-     &                    2.0D0*(dbl_mb(ikfi+IJSYM)+dbl_mb(ikfa+IJSYM))
+     &           2.0D0*(dbl_mb(ikfi+IJSYM-ilo)+dbl_mb(ikfa+IJSYM-ilo))
 C?             WRITE(6,*) ' IJSM, I, J, FI(IJ), FA(IJ), F(IJ) =',
 C?   &         IJSM,I,J,FI(IFOFFS-1+IJSYM), FA(IFOFFS-1+IJSYM),
 C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
