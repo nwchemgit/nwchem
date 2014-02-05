@@ -1995,10 +1995,10 @@ endif
           LDFLAGS += -pg
         endif
 	    LINK.f = $(FC)  $(LDFLAGS) 
-        FOPTIMIZE   = -O3 
+        FOPTIMIZE  += -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
-        FDEBUG = -g -O 
+        FDEBUG += -g -O 
         ifdef USE_F2C
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
