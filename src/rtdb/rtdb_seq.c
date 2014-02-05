@@ -819,6 +819,9 @@ static int rtdb_seq_put_info(const int handle,
     return 0;
   }
 
+  (void) memset((void *) &info, (char) 0, 
+		(size_t) (sizeof(struct info_struct)));
+
   info.ma_type = ma_type;
   info.nelem   = nelem;
   get_time(info.date);
@@ -880,6 +883,10 @@ int rtdb_seq_get_info(const int handle,
 		   handle);
     return 0;
   }
+
+  (void) memset((void *) &info, (char) 0, 
+		(size_t) (sizeof(struct info_struct)));
+
 
   if (strlen(name)+sizeof(info_header)+1 > sizeof(info_buf)) {
     (void) fprintf(stderr,
