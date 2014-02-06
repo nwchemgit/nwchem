@@ -199,6 +199,26 @@ c
         goto 2
       end if  
 c
+c     option to load custom names
+c     ---------------------------
+      if(inp_compare(.false.,'rename',token)) then
+        np = inp_n_field()
+        if(np.ne.2) 
+     >    call errquit(pname//'rename needs one argument',0,
+     >       RTDB_ERR)
+        do ip = 1,np-1
+          if(.not.inp_a(mtoken(ip))) then
+             call errquit(pname//" rename" ,0,
+     &           INPUT_ERR)
+          end if
+        end do
+        tag="qmmm:rename"
+        if (.not.rtdb_cput(rtdb,tag,1,mtoken(1))) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+          goto 2
+      endif
+c
 c     option to load coordinates from rtdb geometry
 c     ---------------------------------------------
       if(inp_compare(.false.,'geomrtdb',token)) then

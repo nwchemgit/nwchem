@@ -376,6 +376,7 @@ c
 #include "global.fh"
 #include "stdio.fh"
 #include "inp.fh"
+#include "msgids.fh"
       integer irtdb
       integer ns
       integer ais(ns)
@@ -397,6 +398,9 @@ c
       integer geomlen
       logical oprint_low
       logical master
+      character*255 filename
+      character*16 tag
+      integer j,ai0,fn
  
       pname = "qmmm_geom_create"
       if(qmmm_print_debug())
@@ -443,7 +447,49 @@ c
      >                   dbl_mb(i_q+ns),
      >                   dbl_mb(i_m+ns))
 
+c    ----------------------------
+c    begin custom names from file
+c    ----------------------------
 
+      if (rtdb_cget(irtdb,"qmmm:rename",1,filename)) then
+
+      if(master)  
+     +  call util_print_centered(luout,
+     + "Loading custom atom names from  "//
+     +   filename,40,.true.)
+
+      if(master) then
+        if(.not.qmmm_get_io_unit(fn)) 
+     >       call errquit("cannot get file number",0,0)
+c
+        open(fn,file=filename,form='formatted',status='old',
+     $          err=133)
+   
+        fileloop: do 
+        read(fn,*,err=133,end=20) tag,ai0
+        write(*,*) "debug ", tag, ai0
+        do j=1,ns
+          if(ai0.eq.ais(j)) then
+             call util_set_ma_char_arrays(16,tag,byte_mb(i_t+16*(j-1)))
+             cycle fileloop
+          end if
+        end do
+        end do fileloop
+20      continue
+        close(fn)
+      end if
+
+      call ga_brdcst(msg_qmmm_ind,
+     >     byte_mb(i_t),
+     >     16*n*ma_sizeof(mt_byte,1,mt_byte),
+     >     0)
+
+      end if
+c    ----------------------------
+c    end custom names from file
+c    ----------------------------
+
+ 
       ignore = rtdb_delete(irtdb,aname(1:geomlen))
 
       if(.not.geom_create(igeom,aname(1:geomlen)))
@@ -477,6 +523,10 @@ c
       if(.not.geom_rtdb_store(irtdb,igeom,aname(1:geomlen)))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
+      if(master) then
+        call qmmm_print_xyzi(6,ns,ais,dbl_mb(i_c),byte_mb(i_t))
+      end if
+
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
@@ -501,6 +551,9 @@ c     ------------------------
 
       if(qmmm_print_debug())
      > write(*,*) "out "//pname
+
+      return
+ 133  call errquit('error reading file of names',0, 0)
  
       end
 
