@@ -1,0 +1,58 @@
+echo
+memory total 800 Mb
+
+start asa 
+
+#prepare
+#  system asa_ref
+#  source asa.pdb
+#  new_top new_seq 
+#  new_rst
+#  modify atom 2:_CB quantum
+#  modify atom 2:2HB quantum
+#  modify atom 2:3HB quantum
+#  modify atom 2:_OG quantum
+#  modify atom 2:_HG quantum
+#  center
+#  orient
+#  solvate
+#  fix segments beyond 0.5 2:_OG
+#  update lists
+#  ignore
+#  write asa_ref.rst 
+#  write asa_ref.pdb   # Write out PDB file to check structure
+#end
+#task prepare
+#
+
+#----------------------------------------
+# this can be replaced by
+# task shell "cp asa_ref.rst asa_qmmm.rst"
+#-----------------------------------------
+prepare
+read asa_ref.rst
+write asa_qmmm.rst
+end
+task prepare
+
+md
+  system asa_qmmm
+  cells 2 2 2
+end
+
+basis "ao basis" 
+  * library "6-31G*"
+  C1 library "6-311++G**"
+end
+
+dft
+ print low
+ iterations 500
+end
+
+qmmm
+rename name.dat
+end
+
+task qmmm dft energy
+
