@@ -1,0 +1,23 @@
+start cosmo_params
+#permanent_dir ./perm
+#scratch_dir ./data
+echo
+ title "h2o"
+geometry nocenter noautosym
+OW                 .0000000000         .0000000000        -.0486020332
+HW                 .7545655371         .0000000000         .5243010666
+H                 -.7545655371         .0000000000         .5243010666
+end
+basis 
+  * library 6-31g**
+end
+ cosmo
+   dielec 78.0
+   parameters marat.par
+   rsolv  0.50
+   lineq  0
+#   radius 1.40
+#          1.06
+#          1.16
+ end
+ task dft energy
