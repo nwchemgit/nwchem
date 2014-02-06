@@ -1,0 +1,82 @@
+echo
+
+start tce_hyperpolar_ccsd_big
+
+#permanent_dir /scratch1/scratchdirs/jhammond/permanent
+#scratch_dir /scratch1/scratchdirs/jhammond/scratch
+
+memory stack 1500 mb heap 100 mb global 1500 mb 
+
+geometry units au
+# C2v B3LYP/cc-pVdz optimized geometry
+ C   0.00000000     0.00000000     3.92199475
+ C   0.00000000     2.28668848     2.56412527
+ C   0.00000000     2.28547911    -0.04136935
+ C   0.00000000     0.00000000    -1.34162379
+ C   0.00000000    -2.28547911    -0.04136935
+ C   0.00000000    -2.28668848     2.56412527
+ N   0.00000000     0.00000000    -4.09570914
+ N   0.00000000     0.00000000     6.50026063
+ O   0.00000000     2.04736305    -5.18166572
+ O   0.00000000    -2.04736305    -5.18166572
+ H   0.00000000     4.06191582     3.57969289
+ H   0.00000000     4.03016211    -1.09634978
+ H   0.00000000    -4.03016211    -1.09634978
+ H   0.00000000    -4.06191582     3.57969289
+ H   0.00000000    -1.62194876     7.47682769
+ H   0.00000000     1.62194876     7.47682769
+end
+
+basis "dz" spherical noprint
+  * library cc-pvdz
+end
+
+basis "adz" spherical noprint
+  * library aug-cc-pvdz
+end
+
+basis "dadz" spherical noprint
+  * library d-aug-cc-pvdz
+end
+
+basis "atz" spherical noprint
+  * library aug-cc-pvtz
+end
+
+basis "datz" spherical noprint
+  * library d-aug-cc-pvtz
+end
+
+set "ao basis" "dadz"
+
+scf
+  singlet
+  rhf
+  thresh 1e-8
+  maxiter 1000
+  print low
+  semidirect memsize 100000000 filesize 0
+end
+
+tce
+  freeze atomic
+  fock
+  scf
+  ccsd
+  maxiter 200
+  thresh 1.0e-7
+  io ga
+  2eorb
+  2emet 13
+  #split 4
+  tilesize 30
+  attilesize 40
+end
+
+set tce:lineresp T     # Linear response equations on
+set tce:leftresp T     # Lambda response equations on
+set tce:respaxis T T T # turn off some axes if you don't need them due to symmetry
+set tce:afreq 0.0      # non-zero afreq will lead to incorrect results (for hyperpolarizabilities)!
+set tce:bfreq 0.0      # non-zero bfreq will lead to incorrect results!
+
+task tce energy
