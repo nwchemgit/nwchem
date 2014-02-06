@@ -55,6 +55,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.tcg5.unix procs $np tce_h2o_eomcc
 ./runtests.tcg5.unix procs $np tce_uhf_uccsd
 ./runtests.tcg5.unix procs $np tce_polar_ccsd_small
+./runtests.tcg5.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.tcg5.unix procs $np oniom1
 ./runtests.tcg5.unix procs $np c60_ecp
 ./runtests.tcg5.unix procs $np h2o_vscf

@@ -66,6 +66,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np tce_lr_ccsd_tq
 ./runtests.unix procs $np tce_ozone_2eorb
 ./runtests.unix procs $np tce_polar_ccsd_small
+./runtests.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.unix procs $np tce_eomsd_eomsol1
 ./runtests.unix procs $np tce_eomsd_eomsol2
 ./runtests.unix procs $np tce_uracil_creomact

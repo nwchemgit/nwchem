@@ -6,18 +6,6 @@ set np = 1
 if ($1 !="") then
 set np = $1
 endif
-#./runtests.unix procs $np tce_h2o
-#./runtests.unix procs $np tce_h2o_dipole
-#./runtests.unix procs $np tce_h2o_eomcc
-#./runtests.unix procs $np tce_uhf_uccsd
-#./runtests.unix procs $np tce_rohf_uccsd
-#./runtests.unix procs $np tce_cr_eom_t_ch_rohf
-#./runtests.unix procs $np tce_cr_eom_t_ozone
-#./runtests.unix procs $np tce_active_ccsdt
-#./runtests.unix procs $np tce_lr_ccsd_t
-#./runtests.unix procs $np tce_lr_ccsd_tq
-#./runtests.unix procs $np tce_ozone_2eorb
-#./runtests.unix procs $np tce_polar_ccsd_small
 ./runtests.unix procs $np tce_h2o
 ./runtests.unix procs $np tce_h2o_dipole
 ./runtests.unix procs $np tce_h2o_eomcc
@@ -30,6 +18,7 @@ endif
 ./runtests.unix procs $np tce_lr_ccsd_tq
 ./runtests.unix procs $np tce_ozone_2eorb
 ./runtests.unix procs $np tce_polar_ccsd_small
+./runtests.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.unix procs $np tce_eomsd_eomsol1
 ./runtests.unix procs $np tce_eomsd_eomsol2
 ./runtests.unix procs $np tce_uracil_creomact

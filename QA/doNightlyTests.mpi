@@ -75,6 +75,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tce_lr_ccsd_tq
 ./runtests.mpi.unix procs $np tce_ozone_2eorb
 ./runtests.mpi.unix procs $np tce_polar_ccsd_small
+./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
 ./runtests.mpi.unix procs $np tce_uracil_creomact
