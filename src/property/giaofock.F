@@ -642,8 +642,7 @@ c -------- check input g_dens1 -------- END
          call ga_zero(g_xc)
          Exc(1) = 0.0d0
          Exc(2) = 0.0d0
-c         nExc = 1
-         nExc = 2 ! BUG: Fixed on 05-10-11
+         nExc = 2 
          call fock_xc(geom,nbf,basis,nfock(npol),
      &                g_dens1,g_xc,
      &                Exc,nExc,.false.) ! out: g_xc
