@@ -1,0 +1,46 @@
+echo
+
+start tce_hyperpolar_ccsd_small
+
+#permanent_dir /home/jeff/scratch/nwchem
+#scratch_dir /home/jeff/scratch/nwchem
+
+#memory stack 1500 mb heap 200 mb global 1500 mb
+
+geometry units au
+  symmetry c2v
+  H 0       0        0
+  F 0       0        1.7328795
+end
+
+basis spherical
+  * library d-aug-cc-pvdz
+end
+
+scf
+  singlet
+  rhf
+  thresh 1.0e-8
+end
+
+tce
+  scf
+  ccsd
+  maxiter 1000
+  thresh 1.0e-9
+  io ga
+  2eorb
+  2emet 5
+  idiskx 1
+  tilesize 28
+  attilesize 40
+end
+
+set tce:lineresp T
+set tce:leftresp T
+set tce:respaxis T T T
+set tce:afreq 0.0
+set tce:bfreq 0.0
+
+task tce energy
+
