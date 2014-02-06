@@ -275,6 +275,8 @@ endif
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
 ./runtests.mpi.unix procs $np hess_biph
+echo 'This test requires >100 processors to run quickly'
+./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_big
 echo 'The following 2 tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4_zts
 ./runtests.mpi.unix procs $np ch4cl_zts
