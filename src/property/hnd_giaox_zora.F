@@ -99,7 +99,7 @@ c     debug_giaox=1 ! =1 for debugging print outs of matrices
 c     switch_skip_cphf=.true. ! For skipping cphf or cpks
       switch_skip_cphf=.false. ! For NOT skipping cphf or cpks
       switch_nmrcs_analysis=.false. ! For default mode NO nmrcs analysis
-c     switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
+c      switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
         if (ga_nodeid().eq.0.and.debug_giaox.eq.1)
      &    write(*,*) 'switch_skip_cphf=',switch_skip_cphf
         if (ga_nodeid().eq.0.and.debug_giaox.eq.1)
@@ -868,14 +868,15 @@ c ------- TEST: get_par() get_dia()------ START
      &   g_d1_ov_noJK,    ! IN  : Perturbed density matrix (OV part-all -(Coul,Exch)) 
      &   g_d1_ov_1e,      ! IN  : Perturbed density matrix (OV part-1e   contrib)
      &   g_d1_ov_eSji,    ! IN  : Perturbed density matrix (OV part-eSji contrib)
-     &        g_dens,
-     &                   npol,        ! IN  : nr. polarizations
-     &        dbl_mb(k_fukui),
+     &   g_dens,
+     &   npol,        ! IN  : nr. polarizations
+     &   dbl_mb(k_fukui),
      &   basis,           ! IN  : basis handle
      &   nbf,             ! IN  : nr. basis functions
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
-     &   nat_slc,         ! IN  : nr. atoms
-     &        geom,
+     &   nat_slc,         ! IN  : nr. atoms selected
+     &   nat,             ! IN  : nr. atoms total
+     &   geom,
      &   rtdb,
      &   oskel)
       if (.not. ga_destroy(g_d1_ov_Coul)) call errquit(  
@@ -902,7 +903,8 @@ c ------- TEST: get_par() get_dia()------ START
      &   basis,           ! IN  : basis handle
      &   nbf,             ! IN  : nr. basis functions
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
-     &   nat_slc,         ! IN  : nr. atoms
+     &   nat_slc,         ! IN  : nr. atoms selected
+     &   nat,             ! IN  : nr. atoms total
      &   geom,
      &   rtdb,
      &   oskel)           ! IN  : = .false.
@@ -1158,7 +1160,8 @@ c     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
      &                   basis,     ! IN  : basis handle
      &                   nbf,       ! IN  : nr. basis functions
      &                   pos,       ! IN  : Nuclear positions (x,y,z)
-     &                   natoms,    ! IN  : nr. atoms
+     &                   natoms_slc,! IN  : nr. atoms selected
+     &                   natoms_tot,! IN  : nr. atoms total
      &                   geom,
      &                   rtdb,
      &                   oskel)     ! IN  : =.false.
@@ -1187,16 +1190,16 @@ c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer rtdb,geom
       integer basis
-      integer nbf,natoms
+      integer nbf,natoms_slc,natoms_tot
       integer g_dens(3)          ! IN : electronic density
-      double precision Fukui(3,3,natoms) ! used in analyt shield
+      double precision Fukui(3,3,natoms_slc) ! used in analyt shield
       integer npol  ! OUT: Used only in analytical shieldings
       integer alo(3), ahi(3), blo(3), bhi(3),
      &        dlo(3), dhi(3)
       integer ld(2),cbuf,cbuf1,cbuf2
       integer i,dims(3),chunk(3),
      &        g_R(3),ispin,a,b
-      double precision pos(3*natoms),val
+      double precision pos(3*natoms_slc),val
       integer iatom,ix,iy,ixy,ind
       double precision val_oo,val_ov
       integer g_h01, ! local
@@ -1223,7 +1226,7 @@ c          to print out variables. (FA-11-24-11)
 
       debug_get_par=0
 
-      do ixy = 1, 9*natoms
+      do ixy = 1, 9*natoms_slc
          par(ixy) = 0.0d0  ! initialize
       enddo
       if (do_zora) then
@@ -1236,7 +1239,7 @@ c ---- STORE: g_para1 --> dbl_mb(k_para)
        alo(2)=1
        ahi(2)=3
        alo(3)=1
-       ahi(3)=natoms
+       ahi(3)=natoms_slc
        ld(1)=3
        ld(2)=3
        call nga_get(ga_para1,alo,ahi,par(1),ld)
@@ -1253,7 +1256,7 @@ c +++++ Initialize dbl_mb(k_para) with g_para1 ++++ END
        blo(3) = 0
        bhi(3) = 0
        ind=0
-       do iatom = 1, natoms
+       do iatom = 1, natoms_slc
         do iy = 1, 3
          blo(3) = blo(3) + 1
          bhi(3) = bhi(3) + 1
@@ -1321,12 +1324,16 @@ c -------- get R_nu ------------- START
         if (.not. nga_create(mt_dbl,1,dims,"Array R",chunk,g_R(i)))
      $    call errquit('get_par: g_R', 0,GA_ERR)
        enddo
-       call get_chi_centers_ga(g_R,basis,nbf,geom,natoms)
-c       if (ga_nodeid().eq.0)
-c     &   write(*,*) '----------g_R--------- START'
-c       call ga_print(g_R)
-c       if (ga_nodeid().eq.0)
-c     &   write(*,*) '----------g_R--------- END'
+
+       call get_chi_centers_ga(g_R,basis,nbf,geom,natoms_tot)
+
+!       if (ga_nodeid().eq.0)
+!     &   write(*,*) '----------g_R--------- START'
+!       call ga_print(g_R(1))
+!       call ga_print(g_R(2))
+!       call ga_print(g_R(3))
+!       if (ga_nodeid().eq.0)
+!     &   write(*,*) '----------g_R--------- END'
 c -------- get R_nu ------------- END
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> nonrel'
@@ -1336,12 +1343,12 @@ c ----- Calculate g_h01 --------- START
       alo(3) = -1
       ahi(1) = nbf
       ahi(2) = nbf
-      ahi(3) = 3*natoms
+      ahi(3) = 3*natoms_slc
       if (.not.nga_create(MT_DBL,3,ahi,'H01 matrix',alo,g_h01)) call 
      &    errquit('get_par: nga_create failed g_h01',0,GA_ERR)
       call ga_zero(g_h01)
       call int_giao_1ega(basis,basis,g_h01,'h01',pos(1),
-     &                   natoms,oskel)
+     &                   natoms_slc,oskel)
 
          if (debug_get_par.eq.1) then
           if (ga_nodeid().eq.0)
@@ -1378,7 +1385,7 @@ c       call ga_print(g_dens(2))
 c       if (ga_nodeid().eq.0) 
 c     &   write(*,*) '-------g_dens(2)----END'
 
-       do iatom = 1, natoms
+       do iatom = 1, natoms_slc
         do iy = 1, 3
          blo(3) = blo(3) + 1
          bhi(3) = bhi(3) + 1
@@ -1399,8 +1406,8 @@ c ----- Calc. Fukui term ------- START
           call ga_scale_rows(g_t1,g_R(a))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t1
           call nga_copy_patch('n',g_h01,blo,bhi,
      &                            g_t2 ,dlo,dhi)
-          call ga_scale_cols(g_t2,g_R(a))          ! R_{nu,b} g_N
-          call ga_scale_rows(g_t2,g_R(b))          ! R_{mu,a} [R_{nu,b} g_N] -> g_t2
+          call ga_scale_cols(g_t2,g_R(a))          ! R_{nu,a} g_N
+          call ga_scale_rows(g_t2,g_R(b))          ! R_{mu,b} [R_{nu,a} g_N] -> g_t2
           call ga_add(1.0d0,g_t1,-1.0d0,g_t2,g_t3) ! g_t3=-4c^2 <chi_mu|i/(2c)(R_mu x R_nu)_k h_t^{01}|chi_nu>
 
 c          if (ga_nodeid().eq.0) then
@@ -1456,6 +1463,7 @@ c ----- store in par_arr ------- START
      &                   f15.8,',',f15.8,')')
                endif
           endif
+
 c ----- store in par_arr ------- END  
           par(cbuf)=par_arr(ind+1)+
      &              val_oo*ppm+val_ov*ppm
@@ -1477,7 +1485,7 @@ c ----- store in par_arr ------- END
         enddo
       endif
 c -------- symmetrize total par ------------ START
-       do iatom = 1, natoms
+       do iatom = 1, natoms_slc
         do iy = 1, 3
          do ix = iy+1, 3     
           cbuf1=9*(iatom-1)+3*(ix-1)+iy ! transpose 
@@ -1512,7 +1520,8 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      &                   basis,       ! IN  : basis handle
      &                   nbf,         ! IN  : nr. basis functions
      &                   pos,         ! IN  : Nuclear positions (x,y,z)
-     &                   natoms,      ! IN  : nr. atoms
+     &                   natoms_slc,  ! IN  : nr. atoms selected
+     &                   natoms_tot,  ! IN  : nr. atoms total
      &                   geom,
      &                   rtdb,
      &                   oskel)
@@ -1542,13 +1551,13 @@ c
       integer alo(3), ahi(3), blo(3), bhi(3),
      &        dlo(3),dhi(3)
       integer ld(2),cbuf,cbuf1,cbuf2
-      integer nbf,natoms
+      integer nbf,natoms_slc,natoms_tot
       integer g_dens(3)          ! IN : electronic density
-      double precision Fukui(3,3,natoms) ! used in analyt shield
+      double precision Fukui(3,3,natoms_slc) ! used in analyt shield
       integer npol  ! OUT: Used only in analytical shieldings
       integer i,dims(3),chunk(3),
      &        g_R(3),ispin,a,b
-      double precision pos(3*natoms),val
+      double precision pos(3*natoms_slc),val
       integer iatom,ix,iy,ixy,ind
       double precision val_oo,val_ov
       double precision par_arr(*) 
@@ -1575,7 +1584,7 @@ c
 
       debug_get_par=0
 
-      do ixy = 1, 9*natoms
+      do ixy = 1, 9*natoms_slc
          par(ixy) = 0.0d0  ! initialize
       enddo
       if (do_zora) then
@@ -1588,7 +1597,7 @@ c ---- STORE: g_para1 --> dbl_mb(k_para)
        alo(2)=1
        ahi(2)=3
        alo(3)=1
-       ahi(3)=natoms
+       ahi(3)=natoms_slc
        ld(1)=3
        ld(2)=3
        call nga_get(ga_para1,alo,ahi,par(1),ld)
@@ -1605,7 +1614,7 @@ c +++++ Initialize dbl_mb(k_para) with g_para1 ++++ END
        blo(3) = 0
        bhi(3) = 0
        ind=0
-       do iatom = 1, natoms
+       do iatom = 1, natoms_slc
         do iy = 1, 3
          blo(3) = blo(3) + 1
          bhi(3) = bhi(3) + 1
@@ -1670,7 +1679,7 @@ c -------- get R_nu ------------- START
         if (.not. nga_create(mt_dbl,1,dims,"Array R",chunk,g_R(i)))
      $    call errquit('get_par: g_R', 0,GA_ERR)
        enddo
-       call get_chi_centers_ga(g_R,basis,nbf,geom,natoms)
+       call get_chi_centers_ga(g_R,basis,nbf,geom,natoms_tot)
 c -------- get R_nu ------------- END
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> nonrel'
@@ -1680,12 +1689,12 @@ c ----- Calculate g_h01 --------- START
       alo(3) = -1
       ahi(1) = nbf
       ahi(2) = nbf
-      ahi(3) = 3*natoms
+      ahi(3) = 3*natoms_slc
       if (.not.nga_create(MT_DBL,3,ahi,'H01 matrix',alo,g_h01)) call 
      &    errquit('get_par: nga_create failed g_h01',0,GA_ERR)
       call ga_zero(g_h01)
       call int_giao_1ega(basis,basis,g_h01,'h01',pos(1),
-     &                   natoms,oskel)
+     &                   natoms_slc,oskel)
          if (debug_get_par.eq.1) then
           if (ga_nodeid().eq.0)
      &     write(*,*) '------ g_h01 --------- START'
@@ -1705,7 +1714,7 @@ c ----- Calculate g_h01 --------- END
        blo(3) = 0
        bhi(3) = 0
        ind=0
-       do iatom = 1, natoms
+       do iatom = 1, natoms_slc
         do iy = 1, 3
          blo(3) = blo(3) + 1
          bhi(3) = bhi(3) + 1
@@ -1788,7 +1797,7 @@ c ----- store in par_arr ------- END
         enddo
       endif
 c -------- symmetrize total par ------------ START
-       do iatom = 1, natoms
+       do iatom = 1, natoms_slc
         do iy = 1, 3
          do ix = iy+1, 3     
           cbuf1=9*(iatom-1)+3*(ix-1)+iy ! transpose 
