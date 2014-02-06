@@ -40,6 +40,7 @@ c
       character*255 field
       logical do_cosmo
       logical do_gasphase
+      character*255 token
       double precision bohr
       parameter  (bohr=0.529177249d+00)
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
@@ -104,6 +105,16 @@ c
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
          write(LuOut,*)"Keyword RSOLV is obsolete and ignored "//
      $        "(see York, Karplus, doi:10.1021/jp992097l)"
+c
+c   --- parameter file
+c
+      else if(inp_compare(.false.,'parameters',field)) then
+         if(.not.inp_a(token)) call errquit('no parameters',0,
+     &         INPUT_ERR)
+         if (.not.rtdb_cput(rtdb,'cosmo:parfile',1,token))
+     >        call errquit('failed to store cosmo:parfile',0,
+     >         RTDB_ERR)
+c
 c
 c   --- radius
 c
@@ -275,17 +286,22 @@ C>
 C> Set the default atom radii values for the COSMO model. Currently
 C> the radii are returned in the unit Angstrom.
 C>
-      subroutine cosmo_def_radii(geom,nat,radius)
+      subroutine cosmo_def_radii(rtdb,geom,nat,radius)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "inp.fh"
 c
+      integer rtdb
       integer geom !< [Input] The geometry handle
       integer nat  !< [Input] The number of atoms
 c
       double precision radius(nat) !< [Output] The atom radii
 c
+      logical ostatus
       integer mxelm
       parameter(mxelm = 102)
       double precision vander(mxelm)
@@ -294,7 +310,16 @@ c
       integer l_costag, k_costag
       integer l_coscoor, k_coscoor
       integer gn, iat
-      character*16 symb,elem
+      integer h_crad, i_crad
+      integer h_ctag, i_ctag
+      integer mtype,melem,nmap
+      character*26 mdate
+      character*16 ctag(203), aname
+      double precision crad(203)
+      integer i
+      character*2 symb
+      character*16 elem
+      integer atn
 C
 C     ----- van der waals radii in angstroms	-----
 C
@@ -369,6 +394,15 @@ c    2 1.50D+00,1.50D+00,1.70D+00,1.70D+00,1.70D+00,1.70D+00,
 c    3 2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,
 c    4 2.00D+00,19*0.0D+00/
 c
+      if(rtdb_get_info(rtdb,'cosmo:crad',mtype,nmap,mdate)) then
+        if(.not.rtdb_get(rtdb,'cosmo:crad',mt_dbl,nmap,crad))
+     $   call errquit('cosmo_def_radii: rtdb get crad',917,rtdb_err)
+        if(.not.rtdb_cget(rtdb,'cosmo:ctag',nmap,ctag))
+     $   call errquit('cosmo_def_radii: rtdb get ctag',917,rtdb_err)
+      else
+        nmap = 0
+      end if
+
       if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
      & call errquit('cosmo_def_radii malloc k_coscoor failed',
      &              911,MA_ERR)
@@ -381,7 +415,36 @@ c
      &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
      $    (' cosmo_def_radii: geom_cart_get failed.',911, GEOM_ERR)
 c
-      do iat=1,nat
+      atomloop: do iat=1,nat
+         call util_set_ma_char_arrays(16,
+     $                                byte_mb(k_costag+16*(iat-1)),
+     $                                aname)
+         do i=1,nmap
+            if(inp_compare(.false.,
+     &                     aname,
+     &                     ctag(i))) then
+              radius(iat) = crad(i)
+              if(ga_nodeid().eq.0) 
+     &            write(*,9977) ctag(i),crad(i)
+              cycle atomloop
+             
+            endif
+         enddo
+         if(.not.geom_tag_to_element(aname, symb, elem, atn))
+     +     call errquit('cosmo def radii:cannot resolve tag'
+     +                  //aname, 0,0)
+         do i=1,nmap
+            if(inp_compare(.false.,
+     &                     symb,
+     &                     ctag(i))) then
+              radius(iat) = crad(i)
+              if(ga_nodeid().eq.0) 
+     &            write(*,9978) ctag(i),symb, crad(i)
+              cycle atomloop
+             
+            endif
+         enddo
+
          rad=vander(nint(dbl_mb(k_coszan+iat-1)))
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
             if (.not.geom_tag_to_element(byte_mb(k_costag+16*(iat-1)), 
@@ -393,13 +456,18 @@ c
             rad=def
          endif
          radius(iat)=rad
-      enddo
+      enddo atomloop
+
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_def_radii dealloc k_costag failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_coszan)) call
      &  errquit('cosmo_def_radii dealloc k_coszan failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_coscoor)) call
      &  errquit('cosmo_def_radii dealloc k_coscoor failed',911,MA_ERR)
+9977  format(' setting custom COSMO radius based on name match: ', 
+     &        a6,f7.3)
+9978  format(' setting custom COSMO radius based on element match: ',
+     &        a6,a4,f7.3)
 c
       end
 C>
@@ -436,6 +504,9 @@ c
       integer l_coscoor, k_coscoor
       integer invnuc, nat, nefc, nmap
 c
+      character*16 ctag(203)
+      double precision crad(203)
+c
       logical odbug, osome
       integer me
 c
@@ -449,11 +520,13 @@ c
       double precision vander(102)
 c
       integer i
-      integer atn(203)
       double precision arad(203),rad
+      logical ofile
+      character*255 parfile
       character*16 aname,symb,elem
       integer fn,gn
       character*255 map
+      character*255 token
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
@@ -481,49 +554,84 @@ c
 c     start processing cosmo map
 c     --------------------------
       nmap = 0
-      if(.not.rtdb_cget(rtdb,'cosmo:map',1,map))
-     +  map = "none"
+      if(rtdb_cget(rtdb,'cosmo:parfile',1,token)) then
+         map = token
+      else if(rtdb_cget(rtdb,'cosmo:map',1,token)) then
+         map = token
+      else
+        map = "none"
+      end if
       
       if(map.ne."none") then
-        call util_file_name_resolve(map,.false.)
+  
         if(me.eq.0) then
-        if(.not.util_io_unit(80,90,fn))
-     +     call errquit('cosmo_initialize:cannot get free unit', 0,
+          call util_getenv('NWCHEM_COSMO_LIBRARY',parfile)
+          if(parfile .ne. "") then
+            parfile = TRIM(parfile)//"/"//map
+            inquire(file=parfile,exist=ofile)
+            write(*,*) "looking for parfile in ",TRIM(parfile)
+          else
+            ofile = .false.
+          end if
+          if(.not. ofile) then
+            parfile = map
+            call util_file_name_resolve(parfile,.false.)
+            inquire(file=parfile,exist=ofile)
+            write(*,*) "looking for parfile in ",TRIM(parfile)
+          end if
+          if(.not. ofile) then
+            parfile = "./"//map
+            inquire(file=parfile,exist=ofile)
+            write(*,*) "looking for parfile in ",TRIM(parfile)
+          end if
+          
+          if(ofile) then
+             write(*,*) "found parfile in ",TRIM(parfile)
+          else
+             call errquit('cosmo_initialize:cannot find parameter file', 0,
      +       0)
+             write(*,*) "cannot find parfile"
+          end if
+  
+          call util_flush(6)
 
-        open(unit=fn,status="old",form="formatted",file=map)
-        write(luout,9982) map(1:inp_strlen(map))
-10      continue
-        read(fn,*,end=11) aname                 
-        if(aname.ne." ") then
-         nmap = nmap + 1
-         goto 10
-        end if
-11      continue
-        rewind(fn)
-        do i=1,nmap
-         read(fn,*) aname,arad(i)
-         if(.not.geom_tag_to_element(aname, symb, elem, atn(i))) 
-     +     call errquit('cosmo_initialize:cannot resolve map'
-     +                  //aname, 0,0)
-          write(luout,9981) symb,arad(i)
-        end do
-        close(fn)
+          if(.not.util_io_unit(80,90,fn))
+     +       call errquit('cosmo_initialize:cannot get free unit', 0,
+     +         0)
+
+          open(unit=fn,status="old",form="formatted",file=parfile)
+          write(luout,9982) parfile(1:inp_strlen(parfile))
+10        continue
+          read(fn,*,end=11) aname                 
+          if(aname.ne." ") then
+           nmap = nmap + 1
+           goto 10
+          end if
+11        continue
+          rewind(fn)
+          do i=1,nmap
+           read(fn,*) ctag(i),crad(i)
+           write(luout,9981) ctag(i),crad(i)
+          end do
+          close(fn)
         end if
         call ga_brdcst(msg_cosmo0,nmap,
      >                 ma_sizeof(mt_int,1,mt_byte),0)
-        call ga_brdcst(msg_cosmo1,atn,
-     >                 nmap*ma_sizeof(mt_int,1,mt_byte),0)
-        call ga_brdcst(msg_cosmo2,arad,
+        call ga_brdcst(msg_cosmo1,crad,
      >                 nmap*ma_sizeof(mt_dbl,1,mt_byte),0)
+        call ga_brdcst(msg_cosmo2,ctag,
+     >                 nmap*16*ma_sizeof(mt_byte,1,mt_byte),0)
         call ga_sync()
 
-        do i=1,nmap
-          vdwr(atn(i)) = arad(i)
-        end do
+        if(.not.rtdb_put(rtdb,'cosmo:crad',mt_dbl,  nmap,crad))
+     $     call errquit('cosmo_initialize: rtdb put crad  ',914,
+     &         rtdb_err)
+c
+        if(.not.rtdb_cput(rtdb,'cosmo:ctag',nmap,ctag(1:nmap)))
+     $     call errquit('cosmo_initialize: rtdb put ctag',917,
+     &         rtdb_err)
 
       end if
-c
 c     end processing cosmo map
 c     --------------------------
 
@@ -565,7 +673,7 @@ c
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_init malloc k_rad failed',911,MA_ERR)
 c
-      call cosmo_def_radii(geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
 c
       if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
      & call errquit('cosmo_init malloc k_coscoor failed',911,MA_ERR)
@@ -577,6 +685,23 @@ c
       if(.not.geom_cart_get(geom,nat,byte_mb(k_costag),
      &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
      $    (' cosmo_initialize: geom_cart_get failed.',911, GEOM_ERR)
+c
+C      atomloop: do iat=1,nat
+C         call util_set_ma_char_arrays(16,
+C     $                                byte_mb(k_costag+16*(iat-1)),
+C     $                                aname)
+C         do i=1,nmap
+C            if(inp_compare(.false.,
+C     &                     aname,
+C     &                     ctag(i))) then
+C              dbl_mb(k_rad+iat-1) = crad(i)
+C              if(me.eq.0) 
+C     &            write(*,9977) ctag(i),crad(i)
+C              cycle atomloop
+C             
+C            endif
+C         enddo
+C      enddo atomloop
 c
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
@@ -749,11 +874,12 @@ c
  9985 format(/)
  9984 format(' screen =  one                 = ',f9.5)
  9983 format(' charge screening approach     = ',i3)
- 9982 format(' processing cosmo map from ',a)
+ 9982 format(' processing cosmo parameter file ',a)
  9981 format(a19,4x,f9.5)
  9980 format(' gaussian surface charge width = ',f9.5)
  9979 format(' degree of switching           = ',f9.5)
  9978 format(' switching function tolerance  = ',f9.5)
+ 9977 format(' setting custom COSMO radius: ', a6,f7.3)
       end
 c
 C> \brief Tidy up COSMO data structures
@@ -2349,7 +2475,7 @@ c
      &                 mt_int,nefc,int_mb(k_efciat)))
      &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
      &       RTDB_ERR)
-      call cosmo_def_radii(geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
       do i = 0, nat-1
         dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/bohr
