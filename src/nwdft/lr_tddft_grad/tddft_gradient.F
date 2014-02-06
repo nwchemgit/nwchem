@@ -29,6 +29,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "xc.fh"
+#include "rtdb.fh"
 #include "tddft_grad_util.fh"
 c
       character*255 title ! the job title
@@ -121,12 +122,20 @@ c
       logical tddft_energy
       external tddft_energy
       logical oroot
+      logical odebug
 c
       character*32 pname
 c
       parameter (oskel=.false.)
 c
       pname = "tddft_gradient: "
+c
+      oroot = ga_nodeid().eq.0
+c
+c     Debug flag
+      odebug = .false.
+      if (rtdb_get(rtdb,'tddftgrad:debug', mt_log, 1, odebug))
+     &     odebug = .true.
 c
 c     TDDFT gradient has not been computed successfully yet.
       tddft_gradient = .false.
@@ -141,7 +150,6 @@ c     Get the start times
       tddft_grad_cpu  = -util_cpusec()
 c
 c     Print header
-      oroot = ga_nodeid().eq.0
       if (oroot) call tddft_grad_print_header(luout)
 c
 c     Parameter initialization
@@ -175,121 +183,125 @@ c     Print start times
       end if
 c
 c     Allocate orbital energies
-      if (oroot) write(luout,*) "call tddft_grad_create_e"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_e"
       call tddft_grad_create_e(ipol,nao,ihdl_mo_e,iptr_mo_e) 
-      if (oroot) write(luout,*) "done tddft_grad_create_e"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_e"
 c
 c     Allocate MO coefficients.
-      if (oroot) write(luout,*) "call tddft_grad_create_mo"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_mo"
       call tddft_grad_create_mo(ipol,ihdl_geom,ihdl_bfao,g_mo)
-      if (oroot) write(luout,*) "done tddft_grad_create_mo"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_mo"
 c
 c     Allocate (X+Y) & (X-Y)
-      if (oroot) write(luout,*) "call tddft_grad_create_xy"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_xy"
       call tddft_grad_create_xy(tda,ipol,naoc,nav,ntotroots,g_xpy,g_xmy)
-      if (oroot) write(luout,*) "done tddft_grad_create_xy"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_xy"
 c
 c     Allocate T, T+(X+Y), or T+V(=P)
-      if (oroot) write(luout,*) "call tddft_grad_create_tp"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_tp"
       call tddft_grad_create_tp(ipol,naoc,nav,ntotroots,g_tp)
-      if (oroot) write(luout,*) "done tddft_grad_create_tp"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_tp"
 c
 c     Allocate excitation energies
-      if (oroot) write(luout,*) "call tddft_grad_create_root_e"
+      if (oroot.and.odebug) 
+     &   write(luout,*)"call tddft_grad_create_root_e"
       call tddft_grad_create_root_e(ntotroots,ihdl_root_e,iptr_root_e)
-      if (oroot) write(luout,*) "done tddft_grad_create_root_e"
+      if (oroot.and.odebug) 
+     &   write(luout,*)"done tddft_grad_create_root_e"
 c
 c     Load the MO vectors from the file specified by fn_movecs
-      if (oroot) write(luout,*) "call tddft_grad_load_mo"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_load_mo"
       call tddft_grad_load_mo(ipol,nao,fn_movecs,dbl_mb(iptr_mo_e),g_mo)
-      if (oroot) write(luout,*) "done tddft_grad_load_mo"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_load_mo"
 c
 c     Load CI vectors from TDDFT calculation: (X+Y) and (X-Y)
-      if (oroot) write(luout,*) "call tddft_grad_load_xy"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_load_xy"
       call tddft_grad_load_xy(tda,ipol,naoc,nav,nov,nroots,
      +     int_mb(iptr_roots),fn_civecs,nsroots,int_mb(iptr_sroots),
      +     fn_civecs_singlet,ntroots,int_mb(iptr_troots),
      +     fn_civecs_triplet,g_xpy,g_xmy,dbl_mb(iptr_root_e))
-      if (oroot) write(luout,*) "done tddft_grad_load_xy"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_load_xy"
 c
 c     Compute the TDDFT energy for each root using the solution vectors
-      if (oroot) write(luout,*) "call tddft_grad_compute_energy"
+      if (oroot.and.odebug)
+     &    write(luout,*)"call tddft_grad_compute_energy"
       call tddft_grad_compute_energy(rtdb,ihdl_geom,ihdl_bfao,tol2e,tda,
      +   ipol,nao,nfc,naoc,nocc,nav,nfv,ntotroots,
      +   dbl_mb(iptr_mo_e),g_mo,g_xpy,g_xmy,kfac,lhashf,otriplet)
-      if (oroot) write(luout,*) "done tddft_grad_compute_energy"
+      if (oroot.and.odebug)
+     &    write(luout,*)"done tddft_grad_compute_energy"
 c
 c     Compute the unrelaxed difference density T
-      if (oroot) write(luout,*) "call tddft_grad_compute_t"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_compute_t"
       call tddft_grad_compute_t(tda,ipol,naoc,nav,ntotroots,g_xpy,g_xmy,
      +     g_tp)
-      if (oroot) write(luout,*) "done tddft_grad_compute_t"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_t"
 c
 c     Allocate right hand side (R: g_r) and solution arrays (Z: g_z)
-      if (oroot) write(luout,*) "call tddft_grad_create_r"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_r"
       call tddft_grad_create_r(ipol,naoc,nav,ntotroots,g_r)
       call tddft_grad_create_r(ipol,naoc,nav,ntotroots,g_z)
-      if (oroot) write(luout,*) "done tddft_grad_create_r"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_r"
 c
 c     Assemble right hand side: R
-      if (oroot) write(luout,*) "call tddft_grad_compute_r"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_compute_r"
       call tddft_grad_compute_r(rtdb,ihdl_geom,ihdl_bfao,tol2e,tda,ipol,
      +     nao,nfc,naoc,nocc,nav,nfv,ntotroots,g_mo,g_xpy,g_xmy,g_tp,
      +     g_r,kfac,lhashf,otriplet)
-      if (oroot) write(luout,*) "done tddft_grad_compute_r"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_r"
 c
 c     Solve the Z equation: (A+B)Z = -R
 c     Note: g_z has the solutions
-      if (oroot) write(luout,*) "call tddft_grad_solve"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_solve"
       call tddft_grad_solve(rtdb,ihdl_geom,ihdl_bfao,ipol,ntotroots,
      +     nao,nocc,naoc,nav,nfc,nfv,g_mo,iptr_mo_e,tda,oskel,kfac,
      +     lhashf,otriplet,solve_thresh,solve_maxsub,solve_maxit,
      +     fn_solve,solve_when,tol2e,g_r,g_z)
-      if (oroot) write(luout,*) "done tddft_grad_solve"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_solve"
 c
 c     Deallocate right hand side: R
-      if (oroot) write(luout,*) "call tddft_grad_destroy_r"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_destroy_r"
       call tddft_grad_destroy_r(ipol,g_r)
-      if (oroot) write(luout,*) "done tddft_grad_destroy_r"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_destroy_r"
 c
 c     Compute the relaxed density matrix: P=T+Z
-      if (oroot) write(luout,*) "call tddft_grad_compute_p"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_compute_p"
       call tddft_grad_compute_p(ipol,naoc,nav,ntotroots,g_tp,g_z)
-      if (oroot) write(luout,*) "done tddft_grad_compute_p"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_p"
 c
 c     Create Lagrange multipliers: W
-      if (oroot) write(luout,*) "call tddft_grad_create_tp"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_tp"
       call tddft_grad_create_tp(ipol,naoc,nav,ntotroots,g_w)
-      if (oroot) write(luout,*) "done tddft_grad_create_tp"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_tp"
 c
 c     Compute Lagrange multipliers: W
 c     W is the energy-weighted difference density matrix
-      if (oroot) write(luout,*) "call tddft_grad_compute_w"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_compute_w"
       call tddft_grad_compute_w(rtdb,ihdl_geom,ihdl_bfao,tol2e,tda,ipol,
      +     ntotroots,nfc,naoc,nocc,nav,nfv,nao,g_mo,g_tp,g_z,
      +     g_xpy,g_xmy,dbl_mb(iptr_mo_e),dbl_mb(iptr_root_e),g_w,
      +     kfac,lhashf,otriplet)
-      if (oroot) write(luout,*) "done tddft_grad_compute_w"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_w"
 c
 c     Finalize integrals
-      if (oroot) write(luout,*) "call tddft_grad_finalize_ints"
+      if (oroot.and.odebug)write(luout,*)"call tddft_grad_finalize_ints"
       call tddft_grad_finalize_ints(rtdb)
-      if (oroot) write(luout,*) "done tddft_grad_finalize_ints"
+      if (oroot.and.odebug)write(luout,*)"done tddft_grad_finalize_ints"
 c
 c     Create gradients array
-      if (oroot) write(luout,*) "call tddft_grad_create_g"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_create_g"
       call tddft_grad_create_g(nat,ntotroots,g_g)
-      if (oroot) write(luout,*) "done tddft_grad_create_g"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_create_g"
 c
 c     Compute the gradients
-      if (oroot) write(luout,*) "call tddft_grad_compute_g"
+      if (oroot.and.odebug) write(luout,*) "call tddft_grad_compute_g"
       call tddft_grad_compute_g(rtdb,ihdl_geom,ihdl_bfao,tda,nat,nao,
      +  nfc,naoc,nocc,nav,nfv,ipol,ntotroots,oskel,tol2e,g_mo,
      +  g_tp,g_w,g_xpy,g_xmy,g_g,kfac,lhashf,otriplet)
-      if (oroot) write(luout,*) "done tddft_grad_compute_g"
+      if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_g"
 c
 c     Deallocate arrays
-      if (oroot) write(luout,*) "call deallocate arrays"
+      if (oroot.and.odebug) write(luout,*) "call deallocate arrays"
       call tddft_grad_destroy_tp(ipol,g_w)
       call tddft_grad_destroy_r(ipol,g_z)
       call tddft_grad_destroy_tp(ipol,g_tp)
@@ -297,11 +309,11 @@ c     Deallocate arrays
       call tddft_grad_destroy_e(ihdl_mo_e)
       call tddft_grad_destroy_xy(tda,ipol,g_xpy,g_xmy)
       call tddft_grad_destroy_mo(ipol,g_mo)
-      if (oroot) write(luout,*) "done deallocate arrays"
+      if (oroot.and.odebug) write(luout,*) "done deallocate arrays"
 c
 c     Print gradients of the excited states of interest
-      if (oroot) write(luout,*) "call tddft_grad_print_result"
-c
+      if (oroot.and.odebug) 
+     &     write(luout,*) "call tddft_grad_print_result"
       if (ipol.eq.2) then
         call tddft_grad_print_result(ntotroots,int_mb(iptr_roots),
      +                             nat,ihdl_geom,g_g,1.0d0)
@@ -314,30 +326,38 @@ c
      +                               nat,ihdl_geom,g_g,1.0d0)
         endif
       endif
-      if (oroot) write(luout,*) "done tddft_grad_print_result"
+      if (oroot.and.odebug) 
+     &      write(luout,*) "done tddft_grad_print_result"
 c
 c     Store gradients
-      if (oroot) write(luout,*) "call tddft_grad_store_gradient"
+      if (oroot.and.odebug)
+     &      write(luout,*)"call tddft_grad_store_gradient"
       call tddft_grad_store_gradient(rtdb,nat,ntotroots,
      +                         int_mb(iptr_sroots),g_g)
-      if (oroot) write(luout,*) "done tddft_grad_store_gradient"
+      if (oroot.and.odebug)
+     &      write(luout,*)"done tddft_grad_store_gradient"
 c
 c     Deallocate gradients
-      if (oroot) write(luout,*) "call tddft_grad_destroy_g"
+      if (oroot.and.odebug)
+     &      write(luout,*) "call tddft_grad_destroy_g"
       call tddft_grad_destroy_g(g_g)
-      if (oroot) write(luout,*) "done tddft_grad_destroy_g"
+      if (oroot.and.odebug)
+     &      write(luout,*) "done tddft_grad_destroy_g"
 c
 c     Finalize gradients
-      if (oroot) write(luout,*) "call tddft_grad_finalize"
+      if (oroot.and.odebug) 
+     &      write(luout,*) "call tddft_grad_finalize"
       call tddft_grad_finalize(nsroots,ihdl_sroots,ntroots,ihdl_troots,
      +       nroots, ihdl_roots, ihdl_geom, ihdl_bfao)
-      if (oroot) write(luout,*) "done tddft_grad_finalize"
+      if (oroot.and.odebug) 
+     &      write(luout,*) "done tddft_grad_finalize"
 c
-      call ga_sync
+c     Clean up
+      call ga_sync()
       call grid_cleanup(.true.)
       tddft_gradient = .true.
 c
-c     Print end times
+c     Print end times and wrap up
       tddft_grad_cpu  = tddft_grad_cpu  + util_cpusec()
       tddft_grad_wall = tddft_grad_wall + util_wallsec()
       if (oroot) then

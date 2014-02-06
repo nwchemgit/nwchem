@@ -254,8 +254,7 @@ c
         call tddft_grad_print_array(ipol,nroots,g_z,dble(ipol))
       endif
 c
-c Daniel (2-26-13): Reset fock_xc:triplet here for restricted triplet 
-c calculations to work.
+c     Reset fock_xc:triplet here for restricted triplet calculations
       if (otriplet) then
         if (.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.true.))
      1    call errquit(pname//'failed to set triplet',0,RTDB_ERR)

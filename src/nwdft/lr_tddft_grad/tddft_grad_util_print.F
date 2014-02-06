@@ -1,8 +1,3 @@
-      logical function tddft_grad_util_print(name,level)
-      implicit none
-c
-c     $Id: tddft_grad_util_print.F,v 1.1 2007/10/11 14:01:41 hvd Exp hvd $
-c
 c     This function allows the user to request printing of a specific
 c     item or the printing of all quantities relevant to the TDDFT
 c     gradients. Its only purpose is convenience in programming.
@@ -12,6 +7,10 @@ c     tddft_grad_util.fh which also includes util.fh to have everything
 c     together in one place.
 c
 c     Written by Huub van Dam, Oct 2007.
+c
+      logical function tddft_grad_util_print(name,level)
+c
+      implicit none
 c
 #include "util.fh"
 c

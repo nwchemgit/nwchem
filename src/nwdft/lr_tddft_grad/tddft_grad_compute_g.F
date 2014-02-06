@@ -1326,7 +1326,6 @@ c
       if (.not.ga_destroy(g_rhs_xc(1))) 
      +  call errquit(pname//"could not destroy g_rhs_xc",0,GA_ERR)
 c
-c Daniel (1-17-13): Destroy the temporary array.
       if (xc_gotxc()) then
         do ip = 1, 2*ipol
           if (.not.ga_destroy(g_dtmp(ip)))
@@ -1342,9 +1341,10 @@ c
      +   call errquit(pname//"could not destroy g_t_ao",0,GA_ERR)
         if (.not.ga_destroy(g_d(4+ip)))
      +   call errquit(pname//"could not destroy g_xpy_ao",0,GA_ERR)
-c Daniel (1-14-13): The (X-Y) vector has no contribution to the overall
-c gradients if a pure DFT calculation is done.  We don't waste space
-c allocating memory for it.
+c
+c    Note: The (X-Y) vector has no contribution to the overall
+c    gradients if a pure DFT calculation is done.  We don't waste space
+c    allocating memory for it.
         if (lhashf) then
           if (.not.ga_destroy(g_d(6+ip)))
      +     call errquit(pname//"could not destroy g_xmy_ao",0,GA_ERR)
