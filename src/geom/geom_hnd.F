@@ -27,8 +27,8 @@ c     P projects on the the constrained redundant internal variables
 c     
       integer nzmat, nzvar, nvar, nat, ndim, ncart, nconstraint
       logical status
-      integer k_x, k_y, k_z, k_c, k_e
-      integer l_x, l_y, l_z, l_c, l_e
+      integer k_x, k_y, k_z, k_c, k_e, k_iz
+      integer l_x, l_y, l_z, l_c, l_e, l_iz
 c     
       logical geom_hnd_check_data, geom_zmt_get_nzvar,
      $     geom_zmt_get_nizmat
@@ -63,12 +63,12 @@ c
      &       MA_ERR)
       if(.not.ma_push_get(mt_dbl,ndim**2        ,'mem y ',l_y,k_y))
      &     call errquit('hnd_bandbi, malloc of y  failed',911, MA_ERR)
-      if(.not.ma_push_get(mt_dbl,ndim**2   ,'mem z ',l_z,k_z))
-     &     call errquit('hnd_bandbi, malloc of z  failed',911, MA_ERR)
       if(.not.ma_push_get(mt_dbl,ncart ,'c',l_c,k_c))
      &     call errquit('hnd_bandbi, malloc of c  failed',ncart, MA_ERR)
       if(.not.ma_push_get(mt_dbl,ndim ,'e',l_e,k_e))
      &     call errquit('hnd_bandbi, malloc of e  failed',nzvar, MA_ERR)
+      if(.not.ma_push_get(mt_int,ndim**2   ,'mem z ',l_iz,k_iz))
+     &     call errquit('hnd_bandbi, malloc of iz  failed',911, MA_ERR)
 c
 c     ----- calculate -c- matrix ----
 c
@@ -78,8 +78,15 @@ c
 c     ----- calculate -b- matrix -----
 c     
       call hnd_bmat(geom,nzvar,ncart,
-     1     dbl_mb(k_x),dbl_mb(k_y),dbl_mb(k_z),
+     1     dbl_mb(k_x),dbl_mb(k_y),int_mb(k_iz),
      2     nzmat,dbl_mb(k_c))
+
+      if(.not.ma_chop_stack(l_iz))
+     &     call errquit('geom_bandbi, ma_chop_stack of iz  failed',911,
+     &       MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,ndim**2   ,'mem z ',l_z,k_z))
+     &     call errquit('hnd_bandbi, malloc of z  failed',911, MA_ERR)
 c
 c     compute b^-1, p
 c     
@@ -3959,7 +3966,13 @@ C
       NC   =0
       ND   =0
       RCD  =ZERO
-C
+      CCOSP= 0d0
+      SSIN= 0d0
+      CCOS= 0d0
+      SSINP= 0d0
+      CCOST= 0d0
+      SSINT= 0d0
+C     
 C     ----- ATOM -1- AND -2- -----
 C
       IAT=1
