@@ -1904,7 +1904,9 @@ endif
               CC = icc
               AR = xiar
               EXTRA_LIBS += -loffload
-              FOPTIONS += -opt-report-phase=offload
+              FOPTIONS += -DUSE_OFFLOAD -opt-report-phase=offload
+           else
+              FOPTIONS += -no-openmp-offload
            endif
         endif
         FOPTIONS += -align -w -g -vec-report1
