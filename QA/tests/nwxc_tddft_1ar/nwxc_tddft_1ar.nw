@@ -41,6 +41,7 @@ Ar    D
 end
 
 tddft
+  cis
   nroots 1
 end
 

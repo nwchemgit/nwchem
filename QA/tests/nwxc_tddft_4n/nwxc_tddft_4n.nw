@@ -33,6 +33,7 @@ N    D
 end
 
 tddft
+  cis
   nroots 2
 end
 
