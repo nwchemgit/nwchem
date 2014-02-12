@@ -207,6 +207,23 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	    printf FILE_OUTPUT "\n";
 	}
+	if (/^  Root /){
+	    if ($debug) {print "\ndebug: $_";}
+	    @line_tokens = split(' ');
+	    $num_line_tokens = @line_tokens;
+	    if ($debug) {
+		print "debug:line_tokens: @line_tokens \n";
+		print "debug:number     : $num_line_tokens \n";
+	    }
+            if (! $quiet) {
+		printf "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
+		printf "% 0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
+		printf "% 0.5f %s\n", set_to_digits(@line_tokens[5],5), @line_tokens[6];
+            }
+	    printf FILE_OUTPUT "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
+	    printf FILE_OUTPUT " %0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
+	    printf FILE_OUTPUT " %0.5f %s\n", set_to_digits(@line_tokens[5],5), @line_tokens[6];
+	}
 	if (/Zero-Point Energy/) {
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
