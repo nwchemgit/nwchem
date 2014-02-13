@@ -53,3 +53,28 @@ c
       offload_master=mod(ga_nodeid(),util_nwcnumthreads()).eq.0
       return
       end
+      integer function util_micdev()
+#ifdef USE_OPENMP
+      use mic_lib
+      implicit none
+#include "global.fh"
+#include "errquit.fh"
+      external offload_master
+      logical offload_master
+      external util_nwcnumthreads
+      integer util_nwcnumthreads
+c                                                                               
+      integer numdevs
+c                                                                               
+      if(.not.offload_master()) call errquit(
+     A     ' need to be offload master',0,0)
+      numdevs=offload_number_of_devices()
+c      mic_device=offload_get_device_number()
+      util_micdev=mod(ga_nodeid()/util_nwcnumthreads(),
+     C     numdevs)
+#else
+      util_micdev=-1
+      call errquit(' micdev: wrong installation',0,0)
+#endif
+      return
+      end
