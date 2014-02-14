@@ -171,6 +171,11 @@ c      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
       if (.not.value)
      > call errquit("kbpp_band_orb: out of stack memory",0,MA_ERR)
 
+      call damp_kbpp_band_orb(nrho,lmax,rcut,lmbda,
+     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
+
+
+
 
 *     **** preparation of constants ****
       nfft1=ngrid(1)
@@ -290,4 +295,23 @@ c      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
  9999 call errquit('kbpp_band_orb:Error reading pspfilename',0,DISK_ERR)
       kbpp_band_orb = value
       END
+
+
+         
+      subroutine damp_kbpp_band_orb(nrho,lmax,rcut,lmbda,rho,w)
+      implicit none
+      integer nrho,lmax 
+      real*8 rcut,lmbda,rho(nrho),w(nrho,0:lmax)
+
+      integer i,l
+    
+      if (lmbda.gt.0.0d0) then
+         do l=0,lmax
+            do i=1,nrho 
+              w(i,l) = w(i,l)*dexp(-(rho(i)/rcut)**lmbda)
+            end do 
+         end do
+      end if
+      return 
+      end
 
