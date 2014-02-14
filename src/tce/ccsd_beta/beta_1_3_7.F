@@ -1,3 +1,4 @@
+c done till here
       SUBROUTINE beta_1_3_7(d_a,k_a_offset,d_b,k_b_offset,d_c,k_c_offset
      &)
 C     $Id$

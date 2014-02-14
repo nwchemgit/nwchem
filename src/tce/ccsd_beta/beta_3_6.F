@@ -97,9 +97,16 @@ C     i0 ( )_ytratrbv + = 1/4 * Sum ( h7 p10 h9 h11 ) * i1 ( h7 p10 h9 h11 )_ytr
      & ERRQUIT('beta_3_6',4,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b,k_b)) CALL ERRQUIT('
      &beta_3_6',5,MA_ERR)
+      if(.not.intorb) then
       CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),(p10b_
      &2 - 1 + (noab+nvab) * (h7b_2 - 1 + (noab+nvab) * (h11b_2 - 1 + (no
      &ab+nvab) * (h9b_2 - 1)))))
+      else
+      CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),
+     &(p10b_
+     &2 - 1 + (noab+nvab) * (h7b_2 - 1 + (noab+nvab) * (h11b_2 - 1 + (no
+     &ab+nvab) * (h9b_2 - 1)))),p10b_2,h7b_2,h11b_2,h9b_2)
+      end if
       CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_b_sort),int_mb(k_range+h9b-1)
      &,int_mb(k_range+h11b-1),int_mb(k_range+h7b-1),int_mb(k_range+p10b-
      &1),2,1,4,3,1.0d0)

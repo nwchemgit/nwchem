@@ -1,3 +1,4 @@
+c done till here 2/7/2014 11am
       SUBROUTINE beta_1_3_1_7(d_a,k_a_offset,d_b,k_b_offset,d_c,k_c_offs
      &et)
 C     $Id$
