@@ -1909,7 +1909,8 @@ endif
               FOPTIONS += -no-openmp-offload
            endif
         endif
-        FOPTIONS += -align -w -g -vec-report1
+#        FOPTIONS += -align -warn errors -g -vec-report1
+        FOPTIONS += -align  -g -vec-report1
         DEFINES+= -DIFCV8 -DIFCLINUX
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
@@ -1918,16 +1919,17 @@ endif
           FOPTIONS += -fpe0 -traceback #-fp-model  precise
         endif
         FDEBUG= -O2 -g
-        FOPTIMIZE = -O3 -prefetch  -unroll 
+        FOPTIMIZE = -O3 -prefetch  -unroll  -ip
+         ifeq ($(_IFCV11),Y) 
+         FOPTIMIZE += -xHost -no-prec-div
+#         FOPTIMIZE += -prefetch -unroll -ip
+        else
          ifeq ($(_GOTSSE3),Y) 
           FOPTIMIZE += -xP -no-prec-div
          else
           FOPTIMIZE +=  -tpp7 -ip 
           FOPTIMIZE += -xW
          endif
-         ifeq ($(_IFCV11),Y) 
-         FOPTIMIZE += -xHost -no-prec-div
-        else
         endif
       endif	
 #      
