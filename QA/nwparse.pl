@@ -216,11 +216,11 @@ foreach $filename (@FILES_TO_PARSE) {
 		print "debug:number     : $num_line_tokens \n";
 	    }
             if (! $quiet) {
-		printf "%s %d %s %s", @line_tokens[0], @line_tokens[1], @line_tokens[2], @line_tokens[3];
+		printf "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
 		printf "% 0.5f %s", set_to_digits(@line_tokens[4],5), @line_tokens[5];
 		printf "% 0.5f %s\n", set_to_digits(@line_tokens[6],5), @line_tokens[7];
             }
-	    printf FILE_OUTPUT "%s %d %s %s", @line_tokens[0], @line_tokens[1], @line_tokens[2], @line_tokens[3];
+	    printf FILE_OUTPUT "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
 	    printf FILE_OUTPUT " %0.5f %s", set_to_digits(@line_tokens[4],5), @line_tokens[5];
 	    printf FILE_OUTPUT " %0.5f %s\n", set_to_digits(@line_tokens[6],5), @line_tokens[7];
         }
@@ -233,11 +233,11 @@ foreach $filename (@FILES_TO_PARSE) {
 		print "debug:number     : $num_line_tokens \n";
 	    }
             if (! $quiet) {
-		printf "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
+		printf "%s %d", @line_tokens[0], @line_tokens[1];
 		printf "% 0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
 		printf "% 0.5f %s\n", set_to_digits(@line_tokens[5],5), @line_tokens[6];
             }
-	    printf FILE_OUTPUT "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
+	    printf FILE_OUTPUT "%s %d", @line_tokens[0], @line_tokens[1];
 	    printf FILE_OUTPUT " %0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
 	    printf FILE_OUTPUT " %0.5f %s\n", set_to_digits(@line_tokens[5],5), @line_tokens[6];
 	}
