@@ -54,7 +54,7 @@ c
       return
       end
       integer function util_micdev()
-#ifdef USE_OPENMP
+#if defined(USE_OPENMP) && defined(USE_OFFLOAD)
       use mic_lib
       implicit none
 #include "global.fh"
