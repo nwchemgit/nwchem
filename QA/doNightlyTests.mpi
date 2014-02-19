@@ -84,13 +84,13 @@ if ( ${?MRCC_METHODS} == 1 ) then
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc
     ./runtests.mpi.unix procs $np tce_mrcc_mkcc
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc_subgroups
-  endif
-endif
+  fi
+fi
 if ( ${?TCE_CUDA} == 1 ) then
   if ("x$TCE_CUDA" == "xy") then
     ./runtests.mpi.unix procs $np tce_cuda
-  endif
-endif
+  fi
+fi
 ./runtests.mpi.unix procs $np oniom1
 ./runtests.mpi.unix procs $np c60_ecp
 ./runtests.mpi.unix procs $np h2o_vscf
