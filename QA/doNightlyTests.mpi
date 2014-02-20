@@ -99,16 +99,11 @@ fi
 #
 ./runtests.mpi.unix procs $np hi_zora_sf
 ./runtests.mpi.unix procs $np xe_zora_sf
-./runtests.mpi.unix procs $np o2_zora_so
 ./runtests.mpi.unix procs $np hi_zora_so
 #
 # qmmm tests
 #./runtests.mpi.unix procs $np asa_qmmm
 ./runtests.mpi.unix procs $np qmmm_grad0
-./runtests.mpi.unix procs $np lys_qmmm
-./runtests.mpi.unix procs $np ethane_qmmm
-./runtests.mpi.unix procs $np qmmm_opt0
-echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np qmmm_freq
 #
 # newproperty tests
@@ -120,13 +115,13 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np ch3f_trans_cosmo
 ./runtests.mpi.unix procs $np ch3f_trans_cam_nmr
 ./runtests.mpi.unix procs $np ch3f_notrans_cosmo
-./runtests.mpi.unix procs $np ch3f-lc-wpbe
-./runtests.mpi.unix procs $np ch3f-lc-wpbeh
+#./runtests.mpi.unix procs $np ch3f-lc-wpbe
+#./runtests.mpi.unix procs $np ch3f-lc-wpbeh
 ./runtests.mpi.unix procs $np ch3f_zora_shielding
 ./runtests.mpi.unix procs $np ch2_props4_bp
 ./runtests.mpi.unix procs $np ch3radical_rot
 ./runtests.mpi.unix procs $np ch3radical_unrot
-./runtests.mpi.unix procs $np cho_bp_props
+#./runtests.mpi.unix procs $np cho_bp_props
 ./runtests.mpi.unix procs $np prop_cg_nh3_b3lyp
 #
 #--- range-separated functionals tests
@@ -140,7 +135,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o-cambeckehh
 ./runtests.mpi.unix procs $np h2o-campbe0
 ./runtests.mpi.unix procs $np h2o-lcpbe
-./runtests.mpi.unix procs $np o2_bnl
+#./runtests.mpi.unix procs $np o2_bnl
 ./runtests.mpi.unix procs $np o2_hfattn
 ./runtests.mpi.unix procs $np n2_rodft_lrc
 ./runtests.mpi.unix procs $np h2o-hse
@@ -191,38 +186,34 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o-response
 #
 #--- other tests
-./runtests.mpi.unix procs $np mep-test
+#./runtests.mpi.unix procs $np mep-test
 ./runtests.mpi.unix procs $np ch2_props4_bp
 ./runtests.mpi.unix procs $np pkzb
-./runtests.mpi.unix procs $np k6h2o
 ./runtests.mpi.unix procs $np mcscf_ch2 mcscf_ozone
 ./runtests.mpi.unix procs $np h2o_raman_3
 ./runtests.mpi.unix procs $np h2o_raman_4
-./runtests.mpi.unix procs $np tropt-ch3nh2
-./runtests.mpi.unix procs $np h3tr1 h3_dirdyvtst
+#./runtests.mpi.unix procs $np tropt-ch3nh2
+./runtests.mpi.unix procs $np h3tr1
+#./runtests.mpi.unix procs $np h3_dirdyvtst
 ./runtests.mpi.unix procs $np geom_load_xyz
 ./runtests.mpi.unix procs $np dft_sicperth2o
-./runtests.mpi.unix procs $np h2o_hcons
-./runtests.mpi.unix procs $np etf_hcons
+#./runtests.mpi.unix procs $np h2o_hcons
+#./runtests.mpi.unix procs $np etf_hcons
 ./runtests.mpi.unix procs $np h2o2-prop-notrans
 ./runtests.mpi.unix procs $np cnh5_m06-2x
 ./runtests.mpi.unix procs $np bq_nio
 ./runtests.mpi.unix procs $np hess_ch4
 ./runtests.mpi.unix procs $np h2o_frozemb
-./runtests.mpi.unix procs $np cho_bp_props
 ./runtests.mpi.unix procs $np cho_bp_zora_finite
 ./runtests.mpi.unix procs $np h2o-ssb-d-b3lyp
 ./runtests.mpi.unix procs $np cu2_m06-l
 ./runtests.mpi.unix procs $np ch3_m06-hf
-./runtests.mpi.unix procs $np dntmc_h2o_nh3
-./runtests.mpi.unix procs $np 5h2o_core
+#./runtests.mpi.unix procs $np 5h2o_core
 ./runtests.mpi.unix procs $np h2o_core
-./runtests.mpi.unix procs $np co_core
-./runtests.mpi.unix procs $np talc
+#./runtests.mpi.unix procs $np co_core
 ./runtests.mpi.unix procs $np carbon_fon
 ./runtests.mpi.unix procs $np ch5n_nbo
 ./runtests.mpi.unix procs $np tpss tpssh
-./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
 #
 #--- test the new density functional library
 #./runtests.mpi.unix procs $np nwxc_nwdft_1he nwxc_nwdft_3he
