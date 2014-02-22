@@ -69,6 +69,7 @@
       real*8  ratio,ratio_v,ratio_r,aratio,omega1,omega2
       real*8  omega_all,omega_all2,omega_ave,omega_var
       real*8  icharge,cv
+      real*8  deltae,grms,gmax,xrms,xmax
       integer i,k,ia,nion,minimizer,mapping,icount
       integer nbq,mapping1d,it_in,it_out,seed
       integer opt_algorithm
@@ -350,12 +351,6 @@
 
          call pspw_charge_Print(luout)
 
-         write(luout,1181)
-         write(luout,1192) (I,ion_aname(I),
-     >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
-         write(luout,1200) vcx,vcy,vcz
-         write(luout,1210) vgx,vgy,vgz
-         write(luout,1211) ion_nconstraints(),ion_ndof()
 
          !end if
 
@@ -555,12 +550,6 @@ c         end if
 *     *******************************
       notfirststep = .false.
 
-
-      call control_reduce_print()
-      EV = cgsd_energy(newpsi)
-      if (control_Fei())
-     >   call cgsd_energy_gradient_md(dbl_mb(fion(1)))
-
       call xyz_write()
 
       it_out = control_bo_steps_out()
@@ -569,23 +558,38 @@ c         end if
       if (it_out.lt.1) goto 102
 
 
+      EV     = 0.0d0
       omega1 = lattice_omega()
       vcount = 0
       change_volume = .false.
   101 continue
          icount = icount + 1
 
-c       **** inner loop ****
-        do i=1,it_in
+         call control_reduce_print()
+         EV0 = EV
+         EV = cgsd_energy(newpsi)
+         call cgsd_energy_gradient_md(dbl_mb(fion(1)))
+         call control_up_print()
 
-           call fei_output(EV,dbl_mb(fion(1)))
-           call xyz_write()
-           call MOTION_write(dble((icount-1)*it_in+i)
-     >                       +emotion_time_shift)
+         deltaE = EV-EV0
+         grms = 0.0d0
+         gmax = 0.0d0
+         xrms = 0.0d0
+         xmax = 0.0d0
 
-        end do
+         if (oprint) write(luout,1350) icount,EV,
+     >                                 deltaE,grms,gmax,xrms,xmax
 
-*       **** adjust opt steplength ****
+
+         !call ion_quasinewton_step(dbl_mb(fion(1)))
+
+
+         call fei_output(EV,dbl_mb(fion(1)))
+         call xyz_write()
+         call MOTION_write(dble((icount-1)*it_in+i)
+     >                    +emotion_time_shift)
+
+*        **** adjust opt steplength ****
 
 
 *        **** exit early ****
@@ -640,7 +644,6 @@ c       **** inner loop ****
       call center_v_mass(vgx,vgy,vgz)
 
       if (oprint) then
-         call print_elapsed_time(icount*it_in*dt)
          write(luout,1300)
          write(luout,1410)
          write(luout,1420)
@@ -658,7 +661,6 @@ c       **** inner loop ****
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
-         write(luout,1211) ion_nconstraints(),ion_ndof()
       end if
 
       EV = cgsd_noit_energy()
@@ -858,7 +860,7 @@ c       **** inner loop ****
   
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
- 1270 FORMAT(/' technical parameters for minimizer:')
+ 1270 FORMAT(/' technical parameters for electronic minimizer:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
@@ -874,8 +876,8 @@ c       **** inner loop ****
      >           ' (',I4,' outer)')
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
- 1310 FORMAT(/' Monte-Carlo parameters:')
- 1311 FORMAT(5X, ' MC Algorithm= ',A,A)
+ 1310 FORMAT(/' Geometry Optimization parameters:')
+ 1311 FORMAT(5X, ' Optimization Algorithm= ',A,A)
  1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
