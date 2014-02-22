@@ -154,6 +154,9 @@ c            oembed = .true.
      >                        'Metropolis')) then
             operation='Metropolis'
          else if (inp_compare(.false.,test,
+     >                        'nwpw-optimize')) then
+            operation='nwpw-optimize'
+         else if (inp_compare(.false.,test,
      >                        'conjugate_gradient')) then
             operation='conjugate_gradient'
          else if (inp_compare(.false.,test,
