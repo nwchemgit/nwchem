@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 23)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -42,7 +42,8 @@ c
      >            'rdf',
      >            'lcao',
      >            'pspw_et',
-     >            'Metropolis'/
+     >            'Metropolis',
+     >            'nwpw-optimize'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
@@ -50,13 +51,13 @@ c     *** define external functions ****
       logical  pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       logical  pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
-      logical  cgmontecarlov1
+      logical  cgmontecarlov1,cgoptimize1
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       external pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
-      external cgmontecarlov1
+      external cgmontecarlov1,cgoptimize1
 c
 c
       value = .false.
@@ -70,7 +71,7 @@ c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
      >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     >       1900, 2000, 2100, 2200 ) ind
+     >       1900, 2000, 2100, 2200, 2300 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -388,6 +389,21 @@ c
       else
          value = cgmontecarlov1(rtdb,0)
       end if
+
+      call ga_sync()
+      goto 9999
+
+
+c
+c  nwpw-optimize
+c
+ 2300 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - nwpw-optimize <<<<"
+      end if
+
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = cgoptimize1(rtdb,0)
 
       call ga_sync()
       goto 9999
