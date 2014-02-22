@@ -1016,9 +1016,9 @@ c     implicit none
       if (nreq.gt.0) then
 
 *     **** allocate status memory ****
-c      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*4,
-c     >                     'status',status(2),status(1)))
-c     > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
 
 
 
@@ -1030,12 +1030,12 @@ c     > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
      > call errquit(' Parallel_mpiWaitAll:out of stack',1,MA_ERR)
       call stupid_icopy8to4(nreq,req,int_mb(request2(1)))
       stupid_msglen = nreq
-c      call MPI_WAITALL(stupid_msglen,
-c     >                 int_mb(request2(1)),
-c     >                 int_mb(status(1)),stupid_ierr)
-       call MPI_WAITALL(stupid_msglen,
+      call MPI_WAITALL(stupid_msglen,
      >                 int_mb(request2(1)),
-     >                 MPI_STATUSES_IGNORE,stupid_ierr)
+     >                 int_mb(status(1)),stupid_ierr)
+c       call MPI_WAITALL(stupid_msglen,
+c     >                 int_mb(request2(1)),
+c     >                 MPI_STATUSES_IGNORE,stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',1,MA_ERR)
 
@@ -1047,15 +1047,15 @@ c     *** danger! ***
       end if
 
 #else
-c      call MPI_WAITALL(nreq,req,int_mb(status(1)),mpierr)
-      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
+      call MPI_WAITALL(nreq,req,int_mb(status(1)),mpierr)
+c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
 #endif
 
 *     *** may need to check status here??? ***
 
-c      !*** deallocate status memory ***
-c      if (.not.MA_pop_stack(status(2)))
-c     > call errquit(' Parallel_mpiWaitAll:popping stack',0,MA_ERR)
+      !*** deallocate status memory ***
+      if (.not.MA_pop_stack(status(2)))
+     > call errquit(' Parallel_mpiWaitAll:popping stack',0,MA_ERR)
 
       end if
       return
