@@ -1896,7 +1896,8 @@ endif
        endif
         ifdef USE_OPENMP
            FOPTIONS += -openmp
-           DEFINES+= -DUSE_OPENMP
+           COPTIONS += -openmp
+           DEFINES+= -DUSE_OPENMP 
            ifdef USE_OFFLOAD
               ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
               FC = ifort
@@ -1904,7 +1905,9 @@ endif
               CC = icc
               AR = xiar
               EXTRA_LIBS += -loffload
-              FOPTIONS += -DUSE_OFFLOAD -opt-report-phase=offload
+              DEFINES+= -DUSE_OFFLOAD
+              FOPTIONS += -opt-report-phase=offload
+              COPTIONS += -opt-report-phase=offload
            else
               FOPTIONS += -no-openmp-offload
            endif
@@ -1922,7 +1925,7 @@ endif
         FOPTIMIZE = -O3 -prefetch  -unroll  -ip
          ifeq ($(_IFCV11),Y) 
          FOPTIMIZE += -xHost -no-prec-div
-#         FOPTIMIZE += -prefetch -unroll -ip
+#         FOPTIMIZE += -vec-report2 -opt-report-phase hlo
         else
          ifeq ($(_GOTSSE3),Y) 
           FOPTIMIZE += -xP -no-prec-div
@@ -1965,9 +1968,11 @@ endif
         COPTIONS   =   -O
       endif
       ifeq ($(_CC),icc)
-        COPTIONS   =   -xHOST -ftz
+        COPTIONS   +=   -xHOST -ftz
+	     COPTIONS   +=  -openmp-report=2 -vec-report=1
 #old        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
-        COPTIMIZE =  -O2
+        COPTIMIZE =  -O3
+        COPTIMIZE += -ip -no-prec-div
       endif
       ifeq ($(CC),gcc)
         COPTIONS   =   -O3 -funroll-loops -ffast-math
