@@ -204,6 +204,21 @@ c
       call createfile(filename,d_b2(axis),size_yr2(axis))
       call tce_zero(d_b2(axis),size_yr2(axis))
 c
+      if (save_lr(1)) then
+        if(nodezero) then
+          write(LuOut,*) 'Saving QR-B1 now...'
+        endif
+        call yr1_restart_save(d_b1(axis),k_yr1_offset(axis),
+     1       size_yr1(axis),axis,handle_qb1(axis),irrep_d)
+      endif
+      if (save_lr(2)) then
+        if(nodezero) then
+          write(LuOut,*) 'Saving QR-B2 now...'
+        endif
+        call yr2_restart_save(d_b2(axis),k_yr2_offset(axis),
+     1       size_yr2(axis),axis,handle_qb2(axis),irrep_d)
+      endif
+c
       irrep_y=irrep_g ! using Lambda(0) amplitudes
       call ccsd_y_o1(d_b1(axis),d_d1(axis),d_t1,d_t2,
      1     d_y1,d_y2,k_yr1_offset(axis),

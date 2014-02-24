@@ -39,6 +39,7 @@ c
       integer handle_y1,handle_y2,handle_y3,handle_y4
       integer handle_tr1(9),handle_tr2(9),handle_tr3(9),handle_tr4(9)
       integer handle_yr1(9),handle_yr2(9),handle_yr3(9),handle_yr4(9)
+      integer handle_qb1(3),handle_qb2(3)
 c
       common /tcerestartinteger/
      1  save_interval,restart_ccsd_t,
@@ -49,7 +50,8 @@ c
      6  handle_x1,handle_x2,handle_x3,handle_x4,
      7  handle_y1,handle_y2,handle_y3,handle_y4,
      8  handle_tr1,handle_tr2,handle_tr3,handle_tr4,
-     9  handle_yr1,handle_yr2,handle_yr3,handle_yr4
+     9  handle_yr1,handle_yr2,handle_yr3,handle_yr4,
+     1  handle_qb1,handle_qb2
 c
       common /tcerestartlogical/
      1  restart_ignore_failure,
