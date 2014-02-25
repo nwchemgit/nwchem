@@ -151,6 +151,15 @@
          fmm_lr = 1
       end if
 
+*     **** get smooth_cuoff ****
+      smooth_cutoff = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:smooth_cutoff',
+     >                  mt_dbl,2,smooth_cutoff_values)) then
+         smooth_cutoff           = .false.
+         smooth_cutoff_values(1) = 2.0d0
+         smooth_cutoff_values(2) = 4.0d0
+      end if
+
 
 *     *********************************
 *     **** cpsd and band_sd: stuff ****
@@ -4490,6 +4499,37 @@ c      end
       control_fmm = fmm
       return
       end
+
+*     ************************************
+*     *                                  *
+*     *         control_smooth_cutoff    *
+*     *                                  *
+*     ************************************
+      logical function control_smooth_cutoff()
+      implicit none
+
+#include "control.fh"
+
+      control_smooth_cutoff = smooth_cutoff
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *    control_smooth_cutoff_values  *
+*     *                                  *
+*     ************************************
+      real*8 function control_smooth_cutoff_values(i)
+      implicit none
+      integer i
+
+#include "control.fh"
+
+      control_smooth_cutoff_values = smooth_cutoff_values(i)
+      return
+      end
+
+
 
 
 *     ************************************
