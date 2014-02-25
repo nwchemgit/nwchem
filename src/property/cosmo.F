@@ -1,3 +1,38 @@
+C>
+C> \defgroup cosmo COnductor-like Screening MOdel (COSMO)
+C>
+C> \ingroup cosmo
+C> @{
+C> 
+C> \file cosmo.F
+C> The COSMO energy implementation
+C>
+C> \brief The COSMO dielectric continuum solvation model
+C>
+C> COSMO is a dielectric continuum solvation model proposed by
+C> Klamt et al. [1] and extended by York et al. [2]. 
+C>
+C> ### References ###
+C>
+C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
+C>     "COSMO: a new approach to dielectric screening in solvents with
+C>      explicit expressions for the screening energy and its gradient",
+C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
+C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     10.1039/P29930000799</a>.
+C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
+C> @}
+C>
+C> \ingroup cosmo
+C> @{
+C>
 C> \brief Read the COSMO input section
 C>
 C> COSMO is a dielectric continuum solvation model proposed by
@@ -588,8 +623,8 @@ c     --------------------------
           if(ofile) then
              write(*,*) "found parfile in ",TRIM(parfile)
           else
-             call errquit('cosmo_initialize:cannot find parameter file', 0,
-     +       0)
+             call errquit('cosmo_initialize:cannot find parameter file',
+     +       0,0)
              write(*,*) "cannot find parfile"
           end if
   
@@ -2853,7 +2888,7 @@ C>   <a href="http://dx.doi.org/10.1039/P29930000799">
 C>   10.1039/P29930000799</a>.
 C>
 C>   [2] M.A. Aguilar, F.J. Olivares del Valle, J. Tomasi,
-C>   "Nonequilibrium solvation: Ab ab initio quantummechanical method
+C>   "Nonequilibrium solvation: An ab initio quantummechanical method
 C>    in the continuum cavity model approximation",
 C>   <i>J. Chem. Phys.</i> (1993) <b>98</b>, pp 7375-7384, DOI:
 C>   <a href="http://dx.doi.org/10.1063/1.464728">
@@ -2862,20 +2897,22 @@ C>
 C>   [3] E.V. Stefanovich, T.N. Truong,
 C>   "Optimized atomic radii for quantum dielectric continuum solvation
 C>    models", <i>Chem. Phys. Lett.</i> (1995) <b>244</b>, pp 65-74,
-C>   DOI: <a href="http://dx.doi.org/10.1016/0009-2614(95)00898-E">
+C>   DOI:
+C>   <a href="http://dx.doi.org/10.1016/0009-2614(95)00898-E">
 C>   10.1016/0009-2614(95)00898-E</a>.
 C>
 C>   [4] D.M. York, M. Karplus,
 C>   "A smooth solvation potential based on the conductor-like 
 C>    screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
-C>   pp 11060-11079, DOI: <a href="http://dx.doi.org/10.1021/jp992097l">
+C>   pp 11060-11079, DOI:
+C>   <a href="http://dx.doi.org/10.1021/jp992097l">
 C>   10.1021/jp992097l</a>.
 C>
 C>   [5] G. Scalmani, M.J. Frisch,
 C>   "Continuous surface charge polarizable continuum models of
 C>    solvation. I. General formalism", <i>J. Chem. Phys.</i> (2010)
-C>   <b>132</b>, 114110,
-C>   DOI: <a href="http://dx.doi.org/10.1063/1.3359469">
+C>   <b>132</b>, 114110, DOI:
+C>   <a href="http://dx.doi.org/10.1063/1.3359469">
 C>   10.1063/1.3359469</a>.
 C>
 C>   [6] A.W. Lange, J.M. Herbert, 
@@ -3968,3 +4005,5 @@ c
       end
 
 c $Id$
+C>
+C> @}
