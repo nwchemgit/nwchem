@@ -150,8 +150,10 @@ c      external      cpsp_comment
 
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
-
-    
+      logical  control_smooth_cutoff
+      external control_smooth_cutoff
+      real*8   control_smooth_cutoff_values
+      external control_smooth_cutoff_values
 
 
 *****************************|  PROLOGUE  |****************************
@@ -460,6 +462,11 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       end if
 
       if (mprint) then
+         if (control_smooth_cutoff())
+     >      write(luout,1253)
+     >      control_smooth_cutoff_values(1)*lattice_wcut(),
+     >      control_smooth_cutoff_values(2)
+
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -742,6 +749,8 @@ cc      call band_kp_structure(rtdb)
  1252 FORMAT(5x,' wavefnc     cutoff=',F7.3,
      >       ' wavefunction grids not printed - ',
      >       'number of k-points is very large')
+ 1253 FORMAT(5X,' smooth wavefnc cutoff:  A=',F7.3,' sigma = ',F7.3)
+
   
  1255 FORMAT(/' brillouin zone:')
  1256 FORMAT(5x,' number of zone points:',I6)
