@@ -154,6 +154,10 @@
       external pspw_bqext,control_fast_erf
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
+      logical  control_smooth_cutoff
+      external control_smooth_cutoff
+      real*8   control_smooth_cutoff_values
+      external control_smooth_cutoff_values
 
 
 *                            |************|
@@ -458,6 +462,11 @@ c           call psp_check_print(ia)
      >                 pack_nwave_all(0),pack_nwave(0)
          write(luout,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(1),pack_nwave(1)
+         if (control_smooth_cutoff()) 
+     >      write(luout,1252) 
+     >      control_smooth_cutoff_values(1)*lattice_wcut(),
+     >      control_smooth_cutoff_values(2) 
+
          if (control_version().eq.3) then
          write(luout,1260) ewald_rcut(),ewald_ncut()
          write(luout,1261) ewald_mandelung(),
@@ -774,7 +783,7 @@ c      call frac_occ_end()
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
-  
+ 1252 FORMAT(5X,' smooth wavefnc cutoff, A=',F7.3,' sigma = ',F7.3)
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   Madelung Wigner-Seitz=',f11.8,
      >                              ' (alpha=',f11.8,' rs=',f11.8,')')
