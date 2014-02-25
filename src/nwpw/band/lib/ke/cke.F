@@ -3,25 +3,29 @@
 *
       subroutine cke_init()
       implicit none 
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cke_common.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer nfft3d,npack1,G(3)
       integer i,nb,nbrillq
-      real*8  gg,gx,gy,gz,kx,ky,kz
+      real*8  gg,gx,gy,gz,kx,ky,kz,E0,A,bb,sigma,x
       logical value
  
-      integer tmp1(2)
+      integer tmp1(2),tmp2(2)
 
 *     **** external functions ****
 c     real*8 G(nfft3d,3)
+      logical  control_smooth_cutoff
+      external control_smooth_cutoff
+      real*8   control_smooth_cutoff_values
+      external control_smooth_cutoff_values
       integer  c_G_indx, brillioun_nbrillq
-      real*8   brillioun_k
       external c_G_indx, brillioun_nbrillq
-      external brillioun_k
+      real*8   brillioun_k,lattice_wcut,util_erf
+      external brillioun_k,lattice_wcut,util_erf
 
       nbrillq = brillioun_nbrillq()
       call C3dB_nfft3d(1,nfft3d)
@@ -36,6 +40,8 @@ c     real*8 G(nfft3d,3)
      > call errquit('cke_init:out of heap memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nfft3d,'tmp1',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('cke_init:out of stack memory',0,MA_ERR)
 
@@ -56,9 +62,51 @@ c     real*8 G(nfft3d,3)
          call Cram_r_Copy(nb,dbl_mb(tmp1(1)),
      >                       dbl_mb(tg_indx+(nb-1)*npack1))
       end do
-      
 
-      value = MA_pop_stack(tmp1(2))
+*     **** Funny decay added to stabalize unitcell optimization and pressures ****
+      filter = control_smooth_cutoff()
+      if (filter) then
+         value = MA_alloc_get(mt_dbl,npack1*nbrillq,'df',df(2),df(1))
+         if (.not. value)
+     >      call errquit('c_ke_init:out of heap memory',3,MA_ERR)
+
+         E0    = lattice_wcut()
+         A     = control_smooth_cutoff_values(1)*E0
+         sigma = control_smooth_cutoff_values(2)
+         bb    = 2.0d0*A/(sigma*dsqrt(4.0d0*datan(1.0d0)))
+
+         do nb=1,nbrillq
+            kx = brillioun_k(1,nb)
+            ky = brillioun_k(2,nb)
+            kz = brillioun_k(3,nb)
+            do i = 1,nfft3d
+               gx  =  dbl_mb(G(1)+i-1)+kx
+               gy  =  dbl_mb(G(2)+i-1)+ky
+               gz  =  dbl_mb(G(3)+i-1)+kz
+               gg  = (gx*gx + gy*gy + gz*gz)
+
+               if (gg.gt.(E0-6.0d0*sigma)) then
+                  x = (0.5d0*gg-E0)/sigma
+                  dbl_mb(tmp1(1)+i-1) = -A*(1.0d0+util_erf(x))
+                  dbl_mb(tmp2(1)+i-1) = 1.0d0 + bb*dexp(-x*x)
+               else
+                  dbl_mb(tmp1(1)+i-1) = 0.0d0
+                  dbl_mb(tmp2(1)+i-1) = 1.0d0
+               end if
+            end do
+            call Cram_r_pack(nb,dbl_mb(tmp1(1)))
+            call Cram_r_pack(nb,dbl_mb(tmp2(1)))
+            call Cram_r_Copy(nb,dbl_mb(tmp2(1)),
+     >                          dbl_mb(df(1)+(nb-1)*npack1))
+            call Cram_rr_Sum2(nb,dbl_mb(tmp1(1)),
+     >                           dbl_mb(tg_indx+(nb-1)*npack1))
+         end do
+      end if
+      
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value)
+     > call errquit('cke_init:popping stack memory',0,MA_ERR)
       return
       end
 
@@ -66,10 +114,14 @@ c     real*8 G(nfft3d,3)
       implicit none 
 #include "mafdecls.fh"
 #include "cke_common.fh"
+#include "errquit.fh"
 
       logical value
 
       value = MA_free_heap(tg_hndl)
+      if (filter) value = value.and.MA_free_heap(df(2))
+      if (.not. value)
+     >   call errquit('cke_end:error freeing heap',0, MA_ERR)
       return
       end
 
@@ -254,6 +306,7 @@ c     real*8 G(nfft3d,3)
       integer    psi_tag
       real*8 euv(3,3)
 
+#include "cke_common.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 
@@ -351,6 +404,11 @@ c     real*8 G(nfft3d,3)
             call Cram_rr_Mul(nbq,dbl_mb(G(1,u)),
      >                        dbl_mb(G(1,s)),
      >                        dbl_mb(tmp1(1)))
+
+            if (filter) 
+     >         call Cram_rr_Mul2(nbq,dbl_mb(df(1)+(nbq-1)*npack1),
+     >                               dbl_mb(tmp1(1)))
+
             psi_shift = shift1
             occ_shift = shift2
             do ms=1,ispin

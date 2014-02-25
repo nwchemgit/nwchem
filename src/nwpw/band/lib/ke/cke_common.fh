@@ -6,3 +6,8 @@
       integer tg_indx,tg_hndl
       common / c_tg_block / tg_indx,tg_hndl
 
+*     **** common block used for smooth_cutoff ****
+      logical filter
+      integer df(2)
+      common / c_tg2_block / df,filter
+
