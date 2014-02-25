@@ -16,7 +16,7 @@ C
       Integer i,ii,ierr,iop,is,j,jopmx,js,ks,llopt(40),nbar,nend,
      * nfreq,ns,indx
       Character*80 line
-      Character*80 filename
+      Character*255 filename
       Double Precision t
       Logical isopen
 C

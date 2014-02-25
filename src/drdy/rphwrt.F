@@ -23,7 +23,7 @@ C
 *::local:
 *::passed:
       Integer iop
-      Character*80 filename ! we want to give the file 30 a name
+      Character*255 filename ! we want to give the file 30 a name
 *::local:
 #if !(defined(APPEND_OK) || defined(F90_IO))
       character*80 dummy_card
