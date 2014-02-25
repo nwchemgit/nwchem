@@ -1,11 +1,19 @@
+C> \brief Jacobi diagonalizer
+C>
+C> Jacobi diagonalizer operating on the upper triangle
+C> of the matrix A. The eigenvalues are returned in
+C> ascending order. The matrix is returned unchanged.
+C>
       subroutine util_jacobi(n, a, lda, e)
 *
 * $Id$
 *
       implicit none
-      integer n, lda
-      double precision a(lda,n)
-      double precision e(n)
+      integer n   !< [Input] The dimension of the matrix
+      integer lda !< [Input] The leading dimension of the matrix
+      double precision a(lda,n) !< [Input] The matrix, only the upper
+                                !< triangle is used
+      double precision e(n)     !< [Output] The eigenvalues
       call util_jacobi0(n, a, lda, e,.true.)
       return
       end
@@ -43,10 +51,10 @@ c
          a(1,1)=1d0
          return
       endif
-c     check for diagonal matrix
+c     check upper triangle for diagonal matrix
       summ=0d0
       do i=1,n
-         do j=i+1,n
+         do j=1,i-1
             summ=summ+abs(a(j,i))
          enddo
       enddo
@@ -60,7 +68,7 @@ c     check for diagonal matrix
       if (.not. ma_push_get(mt_dbl, n*(n+1)/2 ,'v',l_v, k_v))
      $     call errquit('util_jacobi: v', n*(n+1)/2, MA_ERR)
 c
-c     Lower triangle of a into v
+c     Copy upper triangle of a into v
 c
       ij = 0
       do i = 1, n

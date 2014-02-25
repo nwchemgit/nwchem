@@ -1,3 +1,16 @@
+C> \brief Variable threshold Jacobi diagonalizer
+C>
+C> Use jacobi method to emulate eispack rs.
+C> This routine uses a variable threshold jacobi method.
+C> It gives very good eigenvalues and eigenvectors.
+C> The routine is much faster than the old hdiag routine written
+C> at m.i.t. that uses the jacobi method but not the variable
+C> threshold technique that is applied here.
+C>
+C> This routine assumes that the matrix is stored in the upper
+C> triangle of A. Upon return the matrix is destroyed and
+C> overwritten by the eigenvectors.
+C>
       subroutine stpr_sjacobi(nm,n,a,w,eivr,ierr,sorting)
 c $Id$
       IMPLICIT  none
@@ -85,9 +98,9 @@ c
          write(0,*) 
      A     ' nsweep max exceeded',nsweep
          goto 160
-         ierr=1
-         return
-         endif
+c        ierr=1
+c        return
+      endif
       iflag=0
       do 150 jcol=2,n
         jcoltr = jcol*(jcol-1)/2
