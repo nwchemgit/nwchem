@@ -14,24 +14,25 @@
 #include "errquit.fh"
 
 *     **** parameters - filter ****
-      real*8 eps,ncut
-      parameter (eps=1.0d-12,ncut=151.0d0)
+c      real*8 eps,ncut
+c      parameter (eps=1.0d-6,ncut=151.0d0)
+      real*8 ncut
 
 *     **** local variables ****
       integer npack1,nfft3d,G(3)
       integer i
-      real*8  gg,g1,Gcut
+      real*8  gg,g1,ggcut,A,E0,sigma,bb,x
       logical value
  
       integer tmp1(2),tmp2(2)
 
 *     **** external functions ****
-      logical  control_kbpp_filter
-      external control_kbpp_filter
+      logical  control_smooth_cutoff
+      external control_smooth_cutoff
       integer  G_indx
       external G_indx
-      real*8   lattice_wggcut
-      external lattice_wggcut
+      real*8   lattice_wcut,control_smooth_cutoff_values,util_erf
+      external lattice_wcut,control_smooth_cutoff_values,util_erf
       
 
 *     **** common block used for ke.F ****
@@ -40,8 +41,8 @@ c     real*8 tg(nfft3d)
       common / tg_block / tg_indx,tg_hndl
 
       logical filter
-      integer fanddf(2)
-      common / tg2_block / fanddf,filter
+      integer df(2)
+      common / tg2_block / df,filter
 
 
       call D3dB_nfft3d(1,nfft3d)
@@ -73,47 +74,37 @@ c     real*8 tg(nfft3d)
 
 
 *     **** Funny decay added to stabalize unitcell optimization and pressures ****
-      filter = control_kbpp_filter()
-      filter = .false.
+      filter = control_smooth_cutoff()
       if (filter) then
-         value = MA_alloc_get(mt_dbl,npack1,
-     >                     'fanddf',fanddf(2),fanddf(1))
+         value = MA_alloc_get(mt_dbl,npack1,'df',df(2),df(1))
          if (.not. value) 
      >      call errquit('ke_init:out of heap memory',3,MA_ERR)
 
-c         Gcut = dsqrt(lattice_wggcut()) 
-c     >          /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
-         
-         Gcut = dsqrt(lattice_wggcut()) - 0.10d0
+         E0    = lattice_wcut()
+         A     = control_smooth_cutoff_values(1)*E0
+         sigma = control_smooth_cutoff_values(2)
+         bb    = A/(sigma*dsqrt(4.0d0*datan(1.0d0)))
 
-         !write(*,*) "Gcut==",Gcut
          do i=1,nfft3d
             gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
-            g1 = dsqrt(gg)
-            if (g1.gt.Gcut) then
-            dbl_mb(tmp1(1)+i-1) = 1.0d0
-     >                          -(1.0d0-dexp(-(g1/Gcut)**ncut))**ncut
-            dbl_mb(tmp2(1)+i-1) = -((1.0d0-dexp(-(g1/Gcut)**ncut))**ncut
-     >                              *ncut**2 
-     >                              *(g1/Gcut)**ncut)
-     >                             /(2.0d0*(-1.0d0+dexp(g1/Gcut)**ncut))
+
+            if (gg.gt.(E0-6.0d0*sigma)) then
+               x = (0.5d0*gg-E0)/sigma
+               dbl_mb(tmp1(1)+i-1) = -A*(1.0d0+util_erf(x))
+               dbl_mb(tmp2(1)+i-1) = 1.0d0 + bb*dexp(-x*x)
             else
-               dbl_mb(tmp1(1)+i-1) = 1.0d0
-               dbl_mb(tmp2(1)+i-1) = 0.0d0
+               dbl_mb(tmp1(1)+i-1) = 0.0d0
+               dbl_mb(tmp2(1)+i-1) = 1.0d0
             end if
          end do
          call Pack_t_pack(1,dbl_mb(tmp1(1)))
          call Pack_t_pack(1,dbl_mb(tmp2(1)))
-         call Pack_tt_Sum(1,dbl_mb(tmp1(1)),
-     >                      dbl_mb(tmp2(1)), 
-     >                      dbl_mb(fanddf(1)))
-         call Pack_tt_Mul2(1,dbl_mb(tmp1(1)),
-     >                       dbl_mb(tg_indx))
+         call Pack_t_Copy(1,dbl_mb(tmp2(1)),dbl_mb(df(1)))
+         call Pack_tt_Sum2(1,dbl_mb(tmp1(1)),dbl_mb(tg_indx))
       end if
       
-
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
@@ -139,13 +130,13 @@ c     real*8 tg(nfft3d)
       common / tg_block / tg_indx,tg_hndl
 
       logical filter
-      integer fanddf(2)
-      common / tg2_block / fanddf,filter
+      integer df(2)
+      common / tg2_block / df,filter
 
       logical value
 
       value = MA_free_heap(tg_hndl)
-      if (filter) value = value.and.MA_free_heap(fanddf(2))
+      if (filter) value = value.and.MA_free_heap(df(2))
       if (.not. value) 
      >   call errquit('ke_end:error freeing heap',0, MA_ERR)
       return
@@ -310,8 +301,8 @@ c     complex*16 tmp1(nfft3d)
 #include "errquit.fh"
 
       logical filter
-      integer fanddf(2)
-      common / tg2_block / fanddf,filter
+      integer df(2)
+      common / tg2_block / df,filter
 
 *     **** local variables ****
       integer npack1,nfft3d,G(2,3)
@@ -388,8 +379,7 @@ c     real*8 G(nfft3d,3)
      >                     dbl_mb(G(1,s)),
      >                     dbl_mb(tmp1(1)))
 
-        if (filter)
-     >     call Pack_tt_Mul2(1,dbl_mb(fanddf(1)),dbl_mb(tmp1(1)))
+        if (filter) call Pack_tt_Mul2(1,dbl_mb(df(1)),dbl_mb(tmp1(1)))
      
         ave = 0.0d0
         do ms=1,ispin
