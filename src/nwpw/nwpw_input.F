@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 106)
+      parameter (num_dirs = 107)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -121,6 +121,7 @@ c
      >            'tamd',
      >            'fast_erf',
      >            'fmm',
+     >            'smooth_cutoff',
      >            'end'/
 
       double precision kb
@@ -186,7 +187,7 @@ c
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,
+     >       7700,7800,7900,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1707,6 +1708,15 @@ c
 
       goto 10
 
+c
+c  smooth_cutoff [Afac sigma]
+c
+ 7900 if (.not.inp_f(scaling(1))) scaling(1) = 2.0d0
+      if (.not.inp_f(scaling(2))) scaling(2) = 4.0d0
+      if (.not.rtdb_put(rtdb,'nwpw:smooth_cutoff',mt_dbl,2,scaling))
+     >  call errquit('nwpw_input: error writing to rtdb',7900,RTDB_ERR)
+
+      goto 10
 
 ************************************************************************
 c
