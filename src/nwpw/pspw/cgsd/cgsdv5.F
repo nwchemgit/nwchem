@@ -783,7 +783,7 @@ c      call frac_occ_end()
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
- 1252 FORMAT(5X,' smooth wavefnc cutoff, A=',F7.3,' sigma = ',F7.3)
+ 1252 FORMAT(5X,' smooth wavefnc cutoff:  A=',F7.3,' sigma = ',F7.3)
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   Madelung Wigner-Seitz=',f11.8,
      >                              ' (alpha=',f11.8,' rs=',f11.8,')')
