@@ -83,7 +83,7 @@ c     real*8 tg(nfft3d)
          E0    = lattice_wcut()
          A     = control_smooth_cutoff_values(1)*E0
          sigma = control_smooth_cutoff_values(2)
-         bb    = A/(sigma*dsqrt(4.0d0*datan(1.0d0)))
+         bb    = 2.0d0*A/(sigma*dsqrt(4.0d0*datan(1.0d0)))
 
          do i=1,nfft3d
             gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
