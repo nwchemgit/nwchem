@@ -1,6 +1,11 @@
 c $Id$
-C> \file ga_it2.F
+C>
 C> \defgroup kain Krylov subspace Accelerated Inexact Newton method (KAIN)
+C>
+C> \ingroup kain
+C> @{
+C>
+C> \file ga_it2.F
 C> \brief Implementation of Krylov-subspace nonlinear equation solver
 C>
 C> This files provides an implementation of the KAIN method to solve
@@ -15,6 +20,7 @@ C>     and Nonlinear Systems",</i>
 C>     Journal of Computational Chemistry (2004) <b>25</b>, pp 328-334,
 C>     DOI: <a href="http://dx.doi.org/10.1002/jcc.10108">10.1002/jcc.10108</a>
 C>
+C> @}
 c
 C> \ingroup kain
 C> @{
