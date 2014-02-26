@@ -434,6 +434,11 @@ c     real*8 G(nfft3d,3)
             call Cram_rr_Mul(nbq,dbl_mb(G(1,u)),
      >                        dbl_mb(G(1,s)),
      >                        dbl_mb(tmp1(1)))
+
+            if (filter) 
+     >         call Cram_rr_Mul2(nbq,dbl_mb(df(1)+(nbq-1)*npack1),
+     >                               dbl_mb(tmp1(1)))
+
             psi_shift = shift1
             do ms=1,ispin
             do n=n1(ms),n2(ms)
