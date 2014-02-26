@@ -12,7 +12,7 @@ C> Dependent on the theory setting a variety of gradient drivers
 C> may be called. If no analytical gradients are available for a theory
 C> the gradient will be evaluated using numerical differentiation.
 C>
-C> \return Return .true. if the gradiet was calculated successfully,
+C> \return Return .true. if the gradient was calculated successfully,
 C> and .false. otherwise.
 C>
       logical function task_gradient(rtdb)
