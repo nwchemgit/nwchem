@@ -1,4 +1,24 @@
 C$Id$
+C>
+C> \defgroup subgrp NWChem interface to GA sub-groups
+C>
+C> \ingroup subgrp
+C> @{
+C>
+C> \file util_sgroup.F
+C> \brief The NWChem interface to the GA sub-groups 
+C>
+C> This file contains routines that facilitate the use of GA sub-groups
+C> in NWChem. The routines take care of issues such as, redirecting the
+C> standard output from different sub-groups, replicating the runtime
+C> database, accessing the movecs file, etc. In addition it provides
+C> mechanisms for creating pools of processors in a number of different
+C> ways. 
+C>
+C> To date there is no input block to control this functionality.
+C> Instead set directives that put data directly into the runtime
+C> database are required.
+C>
       block data groups
 #include "util_sgroup.fh"
 C     Make sure that the group code works even if groups are not set up yet
@@ -11,11 +31,16 @@ C     Make sure that the group code works even if groups are not set up yet
       end
 
 C###############################################################################
+C>
+C> \brief Initialize the subgroup layer
+C>
+C> \return Returns .TRUE. if successful (does not return otherwise)
+C>
       logical function util_sgstart(rtdb)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
       integer groups_want
       integer dum(1)
       integer method
@@ -37,6 +62,9 @@ c
       return
       end
 C###############################################################################
+C>
+C> \brief Do the actual initialization
+C>
       subroutine util_sggo(rtdb,groups_want,method,array_cpu,dir)
       implicit none
 #include "stdio.fh"
@@ -51,7 +79,19 @@ C###############################################################################
 c
 c Input
 c
-      integer rtdb, groups_want, method, array_cpu(*)
+      integer rtdb         !< [Input] The RTDB handle
+      integer groups_want  !< [Input] The number of subgroups requested
+      integer method       !< [Input] The method to partition the 
+                           !< processor pool
+                           !< * 1 -- use `groups_want` to generate equal
+                           !<   sized groups (`array_cpu` ignored)
+                           !< * 2 -- turn each SMP box into a group
+                           !<   (`array_cpu` and `groups_want` ignored)
+                           !< * 3 -- use `array_cpu(groups_want)` to
+                           !<   define number of nodes per group
+                           !< * 4 -- use `array_cpu(groups_want+nnodes)`
+                           !<   to define which nodes per group
+      integer array_cpu(*) !< [Input] Specification of the subgroups
 c
 c     rtdb is the runtime database file
 c
@@ -124,8 +164,9 @@ C       Work around the 36 char cutoff for fname
      *     errquit('rtdb_fname call failed',0,0)
         write(permdir,'(256(a))') (' ', i=1,256)
         write(fprefix,'(256(a))') (' ', i=1,256)
-        if(.not. rtdb_cget(rtdb,'permanent_dir',1,permdir))
-     &     call errquit('rtdb get permanent_dir failed',0,0)
+        if(.not. rtdb_cget(rtdb,'permanent_dir',1,permdir)) then
+           permdir(15:15) = '.'
+        endif
         if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
      &     call errquit('rtdb get file_prefix failed',0,0)
         idum = 15
@@ -211,13 +252,17 @@ c     These next lines are since we are now done creating groups
       return
       end
 C###############################################################################
+C>
+C> \brief Finalize the subgroup layer
+C>
       subroutine util_sgend(rtdb)
       implicit none
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
-      integer rtdb,myproc
+      integer rtdb   !< [Input] The RTDB handle
+      integer myproc
       logical ignore
       integer mypgroup_old
 
@@ -258,10 +303,21 @@ c
       end
 
 C###############################################################################
+C>
+C> \brief Copy the RTDB for each subgroup
+C>
+C> Copy the RTDB for each subgroup. This way the subgroups can 
+C> independently modify the RTDB without messing each other's work up.
+C> Depending on the kind of calculation one may want to store the 
+C> RTDB replicas in the scratch directory or the permanent directory.
+C> This behavior can be controlled by the `dir` argument.
+C>
       subroutine util_sgrtdb(rtdb,name_in,name_out,dir)
       implicit none
-      integer rtdb
-      character*256 name_in,name_out
+      integer rtdb           !< [Input] The RTDB handle
+      character*256 name_in  !< [Input] The filename of the global RTDB
+      character*256 name_out !< [Output] The filename of the subgroup
+                             !< RTDB
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -275,9 +331,10 @@ C###############################################################################
 
 C     Added option to allow group rtdb's to be written to
 C     Permanent_dir or scratch_dir
-      logical dir
-C                     .false. changes to permanent_dir
-C                     .true. changes to scratch dir
+      logical dir !< [Input] Flag determining the location of the 
+                  !< replica RTDBs
+                  !< * .FALSE. changes to `permanent_dir`
+                  !< * .TRUE. changes to `scratch_dir`
 
       myproc=ga_nodeid()
 
@@ -345,6 +402,13 @@ C     Do not want to have other nodes using new RTDB before it exists
       return
       end
 C###############################################################################
+C>
+C> \brief Initialize the subgroup layer using the SMP method
+C>
+C> The SMP method targets machines that are clusters of shared memory
+C> nodes. It creates subgroups where each subgroup coincides with
+C> a shared memory node.
+C>
       subroutine util_sginit_smp()
       implicit none
 c
@@ -391,6 +455,14 @@ C Set the group
       return
       end
 C###############################################################################
+C>
+C> \brief Initialize the subgroup layer with irregularly sized groups
+C>
+C> This method generates irregularly sized subgroups in a simple way.
+C> The array `cpusperg_array` (CPUs per Group) specifies the size of
+C> every subgroup. This routine generates subgroups to match that 
+C> specification.
+C>
       subroutine util_sginit_irreg(cpusperg_array,length)
       implicit none
 c
@@ -400,7 +472,9 @@ c
 #include "util_sgroup.fh"
       integer nproc, myproc
       integer i,j,proclist(maxcpus), proc_counter,group_counter
-      integer length,cpusperg_array(length)
+      integer length                 !< [Input] The number of subgroups
+      integer cpusperg_array(length) !< [Input] The size of each
+                                     !< subgroup
 
 c setup
 
@@ -468,6 +542,21 @@ C Set the group
       return
       end
 C###############################################################################
+C>
+C> \brief Initialize the subgroup layer using the "power" method
+C>
+C> The power method creates subgroups based on the specification in
+C> `cpu_array`. The data in this array specifies the size of each
+C> subgroup as well as which processes are part of each subgroup.
+C> The data is stored in a vector of the following form
+C> \f{eqnarray*}{
+C>   \left(G_1,n_1,n_2,n_3,\ldots,n_{G_1},G_2,n_1,n_2,n_3,\ldots,
+C>   n_{G_2},\ldots\right)
+C> \f}
+C> where \f$G_1\f$, \f$G_2\f$, etc. are the sizes of the respective
+C> subgroups, and \f$n_1, \ldots, n_G\f$ are the processor ranks that
+C> are part of that subgroup.
+C>
       subroutine util_sginit_power(cpu_array,length)
       implicit none
 c
@@ -540,6 +629,9 @@ C Set the group
 
 
 C###############################################################################
+C>
+C> \brief Initialize the subgroup layer with regular subgroup sizes
+C>
       subroutine util_sginit(groups_want)
       implicit none
 #include "global.fh"
@@ -547,7 +639,7 @@ C###############################################################################
 c
 c     Create subgroups of a constant size
 c
-      integer groups_want
+      integer groups_want !< [Input] The number of subgroups wanted
       integer nproc,myproc,nchunkq,nremainq,i,j,n
       integer num_proc,proclist(maxcpus)
 
@@ -606,9 +698,18 @@ c set the group
       return
       end
 C###############################################################################
+C>
+C> \brief Create movecs file names for the current subgroup
+C>
+C> The movecs file holds the SCF vectors of a particular calculation
+C> and is therefore a crucial data object. With subgroups every group
+C> works on a calculation of its own and therefore needs a movecs file
+C> of its own. This routine creates and stores the name of the movecs
+C> file for the current subgroup.
+C>
       subroutine util_sgmovecs(rtdb)
       implicit none
-      integer rtdb
+      integer rtdb !< [Input] The RTDB handle
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -677,33 +778,48 @@ c
       end
 c     Hokey functions to keep others away from my common blocks
 C###############################################################################
+C>
+C> \brief Obtain my subgroup number
+C>
       integer function util_sgroup_mygroup()
 #include "util_sgroup.fh"
       util_sgroup_mygroup = mygroup(depth)
       return
       end
 C###############################################################################
+C>
+C> \brief Obtain the total number of subgroups
+C>
       integer function util_sgroup_numgroups()
 #include "util_sgroup.fh"
       util_sgroup_numgroups = ngroups(depth)
       return
       end
 C###############################################################################
+C>
+C> \brief Obtain the subgroup of all rank 0 processes in each subgroup
+C>
       integer function util_sgroup_zero_group()
 #include "util_sgroup.fh"
       util_sgroup_zero_group = my_ga_0_grp(depth)
       return
       end
 C###############################################################################
+C>
+C> \brief Obtain the current subgroup nesting depth
+C>
       integer function util_sgroup_depth()
 #include "util_sgroup.fh"
       util_sgroup_depth = depth
       return
       end
 C###############################################################################
+C> 
+C> \brief Set the file name for standard output for this subgroup
+C>
       integer function util_sgroup_set_ioname(filename)
       implicit none
-      character*(*) filename
+      character*(*) filename !< [Input] The base file name
 
 #include "stdio.fh"
 #include "util_sgroup.fh"
@@ -741,6 +857,9 @@ C###############################################################################
       return
       end
 C###############################################################################
+C>
+C> \brief Switch standard output back to the default Fortran scenario
+C>
       integer function util_sgroup_unset_io()
       implicit none
 #include "stdio.fh"
@@ -756,4 +875,5 @@ C###############################################################################
       return
       end
 C###############################################################################
-
+C>
+C> @}
