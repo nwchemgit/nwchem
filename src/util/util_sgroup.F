@@ -9,15 +9,25 @@ C> \file util_sgroup.F
 C> \brief The NWChem interface to the GA sub-groups 
 C>
 C> This file contains routines that facilitate the use of GA sub-groups
-C> in NWChem. The routines take care of issues such as, redirecting the
-C> standard output from different sub-groups, replicating the runtime
-C> database, accessing the movecs file, etc. In addition it provides
-C> mechanisms for creating pools of processors in a number of different
-C> ways. 
+C> in NWChem [1]. The routines take care of issues such as, redirecting
+C> the standard output from different sub-groups, replicating the
+C> runtime database, accessing the movecs file, etc. In addition it
+C> provides mechanisms for creating pools of processors in a number of
+C> different ways. 
 C>
 C> To date there is no input block to control this functionality.
 C> Instead set directives that put data directly into the runtime
 C> database are required.
+C>
+C> ### References ###
+C>
+C> [1] J. Nieplocha, B. Palmer, V. Tipparaju, M. Krishnan, H. Trease,
+C>     E. Apra, "Advances, applications and performance of the Global
+C>     Arrays shared memory programming toolkit", 
+C>     <i>Int. J. High Perf. Comput. Appl.</i> (2006) <b>20</b>,
+C>     203-231, DOI:
+C>     <a href="http://dx.doi.org/10.1177/1094342006064503">
+C>     10.1177/1094342006064503</a>.
 C>
       block data groups
 #include "util_sgroup.fh"
