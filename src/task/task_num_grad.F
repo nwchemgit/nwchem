@@ -67,7 +67,7 @@ c
      5    (theory.eq.'ump4'))
      6   theory = 'tce'
 c
-c     Construct the names for the energy and gradietn RTDB entries
+c     Construct the names for the energy and gradient RTDB entries
 c
       write(ename,'(a,'':energy'')') theory(1:inp_strlen(theory))
       write(gname,'(a,'':gradient'')') theory(1:inp_strlen(theory))
@@ -395,6 +395,11 @@ c
         if (ga_nodeid().gt.0) then
           call dfill (natoms3,0.0d0,dbl_mb(k_grad),1)
         endif
+cDEBUG
+        call util_flush(6)
+        call ga_summarize(.false.)
+        call util_flush(6)
+cDEBUG
         call util_sgend(rtdb)
         call ga_dgop(1,dbl_mb(k_grad),natoms3,'+')
 c
