@@ -40,9 +40,19 @@ c
       save icount, nleft
       data nleft, icount /0, 0/
 #ifdef GANXTVAL
-      if(f1stcall) then
-         junk=util_gnxtval(0)
-         f1stcall=.false.
+      if (odlb) then
+        if(f1stcall) then
+           junk=util_gnxtval(0)
+           f1stcall=.false.
+        endif
+      else
+c       No dynamic load balancing 
+c       =========================
+c       So do not create a GA for the global counter because we will
+c       never destroy that GA. In case of subgroups the latter causes
+c       the code to crash when the subgroup is destroyed as the GA 
+c       library will check whether there are any GAs still defined on
+c       the subgroup.
       endif
 #endif
 c     
