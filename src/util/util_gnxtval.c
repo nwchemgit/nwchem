@@ -47,7 +47,7 @@ Integer util_gnxtval_(Integer *val) {
 	  NGA_Put (g_T, &lo, &hi, &initval, &hi);
 	  initval=0;
        }
-              GA_Sync();
+       GA_Sync();
        return 0;
     }
     else if (*val < 0) { GA_Destroy(g_T); initialized=0; initval=0; return 0;}
