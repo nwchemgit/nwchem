@@ -10601,7 +10601,7 @@ C     i3 ( h12 p3 )_vt + = -1 * Sum ( h6 p5 ) * t ( p5 h6 )_t * v ( h6 h12 p3 p5
       CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),
      &(p3b_2
      & - 1 + (noab+nvab) * (p5b_2 - 1 + (noab+nvab) * (h6b_2 - 1 + (noab
-     &+nvab) * (h12b_2 - 1)))),p3b_2,p5b_2,h6b_2,h6b_2)
+     &+nvab) * (h12b_2 - 1)))),p3b_2,p5b_2,h6b_2,h12b_2)
       end if
       CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_b_sort),int_mb(k_range+h12b-1
      &),int_mb(k_range+h6b-1),int_mb(k_range+p5b-1),int_mb(k_range+p3b-1
