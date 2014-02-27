@@ -9,11 +9,11 @@ C> \file util_sgroup.F
 C> \brief The NWChem interface to the GA sub-groups 
 C>
 C> This file contains routines that facilitate the use of GA sub-groups
-C> in NWChem [1]. The routines take care of issues such as, redirecting
-C> the standard output from different sub-groups, replicating the
-C> runtime database, accessing the movecs file, etc. In addition it
-C> provides mechanisms for creating pools of processors in a number of
-C> different ways. 
+C> in NWChem [1-3]. The routines take care of issues such as,
+C> redirecting the standard output from different sub-groups,
+C> replicating the runtime database, accessing the movecs file, etc. In
+C> addition it provides mechanisms for creating pools of processors in
+C> a number of different ways. 
 C>
 C> To date there is no input block to control this functionality.
 C> Instead set directives that put data directly into the runtime
@@ -21,7 +21,22 @@ C> database are required.
 C>
 C> ### References ###
 C>
-C> [1] J. Nieplocha, B. Palmer, V. Tipparaju, M. Krishnan, H. Trease,
+C> [1] T. L. Windus, S. M. Kathmann, L. D. Crosby,
+C>     "High performance computations using dynamical nucleation
+C>     theory", <i>J. Phys.: Conf. Ser.</i> (2008) <b>125</b>,
+C>     012017, DOI:
+C>     <a href="http://dx.doi.org/10.1088/1742-6596/125/1/012017">
+C>     10.1088/1742-6596/125/1/012017</a>.
+C>
+C> [2] B. J. Palmer, S. M. Kathmann, M. Krishnan, V. Tipparaju,
+C>     J. Nieplocha, "The use of processor groups in molecular
+C>     dynamics simulations to sample free-energy states",
+C>     <i>J. Chem. Theory Comput.</i> (2007) <b>3</b>, 583-592,
+C>     DOI:
+C>     <a href="http://dx.doi.org/10.1021/ct600260u">
+C>     10.1021/ct600260u</a>.
+C>
+C> [3] J. Nieplocha, B. Palmer, V. Tipparaju, M. Krishnan, H. Trease,
 C>     E. Apra, "Advances, applications and performance of the Global
 C>     Arrays shared memory programming toolkit", 
 C>     <i>Int. J. High Perf. Comput. Appl.</i> (2006) <b>20</b>,
