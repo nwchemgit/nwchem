@@ -190,11 +190,11 @@ C       Work around the 36 char cutoff for fname
         write(permdir,'(256(a))') (' ', i=1,256)
         write(fprefix,'(256(a))') (' ', i=1,256)
         if(.not. rtdb_cget(rtdb,'permanent_dir',1,permdir)) then
-           permdir(15:15) = '.'
+           permdir = '.'
         endif
         if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
      &     call errquit('rtdb get file_prefix failed',0,0)
-        idum = 15
+        idum = 1
  747    if(permdir(idum:idum).eq. ' ' .and. idum.lt.inp_strlen(permdir))
      &                then
           idum = idum + 1
