@@ -1,0 +1,24 @@
+echo
+start li2h2_dat
+
+geometry
+  h  -1.356  0.000  0.000
+  li  0.000  1.139  0.000
+  li  0.000 -1.139  0.000
+  h   1.356  0.000  0.000
+end
+
+basis "ao basis"
+  * library "6-31+G*"
+end
+
+set gradient:usegroups T
+set subgroups_number 2
+
+tce
+  ccsd
+end
+
+task scf optimize
+task tce optimize numerical
+task tce frequencies numerical

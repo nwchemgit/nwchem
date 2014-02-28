@@ -68,6 +68,7 @@ foreach $filename (@FILES_TO_PARSE) {
     if ($debug) {print "\ndebug: file for parsed output is: $fileout\n";}
     open(FILE_OUTPUT,$fileout) || die "fatal error: Could not open file:$fileout\n";
     
+    $sgroup = 0;
     $selcipt_block = 0;
     $gradient_block = 0;
     $dirdyv_block = 0;
@@ -184,6 +185,13 @@ foreach $filename (@FILES_TO_PARSE) {
 	if (/failed/i || /warning/i) {
 	    print $_;
 	}
+        if (/^ Creating groups/) {
+           # This calculation used GA subgroups. As a result the output will
+           # be messy (the root processes of each subgroup write to stdout).
+           # So we need to suppress most of the data and pick out only those
+           # that come in a deterministic order.
+           $sgroup = 1;
+        }
 	if (/^ Frequency/ || /^ P.Frequency/){
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
@@ -281,6 +289,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	    printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
 	}
+        if (! $sgroup) {
 	if (/Total/ && /energy/) {
 	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ ) {
 		if ($debug) {print "\ndebug: $_";}
@@ -303,6 +312,8 @@ foreach $filename (@FILES_TO_PARSE) {
 		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
 	}
+	}
+        if (! $sgroup) {
 	if (/total/ && /energy/) {
 	    if ( /MBPT/ || /LCCD/ || /CCD/ || /LCCSD/ || /CCSD/ || /CCSDT/ || /CCSDTQ/ || /QCISD/ || /CISD/ || /CISDT/ || /CISDTQ/ ) {
 		if ($debug) {print "\ndebug: $_";}
@@ -324,6 +335,7 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 		printf FILE_OUTPUT "%.7f\n", set_to_digits(@line_tokens[$itok],7);
 	    }
+	}
 	}
 	if (/Excitation energy/) {
 	    if ($debug) {print "\ndebug: $_";}
@@ -459,6 +471,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	    else {print "possible bad gradient block\n";}
 	}
+        if (! $sgroup) {
 	if (/atom               coordinates                        gradient/){
 	    @atoms = ();
 	    @coords = ();
@@ -466,6 +479,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    $gradient_block = 1;
 	    if ($debug) {print "debug:g1: $_";}
 	}
+        }
 	if (/x          y          z           x          y          z/){
 	    if ($debug) {print "debug:g2: gradient_block is $gradient_block\n";}
 	    if ($gradient_block == 1){
