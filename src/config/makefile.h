@@ -1914,7 +1914,9 @@ endif
           FOPTIONS += -watch=mic_cmd 
           COPTIONS += -opt-report-phase=offload
        else
-          FOPTIONS += -no-openmp-offload
+          ifdef USE_OPENMP
+             FOPTIONS += -no-openmp-offload
+          endif
        endif
        FOPTIONS +=   -vec-report2
        DEFINES+= -DIFCV8 -DIFCLINUX
