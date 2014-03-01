@@ -161,13 +161,13 @@ endif
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o \
                  util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
                  ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
-                 util_sgroup.o ga_copy_dz.o dgami.o util_eri_cholesky.o \
+                 ga_copy_dz.o dgami.o util_eri_cholesky.o \
                  util_test_cholesky.o 
 
   SUBDIRS = md5
 
         OBJ = output.o errquit.o ffflush.o \
-              print_center.o util_flush.o \
+              print_center.o util_flush.o util_sgroup.o \
               util_host.o util_date.o \
 	      input_echo.o util_transpose.o \
               ga_iter_diag.o \
