@@ -1877,7 +1877,6 @@ endif
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
        _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
-       _IFCV10= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /10\.1/ {print "Y"; exit}')
        _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|awk ' /n 1/ {print "Y"; exit}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
@@ -1894,47 +1893,48 @@ endif
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
-        ifdef USE_OPENMP
-           FOPTIONS += -openmp
-           COPTIONS += -openmp
-           DEFINES+= -DUSE_OPENMP 
-           ifdef USE_OFFLOAD
-              ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
-              FC = ifort
-              _FC = ifort
-              CC = icc
-              AR = xiar
-              EXTRA_LIBS += -loffload
-              DEFINES+= -DUSE_OFFLOAD
-              FOPTIONS += -opt-report-phase=offload
-              COPTIONS += -opt-report-phase=offload
-           else
-              FOPTIONS += -no-openmp-offload
-           endif
-        endif
-#        FOPTIONS += -align -warn errors -g -vec-report1
-        FOPTIONS += -align  -g -vec-report1
-        DEFINES+= -DIFCV8 -DIFCLINUX
-        ifeq ($(FC),ifc)
-          FOPTIONS += -quiet
-        endif
-        ifdef  USE_FPE
-          FOPTIONS += -fpe0 -traceback #-fp-model  precise
-        endif
-        FDEBUG= -O2 -g
-        FOPTIMIZE = -O3 -prefetch  -unroll  -ip
-         ifeq ($(_IFCV11),Y) 
-         FOPTIMIZE += -xHost -no-prec-div
-#         FOPTIMIZE += -vec-report2 -opt-report-phase hlo
+       FDEBUG= -O2 -g
+       FOPTIMIZE = -O3  -unroll  -ip
+       FOPTIONS += -align
+       ifdef USE_OPENMP
+          FOPTIONS += -openmp
+          COPTIONS += -openmp
+          DEFINES+= -DUSE_OPENMP 
+       endif
+           
+       ifdef USE_OFFLOAD
+          ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
+          FC = ifort
+          _FC = ifort
+          CC = icc
+          AR = xiar
+          EXTRA_LIBS += -loffload
+          DEFINES+= -DUSE_OFFLOAD
+          FOPTIONS += -opt-report-phase=offload
+          FOPTIONS += -watch=mic_cmd 
+          COPTIONS += -opt-report-phase=offload
+       else
+          FOPTIONS += -no-openmp-offload
+       endif
+       FOPTIONS +=   -vec-report2
+       DEFINES+= -DIFCV8 -DIFCLINUX
+       ifeq ($(FC),ifc)
+         FOPTIONS += -quiet
+       endif
+       ifdef  USE_FPE
+         FOPTIONS += -fpe0 -traceback #-fp-model  precise
+       endif
+        ifeq ($(_IFCV11),Y) 
+        FOPTIMIZE += -xHost -no-prec-div
+       else
+        ifeq ($(_GOTSSE3),Y) 
+         FOPTIMIZE += -xP -no-prec-div
         else
-         ifeq ($(_GOTSSE3),Y) 
-          FOPTIMIZE += -xP -no-prec-div
-         else
-          FOPTIMIZE +=  -tpp7 -ip 
-          FOPTIMIZE += -xW
-         endif
+         FOPTIMIZE +=  -tpp7 -ip 
+         FOPTIMIZE += -xW
         endif
-      endif	
+       endif
+     endif	
 #      
       ifeq ($(_FC),pgf90)
         FOPTIONS   += -Mdalign -Mllalign -Kieee 
