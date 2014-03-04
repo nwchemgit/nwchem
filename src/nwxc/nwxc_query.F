@@ -1042,11 +1042,11 @@ c
      +             //" doi:10.1021/jp050536c)"
          case (NWXCP_S12G)
            cdata = "S12g (M Swart, "
-     +             //"Chem.Phys.Lett. (2013)"
+     +             //"Chem.Phys.Lett. 580, 166 (2013)"
      +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_S12H)
            cdata = "S12h (M Swart, "
-     +             //"Chem.Phys.Lett. (2013)"
+     +             //"Chem.Phys.Lett. 580, 166 (2013)"
      +             //" doi:10.1016/j.cplett.2013.06.045)"
          case (NWXCP_SOGGA)
            cdata = "SOGGA (Y Zhao, DG Truhlar, "
