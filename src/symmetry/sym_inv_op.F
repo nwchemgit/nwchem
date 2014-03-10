@@ -46,7 +46,7 @@ c
          if (dist .lt. 1.0d-8) return
       enddo
 c
-      call errquit('sym_inv_op: failed to find inverse for',op,
-     &       CALC_ERR)
+c      call errquit('sym_inv_op: failed to find inverse for',op,
+c     &       CALC_ERR)
 c
       end

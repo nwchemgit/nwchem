@@ -59,9 +59,10 @@ c
 c    generate symmetry operators for whatever group (crystals, surfaces
 c    polymers or molecules) have been requested.
 c
-      if ((itype.eq.3).and.(numgrp.gt.230)) then
+      if ((itype.eq.3).and.(numset.gt.2)) then
           !write(*,*) "generating unsual groups"
-          call gensym_extra(itype,numgrp,numset,sym_ops(1,1,geom),
+          call gensym_extra(itype,group_number(geom),numset,
+     $                      sym_ops(1,1,geom),
      $                      nops,oprint, group_name(geom))
       else
          call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
