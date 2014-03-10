@@ -1746,11 +1746,17 @@ c
      $                    group_number(geom))
                   else
                      status = inp_match(240,.false.,test,sym_spgnames,
-     $                 group_number(geom))
+     $                                  group_number(geom))
                   endif
-                  if (.not. status)
-     $                 call errquit('geom_sym_input: unknown group '//
-     $                 'name/number', 0, GEOM_ERR)
+
+*                 **** if group_name not found then set setting number to 3 for special call to gen_sym_extra ****
+                  if (.not. status) then
+                     group_number(geom) = 999
+                     setting_number(geom) = 3
+                     group_name(geom)   = test
+c                    call errquit('geom_sym_input: unknown group '//
+c     $                 'name/number', 0, GEOM_ERR)
+                  end if
                endif
             endif
             goto 10
