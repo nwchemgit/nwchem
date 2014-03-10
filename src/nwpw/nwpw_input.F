@@ -1709,12 +1709,24 @@ c
       goto 10
 
 c
-c  smooth_cutoff [Afac sigma]
+c  smooth_cutoff [true/false ... Afac sigma]
 c
- 7900 if (.not.inp_f(scaling(1))) scaling(1) = 2.0d0
-      if (.not.inp_f(scaling(2))) scaling(2) = 4.0d0
-      if (.not.rtdb_put(rtdb,'nwpw:smooth_cutoff',mt_dbl,2,scaling))
-     >  call errquit('nwpw_input: error writing to rtdb',7900,RTDB_ERR)
+ 7900 if (.not.inp_a(zone_name)) then
+         move = .true.
+         scaling(1) = 2.0d0
+         scaling(2) = 4.0d0
+      else 
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (.not.inp_f(scaling(1))) scaling(1) = 2.0d0
+         if (.not.inp_f(scaling(2))) scaling(2) = 4.0d0
+      end if
+      if (move) then
+         if (.not.rtdb_put(rtdb,'nwpw:smooth_cutoff',mt_dbl,2,scaling))
+     >   call errquit('nwpw_input: error writing to rtdb',7900,RTDB_ERR)
+      else
+         if (.not.rtdb_delete(rtdb,'nwpw:smooth_cutoff'))
+     >   call errquit('nwpw_input: error writing to rtdb',7900,RTDB_ERR)
+      end if
 
       goto 10
 
