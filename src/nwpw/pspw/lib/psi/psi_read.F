@@ -81,8 +81,13 @@ c     complex*16 tmp(*)
          call util_file_name_resolve(full_filename, .false.)
 
          file_exist=util_find_dir(full_filename)
+         if (file_exist) then
+            n = 1
+         else
          n = 0
-         if (file_exist) n = 1
+            write(*,*) 
+     >      "Warning - filename does not exist: "//full_filename
+         end if
 
          if (file_exist) then
             l = index(full_filename,' ') -1
@@ -102,8 +107,7 @@ c     complex*16 tmp(*)
       msglen = 1
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,n)
       if (n.eq.0) then
-         call errquit('filename does not exist: '//full_filename,1,
-     >                INPUT_ERR)
+         call errquit('filename does not exist',1,INPUT_ERR)
       end if
 
 c     **** send header to all nodes ****
