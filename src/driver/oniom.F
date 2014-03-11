@@ -1150,8 +1150,10 @@ c     MO codes to use the correct MO vectors.
 c
       logical ignore
       logical oexists
+      logical do_mcscf
       character*32 keyin, keyout
 c
+      do_mcscf = .false.
       if (ga_nodeid() .eq. 0) then
          keyin  = 'scf:input vectors'
          keyout = 'scf:output vectors'
@@ -1167,9 +1169,11 @@ c
          else if (inp_compare(.false.,'mcscf',theory)) then
             keyin  = 'mcscf:input vectors'
             keyout = 'mcscf:output vectors'
+            do_mcscf = .true.
          else if (inp_compare(.false.,'selci',theory)) then
             keyin  = 'mcscf:input vectors'
             keyout = 'mcscf:output vectors'
+            do_mcscf = .true.
          end if
          inquire(file=movecs,exist=oexists)
 c
@@ -1181,6 +1185,11 @@ c
          ignore = rtdb_delete(rtdb, keyout)
          if (oexists) then
             if (.not. rtdb_cput(rtdb,keyin,1,movecs)) call errquit
+     $           ('oniom_manage_mos: failed settting input vectors',0,
+     &       RTDB_ERR)
+         else if (do_mcscf) then
+c           we need to prevent the MCSCF code picking up random SCF vectors
+            if (.not. rtdb_cput(rtdb,keyin,1,'atomic')) call errquit
      $           ('oniom_manage_mos: failed settting input vectors',0,
      &       RTDB_ERR)
          end if
@@ -1268,10 +1277,14 @@ c     (high||medium||low) theory [basis basname] [ecp ecpname] [input inpstr]
 c
 c     Read oniom theory input ... defaults assumed set outside
 c
+c     The theory string should always be converted to lower case as the
+c     task layer uses lower case strings only.
+c
       character*128 test
 c
       if (.not. inp_a(theory)) call errquit
      $     ('oniom_input: failed reading theory',0, INPUT_ERR)
+      call inp_lcase(theory)
 c
  10   if (.not. inp_a(test)) return
       if (inp_compare(.false.,'basis',test)) then
