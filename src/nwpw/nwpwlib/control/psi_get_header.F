@@ -36,7 +36,6 @@
 
       call Parallel_taskid(taskid)
 
-       write(*,*) "hera"
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
