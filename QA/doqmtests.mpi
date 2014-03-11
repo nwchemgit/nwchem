@@ -111,6 +111,9 @@ if ( ${?TCE_CUDA} == 1 ) then
   endif
 endif
 ./runtests.mpi.unix procs $np oniom1
+./runtests.mpi.unix procs $np oniom2
+./runtests.mpi.unix procs $np oniom3
+./runtests.mpi.unix procs $np oniom4
 ./runtests.mpi.unix procs $np c60_ecp
 ./runtests.mpi.unix procs $np h2o_vscf
 #
