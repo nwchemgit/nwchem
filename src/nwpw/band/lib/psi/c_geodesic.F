@@ -129,6 +129,7 @@
          end do
 
       end do
+      call K1dB_MaxAll(max_sigma)
 
 *     **** calculate 2*<A|H|psi> ****
       dE = 2.0d0*c_electron_eorbit(A_tag)
