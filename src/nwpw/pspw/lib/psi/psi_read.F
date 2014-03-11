@@ -36,7 +36,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,psi_nolattice,lprint,pio
+      logical value,psi_nolattice,lprint,pio,file_exist
 
 *     ***** local functions ****
       character*50 control_input_psi
@@ -45,8 +45,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
-      logical  control_print,control_parallel_io
-      external control_print,control_parallel_io
+      logical  control_print,control_parallel_io,util_find_dir
+      external control_print,control_parallel_io,util_find_dir
       
 
       call nwpw_timing_start(50)
@@ -79,21 +79,31 @@ c     complex*16 tmp(*)
          filename = control_input_psi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
-c        call util_file_name_noprefix(filename,.false.,
-c    >                                .false.,
-c    >                        full_filename)
 
-         l = index(full_filename,' ') -1
-         if (lprint) write(LuOut,1210) full_filename(1:l)
+         file_exist=util_find_dir(full_filename)
+         n = 0
+         if (file_exist) n = 1
+
+         if (file_exist) then
+            l = index(full_filename,' ') -1
+            if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
 
-         call openfile(5,full_filename,l,'r',l)
-         call iread(5,version,1)
-         call iread(5,nfft,3)
-         call dread(5,unita,9)
-         call iread(5,ispin,1)
-         call iread(5,ne,2)
-         call iread(5,occupation,1)
+            call openfile(5,full_filename,l,'r',l)
+            call iread(5,version,1)
+            call iread(5,nfft,3)
+            call dread(5,unita,9)
+            call iread(5,ispin,1)
+            call iread(5,ne,2)
+            call iread(5,occupation,1)
+         end if
+      end if
+
+      msglen = 1
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,n)
+      if (n.eq.0) then
+         call errquit('filename does not exist: '//full_filename,1,
+     >                INPUT_ERR)
       end if
 
 c     **** send header to all nodes ****
