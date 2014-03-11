@@ -1456,7 +1456,7 @@ c     **** get temp memory from stack ****
         sindex=sindex + ne(ms)       
       end do
       end do
-      call Parallel_Brdcst_values(MASTER,(vindex-1),V)
+      call Parallela_Brdcst_values(1,MASTER,(vindex-1),V)
 
 c     ***** pop stack memory *****
       value=          MA_pop_stack(work(2))
@@ -1538,7 +1538,7 @@ c     **** get temp memory from stack ****
         sindex=sindex + nein(ms)       
       end do
       end do
-      call Parallel_Brdcst_values(MASTER,(vindex-1),V)
+      call Parallela_Brdcst_values(1,MASTER,(vindex-1),V)
              
 
 c     ***** pop stack memory *****
