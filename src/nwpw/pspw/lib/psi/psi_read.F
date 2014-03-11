@@ -45,8 +45,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
-      logical  control_print,control_parallel_io,util_find_dir
-      external control_print,control_parallel_io,util_find_dir
+      logical  control_print,control_parallel_io
+      external control_print,control_parallel_io
       
 
       call nwpw_timing_start(50)
@@ -80,16 +80,9 @@ c     complex*16 tmp(*)
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
 
-         file_exist=util_find_dir(full_filename)
+         inquire(file=full_filename,exist=file_exist)
          if (file_exist) then
             n = 1
-         else
-         n = 0
-            write(*,*) 
-     >      "Warning - filename does not exist: "//full_filename
-         end if
-
-         if (file_exist) then
             l = index(full_filename,' ') -1
             if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
@@ -101,6 +94,11 @@ c     complex*16 tmp(*)
             call iread(5,ispin,1)
             call iread(5,ne,2)
             call iread(5,occupation,1)
+         else
+            n = 0
+            write(luout,*) 
+     >      "Warning - filename does not exist: "//full_filename
+            call util_flush(luout)
          end if
       end if
 
