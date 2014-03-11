@@ -514,6 +514,10 @@ c         status = .false.
            status = leps_gradient(rtdb)
          endif
       else
+         call util_flush(luout)
+         write(luout,*)'task_gradient: theory = ',
+     &                 theory(1:inp_strlen(theory))
+         call util_flush(luout)
          call errquit('task_gradient: unknown theory',0, INPUT_ERR)
       endif
 c
