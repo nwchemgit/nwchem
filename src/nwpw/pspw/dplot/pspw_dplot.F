@@ -95,7 +95,6 @@
         ncell(3) = 0
       end if
 
-
 *     **** get origin ****
       if (.not.
      >      rtdb_get(rtdb,'pspw_dplot:origin',
@@ -111,7 +110,6 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       mapping   = control_mapping()
-
 
 
 *     **** initialize D3dB data structure ****
