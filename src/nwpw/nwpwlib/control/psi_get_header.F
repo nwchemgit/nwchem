@@ -16,8 +16,12 @@
       real*8  unita(3,3)
       integer ispin,ne(2)
 
+#include "stdio.fh"
+#include "errquit.fh"
+
 *    *** local variables ***
-      integer l
+      logical filename_exist
+      integer l,n
       character*50 filename
       character*255 full_filename
 
@@ -32,6 +36,7 @@
 
       call Parallel_taskid(taskid)
 
+       write(*,*) "hera"
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -39,14 +44,27 @@
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)
-         l = index(full_filename,' ') -1
-         call openfile(4,full_filename,l,'r',l)
-         call iread(4,version,1)
-         call iread(4,nfft,3)
-         call dread(4,unita,9)
-         call iread(4,ispin,1)
-         call iread(4,ne,2)
-         call closefile(4)
+         inquire(file=full_filename,exist=filename_exist)
+         if (filename_exist) then
+            n = 1
+            l = index(full_filename,' ') -1
+            call openfile(4,full_filename,l,'r',l)
+            call iread(4,version,1)
+            call iread(4,nfft,3)
+            call dread(4,unita,9)
+            call iread(4,ispin,1)
+            call iread(4,ne,2)
+            call closefile(4)
+         else
+            n = 0
+            write(luout,*) "filename does not exist: "//full_filename
+         end if
+      end if
+
+      msglen = 1
+      call Parallel_Brdcst_ivalues(MASTER,msglen,n)
+      if (n.eq.0) then
+         call errquit("filename does not exist",0,INPUT_ERR)
       end if
 
 c     **** send header to all nodes ****

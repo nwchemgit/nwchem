@@ -250,6 +250,7 @@ c     **** send header to all nodes ****
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)
+
          l = index(full_filename,' ') -1
          call openfile(4,full_filename,l,'r',l)
          call iread(4,version,1)
