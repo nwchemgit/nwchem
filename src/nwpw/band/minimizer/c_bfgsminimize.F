@@ -144,6 +144,7 @@ c     dte = 1.0d0
 *        **** initialize the geoedesic line data structure ****
          call c_geodesic_start(S0_tag,max_sigma,dE0)
 
+
 *        ******* line search *********
          if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
             deltat = tmin
