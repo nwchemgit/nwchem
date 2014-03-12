@@ -1,0 +1,42 @@
+#
+# $Id: Ru 19707 2010-10-29 17:59:36Z d3y133 $
+#
+Comment: Ru pseudopotential parameters
+Comment: Relativistic TM, 4s and 4p in the valence, s local, multiple projectors, no semicore
+Comment: Ru(III) reference atom
+Comment: Developed by EJB on 3/11/2014
+Comment:
+
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+<atom>
+Ru
+44.0 101.0 6 3
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+3  2     10.00
+4  0      2.00
+4  1      6.00
+4  2      5.00
+<end>
+ <solver> pauli                     <end>
+ <pseudopotential> troullier-martins         <end>
+ <rcut>
+   0  1.56
+   1  1.60
+   2  1.80
+ <end>
+ <kb_expansion>
+   0  1
+   1  2
+ <end>
+<screening_cut> 0.10 <end>
+<comment> Parameterized Ru Troullier-Martin psp (s local,4p4d5p projectors, 3/11/2014 by EJB) <end>
+
