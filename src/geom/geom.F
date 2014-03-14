@@ -3631,6 +3631,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
+#include "util_params.fh"
 c
 c::functions      
       logical geom_ncent
@@ -3649,7 +3650,7 @@ c::local
       double precision dist_min
       double precision dist_thresh
       double precision dist_my
-      parameter (dist_thresh = 1.0d-03)
+      parameter (dist_thresh = 0.5d0)
       double precision dist2
 c
       dist2(i,j) =
@@ -3699,8 +3700,20 @@ c
       write(luout,*)'minimum distance ',dist_min
       write(luout,*)
      &    ' ************ WARNING ******************' 
+      write(luout,'(A,F8.3,A)')
+     &    ' at least two atoms are only ',dist_min/cang2au,
+     A     ' angstrom apart '
       write(luout,*)
-     &    ' at least two atoms are at the same physical location'
+     &    'Please check your geometry input' 
+      write(luout,*)
+     &    ' ************ WARNING ******************' 
+      write(luout,*)
+     &    'If you like danger & want to skip this check' 
+      write(luout,*)
+     &    'add the following input line'
+      write(luout,*)
+     &    'set geom:dont_verify .true.'
+
       end
 c
 c

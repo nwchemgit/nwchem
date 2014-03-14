@@ -69,6 +69,7 @@ c     .                           and for forcing symmetry
       external geom_create_from_file
       logical geom_create_from_trj
       external geom_create_from_trj
+      logical dont_verifygeom
 c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -654,9 +655,13 @@ c
      $     call errquit('geom_input: geom_rtdb_store failed', 0,
      &       RTDB_ERR)
 c     
-      if(.not. geom_verify_coords(geom))
-     &     call errquit
-     &     ('geom_input: geom_verify_coords failed',911, GEOM_ERR)
+      if (.not. rtdb_get(rtdb, 'geom:dont_verify', mt_log, 1, 
+     D     dont_verifygeom)) dont_verifygeom=.false.
+      if(.not.dont_verifygeom) then
+         if(.not. geom_verify_coords(geom))
+     &        call errquit
+     &        ('geom_input: geom_verify_coords failed',911, GEOM_ERR)
+      endif
 c
 c     almost done
 c
