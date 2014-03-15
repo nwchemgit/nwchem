@@ -144,7 +144,7 @@ int     get_string(FILE *stream, char *string)
 
 int remove_blanks(FILE *stream)
 {
-    int c,n,value;
+    int c,n=0,value;
 
     while ((c=fgetc(stream))!=EOF && c!='\n' && (c==' ' || c=='\t'))
         ++n;

@@ -75,12 +75,12 @@ Integer	*n3;
 
     int      *nl;
     int      i,k,l,p,p1;
-    int      Ngrid,nrl;
+    int      Ngrid,nrl=0;
     double   *rgrid,*psi,*psp;
     double       *rl, *tmp, *tmp2, *sc_rho, *sc_rhol, *sc_drho, *sc_drhol,
     **psil,
     **pspl;
-    double   drl,rmax;
+    double   drl=0.0,rmax;
 
     int      lmax,locp,lmaxp;
     double   r0,xx;
