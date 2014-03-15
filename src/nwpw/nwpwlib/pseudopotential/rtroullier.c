@@ -173,7 +173,7 @@ solve_RelTroullier (int num_psp,
   double al, amesh, rmax, Zion;
   double gamma, gpr, nu0;
   double ldpsi_match;
-  double el, eeig;
+  double el, eeig=0.0;
   double ph, px, pc, eh, ex, ec;
 
   double *ul, *ul_prime;
