@@ -34,6 +34,7 @@ c
       integer dummy
       character*255 filename
 c
+      nodezero = (ga_nodeid().eq.0)
       if (skip_l) then
         if (nodezero) write(LuOut,9700)
         return
