@@ -106,28 +106,26 @@ void	init_DFT(char	*filename)
 
 }
 
-void set_Exchange_DFT(exchange)
-int exchange;
+void set_Exchange_DFT(int exchange)
 {
     Exchange_Type = exchange;
 }
-void set_Correlation_DFT(correlation)
-int correlation;
+
+void set_Correlation_DFT(int correlation)
 {
     Correlation_Type = correlation;
 }
-void set_Hartree_DFT(hartree)
-int hartree;
+
+void set_Hartree_DFT(int hartree)
 {
     Hartree_Type = hartree;
 }
 
 
-void    R_Screening_Cut(Vx)
-double *Vx;
+void R_Screening_Cut(double * Vx)
 {
-   int k,NN,n0,n1;
-   double r0,r1,v0,v1,m,b;
+   int k,NN,n0,n1=0;
+   double r0,r1=0.0,v0,v1=0.0,m,b;
    double *r;
    if (screening_cut>0.0)
    {
@@ -146,12 +144,7 @@ double *Vx;
 
 
 
-void	R_Exchange_DFT(rho,Vx,Ex,Px)
-
-double	*rho;
-double	*Vx;
-double	*Ex;
-double	*Px;
+void R_Exchange_DFT(double * rho, double * Vx, double * Ex, double * Px)
 {
     int k,Ngrid;
 
@@ -173,12 +166,7 @@ double	*Px;
     }
 }
 
-void	R_Correlation_DFT(rho,Vc,Ec,Pc)
-
-double	*rho;
-double	*Vc;
-double	*Ec;
-double	*Pc;
+void R_Correlation_DFT(double * rho, double * Vc, double * Ec, double * Pc)
 {
     int k,Ngrid;
 
@@ -204,11 +192,7 @@ double	*Pc;
     }
 }
 
-double	R_Hartree_DFT(rho,charge,Vh)
-
-double	*rho;
-double	charge;
-double	*Vh;
+double	R_Hartree_DFT(double * rho, double charge, double * Vh)
 {
     int k,Ngrid;
     double ph;
