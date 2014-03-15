@@ -2029,10 +2029,12 @@ endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
       endif
       ifeq ($(_FC),crayftn)
-        EXPLICITF = TRUE
-        CPP = /usr/bin/cpp  -P -C -traditional
-        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-        FOPTIONS   +=  -Ktrap=fp 
+	# Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
+        #EXPLICITF = FALSE
+        #CPP = /usr/bin/cpp  -P -C -traditional
+ 	#CPPFLAGS += -DCRAYFORTRAN
+        #FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+        FOPTIONS   +=  -Ktrap=fp -DCRAYFORTRAN
         FDEBUG   =    -g
 #       FOPTIMIZE = -O2 -O scalar3,thread0,vector1,ipa0
         FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
