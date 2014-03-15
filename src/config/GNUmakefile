@@ -27,8 +27,15 @@ endif
 # force serial compiler in case CC=mpicc used (even though it should not be)
 #
 ifeq ($(TARGET),LINUX)
-  DEPEND_CC = gcc
+  DEPEND_CC = /usr/bin/gcc
 endif
+ifeq ($(TARGET),LINUX64)
+  DEPEND_CC = /usr/bin/gcc
+endif
+ifeq ($(TARGET),BGQ)
+  DEPEND_CC = /usr/bin/gcc
+endif
+
 
 #
 # use serial compilers which run on the front-end
