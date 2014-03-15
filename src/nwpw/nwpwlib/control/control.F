@@ -42,7 +42,8 @@
       !character*30 cell_name
       character*50 rtdb_unita,rtdb_unitaf,rtdb_ngrid,rtdb_boundry
       character*50 exchange_correlation
-      integer i,l,ind,np
+      integer i,l,np
+!      integer ind ! unused
 
       integer  control_num_kvectors
       external control_num_kvectors
@@ -253,7 +254,7 @@ c       call nwxc_print()
       if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
      >                  1,xyz_filename))
      >  call util_file_prefix('xyz',xyz_filename)
-      ind = index(exchange_correlation,' ') - 1
+!      ind = index(exchange_correlation,' ') - 1
       if(.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
