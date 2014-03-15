@@ -76,6 +76,7 @@ c     *** parameters ***
       
       call dcopy(3*natoms,0.0d0,0,dbl_mb(rion1(1)),1)
     
+      time1 = 0.0
       do t=1,nframes
         
          time2    = time1
