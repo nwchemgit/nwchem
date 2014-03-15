@@ -14,6 +14,7 @@
 #include "paw_output.h"
 #include "paw_basis.h"
 #include "paw_scattering.h"
+#include "paw_loggrid.h"
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
