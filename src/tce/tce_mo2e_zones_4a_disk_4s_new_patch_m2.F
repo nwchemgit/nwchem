@@ -250,33 +250,30 @@ c
 c
 c DISK USAGE ONLY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 c 
+      if(.not.parallel)
+     1  call errquit('sf only for parallel runs',1,DISK_ERR)
       if(idiskl) then
-        if(.not.parallel) 
-     1       call errquit('sf only for parallel runs',1,DISK_ERR)
-c
-c
 c dummy for idiskl true
-c
-c
       else
-       if(.not.parallel)
-     1       call errquit('sf only for parallel runs',1,DISK_ERR)
        if(parallel) call ga_sync()
-        if(size_4af.le.size_max2) then        
+c
+c Jeff: This code makes no sense because filename is not defined.
+c
+       if(size_4af.le.size_max2) then        
          call createfile(filename,d_max1,size_max1)
          call reconcilefile(d_max1,size_max1)
          call ga_zero(d_max1)
          call createfile(filename,d_max2,size_max2)
          call reconcilefile(d_max2,size_max2)
          call ga_zero(d_max2)
-        else
+       else
          call createfile(filename,d_max2,size_max2)
          call reconcilefile(d_max2,size_max2)
          call ga_zero(d_max2)
          call createfile(filename,d_max1,size_max1)
          call reconcilefile(d_max1,size_max1)
          call ga_zero(d_max1)
-        end if
+       end if
       end if 
 c
 c
