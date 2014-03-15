@@ -204,7 +204,7 @@ c        localize core and occupied orbitals
          do i = 1, nclosed(1)
             iloc(i) = i
          end do
- 0       nloc = nclosed(1)
+         nloc = nclosed(1)
 c        jochen: comment:
 c        the localization routines were already available
 c        in nwchem
