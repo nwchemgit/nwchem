@@ -891,7 +891,7 @@ c     implicit none
          proc_from = mod(mytaskid-shift+mynp,mynp)
       end if
 
-      /* determine psr - should be made w/o using tmp array! */
+*      /* determine psr - should be made w/o using tmp array! */
       if (.not.MA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallela_start_rotate:out of stack',0,MA_ERR)
       do i=0,np-1
@@ -1030,7 +1030,7 @@ c     implicit none
          proc_from = mod(mytaskid-shift+mynp,mynp)
       end if
 
-      /* determine psr - should be made w/o using tmp array! */
+*      /* determine psr - should be made w/o using tmp array! */
       if (.not.MA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallela_start_rotate:out of stack',0,MA_ERR)
       do i=0,np-1
