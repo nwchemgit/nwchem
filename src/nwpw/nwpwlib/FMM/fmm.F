@@ -660,6 +660,13 @@ c      end
       complex*16 FMM_A_over_i
       external   FMM_A_over_i
 
+* Jeff added these because they are implicit with Intel Fortran 
+* and either this code is never used, is fine to give undefined behavior
+* or assumes initialization to zero.
+      idx = 0
+      j   = 0
+      i   = 0
+
       do l=0,lmax
          do m=-l,l
             Mlm(idx) = AB(i,j)/FMM_A_over_i(l,m)
@@ -806,6 +813,10 @@ c      end
 *     **** external functions ****
       complex*16 FMM_A_over_i
       external   FMM_A_over_i
+
+* Jeff: idx was not initialized before and defaults to zero with Intel,
+* which appears to be the primary compiler for testing.
+      idx = 0
 
       sgn = 1
       j=1
