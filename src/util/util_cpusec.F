@@ -100,14 +100,11 @@ c $Id$
 #ifdef FUJITSU_SOLARIS
       intrinsic cpu_time
 #endif
-c
       call cpu_time (util_cpusec)
 #endif
 
-*
 #if !defined(__UTIL_CPUSEC__)
-      util_cpusec = 0.0d00
+#include "tcgmsg.fh"
+      util_cpusec = TCGTIME()
 #endif
       end
-
-
