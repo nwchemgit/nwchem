@@ -5,41 +5,28 @@ c $Id$
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
 *
-#if defined(BGL) || defined(BGP) || defined(BGQ) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#if defined(BGL) || defined(BGP) || defined(BGQ)
       EXTERNAL MPI_WTIME
       REAL*8 MPI_WTIME
       util_cpusec = MPI_WTIME()
-#endif
-
-#if defined(IBM) || defined(SP1) ||defined(HPUX) &&!defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(IBM) || defined(SP1) ||defined(HPUX)
       double precision ibm_cputime
       external ibm_cputime
       util_cpusec = ibm_cputime()
-#endif
-
-#if defined(KSR) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(KSR)
 *--KSR-start
       real ksr_cputime
       external ksr_cputime
       util_cpusec = ksr_cputime()
 *--KSR-end
-#endif
-
-#if defined(SUN) || defined(__PARAGON__) || defined(DECOSF) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA) || defined(MACX) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(SUN) || defined(__PARAGON__) || defined(DECOSF) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA) || defined(MACX) 
       real*4 tarray(2)
       real*4 etime
 #ifndef GCC4
       external etime
 #endif
       util_cpusec = etime(tarray)
-#endif
-
-#if defined(SGI) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(SGI)
 #if defined(SGITFP)
       real*4 tarray(2)        ! nb: real == real*8 on TFP
       real*4 etime
@@ -50,10 +37,7 @@ c $Id$
       external etime
 #endif
       util_cpusec = etime(tarray)
-#endif  
-
-#if defined(DELTA) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(DELTA)
       double precision dclock
       external dclock
       double precision first
@@ -64,24 +48,15 @@ c $Id$
         ofirst = .false.
       endif
       util_cpusec = dclock() - first
-#endif
-
-#if (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) &&! defined(CATAMOUNT) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) && !defined(CATAMOUNT)
       double precision linux_cputime
       external linux_cputime
       util_cpusec = linux_cputime()
-#endif
-
-#if defined(WIN32) || defined(LINUXIA64) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(WIN32) || defined(LINUXIA64)
       double precision win32_cputime
       external win32_cputime
       util_cpusec = win32_cputime()
-#endif
-
-#if defined(CRAY) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(CRAY)
       double precision secondr
       external secondr
       double precision first
@@ -93,17 +68,12 @@ c $Id$
         ofirst = .false.
       endif
       util_cpusec = secondr() - first ! Actually wall time
-#endif
-
-#if defined(FUJITSU_SOLARIS) || defined(CATAMOUNT) && !defined(__UTIL_CPUSEC__)
-#define __UTIL_CPUSEC__
+#elif defined(FUJITSU_SOLARIS) || defined(CATAMOUNT)
 #ifdef FUJITSU_SOLARIS
       intrinsic cpu_time
 #endif
       call cpu_time (util_cpusec)
-#endif
-
-#if !defined(__UTIL_CPUSEC__)
+#else
 #include "tcgmsg.fh"
       util_cpusec = TCGTIME()
 #endif
