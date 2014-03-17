@@ -703,6 +703,8 @@ c     that might be changed later if memory becomes an issue
      &         conv2reim,
      &         rohf_hessv_precond3_damp_anti
 
+      debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
 c     later we combine the two components to vecors of double
 c     length and combine again Re and Im, i.e. 
 c     the dimension is up to 4*n
@@ -1267,6 +1269,7 @@ c +++++++++++++ test: build a complex x +++++++++++++ END
 
 c ================= to be removed =========== START
         goto 778 ! avoid-real-linear-solver-1
+#if UNREACHABLE
         call copy_AxxtoAyy(g_Ax,g_Ax_im,
      &                     g_x,g_x_im,
      &                     g_Ay,g_y,
@@ -1275,6 +1278,7 @@ c ================= to be removed =========== START
      &                     nsub,
      &                     n,
      &                     lifetime)
+#endif
 c ---- FA-copy ((Ax,Ax_im),(x,x_im)) -> (Ay,y) ------ END
 c ----- FA--- (g_r,g_r_im) -> g_r2 ---------- START
 c FA: Step 3:
