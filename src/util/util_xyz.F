@@ -20,6 +20,8 @@ c     local variables
       logical util_get_io_unit
       external util_get_io_unit
 
+      message = "empty message for initialization"
+
       pname = "util_xyz_nframes"
       util_xyz_nframes = .false.
 c
