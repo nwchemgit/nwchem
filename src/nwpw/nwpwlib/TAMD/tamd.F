@@ -38,6 +38,10 @@ c     **********************************************
       external    c_index_name
       external    control_it_out
 
+* initialize variables to silence compilers
+      sigma = 0.0
+      w = 0.0
+
       call Parallel_taskid(taskid)
       metaprintcount = 0
       rtdb_name = 'tamd_print'
