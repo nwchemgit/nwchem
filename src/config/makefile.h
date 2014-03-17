@@ -2034,7 +2034,8 @@ endif
         #CPP = /usr/bin/cpp  -P -C -traditional
  	#CPPFLAGS += -DCRAYFORTRAN
         #FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-        FOPTIONS   +=  -Ktrap=fp -DCRAYFORTRAN
+        # USE_POSIXF is required because getlog is provided (GNU extension)
+        FOPTIONS   +=  -Ktrap=fp -DCRAYFORTRAN -DUSE_POSIXF
         FDEBUG   =    -g
 #       FOPTIMIZE = -O2 -O scalar3,thread0,vector1,ipa0
         FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
