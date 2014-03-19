@@ -1,10 +1,15 @@
+C> \file task_num_grad.F
+C> Calculate gradients numerically
+C
 C> \ingroup task
 C> @{
 C>
 C> \brief The driver for numerical gradient evaluations
 C>
-C> \return Return .true. if the numerical gradient was calculated
-C> successfully, and .false. otherwise.
+C> \return 
+C> - `.TRUE.` if the numerical gradient was calculated
+C>    successfully
+C> - `.FALSE.` otherwise.
 C>
       logical function task_num_grad(rtdb)
       implicit none
@@ -81,6 +86,29 @@ C
 c
       end
 C> @}
+C>
+C> \brief Calculate the gradient numerically
+C>
+C> Calculate the gradient of the function `func(rtdb)` with respect
+C> to nuclear displacements using finite differences. The gradient
+C> is returned in the runtime database with key `gname`. The 
+C> algorithm used takes advantage of the symmetry of the molecule
+C> if available. 
+C>
+C> The expression to be differentiated is passed in as the argument
+C> `func` which is a function defined as `logical func(rtdb)`. This
+C> function takes the geometry and other necessary information from
+C> the runtime database. It puts its value (think of it as the energy)
+C> back onto the runtime database with the key `ename`.
+C>
+C> If `osavestate` is `.TRUE.` then the save/restore state routines
+C> can and should be used between finite difference steps and at
+C> the end.
+C>
+C> \return
+C> - `.TRUE.` if successful
+C> - `.FALSE.` otherwise.
+C>
       logical function num_grad(rtdb, func, ename, gname, theory,
      $     osavestate)
       implicit none
@@ -91,13 +119,22 @@ C> @}
 #include "mafdecls.fh"
 #include "util.fh"
 #include "inp.fh"
-      integer rtdb              ! [input] 
-      logical func              ! [input]
+      integer rtdb          !< [Input] The RTDB handle
+      logical func          !< [Input] The function to evaluate 
+                            !< declared as `logical func(rtdb)`
       external func
-      character *(*) ename      ! [input]
-      character *(*) gname      ! [input]
-      character *(*) theory      ! [input]
-      logical osavestate        ! [input]
+      character *(*) ename  !< [Input] The RTDB key for the function
+                            !< values
+      character *(*) gname  !< [Input] The RTDB key for the function
+                            !< gradient
+      character *(*) theory !< [Input] The string specifying the theory
+                            !< also used to construct the RTDB key
+                            !< for the energy at the reference geometry
+      logical osavestate    !< [Input] Use the save state routine
+                            !< - .TRUE. use `task_save_state` and 
+                            !<   `task_restore_state` routines
+                            !< - .FALSE. omit the `task_*_state`
+                            !<   routines
 c
 c     Compute derivatives of function(rtdb) w.r.t. nuclear displacements
 c     using numerical finite difference, returning the gradient in rtdb(gname).
@@ -395,11 +432,6 @@ c
         if (ga_nodeid().gt.0) then
           call dfill (natoms3,0.0d0,dbl_mb(k_grad),1)
         endif
-cDEBUG
-        call util_flush(6)
-        call ga_summarize(.false.)
-        call util_flush(6)
-cDEBUG
         call util_sgend(rtdb)
         call ga_dgop(1,dbl_mb(k_grad),natoms3,'+')
 c
@@ -577,19 +609,35 @@ c
      $     call errquit('num_grad: rtdb corrupt',0, RTDB_ERR)
 c
       end
+C>
+C> \brief Make a set of orthonormal totally symmetric vectors
+C>
+C> Make a set of orthonormal vectors that are
+C> - totally symmetric
+C> - orthogonal to rotations
+C> - orthogonal to translations
+C>
+C> The vectors and the number of vectors is returned. These vectors
+C> may be used as displacements of the atomic positions that preserve
+C> the symmetry of the molecular geometry.
+C>
       subroutine fd_make_vectors(rtdb, geom, natoms, natoms3, 
      $     coords, temp, 
      $     vectors, nvec, oprint)
       implicit none
 #include "errquit.fh"
-      integer rtdb
-      integer geom
-      integer natoms,natoms3    ! [input]
-      double precision coords(3,natoms) ! [input]
-      double precision temp(natoms3, natoms3) ! [scratch]
-      double precision vectors(natoms3, natoms3) ! [output]
-      integer nvec              ! [output]
-      logical oprint            ! [input]
+      integer rtdb    !< [Input] The RTDB handle
+      integer geom    !< [Input] The geometry handle
+      integer natoms  !< [Input] The number of atoms
+      integer natoms3 !< [Input] The number of nuclear coordinate
+c
+      double precision coords(3,natoms)          !< [Input] The nuclear
+                                                 !< coordinates
+      double precision temp(natoms3, natoms3)    !< [Scratch]
+      double precision vectors(natoms3, natoms3) !< [Output] The vectors
+      !< stored by column, i.e. `vectors(1:natoms3,ivec)` is one vector
+      integer nvec    !< [Output] The number of vectors generated
+      logical oprint  !< [Input] A print flag
 c
 c     Make a set of orthnormal vectors that are
 c     1) totally symmetric
