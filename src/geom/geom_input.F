@@ -1903,7 +1903,7 @@ c
       integer maxtor
       logical oprint
 c
-      integer nbond, nangl, ntors, nopla, nlinb, i, nuser
+      integer nbond, nangl, ntors, nopla, nlinb, i, j, nuser
 c
       cvr_scaling=cvr_factor
       nbond=0
@@ -1972,6 +1972,10 @@ c
      $        ('hnd_autoz_input: reading ijbond',1, INPUT_ERR)
          if(.not. inp_i(ijbond(2,nbond))) call errquit
      $        ('hnd_autoz_input: reading ijbond',2, INPUT_ERR)
+         if (ijbond(1,nbond).eq.ijbond(2,nbond)) then
+           call errquit('hnd_autoz_input: atom mentioned twice in '//
+     $                  'bond specification',ijbond(1,nbond),INPUT_ERR)
+         endif
          call geom_autoz_input_varinfo
      $        (ijbond_val(nbond), ijbond_nam(nbond), ijbond_frz(nbond),
      $        nuser,fff)
@@ -1991,6 +1995,15 @@ c
      $        ('hnd_autoz_input: reading ijkang',2, INPUT_ERR)
          if(.not. inp_i(ijkang(3,nangl))) call errquit
      $        ('hnd_autoz_input: reading ijkang',3, INPUT_ERR)
+         do i = 1, 3
+           do j = i+1, 3
+             if (ijkang(i,nangl).eq.ijkang(j,nangl)) then
+               call errquit('hnd_autoz_input: atom mentioned twice '//
+     $                      'in angle specification',ijkang(j,nangl),
+     $                      INPUT_ERR)
+             endif
+           enddo
+         enddo
          call geom_autoz_input_varinfo
      $        (ijkang_val(nangl), ijkang_nam(nangl), ijkang_frz(nangl),
      $        nuser,fff)
@@ -2012,6 +2025,15 @@ c
      $        ('hnd_autoz_input: reading ijklto',3, INPUT_ERR)
          if(.not. inp_i(ijklto(4,ntors))) call errquit
      $        ('hnd_autoz_input: reading ijklto',4, INPUT_ERR)
+         do i = 1, 4
+           do j = i+1, 4
+             if (ijklto(i,ntors).eq.ijklto(j,ntors)) then
+               call errquit('hnd_autoz_input: atom mentioned twice '//
+     $                      'in torsion specification',ijklto(j,ntors),
+     $                      INPUT_ERR)
+             endif
+           enddo
+         enddo
          call geom_autoz_input_varinfo
      $        (ijklto_val(ntors), ijklto_nam(ntors), ijklto_frz(ntors),
      $        nuser,fff)
