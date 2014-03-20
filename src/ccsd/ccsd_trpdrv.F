@@ -636,9 +636,9 @@ c     round it to the nearest multiple of lnov
       iptr=1
       failed=.false.
  2    continue
-      if(ga_nodeid().eq.0) write(6,'(A,2I8,I10,I8,2I14)') 
-     I     ' kk av j lenk lenkfull ' ,
-     A     klo,khi,av,j,lenk,end-start+1
+c      if(ga_nodeid().eq.0) write(6,'(A,2I8,I10,I8,2I14)') 
+c     I     ' kk av j lenk lenkfull ' ,
+c     A     klo,khi,av,j,lenk,end-start+1
       call ccsd_cpyloop(g_objv,start,end,lenk,
      V     av,nvir,lnov, iptr,
      A     dbl_mb(k_kk),djka)
