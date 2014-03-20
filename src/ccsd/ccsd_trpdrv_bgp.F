@@ -43,13 +43,17 @@ c
       integer klo, khi, kchunk
       integer nxtask
       external nxtask
-ceric      integer omp_get_max_threads
-ceric      external omp_get_max_threads
+#ifdef _OPENMP
+      integer omp_get_max_threads
+      external omp_get_max_threads
+#endif
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
-ceric      if (iam.eq.0) write(6,99) omp_get_max_threads()
-ceric   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
+#ifdef _OPENMP
+      if (iam.eq.0) write(6,99) omp_get_max_threads()
+   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
+#endif
 c
 c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 c
@@ -129,63 +133,64 @@ c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-
 !$omp sections
-!$omp& firstprivate(nvir)
 !$omp& private(jump1,jump2)
-!$omp section
+!$omp& firstprivate(nocc,nvir)
                         jump1 = 1+(k-klo)*lnvv
+                        jump2 = 1+(k-klo)*lnov
+!$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
      2                       f1n,nvir)
-                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
-     2                       f3n,nvir)
-                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
-     2                       f2n,nvir)
-                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
-     2                       f4n,nvir)
-!$omp section
-                        jump1 = 1+(k-klo)*lnvv
-                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
-     2                       f1t,nvir)
-                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
-     2                       f3t,nvir)
-                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
-     2                       f2t,nvir)
-                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
-     2                       f4t,nvir)
-!$omp section
-                        jump2 = 1+(k-klo)*lnov
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Kkj(jump2),nocc,1.0d0,
      2                       f1n,nvir)
+!$omp section
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
+     2                       f3n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Jkj(jump2),nocc,1.0d0,
      2                       f3n,nvir)
+!$omp section
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
+     1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
+     2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Kkj(jump2),nocc,1.0d0,
      2                       f2n,nvir)
+!$omp section
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
+     2                       f4n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Jkj(jump2),nocc,1.0d0,
      2                       f4n,nvir)
 !$omp section
-                        jump2 = 1+(k-klo)*lnov
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
+     1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
+     2                       f1t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(jump2),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
+!$omp section
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
+     2                       f3t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(jump2),nvir,Jij,nocc,1.0d0,
      2                       f3t,nvir)
+!$omp section
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
+     1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
+     2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(jump2),nvir,Kij,nocc,1.0d0,
      2                       f2t,nvir)
+!$omp section
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
+     2                       f4t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(jump2),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
