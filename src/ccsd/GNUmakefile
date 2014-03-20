@@ -5,48 +5,48 @@ include ../config/makefile.h
  #OBJ = \
 
  OBJ_OPTIMIZE = \
-    	ccden_driver.o \
-		ccden_interm2.o \
-		ccden_1pdm.o \
-		ccsd_driver.o \
-		ccsd_sortmo.o \
-		geaxpy.o \
-		ccden_2pdma.o \
-		ccden_2pdmb.o \
-		ccsd_mktau_ga.o \
-		ccden_interm4.o \
+        ccden_driver.o \
+        ccden_interm2.o \
+        ccden_1pdm.o \
+        ccsd_driver.o \
+        ccsd_sortmo.o \
+        geaxpy.o \
+        ccden_2pdma.o \
+        ccden_2pdmb.o \
+        ccsd_mktau_ga.o \
+        ccden_interm4.o \
         aoccsd2.o \
-		ccsd_itm.o \
-		ccsd_t2pm.o \
-		ccsd_pampt2.o \
-		ccsd_pampt3.o \
-		ccsd_trpdrv.o \
-		ccsd_trpdrv_nb.o \
-		ccsd_trpdrv_bgp.o \
-		moints_trp.o \
-		ccsd.o \
-		ccsd_aux.o \
-		ccsd_fsig1.o \
-		ccsd_fsig2.o \
-		ccsd_get_param.o \
-		ccsd_iterdrv2.o \
-		ccsd_mktask.o \
-		ccsd_mkt2.o \
-		ccsd_pdiis.o \
-		ccsd_trpmo.o \
-		ccsd_rdtrpo.o \
-		qstat.o \
-		cputime.o \
-		rddcom.o \
-		ccsd_input.o \
-		ccsd_graddrv.o \
+        ccsd_itm.o \
+        ccsd_t2pm.o \
+        ccsd_pampt2.o \
+        ccsd_pampt3.o \
+        ccsd_trpdrv.o \
+        ccsd_trpdrv_nb.o \
+        ccsd_trpdrv_bgp.o \
+        moints_trp.o \
+        ccsd.o \
+        ccsd_aux.o \
+        ccsd_fsig1.o \
+        ccsd_fsig2.o \
+        ccsd_get_param.o \
+        ccsd_iterdrv2.o \
+        ccsd_mktask.o \
+        ccsd_mkt2.o \
+        ccsd_pdiis.o \
+        ccsd_trpmo.o \
+        ccsd_rdtrpo.o \
+        qstat.o \
+        cputime.o \
+        rddcom.o \
+        ccsd_input.o \
+        ccsd_graddrv.o \
         ccsd_zvecs.o \
-		ccsd_pzamp.o \
-		ccsd_zsig1.o \
-		ccsd_zsig2.o \
-		ccsd_z2pm.o \
-		ccsd_tzinta.o \
-		ccsd_tzintb.o \
+        ccsd_pzamp.o \
+        ccsd_zsig1.o \
+        ccsd_zsig2.o \
+        ccsd_z2pm.o \
+        ccsd_tzinta.o \
+        ccsd_tzintb.o \
         ccsd_mem.o \
         ccsd_pstat.o \
         f_memset.o
@@ -82,7 +82,7 @@ endif
      geaxpy.f \
      ccsd_mktau_ga.F \
      ccden_2pdmb.F \
-	 aoccsd2.F \
+     aoccsd2.F \
      moints_trp.F
 
 ifeq ($(TARGET),BGP)
@@ -97,3 +97,5 @@ endif
  LIBRARY = libccsd.a
 
 include ../config/makelib.h
+
+ #FOPTIMIZE=
