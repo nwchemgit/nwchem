@@ -177,7 +177,6 @@ c
 c
 c     open occupations file
       open(unitno,file=fileoccup,err=1000)
-      read(unitno,*,err=1001,end=1001)   ! comment line
 c      write(6,*) "opening file"
 c      write(6,*) "imaj: ",imaj
 c      write(6,*) "imin: ",imin
