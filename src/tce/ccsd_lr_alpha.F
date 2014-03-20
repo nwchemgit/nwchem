@@ -537,7 +537,7 @@ c
       if (nodezero) then
         if (dabs(omega).gt.tol_omega) then
           write(LuOut,9434) "CCSD Linear Response",
-     1      omega,auXnm/omega,
+     1      dabs(omega),dabs(auXnm/omega),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
      3      au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
      4      alpha(2,1),alpha(2,2),alpha(3,2),
@@ -549,7 +549,7 @@ c
      1      alphaiso,au2ang3*alphaiso,alphaani,au2ang3*alphaani
         else
           write(LuOut,9436) "CCSD Linear Response",
-     1      omega,
+     1      dabs(omega),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
      3      au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
      4      alpha(2,1),alpha(2,2),alpha(3,2),
