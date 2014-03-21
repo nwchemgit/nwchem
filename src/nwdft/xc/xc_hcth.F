@@ -168,14 +168,16 @@ c      if(max_pow_u.gt.2) call errquit(' not ready for maxpow=4',0,0)
          if(rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
             call dft_xckernel_xb97(rho_a, rho_b, 1d0, tol_rho, 
      F           FX, max_pow_u, sol)
-            Ex = Ex + FX(_FXC_E)*qwght(i)*xfac
-            if(ldew) func(i)=func(i) + FX(_FXC_E)*xfac
+            call dscal(_FXC_NUMDERI+1,xfac,FX,1)
+            Ex = Ex + FX(_FXC_E)*qwght(i)
+            if(ldew) func(i)=func(i) + FX(_FXC_E)
             call xc_fxc2acmat(nq,i,ipol,FX,
      A           Amat,Cmat,Amat2,Cmat2)
             call dft_xckernel_cb97(rho_a, rho_b, 1d0, tol_rho, 
      F           FC, max_pow_u, sol)
-            Ec = Ec + FC(_FXC_E)*qwght(i)*cfac
-            if(ldew) func(i)=func(i) + FC(_FXC_E)*cfac
+            call dscal(_FXC_NUMDERI+1,cfac,FC,1)
+            Ec = Ec + FC(_FXC_E)*qwght(i)
+            if(ldew) func(i)=func(i) + FC(_FXC_E)
             call xc_fxc2acmat(nq,i,ipol,FC,
      A           Amat,Cmat,Amat2,Cmat2)
          endif
