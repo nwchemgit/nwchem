@@ -727,6 +727,9 @@ c        if (odipole.and.oroot) then
          if (oroot) then
            write(LuOut,9200) dipmom(2),dipmom(3),dipmom(4)
          end if
+c
+c        Write excited-state density in the ao basis
+c
          call ao_1prdm_write(nao,g_p_ao)
 c        end if ! odipole
 c
