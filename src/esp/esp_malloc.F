@@ -60,7 +60,7 @@ c
       call ga_brdcst(mre_012,mxgrid,ma_sizeof(mt_int,1,mt_byte),0)
       ngrid=mxgrid
 c
-      if(newgrd.ne.0) then
+      if(newgrd.ne.0.or.denmat.ne.0) then
 c
 c     initialize integrals
 c

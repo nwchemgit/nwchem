@@ -14,6 +14,7 @@ c
 #include "msgids.fh"
 #include "util.fh"
 #include "schwarz.fh"
+#include "stdio.fh"
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -30,17 +31,17 @@ c
       character*10 today,now
       logical ldummy(1)
 c
-c     calculate density matrix, occupation and energies
+c     get the density matrix, occupation and energies
 c
       call esp_denmat(occ,ene)
 c
-      if(lscrn.ne.0) call schwarz_init(igeom,ibasis)
+      if (lscrn.ne.0) call schwarz_init(igeom,ibasis)
 c
 c     get electrostatic potential on the grid points
 c
-      do 2 i=1,ngrid
-      val(i)=0.0d0
-    2 continue
+      do i=1,ngrid
+         val(i)=0.0d0
+      end do
 c
       call hnd_elfcon(ibasis,igeom,lg_d,grid(1,1),ngrid,val(1),0)
       if(me.eq.0) then
@@ -66,8 +67,9 @@ c
       endif
 c
       if(lscrn.ne.0) call schwarz_tidy()
+c
       if(np.gt.1) then
-      call ga_brdcst(mre_002,val,ngrid*ma_sizeof(mt_dbl,1,mt_byte),0)
+        call ga_brdcst(mre_002,val,ngrid*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
 c
 c     deallocate memory for the integrals
@@ -84,9 +86,9 @@ c
       open(unit=lfngrd,file=grdfil,form='formatted',status='unknown')
       rewind(lfngrd)
       write(lfngrd,'(i10,f20.10)') ngrid,charge
-      do 10 i=1,ngrid
-      write(lfngrd,'(4f20.10)') (grid(j,i),j=1,3),val(i)
-   10 continue
+      do i=1,ngrid
+        write(lfngrd,'(4f20.10)') (grid(j,i),j=1,3),val(i)
+      enddo
       close(unit=lfngrd)
       endif
 c

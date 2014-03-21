@@ -16,7 +16,7 @@ c
       integer irtdb
       character*255 item
       integer i,me,np,icon(maxcon),ncon,nconst,jcon,irest,maxit,ihfree
-      integer idump,ifrom,j,lscrn,newgrd,k,l,m
+      integer idump,ifrom,j,lscrn,newgrd,k,l,m,denmat
       real*8 rcut,spac,radius(107),rcon(500),resa,resb,resc,resd,qh
       real*8 toler,factor,probe,scrtol
       logical lstage2
@@ -41,6 +41,7 @@ c
       idump=0
       lscrn=0
       newgrd=0
+      denmat=0
       scrtol=1.0d-9
       toler=1.0d-4
       maxit=25
@@ -224,6 +225,11 @@ c
       if(inp_compare(.false.,'recalculate',item)) then
         newgrd=1
         goto 2
+      endif
+c
+      if(inp_compare(.false.,'denmat',item)) then
+       denmat=1
+       goto 2
       endif
 c
       if(inp_compare(.false.,'constrain',item)) then
@@ -475,6 +481,9 @@ c
 c
       if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
      + call md_abort('esp: rtdb_put newgrd failed',0)
+c
+      if(.not.rtdb_put(irtdb,'esp:denmat',mt_int,1,denmat))
+     + call md_abort('esp: rtdb_put denmat failed',0)
 c
       return
       end

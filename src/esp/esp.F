@@ -65,11 +65,15 @@ c
 c
 c     calculate the electrostatic potential on the grid
 c
-      if(newgrd.ne.0) then
-      call esp_esp(dbl_mb(ieptr),dbl_mb(ioptr),dbl_mb(idptr),
-     + dbl_mb(ixptr),dbl_mb(iqptr),dbl_mb(igptr),
-     + dbl_mb(ivptr))
-      endif
+      if(newgrd.ne.0.or.denmat.ne.0) then 
+         call esp_esp(dbl_mb(ieptr),  !ene
+     +                dbl_mb(ioptr),  !occ 
+     +                dbl_mb(idptr),  !dns
+     +                dbl_mb(ixptr),  !x
+     +                dbl_mb(iqptr),  !q
+     +                dbl_mb(igptr),  !grid
+     +                dbl_mb(ivptr))  !val
+      end if ! newgrd, denmat
 c
 c     do the fitting
 c

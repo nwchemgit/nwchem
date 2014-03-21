@@ -1,3 +1,6 @@
+c
+c     Calculate or read the density matrix
+c
       subroutine esp_denmat(occ,ene)
 c
 c $Id$
@@ -26,6 +29,9 @@ c
 c
       character*20 scftyp
 c
+      logical ao_1prdm_read
+      external ao_1prdm_read
+c
 c     allocate global arrays
 c
       lg_d    =ga_create_atom_blocked(igeom,ibasis,'density')
@@ -38,30 +44,39 @@ c
       call ga_zero(lg_s)
       call ga_zero(lg_p(1))
 c
-c     open movecs file and read header info
+      if (denmat.ne.0) then
 c
-      if(movfil.eq.' ') then
-       call util_file_name('movecs',.false.,.false.,movfil)
-      else
-       call util_file_name_resolve(movfil,.false.)
-      end if
-      if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
-     + nmo,2)) call md_abort('esp: movecs_read_header failed',me)
+c       read density matrix
 c
-c     if nset=2, put the first set's occupation numbers and eigenvalues
-c     in 1:nbf, put the second set's in nbf+1:2*nbf, and allocate
-c     beta density matrix.
+        if (.not. ao_1prdm_read(nbf,lg_d))
+     &     call errquit('esp_denmat: ao_1prdm_read failed',0,0)
 c
-      if (nset.gt.1) then
-        ioff = nbf
-        lg_p(2)   =ga_create_atom_blocked(igeom,ibasis,'beta density')
-        call ga_zero(lg_p(2))
-      else
-        ioff = 0
-      endif
-
-      nocc=0
-      charge=chgnuc
+      else ! denmat
+c
+c       open movecs file and read header info
+c
+        if (movfil.eq.' ') then
+           call util_file_name('movecs',.false.,.false.,movfil)
+        else
+           call util_file_name_resolve(movfil,.false.)
+        end if
+        if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
+     +       nmo,2)) call md_abort('esp: movecs_read_header failed',me)
+c
+c       if nset=2, put the first set's occupation numbers and eigenvalues
+c       in 1:nbf, put the second set's in nbf+1:2*nbf, and allocate
+c       beta density matrix.
+c
+        if (nset.gt.1) then
+          ioff = nbf
+          lg_p(2)   =ga_create_atom_blocked(igeom,ibasis,'beta density')
+          call ga_zero(lg_p(2))
+        else
+          ioff = 0
+        endif
+c
+        nocc=0
+        charge=chgnuc
 c
 c     read orbital occupations, energies and vectors from movecs
 c
@@ -128,6 +143,8 @@ c
         call ga_dadd(1.0d0,lg_p(1),1.0d0,lg_p(2),lg_d)
       endif
 c
+      endif !denmat
+c
       call ga_sync()
 c     deallocate global arrays lg_s, lg_v and lg_d
 c
@@ -144,5 +161,3 @@ c
 c
       return
       end
-
-
