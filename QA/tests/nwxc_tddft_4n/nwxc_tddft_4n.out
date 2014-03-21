@@ -1237,9 +1237,9 @@ unset int:cando_txs
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-ref/QA/../bin/LINUX64/nwchem
-    date            = Tue Feb 11 19:34:25 2014
+    date            = Thu Mar 20 16:39:21 2014
 
-    compiled        = Tue_Feb_11_17:16:16_2014
+    compiled        = Thu_Mar_20_16:34:14_2014
     source          = /home/d3y133/nwchem-dev/nwchem-ref
     nwchem branch   = Development
     nwchem revision = 25114
@@ -1830,7 +1830,7 @@ unset int:cando_txs
      Excited state energy =    -53.300548795453
 
 
- Task  times  cpu:        0.5s     wall:        0.6s
+ Task  times  cpu:        0.5s     wall:        0.5s
 
 
                                 NWChem Input Module
@@ -1954,11 +1954,11 @@ unset int:cando_txs
                                                      7.76D-03  2.54D-02
  d= 0,ls=0.0,diis     3    -54.3881733812 -2.10D-02  9.22D-04  1.55D-04     0.8
                                                      6.87D-04  3.80D-05
- d= 0,ls=0.0,diis     4    -54.3882512353 -7.79D-05  1.90D-05  1.94D-07     0.9
+ d= 0,ls=0.0,diis     4    -54.3882512353 -7.79D-05  1.90D-05  1.94D-07     0.8
                                                      1.57D-04  3.19D-06
  d= 0,ls=0.0,diis     5    -54.3882522980 -1.06D-06  2.01D-06  1.48D-09     0.9
                                                      1.48D-06  1.34D-09
- d= 0,ls=0.0,diis     6    -54.3882522987 -6.69D-10  1.28D-07  3.71D-12     1.0
+ d= 0,ls=0.0,diis     6    -54.3882522987 -6.69D-10  1.28D-07  3.71D-12     0.9
                                                      1.75D-08  6.97D-13
 
 
@@ -2412,8 +2412,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:      1.6
-   Time prior to 1st pass:      1.6
+   Time after variat. SCF:      1.5
+   Time prior to 1st pass:      1.5
 
  #quartets = 2.310D+02 #integrals = 1.797D+03 #direct =  0.0% #cached =100.0%
 
@@ -2435,17 +2435,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.2939444053 -5.43D+01  2.96D-02  1.03D-01     1.8
+ d= 0,ls=0.0,diis     1    -54.2939444053 -5.43D+01  2.96D-02  1.03D-01     1.7
                                                      2.25D-03  3.30D-03
  d= 0,ls=0.0,diis     2    -54.3212045015 -2.73D-02  8.87D-03  2.34D-02     1.9
                                                      6.90D-03  1.90D-02
- d= 0,ls=0.0,diis     3    -54.3340756731 -1.29D-02  3.81D-04  9.48D-06     2.1
+ d= 0,ls=0.0,diis     3    -54.3340756731 -1.29D-02  3.81D-04  9.48D-06     2.0
                                                      1.56D-03  2.62D-04
  d= 0,ls=0.0,diis     4    -54.3341918194 -1.16D-04  1.54D-04  2.18D-06     2.2
                                                      1.97D-04  4.69D-06
- d= 0,ls=0.0,diis     5    -54.3341946450 -2.83D-06  7.55D-06  1.46D-08     2.4
+ d= 0,ls=0.0,diis     5    -54.3341946450 -2.83D-06  7.55D-06  1.46D-08     2.3
                                                      5.78D-06  1.89D-08
- d= 0,ls=0.0,diis     6    -54.3341946541 -9.13D-09  2.61D-07  1.26D-11     2.6
+ d= 0,ls=0.0,diis     6    -54.3341946541 -9.13D-09  2.61D-07  1.26D-11     2.5
                                                      1.67D-07  4.64D-12
 
 
@@ -2761,11 +2761,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.16E+00   0.10+100        0.3
-    2      4       0     0.14E-01   0.20E-01        0.3
-    3      6       0     0.11E-02   0.29E-03        0.3
-    4      8       0     0.16E-03   0.96E-06        0.3
-    5     10       2     0.46E-05   0.37E-08        0.3
+    1      2       0     0.17E+00   0.10+100        0.3
+    2      4       0     0.17E-01   0.23E-01        0.4
+    3      6       0     0.15E-02   0.40E-03        0.4
+    4      8       0     0.18E-03   0.17E-05        0.4
+    5     10       2     0.54E-05   0.44E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -2773,32 +2773,33 @@ unset int:cando_txs
   <S2> =   3.7535
 
   ----------------------------------------------------------------------------
-  Root   1         a              0.430924244 a.u.               11.7261 eV 
-  <S2> =   3.7557
+  Root   1         a              0.395062633 a.u.               10.7502 eV 
+  <S2> =   3.7537
   ----------------------------------------------------------------------------
-     Transition Moments    X -0.57324   Y  0.29958   Z -0.36187
+     Transition Moments    X  0.36372   Y  0.62593   Z -0.05797
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.15780
+     Dipole Oscillator Strength                         0.13891
 
-     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.99016
+     Occ.    4 alpha a   ---  Virt.   12 alpha a      0.05309
+     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.98893
+     Occ.    2 beta  a   ---  Virt.    8 beta  a     -0.05791
   ----------------------------------------------------------------------------
-  Root   2         a              0.430924244 a.u.               11.7261 eV 
-  <S2> =   3.7557
+  Root   2         a              0.395062633 a.u.               10.7502 eV 
+  <S2> =   3.7537
   ----------------------------------------------------------------------------
-     Transition Moments    X  0.37118   Y  0.63877   Z -0.05916
+     Transition Moments    X -0.56172   Y  0.29356   Z -0.35459
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.15780
+     Dipole Oscillator Strength                         0.13891
 
-     Occ.    4 alpha a   ---  Virt.   12 alpha a      0.05014
-     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.99016
+     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.98893
 
               Target root =      1
           Target symmetry = none
       Ground state energy =    -54.334194654136
-        Excitation energy =      0.430924244122
-     Excited state energy =    -53.903270410014
+        Excitation energy =      0.395062632785
+     Excited state energy =    -53.939132021351
 
 
  Task  times  cpu:        2.8s     wall:        2.8s
@@ -2922,13 +2923,13 @@ unset int:cando_txs
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1    -54.3166485359 -5.43D+01  2.93D-02  1.02D-01     4.5
                                                      2.34D-03  3.36D-03
- d= 0,ls=0.0,diis     2    -54.3440627375 -2.74D-02  8.66D-03  2.25D-02     4.7
+ d= 0,ls=0.0,diis     2    -54.3440627375 -2.74D-02  8.66D-03  2.25D-02     4.6
                                                      6.84D-03  1.87D-02
  d= 0,ls=0.0,diis     3    -54.3565664033 -1.25D-02  3.63D-04  8.13D-06     4.8
                                                      1.58D-03  2.67D-04
  d= 0,ls=0.0,diis     4    -54.3566839045 -1.18D-04  1.57D-04  2.41D-06     5.0
                                                      1.89D-04  4.23D-06
- d= 0,ls=0.0,diis     5    -54.3566866635 -2.76D-06  8.05D-06  1.61D-08     5.2
+ d= 0,ls=0.0,diis     5    -54.3566866635 -2.76D-06  8.05D-06  1.61D-08     5.1
                                                      5.87D-06  1.98D-08
  d= 0,ls=0.0,diis     6    -54.3566866735 -9.95D-09  2.88D-07  1.72D-11     5.3
                                                      1.82D-07  6.11D-12
@@ -3245,11 +3246,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.16E+00   0.10+100        0.3
-    2      4       0     0.15E-01   0.20E-01        0.3
-    3      6       0     0.12E-02   0.30E-03        0.3
-    4      8       0     0.19E-03   0.10E-05        0.3
-    5     10       2     0.52E-05   0.49E-08        0.3
+    1      2       0     0.17E+00   0.10+100        0.3
+    2      4       0     0.18E-01   0.23E-01        0.4
+    3      6       0     0.16E-02   0.42E-03        0.4
+    4      8       0     0.21E-03   0.19E-05        0.4
+    5     10       2     0.62E-05   0.55E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -3257,39 +3258,37 @@ unset int:cando_txs
   <S2> =   3.7535
 
   ----------------------------------------------------------------------------
-  Root   1         a              0.433310051 a.u.               11.7910 eV 
-  <S2> =   3.7558
+  Root   1         a              0.394888183 a.u.               10.7455 eV 
+  <S2> =   3.7535
   ----------------------------------------------------------------------------
-     Transition Moments    X -0.52947   Y  0.50085   Z  0.13840
+     Transition Moments    X -0.48531   Y -0.53439   Z  0.07723
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.15898
+     Dipole Oscillator Strength                         0.13875
 
-     Occ.    3 alpha a   ---  Virt.    9 alpha a      0.05298
-     Occ.    3 alpha a   ---  Virt.   12 alpha a      0.05520
-     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.99003
+     Occ.    3 alpha a   ---  Virt.   13 alpha a     -0.05335
+     Occ.    4 alpha a   ---  Virt.   12 alpha a     -0.05366
+     Occ.    2 beta  a   ---  Virt.    3 beta  a      0.98869
   ----------------------------------------------------------------------------
-  Root   2         a              0.433310051 a.u.               11.7910 eV 
-  <S2> =   3.7558
+  Root   2         a              0.394888183 a.u.               10.7455 eV 
+  <S2> =   3.7535
   ----------------------------------------------------------------------------
-     Transition Moments    X  0.49592   Y  0.54606   Z -0.07892
+     Transition Moments    X -0.51815   Y  0.49014   Z  0.13544
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.15898
+     Dipole Oscillator Strength                         0.13875
 
-     Occ.    3 alpha a   ---  Virt.   13 alpha a      0.05036
-     Occ.    4 alpha a   ---  Virt.    9 alpha a     -0.05318
-     Occ.    4 alpha a   ---  Virt.   12 alpha a      0.05065
-     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.99003
+     Occ.    3 alpha a   ---  Virt.   12 alpha a      0.05849
+     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.98869
 
               Target root =      1
           Target symmetry = none
       Ground state energy =    -54.356686673452
-        Excitation energy =      0.433310050777
-     Excited state energy =    -53.923376622676
+        Excitation energy =      0.394888182701
+     Excited state energy =    -53.961798490751
 
 
- Task  times  cpu:        2.7s     wall:        2.7s
+ Task  times  cpu:        2.8s     wall:        2.8s
 
 
                                 NWChem Input Module
@@ -3735,8 +3734,8 @@ unset int:cando_txs
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.17E+00   0.10+100        0.1
     2      4       0     0.11E-01   0.22E-01        0.1
-    3      6       0     0.68E-03   0.18E-03        0.2
-    4      8       2     0.95E-05   0.60E-06        0.2
+    3      6       0     0.68E-03   0.18E-03        0.1
+    4      8       2     0.95E-05   0.60E-06        0.1
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -3871,8 +3870,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:      8.1
-   Time prior to 1st pass:      8.1
+   Time after variat. SCF:      8.0
+   Time prior to 1st pass:      8.0
 
  #quartets = 2.310D+02 #integrals = 1.797D+03 #direct =  0.0% #cached =100.0%
 
@@ -3894,13 +3893,13 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.3293237809 -5.43D+01  3.40D-02  1.14D-01     8.2
+ d= 0,ls=0.0,diis     1    -54.3293237809 -5.43D+01  3.40D-02  1.14D-01     8.1
                                                      3.60D-03  1.15D-02
  d= 0,ls=0.0,diis     2    -54.3480272293 -1.87D-02  1.43D-02  5.06D-02     8.2
                                                      7.98D-03  2.59D-02
  d= 0,ls=0.0,diis     3    -54.3696235400 -2.16D-02  1.12D-03  2.51D-04     8.3
                                                      3.29D-04  2.09D-05
- d= 0,ls=0.0,diis     4    -54.3697205610 -9.70D-05  2.30D-05  7.01D-07     8.4
+ d= 0,ls=0.0,diis     4    -54.3697205610 -9.70D-05  2.30D-05  7.01D-07     8.3
                                                      1.28D-04  3.19D-06
  d= 0,ls=0.0,diis     5    -54.3697215550 -9.94D-07  1.84D-06  8.48D-10     8.4
                                                      9.21D-07  4.03D-10
@@ -4222,8 +4221,8 @@ unset int:cando_txs
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.17E+00   0.10+100        0.1
-    2      4       0     0.11E-01   0.22E-01        0.2
-    3      6       0     0.66E-03   0.18E-03        0.2
+    2      4       0     0.11E-01   0.22E-01        0.1
+    3      6       0     0.66E-03   0.18E-03        0.1
     4      8       2     0.96E-05   0.61E-06        0.1
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
@@ -4367,8 +4366,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:      9.1
-   Time prior to 1st pass:      9.1
+   Time after variat. SCF:      9.0
+   Time prior to 1st pass:      9.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -4383,15 +4382,15 @@ unset int:cando_txs
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1    -53.8241894435 -5.38D+01  2.24D-02  1.39D-01     9.1
                                                      2.25D-03  2.82D-02
- d= 0,ls=0.0,diis     2    -53.8629987802 -3.88D-02  3.74D-03  5.60D-03     9.2
+ d= 0,ls=0.0,diis     2    -53.8629987802 -3.88D-02  3.74D-03  5.60D-03     9.1
                                                      6.05D-03  1.05D-02
  d= 0,ls=0.0,diis     3    -53.8666422659 -3.64D-03  1.56D-03  4.32D-04     9.2
                                                      1.41D-03  2.12D-04
- d= 0,ls=0.0,diis     4    -53.8669692235 -3.27D-04  2.88D-04  4.89D-06     9.3
+ d= 0,ls=0.0,diis     4    -53.8669692235 -3.27D-04  2.88D-04  4.89D-06     9.2
                                                      8.13D-04  5.44D-05
  d= 0,ls=0.0,diis     5    -53.8669963645 -2.71D-05  4.03D-05  2.01D-07     9.3
                                                      2.85D-05  3.29D-08
- d= 0,ls=0.0,diis     6    -53.8669964561 -9.16D-08  1.08D-06  2.17D-10     9.4
+ d= 0,ls=0.0,diis     6    -53.8669964561 -9.16D-08  1.08D-06  2.17D-10     9.3
                                                      4.59D-07  5.93D-11
 
 
@@ -4851,8 +4850,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     10.4
-   Time prior to 1st pass:     10.4
+   Time after variat. SCF:     10.3
+   Time prior to 1st pass:     10.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -4865,17 +4864,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.2954147210 -5.43D+01  2.59D-02  1.08D-01    10.4
+ d= 0,ls=0.0,diis     1    -54.2954147210 -5.43D+01  2.59D-02  1.08D-01    10.3
                                                      2.63D-03  5.82D-03
- d= 0,ls=0.0,diis     2    -54.3296232015 -3.42D-02  6.02D-03  1.25D-02    10.5
+ d= 0,ls=0.0,diis     2    -54.3296232015 -3.42D-02  6.02D-03  1.25D-02    10.4
                                                      6.26D-03  1.45D-02
- d= 0,ls=0.0,diis     3    -54.3360287036 -6.41D-03  1.11D-03  1.35D-04    10.6
+ d= 0,ls=0.0,diis     3    -54.3360287036 -6.41D-03  1.11D-03  1.35D-04    10.5
                                                      1.82D-03  3.00D-04
- d= 0,ls=0.0,diis     4    -54.3362626217 -2.34D-04  1.62D-04  1.44D-06    10.7
+ d= 0,ls=0.0,diis     4    -54.3362626217 -2.34D-04  1.62D-04  1.44D-06    10.6
                                                      4.22D-04  1.38D-05
- d= 0,ls=0.0,diis     5    -54.3362698689 -7.25D-06  1.50D-05  2.78D-08    10.7
+ d= 0,ls=0.0,diis     5    -54.3362698689 -7.25D-06  1.50D-05  2.78D-08    10.6
                                                      5.21D-06  1.50D-09
- d= 0,ls=0.0,diis     6    -54.3362698795 -1.06D-08  2.48D-07  7.01D-12    10.8
+ d= 0,ls=0.0,diis     6    -54.3362698795 -1.06D-08  2.48D-07  7.01D-12    10.7
                                                      1.19D-07  1.20D-12
 
 
@@ -4887,7 +4886,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999406032
 
-     Total iterative time =      0.5s
+     Total iterative time =      0.4s
 
 
 
@@ -5344,8 +5343,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     12.0
-   Time prior to 1st pass:     12.0
+   Time after variat. SCF:     11.9
+   Time prior to 1st pass:     11.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -5358,17 +5357,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.0489273541 -5.40D+01  2.20D-02  1.04D-01    12.0
+ d= 0,ls=0.0,diis     1    -54.0489273541 -5.40D+01  2.20D-02  1.04D-01    11.9
                                                      1.62D-03  3.93D-03
- d= 0,ls=0.0,diis     2    -54.0858788403 -3.70D-02  2.55D-03  3.92D-03    12.1
+ d= 0,ls=0.0,diis     2    -54.0858788403 -3.70D-02  2.55D-03  3.92D-03    12.0
                                                      5.61D-03  1.04D-02
- d= 0,ls=0.0,diis     3    -54.0891301403 -3.25D-03  1.45D-03  2.45D-04    12.1
+ d= 0,ls=0.0,diis     3    -54.0891301403 -3.25D-03  1.45D-03  2.45D-04    12.0
                                                      2.36D-03  5.36D-04
- d= 0,ls=0.0,diis     4    -54.0895478552 -4.18D-04  2.72D-04  5.33D-06    12.2
+ d= 0,ls=0.0,diis     4    -54.0895478552 -4.18D-04  2.72D-04  5.33D-06    12.0
                                                      5.95D-04  2.40D-05
- d= 0,ls=0.0,diis     5    -54.0895631956 -1.53D-05  2.97D-05  1.38D-07    12.2
+ d= 0,ls=0.0,diis     5    -54.0895631956 -1.53D-05  2.97D-05  1.38D-07    12.1
                                                      1.48D-05  8.26D-09
- d= 0,ls=0.0,diis     6    -54.0895632450 -4.95D-08  8.39D-07  8.20D-11    12.3
+ d= 0,ls=0.0,diis     6    -54.0895632450 -4.95D-08  8.39D-07  8.20D-11    12.1
                                                      5.17D-07  3.39D-11
 
 
@@ -5829,8 +5828,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     13.0
-   Time prior to 1st pass:     13.0
+   Time after variat. SCF:     12.8
+   Time prior to 1st pass:     12.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -5843,17 +5842,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.3487637780 -5.43D+01  3.39D-02  1.13D-01    13.1
+ d= 0,ls=0.0,diis     1    -54.3487637780 -5.43D+01  3.39D-02  1.13D-01    12.9
                                                      2.61D-03  6.25D-03
- d= 0,ls=0.0,diis     2    -54.3689032325 -2.01D-02  1.35D-02  4.72D-02    13.2
+ d= 0,ls=0.0,diis     2    -54.3689032325 -2.01D-02  1.35D-02  4.72D-02    13.0
                                                      7.58D-03  2.52D-02
- d= 0,ls=0.0,diis     3    -54.3893260215 -2.04D-02  7.77D-04  9.45D-05    13.2
+ d= 0,ls=0.0,diis     3    -54.3893260215 -2.04D-02  7.77D-04  9.45D-05    13.1
                                                      1.01D-03  8.74D-05
- d= 0,ls=0.0,diis     4    -54.3894072505 -8.12D-05  5.53D-05  1.65D-07    13.3
+ d= 0,ls=0.0,diis     4    -54.3894072505 -8.12D-05  5.53D-05  1.65D-07    13.2
                                                      2.18D-04  4.39D-06
- d= 0,ls=0.0,diis     5    -54.3894090729 -1.82D-06  1.11D-06  1.00D-09    13.4
+ d= 0,ls=0.0,diis     5    -54.3894090729 -1.82D-06  1.11D-06  1.00D-09    13.2
                                                      2.51D-06  2.23D-09
- d= 0,ls=0.0,diis     6    -54.3894090736 -6.51D-10  2.78D-07  1.82D-11    13.5
+ d= 0,ls=0.0,diis     6    -54.3894090736 -6.51D-10  2.78D-07  1.82D-11    13.3
                                                      5.68D-08  4.94D-12
 
 
@@ -6211,7 +6210,7 @@ unset int:cando_txs
      Excited state energy =    -53.997120118168
 
 
- Task  times  cpu:        1.1s     wall:        1.1s
+ Task  times  cpu:        1.0s     wall:        1.0s
 
 
                                 NWChem Input Module
@@ -6306,8 +6305,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     14.1
-   Time prior to 1st pass:     14.1
+   Time after variat. SCF:     13.9
+   Time prior to 1st pass:     13.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -6320,15 +6319,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.3057273201 -5.43D+01  3.36D-02  1.11D-01    14.2
+ d= 0,ls=0.0,diis     1    -54.3057273201 -5.43D+01  3.36D-02  1.11D-01    14.0
                                                      3.62D-03  1.24D-02
- d= 0,ls=0.0,diis     2    -54.3237453745 -1.80D-02  1.42D-02  4.96D-02    14.2
+ d= 0,ls=0.0,diis     2    -54.3237453745 -1.80D-02  1.42D-02  4.96D-02    14.0
                                                      7.95D-03  2.54D-02
- d= 0,ls=0.0,diis     3    -54.3450011421 -2.13D-02  1.16D-03  2.87D-04    14.3
+ d= 0,ls=0.0,diis     3    -54.3450011421 -2.13D-02  1.16D-03  2.87D-04    14.1
                                                      3.30D-04  1.83D-05
- d= 0,ls=0.0,diis     4    -54.3451083636 -1.07D-04  1.30D-05  4.06D-07    14.4
+ d= 0,ls=0.0,diis     4    -54.3451083636 -1.07D-04  1.30D-05  4.06D-07    14.2
                                                      1.18D-04  2.43D-06
- d= 0,ls=0.0,diis     5    -54.3451091153 -7.52D-07  2.20D-06  1.26D-09    14.5
+ d= 0,ls=0.0,diis     5    -54.3451091153 -7.52D-07  2.20D-06  1.26D-09    14.3
                                                      9.37D-07  7.12D-10
 
 
@@ -6778,8 +6777,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     15.1
-   Time prior to 1st pass:     15.1
+   Time after variat. SCF:     14.8
+   Time prior to 1st pass:     14.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -6792,17 +6791,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.3607070196 -5.44D+01  3.34D-02  1.07D-01    15.2
+ d= 0,ls=0.0,diis     1    -54.3607070196 -5.44D+01  3.34D-02  1.07D-01    14.9
                                                      3.27D-03  8.74D-03
- d= 0,ls=0.0,diis     2    -54.3792989444 -1.86D-02  1.37D-02  4.76D-02    15.2
+ d= 0,ls=0.0,diis     2    -54.3792989444 -1.86D-02  1.37D-02  4.76D-02    15.0
                                                      7.74D-03  2.48D-02
- d= 0,ls=0.0,diis     3    -54.3997683624 -2.05D-02  9.59D-04  1.62D-04    15.3
+ d= 0,ls=0.0,diis     3    -54.3997683624 -2.05D-02  9.59D-04  1.62D-04    15.1
                                                      4.86D-04  2.72D-05
- d= 0,ls=0.0,diis     4    -54.3998424679 -7.41D-05  1.87D-05  6.09D-07    15.4
+ d= 0,ls=0.0,diis     4    -54.3998424679 -7.41D-05  1.87D-05  6.09D-07    15.2
                                                      1.30D-04  3.39D-06
- d= 0,ls=0.0,diis     5    -54.3998434762 -1.01D-06  2.22D-06  1.10D-09    15.5
+ d= 0,ls=0.0,diis     5    -54.3998434762 -1.01D-06  2.22D-06  1.10D-09    15.2
                                                      6.87D-07  4.53D-10
- d= 0,ls=0.0,diis     6    -54.3998434766 -4.72D-10  4.10D-08  5.27D-13    15.6
+ d= 0,ls=0.0,diis     6    -54.3998434766 -4.72D-10  4.10D-08  5.27D-13    15.3
                                                      3.05D-08  2.99D-13
 
 
@@ -7152,7 +7151,7 @@ unset int:cando_txs
      Excited state energy =    -54.003428600980
 
 
- Task  times  cpu:        1.1s     wall:        1.1s
+ Task  times  cpu:        1.0s     wall:        1.1s
 
 
                                 NWChem Input Module
@@ -7247,8 +7246,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     16.1
-   Time prior to 1st pass:     16.1
+   Time after variat. SCF:     15.9
+   Time prior to 1st pass:     15.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -7261,17 +7260,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.3774973199 -5.44D+01  3.34D-02  1.06D-01    16.2
+ d= 0,ls=0.0,diis     1    -54.3774973199 -5.44D+01  3.34D-02  1.06D-01    16.0
                                                      3.52D-03  8.97D-03
- d= 0,ls=0.0,diis     2    -54.3960875867 -1.86D-02  1.37D-02  4.77D-02    16.3
+ d= 0,ls=0.0,diis     2    -54.3960875867 -1.86D-02  1.37D-02  4.77D-02    16.0
                                                      7.80D-03  2.48D-02
- d= 0,ls=0.0,diis     3    -54.4165706346 -2.05D-02  1.01D-03  1.76D-04    16.4
+ d= 0,ls=0.0,diis     3    -54.4165706346 -2.05D-02  1.01D-03  1.76D-04    16.1
                                                      3.70D-04  2.51D-05
- d= 0,ls=0.0,diis     4    -54.4166468973 -7.63D-05  4.04D-05  1.12D-06    16.5
+ d= 0,ls=0.0,diis     4    -54.4166468973 -7.63D-05  4.04D-05  1.12D-06    16.2
                                                      1.21D-04  3.60D-06
- d= 0,ls=0.0,diis     5    -54.4166480403 -1.14D-06  1.69D-06  4.94D-10    16.6
+ d= 0,ls=0.0,diis     5    -54.4166480403 -1.14D-06  1.69D-06  4.94D-10    16.3
                                                      5.11D-07  1.87D-10
- d= 0,ls=0.0,diis     6    -54.4166480405 -2.13D-10  1.34D-07  4.81D-12    16.6
+ d= 0,ls=0.0,diis     6    -54.4166480405 -2.13D-10  1.34D-07  4.81D-12    16.4
                                                      5.94D-08  1.60D-12
 
 
@@ -7738,8 +7737,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     17.2
-   Time prior to 1st pass:     17.2
+   Time after variat. SCF:     16.9
+   Time prior to 1st pass:     16.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -7752,17 +7751,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.3233999519 -5.43D+01  2.47D-02  1.13D-01    17.3
+ d= 0,ls=0.0,diis     1    -54.3233999519 -5.43D+01  2.47D-02  1.13D-01    17.0
                                                      3.05D-03  1.12D-02
- d= 0,ls=0.0,diis     2    -54.3589523823 -3.56D-02  5.28D-03  9.97D-03    17.4
+ d= 0,ls=0.0,diis     2    -54.3589523823 -3.56D-02  5.28D-03  9.97D-03    17.1
                                                      6.03D-03  1.28D-02
- d= 0,ls=0.0,diis     3    -54.3641929732 -5.24D-03  1.25D-03  2.03D-04    17.5
+ d= 0,ls=0.0,diis     3    -54.3641929732 -5.24D-03  1.25D-03  2.03D-04    17.2
                                                      1.64D-03  2.58D-04
- d= 0,ls=0.0,diis     4    -54.3644405562 -2.48D-04  1.77D-04  1.50D-06    17.7
+ d= 0,ls=0.0,diis     4    -54.3644405562 -2.48D-04  1.77D-04  1.50D-06    17.4
                                                      5.06D-04  2.23D-05
- d= 0,ls=0.0,diis     5    -54.3644511498 -1.06D-05  2.14D-05  5.13D-08    17.8
+ d= 0,ls=0.0,diis     5    -54.3644511498 -1.06D-05  2.14D-05  5.13D-08    17.5
                                                      9.48D-06  6.65D-09
- d= 0,ls=0.0,diis     6    -54.3644511721 -2.22D-08  5.53D-07  3.51D-11    17.9
+ d= 0,ls=0.0,diis     6    -54.3644511721 -2.22D-08  5.53D-07  3.51D-11    17.6
                                                      1.34D-07  2.32D-12
 
 
@@ -8118,7 +8117,7 @@ unset int:cando_txs
      Excited state energy =    -53.968393008273
 
 
- Task  times  cpu:        3.3s     wall:        3.3s
+ Task  times  cpu:        3.2s     wall:        3.2s
 
 
                                 NWChem Input Module
@@ -8215,8 +8214,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     20.5
-   Time prior to 1st pass:     20.5
+   Time after variat. SCF:     20.2
+   Time prior to 1st pass:     20.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -8229,17 +8228,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7580198182 -5.48D+01  2.32D-02  1.23D-01    20.6
+ d= 0,ls=0.0,diis     1    -54.7580198182 -5.48D+01  2.32D-02  1.23D-01    20.2
                                                      2.57D-03  6.16D-03
- d= 0,ls=0.0,diis     2    -54.8078943973 -4.99D-02  1.44D-03  2.39D-03    20.6
+ d= 0,ls=0.0,diis     2    -54.8078943973 -4.99D-02  1.44D-03  2.39D-03    20.3
                                                      4.98D-03  9.14D-03
- d= 0,ls=0.0,diis     3    -54.8106265788 -2.73D-03  1.67D-03  2.82D-04    20.7
+ d= 0,ls=0.0,diis     3    -54.8106265788 -2.73D-03  1.67D-03  2.82D-04    20.3
                                                      2.84D-03  8.66D-04
- d= 0,ls=0.0,diis     4    -54.8111634157 -5.37D-04  1.91D-04  6.40D-06    20.8
+ d= 0,ls=0.0,diis     4    -54.8111634157 -5.37D-04  1.91D-04  6.40D-06    20.4
                                                      2.80D-04  4.73D-06
- d= 0,ls=0.0,diis     5    -54.8111681190 -4.70D-06  1.80D-05  6.61D-08    20.8
+ d= 0,ls=0.0,diis     5    -54.8111681190 -4.70D-06  1.80D-05  6.61D-08    20.4
                                                      4.70D-06  4.46D-09
- d= 0,ls=0.0,diis     6    -54.8111681420 -2.31D-08  1.48D-06  3.19D-10    20.9
+ d= 0,ls=0.0,diis     6    -54.8111681420 -2.31D-08  1.48D-06  3.19D-10    20.5
                                                      5.48D-07  4.47D-11
 
 
@@ -8251,7 +8250,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999463896
 
-     Total iterative time =      0.4s
+     Total iterative time =      0.3s
 
 
 
@@ -8610,7 +8609,7 @@ unset int:cando_txs
      Excited state energy =    -54.398565216958
 
 
- Task  times  cpu:        1.3s     wall:        1.4s
+ Task  times  cpu:        1.3s     wall:        1.3s
 
 
                                 NWChem Input Module
@@ -8707,8 +8706,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     21.9
-   Time prior to 1st pass:     21.9
+   Time after variat. SCF:     21.5
+   Time prior to 1st pass:     21.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -8721,17 +8720,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.8945139868 -5.49D+01  2.34D-02  1.26D-01    21.9
+ d= 0,ls=0.0,diis     1    -54.8945139868 -5.49D+01  2.34D-02  1.26D-01    21.5
                                                      2.66D-03  6.37D-03
- d= 0,ls=0.0,diis     2    -54.9454066324 -5.09D-02  1.46D-03  2.44D-03    22.0
+ d= 0,ls=0.0,diis     2    -54.9454066324 -5.09D-02  1.46D-03  2.44D-03    21.6
                                                      5.01D-03  9.25D-03
- d= 0,ls=0.0,diis     3    -54.9481765322 -2.77D-03  1.69D-03  2.88D-04    22.0
+ d= 0,ls=0.0,diis     3    -54.9481765322 -2.77D-03  1.69D-03  2.88D-04    21.6
                                                      2.86D-03  8.83D-04
- d= 0,ls=0.0,diis     4    -54.9487238102 -5.47D-04  1.96D-04  6.66D-06    22.1
+ d= 0,ls=0.0,diis     4    -54.9487238102 -5.47D-04  1.96D-04  6.66D-06    21.7
                                                      2.88D-04  5.02D-06
- d= 0,ls=0.0,diis     5    -54.9487287725 -4.96D-06  1.82D-05  6.80D-08    22.2
+ d= 0,ls=0.0,diis     5    -54.9487287725 -4.96D-06  1.82D-05  6.80D-08    21.7
                                                      4.94D-06  4.73D-09
- d= 0,ls=0.0,diis     6    -54.9487287963 -2.38D-08  1.51D-06  3.34D-10    22.2
+ d= 0,ls=0.0,diis     6    -54.9487287963 -2.38D-08  1.51D-06  3.34D-10    21.8
                                                      5.77D-07  4.80D-11
 
 
@@ -9193,8 +9192,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     23.2
-   Time prior to 1st pass:     23.2
+   Time after variat. SCF:     22.8
+   Time prior to 1st pass:     22.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -9207,17 +9206,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7628371782 -5.48D+01  2.33D-02  1.25D-01    23.3
+ d= 0,ls=0.0,diis     1    -54.7628371782 -5.48D+01  2.33D-02  1.25D-01    22.8
                                                      2.47D-03  6.18D-03
- d= 0,ls=0.0,diis     2    -54.8134102985 -5.06D-02  1.45D-03  2.41D-03    23.3
+ d= 0,ls=0.0,diis     2    -54.8134102985 -5.06D-02  1.45D-03  2.41D-03    22.9
                                                      5.04D-03  9.29D-03
- d= 0,ls=0.0,diis     3    -54.8161901610 -2.78D-03  1.68D-03  2.87D-04    23.4
+ d= 0,ls=0.0,diis     3    -54.8161901610 -2.78D-03  1.68D-03  2.87D-04    22.9
                                                      2.84D-03  8.68D-04
- d= 0,ls=0.0,diis     4    -54.8167280702 -5.38D-04  1.87D-04  6.24D-06    23.5
+ d= 0,ls=0.0,diis     4    -54.8167280702 -5.38D-04  1.87D-04  6.24D-06    23.0
                                                      2.72D-04  4.50D-06
- d= 0,ls=0.0,diis     5    -54.8167325556 -4.49D-06  1.76D-05  6.31D-08    23.5
+ d= 0,ls=0.0,diis     5    -54.8167325556 -4.49D-06  1.76D-05  6.31D-08    23.1
                                                      4.49D-06  4.14D-09
- d= 0,ls=0.0,diis     6    -54.8167325776 -2.20D-08  1.48D-06  3.27D-10    23.6
+ d= 0,ls=0.0,diis     6    -54.8167325776 -2.20D-08  1.48D-06  3.27D-10    23.1
                                                      5.32D-07  4.31D-11
 
 
@@ -9583,7 +9582,7 @@ unset int:cando_txs
      Excited state energy =    -54.402447803109
 
 
- Task  times  cpu:        1.4s     wall:        1.5s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -9680,8 +9679,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     24.7
-   Time prior to 1st pass:     24.7
+   Time after variat. SCF:     24.2
+   Time prior to 1st pass:     24.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -9694,17 +9693,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7630401646 -5.48D+01  2.33D-02  1.25D-01    24.7
+ d= 0,ls=0.0,diis     1    -54.7630401646 -5.48D+01  2.33D-02  1.25D-01    24.2
                                                      2.46D-03  6.18D-03
- d= 0,ls=0.0,diis     2    -54.8136344237 -5.06D-02  1.45D-03  2.41D-03    24.8
+ d= 0,ls=0.0,diis     2    -54.8136344237 -5.06D-02  1.45D-03  2.41D-03    24.3
                                                      5.04D-03  9.29D-03
- d= 0,ls=0.0,diis     3    -54.8164151859 -2.78D-03  1.68D-03  2.87D-04    24.8
+ d= 0,ls=0.0,diis     3    -54.8164151859 -2.78D-03  1.68D-03  2.87D-04    24.4
                                                      2.84D-03  8.68D-04
- d= 0,ls=0.0,diis     4    -54.8169527821 -5.38D-04  1.87D-04  6.22D-06    24.9
+ d= 0,ls=0.0,diis     4    -54.8169527821 -5.38D-04  1.87D-04  6.22D-06    24.4
                                                      2.72D-04  4.49D-06
- d= 0,ls=0.0,diis     5    -54.8169572545 -4.47D-06  1.75D-05  6.29D-08    25.0
+ d= 0,ls=0.0,diis     5    -54.8169572545 -4.47D-06  1.75D-05  6.29D-08    24.5
                                                      4.47D-06  4.12D-09
- d= 0,ls=0.0,diis     6    -54.8169572765 -2.20D-08  1.48D-06  3.27D-10    25.0
+ d= 0,ls=0.0,diis     6    -54.8169572765 -2.20D-08  1.48D-06  3.27D-10    24.5
                                                      5.31D-07  4.30D-11
 
 
@@ -10065,7 +10064,7 @@ unset int:cando_txs
      Excited state energy =    -54.402600352392
 
 
- Task  times  cpu:        1.5s     wall:        1.5s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -10162,8 +10161,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     26.1
-   Time prior to 1st pass:     26.1
+   Time after variat. SCF:     25.6
+   Time prior to 1st pass:     25.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -10176,17 +10175,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7640775080 -5.48D+01  2.33D-02  1.25D-01    26.2
+ d= 0,ls=0.0,diis     1    -54.7640775080 -5.48D+01  2.33D-02  1.25D-01    25.7
                                                      2.45D-03  6.19D-03
- d= 0,ls=0.0,diis     2    -54.8147452810 -5.07D-02  1.45D-03  2.41D-03    26.2
+ d= 0,ls=0.0,diis     2    -54.8147452810 -5.07D-02  1.45D-03  2.41D-03    25.7
                                                      5.04D-03  9.30D-03
- d= 0,ls=0.0,diis     3    -54.8175252623 -2.78D-03  1.67D-03  2.86D-04    26.3
+ d= 0,ls=0.0,diis     3    -54.8175252623 -2.78D-03  1.67D-03  2.86D-04    25.8
                                                      2.82D-03  8.64D-04
- d= 0,ls=0.0,diis     4    -54.8180593226 -5.34D-04  1.85D-04  6.13D-06    26.4
+ d= 0,ls=0.0,diis     4    -54.8180593226 -5.34D-04  1.85D-04  6.13D-06    25.8
                                                      2.68D-04  4.40D-06
- d= 0,ls=0.0,diis     5    -54.8180636997 -4.38D-06  1.74D-05  6.19D-08    26.4
+ d= 0,ls=0.0,diis     5    -54.8180636997 -4.38D-06  1.74D-05  6.19D-08    25.9
                                                      4.38D-06  3.99D-09
- d= 0,ls=0.0,diis     6    -54.8180637213 -2.16D-08  1.48D-06  3.26D-10    26.5
+ d= 0,ls=0.0,diis     6    -54.8180637213 -2.16D-08  1.48D-06  3.26D-10    25.9
                                                      5.19D-07  4.17D-11
 
 
@@ -10560,7 +10559,7 @@ unset int:cando_txs
      Excited state energy =    -54.403314328230
 
 
- Task  times  cpu:        1.4s     wall:        1.4s
+ Task  times  cpu:        1.3s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -10657,8 +10656,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     27.5
-   Time prior to 1st pass:     27.5
+   Time after variat. SCF:     26.9
+   Time prior to 1st pass:     26.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -10671,17 +10670,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7632793829 -5.48D+01  2.33D-02  1.25D-01    27.6
+ d= 0,ls=0.0,diis     1    -54.7632793829 -5.48D+01  2.33D-02  1.25D-01    27.0
                                                      2.46D-03  6.18D-03
- d= 0,ls=0.0,diis     2    -54.8139017884 -5.06D-02  1.45D-03  2.41D-03    27.6
+ d= 0,ls=0.0,diis     2    -54.8139017884 -5.06D-02  1.45D-03  2.41D-03    27.1
                                                      5.04D-03  9.30D-03
- d= 0,ls=0.0,diis     3    -54.8166841245 -2.78D-03  1.68D-03  2.87D-04    27.7
+ d= 0,ls=0.0,diis     3    -54.8166841245 -2.78D-03  1.68D-03  2.87D-04    27.1
                                                      2.83D-03  8.68D-04
- d= 0,ls=0.0,diis     4    -54.8172214846 -5.37D-04  1.87D-04  6.21D-06    27.7
+ d= 0,ls=0.0,diis     4    -54.8172214846 -5.37D-04  1.87D-04  6.21D-06    27.2
                                                      2.71D-04  4.47D-06
- d= 0,ls=0.0,diis     5    -54.8172259413 -4.46D-06  1.75D-05  6.27D-08    27.8
+ d= 0,ls=0.0,diis     5    -54.8172259413 -4.46D-06  1.75D-05  6.27D-08    27.2
                                                      4.46D-06  4.10D-09
- d= 0,ls=0.0,diis     6    -54.8172259633 -2.19D-08  1.48D-06  3.27D-10    27.8
+ d= 0,ls=0.0,diis     6    -54.8172259633 -2.19D-08  1.48D-06  3.27D-10    27.3
                                                      5.29D-07  4.28D-11
 
 
@@ -10693,7 +10692,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999467127
 
-     Total iterative time =      0.4s
+     Total iterative time =      0.3s
 
 
 
@@ -11049,7 +11048,7 @@ unset int:cando_txs
      Excited state energy =    -54.402785763140
 
 
- Task  times  cpu:        1.4s     wall:        1.4s
+ Task  times  cpu:        1.3s     wall:        1.3s
 
 
                                 NWChem Input Module
@@ -11146,8 +11145,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     28.9
-   Time prior to 1st pass:     28.9
+   Time after variat. SCF:     28.3
+   Time prior to 1st pass:     28.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -11160,17 +11159,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7609244085 -5.48D+01  2.33D-02  1.25D-01    28.9
+ d= 0,ls=0.0,diis     1    -54.7609244085 -5.48D+01  2.33D-02  1.25D-01    28.3
                                                      2.45D-03  6.15D-03
- d= 0,ls=0.0,diis     2    -54.8114626960 -5.05D-02  1.45D-03  2.41D-03    29.0
+ d= 0,ls=0.0,diis     2    -54.8114626960 -5.05D-02  1.45D-03  2.41D-03    28.4
                                                      5.05D-03  9.31D-03
- d= 0,ls=0.0,diis     3    -54.8142549205 -2.79D-03  1.69D-03  2.89D-04    29.0
+ d= 0,ls=0.0,diis     3    -54.8142549205 -2.79D-03  1.69D-03  2.89D-04    28.4
                                                      2.86D-03  8.74D-04
- d= 0,ls=0.0,diis     4    -54.8147980717 -5.43D-04  1.89D-04  6.32D-06    29.1
+ d= 0,ls=0.0,diis     4    -54.8147980717 -5.43D-04  1.89D-04  6.32D-06    28.5
                                                      2.74D-04  4.55D-06
- d= 0,ls=0.0,diis     5    -54.8148026169 -4.55D-06  1.77D-05  6.39D-08    29.2
+ d= 0,ls=0.0,diis     5    -54.8148026169 -4.55D-06  1.77D-05  6.39D-08    28.5
                                                      4.50D-06  4.20D-09
- d= 0,ls=0.0,diis     6    -54.8148026392 -2.23D-08  1.49D-06  3.28D-10    29.2
+ d= 0,ls=0.0,diis     6    -54.8148026392 -2.23D-08  1.49D-06  3.28D-10    28.6
                                                      5.38D-07  4.38D-11
 
 
@@ -11182,7 +11181,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999467026
 
-     Total iterative time =      0.4s
+     Total iterative time =      0.3s
 
 
 
@@ -11539,7 +11538,7 @@ unset int:cando_txs
      Excited state energy =    -54.400902811688
 
 
- Task  times  cpu:        1.3s     wall:        1.4s
+ Task  times  cpu:        1.3s     wall:        1.3s
 
 
                                 NWChem Input Module
@@ -11636,8 +11635,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     30.2
-   Time prior to 1st pass:     30.2
+   Time after variat. SCF:     29.6
+   Time prior to 1st pass:     29.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -11650,17 +11649,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5767987239 -5.46D+01  2.31D-02  1.22D-01    30.4
+ d= 0,ls=0.0,diis     1    -54.5767987239 -5.46D+01  2.31D-02  1.22D-01    29.7
                                                      2.49D-03  4.80D-03
- d= 0,ls=0.0,diis     2    -54.6274224108 -5.06D-02  1.57D-03  2.43D-03    30.6
+ d= 0,ls=0.0,diis     2    -54.6274224108 -5.06D-02  1.57D-03  2.43D-03    29.9
                                                      5.44D-03  9.93D-03
- d= 0,ls=0.0,diis     3    -54.6304769691 -3.05D-03  1.76D-03  3.25D-04    30.7
+ d= 0,ls=0.0,diis     3    -54.6304769691 -3.05D-03  1.76D-03  3.25D-04    30.1
                                                      2.85D-03  7.83D-04
- d= 0,ls=0.0,diis     4    -54.6304266629  5.03D-05  2.17D-04  9.79D-06    30.9
+ d= 0,ls=0.0,diis     4    -54.6304266629  5.03D-05  2.17D-04  9.79D-06    30.3
                                                      1.19D-04  3.96D-06
- d= 0,ls=0.0,diis     5    -54.6304308937 -4.23D-06  1.41D-05  6.57D-08    31.1
+ d= 0,ls=0.0,diis     5    -54.6304308937 -4.23D-06  1.41D-05  6.57D-08    30.4
                                                      2.43D-05  9.91D-08
- d= 0,ls=0.0,diis     6    -54.6304309254 -3.17D-08  1.81D-06  5.70D-10    31.3
+ d= 0,ls=0.0,diis     6    -54.6304309254 -3.17D-08  1.81D-06  5.70D-10    30.6
                                                      3.40D-07  4.60D-11
 
 
@@ -11975,12 +11974,12 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.22E+00   0.10+100        0.3
-    2      4       0     0.39E-01   0.62E-01        0.3
-    3      6       0     0.89E-02   0.92E-03        0.3
-    4      8       0     0.35E-02   0.22E-04        0.3
-    5     10       0     0.14E-03   0.15E-05        0.3
-    6     12       2     0.90E-05   0.22E-08        0.3
+    1      2       0     0.19E+00   0.10+100        0.3
+    2      4       0     0.40E-01   0.41E-01        0.4
+    3      6       0     0.87E-02   0.11E-02        0.4
+    4      8       0     0.37E-02   0.22E-04        0.3
+    5     10       0     0.14E-03   0.18E-05        0.3
+    6     12       2     0.77E-05   0.17E-08        0.3
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -11988,43 +11987,45 @@ unset int:cando_txs
   <S2> =   3.7562
 
   ----------------------------------------------------------------------------
-  Root   1         a              0.328464358 a.u.                8.9380 eV 
-  <S2> =   3.7509
+  Root   1         a              0.421468496 a.u.               11.4687 eV 
+  <S2> =   3.7582
   ----------------------------------------------------------------------------
-     Transition Moments    X -0.00575   Y -0.69555   Z -0.19273
+     Transition Moments    X  0.16660   Y  0.68334   Z  0.22717
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.11408
+     Dipole Oscillator Strength                         0.15350
 
-     Occ.    5 alpha a   ---  Virt.   12 alpha a     -0.05675
-     Occ.    2 beta  a   ---  Virt.    3 beta  a      0.95608
-     Occ.    2 beta  a   ---  Virt.    7 beta  a     -0.17024
-     Occ.    2 beta  a   ---  Virt.    8 beta  a      0.18748
-     Occ.    2 beta  a   ---  Virt.    9 beta  a      0.05935
+     Occ.    5 alpha a   ---  Virt.   12 alpha a      0.06009
+     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.93534
+     Occ.    2 beta  a   ---  Virt.    4 beta  a     -0.26225
+     Occ.    2 beta  a   ---  Virt.    7 beta  a      0.09437
+     Occ.    2 beta  a   ---  Virt.    8 beta  a     -0.16955
+     Occ.    2 beta  a   ---  Virt.    9 beta  a     -0.05277
   ----------------------------------------------------------------------------
-  Root   2         a              0.328464358 a.u.                8.9380 eV 
-  <S2> =   3.7509
+  Root   2         a              0.421468496 a.u.               11.4687 eV 
+  <S2> =   3.7582
   ----------------------------------------------------------------------------
-     Transition Moments    X -0.70391   Y  0.04800   Z -0.15224
+     Transition Moments    X -0.70134   Y  0.20687   Z -0.10792
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.11408
+     Dipole Oscillator Strength                         0.15350
 
-     Occ.    3 alpha a   ---  Virt.   10 alpha a     -0.05220
-     Occ.    4 alpha a   ---  Virt.   14 alpha a     -0.05742
-     Occ.    5 alpha a   ---  Virt.   11 alpha a     -0.05326
-     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.95608
-     Occ.    2 beta  a   ---  Virt.    7 beta  a      0.19662
-     Occ.    2 beta  a   ---  Virt.    8 beta  a      0.16378
+     Occ.    3 alpha a   ---  Virt.   10 alpha a     -0.05419
+     Occ.    4 alpha a   ---  Virt.   14 alpha a     -0.05635
+     Occ.    5 alpha a   ---  Virt.   11 alpha a     -0.05305
+     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.26225
+     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.93534
+     Occ.    2 beta  a   ---  Virt.    7 beta  a      0.17755
+     Occ.    2 beta  a   ---  Virt.    8 beta  a      0.09108
 
               Target root =      1
           Target symmetry = none
       Ground state energy =    -54.630430925371
-        Excitation energy =      0.328464357964
-     Excited state energy =    -54.301966567407
+        Excitation energy =      0.421468495583
+     Excited state energy =    -54.208962429788
 
 
- Task  times  cpu:        3.2s     wall:        3.2s
+ Task  times  cpu:        3.2s     wall:        3.3s
 
 
                                 NWChem Input Module
@@ -12121,8 +12122,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     33.4
-   Time prior to 1st pass:     33.4
+   Time after variat. SCF:     32.8
+   Time prior to 1st pass:     32.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -12135,17 +12136,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5550195128 -5.46D+01  2.31D-02  1.22D-01    33.6
+ d= 0,ls=0.0,diis     1    -54.5550195128 -5.46D+01  2.31D-02  1.22D-01    33.0
                                                      2.72D-03  4.75D-03
- d= 0,ls=0.0,diis     2    -54.6059955122 -5.10D-02  1.60D-03  2.45D-03    33.8
+ d= 0,ls=0.0,diis     2    -54.6059955122 -5.10D-02  1.60D-03  2.45D-03    33.2
                                                      5.52D-03  1.01D-02
- d= 0,ls=0.0,diis     3    -54.6091039779 -3.11D-03  1.76D-03  3.31D-04    33.9
+ d= 0,ls=0.0,diis     3    -54.6091039779 -3.11D-03  1.76D-03  3.31D-04    33.3
                                                      2.83D-03  7.57D-04
- d= 0,ls=0.0,diis     4    -54.6089077445  1.96D-04  2.19D-04  1.10D-05    34.1
+ d= 0,ls=0.0,diis     4    -54.6089077445  1.96D-04  2.19D-04  1.10D-05    33.5
                                                      1.51D-04  6.06D-06
- d= 0,ls=0.0,diis     5    -54.6089128589 -5.11D-06  1.30D-05  7.47D-08    34.3
+ d= 0,ls=0.0,diis     5    -54.6089128589 -5.11D-06  1.30D-05  7.47D-08    33.7
                                                      4.44D-05  2.69D-07
- d= 0,ls=0.0,diis     6    -54.6089129256 -6.66D-08  1.16D-06  2.35D-10    34.5
+ d= 0,ls=0.0,diis     6    -54.6089129256 -6.66D-08  1.16D-06  2.35D-10    33.9
                                                      8.80D-07  7.08D-11
 
 
@@ -12462,12 +12463,12 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.22E+00   0.10+100        0.3
-    2      4       0     0.39E-01   0.61E-01        0.3
-    3      6       0     0.88E-02   0.90E-03        0.3
-    4      8       0     0.34E-02   0.21E-04        0.3
-    5     10       0     0.14E-03   0.15E-05        0.3
-    6     12       2     0.84E-05   0.20E-08        0.3
+    1      2       0     0.19E+00   0.10+100        0.3
+    2      4       0     0.40E-01   0.41E-01        0.3
+    3      6       0     0.87E-02   0.11E-02        0.3
+    4      8       0     0.36E-02   0.21E-04        0.3
+    5     10       0     0.14E-03   0.18E-05        0.3
+    6     12       2     0.69E-05   0.17E-08        0.3
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -12475,38 +12476,39 @@ unset int:cando_txs
   <S2> =   3.7565
 
   ----------------------------------------------------------------------------
-  Root   1         a              0.332807907 a.u.                9.0562 eV 
-  <S2> =   3.7511
+  Root   1         a              0.423537238 a.u.               11.5250 eV 
+  <S2> =   3.7586
   ----------------------------------------------------------------------------
-     Transition Moments    X  0.68032   Y  0.24495   Z -0.02938
+     Transition Moments    X  0.34983   Y  0.61807   Z  0.21121
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.11620
+     Dipole Oscillator Strength                         0.15502
 
-     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.87088
-     Occ.    2 beta  a   ---  Virt.    4 beta  a     -0.39917
-     Occ.    2 beta  a   ---  Virt.    7 beta  a     -0.22427
-     Occ.    2 beta  a   ---  Virt.    9 beta  a     -0.11794
+     Occ.    3 alpha a   ---  Virt.   12 alpha a      0.05800
+     Occ.    4 alpha a   ---  Virt.   13 alpha a     -0.05201
+     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.34808
+     Occ.    2 beta  a   ---  Virt.    4 beta  a     -0.90732
+     Occ.    2 beta  a   ---  Virt.    7 beta  a     -0.05987
+     Occ.    2 beta  a   ---  Virt.    9 beta  a     -0.18877
   ----------------------------------------------------------------------------
-  Root   2         a              0.332807907 a.u.                9.0562 eV 
-  <S2> =   3.7511
+  Root   2         a              0.423537238 a.u.               11.5250 eV 
+  <S2> =   3.7586
   ----------------------------------------------------------------------------
-     Transition Moments    X  0.20659   Y -0.61274   Z -0.32492
+     Transition Moments    X -0.63841   Y  0.27291   Z  0.25879
      Transition Moments   XX  0.00000  XY  0.00000  XZ  0.00000
      Transition Moments   YY  0.00000  YZ  0.00000  ZZ  0.00000
-     Dipole Oscillator Strength                         0.11620
+     Dipole Oscillator Strength                         0.15502
 
-     Occ.    5 alpha a   ---  Virt.   10 alpha a     -0.05190
-     Occ.    2 beta  a   ---  Virt.    3 beta  a     -0.39917
-     Occ.    2 beta  a   ---  Virt.    4 beta  a      0.87088
-     Occ.    2 beta  a   ---  Virt.    7 beta  a     -0.11862
-     Occ.    2 beta  a   ---  Virt.    9 beta  a      0.22795
+     Occ.    2 beta  a   ---  Virt.    3 beta  a      0.90732
+     Occ.    2 beta  a   ---  Virt.    4 beta  a     -0.34808
+     Occ.    2 beta  a   ---  Virt.    7 beta  a      0.18716
+     Occ.    2 beta  a   ---  Virt.    9 beta  a     -0.06227
 
               Target root =      1
           Target symmetry = none
       Ground state energy =    -54.608912925553
-        Excitation energy =      0.332807906709
-     Excited state energy =    -54.276105018844
+        Excitation energy =      0.423537238332
+     Excited state energy =    -54.185375687222
 
 
  Task  times  cpu:        3.2s     wall:        3.2s
@@ -12606,8 +12608,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     36.6
-   Time prior to 1st pass:     36.6
+   Time after variat. SCF:     35.9
+   Time prior to 1st pass:     35.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -12620,17 +12622,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5306140599 -5.45D+01  2.26D-02  1.16D-01    36.7
+ d= 0,ls=0.0,diis     1    -54.5306140599 -5.45D+01  2.26D-02  1.16D-01    36.0
                                                      2.27D-03  4.36D-03
- d= 0,ls=0.0,diis     2    -54.5774123010 -4.68D-02  1.37D-03  2.26D-03    36.8
+ d= 0,ls=0.0,diis     2    -54.5774123010 -4.68D-02  1.37D-03  2.26D-03    36.1
                                                      5.00D-03  8.67D-03
- d= 0,ls=0.0,diis     3    -54.5800060970 -2.59D-03  1.56D-03  2.54D-04    36.8
+ d= 0,ls=0.0,diis     3    -54.5800060970 -2.59D-03  1.56D-03  2.54D-04    36.2
                                                      2.66D-03  7.23D-04
- d= 0,ls=0.0,diis     4    -54.5804638661 -4.58D-04  1.60D-04  4.96D-06    36.9
+ d= 0,ls=0.0,diis     4    -54.5804638661 -4.58D-04  1.60D-04  4.96D-06    36.3
                                                      2.24D-04  3.09D-06
- d= 0,ls=0.0,diis     5    -54.5804670765 -3.21D-06  1.67D-05  5.65D-08    37.0
+ d= 0,ls=0.0,diis     5    -54.5804670765 -3.21D-06  1.67D-05  5.65D-08    36.3
                                                      3.36D-06  3.46D-09
- d= 0,ls=0.0,diis     6    -54.5804670958 -1.92D-08  1.25D-06  2.21D-10    37.1
+ d= 0,ls=0.0,diis     6    -54.5804670958 -1.92D-08  1.25D-06  2.21D-10    36.4
                                                      2.97D-07  1.95D-11
 
 
@@ -12978,7 +12980,7 @@ unset int:cando_txs
      Excited state energy =    -54.155391524006
 
 
- Task  times  cpu:        1.9s     wall:        2.0s
+ Task  times  cpu:        1.9s     wall:        1.9s
 
 
                                 NWChem Input Module
@@ -13075,8 +13077,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     38.5
-   Time prior to 1st pass:     38.5
+   Time after variat. SCF:     37.9
+   Time prior to 1st pass:     37.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -13089,17 +13091,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.7561125641 -5.48D+01  2.31D-02  1.23D-01    38.6
+ d= 0,ls=0.0,diis     1    -54.7561125641 -5.48D+01  2.31D-02  1.23D-01    37.9
                                                      2.50D-03  6.10D-03
- d= 0,ls=0.0,diis     2    -54.8058210142 -4.97D-02  1.44D-03  2.38D-03    38.6
+ d= 0,ls=0.0,diis     2    -54.8058210142 -4.97D-02  1.44D-03  2.38D-03    38.0
                                                      5.00D-03  9.17D-03
- d= 0,ls=0.0,diis     3    -54.8085692057 -2.75D-03  1.68D-03  2.85D-04    38.7
+ d= 0,ls=0.0,diis     3    -54.8085692057 -2.75D-03  1.68D-03  2.85D-04    38.0
                                                      2.86D-03  8.72D-04
- d= 0,ls=0.0,diis     4    -54.8091111920 -5.42D-04  1.92D-04  6.45D-06    38.8
+ d= 0,ls=0.0,diis     4    -54.8091111920 -5.42D-04  1.92D-04  6.45D-06    38.1
                                                      2.80D-04  4.70D-06
- d= 0,ls=0.0,diis     5    -54.8091158900 -4.70D-06  1.81D-05  6.62D-08    38.8
+ d= 0,ls=0.0,diis     5    -54.8091158900 -4.70D-06  1.81D-05  6.62D-08    38.1
                                                      4.60D-06  4.41D-09
- d= 0,ls=0.0,diis     6    -54.8091159131 -2.32D-08  1.48D-06  3.19D-10    38.9
+ d= 0,ls=0.0,diis     6    -54.8091159131 -2.32D-08  1.48D-06  3.19D-10    38.2
                                                      5.47D-07  4.48D-11
 
 
@@ -13467,7 +13469,7 @@ unset int:cando_txs
      Excited state energy =    -54.396810819186
 
 
- Task  times  cpu:        1.3s     wall:        1.3s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -13566,8 +13568,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     39.8
-   Time prior to 1st pass:     39.8
+   Time after variat. SCF:     39.2
+   Time prior to 1st pass:     39.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -13580,17 +13582,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5365096633 -5.45D+01  2.16D-02  1.07D-01    39.9
+ d= 0,ls=0.0,diis     1    -54.5365096633 -5.45D+01  2.16D-02  1.07D-01    39.3
                                                      2.15D-03  5.24D-03
- d= 0,ls=0.0,diis     2    -54.5805778846 -4.41D-02  1.50D-03  2.31D-03    40.0
+ d= 0,ls=0.0,diis     2    -54.5805778846 -4.41D-02  1.50D-03  2.31D-03    39.4
                                                      4.63D-03  7.91D-03
- d= 0,ls=0.0,diis     3    -54.5830302449 -2.45D-03  1.62D-03  2.70D-04    40.1
+ d= 0,ls=0.0,diis     3    -54.5830302449 -2.45D-03  1.62D-03  2.70D-04    39.5
                                                      2.66D-03  7.79D-04
- d= 0,ls=0.0,diis     4    -54.5835233487 -4.93D-04  1.95D-04  6.26D-06    40.2
+ d= 0,ls=0.0,diis     4    -54.5835233487 -4.93D-04  1.95D-04  6.26D-06    39.6
                                                      3.02D-04  5.62D-06
- d= 0,ls=0.0,diis     5    -54.5835285501 -5.20D-06  1.78D-05  6.53D-08    40.3
+ d= 0,ls=0.0,diis     5    -54.5835285501 -5.20D-06  1.78D-05  6.53D-08    39.7
                                                      5.83D-06  5.07D-09
- d= 0,ls=0.0,diis     6    -54.5835285732 -2.31D-08  1.54D-06  3.48D-10    40.4
+ d= 0,ls=0.0,diis     6    -54.5835285732 -2.31D-08  1.54D-06  3.48D-10    39.8
                                                      5.55D-07  4.69D-11
 
 
@@ -13951,7 +13953,7 @@ unset int:cando_txs
      Excited state energy =    -54.172574497790
 
 
- Task  times  cpu:        2.2s     wall:        2.2s
+ Task  times  cpu:        2.3s     wall:        2.5s
 
 
                                 NWChem Input Module
@@ -14050,8 +14052,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     42.1
-   Time prior to 1st pass:     42.1
+   Time after variat. SCF:     41.5
+   Time prior to 1st pass:     41.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -14064,17 +14066,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5360219739 -5.45D+01  2.21D-02  1.11D-01    42.2
+ d= 0,ls=0.0,diis     1    -54.5360219739 -5.45D+01  2.21D-02  1.11D-01    41.6
                                                      2.59D-03  5.34D-03
- d= 0,ls=0.0,diis     2    -54.5820017442 -4.60D-02  1.55D-03  2.41D-03    42.3
+ d= 0,ls=0.0,diis     2    -54.5820017442 -4.60D-02  1.55D-03  2.41D-03    41.8
                                                      4.57D-03  7.82D-03
- d= 0,ls=0.0,diis     3    -54.5844395066 -2.44D-03  1.60D-03  2.70D-04    42.4
+ d= 0,ls=0.0,diis     3    -54.5844395066 -2.44D-03  1.60D-03  2.70D-04    41.9
                                                      2.66D-03  7.92D-04
- d= 0,ls=0.0,diis     4    -54.5849414302 -5.02D-04  2.18D-04  7.17D-06    42.5
+ d= 0,ls=0.0,diis     4    -54.5849414302 -5.02D-04  2.18D-04  7.17D-06    42.0
                                                      3.70D-04  8.28D-06
- d= 0,ls=0.0,diis     5    -54.5849485918 -7.16D-06  1.83D-05  7.36D-08    42.6
+ d= 0,ls=0.0,diis     5    -54.5849485918 -7.16D-06  1.83D-05  7.36D-08    42.1
                                                      8.65D-06  7.24D-09
- d= 0,ls=0.0,diis     6    -54.5849486179 -2.61D-08  1.84D-06  5.05D-10    42.7
+ d= 0,ls=0.0,diis     6    -54.5849486179 -2.61D-08  1.84D-06  5.05D-10    42.2
                                                      8.08D-07  7.65D-11
 
 
@@ -14422,7 +14424,7 @@ unset int:cando_txs
      Excited state energy =    -54.175177223573
 
 
- Task  times  cpu:        2.5s     wall:        2.5s
+ Task  times  cpu:        2.6s     wall:        2.6s
 
 
                                 NWChem Input Module
@@ -14521,8 +14523,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     44.6
-   Time prior to 1st pass:     44.6
+   Time after variat. SCF:     44.1
+   Time prior to 1st pass:     44.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -14535,17 +14537,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5182109309 -5.45D+01  2.19D-02  1.10D-01    44.7
+ d= 0,ls=0.0,diis     1    -54.5182109309 -5.45D+01  2.19D-02  1.10D-01    44.3
                                                      2.59D-03  5.27D-03
- d= 0,ls=0.0,diis     2    -54.5637082995 -4.55D-02  1.56D-03  2.40D-03    44.8
+ d= 0,ls=0.0,diis     2    -54.5637082995 -4.55D-02  1.56D-03  2.40D-03    44.4
                                                      4.53D-03  7.67D-03
- d= 0,ls=0.0,diis     3    -54.5661132179 -2.40D-03  1.59D-03  2.67D-04    44.9
+ d= 0,ls=0.0,diis     3    -54.5661132179 -2.40D-03  1.59D-03  2.67D-04    44.5
                                                      2.63D-03  7.80D-04
- d= 0,ls=0.0,diis     4    -54.5666081491 -4.95D-04  2.18D-04  7.12D-06    45.0
+ d= 0,ls=0.0,diis     4    -54.5666081491 -4.95D-04  2.18D-04  7.12D-06    44.6
                                                      3.73D-04  8.46D-06
- d= 0,ls=0.0,diis     5    -54.5666153863 -7.24D-06  1.81D-05  7.27D-08    45.1
+ d= 0,ls=0.0,diis     5    -54.5666153863 -7.24D-06  1.81D-05  7.27D-08    44.7
                                                      8.78D-06  7.34D-09
- d= 0,ls=0.0,diis     6    -54.5666154121 -2.57D-08  1.87D-06  5.20D-10    45.2
+ d= 0,ls=0.0,diis     6    -54.5666154121 -2.57D-08  1.87D-06  5.20D-10    44.8
                                                      8.07D-07  7.56D-11
 
 
@@ -14896,7 +14898,7 @@ unset int:cando_txs
      Excited state energy =    -54.160519920290
 
 
- Task  times  cpu:        2.4s     wall:        2.5s
+ Task  times  cpu:        2.5s     wall:        2.9s
 
 
                                 NWChem Input Module
@@ -14996,8 +14998,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     47.0
-   Time prior to 1st pass:     47.0
+   Time after variat. SCF:     46.7
+   Time prior to 1st pass:     46.7
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -15010,17 +15012,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5309172715 -5.45D+01  3.13D-02  1.17D-01    47.1
+ d= 0,ls=0.0,diis     1    -54.5309172715 -5.45D+01  3.13D-02  1.17D-01    46.8
                                                      3.08D-03  5.75D-03
- d= 0,ls=0.0,diis     2    -54.5628912937 -3.20D-02  9.77D-03  2.79D-02    47.3
+ d= 0,ls=0.0,diis     2    -54.5628912937 -3.20D-02  9.77D-03  2.79D-02    46.9
                                                      6.50D-03  1.85D-02
- d= 0,ls=0.0,diis     3    -54.5750798750 -1.22D-02  5.43D-04  2.67D-05    47.4
+ d= 0,ls=0.0,diis     3    -54.5750798750 -1.22D-02  5.43D-04  2.67D-05    47.1
                                                      1.04D-03  1.24D-04
- d= 0,ls=0.0,diis     4    -54.5751495458 -6.97D-05  5.04D-05  1.49D-07    47.5
+ d= 0,ls=0.0,diis     4    -54.5751495458 -6.97D-05  5.04D-05  1.49D-07    47.2
                                                      1.63D-04  2.94D-06
- d= 0,ls=0.0,diis     5    -54.5751507354 -1.19D-06  3.19D-06  1.97D-09    47.6
+ d= 0,ls=0.0,diis     5    -54.5751507354 -1.19D-06  3.19D-06  1.97D-09    47.3
                                                      5.92D-07  4.12D-11
- d= 0,ls=0.0,diis     6    -54.5751507360 -5.64D-10  5.87D-08  4.66D-13    47.7
+ d= 0,ls=0.0,diis     6    -54.5751507360 -5.64D-10  5.87D-08  4.66D-13    47.4
                                                      3.03D-08  6.20D-14
 
 
@@ -15032,7 +15034,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999419241
 
-     Total iterative time =      0.7s
+     Total iterative time =      0.8s
 
 
 
@@ -15348,10 +15350,10 @@ unset int:cando_txs
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.17E+00   0.10+100        0.3
-    2      4       0     0.14E-01   0.21E-01        0.3
-    3      6       0     0.13E-02   0.27E-03        0.3
-    4      8       0     0.16E-03   0.75E-06        0.3
-    5     10       2     0.36E-05   0.34E-08        0.3
+    2      4       0     0.14E-01   0.21E-01        0.4
+    3      6       0     0.13E-02   0.27E-03        0.4
+    4      8       0     0.16E-03   0.75E-06        0.4
+    5     10       2     0.36E-05   0.34E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -15390,7 +15392,7 @@ unset int:cando_txs
      Excited state energy =    -54.156676463591
 
 
- Task  times  cpu:        2.4s     wall:        2.4s
+ Task  times  cpu:        2.6s     wall:        2.6s
 
 
                                 NWChem Input Module
@@ -15488,8 +15490,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     49.4
-   Time prior to 1st pass:     49.4
+   Time after variat. SCF:     49.2
+   Time prior to 1st pass:     49.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -15502,17 +15504,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.4826034324 -5.45D+01  2.68D-02  1.13D-01    49.5
+ d= 0,ls=0.0,diis     1    -54.4826034324 -5.45D+01  2.68D-02  1.13D-01    49.3
                                                      2.63D-03  3.26D-03
- d= 0,ls=0.0,diis     2    -54.5224914680 -3.99D-02  5.10D-03  1.01D-02    49.6
+ d= 0,ls=0.0,diis     2    -54.5224914680 -3.99D-02  5.10D-03  1.01D-02    49.4
                                                      5.97D-03  1.38D-02
- d= 0,ls=0.0,diis     3    -54.5279707308 -5.48D-03  8.98D-04  7.71D-05    49.7
+ d= 0,ls=0.0,diis     3    -54.5279707308 -5.48D-03  8.98D-04  7.71D-05    49.5
                                                      1.87D-03  3.63D-04
- d= 0,ls=0.0,diis     4    -54.5281739245 -2.03D-04  1.19D-04  1.73D-06    49.8
+ d= 0,ls=0.0,diis     4    -54.5281739245 -2.03D-04  1.19D-04  1.73D-06    49.6
                                                      1.86D-04  2.72D-06
- d= 0,ls=0.0,diis     5    -54.5281759702 -2.05D-06  9.00D-06  1.47D-08    49.9
+ d= 0,ls=0.0,diis     5    -54.5281759702 -2.05D-06  9.00D-06  1.47D-08    49.7
                                                      1.15D-06  4.15D-10
- d= 0,ls=0.0,diis     6    -54.5281759746 -4.46D-09  1.70D-07  4.30D-12    50.0
+ d= 0,ls=0.0,diis     6    -54.5281759746 -4.46D-09  1.70D-07  4.30D-12    49.8
                                                      5.24D-08  1.03D-12
 
 
@@ -15524,7 +15526,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999426733
 
-     Total iterative time =      0.5s
+     Total iterative time =      0.6s
 
 
 
@@ -15884,7 +15886,7 @@ unset int:cando_txs
      Excited state energy =    -54.109832808314
 
 
- Task  times  cpu:        1.8s     wall:        1.8s
+ Task  times  cpu:        1.9s     wall:        1.9s
 
 
                                 NWChem Input Module
@@ -15984,8 +15986,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     51.3
-   Time prior to 1st pass:     51.3
+   Time after variat. SCF:     51.2
+   Time prior to 1st pass:     51.2
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -15998,15 +16000,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5497974975 -5.45D+01  3.20D-02  1.22D-01    51.4
+ d= 0,ls=0.0,diis     1    -54.5497974975 -5.45D+01  3.20D-02  1.22D-01    51.3
                                                      3.15D-03  8.16D-03
- d= 0,ls=0.0,diis     2    -54.5813413477 -3.15D-02  1.05D-02  3.15D-02    51.5
+ d= 0,ls=0.0,diis     2    -54.5813413477 -3.15D-02  1.05D-02  3.15D-02    51.4
                                                      6.89D-03  1.98D-02
- d= 0,ls=0.0,diis     3    -54.5949671301 -1.36D-02  6.24D-04  4.86D-05    51.6
+ d= 0,ls=0.0,diis     3    -54.5949671301 -1.36D-02  6.24D-04  4.86D-05    51.5
                                                      8.36D-04  6.53D-05
- d= 0,ls=0.0,diis     4    -54.5950229373 -5.58D-05  2.53D-05  4.72D-08    51.7
+ d= 0,ls=0.0,diis     4    -54.5950229373 -5.58D-05  2.53D-05  4.72D-08    51.6
                                                      1.15D-04  1.80D-06
- d= 0,ls=0.0,diis     5    -54.5950235375 -6.00D-07  1.94D-06  6.10D-10    51.8
+ d= 0,ls=0.0,diis     5    -54.5950235375 -6.00D-07  1.94D-06  6.10D-10    51.7
                                                      6.69D-07  1.08D-10
 
 
@@ -16376,7 +16378,7 @@ unset int:cando_txs
      Excited state energy =    -54.165013205059
 
 
- Task  times  cpu:        1.9s     wall:        1.9s
+ Task  times  cpu:        2.0s     wall:        2.0s
 
 
                                 NWChem Input Module
@@ -16498,7 +16500,7 @@ unset int:cando_txs
                                                      1.03D-03  1.23D-04
  d= 0,ls=0.0,diis     4    -54.7103406711 -6.58D-05  5.14D-05  1.69D-07    53.6
                                                      1.44D-04  2.46D-06
- d= 0,ls=0.0,diis     5    -54.7103416549 -9.84D-07  2.50D-06  9.01D-10    53.7
+ d= 0,ls=0.0,diis     5    -54.7103416549 -9.84D-07  2.50D-06  9.01D-10    53.8
                                                      9.71D-07  2.43D-10
 
 
@@ -16859,7 +16861,7 @@ unset int:cando_txs
      Excited state energy =    -54.292258123971
 
 
- Task  times  cpu:        2.0s     wall:        2.0s
+ Task  times  cpu:        2.1s     wall:        2.1s
 
 
                                 NWChem Input Module
@@ -16959,8 +16961,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     55.2
-   Time prior to 1st pass:     55.2
+   Time after variat. SCF:     55.3
+   Time prior to 1st pass:     55.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -16973,17 +16975,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5287958879 -5.45D+01  3.13D-02  1.16D-01    55.3
+ d= 0,ls=0.0,diis     1    -54.5287958879 -5.45D+01  3.13D-02  1.16D-01    55.5
                                                      3.07D-03  5.73D-03
- d= 0,ls=0.0,diis     2    -54.5607042030 -3.19D-02  9.76D-03  2.78D-02    55.4
+ d= 0,ls=0.0,diis     2    -54.5607042030 -3.19D-02  9.76D-03  2.78D-02    55.6
                                                      6.50D-03  1.85D-02
- d= 0,ls=0.0,diis     3    -54.5728784705 -1.22D-02  5.46D-04  2.70D-05    55.5
+ d= 0,ls=0.0,diis     3    -54.5728784705 -1.22D-02  5.46D-04  2.70D-05    55.7
                                                      1.04D-03  1.25D-04
- d= 0,ls=0.0,diis     4    -54.5729489687 -7.05D-05  5.11D-05  1.53D-07    55.7
+ d= 0,ls=0.0,diis     4    -54.5729489687 -7.05D-05  5.11D-05  1.53D-07    55.8
                                                      1.65D-04  2.99D-06
- d= 0,ls=0.0,diis     5    -54.5729501831 -1.21D-06  3.22D-06  2.01D-09    55.8
+ d= 0,ls=0.0,diis     5    -54.5729501831 -1.21D-06  3.22D-06  2.01D-09    56.0
                                                      5.92D-07  4.19D-11
- d= 0,ls=0.0,diis     6    -54.5729501837 -5.75D-10  5.98D-08  4.85D-13    55.9
+ d= 0,ls=0.0,diis     6    -54.5729501837 -5.75D-10  5.98D-08  4.85D-13    56.1
                                                      3.05D-08  5.97D-14
 
 
@@ -17436,8 +17438,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     57.5
-   Time prior to 1st pass:     57.5
+   Time after variat. SCF:     57.8
+   Time prior to 1st pass:     57.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -17450,15 +17452,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5287034464 -5.45D+01  3.20D-02  1.20D-01    57.7
+ d= 0,ls=0.0,diis     1    -54.5287034464 -5.45D+01  3.20D-02  1.20D-01    58.0
                                                      3.09D-03  5.70D-03
- d= 0,ls=0.0,diis     2    -54.5634884639 -3.48D-02  9.31D-03  2.55D-02    57.9
+ d= 0,ls=0.0,diis     2    -54.5634884639 -3.48D-02  9.31D-03  2.55D-02    58.2
                                                      7.00D-03  2.01D-02
- d= 0,ls=0.0,diis     3    -54.5761905434 -1.27D-02  3.43D-04  1.14D-05    58.1
+ d= 0,ls=0.0,diis     3    -54.5761905434 -1.27D-02  3.43D-04  1.14D-05    58.3
                                                      8.22D-04  8.70D-05
- d= 0,ls=0.0,diis     4    -54.5762295102 -3.90D-05  4.65D-05  2.42D-07    58.3
+ d= 0,ls=0.0,diis     4    -54.5762295102 -3.90D-05  4.65D-05  2.42D-07    58.5
                                                      6.20D-05  7.78D-07
- d= 0,ls=0.0,diis     5    -54.5762298230 -3.13D-07  2.38D-06  1.19D-09    58.5
+ d= 0,ls=0.0,diis     5    -54.5762298230 -3.13D-07  2.38D-06  1.19D-09    58.7
                                                      1.29D-06  9.97D-10
 
 
@@ -17470,7 +17472,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999435614
 
-     Total iterative time =      0.9s
+     Total iterative time =      1.0s
 
 
 
@@ -17780,11 +17782,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.16E+00   0.10+100        0.3
-    2      4       0     0.14E-01   0.21E-01        0.3
-    3      6       0     0.11E-02   0.27E-03        0.3
-    4      8       0     0.15E-03   0.86E-06        0.3
-    5     10       2     0.41E-05   0.31E-08        0.3
+    1      2       0     0.16E+00   0.10+100        0.4
+    2      4       0     0.14E-01   0.21E-01        0.4
+    3      6       0     0.11E-02   0.27E-03        0.4
+    4      8       0     0.15E-03   0.86E-06        0.4
+    5     10       2     0.41E-05   0.31E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -17824,7 +17826,7 @@ unset int:cando_txs
      Excited state energy =    -54.145021687869
 
 
- Task  times  cpu:        2.7s     wall:        2.7s
+ Task  times  cpu:        3.0s     wall:        3.0s
 
 
                                 NWChem Input Module
@@ -17922,8 +17924,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     60.2
-   Time prior to 1st pass:     60.2
+   Time after variat. SCF:     60.8
+   Time prior to 1st pass:     60.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -17936,15 +17938,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5296283660 -5.45D+01  3.17D-02  1.20D-01    60.4
+ d= 0,ls=0.0,diis     1    -54.5296283660 -5.45D+01  3.17D-02  1.20D-01    61.0
                                                      3.55D-03  6.34D-03
- d= 0,ls=0.0,diis     2    -54.5651637902 -3.55D-02  9.05D-03  2.43D-02    60.6
+ d= 0,ls=0.0,diis     2    -54.5651637902 -3.55D-02  9.05D-03  2.43D-02    61.2
                                                      6.99D-03  1.98D-02
- d= 0,ls=0.0,diis     3    -54.5771552577 -1.20D-02  3.85D-04  1.62D-05    60.8
+ d= 0,ls=0.0,diis     3    -54.5771552577 -1.20D-02  3.85D-04  1.62D-05    61.4
                                                      7.35D-04  6.77D-05
- d= 0,ls=0.0,diis     4    -54.5771897818 -3.45D-05  3.48D-05  1.34D-07    60.9
+ d= 0,ls=0.0,diis     4    -54.5771897818 -3.45D-05  3.48D-05  1.34D-07    61.6
                                                      5.33D-05  6.06D-07
- d= 0,ls=0.0,diis     5    -54.5771899941 -2.12D-07  1.65D-06  5.28D-10    61.1
+ d= 0,ls=0.0,diis     5    -54.5771899941 -2.12D-07  1.65D-06  5.28D-10    61.8
                                                      9.64D-07  4.58D-10
 
 
@@ -17956,7 +17958,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999435752
 
-     Total iterative time =      0.9s
+     Total iterative time =      1.0s
 
 
 
@@ -18264,11 +18266,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.17E+00   0.10+100        0.3
-    2      4       0     0.14E-01   0.21E-01        0.3
-    3      6       0     0.12E-02   0.28E-03        0.3
-    4      8       0     0.17E-03   0.93E-06        0.3
-    5     10       2     0.47E-05   0.40E-08        0.3
+    1      2       0     0.17E+00   0.10+100        0.4
+    2      4       0     0.14E-01   0.21E-01        0.4
+    3      6       0     0.12E-02   0.28E-03        0.4
+    4      8       0     0.17E-03   0.93E-06        0.4
+    5     10       2     0.47E-05   0.40E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -18305,7 +18307,7 @@ unset int:cando_txs
      Excited state energy =    -54.144184445238
 
 
- Task  times  cpu:        2.7s     wall:        2.7s
+ Task  times  cpu:        3.0s     wall:        3.0s
 
 
                                 NWChem Input Module
@@ -18403,8 +18405,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     62.9
-   Time prior to 1st pass:     62.9
+   Time after variat. SCF:     63.8
+   Time prior to 1st pass:     63.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -18417,15 +18419,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5222132484 -5.45D+01  3.23D-02  1.25D-01    63.1
+ d= 0,ls=0.0,diis     1    -54.5222132484 -5.45D+01  3.23D-02  1.25D-01    64.0
                                                      3.44D-03  4.05D-03
- d= 0,ls=0.0,diis     2    -54.5616119783 -3.94D-02  8.49D-03  2.24D-02    63.2
+ d= 0,ls=0.0,diis     2    -54.5616119783 -3.94D-02  8.49D-03  2.24D-02    64.2
                                                      7.00D-03  2.02D-02
- d= 0,ls=0.0,diis     3    -54.5732139002 -1.16D-02  3.14D-04  8.99D-06    63.4
+ d= 0,ls=0.0,diis     3    -54.5732139002 -1.16D-02  3.14D-04  8.99D-06    64.4
                                                      8.10D-04  1.14D-04
- d= 0,ls=0.0,diis     4    -54.5732548296 -4.09D-05  4.97D-05  2.85D-07    63.6
+ d= 0,ls=0.0,diis     4    -54.5732548296 -4.09D-05  4.97D-05  2.85D-07    64.6
                                                      5.22D-05  6.00D-07
- d= 0,ls=0.0,diis     5    -54.5732551042 -2.75D-07  3.27D-06  1.98D-09    63.8
+ d= 0,ls=0.0,diis     5    -54.5732551042 -2.75D-07  3.27D-06  1.98D-09    64.8
                                                      4.29D-07  4.22D-10
 
 
@@ -18437,7 +18439,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999455209
 
-     Total iterative time =      0.9s
+     Total iterative time =      1.0s
 
 
 
@@ -18740,11 +18742,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.16E+00   0.10+100        0.3
-    2      4       0     0.15E-01   0.21E-01        0.3
-    3      6       0     0.12E-02   0.31E-03        0.3
-    4      8       0     0.18E-03   0.11E-05        0.3
-    5     10       2     0.55E-05   0.51E-08        0.3
+    1      2       0     0.16E+00   0.10+100        0.4
+    2      4       0     0.15E-01   0.21E-01        0.4
+    3      6       0     0.12E-02   0.31E-03        0.4
+    4      8       0     0.18E-03   0.11E-05        0.4
+    5     10       2     0.55E-05   0.51E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -18786,7 +18788,7 @@ unset int:cando_txs
      Excited state energy =    -54.139382435913
 
 
- Task  times  cpu:        2.7s     wall:        3.1s
+ Task  times  cpu:        3.0s     wall:        3.0s
 
 
                                 NWChem Input Module
@@ -18884,8 +18886,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     65.5
-   Time prior to 1st pass:     65.5
+   Time after variat. SCF:     66.8
+   Time prior to 1st pass:     66.8
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -18898,17 +18900,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5321411705 -5.45D+01  3.06D-02  1.18D-01    65.8
+ d= 0,ls=0.0,diis     1    -54.5321411705 -5.45D+01  3.06D-02  1.18D-01    67.1
                                                      3.52D-03  6.03D-03
- d= 0,ls=0.0,diis     2    -54.5666725615 -3.45D-02  8.10D-03  2.01D-02    66.0
+ d= 0,ls=0.0,diis     2    -54.5666725615 -3.45D-02  8.10D-03  2.01D-02    67.3
                                                      6.64D-03  1.83D-02
- d= 0,ls=0.0,diis     3    -54.5778307132 -1.12D-02  1.76D-04  2.96D-06    66.2
+ d= 0,ls=0.0,diis     3    -54.5778307132 -1.12D-02  1.76D-04  2.96D-06    67.6
                                                      6.86D-04  2.08D-04
- d= 0,ls=0.0,diis     4    -54.5778715106 -4.08D-05  2.63D-05  5.23D-08    66.5
+ d= 0,ls=0.0,diis     4    -54.5778715106 -4.08D-05  2.63D-05  5.23D-08    67.8
                                                      1.35D-04  4.03D-06
- d= 0,ls=0.0,diis     5    -54.5778726131 -1.10D-06  8.46D-06  8.88D-09    66.7
+ d= 0,ls=0.0,diis     5    -54.5778726131 -1.10D-06  8.46D-06  8.88D-09    68.1
                                                      5.63D-06  1.25D-09
- d= 0,ls=0.0,diis     6    -54.5778726174 -4.38D-09  4.52D-07  4.00D-11    67.0
+ d= 0,ls=0.0,diis     6    -54.5778726174 -4.38D-09  4.52D-07  4.00D-11    68.4
                                                      3.63D-08  2.03D-12
 
 
@@ -18920,7 +18922,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999429896
 
-     Total iterative time =      1.4s
+     Total iterative time =      1.5s
 
 
 
@@ -19227,11 +19229,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.17E+00   0.10+100        0.3
-    2      4       0     0.18E-01   0.22E-01        0.3
-    3      6       0     0.15E-02   0.38E-03        0.3
-    4      8       0     0.26E-03   0.19E-05        0.3
-    5     10       2     0.83E-05   0.87E-08        0.3
+    1      2       0     0.17E+00   0.10+100        0.4
+    2      4       0     0.18E-01   0.22E-01        0.4
+    3      6       0     0.15E-02   0.38E-03        0.4
+    4      8       0     0.26E-03   0.19E-05        0.4
+    5     10       2     0.83E-05   0.87E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -19269,7 +19271,7 @@ unset int:cando_txs
      Excited state energy =    -54.149946798371
 
 
- Task  times  cpu:        3.2s     wall:        3.2s
+ Task  times  cpu:        3.5s     wall:        3.6s
 
 
                                 NWChem Input Module
@@ -19366,8 +19368,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     68.7
-   Time prior to 1st pass:     68.7
+   Time after variat. SCF:     70.4
+   Time prior to 1st pass:     70.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -19380,17 +19382,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5060645532 -5.45D+01  3.71D-02  1.37D-01    68.9
+ d= 0,ls=0.0,diis     1    -54.5060645532 -5.45D+01  3.71D-02  1.37D-01    70.6
                                                      7.86D-03  1.07D-02
- d= 0,ls=0.0,diis     2    -54.5436543389 -3.76D-02  1.23D-02  4.05D-02    69.1
+ d= 0,ls=0.0,diis     2    -54.5436543389 -3.76D-02  1.23D-02  4.05D-02    70.8
                                                      7.53D-03  2.55D-02
- d= 0,ls=0.0,diis     3    -54.5618054261 -1.82D-02  4.70D-04  4.94D-05    69.3
+ d= 0,ls=0.0,diis     3    -54.5618054261 -1.82D-02  4.70D-04  4.94D-05    70.9
                                                      1.08D-03  8.13D-05
- d= 0,ls=0.0,diis     4    -54.5618411714 -3.57D-05  1.09D-04  3.34D-06    69.5
+ d= 0,ls=0.0,diis     4    -54.5618411714 -3.57D-05  1.09D-04  3.34D-06    71.1
                                                      1.34D-04  2.77D-06
- d= 0,ls=0.0,diis     5    -54.5618430209 -1.85D-06  5.24D-06  5.90D-09    69.6
+ d= 0,ls=0.0,diis     5    -54.5618430209 -1.85D-06  5.24D-06  5.90D-09    71.3
                                                      5.34D-06  3.11D-09
- d= 0,ls=0.0,diis     6    -54.5618430228 -1.83D-09  2.71D-08  2.38D-13    69.9
+ d= 0,ls=0.0,diis     6    -54.5618430228 -1.83D-09  2.71D-08  2.38D-13    71.5
                                                      1.24D-07  5.39D-12
 
 
@@ -19745,7 +19747,7 @@ unset int:cando_txs
      Excited state energy =    -54.132702206750
 
 
- Task  times  cpu:        1.9s     wall:        2.0s
+ Task  times  cpu:        2.1s     wall:        2.1s
 
 
                                 NWChem Input Module
@@ -19842,8 +19844,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     70.7
-   Time prior to 1st pass:     70.7
+   Time after variat. SCF:     72.5
+   Time prior to 1st pass:     72.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -19856,17 +19858,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5181129051 -5.45D+01  3.72D-02  1.39D-01    70.9
+ d= 0,ls=0.0,diis     1    -54.5181129051 -5.45D+01  3.72D-02  1.39D-01    72.7
                                                      5.91D-03  4.78D-03
- d= 0,ls=0.0,diis     2    -54.5595829991 -4.15D-02  1.12D-02  3.60D-02    71.0
+ d= 0,ls=0.0,diis     2    -54.5595829991 -4.15D-02  1.12D-02  3.60D-02    72.9
                                                      7.37D-03  2.55D-02
- d= 0,ls=0.0,diis     3    -54.5766146646 -1.70D-02  2.70D-04  8.43D-06    71.2
+ d= 0,ls=0.0,diis     3    -54.5766146646 -1.70D-02  2.70D-04  8.43D-06    73.1
                                                      7.37D-04  1.02D-04
- d= 0,ls=0.0,diis     4    -54.5766327514 -1.81D-05  6.83D-05  1.45D-06    71.4
+ d= 0,ls=0.0,diis     4    -54.5766327514 -1.81D-05  6.83D-05  1.45D-06    73.2
                                                      1.12D-04  2.40D-06
- d= 0,ls=0.0,diis     5    -54.5766337921 -1.04D-06  9.07D-06  1.57D-08    71.6
+ d= 0,ls=0.0,diis     5    -54.5766337921 -1.04D-06  9.07D-06  1.57D-08    73.4
                                                      7.63D-06  6.57D-09
- d= 0,ls=0.0,diis     6    -54.5766337980 -5.92D-09  1.60D-07  7.32D-12    71.8
+ d= 0,ls=0.0,diis     6    -54.5766337980 -5.92D-09  1.60D-07  7.32D-12    73.6
                                                      1.53D-07  1.04D-11
 
 
@@ -19878,7 +19880,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999493066
 
-     Total iterative time =      1.1s
+     Total iterative time =      1.2s
 
 
 
@@ -20231,7 +20233,7 @@ unset int:cando_txs
      Excited state energy =    -54.143303572851
 
 
- Task  times  cpu:        2.0s     wall:        2.0s
+ Task  times  cpu:        2.1s     wall:        2.2s
 
 
                                 NWChem Input Module
@@ -20329,8 +20331,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     72.6
-   Time prior to 1st pass:     72.6
+   Time after variat. SCF:     74.6
+   Time prior to 1st pass:     74.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -20343,15 +20345,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5260784563 -5.45D+01  3.17D-02  1.22D-01    72.8
+ d= 0,ls=0.0,diis     1    -54.5260784563 -5.45D+01  3.17D-02  1.22D-01    74.8
                                                      3.36D-03  5.93D-03
- d= 0,ls=0.0,diis     2    -54.5625478852 -3.65D-02  8.89D-03  2.38D-02    73.0
+ d= 0,ls=0.0,diis     2    -54.5625478852 -3.65D-02  8.89D-03  2.38D-02    75.0
                                                      6.99D-03  1.98D-02
- d= 0,ls=0.0,diis     3    -54.5744050584 -1.19D-02  3.92D-04  1.55D-05    73.2
+ d= 0,ls=0.0,diis     3    -54.5744050584 -1.19D-02  3.92D-04  1.55D-05    75.2
                                                      8.09D-04  8.62D-05
- d= 0,ls=0.0,diis     4    -54.5744459304 -4.09D-05  4.33D-05  1.96D-07    73.4
+ d= 0,ls=0.0,diis     4    -54.5744459304 -4.09D-05  4.33D-05  1.96D-07    75.4
                                                      6.35D-05  8.16D-07
- d= 0,ls=0.0,diis     5    -54.5744462360 -3.06D-07  2.03D-06  7.91D-10    73.5
+ d= 0,ls=0.0,diis     5    -54.5744462360 -3.06D-07  2.03D-06  7.91D-10    75.6
                                                      1.05D-06  6.29D-10
 
 
@@ -20363,7 +20365,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999440502
 
-     Total iterative time =      0.9s
+     Total iterative time =      1.0s
 
 
 
@@ -20668,11 +20670,11 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.17E+00   0.10+100        0.3
-    2      4       0     0.15E-01   0.21E-01        0.3
-    3      6       0     0.12E-02   0.30E-03        0.3
-    4      8       0     0.18E-03   0.11E-05        0.3
-    5     10       2     0.51E-05   0.47E-08        0.3
+    1      2       0     0.17E+00   0.10+100        0.4
+    2      4       0     0.15E-01   0.21E-01        0.4
+    3      6       0     0.12E-02   0.30E-03        0.4
+    4      8       0     0.18E-03   0.11E-05        0.4
+    5     10       2     0.51E-05   0.47E-08        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -20713,7 +20715,7 @@ unset int:cando_txs
      Excited state energy =    -54.143860330533
 
 
- Task  times  cpu:        2.7s     wall:        2.7s
+ Task  times  cpu:        3.0s     wall:        3.0s
 
 
                                 NWChem Input Module
@@ -20811,8 +20813,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     75.3
-   Time prior to 1st pass:     75.3
+   Time after variat. SCF:     77.6
+   Time prior to 1st pass:     77.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -20825,17 +20827,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.2114387164 -5.42D+01  2.62D-02  1.12D-01    75.4
+ d= 0,ls=0.0,diis     1    -54.2114387164 -5.42D+01  2.62D-02  1.12D-01    77.7
                                                      1.79D-03  3.94D-03
- d= 0,ls=0.0,diis     2    -54.2492813206 -3.78D-02  5.21D-03  1.00D-02    75.4
+ d= 0,ls=0.0,diis     2    -54.2492813206 -3.78D-02  5.21D-03  1.00D-02    77.8
                                                      6.16D-03  1.40D-02
- d= 0,ls=0.0,diis     3    -54.2548101323 -5.53D-03  1.09D-03  1.32D-04    75.5
+ d= 0,ls=0.0,diis     3    -54.2548101323 -5.53D-03  1.09D-03  1.32D-04    77.8
                                                      1.80D-03  3.22D-04
- d= 0,ls=0.0,diis     4    -54.2550430327 -2.33D-04  1.58D-04  1.83D-06    75.5
+ d= 0,ls=0.0,diis     4    -54.2550430327 -2.33D-04  1.58D-04  1.83D-06    77.9
                                                      3.45D-04  9.67D-06
- d= 0,ls=0.0,diis     5    -54.2550484787 -5.45D-06  1.16D-05  2.46D-08    75.6
+ d= 0,ls=0.0,diis     5    -54.2550484787 -5.45D-06  1.16D-05  2.46D-08    78.0
                                                      2.19D-06  2.63D-10
- d= 0,ls=0.0,diis     6    -54.2550484859 -7.22D-09  1.65D-07  3.33D-12    75.7
+ d= 0,ls=0.0,diis     6    -54.2550484859 -7.22D-09  1.65D-07  3.33D-12    78.0
                                                      8.09D-08  6.56D-13
 
 
@@ -21149,7 +21151,7 @@ unset int:cando_txs
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      2       0     0.17E+00   0.10+100        0.1
+    1      2       0     0.17E+00   0.10+100        0.2
     2      4       0     0.26E-01   0.26E-01        0.2
     3      6       0     0.35E-02   0.71E-03        0.2
     4      8       0     0.10E-02   0.60E-05        0.2
@@ -21194,7 +21196,7 @@ unset int:cando_txs
      Excited state energy =    -53.849145794135
 
 
- Task  times  cpu:        1.2s     wall:        1.2s
+ Task  times  cpu:        1.3s     wall:        1.3s
 
 
                                 NWChem Input Module
@@ -21293,8 +21295,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     76.5
-   Time prior to 1st pass:     76.5
+   Time after variat. SCF:     78.9
+   Time prior to 1st pass:     78.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -21307,17 +21309,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5337039050 -5.45D+01  2.75D-02  1.16D-01    76.6
+ d= 0,ls=0.0,diis     1    -54.5337039050 -5.45D+01  2.75D-02  1.16D-01    79.0
                                                      2.80D-03  3.92D-03
- d= 0,ls=0.0,diis     2    -54.5740464670 -4.03D-02  5.65D-03  1.18D-02    76.7
+ d= 0,ls=0.0,diis     2    -54.5740464670 -4.03D-02  5.65D-03  1.18D-02    79.1
                                                      6.00D-03  1.41D-02
- d= 0,ls=0.0,diis     3    -54.5800719226 -6.03D-03  7.94D-04  6.18D-05    76.8
+ d= 0,ls=0.0,diis     3    -54.5800719226 -6.03D-03  7.94D-04  6.18D-05    79.2
                                                      1.63D-03  2.87D-04
- d= 0,ls=0.0,diis     4    -54.5802293401 -1.57D-04  9.39D-05  1.06D-06    76.9
+ d= 0,ls=0.0,diis     4    -54.5802293401 -1.57D-04  9.39D-05  1.06D-06    79.3
                                                      1.51D-04  2.00D-06
- d= 0,ls=0.0,diis     5    -54.5802306995 -1.36D-06  7.09D-06  9.36D-09    77.0
+ d= 0,ls=0.0,diis     5    -54.5802306995 -1.36D-06  7.09D-06  9.36D-09    79.4
                                                      9.58D-07  2.78D-10
- d= 0,ls=0.0,diis     6    -54.5802307022 -2.78D-09  1.50D-07  3.68D-12    77.1
+ d= 0,ls=0.0,diis     6    -54.5802307022 -2.78D-09  1.50D-07  3.68D-12    79.5
                                                      6.95D-08  9.53D-13
 
 
@@ -21329,7 +21331,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999428697
 
-     Total iterative time =      0.5s
+     Total iterative time =      0.6s
 
 
 
@@ -21683,7 +21685,7 @@ unset int:cando_txs
      Excited state energy =    -54.150726075386
 
 
- Task  times  cpu:        1.9s     wall:        1.9s
+ Task  times  cpu:        2.0s     wall:        2.0s
 
 
                                 NWChem Input Module
@@ -21782,8 +21784,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     78.4
-   Time prior to 1st pass:     78.4
+   Time after variat. SCF:     80.9
+   Time prior to 1st pass:     80.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -21796,17 +21798,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5375553779 -5.45D+01  2.78D-02  1.12D-01    78.5
+ d= 0,ls=0.0,diis     1    -54.5375553779 -5.45D+01  2.78D-02  1.12D-01    81.0
                                                      2.96D-03  3.14D-03
- d= 0,ls=0.0,diis     2    -54.5761296169 -3.86D-02  6.03D-03  1.30D-02    78.6
+ d= 0,ls=0.0,diis     2    -54.5761296169 -3.86D-02  6.03D-03  1.30D-02    81.2
                                                      5.78D-03  1.40D-02
- d= 0,ls=0.0,diis     3    -54.5824860190 -6.36D-03  7.10D-04  4.66D-05    78.8
+ d= 0,ls=0.0,diis     3    -54.5824860190 -6.36D-03  7.10D-04  4.66D-05    81.3
                                                      1.58D-03  3.06D-04
- d= 0,ls=0.0,diis     4    -54.5826391567 -1.53D-04  1.11D-04  1.28D-06    78.9
+ d= 0,ls=0.0,diis     4    -54.5826391567 -1.53D-04  1.11D-04  1.28D-06    81.4
                                                      2.04D-04  3.51D-06
- d= 0,ls=0.0,diis     5    -54.5826413845 -2.23D-06  7.60D-06  1.17D-08    79.0
+ d= 0,ls=0.0,diis     5    -54.5826413845 -2.23D-06  7.60D-06  1.17D-08    81.6
                                                      1.69D-06  1.52D-10
- d= 0,ls=0.0,diis     6    -54.5826413878 -3.28D-09  1.37D-07  2.07D-12    79.1
+ d= 0,ls=0.0,diis     6    -54.5826413878 -3.28D-09  1.37D-07  2.07D-12    81.7
                                                      5.25D-08  3.31D-13
 
 
@@ -21818,7 +21820,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999425566
 
-     Total iterative time =      0.7s
+     Total iterative time =      0.8s
 
 
 
@@ -22128,10 +22130,10 @@ unset int:cando_txs
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.17E+00   0.10+100        0.3
-    2      4       0     0.23E-01   0.24E-01        0.3
-    3      6       0     0.29E-02   0.57E-03        0.3
-    4      8       0     0.77E-03   0.43E-05        0.3
-    5     10       2     0.17E-04   0.62E-07        0.3
+    2      4       0     0.23E-01   0.24E-01        0.4
+    3      6       0     0.29E-02   0.57E-03        0.4
+    4      8       0     0.77E-03   0.43E-05        0.4
+    5     10       2     0.17E-04   0.62E-07        0.4
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -22175,7 +22177,7 @@ unset int:cando_txs
      Excited state energy =    -54.167638975195
 
 
- Task  times  cpu:        2.5s     wall:        2.5s
+ Task  times  cpu:        2.6s     wall:        2.6s
 
 
                                 NWChem Input Module
@@ -22273,8 +22275,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     80.9
-   Time prior to 1st pass:     80.9
+   Time after variat. SCF:     83.5
+   Time prior to 1st pass:     83.5
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -22287,15 +22289,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.4818985682 -5.45D+01  3.44D-02  1.15D-01    81.0
+ d= 0,ls=0.0,diis     1    -54.4818985682 -5.45D+01  3.44D-02  1.15D-01    83.6
                                                      3.51D-03  1.18D-02
- d= 0,ls=0.0,diis     2    -54.5025192785 -2.06D-02  1.41D-02  4.94D-02    81.1
+ d= 0,ls=0.0,diis     2    -54.5025192785 -2.06D-02  1.41D-02  4.94D-02    83.8
                                                      7.24D-03  2.29D-02
- d= 0,ls=0.0,diis     3    -54.5233211860 -2.08D-02  7.57D-04  1.26D-04    81.2
+ d= 0,ls=0.0,diis     3    -54.5233211860 -2.08D-02  7.57D-04  1.26D-04    83.9
                                                      2.45D-04  1.38D-05
- d= 0,ls=0.0,diis     4    -54.5233674493 -4.63D-05  1.15D-05  1.77D-07    81.3
+ d= 0,ls=0.0,diis     4    -54.5233674493 -4.63D-05  1.15D-05  1.77D-07    84.0
                                                      6.70D-05  9.03D-07
- d= 0,ls=0.0,diis     5    -54.5233677222 -2.73D-07  6.79D-07  1.11D-10    81.4
+ d= 0,ls=0.0,diis     5    -54.5233677222 -2.73D-07  6.79D-07  1.11D-10    84.1
                                                      4.10D-07  1.00D-10
 
 
@@ -22652,7 +22654,7 @@ unset int:cando_txs
      Excited state energy =    -54.105614801269
 
 
- Task  times  cpu:        1.3s     wall:        1.3s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -22750,8 +22752,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     82.2
-   Time prior to 1st pass:     82.2
+   Time after variat. SCF:     84.9
+   Time prior to 1st pass:     84.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -22764,15 +22766,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5368782678 -5.45D+01  3.42D-02  1.12D-01    82.3
+ d= 0,ls=0.0,diis     1    -54.5368782678 -5.45D+01  3.42D-02  1.12D-01    85.0
                                                      3.43D-03  8.32D-03
- d= 0,ls=0.0,diis     2    -54.5581708429 -2.13D-02  1.36D-02  4.73D-02    82.4
+ d= 0,ls=0.0,diis     2    -54.5581708429 -2.13D-02  1.36D-02  4.73D-02    85.2
                                                      7.07D-03  2.24D-02
- d= 0,ls=0.0,diis     3    -54.5781604175 -2.00D-02  5.82D-04  5.79D-05    82.5
+ d= 0,ls=0.0,diis     3    -54.5781604175 -2.00D-02  5.82D-04  5.79D-05    85.3
                                                      3.74D-04  2.48D-05
- d= 0,ls=0.0,diis     4    -54.5781905305 -3.01D-05  1.68D-05  2.90D-07    82.6
+ d= 0,ls=0.0,diis     4    -54.5781905305 -3.01D-05  1.68D-05  2.90D-07    85.4
                                                      7.63D-05  1.38D-06
- d= 0,ls=0.0,diis     5    -54.5781909302 -4.00D-07  8.16D-07  1.29D-10    82.7
+ d= 0,ls=0.0,diis     5    -54.5781909302 -4.00D-07  8.16D-07  1.29D-10    85.5
                                                      2.76D-07  5.92D-11
 
 
@@ -23132,7 +23134,7 @@ unset int:cando_txs
      Excited state energy =    -54.160172478376
 
 
- Task  times  cpu:        1.3s     wall:        1.3s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -23230,8 +23232,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     83.5
-   Time prior to 1st pass:     83.5
+   Time after variat. SCF:     86.3
+   Time prior to 1st pass:     86.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -23244,15 +23246,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5536685680 -5.46D+01  3.41D-02  1.11D-01    83.6
+ d= 0,ls=0.0,diis     1    -54.5536685680 -5.46D+01  3.41D-02  1.11D-01    86.4
                                                      3.47D-03  8.42D-03
- d= 0,ls=0.0,diis     2    -54.5748924673 -2.12D-02  1.36D-02  4.76D-02    83.7
+ d= 0,ls=0.0,diis     2    -54.5748924673 -2.12D-02  1.36D-02  4.76D-02    86.5
                                                      7.13D-03  2.24D-02
- d= 0,ls=0.0,diis     3    -54.5949403774 -2.00D-02  6.29D-04  6.62D-05    83.8
+ d= 0,ls=0.0,diis     3    -54.5949403774 -2.00D-02  6.29D-04  6.62D-05    86.7
                                                      2.95D-04  2.21D-05
- d= 0,ls=0.0,diis     4    -54.5949719905 -3.16D-05  3.18D-05  5.37D-07    83.9
+ d= 0,ls=0.0,diis     4    -54.5949719905 -3.16D-05  3.18D-05  5.37D-07    86.8
                                                      7.07D-05  1.46D-06
- d= 0,ls=0.0,diis     5    -54.5949724572 -4.67D-07  9.24D-07  1.37D-10    84.0
+ d= 0,ls=0.0,diis     5    -54.5949724572 -4.67D-07  9.24D-07  1.37D-10    86.9
                                                      1.91D-07  2.91D-11
 
 
@@ -23607,7 +23609,7 @@ unset int:cando_txs
      Excited state energy =    -54.175322001296
 
 
- Task  times  cpu:        1.3s     wall:        1.3s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -23704,8 +23706,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     84.8
-   Time prior to 1st pass:     84.8
+   Time after variat. SCF:     87.7
+   Time prior to 1st pass:     87.7
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -23718,15 +23720,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5258128038 -5.45D+01  3.68D-02  1.33D-01    85.0
+ d= 0,ls=0.0,diis     1    -54.5258128038 -5.45D+01  3.68D-02  1.33D-01    87.9
                                                      3.12D-03  5.49D-03
- d= 0,ls=0.0,diis     2    -54.5579286580 -3.21D-02  1.25D-02  4.16D-02    85.3
+ d= 0,ls=0.0,diis     2    -54.5579286580 -3.21D-02  1.25D-02  4.16D-02    88.2
                                                      7.86D-03  2.65D-02
- d= 0,ls=0.0,diis     3    -54.5785544674 -2.06D-02  2.21D-04  1.00D-05    85.5
+ d= 0,ls=0.0,diis     3    -54.5785544674 -2.06D-02  2.21D-04  1.00D-05    88.5
                                                      5.28D-04  4.93D-05
- d= 0,ls=0.0,diis     4    -54.5785715110 -1.70D-05  4.08D-05  2.28D-07    85.8
+ d= 0,ls=0.0,diis     4    -54.5785715110 -1.70D-05  4.08D-05  2.28D-07    88.7
                                                      3.47D-05  3.21D-07
- d= 0,ls=0.0,diis     5    -54.5785716551 -1.44D-07  4.38D-06  5.03D-09    86.0
+ d= 0,ls=0.0,diis     5    -54.5785716551 -1.44D-07  4.38D-06  5.03D-09    89.0
                                                      2.65D-06  3.31D-09
 
 
@@ -23738,7 +23740,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999460008
 
-     Total iterative time =      1.2s
+     Total iterative time =      1.3s
 
 
 
@@ -24083,7 +24085,7 @@ unset int:cando_txs
      Excited state energy =    -54.151878553245
 
 
- Task  times  cpu:        2.0s     wall:        2.0s
+ Task  times  cpu:        2.2s     wall:        2.2s
 
 
                                 NWChem Input Module
@@ -24180,8 +24182,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     86.8
-   Time prior to 1st pass:     86.8
+   Time after variat. SCF:     89.9
+   Time prior to 1st pass:     89.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -24194,15 +24196,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5290288643 -5.45D+01  3.71D-02  1.35D-01    87.1
+ d= 0,ls=0.0,diis     1    -54.5290288643 -5.45D+01  3.71D-02  1.35D-01    90.2
                                                      5.92D-03  1.10D-02
- d= 0,ls=0.0,diis     2    -54.5636908275 -3.47D-02  1.29D-02  4.25D-02    87.3
+ d= 0,ls=0.0,diis     2    -54.5636908275 -3.47D-02  1.29D-02  4.25D-02    90.4
                                                      8.12D-03  2.67D-02
- d= 0,ls=0.0,diis     3    -54.5830820783 -1.94D-02  6.05D-04  8.39D-05    87.5
+ d= 0,ls=0.0,diis     3    -54.5830820783 -1.94D-02  6.05D-04  8.39D-05    90.6
                                                      4.74D-04  2.34D-05
- d= 0,ls=0.0,diis     4    -54.5831144481 -3.24D-05  5.42D-05  7.05D-07    87.7
+ d= 0,ls=0.0,diis     4    -54.5831144481 -3.24D-05  5.42D-05  7.05D-07    90.9
                                                      4.95D-05  5.33D-07
- d= 0,ls=0.0,diis     5    -54.5831148317 -3.84D-07  3.54D-06  3.02D-09    88.0
+ d= 0,ls=0.0,diis     5    -54.5831148317 -3.84D-07  3.54D-06  3.02D-09    91.1
                                                      2.55D-06  8.64D-10
 
 
@@ -24556,7 +24558,7 @@ unset int:cando_txs
      Excited state energy =    -54.156335922200
 
 
- Task  times  cpu:        2.0s     wall:        2.0s
+ Task  times  cpu:        2.2s     wall:        2.2s
 
 
                                 NWChem Input Module
@@ -24653,8 +24655,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     88.8
-   Time prior to 1st pass:     88.8
+   Time after variat. SCF:     92.1
+   Time prior to 1st pass:     92.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -24667,15 +24669,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5240532820 -5.45D+01  3.69D-02  1.34D-01    89.0
+ d= 0,ls=0.0,diis     1    -54.5240532820 -5.45D+01  3.69D-02  1.34D-01    92.3
                                                      5.11D-03  9.52D-03
- d= 0,ls=0.0,diis     2    -54.5578395953 -3.38D-02  1.27D-02  4.17D-02    89.3
+ d= 0,ls=0.0,diis     2    -54.5578395953 -3.38D-02  1.27D-02  4.17D-02    92.6
                                                      8.01D-03  2.66D-02
- d= 0,ls=0.0,diis     3    -54.5773051948 -1.95D-02  4.88D-04  5.14D-05    89.5
+ d= 0,ls=0.0,diis     3    -54.5773051948 -1.95D-02  4.88D-04  5.14D-05    92.8
                                                      3.55D-04  1.81D-05
- d= 0,ls=0.0,diis     4    -54.5773242991 -1.91D-05  4.65D-05  5.21D-07    89.7
+ d= 0,ls=0.0,diis     4    -54.5773242991 -1.91D-05  4.65D-05  5.21D-07    93.1
                                                      4.63D-05  5.68D-07
- d= 0,ls=0.0,diis     5    -54.5773246106 -3.12D-07  4.32D-06  4.11D-09    90.0
+ d= 0,ls=0.0,diis     5    -54.5773246106 -3.12D-07  4.32D-06  4.11D-09    93.3
                                                      2.28D-06  8.06D-10
 
 
@@ -25033,7 +25035,7 @@ unset int:cando_txs
      Excited state energy =    -54.152302626252
 
 
- Task  times  cpu:        2.0s     wall:        2.0s
+ Task  times  cpu:        2.2s     wall:        2.2s
 
 
                                 NWChem Input Module
@@ -25130,8 +25132,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     90.8
-   Time prior to 1st pass:     90.8
+   Time after variat. SCF:     94.3
+   Time prior to 1st pass:     94.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -25144,17 +25146,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5320938501 -5.45D+01  3.72D-02  1.38D-01    91.0
+ d= 0,ls=0.0,diis     1    -54.5320938501 -5.45D+01  3.72D-02  1.38D-01    94.5
                                                      8.08D-03  1.12D-02
- d= 0,ls=0.0,diis     2    -54.5675111671 -3.54D-02  1.28D-02  4.19D-02    91.3
+ d= 0,ls=0.0,diis     2    -54.5675111671 -3.54D-02  1.28D-02  4.19D-02    94.8
                                                      7.27D-03  2.67D-02
- d= 0,ls=0.0,diis     3    -54.5848172363 -1.73D-02  8.34D-04  8.15D-05    91.5
+ d= 0,ls=0.0,diis     3    -54.5848172363 -1.73D-02  8.34D-04  8.15D-05    95.0
                                                      2.92D-03  8.09D-04
- d= 0,ls=0.0,diis     4    -54.5849834446 -1.66D-04  3.42D-04  3.71D-05    91.7
+ d= 0,ls=0.0,diis     4    -54.5849834446 -1.66D-04  3.42D-04  3.71D-05    95.3
                                                      5.30D-04  4.08D-05
- d= 0,ls=0.0,diis     5    -54.5850070485 -2.36D-05  1.50D-05  3.74D-08    92.0
+ d= 0,ls=0.0,diis     5    -54.5850070485 -2.36D-05  1.50D-05  3.74D-08    95.5
                                                      2.26D-05  1.08D-07
- d= 0,ls=0.0,diis     6    -54.5850070790 -3.05D-08  2.84D-07  2.71D-12    92.2
+ d= 0,ls=0.0,diis     6    -54.5850070790 -3.05D-08  2.84D-07  2.71D-12    95.8
                                                      1.58D-06  1.82D-10
 
 
@@ -25166,7 +25168,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999469990
 
-     Total iterative time =      1.4s
+     Total iterative time =      1.5s
 
 
 
@@ -25472,9 +25474,9 @@ unset int:cando_txs
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.17E+00   0.10+100        0.2
-    2      4       0     0.11E-01   0.23E-01        0.2
-    3      6       0     0.55E-03   0.15E-03        0.2
-    4      8       2     0.76E-05   0.36E-06        0.2
+    2      4       0     0.11E-01   0.23E-01        0.3
+    3      6       0     0.55E-03   0.15E-03        0.3
+    4      8       2     0.76E-05   0.36E-06        0.3
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -25513,7 +25515,7 @@ unset int:cando_txs
      Excited state energy =    -54.167985926181
 
 
- Task  times  cpu:        2.3s     wall:        2.4s
+ Task  times  cpu:        2.6s     wall:        2.6s
 
 
                                 NWChem Input Module
@@ -25610,8 +25612,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     93.1
-   Time prior to 1st pass:     93.1
+   Time after variat. SCF:     96.9
+   Time prior to 1st pass:     96.9
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -25624,17 +25626,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5341260507 -5.45D+01  3.73D-02  1.37D-01    93.4
+ d= 0,ls=0.0,diis     1    -54.5341260507 -5.45D+01  3.73D-02  1.37D-01    97.1
                                                      1.09D-02  1.37D-02
- d= 0,ls=0.0,diis     2    -54.5722924182 -3.82D-02  1.27D-02  4.06D-02    93.6
+ d= 0,ls=0.0,diis     2    -54.5722924182 -3.82D-02  1.27D-02  4.06D-02    97.4
                                                      6.51D-03  2.60D-02
- d= 0,ls=0.0,diis     3    -54.5878287393 -1.55D-02  1.07D-03  1.31D-04    93.9
+ d= 0,ls=0.0,diis     3    -54.5878287393 -1.55D-02  1.07D-03  1.31D-04    97.6
                                                      3.67D-03  1.11D-03
- d= 0,ls=0.0,diis     4    -54.5880757302 -2.47D-04  4.18D-04  6.31D-05    94.1
+ d= 0,ls=0.0,diis     4    -54.5880757302 -2.47D-04  4.18D-04  6.31D-05    97.9
                                                      7.20D-04  7.54D-05
- d= 0,ls=0.0,diis     5    -54.5881168586 -4.11D-05  3.10D-06  7.50D-09    94.3
+ d= 0,ls=0.0,diis     5    -54.5881168586 -4.11D-05  3.10D-06  7.50D-09    98.1
                                                      2.59D-05  1.61D-07
- d= 0,ls=0.0,diis     6    -54.5881168817 -2.32D-08  7.95D-07  1.44D-10    94.6
+ d= 0,ls=0.0,diis     6    -54.5881168817 -2.32D-08  7.95D-07  1.44D-10    98.4
                                                      9.20D-07  4.57D-11
 
 
@@ -25646,7 +25648,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999473236
 
-     Total iterative time =      1.5s
+     Total iterative time =      1.6s
 
 
 
@@ -25996,7 +25998,7 @@ unset int:cando_txs
      Excited state energy =    -54.162028484517
 
 
- Task  times  cpu:        2.3s     wall:        2.3s
+ Task  times  cpu:        2.5s     wall:        2.5s
 
 
                                 NWChem Input Module
@@ -26093,8 +26095,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     95.5
-   Time prior to 1st pass:     95.5
+   Time after variat. SCF:     99.4
+   Time prior to 1st pass:     99.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -26107,15 +26109,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5895286010 -5.46D+01  3.68D-02  1.41D-01    95.7
+ d= 0,ls=0.0,diis     1    -54.5895286010 -5.46D+01  3.68D-02  1.41D-01    99.6
                                                      3.12D-03  1.48D-02
- d= 0,ls=0.0,diis     2    -54.6177786646 -2.83D-02  1.39D-02  4.72D-02    95.9
+ d= 0,ls=0.0,diis     2    -54.6177786646 -2.83D-02  1.39D-02  4.72D-02    99.9
                                                      8.52D-03  2.85D-02
- d= 0,ls=0.0,diis     3    -54.6408984383 -2.31D-02  7.91D-04  1.48D-04    96.1
+ d= 0,ls=0.0,diis     3    -54.6408984383 -2.31D-02  7.91D-04  1.48D-04   100.1
                                                      1.09D-03  8.10D-05
- d= 0,ls=0.0,diis     4    -54.6409790023 -8.06D-05  7.69D-05  7.96D-07    96.4
+ d= 0,ls=0.0,diis     4    -54.6409790023 -8.06D-05  7.69D-05  7.96D-07   100.4
                                                      1.39D-04  9.01D-07
- d= 0,ls=0.0,diis     5    -54.6409798367 -8.34D-07  2.66D-06  7.76D-10    96.6
+ d= 0,ls=0.0,diis     5    -54.6409798367 -8.34D-07  2.66D-06  7.76D-10   100.6
                                                      5.32D-06  2.86D-09
 
 
@@ -26467,7 +26469,7 @@ unset int:cando_txs
      Excited state energy =    -54.238321445960
 
 
- Task  times  cpu:        2.0s     wall:        2.0s
+ Task  times  cpu:        2.2s     wall:        2.2s
 
 
                                 NWChem Input Module
@@ -26564,8 +26566,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     97.4
-   Time prior to 1st pass:     97.4
+   Time after variat. SCF:    101.6
+   Time prior to 1st pass:    101.6
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -26578,15 +26580,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -55.1964300369 -5.52D+01  3.32D-02  1.00D-01    97.5
+ d= 0,ls=0.0,diis     1    -55.1964300369 -5.52D+01  3.32D-02  1.00D-01   101.7
                                                      2.92D-03  2.26D-02
- d= 0,ls=0.0,diis     2    -55.2176411262 -2.12D-02  1.31D-02  4.27D-02    97.6
+ d= 0,ls=0.0,diis     2    -55.2176411262 -2.12D-02  1.31D-02  4.27D-02   101.8
                                                      7.15D-03  2.27D-02
- d= 0,ls=0.0,diis     3    -55.2359650291 -1.83D-02  8.73D-04  1.20D-04    97.7
+ d= 0,ls=0.0,diis     3    -55.2359650291 -1.83D-02  8.73D-04  1.20D-04   101.9
                                                      6.75D-04  4.75D-05
- d= 0,ls=0.0,diis     4    -55.2360329237 -6.79D-05  2.86D-05  4.15D-07    97.8
+ d= 0,ls=0.0,diis     4    -55.2360329237 -6.79D-05  2.86D-05  4.15D-07   102.0
                                                      6.03D-05  1.01D-06
- d= 0,ls=0.0,diis     5    -55.2360332682 -3.44D-07  3.10D-07  4.26D-11    97.9
+ d= 0,ls=0.0,diis     5    -55.2360332682 -3.44D-07  3.10D-07  4.26D-11   102.0
                                                      4.48D-07  7.61D-11
 
 
@@ -26896,9 +26898,9 @@ unset int:cando_txs
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.16E+00   0.10+100        0.1
-    2      4       0     0.12E-01   0.20E-01        0.1
-    3      6       0     0.51E-03   0.20E-03        0.1
-    4      8       2     0.11E-04   0.29E-06        0.1
+    2      4       0     0.12E-01   0.20E-01        0.2
+    3      6       0     0.51E-03   0.20E-03        0.2
+    4      8       2     0.11E-04   0.29E-06        0.2
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -26935,7 +26937,7 @@ unset int:cando_txs
      Excited state energy =    -54.802643747800
 
 
- Task  times  cpu:        1.1s     wall:        1.1s
+ Task  times  cpu:        1.2s     wall:        1.2s
 
 
                                 NWChem Input Module
@@ -27033,8 +27035,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     98.5
-   Time prior to 1st pass:     98.5
+   Time after variat. SCF:    102.7
+   Time prior to 1st pass:    102.7
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -27047,17 +27049,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -55.4283180324 -5.54D+01  3.67D-02  1.30D-01    98.6
+ d= 0,ls=0.0,diis     1    -55.4283180324 -5.54D+01  3.67D-02  1.30D-01   102.8
                                                      4.07D-03  3.93D-02
- d= 0,ls=0.0,diis     2    -55.4562964852 -2.80D-02  1.43D-02  4.87D-02    98.7
+ d= 0,ls=0.0,diis     2    -55.4562964852 -2.80D-02  1.43D-02  4.87D-02   102.9
                                                      8.35D-03  2.85D-02
- d= 0,ls=0.0,diis     3    -55.4778220958 -2.15D-02  1.28D-03  2.49D-04    98.8
+ d= 0,ls=0.0,diis     3    -55.4778220958 -2.15D-02  1.28D-03  2.49D-04   103.0
                                                      8.19D-04  5.63D-05
- d= 0,ls=0.0,diis     4    -55.4779514905 -1.29D-04  5.00D-05  1.51D-06    98.9
+ d= 0,ls=0.0,diis     4    -55.4779514905 -1.29D-04  5.00D-05  1.51D-06   103.1
                                                      1.39D-04  4.13D-06
- d= 0,ls=0.0,diis     5    -55.4779529404 -1.45D-06  5.74D-07  5.35D-11    99.0
+ d= 0,ls=0.0,diis     5    -55.4779529404 -1.45D-06  5.74D-07  5.35D-11   103.2
                                                      9.61D-07  2.97D-10
- d= 0,ls=0.0,diis     6    -55.4779529404 -5.23D-11  1.66D-07  5.88D-12    99.1
+ d= 0,ls=0.0,diis     6    -55.4779529404 -5.23D-11  1.66D-07  5.88D-12   103.3
                                                      3.04D-08  9.63D-13
 
 
@@ -27380,9 +27382,9 @@ unset int:cando_txs
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      2       0     0.16E+00   0.10+100        0.1
-    2      4       0     0.13E-01   0.21E-01        0.1
-    3      6       0     0.64E-03   0.24E-03        0.1
-    4      8       2     0.13E-04   0.43E-06        0.1
+    2      4       0     0.13E-01   0.21E-01        0.2
+    3      6       0     0.64E-03   0.24E-03        0.2
+    4      8       2     0.13E-04   0.43E-06        0.2
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
 
@@ -27421,7 +27423,7 @@ unset int:cando_txs
      Excited state energy =    -55.061146739018
 
 
- Task  times  cpu:        1.2s     wall:        1.2s
+ Task  times  cpu:        1.3s     wall:        1.3s
 
 
                                 NWChem Input Module
@@ -27521,8 +27523,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:     99.7
-   Time prior to 1st pass:     99.7
+   Time after variat. SCF:    104.0
+   Time prior to 1st pass:    104.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -27535,15 +27537,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5335524665 -5.45D+01  3.46D-02  1.12D-01    99.9
+ d= 0,ls=0.0,diis     1    -54.5335524665 -5.45D+01  3.46D-02  1.12D-01   104.1
                                                      3.76D-03  1.14D-02
- d= 0,ls=0.0,diis     2    -54.5548718319 -2.13D-02  1.39D-02  4.75D-02   100.0
+ d= 0,ls=0.0,diis     2    -54.5548718319 -2.13D-02  1.39D-02  4.75D-02   104.2
                                                      7.30D-03  2.31D-02
- d= 0,ls=0.0,diis     3    -54.5755992934 -2.07D-02  6.18D-04  8.44D-05   100.1
+ d= 0,ls=0.0,diis     3    -54.5755992934 -2.07D-02  6.18D-04  8.44D-05   104.4
                                                      3.14D-04  8.42D-06
- d= 0,ls=0.0,diis     4    -54.5756317675 -3.25D-05  9.07D-06  8.17D-08   100.2
+ d= 0,ls=0.0,diis     4    -54.5756317675 -3.25D-05  9.07D-06  8.17D-08   104.5
                                                      5.66D-05  6.69D-07
- d= 0,ls=0.0,diis     5    -54.5756319507 -1.83D-07  1.06D-06  2.55D-10   100.3
+ d= 0,ls=0.0,diis     5    -54.5756319507 -1.83D-07  1.06D-06  2.55D-10   104.6
                                                      8.19D-07  1.72D-10
 
 
@@ -27905,7 +27907,7 @@ unset int:cando_txs
      Excited state energy =    -54.154599651079
 
 
- Task  times  cpu:        1.3s     wall:        1.3s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -28005,8 +28007,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:    101.1
-   Time prior to 1st pass:    101.1
+   Time after variat. SCF:    105.4
+   Time prior to 1st pass:    105.4
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -28019,15 +28021,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5410825523 -5.45D+01  3.01D-02  1.10D-01   101.2
+ d= 0,ls=0.0,diis     1    -54.5410825523 -5.45D+01  3.01D-02  1.10D-01   105.5
                                                      3.30D-03  6.53D-03
- d= 0,ls=0.0,diis     2    -54.5731606768 -3.21D-02  8.91D-03  2.31D-02   101.3
+ d= 0,ls=0.0,diis     2    -54.5731606768 -3.21D-02  8.91D-03  2.31D-02   105.6
                                                      6.35D-03  1.70D-02
- d= 0,ls=0.0,diis     3    -54.5837516738 -1.06D-02  5.21D-04  2.52D-05   101.4
+ d= 0,ls=0.0,diis     3    -54.5837516738 -1.06D-02  5.21D-04  2.52D-05   105.8
                                                      1.04D-03  1.17D-04
- d= 0,ls=0.0,diis     4    -54.5838179010 -6.62D-05  4.48D-05  1.74D-07   101.5
+ d= 0,ls=0.0,diis     4    -54.5838179010 -6.62D-05  4.48D-05  1.74D-07   105.9
                                                      1.30D-04  1.90D-06
- d= 0,ls=0.0,diis     5    -54.5838186773 -7.76D-07  2.65D-06  1.83D-09   101.6
+ d= 0,ls=0.0,diis     5    -54.5838186773 -7.76D-07  2.65D-06  1.83D-09   106.0
                                                      1.30D-06  1.80D-10
 
 
@@ -28400,7 +28402,7 @@ unset int:cando_txs
      Excited state energy =    -54.168280095439
 
 
- Task  times  cpu:        2.2s     wall:        2.2s
+ Task  times  cpu:        2.3s     wall:        2.3s
 
 
                                 NWChem Input Module
@@ -28500,8 +28502,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:    103.2
-   Time prior to 1st pass:    103.2
+   Time after variat. SCF:    107.7
+   Time prior to 1st pass:    107.7
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -28514,15 +28516,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.9776505468 -5.50D+01  3.54D-02  1.13D-01   103.4
+ d= 0,ls=0.0,diis     1    -54.9776505468 -5.50D+01  3.54D-02  1.13D-01   107.8
                                                      3.97D-03  6.63D-03
- d= 0,ls=0.0,diis     2    -55.0021157964 -2.45D-02  1.33D-02  4.54D-02   103.5
+ d= 0,ls=0.0,diis     2    -55.0021157964 -2.45D-02  1.33D-02  4.54D-02   107.9
                                                      7.30D-03  2.43D-02
- d= 0,ls=0.0,diis     3    -55.0224920004 -2.04D-02  2.45D-04  7.03D-06   103.6
+ d= 0,ls=0.0,diis     3    -55.0224920004 -2.04D-02  2.45D-04  7.03D-06   108.1
                                                      8.08D-04  1.03D-04
- d= 0,ls=0.0,diis     4    -55.0225270239 -3.50D-05  1.17D-05  2.76D-08   103.7
+ d= 0,ls=0.0,diis     4    -55.0225270239 -3.50D-05  1.17D-05  2.76D-08   108.2
                                                      3.16D-05  3.34D-07
- d= 0,ls=0.0,diis     5    -55.0225270897 -6.58D-08  2.94D-06  2.07D-09   103.8
+ d= 0,ls=0.0,diis     5    -55.0225270897 -6.58D-08  2.94D-06  2.07D-09   108.3
                                                      6.53D-07  6.20D-10
 
 
@@ -28884,7 +28886,7 @@ unset int:cando_txs
      Excited state energy =    -54.596114632257
 
 
- Task  times  cpu:        1.3s     wall:        1.4s
+ Task  times  cpu:        1.4s     wall:        1.4s
 
 
                                 NWChem Input Module
@@ -28993,8 +28995,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:    104.6
-   Time prior to 1st pass:    104.6
+   Time after variat. SCF:    109.1
+   Time prior to 1st pass:    109.1
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -29007,15 +29009,15 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5148376314 -5.45D+01  3.28D-02  1.11D-01   104.7
+ d= 0,ls=0.0,diis     1    -54.5148376314 -5.45D+01  3.28D-02  1.11D-01   109.2
                                                      3.39D-03  5.98D-03
- d= 0,ls=0.0,diis     2    -54.5420828421 -2.72D-02  1.14D-02  3.56D-02   104.8
+ d= 0,ls=0.0,diis     2    -54.5420828421 -2.72D-02  1.14D-02  3.56D-02   109.3
                                                      6.84D-03  2.05D-02
- d= 0,ls=0.0,diis     3    -54.5576682711 -1.56D-02  4.18D-04  1.54D-05   104.9
+ d= 0,ls=0.0,diis     3    -54.5576682711 -1.56D-02  4.18D-04  1.54D-05   109.4
                                                      7.31D-04  7.08D-05
- d= 0,ls=0.0,diis     4    -54.5577044747 -3.62D-05  1.21D-05  5.74D-08   105.0
+ d= 0,ls=0.0,diis     4    -54.5577044747 -3.62D-05  1.21D-05  5.74D-08   109.5
                                                      8.62D-05  1.30D-06
- d= 0,ls=0.0,diis     5    -54.5577048500 -3.75D-07  9.38D-07  4.06D-10   105.1
+ d= 0,ls=0.0,diis     5    -54.5577048500 -3.75D-07  9.38D-07  4.06D-10   109.7
                                                      7.59D-07  6.56D-11
 
 
@@ -29377,7 +29379,7 @@ unset int:cando_txs
      Excited state energy =    -54.143037608486
 
 
- Task  times  cpu:        1.8s     wall:        1.8s
+ Task  times  cpu:        1.9s     wall:        2.0s
 
 
                                 NWChem Input Module
@@ -29485,8 +29487,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:    106.4
-   Time prior to 1st pass:    106.4
+   Time after variat. SCF:    111.0
+   Time prior to 1st pass:    111.0
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -29499,17 +29501,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5133815626 -5.45D+01  2.93D-02  1.19D-01   106.5
+ d= 0,ls=0.0,diis     1    -54.5133815626 -5.45D+01  2.93D-02  1.19D-01   111.1
                                                      3.22D-03  1.15D-02
- d= 0,ls=0.0,diis     2    -54.5499526339 -3.66D-02  7.86D-03  1.78D-02   106.6
+ d= 0,ls=0.0,diis     2    -54.5499526339 -3.66D-02  7.86D-03  1.78D-02   111.3
                                                      6.37D-03  1.57D-02
- d= 0,ls=0.0,diis     3    -54.5585138961 -8.56D-03  8.10D-04  8.78D-05   106.7
+ d= 0,ls=0.0,diis     3    -54.5585138961 -8.56D-03  8.10D-04  8.78D-05   111.4
                                                      1.03D-03  1.03D-04
- d= 0,ls=0.0,diis     4    -54.5586099684 -9.61D-05  5.89D-05  2.00D-07   106.8
+ d= 0,ls=0.0,diis     4    -54.5586099684 -9.61D-05  5.89D-05  2.00D-07   111.5
                                                      2.17D-04  5.29D-06
- d= 0,ls=0.0,diis     5    -54.5586120060 -2.04D-06  4.74D-06  5.61D-09   106.9
+ d= 0,ls=0.0,diis     5    -54.5586120060 -2.04D-06  4.74D-06  5.61D-09   111.6
                                                      1.49D-06  2.95D-10
- d= 0,ls=0.0,diis     6    -54.5586120074 -1.48D-09  1.06D-07  1.62D-12   107.0
+ d= 0,ls=0.0,diis     6    -54.5586120074 -1.48D-09  1.06D-07  1.62D-12   111.7
                                                      1.92D-08  8.54D-14
 
 
@@ -29521,7 +29523,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999417995
 
-     Total iterative time =      0.6s
+     Total iterative time =      0.7s
 
 
 
@@ -29880,7 +29882,7 @@ unset int:cando_txs
      Excited state energy =    -54.144610401812
 
 
- Task  times  cpu:        2.2s     wall:        2.2s
+ Task  times  cpu:        2.3s     wall:        2.3s
 
 
                                 NWChem Input Module
@@ -29988,8 +29990,8 @@ unset int:cando_txs
  HOMO         =      -0.205286
  LUMO         =      -0.205286
 
-   Time after variat. SCF:    108.6
-   Time prior to 1st pass:    108.6
+   Time after variat. SCF:    113.3
+   Time prior to 1st pass:    113.3
 
  Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-ref/QA/scratchdir/nwxc_dat.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
@@ -30002,17 +30004,17 @@ unset int:cando_txs
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -54.5443578571 -5.45D+01  2.88D-02  1.10D-01   108.7
+ d= 0,ls=0.0,diis     1    -54.5443578571 -5.45D+01  2.88D-02  1.10D-01   113.5
                                                      3.24D-03  6.78D-03
- d= 0,ls=0.0,diis     2    -54.5784106101 -3.41D-02  7.76D-03  1.84D-02   108.8
+ d= 0,ls=0.0,diis     2    -54.5784106101 -3.41D-02  7.76D-03  1.84D-02   113.6
                                                      6.10D-03  1.54D-02
- d= 0,ls=0.0,diis     3    -54.5870338910 -8.62D-03  5.98D-04  3.44D-05   108.9
+ d= 0,ls=0.0,diis     3    -54.5870338910 -8.62D-03  5.98D-04  3.44D-05   113.7
                                                      1.18D-03  1.46D-04
- d= 0,ls=0.0,diis     4    -54.5871201854 -8.63D-05  6.18D-05  3.16D-07   109.0
+ d= 0,ls=0.0,diis     4    -54.5871201854 -8.63D-05  6.18D-05  3.16D-07   113.8
                                                      1.64D-04  2.62D-06
- d= 0,ls=0.0,diis     5    -54.5871214012 -1.22D-06  4.37D-06  4.20D-09   109.1
+ d= 0,ls=0.0,diis     5    -54.5871214012 -1.22D-06  4.37D-06  4.20D-09   113.9
                                                      7.65D-07  1.07D-10
- d= 0,ls=0.0,diis     6    -54.5871214023 -1.13D-09  7.51D-08  7.62D-13   109.2
+ d= 0,ls=0.0,diis     6    -54.5871214023 -1.13D-09  7.51D-08  7.62D-13   114.0
                                                      9.14D-09  6.70D-14
 
 
@@ -30024,7 +30026,7 @@ unset int:cando_txs
 
  Numeric. integr. density =        6.999999407223
 
-     Total iterative time =      0.6s
+     Total iterative time =      0.7s
 
 
 
@@ -30372,7 +30374,7 @@ unset int:cando_txs
      Excited state energy =    -54.172196164830
 
 
- Task  times  cpu:        2.2s     wall:        2.2s
+ Task  times  cpu:        2.3s     wall:        2.3s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -30383,9 +30385,9 @@ unset int:cando_txs
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 3.19e+04 3.19e+04 1.43e+06 4.32e+05 1.98e+05 4272        0     2.17e+04 
+calls: 3.19e+04 3.19e+04 1.43e+06 4.32e+05 1.97e+05 4272        0     2.17e+04 
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 1.00e+00 0.00e+00
-bytes total:             6.89e+08 1.27e+08 1.91e+08 7.69e+06 0.00e+00 1.74e+05
+bytes total:             6.89e+08 1.27e+08 1.90e+08 7.69e+06 0.00e+00 1.74e+05
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 5456016 bytes
 MA_summarize_allocated_blocks: starting scan ...
@@ -30442,4 +30444,4 @@ MA usage statistics:
       G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
                                      Z. Zhang.
 
- Total times  cpu:      110.7s     wall:      112.0s
+ Total times  cpu:      115.6s     wall:      116.8s
