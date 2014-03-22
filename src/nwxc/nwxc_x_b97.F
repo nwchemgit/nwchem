@@ -109,7 +109,7 @@ c
       end
 c
       Subroutine nwxc_x_b97_d2(param,tol_rho,ipol,nq,wght,rho,rgamma,
-     &                         func,Amat,Cmat,Amat2,Cmat2)
+     &                         func,Amat,Amat2,Cmat,Cmat2)
 c
 c     $Id$
 c
