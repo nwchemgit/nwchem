@@ -204,7 +204,7 @@ c
             d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
 c
             A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            C2tmp = - (4d0/3d0)*(rhom23**2/rho(n,1))*d2g*wght
+            C2tmp = - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
             if (x.gt.tol_rho) then
                C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
             else
@@ -295,7 +295,7 @@ c
             d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
 c
             A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            C2tmp = - (2d0/3d0)*(rhom23**2/rho(n,2))*d2g*wght
+            C2tmp = - (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
             if (x.gt.tol_rho) then
                C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
             else
@@ -381,7 +381,7 @@ c
 
 c
             A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            C2tmp = -(2d0/3d0)*(rhom23**2/rho(n,3))*d2g*wght
+            C2tmp = -(2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
             if (x.gt.tol_rho) then
                C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
             else

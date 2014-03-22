@@ -162,7 +162,7 @@ c
              C3tmp = 0.d0
              if (rho(n,R_B).gt.0.5d0*tol_rho) then
                A2tmp = one_third*P3*rho33/rho(n,R_B)*wght
-               call nwxc_x_att_d2(param,tol_rho,rho(n,3),ipol,
+               call nwxc_x_att_d2(param,tol_rho,rho(n,R_B),ipol,
      &              Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
              end if
              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp

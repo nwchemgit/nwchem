@@ -145,7 +145,7 @@ c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
 c
 #ifdef SECOND_DERIV
 c           if(lfac) g = g + C           ! Add local contribution back to g
-            rhom23 = rho13 / (0.5d0*rho(n,1))
+            rhom23 = rho13 / (0.5d0*rho(n,R_T))
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
      &           + BETA*x*x*d2gdenom/gdenom**2
@@ -154,7 +154,7 @@ c
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
      &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*(rhom23**2/rho(n,1))*d2g*wght
+     &           - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
@@ -222,7 +222,7 @@ c
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
      &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,2))*d2g*wght
+     &           - (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
@@ -284,7 +284,7 @@ c
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
      &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
             Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,3))*d2g*wght
+     &           - (2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght

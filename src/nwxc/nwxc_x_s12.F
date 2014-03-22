@@ -197,7 +197,7 @@ c
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
      &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*(rhom23**2/rho(n,1))*d2g*wght
+     &           - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
@@ -269,7 +269,7 @@ c
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
      &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,2))*d2g*wght
+     &           - (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
@@ -335,7 +335,7 @@ c
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
      &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
             Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,3))*d2g*wght
+     &           - (2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
