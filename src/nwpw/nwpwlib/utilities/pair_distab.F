@@ -246,28 +246,29 @@ c     *** parameters ***
            RLOWER = dble(bin)*DELR
            RUPPER = RLOWER + DELR
            NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
-           NIDEAL = NIDEAL*nindxA*nindxB
+           !NIDEAL = NIDEAL*nindxA*nindxB
+           NIDEAL = NIDEAL*nindxA
            r  = 0.5d0*(RLOWER+RUPPER)
            gr = dble(int_mb(hst(1)+bin))/dble(nframes)
 
            RLOWER = dble(bin-2)*DELR
            RUPPER = RLOWER + DELR
-           NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
+           !NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
            grm2 = dble(int_mb(hst(1)+bin-2))/dble(nframes)
 
            RLOWER = dble(bin-1)*DELR
            RUPPER = RLOWER + DELR
-           NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
+           !NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
            grm1 = dble(int_mb(hst(1)+bin-1))/dble(nframes)
 
            RLOWER = dble(bin+1)*DELR
            RUPPER = RLOWER + DELR
-           NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
+           !NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
            grp1 = dble(int_mb(hst(1)+bin+1))/dble(nframes)
 
            RLOWER = dble(bin+2)*DELR
            RUPPER = RLOWER + DELR
-           NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
+           !NIDEAL = CONST*(RUPPER**3 - RLOWER**3)
            grp2 = dble(int_mb(hst(1)+bin+2))/dble(nframes)
 
            grs = ( -3.0d0*grm2
