@@ -21,9 +21,8 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   /* swap column & rows when going from fortran to c */
   hi[1]=*m - 1;
   hi[0]=*n - 1;
-  *ld64=(int64_t) *ld;
 
-  if(GA_Nodeid() == 0)  NGA_Get64(*g_a, lo, hi, a, ld64);
+  if(GA_Nodeid() == 0)  NGA_Get64(*g_a, lo, hi, a, (int64_t *) ld);
   GA_Sync();
 
   len8= (*m) * (*n);
