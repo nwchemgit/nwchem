@@ -3,6 +3,7 @@ echo
 start nwxc_dat
 
 geometry
+  symmetry d2h
   He 0.0 0.0 0.0
 end
 
