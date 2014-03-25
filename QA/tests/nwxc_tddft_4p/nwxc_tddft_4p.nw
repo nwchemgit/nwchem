@@ -3,6 +3,7 @@ echo
 start nwxc_dat
 
 geometry
+  symmetry d2h
   P 0.0 0.0 0.0
 end
 
@@ -42,7 +43,7 @@ end
 
 tddft
   cis
-  nroots 2
+  nroots 6
 end
 
 # LDA exchange
