@@ -2695,16 +2695,30 @@ c      INCLUDE 'mxpdim.inc'
           IJ = IJ + I
           IJF = IJF + L
         END DO
-        IBLK = LXC*(LXC+1)/2
       END DO
+      call ga_sync()
+
+c    CALL TRIPAK(AUTPAK(IOFFU),APAK(IOFFP),IWAY,L,L)
+c    SUBROUTINE TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
+c     DIMENSION AUTPAK(MATDIM,MATDIM),APAK(*)
+
+c     IF( IWAY .EQ. 1 ) THEN
+c       IJ = 0
+c       DO I = 1,NDIM
+c         DO J = 1, I
+c           APAK(IJ+J) = AUTPAK(J,I)
+c         END DO
+c         IJ = IJ + I
+c       END DO
+
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from TRIPAK_BLKM'
         WRITE(6,*) 
         WRITE(6,*) ' Unpacked matrix'
         WRITE(6,*) ' ==============='
-        call ga_print(autpack)
+        call ga_print(autpak)
         WRITE(6,*) ' Packed matrix '
         WRITE(6,*) ' =============='
         CALL APRBLM2(  APAK,LBLOCK,LBLOCK,NBLOCK,1)
@@ -13910,7 +13924,7 @@ C             FRMDSCN(VEC,NREC,LBLK,LU)
 *. Reform to packed matrix
         CALL TRIPAK(H,SCR,1,NVAR,NVAR)
 *. Diagonalize
-        CALL EIGEN(SCR,H,NVAR,0,1)
+        CALL EIGENL(SCR,H,NVAR,0,1)
 *. Pack eigenvalues
         CALL COPDIA(SCR,SCR,NVAR,1)
         WRITE(6,*) ' Eigenvalues of matrix : '
@@ -14779,6 +14793,8 @@ C?    END IF
 CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
       END IF
 *
+      call ga_distribution(INTLST,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(INTLST, ilo, ihi, 1, 1, kintl, idum)
 *
 *Number of orbitals for the four indeces
 *
@@ -14912,6 +14928,9 @@ CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
       END IF
       NIJKL = NIK*NJL
 *
+      ZERO = 0.0d0
+      CALL SETVEC(XINT,ZERO,NIJKL)
+*
       IF(NTEST.GE.1000) THEN
         WRITE(6,*)
         WRITE(6,*) ' Coulomb part '
@@ -14995,8 +15014,8 @@ CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
      &                         I_ABS, J_ABS, K_ABS, L_ABS
                 END IF
 *
-                call ga_get(INTLST,IJKL,IJKL,1,1,XVAL,1)
-                XINT(IINT) = CFAC*XVAL             
+                if (IJKL.ge.ilo.and.IJKL.le.ihi)     
+     &          XINT(IINT) = CFAC*dbl_mb(kintl+IJKL-ilo)
 CNW             XINT(IINT) = CFAC*INTLST(IJKL)   
                 IF(NTEST.GE.10000)
      &          WRITE(6,*) ' IINT, XINT = ', IINT, XINT(IINT)
@@ -15034,9 +15053,9 @@ C                 IJKL=IJ+(KL-1)*NIJS-KLOFF
                   WRITE(6,'(A,4I4)') ' I_ABS, J_ABS, K_ABS, L_ABS = ', 
      &                         I_ABS, J_ABS, K_ABS, L_ABS
                 END IF
-                call ga_get(INTLST,IBLOFF-1+IJKL,IBLOFF-1+IJKL,
-     &                      1,1,XVAL,1)
-                XINT(IINT) = CFAC*XVAL 
+                IELEM = IBLOFF-1+IJKL
+                if (IELEM.ge.ilo.and.IELEM.le.ihi)
+     &          XINT(IINT) = CFAC*dbl_mb(kintl+IELEM-ilo)
 CNW             XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
                 IF(NTEST.GE.10000)
      &          WRITE(6,*) ' IINT, XINT = ', IINT, XINT(IINT)
@@ -15062,8 +15081,8 @@ CNW             XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
                   WRITE(6,*) ' I_ABS, J_ABS, IJ = ', I_ABS, J_ABS, IJ
                   WRITE(6,*) ' IINT, IJKL = ', IINT, IJKL
                 END IF
-                call ga_get(INTLST,IJKL,IJKL,1,1,XVAL,1)
-                XINT(IINT) = CFAC*XVAL        
+                if (IJKL.ge.ilo.and.IJKL.le.ihi) 
+     &          XINT(IINT) = CFAC*dbl_mb(kintl+IJKL-ilo)
 CNW             XINT(IINT) = CFAC*INTLST(IJKL)
                 IF(NTEST.GE.10000) THEN
                   WRITE(6,*) ' Updated integral = ', XINT(IINT)
@@ -15224,8 +15243,8 @@ CER  &               + (L-1)      *NI
                   END IF
                   ILKJ = ILKJ0 + IL
                   IINT=IINT+1
-                  call ga_get(INTLST,ILKJ,ILKJ,1,1,XVAL,1)
-                  XINT(IINT)=XINT(IINT)-EFAC*XVAL
+                  if (ILKJ.ge.ilo.and.ILKJ.le.ihi)
+     &            XINT(IINT)=XINT(IINT)-EFAC*dbl_mb(kintl+ILKJ-ilo)
 CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
 CNW               IF(NTEST.GE.10000) THEN 
 CNW                 WRITE(6,*) 
@@ -15265,9 +15284,9 @@ C                     ILKJ = IL + (KJ-1)*NILS - KJ*(KJ-1)/2
                    WRITE(6,*) ' IINT, ILKJ = ', IINT, ILKJ
                   END IF
 *
-                  call ga_get(INTLST,IBLOFF-1+ILKJ,IBLOFF-1+ILKJ,
-     &                      1,1,XVAL,1)
-                  XINT(IINT)=XINT(IINT)-EFAC*XVAL
+                  IELEM = IBLOFF-1+ILKJ
+                  if (IELEM.ge.ilo.and.IELEM.le.ihi)
+     &            XINT(IINT)=XINT(IINT)-EFAC*dbl_mb(kintl+IELEM-ilo)
 CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
                   IF(NTEST.GE.10000)
      &            WRITE(6,*) ' updated integral ', XINT(IINT)
@@ -15285,8 +15304,8 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
                   END IF
                   ILKJ = ILKJ0 + IL*NKJS
                   IINT = IINT + 1
-                  call ga_get(INTLST,ILKJ,ILKJ,1,1,XVAL,1)
-                  XINT(IINT)=XINT(IINT)-EFAC*XVAL
+                  if (ILKJ.ge.ilo.and.ILKJ.le.ihi)     
+     &            XINT(IINT)=XINT(IINT)-EFAC*dbl_mb(kintl+ILKJ-ilo)
 CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
                 END DO
               END IF
@@ -15301,6 +15320,9 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
         END IF
 *
       END IF
+      call ga_release(INTLST,ilo,ihi,1,1)
+      call ga_sync()
+      call ga_dgop(1, XINT, NIJKL, '+')
 *
       RETURN
       END

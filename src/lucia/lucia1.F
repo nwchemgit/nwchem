@@ -1353,7 +1353,7 @@ C?    call PRSYM(PHP,NP1DM)
 *
 *. Initial eigenvalues
       CALL COPVEC(PHP,SCR(KLPP1),NPDM*(NPDM+1)/2)
-      CALL EIGEN(SCR(KLPP1),SCR(KLPP2),NPDM,0,1)
+      CALL EIGENL(SCR(KLPP1),SCR(KLPP2),NPDM,0,1)
 *. Extract eigenvalues
       CALL XTRCDI(SCR(KLPP1),EIGVAL,NROOT,1)
       IF(NTEST.GE.10) THEN
@@ -1399,7 +1399,7 @@ C                TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
             CALL PRSYM(SCR(KLPP1),NPDM)
           END IF
 *.Diagonalize
-          CALL EIGEN(SCR(KLPP1),SCR(KLPP2),NPDM,0,1)
+          CALL EIGENL(SCR(KLPP1),SCR(KLPP2),NPDM,0,1)
 *. Extract eigenvalues
            EIGVAL(IROOT) = SCR(KLPP1-1+IROOT*(IROOT+1)/2)
            IF(NTEST.GE.2)
@@ -1465,7 +1465,7 @@ C?         CALL WRTMAT(EIGVEC(1,IROOT),1,NPQDM,1,NPQDM)
         LU5 = 38
         LUDIA = 39
         CALL COPVEC(PHP,SCR(KLPP1),NP1DM*(NP1DM+1)/2)
-        CALL EIGEN(SCR(KLPP1),SCR(KLPP2),NP1DM,0,1)
+        CALL EIGENL(SCR(KLPP1),SCR(KLPP2),NP1DM,0,1)
 *. Extract eigenvalues and eigenvectors on LU1
         CALL XTRCDI(SCR(KLPP1),EIGVAL,NROOT,1)
         IF(NTEST.GE.10) THEN

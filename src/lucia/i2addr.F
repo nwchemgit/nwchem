@@ -663,7 +663,8 @@ c      INCLUDE 'mxpdim.inc'
      &              int_mb(KP2ADR),NOCCSYM,NO12SYM)
       END IF
 
-      IF (IADR.GT.0) THEN
+      call ga_distribution(K2ADR,ga_nodeid(),ilo,ihi,idum,idum)
+      IF (IADR.GT.0.and.IADR.ge.ilo.and.IADR.le.ihi) THEN
 CNW     XIJKL = WORK(K2ADR-1+IADR)
         call ga_get(K2ADR,IADR,IADR,1,1,GTIJKL,1)
       ELSE

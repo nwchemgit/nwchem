@@ -825,7 +825,7 @@ C          TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 *
       RETURN
       END
-      SUBROUTINE DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
+      SUBROUTINE DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
 *
 * Diagonalize blocked symmetric matrix. 
 * 
@@ -837,7 +837,7 @@ C          TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
       DIMENSION A(*)
       INTEGER LBLK(*)
 *. Output X : eigenvectors, eigenv : eigenvalues
-      DIMENSION X(*), EIGENV(*)
+      DIMENSION X(*), EIGENLV(*)
 *. Scratch ( dim of largest block)
       DIMENSION SCR(*)
 *
@@ -866,15 +866,15 @@ C          TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
           CALL TRIPAK(A(IOFFA),SCR,1,LEN,LEN)      
         END IF
 *. block is now in symmetric packed form in SCR, diagonalize
-*DS     WRITE(6,*) ' Input matrix to EIGEN '
+*DS     WRITE(6,*) ' Input matrix to EIGENL '
 *DS     CALL PRSYM(SCR,LEN)
-*DS  no sort = 0,0)  CALL EIGEN(SCR,X(IOFFX),LEN,0,0) 
+*DS  no sort = 0,0)  CALL EIGENL(SCR,X(IOFFX),LEN,0,0) 
 COLD    write(6,*) 'no sort in DIAG_BLK_SYMMAT'
-COLD    CALL EIGEN(SCR,X(IOFFX),LEN,0,0)
+COLD    CALL EIGENL(SCR,X(IOFFX),LEN,0,0)
 *. Sorting reinstated, JO, July 2012
-        CALL EIGEN(SCR,X(IOFFX),LEN,0,1) 
+        CALL EIGENL(SCR,X(IOFFX),LEN,0,1) 
 *. Eigenvalues are diagonal elements of scr, copy to eigen
-        CALL COPDIA(SCR,EIGENV(IOFFE),LEN,1)
+        CALL COPDIA(SCR,EIGENLV(IOFFE),LEN,1)
 C            COPDIA(A,VEC,NDIM,IPACK)
       END DO
 *
@@ -886,7 +886,7 @@ C            COPDIA(A,VEC,NDIM,IPACK)
 C           APRBLM2(AOUT,LBLOCK,LBLOCK,NBLOCK,ISYM)
        WRITE(6,*) ' Eigenvalues ' 
        LEN_TOT = IELSUM(LBLK,NBLK)
-       CALL WRTMAT(EIGENV,1,LEN_TOT,1,LEN_TOT)
+       CALL WRTMAT(EIGENLV,1,LEN_TOT,1,LEN_TOT)
       END IF
 *
       RETURN
@@ -1126,7 +1126,7 @@ C       CALL APRBLM2(WORK(KFOCK),NTOOBS,NTOOBS,NSMOB,ISM)
 
       RETURN
       END
-      SUBROUTINE GENDIA(HIN,SIN,VOUT,EIGENV,PVEC,NDIM,ISORT)
+      SUBROUTINE GENDIA(HIN,SIN,VOUT,EIGENLV,PVEC,NDIM,ISORT)
 *
 *   Diagonalization of a symmetric eigenvalue problem
 *   Eigenvalues and eigenvectors are obtained
@@ -1134,7 +1134,7 @@ C       CALL APRBLM2(WORK(KFOCK),NTOOBS,NTOOBS,NSMOB,ISM)
 *   HIN    = Matrix to be diagonalized, Destroyed
 *   SIN    = Metric, Destroyed
 *   VOUT   = Eigenvector
-*   EIGENV = Eigenvalues
+*   EIGENLV = Eigenvalues
 *   PVEC   = Transformation matrix between the two bases
 *   NDIM   = Size of the matrices
 *   ISORT  = Sorting parameter (=0 no sorting and =1 sorting)
@@ -1142,11 +1142,11 @@ C       CALL APRBLM2(WORK(KFOCK),NTOOBS,NTOOBS,NSMOB,ISM)
 *   Subroutines called:
 *                       TRANSH
 *                       PACKHM
-*                       EIGEN
+*                       EIGENL
 *                       MATML7
 *
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      DIMENSION HIN(NDIM,NDIM),SIN(NDIM,NDIM),EIGENV(NDIM)
+      DIMENSION HIN(NDIM,NDIM),SIN(NDIM,NDIM),EIGENLV(NDIM)
       DIMENSION VOUT(NDIM,NDIM),PVEC(NDIM,NDIM)
 *
       NTEST = 00
@@ -1187,7 +1187,7 @@ C            WRITE(6,1000) PVEC(J,I),J,I
 C20      CONTINUE
       END IF
  
-* Pack the matrix for diagonalization using subroutine EIGEN
+* Pack the matrix for diagonalization using subroutine EIGENL
 * Pack HIN into the SIN matrix
  
       CALL PACKHM(HIN,SIN,NDIM)
@@ -1199,16 +1199,16 @@ C20      CONTINUE
       MFKR=ISORT
 *   
       IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Input to EIGEN '
+        WRITE(6,*) ' Input to EIGENL '
         WRITE(6,*) ' Dimension = ', NDIM
         CALL PRSYM(SIN,NDIM)
       END IF
-      CALL EIGEN(SIN,HIN,NDIM,MV,MFKR)
+      CALL EIGENL(SIN,HIN,NDIM,MV,MFKR)
  
       IF(NTEST.GT.40) THEN
  
         WRITE(6,*)
-        WRITE(6,*) 'TRANSFORMED EIGENVECTORS'
+        WRITE(6,*) 'TRANSFORMED EIGENLVECTORS'
         WRITE(6,*)
         CALL WRTMAT(HIN,NDIM,NDIM,NDIM,NDIM)
 C        DO 30 I=1,NDIM
@@ -1217,7 +1217,7 @@ C            WRITE(6,1000) HIN(J,I),J,I
 C30      CONTINUE
       END IF
  
-* Fetch the eigenvalues from SIN to EIGENV
+* Fetch the eigenvalues from SIN to EIGENLV
  
       DO 40 I=1,NDIM
         INDEX=I*(I+1)/2
@@ -1227,7 +1227,7 @@ C30      CONTINUE
           IN=IN-1
           JN=NDIM
         END IF
-        EIGENV(I)=SIN(JN,IN)
+        EIGENLV(I)=SIN(JN,IN)
 40    CONTINUE
 *
       FACTORC = 0.0D0
@@ -1241,17 +1241,17 @@ C    &            NDIM,NDIM,NDIM)
       IF(NTEST.GT.1) THEN
  
         WRITE(6,*)
-        WRITE(6,*) 'EIGENVALUES FROM GENDIA'
+        WRITE(6,*) 'EIGENLVALUES FROM GENDIA'
         WRITE(6,*)
         DO 100 I=1,NDIM
-          WRITE(6,1000) EIGENV(I),I
+          WRITE(6,1000) EIGENLV(I),I
 100     CONTINUE
       END IF
  
       IF(NTEST.GT.10) THEN
  
         WRITE(6,*)
-        WRITE(6,*) 'EIGENVECTORS FROM GENDIA'
+        WRITE(6,*) 'EIGENLVECTORS FROM GENDIA'
         WRITE(6,*)
         CALL WRTMAT(VOUT,NDIM,NDIM,NDIM,NDIM)
 C        DO 200 I=1,NDIM
@@ -6368,7 +6368,7 @@ C?    WRITE(6,*) ' Memory used in EXPMA = ', KLFREE
 *
       CALL MATML4(SCR(KLA2),A,A,NDIM,NDIM,NDIM,NDIM,NDIM,NDIM,0)
       CALL TRIPAK(SCR(KLA2),SCR(KLSCR),1,NDIM,NDIM)
-      CALL EIGEN(SCR(KLSCR),SCR(KLA2VC),NDIM,0,1)
+      CALL EIGENL(SCR(KLSCR),SCR(KLA2VC),NDIM,0,1)
       CALL COPDIA(SCR(KLSCR),SCR(KLA2VL),NDIM,1)
       IF( NTEST .GE. 10 ) THEN
         WRITE(6,*) ' Eigenvalues of A squared '
@@ -8488,7 +8488,7 @@ C     CALL TRIPAK_AO_MAT(WORK(KLS_E),WORK(KSAO),2)
         CALL TRAN_SYM_BLOC_MAT3(WORK(KLF_E),WORK(KLCOCC),NSMOB,NAOS_ENV,
      &       WORK(KLNOCCFSM),WORK(KLC),WORK(KLSCR),0)
 *. Diagonalize fock-matrix in occupied space
-C     DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
+C     DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
          CALL DIAG_BLK_SYMMAT(WORK(KLC),NSMOB,WORK(KLNOCCFSM),
      &        WORK(KLEVEC),WORK(KLEVAL),WORK(KLSCR),0)
 *. And transform to the occupied canonical basis 

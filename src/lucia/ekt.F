@@ -82,7 +82,7 @@ C       CALL APRBLM2(WORK(KFOCK),NTOOBS,NTOOBS,NSMOB,ISM)
 C          TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
       CALL TRIPAK(A,SCR,1,NDIM,NDIM)
 *. Diagonalize
-      CALL EIGEN(SCR,B,NDIM,0,1)
+      CALL EIGENL(SCR,B,NDIM,0,1)
       CALL COPDIA(SCR,VEC,NDIM,1)
       IF( NTEST .GE. 1 ) THEN
         WRITE(6,*) ' Eigenvalues of matrix : '
@@ -197,7 +197,7 @@ C     XDIAXT(XDX,X,DIA,NDIM,SCR)
 *
 C          TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
       CALL TRIPAK(A,SCR(KLASYM),1,NDIM,NDIM)
-      CALL EIGEN(SCR(KLASYM),SCR(KLAVEC),NDIM,0,1)
+      CALL EIGENL(SCR(KLASYM),SCR(KLAVEC),NDIM,0,1)
       CALL COPDIA(SCR(KLASYM),SCR(KLAVAL),NDIM,1)
       IF( NTEST .GE. 1 ) THEN
         WRITE(6,*) ' Eigenvalues of matrix : '
@@ -388,7 +388,7 @@ C       CALL TRIPAK(WORK(KLFEXP),WORK(KFOCK-1+IBASE2P),2,N,N)
         call wrtmat(work(KLFEXP),n,n,n,n)
 *. Diagonalize
         CALL TRIPAK(WORK(KLFEXP),WORK(KLSCR),1,N,N)
-        CALL EIGEN(WORK(KLSCR),WORK(KLFP),N,0,1) 
+        CALL EIGENL(WORK(KLSCR),WORK(KLFP),N,0,1) 
         WRITE(6,*) 
      &  ' Eigenvalues of Extended Koopmans Equation for ISM = ',ISM
         DO 80 I = 1, N

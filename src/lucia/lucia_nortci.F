@@ -5472,8 +5472,8 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
       CALL LUCIAQENTER('ORBTR')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'ORBTRA')
 *
-      NTEST = 000
-      IF(NTEST.GE.100) THEN
+      NTEST = 0000
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Info from DO_ORBTRA '
        WRITE(6,*) ' ====================='
        WRITE(6,*) 
@@ -5496,6 +5496,7 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
         CALL PREPARE_2EI_LIST
         CALL TRAINT
 *
+        call ga_sync()
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' one-electron transformed integrals'
           WRITE(6,*) ' ================================='

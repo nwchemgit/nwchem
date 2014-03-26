@@ -1331,14 +1331,15 @@ C
 *
       THRES=1.0D-10
       VDSV = 0.0D0
-      call ga_distribution(VECOUT, ga_nodeid(),ilo,ihi,idum,idum)
-      call ga_access(VECOUT, ilo, ihi, 1, 1, ivecout, idum)
-      call ga_access(VECIN, ilo, ihi, 1, 1, ivecin, idum)
-      call ga_access(DIAG, ilo, ihi, 1, 1, idiag, idum)
+      call ga_distribution(DIAG, ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(DIAG,ilo,ihi,1,1,idiag,idum)
+      call ga_access(VECIN,ilo,ihi,1,1,ivecin,idum)
+      if (VECOUT.eq.DIAG) ivecout = idiag  
+      if (VECOUT.eq.VECIN) ivecout = ivecin
+c
       jlo = ilo - 1
       jhi = ihi - 1
-      DO 100 I=jlo, jhi    
-*
+      DO 100 I=0, ihi-ilo  
         DIVIDE=dbl_mb(idiag+i)+SHIFT
         IF(ABS(DIVIDE).LE.THRES) DIVIDE=THRES
 *
@@ -1347,17 +1348,16 @@ C
 *
   100 CONTINUE
 *
-      NTEST =00
+      NTEST = 00
       IF(NTEST.GE.100) THEN
-      WRITE(6,*) 'DIAVC3 : VECIN, DIAG,VECOUT '
-      DO I = 1, NDIM
-        WRITE(6,'(3E15.8)') dbl_mb(ivecin+i),dbl_mb(idiag+i),
-     &                      dbl_mb(ivecout+i)
+      WRITE(6,*) 'DIAVC3 : VECIN, DIAG'
+      DO I = 0, ihi-ilo
+        WRITE(6,'(I5,3E15.8)') i,dbl_mb(ivecout+i),dbl_mb(idiag+i),
+     &                          dbl_mb(ivecin+i)
       END DO
+      END IF
       call ga_release(DIAG,ilo,ihi,1,1)
       call ga_release(VECIN,ilo,ihi,1,1)
-      call ga_release(VECOUT,ilo,ihi,1,1)
-      END IF
       RETURN
       END
 *
@@ -1629,7 +1629,7 @@ C
 C
       RETURN
       END
-      SUBROUTINE EIGEN(A,R,N,MV,MFKR)
+      SUBROUTINE EIGENL(A,R,N,MV,MFKR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION A(1),R(1)
       DATA TESTIT/1.D-20/
@@ -2413,7 +2413,6 @@ CNW   DIMENSION DIAG(*),VECIN(*),VECUT(*)
       NTESTL = 1
       NTEST = MAX(NTESTG,NTESTL)
 *
-c?    write(6,*) ' H0M1TV , NPQDM = ', NPQDM
       KLFREE = 1
       KLV1 = KLFREE
       KLFREE = KLV1 + NPQDM
@@ -2435,6 +2434,7 @@ CNW     CALL GATVEC(dbl_mb(KLV1),VECIN,IPNTR,NPQDM)
 * X(T)(DIAG+SHIFT)-1 X in subspace, for later subtraction
 CNW     CALL GATVEC(dbl_mb(KLV2),DIAG,IPNTR,NPQDM)
         call ga_gather(DIAG,WORK(KLV2),IPNTR,WORK(KLGA),NPQDM)
+        call ga_sync()
         CALL DIAVC3(WORK(KLV2),WORK(KLV1),
      &       WORK(KLV2),SHIFT,NPQDM,X1)
        ELSE
@@ -2456,7 +2456,9 @@ C?     write(6,*) ' KLPHP KLPHQ KLQHQ ',KLPHP,KLPHQ,KLQHQ
      &               NTEST )
          X3 = INPROD(WORK(KLV1),WORK(KLV2),NPQDM)
 CNW      CALL SCAVEC(VECUT,dbl_mb(KLV2),IPNTR,NPQDM)
+         call ga_sync()
          call ga_scatter(VECUT,WORK(KLV2),IPNTR,WORK(KLGA),NPQDM)
+         call ga_sync()
       ELSE
          X3 = 0.0D0
       END IF
@@ -3640,7 +3642,7 @@ C             COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
        END IF
 *. Diagonalize initial projected matrix
        CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
+       CALL EIGENL(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -3833,7 +3835,7 @@ C                    VECSMD(VEC1,VEC2,1.0D0,FACTOR,LU4,LU1,LU5,0,LBLK)
 *. Diagonalize projected matrix
       NVEC = NVEC + IADD
       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
+      CALL EIGENL(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
         E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
@@ -4326,6 +4328,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
+       IPRT= 1
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
@@ -4369,9 +4372,12 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
          if(dra_wait(itask).ne.0) call errquit('dra read err',itask,911)
 *
 C?       WRITE(6,*) ' Testing: initial vector'
+C?       call ga_print(VEC1)
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
          CALL MV7(VEC1,VEC2,0,0,0,0)
+C?       WRITE(6,*) ' Testing: initial MV7'
+C?       call ga_print(VEC2)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
@@ -4397,7 +4403,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
        END IF
 *  DIAGONALIZE INITIAL PROJECTED MATRIX
        CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
+       CALL EIGENL(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -4441,7 +4447,6 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
-   
          EIGAPR = EIG(ITER-1,IROOT)
 CNW      CALL REWINO( LU1)
          DO 50 IVEC = 1, NVEC
@@ -4476,8 +4481,9 @@ CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
            IADD = IADD + 1
 CNW        CALL REWINO( LUDIA)
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-           if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LUDIA,1,NVAR,
-     &         1,1,itask).ne.0) call errquit('dra error',itask,911) 
+           if (dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &         LUDIA,1,NVAR,1,1,itask).ne.0)
+     &         call errquit('dra error',itask,911)
            if (dra_wait(itask).ne.0) call errquit('dra read err',
      &         itask,911)
            CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
@@ -4512,10 +4518,10 @@ CNW             CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 CNW             CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
                 call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
    59         CONTINUE
-              IF ( IPRT  .GE. 600 ) THEN
+cbert         IF ( IPRT  .GE. 600 ) THEN
                 WRITE(6,*) ' And X  '
 CNW             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-              END IF
+cbert         END IF
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
               if (dra_write_section(.false.,VEC1,1,NVAR,1,1,LU3,1,NVAR,
      &            2,2,itask).ne.0) call errquit('dra error',itask,911)
@@ -4524,8 +4530,9 @@ CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
 * (H0 - E )-1  * X
 CNW           CALL REWINO( LUDIA)
 CNW           CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
-              if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LUDIA,1,NVAR,
-     &            1,1,itask).ne.0) call errquit('dra error',itask,911)
+               if (dra_read_section(.false.,VEC2,1,NVAR,1,1,
+     &            LUDIA,1,NVAR,1,1,itask).ne.0)
+     &            call errquit('dra error',itask,911)
               if (dra_wait(itask).ne.0) call errquit('dra read err',
      &            itask,911)
               CALL H0M1TV(VEC2,VEC1,VEC2,NVAR,NPRDIM,IPNTR,
@@ -4692,7 +4699,7 @@ CNW       APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
 *  DIAGONALIZE PROJECTED MATRIX
       NVEC = NVEC + IADD
       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
+      CALL EIGENL(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
 *. Select if required the roots to be followed
       IF(IROOT_SEL.NE.0) THEN
         ISEL_MET = IROOT_SEL 

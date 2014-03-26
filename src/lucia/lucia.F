@@ -896,7 +896,7 @@ C      TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
         WRITE(6,*) ' NSMOB NGAS ', NSMOB,NGAS
       END IF
 *
-      IB_EIGENVAL = 1
+      IB_EIGENLVAL = 1
       DO ISM = 1, NSMOB
         IF(IFORM.EQ.1) THEN
          NOBPSM_G(ISM) = NACOBS(ISM)
@@ -976,10 +976,10 @@ C      TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
             CALL PRSYM(SCR1,LOB)
           END IF
 *, Diagonalize
-C         CALL EIGEN(WORK(KMAT1-1+IOFFP),WORK(KMAT2-1+IOFFC),LORB,0,1)
-          CALL EIGEN(SCR1, SCR2, LOB,0,1)
-          CALL COPDIA(SCR1,A(IB_EIGENVAL),LOB,1)
-          IB_EIGENVAL = IB_EIGENVAL + LOB
+C         CALL EIGENL(WORK(KMAT1-1+IOFFP),WORK(KMAT2-1+IOFFC),LORB,0,1)
+          CALL EIGENL(SCR1, SCR2, LOB,0,1)
+          CALL COPDIA(SCR1,A(IB_EIGENLVAL),LOB,1)
+          IB_EIGENLVAL = IB_EIGENVAL + LOB
 
           IF(NTEST.GE.100) THEN
             WRITE(6,*) ' Eigenvalues'
@@ -1930,7 +1930,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       character*100 nam,fil
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
-      NTEST = 0
+      NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
       MXACJ = 0
       MXACIJ = 0
@@ -2373,8 +2373,8 @@ C    &   LUDIA,NOCCLS_ACT,IOCCLS_ACT),ISYM)
 C        CALL REWINO(LUDIA)
 C?     WRITE(6,*) ' WORK(KPDIA_SD) before TODSC =', WORK(KPDIA_SD)
 C        CALL TODSC(KPDIA_SD,NVAR,NVAR,LUDIA)
-         istat = dra_write(kpdia_sd,LUDIA,itask) 
-         if (istat.ne.0) call errquit('ludia dra_write error',istat,911)
+         if (dra_write_section(.false.,kpdia_sd,1,NVAR,1,1,LUDIA,1,NVAR,
+     &       1,1,itask).ne.0) call errquit('dra error',itask,911)
          if (dra_wait(itask).ne.0) call errquit('dra read err',
      &       itask,911)
        END IF
@@ -3554,7 +3554,7 @@ C         CALL COPVEC(WORK(KVEC2),WORK(KVEC1),NVAR)
         ONEM = -1.0D0
 *. scale with -1 to get highest occupation numbers as first eigenvectors
         CALL SCALVE(SCR,ONEM,LOB*(LOB+1)/2)       
-        CALL EIGEN(SCR,XNAT(IMTOFF),LOB,0,1)
+        CALL EIGENL(SCR,XNAT(IMTOFF),LOB,0,1)
 *
         DO  I = 1, LOB   
           OCCNUM(IOBOFF-1+I) = - SCR(I*(I+1)/2) 
@@ -4825,7 +4825,8 @@ C?    WRITE(6,*) ' ISBSPPR_ACT = ', ISBSPPR_ACT
 C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
-      NTEST=0
+      NTEST=0000
+      IPRT= 5
 *
 *               ====================================
 ** 1:               INITIAL VARIATIONAL SUBSPACE
@@ -5622,10 +5623,10 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 000
+      NTESTL = 00000
       NTEST = MAX(NTESTG,NTESTL)
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Output from FNDMND'
         WRITE(6,*) ' ==================='
         WRITE(6,*)
@@ -5642,7 +5643,7 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
           CALL IFRMDS(LBL,1,-1,LU)
         END IF
         IBLK = IBLK + 1
-        IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Info about block ',IBLK
           WRITE(6,*) ' Number of elements ', LBL
         END IF
@@ -5658,7 +5659,7 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
      &        itask,911)
 CNW        CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
            IF(NTEST.GE.10000) THEN
-             WRITE(6,*) ' Elements read in '
+             if (ga_nodeid().eq.0) WRITE(6,*) ' Elements read in '
 CNW          CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
              call ga_print_patch(SEGMNT,1,LBL,1,1,0)
            END IF
@@ -6220,6 +6221,7 @@ c      INCLUDE 'mxpdim.inc'
           H(IJ) = GETH1E(I,ITP,ISM,J,JTP,JSM)
         END DO
       END DO
+      call ga_sync()
       call ga_dgop(1, H , IJ, '+')
 *
       NTEST = 00
@@ -8059,10 +8061,11 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
         if (mypt.le.ihi.and.mypt.ge.ilo)
      &  call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
+      call ga_sync()
       call ga_dgop(1,H1DIA,NTOOB, '+')
 *
       NTEST = 0
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Diagonal one electron integrals '
         CALL WRTMAT(H1DIA,1,NTOOB,1,NTOOB)
       END IF
@@ -8164,8 +8167,8 @@ CNW     WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,H(IJ)
 *. Call the slave 
       CALL GTJKS(RJ,RK,NTOOB)
 C     CALL GTJKL(RJ,RK,NTOOB)
-      NTEST = 00
-      IF(NTEST.NE.0) THEN
+      NTEST = 10
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' RJ and RK from GTJK '
         CALL WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
         CALL WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
@@ -10052,7 +10055,7 @@ CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
             call ga_copy(KINT1,KHINA)
             CALL FISM_OLD(KHINA,ECC)
             ECORE_INA = ECORE + ECC
-            WRITE(6,*) ' ECORE_INA = ', ECORE_INA
+            if (ga_nodeid().eq.0) WRITE(6,*) ' ECORE_INA = ', ECORE_INA
 *. One-electron integrals with contributions from inactive orbitals and 
 *  particle-hole reorganization
             CALL FI(KINT1,ECORE_HEX,1)
@@ -10070,7 +10073,7 @@ C?   &      WORK(KFI), WORK(KINT1O)
         ECORE_ORIG = ECORE
         ECORE = ECORE + ECORE_HEX
 *
-        WRITE(6,*) 
+        if (ga_nodeid().eq.0) WRITE(6,*) 
      &  ' Core energy: updated and read in ',ECORE, ECORE_ORIG
       END IF
 *
@@ -10697,6 +10700,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "dra.fh"
       LOGICAL CONV_F
        integer rtdb
 *.File numbers
@@ -11887,6 +11891,10 @@ C?   &               WORK(KINT1), WORK(KINT2)
       CALL LUCIAQSTAT
       IDUM=0
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'LUCIA')
+      istat = dra_delete(LUDIA)
+      istat = dra_delete(LUC) 
+      istat = dra_delete(LUHC) 
+      istat = dra_delete(LUSC1) 
       do i = igalstnr, 1, -1
          if (.not. ga_destroy(igalist(i))) call errquit
      $        ('lucia: destroying ga failed', igalist(i), GA_ERR)
@@ -31691,10 +31699,11 @@ C
       END IF
       END IF! degeneracies should be checked
 *
-      IF((IPRT.GT.8).AND.(KEXST2.NE.JEXSTV)) WRITE(6,1600)KEXST2,JEXSTV
+      IF((IPRT.GT.8).AND.(KEXST2.NE.JEXSTV)
+     &   .and.ga_nodeid().eq.0) WRITE(6,1600)KEXST2,JEXSTV
  
 1600  FORMAT(/' NUMBER OF START VECTORS IS DIMINISHED TO',I5,' FROM',I5)
-      IF (IPRT.GE.1000) THEN
+      IF (IPRT.GE.1000.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) '(I,(ISTART(I),STVAL(I)),I=1,JEXSTV)'
          DO 170 I = 1,JEXSTV
             WRITE(6,*) I,ISTART(I),STVAL(I)
@@ -34757,7 +34766,7 @@ C?      WRITE(6,*) ' IADD_TS = ', IADD_TS
         ONEM = -1.0D0
 *. scale with -1 to get highest occupation numbers as first eigenvectors
         CALL SCALVE(SCR,ONEM,LOB*(LOB+1)/2)       
-        CALL EIGEN(SCR,XNAT(IMTOFF),LOB,0,1)
+        CALL EIGENL(SCR,XNAT(IMTOFF),LOB,0,1)
 *
         DO  I = 1, LOB   
           OCCNUM(IOBOFF-1+I) = - SCR(I*(I+1)/2) 
@@ -35837,7 +35846,7 @@ C                         NBLK,LROW,LCOL,IPACK)
       ONEM = -1.0D0
       CALL SCALVE(RHO1_GS,ONEM,LEN_GS)
 *. And diagonalize
-C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
+C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
       CALL DIAG_BLK_SYMMAT(RHO1_GS,NGENSMOB,NACOB_GS,XNAT,OCCNUM,SCR,0)
 *. And scale occupation numbers back to sense
       CALL SCALVE(OCCNUM,ONEM,NACOB)
@@ -36075,7 +36084,7 @@ C          REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
 * Orbital energues in KLMAT1, eigenvectors in KLMAT2C
       IF(IMO.EQ.2) THEN
 *. Diagonalize symmetry blocks
-C           DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
+C           DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
        CALL DIAG_BLK_SYMMAT(dbl_mb(KLFIFA_GS),NGENSMOB,
      &      NTOOB_GS,dbl_mb(KLMAT2C),dbl_mb(KLMAT1),
      &      dbl_mb(KLMAT4),1)
@@ -36148,7 +36157,7 @@ C            TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 *. Diagonalize symmetryblocks of density matrix over active orbitals 
 *  and save eigenvectors in KLMAT2
            WRITE(6,*) ' NGENSMOB(1) = ', NGENSMOB
-C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
+C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
          CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT1),NGENSMOB,NACOB_GS,
      &        dbl_mb(KLMAT2),dbl_mb(KLMAT3),dbl_mb(KLMAT4),1)
          IF(NTEST.GE.100) THEN
@@ -36161,7 +36170,7 @@ C             EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
          CALL EXTR_CP_GASBLKS_FROM_GENSYM_MAT(
      &        dbl_mb(KLMAT1),dbl_mb(KLMAT4),2,1,NGAS,1)
 *. Diagonalize type-symmetry blocks of density matrix over active blocks
-C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENV,SCR,ISYM)
+C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
          CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT4),NGAS*NGENSMOB,
      &        int_mb(KLLEN_GASGS_AC_BLK),dbl_mb(KLMAT2),dbl_mb(KLMAT3),
      &        dbl_mb(KLMAT5),1)

@@ -100,6 +100,7 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       I_RESTART_OF_CI = 1
 
 *
+      if (ga_nodeid().eq.0) then
       WRITE(6,*) ' **************************************'
       WRITE(6,*) ' *                                    *'
       WRITE(6,*) ' * MCSCF optimization control entered *'
@@ -191,11 +192,14 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       ELSE IF(I_USE_BR_OR_E1 .EQ.2) THEN
         WRITE(6,*) '    Gradient vector in use'
       END IF
+      endif
 *
       NFRZ_ORB_ACT = 0
       IF(NFRZ_ORB.NE.0.AND.IREFSPC_MCSCF.GE.IFRZFST) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Orbitals frozen in MCSCF optimization: '
         CALL IWRTMA3(IFRZ_ORB,1,NFRZ_ORB,1,NFRZ_ORB)
+        endif
         NFRZ_ORB_ACT = NFRZ_ORB
       END IF
       
@@ -206,6 +210,7 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       IF(IMCSCF_MET.EQ.4) THEN
         I_MAY_DO_CI_IN_INNER_ITS = 1
         XKAPPA_THRES = 1.0D0
+        if (ga_nodeid().eq.0) then
         WRITE(6,'(A)') 
      &  '     CI - optimization in inner iterations starts when: '
         WRITE(6,'(A)')
@@ -214,6 +219,7 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
      &  '       Initial step is below ',  XKAPPA_THRES
         WRITE(6,'(A,I3)') 
      &  '     Outer iteration is atleast number ', MIN_OUT_IT_WITH_CI
+        endif
       END IF
 *
 *. Initial allowed step length 
@@ -417,7 +423,7 @@ C    &               I_DO_CI_IN_INNER_ACT
       N_INNER_TOT = 0
       DO IOUT = 1, MAXMAC
 *
-        IF(IPRNT.GE.1) THEN
+        IF(IPRNT.GE.1.and.ga_nodeid().eq.0) THEN
           WRITE(6,*)
           WRITE(6,*) ' ----------------------------------'
           WRITE(6,*) ' Output from outer iteration', IOUT
@@ -494,7 +500,8 @@ C       IPRDIA = 1
 C       WRITE(6,*) ' TESTY, NROOT(b) = ', NROOT
 *
         MAXIT = MAXIT_SAVE
-        WRITE(6,*) ' Energy and residual from CI :', 
+        if (ga_nodeid().eq.0) 
+     &  WRITE(6,*) ' Energy and residual from CI :', 
      &  EREF,ERROR_NORM_FINAL
         dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+3) = ERROR_NORM_FINAL
         dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4) = EREF
@@ -506,13 +513,13 @@ C       WRITE(6,*) ' TESTY, NROOT(b) = ', NROOT
 *. Check for convergence
           DELTA_E = dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+4)-
      &              dbl_mb(KL_SUMMARY-1+(IOUT-1-1)*NITEM+4)
-          IF(IPRNT.GE.2) WRITE(6,'(A,E9.3)') 
+          IF(IPRNT.GE.2.and.ga_nodeid().eq.0) WRITE(6,'(A,E9.3)') 
      &    '  Change of energy between outer iterations = ', DELTA_E
           IF(ABS(DELTA_E).LE.THRES_E) CONVER = .TRUE.
         END IF
         IF(CONVER) THEN
           NOUTIT = NOUTIT-1
-          IF(IPRNT.GE.1) THEN
+          IF(IPRNT.GE.1.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' MCSCF calculation has converged'
           END IF
           GOTO 1001
@@ -520,7 +527,8 @@ C       WRITE(6,*) ' TESTY, NROOT(b) = ', NROOT
 *. A test
 C       CALL EN_FROM_DENS(ENERGY,2,0)
         CALL EN_FROM_DENS(ENERGY2,2,0)
-        WRITE(6,*) ' Energy from density matrices ', ENERGY2
+        if (ga_nodeid().eq.0)
+     &  WRITE(6,*) ' Energy from density matrices ', ENERGY2
 *. The active Fock matrix
 C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
         CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
@@ -537,7 +545,7 @@ C            ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
         IF(IOOE2_APR.EQ.1) THEN
           CALL ORBHES(dbl_mb(KLE2),int_mb(KLOOEXC),NOOEXC,IOOSM,
      &         int_mb(KLTTACT))
-          IF(NTEST.GE.1000) THEN
+          IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
            WRITE(6,*) ' The orbital Hessian '
            CALL PRSYM(dbl_mb(KLE2),NOOEXC)
           END IF
@@ -556,13 +564,13 @@ C            DIAG_SYMMAT_EISPACK(A,EIGVAL,SCRVEC,NDIM,IRETURN)
            WRITE(6,*) 
      &     ' Problem with diagonalizing E2, IRETURN =  ', IRETURN
         END IF
-        IF(IPRNT.GE.1000) THEN
+        IF(IPRNT.GE.1000.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Eigenvalues: '
           CALL WRTMAT(dbl_mb(KLE2VL),1,NOOEXC,1,NOOEXC)
         END IF
 *. Lowest eigenvalue
         E2VL_MN = XMNMX(dbl_mb(KLE2VL),NOOEXC,1)
-        IF(IPRNT.GE.2)  
+        IF(IPRNT.GE.2.and.ga_nodeid().eq.0)  
      &  WRITE(6,*) ' Lowest eigenvalue of E2(orb) = ', E2VL_MN
 *
 *. Cholesky factorization orbital Hessian if required
@@ -634,7 +642,7 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
         DO IINNER = 1, MAXMIC
           N_INNER_TOT = N_INNER_TOT + 1
 *
-          IF(IPRNT.GE.5) THEN
+          IF(IPRNT.GE.5.and.ga_nodeid().eq.0) THEN
             WRITE(6,*)
             WRITE(6,*) ' Info from inner iteration = ', IINNER
             WRITE(6,*) ' ===================================='
@@ -664,7 +672,7 @@ CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
            call ga_copy(KINT1,KH)
            call ga_copy(KFI,KINT1)
 *
-           IF(NTEST.GE.100) THEN
+           IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' ECORE_ORIG, ECORE_HEX, ECORE(2) ',
      &                    ECORE_ORIG, ECORE_HEX, ECORE
            END IF
@@ -674,7 +682,8 @@ CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 *
 *. Construct orbital gradient
 *
-          IF(IPRNT.GE.10) WRITE(6,*) ' Construction of E1: '
+          IF(IPRNT.GE.10.and.ga_nodeid().eq.0) 
+     &    WRITE(6,*) ' Construction of E1: '
           XKAPPA_NORM = SQRT(INPROD(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),
      &                              NOOEXC))
           IF(I_USE_BR_OR_E1.EQ.1.OR.XKAPPA_NORM.EQ.0.0D0) THEN
@@ -701,13 +710,14 @@ C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
           END IF
 
 
-          IF(NTEST.GE.1000) THEN
+          IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' E1, Gradient: '
             CALL WRTMAT(dbl_mb(KLE1),1,NOOEXC,1,NOOEXC)
           END IF
 *
           E1NRM = SQRT(INPROD(dbl_mb(KLE1),dbl_mb(KLE1),NOOEXC))
-          IF(IPRNT.GE.2) WRITE(6,*) ' Norm of orbital gradient ', E1NRM
+          IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &    WRITE(6,*) ' Norm of orbital gradient ', E1NRM
           dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+1) = E1NRM
 *
 * ==========================
@@ -741,7 +751,8 @@ C    &                                IOOFSS,VECUT,NOOEX,ICOPY)
 *
             dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) = 
      &      dbl_mb(KL_SUMMARY-1+(IOUT-1)*NITEM+2) + XNORM_STEP
-            IF(IPRNT.GE.2) WRITE(6,'(A,2(2X,E12.5))')
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &      WRITE(6,'(A,2(2X,E12.5))')
      &      ' Norm of step and predicted energy change = ',
      &       XNORM_STEP, DELTA_E_PRED
 *. transform step to original basis
@@ -758,7 +769,7 @@ CM           CALL MEMCHK2('BEAVE2')
      &            dbl_mb(KLEXCSCR),NOOEXC,1) 
 CM           CALL MEMCHK2('AFAVE2')
             END IF
-            IF(NTEST.GE.1000) THEN
+            IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' Step in original basis:'
               CALL WRTMAT(dbl_mb(KLSTEP),1,NOOEXC,1,NOOEXC)
             END IF
@@ -766,7 +777,7 @@ CM           CALL MEMCHK2('AFAVE2')
             E1STEP = INPROD(dbl_mb(KLSTEP),dbl_mb(KLE1B),NOOEXC)
             IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)')
      &      ' < E1!Step> = ', E1STEP
-            IF(E1STEP.GT.0.0D0.AND.IPRNT.GE.2) THEN
+            IF(E1STEP.GT.0.0D0.AND.IPRNT.GE.2.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' Warning: step is in uphill direction '
             END IF
 *. Energy for rotated orbitals
@@ -776,29 +787,36 @@ CM           CALL MEMCHK2('AFAVE2')
      &      ONE,ONE,NOOEXC)
             XNORM2 = SQRT(INPROD(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),
      &                           NOOEXC))
-            WRITE(6,*) ' Norm of updated kappa step =', XNORM2
+            if(ga_nodeid().eq.0)
+     &      WRITE(6,*) ' Norm of updated kappa step =', XNORM2
             ENERGY1 = EMCSCF_FROM_KAPPA(dbl_mb(KLKAPPA))
             ENEW = ENERGY1
-            WRITE(6,*) ' Energy for rotated orbitals', ENERGY1
+            if(ga_nodeid().eq.0)
+     &      WRITE(6,*) ' Energy for rotated orbitals', ENERGY1
 *. Compare old and new energy to decide with to do
             DELTA_E_ACT = ENEW-EOLD
             E_RATIO = DELTA_E_ACT/DELTA_E_PRED  
-            IF(IPRNT.GE.2) WRITE(6,'(A,3(2X,E12.5))') 
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &      WRITE(6,'(A,3(2X,E12.5))') 
      &      ' Actual and predicted energy change, ratio ', 
      &      DELTA_E_ACT, DELTA_E_PRED,E_RATIO
 *
             IF(E_RATIO.LT.0.0D0) THEN
-             IF(IPRNT.GE.2) WRITE(6,*) ' Trustradius reduced '
+             IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &          WRITE(6,*) ' Trustradius reduced '
              RED_FACTOR = 2.0D0
              STEP_MAX = STEP_MAX/RED_FACTOR
-             IF(IPRNT.GE.2) WRITE(6,*) ' New trust-radius ', STEP_MAX
+             IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &          WRITE(6,*) ' New trust-radius ', STEP_MAX
             END IF
             IF(IOUT.GT.1.AND.E_RATIO.GT.0.8D0.AND.I_CLOSE_TO_MAX.EQ.1) 
      &      THEN
-             IF(IPRNT.GE.2) WRITE(6,*) ' Trustradius increased '
+             IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &          WRITE(6,*) ' Trustradius increased '
              XINC_FACTOR = 1.5D0
              STEP_MAX = STEP_MAX*XINC_FACTOR
-             IF(IPRNT.GE.2) WRITE(6,*) ' New trust-radius ', STEP_MAX
+             IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &         WRITE(6,*) ' New trust-radius ', STEP_MAX
             END IF
 C?          WRITE(6,*) ' ABS(E_RATIO-1.0D0) = ', ABS(E_RATIO-1.0D0)
 *
@@ -821,7 +839,8 @@ C    &            XFINAL,FFINAL,IKNOW,F0,FXINI)
      &             dbl_mb(KLKAPPA),dbl_mb(KLSTEP),NOOEXC,ONE,
      &             XFINAL,FFINAL,2, EOLD, ENEW)
               ENEW = FFINAL
-              IF(IPRNT.GE.2) WRITE(6,*) ' Line search value of X = ',
+              IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &          WRITE(6,*) ' Line search value of X = ',
      &        XFINAL
               XKAPPA_NORM2 = 
      &        SQRT(INPROD(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),NOOEXC))
@@ -829,7 +848,7 @@ C    &            XFINAL,FFINAL,IKNOW,F0,FXINI)
      &             dbl_mb(KLSTEP),
      &             ONE, XFINAL,NOOEXC)
             END IF! line search should be entered
-            IF(NTEST.GE.1000) THEN
+            IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' Updated total Kappa '
               CALL WRTMAT(dbl_mb(KLKAPPA),1,NOOEXC,1,NOOEXC)
             END IF
@@ -891,7 +910,7 @@ C                  CLSKHE(AL,X,B,NDIM,IB,IALOFF,ITASK,INDEF)
               CALL CLSKHE(dbl_mb(KLE2),dbl_mb(KLSTEP),dbl_mb(KLCLKSCR),
      &             NOOEXC,dbl_mb(KLIBENV),dbl_mb(KLEXCSCR),2,INDEF)
             END IF
-            IF(NTEST.GE.10000) THEN
+            IF(NTEST.GE.10000.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' Contribution from H(ini) to (-1) step:'
               CALL WRTMAT(dbl_mb(KLSTEP),1,NOOEXC,1,NOOEXC)
             END IF
@@ -913,23 +932,23 @@ C    &                  DISCH,LUHFIL)
             IISCALE = 0
             IF(STEP_NORM.GT.STEP_MAX) THEN
               FACTOR = STEP_MAX/STEP_NORM
-              IF(IPRNT.GE.2) 
+              IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
      &        WRITE(6,'(A,E8.2)') ' Step reduced by factor = ', FACTOR
               CALL SCALVE(dbl_mb(KLSTEP),FACTOR,NOOEXC)
               IISCALE = 1
             END IF
 *
-            IF(NTEST.GE.1000) THEN
+            IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' Step:'
               CALL WRTMAT(dbl_mb(KLSTEP),1,NOOEXC,1,NOOEXC)
             END IF
 *. Is direction down-hills
             E1STEP = INPROD(dbl_mb(KLSTEP),dbl_mb(KLE1),NOOEXC)
             IIREVERSE = 0
-            IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)')
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) WRITE(6,'(A,E12.5)')
      &      '  < E1!Step> = ', E1STEP
             IF(E1STEP.GT.0.0D0) THEN
-             IF(IPRNT.GE.2) THEN
+             IF(IPRNT.GE.2.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' Warning: step is in uphill direction '
              WRITE(6,*) ' Sign of step is changed '
              ENDIF
@@ -939,7 +958,7 @@ C    &                  DISCH,LUHFIL)
             END IF
             XNORM_STEP = SQRT(INPROD(dbl_mb(KLSTEP),dbl_mb(KLSTEP),
      &                               NOOEXC))
-            IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)')
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) WRITE(6,'(A,E12.5)')
      &      '  Norm of step  = ', XNORM_STEP
 *. Are conditions for performing CI in inner its satisfied
             I_DO_CI_IN_INNER_ACT = 0
@@ -951,15 +970,16 @@ C    &                  DISCH,LUHFIL)
             END IF
 *. Perform CI if required for this step
             IF(I_DO_CI_IN_INNER_ACT.EQ.1) THEN
-            IF(IPRNT.GE.10) WRITE(6,*) ' CI in inner it '
+            IF(IPRNT.GE.10.and.ga_nodeid().eq.0) 
+     &         WRITE(6,*) ' CI in inner it '
             I_DID_CI_IN_INNER = 1
             I_DO_CI_IN_INNER_ITS = 1
-            WRITE(6,*) ' CI in inner it '
+            if(ga_nodeid().eq.0) WRITE(6,*) ' CI in inner it '
 *. Integrals are in place
 *
 *. Perform CI - and calculate densities
 *
-            IF(IPRNT.GE.10) WRITE(6,*) ' CI: '
+            IF(IPRNT.GE.10.and.ga_nodeid().eq.0) WRITE(6,*) ' CI: '
             IRESTR = 1
             MAXIT_SAVE = MAXIT
             MAXIT = 5
@@ -973,14 +993,16 @@ CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
               IRESTR = 0
               IROOT_SEL_SAVE = IROOT_SEL
               IROOT_SEL = 0
-              IF(IPRNT.GE.2) WRITE(6,*) ' INI_SROOT, INI_NROOT = ',
+              IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &                     WRITE(6,*) ' INI_SROOT, INI_NROOT = ',
      &                     INI_SROOT, INI_NROOT
               IF(INI_SROOT.NE.INI_NROOT) THEN
                 NROOT_SAVE = NROOT
                 MXCIV_SAVE = MXCIV
                 NROOT = INI_NROOT
                 MXCIV = MAX(2*NROOT,MXCIV_SAVE)
-                IF(IPRNT.GE.2) WRITE(6,*) ' INI_*ROOT option in action '
+                IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &            WRITE(6,*) ' INI_*ROOT option in action '
               END IF ! special setting for initial CI
             END IF
 *
@@ -995,7 +1017,8 @@ CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
             END IF
 *
             MAXIT = MAXIT_SAVE
-            WRITE(6,*) ' Energy and residual from CI :', 
+            if(ga_nodeid().eq.0)
+     &      WRITE(6,*) ' Energy and residual from CI :', 
      &      EREF,ERROR_NORM_FINAL
             ENEW  = EREF
           END IF! CI in inner iterations
@@ -1010,15 +1033,16 @@ CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
      &      ONE,ONE,NOOEXC)
             XNORM2 = SQRT(INPROD(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),
      &                           NOOEXC))
-            IF(IPRNT.GE.2) WRITE(6,'(A,E12.5)') 
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) WRITE(6,'(A,E12.5)') 
      &      '  Norm of total kappa = ', XNORM2
             ENERGY1 = EMCSCF_FROM_KAPPA(dbl_mb(KLKAPPA))
             ENEW = ENERGY1
-            IF(IPRNT.GE.2) WRITE(6,*) ' Energy for rotated orbitals', 
-     &                                 ENERGY1
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &         WRITE(6,*) ' Energy for rotated orbitals', ENERGY1
 *. Compare old and new energy to decide with to do
             DELTA_E_ACT = ENEW-EOLD
-            IF(IPRNT.GE.2) WRITE(6,'(A,3(2X,E9.3))') 
+            IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &      WRITE(6,'(A,3(2X,E9.3))') 
      &      '  Actual energy change without linesearch ', DELTA_E_ACT
 *
             IF((ABS(DELTA_E_ACT).GT.THRES_FOR_ENTER_LINSEA).AND.
@@ -1036,23 +1060,25 @@ CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
      &             dbl_mb(KLKAPPA),dbl_mb(KLSTEP),NOOEXC,ONE,XFINAL,
      &             FFINAL,2, EOLD, ENEW)
               ENEW = FFINAL
-              IF(IPRNT.GE.2) WRITE(6,'(A,E9.3)') 
+              IF(IPRNT.GE.2.and.ga_nodeid().eq.0) WRITE(6,'(A,E9.3)') 
      &        '  Step-scaling parameter from lineseach = ', XFINAL
               XKAPPA_NORM2 = 
      &        SQRT(INPROD(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),NOOEXC))
               CALL VECSUM(dbl_mb(KLKAPPA),dbl_mb(KLKAPPA),
      &                    dbl_mb(KLSTEP),ONE, XFINAL,NOOEXC)
               DELTA_E_ACT = ENEW-EOLD
-              IF(IPRNT.GE.2) WRITE(6,'(A,3(2X,E9.3))') 
+              IF(IPRNT.GE.2.and.ga_nodeid().eq.0) 
+     &        WRITE(6,'(A,3(2X,E9.3))') 
      &        '  Actual energy change with  linesearch ', DELTA_E_ACT
             END IF! line search should be entered
 *    
             IF(ABS(DELTA_E_ACT).LT.THRES_E_INNER) THEN
-             WRITE(6,*) ' Inner iterations converged '
+             if(ga_nodeid().eq.0) 
+     &         WRITE(6,*) ' Inner iterations converged '
              CONV_INNER = .TRUE.
             END IF
 *
-            IF(NTEST.GE.1000) THEN
+            IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
                WRITE(6,*) ' Updated total Kappa '
                CALL WRTMAT(dbl_mb(KLKAPPA),1,NOOEXC,1,NOOEXC)
             END IF
@@ -1081,7 +1107,7 @@ C?        WRITE(6,*) '  KMOAO_ACT = ', KMOAO_ACT
      &       dbl_mb(KMOMO),
      &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
           CALL MEMCHK2('AF_ML2')
-          IF(IPRNT.GE.100) THEN
+          IF(IPRNT.GE.100.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' Updated MO-coefficients'
             CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
           END IF
@@ -1097,14 +1123,16 @@ C?        WRITE(6,*) '  KMOAO_ACT = ', KMOAO_ACT
 *
           IF(I_MAY_DO_CI_IN_INNER_ITS.EQ.1.AND.I_SHIFT_E2.EQ.0.AND.
      &      XNORM2.LT.XKAPPA_THRES.AND.IOUT.GE.MIN_OUT_IT_WITH_CI) THEN
-            IF(IPRNT.GE.10) WRITE(6,*) ' CI in inner it '
+            IF(IPRNT.GE.10.and.ga_nodeid().eq.0) 
+     &        WRITE(6,*) ' CI in inner it '
             I_DID_CI_IN_INNER = 1
 C           WRITE(6,*) ' CI in inner it '
             I_DO_CI_IN_INNER_ITS = 10
 *
 *. Transform integrals to current set of MO's
 *
-            IF(IPRNT.GE.10) WRITE(6,*) ' Integral transformation:' 
+            IF(IPRNT.GE.10.and.ga_nodeid().eq.0) 
+     &         WRITE(6,*) ' Integral transformation:' 
             KINT2 = KINT2_INI
             IE2LIST_AL = IE2LIST_4F
 C                DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,
@@ -1112,7 +1140,7 @@ C                          INTSM_IN)
             CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CNW         CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
 CNW         CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
-CBERT Could porbably just switch pointers
+CBERT Could probably just switch pointers
             call ga_copy(KINT1,KH)
             call ga_copy(KFI,KINT1)
 *. The diagonal will fetch J and K integrals using GTIJKL_GN,* 
@@ -1121,7 +1149,7 @@ CBERT Could porbably just switch pointers
 *
 *. Perform CI - and calculate densities
 *
-            IF(IPRNT.GE.10) WRITE(6,*) ' CI: '
+            IF(IPRNT.GE.10.and.ga_nodeid().eq.0) WRITE(6,*) ' CI: '
             IRESTR = 1
             MAXIT_SAVE = MAXIT
             MAXIT = 5
@@ -1129,7 +1157,8 @@ C           WRITE(6,*) ' Number of CI-iterations reduced to 1 '
             CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &           MPORENP_E,EREF,ERROR_NORM_FINAL,CONV_F)  
             MAXIT = MAXIT_SAVE
-            WRITE(6,*) ' Energy and residual from CI :', 
+            if(ga_nodeid().eq.0)
+     &      WRITE(6,*) ' Energy and residual from CI :', 
      &      EREF,ERROR_NORM_FINAL
             ENEW  = EREF
           END IF! CI in inner iterations
@@ -1164,6 +1193,7 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
       END DO
 *     ^ End of loop over outer iterations
  1001 CONTINUE
+      if(ga_nodeid().eq.0) then
       IF(CONVER) THEN
         WRITE(6,*) 
      &  ' Convergence of MCSCF was obtained in ', NOUTIT,' iterations'
@@ -1174,6 +1204,7 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
       END IF
       WRITE(6,'(A,I4)') 
      &'  Total number of inner iterations ', N_INNER_TOT
+      endif
 *
 *
 *. Finalize: Transform integrals to final MO's, obtain
@@ -1185,7 +1216,7 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
      &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
       CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAO_ACT),LEN_CMO)
       CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAOUT),LEN_CMO)
-      WRITE(6,*) 
+      if(ga_nodeid().eq.0) WRITE(6,*) 
      &' Final MO-AO transformation stored in MOAOIN, MOAO_ACT, MOAOUT'
 *. Integral transformation
       KINT2 = KINT2_INI
@@ -1214,7 +1245,7 @@ CBERT depending on what happens above we could just switch pointers
 *. Current orbital gradient
       CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
       CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
-      IF(IPRNT.GE.100) WRITE(6,*) ' F constructed '
+      IF(IPRNT.GE.100.and.ga_nodeid().eq.0) WRITE(6,*) ' F constructed '
       CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
@@ -1226,13 +1257,13 @@ CBERT depending on what happens above we could just switch pointers
       E1NRM_ORB = SQRT(INPROD(dbl_mb(KLE1),dbl_mb(KLE1),NOOEXC))
       VNFINAL = E1NRM_ORB + ERROR_NORM_FINAL_CI
 *
-      IF(IPRORB.GE.2) THEN
+      IF(IPRORB.GE.2.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
      &  ' Final MOs in initial basis (not natural or canonical)'
         CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
-      IF(IPRORB.GE.1) THEN
+      IF(IPRORB.GE.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
      &  ' Final MOs in AO basis (not natural or canonical)'
         CALL PRINT_CMOAO(dbl_mb(KLMO2))
@@ -1251,7 +1282,7 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,
       CALL CSUB_FROM_C(dbl_mb(KLMO2),dbl_mb(KLCOCC_FIN),NOCOBS,ISCR_NTS,
      &                 2,ISCR,0)
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
-      WRITE(6,*) 
+      if(ga_nodeid().eq.0) WRITE(6,*) 
      &' Projecting final (MO2) on initial (MO1) occupied orbitals'
       CALL PROJ_ORBSPC_ON_ORBSPC(dbl_mb(KLCOCC_INI),dbl_mb(KLCOCC_FIN),
      &     NOCOBS,NOCOBS)
@@ -1269,16 +1300,18 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,
       CALL CSUB_FROM_C(dbl_mb(KLMO2),dbl_mb(KLCOCC_FIN),NACOBS,ISCR_NTS,
      &                 1,ISCR,0)
 C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
-      WRITE(6,*) 
+      if(ga_nodeid().eq.0) WRITE(6,*) 
      &' Projecting final (MO2) on initial (MO1) active orbitals'
       CALL PROJ_ORBSPC_ON_ORBSPC(dbl_mb(KLCOCC_INI),dbl_mb(KLCOCC_FIN),
      &     NACOBS,NACOBS)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *. Print summary
       CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)
+      if(ga_nodeid().eq.0) then
       WRITE(6,'(A,F20.12)') ' Final energy = ', EFINAL
       WRITE(6,'(A,F20.12)') ' Final norm of orbital gradient = ', 
      &                        E1NRM_ORB
+      endif
 *
 C?    WRITE(6,*) ' E1NRM_ORB, ERROR_NORM_FINAL_CI = ',
 C?   &             E1NRM_ORB, ERROR_NORM_FINAL_CI
@@ -3072,7 +3105,7 @@ C          ADDDIA(A,FACTOR,NDIM,IPACK)
 *
       CALL MATML4(SCR(KLA2),A,A,NDIM,NDIM,NDIM,NDIM,NDIM,NDIM,0)
       CALL TRIPAK(SCR(KLA2),SCR(KLMAT1),1,NDIM,NDIM)
-      CALL EIGEN(SCR(KLMAT1),SCR(KLA2VC),NDIM,0,1)
+      CALL EIGENL(SCR(KLMAT1),SCR(KLA2VC),NDIM,0,1)
       CALL COPDIA(SCR(KLMAT1),SCR(KLA2VL),NDIM,1)
       IF( NTEST .GE. 10 ) THEN
         WRITE(6,*) ' Eigenvalues of A squared '

@@ -808,10 +808,10 @@ C            WRTVCD(SEGMNT,LU,IREW,LBLK)
 *                    nondiagonal preconditioning
 *                    (NPRDIM = 0 indicates no such subspace )
 *   For NPRDIM .gt. 0:
-*          PEIGVC  : EIGENVECTORS OF MATRIX IN PRIMAR SPACE
+*          PEIGVC  : EIGENLVECTORS OF MATRIX IN PRIMAR SPACE
 *                    Holds preconditioner matrices
 *                    PHP,PHQ,QHQ in this order !!
-*          PEIGVL  : EIGENVALUES  OF MATRIX IN PRIMAR SPACE
+*          PEIGVL  : EIGENLVALUES  OF MATRIX IN PRIMAR SPACE
 *          IPNTR   : IPNTR(I) IS ORIGINAL ADRESS OF SUBSPACE ELEMENT I
 *          NP1,NP2,NQ : Dimension of the three subspaces
 *
@@ -903,7 +903,7 @@ C        CALL PRSYM(APROJ,NINVEC)
        END IF
 *. Diagonalize initial projected matrix
        CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
+       CALL EIGENL(WORK(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -1132,7 +1132,7 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
       END IF
 *. Diagonalize projected matrix
       CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
+      CALL EIGENL(WORK(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
         E0VAR = WORK(KAPROJ)
         C0VAR = AVEC(1)
@@ -5251,10 +5251,10 @@ C     CALL LUCIAQEXIT('MATML')
 *                    nondiagonal preconditioning
 *                    (NPRDIM = 0 indicates no such subspace )
 *   For NPRDIM .gt. 0:
-*          PEIGVC  : EIGENVECTORS OF MATRIX IN PRIMAR SPACE
+*          PEIGVC  : EIGENLVECTORS OF MATRIX IN PRIMAR SPACE
 *                    Holds preconditioner matrices
 *                    PHP,PHQ,QHQ in this order !!
-*          PEIGVL  : EIGENVALUES  OF MATRIX IN PRIMAR SPACE
+*          PEIGVL  : EIGENLVALUES  OF MATRIX IN PRIMAR SPACE
 *          IPNTR   : IPNTR(I) IS ORIGINAL ADRESS OF SUBSPACE ELEMENT I
 *          NP1,NP2,NQ : Dimension of the three subspaces
 *
@@ -5383,7 +5383,7 @@ C?   &              LU1,LU2,LU3,LU4,LU5,LU6
        END IF
 *. Diagonalize initial projected matrix
        CALL COPVEC(APROJ,WORK(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NINVEC,0,1)
+       CALL EIGENL(WORK(KAPROJ),AVEC,NINVEC,0,1)
        DO IROOT = 1, NROOT
          EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
        END DO
@@ -5678,7 +5678,7 @@ C         ITER = ITER-1
        END IF
 *
        CALL COPVEC(APROJ,WORK(KAPROJ),NVEC*(NVEC+1)/2)
-       CALL EIGEN(WORK(KAPROJ),AVEC,NVEC,0,1)
+       CALL EIGENL(WORK(KAPROJ),AVEC,NVEC,0,1)
 *. Test : transform projected matrix
 C TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
 C      CALL TRAN_SYM_BLOC_MAT(APROJ,AVEC,1,NVEC,XJEP(1000),XJEP(1))

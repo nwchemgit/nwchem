@@ -446,7 +446,7 @@ C     DO I = 1, NDIM
 C       VEC(I) = 1.0D0/VEC(I)
 C     END DO
 *. Diagonalize
-      CALL EIGEN(SCR,B,NDIM,0,1)
+      CALL EIGENL(SCR,B,NDIM,0,1)
 *. Scale eigenvectors
       DO IVEC = 1, NDIM 
         IOFF = 1 + (IVEC-1)*NDIM
@@ -593,7 +593,7 @@ C  INPRDD(VEC1,VEC2,LU1,LU2,IREW,LBLK)
        END DO
 *. Diagonalize 
 C      CALL EIGEN(A,R,N,MV,MFKR)
-       CALL EIGEN(SCR(KLS2),SCR(KLEIGVEC),NVEC_EFF,0,1)
+       CALL EIGENL(SCR(KLS2),SCR(KLEIGVEC),NVEC_EFF,0,1)
 *. Extract eigenvalues
        CALL COPDIA(SCR(KLS2),SCR(KLS2),NVEC_EFF,1)
 *. check eigenvalue ratio and explicit singularty

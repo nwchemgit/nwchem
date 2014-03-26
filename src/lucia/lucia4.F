@@ -106,7 +106,7 @@ C          TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
       
 *. Find basis where H0 is diagonal and transform
 *. Diagonalize H0, eigenvectors in MAT2
-      CALL EIGEN(H0,dbl_mb(KLMAT2),NDIM,0,1)
+      CALL EIGENL(H0,dbl_mb(KLMAT2),NDIM,0,1)
       CALL COPDIA(H0,dbl_mb(KLMAT3),NDIM,1)
 *. And put back
       ZERO = 0.0D0
@@ -130,7 +130,7 @@ C          TRAN_SYM_BLOC_MAT(AIN,X,NBLOCK,LBLOCK,AOUT,SCR)
 *. Eigenvalues H = H0+V, eigenvectors in MAT4
       ONE = 1.0D0
       CALL VECSUM(dbl_mb(KLMAT3),H0,V,ONE,ONE,NDIM*(NDIM+1)/2)
-      CALL EIGEN(dbl_mb(KLMAT3),dbl_mb(KLMAT4),NDIM,1,1)
+      CALL EIGENL(dbl_mb(KLMAT3),dbl_mb(KLMAT4),NDIM,1,1)
       CALL COPDIA(dbl_mb(KLMAT3),dbl_mb(KLVEC1),NDIM,1)
       DO I = 1, NDIM
         dbl_mb(KLVEC1-1+I) = dbl_mb(KLVEC1-1+I) + ECORE 
@@ -1566,48 +1566,61 @@ CNW   DIMENSION FIFA(*),RHO1(NACOB,NACOB)
 *
       NTEST = 00
       IF(NTEST.NE.0) THEN
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) 
        WRITE(6,*) ' ======================='
        WRITE(6,*) ' Initial matrix to FIFA '
        WRITE(6,*) ' ======================='
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FIFA)
       END IF
 *
 *.  Assume spatial symmetric fock matrix
+      ibuf = imnmx(lobsm,nsmob,2)
+      ibuf = ibuf*(ibuf+1)/2
+      if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $   errquit('fifams:push_get failed', ibuf, MA_ERR)
       IJSM = 1
       IJ = 0
       DO ISM = 1, NSMOB
         CALL SYMCOM(2,6,ISM,JSM,IJSM)
         IF(JSM.NE.0) THEN
+          istart = ij + 1     
+          ii = 0
+          call setvec(dbl_mb(kbuf),0.0d0,ibuf)
           DO I = IOBSM(ISM),IOBSM(ISM) + LOBSM(ISM)-1
             DO J = IOBSM(JSM),I                          
               IP = ISTOB(I)
               JP = ISTOB(J)
                IJ= IJ + 1
-               FIVAL = 0.0d0
                DO IA = 1, NACOB
                  DO IB = 1, NACOB
 CNW  &             FIFA(IJ) = FIFA(IJ) 
 CNW  &           + RHO1(IA,IB)
 CNW  &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                    IF(RHO1(IA,IB).NE.0.0D0)        
-     &             FIVAL=FIVAL + RHO1(IA,IB)
+     &             dbl_mb(kbuf+ii) = dbl_mb(kbuf+ii) + RHO1(IA,IB)
      &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                  END DO
                END DO
-               call ga_put(FIFA,ij,ij,1,1,FIVAL,1)
+               ii = ii + 1
             END DO
           END DO
+          call ga_acc(FIFA,istart,ij,1,1,dbl_mb(kbuf),1,1.0d0)
         END IF
       END DO
+      if (.not.ma_pop_stack(lbuf)) call
+     $   errquit('fifams:pop_stack failed', lbuf, MA_ERR)
 *
       IF(NTEST.NE.0) THEN
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' FI + FA in Symmetry blocked form '
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FIFA,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FIFA)
@@ -1755,6 +1768,8 @@ CNW   DIMENSION FI(*)
       ECC = 0.0D0
       IJSM = 1
 *. One-electron part 
+      call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
           IIOFF = 1
@@ -1764,15 +1779,15 @@ CNW   DIMENSION FI(*)
         LEN = LOBSM(ISM)
         DO I = 1, LEN                           
           II = IIOFF -1 + (I-1)*LEN + I 
-CBERT FI is GA in compact form 1D
 CNW       IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2) 
 CNW  &    ECC = ECC + 2*FI(II)
-          IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2) THEN
-            call ga_get(FI,II,II,1,1,FIVAL,1)
-            ECC = ECC + 2*FIVAL
+          IF(IPHGAS(ITPFSO(I+IOBSM(ISM)-1)).EQ.2
+     &       .and.II.ge.ilo.and.II.le.ihi) THEN
+            ECC = ECC + 2*dbl_mb(ikfi+ii-ilo)
           ENDIF
         END DO
       END DO
+      call ga_release(FI,ilo,ihi,1,1)
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 *. Two-electron part
       IF(IDOH2.NE.0) THEN
@@ -1796,49 +1811,61 @@ C?            END IF
         END DO
         END DO
       END IF
+      call ga_sync()
+      call ga_dgop(1, ECC, 1, '+')
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
       END IF
 *
 *.  Inactive Fock matrix
 *
       IF(IDOH2.NE.0) THEN 
+        ibuf = imnmx(lobsm,nsmob,2)
+        ibuf = ibuf*ibuf
+        if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $     errquit('fiha:push_get failed', ibuf, MA_ERR)
         IJSM = 1
         IJ = 0
         DO ISM = 1, NSMOB
           CALL SYMCOM(2,6,ISM,JSM,IJSM)
           IF(JSM.NE.0) THEN
+            istart = ij + 1
+            ii = 0
+            call setvec(dbl_mb(kbuf),0.0d0,ibuf)
             DO J = IOBSM(JSM),IOBSM(JSM) + LOBSM(JSM) - 1
               DO I = IOBSM(ISM),IOBSM(ISM) + LOBSM(ISM) - 1
                 IP = ISTOB(I)
                 JP = ISTOB(J)
                 IJ= IJ + 1
-                FIVAL = 0.0D0
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
-CBERT FI is a GA
 CNW                 IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
-                      FIVAL=FIVAL+2.0D0*GTIJKL(IP,JP,KP,KP)-
-     &                            GTIJKL(IP,KP,KP,JP)
+                      dbl_mb(kbuf+ii) = dbl_mb(kbuf+ii) 
+     &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     ENDIF
                   END DO
                 END DO
-                call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+                ii = ii + 1
               END DO
             END DO
+            call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
+        if (.not.ma_pop_stack(lbuf)) call
+     $     errquit('fiha:pop_stack failed', lbuf, MA_ERR)
       END IF
 *
       IF(NTEST.NE.0) THEN
 *
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' FI in Symmetry blocked form '
        WRITE(6,*) ' ============================'
        WRITE(6,*) 
+       endif
        ISYM = 0
 CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FI)
@@ -1877,10 +1904,12 @@ CNW   DIMENSION FI(*)
       NTEST = 000
 *
       IF(NTEST.GE.100) THEN
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) 
        WRITE(6,*) ' Input integrals to FIH in symmetry blocked form '
        WRITE(6,*) ' ================================================'
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FI)
@@ -1891,6 +1920,8 @@ CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       ECC = 0.0D0
       IJSM = 1
 *. One-electron part 
+      call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
           IIOFF = 1
@@ -1908,16 +1939,16 @@ CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
 C?        WRITE(6,*) ' I, I_INACTIVE = ', I,I_INACTIVE
           IF(I_INACTIVE.EQ.1) THEN
 C?          WRITE(6,*) ' Contribution to ECC from I =', I
-CBERT FI is a GA maybe a gather into value would be better
 CNW         ECC = ECC + 2*FI(II)
-            call ga_get(FI,II,II,1,1,FIVAL,1)
-            ECC = ECC + 2*FIVAL  
+            if (II.ge.ilo.and.II.le.ihi)
+     &      ECC = ECC + 2*dbl_mb(ikfi+ii-ilo)
             
 C?          WRITE(6,*) ' Updated ECC = ', ECC
           END IF
         END DO
       END DO
-      IF(NTEST.GE.1000) 
+      call ga_release(FI,ilo,ihi,1,1)
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      & WRITE(6,*) ' one-electron term to Ecore ', ECC
 *. Two-electron part
       IF(IDOH2.NE.0) THEN
@@ -1953,25 +1984,33 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
         END DO
         END DO
       END IF
+      call ga_sync()
+      call ga_dgop(1, ECC, 1, '+')
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
       END IF
 *
 *.  Inactive Fock matrix
 *
       IF(IDOH2.NE.0) THEN 
+        ibuf = imnmx(lobsm,nsmob,2)
+        ibuf = ibuf*(ibuf+1)/2
+        if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $     errquit('fiha:push_get failed', ibuf, MA_ERR)
         IJSM = 1
         IJ = 0
         DO ISM = 1, NSMOB
           CALL SYMCOM(2,6,ISM,JSM,IJSM)
           IF(JSM.NE.0) THEN
+            istart = ij + 1
+            ii = 0
+            call setvec(dbl_mb(kbuf),0.0d0,ibuf)
             DO I = IOBSM(ISM),IOBSM(ISM) + LOBSM(ISM)-1
               DO J = IOBSM(JSM),I                          
                 IP = ISTOB(I)
                 JP = ISTOB(J)
                 IJ= IJ + 1
-                FIVAL = 0.0D0
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     K_INACTIVE = 0
@@ -1980,29 +2019,31 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
                     END IF
                     IF(ITPFSO(K).EQ.0) K_INACTIVE = 1
                     KP = ISTOB(K)
-CBERT FI is a GA
-CBERT GET THE BLOCK I OWN, WHEN IJ FITS DO THE WORK AND THEN PUT IT BACK
-CINSTEAD OF ACC
 CNW                 IF(K_INACTIVE.EQ.1) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(K_INACTIVE.EQ.1) THEN
-                      FIVAL=FIVAL+2.0D0*GTIJKL(IP,JP,KP,KP)-
-     &                            GTIJKL(IP,KP,KP,JP)
+                      dbl_mb(kbuf+ii) = dbl_mb(kbuf+ii)
+     &                  +2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     ENDIF
                   END DO
                 END DO
-                call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+                ii = ii + 1
               END DO
             END DO
+            call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
+        if (.not.ma_pop_stack(lbuf)) call
+     $     errquit('fiha:pop_stack failed', lbuf, MA_ERR)
       END IF
 *
       IF(NTEST.NE.0) THEN
 *
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' FI in Symmetry blocked form '
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FI)
@@ -2047,6 +2088,8 @@ C?    CALL IWRTMA(ITPFSO,1,3,1,3)
       ECC = 0.0D0
       IJSM = 1
 *. One-electron part 
+      call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
           IIOFF = 1
@@ -2056,14 +2099,14 @@ C?    CALL IWRTMA(ITPFSO,1,3,1,3)
         II = IIOFF-1
         DO I = IOBSM(ISM),IOBSM(ISM)+LOBSM(ISM)-1
           II = II + (I-IOBSM(ISM)+1) 
-CBERT FI is a GA
 CNW       IF(IPHGAS(ITPFSO(I)).EQ.2) ECC = ECC + 2*FI(II)
-          IF(IPHGAS(ITPFSO(I)).EQ.2) THEN
-            call ga_get(FI,II,II,1,1,FIVAL,1)
-            ECC = ECC + 2*FIVAL  
+          IF(IPHGAS(ITPFSO(I)).EQ.2 
+     &      .and.II.ge.ilo.and.II.le.ihi) THEN
+            ECC = ECC + 2*dbl_mb(ikfi+ii-ilo)
           ENDIF
         END DO
       END DO
+      call ga_release(FI,ilo,ihi,1,1)
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 *. Two-electron part
       IF(IDOH2.NE.0) THEN
@@ -2080,19 +2123,28 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
         END DO
         END DO
       END IF
+      call ga_sync()
+      call ga_dgop(1, ECC, 1, '+')
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
       END IF
 *
 *.  Inactive Fock matrix
 *
       IF(IDOH2.NE.0) THEN 
+        ibuf = imnmx(lobsm,nsmob,2)
+        ibuf = ibuf*(ibuf+1)/2
+        if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $     errquit('fiha:push_get failed', ibuf, MA_ERR)
         IJSM = 1
         IJ = 0
         DO ISM = 1, NSMOB
           CALL SYMCOM(2,6,ISM,JSM,IJSM)
           IF(JSM.NE.0) THEN
+            istart = ij + 1
+            ii = 0
+            call setvec(dbl_mb(kbuf),0.0d0,ibuf)
             DO I = IOBSM(ISM),IOBSM(ISM) + LOBSM(ISM)-1
               DO J = IOBSM(JSM),I                          
                 IP = ISTOB(I)
@@ -2101,28 +2153,31 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
                 DO KSYM = 1, NSMOB
                   DO K = IOBSM(KSYM),IOBSM(KSYM)-1+LOBSM(KSYM)
                     KP = ISTOB(K)
-CBERT FI is a GA
-CBERT REPLACE WITH GET BLOCK, ADD and the PUT
 CNW                 IF(IPHGAS(ITPFSO(K)).EQ.2) FI(IJ) = FI(IJ) 
 CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     IF(IPHGAS(ITPFSO(K)).EQ.2) THEN
-                      FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
-     &                            GTIJKL(IP,KP,KP,JP)
+                      dbl_mb(kbuf+ii) = dbl_mb(kbuf+ii)
+     &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                     ENDIF
                   END DO
                 END DO
-                call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+                ii = ii + 1
               END DO
             END DO
+            call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
           END IF
         END DO
+        if (.not.ma_pop_stack(lbuf)) call
+     $     errquit('fiha:pop_stack failed', lbuf, MA_ERR)
       END IF
 *
       IF(NTEST.NE.0) THEN
 *
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' FI in Symmetry blocked form '
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FI)
@@ -2175,23 +2230,30 @@ CNW   DIMENSION FI(*)
       ECC = 0.0D0
       IJSM = 1
 *. One-electron part 
+      call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
           IIOFF = 1
         ELSE 
           IIOFF = IIOFF + LOBSM(ISM-1)*(LOBSM(ISM-1)+1)/2
         END IF
-        II = IIOFF-1
-        DO I = 1, NINOBS(ISM)
-          II = II + I
-CBERT FI is GA, local and can be done with ga access
+        IIL = max(ilo,iioff) - ilo 
+        IIH = min((iioff+ninobs(ism)),ihi) - ilo
+CNW     II = IIOFF-1
+CNW     DO I = 1, NINOBS(ISM)
+CNW       II = II + I
 CNW       ECC = ECC + 2*FI(II)
-          call ga_get(FI,II,II,1,1,FIVAL,1)
-          ECC = ECC + 2*FIVAL
+        do i = iil, iih
+          ECC = ECC + 2.0d0*dbl_mb(ikfi+i)
         END DO
       END DO
+      call ga_release(FI,ilo,ihi,1,1)
+      call ga_sync()
       EONE = ECC
+      call ga_dgop(1, EONE, 1, '+')
 *. Two-electron part
+C gtijkl zero if not in my range
       DO ISM = 1, NSMOB
       DO JSM = 1, NSMOB
           DO I = IOBSM(ISM),IOBSM(ISM) + NINOBS(ISM)-1
@@ -2203,8 +2265,10 @@ CNW       ECC = ECC + 2*FI(II)
           END DO
       END DO
       END DO
+      call ga_sync()
+      call ga_dgop(1, ECC, 1, '+')
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and. ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
         WRITE(6,*) ' One- and two-electron energies ',
      &  EONE, ECC- EONE
@@ -2212,11 +2276,18 @@ CNW       ECC = ECC + 2*FI(II)
 *
 *.  Inactive Fock matrix
 *
+      ibuf = imnmx(lobsm,nsmob,2)
+      ibuf = ibuf*(ibuf+1)/2
+      if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $   errquit('fis_old:push_get failed', ibuf, MA_ERR)
       IJSM = 1
       IJ = 0
       DO ISM = 1, NSMOB
         CALL SYMCOM(2,6,ISM,JSM,IJSM)
         IF(JSM.NE.0) THEN
+          istart = ij + 1
+          ii = 0
+          call setvec(dbl_mb(kbuf),0.0d0,ibuf)
           DO I = IOBSM(ISM),IOBSM(ISM) + LOBSM(ISM)-1
             DO J = IOBSM(JSM),I                          
               IP = ISTOB(I)
@@ -2225,25 +2296,29 @@ CNW       ECC = ECC + 2*FI(II)
               DO KSYM = 1, NSMOB
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
-CBERT FI is GA
-CBERT REPLACE WITH GET, ADD, PUT
 CNW               FI(IJ) = FI(IJ) 
 CNW  &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
-                  FIVAL=2.0D0*GTIJKL(IP,JP,KP,KP)-
-     &                        GTIJKL(IP,KP,KP,JP)
+                dbl_mb(kbuf+ii) = dbl_mb(lbuf+ii)
+     &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
                 END DO
               END DO
-              call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+              ii = ii + 1
             END DO
           END DO
+          call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
         END IF
       END DO
+      if (.not.ma_pop_stack(lbuf)) call
+     $   errquit('fis_old:pop_stack failed', lbuf, MA_ERR)
+
 *
       IF(NTEST.NE.0) THEN
 *
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' FI in Symmetry blocked form '
        WRITE(6,*) ' ================================='
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
        call ga_print(FI)
@@ -2287,29 +2362,35 @@ CNW   DIMENSION FI(*)
 *. To get rid of annoying and incorrect compiler warnings
       IIOFF = 0
 *
-      NTEST = 1000
+      NTEST = 0000
 *
 * Core-Core energy 
 *
       ECC = 0.0D0
       IJSM = 1
 *. One-electron part 
+      call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
           IIOFF = 1
         ELSE 
           IIOFF = IIOFF + LOBSM(ISM-1)*(LOBSM(ISM-1)+1)/2
         END IF
-        II = IIOFF-1
-        DO I = 1, NINOBS(ISM)
-          II = II + I
-CBERT FI is GA
+        iil = max(ilo,iioff) - ilo
+        iih = min((iioff+ninobs(ism)),ihi) - ilo
+CNW     II = IIOFF-1
+CNW     DO I = 1, NINOBS(ISM)
+CNW       II = II + I
 CNW       ECC = ECC + 2*FI(II)
-          call ga_get(FI,II,II,1,1,FIVAL,1)
-          ECC = ECC + 2*FIVAL
+        do i = iil, iih
+          ECC = ECC + 2.0d0*dbl_mb(ikfi+i)
         END DO
       END DO
+      call ga_release(FI,ilo,ihi,1,1)
+      call ga_sync()
       EONE = ECC
+      call ga_dgop(1, EONE, 1, '+')
 *. Two-electron part
       DO ISM = 1, NSMOB
       DO JSM = 1, NSMOB
@@ -2322,6 +2403,8 @@ CNW       ECC = ECC + 2*FI(II)
           END DO
       END DO
       END DO
+      call ga_sync()
+      call ga_dgop(1, ECC, 1, '+')
 *
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
@@ -2331,11 +2414,18 @@ CNW       ECC = ECC + 2*FI(II)
 *
 *.  Inactive Fock matrix
 *
+      ibuf = imnmx(lobsm,nsmob,2)
+      ibuf = ibuf*(ibuf+1)/2
+      if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $   errquit('fis:push_get failed', ibuf, MA_ERR)
       IJSM = 1
       IJ = 0
       DO ISM = 1, NSMOB
         CALL SYMCOM(2,6,ISM,JSM,IJSM)
         IF(JSM.NE.0) THEN
+          istart = ij + 1
+          ii = 0
+          call setvec(dbl_mb(kbuf),0.0d0,ibuf)
           DO I = IOBSM(ISM),IOBSM(ISM) + LOBSM(ISM)-1
             DO J = IOBSM(JSM),I                          
               IP = ISTOB(I)
@@ -2344,19 +2434,22 @@ CNW       ECC = ECC + 2*FI(II)
               DO KSYM = 1, NSMOB
                 DO K = IOBSM(KSYM),IOBSM(KSYM)-1+NINOBS(KSYM)
                   KP = ISTOB(K)
-CBERT FI is GA
-CBERT REPLACE WITH GET, ADD, PUT
 CNW               FI(IJ) = FI(IJ) 
 CNW  &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
-                  FIVAL = 2.0D0*GTIJKL_GN(IP,JP,KP,KP)-
-     &                          GTIJKL_GN(IP,KP,KP,JP)
+                  dbl_mb(kbuf+ii) = dbl_mb(lbuf+ii)
+     &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
                 END DO
               END DO
-              call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+              ii = ii + 1
             END DO
           END DO
+          call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
         END IF
       END DO
+      call ga_sync()
+      if (.not.ma_pop_stack(lbuf)) call
+     $   errquit('fis:pop_stack failed', lbuf, MA_ERR)
+
 *
       IF(NTEST.NE.0) THEN
 *
@@ -2429,10 +2522,10 @@ C     END
 *                    nondiagonal preconditioning
 *                    (NPRDIM = 0 indicates no such subspace )
 *   For NPRDIM .gt. 0:
-*          PEIGVC  : EIGENVECTORS OF MATRIX IN PRIMAR SPACE
+*          PEIGVC  : EIGENLVECTORS OF MATRIX IN PRIMAR SPACE
 *                    Holds preconditioner matrices
 *                    PHP,PHQ,QHQ in this order !!
-*          PEIGVL  : EIGENVALUES  OF MATRIX IN PRIMAR SPACE
+*          PEIGVL  : EIGENLVALUES  OF MATRIX IN PRIMAR SPACE
 *          IPNTR   : IPNTR(I) IS ORIGINAL ADRESS OF SUBSPACE ELEMENT I
 *          NP1,NP2,NQ : Dimension of the three subspaces
 *
@@ -2687,7 +2780,7 @@ C           VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
       CALL COPVEC(APROJ,WORK(KAPROJ),2*(2+1)/2)
 C     write(6,*) ' work(aproj) '
 C     call prsym(work(kaproj),2)
-      CALL EIGEN(WORK(KAPROJ),AVEC,2,0,1)
+      CALL EIGENL(WORK(KAPROJ),AVEC,2,0,1)
       IF(IPICO.NE.0) THEN
         E0VAR = WORK(KAPROJ)
         C0VAR = AVEC(1)
@@ -3493,10 +3586,10 @@ CTOBE     END IF
 *                    nondiagonal preconditioning
 *                    (NPRDIM = 0 indicates no such subspace )
 *   For NPRDIM .gt. 0:
-*          PEIGVC  : EIGENVECTORS OF MATRIX IN PRIMAR SPACE
+*          PEIGVC  : EIGENLVECTORS OF MATRIX IN PRIMAR SPACE
 *                    Holds preconditioner matrices
 *                    PHP,PHQ,QHQ in this order !!
-*          PEIGVL  : EIGENVALUES  OF MATRIX IN PRIMAR SPACE
+*          PEIGVL  : EIGENLVALUES  OF MATRIX IN PRIMAR SPACE
 *          IPNTR   : IPNTR(I) IS ORIGINAL ADRESS OF SUBSPACE ELEMENT I
 *          NP1,NP2,NQ : Dimension of the three subspaces
 *
@@ -3582,7 +3675,7 @@ C?       WRITE(6,*) ' Variational  solver '
        END IF
 *. Diagonalize initial projected matrix
        CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
+       CALL EIGENL(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -3804,7 +3897,7 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
 *. Diagonalize projected matrix
       NVEC = NVEC + IADD
       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
+      CALL EIGENL(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
         E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
@@ -3988,10 +4081,10 @@ C
 *                    nondiagonal preconditioning
 *                    (NPRDIM = 0 indicates no such subspace )
 *   For NPRDIM .gt. 0:
-*          PEIGVC  : EIGENVECTORS OF MATRIX IN PRIMAR SPACE
+*          PEIGVC  : EIGENLVECTORS OF MATRIX IN PRIMAR SPACE
 *                    Holds preconditioner matrices
 *                    PHP,PHQ,QHQ in this order !!
-*          PEIGVL  : EIGENVALUES  OF MATRIX IN PRIMAR SPACE
+*          PEIGVL  : EIGENLVALUES  OF MATRIX IN PRIMAR SPACE
 *          IPNTR   : IPNTR(I) IS ORIGINAL ADRESS OF SUBSPACE ELEMENT I
 *          NP1,NP2,NQ : Dimension of the three subspaces
 *
@@ -4076,7 +4169,7 @@ C?       WRITE(6,*) ' Variational  solver '
        END IF
 *. Diagonalize initial projected matrix
        CALL COPVEC(APROJ,dbl_mb(KAPROJ),NINVEC*(NINVEC+1)/2)
-       CALL EIGEN(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
+       CALL EIGENL(dbl_mb(KAPROJ),AVEC,NINVEC,0,1)
        DO 20 IROOT = 1, NROOT
          EIG(1,IROOT) = WORK(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
@@ -4298,7 +4391,7 @@ C?       WRITE(6,*) ' MICDV4 : Overlap ', WORK(IVEC)
 *. Diagonalize projected matrix
       NVEC = NVEC + IADD
       CALL COPVEC(APROJ,dbl_mb(KAPROJ),NVEC*(NVEC+1)/2)
-      CALL EIGEN(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
+      CALL EIGENL(dbl_mb(KAPROJ),AVEC,NVEC,0,1)
       IF(IPICO.NE.0) THEN
         E0VAR = dbl_mb(KAPROJ)
         C0VAR = AVEC(1)
@@ -4626,50 +4719,62 @@ CNW   DIMENSION FA(*),RHO1(NACOB,NACOB)
       INTEGER IBSO(*),NTOOBS(*),ISTOB(*)
 *
       NTEST = 00
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) 
        WRITE(6,*) ' ============='
        WRITE(6,*) '  FAS calling '
        WRITE(6,*) ' ============='
        WRITE(6,*) 
       END IF
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Input one-body density matrix'
        CALL WRTMAT(RHO1,NACOB,NACOB,NACOB,NACOB)
       END IF
 *. Zero FA
 *
 *.  Assume spatial symmetric fock matrix
+*
+      ibuf = imnmx(lobsm,nsmob,2)
+      ibuf = ibuf*(ibuf+1)/2
+      if (.not.ma_push_get(mt_dbl,ibuf,'buffer',lbuf,kbuf)) call
+     $   errquit('fis_old:push_get failed', ibuf, MA_ERR)
       IJSM = 1
       IJ = 0
       DO ISM = 1, NSMOB
         CALL SYMCOM(2,6,ISM,JSM,IJSM)
         IF(JSM.NE.0) THEN
+          call setvec(dbl_mb(kbuf),0.0d0,ibuf)
+          istart = ij + 1
+          ii = 0
           DO I = IBSO(ISM),IBSO(ISM) + NTOOBS(ISM)-1
             DO J = IBSO(JSM),I                          
               IP = ISTOB(I)
               JP = ISTOB(J)
                IJ= IJ + 1
-               FAVAL = 0.0D0
 CNW            FA(IJ) = 0.0D0
                DO IA = NINOB+1, NACOB+NINOB
                  DO IB = NINOB+1, NACOB+NINOB
                    IF(RHO1(IA-NINOB,IB-NINOB).NE.0.0D0)        
-     &             FAVAL = FAVAL + 
+     &             dbl_mb(kbuf+ii) = dbl_mb(kbuf+ii)
      &           + RHO1(IA-NINOB,IB-NINOB)
      &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                  END DO
                END DO
-               call ga_put(FA,IJ,IJ,1,1,FAVAL,1)
+               ii = ii + 1
             END DO
           END DO
+          call ga_acc(FA,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
         END IF
       END DO
+      if (.not.ma_pop_stack(lbuf)) call
+     $   errquit('fis_old:pop_stack failed', lbuf, MA_ERR)
 *
       IF(NTEST.NE.0) THEN
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' FA in Symmetry blocked form '
        WRITE(6,*) ' ============================'
        WRITE(6,*) 
+       endif
        ISYM = 1
 CNW    CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,ISYM)
        call ga_print(FA)
@@ -4786,6 +4891,7 @@ C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 *
 *. Two-electron part
 *
+      ECC2 = 0.0d0
       IF(IDOH2.EQ.1.OR.IDOPH2.EQ.1) THEN
         DO ISM = 1, NSMOB
         DO JSM = 1, NSMOB
@@ -4811,7 +4917,7 @@ C?   &                   I, J, I_INCLUDE, J_INCLUDE
 *
             IF(I_INCLUDE.EQ.1.AND.J_INCLUDE.EQ.1) THEN
 C?            WRITE(6,*) ' Contribution to ECC from I,J =', I,J
-              ECC = ECC +2*GTIJKL(IP,IP,JP,JP)-GTIJKL(IP,JP,JP,IP)
+              ECC2 = ECC2 +2*GTIJKL(IP,IP,JP,JP)-GTIJKL(IP,JP,JP,IP)
 C?            WRITE(6,*) ' Updated ECC = ', ECC
             END IF
           END DO
@@ -4819,10 +4925,13 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
         END DO
         END DO
       END IF
+      call ga_sync()
+      call ga_dgop(1, ECC2, 1, '+')
 *
-      ECORE_TERMS = ECC
+      ECC = ECC + ECC2
+      CORE_TERMS = ECC
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
       END IF
 *
@@ -4946,7 +5055,7 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
 CNW   DIMENSION F2(*)
       integer F2
 *
-      NTEST = 0
+      NTEST = 000
 *
 *. Assumed symmetry of density and integrals- for later 
 *. generalizations
@@ -4972,6 +5081,7 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
       CALL MEMCHK2('BE_TWO')
       CALL TWOINT_D_TERM_F(F2,dbl_mb(KLDINI),FACC,FACE)
+      call ga_sync()
       CALL MEMCHK2('AF_TWO')
 *. Transform from initial to current basis
 C     TRAN_SYM_BLOC_MAT4
@@ -4979,13 +5089,17 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
       CALL TRAN_SYM_BLOC_MAT4b(F2,C,C,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
+      call ga_sync()
       CALL MEMCHK2('AF_TRA')
 CNW   CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
       call ga_put(F2,1,LEN_F,1,1,dbl_mb(KLSCR),LEN_F)
+      call ga_sync()
 *
       IF(NTEST.GE.100) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Output from GET_2E_TERMS '
         WRITE(6,*) ' ========================='
+        endif
 CNW     CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
         call ga_print(F2)
       END IF
@@ -5156,8 +5270,10 @@ CNW   DIMENSION FI(*)
 *. Two-electron terms to the inactive Fock-matrix
 C     GET_2E_TERMS_TO_FI(F2,C_MOINI,IHOLETP)
       CALL GET_2E_TERMS_TO_FI(FI,CINI,IHOLETP)
+      call ga_sync()
 *. Pack to lower half form
       CALL TRIPAK_BLKMG(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
+      call ga_sync()
 *. Contribution to inactive energy from two-electron interaction
        CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,1)
        E_2E = 0.5D0*E_2E
@@ -5168,13 +5284,16 @@ C     GET_2E_TERMS_TO_FI(F2,C_MOINI,IHOLETP)
        ONE = 1.0D0
 CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_FP)
        call ga_put(FI,1,LEN_FP,1,1,dbl_mb(KLBLF),LEN_FP)
+       call ga_sync()
        call ga_add(1.0d0,H,1.0d0,FI,FI)
 *
        IF(NTEST.GE.100) THEN
+         if (ga_nodeid().eq.0) then
          WRITE(6,*) ' Output from FI_FROM_INIINT: '
          WRITE(6,*) ' One- and two-electron contributions to E_INAC=',
      &               E_1E,E_2E
          WRITE(6,*) ' The inactive Fock matrix'
+         endif
 CNW      CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,1)
          call ga_print(FI)
        END IF
@@ -5330,6 +5449,7 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
 
        END DO
       END DO
+      call ga_sync()
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' Output from TWOINT_D_TERM_F'
@@ -5606,7 +5726,7 @@ CNW     CALL COPVEC(dbl_mb(KLCT),FA,LEN_F)
       END IF
 *
        IF(NTEST.GE.100) THEN
-         WRITE(6,*) ' The active Fock matrix'
+         if (ga_nodeid().eq.0) WRITE(6,*) ' The active Fock matrix'
 CNW      CALL APRBLM2(FA,NTOOBS,NTOOBS,NSMOB,IPACK)
          call ga_print(FA)
        END IF
@@ -5682,13 +5802,15 @@ CNW   DIMENSION FI(*)
 *. Two-electron terms to the inactive Fock-matrix
 C     GET_2E_TERMS_TO_FI_G(F2,C_MOINI,C_MOINIB,IHOLETP)
       CALL GET_2E_TERMS_TO_FI_G(FI,CINI,CINIB,IHOLETP)
+      call ga_sync()
 *. Pack to lower half form is required
       IF(IPACK.EQ.1) THEN
         CALL TRIPAK_BLKMG(FI,dbl_mb(KLBLF),1,NTOOBS,NSMOB,2)
       ELSE
 CNW     CALL COPVEC(FI,dbl_mb(KLBLF),LEN_F)
-        call ga_get(FI,1,LEN_F,1,1,dbl_mb(KLBLF),LEN_F)
+        call ga_get(FI,1,LEN_F,1,1,dbl_mb(KLBLF),1)
        END IF
+       call ga_sync()
 *. Contribution to inactive energy from two-electron interaction
 C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
        CALL GET_INA_TERM_TO_1EEXP(dbl_mb(KLBLF),E_2E,IHOLETP,IPACK)
@@ -5704,8 +5826,9 @@ C      GET_INA_TERM_TO_1EEXP(F,EXPEC_INA,IHOLETP,ISYM)
          LEN_MAT = LEN_FP
        END IF
 CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
-       call ga_put(FI,1,LEN_MAT,1,1,dbl_mb(KLBLF),LEN_MAT)
-       call ga_add(1.0d0,H,1.0d0,FI,FI)
+       if (IPACK.EQ.1) call ga_put(FI,1,LEN_MAT,1,1,dbl_mb(KLBLF),1)
+       call ga_sync()
+       call ga_add(ONE,H,ONE,FI,FI)
 *
        IF(NTEST.GE.100) THEN
          WRITE(6,*) ' Output from FI_FROM_INIINT_G: '
@@ -5715,7 +5838,7 @@ CNW    CALL VECSUM(FI,H,dbl_mb(KLBLF),ONE,ONE,LEN_MAT)
      &   ' Contribution from inactive orbitals to core-energy', EINAC
          WRITE(6,*) ' The inactive Fock matrix'
 CNW      CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,IPACK)
-         call ga_print(fi)
+CBERT    call ga_print(fi)
        END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'FIFRIN')
@@ -5755,7 +5878,7 @@ CNW      CALL APRBLM2(FI,NTOOBS,NTOOBS,NSMOB,IPACK)
 CNW   DIMENSION F2(*)
       integer F2
 *
-      NTEST = 0
+      NTEST = 000
 *
 *. Assumed symmetry of density and integrals- for later 
 *. generalizations
@@ -5781,6 +5904,7 @@ C             NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 C     TWO_INT_D_TERM_F(F2,DINI,FACC,FACE)
       CALL MEMCHK2('BE_TWO')
       CALL TWOINT_D_TERM_F(F2,dbl_mb(KLDINI),FACC,FACE)
+      call ga_sync()
       CALL MEMCHK2('AF_TWO')
 *. Transform from initial to current basis
 C     TRAN_SYM_BLOC_MAT4
@@ -5788,15 +5912,19 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL MEMCHK2('BE_TRA')
       CALL TRAN_SYM_BLOC_MAT4b(F2,C,CB,NSMOB,NTOOBS,NTOOBS,
      &     dbl_mb(KLSCR),dbl_mb(KLDINI),0)
+      call ga_sync()
       CALL MEMCHK2('AF_TRA')
 CNW   CALL COPVEC(dbl_mb(KLSCR),F2,LEN_F)
       call ga_put(F2,1,LEN_F,1,1,dbl_mb(KLSCR),1)
+      call ga_sync()
 *
       IF(NTEST.GE.100) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) 
      &  ' Two-electron terms to inactive Fock matrix in MO basis'
         WRITE(6,*) 
      & ' ======================================================'
+        endif
 CNW     CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
         call ga_print(f2)
       END IF
@@ -5836,7 +5964,7 @@ CNW     CALL APRBLM2(F2,NTOOBS,NTOOBS,NSMOB,0)
       ONE = 1.0D0
       TWO = 2.0D0
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from GET_D_FROM_C' 
         WRITE(6,*) ' ======================'

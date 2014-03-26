@@ -5503,7 +5503,7 @@ C     REAL * 8  INPROD
 CNW   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST = 1000
+      NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -7940,7 +7940,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
 *
-      NTEST = 0
+      NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Energy under construction '
         WRITE(6,*) ' =========================='
@@ -9636,7 +9636,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      NTEST =  00
+      NTEST =  000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -9646,7 +9646,8 @@ cnw   DIMENSION DIAG(*)
       NOCOB = NINOB + NACOB
 *
  
-      IF( NTEST .GE. 20.OR.IPRINTEGRAL.GE.100 ) THEN
+      IF( NTEST .GE. 20.OR.IPRINTEGRAL.GE.100 .and. 
+     &  ga_nodeid().eq.0) THEN
         WRITE(6,*) ' GASDIAS_PH in action:'
         WRITE(6,*) ' ====================='
         WRITE(6,*) ' Diagonal one electron integrals'

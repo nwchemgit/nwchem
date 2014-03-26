@@ -809,6 +809,7 @@ CNW     CALL COPVEC(WORK(KINT1O),WORK(KLH1),LEN_HP)
       if (ga_nodeid().eq.0) 
      &CALL TRAN_SYM_BLOC_MAT4(dbl_mb(KLH1),CI,CJ,NSMOB,NTOOBS,NTOOBS,
      &     KINT1,dbl_mb(KLSCR),IPACK_OUT)
+      call ga_sync()
 C     TRAN_SYM_BLOC_MAT4(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 C?    WRITE(6,*) ' After TRAN_SYM '
 *
@@ -1372,6 +1373,9 @@ C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
 * Jeppe Olsen
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION LX_ROW(NBLOCK),LX_COL(NBLOCK)
       DIMENSION XL(*),XR(*)
@@ -1433,20 +1437,28 @@ C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 *. XL(T)(IBLOCK)A(IBLOCK)
        ZERO = 0.0D0
        ONE  = 1.0D0
+C?     if (ga_nodeid().eq.0) then
+C?     WRITE(6,*) ' Non transformed matrix '
+C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
+C?     endif
        CALL SETVEC(SCR(K2),ZERO,LXR*LXC)
 C?     WRITE(6,*) ' TEST : K2, IOFFX, K1, LXC, LXR ',
 C?   &                     K2, IOFFX, K1, LXC, LXR
        CALL MATML7(SCR(K2),XL(IOFFX),SCR(K1),LXC,LXR,LXR,LXC,LXR,LXR,
      &             ZERO,ONE,1)
+C?     if (ga_nodeid().eq.0) then
 C?     WRITE(6,*) ' Half transformed matrix '
 C?     CALL WRTMAT(SCR(K2),LXC,LXR,LXC,LXR)
+C?     endif
 
 *. XL(T) (IBLOCK) A(IBLOCK) XR(IBLOCK)
        CALL SETVEC(SCR(K1),ZERO,LXC*LXC)
        CALL MATML7(SCR(K1),SCR(K2),XR(IOFFX),LXC,LXC,LXC,LXR,LXR,LXC,
      &             ZERO,ONE,0)
+C?     if (ga_nodeid().eq.0) then
 C?     WRITE(6,*) ' Transformed matrix '
 C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
+C?     endif
 *. Pack and transfer
        IF(ISYM.EQ.1) THEN
          CALL TRIPAK(SCR(K1),AOUT(IOFFP_OUT),1,LXC,LXC)
@@ -1456,8 +1468,8 @@ C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
 *
       END DO
 *
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
+      NTEST = 000
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' output matrix TRAN_SYM_BLOC_MAT '
         WRITE(6,*) ' ==============================='
@@ -3650,6 +3662,7 @@ C    &           CI_IN, CJ_IN, CK_IN, CL_IN,IDIM_ONLY)
         CALL TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,
      &                     int_mb(KPINT2_A(IIE2ARR)),
      &                     KINT2_A(IIE2ARR) )
+        call ga_sync()
 C            TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,IP2INTOUT,X2INTOUT)
 *
         IF(IPRNT_TRAINT.EQ.1.OR.NTEST.GE.10000) THEN
