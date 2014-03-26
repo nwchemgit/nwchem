@@ -4,6 +4,10 @@ start nwxc_dat
 
 geometry
   symmetry d2h
+  bq 0.   0.  10.0 charge +0.01
+  bq 0.   0. -10.0 charge +0.01
+  bq 0.  10.   0.0 charge -0.01
+  bq 0. -10.   0.0 charge -0.01
   N 0.0 0.0 0.0
 end
 
