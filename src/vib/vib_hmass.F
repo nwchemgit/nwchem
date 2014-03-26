@@ -1,5 +1,8 @@
-      SUBROUTINE vib_HMASS(HESST,ATMASS,first_pass)
+*
 * $Id$
+*
+
+      SUBROUTINE vib_HMASS(HESST,ATMASS,first_pass)
 C
 C  This routine mass weights and scales the Hessian matrix
 C       The scaling is done to avoid numerical problems in the
@@ -46,12 +49,20 @@ C
       if (first_pass) then
         WRITE(6,9000)
         CALL vib_PRNTPD(HESST,NHESST,NAT3,6)
+      else
+        WRITE(6,9001)
+        CALL vib_PRNTPD(HESST,NHESST,NAT3,6)
       endif
 
  9000 FORMAT(/,10X,'-----------------------------------------------',
      &                                                       '-----',
      &  /,10X,'MASS-WEIGHTED NUCLEAR HESSIAN (Hartree/Bohr/Bohr/Kamu)',
      &  /,10X,'----------------------------------------------------',
+     &       //)
+ 9001 FORMAT(/,10X,'-----------------------------------------------',
+     &                                                      '---------',
+     & /,10X,'MASS-WEIGHTED PROJECTED HESSIAN (Hartree/Bohr/Bohr/Kamu)',
+     & /,10X,'--------------------------------------------------------',
      &       //)
       RETURN
       END

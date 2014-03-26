@@ -46,11 +46,16 @@ c
       integer nels, npri, ihess, icoord, ihesst, ihesstcp,
      &    ihessp, iegval, iegvec, iddpol, iddpolq, intense
       integer imass, iscr, i10, i20, i30, i40,i_w1,l_w1,i_w2,l_w2
+      integer isystype
       double precision dbl_tmp
       logical first_pass
       character*255 dipole_file
       logical dipole_file_exists
       logical animation_on
+      logical iscrystal
+
+      integer  vib_isystype
+      external vib_isystype
 c
       first_pass = .true.
 *... check input logic 
@@ -71,6 +76,9 @@ c
 C
 C Zero core
 C
+      isystype = vib_isystype(rtdb)
+      iscrystal = (isystype.ne.0)
+
       call vib_setup ! subroutine to set up some constants
       NATOM  =  natomin ! number of atoms in species.
       IF (NATOM.LE.1) THEN      ! check for incorrect number of atoms
@@ -174,6 +182,13 @@ c
         WRITE(luout,*)' See chapter 2 in "Molecular Vibrations" by ',
      +      'Wilson, Decius and Cross'
         WRITE(luout,*)
+      else if (iscrystal) then
+        WRITE(luout,*)
+     &      '       Vibrational analysis via the FX method '
+        write(luout,*)
+     &      ' --- with translations projected out ---'
+        write(luout,*)
+     &      ' --- via the Eckart algorithm        ---'
       else
         WRITE(luout,*)
      &      '       Vibrational analysis via the FX method '
@@ -198,7 +213,7 @@ C
 C Read in user input and tape10 arrays.  NO INPUT REQUIRED NOW
 C      Note: ! scratch pointer for atom charges (real NAT words)
 C              and atom lables (real 2*nat words)
-      call vib_rdinp(
+      call vib_RDINP(
      &    dbl_mb(ihess),dbl_mb(ihesst),dbl_mb(icoord),
      &    dbl_mb(imass),dbl_mb(iscr),  dbl_mb(ioldlabs),
      &    dbl_mb(i10),nels,projec,zerope,hesout,intern,
@@ -210,27 +225,44 @@ C              and atom lables (real 2*nat words)
       if (.not.ma_push_get
      &    (MT_DBL,nat3*nat3,' w2 ',l_w2, i_w2))
      &    call errquit('vib_vib: ma_push_get failed ',911, MA_ERR)
-        call vib_eckart( dbl_mb(ihess), dbl_mb(ihessp), dbl_mb(ihesst),
-     &      dbl_mb(icoord),  dbl_mb(ivc), dbl_mb(i_w1),dbl_mb(i_w2))
+        if (iscrystal) then
+           call vib_eckart_trans(dbl_mb(ihess),dbl_mb(ihessp),
+     >          dbl_mb(ihesst),
+     >          dbl_mb(icoord),dbl_mb(ivc),dbl_mb(i_w1),dbl_mb(i_w2))
+        else
+           call vib_eckart(dbl_mb(ihess),dbl_mb(ihessp),dbl_mb(ihesst),
+     &          dbl_mb(icoord),dbl_mb(ivc),dbl_mb(i_w1),dbl_mb(i_w2))
+        end if
+           
         if(.not.ma_chop_stack(l_w1)) call errquit(
      '       ' vib_vib: machopstack failed',1, MA_ERR)
       end if
 * rak dfill
       CALL Dfill(NAT3,0.0d00,DBL_MB(ISCR),1) ! zero scratch used
 C
-      CALL vib_hmass(DBL_MB(IHESST),DBL_MB(IMASS),first_pass) ! mass weight and scale hessian
+      CALL vib_HMASS(DBL_MB(IHESST),DBL_MB(IMASS),first_pass) ! mass weight and scale hessian
 C
 C Diagonalize mass-weighted, scaled hessian matrix
 C     Note: ! scratch pointer for givens (real 5*NAT3 words)
 c use hessp as scratch now calling rsg
 C
-      CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
+      if ((iscrystal).and.(.not.first_pass)) then
+         write(luout,*) "do phonon spectra"
+         CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
      &    dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
      &    DBL_MB(IEGVEC), NAT3,NAT3)
-      call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
-      call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
+         !call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
+         call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
+
+      else
+         CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
+     &    dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
+     &    DBL_MB(IEGVEC), NAT3,NAT3)
+         call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
+         call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
-      CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
+         CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
+      end if
 
 C
 C  ---Added by Bojana September 11,2008 
@@ -285,11 +317,12 @@ C
 c
       if (.not.first_pass) then
 * if any negative eigenvalues print out steps in their direction
-        call vib_istep(
-     &        rtdb,nat3,natom,
-     &        dbl_mb(iegvec),dbl_mb(iegval),
-     &        dbl_mb(icoord),dbl_mb(iscr),
-     &        dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
+        if (.not.iscrystal) 
+     >     call vib_istep(
+     &          rtdb,nat3,natom,
+     &          dbl_mb(iegvec),dbl_mb(iegval),
+     &          dbl_mb(icoord),dbl_mb(iscr),
+     &          dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
 
         if(.not.rtdb_get(rtdb,'vib:animate',mt_log,1,animation_on)) then
           animation_on = .false. ! no animation

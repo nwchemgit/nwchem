@@ -10,9 +10,9 @@ c
 c
       CHARACTER*5 LINE
       DATA LINE /'-----'/
-    1 FORMAT(3X,10(7X,I5))
+    1 FORMAT(3X,10(8X,I5))
     2 FORMAT(2X,21A6)
-    3 FORMAT(2X,I3,2X,10(1PD12.5))
+    3 FORMAT(2X,I3,2X,10(1PD13.5))
     4 FORMAT(/)
       IOUT=IOUT2
       IF (IOUT .EQ. 0) IOUT=6

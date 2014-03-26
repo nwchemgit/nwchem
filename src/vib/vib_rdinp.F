@@ -1,8 +1,11 @@
+*
+* $Id$
+*
+
       SUBROUTINE vib_RDINP(
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb,first_pass)
-* $Id$
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -113,6 +116,8 @@ c
         byte_mb(il_cnt+i_lblb) = symbol(2:2)
         il_cnt = il_cnt+1
       enddo
+
+
 *
 * this loop structure separated out to do one pass over data in rtdb.
 * set the incore geometry with any mass information from the freq/vib
@@ -204,3 +209,39 @@ C
 11113 format('vib:remass:',i4,':mass:')
 C
       END
+
+
+*     *************************************************
+*     *                                               *
+*     *                 vib_isystype                  *
+*     *                                               *
+*     *************************************************
+
+* returns the system type from geometry
+
+      integer function vib_isystype(rtdb)
+      implicit none
+      integer rtdb
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+      integer geom,isystype
+
+      if (.not.geom_create(geom,'geometry')) call errquit
+     &    ('vib_isystype: error creating geometry',911, GEOM_ERR)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('vib_isystype: error loading geometry',911, RTDB_ERR)
+
+      if (.not. geom_systype_get(geom,isystype))
+     $     call errquit('vib_isystype: systype?',0, GEOM_ERR)
+
+      if (.not.geom_destroy(geom)) call errquit
+     &    ('vib_isystype: geom_destroy failed',911, GEOM_ERR)
+
+      vib_isystype = isystype
+      return
+      end
