@@ -145,9 +145,9 @@
       do i3=0,(dosgrid(3)-1)
       do i2=0,(dosgrid(2)-1)
       do i1=0,(dosgrid(1)-1)
-          ks(1) = xx*xxx
-          ks(2) = yy*yyy
-          ks(3) = zz*zzz
+          ks(1) = i1*xxx
+          ks(2) = i2*yyy
+          ks(3) = i3*zzz
           kq(1) = unitg(1,1)*ks(1)+unitg(1,2)*ks(2)+unitg(1,3)*ks(3)
           kq(2) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
           kq(3) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
