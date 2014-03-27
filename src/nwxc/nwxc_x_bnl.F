@@ -134,18 +134,25 @@ c
             end if
 
 #ifdef SECOND_DERIV
-            fppA = nwxc_EpsTwoXprime(rhoA1,gamma)
-            fppB = nwxc_EpsTwoXprime(rhoB1,gamma)
-
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
-     &        ((fppA*rhoA+fpA)*4)*wght
 c
 c           Guard against case of no beta electrons, e.g. H atom
-            if (ipol.gt.1) then
-             if (rho(n,R_B).gt.tol_rho) then
-              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
-     &          ((fppB*rhoB+fpB)*4)*wght
-             end if
+            if (ipol.eq.1) then
+              if (rhoA1.gt.tol_rho) then
+                fppA = nwxc_EpsTwoXprime(rhoA1,gamma)
+                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
+     &            ((fppA*rhoA+2*fpA)*2)*wght
+              endif
+            else
+              if (rhoA1.gt.tol_rho) then
+                fppA = nwxc_EpsTwoXprime(rhoA1,gamma)
+                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
+     &            ((fppA*rhoA+fpA)*4)*wght
+              endif
+              if (rhoB1.gt.tol_rho) then
+                fppB = nwxc_EpsTwoXprime(rhoB1,gamma)
+                Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
+     &            ((fppB*rhoB+fpB)*4)*wght
+              end if
             end if
 #endif
             func(n) = func(n) + f(n)*wght 
