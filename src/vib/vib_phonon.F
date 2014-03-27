@@ -25,13 +25,15 @@
 
 *     **** local variables ****
       logical value,oprint
-      integer dosgrid(3),isize,i1,i2,i3,i
+      integer dosgrid(3),isize,i1,i2,i3,i,ind,num_kvectors,icount
       real*8  omega,unita(3,3),unitg(3,3),lattice(6)
-      real*8  xx,yy,zz,xxx,yyy,zzz,ks(3),kq(3)
+      real*8  xx,yy,zz,xxx,yyy,zzz,ks(3),kq(3),kold(3),pathlength,dist
       complex*16 cfac
+      character*50 zone_name,rtdb_name
+      character*255 full_filename
 
       integer weight_dos(2),eigs_dos(2),dmat(2),wp(2),hessadjust(2)
-      integer ierr,lwork,work(2),rwork(2),w2(1)
+      integer ierr,lwork,work(2),rwork(2),w2(1),kvs(2)
 
       write(*,*) "calculate phonon spectrum"
 
@@ -139,6 +141,7 @@
 
 
 
+      icount = 1
       xxx = 1.0d0/(1.0d0*dosgrid(1))
       yyy = 1.0d0/(1.0d0*dosgrid(2))
       zzz = 1.0d0/(1.0d0*dosgrid(3))
@@ -157,18 +160,94 @@
      >                          dcpl_mb(dmat(1)),dbl_mb(wp(1)),
      >                          dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
 
-      write(*,*) 
-      write(*,*) "kvec=",kq," eigs="
-      do i=1,nion3
-         write(*,*) "w(",i,")=",dbl_mb(wp(1)+i-1),
-     >               dsqrt(dabs(dbl_mb(wp(1)+i-1)))*wave
-      end do
-      write(*,*) 
-      write(*,*) 
+          write(luout,*) 
+          write(luout,*) icount," out of ",
+     >                   dosgrid(1)*dosgrid(2)*dosgrid(3)
+          write(luout,*) "kvec= ",kq
+          write(luout,*) "ksvec=",ks
+          do i=1,nion3
+             write(luout,'(5x,A3,I4,A2,F10.3)') "wp(",i,")=",
+     >          dsqrt(dabs(dbl_mb(wp(1)+i-1)))*wave
+          end do
+          icount = icount + 1
 
       end do
       end do
       end do
+
+
+*     ***** writeout dispersion curves to nwchem_name.dispersion ****
+      if (.not.rtdb_cget(rtdb,'vib:zone_name',1,zone_name))
+     >   zone_name = 'vib_zone_default'
+
+      ind = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:ind)//':number_kvectors'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors))
+     >   num_kvectors = 0
+      if (num_kvectors.gt.0) then
+
+         if (.not.MA_push_get(mt_dbl,(4*num_kvectors),
+     >                       'kvs',kvs(2),kvs(1)))
+     >      call errquit('vib_phonon: failed to get zone name', 0,
+     >       MA_ERR)
+
+         rtdb_name = zone_name(1:ind)//':kvectors'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,
+     >                   (4*num_kvectors),
+     >                    dbl_mb(kvs(1))))
+     >    call errquit('vib_phonon: failed to get kvs',0,
+     &                 RTDB_ERR)
+
+
+          write(luout,*) "Generating Dispersion Curves"
+          call util_file_name('dispersion',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+         open(unit=58,file=full_filename,form='formatted')
+         do i=1,num_kvectors
+           ks(1) = dbl_mb(kvs(1)+4*(i-1))
+           ks(2) = dbl_mb(kvs(1)+4*(i-1)+1)
+           ks(3) = dbl_mb(kvs(1)+4*(i-1)+2)
+           kq(1) = unitg(1,1)*ks(1)+unitg(1,2)*ks(2)+unitg(1,3)*ks(3)
+           kq(2) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
+           kq(3) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
+
+           call vib_gendynamicmatrix(unita,kq,nion,rion,
+     >                          nion3,dbl_mb(hessadjust(1)),
+     >                          dcpl_mb(dmat(1)),dbl_mb(wp(1)),
+     >                          dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
+
+            if (i.eq.1) then
+               pathlength = 0.0
+            else
+               dist=dsqrt((kq(1)-kold(1))**2
+     >                   +(kq(2)-kold(2))**2
+     >                   +(kq(3)-kold(3))**2)
+               pathlength = pathlength + dist
+            end if
+            kold(1) = kq(1)
+            kold(2) = kq(2)
+            kold(3) = kq(3)
+            write(58,'(1000E14.6)') pathlength,
+     >          (dsqrt(dabs(dbl_mb(wp(1)+i1-1)))*wave,i1=1,nion3)
+
+            write(luout,*) 
+            write(luout,*) i," out of ",num_kvectors
+            write(luout,*) "kvec= ",kq
+            write(luout,*) "ksvec=",ks
+            do i1=1,nion3
+               write(luout,'(5x,A3,I4,A2,F10.3)') "wp(",i1,")=",
+     >            dsqrt(dabs(dbl_mb(wp(1)+i1-1)))*wave
+            end do
+         end do
+         close(58)
+
+         if (.not.MA_pop_stack(kvs(2)))
+     >   call errquit('vib_phonon: failed to free stack',1,MA_ERR)
+
+      end  if
+
 c      kq(1)=0.1d0
 c      kq(2)=0.2d0
 c      kq(3)=0.3d0

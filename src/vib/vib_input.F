@@ -25,8 +25,9 @@ c
       character*255 test
       character*32 rtdb_id
       character*255 filename
+      character*50 zone_name
       character*16 tag
-      integer itest
+      integer itest,ind
       integer lexical_index
       integer old_num_mod_mass
       integer num_mod_mass
@@ -91,6 +92,22 @@ c
           else
             o_hessfile = .false.
           endif
+          goto 00010
+
+        else if((inp_compare(.false.,test,'zone_name')).or.
+     &          (inp_compare(.false.,test,'zone_structure_name'))) then
+           if (.not. inp_a(zone_name))
+     >     call errquit(
+     >          'vib_input: failed to read zone_name',0,INPUT_ERR)
+            ind = index(zone_name,' ') - 1
+            if (.not.rtdb_cput(rtdb,'vib:zone_name',1,zone_name(1:ind)))
+     >      call errquit(
+     >       'vib_input: error writing to rtdb',1806,RTDB_ERR)
+          goto 00010
+
+        else if ((inp_compare(.false.,test,'dispersion')).or.
+     &           (inp_compare(.false.,test,'brillouin_zone'))) then
+           call vib_zone_input(rtdb)
           goto 00010
 
         else if ((inp_compare(.false.,test,'temperature')).or.
