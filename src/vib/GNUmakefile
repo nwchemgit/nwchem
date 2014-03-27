@@ -28,12 +28,12 @@
                  vib_zmatin.o \
                  vib_intense.o \
                  vib_istep.o \
-		 vib_thermo.o vib_input.o
+		 vib_thermo.o vib_phonon.o vib_input.o
 
        LIBRARY = libvib.a
    LIB_TARGETS = 
 
-     USES_BLAS = vib_eckart.F vib_hmass.F vib_intense.F vib_nmass.F vib_tors.F vib_vib.F vib_wrtfreq.F vib_istep.F vib_thermo.F
+     USES_BLAS = vib_eckart.F vib_hmass.F vib_intense.F vib_nmass.F vib_tors.F vib_vib.F vib_wrtfreq.F vib_istep.F vib_thermo.F vib_phonon.F
 
 include ../config/makefile.h
 include ../config/makelib.h

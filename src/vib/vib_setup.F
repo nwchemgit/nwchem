@@ -28,6 +28,7 @@ C
       FACT1 = SQRT(FACT1)                  ! to sec**-1
       FACT1 = FACT1/(D2*PI*C)              ! to wavenumbers
       WAVE  = FACT1*1.0D04                 ! include all powers of ten
+
 C
 C Set up Masses
 C

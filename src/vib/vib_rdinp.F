@@ -211,37 +211,3 @@ C
       END
 
 
-*     *************************************************
-*     *                                               *
-*     *                 vib_isystype                  *
-*     *                                               *
-*     *************************************************
-
-* returns the system type from geometry
-
-      integer function vib_isystype(rtdb)
-      implicit none
-      integer rtdb
-
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "geom.fh"
-
-      integer geom,isystype
-
-      if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('vib_isystype: error creating geometry',911, GEOM_ERR)
-      if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('vib_isystype: error loading geometry',911, RTDB_ERR)
-
-      if (.not. geom_systype_get(geom,isystype))
-     $     call errquit('vib_isystype: systype?',0, GEOM_ERR)
-
-      if (.not.geom_destroy(geom)) call errquit
-     &    ('vib_isystype: geom_destroy failed',911, GEOM_ERR)
-
-      vib_isystype = isystype
-      return
-      end
