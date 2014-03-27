@@ -142,7 +142,7 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
                Amat(n,D1_RA) = Amat(n,D1_RA) + wght*P3*rho13
 #ifdef SECOND_DERIV
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
-     +               wght*2.0d0*one_third*P3*rho13/rho(n,R_A)
+     +               wght*1.0d0*one_third*P3*rho13/rho(n,R_A)
 #endif
                func(n) = func(n) + wght*P4*rho(n,R_A)*rho13
             endif
@@ -151,7 +151,7 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
                Amat(n,D1_RB) = Amat(n,D1_RB) + wght*P3*rho13
 #ifdef SECOND_DERIV
                Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
-     +               wght*2.0d0*one_third*P3*rho13/rho(n,R_B)
+     +               wght*1.0d0*one_third*P3*rho13/rho(n,R_B)
 #endif
                func(n) = func(n) + wght*P4*rho(n,R_B)*rho13
             endif
