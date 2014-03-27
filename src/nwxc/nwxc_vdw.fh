@@ -13,7 +13,9 @@ c
       parameter (k2=4.0d0/3.0d0)
       parameter (k3=-4.0d0)
 c
-      integer ivdw,maxcn(max_elements)
+c     Entry 0 is needed in MAXCN to deal with Bq and X centers
+c
+      integer ivdw,maxcn(0:max_elements)
 c
       common /nwxc_vdwc/c6,c8,r0,alpha
       common /nwxc_vdw3/Qatom,cov_table,r0AB,c6ab

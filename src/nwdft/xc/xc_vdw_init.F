@@ -35835,7 +35835,7 @@ c
 c
 c     Extract data from tables in usable format
 c
-      do iline=1,max_elements
+      do iline=0,max_elements
          maxcn(iline)=0
       enddo
 c
