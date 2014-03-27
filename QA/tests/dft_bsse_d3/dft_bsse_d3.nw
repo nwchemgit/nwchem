@@ -1,0 +1,100 @@
+echo
+start dft_bsse
+
+charge 0
+
+
+geometry  g0 autosym units angstrom
+zmatrix
+    H
+    O    1 r2
+    H    2 r3    1 a3
+    O    3 r4    2 a4    1 d4
+    H    4 r5    3 a5    2 d5
+    H    4 r6    3 a6    2 d6
+    variables
+    r2 0.9637
+    r3 0.8728
+    a3  95.07
+    r4 1.8441
+    a4 172.11
+    d4 179.97
+    r5 0.9654
+    a5 110.73
+    d5  58.09
+    r6 0.9654
+    a6 110.73
+    d6 301.91
+end
+end
+geometry  g1 autosym units angstrom
+zmatrix
+    H
+    O    1 r2
+    H    2 r3    1 a3
+    bqO  3 r4    2 a4    1 d4
+    bqH  4 r5    3 a5    2 d5
+    bqH  4 r6    3 a6    2 d6
+    variables
+    r2 0.9637
+    r3 0.8728
+    a3  95.07
+    r4 1.8441
+    a4 172.11
+    d4 179.97
+    r5 0.9654
+    a5 110.73
+    d5  58.09
+    r6 0.9654
+    a6 110.73
+    d6 301.91
+end
+end
+geometry  g2 autosym units angstrom
+zmatrix
+    H
+    O    1 r2
+    H    2 r3    1 a3
+    bqO  3 r4    2 a4    1 d4
+    XH  4 r5    3 a5    2 d5
+    XH  4 r6    3 a6    2 d6
+    variables
+    r2 0.9637
+    r3 0.8728
+    a3  95.07
+    r4 1.8441
+    a4 172.11
+    d4 179.97
+    r5 0.9654
+    a5 110.73
+    d5  58.09
+    r6 0.9654
+    a6 110.73
+    d6 301.91
+end
+end
+
+basis "ao basis" spherical print
+  H library "aug-cc-pVDZ"
+  O library "aug-cc-pVDZ"
+  bqH library H aug-cc-pVDZ
+  bqO library O aug-cc-pVDZ
+END
+
+dft
+  xc S12g
+end
+
+title "H2O"
+set geometry g0
+task dft
+
+title "H2O with bqs"
+set geometry g1
+task dft
+
+
+title "H2O with bqs and Xs"
+set geometry g2
+task dft
+
