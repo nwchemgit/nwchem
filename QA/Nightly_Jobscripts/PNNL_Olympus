@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -A NWCHEM
+#SBATCH -t 08:00:00
+#SBATCH -N 1 
+#SBATCH -o doNightlyTests.output.%j
+#SBATCH -e doNightlyTests.err.%j
+#SBATCH -J doNightlyTests
+#
+source /etc/profile.d/modules.sh
+export NWCHEM_TOP=`pwd`/..
+srun --ntasks-per-node=1 --mpi=none --wait=600 cp $NWCHEM_TOP/bin/LINUX64/nwchem /scratch/nwchem
+
+export ARMCI_DEFAULT_SHMMAX=8192
+export MV2_ENABLE_AFFINITY=1
+export MV2_CPU_MAPPING='1:3:5:7:9:11:13:15:17:19:21:23:25:27:29:31:0:2:4:6:8:10:12:14:16:18:20:22:24:26:28:30'
+
+export NONSTD_MPI=y
+export MPIRUN_PATH="srun --ntasks-per-node=8 -N 1 --mpi=none"
+./doNightlyTests.mpi
