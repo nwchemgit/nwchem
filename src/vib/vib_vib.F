@@ -217,7 +217,6 @@ C              and atom lables (real 2*nat words)
 
 *     **** call vib_phonon spectra if crystal and then exit ****
       if (iscrystal) then
-         write(luout,*) "into phonon spectra"
          call vib_phonon(rtdb,NATOM,dbl_mb(icoord),
      >                   NAT3,dbl_mb(ihess),dbl_mb(imass))
          goto 9999
