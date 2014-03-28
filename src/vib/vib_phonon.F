@@ -35,7 +35,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       character*50 zone_name,rtdb_name
       character*255 full_filename
 
-      integer weight_dos(2),eigs_dos(2),dmat(2),wp(2),hessadjust(2)
+      integer efn_dos(2),eigs_dos(2),dmat(2),wp(2),hessadjust(2)
       integer ierr,lwork,work(2),rwork(2),w2(1),kvs(2)
 
 
@@ -55,8 +55,9 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 
       if (oprint) then
         write(luout,*)
-        write(luout,'(A,I5)') '    number of atoms =',nion 
-        write(luout,'(A,I5)') '    number of bands =',nion3
+        write(luout,'(A,I5)') '      number of atoms =',nion 
+        write(luout,'(A,I5)') '      number of bands =',nion3
+        write(luout,*)
         write(luout,*)
         write(luout,*) '     Lattice Parameters '
         write(luout,*) '     ------------------ '
@@ -103,7 +104,14 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
          dosgrid(2) = 11
          dosgrid(3) = 11
       end if
+      if (oprint) write(luout,*) 
+      if (oprint) write(luout,*) 
+      if (oprint) write(luout,*) 
+     > "     Calculating Vibrational Density of States"
+      if (oprint) write(luout,*) 
+     > "     -----------------------------------------"
       if (oprint) write(luout,1250) dosgrid
+      if (oprint) write(luout,*) 
 
 *     **** allocate memory calculation ****
       isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*nion3
@@ -148,8 +156,6 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 *     ******************* Density of States **********************
 *     ************************************************************
 
-      if (oprint) write(luout,*) 
-      if (oprint) write(luout,*) "     Calculating Density of States"
       icount = 1
       xxx = 1.0d0/(1.0d0*dosgrid(1))
       yyy = 1.0d0/(1.0d0*dosgrid(2))
@@ -221,31 +227,31 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >    call errquit('vib_phonon: failed to get kvs',0,
      &                 RTDB_ERR)
 
-         call util_file_name('dispersion',
+         call util_file_name('vib.dispersion',
      >                    .false.,
      >                    .false.,
      >                    full_filename)
          ind = index(full_filename,' ') -1
          if (oprint) 
-     >      write(luout,*) "     Generating Dispersion Curves: ",
+     >      write(luout,*) "     Phonon Dispersion Curves: ",
      >                     full_filename(1:ind)
          open(unit=57,file=full_filename,form='formatted')
-         call util_file_name('cm.dispersion',
+         call util_file_name('vib.cm.dispersion',
      >                    .false.,
      >                    .false.,
      >                    full_filename)
          ind = index(full_filename,' ') -1
          if (oprint) 
-     >      write(luout,*) "     Generating Dispersion Curves: ",
+     >      write(luout,*) "     Phonon Dispersion Curves: ",
      >                     full_filename(1:ind)
          open(unit=58,file=full_filename,form='formatted')
-         call util_file_name('THz.dispersion',
+         call util_file_name('vib.THz.dispersion',
      >                    .false.,
      >                    .false.,
      >                    full_filename)
          ind = index(full_filename,' ') -1
          if (oprint) 
-     >      write(luout,*) "     Generating Dispersion Curves: ",
+     >      write(luout,*) "     Phonon Dispersion Curves: ",
      >                     full_filename(1:ind)
          open(unit=59,file=full_filename,form='formatted')
 
@@ -314,17 +320,17 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 *     ************************************************************
 *     ******************** DOS plotting **************************
 *     ************************************************************
+      if (.not.rtdb_get(rtdb,'vib:dos:npoints',mt_int,1,npoints)) then
+        npoints = 1001
+      end if
 
 *     **** allocate memory for DOS calculation ****
-      isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*nion3
-c      if (.not.MA_push_get(mt_dbl,isize,
-c     >                    'weight_dos',weight_dos(2),weight_dos(1)))
-c     >   call errquit('vib_phonon: out of stack memory',2,MA_ERR)
+      isize = 3*npoints
+      if (.not.MA_push_get(mt_dbl,isize,
+     >                    'efn_dos',efn_dos(2),efn_dos(1)))
+     >   call errquit('vib_phonon: out of stack memory',2,MA_ERR)
 
 
-      if (.not.rtdb_get(rtdb,'vib:dos:npoints',mt_int,1,npoints)) then
-        npoints = 1000
-      end if
 
       if (.not.rtdb_get(rtdb,'vib:dos:emin',mt_dbl,1,emin)) emin=0.0d0
       if (.not.rtdb_get(rtdb,'vib:dos:emax',mt_dbl,1,emax)) then
@@ -335,62 +341,70 @@ c     >   call errquit('vib_phonon: out of stack memory',2,MA_ERR)
          end do
          emax = emax + 1.0d-3
       end if
+      call vib_dos_generate(dosgrid(1),dosgrid(2),dosgrid(3),
+     >                      dbl_mb(eigs_dos(1)),nion3,
+     >                      npoints,emin,emax,unitg,dbl_mb(efn_dos(1)))
 
-      call util_file_name('vib.dos',
+      call util_file_name('vib.vdos',
      >                    .false.,
      >                    .false.,
      >                    full_filename)
       ind = index(full_filename,' ') -1
       if (oprint) write(luout,*) 
-      if (oprint) write(luout,*) "     Generating Density of States: ",
+      if (oprint) write(luout,*) 
+     > "     Vibrational Density of States: ",
      >                           full_filename(1:ind)
       open(unit=58,file=full_filename,form='formatted')
-      call vib_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
-     >                      dbl_mb(eigs_dos(1)),nion3,
-     >                      1.0d0,1.0d0,
-     >                      npoints,emin,emax,unitg)
+      do k=1,npoints
+         write(58,'(3E15.5)') dbl_mb(efn_dos(1)          +k-1),
+     >                        dbl_mb(efn_dos(1)+npoints  +k-1),
+     >                        dbl_mb(efn_dos(1)+2*npoints+k-1)
+      end do 
       close(58)
 
-      call util_file_name('vib.cm.dos',
+      call util_file_name('vib.cm.vdos',
      >                    .false.,
      >                    .false.,
      >                    full_filename)
       ind = index(full_filename,' ') -1
-      if (oprint) write(luout,*) "     Generating Density of States: ",
+      if (oprint) write(luout,*) 
+     > "     Vibrational Density of States: ",
      >                           full_filename(1:ind)
       open(unit=58,file=full_filename,form='formatted')
-      call vib_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
-     >                      dbl_mb(eigs_dos(1)),nion3,
-     >                      autocm,1.0d0,
-     >                      npoints,emin,emax,unitg)
+      do k=1,npoints
+         write(58,'(3E15.5)') dbl_mb(efn_dos(1)          +k-1)*autocm,
+     >                        dbl_mb(efn_dos(1)+npoints  +k-1)/autocm,
+     >                        dbl_mb(efn_dos(1)+2*npoints+k-1)
+      end do 
       close(58)
 
-      call util_file_name('vib.THz.dos',
+      call util_file_name('vib.THz.vdos',
      >                    .false.,
      >                    .false.,
      >                    full_filename)
       ind = index(full_filename,' ') -1
-      if (oprint) write(luout,*) "     Generating Density of States: ",
+      if (oprint) write(luout,*) 
+     > "     Vibrational Density of States: ",
      >                           full_filename(1:ind)
       open(unit=58,file=full_filename,form='formatted')
-      call vib_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
-     >                      dbl_mb(eigs_dos(1)),nion3,
-     >                      autoTHz,1.0d0,
-     >                      npoints,emin,emax,unitg)
+      do k=1,npoints
+         write(58,'(3E15.5)') dbl_mb(efn_dos(1)          +k-1)*autoTHz,
+     >                        dbl_mb(efn_dos(1)+npoints  +k-1)/autoTHz,
+     >                        dbl_mb(efn_dos(1)+2*npoints+k-1)
+      end do 
       close(58)
-
 
 
 *     ************************************************************
 *     ************************* THERMO ***************************
 *     ************************************************************
-      if (oprint) write(luout,*) 
-      if (oprint) write(luout,*) "     Generating Thermo"
+      if (oprint) 
+     >   call vib_vdos_thermo(rtdb,nion,npoints,dbl_mb(efn_dos(1)))
 
 
 *     **** deallocate memory for DOS and THERMO calculations ****
-c      value =           MA_pop_stack(weight_dos(2))
-      value = MA_free_heap(eigs_dos(2))
+      value =           MA_pop_stack(efn_dos(2))
+      value = value.and.MA_free_heap(eigs_dos(2))
       if (.not.value)
      >   call errquit('vib_phonon:popping stack',0,MA_ERR)
 
@@ -406,6 +420,134 @@ c      value =           MA_pop_stack(weight_dos(2))
  1245 FORMAT(5x,' b2=<',3f8.3,' >')
  1246 FORMAT(5x,' b3=<',3f8.3,' >')
  1250 FORMAT(/5x,' dos grid=',3I4,' ')
+      end
+
+*     *************************************************
+*     *                                               *
+*     *              vib_vdos_thermo                  *
+*     *                                               *
+*     *************************************************
+
+      subroutine vib_vdos_thermo(rtdb,nion,npoints,efn)
+      implicit none
+      integer rtdb,nion,npoints
+      real*8 efn(npoints,3)
+
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+
+
+*     ****  conversions and constants ****
+      double precision AUKCAL,c,h,kgas,Rgas
+      parameter (AUKCAL=627.5093314d0)
+      parameter (c=2.998e+10,h=6.626e-27,kgas=1.3807e-16)   ! cgs units
+      parameter (Rgas = 1.9863d0/1000.0d0/AUKCAL)           ! atomic units
+
+*     **** local variables ****
+      integer k,it,ntemp,h_actlist,l_actlist,ma_type
+      real*8 temp,ezero,ethermal,Svib,Cv_vib,scalefreq,RT,RT2,RT1
+      real*8 s1,s2,de
+
+*     *** define scalefreq ***
+      if(.not. rtdb_get(rtdb,'vib:scalefreq',MT_DBL,1,scalefreq))
+     &    scalefreq = 1.0d0
+
+*     **** define temperatures
+      if (.not. rtdb_ma_get(rtdb, 'vib:temperature', ma_type,
+     >        ntemp, h_actlist)) then
+         ntemp = 1
+
+         if (.not.MA_alloc_get(mt_dbl,(ntemp),'temp',
+     >                            h_actlist,l_actlist))
+     >   call errquit(
+     >       'vib_WRTFREQ: ma_get_index failed for actlist',911, MA_ERR)
+
+         dbl_mb(l_actlist) = 298.15d0
+      else
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >   call errquit(
+     >       'vib_WRTFREQ: ma_get_index failed for actlist',911, MA_ERR)
+      end if
+
+      write(luout,*)
+      write(luout,*)
+      write(luout,*) 
+     > '     Thermodynamic Functions from Vibrational Density of States'
+      write(luout,*) 
+     > '     --------------------------------------------------------- '
+      do it=1,ntemp
+         temp = dbl_mb(l_actlist+it-1)
+         RT = Rgas*temp
+         RT2 = 1.0d0/(2.0d0*RT)
+         RT1 = 1.0d0/(1.0d0*RT)
+
+*        ********************************************************
+*        **** Write out thermal Corrections to Energies      ****
+*        **** frequencies are assumed to be in units of a.u. ****
+*        ********************************************************
+         ezero    = 0.0d0
+         ethermal = 0.0d0
+         s1       = 0.0d0
+         de = efn(2,1)-efn(1,1)
+         do k=2,npoints
+            ezero = ezero + efn(k,2)*(0.5d0*efn(k,1))
+            ethermal = ethermal 
+     >               + efn(k,2)*(dlog(2.0d0*dsinh(efn(k,1)*RT2)))
+            s1 = s1 + efn(k,2)*dlog(1.0d0-dexp(-efn(k,1)*RT1))
+         end do
+         ezero = ezero*de
+         ethermal = ezero + s1*de*RT
+
+         write(luout,10023) temp,RT
+         write(luout,10022) scalefreq
+         write(luout,10024) ezero*AUKCAL,   ezero
+         write(luout,10025) ethermal*AUKCAL,ethermal
+
+*        ********************************************************
+*        **** Write out Entropies                            ****
+*        **** frequencies are assumed to be in units of a.u. ****
+*        **** Formulas taken from Herzberg                   ****
+*        ********************************************************
+         Svib   = 0.0d0
+         Cv_vib = 0.0d0
+         s1 = 0.0d0
+         s2 = 0.0d0
+         do k=2,npoints
+            s1 = s1 + efn(k,2)*dlog(1.0d0-dexp(-efn(k,1)*RT1))
+            s2 = s2 + efn(k,2)*(efn(k,1)/(dexp(efn(k,1)*RT1)-1.0d0))
+            Cv_vib = Cv_vib 
+     >             + efn(k,2)*(efn(k,1)*RT1)**2
+     >                       * dexp(efn(k,1)*RT1)
+     >                       /(dexp(efn(k,1)*RT1)-1.0d0)**2
+         end do
+         Svib   =  -Rgas*s1*de - s2*de/temp
+         Cv_vib = Rgas*Cv_vib*de
+
+         write(luout,10030) Svib   *AUKCAL*1000.0d0
+         write(luout,10040) Cv_vib *AUKCAL*1000.0d0
+         write(luout,*)
+      end do !it loop
+
+*     *** free heap ***
+      if (.not. MA_free_heap(h_actlist))
+     >call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+
+      return
+10020 FORMAT(/6x,
+     > 'Thermodynamic Functions from Vibrational Density of States')
+10022 FORMAT(6x,'frequency scaling parameter      = ',f8.4)
+10023 FORMAT(/6x,'Temperature                      = ',f8.2,'K',
+     >       ' (RT=',E13.6,' au)')
+10024 FORMAT(/6x,'Zero-Point correction to Energy  = ',f8.3,
+     .     ' kcal/mol  (',f10.6,' au)')
+10025 FORMAT( 6x,'Thermal correction to Energy     = ',f8.3,
+     .     ' kcal/mol  (',f10.6,' au)')
+10030 FORMAT(/6x,'Entropy                            = ',f8.3,
+     .       ' cal/mol-K')
+10040 FORMAT( 6x,'Cv (constant volume heat capacity) = ',f8.3,
+     .       ' cal/mol-K')
       end
 
 *     *************************************************
@@ -827,17 +969,16 @@ c      end do
 *     *                                           *
 *     *********************************************
 
-      subroutine vib_dos_generate(unit,idx,idy,idz,eigs,neigs,
-     >                            ss,sgn,npoints,emin,emax,l_unitg)
+      subroutine vib_dos_generate(idx,idy,idz,eigs,neigs,
+     >                            npoints,emin,emax,l_unitg,efn)
       implicit none
-      integer unit
       integer idx,idy,idz
       real*8 eigs(idx,idy,idz,*)
       integer neigs
-      real*8  ss,sgn
       integer npoints
       real*8 emin,emax
       real*8 l_unitg(3,3)
+      real*8 efn(npoints,3)
 
 *     **** local variables ****
       integer dosgrid(3)
@@ -1144,7 +1285,9 @@ c      end do
         f = f*(VT/VG)
         g = g*(VT/VG)
 
-        write(unit,1310) ss*e,f*sgn,g*sgn
+        efn(k,1) = e
+        efn(k,2) = f
+        efn(k,3) = g
       end do
 
 
