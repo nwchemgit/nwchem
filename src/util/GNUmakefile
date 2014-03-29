@@ -203,6 +203,7 @@ endif
               util_debug.o \
               util_erf.o  \
               util_cflush.o  \
+              util_ascii_plot.o \
               util_length_scale.o  \
               ga_it2.o ga_lkain_ext.o\
               ma_print.o freeze_input.o ga_extra.o \
