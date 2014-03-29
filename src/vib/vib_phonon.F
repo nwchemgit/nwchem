@@ -411,13 +411,13 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       call util_ascii_plotter(luout,npoints,
      >                     dbl_mb(efn_dos(1)),
      >                     dbl_mb(efn_dos(1)+npoints),'*',
-     >                     "g(e) - Vibrational Density of States")
+     >                     "g(w) - Vibrational Density of States")
       write(luout,'(A,E7.1)') "gmin=",gmin/autocm
       write(luout,*) 
       write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm 
       write(luout,*)
-  900 format('emin=',f6.1,'cm-1',18x,f6.1,'cm-1',
-     >                           17x,'emax=',f6.1,'cm-1')
+  900 format('wmin=',f6.1,'cm-1',18x,f6.1,'cm-1',
+     >                           17x,'wmax=',f6.1,'cm-1')
 
 
 *     ************************************************************
