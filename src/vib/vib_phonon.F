@@ -488,22 +488,30 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
          if (yy.gt.gmax) gmax=yy
          if (zz.gt.nmax) nmax=zz
       end do
+      write(luout,10012) 
+      write(luout,10013) npoints
+      write(luout,10014) emin*autocm
+      write(luout,10015) emax*autocm
+      write(luout,10016) gmin/autocm
+      write(luout,10017) gmax/autocm
+      write(luout,10018) nmin
+      write(luout,10019) nmax
       write(luout,*)
       write(luout,*)
       call util_ascii_setwindow(emin,emax,gmin,gmax)
-      write(luout,'(A,E7.1)') "gmax=",gmax/autocm
+      write(luout,'(A,E10.3,A)') "gmax=",gmax/autocm," states/cm-1"
       call util_ascii_plotter(luout,npoints,efn(1,1),efn(1,2),'*',
      >                     "g(w) - Vibrational Density of States")
-      write(luout,'(A,E7.1)') "gmin=",gmin/autocm
+      write(luout,'(A,E10.3,A)') "gmin=",gmin/autocm," states/cm-1"
       write(luout,*)
       write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm
       write(luout,*)
       write(luout,*)
       call util_ascii_setwindow(emin,emax,nmin,nmax)
-      write(luout,'(A,F7.1)') "Nmax=",nmax
+      write(luout,'(A,F7.1,A)') "Nmax=",nmax," states"
       call util_ascii_plotter(luout,npoints,efn(1,1),efn(1,3),'*',
      >                     "N(w) - Number of Vibrational States")
-      write(luout,'(A,F7.1)') "Nmin=",nmin
+      write(luout,'(A,F7.1,A)') "Nmin=",nmin," states"
       write(luout,*)
       write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm
       write(luout,*)
@@ -670,6 +678,16 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
       return
+10012 FORMAT(/6x,'Density of States Details')
+10013 FORMAT(6x,'   - grid size (npoints)         = ',I10)
+10014 FORMAT(6x,'   - minimum frequency w         = ',f10.1,' cm-1')
+10015 FORMAT(6x,'   - maximum frequency w         = ',f10.1,' cm-1')
+10016 FORMAT(6x,'   - mininum g(w)                = ',e10.3,
+     >       ' states/cm-1')
+10017 FORMAT(6x,'   - maximum g(w)                = ',e10.3,
+     >       ' states/cm-1')
+10018 FORMAT(6x,'   - mininum N(w)                = ',f10.1,' states')
+10019 FORMAT(6x,'   - maximum N(w)                = ',f10.1,' states')
 10020 FORMAT(/6x,
      > 'Thermodynamic Functions from Vibrational Density of States')
 10021 FORMAT(6x,'frequency dividing parameter     = ',f8.1,' cm-1')
