@@ -468,7 +468,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       write(luout,*)
       write(luout,*)
       write(luout,*) 
-     > '     g(w) and N(w) used for Calculating Thermodynamic Functions'
+     > '     g(w) and N(w) Used For Calculating Thermodynamic Functions'
       write(luout,*) 
      > '     ----------------------------------------------------------'
       emin =  9999999.99d0
