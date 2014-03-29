@@ -29,7 +29,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       logical value,oprint,hprint
       integer dosgrid(3),isize,i1,i2,i3,i,k,ind,num_kvectors,icount,indx
       integer npoints
-      real*8  omega,unita(3,3),unitg(3,3),lattice(6),emin,emax
+      real*8  omega,unita(3,3),unitg(3,3),lattice(6),emin,emax,gmin,gmax
       real*8  xx,yy,zz,xxx,yyy,zzz,ks(3),kq(3),kold(3),pathlength,dist
       complex*16 cfac
       character*50 zone_name,rtdb_name
@@ -394,6 +394,31 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       end do 
       close(58)
 
+*     ************************************************************
+*     *************** ascii plot of the density of states ********
+*     ************************************************************
+      gmin =  9999999.99d0
+      gmax = -9999999.99d0
+      do k=1,npoints
+         xx = dbl_mb(efn_dos(1)+npoints+k-1)
+         if (xx.lt.gmin) gmin=xx
+         if (xx.gt.gmax) gmax=xx
+      end do
+      write(luout,*)
+      write(luout,*)
+      call util_ascii_setwindow(emin,emax,gmin,gmax)
+      write(luout,'(A,E7.1)') "gmax=",gmax/autocm
+      call util_ascii_plotter(luout,npoints,
+     >                     dbl_mb(efn_dos(1)),
+     >                     dbl_mb(efn_dos(1)+npoints),'*',
+     >                     "g(e) - Vibrational Density of States")
+      write(luout,'(A,E7.1)') "gmin=",gmin/autocm
+      write(luout,*) 
+      write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm 
+      write(luout,*)
+  900 format('emin=',f6.1,'cm-1',18x,f6.1,'cm-1',
+     >                           17x,'emax=',f6.1,'cm-1')
+
 
 *     ************************************************************
 *     ************************* THERMO ***************************
@@ -440,19 +465,28 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 
 
 *     ****  conversions and constants ****
-      double precision AUKCAL,c,h,kgas,Rgas
+      double precision AUKCAL,c,h,kgas,Rgas,autocm,autoTHz
       parameter (AUKCAL=627.5093314d0)
       parameter (c=2.998e+10,h=6.626e-27,kgas=1.3807e-16)   ! cgs units
       parameter (Rgas = 1.9863d0/1000.0d0/AUKCAL)           ! atomic units
+      parameter (autocm=219474.6313705d0,autoTHz=6579.683920729d0)
 
 *     **** local variables ****
       integer k,it,ntemp,h_actlist,l_actlist,ma_type
-      real*8 temp,ezero,ethermal,Svib,Cv_vib,scalefreq,RT,RT2,RT1
-      real*8 s1,s2,de
+      real*8 temp,scalefreq,threshfreq,RT,RT2,RT1
+      real*8 ezero,ezero1,ezero2
+      real*8 ethermal,ethermal1,ethermal2
+      real*8 fhelmholtz,fhelmholtz1,fhelmholtz2
+      real*8 Svib,Svib1,Svib2
+      real*8 Cv_vib,Cv_vib1,Cv_vib2
+      real*8 sa,sa1,sa2,sb,sb1,sb2,de,g,xdum,hbarw
 
 *     *** define scalefreq ***
       if(.not. rtdb_get(rtdb,'vib:scalefreq',MT_DBL,1,scalefreq))
      &    scalefreq = 1.0d0
+
+      if(.not. rtdb_get(rtdb,'vib:threshfreq',MT_DBL,1,threshfreq))
+     &    threshfreq = 100.0d0/autocm
 
 *     **** define temperatures
       if (.not. rtdb_ma_get(rtdb, 'vib:temperature', ma_type,
@@ -476,58 +510,121 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       write(luout,*) 
      > '     Thermodynamic Functions from Vibrational Density of States'
       write(luout,*) 
-     > '     --------------------------------------------------------- '
+     > '     ----------------------------------------------------------'
       do it=1,ntemp
          temp = dbl_mb(l_actlist+it-1)
          RT = Rgas*temp
          RT2 = 1.0d0/(2.0d0*RT)
          RT1 = 1.0d0/(1.0d0*RT)
 
-*        ********************************************************
-*        **** Write out thermal Corrections to Energies      ****
-*        **** frequencies are assumed to be in units of a.u. ****
-*        ********************************************************
-         ezero    = 0.0d0
-         ethermal = 0.0d0
-         s1       = 0.0d0
+*        **********************************************************************
+*        **** Write out thermal Corrections to Energies and entropies      ****
+*        **** frequencies are assumed to be in units of a.u.               ****
+*        **** Formulas taken from Herzberg                                 ****
+*        **********************************************************************
+         ezero      = 0.0d0
+         ezero1     = 0.0d0
+         ezero2     = 0.0d0
+         ethermal   = 0.0d0
+         ethermal1  = 0.0d0
+         ethermal2  = 0.0d0
+         fhelmholtz = 0.0d0
+         fhelmholtz1= 0.0d0
+         fhelmholtz2= 0.0d0
+         sa         = 0.0d0
+         sa1        = 0.0d0
+         sa2        = 0.0d0
+         sb         = 0.0d0
+         sb1        = 0.0d0
+         sb2        = 0.0d0
+         Cv_vib     = 0.0d0
+         Cv_vib1    = 0.0d0
+         Cv_vib2    = 0.0d0
          de = efn(2,1)-efn(1,1)
-         do k=2,npoints
-            ezero = ezero + efn(k,2)*(0.5d0*efn(k,1))
-            ethermal = ethermal 
-     >               + efn(k,2)*(dlog(2.0d0*dsinh(efn(k,1)*RT2)))
-            s1 = s1 + efn(k,2)*dlog(1.0d0-dexp(-efn(k,1)*RT1))
+         do k=2,npoints-1
+            !g = efn(k,2)
+            hbarw = scalefreq*efn(k,1)
+            g     = 0.5d0*(efn(k+1,3)-efn(k-1,3))/de  !*** central difference derivative ****
+            if (temp.gt.0.0d0) then
+               xdum = dexp(-hbarw*RT1)
+            else
+               xdum = 0.0d0
+            end if
+            xdum = xdum/(1.0d0-xdum)
+            ezero      = ezero      + g*hbarw*(0.5d0)
+            ethermal   = ethermal   + g*hbarw*(0.5d0+xdum)
+            fhelmholtz = fhelmholtz + g*RT*dlog(2.0d0*dsinh(hbarw*RT2))
+
+            sa     = sa     + g*hbarw*xdum
+            sb     = sb     + g*dlog(1.0d0-dexp(-hbarw*RT1))
+            Cv_vib = Cv_vib + g*dexp(hbarw*RT1)*(hbarw*RT1*xdum)**2
+            if (hbarw.lt.threshfreq) then
+               ezero1      = ezero1   + g*hbarw*(0.5d0)
+               ethermal1   = ethermal1+ g*hbarw*(0.5d0+xdum)
+               fhelmholtz1=fhelmholtz1+g*RT*dlog(2.0d0*dsinh(hbarw*RT2))
+               sa1    = sa1    + g*hbarw*xdum
+               sb1    = sb1    + g*dlog(1.0d0-dexp(-hbarw*RT1))
+               Cv_vib1= Cv_vib1+ g*dexp(hbarw*RT1)*(hbarw*RT1*xdum)**2
+            else
+               ezero2      = ezero2   + g*hbarw*(0.5d0)
+               ethermal2   = ethermal2+ g*hbarw*(0.5d0+xdum)
+               fhelmholtz2=fhelmholtz2+g*RT*dlog(2.0d0*dsinh(hbarw*RT2))
+               sa2    = sa2    + g*hbarw*xdum
+               sb2    = sb2    + g*dlog(1.0d0-dexp(-hbarw*RT1))
+               Cv_vib2= Cv_vib2+ g*dexp(hbarw*RT1)*(hbarw*RT1*xdum)**2
+            end if
+ 
          end do
-         ezero = ezero*de
-         ethermal = ezero + s1*de*RT
+         ezero      = ezero*de
+         ezero1     = ezero1*de
+         ezero2     = ezero2*de
+         ethermal   = ethermal*de
+         ethermal1  = ethermal1*de
+         ethermal2  = ethermal2*de
+         fhelmholtz = fhelmholtz*de
+         fhelmholtz1= fhelmholtz1*de
+         fhelmholtz2= fhelmholtz2*de
+         if (temp.gt.0.0d0) then
+            Svib = sa*de/temp  - Rgas*sb*de
+            Svib1= sa1*de/temp - Rgas*sb1*de
+            Svib2= sa2*de/temp - Rgas*sb2*de
+         else
+            Svib = 0.0d0
+            Svib1= 0.0d0
+            Svib2= 0.0d0
+         end if
+         Cv_vib = Rgas*Cv_vib*de
+         Cv_vib1= Rgas*Cv_vib1*de
+         Cv_vib2= Rgas*Cv_vib2*de
 
          write(luout,10023) temp,RT
          write(luout,10022) scalefreq
-         write(luout,10024) ezero*AUKCAL,   ezero
-         write(luout,10025) ethermal*AUKCAL,ethermal
+         write(luout,10021) threshfreq*autocm
 
-*        ********************************************************
-*        **** Write out Entropies                            ****
-*        **** frequencies are assumed to be in units of a.u. ****
-*        **** Formulas taken from Herzberg                   ****
-*        ********************************************************
-         Svib   = 0.0d0
-         Cv_vib = 0.0d0
-         s1 = 0.0d0
-         s2 = 0.0d0
-         do k=2,npoints
-            s1 = s1 + efn(k,2)*dlog(1.0d0-dexp(-efn(k,1)*RT1))
-            s2 = s2 + efn(k,2)*(efn(k,1)/(dexp(efn(k,1)*RT1)-1.0d0))
-            Cv_vib = Cv_vib 
-     >             + efn(k,2)*(efn(k,1)*RT1)**2
-     >                       * dexp(efn(k,1)*RT1)
-     >                       /(dexp(efn(k,1)*RT1)-1.0d0)**2
-         end do
-         Svib   =  -Rgas*s1*de - s2*de/temp
-         Cv_vib = Rgas*Cv_vib*de
+         write(luout,10026) fhelmholtz*AUKCAL,fhelmholtz
+         write(luout,10027) 
+     >         threshfreq*autocm,fhelmholtz1*AUKCAL,fhelmholtz1
+         write(luout,10028) 
+     >         threshfreq*autocm,fhelmholtz2*AUKCAL,fhelmholtz2
+
+         write(luout,10024) ezero*AUKCAL,ezero
+         write(luout,10027) threshfreq*autocm,ezero1*AUKCAL,ezero1
+         write(luout,10028) threshfreq*autocm,ezero2*AUKCAL,ezero2
+
+         write(luout,10025) ethermal*AUKCAL,ethermal
+         write(luout,10027) threshfreq*autocm,ethermal1*AUKCAL,ethermal2
+         write(luout,10028) threshfreq*autocm,ethermal2*AUKCAL,ethermal2
+
 
          write(luout,10030) Svib   *AUKCAL*1000.0d0
-         write(luout,10040) Cv_vib *AUKCAL*1000.0d0
+         write(luout,10032) threshfreq*autocm,Svib1*AUKCAL*1000.0d0
+         write(luout,10033) threshfreq*autocm,Svib2*AUKCAL*1000.0d0
+
+         write(luout,10031) Cv_vib*AUKCAL*1000.0d0
+         write(luout,10032) threshfreq*autocm,Cv_vib1*AUKCAL*1000.0d0
+         write(luout,10033) threshfreq*autocm,Cv_vib2*AUKCAL*1000.0d0
          write(luout,*)
+
       end do !it loop
 
 *     *** free heap ***
@@ -537,17 +634,30 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       return
 10020 FORMAT(/6x,
      > 'Thermodynamic Functions from Vibrational Density of States')
+10021 FORMAT(6x,'frequency threshold parameter    = ',f8.1,' cm-1')
 10022 FORMAT(6x,'frequency scaling parameter      = ',f8.4)
 10023 FORMAT(/6x,'Temperature                      = ',f8.2,'K',
      >       ' (RT=',E13.6,' au)')
 10024 FORMAT(/6x,'Zero-Point correction to Energy  = ',f8.3,
      .     ' kcal/mol  (',f10.6,' au)')
-10025 FORMAT( 6x,'Thermal correction to Energy     = ',f8.3,
+10025 FORMAT(/6x,'Thermal correction to Energy     = ',f8.3,
      .     ' kcal/mol  (',f10.6,' au)')
+10026 FORMAT(/6x,'Helmholtz Free Energy            = ',f8.3,
+     .     ' kcal/mol  (',f10.6,' au)')
+10027 FORMAT( 6x,'  - (less than   ',f8.1,' cm-1)  = ',f8.3,
+     .     ' kcal/mol  (',f10.6,' au)')
+10028 FORMAT( 6x,'  - (greater than',f8.1,' cm-1)  = ',f8.3,
+     .     ' kcal/mol  (',f10.6,' au)')
+
+
 10030 FORMAT(/6x,'Entropy                            = ',f8.3,
      .       ' cal/mol-K')
-10040 FORMAT( 6x,'Cv (constant volume heat capacity) = ',f8.3,
+10031 FORMAT(/6x,'Cv (constant volume heat capacity) = ',f8.3,
      .       ' cal/mol-K')
+10032 FORMAT( 6x,'  - (less than   ',f8.1,' cm-1)    = ',f8.3,
+     .     ' cal/mol-K')
+10033 FORMAT( 6x,'  - (greater than',f8.1,' cm-1)    = ',f8.3,
+     .     ' cal/mol-K')
       end
 
 *     *************************************************

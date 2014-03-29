@@ -28,7 +28,7 @@
                  vib_zmatin.o \
                  vib_intense.o \
                  vib_istep.o \
-		 vib_thermo.o vib_phonon.o vib_zone_input.o vib_input.o
+		 vib_thermo.o vib_phonon.o vib_zone_input.o vib_input.o 
 
        LIBRARY = libvib.a
    LIB_TARGETS = 
