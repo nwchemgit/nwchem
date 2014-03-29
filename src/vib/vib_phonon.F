@@ -394,31 +394,6 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       end do 
       close(58)
 
-*     ************************************************************
-*     *************** ascii plot of the density of states ********
-*     ************************************************************
-      gmin =  9999999.99d0
-      gmax = -9999999.99d0
-      do k=1,npoints
-         xx = dbl_mb(efn_dos(1)+npoints+k-1)
-         if (xx.lt.gmin) gmin=xx
-         if (xx.gt.gmax) gmax=xx
-      end do
-      write(luout,*)
-      write(luout,*)
-      call util_ascii_setwindow(emin,emax,gmin,gmax)
-      write(luout,'(A,E7.1)') "gmax=",gmax/autocm
-      call util_ascii_plotter(luout,npoints,
-     >                     dbl_mb(efn_dos(1)),
-     >                     dbl_mb(efn_dos(1)+npoints),'*',
-     >                     "g(w) - Vibrational Density of States")
-      write(luout,'(A,E7.1)') "gmin=",gmin/autocm
-      write(luout,*) 
-      write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm 
-      write(luout,*)
-  900 format('wmin=',f6.1,'cm-1',18x,f6.1,'cm-1',
-     >                           17x,'wmax=',f6.1,'cm-1')
-
 
 *     ************************************************************
 *     ************************* THERMO ***************************
@@ -446,6 +421,9 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
  1246 FORMAT(5x,' b3=<',3f8.3,' >')
  1250 FORMAT(/5x,' dos grid=',3I4,' ')
       end
+
+
+
 
 *     *************************************************
 *     *                                               *
@@ -480,6 +458,62 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       real*8 Svib,Svib1,Svib2
       real*8 Cv_vib,Cv_vib1,Cv_vib2
       real*8 sa,sa1,sa2,sb,sb1,sb2,de,g,xdum,hbarw
+      real*8 nmin,nmax,gmin,gmax,emin,emax,xx,yy,zz
+
+
+*     ************************************************************
+*     *************** ascii plot of the density of states ********
+*     ************************************************************
+      write(luout,*)
+      write(luout,*)
+      write(luout,*)
+      write(luout,*) 
+     > '     g(w) and N(w) used for Calculating Thermodynamic Functions'
+      write(luout,*) 
+     > '     ----------------------------------------------------------'
+      emin =  9999999.99d0
+      gmin =  9999999.99d0
+      nmin =  9999999.99d0
+      emax = -9999999.99d0
+      gmax = -9999999.99d0
+      nmax = -9999999.99d0
+      do k=1,npoints
+         xx = efn(k,1)
+         yy = efn(k,2)
+         zz = efn(k,3)
+         if (xx.lt.emin) emin=xx
+         if (yy.lt.gmin) gmin=yy
+         if (zz.lt.nmin) nmin=zz
+         if (xx.gt.emax) emax=xx
+         if (yy.gt.gmax) gmax=yy
+         if (zz.gt.nmax) nmax=zz
+      end do
+      write(luout,*)
+      write(luout,*)
+      call util_ascii_setwindow(emin,emax,gmin,gmax)
+      write(luout,'(A,E7.1)') "gmax=",gmax/autocm
+      call util_ascii_plotter(luout,npoints,efn(1,1),efn(1,2),'*',
+     >                     "g(w) - Vibrational Density of States")
+      write(luout,'(A,E7.1)') "gmin=",gmin/autocm
+      write(luout,*)
+      write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm
+      write(luout,*)
+      write(luout,*)
+      call util_ascii_setwindow(emin,emax,nmin,nmax)
+      write(luout,'(A,F7.1)') "Nmax=",nmax
+      call util_ascii_plotter(luout,npoints,efn(1,1),efn(1,3),'*',
+     >                     "N(w) - Number of Vibrational States")
+      write(luout,'(A,F7.1)') "Nmin=",nmin
+      write(luout,*)
+      write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm
+      write(luout,*)
+  900 format('wmin=',f6.1,'cm-1',18x,f6.1,'cm-1',
+     >                           17x,'wmax=',f6.1,'cm-1')
+
+
+*     ************************************************************
+*     *************** get the other input from rtdb       ********
+*     ************************************************************
 
 *     *** define scalefreq ***
       if(.not. rtdb_get(rtdb,'vib:scalefreq',MT_DBL,1,scalefreq))
@@ -504,6 +538,10 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >   call errquit(
      >       'vib_WRTFREQ: ma_get_index failed for actlist',911, MA_ERR)
       end if
+
+*     ************************************************************
+*     *************** Compute the Thermodynamic Functions ********
+*     ************************************************************
 
       write(luout,*)
       write(luout,*)
@@ -659,6 +697,8 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 10033 FORMAT( 6x,'  - (greater than',f8.1,' cm-1)    = ',f8.3,
      .     ' cal/mol-K')
       end
+
+
 
 *     *************************************************
 *     *                                               *
