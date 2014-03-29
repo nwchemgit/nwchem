@@ -672,7 +672,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       return
 10020 FORMAT(/6x,
      > 'Thermodynamic Functions from Vibrational Density of States')
-10021 FORMAT(6x,'frequency divide parameter       = ',f8.1,' cm-1')
+10021 FORMAT(6x,'frequency dividing parameter     = ',f8.1,' cm-1')
 10022 FORMAT(6x,'frequency scaling parameter      = ',f8.4)
 10023 FORMAT(/6x,'Temperature                      = ',f8.2,'K',
      >       ' (RT=',E13.6,' au)')
