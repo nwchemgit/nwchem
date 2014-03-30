@@ -71,10 +71,12 @@ c
       integer iat, nfield, nrad, irad 
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer l_rad, k_rad
-      double precision dielec, rsolv, rad, zeta, gammas, swtol
+      double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
       logical do_cosmo
       logical do_gasphase
+      logical status
+      character*30 tag
       character*255 token
       double precision bohr
       parameter  (bohr=0.529177249d+00)
@@ -82,10 +84,23 @@ c
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
 c
+      character*8 solvname_short ! short name of solvent
+      character*35 solvname_long ! long name of solvent
+c
+c     smd model parameters
+c
+      logical do_cosmo_smd
+      double precision sola
+      double precision solb
+      double precision solc
+      double precision solh
+      double precision soln
+c
 c     ----- defaults -----
 c
       do_cosmo = .true.
       dielec   =78.4d+00
+      dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
       iscren   =0
       ifscrn   =2 ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -96,7 +111,15 @@ c
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
-                         ! Eq.62-88.
+c                        ! Eq.62-88.
+c     smd model defaults
+c
+      do_cosmo_smd = .false.
+      sola = 0.d0
+      solb = 0.d0
+      solc = 0.d0
+      solh = 0.d0
+      soln = 0.d0
 c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
@@ -104,6 +127,10 @@ c
       do iat=1,nw_max_atom
          dbl_mb(k_rad+iat-1)=0.0d+00
       enddo
+c
+c     set cosmo_smd flag
+      if (.not. rtdb_put(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd))
+     $    call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
 c
 c     ----- read values from input -----
 c
@@ -123,8 +150,53 @@ c
          if(.not. inp_f(dielec))
      $        call errquit('cosmo_input: dielec',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
-     $        call errquit('cosmo_input: rtdb put failed',911,
-     &       RTDB_ERR)
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- dielecinf
+c
+      else if(inp_compare(.false.,'dielecinf',field)) then
+         if(.not. inp_f(dielecinf))
+     $        call errquit('cosmo_input: dielecinf',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- solvent explicitly specified via short name
+c
+      else if(inp_compare(.false.,'solvent',field)) then
+         if(.not. inp_a(solvname_short))
+     $     call errquit('cosmo_input: solvent',911,INPUT_ERR)
+         if (.not.rtdb_cput(rtdb,'cosmo:solvent',1,solvname_short))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- cosmo_smd
+c
+      else if(inp_compare(.false.,'cosmo_smd',field)) then
+       do_cosmo_smd = .true.
+       if (.not. rtdb_put(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd))
+     $    call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+c
+c  --- smd definitions: sola,solb,solc,solg,solh,soln
+c
+      else if(inp_compare(.false.,'sola',field)) then
+        status = inp_f(sola)
+        if (.not. rtdb_put(rtdb,'cosmo:sola',mt_dbl,1,sola))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solb',field)) then
+        status = inp_f(solb)
+        if (.not. rtdb_put(rtdb,'cosmo:solb',mt_dbl,1,solb))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solc',field)) then
+        status = inp_f(solc)
+        if (.not. rtdb_put(rtdb,'cosmo:solc',mt_dbl,1,solc))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solh',field)) then
+        status = inp_f(solh)
+        if (.not. rtdb_put(rtdb,'cosmo:solh',mt_dbl,1,solh))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'soln',field)) then
+        status = inp_f(soln)
+        if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
 c   --- off  
 c
@@ -545,16 +617,23 @@ c
       logical odbug, osome
       integer me
 c
-      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer          lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision vdwr(102)
       double precision vander(102)
 c
-      integer i
+      logical do_cosmo_smd
+      integer icds
+      double precision sola,solb,solc,solg,solh,soln
+c
+      character*8 solvname_short ! short name of solvent
+      character*35 solvname_long ! long name of solvent
+
+      integer i,ixmem
       double precision arad(203),rad
       logical ofile
       character*255 parfile
@@ -741,6 +820,7 @@ c
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
+      solvname_short  = 'h2o'
       dielec   =78.4d+00
       iscren   =0
       ifscrn   =2 ! surface charge correction adapted for geometry optimzations
@@ -754,8 +834,17 @@ c
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
 c
+c     reset some defaults if do_cosmo_smd is true
+c
+      do_cosmo_smd = .false.
+      status =  rtdb_get(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd)
+      if (do_cosmo_smd) then
+          minbem   =3
+          maxbem   =4 
+          ificos   =1
+      end if
+c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
-      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
       status = rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)
       status = rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren) 
       status = rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn)
@@ -766,6 +855,8 @@ c
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
+      status = rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)
+c
       nrad = 0
       if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
       if (nrad.gt.nat) call 
@@ -773,6 +864,55 @@ c
       if (nrad.gt.0) then
          status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
       endif
+c
+c     get sola,solb,solc,solg,solh,soln parameters. only used if cosmo_smd is true
+c
+      if (me.eq.0) write(luout,*) "calling solv_data"
+      call solv_data(solvname_short,solvname_long, !short and long solvent names
+     &          dielec,dielecinf, ! slow and fast components
+     &          sola,solb,solc,solg,solh,soln,icds) 
+c
+      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
+      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf) 
+c
+c     set sola,solb,solc,solg,solh,soln,icds parameters
+      if (.not. rtdb_put(rtdb,'cosmo:sola',mt_dbl,1,sola))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:solb',mt_dbl,1,solb))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:solc',mt_dbl,1,solc))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:solg',mt_dbl,1,solg))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:solh',mt_dbl,1,solh))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:icds',mt_int,1,icds))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+c
+c     if set by the user
+      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
+      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf) 
+      status = rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola) 
+      status = rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb) 
+      status = rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc) 
+      status = rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg) 
+      status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh) 
+      status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln) 
+c
+      if (me.eq.0) write(luout,*) "after solv_data"
+      if (me.eq.0) write(luout,*) "solvname_short: ",solvname_short
+      if (me.eq.0) write(luout,*) "solvname_long: ",solvname_long
+      if (me.eq.0) write(luout,*) "dielec: ",dielec
+      if (me.eq.0) write(luout,*) "dielecinf: ",dielecinf
+      if (me.eq.0) write(luout,*) "icds: ",icds
+      if (me.eq.0) write(luout,*) "sola: ",sola
+      if (me.eq.0) write(luout,*) "solb: ",solb
+      if (me.eq.0) write(luout,*) "solc: ",solc
+      if (me.eq.0) write(luout,*) "solg: ",solg
+      if (me.eq.0) write(luout,*) "solh: ",solh
+      if (me.eq.0) write(luout,*) "soln: ",soln
 c
 c     ----- checks ... -----
 c
@@ -862,6 +1002,21 @@ c
          write(luout,9986)
          write(luout,9985)
       endif
+c
+c     ----- add in the smd model non-electrostatic corrections -----
+c
+      if (do_cosmo_smd) then
+c
+c        calculate the x memory
+         call mnsol_xmem(nat,ixmem)
+         if (me.eq.0) write(luout,*) "nat: ", nat
+         if (me.eq.0) write(luout,*) "ixmem: ", ixmem
+         if (me.eq.0) write(luout,*) "calling mnsol_interface()"
+c
+c        call smd model
+         call mnsol_interface(rtdb,geom,nat,ixmem,
+     &        sola,solb,solc,solg,solh,soln,icds)
+      end if
 c
       if(me.eq.0) call util_flush(Luout)
 c
@@ -975,10 +1130,10 @@ c
       double precision c(3,nat)    !< [Input] The atomic coordinates
       double precision radius(nat) !< [Input] The atomic radii
 c
-      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer          lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
@@ -1115,10 +1270,10 @@ c
       logical    out
       logical    more
       logical    dbug
-      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer          lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
@@ -1296,10 +1451,10 @@ c
       double precision bohr
       parameter  (bohr=0.529177249d+00)
       logical     dbug
-      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       integer lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
@@ -1734,7 +1889,7 @@ c
       dimension ijkseg(  *)
       dimension xyzseg(3,*)
 c
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
 c
       parameter (mxpass=    7)
@@ -2442,10 +2597,10 @@ c
       logical dbug, out, status
       character*8 scfruntyp
 c
-      double precision dielec,screen,rsolv,adiag,dsurf,dvol
+      double precision dielec,dielecinf,screen,rsolv,adiag,dsurf,dvol
       double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
       integer lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
@@ -3005,14 +3160,15 @@ c
       double precision dvol
       double precision srfmol
       double precision volmol
-      double precision dielec ! dielectric constant
+      double precision dielec    ! dielectric constant (slow component)
+      double precision dielecinf ! optical dielectric constant (fast component)
       double precision screen ! dielectric screening factor
       double precision rsolv
       double precision zeta,gammas,swtol
       double precision ptspatm
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision charge ! the total QM region charge
       double precision chgfac ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
@@ -3541,9 +3697,9 @@ c
       double precision zetai, zetaj, zetaij
       parameter (one = 1.0d0)
 c
-      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       double precision util_erf
@@ -3607,9 +3763,9 @@ c
       double precision zero, one
       parameter (zero=0.0d+00, one=1.0d+00)
 c
-      double precision dielec,screen,rsolv,zeta,gammas,swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       double precision util_erf
