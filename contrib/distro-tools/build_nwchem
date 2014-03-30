@@ -1772,47 +1772,115 @@ else
   echo "==============="
   echo
 fi
+export NWCHEM_ENV_SH=${NWCHEM_TOP}/nwchem_make_env.sh
+export NWCHEM_ENV_CSH=${NWCHEM_TOP}/nwchem_make_env.csh
+#
 echo "NWCHEM_TOP         =" ${NWCHEM_TOP}
+echo "export NWCHEM_TOP=${NWCHEM_TOP}" > ${NWCHEM_ENV_SH}
+echo "setenv NWCHEM_TOP ${NWCHEM_TOP}" > ${NWCHEM_ENV_CSH}
+#
 echo "NWCHEM_TARGET      =" ${NWCHEM_TARGET}
+echo "export NWCHEM_TARGET=${NWCHEM_TARGET}" >> ${NWCHEM_ENV_SH}
+echo "setenv NWCHEM_TARGET ${NWCHEM_TARGET}" >> ${NWCHEM_ENV_CSH}
+#
 echo "NWCHEM_MODULES     =" ${NWCHEM_MODULES}
-echo "NWCHEM_MPIF_WRAP   =" ${NWCHEM_MPIF_WRAP}
-echo "NWCHEM_MPIC_WRAP   =" ${NWCHEM_MPIC_WRAP}
-echo "NWCHEM_MPICXX_WRAP =" ${NWCHEM_MPICXX_WRAP}
+echo "export NWCHEM_MODULES=${NWCHEM_MODULES}" >> ${NWCHEM_ENV_SH}
+echo "setenv NWCHEM_MODULES ${NWCHEM_MODULES}" >> ${NWCHEM_ENV_CSH}
+#
+if [ ${#NWCHEM_MPIF_WRAP} -ne 0 ] ; then
+  echo "NWCHEM_MPIF_WRAP   =" ${NWCHEM_MPIF_WRAP}
+  echo "export NWCHEM_MPIF_WRAP=${NWCHEM_MPIF_WRAP}" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_MPIF_WRAP ${NWCHEM_MPIF_WRAP}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#NWCHEM_MPIC_WRAP} -ne 0 ] ; then
+  echo "NWCHEM_MPIC_WRAP   =" ${NWCHEM_MPIC_WRAP}
+  echo "export NWCHEM_MPIC_WRAP=${NWCHEM_MPIC_WRAP}" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_MPIC_WRAP ${NWCHEM_MPIC_WRAP}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#NWCHEM_MPICXX_WRAP} -ne 0 ] ; then
+  echo "NWCHEM_MPICXX_WRAP =" ${NWCHEM_MPICXX_WRAP}
+  echo "export NWCHEM_MPICXX_WRAP=${NWCHEM_MPICXX_WRAP}" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_MPICXX_WRAP ${NWCHEM_MPICXX_WRAP}" >> ${NWCHEM_ENV_CSH}
+fi
 if [ ${#NWCHEM_LONG_PATHS} -ne 0 ] ; then
   echo "NWCHEM_LONG_PATHS  =" ${NWCHEM_LONG_PATHS}
+  echo "export NWCHEM_LONG_PATHS=${NWCHEM_LONG_PATHS}" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_LONG_PATHS ${NWCHEM_LONG_PATHS}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#NWCHEM_FSCHECK} -ne 0 ] ; then
   echo "NWCHEM_FSCHECK     =" ${NWCHEM_FSCHECK}
+  echo "export NWCHEM_FSCHECK=${NWCHEM_FSCHECK}" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_FSCHECK ${NWCHEM_FSCHECK}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#OBJECT_MODE} -ne 0 ] ; then
   echo "OBJECT_MODE        =" ${OBJECT_MODE}
+  echo "export OBJECT_MODE=${OBJECT_MODE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv OBJECT_MODE ${OBJECT_MODE}" >> ${NWCHEM_ENV_CSH}
 fi
 echo "USE_MPI            =" ${USE_MPI}
+echo "export USE_MPI=${USE_MPI}" >> ${NWCHEM_ENV_SH}
+echo "setenv USE_MPI ${USE_MPI}" >> ${NWCHEM_ENV_CSH}
 if [ ${#USE_MPIF} -ne 0 ] ; then
   echo "USE_MPIF           =" ${USE_MPIF}
+  echo "export USE_MPIF=${USE_MPIF}" >> ${NWCHEM_ENV_SH}
+  echo "setenv USE_MPIF ${USE_MPIF}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#USE_MPIF4} -ne 0 ] ; then
   echo "USE_MPIF4          =" ${USE_MPIF4}
+  echo "export USE_MPIF4=${USE_MPIF4}" >> ${NWCHEM_ENV_SH}
+  echo "setenv USE_MPIF4 ${USE_MPIF4}" >> ${NWCHEM_ENV_CSH}
 fi
 echo "MPI_INCLUDE        =" ${MPI_INCLUDE}
+echo "export MPI_INCLUDE=${MPI_INCLUDE}" >> ${NWCHEM_ENV_SH}
+echo "setenv MPI_INCLUDE ${MPI_INCLUDE}" >> ${NWCHEM_ENV_CSH}
+#
 echo "MPI_LIB            =" ${MPI_LIB}
+echo "export MPI_LIB=${MPI_LIB}" >> ${NWCHEM_ENV_SH}
+echo "setenv MPI_LIB ${MPI_LIB}" >> ${NWCHEM_ENV_CSH}
+#
 echo "LIBMPI             =" ${LIBMPI}
+echo "export LIBMPI=${LIBMPI}" >> ${NWCHEM_ENV_SH}
+echo "setenv LIBMPI ${LIBMPI}" >> ${NWCHEM_ENV_CSH}
+#
 echo "MPI_F90            =" ${MPI_F90}
+echo "export FC=${MPI_F90}" >> ${NWCHEM_ENV_SH}
+echo "setenv FC ${MPI_F90}" >> ${NWCHEM_ENV_CSH}
+#
 echo "MPI_CC             =" ${MPI_CC}
+echo "export CC=${MPI_CC}" >> ${NWCHEM_ENV_SH}
+echo "setenv CC ${MPI_CC}" >> ${NWCHEM_ENV_CSH}
+#
 echo "MPI_CXX            =" ${MPI_CXX}
+echo "export CXX=${MPI_CXX}" >> ${NWCHEM_ENV_SH}
+echo "setenv CXX ${MPI_CXX}" >> ${NWCHEM_ENV_CSH}
+#
 echo "ARMCI_NETWORK      =" ${ARMCI_NETWORK}
+echo "export ARMCI_NETWORK=${ARMCI_NETWORK}" >> ${NWCHEM_ENV_SH}
+echo "setenv ARMCI_NETWORK ${ARMCI_NETWORK}" >> ${NWCHEM_ENV_CSH}
+#
 echo "MSG_COMMS          =" ${MSG_COMMS}
+echo "export MSG_COMMS=${MSG_COMMS}" >> ${NWCHEM_ENV_SH}
+echo "setenv MSG_COMMS ${MSG_COMMS}" >> ${NWCHEM_ENV_CSH}
+#
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
   echo "IB_INCLUDE         =" ${IB_INCLUDE}
+  echo "export IB_INCLUDE=${IB_INCLUDE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv IB_INCLUDE ${IB_INCLUDE}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#IB_LIB} -ne 0 ] ; then
   echo "IB_LIB             =" ${IB_LIB}
+  echo "export IB_LIB=${IB_LIB}" >> ${NWCHEM_ENV_SH}
+  echo "setenv IB_LIB ${IB_LIB}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#IB_LIB_NAME} -ne 0 ] ; then
   echo "IB_LIB_NAME        =" ${IB_LIB_NAME}
+  echo "export IB_LIB_NAME=${IB_LIB_NAME}" >> ${NWCHEM_ENV_SH}
+  echo "setenv IB_LIB_NAME ${IB_LIB_NAME}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
   echo "BLASOPT            =" ${BLASOPT} 
+  echo "export BLASOPT=${BLASOPT}" >> ${NWCHEM_ENV_SH}
+  echo "setenv BLASOPT ${BLASOPT}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
   echo "BLAS_LIB           =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
@@ -1825,15 +1893,23 @@ if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
 fi
 if [ ${#CUDA} -ne 0 ] ; then
   echo "CUDA               =" ${CUDA}
+  echo "export CUDA=${CUDA}" >> ${NWCHEM_ENV_SH}
+  echo "setenv CUDA ${CUDA}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#CUDA_INCLUDE} -ne 0 ] ; then
   echo "CUDA_INCLUDE       =" ${CUDA_INCLUDE}
+  echo "export CUDA_INCLUDE=${CUDA_INCLUDE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv CUDA_INCLUDE ${CUDA_INCLUDE}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#CUDA_LIBS} -ne 0 ] ; then
   echo "CUDA_LIBS          =" ${CUDA_LIBS}
+  echo "export CUDA_LIBS=${CUDA_LIBS}" >> ${NWCHEM_ENV_SH}
+  echo "setenv CUDA_LIBS ${CUDA_LIBS}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#MRCC_METHODS} -ne 0 ] ; then
   echo "MRCC_METHODS       =" ${MRCC_METHODS}
+  echo "export MRCC_METHODS=${MRCC_METHODS}" >> ${NWCHEM_ENV_SH}
+  echo "setenv MRCC_METHODS ${MRCC_METHODS}" >> ${NWCHEM_ENV_CSH}
 fi
 #
 # Stop if we find essential information missing.
