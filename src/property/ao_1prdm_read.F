@@ -40,7 +40,7 @@ c
          open(unitno, status='old', form='unformatted', file='ao_1prdm',
      $        err=1000)
          if (.not. ma_push_get(mt_dbl,nbf,'movecs_read',l_dens,k_dens))
-     $        call errquit('movecs_read: ma failed', nbf, MA_ERR)
+     $        call errquit(pname//'ma failed', nbf, MA_ERR)
          do i = 1, nbf
             call sread(unitno, dbl_mb(k_dens), nbf)
             call ga_put(g_dens, 1, nbf, i, i, dbl_mb(k_dens), 1)
@@ -52,7 +52,7 @@ c
  10   continue
       if (l_dens .ne. -1) then
          if (.not. ma_pop_stack(l_dens)) call errquit
-     $      ('ao_1prdm_read: pop failed', l_dens, MA_ERR)
+     $      (pname//'pop failed', l_dens, MA_ERR)
       endif
       call ga_sync()
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
@@ -66,13 +66,13 @@ c
       endif
       return
 c
- 1000 write(6,*) ' ao_1prdm_read: failed to open ',
+ 1000 write(6,*) pname//'failed to open ',
      $     'ao_1prdm'
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1002 write(6,*) ' ao_1prdm_read: failed to close',
+ 1002 write(6,*) pname//'failed to close',
      $     'ao_1prdm'
       call util_flush(luout)
       ok = 0
