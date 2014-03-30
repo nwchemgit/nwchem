@@ -106,7 +106,7 @@ c
       minbem   =2
       maxbem   =2 ! used to be 4, is now obsolete anyway
       ificos   =0
-      lineq    =1
+      lineq    =0  ! 0 is the fast solver, 1 is the much slower one
       rsolv    =0.00d+00
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
