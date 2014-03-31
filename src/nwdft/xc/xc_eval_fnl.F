@@ -969,9 +969,9 @@ c
          endif
       endif
 c
-      if (abs(xfac(52)).gt.eps)then
+      if (abs(xfac(55)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_xb86b(tol_rho, xfac(52), lxfac(52), nlxfac(52), 
+            call xc_xb86b(tol_rho, xfac(55), lxfac(55), nlxfac(55), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else
@@ -980,13 +980,13 @@ c
      &           Ex, qwght,ldew,func)
          endif
       endif
-      if (abs(xfac(53)).gt.eps)then
+      if (abs(xfac(56)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_xpw86(tol_rho, xfac(53), lxfac(53), nlxfac(53), 
+            call xc_xpw86(tol_rho, xfac(56), lxfac(56), nlxfac(56), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else
-            call xc_xpw86(tol_rho, xfac(53), lxfac(53), nlxfac(53), 
+            call xc_xpw86(tol_rho, xfac(56), lxfac(56), nlxfac(56), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif
