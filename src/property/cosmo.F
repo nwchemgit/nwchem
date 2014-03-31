@@ -68,7 +68,7 @@ C>
 c
       integer rtdb !< [Input] the RTDB handle
 c
-      integer iat, nfield, nrad, irad 
+      integer iat, nfield, nrad, irad, idens
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
@@ -106,12 +106,13 @@ c
       minbem   =2
       maxbem   =2 ! used to be 4, is now obsolete anyway
       ificos   =0
-      lineq    =0  ! 0 is the fast solver, 1 is the much slower one
+      lineq    =0  ! 0 fast direct solver, 1 slow iterative solver
       rsolv    =0.00d+00
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
-      swtol    =1.00d-04 ! switching tolerance, see York, Karplus
-c                        ! Eq.62-88.
+      swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
+      idens    = 0
+c
 c     smd model defaults
 c
       do_cosmo_smd = .false.
@@ -158,6 +159,14 @@ c
          if(.not. inp_f(dielecinf))
      $        call errquit('cosmo_input: dielecinf',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- idens
+c
+      else if(inp_compare(.false.,'idens',field)) then
+         if(.not. inp_i(idens))
+     $     call errquit('cosmo_input: idens',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:idens',mt_int,1,idens))
      $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
 c   --- solvent explicitly specified via short name
@@ -619,7 +628,7 @@ c
 c
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          lineq,minbem,maxbem,ificos,ifscrn
+      integer          lineq,minbem,maxbem,ificos,ifscrn,idens
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
@@ -827,7 +836,8 @@ c
       minbem   =2
       maxbem   =2 ! used to be 4, is now obsolete anyway
       ificos   =0
-      lineq    =1
+      lineq    =0 ! 0: fast direct solver, 1: slow iterative solver
+      idens    =0
       rsolv    =0.00d+00
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
@@ -852,6 +862,7 @@ c
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
+      status = rtdb_get(rtdb,'cosmo:idens',mt_int,1,idens) 
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
@@ -906,6 +917,7 @@ c
       if (me.eq.0) write(luout,*) "solvname_long: ",solvname_long
       if (me.eq.0) write(luout,*) "dielec: ",dielec
       if (me.eq.0) write(luout,*) "dielecinf: ",dielecinf
+      if (me.eq.0) write(luout,*) "idens: ",idens
       if (me.eq.0) write(luout,*) "icds: ",icds
       if (me.eq.0) write(luout,*) "sola: ",sola
       if (me.eq.0) write(luout,*) "solb: ",solb
@@ -2565,8 +2577,11 @@ c
 C> \brief Compute the COSMO charges
 c
       subroutine cosmo_charges(rtdb,basis,geom,ecos,some,itype_wfn,
-     1                         vectors,nclosed,nopen,nbf,nmo)
+     1                   vectors,nclosed,nopen,nbf,nmo,
+     2                   g_dens_in,idens)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "geom.fh"
@@ -2577,23 +2592,25 @@ c
 #include "stdio.fh"
 #include "prop.fh"
 c
-      integer rtdb      !< [Input] The RTDB handle
-      integer basis     !< [Input] The basis set handle
-      integer geom      !< [Input] The geometry handle
-      integer nbf       !< [Input] The number of basis functions
-      integer nmo       !< [Input] The number of molecular orbitals
-      integer itype_wfn !< [Input] The wavefunction type
-                        !< - 1: RHF type wavefunction
-                        !< - 2: UHF type wavefunction
-      integer vectors(2) !< [Input] The GA handles for the SCF vectors
-      integer nclosed(2) !< [Input] The number of closed shell orbitals
-                         !< (only used with RHF)
-      integer nopen(2)   !< [Input] The number of open shell orbitals
+      integer rtdb          !< [Input] The RTDB handle
+      integer basis         !< [Input] The basis set handle
+      integer geom          !< [Input] The geometry handle
+      integer nbf           !< [Input] The number of basis functions
+      integer nmo           !< [Input] The number of molecular orbitals
+      integer itype_wfn     !< [Input] The wavefunction type
+                            !< - 1: RHF type wavefunction
+                            !< - 2: UHF type wavefunction
+      integer vectors(2)    !< [Input] The GA handles for the SCF vectors
+      integer nclosed(2)    !< [Input] The number of closed shell orbitals
+                            !< (only used with RHF)
+      integer nopen(2)      !< [Input] The number of open shell orbitals
 c
       double precision ecos !< [Output] The intra COSMO charges
                             !< interaction energy
-
-      logical some !< [Input] Do you want "some" additional output?
+      integer g_dens_in(2)  ! 1: up, 2: down  (input density matrix to get the charges)
+      integer idens         ! 1: use density matrix, 0: use vectors
+c
+      logical some          !< [Input] Do you want "some" additional output?
       logical dbug, out, status
       character*8 scfruntyp
 c
@@ -2609,12 +2626,17 @@ c
       integer l_rad,  k_rad,  nrad
       integer l_occ,  k_occ
       integer nefc, ief, i, nat
-      integer g_dens(3),ndens,nvirt(2)
+      integer g_dens(3)  ! 1: up, 2: down, 3: total
+      integer ndens,nvirt(2)
       logical stat
 c
       double precision bohr
       parameter (bohr=0.529177249d+00)
 c
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+
       dbug=.false..and.ga_nodeid().eq.0
       out =.false..and.ga_nodeid().eq.0
       out =out.or.dbug
@@ -2678,6 +2700,16 @@ c
      &            dbl_mb(k_efcc+(ief-1)*3+1),dbl_mb(k_efcc+(ief-1)*3+2)
          enddo
       endif
+c
+c     set up the density matrix
+c
+      if (idens.eq.0) then  ! movecs --> density matrix
+c
+         if(out) then
+            write(luout,*) "idens=0, using input molecular orbitals"
+         endif
+c
+c      ----- calculate the density matrices from molecular orbitals -----
 cc
 cc     ----- get density matrix -----
 cc
@@ -2692,7 +2724,6 @@ c     &   call errquit('cosmo_charges malloc k_occ failed',911,MA_ERR)
 c      do i=1,nocc*2
 c         dbl_mb(k_occ+i-1)=1.0d0
 c      enddo
-
 c
 c     changes to make cosmo work for open shell DFT (MV)
 c
@@ -2725,7 +2756,6 @@ c
 c
 c     end of changes (MV)
 c
-
       call hnd_prop_dens_make(rtdb,geom,basis,nbf,nmo,nclosed,nopen,
      &                        nvirt,scfruntyp,vectors,dbl_mb(k_occ),
      &                        g_dens,ndens)
@@ -2740,8 +2770,38 @@ c
                write(luout,*) 'in -cosmo_charges, -db- ...'
                call ga_print(g_dens(2))
             endif
+         endif ! dbug
+      endif !out
+c
+      else if (idens.eq.1) then ! use input density matrix g_dens_in directly
+c
+         if(out) then
+            write(luout,*) "idens=1, using input density g_dens_in"
          endif
-      endif
+c
+c        ----- create density matrix handles -----
+c
+         if (itype_wfn.eq.1) ndens = 1
+         if (itype_wfn.eq.2) ndens = 3
+c
+         do i = 1, ndens
+           g_dens(i) = 
+     &           ga_create_atom_blocked(geom,basis,'density matrix')
+           call ga_zero(g_dens(i))
+         end do
+c
+         if (itype_wfn.eq.2) then
+           call ga_copy(g_dens_in(1),g_dens(1))
+           call ga_copy(g_dens_in(2),g_dens(2))
+           call ga_dadd (1.D0,g_dens(1),1.D0,g_dens(2),g_dens(3)) ! sum up components
+         else if (itype_wfn.eq.1) then
+           call ga_copy(g_dens_in(1),g_dens(1))
+         else
+           call errquit("unknown wavefunction function type",0,0)
+         endif
+      else
+         call errquit("unknown idens flag",0,0)
+      end if ! idens
 c
 c     ----- get -cosmo- charges -----
 c
@@ -3124,7 +3184,7 @@ c
       character*16 at_tag
       character*255 cosmo_file
       integer fn
-      integer lineq ! if 1 use iterative solver, otherwise direct solver
+      integer lineq ! 0: fast direct solver, 1: slow iterative solver
       integer minbem 
       integer maxbem 
       integer ificos ! 0 use octahedron, 1 use icosahedron tesselation
@@ -3276,7 +3336,11 @@ c
 c
 c     ----- get surface charges -----
 c
-      if(lineq.eq.0) then
+c     ----- set up the memory based on the solver -----
+c     lineq = 0: fast direct solver, lineq = 1: slow iterative solver
+c
+      if (lineq.eq.0) then
+c
         stat = .true.
         stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i20",
      &                                l_i20,i20)
@@ -3292,12 +3356,15 @@ c
      &                                l_i50,i50)
         stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i80",
      &                                l_i80,i80)
-        if (.not.stat) then
-          lineq = 1
-          stat = ma_chop_stack(l_i20)
-        endif
-      endif
-      if (lineq.eq.1) then
+c
+c      check memory
+c
+       if (.not.stat) then
+        call errquit("hnd_coschg: out of memory: lineq = 0 ",950,MA_ERR)
+       endif
+c
+      else if (lineq.eq.1) then
+c
         stat = .true.
         stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i20",
      &                                l_i20,i20)
@@ -3317,10 +3384,17 @@ c
      &                                l_i70,i70)
         stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i80",
      &                                l_i80,i80)
-        if (.not.stat) then
-          call errquit("hnd_coschg: out of memory",950,MA_ERR)
-        endif
-      endif
+c
+c      check memory
+c
+       if (.not.stat) then
+        call errquit("hnd_coschg: out of memory: lineq = 1 ",950,MA_ERR)
+       endif
+c
+      else 
+       call errquit("hnd_coschg: unknown solver",911,INPUT_ERR)
+      end if ! lineq 
+c
       if(out) then
          if(lineq.eq.1) then
             write(luout,*) 'use iterative method for -lineq-'
@@ -3328,6 +3402,7 @@ c
             write(luout,*) 'use in-memory method for -lineq-'
          endif
       endif
+c
       if(lineq.eq.0) then
 c
 c     ----- in memory -----
