@@ -168,14 +168,14 @@ C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
 c 
       double precision tot,eps
       parameter(eps=1.d-10)
-      tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) 
-     +       + xfac(28) + xfac(29) + xfac(33) + xfac(34) + xfac(35) 
-     +       + xfac(36) + xfac(37) + xfac(48) + xfac(49) + xfac(50)
-     +       + xfac(51) + lxdm +
-     +       + cfac(29) + cfac(31) + cfac(32) + cfac(33) 
-     +       + cfac(34) + cfac(35) + cfac(30) + cfac(38)
-     +       + cfac(39) + cfac(40) + xfac(32) + cfac(42)
-     +       + cfac(48) + cfac(49) + cfac(50) + cfac(51)
+      tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) +
+     +      xfac(28) + xfac(29) + xfac(33) + xfac(34) + xfac(35) +
+     +      xfac(36) + xfac(37) + xfac(48) + xfac(49) + xfac(50) +
+     +      xfac(51) + lxdm +
+     +      cfac(29) + cfac(31) + cfac(32) + cfac(33) +
+     +      cfac(34) + cfac(35) + cfac(30) + cfac(38) +
+     +      cfac(39) + cfac(40) + xfac(32) + cfac(42) +
+     +      cfac(48) + cfac(49) + cfac(50) + cfac(51)
 c
       if (abs(tot).gt.eps)then
          xc_chktau = .true.
