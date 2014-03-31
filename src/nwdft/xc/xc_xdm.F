@@ -185,7 +185,7 @@ c     initialize common values
 c     calculate volumes and moments using the dft grid
          rho_n = 0
          exdm = 0
-         call grid_quadv0_gen(rtdb,g_dens,g_vxc,nexc,rho_n,exdm,1,5,
+         call grid_quadv0_gen(rtdb,g_dens,g_vxc,nexc,rho_n,exdm,1,6,
      &        dum1,.false.,.false.)
          call ga_dgop(msg_xdm1,v,ntypes,'+')
          call ga_dgop(msg_xdm3,ml,3*ntypes,'+')
