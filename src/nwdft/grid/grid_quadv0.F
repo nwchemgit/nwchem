@@ -40,6 +40,8 @@ c                               !   2 = XC matrices for CPKS LHS
 c                               !   3 = XC matrices for CPKS RHS
 c                               !   4 = XC matrices for GIAO NMR RHS
 c                               !   5 = XC matrices for third derivatives
+c                               !   6 = post-SCF XDM energy
+
       logical l3d               ! true if 3d GA is used
       logical triplet           ! true if triplet excitation energy calc
       double precision StericEnergyTotal
@@ -62,6 +64,10 @@ c
       external grid_reopen
       logical lsa ! Qin
 c
+      logical geom_cart_get2 
+      external geom_cart_get2 
+
+c
       integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
      &        ncoef_max,
@@ -73,7 +79,7 @@ c
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat,
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags,
-     &        lmmat, immat, lttau, ittau
+     &        lmmat, immat, lttau, ittau, iz, lz
 c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
@@ -88,7 +94,7 @@ c
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, l_Mmat2, k_Mmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2, len_Mmat2
       integer len_mmat, len_ttau
-      logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r
+      logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
@@ -152,8 +158,10 @@ c
       do_cpks_r = calc_type .eq. 3
       do_nmrks_r = calc_type .eq. 4
       do_gxc = calc_type .eq. 5 ! for 3rd derivatives
+      do_xdm = calc_type .eq. 6
+
       if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r .or. 
-     &    do_nmrks_r .or. do_gxc)) then
+     &    do_nmrks_r .or. do_gxc. or. do_xdm)) then
          call errquit('grid_quadv0_gen: illegal calculation type',1,
      &       INPUT_ERR)
       endif
@@ -171,7 +179,7 @@ c
       len_Amat3 = 1
       len_Cmat3 = 1 
 c
-      if (do_scf .or. do_nmrks_r) then
+      if (do_scf .or. do_nmrks_r. or. do_xdm) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
          if (kske) len_ttau = npol*n_per_rec
@@ -208,10 +216,18 @@ c calculations.
       nxyz = 3*nctrs
       if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
      &   call errquit('grid_den: cannot allocate xyz',0, MA_ERR)
+      if (.not.MA_Push_Get(MT_int,nctrs,'atns',lz,iz))
+     &     call errquit('grid_den: cannot allocate atns',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nctrs,'charge',lcharge,icharge))
      &   call errquit('grid_den: cannot allocate charge',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Byte,nctrs*16,'tags',ltags,itags))
      &   call errquit('grid_den: cannot allocate tags',0, MA_ERR)
+
+      if (.not. geom_cart_get2(geom, nctrs, 
+     &     Byte_MB(itags), Dbl_MB(ixyz), Dbl_MB(icharge),int_mb(iz)))
+     &   call errquit('grid_den: geom_cart_get2 failed',74, GEOM_ERR)
+
+
       if (.not. geom_cart_get(geom, nctrs, Byte_MB(itags),
      &                        Dbl_MB(ixyz), Dbl_MB(icharge)))
      &   call errquit('grid_den: geom_cart_get failed',74, GEOM_ERR)
@@ -412,7 +428,7 @@ c
 c
       if(.not.do_cpks_l.or..not.do_gxc)
      *  call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
-     &     nbf_ao,ipol,do_scf.and.(.not.l3d),.false.)
+     &     nbf_ao,ipol,(do_scf.or.do_xdm).and.(.not.l3d),.false.)
 c      
 c     Grid quadrature
 c
@@ -439,8 +455,8 @@ c
      ,        dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat), dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2), dbl_mb(k_cmat2),
-     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,        l3d,triplet,
+     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
+     T        tmat, l3d,triplet,
      ,        dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal,
      1        do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3))
@@ -483,8 +499,8 @@ c down the line for the DFT code.
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,        l3d,triplet,
+     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
+     T        tmat, l3d,triplet,
      ,        dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2),
      1        do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3),
@@ -512,7 +528,7 @@ c
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0, MA_ERR)
       call ga_sync()
-      if(do_scf.and.(.not.l3d)) then
+      if((do_scf.or.do_xdm).and.(.not.l3d)) then
 c
 c         write(0,*) ' symmetr scf l r',do_scf,do_cpks_l,do_cpks_r,
 c     A        calc_type
@@ -607,6 +623,8 @@ c
         write(LuOut,*)
       endif
 c
+      if (.not.ma_pop_stack(lz))
+     &   call errquit('grid_quadv0: cannot pop stack',0, ma_err)
       if (.not.MA_Free_Heap(lxyz))
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
 c

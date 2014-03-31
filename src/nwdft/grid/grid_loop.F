@@ -13,7 +13,7 @@ c
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,
-     ,     do_nmrks_r, tmat,
+     ,     do_nmrks_r, do_xdm, tmat,
      ,     l3d,triplet,
      &     ttau, kske, Mmat, Mmat2,
      ,     iqat,
@@ -47,7 +47,7 @@ c
       integer iniz(*),ifin(*),nscr,iscr(*),ibf_ao(*),
      ,     g_vxc(*),nmat
       logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r,
-     ,      l3d,triplet
+     L      do_xdm, l3d,triplet
       double precision rho(*),delrho(*),hess(*),
      ,     qwght(*),qxyz(3,*),xyz(3,*),
      ,     expo(*), ccoef(*), Bmat(*), Fmat(*)
@@ -173,8 +173,8 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     &                    ttau, kske, Mmat, Mmat2,
+     ,                    nmat, do_scf, do_cpks_l, do_cpks_r, do_xdm,
+     T                    tmat, ttau, kske, Mmat, Mmat2,
      D                    func,d_qwght,rq0,hh,ppp,ff,zzz,
      D                    drhonuc,ddelrhonuc,d2scr,force,
      D                    acc_ao_gauss,
@@ -209,7 +209,7 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
-     ,                    do_nmrks_r, tmat,
+     ,                    do_nmrks_r, do_xdm, tmat,
      ,                    l3d,triplet,
      &                    ttau, kske, Mmat, Mmat2,
      1                    do_gxc, Amat3, Cmat3)
@@ -237,7 +237,7 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
      ,                 nmat, do_scf, do_cpks_l, do_cpks_r,
-     ,                 do_nmrks_r, tmat,l3d,
+     ,                 do_nmrks_r, do_xdm, tmat,l3d,
      ,                 triplet,
      &                 ttau, kske,Mmat, Mmat2,
      1                 do_gxc, Amat3, Cmat3)

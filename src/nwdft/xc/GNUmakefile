@@ -53,7 +53,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_csogga.o\
 	xc_cm11.o \
 	steric_energy.o\
-	xc_3rd_deriv.o
+	xc_3rd_deriv.o xc_xpw86.o xc_xb86b.o xc_xdm.o
 
      LIBRARY = libnwdft.a
 

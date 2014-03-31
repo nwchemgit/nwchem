@@ -610,6 +610,8 @@ c
       xname(52)='               SOGGA gradient correction'
       xname(53)='             SOGGA11 gradient correction'
       xname(54)='           SOGGA11-X gradient correction'
+      xname(55)='          Becke 1986 Exchange Functional'
+      xname(56)='         Perdew 1986 Exchange Functional'
       xname(60)='      S12g(GGA-part) Exchange Functional'
       xname(61)='      S12h(GGA-part) Exchange Functional'
       xname(62)='  CAM-S12g(GGA-part) Exchange Functional'

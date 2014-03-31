@@ -969,6 +969,29 @@ c
          endif
       endif
 c
+      if (abs(xfac(52)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xb86b(tol_rho, xfac(52), lxfac(52), nlxfac(52), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call xc_xb86b_d2(tol_rho, xfac(7), lxfac(7), nlxfac(7), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         endif
+      endif
+      if (abs(xfac(53)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xpw86(tol_rho, xfac(53), lxfac(53), nlxfac(53), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call xc_xpw86(tol_rho, xfac(53), lxfac(53), nlxfac(53), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         endif
+      endif
+c
 c     cm08-hx is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...

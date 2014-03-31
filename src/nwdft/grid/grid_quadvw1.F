@@ -13,7 +13,7 @@
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm, tmat,
      ,     l3d, triplet, ttau, kske, Mmat, Mmat2,
      1     do_gxc, Amat3, Cmat3)
 c
@@ -93,8 +93,8 @@ c
      &        Pmat, rq, rdens_atom, cetobfr, 
      ,        ibf_ao,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
-     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,        l3d, triplet,
+     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
+     T        tmat, l3d, triplet,
      &        ttau, kske, Mmat, Mmat2,
      1        do_gxc, Amat3, Cmat3)
 c     

@@ -9,7 +9,8 @@
      &     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
      &     rchi_atom,rdelchi_atom,
      &     Ex, Ec, Amat, Cmat, g_vxc, Amat2, Cmat2,
-     &     nmat, do_scf, do_cpks_l, do_cpks_r,do_nmrks_r,tmat,
+     &     nmat, do_scf, do_cpks_l, do_cpks_r, 
+     &     do_nmrks_r, do_xdm, tmat,
      &     l3d,triplet,
      &     bas_cent_xinfo,bas_cset_xinfo,
      &     docsetx, 
@@ -41,7 +42,8 @@ c
       double precision acc_AO_gauss, rad, rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
-      integer lDmat,iDmat,i, grid_nbfm
+      integer lheschi_ao, iheschi_ao
+      integer lDmat,iDmat,i, grid_nbfm,llap,ilap
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
@@ -56,16 +58,26 @@ c
       logical do_2nd
       double precision StericEnergy
       logical do_3rd
-c
+      double precision lapdum
+c     AOR begin
+      integer nxdm
+      integer ixdm_v, ixdm_ml, lxdm_v, lxdm_ml
+      common /xdmd/ nxdm, ixdm_v, lxdm_v, ixdm_ml, lxdm_ml
+c     AOR end
+
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
-      if (grad) then
+      if (do_xdm) then
+         maxdbas = 2
+      elseif (grad) then
          maxdbas = 1
+         iheschi_ao = 0
       else
          maxdbas = 0
          idelchi_ao = 0
+         iheschi_ao = 0
       endif
 c
 c     Evaluate the AO basis set at each of the quad. points.
@@ -100,11 +112,17 @@ c
      &     lchi_ao, ichi_ao))
      &     call errquit('grid_quadv0b: cannot allocate chi_ao',0,
      &       MA_ERR)
-      if( grad ) then
+      if( grad.or.do_xdm ) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
      &      'delchi_ao', ldelchi_ao, idelchi_ao)) then
            call errquit('gridquadv0b: cant alloc delchi_ao',0,0)
         endif
+      endif
+      if (do_xdm) then
+         if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_ao,
+     &        'heschi_ao', lheschi_ao, iheschi_ao)) then
+            call errquit('gridquadv0b: cant alloc heschi_ao',0,0)
+         endif
       endif
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicinit(nqpts,
@@ -116,7 +134,8 @@ c
       if (odftps) call pstat_on(ps_ebf)
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
       call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
-     &     dbl_mb(idelchi_ao), 0d0, 0d0, rq, qxyz, xyz, nqpts, natoms,
+     &     dbl_mb(idelchi_ao), dbl_mb(iheschi_ao), 0d0, rq, 
+     Q     qxyz, xyz, nqpts, natoms,
      &     iniz, docset, bas_cent_info, bas_cset_info)
       if (odftps) call pstat_off(ps_ebf)
 c
@@ -137,8 +156,16 @@ c
      &    MA_ERR)
       if(nqpts.eq.0) goto 2010
 
+c     allocate space for laplacian
+      if (do_xdm) then
+         if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
+     &        'lap', llap,ilap))
+     &        call errquit('grid_quadv0b: cannot allocate lap',0,
+     &        MA_ERR)
+      endif
+
       wmax= dabsmax(nqpts,qwght)
-      if(do_scf.or.do_nmrks_r) then
+      if(do_scf.or.do_xdm.or.do_nmrks_r) then
          if (odftps) call pstat_on(ps_xcrho)
             call xc_rhogen(0,
      T        tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
@@ -146,10 +173,10 @@ c
      I        ipol, nqpts, nbf_ao, mbf_ao, grad, (ipol*(ipol+1))/2,
      F        Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
-     &        ibf_ao, iniz, ifin, rho, delrho, 
+     &        ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
-     &        ttau, kske)
+     &        ttau, kske, do_xdm)
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
@@ -168,7 +195,7 @@ c
      I        ipol, nqpts, nbf_ao, mbf_ao, grad, ipol,
      F        Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
-     &        ibf_ao, iniz, ifin, rho, delrho, 
+     &        ibf_ao, iniz, ifin, rho, delrho, lapdum,
      &        rchi_atom, rdelchi_atom, 
      &        rdens_atom, cetobfr,wmax, 
      &        ttau, kske)
@@ -211,6 +238,14 @@ c     add beta to 1 to get alpha+beta
 c
       if (odftps) call pstat_on(ps_excf)
       do_2nd = (do_cpks_l .or. do_cpks_r)
+
+      if (do_xdm) then
+         call xc_eval_xdm(rho,delrho,dbl_mb(ilap),nqpts,
+     &        qxyz,qwght,ttau,
+     &        natoms,xyz,
+     &        dbl_mb(ixdm_v),dbl_mb(ixdm_ml))
+      else                                                                             
+
       do_3rd = do_gxc  ! need 3rd derivatives ?
 c Daniel (2-7-13): The last false in this call is used to initiallize
 c ldew2, which is used for TDDFT gradients to prevent weighting of the
@@ -221,6 +256,7 @@ c XC-derivative matrices.
      &     ttau, kske, Mmat, Mmat2,
      &     StericEnergy,
      &     do_3rd, Amat3, Cmat3, .false.)
+      endif
       if (odftps) call pstat_off(ps_excf)
 c
       if (sic_orb_index.eq.1) then

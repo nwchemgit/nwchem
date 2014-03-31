@@ -63,6 +63,7 @@ c
       double precision grad_constr(max_constr)
       double precision gold_constr(max_constr),p_constr(max_constr)
 c
+      integer ixyz, lxyz
       logical oprint
       double precision rms(2), derr(2)
       integer nmo(2), icall(2), nprint
@@ -85,6 +86,10 @@ c
       integer test_sic, condfukui, l_degen, i_degen(2)
       double precision totsic
 cc    Jorge Garza/End
+c     AOR begin
+      double precision exdm
+      integer ixdm_v, ixdm_a, ixdm_ml
+c     AOR end
       Integer l_eval
       integer k_eval(2)
       integer natoms, nTotEl
@@ -377,6 +382,9 @@ c
          mopen(2)=noc(2)
       endif
 c
+c     AOR begin
+      call xc_xdm_init(rtdb,ixdm_v,ixdm_ml)
+c     AOR end
 c    Jorge Garza/Begin
       call xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
      &                l_degen, i_degen, noc, act_levels)
@@ -1628,7 +1636,25 @@ c     Jorge Garza / Begin
       end if
 c
 c     Jorge Garza / End
-c     
+
+c     AOR begin
+      if (lxdm .eq. 1) then
+         call xc_xdm(rtdb,g_dens,g_vxc,natoms,nexc,exdm,dum,
+     &        dbl_mb(ixdm_v),dbl_mb(ixdm_ml),'energy')
+         etnew = etnew + exdm
+      endif
+c     AOR end
+
+c     vdw  bit
+c
+c     activate disp if is present in rtdb
+c     or include dispersion if this a functional that includes dispersion
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+c
+      if(disp.or.xc_chkdispauto())
+     &      call xc_vdw(rtdb,geom,Etnew,dum,'energy')
+c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
       if(cosmo_on.and.cosmo_phase.eq.1) then

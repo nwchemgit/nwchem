@@ -20,9 +20,9 @@ C>
      &     F, Pmat, ff, ffd,
      C     chi, delchi, heschi,
      I     ibf, iniz, ifin, 
-     &     rho, delrho, rchi_atom,
+     &     rho, delrho, lap, rchi_atom,
      &     rdelchi_atom, rdens_atom, cetobfr, wmax, 
-     &     ttau, kske)
+     &     ttau, kske, dolap)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -40,6 +40,8 @@ C>
                    !<   with respect to electron position)
                    !< - what=2: calculate derivative with respect to
                    !<   nuclear coordinates
+       logical dolap        ! true if lap is required [in]
+
 c what=0 dens
 c what=1 pert
 c what=2 nucder
@@ -67,6 +69,8 @@ c what=2 nucder
       double precision heschi(nq,6,mbf)!< [Input] function hessians
 c
       double precision ttau(nq,ipol,*) !< [Output] Total Kohn-Sham K.E.density
+c
+       double precision lap(nq,ipol2,*)
 c
       double precision delrho(nq,3,ipol,*) !< [Output] Derivative of density
       double precision Pmat(*) !< [Scratch] scratch vector
@@ -110,7 +114,7 @@ c     Evaluate the charge density and its gradient at each of the
 c     sampling points 
 c
       doffd=(what.eq.2.and.grad).or.(what.eq.0.and.kske).or.
-     & (what.eq.1.and.kske)
+     & (what.eq.1.and.kske).or.(what.eq.0.and.dolap)
       
       npol = (ipol*(ipol+1))/2
 c     to keep compilers quiet
@@ -121,6 +125,7 @@ c
          call dcopy(nq*npol,0.D0,0,rho,1)
          if (grad) call dcopy(3*nq*ipol,0.D0,0,delrho,1)
          if (kske) call dcopy(nq*ipol,0.D0,0,ttau,1)  ! total
+         if (dolap) call dfill(nq*ipol2,0.D0,lap,1)  ! total
 c
 c     repl stuff
 c
@@ -314,6 +319,21 @@ c
      &                       delchi(n,1,mu)*ffd(n,1,mu-inizja+1)+
      &                       delchi(n,2,mu)*ffd(n,2,mu-inizja+1)+
      &                       delchi(n,3,mu)*ffd(n,3,mu-inizja+1))
+                        enddo
+                     enddo
+                  endif
+
+                  if (dolap) then
+                     do mu=inizja,ifinja
+                        do n=1,nq
+                           ! total
+                           lap(n,ii,ipert) = lap(n,ii,ipert) + 2d0*
+     &                          (delchi(n,1,mu)*ffd(n,1,mu-inizja+1) +
+     &                          delchi(n,2,mu)*ffd(n,2,mu-inizja+1) +
+     &                          delchi(n,3,mu)*ffd(n,3,mu-inizja+1) +
+     &                          heschi(n,1,mu)*ff(n,mu-inizja+1) +
+     &                          heschi(n,4,mu)*ff(n,mu-inizja+1) +
+     &                          heschi(n,6,mu)*ff(n,mu-inizja+1))
                         enddo
                      enddo
                   endif

@@ -60,6 +60,8 @@ c
 c     integer noc(2)
       integer nmo(2)
       integer iga_dens(2), g_vecs(2), g_force
+      integer idum(4), ndum
+      double precision edum
       Integer k_evals(2), l_evals(2)
       double precision grad_norm, grad_max
       external grad_norm, grad_max
@@ -90,6 +92,12 @@ c     vdw
       logical disp
       logical xc_chkdispauto
       external xc_chkdispauto
+c
+c     xdm
+      integer xdmdisp
+      integer nxdm
+      integer ixdm_v, ixdm_ml, lxdm_v, lxdm_ml
+      common /xdmd/ nxdm, ixdm_v, lxdm_v, ixdm_ml, lxdm_ml
 c
       double precision fant_a,fant_d
       parameter(toll=1.d-9)
@@ -506,9 +514,18 @@ c     vdW bit
 c
       if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
      &   disp=.false.
-c
       if(disp.or.xc_chkdispauto())
      &   call xc_vdw(rtdb,geom,dum,dbl_mb(k_frc_xc), 'forces')
+c     
+c     xdm bit
+c
+      if (.not.rtdb_get(rtdb, 'dft:xdm', mt_int, 1, xdmdisp))
+     &   xdmdisp=0
+      if (xdmdisp.ne.0) then
+         call xc_xdm(rtdb,iga_dens,idum,nat,ndum,edum,
+     &        dbl_mb(k_frc_xc),dbl_mb(ixdm_v),
+     &        dbl_mb(ixdm_ml),'forces')
+      endif
 c
 c     add Bonacic-Fantucci repulsive term
 c

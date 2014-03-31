@@ -27,7 +27,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 47)
+      parameter (num_dirs = 48)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -43,7 +43,7 @@ c
       logical rodft
       integer which_mp2
       integer nriscf, ri_store
-      integer dofukui
+      integer dofukui, doxdm
       character*20 mp2char
       double precision smear_sigma
       double precision shift
@@ -64,6 +64,9 @@ c
       logical lvspec
       integer owstart(2), owend(2)
 c
+      double precision xdm_a1, xdm_a2
+      logical xdm_onlyc, xdm_varc
+c
       logical lxps
       integer lenstr
       character*255 inp_vecs
@@ -75,7 +78,7 @@ c
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb','cgmin','nocgmin','tol2e','ri-scf','lock',
-     $         'rodft','fukui','maxiter','vspec','xps','end'/
+     $         'rodft','fukui','maxiter','vspec','xps','xdm','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -125,7 +128,7 @@ c
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
-     $     4400, 9999) ind
+     $     4400, 4500, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -798,6 +801,48 @@ c
      $    ('dft_input: failed to store lxps',4400,RTDB_ERR)
 c
       goto 10
+c
+c     xdm dispersion correction
+c
+ 4500 doxdm = 1
+      if (.not.rtdb_put(rtdb,'dft:xdm', mt_int, 1, doxdm))
+     &   call errquit('dft_input: rtdb_put failed', 4200, RTDB_ERR)
+
+c     read XDM options
+ 4510 if (.not. inp_a(test)) goto 10
+      if (inp_compare(.false.,'a1', test)) then
+         if (.not. inp_f(xdm_a1))
+     &        call errquit('dft_input: xdm a1 case failed', 0,
+     &        INPUT_ERR) 
+         if (.not.rtdb_put(rtdb,'dft:xdm_a1', mt_dbl, 1, xdm_a1))
+     &        call errquit('dft_input: rtdb_put failed xdm_a1', 4210,
+     &        RTDB_ERR)
+      elseif (inp_compare(.false.,'a2', test)) then
+         if (.not. inp_f(xdm_a2))
+     &        call errquit('dft_input: xdm a2 case failed', 0,
+     &        INPUT_ERR)
+         if (.not.rtdb_put(rtdb,'dft:xdm_a2', mt_dbl, 1, xdm_a2))
+     &        call errquit('dft_input: rtdb_put failed xdm_a2', 4210,
+     &        RTDB_ERR)
+      elseif (inp_compare(.false.,'onlyc', test)) then
+         xdm_onlyc = .true.
+         if (.not.rtdb_put(rtdb,'dft:xdm_onlyc', mt_log, 1,xdm_onlyc))
+     &        call errquit('dft_input: rtdb_put failed xdm_onlyc', 4210,
+     &        RTDB_ERR)
+      elseif (inp_compare(.false.,'varc', test)) then
+         xdm_varc = .true.
+         if (.not.rtdb_put(rtdb,'dft:xdm_varc', mt_log, 1,xdm_varc))
+     &        call errquit('dft_input: rtdb_put failed xdm_varc', 4210,
+     &        RTDB_ERR)
+      else
+         write(LuOut,*) "error! xdm a1 bleh a2 bleh onlyc varc" 
+         call errquit('dft_input: wrong xdm input',911,INPUT_ERR)
+      endif
+
+      goto 4510
+c
+
+
 c
  9999 continue
 c

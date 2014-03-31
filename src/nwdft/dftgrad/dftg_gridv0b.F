@@ -62,6 +62,7 @@ c
       double precision Force(3*natoms), hess(3*natoms,3*natoms)
       integer g_rhs(*)
       double precision hh(*)
+      double precision lapdum
 c Daniel (2-12-13): Nothing appears to be broken because of this
 c change. 
 c      double precision rho(n_per_rec,ipol*(ipol+1)/2)
@@ -264,10 +265,10 @@ c      do_pertdens = do_gxc
      P       (ipol*(ipol+1))/2,
      F       Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &       dbl_mb(ichi_ao), dbl_mb(idelchi_ao),0d0,
-     &       ibf_ao, iniz, ifin, rho, delrho,
+     &       ibf_ao, iniz, ifin, rho, delrho, lapdum,
      &       rchi_atom, rdelchi_atom,
      &       rdens_atom, cetobfr,wmax, 
-     &       dttau, kske)
+     &       dttau, kske, .false.)
       else
 c Daniel (1-16-13): Here, the call is identical to the call to 
 c xc_rhogen in grid_quadv0b.
@@ -301,10 +302,10 @@ c the ground state density along all atoms.
      &        Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &        dbl_mb(iheschi_ao), ibf_ao, iniz, ifin,
-     &        drhonuc, ddelrhonuc,
+     &        drhonuc, ddelrhonuc, lapdum,
      &        rchi_atom, rdelchi_atom, 
      &        rdens_atom, cetobfr,1d0,
-     D        dttau, kske)
+     D        dttau, kske, .false.)
       endif
       if (odftps) call pstat_off(ps_xcrho)
 c

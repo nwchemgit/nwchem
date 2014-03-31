@@ -122,8 +122,13 @@ c
 c     srexch ==> 9310
 c     hse03 ==> 9320
 c
+c
+c     becke86b ==> 9510
+c     xperde86 ==> 9520
+c
+c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=132)
+      parameter (num_dirs=134)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -169,7 +174,8 @@ c
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
-     &     's12g','s12h','cam-s12g','cam-s12h'/
+     &     's12g','s12h','cam-s12g','cam-s12h',
+     &     'becke86b','xperdew86'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -213,7 +219,8 @@ c
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
-     &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,1999) ind
+     &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
+     &  9510,9520,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -3125,14 +3132,67 @@ c
       if (.not. inp_f(cfac(54))) then
          cfac(54) = 1.0d0
       endif
+      goto 10  
+c     
+c     becke86b; Perdew-Burke-Ernzerhof exchange functional 
+c     
+ 9510  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xbecke86b "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(55) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(55) = .true.
+            nlxfac(55) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(55) = .true.
+         nlxfac(55) = .true.
+      endif
+      if (.not. inp_f(xfac(55))) then
+         xfac(55) = 1.0d0
+      endif
+
+      goto 10
+c     
+c     xperdew86: Perdew-Wang 86 exchange
+c     
+ 9520  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xperdew86 exchange "local" not possible.'
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            write(LuOut,*)' xperdew86 exchange "nonlocal" not possible.'
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         else
+c           total wanted
+            lxfac(56) = .true.
+            nlxfac(56) = .true.
+            call inp_prev_field()
+         endif
+      else
+c        total wanted
+         lxfac(56) = .true.
+         nlxfac(56) = .true.
+      endif
+      if (.not. inp_f(xfac(56))) then
+         xfac(56) = 1.0d0
+      endif
 c
       goto 10  
-      
-
-
-
-
-
 c
 c     xbnl07: Long-range corrected Baer-Neuhauser-Livshits (BNL) 2007 exchange functional
 c     
