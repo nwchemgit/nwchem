@@ -116,6 +116,8 @@ cb973     .     xfac(22).ne.0d0.or.
      .     xfac(52).ne.0d0.or.
      .     xfac(53).ne.0d0.or.
      .     xfac(54).ne.0d0.or.
+     .     xfac(55).ne.0d0.or.
+     .     xfac(56).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
