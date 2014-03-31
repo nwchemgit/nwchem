@@ -521,7 +521,7 @@ c
       integer msg_frq,msg_eigv,msg_ns1,msg_ns2,msg_ns3
       integer msg_dntmc0, msg_dntmc1, msg_dntmc2, msg_dntmc3
       integer msg_dntmc4, msg_dntmc5, msg_dntmc6, msg_dntmc7
-      integer msg_smd
+      integer msg_smd, msg_xdm1, msg_xdm2, msg_xdm3
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -1210,3 +1210,6 @@ c
       parameter(msg_dntmc7=msg_ftn_base-910)
 c
       parameter(msg_smd=msg_ftn_base-930)
+      parameter(msg_xdm1=msg_ftn_base-931)
+      parameter(msg_xdm2=msg_ftn_base-932)
+      parameter(msg_xdm3=msg_ftn_base-933)
