@@ -243,7 +243,6 @@ c
      &        dbl_mb(id3ang), qxyz, ccoord(1,ictr), nq, dbl_mb(il2k),
      &        max(bas_cent_info(1,ictr),max_ang_for_der), maxder, gen_l,
      &        spherical)
-            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 c
 c     Loop over all contraction sets on this center
 c
@@ -310,13 +309,11 @@ c
                call eval_radial(dbl_mb(irad), rq(1,ictr), nq, maxder,
      &              dbl_mb(izprim), dbl_mb(iccoef1), nprimo, ncontr)
             endif
-            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 c
 c     Compute and store the derivatives of the radial function
 c
             call eval_der_radial(dbl_mb(idrd), dbl_mb(irad),
      &           dbl_mb(iang), nq, maxder, max_der_component)
-            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 
 c     Evaluate basis functions and begin evaluation of basis function
 c     derivative by multiplying angular function by the radial function
@@ -325,7 +322,6 @@ c     and its derivatives
      &           d2chi(1,1,ichi), d3chi(1,1,ichi), dbl_mb(idrd),
      &           dbl_mb(iang), nq, iang_beg, iang_end,
      &           max_der_component)
-            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
 c
 c     Finish off with terms involving angular function derivatives
 c
@@ -335,7 +331,6 @@ c
      &              dbl_mb(iang), dbl_mb(id1ang), dbl_mb(id2ang),
      &              dbl_mb(id3ang), nq, iang_beg, iang_end,
      &              max_der_component, gen_l)
-            if (.not.ma_verify_allocator_stuff()) stop ' ma 0'
             endif
 c
 c     Advance offset into chi arrays by number of basis functions
