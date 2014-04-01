@@ -2151,6 +2151,13 @@ c     Deallocate zora related arrays
        end if
       end if
 
+c     AOR begin
+c     deallocate xdm arrays
+      if (lxdm.eq.1) then
+         call xc_xdm_cleanup()
+      endif
+c     AOR end
+
       if (odftps) call pstat_off(ps_scfend)
       return
 c     

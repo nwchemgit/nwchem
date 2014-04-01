@@ -172,7 +172,7 @@ c     allocate space for laplacian
      N        natoms, 1,1,1,
      I        ipol, nqpts, nbf_ao, mbf_ao, grad, (ipol*(ipol+1))/2,
      F        Fmat, Pmat, Bmat, dbl_mb(iDmat),
-     &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
+     &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
      &        ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
@@ -370,8 +370,8 @@ c
 
  2010 continue
 
-      if (.not.ma_pop_stack(lDmat))
-     &      call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
+      if (.not.ma_chop_stack(lDmat))
+     &      call errquit('grid_quadv0b: cannot chop stack', 1, MA_ERR)
 
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
@@ -380,8 +380,8 @@ c
       endif
 
       if(grad)then
-         if (.not.ma_pop_stack(ldelchi_ao))
-     &        call errquit('grid_quadv0b: cannot pop stack', 2, MA_ERR)
+         if (.not.ma_chop_stack(ldelchi_ao))
+     &        call errquit('grid_quadv0b: cannot chop stack', 2, MA_ERR)
       endif
 
       if (.not.ma_pop_stack(lchi_ao))
