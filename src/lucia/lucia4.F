@@ -1609,7 +1609,8 @@ CNW  &           *(GTIJKL(IP,JP,IA,IB)-0.5*GTIJKL(IP,IB,IA,JP))
                ii = ii + 1
             END DO
           END DO
-          call ga_acc(FIFA,istart,ij,1,1,dbl_mb(kbuf),1,1.0d0)
+          if (ij.ge.istart)
+     &    call ga_acc(FIFA,istart,ij,1,1,dbl_mb(kbuf),1,1.0d0)
         END IF
       END DO
       if (.not.ma_pop_stack(lbuf)) call
@@ -1852,7 +1853,8 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                 ii = ii + 1
               END DO
             END DO
-            call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
+            if (ij.ge.istart)
+     &      call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
         if (.not.ma_pop_stack(lbuf)) call
@@ -2030,7 +2032,8 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                 ii = ii + 1
               END DO
             END DO
-            call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
+            if (ij.ge.istart)
+     &      call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
         if (.not.ma_pop_stack(lbuf)) call
@@ -2164,7 +2167,8 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                 ii = ii + 1
               END DO
             END DO
-            call ga_acc(FI,IJ,IJ,1,1,FIVAL,1,1.0d0)
+            if (ij.ge.istart)
+     &      call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
         if (.not.ma_pop_stack(lbuf)) call
@@ -2305,7 +2309,8 @@ CNW  &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
               ii = ii + 1
             END DO
           END DO
-          call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
+          if (ij.ge.istart)
+     &    call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
         END IF
       END DO
       if (.not.ma_pop_stack(lbuf)) call
@@ -2443,7 +2448,8 @@ CNW  &          +(2.0D0*GTIJKL_GN(IP,JP,KP,KP)-GTIJKL_GN(IP,KP,KP,JP))
               ii = ii + 1
             END DO
           END DO
-          call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
+          if (ij.ge.istart)
+     &    call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
         END IF
       END DO
       call ga_sync()
@@ -4763,7 +4769,8 @@ CNW            FA(IJ) = 0.0D0
                ii = ii + 1
             END DO
           END DO
-          call ga_acc(FA,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
+          if (ij.ge.istart)
+     &    call ga_acc(FA,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
         END IF
       END DO
       if (.not.ma_pop_stack(lbuf)) call
