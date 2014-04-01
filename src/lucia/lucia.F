@@ -9881,113 +9881,129 @@ c
      &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
 c       call util_flush(6)
 c..  1-e integrals
-         call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
+      call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
 c.. To write in LUCIA format
-         if(ga_nodeid().eq.0)then
+      if(ga_nodeid().eq.0)then
 c.. 1e ints
-         ind1e=0
-         ind2e=0
-         do ism_lu=1,nirrep
-          ni = ntoobs(ism_lu)
-          nij = ni*(ni+1)/2
-          do ij = 1,nij
-           ind1e = ind1e + 1
-           i = int(sqrt(2.0*ij)+0.5)
-           j = ij - i*(i-1)/2
+        ind1e=0
+        ind2e=0
+        do ism_lu=1,nirrep
+         ni = ntoobs(ism_lu)
+         nij = ni*(ni+1)/2
+         do ij = 1,nij
+          ind1e = ind1e + 1
+          i = int(sqrt(2.0*ij)+0.5)
+          j = ij - i*(i-1)/2
 c.. add offset
-           i = i + ioff_nw(ism_lu) -1
-           j = j + ioff_nw(ism_lu) -1
-         call ga_get(g_hcore,i,i,j,j,int1e,1)
-         call ga_put(KINT1,ind1e,ind1e,1,1,int1e,1)
-          end do
-         end do 
-         endif
-         if(.not.ga_destroy(g_hcore)) call 
-     &     errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
+          i = i + ioff_nw(ism_lu) -1
+          j = j + ioff_nw(ism_lu) -1
+          call ga_get(g_hcore,i,i,j,j,int1e,1)
+          call ga_put(KINT1,ind1e,ind1e,1,1,int1e,1)
+         end do
+        end do 
+      endif
+      if(.not.ga_destroy(g_hcore)) call 
+     &  errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
+c
 c..  2-e integrals
-         noper = norbt*(norbt+1)/2
-         g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
+      noper = norbt*(norbt+1)/2
+      g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
 c
 c Get Block-length
 c
-         if (.not. bas_nbf_cn_max(luciabasis,maxbfsh))
-     $      call errquit('intim: cannot get basis info',0,BASIS_ERR)
-         nwblen = 25
-         nwblen = max(nwblen,maxbfsh)
+      if (.not. bas_nbf_cn_max(luciabasis,maxbfsh))
+     $   call errquit('intim: cannot get basis info',0,BASIS_ERR)
+      nwblen = 25
+      nwblen = max(nwblen,maxbfsh)
 c
 c Do four-index
 c
-         call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,1,
-     $        norbt,g_moreo,g_coul,.true.,g_exch,.false.,nwblen,.true.)
-c        call ga_print(g_coul)
+      call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,1,
+     $     norbt,g_moreo,g_coul,.true.,g_exch,.false.,nwblen,.true.)
+  
 c.. To write in LUCIA format
-         if(ga_nodeid().eq.0)then
+      call ga_distribution(kint2,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(kint2,ilo,ihi,1,1,kint2_l,idum)
+      myelem = ihi-ilo+1
+      if(.not.ma_push_get(mt_int,myelem,'indexi',lint_i,kint_i)) call
+     $  errquit('intim: ma indexi failed',myelem, MA_ERR)
+      if(.not.ma_push_get(mt_int,myelem,'indexj',lint_j,kint_j)) call
+     $  errquit('intim: ma indexj failed',myelem, MA_ERR)
 c.. 2e ints
-         do ism_lu=1,nirrep
-          do jsm_lu=1,ism_lu
-           smij=(ism_lu-1)*nirrep+jsm_lu
-           ijsm_lu=ieor(ism_lu-1,jsm_lu-1)+1
-           do ksm_lu=1,ism_lu
-            do lsm_lu=1,ksm_lu
-             smkl=(ksm_lu-1)*nirrep+lsm_lu
-             klsm_lu=ieor(ksm_lu-1,lsm_lu-1)+1
-             if ((ijsm_lu.eq.klsm_lu).and.(smij.ge.smkl)) then
-              ni = ntoobs(ism_lu)
-              nj = ntoobs(jsm_lu)
-              nk = ntoobs(ksm_lu)
-              nl = ntoobs(lsm_lu)
-              if(ism_lu.eq.jsm_lu)then
-               nij = ni*(ni+1)/2
-               nkl = nk*(nk+1)/2
-              else
-               nij = ni*nj
-               nkl = nk*nl
-              endif
-              nijkl = nij*nkl
-              if (smij.eq.smkl) nijkl = nij*(nij+1)/2  
-              do ijkl =1, nijkl
-               ind2e = ind2e + 1
-               if(smij.eq.smkl)then
-                 kl = nkl+1-int(sqrt(2.0*(nijkl-ijkl+1))+0.5)
-                 ij = ijkl + kl*(kl-1)/2 -nij*(kl-1)       
-               else
-                 kl = int((ijkl-0.5)/nij)+1
-                 ij = ijkl-(kl-1)*nij 
-               end if
-               if(ism_lu.eq.jsm_lu)then
-                 k = int(sqrt(2.0*kl)+0.5) 
-                 l = kl - k*(k-1)/2 
-                 i = int(sqrt(2.0*ij)+0.5) 
-                 j = ij - i*(i-1)/2 
-               else
+
+      do ism_lu=1,nirrep
+         do jsm_lu=1,ism_lu
+            smij=(ism_lu-1)*nirrep+jsm_lu
+            ijsm_lu=ieor(ism_lu-1,jsm_lu-1)+1
+            do ksm_lu=1,ism_lu
+               do lsm_lu=1,ksm_lu
+                  smkl=(ksm_lu-1)*nirrep+lsm_lu
+                  klsm_lu=ieor(ksm_lu-1,lsm_lu-1)+1
+                  if ((ijsm_lu.eq.klsm_lu).and.(smij.ge.smkl)) then
+                     ni = ntoobs(ism_lu)
+                     nj = ntoobs(jsm_lu)
+                     nk = ntoobs(ksm_lu)
+                     nl = ntoobs(lsm_lu)
+                     if(ism_lu.eq.jsm_lu)then
+                       nij = ni*(ni+1)/2
+                       nkl = nk*(nk+1)/2
+                     else
+                       nij = ni*nj
+                       nkl = nk*nl
+                     endif
+                     nijkl = nij*nkl
+                     if (smij.eq.smkl) nijkl = nij*(nij+1)/2  
+                     do ijkl =1, nijkl
+                        ind2e = ind2e + 1
+                        if(smij.eq.smkl)then
+                           kl = nkl+1-int(sqrt(2.0*(nijkl-ijkl+1))+0.5)
+                           ij = ijkl + kl*(kl-1)/2 -nij*(kl-1)       
+                        else
+                           kl = int((ijkl-0.5)/nij)+1
+                           ij = ijkl-(kl-1)*nij 
+                        end if
+                        if(ism_lu.eq.jsm_lu)then
+                           k = int(sqrt(2.0*kl)+0.5) 
+                           l = kl - k*(k-1)/2 
+                           i = int(sqrt(2.0*ij)+0.5) 
+                           j = ij - i*(i-1)/2 
+                        else
 c.. tra_rou = 1
-c                k = int((kl-0.5)/nl)+1
-c                l = kl - (k-1)*nl 
-c                i = int((ij-0.5)/nj)+1
-c                j = ij - (i-1)*nj 
+c                          k = int((kl-0.5)/nl)+1
+c                          l = kl - (k-1)*nl 
+c                          i = int((ij-0.5)/nj)+1
+c                          j = ij - (i-1)*nj 
 c.. tra_rou = 2
-                 l = int((kl-0.5)/nk)+1
-                 k = kl - (l-1)*nk 
-                 j = int((ij-0.5)/ni)+1
-                 i = ij - (j-1)*ni 
-               end if      
+                           l = int((kl-0.5)/nk)+1
+                           k = kl - (l-1)*nk 
+                           j = int((ij-0.5)/ni)+1
+                           i = ij - (j-1)*ni 
+                        end if      
 c.. add on the offset for each irep
-                 i = i+ioff_nw(ism_lu)-1
-                 j = j+ioff_nw(jsm_lu)-1
-                 k = k+ioff_nw(ksm_lu)-1
-                 l = l+ioff_nw(lsm_lu)-1
+                        i = i+ioff_nw(ism_lu)-1
+                        j = j+ioff_nw(jsm_lu)-1
+                        k = k+ioff_nw(ksm_lu)-1
+                        l = l+ioff_nw(lsm_lu)-1
 c.. look for index in ga_coul
-                  ij = (j-1)*norbt+i 
-                  kl = k*(k-1)/2 + l
-         call ga_get(g_coul,ij,ij,kl,kl,int2e,1)
-         call ga_put(KINT2,ind2e,ind2e,1,1,int2e,1)
-              end do
-             endif
+                        ij = (j-1)*norbt+i 
+                        kl = k*(k-1)/2 + l
+                        if (ind2e.ge.ilo.and.ind2e.le.ihi) then
+                           int_mb(kint_i+ind2e-ilo) = ij
+                           int_mb(kint_j+ind2e-ilo) = kl
+                        endif
+                     end do
+                  endif
+               end do
             end do
-           end do
-          end do
          end do
-       endif
+      end do
+c
+      call ga_gather(g_coul,dbl_mb(kint2_l),int_mb(kint_i),
+     $               int_mb(kint_j),myelem)
+c
+      if (.not.ma_chop_stack(lint_i)) call
+     $   errquit('intim:chop_stack failed', lbuf, MA_ERR)
+      call ga_sync()
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
