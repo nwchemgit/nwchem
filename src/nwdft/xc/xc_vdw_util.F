@@ -200,8 +200,9 @@ c
       double precision xyz(3,nat),dx,dy,dz,r,rcov
 c       
       crd_nr=0.0d0
+      if (iz(iat).eq.0) return
       do i=1,nat
-         if(iat.ne.i)then
+         if(iat.ne.i.and.iz(i).ne.0)then
             dx=xyz(1,iat)-xyz(1,i)
             dy=xyz(2,iat)-xyz(2,i)
             dz=xyz(3,iat)-xyz(3,i)
