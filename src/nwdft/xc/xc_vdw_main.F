@@ -233,6 +233,7 @@ c     U. Zimmerli, M Parrinello and P. Koumoutsakos, JCP. 120, 2693 (2004)
 c     Q. Wu and W. Yang, JCP. 116, 515 (2002)
 c
       implicit none
+#include "errquit.fh"
 #include "xc_vdw.fh"
       double precision s6,s8,sr6,sr8
       integer n
@@ -253,6 +254,10 @@ c
       if (ivdw.le.2) then
         do i=1,n-1
           if (Z(i).ne.0) then
+            if (r0(z(i)).le.0.0d0) then
+              call errquit("xc_vdw_e: no Grimme parameters for element",
+     +                     int(z(i)),UERR)
+            endif
             do j=i+1,n
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
