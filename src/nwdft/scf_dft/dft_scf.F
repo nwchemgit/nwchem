@@ -2154,7 +2154,7 @@ c     Deallocate zora related arrays
 c     AOR begin
 c     deallocate xdm arrays
       if (lxdm.eq.1) then
-         call xc_xdm_cleanup()
+         call xc_xdm_cleanup(rtdb)
       endif
 c     AOR end
 

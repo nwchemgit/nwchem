@@ -21,6 +21,7 @@ c     xdm common
 
       if (.not. rtdb_get(rtdb, 'dft:xdm', mt_int, 1,
      &   lxdm)) lxdm = 0
+      if(lxdm.eq.0) return
 
 c     are the volumes and moments available from a previous iteration?
       if (.not. rtdb_get(rtdb,'dft:xdmsave', mt_log, 1, savedvml)) 
@@ -396,18 +397,18 @@ c     Sum the dispersion energy
 c     parameters
       double precision pi
 c      
-      integer i, j, k, iat, isp,ii
+      integer i, j, k, iat, isp
       double precision wei, rhoat, rhoi, r, x, y, z, vsum
       double precision rhot, rhos, grho, taus, laps
       double precision ds, qs, rhs, xroot, xshift, xold
       double precision expx, gx, fx, ffx, db, db2, db3
       double precision r2, r3
       double precision eps,thresh,mtwo3rds
-      parameter(eps=1d-29,thresh=1d-10,mtwo3rds=-2d0/3d0)
+      parameter(eps=1d-40,thresh=1d-12,mtwo3rds=-2d0/3d0)
 
 c     atomic densities
       double precision rhop(nq), b(nq)
-      double precision xdm_rhop,rr
+      double precision xdm_rhop
       external xdm_rhop
 c
       pi=acos(-1d0)
@@ -434,14 +435,15 @@ c           iz(j) == 0 is a ghost atom (bsse)
       do isp = 1, ipol
          do i = 1, nq
 c     calculate dipole moment
-               rhot = max(rho(i,ipol),eps)
             if (ipol .eq. 1) then
-               rhos = rhot / 2d0
+               rhot = max(rho(i,1),eps)
+               rhos = max(rhot / 2d0,eps/2d0)
                grho = dsqrt(delrho(i,1,1)**2 + delrho(i,2,1)**2 + 
      +              delrho(i,3,1)**2) / 2d0
                taus = ttau(i,1,1)+ttau(i,1,2)+ttau(i,1,3)
                laps = lap(i,1) / 2d0
             else
+               rhot = max(rho(i,2),eps)
                if (isp .eq. 1) then
                   rhos = rho(i,2) - rho(i,3)
                   grho = dsqrt((delrho(i,1,1)-delrho(i,1,2))**2 + 
@@ -459,18 +461,40 @@ c     calculate dipole moment
                endif
                rhos = max(rhos,0.5*eps)
             endif
-            ds = taus - 0.25d0 * grho**2 / rhos
-            qs = 1d0/6d0 * (laps - 2d0 * ds)
-            rhs = 2d0/3d0*pi**(2d0/3d0)*(rhos)**(5d0/3d0)/qs
-            xroot=2d0
+
+            if(abs(rhos).gt.eps) then
+               ds = taus - 0.25d0 * grho**2 / rhos
+               qs = 1d0/6d0 * (laps - 2d0 * ds)
+               rhs = 2d0/3d0*pi**(2d0/3d0)*(rhos)**(5d0/3d0)/qs
+            else
+               rhs= 0d0
+            endif
+            if (rhs > 0d0) then
+               xroot = 3d0
+               xshift = 1d0
+               do while ((xroot*exp(-2d0*xroot/3d0))/(xroot-2d0)<rhs)
+                  xshift = xshift * 0.1d0
+                  xroot = 2d0 + xshift
+               end do
+            else
+               xroot = 1d0
+               xshift = 1d0
+               do while ((xroot*exp(-2d0*xroot/3d0))/(xroot-2d0)>rhs)
+                  xshift = xshift * 0.1d0
+                  xroot = 2d0 - xshift
+               end do
+            end if
+            if(abs(xroot).gt.eps) then
+            xold = xroot + 1d0
             do while (abs(xroot - xold) > thresh)
                xold = xroot
-               expx = exp(mtwo3rds * xroot)
+               expx = exp(-2d0 * xroot / 3d0)
                gx = (xroot * expx) / (xroot - 2d0)
                fx = gx - rhs
-               ffx = gx * (1d0 / xroot + mtwo3rds - 1d0 / (xroot - 2d0))
+               ffx = gx * (1d0 / xroot - 2d0/3d0 - 1d0 / (xroot - 2d0))
                xroot = xroot - fx / ffx
             end do
+            endif
             b(i) = xroot * (exp(-xroot) / (8d0*pi*rhos))**(1d0/3d0)
          enddo      
 
@@ -519,19 +543,32 @@ c     contribution to atomic moments
 
       end
 
-      subroutine xc_xdm_cleanup()
+      subroutine xc_xdm_cleanup(rtdb)
 
 #include "mafdecls.fh"
-
+#include "rtdb.fh"
+c
+      integer rtdb
 c     xdm common
-      integer nxdm
+      logical savedvml
+      integer nxdm, lxdm
       integer ixdm_v, ixdm_ml, lxdm_v, lxdm_ml
       common /xdmd/ nxdm, ixdm_v, lxdm_v, ixdm_ml, lxdm_ml
 
-      if (.not.MA_free_heap(lxdm_ml))
-     &     call errquit('xc_xdm_cleanup: cannot clean ml',1,MA_ERR)
-      if (.not.MA_free_heap(lxdm_v))
-     &     call errquit('xc_xdm_cleanup: cannot clean v',1,MA_ERR)
+      if (.not. rtdb_get(rtdb, 'dft:xdm', mt_int, 1,
+     &   lxdm)) lxdm = 0
+      if(lxdm.eq.0) return
+
+
+      if (.not. rtdb_get(rtdb,'dft:xdmsave', mt_log, 1, savedvml)) 
+     &     savedvml = .false.
+
+      if (.not.savedvml) then
+c      if (.not.MA_free_heap(lxdm_ml))
+c     &     call errquit('xc_xdm_cleanup: cannot clean ml',1,MA_ERR)
+c      if (.not.MA_free_heap(lxdm_v))
+c     &     call errquit('xc_xdm_cleanup: cannot clean v',1,MA_ERR)
+      endif
       
       end
 
