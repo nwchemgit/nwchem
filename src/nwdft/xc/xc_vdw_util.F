@@ -169,24 +169,36 @@ c
          cnij(1,i)=0.0d0
          cnij(2,i)=0.0d0
          cnij(3,i)=0.0d0
-         do iat=1,n
-            if (i.ne.iat) then
-               dx=xyz(1,iat)-xyz(1,i)
-               dy=xyz(2,iat)-xyz(2,i)
-               dz=xyz(3,iat)-xyz(3,i)
-               r=dsqrt(dx*dx+dy*dy+dz*dz)
-               cov_rad=cov_table(iz(iat))+cov_table(iz(i))
-               expf=dexp(-k1*((cov_rad/r)-1.0d0))
-               fac2=1.0d0/(expf+1.0d0)
-               fac3=k1*cov_rad*expf*fac2*fac2/(r*r*r) 
-               cnij(1,i)=cnij(1,i)-fac3*dx
-               cnij(2,i)=cnij(2,i)-fac3*dy
-               cnij(3,i)=cnij(3,i)-fac3*dz
-               cnijk(1,iat,i)=fac3*dx
-               cnijk(2,iat,i)=fac3*dy
-               cnijk(3,iat,i)=fac3*dz
-            endif
-         enddo
+         if (iz(i).ne.0) then
+            do iat=1,n
+               if (i.ne.iat.and.iz(iat).ne.0) then
+                  dx=xyz(1,iat)-xyz(1,i)
+                  dy=xyz(2,iat)-xyz(2,i)
+                  dz=xyz(3,iat)-xyz(3,i)
+                  r=dsqrt(dx*dx+dy*dy+dz*dz)
+                  cov_rad=cov_table(iz(iat))+cov_table(iz(i))
+                  expf=dexp(-k1*((cov_rad/r)-1.0d0))
+                  fac2=1.0d0/(expf+1.0d0)
+                  fac3=k1*cov_rad*expf*fac2*fac2/(r*r*r) 
+                  cnij(1,i)=cnij(1,i)-fac3*dx
+                  cnij(2,i)=cnij(2,i)-fac3*dy
+                  cnij(3,i)=cnij(3,i)-fac3*dz
+                  cnijk(1,iat,i)=fac3*dx
+                  cnijk(2,iat,i)=fac3*dy
+                  cnijk(3,iat,i)=fac3*dz
+               else
+                  cnijk(1,iat,i)=0.0d0
+                  cnijk(2,iat,i)=0.0d0
+                  cnijk(3,iat,i)=0.0d0
+               endif
+            enddo
+         else
+            do iat=1,n
+               cnijk(1,iat,i)=0.0d0
+               cnijk(2,iat,i)=0.0d0
+               cnijk(3,iat,i)=0.0d0
+            enddo
+         endif
       enddo
       return
       end
