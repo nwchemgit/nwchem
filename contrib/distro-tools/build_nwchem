@@ -1973,6 +1973,10 @@ if [ ${#MRCC_METHODS} -ne 0 ] ; then
   fi
 fi
 
+if [ "x$option" = "xrealclean" ]; then
+  rm -f nwchem_make_env.*
+fi
+
 if [ ${#OLD_GA} -ne 0 ] ; then
   cd contrib/mapointer_test
   ./fix_include_files
@@ -2192,9 +2196,6 @@ if [ "x${option}" != "xrealclean" ]; then
   fi
 fi
 echo "=== compile nwchem ==="
-if [ "x${option}" == "xrealclean" ]; then
-  rm -f nwchem_make_env.*
-fi
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX  LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
