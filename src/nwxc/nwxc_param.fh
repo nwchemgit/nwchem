@@ -90,9 +90,22 @@ c
 #define D2_RA_RB    2
 #define D2_RB_RB    3
 c
+c#define D2_RA_GAA   1
+c#define D2_GAA_GAA  2
+c#define D2_RB_GAA   3
+c#define D2_RA_GAB   4
+c#define D2_RB_GAB   5
+c#define D2_GAA_GAB  6
+c#define D2_GAB_GAB  7
+c#define D2_RA_GBB   8
+c#define D2_RB_GBB   9
+c#define D2_GAA_GBB 10
+c#define D2_GAB_GBB 11
+c#define D2_GBB_GBB 12
+c
 #define D2_RA_GAA   1
-#define D2_GAA_GAA  2
-#define D2_RB_GAA   3
+#define D2_RB_GAA   2
+#define D2_GAA_GAA  3
 #define D2_RA_GAB   4
 #define D2_RB_GAB   5
 #define D2_GAA_GAB  6

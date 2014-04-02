@@ -25,6 +25,8 @@ C>
       logical nwxc_is_lda   !< Is this functional an LDA functional?
       logical nwxc_is_gga   !< Is this functional an GGA functional?
       logical nwxc_is_mgga  !< Is this functional a meta-GGA functional?
+      logical nwxc_has_2nd  !< Does this functional support 2nd order
+                            !< partial derivatives?
 C>
       logical nwxc_rtdb_load   !< Load the functional from the RTDB
       logical nwxc_rtdb_store  !< Store the functional on the RTDB

@@ -200,6 +200,9 @@ c       endif
           endif
         endif
       endif
+cDEBUG
+c     call nwxc_printP()
+cDEBUG
 c
  1000 format(1x,f14.8,"  ",a)
  1010 format(1x,a14,"  ",a)
@@ -301,7 +304,13 @@ c     This stuff is to be removed when the integration is finalized
       if (nwxc_has_cam()) then
         status=status.and.
      &     rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.)
+        status=status.and.
+     &     rtdb_put(rtdb,'dft:cam_exch',mt_log,1,.true.)
+        status=status.and.
+     &     rtdb_put(rtdb,'dft:direct',mt_log,1,.true.)
       else
+        status=status.and.
+     &     rtdb_put(rtdb,'dft:cam_exch',mt_log,1,.false.)
         if (rtdb_get(rtdb,'int:cando_txs',mt_log,1,junk)) then
           status=status.and.
      &       rtdb_delete(rtdb,'int:cando_txs')
@@ -509,6 +518,7 @@ c
       nwxc_oroot = ga_nodeid().eq.0
       if (nwxc_oroot) then
         call util_flush(luout)
+#ifdef dlflfglf
         write(luout,*)" =================================="
         write(luout,*)" === Current Density Functional ==="
         write(luout,*)" =================================="
@@ -593,6 +603,7 @@ c
         write(luout,20)"NWXCP_HSE",NWXCP_HSE
         write(luout,20)"NWXCP_VS98",NWXCP_VS98
         write(luout,20)"NWXCP_PBE_D1",NWXCP_PBE_D1
+#endif
         write(luout,*)
         if (nwxc_has_hfx()) then
           wght = nwxc_wght_hfx()

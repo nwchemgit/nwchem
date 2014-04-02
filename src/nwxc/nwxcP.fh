@@ -300,8 +300,12 @@ c
       integer NWXCP_C_P91        !< The P91 correlation functional
       parameter (NWXCP_C_P91 = NWXCP_C_P86 + 1)
 c
+      integer NWXCP_C_P91_VWN5   !< The P91 correlation functional
+                                 !< with VWN5 for LDA
+      parameter (NWXCP_C_P91_VWN5 = NWXCP_C_P91 + 1)
+c
       integer NWXCP_C_PW6B95     !< The PW6B95 correlation functional
-      parameter (NWXCP_C_PW6B95 = NWXCP_C_P91 + 1)
+      parameter (NWXCP_C_PW6B95 = NWXCP_C_P91_VWN5 + 1)
 c
       integer NWXCP_C_PWB6K      !< The PWB6K correlation functional
       parameter (NWXCP_C_PWB6K = NWXCP_C_PW6B95 + 1)

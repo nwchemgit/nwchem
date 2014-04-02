@@ -271,8 +271,8 @@ c
 c
             func(n) = func(n) + f*wght
             Amat(n,D1_RA) = Amat(n,D1_RA) + d1f(1)*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + (d1f(3)+d1f(4)/2d0)*wght
-c           Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + d1f(4)*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + d1f(3)*wght
+            Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + d1f(4)*wght
 #ifdef SECOND_DERIV
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + d2f(1)*wght
             Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB) + d2f(2)*wght

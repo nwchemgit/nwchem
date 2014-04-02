@@ -86,7 +86,7 @@ c        *****                          agr,fn,fdn      *****
         value = value.and.
      >        MA_push_get(mt_dbl, n2ft3d,'fn',fn(2),fn(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'fdn',fdn(2),fdn(1))
+     >        MA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
         value = value.and.
      >        MA_push_get(mt_dbl, n2ft3d,'rhog',rhog(2),rhog(1))
@@ -145,6 +145,11 @@ c
            call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
+c
+c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+c
+           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                              dbl_mb(fdn(1)))
 c
 c          Calculate the energy density from the functional
 c

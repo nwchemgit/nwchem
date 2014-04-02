@@ -37,6 +37,10 @@ c     **** restricted calculations ****
      >                       dumtau,xce,
      >                       fn,fdn,dumtau)
 c
+c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+c
+           call D3dB_r_SMul(1,0.5d0,fdn(1,2),fdn)
+c
 c          Calculate energy density from energy
 c
            do i = 1, ic

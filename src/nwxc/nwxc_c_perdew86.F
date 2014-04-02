@@ -187,8 +187,7 @@ c
                dlnfgam = 1d0/gamma - d1phi(2)
                d1f(3) = func*dlnfgam
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + d1f(3)*wght
-c              Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + d1f(3)*2D0*wght
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + d1f(3)*1D0*wght
+               Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + d1f(3)*2D0*wght
 #ifdef SECOND_DERIV
                d2phi(2) = d1phi(2)*dlnphi
                d2phi(3) =-d1phi(2)/(2d0*gamma)

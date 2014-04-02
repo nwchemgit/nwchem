@@ -76,7 +76,7 @@ c        *****                          agr,fn,fdn      *****
      >        MA_push_get(mt_dbl, n2ft3d,'fn',fn(2),fn(1))
         rhog(1) = fn(1)
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'fdn',fdn(2),fdn(1))
+     >        MA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
@@ -128,6 +128,11 @@ c     >                      dbl_mb(agr(1)))
            call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
+c
+c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+c
+           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                              dbl_mb(fdn(1)))
 c
 c          Calculate energy density from energy
 c

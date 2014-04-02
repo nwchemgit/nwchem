@@ -315,7 +315,7 @@ c
          endif
          if (ipol.eq.1) then
            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) +   Eloc*dFggaCdGx*wght
-     $                                     +   Eloc*dFggaCdGx*wght
+           Cmat(n,D1_GAB) = Cmat(n,D1_GAB) +F2*Eloc*dFggaCdGx*wght
          else
            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) +   Eloc*dFggaCdGx*wght
            Cmat(n,D1_GAB) = Cmat(n,D1_GAB) +F2*Eloc*dFggaCdGx*wght

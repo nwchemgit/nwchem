@@ -98,6 +98,8 @@ c
               Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
               Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
      +                           + Cmatl(ii+1,D1_GAA)
+              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
+     +                           + Cmatl(ii+1,D1_GAB)
            enddo
 c
 c          {(c2-c1)*Ec[a,0]}(a) + {(c2-c1)*Ec[0,b]}(a)
@@ -118,9 +120,9 @@ c
               Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA)
      +                          + Amatl(ii+1,D1_RA) + Amatl(ii+1,D1_RB)
               Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + (2.0d0/3.0d0)*(Cmatl(ii+1,D1_GAA) 
-     +                           + 2*Cmatl(ii+1,D1_GAB)
-     +                           + Cmatl(ii+1,D1_GBB))
+     +                           + (2.0d0)*Cmatl(ii+1,D1_GAA) 
+              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
+     +                           + (2.0d0)*Cmatl(ii+1,D1_GAB)
            enddo
          enddo
 c

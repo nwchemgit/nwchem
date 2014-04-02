@@ -705,6 +705,8 @@ c
      +             //"SH Vosko, KA Jackson, MR Pederson, DJ Singh, "
      +             //"C. Fiolhais, Phys.Rev. B 46, 6671 (1992)"
      +             //" doi:10.1021/jp050536c)"
+         case (NWXCP_C_P91_VWN5)
+           cdata = "Perdew91 with VWN5 Correlation"
          case (NWXCP_C_PW6B95)
            cdata = "PW6B95 Correlation (Y Zhao, DG Truhlar, "
      +             //"J.Phys.Chem. A 109, 5656 (2005)"

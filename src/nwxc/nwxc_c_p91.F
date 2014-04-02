@@ -851,10 +851,10 @@ c
 c           Now form Cmat
 c
             if (ipol.eq.1) then
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dH0dg*rhoval*wght*2.0d0
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dH0dg*rhoval*wght
+     &                                         + dH1dg*rhoval*wght
+               Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dH0dg*rhoval*wght*2.0d0
      &                                         + dH1dg*rhoval*wght*2.0d0
-c              Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dH0dg*rhoval*wght*2.0d0
-c    &                                         + dH1dg*rhoval*wght*2.0d0
             else
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dH0dg*rhoval*wght
      &                                         + dH1dg*rhoval*wght

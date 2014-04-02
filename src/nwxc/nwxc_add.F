@@ -167,6 +167,12 @@ c       nwxc_add_df = nwxc_usr_add_func(NWXCP_HFXC,dfweight)
         nwxc_add_df = .true.
 c       Hartree-Fock exchange and MP2 correlation are handled different
 c       nwxc_add_df = nwxc_usr_add_func(NWXCP_MP2C,dfweight)
+      else if (dfname.eq."srhfexch") then
+c       Represent the short-range exchange with exact exchange
+        nwxc_cam_srhfex = .true.
+      else if (dfname.eq."lrhfexch") then
+c       Represent the long-range exchange with exact exchange
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_SLATER,dfweight)
       else if (dfname.eq."becke88") then
@@ -543,6 +549,12 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
      &                nwxc_add_func(NWXCP_C_PW91LDA,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_P91,dfweight)
+      else if (dfname.eq."cp91vwn5") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_C_P91_VWN5,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_VWN5,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_P91_VWN5,dfweight)
       else if (dfname.eq."vwn_1") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_VWN1,dfweight)
       else if (dfname.eq."vwn_1_rpa") then
@@ -570,7 +582,7 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_VWN5,1.00d0*dfweight)
         nwxc_add_df = nwxc_add_df .and.
-     &                nwxc_add_func(NWXCP_C_P91,0.81d0*dfweight)
+     &                nwxc_add_func(NWXCP_C_P91_VWN5,0.81d0*dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.20d0*dfweight
       else if (dfname.eq."beckehandh") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_BHANDH,dfweight)
@@ -1224,6 +1236,74 @@ c
       enddo
       nwxc_depends_on_tau = (abssum.gt.0.0d0)
 c
+      end
+C>
+C> \brief Detect whether the functional supports 2nd derivatives
+C>
+C> For capabilities such as TDDFT and Hessians 2nd order partial
+C> derivatives of the functional are required. This function detects
+C> whether the current functional supports these derivatives. 
+C>
+C> \return
+C> - `.TRUE.` if 2nd order derivatives are supported
+C> - otherwise the function does not return (it will kill the code
+C>   instead)
+C>
+      logical function nwxc_has_2nd()
+      implicit none
+#include "nwxcP.fh"
+      integer i      !< Counter
+      integer maxpt  !< The number of points
+      parameter (maxpt = 3)
+      integer maxpt2  !< The number of points
+      parameter (maxpt2 = 2*maxpt)
+      integer maxpt3  !< The number of points
+      parameter (maxpt3 = 3*maxpt)
+      integer maxpt12 !< The number of points
+      parameter (maxpt12 = 12*maxpt)
+      integer maxpt13 !< The number of points
+      parameter (maxpt13 = 13*maxpt)
+c     
+      double precision rho(maxpt2)    !< The density
+      double precision rgamma(maxpt3) !< The norm of the gradient
+      double precision tau(maxpt2)    !< The kinetic energy density
+c
+      double precision func(maxpt)    !< The functional value
+      double precision dfdr(maxpt2)   !< Derivative wrt rho
+      double precision dfdg(maxpt3)   !< Derivative wrt rgamma
+      double precision dfdt(maxpt2)   !< Derivative wrt tau
+c
+      double precision dfdr2(maxpt3)   !< 2nd derivative wrt rho
+      double precision dfdg2(maxpt12)  !< 2nd derivative wrt rgamma
+      double precision dfdt2(maxpt13)  !< 2nd derivative wrt tau
+c
+      double precision abssum
+c
+c     Data taken from the quartet Nitrogen test case nwxc_nwdft_4n;
+c
+      data rho   /2.2175d-3, 8.2309d-3, 1.4192d-2,
+     +            1.8849d-4, 1.1904d-3, 2.4799d-3/
+      data rgamma/1.7078d-5, 2.6544d-4, 8.3431d-4,
+     +            2.1459d-6, 5.1828d-5, 1.9672d-4,
+     +            2.6964d-7, 1.0119d-5, 4.6388d-5/
+      data tau   /1.1802d-3, 5.2247d-3, 9.8571d-3,
+     +            1.7882d-4, 1.0629d-3, 2.3387d-3/
+      data func/maxpt*0.0d0/
+      data dfdr/maxpt2*0.0d0/
+      data dfdg/maxpt3*0.0d0/
+      data dfdt/maxpt2*0.0d0/
+      data dfdr2/maxpt3*0.0d0/
+      data dfdg2/maxpt12*0.0d0/
+      data dfdt2/maxpt13*0.0d0/
+c
+      nwxc_has_2nd = .false.
+c
+      call nwxc_eval_df2(2,maxpt,rho,rgamma,tau,func,dfdr,dfdr2,
+     &                   dfdg,dfdg2,dfdt,dfdt2)
+c
+      nwxc_has_2nd = .true.
+c
+      return
       end
 
 C> @}
