@@ -1,4 +1,5 @@
       subroutine geom_print_rtdb_ecce(rtdb)
+      implicit none
 *
 * $Id$
 *

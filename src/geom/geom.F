@@ -2885,7 +2885,7 @@ c
 c
       if (.not. geom_tag_to_element(tag, symbol, element, atn)) then
 c
-c     Is not an atom.  Try removing Bq or X.
+c        Is not an atom.  Try removing Bq or X.
 c
          if (inp_compare(.false., tag(1:1), 'x')) then
             ttag = tag(2:)
@@ -2894,8 +2894,25 @@ c
          else
             return              ! Nothing recognizable
          endif
-         if (.not. geom_tag_to_element(ttag, symbol, element, atn))
-     $        return
+         if (.not. geom_tag_to_element(ttag, symbol, element, atn)) then
+c
+c           We found a "Bq" or "X" but it is not labeled with an element
+c           (e.g. "XH" or "BqN") so we cannot associate any atomic
+c           properties. 
+c
+            geom_tag_to_covalent_radius = .false.
+            return
+         else
+c
+c           We found a "Bq" or "X" with an atomic type indication and 
+c           we now have the atomic number indicated, so we will go 
+c           with that.
+c
+         endif
+      else
+c
+c        We found an atom and now know its atomic number
+c
       endif
 c
 c     atn should be set to something sensible
@@ -3598,6 +3615,7 @@ c
 C> \return Return .true. if successfull, and .false. otherwise.
 c
       logical function geom_nuc_charge(geom, total_charge)
+      implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom                  !< [Input] the geometry handle
@@ -3729,6 +3747,7 @@ C> \return Return .true. if the system type was found successfully, and
 C> .false. otherwise.
 c
       logical function geom_systype_get(geom, itype)
+      implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              !< [Input] the geometry handle
@@ -3865,7 +3884,7 @@ c
 c     
       integer geom,i,j               ! [input]
       double precision lattice(6)    ! [output]
-      real*8 rad,scale
+      double precision rad,scale
       logical  geom_check_handle,geom_get_user_scale
       external geom_check_handle,geom_get_user_scale
 
@@ -4140,11 +4159,11 @@ c
       end
       subroutine xlattice_abc_abg(a,b,c,alpha,beta,gamma,lattice_unita)
       implicit none
-      real*8 a,b,c
-      real*8 alpha,beta,gamma,lattice_unita(3,3)
+      double precision a,b,c
+      double precision alpha,beta,gamma,lattice_unita(3,3)
 
 *     *** local variables ****
-      real*8 d2,pi
+      double precision d2,pi
 
 *     **** determine a,b,c,alpha,beta,gmma ***
       pi = 4.0d0*datan(1.0d0)

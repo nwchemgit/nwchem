@@ -101,31 +101,37 @@ c
 c     
       end
       SUBROUTINE HND_BMAT(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "geom.fh"
+#include "util_params.fh"
       integer geom
 C     
 C     ----- CONSTRUCT THE B MATRIX -----
 C     
+      integer na,nzvar,ncart,nzmat
       PARAMETER (    NA=10 )
       LOGICAL     DBUG
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
       LOGICAL     GEOM_ZMT_GET_NIZMAT
       CHARACTER*8 ERRMSG
-      DIMENSION B(NCART,*)
-      DIMENSION ZMAT(*),IZMAT(*)
-      DIMENSION A(3,NA)
-      DIMENSION C(3,*)
+      double precision B(NCART,*)
+      double precision ZMAT(*)
+      integer          IZMAT(*)
+      double precision A(3,NA)
+      double precision C(3,*)
       DIMENSION ERRMSG(3)
+      double precision eqval,pi2,degree,bohr,zero,four,pi,pio2,rtod
+      integer iw,iadd,i,itype,izvar,j,ndum
       DATA ERRMSG /'PROGRAM ','STOP IN ','- BMAT -'/
-      DATA PI2    /6.28318530717958D+00/
+c     DATA PI2    /6.28318530717958D+00/
       DATA DEGREE /360.0D+00/
-      DATA BOHR   /0.52917715D+00/
+      DATA BOHR   /cau2ang/
       DATA ZERO   /0.0D+00/
       DATA FOUR   /4.0D+00/
 C     
@@ -134,6 +140,8 @@ C
       OUT   =.FALSE. 
       OUT   =OUT.OR.DBUG
 C     
+      pi    =acos(-1.0d0)
+      pi2   =2.0d0*pi
       PIO2  =PI2/FOUR
       RTOD  =PI2/DEGREE
 C     
@@ -472,13 +480,19 @@ c
 c
       END
       SUBROUTINE HND_BSTR(EQVAL,NOINT,I,J,C,B,NCART,BOHR)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR A
 C          BOND STRETCH AS DEFINED BY WILSON (SEE WDC P.55) -----
 C
-      DIMENSION C(3,1),B(NCART,1)
-      DIMENSION RIJ(3)
+      double precision eqval,bohr
+      integer          noint,i,j,ncart
+      double precision C(3,1),B(NCART,1)
+      integer          nocol1,nocol2,m
+      double precision dijsq
+      double precision RIJ(3)
+      double precision ZERO
       DATA ZERO /0.0D+00/
       DIJSQ = ZERO
       DO 100 M = 1,3
@@ -493,7 +507,8 @@ C
       RETURN
       END
       SUBROUTINE HND_BEND(EQVAL,NOINT,I,J,K,C,B,NCART,RTOD,BOHR)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS OF A
@@ -503,8 +518,15 @@ C
 C     -----I AND K ARE THE NUMBERS OF THE END ATOMS.  J IS THE
 C          NUMBER OF THE CENTRAL ATOM -----
 C
-      DIMENSION C(3,1),B(NCART,1)
-      DIMENSION RJI(3),RJK(3),EJI(3),EJK(3)
+      double precision eqval,rtod,bohr
+      integer          noint,i,j,k,ncart
+      integer          m,nocol1,nocol2,nocol3
+      double precision C(3,1),B(NCART,1)
+      double precision RJI(3),RJK(3),EJI(3),EJK(3)
+      double precision zero,one,tol,pideg
+      double precision djisq,djksq
+      double precision dotj,dji,djk,dot
+      double precision sinj
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
 C
@@ -547,7 +569,8 @@ C
       RETURN
       END
       SUBROUTINE HND_TORS(EQVAL,NOINT,I,J,K,L,C,B,NCART,RTOD,BOHR)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 C
 C     ----- THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR THE
 C           TORSION AS DEFINED BY WILSON.  SEE WDC P60.
@@ -560,12 +583,19 @@ C           ALONG THE VECTOR J-->K WITH J NEARER THE OBSERVER, THEN
 C           THE CLOCKWISE ROTATION OF J-->I WHICH SUPERPOSES J--> I
 C           WITH K-->L IS A NEGATIVE TORSION ANGLE.
 C
+      double precision eqval,rtod,bohr
+      integer          noint,i,j,k,l,ncart
       CHARACTER*8 ERRMSG
-      DIMENSION C(3,1),B(NCART,1)
-      DIMENSION RIJ(3),RJK(3),RKL(3)
-      DIMENSION EIJ(3),EJK(3),EKL(3)
-      DIMENSION CR1(3),CR2(3),D(3)
+      double precision C(3,1),B(NCART,1)
+      double precision RIJ(3),RJK(3),RKL(3)
+      double precision EIJ(3),EJK(3),EKL(3)
+      double precision CR1(3),CR2(3),D(3)
+      double precision DKLSQ,DKL,DIJ,DIJSQ,DJKSQ,DJK,DOTPK,DOT
+      double precision DOTPJ,F2,F1,SML
+      double precision SINPJ,SMI,SINPK,SMJ
+      integer          iw,nocol1,nocol2,nocol3,nocol4,m
       DIMENSION ERRMSG(3)
+      double precision ZERO,ONE,TOLRD,TOL,PIDEG
       DATA ERRMSG    /'PROGRAM ','STOP IN ','-TORS  -'/
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOLRD     /1.0001D+00/
@@ -694,7 +724,8 @@ cedo  CALL HND_HNDERR(3,ERRMSG)
      1       I3,' - ',I3,' - ',I3,' - ',I3,'. RUN STOPPED.')
       END
       SUBROUTINE HND_OPLA(EQVAL,NOINT,I,J,K,L,C,B,NCART,RTOD,PIO2,BOHR)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR AN
@@ -703,10 +734,16 @@ C          SEE WDC P58. -----
 C     -----I IS THE END ATOM, J IS THE APEX ATOM, AND
 C          K AND L ARE THE ANCHOR ATOMS -----
 C
-      DIMENSION B(NCART,1),C(3,1)
-      DIMENSION RJI(3),RJK(3),RJL(3)
-      DIMENSION EJI(3),EJK(3),EJL(3)
-      DIMENSION C1(3),C2(3),C3(3)
+      double precision eqval,rtod,pio2,bohr
+      integer          noint,i,j,k,l,ncart
+      double precision B(NCART,1),C(3,1)
+      double precision RJI(3),RJK(3),RJL(3)
+      double precision EJI(3),EJK(3),EJL(3)
+      double precision C1(3),C2(3),C3(3)
+      double precision zero,one,tol,pideg
+      double precision DJISQ,DJKSQ,DJLSQ,DJI,DJK,DJL,DET,COST,DOTI,DOT
+      double precision SMK,SINI,SMI,SINT,TANT,SML,THETA
+      integer          m,nocol1,nocol2,nocol3,nocol4
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
 C
@@ -780,7 +817,8 @@ C
       RETURN
       END
       SUBROUTINE HND_LIBE(EQVAL,NOINT,I,J,K,L,C,B,NCART,RTOD,AA,NA,BOHR)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 C
 C     ----- THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR A
 C           PAIR OF PERPENDICULAR LINEAR BENDING COORDINATES.  SEE
@@ -797,17 +835,23 @@ C           PLANE AND THE SECOND IN A PLANE PERPENDICULAR TO THE FIRST
 C           THROUGH POINTS I,J, AND K -----
 C
 #include "stdio.fh"
+      double precision eqval,rtod,bohr
+      integer noint,i,j,k,l,ncart,na
       CHARACTER*8 ERRMSG
-      DIMENSION B(NCART,1),C(3,1)
-      DIMENSION AA(3,1),A(3)
-      DIMENSION RJI(3),RJK(3)
-      DIMENSION UNIT(3),UP(3),UN(3)
-      DIMENSION EJI(3),EJK(3)
+      double precision B(NCART,1),C(3,1)
+      double precision AA(3,1),A(3)
+      double precision RJI(3),RJK(3)
+      double precision UNIT(3),UP(3),UN(3)
+      double precision EJI(3),EJK(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG    /'PROGRAM ','STOP IN ','-LIBE  -'/
+      double precision zero,one,tol,pideg,pt0001
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
       DATA PT0001    /0.0001D+00/
+      integer iw,m,nocol1,nocol2,nocol3,no2
+      double precision DJISQ,DJKSQ,DAJSQ,DJI,DJK,DAJ,DOTJ,DOTP,TEST
+      double precision DUM
 c
       IW = LuOut
 C
@@ -899,15 +943,23 @@ C
       END
       SUBROUTINE HND_DIHPLA(DIHANG,NOINT,IZMAT,CARTC,BMAT,NCART,
      1                      DTORAD)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "stdio.fh"
+      double precision dihang,dtorad
+      integer noint,ncart
       CHARACTER*8 ERRMSG
-      DIMENSION IZMAT(5), CARTC(3,1), BMAT(NCART,1),
+      integer          IZMAT(5)
+      double precision CARTC(3,1), BMAT(NCART,1),
      1          A(3), B(3), C(3), D(3), E1(3), E2(3), E3(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG   /'PROGRAM ','STOP IN ','-DIHPLA-'/
+      double precision zero,one,tol
       DATA ZERO,ONE /0.0D+00,1.0D+00/
       DATA TOL      /1.0D-06/
+      integer          i,j,k,l,m,n,iw,iatom,jatom,katom,latom,matom,ixyz
+      double precision b1,b2,b3,b4,b5,ADOTE2,F1,F2,F4,F5,E1DE2,CDOTE1
+      double precision E2MAG,E1MAGI,E1MAG,E2MAGI,SINDI
 C
 C
 C     COMPUTE THE B MATRIX AND DIHEDRAL ANGLE BETWEEN 5 ATOMS
@@ -1058,7 +1110,8 @@ C
      1          'INTERNAL COORDINATE',I4,' USES ATOMS',5I4)
       END
       logical function geom_zmtmak(rtdb, geom, oprint)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
 #include "global.fh"
@@ -1067,8 +1120,11 @@ C
 #include "util.fh"
 #include "nwc_const.fh"
 #include "rtdb.fh"
+#include "util_params.fh"
+      integer  rtdb
       integer  geom
       logical  oprint
+      integer  max_zcoord
       parameter (max_zcoord=160)
 c     
 c     Make a Z-matrix for the current geometry.  If successful store
@@ -1077,7 +1133,10 @@ c
 c     This version does not use the old HONDO common blocks so
 c     it may be called without preamble or fear of side-effects.
 c     
-      parameter (toangs=0.52917724924d+00)
+      double precision toangs
+      integer          mxatom,mxcart,mxzmat,mxcoor,mxizmt,mxbond,mxbnds
+      integer          mxangs,mxtors,mxoopa,mxlinb,mxlnba,mxseg
+      parameter (toangs=cau2ang)
       parameter (mxatom=nw_max_atom)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=nw_max_zmat)    
@@ -1154,17 +1213,25 @@ c
       dimension endatm(mxatom)
       dimension endmod(mxatom)
       dimension  idone(mxatom)
-      dimension iatseg(mxatom,mxseg)
-      dimension namseg(       mxseg)
-      dimension lenseg(       mxseg)
+      integer   iatseg(mxatom,mxseg)
+      integer   namseg(       mxseg)
+      integer   lenseg(       mxseg)
 c
       character*8 zvarname(mxcoor)
       double precision zvarsign(mxcoor)
 c
       double precision zero
       parameter (zero = 0.0d0)
+c
+      integer iat,jat,kat,nseg,iadd,i,j,k,l,lcon,ianchr,ii,iatom,jatom
+      integer ipass,itype,izvar,icon,jcon,kcon
+      integer m,mlnba,mbond,mangs,max_tor_per_bond,mbnds,mlinb,ncvrpass
+      integer moopa,mseg,mtors,mxconn
+      integer nbnds,npass,nlnba,numang,nuconn,numods,numbnd,numlnb
+      integer numijxtra,numtor,numoop,nuser
+      double precision dist,cvr_scaling,cvfac,rij,rcv,radius
 c     
-      dist(iat,jat)=sqrt((c(1,iat)-c(1,jat))**2+
+      dist(iat,jat)=dsqrt((c(1,iat)-c(1,jat))**2+
      1     (c(2,iat)-c(2,jat))**2+
      2     (c(3,iat)-c(3,jat))**2) * toangs
 c     
@@ -1949,9 +2016,15 @@ c
      3                      ijklop,numoop,
      4                      ijklnb,numlnb,xyzlnb,
      $     max_tor_per_bond, oprint)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
+      integer nzvar,nizmat,mxizmt
+      integer nat,nbnds,numbnd,numang,numtor,numoop,numlnb
+      integer max_tor_per_bond
+      integer i
+      integer mxatom,mxbnds,mxangs,mxtors,mxoopa,mxlinb
       parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
       parameter (mxangs= 8*mxatom)
@@ -1963,13 +2036,14 @@ c
       logical     zdone, oprint
       logical     dolinb
       integer iw
-      dimension c(3,*)
-      dimension izmat(*)   
-      dimension ijbnds(2,*)
-      dimension iibnds(  *)
-      dimension nibnds(  *)
-      dimension ijkang(3,*),ijklto(4,*),ijklop(4,*)
-      dimension ijklnb(4,*),xyzlnb(3,*)
+      double precision c(3,*)
+      integer   izmat(*)   
+      integer   ijbnds(2,*)
+      integer   iibnds(  *)
+      integer   nibnds(  *)
+      integer   ijkang(3,*),ijklto(4,*),ijklop(4,*)
+      integer   ijklnb(4,*)
+      double precision xyzlnb(3,*)
 c
       iw=luout
       dbug=.false.
@@ -2121,22 +2195,25 @@ c
       end
       subroutine hnd_zmtyp1(nzvar,nizmat,izmat,mxizmt,
      1                      nat,nbnds,ijbnds,iibnds,nibnds,numbnd)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
+      integer nzvar,nizmat,mxizmt,nat,nbnds,numbnd
+      integer ione,mxatom,mxbnds
       parameter (ione=1)
       parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
       logical     dbug
-      integer iw
-      dimension izmat(*)   
-      dimension ijbond(2,mxbnds)
-      dimension iibond(  mxatom)
-      dimension nibond(  mxatom)
-      dimension ijbnds(2,*)
-      dimension iibnds(  *)
-      dimension nibnds(  *)
+      integer iw,ij,iat,i,ii,ji,jj,ibnd,jbnd,ijbnd,nbnd,nbond
+      integer izmat(*)   
+      integer ijbond(2,mxbnds)
+      integer iibond(  mxatom)
+      integer nibond(  mxatom)
+      integer ijbnds(2,*)
+      integer iibnds(  *)
+      integer nibnds(  *)
 c
       iw=luout
       dbug=.false.
@@ -2204,10 +2281,13 @@ c
       subroutine hnd_zmtyp2(nzvar,nizmat,izmat,mxizmt,c,
      1     nat,nbnds,ijbnds,iibnds,nibnds,ijkang,numang,
      2     dolinb, zdone, oprint)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
+      integer nzvar,nizmat,nat,nbnds,numang,mxizmt
+      integer itwo,mxatom,mxbnds,mxangs
       parameter (itwo=2)
       parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
@@ -2218,18 +2298,25 @@ c
       logical     linbnd
       logical     oprint
       integer iw
-      dimension c(3,*)
-      dimension izmat(*)   
-      dimension ijkang(3,*)     
-      dimension ijbond(2,mxbnds)
-      dimension iibond(  mxatom)
-      dimension nibond(  mxatom)
-      dimension ijbnds(2,*)
-      dimension iibnds(  *)
-      dimension nibnds(  *)
+      double precision c(3,*)
+      integer          izmat(*)   
+      integer          ijkang(3,*)     
+      integer          ijbond(2,mxbnds)
+      integer          iibond(  mxatom)
+      integer          nibond(  mxatom)
+      integer          ijbnds(2,*)
+      integer          iibnds(  *)
+      integer          nibnds(  *)
+      double precision tol,two
       data tol    /1.0d-01/     ! 5.7 degrees
 *     data tol    /1.0d-08/
       data two    /2.0d+00/
+      integer iat,jat,kat,nbond,ii,jk,i,icon,iang,ij
+      integer ijbnd,ik,jcon,jang,jj,ji,klbnd,kcon,jkbnd,lmbnd,lat,mat
+      integer mang,nang,nfound,nuser_specified
+      double precision cosb,rijsq,rij,rik,riksq,rjksq,rilsq,rjk,rklsq
+      double precision rkl
+      double precision distsq,dotprd
 c     
       distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
      1     (c(2,iat)-c(2,jat))**2+
@@ -2482,10 +2569,13 @@ c
       subroutine hnd_zmtyp3(nzvar,nizmat,izmat,mxizmt,c,
      1     numatom,nbnds,ijbnds,iibnds,nibnds, ! note rename nat -> numatom
      2     ijklto,numtor, max_tor_per_bond, zdone, oprint)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
+      integer nzvar,nizmat,numatom,nbnds,numtor, max_tor_per_bond
+      integer ithree,mxatom,mxbnds,mxtors,mxizmt
       parameter (ithree=3)
       parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
@@ -2496,20 +2586,29 @@ c
       logical zdone, oprint, oopb, oi3d, oj3d
       logical geom_add_tor, bonds_span3d
       integer iw
-      dimension c(3,*)
-      dimension izmat(*)   
-      dimension ijklto(4,*)      
-      dimension ijbond(2,mxbnds)
-      dimension iibond(  mxatom)
-      dimension nibond(  mxatom)
-      dimension ijbnds(2,*)
-      dimension iibnds(  *)
-      dimension nibnds(  *)
+      double precision c(3,*)
+      integer          izmat(*)   
+      integer          ijklto(4,*)      
+      integer          ijbond(2,mxbnds)
+      integer          iibond(  mxatom)
+      integer          nibond(  mxatom)
+      integer          ijbnds(2,*)
+      integer          iibnds(  *)
+      integer          nibnds(  *)
+      double precision tol,two
       data tol    /1.0d-01/     ! sin(5.7 degrees) = 0.1
 *     data tol    /1.0d-08/
 c$$$  data zero   /0.0d+00/
 c$$$  data one    /1.0d+00/
       data two    /2.0d+00/
+      integer iat,jat,kat
+      double precision distsq,dotprd
+      double precision cosbk,cosbj,rjksq,rik,rijsq,rij,rjk,riksq
+      double precision rjl,rjlsq,rklsq,rkl
+      integer i,ii,ij,ijbnd,ik,il,jtor,jj,itor,ji,jk,jkbnd,jlbnd,jl
+      integer lat,klbnd,lmbnd,mat,mnbnd,mtor,nat,nbond,ntornonlin
+      integer ntor_for_ij,ntor
+
 c     
       distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
      1     (c(2,iat)-c(2,jat))**2+
@@ -3154,7 +3253,9 @@ c$$$ 9992 FORMAT(' NO LINEAR-BENDS FOUND ')
 c$$$ 9991 FORMAT(' LINEAR-BENDS NOT SET UP CURRENTLY . STOP . ')
 c$$$      END
       subroutine hnd_dparsc(a,la,c,lc)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
+      integer la,lc,ic
       character*(*) a
       character*(*) c
       character*1   blk
@@ -3170,7 +3271,9 @@ c$$$      END
       return
       end
       subroutine hnd_dparsi(a,la,n)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
+      integer la,i1,i2,isign,n,ia,ib,i
       character*(*) a
       character*1   char(12)
       data char     /'0','1','2','3','4','5','6','7','8','9',
@@ -3191,7 +3294,7 @@ c
       else
          isign= 1
       endif
-      na=i2-i1+1
+c     na=i2-i1+1
 c
       n=0
       do ia=i1,i2
@@ -3207,7 +3310,10 @@ c
       return
       end
       subroutine hnd_dparsr(a,la,x)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
+      integer la,i1,i2,isign,ie1,ie2,ie,iexp,itmp,i,j
+      double precision dum,zero,ten,x
       logical rep
       character*(*) a
       character*1   char(17)
@@ -3288,9 +3394,11 @@ c
       return
       end
       SUBROUTINE HND_HNDERR(LERR,ERRMSG)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
+      integer lerr,iw
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(LERR)
 c
@@ -3306,8 +3414,10 @@ C
  9997 FORMAT(/,1X,72(1H-))
       END
       SUBROUTINE HND_GEOCLS(NFT)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "stdio.fh"
+      integer nft,iw
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','-GEOCLS-'/
@@ -3320,8 +3430,10 @@ C
  9999 FORMAT(/,' ----- ERROR CLOSING UNIT ',I3,' IN -GEOCLS- . STOP .')
       END
       SUBROUTINE HND_GEOOPN(NFT,GEOFIL)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "stdio.fh"
+      integer nft,iw
       CHARACTER*80 GEOFIL
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(3)
@@ -3341,7 +3453,8 @@ C
      2                NUMVAR,PRSVAR,VARCHR,FRZVAR,FRZVAL,LST,
      3                IZMAT,IZ,IZFRZ,MXIZMT,NZMOD,DBUG,
      $     zvarname, zvarsign)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 C
 C     THIS ROUTINE TAKES THE CHARACTER STRING VALUES FOR THE
 C     -Z- MATRIX INPUT FOR THE INDICES, AND THE VALUES AND TRANSFORMS
@@ -3378,47 +3491,46 @@ C     S. CHIN: 11/08/90 - IBM KINGSTON, NY
 C
 #include "stdio.fh"
 #include "nwc_const.fh"
+      integer       IAT,NAT,NVAR,NZMOD,IZ
+      integer       MXATOM,MAXGEO,MAXZMT,MAXVAR,MXIZMT
       PARAMETER     (MXATOM=nw_max_atom)
       PARAMETER     (MAXGEO=MXATOM+1,MAXZMT=40,MAXVAR=nw_max_zmat)
       LOGICAL       DBUG
       LOGICAL       LST
       LOGICAL       READY
-      INTEGER     FLGZMT
       CHARACTER*80  PRSZMT
-      INTEGER     ZMTCHR
       CHARACTER*80  PRSVAR
-      INTEGER     VARCHR
-      INTEGER     ZMT
-      LOGICAL       FRZVAL
-      LOGICAL       FRZVAR
       LOGICAL       CART
-      LOGICAL       IZFRZ
       CHARACTER*8   ATNAME
       CHARACTER*1   PLUS
       CHARACTER*1   MINUS
       CHARACTER*8   ERRMSG
+      double precision xx,yy,zz,atnum
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
-      DIMENSION     ERRMSG(3)
-      DIMENSION     NUMZMT(       MAXGEO)
-      DIMENSION     PRSZMT(MAXZMT,MAXGEO)
-      DIMENSION     FLGZMT(MAXZMT,MAXGEO)
-      DIMENSION     ZMTCHR(MAXZMT,MAXGEO)
-      DIMENSION     PRSVAR(MAXZMT,MAXVAR)
-      DIMENSION     VARCHR(MAXZMT,MAXVAR)
-      DIMENSION     FRZVAR(       MAXVAR)
-      DIMENSION     NUMVAR(       MAXVAR)
-      DIMENSION     FRZVAL(     3,MAXGEO)
-      DIMENSION       ZVAL(     3,MAXGEO)
-      DIMENSION        ZMT(     5,MAXGEO)
-      DIMENSION       ZLST(     3,MAXGEO)
-      DIMENSION      IZMAT(MXIZMT)
-      DIMENSION      IZFRZ(MXIZMT)
+      DIMENSION         ERRMSG(3)
+      integer           NUMZMT(       MAXGEO)
+      DIMENSION         PRSZMT(MAXZMT,MAXGEO)
+      integer           FLGZMT(MAXZMT,MAXGEO)
+      integer           ZMTCHR(MAXZMT,MAXGEO)
+      DIMENSION         PRSVAR(MAXZMT,MAXVAR)
+      integer           VARCHR(MAXZMT,MAXVAR)
+      logical           FRZVAR(       MAXVAR)
+      integer           NUMVAR(       MAXVAR)
+      logical           FRZVAL(     3,MAXGEO)
+      double precision    ZVAL(     3,MAXGEO)
+      integer              ZMT(     5,MAXGEO)
+      double precision    ZLST(     3,MAXGEO)
+      integer            IZMAT(MXIZMT)
+      logical            IZFRZ(MXIZMT)
 
+      integer          i,j,k,JVAR,JAT
       character*(*) zvarname(*)
       double precision zvarsign(*)
 
       DATA ERRMSG /'PROGRAM ','STOP IN ','- ZDAT -'/
+      double precision ZERO,TWO,PIDEG
+      integer          iw
       DATA ZERO   /0.0D+00/
       DATA TWO    /2.0D+00/
       DATA PIDEG  /180.0D+00/
@@ -3917,7 +4029,8 @@ C
  9983 FORMAT(' SAME ATOM REFERRED TO MORE THAN ONCE ON THIS LINE')
       END
       SUBROUTINE HND_ZXYZ(NAT,NZMT,ZVAL)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 C
 C     ROUTINE COMPUTES :
 C
@@ -3939,26 +4052,35 @@ C          =3     ATOMS B-C-D ARE COLLINEAR
 C
 #include "stdio.fh"
 #include "nwc_const.fh"
+      integer       nat
+      integer       MXATOM,MAXGEO,MAXWRD,MAXVAR
       PARAMETER     (MXATOM=nw_max_atom)
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmat)
       LOGICAL       DBUG
       LOGICAL       CART
       CHARACTER*8   ATNAME
       CHARACTER*8   ERRMSG
+      double precision xx,yy,zz,atnum
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
-      DIMENSION   NZMT(5,MAXGEO)
-      DIMENSION   ZVAL(3,MAXGEO)
+      integer            NZMT(5,MAXGEO)
+      double precision   ZVAL(3,MAXGEO)
       DIMENSION   ERRMSG(3)
-      double precision numd
+      double precision numd,zero,one,two,three,rcd,ccosp,ssinp
+      double precision costd,sintd,ccos,ssin,ccost,ssint
+      integer iw,na,nb,nc,nd,iat
       DATA ERRMSG    /'PROGRAM ','STOP IN ','- ZXYZ -'/
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TWO,THREE /2.0D+00,3.0D+00/
+      double precision t11,t12,t13,t21,t22,t23,t31,t32,t33
+      double precision phi,bet,alp,gam,dum,dot,rca,pifac,rab,rcb
+      double precision theta,thbcd
+      double precision xa,xb,xxd,yyd,zzd,ya,yb,za,zb
 C
       DBUG=.FALSE.
       IW = luout
 C
-      PIFAC=3.1415926536D+00/180.0D+00
+      PIFAC=acos(-1.0d0)/180.0D+00
       COSTD=-ONE/THREE
       SINTD= TWO/THREE* SQRT(TWO)
       NA   =0
@@ -4174,14 +4296,19 @@ C
  9997 FORMAT(' IAT = ',I4,' IS ALREADY SPECIFIED IN CARTESIAN SPACE.')
       END
       SUBROUTINE HND_PRSQ(V,M,N,NDIM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "stdio.fh"
 C
 C     ----- PRINT OUT A SQUARE MATRIX -----
 C
 ***      COMMON/HND_LISTNG/LIST
-      DIMENSION V(NDIM,1)
-      DIMENSION IC(5),C(5)
+      integer m,n,ndim
+      double precision V(NDIM,1)
+      integer IC(5)
+      double precision C(5)
+      double precision vtol
+      integer icmax,iw,list,imax,imin,i,j,ii,idum,max
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
 c
@@ -4242,16 +4369,22 @@ C
  9348 FORMAT(5(I5,F11.5))
       END
       SUBROUTINE HND_PREV(V,E,M,N,NDIM)
-      IMPLICIT REAL*8 (A-H,O-Z)
+c     IMPLICIT REAL*8 (A-H,O-Z)
+      implicit none
 #include "stdio.fh"
 C
 C     ----- PRINT OUT E AND V-MATRICES
 C
 ***      COMMON/HND_LISTNG/LIST
-      DIMENSION V(NDIM,1),E(1)
-      DIMENSION IC(5),C(5)
+      integer m,n,ndim
+      double precision V(NDIM,1),E(1)
+      integer IC(5)
+      double precision C(5)
+      double precision vtol
+      integer icmax
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
+      integer iw,list,imax,imin,max,i,j,ii,idum
 C
       IW = LuOut
       LIST=1
@@ -4316,13 +4449,15 @@ C
  9348 FORMAT(5(I5,F11.5))
       END
       SUBROUTINE HND_PRTR(D,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
+c     IMPLICIT REAL*8 (A-H,O-Z)
+      implicit none
 #include "stdio.fh"
 C
 C     ----- PRINT OUT A TRIANGULAR MATRIX -----
 C
 ***      COMMON/HND_LISTNG/LIST
-      DIMENSION D(1),DD(10)
+      integer n,iw,list,max,imax,imin,i,j,k,ii,jj,ij
+      double precision D(1),DD(10)
 C
       IW = LuOut
       LIST=1
@@ -4362,11 +4497,18 @@ C
  9248 FORMAT(I5,1X,7E15.8)
       END
       SUBROUTINE HND_TFTR(H,F,Q,T,IA,M,N,NDIM)
-      IMPLICIT REAL*8 (A-H,O-Z)
+c     IMPLICIT REAL*8 (A-H,O-Z)
+      implicit none
 C
 C     ----- H(M,M) = Q(DAGGER)(N,M) * F(N,N) * Q(N,M) -----
 C
-      DIMENSION H(1),F(1),Q(NDIM,1),T(1),IA(1)
+      integer m,n,ndim
+      double precision H(1),F(1),Q(NDIM,1),T(1)
+      integer IA(1)
+      integer ij,j,ik,max,i,k
+      double precision small,zero,dum,qij,hij
+      double precision ddot
+      external ddot
       DATA SMALL /1.0D-11/
       DATA ZERO  /0.0D+00/
       IJ = 0
@@ -4395,7 +4537,8 @@ C
       RETURN
       END
       SUBROUTINE HND_DIAGIV(A,VVEC,EIG,IA,NVEC,N,NDIM)
-      IMPLICIT REAL*8 (A-H,O-Z)
+c     IMPLICIT REAL*8 (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 #include "stdio.fh"
 C
@@ -4405,7 +4548,10 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
       logical status
-      DIMENSION A(1),VVEC(NDIM,1),EIG(1),IA(1)
+      integer nvec,n,ndim
+      double precision A(1),VVEC(NDIM,1),EIG(1)
+      integer IA(1)
+      integer i_idbl,idbl,i_iint,k_iint,iw
 c
 c     ----- memory -----
 c
@@ -4438,13 +4584,22 @@ c
       END
       SUBROUTINE HND_GIVDIA(A,VEC,EIG,IA,N,NDIM,
      1           w,gamma,beta,betasq,p,q,iposv,ivpos,iord)
-      IMPLICIT REAL*8 (A-H,O-Z)
+c     IMPLICIT REAL*8 (A-H,O-Z)
+      implicit none
 C        -----  A GIVENS HOUSHOLDER MATRIX DIAGONALIZATION  -----
 C        -----  ROUTINE SAME AS EIGEN BUT WORKS WITH A      -----
 C        -----  LINEAR ARRAY.                               -----
-      DIMENSION A(1),VEC(NDIM,1),EIG(1),IA(1)
-      DIMENSION W(*),GAMMA(*),BETA(*),BETASQ(*)
-      DIMENSION P(*),Q(*),IPOSV(*),IVPOS(*),IORD(*)
+      integer n,ndim,n1,n2,nr,ik
+      integer IA(1)
+      integer IPOSV(*),IVPOS(*),IORD(*)
+      double precision A(1),VEC(NDIM,1),EIG(1)
+      double precision W(*),GAMMA(*),BETA(*),BETASQ(*)
+      double precision P(*),Q(*)
+      double precision zero,pt5,one,two,rhosq
+      double precision b,s,sum,sgn,temp,d,sqrts,g,a2,cosa,COSAP,DIF
+      double precision DIA,QJ,PPBR,PP,PPBS,SINA2,SINA,R1,R2,R12,SHIFT
+      double precision U,WTAW,WJ
+      integer i1,i,il,ij,ii,j,itemp,jj,k,lv,l,m,nrr,np,npas,nv,nt
       DATA ZERO,PT5,ONE,TWO /0.0D+00,0.5D+00,1.0D+00,2.0D+00/
       DATA RHOSQ /1.0D-22/
 C

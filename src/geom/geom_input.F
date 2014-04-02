@@ -1833,15 +1833,17 @@ c
 c     
       end
       subroutine geom_autoz_input(geom,oprint)
-      implicit double precision (a-h,o-z)
+c     implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "util_params.fh"
       integer geom
       logical oprint
       logical geom_get_user_scale
       double precision scale, bohr
-      parameter (bohr=0.52917715d+00) !!!!!!!!!!!!!!!!!!!!!!!!!
+      parameter (bohr=cau2ang)
 c
       if (.not. geom_get_user_scale(geom, scale))
      $     call errquit('geom_autoz_input: scale?',0, GEOM_ERR)
@@ -2258,6 +2260,7 @@ c
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
+#include "util_params.fh"
       integer geom
       double precision zmat(*)  ! [output] nzvar of these
 c     
@@ -2266,10 +2269,10 @@ c     them in zmat.
 c     
       double precision b(3*max_cent) ! scratch dummy zmatrix
       double precision a(3*10)
-      double precision pi2, degree, bohr, zero, four, pio2, rtod
-      parameter (pi2=6.28318530717958d+00)
+      double precision pi2, degree, bohr, zero, four, pio2, rtod,pi
+c     parameter (pi2=6.28318530717958d+00)
       parameter (degree=360.0d+00)
-      parameter (bohr=0.52917715d+00) ! !!!!!!!!!!!!!!!!!!!!!!!!
+      parameter (bohr=cau2ang)
       parameter (zero=0.0d+00)
       parameter (four=4.0d+00)
 c     
@@ -2282,6 +2285,8 @@ c
       geom_compute_zmatrix = geom_check_handle(geom,'compute zmat')
       if (.not. geom_compute_zmatrix) return
 c     
+      pi    = dacos(-1.0d0)
+      pi2   = 2.0d0*pi
       pio2  =pi2/four
       rtod  =pi2/degree
 c     
@@ -2899,7 +2904,8 @@ c
      1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ,
      2                        UNITS,zvarname,zvarsign,
      3                        found_cart)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
@@ -2924,12 +2930,15 @@ C      ZVAL        =  DISTANCE, ANGLE AND TORSION ANGLE VALUE
 C       ZMT        =  I, J, K, L INDICES
 C
 #include "nwc_const.fh"
+      integer MXATOM,MXCOOR,MAXGEO,MAXWRD,MAXVAR,MAXPRM,MXIZMT,MAXLST
       PARAMETER     (MXATOM=nw_max_atom)
       PARAMETER     (MXCOOR=nw_max_coor)
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmat)
       PARAMETER     (MAXPRM=100)
       PARAMETER     (MXIZMT=nw_max_izmat)
       PARAMETER     (MAXLST=10+1)
+      integer       ncenter,iz,izmat,nzmod,icfrz,ncfrz
+      double precision units
       CHARACTER*16  TAGS
       LOGICAL       GEOM_LST_PUT_COORD
       EXTERNAL      GEOM_LST_PUT_COORD
@@ -2990,32 +2999,36 @@ C
       CHARACTER*10  WR2VAR
       CHARACTER*10  WR1CON
       CHARACTER*10  WR2CON
+      integer ir,iw
+      double precision atnum
+      integer numchr,numwrd
+      double precision xx,yy,zz
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_FREERD/PRSWRD(40),NUMCHR(40),FLGWRD(40),NUMWRD
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
-      DIMENSION COORDS(3,*)
-      DIMENSION CHARGE(  *)
+      double precision COORDS(3,*)
+      double precision CHARGE(  *)
       DIMENSION   TAGS(  *)
       DIMENSION  IZMAT(  *)   
       DIMENSION  ICFRZ(  *)    
       DIMENSION  IZFRZ(MXCOOR)
       DIMENSION  CART0(MAXGEO)
-      DIMENSION  XXLST(MAXGEO,     2)
-      DIMENSION  YYLST(MAXGEO,     2)
-      DIMENSION  ZZLST(MAXGEO,     2)
+      double precision  XXLST(MAXGEO,     2)
+      double precision  YYLST(MAXGEO,     2)
+      double precision  ZZLST(MAXGEO,     2)
       DIMENSION  GHOST(       MAXGEO)
-      DIMENSION NUMZMT(       MAXGEO)
+      integer   NUMZMT(       MAXGEO)
       DIMENSION PRSZMT(MAXWRD,MAXGEO)
       DIMENSION FLGZMT(MAXWRD,MAXGEO)
       DIMENSION ZMTCHR(MAXWRD,MAXGEO)
       DIMENSION FRZVAL(     3,MAXGEO)
-      DIMENSION   ZVAL(     3,MAXGEO)
+      double precision   ZVAL(     3,MAXGEO)
       DIMENSION    ZMT(     5,MAXGEO)
-      DIMENSION   ZLST(     3,MAXGEO)
-      DIMENSION   ZSTP(     3,MAXGEO)
+      double precision   ZLST(     3,MAXGEO)
+      double precision   ZSTP(     3,MAXGEO)
       DIMENSION FRZVAR(       MAXVAR)
-      DIMENSION NUMVAR(       MAXVAR)
+      integer   NUMVAR(       MAXVAR)
       DIMENSION PRSVAR(MAXWRD,MAXVAR)
       DIMENSION FLGVAR(MAXWRD,MAXVAR)
       DIMENSION VARCHR(MAXWRD,MAXVAR)
@@ -3025,8 +3038,12 @@ C
       DIMENSION BLK(80)
       DIMENSION GH(4)
       DIMENSION ERRMSG(3)
+      integer i,iat,icenter,ilst,ilen,iflg,idigit,ierr,isymbl,irsav,ivar
+      integer iwrd,j,izmod,nvar,nat,nchr
       external inp_compare
       logical inp_compare 
+      double precision zero
+      double precision xxiat,yyiat,zziat
       EQUIVALENCE (BLNK80,BLK(1))
       EQUIVALENCE (CHREND,WRDEND)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- ZGEO -'/
@@ -4046,29 +4063,37 @@ c
 c
       end
       SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname,geom)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "nwc_const.fh"
       INTEGER     RTDB
       integer geom
+      double precision THREQUIV
       LOGICAL     ODONE
+      integer MXATOM,MXSYM
       PARAMETER   (MXATOM=nw_max_atom)
       PARAMETER   (MXSYM =120)
       CHARACTER*8 groupname
       LOGICAL     SOME
       LOGICAL     OUT
       LOGICAL     DBUG
+      integer ir,iw
+      double precision c,zan,v
+      integer nat
+      integer invt,nt,ntmax,ntwd,nosym
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),V(3,MXATOM),NAT
       COMMON/HND_SYMTRY/INVT(MXSYM),NT,NTMAX,NTWD,NOSYM
-      DIMENSION   CI(3),AI(3,3)
-      DIMENSION   C1(3,MXATOM)
-      DIMENSION   C2(3,MXATOM)
-      DIMENSION   C3(3,MXATOM)
-      DIMENSION   V2(3,MXATOM)
-      DIMENSION   V3(3,MXATOM)
-      DIMENSION   AXS(3,3),EIG(3)
-      DIMENSION   RT(3,3)
-      DIMENSION   TR(3)
+      double precision   CI(3),AI(3,3)
+      double precision   C1(3,MXATOM)
+      double precision   C2(3,MXATOM)
+      double precision   C3(3,MXATOM)
+      double precision   V2(3,MXATOM)
+      double precision   V3(3,MXATOM)
+      double precision   AXS(3,3),EIG(3)
+      double precision   RT(3,3)
+      double precision   TR(3)
+      integer iat,i
 C
       DBUG=.FALSE.
       OUT =.FALSE. 
@@ -4149,7 +4174,8 @@ C
       END
       SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,
      $     THREQUIV,groupname,geom,V,V2,V3)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 C
 C     ----- ROUTINE DETECTS MOLECULAR SYMMETRY OPERATIONS -----
@@ -4161,11 +4187,13 @@ C
 #include "util.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
+      integer     nat
       integer     geom
       LOGICAL     ODONE
+      integer     mxordr, mxatom
       PARAMETER   (MXORDR=24)
       PARAMETER   (MXATOM=nw_max_atom)
-      CHARACTER*8 ERRMSG,groupname
+      CHARACTER*8 groupname
       LOGICAL     MUCH
       LOGICAL     DBUG
       LOGICAL     OUT
@@ -4174,9 +4202,7 @@ C
       LOGICAL     GOTX,GOTY,GOTZ
       LOGICAL     GOTONE
       LOGICAL     NOSYM
-      LOGICAL     PROPER
       LOGICAL     PRPAXS
-      LOGICAL     IMPROP
       LOGICAL     IMPAXS
       LOGICAL     SYMINV
       LOGICAL     INVERS
@@ -4192,11 +4218,8 @@ C
       LOGICAL     DEGNR3
       LOGICAL     CUBIC
       LOGICAL     C2ROT
-      LOGICAL     C2AXS
       LOGICAL     C4ROT
-      LOGICAL     C4AXS
       LOGICAL     S4ROT
-      LOGICAL     S4AXS
       LOGICAL     GRPOH
       LOGICAL     GRPTH
       LOGICAL     GRPTD
@@ -4205,44 +4228,60 @@ C
       logical     stopordrx
       logical     stopordry
       logical     stopordrz
-      INTEGER     AXORDR 
-      COMPLEX*16  QX,QY,QZ
-      COMPLEX*16  QZERO
-      COMPLEX*16  QDUMX,QDUMY,QDUMZ
-      COMPLEX*16  QDUMI,QDUMJ
+      double COMPLEX  QZERO
+      double COMPLEX  QDUMX,QDUMY,QDUMZ
+      double COMPLEX  QDUMI,QDUMJ
       character*16 atmlab
+      integer ir,iw
+      integer nuc
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)
       common/hnd_mollab/atmlab(mxatom)
-      DIMENSION IEQU(MXATOM)
-      DIMENSION   QX(MXORDR),  QY(MXORDR),  QZ(MXORDR)
-      DIMENSION XMAG(MXORDR),YMAG(MXORDR),ZMAG(MXORDR)
-      DIMENSION PROPER(3)
-      DIMENSION IMPROP(3)
-      DIMENSION AXORDR(3)
-      DIMENSION NEWAXS(3)
-      DIMENSION NUORDR(3)
-      DIMENSION AXS(3,3),EIG(3)
-      DIMENSION  RT(3,3), TR(3)
-      DIMENSION PRM(3,3)
-      DIMENSION  C(3,*)
-      DIMENSION C1(3,*)
-      DIMENSION C2(3,*)
-      DIMENSION C3(3,*)
-      DIMENSION  V(3,*)
-      DIMENSION V2(3,*)
-      DIMENSION V3(3,*)
-      DIMENSION CM(3),AM(3,3)
-      DIMENSION AXM(3,3)
-      DIMENSION C2AXS(3)
-      DIMENSION C4AXS(3)
-      DIMENSION S4AXS(3)
-      DIMENSION ERRMSG(3)
-      double precision big,deter3
-      external deter3
+      integer IEQU(MXATOM)
+      double complex   QX(MXORDR),  QY(MXORDR),  QZ(MXORDR)
+      double precision XMAG(MXORDR),YMAG(MXORDR),ZMAG(MXORDR)
+      double precision fulltheta
+      logical PROPER(3)
+      logical IMPROP(3)
+      integer AXORDR(3)
+      integer NEWAXS(3)
+      integer NUORDR(3)
+      integer kat,k,JJC4,JJS4,jjc2,j,i
+      integer kaxis,jaxis,isteps,istep,iordr,iaxis
+      integer iiat,jjat,iaxm
+      double precision AXS(3,3),EIG(3)
+      double precision  RT(3,3), TR(3)
+      double precision PRM(3,3)
+      double precision  C(3,*)
+      double precision C1(3,*)
+      double precision C2(3,*)
+      double precision C3(3,*)
+      double precision  V(3,*)
+      double precision V2(3,*)
+      double precision V3(3,*)
+      double precision CM(3),AM(3,3)
+      double precision AXM(3,3)
+      logical C2AXS(3)
+      logical C4AXS(3)
+      logical S4AXS(3)
+      character*8 ERRMSG
+      dimension ERRMSG(3)
+      integer naxm,nsteps
+      double precision tmp,twopi,theta,tenm05,tenm04,three,four
+      double precision temp,two,step,rr,one
+      double precision pi,pi2,pi4
+      double precision dx,dy,dz,dirx,diry,dirz,dd
+      double precision d2,degree,d1,d3
+      double precision ethresh,dum,eps,disti,distj
+      double precision big,deter3,dlamch
+      integer nzer
+      external deter3,dlamch
       logical sameatm,ngotax(3)
-      complex*16 geom_powcmpl
+      double complex geom_powcmpl
       external geom_powcmpl
+      double precision xx,yy,zz,zero
+      double precision THREQUIV
+      integer iat,jat
       EQUIVALENCE (DEGNR3,CUBIC)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLOPS-'/
       DATA ZERO   /0.0D+00/
@@ -5548,7 +5587,8 @@ c
      2                     PROPRX,PROPRY,PROPRZ,
      3                     CUBIC,GRPOH,GRPTH,GRPTD,GRPT,GRPO,
      4                     AXORDR,TR,RT,ODONE,groupname)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "util.fh"
       LOGICAL  ODONE
       LOGICAL  DBUG
@@ -5591,10 +5631,16 @@ c
       LOGICAL  MIRRYZ
       LOGICAL  MIRRZX
       LOGICAL  MIRRXY
+      integer  ir,iw
+      integer  igroup,naxis,linear
+      double precision complx,cmxsav
+      double precision dlamch
+      integer  igrsav,naxsav,linsav
+      integer  i,j
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_SYMMOL/COMPLX,IGROUP,NAXIS,LINEAR
       COMMON/HND_SYMNAM/GROUP
-      DIMENSION TR(3),RT(3,3)
+      double precision TR(3),RT(3,3)
       DATA BLANK  /'        '/
       DATA B      /' '/
       DATA S      /'S'/
@@ -5866,16 +5912,22 @@ C
      4       '                            ',3F10.5)
       END
       SUBROUTINE HND_MOLAXS(A,VEC,EIG,NVEC,N,NDIM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 C
 C     ----- ROUTINE TO SUBSTITUTE DIAGIV FOR DIAGONALIZATION -----
 C           OF SYMMETRIC 3X3 MATRIX A  IN TRIANGULAR FORM
 C
       CHARACTER*8 ERRMSG
+      integer ir,iw,n,ndim,nvec
       COMMON/HND_IOFILE/IR,IW
-      DIMENSION A(3,3),VEC(3,3),EIG(3)
-      DIMENSION AA(6),IA(3)
+      double precision A(3,3),VEC(3,3),EIG(3)
+      double precision AA(6)
+      integer IA(3)
       DIMENSION ERRMSG(3)
+      double precision zero,one,conv
+      double precision test,t
+      integer i,j
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLAXS-'/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -5942,7 +5994,13 @@ C
       END
       SUBROUTINE HND_MOLGRP(XPT0,YPT0,ZPT0,XPT1,YPT1,ZPT1,         
      1                      XPT2,YPT2,ZPT2,XPT3,YPT3,ZPT3)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
+      double precision XPT0,YPT0,ZPT0,XPT1,YPT1,ZPT1
+      double precision XPT2,YPT2,ZPT2,XPT3,YPT3,ZPT3
+      integer       mxsym
+      integer       mxsymt
+      integer       mxioda
       PARAMETER     (MXSYM =120)
       PARAMETER     (MXSYMT=120*9)
       PARAMETER     (MXIODA=255)
@@ -5955,6 +6013,17 @@ C
       CHARACTER*8   CHRGRP
       CHARACTER*8   CHRDIR
       CHARACTER*8   CHRBLK
+      double precision   GRP
+      double precision   DRC,direct,blank,conv
+      integer       ir, iw
+      integer       idaf, nav, ioda
+      integer       invt, nt, ntmax, ntwd, nosym
+      double precision XSMAL,YSMAL,ZSMAL,XNEW,YNEW,ZNEW,XP,YP,ZP
+      double precision U1,U2,U3,V1,V2,V3,W1,W2,W3,X0,Y0,Z0
+      double precision complx
+      integer IGROUP,NAXIS,LINEAR
+      double precision group
+      double precision t
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DAFILE/IDAF,NAV,IODA(MXIODA)
       COMMON/HND_SYMTRY/INVT(MXSYM),NT,NTMAX,NTWD,NOSYM
@@ -5969,11 +6038,19 @@ C
       DIMENSION     GRP(19)
       DIMENSION     DRC(2)
       DIMENSION     ERRMSG(3)
+      double precision pi2,zero,pt5,one,three,pi
+      integer i,j
+      double precision rho
+      double precision z1,z2,z3,z02,y1,y2,y3,y02,x1,x2,x3,x02,ww
+      double precision uu,u,test,sina,sinb,sign,dum,cosa,cosb
+      double precision beta,alpha,alph
+      integer n1,n2,n,itr,it,nn,ii
       EQUIVALENCE   (CHRGRP,GROUP )
       EQUIVALENCE   (CHRDIR,DIRECT)
       EQUIVALENCE   (CHRBLK,BLANK)
       EQUIVALENCE   (GRP(1),GRPCHR(1))
       EQUIVALENCE   (DRC(1),DRCCHR(1)) 
+      double precision tol
       DATA ERRMSG   /'PROGRAM ','STOP IN ','- PTGRP-'/
       DATA GRPCHR   /'C1      ','CS      ','CI      ',
      1               'CN      ','S2N     ','CNH     ',
@@ -5985,7 +6062,7 @@ C
       DATA CHRBLK   /'        '/
       DATA DRCCHR   /'NORMAL  ','PARALLEL'/
       DATA TOL      /1.0D-10/
-      DATA PI2      /6.28318530717958D+00/
+c     DATA PI2      /6.28318530717958D+00/
       DATA ZERO     /0.0D+00/
       DATA PT5      /0.5D+00/
       DATA ONE      /1.0D+00/
@@ -5997,6 +6074,8 @@ C
 C
 C     ----- GROUP INFO -----
 C
+      pi = acos(-1.0d0)
+      pi2 = 2.0d0*pi
       LINEAR=0
 C
       IGROUP=20
@@ -6571,15 +6650,23 @@ C
  9978 FORMAT(' THE MOLECULE IS LINEAR ')
       END
       SUBROUTINE HND_PRTSYM(N1,N2)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
+      integer n1,n2
+      integer MXSYM, MXSYMT, MXIODA
       PARAMETER (MXSYM =120)
       PARAMETER (MXSYMT=120*9)
       PARAMETER (MXIODA=255)
+      integer IR,IW
+      integer IDAF,NAV,IODA
+      integer INVT,NT,NTMAX,NTWD,NOSYM
+      double precision t
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DAFILE/IDAF,NAV,IODA(MXIODA)
       COMMON/HND_SYMTRY/INVT(MXSYM),NT,NTMAX,NTWD,NOSYM
       COMMON/HND_SYMMAT/T(MXSYMT)
-      DIMENSION NN(MXSYM)
+      integer NN(MXSYM)
+      integer imax,imin,j,i,ni,nj
       IMAX=N1-1
   100 IMIN=IMAX+1
       IMAX=IMAX+4
@@ -6607,6 +6694,7 @@ C
 #include "global.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
+#include "util_params.fh"
       integer geom
       double precision alpha, ds(*)
       double precision err      ! [output] Returns the error
@@ -6652,8 +6740,8 @@ c
 c
 c     Form the target internals in bohr & degrees
 c
-      bohr = 0.52917715d0
-      deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+      bohr = cau2ang
+      deg  = bohr*180d0/(4d0*atan(1d0))
       if (.not. geom_compute_zmatrix(geom, q))
      $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       call geom_zmat_ico_scale(geom, dq, bohr, deg)
@@ -6785,6 +6873,7 @@ c
 #include "global.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
+#include "util_params.fh"
       integer geom
       external impose_constraints
 c     
@@ -6822,8 +6911,8 @@ c
      $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       ncart = nat * 3
 c     
-      bohr = 0.52917715d0
-      deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+      bohr = cau2ang
+      deg  = bohr*180d0/(4d0*atan(1d0))
 c     
       if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
      $     call errquit('opt_int_to_cart: ma', ncart*nzvar, MA_ERR)
@@ -7176,7 +7265,7 @@ c
       double precision theta, c2(3,nat)
       double precision pi, rr, dd, dz
       double precision threquiv
-      COMPLEX*16  QDUMI, QDUMJ,ctheta
+      double COMPLEX  QDUMI, QDUMJ,ctheta
 c
 #ifdef DEBUG
       some = .false.
@@ -7260,7 +7349,7 @@ c
       enddo
 c
       end
-      complex*16 function geom_powcmpl(c,s,n,big)
+      double complex function geom_powcmpl(c,s,n,big)
       implicit none
       double precision c,s,big
       integer n
