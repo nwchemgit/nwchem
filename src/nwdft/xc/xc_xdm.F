@@ -385,7 +385,7 @@ c     Sum the dispersion energy
       integer nq  ! input, no. of quadrature weights
       double precision qxyz(3,nq) ! input, quadrature node positions
       double precision qwght(nq)  ! input, quadrature weights
-      double precision ttau(nq,ipol,*) ! input, ked
+      double precision ttau(nq,ipol) ! input, ked
       integer natoms ! input, no. of atoms
       double precision xyz(3,natoms) ! input, atomic positions
       double precision v(ntypes) ! inout, atomic volumes
@@ -440,7 +440,7 @@ c     calculate dipole moment
                rhos = max(rhot / 2d0,eps/2d0)
                grho = dsqrt(delrho(i,1,1)**2 + delrho(i,2,1)**2 + 
      +              delrho(i,3,1)**2) / 2d0
-               taus = ttau(i,1,1)+ttau(i,1,2)+ttau(i,1,3)
+               taus = ttau(i,1)
                laps = lap(i,1) / 2d0
             else
                rhot = max(rho(i,2),eps)
@@ -449,14 +449,13 @@ c     calculate dipole moment
                   grho = dsqrt((delrho(i,1,1)-delrho(i,1,2))**2 + 
      +                         (delrho(i,2,1)-delrho(i,2,2))**2 + 
      +                         (delrho(i,3,1)-delrho(i,3,2))**2)
-                  taus = (ttau(i,1,1)+ttau(i,1,2)+ttau(i,1,3)-
-     M                 (ttau(i,2,1)+ttau(i,2,2)+ttau(i,2,3)))*2d0
+                  taus = (ttau(i,1)-ttau(i,2))*2d0
                   laps = (lap(i,1)-lap(i,2))
                else
                   rhos = rho(i,3)
                   grho = dsqrt(delrho(i,1,2)**2 + delrho(i,2,2)**2 + 
      +                 delrho(i,3,2)**2)
-                  taus = (ttau(i,2,1)+ttau(i,2,2)+ttau(i,2,3))*2d0
+                  taus = ttau(i,2)*2d0
                   laps = lap(i,2)
                endif
                rhos = max(rhos,0.5*eps)
