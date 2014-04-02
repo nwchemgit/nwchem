@@ -1850,16 +1850,16 @@ if [ ${#USE_MPIF4} -ne 0 ] ; then
   echo "setenv USE_MPIF4 ${USE_MPIF4}" >> ${NWCHEM_ENV_CSH}
 fi
 echo "MPI_INCLUDE        =" ${MPI_INCLUDE}
-echo "export MPI_INCLUDE=${MPI_INCLUDE}" >> ${NWCHEM_ENV_SH}
-echo "setenv MPI_INCLUDE ${MPI_INCLUDE}" >> ${NWCHEM_ENV_CSH}
+echo "export MPI_INCLUDE=\"${MPI_INCLUDE}\"" >> ${NWCHEM_ENV_SH}
+echo "setenv MPI_INCLUDE \"${MPI_INCLUDE}\"" >> ${NWCHEM_ENV_CSH}
 #
 echo "MPI_LIB            =" ${MPI_LIB}
-echo "export MPI_LIB=${MPI_LIB}" >> ${NWCHEM_ENV_SH}
-echo "setenv MPI_LIB ${MPI_LIB}" >> ${NWCHEM_ENV_CSH}
+echo "export MPI_LIB=\"${MPI_LIB}\"" >> ${NWCHEM_ENV_SH}
+echo "setenv MPI_LIB \"${MPI_LIB}\"" >> ${NWCHEM_ENV_CSH}
 #
 echo "LIBMPI             =" ${LIBMPI}
-echo "export LIBMPI=${LIBMPI}" >> ${NWCHEM_ENV_SH}
-echo "setenv LIBMPI ${LIBMPI}" >> ${NWCHEM_ENV_CSH}
+echo "export LIBMPI=\"${LIBMPI}\"" >> ${NWCHEM_ENV_SH}
+echo "setenv LIBMPI \"${LIBMPI}\"" >> ${NWCHEM_ENV_CSH}
 #
 echo "MPI_F90            =" ${MPI_F90}
 echo "export FC=${MPI_F90}" >> ${NWCHEM_ENV_SH}
@@ -1883,23 +1883,23 @@ echo "setenv MSG_COMMS ${MSG_COMMS}" >> ${NWCHEM_ENV_CSH}
 #
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
   echo "IB_INCLUDE         =" ${IB_INCLUDE}
-  echo "export IB_INCLUDE=${IB_INCLUDE}" >> ${NWCHEM_ENV_SH}
-  echo "setenv IB_INCLUDE ${IB_INCLUDE}" >> ${NWCHEM_ENV_CSH}
+  echo "export IB_INCLUDE=\"${IB_INCLUDE}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv IB_INCLUDE \"${IB_INCLUDE}\"" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#IB_LIB} -ne 0 ] ; then
   echo "IB_LIB             =" ${IB_LIB}
-  echo "export IB_LIB=${IB_LIB}" >> ${NWCHEM_ENV_SH}
-  echo "setenv IB_LIB ${IB_LIB}" >> ${NWCHEM_ENV_CSH}
+  echo "export IB_LIB=\"${IB_LIB}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv IB_LIB \"${IB_LIB}\"" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#IB_LIB_NAME} -ne 0 ] ; then
   echo "IB_LIB_NAME        =" ${IB_LIB_NAME}
-  echo "export IB_LIB_NAME=${IB_LIB_NAME}" >> ${NWCHEM_ENV_SH}
-  echo "setenv IB_LIB_NAME ${IB_LIB_NAME}" >> ${NWCHEM_ENV_CSH}
+  echo "export IB_LIB_NAME=\"${IB_LIB_NAME}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv IB_LIB_NAME \"${IB_LIB_NAME}\"" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
   echo "BLASOPT            =" ${BLASOPT} 
-  echo "export BLASOPT=${BLASOPT}" >> ${NWCHEM_ENV_SH}
-  echo "setenv BLASOPT ${BLASOPT}" >> ${NWCHEM_ENV_CSH}
+  echo "export BLASOPT=\"${BLASOPT}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv BLASOPT \"${BLASOPT}\"" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
   echo "BLAS_LIB           =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
@@ -1917,13 +1917,13 @@ if [ ${#CUDA} -ne 0 ] ; then
 fi
 if [ ${#CUDA_INCLUDE} -ne 0 ] ; then
   echo "CUDA_INCLUDE       =" ${CUDA_INCLUDE}
-  echo "export CUDA_INCLUDE=${CUDA_INCLUDE}" >> ${NWCHEM_ENV_SH}
-  echo "setenv CUDA_INCLUDE ${CUDA_INCLUDE}" >> ${NWCHEM_ENV_CSH}
+  echo "export CUDA_INCLUDE=\"${CUDA_INCLUDE}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv CUDA_INCLUDE \"${CUDA_INCLUDE}\"" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#CUDA_LIBS} -ne 0 ] ; then
   echo "CUDA_LIBS          =" ${CUDA_LIBS}
-  echo "export CUDA_LIBS=${CUDA_LIBS}" >> ${NWCHEM_ENV_SH}
-  echo "setenv CUDA_LIBS ${CUDA_LIBS}" >> ${NWCHEM_ENV_CSH}
+  echo "export CUDA_LIBS=\"${CUDA_LIBS}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv CUDA_LIBS \"${CUDA_LIBS}\"" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#MRCC_METHODS} -ne 0 ] ; then
   echo "MRCC_METHODS       =" ${MRCC_METHODS}
@@ -2192,7 +2192,7 @@ if [ "x${option}" != "xrealclean" ]; then
   fi
 fi
 echo "=== compile nwchem ==="
-make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
+make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX  LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 echo "=== all done ==="
