@@ -1597,7 +1597,12 @@ C     DIMENSION IOCTYP(MXPNGAS)
 CBERT FIRST FREE ADDRESS NNOT USED, ALLOCATE BLOCK
 *.First free address
 CNW   CALL MEMMAN(KFREEL,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
-      IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)
+c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
+      IEL = 0
+      DO I = 1, NGRP
+         IEL = max(IEL,NELFGP(I))
+      ENDDO
+      IDUMMY = max((2+IEL+1)*(NOCOB+1),NSMST+IEL)
       CALL MEMMAN(KFREEL,IDUMMY,'ADDL  ',1,'KFREEL')
       DO IGRP = 1, NGRP  
 *. A gas group can be considered as a RAS group with 0 electrons in
