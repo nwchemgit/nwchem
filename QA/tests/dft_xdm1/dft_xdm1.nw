@@ -1,0 +1,56 @@
+
+start xdm1
+
+driver
+clear
+end
+
+geometry big noautosym noautoz
+C     1.109882   -1.344582    0.000000 
+O     2.255409   -1.127306    0.000000 
+O    -0.036542   -1.570343    0.000000 
+N    -1.182527    1.337759    0.000000 
+O     0.000000    1.495618    0.000000 
+N    -2.304648    1.188489    0.000000 
+end
+geometry co2 noautosym noautoz
+C     1.109882   -1.344582    0.000000 
+O     2.255409   -1.127306    0.000000 
+O    -0.036542   -1.570343    0.000000 
+end
+geometry n2o noautosym noautoz
+N    -1.182527    1.337759    0.000000 
+O     0.000000    1.495618    0.000000 
+N    -2.304648    1.188489    0.000000 
+end
+
+basis spherical
+* library aug-cc-pvdz
+end
+
+set geometry co2
+dft
+direct
+xc b3lyp
+vectors input atomic output co2.mos
+end
+
+task dft
+
+set geometry n2o
+dft
+xc b3lyp
+vectors input atomic output n2o.mos
+end
+
+task dft
+
+set geometry big
+dft
+grid xfine
+convergence energy 1d-8 lshift 0.
+xdm a1 0.6224 a2 1.7068
+vectors input fragment co2.mos n2o.mos output big.mos
+end
+
+task dft optimize
