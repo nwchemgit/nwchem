@@ -561,12 +561,12 @@ c     xdm common
 
       if (.not. rtdb_get(rtdb,'dft:xdmsave', mt_log, 1, savedvml)) 
      &     savedvml = .false.
-C      if (.not.savedvml) then
+      if (.not.savedvml) then
       if (.not.MA_free_heap(lxdm_ml))
      &     call errquit('xc_xdm_cleanup: cannot clean ml',1,MA_ERR)
       if (.not.MA_free_heap(lxdm_v))
      &     call errquit('xc_xdm_cleanup: cannot clean v',1,MA_ERR)
-C      endif
+      endif
       
       end
 
