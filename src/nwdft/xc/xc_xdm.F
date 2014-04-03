@@ -57,6 +57,7 @@ c     get memory for volume, alpha, ml
 #include "cdft.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+#include "util_params.fh"
 
       integer rtdb, g_dens(2), g_vxc(4) ! input
       integer n, nexc ! input
@@ -175,7 +176,7 @@ c     header and convert a2 to au
          write (luout,'("       a2 (ang) = ",F12.5)') a2
          write (luout,'("       onlyc?   = ",L12)') onlyc
       endif
-      a2 = a2 / .52917720859
+      a2 = a2 /cau2ang 
 
 c     do the v and ml calculation
       if (.not.savedvml) then
@@ -186,6 +187,7 @@ c     initialize common values
 c     calculate volumes and moments using the dft grid
          rho_n = 0
          exdm = 0
+
          call grid_quadv0_gen(rtdb,g_dens,g_vxc,nexc,rho_n,exdm,1,6,
      &        dum1,.false.,.false.)
          call ga_dgop(msg_xdm1,v,ntypes,'+')
@@ -221,7 +223,6 @@ c     Calculate volumes and moments only once, then save for future use.
      &        call errquit('xc_xdm: rtdb_put dft:xdmsave failed', 0,
      &        RTDB_ERR)
       endif
-
 c     fill polarizabilities vector 
       do i = 1, ntypes
 c        skip ghost atoms
@@ -343,12 +344,14 @@ c     Sum the dispersion energy
             endif
          enddo
       enddo
-
-      do i = 1, n
-         do k = 1, 3
-            fxdm(k,i) = fxdm(k,i) + ftemp(k,i)
+      if(what.eq.'forces') then
+c     bit needed for forces
+         do i = 1, n
+            do k = 1, 3
+               fxdm(k,i) = fxdm(k,i) + ftemp(k,i)
+            end do
          end do
-      end do
+      endif
 
       if (me .eq. 0) then
          if (what.eq.'energy') then
@@ -365,7 +368,6 @@ c     Sum the dispersion energy
          write (luout,*)
       endif
       call ga_sync()
-
       return
       end
 
@@ -378,6 +380,7 @@ c     Sum the dispersion energy
 #include "errquit.fh"
 #include "global.fh"
 #include "cdft.fh"
+#include "mafdecls.fh"
 
       double precision rho(nq,ipol*(ipol+1)/2) ! input, electron density
       double precision delrho(nq,3,ipol) ! input, gradient of the electron density
@@ -539,7 +542,6 @@ c     contribution to atomic moments
             v(it) = v(it) + vsum
          enddo
       enddo
-
       end
 
       subroutine xc_xdm_cleanup(rtdb)
