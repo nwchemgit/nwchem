@@ -561,22 +561,23 @@ c     xdm common
 
       if (.not. rtdb_get(rtdb,'dft:xdmsave', mt_log, 1, savedvml)) 
      &     savedvml = .false.
-
-      if (.not.savedvml) then
-c      if (.not.MA_free_heap(lxdm_ml))
-c     &     call errquit('xc_xdm_cleanup: cannot clean ml',1,MA_ERR)
-c      if (.not.MA_free_heap(lxdm_v))
-c     &     call errquit('xc_xdm_cleanup: cannot clean v',1,MA_ERR)
-      endif
+C      if (.not.savedvml) then
+      if (.not.MA_free_heap(lxdm_ml))
+     &     call errquit('xc_xdm_cleanup: cannot clean ml',1,MA_ERR)
+      if (.not.MA_free_heap(lxdm_v))
+     &     call errquit('xc_xdm_cleanup: cannot clean v',1,MA_ERR)
+C      endif
       
       end
 
       subroutine xc_xdm_setdefaults(a1,a2)
-#include "cdft.fh"      
+#include "cdft.fh"   
+c X          C        a1          a2
+c becke86b   pbe96    0.82        1.16
 
       double precision a1, a2 ! output
 
-      if (abs(xfac(52)).gt.1d-2 .and. abs(cfac(12)).gt.1d-2) then
+      if (abs(xfac(55)).gt.1d-2 .and. abs(cfac(12)).gt.1d-2) then
          write (*,*) "WARNING: B86b!"
          a1 = 0.82d0
          a2 = 1.16d0
