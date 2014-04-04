@@ -139,6 +139,9 @@ c
 *
 !      if (.not. ma_set_numalign(7))
 !     $     call errquit('nwchem.F: ma_set_numalign failed',911, MA_ERR)
+c aligned to 64byte record
+      if (.not. ma_set_numalign(6))
+     $     call errquit('nwchem.F: ma_set_numalign failed',911, MA_ERR)
 *
 *
 *old:------------------------------------------------------- START ---------
