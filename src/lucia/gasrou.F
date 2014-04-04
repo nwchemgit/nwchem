@@ -746,6 +746,9 @@ C?      WRITE(6,*) ' ISMSPGP , NST = ', ISMSPGP , NST
       INCLUDE 'stinf.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'spinfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Local scratch
       DIMENSION IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
 *
@@ -754,7 +757,7 @@ C?      WRITE(6,*) ' ISMSPGP , NST = ', ISMSPGP , NST
       NTESTL = 00
       NTEST = MAX(IPRNT,NTESTL)
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Info from routine STRTYP_GAS '
         WRITE(6,*) ' ============================='
       END IF
@@ -775,7 +778,7 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
        IGSOCC(IGAS,2) = MAXI
       END DO
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Compound GAS space : '
         WRITE(6,*) ' ====================='
         WRITE(6,'(A)')
@@ -793,7 +796,7 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
       CALL MAX_NOPEN_NOCCLS_FOR_CISPAC(IGSOCC(1,1),IGSOCC(1,2),
      &     NOPEN_MAX,NOCCLS_MAX)
 *. Number of AB supergroups in expansion of the compound space
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,'(A,I4)') 
      &  ' Max number of unpaired electrons ', NOPEN_MAX
         WRITE(6,'(A,I8)')
@@ -804,7 +807,7 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
 *. MINOP - from MS2 and multiplicity if relevant
       MINOP = ABS(MS2)
       IF(NOCSF.EQ.0) MINOP =  MULTS - 1
-      WRITE(6,*) ' MINOP == ', MINOP
+      if (ga_nodeid().eq.0) WRITE(6,*) ' MINOP == ', MINOP
 *
 *. Find min and max number of elecs in each subspace
 *
@@ -824,7 +827,7 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
       DO IGAS = 1, NGAS
         NOCSBCLST = NOCSBCLST + MXGSOC(IGAS)-MNGSOC(IGAS)+1
       END DO
-      IF (NTEST.GT.5)
+      IF (NTEST.GT.5.and.ga_nodeid().eq.0)
      &WRITE(6,*) ' Number of occupation subclasses ', NOCSBCLST
 *
 *. Particle and hole spaces  : 
@@ -907,7 +910,8 @@ C?    END IF
 * ( only used when calculating min number of electrons, so it can be modified
 *   easily )
 *. Min number of electrons in hole spaces
-      IF(NTEST.GE.5) WRITE(6,*) ' IPHGASL, NPHGAS ',  IPHGASL, NPHGAS
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) 
+     &   WRITE(6,*) ' IPHGASL, NPHGAS ',  IPHGASL, NPHGAS
       IF(IPHGASL.NE.NPHGAS) THEN
         WRITE(6,*) ' The hole spaces are not the first orbital spaces'
         WRITE(6,*) ' The hole spaces are not the first orbital spaces'
@@ -922,9 +926,9 @@ C       IF(IPHGAS(IGAS).EQ.2) THEN
 C         MNHL = MNHL + MNGSOC(IGAS)
 C       END IF
 C     END DO
-      IF(NTEST.GE.5) WRITE(6,*) ' MNHL' , MNHL                      
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) WRITE(6,*) ' MNHL' , MNHL 
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,'(A)') ' Min and Max occupation in each GAS space: '
         WRITE(6,'(A)') ' ========================================= '
@@ -957,7 +961,7 @@ C     END DO
         STOP ' NUMBER OF ELECTRONS INCONSISTENT WITH MULTIPLICITY '
       END IF
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) '  MS2 NACTEL NAEL NBEL '
         WRITE(6,'(5I6)')   MS2,NACTEL,NAEL,NBEL
       END IF
@@ -1004,7 +1008,7 @@ C     END DO
        MXBL = MXBL - MNB
        MNBL = MAX(0,MNBL-MXB)
 *
-       IF(NTEST.GE.100) THEN
+       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Occupation numbers for IGAS = ', IGAS
         WRITE(6,*) ' MXAL MNAL MXBL MNBL ',MXAL,MNAL,MXBL,MNBL
         WRITE(6,*) ' MXA MNA MXB MNB ',MXA,MNA,MXB,MNB
@@ -1034,7 +1038,8 @@ C?     WRITE(6,*) ' (Problems for CC) '
      & MXAB = MIN(MXAB + MAXADD,NOBPT(IGAS))
        END IF
 *
-       IF(NTEST.GE.100) WRITE(6,*) ' MNAB,MXAB',MNAB,MXAB
+       IF(NTEST.GE.100.and.ga_nodeid().eq.0) 
+     &    WRITE(6,*) ' MNAB,MXAB',MNAB,MXAB
        NGPSTR(IGAS) = MXAB-MNAB+1
        IBGPSTR(IGAS) = IGRP + 1
        MNELFGP(IGAS) = MNAB
@@ -1059,7 +1064,7 @@ C?     WRITE(6,*) ' (Problems for CC) '
       END DO
       NGRP = IGRP
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,'(A)') ' Information about Groups of strings '
         WRITE(6,'(A)') ' =================================== '
@@ -1099,7 +1104,7 @@ C?     WRITE(6,*) ' (Problems for CC) '
         END DO
       END DO
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' ============================================='
         WRITE(6,*) ' Annihilation / Creation connections of groups'
@@ -1424,7 +1429,8 @@ C?      WRITE(6,*) ' ITYP, XNLOOP  = ', ITYP, XNLOOP
 C        IMNMX(IVEC,NDIM,MINMAX)
 *. Largest number of supergroups of any type
       NSPGPFTP_MAX = IMNMX(NSPGPFTP,NSTTYP,2)
-      WRITE(6,*) ' Largest number of supergroups, any type ',
+      if (ga_nodeid().eq.0)
+     &   WRITE(6,*) ' Largest number of supergroups, any type ',
      &             NSPGPFTP_MAX
 *
       IF(NSPGP_TOT .GT. MXPSTT ) THEN
@@ -1443,10 +1449,10 @@ C        IMNMX(IVEC,NDIM,MINMAX)
 *. START OF CHANGE, Jeppe, December 2011
       I_DO_REO = 0
       IF(I_DO_REO.EQ.0) THEN
-        IF (NTEST.GT.2)
+        IF (NTEST.GT.2.and.ga_nodeid().eq.0)
      &  WRITE(6,*) ' No reordering of supergroups'
       ELSE
-       IF (NTEST.GT.2)
+       IF (NTEST.GT.2.and.ga_nodeid().eq.0)
      & WRITE(6,*) ' Reordering of supergroups'
        DO ITYP= 1, NSTTP
          IBTYP = IBSPGPFTP(ITYP)            
@@ -1476,13 +1482,13 @@ C            ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
 *  END OF CHANGE, JEPPE, DEC. 2011
 *
 *
-      IF(NTEST.GE.2) THEN
+      IF(NTEST.GE.2.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Total number of super groups ', NTSPGP
       END IF
       
-       WRITE(6,*)
+      if (ga_nodeid().eq.0) WRITE(6,*)
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information about types of strings'
         WRITE(6,*) ' =================================='
         WRITE(6,*)
@@ -2818,6 +2824,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
+      if (ga_nodeid().eq.0) then
       WRITE(6,*) 
       WRITE(6,*) 
       WRITE(6,*) 
@@ -2839,9 +2846,9 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
       WRITE(6,'(A,E22.13)')  
      & ' Largest type-type block (all symmetries)(as real) ',XMXSOOB_AS
       WRITE(6,*)
-     
+      endif
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
      &  ' Number of TTS subblocks per CI expansion '
         WRITE(6,*)
@@ -2860,10 +2867,10 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
        END DO
       END DO
 *
-      WRITE(6,*) ' Largest number of blocks in CI expansion',
-     &MXNTTS
+      if (ga_nodeid().eq.0) WRITE(6,*) 
+     &  ' Largest number of blocks in CI expansion',MXNTTS
 *
-      IF(NTEST.GE.5) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
       WRITE(6,*) 
      &' Number of columns per CI expansion '
       WRITE(6,*)
@@ -7748,7 +7755,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Output
       DIMENSION F(*)
 *
-      NTEST = 100
+      NTEST = 000
 *
       CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'FOO   ')
 *
@@ -8648,7 +8655,7 @@ C    &           NSTRFSPLT,IBSTRFSPLT,ISTRFSPLT)
        INTEGER IIA(MXPNGAS)
 
 *
-      NTEST = 100
+      NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' ISPSPCLS_GAS entered '
@@ -10382,7 +10389,7 @@ C?    STOP ' Enforced stop at end of EXPCIV_CSF '
 *. complete  form
       DIMENSION A(*),B(*)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from ABEXP '
         WRITE(6,*) ' ================ '

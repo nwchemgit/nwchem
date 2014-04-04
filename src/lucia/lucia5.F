@@ -74,7 +74,7 @@ C?      SUM = SUM + D2(IJKL)
 C?    END DO
 C?    WRITE(6,*) ' Sum = ', SUM
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Rho2 block for ISM JSM KSM LSM =',
      &               ISM,JSM,KSM,LSM
@@ -419,7 +419,7 @@ c      INCLUDE 'mxpdim.inc'
       CHARACTER*8 LABEL
       REAL*8 INPRDD, INPROD
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' info form EXP_LZ2  '
         WRITE(6,*) ' ================== '
@@ -1824,7 +1824,7 @@ C     NNSTSGP(MXPNSMST,MXPNGAS)
         END IF
       END DO
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' OUTPUT FROM GET_DIAG_DOM '
@@ -2102,7 +2102,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL LUCIAQENTER('TRACI')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRACI ')
 *
-      NTEST = 1000
+      NTEST = 0000
       IF(NTEST.GE.5) THEN
         WRITE(6,*) ' ================'
         WRITE(6,*) ' Welcome to TRACI '
@@ -3009,7 +3009,7 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
       DIMENSION IBLOCK(8,NBLOCK)
       DIMENSION IBLTP(*)
 *
-      NTEST = 1000
+      NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from T_TO_NK_VECS '
         WRITE(6,*) ' ========================'
@@ -7255,7 +7255,7 @@ C         TI(IROW,ISTRIN ) = -IORB
 *. Output
       DIMENSION IACTOUT(NCLS)
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Output from EXCCLS2_S '
         WRITE(6,*) ' ======================'
@@ -7853,7 +7853,7 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 *
       RETURN
       END 
-      SUBROUTINE GET_CMOAO_NWCHEM(CMO,NMOS,NAOS)
+      SUBROUTINE GET_CMOAO_NWCHEM(CMO)
 *
 * Obtain CMOAO expansion matrix from LUCIA formatted file LUH
 *
@@ -7871,12 +7871,11 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
       external movecs_gather
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-*. Input
-      INTEGER NMOS(*),NAOS(*)
 *. Output  
       DIMENSION CMO(*)
       double precision ctmp(mxporb)
       integer g_moreo
+      logical test
 *
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
@@ -7887,7 +7886,7 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
          call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
          nir = kirs_nw(reord_nw(i))
          do j = 1, luciaao
-            if (nwchem_sc(j,nir).gt.0.0d0) then
+            if (nwchem_id(j,nir).gt.0) then
                cmo(icounter) = ctmp(j)*nwchem_sc(j,nir)
                icounter = icounter + 1
              endif
@@ -8385,7 +8384,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRAPRP')
 *
       NCALC = NROOT*NEXCSTATE
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN 
         WRITE(6,*)
         WRITE(6,*) ' Welcome to TRAPRP'         
@@ -8655,7 +8654,7 @@ C                   END IF
         IMOFF = IMOFF + NI*NJ
       END DO
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' EXPRHO1 in action '
         WRITE(6,*) ' Symmetry of blocks extracted ',IRHO1SM
@@ -13766,7 +13765,7 @@ C!    CALL LUCIAQEXIT('ADAST ')
 * RHO2BB(iklj) = <L!a+iba+kb ajb alb!R> (i.ge.k, j.ge.l)
 * RHO2AB(iklj) = <L!a+iaa+kb alb aja!R> ( no restrictions)
 *
-      NTEST = 1000
+      NTEST = 0000
       WRITE(6,*) ' Welcome to test of 2e-spindensities '
       WRITE(6,*) ' =================================== '
 *
@@ -13868,7 +13867,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(KLVEC1,NVAR,'ADDL  ',2,'VEC1  ') !done
       CALL MEMMAN(KLVEC2,NVAR,'ADDL  ',2,'VEC2  ') !done
 *
-      NTEST = 1000
+      NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from COMHAM '
         WRITE(6,*) ' ==================='
@@ -14087,7 +14086,7 @@ C    &                                              MXPNGAS)
       END DO
       NSELSD = IB_SEL - 1
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Addresses of SDs in selected blocks : '
         WRITE(6,*) ' ======================================'
@@ -14699,7 +14698,7 @@ CE    CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
         IMOFF = IMOFF + NI*NJ
       END DO
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' EXTR_SYMBLK_ACTMAT in action '
         WRITE(6,*) ' Symmetry of blocks extracted ',IJSM

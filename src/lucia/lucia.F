@@ -421,7 +421,7 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
 *. Core energy should not be included so
       E0 = E0 - ECORE
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN 
         WRITE(6,*) ' GET_E0, IE0AVEX, E0', IE0AVEX,E0 
       END IF
@@ -593,15 +593,20 @@ CNW     CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       DIMENSION NAOS_ENV(*), NMOS_ENV(*)
       
       do i = 1, nirrep
-         NAOS_ENV(i) = 0
-         NMOS_ENV(i) = 0
+         irs = ipnt_nw(i)
+         NAOS_ENV(irs) = 0
+         NMOS_ENV(irs) = 0
+         do j = 1, luciaao
+            if (nwchem_id(j,i).gt.0) NAOS_ENV(irs) = NAOS_ENV(irs) + 1
+         enddo
       enddo
-      do j = 1, luciamo(1)
-         irs=ipnt_nw(kirs_nw(j))
-         NAOS_ENV(irs) = NAOS_ENV(irs) + 1
+      do i = 1, luciamo(1)
+         irs=ipnt_nw(kirs_nw(i))
          NMOS_ENV(irs) = NMOS_ENV(irs) + 1
-         AO_CENT(j) = "    "
-         AO_TYPE(j) = "    "
+      enddo
+      do i = 1, luciaao
+         AO_CENT(i) = "    "
+         AO_TYPE(i) = "    "
       enddo
       RETURN
       END
@@ -889,7 +894,7 @@ C      TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 *. And an array giving number of orbitals per symmetry
       DIMENSION NOBPSM_G(MXPOBS)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' DIAG_BLKS'
         WRITE(6,*) ' ========='
@@ -1262,7 +1267,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' ================'
@@ -1554,7 +1559,7 @@ c      INCLUDE 'mxpdim.inc'
      & Nsym
       
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information available in GETMOAO_MOLCAS'
         WRITE(6,*) ' ======================================='
@@ -1666,7 +1671,7 @@ C?   &          ISMOB,ITP,JTP
         END DO
       END DO
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
@@ -1716,7 +1721,7 @@ C       APRBLM2(A,LROW,LCOL,NBLK,ISYM)
         CALL COPVEC(VEC2(IOFF),VEC1(IOFF),LENGTH)
       END DO
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) '  Output from REPBLKS '
@@ -1742,6 +1747,9 @@ C       APRBLM2(A,LROW,LCOL,NBLK,ISYM)
       INCLUDE 'machine.inc'
 *. Output
       INCLUDE 'irat.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. For CRAY or explicit 64 bit architecture: IRAT = 1
       IF(MACHINE(1:4).EQ.'CRAY'.OR.MACHINE(1:2).EQ.'64') THEN
         IRAT = 1
@@ -1771,10 +1779,12 @@ C       WRITE(6,*) 'Silly outcome in ZIRAT, d''you run on a C64?', ITEST
 C       STOP 'ZIRAT'
 C     END IF
 *
+      if (ga_nodeid().eq.0) then
       WRITE(6,*)
       WRITE(6,'(1H ,6X,A,I2)') 
      &'Ratio between Integer and Real word length ', IRAT
       WRITE(6,*)
+      endif
 *
       RETURN
       END
@@ -3183,7 +3193,7 @@ c      INCLUDE 'mxpdim.inc'
         STOP'NO CSF''s in PERTCTL !! '
       END IF
 *
-      NTEST = 10
+      NTEST = 00
       IPRNT = NTEST
       NTEST = MAX(NTEST,IPRNT)
       NDET = XISPSM(ISM,ISPC)
@@ -7460,7 +7470,7 @@ COLD  STOP ' Jeppe forced me to stop in GETINT '
 *     Start procedure:                                                 *
 *     open the transformed one-electron integral file                  *
 *----------------------------------------------------------------------*
-      NTEST = 10
+      NTEST = 00
 
       Call DaName2(LuOne,'TRAONE')
       iDisk=0
@@ -8167,7 +8177,7 @@ CNW     WRITE(6,'(A,I5,E22.15)') ' IJ and H(IJ) ', IJ,H(IJ)
 *. Call the slave 
       CALL GTJKS(RJ,RK,NTOOB)
 C     CALL GTJKL(RJ,RK,NTOOB)
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' RJ and RK from GTJK '
         CALL WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
@@ -10000,10 +10010,11 @@ c.. look for index in ga_coul
 c
       call ga_gather(g_coul,dbl_mb(kint2_l),int_mb(kint_i),
      $               int_mb(kint_j),myelem)
+      call ga_release(kint2,ilo,ihi,1,1)
+      call ga_sync()
 c
       if (.not.ma_chop_stack(lint_i)) call
      $   errquit('intim:chop_stack failed', lbuf, MA_ERR)
-      call ga_sync()
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
@@ -10795,7 +10806,7 @@ c
        if ( .not. movecs_read_header(luciascfmo, title, basis,
      $       scftype, luciaao, nsets, luciamo, 2) ) call errquit(
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
-      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciamo(1),
+      if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciaao,
      &                 kirs_nw))
      &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
       call ifill(nirrep,0,ipnt_nw,1)
@@ -10992,7 +11003,6 @@ C          Z_BASSPC_FOR_ALL_OCCLS(IOCCLS,NOCCLS,IBASSPC)
       CALL Z_BASSPC_FOR_ALL_OCCLS(int_mb(KIOCCLS),NOCCLS_MAX,
      &      int_mb(KBASSPC))
 *. Dimensions for all occupation classes
-
 *
 * =========================================
 * Construct the information on the strings 
@@ -11095,6 +11105,7 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *
 * Part 1: Read in from environment
 *
+      
       ioff_nw(1)=1
       icount_nw(1)=0
       do i=2,nirrep
@@ -13273,6 +13284,9 @@ CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
 * IS1234 (0,1,-1) : permutational symmetry between index 12 and 34
 *
 *. General input
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
 *. Specific input
       INTEGER NO1PS(*),NO2PS(*),NO3PS(*),NO4PS(*)
@@ -13332,7 +13346,7 @@ C 100     CONTINUE
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.NE.10) THEN
+      IF(NTEST.NE.10.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Number of double excitations obtained ', MDX
       END IF
 *
@@ -13347,6 +13361,9 @@ C 100     CONTINUE
 * IS34 (0,1,-1)   : Permutational symmetry between index 3 and 3
 * IS1234 (0,1,-1) : permutational symmetry between index 12 and 34
 *
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
 *. Specific input
@@ -13454,7 +13471,7 @@ C 100     CONTINUE
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Number of double excitations obtained ', MDX
       END IF
 *
@@ -13612,6 +13629,9 @@ C
 * ISYM = 0: All symmetry allowed excitations
 * ISYM = 1: Only excitations a+iaj with I.ge.J
 * ISYM =-1: Only excitations a+iaj with I.gt.J
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INTEGER ADSXA(MXPOBS,2*MXPOBS)
       INTEGER NO1PS(*),NO2PS(*)
 *
@@ -13634,7 +13654,7 @@ C?      WRITE(6,*) ' IO1SM,IO2SM',IO1SM,IO2SM
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
  
-      IF(NTEST.NE.10) THEN
+      IF(NTEST.NE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
      &  ' Number of single excitations of symmetry ',ISXSM,',',NSXFSM
       END IF
@@ -15057,6 +15077,9 @@ C
       INCLUDE 'wrkspc.inc'
       INCLUDE 'crun.inc'
       INCLUDE 'cprnt.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Batches of sigma
       INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*)
 *.Scratch
@@ -15067,7 +15090,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 0000
+      NTEST = 20
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15081,6 +15104,8 @@ CNW   DIMENSION SV(*),CV(*)
 * Loop over batches over sigma blocks
       IOFF_S = 1
       DO JBATS = 1, NBATS
+        WRITE(6,*) ' JBATS, LBATS(..) = ',
+     &                                  JBATS, LBATS(JBATS)
         IF(NTEST.GE.10000) WRITE(6,*) ' JBATS, LBATS(..) = ',
      &                                  JBATS, LBATS(JBATS)
 *. Obtain sigma for batch of blocks

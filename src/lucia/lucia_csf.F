@@ -3182,12 +3182,12 @@ c     DIMENSION WORK(*)
 C     DIMENSION SREO(*)
 *
       NTEST = 000
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' output from REO_GASDET_S '
         WRITE(6,*) ' ========================='
         WRITE(6,*) ' PSSIGN = ', PSSIGN
       END IF
-      IF(NTEST.GE.2000) THEN
+      IF(NTEST.GE.2000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' IB_CONF_OCCLS(1) = ', IB_CONF_OCCLS(1)
         WRITE(6,*) ' IB_CONF_OPEN(1) = ', IB_CONF_OPEN(1)
         WRITE(6,*) ' IB_CM_OPEN(1) = ', IB_CM_OPEN(1)
@@ -3210,14 +3210,14 @@ C     DIMENSION SREO(*)
         IBTP = IBLOCK(2,JBLOCK)
         IASM = IBLOCK(3,JBLOCK)
         IBSM = IBLOCK(4,JBLOCK)
-        IF(NTEST.GE.10000) THEN
+        IF(NTEST.GE.10000.and.ga_nodeid().eq.0) THEN
           WRITE(6,'(A,4(2X,I6))') ' IATP, IBTP, IASM, IBSM = ',
      &                              IATP, IBTP, IASM, IBSM
         END IF
 *. Occupation class of this combination of string 
 C            IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
         CALL IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
-        IF(NTEST.GE.10000) WRITE(6,'(A,I6)')
+        IF(NTEST.GE.10000.and.ga_nodeid().eq.0) WRITE(6,'(A,I6)')
      &  ' Corresponding occupation class number = ', IOC
 *. Arcweights for this occupation class
         CALL MXMNOC_OCCLS(IOCMIN,IOCMAX,NGAS,NOBPT,IOCCLS(1,IOC),
@@ -3281,7 +3281,7 @@ C                 REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
 *. Address of this configuration 
 *. Offset to configurations with this number of open orbitals in 
 *. reordered cnf list
-             IF(NTEST.GE.10000) THEN
+             IF(NTEST.GE.10000.and.ga_nodeid().eq.0) THEN
                WRITE(6,*) ' IASTR, IBSTR, ICONF:'
                CALL IWRTMA(IASTR(1,IA),1,NAEL,1,NAEL)
                CALL IWRTMA(IBSTR(1,IB),1,NBEL,1,NBEL)
@@ -3329,7 +3329,7 @@ C?            IF(IRESTR2 .EQ. 1) THEN
              END IF
 *
              IBCNF_OUT = IB_CONF_OPEN(NOPEN+1)
-             IF(NTEST.GE.10000) THEN
+             IF(NTEST.GE.10000.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' Number of det in list of PTDT ', IPTDT
               WRITE(6,*) ' IB_CM_OPEN(NOPEN+1) = ',
      &                     IB_CM_OPEN(NOPEN+1)
@@ -3338,7 +3338,7 @@ C?            IF(IRESTR2 .EQ. 1) THEN
              END IF
              IADR_SD_CONF_ORDER = IB_CM_OPEN(NOPEN+1) - 1
      &                          + (ICNF_OUT-IBCNF_OUT)*NPTDT + IPTDT
-             IF(IADR_SD_CONF_ORDER.LE.0) THEN
+             IF(IADR_SD_CONF_ORDER.LE.0.and.ga_nodeid().eq.0) THEN
                WRITE(6,*) ' Problemo, IADR_SD_CONF_ORDER < 0 '
                WRITE(6,*) ' IADR_SD_CONF_ORDER = ', IADR_SD_CONF_ORDER
                WRITE(6,*) ' Number of det in list of PTDT ', IPTDT
@@ -3348,12 +3348,12 @@ C?            IF(IRESTR2 .EQ. 1) THEN
                WRITE(6,*) ' IBCNF_OUT = ', IBCNF_OUT
 C?             CALL XFLUSH(6)
              END IF
-             IF(NTEST.GE.10000) THEN
+             IF(NTEST.GE.10000.and.ga_nodeid().eq.0) THEN
                WRITE(6,*) ' IADR_SD_CONF_ORDER, ISIGN, IDET = ',
      &                      IADR_SD_CONF_ORDER, ISIGN, IDET
              END IF
              IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGNP
-             IF(NTEST.GE.1000) THEN
+             IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
                WRITE(6,*) ' IDET, IADR_SD_CONF_ORDER ',
      &                      IDET, IADR_SD_CONF_ORDER
              END IF
@@ -3365,7 +3365,7 @@ C?             CALL XFLUSH(6)
       END DO
 *     ^ End of loop over blocks
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Reorder array for SDs, CONF order => string order'
         WRITE(6,*) ' ================================================='
         CALL IWRTMA(IREO,1,IDET,1,IDET)
@@ -3379,12 +3379,15 @@ C?             CALL XFLUSH(6)
           ISUM = ISUM + ABS(IREO(JDET))
         END DO
         IF(ISUM.NE.IDET*(IDET+1)/2) THEN
+          if (ga_nodeid().eq.0) then
           WRITE(6,*) ' Problem with sumcheck in REO_GASDET'
           WRITE(6,'(A,2I9)') 
      &    'Expected and actual value ', ISUM, IDET*(IDET+1)/2
+          endif
           STOP       ' Problem with sumcheck in REO_GASDET'
         ELSE
-          WRITE(6,*) ' Sumcheck in REO_GASDET passed '
+          if (ga_nodeid().eq.0) 
+     &       WRITE(6,*) ' Sumcheck in REO_GASDET passed '
         END IF
       END IF !checksum is invoked
 *
@@ -4058,8 +4061,8 @@ cnw  &               FI_BE(IJ) + FACTOR_E_BE*GTIJKL(IP,KP,KP,JP)
                     END IF
                   END DO
                 END DO
-                call ga_acc(fi_al,ij,ij,1,1,al_val,1)
-                call ga_acc(fi_be,ij,ij,1,1,be_val,1)
+                call ga_acc(fi_al,ij,ij,1,1,al_val,1,1.0d0)
+                call ga_acc(fi_be,ij,ij,1,1,be_val,1,1.0d0)
               END DO
             END DO
           END IF
@@ -5219,7 +5222,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'spinfo.inc'
       INCLUDE 'cprnt.inc'
-      NTEST = 10
+      NTEST = 00
       NTEST = MAX(IPRCSF,NTEST)
       IF(NTEST.GE.100) WRITE(6,*) ' MULTS, MS2 = ', MULTS,MS2
 C
@@ -5291,7 +5294,7 @@ C
       INCLUDE 'mxpdim.inc'
       INCLUDE 'spinfo.inc'
 *
-      NTEST = 100
+      NTEST = 000
 *. Number of CSF's in expansion 
       CALL NCNF_TO_NCOMP(MAXOP,NCONF_OP,NPCSCNF,NCSF)
 *. Number of SD's in expansion
@@ -5340,7 +5343,7 @@ C
         MXPOCCBL = MAX(NPCMCNF(ITP)*IOPEN,MXPOCCBL)
       END DO
 *
-      NTEST = 1000
+      NTEST = 0000
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) 
         WRITE(6,*) ' Dimension for prototype arrays:'
@@ -5363,7 +5366,7 @@ C
 *. Specific input
       INTEGER NCONF_PER_OP(*)
 *
-      NTEST = 100
+      NTEST = 000
 *
       LOCC = 0
       DO IOPEN = 0, MAXOP
@@ -7366,7 +7369,7 @@ C
 *. Output
       DIMENSION HCNF_AVE_DIA(*), HCNF_MIN_DIA(*)
 *
-      NTEST = 100
+      NTEST = 000
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -8285,7 +8288,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *. Scratch
       INTEGER IOCCLS_ACT(*)
 *
-      NTEST = 10
+      NTEST = 00
 *. Output is the N*_PER_SYM_GN arrays in spinfo
 *
       DO ICISPC = 1, NCMBSPC
@@ -11303,7 +11306,7 @@ C    &    IDOREO,IZ_CONF,IREO,NCONF_ALL_SYM,IREO_MNMX_OB_NO)
         ENDIF !NFOUND = 0
       END DO ! loop over ISYM
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' Min and max per symmetry '
@@ -11330,7 +11333,7 @@ C    &    IDOREO,IZ_CONF,IREO,NCONF_ALL_SYM,IREO_MNMX_OB_NO)
       INCLUDE 'orbinp.inc'   
       INCLUDE 'csfbas.inc'
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' Output from PROTO_CSF_DIM '
@@ -12022,7 +12025,7 @@ C    &                  ISIMSYM)
       INTEGER MINOCFSPC(NOBSPC),MAXOCFSPC(NOBSPC)
       INTEGER NOCFSPC(NOBSPC)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' ================'
@@ -12087,7 +12090,7 @@ C    &                  ISIMSYM)
 *
       INCLUDE 'implicit.inc'
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from DIM_SUBCNF = '
         WRITE(6,*) ' NEL, NOB, MINOP = ', NEL, NOB,MINOP
@@ -12448,7 +12451,7 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
 #include "global.fh"
 *
       NTEST = 00
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' ======================='
         WRITE(6,*) ' Info from INFO_OCSBCLS '
@@ -12464,7 +12467,7 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
         NOCSBSLS(IGAS) = MXGSOC(IGAS) - MNGSOC(IGAS) + 1
         NSBCLS = NSBCLS + NOCSBSLS(IGAS)
       END DO
-      WRITE(6,*) ' NSBCLS == ', NSBCLS
+      if (ga_nodeid().eq.0) WRITE(6,*) ' NSBCLS == ', NSBCLS
 *
 *. The actual occupation subclasses
 *
@@ -12501,6 +12504,9 @@ C    &           NOCSBCLST,MINOPGAS_FOR_OCCLS,IOCSBCLS_OF_OCCLS)
 *. Jeppe Olsen, March 22, 2012
 *
       INCLUDE 'implicit.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER IOCCLS(NGAS,NOCCLS)
       INTEGER IBOCSBCLS(NGAS),MNGSOC(NGAS)
@@ -12510,11 +12516,11 @@ C    &           NOCSBCLST,MINOPGAS_FOR_OCCLS,IOCSBCLS_OF_OCCLS)
       INTEGER MINOPGAS_FOR_OCCLS(NGAS,NOCCLS)
 *
       NTEST = 000
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Info from OCSBCLS_OF_OCCLS '
         WRITE(6,*) ' ========================== '
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input occupation classes '
         DO ICLS = 1, NOCCLS
           WRITE(6,*) ICLS, '     ', (IOCCLS(IGAS,ICLS),IGAS = 1, NGAS)
@@ -12533,27 +12539,28 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
 *
       DO ICLS = 1, NOCCLS
 *. Max number of open shells in all GASpaces
-         IF(NTEST.GE.1000) WRITE(6,*) ' ICLS = ', ICLS
+         IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
+     &      WRITE(6,*) ' ICLS = ', ICLS
          MAXOP_L= 0
          DO IGAS = 1, NGAS
            NELG = IOCCLS(IGAS,ICLS)
            NOBG = NOBPT(IGAS)
            MAXOP_L = MAXOP_L + MIN(NELG,2*NOBG-NELG)
          END DO
-         IF(NTEST.GE.1000)
+         IF(NTEST.GE.1000.and.ga_nodeid().eq.0)
      &   WRITE(6,*) ' ICLS, MAXOP_L = ', ICLS, MAXOP_L
          DO IGAS = 1, NGAS
 *. Max. number of open orbitals in spaces different from IGAS
            NELL = IOCCLS(IGAS,ICLS)
            NOBL = NOBPT(IGAS)
            MAXOP_LO = MAXOP_L - MIN(NELL,2*NOBL-NELL)
-           IF(NTEST.GE.1000) 
+           IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      &     WRITE(6,*) ' IGAS, MAXOP_LO = ', IGAS,MAXOP_LO
            MINOPGAS_FOR_OCCLS(IGAS,ICLS) = MAX(0,MINOP-MAXOP_LO)
          END DO
       END DO
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
      &  ' Occupation sub classes for the various occupation classes '
         WRITE(6,*) 
@@ -12585,6 +12592,9 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
 *. Jeppe Olsen, March 22, 2013
 *
       INCLUDE 'implicit.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER MNGSOC(NGAS), MXGSOC(NGAS)
 *. Output
@@ -12599,8 +12609,8 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
         END DO
       END DO
 *
-      NTEST = 100
-      IF(NTEST.GE.100) THEN
+      NTEST = 000
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' The generated occupation sub classes '
         WRITE(6,*) ' ====================================='
         WRITE(6,*)
@@ -12622,13 +12632,16 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
 *. Jeppe Olsen, March 2013
 *
       INCLUDE 'implicit.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER MINOPGAS_FOR_OCCLS(NGAS,NOCCLS)
       INTEGER IOCSBCLS_OF_OCCLS(NGAS,NOCCLS)
 *. Output
       INTEGER MNOPOCSBCLS(NOCSBCLST)
 *
-      NTEST = 100
+      NTEST = 000
 *
       MONE = -1
       CALL ISETVC(MNOPOCSBCLS,MONE,NOCSBCLST)
@@ -12646,7 +12659,7 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
        END DO
       END DO
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Minimum number of open orbitals per oc sub class '
         WRITE(6,*) ' ================================================= '
         CALL IWRTMA(MNOPOCSBCLS,1,NOCSBCLST,1,NOCSBCLST)
@@ -12672,6 +12685,9 @@ C?   &                IBOCSBCLS(IGAS), MNGSOC(IGAS)
       INCLUDE 'spinfo.inc'
       INCLUDE 'orbinp.inc'
 c      INCLUDE 'wrkspc-static.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER IOGOCSBCLS(2,NOCSBCLST)
       INTEGER MINOPFSBCLS(NOCSBCLST)
@@ -12681,12 +12697,12 @@ c      INCLUDE 'wrkspc-static.inc'
       INTEGER LSBCNF(NOCSBCLST)
 *
       NTEST = 000
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Entering GEN_DIM_SBCNF '
         WRITE(6,*) ' ======================='
         WRITE(6,*)
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' MINOPFSBCLS array: '
         CALL IWRTMA3(MINOPFSBCLS,1,NOCSBCLST,1,NOCSBCLST)
       END IF
@@ -12696,7 +12712,7 @@ c      INCLUDE 'wrkspc-static.inc'
          IGAS = IOGOCSBCLS(2, IOCSBCLS)
          NOB = NOBPT(IGAS)
          MINOPL = MINOPFSBCLS(IOCSBCLS)
-         IF(NTEST.GE.1000) THEN
+         IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
          WRITE(6,'(A,5I4)') ' IOCSBCLS, NEL, IGAS, NOB, MINOPL = ',
      &                IOCSBCLS, NEL, IGAS, NOB, MINOPL
          END IF
@@ -12715,7 +12731,7 @@ C?       WRITE(6,*) ' IBOB = ' , IBOB
      &        IDUM,0,NOPEN_MAX,IBOB)
       END DO 
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' The LSBCNF array: length of occ per ocsblcs '
         CALL IWRTMA(LSBCNF,1,NOCSBCLST,1,NOCSBCLST)
 *
@@ -12959,7 +12975,7 @@ C         IOCCLSDIM(IOPEN_OUT_DIM+1,NSMOB)
 *. Output
       INTEGER NCNFOPSM(MXPOPORB+1,MXPCSM)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from DIM_CISPACE_FROM_SBCNF '
         WRITE(6,*) ' ================================ '
@@ -13776,7 +13792,7 @@ C         ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
       INCLUDE 'lucinp.inc'
       INCLUDE 'cgas.inc'
 *
-      NTEST = 100
+      NTEST = 000
 *
       NCONF_MAX = IMNMX_IMAT(NCONF_PER_SYM_GN,
      &            NSMOB,NCISPC,MXPCSM,MXPICI,2)
@@ -15719,7 +15735,7 @@ C    &           NSSOA,NSSOB,IBLTP,ISMOST,NSDL,NCML)
 *. Local scratch
       DIMENSION ICONFA(MXPORB), ICONFB(MXPORB)
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Output from EXP_CNFSPC '
         WRITE(6,*) ' ====================== '
@@ -16017,7 +16033,7 @@ C         IF(IREO(JOC_IN).EQ.ABS(ICONFP_IN(JOB))) THEN
 *. Local scratch
       INTEGER JOCC(2*MXPORB), JACOCC(MXPORB), JACOCC2(MXPORB)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' ==========================='
@@ -16147,7 +16163,7 @@ C?          WRITE(6,*) ' NOPEN, MULTS = ', NOPEN, MULTS
 * Printout of configuration weights
 * =================================
 *
-      NTEST = 10
+      NTEST = 00
       IF(NTEST.GE.100) WRITE(6,*) ' ANACSF2, IOUT  = ', IOUT
       WRITE(IOUT,*)
       WRITE(IOUT,*)
