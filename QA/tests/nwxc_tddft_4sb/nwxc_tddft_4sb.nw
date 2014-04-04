@@ -88,6 +88,14 @@ task tddft energy
 
 # GGA exchange
 
+#dft
+#  mult 4
+#  odft
+#  vectors input atomic
+#  xc becke86b
+#end
+#task tddft energy
+
 dft
   mult 4
   odft

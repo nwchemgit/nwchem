@@ -39,6 +39,12 @@ task tddft energy
 
 # GGA exchange
 
+#dft
+#  vectors input atomic
+#  xc becke86b
+#end
+#task tddft energy
+
 dft
   vectors input atomic
   xc becke88
