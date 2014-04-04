@@ -1,5 +1,5 @@
 * contains all PARAMETERS defining LUCIA
-      PARAMETER(MXPLNC = 72 )
+      PARAMETER(MXPLNC = 102)
       PARAMETER (MXPIRR = 8)
       PARAMETER (MXPOBS = 8 )
       PARAMETER (MXPR4T = 10 )
