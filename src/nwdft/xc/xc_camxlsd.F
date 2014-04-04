@@ -173,7 +173,9 @@ c
 c
              Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 #else
-             call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,Ctmp)
+             if (rho(n,2).gt.tol_rho) then
+               call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,Ctmp)
+             endif
 #endif
              Amat(n,1) = Amat(n,1) + Atmp
              Ex = Ex + qwght(n)*Etmp
@@ -217,7 +219,9 @@ c
 c
              Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
 #else
-             call xc_att_xc(rho(n,3),ipol,Etmp,Atmp,Ctmp)
+             if (rho(n,3).gt.tol_rho) then
+               call xc_att_xc(rho(n,3),ipol,Etmp,Atmp,Ctmp)
+             endif
 #endif
              Amat(n,2) = Amat(n,2) + Atmp
              Ex = Ex + qwght(n)*Etmp
