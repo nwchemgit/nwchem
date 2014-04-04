@@ -46,8 +46,10 @@ c     second derivatives? dkdc for now.
       double precision dr2_r43, dr2_r73, dr2_r83, dr4_r5, fac1, fac45
       double precision gparam, bparam, gparamu, bparamu
       parameter (gparam=0.007d0, bparam=0.00375d0)
-      parameter (gparamu=2**(2d0/3d0)*gparam)
-      parameter (bparamu=2**(1d0/3d0)*bparam)
+c     parameter (gparamu=2**(2d0/3d0)*gparam)
+c     parameter (bparamu=2**(1d0/3d0)*bparam)
+      gparamu=2.0d0**(2d0/3d0)*gparam
+      bparamu=2.0d0**(1d0/3d0)*bparam
 
       pi = acos(-1.d0)
       C = -3d0/(4d0*pi)*(3d0*pi*pi)**F13
@@ -96,9 +98,9 @@ c     Gradient correction
             fac1 = (1 + gparamu * dr2_r83)
             fac45 = fac1**FM45
 c     GC: exchange energy and energy density
-            exnl = - bparamu * dr2_r43 * fac45 
-            Ex = Ex + exnl * qwght(n) * fac
-            if (ldew) func(n) = func(n) + exnl * fac
+            exnl = - bparamu * dr2_r43 * fac45 * fac
+            Ex = Ex + exnl * qwght(n) 
+            if (ldew) func(n) = func(n) + exnl
 
 c     GC: dex/drho
             Amat(n,1) = Amat(n,1) + bparamu * fac45 * (F43 * dr2_r73 - 
