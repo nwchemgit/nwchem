@@ -115,7 +115,7 @@ c     ======> BOTH SPIN-RESTRICTED AND UNRESTRICTED <======
 c
       do 200 n = 1, nq
          if (ipol.eq.1) then 
-            rhoval = rho(n,R_A)
+            rhoval = rho(n,R_T)
          else 
             rhoval = rho(n,R_A)+rho(n,R_B)
          endif
