@@ -12,8 +12,7 @@ C> @{
 C>
 C> \brief Evaluate the B88 exchange functional
 C>
-C> Evaluate the non-local part of B88 hybrid-GGA [1]. This routine is
-C> also used to 
+C> Evaluate the non-local part of B88 hybrid-GGA [1]. 
 C>
 C> ### References ###
 C>
