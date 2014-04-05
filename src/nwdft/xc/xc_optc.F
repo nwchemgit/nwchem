@@ -91,8 +91,8 @@ c
             call dfill(nq*3,0.d0,dbl_mb(k_rho),1)
             call dfill(nq*6,0.d0,dbl_mb(k_delrho),1)
             call  dcopy(nq,rho(1,3),1,dbl_mb(k_rho),1)
-            call  dcopy(nq,rho(1,3),1,dbl_mb(k_rho+nq+nq),1)
-            call  dcopy(nq*3,delrho(1,1,2),1,dbl_mb(k_delrho),1)
+            call  dcopy(nq,rho(1,3),1,dbl_mb(k_rho+2*nq),1)
+            call  dcopy(nq*3,delrho(1,1,2),1,dbl_mb(k_delrho+3*nq),1)
          cfac(5)=c2-c1
 c
 c     (c2-c1)*Ec[0,b]
