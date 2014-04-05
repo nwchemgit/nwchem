@@ -77,5 +77,23 @@ C>
       nwxc_disp_sr8   = 0.0d0
       nwxc_disp_alpha = 0.0d0
       end
+C>
+C> \brief Reset the density tolerance
+C>
+C> Reset the tolerance on the electron density. In the functional
+C> evaluation densities less than this tolerance will be ignored. 
+C> Note that currently this routine resets only the tolerance stored
+C> in memory. The updated value will not be reflected on the
+C> runtime database.
+C>
+C> This routine was created to support code where the tolerance is
+C> changed during the DFT SCF procedure (presumably to save work).
+C>
+      subroutine nwxc_reset_rho_tolerance(tol_rho)
+      implicit none
+#include "nwxcP.fh"
+      double precision tol_rho
+      nwxc_rho_tol = tol_rho
+      end
 C> @}
 c $Id$
