@@ -88,7 +88,7 @@ c
 c     Initialize the XC potential and energy sampling matrices.
 c
       call dfill(ipol*nq, 0.d0, Amat, 1)
-      call dfill(3*nq*ipol, 0.d0, Cmat, 1)
+      if(grad) call dfill(3*nq*ipol, 0.d0, Cmat, 1)
       if(kske) call dfill(nq*ipol, 0.d0, Mmat, 1)
       if (do_2nd) then
          call dfill(nq*NCOL_AMAT2, 0.d0, Amat2, 1)
@@ -102,8 +102,8 @@ c     those are initialized also.
       if (do_3rd) then
          call dfill(nq*NCOL_AMAT2, 0.0d0, Amat2, 1)
          call dfill(nq*NCOL_AMAT3, 0.0d0, Amat3, 1)
-         if (grad) call dfill(nq*NCOL_CMAT3, 0.0d0, Cmat3, 1)
          if (grad) call dfill(nq*NCOL_CMAT2, 0.0d0, Cmat2, 1)         
+         if (grad) call dfill(nq*NCOL_CMAT3, 0.0d0, Cmat3, 1)
       endif      
 c
 c     This prevents the XC-kernel from being multiplied
