@@ -384,6 +384,10 @@ c
      +             //"(1951) doi:10.1103/PhysRev.81.385)"
          case (NWXCP_X_B0)
            cdata = "Becke0 Exchange (ACM0 variant of Becke88)"
+         case (NWXCP_X_B86B)
+           cdata = "Becke86B Exchange (AD Becke, "
+     +             //"J.Chem.Phys. 85, 7184 (1986)"
+     +             //" doi:10.1063/1.451353)"
          case (NWXCP_X_B88)
            cdata = "Becke88 Exchange (AD Becke, "
      +             //"Phys.Rev.A 38, 3098 (1988)"

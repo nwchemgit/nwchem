@@ -24,8 +24,11 @@ c
       integer NWXCP_X_SLATER     !< The Slater exchange functional
       parameter (NWXCP_X_SLATER = NWXCP_CS00 + 1)
 c
+      integer NWXCP_X_B86B       !< The Becke 1988  exchange functional
+      parameter (NWXCP_X_B86B = NWXCP_X_SLATER + 1)
+c
       integer NWXCP_X_B88        !< The Becke 1988  exchange functional
-      parameter (NWXCP_X_B88 = NWXCP_X_SLATER + 1)
+      parameter (NWXCP_X_B88 = NWXCP_X_B86B + 1)
 c
       integer NWXCP_X_B0         !< The B0 exchange functional
       parameter (NWXCP_X_B0 = NWXCP_X_B88 + 1)

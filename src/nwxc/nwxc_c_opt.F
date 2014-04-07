@@ -171,7 +171,9 @@ c
            call dfill(maxp*2,0.0d0,Amatl,1)
            call dfill(maxp*3,0.0d0,Cmatl,1)
            do ii = 0, num - 1
+              rhol(ii+1,R_A) = rho(iq+ii,R_A)
               rhol(ii+1,R_B) = 0.0d0
+              rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
               rgammal(ii+1,G_AB) = 0.0d0
               rgammal(ii+1,G_BB) = 0.0d0
            enddo

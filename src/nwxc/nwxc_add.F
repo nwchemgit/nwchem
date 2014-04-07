@@ -175,6 +175,12 @@ c       Represent the long-range exchange with exact exchange
         nwxc_cam_srhfex = .false.
       else if (dfname.eq."slater") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_SLATER,dfweight)
+      else if (dfname.eq."becke86b") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B86B,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_B86B,dfweight)
       else if (dfname.eq."becke88") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_B88,dfweight)
         nwxc_add_df = nwxc_add_df .and.
