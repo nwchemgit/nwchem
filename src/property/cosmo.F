@@ -68,7 +68,7 @@ C>
 c
       integer rtdb !< [Input] the RTDB handle
 c
-      integer iat, nfield, nrad, irad, idens
+      integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
@@ -111,7 +111,6 @@ c
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
-      idens    = 0
 c
 c     smd model defaults
 c
@@ -159,14 +158,6 @@ c
          if(.not. inp_f(dielecinf))
      $        call errquit('cosmo_input: dielecinf',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf))
-     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
-c
-c   --- idens
-c
-      else if(inp_compare(.false.,'idens',field)) then
-         if(.not. inp_i(idens))
-     $     call errquit('cosmo_input: idens',911, INPUT_ERR)
-         if (.not. rtdb_put(rtdb,'cosmo:idens',mt_int,1,idens))
      $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
 c   --- solvent explicitly specified via short name
@@ -628,7 +619,7 @@ c
 c
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          lineq,minbem,maxbem,ificos,ifscrn,idens
+      integer          lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
@@ -837,7 +828,6 @@ c
       maxbem   =2 ! used to be 4, is now obsolete anyway
       ificos   =0
       lineq    =0 ! 0: fast direct solver, 1: slow iterative solver
-      idens    =0
       rsolv    =0.00d+00
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
@@ -862,7 +852,6 @@ c
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
-      status = rtdb_get(rtdb,'cosmo:idens',mt_int,1,idens) 
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
@@ -917,7 +906,6 @@ c
       if (me.eq.0) write(luout,*) "solvname_long: ",solvname_long
       if (me.eq.0) write(luout,*) "dielec: ",dielec
       if (me.eq.0) write(luout,*) "dielecinf: ",dielecinf
-      if (me.eq.0) write(luout,*) "idens: ",idens
       if (me.eq.0) write(luout,*) "icds: ",icds
       if (me.eq.0) write(luout,*) "sola: ",sola
       if (me.eq.0) write(luout,*) "solb: ",solb
@@ -2576,9 +2564,8 @@ c
 c
 C> \brief Compute the COSMO charges
 c
-      subroutine cosmo_charges(rtdb,basis,geom,ecos,some,itype_wfn,
-     1                   vectors,nclosed,nopen,nbf,nmo,
-     2                   g_dens_in,idens)
+      subroutine cosmo_charges(rtdb,basis,geom,ecos,some,
+     &         itype_wfn,vectors,nclosed,nopen,nbf,nmo)
 c
       implicit none
 c
@@ -2607,12 +2594,11 @@ c
 c
       double precision ecos !< [Output] The intra COSMO charges
                             !< interaction energy
-      integer g_dens_in(2)  ! 1: up, 2: down  (input density matrix to get the charges)
-      integer idens         ! 1: use density matrix, 0: use vectors
-c
       logical some          !< [Input] Do you want "some" additional output?
       logical dbug, out, status
       character*8 scfruntyp
+c
+      character*255 cosmo_file
 c
       double precision dielec,dielecinf,screen,rsolv,adiag,dsurf,dvol
       double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
@@ -2636,7 +2622,6 @@ c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-
       dbug=.false..and.ga_nodeid().eq.0
       out =.false..and.ga_nodeid().eq.0
       out =out.or.dbug
@@ -2700,14 +2685,6 @@ c
      &            dbl_mb(k_efcc+(ief-1)*3+1),dbl_mb(k_efcc+(ief-1)*3+2)
          enddo
       endif
-c
-c     set up the density matrix
-c
-      if (idens.eq.0) then  ! movecs --> density matrix
-c
-         if(out) then
-            write(luout,*) "idens=0, using input molecular orbitals"
-         endif
 c
 c      ----- calculate the density matrices from molecular orbitals -----
 cc
@@ -2773,41 +2750,12 @@ c
          endif ! dbug
       endif !out
 c
-      else if (idens.eq.1) then ! use input density matrix g_dens_in directly
-c
-         if(out) then
-            write(luout,*) "idens=1, using input density g_dens_in"
-         endif
-c
-c        ----- create density matrix handles -----
-c
-         if (itype_wfn.eq.1) ndens = 1
-         if (itype_wfn.eq.2) ndens = 3
-c
-         do i = 1, ndens
-           g_dens(i) = 
-     &           ga_create_atom_blocked(geom,basis,'density matrix')
-           call ga_zero(g_dens(i))
-         end do
-c
-         if (itype_wfn.eq.2) then
-           call ga_copy(g_dens_in(1),g_dens(1))
-           call ga_copy(g_dens_in(2),g_dens(2))
-           call ga_dadd (1.D0,g_dens(1),1.D0,g_dens(2),g_dens(3)) ! sum up components
-         else if (itype_wfn.eq.1) then
-           call ga_copy(g_dens_in(1),g_dens(1))
-         else
-           call errquit("unknown wavefunction function type",0,0)
-         endif
-      else
-         call errquit("unknown idens flag",0,0)
-      end if ! idens
-c
 c     ----- get -cosmo- charges -----
 c
+      cosmo_file = "cosmo.xyz"  ! default name
       call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                dbl_mb(k_efcc),dbl_mb(k_efcs),dbl_mb(k_efcz),
-     &                int_mb(k_efciat),dbl_mb(k_rad),ecos)
+     &                int_mb(k_efciat),dbl_mb(k_rad),ecos,cosmo_file)
 c
 c     ----- release memory block -----
 c
@@ -3145,7 +3093,8 @@ C>   <a href="http://dx.doi.org/10.1063/1.3511297">
 C>   10.1063/1.3511297</a>.
 C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
-     &                      efcc,efcs,efcz,efciat,ratm,ecos)
+     &                      efcc,efcs,efcz,efciat,ratm,ecos,
+     &                      cosmo_file)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -3157,6 +3106,7 @@ C>
 #include "stdio.fh"
 #include "prop.fh"
 #include "util.fh"
+#include "inp.fh"
 c
       integer ndens         !< [Input] the number of density matrices
       integer g_dens(ndens) !< [Input] the handle for the density
@@ -3182,6 +3132,7 @@ c
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
+      integer istrlen
       character*255 cosmo_file
       integer fn
       integer lineq ! 0: fast direct solver, 1: slow iterative solver
@@ -3282,6 +3233,7 @@ c
       iefc_done=.false.
       all=.false.
       ecos=zero
+      istrlen = 0
 c
 c     ----- get electrostatic potential at surface points -----
 c
@@ -3696,9 +3648,10 @@ c
       endif
      
 c
-c     printing cosmo charges for bq module
-c     -------------------------------------
-      cosmo_file = "cosmo.xyz"
+c     ----- printing cosmo charges for bq module -----
+c
+      istrlen = inp_strlen(cosmo_file)
+      if (istrlen.le.0) cosmo_file = "cosmo.xyz"
       call util_file_name_resolve(cosmo_file,.false.)
       if(ga_nodeid().eq.0) then
         if(.not.util_io_unit(80,90,fn))
@@ -4238,3 +4191,160 @@ c
 c $Id$
 C>
 C> @}
+c
+C> \brief Compute the COSMO charges from an input density matrix
+c
+      subroutine cosmo_charges_from_dmat(rtdb,basis,geom,ecos,some,
+     &         ipol,g_dens_in,cosmo_file)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "stdio.fh"
+#include "prop.fh"
+c
+      integer rtdb          !< [Input] The RTDB handle
+      integer basis         !< [Input] The basis set handle
+      integer geom          !< [Input] The geometry handle
+      double precision ecos !< [Output] The intra COSMO charges, interaction energy
+      logical some          !< [Input] Do you want "some" additional output?
+      integer ipol          !< [Input] 1: RHF type wavefunction, 2: UHF type wavefunction
+      integer g_dens_in(ipol)  ! 1: up, 2: down  (input density matrix to get the charges)
+c
+      logical dbug, out, status
+c
+      double precision dielec,dielecinf,screen,rsolv,adiag,dsurf,dvol
+      double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
+      integer lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+c
+      integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
+      integer l_efciat, k_efciat
+      integer l_rad,  k_rad,  nrad
+      integer l_occ,  k_occ
+      integer nefc, ief, i, nat
+      integer g_dens(3)  ! 1: up, 2: down, 3: total
+      integer ndens,nvirt(2)
+      logical stat
+c
+      character*255 cosmo_file
+c
+      double precision bohr
+      parameter (bohr=0.529177249d+00)
+c
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+      dbug=.false..and.ga_nodeid().eq.0
+      out =.false..and.ga_nodeid().eq.0
+      out =out.or.dbug
+      some=some.or.out.and.ga_nodeid().eq.0
+c
+      if(some) then
+         write(luout,9999)
+      endif
+c
+      if(out) then
+         write(luout,*) 'in cosmo_charges ... geom = ',geom
+      endif
+c
+c     ----- retrieve the number of atoms from -geom- -----
+c
+      if (.not.geom_ncent(geom,nat))
+     &   call errquit("cosmo_charges: geom_ncent failed",0,UERR)
+c
+c     ----- read -efc- coordinates from -rtdb- -----
+c
+      if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
+     &   call errquit('cosmo_charges: rtdb get failed for nefc  ',911,
+     &       RTDB_ERR)
+c
+c     ----- allocate memory for efc's -----
+c
+      if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
+     & call errquit('cosmo_charges malloc k_efcc failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcs',l_efcs,k_efcs))
+     & call errquit('cosmo_charges malloc k_efcs failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
+     & call errquit('cosmo_charges malloc k_efcz failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_int,nefc,'cosmo efciat',l_efciat,k_efciat))
+     & call errquit('cosmo_charges malloc k_efciat failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo rad',l_rad,k_rad))
+     & call errquit('cosmo_charges malloc k_rad failed',nat,MA_ERR)
+c
+      if(.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,dbl_mb(k_efcc)))
+     &   call errquit('cosmo_charges: rtdb get failed for efcc  ',912,
+     &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
+     &   call errquit('cosmo_charges: rtdb get failed for efcz  ',913,
+     &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
+     &   call errquit('cosmo_charges: rtdb get failed for efcs  ',914,
+     &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efciat',
+     &                 mt_int,nefc,int_mb(k_efciat)))
+     &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
+     &       RTDB_ERR)
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
+      do i = 0, nat-1
+        dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/bohr
+      enddo
+c
+      if(out) then
+         write(luout,*) 'in cosmo_charges, nefc = ',nefc
+         do ief=1,nefc
+            write(luout,*) dbl_mb(k_efcc+(ief-1)*3), 
+     &            dbl_mb(k_efcc+(ief-1)*3+1),dbl_mb(k_efcc+(ief-1)*3+2)
+         enddo
+      endif
+c
+c     ----- create density matrix handles -----
+c
+      if (ipol.eq.1) ndens = 1
+      if (ipol.eq.2) ndens = 3
+c
+      do i = 1, ndens
+        g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
+        call ga_zero(g_dens(i))
+      end do
+c
+      if (ipol.eq.2) then
+           call ga_copy(g_dens_in(1),g_dens(1))
+           call ga_copy(g_dens_in(2),g_dens(2))
+           call ga_dadd (1.D0,g_dens(1),1.D0,g_dens(2),g_dens(3)) ! sum up components
+      else if (ipol.eq.1) then
+           call ga_copy(g_dens_in(1),g_dens(1))
+      else
+           call errquit("unknown wavefunction function type",0,0)
+      endif
+c
+c     ----- get -cosmo- charges -----
+c
+      call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
+     &                dbl_mb(k_efcc),dbl_mb(k_efcs),dbl_mb(k_efcz),
+     &                int_mb(k_efciat),dbl_mb(k_rad),ecos,cosmo_file)
+c
+c     ----- release memory block -----
+c
+      do i = 1, ndens
+         if (.not.ga_destroy(g_dens(i))) call
+     &       errquit('cosmo_charges: ga_destroy failed g_dens',0,GA_ERR)
+      enddo
+      if(.not.ma_chop_stack(l_efcc))
+     & call errquit('cosmo_charges, ma_chop_stack of l_efcc failed',911,
+     &       ma_err)
+c
+      return
+ 9999 format(/,10X,15(1H-),
+     1       /,10X,'-cosmo- charges',
+     2       /,10X,15(1H-))
+      end
