@@ -281,7 +281,7 @@ c xc_rhogen in grid_quadv0b.
      &    ibf_ao, iniz, ifin, rho, delrho,
      &    rchi_atom, rdelchi_atom,
      &    rdens_atom, cetobfr,wmax,
-     &    dttau, kske)
+     &    dttau, kske, .false.)
       endif
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
 c
