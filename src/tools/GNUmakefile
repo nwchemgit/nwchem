@@ -94,171 +94,171 @@ else
 # Conversion of ARMCI env vars to configure options
 ifeq ($(ARMCI_NETWORK),OPENIB)
     OPENIB_COMBINED =
-ifneq ($(IB_INCLUDE),)
+    ifneq ($(IB_INCLUDE),)
         OPENIB_COMBINED += $(IB_INCLUDE)
-endif
-ifneq ($(IB_LIB),)
+    endif
+    ifneq ($(IB_LIB),)
         OPENIB_COMBINED += $(IB_LIB)
-endif
-ifneq ($(IB_LIB_NAME),)
+    endif
+    ifneq ($(IB_LIB_NAME),)
         OPENIB_COMBINED += $(IB_LIB_NAME)
-endif
-ifeq ($(strip $(OPENIB_COMBINED)),)
-    MAYBE_ARMCI = --with-openib
-else
-    MAYBE_ARMCI = --with-openib="$(strip $(OPENIB_COMBINED))"
-endif
+    endif
+    ifeq ($(strip $(OPENIB_COMBINED)),)
+        MAYBE_ARMCI = --with-openib
+    else
+        MAYBE_ARMCI = --with-openib="$(strip $(OPENIB_COMBINED))"
+    endif
 endif # OPENIB
 
 ifneq ($(findstring BGML,$(ARMCI_NETWORK)),)
     BGML_COMBINED =
-ifneq ($(BGML_INCLUDE),)
+    ifneq ($(BGML_INCLUDE),)
         BGML_COMBINED += $(BGML_INCLUDE)
-endif
-ifneq ($(BGMLMPI_INCLUDE),)
+    endif
+    ifneq ($(BGMLMPI_INCLUDE),)
         BGML_COMBINED += $(BGMLMPI_INCLUDE)
-endif
-ifneq ($(BGML_LIB),)
+    endif
+    ifneq ($(BGML_LIB),)
         BGML_COMBINED += $(BGML_LIB)
-endif
-ifneq ($(BGMLMPI_LIB),)
+    endif
+    ifneq ($(BGMLMPI_LIB),)
         BGML_COMBINED += $(BGMLMPI_LIB)
-endif
-ifneq ($(BGML_LIB_NAME),)
+    endif
+    ifneq ($(BGML_LIB_NAME),)
         BGML_COMBINED += $(BGML_LIB_NAME)
-endif
-ifneq ($(BGMLMPI_LIB_NAME),)
+    endif
+    ifneq ($(BGMLMPI_LIB_NAME),)
         BGML_COMBINED += $(BGMLMPI_LIB_NAME)
-endif
-BGML_COMBINED := $(strip $(BGML_COMBINED))
-ifeq ($(BGML_COMBINED),)
-    MAYBE_ARMCI = --with-bgml
-else
-    MAYBE_ARMCI = --with-bgml="$(BGML_COMBINED)"
-endif
+    endif
+    BGML_COMBINED := $(strip $(BGML_COMBINED))
+    ifeq ($(BGML_COMBINED),)
+        MAYBE_ARMCI = --with-bgml
+    else
+        MAYBE_ARMCI = --with-bgml="$(BGML_COMBINED)"
+    endif
 endif # BGML
 
 ifneq ($(findstring DCMF,$(ARMCI_NETWORK)),)
     DCMF_COMBINED =
-ifneq ($(DCMF_INCLUDE),)
+    ifneq ($(DCMF_INCLUDE),)
         DCMF_COMBINED += $(DCMF_INCLUDE)
-endif
-ifneq ($(DCMFMPI_INCLUDE),)
+    endif
+    ifneq ($(DCMFMPI_INCLUDE),)
         DCMF_COMBINED += $(DCMFMPI_INCLUDE)
-endif
-ifneq ($(DCMF_LIB),)
+    endif
+    ifneq ($(DCMF_LIB),)
         DCMF_COMBINED += $(DCMF_LIB)
-endif
-ifneq ($(DCMFMPI_LIB),)
+    endif
+    ifneq ($(DCMFMPI_LIB),)
         DCMF_COMBINED += $(DCMFMPI_LIB)
-endif
-ifneq ($(DCMF_LIB_NAME),)
+    endif
+    ifneq ($(DCMF_LIB_NAME),)
         DCMF_COMBINED += $(DCMF_LIB_NAME)
-endif
-ifneq ($(DCMFMPI_LIB_NAME),)
+    endif
+    ifneq ($(DCMFMPI_LIB_NAME),)
         DCMF_COMBINED += $(DCMFMPI_LIB_NAME)
-endif
-DCMF_COMBINED := $(strip $(DCMF_COMBINED))
-ifeq ($(DCMF_COMBINED),)
-    MAYBE_ARMCI = --with-dcmf
-else
-    MAYBE_ARMCI = --with-dcmf="$(DCMF_COMBINED)"
-endif
+    endif
+    DCMF_COMBINED := $(strip $(DCMF_COMBINED))
+    ifeq ($(DCMF_COMBINED),)
+        MAYBE_ARMCI = --with-dcmf
+    else
+        MAYBE_ARMCI = --with-dcmf="$(DCMF_COMBINED)"
+    endif
 endif # DCMF
 
 ifeq ($(ARMCI_NETWORK),GEMINI)
     GEMINI_COMBINED =
-ifneq ($(GEMINI_INCLUDE),)
+    ifneq ($(GEMINI_INCLUDE),)
         GEMINI_COMBINED += $(GEMINI_INCLUDE)
-endif
-ifneq ($(GEMINI_LIB),)
+    endif
+    ifneq ($(GEMINI_LIB),)
         GEMINI_COMBINED += $(GEMINI_LIB)
-endif
-ifneq ($(GEMINI_LIB_NAME),)
+    endif
+    ifneq ($(GEMINI_LIB_NAME),)
         GEMINI_COMBINED += $(GEMINI_LIB_NAME)
-endif
-GEMINI_COMBINED := $(strip $(GEMINI_COMBINED))
-ifeq ($(GEMINI_COMBINED),)
-    MAYBE_ARMCI = --with-gemini
-else
-    MAYBE_ARMCI = --with-gemini="$(GEMINI_COMBINED)"
-endif
+    endif
+    GEMINI_COMBINED := $(strip $(GEMINI_COMBINED))
+    ifeq ($(GEMINI_COMBINED),)
+        MAYBE_ARMCI = --with-gemini
+    else
+        MAYBE_ARMCI = --with-gemini="$(GEMINI_COMBINED)"
+    endif
 endif # GEMINI
 
 ifeq ($(ARMCI_NETWORK),DMAPP)
     DMAPP_COMBINED =
-ifneq ($(DMAPP_INCLUDE),)
+    ifneq ($(DMAPP_INCLUDE),)
         DMAPP_COMBINED += $(DMAPP_INCLUDE)
-endif
-ifneq ($(DMAPP_LIB),)
+    endif
+    ifneq ($(DMAPP_LIB),)
         DMAPP_COMBINED += $(DMAPP_LIB)
-endif
-ifneq ($(DMAPP_LIB_NAME),)
+    endif
+    ifneq ($(DMAPP_LIB_NAME),)
         DMAPP_COMBINED += $(DMAPP_LIB_NAME)
-endif
-DMAPP_COMBINED := $(strip $(DMAPP_COMBINED))
-ifeq ($(DMAPP_COMBINED),)
-    MAYBE_ARMCI = --with-dmapp
-else
-    MAYBE_ARMCI = --with-dmapp="$(DMAPP_COMBINED)"
-endif
+    endif
+    DMAPP_COMBINED := $(strip $(DMAPP_COMBINED))
+    ifeq ($(DMAPP_COMBINED),)
+        MAYBE_ARMCI = --with-dmapp
+    else
+        MAYBE_ARMCI = --with-dmapp="$(DMAPP_COMBINED)"
+    endif
 endif # DMAPP used for Gemini and Aries Cray Networks
 
 ifeq ($(ARMCI_NETWORK),PORTALS)
     PORTALS_COMBINED =
-ifneq ($(PORTALS_INCLUDE),)
+    ifneq ($(PORTALS_INCLUDE),)
         PORTALS_COMBINED += $(PORTALS_INCLUDE)
-endif
-ifneq ($(PORTALS_LIB),)
+    endif
+    ifneq ($(PORTALS_LIB),)
         PORTALS_COMBINED += $(PORTALS_LIB)
-endif
-ifneq ($(PORTALS_LIB_NAME),)
+    endif
+    ifneq ($(PORTALS_LIB_NAME),)
         PORTALS_COMBINED += $(PORTALS_LIB_NAME)
-endif
-PORTALS_COMBINED := $(strip $(PORTALS_COMBINED))
-ifeq ($(PORTALS_COMBINED),)
-    MAYBE_ARMCI = --with-portals
-else
-    MAYBE_ARMCI = --with-portals="$(PORTALS_COMBINED)"
-endif
+    endif
+    PORTALS_COMBINED := $(strip $(PORTALS_COMBINED))
+    ifeq ($(PORTALS_COMBINED),)
+        MAYBE_ARMCI = --with-portals
+    else
+        MAYBE_ARMCI = --with-portals="$(PORTALS_COMBINED)"
+    endif
 endif # PORTALS
 
 ifeq ($(ARMCI_NETWORK),GM)
     GM_COMBINED =
-ifneq ($(GM_INCLUDE),)
+    ifneq ($(GM_INCLUDE),)
         GM_COMBINED += $(GM_INCLUDE)
-endif
-ifneq ($(GM_LIB),)
+    endif
+    ifneq ($(GM_LIB),)
         GM_COMBINED += $(GM_LIB)
-endif
-ifneq ($(GM_LIB_NAME),)
+    endif
+    ifneq ($(GM_LIB_NAME),)
         GM_COMBINED += $(GM_LIB_NAME)
-endif
-GM_COMBINED := $(strip $(GM_COMBINED))
-ifeq ($(GM_COMBINED),)
-    MAYBE_ARMCI = --with-gm
-else
-    MAYBE_ARMCI = --with-gm="$(GM_COMBINED)"
-endif
+    endif
+    GM_COMBINED := $(strip $(GM_COMBINED))
+    ifeq ($(GM_COMBINED),)
+        MAYBE_ARMCI = --with-gm
+    else
+        MAYBE_ARMCI = --with-gm="$(GM_COMBINED)"
+    endif
 endif # GM
 
 ifeq ($(ARMCI_NETWORK),VIA)
     VIA_COMBINED =
-ifneq ($(VIA_INCLUDE),)
+    ifneq ($(VIA_INCLUDE),)
         VIA_COMBINED += $(VIA_INCLUDE)
-endif
-ifneq ($(VIA_LIB),)
+    endif
+    ifneq ($(VIA_LIB),)
         VIA_COMBINED += $(VIA_LIB)
-endif
-ifneq ($(VIA_LIB_NAME),)
+    endif
+    ifneq ($(VIA_LIB_NAME),)
         VIA_COMBINED += $(VIA_LIB_NAME)
-endif
-VIA_COMBINED := $(strip $(VIA_COMBINED))
-ifeq ($(VIA_COMBINED),)
-    MAYBE_ARMCI = --with-via
-else
-    MAYBE_ARMCI = --with-via="$(VIA_COMBINED)"
-endif
+    endif
+    VIA_COMBINED := $(strip $(VIA_COMBINED))
+    ifeq ($(VIA_COMBINED),)
+        MAYBE_ARMCI = --with-via
+    else
+        MAYBE_ARMCI = --with-via="$(VIA_COMBINED)"
+    endif
 endif # VIA
 
 ifeq ($(ARMCI_NETWORK),MELLANOX)
