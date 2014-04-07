@@ -34,6 +34,7 @@ c
 #include "stdio.fh"
 #include "dra.fh"
 #include "xc.fh"
+#include "cosmo.fh"
 #include "prop.fh"
 c
       integer rtdb             ! Runtime database handle
@@ -141,6 +142,21 @@ c
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
      7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+c
+c ----------------------------------
+c Cosmo initialization, if necessary
+c ----------------------------------
+c
+      cosmo_on = .false.
+      if (rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+       if(cosmo_on) then
+        call cosmo_initialize(rtdb,geom,ao_bas_han,.false.)
+        cosmo_phase = 2
+        if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
+     $   call errquit('cosmo_input: put cosmo_phase failed',
+     $           911, RTDB_ERR)
+       endif
+      endif
 c
 c ----------------------------------------------------
 c Determine memory size and alter maxvecs if necessary
@@ -349,6 +365,13 @@ c
      3    g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      4    tda,oskel,.false.,.false.,tol2e,xfac(1),lhashf,thresh,
      5    maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
+      endif
+c
+c Clean up cosmo stuff, if necessary ==
+c
+      if (cosmo_on) then
+         call cosmo_tidy(rtdb)
+         cosmo_on = .false.
       endif
 c
 c And we close the 2-e integral evaluators
