@@ -267,7 +267,7 @@ c
      &         Int_mb(k_iniz),Int_mb(k_ifin), Values(iOffg),0,
      &         dbl_mb(irchi_atom),0,
      &         dbl_mb(k_rdat),int_mb(k_cetobfr),100.d0,
-     &         0, .false. )
+     &         0, .false., .false. )
 c
 *------- Deallocate Scratch memory needed by xc_rhogen
       Else
