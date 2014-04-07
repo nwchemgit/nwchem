@@ -158,7 +158,6 @@ c
       double precision egas
       double precision esol
       double precision ecosmo
-      integer idens
 c
 c     slow switching of annealing
 c
@@ -1019,10 +1018,8 @@ c
 c     Calculate the cosmo charges
 c
       if (cosmo_on.and.cosmo_phase.eq.2) then
-        idens = 0 ! default (use molecular orbitals)
-        status = rtdb_get(rtdb,'cosmo:idens',mt_int,1,idens) ! get user defined option
-        call cosmo_charges(rtdb,ao_bas_han,geom,ecosmo,odbug,ipol,
-     &            g_movecs,mclosed,mopen,nbf_ao,nmo,g_dens,idens)
+        call cosmo_charges(rtdb,ao_bas_han,geom,ecosmo,odbug
+     &     ,ipol,g_movecs,mclosed,mopen,nbf_ao,nmo)
       end if
 c
 c     Determine HOMO energy (for Zhan-Nichols-Dixon AC)
