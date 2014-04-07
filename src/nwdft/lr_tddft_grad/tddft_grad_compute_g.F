@@ -765,11 +765,15 @@ c
            cosmo_file = "cosmo-exci.xyz"
            ecosmo = 0.d0
            if (oroot) write(luout,*) "calling cosmo_charges_from_dmat"
-           call cosmo_charges_from_dmat(rtdb,ihdl_bfao,ihdl_geom,
-     &                                  ecosmo, .false.,  ! debug
-     &                                  1,       ! up and down are combined
-     &                                  g_p_ao,
-     &                                  cosmo_file)  ! input density
+           call cosmo_charges_from_dmat(rtdb,
+     &                                  ihdl_bfao,
+     &                                  ihdl_geom,
+     &                                  ecosmo, 
+     &                                  odbug,       ! debug
+     &                                  1,           ! up and down are combined
+     &                                  g_p_ao,      ! input density
+     &                                  cosmo_file)  ! cosmo charges file name
+c
            if (oroot) write(luout,*) "ecosmo:" ,ecosmo
          end if ! cosmo check
 c
