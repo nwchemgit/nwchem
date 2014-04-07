@@ -198,7 +198,7 @@ c     allocate space for laplacian
      &        ibf_ao, iniz, ifin, rho, delrho, lapdum,
      &        rchi_atom, rdelchi_atom, 
      &        rdens_atom, cetobfr,wmax, 
-     &        ttau, kske)
+     &        ttau, kske, .false.)
       else if (do_cpks_r) then
        call errquit('gridquadv0b: what do do for cpks rhs?',0, CALC_ERR)
       endif
