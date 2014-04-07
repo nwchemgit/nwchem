@@ -36,6 +36,7 @@ c
 #include "rtdb.fh"
 #include "tddft_grad_util.fh"
 #include "case.fh"
+#include "cosmo.fh"
 c
 c     Input:
 c
@@ -88,6 +89,7 @@ c
 c
 c     Local:
 c
+      integer g_ovlp   ! overlap
       integer g_p_ao   ! the total density in AO basis
       integer g_wp_ao  ! the total weighted density matrix AO basis
       integer g_rhs_xc(2) ! the XC component of the der. Fock matrix
@@ -157,6 +159,9 @@ c
       double precision dipmom(4) ! excited state dipole moment
       double precision cntr(3)   ! center (arbitrary)
       logical odipole            ! dipole flag
+      double precision ecosmo
+      character*255 cosmo_file    
+      logical odbug
 c
       integer lsqa    ! the size of one square block
 c
@@ -213,6 +218,7 @@ c
       integer i   ! arbitrary counter
       integer iat ! counter over atoms
 c
+      double precision pstrace
       double precision dum ! dummy variable to complete argument lists
       integer idum         ! dummy variable to complete argument lists
 c
@@ -242,6 +248,7 @@ c
       logical grid_written ! is the quadrature present on file?
 c
       character*32 pname
+      logical status
 c
 c     Functions
 c
@@ -254,6 +261,7 @@ c
 c
 c     Preliminaries
       pname = "tddft_grad_compute_g: "
+      odbug = util_print('cosmo', print_high)
       do i =1,3
         cntr(i) = 0.d0
       end do
@@ -723,14 +731,48 @@ c
 c        if (.not.(rtdb_get(rtdb,'tddft:dipole',mt_log,1,odipole)))
 c     &      odipole = .false.
 c        if (odipole.and.oroot) then
-         call multipole_density(ihdl_bfao,cntr,1,g_p_ao,dipmom,4)
-         if (oroot) then
-           write(LuOut,9200) dipmom(2),dipmom(3),dipmom(4)
-         end if
+c         call tddft_grad_multipole_analysis(rtdb, ihdl_bfao, ipol, 
+c     &               g_p_ao, g_p_ao) 
+c         call multipole_density(ihdl_bfao,cntr,1,g_p_ao,dipmom,4)
+c         if (oroot) then
+c           write(LuOut,9200) dipmom(2),dipmom(3),dipmom(4)
+c         end if
 c
 c        Write excited-state density in the ao basis
 c
          call ao_1prdm_write(nao,g_p_ao)
+c
+c        Calculate the trace of P*S: Check normalization. Total number of electrons
+c
+         if (.not.ga_create(mt_dbl,nao,nao,'AO overlap',-1,-1,g_ovlp))
+     +       call errquit(pname//'failed to create g_ovlp',0, GA_ERR)
+         call ga_zero(g_ovlp)
+         call int_1e_ga(ihdl_bfao,ihdl_bfao,g_ovlp,'overlap',oskel)
+         if (oskel) call sym_symmetrize(ihdl_geom,ihdl_bfao,.false.,
+     &          g_ovlp)
+         pstrace=ga_ddot(g_p_ao,g_ovlp)
+         if(ga_nodeid().eq.0) then
+           write (luout,*)
+           write (luout,'(5x,a,1x,e15.7)') 'No. of electrons (tr(P*S)): 
+     & ',pstrace
+           write (luout,*)
+         end if
+c
+c        Calculate the cosmo charges
+c
+         if (oroot) write(luout,*) "cosmo_on:" ,cosmo_on
+         if (cosmo_on) then
+           cosmo_file = "cosmo-exci.xyz"
+           ecosmo = 0.d0
+           if (oroot) write(luout,*) "calling cosmo_charges_from_dmat"
+           call cosmo_charges_from_dmat(rtdb,ihdl_bfao,ihdl_geom,
+     &                                  ecosmo, .false.,  ! debug
+     &                                  1,       ! up and down are combined
+     &                                  g_p_ao,
+     &                                  cosmo_file)  ! input density
+           if (oroot) write(luout,*) "ecosmo:" ,ecosmo
+         end if ! cosmo check
+c
 c        end if ! odipole
 c
 c 5.    Transform (X+Y) and (X-Y) from MO to AO basis
@@ -1358,5 +1400,7 @@ c
      + call errquit(pname//"could not destroy g_wp_ao",0,GA_ERR)
       if (.not.ga_destroy(g_p_ao)) 
      + call errquit(pname//"could not destroy g_p_ao",0,GA_ERR)
+      if (.not.ga_destroy(g_ovlp)) 
+     + call errquit(pname//"could not destroy g_ovlp",0,GA_ERR)
 c
       end

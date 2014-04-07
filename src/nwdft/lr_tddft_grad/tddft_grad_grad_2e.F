@@ -185,7 +185,7 @@ c
       task_size = max(1,task_size/(20*nproc))
 cDEBUG
 c     if (oroot) write(*,*)'*** task_size truncation disabled'
-      if (oroot) write(*,*)'*** task_size truncation enabled'
+c     if (oroot) write(*,*)'*** task_size truncation enabled'
 cDEBUG
 c     
 c     Parallel loop over quartets of reordered shell blocks

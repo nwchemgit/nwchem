@@ -30,6 +30,7 @@ c
 #include "errquit.fh"
 #include "xc.fh"
 #include "rtdb.fh"
+#include "cosmo.fh"
 #include "tddft_grad_util.fh"
 c
       character*255 title ! the job title
@@ -163,6 +164,18 @@ c     Parameter initialization
      +  osinglet,otriplet, ntotroots,ihdl_bfao,ihdl_geom,tol2e,
      +  solve_thresh,solve_maxit,solve_maxsub,
      +  fn_solve,solve_when,kfac,title)
+c
+c     Cosmo initialization, if necessary
+      cosmo_on = .false.
+      if (rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+       if(cosmo_on) then
+        call cosmo_initialize(rtdb,ihdl_geom,ihdl_bfao,.false.)
+        cosmo_phase = 2
+        if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
+     $   call errquit('cosmo_input: put cosmo_phase failed',
+     $           911, RTDB_ERR)
+       endif
+      endif
 c
 c     Integral initialization
       call tddft_grad_init_ints(rtdb,ihdl_bfao,ihdl_geom,tol2e)
@@ -351,6 +364,16 @@ c     Finalize gradients
      +       nroots, ihdl_roots, ihdl_geom, ihdl_bfao)
       if (oroot.and.odebug) 
      &      write(luout,*) "done tddft_grad_finalize"
+c
+c     Clean up cosmo stuff, if necessary
+      if (oroot.and.odebug.and.cosmo_on)
+     &      write(luout,*) "call cosmo_tidy"
+      if (cosmo_on) then
+         call cosmo_tidy(rtdb)
+         cosmo_on = .false.
+      endif
+      if (oroot.and.odebug.and.cosmo_on)
+     &      write(luout,*) "done cosmo_tidy"
 c
 c     Clean up
       call ga_sync()
