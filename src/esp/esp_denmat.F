@@ -53,7 +53,7 @@ c
 c
       else ! denmat
 c
-c       open movecs file and read header info
+c       calculate density matrix from movecs
 c
         if (movfil.eq.' ') then
            call util_file_name('movecs',.false.,.false.,movfil)
@@ -140,12 +140,13 @@ c
       if (nset.eq.1) then
         call ga_copy(lg_p(1),lg_d)
       else 
-        call ga_dadd(1.0d0,lg_p(1),1.0d0,lg_p(2),lg_d)
+        call ga_dadd(1.0d0,lg_p(1),1.0d0,lg_p(2),lg_d) ! consolidate the density matrices
       endif
 c
       endif !denmat
 c
       call ga_sync()
+c
 c     deallocate global arrays lg_s, lg_v and lg_d
 c
       if(.not.ga_destroy(lg_p(1)))
