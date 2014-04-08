@@ -150,6 +150,26 @@ function usage()
                       interface uses.
                       Examples: 4, 8.
 
+ PYTHON_EXE        -- The full path of the Python executable.
+                      Example: /usr/bin/python.
+
+ PYTHONVERSION     -- The version of the Python installation.
+                      Examples: 2.4, 2.6.
+
+ USE_PYTHON64      -- If set assume Python is a 64-bit installation.
+                      Example: yes.
+
+ PYTHONPATH        -- The location where the Python packages are installed.
+                      Example: /usr/lib64/python2.4/site-packages
+
+ PYTHONHOME        -- The root tree under which the Python packages, libraries,
+                      and executable are installed.
+                      Example: /usr.
+
+ PYTHONLIBTYPE     -- The extension of the Python library (without the dot).
+                      Examples: a, so.
+
+
  Notes:
 
  The environment variables BLAS_SIZE, LAPACK_SIZE and SCALAPACK_SIZE all have 
@@ -2029,6 +2049,11 @@ if [ ${#MRCC_METHODS} -ne 0 ] ; then
   echo "MRCC_METHODS       =" ${MRCC_METHODS}
   echo "export MRCC_METHODS=${MRCC_METHODS}" >> ${NWCHEM_ENV_SH}
   echo "setenv MRCC_METHODS ${MRCC_METHODS}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  echo "PYTHON_EXE         =" ${PYTHON_EXE}
+  echo "export PYTHON_EXE=${PYTHON_EXE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv PYTHON_EXE ${PYTHON_EXE}" >> ${NWCHEM_ENV_CSH}
 fi
 if [ ${#PYTHONVERSION} -ne 0 ] ; then
   echo "PYTHONVERSION      =" ${PYTHONVERSION}
