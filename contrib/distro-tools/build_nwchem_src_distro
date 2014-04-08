@@ -20,7 +20,7 @@ fi
 if [ $# == 2 ] ; then
   distro=$2
 else
-  distro=${release}.revision${revision}-src.${date}.tar.gz
+  distro=${release}.revision${revision}-src.${date}
 fi
 target=`pwd`/${distro}
 echo "Generating source distro"
