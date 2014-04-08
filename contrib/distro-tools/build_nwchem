@@ -582,6 +582,8 @@ function get_blas_lib()
    # The first library that matches these criteria is returned.
    fcomp=$1
    blasopt="$2"
+   extralibs="$3"
+   # echo "extralibs:" ${extralibs} > /dev/stderr
    if [ ${#fcomp} -eq 0 ] ; then
        echo
        return
@@ -611,7 +613,7 @@ function get_blas_lib()
        echo "      k = 1" >> testblas$$.f
        echo "      call dgemm('n','n',m,n,k,1.0d0,a,lda,b,lda,0.0d0,c,lda)" >> testblas$$.f
        echo "      end" >> testblas$$.f
-       $fcomp -o testblas$$.x testblas$$.f ${candidate} > /dev/null
+       $fcomp -o testblas$$.x testblas$$.f ${candidate} ${extralibs} > /dev/null
        result=$?
        if [ ${result} -eq 0 ] ; then
          ./testblas$$.x > /dev/null
@@ -713,7 +715,8 @@ function get_lapack_lib()
        return
    fi
    blas=$2
-   blasopt=$3
+   blasopt="$3"
+   extralibs="$4"
    lib=""
    length=${#LIST_LINLIBS[*]}
    indx=0
@@ -737,7 +740,7 @@ function get_lapack_lib()
        echo "      lwork = 1" >> testlapack$$.f
        echo "      call dsyev('n','u',n,a,lda,w,work,lwork,info)" >> testlapack$$.f
        echo "      end" >> testlapack$$.f
-       $fcomp -o testlapack$$.x testlapack$$.f ${candidate} ${blas} > /dev/null
+       $fcomp -o testlapack$$.x testlapack$$.f ${candidate} ${blas} ${extralibs} > /dev/null
        result=$?
        if [ ${result} -eq 0 ] ; then
          ./testlapack$$.x > /dev/null
@@ -823,7 +826,8 @@ function get_scalapack_lib()
    # The first library that matches these criteria is returned.
    fcomp=$1
    lapackblas=$2
-   blasopt=$3
+   blasopt="$3"
+   extralibs="$4"
    if [ ${#fcomp} -eq 0 ] ; then
        echo
        return
@@ -854,7 +858,7 @@ function get_scalapack_lib()
        echo "      n = 1" >> testscalapack$$.f
        echo "      call pdgetrs('n',n,n,a,ia,ja,desca,ipiv,b,ib,jb,descb,info)" >> testscalapack$$.f
        echo "      end" >> testscalapack$$.f
-       $fcomp -o testscalapack$$.x testscalapack$$.f ${candidate} ${lapackblas} > /dev/null
+       $fcomp -o testscalapack$$.x testscalapack$$.f ${candidate} ${lapackblas} ${extralibs} > /dev/null
        result=$?
        if [ ${result} -eq 0 ] ; then
          ./testscalapack$$.x > /dev/null
@@ -1023,10 +1027,10 @@ elif [ "$option" == "" ] ; then
   echo > /dev/null
 elif [ "$option" == "realclean" ] ; then
   echo > /dev/null
-elif [ "$option" == "python" ] ; then
-  echo > /dev/null
-elif [ "$option" == "python64" ] ; then
-  echo > /dev/null
+#elif [ "$option" == "python" ] ; then
+#  echo > /dev/null
+#elif [ "$option" == "python64" ] ; then
+#  echo > /dev/null
 else
   usage
   exit 1
@@ -1178,8 +1182,84 @@ fi
 if [ ${#NWCHEM_TOP} -eq 0 ] ; then
   export NWCHEM_TOP=`pwd`
 fi
+#
+# Check for python and see what we have.
+#
+if [ ${#PYTHON_EXE} -eq 0 ] ; then
+  PYTHON_EXE=`which python`
+  if [ ${#PYTHON_EXE} -ne 0 ] ; then
+    export PYTHON_EXE
+  fi
+fi
+#
+# If we have python, find out which version we have got
+#
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  if [ ${#PYTHONVERSION} -eq 0 ]; then
+    echo "import sys" > ./testpython$$.py
+    echo "version=sys.version_info" >> ./testpython$$.py
+    echo "print(\"%d.%d\"%(version[0],version[1]))" >> ./testpython$$.py
+    PYTHONVERSION=`${PYTHON_EXE} ./testpython$$.py`
+    export PYTHONVERSION
+    rm -f ./testpython$$.py
+  fi
+fi
+#
+# Is the python a 32 or 64 bit version?
+#
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  echo "import struct" > ./testpython$$.py
+  echo "print(8 * struct.calcsize(\"P\"))" >> ./testpython$$.py
+  PYTHONBITS=`${PYTHON_EXE} ./testpython$$.py`
+  if [ ${PYTHONBITS} -eq 64 ] ; then
+    export USE_PYTHON64=yes
+  fi
+  rm -rf ./testpython$$.py
+fi
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  if [ ${#PYTHONPATH} -eq 0 ] ; then
+    export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
+  fi
+fi
+#
+# Work out PYTHONHOME, i.e. where the main python libraries live
+#
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  if [ ${#PYTHONHOME} -eq 0 ] ; then
+    TMP1=`dirname $PYTHON_EXE`
+    TMP2=`dirname $TMP1`
+    TMP1=`find $TMP2 -name os.py -print`
+    TMP2=`dirname $TMP1`
+    TMP1=`dirname $TMP2`
+    export PYTHONHOME=`dirname $TMP1`
+  fi
+fi
+#
+# Work out which type of python library we have on this machine
+#
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  if [ ${#PYTHONLIBTYPE} -eq 0 ] ; then
+    TMP1=`find ${PYTHONHOME} -name libpython${PYTHONVERSION}.a -print`
+    if [ ${#TMP1} -ne 0 ] ; then
+      export PYTHONLIBTYPE=a
+    fi
+  fi
+  if [ ${#PYTHONLIBTYPE} -eq 0 ] ; then
+    TMP1=`find ${PYTHONHOME} -name libpython${PYTHONVERSION}.so -print`
+    if [ ${#TMP1} -ne 0 ] ; then
+      export PYTHONLIBTYPE=so
+    fi
+  fi
+fi
+#
+# Set up the default MODULES selection
+#
 if [ ${#NWCHEM_MODULES} -eq 0 ] ; then
-  export NWCHEM_MODULES="all"
+  if [ ${#PYTHONVERSION} -eq 0 ] ; then
+    export NWCHEM_MODULES="all"
+  else
+    export NWCHEM_MODULES="all python"
+  fi
 fi
 if [ ${#LARGE_FILES} -eq 0 ] ; then
   # Apparently LARGE_FILES is important so that the code can use files that
@@ -1575,7 +1655,11 @@ fi
 # If BLASOPT is set that runs shot over everything. 
 #
 if [ ${#BLASOPT} -ne 0 ] ; then
-  DUMMY=`get_blas_lib ${MPI_F90} "${BLASOPT}"`
+  if [ ${#MPI_LIB} -ne 0 ] ; then
+    # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  fi
+  DUMMY=`get_blas_lib ${MPI_F90} "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export BLAS_LIB="${BLASOPT}"
@@ -1583,7 +1667,7 @@ if [ ${#BLASOPT} -ne 0 ] ; then
     # BLASOPT set but no BLAS available so use internal BLAS library
     export BLAS_LIB=" "
   fi
-  DUMMY=`get_lapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}"`
+  DUMMY=`get_lapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export LAPACK_LIB="${BLASOPT}"
@@ -1591,11 +1675,7 @@ if [ ${#BLASOPT} -ne 0 ] ; then
     # BLASOPT set but no LAPACK available so use internal LAPACK library
     export LAPACK_LIB=" "
   fi
-  if [ ${#MPI_LIB} -ne 0 ] ; then
-    # Only set MPI_LIB_TMP if MPI_LIB is non-empty
-    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
-  fi
-  DUMMY=`get_scalapack_lib ${MPI_F90} "${BLASOPT} ${MPI_LIB_TMP} ${LIBMPI}" "${BLASOPT}"`
+  DUMMY=`get_scalapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export SCALAPACK_LIB="${BLASOPT}"
@@ -1608,7 +1688,11 @@ fi
 # If needed find libraries and work out which integer types they support
 #
 if [ ${#BLAS_LIB} -eq 0 ] ; then
-  BLAS_LIB=`get_blas_lib ${MPI_F90} 0`
+  if [ ${#MPI_LIB} -ne 0 ] ; then
+    # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  fi
+  BLAS_LIB=`get_blas_lib ${MPI_F90} 0 "${MPI_LIB_TMP} ${LIBMPI}"`
   export BLAS_LIB
 fi
 if [ ${#BLAS_SIZE} -eq 0 ] ; then
@@ -1616,7 +1700,11 @@ if [ ${#BLAS_SIZE} -eq 0 ] ; then
     # In this case we will build the BLAS from source
     BLAS_SIZE=8
   else
-    BLAS_SIZE=`get_blas_integer ${MPI_F90} "${BLAS_LIB}"`
+    if [ ${#MPI_LIB} -ne 0 ] ; then
+      # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+      MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+    fi
+    BLAS_SIZE=`get_blas_integer ${MPI_F90} "${BLAS_LIB} ${MPI_LIB_TMP} ${LIBMPI}"`
     if [ $? -ne 0 ] ; then
       BLAS_SIZE=8
     fi
@@ -1624,7 +1712,11 @@ if [ ${#BLAS_SIZE} -eq 0 ] ; then
   export BLAS_SIZE
 fi
 if [ ${#LAPACK_LIB} -eq 0 ] ; then
-  LAPACK_LIB=`get_lapack_lib ${MPI_F90} "${BLAS_LIB}" 0`
+  if [ ${#MPI_LIB} -ne 0 ] ; then
+    # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  fi
+  LAPACK_LIB=`get_lapack_lib ${MPI_F90} "${BLAS_LIB}" 0 "${MPI_LIB_TMP} ${LIBMPI}"`
   export LAPACK_LIB
 fi
 if [ ${#LAPACK_SIZE} -eq 0 ] ; then
@@ -1632,7 +1724,11 @@ if [ ${#LAPACK_SIZE} -eq 0 ] ; then
     # In this case we will build the LAPACK from source
     LAPACK_SIZE=8
   else
-    LAPACK_SIZE=`get_lapack_integer ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB}"`
+    if [ ${#MPI_LIB} -ne 0 ] ; then
+      # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+      MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+    fi
+    LAPACK_SIZE=`get_lapack_integer ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB} ${MPI_LIB_TMP} ${LIBMPI}"`
     if [ $? -ne 0 ] ; then
       LAPACK_SIZE=8
     fi
@@ -1644,7 +1740,7 @@ if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
     # Only set MPI_LIB_TMP if MPI_LIB is non-empty
     MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
   fi
-  SCALAPACK_LIB=`get_scalapack_lib ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB} ${MPI_LIB_TMP} ${LIBMPI}" 0`
+  SCALAPACK_LIB=`get_scalapack_lib ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB}" 0 "${MPI_LIB_TMP} ${LIBMPI}"`
   export SCALAPACK_LIB
 fi
 if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
@@ -1762,33 +1858,37 @@ fi
 if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
   export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
 fi
-if [ "x$1" == "xpython" ]; then
-  export PYTHONVERSION=2.4
-  export PYTHONHOME=/usr
-  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
-  export NWCHEM_MODULES="$NWCHEM_MODULES python"
-  echo "===================================="
-  echo "Building NWChem including Python $PYTHONVERSION"
-  echo "===================================="
-  echo
-  option=""
-elif [ "x$1" == "xpython64" ]; then
-  export USE_PYTHON64=yes
-  export PYTHONVERSION=2.4
-  export PYTHONHOME=/usr
-  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
-  export NWCHEM_MODULES="$NWCHEM_MODULES python"
-  echo "===================================="
-  echo "Building NWChem including Python $PYTHONVERSION"
-  echo "===================================="
-  echo
-  option=""
-else
-  echo "==============="
-  echo "Building NWChem"
-  echo "==============="
-  echo
-fi
+#if [ "x$1" == "xpython" ]; then
+#  export PYTHONVERSION=2.4
+#  export PYTHONHOME=/usr
+#  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
+#  export NWCHEM_MODULES="$NWCHEM_MODULES python"
+#  echo "===================================="
+#  echo "Building NWChem including Python $PYTHONVERSION"
+#  echo "===================================="
+#  echo
+#  option=""
+#elif [ "x$1" == "xpython64" ]; then
+#  export USE_PYTHON64=yes
+#  export PYTHONVERSION=2.4
+#  export PYTHONHOME=/usr
+#  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
+#  export NWCHEM_MODULES="$NWCHEM_MODULES python"
+#  echo "===================================="
+#  echo "Building NWChem including Python $PYTHONVERSION"
+#  echo "===================================="
+#  echo
+#  option=""
+#else
+#  echo "==============="
+#  echo "Building NWChem"
+#  echo "==============="
+#  echo
+#fi
+echo "==============="
+echo "Building NWChem"
+echo "==============="
+echo
 export NWCHEM_ENV_SH=${NWCHEM_TOP}/nwchem_make_env.sh
 export NWCHEM_ENV_CSH=${NWCHEM_TOP}/nwchem_make_env.csh
 echo "# This file was auto-generated by ${NWCHEM_TOP}/contrib/distro-tools/build_nwchem" > ${NWCHEM_ENV_SH}
@@ -1930,6 +2030,31 @@ if [ ${#MRCC_METHODS} -ne 0 ] ; then
   echo "export MRCC_METHODS=${MRCC_METHODS}" >> ${NWCHEM_ENV_SH}
   echo "setenv MRCC_METHODS ${MRCC_METHODS}" >> ${NWCHEM_ENV_CSH}
 fi
+if [ ${#PYTHONVERSION} -ne 0 ] ; then
+  echo "PYTHONVERSION      =" ${PYTHONVERSION}
+  echo "export PYTHONVERSION=${PYTHONVERSION}" >> ${NWCHEM_ENV_SH}
+  echo "setenv PYTHONVERSION ${PYTHONVERSION}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#USE_PYTHON64} -ne 0 ] ; then
+  echo "USE_PYTHON64       =" ${USE_PYTHON64}
+  echo "export USE_PYTHON64=${USE_PYTHON64}" >> ${NWCHEM_ENV_SH}
+  echo "setenv USE_PYTHON64 ${USE_PYTHON64}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#PYTHONPATH} -ne 0 ] ; then
+  echo "PYTHONPATH         =" ${PYTHONPATH}
+  echo "export PYTHONPATH=${PYTHONPATH}" >> ${NWCHEM_ENV_SH}
+  echo "setenv PYTHONPATH ${PYTHONPATH}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#PYTHONHOME} -ne 0 ] ; then
+  echo "PYTHONHOME         =" ${PYTHONHOME}
+  echo "export PYTHONHOME=${PYTHONHOME}" >> ${NWCHEM_ENV_SH}
+  echo "setenv PYTHONHOME ${PYTHONHOME}" >> ${NWCHEM_ENV_CSH}
+fi
+if [ ${#PYTHONLIBTYPE} -ne 0 ] ; then
+  echo "PYTHONLIBTYPE      =" ${PYTHONLIBTYPE}
+  echo "export PYTHONLIBTYPE=${PYTHONLIBTYPE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv PYTHONLIBTYPE ${PYTHONLIBTYPE}" >> ${NWCHEM_ENV_CSH}
+fi
 #
 # Stop if we find essential information missing.
 # I.e. no Fortran, C, or C++ compilers or settings to use obsolete versions
@@ -1966,7 +2091,11 @@ if [ ${#MRCC_METHODS} -ne 0 ] ; then
   if [[ ( ${NWCHEM_MODULES} != "all" ) &&
         ( ${NWCHEM_MODULES} != "pnnl" ) &&
         ( ${NWCHEM_MODULES} != "alldev" ) &&
-        ( ${NWCHEM_MODULES} != "pnnldev" ) ]] ; then
+        ( ${NWCHEM_MODULES} != "pnnldev" ) &&
+        ( ${NWCHEM_MODULES} != "all python" ) &&
+        ( ${NWCHEM_MODULES} != "pnnl python" ) &&
+        ( ${NWCHEM_MODULES} != "alldev python" ) &&
+        ( ${NWCHEM_MODULES} != "pnnldev python" ) ]] ; then
     echo "ERROR: The MRCC methods cannot be used with the NWCHEM_MODULES selection: ${NWCHEM_MODULES}" > /dev/stderr
     echo "ERROR: Conflicting MRCC and NWCHEM_MODULES selection: aborting..." > /dev/stderr
     exit 1
@@ -2005,7 +2134,7 @@ if [ ${#OLD_GA} -eq 0 ] ; then
             export GA_BLAS_SIZE=${BLAS_SIZE}
           fi
         fi
-        if [ "${GA_BLAS_SIZE}" == "4" ] ; then
+        if [ "x${GA_BLAS_SIZE}" == "x4" ] ; then
           export USE_64TO32=y
         else
           unset USE_64TO32
@@ -2055,7 +2184,7 @@ if [ ${#OLD_GA} -eq 0 ] ; then
             export GA_LAPACK_SIZE=${LAPACK_SIZE}
           fi
         fi
-        if [ "${GA_LAPACK_SIZE}" == "4" ] ; then
+        if [ "x${GA_LAPACK_SIZE}" == "x4" ] ; then
           export USE_64TO32=y
         else
           unset USE_64TO32
@@ -2105,7 +2234,7 @@ if [ ${#OLD_GA} -eq 0 ] ; then
             export GA_SCALAPACK_SIZE=${SCALAPACK_SIZE}
           fi
         fi
-        if [ "${GA_SCALAPACK_SIZE}" == "4" ] ; then
+        if [ "x${GA_SCALAPACK_SIZE}" == "x4" ] ; then
           export USE_64TO32=y
         else
           unset USE_64TO32
