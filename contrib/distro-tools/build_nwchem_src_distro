@@ -1,5 +1,9 @@
 #!/bin/bash
-release=nwchem-6.3
+release=Nwchem-6.3
+source=`pwd`/$1
+date=`date +%Y-%m-%d`
+revision=`svn info ${source} | grep Revision:`
+revision=`echo ${revision} | sed 's/Revision: //'`
 if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
   echo "Usage: $0 source-directory [distribution-directory]"
   echo ""
@@ -7,16 +11,16 @@ if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
   echo "lives. The distribution-directory is the directory that the"
   echo "source will be copied into and which is used to generate the"
   echo "distribution tar-ball. If the distribution-directory is not"
-  echo "specified ${release} will be used instead."
+  echo "specified ${release}.revision${revision}-src.${date}.tar.gz"
+  echo "will be used instead."
   echo "Any artifacts from testing the code are removed and the resulting"
   echo "directory packaged as a compressed tar-file."
   exit 1
 fi
-source=`pwd`/$1
 if [ $# == 2 ] ; then
   distro=$2
 else
-  distro=${release}
+  distro=${release}.revision${revision}-src.${date}.tar.gz
 fi
 target=`pwd`/${distro}
 echo "Generating source distro"
