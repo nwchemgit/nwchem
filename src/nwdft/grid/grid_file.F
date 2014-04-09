@@ -23,6 +23,7 @@
 #include "global.fh"
 #include "eaf.fh"
 #include "stdio.fh"
+#include "zora.fh"
       character*(*) filename
       integer cachesize, filesize
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
@@ -135,9 +136,17 @@ c
 c
 c     dont use disk for grid pts
 c     
-                largenode=.true.
-                grid_file_open=.true.
-                return
+                if (do_zora) then
+                  if (ga_nodeid().eq.0) then
+                    write(*,*)'WARNING: ZORA *MUST* have gridpts file '
+     &                      //'Good luck!'
+                  endif
+                  largenode=.false.
+                else
+                  largenode=.true.
+                  grid_file_open=.true.
+                  return
+                endif
              endif
             max_file_rec = nint((0.95*1024.0d0*availkb) / 
      $           (8.0d0*rec_len_in_dbl))
