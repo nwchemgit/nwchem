@@ -338,10 +338,10 @@ C-------------------------parameters--------------------------------
 
       logical oskel   ! symmetry?
 c
-      double precision dielec, screen, rsolv, zeta, gammas, swtol
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag, dsurf, dvol, srfmol, volmol, ptspatm
       integer          lineq, minbem, maxbem, ificos, ifscrn
-      common/hnd_cospar/dielec, screen, rsolv, zeta, gammas, swtol
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag, dsurf, dvol, srfmol, volmol, ptspatm
       common/hnd_cosmod/lineq, minbem, maxbem, ificos, ifscrn
 
