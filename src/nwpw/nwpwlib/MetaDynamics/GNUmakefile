@@ -4,6 +4,7 @@
 
  OBJ_OPTIMIZE = \
 		metadynamics_input.o \
+		metadynamics_aux.o \
 		metadynamics.o
 
 	  OBJ = 

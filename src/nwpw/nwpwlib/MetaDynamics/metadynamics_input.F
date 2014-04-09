@@ -20,8 +20,8 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 20)
-      character*18 dirs(num_dirs)
+      parameter (num_dirs = 21)
+      character*28 dirs(num_dirs)
       data dirs / 'update',
      >            'print',
      >            'print_shift',
@@ -41,10 +41,11 @@ c
      >            '2bonds',
      >            'ld_trace2diff',
      >            'bond_difference2',
+     >            'bond_difference_shell',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
-      parameter (num_dirs2 = 10)
+      parameter (num_dirs2 = 11)
       character*10 dirs2(num_dirs2)
       data dirs2 / 'index1',
      >             'index2',
@@ -55,7 +56,7 @@ c
      >             'sigma',
      >             'range',
      >             'nrange',
-     >             'sprik'/
+     >             'sprik','s0'/
 
       integer num_dirs3          ! No. of known directives
       parameter (num_dirs3 = 5)
@@ -149,7 +150,7 @@ c
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 120,150, 200, 300, 400, 500, 600, 701,702,703, 800,
-     >       900,1000,1100,1200,1300,1400,1500,
+     >       900,1000,1100,1200,1300,1400,1500,1600,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -541,7 +542,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 510,520,530,540,550,560,570,580,590,595 ) ind2
+      goto ( 510,520,530,540,550,560,570,580,590,595,501 ) ind2
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind2,INPUT_ERR)
 c
@@ -1526,6 +1527,185 @@ c
       end if
 
       goto 10
+
+c
+c  bond_difference_shell
+c
+ 1600 if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+     >                    index_start1(2),index_start1(1)))
+     >    call errquit(
+     > 'metadynamics_input:failed allocating index_start1',0,MA_ERR)
+      if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+     >                    index_start2(2),index_start2(1)))
+     >    call errquit(
+     > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
+
+      sdist(1) = 0.00005d0
+      sdist(2) = 0.10000d0
+      sdist(3) = 6.0d0
+      sdist(4) = 12.0d0
+      sdist(5) = 3.0d0
+      sdist(6) = -1.0d0
+      sdist(7) = -1.0d0
+      sdist(8) = -1.0d0
+      sdist(9) = 1.0d0
+      sindx(1) = 501
+      n1 = 0
+      n2 = 0
+ 1601 if (.not. inp_a(test)) goto 1699
+      if (.not. inp_match(num_dirs2,.false.,test,dirs2,ind2))
+     >  call errquit(
+     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+
+      goto (1610,1620,1630,1640,1650,1660,1670,1680,1690,1695,1655) ind2
+      call errquit(
+     >     'metadynamics_input: unimplemented directive',ind2,INPUT_ERR)
+c
+c index1
+c
+ 1610 n1 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start1(1)+n1) = j
+          n1 = n1+1
+         end do
+      end do
+
+      goto 501
+c
+c index2 
+c
+ 1620 n2 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start2(1)+n2) = j
+          n2 = n2+1
+         end do
+      end do
+
+      goto 1601
+c
+c n
+c
+ 1630 if (.not.inp_f(sdist(3))) sdist(3)=6.0d0
+      goto 1601
+c
+c m
+c
+ 1640 if (.not.inp_f(sdist(4))) sdist(4)=12.0d0
+      goto 1601
+c
+c r0
+c
+ 1650 if (.not.inp_f(sdist(5))) sdist(5)=3.0d0
+      goto 1601
+c
+c s0
+c
+ 1655 if (.not.inp_f(sdist(9))) sdist(9)=1.0d0
+      goto 1601
+c
+c w
+c
+ 1660 if (.not.inp_f(sdist(1))) sdist(1)=0.00005
+      goto 1601
+c
+c sigma
+c
+ 1670 if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
+      goto 1601
+c
+c range
+c
+ 1680  if (.not.inp_f(sdist(7))) sdist(7)=-1.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)=-1.0d0
+      goto 1601
+c
+c nrange
+c
+ 1690 if (.not.inp_i(sindx(1))) sindx(1)=501
+      goto 1601
+c
+c sprik
+c
+ 1695 sdist(6)=1.0d0
+      goto 1601
+
+ 1699 continue
+      int_mb(sindxmeta(1) +nmeta)     = nindxmeta
+      int_mb(indxmeta(1)+nindxmeta)   = 11
+      int_mb(indxmeta(1)+nindxmeta+1) = n1
+      int_mb(indxmeta(1)+nindxmeta+2) = n2
+      do j=1,n1
+         int_mb(indxmeta(1)+nindxmeta+2+j) 
+     >      = int_mb(index_start1(1)+j-1)
+      end do
+      do j=1,n2
+         int_mb(indxmeta(1)+nindxmeta+2+n1+j) 
+     >      = int_mb(index_start2(1)+j-1)
+      end do
+      nindxmeta  = nindxmeta + 3+n1+n2
+
+      int_mb(sparammeta(1)+nmeta)       = nparammeta
+      dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
+      dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      dbl_mb(parammeta(1)+nparammeta+6) = sdist(9)
+      nparammeta  = nparammeta + 7
+
+      nxmeta_all = nxmeta_all*sindx(1)
+      int_mb(nxmeta(1)+nmeta) = sindx(1)
+      dbl_mb(ameta(1)+nmeta)  = sdist(7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(8)
+      int_mb(pmeta(1)+nmeta)  = 0
+
+      nmeta = nmeta + 1
+
+      rtdb_name = 'metadynamics_nindxmeta'
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      rtdb_name = 'metadynamics_sindxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sindxmeta(1)))
+      rtdb_name = 'metadynamics_indxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nindxmeta,int_mb(indxmeta(1)))
+      rtdb_name = 'metadynamics_nparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
+      rtdb_name = 'metadynamics_sparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sparammeta(1)))
+      rtdb_name = 'metadynamics_parammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                 nparammeta,dbl_mb(parammeta(1)))
+      rtdb_name = 'metadynamics_ameta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
+      rtdb_name = 'metadynamics_bmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
+      rtdb_name = 'metadynamics_nxmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
+      rtdb_name = 'metadynamics_nmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+      rtdb_name = 'metadynamics_nxmeta_all'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
+      if (.not. value) call errquit(
+     >'metadynamics_input:failed writing coord_num',0,RTDB_ERR)
+
+      if (.not.MA_pop_stack(index_start2(2))) call errquit(
+     > 'metadynamics_input:failed deallocating index_start2',0,MA_ERR)
+      if (.not.MA_pop_stack(index_start1(2))) call errquit(
+     > 'metadynamics_input:failed deallocating index_start1',0,MA_ERR)
+
+      goto 10
+
 
 
 

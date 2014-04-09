@@ -20,7 +20,7 @@ c     **********************************************
       parameter (MASTER=0)
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype
-      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0
+      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,s0
       real*8 boundary(2),temp,fac,sn2(12)
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
@@ -337,7 +337,7 @@ c     **********************************************
      >           'r0=',r0,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
-     >           'periodix=  ',int_mb(pmeta(1)+d-1)
+     >           'periodic=  ',int_mb(pmeta(1)+d-1)
               if (dbl_mb(parammeta(1)+s2+5).lt.0) then
                  write(luout,'(6x,A)') '- LJ function form'
               else
@@ -450,6 +450,35 @@ c     **********************************************
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1)
 
+            else if (ntype.eq.11) then
+             n1 = int_mb(indxmeta(1)+s1+1)
+             n2 = int_mb(indxmeta(1)+s1+2)
+             n  =  dbl_mb(parammeta(1)+s2+2)
+             m  =  dbl_mb(parammeta(1)+s2+3)
+             r0 =  dbl_mb(parammeta(1)+s2+4)
+             s0 =  dbl_mb(parammeta(1)+s2+6)
+             write(luout,1003) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
+             write(luout,1004) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
+
+             write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
+     >                   /6x,A,F11.6,4x,A,F11.6,
+     >                   /6x,A,F11.6,4x,A,F11.6,
+     >                   /6x,A,F11.6,F11.6,
+     >                   /6x,A,I5,
+     >                   /6x,A,I2)')
+     >       "  - Bath Coodination Number Parameters: ",
+     >           'n= ',n,'m=       ',m,
+     >           'w= ',w,'sigma=   ',sigma,
+     >           'r0=',r0,'s0=     ',s0,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=  ',int_mb(pmeta(1)+d-1)
+              if (dbl_mb(parammeta(1)+s2+5).lt.0) then
+                 write(luout,'(6x,A)') '- LJ function form'
+              else
+                 write(luout,'(6x,A)') '- Sprik function form'
+              end if
+
 
             end if
 
@@ -457,6 +486,8 @@ c     **********************************************
 
  1001 FORMAT(2x,"- Coorination Number (Index1) :",10I5)
  1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
+ 1003 FORMAT(2x,"- Bond Difference Indexes (Index1) :",10I5)
+ 1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
 
       end if
       
@@ -564,10 +595,11 @@ c     **********************************************
       real*8  psi1(*)
 
 *     **** local variables ****
-      integer i,j,ntype,n1,n2
+      integer i,j,ntype,n1,n2,isgn
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
       real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
+      real*8 cf(100),s0
 
 *     **** external functions ****
       real*8   ion_rion,psp_ld_trace
@@ -800,6 +832,27 @@ c     **** n-plane ****
          call lattice_min_difference(dx2,dy2,dz2)
          r2 = (dx2**2 + dy2**2 + dz2**2)
          f = r1 - r2
+
+c     **** bond_difference_shell ****
+      else if (ntype.eq.11) then
+         f = 0.0d0
+         n1=indx(2)
+         n2=indx(3)
+         isgn=1
+         do i=1,n1-1
+           x1 = ion_rion(1,indx(3+i))
+           y1 = ion_rion(2,indx(3+i))
+           z1 = ion_rion(3,indx(3+i))
+           x2 = ion_rion(1,indx(3+i+1))
+           y2 = ion_rion(2,indx(3+i+1))
+           z2 = ion_rion(3,indx(3+i+1))
+           dx1 = x2-x1
+           dy1 = y2-y1
+           dz1 = z1-z1
+           call lattice_min_difference(dx1,dy1,dz1)
+           r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+           f = f + r1*isgn
+         end do
 
       end if
 
