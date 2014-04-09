@@ -388,6 +388,10 @@ c
          status = movecs_read_header( movecs_in, title_vecs, bas_vecs,
      $        scftype_vecs,
      $                                nbf_vecs, nsets, nmo_vecs, 2)
+cDEBUG
+         write(*,*)'mcscf_getmovecs: status, movecs_in: ',status,
+     $             movecs_in
+cDEBUG
          if (status) then
 c     
 c  Check that:
@@ -398,20 +402,24 @@ c
      $                                  (bas_vecs.eq.'******'))) then
              if (.not.movecs_read( movecs_in, 1, occ, evals, g_movecs ))
      $            call errquit('mcscf_getmovecs: movecs read',0,
-     &       DISK_ERR)
-            else
-               if (ga_nodeid().eq.0) write(6,944)
- 944           format('Restart movecs mismatch with input')
-               status = .false.
-            endif
-            if (oprint .and. title_vecs.ne.' ') then
-               write(6,77) title_vecs(1:inp_strlen(title_vecs))
- 77            format(/' Loading old vectors from job with title :'//a/)
-               call util_flush(6)
-            endif
+     &                         DISK_ERR)
+           else
+cDEBUG
+             write(*,*)"nbf,nbf_vecs   : ",nbf,nbf_vecs
+             write(*,*)"trans,bas_vecs : ",trans,bas_vecs
+cDEBUG
+             if (ga_nodeid().eq.0) write(6,944)
+ 944         format('Restart movecs mismatch with input')
+             status = .false.
+           endif
+           if (oprint .and. title_vecs.ne.' ') then
+             write(6,77) title_vecs(1:inp_strlen(title_vecs))
+ 77          format(/' Loading old vectors from job with title :'//a/)
+             call util_flush(6)
+           endif
          endif
-         if (.not. status) call errquit('rhf: failed to load vectors',0,
-     &       DISK_ERR)
+         if (.not. status) call errquit('rhf: failed to load vectors',
+     &                                    0,DISK_ERR)
          oldvectors = .true.
       endif
 c
@@ -1148,7 +1156,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
-      integer nbf, nclosed, nact
+      integer nbf, nclosed, nact, nclos
       integer g_ifock, g_afock, g_gfock
       double precision eps(*)
       integer g_movecs
@@ -1168,10 +1176,11 @@ c
      $  call errquit('mcscf_canonical: cannot allocate v',0, GA_ERR)
       call ga_zero(g_v)
 *ga:1:0
-      if (.not.ga_create(MT_DBL,nclosed,nclosed,'tmp',nclosed,0,g_tmp))
+      nclos = max(1,nclosed)
+      if (.not.ga_create(MT_DBL,nclos,nclos,'tmp',nclos,0,g_tmp))
      $  call errquit('mcscf_canonical: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
-      if (.not.ga_create(MT_DBL,nclosed,nclosed,'u',nclosed,0,g_u))
+      if (.not.ga_create(MT_DBL,nclos,nclos,'u',nclos,0,g_u))
      $  call errquit('mcscf_canonical: cannot allocate u',0, GA_ERR)
       call ga_copy_patch( 'n', g_gfock, 1, nclosed, 1, nclosed,
      $                         g_tmp, 1, nclosed, 1, nclosed )

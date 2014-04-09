@@ -38,7 +38,9 @@ c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nclosed),'xit',l_xit,k_xit))
      $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0, MA_ERR)
-       call ga_get(g_x,aoff,aend,1,nclosed,dbl_mb(k_xit),nact)
+       if (nclosed.gt.0) then
+         call ga_get(g_x,aoff,aend,1,nclosed,dbl_mb(k_xit),nact)
+       endif
        call mcscf_hessv_2e_mo_avia( nbf, nclosed, nact, dm2, g_coul,
      $                              g_exch, dbl_mb(k_xit), g_ax )
        if (.not.ma_pop_stack(l_xit))
@@ -63,7 +65,9 @@ c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nclosed),'xju',l_xju,k_xju))
      $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0, MA_ERR)
-       call ga_get(g_x,aoff,aend,1,nclosed,dbl_mb(k_xju),nact)
+       if (nclosed.gt.0) then
+         call ga_get(g_x,aoff,aend,1,nclosed,dbl_mb(k_xju),nact)
+       endif
        call mcscf_hessv_2e_mo_iaia( nbf, nclosed, nact, dm2, g_coul,
      $                              g_exch, dbl_mb(k_xju), g_ax )
        if (.not.ma_pop_stack(l_xju))
@@ -363,7 +367,9 @@ c
            endif
          enddo
        enddo
-       call ga_acc(g_ax,aoff,aend,1,nclosed,dbl_mb(k_z),nact,1.d0)
+       if (nclosed.gt.0) then
+         call ga_acc(g_ax,aoff,aend,1,nclosed,dbl_mb(k_z),nact,1.d0)
+       endif
 c
 c
        if (.not.ma_pop_stack(l_dt))
@@ -740,7 +746,9 @@ c
            endif
          enddo
        enddo
-       call ga_acc(g_ax,aoff,aend,1,nclosed,dbl_mb(k_z),nact,1.d0)
+       if (nclosed.gt.0) then
+         call ga_acc(g_ax,aoff,aend,1,nclosed,dbl_mb(k_z),nact,1.d0)
+       endif
 c
 c
 c
