@@ -653,9 +653,9 @@ c
 c
 c     conjugate-gradient direct minimization 
 c
- 3600 if (test.eq.'cgmin') then
+ 3600 if (inp_compare(.false.,'cgmin',test)) then
         cgmin = .true.
-      else if (test.eq.'nocgmin') then
+      else if (inp_compare(.false.,'nocgmin',test)) then
         cgmin = .false.
       else
         call errquit('dft_input: cgmin,nocgmin logic broken',3600,UERR)
