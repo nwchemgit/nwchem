@@ -4836,7 +4836,7 @@ C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
       NTEST=0000
-      IPRT= 5
+      IPRT= 0
 *
 *               ====================================
 ** 1:               INITIAL VARIATIONAL SUBSPACE
@@ -7943,7 +7943,7 @@ CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION SCR(*)
       REAL*8 INPROD
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         write(6,*) ' GSTTBL  ,IATP,IASM,IBTP,IBSM,ISCALE'
         write(6,*)            IATP,IASM,IBTP,IBSM,ISCALE     
@@ -15090,7 +15090,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 20
+      NTEST = 00
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15104,8 +15104,6 @@ CNW   DIMENSION SV(*),CV(*)
 * Loop over batches over sigma blocks
       IOFF_S = 1
       DO JBATS = 1, NBATS
-        WRITE(6,*) ' JBATS, LBATS(..) = ',
-     &                                  JBATS, LBATS(JBATS)
         IF(NTEST.GE.10000) WRITE(6,*) ' JBATS, LBATS(..) = ',
      &                                  JBATS, LBATS(JBATS)
 *. Obtain sigma for batch of blocks

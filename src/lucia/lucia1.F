@@ -2704,10 +2704,12 @@ CNW   DIMENSION CSD(*),CCM(*),ISGVST(*)
       DIMENSION CSD(*),ISGVST(*)
       integer CCM, ICOFF
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100)  THEN
        WRITE(6,*) ' SDCMRF: NA, NB =', NA,NB
        WRITE(6,*) ' PS, PL = ', PS, PL
+       WRITE(6,*) ' IDC ', IDC
+       WRITE(6,*) ' IWAY ', IWAY      
       END IF
 *
       SQRT2  = SQRT(2.0D0)
@@ -2770,7 +2772,7 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
            CALL TRIPK3G(CSD,CCM,ICOFF,2,NA,NA,SIGN)
         ELSE
 CNW        CALL COPVEC(CCM,CSD,NA*NB)
-           call ga_copy(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
+           call ga_get(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
         END IF
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN
