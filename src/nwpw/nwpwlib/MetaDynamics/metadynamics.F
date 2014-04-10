@@ -20,7 +20,7 @@ c     **********************************************
       parameter (MASTER=0)
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype
-      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,s0
+      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,s0,v0,dv0
       real*8 boundary(2),temp,fac,sn2(12)
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
@@ -456,20 +456,21 @@ c     **********************************************
              n  =  dbl_mb(parammeta(1)+s2+2)
              m  =  dbl_mb(parammeta(1)+s2+3)
              r0 =  dbl_mb(parammeta(1)+s2+4)
-             s0 =  dbl_mb(parammeta(1)+s2+6)
+             v0  =  dbl_mb(parammeta(1)+s2+6)
+             dv0 =  dbl_mb(parammeta(1)+s2+7)
              write(luout,1003) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(luout,1004) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
 
              write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,F11.6,
+     >                   /6x,A,F11.6,4x,A,2F11.6,
      >                   /6x,A,F11.6,F11.6,
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
      >       "  - Bath Coodination Number Parameters: ",
      >           'n= ',n,'m=       ',m,
      >           'w= ',w,'sigma=   ',sigma,
-     >           'r0=',r0,'s0=     ',s0,
+     >           'r0=',r0,'V0,dV0= ',v0,dv0,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
      >           'periodic=  ',int_mb(pmeta(1)+d-1)
@@ -594,16 +595,21 @@ c     **********************************************
       integer ispin,ne(2)
       real*8  psi1(*)
 
+#include "mafdecls.fh"
+
 *     **** local variables ****
+      logical sprik
       integer i,j,ntype,n1,n2,isgn
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
       real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
-      real*8 cf(100),s0
+      real*8 cf(100),v0,dv0
 
 *     **** external functions ****
-      real*8   ion_rion,psp_ld_trace
-      external ion_rion,psp_ld_trace
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      real*8   ion_rion,psp_ld_trace,metadynamics_coordspherediff
+      external ion_rion,psp_ld_trace,metadynamics_coordspherediff
 
       ntype = indx(1)
 
@@ -835,24 +841,18 @@ c     **** n-plane ****
 
 c     **** bond_difference_shell ****
       else if (ntype.eq.11) then
-         f = 0.0d0
          n1=indx(2)
          n2=indx(3)
-         isgn=1
-         do i=1,n1-1
-           x1 = ion_rion(1,indx(3+i))
-           y1 = ion_rion(2,indx(3+i))
-           z1 = ion_rion(3,indx(3+i))
-           x2 = ion_rion(1,indx(3+i+1))
-           y2 = ion_rion(2,indx(3+i+1))
-           z2 = ion_rion(3,indx(3+i+1))
-           dx1 = x2-x1
-           dy1 = y2-y1
-           dz1 = z1-z1
-           call lattice_min_difference(dx1,dy1,dz1)
-           r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
-           f = f + r1*isgn
-         end do
+         n   = param(3)
+         m   = param(4)
+         r0  = param(5)
+         sprik = (param(6).ge.0.0d0)
+         v0  = param(7)
+         dv0 = param(8)
+         f = metadynamics_coordspherediff(v0,dv0,sprik,n,m,r0,
+     >                                    n1,indx(3   +1),
+     >                                    n2,indx(3+n1+1),
+     >                                    dbl_mb(ion_rion_ptr()))
 
       end if
 
@@ -876,7 +876,10 @@ c     **********************************************
       logical move
       real*8 fmeta(3,*)
 
+#include "mafdecls.fh"
+
 *     **** local variables ****
+      logical sprik
       integer i,j,ntype,n1,n2
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
@@ -884,8 +887,11 @@ c     **********************************************
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
       real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
       real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2
+      real*8 v0,dv0
 
 *     **** external functions ****
+      integer  ion_rion_ptr
+      external ion_rion_ptr
       real*8   ion_rion
       external ion_rion
 
@@ -1261,6 +1267,22 @@ c     **** bond_difference2 ****
          fmeta(1,indx(4)) = fmeta(1,indx(4)) - (2.0d0*dx2*df2)*dv
          fmeta(2,indx(4)) = fmeta(2,indx(4)) - (2.0d0*dy2*df2)*dv
          fmeta(3,indx(4)) = fmeta(3,indx(4)) - (2.0d0*dz2*df2)*dv
+
+      else if (ntype.eq.11) then
+        n1=indx(2)
+        n2=indx(3)
+        n   = param(3)
+        m   = param(4)
+        r0  = param(5)
+        sprik = (param(6).ge.0.0d0)
+        v0  = param(7)
+        dv0 = param(8)
+        call metadynamics_coordspherediff_force(dv,v0,dv0,
+     >                                        sprik,n,m,r0,
+     >                                        n1,indx(3   +1),
+     >                                        n2,indx(3+n1+1),
+     >                                        dbl_mb(ion_rion_ptr()),
+     >                                        fmeta)
 
       end if
 
