@@ -265,7 +265,7 @@ c
      &         Dbl_mb(k_FMat),Dbl_mb(k_PMat),Dbl_mb(k_BMat),0d0,
      &         Dbl_mb(k_Scr1),0,0d0,Int_mb(k_ibf),
      &         Int_mb(k_iniz),Int_mb(k_ifin), Values(iOffg),0,
-     &         dbl_mb(irchi_atom),0,
+     &         0, dbl_mb(irchi_atom),0,
      &         dbl_mb(k_rdat),int_mb(k_cetobfr),100.d0,
      &         0, .false., .false. )
 c
