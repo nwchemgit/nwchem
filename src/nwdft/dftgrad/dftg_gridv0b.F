@@ -278,7 +278,7 @@ c xc_rhogen in grid_quadv0b.
      I    ipol, nqpts, nbf_ao, mbf_ao, grad, ipol,
      F    Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &    dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
-     &    ibf_ao, iniz, ifin, rho, delrho,
+     &    ibf_ao, iniz, ifin, rho, delrho, lapdum,
      &    rchi_atom, rdelchi_atom,
      &    rdens_atom, cetobfr,wmax,
      &    dttau, kske, .false.)
