@@ -463,11 +463,11 @@ c     **********************************************
 
              write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,2F11.6,
-     >                   /6x,A,F11.6,F11.6,
+     >                   /6x,A,F11.6,4x,A,F11.6,F11.6,
+     >                   /6x,A,F15.6,F15.6,
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
-     >       "  - Bath Coodination Number Parameters: ",
+     >       "  - Bond_Difference_Shell Parameters: ",
      >           'n= ',n,'m=       ',m,
      >           'w= ',w,'sigma=   ',sigma,
      >           'r0=',r0,'V0,dV0= ',v0,dv0,

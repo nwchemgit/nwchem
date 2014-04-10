@@ -1548,7 +1548,8 @@ c
       sdist(6) = -1.0d0
       sdist(7) = -1.0d0
       sdist(8) = -1.0d0
-      sdist(9) = 1.0d0
+      sdist(9)  = 100.0d0
+      sdist(10) = 202.45d0
       sindx(1) = 501
       n1 = 0
       n2 = 0
@@ -1572,7 +1573,7 @@ c
          end do
       end do
 
-      goto 501
+      goto 1601
 c
 c index2 
 c
