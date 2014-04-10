@@ -931,7 +931,7 @@ C    &(AIN,X,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
         CALL COPVEC(A,SCR,NDIM*(NDIM+1)/2)
       END IF
 *. Diagonalize
-      CALL EIGEN(SCR,X,NDIM,0,1)
+      CALL EIGENL(SCR,X,NDIM,0,1)
 *. Pack eigenvalues
       CALL COPDIA(SCR,SCR,NDIM,1)
 *
