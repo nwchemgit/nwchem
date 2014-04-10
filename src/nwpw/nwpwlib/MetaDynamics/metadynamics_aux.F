@@ -210,8 +210,10 @@
       real*8  rion(3,*)
 
 *     **** local variables ***
+      real*8  onethird,Vs
+      parameter (onethird=1.0d0/3.0d0,Vs=1.0d0)
       integer i,isgn
-      real*8  f,C1,C2,V,dVdC1,dVdC2,dVdR1(3),dVdR2(3)
+      real*8  f,vscal,C1,C2,V,dVdC1,dVdC2,dVdR1(3),dVdR2(3)
 
 *     **** external functions ****
       real*8   metadynamics_coordnumber
@@ -220,6 +222,7 @@
 
       f = 0.0d0
       if (n1.gt.1) then
+         vscal = (3.0d0/(16.0d0*datan(1.0d0)))**(onethird)
          isgn = 1
          C1 = metadynamics_coordnumber(sprik,n,m,r0,
      >                                 indx1(1),nw,indxw,rion)
@@ -232,7 +235,7 @@
      >                                       V,
      >                                       dVdC1,dVdC2,
      >                                       dVdR1,dVdR2)
-         f = V*isgn
+         f = vscal*((Vs+V)**onethird)*isgn
          isgn = -1*isgn
          if (n1.gt.2) then
             do i=2,n1-2
@@ -245,7 +248,7 @@
      >                                       V,
      >                                       dVdC1,dVdC2,
      >                                       dVdR1,dVdR2)
-               f    = f + 2*V*isgn
+               f    = f + 2*vscal*((Vs+V)**onethird)*isgn
                isgn = -1*isgn
             end do
             C1 = C2
@@ -257,7 +260,7 @@
      >                                       V,
      >                                       dVdC1,dVdC2,
      >                                       dVdR1,dVdR2)
-            f = f + V*isgn
+            f = f + vscal*((Vs+V)**onethird)*isgn
          end if
       end if
 
@@ -288,14 +291,17 @@
       real*8  fion(3,*)
  
 *     **** local variables ***
+      real*8  onethird,mtwothird,Vs
+      parameter (onethird=1.0d0/3.0d0,mtwothird=-2.0d0/3.0d0,Vs=1.0d0)
       integer i,isgn
-      real*8  f,C1,C2,V,dVdC1,dVdC2,dVdR1(3),dVdR2(3)
+      real*8  f,vscal,dfidV,C1,C2,V,dVdC1,dVdC2,dVdR1(3),dVdR2(3)
 
 *     **** external functions ****
       real*8   metadynamics_coordnumber
       external metadynamics_coordnumber
 
       if (n1.gt.1) then
+         vscal = (3.0d0/(16.0d0*datan(1.0d0)))**(onethird)
          isgn = 1
          C1 = metadynamics_coordnumber(sprik,n,m,r0,
      >                                 indx1(1),nw,indxw,rion)
@@ -308,17 +314,20 @@
      >                                       V,
      >                                       dVdC1,dVdC2,
      >                                       dVdR1,dVdR2)
-         fion(1,indx1(1)) = fion(1,indx1(1)) - dVdR1(1)*dv*isgn
-         fion(2,indx1(1)) = fion(2,indx1(1)) - dVdR1(2)*dv*isgn
-         fion(3,indx1(1)) = fion(3,indx1(1)) - dVdR1(3)*dv*isgn
-         fion(1,indx1(2)) = fion(1,indx1(2)) - dVdR2(1)*dv*isgn
-         fion(2,indx1(2)) = fion(2,indx1(2)) - dVdR2(2)*dv*isgn
-         fion(3,indx1(2)) = fion(3,indx1(2)) - dVdR2(3)*dv*isgn
+         dfidV = vscal*onethird*(Vs+V)**mtwothird
+         fion(1,indx1(1)) = fion(1,indx1(1)) - dv*dfidV*dVdR1(1)*isgn
+         fion(2,indx1(1)) = fion(2,indx1(1)) - dv*dfidV*dVdR1(2)*isgn
+         fion(3,indx1(1)) = fion(3,indx1(1)) - dv*dfidV*dVdR1(3)*isgn
+         fion(1,indx1(2)) = fion(1,indx1(2)) - dv*dfidV*dVdR2(1)*isgn
+         fion(2,indx1(2)) = fion(2,indx1(2)) - dv*dfidV*dVdR2(2)*isgn
+         fion(3,indx1(2)) = fion(3,indx1(2)) - dv*dfidV*dVdR2(3)*isgn
          call metadynamics_coordnumber_force(sprik,n,m,r0,
-     >                                  indx1(1),nw,indxw,dv*dVdC1*isgn,
+     >                                  indx1(1),nw,indxw,
+     >                                  dv*dfidV*dVdC1*isgn,
      >                                  rion,fion)
          call metadynamics_coordnumber_force(sprik,n,m,r0,
-     >                                  indx1(2),nw,indxw,dv*dVdC2*isgn,
+     >                                  indx1(2),nw,indxw,
+     >                                  dv*dfidV*dVdC2*isgn,
      >                                  rion,fion)
          isgn = -1*isgn
          if (n1.gt.2) then
@@ -332,23 +341,26 @@
      >                                       V,
      >                                       dVdC1,dVdC2,
      >                                       dVdR1,dVdR2)
+               dfidV = vscal*onethird*(Vs+V)**mtwothird
                fion(1,indx1(n1-1)) = fion(1,indx1(n1-1))
-     >                             - dv*dVdR1(1)*2.0d0*isgn
+     >                             - dv*dfidV*dVdR1(1)*2.0d0*isgn
                fion(2,indx1(n1-1)) = fion(2,indx1(n1-1))
-     >                             - dv*dVdR1(2)*2.0d0*isgn
+     >                             - dv*dfidV*dVdR1(2)*2.0d0*isgn
                fion(3,indx1(n1-1)) = fion(3,indx1(n1-1))
-     >                             - dv*dVdR1(3)*2.0d0*isgn
+     >                             - dv*dfidV*dVdR1(3)*2.0d0*isgn
                fion(1,indx1(n1))   = fion(1,indx1(n1))
-     >                             - dv*dVdR2(1)*2.0d0*isgn
+     >                             - dv*dfidV*dVdR2(1)*2.0d0*isgn
                fion(2,indx1(n1))   = fion(2,indx1(n1))
-     >                             - dv*dVdR2(2)*2.0d0*isgn
+     >                             - dv*dfidV*dVdR2(2)*2.0d0*isgn
                fion(3,indx1(n1))   = fion(3,indx1(n1))
-     >                             - dv*dVdR2(3)*2.0d0*isgn
+     >                             - dv*dfidV*dVdR2(3)*2.0d0*isgn
                call metadynamics_coordnumber_force(sprik,n,m,r0,
-     >                         indx1(i),nw,indxw,dv*dVdC1*2.0d0*isgn,
+     >                         indx1(i),nw,indxw,
+     >                         dv*dfidV*dVdC1*2.0d0*isgn,
      >                         rion,fion)
                call metadynamics_coordnumber_force(sprik,n,m,r0,
-     >                         indx1(i+1),nw,indxw,dv*dVdC2*2.0d0*isgn,
+     >                         indx1(i+1),nw,indxw,
+     >                         dv*dfidV*dVdC2*2.0d0*isgn,
      >                         rion,fion)
                isgn = -1*isgn
             end do
@@ -361,19 +373,27 @@
      >                                       V,
      >                                       dVdC1,dVdC2,
      >                                       dVdR1,dVdR2)
-            fion(1,indx1(n1-1)) = fion(1,indx1(n1-1)) - dVdR1(1)*dv*isgn
-            fion(2,indx1(n1-1)) = fion(2,indx1(n1-1)) - dVdR1(2)*dv*isgn
-            fion(3,indx1(n1-1)) = fion(3,indx1(n1-1)) - dVdR1(3)*dv*isgn
-            fion(1,indx1(n1))   = fion(1,indx1(n1))   - dVdR2(1)*dv*isgn
-            fion(2,indx1(n1))   = fion(2,indx1(n1))   - dVdR2(2)*dv*isgn
-            fion(3,indx1(n1))   = fion(3,indx1(n1))   - dVdR2(3)*dv*isgn
+            dfidV = vscal*onethird*(Vs+V)**mtwothird
+            fion(1,indx1(n1-1)) = fion(1,indx1(n1-1))
+     >                          - dv*dfidV*dVdR1(1)*isgn
+            fion(2,indx1(n1-1)) = fion(2,indx1(n1-1))
+     >                          - dv*dfidV*dVdR1(2)*isgn
+            fion(3,indx1(n1-1)) = fion(3,indx1(n1-1))
+     >                          - dv*dfidV*dVdR1(3)*isgn
+            fion(1,indx1(n1))   = fion(1,indx1(n1))
+     >                          - dv*dfidV*dVdR2(1)*isgn
+            fion(2,indx1(n1))   = fion(2,indx1(n1))
+     >                          - dv*dfidV*dVdR2(2)*isgn
+            fion(3,indx1(n1))   = fion(3,indx1(n1))
+     >                          - dv*dfidV*dVdR2(3)*isgn
             call metadynamics_coordnumber_force(sprik,n,m,r0,
-     >                               indx1(n1-1),nw,indxw,dv*dVdC1*isgn,
+     >                               indx1(n1-1),nw,indxw,
+     >                               dv*dfidV*dVdC1*isgn,
      >                               rion,fion)
             call metadynamics_coordnumber_force(sprik,n,m,r0,
-     >                              indx1(n1),nw,indxw,dv*dVdC2*isgn,
+     >                              indx1(n1),nw,indxw,
+     >                              dv*dfidV*dVdC2*isgn,
      >                              rion,fion)
-
          end if
 
       end if
