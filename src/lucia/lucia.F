@@ -11761,19 +11761,109 @@ C           WRITE(6,*) ' Vectors will be expanded '
             IRESTR = 1
           END IF
 *         ^ End of Expansion section 
-            IF(IUSEH0P.EQ.1.AND.JCMBSPC.NE.1) THEN 
+          IF(IUSEH0P.EQ.1.AND.JCMBSPC.NE.1) THEN 
 *. Expand file containing zero order vectors 
             WRITE(6,*) ' Zero-order vector will be expanded '
             CALL EXPCIV(IREFSM,ISTOSPCP,LUSC51,JCMBSPC,LUSC52,
      &                  -1,LUSC53,
      &                  1,1,IDC,IPRDIA)
+          END IF
+* ==
+* CI        
+* ==
+          IF(CARD(1:2).EQ.'CI') THEN
+            IF(JSEQ.EQ.1.AND.JCMBSPC.EQ.2.AND.IRST2.EQ.0) THEN
+*. No restart from previous vectors - IRST2 has been set to zero
+              IRESTR = 0
+              WRITE(6,*) ' No restart from previous vectors'
             END IF
-          IF(CARD(1:5).EQ.'MCSCF'  ) THEN
+*. Good old normal CI !!!!
+*. do CI in space JCMBPSC
+            MAXIT_SAVE = MAXIT
+            MAXIT = ISEQCI(JSEQ,JCMBSPC)
+            IROOT_SEL_SAVE = IROOT_SEL
+            IF(IRESTR.EQ.0) THEN
+*. Root selection is not used in  iterative procedure
+              IROOT_SEL = 0
+*. Initial CI, should a larger number of roots be used
+              NROOT_SAVE = NROOT
+              MXCIV_SAVE = MXCIV
+              NROOT = INI_NROOT
+              MXCIV = MAX(3*NROOT,MXCIV_SAVE)
+              NCNV_RT_SAVE = NCNV_RT
+              NCNV_RT = INI_NROOT
+              WRITE(6,*) ' INI_*ROOT option in action '
+            END IF ! special setting for initial CI
+*
+            CALL GASCI(IREFSM,JCMBSPC,IPRDIA,IIUSEH0P,
+     &                 MPORENP_E,
+     &                 EREF,ERROR_NORM_FINAL,CONV_F)
+*. If special settings has used modify and reset
+            IROOT_SEL = IROOT_SEL_SAVE
+            IF(IRESTR.EQ.0) THEN
+*. Reset parameters
+              NROOT = NROOT_SAVE
+              MXCIV = MXCIV_SAVE
+              NCNV_RT = NCNV_RT_SAVE
+            END IF
+*
+            I_HAVE_DONE_GAS = 1
+*. A CI calculation has been performed, the default is 
+* now to restart following calcs from this
+            IRESTR = 1
+            EREF_CI = EREF
+*
+            E_FINAL_T(JSEQ,JCMBSPC) = EREF
+            ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = ERROR_NORM_FINAL
+            CONV_T(JSEQ,JCMBSPC) = CONV_F
+*
+            MAXIT = MAXIT_SAVE
+*. Modified one-electron operator in first it
+            IF(XLAMBDA.NE.1.0D0 .AND.JCMBSPC.EQ.1) THEN
+*.
+              IF(IUSEH0P.EQ.1) THEN
+*. Perturbation operator will be of type PFP + E0|0><0|,
+*. obtain E0 and save |0>
+              CALL GET_E0(E0,EREF)
+              WRITE(6,*) ' zero-order energy =', E0
+*. Prepare for perturbation calculation 
+              SHIFT = 0.0D0
+              IPROJ = 1
+              CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'VCSAVE')
+              LBLOCK = MXSOOB
+              CALL MEMMAN(KVEC1,LBLOCK,'ADDS  ',2,'VEC1  ')
+*. Copy vectors from LUC to LUSC51
+              CALL REWINO(LUC)
+              CALL REWINO(LUSC51)
+              LBLK = -1
+              CALL SKPVCD(LUC,IH0ROOT-1,WORK(KVEC1),1,LBLK)
+              CALL COPVCD(LUC,LUSC51,WORK(KVEC1),0,LBLK)
+C?            WRITE(6,*) ' First vector copied to LUSC51'
+C?            CALL WRTVCD(WORK(KVEC1),LUSC51,1,LBLK)
+              CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'VCSAVE')
+              IIUSEH0P = 1
+             END IF
+             IF(IUSEH0P.EQ.0.AND.MPORENP.EQ.1) THEN
+*. Obtain modified operator for lambda calculations
+                WRITE(6,*) ' Operator will be modified '
+                WRITE(6,*) 'NOT IMPLEMENTED!!!!!'
+CBERT           CALL GENH1(XLAMBDA)
+CBERT           CALL SCLH2(XLAMBDA)
+              END IF
+            END IF
+*. Transform CI coeffficients
+            IF(ITRACI.NE.0) THEN
+              WRITE(6,*) ' Control will be transferred to TRACI_CTL'
+              CALL TRACI_CTL
+            END IF
+*. Last space where vectors were stored
+            ISTOSPC = JCMBSPC
 *
 * ===================
 *. MCSCF calculation
 * ===================
 * 
+          ELSEIF(CARD(1:5).EQ.'MCSCF'  ) THEN
              MAXMAC = ISEQCI(JSEQ,JCMBSPC)
              MAXMIC = ISEQCI2(JSEQ,JCMBSPC)
              CALL LUCIA_MCSCF(JCMBSPC,MAXMAC,MAXMIC,
