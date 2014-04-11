@@ -10,6 +10,9 @@ mo       0.31701420     1.39524897     0.64430503
 c       -0.18258410    -2.04157098     0.67567139
 o       -0.83513670    -2.72011378     1.43131265
 end
+geometry mo1 noautosym
+mo      0          0                   0
+end
 geometry mo3 noautosym
 mo      0.86013301    -0.96881412    -0.50326261
 mo     -1.09277865     0.30984886    -0.65875097
@@ -72,7 +75,7 @@ end
 dft
  xc vwn_1_rpa 1.  perdew86 nonlocal 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72 # b3p86
  odft
- smear 1d-5
+# smear 1d-5
  direct
  tolerances tight
 end
@@ -89,10 +92,23 @@ end
 
 task dft ignore
 
+set geometry mo1
+dft
+mult 1
+vectors input atomic output mosing.mos
+end
+task dft ignore
+set geometry mo1
+dft
+mult 3
+vectors input atomic output motripl.mos
+end
+task dft ignore
 set geometry mo3
 dft
 mult 3
-vectors input atomic output mo3.mos
+#convergence lshift 0.3
+vectors input fragment mosing.mos motripl.mos mosing.mos output mo3.mos
 end
 task dft ignore
 
