@@ -421,6 +421,8 @@ c
       max1e = max_nbf_bra*max_nbf_ket
 c... insure scratch is large enough to hold 3*max1e
       memsize = max(3*max1e,memsize)
+c... make it at least 1500
+      memsize = max(1500,memsize)
 c
 #if defined(API_DEBUG)
       write(luout,'(a,i10)')'emem_1e: memsize =',memsize
