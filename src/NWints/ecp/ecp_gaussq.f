@@ -334,6 +334,8 @@ C     ------------------------------------------------------------------
 C
       INTEGER I, J, K, L, M, N, II, MML, IERR
       DIMENSION  D(N),E(N),Z(N)
+      double precision dlamch
+      external dlamch
       PARAMETER (ZERO = 0.0d00, ONE = 1.0d00, TWO = 2.0d00)
       PARAMETER (FOUR = 4.0d00, HALF = ONE/TWO)
 C
@@ -341,17 +343,8 @@ C     ========== MACHEP IS A MACHINE DEPENDENT PARAMETER SPECIFYING
 C                THE RELATIVE PRECISION OF FLOATING POINT ARITHMETIC.
 C                MACHEP = 16.0D0**(-13) FOR LONG FORM ARITHMETIC
 C                ON S360 ==========
-       MACHEP=two**(-50)
-       xold=machep
-   87  continue
-       try=one+machep
-       if(try.ne.one)then
-        xold=machep
-        machep=machep/two
-        go to 87
-       end if
-       machep=xold
-c$$$       write(6,*)('machep '),machep
+c     inverse of the square root of the overflow
+       machep=1d0/sqrt(dlamch('o'))
 C
       IERR = 0
       IF (N .EQ. 1) GO TO 1001
