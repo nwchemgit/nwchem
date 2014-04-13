@@ -407,6 +407,7 @@ c           *** ff=vout-vm ***
            call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)           !vm    = vnew       
  
          else
+            call nwpw_list_ptr(1,1,rr_ptr)
      
             call nwpw_list_ptr(1,1,rr_ptr) !vm
             call nwpw_list_ptr(1,2,ss_ptr) !vm1
