@@ -201,7 +201,7 @@ ccc      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
      >             amatrix2(1,1),amatrix2(2,1),amatrix2(3,1)
       write(*,112)  amatrix(1,2), amatrix(2,2), amatrix(3,2),
      >             amatrix2(1,2),amatrix2(2,2),amatrix2(3,2)
-      write(*,113)  amatrix(1,2), amatrix(2,2), amatrix(3,2),
+      write(*,113)  amatrix(1,3), amatrix(2,3), amatrix(3,3),
      >             amatrix2(1,3),amatrix2(2,3),amatrix2(3,3)
       write(*,114) nion1,nion2
 
