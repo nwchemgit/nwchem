@@ -54,7 +54,7 @@ c
       integer basis_ncont
       integer i_cont, ic, iuc, ie, icf, inp, ing, il, ig
       integer j_cont, jc, juc, je, jcf, jnp, jng, jl, jg
-      integer lecp_mem, mem_ecp
+      integer lecp_mem, mem_ecp, lecp_mem1
 *      integer h_tlist, k_tlist
       integer nV
       logical o_both, o_ecp, o_so
@@ -373,7 +373,8 @@ c
                         nV  = int_nbf_x(il)*int_nbf_x(jl)*ing*jng
                         lecp_mem = 90000
                         if (indx_grad.eq.0) then
-                           if (o_ecp) call int_ecp_hf1(
+                           if (o_ecp) then
+                             call int_ecp_hf1(
      &                          coords(1,ic,ig),
      &                          dbl_mb(mb_exndcf(ie,bas_id)),
      &                          dbl_mb(mb_exndcf(icf,bas_id)),
@@ -382,8 +383,11 @@ c
      &                          dbl_mb(mb_exndcf(je,bas_id)),
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
-     &                          dpdum,nV,dpdum,lecp_mem,.true.)
-                           if (o_so) call intso_hf1(
+     &                          dpdum,nV,dpdum,lecp_mem1,.true.)
+                             lecp_mem = max(lecp_mem,lecp_mem1)
+                           endif
+                           if (o_so) then
+                             call intso_hf1(
      &                          coords(1,ic,ig),
      &                          dbl_mb(mb_exndcf(ie,bas_id)),
      &                          dbl_mb(mb_exndcf(icf,bas_id)),
@@ -392,9 +396,12 @@ c
      &                          dbl_mb(mb_exndcf(je,bas_id)),
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
-     &                          dpdum,nV,dpdum,lecp_mem,.true.)
+     &                          dpdum,nV,dpdum,lecp_mem1,.true.)
+                             lecp_mem = max(lecp_mem,lecp_mem1)
+                           endif
                         elseif (indx_grad.eq.1) then
-                           if (o_ecp) call intd_ecp_hf1(
+                           if (o_ecp) then
+                             call intd_ecp_hf1(
      &                          coords(1,ic,ig),
      &                          dbl_mb(mb_exndcf(ie,bas_id)),
      &                          dbl_mb(mb_exndcf(icf,bas_id)),
@@ -403,8 +410,12 @@ c
      &                          dbl_mb(mb_exndcf(je,bas_id)),
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
-     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
-                           if (o_so) call intd_so_hf1(
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem1,
+     &                          .true.)
+                             lecp_mem = max(lecp_mem,lecp_mem1)
+                           endif
+                           if (o_so) then
+                             call intd_so_hf1(
      &                          coords(1,ic,ig),
      &                          dbl_mb(mb_exndcf(ie,bas_id)),
      &                          dbl_mb(mb_exndcf(icf,bas_id)),
@@ -413,9 +424,13 @@ c
      &                          dbl_mb(mb_exndcf(je,bas_id)),
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
-     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem1,
+     &                          .true.)
+                             lecp_mem = max(lecp_mem,lecp_mem1)
+                           endif
                         elseif (indx_grad.eq.2) then
-                           if (o_ecp) call intdd_ecp_hf1(
+                           if (o_ecp) then
+                             call intdd_ecp_hf1(
      &                          coords(1,ic,ig),
      &                          dbl_mb(mb_exndcf(ie,bas_id)),
      &                          dbl_mb(mb_exndcf(icf,bas_id)),
@@ -424,8 +439,12 @@ c
      &                          dbl_mb(mb_exndcf(je,bas_id)),
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
-     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
-                           if (o_so) call intdd_so_hf1(
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem1,
+     &                          .true.)
+                             lecp_mem = max(lecp_mem,lecp_mem1)
+                           endif
+                           if (o_so) then
+                             call intdd_so_hf1(
      &                          coords(1,ic,ig),
      &                          dbl_mb(mb_exndcf(ie,bas_id)),
      &                          dbl_mb(mb_exndcf(icf,bas_id)),
@@ -434,7 +453,10 @@ c
      &                          dbl_mb(mb_exndcf(je,bas_id)),
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
-     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem1,
+     &                          .true.)
+                             lecp_mem = max(lecp_mem,lecp_mem1)
+                           endif
                         else
                            call errquit(
      .                          'int_ecp_init:unknown initializ',911,
