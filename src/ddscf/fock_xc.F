@@ -408,6 +408,13 @@ c
       endif
       return
       end
+C> 
+C> \brief Return a 2D slice of a 3D array of density matrices
+C>
+C> If the density matrices are stored in a 3D GA in the form
+C> g_dens(1:nmat,1:nbf,1:nbf) then this routine returns a 2D GA in form
+C> g_dens1(1:nbf,1:nbf) that equals g_dens(imat:imat,1:nbf,1:nbf).
+C>
       integer function dft_npatch(g_dens,imat,nbf,geom,basis)
       implicit none
       integer g_dens ! N-D GA
