@@ -54,6 +54,8 @@ c
       external grid_nxyz
       logical l3d
       logical triplet
+      logical  grid_file_write
+      external grid_file_write
 c
       logical kske
 c
@@ -102,7 +104,7 @@ c     now pack this aqbuf into the write buffer
 c     (write and update task counter as needed)
 c     
          if(.not.largenode)
-     .        call grid_file_write(nq, ictr, 
+     .        grid_written = grid_file_write(nq, ictr, 
      ,        rad_write, aqbuf,  ncu)
          
       endif

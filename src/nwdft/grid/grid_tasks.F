@@ -42,10 +42,12 @@ c
       integer k_symops(2),l_symops(2) ! [out]  symops handles
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
-      integer nq_left	
+      integer nq_left
       integer eaf_size_in_mb
       integer grid_nxyz
       external grid_nxyz
+      logical  grid_file_write, grid_written
+      external grid_file_write
 c
 c     input   
 c        qsh(1,iqsh) = irsh | where within nrad
@@ -199,7 +201,7 @@ c
 c     now pack this aqbuf into the write buffer 
 c     (write and update task counter as needed)
 c     
-                        call grid_file_write(npts_iqsh, ictr, 
+                        grid_written = grid_file_write(npts_iqsh, ictr, 
      ,                       rad_write, aqbuf,  ncu)
                         
                         nqtotc=nqtotc+npts_iqsh
@@ -230,7 +232,7 @@ c     Write last buffer of grid pts and close file
 c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
-      call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
+      grid_written = grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
 c
 c     clean up
 c

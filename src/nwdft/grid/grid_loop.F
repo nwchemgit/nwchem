@@ -91,6 +91,9 @@ c
       double precision delrhosave(*)
       logical do_tddftvxc  !dVxc*P contribution to TDDFT grads
 c
+      logical  grid_file_write
+      external grid_file_write
+c
       nproc=ga_nnodes()
       me=ga_nodeid()
 c
@@ -264,8 +267,7 @@ c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
       if(largenode) return
-      call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
-      grid_written=.true.
+      grid_written = grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
 c
       return
       end
