@@ -127,45 +127,45 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
           end if
         endif
         if (residual .lt. thresh) then
-        if (nodezero) then
-          write(LuOut,9060)
-          if(ccsd_var.eq.'cc2') then
-             write(LuOut,9070) "CC2 ",corr
-             write(LuOut,9080) "CC2 ",ref + corr
-          else
-             write(LuOut,9070) "CCSD",corr
-             write(LuOut,9080) "CCSD",ref + corr
-          end if
-        endif
-        call deletefile(d_r2)
-        call deletefile(d_r1)
-        call deletefile(d_e)
-        if (ampnorms) then
-          call tce_residual_t1(d_t1,k_t1_offset,r1)
-          call tce_residual_t2(d_t2,k_t2_offset,r2)
           if (nodezero) then
-            write(LuOut,9082) "T singles",r1
-            write(LuOut,9082) "T doubles",r2
+            write(LuOut,9060)
+            if(ccsd_var.eq.'cc2') then
+               write(LuOut,9070) "CC2 ",corr
+               write(LuOut,9080) "CC2 ",ref + corr
+            else
+               write(LuOut,9070) "CCSD",corr
+               write(LuOut,9080) "CCSD",ref + corr
+            end if
           endif
-        endif
-        call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
-        call tce_print_x2(d_t2,k_t2_offset,printtol,irrep_t)
-        call tce_diis_tidy()
-        if (save_t(1)) then
-          if(nodezero) then
-            write(LuOut,*) 'Saving T1 now...'
+          call deletefile(d_r2)
+          call deletefile(d_r1)
+          call deletefile(d_e)
+          if (ampnorms) then
+            call tce_residual_t1(d_t1,k_t1_offset,r1)
+            call tce_residual_t2(d_t2,k_t2_offset,r2)
+            if (nodezero) then
+              write(LuOut,9082) "T singles",r1
+              write(LuOut,9082) "T doubles",r2
+            endif
           endif
-          call x1_restart_save(d_t1,k_t1_offset,size_t1,0,
-     1                         handle_t1,irrep_t)
-        endif
-        if (save_t(2)) then
-          if(nodezero) then
-            write(LuOut,*) 'Saving T1 now...'
+          call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
+          call tce_print_x2(d_t2,k_t2_offset,printtol,irrep_t)
+          call tce_diis_tidy()
+          if (save_t(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T1 now...'
+            endif
+            call x1_restart_save(d_t1,k_t1_offset,size_t1,0,
+     1                           handle_t1,irrep_t)
           endif
-          call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
-     1                         handle_t2,irrep_t)
-        endif
-        return
+          if (save_t(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T2 now...'
+            endif
+            call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
+     1                           handle_t2,irrep_t)
+          endif
+          return
         endif
         if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
           if(nodezero) then
