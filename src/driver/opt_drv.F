@@ -3616,7 +3616,7 @@ c     coordinates convert the gradients from cartesians.
 c
 c     If we are including stress append the cell param gradients
 c     
-      logical geom_grad_cart_to_frac
+      logical geom_grad_cart_to_frac,value
 c
       if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, ncart,
      $     gx)) call errquit('driver: could not get gradient',0,0)
@@ -3642,6 +3642,28 @@ c
          else
            call errquit('driver: no stress in theory',0,RTDB_ERR)
          end if
+         if (isystype.eq.2) then
+            !gx(3*nat_real+1) = 0.0
+            !gx(3*nat_real+2) = 0.0
+            gx(3*nat_real+3) = 0.0
+            !gx(3*nat_real+4) = 0.0
+            !gx(3*nat_real+5) = 0.0
+            gx(3*nat_real+6) = 0.0
+            gx(3*nat_real+7) = 0.0
+            gx(3*nat_real+8) = 0.0
+            gx(3*nat_real+9) = 0.0
+         end if
+         if (isystype.eq.1) then
+            !gx(3*nat_real+1) = 0.0
+            gx(3*nat_real+2) = 0.0
+            gx(3*nat_real+3) = 0.0
+            gx(3*nat_real+4) = 0.0
+            gx(3*nat_real+5) = 0.0
+            gx(3*nat_real+6) = 0.0
+            gx(3*nat_real+7) = 0.0
+            gx(3*nat_real+8) = 0.0
+            gx(3*nat_real+9) = 0.0
+         end if
       endif
 
       if (ostress2) then
@@ -3661,6 +3683,22 @@ c
      $        ('driver: could not get stress',0,0)
          else
            call errquit('driver: no stress in theory',0,RTDB_ERR)
+         end if
+         if (isystype.eq.2) then
+            !gx(3*nat_real+1) = 0.0d0
+            !gx(3*nat_real+2) = 0.0d0
+            gx(3*nat_real+3) = 0.0d0
+            gx(3*nat_real+4) = 0.0d0
+            gx(3*nat_real+5) = 0.0d0
+            !gx(3*nat_real+6) = 0.0d0
+         end if
+         if (isystype.eq.1) then
+            !gx(3*nat_real+1) = 0.0d0
+            gx(3*nat_real+2) = 0.0d0
+            gx(3*nat_real+3) = 0.0d0
+            gx(3*nat_real+4) = 0.0d0
+            gx(3*nat_real+5) = 0.0d0
+            gx(3*nat_real+6) = 0.0d0
          end if
       endif
 
@@ -3831,12 +3869,16 @@ c     local variables
       integer nat_real
       integer grp_num
       double precision dum
+
 C     functions that get called
       logical geom_volume_get,geom_lattice_get,geom_amatrix_get
       external geom_volume_get,geom_lattice_get,geom_amatrix_get
+      logical  geom_systype_get
+      external geom_systype_get
       integer geom_get_group_number
       external geom_get_group_number
 c
+
       if (.not. geom_amatrix_get(geom, amat))
      $           call errquit('geom_amatrix_get failed:', 0, GEOM_ERR)
       grp_num=geom_get_group_number(geom)
@@ -3894,6 +3936,25 @@ c
               end do
              end do
            end do
+           if (isystype.eq.2) then
+              do i=1,9
+                 do j=1,9
+                    if (i.ne.j) then
+                       HSSQ((nat_real)*3+i,(nat_real)*3+j) = 0.0d0
+                    end if
+                 end do
+              end do
+           end if
+           if (isystype.eq.1) then
+              do i=1,9
+                 do j=1,9
+                    if (i.ne.j) then
+                       HSSQ((nat_real)*3+i,(nat_real)*3+j) = 0.0d0
+                    end if
+                 end do
+              end do
+           end if
+
       else if (ostress2) then
            nat_real = (nvar/3)-2
            if (.not. geom_lattice_get(geom, lattice))
@@ -3963,12 +4024,30 @@ c
              dum = max(dum,0.05d0) ! at least some coupling
              do i = 1, 3
               do j = 1, 3
-               if(i.ne.j)then
+               if (i.ne.j) then
                 HSSQ((nat_real)*3+i,(nat_real)*3+j) = dum
                endif
               enddo
              enddo
            endif
+           if (isystype.eq.2) then
+              do i=1,3
+                 do j=1,3
+                 if ((i.ne.j).and.((i.eq.3).or.(j.eq.3))) then
+                    HSSQ((nat_real)*3+i,(nat_real)*3+j) = 0.0d0
+                 end if
+                 end do
+              end do
+           end if
+           if (isystype.eq.1) then
+              do i=1,3
+                 do j=1,3
+                 if ((i.ne.1).or.(j.ne.1)) then
+                    HSSQ((nat_real)*3+i,(nat_real)*3+j) = 0.0d0
+                 end if
+                 end do
+              end do
+           end if
       endif
       return
       end
@@ -4265,10 +4344,15 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       integer Tetragonal,Trigonal,Hexagonal,Cubic
       parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
       parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
+      logical value
+      integer isystype
 !     Called functions
+      logical  geom_systype_get
+      external geom_systype_get
       integer geom_get_group_number
       external geom_get_group_number
 !
+      value = geom_systype_get(geom,isystype)
       grp_num=geom_get_group_number(geom)
 
       if (grp_num.lt.3)                         crystal = Triclinic
@@ -4331,6 +4415,22 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       do i = 0, 5
         lstress(i) = lstress_sym(i)
       end do
+      if (isystype.eq.2) then
+         !lstress(0) = 0.0d0
+         !lstress(1) = 0.0d0
+         lstress(2) = 0.0d0
+         lstress(3) = 0.0d0
+         lstress(4) = 0.0d0
+         !lstress(5) = 0.0d0
+      end if
+      if (isystype.eq.1) then
+         !lstress(0) = 0.0d0
+         lstress(1) = 0.0d0
+         lstress(2) = 0.0d0
+         lstress(3) = 0.0d0
+         lstress(4) = 0.0d0
+         lstress(5) = 0.0d0
+      end if
       return
       end
 
@@ -4353,12 +4453,15 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       integer grp_num, crystal
       double precision dum
       double precision deg90,deg120
+      logical value
+      integer isystype
 !     Called functions 
-      integer geom_get_group_number
-      external geom_get_group_number
+      integer geom_get_group_number,geom_systype_get
+      external geom_get_group_number,geom_systype_get
       logical geom_amatrix_get
       external geom_amatrix_get
 !       
+      value = geom_systype_get(geom,isystype)
       grp_num=geom_get_group_number(geom)
 !        
       if (grp_num.lt.3)                         crystal = Triclinic
@@ -4450,6 +4553,28 @@ C     Add some to diagonal for stability, just in case of lone floating atom
          if (abs(astress(j,i)) .lt. 1.0d-10) astress(j,i)=0.0d0
        enddo
       enddo
+      if (isystype.eq.2) then
+         !astress(1,1) = 0.0d0
+         !astress(2,1) = 0.0d0
+         astress(3,1) = 0.0d0
+         !astress(1,2) = 0.0d0
+         !astress(2,2) = 0.0d0
+         astress(3,2) = 0.0d0
+         astress(1,3) = 0.0d0
+         astress(2,3) = 0.0d0
+         astress(3,3) = 0.0d0
+      end if
+      if (isystype.eq.1) then
+         !astress(1,1) = 0.0d0
+         astress(2,1) = 0.0d0
+         astress(3,1) = 0.0d0
+         astress(1,2) = 0.0d0
+         astress(2,2) = 0.0d0
+         astress(3,2) = 0.0d0
+         astress(1,3) = 0.0d0
+         astress(2,3) = 0.0d0
+         astress(3,3) = 0.0d0
+      end if
       return
       end
 
