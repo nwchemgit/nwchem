@@ -38,7 +38,7 @@ c
       logical include_bqbq
       logical oprint_sym
       logical ecce_periodic,sysset,symset
-      integer i,j,ii
+      integer i,j,ii,isystype
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
       double precision threquiv ! Threshold for autosym atom equivalence
@@ -495,6 +495,26 @@ cccc      write(*,*) "ncenter=",ncenter
                   coords(i,ii) = t(i)
                end do
             end do
+         end if
+      else 
+        if (geom_systype_get(geom,isystype)) then
+           if (isystype.eq.2) then
+              write(*,*) "2d periodic conversion"
+              if (geom_amatinv_get(geom, ainv)) then
+                 do ii=1,ncenter
+                    coords(3,ii) = coords(3,ii)*ainv(3,3)*scale
+                 end do
+              end if
+           end if
+           if (isystype.eq.1) then
+              write(*,*) "1d periodic conversion"
+              if (geom_amatinv_get(geom, ainv)) then
+                 do ii=1,ncenter
+                    coords(2,ii) = coords(2,ii)*ainv(2,2)*scale
+                    coords(3,ii) = coords(3,ii)*ainv(3,3)*scale
+                 end do
+              end if
+           end if
          end if
       end if
 c

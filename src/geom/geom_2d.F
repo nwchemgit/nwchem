@@ -85,7 +85,7 @@ c
 c
 c--> get direct space lattice vectors
 c
-      do 100 i=1,2
+      do 100 i=1,3
         cdist(i)=lattice_vectors(i,geom)*c2au
   100 continue
         cang(3) =lattice_angles(3,geom)/rad
@@ -132,7 +132,7 @@ c
       amat(2,3) = 0.0d+00
       amat(3,1) = 0.0d+00
       amat(3,2) = 0.0d+00
-      amat(3,3) = 1.0d+00
+      amat(3,3) = cdist(3)
 c
 c      write(*,*) 'a- matrix'
 c      do i=1,3
@@ -163,7 +163,7 @@ c
       ainv(2,3)= 0.0d0
       ainv(3,1)= 0.0d0
       ainv(3,2)= 0.0d0
-      ainv(3,3)= 1.0d0
+      ainv(3,3)= 1.0d0/cdist(3)
 c
 c      write(*,*) 'ainv- matrix'
 c      do i=1,3
@@ -190,7 +190,7 @@ c
       bmat(3,1)=0.0d0
       bmat(3,2)=0.0d0
 c      bmat(3,3)=1.0d0
-      bmat(3,3)=2.0d0*pi
+      bmat(3,3)=2.0d0*pi/cdist(3)
 c
 c      write(*,*) 'b-matrix'
 c      do i=1,3
@@ -208,6 +208,86 @@ c
       return
       end
 
+      
+      subroutine geom_2d_amatrix(geom,scale)
+      implicit none
+      integer geom
+      double precision scale
+
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+
+*     !**** local variables ****
+      integer i,j    
+      double precision amat(3,3)   
+      double precision c(3,3), vol
+c
+c
+      do i=1,3
+        do j=1,3
+          amat(i,j) = amatrix(i,j,geom)
+        end do
+      end do
+c
+c     Mmmm ... the original code only set this stuff from the input
+c     using the a,b,c,alpha,beta,gamma, but now we have changed
+c     the amatrix ... need to update ainv and also recompute the
+c     other crap ... for now just set the other crap to crap so that
+c     we'll know if it is used
+c
+      do i = 1,3
+         do j = 1,3
+            metric_matrix(i,j,geom) = 1d300
+            bmatrix(i,j,geom) = 1d300
+         end do
+         recip_lat_vectors(i,geom) = 1d300
+         recip_lat_angles(i,geom) = 1d300
+      end do
+c
+c     HERE SHOULD RECOMPUTE AMATRIX WITH STANDARD ORIENTATION
+c     SINCE IF THE GEOMETRY IS STORED AND RELOADED THE
+c     STANDARD ORIENTATION IS IMPOSED.
+c
+c     Update the amatrix inverse
+c      - Since amat=[a1,a2,a3]
+c              ainv=[b1,b2,b3]^t
+c
+      call dfill(9,0.0d0,c,1)
+      c(1,1) = amat(2,2)*amat(3,3) - amat(3,2)*amat(2,3)  ! = b(1,1)
+      c(1,2) = amat(3,2)*amat(1,3) - amat(1,2)*amat(3,3)  ! = b(2,1)
+      c(1,3) = amat(1,2)*amat(2,3) - amat(2,2)*amat(1,3)  ! = b(3,1)
+      c(2,1) = amat(2,3)*amat(3,1) - amat(3,3)*amat(2,1)  ! = b(1,2)
+      c(2,2) = amat(3,3)*amat(1,1) - amat(1,3)*amat(3,1)  ! = b(2,2)
+      c(2,3) = amat(1,3)*amat(2,1) - amat(2,3)*amat(1,1)  ! = b(3,2)
+      c(3,1) = amat(2,1)*amat(3,2) - amat(3,1)*amat(2,2)  ! = b(1,3)
+      c(3,2) = amat(3,1)*amat(1,2) - amat(1,1)*amat(3,2)  ! = b(2,3)
+      c(3,3) = amat(1,1)*amat(2,2) - amat(2,1)*amat(1,2)  ! = b(3,3)
+      vol = amat(1,1)*c(1,1)
+     >    + amat(2,1)*c(1,2)
+     >    + amat(3,1)*c(1,3)
+      volume_direct(geom) = vol
+c
+      call dscal(9,1.0d0/vol,c,1)
+c
+      call dcopy(9,c,1,amatrix_inv(1,1,geom),1)
+c
+c     Ooops ... must also update the pesky lattice parameters
+c
+      call xlattice_abc_abg(
+     $     lattice_vectors(1,geom),
+     $     lattice_vectors(2,geom),
+     $     lattice_vectors(3,geom),
+     $     lattice_angles(1,geom),
+     $     lattice_angles(2,geom),
+     $     lattice_angles(3,geom),amat)
+
+      lattice_vectors(1,geom) = lattice_vectors(1,geom)/scale
+      lattice_vectors(2,geom) = lattice_vectors(2,geom)/scale
+      lattice_vectors(3,geom) = lattice_vectors(3,geom)/scale
+c
+      return
+      end
 
 
 

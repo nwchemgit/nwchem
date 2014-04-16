@@ -881,7 +881,7 @@ c
       if (isystype(geom) .eq. 3) then
          call geom_3d_amatrix(geom,scale)
       elseif(isystype(geom).eq.2) then
-         call geom_2d(geom,scale)
+         call geom_2d_amatrix(geom,scale)
       elseif(isystype(geom).eq.1) then
          call geom_1d(geom,scale)
       endif
