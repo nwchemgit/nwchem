@@ -502,7 +502,7 @@ cccc      write(*,*) "ncenter=",ncenter
               write(*,*) "2d periodic conversion"
               if (geom_amatinv_get(geom, ainv)) then
                  do ii=1,ncenter
-                    coords(3,ii) = coords(3,ii)*ainv(3,3)*scale
+                    coords(3,ii) = coords(3,ii)*ainv(3,3)
                  end do
               end if
            end if
@@ -510,8 +510,8 @@ cccc      write(*,*) "ncenter=",ncenter
               write(*,*) "1d periodic conversion"
               if (geom_amatinv_get(geom, ainv)) then
                  do ii=1,ncenter
-                    coords(2,ii) = coords(2,ii)*ainv(2,2)*scale
-                    coords(3,ii) = coords(3,ii)*ainv(3,3)*scale
+                    coords(2,ii) = coords(2,ii)*ainv(2,2)
+                    coords(3,ii) = coords(3,ii)*ainv(3,3)
                  end do
               end if
            end if
