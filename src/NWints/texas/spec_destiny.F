@@ -1820,12 +1820,18 @@ c==============================================================
       subroutine indexg(inx,ics,jcs,kcs,lcs,ijcs,klcs,
      *               ilen,jlen,klen,llen,
      *               icfg,jcfg,kcfg,lcfg,ngcq)
+#include "errquit.fh"
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
       dimension inx(12,*)
       dimension icfg(*),jcfg(*),kcfg(*),lcfg(*)
-      dimension iix(100),jjx(100),kkx(100),llx(100)
+      integer mxdim 
+      parameter (mxdim=200)
+      dimension iix(mxdim),jjx(mxdim),kkx(mxdim),llx(mxdim)
 c dim. 100 should be enough since the max. ge.con is 9, so 81
 c is actually the max. for iix,jjx,kkx,llx
+c
+c HvD: The above comment is incorrect. Someone must have changed 
+c the code without adjusting this parameter so we better check.
 ccccccccccc
 c
          icff=inx(11,ics)
@@ -1833,13 +1839,19 @@ c
          kcff=inx(11,kcs)
          lcff=inx(11,lcs)
 c
+         if ((ngci+1)*(ngcj+1).gt.mxdim) 
+     +     call errquit("indexg: ijpg will exceed mxdim",
+     +                  (ngci+1)*(ngcj+1),UERR)
+         if ((ngck+1)*(ngcl+1).gt.mxdim) 
+     +     call errquit("indexg: klpg will exceed mxdim",
+     +                  (ngck+1)*(ngcl+1),UERR)
              ijpg=0
              icf=icff
              do 2041 igc=0,ngci
-             ngcjx=ngcj
+c            ngcjx=ngcj
 ctry         if(jcs.eq.ics) ngcjx=igc
                jcf=jcff
-               do 2042 jgc=0,ngcjx
+               do 2042 jgc=0,ngcj
                ijpg=ijpg+1
                iix(ijpg)=icf
                jjx(ijpg)=jcf
@@ -1852,10 +1864,10 @@ c
              klpg=0
              kcf=kcff
              do 2043 kgc=0,ngck
-             ngclx=ngcl
+c            ngclx=ngcl
 ctry         if(lcs.eq.kcs) ngclx=kgc
                lcf=lcff
-               do 2044 lgc=0,ngclx
+               do 2044 lgc=0,ngcl
                klpg=klpg+1
                kkx(klpg)=kcf
                llx(klpg)=lcf
