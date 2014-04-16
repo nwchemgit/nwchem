@@ -129,6 +129,7 @@ H  1.2 -0.8 0
 end
 
 # symmetry S8
+set geom:dont_verify T
 geometry units angstrom noautoz autosym
  c                     1.00000000     1.00000000     1.00000000
  c                     0.00000000     1.41421356    -1.00000000
@@ -149,6 +150,7 @@ geometry units angstrom noautoz autosym
  N                     0.00000000    -0.00000000     1.00000000
  N                     0.00000000    -0.00000000    -1.00000000
 end
+set geom:dont_verify F
 
 # Symmetry Cs
 geometry units angstrom noautoz autosym
