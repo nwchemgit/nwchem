@@ -62,4 +62,7 @@
        logical  bq_get_handle
        external bq_get_handle
 
+       logical  bq_checksum
+       external bq_checksum
+
 c $Id$

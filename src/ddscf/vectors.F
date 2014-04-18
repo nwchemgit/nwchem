@@ -372,7 +372,7 @@ c
          if (.not. bq_get_active(bq_handle)) then
               bqsum = ' '
          else
-           if (.not. bq_namespace(bq_handle,bqsum)) then
+           if (.not. bq_checksum(bq_handle,bqsum)) then
               bqsum = ' '
            endif
          endif
@@ -956,7 +956,7 @@ c
          if (.not. bq_get_active(bq_handle)) then
               bqsum = ' '
          else
-           if (.not. bq_namespace(bq_handle,bqsum)) then
+           if (.not. bq_checksum(bq_handle,bqsum)) then
               bqsum = ' '
            endif
          endif
