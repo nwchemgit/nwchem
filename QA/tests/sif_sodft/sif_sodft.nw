@@ -8,7 +8,7 @@ echo
 start sif_sodft
 
 geometry noautosym
-Si     0.00000      0.00000     0.00000
+ Si    0.00000      0.00000     0.00000
  F     0.00000      0.00000     1.60000 
 end
 
@@ -100,9 +100,8 @@ dft
   odft
   mult 2
   grid xfine
-#  fon partial 4 electrons 1.0 filled 10
-#  mulliken
-  convergence energy 1d-8
+  fon partial 4 electrons 1.0 filled 10
+  mulliken
 end
 
 task sodft energy
