@@ -508,7 +508,7 @@ c
 #endif
 c
 #ifdef THIRD_DERIV
-               A3tmp = -4.0d0*rhom53*fac
+               A3tmp = -4.0d0*rhom53
 #endif
             endif
 c
