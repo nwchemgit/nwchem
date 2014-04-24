@@ -1,0 +1,43 @@
+echo
+
+start at2-sodft
+
+TITLE "At2 so-pbe0/AVTZ-PP-2c"
+
+MEMORY total 1000 Mb
+
+CHARGE 0
+
+GEOMETRY "At2" units angstrom
+ At                    0.00000000     0.00000000     1.53368936
+ At                    0.00000000     0.00000000    -1.53368936
+END
+
+BASIS "AVTZ-2c" Spherical print
+At library "AVTZ-2c" file ./LIB_SOECPS/AVTZ-2c
+END
+
+ECP "ECPMDF" print
+At library "ECP60MDF" file ./LIB_SOECPS/ECP60MDF
+END
+
+SO "SO_ECPMDF" print
+At library "SO ECP60MDF" file ./LIB_SOECPS/SO_ECPMDF-6
+END
+
+SET "ao basis" "AVTZ-2c"
+
+SET "ecp basis" "ECPMDF"
+
+SET "so potential" "SO_ECPMDF"
+ 
+SET geometry At2
+
+DFT
+ mult 1
+ convergence density 1e-8 energy 1e-6 
+ xc pbe0
+ grid xfine
+ iterations 1000
+END
+TASK sodft energy
