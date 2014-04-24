@@ -15363,6 +15363,7 @@ COLD  INTEGER CITYP
       INCLUDE 'fragmol.inc'
       INCLUDE 'comjep.inc'
       integer itmp(2000)
+      character*2 ctmp(2)
 * Flag for NWChem test
       inw_lucia = 1
 *. Flag for compatibility with normal MOLCAS input format
@@ -16641,6 +16642,7 @@ CNW    IF(CARD(2:7).EQ.'SEQUEN') THEN
 cnw           READ(LUIN,*) NSEQCI(JCMBSPC)
 *. To avoid problem if no calculations were specified
            ICI = 0
+           write(ctmp(1),'(i2)')jcmbspc
            DO ICI = 1, NSEQCI(JCMBSPC)
 *. Read in as character line, and decode
 *. Format: Type of calc, further info
@@ -16672,7 +16674,12 @@ cnw           READ(LUIN,*) NSEQCI(JCMBSPC)
 *            a smaller space (P-space)
 *
 c            READ(LUIN,'(A)') CARD1
-             if(.not.rtdb_cget(rtdb,'lucia:seq_1_1',1,card1))
+             write(ctmp(2),'(i2)'),ici
+             tag=trim('lucia:seq_'//trim(adjustl(ctmp(1)))//'_'//
+     &            trim(adjustl(ctmp(2))))
+             write(6,*)'tag=',tag
+             if(.not.rtdb_cget(rtdb,tag,1,card1))
+c            if(.not.rtdb_cget(rtdb,'lucia:seq_1_1',1,card1))
      &        call errquit('lucia input: sequence wrong',911)
              CALL LFTPOS(CARD1,MXPLNC)
              CALL UPPCAS(CARD1,MXPLNC)
@@ -17525,8 +17532,8 @@ cnw       IF(CARD(2:7).EQ.'PROPER') THEN
          ISETKW(80) = 1
 cnw         READ(LUIN,*) NPROP              
          DO IPROP = 1, NPROP
-           tag(1:15)='lucia:prop     '
-           tag(12:12)=char(iprop)
+         write(ctmp(1),'(i2)')iprop
+           tag=trim('lucia:prop_'//trim(adjustl(ctmp(1))))
 cnw           READ(LUIN,'(A)') CARD1
            if(.not.rtdb_cget(rtdb,tag,1,card1))
      &      call errquit('lucia input: 1e properties needed',911)
