@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -28,12 +28,16 @@ C> <b>124</b>, 219906 (2006), DOI:
 C> <a href="http://dx.doi.org/10.1063/1.2204597">
 C> 10.1063/1.2204597</a>.
 C>
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_HSE08(cam_omega,ipol,rho,s,Fxhse,
      &           d10Fxhse,d01Fxhse)
-#else
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_HSE08_d2(cam_omega,ipol,rho,s,Fxhse,
      &           d10Fxhse,d01Fxhse,d20Fxhse,d02Fxhse,d11Fxhse)
+#else
+      Subroutine nwxc_x_HSE08_d3(cam_omega,ipol,rho,s,Fxhse,
+     &           d10Fxhse,d01Fxhse,d20Fxhse,d02Fxhse,d11Fxhse,
+     &           d30Fxhse,d21Fxhse,d12Fxhse,d03Fxhse)
 #endif
 
 c
@@ -48,8 +52,11 @@ c
       double precision cam_omega
       double precision rho,s,Fxhse,d10Fxhse,d01Fxhse
 c
-#ifdef SECOND_DERIV
-      double precision  d20Fxhse,d02Fxhse,d11Fxhse
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
+      double precision d20Fxhse,d02Fxhse,d11Fxhse
+#endif
+#if defined(THIRD_DERIV)
+      double precision d30Fxhse,d21Fxhse,d12Fxhse,d03Fxhse
 #endif
 
       double precision  A,B,C,D,E
@@ -66,11 +73,14 @@ c
       double precision  s2,s3,s4,s5,s6,s7,s8,s9
       double precision  Fs, d1Fs
       double precision  zeta, lambda, eta, kf, nu, chi, lambda2
-      double precision  d1zeta,d1lambda,d1eta,d1nu,d1chi,d1lambda2
+      double precision  d1zeta,d1lambda,d1eta,d1nu
+      double precision  d10chi,d10lambda2,d01chi,d01lambda2
       double precision  EGs,d1EGs
-      double precision  nu2,L2,L3,nu3,nu4,nu5,nu6
+      double precision  nu2,L2,L3,nu3,nu4,nu5,nu6,nu7,nu8
       double precision  Js,Ks,Ms,Ns
-      double precision  d1Js,d1Ks,d1Ms,d1Ns
+      double precision  Js2,Ks2,Ms2,Ns2
+      double precision  d10Js,d10Ks,d10Ms,d10Ns
+      double precision  d01Js,d01Ks,d01Ms,d01Ns
 
       double precision  tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8
       double precision  tmp9,tmp10,tmp11,tmp12,tmp13,tmp14,tmp15
@@ -79,22 +89,47 @@ c
       double precision  d1Fxhse6,d1Fxhse7
 
       double precision  r42,r27,r12,r15,r14,r18,r20,r30,r56,r72
-      double precision  r16,r32,r24,r48,r11,r64,r35
+      double precision  r16,r32,r24,r48,r11,r64,r35,r60,r36,r63
+      double precision  r189,r256,r120,r210,r336,r504,r21,r105,r126
       double precision  pi,pi2,srpi,s02
       double precision  f12,f13,f32,f52,f72,f92
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
       double precision  d2H,d2hnum,d2hden
       double precision  d2Fs
-      double precision  d2zeta,d2lambda,d2eta,d2nu,d2chi,d2lambda2
+      double precision  d2zeta,d2lambda,d2eta,d2nu
+      double precision  d20chi,d20lambda2,d02chi,d02lambda2
+      double precision  d11chi,d11lambda2
       double precision  d2EGs
-      double precision  d2Js,d2Ks,d2Ms,d2Ns
+      double precision  L5
+      double precision  Js3,Ks3,Ms4,Ns4
+      double precision  d20Js,d20Ks,d20Ms,d20Ns
+      double precision  d02Js,d02Ks,d02Ms,d02Ns
+      double precision  d11Js,d11Ks,d11Ms,d11Ns
       double precision  d2Fxhse1,d2Fxhse2,d2Fxhse3,d2Fxhse4,d2Fxhse5
       double precision  d2Fxhse6,d2Fxhse7
       double precision  d11Fxhse1,d11Fxhse2,d11Fxhse3,d11Fxhse4
       double precision  d11Fxhse5,d11Fxhse6,d11Fxhse7
 #endif
-
-
+#if defined(THIRD_DERIV)
+      double precision  d3H,d3hnum,d3hden
+      double precision  d3Fs
+      double precision  d3zeta,d3lambda,d3eta,d3nu,d30chi,d30lambda2
+      double precision  d03chi,d03lambda2,d21chi,d12chi
+      double precision  d21lambda2,d12lambda2
+      double precision  L4,L6
+      double precision  Js4,Ks4,Ms3,Ns3
+      double precision  d3EGs
+      double precision  d30Js,d30Ks,d30Ms,d30Ns
+      double precision  d03Js,d03Ks,d03Ms,d03Ns
+      double precision  d21Js,d21Ks,d21Ms,d21Ns
+      double precision  d12Js,d12Ks,d12Ms,d12Ns
+      double precision  d3Fxhse1,d3Fxhse2,d3Fxhse3,d3Fxhse4,d3Fxhse5
+      double precision  d3Fxhse6,d3Fxhse7
+      double precision  d21Fxhse1,d21Fxhse2,d21Fxhse3,d21Fxhse4
+      double precision  d21Fxhse5,d21Fxhse6,d21Fxhse7
+      double precision  d12Fxhse1,d12Fxhse2,d12Fxhse3,d12Fxhse4
+      double precision  d12Fxhse5,d12Fxhse6,d12Fxhse7
+#endif
 c
 c     Constants for HJS hole
 c
@@ -125,6 +160,13 @@ c
 
       Data r35,r42,r48,r56,r64,r72
      &     / 35D0,42D0,48D0,56D0,64D0,72D0 /
+
+      Data r21,r36,r60,r63,r120,r189,r210,r256,r336,r504
+     1     / 21.D0,36.D0,60.D0,63.D0,120.D0,189.D0,210.D0,256.D0,
+     2       336.D0,504.D0 /
+
+      Data r105,r126
+     1     / 105.D0,126.D0 /
 c
 c     Fractions used during evaluation
 c
@@ -154,7 +196,9 @@ c
       s7 = s6*s
       s8 = s7*s
       s9 = s8*s
-
+!*********************************
+! Calculate the Enhancement Factor
+!*********************************
 c
 c     Calculate H(s) the model exhange hole
 c
@@ -215,6 +259,10 @@ c
 
       Fxhse = Fxhse1+Fxhse2+Fxhse3+Fxhse4+Fxhse5+Fxhse6
 c
+!*********************************************************
+! Calculate the First Derivative of the Enhancement Factor
+!*********************************************************
+c
 c     Calculate the first derivative of H with respect to the
 c     reduced density gradient, s.
 c
@@ -232,8 +280,8 @@ c
       d1zeta = two*s*H + s2*d1H
       d1eta  = d1zeta
       d1lambda = d1zeta
-      d1chi = -f12*nu*d1zeta/(lambda + nu2)**f32
-      d1lambda2 = d1chi*(lambda + nu**two) + (one+chi)*d1lambda
+      d10chi = -f12*nu*d1zeta/(lambda + nu2)**f32
+      d10lambda2 = d10chi*(lambda + nu**two) + (one+chi)*d1lambda
       !d1lambda2 = (d1lambda*(one-chi)+lambda*d1chi)/(one-chi)**two
 
 c   
@@ -260,69 +308,75 @@ c
       tmp1 = (dsqrt(zeta+nu2)+nu)/(dsqrt(eta+nu2)) 
       tmp2 = (dsqrt(eta+nu2)+nu)/(dsqrt(zeta+nu2))
 
-      d1Js = f12*d1zeta*(two+tmp1+tmp2)
-      d1Ks = d1Js
+      d10Js = f12*d1zeta*(two+tmp1+tmp2)
+      d10Ks = d10Js
 
       tmp3 = (dsqrt(zeta+nu2)+nu)/(dsqrt(lambda+nu2))
       tmp4 = (dsqrt(lambda+nu2)+nu)/(dsqrt(zeta+nu2)) 
-      d1Ms = f12*d1zeta*(two +tmp3+tmp4)
+      d10Ms = f12*d1zeta*(two +tmp3+tmp4)
 
       tmp5 = (dsqrt(lambda+nu2)+nu)/(dsqrt(eta+nu2))
       tmp6 = (dsqrt(eta+nu2)+nu)/(dsqrt(lambda+nu2))
-      d1Ns = f12*d1zeta*(two + tmp5+tmp6)
+      d10Ns = f12*d1zeta*(two + tmp5+tmp6)
 c
 c
 c     Calculate the derivative of the 08-Fxhse with respect to s
 c
       L2 = lambda2*lambda2
       L3 = lambda2*lambda2*lambda2
-      d1Fxhse1  = A*( (Js*d1zeta - zeta*d1Js)/(Js*Js) +
-     &                (Ks*d1zeta - eta*d1Ks)/(Ks*Ks) ) 
+      Js2 = Js*Js
+      Ks2 = Ks*Ks
+      Ms2 = Ms*Ms
+      Ns2 = Ns*Ns
+c
+      d1Fxhse1  = A*( (Js*d1zeta - zeta*d10Js)/(Js2) +
+     &                (Ks*d1zeta - eta*d10Ks)/(Ks2) ) 
 
-      d1Fxhse2  = (four/nine)*B*d1lambda2/L2 
+      d1Fxhse2  = (four/nine)*B*d10lambda2/L2 
 
-      tmp9 = d1lambda2/lambda2
+      tmp9 = d10lambda2/lambda2
       tmp7 = d1Fs - two*Fs*tmp9
       tmp8 = one + f12*chi
-      tmp10 =  f12*Fs*d1chi
+      tmp10 =  f12*Fs*d10chi
 
       d1Fxhse3 = -(four*C/(nine*L2))*(tmp7*tmp8+tmp10)
 
-c      d1Fxhse3  = -(four/nine)*(C/(L2*L2))* 
-c     &           (L2*d1Fs - two*lambda2*Fs*d1lambda2 +
-c     &           f12*(L2*(d1Fs*chi+Fs*d1chi) -
-c     &           two*lambda2*chi*Fs*d1chi))
+      tmp7 = one + (nine/eight)*chi+(three/eight)*chi*chi
+      tmp8 = (nine/eight)*d10chi + (six/eight)*chi*d10chi
 
-c       tmp4 = d1chi/(one+chi) + d1lambda/(lambda+nu2)
-c       tmp4 = (one-chi)*d1lambda2/lambda
-c       tmp1 = (eight/three+three*chi+chi*chi)*tmp4
-c       tmp2 = d1chi + (two/three)*chi*d1chi
-c       tmp3 = (eight/nine + chi + f13*chi*chi)
-c       d1FXhse4 = ((tmp1-tmp2)*EGs-tmp3*d1EGs)/L3
-
-        tmp7 = one + (nine/eight)*chi+(three/eight)*chi*chi
-        tmp8 = (nine/eight)*d1chi + (six/eight)*chi*d1chi
-
-       d1Fxhse4 = -(eight/(nine*L3))*((d1EGs-three*EGs*tmp9)*tmp7
+      d1Fxhse4 = -(eight/(nine*L3))*((d1EGs-three*EGs*tmp9)*tmp7
      &           + EGs*tmp8)
-c      d1Fxhse4  = -(eight/nine)*(L3*d1EGs - 
-c     &            three*EGs*L2*d1lambda2)/(L3*L3) -
-c     &             (L3*(d1EGs*chi + EGs*d1chi) -
-c     &            three*EGs*chi*L2*d1lambda2)/(L3*L3)-
-c     &           (L3*(d1EGs*chi*chi+two*EGs*chi*d1chi)-
-c     &            three*EGs*chi*chi*L2*d1lambda2)/(three*L3*L3) 
-c
+
       d1Fxhse5  = two*d1zeta*dlog(one-D/Ms) +
-     &           two*zeta*D*d1Ms/(Ms*Ms*(one-D/Ms)) 
+     &           two*zeta*D*d10Ms/(Ms2*(one-D/Ms)) 
 
       d1Fxhse6  = -two*d1eta*dlog(one- (D-A)/Ns) -
-     &           two*eta*(D-A)*d1Ns/(Ns*Ns*(one-(D-A)/Ns)) 
+     &           two*eta*(D-A)*d10Ns/(Ns2*(one-(D-A)/Ns)) 
 c
       d10Fxhse = d1Fxhse1+d1Fxhse2+d1Fxhse3+d1Fxhse4+d1Fxhse5+d1Fxhse6
 c
 c     Calculate the derivative of 08-Fxhse with respect to nu
 c
       nu3 = nu2*nu
+c
+c     Define all derivatives with respect to nu necessary to 
+c     evaluate enhancement factor derivatives.
+c
+      d01chi = lambda/(nu2 + lambda)**f32
+      d01lambda2 = (lambda*d01chi)/(one - chi)**two
+      d01Js = (eta*(nu + dsqrt(nu2 + zeta)) + 
+     1        (nu + dsqrt(nu2 + eta))*
+     2        (zeta + two*nu*(nu + dsqrt(nu2 + zeta))))/
+     3        (dsqrt(nu2 + eta)*dsqrt(nu2 + zeta))
+      d01Ks = d01Js 
+      d01Ms = (lambda*(nu + dsqrt(nu2 + zeta)) + 
+     1        (nu + dsqrt(nu2 + lambda))*
+     2        (zeta + two*nu*(nu + dsqrt(nu2 + zeta))))/
+     3        (dsqrt(nu2 + lambda)*dsqrt(nu2 + zeta))
+      d01Ns = (eta*(nu + dsqrt(nu2 + lambda)) + 
+     1        (nu + dsqrt(nu2 + eta))*
+     2        (lambda + two*nu*(nu + dsqrt(nu2 + lambda))))/
+     3        (dsqrt(nu2 + eta)*dsqrt(nu2 + lambda))
 c
       d1Fxhse1 = -((A*(nu + dsqrt(eta + nu2))*zeta)/
      &            (dsqrt(eta + nu2)*dsqrt(nu2 + zeta)*
@@ -357,79 +411,13 @@ c
      &            nu*dsqrt(lambda + nu2) +
      &            dsqrt(eta + nu2)*dsqrt(lambda + nu2)))
 c
-c
-c      d1Fxhse1 = -((A*zeta*(nu/dsqrt(eta + nu2) +
-c     &           nu/dsqrt(nu2 + zeta)))/((nu + dsqrt(nu2 + zeta))*
-c     &           (dsqrt(eta + nu2) + dsqrt(nu2 + zeta))**two)) -
-c     &           (A*zeta*(one + nu/dsqrt(nu2 + zeta)))/
-c     &           ((nu + dsqrt(nu2 + zeta))**two*(dsqrt(eta + nu2) +
-c     &           dsqrt(nu2 + zeta)))
-c
-c      d1Fxhse2 = -((A*eta*(nu/dsqrt(eta + nu2) +
-c     &           nu/dsqrt(nu2 + zeta)))/((nu + dsqrt(eta + nu2))*
-c     &           (dsqrt(eta + nu2) + dsqrt(nu2 + zeta))**two)) -
-c     &           (A*eta*(one + nu/dsqrt(eta + nu2)))/
-c     &           ((nu + dsqrt(eta + nu2))**two*(dsqrt(eta + nu2) +
-c     &           dsqrt(nu2 + zeta)))
-c
-c      d1Fxhse3 = (four*B*(-(nu2/(lambda + nu2)**(three/two)) +
-c     &           one/dsqrt(lambda + nu2)))/(nine*(lambda + nu2)*
-c     &           (one + nu/dsqrt(lambda + nu2))**two) +
-c     &           (eight*B*nu)/(nine*(lambda + nu2)**two*
-c     &           (one + nu/dsqrt(lambda + nu2)))
-c
-c      d1Fxhse4 = (eight*C*Fs*(-(nu2/(lambda + nu2)**(three/two)) +
-c     &           one/dsqrt(lambda + nu2))*
-c     & (one + nu/(two*dsqrt(lambda + nu2))))/(nine*(lambda + nu2)**two*
-c     &           (one + nu/dsqrt(lambda + nu2))**three) -
-c     &           (four*C*Fs*(-nu2/(two*(lambda + nu2)**(three/two)) +
-c     &        one/(two*dsqrt(lambda + nu2))))/(nine*(lambda + nu2)**two*
-c     &           (one + nu/dsqrt(lambda + nu2))**two) +
-c     &           (r16*C*Fs*nu*(one + nu/(two*dsqrt(lambda + nu2))))/
-c     &           (nine*(lambda + nu2)**three*
-c     &           (one + nu/dsqrt(lambda + nu2))**two)
-c
-c      d1Fxhse5 = (-eight*EGs*((-three*nu3)/(four*(lambda + nu2)**two) -
-c     &           (nine*nu2)/(eight*(lambda + nu2)**(three/two)) +
-c     &           (three*nu)/(four*(lambda + nu2)) +
-c     & nine/(eight*dsqrt(lambda + nu2))))/(nine*(lambda + nu2)**three*
-c     &           (one + nu/dsqrt(lambda + nu2))**three) +
-c     &           (eight*EGs*(-(nu2/(lambda + nu2)**(three/two)) +
-c     &           one/dsqrt(lambda + nu2))*
-c     &           (one + (three*nu2)/(eight*(lambda + nu2)) +
-c     &           (nine*nu)/(eight*dsqrt(lambda + nu2))))/
-c     &           (three*(lambda + nu2)**three*
-c     &           (one + nu/dsqrt(lambda + nu2))**four)
-c     &   + (r16*EGs*nu*(one + (three*nu2)/(eight*(lambda + nu2)) +
-c     &           (nine*nu)/(eight*dsqrt(lambda + nu2))))/
-c     &           (three*(lambda + nu2)**four*
-c     &           (one + nu/dsqrt(lambda + nu2))**three)
-c
-c      d1Fxhse6 = (two*zeta*((D*(nu/dsqrt(lambda + nu2) +
-c     &           nu/dsqrt(nu2 + zeta)))/
-c     &           ((nu + dsqrt(lambda + nu2))*(dsqrt(lambda + nu2) +
-c     &           dsqrt(nu2 + zeta))**two) +
-c     &           (D*(one + nu/dsqrt(lambda + nu2)))/
-c     &           ((nu + dsqrt(lambda + nu2))**two*(dsqrt(lambda + nu2) +
-c     &           dsqrt(nu2 + zeta)))))/
-c     &           (one - D/((nu + dsqrt(lambda + nu2))*
-c     &           (dsqrt(lambda + nu2) + dsqrt(nu2 + zeta))))
-c
-c      d1Fxhse7 = (-two*eta*(((-A + D)*(nu/dsqrt(eta + nu2) +
-c     &           nu/dsqrt(lambda + nu2)))/
-c     &           ((nu + dsqrt(lambda + nu2))*(dsqrt(eta + nu2) +
-c     &           dsqrt(lambda + nu2))**two) +
-c     &           ((-A + D)*(one + nu/dsqrt(lambda + nu2)))/
-c     &           ((nu + dsqrt(lambda + nu2))**two*(dsqrt(eta + nu2) +
-c     &           dsqrt(lambda + nu2)))))/
-c     &           (one - (-A + D)/((nu + dsqrt(lambda + nu2))*
-c     &           (dsqrt(eta + nu2) + dsqrt(lambda + nu2))))
-c
-c
       d01Fxhse = d1Fxhse1+d1Fxhse2+d1Fxhse3+d1Fxhse4+d1Fxhse5+d1Fxhse6+
      &           d1Fxhse7
 c   
-#ifdef SECOND_DERIV
+!**********************************************************
+! Calculate the Second Derivative of the Enhancement Factor
+!**********************************************************
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c
 c     Calculate the second derivative of H
 c
@@ -449,21 +437,19 @@ c
       d2eta     = d2zeta
       d2lambda  = d2zeta
 
-      d2chi     = -f12*(nu/(lambda+nu2)**(f32))*
+      d20chi    = -f12*(nu/(lambda+nu2)**(f32))*
      &           (-f32*d1zeta*d1zeta/(lambda+nu2) +d2zeta)
 
-      d2lambda2 =(one-chi)*(d2lambda-d2lambda*chi+lambda*d2chi)+
-     &           two*d1chi*(d1lambda-d1lambda*chi+lambda*d1chi)
-      d2lambda2 = d2lambda2/(one-chi)**three
-
+      d20lambda2 =(one-chi)*(d2lambda-d2lambda*chi+lambda*d20chi)+
+     &           two*d10chi*(d1lambda-d1lambda*chi+lambda*d10chi)
+      d20lambda2 = d20lambda2/(one-chi)**three
 c   
 c     calculate the second derivative of Fs
 c   
       d2Fs = -(two/(r27*C))*(one-three*s02)/
      &        ((one+s02)**three)-d2zeta/(two*C)  
-
 c
-c     Calculate the second derivate of EGs
+c     Calculate the second derivative of EGs
 c
       tmp7 = -(two/five)*C*(d2Fs*lambda+two*d1Fs*d1lambda+Fs*d2lambda)
       tmp8 = -(eight/r15)*B*(d1lambda*d1lambda+lambda*d2lambda)
@@ -480,77 +466,79 @@ c
 
       d2EGs = tmp7+tmp8+tmp9+tmp10+tmp11+tmp12+tmp13
 c
-c     Calculate the second derivate of denominators needed
+c     Calculate the second derivative of denominators needed
 c
       tmp7 = two/(dsqrt(zeta+nu2)*dsqrt(eta+nu2))
       tmp8 = (dsqrt(eta+nu2)+nu)/(zeta+nu2)**f32
       tmp9 = (dsqrt(zeta+nu2)+nu)/(eta+nu2)**f32
       
-      d2Js = f12*(d2zeta*(two+tmp1+tmp2) +
-     &       f12*d1zeta*d1zeta*(tmp7-tmp8-tmp9)) 
+      d20Js = f12*(d2zeta*(two+tmp1+tmp2) +
+     &        f12*d1zeta*d1zeta*(tmp7-tmp8-tmp9)) 
 
-      d2Ks = d2Js
+      d20Ks = d20Js
 
       tmp10 = two/(dsqrt(zeta+nu2)*dsqrt(lambda+nu2))
       tmp11 = (dsqrt(lambda+nu2)+nu)/(zeta+nu2)**f32
       tmp12 = (dsqrt(zeta+nu2)+nu)/(lambda+nu2)**f32
-      d2Ms = f12*(d2zeta*(two+tmp3+tmp4) +
-     &       f12*d1zeta*d1zeta*(tmp10-tmp11-tmp12)) 
+      d20Ms = f12*(d2zeta*(two+tmp3+tmp4) +
+     &        f12*d1zeta*d1zeta*(tmp10-tmp11-tmp12)) 
 
       tmp13 = two/(dsqrt(eta+nu2)*dsqrt(lambda+nu2))
       tmp14 = (dsqrt(lambda+nu2)+nu)/(eta+nu2)**f32
       tmp15 = (dsqrt(eta+nu2)+nu)/(lambda+nu2)**f32
-      d2Ns = f12*(d2zeta*(two+tmp5+tmp6) +
-     &       f12*d1zeta*d1zeta*(tmp13-tmp14-tmp15)) 
-
-
+      d20Ns = f12*(d2zeta*(two+tmp5+tmp6) +
+     &        f12*d1zeta*d1zeta*(tmp13-tmp14-tmp15)) 
 c
 c     Calculate the second derivative of the Fxhse with respect to the
 c     reduced density gradient, s.
 c
-      tmp1      = A*(Js*Js*d2zeta -two*Js*d1Js*d1zeta 
-     &            + two*d1Js*d1Js*zeta-Js*d2Js*zeta)/
-     &            (Js*Js*Js) 
-      tmp2       = A*(Ks*Ks*d2zeta -two*Ks*d1Ks*d1zeta 
-     &            + two*d1Ks*d1Ks*eta-Ks*d2Ks*eta)/
-     &            (Ks*Ks*Ks) 
+      Ms4 = Ms2*Ms2
+      Ns4 = Ns2*Ns2
+c
+      tmp1      = A*(Js2*d2zeta -two*Js*d10Js*d1zeta 
+     &            + two*d10Js*d10Js*zeta-Js*d20Js*zeta)/
+     &            (Js2*Js) 
+      tmp2       = A*(Ks2*d2zeta -two*Ks*d10Ks*d1zeta 
+     &            + two*d10Ks*d10Ks*eta-Ks*d20Ks*eta)/
+     &            (Ks2*Ks) 
       d2Fxhse1  = tmp1 +tmp2 
 
-      d2Fxhse2  = (four/nine)*B*(L2*d2lambda2-
-     &            two*lambda2*d1lambda2*d1lambda2)/(L2*L2)
+      d2Fxhse2  = (four/nine)*B*(L2*d20lambda2-
+     &            two*lambda2*d10lambda2*d10lambda2)/(L2*L2)
 
-      tmp4 = d1lambda2/lambda2
-      tmp5 = d2lambda2/lambda2
+      tmp4 = d10lambda2/lambda2
+      tmp5 = d20lambda2/lambda2
       d2Fxhse3  = -((four*C)/(nine*L2))*(d2Fs +
      &           six*Fs*tmp4**two - two*Fs*tmp5 -
      &           four*d1Fs*tmp4 +
-     &          f12*((d2Fs*chi+two*d1Fs*d1chi+Fs*d2chi)-
-     &           four*tmp4*(d1Fs*chi+Fs*d1chi) +
+     &          f12*((d2Fs*chi+two*d1Fs*d10chi+Fs*d20chi)-
+     &           four*tmp4*(d1Fs*chi+Fs*d10chi) +
      &           six*chi*Fs*tmp4*tmp4)-chi*Fs*tmp5)
 
-      tmp1  =  -d2chi -(two/three)*(d1chi*d1chi+chi*d2chi)
-     &      + (six*d1chi+four*chi*d1chi
-     &      -tmp4*(r32/three+r12*chi+four*chi*chi))*tmp4
-     &      +((eight/three) +three*chi +chi*chi)*tmp5
+      tmp1 = -EGs*(eight/nine)/L3
+      tmp2 = (-d1EGs + three*EGs*d10lambda2/lambda2)*(eight/nine)/L3
+      tmp3 = (-d2EGs - r12*EGs*d10lambda2**two/L2 + 
+     &   three*(two*d1EGs*d10lambda2 + EGs*d20lambda2)/lambda2)
+     &   *(eight/nine)/L3
+      tmp4 = (one + (nine/eight)*chi + (three/eight)*chi**two)
+      tmp5 = (three*(three + two*chi)*d10chi)/eight
+      tmp6 = (three*(two*d10chi**two + (three + two*chi)*d20chi))/eight
 
-      tmp2  =  -(two +(four/three)*chi)*d1chi
-     &        +(two*chi*chi+(r16/three)+six*chi)*tmp4
-
-      tmp3  =  -((eight/nine)+chi+(one/three)*chi*chi)
-
-      d2Fxhse4  = (EGs*tmp1 + d1EGs*tmp2+ d2EGs*tmp3)/L3
+      d2Fxhse4 = (tmp1*tmp6+two*tmp2*tmp5+tmp3*tmp4)
 
       tmp1      = (one-D/Ms) 
 
-      d2Fxhse5  = two*d2zeta*dlog(tmp1)+four*d1zeta*D*d1Ms/(Ms*Ms*tmp1)-
-     &            two*zeta*(D*d1Ms/(Ms*Ms*tmp1))**two +
-     &          two*zeta*D*(Ms*Ms*d2Ms-two*Ms*d1Ms*d1Ms)/(tmp1*Ms**four)
+      d2Fxhse5  = two*d2zeta*dlog(tmp1)+four*d1zeta*D*d10Ms/(Ms2*tmp1)
+     &          - two*zeta*(D*d10Ms/(Ms2*tmp1))**two +
+     &          two*zeta*D*(Ms2*d20Ms-two*Ms*d10Ms*d10Ms)/
+     &          (tmp1*Ms**four)
 
       tmp1      = (one-(D-A)/Ns) 
       d2Fxhse6  = -two*d2eta*dlog(tmp1)-
-     &             four*d1eta*(D-A)*d1Ns/(Ns*Ns*tmp1)+
-     &             two*eta*((D-A)*d1Ns/(Ns*Ns*tmp1))**two -
-     &       two*eta*(D-A)*(Ns*Ns*d2Ns-two*Ns*d1Ns*d1Ns)/(tmp1*Ns**four)
+     &             four*d1eta*(D-A)*d10Ns/(Ns2*tmp1)+
+     &             two*eta*((D-A)*d10Ns/(Ns2*tmp1))**two -
+     &          two*eta*(D-A)*(Ns2*d20Ns-two*Ns*d10Ns*d10Ns)/
+     &          (tmp1*Ns**four)
 
       d20Fxhse = d2Fxhse1+d2Fxhse2+d2Fxhse3+d2Fxhse4+d2Fxhse5+d2Fxhse6
 c
@@ -560,180 +548,68 @@ c
       nu5 = nu3*nu2
       nu6 = nu5*nu
 c
-      d2Fxhse1 = A*zeta*((two*(one + nu/dsqrt(nu2 + zeta))*
-     &            (nu/dsqrt(eta + nu2) + nu/dsqrt(nu2 + zeta)))/
-     &            ((nu + dsqrt(nu2 + zeta))**two*(dsqrt(eta + nu2) +
-     &            dsqrt(nu2 + zeta))**two) +
-     &            ((two*(one + nu/dsqrt(nu2 + zeta))**two)/
-     &            (nu + dsqrt(nu2 + zeta))**three -
-     &      (-(nu2/(nu2 + zeta)**(three/two)) + one/dsqrt(nu2 + zeta))/
-     &            (nu + dsqrt(nu2 + zeta))**two)/
-     &            (dsqrt(eta + nu2) + dsqrt(nu2 + zeta)) +
-     &    ((two*(nu/dsqrt(eta + nu2) + nu/dsqrt(nu2 + zeta))**two)/
-     &    (dsqrt(eta + nu**two) + dsqrt(nu2 + zeta))**three -
-     &       (-(nu2/(eta + nu2)**(three/two)) + one/dsqrt(eta + nu2) -
-     &        nu2/(nu2 + zeta)**(three/two) + one/dsqrt(nu2 + zeta))/
-     &        (dsqrt(eta + nu2) + dsqrt(nu2 + zeta))**two)/
-     &             (nu + dsqrt(nu2 + zeta)))
+c     Calculate second derivatives with respect to nu necessary to
+c     simplify the appearance of the code.
 c
-      d2Fxhse2 = A*eta*((two*(one + nu/dsqrt(eta + nu2))*
-     &            (nu/dsqrt(eta + nu2) + nu/dsqrt(nu2 + zeta)))/
-     &            ((nu + dsqrt(eta + nu2))**two*(dsqrt(eta + nu2) +
-     &            dsqrt(nu2 + zeta))**two) +
-     &            ((two*(one + nu/dsqrt(eta + nu2))**two)/
-     &            (nu + dsqrt(eta + nu2))**three -
-     &       (-(nu2/(eta + nu2)**(three/two)) + one/dsqrt(eta + nu2))/
-     &            (nu + dsqrt(eta + nu2))**two)/(dsqrt(eta + nu2) +
-     &            dsqrt(nu2 + zeta)) +
-     &       ((two*(nu/dsqrt(eta + nu2) + nu/dsqrt(nu2 + zeta))**two)/
-     &            (dsqrt(eta + nu2) + dsqrt(nu2 + zeta))**three -
-     &       (-(nu2/(eta + nu2)**(three/two)) + one/dsqrt(eta + nu2) -
-     &         nu2/(nu2 + zeta)**(three/two) + one/dsqrt(nu2 + zeta))/
-     &            (dsqrt(eta + nu2) + dsqrt(nu2 + zeta))**two)/
-     &            (nu + dsqrt(eta + nu2)))
+      d02chi = (-three*nu*lambda)/(nu2 + lambda)**f52
+      d02lambda2 = -((lambda*(two*d01chi**two - 
+     &             (-one + chi)*d02chi))/
+     &             (-one + chi)**three)
+      d02Js = two*nu*(one/dsqrt(nu2 + eta) + one/dsqrt(nu2 + zeta))*
+     &        (one + nu/dsqrt(nu2 + zeta)) + 
+     &        (zeta*(dsqrt(nu2 + eta) + 
+     &        dsqrt(nu2 + zeta)))/(nu2 + zeta)**f32 + 
+     &        (nu + dsqrt(nu2 + zeta))*
+     &        (one/dsqrt(nu2 + eta) + one/dsqrt(nu2 + zeta) + 
+     &        nu2*(-(nu2 + eta)**(-f32) - 
+     &        (nu2 + zeta)**(-f32)))
+      d02Ks = d02Js
+      d02Ms = two*nu*(one + nu/dsqrt(nu2 + lambda))*
+     &        (one/dsqrt(nu2 + lambda) + one/dsqrt(nu2 + zeta))
+     &        + (lambda*(dsqrt(nu2 + lambda) +
+     &        dsqrt(nu2 + zeta)))/(nu2 + lambda)**f32 +
+     &        (nu + dsqrt(nu2 + lambda))*
+     &        (one/dsqrt(nu2 + lambda) + one/dsqrt(nu2 + zeta) +
+     &        nu2*(-(nu2 + lambda)**(-f32) -
+     &        (nu2 + zeta)**(-f32)))
+      d02Ns = two*nu*(one/dsqrt(nu2 + eta) + 
+     &        one/dsqrt(nu2 + lambda))*
+     &        (one + nu/dsqrt(nu2 + lambda)) + 
+     &        (lambda*(dsqrt(nu2 + eta) + 
+     &        dsqrt(nu2 + lambda)))/(nu2 + lambda)**f32
+     &        + (nu + dsqrt(nu2 + lambda))*
+     &        (one/dsqrt(nu2 + eta) + one/dsqrt(nu2 + lambda) + 
+     &        nu2*(-(nu2 + eta)**(-f32) - 
+     &        (nu2 + lambda)**(-f32))) 
 c
-      d2Fxhse3 = (-four*B*((four*nu*(-(nu2/(lambda + nu2)**(three/two))
-     &            + one/dsqrt(lambda + nu2)))/((lambda + nu2)**two*
-     &            (one + nu/dsqrt(lambda + nu2))**two) +
-     &            ((eight*nu2)/(lambda + nu2)**three -
-     &         two/(lambda + nu2)**two)/(one + nu/dsqrt(lambda + nu2)) +
-     &            ((two*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2))**two)/
-     &            (one + nu/dsqrt(lambda + nu2))**three -
-     &            ((three*nu3)/(lambda + nu2)**(five/two) -
-     &            (three*nu)/(lambda + nu2)**(three/two))/
-     &        (one + nu/dsqrt(lambda + nu2))**two)/(lambda + nu2)))/nine
+      L5 = L2*L3
+      Js3 = Js2*Js
+      Ks3 = Ks2*Ks
 c
-      d2Fxhse4 =(-four*C*Fs*((-four*(-(nu2/(lambda + nu2)**(three/two))
-     &            + one/dsqrt(lambda + nu2))*
-     &            ((-nu2/(two*(lambda + nu2)**(three/two)) +
-     &            one/(two*dsqrt(lambda + nu2)))/(lambda + nu2)**two -
-     &            (four*nu*(one + nu/(two*dsqrt(lambda + nu2))))/
-     &   (lambda + nu2)**three))/(one + nu/dsqrt(lambda + nu2))**three +
-     &            ((one + nu/(two*dsqrt(lambda + nu2)))*
-     &            ((six*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2))**two)/
-     &            (one + nu/dsqrt(lambda + nu2))**four -
-     &            (two*((three*nu3)/(lambda + nu2)**(five/two) -
-     &            (three*nu)/(lambda + nu2)**(three/two)))/
-     &            (one + nu/dsqrt(lambda + nu2))**three))/
-     &            (lambda + nu2)**two +
-     &            ((-eight*nu*(-nu2/(two*(lambda + nu2)**(three/two)) +
-     &          one/(two*dsqrt(lambda + nu2))))/(lambda + nu2)**three +
-     &   ((r24*nu2)/(lambda + nu2)**four - four/(lambda + nu2)**three)*
-     &            (one + nu/(two*dsqrt(lambda + nu2))) +
-     &            (-(nu/(lambda + nu2)**(three/two)) +
-     &            (nu*((three*nu2)/(lambda + nu2)**(five/two) -
-     &        (lambda + nu2)**(-three/two)))/two)/(lambda + nu2)**two)/
-     &            (one + nu/dsqrt(lambda + nu2))**two))/nine
+      d2Fxhse1 = A*((zeta*(two*d01Js**two - Js*d02Js))/Js3 + 
+     &    (eta*(two*d01Ks**two - Ks*d02Ks))/Ks3)
 c
-      d2Fxhse5 = (-eight*EGs*((r48*nu2)/(lambda + nu2)**five -
-     &            six/(lambda + nu2)**four)*
-     &            (one + (three*nu2)/(eight*(lambda + nu2)) +
-     &            (nine*nu)/(eight*dsqrt(lambda + nu2))))/
-     &            (nine*(one + nu/dsqrt(lambda + nu2))**three) +
-     &          (r32*EGs*nu*(((-three*nu3)/(four*(lambda + nu2)**two) -
-     &            (nine*nu2)/(eight*(lambda + nu2)**(three/two)) +
-     &            (three*nu)/(four*(lambda + nu2)) +
-     &            nine/(eight*dsqrt(lambda + nu2)))/
-     &            (one + nu/dsqrt(lambda + nu2))**three -
-     &            (three*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2))*
-     &            (one + (three*nu2)/(eight*(lambda + nu2)) +
-     &            (nine*nu)/(eight*dsqrt(lambda + nu2))))/
-     &            (one + nu/dsqrt(lambda + nu2))**four))/
-     &            (three*(lambda + nu2)**four) -
-     &          (eight*EGs*((-six*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2))*
-     &            ((-three*nu3)/(four*(lambda + nu2)**two) -
-     &            (nine*nu2)/(eight*(lambda + nu2)**(three/two)) +
-     &            (three*nu)/(four*(lambda + nu2)) +
-     &            nine/(eight*dsqrt(lambda + nu2))))/
-     &            (one + nu/dsqrt(lambda + nu2))**four +
-     &            ((-three*nu2)/(lambda + nu2)**two -
-     &            (nine*nu)/(four*(lambda + nu2)**(three/two)) +
-     &            three/(four*(lambda + nu2)) +
-     &            (three*nu2*((eight*nu2)/(lambda + nu2)**three -
-     &            two/(lambda + nu2)**two))/eight +
-     &            (nine*nu*((three*nu2)/(lambda + nu2)**(five/two) -
-     &            (lambda + nu2)**(-three/two)))/eight)/
-     &            (one + nu/dsqrt(lambda + nu2))**three +
-     &            (one + (three*nu2)/(eight*(lambda + nu2)) +
-     &            (nine*nu)/(eight*dsqrt(lambda + nu2)))*
-     &            ((r12*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2))**two)/
-     &            (one + nu/dsqrt(lambda + nu2))**five -
-     &            (three*((three*nu3)/(lambda + nu2)**(five/two) -
-     &            (three*nu)/(lambda + nu2)**(three/two)))/
-     &            (one + nu/dsqrt(lambda + nu2))**four)))/
-     &            (nine*(lambda + nu2)**three)
+      d2Fxhse2 = (four*B*(-two*d01lambda2**two + lambda2*d02lambda2))/
+     &    (nine*L3)
 c
-      d2Fxhse6 = two*zeta*(-(((D*(nu/dsqrt(lambda + nu2) +
-     &            nu/dsqrt(nu2 + zeta)))/
-     &            ((nu + dsqrt(lambda + nu2))*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))**two) +
-     &            (D*(one + nu/dsqrt(lambda + nu2)))/
-     &         ((nu + dsqrt(lambda + nu2))**two*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))))**two/
-     &            (one - D/((nu + dsqrt(lambda + nu2))*
-     &            (dsqrt(lambda + nu2) + dsqrt(nu2 + zeta))))**two) +
-     &  ((-two*D*(nu/dsqrt(lambda + nu2) + nu/dsqrt(nu2 + zeta))**two)/
-     &            ((nu + dsqrt(lambda + nu2))*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))**three) +
-     &            (D*(-(nu2/(lambda + nu2)**(three/two)) +
-     &        one/dsqrt(lambda + nu2) - nu2/(nu2 + zeta)**(three/two) +
-     &            one/dsqrt(nu2 + zeta)))/
-     &            ((nu + dsqrt(lambda + nu2))*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))**two) -
-     &            (two*D*(one + nu/dsqrt(lambda + nu2))*
-     &            (nu/dsqrt(lambda + nu2) + nu/dsqrt(nu2 + zeta)))/
-     &        ((nu + dsqrt(lambda + nu2))**two*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))**two) -
-     &            (two*D*(one + nu/dsqrt(lambda + nu2))**two)/
-     &        ((nu + dsqrt(lambda + nu2))**three*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))) +
-     &            (D*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2)))/
-     &          ((nu + dsqrt(lambda + nu2))**two*(dsqrt(lambda + nu2) +
-     &            dsqrt(nu2 + zeta))))/
-     &            (one - D/((nu + dsqrt(lambda + nu2))*
-     &            (dsqrt(lambda + nu2) + dsqrt(nu2 + zeta)))))
+      d2Fxhse3 = -(ten*C*Fs*nu)/(three*(lambda+nu2)**f72)
 c
-      d2Fxhse7 = -two*eta*(-((((-A + D)*(nu/dsqrt(eta + nu2) +
-     &            nu/dsqrt(lambda + nu2)))/
-     &            ((nu + dsqrt(lambda + nu2))*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))**two) +
-     &            ((-A + D)*(one + nu/dsqrt(lambda + nu2)))/
-     &            ((nu + dsqrt(lambda + nu2))**two*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))))**two/
-     & (one - (-A + D)/((nu + dsqrt(lambda + nu2))*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))))**two) +
-     &            ((-two*(-A + D)*(nu/dsqrt(eta + nu2) +
-     &            nu/dsqrt(lambda + nu2))**two)/
-     &            ((nu + dsqrt(lambda + nu2))*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))**three) -
-     &            (two*(-A + D)*(one + nu/dsqrt(lambda + nu2))*
-     &            (nu/dsqrt(eta + nu2) + nu/dsqrt(lambda + nu2)))/
-     &            ((nu + dsqrt(lambda + nu2))**two*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))**two) +
-     &            ((-A + D)*(-(nu2/(eta + nu2)**(three/two)) +
-     &        one/dsqrt(eta + nu2) - nu2/(lambda + nu2)**(three/two) +
-     &            one/dsqrt(lambda + nu2)))/
-     &            ((nu + dsqrt(lambda + nu2))*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))**two) -
-     &            (two*(-A + D)*(one + nu/dsqrt(lambda + nu2))**two)/
-     &          ((nu + dsqrt(lambda + nu2))**three*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))) +
-     &            ((-A + D)*(-(nu2/(lambda + nu2)**(three/two)) +
-     &            one/dsqrt(lambda + nu2)))/
-     &            ((nu + dsqrt(lambda + nu2))**two*(dsqrt(eta + nu2) +
-     &            dsqrt(lambda + nu2))))/
-     &            (one - (-A + D)/((nu + dsqrt(lambda + nu2))*
-     &            (dsqrt(eta + nu2) + dsqrt(lambda + nu2)))))
+      d2Fxhse4 = (EGs*(-four*
+     &    (eight + nine*chi + three*chi**two)*d01lambda2**two - 
+     &    lambda2**two*(two*d01chi**two + (three + two*chi)*d02chi) + 
+     &    lambda2*(six*(three + two*chi)*d01chi*d01lambda2 + 
+     &    (eight + nine*chi + three*chi**two)*d02lambda2)))/
+     &    (three*L5)
 c
-      d02Fxhse = d2Fxhse1+d2Fxhse2+d2Fxhse3+d2Fxhse4+d2Fxhse5+d2Fxhse6+
-     &           d2Fxhse7
+      d2Fxhse5 = (two*D*zeta*((D - two*Ms)*d01Ms**two + 
+     &    Ms*(-D + Ms)*d02Ms))/((D - Ms)**two*Ms**two)
 c
+      d2Fxhse6 = (two*(A - D)*eta*((-A + D - two*Ns)*d01Ns**two +
+     &  Ns*(A - D + Ns)*d02Ns))/
+     &  (Ns**two*(A - D + Ns)**two)
+c
+      d02Fxhse = d2Fxhse1 + d2Fxhse2 + d2Fxhse3 + d2Fxhse4 + 
+     &           d2Fxhse5 + d2Fxhse6
 c
 c     Calculate the mixed partial derivative of the enhancement factor 
 c     with respect to both the reduced density gradient, s, and the 
@@ -743,400 +619,709 @@ c     what order the derivatives are taken in.
 c     
       nu4 = nu3*nu
 c
-      d11Fxhse1 = (A*(nu*zeta**three*d1eta - two*nu2*(nu2 + eta)*
-     &           (eta + two*nu*(nu + dsqrt(nu2 + eta)))*
-     &           (nu + dsqrt(nu2 + zeta))*d1zeta +
-     &           nu*(eta + two*nu*(nu + dsqrt(nu2 + eta)))*zeta*
-     &        (nu*(nu + dsqrt(nu2 + zeta))*d1eta - (nu2 + eta)*d1zeta) +
-     &           zeta**two*((eta*(nu + dsqrt(nu2 + zeta)) +
-     &          nu*(three*nu2 + two*dsqrt(nu2 + eta)*dsqrt(nu2 + zeta) +
-     &           two*nu*(dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))))*
-     &           d1eta + (nu2 + eta)*(nu + dsqrt(nu2 + eta))*d1zeta)))/
-     &           (two*(nu2 + eta)**(f32)*(nu2 + zeta)**(f32)*
-     &            (nu + dsqrt(nu2 + zeta))**two*
-     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))**two)
+c     Calculate mixed partial derivatives for the variables depending
+c     on both s and nu.
 c
-      d11Fxhse2 = (A*((-nu2 - zeta)*
-     &            (-(eta**two*(nu + dsqrt(nu2 + zeta))) +
-     &            nu*eta*(zeta + two*nu*(nu + dsqrt(nu2 + zeta))) +
-     &            two*nu2*(nu + dsqrt(nu2 + eta))*(zeta +
-     &            two*nu*(nu + dsqrt(nu2 + zeta))))*d1eta +
-     &            eta*(nu2 + eta)*(nu*eta + (nu + dsqrt(nu2 + eta))*
-     &            (zeta + two*nu*(nu + dsqrt(nu2 + zeta))))*d1zeta))/
-     &            (two*(nu2 + eta)**(f32)*(nu + dsqrt(nu2 + eta))**two*
-     &            (nu2 + zeta)**(f32)*
-     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))**two)
+      d11chi = (three*nu2*d1lambda)/
+     &         (two*(nu2 + lambda)**f52) - 
+     &         d1lambda/(two*(nu2 + lambda)**f32) 
+      d11lambda2 = (d1lambda*d01chi)/
+     &             (one - chi)**two + 
+     &             (two*lambda*d01chi*
+     &             d10chi)/(one - chi)**three + 
+     &             (lambda*d11chi)/
+     &             (one - chi)**two
+      d11Js = (-(nu*eta**two*d1zeta) + 
+     &        nu*zeta*((-nu2 - zeta)*
+     &        d1eta + 
+     &        nu*(nu + dsqrt(nu2 + eta))*
+     &        d1zeta) + 
+     &        eta*((nu2 + zeta)*
+     &        (nu + dsqrt(nu2 + zeta))*d1eta
+     &        + (-nu3 + (nu + dsqrt(nu2 + eta))*zeta)*
+     &        d1zeta))/
+     &        (two*(nu2 + eta)**f32*(nu2 + zeta)**f32)
+      d11Ks = d11Js
+      d11Ms = (-(nu*lambda**two*d1zeta) + 
+     &        nu*zeta*((-nu2 - zeta)*
+     &        d1lambda + 
+     &        nu*(nu + dsqrt(nu2 + lambda))*
+     &        d1zeta) + 
+     &        lambda*((nu2 + zeta)*
+     &        (nu + dsqrt(nu2 + zeta))*
+     &        d1lambda + 
+     &        (-nu3 + (nu + dsqrt(nu2 + lambda))*zeta)*
+     &        d1zeta))/
+     &        (two*(nu2 + lambda)**f32*(nu2 + zeta)**f32)
+      d11Ns = (-(nu*eta**two*d1lambda) + 
+     &        nu*lambda*((-nu2 - lambda)*
+     &        d1eta + 
+     &        nu*(nu + dsqrt(nu2 + eta))*
+     &        d1lambda) + 
+     &        eta*((nu2 + lambda)*
+     &        (nu + dsqrt(nu2 + lambda))*
+     &        d1eta + 
+     &        (-nu3 + (nu + dsqrt(nu2 + eta))*lambda)*
+     &        d1lambda))/
+     &        (two*(nu2 + eta)**f32*(nu2 + lambda)**f32)
 c
-      d11Fxhse3 = (-two*B*(two*nu2*(nu + dsqrt(nu2 + lambda)) +
-     &            lambda*(two*nu + dsqrt(nu2 + lambda)))*d1lambda)/
-     &            (three*(nu2 + lambda)**three*
-     &            (nu + dsqrt(nu2 + lambda))**two)
+      d11Fxhse1 = -((A*(-two*Ks3*zeta*d01Js*d10Js + 
+     &   Js*Ks3*(d1zeta*d01Js + zeta*d11Js) + 
+     &   Js3*(-two*eta*d01Ks*d10Ks + 
+     &   Ks*(d1eta*d01Ks + eta*d11Ks))))/(Js3*Ks3))
 c
-      d11Fxhse4 = (C*(two*(nu2 + lambda)*d1Fs - five*Fs*d1lambda))/
-     &            (three*(nu2 + lambda)**(f72))
+      d11Fxhse2 = (-two*B*(two*nu2*(nu + dsqrt(nu2 + lambda)) +
+     &   lambda*(two*nu + dsqrt(nu2 + lambda)))*d1lambda)/
+     &   (three*(nu2 + lambda)**three*
+     &   (nu + dsqrt(nu2 + lambda))**two)
 c
-      d11Fxhse5 = (five*(eight*nu4*(nu + dsqrt(nu2 + lambda)) +
-     &         lambda**two*(four*nu + dsqrt(nu2 + lambda)) +
-     &            four*nu2*lambda*(three*nu + two*dsqrt(nu2 + lambda)))*
-     &            (two*(nu2 + lambda)*d1EGs - seven*EGs*d1lambda))/
-     &       (six*(nu2 + lambda)**five*(nu + dsqrt(nu2 + lambda))**four)
+      d11Fxhse3 = (C*(two*(nu2 + lambda)*d1Fs - five*Fs*d1lambda))/
+     &   (three*(nu2 + lambda)**(f72))
 c
-      d11Fxhse6 = (D*((-nu - two*dsqrt(nu2 + lambda))*zeta**three*
-     &            d1lambda +
-     &            two*nu2*(nu2 + lambda)*(-D + lambda + two*nu*
-     &            (nu + dsqrt(nu2 + lambda)))*(nu + dsqrt(nu2 + zeta))*
-     &            d1zeta + zeta**two*((D*(nu + dsqrt(nu2 + zeta)) -
-     &            three*lambda*(nu + dsqrt(nu2 + zeta)) -
-     &            nu*(five*nu2 + six*nu*dsqrt(nu2 + lambda) +
-     &            four*nu*dsqrt(nu2 + zeta) + four*dsqrt(nu2 + lambda)*
-     &            dsqrt(nu2 + zeta)))*
-     &   d1lambda + (nu2 + lambda)*(nu + dsqrt(nu2 + lambda))*d1zeta) +
-     &            zeta*(-(nu2*(-D + three*lambda + four*nu*
-     & (nu + dsqrt(nu2 + lambda)))*(nu + dsqrt(nu2 + zeta))*d1lambda) +
-     &            (nu2 + lambda)*(two*nu*(nu + dsqrt(nu2 + lambda))*
-     &            (two*nu + dsqrt(nu2 + zeta)) -
-     &            D*(nu + two*dsqrt(nu2 + zeta)) +
-     &            lambda*(nu + two*dsqrt(nu2 + zeta)))*d1zeta)))/
-     &            ((nu2 + lambda)**(f32)*(nu2 + zeta)**(f32)*
-     &            (-D + lambda + (nu + dsqrt(nu2 + lambda))*
-     &            (nu + dsqrt(nu2 + zeta)))**two)
+      d11Fxhse4 = (five*(eight*nu4*(nu + dsqrt(nu2 + lambda)) +
+     &   lambda**two*(four*nu + dsqrt(nu2 + lambda)) +
+     &   four*nu2*lambda*(three*nu + two*dsqrt(nu2 + lambda)))*
+     &   (two*(nu2 + lambda)*d1EGs - seven*EGs*d1lambda))/
+     &   (six*(nu2 + lambda)**five*(nu + dsqrt(nu2 + lambda))**four)
 c
-      d11Fxhse7 = ((A - D)*((nu2 + lambda)*(eta**two*
-     &            (nu + dsqrt(nu2 + lambda)) +
-     &            two*nu2*(nu + dsqrt(nu2 + eta))*
-     &        (A - D + two*nu2 + lambda + two*nu*dsqrt(nu2 + lambda)) +
-     &           eta*(A*nu - D*nu + four*nu3 + two*A*dsqrt(nu2 + eta) -
-     &            two*D*dsqrt(nu2 + eta) + two*nu2*dsqrt(nu2 + eta) +
-     &            (nu + two*dsqrt(nu2 + eta))*lambda +
-     &            four*nu2*dsqrt(nu2 + lambda) +
-     &            two*nu*dsqrt(nu2 + eta)*dsqrt(nu2 + lambda)))*d1eta -
-     &            eta*(nu2 + eta)*
-     &            (eta*(nu + two*dsqrt(nu2 + lambda)) +
-     &            (nu + dsqrt(nu2 + eta))*
-     &            (A - D + four*nu2 + three*lambda +
-     &            four*nu*dsqrt(nu2 + lambda)))*d1lambda))/
-     &            ((nu2 + eta)**(f32)*(nu2 + lambda)**(f32)*
-     &            (A - D + nu2 + nu*dsqrt(nu2 + eta) +
-     &            lambda + nu*dsqrt(nu2 + lambda) +
-     &            dsqrt(nu2 + eta)*dsqrt(nu2 + lambda))**two)
+      d11Fxhse5 = (two*D*(D*zeta*d01Ms*d10Ms + 
+     &   Ms**two*(d1zeta*d01Ms + zeta*d11Ms) - 
+     &   Ms*(D*d1zeta*d01Ms + 
+     &   zeta*(two*d01Ms*d10Ms + D*d11Ms))))/((D - Ms)**two*Ms**two)
 c
+      d11Fxhse6 = (two*(A - D)*((-A + D)*eta*d01Ns*d10Ns + 
+     &   Ns**two*(d1eta*d01Ns + eta*d11Ns) + 
+     &   Ns*((A - D)*d1eta*d01Ns + 
+     &   eta*(-two*d01Ns*d10Ns + (A - D)*d11Ns))))/
+     &   (Ns**two*(A - D + Ns)**two)
 c
-c      d11Fxhse1 = (A*zeta*(nu/dsqrt(nu2 + eta) +
-c     &            nu/dsqrt(nu2 + zeta))*d1zeta)/
-c     &      (two*dsqrt(nu2 + zeta)*(nu + dsqrt(nu2 + zeta))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))**two) -
-c     &   (A*(nu/dsqrt(nu2 + eta) + nu/dsqrt(nu2 + zeta))*d1zeta)/
-c     &            ((nu + dsqrt(nu2 + zeta))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**two) +
-c     &            (A*zeta*(one + nu/dsqrt(nu2 + zeta))*d1zeta)/
-c     &            (dsqrt(nu2 + zeta)*(nu + dsqrt(nu2 + zeta))**three*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))) +
-c     &            (A*nu*zeta*d1zeta)/
-c     & (two*(nu2 + zeta)**(three/two)*(nu + dsqrt(nu2 + zeta))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))) -
-c     &            (A*(one + nu/dsqrt(nu2 + zeta))*d1zeta)/
-c     &            ((nu + dsqrt(nu2 + zeta))**two*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))) -
-c     &            (A*zeta*(-(nu*d1eta)/(two*(nu2 + eta)**(three/two)) -
-c     &            (nu*d1zeta)/(two*(nu2 + zeta)**(three/two))))/
-c     &            ((nu + dsqrt(nu2 + zeta))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**two) +
-c     &        (two*A*zeta*(nu/dsqrt(nu2 + eta) + nu/dsqrt(nu2 + zeta))*
-c     &            (d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &            ((nu + dsqrt(nu2 + zeta))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**three) +
-c     &            (A*zeta*(one + nu/dsqrt(nu2 + zeta))*
-c     &            (d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &            ((nu + dsqrt(nu2 + zeta))**two*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**two)
-c
-c      d11Fxhse2 = (A*eta*(nu/dsqrt(nu2 + eta) +
-c     &            nu/dsqrt(nu2 + zeta))*d1eta)/
-c     &            (two*dsqrt(nu2 + eta)*(nu + dsqrt(nu2 + eta))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))**two) -
-c     &        (A*(nu/dsqrt(nu2 + eta) + nu/dsqrt(nu2 + zeta))*d1eta)/
-c     &            ((nu + dsqrt(nu2 + eta))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**two) +
-c     &            (A*eta*(one + nu/dsqrt(nu2 + eta))*d1eta)/
-c     &            (dsqrt(nu2 + eta)*(nu + dsqrt(nu2 + eta))**three*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))) +
-c     &            (A*nu*eta*d1eta)/
-c     &    (two*(nu2 + eta)**(three/two)*(nu + dsqrt(nu2 + eta))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + zeta))) -
-c     &            (A*(one + nu/dsqrt(nu2 + eta))*d1eta)/
-c     &            ((nu + dsqrt(nu2 + eta))**two*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))) -
-c     &            (A*eta*(-(nu*d1eta)/(two*(nu2 + eta)**(three/two)) -
-c     &            (nu*d1zeta)/(two*(nu2 + zeta)**(three/two))))/
-c     &            ((nu + dsqrt(nu2 + eta))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**two) +
-c     &        (two*A*eta*(nu/dsqrt(nu2 + eta) + nu/dsqrt(nu2 + zeta))*
-c     &            (d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &            ((nu + dsqrt(nu2 + eta))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**three) +
-c     &            (A*eta*(one + nu/dsqrt(nu2 + eta))*
-c     &            (d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &            ((nu + dsqrt(nu2 + eta))**two*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + zeta))**two)
-c
-c      d11Fxhse3 = (four*B*nu*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*d1lambda)/
-c     &            (nine*(nu2 + lambda)**(five/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) +
-c     &        (four*B*nu2*d1lambda)/(nine*(nu2 + lambda)**(seven/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) -
-c     &            (four*B*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*d1lambda)/
-c     &            (nine*(nu2 + lambda)**two*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) -
-c     &            (r16*B*nu*d1lambda)/(nine*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))) +
-c     &            (four*B*((three*nu2*d1lambda)/
-c     &            (two*(nu2 + lambda)**(five/two)) -
-c     &            d1lambda/(two*(nu2 + lambda)**(three/two))))/
-c     &       (nine*(nu2 + lambda)*(one + nu/dsqrt(nu2 + lambda))**two)
-c
-c      d11Fxhse4 = (eight*C*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*
-c     &            (one + nu/(two*dsqrt(nu2 + lambda)))*d1Fs)/
-c     &            (nine*(nu2 + lambda)**two*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &            (four*C*(-nu2/(two*(nu2 + lambda)**(three/two)) +
-c     &            one/(two*dsqrt(nu2 + lambda)))*d1Fs)/
-c     &            (nine*(nu2 + lambda)**two*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) +
-c     &            (r16*C*nu*(one + nu/(two*dsqrt(nu2 + lambda)))*d1Fs)/
-c     &            (nine*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) +
-c     &            (four*C*nu*Fs*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*(one + nu/
-c     &            (two*dsqrt(nu2 + lambda)))*
-c     &            d1lambda)/(three*(nu2 + lambda)**(seven/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**four) -
-c     &          (four*C*nu*Fs*(-nu2/(two*(nu2 + lambda)**(three/two)) +
-c     &            one/(two*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (nine*(nu2 + lambda)**(seven/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &            (two*C*nu*Fs*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*d1lambda)/
-c     &            (nine*(nu2 + lambda)**(seven/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) +
-c     &    (r16*C*nu2*Fs*(one + nu/(two*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (nine*(nu2 + lambda)**(nine/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &            (r16*C*Fs*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &   one/dsqrt(nu2 + lambda))*(one + nu/(two*dsqrt(nu2 + lambda)))*
-c     &            d1lambda)/(nine*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &       (four*C*nu2*Fs*d1lambda)/(nine*(nu2 + lambda)**(nine/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) +
-c     &            (eight*C*Fs*(-nu2/(two*(nu2 + lambda)**(three/two)) +
-c     &            one/(two*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (nine*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) -
-c     &     (r16*C*nu*Fs*(one + nu/(two*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (three*(nu2 + lambda)**four*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two) +
-c     &            (eight*C*Fs*(one + nu/(two*dsqrt(nu2 + lambda)))*
-c     &         ((three*nu2*d1lambda)/(two*(nu2 + lambda)**(five/two)) -
-c     &            d1lambda/(two*(nu2 + lambda)**(three/two))))/
-c     &            (nine*(nu2 + lambda)**two*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &            (four*C*Fs*((three*nu2*d1lambda)/
-c     &            (four*(nu2 + lambda)**(five/two)) -
-c     &            d1lambda/(four*(nu2 + lambda)**(three/two))))/
-c     &            (nine*(nu2 + lambda)**two*
-c     &            (one + nu/dsqrt(nu2 + lambda))**two)
-c
-c      d11Fxhse5 = (-eight*((-three*nu3)/(four*(nu2 + lambda)**two) -
-c     &            (nine*nu2)/(eight*(nu2 + lambda)**(three/two)) +
-c     &            (three*nu)/(four*(nu2 + lambda)) +
-c     &            nine/(eight*dsqrt(nu2 + lambda)))*d1EGs)/
-c     &            (nine*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) +
-c     &            (eight*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*
-c     &            (one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*d1EGs)/
-c     &            (three*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**four) +
-c     &            (r16*nu*(one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*d1EGs)/
-c     &            (three*(nu2 + lambda)**four*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &        (four*nu*EGs*((-three*nu3)/(four*(nu2 + lambda)**two) -
-c     &            (nine*nu2)/(eight*(nu2 + lambda)**(three/two)) +
-c     &            (three*nu)/(four*(nu2 + lambda)) +
-c     &            nine/(eight*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (three*(nu2 + lambda)**(nine/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**four) +
-c     &            (eight*EGs*((-three*nu3)/(four*(nu2 + lambda)**two) -
-c     &            (nine*nu2)/(eight*(nu2 + lambda)**(three/two)) +
-c     &            (three*nu)/(four*(nu2 + lambda)) +
-c     &            nine/(eight*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (three*(nu2 + lambda)**four*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) +
-c     &            (r16*nu*EGs*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*
-c     &            (one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (three*(nu2 + lambda)**(nine/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**five) +
-c     &       (eight*nu2*EGs*(one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            ((nu2 + lambda)**(r11/two)*
-c     &            (one + nu/dsqrt(nu2 + lambda))**four) -
-c     &            (eight*EGs*(-(nu2/(nu2 + lambda)**(three/two)) +
-c     &            one/dsqrt(nu2 + lambda))*
-c     &            (one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &    ((nu2 + lambda)**four*(one + nu/dsqrt(nu2 + lambda))**four) -
-c     &          (r64*nu*EGs*(one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*d1lambda)/
-c     &            (three*(nu2 + lambda)**five*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) -
-c     &            (eight*EGs*((three*nu3*d1lambda)/
-c     &            (two*(nu2 + lambda)**three) +
-c     &            (r27*nu2*d1lambda)/(r16*(nu2 + lambda)**(five/two)) -
-c     &            (three*nu*d1lambda)/(four*(nu2 + lambda)**two) -
-c     &            (nine*d1lambda)/(r16*(nu2 + lambda)**(three/two))))/
-c     &            (nine*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three) +
-c     &           (eight*EGs*(one + (three*nu2)/(eight*(nu2 + lambda)) +
-c     &            (nine*nu)/(eight*dsqrt(nu2 + lambda)))*
-c     &         ((three*nu2*d1lambda)/(two*(nu2 + lambda)**(five/two)) -
-c     &            d1lambda/(two*(nu2 + lambda)**(three/two))))/
-c     &            (three*(nu2 + lambda)**three*
-c     &            (one + nu/dsqrt(nu2 + lambda))**four) +
-c     &            (r16*nu*EGs*((-three*nu2*d1lambda)/
-c     &            (eight*(nu2 + lambda)**two) -
-c     &          (nine*nu*d1lambda)/(r16*(nu2 + lambda)**(three/two))))/
-c     &            (three*(nu2 + lambda)**four*
-c     &            (one + nu/dsqrt(nu2 + lambda))**three)
-c
-c      d11Fxhse6 = (two*((D*(nu/dsqrt(nu2 + lambda) +
-c     &            nu/dsqrt(nu2 + zeta)))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))**two) +
-c     &            (D*(one + nu/dsqrt(nu2 + lambda)))/
-c     &       ((nu + dsqrt(nu2 + lambda))**two*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))))*
-c     &            d1zeta)/(one - D/((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + lambda) + dsqrt(nu2 + zeta)))) +
-c     &            (two*zeta*(-(D*(nu/dsqrt(nu2 + lambda) +
-c     &            nu/dsqrt(nu2 + zeta))*d1lambda)/
-c     &      (two*dsqrt(nu2 + lambda)*(nu + dsqrt(nu2 + lambda))**two*
-c     &            (dsqrt(nu2 + lambda) + dsqrt(nu2 + zeta))**two) -
-c     &            (D*(one + nu/dsqrt(nu2 + lambda))*d1lambda)/
-c     &        (dsqrt(nu2 + lambda)*(nu + dsqrt(nu2 + lambda))**three*
-c     &            (dsqrt(nu2 + lambda) + dsqrt(nu2 + zeta))) -
-c     &            (D*nu*d1lambda)/
-c     &            (two*(nu2 + lambda)**(three/two)*
-c     &           (nu + dsqrt(nu2 + lambda))**two*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))) +
-c     &           (D*(-(nu*d1lambda)/(two*(nu2 + lambda)**(three/two)) -
-c     &            (nu*d1zeta)/(two*(nu2 + zeta)**(three/two))))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))**two) -
-c     &          (two*D*(nu/dsqrt(nu2 + lambda) + nu/dsqrt(nu2 + zeta))*
-c     &            (d1lambda/(two*dsqrt(nu2 + lambda)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))**three) -
-c     &            (D*(one + nu/dsqrt(nu2 + lambda))*
-c     &            (d1lambda/(two*dsqrt(nu2 + lambda)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &          ((nu + dsqrt(nu2 + lambda))**two*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))**two)))/
-c     &            (one - D/((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + lambda) + dsqrt(nu2 + zeta)))) -
-c     &            (two*zeta*((D*(nu/dsqrt(nu2 + lambda) +
-c     &            nu/dsqrt(nu2 + zeta)))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))**two) +
-c     &            (D*(one + nu/dsqrt(nu2 + lambda)))/
-c     &          ((nu + dsqrt(nu2 + lambda))**two*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))))*
-c     &            ((D*d1lambda)/
-c     &        (two*dsqrt(nu2 + lambda)*(nu + dsqrt(nu2 + lambda))**two*
-c     &            (dsqrt(nu2 + lambda) + dsqrt(nu2 + zeta))) +
-c     &            (D*(d1lambda/(two*dsqrt(nu2 + lambda)) +
-c     &            d1zeta/(two*dsqrt(nu2 + zeta))))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + lambda) +
-c     &            dsqrt(nu2 + zeta))**two)))/
-c     &            (one - D/((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + lambda) + dsqrt(nu2 + zeta))))**two
-c
-c      d11Fxhse7 = (-two*(((-A + D)*(nu/dsqrt(nu2 + eta) +
-c     &            nu/dsqrt(nu2 + lambda)))/
-c     &            ((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))**two) +
-c     &            ((-A + D)*(one + nu/dsqrt(nu2 + lambda)))/
-c     &            ((nu + dsqrt(nu2 + lambda))**two*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + lambda))))*d1eta)/(one - (-A + D)/
-c     &            ((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda)))) -
-c     &            (two*eta*(-((-A + D)*(nu/dsqrt(nu2 + eta) +
-c     &            nu/dsqrt(nu2 + lambda))*d1lambda)/
-c     &       (two*dsqrt(nu2 + lambda)*(nu + dsqrt(nu2 + lambda))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))**two) -
-c     &            ((-A + D)*(one + nu/dsqrt(nu2 + lambda))*d1lambda)/
-c     &         (dsqrt(nu2 + lambda)*(nu + dsqrt(nu2 + lambda))**three*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))) -
-c     &            ((-A + D)*nu*d1lambda)/
-c     &            (two*(nu2 + lambda)**(three/two)*
-c     &            (nu + dsqrt(nu2 + lambda))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))) +
-c     &         ((-A + D)*(-(nu*d1eta)/(two*(nu2 + eta)**(three/two)) -
-c     &            (nu*d1lambda)/(two*(nu2 + lambda)**(three/two))))/
-c     &            ((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))**two) -
-c     &            (two*(-A + D)*(nu/dsqrt(nu2 + eta) +
-c     &            nu/dsqrt(nu2 + lambda))*
-c     &            (d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1lambda/(two*dsqrt(nu2 + lambda))))/
-c     &            ((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))**three) -
-c     &            ((-A + D)*(one + nu/dsqrt(nu2 + lambda))*
-c     &            (d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1lambda/(two*dsqrt(nu2 + lambda))))/
-c     &            ((nu + dsqrt(nu2 + lambda))**two*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + lambda))**two)))/
-c     &            (one - (-A + D)/((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda)))) +
-c     &            (two*eta*(((-A + D)*(nu/dsqrt(nu2 + eta) +
-c     &            nu/dsqrt(nu2 + lambda)))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + lambda))**two) +
-c     &            ((-A + D)*(one + nu/dsqrt(nu2 + lambda)))/
-c     &            ((nu + dsqrt(nu2 + lambda))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))))*
-c     &            (((-A + D)*d1lambda)/
-c     &       (two*dsqrt(nu2 + lambda)*(nu + dsqrt(nu2 + lambda))**two*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))) +
-c     &            ((-A + D)*(d1eta/(two*dsqrt(nu2 + eta)) +
-c     &            d1lambda/(two*dsqrt(nu2 + lambda))))/
-c     &            ((nu + dsqrt(nu2 + lambda))*(dsqrt(nu2 + eta) +
-c     &            dsqrt(nu2 + lambda))**two)))/
-c     &            (one - (-A + D)/((nu + dsqrt(nu2 + lambda))*
-c     &            (dsqrt(nu2 + eta) + dsqrt(nu2 + lambda))))**two
-c
-c
-      d11Fxhse = d11Fxhse1+d11Fxhse2+d11Fxhse3+d11Fxhse4+d11Fxhse5+
-     &           d11Fxhse6+d11Fxhse7
-
+      d11Fxhse = d11Fxhse1 + d11Fxhse2 + d11Fxhse3 + d11Fxhse4 + 
+     &           d11Fxhse5 + d11Fxhse6
 #endif
+!*********************************************************
+! Calculate the Third Derivative of the Enhancement Factor
+!*********************************************************
+#ifdef THIRD_DERIV
+c
+c    Calculate the third order derivative of H with respect to s.
+c
+      d3hnum = six*ha3+r24*ha4*s+r60*ha5*s2+
+     1         r120*ha6*s3 + r210*ha7*s4
 
+      d3hden  =  six*hb3+r24*hb4*s+r60*hb5*s2+
+     1           r120*hb6*s3+r210*hb7*s4+r336*hb8*s5+r504*hb9*s6
+
+      d3H = (-six*hnum*d1hden**three +
+     1  six*hden*d1hden*(d1hnum*d1hden + hnum*d2hden) +
+     2  hden**three*d3hnum - hden**two*(three*d1hden*d2hnum +
+     3  three*d1hnum*d2hden + hnum*d3hden))/hden**four
+c
+c    Calculate the third order derivatives of the "helper variables"
+c
+      d3zeta = six*d1H + six*s*d2H + s2*d3H
+      d3eta = d3zeta
+      d3lambda = d3zeta
+      d30chi = -(nu*(r15*d1lambda*d1lambda*d1lambda
+     1    - r18*(nu2 + lambda)*d1lambda*
+     2   d2lambda + four*(nu2 + lambda)**two*d3lambda))/
+     3   (eight*(nu2 + lambda)**f72) 
+      d30lambda2 = d3lambda/(one - chi) + 
+     1             (three*d2lambda*d10chi)/
+     2             (-one + chi)**two - 
+     3             (three*d1lambda*
+     4             (two*d10chi**two - 
+     5             (-one + chi)*d20chi))/
+     6             (-one + chi)**three + 
+     7             (lambda*(six*d10chi**three - 
+     8             six*(-one + chi)*d10chi*
+     9             d20chi + 
+     A             (-one + chi)**two*d30chi))/
+     B             (-one + chi)**four
+c
+c    Calculate the third order derivative of Fs
+c
+      d3Fs = -(r256*s*(s2 - four) +
+     1       nine*(s2 + four)**four*d3zeta)/
+     2       (r18*C*(s2 + four)**four)
+
+c
+c    Calculate the third order derivative of EGs
+c 
+      tmp1 = (-two*C*(three*d1lambda*d2Fs + 
+     1  three*d1Fs*d2lambda + lambda*d3Fs + 
+     2  Fs*d3lambda))/five
+      tmp2 = (-four*B*(six*d1lambda*d2lambda + 
+     1  two*lambda*d3lambda))/r15
+      tmp3 = (-six*A*(six*d1lambda**three + 
+     1  r18*lambda*d1lambda*d2lambda + 
+     2  three*lambda**two*d3lambda))/five
+      tmp4 = (-four*srpi*((r105*dsqrt(lambda)*
+     1  d1lambda**three)/eight + (r105*lambda**f32*d1lambda*
+     2  d2lambda)/four + (seven*lambda**f52*d3lambda)/two))/five
+      tmp5 = (-r36*(-d1eta/(two*dsqrt(eta)) + 
+     1  d1zeta/(two*dsqrt(zeta)))*
+     2  ((r35*lambda**f32*d1lambda**two)/four +
+     3  (seven*lambda**f52*d2lambda)/two))/five 
+     4  - (r126*lambda**f52*d1lambda*(d1eta**two/(four*eta**f32) - 
+     5  d1zeta**two/(four*zeta**f32) - d2eta/(two*dsqrt(eta)) + 
+     6  d2zeta/(two*dsqrt(zeta))))/five - 
+     7  (r12*(-dsqrt(eta) + dsqrt(zeta))*
+     8  ((r105*dsqrt(lambda)*d1lambda**three)/
+     9  eight + (r105*lambda**f32*d1lambda*d2lambda)/four + 
+     A  (seven*lambda**f52*d3lambda)/two))/five
+     B  - (r12*lambda**f72*((-three*d1eta**three)/(eight*eta**f52) + 
+     C  (three*d1zeta**three)/(eight*zeta**f52) + 
+     D  (three*d1eta*d2eta)/(four*eta**f32) - 
+     E  (three*d1zeta*d2zeta)/(four*zeta**f32) - 
+     F  d3eta/(two*dsqrt(eta)) + d3zeta/(two*dsqrt(zeta))))/five
+
+      d3EGs = tmp1 + tmp2 + tmp3 + tmp4 + tmp5 
+
+c
+c    Calculate derivatives of denominators needed for third derivatives
+c
+      d30Js = (three*(nu + dsqrt(nu2 + zeta))*
+     1        d1eta**three - 
+     2        (three*(nu2 + eta)*d1eta**two*
+     3        d1zeta)/dsqrt(nu2 + zeta) - 
+     4        (three*(nu2 + eta)*d1eta*
+     5        ((nu2 + eta)*d1zeta**two + 
+     6        two*(nu2 + zeta)*
+     7        ((zeta + nu*(nu + dsqrt(nu2 + zeta)))*
+     8        d2eta - 
+     9        (nu2 + eta)*d2zeta)))/
+     A        (nu2 + zeta)**f32 + 
+     B        ((nu2 + eta)**two*
+     C        (three*(eta + nu*(nu + dsqrt(nu2 + eta)))*
+     D        d1zeta**three + 
+     E        six*(nu2 + zeta)*d1zeta*
+     F        ((nu2 + zeta)*d2eta - 
+     G        (eta + nu*(nu + dsqrt(nu2 + eta)))*
+     H        d2zeta) + 
+     I        four*(nu2 + zeta)**two*
+     J        ((zeta + nu*(nu + dsqrt(nu2 + zeta)))*
+     K        d3eta + 
+     L        (nu2 + eta + nu*dsqrt(nu2 + eta) + 
+     M        two*dsqrt(nu2 + eta)*
+     N        dsqrt(nu2 + zeta))*
+     O        d3zeta)))/
+     P        (nu2 + zeta)**f52)/(eight*(nu2 + eta)**f52) 
+      d30Ks = d30Js
+      d30Ms = (three*(nu + dsqrt(nu2 + zeta))*
+     1        d1lambda**three - 
+     2        (three*(nu2 + lambda)*d1lambda**two*
+     3        d1zeta)/dsqrt(nu2 + zeta) - 
+     4        (three*(nu2 + lambda)*d1lambda*
+     5        ((nu2 + lambda)*d1zeta**two + 
+     6        two*(nu2 + zeta)*
+     7        ((zeta + nu*(nu + dsqrt(nu2 + zeta)))*
+     8        d2lambda - 
+     9        (nu2 + lambda)*d2zeta)))/
+     A        (nu2 + zeta)**f32 + 
+     B        ((nu2 + lambda)**two*
+     C        (three*(lambda + nu*(nu + dsqrt(nu2 + lambda)))*
+     D        d1zeta**three + 
+     E        six*(nu2 + zeta)*d1zeta*
+     F        ((nu2 + zeta)*d2lambda - 
+     G        (lambda + 
+     H        nu*(nu + dsqrt(nu2 + lambda)))*
+     I        d2zeta) + 
+     J        four*(nu2 + zeta)**two*
+     K        ((nu2 + zeta + nu*dsqrt(nu2 + zeta) + 
+     L        two*dsqrt(nu2 + lambda)*
+     M        dsqrt(nu2 + zeta))*
+     N        d3lambda + 
+     O        (lambda + 
+     P        nu*(nu + dsqrt(nu2 + lambda)))*
+     Q        d3zeta)))/
+     R        (nu2 + zeta)**f52)/(eight*(nu2 + lambda)**f52)
+      d30Ns = (three*(nu + dsqrt(nu2 + lambda))*
+     1        d1eta**three - 
+     2        (three*(nu2 + eta)*d1eta**two*
+     3        d1lambda)/dsqrt(nu2 + lambda)
+     4        - (three*(nu2 + eta)*d1eta*
+     5        ((nu2 + eta)*d1lambda**two + 
+     6        two*(nu2 + lambda)*
+     7        ((lambda + 
+     8        nu*(nu + dsqrt(nu2 + lambda)))*
+     9        d2eta - 
+     A        (nu2 + eta)*d2lambda)))/
+     B        (nu2 + lambda)**f32 + 
+     C        ((nu2 + eta)**two*
+     D        (three*(eta + nu*(nu + dsqrt(nu2 + eta)))*
+     E        d1lambda**three + 
+     F        six*(nu2 + lambda)*d1lambda*
+     G        ((nu2 + lambda)*d2eta - 
+     H        (eta + nu*(nu + dsqrt(nu2 + eta)))*
+     I        d2lambda) + 
+     J        four*(nu2 + lambda)**two*
+     K        ((lambda + 
+     L        nu*(nu + dsqrt(nu2 + lambda)))*
+     M        d3eta + 
+     N        (nu2 + eta + nu*dsqrt(nu2 + eta) + 
+     O        two*dsqrt(nu2 + eta)*
+     P        dsqrt(nu2 + lambda))*
+     Q        d3lambda)))/
+     R        (nu2 + lambda)**f52)/(eight*(nu2 + eta)**f52)
+c
+c     Calculate derivatives of the enhancement factor with respect
+c     to s.
+c
+      L4 = L2*L2
+      L6 = L4*L2
+      Ms3 = Ms2*Ms
+      Ns3 = Ns2*Ns
+      Js4 = Js2*Js2
+      Ks4 = Ks2*Ks2
+c
+      d3Fxhse1 = (A*(Js3*Ks4*d3zeta - 
+     1    six*Ks4*zeta*d10Js**three + 
+     2    six*Js*Ks4*d10Js*
+     3    (d1zeta*d10Js + zeta*d20Js) - 
+     4    Js**two*Ks4*(three*d2zeta*d10Js + 
+     5    three*d1zeta*d20Js + 
+     6    zeta*d30Js) + Js4*
+     7    (Ks3*d3eta - six*eta*d10Ks**three + 
+     8    six*Ks*d10Ks*(d1eta*d10Ks + eta*d20Ks) - 
+     9    Ks**two*(three*d2eta*d10Ks + three*d1eta*d20Ks + 
+     A    eta*d30Ks))))/(Js4*Ks4)
+c
+      d3Fxhse2 = (four*B*(six*d10lambda2**three - 
+     1    six*lambda2*d10lambda2*d20lambda2 + 
+     2    lambda2**two*d30lambda2))/(nine*L4)
+c
+      d3Fxhse3 = (two*C*(r24*(two + chi)*Fs*d10lambda2**three - 
+     1   r18*lambda2*d10lambda2*
+     2   ((two + chi)*d1Fs*d10lambda2 + 
+     3   Fs*(d10chi*d10lambda2 + (two +
+     4   chi)*d20lambda2)) - 
+     5   L3*((two + chi)*d3Fs + three*d2Fs*d10chi + 
+     6   three*d1Fs*d20chi + Fs*d30chi) + 
+     7   two*L2*(three*(two + chi)*d2Fs*d10lambda2 + 
+     8   three*d1Fs*(two*d10chi*d10lambda2 + 
+     9   (two + chi)*d20lambda2) + 
+     A   Fs*(three*d10lambda2*d20chi + three*d10chi*d20lambda2 + 
+     B   (two + chi)*d30lambda2))))/(nine*L5)
+c
+      tmp1 = -EGs*(eight/nine)/L3
+      tmp2 = (-d1EGs + (three*EGs*d10lambda2)/(lambda2))*(eight/nine)/L3
+      tmp3 = (-d2EGs + (six*d1EGs*d10lambda2)/(lambda2)
+     1  - (EGs*((r12*d10lambda2**two)/L2 - 
+     2  (three*d20lambda2)/lambda2)))*(eight/nine)/L3
+      tmp4 = (-d3EGs + (nine*d2EGs*d10lambda2)/lambda2 - 
+     1  three*(d1EGs*((r12*d10lambda2**two)/L2 - 
+     2  (three*d20lambda2)/lambda2)) - (EGs*
+     3  ((-r60*d10lambda2**three)/L3 + 
+     4  (r36*d10lambda2*d20lambda2)/L2
+     5  - (three*d30lambda2)/lambda2)))*(eight/nine)/L3
+      tmp5 = (one + (nine/eight)*chi + (three/eight)*chi*chi)
+      tmp6 = (nine*d10chi)/eight + (three*chi*d10chi)/four
+      tmp7 = (nine*d20chi)/eight + (three*(two*d10chi**two + 
+     1  two*chi*d20chi))/eight
+      tmp8 = (nine*d30chi)/eight + (three*(six*d10chi*
+     1  d20chi + two*chi*d30chi))/eight
+
+
+      d3Fxhse4 = (tmp1*tmp8+3d0*tmp2*tmp7+3d0*tmp3*tmp6+
+     1           tmp4*tmp5)
+c
+      d3Fxhse5 = two*dlog(one - D/Ms)*d3zeta - 
+     1    (six*D*d2zeta*d10Ms)/(D*Ms - Ms**two) + 
+     2  (six*D*d1zeta*((D - two*Ms)*d10Ms**two + Ms*(-D + Ms)*d20Ms))/
+     3  ((D - Ms)**two*Ms**two) - 
+     4  (two*D*zeta*
+     5  (two*(D**two - three*D*Ms + three*Ms**two)*d10Ms**three - 
+     6  three*Ms*(D**two - three*D*Ms + two*Ms**two)*d10Ms*d20Ms + 
+     7  (D - Ms)**two*Ms**two*d30Ms))/((D - Ms)**three*Ms3) 
+c
+      d3Fxhse6 = -two*dlog((A - D + Ns)/Ns)*d3eta + 
+     1  (six*(A - D)*d2eta*d10Ns)/(Ns*(A - D + Ns)) + 
+     2  (six*(A - D)*d1eta*((-A + D - two*Ns)*d10Ns**two + 
+     3  Ns*(A - D + Ns)*d20Ns))/(Ns**two*(A - D + Ns)**two) + 
+     4  (two*(A - D)*eta*(two*((A - D)**two + three*(A - D)*Ns
+     5  + three*Ns**two)*d10Ns**three - 
+     6  three*Ns*((A - D)**two + three*(A - D)*Ns +
+     7  two*Ns**two)*d10Ns*d20Ns + 
+     8  Ns**two*(A - D + Ns)**two*d30Ns))/
+     9  (Ns3*(A - D + Ns)**three)
+c
+      d30Fxhse = d3Fxhse1 + d3Fxhse2 + d3Fxhse3 + d3Fxhse4 +
+     1           d3Fxhse5 + d3Fxhse6      
+c
+c
+c     Calculate the third derivative of Fxhse with respect to the
+c     parameter nu (cam_omega/kf).
+c
+      nu7 = nu6*nu
+      nu8 = nu7*nu
+c
+c     Calculate third derivatives with respect to nu necessary to
+c     simplify the appearance of the code.
+c
+      d03chi = (three*(four*nu2 - lambda)*lambda)/(nu2 + lambda)**f72
+      d03lambda2 = (lambda*(six*d01chi**three - 
+     1             six*(-one + chi)*d01chi*
+     2             d02chi + 
+     3             (-one + chi)**two*d03chi))/
+     4             (-one + chi)**four
+      d03Js = (three*(-(nu*eta**three*zeta) + 
+     1        nu4*(nu + dsqrt(nu2 + eta))*zeta**two - 
+     2        nu*eta*zeta*
+     3        (two*nu4 - two*nu*dsqrt(nu2 + eta)*zeta + 
+     4        zeta**two) + 
+     5        eta**two*(two*nu2*zeta*dsqrt(nu2 + zeta) + 
+     6        nu4*(nu + dsqrt(nu2 + zeta)) + 
+     7        zeta**two*
+     8        (two*nu + dsqrt(nu2 + eta) + 
+     9        dsqrt(nu2 + zeta)))))/
+     A        ((nu2 + eta)**f52*(nu2 + zeta)**f52)
+      d03Ks = d03Js
+      d03Ms = (three*(-(nu*lambda**three*zeta) + 
+     1        nu4*(nu + dsqrt(nu2 + lambda))*zeta**two - 
+     2        nu*lambda*zeta*
+     3        (two*nu4 - two*nu*dsqrt(nu2 + lambda)*zeta + 
+     4        zeta**two) + 
+     5        lambda**two*(two*nu2*zeta*
+     6        dsqrt(nu2 + zeta) + 
+     7        nu4*(nu + dsqrt(nu2 + zeta)) + 
+     8        zeta**two*
+     9        (two*nu + dsqrt(nu2 + lambda) + 
+     A        dsqrt(nu2 + zeta)))))/
+     B        ((nu2 + lambda)**f52*(nu2 + zeta)**f52)
+      d03Ns = (three*(-(nu*eta**three*lambda) + 
+     1        nu4*(nu + dsqrt(nu2 + eta))*lambda**two - 
+     2        nu*eta*lambda*
+     3        (two*nu4 - two*nu*dsqrt(nu2 + eta)*lambda + 
+     4        lambda**two) + 
+     5        eta**two*(two*nu2*lambda*
+     6        dsqrt(nu2 + lambda) + 
+     7        nu4*(nu + dsqrt(nu2 + lambda)) + 
+     8        lambda**two*
+     9        (two*nu + dsqrt(nu2 + eta) + 
+     A        dsqrt(nu2 + lambda)))))/
+     B        ((nu2 + eta)**f52*(nu2 + lambda)**f52)
+c
+      d3Fxhse1 = A*(-((zeta*(six*d01Js**three - six*Js*d01Js*d02Js + 
+     1           Js**two*d03Js))/Js4) - 
+     2    (eta*(six*d01Ks**three - six*Ks*d01Ks*d02Ks + 
+     3         Ks**two*d03Ks))/Ks4)
+c
+      d3Fxhse2 = (four*B*(six*d01lambda2**three - 
+     1      six*lambda2*d01lambda2*d02lambda2 + 
+     2      lambda2**two*d03lambda2))/(nine*L4)
+c
+      d3Fxhse3 = (two*C*Fs*(r24*(two + chi)*
+     1  d01lambda2**three - r18*lambda2*d01lambda2*
+     2  (d01chi*d01lambda2 + (two + chi)*d02lambda2)
+     3  - L3*d03chi + two*L2*(three*d01lambda2*d02chi + 
+     4  three*d01chi*d02lambda2 + 
+     5  (two + chi)*d03lambda2)))/(nine*L5)
+c
+      d3Fxhse4 = (EGs*(r20*(eight + nine*chi + three*chi**two)*
+     1  d01lambda2**three - r12*lambda2*d01lambda2*
+     2  (three*(three + two*chi)*d01chi*d01lambda2 + 
+     3  (eight + nine*chi + three*chi**two)*d02lambda2) - 
+     4  L3*(six*d01chi*d02chi + (three + two*chi)*d03chi) + 
+     5  L2*(r18*d01chi**two*d01lambda2 + nine*(three + two*chi)*
+     6  d01lambda2*d02chi + nine*(three + two*chi)*d01chi*
+     7  d02lambda2 + (eight + nine*chi + three*chi**two)*
+     8  d03lambda2)))/(three*L6)
+c
+      d3Fxhse5 = (-two*D*zeta*(two*(D**two - three*D*Ms + 
+     1  three*Ms**two)*d01Ms**three - 
+     2  three*Ms*(D**two - three*D*Ms + two*Ms**two)*d01Ms*d02Ms + 
+     3  (D - Ms)**two*Ms**two*d03Ms))/((D - Ms)**three*Ms3)
+c
+      d3Fxhse6 = (two*(A - D)*eta*(two*((A - D)**two + 
+     1  three*(A - D)*Ns + three*Ns**two)*d01Ns**three - 
+     2  three*Ns*((A - D)**two + 
+     3  three*(A - D)*Ns + two*Ns**two)*d01Ns*d02Ns + 
+     4  Ns**two*(A - D + Ns)**two*d03Ns))/
+     5  (Ns3*(A - D + Ns)**three)
+c
+      d03Fxhse = d3Fxhse1 + d3Fxhse2 + d3Fxhse3 + d3Fxhse4 +
+     1           d3Fxhse5 + d3Fxhse6
+c
+c     Calculate the mixed third derivative of Fxhse (dnu ds^2)
+c
+c
+c     Calculate mixed partial derivatives for the variables depending
+c     on both s and nu.
+c
+      d21chi = (three*(-four*nu2 + lambda)*d1lambda**two + 
+     1         two*(two*nu4 + nu2*lambda - lambda**two)*d2lambda)/
+     2         (four*(nu2 + lambda)**f72)
+      d21lambda2 = ((-one + chi)**two*d2lambda*d01chi + 
+     1         two*(-one + chi)*d1lambda*(-two*d01chi*d10chi + 
+     2         (-one + chi)*d11chi) + 
+     3         lambda*(two*d01chi*(three*d10chi**two - 
+     4         (-one + chi)*d20chi) + 
+     5    (-one + chi)*(-four*d10chi*d11chi + (-one + chi)*d21chi)))/
+     6         (-one + chi)**four
+      d21Js = (-(nu*(nu2 + eta)*(nu2 + zeta)**two*d1eta**two) + 
+     1        three*nu2*(nu2 + zeta)**f52*d1eta**two - 
+     2        (nu2 + eta)*(nu2 + zeta)**f52*d1eta**two +
+     3        three*nu*(nu2 + zeta)**three*d1eta**two - 
+     4        two*nu*(nu2 + eta)**two*(nu2 + zeta)*d1eta*d1zeta - 
+     5        two*nu*(nu2 + eta)*(nu2 + zeta)**two*d1eta*d1zeta + 
+     6        three*nu2*(nu2 + eta)**f52*d1zeta**two + 
+     7        three*nu*(nu2 + eta)**three*d1zeta**two - 
+     8        nu*(nu2 + eta)**two*(nu2 + zeta)*d1zeta**two - 
+     9        (nu2 + eta)**f52*(nu2 + zeta)*d1zeta**two + 
+     A        two*nu*(nu2 + eta)**two*(nu2 + zeta)**two*d2eta - 
+     B        two*nu2*(nu2 + eta)*(nu2 + zeta)**f52*d2eta + 
+     C        two*(nu2 + eta)**two*(nu2 + zeta)**f52*d2eta - 
+     D        two*nu*(nu2 + eta)*(nu2 + zeta)**three*d2eta - 
+     E        two*nu2*(nu2 + eta)**f52*(nu2 + zeta)*d2zeta - 
+     F        two*nu*(nu2 + eta)**three*(nu2 + zeta)*d2zeta + 
+     G        two*nu*(nu2 + eta)**two*(nu2 + zeta)**two*d2zeta + 
+     H        two*(nu2 + eta)**f52*(nu2 + zeta)**two*d2zeta)/
+     I        (four*(nu2 + eta)**f52*(nu2 + zeta)**f52)
+      d21Ks = d21Js
+      d21Ms = -(nu*(nu2 + lambda)*(nu2 + zeta)**two*d1lambda**two - 
+     1        three*nu2*(nu2 + zeta)**f52*d1lambda**two + 
+     2        (nu2 + lambda)*(nu2 + zeta)**f52*d1lambda**two -
+     3        three*nu*(nu2 + zeta)**three*d1lambda**two + 
+     4      two*nu*(nu2 + lambda)**two*(nu2 + zeta)*d1lambda*d1zeta + 
+     5      two*nu*(nu2 + lambda)*(nu2 + zeta)**two*d1lambda*d1zeta - 
+     6        three*nu2*(nu2 + lambda)**f52*d1zeta**two -
+     7        three*nu*(nu2 + lambda)**three*d1zeta**two + 
+     8        nu*(nu2 + lambda)**two*(nu2 + zeta)*d1zeta**two + 
+     9        (nu2 + lambda)**f52*(nu2 + zeta)*d1zeta**two - 
+     A        two*nu*(nu2 + lambda)**two*(nu2 + zeta)**two*d2lambda + 
+     B        two*nu2*(nu2 + lambda)*(nu2 + zeta)**f52*d2lambda - 
+     C        two*(nu2 + lambda)**two*(nu2 + zeta)**f52*d2lambda + 
+     D        two*nu*(nu2 + lambda)*(nu2 + zeta)**three*d2lambda + 
+     E        two*nu2*(nu2 + lambda)**f52*(nu2 + zeta)*d2zeta + 
+     F        two*nu*(nu2 + lambda)**three*(nu2 + zeta)*d2zeta - 
+     G        two*nu*(nu2 + lambda)**two*(nu2 + zeta)**two*d2zeta - 
+     H        two*(nu2 + lambda)**f52*(nu2 + zeta)**two*d2zeta)/
+     I        (four*(nu2 + lambda)**f52*(nu2 + zeta)**f52) 
+      d21Ns = -(nu*(nu2 + eta)*(nu2 + lambda)**two*d1eta**two -
+     1        three*nu2*(nu2 + lambda)**f52*d1eta**two + 
+     2        (nu2 + eta)*(nu2 + lambda)**f52*d1eta**two -
+     3        three*nu*(nu2 + lambda)**three*d1eta**two + 
+     4        two*nu*(nu2 + eta)**two*(nu2 + lambda)*d1eta*d1lambda + 
+     5        two*nu*(nu2 + eta)*(nu2 + lambda)**two*d1eta*d1lambda - 
+     6        three*nu2*(nu2 + eta)**f52*d1lambda**two -
+     7        three*nu*(nu2 + eta)**three*d1lambda**two + 
+     8        nu*(nu2 + eta)**two*(nu2 + lambda)*d1lambda**two + 
+     9        (nu2 + eta)**f52*(nu2 + lambda)*d1lambda**two - 
+     A        two*nu*(nu2 + eta)**two*(nu2 + lambda)**two*d2eta + 
+     B        two*nu2*(nu2 + eta)*(nu2 + lambda)**f52*d2eta - 
+     C        two*(nu2 + eta)**two*(nu2 + lambda)**f52*d2eta + 
+     D        two*nu*(nu2 + eta)*(nu2 + lambda)**three*d2eta + 
+     E        two*nu2*(nu2 + eta)**f52*(nu2 + lambda)*d2lambda + 
+     F        two*nu*(nu2 + eta)**three*(nu2 + lambda)*d2lambda - 
+     G        two*nu*(nu2 + eta)**two*(nu2 + lambda)**two*d2lambda - 
+     H        two*(nu2 + eta)**f52*(nu2 + lambda)**two*d2lambda)/
+     I        (four*(nu2 + eta)**f52*(nu2 + lambda)**f52)
+c
+      d21Fxhse1 = -((A*(six*Ks4*zeta*d01Js*d10Js**two - 
+     1   two*Js*Ks4*(two*d1zeta*d01Js*d10Js + 
+     2   zeta*(two*d10Js*d11Js + d01Js*d20Js)) + 
+     3   Js**two*Ks4*(d2zeta*d01Js + two*d1zeta*d11Js + 
+     4   zeta*d21Js) + Js4*
+     5   (six*eta*d01Ks*d10Ks**two - 
+     6   two*Ks*(two*d1eta*d01Ks*d10Ks + 
+     7   two*eta*d10Ks*d11Ks + eta*d01Ks*d20Ks) + 
+     8   Ks**two*(d2eta*d01Ks + two*d1eta*d11Ks + 
+     9   eta*d21Ks))))/(Js4*Ks4))
+c
+      d21Fxhse2 = (four*B*(d01lambda2*(six*d10lambda2**two - 
+     1   two*lambda2*d20lambda2) + 
+     2   lambda2*(-four*d10lambda2*d11lambda2 + lambda2*d21lambda2)))/
+     3   (nine*L4)
+c
+      d21Fxhse3 = (two*C*(r24*(two + chi)*Fs*d01lambda2*
+     1   d10lambda2**two - six*lambda2*
+     2   (two*(two + chi)*d1Fs*d01lambda2*d10lambda2 + 
+     3   Fs*(d10lambda2*(d01chi*d10lambda2 + two*(two + chi)*
+     4   d11lambda2) + d01lambda2*(two*d10chi*d10lambda2 + 
+     5   (two + chi)*d20lambda2))) - L3*(d2Fs*d01chi + two*d1Fs*
+     6   d11chi + Fs*d21chi) + two*L2*((two + chi)*d2Fs*d01lambda2 + 
+     7   two*d1Fs*(d01lambda2*d10chi + d01chi*d10lambda2 + 
+     8   (two + chi)*d11lambda2) + Fs*(two*d10lambda2*d11chi + 
+     9   two*d10chi*d11lambda2 + d01lambda2*d20chi + d01chi*
+     A   d20lambda2 + two*d21lambda2 + chi*d21lambda2))))/
+     B  (nine*L5)
+c
+      d21Fxhse4 = (-two*lambda2**two*(lambda2*d1EGs -
+     1   three*EGs*d10lambda2)*
+     2   (two*d01chi*d10chi + (three + two*chi)*d11chi) + 
+     3   six*(three + two*chi)*lambda2*d10chi*
+     4   (-four*EGs*d01lambda2*d10lambda2 + 
+     5   lambda2*(d1EGs*d01lambda2 + EGs*d11lambda2)) + 
+     6   three*EGs*lambda2**two*d01lambda2*
+     7   (two*d10chi**two + (three + two*chi)*d20chi) - 
+     8   (three + two*chi)*lambda2*d01chi*
+     9   (lambda2**two*d2EGs + r12*EGs*d10lambda2**two - 
+     A   three*lambda2*(two*d1EGs*d10lambda2 + EGs*d20lambda2)) - 
+     B   EGs*L3*(four*d10chi*d11chi + 
+     C   two*d01chi*d20chi + (three + two*chi)*d21chi) + 
+     D   (eight + nine*chi + three*chi**two)*
+     E   (r20*EGs*d01lambda2*d10lambda2**two - 
+     F   four*lambda2*(two*d1EGs*d01lambda2*d10lambda2 + 
+     G   EGs*(two*d10lambda2*d11lambda2 + 
+     H   d01lambda2*d20lambda2)) + 
+     I   lambda2**two*(d2EGs*d01lambda2 + two*d1EGs*d11lambda2 + 
+     J   EGs*d21lambda2)))/(three*L6)
+c
+      d21Fxhse5 = (-two*D*(two*D**two*zeta*d01Ms*d10Ms**two - 
+     1   D*Ms*(two*D*d1zeta*d01Ms*d10Ms + 
+     2   zeta*(two*D*d10Ms*d11Ms + 
+     3   d01Ms*(six*d10Ms**two + D*d20Ms))) + 
+     4   Ms**four*(d2zeta*d01Ms + two*d1zeta*d11Ms + 
+     5   zeta*d21Ms) - two*Ms3*
+     6   (D*d2zeta*d01Ms + 
+     7   two*d1zeta*(d01Ms*d10Ms + D*d11Ms) + 
+     8   zeta*(two*d10Ms*d11Ms + d01Ms*d20Ms + 
+     9   D*d21Ms)) + Ms**two*
+     A   (D**two*d2zeta*d01Ms + 
+     B   two*D*d1zeta*(three*d01Ms*d10Ms + D*d11Ms) + 
+     C   zeta*(three*d01Ms*(two*d10Ms**two + D*d20Ms) + 
+     D   D*(six*d10Ms*d11Ms + D*d21Ms)))))/((D - Ms)**three*Ms3)
+c
+      d21Fxhse6 = (two*(A - D)*(Ns**two*(A - D + Ns)**two*d2eta*d01Ns + 
+     1   two*(A - D)*Ns*(A - D + Ns)*d1eta*d01Ns*d10Ns - 
+     2   four*Ns*(A - D + Ns)**two*d1eta*d01Ns*d10Ns + 
+     3   two*Ns**two*(A - D + Ns)**two*d1eta*d11Ns + 
+     4   eta*(d01Ns*(two*((A - D)**two + three*(A - D)*Ns +
+     5   three*Ns**two)*d10Ns**two - 
+     6   Ns*((A - D)**two + three*(A - D)*Ns + two*Ns**two)*d20Ns) + 
+     7   Ns*(A - D + Ns)*(-two*(A - D + two*Ns)*d10Ns*d11Ns + 
+     8   Ns*(A - D + Ns)*d21Ns))))/(Ns3*(A - D + Ns)**three)
+c
+      d21Fxhse = d21Fxhse1 + d21Fxhse2 + d21Fxhse3 + d21Fxhse4 +
+     1           d21Fxhse5 + d21Fxhse6
+c
+c     Calculate the mixed third derivative of Fxhse (dnu^2 ds)
+c
+c
+c     Calculate mixed partial derivatives for the variables depending
+c     on both s and nu.
+c
+      d12chi = (three*nu*(-two*nu2 + three*lambda)*d1lambda)/
+     1         (two*(nu2 + lambda)**f72)
+      d12lambda2 = ((-one + chi)*d1lambda*(-two*d01chi**two +
+     1   (-one + chi)*d02chi) + 
+     2   lambda*(six*d01chi**two*d10chi - 
+     3   four*(-one + chi)*d01chi*d11chi + 
+     4   (-one + chi)*(-two*d02chi*d10chi + (-one + chi)*d12chi)))/
+     5   (-one + chi)**four
+      d12Js = (eta**three*(two*nu2 - zeta)*d1zeta + 
+     1   nu2*zeta*((three*nu4 + five*nu2*zeta + two*zeta**two)*d1eta - 
+     2   three*nu3*(nu + dsqrt(nu2 + eta))*d1zeta) - 
+     3   eta*((nu2 + zeta)*(zeta**two + three*nu3*(nu + 
+     4   dsqrt(nu2 + zeta)) + 
+     5   nu*zeta*(two*nu + three*dsqrt(nu2 + zeta)))*
+     6   d1eta - nu2*(three*nu4 - nu*(five*nu + 
+     7   six*dsqrt(nu2 + eta))*zeta + zeta**two)*d1zeta) + 
+     8   eta**two*(five*nu4*d1zeta + zeta**two*(d1eta + d1zeta) + 
+     9   nu*zeta*(nu*d1eta - three*(nu + dsqrt(nu2 + eta))*d1zeta)))/
+     A   (two*(nu2 + eta)**f52*(nu2 + zeta)**f52)
+      d12Ks = d12Js
+      d12Ms = (lambda**three*(two*nu2 - zeta)*d1zeta + 
+     1   nu2*zeta*((three*nu4 + five*nu2*zeta + 
+     2   two*zeta**two)*d1lambda - three*nu3*(nu + dsqrt(nu2 + lambda))*
+     3   d1zeta) - lambda*((nu2 + zeta)*(zeta**two + 
+     4   three*nu3*(nu + dsqrt(nu2 + zeta)) + 
+     5   nu*zeta*(two*nu + three*dsqrt(nu2 + zeta)))*d1lambda - 
+     6   nu2*(three*nu4 - nu*(five*nu + six*dsqrt(nu2 + lambda))*zeta + 
+     7   zeta**two)*d1zeta) + lambda**two*(five*nu4*d1zeta + 
+     8   zeta**two*(d1lambda + d1zeta) + 
+     9   nu*zeta*(nu*d1lambda - three*(nu + dsqrt(nu2 + lambda))*
+     A   d1zeta)))/(two*(nu2 + lambda)**f52*(nu2 + zeta)**f52)
+      d12Ns = (eta**three*(two*nu2 - lambda)*d1lambda + nu2*lambda*
+     1   ((three*nu4 + five*nu2*lambda + two*lambda**two)*d1eta - 
+     2   three*nu3*(nu + dsqrt(nu2 + eta))*d1lambda) - 
+     3   eta*((nu2 + lambda)*(lambda**two + 
+     4   three*nu3*(nu + dsqrt(nu2 + lambda)) + 
+     5   nu*lambda*(two*nu + three*dsqrt(nu2 + lambda)))*d1eta - 
+     6   nu2*(three*nu4 - nu*(five*nu + six*dsqrt(nu2 + eta))*lambda + 
+     7   lambda**two)*d1lambda) + eta**two*(five*nu4*d1lambda + 
+     8   lambda**two*(d1eta + d1lambda)+ nu*lambda*(nu*d1eta - 
+     9   three*(nu + dsqrt(nu2 + eta))*d1lambda)))/
+     A   (two*(nu2 + eta)**f52*(nu2 + lambda)**f52)
+c
+      d12Fxhse1 = -((A*(six*Ks4*zeta*d01Js**two*d10Js - 
+     1   two*Js*Ks4*(d1zeta*d01Js**two + 
+     2   zeta*(d02Js*d10Js + two*d01Js*d11Js)) + 
+     3   Js**two*Ks4*(d1zeta*d02Js + zeta*d12Js) + 
+     4   Js4*(six*eta*d01Ks**two*d10Ks - 
+     5   two*Ks*(d1eta*d01Ks**two + eta*d02Ks*d10Ks + 
+     6   two*eta*d01Ks*d11Ks) + 
+     7   Ks**two*(d1eta*d02Ks + eta*d12Ks))))/(Js4*Ks4))
+c
+      d12Fxhse2 = (four*B*(six*d01lambda2**two*d10lambda2 - 
+     1   four*lambda2*d01lambda2*d11lambda2 + 
+     2   lambda2*(-two*d02lambda2*d10lambda2 + lambda2*d12lambda2)))/
+     3   (nine*L4)
+c
+      d12Fxhse3 = (-five*C*nu*(two*(nu2 + lambda)*d1Fs - 
+     1   seven*Fs*d1lambda))/(three*(nu2 + lambda)**f92)
+c
+      d12Fxhse4 = (r20*(eight + nine*chi + three*chi**two)*EGs*
+     1   d01lambda2**two*d10lambda2 - 
+     2   four*lambda2*((eight + nine*chi + three*chi**two)*
+     3   d1EGs*d01lambda2**two + 
+     4   EGs*(three*(three + two*chi)*d01lambda2**two*d10chi + 
+     5   (eight + nine*chi + three*chi**two)*d02lambda2*d10lambda2 + 
+     6   two*d01lambda2*(three*(three + two*chi)*d01chi*d10lambda2 + 
+     7   (eight + nine*chi + three*chi**two)*d11lambda2))) - 
+     8   L3*(d1EGs*(two*d01chi**two + 
+     9   (three + two*chi)*d02chi) + 
+     A   EGs*(two*d02chi*d10chi + four*d01chi*d11chi + 
+     B   (three + two*chi)*d12chi)) + 
+     C   lambda2**two*(d1EGs*(six*(three + two*chi)*d01chi*d01lambda2 + 
+     D   (eight + nine*chi + three*chi**two)*d02lambda2) + 
+     E   EGs*(three*(three + two*chi)*d02lambda2*d10chi + 
+     F   six*d01chi**two*d10lambda2 + nine*d02chi*d10lambda2 + 
+     G   six*chi*d02chi*d10lambda2 + 
+     H   r18*d01lambda2*d11chi + 
+     I   r12*chi*d01lambda2*d11chi + 
+     J   six*d01chi*(two*d01lambda2*d10chi + 
+     K   (three + two*chi)*d11lambda2) + eight*d12lambda2 + 
+     L   nine*chi*d12lambda2 + three*chi**two*d12lambda2)))/
+     M   (three*L6)
+c
+      d12Fxhse5 = (-two*D*(two*D**two*zeta*d01Ms**two*d10Ms - 
+     1   D*Ms*(D*d1zeta*d01Ms**two + zeta*(six*d01Ms**two*
+     2   d10Ms + D*d02Ms*d10Ms + two*D*d01Ms*d11Ms)) + 
+     3   Ms4*(d1zeta*d02Ms + zeta*d12Ms) - 
+     4   two*Ms3*(d1zeta*(d01Ms**two + D*d02Ms) + 
+     5   zeta*(d02Ms*d10Ms + two*d01Ms*d11Ms + D*d12Ms)) + 
+     6   Ms2*(D*d1zeta*(three*d01Ms**two + D*d02Ms) + 
+     7   zeta*(six*d01Ms**two*d10Ms + three*D*d02Ms*d10Ms + 
+     8   six*D*d01Ms*d11Ms + D**two*d12Ms))))/
+     9  ((D - Ms)**three*Ms3)
+c
+      d12Fxhse6 = (two*(A - D)*(Ns*(A - D + Ns)*d1eta*
+     1   ((-A + D - two*Ns)*d01Ns**two + Ns*(A - D + Ns)*d02Ns) + 
+     2   (A - D)*Ns*eta*(-two*d01Ns**two + (A - D + Ns)*d02Ns)*
+     3   d10Ns + two*(A - D)*(A - D + Ns)*eta*d01Ns*
+     4   (-two*d01Ns*d10Ns + Ns*d11Ns) + 
+     5   (A - D + Ns)**two*eta*(six*d01Ns**two*d10Ns - 
+     6   four*Ns*d01Ns*d11Ns + 
+     7   Ns*(-two*d02Ns*d10Ns + Ns*d12Ns))))/
+     8   (Ns3*(A - D + Ns)**three)
+c
+      d12Fxhse = d12Fxhse1 + d12Fxhse2 + d12Fxhse3 + d12Fxhse4 +
+     1           d12Fxhse5 + d12Fxhse6
+#endif
       
       end
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_hse08.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_hse08.F"
 #endif

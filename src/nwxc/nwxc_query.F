@@ -436,6 +436,10 @@ c
            cdata = "CAM-PBE Exchange (OA Vydrov, GE Scuseria, "
      +             //"JP Perdew, J.Chem.Phys. 126, 154109 (2007)"
      +             //" doi:10.1063/1.2723119)"
+         case (NWXCP_X_CAMREVPBE)
+           cdata = "CAM-revPBE Exchange"
+         case (NWXCP_X_CAMRPBE)
+           cdata = "CAM-RPBE Exchange"
          case (NWXCP_X_CAMS12G)
            cdata = "CAM-S12g Exchange (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"

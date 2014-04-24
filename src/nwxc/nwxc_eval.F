@@ -408,6 +408,20 @@ C
              param(5) = nwxc_cam_gamma
              call nwxc_x_campbe(param,nwxc_rho_tol,ipol,nq,
      +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_CAMREVPBE)
+             param(1) = 1.245d0
+             param(2) = 0.2195149727645171d0
+             param(3) = nwxc_cam_alpha
+             param(4) = nwxc_cam_beta
+             param(5) = nwxc_cam_gamma
+             call nwxc_x_campbe(param,nwxc_rho_tol,ipol,nq,
+     +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
+           case (NWXCP_X_CAMRPBE)
+             param(1) = nwxc_cam_alpha
+             param(2) = nwxc_cam_beta
+             param(3) = nwxc_cam_gamma
+             call nwxc_x_camrpbe(param,nwxc_rho_tol,ipol,nq,
+     +                           nwxc_wghts(it),rho,gamma,f,dfdr,dfdg)
            case (NWXCP_X_CAMS12G)
              param(1) = 1.03323556d0
              param(2) = 0.757d0
@@ -1670,6 +1684,22 @@ C
              call nwxc_x_campbe_d2(param,nwxc_rho_tol,ipol,nq,
      +                             nwxc_wghts(it),rho,gamma,f,
      +                             dfdr,dfdr2,dfdg,dfdg2)
+           case (NWXCP_X_CAMREVPBE)
+             param(1) = 1.245d0
+             param(2) = 0.2195149727645171d0
+             param(3) = nwxc_cam_alpha
+             param(4) = nwxc_cam_beta
+             param(5) = nwxc_cam_gamma
+             call nwxc_x_campbe_d2(param,nwxc_rho_tol,ipol,nq,
+     +                             nwxc_wghts(it),rho,gamma,f,
+     +                             dfdr,dfdr2,dfdg,dfdg2)
+           case (NWXCP_X_CAMRPBE)
+             param(1) = nwxc_cam_alpha
+             param(2) = nwxc_cam_beta
+             param(3) = nwxc_cam_gamma
+             call nwxc_x_camrpbe_d2(param,nwxc_rho_tol,ipol,nq,
+     +                              nwxc_wghts(it),rho,gamma,f,
+     +                              dfdr,dfdr2,dfdg,dfdg2)
            case (NWXCP_X_CAMS12G)
              param(1) = 1.03323556d0
              param(2) = 0.757d0

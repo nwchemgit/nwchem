@@ -2,8 +2,8 @@
 C> \ingroup nwxc
 C> @{
 C>
-C> \file nwxc_x_campbe.F
-C> The CAM-PBE exchange functional
+C> \file nwxc_x_camrpbe.F
+C> The CAM-RPBE exchange functional
 C>
 C> @}
 #endif
@@ -65,32 +65,37 @@ C> (1998), DOI:
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.80.890">
 C> 10.1103/PhysRevLett.80.890</a>.
 C>
+C> [9] B. Hammer, L.B. Hansen, J.K. N&oslash;rskov,
+C> "Improved adsorption energetics within density-functional theory
+C> using revised Perdew-Burke-Ernzerhof functionals",
+C> Phys. Rev. B <b>59</b>, 7413-7421 (1999), DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413">
+C> 10.1103/PhysRevB.59.7413</a>.
+C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-      Subroutine nwxc_x_campbe(param,
+      Subroutine nwxc_x_camrpbe(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                     Amat, Cmat)
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-      Subroutine nwxc_x_campbe_d2(param,
+      Subroutine nwxc_x_camrpbe_d2(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &                        Amat, Amat2, Cmat, Cmat2)
 #else
-      Subroutine nwxc_x_campbe_d3(param,
+      Subroutine nwxc_x_camrpbe_d3(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func,
      &     Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3)
 #endif
 c
-c$Id$
+c$Id: nwxc_x_campbe.F 23711 2013-03-08 22:18:42Z d3y133 $
 c
       implicit none
 c
 #include "nwxc_param.fh"
 c      
       double precision param(*)!< [Input] Parameters of functional
-                               !< - param(1): \f$ \kappa \f$
-                               !< - param(2): \f$ \mu \f$
-                               !< - param(3): \f$ \alpha_{CAM} \f$
-                               !< - param(4): \f$ \beta_{CAM} \f$
-                               !< - param(5): \f$ \omega_{CAM} \f$
+                               !< - param(1): \f$ \alpha_{CAM} \f$
+                               !< - param(2): \f$ \beta_{CAM} \f$
+                               !< - param(3): \f$ \omega_{CAM} \f$
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -134,7 +139,7 @@ c
 #if defined(THIRD_DERIV)
       double precision F10d3, F23
 #endif
-c     parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
+      parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
 c     parameter(ukrev=1.245d0, umkrev=um/ukrev)
 c     parameter(um=0.2195149727645171d0)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
@@ -156,25 +161,23 @@ c
       double precision d3s(4), d3g(4), rhom53, gppp
       double precision A3tmp, C4tmp, C5tmp, C6tmp
 #endif
-      double precision gpbe0,gpbe1,gpbe2,gpbe3
-c     double precision grpbe0,grpbe1,grpbe2
+c     double precision gpbe0,gpbe1,gpbe2,gpbe3
+      double precision grpbe0,grpbe1,grpbe2,grpbe3
 c     double precision grevpbe0,grevpbe1,grevpbe2
-      gpbe0(s)= uk*(1d0 - 1d0/(1d0+umk*s*s))
-      gpbe1(s)= 2d0*um*s/(1d0+umk*s*s)**2
-      gpbe2(s)= 2d0*um*(1d0-4d0*umk*s*s/(1d0+umk*s*s))/(1d0+umk*s*s)**2
-      gpbe3(s)= 24.0d0*umk*um*s*
-     1  (2.0d0*umk*s*s/(1.0d0+umk*s*s)-1.0d0)/(1.0d0+umk*s*s)**3
+c     gpbe0(s)= uk*(1d0 - 1d0/(1d0+umk*s*s))
+c     gpbe1(s)= 2d0*um*s/(1d0+umk*s*s)**2
+c     gpbe2(s)= 2d0*um*(1d0-4d0*umk*s*s/(1d0+umk*s*s))/(1d0+umk*s*s)**2
+c     gpbe3(s)= 24.0d0*umk*um*s*
+c    1  (2.0d0*umk*s*s/(1.0d0+umk*s*s)-1.0d0)/(1.0d0+umk*s*s)**3
 c     grevpbe0(s)= ukrev*(1d0 - 1d0/(1d0+umkrev*s*s))
 c     grevpbe1(s)= 2d0*um*s/(1d0+umkrev*s*s)**2
 c     grevpbe2(s)= 2d0*um*(1d0-4d0*umkrev*s*s/(1d0+umkrev*s*s))/
 c    /     (1d0+umkrev*s*s)**2
-c     grpbe0(s)= uk*(1d0 - exp(-umk*s*s))
-c     grpbe1(s)= 2d0*um*s*exp(-umk*s*s)
-c     grpbe2(s)= 2d0*um*exp(-umk*s*s)*(1d0-2d0*umk*s*s)
+      grpbe0(s)= uk*(1d0 - exp(-umk*s*s))
+      grpbe1(s)= 2d0*um*s*exp(-umk*s*s)
+      grpbe2(s)= 2d0*um*exp(-umk*s*s)*(1d0-2d0*umk*s*s)
+      grpbe3(s)= -4.0d0*umk*um*s*exp(-umk*s*s)*(3d0-2d0*umk*s*s)
 c
-      uk = param(1)
-      um = param(2)
-      umk = um/uk
       pi = acos(-1.d0)
       C = -3d0/(4d0*pi)*(3d0*pi*pi)**F13
       Cs = 0.5d0/(3d0*pi*pi)**F13
@@ -237,11 +240,11 @@ c           if(whichf.eq.'revp') then
 c              g=grevpbe0(s)
 c              gp=grevpbe1(s)
 c           elseif(whichf.eq.'rpbe') then
-c              g=grpbe0(s)
-c              gp=grpbe1(s)
+               g=grpbe0(s)
+               gp=grpbe1(s)
 c           else
-               g=gpbe0(s)
-               gp=gpbe1(s)
+c              g=gpbe0(s)
+c              gp=gpbe1(s)
 c           endif
 c
             d1g(1) = gp*d1s(1)
@@ -256,9 +259,9 @@ c
 c           if(whichf.eq.'revp') then
 c              gpp=grevpbe2(s)
 c           elseif(whichf.eq.'rpbe') then
-c              gpp=grpbe2(s)
+               gpp=grpbe2(s)
 c           else
-               gpp=gpbe2(s)
+c              gpp=gpbe2(s)
 c           endif
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
@@ -278,9 +281,9 @@ c 1 = drdrdr, 2 = drdrdg, 3 = drdgdg, 4 = dgdgdg
 c           if(whichf.eq.'revp') then
 c              gppp = grevpbe3(s)
 c           elseif(whichf.eq.'rpbe') then
-c              gppp = grpbe3(s)
+               gppp = grpbe3(s)
 c           else
-               gppp = gpbe3(s)
+c              gppp = gpbe3(s)
 c           endif
 c Third derivatives of the enhancement factor
             d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
@@ -313,7 +316,7 @@ c
 #endif
 c
 #if defined(THIRD_DERIV)
-            call nwxc_x_att_d3(param(3),tol_rho,rho(n,R_T),ipol,
+            call nwxc_x_att_d3(param,tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,
      &           C2tmp,C3tmp,A3tmp,C4tmp,C5tmp,C6tmp)
 c
@@ -328,13 +331,13 @@ c
      &                              + C6tmp*wght
 
 #elif defined(SECOND_DERIV)
-            call nwxc_x_att_d2(param(3),tol_rho,rho(n,R_T),ipol,
+            call nwxc_x_att_d2(param,tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp*wght
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp*wght
 #else
-            call nwxc_x_att(param(3),tol_rho,rho(n,R_T),ipol,
+            call nwxc_x_att(param,tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
@@ -401,11 +404,11 @@ c           if(whichf.eq.'revp') then
 c              g=grevpbe0(s)
 c              gp=grevpbe1(s)
 c           elseif(whichf.eq.'rpbe') then
-c              g=grpbe0(s)
-c              gp=grpbe1(s)
+               g=grpbe0(s)
+               gp=grpbe1(s)
 c           else
-               g=gpbe0(s)
-               gp=gpbe1(s)
+c              g=gpbe0(s)
+c              gp=gpbe1(s)
 c           endif
 c
             d1g(1) = gp*d1s(1)
@@ -420,9 +423,9 @@ c
 c           if(whichf.eq.'revp') then
 c              gpp=grevpbe2(s)
 c           elseif(whichf.eq.'rpbe') then
-c              gpp=grpbe2(s)
+               gpp=grpbe2(s)
 c           else
-               gpp=gpbe2(s)
+c              gpp=gpbe2(s)
 c           endif
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
@@ -442,9 +445,9 @@ c 1 = drdrdr, 2 = drdrdg, 3 = drdgdg, 4 = dgdgdg
 c           if(whichf.eq.'revp') then
 c              gppp = grevpbe3(s)
 c           elseif(whichf.eq.'rpbe') then
-c              gppp = grpbe3(s)
+               gppp = grpbe3(s)
 c           else
-               gppp = gpbe3(s)
+c              gppp = gpbe3(s)
 c           endif
 c Third derivatives of the enhancement factor
             d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
@@ -477,7 +480,7 @@ c
 #endif
 c
 #if defined(THIRD_DERIV)
-            call nwxc_x_att_d3(param(3),tol_rho,rho(n,R_A),ipol,
+            call nwxc_x_att_d3(param,tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,
      &           C2tmp,C3tmp,A3tmp,C4tmp,C5tmp,C6tmp)
 c
@@ -491,13 +494,13 @@ c
             Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
      1                              + C6tmp*wght
 #elif defined(SECOND_DERIV)
-            call nwxc_x_att_d2(param(3),tol_rho,rho(n,R_A),ipol,
+            call nwxc_x_att_d2(param,tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp*wght
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp*wght
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp*wght
 #else
-            call nwxc_x_att(param(3),tol_rho,rho(n,R_A),ipol,
+            call nwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
@@ -549,11 +552,11 @@ c           if(whichf.eq.'revp') then
 c              g=grevpbe0(s)
 c              gp=grevpbe1(s)
 c           elseif(whichf.eq.'rpbe') then
-c              g=grpbe0(s)
-c              gp=grpbe1(s)
+               g=grpbe0(s)
+               gp=grpbe1(s)
 c           else
-               g=gpbe0(s)
-               gp=gpbe1(s)
+c              g=gpbe0(s)
+c              gp=gpbe1(s)
 c           endif
 c
             d1g(1) = gp*d1s(1)
@@ -568,9 +571,9 @@ c
 c           if(whichf.eq.'revp') then
 c              gpp=grevpbe2(s)
 c           elseif(whichf.eq.'rpbe') then
-c              gpp=grpbe2(s)
+               gpp=grpbe2(s)
 c           else
-               gpp=gpbe2(s)
+c              gpp=gpbe2(s)
 c           endif
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
@@ -591,9 +594,9 @@ c 1 = drdrdr, 2 = drdrdg, 3 = drdgdg, 4 = dgdgdg
 c           if(whichf.eq.'revp') then
 c              gppp = grevpbe3(s)
 c           elseif(whichf.eq.'rpbe') then
-c              gppp = grpbe3(s)
+               gppp = grpbe3(s)
 c           else
-               gppp = gpbe3(s)
+c              gppp = gpbe3(s)
 c           endif
 c Third derivatives of the enhancement factor
             d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
@@ -626,7 +629,7 @@ c
 #endif
 c
 #if defined(THIRD_DERIV)
-            call nwxc_x_att_d3(param(3),tol_rho,rho(n,R_B),ipol,
+            call nwxc_x_att_d3(param,tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,
      &           C2tmp,C3tmp,A3tmp,C4tmp,C5tmp,C6tmp)
 c
@@ -640,13 +643,13 @@ c
             Cmat3(n,D3_GBB_GBB_GBB) = Cmat3(n,D3_GBB_GBB_GBB)
      1                              + C6tmp*wght
 #elif defined(SECOND_DERIV)
-            call nwxc_x_att_d2(param(3),tol_rho,rho(n,R_B),ipol,
+            call nwxc_x_att_d2(param,tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp*wght
             Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp*wght
             Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp*wght
 #else
-            call nwxc_x_att(param(3),tol_rho,rho(n,R_B),ipol,
+            call nwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
             func(n) = func(n) + Etmp*wght
@@ -663,13 +666,13 @@ c
 c
 c     Compile source again for the 2nd derivative case
 c
-#include "nwxc_x_campbe.F"
+#include "nwxc_x_camrpbe.F"
 #endif
 #ifndef THIRD_DERIV
 #define THIRD_DERIV
 c
 c     Compile source again for the 3rd derivative case
 c
-#include "nwxc_x_campbe.F"
+#include "nwxc_x_camrpbe.F"
 #endif
 C> @}

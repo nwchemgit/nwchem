@@ -276,6 +276,20 @@ c       nwxc_wght_hf = nwxc_wght_hf + 0.46d0*dfweight
         nwxc_cam_beta   = 1.0d0
         nwxc_cam_gamma  = 0.33d0
         nwxc_cam_srhfex = .true.
+      else if (dfname.eq."xcamrevpbe") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMREVPBE,dfweight)
+        nwxc_wght_hf    = nwxc_wght_hf + 0.25d0*dfweight
+        nwxc_cam_alpha  = 0.0d0
+        nwxc_cam_beta   = 1.0d0
+        nwxc_cam_gamma  = 0.33d0
+        nwxc_cam_srhfex = .true.
+      else if (dfname.eq."xcamrpbe") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMRPBE,dfweight)
+        nwxc_wght_hf    = nwxc_wght_hf + 0.25d0*dfweight
+        nwxc_cam_alpha  = 0.0d0
+        nwxc_cam_beta   = 1.0d0
+        nwxc_cam_gamma  = 0.33d0
+        nwxc_cam_srhfex = .true.
       else if (dfname.eq."xcams12g".or.dfname.eq."xcam-s12g") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_X_CAMS12G,dfweight)
         nwxc_wght_hf    = nwxc_wght_hf + dfweight

@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -26,12 +26,16 @@ C>
 #if defined(FUJITSU_VPP)
 !ocl scalar
 #endif
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b88(tol_rho, ipol, nq, wght, rho, rgamma,
      &                      func, Amat, Cmat)
-#else
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b88_d2(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, func, Amat, Amat2, Cmat, Cmat2)
+#else
+      Subroutine nwxc_x_b88_d3(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                         func, Amat, Amat2, Amat3,
+     &                         Cmat, Cmat2, Cmat3)
 #endif
 c
 C$Id$
@@ -60,12 +64,20 @@ c
       double precision func(nq)    !< [Output] The value of the functional
       double precision Amat(nq,*)   !< [Output] The derivative wrt rho
       double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c
 c     Sampling Matrices for the XC Kernel
 c
       double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
       double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
+                                    !< and possibly rho
+#endif
+#if defined(THIRD_DERIV)
+c
+c     Sampling Matrices for the XC Kernel
+c
+      double precision Amat3(nq,*)  !< [Output] The 3rd derivative wrt rho
+      double precision Cmat3(nq,*)  !< [Output] The 3rd derivative wrt rgamma
                                     !< and possibly rho
 #endif
 c
@@ -80,15 +92,20 @@ c
 c***************************************************************************
 c
       integer n
-      double precision arcsinh, darcsinh
+      double precision arcsinh, darcsinh, d2arcsinh
       double precision C, rho13, rho43, gamma, x, g, gdenom, dg,
-     &     dgdenom, t
-#ifdef SECOND_DERIV
-      double precision rhom23, d2g, d2gdenom
+     &     dgdenom, t, gdenom2
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
+      double precision rhom23, d2g, d2gdenom, gdenom3
+#endif
+#if defined(THIRD_DERIV)
+      double precision rhom53, d3g, d3gdenom
+      double precision gdenom4
 #endif
 c
       arcsinh(x)=log(x+dsqrt(1d0+x*x))
       darcsinh(x)=1d0/dsqrt(1d0+x*x)
+      d2arcsinh(x) = -x/dsqrt(1d0+x*x)**3
 c
 c     Uniform electron gas constant
 c
@@ -105,9 +122,6 @@ c           Spin alpha:
 c
             rho13 = (0.5d0*rho(n,R_T))**(1.d0/3.d0)
             rho43 = rho13**4 
-c           gamma = delrho(n,1,1)*delrho(n,1,1) +
-c    &              delrho(n,2,1)*delrho(n,2,1) +
-c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
             if (dsqrt(gamma).gt.tol_rho)then
                gamma = 0.25d0 * gamma
@@ -117,9 +131,10 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
             endif
 c
             gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+            gdenom2 = gdenom*gdenom
             g = -BETA*x*x / gdenom
             dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom2
 c
 c           if (lfac) then
 c              Ex = Ex + 2d0*rho43*C*qwght(n)*fac
@@ -137,17 +152,15 @@ c
             if (x.gt.tol_rho) then
                t = 0.5d0 * dg / sqrt(gamma) * wght
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
-c               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
-c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
-c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / (0.5d0*rho(n,R_T))
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
-     &           + BETA*x*x*d2gdenom/gdenom**2
+            gdenom3 = gdenom2*gdenom
+            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom2
+     &           + BETA*x*x*d2gdenom/gdenom2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
@@ -157,6 +170,42 @@ c
             if (x.gt.tol_rho) then
                Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
+            endif
+#endif
+#if defined(THIRD_DERIV)
+            rhom53 = rhom23 / (0.5d0*rho(n,R_T))
+c
+            d3gdenom = 6.0d0*BETA*
+     1          d2arcsinh(x)*( 3.0d0
+     2                       - (2.0d0*x*x - 1.0d0)/(1.0d0 + x*x))
+c
+            gdenom4 = gdenom3*gdenom
+c
+            d3g = 6.0d0*BETA*dgdenom/gdenom2
+     1          - 12.0d0*BETA*x*dgdenom*dgdenom/gdenom3
+     2          + 6.0d0*BETA*x*d2gdenom/gdenom2
+     3          + 6.0d0*BETA*x*x*dgdenom*dgdenom*dgdenom/gdenom4
+     4          - 6.0d0*BETA*x*x*dgdenom*d2gdenom/gdenom3
+     5          + BETA*x*x*d3gdenom/gdenom2
+c
+            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+     1           + (8.0d0/27.0d0)*rhom53*(-g + x*dg
+     2                                   - 18.0d0*x*x*d2g
+     3                                   - 8.0d0*x*x*x*d3g)*wght
+c
+            Cmat3(n,D3_RA_RA_GAA) = Cmat3(n,D3_RA_RA_GAA)
+     1           + (2.0d0/9.0d0)*(rhom23/gamma)*( 7.0d0*x*x*d2g
+     2                                          + 4.0d0*x*x*x*d3g)*wght
+c
+            Cmat3(n,D3_RA_GAA_GAA) = Cmat3(n,D3_RA_GAA_GAA)
+     1           - (8.0d0/3.0d0)*(rhom23/rho(n,1)**3)/dsqrt(gamma)
+     2             *d3g*wght
+c
+            if (x.gt.tol_rho) then
+              Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
+     1             + (1.0d0/8.0d0)*gamma**(-2.5d0)*( 3.0d0*dg
+     2                                             - 3.0d0*x*d2g
+     3                                             + x*x*d3g)*wght
             endif
 #endif
 c
@@ -174,9 +223,6 @@ c           Spin alpha:
 c
             rho13 = rho(n,R_A)**(1.d0/3.d0)
             rho43 = rho13*rho(n,R_A)
-c           gamma = delrho(n,1,1)*delrho(n,1,1) +
-c    &              delrho(n,2,1)*delrho(n,2,1) +
-c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
             if (dsqrt(gamma).gt.tol_rho)then
                x = dsqrt(gamma) / rho43
@@ -187,6 +233,7 @@ c
             gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
             g = -BETA*x*x / gdenom
             dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+            gdenom2 = gdenom*gdenom
             dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
 c           if (lfac) then
@@ -210,12 +257,13 @@ c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
 c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           if (lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,R_A)
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
-     &           + BETA*x*x*d2gdenom/gdenom**2
+            gdenom3 = gdenom2*gdenom
+            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom2
+     &           + BETA*x*x*d2gdenom/gdenom2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
@@ -227,6 +275,39 @@ c
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
             endif
 #endif
+#ifdef THIRD_DERIV
+            rhom53 = rhom23 / rho(n,R_A)
+            d3gdenom = 6.0d0*BETA*
+     1          d2arcsinh(x)*( 3.0d0
+     2                       - (2.0d0*x*x - 1.0d0)/(1.0d0 + x*x))
+            gdenom4 = gdenom3*gdenom
+            d3g = 6.0d0*BETA*dgdenom/gdenom2
+     1          - 12.0d0*BETA*x*dgdenom*dgdenom/gdenom3
+     2          + 6.0d0*BETA*x*d2gdenom/gdenom2
+     3          + 6.0d0*BETA*x*x*dgdenom*dgdenom*dgdenom/gdenom4
+     4          - 6.0d0*BETA*x*x*dgdenom*d2gdenom/gdenom3
+     5          + BETA*x*x*d3gdenom/gdenom2
+c
+            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+     1           + (8.0d0/27.0d0)*rhom53*(-g + x*dg
+     2                                   - 18.0d0*x*x*d2g
+     3                                   - 8.0d0*x*x*x*d3g)*wght
+c
+            Cmat3(n,D3_RA_RA_GAA) = Cmat3(n,D3_RA_RA_GAA)
+     1           + (2.0d0/9.0d0)*(rhom23/gamma)*( 7.0d0*x*x*d2g
+     2                                          + 4.0d0*x*x*x*d3g)*wght
+c
+            Cmat3(n,D3_RA_GAA_GAA) = Cmat3(n,D3_RA_GAA_GAA)
+     1           - (1.0d0/3.0d0)*(rhom23/rho(n,2)**3)/dsqrt(gamma)
+     2             *d3g*wght
+c
+            if (x.gt.tol_rho) then
+              Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
+     1             + (1.0d0/8.0d0)*gamma**(-2.5d0)*( 3.0d0*dg
+     2                                             - 3.0d0*x*d2g
+     3                                             + x*x*d3g)*wght
+            endif
+#endif
 c
  25         continue
 c
@@ -236,9 +317,6 @@ c
 c
             rho13 = rho(n,R_B)**(1.d0/3.d0)
             rho43 = rho13*rho(n,R_B)
-c           gamma = delrho(n,1,2)*delrho(n,1,2) +
-c    &              delrho(n,2,2)*delrho(n,2,2) +
-c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
             if (dsqrt(gamma).gt.tol_rho)then
                x = dsqrt(gamma) / rho43
@@ -249,7 +327,8 @@ c
             gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
             g = -BETA*x*x / gdenom
             dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            gdenom2 = gdenom*gdenom
+            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom2
 c
 c           if (lfac) then
 c              Ex = Ex + rho43*C*qwght(n)*fac
@@ -272,12 +351,13 @@ c               Cmat(n,2,2) = Cmat(n,2,2) + t*delrho(n,2,2)
 c               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
             endif
 c
-#ifdef SECOND_DERIV
+#if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,R_B)
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
-     &           + BETA*x*x*d2gdenom/gdenom**2
+            gdenom3 = gdenom2*gdenom
+            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom2
+     &           + BETA*x*x*d2gdenom/gdenom2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
@@ -289,6 +369,42 @@ c
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
             endif
 #endif
+#if defined(THIRD_DERIV)
+            rhom53 = rhom23 / rho(n,R_B)
+c
+            d3gdenom = 6.0d0*BETA*
+     1          d2arcsinh(x)*( 3.0d0
+     2                       - (2.0d0*x*x - 1.0d0)/(1.0d0 + x*x))
+c
+            gdenom4 = gdenom3*gdenom
+c
+            d3g = 6.0d0*BETA*dgdenom/gdenom2
+     1          - 12.0d0*BETA*x*dgdenom*dgdenom/gdenom3
+     2          + 6.0d0*BETA*x*d2gdenom/gdenom2
+     3          + 6.0d0*BETA*x*x*dgdenom*dgdenom*dgdenom/gdenom4
+     4          - 6.0d0*BETA*x*x*dgdenom*d2gdenom/gdenom3
+     5          + BETA*x*x*d3gdenom/gdenom2
+c
+            Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB)
+     1           + (8.0d0/27.0d0)*rhom53*(-g + x*dg
+     2                                   - 18.0d0*x*x*d2g
+     3                                   - 8.0d0*x*x*x*d3g)*wght
+c
+            Cmat3(n,D3_RB_RB_GBB) = Cmat3(n,D3_RB_RB_GBB)
+     1           + (2.0d0/9.0d0)*(rhom23/gamma)*( 7.0d0*x*x*d2g
+     2                                          + 4.0d0*x*x*x*d3g)*wght
+c
+            Cmat3(n,D3_RB_GBB_GBB) = Cmat3(n,D3_RB_GBB_GBB)
+     1           - (1.0d0/3.0d0)*(rhom23/rho(n,3)**3)/dsqrt(gamma)
+     2             *d3g*wght
+c
+            if (x.gt.tol_rho) then
+              Cmat3(n,D3_GBB_GBB_GBB) = Cmat3(n,D3_GBB_GBB_GBB)
+     1             + (1.0d0/8.0d0)*gamma**(-2.5d0)*( 3.0d0*dg
+     2                                             - 3.0d0*x*d2g
+     3                                             + x*x*d3g)*wght
+            endif
+#endif
 c
  20      continue
 c
@@ -296,10 +412,17 @@ c
 c
       return
       end
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) 
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_b88.F"
+#endif
+#if !defined(THIRD_DERIV) 
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_b88.F"
 #endif
