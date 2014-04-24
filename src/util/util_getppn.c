@@ -1,4 +1,4 @@
-/* $Id: util_gnxtval.c 19707 2010-10-29 17:59:36Z d3y133 $ */
+/* $Id$ */
 /* computes the number of processes per node a.k.a ppn */
 #include <stdlib.h>
 #include <stdio.h>
