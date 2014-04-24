@@ -1,3 +1,4 @@
+c $Id$
 c
 c     return true for functionals without 3rds
 c

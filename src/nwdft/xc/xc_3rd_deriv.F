@@ -1,5 +1,6 @@
       subroutine xc_3rd_deriv(prho, pdelrho,
      1  Amat3, Cmat3, Cmat2, delrho, npert, ipol, nq, grad, triplet)
+c $Id$
 c      
 c Calculates the 3rd order derivatives of the XC-functional, which are
 c required for evaluating quadratic response functions with TDDFT.  
