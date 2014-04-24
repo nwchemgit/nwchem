@@ -1,4 +1,4 @@
-/* $Id: util_gnxtval.c 19707 2010-10-29 17:59:36Z d3y133 $ */
+/* $Id$ */
 /* routine to avoid 32-bit integer overflow present both in GA and MPI collectives*/
 #include <stdio.h>
 #include <math.h>
