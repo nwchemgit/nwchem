@@ -12,14 +12,14 @@ void FATR
 util_getppn_(Integer *ppn_out){
 
         const int mxlen = 255;
-	char myhostname[mxlen],hostname_rcv[mxlen];
+	char myhostname[mxlen];
         char* recvbuf;
         int i, num_procs, me,  err, len, result ,modppn;
-	int ppn=0, lenbuf;
-	int size_group=SIZE_GROUP;
-	MPI_Group wgroup_handle,group_handle;
-	MPI_Comm group_comm;
-	int ranks[SIZE_GROUP];
+        int ppn=0, lenbuf;
+        int size_group=SIZE_GROUP;
+        MPI_Group wgroup_handle,group_handle;
+        MPI_Comm group_comm;
+        int ranks[SIZE_GROUP];
 
 	ppn=0;
 	num_procs = GA_Nnodes();
@@ -34,7 +34,7 @@ util_getppn_(Integer *ppn_out){
 	  GA_Error("util_getppn error", 0L);
 	}
 
-	for (i=0; i< size_group; i++)ranks[i]=i;
+	for (i=0; i< size_group; i++) ranks[i]=i;
 
 	/* create new group of size size_group */
 	err=MPI_Group_incl(wgroup_handle, size_group, ranks, &group_handle);
@@ -42,8 +42,6 @@ util_getppn_(Integer *ppn_out){
 	  fprintf(stderr,"util_getppn: MPI_Group_incl failed\n");
 	  GA_Error("util_getppn error", 0L);
 	}
-
-
 	
 	/* Create new new communicator for the newly created group */
 	err=MPI_Comm_create(MPI_COMM_WORLD, group_handle, &group_comm);
@@ -71,8 +69,7 @@ util_getppn_(Integer *ppn_out){
 	  
 	  
 	  for (i=0; i< size_group; i++){
-	    strcpy (hostname_rcv, &recvbuf[mxlen*i]);
-	    if(strcmp(myhostname,hostname_rcv)==0) ppn++;
+	    if(strcmp(myhostname,&recvbuf[mxlen*i])==0) ppn++;
 	  }
 
 	  /*	  free malloc'ed memory */
