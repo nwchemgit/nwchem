@@ -287,8 +287,11 @@ ifdef DISABLE_GAMIRROR
   DEFINES += -DDISABLE_GAMIRROR
 endif
 
+ifdef USE_NOIO
+  DEFINES += -DNOFSCHECK
+endif
 ifdef USE_NOFSCHECK
-  DEFINES += -DNOIO
+  DEFINES += -DNOFSCHECK
 endif
 
 include ../config/makelib.h
