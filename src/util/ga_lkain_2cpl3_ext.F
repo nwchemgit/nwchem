@@ -7139,8 +7139,8 @@ c --> Experimental (not published yet)
       logical debug
       integer i,iter,ipm,cc,n,ncomp,
      &        l_dat,k_dat
-      double precision g_re(ncomp),g_im(ncomp),
-     &                 rmax
+      integer g_re(ncomp),g_im(ncomp)
+      double precision rmax
       external ga_maxelt
       n=2*ncomp
       if (.not.MA_Push_Get(mt_dbl,n,'hessv jfacs',l_dat,k_dat))
