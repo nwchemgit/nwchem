@@ -90,7 +90,7 @@ c                               ! cursor if failed
               call errquit(' xc_inp - functional description ',0,
      &                     INPUT_ERR)
             else
-              write(LuOut,*)' Want to add nothing???',olocal,ononlocal
+              write(LuOut,*)' Want to add nothing?',olocal,ononlocal
               call errquit(' xc_inp - functional description ',0,
      &                     INPUT_ERR)
             endif
