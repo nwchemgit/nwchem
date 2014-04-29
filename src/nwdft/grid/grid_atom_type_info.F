@@ -15,9 +15,9 @@ c
 c
       double precision BSrad(105)
       double precision ictr_coord(3), ictr_chg
-      double precision autoang, angtoau, eps
+      double precision autoang, angtoau, EPS
       parameter (autoang = 0.529177249d0, angtoau = 1.d0/autoang)
-      parameter (eps = 1.d-20)
+      parameter (EPS = 1.d-20)
       integer itype, ictr, iaz, i_atomic_number, icenter, jcenter
 c
       integer lcoord, icoord, lcharge, icharge, ltags, itags,iptr
@@ -212,7 +212,7 @@ c
             endif
 c
             if (i_atomic_number.ne.0)then ! not ghost atom
-            ityp2ctr(itype)=ictr
+               ityp2ctr(itype)=ictr
 c
                bsrad_atom_type(itype) = BSrad(i_atomic_number)*ANGTOAU
                if (bsrad_atom_type(itype).lt.EPS)then ! no radius found for atom
@@ -224,7 +224,7 @@ c
      &               ' Undefined atomic radius '
                   write(LuOut,*)' for atom type', itype
                   call errquit('Exiting in grid_atom_type_info.',1,
-     &       UNKNOWN_ERR)
+     &                UNKNOWN_ERR)
                endif
             else ! atomic number zero; charged ghost atom 
                bsrad_atom_type(itype) = EPS
