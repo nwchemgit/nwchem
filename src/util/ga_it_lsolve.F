@@ -100,7 +100,8 @@ c
       bnorm = sqrt(ga_ddot(g_b, g_b))
       prod_acc = bnorm / sqrt(dble(n))
 *     call ga_maxelt(g_b, prod_acc)
-      prod_acc = prod_acc * tol * 0.001d0
+cold      prod_acc = prod_acc * tol * 0.001d0
+      prod_acc = prod_acc * tol * 0.00001d0
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,1) tol, prod_acc
