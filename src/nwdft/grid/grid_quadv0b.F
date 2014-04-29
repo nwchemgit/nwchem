@@ -244,7 +244,7 @@ c
      &        qxyz,qwght,ttau,
      &        natoms,xyz,
      &        dbl_mb(ixdm_v),dbl_mb(ixdm_ml))
-      else                                                                             
+      else
 
       do_3rd = do_gxc  ! need 3rd derivatives ?
 c Daniel (2-7-13): The last false in this call is used to initiallize
@@ -275,7 +275,7 @@ c
 c     
          if(do_scf) then
 c
-         if (odftps) call pstat_on(ps_tabcd)
+            if (odftps) call pstat_on(ps_tabcd)
 
             call xc_tabcd(0,l3d,
      &        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
@@ -289,7 +289,7 @@ c
      &        rdens_atom, cetobfr,
      &        kske,Mmat,0d0)
 
-         if (odftps) call pstat_off(ps_tabcd)
+            if (odftps) call pstat_off(ps_tabcd)
 c
          else if (do_nmrks_r) then
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
@@ -458,7 +458,7 @@ c
         r_arg=0d0
         if (rad_quad.lt.r2) r_arg = (r2-rad_quad)
 c
-c     check on most diffuse fn
+c       check on most diffuse fn
 c
         veryfar=r_arg.gt.gaussian_range(ldiff(ictr),acc_loc,
      .       minexp(ictr)) 
@@ -469,70 +469,71 @@ c
            npt=npt+nshbf
         else
     
-        r_q0=1d10
-        do n=1,nq
-          x = qxyz(1,n) - xyz(1,ictr)
-          y = qxyz(2,n) - xyz(2,ictr)
-          z = qxyz(3,n) - xyz(3,ictr)
-          r_q0 = min(r_q0,sqrt(x*x + y*y + z*z))
-        enddo
-        do icset = ic1,ic2
-           docset(icset) = .false.
+           r_q0=1d10
+           do n=1,nq
+             x = qxyz(1,n) - xyz(1,ictr)
+             y = qxyz(2,n) - xyz(2,ictr)
+             z = qxyz(3,n) - xyz(3,ictr)
+             r_q0 = min(r_q0,sqrt(x*x + y*y + z*z))
+           enddo
+           do icset = ic1,ic2
+              docset(icset) = .false.
 c         
-c       get info about current contraction set
+c             get info about current contraction set
 c       
-          if (.not. bas_continfo(basis_hand, icset,  l_in ,nprim,
-     &         ncontr, isphere))
-     &         call errquit('Exiting in grid_nbfm.',5, BASIS_ERR)
-cfix for sps
-          if(ncontr.eq.2) then
-             l0(1)=0
-             l0(2)=1
-          else
-             l0(1)=l_in
-          endif
+              if (.not. bas_continfo(basis_hand, icset,  l_in ,nprim,
+     &            ncontr, isphere))
+     &            call errquit('Exiting in grid_nbfm.',5, BASIS_ERR)
+c             fix for sps
+              if(ncontr.eq.2) then
+                 l0(1)=0
+                 l0(2)=1
+              else
+                 l0(1)=l_in
+              endif
 c         
 c       
-c       get exponents and contraction coefficients for this contraction set
+c             get exponents and contraction coefficients for this
+c             contraction set
 c       
-        if (.not.bas_get_exponent(basis_hand, icset, zprim))
-     &       call errquit('Exiting in grid_nbfm.',7, BASIS_ERR)
+              if (.not.bas_get_exponent(basis_hand, icset, zprim))
+     &             call errquit('Exiting in grid_nbfm.',7, BASIS_ERR)
 c       
-c       Determine the minimum Gaussian exponent.
+c             Determine the minimum Gaussian exponent.
 c       
 
-        zmin = 1.D+06
-        do iprimo = 1,nprim
-          zmin = min(zprim(iprimo),zmin)
-        enddo
-        do icontr=1,ncontr
-           l=l0(icontr)
+              zmin = 1.D+06
+              do iprimo = 1,nprim
+                zmin = min(zprim(iprimo),zmin)
+              enddo
+              do icontr=1,ncontr
+                 l=l0(icontr)
 c       
-c       Only include those basis functions that are "non-zero" for at least 
-c       one  point in the sampling set.
+c                Only include those basis functions that are "non-zero"
+c                for at least one point in the sampling set.
 c       
-        nshbf=(((l+1)*(l+2))/2)
-        if(isphere.eq.1) then
-           nshbf=(2*l+1)
-        endif
+                 nshbf=(((l+1)*(l+2))/2)
+                 if(isphere.eq.1) then
+                    nshbf=(2*l+1)
+                 endif
 c
-c     pre-screening for worst case (max radius)
+c                pre-screening for worst case (max radius)
 c
-        if (r_q0.lt.gaussian_range(l0(ncontr),acc_loc,zmin)) then
-cold        if (r_q0.lt.gaussian_range(l,acc_loc,zmin)) then
-                 do m=1,nshbf
-                    ibf(n1+m ) = npt+m
-                 enddo
-                 docset(icset) = .true.
-                 if (iniz(ictr).eq.0) iniz(ictr)=n1+1
-                 n1=n1+nshbf
-              endif
-        npt=npt+nshbf
-      enddo
-      enddo
+                 if (r_q0.lt.gaussian_range(l0(ncontr),acc_loc,zmin))
+     &           then
+                       do m=1,nshbf
+                          ibf(n1+m ) = npt+m
+                       enddo
+                       docset(icset) = .true.
+                       if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+                       n1=n1+nshbf
+                 endif
+                 npt=npt+nshbf
+              enddo
+           enddo
 c           
-        ifin(ictr)= n1
-      endif
+           ifin(ictr)= n1
+        endif
 c
   400 continue
 c
