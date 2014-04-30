@@ -28,18 +28,24 @@
 #endif
 *
       end
-      integer function util_nwcnumthreads()
+      integer function util_nwcnumthreads(rtdb)
       implicit none
+#include "rtdb.fh"      
+      integer rtdb
       character*20 env_value 
       integer nnn,num_devices
 #define RANKS_PER_DEVICE 2
-      external util_mic_get_num_devices
-      integer*4 util_mic_get_num_devices
 c
 #ifdef   defined(USE_OPENMP) && defined(USE_OFFLOAD)
+      external util_mic_get_num_devices
+      integer*4 util_mic_get_num_devices
       num_devices=util_mic_get_num_devices()
+#elif defined(TCE_CUDA)
+      if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,num_devices))
+     C     num_devices=0
 #else
-      num_devices=1
+      num_devices=0
+      call errquit(' util_nwcnumthreads: used for coprocessors',0,0)
 #endif
       call util_getppn(nnn)
       util_nwcnumthreads=nnn/RANKS_PER_DEVICE/
