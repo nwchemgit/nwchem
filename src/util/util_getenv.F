@@ -31,21 +31,19 @@
       integer function util_nwcnumthreads()
       implicit none
       character*20 env_value 
+      integer nnn,num_devices
+#define RANKS_PER_DEVICE 2
       external util_mic_get_num_devices
       integer*4 util_mic_get_num_devices
-      integer nnn
-#define RANKS_PER_DEVICE 2
 c
-#if 0
-      call getenv('NWC_NUM_THREADS',env_value)
-cdebug      write (0,*) ' val ',env_value
-      read (env_value,'(I20)') nnn
-      util_nwcnumthreads=nnn
+#ifdef   defined(USE_OPENMP) && defined(USE_OFFLOAD)
+      num_devices=util_mic_get_num_devices()
 #else
+      num_devices=1
+#endif
       call util_getppn(nnn)
       util_nwcnumthreads=nnn/RANKS_PER_DEVICE/
-     D     util_mic_get_num_devices()
-#endif
+     D     num_devices
       return
       end
       logical function offload_master()
