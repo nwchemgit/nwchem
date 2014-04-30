@@ -8,6 +8,8 @@
 #include "ga.h"
 #include "typesf2c.h"
 #define SIZE_GROUP 256
+static short int ppn_initialized=0;
+static int ppn=0;
 void FATR
 util_getppn_(Integer *ppn_out){
 
@@ -15,13 +17,16 @@ util_getppn_(Integer *ppn_out){
 	char myhostname[mxlen];
         char* recvbuf;
         int i, num_procs, me,  err, len, result ,modppn;
-        int ppn=0, lenbuf;
+        int lenbuf;
         int size_group=SIZE_GROUP;
         MPI_Group wgroup_handle,group_handle;
         MPI_Comm group_comm;
         int ranks[SIZE_GROUP];
 
-	ppn=0;
+	if(ppn_initialized) {
+  	  *ppn_out = (long) ppn;
+
+	}else{
 	num_procs = GA_Nnodes();
 	me = GA_Nodeid();
 	
@@ -110,7 +115,7 @@ util_getppn_(Integer *ppn_out){
 	  printf(" ERROR: numprocs %d  ppn %d  mod %d\n", num_procs, ppn,  modppn);
 	  GA_Error("number of processors in not a multiple of ppn", 0L);
           }
-
+	  ppn_initialized=1;
 	  *ppn_out = (long) ppn;
-
+	}
 } 
