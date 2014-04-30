@@ -31,12 +31,21 @@
       integer function util_nwcnumthreads()
       implicit none
       character*20 env_value 
+      external util_mic_get_num_devices
+      integer*4 util_mic_get_num_devices
       integer nnn
+#define RANKS_PER_DEVICE 2
 c
+#if 0
       call getenv('NWC_NUM_THREADS',env_value)
 cdebug      write (0,*) ' val ',env_value
       read (env_value,'(I20)') nnn
       util_nwcnumthreads=nnn
+#else
+      call util_getppn(nnn)
+      util_nwcnumthreads=nnn/RANKS_PER_DEVICE/
+     D     util_mic_get_num_devices()
+#endif
       return
       end
       logical function offload_master()
@@ -65,13 +74,12 @@ c
       integer util_nwcnumthreads
 c                                                                               
       integer numdevs
+      integer*4 util_mic_get_device
+      external util_mic_get_device
 c                                                                               
       if(.not.offload_master()) call errquit(
      A     ' need to be offload master',0,0)
-      numdevs=offload_number_of_devices()
-c      mic_device=offload_get_device_number()
-      util_micdev=mod(ga_nodeid()/util_nwcnumthreads(),
-     C     numdevs)
+      util_micdev=util_mic_get_device()
 #else
       util_micdev=-1
       call errquit(' micdev: wrong installation',0,0)
