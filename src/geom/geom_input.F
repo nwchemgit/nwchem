@@ -6998,6 +6998,7 @@ c
  44      format(/,'!! warning, imposition of constraints did not',
      $        ' converge.  dqmax=',1p,d8.1)
       endif
+      call errquit('geom_impose_constraints: failure',0,GEOM_ERR)
 c     
  100  if (.not. ma_chop_stack(l_bi))
      $     call errquit('opt_int_to_cart: ma chop', 0, MA_ERR)
