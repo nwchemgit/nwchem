@@ -109,6 +109,13 @@ c
 c     
       logical oprint, status
       double precision Exc(2), rms(2), derr(2)
+      double precision Exc2(2)
+      double precision exch0,exch0r,exch0i
+      double precision exchZ,exchZr,exchZi
+      double precision exchX,exchXr,exchXi
+      double precision exchY,exchYr,exchYi
+      double precision edftxc(2),edftxcs,edftxcd
+      double precision exchtot
       integer nmo(2), icall(2)
 c      integer nva
       integer n3c_dbl, n3c_int, n_batch
@@ -1087,10 +1094,9 @@ c     Restore SCF parameters
 c     
       call scf_get_fock_param(rtdb, tol2e)
 c     
-c     If open shell put the total density matrix in g_dens(1)
+c     Put the total density matrix in g_dens(1)
 c     
       call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
-c
 c     
 c     Call to Mulliken Pop Analysis for initial density
 c     
@@ -1099,18 +1105,18 @@ c
      &        (' Total Density - Mulliken Population Analysis')
          call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
 c     
-c     analysis of spin density
+c        analysis of spin density
 c     
          if (me.eq.0) call dft_header
      &        (' Spin Density - Mulliken Population Analysis')
          call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
          call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'spin') 
 c     
-c     restore beta density in g_dens(2)
+c        restore beta density in g_dens(2)
 c     
          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
          call ga_dscal(g_dens(2),0.5d0)
-      endif
+      endif  ! mulliken
  
       iter = 1 
  
@@ -1128,7 +1134,6 @@ cso   ma for complex diagonalizer
       if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
      &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
 cso
-cso     
 c     
 c     Top of infinite SCF iteration loop
 c
@@ -1154,6 +1159,9 @@ c
 c
       det_eng = .false. 
       idet = 0 
+c
+c     SCF loop
+c
  1000 continue   ! top of the scf loop
 
       if (me.eq.0 .and. oprint_conv_details)
@@ -1167,7 +1175,7 @@ c
       Ecoul  = ZERO
       Exc(1) = ZERO
       Exc(2) = ZERO
-
+c
       call ga_zero(g_fockso(1))
       call ga_zero(g_fockso(2))
 c     
@@ -1176,69 +1184,93 @@ c     compute core energy
 c     
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
-c
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
       call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
-cso
-cso   Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1) 
-cso   <Hsf> = Re(Dsf) dot T+Vsf 
+c
+c     Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1), Re(Dbb) = g_dens(2)
+c     <Hsf> = Re(Dsf) dot T+Vsf 
       Ecore = ga_ddot(g_dens(1), g_fock)
-cso  
-cso   Accumulate s.o. contribution to fock matrix 
-cso   
-      noso=Ecore 
+      if (me.eq.0.and.oprint_info)
+     &     write(luout,'(1x,a,e15.7)') "Ecore =", ecore
+c  
+c     Accumulate s.o. contribution to fock matrix 
+c   
       call ga_zero(g_so(1))
       call ga_zero(g_so(2))
       call ga_zero(g_so(3))
-cso
-cso   Calculate the spin-orbit contributions from the ecp
+c
+c     Calculate the spin-orbit contributions from the ecp
       if( .not. do_zora .and. .not. do_purescalar) then
          call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
          call ga_scale(g_so(1),dble(0.5d0))  ! z
          call ga_scale(g_so(2),dble(0.5d0))  ! y
          call ga_scale(g_so(3),dble(0.5d0))  ! x
-cso
-cso   Add in the s.o. contribution to the fock matrix
+c
+c        Add in the s.o. contribution to the fock matrix
          call ga_fock_so(g_so, g_fockso, nbf_ao)
       end if
-cso  
-cso   Accumulate z-component s.o. contribution
-cso   Re(Dz)=-Im(Daa)+Im(Dbb) 
-cso   <Hz>=Re(Dz) dot Vz 
-cso   
+c
+c     Calculate one-electron energy terms
+c  
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(1)) 
-!     write(*,*)"Ecore+=so(z)", ecore
-cso
-c     == add in the spin-orbit zora contribution (z) ==
-      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(1))
-cso  
-cso   Accumulate y-component s.o. contribution 
-cso   Re(Dy)=Re(Dab)-Re(Dba) 
-cso   <Hy>=Re(Dy) dot Vy 
-cso   
+c
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(2)) 
-!     write(*,*)"Ecore+=so(y)", ecore
-cso
-c     == add in the spin-orbit zora contribution (y) ==
-      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(2))
-cso  
-cso   Accumulate x-component s.o. contribution 
-cso   Re(Dx)=-Im(Dab)-Im(Dba) 
-cso   <Hx>=Re(Dx) dot Vx 
-cso
+c
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
-!     write(*,*)"Ecore+=so(x)", ecore
-cso
-c     == add in the spin-orbit zora contribution (x) ==
-      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(3))
-cso
-       noso = Ecore-noso 
+c
+c     Restore alpha and beta densities 
+c     g_dens(1) = Re(Daa), g_dens(2) = Re(Dbb)
+      call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
+c
+      if (do_zora) then
+       call ga_zero(g_tmp) 
+       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
+       Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(1))
+c
+       call ga_zero(g_tmp) 
+       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
+       Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(2))
+c
+       call ga_zero(g_tmp) 
+       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
+       Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(3))
+c
+       Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+     &     + ga_ddot(g_dens(2),g_zora_sf(2))
+       Ecore = Ecore + Ezora_sf
+       if (me.eq.0.and.oprint_info)
+     &     write(luout,'(1x,a,e15.7)') "Ecore+SC+SO(z+y+x) =", ecore
+c
+       call ga_zero(g_vxc(1))
+       call ga_zero(g_vxc(2))
+       call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
+       call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+c
+c      == patch scalar zora parts into Fock matrix ==
+       call ga_sync()
+       call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao,
+     &     1, nbf_ao,
+     &     1.0d0, g_vxc(1),  1, nbf_ao,
+     &     1, nbf_ao,
+     &     g_fockso(1), 1, nbf_ao,
+     &     1, nbf_ao)
+       call ga_dadd_patch( 1.d0, g_fockso(1), 1+nbf_ao, nbf_mo,
+     &     1+nbf_ao, nbf_mo,
+     &     1.0d0, g_vxc(2),  1, nbf_ao,
+     &     1, nbf_ao,
+     &     g_fockso(1), 1+nbf_ao, nbf_mo,
+     &     1+nbf_ao, nbf_mo)
+c
+c      == patch in spin-orbit zora part ==
+       call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
+c
+      end if ! do_zora
 c
 c     Pre-compute reduced total density matrices over atoms
 c 
@@ -1273,29 +1305,10 @@ c
      &        n_semi_bufs, fd, IOLGC, 
      .        natoms,
      &        .false., 0d0, .false.)
-      endif  ! cdfit
-c     
-      if (oprint_time)
-     &     call dft_tstamp(' Before call to GETVCOUL.')
-      call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul,
-     &     g_tmp, iVcoul_opt, n_batch, 
-     &     n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
-     &     n_semi_bufs, fd, IOLGC,
-     &     .false., 1)
-c     
-c     Add V coul to Fock Matrix
-c     
-cso   call ga_dadd(one, g_tmp, one, g_fock, g_fock)
-      call ga_fock_sf(g_tmp, g_fockso(1), nbf_ao) 
-      if (CDFIT)then
          if (.not.ma_pop_stack(lcd_coef))
      &        call errquit('dft_scf: cannot pop stacklcd_coef',0,
      &       MA_ERR)
-      endif
-c     
-c     Restore alpha and beta densities.
-c     
-      call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
+      endif  ! cdfit
 c     
 c     Note that g_dens(1) now contains the alpha density
 c     matrix and g_dens(2) contains the beta
@@ -1319,64 +1332,94 @@ c
       rho_n = 0.0d0
       call ga_zero(g_vxc(2))
 c
-c     == attenuation ==
-      if (cam_exch) call case_setflags(.true.) ! set attenuation
-c
-      if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-      call xc_getv
-     &   (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
-     &   g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &   dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
-c     write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
+c     == Coulomb part ==
+      ecoul = 0.d0
+      if (cam_exch) call case_setflags(.false.) ! unset attenuation for coulomb
+      call getv_coul(rtdb, ecoul, g_densso, g_fockso, g_vxc)
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,e15.7)')
+     &   "ECoul =", ecoul
 c
 c     == attenuation ==
-      if (cam_exch) call case_setflags(.false.) ! unset attenuation if set
+      if (cam_exch) call case_setflags(.true.) ! set attenuation, if needed
 c
-c     == add in zora contributions ==
-      if (do_zora) then
+c     == Exchange part ==
+c     == D0 ==
+      exch0r = 0.d0
+      exch0i = 0.d0
+      exch0 = 0.d0
+      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exch0"
+      call getv_exch0(rtdb, exch0r, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exch0(rtdb, exch0i, g_densso, g_fockso, g_vxc, 'imag')
+      exch0 = exch0r + exch0i
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+     &     "Exch0Re, Exch0I, sum =", exch0r, exch0i, exch0
 c
-c        == calculate scalar energy ==
-         Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
-     &      + ga_ddot(g_dens(2),g_zora_sf(2))
-         Ecore = Ecore + Ezora_sf
+      edftxc(1) = 0.d0
+      edftxc(2) = 0.d0
+      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_dftxc"
+      call getv_dftxc(rtdb, nexc, edftxc, rho_n, g_densso,
+     &         g_fockso, g_vxc, 'none')
 c
-c        == combine scalar part with the xc matrices ==
-         call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
-         call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+c     == DZ ==
+      exchZ = 0.d0
+      exchZr = 0.d0
+      exchZi = 0.d0
+      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exchZ"
+      call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
+      exchZ = exchZr + exchZi
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+     &     "ExchZRe, ExchZI, sum =", exchZr, exchZi, exchZ
 c
-c        == add spin-orbit zora to fock matrix ==
-         call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
-
-      end if  ! do_zora
+c     == DX ==
+      exchX = 0.d0
+      exchXr = 0.d0
+      exchXi = 0.d0
+      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exchX"
+      call getv_exchX(rtdb, exchXr, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exchX(rtdb, exchXi, g_densso, g_fockso, g_vxc, 'imag')
+      exchX = exchXr + exchXi
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+     &     "ExchXRe, ExchXI, sum =", exchXr, exchXi, exchX
 c
-c     == add in the exchange-correlation to the fock matrix ==
-      call ga_sync()
-      call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
-     &     1, nbf_ao, 
-     &     1.0d0, g_vxc(1),  1, nbf_ao, 
-     &     1, nbf_ao,
-     &     g_fockso(1), 1, nbf_ao, 
-     &     1, nbf_ao) 
-      call ga_dadd_patch( 1.d0, g_fockso(1), 1+nbf_ao, nbf_mo, 
-     &     1+nbf_ao, nbf_mo,
-     &     1.0d0, g_vxc(2),  1, nbf_ao, 
-     &     1, nbf_ao,
-     &     g_fockso(1), 1+nbf_ao, nbf_mo, 
-     &     1+nbf_ao, nbf_mo)
-c     
-c     == get the exact exchange contribution ==
-      call xc_exso(rtdb,Exc,Ecoul,nExc,g_densso,g_fockso)
+c     == DY ==
+      exchY = 0.d0
+      exchYr = 0.d0
+      exchYi = 0.d0
+      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exchY"
+      call getv_exchY(rtdb, exchYr, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exchY(rtdb, exchYi, g_densso, g_fockso, g_vxc, 'imag')
+      exchY = exchYr + exchYi
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+     &     "ExchYRe, ExchYI, sum =", exchYr, exchYi, exchY
+c
+c     == tally up exchange energy ==
+      exchtot = exch0 + exchZ + exchX + exchY ! HF exchange
+c
+      if (nexc.eq.1) then       ! don't decompose if nexc = 1
+        Exc(1) = edftxc(1) + edftxc(2) ! dft exchange + correlation
+        Exc(2) = zero
+      else
+        Exc(1) = edftxc(1)      ! exchange
+        Exc(2) = edftxc(2)      ! correlation
+      end if
+c
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+     &   'Etot, Ecoul, Exch =',
+     &   Ecore + Ecoul + exchtot + Exc(1) + Exc(2),
+     &   Ecoul,
+     &   exchtot  + Exc(1) + Exc(2)
 c
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     
 c     Calculate the total electronic energy.
 c     
-      if (nExc.eq.1)then
-         Etnew = Ecore + Ecoul + Exc(1)
+      if (nexc.eq.1)then
+         Etnew = Ecore + Ecoul + exchtot + Exc(1)
          if(det_eng)goto 2001
       else
-         Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
+         Etnew = Ecore + Ecoul + exchtot + Exc(1) + Exc(2)
          if(det_eng)goto 2001
       endif
 c
@@ -1392,8 +1435,7 @@ c     == is this a oneshot "noscf" type calculation, no diagonalization ==
 c
       if (last_time_energy)then
 c     
-c     If open shell put the total density matrix back in 
-c     g_dens(1) and quit.
+c        If open shell put the total density matrix back in  g_dens(1) and quit.
 c     
          call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
          goto 2000

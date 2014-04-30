@@ -18,10 +18,11 @@
 	diis_core_so.o diis_hamwgt_so.o \
 	diis_refvec_so.o  \
 	movecs_anal_so.o \
+	getv_coul.o getv_exch0.o getv_exchX.o getv_exchY.o getv_exchZ.o getv_dftxc.o\
 	sym_mo_adapt_so.o sym_char_tab_so.o scf_sym_adap_so.o \
 	sym_mo_ap_op_so.o sym_op_clsfy_so.o ga_orth_mos_so.o  \
 	ga_orthog_so.o sym_op_cname_so.o grad_dens_so2.o \
-	dft_scf_utils_so.o dft_frac_mo_so.o
+	dft_scf_utils_so.o dft_frac_mo_so.o xc_exso.o
 	OBJ_OPTIMIZE = 
 
      LIBRARY = libnwdft.a
