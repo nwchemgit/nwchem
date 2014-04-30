@@ -1,0 +1,17 @@
+/**
+
+@defgroup stpr Stepper Optimizer
+
+\brief The Stepper Optimizer
+
+This library provides mechanisms for geometry optimization as well
+as some derivatives, such as numerical gradients.
+
+@defgroup stpr_api API
+   @ingroup stpr
+   Stepper routines for external code to call
+@defgroup stpr_priv Private routines
+   @ingroup stpr
+   Stepper routines for internal use only
+
+*/
