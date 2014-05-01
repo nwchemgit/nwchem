@@ -1715,6 +1715,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
          FOPTIONS   = -m64
          COPTIONS   = -m64
        endif
+        COPTIONS += -Wall
         FOPTIONS   += -ffast-math #-Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
         DEFINES  += -DGFORTRAN
