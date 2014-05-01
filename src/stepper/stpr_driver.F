@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_driver(
      &       HESS, GRAD, STEP, VC,
      &       COORD, COOROLD, HIEIGS, GISR,
@@ -112,3 +114,4 @@ C
       CALL stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
       RETURN
       END
+C> @}

@@ -15,6 +15,9 @@
 * stpr_gen_set_diag            ! sets inactive atom diagonal contribs to large value
 *
 c
+C> \ingroup stpr_priv
+C> @{
+C>
       subroutine stpr_fd_upd_dipole(ddipole,mdipole,pdipole,
      &    s_delta,delta,nat,iatom,ixyz,q1)
       implicit none
@@ -41,6 +44,23 @@ c
       enddo
 c
       end
+C>
+C> \brief Update the Hessian from new gradient data
+C>
+C> Apply the finite difference formula to the gradient data provided
+C> to calculate a contribution to and update the Hessian.
+C>
+C> Depending on the values of the parameters `gradm`, `gradp` and
+C> `s_delta` the subroutine will evaluate either the forward difference
+C> equation
+C> \f{eqnarray*}{
+C>    f'(x) &=& \frac{f(x+h)-f(x)}{h}
+C> \f}
+C> or the central difference formula
+C> \f{eqnarray*}{
+C>    f'(x) &=& \frac{f(x+h)-f(x-h)}{2h}
+C> \f}
+C>
       subroutine stpr_fd_upd_hess(rtdb,
      &    hess,gradm,gradp,s_delta,delta,nat,
      &    iatom_t,ixyz_t)
@@ -50,13 +70,20 @@ c
 #include "geom.fh"
 #include "sym.fh"
 c::passed
-      integer rtdb
-      integer nat
-      integer iatom_t, ixyz_t
-      double precision hess(3,nat,3,nat)
-      double precision gradm(3,nat)
-      double precision gradp(3,nat)
-      double precision delta, s_delta
+      integer rtdb                       !< [Input] The RTDB handle
+      integer nat                        !< [Input] The number of atoms
+      integer iatom_t                    !< [Input] The displaced atom
+      integer ixyz_t                     !< [Input] The displaced coordinate
+      double precision hess(3,nat,3,nat) !< [In/Output] The Hessian
+      double precision gradm(3,nat)      !< [Input] The gradient at 
+                                         !< negative (or no) displacement
+      double precision gradp(3,nat)      !< [Input] The gradient at 
+                                         !< positive displacement
+      double precision delta             !< [Input] The step size
+      double precision s_delta           !< [Input] The scale factor
+                                         !< for total displacement
+                                         !< * 1 - for forward difference
+                                         !< * 2 - for central difference
 c::local
       integer geom
       integer iatom,ixyz
@@ -170,6 +197,16 @@ c
       close(unit=lu,status='keep')
 c
       end
+C>
+C> \brief Check and retrieve restart data
+C>
+C> Check the runtime database for the state of the calculation
+C> and report back whether this calculation needs to be restarted
+C> or not.
+C>
+C> \return Returns .TRUE. if the calculation needs to be restarted,
+C> and .FALSE. otherwise.
+C>
       logical function stpr_check_genat_restart(
      &    rtdb, iatom_start,ixyz_start)
       implicit none
@@ -180,9 +217,10 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "cstprfiles.fh"
-      integer rtdb
-      integer iatom_start
-      integer ixyz_start
+      integer rtdb        !< [Input] The RTDB handle
+      integer iatom_start !< [Output] The atom to start from
+      integer ixyz_start  !< [Output] The atomic coordinate to start
+                          !< from
 c
       integer int_restart
       integer rank, ijunk1, ijunk2
@@ -236,6 +274,11 @@ c
      &      int_restart, INPUT_ERR)
       endif
       end
+C>
+C> \brief Load the restart information
+C>
+C> Load the data needed for restarting a Hessian calculation. 
+C>
       subroutine stpr_get_genat_restart(rank_in,hess,grad0,get_grad0,
      &    dipole_okay,ddipole)
       implicit none
@@ -244,12 +287,19 @@ c
 #include "stdio.fh"
 #include "util.fh"
 #include "cstprfiles.fh"
-      integer rank_in
-      double precision hess(rank_in,rank_in)
-      double precision grad0(rank_in)
-      double precision ddipole(3*rank_in)
-      logical get_grad0
-      logical dipole_okay
+      integer rank_in    !< [Input] The dimension of the Hessian
+      double precision hess(rank_in,rank_in) !< [Output] The Hessian
+      double precision grad0(rank_in)        !< [Output] The gradient
+      double precision ddipole(3*rank_in)    !< [Output] The dipole
+                                             !< derivative
+      logical get_grad0    !< [Input] Should the gradient be loaded
+                           !< * `.TRUE.` - load the gradient
+                           !< * `.FALSE.` - do not load the gradient
+      logical dipole_okay  !< [Output] Is the dipole derivative returned
+                           !< * `.TRUE.` - The dipole derivative is 
+                           !< returned
+                           !< * `.FALSE.` - The dipole derivative is 
+                           !< not returned
 c
       logical does_it_exist
       integer ijunk1, ijunk2, rank, iflag_grad0
@@ -305,6 +355,11 @@ c
      &      'information read '
       endif
       end
+C>
+C> \brief Store the restart data
+C>
+C> Write the restart data to a file.
+C>
       subroutine stpr_put_genat_restart(rank,hess,grad0,
      &    iatom_in,ixyz_in,nat,put_grad0,
      &    dipole_okay,ddipole)
@@ -314,13 +369,16 @@ c
 #include "stdio.fh"
 #include "util.fh"
 #include "cstprfiles.fh"
-      integer rank
-      integer iatom_in, ixyz_in, nat
-      double precision hess(rank,rank)
-      double precision grad0(rank)
-      double precision ddipole(3*rank)
-      logical put_grad0
-      logical dipole_okay
+      integer rank  !< [Input] The dimension of the Hessian
+      integer iatom_in !< [Input] The current atom
+      integer ixyz_in  !< [Input] The current atomic coordinate
+      integer nat      !< [Input] The number of atoms
+      double precision hess(rank,rank) !< [Input] The Hessian
+      double precision grad0(rank)     !< [Input] The gradient
+      double precision ddipole(3*rank) !< [Input] The dipole derivative
+      logical put_grad0    !< [Input] Should the gradient be stored?
+      logical dipole_okay  !< [Input] Should the dipole derivative be
+                           !< stored?
 c
       integer iatom_start, ixyz_start
       integer iflag_grad0
@@ -332,7 +390,7 @@ c
       endif
 c
       if(iatom_in.eq.nat.and.ixyz_in.eq.3) then
-        call util_file_unlink(fileatr)
+        call util_file_unlink(FILEATR)
         return
       endif
       iatom_start = iatom_in
@@ -350,7 +408,7 @@ c
       else
         iflag_grad0 = 0
       endif
-      call util_file_unlink(fileatr)
+      call util_file_unlink(FILEATR)
       open(unit=69,file=FILEATR,
      &    form='unformatted',
      &    access='sequential',
@@ -532,3 +590,5 @@ c
 10002 format(1x,'d_dipole_',a1,'/<atom=',i4,',',a1,'> = ',
      &    f10.4,5x,'[',f10.4,']')
       end
+C>
+C> @}

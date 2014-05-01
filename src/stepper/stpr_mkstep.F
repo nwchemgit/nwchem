@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_mkstep(
      &       HIEIGS,GISR,VC,STEP,SELECT,SCRVEC,ATMASS,
      &       ENERGY, CONVGE, CONVGG, CONVGGM, GRAD_MAX,
@@ -481,3 +483,4 @@ c
       endif
 c
       end
+C> @}

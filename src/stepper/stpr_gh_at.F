@@ -1,3 +1,11 @@
+C> \ingroup stpr_api
+C> @{
+C>
+C> \brief Generate the Hessian by finite differences
+C>
+C> This routine generates the Hessian by finite differences at the
+C> current geometry and using the default basis set.
+C>
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 #include "errquit.fh"
@@ -24,8 +32,8 @@ c::   functions
       logical stpr_check_genat_restart
       external stpr_check_genat_restart
 c::   passed
-      integer rtdb
-      double precision delta
+      integer rtdb           !< [Input] The RTDB handle
+      double precision delta !< [Input] Step size of finite displacements
 c::   local
       integer i
       integer ma_type
@@ -913,6 +921,10 @@ c
       stpr_gen_hess_at = .true.
       call ga_sync()
       end
+C>
+C> @}
+C> \ingroup stpr_priv
+C> @{
       subroutine stpr_ghat_set_active(rtdb,iatom)
       implicit none
 #include "errquit.fh"
@@ -1064,3 +1076,5 @@ c
       enddo
       return
       end
+C>
+C> @}

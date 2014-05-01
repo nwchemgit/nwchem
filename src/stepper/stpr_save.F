@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_SAVE(HESS,GRAD,COORD,ENERGY,IERR)
 c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
@@ -275,3 +277,4 @@ C
 #endif
       RETURN
       END
+C> @}

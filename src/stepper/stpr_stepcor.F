@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,
      &    CONVGE,CONVGG,CONVGGM,
      &    cnvgrd, rtdb, step_number)
@@ -165,3 +167,4 @@ C
       E2PRED = E2NEW
       RETURN
       END
+C> @}

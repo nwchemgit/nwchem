@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_cheker(
      &       ENERGY,EOLD,E2OLD,EDIFF,
      &       GMXMUM,GLNGTH,ERATIO,
@@ -136,3 +138,4 @@ C
       ENDIF
       RETURN
       END
+C> @}

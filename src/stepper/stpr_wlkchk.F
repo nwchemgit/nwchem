@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_wlkchk(ENEW,CONVGE,BCKSTP,NMODE)
 c $Id$
 C
@@ -156,3 +158,4 @@ c          ENDIF
       ENDIF
       RETURN
       END
+C> @}

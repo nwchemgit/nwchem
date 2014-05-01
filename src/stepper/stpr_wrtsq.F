@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_wrtsq (IUNIT,A,LEN,IERR)
 c $Id$
       INTEGER LEN, IUNIT, IERR
@@ -13,3 +15,4 @@ c $Id$
       IERR = 1
       RETURN
       END
+C> @}

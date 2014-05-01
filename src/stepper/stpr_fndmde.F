@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_fndmde(STEP,SELECT,VC,NINTER,NAT3,NMODE)
 c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
@@ -124,3 +126,4 @@ c      CALL stpr_matout(VC(1,NMODE),3,NATOM,3)
  1000 FORMAT('  eigenvector: ',I2,' has overlap: ',F12.7)
  1010 FORMAT('  eigenvector: ',I2,' defines NMODE ')
       END
+C> @}

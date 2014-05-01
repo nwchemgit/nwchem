@@ -1,3 +1,5 @@
+C> \ingroup stpr_api
+C> @{
       subroutine stepper_input(rtdb)
 C $Id$
       implicit none
@@ -242,6 +244,7 @@ c
 c
       return
       end
+C> @}
 *needs a fix via geom mass interface:rak:      subroutine stpr_parse_setmass(nat,imass,mass)
 *needs a fix via geom mass interface:rak:      implicit none
 *needs a fix via geom mass interface:rak:#include "mafdecls.fh"
@@ -296,6 +299,8 @@ c
 *needs a fix via geom mass interface:rak: 2    continue
 *needs a fix via geom mass interface:rak:c
 *needs a fix via geom mass interface:rak:      end
+C> \ingroup stpr_priv
+C> @{
       integer function stpr_get_nat(rtdb)
       implicit none
 #include "errquit.fh"
@@ -345,3 +350,4 @@ c
       enddo
 c
       end
+C> @}

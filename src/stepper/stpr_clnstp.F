@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_clnstp(STEP,THRES)
 c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
@@ -12,3 +14,4 @@ c $Id$
    10 CONTINUE
       RETURN
       END
+C> @}

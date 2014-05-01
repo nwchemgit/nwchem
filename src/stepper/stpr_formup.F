@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_formup(HESS,GRADC,GRADD,COORDC,COORDD,SCR,rtdb)
 c $Id$
 C
@@ -93,3 +95,4 @@ C
 *debug:      enddo
       RETURN
       END
+C> @}

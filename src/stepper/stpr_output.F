@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad,
      &                       convggm, convgg, convge )
 c     $Id$
@@ -114,3 +116,4 @@ C
  1018 FORMAT('  ',20('-'),' Current step ',21('-'))
  1019 FORMAT('  STEP:',12x,'X',14x,'Y',14x,'Z')
       END
+C> @}

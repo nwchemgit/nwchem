@@ -1,3 +1,6 @@
+C> \ingroup stpr_api
+C> @{
+C>
       integer function stpr_walk(rtdb)
 c     $Id$
       implicit none
@@ -305,6 +308,11 @@ c
       icalc = 0
 c
       end
+C>
+C> @}
+C> \ingroup stpr_priv
+C> @{
+C>
       subroutine stpr_new_geom_name(new_geom_name, step_number)
       implicit none
 c
@@ -387,3 +395,5 @@ c
       call movecs_ecce_print_on()
 c
       end
+C>
+C> @}

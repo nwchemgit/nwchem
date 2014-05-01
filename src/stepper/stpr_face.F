@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       subroutine stpr_select_grtdb(nat,rtdb,selbuf)
       implicit none
 #include "errquit.fh"
@@ -715,3 +717,4 @@ c
       data icalc /0/
 c
       end
+C> @}

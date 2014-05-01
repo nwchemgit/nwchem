@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
 c     $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
@@ -72,3 +74,4 @@ C
  1003 FORMAT('  ',16('-'),' Converged coordinates ',16('-'))
  1004 FORMAT('  ',19('-'),' Shifted coordinates ',19('-'))
       END
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_chkhess(HESS)
 c $Id$
 C
@@ -33,3 +35,4 @@ C
       END IF
       RETURN
       END
+C> @}

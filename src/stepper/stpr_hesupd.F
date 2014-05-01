@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_hesupd ( STEP, GRAD, HESIAN, SCR )
 c $Id$
 C
@@ -101,3 +103,4 @@ C
       ENDIF
       RETURN
       END
+C> @}

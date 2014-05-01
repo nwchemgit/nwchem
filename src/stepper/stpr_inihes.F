@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_inihes ( HESIAN,rtdb )
 c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
@@ -111,4 +113,4 @@ c
 *debug:      enddo
       RETURN
       END
-      
+C> @}

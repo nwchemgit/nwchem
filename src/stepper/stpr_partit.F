@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       SUBROUTINE stpr_partit(rtdb,
      &       HESS, GRAD, COORD, HIEIGS, GISR, VC, SCRSYM,
      &       SCRSQ, VECSQ, STEP, SELECT, P, HMP,
@@ -768,3 +770,4 @@ C
  1002 FORMAT('  ',9('-'),' Hessian eigenvectors (3N-(6 ',
      &          ' or 5)) ',9('-'))
       END
+C> @}

@@ -1,3 +1,5 @@
+C> \ingroup stpr_priv
+C> @{
       subroutine distan(nat,coord)
 C     $Id$
       implicit none
@@ -71,3 +73,4 @@ c.....................................................................
      +     (coord(3,at1)-coord(3,at2))**2 
       return        
       end
+C> @}
