@@ -49,6 +49,9 @@ c
       num_devices=0
       call errquit(' util_nwcnumthreads: used for coprocessors',0,0)
 #endif
+#ifndef RANKS_PER_DEVICE 
+#define RANKS_PER_DEVICE 1
+#endif
       call util_getppn(nnn)
       util_nwcnumthreads=nnn/RANKS_PER_DEVICE/
      D     num_devices
