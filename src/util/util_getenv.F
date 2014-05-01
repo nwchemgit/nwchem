@@ -28,10 +28,8 @@
 #endif
 *
       end
-      integer function util_nwcnumthreads(rtdb)
+      integer function util_nwcnumthreads()
       implicit none
-#include "rtdb.fh"      
-      integer rtdb
       character*20 env_value 
       integer nnn,num_devices
 c
@@ -42,10 +40,9 @@ c
       num_devices=util_mic_get_num_devices()
 #elif defined(TCE_CUDA)
 #define RANKS_PER_DEVICE 1
-      if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,num_devices))
-     C     num_devices=0
+      num_devices=1
+C need c2F wrapper for cudaGetDeviceCount
 #else
-!#warning ndev=0
       num_devices=0
       call errquit(' util_nwcnumthreads: used for coprocessors',0,0)
 #endif
@@ -68,7 +65,7 @@ c
       offload_master=.false.
       nn=util_nwcnumthreads()
       if(nn.eq.0) return
-      offload_master=mod(ga_nodeid(),util_nwcnumthreads()).eq.0
+      offload_master=mod(ga_nodeid(),nn).eq.0
       return
       end
       integer function util_micdev()
