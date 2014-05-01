@@ -15,7 +15,7 @@
       lerror = 0
       call pxfgetenv(env_name,lname,env_value,lvalue,lerror)
       if (lerror.eq.0) then  ! 0 ok found env_name
-	return
+        return
       else if (lerror.eq.22) then  ! 22 env_name is not in environment
         env_value = ' '
         return
@@ -45,7 +45,7 @@ c
       if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,num_devices))
      C     num_devices=0
 #else
-#warning ndev=0
+!#warning ndev=0
       num_devices=0
       call errquit(' util_nwcnumthreads: used for coprocessors',0,0)
 #endif
