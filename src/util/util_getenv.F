@@ -40,7 +40,10 @@ c
       num_devices=util_mic_get_num_devices()
 #elif defined(TCE_CUDA)
 #define RANKS_PER_DEVICE 1
-      num_devices=1
+#warning cuda
+      integer util_cuda_get_num_devices
+      external util_cuda_get_num_devices
+      num_devices=util_cuda_get_num_devices()
 C need c2F wrapper for cudaGetDeviceCount
 #else
       num_devices=0

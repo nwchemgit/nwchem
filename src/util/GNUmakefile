@@ -294,6 +294,11 @@ endif
 ifdef USE_NOFSCHECK
   DEFINES += -DNOFSCHECK
 endif
+ifdef TCE_CUDA
+  LIB_DEFINES += $(CUDA_INCLUDE)
+  DEFINES += -DTCE_CUDA
+  OBJ += util_cuda_support.o
+endif
 
 include ../config/makelib.h
 
