@@ -563,17 +563,31 @@ c
       if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
      1    .and.nodezero) write(LuOut,9911)
 c
-      if (nodezero) write(LuOut,9434) "CCSD Lambda Response",
-     1  omega,auXnm/omega,
-     2  alpha(1,1),alpha(2,1),alpha(3,1),
-     3  au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
-     4  alpha(2,1),alpha(2,2),alpha(3,2),
-     5  au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
-     6  alpha(3,1),alpha(3,2),alpha(3,3),
-     7  au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
-     8  alphaevr(1),alphaevr(2),alphaevr(3),
-     9  au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
-     1  alphaiso,au2ang3*alphaiso,alphaani,au2ang3*alphaani
+      if (omega.ne.0.0d0) then
+        if (nodezero) write(LuOut,9434) "CCSD Lambda Response",
+     1    omega,auXnm/omega,
+     2    alpha(1,1),alpha(2,1),alpha(3,1),
+     3    au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
+     4    alpha(2,1),alpha(2,2),alpha(3,2),
+     5    au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
+     6    alpha(3,1),alpha(3,2),alpha(3,3),
+     7    au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
+     8    alphaevr(1),alphaevr(2),alphaevr(3),
+     9    au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
+     1    alphaiso,au2ang3*alphaiso,alphaani,au2ang3*alphaani
+      else
+        if (nodezero) write(LuOut,9435) "CCSD Lambda Response",
+     1    omega,
+     2    alpha(1,1),alpha(2,1),alpha(3,1),
+     3    au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
+     4    alpha(2,1),alpha(2,2),alpha(3,2),
+     5    au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
+     6    alpha(3,1),alpha(3,2),alpha(3,3),
+     7    au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
+     8    alphaevr(1),alphaevr(2),alphaevr(3),
+     9    au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
+     1    alphaiso,au2ang3*alphaiso,alphaani,au2ang3*alphaani
+      endif
       if (nodezero) write(LuOut,9020) cpu, wall
       call util_flush(LuOut)
 c
@@ -588,6 +602,27 @@ c
  9434 format(/,1x,A,' polarizability / au ',/
      1  1x,'Frequency  = ',f15.7,' / au',/
      1  1x,'Wavelength = ',f15.7,' / nm',/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     2  1x,'                    atomic units (bohr^3)       '
+     2    ,'       |                   angstroms^3           ',/
+     2  1x,'                 X              Y              Z',
+     2  1x,'      |             X              Y              Z',/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     4  1x,'X      ',3f15.7,3x,'|',3f15.7,/
+     5  1x,'Y      ',3f15.7,3x,'|',3f15.7,/
+     6  1x,'Z      ',3f15.7,3x,'|',3f15.7,/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     6  1x,'Eigs = ',3f15.7,3x,'|',3f15.7,/
+     6  1x,'Isotropic   = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
+     6  1x,'Anisotropic = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------')
+ 9435 format(/,1x,A,' polarizability / au ',/
+     1  1x,'Frequency  = ',f15.7,' / au',/
+     1  1x,'Wavelength =        Infinity / nm',/
      3  1x,'-----------------------------------------------'
      3    ,'--------|-----------------------------------------------',/
      2  1x,'                    atomic units (bohr^3)       '
