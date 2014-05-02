@@ -2669,7 +2669,7 @@ endif
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
 
 (%.o):  %.cu
-	$(CUDA) -c $(CUDA_FLAGS) -c $(CUDA_INCLUDE) $(CUDA_LIBS) -o $% $<
+	$(CUDA) -c $(CUDA_FLAGS) -c  $(CUDA_LIBS) -o $% $<
 
 (%.o):  %.o
 
