@@ -27,6 +27,7 @@ USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F \
 ifdef TCE_CUDA
  OBJ_OPTIMIZE += hybrid.o memory.o sd_t_total.o ccsd_t_gpu.o ccsd_t_singles_gpu.o ccsd_t_doubles_gpu.o
  USES_BLAS += ccsd_t_singles_gpu.F ccsd_t_doubles_gpu.F
+ LIB_DEFINES += $(CUDA_INCLUDE)
 endif
 
 LIB_DEFINES += -DDEBUG_PRINT
