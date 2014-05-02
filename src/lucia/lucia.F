@@ -5668,8 +5668,8 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
           ELSE
             KBLK = -1
           END IF
-          if (dra_read(SEGMNT,LU,itask).ne.0)
-     &       call errquit('dra error',itask,911)
+            if(dra_read_section(.false.,SEGMNT,1,LBL,1,1,LU,1,NVAR,
+     &         1,1,itask).ne.0) call errquit('dra error',911)
           if (dra_wait(itask).ne.0) call errquit('dra read err',
      &        itask,911)
 CNW        CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
