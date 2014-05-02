@@ -1332,13 +1332,12 @@ C
       THRES=1.0D-10
       VDSV = 0.0D0
       call ga_distribution(DIAG, ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(DIAG,ilo,ihi,1,1,idiag,idum)
       call ga_access(VECIN,ilo,ihi,1,1,ivecin,idum)
       if (VECOUT.eq.DIAG) ivecout = idiag  
       if (VECOUT.eq.VECIN) ivecout = ivecin
 c
-      jlo = ilo - 1
-      jhi = ihi - 1
       DO 100 I=0, ihi-ilo  
         DIVIDE=dbl_mb(idiag+i)+SHIFT
         IF(ABS(DIVIDE).LE.THRES) DIVIDE=THRES
@@ -1358,6 +1357,7 @@ c
       END IF
       call ga_release(DIAG,ilo,ihi,1,1)
       call ga_release(VECIN,ilo,ihi,1,1)
+      endif
       RETURN
       END
 *

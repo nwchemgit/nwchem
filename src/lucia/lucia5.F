@@ -14793,6 +14793,7 @@ CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
       END IF
 *
       call ga_distribution(INTLST,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(INTLST, ilo, ihi, 1, 1, kintl, idum)
 *
 *Number of orbitals for the four indeces
@@ -15320,6 +15321,7 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
 *
       END IF
       call ga_release(INTLST,ilo,ihi,1,1)
+      endif
       call ga_sync()
       call ga_dgop(1, XINT, NIJKL, '+')
 *

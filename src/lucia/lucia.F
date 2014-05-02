@@ -1333,14 +1333,19 @@ CNW   CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NMSOB,1)
 *
       ONE = 1.0D0
 CNW   CALL VECSUM(dbl_mn(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+      ZERO = 0.0D0
+      CALL SETVEC(dbl_mb(KLMAT1),ZERO,NINT1)
       call ga_distribution(KFI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(KFI, ilo, ihi, 1, 1, ikfi, idum)
       call ga_access(KFA, ilo, ihi, 1, 1, ikfa, idum)
-      do i = 0, NINT1-1
-         dbl_mb(KLMAT1+i) = dbl_mb(ikfi+i) + dbl_mb(ikfa+i)
+      do i = ilo, ihi
+         dbl_mb(KLMAT1+i-1) = dbl_mb(ikfi+i-ilo) + dbl_mb(ikfa+i-ilo)
       enddo
       call ga_release(KFI,ilo,ihi,1,1)
       call ga_release(KFA,ilo,ihi,1,1)
+      endif
+      call ga_sync()
       call ga_dgop(1, dbl_mb(KLMAT1), NINT1, '+')
 *
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
@@ -9933,6 +9938,7 @@ c
   
 c.. To write in LUCIA format
       call ga_distribution(kint2,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(kint2,ilo,ihi,1,1,kint2_l,idum)
       myelem = ihi-ilo+1
       if(.not.ma_push_get(mt_int,myelem,'indexi',lint_i,kint_i)) call
@@ -10011,6 +10017,7 @@ c
       call ga_gather(g_coul,dbl_mb(kint2_l),int_mb(kint_i),
      $               int_mb(kint_j),myelem)
       call ga_release(kint2,ilo,ihi,1,1)
+      endif
       call ga_sync()
 c
       if (.not.ma_chop_stack(lint_i)) call
@@ -36191,14 +36198,19 @@ CNW     CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
 *
       ONE = 1.0D0
 CNW   CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
+      ZERO = 0.0D0
+      CALL SETVEC(dbl_mb(KLMAT1),ZERO,NINT1)
       call ga_distribution(KFI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(KFI, ilo, ihi, 1, 1, ikfi, idum)
       call ga_access(KFA, ilo, ihi, 1, 1, ikfa, idum)
-      do i = 0, NINT1-1
-         dbl_mb(KLMAT1+i) = dbl_mb(ikfi+i) + dbl_mb(ikfa+i)
+      do i = ilo, ihi  
+         dbl_mb(KLMAT1+i-1) = dbl_mb(ikfi+i-ilo) + dbl_mb(ikfa+i-ilo)
       enddo
       call ga_release(KFI,ilo,ihi,1,1)
       call ga_release(KFA,ilo,ihi,1,1)
+      endif
+      call ga_sync()
       call ga_dgop(1, dbl_mb(KLMAT1), NINT1, '+')
 *
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)

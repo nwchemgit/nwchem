@@ -1770,6 +1770,7 @@ CNW   DIMENSION FI(*)
       IJSM = 1
 *. One-electron part 
       call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -1789,6 +1790,7 @@ CNW  &    ECC = ECC + 2*FI(II)
         END DO
       END DO
       call ga_release(FI,ilo,ihi,1,1)
+      endif
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 *. Two-electron part
       IF(IDOH2.NE.0) THEN
@@ -1923,6 +1925,7 @@ CNW    CALL APRBLM2(FI,LOBSM,LOBSM,NSMOB,ISYM)
       IJSM = 1
 *. One-electron part 
       call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -1950,6 +1953,7 @@ C?          WRITE(6,*) ' Updated ECC = ', ECC
         END DO
       END DO
       call ga_release(FI,ilo,ihi,1,1)
+      endif
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      & WRITE(6,*) ' one-electron term to Ecore ', ECC
 *. Two-electron part
@@ -2092,6 +2096,7 @@ C?    CALL IWRTMA(ITPFSO,1,3,1,3)
       IJSM = 1
 *. One-electron part 
       call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -2110,6 +2115,7 @@ CNW       IF(IPHGAS(ITPFSO(I)).EQ.2) ECC = ECC + 2*FI(II)
         END DO
       END DO
       call ga_release(FI,ilo,ihi,1,1)
+      endif
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 *. Two-electron part
       IF(IDOH2.NE.0) THEN
@@ -2235,6 +2241,7 @@ CNW   DIMENSION FI(*)
       IJSM = 1
 *. One-electron part 
       call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -2253,6 +2260,7 @@ CNW       ECC = ECC + 2*FI(II)
         END DO
       END DO
       call ga_release(FI,ilo,ihi,1,1)
+      endif
       call ga_sync()
       EONE = ECC
       call ga_dgop(1, EONE, 1, '+')
@@ -2375,6 +2383,7 @@ CNW   DIMENSION FI(*)
       IJSM = 1
 *. One-electron part 
       call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -2393,6 +2402,7 @@ CNW       ECC = ECC + 2*FI(II)
         END DO
       END DO
       call ga_release(FI,ilo,ihi,1,1)
+      endif
       call ga_sync()
       EONE = ECC
       call ga_dgop(1, EONE, 1, '+')

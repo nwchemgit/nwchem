@@ -9408,6 +9408,7 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
 *. Inactive part
 *
             call ga_distribution(FI,ga_nodeid(),ilo,ihi,idum,idum)
+            if (ihi.gt.0) then
             call ga_access(FI, ilo, ihi, 1, 1, ikfi, idum)
             call ga_access(FA, ilo, ihi, 1, 1, ikfa, idum)
              DO I = 1, NI
@@ -9427,6 +9428,7 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
              END DO
             call ga_release(FI, ilo, ihi, 1, 1)
             call ga_release(FA, ilo, ihi, 1, 1)
+            endif
             ELSE IF(JGAS.LE.NGAS) THEN
 *
 *. Active part
