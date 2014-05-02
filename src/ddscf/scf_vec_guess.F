@@ -342,7 +342,7 @@ c               call scf_movecs_read
      &              bas_vecs(1:inp_strlen(bas_vecs))
  111              format(/' !! nbf/nmo/basis-name mismatch '/
      &                 10x, ' nbf=', i4, ' nbf_file=',i4/
-     &                 10x , ' nmo=', i4, 'nmo_file=',i4/
+     &                 10x, ' nmo=', i4, ' nmo_file=',i4/
      &                 10x, ' basis="',a,'"', ' basis_file="',a,'"'/)
                   write(6,*) ' Either an incorrect movecs file was ',
      &                 'specified, or linear dependence has changed,'
