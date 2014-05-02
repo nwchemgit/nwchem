@@ -16,7 +16,7 @@ c
 c
       subroutine grid_quadv0_gen(rtdb, g_dens, g_vxc,
      &      nexc, rho_n, Exc,
-     &      nmat,  calc_type ,tmat,l3d,triplet)
+     &      nmat,  calc_type ,tmat,l3d_dum,triplet)
 
       implicit none
 
@@ -42,9 +42,10 @@ c                               !   4 = XC matrices for GIAO NMR RHS
 c                               !   5 = XC matrices for third derivatives
 c                               !   6 = post-SCF XDM energy
 
-      logical l3d               ! true if 3d GA is used
+      logical l3d_dum           ! true if 3d GA is used
       logical triplet           ! true if triplet excitation energy calc
       double precision StericEnergyTotal
+      logical l3d               ! true if 3d GA is used
 c
 #include "cgridfile.fh"
 #include "geom.fh"
@@ -120,6 +121,7 @@ c
       oprintw = util_print('quadrature warning', print_medium)
       grad=xc_chkgrad()
       kske = xc_chktau()
+      l3d = (nga_ndim(g_vxc).eq.3)
 c
       irdelchi_atom = 0
 c

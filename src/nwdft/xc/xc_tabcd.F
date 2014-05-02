@@ -5,7 +5,7 @@ c     Modified to handle CPKS while reusing existing code
 c
 c     BGJ - 8/98
 c
-      Subroutine xc_tabcd(what,l3d,
+      Subroutine xc_tabcd(what,l3d_dum,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
      N     Emat,Fmat,qxyz,xyz,
      &     chi, delchi, heschi, 
@@ -19,6 +19,7 @@ c     We're using xc_tabcd for CPKS purposes
 c
       implicit none
 #include "mafdecls.fh"
+#include "global.fh"
 #include "dftpara.fh"
 #include "dft2drv.fh"
 #include "dist.fh"
@@ -62,6 +63,7 @@ c
       !< basis functions (how different from `iniz` and `ifin`?):
       !< - cetobfr(1,*): first basis function
       !< - cetobfr(2,*): last basis function
+      logical l3d_dum !< [Junk]
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
@@ -160,6 +162,7 @@ ccc     lhs: l3d=.true. & n3d=1
 c
       call starttimer(monitor_tabcd)
       call starttimer(monitor_screen0)
+      l3d = ga_ndim(g_vxc).eq.3
       natleft=0
       do  iat = 1, natoms
         if (iniz(iat).ne.0) then
