@@ -24,10 +24,10 @@ extern "C" {
     } } 
 
 #define CUDA_SAFE(x) if ( cudaSuccess != (x) ) {\
-   	printf("CUDA CALL FAILED AT %d\n", __LINE__ ); exit(1);}
+    printf("CUDA CALL FAILED AT LINE %d OF FILE %s error %s\n", __LINE__, __FILE__, cudaGetErrorString(cudaGetLastError()) ); exit(1);}
 
 
-typedef int Integer;
+typedef long Integer;
 
 #define DIV_UB(x,y) ((x)/(y)+((x)%(y)?1:0))
 #define MIN(x,y) ((x)<(y)?(x):(y))

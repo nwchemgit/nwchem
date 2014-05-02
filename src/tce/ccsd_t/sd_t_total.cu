@@ -257,12 +257,11 @@ __global__ void sd_t_d1_1_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
 }
 extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*p6d*p5d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
@@ -543,12 +542,11 @@ __global__ void sd_t_d1_2_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
 }
 extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h2d=h2d*p6d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*h2d*p5d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h2d*h7d*sizeof(double);
@@ -826,12 +824,11 @@ __global__ void sd_t_d1_3_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int h7l
 extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   h3d=h3d*p6d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h1d*h3d*p5d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h7d*sizeof(double);
@@ -1110,12 +1107,11 @@ __global__ void sd_t_d1_4_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
 }
 extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*p5d*p4d*p6d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
@@ -1403,12 +1399,11 @@ __global__ void sd_t_d1_5_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   __syncthreads();
 }
 extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*h2d*p5d*p4d*p6d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h2d*p6d*h7d*sizeof(double);
@@ -1691,12 +1686,11 @@ __global__ void sd_t_d1_6_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
 }
 extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h1d*h3d*p5d*p4d*p6d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
@@ -1977,12 +1971,11 @@ __global__ void sd_t_d1_7_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
 }
 extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*p5d*p6d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
@@ -2270,12 +2263,11 @@ __global__ void sd_t_d1_8_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   __syncthreads();
 }
 extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*h2d*p5d*p6d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h2d*p6d*h7d*sizeof(double);
@@ -2558,12 +2550,11 @@ __global__ void sd_t_d1_9_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
 }
 extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
-  size_t stream;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   cudaStream_t *streams;
   size_t nstreams,i;
-  double *triplesx_d,*t2sub_d,*v2sub_d,*triplesx_p;
+  double *t2sub_d,*v2sub_d;
   size_triplesx=h1d*h3d*p5d*p6d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
@@ -2845,7 +2836,6 @@ __global__ void sd_t_d2_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
 }
 extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   p6d=p6d*p5d;
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -3126,7 +3116,6 @@ __global__ void sd_t_d2_2_kernel(int h1d,int h2d,int h3d,int p4d,int p7d,int p7l
 extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   h3d=h3d*p6d;
   h3d=h3d*p5d;
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -3412,7 +3401,6 @@ __global__ void sd_t_d2_3_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
 }
 extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   p6d=p6d*p5d;
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -3707,7 +3695,6 @@ __global__ void sd_t_d2_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   __syncthreads();
 }
 extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -3997,7 +3984,6 @@ __global__ void sd_t_d2_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p7d
 }
 extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   h3d=h3d*p6d;
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -4292,7 +4278,6 @@ __global__ void sd_t_d2_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   __syncthreads();
 }
 extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -4589,7 +4574,6 @@ __global__ void sd_t_d2_7_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   __syncthreads();
 }
 extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -4886,7 +4870,6 @@ __global__ void sd_t_d2_8_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   __syncthreads();
 }
 extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -5183,7 +5166,6 @@ __global__ void sd_t_d2_9_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   __syncthreads();
 }
 extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
-  size_t stream;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   cudaStream_t *streams;
@@ -5461,7 +5443,6 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -5591,7 +5572,6 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -5681,7 +5661,6 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -5812,7 +5791,6 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -5947,7 +5925,6 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -6081,7 +6058,6 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -6218,7 +6194,6 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -6350,7 +6325,6 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
@@ -6442,7 +6416,6 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          stream;
 	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
 	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
 	                p5ld_t3, p4ld_t3;
