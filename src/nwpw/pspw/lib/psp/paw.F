@@ -1384,66 +1384,143 @@ c     >                          l_prj(i),m_prj(i))
 #include "psp.fh"
 
 *     **** local variables ****
-      logical ok
+      logical ok,periodic
       integer npack0,dng_cmp(2),dng_cmp_smooth(2),vcmp_smooth(2)
-      real*8 eh,e1,e2,eh0
+      integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2),nx,ny,nz
+      real*8 eh,e1,e2,eh0,scal1,dv
       
 *     **** external functions ****
+      integer  control_version
+      external control_version
       real*8   nwpw_compcharge_E_multipole,lattice_omega
       external nwpw_compcharge_E_multipole,lattice_omega
       real*8   nwpw_compcharge_E_multipole_zv
       external nwpw_compcharge_E_multipole_zv
 
-      call Pack_npack(0,npack0)
-      ok = MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
-      if (.not.ok)
-     >   call errquit('psp_hartree_cmp_cmp:out of stack',0,MA_ERR)
+      periodic = (control_version().eq.3)
 
-*     **** Using pw grid ***
-      if (use_grid_cmp) then
-         call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-         call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
-         call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)),e1)
-         eh = 0.5d0*e1*lattice_omega()
-
-*     **** Using gaussian Multipole energies ****
-      else
-
-*        **** multipole energy ****
-         eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
-         eh = nwpw_compcharge_E_multipole(ispin)
-         write(*,*) "Emults=",eh0,eh
-
-         ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
-     >                 dng_cmp_smooth(2),dng_cmp_smooth(1))
-         ok = ok.and.
-     >        MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
-     >                    vcmp_smooth(2),vcmp_smooth(1))
+*     *************************************
+*     **** Periodic Boundary Condtions ****
+*     *************************************
+      if (periodic) then
+         call Pack_npack(0,npack0)
+         ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
+     >                           dng_cmp(2),dng_cmp(1))
+         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+     >                           vcmp_smooth(2),vcmp_smooth(1))
          if (.not.ok)
-     >      call errquit('psp_hartree_cmp_cmp:out of stack',1,MA_ERR)
+     >      call errquit('psp_hartree_cmp_cmp:out of stack',0,MA_ERR)
 
-         call nwpw_compcharge_gen_dn_cmp2(ispin,
-     >                                    dcpl_mb(dng_cmp(1)),
-     >                                    dcpl_mb(dng_cmp_smooth(1)))
-         call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
-     >                  dcpl_mb(vcmp_smooth(1)))
-         call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
-     >                      dcpl_mb(vcmp_smooth(1)),e1)
-         call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
-     >                      dcpl_mb(vcmp_smooth(1)),e2)
+*        **** Using pw grid ***
+         if (use_grid_cmp) then
+            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_smooth(1)))
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(vcmp_smooth(1)),e1)
+            eh = 0.5d0*e1*lattice_omega()
 
-*        **** add cmp energies ****
-         eh = eh + (e1-0.5d0*e2)*lattice_omega()
+*        **** Using gaussian Multipole energies ****
+         else
+
+*           **** multipole energy ****
+            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
+            eh = nwpw_compcharge_E_multipole(ispin)
+
+            ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >                 dng_cmp_smooth(2),dng_cmp_smooth(1))
+            if (.not.ok)
+     >         call errquit('psp_hartree_cmp_cmp:out of stack',1,MA_ERR)
+
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dcpl_mb(dng_cmp(1)),
+     >                                       dcpl_mb(dng_cmp_smooth(1)))
+            call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
+     >                     dcpl_mb(vcmp_smooth(1)))
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(vcmp_smooth(1)),e1)
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
+     >                         dcpl_mb(vcmp_smooth(1)),e2)
+
+*           **** add cmp energies ****
+            eh = eh + (e1-0.5d0*e2)*lattice_omega()
+
+            ok = MA_pop_stack(dng_cmp_smooth(2))
+            if (.not.ok)
+     >        call errquit('psp_hartree_cmp_cmp:popping stack',2,MA_ERR)
+
+         end if
 
          ok =        MA_pop_stack(vcmp_smooth(2))
-         ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
+         ok = ok.and.MA_pop_stack(dng_cmp(2))
          if (.not.ok)
-     >      call errquit('psp_hartree_cmp_cmpl:popping stack',2,MA_ERR)
-      end if
+     >      call errquit('psp_hartree_cmp_cmp:popping stack',3,MA_ERR)
 
-      ok = MA_pop_stack(dng_cmp(2))
-      if (.not.ok)
-     >   call errquit('psp_hartree_cmp_cmp:popping stack',3,MA_ERR)
+
+*     **************************************
+*     **** APeriodic Boundary Condtions ****
+*     **************************************
+      else
+         call D3dB_n2ft3d(1,n2ft3d)
+         ok=MA_push_get(mt_dbl,n2ft3d,'rho_cmp',
+     >                  rho_cmp(2),rho_cmp(1))
+         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp_smooth',
+     >                           vcmp_smooth(2),vcmp_smooth(1))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_cmp:out of stack',4,MA_ERR)
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal1 = 1.0d0/(nx*ny*nz)
+         dv = scal1*lattice_omega()
+
+*        **** Using pw grid ***
+         if (use_grid_cmp) then
+            call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(rho_cmp(1)))
+            call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
+            call coulomb2_v(dbl_mb(rho_cmp(1)),
+     >                      dbl_mb(vcmp_smooth(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
+     >                         dbl_mb(vcmp_smooth(1)),e1)
+            eh = 0.5d0*e1*dv
+
+*        **** Using gaussian Multipole energies ****
+         else
+
+*           **** multipole energy ****
+            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
+            eh = nwpw_compcharge_E_multipole(ispin)
+
+            ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
+     >                 rho_cmp_smooth(2),rho_cmp_smooth(1))
+            if (.not.ok)
+     >         call errquit('psp_hartree_cmp_cmp:out of stack',5,MA_ERR)
+
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dbl_mb(rho_cmp(1)),
+     >                                       dbl_mb(rho_cmp_smooth(1)))
+            call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
+            call Pack_c_unpack(0,dbl_mb(rho_cmp_smooth(1)))
+            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp_smooth(1)))
+            call coulomb2_v(dbl_mb(rho_cmp_smooth(1)),
+     >                      dbl_mb(vcmp_smooth(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
+     >                         dbl_mb(vcmp_smooth(1)),e1)
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp_smooth(1)),
+     >                         dbl_mb(vcmp_smooth(1)),e2)
+            eh = eh + (e1-0.5d0*e2)*dv
+
+            ok = MA_pop_stack(rho_cmp_smooth(2))
+            if (.not.ok)
+     >        call errquit('psp_hartree_cmp_cmp:popping stack',2,MA_ERR)
+         end if
+
+         ok =        MA_pop_stack(vcmp_smooth(2))
+         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_cmp:popping stack',6,MA_ERR)
+      end if
 
       psp_hartree_cmp_cmp = eh
       return
@@ -1485,7 +1562,7 @@ c     >                          l_prj(i),m_prj(i))
       ok = MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
       ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
       if (.not.ok)
-     >   call errquit('psp_hartree_cmp_pwl:out of stack',0,MA_ERR)
+     >   call errquit('psp_hartree_cmp_pw:out of stack',0,MA_ERR)
 
       call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
       call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
@@ -1495,7 +1572,7 @@ c     >                          l_prj(i),m_prj(i))
       ok =        MA_pop_stack(vcmp(2))
       ok = ok.and.MA_pop_stack(dng_cmp(2))
       if (.not.ok)
-     >   call errquit('psp_hartree_cmp_pwl:popping stack',1,MA_ERR)
+     >   call errquit('psp_hartree_cmp_pw:popping stack',1,MA_ERR)
 
       psp_hartree_cmp_pw = eh
       return
