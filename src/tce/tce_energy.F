@@ -733,6 +733,7 @@ c
        end if
 c
        slice=.false.
+       xmem = 0
        if (.not.rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem)) then
          continue
        else
