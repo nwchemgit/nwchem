@@ -135,25 +135,25 @@
 *::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
         if (version.eq.3) then
         do  i=1,nrho
-c          xerf = rho(i)/rlocal
-c          yerf = util_erf(xerf)
-c          !f(i)=(-zv*yerf)*sn(i)
-c          !f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
-          f(i)=(rho(i)*vlocal(i))*sn(i)
+          xerf = rho(i)/rlocal
+          yerf = util_erf(xerf)
+          f(i)=(-zv*yerf)*sn(i)
+          !f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
+          !f(i)=(rho(i)*vlocal(i))*sn(i)
         end do
 ccccc        vl_ray(k1)=simp(NRHO,F,DRHO)*forpi/Q-zv*forpi*CS(NRHO)/(Q*Q)
-c        vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
-c     >            -zv*forpi*cs(nrho)/(Q*Q)
         vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+     >            -zv*forpi*cs(nrho)/(Q*Q)
+c        vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
         end if
  
         if (version.eq.4) then
         do i=1,nrho
-c          xerf=rho(i)/rlocal
-c          yerf = util_erf(xerf)
-c          !f(i)=(-zv*yerf)*sn(i)
-c          !f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
-          f(i)=(rho(i)*vlocal(i))*sn(i)
+          xerf=rho(i)/rlocal
+          yerf = util_erf(xerf)
+          f(i)=(-zv*yerf)*sn(i)
+          !f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
+          !f(i)=(rho(i)*vlocal(i))*sn(i)
         end do
 cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
         vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
@@ -167,25 +167,25 @@ cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
       if (version.eq.3) then
       do i=1,nrho
-c        xerf = rho(i)/rlocal
-c        yerf = util_erf(xerf)
-c        !f(i)=(-zv*yerf)*rho(i)
-c        !f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
-        f(i)=(vlocal(i)*rho(i))*rho(i)
+        xerf = rho(i)/rlocal
+        yerf = util_erf(xerf)
+        f(i)=(-zv*yerf)*rho(i)
+        !f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
+        !f(i)=(vlocal(i)*rho(i))*rho(i)
       end do
-c      vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
-c     >         +twopi*zv*rho(nrho)**2
       vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
+     >         +twopi*zv*rho(nrho)**2
+c      vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       end if
 
 
       if (version.eq.4) then
       do i=1,nrho
-c        xerf=rho(i)/rlocal
-c        yerf = util_erf(xerf)
-c        !f(i)=(-zv*yerf)*rho(i)
-c        !f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
-        f(i)=(vlocal(i)*rho(i))*rho(i)
+        xerf=rho(i)/rlocal
+        yerf = util_erf(xerf)
+        f(i)=(-zv*yerf)*rho(i)
+        !f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
+        !f(i)=(vlocal(i)*rho(i))*rho(i)
       end do
       vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       end if

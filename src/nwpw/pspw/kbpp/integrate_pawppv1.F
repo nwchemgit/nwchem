@@ -316,7 +316,7 @@ c           f1(k) = (phi_ae(k,i)*phi_ae(k,i)
 c     >            - phi_ps(k,i)*phi_ps(k,i))*(v_ps(k))
          end do
          d = log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
-         Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
+         !Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
 
          do j=1,i-1
             lb = l_ps(j)
@@ -324,13 +324,13 @@ c     >            - phi_ps(k,i)*phi_ps(k,i))*(v_ps(k))
             if (la.eq.lb) then
 
               do k=1,icut
-                f1(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
+                f1(k) =phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
 c                f1(k) = (phi_ae(k,i)*phi_ae(k,j) 
 c     >                 - phi_ps(k,i)*phi_ps(k,j))*(v_ps(k))
               end do
               d = log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
-              Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
-              Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
+              !Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
+              !Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
 
             end if
          end do
@@ -343,22 +343,22 @@ c     >                 - phi_ps(k,i)*phi_ps(k,j))*(v_ps(k))
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
-         Gijl(na,na,la,4) = Gijl(na,na,la,4) 
-     >                    + q*comp_pot_matrix(i,i,0) 
-     >                    + d*Gijl(na,na,la,2)
-         write(*,*) "qcomp=",Gijl(na,na,la,2),comp_charge_matrix(i,i,0),
-     >               d,d*Gijl(na,na,la,2)
+c         Gijl(na,na,la,4) = Gijl(na,na,la,4) 
+c     >                    + q*comp_pot_matrix(i,i,0) 
+c     >                    + d*Gijl(na,na,la,2)
+c         write(*,*) "qcomp=",Gijl(na,na,la,2),comp_charge_matrix(i,i,0),
+c     >               d,d*Gijl(na,na,la,2)
 
          do j=1,i-1
             lb = l_ps(j)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
-              Gijl(na,nb,la,4) = Gijl(na,nb,la,4) 
-     >                         + q*comp_pot_matrix(i,j,0)
-     >                         + d*Gijl(na,nb,la,2)
-              Gijl(nb,na,la,4) = Gijl(nb,na,la,4) 
-     >                         + q*comp_pot_matrix(j,i,0)
-     >                         + d*Gijl(nb,na,la,2)
+c              Gijl(na,nb,la,4) = Gijl(na,nb,la,4) 
+c     >                         + q*comp_pot_matrix(i,j,0)
+c     >                         + d*Gijl(na,nb,la,2)
+c              Gijl(nb,na,la,4) = Gijl(nb,na,la,4) 
+c     >                         + q*comp_pot_matrix(j,i,0)
+c     >                         + d*Gijl(nb,na,la,2)
             end if
          end do
       end do
@@ -369,8 +369,8 @@ c     >                 - phi_ps(k,i)*phi_ps(k,j))*(v_ps(k))
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,icut
-            xerf = rho(k)/rlocal
-            yerf = util_erf(xerf)
+c           xerf = rho(k)/rlocal
+c           yerf = util_erf(xerf)
 c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))
 c     >              *(-zv + zv*yerf - rho(k)*v_ps(k))
 c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv + zv*yerf)
@@ -384,8 +384,8 @@ c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv + zv*yerf)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
                do k=1,icut
-                  xerf = rho(k)/rlocal
-                  yerf = util_erf(xerf)
+c                 xerf = rho(k)/rlocal
+c                 yerf = util_erf(xerf)
 c                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))
 c     >                   *(-zv + zv*yerf- rho(k)*v_ps(k))
 c                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))*(-zv + zv*yerf)
