@@ -38,14 +38,23 @@ function usage()
     ./nwchem_make_env.sh
 
  which provide environment variables used to compile the code. After sourcing 
- one of these files the usual 
+ one of these files the command
 
-     make FC=$FC; cd $NWCHEM_TOP/src; make FC=$FC link
+    renwc
 
- method can be used to recompile only locally changed files in any 
- source code sub-directory. Of course if you want to change any compile time
- parameters you will have to unset the corresponding environment variables
- before running ./contrib/distro-tools/build_nwchem again.
+ can be used to recompile only locally changed files in any source code
+ sub-directory. Of course if you want to change any compile time parameters you
+ will have to unset the corresponding environment variables before running
+ ./contrib/distro-tools/build_nwchem again.
+
+
+ Finally, script generates the files
+
+    ./nwchem_make_unenv.csh
+    ./nwchem_make_unenv.sh
+
+ which can be sourced to unset all the environment variables that the 
+ corresponding nwchem_make_env.* script has set.
 
 
  ENVIRONMENT VARIABLES
@@ -2102,12 +2111,24 @@ if [ ${#BLASOPT} -ne 0 ] ; then
 fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
   echo "BLAS_LIB           =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
+  echo "export BLAS_SIZE=${BLAS_SIZE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv BLAS_SIZE ${BLAS_SIZE}" >> ${NWCHEM_ENV_CSH}
+  echo "unset BLAS_SIZE"               >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv BLAS_SIZE"            >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#LAPACK_LIB} -ne 0 ] ; then
   echo "LAPACK_LIB         =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
+  echo "export LAPACK_SIZE=${LAPACK_SIZE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv LAPACK_SIZE ${LAPACK_SIZE}" >> ${NWCHEM_ENV_CSH}
+  echo "unset LAPACK_SIZE"                 >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv LAPACK_SIZE"              >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   echo "SCALAPACK_LIB      =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
+  echo "export SCALAPACK_SIZE=${SCALAPACK_SIZE}" >> ${NWCHEM_ENV_SH}
+  echo "setenv SCALAPACK_SIZE ${SCALAPACK_SIZE}" >> ${NWCHEM_ENV_CSH}
+  echo "unset SCALAPACK_SIZE"                    >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv SCALAPACK_SIZE"                 >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#CUDA} -ne 0 ] ; then
   echo "CUDA               =" ${CUDA}
