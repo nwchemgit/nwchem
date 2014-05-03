@@ -202,7 +202,13 @@ C> \brief Check and retrieve restart data
 C>
 C> Check the runtime database for the state of the calculation
 C> and report back whether this calculation needs to be restarted
-C> or not.
+C> or not. The function also provides the rank of the initial
+C> atom and atomic coordinate to start from.
+C>
+C> The initial atom and atomic coordinate are read from the
+C> restart file. For this purpose the function may open the restart
+C> file if available. But the restart file must be closed before
+C> the function returns.
 C>
 C> \return Returns .TRUE. if the calculation needs to be restarted,
 C> and .FALSE. otherwise.
@@ -278,6 +284,10 @@ C>
 C> \brief Load the restart information
 C>
 C> Load the data needed for restarting a Hessian calculation. 
+C>
+C> Obviously the restart data is read from the restart file. Hence,
+C> this subroutine must open the restart file, but the restart file
+C> must be closed before the routine returns.
 C>
       subroutine stpr_get_genat_restart(rank_in,hess,grad0,get_grad0,
      &    dipole_okay,ddipole)
@@ -359,7 +369,9 @@ c
 C>
 C> \brief Store the restart data
 C>
-C> Write the restart data to a file.
+C> Write the restart data to a file. The restart file is opened and
+C> overwritten with new restart data. The restart file must be closed
+C> before the subroutine returns.
 C>
       subroutine stpr_put_genat_restart(rank,hess,grad0,
      &    iatom_in,ixyz_in,nat,put_grad0,
