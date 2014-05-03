@@ -1285,7 +1285,7 @@ c      end if
       integer MASTER,taskid
       parameter (MASTER=0)
       logical value,box_orient
-      integer geom,box_type,l
+      integer geom,box_type,l,isystype
       real*8  box_delta
       character*50 rtdb_name
 
@@ -1303,6 +1303,7 @@ c      end if
          value = geom_create(geom,'geometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
          value = value.and.geom_amatrix_get(geom,unita)
+         value = value.and.geom_systype_get(geom,isystype)
          if (.not. value) call errquit('cannot load geometry',0,
      &       GEOM_ERR)
 
