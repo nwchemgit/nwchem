@@ -2076,7 +2076,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
       integer k,shift,l_prj,m_prj,nproj,Gijl_indx
       integer nx,ny,nz
-      real*8  omega,scal,ff(3),scal1
+      real*8  omega,scal,ff(3),scal1,dv
       complex*16 ctmp
       integer exi(2),xtmp(2),sum(2)
       integer dng_cmp(2),dng_cmp_smooth(2)
@@ -2244,11 +2244,13 @@ c            write(*,*) "eh_atom=",ip,ii,eh_atom
          call D3dB_ny(1,ny)
          call D3dB_nz(1,nz)
          scal1 = 1.0d0/dble(nx*ny*nz)
+         dv = lattice_omega()*scal1
 
          if (periodic) then
             call Pack_npack(0,npack0)
          else
-            call D3dB_nfft3d(1,npack0)
+            call D3dB_n2ft3d(1,npack0)
+            npack0 = npack0/2
          end if
 
 *        **** zero out dE/dQlm array ****
@@ -2346,20 +2348,20 @@ c                        write(*,*) "ff=",ff(1)*omega
  
 
             else
-c               call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
-c               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
-c               call coulomb2_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
-c               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
-c               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
-c               call Pack_c_pack(0,dcpl_mb(vcmp(1)))
-c            
-c               call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
-c               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
-c               call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
-c     >                        dcpl_mb(vcmp_smooth(1)))
-c               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
-c               call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
-c               call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
+               call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
+               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
+               call coulomb2_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
+               call Pack_c_pack(0,dcpl_mb(vcmp(1)))
+            
+               call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
+               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
+               call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
+     >                        dcpl_mb(vcmp_smooth(1)))
+               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+               call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+               call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
             end if
          
 

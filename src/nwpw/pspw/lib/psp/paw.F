@@ -1550,29 +1550,67 @@ c     >                          l_prj(i),m_prj(i))
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical ok
+      logical ok,periodic
       integer npack0,dng_cmp(2),vcmp(2)
-      real*8 eh
+      integer n2ft3d,rho_cmp(2),nx,ny,nz
+      real*8 eh,scal1,dv
 
 *     **** external functions ****
+      integer  control_version
+      external control_version
       real*8   lattice_omega
       external lattice_omega
 
-      call Pack_npack(0,npack0)
-      ok = MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
-      ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
-      if (.not.ok)
-     >   call errquit('psp_hartree_cmp_pw:out of stack',0,MA_ERR)
+      periodic = (control_version().eq.3)
 
-      call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-      call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
-      call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
-      eh = eh*lattice_omega()
+*     ****************************************
+*     ***** periodic boundary conditions *****
+*     ****************************************
+      if (periodic) then
+         call Pack_npack(0,npack0)
+         ok =MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
+         ok =ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_pw:out of stack',0,MA_ERR)
 
-      ok =        MA_pop_stack(vcmp(2))
-      ok = ok.and.MA_pop_stack(dng_cmp(2))
-      if (.not.ok)
-     >   call errquit('psp_hartree_cmp_pw:popping stack',1,MA_ERR)
+         call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+         call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+         call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
+         eh = eh*lattice_omega()
+
+         ok =        MA_pop_stack(vcmp(2))
+         ok = ok.and.MA_pop_stack(dng_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_pw:popping stack',1,MA_ERR)
+
+
+*     *****************************************
+*     ***** aperiodic boundary conditions *****
+*     *****************************************
+      else
+         call D3dB_n2ft3d(1,n2ft3d)
+         ok =MA_push_get(mt_dbl,n2ft3d,'rho_cmp',rho_cmp(2),rho_cmp(1))
+         ok =ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp',vcmp(2),vcmp(1))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_pw:out of stack',2,MA_ERR)
+         call D3db_nx(1,nx)
+         call D3db_ny(1,ny)
+         call D3db_nz(1,nz)
+         scal1 = 1.0d0/(nx*ny*nz)
+         dv    = lattice_omega()*scal1
+
+         call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(rho_cmp(1)))
+         call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+         call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
+         call coulomb2_v(dbl_mb(rho_cmp(1)),dbl_mb(vcmp(1)))
+         call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),dbl_mb(vcmp(1)),eh)
+         eh = eh*dv
+
+         ok =        MA_pop_stack(vcmp(2))
+         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_hartree_cmp_pw:popping stack',2,MA_ERR)
+      end if
 
       psp_hartree_cmp_pw = eh
       return
