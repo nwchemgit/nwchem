@@ -26,11 +26,6 @@
          hnd_prp_vec_read.o \
          hnd_prop_dens_make.o \
          hnd_property.o \
-         cosmo.o \
-         mnsol_mem.o\
-         mnsol_interface.o\
-         mnsol.o \
-         solv_data.o\
          giaofock.o \
          hnd_giaox.o \
          hnd_hyperfine_zora.o \
