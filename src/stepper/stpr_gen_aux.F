@@ -350,6 +350,7 @@ c
      &        (rank/3),
      &        1.0d-07)
         endif
+        close(unit=69,status='keep')
       else
         write(6,*)' no finite difference hessian restart ',
      &      'information read '
@@ -379,6 +380,7 @@ C>
       logical put_grad0    !< [Input] Should the gradient be stored?
       logical dipole_okay  !< [Input] Should the dipole derivative be
                            !< stored?
+      logical lopen        !< Is the file open?
 c
       integer iatom_start, ixyz_start
       integer iflag_grad0
@@ -408,11 +410,18 @@ c
       else
         iflag_grad0 = 0
       endif
-      call util_file_unlink(FILEATR)
+c     If unit 69 is not closed then the OPEN statement will be ignored
+c     in which case the restart data is appended to the existing file
+c     rather than overwriting it.
+c     Therefore we force the file to be closed. If it is not then there
+c     is a bug somewhere else.
+      inquire(unit=69,opened=lopen)
+      if (lopen) call errquit("stpr_put_genat_restart: unit 69 should "
+     &                      //"be closed at this point",0,UERR)
       open(unit=69,file=FILEATR,
      &    form='unformatted',
      &    access='sequential',
-     &    status='new')
+     &    status='unknown')
       write(69)iatom_start,ixyz_start,rank,iflag_grad0,dipole_there
       if (put_grad0) write(69)grad0
       write(69)hess
