@@ -1,0 +1,389 @@
+C>
+C> \defgroup cosmo COnductor-like Screening MOdel (COSMO)
+C>
+C> \ingroup cosmo
+C> @{
+C> 
+C> \file cosmo.F
+C> The COSMO energy implementation
+C>
+C> \brief The COSMO dielectric continuum solvation model
+C>
+C> COSMO is a dielectric continuum solvation model proposed by
+C> Klamt et al. [1] and extended by York et al. [2]. 
+C>
+C> ### References ###
+C>
+C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
+C>     "COSMO: a new approach to dielectric screening in solvents with
+C>      explicit expressions for the screening energy and its gradient",
+C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
+C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     10.1039/P29930000799</a>.
+C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
+C> @}
+C>
+C> \ingroup cosmo
+C> @{
+C>
+C> \brief Read the COSMO input section
+C>
+C> COSMO is a dielectric continuum solvation model proposed by
+C> Klamt et al. [1] and extended by York et al. [2]. This routine reads
+C> the input section and stores the data in the RTDB.
+C>
+C> ### References ###
+C>
+C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
+C>     "COSMO: a new approach to dielectric screening in solvents with
+C>      explicit expressions for the screening energy and its gradient",
+C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
+C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     10.1039/P29930000799</a>.
+C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
+      subroutine cosmo_input(rtdb)
+*
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "nwc_const.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer rtdb !< [Input] the RTDB handle
+c
+      integer iat, nfield, nrad, irad
+      integer iscren, ifscrn, minbem, maxbem, ificos, lineq
+      integer l_rad, k_rad
+      double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
+      character*255 field
+      logical do_cosmo
+      logical do_gasphase
+      logical status
+      character*30 tag
+      character*255 token
+      double precision bohr
+      parameter  (bohr=0.529177249d+00)
+      character*(rtdb_max_file) geom_geom  ! The "geometry" value
+      character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
+                                           ! parameters were set
+c
+      character*8 solvname_short ! short name of solvent
+      character*35 solvname_long ! long name of solvent
+c
+c     smd model parameters
+c
+      logical do_cosmo_smd
+      double precision sola
+      double precision solb
+      double precision solc
+      double precision solh
+      double precision soln
+c
+c     ----- defaults -----
+c
+      do_cosmo = .true.
+      dielec   =78.4d+00
+      dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
+      iscren   =0
+      ifscrn   =2 ! surface charge correction adapted for geometry optimzations
+      minbem   =2
+      maxbem   =2 ! used to be 4, is now obsolete anyway
+      ificos   =0
+      lineq    =0  ! 0 fast direct solver, 1 slow iterative solver
+      rsolv    =0.00d+00
+      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
+      gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
+      swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
+c
+c     smd model defaults
+c
+      do_cosmo_smd = .false.
+      sola = 0.d0
+      solb = 0.d0
+      solc = 0.d0
+      solh = 0.d0
+      soln = 0.d0
+c
+      if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
+     & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
+     &              MA_ERR)
+      do iat=1,nw_max_atom
+         dbl_mb(k_rad+iat-1)=0.0d+00
+      enddo
+c
+c     set cosmo_smd flag
+      if (.not. rtdb_put(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd))
+     $    call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+c
+c     ----- read values from input -----
+c
+ 10   if(.not.inp_read())
+     $     call errquit('cosmo_input: unexpected eof',911, INPUT_ERR)
+      nfield = inp_n_field()
+ 20   if (.not. inp_a(field))
+     $     call errquit('cosmo_input: failed to read field',911,
+     &       INPUT_ERR)
+c
+      if(inp_compare(.false.,'end',field)) then
+         go to 40
+c
+c   --- dielec
+c
+      else if(inp_compare(.false.,'dielec',field)) then
+         if(.not. inp_f(dielec))
+     $        call errquit('cosmo_input: dielec',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- dielecinf
+c
+      else if(inp_compare(.false.,'dielecinf',field)) then
+         if(.not. inp_f(dielecinf))
+     $        call errquit('cosmo_input: dielecinf',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- solvent explicitly specified via short name
+c
+      else if(inp_compare(.false.,'solvent',field)) then
+         if(.not. inp_a(solvname_short))
+     $     call errquit('cosmo_input: solvent',911,INPUT_ERR)
+         if (.not.rtdb_cput(rtdb,'cosmo:solvent',1,solvname_short))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- cosmo_smd
+c
+      else if(inp_compare(.false.,'cosmo_smd',field)) then
+       do_cosmo_smd = .true.
+       if (.not. rtdb_put(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd))
+     $    call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+c
+c  --- smd definitions: sola,solb,solc,solg,solh,soln
+c
+      else if(inp_compare(.false.,'sola',field)) then
+        status = inp_f(sola)
+        if (.not. rtdb_put(rtdb,'cosmo:sola',mt_dbl,1,sola))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solb',field)) then
+        status = inp_f(solb)
+        if (.not. rtdb_put(rtdb,'cosmo:solb',mt_dbl,1,solb))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solc',field)) then
+        status = inp_f(solc)
+        if (.not. rtdb_put(rtdb,'cosmo:solc',mt_dbl,1,solc))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solh',field)) then
+        status = inp_f(solh)
+        if (.not. rtdb_put(rtdb,'cosmo:solh',mt_dbl,1,solh))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'soln',field)) then
+        status = inp_f(soln)
+        if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- off  
+c
+      else if(inp_compare(.false.,'off',field)) then
+         do_cosmo=.false.
+c
+c   --- rsolv !!! Obsolete in York and Karplus approach
+c
+      else if(inp_compare(.false.,'rsolv',field)) then
+         if(.not. inp_f(rsolv))
+     $        call errquit('cosmo_input: rsolv',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         write(LuOut,*)"Keyword RSOLV is obsolete and ignored "//
+     $        "(see York, Karplus, doi:10.1021/jp992097l)"
+c
+c   --- parameter file
+c
+      else if(inp_compare(.false.,'parameters',field)) then
+         if(.not.inp_a(token)) call errquit('no parameters',0,
+     &         INPUT_ERR)
+         if (.not.rtdb_cput(rtdb,'cosmo:parfile',1,token))
+     >        call errquit('failed to store cosmo:parfile',0,
+     >         RTDB_ERR)
+c
+c
+c   --- radius
+c
+      else if(inp_compare(.false.,'radius',field)) then
+         irad=0
+         nfield=nfield-1
+   30    if(nfield.gt.0) then
+            if(inp_f(rad)) then
+               irad=irad+1
+               dbl_mb(k_rad+irad-1)=rad
+               nfield=nfield-1
+               go to 30
+            else
+               nrad=irad  
+               if (.not.rtdb_put(rtdb,'cosmo:nrrad',mt_int,1,nrad)) call
+     $            errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+               if (.not. rtdb_put(rtdb,'cosmo:radius',mt_dbl,nrad,
+     $            dbl_mb(k_rad))) call 
+     $            errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+               go to 20
+            endif
+         else
+            if(.not.inp_read()) call
+     $         errquit('cosmo_input: unexpected eof',911,INPUT_ERR)
+            nfield = inp_n_field()
+            go to 30
+         endif
+c
+c   --- iscren
+c
+      else if(inp_compare(.false.,'iscren',field)) then
+         if(.not. inp_i(iscren))
+     $        call errquit('cosmo_input: iscren',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:iscren',mt_int,1,iscren))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- ifscrn
+c
+      else if(inp_compare(.false.,'ifscrn',field)) then
+         if(.not. inp_i(ifscrn))
+     $        call errquit('cosmo_input: ifscrn',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- minbem
+c
+      else if(inp_compare(.false.,'minbem',field)) then
+         if(.not. inp_i(minbem))
+     $        call errquit('cosmo_input: minbem',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:minbem',mt_int,1,minbem))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- maxbem !!! Obsolete in York, Karplus approach
+c
+      else if(inp_compare(.false.,'maxbem',field)) then
+         if(.not. inp_i(maxbem))
+     $        call errquit('cosmo_input: maxbem',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:maxbem',mt_int,1,maxbem))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+         write(LuOut,*)"Keyword MAXBEM is obsolete and ignored "//
+     $        "(see York, Karplus, doi:10.1021/jp992097l)"
+c
+c   --- ificos
+c
+      else if(inp_compare(.false.,'ificos',field)) then
+         if(.not. inp_i(ificos))
+     $        call errquit('cosmo_input: ificos',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:ificos',mt_int,1,ificos))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- lineq
+c
+      else if(inp_compare(.false.,'lineq',field)) then
+         if(.not. inp_i(lineq))
+     $        call errquit('cosmo_input: lineq',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:lineq',mt_int,1,lineq))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- do_gasphase
+c
+      else if(inp_compare(.false.,'do_gasphase',field)) then
+         if (.not. inp_l(do_gasphase)) do_gasphase = .true.
+         if (do_gasphase) then
+           if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,1))
+     $        call errquit('cosmo_input: put cosmo_phase failed',
+     $                     911, RTDB_ERR)
+         else
+           if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,2))
+     $        call errquit('cosmo_input: put cosmo_phase failed',
+     $                     911, RTDB_ERR)
+         endif
+c
+c   --- zeta ! the exponent of the Gaussian charge distributions
+c            ! that represent the surface charges
+c
+      else if(inp_compare(.false.,'zeta',field)) then
+         if (.not. inp_f(zeta))
+     $      call errquit('cosmo_input: zeta not a floating point '
+     $                   //'number',911,INPUT_ERR)
+         if (zeta.le.0.0d0)
+     $      call errquit('cosmo_input: zeta must be a positive '
+     $                   //'number',911,INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:zeta',mt_dbl,1,zeta))
+     $      call errquit('cosmo_input: put zeta failed',
+     $                   911, RTDB_ERR)
+c
+c   --- gamma_s ! the degree of switching
+c
+      else if(inp_compare(.false.,'gamma_s',field)) then
+         if (.not.inp_f(gammas))
+     $      call errquit('cosmo_input: gamma_s not a floating point '
+     $                   //'number',911,INPUT_ERR)
+         if (gammas.lt.0.0d0) 
+     $      call errquit('cosmo_input: gamma_s must be >= 0',911,
+     $                   INPUT_ERR)
+         if (gammas.gt.1.0d0) 
+     $      call errquit('cosmo_input: gamma_s must be =< 1',911,
+     $                   INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas))
+     $      call errquit('cosmo_input: put cosmo:gamma_s failed',
+     $                   911, RTDB_ERR)
+c
+c   --- sw_tol ! the switching tolerance
+c
+      else if(inp_compare(.false.,'sw_tol',field)) then
+         if (.not.inp_f(swtol))
+     $      call errquit('cosmo_input: sw_tol not a floating point '
+     $                   //'number',911,INPUT_ERR)
+         if (swtol.lt.0.0d0) 
+     $      call errquit('cosmo_input: sw_tol must be >= 0',911,
+     $                   INPUT_ERR)
+         if (swtol.gt.1.0d0) 
+     $      call errquit('cosmo_input: sw_tol must be =< 1',911,
+     $                   INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol))
+     $      call errquit('cosmo_input: put cosmo:sw_tol failed',
+     $                   911, RTDB_ERR)
+c
+      else
+         if (ga_nodeid().eq.0) then
+           write(LuOut,*)'cosmo_input: read unknown keyword: ',field
+           call util_flush(LuOut)
+         endif
+         call errquit('cosmo_input: unknown keyword',911,INPUT_ERR)
+      endif
+c
+      go to 10
+c
+   40 continue
+c
+c     Let SCF/DFT know cosmo has to be calculated
+c
+      if (do_cosmo) then 
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
+     $       call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+      else
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $       call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+      endif
+c
+      if(.not.ma_pop_stack(l_rad)) call
+     &  errquit('cosmo_input, ma_pop_stack of l_rad failed',911,MA_ERR)
+c
+      return
+      end
