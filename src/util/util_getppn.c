@@ -108,6 +108,15 @@ util_getppn_(Integer *ppn_out){
 	  }
 
 	}
+	/* back to world comm  -- i hope */
+	/* broadcast ppn to everybody */
+	err= MPI_Bcast(&ppn, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	if (err != MPI_SUCCESS) {
+	  fprintf(stderr,"util_getppn: MPI_Bcast failed\n");
+	  GA_Error("util_getppn error", 0L);
+	}
+
+
 	  /* check that computed ppn is a submultiple of num procs */
 
 	  modppn = num_procs%ppn;
