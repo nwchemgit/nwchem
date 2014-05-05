@@ -137,8 +137,8 @@ c         write(LuOut,*)'xc_dirac called: restricted'
 #endif
 #if defined(THIRD_DERIV)
                rhom53 = rhom23/rho(n,R_T)
-               Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + 
-     +               -wght*4.0d0*one_third*(2*one_third)*P1*rhom53
+               Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) -
+     P              wght*4.0d0*one_third*(2*one_third)*P1*rhom53
 #endif
                func(n) = func(n) + wght*P2*rho(n,R_T)*rho13
             endif
@@ -162,8 +162,8 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
 #endif
 #if defined(THIRD_DERIV)
                rhom53 = rhom23/rho(n,R_A)
-               Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + 
-     +              -wght*1.0d0*one_third*(2*one_third)*P3*rhom53
+               Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) - 
+     M              wght*1.0d0*one_third*(2*one_third)*P3*rhom53
 #endif
                func(n) = func(n) + wght*P4*rho(n,R_A)*rho13
             endif
@@ -177,8 +177,8 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
 #endif
 #if defined(THIRD_DERIV)
                rhom53 = rhom23/rho(n,R_B)
-               Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB) + 
-     +              -wght*1.0d0*one_third*(2*one_third)*P3*rhom53
+               Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB) -
+     M              wght*1.0d0*one_third*(2*one_third)*P3*rhom53
 #endif
                func(n) = func(n) + wght*P4*rho(n,R_B)*rho13
             endif
