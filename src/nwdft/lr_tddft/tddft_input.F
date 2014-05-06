@@ -31,15 +31,18 @@ c          <string list_of_names ...>]
 c        [CDSPECTRUM <not default: compute rotatory strengths>]
 c        [GIAO <not default: calc. magnetic trans. dipoles with GIAOs>]
 c        [VELOCITY]  <not default: compute velocity gaude dipoles>]
+c        [GRADIENT] Calculate/optimize the gradients on this surface
 c     END
 c     
       implicit none
+c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+c
       integer rtdb
       character*20 test
       integer nroots,maxvecs,maxiter,target,algorithm
@@ -49,7 +52,7 @@ c
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry, cdspectrum, velocity, lgiao, gmh
+      logical tda,symmetry, cdspectrum, velocity, lgiao, gmh, grad
       double precision thresh
       double precision ecut
       integer vshift
@@ -216,7 +219,6 @@ c
       lgiao = .false.
       if (.not.rtdb_put(rtdb,'tddft:giao',mt_log,1,lgiao))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
-
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ
 c
@@ -541,6 +543,15 @@ c
         if (.not.rtdb_put(rtdb,'tddft:giao',mt_log,1,lgiao))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
+c
+c     GRADIENT (GRAD)
+c
+      else if (inp_compare(.false.,test,'grad')) then
+        grad=.true.
+        if (.not.rtdb_put(rtdb,'tddft:grad',mt_log,1,grad))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+        call tddft_grad_input(rtdb)  ! get the TDDFT gradient input
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ COUPLING
 c
