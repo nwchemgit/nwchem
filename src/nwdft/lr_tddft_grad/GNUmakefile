@@ -1,6 +1,6 @@
 #$Id: GNUmakefile,v 1.3 2009/09/24 10:45:03 hvd Exp $
 
-OBJ = tddft_gradient.o tddft_grad_init.o tddft_grad_finalize.o \
+OBJ = tddft_gradient.o tddft_grad_init.o tddft_grad_input.o tddft_grad_finalize.o \
       tddft_grad_print_info.o tddft_grad_ints.o tddft_grad_print_header.o \
       tddft_grad_e.o tddft_grad_root_e.o tddft_grad_mo.o tddft_grad_xy.o\
       tddft_grad_load_mo.o tddft_grad_load_xy.o tddft_grad_tp.o tddft_grad_compute_t.o \

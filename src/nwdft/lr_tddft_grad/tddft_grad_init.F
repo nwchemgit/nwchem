@@ -327,7 +327,7 @@ c
      +                         ihdl_sroots,iptr_sroots))
      +     call errquit(pname//'failed to allocate iptr_sroots',nsroots,
      +                  MA_ERR)
-           if (.not.rtdb_get(rtdb,'gradients:isinglet_roots',mt_int,
+           if (.not.rtdb_get(rtdb,'tddft_grad:isinglet_roots',mt_int,
      +                      nsroots,int_mb(iptr_sroots)))
      +     call errquit(pname//'failed to read isroots',0,RTDB_ERR)
         endif ! singlet
@@ -338,7 +338,7 @@ c
      +                         ihdl_troots,iptr_troots))
      +     call errquit(pname//'failed to allocate troots',ntroots,
      +               MA_ERR)
-           if (.not.rtdb_get(rtdb,'gradients:itriplet_roots',mt_int,
+           if (.not.rtdb_get(rtdb,'tddft_grad:itriplet_roots',mt_int,
      +                      ntroots,int_mb(iptr_troots)))
      +     call errquit(pname//'failed to read itroots',0,RTDB_ERR)
         endif ! triplet
@@ -348,7 +348,7 @@ c
           if (.not.ma_push_get(mt_int,nroots,'roots',
      +                         ihdl_roots,iptr_roots))
      +    call errquit(pname//'failed to allocate roots',nroots,MA_ERR)
-          if (.not.rtdb_get(rtdb,'gradients:iroots',mt_int,
+          if (.not.rtdb_get(rtdb,'tddft_grad:iroots',mt_int,
      +                      nroots,int_mb(iptr_roots))) 
      +    call errquit(pname//'failed to read iroots',0,RTDB_ERR)
 c
@@ -369,16 +369,16 @@ c     CI Vectors files for restricted singlets, triplets and unrestricted
       endif
 c
 c     Get the settings for the linear system solver
-      if (.not.rtdb_get(rtdb,'gradients:solve_thresh',mt_dbl,1,
+      if (.not.rtdb_get(rtdb,'tddft_grad:solve_thresh',mt_dbl,1,
      +                  solve_thresh)) solve_thresh=1.0d-4
 c
 c Daniel (3-29-13): For a large system, the original default value (10) 
 c of solve_maxsub might not work efficiently.  I'd suggest using a 
 c larger value for the default to aid in convergence.
 c
-      if (.not.rtdb_get(rtdb,'gradients:solve_maxsub',mt_int,1,
+      if (.not.rtdb_get(rtdb,'tddft_grad:solve_maxsub',mt_int,1,
      +                  solve_maxsub)) solve_maxsub=40
-      if (.not.rtdb_get(rtdb,'gradients:solve_maxit',mt_int,1,
+      if (.not.rtdb_get(rtdb,'tddft_grad:solve_maxit',mt_int,1,
      +                  solve_maxit)) solve_maxit=250
 c
       if (.not.rtdb_cget(rtdb,'tddft:solve_file',1,fn_solve))
