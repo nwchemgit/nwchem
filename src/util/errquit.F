@@ -28,7 +28,7 @@ c
       if (ga_nodeid() .eq. 0) write(LuOut,1)
  1    format(1x,72('-'))
       write(LuOut, 2) string, icode
- 2    format(1x,a,i9)
+ 2    format(1x,a,i20)
  3    format(/)
       write(LuOut,1)
       call inp_errout
