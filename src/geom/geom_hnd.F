@@ -4499,6 +4499,7 @@ C
       SUBROUTINE HND_TFTR(H,F,Q,T,IA,M,N,NDIM)
 c     IMPLICIT REAL*8 (A-H,O-Z)
       implicit none
+#include "util.fh"
 C
 C     ----- H(M,M) = Q(DAGGER)(N,M) * F(N,N) * Q(N,M) -----
 C
