@@ -8,6 +8,7 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 #include "qmd_common.fh"
 #include "constants.fh"
 c
@@ -35,9 +36,11 @@ c
       if(.not.ma_push_get(mt_byte,16*nsa,'qmdt',l_qmdt,i_qmdt))
      + call errquit('Failed to allocate qmdt',0, MA_ERR)
       call qmd_geom_init(nsa,isag,isat,dbl_mb(i_qmdq),byte_mb(i_qmdt))
+      if(ga_nodeid().eq.0) then
       if(.not.geom_cart_set(igeom,nsa,byte_mb(i_qmdt),xs,
      + dbl_mb(i_qmdq))) call errquit('Failed to initialize geom',0,
      &       GEOM_ERR)
+      endif
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('Failed to store geom to rtdb',0, RTDB_ERR)
       if(.not.ma_pop_stack(l_qmdt))
