@@ -145,7 +145,9 @@ endif
 ifneq ($(OLD_GA),)
   EXTRA_OBJ += ga_zgop.o
 endif
-
+ifdef USE_OFFLOAD
+  EXTRA_OBJ += util_mic_support.o
+endif
 #LIB_DEFINES += -I$(MPI_INCLUDE)
 ifneq ($(MPI_INCLUDE),)
    LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))

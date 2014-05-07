@@ -28,49 +28,6 @@
 #endif
 *
       end
-      integer function util_nwcnumthreads()
-      implicit none
-      character*20 env_value 
-      integer nnn,num_devices
-c
-#if   defined(USE_OPENMP) && defined(USE_OFFLOAD)
-#define RANKS_PER_DEVICE 2
-      external util_mic_get_num_devices
-      integer*4 util_mic_get_num_devices
-      num_devices=util_mic_get_num_devices()
-#elif defined(TCE_CUDA)
-#define RANKS_PER_DEVICE 1
-#warning cuda
-      integer util_cuda_get_num_devices
-      external util_cuda_get_num_devices
-      num_devices=util_cuda_get_num_devices()
-C need c2F wrapper for cudaGetDeviceCount
-#else
-      num_devices=0
-      call errquit(' util_nwcnumthreads: used for coprocessors',0,0)
-#endif
-#ifndef RANKS_PER_DEVICE 
-#define RANKS_PER_DEVICE 1
-#endif
-      call util_getppn(nnn)
-      util_nwcnumthreads=nnn/RANKS_PER_DEVICE/
-     D     num_devices
-      return
-      end
-      logical function offload_master()
-      implicit none
-#include "global.fh"
-      external util_nwcnumthreads
-      integer util_nwcnumthreads
-c                                                                               
-      integer nn
-c                                                                               
-      offload_master=.false.
-      nn=util_nwcnumthreads()
-      if(nn.eq.0) return
-      offload_master=mod(ga_nodeid(),nn).eq.0
-      return
-      end
       integer function util_micdev()
 #if defined(USE_OPENMP) && defined(USE_OFFLOAD)
       use mic_lib
