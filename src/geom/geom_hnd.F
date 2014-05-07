@@ -4508,8 +4508,6 @@ C
       integer IA(1)
       integer ij,j,ik,max,i,k
       double precision small,zero,dum,qij,hij
-      double precision ddot
-      external ddot
       DATA SMALL /1.0D-11/
       DATA ZERO  /0.0D+00/
       IJ = 0
