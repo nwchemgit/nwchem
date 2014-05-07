@@ -3873,8 +3873,6 @@ c     local variables
 C     functions that get called
       logical geom_volume_get,geom_lattice_get,geom_amatrix_get
       external geom_volume_get,geom_lattice_get,geom_amatrix_get
-      logical  geom_systype_get
-      external geom_systype_get
       integer geom_get_group_number
       external geom_get_group_number
 c
@@ -4331,6 +4329,7 @@ C     Add some to diagonal for stability, just in case of lone floating atom
 
       subroutine sym_lattice_stress2(geom,lstress)
       implicit none
+#include "geom.fh"
 !     include files
 !     calling args
       integer geom
@@ -4347,8 +4346,6 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       logical value
       integer isystype
 !     Called functions
-      logical  geom_systype_get
-      external geom_systype_get
       integer geom_get_group_number
       external geom_get_group_number
 !
@@ -4438,6 +4435,7 @@ C     Add some to diagonal for stability, just in case of lone floating atom
 
       subroutine sym_lattice_stress(geom,astress)
       implicit none
+#include "geom.fh"
 !     include files
 !     calling args
       integer geom
@@ -4456,10 +4454,8 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       logical value
       integer isystype
 !     Called functions 
-      integer geom_get_group_number,geom_systype_get
-      external geom_get_group_number,geom_systype_get
-      logical geom_amatrix_get
-      external geom_amatrix_get
+      integer geom_get_group_number
+      external geom_get_group_number
 !       
       value = geom_systype_get(geom,isystype)
       grp_num=geom_get_group_number(geom)
