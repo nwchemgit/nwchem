@@ -1,9 +1,18 @@
 #!/bin/bash
-release=Nwchem-6.3
 source=`pwd`/$1
 date=`date +%Y-%m-%d`
 revision=`svn info ${source} | grep Revision:`
 revision=`echo ${revision} | sed 's/Revision: //'`
+#
+# Pick the version of the code from the setting of RELEASE in config/makefile.h
+# The assumption is that only one of the RELEASE lines is uncommented. If that line
+# has a version number on it we will pick that number, otherwise we will use the
+# string "dev".
+#
+version=`grep RELEASE "$source/src/config/makefile.h" | grep -v \# | grep -v \(RELEASE\)`
+version=`echo $version dev | awk '{ print $3 }'`
+release=Nwchem-${version}
+#
 if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
   echo "Usage: $0 source-directory [distribution-directory]"
   echo ""
