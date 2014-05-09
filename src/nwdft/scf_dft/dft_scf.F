@@ -1719,6 +1719,13 @@ c
             write(LuOut,*)
          endif
 c
+c        Tally up last energy 
+         if (nExc.eq.1)then
+              Etnew = Ecore + Ecoul + Exc(1) + Edisp
+         else
+              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp
+         endif
+c
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
           write(LuOut,222)etnew+enuc, 
