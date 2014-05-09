@@ -32,6 +32,12 @@ c
       logical chk_dens
       external chk_dens
 c
+      double precision xc_hfexch
+      external xc_hfexch
+c
+c     Check if HF is present
+      if (xc_hfexch().eq.0.d0) return
+c
       me=ga_nodeid()
       tol2e=10.d0**(-itol2e)
       call ga_sync
