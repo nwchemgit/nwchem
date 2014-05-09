@@ -106,8 +106,13 @@ c
       External spinor_guess
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-c     
+c
+      double precision xc_hfexch
+      external xc_hfexch
+c
       logical oprint, status
+c
+      double precision Edisp
       double precision Exc(2), rms(2), derr(2)
       double precision Exc2(2)
       double precision exch0,exch0r,exch0i
@@ -116,8 +121,9 @@ c
       double precision exchY,exchYr,exchYi
       double precision edftxc(2),edftxcs,edftxcd
       double precision exchtot
+c
       integer nmo(2), icall(2)
-c      integer nva
+c     integer nva
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
@@ -184,7 +190,6 @@ c
       integer ilo, ihi          ! For printing movecs analysis
       double precision eval_pr_tol_lo, eval_pr_tol_hi
       parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
-C     
 c     
 c     early convergence tolerances
 c     
@@ -214,10 +219,10 @@ c
 c     zora related
       logical dft_zora_read_so, dft_zora_write_so
       external dft_zora_read_so, dft_zora_write_so
-
+c
       logical dft_zora_inquire_file_so
       external dft_zora_inquire_file_so
-
+c
       character*255 zorafilename
       integer g_zora_sf(2)
       integer g_zora_scale_sf(2)
@@ -260,7 +265,6 @@ c     read MO analysis threshold
       tanalyze = 0.15d0
       if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
      &   tanalyze = 0.15d0
-
 c
 c     do average occupation starting with core orbitals
       do_core_fon = .false.
@@ -1118,9 +1122,9 @@ c
          call ga_dscal(g_dens(2),0.5d0)
       endif  ! mulliken
  
-      iter = 1 
+      iter = 1   ! iteration counter
  
-cso   ma for complex diagonalizer 
+c     ma for complex diagonalizer 
       if (.not.MA_Push_Get(MT_DCpl,nbf_mo*nbf_mo,'cpl a',la,ia))
      &     call errquit('dft_scf: cannot allocate cpl a',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nbf_mo,'cpl eval',lw,iw))
@@ -1133,7 +1137,13 @@ cso   ma for complex diagonalizer
      &     call errquit('dft_scf: cannot allocate w.s',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
      &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
-cso
+c
+c     dispersion bit
+      Edisp = 0.d0
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+      if(disp.or.xc_chkdispauto())
+     &     call xc_vdw(rtdb,geom,Edisp,dum,'energy')
 c     
 c     Top of infinite SCF iteration loop
 c
@@ -1342,29 +1352,24 @@ c
 c     == attenuation ==
       if (cam_exch) call case_setflags(.true.) ! set attenuation, if needed
 c
-c     == Exchange part ==
+c     == HF Exchange part ==
+c
 c     == D0 ==
       exch0r = 0.d0
       exch0i = 0.d0
       exch0 = 0.d0
-      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exch0"
+      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exch0"
       call getv_exch0(rtdb, exch0r, g_densso, g_fockso, g_vxc, 'real')
       call getv_exch0(rtdb, exch0i, g_densso, g_fockso, g_vxc, 'imag')
       exch0 = exch0r + exch0i
       if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "Exch0Re, Exch0I, sum =", exch0r, exch0i, exch0
 c
-      edftxc(1) = 0.d0
-      edftxc(2) = 0.d0
-      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_dftxc"
-      call getv_dftxc(rtdb, nexc, edftxc, rho_n, g_densso,
-     &         g_fockso, g_vxc, 'none')
-c
 c     == DZ ==
       exchZ = 0.d0
       exchZr = 0.d0
       exchZi = 0.d0
-      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exchZ"
+      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchZ"
       call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
       call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
       exchZ = exchZr + exchZi
@@ -1375,7 +1380,7 @@ c     == DX ==
       exchX = 0.d0
       exchXr = 0.d0
       exchXi = 0.d0
-      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exchX"
+      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchX"
       call getv_exchX(rtdb, exchXr, g_densso, g_fockso, g_vxc, 'real')
       call getv_exchX(rtdb, exchXi, g_densso, g_fockso, g_vxc, 'imag')
       exchX = exchXr + exchXi
@@ -1386,7 +1391,7 @@ c     == DY ==
       exchY = 0.d0
       exchYr = 0.d0
       exchYi = 0.d0
-      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_exchY"
+      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchY"
       call getv_exchY(rtdb, exchYr, g_densso, g_fockso, g_vxc, 'real')
       call getv_exchY(rtdb, exchYi, g_densso, g_fockso, g_vxc, 'imag')
       exchY = exchYr + exchYi
@@ -1395,6 +1400,13 @@ c     == DY ==
 c
 c     == tally up exchange energy ==
       exchtot = exch0 + exchZ + exchX + exchY ! HF exchange
+c
+c     == DFT Exchange ==
+      edftxc(1) = 0.d0
+      edftxc(2) = 0.d0
+      if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_dftxc"
+      call getv_dftxc(rtdb, nexc, edftxc, rho_n, g_densso,
+     &         g_fockso, g_vxc, 'none')
 c
       if (nexc.eq.1) then       ! don't decompose if nexc = 1
         Exc(1) = edftxc(1) + edftxc(2) ! dft exchange + correlation
@@ -1406,7 +1418,7 @@ c
 c
       if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &   'Etot, Ecoul, Exch =',
-     &   Ecore + Ecoul + exchtot + Exc(1) + Exc(2),
+     &   Ecore + Ecoul + exchtot + Exc(1) + Exc(2) + Edisp,
      &   Ecoul,
      &   exchtot  + Exc(1) + Exc(2)
 c
@@ -1416,10 +1428,10 @@ c
 c     Calculate the total electronic energy.
 c     
       if (nexc.eq.1)then
-         Etnew = Ecore + Ecoul + exchtot + Exc(1)
+         Etnew = Ecore + Ecoul + exchtot + Exc(1) + Edisp
          if(det_eng)goto 2001
       else
-         Etnew = Ecore + Ecoul + exchtot + Exc(1) + Exc(2)
+         Etnew = Ecore + Ecoul + exchtot + Exc(1) + Exc(2) + Edisp
          if(det_eng)goto 2001
       endif
 c
@@ -1980,17 +1992,7 @@ c
       endif        
       if (nodiis)diising = .false.
 c     
-c     vdw bit
-c
-c     activate disp if is present in rtdb
-c     or if dispersion is automatically included in the xc functional
-      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
-     &   disp=.false.
-c
-      if(disp.or.xc_chkdispauto())
-     &     call xc_vdw(rtdb,geom,Etnew,dum,'energy')
-c
-      Etold = Etnew
+      Etold = Etnew  ! store new energy
 c     
       lmaxov = lmaxov_sv
       if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
@@ -2007,11 +2009,13 @@ c
          current_cpu = util_cpusec()
          if (nexc.le.1)then
             write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &           rho_n, current_cpu
+     &          rho_n, current_cpu
          else
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, current_cpu
          endif
+         if (abs(Edisp).gt.0.0d0) 
+     &            write(LuOut,225)Edisp
       endif
 c     
 c     Check for remaining time to exit "gracefully"
@@ -2089,7 +2093,14 @@ c
             write(LuOut,*)
          endif
          dft_time = dft_time+util_cpusec()
-
+c
+c        Tally up last energy
+         if (nexc.eq.1)then
+            Etnew = Ecore + Ecoul + exchtot + Exc(1) + Edisp
+         else
+            Etnew = Ecore + Ecoul + exchtot + Exc(1) + Exc(2) + Edisp
+         endif
+c
          if (nexc.le.1)then
           write(LuOut,222)etnew+enuc,
      &                      ecore,
@@ -2104,6 +2115,9 @@ c
      &                      exc(2),
      &                      enuc
          end if
+         if (abs(Edisp).gt.0.0d0) 
+     &            write(LuOut,225)Edisp
+c
          if (do_zora) write(luout,2221) ener_scal
          write(luout,2222) rho_n
          write(luout,2223) dft_time
@@ -2122,6 +2136,8 @@ c
      &     '          Exchange energy =', f20.12/
      &     '       Correlation energy =', f20.12/
      &     ' Nuclear repulsion energy =', f20.12/)
+c
+ 225  format('    Dispersion correction =', f20.12/)
 c
  2221 format('       Scaling correction =', f20.12/)
  2222 format(' Numeric. integr. density =', f20.12/)
