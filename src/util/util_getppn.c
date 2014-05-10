@@ -128,3 +128,13 @@ util_getppn_(Integer *ppn_out){
 	  *ppn_out = (long) ppn;
 	}
 } 
+
+int util_my_smp_index(){
+  int ppn;
+  Integer* ppn_out=malloc(sizeof(Integer));
+  util_getppn_(ppn_out);
+  ppn= (int ) *ppn_out;
+  free(ppn_out);
+  return GA_Nodeid()%ppn;
+}
+

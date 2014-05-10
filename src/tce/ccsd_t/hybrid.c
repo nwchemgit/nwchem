@@ -10,11 +10,11 @@ static long long device_id=-1;
 #include "typesf2c.h"
 
 extern void FATR util_getppn_(Integer *);
-int my_smp_index();
+extern int util_my_smp_index();
 
 int check_device_(long *icuda) {
   /* Check whether this process is associated with a GPU */
-  if((my_smp_index())<*icuda) return 1;
+  if((util_my_smp_index())<*icuda) return 1;
   return 0;
 }
 
@@ -23,7 +23,7 @@ int device_init_(long *icuda,long *cuda_device_number ) {
   /* Set device_id */
   
   int dev_count_check=0;
-  device_id = my_smp_index();
+  device_id = util_my_smp_index();
   cudaGetDeviceCount(&dev_count_check);
   if(dev_count_check < *icuda){
     printf("Warning: Please check whether you have %ld cuda devices per node\n",*icuda);
@@ -35,13 +35,4 @@ int device_init_(long *icuda,long *cuda_device_number ) {
   }
   return 1;
 }
-int my_smp_index(){
-  int ppn;
-  Integer* ppn_out=malloc(sizeof(Integer));
-  util_getppn_(ppn_out);
-  ppn= (int ) *ppn_out;
-  free(ppn_out);
-  return GA_Nodeid()%ppn;
-}
-
 
