@@ -132,6 +132,29 @@ c
       E(9)  = evloc_pw
       E(10) = evloc_atom
 
+      write(*,*) "eke            =",eke
+      write(*,*) "ekin_atom      =",ekin_atom
+      write(*,*)
+      write(*,*) "ehartr_pw      =",ehartr_pw
+
+      write(*,*)
+      write(*,*) "eion_atom      =",eion_atom
+      write(*,*) "ecore_atom     =",ecore_atom
+      write(*,*) "ehartree_atom  =",ehartree_atom
+      write(*,*) "ecore_ion_atom =",ecore_ion_atom
+      write(*,*) "ecore_self_atom=",ecore_self_atom
+      write(*,*) "mult_atom_self =",paw_mult_energy_atom_self()
+      write(*,*) "mult_atom_comp =",paw_mult_energy_atom_comp()
+      write(*,*)
+
+      write(*,*) "mult_mult      =",E(6)
+      write(*,*)
+      write(*,*) "exc            =",exc
+      write(*,*) "exc_atom       =",exc_atom
+      write(*,*)
+      write(*,*) "evloc_pw       =",evloc_pw
+      write(*,*) "evloc_atom     =",evloc_atom
+
 
 *     *** total energy ***
       E(1) = 0.0d0

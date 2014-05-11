@@ -130,6 +130,7 @@ c       !*** set values for l=0 m=0 elements ***
           dcpl_mb(paw_qlm(1)+nlmi) = dbl_mb(paw_q00(1)+ia-1)
           nlmi = nlmi + (paw_basis_mult_l(ia)+1)**2
         end do
+c        go to 999
  
         do na=1,tot_natom
           ia = ion_katm(na)
@@ -175,6 +176,8 @@ c       !*** set values for l=0 m=0 elements ***
           nilm = nilm + 2*li+1
           end do !i
         end do !na
+
+ 999    continue
         
  
 c       write(*,*) "paw_comp_charge_coeff"

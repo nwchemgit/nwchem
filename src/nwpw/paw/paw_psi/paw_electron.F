@@ -437,6 +437,17 @@ c      write(*,*) "total_energy:",total_energy
      >                  dcpl_mb(tmp2(1)),
      >                  ehartr)
 
+c      call Pack_cc_dot(0,
+c     >                  dbl_mb(dn_cmp_smooth(1)),
+c     >                  dcpl_mb(tmp2(1)),
+c     >                  ehartr)
+
+c      call Pack_cc_dot(0,
+c     >                  dng,
+c     >                  dcpl_mb(vcomp(1)),
+c     >                  ehartr)
+      !ehartr = 0.5d0*ehartr
+
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
@@ -1580,6 +1591,7 @@ c      end do
            call coulomb_v(dcpl_mb(tmp1(1)),
      >                    dcpl_mb(vh(1)))
 
+
            !**** vcmp *****
            call coulomb_v(dcpl_mb(tmp2(1)),
      >                    dcpl_mb(vcomp(1)))
@@ -1605,10 +1617,14 @@ c      end do
      >                      dcpl_mb(tmp1(1)),
      >                      dbl_mb(dn_cmp_smooth(1)),
      >                      dcpl_mb(tmp2(1))) !** tmp2 = dn_cmp - dn_cmp_smooth
+c           call Pack_c_Copy(0,
+c     >                      dcpl_mb(tmp1(1)),
+c     >                      dcpl_mb(tmp2(1))) !** tmp2 = dn_cmp
            call Pack_cc_Sum(0,
      >                      dbl_mb(dn_cmp_smooth(1)),
      >                      dng,
      >                      dcpl_mb(tmp1(1))) !** tmp1 = dng+dn_cmp_smooth **
+
 
            call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
@@ -1617,7 +1633,6 @@ c      end do
            call coulomb2_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
 
            call D3dB_rc_fft3f(1,dcpl_mb(vh(1)))
-c           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
            call D3dB_r_SMul1(1,scal1,dcpl_mb(vh(1)))
            call Pack_c_pack(0,dcpl_mb(vh(1)))
 
@@ -1629,7 +1644,6 @@ c           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
            call coulomb2_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
 
            call D3dB_rc_fft3f(1,dcpl_mb(vcomp(1)))
-c           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
            call D3dB_r_SMul1(1,scal1,dcpl_mb(vcomp(1)))
            call Pack_c_pack(0,dcpl_mb(vcomp(1)))
 

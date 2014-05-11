@@ -117,7 +117,7 @@
         do li=0,mult_li
           indx = li + (ia-1)*(lmax+1)
           do mi=-li,li
-
+     
           e_self
      >     = e_self
      >     - 0.5d0*dble(

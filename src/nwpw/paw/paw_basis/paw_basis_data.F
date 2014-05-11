@@ -667,7 +667,6 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
      >                         dbl_mb(paw_basis_i_log_amesh(ia)),
      >                         int_mb(paw_basis_i_ngrid(ia)))
 
-
       return
       end
 
