@@ -1109,7 +1109,7 @@ c     >                    dcpl_mb(QYlm(1)))
       external paw_double_factorial
 
       twopi = 8.0d0*datan(1.0d0)
-      call dcopy(lmax*nkatm,0.0d0,0,coeff,1)
+      call dcopy((lmax+1)*nkatm,0.0d0,0,coeff,1)
 
       do ia=1,nkatm
         sigma_tmp = paw_basis_sigma(ia)
