@@ -137,9 +137,9 @@
         do  i=1,nrho
           xerf = rho(i)/rlocal
           yerf = util_erf(xerf)
-          f(i)=(-zv*yerf)*sn(i)
-          !f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
+          !f(i)=(-zv*yerf)*sn(i)
           !f(i)=(rho(i)*vlocal(i))*sn(i)
+          f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
         end do
 ccccc        vl_ray(k1)=simp(NRHO,F,DRHO)*forpi/Q-zv*forpi*CS(NRHO)/(Q*Q)
         vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
@@ -151,9 +151,9 @@ c        vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
         do i=1,nrho
           xerf=rho(i)/rlocal
           yerf = util_erf(xerf)
-          f(i)=(-zv*yerf)*sn(i)
-          !f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
+          !f(i)=(-zv*yerf)*sn(i)
           !f(i)=(rho(i)*vlocal(i))*sn(i)
+          f(i)=(rho(i)*vlocal(i)-zv*yerf)*sn(i)
         end do
 cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
         vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
@@ -169,9 +169,9 @@ cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
       do i=1,nrho
         xerf = rho(i)/rlocal
         yerf = util_erf(xerf)
-        f(i)=(-zv*yerf)*rho(i)
-        !f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
+        !f(i)=(-zv*yerf)*rho(i)
         !f(i)=(vlocal(i)*rho(i))*rho(i)
+        f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
       end do
       vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
      >         +twopi*zv*rho(nrho)**2
@@ -183,9 +183,9 @@ c      vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       do i=1,nrho
         xerf=rho(i)/rlocal
         yerf = util_erf(xerf)
-        f(i)=(-zv*yerf)*rho(i)
-        !f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
+        !f(i)=(-zv*yerf)*rho(i)
         !f(i)=(vlocal(i)*rho(i))*rho(i)
+        f(i)=(vlocal(i)*rho(i)-zv*yerf)*rho(i)
       end do
       vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       end if

@@ -1614,9 +1614,8 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
            if ((int_mb(psp_type(1)+ia-1).eq.4)) then
               call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),
      >                            dcpl_mb(vlpaw_tmp(1)))
-           else
-              call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
            end if
+           call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
            if (move) then
 #ifndef CRAY

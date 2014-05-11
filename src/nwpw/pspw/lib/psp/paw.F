@@ -947,12 +947,12 @@
      >             +(nj-1)*int_mb(nmax(1)+ia-1)
      >             + li*int_mb(nmax(1)+ia-1)**2) 
         
-c          write(*,*) "ovlp=",i,j,w*scal,ee,
-c     >        dbl_mb(Gijl_indx+(ni-1)
-c     >             +(nj-1)*int_mb(nmax(1)+ia-1)
-c     >             + li*int_mb(nmax(1)+ia-1)**2),
-c     >     ni,li,mi,
-c     >     nj,lj,mj 
+          write(*,*) "ovlp=",i,j,w*scal,ee,
+     >        dbl_mb(Gijl_indx+(ni-1)
+     >             +(nj-1)*int_mb(nmax(1)+ia-1)
+     >             + li*int_mb(nmax(1)+ia-1)**2),
+     >     ni,li,mi,
+     >     nj,lj,mj 
 
            end if
 
@@ -1425,6 +1425,8 @@ c     >                          l_prj(i),m_prj(i))
 *           **** multipole energy ****
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
             eh = nwpw_compcharge_E_multipole(ispin)
+            write(*,*) "mult_mult=",eh
+            write(*,*) "mult_mult_zv=",eh0
 
             ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                 dng_cmp_smooth(2),dng_cmp_smooth(1))
@@ -1443,6 +1445,8 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** add cmp energies ****
             eh = eh + (e1-0.5d0*e2)*lattice_omega()
+
+            write(*,*) "pw_mult_mult=",(e1-0.5d0*e2)*lattice_omega()
 
             ok = MA_pop_stack(dng_cmp_smooth(2))
             if (.not.ok)
@@ -1491,6 +1495,9 @@ c     >                          l_prj(i),m_prj(i))
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
             eh = nwpw_compcharge_E_multipole(ispin)
 
+            write(*,*) "mult_mult=",eh
+            write(*,*) "mult_mult_zv=",eh0
+
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                 rho_cmp_smooth(2),rho_cmp_smooth(1))
             if (.not.ok)
@@ -1503,6 +1510,9 @@ c     >                          l_prj(i),m_prj(i))
             call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
             call Pack_c_unpack(0,dbl_mb(rho_cmp_smooth(1)))
             call D3dB_cr_fft3b(1,dbl_mb(rho_cmp_smooth(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(rho_cmp(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(rho_cmp_smooth(1)))
+
             call coulomb2_v(dbl_mb(rho_cmp_smooth(1)),
      >                      dbl_mb(vcmp_smooth(1)))
             call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
@@ -1510,6 +1520,8 @@ c     >                          l_prj(i),m_prj(i))
             call D3dB_rr_dot(1,dbl_mb(rho_cmp_smooth(1)),
      >                         dbl_mb(vcmp_smooth(1)),e2)
             eh = eh + (e1-0.5d0*e2)*dv
+
+            write(*,*) "pw_mult_mult=",(e1-0.5d0*e2)*dv
 
             ok = MA_pop_stack(rho_cmp_smooth(2))
             if (.not.ok)
@@ -1603,8 +1615,14 @@ c     >                          l_prj(i),m_prj(i))
          call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
          call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
          call coulomb2_v(dbl_mb(rho_cmp(1)),dbl_mb(vcmp(1)))
-         call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),dbl_mb(vcmp(1)),eh)
-         eh = eh*dv
+
+         call D3dB_rc_fft3f(1,dbl_mb(vcmp(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(vcmp(1)))
+         call Pack_c_pack(0,dbl_mb(vcmp(1)))
+         call Pack_cc_dot(0,
+     >                  dng,
+     >                  dbl_mb(vcmp(1)),
+     >                  eh)
 
          ok =        MA_pop_stack(vcmp(2))
          ok = ok.and.MA_pop_stack(rho_cmp(2))
