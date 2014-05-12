@@ -2854,10 +2854,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         dng_1hartree_cmp_pw     *
+*     *         psi_1hartree_cmp_pw     *
 *     *                                 *
 *     ***********************************
-      real*8 function dng_1hartree_cmp_pw()
+      real*8 function psi_1hartree_cmp_pw()
       implicit none
          
 #include "mafdecls.fh"
@@ -2867,7 +2867,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8   psp_hartree_cmp_pw
       external psp_hartree_cmp_pw
 
-      dng_1hartree_cmp_pw = psp_hartree_cmp_pw(ispin,dcpl_mb(dng1(1)))
+      psi_1hartree_cmp_pw = psp_hartree_cmp_pw(ispin,dcpl_mb(dng1(1)),
+     >                                               dbl_mb(rho1(1)))
       return
       end
 
