@@ -428,7 +428,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h3d,h2d,h1d,p6d,p5d,p4d)
+      double precision triplesx(h3d,h2d,h1d,p6d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p4=istart,istop
@@ -456,7 +456,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h3d,h1d,h2d,p6d,p5d,p4d)
+      double precision triplesx(h3d,h1d,h2d,p6d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p4=istart,istop
@@ -484,7 +484,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h1d,h3d,h2d,p6d,p5d,p4d)
+      double precision triplesx(h1d,h3d,h2d,p6d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p4=istart,istop
@@ -512,7 +512,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h3d,h2d,h1d,p6d,p4d,p5d)
+      double precision triplesx(h3d,h2d,h1d,p6d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p5=istart,istop
@@ -540,7 +540,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h3d,h1d,h2d,p6d,p4d,p5d)
+      double precision triplesx(h3d,h1d,h2d,p6d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p5=istart,istop
@@ -568,7 +568,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h1d,h3d,h2d,p6d,p4d,p5d)
+      double precision triplesx(h1d,h3d,h2d,p6d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p5=istart,istop
@@ -596,7 +596,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h3d,h2d,h1d,p4d,p6d,p5d)
+      double precision triplesx(h3d,h2d,h1d,p4d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p5=istart,istop
@@ -624,7 +624,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h3d,h1d,h2d,p4d,p6d,p5d)
+      double precision triplesx(h3d,h1d,h2d,p4d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p5=istart,istop
@@ -652,7 +652,7 @@ c
       integer istart,istop,jstart,jstop,maxp4,maxp5
       integer h3d,h2d,h1d,p6d,p5d,p4d
       integer h3,h2,h1,p6,p5,p4
-      double precision triplesx(h1d,h3d,h2d,p4d,p6d,p5d)
+      double precision triplesx(h1d,h3d,h2d,p4d,maxp5,maxp4)
       double precision t1sub(p4d,h1d)
       double precision v2sub(h3d,h2d,p6d,p5d)
       do p5=istart,istop
