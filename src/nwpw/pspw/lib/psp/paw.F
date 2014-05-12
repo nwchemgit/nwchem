@@ -1553,10 +1553,11 @@ c     >                          l_prj(i),m_prj(i))
 *
 *    using either a Fourier grid 
 *
-      real*8 function psp_hartree_cmp_pw(ispin,dng)
+      real*8 function psp_hartree_cmp_pw(ispin,dng,rho)
       implicit none
       integer ispin
       complex*16 dng(*)
+      real*8     rho(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1615,14 +1616,10 @@ c     >                          l_prj(i),m_prj(i))
          call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
          call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
          call coulomb2_v(dbl_mb(rho_cmp(1)),dbl_mb(vcmp(1)))
-
-         call D3dB_rc_fft3f(1,dbl_mb(vcmp(1)))
-         call D3dB_r_SMul1(1,scal1,dbl_mb(vcmp(1)))
-         call Pack_c_pack(0,dbl_mb(vcmp(1)))
-         call Pack_cc_dot(0,
-     >                  dng,
-     >                  dbl_mb(vcmp(1)),
-     >                  eh)
+         call D3dB_rr_Sum(1,rho,rho(1+(ispin-1)*n2ft3d),
+     >                    dbl_mb(rho_cmp(1)))
+         call D3dB_rr_dot(1,dbl_mb(vcmp(1)),dbl_mb(rho_cmp(1)),eh)
+         eh = eh*dv
 
          ok =        MA_pop_stack(vcmp(2))
          ok = ok.and.MA_pop_stack(rho_cmp(2))
