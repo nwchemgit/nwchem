@@ -37,7 +37,7 @@ c
      & iroot)) call errquit(pname//'failed to write iroot',0,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'tddft_grad:itriplet_roots',mt_int,1,
      & iroot)) call errquit(pname//'failed to write iroot',0,RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'tddft_grad:iroot',mt_int,1,iroot))
+      if (.not. rtdb_put(rtdb,'tddft_grad:iroots',mt_int,1,iroot))
      &  call errquit(pname//'failed to write iroot',0,RTDB_ERR)
 c
       solve_thresh = 1d-04
@@ -75,7 +75,7 @@ c
      & iroot)) call errquit(pname//'failed to write iroot',0,RTDB_ERR)
       if (.not. rtdb_put(rtdb,'tddft_grad:itriplet_roots',mt_int,1,
      & iroot)) call errquit(pname//'failed to write iroot',0,RTDB_ERR)
-       if (.not. rtdb_put(rtdb,'tddft_grad:iroot',mt_int,1,iroot))
+       if (.not. rtdb_put(rtdb,'tddft_grad:iroots',mt_int,1,iroot))
      &  call errquit(pname//'failed to write iroot',0,RTDB_ERR)
 c
 c     Solver threshold
