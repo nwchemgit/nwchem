@@ -83,6 +83,8 @@ c
       logical read_xa,write_xa
       logical read_in3,write_in3
       integer  nproc_read_tensor,nproc_write_tensor
+      integer ea_unused_spin,ea_unused_sym
+      integer ip_unused_spin,ip_unused_sym
 
       common /tceinteger/
      1  noa,nob,nva,nvb,noab,nvab,!l_alpha,k_alpha,

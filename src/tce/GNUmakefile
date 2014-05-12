@@ -10,6 +10,15 @@ SUBDIRS = include diis diis2 diis3 gradients \
           ccsdt ccsdt_lambda eomccsdt \
           ccsd_act eomccsd_act cr_eomccsd_t_act
 
+ifdef EACCSD
+      SUBDIRS +=eaccsd
+      LIB_DEFINES += -DEACCSD
+endif
+ifdef IPCCSD
+      SUBDIRS +=ipccsd
+      LIB_DEFINES += -DIPCCSD
+endif
+
 ifdef CCSDTLR
       SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
       LIB_DEFINES += -DCCSDTLR
