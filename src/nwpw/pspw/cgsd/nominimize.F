@@ -72,11 +72,11 @@ c
       logical  psp_pawexist
       real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
-      real*8   psi_1hartree_cmp_cmp,dng_1hartree_cmp_pw
+      real*8   psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
       external psp_pawexist
       external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
-      external psi_1hartree_cmp_cmp,dng_1hartree_cmp_pw
+      external psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
 
       logical  nwpw_meta_gga_on,ion_disp_on
       external nwpw_meta_gga_on,ion_disp_on
@@ -149,7 +149,7 @@ c      call psi_1toelectron()
 
          ehartree_atom = psi_1hartree_atom()
          ecmp_cmp      = psi_1hartree_cmp_cmp()
-         ecmp_pw       = dng_1hartree_cmp_pw()
+         ecmp_pw       = psi_1hartree_cmp_pw()
          E(40) = ehartree_atom             !*** vcoulomb atom  ***
          E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
          E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
