@@ -235,9 +235,10 @@ c !!! BGJ
          cosmo_on = .true.
          cosmo_phase = 2
       endif
+c
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
-         call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
+         call uhf_energy(rtdb,g_movecs,eone,etwo,enrep,energy,g_work)
       else
          call rohf_init(rtdb)
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,

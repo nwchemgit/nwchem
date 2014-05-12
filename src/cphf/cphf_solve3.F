@@ -363,7 +363,7 @@ c     Get the cosmo contribution
 
       if(scftype .eq. 'UHF')then
         call uhf_init(rtdb)
-        call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work(1))
+        call uhf_energy(rtdb,g_movecs,eone,etwo,enrep,energy,g_work(1))
       else
         call rohf_init(rtdb)
         call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work(1),

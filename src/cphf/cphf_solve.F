@@ -196,7 +196,7 @@ c !!! BGJ
          if(.not. rtdb_put(rtdb,'cphf_solve:cphf_uhf',MT_LOG,1,.true.))
      $        call errquit('cphf_solve: rtdb_put of calc_type failed',0,
      &       RTDB_ERR)
-         call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
+         call uhf_energy(rtdb,g_movecs,eone,etwo,enrep,energy,g_work)
          if(.not.rtdb_delete(rtdb,'cphf_solve:cphf_uhf'))
      $        call errquit('cphf_solve: rtdb_put of calc_type failed',0,
      &       RTDB_ERR)
