@@ -469,7 +469,7 @@ c
 c
 c     Compute energy and gradient
 c     
-      call uhf_energy(g_tmp, eone, etwo, enrep, energy, g_grad)
+      call uhf_energy(rtdb, g_tmp, eone, etwo, enrep, energy, g_grad)
 c     
 c     Tidy up
 c
@@ -620,9 +620,11 @@ c
      $     call errquit('uhf_k2cf: pop failed', 0, MA_ERR)
 c     
       end
-      subroutine uhf_energy( g_vecs, eone, etwo, enrep, energy,
+      subroutine uhf_energy(rtdb, g_vecs, eone, etwo, enrep, energy,
      $     g_grad )
+c
       implicit none
+c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -636,9 +638,11 @@ c
 #include "case.fh"
 #include "zora.fh"
 #include "frozemb.fh"
+#include "cosmo.fh"
 c     
 c     $Id$
 c
+      integer rtdb
       integer g_vecs(2)
       double precision energy
       integer g_grad
@@ -659,6 +663,9 @@ c
       external ga_create_atom_blocked
       logical odebug
       logical cphf_uhf
+      double precision ecosmo
+      integer g_dens(2),i
+      character*255 cosmo_file
 c     
 c     Check
 c     
@@ -880,6 +887,29 @@ c
       endif
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential
 c
+c     cosmo charges, potential and energy contribution
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+        cosmo_file = "cosmo.xyz"
+        do i = 1, 2
+         g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
+         call ga_zero(g_dens(i))
+        end do
+        call ga_copy(g_a_dens,g_dens(1))  ! alpha = 1
+        call ga_copy(g_b_dens,g_dens(2))  ! beta = 2
+        call cosmo_charges_from_dmat(rtdb, basis, geom, ecosmo, odebug, 
+     &                                  2,           ! 2 = open shell 
+     &                                  g_dens,      ! input density
+     &                                  cosmo_file)  ! cosmo charges file name
+        call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
+        do i = 1, 2
+         if (.not.ga_destroy(g_dens(i)))
+     &    call errquit('uhf_energy: ga_destroy failed g_dens',0,GA_ERR)
+        enddo
+      endif  ! cosmo check
+c
+      call ga_sync()
+c
 c     add in frozen embedding
       if (frozemb) then
         call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
@@ -946,6 +976,15 @@ c
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $     call errquit('uhf_energy: no repulsion energy?', 0, GEOM_ERR)
       energy = eone + etwo + enrep
+c
+c     cosmo energy term 
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+         if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
+     $     call errquit('rohf_energy: rtdb get failed for ecosmo',911,
+     &       RTDB_ERR)
+         energy=energy+ecosmo
+      endif  ! cosmo check
 c
       if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' eone, etwo, enrep, energy ',
