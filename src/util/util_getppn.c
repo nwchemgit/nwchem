@@ -43,14 +43,14 @@ void FATR util_getppn_(Integer *ppn_out){
     /* create new group of size size_group */
     err=MPI_Group_incl(wgroup_handle, size_group, ranks, &group_handle);
     if (err != MPI_SUCCESS) {
-      fprintf(stderr,"util_getppn: MPI_Group_incl failed\n");
+      fprintf(stdout,"util_getppn: MPI_Group_incl failed\n");
       GA_Error("util_getppn error", 0L);
     }
     
     /* Create new new communicator for the newly created group */
     err=MPI_Comm_create(MPI_COMM_WORLD, group_handle, &group_comm);
     if (err != MPI_SUCCESS) {
-      fprintf(stderr,"util_getppn: MPI_Comm_group failed\n");
+      fprintf(stdout,"util_getppn: MPI_Comm_group failed\n");
       GA_Error("util_getppn error", 0L);
     }
     
@@ -60,14 +60,14 @@ void FATR util_getppn_(Integer *ppn_out){
       
       err=gethostname(myhostname, sizeof(myhostname) );
       if (err != 0) {
-	fprintf(stderr,"util_getppn: gethostname failed\n");
+	fprintf(stdout,"util_getppn: gethostname failed\n");
 	GA_Error("util_getppn error", 0L);
       }
       
       
       err=MPI_Allgather(myhostname, mxlen, MPI_CHAR, recvbuf, mxlen, MPI_CHAR, group_comm);
       if (err != MPI_SUCCESS) {
-	fprintf(stderr,"util_getppn: MPI_Allgather failed\n");
+	fprintf(stdout,"util_getppn: MPI_Allgather failed\n");
 	GA_Error("util_getppn error", 0L);
       }
       
@@ -82,7 +82,7 @@ void FATR util_getppn_(Integer *ppn_out){
       err=MPI_Reduce(&ppn, &result, 1, MPI_INT, MPI_SUM,
 		     0, group_comm);
       if (err != MPI_SUCCESS) {
-	fprintf(stderr,"util_getppn: MPI_Reduce failed\n");
+	fprintf(stdout,"util_getppn: MPI_Reduce failed\n");
 	GA_Error("util_getppn error", 0L);
       }
       
@@ -96,13 +96,13 @@ void FATR util_getppn_(Integer *ppn_out){
       /*flush group and comm*/
       err=MPI_Group_free(&group_handle);
       if (err != MPI_SUCCESS) {
-	fprintf(stderr,"util_getppn: MPI_Group_free failed\n");
+	fprintf(stdout,"util_getppn: MPI_Group_free failed\n");
 	GA_Error("util_getppn error", 0L);
       }
       
       err=MPI_Comm_free(&group_comm);
       if (err != MPI_SUCCESS) {
-	fprintf(stderr,"util_getppn: MPI_Comm_free failed\n");
+	fprintf(stdout,"util_getppn: MPI_Comm_free failed\n");
 	GA_Error("util_getppn error", 0L);
       }
       
@@ -111,7 +111,7 @@ void FATR util_getppn_(Integer *ppn_out){
     /* broadcast ppn to everybody */
     err= MPI_Bcast(&ppn, 1, MPI_INT, 0, MPI_COMM_WORLD);
     if (err != MPI_SUCCESS) {
-      fprintf(stderr,"util_getppn: MPI_Bcast failed\n");
+      fprintf(stdout,"util_getppn: MPI_Bcast failed\n");
       GA_Error("util_getppn error", 0L);
     }
     
@@ -141,11 +141,12 @@ int util_cgetppn(){
 
 
 int util_my_smp_index(){
-  int ppn;
-  Integer* ppn_out=malloc(sizeof(Integer));
-  util_getppn_(ppn_out);
-  ppn= (int ) *ppn_out;
-  free(ppn_out);
+  int ppn= util_cgetppn();
   return GA_Nodeid()%ppn;
+}
+
+int util_my_smp_master(){
+  int ppn= util_cgetppn();
+  return (GA_Nodeid()/ppn)*ppn;
 }
 
