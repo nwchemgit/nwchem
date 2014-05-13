@@ -82,7 +82,10 @@ c
 c
 c --  Read output file format
       if (.not. rtdb_get(rtdb, 'dplot:lgaussian', mt_log, 1,
-     &   lgaussian)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
+     &   lgaussian)) then
+        call errquit('DPlot: rtdb_get failed - lgaussian: '
+     &             //'No DPLOT input block?',11, INPUT_ERR)
+      endif
 c
 c --  Read file names of MO vectors
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
