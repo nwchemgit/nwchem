@@ -908,12 +908,12 @@ c
         enddo
       endif  ! cosmo check
 c
-      call ga_sync()
-c
 c     add in frozen embedding
       if (frozemb) then
         call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
       end if
+c
+      call ga_sync()
 c
       eone = 
      $     (ga_ddot(g_a_dens,g_hcore) + ga_ddot(g_b_dens,g_hcore))

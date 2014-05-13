@@ -70,7 +70,7 @@
                 rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F \
 		fock_2e_cam.F int_1e_ga.F movecs_rotate.F vectors.F ga_get2eri.F
 
-HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh
+HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh frozemb.fh
 
 #activate disk array use of RI-SCF
   DEFINES += -DRISCF_USE_DRA

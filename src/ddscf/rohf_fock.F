@@ -145,7 +145,7 @@ c
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential
       if (util_print('rohf_fock',print_debug)) call ga_print(g_hcore)
 c
-c     ----- cosmo charges, potential and energy contribution -----
+c     cosmo charges, potential and energy contribution
 c
       osome=.false.
       osome=osome.and.ga_nodeid().eq.0
@@ -155,12 +155,14 @@ c
      $                     itype_wfn,g_vecs,nclosed,nopen,nbf,nmo)
         call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
       endif
-      call ga_sync()
 c
 c     add in frozen embedding
+c
       if (frozemb) then
         call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
       end if
+c
+      call ga_sync()
 c
       eone_closed = ga_ddot(g_hcore, g_cdens)
       eone_open = 0.0d0
