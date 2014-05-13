@@ -1,7 +1,8 @@
       subroutine tce_eom_xdiagon(needx1,needx2,needx3,needx4,
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
-     3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar,iteration)
+     3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar,iteration,
+     +  eaccsd,ipccsd)
 c
 c $Id$
 c
@@ -59,6 +60,13 @@ c
       double precision hbar
 c
       integer iteration
+ckbn --- EA/IPCCSD
+c#ifdef EACCSD
+      logical eaccsd
+c#endif
+c#ifdef IPCCSD
+      logical ipccsd
+c#endif
 c
       nodezero = (ga_nodeid().eq.0)
 c
@@ -403,8 +411,24 @@ c
           if (newnxtrials.ge.maxtrials) call errquit
      1      ('tce_eom_xdiagon: nxtrials exceeded maxtrials',newnxtrials,
      2      UNKNOWN_ERR)
-          if (needx1) call tce_jacobi_x1(d_r1,k_x1_offset)
-          if (needx2) call tce_jacobi_x2(d_r2,k_x2_offset)
+          if((.not. ipccsd) .and. (.not. eaccsd)) then
+           if (needx1) call tce_jacobi_x1(d_r1,k_x1_offset)
+ckbn --- IPCCSD
+          else if(ipccsd) then
+           if (needx1) call tce_jacobi_ipx1(d_r1,k_x1_offset)
+ckbn --- EACCSD
+          else if(eaccsd) then
+           if (needx1) call tce_jacobi_eax1(d_r1,k_x1_offset)
+          endif
+          if((.not. ipccsd) .and. (.not. eaccsd)) then
+           if (needx2) call tce_jacobi_x2(d_r2,k_x2_offset)
+ckbn --- IPCCSD
+          else if(ipccsd) then
+           if (needx2) call tce_jacobi_ipx2(d_r2,k_x2_offset)
+ckbn --- EACCSD
+          else if(eaccsd) then
+           if (needx2) call tce_jacobi_eax2(d_r2,k_x2_offset)
+          endif
           if (needx3) then
            if(activecalc) then 
             call tce_jacobi_x3a(d_r3,k_x3_offset)

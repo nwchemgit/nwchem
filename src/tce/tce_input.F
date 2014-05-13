@@ -122,6 +122,13 @@ c --- EOM solver
 
 c --- TCE_CUDA
       integer icuda
+ckbn --- EA/IPCCSD
+#ifdef EACCSD
+      logical eaccsd
+#endif
+#ifdef IPCCSD
+      logical ipccsd
+#endif
 
 c
 c -------------------------------------
@@ -1228,6 +1235,24 @@ c
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+c
+ckbn EACCSD
+#ifdef EACCSD
+      else if (inp_compare(.false.,test,'eaccsd')) then
+        eaccsd=.true.
+        if (.not.rtdb_put(rtdb,'tce:eaccsd',mt_log,1,eaccsd))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+#endif
+c
+ckbn IPCCSD
+#ifdef IPCCSD
+      else if (inp_compare(.false.,test,'ipccsd')) then
+        ipccsd=.true.
+        if (.not.rtdb_put(rtdb,'tce:ipccsd',mt_log,1,ipccsd))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+#endif
 c
 c     MAXDIFF (for EOM codes)
 c
