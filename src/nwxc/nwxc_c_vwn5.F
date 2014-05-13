@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -40,6 +40,12 @@ c
             d2dec_rsz(2) = d2devwn_rsz(2)
             d2dec_rsz(3) = d2devwn_rsz(3)
 #endif
+#ifdef THIRD_DERIV
+            d3dec_rsz(1) = d3devwn_rsz(1)
+            d3dec_rsz(2) = d3devwn_rsz(2)
+            d3dec_rsz(3) = d3devwn_rsz(3)
+            d3dec_rsz(4) = d3devwn_rsz(4)
+#endif
 c
 #include "nwxc_c_vwn_b.fh"
 c
@@ -47,6 +53,13 @@ c
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_vwn5.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_vwn5.F"
 #endif

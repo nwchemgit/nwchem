@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -50,6 +50,36 @@ c
      &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2))*d1devwn_rsz(2)
             d2dec_rsz(3) = (dec_rs1/derpa_rs1)*d2devwn_rsz(3)
 #endif
+#ifdef THIRD_DERIV
+            d3dec_rsz(1) = (dec_rs1/derpa_rs1)*d3devwn_rsz(1)
+     &           + 3.0d0*(derpa_rs1*d1dec_rs1
+     &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(1)/derpa_rs1**2
+     &           + 3.0d0*(derpa_rs1**2*d2dec_rs1 
+     &             - derpa_rs1*(2.0d0*d1dec_rs1*d1derpa_rs1
+     &              +dec_rs1*d2derpa_rs1) 
+     &              +2.0d0*dec_rs1*d1derpa_rs1**2)
+     &              *d1devwn_rsz(1)/derpa_rs1**3
+     &           + (d3dec_rs1*derpa_rs1**3 
+     &              + 6.0d0*derpa_rs1*d1derpa_rs1
+     &               *(d1dec_rs1*d1derpa_rs1+dec_rs1*d2derpa_rs1)
+     &              - derpa_rs1**2*(3.0d0*d2dec_rs1*d1derpa_rs1
+     &               + 3.0d0*d1dec_rs1*d2derpa_rs1 
+     &               + dec_rs1*d3derpa_rs1)
+     &              - 6.0d0*dec_rs1*d1derpa_rs1**3)
+     &              *devwn_rsz/derpa_rs1**4
+            d3dec_rsz(2) = (dec_rs1/derpa_rs1)*d3devwn_rsz(2)
+     &           + 2.0d0*(derpa_rs1*d1dec_rs1
+     &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(2)/derpa_rs1**2
+     &           + (derpa_rs1**2*d2dec_rs1 
+     &             - derpa_rs1*(2.0d0*d1dec_rs1*d1derpa_rs1
+     &              +dec_rs1*d2derpa_rs1) 
+     &              +2.0d0*dec_rs1*d1derpa_rs1**2)
+     &              *d1devwn_rsz(2)/derpa_rs1**3
+            d3dec_rsz(3) = (dec_rs1/derpa_rs1)*d3devwn_rsz(3)
+     &           + (derpa_rs1*d1dec_rs1
+     &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(3)/derpa_rs1**2
+            d3dec_rsz(4) = (dec_rs1/derpa_rs1)*d3devwn_rsz(4)
+#endif
 c
 #include "nwxc_c_vwn_b.fh"
 c
@@ -60,3 +90,12 @@ c     Compile source again for the 2nd derivative case
 c
 #include "nwxc_c_vwn3.F"
 #endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_vwn3.F"
+#endif
+C>
+C> @}
