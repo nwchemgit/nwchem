@@ -16,6 +16,7 @@
 #include "cscfps.fh"
 #include "cosmo.fh"
 #include "case.fh"
+#include "frozemb.fh"
 c     
 c     Build fock matrices and energies for ROKS wavefunctions
 c     -------------------------------------------------------
@@ -236,8 +237,8 @@ c
 c
 c     One-electron integrals and energies
 c     
+      call ga_zero(g_hcore)
       if (rtdb_get(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) then
-        call ga_zero(g_hcore)
         call int_1e_ga(basis, basis, g_hcore, 'bq_pot', oskel)
         Ebq = ga_ddot(g_cdens,g_hcore)
         if (nopen.gt.0) then
@@ -247,13 +248,12 @@ c
      $     call errquit('dft_roks_fock: writing bq_energy failed',
      $     0, RTDB_ERR)
       endif
-      call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
       if (util_print('dft_roks_fock',print_debug))
      $    call ga_print(g_hcore)
 c
-c     ----- cosmo charges, potential and energy contribution -----
+c     cosmo charges, potential and energy contribution
 c
       osome=.false.
       osome=osome.and.ga_nodeid().eq.0
@@ -263,6 +263,13 @@ c
      $                     itype_wfn,g_vecs,nclosed,nopen,nbf,nmo)
         call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
       endif
+c
+c     add in frozen embedding
+c
+      if (frozemb) then
+        call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
+      end if
+c
       call ga_sync()
 c
       eone_closed = ga_ddot(g_hcore, g_cdens)

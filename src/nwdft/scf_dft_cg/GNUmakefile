@@ -28,8 +28,7 @@
    SUBDIRS = 
 LIB_INCLUDES = -I../include -I../grid
 
-HEADERS = ../../ddscf/cosmo.fh
+HEADERS = ../../ddscf/cosmo.fh ../../ddscf/frozemb.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-

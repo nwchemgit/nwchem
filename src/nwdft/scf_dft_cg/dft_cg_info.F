@@ -11,6 +11,7 @@
 #include "util.fh"
 #include "cscf.fh"
 #include "cosmo.fh"
+#include "stdio.fh"
 c !!! BGJ
 #include "bgj.fh"
 c !!! BGJ
@@ -298,10 +299,7 @@ c
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
             osome = util_print('information', print_low)
-            if (scftype .eq. 'UHF') then
-               write(6,*) 'COSMO cannot be used with UHF !!'
-               call errquit('cannot use COSMO and UHF',0, 911)
-            endif
+c
             call cosmo_initialize(rtdb,geom,basis,osome)
 c
 c           Turn cosmo on, we want to run the calculation
@@ -310,7 +308,7 @@ c
             cosmo_last = .true.
             cosmo_on = .true.
             if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
-     >         cosmo_phase = 1
+     >         cosmo_phase = 2  ! get into the solvent phase right away
          endif
       endif
       oinitialized = .true.

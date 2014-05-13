@@ -12,6 +12,8 @@
 #include "rtdb.fh"
 #include "bgj.fh"
 #include "case.fh"
+#include "frozemb.fh"
+#include "cosmo.fh"
 c     
 c     $Id$
 c
@@ -46,6 +48,10 @@ c
 c
       double precision xc_hfexch
       external xc_hfexch
+c
+      double precision ecosmo
+      integer g_dens(2),i
+      character*255 cosmo_file
 c
       data f/8*0/
 c     
@@ -303,17 +309,45 @@ c
 c     reuse g_a_exch to hold the 1-e integrals
 c
       g_hcore = g_a_exch
+      call ga_zero(g_hcore)
       if (rtdb_get(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) then
-        call ga_zero(g_hcore)
         call int_1e_ga(basis, basis, g_hcore, 'bq_pot', oskel)
         Ebq = ga_ddot(g_a_dens,g_hcore)+ga_ddot(g_b_dens,g_hcore)
         if (.not. rtdb_put(rtdb,'dft:bq_energy',mt_dbl,1,Ebq))
      $     call errquit('dft_roks_fock: writing bq_energy failed',
      $     0, RTDB_ERR)
       endif
-      call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
+c
+c     cosmo charges, potential and energy contribution
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+        cosmo_file = "cosmo.xyz"
+        do i = 1, 2
+         g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
+         call ga_zero(g_dens(i))
+        end do
+        call ga_copy(g_a_dens,g_dens(1))  ! alpha = 1
+        call ga_copy(g_b_dens,g_dens(2))  ! beta = 2
+        call cosmo_charges_from_dmat(rtdb, basis, geom, ecosmo, odebug,
+     &                                  2,           ! 2 = open shell
+     &                                  g_dens,      ! input density
+     &                                  cosmo_file)  ! cosmo charges file name
+        call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
+        do i = 1, 2
+         if (.not.ga_destroy(g_dens(i)))
+     &    call errquit('uhf_energy: ga_destroy failed g_dens',0,GA_ERR)
+        enddo
+      endif  ! cosmo check
+c
+c     add in frozen embedding
+      if (frozemb) then
+        call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
+      end if
+c
+      call ga_sync()
+c
       eone = 
      $     (ga_ddot(g_a_dens,g_hcore) + ga_ddot(g_b_dens,g_hcore))
       call ga_dadd(one, g_hcore, one, g_a_coul, g_a_coul)
@@ -379,6 +413,15 @@ c
       energy = eone + etwo + enrep
       if (xc_gotxc()) then
         energy = energy + Exc(1) + Exc(2)
+      endif
+c
+c     ----- cosmo energy term ... -----
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+         if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
+     $     call errquit('dft_roks_energy: rtdb get failed for ecosmo',
+     $                  911, RTDB_ERR)
+         energy=energy+ecosmo
       endif
 c
       if (odebug .and. ga_nodeid().eq.0) then
