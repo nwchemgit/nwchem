@@ -12,6 +12,8 @@ C     $Id$
 #include "cscfps.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "cosmo.fh"
+#include "stdio.fh"
 c     
 c     Solve the UKS equations using a hybrid NR/PCG method
 c     
@@ -53,6 +55,14 @@ c     Functions
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+c
+c     cosmo code
+c
+      logical odbug
+      logical osome
+c
+      double precision egas
+      double precision esol
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
 c     
@@ -113,6 +123,37 @@ c
 c
       mode = 'startup'
       converged = .false.
+c
+   9  continue
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if(cosmo_on.and.cosmo_phase.eq.1) then
+         osome=ga_nodeid().eq.0
+         if(osome) then
+            write(LuOut,909)
+         endif
+         if(odbug) then
+            write(LuOut,*) 'mode = ',mode
+         endif
+      elseif(cosmo_on.and.cosmo_phase.eq.2) then
+         iter     = 0
+         energy   = 0.0d0
+         eone     = 0.0d0
+         etwo     = 0.0d0
+         mode     = 'startup'
+         converged=.false.
+         osome=ga_nodeid().eq.0
+         if(osome) then
+            write(LuOut,910)
+         endif
+         if(odbug) then
+            write(LuOut,*) 'mode = ',mode
+         endif
+      endif
+      if (ga_nodeid().eq.0) call util_flush(6)
+ 909    format(2x,'   COSMO gas phase')
+ 910    format(2x,'   COSMO solvation phase')
+c
  10   if (.not. converged) then
          call ga_pcg_minim(cuhf_vlen, iter, energy, g_grad, g_work,
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
@@ -193,8 +234,42 @@ c
       end if
 c     
 c     End SCF minimisation
-c     
+c
       if (ga_nodeid().eq.0) call util_flush(6)
+c     
+c     ----- if sol_phase=.T. go back and do solution phase -----
+c
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if(cosmo_on.and.cosmo_phase.eq.1) then
+         converged =.false.
+         egas      =energy
+         cosmo_phase = 2
+         if(odbug) then
+            write(LuOut,*) 'gas_phase done, do sol-phase now ...'
+         endif
+         call ga_sync()
+         go to 9
+      elseif(cosmo_on.and.cosmo_phase.eq.2) then
+         esol      =energy
+         if(ga_nodeid().eq.0) then
+            write(LuOut,915)
+            write(LuOut,*) '                 COSMO solvation results'
+            write(LuOut,*) '                 -----------------------'
+            write(LuOut,915)
+            write(LuOut,912) egas
+            write(LuOut,913) esol
+            write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
+ 912     format('                 gas phase energy = ',f20.10)
+ 913     format('                 sol phase energy = ',f20.10)
+ 914     format(' (electrostatic) solvation energy = ',f20.10,
+     $          ' (',f8.2,' kcal/mol)'                       )
+ 915     format(' ')
+         endif
+      endif
+c
+      if (ga_nodeid().eq.0) call util_flush(6)
+      call ga_sync()
 c     
 c     *ALWAYS* return canonical MOs ... do not do aufbau
 c     

@@ -308,7 +308,7 @@ c
             cosmo_last = .true.
             cosmo_on = .true.
             if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
-     >         cosmo_phase = 2  ! get into the solvent phase right away
+     >         cosmo_phase = 1
          endif
       endif
       oinitialized = .true.
