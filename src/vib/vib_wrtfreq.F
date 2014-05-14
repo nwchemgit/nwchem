@@ -83,11 +83,13 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
 00100 CONTINUE
       IF(ZEROPE)THEN
         ZPE=0.5D00*SUMFREQ*RATE
-        WRITE (6,10002)ZPE
-        call ecce_print1('zero point energy',mt_dbl,zpe,1)
-        if(.not. rtdb_put(rtdb,'vib:zpe',MT_DBL,1,zpe))
-     &      call errquit('vib_wrtfreq:rtdb_put of ZPE failed',
-     &      555, RTDB_ERR)
+
+         !**** removed bad ZPE printout ...EJB***
+c        WRITE (6,10002)ZPE
+c        call ecce_print1('zero point energy',mt_dbl,zpe,1)
+c        if(.not. rtdb_put(rtdb,'vib:zpe',MT_DBL,1,zpe))
+c     &      call errquit('vib_wrtfreq:rtdb_put of ZPE failed',
+c     &      555, RTDB_ERR)
       ENDIF
 10002 FORMAT(1X,//,'From the projected analysis ',/,
      &    'The Zero-Point Energy (Kcal/mol) = ',
