@@ -10,6 +10,7 @@ C
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+#include "offl.fh"
       integer d_t1
       integer k_t1_offset
       integer d_t2
@@ -63,6 +64,29 @@ C
       energy(2)=0.0d0
       energy1 = 0.0d0
       energy2 = 0.0d0
+c     init sx for offload
+      triplesx_alloced=.false.
+      triplesx_free=.false.
+c     estimate triplesx size
+      range_p4=0
+      do t_p4b = noab+1,noab+nvab
+         range_p4 = max(range_p4,int_mb(k_range+t_p4b-1))
+      enddo
+      range_h1=0
+      do t_h1b = 1,noab
+         range_h1 = max(range_h1,int_mb(k_range+t_h1b-1))
+      enddo
+      size=(range_p4**3)*(range_h1**3)
+c      call util_align64(size)
+      triplesx_mxlgth=size
+      if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
+     1     k_singles)) call errquit('ccsd_t: MA error sgl',
+     2     size,MA_ERR)
+      if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
+     1     k_doubles)) call errquit('ccsd_t: MA error dbl',
+     2     size,MA_ERR)
+      
+
       do t_p4b = noab+1,noab+nvab
        range_p4 = int_mb(k_range+t_p4b-1)
        offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
@@ -105,10 +129,10 @@ c
 c
             size = range_p4 * range_p5 * range_p6
      3           * range_h1 * range_h2 * range_h3
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
-     1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
-     1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
+c            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
+c     1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
+c            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
+c     1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
 ccx            do i = 1, size
 ccx              dbl_mb(k_singles+i-1) = 0.0d0
 ccx            enddo
@@ -116,8 +140,10 @@ ccx            do i = 1, size
 ccx              dbl_mb(k_doubles+i-1) = 0.0d0
 ccx            enddo
 c zeroing ---
-        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
-        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
+c        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
+c        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
+        call dcopy(size, 0.0d0, 0, dbl_mb(k_singles), 1)
+        call dcopy(size, 0.0d0, 0, dbl_mb(k_doubles), 1)
 c -----------
             call ccsd_t_singles_l(dbl_mb(k_singles),
      1        k_t1_local,d_v2,k_t1_offset,
@@ -169,10 +195,6 @@ c
               enddo
              enddo
             enddo
-            if (.not.MA_POP_STACK(l_doubles)) 
-     1        call errquit('ccsd_t',3,MA_ERR)
-            if (.not.MA_POP_STACK(l_singles)) 
-     1        call errquit('ccsd_t',4,MA_ERR)
 c
             next = nxtask(nprocs,1)
             endif
@@ -187,6 +209,15 @@ c
         enddo
        enddo
       enddo
+c cleanup to dealloc
+      triplesx_free=.true.
+      call ccsd_t_doubles_l(dbl_mb(k_doubles),
+     1     d_t2,d_v2,k_t2_offset,
+     1     k_v2_offset,1,1,1,1,1,1,2)
+      if (.not.MA_POP_STACK(l_doubles)) 
+     1     call errquit('ccsd_t doubles',3,MA_ERR)
+      if (.not.MA_POP_STACK(l_singles)) 
+     1     call errquit('ccsd_t singles',4,MA_ERR)
       next = nxtask(-nprocs,1)
       energy(1) = energy1
       energy(2) = energy2
