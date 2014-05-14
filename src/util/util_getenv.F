@@ -50,3 +50,11 @@ c
 #endif
       return
       end
+#if !defined(USE_OFFLOAD)
+      logical function offload_master()
+      implicit none
+c     dummy function when offload is not in place
+      offload_master=.false.
+      return
+      end
+#endif
