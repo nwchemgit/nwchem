@@ -414,20 +414,28 @@ c
           if((.not. ipccsd) .and. (.not. eaccsd)) then
            if (needx1) call tce_jacobi_x1(d_r1,k_x1_offset)
 ckbn --- IPCCSD
+#ifdef IPCCSD
           else if(ipccsd) then
            if (needx1) call tce_jacobi_ipx1(d_r1,k_x1_offset)
+#endif
 ckbn --- EACCSD
+#ifdef EACCSD
           else if(eaccsd) then
            if (needx1) call tce_jacobi_eax1(d_r1,k_x1_offset)
+#endif
           endif
           if((.not. ipccsd) .and. (.not. eaccsd)) then
            if (needx2) call tce_jacobi_x2(d_r2,k_x2_offset)
 ckbn --- IPCCSD
+#ifdef IPCCSD
           else if(ipccsd) then
            if (needx2) call tce_jacobi_ipx2(d_r2,k_x2_offset)
+#endif
 ckbn --- EACCSD
+#ifdef EACCSD
           else if(eaccsd) then
            if (needx2) call tce_jacobi_eax2(d_r2,k_x2_offset)
+#endif
           endif
           if (needx3) then
            if(activecalc) then 
