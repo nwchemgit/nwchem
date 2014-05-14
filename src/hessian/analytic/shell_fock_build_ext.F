@@ -307,6 +307,13 @@ c     HF exchange. For pure DFT we just skip the call to save CPU time.
       nmul=1
       if (npol.eq. 2) nmul=2
       nn=nmul*nblock*npol*nvec
+c --- FA-12-02-13 -------------- START
+c      if (ga_nodeid().eq.0) then
+c       write(*,10) npol,nmul,nblock,nvec
+c 10    format('(npol,nmul,nblock,nvec)=(',
+c     &        i2,',',i2,',',i2,',',i2,')')
+c      endif
+c --- FA-12-02-13 -------------- END
       if (.not.MA_Push_Get(mt_dbl,nn,'hessv jfacs',l_jfac,k_jfac))
      &     call errquit('sh-fockbld2: cannot allocate jfac',
      &                  nn, MA_ERR)
@@ -393,11 +400,25 @@ c      if (use_theory.eq.'dft') xc_xfac = bgj_kfac()
           endif ! end-if-debug
         dbl_mb(k_jfac+blo(1)-1)=jfac(ipm)
         dbl_mb(k_kfac+blo(1)-1)=kfac(ipm)
+c
+c --- FA-12-02-13 -------------- START
+c        if (ga_nodeid().eq.0) then
+c         write(*,11) blo(1)-1,iset,ipm,xyz,
+c     &               kfac(ipm),jfac(ipm)
+c 11      format('(blo,iset,ipm,xyz,kfac,jfac)=(',
+c     &          i2,',',i2,',',i2,',',i2,',',
+c     &          f14.12,',',f8.6,')')
+c        endif
+c --- FA-12-02-13 -------------- END
+
         call nga_copy_patch('n',g_dens(ipm),alo,ahi, ! g_dens--> g_dens2
      &                          g_dens2    ,blo,bhi)
         enddo ! end-loop-xyz
        enddo ! end-loop-ipm
       enddo ! end-loop-iset
+
+c        stop  ! FA-12-02-13
+
       if (debug) then
        if (ga_nodeid().eq.0)
      &    write(*,*) '---- g_dens2-nw-BEF-uhf_fock_setup --- START'

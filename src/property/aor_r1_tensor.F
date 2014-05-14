@@ -229,8 +229,7 @@ c       ---------------------------------------------------------
      &     write(*,*) '--g_vecE1-im-AFT-IF ------ END'
          endif ! end-if-lifetime
         endif ! end-if-debug
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) '==== compute beta ====== START'
+
        ndir=3 ! nr. directions (x,y,z)
        do idir = 1,ndir        ! direction of the perturbing field
         do iresp = 1,3
@@ -245,6 +244,7 @@ c     &  write(*,*) '==== compute beta ====== START'
      &            idir,               ! in : = 1,2,3=x,y,z directions
      &            iresp,              ! in : = 1,2,3
      &            coeffre,coeffim,1,  ! in : (coeffre,coeffim,caseAO)
+c     &            -coeffre,coeffim,1,  ! in : (coeffre,coeffim,caseAO)
      &            nbf,                ! in : nr. basis functions
      &            nocc,               ! in : nr. occupied alpha or beta
      &            lifetime,           ! in : logical var for damping
@@ -259,10 +259,10 @@ c     &  write(*,*) '==== compute beta ====== START'
      &            ')=(',f15.8,',',f15.8,')')
           endif
          endif ! end-if-debug
+
         enddo  ! end-loop-iresp (responding field components)
        enddo ! end-loop-idir    (perturbing E-field components)
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) '==== compute beta ====== END'
+
 c       --------------------------------------
 c       (B) calculate alfa from C(E) h(E) C(0)
 c       --------------------------------------
@@ -286,12 +286,10 @@ c       ---------------------------------------------------------
             end if              ! lifetime
           end if                ! lantisym
         endif                   ! ncomp.gt.1
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) '==== compute alfa ====== START'
+
        ndir=3 ! nr. directions (x,y,z)
        do idir = 1,ndir        ! direction of the perturbing field
         do iresp = 1,3
-
          call get_alfaorbeta_reim(
      &            alfare(idir,iresp), ! out: alpha or beta real part
      &            alfaim(idir,iresp), ! out: alpha or beta im   part
@@ -301,7 +299,7 @@ c     &  write(*,*) '==== compute alfa ====== START'
      &            g_vectors(ispin),   ! in : MO vectors
      &            idir,               ! in : = 1,2,3=x,y,z directions
      &            iresp,              ! in : = 1,2,3
-     &            coeffre,coeffim,1,  ! in : (coeffre,coeffim,caseAO)
+     &            coeffre,-coeffim,1,  ! in : (coeffre,coeffim,caseAO) 
      &            nbf,                ! in : nr. basis functions
      &            nocc,               ! in : nr. occupied alpha or beta
      &            lifetime,           ! in : logical var for damping
@@ -316,25 +314,25 @@ c     &  write(*,*) '==== compute alfa ====== START'
      &            ')=(',f15.8,',',f15.8,')')
           endif
          endif ! end-if-debug
+
         enddo  ! end-loop-iresp (responding field components)
        enddo ! end-loop-idir    (perturbing E-field components)
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) '==== compute alfa ====== END'
-c ============ visualize-1 (alfa,beta) ========== START
-c        if (ga_nodeid().eq.0) then
-c         do idir=1,ndir
-c          do iresp=1,3
-c           write(*,10) ispin,idir,iresp,
-c     &       alfare(idir,iresp),alfaim(idir,iresp),
-c     &       betare(idir,iresp),betaim(idir,iresp)
-c 10       format('FA-tensor:(ispin,idir,iresp)=(',
-c     &            i3,',',i3',',i3,')',
-c     &           ' alfa(re,im)=(',f15.8,',',f15.8,')',
-c     &           ' beta(re,im)=(',f15.8,',',f15.8,')')
-c          enddo ! end-loop-iresp
-c         enddo ! end-loop-idir
-c        endif
-c ============ visualize-1 (alfa,beta) ========== END
+c ============ visualize (alfa,beta) ========== START
+         if (debug) then
+          if (ga_nodeid().eq.0) then
+           do idir=1,ndir
+            do iresp=1,3
+             write(*,10) ispin,idir,iresp,
+     &        alfare(idir,iresp),alfaim(idir,iresp),
+     &        betare(idir,iresp),betaim(idir,iresp)
+ 10          format('(ispin,idir,iresp)=(',i3,',',i3',',i3,')',
+     &              ' alfa(re,im)=(',f15.8,',',f15.8,')',
+     &              ' beta(re,im)=(',f15.8,',',f15.8,')')
+            enddo ! end-loop-iresp
+           enddo ! end-loop-idir
+          endif
+         endif ! end-if-debug
+c ============ visualize (alfa,beta) ========== END
           if (.not.ga_destroy(g_temp))
      &       call errquit
      &       ('aor_beta: ga_destroy failed g_temp',
@@ -353,9 +351,6 @@ c     two, so we need to scale betare, betaim. If we have static
 c     response then there is a factor of two missing everywhere
 c     because we don't add C(+) and C(-) for the electric field.
 
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-lgiao=',lgiao
-
       if (lgiao) then
         scaling = half
         do idir = 1,ndir ! direction of the perturbing field (x,y,z)
@@ -365,23 +360,6 @@ c     &  write(*,*) 'FA-lgiao=',lgiao
           end do
         end do
       end if                    ! lgiao
-c ============ visualize-1 (alfa,beta) ========== START
-c        if (ga_nodeid().eq.0) then
-c         do idir=1,ndir
-c          do iresp=1,3
-c           write(*,11) ispin,idir,iresp,
-c     &       alfare(idir,iresp),alfaim(idir,iresp),
-c     &       betare(idir,iresp),betaim(idir,iresp)
-c 11       format('FA-AFT-lgiao:(ispin,idir,iresp)=(',
-c     &            i3,',',i3',',i3,')',
-c     &           ' alfa(re,im)=(',f15.8,',',f15.8,')',
-c     &           ' beta(re,im)=(',f15.8,',',f15.8,')')
-c          enddo ! end-loop-iresp
-c         enddo ! end-loop-idir
-c        endif
-c ============ visualize-1 (alfa,beta) ========== END
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-lstatic=',lstatic
 
       if (lstatic) then
         scaling = two
@@ -395,22 +373,6 @@ c     &  write(*,*) 'FA-lstatic=',lstatic
         end do
       end if                    ! lstatic
 
-c ============ visualize-1 (alfa,beta) ========== START
-c        if (ga_nodeid().eq.0) then
-c         do idir=1,ndir
-c          do iresp=1,3
-c           write(*,12) ispin,idir,iresp,
-c     &       alfare(idir,iresp),alfaim(idir,iresp),
-c     &       betare(idir,iresp),betaim(idir,iresp)
-c 12       format('FA-AFT-lstatic:(ispin,idir,iresp)=(',
-c     &            i3,',',i3',',i3,')',
-c     &           ' alfa(re,im)=(',f15.8,',',f15.8,')',
-c     &           ' beta(re,im)=(',f15.8,',',f15.8,')')
-c          enddo ! end-loop-iresp
-c         enddo ! end-loop-idir
-c        endif
-c ============ visualize-1 (alfa,beta) ========== END
-
 c     for magnetic perturbation, alfa is the G' tensor, and
 c     beta is the paramagnetic mag-mag response. 
 c     for electric field perturbations (default), alfa is the
@@ -419,18 +381,10 @@ c     omega we want the beta tensor, not G'.
 c     also consider the case of velocity formalisms where 
 c     additional divisions by omega occur. 
 
-c      if (ga_nodeid().eq.0) then
-c       write(*,14) lmagpert,lstatic,lvelocity,omega
-c 14    format('(lmagpert,lstatic,lvelocity,omega)=(',
-c     &        L1,',',L1,',',L1,',',f15.8,')')
-c      endif
-
       do idir = 1,ndir ! direction of the perturbing field (x,y,z)
         do iresp = 1,3
           if (lmagpert .and. .not.lstatic) then
 c           case I: magnetic perturbation. alpha = G', beta = Chi-p
-c            if (ga_nodeid().eq.0)
-c     &       write(*,*) 'FA-enter-caseI'
               alfare(idir,iresp) = alfare(idir,iresp) / omega
               alfaim(idir,iresp) = alfaim(idir,iresp) / omega
             if (lvelocity) then
@@ -438,14 +392,10 @@ c     &       write(*,*) 'FA-enter-caseI'
               alfaim(idir,iresp) = alfaim(idir,iresp) / omega
             endif
           else if (.not.lmagpert .and. .not.lstatic) then
-c            if (ga_nodeid().eq.0)
-c     &       write(*,*) 'FA-enter-caseII'
 c           case II: alpha = polarizability, beta = G'
               betare(idir,iresp) = betare(idir,iresp) / omega
               betaim(idir,iresp) = betaim(idir,iresp) / omega
             if (lvelocity) then
-c              if (ga_nodeid().eq.0) 
-c     &         write(*,*) 'FA-enter-caseII-lvelocity'
               betare(idir,iresp) = betare(idir,iresp) / omega
               alfare(idir,iresp) = alfare(idir,iresp) / omega**2
               betaim(idir,iresp) = betaim(idir,iresp) / omega
@@ -454,24 +404,8 @@ c     &         write(*,*) 'FA-enter-caseII-lvelocity'
           endif
         enddo
       enddo
-c ============ visualize-1 (alfa,beta) ========== START
-c        if (ga_nodeid().eq.0) then
-c         do idir=1,ndir
-c          do iresp=1,3
-c           write(*,13) ispin,idir,iresp,
-c     &       alfare(idir,iresp),alfaim(idir,iresp),
-c     &       betare(idir,iresp),betaim(idir,iresp)
-c 13       format('FA-AFT-lmagpert:(ispin,idir,iresp)=(',
-c     &            i3,',',i3',',i3,')',
-c     &           ' alfa(re,im)=(',f15.8,',',f15.8,')',
-c     &           ' beta(re,im)=(',f15.8,',',f15.8,')')
-c          enddo ! end-loop-iresp
-c         enddo ! end-loop-idir
-c        endif
-c ============ visualize-1 (alfa,beta) ========== END
 c     ----------------
 c     all done. return
 c     ----------------
-c     ==================================================================
       return
       end

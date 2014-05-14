@@ -989,7 +989,8 @@ c             (note: sign reversed)
      &           g_dipel,blo,bhi,
      &           g_work,alo,ahi)
               
-              sum = 1d0 * ga_trace_diag(g_work)              
+c              sum = 1d0 * ga_trace_diag(g_work)   
+              sum = -1d0 * ga_trace_diag(g_work)   ! FA-03-12-14               
               
               alfaim(idir, iresp) = sum
             else
@@ -1054,7 +1055,7 @@ c             (note: sign reversed)
               
               if (dbgmat) call nga_print_patch(g_dipmag,blo,bhi,1)
               
-              sum =  1d0 * ga_trace_diag(g_work)              
+              sum =  1d0 * ga_trace_diag(g_work)    
               betaim(idir, iresp) = sum
             else
               betaim(idir, iresp) = 0d0

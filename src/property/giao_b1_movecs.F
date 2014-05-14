@@ -411,8 +411,8 @@ c     & write(*,*) 'FA-BEF update_rhs_threeAOints'
      &  write(*,*) '---- g_rhs-AFT-readfile--------  END'
       endif ! end-if-debug
   
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'COMPUTE cphf giao_b1 data ...'   
+       if (ga_nodeid().eq.0)
+     &  write(*,*) 'COMPUTE cphf giao_b1 data ...'   
 c
 c     Write ga_rhs to disk 
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)

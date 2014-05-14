@@ -166,8 +166,6 @@ c ======= get dens for shell_fock_build ========= START
 
         endif ! end-if-lifetime
 c ======= get dens for shell_fock_build ========= END
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
 
       call shell_fock_build2(g_fock, ! out: Fock    matrices
      &                       g_dens, ! in : density matrices
@@ -181,9 +179,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       noskew, ! in : =.false. for nonsymm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -458,7 +453,6 @@ c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
      $   call errquit('rhessv_2e3_opt_cmplx: failed alloc g_xreim',
      &                nvec,GA_ERR)
 c 
-c      debug=.true. ! printouts allowed
        debug=.false. ! no printouts
 c ======= set (nmul,nset,nblock) values ===== START
       ncomp=1 ! one single component
@@ -567,9 +561,6 @@ c ======= get dens for shell_fock_build ========= END
        if (.not.ga_destroy(g_xreim)) call errquit(
      &     'rohf_hessv2: ga_destroy failed g_xreim',0,GA_ERR)  
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
-
       call shell_fock_build2(g_fock, ! out: Fock    matrices
      &                       g_dens, ! in : density matrices
      &                       geom,   ! in : geom  handle
@@ -582,9 +573,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       noskew, ! in : =.false. for nonsymm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -704,8 +692,6 @@ c
 
 c Note.- The operation below does:
 c        g_ax_re= g_ax_re + 4 [4 C^T F C]  --> I am not sure if this is right.
-c          call ga_mat_to_vec(g_tmp1,1,nvir,1,nclosed,
-c     $                       g_ax_re,1,ivec,four,'+')
           call update_gz_reorim1(g_Az1,  ! out: = complx(g_xre,g_xim)
      &                           g_tmp1, ! in : real      arr 
      &                           1,      ! in  : =1 -> re =2 -> im
@@ -735,8 +721,6 @@ c     $                       g_ax_re,1,ivec,four,'+')
      &      write(*,*) '--------- g_Az1-im-BEF-------- END'
            endif ! end-if-debug
 
-c          call ga_mat_to_vec(g_tmp1,1,nvir,1,nclosed,
-c     $                       g_ax_im,1,ivec,four,'+')
           call update_gz_reorim1(g_Az1,  ! out: = complx(g_xre,g_xim)
      &                           g_tmp1, ! in : real      arr 
      &                           2,      ! in  : =1 -> re =2 -> im

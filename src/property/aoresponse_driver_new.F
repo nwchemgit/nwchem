@@ -457,11 +457,11 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
 
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-BEF. giao_b1_movecs ...'
+          if (ga_nodeid().eq.0)
+     &     write(*,*) 'FA-BEF. giao_b1_movecs ...'
           call giao_b1_movecs(rtdb,basis,geom,g_vecB1,g_sket1)
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
+          if (ga_nodeid().eq.0)
+     &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
           do ispin=1,npol
            call ga_scale(g_vecB1(ispin),0.5d0)
           enddo ! end-loop-ispin
@@ -469,11 +469,11 @@ c Note.- The use of g_sket1 is uncertain
 c        It needs to be destroyed
           call ga_scale(g_sket1,0.5d0)
         else
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
+          if (ga_nodeid().eq.0)
+     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
           call fiao_b1_movecs(rtdb,basis,geom,g_vecB1)
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-AFT. fiao_b1_movecs ...'
+          if (ga_nodeid().eq.0)
+     &     write(*,*) 'FA-AFT. fiao_b1_movecs ...'
         endif ! end-if-lgiao
 c        if (oprint) write (luout,*) '... done. Reinitializing integrals'
       end if ! lbeta 
@@ -550,12 +550,12 @@ c     determine frequency and number of components
       ncomp = 2                       ! no. of Fourier components to treat
       if (lstatic) ncomp = 1 
       
-c      if (ga_nodeid().eq.0) then
-c       write(*,100) lstatic,omega,ncomp
-c 100   format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
-c      endif
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-BEF. fiao_f1_movecs-1 ...'
+      if (ga_nodeid().eq.0) then
+       write(*,100) lstatic,omega,ncomp
+ 100   format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
+      endif
+          if (ga_nodeid().eq.0)
+     &     write(*,*) 'FA-BEF. fiao_f1_movecs-1 ...'
 
       call fiao_f1_movecs(
      &      rtdb,basis,geom,    ! in : handles
@@ -598,6 +598,7 @@ c     &     write(*,*) 'FA-BEF. fiao_f1_movecs-2 ...'
 
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'FA-AFT. fiao_f1_movecs-2 ...'
+
 c       we can subtract the static response right in the perturbed
 c       MO vectors and deallocate g_vecF1_zero to free up some
 c       memory
@@ -699,6 +700,7 @@ c     &  write(*,*) 'aoresp-driv-nw: lbeta=',lbeta
 c     default call: compute dynamic polarizability and
 c     optical rotation G' tensor
          if (debug) write (luout,*) 'calling aor_r1_tensor'
+
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'FA-BEF. aor_r1_tensor ...'
 
@@ -726,11 +728,8 @@ c     &     write(*,*) 'FA-BEF. aor_r1_tensor ...'
 
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'FA-AFT. aor_r1_tensor ...'  
-         if (debug) write (luout,*) 'exiting aor_r1_tensor'
 
-c      if (ga_nodeid().eq.0)
-c     &  write(*,*) 'STOP-test-urest'
-c      stop
+         if (debug) write (luout,*) 'exiting aor_r1_tensor'
     
       else ! lbeta?
 
@@ -739,6 +738,7 @@ c       using frequency-dependent generalization of Amos' formula, along
 c       with the polarizability
         
          if (debug) write (luout,*) 'calling aor1_beta'
+
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'FA-BEF. aor_r1_beta ...'
 
@@ -767,12 +767,9 @@ c     &     write(*,*) 'FA-BEF. aor_r1_beta ...'
      &      betare,betaim)      ! out: electric-magnetic response matrices   
 
 c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-AFT. aor_r1_beta ...'      
+c     &     write(*,*) 'FA-AFT. aor_r1_beta ...'    
+  
          if (debug) write (luout,*) 'exiting aor_r1_beta'
-
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'STOP test uhf-2'
-c          stop
 
 c        if an analysis is requested we need to repeat
 c        the computation for the XX, YY, ZZ elements and break down
@@ -818,6 +815,7 @@ c     &     write(*,*) 'BEF. aor_r1_beta_anl ...'
 
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'AFT. aor_r1_beta_anl ...'
+
          end if! lanalyze
       end if ! lbeta
 
@@ -910,6 +908,18 @@ c
             write (LuOut,*) 'Optical rotation tensor Beta'
           endif
         endif
+c ++++++++++++ Re-scale beta(re,im) to compare with Dalton ++++ START
+        goto 2014
+        write(*,1) omega
+ 1      format('FA: omega=',f15.8)
+        do idir = 1,3           ! direction of the perturbing field     
+          do ipert = 1,3        ! responding operator direction    
+           betare(idir,ipert)=betare(idir,ipert)*omega
+           betaim(idir,ipert)=betaim(idir,ipert)*omega
+         enddo
+        enddo     
+ 2014   continue   
+c ++++++++++++ Re-scale beta(re,im) to compare with Dalton ++++ END
         call output(betare,1,3,1,3,3,3,1)
         if (lifetime) then
           write (luout,*)
@@ -1063,9 +1073,11 @@ c     ==================================================================
      &       ' Comp. Lett. 3 (2007), 131-150 (contact JA for a copy)'/
      &       ' Please cite this work in publications based on results'/
      &       ' obtained with this code. Thank you!'/
-     &       ' For updated response module please acknowledge:'/
+     &       ' For extension of response module to open shell'/
+     &       ' calculations please acknowledge:'/    
      &       ' F. Aquino, Northwestern University, Schatz Rsrch Group'/
-     &       ' (version June 9th,2012)'/
+     &       ' The update to the methodology is described in'/
+     &       ' J. Phys. Chem. A 118 (2014) 517-525'/
      &       ' ++++++++++++++++++++++++++++++++++++++++++++++++++++++')
  9020 format(/,10x,'Open shell calculations not yet implemented',
      &      ' for the Response module. Exiting')

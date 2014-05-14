@@ -39,13 +39,12 @@ c --> Experimental (not published yet)
 
       integer gtype, vlen, nvec, nvecp, ivec
       double precision dnrm,wls,wlsim,coeffw
+      double precision omg(ncomp),gam(ncomp)
       integer ilo(2), ihi(2)
-
       logical oprint, olprint
-c --------- FA-vars ----- START
       external uhf_hessv_2e2_opt
       logical debug
-c --------- FA-vars ----- END
+
 
       oprint = util_print("hessv",print_high)
       olprint = oprint .and. (ga_nodeid().eq.0)
@@ -102,30 +101,32 @@ c     Check dimensions
       end do    
 
       coeffw=2.0d0 ! u-dft
+      omg(1)=-omega
+      omg(2)= omega
+      gam(1)=-gamwidth
+      gam(2)= gamwidth
       if (.not.lifetime) then
 c       no damping: initialize Ax with terms proportional omega
-        wls = lshift - coeffw * omega
-        call ga_dadd( wls, g_x(1), 0.d0, g_ax(1), g_ax(1) )
-        if (ncomp.gt.1) then
-        wls = lshift + coeffw * omega
-        call ga_dadd( wls, g_x(2), 0.d0, g_ax(2), g_ax(2) )
-        endif
+         do ipm=1,ncomp
+          wls   = lshift + coeffw * omg(ipm)
+          call ga_dadd(wls  ,g_x(ipm),
+     &                 0.0d0,g_ax(ipm),
+     &                       g_ax(ipm))
+         enddo ! end-lopp-ipm
       else                    ! lifetime
 c       take care of damping here: Re and Im are coupled by gamwidth
-        wls   = lshift - coeffw * omega
-        wlsim = -coeffw * gamwidth
-        call ga_dadd( wls, g_x(1), wlsim, g_x_im(1), g_ax(1) )
-        wls   =  coeffw * gamwidth
-        wlsim = lshift - coeffw * omega
-        call ga_dadd( wls, g_x(1), wlsim, g_x_im(1), g_ax_im(1) )
-        if (ncomp.gt.1) then
-        wls   = lshift + coeffw * omega
-        wlsim = -coeffw * gamwidth
-        call ga_dadd( wls, g_x(2), wlsim, g_x_im(2), g_ax(2) )
-        wls   =  coeffw * gamwidth
-        wlsim = lshift + coeffw * omega
-        call ga_dadd( wls, g_x(2), wlsim, g_x_im(2), g_ax_im(2) )
-        endif                 ! ncomp.gt.1
+         do ipm=1,ncomp
+          wls   = lshift + coeffw * omg(ipm)
+          wlsim = -coeffw * gam(ipm) 
+          call ga_dadd(wls  ,g_x(ipm),
+     &                 wlsim,g_x_im(ipm),
+     &                       g_ax(ipm))
+          wls   =  coeffw * gam(ipm) 
+          wlsim = lshift + coeffw * omg(ipm)
+          call ga_dadd(wls  ,g_x(ipm),
+     &                 wlsim,g_x_im(ipm),
+     &                       g_ax_im(ipm))  
+         enddo ! end-lopp-ipm
       endif                   ! .not.lifetime
 c ============== debug g_ax ==================== START
       debug=.false. ! .true.
@@ -148,27 +149,18 @@ c ============== debug g_ax ==================== START
        enddo ! end-loop-ipm
        endif ! end-if-lifetime
       endif ! end-if-debug
-c ============== debug g_ax ==================== END
-
       call ga_sync()
+
 c       next: add (e_a - e_i) times A (also called U) matrix to Ax
         do ipm=1,ncomp
-
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) 'BEF uhf_hessv_1e ipm=',ipm
-
          call uhf_hessv_1e(acc, g_x(ipm)   , g_ax(ipm)   , nvec) ! update g_ax 
-
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) 'AFT uhf_hessv_1e ipm=',ipm
-
         enddo ! end-loop-ipm
         if (lifetime) then
         do ipm=1,ncomp
          call uhf_hessv_1e(acc, g_x_im(ipm), g_ax_im(ipm), nvec) ! update g_ax_im 
         enddo ! end-loop-ipm
         endif ! end-if-lifetime
-c ============== debug g_ax ==================== START
+
       if (debug) then
        do ipm=1,2
          if (ga_nodeid().eq.0)        
@@ -191,9 +183,6 @@ c ============== debug g_ax ==================== END
 
       if (pflg .gt. 1)then 
         if (ncomp.gt.1) then
-         
-c            if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e3-RE-IM'
 
             call uhf_hessv_2e3(acc, 
      &                         g_x, 
@@ -203,9 +192,6 @@ c     &      write(*,*) 'FA-BEF-uhf_hessv_2e3-RE-IM'
      &                         nvec,
      &                         limag,
      &                         lifetime)
-
-c            if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e3-RE-IM'
 
         else                    ! call static 2e code
 
@@ -228,9 +214,6 @@ c     &      write(*,*) 'FA-AFT-uhf_hessv_2e3-RE-IM'
            enddo ! end-loop-ipm
           endif ! end-if-lifetime
          endif ! end-if-debug     
-    
-c          if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e2-RE-IM'
 
             call uhf_hessv_2e2_opt(
      &                         acc, 
@@ -240,26 +223,6 @@ c     &      write(*,*) 'FA-BEF-uhf_hessv_2e2-RE-IM'
      &                         g_ax_im(1), 
      &                         nvec,
      &                         lifetime)
-c         if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e2-RE-IM'
-c          stop
-
-c         if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e2-RE'
-c         call uhf_hessv_2e2(acc, g_x(1),g_ax(1),nvec)
-c         if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e2-RE'
-c         if (lifetime) then
-c           if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e2-IM'
-c         call uhf_hessv_2e2(acc, g_x_im(1),g_ax_im(1),nvec)
-c           if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e2-IM'
-c         endif ! end-if-lifetime
-
-c         if (ga_nodeid().eq.0) write(*,*) 'FA-stop-test'
-c         stop
-
         endif ! end-if-ncomp
       endif ! end-if-pflg
 
@@ -356,7 +319,6 @@ c     transformed into MO basis of the OPPOSITE spin.
       integer ip,im,ipm,cnt
       data npol /2/ ! for unrestricted calculations
 
-c      debug=.true. ! printouts allowed
       debug=.false. ! no printouts
 
       ncomp=1 ! one single component
@@ -469,9 +431,6 @@ c ... allocate g_fock=[g_fock_re g_fock_im]
         endif ! end-if-lifetime
       enddo ! end-loop-iset
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
-
       call shell_fock_build2(g_fock, ! out: Fock    matrices
      &                       g_dens, ! in : density matrices
      &                       geom,   ! in : geom  handle
@@ -484,9 +443,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       .false.,! in : =.false. for nonsymm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -673,22 +629,16 @@ c     Different spin
        endif ! end-if-lifetime
       endif ! end-if-debug
 
-      if (.not. ga_destroy(g_j)) call errquit('uhf_hv2e: GA?',0,
+       if (.not. ga_destroy(g_j)) call errquit('uhf_hv2e: GA?',0,
      &       GA_ERR)
-      if (.not. ga_destroy(g_k)) call errquit('uhf_hv2e: GA?',0,
+       if (.not. ga_destroy(g_k)) call errquit('uhf_hv2e: GA?',0,
      &       GA_ERR)
-      do ipm = 1,nblock
+       do ipm = 1,nblock
         if (.not. ga_destroy(g_dens(ipm))) call errquit(
      &      'uhf_hv2e: ga_destroy failed g_dens',0,GA_ERR)
         if (.not. ga_destroy(g_fock(ipm))) call errquit
      &     ('uhf_hv2e: ga_destroy failed g_fock',0,GA_ERR)
-      enddo ! end-loop-ipm    
-
-       if (debug) then
-        if (ga_nodeid().eq.0)
-     &   write(*,*) 'FA-stop-quest'
-        stop
-       endif ! end-if-debug
+       enddo ! end-loop-ipm    
 
       end
 
@@ -908,9 +858,7 @@ c     transformed into MO basis of the OPPOSITE spin.
       data indx /1,2, ! indx(1,1),indx(1,2)
      &           3,4/ ! indx(2,1),indx(2,2)
 
-c      debug=.true. ! printouts allowed
       debug=.false. ! no printouts
-
       ncomp=2 ! using two components
       nmul=1
       if (npol.eq. 2) nmul=2
@@ -1058,9 +1006,6 @@ c     it if there is more than 1 RHS.
       oskel_local = oskel .and. (nvec.eq.1)
       tol2e_local = min(max(acc,itol_floor),itol_ceil)
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
-
       if (debug) then
         do ipm=1,nblock
          if (ga_nodeid().eq.0)
@@ -1083,9 +1028,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       .true., ! in : = .true for symm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -1316,23 +1258,16 @@ c     Different spin
        endif ! end-if-lifetime
       endif ! end-if-debug
 
-
-      if (.not. ga_destroy(g_j)) call errquit('uhf_hessv: GA?',0,
+       if (.not. ga_destroy(g_j)) call errquit('uhf_hessv: GA?',0,
      &       GA_ERR)
-      if (.not. ga_destroy(g_k)) call errquit('uhf_hessv: GA?',0,
+       if (.not. ga_destroy(g_k)) call errquit('uhf_hessv: GA?',0,
      &       GA_ERR)
-      do ipm = 1,nblock
+       do ipm = 1,nblock
         if (.not. ga_destroy(g_dens(ipm))) call errquit(
      &      'rohf_hessv3: ga_destroy failed g_dens',0,GA_ERR)
         if (.not. ga_destroy(g_fock(ipm))) call errquit
      &     ('rohf_hessv3: ga_destroy failed g_fock',0,GA_ERR)
-      enddo ! end-loop-ipm    
-
-c      if (debug) then
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-stop-quest'
-c       stop
-c      endif ! end-if-debug
+       enddo ! end-loop-ipm    
 
       end
 c ============= optimized alg ==================== END
@@ -1402,11 +1337,6 @@ c ----- Construct coeffs for P(S),P(A) ------- END
       do cnt=1,nset
        ind1=indx(1,cnt)
        ind2=indx(2,cnt)
-c       if (ga_nodeid().eq.0) then
-c        write(*,1) cnt,ind1,ind2
-c  1     format('In get_undosymm_fock:(cnt,ind1,ind2)=(',
-c     &         i3,',',i3,',',i3,')')
-c       endif
        do ivec = 1,nvec*nmul*npol
         alo(1) = ivec
         ahi(1) = ivec 
@@ -1420,13 +1350,6 @@ c       it might be necessary to use 0.5 here instead of 1.0
 c       (note: that turned out NOT to be the case after some testing)
         do ipm=1,2
           ind=indx(ipm,cnt)
-
-c         if (ga_nodeid().eq.0) then
-c          write(*,2) cnt,ivec,ipm,ind
-c  2       format('In get_undosymm_fock-1:(cnt,ivec,ipm,ind)=(',
-c     &           i3,',',i3,',',i3,',',i3,')')
-c         endif
-
           call nga_add_patch(coeff(ipm,1),g_p(1)      ,blo,bhi,
      &                       coeff(ipm,2),g_p(2)      ,blo,bhi,
      &                                    g_fock2(ind),alo,ahi)
@@ -1594,7 +1517,7 @@ c --> Experimental (not published yet)
      &        shift1(2),nocc1(2),
      &        nvir1(2),pretty
       double complex wls_cmplx
-      double precision omg(ncomp)
+      double precision omg(ncomp),gam(ncomp)
       external conv2complex4,getreorim,getreorim1,
      &         getreorim1_u1,getreorim_u1,
      &         conv2complex4_u1
@@ -1602,13 +1525,10 @@ c --> Experimental (not published yet)
       integer gtype, vlen, nvec, nvecp, ivec
       double precision dnrm,wls,wlsim,coeffw
       integer ilo(2), ihi(2),alo(2),ahi(2)
-
       logical oprint, olprint
-c --------- FA-vars ----- START
       external uhf_hessv_2e2_opt
       logical debug
-c --------- FA-vars ----- END
-
+      debug=.false.
       oprint = util_print("hessv",print_high)
       olprint = oprint .and. (ga_nodeid().eq.0)
 c
@@ -1645,29 +1565,10 @@ c     Check dimensions
      $     call errquit('uhf_hessv2-dmp: invalid nvecp',
      &                  nvecp, INPUT_ERR)
 
-c      if (oprint) then
-c        do ivec = 1, nvec
-c          ilo(1) = 1
-c          ilo(2) = ivec
-c          ihi(1) = vlen
-c          ihi(2) = ivec
-c          call nga_normf_patch(g_x,ilo,ihi,dnrm)
-c          if (olprint) then
-c            write(LuOut,'(1x,a,": g_x = ",i4,f24.8)')
-c     +      __FILE__,ivec,dnrm
-c          endif
-c        enddo
-c      endif
-
  10   continue
         call ga_inquire(g_z(1),gtype,n,nvec) ! get (n,nvec)
 c ----- Clear sub-block ---- START
         call ga_inquire(g_Az1,gtype,n1,maxsub)
-        if (ga_nodeid().eq.0) then
-         write(*,103) n,nvec,n1,nsub,maxsub
- 103     format('(n,nvec,n1,nsub,maxsumb)=(',
-     &          i12,',',i4,',',i12,',',i4,',',i4,')')
-        endif
         alo(1)=1
         ahi(1)=n1
         alo(2)=nsub+1
@@ -1676,6 +1577,10 @@ c ----- Clear sub-block ---- START
 c ----- Clear sub-block ---- END
 
         coeffw=2.0d0 ! u-dft
+        omg(1)=-omega
+        omg(2)= omega
+        gam(1)=-gamwidth
+        gam(2)= gamwidth
       if (.not.lifetime) then
         write(*,*) 'uhf_hessv3_cmplx:STOP-not implemented'
         stop
@@ -1689,8 +1594,6 @@ c        endif
       else                    ! lifetime
 c       take care of damping here: Re and Im are coupled by gamwidth
 c 00000000000000000000000000000000000 START
-         omg(1)=-omega
-         omg(2)= omega
 c        take care of damping here: Re and Im are coupled by gamwidth
          m1=1
          m2=n
@@ -1698,15 +1601,8 @@ c        take care of damping here: Re and Im are coupled by gamwidth
          p2=nsub+nvec
          do ipm=1,ncomp
           wls   = lshift + coeffw * omg(ipm)
-          wlsim = -coeffw * gamwidth
+          wlsim = -coeffw * gam(ipm)
           wls_cmplx=dcmplx(wls,-wlsim)
-c          write(*,19) lshift,wls,wlsim,wls_cmplx
-c 19       format('(lshift,wls,wlsim,wls_cmplx)=(',
-c     &           f15.8,',',f15.8,',',f15.8,
-c     &           ',[',f15.8,',',f15.8,'])') 
-c         write(*,179) m1,m2,p1,p2
-c 179     format('(m1,m2,p1,p2)=(',i3,',',i3,',',i3,',',i3,')')
-c         write(*,*) 'n=',n,' nvec=',nvec
           call ga_copy_patch('n',g_z(ipm),1 ,n ,1 ,nvec,
      &                           g_Az1   ,m1,m2,p1,p2)
           call ga_scale_patch(g_Az1,m1,m2,p1,p2,wls_cmplx)
@@ -1716,8 +1612,6 @@ c         write(*,*) 'n=',n,' nvec=',nvec
 
 c 00000000000000000000000000000000000 END
       endif                   ! .not.lifetime
-c ============== debug g_ax ==================== START
-      debug=.false. !.true.
 
       if (debug) then
             if (ga_nodeid().eq.0)        
@@ -1726,7 +1620,7 @@ c ============== debug g_ax ==================== START
             if (ga_nodeid().eq.0)
      &      write(*,*) '------- g_Az1-c------ END'
       endif ! end-if-debug
-c ============== debug g_ax ==================== END
+
 c     next: add (e_a - e_i) times A (also called U) matrix to Ax
 c 0000000000000000000000000000000000000000000000000000000000
 c 0000000000 Adding 1e contrib to g_Az1 00000000000000 START
@@ -1757,16 +1651,6 @@ c 0000000000000000000000000000000000000000000000000000000000
      &                  nvir1,   ! in  : nr. virtual  MOs
      &                  nocc1,   ! in  : nr. occupied MOs
      &                  nreim)   ! in  : =1 -> re =2 -> im
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_z(',ipm,',',nreim,')---START'
-c        call ga_print(g_z(ipm))
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_z(',ipm,',',nreim,')---END'
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_xreim(',ipm,',',nreim,')---START'
-c        call ga_print(g_xreim)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_xreim(',ipm,',',nreim,')---END'
          call getreorim1_u1(
      &                  g_Axreim,! out : real or im arr
      &                  g_Az1,   ! in  : = complx(g_xre,g_xim)
@@ -1776,20 +1660,10 @@ c     &    write(*,*) '----BEF g_xreim(',ipm,',',nreim,')---END'
      &                  nvir1,   ! in  : nr. virtual  MOs
      &                  nocc1,   ! in  : nr. occupied MOs
      &                  nreim)   ! in  : =1 -> re =2 -> im
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_Axreim(',ipm,',',nreim,')---START'
-c        call ga_print(g_Axreim)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_Axreim(',ipm,',',nreim,')---END'
          call uhf_hessv_1e(acc, 
      &                     g_xreim, 
      &                     g_Axreim, 
      &                     nvec) 
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----AFT g_Axreim(',ipm,',',nreim,')---START'
-c         call ga_print(g_Axreim)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----AFT g_Axreim(',ipm,',',nreim,')---END'
 c ++++++++ update g_Az +++++++++ START
         call conv2complex4_u1(
      &                g_Az1,    ! out: = history matrix complex
@@ -1822,8 +1696,6 @@ c ============== debug g_ax ==================== END
 
       if (pflg .gt. 1)then 
         if (ncomp.gt.1) then
-c            if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e3-cmplx'
             call uhf_hessv_2e3_cmplx(
      &                  acc, 
      &                  g_z,
@@ -1832,14 +1704,6 @@ c     &      write(*,*) 'FA-BEF-uhf_hessv_2e3-cmplx'
      &                  nvec,
      &                  limag,
      &                  lifetime)
-c            if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e3-cmplx'
-c ++++++++++++++++++++++++++++++++++++++++++++
-c             if (ga_nodeid().eq.0)
-c     &        write(*,*) 'FA-stop-test-uhf_hessv_2e3'
-c             stop
-c ++++++++++++++++++++++++++++++++++++++++++++
-
         else                    ! call static 2e code
 
       if (debug) then
@@ -1848,7 +1712,8 @@ c ++++++++++++++++++++++++++++++++++++++++++++
          call ga_print(g_Az1)
          if (ga_nodeid().eq.0)
      &    write(*,*) '------- g_Az1-0-x------ END'
-      endif ! end-if-debug     
+      endif ! end-if-debug   
+  
           if (ga_nodeid().eq.0) 
      &      write(*,*) 'FA-BEF-uhf_hessv_2e2-cmplx'
 
@@ -1859,25 +1724,12 @@ c ++++++++++++++++++++++++++++++++++++++++++++
      &                         nsub,
      &                         nvec,
      &                         lifetime)
+
          if (ga_nodeid().eq.0) 
      &      write(*,*) 'FA-AFT-uhf_hessv_2e2-cmplx'
+
         endif ! end-if-ncomp
-      endif ! end-if-pflg
-
-c      if (oprint) then
-c        do ivec = 1, nvec
-c          ilo(1) = 1
-c          ilo(2) = ivec
-c          ihi(1) = vlen
-c          ihi(2) = ivec
-c          call nga_normf_patch(g_ax,ilo,ihi,dnrm)
-c          if (olprint) then
-c            write(LuOut,'(1x,a,": g_ax = ",i4,f24.8)')
-c     +      __FILE__,ivec,dnrm
-c          endif
-c        enddo
-c      endif
-
+       endif ! end-if-pflg
       end
 
       subroutine uhf_hessv_2e3_cmplx(
@@ -1970,7 +1822,6 @@ c     transformed into MO basis of the OPPOSITE spin.
       data indx /1,2, ! indx(1,1),indx(1,2)
      &           3,4/ ! indx(2,1),indx(2,2)
 
-c      debug=.true. ! printouts allowed
       debug=.false. ! no printouts
 
       ncomp=2 ! using two components
@@ -2004,13 +1855,6 @@ c ============= FA-defining scratch GA array g_h1mat() === START
      &     0,GA_ERR)
         call ga_zero(g_pmats(ipm))
         write(cstemp,'(a,i1)') 'pmata_',ipm
-
-c        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
-c     &     g_pmata(ipm))) call 
-c     &     errquit('rohf_h2e3: nga_create failed '//cstemp(1:7),
-c     &     0,GA_ERR)
-c        call ga_zero(g_pmata(ipm))
-
         write(cstemp,'(a,i1)') 'h1mat_',ipm
         if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
      &     g_h1mat(ipm))) call 
@@ -2077,16 +1921,12 @@ c ---- Copy g_z --> g_x_reim ------ START
      $   call errquit('rhessv_2e3_opt_cmplx: failed alloc g_xreim',
      &                nvec,GA_ERR)
          call ga_zero(g_xreim(ipm))
-c         write(*,113) shift,nvir,nocc
-c 113     format('(shift,nvir,nocc)=(',i3,',',i3,',',i3,')')
-
          call getreorim_u(g_xreim(ipm),! out : real or im arr
      &                    g_z(ipm),    ! in  : = complx(g_xre,g_xim)
      &                    shift,       ! in  : shift
      &                    nvir,        ! in  : nr. virtual  MOs
      &                    nocc,        ! in  : nr. occupied MOs
      &                    1)           ! in  : =1 -> re =2 -> im
-
         enddo ! end-loop-ipm
 c ---- Copy g_z --> g_x_reim ------ END
 
@@ -2119,11 +1959,11 @@ c ---- Copy g_z --> g_x_reim ------ START
           do ipm=1,ncomp
            call ga_zero(g_xreim(ipm))
            call getreorim_u(g_xreim(ipm),! out : real or im arr
-     &                    g_z(ipm),    ! in  : = complx(g_xre,g_xim)
-     &                    shift,       ! in  : shift
-     &                    nvir,        ! in  : nr. virtual  MOs
-     &                    nocc,     ! in  : nr. occupied MOs
-     &                    2)           ! in  : =1 -> re =2 -> im
+     &                    g_z(ipm),      ! in  : = complx(g_xre,g_xim)
+     &                    shift,         ! in  : shift
+     &                    nvir,          ! in  : nr. virtual  MOs
+     &                    nocc,          ! in  : nr. occupied MOs
+     &                    2)             ! in  : =1 -> re =2 -> im
           enddo ! end-loop-ipm
 
 c ---- Copy g_z --> g_x_reim ------ END
@@ -2164,9 +2004,6 @@ c     it if there is more than 1 RHS.
       oskel_local = oskel .and. (nvec.eq.1)
       tol2e_local = min(max(acc,itol_floor),itol_ceil)
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
-
       if (debug) then
         do ipm=1,nblock
          if (ga_nodeid().eq.0)
@@ -2189,9 +2026,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       .true., ! in : = .true for symm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -2217,10 +2051,6 @@ c ------- Remove GA arrays:
       do ipm = 1,ncomp
        if (.not.ga_destroy(g_pmats(ipm))) call errquit(
      &     'uhf_hessv_2e3: ga_destroy failed g_pmats',0,GA_ERR)  
-     
-C       if (.not.ga_destroy(g_pmata(ipm))) call errquit(
-C     &      'uhf_hessv_2e3: ga_destroy failed g_pmata',0,GA_ERR)
-
       enddo ! end-loop-ipm
 
       if (debug) then
@@ -2451,11 +2281,6 @@ c ---- Move g_Axreim --> g_Az1---- END
      &     ('rohf_hessv3: ga_destroy failed g_fock',0,GA_ERR)
       enddo ! end-loop-ipm    
 
-c      if (debug) then
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-stop-quest'
-c       stop
-c      endif ! end-if-debug
       end
 
       subroutine uhf_hessv_2e2_opt_cmplx(
@@ -2537,7 +2362,6 @@ c     transformed into MO basis of the OPPOSITE spin.
       integer ip,im,ipm,cnt,nocc_max,nvir_max
       data npol /2/ ! for unrestricted calculations
 
-c      debug=.true. ! printouts allowed
       debug=.false. ! no printouts
 
       ncomp=1 ! one single component
@@ -2675,8 +2499,6 @@ c ---- Copy g_z --> g_x_reim ------ END
      &     'uhf_hessv2_cmplx: ga_destroy failed g_xreim',0,GA_ERR) 
       enddo ! end-loop-iset
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
       if (debug) then
         do ipm=1,nblock
          if (ga_nodeid().eq.0)
@@ -2699,9 +2521,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       .false.,! in : =.false. for nonsymm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -2917,9 +2736,6 @@ c ---- Move g_Axreim --> g_Az1---- END
 c 000000000000000000000000000000000000000000000000000000000000
 c ++++++++++++++++++ udft calc using g_Az1 +++++++++++++ END
 c 000000000000000000000000000000000000000000000000000000000000
-c 000000000000000000000000000000000000000000000000000000000000
-c 000000000000 to be used by CG algorithm 000000000000 START
-c 000000000000000000000000000000000000000000000000000000000000
       subroutine uhf_hessv3_cmplx1(
      &                      acc,     ! in: accuracy of products
      &                      g_z,     ! in : z
@@ -2966,7 +2782,7 @@ c --> Experimental (not published yet)
      &        shift1(2),nocc1(2),
      &        nvir1(2),pretty
       double complex wls_cmplx
-      double precision omg(ncomp)
+      double precision omg(ncomp),gam(ncomp)
       external conv2complex4,getreorim,getreorim1,
      &         getreorim1_u1,getreorim_u1,
      &         conv2complex4_u1,
@@ -2978,7 +2794,7 @@ c --> Experimental (not published yet)
       integer ilo(2), ihi(2),alo(2),ahi(2)
       logical oprint, olprint
       logical debug
-
+      debug=.false.
       oprint = util_print("hessv",print_high)
       olprint = oprint .and. (ga_nodeid().eq.0)
 c
@@ -2992,6 +2808,10 @@ c     Check dimensions
         call ga_inquire(g_z(1),gtype,n,nvec) ! get (n,nvec)
         call ga_zero(g_Az)
         coeffw=2.0d0 ! u-dft
+        omg(1)=-omega
+        omg(2)= omega
+        gam(1)=-gamwidth
+        gam(2)= gamwidth
       if (.not.lifetime) then
         write(*,*) 'uhf_hessv3_cmplx:STOP-not implemented'
         stop
@@ -3003,23 +2823,13 @@ c        wls = lshift + coeffw * omega
 c        call ga_dadd( wls, g_x(2), 0.d0, g_ax(2), g_ax(2) )
 c        endif
       else                    ! lifetime
-c       take care of damping here: Re and Im are coupled by gamwidth
-         omg(1)=-omega
-         omg(2)= omega
 c        take care of damping here: Re and Im are coupled by gamwidth
          m1=1
          m2=n
          do ipm=1,ncomp
           wls   = lshift + coeffw * omg(ipm)
-          wlsim = -coeffw * gamwidth
+          wlsim = -coeffw * gam(ipm)
           wls_cmplx=dcmplx(wls,-wlsim)
-c          write(*,19) lshift,wls,wlsim,wls_cmplx
-c 19       format('(lshift,wls,wlsim,wls_cmplx)=(',
-c     &           f15.8,',',f15.8,',',f15.8,
-c     &           ',[',f15.8,',',f15.8,'])') 
-c         write(*,179) m1,m2,p1,p2
-c 179     format('(m1,m2,p1,p2)=(',i3,',',i3,',',i3,',',i3,')')
-c         write(*,*) 'n=',n,' nvec=',nvec
           call ga_copy_patch('n',g_z(ipm),1 ,n ,1,nvec,
      &                           g_Az    ,m1,m2,1,nvec)
           call ga_scale_patch(g_Az,m1,m2,1,nvec,wls_cmplx)
@@ -3027,8 +2837,6 @@ c         write(*,*) 'n=',n,' nvec=',nvec
           m2=m2+n
          enddo ! end-lopp-ipm
       endif                   ! .not.lifetime
-c ============== debug g_ax ==================== START
-      debug=.false. !.true.
 
       if (debug) then
             if (ga_nodeid().eq.0)        
@@ -3037,7 +2845,7 @@ c ============== debug g_ax ==================== START
             if (ga_nodeid().eq.0)
      &      write(*,*) '------- g_Az-c------ END'
       endif ! end-if-debug
-c ============== debug g_ax ==================== END
+
 c     next: add (e_a - e_i) times A (also called U) matrix to Ax
 c 0000000000000000000000000000000000000000000000000000000000
 c 0000000000 Adding 1e contrib to g_Az 00000000000000 START
@@ -3067,16 +2875,6 @@ c 0000000000000000000000000000000000000000000000000000000000
      &                  nvir1,   ! in  : nr. virtual  MOs
      &                  nocc1,   ! in  : nr. occupied MOs
      &                  nreim)   ! in  : =1 -> re =2 -> im
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_z(',ipm,',',nreim,')---START'
-c        call ga_print(g_z(ipm))
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_z(',ipm,',',nreim,')---END'
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_xreim(',ipm,',',nreim,')---START'
-c        call ga_print(g_xreim)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_xreim(',ipm,',',nreim,')---END'
          call getreorim1_u1(
      &                  g_Axreim,! out : real or im arr
      &                  g_Az,    ! in  : = complx(g_xre,g_xim)
@@ -3086,22 +2884,12 @@ c     &    write(*,*) '----BEF g_xreim(',ipm,',',nreim,')---END'
      &                  nvir1,   ! in  : nr. virtual  MOs
      &                  nocc1,   ! in  : nr. occupied MOs
      &                  nreim)   ! in  : =1 -> re =2 -> im
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_Axreim(',ipm,',',nreim,')---START'
-c        call ga_print(g_Axreim)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----BEF g_Axreim(',ipm,',',nreim,')---END'
          call uhf_hessv_1e(acc, 
      &                     g_xreim, 
      &                     g_Axreim, 
      &                     nvec) 
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----AFT g_Axreim(',ipm,',',nreim,')---START'
-c         call ga_print(g_Axreim)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) '----AFT g_Axreim(',ipm,',',nreim,')---END'
-c ++++++++ update g_Az +++++++++ START
-        call conv2complex4_u1(
+
+        call conv2complex4_u1(  ! update g_Az
      &                g_Az,     ! out: = history matrix complex
      &                g_Axreim, ! in : real      arr
      &                0,        ! in : subblock index
@@ -3110,7 +2898,7 @@ c ++++++++ update g_Az +++++++++ START
      &                nvir1,    ! in : nr. virtual  MOs
      &                nocc1,    ! in : nr. occupied MOs
      &                nreim)    ! in : =1 -> re =2 -> im
-c ++++++++ update g_Az +++++++++ END
+
         enddo ! end-loop-ipm
       enddo ! end-loop-nreim
         if (.not. ga_destroy(g_xreim))  call errquit
@@ -3132,9 +2920,6 @@ c ============== debug g_ax ==================== END
 
       if (pflg .gt. 1)then 
         if (ncomp.gt.1) then
-c            if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e3-cmplx1'
-
             call uhf_hessv_2e3_cmplx1(
      &                  acc, 
      &                  g_z,
@@ -3142,26 +2927,15 @@ c     &      write(*,*) 'FA-BEF-uhf_hessv_2e3-cmplx1'
      &                  nvec,
      &                  limag,
      &                  lifetime)
-
-c            if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e3-cmplx1'
-c ++++++++++++++++++++++++++++++++++++++++++++
-c             if (ga_nodeid().eq.0)
-c     &        write(*,*) 'FA-stop-test-uhf_hessv_2e3'
-c             stop
-c ++++++++++++++++++++++++++++++++++++++++++++
-
         else                    ! call static 2e code
 
-      if (debug) then
-         if (ga_nodeid().eq.0)        
+         if (debug) then
+          if (ga_nodeid().eq.0)        
      &    write(*,*) '------- g_Az-0-x------ START' 
-         call ga_print(g_Az)
-         if (ga_nodeid().eq.0)
+          call ga_print(g_Az)
+          if (ga_nodeid().eq.0)
      &    write(*,*) '------- g_Az-0-x------ END'
-      endif ! end-if-debug     
-c          if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-BEF-uhf_hessv_2e2_opt_cmplx1'
+         endif ! end-if-debug     
 
             call uhf_hessv_2e2_opt_cmplx1(
      &                         acc, 
@@ -3169,9 +2943,6 @@ c     &      write(*,*) 'FA-BEF-uhf_hessv_2e2_opt_cmplx1'
      &                         g_Az,
      &                         nvec,
      &                         lifetime)
-
-c         if (ga_nodeid().eq.0) 
-c     &      write(*,*) 'FA-AFT-uhf_hessv_2e2_opt_cmplx1'
         endif ! end-if-ncomp
       endif ! end-if-pflg
       end
@@ -3265,7 +3036,6 @@ c     transformed into MO basis of the OPPOSITE spin.
       data indx /1,2, ! indx(1,1),indx(1,2)
      &           3,4/ ! indx(2,1),indx(2,2)
 
-c      debug=.true. ! printouts allowed
       debug=.false. ! no printouts
 
       ncomp=2 ! using two components
@@ -3299,11 +3069,6 @@ c ============= FA-defining scratch GA array g_h1mat() === START
      &     0,GA_ERR)
         call ga_zero(g_pmats(ipm))
         write(cstemp,'(a,i1)') 'pmata_',ipm
-c        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
-c     &     g_pmata(ipm))) call 
-c     &     errquit('rohf_h2e3: nga_create failed '//cstemp(1:7),
-c     &     0,GA_ERR)
-c        call ga_zero(g_pmata(ipm))
         write(cstemp,'(a,i1)') 'h1mat_',ipm
         if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
      &     g_h1mat(ipm))) call 
@@ -3369,9 +3134,6 @@ c ---- Copy g_z --> g_x_reim ------ START
      $   call errquit('rhessv_2e3_opt_cmplx: failed alloc g_xreim',
      &                nvec,GA_ERR)
          call ga_zero(g_xreim(ipm))
-c         write(*,113) shift,nvir,nocc
-c 113     format('(shift,nvir,nocc)=(',i3,',',i3,',',i3,')')
-
          call getreorim_u(g_xreim(ipm),! out : real or im arr
      &                    g_z(ipm),    ! in  : = complx(g_xre,g_xim)
      &                    shift,       ! in  : shift
@@ -3453,9 +3215,6 @@ c     it if there is more than 1 RHS.
       oskel_local = oskel .and. (nvec.eq.1)
       tol2e_local = min(max(acc,itol_floor),itol_ceil)
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
-
       if (debug) then
         do ipm=1,nblock
          if (ga_nodeid().eq.0)
@@ -3478,9 +3237,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       .true., ! in : = .true for symm dens
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
-
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       if (debug) then
        do ipm=1,nblock
@@ -3506,8 +3262,6 @@ c ------- Remove GA arrays:
       do ipm = 1,ncomp
        if (.not.ga_destroy(g_pmats(ipm))) call errquit(
      &     'uhf_hessv_2e3: ga_destroy failed g_pmats',0,GA_ERR)       
-C       if (.not.ga_destroy(g_pmata(ipm))) call errquit(
-C     &      'uhf_hessv_2e3: ga_destroy failed g_pmata',0,GA_ERR)
       enddo ! end-loop-ipm
 
       if (debug) then
@@ -3572,12 +3326,13 @@ c     start loop over components of perturbing field
         nnocc_diff = max(1,nocc_diff)
         nocc_max=max(nnocc,nnocc_diff)
         nvir_max=max(nvir ,nvir_diff)
-       if (debug) then
-       if (ga_nodeid().eq.0) then
-        write(*,194) nocc_max,nvir_max
- 194    format('(noc_max,nvir_max)=(',i4,',',i4,')')
-       endif
-       endif ! end-if-debug
+
+        if (debug) then
+         if (ga_nodeid().eq.0) then
+         write(*,194) nocc_max,nvir_max
+ 194     format('(noc_max,nvir_max)=(',i4,',',i4,')')
+         endif
+        endif ! end-if-debug
 
         if (debug) then
          if (ga_nodeid().eq.0) then
@@ -3730,13 +3485,6 @@ c ---- Move g_Axreim --> g_Az---- END
         if (.not. ga_destroy(g_fock(ipm))) call errquit
      &     ('rohf_hessv3: ga_destroy failed g_fock',0,GA_ERR)
       enddo ! end-loop-ipm    
-
-       if (debug) then
-        if (ga_nodeid().eq.0)
-     &  write(*,*) 'FA-stop-quest'
-        stop
-       endif ! end-if-debug
-
       end
 
       subroutine uhf_hessv_2e2_opt_cmplx1(
@@ -3818,7 +3566,6 @@ c     transformed into MO basis of the OPPOSITE spin.
       integer ip,im,ipm,cnt,nocc_max,nvir_max
       data npol /2/ ! for unrestricted calculations
 
-c      debug=.true. ! printouts allowed
       debug=.false. ! no printouts
 
       ncomp=1 ! one single component
@@ -3952,8 +3699,6 @@ c ---- Copy g_z --> g_x_reim ------ END
      &     'uhf_hessv2_cmplx: ga_destroy failed g_xreim',0,GA_ERR) 
       enddo ! end-loop-iset
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
       if (debug) then
         do ipm=1,nblock
          if (ga_nodeid().eq.0)
@@ -3977,9 +3722,6 @@ c     &  write(*,*) 'FA-BEF shell_fock_build2 ...'
      &                       tol2e,  ! in :
      &                       debug)  ! in : = .true. -> debugging printouts
 
-c      if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
-
       if (debug) then
        do ipm=1,nblock
          if (ga_nodeid().eq.0)        
@@ -4000,7 +3742,6 @@ c     &  write(*,*) 'FA-AFT shell_fock_build2 ...'
 
       g_j = ga_create_atom_blocked(geom, basis, 'uhf_h2e: dens')
       g_k = ga_create_atom_blocked(geom, basis, 'uhf_h2e: dens') 
-
 
       call ga_inquire(g_z,gtype,n,nvec) ! get (n,nvec)
         if (.not. ga_create(MT_DBL,n,nvec,
@@ -4182,16 +3923,7 @@ c ---- Move g_Axreim --> g_Az---- END
      &      'uhf_hv2e: ga_destroy failed g_dens',0,GA_ERR)
         if (.not. ga_destroy(g_fock(ipm))) call errquit
      &     ('uhf_hv2e: ga_destroy failed g_fock',0,GA_ERR)
-      enddo ! end-loop-ipm    
-
-       if (debug) then
-        if (ga_nodeid().eq.0)
-     &   write(*,*) 'FA-stop-quest'
-        stop
-       endif ! end-if-debug
-
+      enddo ! end-loop-ipm   
+ 
       end
-c 000000000000000000000000000000000000000000000000000000000000
-c 000000000000 to be used by CG algorithm 000000000000 END
-c 000000000000000000000000000000000000000000000000000000000000
 c $Id$

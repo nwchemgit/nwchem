@@ -232,10 +232,6 @@ c          (blatanly stolen from aoresponse_driver.F)
       endif
       if (debug) write (luout,*) 'nfreq',nfreq
 
-      if (ga_nodeid().eq.0) then
-       write(*,5) nfreq
- 5     format('FA nfreq=',i4)
-      endif
 c
 c     at present we will tie the response order to the number
 c     of frequencies that the user inputs, and calculate the 

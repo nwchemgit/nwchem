@@ -54,8 +54,7 @@ c --> Experimental (not published yet)
       double precision sum,sumre,sumim,
      &                 coeffre,coeffim,trace
       external trace,get_C1MCtrace
-      double precision ga_trace_diag
-      external ga_trace_diag 
+
       if (debug) then
         if (ga_nodeid().eq.0) then
            write(*,2) idir,iresp,caseAO,nbf,
@@ -65,32 +64,43 @@ c --> Experimental (not published yet)
           endif
          if (ga_nodeid().eq.0) then
           write(*,10) idir,iresp
- 10       format('---- g_vecE1(',i3,',',i3,')-------- START')
+ 10       format('---- g_vecE1-re(',i3,',',i3,')-------- START')
          endif
           call ga_print(g_vecE1)
          if (ga_nodeid().eq.0) then
           write(*,11) idir,iresp
- 11       format('---- g_vecE1(',i3,',',i3,')-------- END')
+ 11       format('---- g_vecE1-re(',i3,',',i3,')-------- END')
          endif
          if (ga_nodeid().eq.0) then
           write(*,12) idir,iresp
- 12       format('---- g_dipEM(',i3,',',i3,')-------- START')
+ 12       format('---- g_vecE1-im(',i3,',',i3,')-------- START')
          endif
-          call ga_print(g_dipEM)
-         if (ga_nodeid().eq.0) then
-          write(*,21) idir,iresp
- 21       format('---- g_dipEM(',i3,',',i3,')-------- END')
-         endif
+          call ga_print(g_vecE1_im)
          if (ga_nodeid().eq.0) then
           write(*,13) idir,iresp
- 13       format('---- g_vectors(',i3,',',i3,')-------- START')
+ 13       format('---- g_vecE1-im(',i3,',',i3,')-------- END')
          endif
-          call ga_print(g_vectors)
-         if (ga_nodeid().eq.0) then
-          write(*,14) idir,iresp
- 14       format('---- g_vectors(',i3,',',i3,')-------- END')
-         endif
+c         if (ga_nodeid().eq.0) then
+c          write(*,14) idir,iresp
+c 14       format('---- g_dipEM(',i3,',',i3,')-------- START')
+c         endif
+c          call ga_print(g_dipEM)
+c         if (ga_nodeid().eq.0) then
+c          write(*,15) idir,iresp
+c 15       format('---- g_dipEM(',i3,',',i3,')-------- END')
+c         endif
+c         if (ga_nodeid().eq.0) then
+c          write(*,16) idir,iresp
+c 16       format('---- g_vectors(',i3,',',i3,')-------- START')
+c         endif
+c          call ga_print(g_vectors)
+c         if (ga_nodeid().eq.0) then
+c          write(*,17) idir,iresp
+c 17       format('---- g_vectors(',i3,',',i3,')-------- END')
+c         endif
       endif ! end-if-debug
+ 
+      debug=.false.
 
        call get_C1MCtrace(
      &               sumre,       ! out: trace(transp(vecE1  )*g_temp)

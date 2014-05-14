@@ -95,7 +95,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      $     pflg,
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
-     &   lifetime, gamwidth, ncomp)
+     &     lifetime, gamwidth, ncomp)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -120,6 +120,7 @@ c ... jochen: input arrays g_x and g_Ax have two components here
       double precision omega, gamwidth, wls, wlsim
       logical limag, lifetime
       integer ncomp
+      double precision omg(ncomp),gam(ncomp)
       logical debug
 c
 c     =================================================================
@@ -156,31 +157,28 @@ c     the diagonal of the Fock matrix transformed to the MO basis)
 c
       if (pflg .gt. 0) then
 c
+         omg(1)=-omega
+         omg(2)= omega
+         gam(1)=-gamwidth
+         gam(2)= gamwidth
         if (.not.lifetime) then
 c         no damping: initialize Ax with terms proportional omega
-          wls = lshift - 4d0* omega
-          call ga_dadd( wls, g_x(1), 0.d0, g_ax(1), g_ax(1) )
-          if (ncomp.gt.1) then
-            wls = lshift + 4d0* omega
-            call ga_dadd( wls, g_x(2), 0.d0, g_ax(2), g_ax(2) )
-          endif
+         do ipm=1,ncomp
+          wls   = lshift + 4d0 * omg(ipm)
+          call ga_dadd(wls,g_x(ipm),wlsim,g_x_im(ipm),g_ax(ipm))
+         enddo
         else                    ! lifetime
 c         take care of damping here: Re and Im are coupled by gamwidth
-          wls = lshift - 4d0* omega
-          wlsim = -4d0 * gamwidth
-          call ga_dadd( wls, g_x(1), wlsim, g_x_im(1), g_ax(1) )
-          wls   = 4d0 * gamwidth
-          wlsim = lshift - 4d0* omega
-          call ga_dadd( wls, g_x(1), wlsim, g_x_im(1), g_ax_im(1) )
-          if (ncomp.gt.1) then
-            wls = lshift + 4d0* omega
-            wlsim = -4d0 * gamwidth
-            call ga_dadd( wls, g_x(2), wlsim, g_x_im(2), g_ax(2) )
-            wls   = 4d0 * gamwidth
-            wlsim = lshift + 4d0* omega
-            call ga_dadd( wls, g_x(2), wlsim, g_x_im(2), g_ax_im(2) )
-          endif                 ! ncomp.gt.1
+         do ipm=1,ncomp
+          wls   = lshift + 4d0 * omg(ipm)
+          wlsim =  -4d0 * gam(ipm)
+          call ga_dadd(wls,g_x(ipm),wlsim,g_x_im(ipm),g_ax(ipm))
+          wls   =   4d0 * gam(ipm)
+          wlsim = lshift + 4d0 * omg(ipm)
+          call ga_dadd(wls,g_x(ipm),wlsim,g_x_im(ipm),g_ax_im(ipm))
+         enddo
         endif                   ! .not.lifetime
+
         call ga_sync()
         if (debug) write (6,*) 'calling rohf_hessv_1e'
 c 
@@ -455,6 +453,15 @@ c
         
         dbl_mb(k_kfac(1)+nfock-1)    = -0.5d0*xc_xfac1 ! CV
         dbl_mb(k_kfac(2)+nfock-1)    = -0.5d0*xc_xfac1 ! CV
+c --- FA-12-02-13 -------------- START
+c        if (ga_nodeid().eq.0) then
+c         write(*,10) nfock-1,
+c     &        dbl_mb(k_kfac(1)+nfock-1),dbl_mb(k_kfac(2)+nfock-1),
+c     &        dbl_mb(k_jfac(1)+nfock-1),dbl_mb(k_jfac(2)+nfock-1)
+c 10      format('nfock,kfac1,kfac2,jfac1,jfac2)=(',
+c     &          i2,',',f14.12,',',f14.12,',',f8.6,',',f8.6,')')
+c        endif
+c --- FA-12-02-13 -------------- END
 c       jfac(nfock)    =  1.0d0   ! CV
 c       kfac(nfock)    = 1.0d0   ! CV
 c       jfac(nfock)    =  4.0d0   ! CV
@@ -667,6 +674,9 @@ c
         endif
 c
       enddo                     ! ivec = 1,nvec
+
+c      stop  ! FA-12-02-13
+
 c     
       if(oprint) then
         call ga_print(g_dens(1))

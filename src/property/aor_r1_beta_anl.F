@@ -353,7 +353,7 @@ c     &  write(*,*) 'FA-BEF update_g_anl_elmag-1'
 
 c       if (ga_nodeid().eq.0)
 c     &  write(*,*) 'FA-AFT update_g_anl_elmag-1'
-
+              if (debug) then
                 if (ga_nodeid().eq.0) then
                  write(*,71) ispin
  71              format('---- g_anl-1st(',i3,')-------- START')
@@ -363,6 +363,7 @@ c     &  write(*,*) 'FA-AFT update_g_anl_elmag-1'
                  write(*,72) ispin
  72              format('---- g_anl-1st(',i3,')-------- END')
                 endif
+               endif
 
             if (lgiao) then            
 c             --------------------------------------

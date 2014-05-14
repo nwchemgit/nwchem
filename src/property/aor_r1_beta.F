@@ -260,10 +260,10 @@ c       -------------------------------------------------------
 c           -------------------------------------------------------
 c           (A) calculate optical rotation beta from C(E) S(0) C(B)
 c           ------------------------------------------------------    
-c           if (ga_nodeid().eq.0) then
-c            write(*,1) idir,iresp
-c 1          format('==== compute beta(',i3,',',i3,') ====== START')
-c           endif
+           if (ga_nodeid().eq.0) then
+            write(*,1) idir,iresp
+ 1          format('==== compute beta(',i3,',',i3,') ====== START')
+           endif
 
               call get_alfaorbeta_reim(
      &            betare(idir,iresp), ! out: alpha or beta real part
@@ -281,10 +281,13 @@ c           endif
      &            debug,              ! in : logical var for debugging
      &            g_temp)             ! in : scratch GA array
 
-c           if (ga_nodeid().eq.0) then
-c            write(*,3) idir,iresp
-c 3          format('==== compute beta(',i3,',',i3,') ====== END')
-c           endif
+           if (ga_nodeid().eq.0) then
+            write(*,3) idir,iresp
+ 3          format('==== compute beta(',i3,',',i3,') ====== END')
+           endif
+
+           debug=.true.
+
            if (debug) then
             if (ga_nodeid().eq.0) then
              write(*,2) ispin,idir,iresp,
@@ -294,17 +297,19 @@ c           endif
             endif
            endif ! end-if-debug
 
+           debug=.false.
+           
            if (debug) write (luout,*) 'beta: C(E) S(0) C(B) complete'
            if (lgiao) then          
 c             --------------------------------------
 c             if we use GIAOs there is a second term
 c             in beta which is C(E) S(1ket) C(0)
 c             --------------------------------------  
-c            if (ga_nodeid().eq.0) then
-c             write(*,4) idir,iresp
-c 4           format('==== compute beta-giao(',
-c     &              i3,',',i3,') ====== START')
-c            endif
+            if (ga_nodeid().eq.0) then
+             write(*,4) idir,iresp
+ 4           format('==== compute beta-giao(',
+     &              i3,',',i3,') ====== START')
+            endif
 
             call get_alfaorbeta_reim(
      &            betare(idir,iresp), ! out: alpha or beta real part
@@ -316,17 +321,21 @@ c            endif
      &            idir,               ! in : = 1,2,3=x,y,z directions
      &            iresp,              ! in : = 1,2,3
      &            -coeffre,-coeffim,1,! in : (coeffre,coeffim,caseAO)
+c     &            -coeffre, coeffim,1,! in : (coeffre,coeffim,caseAO) -FA-03-24-14
      &            nbf,                ! in : nr. basis functions
      &            nocct(ispin),       ! in : nr. occupied alpha or beta
      &            lifetime,           ! in : logical var for damping
      &            debug,              ! in : logical var for debugging
      &            g_temp)             ! in : scratch GA array
 
-c             if (ga_nodeid().eq.0) then
-c              write(*,5) idir,iresp
-c 5            format('==== compute beta-giao(',
-c     &               i3,',',i3,') ====== END')
-c             endif
+             if (ga_nodeid().eq.0) then
+              write(*,5) idir,iresp
+ 5            format('==== compute beta-giao(',
+     &               i3,',',i3,') ====== END')
+             endif
+
+             debug=.true.
+             
              if (debug) then        
               if (ga_nodeid().eq.0) then
                write(*,6) ispin,idir,iresp,
@@ -335,14 +344,17 @@ c             endif
      &               ')=(',f15.8,',',f15.8,')')
               endif
              endif ! end-if-debug
+
+             debug=.false.
+
            endif ! end-if-lgiao      
 c           --------------------------------------
 c           (B) calculate alfa from C(E) h(E) C(0)
 c           --------------------------------------  
-c            if (ga_nodeid().eq.0) then
-c             write(*,7) idir,iresp
-c 7           format('==== compute alfa(',i3,',',i3,') ====== START')
-c            endif  
+            if (ga_nodeid().eq.0) then
+             write(*,7) idir,iresp
+ 7           format('==== compute alfa(',i3,',',i3,') ====== START')
+            endif  
 
             call get_alfaorbeta_reim(
      &            alfare(idir,iresp), ! out: alpha or beta real part
@@ -360,10 +372,13 @@ c            endif
      &            debug,              ! in : logical var for debugging
      &            g_temp)             ! in : scratch GA array 
 
-c            if (ga_nodeid().eq.0) then
-c             write(*,8) idir,iresp
-c 8           format('==== compute alfa(',i3,',',i3,') ====== END')
-c            endif      
+            if (ga_nodeid().eq.0) then
+             write(*,8) idir,iresp
+ 8           format('==== compute alfa(',i3,',',i3,') ====== END')
+            endif     
+
+            debug=.true.
+ 
             if (debug) then
              if (ga_nodeid().eq.0) then
               write(*,9) ispin,idir,iresp,
@@ -372,6 +387,9 @@ c            endif
      &             ')=(',f15.8,',',f15.8,')')
              endif
             endif ! end-if-debug
+
+            debug=.false.
+
           enddo                 ! iresp = 1,3
 c         ------------------------------------------------
 c         if requested by input, compute dipole-quadrupole
@@ -381,10 +399,10 @@ c         ------------------------------------------------
           if (lquad) then
            do iresp = 1,6 
 
-c             if (ga_nodeid().eq.0) then
-c              write(*,11) idir,iresp
-c 11           format('==== compute dipquad(',i3,',',i3,') ====== START')
-c             endif
+             if (ga_nodeid().eq.0) then
+              write(*,11) idir,iresp
+ 11           format('==== compute dipquad(',i3,',',i3,') ====== START')
+             endif
 
              call get_alfaorbeta_reim(
      &            dipquadre(idir,iresp),! in/out: alpha or beta real part
@@ -402,11 +420,12 @@ c             endif
      &            debug,                ! in : logical var for debugging
      &            g_temp)               ! in : scratch GA array 
 
-c            if (ga_nodeid().eq.0) then
-c             write(*,50) idir,iresp
-c 50          format('==== compute dipquad(',
-c     &              i3,',',i3,') ====== END')
-c            endif      
+            if (ga_nodeid().eq.0) then
+             write(*,50) idir,iresp
+ 50          format('==== compute dipquad(',
+     &              i3,',',i3,') ====== END')
+            endif   
+   
             if (debug) then
              if (ga_nodeid().eq.0) then
               write(*,12) ispin,idir,iresp,
@@ -420,6 +439,9 @@ c            endif
         enddo ! end-loop-idir (perturbing E-field components)
 
 c ============ visualize (alfa,beta) ========== START
+
+         debug=.true.
+
          if (debug) then
           if (ga_nodeid().eq.0) then
            do idir=1,ndir
@@ -434,6 +456,9 @@ c ============ visualize (alfa,beta) ========== START
            enddo ! end-loop-idir
           endif
          endif ! end-if-debug
+
+         debug=.false.
+
 c ============ visualize (alfa,beta) ========== END
 c       -------------------------------------------
 c       -------------------------------------------------

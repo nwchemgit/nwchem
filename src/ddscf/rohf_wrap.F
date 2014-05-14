@@ -420,11 +420,13 @@ c
 c ... jochen: Note:    
 c     level shifting might have some strange effects here 
 c     
-      crohf_lshift = lshift + 4d0 * omega
+c      crohf_lshift = lshift + 4d0 * omega
+      crohf_lshift = lshift + omega ! FA-03-12-14
 c
 c     use 4 * lifetime parameter to be consistent with
 c     using 4 * omega
-      crohf_gamwidth = 4d0 * gamwidth
+c      crohf_gamwidth = 4d0 * gamwidth
+      crohf_gamwidth = gamwidth ! FA-03-12-14
 c
       call rohf_hdiag_scale_damp(nmo, nclosed, nopen,
      $   crohf_lshift, crohf_gamwidth, 

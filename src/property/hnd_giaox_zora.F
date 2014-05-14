@@ -1172,6 +1172,9 @@ c Note.- Adaptation of hnd_giaox.F to hold
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
 c
+c Date    : 02-05-14: Fixed bug when selecting atoms
+c           BEFORE :  call get_chi_centers_ga(g_R,basis,nbf,geom,natoms_slc)
+c           AFTER  :  call get_chi_centers_ga(g_R,basis,nbf,geom,natoms_tot)
       implicit none
 c
 #include "errquit.fh"

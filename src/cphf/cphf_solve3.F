@@ -61,9 +61,8 @@ c     here
      &         uhf_hessv_precond3_damp,
      &         uhf_hessv3,
      &         uhf_hessv3_cmplx,
-     &         uhf_hessv3_cmplx1,
-     &         ga_lkain_2cpl3_damp_cmplx_CG
-      logical oprint, oprint_conv, ocosmo
+     &         uhf_hessv3_cmplx1
+       logical oprint, oprint_conv, ocosmo
 c     
       character*255 rhs_title
       character*(nw_max_path_len) cphf_rhs(2)
@@ -84,14 +83,16 @@ c
       logical int_normalize
       external int_normalize
 
-      external rohf_hessv_precond3_damp_anti,
-     &         ga_lkain_2cpl3_damp_cmplx_redmem,
+      external ga_lkain_2cpl3_damp_cmplx_redmem,
      &         ga_lkain_2cpl3_damp_cmplx_redmem1,
      &         ga_lkain_2cpl3_ext,
-     &         conv2complex,rohf_hessv3_cmplx
+     &         conv2complex,rohf_hessv3_cmplx,
+     &         ga_lkain_2cpl3_damp
+
       integer nocc1(2),nvir1(2)
       external get_cconjugate
       double precision omg(2),  ! (-omega,omega)
+     &                 gam(2),  ! (-gamwidth,gamwidth)
      &                 solveshift
       logical hf_job, debug, limag, lstatic
       integer ipm,ncomp,ndata,m1,m2,shift
@@ -470,8 +471,10 @@ c         debug=.true. ! to see entering vectors
          
 c -------- precond ----------- START
           solveshift= 0.0d0
-          omg(1)    =-omega
-          omg(2)    = omega
+          omg(1)=-omega
+          omg(2)= omega
+          gam(1)=-gamwidth
+          gam(2)= gamwidth
           if (.not.lifetime) then
            do ipm=1,ncomp
             call uhf_hessv_precond3(
@@ -484,7 +487,7 @@ c -------- precond ----------- START
      &                     g_work(ipm), 
      &                     g_work_im(ipm),
      &                     omg(ipm),
-     &                     gamwidth)
+     &                     gam(ipm))
            enddo ! end-loop-ipm
           endif
 c -------- precond ----------- END
@@ -524,12 +527,18 @@ c
      &                      rtdb,
      &                      g_work   , g_grad, 
      &                      g_work_im, g_grad_im, 
-     &                      uhf_hessv3,uhf_hessv_precond3,
-     $                      precond_tol,max_precond_sub,maxiter,
-     &                      .false., oprint_solve, 
+     &                      uhf_hessv3,
+     &                      uhf_hessv_precond3,
+     $                      precond_tol,
+     &                      max_precond_sub,
+     &                      maxiter,
+     &                      .false., 
+     &                      oprint_solve, 
      &                      omega,
-     &                      limag, lifetime, 
-     &                      gamwidth, ncomp)
+     &                      limag, 
+     &                      lifetime, 
+     &                      gamwidth, 
+     &                      ncomp)
 
 c          if (ga_nodeid().eq.0)
 c    &      write(*,*) 'FA-AFT-uhf-ga_lkain_2cpl3_ext'
@@ -733,7 +742,7 @@ c ... jochen: added preconditioner that takes care of damping
           else
            do ipm=1,ncomp
             call rohf_hessv_precond3_damp(
-     &           g_work(ipm),g_work_im(ipm),omg(ipm),gamwidth)
+     &           g_work(ipm),g_work_im(ipm),omg(ipm),gam(ipm))
            enddo ! end-loop-ipm
           endif
 

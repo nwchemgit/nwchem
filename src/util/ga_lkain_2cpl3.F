@@ -689,6 +689,8 @@ c
       integer maxiter           ! [input] maximum no. of iterations
       logical odiff             ! [input] use differences in product
       logical oprint            ! [input] print flag
+      double precision omg(ncomp),
+     &                 gam(ncomp)
 c
 c     Solves the linear equations A(X)=0 for multiple vectors.
 c
@@ -747,11 +749,13 @@ c     &        l_zim,k_zim
      &         update_g_x1
 
       debug1 = .false. ! FA no  printouts
-c      debug1 = .true.  ! FA yes printouts
+c     debug1 = .true.  ! FA yes printouts
 c
 c     =================================================================
 
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
+c     debug=.true. ! FA-12-01-13
 
 c     check input key if we should check for convergence
 c     after the preconditioner has been applied to the residual
@@ -939,26 +943,44 @@ c       even if only one of them is used
             do ipm=1,ncomp
              if (ga_nodeid().eq.0) then
               write(*,112) iter,ipm
- 112          format('------ prod-g_x-1(',i3,',',i3,')------ START')
+ 112          format('------ prod-g_x-1-re(',i3,',',i3,')------ START')
              endif
              call ga_print(g_x(ipm))
              if (ga_nodeid().eq.0) then
               write(*,113) iter,ipm
- 113          format('------ prod-g_x-1(',i3,',',i3,')------ END')
+ 113          format('------ prod-g_x-1-re(',i3,',',i3,')------ END')
              endif
              if (ga_nodeid().eq.0) then
               write(*,114) iter,ipm
- 114          format('------ prod-g_Ax-1(',i3,',',i3,')------ START')
+ 114          format('------ prod-g_Ax-1-re(',i3,',',i3,')------ START')
              endif
              call ga_print(g_Ax(ipm))
              if (ga_nodeid().eq.0) then
               write(*,115) iter,ipm
- 115          format('------ prod-g_Ax-1(',i3,',',i3,')------ END')
+ 115          format('------ prod-g_Ax-1-re(',i3,',',i3,')------ END')
              endif
              if (lifetime) then
-              call ga_print(g_x_im(ipm))
-              call ga_print(g_Ax_im(ipm))
+
+             if (ga_nodeid().eq.0) then
+              write(*,312) iter,ipm
+ 312          format('------ prod-g_x-1-im(',i3,',',i3,')------ START')
              endif
+             call ga_print(g_x_im(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,313) iter,ipm
+ 313          format('------ prod-g_x-1-im(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,314) iter,ipm
+ 314          format('------ prod-g_Ax-1-im(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_Ax_im(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,315) iter,ipm
+ 315          format('------ prod-g_Ax-1-im(',i3,',',i3,')------ END')
+             endif
+
+             endif ! end-if-lifetime
             enddo ! end-loop-ipm
          endif ! end-if-debug
         
@@ -968,25 +990,45 @@ c       even if only one of them is used
      &     lifetime, gamwidth, ncomp)
          if (debug) then
             do ipm=1,ncomp
+
              if (ga_nodeid().eq.0) then
               write(*,116) iter,ipm
- 116          format('------ prod-g_x-2(',i3,',',i3,')------ START')
+ 116          format('------ prod-g_x-2-re(',i3,',',i3,')------ START')
              endif
              call ga_print(g_x(ipm))
              if (ga_nodeid().eq.0) then
               write(*,117) iter,ipm
- 117          format('------ prod-g_x-2(',i3,',',i3,')------ END')
+ 117          format('------ prod-g_x-2-re(',i3,',',i3,')------ END')
              endif
              if (ga_nodeid().eq.0) then
               write(*,118) iter,ipm
- 118          format('------ prod-g_Ax-2(',i3,',',i3,')------ START')
+ 118          format('------ prod-g_Ax-2-re(',i3,',',i3,')------ START')
              endif
              call ga_print(g_Ax(ipm))
              if (ga_nodeid().eq.0) then
               write(*,119) iter,ipm
- 119          format('------ prod-g_Ax-2(',i3,',',i3,')------ END')
+ 119          format('------ prod-g_Ax-2-re(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,316) iter,ipm
+ 316          format('------ prod-g_x-2-im(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_x_im(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,317) iter,ipm
+ 317          format('------ prod-g_x-2-im(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,318) iter,ipm
+ 318          format('------ prod-g_Ax-2-im(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_Ax_im(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,319) iter,ipm
+ 319          format('------ prod-g_Ax-2-im(',i3,',',i3,')------ END')
              endif
              enddo ! end-loop-ipm
+
            endif ! end-if-debug
 c             if (iter.eq.3) then
 c               if (ga_nodeid().eq.0)
@@ -1039,21 +1081,21 @@ c FA: Step 1:
           if (debug) then
              if (ga_nodeid().eq.0) then
               write(*,120) iter,ipm
- 120          format('------ prod-g_b(',i3,',',i3,')------ START')
+ 120          format('------ prod-g_b-re(',i3,',',i3,')------ START')
              endif
              call ga_print(g_b(ipm))
              if (ga_nodeid().eq.0) then
               write(*,121) iter,ipm
- 121          format('------ prod-g_b(',i3,',',i3,')------ END')
+ 121          format('------ prod-g_b-re(',i3,',',i3,')------ END')
              endif
              if (ga_nodeid().eq.0) then
               write(*,122) iter,ipm
- 122          format('------ prod-g_r(',i3,',',i3,')------ START')
+ 122          format('------ prod-g_r-re(',i3,',',i3,')------ START')
              endif
              call ga_print(g_r(ipm))
              if (ga_nodeid().eq.0) then
               write(*,123) iter,ipm
- 123          format('------ prod-g_r(',i3,',',i3,')------ END')
+ 123          format('------ prod-g_r-re(',i3,',',i3,')------ END')
              endif
           endif ! end-if-debug
 
@@ -1062,17 +1104,52 @@ c FA: Step 1:
      &                  -1.0d0,g_Ax_im(ipm), 
      &                         g_r_im(ipm)) ! The residual, Im part
           endif
+
+          if (debug) then
+             if (ga_nodeid().eq.0) then
+              write(*,320) iter,ipm
+ 320          format('------ prod-g_b-im(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_b_im(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,321) iter,ipm
+ 321          format('------ prod-g_b-im(',i3,',',i3,')------ END')
+             endif
+             if (ga_nodeid().eq.0) then
+              write(*,322) iter,ipm
+ 322          format('------ prod-g_r-im(',i3,',',i3,')------ START')
+             endif
+             call ga_print(g_r_im(ipm))
+             if (ga_nodeid().eq.0) then
+              write(*,323) iter,ipm
+ 323          format('------ prod-g_r-im(',i3,',',i3,')------ END')
+             endif
+          endif ! end-if-debug
 c         
         enddo                   ! ipm = 1,ncomp
 
 c       convergence checking:
 c       find the largest element of the residual either 
 c       before or after the call to the preconditioner
-
+        omg(1)=-omega
+        omg(2)= omega
+        gam(1)=-gamwidth
+        gam(2)= gamwidth
         if (converge_precond) then
+c         do ipm=1,ncomp
+c          call precond(g_r(ipm),g_r_im(ipm),-omega,gamwidth)
+c         enddo ! end-loop-ipm
+c ---- FA-FIX-12-01-13 --- START
+c            call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
+c          if (ncomp.gt.1) then
+c            call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
+c          endif  
+c ---- FA-FIX-12-01-13 --- END
+c ---- FA-03-12-14 --- START
          do ipm=1,ncomp
-          call precond(g_r(ipm),g_r_im(ipm),-omega,gamwidth)
-         enddo ! end-loop-ipm
+          call precond(g_r(ipm),g_r_im(ipm),omg(ipm),gam(ipm))
+         enddo
+c ---- FA-03-12-14 --- END
         endif
 
         call ga_maxelt(g_r(1), rmax1)
@@ -1088,7 +1165,13 @@ c       before or after the call to the preconditioner
           rmax = max(rmax, rmax1)
           rmax = max(rmax, rmax2)
         endif
-        
+c ---------- FA-12-03-13 ----- START
+          if (debug1) then
+           write(6,4) iter, nsub+nvec, rmax, util_wallsec()
+           call util_flush(6)
+    4      format('FA-chk: ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
+          endif
+c ---------- FA-12-03-13 ----- END         
         if (oprint .and. ga_nodeid().eq.0) then
           write(6,3) iter, nsub+nvec, rmax, util_wallsec()
           call util_flush(6)
@@ -1109,14 +1192,25 @@ c       (there were only two in ga_lkain, one with g_aX, one with g_r)
 c       for array g_r the preconditioner call is only necessary
 c       in case converge_precond is .false.
 
-        call precond(g_Ax(1), g_Ax_im(1), -omega, gamwidth)
-        if (.not.converge_precond) 
-     &     call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
-        if (ncomp.gt.1) then
-          call precond(g_Ax(2), g_Ax_im(2),  omega, gamwidth)
-          if (.not.converge_precond) 
-     &       call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
+
+c        call precond(g_Ax(1), g_Ax_im(1), -omega, gamwidth)
+c        if (.not.converge_precond) 
+c     &     call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
+c        if (ncomp.gt.1) then
+c          call precond(g_Ax(2), g_Ax_im(2),  omega, gamwidth)
+c          if (.not.converge_precond) 
+c     &       call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
+c        endif
+c FA-03-12-14 ---- START  
+        do ipm=1,ncomp
+         call precond(g_Ax(ipm), g_Ax_im(ipm),omg(ipm), gam(ipm))
+        enddo
+        if (.not.converge_precond) then
+         do ipm=1,ncomp
+         call precond(g_r(ipm) , g_r_im(ipm),omg(ipm), gam(ipm))
+         enddo
         endif
+c FA-03-12-14 ---- END  
 
         if (debug) write (6,*) 'lkain3_damp: back from precond'
                 
@@ -1125,26 +1219,66 @@ c
 c ---- FA-copy ((Ax,Ax_im),(x,x_im)) -> (Ay,y) ------ START
 c FA: Step 2:
         if (debug1) then
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_x-0(',iter,')-----START' 
-        call ga_print(g_x(1))
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_x-0(',iter,')-----END'    
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_x_im-0(',iter,')-----START' 
-        call ga_print(g_x_im(1))
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_x_im-0(',iter,')-----END'        
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_Ax-0(',iter,')-----START' 
-        call ga_print(g_Ax(1))
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_Ax-0(',iter,')-----END'          
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_r-0(',iter,')-----START' 
-        call ga_print(g_r(1))
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '---------g_r-0(',iter,')-----END'  
+        do ipm = 1,ncomp  
+
+         if (ga_nodeid().eq.0) then
+          write(*,324) iter,ipm
+ 324      format('------ g_x-re(',i3,',',i3,')------ START')
+         endif
+         call ga_print(g_x(ipm))
+         if (ga_nodeid().eq.0) then
+          write(*,325) iter,ipm
+ 325      format('------ g_x-re(',i3,',',i3,')------ START')
+         endif 
+         if (ga_nodeid().eq.0) then
+          write(*,326) iter,ipm
+ 326      format('------ g_x-im(',i3,',',i3,')------ START')
+         endif
+         call ga_print(g_x_im(ipm))
+         if (ga_nodeid().eq.0) then
+          write(*,327) iter,ipm
+ 327      format('------ g_x-im(',i3,',',i3,')------ START')
+         endif 
+
+         if (ga_nodeid().eq.0) then
+          write(*,328) iter,ipm
+ 328      format('------ g_Ax-re(',i3,',',i3,')------ START')
+         endif
+         call ga_print(g_Ax(ipm))
+         if (ga_nodeid().eq.0) then
+          write(*,329) iter,ipm
+ 329      format('------ g_Ax-re(',i3,',',i3,')------ START')
+         endif 
+         if (ga_nodeid().eq.0) then
+          write(*,330) iter,ipm
+ 330      format('------ g_Ax-im(',i3,',',i3,')------ START')
+         endif
+         call ga_print(g_Ax_im(ipm))
+         if (ga_nodeid().eq.0) then
+          write(*,331) iter,ipm
+ 331     format('------ g_Ax-im(',i3,',',i3,')------ START')
+         endif 
+
+         if (ga_nodeid().eq.0) then
+          write(*,332) iter,ipm
+ 332      format('------ g_r-re(',i3,',',i3,')------ START')
+         endif
+         call ga_print(g_r(ipm))
+         if (ga_nodeid().eq.0) then
+          write(*,333) iter,ipm
+ 333      format('------ g_r-re(',i3,',',i3,')------ START')
+         endif 
+         if (ga_nodeid().eq.0) then
+          write(*,334) iter,ipm
+ 334      format('------ g_r-im(',i3,',',i3,')------ START')
+         endif
+         call ga_print(g_r_im(ipm))
+         if (ga_nodeid().eq.0) then
+          write(*,335) iter,ipm
+ 335     format('------ g_r-im(',i3,',',i3,')------ START')
+         endif 
+
+        enddo ! end-loop-ipm
         endif ! end-if-debug1  
      
         call copy_AxxtoAyy(g_Ax,g_Ax_im,
@@ -1230,22 +1364,11 @@ c       screening with a realistic threshold is important.
         if (ga_nodeid().eq.0)
      &   write(*,*) '---------g_bb(',iter,')-----END'
         endif ! end-if-debug1
-c ++++++++++++++++++++++++++++++++++++++++++++++++++++    
+
 c ++++++++++++++ real linear solver ++++++++++++++++++ 
         call ga_svd_solve_seq(g_a,g_bb,g_c,1d-14)
-
-c        if (ga_nodeid().eq.0)
-c     &   write(*,*) 'FA-test ga_lu_solve ...'
-c        call ga_lu_solve('n',g_a,g_bb)
-
-c        stat_solve=ga_solve(g_a,g_bb)
-c        if (ga_nodeid().eq.0) then
-c         write(*,14) stat_solve
-c 14      format('FA-test ga_lu_solve(Choleski->LU) stat=',i3)
-c        endif
-c        call ga_copy(g_bb,g_c)
 c ++++++++++++++++++++++++++++++++++++++++++++++++++++
-c ++++++++++++++++++++++++++++++++++++++++++++++++++++
+
         if (debug1) then
         if (ga_nodeid().eq.0)
      &   write(*,*) '---------g_c(',iter,')-----START' 
@@ -1339,7 +1462,7 @@ c
      &          i3,',',i4,',',i4,',',i3,',',i4,')')
         endif
         if (debug1) then
-         if (iter.eq.2) then
+         if (iter.eq.6) then
           write(*,*) 'STOP-test-linsolver'
           stop
          endif
@@ -1360,6 +1483,7 @@ c ====== FA: left-shifting patch ==== END
          enddo ! end-loop-isub
          nsub = nsub - nvec
         end if                  ! (nsub .eq. maxsub) 
+
       enddo                     ! iter = 1,maxiter
   100 continue                  ! jump here if converged
 c     

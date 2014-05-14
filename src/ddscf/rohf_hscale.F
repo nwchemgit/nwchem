@@ -186,12 +186,18 @@ c
       end
 
 c     =======================================================================
-c     =======================================================================
 
-
-      subroutine rohf_hdiag_scale_damp( nmo, nclosed, nopen, lshift,
-     &   gamwidth,
-     $     g_fcv, g_fpv, g_fcp, g_x, g_x_im )
+      subroutine rohf_hdiag_scale_damp( 
+     &                 nmo, 
+     &                 nclosed, 
+     &                 nopen, 
+     &                 lshift,
+     &                 gamwidth,
+     $                 g_fcv, 
+     &                 g_fpv, 
+     &                 g_fcp, 
+     &                 g_x, 
+     &                 g_x_im)
 C     $Id$
 c
 c ... jochen: modified version of rohf_hdiag_scale to allow for
@@ -256,7 +262,7 @@ c
 c ... jochen: we need some memory for the imaginary part, too
       integer l_x_im, k_x_im
       double precision fcv, fcp, fpv, denominator, factor_re,
-     &   factor_im, tmpre, tmpim
+     &   factor_im, tmpre, tmpim,den
 c
       integer ivec, nvec, gtype, vlen
 c
@@ -315,8 +321,7 @@ c              put elements of g_x, g_x_im to local memory:
 c
                do j=1,nvir
 c                orbital energy differences:
-                 denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) +
-     $              lshift
+                 denominator = (fcv(j+vbase) - fcv(i+cbase)) + lshift ! FA-03-10-14
 c                check for small HOMO-LUMO gap:
                  if (abs(denominator).lt.small) then
                    sign = 1d0
@@ -328,23 +333,18 @@ c                check for small HOMO-LUMO gap:
                  endif
 c                
 c                take care of the damping here: set up scale_factor
-c                and multiply instead of dividing by denominator
-                 
-                 factor_re =
-     &              denominator / (denominator**2 + gamwidth**2)
-                 factor_im = -gamwidth / (denominator**2 + gamwidth**2)
-c                scale real part, mix with imag.; and vice versa
+c                and multiply instead of dividing by denominator                
+c FA-03-12-14 ------- START
+                 den=(denominator**2 + gamwidth**2)
+                 factor_re =4.0d0*denominator/den
+                 factor_im =4.0d0*gamwidth/den
+c FA-03-12-14 ------- END
                  tmpre = dbl_mb(k_x   +j-1)
                  tmpim = dbl_mb(k_x_im+j-1)
-c
-c                CAREFUL HERE: WHEN THE CPHF STARTS UP THERE IS NO
-c                IMAG PART OF THE FOCK OPERATOR, i.e. tmpim should be zero
-                 dbl_mb(k_x   +j-1) =
-     &              tmpre * factor_re +
-     &              tmpim * factor_im
-                 dbl_mb(k_x_im+j-1) =
-     &              tmpim * factor_re +
-     &              tmpre * factor_im
+                 dbl_mb(k_x   +j-1)=tmpre*factor_re+tmpim*factor_im
+c FA-03-12-14 ------- START
+                 dbl_mb(k_x_im+j-1)=tmpim*factor_re-tmpre*factor_im
+c FA-03-12-14 ------- END
                enddo
                call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
      $              dbl_mb(k_x),1)

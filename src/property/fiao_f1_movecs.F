@@ -379,6 +379,7 @@ c ---- Read g_rhs from files --------- START
      &       call errquit
      $       ('fiao_f1: could not read cphf solution Im',
      &       ipm, DISK_ERR)
+          
          if (debug) then
           if (ga_nodeid().eq.0) then
            write(*,205) ipm
@@ -390,9 +391,10 @@ c ---- Read g_rhs from files --------- START
   206      format('---- g_rhs_im-AFT-cphf(',i3,')-------- END')
           endif            
          endif ! end-if-debug
+
         endif ! end-if-lifetime (damping)
       enddo ! end-loop-ipm
-
+      
        call get_vecF1(
      &              g_vecF1,    ! out:
      &              g_vecF1_im, ! out:
@@ -434,6 +436,7 @@ c ========== visualize (g_vecF1,g_vecF1_im) ====== START
          endif ! end-if-lifetime
         enddo ! end-loop-ipm
        endif ! end-if-debug
+
 c ========== visualize (g_vecF1,g_vecF1_im) ====== END
        if (.not.ga_destroy(vectors(ispin))) call 
      &   errquit('giao_b1: ga_destroy failed vectors',0,GA_ERR)
