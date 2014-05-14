@@ -1901,6 +1901,7 @@ endif
        FOPTIONS += -align
        ifdef USE_OPENMP
           FOPTIONS += -openmp
+          FOPTIONS += -openmp-report2
           COPTIONS += -openmp
           DEFINES+= -DUSE_OPENMP 
        endif
@@ -1914,6 +1915,10 @@ endif
           EXTRA_LIBS += -loffload
           DEFINES+= -DUSE_OFFLOAD
           FOPTIONS += -opt-report-phase=offload
+#          FOPTIONS += -offload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
+          FOPTIONS += -offload-option,mic,compiler,"-align array64byte"
+          FOPTIONS += -offload-option,mic,compiler,"-opt-report-phase=hlo"
+	 FOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
           FOPTIONS += -watch=mic_cmd 
           COPTIONS += -opt-report-phase=offload
        else
@@ -1921,7 +1926,8 @@ endif
              FOPTIONS += -no-openmp-offload
           endif
        endif
-       FOPTIONS +=   -vec-report2
+#       FOPTIONS +=   -vec-report2
+       FOPTIONS +=   -vec-report6
        DEFINES+= -DIFCV8 -DIFCLINUX
        ifeq ($(FC),ifc)
          FOPTIONS += -quiet
