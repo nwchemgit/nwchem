@@ -69,6 +69,12 @@ c  =============================================================================
 c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
+#ifdef USE_OFFLOAD
+      integer ppnout
+      logical offload_master
+      external offload_master
+#endif
+
       logical ostartup, ocontinue, orestart
       logical  input_parse
       external input_parse
@@ -243,6 +249,17 @@ c
       call geom_hnd_parallel(.true.)
 c
       call perfm_start()
+
+#ifdef USE_OFFLOAD
+      call util_getppn(ppnout)
+      if(ga_nodeid().eq.0)write(luout,*)  ga_nodeid(),' ppn ',ppnout
+      if(offload_master()) then
+      if(ga_nodeid().lt.ppnout)
+     w        write(luout,*)  ga_nodeid(),' offload_master '
+      call util_mic_set_affinity()
+      endif
+#endif
+
       if (orestart .or. ocontinue) call nw_print_restart_info(rtdb)
 c
 c if continue then go right to task stored on rtdb do not further parse
