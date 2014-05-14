@@ -1,3 +1,4 @@
+C$Id$
 #ifdef USE_OPENMP
 !$omp end parallel do
       deltat=(omp_get_wtime() -t0)*1.D6

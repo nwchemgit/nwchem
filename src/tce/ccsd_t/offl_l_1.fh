@@ -1,3 +1,4 @@
+C$Id$
 #ifndef OPENMP_OFFLOAD
 CDIR$ OFFLOAD TARGET(mic:mic_device)
      N	      IN(triplesx:length(0) 

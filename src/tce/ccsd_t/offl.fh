@@ -1,3 +1,4 @@
+C$Id$
 #define T2V2LENGTH 16000000
 #define OMPCOLLAPSE 3
 CCC#define ASYNC 1

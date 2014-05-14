@@ -1,3 +1,4 @@
+C$Id$
 c      integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
 c      integer h3,h2,h1,p6,p5,p4,h7
 c      double precision triplesx(h3d,h2d,h1d,p5d,p4d,p6d)
