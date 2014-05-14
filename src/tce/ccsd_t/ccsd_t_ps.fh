@@ -1,0 +1,58 @@
+C$Id$
+c
+c     pstat handles for the TCE code
+c
+      integer ps_tce,
+     A     ps_cctdbl,ps_sdkrnl,ps_sxoff,ps_vtoff,
+     I     fdist_vtoff,
+     I     fdist_sxoff,
+     I     fdist_sdkrnl,fdist_sdcomp,
+     I     fdist_sdkrnl4,fdist_sdcomp4,
+     I     fdist_sdkrnl11,fdist_sdcomp11,
+     I     fdist_sdkrnl12,fdist_sdcomp12,
+     I     fdist_sdkrnl13,fdist_sdcomp13,
+     I     fdist_sdkrnl14,fdist_sdcomp14,
+     I     fdist_sdkrnl15,fdist_sdcomp15,
+     I     fdist_sdkrnl16,fdist_sdcomp16,
+     I     fdist_sdkrnl17,fdist_sdcomp17,
+     I     fdist_sdkrnl18,fdist_sdcomp18,
+     I     fdist_sdkrnl19,fdist_sdcomp19,
+     I     fdist_sdkrnl21,fdist_sdcomp21,
+     I     fdist_sdkrnl22,fdist_sdcomp22,
+     I     fdist_sdkrnl23,fdist_sdcomp23,
+     I     fdist_sdkrnl24,fdist_sdcomp24,
+     I     fdist_sdkrnl25,fdist_sdcomp25,
+     I     fdist_sdkrnl26,fdist_sdcomp26,
+     I     fdist_sdkrnl27,fdist_sdcomp27,
+     I     fdist_sdkrnl28,fdist_sdcomp28,
+     I     fdist_sdkrnl29,fdist_sdcomp29
+     
+
+      logical otceps            ! True if gathering stats
+      common /tceps/ otceps,
+     $     ps_tce,
+     A     ps_cctdbl,ps_sdkrnl,ps_sxoff,ps_vtoff,
+     I     fdist_vtoff,
+     I     fdist_sxoff,
+     I     fdist_sdkrnl,fdist_sdcomp,
+     I     fdist_sdkrnl4,fdist_sdcomp4,
+     I     fdist_sdkrnl11,fdist_sdcomp11,
+     I     fdist_sdkrnl12,fdist_sdcomp12,
+     I     fdist_sdkrnl13,fdist_sdcomp13,
+     I     fdist_sdkrnl14,fdist_sdcomp14,
+     I     fdist_sdkrnl15,fdist_sdcomp15,
+     I     fdist_sdkrnl16,fdist_sdcomp16,
+     I     fdist_sdkrnl17,fdist_sdcomp17,
+     I     fdist_sdkrnl18,fdist_sdcomp18,
+     I     fdist_sdkrnl19,fdist_sdcomp19,
+     I     fdist_sdkrnl21,fdist_sdcomp21,
+     I     fdist_sdkrnl22,fdist_sdcomp22,
+     I     fdist_sdkrnl23,fdist_sdcomp23,
+     I     fdist_sdkrnl24,fdist_sdcomp24,
+     I     fdist_sdkrnl25,fdist_sdcomp25,
+     I     fdist_sdkrnl26,fdist_sdcomp26,
+     I     fdist_sdkrnl27,fdist_sdcomp27,
+     I     fdist_sdkrnl28,fdist_sdcomp28,
+     I     fdist_sdkrnl29,fdist_sdcomp29
+
+c

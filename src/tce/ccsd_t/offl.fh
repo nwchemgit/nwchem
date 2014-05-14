@@ -1,0 +1,14 @@
+#define T2V2LENGTH 16000000
+#define OMPCOLLAPSE 3
+CCC#define ASYNC 1
+c k_a_sort t2sub
+c k_b_sort v2sub
+#define ALLOC alloc_if(.true.)  free_if(.false.)
+#define FREE  alloc_if(.false.) free_if(.true.)
+#define REUSE alloc_if(.false.) free_if(.false.)
+      logical triplesx_alloced
+      logical triplesx_free
+      integer	triplesx_mxlgth
+      common /offl_ccsdt/triplesx_alloced,
+     T     triplesx_free,
+     T     triplesx_mxlgth
