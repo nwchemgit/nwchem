@@ -488,11 +488,16 @@ ifeq ($(TARGET),BGP)
     CXXFLAGS="-g"
 endif
 
-ifeq ($(USE_GPROF),y)
+ifdef USE_GPROF
     FFLAGS="-pg"
     CFLAGS="-pg"
     CXXFLAGS="-pg"
 endif
+
+ifdef USE_OFFLOAD
+    MAYBE_OFFLOAD= INTEL_64ALIGN=1
+endif
+    MAYBE_SYSVSHMEM= "ARMCI_DEFAULT_SHMMAX_UBOUND=131072"
 
 ifdef FFLAGS_FORGA
     MAYBE_FFLAGS=FFLAGS="$(FFLAGS_FORGA)"
@@ -511,7 +516,7 @@ else
     ifdef EXP_GA
         GA_DIR = ga-exp1
     else
-        GA_DIR = ga-5-2
+        GA_DIR = ga-5-3
     endif
 endif
 ifndef ARMCI_NETWORK
@@ -522,7 +527,7 @@ BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
