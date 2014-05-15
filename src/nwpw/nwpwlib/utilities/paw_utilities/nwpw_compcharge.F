@@ -2260,6 +2260,67 @@ c     >                                         l2,m2,s1,Rab)
       return
       end
 
+
+*     *****************************************************
+*     *                                                   *
+*     *        nwpw_compcharge_E_multipole_ion_electron   *
+*     *                                                   *
+*     *****************************************************
+*
+*    This routine calulates the multipole energy defined by
+* 
+*                    //
+*    Emultipole  =  || (nelccmp(r)-nelccmp_smooth(r))*(nioncmp(r')-nioncmp_smooth(r'))
+*                   || ---------------------------------------------------------------  dr dr'
+*                   //                       |r-r'|
+*
+      real*8 function nwpw_compcharge_E_multipole_ion_electron(ispin,zv)
+      implicit none
+      integer ispin
+      real*8 zv(*)
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer k,indx1up,indx1dn,indx2up,indx2dn
+      real*8 E,q1,q2,q11,q22,fourpi
+      integer iii,jjj,l1,m1,l2,m2,ia,iia,ja,jja
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      E = 0.0d0
+      do k=1,ngauss
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         indx2dn = indx2up + (ispin-1)*lm_size_max
+
+c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+
+         if (l2.eq.0) then
+            jja = int_mb(katm_paw(1)+jjj-1)
+            ja  = int_mb(katm_pawtoion(1)+jja-1)
+            q22 = -zv(ja)/dsqrt(fourpi)
+         else
+            q22 = 0.0d0
+         end if
+
+         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         q2 = q22
+         E = E + 2.0d0*q1*q2*dbl_mb(e_gauss(1)+k-1)
+
+      end do
+      call Parallel_SumAll(E)
+
+      nwpw_compcharge_E_multipole_ion_electron = E
+      return
+      end
+
+
 *     *************************************************
 *     *                                               *
 *     *           nwpw_compcharge_E_multipole         *
@@ -2298,8 +2359,8 @@ c     >                                         l2,m2,s1,Rab)
          indx2up = int_mb(lm2_gauss(1)+k-1)
          indx2dn = indx2up + (ispin-1)*lm_size_max
 
-         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
-         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
 
 
 
@@ -2449,6 +2510,11 @@ c     >                            dbl_mb(dE_Qlm(1)))
       return
       end
 
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_E_multipole_zv         *
+*     *                                               *
+*     *************************************************
 
       real*8 function nwpw_compcharge_E_multipole_zv(ispin,zv)
       implicit none
@@ -2487,7 +2553,7 @@ c     >                            dbl_mb(dE_Qlm(1)))
          if (l2.eq.0) then
             jja = int_mb(katm_paw(1)+jjj-1)
             ja  = int_mb(katm_pawtoion(1)+jja-1)
-            q22 = -zv(ia)/dsqrt(fourpi)
+            q22 = -zv(ja)/dsqrt(fourpi)
          else
             q22 = 0.0d0
          end if
