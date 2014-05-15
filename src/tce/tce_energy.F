@@ -733,7 +733,6 @@ c
        end if
 c
        slice=.false.
-       xmem = 0
        if (.not.rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem)) then
          continue
        else
@@ -1467,6 +1466,7 @@ c === jaguar ===
          end if
 c ==============
  3003    continue
+c
         elseif(fast2e.eq.14) then
 c === jaguar ===
          if(read_int)  then
@@ -1495,6 +1495,29 @@ c === jaguar ===
          end if
 c ==============
  3004    continue
+c
+        elseif(fast2e.eq.15) then
+c === jaguar ===
+         if(read_int)  then
+          call util_file_name('v2int',.false.,.false.,filename)
+          unitn=178
+          call read_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+          go to 3095
+         end if
+c ==============
+          call  new_ga4ind_N5(rtdb,d_v2,
+     1                        kax_v2_alpha_offset,
+     1                        size_2e)
+c === jaguar ===
+         if(write_int)  then
+          call util_file_name('v2int',.false.,.false.,filename)
+          unitn=178
+          call write_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+         end if
+c ==============
+ 3095    continue
         else
           write(LuOut,9123)fast2e
           call errquit('tce_energy: invalid 2emet: ',fast2e,CALC_ERR)
