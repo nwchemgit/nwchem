@@ -1914,9 +1914,11 @@ endif
           AR = xiar
           EXTRA_LIBS += -loffload
           DEFINES+= -DUSE_OFFLOAD
+          DEFINES+= -DINTEL_64ALIGN
           FOPTIONS += -opt-report-phase=offload
 #          FOPTIONS += -offload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
           FOPTIONS += -offload-option,mic,compiler,"-align array64byte"
+          FOPTIONS += -align array64byte
           FOPTIONS += -offload-option,mic,compiler,"-opt-report-phase=hlo"
 	 FOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
           FOPTIONS += -watch=mic_cmd 
