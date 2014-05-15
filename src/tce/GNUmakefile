@@ -93,7 +93,7 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o ccsd_lr_alpha.o \
       ccsd_qr_beta.o tce_dgeev.o tce_schmidt.o tensor_read_write.o \
       tce_diis_act.o tce_mo2e_zones_4a_disk_ga_act.o tce_mo2e_zones_4a_disk_ga_chop_act.o \
-      tce_t2a_offset.o tce_x2a_offset.o
+      tce_t2a_offset.o tce_x2a_offset.o new_ga4ind_N5.o 
 
 OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
 
@@ -143,7 +143,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             ccsd_qr_beta.F daxpyfile.F tce_ao2e_cholesky_orb.F tce_ao2e_disk.F \
             tce_ao2e_new.F tce_dgeev.F tce_mo2e_disk.F tce_mo2e_new.F \
             tce_mo2e_zones_4a_disk_4s_new_patch_m3.F tce_mo2e_zones_4a_disk_ga_N5.F \
-            tce_mo2e_zones_4a_disk_ga_chop_N5.F tce_mod1_new.F
+            tce_mo2e_zones_4a_disk_ga_chop_N5.F tce_mod1_new.F new_ga4ind_N5.F
 
 
 
