@@ -1634,7 +1634,7 @@ c     >                          l_prj(i),m_prj(i))
 
 *     **** local variables ****
       logical ok,periodic
-      integer npack0,dng_cmp(2),vcmp(2)
+      integer npack0,dng_cmp(2),vcmp(2),cmp(2)
       integer n2ft3d,rho_cmp(2),nx,ny,nz
       real*8 eh,scal1,dv
 
@@ -1652,16 +1652,21 @@ c     >                          l_prj(i),m_prj(i))
       if (periodic) then
          call Pack_npack(0,npack0)
          ok =MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
+         ok =ok.and.MA_push_get(mt_dcpl,npack0,'cmp',cmp(2),cmp(1))
          ok =ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:out of stack',0,MA_ERR)
 
          call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+         call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
+     >                                   dbl_mb(cmp(1)))
+         call Pack_cc_Sum(0,dbl_mb(cmp(1)),dbl_mb(rho_cmp(1)))
          call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
          call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
          eh = eh*lattice_omega()
 
          ok =        MA_pop_stack(vcmp(2))
+         ok = ok.and.MA_pop_stack(cmp(2))
          ok = ok.and.MA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:popping stack',1,MA_ERR)
@@ -1673,6 +1678,7 @@ c     >                          l_prj(i),m_prj(i))
       else
          call D3dB_n2ft3d(1,n2ft3d)
          ok =MA_push_get(mt_dbl,n2ft3d,'rho_cmp',rho_cmp(2),rho_cmp(1))
+         ok =ok.and.MA_push_get(mt_dbl,n2ft3d,'cmp',cmp(2),cmp(1))
          ok =ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp',vcmp(2),vcmp(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:out of stack',2,MA_ERR)
@@ -1683,6 +1689,10 @@ c     >                          l_prj(i),m_prj(i))
          dv    = lattice_omega()*scal1
 
          call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(rho_cmp(1)))
+         call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
+     >                                   dbl_mb(cmp(1)))
+         call Pack_cc_Sum(0,dbl_mb(cmp(1)),dbl_mb(rho_cmp(1)))
+
          call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
          call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
          call coulomb2_v(dbl_mb(rho_cmp(1)),dbl_mb(vcmp(1)))
@@ -1692,6 +1702,7 @@ c     >                          l_prj(i),m_prj(i))
          eh = eh*dv
 
          ok =        MA_pop_stack(vcmp(2))
+         ok = ok.and.MA_pop_stack(cmp(2))
          ok = ok.and.MA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:popping stack',2,MA_ERR)
