@@ -53,38 +53,44 @@ c
        call ga_get_diagonal(g_afock, dbl_mb(k_da))
        call ga_get_diagonal(g_gfock, dbl_mb(k_dg))
 c
-c  Inactive-virtual piece
+       if (nvir.gt.0) then
 c
-       do i = myid+1, nclosed, numnodes
-         ioff = (i-1)*nvir + 1
-         do j=1,nvir
-           dbl_mb(k_tmp+j-1) = 4.d0*(di(j+vbase)+da(j+vbase)
-     $                              -di(i+cbase)-da(i+cbase))
+c        Inactive-virtual piece
+c
+         do i = myid+1, nclosed, numnodes
+           ioff = (i-1)*nvir + 1
+           do j=1,nvir
+             dbl_mb(k_tmp+j-1) = 4.d0*(di(j+vbase)+da(j+vbase)
+     $                          -di(i+cbase)-da(i+cbase))
+           enddo
+           call ga_put(g_hdiag,ioff,ioff+nvir-1,1,1,dbl_mb(k_tmp),1)
          enddo
-         call ga_put(g_hdiag,ioff,ioff+nvir-1,1,1,dbl_mb(k_tmp),1)
-       enddo
 c     
-c  Active-virtual piece
+c        Active-virtual piece
 c     
-       do i = myid+1, nact, numnodes
-         ioff = (nclosed+i-1)*nvir + 1
-         do j=1,nvir
-           dbl_mb(k_tmp+j-1) = 2.d0*(dm1(i,i)*di(j+vbase)-dg(i+abase))
+         do i = myid+1, nact, numnodes
+           ioff = (nclosed+i-1)*nvir + 1
+           do j=1,nvir
+             dbl_mb(k_tmp+j-1) = 2.d0*(dm1(i,i)*di(j+vbase)-dg(i+abase))
+           enddo
+           call ga_put(g_hdiag,ioff,ioff+nvir-1,1,1,dbl_mb(k_tmp),1)
          enddo
-         call ga_put(g_hdiag, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_tmp),1)
-       enddo
+       endif
 c     
-c  Inactive-active piece
+c      Inactive-active piece
 c     
-       do i = myid+1, nclosed, numnodes
-         ioff = (nclosed+nact)*nvir + (i-1)*nact + 1
-         do j=1,nact
-           dbl_mb(k_tmp+j-1) = 2.d0*(dm1(j,j)*di(i+cbase) - dg(j+abase)
-     $                       + 2.d0*(di(j+abase)+da(j+abase))
-     $                       - 2.d0*(di(i+cbase)+da(i+cbase)))
+       if (nact.gt.0) then
+         do i = myid+1, nclosed, numnodes
+           ioff = (nclosed+nact)*nvir + (i-1)*nact + 1
+           do j=1,nact
+             dbl_mb(k_tmp+j-1) = 2.d0*(dm1(j,j)*di(i+cbase) -
+     $                                 dg(j+abase)
+     $                         + 2.d0*(di(j+abase)+da(j+abase))
+     $                         - 2.d0*(di(i+cbase)+da(i+cbase)))
+           enddo
+           call ga_put(g_hdiag,ioff,ioff+nact-1,1,1, dbl_mb(k_tmp),1)
          enddo
-         call ga_put(g_hdiag, ioff, ioff+nact-1, 1, 1, dbl_mb(k_tmp),1)
-       enddo
+       endif
 c
 c
 C       CALL GA_ROWPRINT('1e Hessian diagonal',G_HDIAG)
