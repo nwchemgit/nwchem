@@ -1391,7 +1391,7 @@ c     >                          l_prj(i),m_prj(i))
       integer npack0,dng_cmp(2),dng_cmp_smooth(2),vcmp_smooth(2)
       integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2),cmp(2),cmp_smooth(2)
       integer nx,ny,nz
-      real*8 eh,e1,e2,eh0,scal1,dv
+      real*8 eh,e1,e2,eh0,eh1,scal1,dv
       
 *     **** external functions ****
       integer  control_version
@@ -1400,6 +1400,8 @@ c     >                          l_prj(i),m_prj(i))
       external nwpw_compcharge_E_multipole_zv_ee,lattice_omega
       real*8   nwpw_compcharge_E_multipole_zv
       external nwpw_compcharge_E_multipole_zv
+      real*8   nwpw_compcharge_E_multipole
+      external nwpw_compcharge_E_multipole
 
       periodic = (control_version().eq.3)
 
@@ -1532,11 +1534,13 @@ c     >                          l_prj(i),m_prj(i))
          else
 
 *           **** multipole energy ****
+            eh1 = nwpw_compcharge_E_multipole(ispin)
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
             eh  = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
-            write(*,*) "mult_mult=",eh
-            write(*,*) "mult_mult_zv=",eh0
+            write(*,*) "mult_mult      =",eh1
+            write(*,*) "mult_mult_zv   =",eh0
+            write(*,*) "mult_mult_zv_ee=",eh
 
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                       rho_cmp_smooth(2),rho_cmp_smooth(1))
