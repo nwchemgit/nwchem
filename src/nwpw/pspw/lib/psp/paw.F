@@ -1391,7 +1391,7 @@ c     >                          l_prj(i),m_prj(i))
       integer npack0,dng_cmp(2),dng_cmp_smooth(2),vcmp_smooth(2)
       integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2),cmp(2),cmp_smooth(2)
       integer nx,ny,nz
-      real*8 eh,e1,e2,eh0,eh1,scal1,dv
+      real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
       
 *     **** external functions ****
       integer  control_version
@@ -1400,6 +1400,8 @@ c     >                          l_prj(i),m_prj(i))
       external nwpw_compcharge_E_multipole_zv_ee,lattice_omega
       real*8   nwpw_compcharge_E_multipole_zv
       external nwpw_compcharge_E_multipole_zv
+      real*8   nwpw_compcharge_E_multipole_zv_zv
+      external nwpw_compcharge_E_multipole_zv_zv
       real*8   nwpw_compcharge_E_multipole
       external nwpw_compcharge_E_multipole
 
@@ -1536,10 +1538,12 @@ c     >                          l_prj(i),m_prj(i))
 *           **** multipole energy ****
             eh1 = nwpw_compcharge_E_multipole(ispin)
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
+            eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
             eh  = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
             write(*,*) "mult_mult      =",eh1
             write(*,*) "mult_mult_zv   =",eh0
+            write(*,*) "mult_mult_zv_zv=",eh2
             write(*,*) "mult_mult_zv_ee=",eh
 
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
@@ -1631,6 +1635,7 @@ c     >                          l_prj(i),m_prj(i))
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "psp.fh"
 
 *     **** local variables ****
       logical ok,periodic
@@ -1659,8 +1664,8 @@ c     >                          l_prj(i),m_prj(i))
 
          call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
          call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                   dbl_mb(cmp(1)))
-         call Pack_cc_Sum(0,dbl_mb(cmp(1)),dbl_mb(rho_cmp(1)))
+     >                                   dcpl_mb(cmp(1)))
+         call Pack_cc_Sum(0,dcpl_mb(cmp(1)),dcpl_mb(rho_cmp(1)))
          call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
          call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
          eh = eh*lattice_omega()
