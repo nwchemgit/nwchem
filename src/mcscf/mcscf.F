@@ -245,6 +245,10 @@ c
      $        5x,35('-'))
       endif
 c     
+      if (nvir.lt.0) then
+        call errquit("mcscf: negative number of virtual orbs",
+     &               nvir,INPUT_ERR)
+      endif
       if (.not.int_normalize(rtdb,basis))
      &    call errquit('mcscf:int_normalize failed',0, INT_ERR)
 c     
