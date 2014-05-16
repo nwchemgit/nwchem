@@ -1325,6 +1325,93 @@ c
 c
       return
       end
+C>
+C> \brief Detect whether the functional supports 3rd derivatives
+C>
+C> For capabilities such as TDDFT gradients 3rd order partial
+C> derivatives of the functional are required. This function detects
+C> whether the current functional supports these derivatives. 
+C>
+C> \return
+C> - `.TRUE.` if 3rd order derivatives are supported
+C> - otherwise the function does not return (it will kill the code
+C>   instead)
+C>
+      logical function nwxc_has_3nd()
+      implicit none
+#include "nwxcP.fh"
+      integer i      !< Counter
+      integer maxpt  !< The number of points
+      parameter (maxpt = 3)
+      integer maxpt2  !< The number of points
+      parameter (maxpt2 = 2*maxpt)
+      integer maxpt3  !< The number of points
+      parameter (maxpt3 = 3*maxpt)
+      integer maxpt4  !< The number of points
+      parameter (maxpt4 = 4*maxpt)
+      integer maxpt12 !< The number of points
+      parameter (maxpt12 = 12*maxpt)
+      integer maxpt13 !< The number of points
+      parameter (maxpt13 = 13*maxpt)
+      integer maxpt16 !< The number of points
+      parameter (maxpt16 = 16*maxpt)
+      integer maxpt31 !< The number of points
+      parameter (maxpt31 = 31*maxpt)
+      integer maxpt33 !< The number of points
+      parameter (maxpt33 = 33*maxpt)
+c     
+      double precision rho(maxpt2)    !< The density
+      double precision rgamma(maxpt3) !< The norm of the gradient
+      double precision tau(maxpt2)    !< The kinetic energy density
+c
+      double precision func(maxpt)    !< The functional value
+c
+      double precision dfdr(maxpt2)   !< Derivative wrt rho
+      double precision dfdg(maxpt3)   !< Derivative wrt rgamma
+      double precision dfdt(maxpt2)   !< Derivative wrt tau
+c
+      double precision dfdr2(maxpt3)   !< 2nd derivative wrt rho
+      double precision dfdg2(maxpt12)  !< 2nd derivative wrt rgamma
+      double precision dfdt2(maxpt13)  !< 2nd derivative wrt tau
+c
+      double precision dfdr3(maxpt4)   !< 3rd derivative wrt rho
+      double precision dfdg3(maxpt31)  !< 3rd derivative wrt rgamma
+      double precision dfdt3(maxpt16)  !< 3rd derivative wrt rho tau
+      double precision dfdgt3(maxpt33) !< 3rd derivative wrt rho rgamma
+                                       !< tau
+c
+      double precision abssum
+c
+c     Data taken from the quartet Nitrogen test case nwxc_nwdft_4n;
+c
+      data rho   /2.2175d-3, 8.2309d-3, 1.4192d-2,
+     +            1.8849d-4, 1.1904d-3, 2.4799d-3/
+      data rgamma/1.7078d-5, 2.6544d-4, 8.3431d-4,
+     +            2.1459d-6, 5.1828d-5, 1.9672d-4,
+     +            2.6964d-7, 1.0119d-5, 4.6388d-5/
+      data tau   /1.1802d-3, 5.2247d-3, 9.8571d-3,
+     +            1.7882d-4, 1.0629d-3, 2.3387d-3/
+      data func/maxpt*0.0d0/
+      data dfdr/maxpt2*0.0d0/
+      data dfdg/maxpt3*0.0d0/
+      data dfdt/maxpt2*0.0d0/
+      data dfdr2/maxpt3*0.0d0/
+      data dfdg2/maxpt12*0.0d0/
+      data dfdt2/maxpt13*0.0d0/
+      data dfdr3/maxpt4*0.0d0/
+      data dfdg3/maxpt31*0.0d0/
+      data dfdt3/maxpt16*0.0d0/
+      data dfdgt3/maxpt33*0.0d0/
+c
+      nwxc_has_3nd = .false.
+c
+      call nwxc_eval_df3(2,maxpt,rho,rgamma,tau,func,dfdr,dfdr2,dfdr3,
+     &                   dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3,dfdgt3)
+c
+      nwxc_has_3nd = .true.
+c
+      return
+      end
 
 C> @}
 c $Id$
