@@ -1095,6 +1095,7 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
 
 
 
+
 *     *************************************************
 *     *                                               *
 *     *           nwpw_compcharge_gen_dn_cmp2         *
@@ -1716,6 +1717,90 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       end
 
 
+*     *************************************************
+*     *                                               *
+*     *       nwpw_compcharge_gen_zv_cmp_smooth       *
+*     *                                               *
+*     *************************************************
+*
+*   This routine returns the fourier transform of dn_cmp.
+
+      subroutine nwpw_compcharge_gen_zv_cmp_smooth(zv,cmp_smooth)
+      implicit none
+      real*8     zv(*)
+      complex*16 cmp_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer iii,iia,ii,ia,lm,l,m,indx1,indx2,tmp(2),exi(2)
+      real*8  q,sumall,q00,fourpi
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_zv_cmp_smooth:stack",0,MA_ERR)
+
+      call dcopy(2*npack0,0.0d0,0,cmp_smooth,1)
+
+      if (isgamma) then
+
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         lm = 0
+         l = 0
+         m = 0
+         q00 = -zv(ia)/dsqrt(fourpi)
+
+         q = q00
+         call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(tmp(1)))
+         call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),cmp_smooth)
+      end do
+      call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),cmp_smooth)
+
+      else
+
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         lm = 0
+         l = 0
+         m = 0
+         q00 = -zv(ia)/dsqrt(fourpi)
+
+         q = q00
+         call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(tmp(1)))
+         call Cram_cc_daxpy(0,q,dcpl_mb(tmp(1)),cmp_smooth)
+      end do
+      call Cram_rc_Mul2(0,dbl_mb(gk_smooth(1)),cmp_smooth)
+
+      end if
+
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_zv_cmp_smooth:stack",1,MA_ERR)
+
+      return
+      end
+
 
 
 
@@ -2263,18 +2348,18 @@ c     >                                         l2,m2,s1,Rab)
 
 *     *****************************************************
 *     *                                                   *
-*     *        nwpw_compcharge_E_multipole_ion_electron   *
+*     *        nwpw_compcharge_E_multipole_Zv_ee          *
 *     *                                                   *
 *     *****************************************************
 *
-*    This routine calulates the multipole energy defined by
+*    This routine calulates the multipole energy defined by 
 * 
-*                    //
-*    Emultipole  =  || (nelccmp(r)-nelccmp_smooth(r))*(nioncmp(r')-nioncmp_smooth(r'))
-*                   || ---------------------------------------------------------------  dr dr'
-*                   //                       |r-r'|
+*                         //
+*    Emultipole  = 0.5 * || (nelccmp(r)-nelccmp_smooth(r))*(nelcmp-necmp_smooth+2*nioncmp(r')-2*nioncmp_smooth(r'))
+*                        || ---------------------------------------------------------------------------------------  dr dr'
+*                        //                       |r-r'|
 *
-      real*8 function nwpw_compcharge_E_multipole_ion_electron(ispin,zv)
+      real*8 function nwpw_compcharge_E_multipole_zv_ee(ispin,zv)
       implicit none
       integer ispin
       real*8 zv(*)
@@ -2304,19 +2389,19 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
          if (l2.eq.0) then
             jja = int_mb(katm_paw(1)+jjj-1)
             ja  = int_mb(katm_pawtoion(1)+jja-1)
-            q22 = -zv(ja)/dsqrt(fourpi)
+            q22 = -2.0d0*zv(ja)/dsqrt(fourpi)
          else
             q22 = 0.0d0
          end if
 
          q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-         q2 = q22
-         E = E + 2.0d0*q1*q2*dbl_mb(e_gauss(1)+k-1)
+         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn) + q22
+         E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
 
       end do
       call Parallel_SumAll(E)
 
-      nwpw_compcharge_E_multipole_ion_electron = E
+      nwpw_compcharge_E_multipole_Zv_ee = E
       return
       end
 
@@ -2348,9 +2433,10 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 
 *     **** local variables ****
       integer k,indx1up,indx1dn,indx2up,indx2dn
-      real*8 E,q1,q2
+      real*8 E,q1,q2,fourpi
       integer iii,jjj,l1,m1,l2,m2
 
+      fourpi = 16.0d0*datan(1.0d0)
 
       E = 0.0d0
       do k=1,ngauss
@@ -2361,8 +2447,6 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 
 c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
-
-
 
          q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
          q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
