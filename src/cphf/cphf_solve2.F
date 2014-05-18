@@ -340,8 +340,8 @@ c        enforces that.
 c        Call the solver
          if (ndata.eq.2) then
 
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'BEF ga_lkain_ext-rhf'
+c          if (ga_nodeid().eq.0)
+c     &      write(*,*) 'BEF ga_lkain_ext-rhf'
 
           call ga_lkain_ext(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
@@ -349,8 +349,8 @@ c        Call the solver
      &         oprint_solve)
          else
 
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'BEF ga_lkain-rhf'
+c          if (ga_nodeid().eq.0)
+c     &      write(*,*) 'BEF ga_lkain-rhf'
 
           call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
