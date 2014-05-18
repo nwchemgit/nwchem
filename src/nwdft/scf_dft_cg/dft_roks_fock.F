@@ -110,6 +110,7 @@ c
       integer nset
       parameter(nset=7)
       integer g_cdens, g_odens, g_cfock, g_hcore, g_ocoul, g_oexch
+      integer g_dens
       integer g_c_xc ! closed shell KS contributions (closed shell only)
       integer g_a_xc ! alpha spin KS contributions (open shell only)
       integer g_b_xc ! beta spin KS contributions (open shell only)
@@ -142,10 +143,13 @@ c
       external xc_hfexch
 c
       integer itype_wfn
+      logical odebug
+      character*255 cosmo_file
 c
-c     
 c     Initialise
 c     
+      odebug = util_print('dft_rohf_fock',print_debug)
+c
       if (.not. bas_numbf(basis, nbf))
      $   call errquit('dft_roks_fock: bas_numbf failed',0, BASIS_ERR)
       call rohf_jkfac(jfactor,kfactor)
@@ -185,7 +189,7 @@ c
 c     Compute closed and open shell density matrices
 c     
       call rohf_dens(g_vecs, nbf, nclosed, nopen, g_cdens, g_odens)
-      if (util_print('rohf_fock',print_debug)) then
+      if (odebug) then
          call ga_print(g_vecs)
          call ga_print(g_cdens)
          if (nopen .gt. 0) call ga_print(g_odens)
@@ -250,19 +254,26 @@ c
       endif
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
-      if (util_print('dft_roks_fock',print_debug))
-     $    call ga_print(g_hcore)
+      if (odebug)  call ga_print(g_hcore)
 c
 c     cosmo charges, potential and energy contribution
 c
       osome=.false.
       osome=osome.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.2) then
-        itype_wfn=1
-        call cosmo_charges(rtdb,basis,geom,ecosmo,osome,
-     $                     itype_wfn,g_vecs,nclosed,nopen,nbf,nmo)
-        call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
-      endif
+       cosmo_file = "cosmo.xyz"
+       g_dens = ga_create_atom_blocked(geom,basis,'density matrix')
+       call ga_zero(g_dens)
+       call ga_copy(g_cdens,g_dens)
+       if (nopen.gt.0) call ga_add(1.d0,g_cdens,one,g_odens,g_dens)
+        call cosmo_charges_from_dmat(rtdb, basis, geom, ecosmo, odebug,
+     &                                  1,           ! 1 = closed  shell
+     &                                  g_dens,      ! input density
+     &                                  cosmo_file)  ! cosmo charges file name
+       call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
+       if (.not.ga_destroy(g_dens))
+     &  call errquit('dft_roks_fock: ga_destroy failed g_dens',0,GA_ERR)
+      endif  ! cosmo check
 c
 c     add in frozen embedding
 c
@@ -317,8 +328,7 @@ c
          nfock = 3
       endif
 c
-      if(util_print('dft timings', print_high))
-     &      time1_2e=util_cpusec()   ! start 2e build time
+      if(odebug) time1_2e=util_cpusec()   ! start 2e build time
 c
 C     don't do it if RI HESSIAN is active
       call do_riscf (.false.)
