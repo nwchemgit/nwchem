@@ -72,7 +72,7 @@ c
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
       integer n_semi_bufs, fd
-      logical cosmo_esp
+c
 cc    Jorge Garza/Begin
 c
 c     Variables used to obtain the exact exchange-correlation potential
@@ -158,6 +158,8 @@ c
       double precision egas
       double precision esol
       double precision ecosmo
+      logical cosmo_esp
+      character*255 cosmo_file
 c
 c     slow switching of annealing
 c
@@ -998,7 +1000,8 @@ c
          if (odftps) call pstat_on(ps_scfend)
          goto 1970
       endif
- 1000 continue
+c
+ 1000 continue !  iteration loop
 
 c
       if (me.eq.0 .and. oprint_conv_details)
@@ -1018,9 +1021,14 @@ c
 c     Calculate the cosmo charges
 c
       if (cosmo_on.and.cosmo_phase.eq.2) then
-        call cosmo_charges(rtdb,ao_bas_han,geom,ecosmo,odbug
-     &     ,ipol,g_movecs,mclosed,mopen,nbf_ao,nmo)
-      end if
+        cosmo_file = "cosmo.xyz"
+        if (ipol.eq.2) ! separate components
+     &    call ga_dadd(1.d0,g_dens(1),-1.d0,g_dens(2),g_dens(1))
+        call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom, 
+     &          ecosmo, odbug, ipol, g_dens, cosmo_file)
+        if (ipol.eq.2) ! reinstate total
+     &    call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
+      end if ! cosmo check
 c
 c     Determine HOMO energy (for Zhan-Nichols-Dixon AC)
 c
@@ -1780,12 +1788,16 @@ c
       if (.not.rtdb_get(rtdb,'cosmo_esp',mt_log,1,cosmo_esp)) 
      +  cosmo_esp=.false.
       if (cosmo_esp) then
-      if(ga_nodeid().eq.0)
-     +  write(luout,*) "calculating cosmo esp charges"
-      call cosmo_charges(rtdb,
-     $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,mclosed,mopen,
-     $   nbf_ao, nmo)
-      end if
+       if(ga_nodeid().eq.0)
+     +  write(luout,*) "Calculating cosmo esp charges"
+        cosmo_file = "cosmo.xyz"
+        if(ipol.eq.2)  ! separate components
+     &    call ga_dadd(1.d0,g_dens(1),-1.d0,g_dens(2),g_dens(1))
+        call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom,
+     &          ecosmo, odbug, ipol, g_dens, cosmo_file)
+        if (ipol.eq.2) ! reinstate total in g_dens(1)
+     &    call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
+      end if ! cosmo_esp
 c
 c     Print all the eigenvalues
 c
