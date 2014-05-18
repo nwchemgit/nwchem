@@ -44,6 +44,7 @@ c
       integer nset
       parameter(nset=3)
       integer g_cdens, g_odens, g_cfock, g_hcore, g_ocoul, g_oexch
+      integer g_dens
       integer nbf, nvir, nfock
       double precision two, one, zero, mone
       parameter (two=2.0d0, one=1.0d0, zero=0.0d0, mone=-1.0d0)
@@ -60,10 +61,14 @@ c
       double precision ecosmo
       logical osome
 c
+      logical odebug
       integer itype_wfn
+      character*255 cosmo_file
 c
 c     Initialise
 c     
+      odebug = util_print('rohf_fock',print_debug)
+c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('rohf_solve: bas_numbf failed',0, BASIS_ERR)
       call rohf_jkfac(jfactor,kfactor)
@@ -150,11 +155,19 @@ c
       osome=.false.
       osome=osome.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.2) then
-        itype_wfn=1
-        call cosmo_charges(rtdb,basis,geom,ecosmo,osome,
-     $                     itype_wfn,g_vecs,nclosed,nopen,nbf,nmo)
-        call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
-      endif
+       cosmo_file = "cosmo.xyz"
+       g_dens = ga_create_atom_blocked(geom,basis,'density matrix')
+       call ga_zero(g_dens)
+       call ga_copy(g_cdens,g_dens)
+       if (nopen.gt.0) call ga_add(1.d0,g_cdens,one,g_odens,g_dens)
+        call cosmo_charges_from_dmat(rtdb, basis, geom, ecosmo, odebug,
+     &                                  1,           ! 1 = closed  shell
+     &                                  g_dens,      ! input density
+     &                                  cosmo_file)  ! cosmo charges file name
+       call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
+       if (.not.ga_destroy(g_dens))
+     &  call errquit('dft_roks_fock: ga_destroy failed g_dens',0,GA_ERR)
+      endif  ! cosmo check
 c
 c     add in frozen embedding
 c
