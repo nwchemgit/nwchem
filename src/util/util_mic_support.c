@@ -54,7 +54,11 @@ int offload_master_(){
   }
   ppn=util_cgetppn();
   nnn=0;
-  if(GA_Nodeid()%(ppn/ranks_per_device/util_mic_get_num_devices_()) == 0) nnn = 1;
+  if(ranks_per_device*util_mic_get_num_devices_() > ppn){
+    nnn=1;
+  }  else{
+    if(GA_Nodeid()%(ppn/ranks_per_device/util_mic_get_num_devices_()) == 0) nnn = 1;
+  }
 #ifdef DEBUG2
   /* internal check valid only for Cascade */
   if((GA_Nodeid()%2 == 0) && (nnn != 1) ){
@@ -192,9 +196,12 @@ void FATR util_mic_set_affinity_() {
 		nprocs = ((int) sysconf(_SC_NPROCESSORS_ONLN) / 4) - 1;
 	}
 
-
+	if(ranks_per_device*util_mic_get_num_devices_() > ppn){
+	  offload_stride = 1;
+	}else{
 	offload_stride = ppn/ranks_per_device/util_mic_get_num_devices_();
-	/* need to change rank_on_dev */
+	}
+
 		rank_on_dev = (GA_Nodeid() / offload_stride) % ranks_per_device;
 	//        rank_on_dev = util_my_smp_index()/(util_mic_get_num_devices_()*ranks_per_device);
 	
