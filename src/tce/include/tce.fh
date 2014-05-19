@@ -93,7 +93,9 @@ c
      5  irrep_a,irrep_b,irrep_c,
      6  irrep_oa,irrep_ob,irrep_oc,irrep_od,
      7  irrep_tra,irrep_trb,irrep_trc,irrep_trd,
-     8  nproc_read_tensor,nproc_write_tensor,idiv2e
+     8  nproc_read_tensor,nproc_write_tensor,idiv2e,
+     6  ea_unused_spin,ea_unused_sym,
+     7  ip_unused_spin,ip_unused_sym
 c     8  irrep_yra,irrep_yrb,irrep_yrc,irrep_yrd
 c     9  irrep_qrab,irrep_qrac,irrep_qrad,
 c     1  irrep_qrbc,irrep_qrbd,irrep_qrcd,
