@@ -1,3 +1,8 @@
+      block data lazymrcc_data
+#include "tce_mrcc.fh"
+      data l_tmp_on /.false./
+      end
+
       SUBROUTINE tce_mrcc_c2_offset(k_t2_offsetm,d_t2m,
      1 iref,irefnew,d_c,ijblock)
       IMPLICIT NONE
@@ -119,7 +124,6 @@ c     1       log_mb(k_isactive(iref)+h4b-1)) then
             if(1.eq.1) then
 
          counter = 0
-         l_tmp = 0
          ihash = -1
          ihashold = -1
          CALL DFILL(size,0.0d0,dbl_mb(k_a),1)
@@ -279,18 +283,18 @@ c          write(6,*)ioff,totaloff
      1 int_mb(k_rangem(irefnew)+h3new-1)*
      1 int_mb(k_rangem(irefnew)+h4new-1)
 
-          if((l_tmp.ne.0).and.(ihash.ne.ihashold)) then
-              if (.not.ma_pop_stack(l_tmp))
-     1          call errquit('tce_c2_offs: MA problem',1,MA_ERR)
-c              write(6,"('D_t',i4)")ga_nodeid()
-              l_tmp = 0
+          if((l_tmp_on).and.(ihash.ne.ihashold)) then
+             if (.not.ma_pop_stack(l_tmp))
+     1            call errquit('tce_c2_offs: MA problem',1,MA_ERR)
+             l_tmp_on=.false.
           endif
 
-          if(l_tmp.eq.0) then
+          if(.not.l_tmp_on) then
 
           if (.not.ma_push_get(mt_dbl,sizenew,'tmp',l_tmp,k_tmp))
      1       call errquit('tce_c2_offs: MA problem',0,MA_ERR)
 c              write(6,"('C_t',i4)")ga_nodeid()
+          l_tmp_on=.true.
 
           call get_hash_block(d_t2m(irefnew),dbl_mb(k_tmp),sizenew,
      1    int_mb(k_t2_offsetm(irefnew)),ihash)
@@ -314,11 +318,10 @@ c           enddo !irefnew
          enddo
          enddo
 
-         if(l_tmp.ne.0) then
-              if (.not.ma_pop_stack(l_tmp))
-     1          call errquit('tce_c2_offs: MA problem',1,MA_ERR)
-c              write(6,"('D_t',i4)")ga_nodeid()
-              l_tmp = 0
+         if(l_tmp_on) then
+            if (.not.ma_pop_stack(l_tmp))
+     1           call errquit('tce_c2_offs: 1MA problem',1,MA_ERR)
+            l_tmp_on = .false.
          endif
 
          else
@@ -363,7 +366,7 @@ c        endif
 c             call ma_print(dbl_mb(k_a),size,1,'C1')
 c              write(6,"('D_a',i4)")ga_nodeid()
              if (.not.ma_pop_stack(l_a))
-     1          call errquit('tce_c2_offs: MA problem',2,MA_ERR)
+     Q        call errquit('tce_c2_offs: MA problem',2,MA_ERR)
 
 c         write(6,"('Finished: ',I4,I4,I4,I4)")
 c     1 p1b,p2b,h3b,h4b
@@ -424,7 +427,7 @@ c deleted
        next = NXTASK(-nprocs, 1)
        call GA_SYNC()
       endif
-
+      l_tmp_on=.false.
       RETURN
       END
 c $Id$
