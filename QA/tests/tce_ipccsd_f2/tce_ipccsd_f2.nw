@@ -1,0 +1,41 @@
+# IPCCSD cc-pVDZ 15.10 eV
+
+start  tce_ipccsd_f2
+
+title "tce_ipccsd_f2"
+
+echo
+
+memory stack 1000 mb heap 200 mb global 500 mb
+
+#permanent_dir /work/kiran/F2/tce_ipccsd_f2/
+
+geometry units angstroms
+symmetry c1
+ F    0.0000000000        0.0000000000   0.7059650
+ F    0.0000000000        0.0000000000  -0.7059650
+end
+
+basis spherical
+ * library cc-pvdz
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ipccsd
+nroots 1
+freeze atomic
+#symmetry
+#targetsym a1
+thresh 1.0e-7
+end
+#set tce:maxeorb 0.1
+task tce energy
+
+
