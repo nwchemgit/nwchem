@@ -1082,8 +1082,8 @@ c
         jj = (nact-i)*nact
         call dcopy(nact,dm1(1,i),1,dbl_mb(k_u+jj),1)
       enddo
-c$$$      write(6,'(A)') ' Natural orbital rotation matrix '
-c$$$      call moints_matprint(nact,nact,dbl_mb(k_u))
+c$$      write(6,'(A)') ' Natural orbital rotation matrix '
+c$$      call moints_matprint(nact,nact,dbl_mb(k_u))
       if (.not.ma_pop_stack(l_tmp))
      $   call errquit('mcscf_naturalorb: cannot pop stack',0, MA_ERR)
 c
