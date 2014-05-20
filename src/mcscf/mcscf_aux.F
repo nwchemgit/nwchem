@@ -388,10 +388,6 @@ c
          status = movecs_read_header( movecs_in, title_vecs, bas_vecs,
      $        scftype_vecs,
      $                                nbf_vecs, nsets, nmo_vecs, 2)
-cDEBUG
-         write(*,*)'mcscf_getmovecs: status, movecs_in: ',status,
-     $             movecs_in
-cDEBUG
          if (status) then
 c     
 c  Check that:
@@ -404,10 +400,6 @@ c
      $            call errquit('mcscf_getmovecs: movecs read',0,
      &                         DISK_ERR)
            else
-cDEBUG
-             write(*,*)"nbf,nbf_vecs   : ",nbf,nbf_vecs
-             write(*,*)"trans,bas_vecs : ",trans,bas_vecs
-cDEBUG
              if (ga_nodeid().eq.0) write(6,944)
  944         format('Restart movecs mismatch with input')
              status = .false.
