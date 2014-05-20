@@ -1,0 +1,39 @@
+# EACCSD cc-pVDZ 0.61 eV
+
+start tce_eaccsd_ozone
+
+title "tce_eaccsd_ozone"
+
+echo
+
+memory stack 1000 mb heap 200 mb global 500 mb
+
+#permanent_dir /work/kiran/Ozone/tce_eaccsd_ozone/
+
+geometry units bohr
+symmetry c1
+O   0.0000000000        0.0000000000        0.0000000000
+O   0.0000000000       -2.0473224350       -1.2595211660
+O   0.0000000000        2.0473224350       -1.2595211660
+end
+
+basis spherical
+ * library cc-pvdz
+END
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+eaccsd
+nroots 2
+freeze atomic
+tilesize 20
+thresh 1.0d-6
+end
+task tce energy
+
