@@ -185,6 +185,9 @@ c
      $           '            ',f15.0)
             call util_flush(6)
          end if
+#ifdef NOIO
+         avail_file=avail_ma-max_ma
+#endif
          if(ga_uses_ma().and..not.ga_memory_limited())then
             if(max_ma+max_ga.le.avail_ma.and.max_file.le.
      $           avail_file) goto 999
