@@ -112,6 +112,16 @@ if ( ${?TCE_CUDA} == 1 ) then
     ./runtests.mpi.unix procs $np tce_cuda
   endif
 endif
+if ( ${?EACCSD} == 1 ) then
+  if ("x$EACCSD" == "xy") then
+    ./runtests.mpi.unix procs $np tce_eaccsd_ozone
+  endif
+endif
+if ( ${?IPCCSD} == 1 ) then
+  if ("x$IPCCSD" == "xy") then
+    ./runtests.mpi.unix procs $np tce_ipccsd_f2
+  endif
+endif
 ./runtests.mpi.unix procs $np oniom1
 ./runtests.mpi.unix procs $np oniom2
 ./runtests.mpi.unix procs $np oniom3
