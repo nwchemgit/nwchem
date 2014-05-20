@@ -203,6 +203,13 @@ c ---------------------------------------------
 #ifdef TCE_CUDA
       integer icuda
 #endif
+c#ifdef EACCSD
+      logical eaccsd
+c#endif
+c#ifdef IPCCSD
+      logical ipccsd
+c#endif
+
 c --- debug ---
 c      integer dup1,dup2,dup3,dup4,dup5,dup6
 c -------------
@@ -7123,6 +7130,31 @@ c     Excited-state CI, CC, & MBPT
 c     ============================
 c
         irrep_g = 0
+
+c#ifdef EACCSD
+      if (.not.rtdb_get(rtdb,'tce:eaccsd',mt_log,1,eaccsd))
+     +  eaccsd = .false.
+      if(eaccsd) then
+       ea_unused_spin=1
+       ea_unused_sym=0
+       if(nodezero) write(LuOut,*)
+       if(nodezero) write(LuOut,*) "EACCSD calculation"
+       if(nodezero) call util_flush(LuOut)
+      endif
+c#endif
+c#ifdef IPCCSD
+      if (.not.rtdb_get(rtdb,'tce:ipccsd',mt_log,1,ipccsd))
+     +  ipccsd = .false.
+      if(ipccsd) then
+       ip_unused_spin=1
+       ip_unused_sym=0
+       if(nodezero) write(LuOut,*)
+       if(nodezero) write(LuOut,*) "IPCCSD calculation"
+       if(nodezero) call util_flush(LuOut)
+      endif
+c#endif
+
+
 c
 c       Restricted closed shell: irrep_g is always zero.
 c
@@ -7185,7 +7217,17 @@ c
           endif
 c
           if (needt1) then
+           if((.not. eaccsd) .and. (.not. ipccsd)) then
             call tce_x1_offset(l_x1_offset,k_x1_offset,size_x1)
+#ifdef IPCCSD
+           else if( ipccsd) then
+            call tce_ipx1_offset(l_x1_offset,k_x1_offset,size_x1)
+#endif
+#ifdef EACCSD
+           else if (eaccsd) then
+            call tce_eax1_offset(l_x1_offset,k_x1_offset,size_x1)
+#endif
+           endif
             call tce_filename('rx1',filename)
             call createfile(filename,d_rx1,size_x1)
             call gatoeaf(d_rx1)
@@ -7203,7 +7245,17 @@ c
           endif
           if (needt2) then
            if(model.ne.'ccsd_act') then
-            call tce_x2_offset(l_x2_offset,k_x2_offset,size_x2)
+            if((.not. eaccsd) .and. (.not. ipccsd)) then
+             call tce_x2_offset(l_x2_offset,k_x2_offset,size_x2)
+#ifdef IPCCSD
+            else if(ipccsd) then
+             call tce_ipx2_offset(l_x2_offset,k_x2_offset,size_x2)
+#endif
+#ifdef EACCSD
+            else if(eaccsd) then
+             call tce_eax2_offset(l_x2_offset,k_x2_offset,size_x2)
+#endif
+            endif
            else 
 c ccsd_act/eomccsd_act
             call tce_x2a_offset(l_x2_offset,k_x2_offset,size_x2)
@@ -7389,9 +7441,31 @@ c
             call tce_loc_j2_inv(d_j2,k_j2_offset)
       end if
 c
+           if((.not. eaccsd) .and. (.not. ipccsd)) then
             call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
+#ifdef IPCCSD
+           else if(ipccsd) then 
+c             if(nodezero) write(LuOut,*) "I am here 2"
+c             if(nodezero) call util_flush(LuOut)
+            call tce_eom_ipxguess(rtdb,needt1,needt2,needt3,needt4,
+     1        size_x1,size_x2,size_x3,size_x4,
+     2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
+#endif
+#ifdef EACCSD
+           else if(eaccsd) then
+ckbn              write(LuOut,*) "I am here 1.2"
+ckbn              call util_flush(LuOut)
+            call tce_eom_eaxguess(rtdb,needt1,needt2,needt3,needt4,
+     1        size_x1,size_x2,size_x3,size_x4,
+     2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
+ckbn              write(LuOut,*) "I am here 1.3"
+ckbn              call util_flush(LuOut)
+#endif
+           endif
+
+
             if (nxtrials.eq.0) goto 200
 ccxsg
           do ivec=1,nroots_reduced
@@ -7432,6 +7506,13 @@ c           call hbar_init
                   xp1_exist(ivec) = .true.
                   call dratoga(x1(ivec))
                   call dratoga(x2(ivec))
+#if defined(EACCSD) || defined(IPCCSD)
+        if(eaccsd .or. ipccsd) then
+ckbn         if((nodezero) .and. (iter .eq. 1)) 
+ckbn     +    write(LuOut,*) "No local T1 and X1 for EACCSD and IPCCSD"
+ckbn         if((nodezero) .and. (iter .eq. 1) ) call util_flush(LuOut) 
+        else
+#endif
 c - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
@@ -7449,6 +7530,9 @@ cc        call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
       call get_block(x1(ivec),dbl_mb(k_x1_local),size_x1,0)
 ccx       end if
 c -------------------------------
+#if defined(EACCSD) || defined(IPCCSD)
+        endif ! if(eaccsd .or. ipccsd)
+#endif
          if(ccsd_var.eq.'cc2') then
           call cc2_x1(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
      &      k_x1_local,x2(ivec),
@@ -7464,6 +7548,47 @@ c -------------------------------
      5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
           else
+#if defined(EACCSD) || defined(IPCCSD)
+           if(eaccsd) then
+#endif
+#ifdef EACCSD
+             if(nodezero) write(LuOut,*) "I am here eaccsd_x1"
+             if(nodezero) call util_flush(LuOut)
+ckbn      SUBROUTINE eaccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+ckbn     &_offset)
+             call eaccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),
+     +                      x2(ivec),
+     +                      k_f1_offset,k_x1_offset,k_t1_offset,
+     +                      k_t2_offset,k_v2_offset,k_x1_offset,
+     +                      k_x2_offset)
+             if(nodezero) write(LuOut,*) "I am here eaccsd_x1 1"
+             if(nodezero) call util_flush(LuOut)
+#endif
+#if defined(EACCSD) || defined(IPCCSD)
+           elseif(ipccsd) then
+#endif
+ckbn             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
+ckbn             if(nodezero) call util_flush(LuOut)
+ckbn      SUBROUTINE ipccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+ckbn     &_offset)
+#ifdef IPCCSD
+             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
+             if(nodezero) call util_flush(LuOut)
+             call ipccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),
+     +                      x2(ivec),
+     +                      k_f1_offset,k_x1_offset,k_t1_offset,
+     +                      k_t2_offset,k_v2_offset,k_x1_offset,
+     +                      k_x2_offset)
+             if(nodezero) write(LuOut,*) "I am here ipccsd_x1 1"
+             if(nodezero) call util_flush(LuOut)
+#endif
+#if defined(EACCSD) || defined(IPCCSD)
+           else
+#endif
+c             if(nodezero) write(LuOut,*) "I am here eomccsd x1"
+c             if(nodezero) call util_flush(LuOut)
                   call eomccsd_x1_n(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
      1              k_x1_local,x2(ivec),k_f1_offset,k_x1_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
@@ -7471,6 +7596,9 @@ c -------------------------------
      4 ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+#if defined(EACCSD) || defined(IPCCSD)
+           endif
+#endif
           end if
          end if
                   call reconcilefile(xp1(ivec),size_x1)
@@ -7511,6 +7639,43 @@ c -------------------------------
      6       rec_d_6,rec_d_7,rec_d_8,rec_d_9,d_c2)
            call deletefile(d_c2)
            else
+#if defined(EACCSD) || defined(IPCCSD)
+            if(eaccsd) then
+#endif
+#ifdef EACCSD
+             if(nodezero) write(LuOut,*) "I am here eaccsd_x2"
+             if(nodezero) call util_flush(LuOut)
+ckbn      SUBROUTINE eaccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+ckbn     &_offset)
+          call eaccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,x1(ivec),
+     +                      x2(ivec),
+     +                      k_f1_offset,k_x2_offset,k_t1_offset,
+     +                      k_t2_offset,k_v2_offset,k_x1_offset,
+     +                      k_x2_offset)
+             if(nodezero) write(LuOut,*) "I am here eaccsd_x2 2"
+             if(nodezero) call util_flush(LuOut)
+#endif
+#ifdef EACCSD
+            elseif(ipccsd) then
+ckbn             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
+ckbn             if(nodezero) call util_flush(LuOut)
+ckbn      SUBROUTINE ipccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+ckbn     &_offset)
+             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
+             if(nodezero) call util_flush(LuOut)
+                  call ipccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,x1(ivec),
+     +                           x2(ivec),
+     +                           k_f1_offset,k_x2_offset,k_t1_offset,
+     +                           k_t2_offset,k_v2_offset,k_x1_offset,
+     +                           k_x2_offset)
+             if(nodezero) write(LuOut,*) "I am here ipccsd_x2 2"
+             if(nodezero) call util_flush(LuOut)
+#endif
+#if defined(EACCSD) || defined(IPCCSD)
+            else
+#endif
                   call eomccsd_x2_n(d_f1,xp2(ivec),k_t1_local,d_t2,d_v2,
      1              k_x1_local,x2(ivec),k_f1_offset,k_x2_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
@@ -7518,17 +7683,31 @@ c -------------------------------
      4     ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5             rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6             rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+#if defined(EACCSD) || defined(IPCCSD)
+            endif
+#endif
            end if
            ister=1
 c
          end if
                   call reconcilefile(xp2(ivec),size_x2)
+#if defined(EACCSD) || defined(IPCCSD)
+        if(eaccsd .or. ipccsd) then
+ckbn         if(nodezero) 
+ckbn     +    write(LuOut,*) "No local T1 and X1 for EACCSD and IPCCSD"
+ckbn         if(nodezero) call util_flush(LuOut) 
+        else
+#endif
 c - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_x1_local))
      &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',4,MA_ERR)
 c -----------------------
+#if defined(EACCSD) || defined(IPCCSD)
+        endif
+#endif
+
            if(ccsd_var.eq.'lr-ccsd') then
                   call tce_j2_x2_scaling(xp2(ivec),k_x2_offset,
      1              d_j2,k_j2_offset)
@@ -7541,11 +7720,20 @@ c -----------------------
               if (.not.ma_push_get(mt_dbl,nxtrials,'residual',
      1          l_residual,k_residual))
      2          call errquit('tce_energy: MA problem',101,MA_ERR)
+#if defined(EACCSD) || defined(IPCCSD)
+             call tce_eom_xdiagon(needt1,needt2,needt3,needt4,
+     1          size_x1,size_x2,size_x3,size_x4,
+     2          k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
+     3          d_rx1,d_rx2,d_rx3,d_rx4,
+     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter,
+     +          eaccsd,ipccsd)
+#else
               call tce_eom_xdiagon(needt1,needt2,needt3,needt4,
      1          size_x1,size_x2,size_x3,size_x4,
      2          k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3          d_rx1,d_rx2,d_rx3,d_rx4,
      4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter)
+#endif
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
               converged = .true.
@@ -7597,8 +7785,26 @@ c ---
              call util_flush(6)
             end if
              do jvec=1,nroots_reduced
-              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
-              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
+              if((.not. eaccsd) .and. (.not. ipccsd)) then
+               call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
+               call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
+#ifdef IPCCSD
+              else if(ipccsd) then
+c              write(LuOut,*) "I am here 3.2"
+c              call util_flush(LuOut)
+               call tce_print_ipx1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
+c              write(LuOut,*) "I am here 3.3"
+c              call util_flush(LuOut)
+               call tce_print_ipx2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
+c              write(LuOut,*) "I am here 3.4"
+c              call util_flush(LuOut)
+#endif
+#ifdef EACCSD
+              else if(eaccsd) then
+               call tce_print_eax1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
+               call tce_print_eax2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
+#endif
+              endif
               call util_flush(LuOut)
              enddo
 c ---
