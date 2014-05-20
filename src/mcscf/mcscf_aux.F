@@ -1063,11 +1063,24 @@ c
      $  call errquit('mcscf_naturalorb: cannot allocate',0, MA_ERR)
       call dsyev( 'V', 'L', nact, dm1, nact, dbl_mb(k_tmp),
      $             dbl_mb(k_tmp+nact), tsize, info )
-      do i=1,nact
-        ii = idamax(nact,dm1(1,i),1)
-        jj = (ii-1)*nact
+      if (info.ne.0) then
+        if (info.lt.0) then 
+          call errquit("mcscf_naturalorb: dsyev has an illegal value "
+     $               //"for argument no.",-info,UERR)
+        else
+          call errquit("mcscf_naturalorb: dsyev failed to converge",
+     $                 info,UERR)
+        endif
+      endif
+c
+c     Dsyev produced occupation numbers in increasing order, 
+c     chemically having them in decreasing order makes more
+c     sense. So reorder the vectors and occupation numbers.
+c
+      do i = 1, nact
+        occ(nclosed+nact-i+1) = dbl_mb(k_tmp+i-1)
+        jj = (nact-i)*nact
         call dcopy(nact,dm1(1,i),1,dbl_mb(k_u+jj),1)
-        occ(nclosed+ii) = dbl_mb(k_tmp+i-1)
       enddo
 c$$$      write(6,'(A)') ' Natural orbital rotation matrix '
 c$$$      call moints_matprint(nact,nact,dbl_mb(k_u))
