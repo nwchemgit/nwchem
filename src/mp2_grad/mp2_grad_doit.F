@@ -144,9 +144,14 @@ c
          avail_file=avail_file*1024d0*128d0
          write(0,*) ' #avail ',avail_file
       else
-         avail_file=0.99d0*((avail_ma*(9d0*3d0))/(16d0*4d0))
-         avail_ma=(7d0*avail_ma)/16d0
+         avail_file=util_scratch_dir_avail_for_me()*128.0d0
       endif
+cold         avail_file=0.99d0*((avail_ma*(9d0*3d0))/(16d0*4d0))
+cold         avail_ma=(7d0*avail_ma)/16d0
+#ifdef NOIO
+      avail_ma=avail_ma/2
+      avail_file=0
+#endif
 c
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $     avail_ma = avail_ma - ga_memory_avail()
@@ -186,7 +191,7 @@ c
             call util_flush(6)
          end if
 #ifdef NOIO
-         avail_file=avail_ma-max_ma
+         avail_file=(avail_ma-max_ma)/2
 #endif
          if(ga_uses_ma().and..not.ga_memory_limited())then
             if(max_ma+max_ga.le.avail_ma.and.max_file.le.
