@@ -80,15 +80,15 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
 ./runtests.mpi.unix procs $np tce_uracil_creomact
 ./runtests.mpi.unix procs $np li2h2_tce_ccsd
-if ( ${?MRCC_METHODS} == 1 ) then
-  if ( "x$MRCC_METHODS" == "xy" ) then
+if [ ${#MRCC_METHODS} -eq 1 ] ; then
+  if [ "x$MRCC_METHODS" == "xy" ] ; then
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc
     ./runtests.mpi.unix procs $np tce_mrcc_mkcc
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc_subgroups
   fi
 fi
-if ( ${?TCE_CUDA} == 1 ) then
-  if ("x$TCE_CUDA" == "xy") then
+if [ ${#TCE_CUDA} -eq 1 ] ; then
+  if ["x$TCE_CUDA" == "xy"] ; then
     ./runtests.mpi.unix procs $np tce_cuda
   fi
 fi
