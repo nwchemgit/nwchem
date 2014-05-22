@@ -53,15 +53,15 @@
 
 *     ***** ngrid data *****
       integer nproj,nsize,nfft1,nfft2,nfft3
-      integer vl(2),vnl(2),G_indx,G_hndl
+      integer vl(2),vlpaw(2),vnl(2),G_indx,G_hndl
       integer f1(2),f2(2),f3(2),f4(2),cs(2),sn(2)
 
 *     **** ray data ****
       logical filter
       integer nray,G_ray_hndl,tmp_ray_hndl
-      integer vnl_ray_hndl,vl_ray_hndl
+      integer vnl_ray_hndl,vl_ray_hndl,vlpaw_ray_hndl
       integer G_ray_indx,tmp_ray_indx
-      integer vnl_ray_indx,vl_ray_indx
+      integer vnl_ray_indx,vl_ray_indx,vlpaw_ray_indx
 
 
 *     **** other variables ****
@@ -279,6 +279,8 @@
 *     **** allocate vl,vnl,vnlnrm G ****
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,'vl',vl(2),vl(1))
+      value = value.and.MA_alloc_get(mt_dbl,nsize,
+     >                               'vlpaw',vlpaw(2),vlpaw(1))
       value = value.and.MA_alloc_get(mt_dbl,nsize*(nproj),
      >                        'vnl',vnl(2), vnl(1))
       value = value.and.MA_alloc_get(mt_dbl,3*nsize,'G',G_hndl,G_indx)
@@ -298,6 +300,8 @@
      >                  'G_ray',G_ray_hndl,G_ray_indx)
       value = value.and.MA_alloc_get(mt_dbl,2*nray,
      >                  'vl_ray',vl_ray_hndl,vl_ray_indx)
+      value = value.and.MA_alloc_get(mt_dbl,2*nray,
+     >                  'vlpaw_ray',vlpaw_ray_hndl,vlpaw_ray_indx)
       value = value.and.MA_alloc_get(mt_dbl,2*nray*(nbasis),
      >                  'vnl_ray',vnl_ray_hndl,vnl_ray_indx)
       value = value.and.MA_alloc_get(mt_dbl,nray,
@@ -331,6 +335,7 @@
      >                      nfft1,nfft2,nfft3,nproj,
      >                                dbl_mb(G_indx),
      >                                dbl_mb(vl(1)),
+     >                                dbl_mb(vlpaw(1)),
      >                                dbl_mb(vnl(1)),
      >                                int_mb(nprj(1)),
      >                                int_mb(lprj(1)),
@@ -343,12 +348,14 @@
      >                      nray,
      >                                dbl_mb(G_ray_indx),
      >                                dbl_mb(vl_ray_indx),
+     >                                dbl_mb(vlpaw_ray_indx),
      >                                dbl_mb(vnl_ray_indx),
      >                                dbl_mb(tmp_ray_indx),
      >                                filter,
      >                      ierr)
         value = MA_free_heap(tmp_ray_hndl)
         value = value.and.MA_free_heap(vl_ray_hndl)
+        value = value.and.MA_free_heap(vlpaw_ray_hndl)
         value = value.and.MA_free_heap(vnl_ray_hndl)
         value = value.and.MA_free_heap(G_ray_hndl)
         if (.not.value)
@@ -476,6 +483,7 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
          call dwrite(2,dbl_mb(core_ps_prime(1)),n1dgrid)
 
          call dwrite(2,dbl_mb(vl(1)),nsize)
+         call dwrite(2,dbl_mb(vlpaw(1)),nsize)
          if (nproj.gt.0) then
             call dwrite(2,dbl_mb(vnl(1)),nsize*nproj)
          end if
@@ -487,6 +495,7 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
       value = .true.
       value = value.and.MA_free_heap(G_hndl)
       value = value.and.MA_free_heap(vnl(2))
+      value = value.and.MA_free_heap(vlpaw(2))
       value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(sn(2))
       value = value.and.MA_free_heap(cs(2))

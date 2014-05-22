@@ -15,12 +15,12 @@
      >                            core_ae,core_ps,
      >                            rho,f1,f2,f3,f4,cs,sn,
      >                            nfft1,nfft2,nfft3,nproj,
-     >                            G,vl,vnl,
+     >                            G,vl,vlpaw,vnl,
      >                            n_prj,l_prj,m_prj,b_prj,
      >                            Gijl,
      >                            hartree_matrix,
      >                            comp_charge_matrix,comp_pot_matrix,
-     >                            nray,G_ray,vl_ray,vnl_ray,
+     >                            nray,G_ray,vl_ray,vlpaw_ray,vnl_ray,
      >                            tmp_ray,
      >                            filter,
      >                            ierr)
@@ -51,6 +51,7 @@
       integer nfft1,nfft2,nfft3,nproj
       double precision G(nfft1/2+1,nfft2,nfft3,3)
       double precision vl(nfft1/2+1,nfft2,nfft3)
+      double precision vlpaw(nfft1/2+1,nfft2,nfft3)
       double precision vnl(nfft1/2+1,nfft2,nfft3,nproj)
       integer          n_prj(nproj),l_prj(nproj),m_prj(nproj)
       integer          b_prj(nproj)
@@ -62,6 +63,7 @@
       integer nray
       double precision G_ray(nray)
       double precision vl_ray(nray,2)
+      double precision vlpaw_ray(nray,2)
       double precision vnl_ray(nray,nbasis,2)
       double precision tmp_ray(nray)
       logical filter
@@ -305,23 +307,46 @@ c      P3=dsqrt(105.0d0*forpi)
 *     ****    and   Vsrloc = -zv/r - Vloc                  ****
 *     *********************************************************
 
-*     **** U3^I = -tilde(n)*Vloc -- add pseudo  - 4 ***
+
+
+*     **** W2^(ion-electron) + W3^I(ion-electron)  -- add pseudo  - 4 ***
+                
+c      q = zv/(forpi)          
+c      d = 2.0d0*zv/(dsqrt(twopi)*sigma)
+c      do i=1,nbasis                  
+c         la = l_ps(i)
+c         na = n_ps(i) - la
+c         Gijl(na,na,la,4) = Gijl(na,na,la,4) 
+c     >                    + q*comp_pot_matrix(i,i,0)
+c     >                    + d*Gijl(na,na,la,2)
+c         write(*,*) "qcomp=",Gijl(na,na,la,2),comp_charge_matrix(i,i,0),
+c     >               d,d*Gijl(na,na,la,2),q,comp_pot_matrix(i,i,0)
+c
+c         do j=1,i-1
+c            lb = l_ps(j)
+c            nb = n_ps(j) - lb
+c            if (la.eq.lb) then
+c              Gijl(na,nb,la,4) = Gijl(na,nb,la,4)
+c     >                         + q*comp_pot_matrix(i,j,0)
+c     >                         + d*Gijl(na,nb,la,2)
+c              Gijl(nb,na,la,4) = Gijl(nb,na,la,4)
+c     >                         + q*comp_pot_matrix(j,i,0)
+c     >                         + d*Gijl(nb,na,la,2)
+c            end if
+c         end do
+c      end do
+
+
+*     **** U3^I = -tilde(n)*Vloc -- add pseudo  - 4 - PAW local psp ***
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,icut
-           xerf = 4.0d0*rho(k)/rlocal
-           yerf = util_erf(xerf)
-           f1(k)= phi_ps(k,i)*phi_ps(k,i)*(-rho(k)*v_ps(k)+zv*yerf)
+           f1(k)= phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
          end do
-         !d = log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
-         d = log_integrate_def0(power_f,f1,rho,log_amesh,icut)
-         a = log_integrate_def0(power_f,f1,rho,log_amesh,icut-10)
-         !Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
-
-         write(*,*) "pseudo 4a -tilde(n*zv*erf(r/rlocal)/r d=",
-     >               na,la,d,d-a,icut
+         d = log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
+         Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
 
          do j=1,i-1
             lb = l_ps(j)
@@ -329,44 +354,45 @@ c      P3=dsqrt(105.0d0*forpi)
             if (la.eq.lb) then
 
               do k=1,icut
-                xerf = rho(k)/rlocal
-                yerf = util_erf(xerf)
-                f1(k)= phi_ps(k,i)*phi_ps(k,j)*(-rho(k)*v_ps(k)+zv*yerf)
+                !xerf = rho(k)/rlocal
+                !yerf = util_erf(xerf)
+                !f1(k)= phi_ps(k,i)*phi_ps(k,j)*(-rho(k)*v_ps(k)+zv*yerf)
+                f1(k)= phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
               end do
-              !d = log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
-              d = log_integrate_def0(power_f,f1,rho,log_amesh,icut)
-              !Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
-              !Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
+              d = log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
+              Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
+              Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
 
             end if
          end do
       end do
 
-*     **** U2^I  -- add pseudo  - 4 ***
-      call nwpw_compcharge_gen_rgaussian(0,sigma,nrho,rho,f2)
-      do k=1,icut
-         xerf = rho(k)/rlocal
-         yerf = util_erf(xerf)
-         f1(k)= f2(k)*yerf*zv
-      end do
-      d = log_integrate_def(1,f1,1,rho,log_amesh,icut)
-      a = log_integrate_def(1,f1,1,rho,log_amesh,icut-10)
-      write(*,*) "pseudo 4 d=",d,d-a,icut
+c*     **** U2^I  -- add pseudo  - 4 ***
+c      call nwpw_compcharge_gen_rgaussian(0,sigma,nrho,rho,f2)
+c      do k=1,icut
+c         xerf = rho(k)/rlocal
+c         yerf = util_erf(xerf)
+c         f1(k)= f2(k)*yerf*zv
+c      end do
+c      d = log_integrate_def(1,f1,1,rho,log_amesh,icut)
+c      a = log_integrate_def(1,f1,1,rho,log_amesh,icut-10)
+c      write(*,*) "pseudo 4 d=",d,d-a,icut
+c
+c      do i=1,nbasis
+c         la = l_ps(i)
+c         na = n_ps(i) - la
+c         !Gijl(na,na,la,4) = Gijl(na,na,la,4) + d*Gijl(na,na,la,2)
+c
+c         do j=1,i-1
+c            lb = l_ps(j)
+c            nb = n_ps(j) - lb
+c            if (la.eq.lb) then
+c              !Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d*Gijl(na,nb,la,2)
+c              !Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d*Gijl(nb,na,la,2)
+c            end if
+c         end do
+c      end do
 
-      do i=1,nbasis
-         la = l_ps(i)
-         na = n_ps(i) - la
-         !Gijl(na,na,la,4) = Gijl(na,na,la,4) + d*Gijl(na,na,la,2)
-
-         do j=1,i-1
-            lb = l_ps(j)
-            nb = n_ps(j) - lb
-            if (la.eq.lb) then
-              !Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d*Gijl(na,nb,la,2)
-              !Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d*Gijl(nb,na,la,2)
-            end if
-         end do
-      end do
 
 *     **** add U1^I = -nv*(Zv/r) to pseudo - 4 ***
       do i=1,nbasis
@@ -374,12 +400,10 @@ c      P3=dsqrt(105.0d0*forpi)
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,icut
-            xerf = 4.0d0*rho(k)/rlocal
+            xerf = rho(k)/sigma
             yerf = util_erf(xerf)
-c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))
-c     >              *(-zv + zv*yerf - rho(k)*v_ps(k))
-c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv + zv*yerf)
-            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv)
+            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv + zv*yerf)
+c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv)
          end do
          d = log_integrate_def0(power_f,f1,rho,log_amesh,icut)
          a = log_integrate_def0(power_f,f1,rho,log_amesh,icut-10)
@@ -391,12 +415,10 @@ c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv + zv*yerf)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
                do k=1,icut
-c                  xerf = rho(k)/rlocal
-c                  yerf = util_erf(xerf)
-c                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))
-c     >                   *(-zv + zv*yerf- rho(k)*v_ps(k))
-c                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))*(-zv + zv*yerf)
-                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))*(-zv)
+                  xerf = rho(k)/sigma
+                  yerf = util_erf(xerf)
+                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))*(-zv + zv*yerf)
+c                  f1(k) = (phi_ae(k,i)*phi_ae(k,j))*(-zv)
                end do
                d = log_integrate_def0(power_f,f1,rho,log_amesh,icut)
                Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
@@ -481,13 +503,13 @@ c     >                                    f2,2,f4,log_amesh)
 
 
 *     ************* compute ray fourier transforms *********************
-      call integrate_paw_ray(version,rlocal,
+      call integrate_paw_ray(version,rlocal,sigma,
      >                       nrho,log_amesh,zv,
      >                       nbasis,n_ps,l_ps,
      >                       v_ps,prj_ps,
      >                       rho,f1,cs,sn,
      >                       nray,
-     >                       G_ray,vl_ray,vnl_ray,
+     >                       G_ray,vl_ray,vlpaw_ray,vnl_ray,
      >                       ierr)
 
 *     **** filter the rays ****
@@ -495,6 +517,7 @@ c     >                                    f2,2,f4,log_amesh)
          ecut = control_ecut()
          wcut = control_wcut()
          call kbpp_filter_ray(nray,G_ray,ecut,vl_ray)
+         call kbpp_filter_ray(nray,G_ray,ecut,vlpaw_ray)
          do i=1,nbasis
            call kbpp_filter_ray(nray,G_ray,wcut,vnl_ray(1,i,1))
          end do
@@ -502,6 +525,7 @@ c     >                                    f2,2,f4,log_amesh)
 
 *     **** setup cubic bsplines ****
       dG = G_ray(3)-G_ray(2)
+
       !yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
       !**** five point formula ***
       yp1 = ( -50.0d0*vl_ray(2,1)
@@ -511,12 +535,23 @@ c     >                                    f2,2,f4,log_amesh)
      >       -  6.0d0*vl_ray(6,1))/(24.0d0*dG)
       call nwpw_spline(G_ray(2),vl_ray(2,1),nray-1,yp1,0.0d0,
      >                          vl_ray(2,2),tmp_ray)
+
+      !**** five point formula ***
+      yp1 = ( -50.0d0*vlpaw_ray(2,1)
+     >       + 96.0d0*vlpaw_ray(3,1)
+     >       - 72.0d0*vlpaw_ray(4,1)
+     >       + 32.0d0*vlpaw_ray(5,1)
+     >       -  6.0d0*vlpaw_ray(6,1))/(24.0d0*dG)
+      call nwpw_spline(G_ray(2),vlpaw_ray(2,1),nray-1,yp1,0.0d0,
+     >                          vlpaw_ray(2,2),tmp_ray)
+
       do i=1,nbasis
          call nwpw_spline(G_ray,vnl_ray(1,i,1),nray,0.0d0,0.0d0,
      >                          vnl_ray(1,i,2),tmp_ray)
       end do
 *     ======================  Fourier transformation  ======================
       call dcopy(nfft3d,0.0d0,0,vl,1)
+      call dcopy(nfft3d,0.0d0,0,vlpaw,1)
       call dcopy(nproj*nfft3d,0.0d0,0,vnl,1)
       task_count = -1
       DO 700 k3=1,nfft3
@@ -638,14 +673,20 @@ c            vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
   600   CONTINUE
         P = nwpw_splint(G_ray(2),vl_ray(2,1),vl_ray(2,2),nray-1,nx-1,Q)
         vl(k1,k2,k3)=P
+        P = nwpw_splint(G_ray(2),vlpaw_ray(2,1),vlpaw_ray(2,2),
+     >                  nray-1,nx-1,Q)
+        vlpaw(k1,k2,k3)=P
+
        
   700 CONTINUE
       call Parallel_Vector_SumAll(nfft3d,vl)
+      call Parallel_Vector_SumAll(nfft3d,vlpaw)
       call Parallel_Vector_Sumall(nproj*nfft3d,vnl)
 
 *     :::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 *     **** local potential ****
-      vl(1,1,1)=vl_ray(1,1)
+      vl(1,1,1)    = vl_ray(1,1)
+      vlpaw(1,1,1) = vlpaw_ray(1,1)
 
       do l=1,nproj
         vnl(1,1,1,l)=0.0d0
