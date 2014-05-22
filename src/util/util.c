@@ -4,6 +4,7 @@
 #include "ga.h"
 #include "macdecls.h"
 #include "testutil.h"
+#define MPI
 
 #ifdef MPI
 #  include <mpi.h>
