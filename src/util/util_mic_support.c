@@ -8,7 +8,7 @@
 #include <omp.h>
 #include <offload.h>
 
-#define DEBUG 1
+#define DEBUG_ 1
 #define DBG_NUM_DEVS 2
 #ifndef DEFAULT_OFFLOAD_THREAD_MULTIPLIER
 #define DEFAULT_OFFLOAD_THREAD_MULTIPLIER 4
