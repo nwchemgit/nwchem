@@ -90,7 +90,7 @@ c
                call int_1eelec(basis,ishell,basis,jshell,maxscr,
      &                         dbl_mb(k_scr),nint,dbl_mb(k_buf),
      &                         nder,points,npt)
-c
+!DEC$ NOINLINE
                call multi_reduce(dbl_mb(k_buf),dbl_mb(k_dens),
      &                           elfval,idim,jdim,npt*(max(nder*3,1)))
             end if  ! mod parallel loop
@@ -121,10 +121,10 @@ c
       double precision rblock(nblock)
 c
       integer iblock,i,j
-c
-      do iblock = 1, nblock
-         do i = 1, idim
-            do j = 1, jdim
+      do j = 1, jdim
+!DEC$ LOOP COUNT MAX=9
+         do iblock = 1, nblock
+            do i = 1, idim
                rblock(iblock)=rblock(iblock)+mblock(i,j,iblock)*
      &                                       block(i,j)
             enddo
