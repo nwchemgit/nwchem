@@ -50,6 +50,9 @@ c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 
       value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,(npsp*npack0),
+     >                     'vlpaw',vlpaw(2),vlpaw(1))
+      value = value.and.
      >        MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
 c      value = value.and.
 c     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
@@ -455,6 +458,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
       value = MA_free_heap(prjtmp(2))
       if (pawexist) then
+         call psp_paw_end()
          value = value.and.MA_free_heap(wtmp(2))
          value = value.and.MA_free_heap(vc_tmp(2))
          value = value.and.MA_free_heap(vcmp_tmp(2))
@@ -484,6 +488,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
          call nwpw_compcharge_end()
          call nwpw_xc_end()
       end if
+      value = value.and.MA_free_heap(vlpaw(2))
       value = value.and.MA_free_heap(r3_matrix(2))
       value = value.and.MA_free_heap(hartree_matrix(2))
       value = value.and.MA_free_heap(comp_charge_matrix(2))
@@ -1651,6 +1656,8 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       end
 
 
+
+
 *     ***********************************
 *     *					*
 *     *	 	   f_vlocal  		*
@@ -1752,6 +1759,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       call nwpw_timing_end(5)
       return 
       end
+
 
 
 
@@ -3222,7 +3230,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       Gijl_tag,
      >                       rlocal,
      >                       nfft3d,npack1,npack0,
-     >                       vl,vnl_tag,
+     >                       vl,vlpaw,vnl_tag,
      >                       semicore,rcore,ncore,
      >                       log_amesh,r1,rmax,sigma,zion,
      >                       n1dgrid,n1dbasis,nae,nps,lps,icut,eig_tag,
@@ -3257,7 +3265,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 
       real*8 rlocal
       integer nfft3d,npack1,npack0
-      real*8 vl(*)
+      real*8 vl(*),vlpaw(*)
       integer vnl_tag
       logical semicore
       real*8  rcore
@@ -3567,6 +3575,17 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Pack_t_pack(0,tmp2)
       call Pack_t_Copy(0,tmp2,vl)
 
+*     **** read in vlpaw 3d block - extra paw local potentials ****
+      if (psp_type.eq.4) then
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if
+         call Pack_t_pack(0,tmp2)
+         call Pack_t_Copy(0,tmp2,vlpaw)
+      end if
+
 
 *     **** read in vnl 3d blocks ****
       if (nprj.gt.0) then
@@ -3753,6 +3772,7 @@ c     logocal semicore(0:nkatmx)
      >                  dbl_mb(rlocal(1) + (ia-1)),
      >                  nfft3d,npack1,npack0,
      >                  dbl_mb(vl(1) + (ia-1)*npack0),
+     >                  dbl_mb(vlpaw(1) + (ia-1)*npack0),
      >                  int_mb(vnl(1)+ (ia-1)),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
@@ -3880,6 +3900,7 @@ c     logocal semicore(0:nkatmx)
 
 
       if (pawexist) then
+         call psp_paw_init()
          call nwpw_compcharge_init(ion_nion(),npsp,
      >                             int_mb(nprj(1)),
      >                             int_mb(n1dbasis(1)),

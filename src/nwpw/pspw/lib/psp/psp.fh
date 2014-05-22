@@ -4,7 +4,7 @@
 
 *     **** common block  for psp ****
       integer    prjtmp(2),wtmp(2),vc_tmp(2),vcmp_tmp(2),vlpaw_tmp(2)
-      integer    vl(2)
+      integer    vl(2),vlpaw(2)
       integer    vnl(2)
       !integer    vnlnrm(2),Gijl(2)
       integer    Gijl(2)
@@ -21,7 +21,7 @@
       character*2  atom(nkatmx)
       character*80 comment(nkatmx)
       common / psp_block / prjtmp,wtmp,vc_tmp,vcmp_tmp,vlpaw_tmp,
-     >                     vl,vnl,Gijl,zv,amass,rc,
+     >                     vl,vlpaw,vnl,Gijl,zv,amass,rc,
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
      >                     b_projector,r3_matrix,
@@ -41,6 +41,7 @@
       integer core_ae(2),core_ps(2),core_ae_prime(2),core_ps_prime(2)
       integer rgrid(2),core_kin(2),core_ion(2)
       integer hartree_matrix(2),comp_charge_matrix(2),comp_pot_matrix(2)
+      integer ion_pawtoion(2),nion_paw
       logical pawexist,use_grid_cmp
       common /psp_paw_block/ log_amesh,r1,rmax,sigma,zion,
      >                      n1dgrid,n1dbasis,nae,nps,lps,icut,eig,
@@ -49,6 +50,7 @@
      >                      rgrid,core_kin,core_ion,
      >                      hartree_matrix,
      >                      comp_charge_matrix,comp_pot_matrix,
+     >                      ion_pawtoion,nion_paw,
      >                      pawexist,use_grid_cmp
 
 *     **** common block for psp_xc_data ****

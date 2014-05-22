@@ -2,6 +2,311 @@
 * $Id$
 *
 
+*     ***********************************
+*     *                                 *
+*     *            psp_paw_init         *
+*     *                                 *
+*     ***********************************
+      subroutine psp_paw_init()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     *** local variables ***
+      logical value
+      integer ii,ia,iii,iia,i,j
+      integer nx,ny,nz,nrho,nray,npack0
+      real*8  unita(3,3),bmesh,log_bmesh,pi,rcut,rs,w,sigma_smooth
+      integer Gray(2),vlray(2),tmpray(2),f(2),rho(2)
+
+*     *** external functions ***
+      integer  ion_nion_qm,ion_katm_qm,ion_nkatm_qm,kbpp_calc_nray
+      external ion_nion_qm,ion_katm_qm,ion_nkatm_qm,kbpp_calc_nray
+      real*8   lattice_unita,control_rcut
+      external lattice_unita,control_rcut
+
+      if (pawexist) then
+         nion_paw = 0
+         do ii=1,ion_nion_qm()
+           ia = ion_katm_qm(ii)
+           if (int_mb(psp_type(1)+ia-1).eq.4) then
+              nion_paw = nion_paw + 1
+           end if
+         end do
+
+*        **** allocate dummy variables ****
+         if (.not.MA_alloc_get(mt_int,nion_paw,"ion_pawtoion",
+     >                         ion_pawtoion(2),ion_pawtoion(1)))
+     >      call errquit("psp_paw_init:allocate heap",0,MA_ERR)
+
+         iii = 0
+         do ii=1,ion_nion_qm()
+            ia = ion_katm_qm(ii)
+            if (int_mb(psp_type(1)+ia-1).eq.4) then
+               iii = iii + 1
+               int_mb(ion_pawtoion(1)+iii-1) = ii
+            end if
+         end do
+      end if
+
+      return
+      end 
+
+
+    
+
+
+*     ***********************************
+*     *                                 *
+*     *            psp_paw_end          *
+*     *                                 *
+*     ***********************************
+      subroutine psp_paw_end()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+      if (pawexist) then
+        if (.not.MA_free_heap(ion_pawtoion(2)))
+     >      call errquit("psp_paw_end:deallocate heap",0,MA_ERR)
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	 	   v_local_paw 		*
+*     *					*
+*     ***********************************
+
+      subroutine v_local_paw(vlpaw_out,move,dng,fion)
+      implicit none
+      complex*16 vlpaw_out(*)
+      logical    move
+      complex*16 dng(*)
+      real*8     fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer npack0,nion
+      integer i,ii,ia,iii
+      integer exi(2),vtmp(2),xtmp(2),G(3)
+      logical value,periodic,inside
+      real*8  rxyz(3),fxyz(3)
+
+*     **** external functions ****
+      integer  Pack_G_indx,ion_nion,ion_katm,control_version
+      real*8   ion_rion
+      external Pack_G_indx,ion_nion,ion_katm,control_version
+      external ion_rion
+
+      if (pawexist)  then
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call Pack_npack(0,npack0)
+      nion     = ion_nion()
+      periodic = (control_version().eq.3)
+
+      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      if (.not. value) 
+     >  call errquit('v_local:out of stack memory',0,MA_ERR)
+
+*     **** define Gx,Gy and Gz in packed space ****
+      if (move) then
+         value = MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+         if (.not. value) 
+     >   call errquit('v_local: out of stack memory',0, MA_ERR)
+         G(1)  = Pack_G_indx(0,1)
+         G(2)  = Pack_G_indx(0,2)
+         G(3)  = Pack_G_indx(0,3)
+         call dcopy(3*nion,0.0d0,0,fion,1)
+      end if
+
+      call dcopy((2*npack0),0.0d0,0,vlpaw_out,1)
+      do iii=1,nion_paw
+       if (mod(iii-1,np_j).eq.taskid_j) then
+          ii = int_mb(ion_pawtoion(1)+iii-1)
+
+          if (.not.periodic) then
+             rxyz(1) = ion_rion(1,ii)
+             rxyz(2) = ion_rion(2,ii)
+             rxyz(3) = ion_rion(3,ii)
+             call lattice_r1_to_frac(1,rxyz,fxyz)
+             inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                (dabs(fxyz(2)).le.0.4d0).and.
+     >                (dabs(fxyz(3)).le.0.4d0))
+          else
+             inside = .true.
+          end if
+
+          if (inside) then
+           ia=ion_katm(ii)
+
+*          **** structure factor and local pseudopotential ****
+           call strfac_pack(0,ii,dcpl_mb(exi(1)))
+       
+*          **** add to local psp ****
+           call Pack_tc_Mul(0,dbl_mb(vlpaw(1)+npack0*(ia-1)),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(vtmp(1)))
+           call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vlpaw_out)
+
+           if (move) then
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+             do i=1,npack0
+                dbl_mb(xtmp(1)+i-1) 
+     >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
+     >           - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
+             end do
+            call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
+            call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
+            call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
+           end if
+          end if
+
+       end if
+      end do
+      if (np_j.gt.1) then
+         call D1dB_Vector_SumAll(2*npack0,vlpaw_out)
+      end if
+      if (move) call Parallel_Vector_SumAll(3*nion,fion)
+
+      value = .true.
+      if (move) value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+
+      call nwpw_timing_end(5)
+      end if
+      return 
+      end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	 	   f_vlocal_paw		*
+*     *					*
+*     ***********************************
+      subroutine f_vlocal_paw(dng,fion)
+      implicit none
+      complex*16 dng(*)
+      real*8     fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+
+*     *** local variables ***
+      logical value,periodic,inside
+      integer taskid_j,np_j
+      integer npack0,nion
+      integer i,ii,ia,iii
+      integer exi(2),vtmp(2),xtmp(2),G(3)
+c      integer Gx(2),Gy(2),Gz(2)
+      real*8 rxyz(3),fxyz(3)
+
+*     **** external functions ****
+      integer  Pack_G_indx,ion_nion,ion_katm,control_version
+      real*8   ion_rion
+      external Pack_G_indx,ion_nion,ion_katm,control_version
+      external ion_rion
+
+      if (pawexist)  then
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call Pack_npack(0,npack0)
+      nion     = ion_nion()
+      periodic = (control_version().eq.3)
+
+      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+c     **** define Gx,Gy and Gz in packed space ****
+      G(1)  = Pack_G_indx(0,1)
+      G(2)  = Pack_G_indx(0,2)
+      G(3)  = Pack_G_indx(0,3)
+      call dcopy(3*nion,0.0d0,0,fion,1)
+
+      do iii=1,nion_paw
+        if (mod(iii-1,np_j).eq.taskid_j) then
+          ii = int_mb(ion_pawtoion(1)+iii-1)
+
+          if (.not.periodic) then
+             rxyz(1) = ion_rion(1,ii)
+             rxyz(2) = ion_rion(2,ii)
+             rxyz(3) = ion_rion(3,ii)
+             call lattice_r1_to_frac(1,rxyz,fxyz)
+             inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                (dabs(fxyz(2)).le.0.4d0).and.
+     >                (dabs(fxyz(3)).le.0.4d0))
+          else 
+             inside = .true.
+          endif
+
+          if (inside) then
+           ia=ion_katm(ii)
+
+*          **** structure factor and local pseudopotential ****
+           call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+*          **** add to local psp ****
+           call Pack_tc_Mul(0,dbl_mb(vlpaw(1)+npack0*(ia-1)),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(vtmp(1)))
+
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+            do i=1,npack0
+              dbl_mb(xtmp(1)+i-1) 
+     >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
+     >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
+           end do
+           call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
+           call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
+           call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
+          end if
+
+        end if
+      end do
+      call Parallel_Vector_SumAll(3*nion,fion)
+
+      value =           MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+
+      call nwpw_timing_end(5)
+      end if
+      return 
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -39,25 +344,24 @@
 #include "errquit.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn
+      integer npack1
+      integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
       call nwpw_timing_start(6) 
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
@@ -74,12 +378,13 @@
       scalsqr = scal*scal
 
       call dcopy(2*npack1*nn,psi1,1,psi2,1)
-      do ii=1,nion
-        ia=ion_katm(ii)
+      do iii=1,nion_paw
+        ii = int_mb(ion_pawtoion(1)+iii-1)
+        ia = ion_katm(ii)
 
-        nproj   = int_mb(nprj(1)+ia-1)
+        nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -181,28 +486,28 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn,ms,shifts,shiftsw
+      integer npack1
+      integer ii,ia,iii,l,nn,ms,shifts,shiftsw
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
+      if (pawexist) then
       call nwpw_timing_start(6) 
 
 *     **** S = transpose(psi)*psi ****
       call Dneall_ffm_sym_Multiply(0,psi1,psi1,npack1,S)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
@@ -218,12 +523,13 @@
       scal    = 1.0d0/(omega)
       scalsqr = scal*scal
 
-      do ii=1,nion
+      do iii=1,nion_paw
 
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -298,7 +604,7 @@
         
 
         end if !** nproj>0 **
-      end do !** ii **
+      end do !** iii **
 
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
@@ -306,6 +612,7 @@
       if (.not.value) call errquit('psp_overlap: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
+      end if
       return 
       end
 
@@ -331,21 +638,22 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l
+      integer npack1
+      integer ii,ia,iii,l
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
+      if (pawexist) then
       call nwpw_timing_start(6) 
 
 *     **** S = transpose(psi)*psi ****
@@ -353,9 +661,7 @@
 
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,n*nprj_max,'sw1',sw1(2),sw1(1))
@@ -369,11 +675,12 @@
       scalsqr = scal*scal
 
 
-      do ii=1,nion
+      do iii=1,nion_paw
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -451,6 +758,7 @@
       if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
+      end if
       return 
       end
 
@@ -472,20 +780,21 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer ii,ia
+      integer ii,ia,iii
       real*8  ecore
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
-      external ion_nion,ion_katm
+      integer  ion_katm
+      external ion_katm
 
       ecore = 0.0d0
-      do ii=1,ion_nion()
-        ia    = ion_katm(ii)
-        if (int_mb(psp_type(1)+ia-1).eq.4) then
+      if (pawexist) then
+         do iii=1,nion_paw
+           ii    = int_mb(ion_pawtoion(1)+iii-1)
+           ia    = ion_katm(ii)
            ecore = ecore + dbl_mb(core_kin(1)+ia-1)
-        end if
-      end do
+         end do
+      end if
 
       psp_kinetic_core = ecore
       return 
@@ -506,20 +815,21 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer ii,ia
+      integer ii,ia,iii
       real*8  ecore
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
-      external ion_nion,ion_katm
+      integer  ion_katm
+      external ion_katm
 
       ecore = 0.0d0
-      do ii=1,ion_nion()
-        ia    = ion_katm(ii)
-        if (int_mb(psp_type(1)+ia-1).eq.4) then
-           ecore = ecore + dbl_mb(core_ion(1)+ia-1)
-        end if
-      end do
+      if (pawexist) then
+         do iii=1,nion_paw
+            ii    = int_mb(ion_pawtoion(1)+iii-1)
+            ia    = ion_katm(ii)
+            ecore = ecore + dbl_mb(core_ion(1)+ia-1)
+         end do
+      end if
 
       psp_ion_core = ecore
       return
@@ -544,8 +854,8 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn
+      integer npack1
+      integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
@@ -554,19 +864,19 @@
       real*8  kinetic_atom
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
       kinetic_atom = 0.0d0
+      if (pawexist) then
 
       nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
@@ -582,11 +892,12 @@
       scalsqr = scal*scal
 
 
-      do ii=1,nion
+      do iii=1,nion_paw
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -663,6 +974,7 @@
       if (ispin.eq.1) kinetic_atom = kinetic_atom+kinetic_atom
       kinetic_atom = kinetic_atom*scal
 
+      end if
       psp_kinetic_atom = kinetic_atom
       return 
       end
@@ -673,6 +985,7 @@
 *     *	     psp_valence_core_atom	*
 *     *					*
 *     ***********************************
+*
 *    This routine computes the paw atomic valence_core energy
 *
       real*8 function psp_valence_core_atom(ispin,ne,psi1)
@@ -685,8 +998,8 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn
+      integer npack1
+      integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
@@ -695,21 +1008,20 @@
       real*8  valence_core_atom
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
       valence_core_atom = 0.0d0
+      if (pawexist) then
 
       nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
@@ -723,11 +1035,12 @@
       scalsqr = scal*scal
 
 
-      do ii=1,nion
+      do iii=1,nion_paw
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -805,6 +1118,7 @@
       if (ispin.eq.1) 
      >   valence_core_atom = valence_core_atom+valence_core_atom
       valence_core_atom = valence_core_atom*scal
+      end if
 
       psp_valence_core_atom = valence_core_atom
       return 
@@ -832,8 +1146,8 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn
+      integer npack1
+      integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
@@ -845,21 +1159,20 @@
       real*8 w,ee
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
       vloc_atom = 0.0d0
+      if (pawexist) then
 
       nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
@@ -873,11 +1186,12 @@
       scalsqr = scal*scal
 
 
-      do ii=1,nion
+      do iii=1,nion_paw
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -947,14 +1261,7 @@
      >             +(nj-1)*int_mb(nmax(1)+ia-1)
      >             + li*int_mb(nmax(1)+ia-1)**2) 
         
-          write(*,*) "ovlp=",i,j,w*scal,ee,
-     >        dbl_mb(Gijl_indx+(ni-1)
-     >             +(nj-1)*int_mb(nmax(1)+ia-1)
-     >             + li*int_mb(nmax(1)+ia-1)**2),
-     >     ni,li,mi,
-     >     nj,lj,mj 
-
-           end if
+          end if
 
         end do
         end do
@@ -992,9 +1299,119 @@
 
       if (ispin.eq.1) vloc_atom = vloc_atom+vloc_atom
       vloc_atom = vloc_atom*scal
+      end if
 
       psp_vloc_atom = vloc_atom
       return 
+      end
+
+*     *************************************************
+*     *                                               *
+*     *              psp_vloc_residual                *
+*     *                                               *
+*     *************************************************
+*
+*    This routine calulates the residual hartree energy of the compensation charge density.
+*
+*                       //
+*    E_vloc_residual =  || (ncmp(r)-ncmp_smooth(r))*(Vl1(r')-Vl2(r')))
+*                       || --------------------------------------------- drdr'   - gaussian two-center integrals
+*                       //                     |r-r'|
+*
+*                       //
+*                    +  || (ncmp(r)-ncmp_smooth(r))*(Vl2(r')))
+*                       || --------------------------------------------- drdr'
+*                       //                     |r-r'|
+*                  
+*
+      real*8 function psp_vloc_residual(ispin)
+      implicit none
+      integer ispin
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** local variables ****
+      logical ok,periodic
+      integer npack0,dng_cmp(2),v_smooth(2)
+      integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2)
+      integer nx,ny,nz
+      real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+      real*8   nwpw_compcharge_E_multipole_zv_ee,lattice_omega
+      external nwpw_compcharge_E_multipole_zv_ee,lattice_omega
+
+
+      write(*,*) "hera, pawexist=",pawexist,use_grid_cmp
+      eh = 0.0d0
+      if (pawexist) then
+
+
+      periodic = (control_version().eq.3)
+
+*     *************************************
+*     **** Periodic Boundary Condtions ****
+*     *************************************
+      if (periodic) then
+         call Pack_npack(0,npack0)
+         ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
+     >                           dng_cmp(2),dng_cmp(1))
+         ok = ok.and.MA_push_get(mt_dcpl,npack0,'v_smooth',
+     >                           v_smooth(2),v_smooth(1))
+         if (.not.ok)
+     >      call errquit('psp_vloc_residual:out of stack',0,MA_ERR)
+
+*        **** Using pw grid only ***
+         if (use_grid_cmp) then
+
+*        **** Using gaussian two-electron integrals and pw grid ***
+         else
+            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dcpl_mb(dng_cmp(1)),
+     >                                       dcpl_mb(v_smooth(1)))
+            call Pack_cc_Sub2(0,dcpl_mb(v_smooth(1)),
+     >                          dcpl_mb(dng_cmp(1)))
+            call nwpw_compcharge_gen_v_cmp_smooth(ispin,
+     >                                            dbl_mb(zv(1)),
+     >                                            dcpl_mb(v_smooth(1)))
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(v_smooth(1)),e1)
+            write(*,*) "eh,e1=",eh,e1
+
+            eh = eh+e1
+
+         end if
+         ok =        MA_pop_stack(v_smooth(2))
+         ok = ok.and.MA_pop_stack(dng_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_vloc_residual:pop stack',1,MA_ERR)
+
+*     **************************************
+*     **** APeriodic Boundary Condtions ****
+*     **************************************
+      else
+
+*        **** Using pw grid only ***
+         if (use_grid_cmp) then
+
+*        **** Using gaussian two-electron integrals and pw grid ***
+         else
+            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
+
+         end if
+
+      end if
+
+
+      end if
+
+      psp_vloc_residual = eh
+      return
       end
 
 
@@ -1018,8 +1435,8 @@
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn
+      integer npack1
+      integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
@@ -1027,22 +1444,22 @@
 
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_chnk,psi_data_get_ptr
       real*8   lattice_omega,nwpw_xc_energy_atom
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_chnk,psi_data_get_ptr
       external lattice_omega,nwpw_xc_energy_atom
 
 
       exc = 0.0d0
       pxc = 0.0d0
+
+      if (pawexist) then
       nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
@@ -1057,11 +1474,12 @@
       scalsqr = scal*scal
 
 
-      do ii=1,nion
+      do iii=1,nion_paw
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -1138,6 +1556,7 @@
      &       MA_ERR)
 
       exc = nwpw_xc_energy_atom()
+      end if
       return 
       end
 
@@ -1253,31 +1672,28 @@ c     >                          l_prj(i),m_prj(i))
 #include "psp.fh"
 
 *     *** local variables ***
-      integer npack1,nion
-      integer ii,ia,l,nn
+      integer npack1
+      integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
 
-      real*8  vloc_atom
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
+      integer  ion_katm
       integer  psi_data_get_ptr
       real*8   lattice_omega
-      external ion_nion,ion_katm
+      external ion_katm
       external psi_data_get_ptr
       external lattice_omega
 
-      vloc_atom = 0.0d0
+      if (pawexist) then
 
       nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
@@ -1288,11 +1704,12 @@ c     >                          l_prj(i),m_prj(i))
       scal    = 1.0d0/(omega)
       scalsqr = scal*scal
 
-      do ii=1,nion
+      do iii=1,nion_paw
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+        if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -1355,6 +1772,7 @@ c     >                          l_prj(i),m_prj(i))
       if (.not.value) call errquit('psp_qlm_atom: popping stack',3,
      >       MA_ERR)
 
+      end if
       return 
       end
 
@@ -1373,7 +1791,6 @@ c     >                          l_prj(i),m_prj(i))
 *                       //       |r-r'|
 *
 *
-*   0.5*(necmp*(necmp+2*nicmp)) = 0.5*necmp*necmp + necmp*nicmp
 *
 *    using either a Fourier grid (use_grid_cmp=.true.)
 *    or a combinations of Fourier grids and two electron two center Gaussian Coulomb integrals (use_grid_cmp=.false.).
@@ -1389,7 +1806,7 @@ c     >                          l_prj(i),m_prj(i))
 *     **** local variables ****
       logical ok,periodic
       integer npack0,dng_cmp(2),dng_cmp_smooth(2),vcmp_smooth(2)
-      integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2),cmp(2),cmp_smooth(2)
+      integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2)
       integer nx,ny,nz
       real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
       
@@ -1405,6 +1822,9 @@ c     >                          l_prj(i),m_prj(i))
       real*8   nwpw_compcharge_E_multipole
       external nwpw_compcharge_E_multipole
 
+      eh = 0.0d0
+      if (pawexist) then
+
       periodic = (control_version().eq.3)
 
 *     *************************************
@@ -1414,8 +1834,6 @@ c     >                          l_prj(i),m_prj(i))
          call Pack_npack(0,npack0)
          ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                           dng_cmp(2),dng_cmp(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'cmp',
-     >                           cmp(2),cmp(1))
          ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
      >                           vcmp_smooth(2),vcmp_smooth(1))
          if (.not.ok)
@@ -1424,13 +1842,8 @@ c     >                          l_prj(i),m_prj(i))
 *        **** Using pw grid ***
          if (use_grid_cmp) then
             call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                      dcpl_mb(cmp(1)))
-            call Pack_c_SMul1(0,2.0d0,dcpl_mb(cmp(1)))
-
-            call Pack_cc_Sum2(0,dcpl_mb(dng_cmp(1)),dcpl_mb(cmp(1)))
             call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_smooth(1)))
-            call Pack_cc_dot(0,dcpl_mb(cmp(1)),
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
      >                         dcpl_mb(vcmp_smooth(1)),e1)
             eh = 0.5d0*e1*lattice_omega()
 
@@ -1439,49 +1852,30 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** multipole energy ****
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
-            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
+            eh = nwpw_compcharge_E_multipole(ispin)
             write(*,*) "mult_mult=",eh
             write(*,*) "mult_mult_zv=",eh0
 
-            ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
-     >                              dng_cmp_smooth(2),dng_cmp_smooth(1))
-            ok = ok.and.MA_push_get(mt_dcpl,npack0,'cmp_smooth',
-     >                              cmp_smooth(2),cmp_smooth(1))
+            ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
             if (.not.ok)
      >         call errquit('psp_hartree_cmp_cmp:out of stack',1,MA_ERR)
 
             call nwpw_compcharge_gen_dn_cmp2(ispin,
      >                                       dcpl_mb(dng_cmp(1)),
      >                                       dcpl_mb(dng_cmp_smooth(1)))
-            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                      dcpl_mb(cmp(1)))
-            call Pack_c_SMul1(0,2.0d0,dcpl_mb(cmp(1)))
-            call nwpw_compcharge_gen_zv_cmp_smooth(dbl_mb(zv(1)),
-     >                                           dcpl_mb(cmp_smooth(1)))
-            call Pack_c_SMul1(0,2.0d0,dcpl_mb(cmp_smooth(1)))
-
-            call Pack_cc_Sum2(0,dcpl_mb(dng_cmp(1)),
-     >                          dcpl_mb(cmp(1)))
             call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
      >                     dcpl_mb(vcmp_smooth(1)))
-            call Pack_cc_dot(0,dcpl_mb(cmp(1)),
-     >                         dcpl_mb(vcmp_smooth(1)),e1)
-
-            call Pack_cc_Sub2(0,dcpl_mb(dng_cmp_smooth(1)),
-     >                          dcpl_mb(dng_cmp(1)))
-            call Pack_cc_Sum2(0,dcpl_mb(dng_cmp_smooth(1)),
-     >                          dcpl_mb(cmp_smooth(1)))
-            call coulomb_v(dcpl_mb(cmp_smooth(1)),
-     >                     dcpl_mb(vcmp_smooth(1)))
             call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(vcmp_smooth(1)),e1)
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
      >                         dcpl_mb(vcmp_smooth(1)),e2)
 
 *           **** add cmp energies ****
-            eh = eh + 0.5d0*(e1+e2)*lattice_omega()
+            eh = eh + (e1-0.5d0*e2)*lattice_omega()
 
-            write(*,*) "pw_mult_mult=",0.5d0*(e1+e2)*lattice_omega()
+            write(*,*) "pw_mult_mult=",(e1-0.5d0*e2)*lattice_omega()
 
-            ok =        MA_pop_stack(cmp_smooth(2))
             ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
             if (.not.ok)
      >        call errquit('psp_hartree_cmp_cmp:popping stack',2,MA_ERR)
@@ -1489,7 +1883,6 @@ c     >                          l_prj(i),m_prj(i))
          end if
 
          ok =        MA_pop_stack(vcmp_smooth(2))
-         ok = ok.and.MA_pop_stack(cmp(2))
          ok = ok.and.MA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_cmp:popping stack',3,MA_ERR)
@@ -1502,8 +1895,6 @@ c     >                          l_prj(i),m_prj(i))
          call D3dB_n2ft3d(1,n2ft3d)
          ok =         MA_push_get(mt_dbl,n2ft3d,'rho_cmp',
      >                            rho_cmp(2),rho_cmp(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'cmp',
-     >                           cmp(2),cmp(1))
          ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp_smooth',
      >                           vcmp_smooth(2),vcmp_smooth(1))
          if (.not.ok)
@@ -1517,18 +1908,12 @@ c     >                          l_prj(i),m_prj(i))
 *        **** Using pw grid ***
          if (use_grid_cmp) then
             call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(rho_cmp(1)))
-            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                      dbl_mb(cmp(1)))
-            call Pack_c_SMul1(0,2.0d0,dbl_mb(cmp(1)))
 
             call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
             call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
-            call Pack_c_unpack(0,dbl_mb(cmp(1)))
-            call D3dB_cr_fft3b(1,dbl_mb(cmp(1)))
             call coulomb2_v(dbl_mb(rho_cmp(1)),
      >                      dbl_mb(vcmp_smooth(1)))
-            call D3dB_rr_Sum2(1,dbl_mb(rho_cmp(1)),dbl_mb(cmp(1)))
-            call D3dB_rr_dot(1,dbl_mb(cmp(1)),
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
      >                         dbl_mb(vcmp_smooth(1)),e1)
             eh = 0.5d0*e1*dv
 
@@ -1536,21 +1921,18 @@ c     >                          l_prj(i),m_prj(i))
          else
 
 *           **** multipole energy ****
-            eh1 = nwpw_compcharge_E_multipole(ispin)
+            eh  = nwpw_compcharge_E_multipole(ispin)
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
             eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
-            eh  = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
+            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
-            write(*,*) "mult_mult      =",eh1
+            write(*,*) "mult_mult      =",eh 
             write(*,*) "mult_mult_zv   =",eh0
             write(*,*) "mult_mult_zv_zv=",eh2
-            write(*,*) "mult_mult_zv_ee=",eh
+            write(*,*) "mult_mult_zv_ee=",eh1
 
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                       rho_cmp_smooth(2),rho_cmp_smooth(1))
-            ok = ok.and.
-     >           MA_push_get(mt_dbl,n2ft3d,'cmp_smooth',
-     >                       cmp_smooth(2),cmp_smooth(1))
             if (.not.ok)
      >         call errquit('psp_hartree_cmp_cmp:out of stack',5,MA_ERR)
 
@@ -1558,56 +1940,34 @@ c     >                          l_prj(i),m_prj(i))
      >                                       dbl_mb(rho_cmp(1)),
      >                                       dbl_mb(rho_cmp_smooth(1)))
 
-            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                       dbl_mb(cmp(1)))
-            call Pack_c_SMul1(0,2.0d0,dbl_mb(cmp(1)))
-            call nwpw_compcharge_gen_zv_cmp_smooth(dbl_mb(zv(1)),
-     >                                            dbl_mb(cmp_smooth(1)))
-            call Pack_c_SMul1(0,2.0d0,dbl_mb(cmp_smooth(1)))
-
             call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
             call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
             call Pack_c_unpack(0,dbl_mb(rho_cmp_smooth(1)))
             call D3dB_cr_fft3b(1,dbl_mb(rho_cmp_smooth(1)))
-            call Pack_c_unpack(0,dbl_mb(cmp(1)))
-            call D3dB_cr_fft3b(1,dbl_mb(cmp(1)))
-            call Pack_c_unpack(0,dbl_mb(cmp_smooth(1)))
-            call D3dB_cr_fft3b(1,dbl_mb(cmp_smooth(1)))
 
-            call D3dB_rr_Sum2(1,dbl_mb(rho_cmp(1)),
-     >                          dbl_mb(cmp(1)))
             call coulomb2_v(dbl_mb(rho_cmp_smooth(1)),
      >                      dbl_mb(vcmp_smooth(1)))
-            call D3dB_rr_dot(1,dbl_mb(cmp(1)),
-     >                         dbl_mb(vcmp_smooth(1)),e1)
-
-
-            call D3dB_rr_Sub2(1,dbl_mb(rho_cmp_smooth(1)),
-     >                          dbl_mb(rho_cmp(1)))
-            call D3dB_rr_Sum2(1,dbl_mb(rho_cmp_smooth(1)),
-     >                          dbl_mb(cmp_smooth(1)))
-            call coulomb2_v(dbl_mb(cmp_smooth(1)),
-     >                      dbl_mb(vcmp_smooth(1)))
             call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
+     >                         dbl_mb(vcmp_smooth(1)),e1)
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp_smooth(1)),
      >                         dbl_mb(vcmp_smooth(1)),e2)
 
-            eh = eh + 0.5d0*(e1+e2)*dv
+            eh = eh + (e1-0.5d0*e2)*dv
 
-            write(*,*) "pw_mult_mult=",0.5d0*(e1+e2)*dv
+            write(*,*) "pw_mult_mult=",(e1-0.5d0*e2)*dv
 
-            ok =        MA_pop_stack(cmp_smooth(2))
-            ok = ok.and.MA_pop_stack(rho_cmp_smooth(2))
+            ok = MA_pop_stack(rho_cmp_smooth(2))
             if (.not.ok)
      >        call errquit('psp_hartree_cmp_cmp:popping stack',2,MA_ERR)
          end if
 
          ok =        MA_pop_stack(vcmp_smooth(2))
-         ok = ok.and.MA_pop_stack(cmp(2))
          ok = ok.and.MA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_cmp:popping stack',6,MA_ERR)
       end if
 
+      end if
       psp_hartree_cmp_cmp = eh
       return
       end
@@ -1639,7 +1999,7 @@ c     >                          l_prj(i),m_prj(i))
 
 *     **** local variables ****
       logical ok,periodic
-      integer npack0,dng_cmp(2),vcmp(2),cmp(2)
+      integer npack0,dng_cmp(2),vcmp(2)
       integer n2ft3d,rho_cmp(2),nx,ny,nz
       real*8 eh,scal1,dv
 
@@ -1649,6 +2009,9 @@ c     >                          l_prj(i),m_prj(i))
       real*8   lattice_omega
       external lattice_omega
 
+      eh = 0.0d0
+      if (pawexist) then
+
       periodic = (control_version().eq.3)
 
 *     ****************************************
@@ -1657,21 +2020,16 @@ c     >                          l_prj(i),m_prj(i))
       if (periodic) then
          call Pack_npack(0,npack0)
          ok =MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
-         ok =ok.and.MA_push_get(mt_dcpl,npack0,'cmp',cmp(2),cmp(1))
          ok =ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:out of stack',0,MA_ERR)
 
          call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-         call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                   dcpl_mb(cmp(1)))
-         call Pack_cc_Sum(0,dcpl_mb(cmp(1)),dcpl_mb(rho_cmp(1)))
          call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
          call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
          eh = eh*lattice_omega()
 
          ok =        MA_pop_stack(vcmp(2))
-         ok = ok.and.MA_pop_stack(cmp(2))
          ok = ok.and.MA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:popping stack',1,MA_ERR)
@@ -1683,7 +2041,6 @@ c     >                          l_prj(i),m_prj(i))
       else
          call D3dB_n2ft3d(1,n2ft3d)
          ok =MA_push_get(mt_dbl,n2ft3d,'rho_cmp',rho_cmp(2),rho_cmp(1))
-         ok =ok.and.MA_push_get(mt_dbl,n2ft3d,'cmp',cmp(2),cmp(1))
          ok =ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp',vcmp(2),vcmp(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:out of stack',2,MA_ERR)
@@ -1694,9 +2051,6 @@ c     >                          l_prj(i),m_prj(i))
          dv    = lattice_omega()*scal1
 
          call nwpw_compcharge_gen_dn_cmp(ispin,dbl_mb(rho_cmp(1)))
-         call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                   dbl_mb(cmp(1)))
-         call Pack_cc_Sum(0,dbl_mb(cmp(1)),dbl_mb(rho_cmp(1)))
 
          call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
          call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
@@ -1707,12 +2061,12 @@ c     >                          l_prj(i),m_prj(i))
          eh = eh*dv
 
          ok =        MA_pop_stack(vcmp(2))
-         ok = ok.and.MA_pop_stack(cmp(2))
          ok = ok.and.MA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:popping stack',2,MA_ERR)
       end if
 
+      end if
       psp_hartree_cmp_pw = eh
       return
       end
@@ -1752,33 +2106,34 @@ c     >                          l_prj(i),m_prj(i))
 
 *     **** local variables ****
       logical value,sd_function
-      integer ii,ia,nion,nproj,npack1,nn,k,l,shift,l_prj
+      integer ii,ia,iii,nproj,npack1,nn,k,l,shift,l_prj
       integer exi(2),sw1(2)
       real*8  Watom
 
 *     ***** external functions ****
-      integer  ion_nion,ion_katm,psi_data_get_ptr
-      external ion_nion,ion_katm,psi_data_get_ptr
+      integer  ion_katm,psi_data_get_ptr
+      external ion_katm,psi_data_get_ptr
       real*8   nwpw_compcharge_coulomb_e_atom
       external nwpw_compcharge_coulomb_e_atom
+
+      Watom = 0.0d0
+      if (pawexist) then
 
       nn = neq(1)+neq(2)
 
 *     **** allocate local memory ****
-      nion = ion_nion()
       call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       if (.not.value) 
      >  call errquit('psp_hartree_atom: out of stack',0,MA_ERR)
 
-      Watom = 0.0d0
-      do ii=1,nion
+      do iii=1,nion_paw
+         ii = int_mb(ion_pawtoion(1)+iii-1)
          ia = ion_katm(ii)
          nproj = int_mb(nprj(1)+ia-1)
-         if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+         if (nproj.gt.0) then
 
 *           **** structure factor ****
             call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -1840,6 +2195,8 @@ c     >                          l_prj(i),m_prj(i))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) 
      >  call errquit('psp_hartree_atom:popping stack',1,MA_ERR)
+
+      end if
 
       psp_hartree_atom = Watom
       return
