@@ -92,12 +92,12 @@ c     $Id$
      >        'cgsd_noit_energy: out of stack memory',0,MA_ERR)
          call psi_1qlm_atom()
          do ms=1,psi_ispin()
-            call nwpw_compcharge_gen_dn_cmp_smooth(ms,dbl_mb(tmp1(1)))
-            call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-            call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
-            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
-            call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
-            en2(ms) = sumall*scal
+           call nwpw_compcharge_gen_dn_cmp_smooth_ms(ms,dbl_mb(tmp1(1)))
+           call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+           call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
+           en2(ms) = sumall*scal
          end do
          if (.not.MA_pop_stack(tmp1(2)))
      >   call errquit(
@@ -204,13 +204,14 @@ c        **** paw energies ****
 
          write(luout,1683) E(38),E(38)/neall
          write(luout,1684) E(39),E(39)/neall
+         write(luout,1691) E(40),E(40)/neall
 
-         write(luout,1685) E(40),E(40)/neall
-         write(luout,1686) E(41),E(41)/neall
-         write(luout,1687) E(42),E(42)/neall
-         write(luout,1688) E(43),E(43)/neall
-         write(luout,1689) E(44),E(44)/ion_nion()
-         write(luout,1690) E(45),E(45)/ion_nion()
+         write(luout,1685) E(41),E(41)/neall
+         write(luout,1686) E(42),E(42)/neall
+         write(luout,1687) E(43),E(43)/neall
+         write(luout,1688) E(44),E(44)/neall
+         write(luout,1689) E(45),E(45)/ion_nion()
+         write(luout,1690) E(46),E(46)/ion_nion()
          end if
 
         if (pspw_qmmm_found()) then
@@ -451,14 +452,15 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
  1682 FORMAT( ' valence-core        :',E19.10,' (',E15.5,'/electron)')
- 1683 FORMAT( ' V_local   (pw basis):',E19.10,' (',E15.5,'/electron)')
- 1684 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1683 FORMAT( ' V_lpaw    (pw basis):',E19.10,' (',E15.5,'/electron)')
+ 1684 FORMAT( ' V_lpaw  (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1685 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1686 FORMAT( ' coulomb  (ncmp-ncmp):',E19.10,' (',E15.5,'/electron)')
  1687 FORMAT( ' coulomb    (ncmp-pw):',E19.10,' (',E15.5,'/electron)')
  1688 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1689 FORMAT( ' pxc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1690 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
+ 1691 FORMAT( ' V_local PAW residual:',E19.10,' (',E15.5,'/electron)')
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')

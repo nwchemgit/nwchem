@@ -73,10 +73,12 @@ c
       real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       real*8   psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
+      real*8   psi_1vloc_paw_residual
       external psp_pawexist
       external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       external psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
+      external psi_1vloc_paw_residual
 
       logical  nwpw_meta_gga_on,ion_disp_on
       external nwpw_meta_gga_on,ion_disp_on
@@ -144,21 +146,23 @@ c      call psi_1toelectron()
          E(36) = psp_kinetic_core()        !*** kinetic core  - independent of psi ***
 
          E(37) = psi_1valence_core_atom()  !*** valence core energy ***
-         E(38) = dng_1vlpaw_pw()           !*** Vlocal_paw (pw basis) ***
+         E(38) = dng_1vlpaw_pw()          !*** Vlocal_paw (pw basis) - used for ghost states
+         !                                  !***                           + (ncmp-ncmp_smooth)*Vlocal_smooth
          E(39) = psi_1vloc_atom()          !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
+         E(40) = psi_1vloc_paw_residual()   !*** (ncmp-ncmp_smooth)*Vlocal = (ncmp-ncmp_smooth)*(Vlocal-Vlocal_smooth) 
 
          ehartree_atom = psi_1hartree_atom()
          ecmp_cmp      = psi_1hartree_cmp_cmp()
          ecmp_pw       = psi_1hartree_cmp_pw()
-         E(40) = ehartree_atom             !*** vcoulomb atom  ***
-         E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
-         E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
+         E(41) = ehartree_atom             !*** vcoulomb atom  ***
+         E(42) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
+         E(43) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
 
          call psi_1xc_atom(exc_atom,pxc_atom)
-         E(43) = exc_atom                  !*** exc atom  ***
-         E(44) = pxc_atom                  !*** pxc atom  ***
+         E(44) = exc_atom                  !*** exc atom  ***
+         E(45) = pxc_atom                  !*** pxc atom  ***
 
-         E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
+         E(46) = psp_ion_core()            !*** ion core energy - independent of psi ***
 
          E(1) = E(1) + E(36) + E(45) 
      >        - E(40) - E(41)  + E(43) - E(44)
