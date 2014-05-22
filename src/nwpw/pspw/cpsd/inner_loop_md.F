@@ -396,6 +396,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         if (control_version().eq.3)
      >  call psi_H(ispin,neq,psi1,psi_r,
      >             dcpl_mb(vl(1)),
+     >             dcpl_mb(vl(1)),.false.,
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
@@ -403,6 +404,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         if (control_version().eq.4)
      >     call psi_Hv4(ispin,neq,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dcpl_mb(vl(1)),.false.,
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
