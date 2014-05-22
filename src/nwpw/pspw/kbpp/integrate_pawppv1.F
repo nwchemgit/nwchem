@@ -98,7 +98,7 @@
 *      ****** DEBUG *****
       !call dcopy(nrho,0.0d0,0,v_ps,1)
       !rlocal = 2.0d0
-       write(*,*) "rlocal=",rlocal
+       
 *      ****** DEBUG *****
 
       call Parallel_np(np)
@@ -307,8 +307,6 @@ c      P3=dsqrt(105.0d0*forpi)
 *     ****    and   Vsrloc = -zv/r - Vloc                  ****
 *     *********************************************************
 
-
-
 *     **** W2^(ion-electron) + W3^I(ion-electron)  -- add pseudo  - 4 ***
                 
       q = zv/(forpi)          
@@ -406,7 +404,6 @@ c            f1(k) = (phi_ae(k,i)*phi_ae(k,i))*(-zv + zv*yerf)
          d = log_integrate_def0(power_f,f1,rho,log_amesh,icut)
          a = log_integrate_def0(power_f,f1,rho,log_amesh,icut-10)
          Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
-         write(*,*) "pseudo 4c -nv*zv/r d=",na,la,d,d-a,icut
 
          do j=1,i-1
             lb = l_ps(j)
