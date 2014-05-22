@@ -17,6 +17,7 @@
 *   Entry - ispin,ne            - spin and number of electron in each spin
 *           psi_k,psi_r         - orbitals in k-space and r-space
 *           vl                  - local psp in k-space
+*           vlpaw,paw_exist     - local psp in k-space
 *           v_field,field_exist - external fields (e.g. QM/MM)
 *           vc                  - coulomb potential in k-space
 *           xcp                 - xc potential in r-space
@@ -27,6 +28,7 @@
       subroutine psi_H(ispin,ne,
      >                 psi_k,psi_r,
      >                 vl,
+     >                 vlpaw,paw_exist,
      >                 v_field,field_exist,
      >                 vc,xcp,Hpsi_k,
      >                 move,fion,
@@ -36,6 +38,8 @@
       complex*16 psi_k(*)
       real*8     psi_r(*)
       complex*16 vl(*)
+      complex*16 vlpaw(*)
+      logical    paw_exist
       real*8     v_field(*)
       logical    field_exist
       complex*16 vc(*)
@@ -174,12 +178,15 @@ c     complex*16 vpsi(nfft3d)
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
-      if (psp_pawexist()) then
-         call psp_get_vcmpvlpaw(dcpl_mb(vall(1)))
-         call Pack_cc_daxpy(0,scal2,vl,dcpl_mb(vall(1)))
-      else
-         call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
-      end if
+c      if (psp_pawexist()) then
+c         call psp_get_vcmpvlpaw(dcpl_mb(vall(1)))
+c         call Pack_cc_daxpy(0,scal2,vl,dcpl_mb(vall(1)))
+c      else
+c         call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
+c      end if
+      call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
+      if (paw_exist) 
+     >   call Pack_cc_daxpy(0,scal2,vlpaw,dcpl_mb(vall(1)))
       call Pack_cc_Sum2(0,vc,dcpl_mb(vall(1)))
       
 *     **********************************************

@@ -21,6 +21,7 @@
 *           psi_k,psi_r         - orbitals in k-space and r-space
 *           vsr_l               - short-range local psp in k-space
 *           vlr_l               - long-range local psp in r-space
+*           vsr_l_paw,paw_exist - short-range local psp in k-space
 *           v_field,field_exist - external fields (e.g. QM/MM)
 *           vc                  - coulomb potential in k-space
 *           xcp                 - xc potential in r-space
@@ -32,6 +33,7 @@
       subroutine psi_Hv4(ispin,ne,
      >                 psi_k,psi_r,
      >                 vsr_l,vlr_l,
+     >                 vsr_l_paw,paw_exist,
      >                 v_field,field_exist,
      >                 vc,xcp,Hpsi_k,
      >                 move,fion,
@@ -42,6 +44,8 @@
       real*8     psi_r(*)
       complex*16 vsr_l(*)
       real*8     vlr_l(*)
+      complex*16 vsr_l_paw(*)
+      logical    paw_exist
       real*8     v_field(*)
       logical    field_exist
       real*8     vc(*)
@@ -174,6 +178,8 @@
 *     **** add up k-space potentials, vall = scal2*vsr_l    ****
 *     **********************************************************
       call Pack_c_SMul(0,scal2,vsr_l,dcpl_mb(vall(1)))
+      if (paw_exist)
+     >   call Pack_cc_daxpy(0,scal2,vsr_l_paw,dcpl_mb(vall(1)))
       
 *     **********************************************
 *     **** fourier transform k-space potentials ****
