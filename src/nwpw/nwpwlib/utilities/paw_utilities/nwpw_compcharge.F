@@ -136,8 +136,6 @@
       do iia=1,nkatm_paw
          ia = int_mb(katm_pawtoion(1)+iia-1)
          dbl_mb(sigma_paw(1)+iia-1) = sigma(ia)
-         write(*,*) "E3-ion-ion=",
-     >      1.0d0/(dsqrt(2*pi)*sigma(ia)),sigma(ia)
       end do
 
 
