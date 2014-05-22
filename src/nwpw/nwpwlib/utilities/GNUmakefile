@@ -38,6 +38,7 @@
 		nwpw_matrix_invert.o \
 		analysis_expansion_coef.o \
 		nwpw_double_factorial.o \
+		nwpw_kbpp_ray.o \
 		nwpw_talker.o
 
 	  OBJ = 

@@ -13,6 +13,7 @@
 c      integer sigma(2)
       real*8 sigma_smooth
 
+      integer vk_smooth(2)
       integer gk_smooth(2)   ! gk_smooth(k)  = 4*pi * Exp[-k*k*sigma_smooth**2 / 4] 
       integer gk(2)          ! gk(k,1:nkatm_paw) = 4*pi * Exp[-k*k*sigma(ia)**2 / 4]
       integer glm(2)         ! glm(k, lm=1:(max_mult_l+1)**2) =  Tlm(k) * |k|**l / (2*l+1)!!
@@ -38,7 +39,7 @@ c      integer sigma(2)
       integer jprj_Tndiff(2)
       integer coeff_Tndiff(2)   
 
-      common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,
+      common / nwpw_compcharge_block / vk_smooth,gk_smooth,gk,glm,Qlm,
      >                  Qlmx,Qlmy,Qlmz,dEmult_Qlm,dE_Qlm,
      >                  sigma_smooth,sigma_paw,
      >                  mult_l,lm_size,

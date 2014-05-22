@@ -183,6 +183,9 @@
       !*** allocate gk_smooth, gk,and glm ***
       lm_size_max = (mult_l_max+1)**2
       value = MA_alloc_get(mt_dbl,npack0,
+     >                     "vk_smooth",vk_smooth(2),vk_smooth(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,npack0,
      >                     "gk_smooth",gk_smooth(2),gk_smooth(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,npack0*nkatm_paw,"gk",gk(2),gk(1))
@@ -264,6 +267,13 @@
          end do
 
       end do
+
+*     **** define vk_smooth(k) ****
+      call nwpw_compcharge_gen_vk_smooth(isgamma,sigma_smooth,npack0,
+     >                                   dbl_mb(G(1)),
+     >                                   dbl_mb(G(2)),
+     *                                   dbl_mb(G(3)),
+     >                                   dbl_mb(vk_smooth(1)))
 
 *     **** define gk_smooth(k)  = 4*pi * Exp[-k*k*sigma_smooth**2 / 4] ****
       scal            = 0.25d0*sigma_smooth**2
@@ -549,6 +559,7 @@
       value = value.and.MA_free_heap(sigma_paw(2))
       value = value.and.MA_free_heap(mult_l(2))
       value = value.and.MA_free_heap(lm_size(2))
+      value = value.and.MA_free_heap(vk_smooth(2))
       value = value.and.MA_free_heap(gk_smooth(2))
       value = value.and.MA_free_heap(gk(2))
       value = value.and.MA_free_heap(glm(2))
@@ -577,6 +588,257 @@
      >   call errquit("nwpw_compcharge_end: freeing heap",0,MA_ERR)
       return
       end 
+
+
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_gen_vk_smooth        *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_gen_vk_smooth(isgamma,sigma_smooth,
+     >                                         npack0,Gx,Gy,Gz,vk)
+      implicit none
+      logical isgamma
+      real*8  sigma_smooth
+      integer npack0
+      real*8  Gx(*),Gy(*),Gz(*),vk(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,j,nrho,nray,nx,ny,nz
+      real*8  unita(3,3),bmesh,log_bmesh
+      integer Gray(2),vlray(2),tmpray(2),f(2),rho(2)
+
+*     **** external functions ****
+      integer  nwpw_kbpp_calc_nray
+      external nwpw_kbpp_calc_nray
+      real*8   lattice_unita
+      external lattice_unita
+
+*     **** define extra local smooth psp ****
+      if (isgamma) then
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+      else
+         call C3dB_nx(1,nx)
+         call C3dB_ny(1,ny)
+         call C3dB_nz(1,nz)
+      end if
+
+      do j=1,3
+         do i=1,3
+            unita(i,j) = lattice_unita(i,j)
+         end do
+      end do
+
+      nray = nwpw_kbpp_calc_nray(nx,ny,nz,unita)
+      bmesh     = 1.005d0
+      log_bmesh = dlog(bmesh)
+      nrho = int(dlog(25.0d0/0.00025d0)/log_bmesh) + 1
+
+      value = MA_push_get(mt_dbl,nray,'Gray',Gray(2),Gray(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,3*nray,'vlray',vlray(2),vlray(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,3*nray,'tmpray',tmpray(2),tmpray(1))
+
+      value = value.and.
+     >        MA_push_get(mt_dbl,nrho,'fjky99',f(2),f(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nrho,'rhoy99',rho(2),rho(1))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_vk_smooth:stack",4,MA_ERR)
+
+      call nwpw_kbpp_generate_G_ray(nx,ny,nz,unita,dbl_mb(Gray(1)))
+
+      dbl_mb(rho(1)) = 0.00025d0
+      do i=2,nrho
+         dbl_mb(rho(1)+i-1) = bmesh*dbl_mb(rho(1)+i-2)
+      end do
+
+
+      call nwpw_compcharge_gen_vlray(sigma_smooth,
+     >                             log_bmesh,nrho,
+     >                             dbl_mb(rho(1)),dbl_mb(f(1)),
+     >                             nray,
+     >                             dbl_mb(Gray(1)),
+     >                             dbl_mb(vlray(1)),
+     >                             dbl_mb(tmpray(1)))
+
+      call nwpw_compcharge_gen_smoothpsp(nray,
+     >                                   dbl_mb(Gray(1)),
+     >                                   dbl_mb(vlray(1)),
+     >                                   npack0,Gx,Gy,Gz,
+     >                                   vk)
+
+      value =           MA_pop_stack(rho(2))
+      value = value.and.MA_pop_stack(f(2))
+      value = value.and.MA_pop_stack(tmpray(2))
+      value = value.and.MA_pop_stack(vlray(2))
+      value = value.and.MA_pop_stack(Gray(2))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_vk_smooth:pop stack",4,MA_ERR)
+
+      return
+      end 
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *   nwpw_compcharge_gen_vlray     *
+*     *                                 *
+*     ***********************************
+
+      subroutine nwpw_compcharge_gen_vlray(sigma_smooth,
+     >                                  log_amesh,nrho,rho,f,
+     >                                  nray,Gray,vlray,tmpray)
+      implicit none
+      real*8  sigma_smooth,log_amesh
+      integer nrho
+      real*8  rho(nrho),f(nrho)
+      integer nray
+      real*8  Gray(nray)
+      real*8  vlray(nray,2)
+      real*8  tmpray(nray)
+
+*     **** local variables ****
+      logical periodic
+      integer i,k
+      real*8 q,sn,cs,xerf1,yerf1,xerf,yerf,yp1,dG,rlocal
+      real*8 twopi,fourpi,ecut
+
+*     **** external functions ****
+      logical  control_kbpp_filter
+      external control_kbpp_filter
+      integer  control_version
+      external control_version
+      real*8   util_erf,log_integrate_def,control_ecut
+      external util_erf,log_integrate_def,control_ecut
+
+      periodic = (control_version().eq.3)
+      twopi  = 8.0d0*datan(1.0d0)
+      fourpi = 2.0d0*twopi
+      ecut   = control_ecut()
+      rlocal = 1.0d0
+
+      call dcopy(nray,0.0d0,0,vlray,1)
+      do k=2,nray
+         q = Gray(k)
+         if (periodic) then
+            do i=1,nrho
+               sn = dsin(q*rho(i))
+               xerf1 = rho(i)/sigma_smooth
+               yerf1 = util_erf(xerf1)
+               f(i)=(-yerf1)*sn
+            end do
+            cs = dcos(q*rho(nrho))
+            vlray(k,1)=fourpi
+     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
+     >              -fourpi*cs/(q*q)
+         else
+            do i=1,nrho
+               sn = dsin(q*rho(i))
+               xerf  = rho(i)/rlocal
+               yerf  = util_erf(xerf)
+               xerf1 = rho(i)/sigma_smooth
+               yerf1 = util_erf(xerf1)
+               f(i)=(-yerf1+yerf)*sn
+            end do
+            vlray(k,1)=fourpi
+     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
+         end if
+      end do
+
+      if (periodic) then
+         do i=1,nrho
+            xerf1 = rho(i)/sigma_smooth
+            yerf1 = util_erf(xerf1)
+            f(i)=(-yerf1)*rho(i)
+         end do
+         vlray(1,1) = fourpi
+     >             *log_integrate_def(0,f,0,rho,log_amesh,nrho)
+     >            + twopi*rho(nrho)**2
+      else
+         do i=1,nrho
+            xerf  = rho(i)/rlocal
+            yerf  = util_erf(xerf)
+            xerf1 = rho(i)/sigma_smooth
+            yerf1 = util_erf(xerf1)
+            f(i)=(-yerf1+yerf)*rho(i)
+         end do
+         vlray(1,1) = fourpi
+     >             *log_integrate_def(0,f,0,rho,log_amesh,nrho)
+      end if
+      if (control_kbpp_filter())
+     >  call nwpw_kbpp_filter_ray(nray,Gray,ecut,vlray)
+
+      dG = Gray(3)-Gray(2)
+
+      !**** five point formula ***
+      yp1 = ( -50.0d0*vlray(2,1)
+     >       + 96.0d0*vlray(3,1)
+     >       - 72.0d0*vlray(4,1)
+     >       + 32.0d0*vlray(5,1)
+     >       -  6.0d0*vlray(6,1))/(24.0d0*dG)
+      call nwpw_spline(Gray(2),vlray(2,1),nray-1,yp1,0.0d0,
+     >                 vlray(2,2),tmpray)
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *  nwpw_compcharge_gen_smoothpsp  *
+*     *                                 *
+*     ***********************************
+      subroutine nwpw_compcharge_gen_smoothpsp(nray,Gray,vlray,
+     >                                      npack0,Gx,Gy,Gz,
+     >                                      vlsmooth)
+      implicit none
+      integer nray
+      real*8  Gray(nray),vlray(nray,2)
+      integer npack0
+      real*8  Gx(npack0),Gy(npack0),Gz(npack0)
+      real*8  vlsmooth(npack0)
+
+*     **** local variables ****
+      integer k,nxray
+      real*8  Q,P,dG
+
+*     **** external functions ****
+      real*8   nwpw_splint
+      external nwpw_splint
+
+      dG = Gray(3)-Gray(2)
+      do k=1,npack0
+         Q = dsqrt(Gx(k)**2 + Gy(k)**2 + Gz(k)**2)
+         if (Q.gt.1.0d-9) then
+            nxray = (Q/dG) + 1.0d0
+            P = nwpw_splint(Gray(2),vlray(2,1),vlray(2,2),
+     >                      nray-1,nxray-1,Q)
+            vlsmooth(k)=P
+         else
+            vlsmooth(k)=vlray(1,1)
+         end if
+      end do
+
+      return
+      end
+
+
+
+
+
+
+
+
+
 
 *     *************************************************
 *     *                                               *
@@ -983,12 +1245,79 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       return
       end
 
+
 *     *************************************************
 *     *                                               *
-*     *     nwpw_compcharge_gen_dn_cmp_smooth         *
+*     *      nwpw_compcharge_gen_v_cmp_smooth         *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_compcharge_gen_dn_cmp_smooth(ms,dng_smooth)
+      subroutine nwpw_compcharge_gen_v_cmp_smooth(ispin,zv,v_smooth)
+      implicit none
+      integer ispin
+      real*8     zv(*)
+      complex*16 v_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer iii,iia,ii,ia,tmp(2),exi(2)
+
+
+      value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+      if (.not.value) 
+     >  call errquit("nwpw_compcharge_gen_v_cmp_smooth:stack",0,MA_ERR)
+
+
+      call dcopy(2*npack0,0.0d0,0,v_smooth,1)
+      if (isgamma) then
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ia   = int_mb(katm_pawtoion(1)+iia-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Pack_tc_Mul(0,dbl_mb(vk_smooth(1)),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(tmp(1)))
+
+         call Pack_cc_daxpy(0,zv(ia),dcpl_mb(tmp(1)),v_smooth)
+      end do
+
+      else
+
+      do iii=1,nion_paw
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Cram_rc_Mul(0,dbl_mb(vk_smooth(1)),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(tmp(1)))
+         call Cram_cc_daxpy(0,zv(ia),dcpl_mb(tmp(1)),v_smooth)
+
+      end do
+
+      end if
+
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_v_cmp_smooth:stack",1,MA_ERR)
+
+      return
+      end
+
+
+*     *************************************************
+*     *                                               *
+*     *     nwpw_compcharge_gen_dn_cmp_smooth_ms      *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_gen_dn_cmp_smooth_ms(ms,dng_smooth)
       implicit none
       integer ms
       complex*16 dng_smooth(*)
@@ -1094,6 +1423,118 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       end
 
 
+*     *************************************************
+*     *                                               *
+*     *     nwpw_compcharge_gen_dn_cmp_smooth         *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_gen_dn_cmp_smooth(ispin,dng_smooth)
+      implicit none
+      integer ispin
+      complex*16 dng_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer iii,iia,ii,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
+      real*8  q,sumall
+
+
+      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+      if (.not.value) 
+     >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
+
+
+      call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
+      if (isgamma) then
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+            do m=-l,l
+
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               if (mod(l,2).eq.0) then
+                  call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               else
+                  call Pack_tc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+
+               call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+
+               lm = lm + 1
+            end do
+         end do
+         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+
+      end do
+      call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      else
+
+      do iii=1,nion_paw
+         iia  = int_mb(katm_paw(1)+iii-1)
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+            do m=-l,l
+
+               indx1 = (iii-1)*2*lm_size_max+ lm
+               indx2 = (iii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               if (mod(l,2).eq.0) then
+                  call Cram_rc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               else
+                  call Cram_rc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+
+               call Cram_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+
+               lm = lm + 1
+            end do
+         end do
+         call Cram_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+
+      end do
+      call Cram_rc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      end if
+
+
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(QTlm(2))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",1,MA_ERR)
+
+      return
+      end
 
 
 *     *************************************************
@@ -1669,12 +2110,17 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
      >                      dcpl_mb(exi(1)),
      >                      dcpl_mb(tmp(1)))
 
-         call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),
-     >                          dcpl_mb(QTlm(1)))
+c         call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+c     >                          dcpl_mb(QTlm(1)))
+c         call Pack_tc_Mul(0,dbl_mb(gk(1)+(iia-1)*npack0),
+c     >                       dcpl_mb(tmp1(1)),
+c     >                       dcpl_mb(QTlm(1)))
+c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
-         call Pack_tc_Mul2(0,dbl_mb(gk(1)+(iia-1)*npack0),
-     >                       dcpl_mb(QTlm(1)))
-         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
+         call Pack_tc_aMulAdd(0,q00,
+     >                        dbl_mb(gk(1)+(iia-1)*npack0),
+     >                        dcpl_mb(tmp(1)),
+     >                        dng_cmp)
 
       end do
 
@@ -2354,10 +2800,10 @@ c     >                                         l2,m2,s1,Rab)
 *
 *    This routine calulates the multipole energy defined by 
 * 
-*                         //
-*    Emultipole  = 0.5 * || (nelccmp(r)-nelccmp_smooth(r))*(nelcmp-necmp_smooth+2*nioncmp(r')-2*nioncmp_smooth(r'))
-*                        || ---------------------------------------------------------------------------------------  dr dr'
-*                        //                       |r-r'|
+*                    //
+*    Emultipole  =  || (nelccmp(r)-nelccmp_smooth(r))*(nioncmp(r')-nioncmp_smooth(r'))
+*                   || ---------------------------------------------------------------  dr dr'
+*                   //                       |r-r'|
 *
       real*8 function nwpw_compcharge_E_multipole_zv_ee(ispin,zv)
       implicit none
@@ -2395,7 +2841,7 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
          end if
 
          q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn) + q22
+         q2 = q22
          E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
 
       end do
