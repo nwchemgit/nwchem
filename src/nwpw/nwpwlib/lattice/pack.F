@@ -29,6 +29,7 @@
       integer G_pack(3,0:1),G_pack_hndl
       common / G_pack_blk / G_pack,G_pack_hndl
 
+
 *     **** local variables ****
       logical value
       integer taskid,nfft3d
@@ -200,6 +201,7 @@ c     >                                      nidb(1),nidb2(1)
       value = MA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('Pack_init:error popping stack',0,MA_ERR)
+
       return 
       end
 
