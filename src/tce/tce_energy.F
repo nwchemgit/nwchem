@@ -7552,8 +7552,8 @@ c -------------------------------
            if(eaccsd) then
 #endif
 #ifdef EACCSD
-             if(nodezero) write(LuOut,*) "I am here eaccsd_x1"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x1"
+ccx             if(nodezero) call util_flush(LuOut)
 ckbn      SUBROUTINE eaccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
 ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
 ckbn     &_offset)
@@ -7562,8 +7562,8 @@ ckbn     &_offset)
      +                      k_f1_offset,k_x1_offset,k_t1_offset,
      +                      k_t2_offset,k_v2_offset,k_x1_offset,
      +                      k_x2_offset)
-             if(nodezero) write(LuOut,*) "I am here eaccsd_x1 1"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x1 1"
+ccx             if(nodezero) call util_flush(LuOut)
 #endif
 #if defined(EACCSD) || defined(IPCCSD)
            elseif(ipccsd) then
@@ -7574,15 +7574,15 @@ ckbn      SUBROUTINE ipccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
 ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
 ckbn     &_offset)
 #ifdef IPCCSD
-             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
+ccx             if(nodezero) call util_flush(LuOut)
              call ipccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),
      +                      x2(ivec),
      +                      k_f1_offset,k_x1_offset,k_t1_offset,
      +                      k_t2_offset,k_v2_offset,k_x1_offset,
      +                      k_x2_offset)
-             if(nodezero) write(LuOut,*) "I am here ipccsd_x1 1"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x1 1"
+ccx             if(nodezero) call util_flush(LuOut)
 #endif
 #if defined(EACCSD) || defined(IPCCSD)
            else
@@ -7643,8 +7643,8 @@ c             if(nodezero) call util_flush(LuOut)
             if(eaccsd) then
 #endif
 #ifdef EACCSD
-             if(nodezero) write(LuOut,*) "I am here eaccsd_x2"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x2"
+ccx             if(nodezero) call util_flush(LuOut)
 ckbn      SUBROUTINE eaccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
 ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
 ckbn     &_offset)
@@ -7653,8 +7653,8 @@ ckbn     &_offset)
      +                      k_f1_offset,k_x2_offset,k_t1_offset,
      +                      k_t2_offset,k_v2_offset,k_x1_offset,
      +                      k_x2_offset)
-             if(nodezero) write(LuOut,*) "I am here eaccsd_x2 2"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x2 2"
+ccx             if(nodezero) call util_flush(LuOut)
 #endif
 #ifdef EACCSD
             elseif(ipccsd) then
@@ -7663,15 +7663,15 @@ ckbn             if(nodezero) call util_flush(LuOut)
 ckbn      SUBROUTINE ipccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
 ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
 ckbn     &_offset)
-             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
+ccx             if(nodezero) call util_flush(LuOut)
                   call ipccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,x1(ivec),
      +                           x2(ivec),
      +                           k_f1_offset,k_x2_offset,k_t1_offset,
      +                           k_t2_offset,k_v2_offset,k_x1_offset,
      +                           k_x2_offset)
-             if(nodezero) write(LuOut,*) "I am here ipccsd_x2 2"
-             if(nodezero) call util_flush(LuOut)
+ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x2 2"
+ccx             if(nodezero) call util_flush(LuOut)
 #endif
 #if defined(EACCSD) || defined(IPCCSD)
             else
