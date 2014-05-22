@@ -592,7 +592,6 @@ c     **** define Gx,Gy and Gz in packed space ****
         do ms=1,ispin
           shifts  = 1+(ms-1)*ne(1)*ne(1)
           shiftsw =   (ms-1)*ne(1)
-         write(*,*) "into DGEMM ",ms
           call DGEMM('N','T',
      >              ne(ms),ne(ms),int_mb(nprj(1)+ia-1),
      >              (scal),
@@ -1333,11 +1332,12 @@ c     **** define Gx,Gy and Gz in packed space ****
 #include "psp.fh"
 
 *     **** local variables ****
-      logical ok,periodic
+      logical ok,periodic,move
       integer npack0,dng_cmp(2),vcmp_smooth(2)
       integer n2ft3d,rho_cmp(2),r_grid(2)
       integer nx,ny,nz
       real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
+      real*8 dum1(3),dum2(3)
 
 *     **** external functions ****
       integer  control_version
@@ -1366,6 +1366,17 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *        **** Using pw grid only ***
          if (use_grid_cmp) then
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dcpl_mb(dng_cmp(1)),
+     >                                       dcpl_mb(vcmp_smooth(1)))
+            call Pack_cc_Sub2(0,dcpl_mb(vcmp_smooth(1)),
+     >                          dcpl_mb(dng_cmp(1)))
+            move = .false.
+            call v_local(dcpl_mb(vcmp_smooth(1)),
+     >               move,
+     >               dum1,dum2)
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(vcmp_smooth(1)),eh)
 
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
@@ -1408,6 +1419,26 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *        **** Using pw grid only ***
          if (use_grid_cmp) then
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dbl_mb(rho_cmp(1)),
+     >                                       dbl_mb(vcmp_smooth(1)))
+            call Pack_cc_Sub2(0,dbl_mb(vcmp_smooth(1)),
+     >                          dbl_mb(rho_cmp(1)))
+            move = .false.
+            call v_local(dbl_mb(vcmp_smooth(1)),
+     >               move,
+     >               dum1,dum2)
+            call Pack_cc_dot(0,dbl_mb(rho_cmp(1)),
+     >                         dbl_mb(vcmp_smooth(1)),eh)
+
+            call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
+
+            call v_lr_local(dbl_mb(r_grid(1)),
+     >                      dbl_mb(vcmp_smooth(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
+     >                         dbl_mb(vcmp_smooth(1)),e1)
+            eh = eh + e1*dv
 
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
@@ -1881,8 +1912,6 @@ c     >                          l_prj(i),m_prj(i))
 *           **** multipole energy ****
             eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
             eh = nwpw_compcharge_E_multipole(ispin)
-            write(*,*) "mult_mult=",eh
-            write(*,*) "mult_mult_zv=",eh0
 
             ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
@@ -1902,7 +1931,6 @@ c     >                          l_prj(i),m_prj(i))
 *           **** add cmp energies ****
             eh = eh + (e1-0.5d0*e2)*lattice_omega()
 
-            write(*,*) "pw_mult_mult=",(e1-0.5d0*e2)*lattice_omega()
 
             ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
             if (.not.ok)
@@ -1954,11 +1982,6 @@ c     >                          l_prj(i),m_prj(i))
             eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
             eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
-            write(*,*) "mult_mult      =",eh 
-            write(*,*) "mult_mult_zv   =",eh0
-            write(*,*) "mult_mult_zv_zv=",eh2
-            write(*,*) "mult_mult_zv_ee=",eh1
-
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                       rho_cmp_smooth(2),rho_cmp_smooth(1))
             if (.not.ok)
@@ -1981,8 +2004,6 @@ c     >                          l_prj(i),m_prj(i))
      >                         dbl_mb(vcmp_smooth(1)),e2)
 
             eh = eh + (e1-0.5d0*e2)*dv
-
-            write(*,*) "pw_mult_mult=",(e1-0.5d0*e2)*dv
 
             ok = MA_pop_stack(rho_cmp_smooth(2))
             if (.not.ok)
