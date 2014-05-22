@@ -1,0 +1,52 @@
+OpenAD README
+=============
+
+This directory contains scripts and tools to generate higher order derivatives
+of DFT functionals using the OpenAD package. OpenAD is a source-to-source
+automatic differentiation engine [1], supported in part by DOE. 
+
+The assumption underlying the tools provided here is that many DFT functionals
+are provided by their authors in source form. These subroutines typically 
+implement the energy expression as well as first order partial derivatives.
+Higher order derivatives are typically not available. 
+
+Differentiating the existing source code has the advantage that a reformulation
+of the functional can be avoided. This saves work as well as eliminates the
+risk that the new implementation does not match the original for numerical
+reasons.
+
+The tools provided here start from a subroutine that implements both the
+energy expression as well as the first order partial derivatives. The end goal
+is to arrive at a set of routines
+
+    FUNC      -- energy + 1st order derivatives
+    FUNC_d2   -- energy + 1st order + 2nd order derivatives
+    FUNC_d3   -- energy + 1st order + 2nd order + 3rd order derivatives
+
+where FUNC represents the name of the functional. The workflow is 
+
+    FUNC
+     |
+     V
+    OpenAD (differentiate 1st order derivatives)
+     |
+     V
+    FUNC_d2
+     |
+     V
+    OpenAD (differentiate 2nd order derivatives)
+     |
+     V
+    FUNC_d3
+
+All three sets of subroutines are added to the source collection in the parent
+directory.
+
+References
+----------
+
+[1] J. Utke, U. Naumann, M. Fagan, N. Tallent, M. Strout, P. Heimbach, C. Hill,
+    C. Wunsch. "OpenAD/F: A Modular, Open-Source Tool for Automatic
+    Differentiation of Fortran Codes", ACM Transactions on Mathematical 
+    Software, vol. 34, no. 4, pp. 18:1-36 (2008), DOI: 10.1145/1377596.1377598.
+
