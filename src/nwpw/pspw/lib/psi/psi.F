@@ -2807,6 +2807,34 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       return
       end
 
+        
+
+*     ***********************************  
+*     *                                 *  
+*     *       psi_1vloc_paw_residual    *
+*     *                                 *
+*     ***********************************
+      real*8 function psi_1vloc_paw_residual()
+      implicit none
+         
+#include "mafdecls.fh"
+#include "psi.fh"
+         
+*     **** local variables ***    
+      real*8 ave 
+
+*     **** external functions ****
+      real*8   psp_vloc_residual
+      external psp_vloc_residual
+     
+      ave =  psp_vloc_residual(ispin)
+      !call D1dB_SumAll(ave)
+
+      psi_1vloc_paw_residual = ave
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -2885,14 +2913,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "psi.fh"
 
 *     **** external functions ****
-      real*8   psp_vlpaw_e
-      external psp_vlpaw_e
+      real*8   electron_dng_vlpaw_ave
+      external electron_dng_vlpaw_ave
 
-      dng_1vlpaw_pw = psp_vlpaw_e(dcpl_mb(dng1(1)))
+      dng_1vlpaw_pw = electron_dng_vlpaw_ave(dcpl_mb(dng1(1)))
+
       return
       end
-
-
 
 
 
@@ -2953,6 +2980,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
+
+
 
 *     ***********************************
 *     *					*
