@@ -686,9 +686,6 @@
       return
       end 
 
-
-
-
 *     ***********************************
 *     *                                 *
 *     *   nwpw_compcharge_gen_vlray     *
@@ -708,7 +705,6 @@
       real*8  tmpray(nray)
 
 *     **** local variables ****
-      logical periodic
       integer i,k
       real*8 q,sn,cs,xerf1,yerf1,xerf,yerf,yp1,dG,rlocal
       real*8 twopi,fourpi,ecut
@@ -716,12 +712,9 @@
 *     **** external functions ****
       logical  control_kbpp_filter
       external control_kbpp_filter
-      integer  control_version
-      external control_version
       real*8   util_erf,log_integrate_def,control_ecut
       external util_erf,log_integrate_def,control_ecut
 
-      periodic = (control_version().eq.3)
       twopi  = 8.0d0*datan(1.0d0)
       fourpi = 2.0d0*twopi
       ecut   = control_ecut()
@@ -730,51 +723,27 @@
       call dcopy(nray,0.0d0,0,vlray,1)
       do k=2,nray
          q = Gray(k)
-         if (periodic) then
-            do i=1,nrho
-               sn = dsin(q*rho(i))
-               xerf1 = rho(i)/sigma_smooth
-               yerf1 = util_erf(xerf1)
-               f(i)=(-yerf1)*sn
-            end do
-            cs = dcos(q*rho(nrho))
-            vlray(k,1)=fourpi
-     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
-     >              -fourpi*cs/(q*q)
-         else
-            do i=1,nrho
-               sn = dsin(q*rho(i))
-               xerf  = rho(i)/rlocal
-               yerf  = util_erf(xerf)
-               xerf1 = rho(i)/sigma_smooth
-               yerf1 = util_erf(xerf1)
-               f(i)=(-yerf1+yerf)*sn
-            end do
-            vlray(k,1)=fourpi
-     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
-         end if
+         do i=1,nrho
+            sn = dsin(q*rho(i))
+            xerf1 = rho(i)/sigma_smooth
+            yerf1 = util_erf(xerf1)
+            f(i)=(-yerf1)*sn
+         end do
+         cs = dcos(q*rho(nrho))
+         vlray(k,1)=fourpi
+     >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
+     >           -fourpi*cs/(q*q)
       end do
 
-      if (periodic) then
-         do i=1,nrho
-            xerf1 = rho(i)/sigma_smooth
-            yerf1 = util_erf(xerf1)
-            f(i)=(-yerf1)*rho(i)
-         end do
-         vlray(1,1) = fourpi
-     >             *log_integrate_def(0,f,0,rho,log_amesh,nrho)
-     >            + twopi*rho(nrho)**2
-      else
-         do i=1,nrho
-            xerf  = rho(i)/rlocal
-            yerf  = util_erf(xerf)
-            xerf1 = rho(i)/sigma_smooth
-            yerf1 = util_erf(xerf1)
-            f(i)=(-yerf1+yerf)*rho(i)
-         end do
-         vlray(1,1) = fourpi
-     >             *log_integrate_def(0,f,0,rho,log_amesh,nrho)
-      end if
+      do i=1,nrho
+         xerf1 = rho(i)/sigma_smooth
+         yerf1 = util_erf(xerf1)
+         f(i)=(-yerf1)*rho(i)
+      end do
+      vlray(1,1) = fourpi
+     >          *log_integrate_def(0,f,0,rho,log_amesh,nrho)
+     >         + twopi*rho(nrho)**2
+
       if (control_kbpp_filter())
      >  call nwpw_kbpp_filter_ray(nray,Gray,ecut,vlray)
 
@@ -1251,9 +1220,8 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
 *     *      nwpw_compcharge_gen_v_cmp_smooth         *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_compcharge_gen_v_cmp_smooth(ispin,zv,v_smooth)
+      subroutine nwpw_compcharge_gen_v_cmp_smooth(zv,v_smooth)
       implicit none
-      integer ispin
       real*8     zv(*)
       complex*16 v_smooth(*)
 
@@ -1310,6 +1278,123 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
 
       return
       end
+
+
+*     *************************************************
+*     *                                               *
+*     *      nwpw_compcharge_gen_vlr_cmp_smooth       *
+*     *                                               *
+*     *************************************************
+*
+*  This routine calculates the long-range part of the smooth
+*  compensation pseudopotential (used by version4)
+*
+*   Note - will currently only work with pspw, since aperiodic 
+*          boundary conditions are not implemented in BAND
+*
+      subroutine nwpw_compcharge_gen_vlr_cmp_smooth(zv,
+     >                                              rgrid,
+     >                                              vlr_smooth)
+      implicit none
+      real*8 zv(*)
+      real*8 rgrid(3,*)
+      real*8 vlr_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** Error function parameters ****
+      real*8 xerf,yerf
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+*     **** local variables ****
+      integer np_j,taskid_j,n2ft3d,n2ft3d_map
+      integer i,ii,ia,iia,iii
+      real*8  x,y,z,r,b,c
+
+*     **** external functions ****
+      logical  control_fast_erf
+      external control_fast_erf
+      real*8   util_erf,ion_rion
+      external util_erf,ion_rion
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+
+      call dcopy(n2ft3d,0.0d0,0,vlr_smooth,1)
+
+      b = 1.0d0/dsqrt(4.0d0*datan(1.0d0))   !*** 1/sqrt(pi)
+      c = 1.0d0/sigma_smooth
+
+      if (control_fast_erf()) then
+         do iii=1,nion_paw
+         if (mod(iii-1,np_j).eq.taskid_j) then
+            iia = int_mb(katm_paw(1)+iii-1)
+            ia  = int_mb(katm_pawtoion(1)+iia-1)
+            ii  = int_mb(ion_pawtoion(1)+iii-1)
+
+            x = ion_rion(1,ii)
+            y = ion_rion(2,ii)
+            z = ion_rion(3,ii)
+            do i=1,n2ft3d_map
+               r = dsqrt((rgrid(1,i)-x)**2
+     >                  +(rgrid(2,i)-y)**2
+     >                  +(rgrid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                  xerf = r*c
+                  yerf = (1.0d0
+     >                 + xerf*(c1 + xerf*(c2
+     >                 + xerf*(c3 + xerf*(c4
+     >                 + xerf*(c5 + xerf*c6))))))**4
+                  yerf = (1.0d0 - 1.0d0/yerf**4)
+c                  yerf = util_erf(xerf)
+                  vlr_smooth(i) = vlr_smooth(i) - (zv(ia)/r)*yerf
+               else
+                  vlr_smooth(i) = vlr_smooth(i) - 2.0d0*zv(ia)*b*c
+               end if
+
+            end do
+         end if
+         end do
+      else
+         do iii=1,nion_paw
+         if (mod(iii-1,np_j).eq.taskid_j) then
+            iia = int_mb(katm_paw(1)+iii-1)
+            ia  = int_mb(katm_pawtoion(1)+iia-1)
+            ii  = int_mb(ion_pawtoion(1)+iii-1)
+
+            x = ion_rion(1,ii)
+            y = ion_rion(2,ii)
+            z = ion_rion(3,ii)
+            do i=1,n2ft3d_map
+               r = dsqrt((rgrid(1,i)-x)**2
+     >                  +(rgrid(2,i)-y)**2
+     >                  +(rgrid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                  xerf = r*c
+                  yerf = util_erf(xerf)
+                  vlr_smooth(i) = vlr_smooth(i) - (zv(ia)/r)*yerf
+               else
+                  vlr_smooth(i) = vlr_smooth(i) - 2.0d0*zv(ia)*b*c
+               end if
+
+            end do
+         end if
+         end do
+      end if
+      if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d_map,vlr_smooth)
+
+      call nwpw_timing_end(5)
+      return
+      end 
 
 
 *     *************************************************
