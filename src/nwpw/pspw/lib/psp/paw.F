@@ -1334,8 +1334,8 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *     **** local variables ****
       logical ok,periodic
-      integer npack0,dng_cmp(2),v_smooth(2)
-      integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2)
+      integer npack0,dng_cmp(2),vcmp_smooth(2)
+      integer n2ft3d,rho_cmp(2),r_grid(2)
       integer nx,ny,nz
       real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
 
@@ -1346,7 +1346,6 @@ c     **** define Gx,Gy and Gz in packed space ****
       external nwpw_compcharge_E_multipole_zv_ee,lattice_omega
 
 
-      write(*,*) "hera, pawexist=",pawexist,use_grid_cmp
       eh = 0.0d0
       if (pawexist) then
 
@@ -1360,8 +1359,8 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Pack_npack(0,npack0)
          ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                           dng_cmp(2),dng_cmp(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'v_smooth',
-     >                           v_smooth(2),v_smooth(1))
+         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+     >                           vcmp_smooth(2),vcmp_smooth(1))
          if (.not.ok)
      >      call errquit('psp_vloc_residual:out of stack',0,MA_ERR)
 
@@ -1373,20 +1372,16 @@ c     **** define Gx,Gy and Gz in packed space ****
             eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
             call nwpw_compcharge_gen_dn_cmp2(ispin,
      >                                       dcpl_mb(dng_cmp(1)),
-     >                                       dcpl_mb(v_smooth(1)))
-            call Pack_cc_Sub2(0,dcpl_mb(v_smooth(1)),
+     >                                       dcpl_mb(vcmp_smooth(1)))
+            call Pack_cc_Sub2(0,dcpl_mb(vcmp_smooth(1)),
      >                          dcpl_mb(dng_cmp(1)))
-            call nwpw_compcharge_gen_v_cmp_smooth(ispin,
-     >                                            dbl_mb(zv(1)),
-     >                                            dcpl_mb(v_smooth(1)))
+            call nwpw_compcharge_gen_v_cmp_smooth(dbl_mb(zv(1)),
+     >                                        dcpl_mb(vcmp_smooth(1)))
             call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
-     >                         dcpl_mb(v_smooth(1)),e1)
-            write(*,*) "eh,e1=",eh,e1
-
+     >                         dcpl_mb(vcmp_smooth(1)),e1)
             eh = eh+e1
-
          end if
-         ok =        MA_pop_stack(v_smooth(2))
+         ok =        MA_pop_stack(vcmp_smooth(2))
          ok = ok.and.MA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_vloc_residual:pop stack',1,MA_ERR)
@@ -1395,6 +1390,21 @@ c     **** define Gx,Gy and Gz in packed space ****
 *     **** APeriodic Boundary Condtions ****
 *     **************************************
       else
+         call D3dB_n2ft3d(1,n2ft3d)
+         ok =         MA_push_get(mt_dbl,n2ft3d,'rho_cmp',
+     >                            rho_cmp(2),rho_cmp(1))
+         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp_smooth',
+     >                           vcmp_smooth(2),vcmp_smooth(1))
+         ok = ok.and.MA_push_get(mt_dbl,3*n2ft3d,'rgrid_cmp',
+     >                           r_grid(2),r_grid(1))
+         if (.not.ok)
+     >      call errquit('psp_vloc_residual:out of stack',2,MA_ERR)
+         call lattice_r_grid(dbl_mb(r_grid(1)))
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal1 = 1.0d0/(nx*ny*nz)
+         dv = scal1*lattice_omega()
 
 *        **** Using pw grid only ***
          if (use_grid_cmp) then
@@ -1402,8 +1412,26 @@ c     **** define Gx,Gy and Gz in packed space ****
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
             eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dbl_mb(rho_cmp(1)),
+     >                                       dbl_mb(vcmp_smooth(1)))
+            call Pack_cc_Sub2(0,dbl_mb(vcmp_smooth(1)),
+     >                          dbl_mb(rho_cmp(1)))
+            call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
 
+            call nwpw_compcharge_gen_vlr_cmp_smooth(dbl_mb(zv(1)),
+     >                                           dbl_mb(r_grid(1)),
+     >                                           dbl_mb(vcmp_smooth(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
+     >                         dbl_mb(vcmp_smooth(1)),e1)
+            eh = eh + e1*dv
          end if
+         ok =        MA_pop_stack(r_grid(2))
+         ok = ok.and.MA_pop_stack(vcmp_smooth(2))
+         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_vloc_residual:pop stack',3,MA_ERR)
 
       end if
 
