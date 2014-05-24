@@ -212,17 +212,29 @@ c
 c 4af file formed here
 c
 c
+       if(nodezero) then
+          write(6,'(A,F20.2,A)') ' starting step 0 at ',
+     C         util_wallsec(), ' secs '
+          call util_flush(6)
+       endif
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs, 1)
+      call  ga_distribution(d_4af,ga_nodeid(),ilo,ihi,jlo,jhi)
+      if(jlo.gt.0) then
+cold      next = NXTASK(nprocs, 1)
       DO azone1 = 1,atpart      !nu
       DO azone2 = azone1,atpart !mu
       DO azone3 = 1,atpart      !sigma
       DO azone4 = azone3,atpart !rho
-      IF (next.eq.count) THEN
-c ---------------------------
-        size_4a = nalength(azone1)*nalength(azone2)*
+         size_4a = nalength(azone1)*nalength(azone2)*
      1            nalength(azone3)*nalength(azone4)
+         key_4af=azone4 - 1 + atpart * (azone3 - 1 +
+     &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
+        call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
+       if((ilo.le.offset_4af+size_4a).and.
+     A      (ihi.ge.offset_4af+1)) then
+cold      IF (next.eq.count) THEN
+c ---------------------------
         if(.not.ma_push_get(mt_dbl,size_4a,'4a',l_4a,k_4a))
      1     call errquit('tce_4af_zones1: MA problem',0,MA_ERR)
         call dfill(size_4a, 0.0d0, dbl_mb(k_4a), 1)
@@ -285,24 +297,22 @@ c     (isigma1,irho1|inu1, imu1)
          enddo !mu
 c
 c fixing offsets and sf_writing
-         key_4af=azone4 - 1 + atpart * (azone3 - 1 +
-     &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
-        call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
         call ga_put(d_4af,offset_4af+1,offset_4af+size_4a,1,1,
      1    dbl_mb(k_4a),1)
 c closing l_4a file
         if (.not.ma_pop_stack(l_4a))
      1   call errquit('tcc_mo2e_4af2: l_4a',15,MA_ERR)
 c ---------------------------
-      next = NXTASK(nprocs, 1)
+cold      next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
       ENDDO !azone4
       ENDDO !azone3
       ENDDO !azone2
       ENDDO !azone1
+      endif
 c
-      next = NXTASK(-nprocs, 1)
+cold      next = NXTASK(-nprocs, 1)
       call ga_sync()
 c
 c
@@ -430,9 +440,6 @@ C TRANSPOSITION HERE (g3 az3|az1 <=az2) => (az3 g3|az1 <=az2)
      &  int_mb(k_range_alpha+g3b-1),nalength(azone3),
      &  nalength(azone1),nalength(azone2),
      &  2,1,3,4,1.0d0)
-       key_agaa=azone3-1+atpart*(g3b-1+
-     1  (noa+nva)*(azone1-1+atpart*(azone2-1)))
-       call tce_hash_n(int_mb(k_offset_agaa),key_agaa,offset_agaa)
        call ga_put(d_agaa,offset_agaa+1,offset_agaa+size_loc_agaa,1,1,
      1  dbl_mb(k_aux),1)
 c
@@ -687,9 +694,6 @@ C TRANSPOSITION HERE (g4=>g3|az2 g2) => (g4=>g3|g2 az2)
      & int_mb(k_range_alpha+g4b-1),int_mb(k_range_alpha+g3b-1),
      & nalength(azone2),int_mb(k_range_alpha+g2b-1),
      & 1,2,4,3,1.0d0)
-       key_ggga=g4b-1+(noa+nva)*(g3b-1+
-     &  (noa+nva)*(g2b-1+(noa+nva)*(azone2-1)))
-       call tce_hash_n(int_mb(k_offset_ggga),key_ggga,offset_ggga)
        call ga_put(d_ggga,offset_ggga+1,offset_ggga+size_loc_ggga,1,1,
      1  dbl_mb(k_aux),1)
        if (.not.ma_pop_stack(l_aux))
@@ -710,7 +714,7 @@ cood      next = NXTASK(-nprocs, 1)
 c     delete d_ggaa
       call deletefile(d_ggaa)
        if(nodezero) then
-          write(6,'(A,F20.2,A)') ' done step 3 at ',
+          write(6,'(A,F20.2,A)') ' starting step 4 at ',
      C         util_wallsec(), ' secs '
           call util_flush(6)
        endif
@@ -726,10 +730,12 @@ c
 c
 c     step4
 c
+      call  ga_distribution(d_v2,ga_nodeid(),ilo,ihi,jlo,jhi)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs, 1)
+cold      next = NXTASK(nprocs, 1)
 c do parallel
+      if(jlo.gt.0) then
       DO g1b = 1,noa+nva
       DO g2b = g1b,noa+nva
       DO g3b = 1,noa+nva
@@ -744,10 +750,16 @@ c
        ICOL=INDEX_PAIR(g2b,g1b)
        IF(IROW.GE.ICOL) THEN
 c
-      IF (next.eq.count) THEN
        size_loc_gggg= int_mb(k_range_alpha+g1b-1)*
      1 int_mb(k_range_alpha+g2b-1)*
      1 int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
+       key_gggg=g2b - 1 + (noa+nva) *
+     &(g1b - 1 + (noa+nva) * (g4b-
+     & 1 + (noa+nva) * (g3b - 1)))
+       call tce_hash_v2(int_mb(k_v2_alpha_offset),key_gggg,offset_gggg)
+       if((ilo.le.offset_gggg+size_loc_gggg).and.
+     A      (ihi.ge.offset_gggg+1)) then
+cold      IF (next.eq.count) THEN
        if (.not.ma_push_get(mt_dbl,size_loc_gggg,'loc_gggg',
      1 l_loc_gggg,k_loc_gggg))
      1 call errquit('step4:1',0,MA_ERR)
@@ -793,15 +805,11 @@ c
      1 call errquit('g4ind:MA1',15,MA_ERR)
 c
        ENDDO !azone2
-       key_gggg=g2b - 1 + (noa+nva) *
-     &(g1b - 1 + (noa+nva) * (g4b-
-     & 1 + (noa+nva) * (g3b - 1)))
-       call tce_hash_v2(int_mb(k_v2_alpha_offset),key_gggg,offset_gggg)
        call ga_put(d_v2,offset_gggg+1,offset_gggg+size_loc_gggg,1,1,
      1  dbl_mb(k_loc_gggg),1)
        if (.not.ma_pop_stack(l_loc_gggg))
      1 call errquit('g4ind:MA1',15,MA_ERR)
-      next = NXTASK(nprocs, 1)
+cold      next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
        END IF
@@ -811,10 +819,17 @@ c
       ENDDO !g3b
       ENDDO !g2b
       ENDDO !g1b
-      next = NXTASK(-nprocs, 1)
+cold      next = NXTASK(-nprocs, 1)
+      endif
       call ga_sync()
 c     delete d_ggga
       call deletefile(d_ggga)
+
+       if(nodezero) then
+          write(6,'(A,F20.2,A)') ' done step 4 at ',
+     C         util_wallsec(), ' secs '
+          call util_flush(6)
+       endif
 c
 c
 c
