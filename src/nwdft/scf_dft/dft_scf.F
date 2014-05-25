@@ -221,6 +221,44 @@ c
       logical debug_fon
       logical zora_recalc
 c
+c MN solvation models -->
+c
+      double precision gcds, gspol, espol, gspoldyn, gspolneq
+      double precision gstote, estote
+      integer do_cosmo_vem, istep_cosmo_vem
+      logical do_cosmo_smd
+c
+      gcds = 0.d0
+      do_cosmo_vem = 0
+      istep_cosmo_vem = 0
+      do_cosmo_smd = .false.
+      if (cosmo_on) then
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $  call errquit(
+     $  'dft_scf: cannot get do_cosmo_vem from rtdb',
+     $  0,rtdb_err)
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit(
+     $  'dft_scf: cannot get istep_cosmo_vem from rtdb',
+     $  0,rtdb_err)
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $ call errquit('
+     $ dft_scf: cannot get do_cosmo_smd from rtdb',
+     $ 0,rtdb_err)
+       if (do_cosmo_smd) then
+         if (.not. rtdb_get
+     $   (rtdb,'cosmo:gcds',mt_dbl,1,gcds))
+     $    call errquit(
+     $    'dft_scf: cannot get gcds from rtdb',
+     $    0,rtdb_err)
+       endif
+      endif
+c
+c <-- MN solvation models
+c
 c     =========================================================================
 c
       k_3cERI  = 0
@@ -402,8 +440,6 @@ c
 c     
 c     determine pattern of orbitals' occupancy
 c     
-c      
-c
       if (ipol .eq. 1)then
 c
 c        RHF occupations
@@ -471,7 +507,16 @@ c     == scf energy convergence criterion ==
      &  call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
       if (.not. ga_duplicate(g_fock, g_focks(1), ' alpha fock'))
      &  call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
-c     
+c
+c MN solvation models -->
+c
+c     for VEM calculations if istep_cosmo_vem=2
+c
+      if (istep_cosmo_vem.eq.2) nodiis=.true.
+      if (istep_cosmo_vem.eq.2) nolevelshifting=.true.
+c
+c <-- MN solvation models
+c
 c     == set up local convergence parameters ==
       diising = diis
       damping = damp
@@ -1082,7 +1127,7 @@ c
 c     Calculate the total electronic energy.
 c     
       if (nExc.eq.1)then
-         Etnew = Ecore + Ecoul + Exc(1) + Edisp
+         Etnew = Ecore + Ecoul + Exc(1) + Edisp 
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp
       endif
@@ -1092,7 +1137,15 @@ c
      &                  Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic
       endif
 c
-      if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
+c     Add in cosmo contributions
+c
+      if (cosmo_on.and.cosmo_phase.eq.2) then 
+        if (do_cosmo_smd) then
+             etnew = etnew + ecosmo + gcds
+        else
+             etnew = etnew + ecosmo
+        end if
+      end if
 c     
 c     == is this a oneshot "noscf" type calculation, no diagonalization ==
       noscf = .false.
@@ -1238,9 +1291,13 @@ c Constrained DFT: label 2004 is associated with optimization of cdft.
      ,        dbl_mb(k_eval(ispin)),svals,noc(ispin),
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
-     ,        oprint_conv_details)
-
-c        
+c
+c MN solvation models -->
+c
+     ,        oprint_conv_details,istep_cosmo_vem)
+c
+c <-- MN solvation models
+c
 c        determine homo-lumo gap 
 c
          homo_lumo_gap = min(homo_lumo_gap, (lumo-homo-rlshift))
@@ -1610,7 +1667,16 @@ c
       else
         Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots + Edisp
       endif
-      if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
+c
+c     Add in cosmo contributions
+c
+      if (cosmo_on.and.cosmo_phase.eq.2) then
+           if (do_cosmo_smd) then
+             etnew = etnew + ecosmo + gcds
+           else
+             etnew = etnew + ecosmo
+           end if
+      end if
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
@@ -1719,6 +1785,56 @@ c     Scale the zora eigenvalues and energy
      &                   ener_scal)
       end if
 c
+c MN solvation models -->
+c
+c save data for VEM excitation calculation and get data for VEM emission or regular GS SMD output:
+c  gstote = GS equilibrium or nonequilibrium (for emission) total energy (electrostatics only)
+c  gspol  = GS equilibrium polarization energy
+c  gspolneq = GS nonequilibrium polarization energy (for emission)
+c  gspoldyn = fast component of gspolneq
+c  estote = ES equilibrium VEM total energy (electrostatics only)
+c  espol = ES equilibrium polarization energy
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+          gstote = esol - gcds
+          if (do_cosmo_vem.ne.0) then
+           if (istep_cosmo_vem.eq.0) then
+            if (.not. rtdb_put(rtdb, 'dft:gstote', mt_dbl, 1, gstote))
+     $      call errquit(
+     $      'dft_scf: cannot put gstote in rtdb',
+     $      0,rtdb_err)
+           endif
+           if (do_cosmo_vem.eq.2.and.istep_cosmo_vem.eq.3) then
+             if(.not.rtdb_get(rtdb,'cosmo:estote',mt_dbl,1,estote))
+     $       call errquit(
+     $       'dft_scf: cannot get estote from rtdb',
+     $       0,rtdb_err)
+             if(.not.rtdb_get(rtdb,'cosmo:espol',mt_dbl,1,espol))
+     $       call errquit(
+     $       'dft_scf: cannot get espol from rtdb',
+     $       0,rtdb_err)
+             if(.not.rtdb_get(rtdb,'cosmo:gspolneq',mt_dbl,1,gspolneq))
+     $       call errquit(
+     $       'dft_scf: cannot get gspolneq from rtdb',
+     $       0,rtdb_err)
+             if(.not.rtdb_get(rtdb,'cosmo:gspoldyn',mt_dbl,1,gspoldyn))
+     $       call errquit(
+     $       'dft_scf: cannot get gspoldyn from rtdb',
+     $       0,rtdb_err)
+           endif
+          endif
+          if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
+           if(.not.rtdb_get(rtdb,'cosmo:gspol',mt_dbl,1,gspol))
+     $     call errquit(
+     $     'dft_scf: cannot get gspol from rtdb',
+     $     0,rtdb_err)
+          endif
+      endif
+c
+      call ga_sync()
+c
+c <-- MN solvation models
+c
       if (me.eq.0.and.oprint)then
          if (.not.converged)then
             write(LuOut,*)
@@ -1728,11 +1844,22 @@ c
          endif
 c
 c        Tally up last energy 
+c
          if (nExc.eq.1)then
-              Etnew = Ecore + Ecoul + Exc(1) + Edisp
+              Etnew = Ecore + Ecoul + Exc(1) + Edisp 
          else
               Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp
          endif
+c
+c        Add in cosmo contributions
+c
+         if (cosmo_on.and.cosmo_phase.eq.2) then
+           if (do_cosmo_smd) then
+             etnew = etnew + ecosmo + gcds
+           else
+             etnew = etnew + ecosmo
+           end if
+         end if
 c
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
@@ -1756,7 +1883,13 @@ c
          write(luout,2222) rho_n
          write(luout,2223) dft_time
 c
-         if(cosmo_on.and.cosmo_phase.eq.2) then
+c MN solvation models -->
+c
+c regular cosmo output
+c
+         if(cosmo_on.and.cosmo_phase.eq.2.and.
+     $ istep_cosmo_vem.eq.0.and..not.do_cosmo_smd) then
+c <-- MN solvation models
            write(LuOut,*) '                 COSMO solvation results'
            write(LuOut,*) '                 -----------------------'
            write(LuOut,*) ' '
@@ -1776,6 +1909,119 @@ c
  914  format(' (electrostatic) solvation energy = ',f20.10,
      $     ' (',f8.2,' kcal/mol)'                       )
  915  format('     skipped: no gas phase energy')
+c
+c MN solvation models -->
+c
+c equilibrium GS cosmo-smd output
+c
+      if (me.eq.0.and.oprint)then
+         if(cosmo_on.and.cosmo_phase.eq.2.and.
+     $ istep_cosmo_vem.eq.0.and.do_cosmo_smd) then
+           write(LuOut,919)
+           if (ocosmo_got_gasphase) then
+             write(LuOut,920) egas
+             write(LuOut,921) (gstote-gspol)
+             write(LuOut,922) (gstote-gspol-egas),
+     $ (gstote-gspol-egas)*627.509451d+00
+             write(LuOut,923) gstote
+             write(LuOut,924) gspol,
+     $ gspol*627.509451d+00
+             write(LuOut,925) esol
+             write(LuOut,926) gcds,gcds*627.509451d+00
+             write(LuOut,927) (esol-egas),(esol-egas)*627.509451d+00
+           else
+             write(LuOut,921) (gstote-gspol)
+             write(LuOut,923) gstote
+             write(LuOut,924) gspol,
+     $ gspol*627.509451d+00
+             write(LuOut,925) esol
+             write(LuOut,926) gcds,gcds*627.509451d+00
+           endif
+         endif
+c
+c cosmo-vem (emission energy) output
+c
+         if(cosmo_on.and.cosmo_phase.eq.2.and.
+     $ istep_cosmo_vem.eq.3.and.do_cosmo_vem.eq.2) then
+          gstote = gstote - gspol + gspolneq
+          write (luout,930)
+          write (luout,931)
+          write (luout,932) estote
+          write (luout,933) espol,espol*27.211399d0
+          write (luout,934) gstote
+          write (luout,935) gspolneq,gspolneq*27.211399d0
+          write (luout,936) gspoldyn,gspoldyn*27.211399d0
+c          write (luout,937) gspol,gspol*27.211399d0
+          write (luout,938) (estote-gstote),(estote-gstote)*27.211399d0
+         endif
+         call util_flush(LuOut)
+      endif
+c
+ 919  format(
+     $32x,'COSMO-SMD solvation results',/,
+     $32x,'---------------------------',/
+     $' Reference for the SMD model:',/,
+     $' Marenich, A. V.; Cramer, C. J.; Truhlar, D. G.',
+     $' J. Phys. Chem. B 2009, 113, 6378',/)
+ 920  format(1x,
+     $'            internal energy in gas <Psi(g)|H|Psi(g)> = ',
+     $ f20.10)
+ 921  format(1x,
+     $'        internal energy in solvent <Psi(s)|H|Psi(s)> = ',
+     $ f20.10)
+ 922  format(1x,
+     $'                              delta internal energy  = ',
+     $ f20.10,' (',f8.2,' kcal/mol)')
+ 923  format(1x,
+     $'  total free energy in solvent <Psi(s)|H+V/2|Psi(s)> = ',
+     $ f20.10)
+ 924  format(1x,
+     $'polarization energy contribution <Psi(s)|V/2|Psi(s)> = ',
+     $ f20.10,' (',f8.2,' kcal/mol)')
+ 925  format(1x,
+     $'   total free energy in solvent including G(SMD-CDS) = ',
+     $ f20.10)
+ 926  format(1x,
+     $'                      G(SMD-CDS) energy contribution = ',
+     $ f20.10,
+     $     ' (',f8.2,' kcal/mol)')
+ 927  format(1x,
+     $'    1 M fixed-concentration free energy of solvation = ',
+     $ f20.10,' (',f8.2,' kcal/mol)'                       )
+c
+ 930  format(/,
+     $'                          COSMO-VEM solvation results',/,
+     $'                          ---------------------------',/
+     $' Reference for the VEM model:',/,
+     $' Marenich, A. V.; Cramer, C. J.; Truhlar, D. G.;',
+     $' Guido, C. A.; Mennucci, B.;',/,' Scalmani, G.; Frisch, M. J.',
+     $' Chem. Sci. 2011, 2, 2143',/)               
+ 931  format(1x,
+     $'emission spectrum data: ES = initial state, GS = final state')
+ 932  format(1x,
+     $'(1)   VEM ES equilibrium total free energy = ',
+     $ f20.10)
+ 933  format(1x,
+     $'(2)            ES polarization free energy = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 934  format(1x,
+     $'(3)    GS nonequilibrium total free energy = ',
+     $ f20.10)
+ 935  format(1x,
+     $'(4)            GS polarization free energy = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 936   format(1x,
+     $'(5)     fast polarization component of (4) = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 937  format(1x,
+     $'(5a)        1/2 Vgs * ( Qes_in + Qgs_dyn ) = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 938  format(1x,
+     $'(6) VEM vertical emission energy (1) - (3) = ',
+     $ f20.10,' (',f10.4,' eV)')
+c
+c <-- MN solvation models
+c
  1970 continue
 c
 c     do analysis of MO occupations per irrep

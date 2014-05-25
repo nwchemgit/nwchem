@@ -71,6 +71,38 @@ c
       double precision time1_ke,time2_ke
       double precision time1_pot,time2_pot
 c
+c MN solvation models -->
+c
+      double precision gcds
+      integer do_cosmo_vem
+      logical do_cosmo_smd
+c
+      do_cosmo_smd = .false.
+      do_cosmo_vem = 0
+      gcds = 0.D0
+c
+      if (cosmo_on.and.cosmo_phase.eq.2) then
+       if (.not. rtdb_get(
+     $ rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $ call errquit(
+     $ 'dft_fockbld: cannot get do_cosmo_smd from rtdb',
+     $ 0,rtdb_err)
+       if (.not. rtdb_get(
+     $ rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $ call errquit(
+     $ 'dft_fockbld: cannot get do_cosmo_vem from rtdb',
+     $ 0,rtdb_err)
+       if (do_cosmo_smd) then
+        if (.not. rtdb_get
+     $   (rtdb,'cosmo:gcds',mt_dbl,1,gcds))
+     $   call errquit(
+     $   'dft_fockbld: cannot get gcds from rtdb',
+     $   0,rtdb_err)
+        endif
+      endif
+c
+c <-- MN solvation models
+c
 c     =========================================================================
 
       me=ga_nodeid()
@@ -334,6 +366,17 @@ c
      &     call dft_tstamp(' End of parallel region. ')
 c     
       if (odftps) call pstat_off(ps_fockb)
+c
+c
+c MN solvation models -->
+c
+c     ----- Add SMD-CDS energy contribution when needed -----
+c
+c      if(cosmo_on.and.cosmo_phase.eq.2.and.do_cosmo_smd) then
+c        Ecore=Ecore+gcds
+c      endif
+c
+c <-- MN solvation models
 c
       return
       end

@@ -4,7 +4,14 @@ cedo#define USE_ELPA 1
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
      ,     evals,svals,nocc,homo,lumo,toll_s,
-     ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
+c
+c MN solvation models -->
+c
+c     ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
+     ,     oprint_intermediate_fock,oprint_time,oprint_conv_details,
+     $ istep_cosmo_vem)
+c
+c <-- MN solvation models
 c     
 c     $Id$
 c     
@@ -42,6 +49,15 @@ c
 c     timing
 c
       double precision time1,time2
+c
+c MN solvation models -->
+c
+      integer istep_cosmo_vem
+      integer g_fockt_tmp
+c
+      if (istep_cosmo_vem.eq.2) levelshifting=.false.
+c
+c <-- MN solvation models
 c     
 c     Level shifting is implemented here (similarity 
 c     transformation before standard eigensolver).  Note,
@@ -95,6 +111,28 @@ c
       else
          rlshift = 0.0
       endif
+c
+c MN solvation models -->
+c
+      if (istep_cosmo_vem.eq.2) then
+c replace off-diagonal elements of the MO Fock matrix with zeros to skip
+c actual diagonalization; evals will contain the expectation values <Phi(i)|F|Phi(i)> 
+c rather than correct eigenvalues
+       if (.not. ga_create(mt_dbl, nmo, nmo, 'fock transf tmp',
+     $     nbf, 0, g_fockt_tmp))
+     . call errquit(' ddftdiagn: ga_create failed g_fockt_tmp',
+     $  2, GA_ERR)
+       call ga_zero(g_fockt_tmp)
+       do j = 1+me, nmo, nproc
+            call ga_get(g_fockt, j, j, j, j, fjj, 1)
+            call ga_put(g_fockt_tmp, j, j, j, j, fjj, 1)
+       enddo
+       call ga_copy(g_fockt_tmp,g_fockt)
+       if (.not. ga_destroy(g_fockt_tmp)) call errquit
+     $        ('dft_diagn: could not destroy g_fockt_tmp', 0, GA_ERR)
+      endif
+c
+c <-- MN solvation models
 c     
 c     Solve for the eigenvalues and eigenvectors of the Hamiltonian.
 c     
@@ -155,7 +193,7 @@ c
      &     g_xij, g_vecstt, 0d0, g_movecst)
       if (odftps) call pstat_off(ps_dgemm)
       if (.not. ga_destroy(g_vecstt)) call errquit
-     &     ('dft_scf: could not destroy g_scr', 0, GA_ERR)
+     &     ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
 
 c     
 c     Keep orbital ordering according to principle
@@ -172,17 +210,18 @@ c     put new movecs
 c     
       call ga_copy(g_movecst, g_movecs)
          if (.not. ga_destroy(g_fockt)) call errquit
-     &        ('dft_scf: could not destroy g_scr', 0, GA_ERR)
+     &        ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
          if (.not. ga_destroy(g_movecst)) call errquit
-     &        ('dft_scf: could not destroy g_scr', 0, GA_ERR)
+     &        ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
          if(ncanorg.eq.0) then
-            ncanorg=1
-            if (.not. ga_destroy(g_xij)) call errquit
-     &           ('dft_scf: could not destroy g_scr', 0, GA_ERR)
+          ncanorg=1
+          if (.not. ga_destroy(g_xij)) call errquit
+     &       ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
          endif
       
       return
       end
+c
       subroutine dft_remshft(levelshifting,ipol,nbf_ao,noc,
      ,     rlshift,eval)
       implicit none
