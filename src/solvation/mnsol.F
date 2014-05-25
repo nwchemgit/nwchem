@@ -1,3 +1,4 @@
+c MN solvation models -->
 C
 C THIS IS A PROGRAM TO CALCULATE THE CDS TERM FOR MINNESOTA SOLVATION MODEL SMD (MARENICH, CRAMER, TRUHLAR) 
 C JUN-14-2010
@@ -72,7 +73,8 @@ C
       AREACDS=0.D0
 C
 C DO WE NEED CDS GRADIENTS? LGR=.FALSE. OR LGR=.TRUE.
-      LGR=.FALSE.
+C      LGR=.FALSE.
+      LGR=.TRUE.
 C
 C FINDING THE CDS PARAMETERS
 C
@@ -139,7 +141,8 @@ C
 C
 C VAN DER WAALS RADII FOR SASA: Bondi's radii + 0.4Angs 
 C
-      CALL VDWRAD(X(LRAD),IAN,NAT)
+      SOLVRD=0.4D0
+      CALL VDWRAD(X(LRAD),IAN,NAT,SOLVRD)
 C
 C CALCULATION OF CDS CONTRIBUTIONS TO ENERGY AND GRADIENT
 C
@@ -429,36 +432,128 @@ C
 C
 C  * VDWRAD 
 C  VAN DER WAALS RADII FOR CDS TERM
-      SUBROUTINE VDWRAD(RAD,IAN,NAT)
+      SUBROUTINE VDWRAD(RAD,IAN,NAT,SOLVRD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION RAD(*),IAN(*)
-      DIMENSION BONDI(120)
+      DIMENSION BONDI(102)
+C
+C  SOURCE (except H):
+C  Van der Waals radii of Mantina et al.
+C  (Mantina, M.; Valero, R.; Cramer, C. J.; Truhlar, D. G.
+C  "Atomic Radii of the Elements." In CRC Handbook of Chemistry
+C   and Physics, 91st Edition, 2010-2011; Haynes, W. M., Ed.;
+C   CRC Press: Boca Raton, FL, 2010; pp 9-49 -- 9-50)
+C
+C  SOURCE (H):
+C  Bondi's radii (Bondi, A. J. Phys. Chem. 1964, 68, 441)
 C
       DATA BONDI/
-     .   1.20d0, 1.40d0, 1.82d0, 2.00d0, 2.00d0,
-     .   1.70d0, 1.55d0, 1.52d0, 1.47d0, 1.54d0,
-     .   2.27d0, 1.73d0, 2.00d0, 2.10d0, 1.80d0,
-     .   1.80d0, 1.75d0, 1.88d0, 2.75d0, 2.00d0,
-     .   5*2.00d0,
-     .   2.00d0, 2.00d0, 1.63d0, 1.40d0, 1.39d0,
-     .   1.87d0, 2.00d0, 1.85d0, 1.90d0, 1.85d0,
-     .   2.02d0, 2.00d0, 2.00d0, 2.00d0, 2.00d0,
-     .   5*2.00d0,
-     .   1.63d0, 1.72d0, 1.58d0, 1.93d0, 2.17d0,
-     .   2.00d0, 2.06d0, 1.98d0, 2.16d0, 2.00d0,
-     .   5*2.00d0,
-     .   5*2.00d0,
-     .   5*2.00d0,
-     .   5*2.00d0,
-     .   2.00d0, 2.00d0, 1.74d0, 1.66d0, 1.55d0,
-     .   1.96d0, 2.02d0, 2.00d0, 2.00d0, 2.00d0,
-     .   5*2.00d0,
-     .   2.00d0, 1.86d0, 2.00d0, 2.00d0, 2.00d0,
-     .   25*2.00d0/
-      SOLVRD=0.4D0
+     $ 1.20,         ! H
+     $ 1.40,         ! He
+     $ 1.82,         ! Li
+     $ 1.53,         ! Be
+     $ 1.92,         ! B
+     $ 1.70,         ! C
+     $ 1.55,         ! N
+     $ 1.52,         ! O
+     $ 1.47,         ! F
+     $ 1.54,         ! Ne
+     $ 2.27,         ! Na
+     $ 1.73,         ! Mg
+     $ 1.84,         ! Al
+     $ 2.10,         ! Si
+     $ 1.80,         ! P
+     $ 1.80,         ! S
+     $ 1.75,         ! Cl
+     $ 1.88,         ! Ar
+     $ 2.75,         ! K
+     $ 2.31,         ! Ca
+     $ 2.16,         ! Sc
+     $ 1.87,         ! Ti
+     $ 1.79,         ! V
+     $ 1.89,         ! Cr
+     $ 1.97,         ! Mn
+     $ 1.94,         ! Fe
+     $ 1.92,         ! Co
+     $ 1.84,         ! Ni
+     $ 1.86,         ! Cu
+     $ 2.10,         ! Zn
+     $ 1.87,         ! Ga
+     $ 2.11,         ! Ge
+     $ 1.85,         ! As
+     $ 1.90,         ! Se
+     $ 1.85,         ! Br
+     $ 2.02,         ! Kr
+     $ 3.03,         ! Rb
+     $ 2.49,         ! Sr
+     $ 2.19,         ! Y
+     $ 1.86,         ! Zr
+     $ 2.07,         ! Nb
+     $ 2.09,         ! Mo
+     $ 2.09,         ! Tc
+     $ 2.07,         ! Ru
+     $ 1.95,         ! Rh
+     $ 2.02,         ! Pd
+     $ 2.03,         ! Ag
+     $ 2.30,         ! Cd
+     $ 1.93,         ! In
+     $ 2.17,         ! Sn
+     $ 2.06,         ! Sb
+     $ 2.06,         ! Te
+     $ 1.98,         ! I
+     $ 2.16,         ! Xe
+     $ 3.43,         ! Cs
+     $ 2.68,         ! Ba
+     $ 2.40,         ! La
+     $ 2.35,         ! Ce
+     $ 2.39,         ! Pr
+     $ 2.29,         ! Nd
+     $ 2.36,         ! Pm
+     $ 2.29,         ! Sm
+     $ 2.33,         ! Eu
+     $ 2.37,         ! Gd
+     $ 2.21,         ! Tb
+     $ 2.29,         ! Dy
+     $ 2.16,         ! Ho
+     $ 2.35,         ! Er
+     $ 2.27,         ! Tm
+     $ 2.42,         ! Yb
+     $ 2.21,         ! Lu
+     $ 2.12,         ! Hf
+     $ 2.17,         ! Ta
+     $ 2.10,         ! W
+     $ 2.17,         ! Re
+     $ 2.16,         ! Os
+     $ 2.02,         ! Ir
+     $ 2.09,         ! Pt
+     $ 2.17,         ! Au
+     $ 2.09,         ! Hg
+     $ 1.96,         ! Tl
+     $ 2.02,         ! Pb
+     $ 2.07,         ! Bi
+     $ 1.97,         ! Po
+     $ 2.02,         ! At
+     $ 2.20,         ! Rn
+     $ 3.48,         ! Fr
+     $ 2.83,         ! Ra
+     $ 2.60,         ! Ac
+     $ 2.37,         ! Th
+     $ 2.43,         ! Pa
+     $ 2.40,         ! U
+     $ 2.21,         ! Np
+     $ 2.43,         ! Pu
+     $ 2.44,         ! Am
+     $ 2.45,         ! Cm
+     $ 2.44,         ! Bk
+     $ 2.45,         ! Cf
+     $ 2.45,         ! Es
+     $ 2.45,         ! Fm
+     $ 2.46,         ! Md
+     $ 2.46/         ! No
+C
       DO I=1,NAT
       RAD(I)=0.D0
-        DO K=1,120
+        DO K=1,102
           IF (IAN(I).EQ.K) THEN
           RAD(I)=BONDI(K)+SOLVRD
           ENDIF
@@ -653,14 +748,14 @@ C  Set for type 3
      .            0.00D0, 0.00D0, 0.00D0, 0.00D0, 0.00D0,
 C  Set for type 4
      .            1.55D0, 1.84D0, 1.50D0, 2.75D0, 0.00D0,
-     .            1.71D0, 0.00D0, 0.00D0, 2.10D0, 0.00D0,                      
+     .            1.71D0, 0.00D0, 0.00D0, 2.10D0, 0.00D0,
      .            2.10D0, 0.00D0, 0.00D0, 0.00D0, 0.00D0,
 C  Set for type 5
      .            0.00D0, 1.84D0, 0.00D0, 0.00D0, 0.00D0,
      .            0.00D0, 0.00D0, 0.00D0, 0.00D0, 0.00D0,
      .            0.00D0, 0.00D0, 0.00D0, 0.00D0, 0.00D0,
 C  Set for type 6
-     .            2.14D0, 2.20D0, 0.00D0, 1.71D0, 0.00D0,                               
+     .            2.14D0, 2.20D0, 0.00D0, 1.71D0, 0.00D0,  
      .            2.75D0, 0.00D0, 0.00D0, 2.50D0, 0.00D0,
      .            0.00D0, 0.00D0, 0.00D0, 0.00D0, 0.00D0,
 C  Set for type 7
@@ -866,8 +961,8 @@ C-----ADD DCDS FOR SIGMA O-N
               end if
 C                                                    
 C-----ADD CDS FOR SIGMA O-S (NOT USED BY SMD)
-            ELSE IF(NTP.EQ.16) THEN                                           
-              STS(I)=STS(I)+COT(IJ0(I,J))*SIGMA(118)                           
+            ELSE IF(NTP.EQ.16) THEN                 
+              STS(I)=STS(I)+COT(IJ0(I,J))*SIGMA(118)
 C-----ADD DCDS FOR SIGMA O-S (NOT USED BY SMD)
               if (LGR) then                                       
                 do L=1,3                                                
@@ -907,7 +1002,7 @@ C
 C-----ADD CDS FOR SIGMA O-O (SM6 FORM ONLY)
             ELSE IF(NTP.EQ.8.AND.I.NE.J) THEN
               If (ISTS.eq.6) then                                       
-                STS(I)=STS(I)+COT(IJ0(I,J))*SIGMA(104)                          
+                STS(I)=STS(I)+COT(IJ0(I,J))*SIGMA(104) 
 C-----ADD DCDS FOR SIGMA O-O (SM6 FORM ONLY)
                 if (LGR) then
                   do L=1,3
@@ -1338,7 +1433,7 @@ C
       RK=RAD(K)
       NC(0) = K
       NCROSS = 0
-      IF (LGRX) CALL SCOPYMN(3,0D0,0,DAREA(1,0),1)                       
+      IF (LGRX) CALL SCOPYMN(3,0D0,0,DAREA(1,0),1)
 C
       IF (LGRR) DAREAR=0D0
       IF (RK.LE.0D0) THEN
@@ -1464,7 +1559,7 @@ C     SUM THE CONTRIBUTIONS FROM ISOLATED SS.
 C     ---------------------------------------
 C
       ASLICE=0D0
-      IF (LGRX) CALL SCOPYMN(3*(NCROSS+1),0D0,0,DCASLC(1,0),1)           
+      IF (LGRX) CALL SCOPYMN(3*(NCROSS+1),0D0,0,DCASLC(1,0),1)  
       IF (LGRR) DASLIR=0D0
       NCLUST=0
       DO 60 I=1,NCROSS
@@ -1687,10 +1782,10 @@ C     ORIENTED ANGLES OF SLICES OF SS.
 C     --------------------------------
 C
       APOLY=0D0
-      IF (LGRX) CALL SCOPYMN (3*(NCROSS+1),0D0,0,DCAPLY(1,0),1)          
+      IF (LGRX) CALL SCOPYMN (3*(NCROSS+1),0D0,0,DCAPLY(1,0),1)
       IF (LGRR) DAPOLR=0D0
       DO 130 I=1,NCLUST
-      IF (LGRX) CALL SCOPYMN (3*(NCROSS+1),0D0,0,DCAODD(1,0),1)          
+      IF (LGRX) CALL SCOPYMN (3*(NCROSS+1),0D0,0,DCAODD(1,0),1)
       LI=LAB(I)
       NPHI=NCNCT(MXSS,LI)
       IF (NPHI.EQ.0) GOTO 130
@@ -2276,3 +2371,4 @@ c
    50 continue
       return
       end
+c <-- MN solvation models 

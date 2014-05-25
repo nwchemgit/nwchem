@@ -397,6 +397,12 @@ c
       double precision cosff
       external         cosff
 c
+c MN solvation models -->
+c
+      logical do_cosmo_smd
+c
+c <-- MN solvation models
+c
       double precision dist, xi, yi, zi, xj, yj, zj, rin, rout, alphai
       parameter (alphai = 0.5d0)
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
@@ -597,9 +603,21 @@ c           Sitkoff, Sharp, and Honig,
 c           J.Phys.Chem. 98, 1978 (1994)
 c
       cavdsp=0.860+0.005*srfmol
+c
+c MN solvation models -->
+c
+c      if(ga_nodeid().eq.0) then
+c         write(luout,9981) cavdsp
+c      endif
+      if (.not.
+     $ rtdb_get(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $ call errquit('hnd_cossas: cannot get do_cosmo_smd from rtdb',
+     $ 0,rtdb_err)
       if(ga_nodeid().eq.0) then
-         write(luout,9981) cavdsp
+       if (.not.do_cosmo_smd) write(luout,9981) cavdsp
       endif
+c
+c <-- MN solvation models
 c
 c     ----- print segment surfaces -----
 c
@@ -1912,6 +1930,76 @@ c
       logical util_io_unit
       external util_io_unit, util_erf
 c
+c MN solvation models --> 
+c
+      double precision gspol, gstote, estote, gspoldyn, gspolneq
+      double precision disp_cosmo_vem
+      double precision dvem1, dvem2, dvem3, dvem4, dvem5
+      double precision espolgsrf, espol, espolin, espoldyn, delwvem
+      double precision wgsrf_cosmo_vem, wstar_cosmo_vem
+      double precision wcgsrf_cosmo_vem, w_cosmo_vem, wold_cosmo_vem
+      double precision tolw
+      logical do_cosmo_smd
+      integer do_cosmo_vem, istep_cosmo_vem
+c
+c     possible values of istep_cosmo_vem: 
+c     =0 (initial GS SCF to get GSRF+GS MOs), 
+c     =1 (TDDFT + ES density to get ESRF),
+c     =2 (calculate expect. values of the new Fock operator containing ESRF and repeat =1)  
+c     =3 (when the VEM excitation calculation is converged either exit
+c         or proceed to GS emission calculation)
+c
+      integer iter_cosmo_vem
+      integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
+      integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+c
+      wgsrf_cosmo_vem = zero
+      wstar_cosmo_vem = zero
+      tolw = 0.00001d0
+      iter_cosmo_vem = 0
+      dvem1=(dielecinf-one)*dielec/dielecinf/(dielec-one)
+      dvem2=(dielec-dielecinf)/dielecinf/(dielec-one)
+c
+      if (.not. rtdb_get
+     $ (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit('hnd_coschg: cannot get istep_cosmo_vem',
+     $  0,rtdb_err)
+      if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $  call errquit('hnd_coschg: cannot get do_cosmo_vem',
+     $  0,rtdb_err)
+      if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $  call errquit('hnd_coschg: cannot get do_cosmo_smd',
+     $  0,rtdb_err)
+c
+      if (do_cosmo_vem.ne.0) then
+c
+c     --- an array for cosmo-vem charges
+c
+        if (.not.ma_push_get
+     $ (mt_dbl,nefc,"hnd_coschg:efczfx",l_efczfx,k_efczfx))
+     &   call errquit("hnd_coschg: malloc efczfx failed",0,MA_ERR)
+      endif
+c
+      if (istep_cosmo_vem.eq.2.or.(do_cosmo_vem.eq.2.and.
+     $ istep_cosmo_vem.eq.3)) then
+c restore charges from GA g_vem(3), pass them through this subroutine
+c without change, and save them under "cosmo_bq_efc" along with
+c tesserae's geometries for later use in nwdft/scf_dft/dft_fockbld.F 
+c
+        call ga_sync()
+c
+       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
+     $  call errquit('hnd_coschg: cannot get g_vem from rtdb',
+     $  0,rtdb_err)
+        call nga_get(g_vem(3), 1, nefc, x(k_efczfx), nefc)       
+c
+        call ga_sync()
+      endif
+c
+c <-- MN solvation models
+c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
@@ -2208,7 +2296,24 @@ c
          endif
          efcz(ief)=chgief
       enddo
-
+c
+c MN solvation models -->
+c
+      do ief=1,nefc
+         if (istep_cosmo_vem.eq.2.and.do_cosmo_vem.ne.0) then
+c fixed ES nonequilibrium cosmo-vem charges to be added to the Fock matrix
+c later on (excitation VEM)
+           efcz(ief)=x(k_efczfx+ief-1)
+         endif
+         if (istep_cosmo_vem.eq.3.and.do_cosmo_vem.eq.2) then
+c GS RF containing ES cosmo-vem charges (slow portion) to calculate
+c the VEM energy in the case of nonequilibrium emission to the GS
+          efcz(ief)=dvem1*efcz(ief)+dvem2*x(k_efczfx+ief-1)
+         endif
+      enddo
+c
+c <-- MN solvation models
+c
       if(all) then
          if(out) then
             write(luout,9987) chgcvg
@@ -2372,6 +2477,232 @@ c
         close(fn)
       end if
 c
+c MN solvation models -->
+c
+      if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
+      ecos = pt5*(atmefc-elcefc)
+      endif   
+c
+c save V_GS and Q_GS for VEM calculation
+c
+      call ga_sync()
+c
+      if (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.0) then
+       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
+        status = nga_create(mt_dbl, 1, nefc, 'V_GS', nefc, g_vem(1))
+        status = nga_create(mt_dbl, 1, nefc, 'Q_GS', nefc, g_vem(2))
+        status = nga_create(mt_dbl, 1, nefc, 'Q_neq', nefc, g_vem(3))
+        if(.not.rtdb_put(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
+     $  call errquit('hnd_coschg: cannot put g_vem in rtdb',
+     $  0,rtdb_err)
+       endif
+       call ga_zero(g_vem)
+       call nga_put(g_vem(1), 1, nefc, x(i10),nefc)
+       call ga_sync()
+       call nga_put(g_vem(2), 1, nefc, efcz, nefc)
+       call ga_sync()
+      end if
+c
+c      save 1/2*V_gs*Q_gs for VEM calculation or for SMD output     
+c
+      if ((do_cosmo_vem.eq.0.and.do_cosmo_smd).or.
+     $ (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.0).or.
+     $ (do_cosmo_vem.eq.2.and.istep_cosmo_vem.eq.3)) then
+        gspol = zero
+        do ief=1,nefc
+         gspol = gspol + x(ief+i10-1) * efcz(ief) * pt5
+        end do 
+        if(.not.rtdb_put(rtdb,'cosmo:gspol',mt_dbl,1,gspol))
+     $  call errquit('hnd_coschg: cannot put gspol in rtdb',
+     $  0,rtdb_err)
+      endif
+c
+c      save Gp_gs_neq and Gp_gs_dyn for VEM emission calculation  
+c
+      if (do_cosmo_vem.eq.2.and.istep_cosmo_vem.eq.3) then
+        if(.not.rtdb_get(rtdb,
+     $ 'cosmo:espol',mt_dbl,1,espol)) call errquit
+     $ ('hnd_coschg: cannot get espol from rtdb',
+     $ 0,rtdb_err)
+        gspolneq = gspol - espol * dvem2       
+        do ief=1,nefc
+         gspolneq = gspolneq + x(ief+i10-1) * pt5 * dvem2 *
+     $    x(k_efczfx+ief-1)
+        end do
+        if(.not.rtdb_put(rtdb,'cosmo:gspolneq',mt_dbl,1,gspolneq))
+     $  call errquit('hnd_coschg: rtdb put failed for gspolneq',
+     $  0,rtdb_err)
+c
+        gspoldyn = zero
+        do ief=1,nefc
+         gspoldyn = gspoldyn + pt5 * x(ief+i10-1) * 
+     $ (efcz(ief) - dvem2 * x(k_efczfx+ief-1))
+        end do
+        if(.not.rtdb_put(rtdb,'cosmo:gspoldyn',mt_dbl,1,gspoldyn))
+     $  call errquit('hnd_coschg: rtdb put failed for gspoldyn',
+     $  0,rtdb_err)
+      endif
+c
+      call ga_sync()
+c
+      if (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.1) then
+c
+c      check if excited-state charges were calculated after TDDFT
+c
+        if (cosmo_file.
+     + ne."./cosmo-exci.xyz")
+     + call errquit(
+     +'hnd_coschg: problem with cosmo charges for VEM', 0,
+     + 0)
+c
+c      calculate noneq charges from current ES charges and saved GS charges
+c
+        if (do_cosmo_vem.eq.2) dvem1=one
+        if (do_cosmo_vem.eq.2) dvem2=zero
+        espolgsrf = zero
+        espolin = zero
+        espoldyn = zero
+        delwvem = zero
+       if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
+     $  call errquit('hnd_coschg: cannot get g_vem from rtdb',
+     $  0,rtdb_err)
+        do ief=1,nefc
+         call nga_get(g_vem(1), ief, ief, dvem3, 1)
+         call nga_get(g_vem(2), ief, ief, dvem4, 1)
+         espolgsrf=espolgsrf+(x(ief+i10-1)-pt5*dvem3)*dvem4
+         espolin=espolin+(x(ief+i10-1)-pt5*dvem3)*dvem2*dvem4
+         espoldyn=espoldyn+pt5*x(ief+i10-1)*dvem1*efcz(ief)
+         delwvem=delwvem+pt5*(x(ief+i10-1)-dvem3)*
+     $ (efcz(ief)-dvem4)*dvem1
+         dvem5=dvem1*efcz(ief)+dvem2*dvem4
+         x(k_efczfx+ief-1)=dvem5
+        end do
+c
+        call ga_sync()
+c
+        if (.not. rtdb_get(rtdb, 'dft:gstote', mt_dbl, 1, gstote))
+     $ call errquit('hnd_coschg: cannot get gstote from rtdb',
+     $ 0,rtdb_err)
+        if(.not.rtdb_get(rtdb,'cosmo:gspol',mt_dbl,1,gspol))
+     $  call errquit('hnd_coschg: cannot get gspol from rtdb',
+     $ 0,rtdb_err)
+        if (.not.rtdb_get
+     $ (rtdb,'tddft:wgsrf_cosmo_vem',mt_dbl,1,wgsrf_cosmo_vem))
+     $  call errquit
+     $('hnd_coschg: cannot get wgsrf_cosmo_vem from rtdb',
+     $ 0,rtdb_err)
+        if(.not.rtdb_get(rtdb,
+     $ 'cosmo:wold_cosmo_vem',mt_dbl,1,wold_cosmo_vem)) 
+     $ wold_cosmo_vem = zero
+        status = rtdb_get
+     $ (rtdb,'tddft:wstar_cosmo_vem',mt_dbl,1,wstar_cosmo_vem)
+c
+        espol=espolin+espoldyn
+        wcgsrf_cosmo_vem=wgsrf_cosmo_vem+delwvem
+        w_cosmo_vem=wstar_cosmo_vem-delwvem
+c
+        if (status) then
+         estote=gstote+w_cosmo_vem
+         if(.not.rtdb_put(rtdb,
+     $ 'cosmo:estote',mt_dbl,1,estote)) call errquit
+     $ ('hnd_coschg: cannot put estote in rtdb',
+     $ 0,rtdb_err)
+         if(.not.rtdb_put(rtdb,
+     $ 'cosmo:espol',mt_dbl,1,espol)) call errquit
+     $ ('hnd_coschg: cannot put espol in rtdb',
+     $ 0,rtdb_err)
+         if (dabs(w_cosmo_vem-wold_cosmo_vem).le.tolw) then
+          istep_cosmo_vem = 3
+         endif
+        endif
+c
+        if(.not.rtdb_get(rtdb,
+     $ 'cosmo:iter_cosmo_vem',mt_int,1,iter_cosmo_vem)) 
+     $  iter_cosmo_vem = 0
+        iter_cosmo_vem = iter_cosmo_vem + 1
+        if(.not.rtdb_put(rtdb,
+     $ 'cosmo:iter_cosmo_vem',mt_int,1,iter_cosmo_vem)) 
+     $  call errquit
+     $ ('hnd_coschg: cannot put iter_cosmo_vem in rtdb',
+     $ 0,rtdb_err)
+c
+        wold_cosmo_vem = w_cosmo_vem
+        if(.not.rtdb_put(rtdb,
+     $ 'cosmo:wold_cosmo_vem',mt_dbl,1,wold_cosmo_vem)) call errquit
+     $ ('hnd_coschg: cannot put wold_cosmo_vem in rtdb',
+     $ 0,rtdb_err)
+c
+        if(ga_nodeid().eq.0) then
+         if (.not.status) then
+          write (luout,9960)
+          write (luout,9961) iter_cosmo_vem
+          write (luout,9962) gstote
+          write (luout,9963) gspol,gspol*27.211399d0
+          write (luout,9964) (gstote+wgsrf_cosmo_vem)
+          write (luout,9965) espolgsrf,espolgsrf*27.211399d0
+          write (luout,9966) wgsrf_cosmo_vem,wgsrf_cosmo_vem*27.211399d0
+          write (luout,9967) (gstote+wcgsrf_cosmo_vem)
+          write (luout,9968) espol,espol*27.211399d0
+          write (luout,9969) espoldyn,espoldyn*27.211399d0
+          write (luout,9970) delwvem,delwvem*27.211399d0
+          write (luout,9971) 
+     $ wcgsrf_cosmo_vem,wcgsrf_cosmo_vem*27.211399d0
+         else 
+          write (luout,9960)
+          write (luout,9961) iter_cosmo_vem
+          write (luout,9962) gstote
+          write (luout,9963) gspol,gspol*27.211399d0
+          write (luout,9964) (gstote+wgsrf_cosmo_vem)
+          write (luout,9965) espolgsrf,espolgsrf*27.211399d0
+          write (luout,9966) wgsrf_cosmo_vem,wgsrf_cosmo_vem*27.211399d0
+          write (luout,9972) estote
+          write (luout,9973) espol,espol*27.211399d0
+          write (luout,9969) espoldyn,espoldyn*27.211399d0
+          write (luout,9970) delwvem,delwvem*27.211399d0
+          write (luout,9974)
+     $ w_cosmo_vem,w_cosmo_vem*27.211399d0
+         endif
+        end if
+c
+c if do_cosmo_vem=1 g_vem(3)[Q_neq] contains nonequilibrium charges composed of
+c slow GS charges and fast ES charges; if do_cosmo_vem=2 Q_neq contains
+c full (equilibrium) ES charges 
+c
+       call ga_zero(g_vem(3))
+       call nga_put(g_vem(3), 1, nefc, x(k_efczfx),nefc)
+c
+       call ga_sync()
+c
+        if (
+     $ rtdb_get(rtdb,'cosmo:disp_cosmo_vem',mt_dbl,1,disp_cosmo_vem))
+     $    then
+          if(ga_nodeid().eq.0) write (luout,9975)
+     $ disp_cosmo_vem,disp_cosmo_vem*27.211399d0
+        endif
+c
+        if (iter_cosmo_vem.gt.8) then
+          istep_cosmo_vem = 3
+          if(ga_nodeid().eq.0) write (luout,9976)
+        else
+          if (istep_cosmo_vem.eq.3.and.
+     $    ga_nodeid().eq.0) write (luout,9977)
+        endif
+c
+      end if
+c     end of print Vi and Qi for VEM calculation
+c
+      if (do_cosmo_vem.ne.0.and.(istep_cosmo_vem.eq.1.or.
+     $ istep_cosmo_vem.eq.3)) then
+c change istep_cosmo_vem from 1 (TDDFT) to 2 (SCF on fixed MOs)
+       if (istep_cosmo_vem.eq.1) istep_cosmo_vem = 2
+        if (.not.
+     $ rtdb_put(rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit('hnd_coschg: cannot put istep_cosmo_vem in rtdb',
+     $ 0,rtdb_err)
+      endif
+c
+c <-- MN solvation models
+c
 c     ----- release memory block -----
 c
       if(.not.ma_chop_stack(l_i10)) call
@@ -2396,6 +2727,68 @@ c
  9986 format(' -wfntyp- = ',a8)
  9985 format(' -scftyp- = ',a8)
  9984 format(' applied screening factor -chgfac- = ',f10.6)
+c
+c MN solvation models -->
+c
+ 9960 format(/,
+     $'                          COSMO-VEM solvation results',/,
+     $'                          ---------------------------',/
+     $' Reference for the VEM model:',/,
+     $' Marenich, A. V.; Cramer, C. J.; Truhlar, D. G.;',
+     $' Guido, C. A.; Mennucci, B.;',/,' Scalmani, G.; Frisch, M. J.',
+     $' Chem. Sci. 2011, 2, 2143',/)
+ 9961 format(1x,
+     $'excitation spectrum data:  GS = initial state, ES = final state',
+     $ /,1x,'iteration #',I1)
+ 9962 format(1x,
+     $'(1)          GS equilibrium total free energy = ',
+     $ f20.10)
+ 9963 format(1x,
+     $'(2)               GS polarization free energy = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9964 format(1x,
+     $'(3)                 GSRF ES total free energy = ',
+     $ f20.10)
+ 9965 format(1x,
+     $'(4)          GSRF ES polarization free energy = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9966 format(1x,
+     $'(5)          GSRF excitation energy (3) - (1) = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9967 format(1x,
+     $'(6)                cGSRF ES total free energy = ',
+     $ f20.10)
+ 9968 format(1x,
+     $'(7)         cGSRF ES polarization free energy = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9969 format(1x,
+     $'(8)        fast polarization component of (7) = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9970 format(1x,
+     $'(9)                 1/2 * delV * delQdyn term = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9971 format(1x,
+     $'(10)        cGSRF excitation energy (6) - (1) = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9972 format(1x,
+     $'(6)                  VEM ES total free energy = ',
+     $ f20.10)
+ 9973 format(1x,
+     $'(7)           VEM ES polarization free energy = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9974 format(1x,
+     $'(10) VEM vertical excitation energy (6) - (1) = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9975 format(1x,
+     $'(11)    SMSSP solute-solvent dispersion shift = ',
+     $ f20.10,' (',f10.4,' eV)')
+ 9976 format(/,1x,
+     $ 'Number of VEM iterations has reached maximum of 9')
+ 9977 format(/,1x,
+     $ 'VEM vertical excitation energy converged')
+c
+c <-- MN solvation models
+c
       end
 C>
 C> \brief Compute matrix A

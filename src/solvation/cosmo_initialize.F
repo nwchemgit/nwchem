@@ -47,13 +47,21 @@ c
       double precision vdwr(102)
       double precision vander(102)
 c
+c MN solvation models -->
+c
       logical do_cosmo_smd
       integer icds
+      integer do_cosmo_vem
       double precision sola,solb,solc,solg,solh,soln
+      double precision pol_cosmo_vem(2), gcds, areacds, disp_cosmo_vem
 c
       character*8 solvname_short ! short name of solvent
       character*35 solvname_long ! long name of solvent
-
+c
+      character*32 theory
+c
+c <-- MN solvation models
+c
       integer i,ixmem
       double precision arad(203),rad
       logical ofile
@@ -243,6 +251,7 @@ c
 c
       solvname_short  = 'h2o'
       dielec   =78.4d+00
+      dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
       iscren   =0
       ifscrn   =2 ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -255,14 +264,23 @@ c
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
 c
+c MN solvation models -->
+c
 c     reset some defaults if do_cosmo_smd is true
 c
       do_cosmo_smd = .false.
-      status =  rtdb_get(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd)
+      sola = -1.d0
+      solb = -1.d0
+      solc = -1.d0
+      solh = -1.d0
+      soln = -1.d0
+      status = 
+     $ rtdb_get(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd)
+c
       if (do_cosmo_smd) then
           minbem   =3
           maxbem   =4 
-          ificos   =1
+          ificos   =0
       end if
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
@@ -278,25 +296,42 @@ c
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
       status = rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)
 c
-      nrad = 0
-      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
-      if (nrad.gt.nat) call 
-     &   errquit('cosmo_init:nr radii gt nr atoms?',911,MA_ERR)
-      if (nrad.gt.0) then
-         status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
-      endif
+c      nrad = 0 ! this block was moved below
+c      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
+c      if (nrad.gt.nat) call 
+c     &   errquit('cosmo_init:nr radii gt nr atoms?',911,MA_ERR)
+c      if (nrad.gt.0) then
+c         status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
+c      endif
 c
-c     get sola,solb,solc,solg,solh,soln parameters. only used if cosmo_smd is true
+c     get sola,solb,solc,solg,solh,soln parameters, only used if cosmo_smd is true
+c     get dielecinf, only used if cosmo_vem is true
+c     get dielec, always used 
 c
-      if (me.eq.0) write(luout,*) "calling solv_data"
+      if(odbug.and.me.eq.0) 
+     &     write(luout,*) "calling solv_data"
       call solv_data(solvname_short,solvname_long, !short and long solvent names
      &          dielec,dielecinf, ! slow and fast components
      &          sola,solb,solc,solg,solh,soln,icds) 
 c
-      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
-      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf) 
+c     if set by the user
 c
-c     set sola,solb,solc,solg,solh,soln,icds parameters
+      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)
+      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf)
+      status = rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
+      status = rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb)
+      status = rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc)
+      status = rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
+      status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
+      status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
+c
+c     set sola,solb,solc,solg,solh,soln,icds parameters (either from
+c     solv_data or user-defined)
+c
+      if (.not. rtdb_put(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf))
+     $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'cosmo:sola',mt_dbl,1,sola))
      $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'cosmo:solb',mt_dbl,1,solb))
@@ -312,28 +347,101 @@ c     set sola,solb,solc,solg,solh,soln,icds parameters
       if (.not. rtdb_put(rtdb,'cosmo:icds',mt_int,1,icds))
      $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
 c
-c     if set by the user
-      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
-      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf) 
-      status = rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola) 
-      status = rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb) 
-      status = rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc) 
-      status = rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg) 
-      status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh) 
-      status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln) 
+      if (me.eq.0) then
+        write(luout,'(A)') " after solv_data"
+        write(luout,'(A,A)')" solvname_short: ",
+     $ solvname_short
+        write(luout,'(A,A)')" solvname_long:  ",solvname_long
+         if (dielec.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for dielec',0,0)
+         if (dielecinf.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for dielecinf',0,0)
+        write(luout,'(A,F8.4)') " dielec:      ",dielec
+        write(luout,'(A,F8.4)') " dielecinf:   ",dielecinf
+        if (do_cosmo_smd) then
+         if (icds.eq.1) then
+          write(luout,'(A)')   " aqueous SMD model solvent descriptors"
+          write(luout,'(A,F8.4)') " dielec:      ",dielec
+          write(luout,'(A,F8.4)') " sola:        ",sola
+         else if (icds.eq.2) then
+          write(luout,'(A)')" nonaqueous SMD model solvent descriptors"
+          write(luout,'(A,F8.4)') " dielec:      ",dielec
+          write(luout,'(A,F8.4)') " sola:        ",sola
+          write(luout,'(A,F8.4)') " solb:        ",solb
+          write(luout,'(A,F8.4)') " solc:        ",solc
+          write(luout,'(A,F8.4)') " solg:        ",solg
+          write(luout,'(A,F8.4)') " solh:        ",solh
+          write(luout,'(A,F8.4)') " soln:        ",soln
+          if (sola.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for sola',0,0)
+          if (solb.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for solb',0,0)
+          if (solc.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for solc',0,0)
+          if (solg.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for solg',0,0)
+          if (solh.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for solh',0,0)
+          if (soln.lt.zero) call errquit
+     $ ('cosmo_initialize: illegal/undefined value for soln',0,0)
+         else
+          write(luout,'(A,I1)')   " icds:          ",icds
+          call errquit
+     $ ('cosmo_initialize: illegal value for icds',0,0)
+         endif
+        endif
+      endif
+c 
+c     set cosmo radii to smd radii if do_cosmo_smd is true; if the radii
+c     are provided by the user then we will use those
 c
-      if (me.eq.0) write(luout,*) "after solv_data"
-      if (me.eq.0) write(luout,*) "solvname_short: ",solvname_short
-      if (me.eq.0) write(luout,*) "solvname_long: ",solvname_long
-      if (me.eq.0) write(luout,*) "dielec: ",dielec
-      if (me.eq.0) write(luout,*) "dielecinf: ",dielecinf
-      if (me.eq.0) write(luout,*) "icds: ",icds
-      if (me.eq.0) write(luout,*) "sola: ",sola
-      if (me.eq.0) write(luout,*) "solb: ",solb
-      if (me.eq.0) write(luout,*) "solc: ",solc
-      if (me.eq.0) write(luout,*) "solg: ",solg
-      if (me.eq.0) write(luout,*) "solh: ",solh
-      if (me.eq.0) write(luout,*) "soln: ",soln
+      if (do_cosmo_smd) then
+       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      endif
+c
+      if (.not.
+     $rtdb_get(rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $  call errquit(
+     $ 'cosmo_initialize: cannot get do_cosmo_vem from rtdb',
+     $ 0,rtdb_err)
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit(
+     $ 'cosmo_initialize: cannot get theory from rtdb',
+     $ 0,rtdb_err)
+c    
+      if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
+        if (theory.ne.'dft'.and.theory.ne.'tddft')
+     $     call errquit(
+     $ ' cosmo-vem and cosmo-smd can be used only with dft and tddft',
+     $ 0,0)
+      endif
+c
+      if (do_cosmo_vem.ne.0) then
+         if (
+     $   rtdb_get(rtdb,'cosmo:pol_cosmo_vem',mt_dbl,2,pol_cosmo_vem))
+     $   then
+          if (me.eq.0) write(luout,9974)
+     $     pol_cosmo_vem(1),pol_cosmo_vem(2)
+          disp_cosmo_vem = (dielecinf-1.d0)/(dielecinf+2.d0) * 
+     $   (pol_cosmo_vem(2)-pol_cosmo_vem(1)) * 1.850d0 * 0.0015936011d0
+          if (.not. 
+     $ rtdb_put(rtdb,'cosmo:disp_cosmo_vem',mt_dbl,1,disp_cosmo_vem))
+     $     call errquit(
+     $ 'cosmo_initialize: cannot put disp_cosmo_vem in rtdb',
+     $ 0,rtdb_err)
+         endif
+      endif
+c
+c <-- MN solvation models
+c
+      nrad = 0
+      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
+      if (nrad.gt.nat) call
+     &   errquit('cosmo_init:nr radii gt nr atoms?',911,MA_ERR)
+      if (nrad.gt.0) then
+         status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
+      endif
 c
 c     ----- checks ... -----
 c
@@ -424,20 +532,38 @@ c
          write(luout,9985)
       endif
 c
+c MN solvation models -->
+c
 c     ----- add in the smd model non-electrostatic corrections -----
 c
       if (do_cosmo_smd) then
 c
 c        calculate the x memory
          call mnsol_xmem(nat,ixmem)
-         if (me.eq.0) write(luout,*) "nat: ", nat
-         if (me.eq.0) write(luout,*) "ixmem: ", ixmem
-         if (me.eq.0) write(luout,*) "calling mnsol_interface()"
+         if (odbug.and.me.eq.0) write(luout,*) "nat: ", nat
+         if (odbug.and.me.eq.0) write(luout,*) "ixmem: ", ixmem
+         if (odbug.and.me.eq.0) 
+     &       write(luout,*) "calling mnsol_interface()"
 c
 c        call smd model
          call mnsol_interface(rtdb,geom,nat,ixmem,
      &        sola,solb,solc,solg,solh,soln,icds)
+          gcds=0.d0
+          areacds=0.d0
+          if(.not.rtdb_get(rtdb,'cosmo:gcds',mt_dbl,1,gcds))
+     $   call errquit('cosmo_initialize: cannot get gcds from rtdb',
+     $ 911,rtdb_err)
+          if(.not.rtdb_get(rtdb,'cosmo:areacds',mt_dbl,1,areacds))
+     $   call errquit(
+     $ 'cosmo_initialize: cannot get areacds from rtdb',
+     $ 911,rtdb_err)
+         if (me.eq.0) then
+          write(luout,9976) gcds*627.509451d+00
+          write(luout,9975) areacds   
+         endif 
       end if
+c
+c <-- MN solvation models
 c
       if(me.eq.0) call util_flush(Luout)
 c
@@ -491,4 +617,14 @@ c
  9979 format(' degree of switching           = ',f9.5)
  9978 format(' switching function tolerance  = ',f9.5)
  9977 format(' setting custom COSMO radius: ', a6,f7.3)
+c
+c MN solvation models -->
+c
+ 9976 format(' G(SMD-CDS) energy (kcal/mol)  = ',f9.3)
+ 9975 format(' SMD-CDS SASA (angstrom**2)    = ',f9.3,/)
+ 9974 format(' GS polarizability (angstrom**3) = ',f10.4,/,
+     $        ' ES polarizability (angstrom**3) = ',f10.4,/)
+c
+c <-- MN solvation models
+c
       end

@@ -15,15 +15,19 @@ c
       double precision sola,solb,solc,solg,solh,soln
 c
 c     initialize
-      sola = 0.d0
-      solb = 0.d0
-      solc = 0.d0
-      solg = 0.d0
-      solh = 0.d0
-      soln = 0.d0
+      eps = -1.d0
+      epsinf = -1.d0
+      sola = -1.d0
+      solb = -1.d0
+      solc = -1.d0
+      solg = -1.d0
+      solh = -1.d0
+      soln = -1.d0
+      icds = 0
 c
 c     get the solvent data
 c
+      if (solvname_short.eq.'water') solvname_short='h2o'
       call DATSOLMN(solvname_short,solvname_long,
      &     EPS,EPSINF,
      &     SOLA,SOLB,SOLC,SOLG,SOLH,SOLN)
@@ -45,8 +49,7 @@ C     Source: http://comp.chem.umn.edu/solvation/mnsddb.pdf
 C
       SUBROUTINE DATSOLMN
      $(ZSOLMN,ZSOLMNLONG,EPS,EPSINF,SOLA,SOLB,SOLC,SOLG,
-C     $SOLH,SOLN,IW,MASWRK)
-     $SOLH,SOLN)
+     $ SOLH,SOLN)
 C     
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 C     
@@ -59,7 +62,7 @@ C
      $          DSOLC(179),DSOLG(179),DSOLH(179),DSOLN(179),
      $          SOLMNLONG(179)
 C
-C SHORT NAMES OF 179 AVAILABLE NONAQUEOUS SOLVENTS
+C SHORT NAMES OF 179 AVAILABLE SOLVENTS
       DATA SOLMN/
      $ 'acetacid',
      $ 'acetone ',
@@ -307,7 +310,7 @@ C LONG NAMES OF 178 AVAILABLE NONAQUEOUS SOLVENTS
      $ 'diiodomethane',
      $ 'diisopropyl ether',
      $ 'dimethyl disulfide',
-     $ 'dimethyl sulfoxide',
+     $ 'dimethylsulfoxide',
      $ 'N,N-dimethylacetamide',
      $ 'cis-1,2-dimethylcyclohexane',
      $ 'N,N-dimethylformamide',
@@ -1712,21 +1715,8 @@ C
         ENDIF
        ENDDO
 C
-C       IF(MASWRK) THEN 
-C       WRITE(IW,9010) ZSOLMN,(SOLMN(I),' FOR ',
-C     $ SOLMNLONG(I),I=1,178),'WATER    FOR water'
-C       WRITE(IW,9011)   
-C       CALL ABRT
-C       ENDIF
+       ZSOLMNLONG='unknown'
 C
+       RETURN
 C
- 9010 FORMAT(/,'*** ERROR: NO DATA TABULATED FOR SOLVNT=',A8,/,/,
-     $ ' ALLOWED SOLVENT KEYWORDS WITH SMD=.TRUE. ARE:',/,
-     $  89(1X,2(A8,A,A35,1X),/),1X,A,/)
- 9011 FORMAT(
-     $ ' DATA FOR OTHER SOLVENTS CAN BE DIRECTLY INPUT USING ',/,
-     $ ' EPS, SOLA, SOLB, SOLC, SOLH, SOLG, AND SOLN PARAMETERS',/,
-     $ ' IN THE NAMELIST $PCM (SEE INSTRUCTIONS).',/)
-C
-      RETURN
       END 

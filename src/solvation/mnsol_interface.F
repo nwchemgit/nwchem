@@ -54,21 +54,22 @@ c
        c(2,iat) = dbl_mb(k_c+1+3*(iat-1))
        c(3,iat) = dbl_mb(k_c+2+3*(iat-1))
        ian(iat) = dbl_mb(k_z+iat-1)
-       if (ga_nodeid().eq.0)
-     &     write(luout,*) iat,ian(iat),c(1,iat),c(2,iat),c(3,iat)
+c       if (ga_nodeid().eq.0)
+c     &     write(luout,*) iat,ian(iat),c(1,iat),c(2,iat),c(3,iat)
       end do
 C
 C     call cavity dispersion solvent (CDS) structure driver
-      if (ga_nodeid().eq.0) write(luout,*) "calling cdsset"
+c      if (ga_nodeid().eq.0) write(luout,*) "calling cdsset"
       call cdsset(icds,gcds,areacds,nat,c,ian,dcds,x,
      &          sola,solb,solc,solg,solh,soln)
 C
 C     print out the output from CDSSET
 C
-      if (ga_nodeid().eq.0) write (luout,*) "GCDS: ", GCDS
-      if (ga_nodeid().eq.0) write (luout,*) "AREACDS: ", AREACDS
+c      if (ga_nodeid().eq.0) write (luout,*) "GCDS: ", GCDS
+c      if (ga_nodeid().eq.0) write (luout,*) "AREACDS: ", AREACDS
 c
 c     store non-electrostatic energy contribution from SMD model
+      gcds = gcds / 627.509451d+00
       if (.not. rtdb_put(rtdb,'cosmo:gcds',mt_dbl,1,gcds))
      $ call errquit('mnsol_interface: rtdb put failed',911,RTDB_ERR)
 c
@@ -79,6 +80,14 @@ c
 c     store gradients from SMD model 
       if (.not. rtdb_put(rtdb, 'cosmo:dcds', mt_dbl,3*nat,dcds))
      $ call errquit('mnsol_interface: rtdb put failed',911,RTDB_ERR)
+c < check
+c      if (ga_nodeid().eq.0) then
+c      write (6,*) 'GRADIENTSGRADIENTSGRADIENTSGRADIENTS'
+c      do iat = 1,nat
+c      write (6,*) iat,dcds(1,iat),dcds(2,iat),dcds(3,iat)
+c      enddo
+c      endif
+c > check 
 c
 c     release local memory
       if(.not.ma_pop_stack(l_atsym)) 

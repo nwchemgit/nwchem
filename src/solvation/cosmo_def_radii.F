@@ -22,7 +22,7 @@ c
       logical ostatus
       integer mxelm
       parameter(mxelm = 102)
-      double precision vander(mxelm)
+      double precision vander(mxelm),smdrad(mxelm)
       double precision rad
       integer l_coszan, k_coszan
       integer l_costag, k_costag
@@ -38,6 +38,13 @@ c
       character*2 symb
       character*16 elem
       integer atn
+c
+c MN solvation models -->
+C
+      logical do_cosmo_smd, status
+      double precision sola
+c
+c <-- MN solvation models
 C
 C     ----- van der waals radii in angstroms	-----
 C
@@ -111,6 +118,135 @@ c    1                  /1.45D+00,1.45D+00,1.50D+00,1.50D+00,
 c    2 1.50D+00,1.50D+00,1.70D+00,1.70D+00,1.70D+00,1.70D+00,
 c    3 2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,
 c    4 2.00D+00,19*0.0D+00/
+c
+c MN solvation models -->
+c
+      data (smdrad(iat),iat=1,mxelm) /
+     $ 1.20,         ! H  opt
+     $ 1.40,         ! He
+     $ 1.82,         ! Li
+     $ 1.53,         ! Be
+     $ 1.92,         ! B
+     $ 1.85,         ! C  opt
+     $ 1.89,         ! N  opt
+     $ 1.52,         ! O  opt
+     $ 1.73,         ! F  opt
+     $ 1.54,         ! Ne
+     $ 2.27,         ! Na
+     $ 1.73,         ! Mg
+     $ 1.84,         ! Al
+     $ 2.47,         ! Si opt
+     $ 2.12,         ! P  opt
+     $ 2.49,         ! S  opt
+     $ 2.38,         ! Cl opt
+     $ 1.88,         ! Ar
+     $ 2.75,         ! K
+     $ 2.31,         ! Ca
+     $ 2.16,         ! Sc
+     $ 1.87,         ! Ti
+     $ 1.79,         ! V
+     $ 1.89,         ! Cr
+     $ 1.97,         ! Mn
+     $ 1.94,         ! Fe
+     $ 1.92,         ! Co
+     $ 1.84,         ! Ni
+     $ 1.86,         ! Cu
+     $ 2.10,         ! Zn
+     $ 1.87,         ! Ga
+     $ 2.11,         ! Ge
+     $ 1.85,         ! As
+     $ 1.90,         ! Se
+     $ 3.06,         ! Br opt
+     $ 2.02,         ! Kr
+     $ 3.03,         ! Rb
+     $ 2.49,         ! Sr
+     $ 2.19,         ! Y
+     $ 1.86,         ! Zr
+     $ 2.07,         ! Nb
+     $ 2.09,         ! Mo
+     $ 2.09,         ! Tc
+     $ 2.07,         ! Ru
+     $ 1.95,         ! Rh
+     $ 2.02,         ! Pd
+     $ 2.03,         ! Ag
+     $ 2.30,         ! Cd
+     $ 1.93,         ! In
+     $ 2.17,         ! Sn
+     $ 2.06,         ! Sb
+     $ 2.06,         ! Te
+     $ 1.98,         ! I
+     $ 2.16,         ! Xe
+     $ 3.43,         ! Cs
+     $ 2.68,         ! Ba
+     $ 2.40,         ! La
+     $ 2.35,         ! Ce
+     $ 2.39,         ! Pr
+     $ 2.29,         ! Nd
+     $ 2.36,         ! Pm
+     $ 2.29,         ! Sm
+     $ 2.33,         ! Eu
+     $ 2.37,         ! Gd
+     $ 2.21,         ! Tb
+     $ 2.29,         ! Dy
+     $ 2.16,         ! Ho
+     $ 2.35,         ! Er
+     $ 2.27,         ! Tm
+     $ 2.42,         ! Yb
+     $ 2.21,         ! Lu
+     $ 2.12,         ! Hf
+     $ 2.17,         ! Ta
+     $ 2.10,         ! W
+     $ 2.17,         ! Re
+     $ 2.16,         ! Os
+     $ 2.02,         ! Ir
+     $ 2.09,         ! Pt
+     $ 2.17,         ! Au
+     $ 2.09,         ! Hg
+     $ 1.96,         ! Tl
+     $ 2.02,         ! Pb
+     $ 2.07,         ! Bi
+     $ 1.97,         ! Po
+     $ 2.02,         ! At
+     $ 2.20,         ! Rn
+     $ 3.48,         ! Fr
+     $ 2.83,         ! Ra
+     $ 2.60,         ! Ac
+     $ 2.37,         ! Th
+     $ 2.43,         ! Pa
+     $ 2.40,         ! U
+     $ 2.21,         ! Np
+     $ 2.43,         ! Pu
+     $ 2.44,         ! Am
+     $ 2.45,         ! Cm
+     $ 2.44,         ! Bk
+     $ 2.45,         ! Cf
+     $ 2.45,         ! Es
+     $ 2.45,         ! Fm
+     $ 2.46,         ! Md
+     $ 2.46/         ! No
+c
+      if (.not. 
+     $ rtdb_get(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $ call errquit(
+     $ 'cosmo_def_radii: cannot get do_cosmo_smd from rtdb',
+     $ 0,rtdb_err)
+      status = .false.
+      if (do_cosmo_smd) 
+     $ status = rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
+      if (.not.status) sola = -1.d0
+c     use SMD radii if do_cosmo_smd = .true.
+      if (do_cosmo_smd.and.sola.ge.0.D0) then      
+       if (sola.lt.0.43D0) then
+        smdrad(8)=1.52D0+1.80D0*(0.43D0-SOLA)
+       else
+        smdrad(8)=1.52D0
+       endif
+       do iat=1,mxelm
+        vander(iat)=smdrad(iat)
+       enddo 
+      endif
+c
+c <-- MN solvation models
 c
       if(rtdb_get_info(rtdb,'cosmo:crad',mtype,nmap,mdate)) then
         if(.not.rtdb_get(rtdb,'cosmo:crad',mt_dbl,nmap,crad))

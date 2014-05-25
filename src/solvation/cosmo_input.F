@@ -84,6 +84,8 @@ c
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
 c
+c MN solvation models -->
+c
       character*8 solvname_short ! short name of solvent
       character*35 solvname_long ! long name of solvent
 c
@@ -95,8 +97,27 @@ c
       double precision solc
       double precision solh
       double precision soln
+      double precision pol_cosmo_vem(2)
+      double precision polgs_cosmo_vem, poles_cosmo_vem
+c
+c     vem model parameters
+c
+      integer do_cosmo_vem
+      integer istep_cosmo_vem
+      logical do_cosmo_smd_false
+c
+c <-- MN solvation models
 c
 c     ----- defaults -----
+c     if solvent name is not given then we will use water solvent
+c     descriptors by default
+c
+c     if solvent name is given but it is not on the list of solvents
+c     then the program will be terminated unless all necessary solvent
+c     descriptors are found in the input file
+c
+c     if solvent name is valid then database solvent descriptors will be
+c     used which can be overridden by user-provided values
 c
       do_cosmo = .true.
       dielec   =78.4d+00
@@ -112,14 +133,36 @@ c
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
 c
+c MN solvation models -->
+c
 c     smd model defaults
 c
       do_cosmo_smd = .false.
-      sola = 0.d0
-      solb = 0.d0
-      solc = 0.d0
-      solh = 0.d0
-      soln = 0.d0
+      sola = -1.d0
+      solb = -1.d0
+      solc = -1.d0
+      solh = -1.d0
+      soln = -1.d0
+c
+c     vem model defaults
+c
+      do_cosmo_vem = 0
+      istep_cosmo_vem = 0
+      do_cosmo_smd_false = .false.
+      pol_cosmo_vem(1) = -99999.9d0
+      pol_cosmo_vem(2) = -99999.9d0
+c
+c     set do_cosmo_smd and do_cosmo_vem flags
+      if (.not. 
+     $ rtdb_put(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $ call errquit('cosmo_input: cannot put do_cosmo_smd in rtdb',
+     $ 0,rtdb_err)
+      if (.not.
+     $ rtdb_put(rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $ call errquit('cosmo_input: cannot put do_cosmo_vem in rtdb',
+     $ 0,rtdb_err)
+c
+c <-- MN solvation models
 c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
@@ -127,10 +170,6 @@ c
       do iat=1,nw_max_atom
          dbl_mb(k_rad+iat-1)=0.0d+00
       enddo
-c
-c     set cosmo_smd flag
-      if (.not. rtdb_put(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd))
-     $    call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
 c
 c     ----- read values from input -----
 c
@@ -152,6 +191,8 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
      $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
+c MN solvation models -->
+c
 c   --- dielecinf
 c
       else if(inp_compare(.false.,'dielecinf',field)) then
@@ -168,12 +209,46 @@ c
          if (.not.rtdb_cput(rtdb,'cosmo:solvent',1,solvname_short))
      $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
-c   --- cosmo_smd
+c   --- do_cosmo_vem
 c
-      else if(inp_compare(.false.,'cosmo_smd',field)) then
-       do_cosmo_smd = .true.
-       if (.not. rtdb_put(rtdb,'cosmo:smd',mt_log,1,do_cosmo_smd))
+      else if(inp_compare(.false.,'do_cosmo_vem',field)) then
+         if(.not. inp_i(do_cosmo_vem))
+     $        call errquit('cosmo_input: do_cosmo_vem',911, INPUT_ERR)
+         if (do_cosmo_vem.lt.0.or.do_cosmo_vem.gt.2) do_cosmo_vem = 0
+         if (.not. 
+     $      rtdb_put(rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- pol_cosmo_vem
+c
+      else if(inp_compare(.false.,'polgs_cosmo_vem',field)) then
+         if(.not. inp_f(polgs_cosmo_vem))
+     $        call errquit(
+     $ 'cosmo_input: polgs_cosmo_vem',911, INPUT_ERR)
+         pol_cosmo_vem(1) = polgs_cosmo_vem
+      else if(inp_compare(.false.,'poles_cosmo_vem',field)) then
+         if(.not. inp_f(poles_cosmo_vem))
+     $        call errquit(
+     $ 'cosmo_input: poles_cosmo_vem',911, INPUT_ERR)
+         pol_cosmo_vem(2) = poles_cosmo_vem
+         if (pol_cosmo_vem(1).lt.-9999.d0) 
+     $        call errquit(
+     $ 'cosmo_input: error in polgs_cosmo_vem',911,INPUT_ERR)
+         if (pol_cosmo_vem(2).lt.-9999.d0)
+     $        call errquit(
+     $ 'cosmo_input: error in poles_cosmo_vem',911,INPUT_ERR)
+         if (.not.
+     $      rtdb_put(rtdb,'cosmo:pol_cosmo_vem',mt_dbl,2,pol_cosmo_vem))
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- do_cosmo_smd
+c
+      else if(inp_compare(.false.,'do_cosmo_smd',field)) then
+         if (.not. inp_l(do_cosmo_smd)) do_cosmo_smd = .true.
+         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_smd',mt_log,1,
+     $    do_cosmo_smd))
      $    call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+         if (.not.do_cosmo_smd) do_cosmo_smd_false = .true.
 c
 c  --- smd definitions: sola,solb,solc,solg,solh,soln
 c
@@ -197,6 +272,8 @@ c
         status = inp_f(soln)
         if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
      $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c <-- MN solvation models
 c
 c   --- off  
 c
@@ -384,6 +461,25 @@ c
 c
       if(.not.ma_pop_stack(l_rad)) call
      &  errquit('cosmo_input, ma_pop_stack of l_rad failed',911,MA_ERR)
+c
+c MN solvation models -->
+c
+c if VEM is called and do_cosmo_smd above is not set explicitly 
+c to .false. then set do_cosmo_smd = .true. by default
+c
+      if (do_cosmo_vem.ne.0.and..not.do_cosmo_smd_false) then
+        do_cosmo_smd = .true.
+        if (.not. 
+     $ rtdb_put(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $  call errquit('cosmo_input: cannot put do_cosmo_smd in rtdb',
+     $  0,rtdb_err)
+      endif
+c
+      if (.not. rtdb_put(rtdb,'cosmo:istep_cosmo_vem',mt_int,1,0))
+     $ call errquit('cosmo_input: cannot put istep_cosmo_vem in rtdb',
+     $ 0,rtdb_err)
+c
+c <-- MN solvation models
 c
       return
       end
