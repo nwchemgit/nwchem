@@ -59,7 +59,7 @@ c     &     write(luout,*) iat,ian(iat),c(1,iat),c(2,iat),c(3,iat)
       end do
 C
 C     call cavity dispersion solvent (CDS) structure driver
-c      if (ga_nodeid().eq.0) write(luout,*) "calling cdsset"
+c     if (ga_nodeid().eq.0) write(luout,*) "calling cdsset"
       call cdsset(icds,gcds,areacds,nat,c,ian,dcds,x,
      &          sola,solb,solc,solg,solh,soln)
 C
@@ -80,14 +80,15 @@ c
 c     store gradients from SMD model 
       if (.not. rtdb_put(rtdb, 'cosmo:dcds', mt_dbl,3*nat,dcds))
      $ call errquit('mnsol_interface: rtdb put failed',911,RTDB_ERR)
-c < check
-c      if (ga_nodeid().eq.0) then
-c      write (6,*) 'GRADIENTSGRADIENTSGRADIENTSGRADIENTS'
-c      do iat = 1,nat
-c      write (6,*) iat,dcds(1,iat),dcds(2,iat),dcds(3,iat)
-c      enddo
-c      endif
-c > check 
+c
+c     print gradients
+c     if (ga_nodeid().eq.0) then
+c       write (6,*) 'GRADIENTSGRADIENTSGRADIENTSGRADIENTS'
+c       do iat = 1,nat
+c         write (6,*) iat,dcds(1,iat),dcds(2,iat),dcds(3,iat)
+c       enddo
+c       write (6,*) 'GRADIENTSGRADIENTSGRADIENTSGRADIENTS'
+c     endif
 c
 c     release local memory
       if(.not.ma_pop_stack(l_atsym)) 
