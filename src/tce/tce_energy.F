@@ -7732,7 +7732,8 @@ c -----------------------
      1          size_x1,size_x2,size_x3,size_x4,
      2          k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3          d_rx1,d_rx2,d_rx3,d_rx4,
-     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter)
+     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter,
+     +          eaccsd,ipccsd)
 #endif
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
@@ -9982,7 +9983,8 @@ c           call hbar_init
      1          size_x1,size_x2,size_x3,size_x4,
      2          k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3          d_rx1,d_rx2,d_rx3,d_rx4,
-     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter)
+     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter,
+     +          eaccsd,ipccsd)
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
               converged = .true.
@@ -10127,7 +10129,8 @@ c           call hbar_init
      1          size_x1,size_x2,size_x3,size_x4,
      2          k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3          d_rx1,d_rx2,d_rx3,d_rx4,
-     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter)
+     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter,
+     +          eaccsd,ipccsd)
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
               converged = .true.
@@ -10308,7 +10311,8 @@ c           call hbar_init
      1          size_x1,size_x2,size_x3,size_x4,
      2          k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3          d_rx1,d_rx2,d_rx3,d_rx4,
-     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter)
+     4          dbl_mb(k_omegax),dbl_mb(k_residual),k_hbar,iter,
+     +          eaccsd,ipccsd)
 	      cpu=cpu+util_cpusec()
 	      wall=wall+util_wallsec()
 	      converged = .true.
