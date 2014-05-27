@@ -1,3 +1,4 @@
+C$Id$
 #ifdef OFFLOAD_CODE
       SUBROUTINE offl0_ccsd_t_doubles_l_12(d_a,k_a_offset,
 #else
