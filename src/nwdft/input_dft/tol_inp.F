@@ -65,7 +65,7 @@ c
   200 if (.not. inp_f(tol_rho)) then
          write(LuOut,*)' tol_inp: tol_rho value not found; defaulting ',
      &             ' to 1.d-10 '
-         tol_rho=1.D-15
+         tol_rho=1.D-10
       endif            
       if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho))
      &   call errquit('tol_inp: rtdb_put failed', 200, RTDB_ERR)
