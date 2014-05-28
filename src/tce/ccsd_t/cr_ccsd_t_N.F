@@ -3776,7 +3776,7 @@ c
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,4,1,-1.0d0)
-      call sd_t_d2_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3788,7 +3788,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,4,1,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,1,5,4,-1.0d0)
-      call sd_t_d2_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3800,7 +3800,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,1,5,4,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,1,4,1.0d0)
-      call sd_t_d2_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3812,7 +3812,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,1,4,1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,4,1,1.0d0)
-      call sd_t_d2_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3824,7 +3824,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,4,1,1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,1,5,4,1.0d0)
-      call sd_t_d2_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3836,7 +3836,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,1,5,4,1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,1,4,-1.0d0)
-      call sd_t_d2_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3848,7 +3848,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,1,4,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,5,4,1,-1.0d0)
-      call sd_t_d2_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3860,7 +3860,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,5,4,1,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,1,5,4,-1.0d0)
-      call sd_t_d2_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3872,7 +3872,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,1,5,4,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,5,1,4,1.0d0)
-      call sd_t_d2_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -6456,3 +6456,262 @@ c
       return
       end
 c
+c
+c
+c
+c
+c
+c
+c
+      subroutine sd_t_d2cp_1(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h3d,h2d,h1d,p6d,p5d,p4d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p4=1,p4d
+      do p5=1,p5d
+      do p6=1,p6d
+      do h1=1,h1d
+      do h2=1,h2d
+      do h3=1,h3d
+      do p7=1,p7d
+       triplesx(h3,h2,h1,p6,p5,p4)=triplesx(h3,h2,h1,p6,p5,p4)
+     1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_2(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h2d,h1d,h3d,p6d,p5d,p4d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p4=1,p4d
+      do p5=1,p5d
+      do p6=1,p6d
+      do h3=1,h3d
+      do h1=1,h1d
+      do h2=1,h2d
+      do p7=1,p7d
+       triplesx(h2,h1,h3,p6,p5,p4)=triplesx(h2,h1,h3,p6,p5,p4)
+     1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_3(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h2d,h3d,h1d,p6d,p5d,p4d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p4=1,p4d
+      do p5=1,p5d
+      do p6=1,p6d
+      do h1=1,h1d
+      do h3=1,h3d
+      do h2=1,h2d
+      do p7=1,p7d
+       triplesx(h2,h3,h1,p6,p5,p4)=triplesx(h2,h3,h1,p6,p5,p4)
+     1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_4(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h3d,h2d,h1d,p6d,p4d,p5d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p5=1,p5d
+      do p4=1,p4d
+      do p6=1,p6d
+      do h1=1,h1d
+      do h2=1,h2d
+      do h3=1,h3d
+      do p7=1,p7d
+       triplesx(h3,h2,h1,p6,p4,p5)=triplesx(h3,h2,h1,p6,p4,p5)
+     1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_5(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h2d,h1d,h3d,p6d,p4d,p5d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p5=1,p5d
+      do p4=1,p4d
+      do p6=1,p6d
+      do h3=1,h3d
+      do h1=1,h1d
+      do h2=1,h2d
+      do p7=1,p7d
+       triplesx(h2,h1,h3,p6,p4,p5)=triplesx(h2,h1,h3,p6,p4,p5)
+     1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_6(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h2d,h3d,h1d,p6d,p4d,p5d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p5=1,p5d
+      do p4=1,p4d
+      do p6=1,p6d
+      do h1=1,h1d
+      do h3=1,h3d
+      do h2=1,h2d
+      do p7=1,p7d
+       triplesx(h2,h3,h1,p6,p4,p5)=triplesx(h2,h3,h1,p6,p4,p5)
+     1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_7(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h3d,h2d,h1d,p4d,p6d,p5d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p5=1,p5d
+      do p6=1,p6d
+      do p4=1,p4d
+      do h1=1,h1d
+      do h2=1,h2d
+      do h3=1,h3d
+      do p7=1,p7d
+       triplesx(h3,h2,h1,p4,p6,p5)=triplesx(h3,h2,h1,p4,p6,p5)
+     1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_8(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h2d,h1d,h3d,p4d,p6d,p5d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p5=1,p5d
+      do p6=1,p6d
+      do p4=1,p4d
+      do h3=1,h3d
+      do h1=1,h1d
+      do h2=1,h2d
+      do p7=1,p7d
+       triplesx(h2,h1,h3,p4,p6,p5)=triplesx(h2,h1,h3,p4,p6,p5)
+     1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+c
+      subroutine sd_t_d2cp_9(h3d,h2d,h1d,p6d,p5d,p4d,
+     1               p7d,
+     2               triplesx,t2sub,v2sub)
+      IMPLICIT NONE
+      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
+      integer h3,h2,h1,p6,p5,p4,p7
+      double precision triplesx(h2d,h3d,h1d,p4d,p6d,p5d)
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision v2sub(p7d,h3d,p6d,p5d)
+      do p5=1,p5d
+      do p6=1,p6d
+      do p4=1,p4d
+      do h1=1,h1d
+      do h3=1,h3d
+      do h2=1,h2d
+      do p7=1,p7d
+       triplesx(h2,h3,h1,p4,p6,p5)=triplesx(h2,h3,h1,p4,p6,p5)
+     1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
+      return
+      end
+
