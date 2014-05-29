@@ -3872,7 +3872,7 @@ ccx      END DO
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,4,1,-1.0d0)
-      call sd_t_d2_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3884,7 +3884,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,4,1,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,1,5,4,-1.0d0)
-      call sd_t_d2_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3896,7 +3896,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,1,5,4,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,1,4,1.0d0)
-      call sd_t_d2_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3908,7 +3908,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,3,2,5,1,4,1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,4,1,1.0d0)
-      call sd_t_d2_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3920,7 +3920,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,4,1,1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,1,5,4,1.0d0)
-      call sd_t_d2_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3932,7 +3932,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,1,5,4,1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,1,4,-1.0d0)
-      call sd_t_d2_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3944,7 +3944,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,6,2,5,1,4,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,5,4,1,-1.0d0)
-      call sd_t_d2_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3956,7 +3956,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,5,4,1,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,1,5,4,-1.0d0)
-      call sd_t_d2_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
@@ -3968,7 +3968,7 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,1,5,4,-1.0d0)
 ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
 ccx     &mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_mb(k_range+h2b-1),int_
 ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),3,2,6,5,1,4,1.0d0)
-      call sd_t_d2_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+      call sd_t_d2cp_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      3               int_mb(k_range+p12b-1),
