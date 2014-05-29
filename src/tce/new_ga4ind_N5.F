@@ -1029,7 +1029,8 @@ c
      1     size_loc,1,g_a)) then
          write(LuOut,*) ' available GA memory ',
      1        ga_memory_avail(),' bytes'
-         call errquit ('tce_gacreate: failed ga_create size=',size,
+         call errquit ('tce_gacreate: failed ga_create size/nproc bytes'
+     S      ,   (size*ma_sizeof(mt_dbl,1,mt_byte))/ga_nnodes(),
      1        GA_ERR)
       endif
       return
