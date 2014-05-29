@@ -3519,6 +3519,9 @@ C         CALL COPVEC(WORK(KVEC2),WORK(KVEC1),NVAR)
 *              Last modification, Feb. 1998 (reorder deg eigenvalues)
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION RHO1(NACOB,NACOB)
       DIMENSION ISTOB(*)
@@ -3557,7 +3560,7 @@ C         CALL COPVEC(WORK(KVEC2),WORK(KVEC1),NVAR)
            END DO
         END DO
 *
-        IF(NTEST.GE.2 ) THEN
+        IF(NTEST.GE.2.and.ga_nodeid().eq.0 ) THEN
           WRITE(6,*)
           WRITE(6,*) ' Density matrix for symmetry  = ', ISMOB
           WRITE(6,*) ' ======================================='
@@ -3597,7 +3600,7 @@ C         CALL COPVEC(WORK(KVEC2),WORK(KVEC1),NVAR)
           END IF
         END DO
 *
-        IF(NTEST.GE.1) THEN
+        IF(NTEST.GE.1.and.ga_nodeid().eq.0) THEN
           WRITE(6,*)
           WRITE(6,*) 
      &    ' Natural occupation numbers for symmetry = ', ISMOB
@@ -9875,18 +9878,6 @@ c.. dongxia added June 2013, transform AO ints to SCF MO ints
 c..
 c.. get reordered movecs and save to g_moreo
 c..
-      ioff_nw(1)=1
-      icount_nw(1)=0
-      do i=2,nirrep
-        ioff_nw(i) = ioff_nw(i-1)+ntoobs(i-1)
-        icount_nw(i) = 0
-      end do
-      do i=1,luciamo(1)
-        irs=ipnt_nw(kirs_nw(i))
-        icount_nw(irs)=icount_nw(irs)+1
-        ireord = ioff_nw(irs)+icount_nw(irs)-1
-        reord_nw(ireord)=i    
-      end do
 c
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
@@ -9897,8 +9888,11 @@ c
      &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
 c       call util_flush(6)
 c..  1-e integrals
+      CALL LUCIAQENTER('MO1')
       call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
+      CALL LUCIAQEXIT('MO1')
 c.. To write in LUCIA format
+      CALL LUCIAQENTER('MO1GA')
       if(ga_nodeid().eq.0)then
 c.. 1e ints
         ind1e=0
@@ -9920,6 +9914,7 @@ c.. add offset
       endif
       if(.not.ga_destroy(g_hcore)) call 
      &  errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
+      CALL LUCIAQENTER('MO1EXIT')
 c
 c..  2-e integrals
       noper = norbt*(norbt+1)/2
@@ -9934,10 +9929,13 @@ c
 c
 c Do four-index
 c
+      CALL LUCIAQENTER('MO2')
       call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,1,
      $     norbt,g_moreo,g_coul,.true.,g_exch,.false.,nwblen,.true.)
+      CALL LUCIAQEXIT('MO2')
   
 c.. To write in LUCIA format
+      CALL LUCIAQENTER('MO2GA')
       call ga_distribution(kint2,ga_nodeid(),ilo,ihi,idum,idum)
       if (ihi.gt.0) then
       call ga_access(kint2,ilo,ihi,1,1,kint2_l,idum)
@@ -10020,6 +10018,7 @@ c
       call ga_release(kint2,ilo,ihi,1,1)
       endif
       call ga_sync()
+      CALL LUCIAQEXIT('MO2GA')
 c
       if (.not.ma_chop_stack(lint_i)) call
      $   errquit('intim:chop_stack failed', lbuf, MA_ERR)
@@ -35942,6 +35941,9 @@ C       WRITE(6,*) ' Testy, I, J = ', I,J
       INCLUDE 'mxpdim.inc'
       INCLUDE 'orbinp.inc'
       INCLUDE 'cgas.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       DIMENSION RHO1(NACOB,NACOB), IREO_GS_TO_TS(NACOB)
 *. Output
@@ -35953,7 +35955,8 @@ C       WRITE(6,*) ' Testy, I, J = ', I,J
 *
       NTESTL = 0
       NTEST = MAX(NTESTL,IPRDEN)
-      IF(NTEST.GE.100) WRITE(6,*) ' Info from NATORB3_GS'
+      IF(NTEST.GE.100.and. ga_nodeid().eq.0) 
+     &   WRITE(6,*) ' Info from NATORB3_GS'
 *
 * Number of active orbitals per general symmetry
 *
@@ -35966,7 +35969,7 @@ C?       WRITE(6,*) ' IGENSM, IGAS, NGAS_GNSYM = ',
 C?   &                IGENSM, IGAS, NGAS_GNSYM(IGENSM,IGAS)
        END DO
       END DO
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Number of active orbitals per general sym '
         CALL IWRTMA3(NACOB_GS,1,NGENSMOB,1,NGENSMOB)
       END IF
@@ -35977,7 +35980,7 @@ C           REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
 C?    WRITE(6,*) ' IREO_GS_TO_TS: '
 C?    CALL IWRTMA3(IREO_GS_TO_TS,1,NACOB,1,NACOB)
       CALL REFORM_RHO1_TO_GNSM(RHO1,RHO1_GS,1,IREO_GS_TO_TS)
-      IF(NTEST.GE.2 ) THEN
+      IF(NTEST.GE.2.and.ga_nodeid().eq.0 ) THEN
         WRITE(6,*)
         WRITE(6,*) ' Density matrix over general symmetry blocks  '
         WRITE(6,*) ' ============================================='
@@ -35997,7 +36000,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
 *. It could be that degenerate occupations should be scaled
 *. to max diagonal elements
 *. interchange orbital IOB and IOB -1
-      IF(NTEST.GE.1) THEN
+      IF(NTEST.GE.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) 
      &  ' Natural occupation numbers for general symmetry '
@@ -36006,7 +36009,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
         WRITE(6,*)
         CALL PRINT_SCALAR_PER_ORB2(OCCNUM,NACOB_GS,NGENSMOB)
       END IF
-      IF(NTEST.GE.5 ) THEN
+      IF(NTEST.GE.5.and.ga_nodeid().eq.0 ) THEN
         WRITE(6,*)
         WRITE(6,*) ' Eigenvectors of natural orbitals(MO-MO) '
         WRITE(6,*)
